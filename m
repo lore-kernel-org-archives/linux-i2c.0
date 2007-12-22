@@ -1,14 +1,13 @@
 From: "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Request for driver-id for bq27350-i2c, TMP401-i2c,
-	PCA9552-i2c
-Date: Sat, 22 Dec 2007 12:30:50 +0100
-Message-ID: <W8CB7uBj.1198323049.9943830.khali@gcu-squad.org>
-References: <895730900BBE6943B639D089EC50B11419B1F9@bodega.neuropace.com>
+Subject: Re: [patch] i2c: announce SMBus host controllers
+Date: Sat, 22 Dec 2007 17:10:44 +0100
+Message-ID: <e3i3Vo4v.1198339842.7760000.khali@gcu-squad.org>
+References: <200712201801.28227.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <895730900BBE6943B639D089EC50B11419B1F9-ebt3Q5VmG/1zvADeOLLI2laTQe2KTcn/@public.gmane.org>
+In-Reply-To: <200712201801.28227.bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,21 +17,42 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: jramakrishnan-WFYV2PrdoUdl57MIdRCFDg@public.gmane.org
-Cc: John Harbold <jharbold-WFYV2PrdoUdl57MIdRCFDg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+To: bjorn.helgaas-VXdhtT5mjnY@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-Hi Janesh,
+Hi Bjorn,
 
-Le 20/12/2007, Janesh Ramakrishnan a =E9crit:
->Thanks for the input on the id, I wasn't aware that the i2c-id was optiona=
-l.
+Le 21/12/2007, Bjorn Helgaas a =E9crit:
+>Would you consider adding a patch like this to your i2c tree?
+>Unfortunately, I don't think I have hardware for any of these
+>devices, so all I have done is compiled this.
+>(...)
+>i2c: announce SMBus host controllers
+>
+>Note where we find SMBus host controllers and what resources they use.
 
-I thought that I had documented it but it seems not. It's done now:
+I like the idea. The information printed is somewhat redundant with
+/proc/ioports but sometimes it's useful to see the information in dmesg
+directly, and having a common string to grep for should be convenient as
+well. Just a couple comments:
 
-http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-id-document-opti=
-onal.patch
+* i2c-i810, i2c-prosavage, i2c-savage4 and i2c-voodoo3 are NOT SMBus host
+controller drivers. They do I2C/DDC over GPIO for graphics adapters. I
+don't think that you really need to know about the resources they use,
+they are not candidates for conflicts with ACPI / BIOS / whatever. And 3
+out of 4 are deprecated, so all in all they are probably just not worth
+modifying.
+
+* I think that you should make sure that the device has been successfully
+registered before you print the message, otherwise it might be
+confusing. I only looked at i2c-pasemi and scx200_acb and for both
+drivers you print the message at a point where a failure could still
+happen. Please double-check for all drivers, adjust as needed and
+resubmit.
+
+I can test the i2c-i801 driver now and i2c-viapro and i2c-piix4 later.
 
 --
 Jean Delvare
