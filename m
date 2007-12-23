@@ -1,40 +1,49 @@
-From: "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.24-rc5-git] add i2c_new_dummy() utility
-Date: Sun, 23 Dec 2007 10:03:07 +0100
-Message-ID: <R2xRR1Bh.1198400587.0896460.khali@gcu-squad.org>
-References: <200712222111.09471.david-b@pacbell.net>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 2.6.24-rc5-mm 3/3] gpiolib: obsolete drivers/i2c/chips/pca9539.c
+Date: Sun, 23 Dec 2007 10:32:02 -0800
+Message-ID: <200712231032.02438.david-b@pacbell.net>
+References: <f17812d70712142016q73abffc2w99174c40f847152c@mail.gmail.com> <20071219100101.26e10ab3@hyperion.delvare> <f17812d70712190132j31d22070rae986f2ed31d3634@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200712222111.09471.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org
-Cc: timtimred-f/KTTADhmRsdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756409AbXLWScU@vger.kernel.org>
+In-Reply-To: <f17812d70712190132j31d22070rae986f2ed31d3634@mail.gmail.com>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: eric miao <eric.y.miao@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, i2c@lm-sensors.org, bgardner@wabtec.com
 List-Id: linux-i2c@vger.kernel.org
 
 
-HI David,
+> From: eric miao <eric.miao@marvell.com>
+> Date: Wed, 19 Dec 2007 16:40:04 +0800
+> Subject: [PATCH] gpiolib: mark drivers/i2c/chips/pca9539.c as deprecated
+> 
+> use drivers/gpio/pca9539.c instead.
+> 
+> Signed-off-by: eric miao <eric.miao@marvell.com>
+> Acked-by: Ben Gardner <bgardner@wabtec.com>
+> Acked-by: Jean Delvare <khali@linux-fr.org>
+> ---
+>  Documentation/i2c/chips/pca9539 |    3 +++
+>  drivers/i2c/chips/Kconfig       |    7 +++++--
+>  2 files changed, 8 insertions(+), 2 deletions(-)
 
-Le 23/12/2007, David Brownell a =E9crit:
->This adds a i2c_new_dummy() primitive to help work with devices
->that consume multiple addresses, which include many I2C eeproms
->and at least one RTC.
+Yeah, this version looks unlikely to break anyone's systems.
+
+
+> @@ -75,6 +75,9 @@ config SENSORS_PCA9539
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called pca9539.
+> 
+> +	  This driver is deprecated and will be dropped soon. Use
+> +	  drivers/gpio/pca9539.c instead.
+> +
+>  config SENSORS_PCF8591
+>  	tristate "Philips PCF8591"
+>  	depends on EXPERIMENTAL
 >
->Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
->---
->Updated to match Jean's feedback.  Tested with 24c00 EEPROM,
->which takes eight addresses (but stores only 16 bytes total).
 
-Applied, thanks.
-
---
-Jean Delvare
+I suggest defining a date, such as "will be removed in the 2.6.26
+kernel", and adding it to Documentation/feature-removal-schedule.txt ...
