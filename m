@@ -1,9 +1,9 @@
 From: "Pls check this new site" <acro3451-OUTMr2mT/NapJuVttbx5JA@public.gmane.org>
-Subject: www.bankingplans.com
-Date: Mon, 31 Dec 2007 18:14 -0500
-Message-ID: <E1J9Ts6-0006kE-Dk@teufli.physik.fu-berlin.de>
+Subject: www.sueldos-online.com.ar
+Date: Tue, 1 Jan 2008 06:49 -0500
+Message-ID: <E1J9fes-0005C1-Bh@teufli.physik.fu-berlin.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0877335080686383277=="
+Content-Type: multipart/mixed; boundary="===============5410960755323074679=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -21,15 +21,15 @@ This is a multi-part message in MIME format.
 This message is in 2 versions: TXT and HTML
 You need a reader with MIME to read this message!
 
---===============0877335080686383277==
+--===============5410960755323074679==
 Content-Type: multipart/alternative;
-	boundary="--=_Mail_SendEasy_58uCTAP_78878_1199142866"
+	boundary="--=_Mail_SendEasy_eR3kTWo_15839_1199188181"
 
 This is a multi-part message in MIME format.
 This message is in 2 versions: TXT and HTML
 You need a reader with MIME to read this message!
 
-----=_Mail_SendEasy_58uCTAP_78878_1199142866
+----=_Mail_SendEasy_eR3kTWo_15839_1199188181
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
@@ -37,16 +37,16 @@ Content-Transfer-Encoding: quoted-printable
 =65=63=74
 
 
-----=_Mail_SendEasy_58uCTAP_78878_1199142866
+----=_Mail_SendEasy_eR3kTWo_15839_1199188181
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
 <=62>=50=6C=65=61=73=65 =73=65=65 =74=68=69=73 =73=69=74=65 =69=6E =53=75=
 =62=6A=65=63=74<=2F=62>
-----=_Mail_SendEasy_58uCTAP_78878_1199142866--
+----=_Mail_SendEasy_eR3kTWo_15839_1199188181--
 
 
---===============0877335080686383277==
+--===============5410960755323074679==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -56,4 +56,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============0877335080686383277==--
+--===============5410960755323074679==--
