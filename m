@@ -1,11 +1,14 @@
-From: Roberto Marino <formica-YbGCGrJzjEK4SyVuDWiTng@public.gmane.org>
-Subject: i2c-dev cross-compile error
-Date: Wed, 02 Jan 2008 16:35:05 +0000
-Message-ID: <1199291705.8789.9.camel@escher.metaverse>
+From: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
+Subject: Re: [patch] i2c: announce SMBus host controllers
+Date: Wed, 2 Jan 2008 16:35:04 -0700
+Message-ID: <200801021635.04702.bjorn.helgaas@hp.com>
+References: <e3i3Vo4v.1198339842.7760000.khali@gcu-squad.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <e3i3Vo4v.1198339842.7760000.khali-IO4AeUl/lkuWVfeAwA7xHQ@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,142 +18,52 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
-I've a problem with i2c-dev on arm.
-I'm trying to cross-compile i2c-dev example
-(Documentation/i2c/dev-interface) for arm passing these arguments to
-cross-compiler
+On Saturday 22 December 2007 09:10:44 am Jean Delvare wrote:
+> Le 21/12/2007, Bjorn Helgaas a =E9crit:
+> >Would you consider adding a patch like this to your i2c tree?
+> >Unfortunately, I don't think I have hardware for any of these
+> >devices, so all I have done is compiled this.
+> >(...)
+> >i2c: announce SMBus host controllers
+> >
+> >Note where we find SMBus host controllers and what resources they use.
+> ...
 
-arm-linux-gcc-3.4.1 -I/usr/local/arm/3.4.1/arm-linux/include -O2
-prova_max1363.c -o prova_max1363
+> * i2c-i810, i2c-prosavage, i2c-savage4 and i2c-voodoo3 are NOT SMBus host
+> controller drivers. They do I2C/DDC over GPIO for graphics adapters. I
+> don't think that you really need to know about the resources they use,
+> they are not candidates for conflicts with ACPI / BIOS / whatever. And 3
+> out of 4 are deprecated, so all in all they are probably just not worth
+> modifying.
 
-The error is this (too long to paste completely):
--------------------------
-In file included
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/sched.h:12,
+I removed the patches for these drivers.
 
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/module.h:10,
+> * I think that you should make sure that the device has been successfully
+> registered before you print the message, otherwise it might be
+> confusing. I only looked at i2c-pasemi and scx200_acb and for both
+> drivers you print the message at a point where a failure could still
+> happen. Please double-check for all drivers, adjust as needed and
+> resubmit.
 
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/i2c.h:31,
-                 from prova_max1363.c:1:
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/jiffies.h:16: error: parse error before "jiffies_64"
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/jiffies.h:20: error: parse error before "get_jiffies_64"
-In file included
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/sched.h:18,
+Take a look at i2c-ali1535.c.  I put the new printk in ali1535_setup(),
+which does PCI initialization, even though a failure could happen later
+in i2c_add_adapter().
 
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/module.h:10,
+I picked that because putting the new printk in ali1535_probe() would
+mean:
+  - the printk would be far removed from the request_region(), so it's
+    a little harder to be sure the "ali1535_smba + ALI1535_SMB_IOSIZE - 1"
+    expression matches,
+  - I wouldn't be able print the SMBREV value, and
+  - I'd have to add a temporary to check the return from
+    i2c_add_adapter() instead of just returning it directly,
 
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/i2c.h:31,
-                 from prova_max1363.c:1:
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h:18: error: parse error before "wait_queue_head_t"
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h: In function `sema_init':
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h:46: error: dereferencing pointer to incomplete type
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h:47: error: dereferencing pointer to incomplete type
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h:48: error: dereferencing pointer to incomplete type
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h: In function `sema_count':
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/semaphore.h:66: error: dereferencing pointer to incomplete type
-In file included
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/signal.h:4,
+I'd still be glad to change them if you prefer.  I just want to do
+them all the same (either all before or all after i2c_add_adapter()).
+Let me know your preference.
 
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/sched.h:25,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/module.h:10,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/i2c.h:31,
-                 from prova_max1363.c:1:
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/list.h:682:2: warning: #warning "don't include kernel headers in userspace"
-In file included
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm/siginfo.h:4,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/signal.h:7,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/sched.h:25,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/module.h:10,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/i2c.h:31,
-                 from prova_max1363.c:1:
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm-generic/siginfo.h: At top level:
-/usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/asm-generic/siginfo.h:58: error: size of array `_pad' is too large
-In file included
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/sched.h:29,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/module.h:10,
-
-from /usr/local/arm/3.4.1/lib/gcc/arm-linux/3.4.1/../../../../arm-linux/sys-include/linux/i2c.h:31,
-                 from prova_max1363.c:1:
------------------------------
-
-This is the source, any idea? :
-
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#define I2C_SLAVE 0x0703 /* Change slave address */ 
-
-
-int main(void)
-{
-        int file;
-        int adapter_nr = 0;
-        char filename[20];
-        int addr = 0x34;
-        char command[3];
-        char buf[3];
-
-        sprintf(filename,"/dev/i2c-%d", adapter_nr);
-
-        if ((file = open(filename,O_RDWR)) < 0) {
-                printf("Open error\n");
-                /* ERROR HANDLING; you can check errno to see what went
-wrong */
-                exit(1);
-        }
-
-        if (ioctl(file,I2C_SLAVE,addr) < 0) {
-                printf("ioctl error");
-                /* ERROR HANDLING; you can check errno to see what went
-wrong */
-                exit(1);
-        }
-
-        command[0] = addr;
-        buf[1] = 0x61;
-        buf[2] = 0xd0;
-        if ( write(file,buf,3) != 3) {
-                printf("Write error");
-        }
-        /* Using I2C Read, equivalent of i2c_smbus_read_byte(file) */
-        if (read(file,buf,2) != 2) {
-                /* ERROR HANDLING: i2c transaction failed */
-        } else {
-                /* buf[0] contains the read byte */
-                printf("%c, %c", buf[0],buf[1]);
-	}
-	return 0;
-}
-
-                                                                                                                                                                
-
-
-
-
-
-
--- 
-
-(o_     Roberto (aka formica) Marino
-//\     Computer Engineering Student
-V_/_    Free Software User - Me|Lug Member
-        keyID = 641AE37D on pgp.mit.edu
-
-Per favore non mandatemi allegati in Word o PowerPoint.
-Si veda http://www.gnu.org/philosophy/no-word-attachments.html
+Bjorn
