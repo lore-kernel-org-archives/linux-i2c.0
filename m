@@ -1,59 +1,40 @@
-From: "Pls check this new site" <acro3451-OUTMr2mT/NapJuVttbx5JA@public.gmane.org>
-Subject: www.sueldos-online.com.ar
-Date: Tue, 1 Jan 2008 06:49 -0500
-Message-ID: <E1J9fes-0005C1-Bh@teufli.physik.fu-berlin.de>
+From: "Dave Young" <hidave.darkstar@gmail.com>
+Subject: Re: [PATCH 04/12] i2c : Use mutex instead of semaphore in driver core
+Date: Wed, 2 Jan 2008 09:06:31 +0800
+Message-ID: <a8e1da0801011706m44b001eh25136032b901cc2d@mail.gmail.com>
+References: <20071229010751.GE2883@darkstar.te-china.tietoenator.com>
+	 <47763450.5010604@s5r6.in-berlin.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5410960755323074679=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759423AbYABBGm@vger.kernel.org>
+In-Reply-To: <47763450.5010604@s5r6.in-berlin.de>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
-This message is in 2 versions: TXT and HTML
-You need a reader with MIME to read this message!
+On Dec 29, 2007 7:49 PM, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> Dave Young wrote:
+> > --- linux/drivers/i2c/i2c-core.c      2007-12-28 10:06:58.000000000 +0800
+> > +++ linux.new/drivers/i2c/i2c-core.c  2007-12-28 10:08:58.000000000 +0800
+> > @@ -33,8 +33,8 @@
+> >  #include <linux/platform_device.h>
+> >  #include <linux/mutex.h>
+> >  #include <linux/completion.h>
+> > +#include <linux/mutex.h>
+> >  #include <asm/uaccess.h>
+> > -#include <asm/semaphore.h>
+>
+> 2x #include <linux/mutex.h>
 
---===============5410960755323074679==
-Content-Type: multipart/alternative;
-	boundary="--=_Mail_SendEasy_eR3kTWo_15839_1199188181"
+Thanks, my fault ;)
+This patch series need more lockdep works to be done. After that I
+will repost it.
 
-This is a multi-part message in MIME format.
-This message is in 2 versions: TXT and HTML
-You need a reader with MIME to read this message!
-
-----=_Mail_SendEasy_eR3kTWo_15839_1199188181
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-=50=6C=65=61=73=65 =73=65=65 =74=68=69=73 =73=69=74=65 =69=6E =53=75=62=6A=
-=65=63=74
-
-
-----=_Mail_SendEasy_eR3kTWo_15839_1199188181
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<=62>=50=6C=65=61=73=65 =73=65=65 =74=68=69=73 =73=69=74=65 =69=6E =53=75=
-=62=6A=65=63=74<=2F=62>
-----=_Mail_SendEasy_eR3kTWo_15839_1199188181--
-
-
---===============5410960755323074679==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5410960755323074679==--
+> --
+> Stefan Richter
+> -=====-=-=== ==-- ===-=
+> http://arcgraph.de/sr/
+>
