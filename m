@@ -1,69 +1,82 @@
-From: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
-Subject: Re: [patch] i2c: announce SMBus host controllers
-Date: Wed, 2 Jan 2008 16:35:04 -0700
-Message-ID: <200801021635.04702.bjorn.helgaas@hp.com>
-References: <e3i3Vo4v.1198339842.7760000.khali@gcu-squad.org>
+From: Dave Young <hidave.darkstar@gmail.com>
+Subject: [PATCH 0/7] convert semaphore to mutex in struct class
+Date: Thu, 3 Jan 2008 13:50:20 +0800
+Message-ID: <20080103055019.GA4885@darkstar.te-china.tietoenator.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <e3i3Vo4v.1198339842.7760000.khali-IO4AeUl/lkuWVfeAwA7xHQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757348AbYACFrJ@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de
+Cc: stern@rowland.harvard.edu, peterz@infradead.org, david-b@pacbell.net, davem@davemloft.net, jarkao2@gmail.com, krh@redhat.com, stefanr@s5r6.in-berlin.de, dbrownell@users.sourceforge.net, James.Bottomley@HansenPartnership.com, a.zummo@towertech.it, cbou@mail.ru, dwmw2@infradead.org, khali@linux-fr.org, i2c@lm-sensors.org, linux1394-devel@lists.sourceforge.net, spi-devel-general@lists.sourceforge.net, linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 22 December 2007 09:10:44 am Jean Delvare wrote:
-> Le 21/12/2007, Bjorn Helgaas a =E9crit:
-> >Would you consider adding a patch like this to your i2c tree?
-> >Unfortunately, I don't think I have hardware for any of these
-> >devices, so all I have done is compiled this.
-> >(...)
-> >i2c: announce SMBus host controllers
-> >
-> >Note where we find SMBus host controllers and what resources they use.
-> ...
+Convert semaphore to mutex in struct class.
+All the patches in this series should be applyed simultaneously
 
-> * i2c-i810, i2c-prosavage, i2c-savage4 and i2c-voodoo3 are NOT SMBus host
-> controller drivers. They do I2C/DDC over GPIO for graphics adapters. I
-> don't think that you really need to know about the resources they use,
-> they are not candidates for conflicts with ACPI / BIOS / whatever. And 3
-> out of 4 are deprecated, so all in all they are probably just not worth
-> modifying.
+toc:
+---
+1-driver-core-struct-class-convert-semaphore-to-mutex.patch
+2-i2c-struct-class-convert-semaphore-to-mutex.patch
+3-ieee1394-struct-class-convert-semaphore-to-mutex.patch
+4-power-struct-class-convert-semaphore-to-mutex.patch
+5-rtc-struct-class-convert-semaphore-to-mutex.patch
+6-scsi-struct-class-convert-semaphore-to-mutex.patch
+7-spi-struct-class-convert-semaphore-to-mutex.patch
 
-I removed the patches for these drivers.
+Summary diffstat:
+---
+drivers/base/class.c              |   22 ++++++++++----------
+drivers/base/core.c               |   13 +++++-------
+drivers/i2c/i2c-core.c            |    9 +++-----
+drivers/ieee1394/nodemgr.c        |   40 +++++++++++++++++++-------------------
+drivers/power/apm_power.c         |    6 ++---
+drivers/power/power_supply_core.c |    8 +++----
+drivers/rtc/interface.c           |    4 +--
+drivers/scsi/hosts.c              |    4 +--
+drivers/spi/spi.c                 |    4 +--
+include/linux/device.h            |    3 +-
+10 files changed, 56 insertions(+), 57 deletions(-)
 
-> * I think that you should make sure that the device has been successfully
-> registered before you print the message, otherwise it might be
-> confusing. I only looked at i2c-pasemi and scx200_acb and for both
-> drivers you print the message at a point where a failure could still
-> happen. Please double-check for all drivers, adjust as needed and
-> resubmit.
+One lockdep warning detected as following, thus use mutex_lock_nested with SINGLE_DEPTH_NESTING in class_device_add
 
-Take a look at i2c-ali1535.c.  I put the new printk in ali1535_setup(),
-which does PCI initialization, even though a failure could happen later
-in i2c_add_adapter().
+Jan  3 10:45:15 darkstar kernel: =============================================
+Jan  3 10:45:15 darkstar kernel: [ INFO: possible recursive locking detected ]
+Jan  3 10:45:15 darkstar kernel: 2.6.24-rc6-mm1-mutex #1
+Jan  3 10:45:15 darkstar kernel: ---------------------------------------------
+Jan  3 10:45:15 darkstar kernel: modprobe/2130 is trying to acquire lock:
+Jan  3 10:45:15 darkstar kernel:  (&cls->mutex){--..}, at: [<c02d4ee0>] class_device_add+0x140/0x240
+Jan  3 10:45:15 darkstar kernel:
+Jan  3 10:45:15 darkstar kernel: but task is already holding lock:
+Jan  3 10:45:15 darkstar kernel:  (&cls->mutex){--..}, at: [<c02d52c3>] class_interface_register+0x43/0xf0
+Jan  3 10:45:15 darkstar kernel:
+Jan  3 10:45:15 darkstar kernel: other info that might help us debug this:
+Jan  3 10:45:15 darkstar kernel: 1 lock held by modprobe/2130:
+Jan  3 10:45:15 darkstar kernel:  #0:  (&cls->mutex){--..}, at: [<c02d52c3>] class_interface_register+0x43/0xf0
+Jan  3 10:45:15 darkstar kernel:
+Jan  3 10:45:15 darkstar kernel: stack backtrace:
+Jan  3 10:45:15 darkstar kernel: Pid: 2130, comm: modprobe Not tainted 2.6.24-rc6-mm1-mutex #1
+Jan  3 10:45:15 darkstar kernel:  [<c0104d2a>] show_trace_log_lvl+0x1a/0x30
+Jan  3 10:45:15 darkstar kernel:  [<c0104d52>] show_trace+0x12/0x20
+Jan  3 10:45:15 darkstar kernel:  [<c0104ecd>] dump_stack+0x6d/0x80
+Jan  3 10:45:15 darkstar kernel:  [<c0152867>] print_deadlock_bug+0xc7/0xe0
+Jan  3 10:45:15 darkstar kernel:  [<c01528ec>] check_deadlock+0x6c/0x80
+Jan  3 10:45:15 darkstar kernel:  [<c0152d5c>] validate_chain+0x14c/0x370
+Jan  3 10:45:15 darkstar kernel:  [<c01548b0>] __lock_acquire+0x1c0/0x7e0
+Jan  3 10:45:15 darkstar kernel:  [<c0155599>] lock_acquire+0x79/0xb0
+Jan  3 10:45:15 darkstar kernel:  [<c04252cc>] mutex_lock_nested+0x8c/0x300
+Jan  3 10:45:15 darkstar kernel:  [<c02d4ee0>] class_device_add+0x140/0x240
+Jan  3 10:45:15 darkstar kernel:  [<c02d4ff2>] class_device_register+0x12/0x20
+Jan  3 10:45:15 darkstar kernel:  [<c02d509a>] class_device_create+0x9a/0xb0
+Jan  3 10:45:15 darkstar kernel:  [<f886225c>] sg_add+0x12c/0x200 [sg]
+Jan  3 10:45:15 darkstar kernel:  [<c02d5359>] class_interface_register+0xd9/0xf0
+Jan  3 10:45:15 darkstar kernel:  [<c031242f>] scsi_register_interface+0xf/0x20
+Jan  3 10:45:15 darkstar kernel:  [<f882b082>] init_sg+0x82/0xbc [sg]
+Jan  3 10:45:15 darkstar kernel:  [<c015e4fa>] sys_init_module+0xea/0x130
+Jan  3 10:45:15 darkstar kernel:  [<c0103f42>] syscall_call+0x7/0xb
+Jan  3 10:45:15 darkstar kernel:  =======================
 
-I picked that because putting the new printk in ali1535_probe() would
-mean:
-  - the printk would be far removed from the request_region(), so it's
-    a little harder to be sure the "ali1535_smba + ALI1535_SMB_IOSIZE - 1"
-    expression matches,
-  - I wouldn't be able print the SMBREV value, and
-  - I'd have to add a temporary to check the return from
-    i2c_add_adapter() instead of just returning it directly,
+If there's anything missed please help to point out, thanks.
 
-I'd still be glad to change them if you prefer.  I just want to do
-them all the same (either all before or all after i2c_add_adapter()).
-Let me know your preference.
-
-Bjorn
+Regards
+dave
