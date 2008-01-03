@@ -1,26 +1,63 @@
-From: Jarek Poplawski <jarkao2@gmail.com>
-Subject: Re: [PATCH 0/7] convert semaphore to mutex in struct class
-Date: Thu, 3 Jan 2008 08:41:32 +0100
-Message-ID: <20080103074132.GA2000@ff.dom.local>
-References: <20080103055019.GA4885@darkstar.te-china.tietoenator.com> <20080103070609.GA1677@ff.dom.local> <20080103072404.GB1677@ff.dom.local> <a8e1da0801022321u236d5f23ub6b5b8b61ebea505@mail.gmail.com>
+From: "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c-dev cross-compile error
+Date: Thu, 03 Jan 2008 10:33:02 +0100
+Message-ID: <9mPWYPe6.1199352781.3795110.khali@gcu-squad.org>
+References: <1199291705.8789.9.camel@escher.metaverse>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a8e1da0801022321u236d5f23ub6b5b8b61ebea505@mail.gmail.com>
-Sender: linux-scsi-owner@vger.kernel.org
-To: Dave Young <hidave.darkstar@gmail.com>
-Cc: gregkh@suse.de, stern@rowland.harvard.edu, peterz@infradead.org, david-b@pacbell.net, davem@davemloft.net, krh@redhat.com, stefanr@s5r6.in-berlin.de, dbrownell@users.sourceforge.net, James.Bottomley@hansenpartnership.com, a.zummo@towertech.it, cbou@mail.ru, dwmw2@infradead.org, khali@linux-fr.org, i2c@lm-sensors.org, linux1394-devel@lists.sourceforge.net, spi-devel-general@lists.sourceforge.net, linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <1199291705.8789.9.camel-KVB57GCTUpPyvZzR7rY+dg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: formica-YbGCGrJzjEK4SyVuDWiTng@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 03, 2008 at 03:21:36PM +0800, Dave Young wrote:
-...
-> I don't know if there's other possible warning places with this mutex
-> or not,  if you have any ideas about this, please tell me.
 
-I think lockdep is just to tell such things. So, the question is, how
-much it was tested already, because if there are many warnings
-reported e.g. after merging to -mm, then this could be better to re-do
-it this other way... But, I hope this will not be necessary.
+Hi Roberto,
 
-Jarek P.
+Le 2/1/2008, Roberto Marino a =E9crit:
+>I've a problem with i2c-dev on arm.
+>I'm trying to cross-compile i2c-dev example
+>(Documentation/i2c/dev-interface) for arm passing these arguments to
+>cross-compiler
+>
+>arm-linux-gcc-3.4.1 -I/usr/local/arm/3.4.1/arm-linux/include -O2
+>prova_max1363.c -o prova_max1363
+>
+>The error is this (too long to paste completely):
+>(...)
+>-----------------------------
+>
+>This is the source, any idea? :
+>
+>#include <linux/i2c.h>
+>#include <linux/i2c-dev.h>
+
+You are not supposed to include i2c.h from user-space. You should only
+include i2c-dev.h, and this should be the one that is shipped in the
+i2c-tools [1] package, NOT the one in the kernel tree.
+
+I know that this is error-prone (although it _is_ explained in the
+document you mentioned) and that's one thing I intend to fix in the
+course of year 2008.
+
+[1] http://www.lm-sensors.org/wiki/I2CTools
+
+>#include <stdio.h>
+>#include <stdlib.h>
+>#include <sys/types.h>
+>#include <sys/stat.h>
+>#include <fcntl.h>
+>(...)
+
+--
+Jean Delvare
