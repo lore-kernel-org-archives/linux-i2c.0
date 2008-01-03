@@ -1,13 +1,11 @@
-From: "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-dev cross-compile error
-Date: Thu, 03 Jan 2008 10:33:02 +0100
-Message-ID: <9mPWYPe6.1199352781.3795110.khali@gcu-squad.org>
-References: <1199291705.8789.9.camel@escher.metaverse>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Driver IDs are optional
+Date: Thu, 3 Jan 2008 17:57:31 +0100
+Message-ID: <20080103175731.5c04915f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1199291705.8789.9.camel-KVB57GCTUpPyvZzR7rY+dg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,47 +15,31 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: formica-YbGCGrJzjEK4SyVuDWiTng@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Janesh Ramakrishnan <jramakrishnan-WFYV2PrdoUdl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Document the fact that I2C driver IDs are optional.
 
-Hi Roberto,
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ include/linux/i2c-id.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-Le 2/1/2008, Roberto Marino a =E9crit:
->I've a problem with i2c-dev on arm.
->I'm trying to cross-compile i2c-dev example
->(Documentation/i2c/dev-interface) for arm passing these arguments to
->cross-compiler
->
->arm-linux-gcc-3.4.1 -I/usr/local/arm/3.4.1/arm-linux/include -O2
->prova_max1363.c -o prova_max1363
->
->The error is this (too long to paste completely):
->(...)
->-----------------------------
->
->This is the source, any idea? :
->
->#include <linux/i2c.h>
->#include <linux/i2c-dev.h>
+--- linux-2.6.24-rc6.orig/include/linux/i2c-id.h	2007-12-21 18:20:04.000000000 +0100
++++ linux-2.6.24-rc6/include/linux/i2c-id.h	2007-12-21 18:20:40.000000000 +0100
+@@ -23,6 +23,10 @@
+ #ifndef LINUX_I2C_ID_H
+ #define LINUX_I2C_ID_H
+ 
++/* Please note that I2C driver IDs are optional. They are only needed if a
++   legacy chip driver needs to identify a bus or a bus driver needs to
++   identify a legacy client. If you don't need them, just don't set them. */
++
+ /*
+  * ---- Driver types -----------------------------------------------------
+  */
 
-You are not supposed to include i2c.h from user-space. You should only
-include i2c-dev.h, and this should be the one that is shipped in the
-i2c-tools [1] package, NOT the one in the kernel tree.
 
-I know that this is error-prone (although it _is_ explained in the
-document you mentioned) and that's one thing I intend to fix in the
-course of year 2008.
-
-[1] http://www.lm-sensors.org/wiki/I2CTools
-
->#include <stdio.h>
->#include <stdlib.h>
->#include <sys/types.h>
->#include <sys/stat.h>
->#include <fcntl.h>
->(...)
-
---
+-- 
 Jean Delvare
