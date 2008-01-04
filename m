@@ -1,7 +1,7 @@
 From: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
-Subject: [patch 1/2] i2c: check for i2c_add_adapter() failures
-Date: Fri, 4 Jan 2008 13:37:54 -0700
-Message-ID: <200801041337.54913.bjorn.helgaas@hp.com>
+Subject: [patch 2/2] i2c: announce SMBus host controllers
+Date: Fri, 4 Jan 2008 13:38:39 -0700
+Message-ID: <200801041338.39470.bjorn.helgaas@hp.com>
 References: <200801041336.33058.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,401 +22,326 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Check for i2c_add_adapter() failure so we can release resources before the
-driver is unloaded.  I copied the strategy from i2c-ali1563.c.
+Note where we find SMBus host controllers and what resources they use.
+
+I tried to put these in the probe() methods just before returning success,
+but in some cases I put them in a setup() method instead to be closer to
+the request_resource() call.
 
 Signed-off-by: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
 
 ---
- drivers/i2c/busses/i2c-ali1535.c |   38 +++++++++++++++++++++++---------------
- drivers/i2c/busses/i2c-ali1563.c |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c |   26 +++++++++++++++++++-------
- drivers/i2c/busses/i2c-amd756.c  |    3 +--
- drivers/i2c/busses/i2c-amd8111.c |    1 +
- drivers/i2c/busses/i2c-i801.c    |    5 ++---
- drivers/i2c/busses/i2c-nforce2.c |    2 +-
- drivers/i2c/busses/i2c-pasemi.c  |    1 +
- drivers/i2c/busses/i2c-piix4.c   |    2 +-
- drivers/i2c/busses/i2c-sis5595.c |    1 +
- drivers/i2c/busses/i2c-sis630.c  |   24 ++++++++++++++++++------
- drivers/i2c/busses/i2c-sis96x.c  |   18 +++++++++++-------
- drivers/i2c/busses/i2c-viapro.c  |    3 ++-
- drivers/i2c/busses/scx200_acb.c  |    4 ++--
- 14 files changed, 84 insertions(+), 46 deletions(-)
+ drivers/i2c/busses/i2c-ali1535.c |    5 +++--
+ drivers/i2c/busses/i2c-ali1563.c |    5 +++--
+ drivers/i2c/busses/i2c-ali15x3.c |    6 ++++--
+ drivers/i2c/busses/i2c-amd756.c  |    5 +++--
+ drivers/i2c/busses/i2c-amd8111.c |    3 +++
+ drivers/i2c/busses/i2c-i801.c    |   10 +++++-----
+ drivers/i2c/busses/i2c-nforce2.c |    4 +++-
+ drivers/i2c/busses/i2c-pasemi.c  |    2 ++
+ drivers/i2c/busses/i2c-piix4.c   |   14 +++++++++-----
+ drivers/i2c/busses/i2c-sis5595.c |    4 +++-
+ drivers/i2c/busses/i2c-sis630.c  |    5 ++++-
+ drivers/i2c/busses/i2c-sis96x.c  |    4 ++--
+ drivers/i2c/busses/i2c-via.c     |    3 +++
+ drivers/i2c/busses/i2c-viapro.c  |    3 +++
+ drivers/i2c/busses/scx200_acb.c  |   13 +++++++++++--
+ 15 files changed, 61 insertions(+), 25 deletions(-)
 
 Index: work3/drivers/i2c/busses/i2c-ali1535.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-ali1535.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-ali1535.c	2008-01-04 13:25:01.000000000 -0700
-@@ -141,7 +141,6 @@
-    defined to make the transition easier. */
- static int ali1535_setup(struct pci_dev *dev)
- {
--	int retval = -ENODEV;
- 	unsigned char temp;
- 
- 	/* Check the following things:
-@@ -156,14 +155,14 @@
- 	if (ali1535_smba == 0) {
- 		dev_warn(&dev->dev,
- 			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
--		goto exit;
-+		return -ENODEV;
- 	}
- 
- 	if (!request_region(ali1535_smba, ALI1535_SMB_IOSIZE,
- 			    ali1535_driver.name)) {
- 		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
- 			ali1535_smba);
--		goto exit;
-+		return -ENODEV;
- 	}
- 
- 	/* check if whole device is enabled */
-@@ -193,14 +192,16 @@
+--- work3.orig/drivers/i2c/busses/i2c-ali1535.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-ali1535.c	2008-01-04 13:30:24.000000000 -0700
+@@ -190,8 +190,9 @@
+ 		dev_dbg(&dev->dev, "ALI1535 using Interrupt 9 for SMBus.\n");
+ 	*/
  	pci_read_config_byte(dev, SMBREV, &temp);
- 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
- 	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
--
--	retval = 0;
--exit:
--	return retval;
-+	return 0;
+-	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
++	dev_info(&dev->dev, "SMBus Host Controller rev 0x%x at ioports "
++		"0x%x-0x%x\n", temp, ali1535_smba,
++		ali1535_smba + ALI1535_SMB_IOSIZE - 1);
+ 	return 0;
  
  exit_free:
- 	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
--	return retval;
-+	return -ENODEV;
-+}
-+
-+static void ali1535_shutdown(struct pci_dev *dev)
-+{
-+	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
- }
- 
- static int ali1535_transaction(struct i2c_adapter *adap)
-@@ -488,24 +489,31 @@
- 
- static int __devinit ali1535_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
--	if (ali1535_setup(dev)) {
--		dev_warn(&dev->dev,
--			"ALI1535 not detected, module not inserted.\n");
--		return -ENODEV;
--	}
-+	int error;
-+
-+	if ((error = ali1535_setup(dev)))
-+		goto exit;
- 
- 	/* set up the sysfs linkage to our parent device */
- 	ali1535_adapter.dev.parent = &dev->dev;
- 
- 	snprintf(ali1535_adapter.name, sizeof(ali1535_adapter.name),
- 		"SMBus ALI1535 adapter at %04x", ali1535_smba);
--	return i2c_add_adapter(&ali1535_adapter);
-+	if ((error = i2c_add_adapter(&ali1535_adapter)))
-+		goto exit_shutdown;
-+	return 0;
-+
-+exit_shutdown:
-+	ali1535_shutdown(dev);
-+exit:
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", error);
-+	return error;
- }
- 
- static void __devexit ali1535_remove(struct pci_dev *dev)
- {
- 	i2c_del_adapter(&ali1535_adapter);
--	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
-+	ali1535_shutdown(dev);
- }
- 
- static struct pci_driver ali1535_driver = {
-Index: work3/drivers/i2c/busses/i2c-ali15x3.c
+Index: work3/drivers/i2c/busses/i2c-ali1563.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-ali15x3.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-ali15x3.c	2008-01-04 13:25:01.000000000 -0700
-@@ -225,6 +225,11 @@
+--- work3.orig/drivers/i2c/busses/i2c-ali1563.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-ali1563.c	2008-01-04 13:30:24.000000000 -0700
+@@ -351,9 +351,10 @@
+ 			ali1563_smba);
+ 		goto Err;
+ 	}
+-	dev_info(&dev->dev, "Found ALi1563 SMBus at 0x%04x\n", ali1563_smba);
+-
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		ali1563_smba, ali1563_smba + ALI1563_SMB_IOSIZE - 1);
+ 	return 0;
++
+ Err:
  	return -ENODEV;
  }
+Index: work3/drivers/i2c/busses/i2c-ali15x3.c
+===================================================================
+--- work3.orig/drivers/i2c/busses/i2c-ali15x3.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-ali15x3.c	2008-01-04 13:30:24.000000000 -0700
+@@ -216,10 +216,12 @@
+ 		dev_dbg(&ALI15X3_dev->dev, "ALI15X3 using Interrupt 9 for SMBus.\n");
+ 	*/
+ 	pci_read_config_byte(ALI15X3_dev, SMBREV, &temp);
+-	dev_dbg(&ALI15X3_dev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&ALI15X3_dev->dev, "iALI15X3_smba = 0x%X\n", ali15x3_smba);
  
-+static void ali15x3_shutdown(struct pci_dev *dev)
-+{
-+	release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
-+}
++	dev_info(&ALI15X3_dev->dev, "SMBus Host Controller rev 0x%x at ioports "
++		"0x%x-0x%x\n", temp,
++		ali15x3_smba, ali15x3_smba + ALI15X3_SMB_IOSIZE - 1);
+ 	return 0;
 +
- /* Another internally used function */
- static int ali15x3_transaction(struct i2c_adapter *adap)
- {
-@@ -483,24 +488,31 @@
- 
- static int __devinit ali15x3_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
--	if (ali15x3_setup(dev)) {
--		dev_err(&dev->dev,
--			"ALI15X3 not detected, module not inserted.\n");
--		return -ENODEV;
--	}
-+	int error;
-+
-+	if ((error = ali15x3_setup(dev)))
-+		goto exit;
- 
- 	/* set up the sysfs linkage to our parent device */
- 	ali15x3_adapter.dev.parent = &dev->dev;
- 
- 	snprintf(ali15x3_adapter.name, sizeof(ali15x3_adapter.name),
- 		"SMBus ALI15X3 adapter at %04x", ali15x3_smba);
--	return i2c_add_adapter(&ali15x3_adapter);
-+	if ((error = i2c_add_adapter(&ali15x3_adapter)))
-+		goto exit_shutdown;
-+	return 0;
-+
-+exit_shutdown:
-+	ali15x3_shutdown(dev);
-+exit:
-+	dev_warn(&dev->dev, "SMBus probe failed (%d)\n", error);
-+	return error;
- }
- 
- static void __devexit ali15x3_remove(struct pci_dev *dev)
- {
- 	i2c_del_adapter(&ali15x3_adapter);
--	release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
-+	ali15x3_shutdown(dev);
- }
- 
- static struct pci_driver ali15x3_driver = {
+ error:
+ 	release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
+ 	return -ENODEV;
 Index: work3/drivers/i2c/busses/i2c-amd756.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-amd756.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-amd756.c	2008-01-04 13:25:01.000000000 -0700
-@@ -382,8 +382,7 @@
+--- work3.orig/drivers/i2c/busses/i2c-amd756.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-amd756.c	2008-01-04 13:30:24.000000000 -0700
+@@ -371,8 +371,6 @@
+ 	}
  
- 	error = i2c_add_adapter(&amd756_smbus);
- 	if (error) {
--		dev_err(&pdev->dev,
--			"Adapter registration failed, module not inserted\n");
-+		dev_err(&pdev->dev, "SMBus probe failed (%d)\n", error);
+ 	pci_read_config_byte(pdev, SMBREV, &temp);
+-	dev_dbg(&pdev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&pdev->dev, "AMD756_smba = 0x%X\n", amd756_ioport);
+ 
+ 	/* set up the sysfs linkage to our parent device */
+ 	amd756_smbus.dev.parent = &pdev->dev;
+@@ -386,6 +384,9 @@
  		goto out_err;
  	}
  
++	dev_info(&pdev->dev, "SMBus Host Controller rev 0x%x at ioports "
++		"0x%x-0x%x\n", temp, amd756_ioport,
++		amd756_ioport + SMB_IOSIZE - 1);
+ 	return 0;
+ 
+  out_err:
 Index: work3/drivers/i2c/busses/i2c-amd8111.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-amd8111.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-amd8111.c	2008-01-04 13:25:01.000000000 -0700
-@@ -387,6 +387,7 @@
- 	release_region(smbus->base, smbus->size);
-  out_kfree:
- 	kfree(smbus);
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", error);
- 	return error;
- }
+--- work3.orig/drivers/i2c/busses/i2c-amd8111.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-amd8111.c	2008-01-04 13:30:24.000000000 -0700
+@@ -381,6 +381,9 @@
+ 		goto out_release_region;
  
+ 	pci_set_drvdata(dev, smbus);
++
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		smbus->base, smbus->base + smbus->size - 1);
+ 	return 0;
+ 
+  out_release_region:
 Index: work3/drivers/i2c/busses/i2c-i801.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-i801.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-i801.c	2008-01-04 13:25:01.000000000 -0700
-@@ -616,15 +616,14 @@
- 	snprintf(i801_adapter.name, sizeof(i801_adapter.name),
- 		"SMBus I801 adapter at %04lx", i801_smba);
+--- work3.orig/drivers/i2c/busses/i2c-i801.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-i801.c	2008-01-04 13:30:24.000000000 -0700
+@@ -605,11 +605,6 @@
+ 	}
+ 	pci_write_config_byte(I801_dev, SMBHSTCFG, temp);
+ 
+-	if (temp & SMBHSTCFG_SMB_SMI_EN)
+-		dev_dbg(&dev->dev, "SMBus using interrupt SMI#\n");
+-	else
+-		dev_dbg(&dev->dev, "SMBus using PCI Interrupt\n");
+-
+ 	/* set up the sysfs linkage to our parent device */
+ 	i801_adapter.dev.parent = &dev->dev;
+ 
+@@ -618,6 +613,11 @@
  	err = i2c_add_adapter(&i801_adapter);
--	if (err) {
--		dev_err(&dev->dev, "Failed to add SMBus adapter\n");
-+	if (err)
+ 	if (err)
  		goto exit_release;
--	}
++
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%lx-0x%lx "
++		"using %s\n", i801_smba,
++		(unsigned long) (i801_smba + pci_resource_len(dev, SMBBAR) - 1),
++		temp & SMBHSTCFG_SMB_SMI_EN ? "SMI#" : "PCI interrupt");
  	return 0;
  
  exit_release:
- 	pci_release_region(dev, SMBBAR);
- exit:
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", err);
- 	return err;
- }
- 
 Index: work3/drivers/i2c/busses/i2c-nforce2.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-nforce2.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-nforce2.c	2008-01-04 13:27:56.000000000 -0700
-@@ -331,7 +331,7 @@
- 
- 	error = i2c_add_adapter(&smbus->adapter);
- 	if (error) {
--		dev_err(&smbus->adapter.dev, "Failed to register adapter.\n");
-+		dev_err(&smbus->adapter.dev, "SMBus probe failed (%d)\n", error);
+--- work3.orig/drivers/i2c/busses/i2c-nforce2.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-nforce2.c	2008-01-04 13:30:24.000000000 -0700
+@@ -335,7 +335,9 @@
  		release_region(smbus->base, smbus->size);
  		return -1;
  	}
+-	dev_info(&smbus->adapter.dev, "nForce2 SMBus adapter at %#x\n", smbus->base);
++
++	dev_info(&smbus->adapter.dev, "SMBus Host Controller at ioports "
++		"0x%x-0x%x\n", smbus->base, smbus->base+smbus->size-1);
+ 	return 0;
+ }
+ 
 Index: work3/drivers/i2c/busses/i2c-pasemi.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-pasemi.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-pasemi.c	2008-01-04 13:25:01.000000000 -0700
-@@ -382,6 +382,7 @@
- 	release_region(smbus->base, smbus->size);
-  out_kfree:
- 	kfree(smbus);
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", error);
- 	return error;
- }
+--- work3.orig/drivers/i2c/busses/i2c-pasemi.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-pasemi.c	2008-01-04 13:30:24.000000000 -0700
+@@ -376,6 +376,8 @@
  
+ 	pci_set_drvdata(dev, smbus);
+ 
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		smbus->base, smbus->base + smbus->size - 1);
+ 	return 0;
+ 
+  out_release_region:
 Index: work3/drivers/i2c/busses/i2c-piix4.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-piix4.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-piix4.c	2008-01-04 13:25:01.000000000 -0700
-@@ -432,7 +432,7 @@
- 		"SMBus PIIX4 adapter at %04x", piix4_smba);
+--- work3.orig/drivers/i2c/busses/i2c-piix4.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-piix4.c	2008-01-04 13:30:24.000000000 -0700
+@@ -120,6 +120,7 @@
+ 				const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
++	char *interrupt_config;
  
- 	if ((retval = i2c_add_adapter(&piix4_adapter))) {
--		dev_err(&dev->dev, "Couldn't register adapter!\n");
-+		dev_err(&dev->dev, "SMBus probe failed (%d)\n", retval);
- 		release_region(piix4_smba, SMBIOSIZE);
- 		piix4_smba = 0;
+ 	/* match up the function */
+ 	if (PCI_FUNC(PIIX4_dev->devfn) != id->driver_data)
+@@ -192,17 +193,20 @@
  	}
+ 
+ 	if (((temp & 0x0E) == 8) || ((temp & 0x0E) == 2))
+-		dev_dbg(&PIIX4_dev->dev, "Using Interrupt 9 for SMBus.\n");
++		interrupt_config = "interrupt 9";
+ 	else if ((temp & 0x0E) == 0)
+-		dev_dbg(&PIIX4_dev->dev, "Using Interrupt SMI# for SMBus.\n");
+-	else
++		interrupt_config = "SMI#";
++	else {
++		interrupt_config = "illegal interrupt configuration";
+ 		dev_err(&PIIX4_dev->dev, "Illegal Interrupt configuration "
+ 			"(or code out of date)!\n");
++	}
+ 
+ 	pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
+-	dev_dbg(&PIIX4_dev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&PIIX4_dev->dev, "SMBA = 0x%X\n", piix4_smba);
+ 
++	dev_info(&PIIX4_dev->dev, "SMBus Host Controller rev 0x%x at ioports "
++		"0x%x-0x%x using %s\n", temp,
++		piix4_smba, piix4_smba + SMBIOSIZE - 1, interrupt_config);
+ 	return 0;
+ }
+ 
 Index: work3/drivers/i2c/busses/i2c-sis5595.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-sis5595.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-sis5595.c	2008-01-04 13:25:01.000000000 -0700
-@@ -395,6 +395,7 @@
- 	err = i2c_add_adapter(&sis5595_adapter);
- 	if (err) {
- 		release_region(sis5595_base + SMB_INDEX, 2);
-+		dev_err(&dev->dev, "SMBus probe failed (%d)\n", err);
- 		return err;
+--- work3.orig/drivers/i2c/busses/i2c-sis5595.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-sis5595.c	2008-01-04 13:30:24.000000000 -0700
+@@ -214,7 +214,9 @@
+ 		}
  	}
  
+-	/* Everything is happy */
++	dev_info(&SIS5595_dev->dev, "SMBus Host Controller at ioports "
++		"0x%x-0x%x\n", sis5595_base + SMB_INDEX,
++		sis5595_base + SMB_INDEX + 2 - 1);
+ 	return 0;
+ 
+ error:
 Index: work3/drivers/i2c/busses/i2c-sis630.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-sis630.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-sis630.c	2008-01-04 13:25:01.000000000 -0700
-@@ -449,6 +449,10 @@
- 	return retval;
- }
- 
-+static void sis630_shutdown(struct pci_dev *dev)
-+{
-+	release_region(acpi_base + SMB_STS, SIS630_SMB_IOREGION);
-+}
- 
- static const struct i2c_algorithm smbus_algorithm = {
- 	.smbus_xfer	= sis630_access,
-@@ -472,10 +476,10 @@
- 
- static int __devinit sis630_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
--	if (sis630_setup(dev)) {
--		dev_err(&dev->dev, "SIS630 comp. bus not detected, module not inserted.\n");
--		return -ENODEV;
--	}
-+	int error;
-+
-+	if ((error = sis630_setup(dev)))
-+		goto exit;
- 
- 	/* set up the sysfs linkage to our parent device */
- 	sis630_adapter.dev.parent = &dev->dev;
-@@ -483,14 +487,22 @@
- 	sprintf(sis630_adapter.name, "SMBus SIS630 adapter at %04x",
- 		acpi_base + SMB_STS);
- 
--	return i2c_add_adapter(&sis630_adapter);
-+	if ((error = i2c_add_adapter(&sis630_adapter)))
-+		goto exit_shutdown;
-+	return 0;
-+
-+exit_shutdown:
-+	sis630_shutdown(dev);
-+exit:
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", error);
-+	return error;
- }
- 
- static void __devexit sis630_remove(struct pci_dev *dev)
- {
- 	if (acpi_base) {
- 		i2c_del_adapter(&sis630_adapter);
--		release_region(acpi_base + SMB_STS, SIS630_SMB_IOREGION);
-+		sis630_shutdown(dev);
- 		acpi_base = 0;
+--- work3.orig/drivers/i2c/busses/i2c-sis630.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-sis630.c	2008-01-04 13:30:24.000000000 -0700
+@@ -441,7 +441,10 @@
+ 		goto exit;
  	}
- }
+ 
+-	retval = 0;
++	dev_info(&sis630_dev->dev, "SMBus Host Controller at ioports "
++		"0x%x-0x%x\n", acpi_base + SMB_STS,
++		acpi_base + SMB_STS + SIS630_SMB_IOREGION - 1);
++	return 0;
+ 
+ exit:
+ 	if (retval)
 Index: work3/drivers/i2c/busses/i2c-sis96x.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-sis96x.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-sis96x.c	2008-01-04 13:25:01.000000000 -0700
-@@ -293,8 +293,8 @@
- 			"already in use!\n", sis96x_smbus_base,
- 			sis96x_smbus_base + SMB_IOSIZE - 1);
- 
--		sis96x_smbus_base = 0;
--		return -EINVAL;
-+		retval = -EINVAL;
-+		goto exit;
+--- work3.orig/drivers/i2c/busses/i2c-sis96x.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-sis96x.c	2008-01-04 13:30:24.000000000 -0700
+@@ -283,8 +283,6 @@
+ 			"not initialized!\n");
+ 		return -EINVAL;
  	}
+-	dev_info(&dev->dev, "SiS96x SMBus base address: 0x%04x\n",
+-			sis96x_smbus_base);
  
- 	/* set up the sysfs linkage to our parent device */
-@@ -303,12 +303,16 @@
- 	snprintf(sis96x_adapter.name, sizeof(sis96x_adapter.name),
- 		"SiS96x SMBus adapter at 0x%04x", sis96x_smbus_base);
+ 	/* Everything is happy, let's grab the memory and set things up. */
+ 	if (!request_region(sis96x_smbus_base, SMB_IOSIZE,
+@@ -306,6 +304,8 @@
+ 	if ((retval = i2c_add_adapter(&sis96x_adapter)))
+ 		goto exit_release;
  
--	if ((retval = i2c_add_adapter(&sis96x_adapter))) {
--		dev_err(&dev->dev, "Couldn't register adapter!\n");
--		release_region(sis96x_smbus_base, SMB_IOSIZE);
--		sis96x_smbus_base = 0;
--	}
-+	if ((retval = i2c_add_adapter(&sis96x_adapter)))
-+		goto exit_release;
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		sis96x_smbus_base, sis96x_smbus_base + SMB_IOSIZE - 1);
+ 	return 0;
+ 
+ exit_release:
+Index: work3/drivers/i2c/busses/i2c-via.c
+===================================================================
+--- work3.orig/drivers/i2c/busses/i2c-via.c	2008-01-04 13:29:37.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-via.c	2008-01-04 13:30:24.000000000 -0700
+@@ -147,6 +147,9 @@
+ 		pm_io_base = 0;
+ 		return res;
+ 	}
 +
-+	return 0;
- 
-+exit_release:
-+	release_region(sis96x_smbus_base, SMB_IOSIZE);
-+exit:
-+	sis96x_smbus_base = 0;
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", retval);
- 	return retval;
++	dev_info(&dev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		I2C_DIR, I2C_DIR + IOSPACE - 1);
+ 	return 0;
  }
  
 Index: work3/drivers/i2c/busses/i2c-viapro.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/i2c-viapro.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-viapro.c	2008-01-04 13:25:01.000000000 -0700
-@@ -407,7 +407,8 @@
- 		 "SMBus Via Pro adapter at %04x", vt596_smba);
- 
- 	vt596_pdev = pci_dev_get(pdev);
--	if (i2c_add_adapter(&vt596_adapter)) {
-+	if ((error = i2c_add_adapter(&vt596_adapter))) {
-+		dev_err(&pdev->dev, "SMBus probe failed (%d)\n", error);
- 		pci_dev_put(vt596_pdev);
+--- work3.orig/drivers/i2c/busses/i2c-viapro.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/i2c-viapro.c	2008-01-04 13:30:24.000000000 -0700
+@@ -413,6 +413,9 @@
  		vt596_pdev = NULL;
  	}
+ 
++	dev_info(&pdev->dev, "SMBus Host Controller at ioports 0x%x-0x%x\n",
++		vt596_smba, vt596_smba + 8 - 1);
++
+ 	/* Always return failure here.  This is to allow other drivers to bind
+ 	 * to this pci device.  We don't really want to have control over the
+ 	 * pci device, we only wanted to read as few register values from it.
 Index: work3/drivers/i2c/busses/scx200_acb.c
 ===================================================================
---- work3.orig/drivers/i2c/busses/scx200_acb.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/scx200_acb.c	2008-01-04 13:26:55.000000000 -0700
-@@ -465,8 +465,8 @@
+--- work3.orig/drivers/i2c/busses/scx200_acb.c	2008-01-04 13:30:02.000000000 -0700
++++ work3/drivers/i2c/busses/scx200_acb.c	2008-01-04 13:30:24.000000000 -0700
+@@ -506,8 +506,14 @@
+ 	iface->base = pci_resource_start(iface->pdev, iface->bar);
+ 	rc = scx200_acb_create(iface);
  
- 	scx200_acb_reset(iface);
+-	if (rc == 0)
++	if (rc == 0) {
++		dev_info(&pdev->dev, "SMBus Host Controller at ioports "
++			"0x%x-0x%x\n", iface->base,
++			iface->base +
++				pci_resource_len(iface->pdev, iface->bar) - 1);
++
+ 		return 0;
++	}
  
--	if (i2c_add_adapter(adapter) < 0) {
--		printk(KERN_ERR NAME ": failed to register\n");
-+	if ((rc = i2c_add_adapter(adapter))) {
-+		printk(KERN_ERR NAME " SMBus probe failed (%d)\n", rc);
- 		return -ENODEV;
- 	}
+ 	pci_release_region(iface->pdev, iface->bar);
+ 	pci_dev_put(iface->pdev);
+@@ -537,8 +543,11 @@
+ 	iface->base = base;
+ 	rc = scx200_acb_create(iface);
  
-Index: work3/drivers/i2c/busses/i2c-ali1563.c
-===================================================================
---- work3.orig/drivers/i2c/busses/i2c-ali1563.c	2008-01-04 11:44:46.000000000 -0700
-+++ work3/drivers/i2c/busses/i2c-ali1563.c	2008-01-04 13:25:01.000000000 -0700
-@@ -392,7 +392,7 @@
- exit_shutdown:
- 	ali1563_shutdown(dev);
- exit:
--	dev_warn(&dev->dev, "ALi1563 SMBus probe failed (%d)\n", error);
-+	dev_err(&dev->dev, "SMBus probe failed (%d)\n", error);
- 	return error;
- }
+-	if (rc == 0)
++	if (rc == 0) {
++		printk(KERN_INFO NAME ": ISA SMBus Host Controller at ioports "
++			"0x%x-0x%x\n", iface->base, iface->base + 8 - 1);
+ 		return 0;
++	}
+ 
+ 	release_region(base, 8);
+  errout_free:
