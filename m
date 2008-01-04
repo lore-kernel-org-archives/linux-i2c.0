@@ -1,14 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch] i2c: announce SMBus host controllers
-Date: Fri, 4 Jan 2008 18:44:11 +0100
-Message-ID: <20080104184411.142fd0b2@hyperion.delvare>
-References: <e3i3Vo4v.1198339842.7760000.khali@gcu-squad.org>
-	<200801021635.04702.bjorn.helgaas@hp.com>
+Subject: Re: [PATCH 0/2] Add support for the S-35390A RTC chip.
+Date: Fri, 4 Jan 2008 19:36:21 +0100
+Message-ID: <20080104193621.1067b885@hyperion.delvare>
+References: <1197751376-9767-1-git-send-email-byron.bbradley@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200801021635.04702.bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
+In-Reply-To: <1197751376-9767-1-git-send-email-byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,45 +17,32 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, repvik-ifZ3rLY3rVnQT0dZR+AlfA@public.gmane.org, hvr-mXXj517/zsQ@public.gmane.org, david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, timtimred-f/KTTADhmRsdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bjorn,
+Hi Byron,
 
-On Wed, 2 Jan 2008 16:35:04 -0700, Bjorn Helgaas wrote:
-> On Saturday 22 December 2007 09:10:44 am Jean Delvare wrote:
-> > * I think that you should make sure that the device has been successfully
-> > registered before you print the message, otherwise it might be
-> > confusing. I only looked at i2c-pasemi and scx200_acb and for both
-> > drivers you print the message at a point where a failure could still
-> > happen. Please double-check for all drivers, adjust as needed and
-> > resubmit.
+On Sat, 15 Dec 2007 20:42:54 +0000, Byron Bradley wrote:
+> These patches provide support the S-35390A RTC chip as used in the
+> QNAP TS-109/TS-209 NAS devices. Along with a change from Andrew Morton
+> this has already been accepted into the -mm tree but it was suggested
+> that I send it to this list for an I2C review.
 > 
-> Take a look at i2c-ali1535.c.  I put the new printk in ali1535_setup(),
-> which does PCI initialization, even though a failure could happen later
-> in i2c_add_adapter().
-> 
-> I picked that because putting the new printk in ali1535_probe() would
-> mean:
->   - the printk would be far removed from the request_region(), so it's
->     a little harder to be sure the "ali1535_smba + ALI1535_SMB_IOSIZE - 1"
->     expression matches,
->   - I wouldn't be able print the SMBREV value, and
->   - I'd have to add a temporary to check the return from
->     i2c_add_adapter() instead of just returning it directly,
-> 
-> I'd still be glad to change them if you prefer.  I just want to do
-> them all the same (either all before or all after i2c_add_adapter()).
-> Let me know your preference.
+> This chip is special in that the first 4-bits of the address are fixed
+> to 0xc and the next 3-bits are used as a command so it takes up 8 addresses
+> on the I2C bus.
 
-If moving the message makes the code mode complex, then I agree that
-you shouldn't do that. After all, i2c_add_adapter() is very unlikely to
-fail, and if it does, I certainly hope that it'll clearly show in the
-kernel log so that no confusion is possible.
+What a weird design :(
 
-So just do what you think is best and I'll take that.
+> 0001 Add support for the S-35390A RTC chip.
+> 0002 rtc-add-support-for-the-s-35390a-rtc-chip-fix
+>         Written by Andrew Morton this replaces my bit-reversing function
+>         with bitrev8().
 
-Thanks,
+Given that your original patch isn't merged in git yet, the preferred
+approach is to merge the fixes in your patch before you resubmit it.
+This makes further reviews easier.
+
 -- 
 Jean Delvare
