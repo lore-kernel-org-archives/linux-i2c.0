@@ -1,16 +1,16 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] Add support for the S-35390A RTC chip.
-Date: Fri, 4 Jan 2008 13:42:05 -0800
-Message-ID: <200801041342.05612.david-b@pacbell.net>
-References: <1197751376-9767-1-git-send-email-byron.bbradley@gmail.com>
-	<1197751376-9767-2-git-send-email-byron.bbradley@gmail.com>
-	<20080104210605.05e1a0d4@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.24-rc5-git] add i2c_new_dummy() utility
+Date: Fri, 4 Jan 2008 23:16:33 +0100
+Message-ID: <20080104231633.135f2875@hyperion.delvare>
+References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	<200712281230.17840.david-b@pacbell.net>
+	<57e2b00712281645y70f6ec74s57945dc53f113ec8@mail.gmail.com>
+	<200712291905.15160.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080104210605.05e1a0d4-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <200712291905.15160.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,24 +20,37 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, repvik-ifZ3rLY3rVnQT0dZR+AlfA@public.gmane.org, hvr-mXXj517/zsQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, timtimred-f/KTTADhmRsdnm+yROfE0A@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 04 January 2008, Jean Delvare wrote:
-> > +=A0=A0=A0=A0=A0if (buf[0] & S35390A_FLAG_24H)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0s35390a->twentyfourhour =3D 1;
-> > +=A0=A0=A0=A0=A0else
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0s35390a->twentyfourhour =3D 0;
-> =
+Hi David,
 
-> Wouldn't it be more efficient to just force 24h mode here?
+On Sat, 29 Dec 2007 19:05:14 -0800, David Brownell wrote:
+> Remove further duplication between i2c core and driver model:  the
+> per-adapter list of clients (adapter->clients,  client->list) and
+> its lock (adapter->clist_lock) duplicate adapter->dev.children.
+>  
+> LIGHTLY TESTED ... goes on top of two patches from Jean's I2C queue,
+> 
+> 	i2c-remove-redundant-i2c_adapter-list.patch
+> 	i2c-remove-redundant-i2c_driver-list.patch
+> 
+> Continuing in that naming scheme, this might be called
+> 
+> 	i2c-remove-redundant-i2c_client-list.patch
+> 
+> ---
+>  drivers/i2c/i2c-core.c |  189 ++++++++++++++++++++++---------------------------
+>  drivers/i2c/i2c-dev.c  |   33 ++++----
+>  include/linux/i2c.h    |    4 -
+>  3 files changed, 102 insertions(+), 124 deletions(-)
 
-Maybe, but that would make trouble on multi-master systems where
-the other masters assume this stays initialized.  Also, many
-RTCs can't change that mode easily ... so it should be done only
-when (re)initializing after e.g. an oscillator failure or loss
-of the backup power supply.
+This breaks drivers/media/video/mxb.c, drivers/media/video/dpc7146.c
+and drivers/media/video/tvmixer.c. These 3 drivers walk the clients
+list that your patch wants to remove. I guess that we need to replace
+their code by something equivalent that would walk the driver model's
+children list instead of i2c-core's internal one?
 
-- Dave
- =
+-- 
+Jean Delvare
