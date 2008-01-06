@@ -1,11 +1,16 @@
-From: Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Add support for the S-35390A RTC chip.
-Date: Sat,  5 Jan 2008 22:58:14 +0000
-Message-ID: <1199573894-9189-1-git-send-email-byron.bbradley@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.24-rc5-git] add i2c_new_dummy() utility
+Date: Sun, 6 Jan 2008 10:57:30 +0100
+Message-ID: <20080106105730.372ac689@hyperion.delvare>
+References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	<200712291905.15160.david-b@pacbell.net>
+	<20080104231633.135f2875@hyperion.delvare>
+	<200801041548.54825.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200801041548.54825.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,382 +20,49 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This adds basic get/set time support for the Seiko Instruments
-S-35390A. This chip communicates using I2C and is used on the
-QNAP TS-109/TS-209 NAS devices. It takes up eight addresses on
-the I2C bus and depends on the following patches:
+Hi David,
 
-	i2c-remove-redundant-i2c_client-list.patch
-	i2c-add-i2c_new_dummy-utility.patch
+On Fri, 4 Jan 2008 15:48:54 -0800, David Brownell wrote:
+> On Friday 04 January 2008, Jean Delvare wrote:
+> > This breaks drivers/media/video/mxb.c, drivers/media/video/dpc7146.c
+> > and drivers/media/video/tvmixer.c. These 3 drivers walk the clients
+> > list that your patch wants to remove.
+> 
+> Whoops.  Good thing I warned y'all that it was only lightly tested!
+> Presumably this was the result of a "build every line of I2C code"
+> test.
 
-Signed-off-by: Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Tested-by: Tim Ellis <tim-ReWupQYfQ/MAvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
----
- drivers/rtc/Kconfig       |    9 ++
- drivers/rtc/Makefile      |    1 +
- drivers/rtc/rtc-s35390a.c |  316 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 326 insertions(+), 0 deletions(-)
- create mode 100644 drivers/rtc/rtc-s35390a.c
+This is my default build mode ;) I'm doing changes to i2c all the time
+so I want to know quickly if a given change breaks some driver.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 1e6715e..6c0fdf9 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -246,6 +246,15 @@ config RTC_DRV_TWL92330
- 	  platforms.  The support is integrated with the rest of
- 	  the Menelaus driver; it's not separate module.
- 
-+config RTC_DRV_S35390A
-+	tristate "Seiko Instruments S-35390A"
-+	help
-+	  If you say yes here you will get support for the Seiko
-+	  Instruments S-35390A.
-+
-+	  This driver can also be built as a module. If so the module
-+	  will be called rtc-s35390a.
-+
- endif # I2C
- 
- comment "SPI RTC drivers"
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 465db4d..8d6218f 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -41,6 +41,7 @@ obj-$(CONFIG_RTC_DRV_PL031)	+= rtc-pl031.o
- obj-$(CONFIG_RTC_DRV_RS5C313)	+= rtc-rs5c313.o
- obj-$(CONFIG_RTC_DRV_RS5C348)	+= rtc-rs5c348.o
- obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
-+obj-$(CONFIG_RTC_DRV_S35390A)	+= rtc-s35390a.o
- obj-$(CONFIG_RTC_DRV_S3C)	+= rtc-s3c.o
- obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
- obj-$(CONFIG_RTC_DRV_SH)	+= rtc-sh.o
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-new file mode 100644
-index 0000000..6b2dc77
---- /dev/null
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -0,0 +1,316 @@
-+/*
-+ * Seiko Instruments S-35390A RTC Driver
-+ *
-+ * Copyright (c) 2007 Byron Bradley
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/rtc.h>
-+#include <linux/i2c.h>
-+#include <linux/bitrev.h>
-+#include <linux/bcd.h>
-+#include <linux/slab.h>
-+
-+#define S35390A_CMD_STATUS1	0
-+#define S35390A_CMD_STATUS2	1
-+#define S35390A_CMD_TIME1	2
-+
-+#define S35390A_BYTE_YEAR	0
-+#define S35390A_BYTE_MONTH	1
-+#define S35390A_BYTE_DAY	2
-+#define S35390A_BYTE_WDAY	3
-+#define S35390A_BYTE_HOURS	4
-+#define S35390A_BYTE_MINS	5
-+#define S35390A_BYTE_SECS	6
-+
-+#define S35390A_FLAG_POC	0x01
-+#define S35390A_FLAG_BLD	0x02
-+#define S35390A_FLAG_24H	0x40
-+#define S35390A_FLAG_RESET	0x80
-+#define S35390A_FLAG_TEST	0x01
-+
-+struct s35390a {
-+	struct i2c_client *client[8];
-+	struct rtc_device *rtc;
-+	int twentyfourhour;
-+};
-+
-+static int s35390a_set_reg(struct s35390a *s35390a, int reg, char *buf, int len)
-+{
-+	struct i2c_client *client = s35390a->client[reg];
-+	struct i2c_msg msg[] = {
-+		{ client->addr, 0, len, buf },
-+	};
-+
-+	if ((i2c_transfer(client->adapter, msg, 1)) != 1)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int s35390a_get_reg(struct s35390a *s35390a, int reg, char *buf, int len)
-+{
-+	struct i2c_client *client = s35390a->client[reg];
-+	struct i2c_msg msg[] = {
-+		{ client->addr, I2C_M_RD, len, buf },
-+	};
-+
-+	if ((i2c_transfer(client->adapter, msg, 1)) != 1)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int s35390a_reset(struct s35390a *s35390a)
-+{
-+	char buf[1];
-+
-+	if (s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, buf, sizeof(buf)) < 0)
-+		return -EIO;
-+
-+	if (!(buf[0] & (S35390A_FLAG_POC | S35390A_FLAG_BLD)))
-+		return 0;
-+
-+	buf[0] |= (S35390A_FLAG_RESET | S35390A_FLAG_24H);
-+	buf[0] &= 0xf0;
-+	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, buf, sizeof(buf));
-+}
-+
-+static int s35390a_disable_test_mode(struct s35390a *s35390a)
-+{
-+	char buf[1];
-+
-+	if (s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf)) < 0)
-+		return -EIO;
-+
-+	if (!(buf[0] & S35390A_FLAG_TEST))
-+		return 0;
-+
-+	buf[0] &= ~S35390A_FLAG_TEST;
-+	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf));
-+}
-+
-+static char s35390a_hr2reg(struct s35390a *s35390a, int hour)
-+{
-+	if (s35390a->twentyfourhour)
-+		return BIN2BCD(hour);
-+
-+	if (hour < 12)
-+		return BIN2BCD(hour);
-+
-+	return 0x40 | BIN2BCD(hour - 12);
-+}
-+
-+static int s35390a_reg2hr(struct s35390a *s35390a, char reg)
-+{
-+	unsigned hour;
-+
-+	if (s35390a->twentyfourhour)
-+		return BCD2BIN(reg & 0x3f);
-+
-+	hour = BCD2BIN(reg & 0x3f);
-+	if (reg & 0x40)
-+		hour += 12;
-+
-+	return hour;
-+}
-+
-+static int s35390a_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	struct s35390a	*s35390a = i2c_get_clientdata(client);
-+	int i, err;
-+	char buf[7];
-+
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d mday=%d, "
-+		"mon=%d, year=%d, wday=%d\n", __FUNCTION__, tm->tm_sec,
-+		tm->tm_min, tm->tm_hour, tm->tm_mday, tm->tm_mon, tm->tm_year,
-+		tm->tm_wday);
-+
-+	buf[S35390A_BYTE_YEAR] = BIN2BCD(tm->tm_year - 100);
-+	buf[S35390A_BYTE_MONTH] = BIN2BCD(tm->tm_mon + 1);
-+	buf[S35390A_BYTE_DAY] = BIN2BCD(tm->tm_mday);
-+	buf[S35390A_BYTE_WDAY] = BIN2BCD(tm->tm_wday);
-+	buf[S35390A_BYTE_HOURS] = s35390a_hr2reg(s35390a, tm->tm_hour);
-+	buf[S35390A_BYTE_MINS] = BIN2BCD(tm->tm_min);
-+	buf[S35390A_BYTE_SECS] = BIN2BCD(tm->tm_sec);
-+
-+	/* This chip expects the bits of each byte to be in reverse order */
-+	for (i = 0; i < 7; ++i)
-+		buf[i] = bitrev8(buf[i]);
-+
-+	err = s35390a_set_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
-+
-+	return err;
-+}
-+
-+static int s35390a_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	struct s35390a *s35390a = i2c_get_clientdata(client);
-+	char buf[7];
-+	int i, err;
-+
-+	err = s35390a_get_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
-+	if (err < 0)
-+		return err;
-+
-+	/* This chip returns the bits of each byte in reverse order */
-+	for (i = 0; i < 7; ++i)
-+		buf[i] = bitrev8(buf[i]);
-+
-+	tm->tm_sec = BCD2BIN(buf[S35390A_BYTE_SECS]);
-+	tm->tm_min = BCD2BIN(buf[S35390A_BYTE_MINS]);
-+	tm->tm_hour = s35390a_reg2hr(s35390a, buf[S35390A_BYTE_HOURS]);
-+	tm->tm_wday = BCD2BIN(buf[S35390A_BYTE_WDAY]);
-+	tm->tm_mday = BCD2BIN(buf[S35390A_BYTE_DAY]);
-+	tm->tm_mon = BCD2BIN(buf[S35390A_BYTE_MONTH]) - 1;
-+	tm->tm_year = BCD2BIN(buf[S35390A_BYTE_YEAR]) + 100;
-+
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, mday=%d, "
-+		"mon=%d, year=%d, wday=%d\n", __FUNCTION__, tm->tm_sec,
-+		tm->tm_min, tm->tm_hour, tm->tm_mday, tm->tm_mon, tm->tm_year,
-+		tm->tm_wday);
-+
-+	return rtc_valid_tm(tm);
-+}
-+
-+static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return s35390a_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return s35390a_set_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static const struct rtc_class_ops s35390a_rtc_ops = {
-+	.read_time	= s35390a_rtc_read_time,
-+	.set_time	= s35390a_rtc_set_time,
-+};
-+
-+static struct i2c_driver s35390a_driver;
-+
-+static int s35390a_probe(struct i2c_client *client)
-+{
-+	int err;
-+	unsigned int i;
-+	struct s35390a *s35390a;
-+	struct rtc_time tm;
-+	char buf[1];
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		err = -ENODEV;
-+		goto exit;
-+	}
-+
-+	s35390a = kzalloc(sizeof(struct s35390a), GFP_KERNEL);
-+	if (!s35390a) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	s35390a->client[0] = client;
-+	i2c_set_clientdata(client, s35390a);
-+
-+	/* This chip uses multiple addresses, use dummy devices for them */
-+	for (i = 1; i < 8; ++i) {
-+		s35390a->client[i] = i2c_new_dummy(client->adapter,
-+					client->addr + i, "rtc-s35390a");
-+		if (!s35390a->client[i]) {
-+			dev_err(&client->dev, "Address %d unavailable\n",
-+						client->addr + i);
-+			err = -ENOCSI;
-+			goto exit_dummy;
-+		}
-+	}
-+
-+	err = s35390a_reset(s35390a);
-+	if (err < 0) {
-+		dev_err(&client->dev, "error resetting chip\n");
-+		goto exit_dummy;
-+	}
-+
-+	err = s35390a_disable_test_mode(s35390a);
-+	if (err < 0) {
-+		dev_err(&client->dev, "error disabling test mode\n");
-+		goto exit_dummy;
-+	}
-+
-+	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, buf, sizeof(buf));
-+	if (err < 0) {
-+		dev_err(&client->dev, "error checking 12/24 hour mode\n");
-+		goto exit_dummy;
-+	}
-+	if (buf[0] & S35390A_FLAG_24H)
-+		s35390a->twentyfourhour = 1;
-+	else
-+		s35390a->twentyfourhour = 0;
-+
-+	if (s35390a_get_datetime(client, &tm) < 0)
-+		dev_warn(&client->dev, "clock needs to be set\n");
-+
-+	s35390a->rtc = rtc_device_register(s35390a_driver.driver.name,
-+				&client->dev, &s35390a_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(s35390a->rtc)) {
-+		err = PTR_ERR(s35390a->rtc);
-+		goto exit_dummy;
-+	}
-+	return 0;
-+
-+exit_dummy:
-+	for (i = 1; i < 8; ++i)
-+		if (s35390a->client[i])
-+			i2c_unregister_device(s35390a->client[i]);
-+	kfree(s35390a);
-+	i2c_set_clientdata(client, NULL);
-+
-+exit:
-+	return err;
-+}
-+
-+static int s35390a_remove(struct i2c_client *client)
-+{
-+	unsigned int i;
-+
-+	struct s35390a *s35390a = i2c_get_clientdata(client);
-+	for (i = 1; i < 8; ++i)
-+		if (s35390a->client[i])
-+			i2c_unregister_device(s35390a->client[i]);
-+
-+	rtc_device_unregister(s35390a->rtc);
-+	kfree(s35390a);
-+	i2c_set_clientdata(client, NULL);
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver s35390a_driver = {
-+	.driver		= {
-+		.name	= "rtc-s35390a",
-+	},
-+	.probe		= s35390a_probe,
-+	.remove		= s35390a_remove,
-+};
-+
-+static int __init s35390a_rtc_init(void)
-+{
-+	return i2c_add_driver(&s35390a_driver);
-+}
-+
-+static void __exit s35390a_rtc_exit(void)
-+{
-+	i2c_del_driver(&s35390a_driver);
-+}
-+
-+MODULE_AUTHOR("Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
-+MODULE_DESCRIPTION("S35390A RTC driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(s35390a_rtc_init);
-+module_exit(s35390a_rtc_exit);
+> Those all seem to do the same thing:  list_for_each_entry() scan to
+> find specific devices connected to their private adapter.
+
+True.
+
+> > I guess that we need to replace 
+> > their code by something equivalent that would walk the driver model's
+> > children list instead of i2c-core's internal one?
+> 
+> Like the device_for_each_child() scanning in the i2-core parts of
+> that patch ... yes, that's probably the least invasive change for
+> the moment.  Eventually I'd like to see the relevant code using
+> new-style driver binding, but that seems a bit much to change at
+> the moment.
+
+That was pretty much my conclusion as well.
+
+> Changing the users of i2c_adapter.clients could be safely done
+> before removing that list (and its lock, ignored by most of
+> those drivers if not all of them).  Which should simplify testing
+> such changes by a bit.
+
+Agreed, I'll write such patches later today and will send them to the
+v4l list for review and testing.
+
 -- 
-1.5.3.5
+Jean Delvare
