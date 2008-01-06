@@ -1,72 +1,55 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Add support for the S-35390A RTC chip.
-Date: Sun, 6 Jan 2008 19:01:00 +0100
-Message-ID: <20080106190100.5e7b6be9@hyperion.delvare>
-References: <1199573894-9189-1-git-send-email-byron.bbradley@gmail.com>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/7] convert semaphore to mutex in struct class
+Date: Sun, 06 Jan 2008 19:41:29 +0100
+Message-ID: <478120D9.5090404@s5r6.in-berlin.de>
+References: <20080103055019.GA4885@darkstar.te-china.tietoenator.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1199573894-9189-1-git-send-email-byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20080103055019.GA4885@darkstar.te-china.tietoenator.com>
+Sender: linux-scsi-owner@vger.kernel.org
+To: Dave Young <hidave.darkstar@gmail.com>
+Cc: gregkh@suse.de, stern@rowland.harvard.edu, peterz@infradead.org, david-b@pacbell.net, davem@davemloft.net, jarkao2@gmail.com, krh@redhat.com, dbrownell@users.sourceforge.net, James.Bottomley@HansenPartnership.com, a.zummo@towertech.it, cbou@mail.ru, dwmw2@infradead.org, khali@linux-fr.org, i2c@lm-sensors.org, linux1394-devel@lists.sourceforge.net, spi-devel-general@lists.sourceforge.net, linux-scsi@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Byron,
+Dave Young wrote:
+> Convert semaphore to mutex in struct class.
+> All the patches in this series should be applyed simultaneously
 
-On Sat,  5 Jan 2008 22:58:14 +0000, Byron Bradley wrote:
-> This adds basic get/set time support for the Seiko Instruments
-> S-35390A. This chip communicates using I2C and is used on the
-> QNAP TS-109/TS-209 NAS devices. It takes up eight addresses on
-> the I2C bus and depends on the following patches:
-> 
-> 	i2c-remove-redundant-i2c_client-list.patch
-> 	i2c-add-i2c_new_dummy-utility.patch
-> 
-> Signed-off-by: Byron Bradley <byron.bbradley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Tested-by: Tim Ellis <tim-ReWupQYfQ/MAvxtiuMwx3w@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Therefore you eventually need to repost it as a single patch.  It can't
+go into one of the maintainer trees otherwise, because they only take
+fully bijectable patches.  (Kernel must build and run at any point in
+between any patch series.)
+
+> toc:
 > ---
->  drivers/rtc/Kconfig       |    9 ++
->  drivers/rtc/Makefile      |    1 +
->  drivers/rtc/rtc-s35390a.c |  316 +++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 326 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/rtc/rtc-s35390a.c
+> 1-driver-core-struct-class-convert-semaphore-to-mutex.patch
+> 2-i2c-struct-class-convert-semaphore-to-mutex.patch
+> 3-ieee1394-struct-class-convert-semaphore-to-mutex.patch
+> 4-power-struct-class-convert-semaphore-to-mutex.patch
+> 5-rtc-struct-class-convert-semaphore-to-mutex.patch
+> 6-scsi-struct-class-convert-semaphore-to-mutex.patch
+> 7-spi-struct-class-convert-semaphore-to-mutex.patch
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+I was going to test it at runtime on top of 2.6.24-rc6, but the first
+and second patch depend on stuff in -mm.  So, my laziness wins for now,
+as -mm is not my cup of tea.
 
-With just one comment:
+About your changelog:
 
-> +	/* This chip uses multiple addresses, use dummy devices for them */
-> +	for (i = 1; i < 8; ++i) {
-> +		s35390a->client[i] = i2c_new_dummy(client->adapter,
-> +					client->addr + i, "rtc-s35390a");
-> +		if (!s35390a->client[i]) {
-> +			dev_err(&client->dev, "Address %d unavailable\n",
-> +						client->addr + i);
-> +			err = -ENOCSI;
-> +			goto exit_dummy;
-> +		}
-> +	}
+	"xyz: convert semaphore to mutex in struct class
 
--ENOCSI? Don't you rather mean -EBUSY?
+	Use mutex instead of semaphore in struct class.
 
-Also, the address would be better printed as an hexadecimal value -
-decimal I2C addresses isn't something people are used to.
+	Signed-off-by: Dave Young <hidave.darkstar@gmail.com>"
 
-You should get your driver reviewed by Alessandro Zummo now, and then
-it can be merged upstream... After the i2c cleanups it depends on are
-upstream themselves, that is (working on it.)
-
+You don't need the second line because it says the same as the first
+line.  Either kill it, or replace it by an explanation _why_ the
+semaphore is to be replaced by mutex.  (I guess you do it because they
+are lighter-weight, both in semantics and in implementation, and because
+there are better facilities to debug mutexes...)
 -- 
-Jean Delvare
+Stefan Richter
+-=====-==--- ---= --==-
+http://arcgraph.de/sr/
