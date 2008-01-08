@@ -1,15 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Forcing an adapter onto a bus
-Date: Tue, 8 Jan 2008 20:52:06 +0100
-Message-ID: <20080108205206.75b74fbb@hyperion.delvare>
-References: <9e4733910801030909v70ddc068xfb658bf15c5f8924@mail.gmail.com>
-	<20080108175804.2bb2671b@hyperion.delvare>
-	<9e4733910801080922p7f302876y34e1a10c27e68c45@mail.gmail.com>
+Subject: Re: i2c-remove-redundant-i2c_client-list.patch
+Date: Tue, 8 Jan 2008 20:57:42 +0100
+Message-ID: <20080108205742.7b7ceaf9@hyperion.delvare>
+References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	<200801061130.31774.david-b@pacbell.net>
+	<20080108151817.35e05c6c@hyperion.delvare>
+	<200801081052.31413.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910801080922p7f302876y34e1a10c27e68c45-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <200801081052.31413.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,73 +20,68 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 8 Jan 2008 12:22:54 -0500, Jon Smirl wrote:
-> On 1/8/08, Jean Delvare wrote:
-> > On Thu, 3 Jan 2008 12:09:27 -0500, Jon Smirl wrote:
-> > > If adapter->dev.parent is NULL the current i2c code forces the adapter
-> > > onto the platform bus.  But this may not be what you want on the
-> > > powerpc since it mainly uses of_platform_bus.  What about changing
-> > > this to an error condition and fixing the drivers that don't set it
-> > > right?
+On Tue, 8 Jan 2008 10:52:31 -0800, David Brownell wrote:
+> On Tuesday 08 January 2008, Jean Delvare wrote:
+> > > Good point. =A0I didn't like this part much, and that function can
+> > > have other uses. =A0I updated kobj_to_i2c_client() to use it too.
 > >
-> > I've been there and tried to do that, some times ago. See for example:
-> > http://lists.lm-sensors.org/pipermail/i2c/2007-February/000781.html
+> > I wouldn't change kobj_to_i2c_client(). Drivers using it already know
+> > that their kobj is an i2c_client, so there's no need to check for that,
+> > and the use cases I've seen are in runtime paths that should be fast, I
+> > don't want to slow them down without a good reason.
+> =
+
+> Hmm, Mr. Grep says all the users of that are in drivers/i2c/chips ...
+> basically mapping an eeprom binary attribute's kobj to the i2c_client
+> of the base device.  I have to say that not only would I not call
+> those "should be fast" paths (how often does anyone read eeproms??),
+
+Sorry, I expressed myself incorrectly, I didn't mean to intend that
+these were hot paths, just that this was run-time code and not
+initialization code, which means that the speed matters a little more.
+But the key argument here is that the current code is not broken so I
+couldn't see the rationale for touching it.
+
+> but I also have no problem using
+> =
+
+>         client =3D to_i2c_client(container_of(kobj, struct device, kobj));
+> =
+
+> instead of a fancy kobj_to_i2c_client() ... in fact, I would never
+> have thought to look for any kobj_to_*() utilities.  Although Mr. Grep
+> tellse me there are a few others floating around; back it out if you
+> feel strongly about it.
+
+I seem to remember that kobj_to_i2c_client() was originally declared
+inside one of these drivers by the driver author and I suggested to
+move it to i2c.h.
+
+> > -=A0=A0=A0=A0=A0=A0=A0return device_for_each_child(&adapter->dev, &addr=
+, i2cdev_check);
+> > +=A0=A0=A0=A0=A0=A0=A0return i2c_for_each_client(adapter, &addr, i2cdev=
+_check);
 > >
-> > I converted a good load of drivers back then but there are still more
-> > to do.
-> >
-> > I don't really get the link between the patch below and the fact that
-> > powerpc uses of_platform_bus. With or without your patch, the powerpc
-> > drivers will have to properly declare their parent device.
-> 
-> I turned off platform bus in my PowerPC builds since it is replaced by
-> of_platform_bus on powerpc. Turning off platform bus causes compile
-> errors is various places in the kernel. I then check them to see what
-> was wrong. In the case of the PowerPC this code would do the wrong
-> thing by putting the device onto platform bus. The incorrect
-> assumption here is that every platform has a platform bus that is
-> used.
+> >		...
+> > =
 
-OK, I see your point now. Indeed I thought that the platform bus was
-always available, I didn't know that you could go without it. Not sure
-how you did that, BTW, I see no configuration option to select the
-platform bus?
+> > Admittedly it will slow down things a bit as each iteration of the loop
+> > will have one additional level of indirection. This makes the calling
+> > code somewhat simpler though. Whether it is worth the additional
+> > runtime cost, I just don't know. What do you think?
+> =
 
-> Fixing things in the driver core that the drivers should have set is a
-> bad idea.
+> My bias in such cases is towards interfaces that force less policy.
+> So in this case that would be to expose i2_verify_client() instead
+> of an i2c-specific iterator.  The fact that it's got lower callstack
+> overhead is a bonus.  :)
 
-I agree, but that was done so for historical reasons. All these drivers
-predate the 2.5 device driver model, and nobody had the time to convert
-them.
+OK, fine with me, I'll forget about it then.
 
-> (...) How about upping this to a visible waning message on boot
-> that encourages the driver authors to fix their drivers? It only take
-> a few seconds to fix the driver once you know which ones need to be
-> fixed.  Then change it to an error in 2.6.26 and remove the check in
-> 2.6.27.
+-- =
 
-It takes more than a few seconds if you really update the driver to
-cleanly fit in the device driver model, otherwise we would already have
-done so. If you just update the driver to set its parent device to
-&platform_bus as i2c-core is doing now, then of course it is fast. For
-some reason I had never considered this possibility. It probably makes
-sense, as long as you add a FIXME comment nearby so that people realize
-that it's only a band aid. If you do that for all remaining bus drivers
-than I would be fine applying the patch that you submitted earlier
-(that turns the debug message into an error.)
-
-Just to make it clear: there is no amount of time after the moment we'll
-make i2c-core display a warning where it will become acceptable to just
-break the remaining drivers. We can invite driver authors to help but
-we can't force them to do so, and we can't break their drivers in
-reprisal. If there are unconverted drivers remaining at the time you'd
-like to turn the warning into an error, then you have to fix these
-drivers yourself, that's the rule. Which is why I suggest that you do
-it right now if you want things to happen fast.
-
--- 
 Jean Delvare
