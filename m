@@ -1,17 +1,11 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-remove-redundant-i2c_client-list.patch
-Date: Wed, 9 Jan 2008 17:19:34 +0100
-Message-ID: <20080109171934.4f894bdc@hyperion.delvare>
-References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	<200801081112.46972.david-b@pacbell.net>
-	<20080108215042.534e32fa@hyperion.delvare>
-	<200801081344.45544.david-b@pacbell.net>
-	<20080109142906.23a55f5f@hyperion.delvare>
+From: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c-ibm_iic driver
+Date: Wed, 09 Jan 2008 12:05:21 -0500
+Message-ID: <4784FED1.2040206@pikatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080109142906.23a55f5f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,96 +15,304 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 9 Jan 2008 14:29:06 +0100, Jean Delvare wrote:
-> I rebuilt my kernel with CONFIG_STACKTRACE=y and
-> CONFIG_FRAME_POINTER=y, hopefully that's what you were thinking about.
-> Here's what I get with these options:
-> 
-> rmmod         D 0000000000000002     0  4221   4204
->  ffff81002345bcd8 0000000000000046 ffff8100234ab080 ffff81003f848040
->  ffff81002345bd08 ffffffff80252327 0000000200000001 7fffffffffffffff
->  7fffffffffffffff ffff81002d1e6b60 ffff81002d1e6b58 0000000000000002
-> Call Trace:
->  [<ffffffff80252327>] __lock_acquire+0x967/0x1080
->  [<ffffffff80443215>] schedule_timeout+0x95/0xd0
->  [<ffffffff8044545b>] _spin_unlock_irq+0x2b/0x40
->  [<ffffffff80251485>] trace_hardirqs_on+0xd5/0x170
->  [<ffffffff8044545b>] _spin_unlock_irq+0x2b/0x40
->  [<ffffffff8044301f>] wait_for_common+0xdf/0x150
->  [<ffffffff802292a0>] default_wake_function+0x0/0x10
->  [<ffffffff804430f8>] wait_for_completion+0x18/0x20
->  [<ffffffff803ce894>] i2c_detach_client+0x54/0x90
->  [<ffffffff88309071>] :lm90:lm90_detach_client+0x71/0x90
->  [<ffffffff803cd85c>] detach_legacy_clients+0x8c/0xc0
->  [<ffffffff803cd7d0>] detach_legacy_clients+0x0/0xc0
->  [<ffffffff803a4f13>] device_for_each_child+0x33/0x60
->  [<ffffffff803cebe6>] i2c_del_driver+0x126/0x140
->  [<ffffffff88309f10>] :lm90:sensors_lm90_exit+0x10/0x12
->  [<ffffffff8025a51c>] sys_delete_module+0x13c/0x1e0
->  [<ffffffff80251485>] trace_hardirqs_on+0xd5/0x170
->  [<ffffffff80444ada>] trace_hardirqs_on_thunk+0x35/0x3a
->  [<ffffffff8020ba3e>] system_call+0x7e/0x83
-> 
-> Does it make more sense? The odd thing is:
-> 
-> (gdb) list *(__lock_acquire+0x967)
-> 0xffffffff80252327 is in __lock_acquire (kernel/lockdep.c:2353).
-> 2348     * We maintain the dependency maps and validate the locking attempt:
-> 2349     */
-> 2350    static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
-> 2351                              int trylock, int read, int check, int hardirqs_off,
-> 2352                              unsigned long ip)
-> 2353    {
-> 2354            struct task_struct *curr = current;
-> 2355            struct lock_class *class = NULL;
-> 2356            struct held_lock *hlock;
-> 2357            unsigned int depth, id;
-> (gdb)
-> 
-> Not sure how it can block on an opening curly brace ;) Maybe I should
-> disable CONFIG_LOCKDEP for now.
+This patch allows the i2c-ibm_iic driver to be built either as an ocp 
+driver or an of_platform driver. This allows it to run under the powerpc 
+arch but maintains backward compatibility with the ppc arch.
 
-Here's what I get with CONFIG_LOCKDEP=n:
+Cheers,
+   Sean MacLennan
 
-rmmod         D ffffffff804365c0     0  4198   4181
- ffff81002db39cd8 0000000000000082 ffff81002d907100 ffff81003f83d7e0
- ffff81003c5d0370 ffff81002db39d08 ffff81002d8408f8 7fffffffffffffff
- 7fffffffffffffff ffff81002d840a38 0000000000000002 ffff81002db39d58
-Call Trace:
- [<ffffffff80423c15>] schedule_timeout+0x95/0xd0
- [<ffffffff802bfa30>] sysfs_remove_dir+0x60/0x80
- [<ffffffff80308029>] kobject_put+0x19/0x20
- [<ffffffff80423a28>] wait_for_common+0xc8/0x130
- [<ffffffff80228330>] default_wake_function+0x0/0x10
- [<ffffffff80423af8>] wait_for_completion+0x18/0x20
- [<ffffffff803b4fd4>] i2c_detach_client+0x54/0x90
- [<ffffffff882f4071>] :lm90:lm90_detach_client+0x71/0x90
- [<ffffffff803b3fbc>] detach_legacy_clients+0x8c/0xc0
- [<ffffffff803b3f30>] detach_legacy_clients+0x0/0xc0
- [<ffffffff8038cbb3>] device_for_each_child+0x33/0x60
- [<ffffffff803b531c>] i2c_del_driver+0x11c/0x140
- [<ffffffff882f4f00>] :lm90:sensors_lm90_exit+0x10/0x12
- [<ffffffff802501d2>] sys_delete_module+0x132/0x1d0
- [<ffffffff8020b99e>] system_call+0x7e/0x83
+Signed-off-by: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+---
 
-(gdb) list *(schedule_timeout+0x95)
-0xffffffff80423c15 is in schedule_timeout (kernel/timer.c:1059).
-1054                     * in the caller. Nothing more. We could take
-1055                     * MAX_SCHEDULE_TIMEOUT from one of the negative value
-1056                     * but I' d like to return a valid offset (>=0) to allow
-1057                     * the caller to do everything it want with the retval.
-1058                     */
-1059                    schedule();
-1060                    goto out;
-1061            default:
-1062                    /*
-1063                     * Another bit of PARANOID. Note that the retval will be
-(gdb)
-
-Hope it helps,
--- 
-Jean Delvare
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index c466c6c..e9e1493 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -241,7 +241,6 @@ config I2C_PIIX4
+ 
+ config I2C_IBM_IIC
+ 	tristate "IBM PPC 4xx on-chip I2C interface"
+-	depends on IBM_OCP
+ 	help
+ 	  Say Y here if you want to use IIC peripheral found on 
+ 	  embedded IBM PPC 4xx based systems. 
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 9b43ff7..98476fc 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -6,6 +6,9 @@
+  * Copyright (c) 2003, 2004 Zultys Technologies.
+  * Eugene Surovegin <eugene.surovegin-OMD3UA+2ZXrQT0dZR+AlfA@public.gmane.org> or <ebs-Iydg86zsFCHR7s880joybQ@public.gmane.org>
+  *
++ * Copyright (c) 2008 PIKA Technologies
++ * Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
++ *
+  * Based on original work by 
+  * 	Ian DaSilva  <idasilva-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+  *      Armin Kuster <akuster-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+@@ -39,12 +42,17 @@
+ #include <asm/io.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-id.h>
++
++#ifdef CONFIG_IBM_OCP
+ #include <asm/ocp.h>
+ #include <asm/ibm4xx.h>
++#else
++#include <linux/of_platform.h>
++#endif
+ 
+ #include "i2c-ibm_iic.h"
+ 
+-#define DRIVER_VERSION "2.1"
++#define DRIVER_VERSION "2.2"
+ 
+ MODULE_DESCRIPTION("IBM IIC driver v" DRIVER_VERSION);
+ MODULE_LICENSE("GPL");
+@@ -650,13 +658,14 @@ static inline u8 iic_clckdiv(unsigned int opb)
+ 	opb /= 1000000;
+ 	
+ 	if (opb < 20 || opb > 150){
+-		printk(KERN_CRIT "ibm-iic: invalid OPB clock frequency %u MHz\n",
++		printk(KERN_WARNING "ibm-iic: invalid OPB clock frequency %u MHz\n",
+ 			opb);
+ 		opb = opb < 20 ? 20 : 150;
+ 	}
+ 	return (u8)((opb + 9) / 10 - 1);
+ }
+ 
++#ifdef CONFIG_IBM_OCP
+ /*
+  * Register single IIC interface
+  */
+@@ -672,7 +681,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 			ocp->def->index);
+ 
+ 	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
+-		printk(KERN_CRIT "ibm-iic%d: failed to allocate device data\n",
++		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
+ 			ocp->def->index);
+ 		return -ENOMEM;
+ 	}
+@@ -687,7 +696,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 	}
+ 
+ 	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
+-		printk(KERN_CRIT "ibm-iic%d: failed to ioremap device registers\n",
++		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
+ 			dev->idx);
+ 		ret = -ENXIO;
+ 		goto fail2;
+@@ -746,7 +755,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 	adap->nr = dev->idx >= 0 ? dev->idx : 0;
+ 
+ 	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
+-		printk(KERN_CRIT "ibm-iic%d: failed to register i2c adapter\n",
++		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
+ 			dev->idx);
+ 		goto fail;
+ 	}
+@@ -779,7 +788,7 @@ static void __devexit iic_remove(struct ocp_device *ocp)
+ 	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
+ 	BUG_ON(dev == NULL);
+ 	if (i2c_del_adapter(&dev->adap)){
+-		printk(KERN_CRIT "ibm-iic%d: failed to delete i2c adapter :(\n",
++		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
+ 			dev->idx);
+ 		/* That's *very* bad, just shutdown IRQ ... */
+ 		if (dev->irq >= 0){
+@@ -831,3 +840,189 @@ static void __exit iic_exit(void)
+ 
+ module_init(iic_init);
+ module_exit(iic_exit);
++#else
++/*
++ * Register single IIC interface
++ */
++static int __devinit iic_probe(struct of_device *ofdev,
++			       const struct of_device_id *match)
++{
++	static int index = 0;
++	struct device_node *np = ofdev->node;
++	struct ibm_iic_private* dev;
++	struct i2c_adapter* adap;
++	const u32 *indexp, *freq;
++	int ret;
++
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (!dev) {
++		printk(KERN_ERR "ibm-iic: failed to allocate device data\n");
++		return -ENOMEM;
++	}
++
++	/* This assumes we don't mix index and non-index entries. */
++	indexp = of_get_property(np, "index", NULL);
++	dev->idx = indexp ? *indexp : index++;
++
++	dev_set_drvdata(&ofdev->dev, dev);
++
++	dev->vaddr = of_iomap(np, 0);
++	if (dev->vaddr == NULL) {
++		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
++			dev->idx);
++		ret = -ENXIO;
++		goto fail1;
++	}
++
++	init_waitqueue_head(&dev->wq);
++
++	if (iic_force_poll)
++		dev->irq = NO_IRQ;
++	else {
++		dev->irq = irq_of_parse_and_map(np, 0);
++		if (dev->irq == NO_IRQ)
++			printk(KERN_ERR __FILE__ ": irq_of_parse_and_map failed\n");
++		else {
++			/* Disable interrupts until we finish initialization,
++			   assumes level-sensitive IRQ setup...
++			*/
++			iic_interrupt_mode(dev, 0);
++			if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
++				printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
++				       dev->idx, dev->irq);
++				/* Fallback to the polling mode */
++				dev->irq = NO_IRQ;
++			}
++		}
++	}
++
++	if (dev->irq == NO_IRQ)
++		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
++			   dev->idx);
++
++	/* Board specific settings */
++	if (iic_force_fast || of_get_property(np, "fast-mode", NULL))
++		dev->fast_mode = 1;
++	else
++		dev->fast_mode = 0;
++
++	/* clckdiv is the same for *all* IIC interfaces, but I'd rather
++	 * make a copy than introduce another global. --ebs
++	 */
++	freq = of_get_property(np, "clock-frequency", NULL);
++	if (freq == NULL) {
++		freq = of_get_property(np->parent, "clock-frequency", NULL);
++		if (freq == NULL) {
++			printk(KERN_ERR "ibm-iic%d: Unable to get bus frequency\n",
++			       dev->idx);
++			ret = -EBUSY;
++			goto fail;
++		}
++	}
++
++	dev->clckdiv = iic_clckdiv(*freq);
++	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
++
++	/* Initialize IIC interface */
++	iic_dev_init(dev);
++
++	/* Register it with i2c layer */
++	adap = &dev->adap;
++	adap->dev.parent = &ofdev->dev;
++	strcpy(adap->name, "IBM IIC");
++	i2c_set_adapdata(adap, dev);
++	adap->id = I2C_HW_OCP;
++	adap->class = I2C_CLASS_HWMON;
++	adap->algo = &iic_algo;
++	adap->client_register = NULL;
++	adap->client_unregister = NULL;
++	adap->timeout = 1;
++	adap->retries = 1;
++	adap->nr = dev->idx;
++
++	ret = i2c_add_numbered_adapter(adap);
++	if (ret  < 0) {
++		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
++			dev->idx);
++		goto fail;
++	}
++
++	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
++		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
++
++	return 0;
++
++fail:
++	if (dev->irq != NO_IRQ){
++		iic_interrupt_mode(dev, 0);
++		free_irq(dev->irq, dev);
++	}
++
++	iounmap(dev->vaddr);
++fail1:
++	dev_set_drvdata(&ofdev->dev, NULL);
++	kfree(dev);
++	return ret;
++}
++
++/*
++ * Cleanup initialized IIC interface
++ */
++static int __devexit iic_remove(struct of_device *ofdev)
++{
++	struct ibm_iic_private* dev = dev_get_drvdata(&ofdev->dev);
++
++	BUG_ON(dev == NULL);
++	if (i2c_del_adapter(&dev->adap)){
++		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
++			dev->idx);
++		/* That's *very* bad, just shutdown IRQ ... */
++		if (dev->irq != NO_IRQ){
++		    iic_interrupt_mode(dev, 0);
++		    free_irq(dev->irq, dev);
++		    dev->irq = NO_IRQ;
++		}
++	} else {
++		if (dev->irq != NO_IRQ){
++		    iic_interrupt_mode(dev, 0);
++		    free_irq(dev->irq, dev);
++		}
++		iounmap(dev->vaddr);
++		kfree(dev);
++	}
++
++	return 0;
++}
++
++
++static const struct of_device_id ibm_iic_match[] =
++{
++	{ .type = "i2c", .compatible = "ibm,iic-405ex", },
++	{ .type = "i2c", .compatible = "ibm,iic-405gp", },
++	{ .type = "i2c", .compatible = "ibm,iic-440gp", },
++	{ .type = "i2c", .compatible = "ibm,iic-440gpx", },
++	{ .type = "i2c", .compatible = "ibm,iic-440grx", },
++	{}
++};
++
++static struct of_platform_driver ibm_iic_driver =
++{
++	.name   = "ibm-iic",
++	.match_table = ibm_iic_match,
++	.probe  = iic_probe,
++	.remove = iic_remove,
++};
++
++static int __init ibm_iic_init(void)
++{
++	printk(KERN_INFO "IBM IIC driver v" DRIVER_VERSION "\n");
++	return of_register_platform_driver(&ibm_iic_driver);
++}
++module_init(ibm_iic_init);
++
++static void __exit ibm_iic_exit(void)
++{
++	of_unregister_platform_driver(&ibm_iic_driver);
++}
++module_exit(ibm_iic_exit);
++#endif
