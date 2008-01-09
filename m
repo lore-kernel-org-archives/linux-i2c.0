@@ -1,13 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-i801: Regression between 2.6.19-1 & 2.6.23.9
-Date: Wed, 9 Jan 2008 13:53:41 +0100
-Message-ID: <20080109135341.461688d1@hyperion.delvare>
-References: <dba8564e0801090308j34215f98rd758dff3702b194@mail.gmail.com>
+Subject: Re: i2c-remove-redundant-i2c_client-list.patch
+Date: Wed, 9 Jan 2008 14:29:06 +0100
+Message-ID: <20080109142906.23a55f5f@hyperion.delvare>
+References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	<200801081112.46972.david-b@pacbell.net>
+	<20080108215042.534e32fa@hyperion.delvare>
+	<200801081344.45544.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <dba8564e0801090308j34215f98rd758dff3702b194-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <200801081344.45544.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,138 +20,104 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Oleg Ryjkov <oryjkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ivo,
+Hi David,
 
-On Wed, 9 Jan 2008 12:08:28 +0100, Ivo Manca wrote:
-> Trying to test  interrupt support for i801 I learned that somehow
-> between kernel version 2.6.22.14 and 2.6.23.9, something went wrong
-> with the bus driver. Is this a known issue?
+On Tue, 8 Jan 2008 13:44:45 -0800, David Brownell wrote:
+> On Tuesday 08 January 2008, Jean Delvare wrote:
+> > On Tue, 8 Jan 2008 11:12:46 -0800, David Brownell wrote:
+> > > On Tuesday 08 January 2008, Jean Delvare wrote:
+> > > > Hmm, I get a lockup when removing any legacy chip driver or any bus
+> > > > driver with legacy clients attached. 
+> > > 
+> > > Lockup?  More details ...
+> > 
+> > There's not much to say. "rmmod lm90" (or "rmmod i2c-parport") never
+> > returns, that's about it.
+> 
+> The rest of the system behaves, or not?  A "lockup" to me implies
+> something so catastrophic that the hardware watchdog will soon fire
+> and the system will reboot.
+> 
+> I'm guessing that's not the case here.  Stil not-good, but not as
+> much of a catastrophe.
 
-No, you are the first person to report this problem as far as I know.
+Sorry for being vague. Yes, the rest of the system behaves, only the
+"rmmod" process is stuck.
 
-> When I try to use i2cdump to block-read an EEP OM, my i2cbus hangs.
+> This isn't wholly meaningful to me.  If release_sysfs_dirent() is
+> wedging, then why does the stack show it's sysfs_addrm_finish()?
+> I guess the right question is what's going on where the PC points.  :)
 
-What is an "EEP OM"?
+How do I know? I'm using SysRq+t to get the stack trace, it doesn't
+seem to give me any extra information.
 
-Please note that EEPROMs typically want I2C block reads (mode "i" of
-i2cdump) and not SMBus block reads. Using the wrong mode shouldn't hang
-the bus though.
+> > > >   [<ffffffff8041bca5>] schedule_timeout+0x95/0xd0
+> > > 
+> > > This looks like stack garbage...
+> > 
+> > What makes you think so? A second stack trace shows it as well.
+> 
+> Because schedule_timeout() doesn't call into sysfs.  :)
 
-> Please find my output for 2.6.19-1 (working), 2.6.22.14-72 (working)
-> and 2.6.23.9-85 (not working).
-> 
-> Note: SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-> 
-> Ivo
-> 
-> [root@localhost ~]# uname -r
-> 2.6.19-1.2911.fc6
-> 
-> [root@localhost ~]# modprobe i2c-dev
-> [root@localhost ~]# i2cdetect -y 0
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
-> 10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 40: XX XX XX XX 44 XX XX XX XX XX XX XX XX XX XX XX
-> 50: 50 XX XX XX 54 55 XX XX XX XX XX XX XX XX XX XX
-> 60: XX XX XX XX XX XX XX XX XX 69 XX XX XX XX XX XX
-> 70: XX XX XX 73 XX XX XX XX
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
-> 10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
-> 10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
-> 
-> ====
-> 
-> [root@localhost ~]# uname -r
-> 2.6.22.14-72.fc6
-> 
-> [root@localhost ~]# modprobe i2c-dev
-> 
-> [root@localhost ~]# i2cdetect -y 0
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
-> 10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 40: XX XX XX XX 44 XX XX XX XX XX XX XX XX XX XX XX
-> 50: 50 XX XX XX 54 55 XX XX XX XX XX XX XX XX XX XX
-> 60: XX XX XX XX XX XX XX XX XX 69 XX XX XX XX XX XX
-> 70: XX XX XX 73 XX XX XX XX
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
-> 10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
-> 10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
+True, but OTOH there are so many ways callback can be stored for later
+use that I am no longer surprised when I see apparently unrelated
+functions call each other ;)
 
-So 2.6.22 works as good as 2.6.19 did, right?
+> Some platforms have compiler options to make stack tracing be
+> more sensible -- e.g. to always force frame pointers to be used,
+> so that stackdump utilities don't ever need to guess.
 
-> 
-> ====
-> 
-> [root@localhost ~]# uname -r
-> 2.6.23.9-85.fc8
-> 
-> [root@localhost ~]# modprobe i2c-dev
-> 
-> [root@localhost ~]# i2cdetect -y 0
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
-> 50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
-> 60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
-> 70: -- -- -- 73 -- -- -- --
+I rebuilt my kernel with CONFIG_STACKTRACE=y and
+CONFIG_FRAME_POINTER=y, hopefully that's what you were thinking about.
+Here's what I get with these options:
 
-I note that this version of i2cdetect is more recent than the one you
-used when testing 2.6.19-1.2911.fc6 and 2.6.22.14-72.fc6 kernels. I
-suppose that this is the case for i2cdump as well... To make sure that
-this is really an i2c-i801 driver issue and not a user-space issue, can
-you please try again using the exact same version of i2cdetect and
-i2cdump?
+rmmod         D 0000000000000002     0  4221   4204
+ ffff81002345bcd8 0000000000000046 ffff8100234ab080 ffff81003f848040
+ ffff81002345bd08 ffffffff80252327 0000000200000001 7fffffffffffffff
+ 7fffffffffffffff ffff81002d1e6b60 ffff81002d1e6b58 0000000000000002
+Call Trace:
+ [<ffffffff80252327>] __lock_acquire+0x967/0x1080
+ [<ffffffff80443215>] schedule_timeout+0x95/0xd0
+ [<ffffffff8044545b>] _spin_unlock_irq+0x2b/0x40
+ [<ffffffff80251485>] trace_hardirqs_on+0xd5/0x170
+ [<ffffffff8044545b>] _spin_unlock_irq+0x2b/0x40
+ [<ffffffff8044301f>] wait_for_common+0xdf/0x150
+ [<ffffffff802292a0>] default_wake_function+0x0/0x10
+ [<ffffffff804430f8>] wait_for_completion+0x18/0x20
+ [<ffffffff803ce894>] i2c_detach_client+0x54/0x90
+ [<ffffffff88309071>] :lm90:lm90_detach_client+0x71/0x90
+ [<ffffffff803cd85c>] detach_legacy_clients+0x8c/0xc0
+ [<ffffffff803cd7d0>] detach_legacy_clients+0x0/0xc0
+ [<ffffffff803a4f13>] device_for_each_child+0x33/0x60
+ [<ffffffff803cebe6>] i2c_del_driver+0x126/0x140
+ [<ffffffff88309f10>] :lm90:sensors_lm90_exit+0x10/0x12
+ [<ffffffff8025a51c>] sys_delete_module+0x13c/0x1e0
+ [<ffffffff80251485>] trace_hardirqs_on+0xd5/0x170
+ [<ffffffff80444ada>] trace_hardirqs_on_thunk+0x35/0x3a
+ [<ffffffff8020ba3e>] system_call+0x7e/0x83
 
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
-> Error: Block read failed, return code -1
-> 
-> [root@localhost ~]# i2cdump -y 0 0x55 s
-> Error: Block read failed, return code -1
-> 
-> (i2c Bus hangs completely, poweroff needed.)
+Does it make more sense? The odd thing is:
 
-Note that i2cdump relies on i2c-dev, so the problem could be in
-i2c-dev. There were changes to i2c-dev between 2.6.22 and 2.6.23, that
-affect I2C block reads, but not SMBus block reads. There were two large
-patches applied to i2c-i801:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=ca8b9e32a11a7cbfecbef00c8451a79fe1af392e
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=7edcb9abb594a8f3b4ca756e03d01c870aeae127
+(gdb) list *(__lock_acquire+0x967)
+0xffffffff80252327 is in __lock_acquire (kernel/lockdep.c:2353).
+2348     * We maintain the dependency maps and validate the locking attempt:
+2349     */
+2350    static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+2351                              int trylock, int read, int check, int hardirqs_off,
+2352                              unsigned long ip)
+2353    {
+2354            struct task_struct *curr = current;
+2355            struct lock_class *class = NULL;
+2356            struct held_lock *hlock;
+2357            unsigned int depth, id;
+(gdb)
 
-You may also want to check what fedora-specific patches your kernels
-include for i2c-i801 and i2c-dev, if any. Can you reproduce the problem
-with a vanilla 2.6.23.12 kernel?
-
-On my side I'll check if I can reproduce the problem on one of my test
-systems. I don't test SMBus block reads very often so I could have
-missed it.
+Not sure how it can block on an opening curly brace ;) Maybe I should
+disable CONFIG_LOCKDEP for now.
 
 -- 
 Jean Delvare
