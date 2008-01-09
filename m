@@ -1,11 +1,14 @@
-From: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] i2c-ibm_iic driver
-Date: Wed, 09 Jan 2008 12:05:21 -0500
-Message-ID: <4784FED1.2040206@pikatech.com>
+From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c-i801: Regression between 2.6.22.9 & 2.6.23.9
+Date: Wed, 09 Jan 2008 19:09:31 +0100
+Message-ID: <47850DDB.5080101@gmail.com>
+References: <dba8564e0801090308j34215f98rd758dff3702b194@mail.gmail.com>	<20080109135341.461688d1@hyperion.delvare>	<4784D068.8080401@gmail.com>
+	<20080109154216.3cec6053@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080109154216.3cec6053-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,304 +18,141 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Oleg Ryjkov <oryjkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch allows the i2c-ibm_iic driver to be built either as an ocp 
-driver or an of_platform driver. This allows it to run under the powerpc 
-arch but maintains backward compatibility with the ppc arch.
+Jean Delvare wrote:
+> On Wed, 09 Jan 2008 14:47:20 +0100, Ivo Manca wrote:
+>   
+>> Jean Delvare wrote:
+>>     
+>>> What is an "EEP OM"?
+>>>       
+>> Sorry, that should read "EEPROM" ofcourse.
+>>     
+>
+> Err, of course. I'm not very smart today it seems...
+>
+>   
+>>> Please note that EEPROMs typically want I2C block reads (mode "i" of
+>>> i2cdump) and not SMBus block reads. Using the wrong mode shouldn't hang
+>>> the bus though.
+>>>       
+>> I know; however, i2cdump states my bus doesn't have i2c block read
+>> capabilities. That's why I used SMBus block reads, which seemed to work
+>> properly.
+>>     
+>
+> OK. This is an important fact when tracking this regression. I guess
+> that the 1st byte returned by your EEPROM is 0x80, which is NOT a valid
+> SMBus block length. This means that it is expected that an error is
+> returned. It wasn't the case before (the invalid length was adjust to
+> the nearest valid valid length, i.e. 32) but that was changed in 2.6.23
+> to return an error instead, and I think this is the right thing to do:
+>   
+Ahhhh, seeing the code this way makes perfect sense. Funny, that actual
+correcting something makes me feel like it's an error.
+>>                 if (i == 1 && read_write == I2C_SMBUS_READ) {
+>>                         len = inb_p(SMBHSTDAT0);
+>> -                       if (len < 1)
+>> -                               len = 1;
+>> -                       if (len > 32)
+>> -                               len = 32;
+>> +                       if (len < 1 || len > I2C_SMBUS_BLOCK_MAX) {
+>> +                               result = -1;
+>> +                               goto END;
+>> +                       }
+>>                         data->block[0] = len;
+>>                 }
+>>     
+>
+> So, the fact that you get an error with 2.6.23 when you did not in
+> 2.6.22 is expected, this is not a regression. I get the same error on
+> my test system. The only difference is that it does NOT hang the bus
+> for me.
+>   
+Thanks for showing me; I agree it's not a regression.
+However, the bus normally did not hang and now it does, which kinda
+feels like an awful downside. Maybe I'm just too lazy to unplug the
+power cord every time I test something  ;).
+> BTW, I2C block read is now supported in -mm:
+> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-i801-04-add-support-for-i2c-block-read.patch
+>   
+Some more to apply to my patch then :-). Thanks for noticing me, now I
+can properly test interrupt support tomorrow.
+> Note that the chip you have at 0x69 is most certainly a clock chip and
+> many clock chip do support the SMBus block read transaction. This is
+> how I test it, maybe you can try this and see if it hangs as well or
+> not.
+>
+>   
+>> Since I was using an ICH5/ICH5R, which is not listed in the switch
+>> statement at the probe function, I should be defaulting to isich = 0 and
+>> therefor using  i801_block_transaction_byte_by_byte. I'll look into the
+>> exact changes made here.
+>>     
+>
+> The ICH5 _is_ listed in the switch statement:
+>   
+>> 	case PCI_DEVICE_ID_INTEL_82801EB_3:
+>>     
+>   
+Doh. Not my day either.
+> So it should use i801_block_transaction_by_block(). You might want to
+> test removing this case from the switch statement to force the driver
+> to use i801_block_transaction_byte_by_byte() instead, and see if it
+> makes a difference.
+>   
+Will try soon.
+>>> On my side I'll check if I can reproduce the problem on one of my test
+>>> systems. I don't test SMBus block reads very often so I could have
+>>> missed it.
+>>>       
+>
+> I did that, with an ICH5 as well, I get the error when using an SMBus
+> block read on an EEPROM, as expected, but the bus never hangs. I have
+> no idea why it hangs for you and not for me. If you figure it out,
+> please let me know.
+>
+>   
 
-Cheers,
-   Sean MacLennan
+I'll still have to do quite a lot of testing, so if I stumble acros the
+caus, I'll let you know.
 
-Signed-off-by: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
----
+Just a quick update:
+Interrupt support seemed to work well for both block and byte reads in
+2.6.22.9. However, the code was too ugly and full with awful hacks, so
+I've converted it to a proper patch for both 2.6.22.9 and (later)
+2.6.23.9. Since I do not have the proper hardware at home, I had to wait
+for today & tomorrow to test.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index c466c6c..e9e1493 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -241,7 +241,6 @@ config I2C_PIIX4
- 
- config I2C_IBM_IIC
- 	tristate "IBM PPC 4xx on-chip I2C interface"
--	depends on IBM_OCP
- 	help
- 	  Say Y here if you want to use IIC peripheral found on 
- 	  embedded IBM PPC 4xx based systems. 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 9b43ff7..98476fc 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -6,6 +6,9 @@
-  * Copyright (c) 2003, 2004 Zultys Technologies.
-  * Eugene Surovegin <eugene.surovegin-OMD3UA+2ZXrQT0dZR+AlfA@public.gmane.org> or <ebs-Iydg86zsFCHR7s880joybQ@public.gmane.org>
-  *
-+ * Copyright (c) 2008 PIKA Technologies
-+ * Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-+ *
-  * Based on original work by 
-  * 	Ian DaSilva  <idasilva-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-  *      Armin Kuster <akuster-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-@@ -39,12 +42,17 @@
- #include <asm/io.h>
- #include <linux/i2c.h>
- #include <linux/i2c-id.h>
-+
-+#ifdef CONFIG_IBM_OCP
- #include <asm/ocp.h>
- #include <asm/ibm4xx.h>
-+#else
-+#include <linux/of_platform.h>
-+#endif
- 
- #include "i2c-ibm_iic.h"
- 
--#define DRIVER_VERSION "2.1"
-+#define DRIVER_VERSION "2.2"
- 
- MODULE_DESCRIPTION("IBM IIC driver v" DRIVER_VERSION);
- MODULE_LICENSE("GPL");
-@@ -650,13 +658,14 @@ static inline u8 iic_clckdiv(unsigned int opb)
- 	opb /= 1000000;
- 	
- 	if (opb < 20 || opb > 150){
--		printk(KERN_CRIT "ibm-iic: invalid OPB clock frequency %u MHz\n",
-+		printk(KERN_WARNING "ibm-iic: invalid OPB clock frequency %u MHz\n",
- 			opb);
- 		opb = opb < 20 ? 20 : 150;
- 	}
- 	return (u8)((opb + 9) / 10 - 1);
- }
- 
-+#ifdef CONFIG_IBM_OCP
- /*
-  * Register single IIC interface
-  */
-@@ -672,7 +681,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 			ocp->def->index);
- 
- 	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
--		printk(KERN_CRIT "ibm-iic%d: failed to allocate device data\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
- 			ocp->def->index);
- 		return -ENOMEM;
- 	}
-@@ -687,7 +696,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 	}
- 
- 	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
--		printk(KERN_CRIT "ibm-iic%d: failed to ioremap device registers\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
- 			dev->idx);
- 		ret = -ENXIO;
- 		goto fail2;
-@@ -746,7 +755,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 	adap->nr = dev->idx >= 0 ? dev->idx : 0;
- 
- 	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
--		printk(KERN_CRIT "ibm-iic%d: failed to register i2c adapter\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
- 			dev->idx);
- 		goto fail;
- 	}
-@@ -779,7 +788,7 @@ static void __devexit iic_remove(struct ocp_device *ocp)
- 	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
- 	BUG_ON(dev == NULL);
- 	if (i2c_del_adapter(&dev->adap)){
--		printk(KERN_CRIT "ibm-iic%d: failed to delete i2c adapter :(\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
- 			dev->idx);
- 		/* That's *very* bad, just shutdown IRQ ... */
- 		if (dev->irq >= 0){
-@@ -831,3 +840,189 @@ static void __exit iic_exit(void)
- 
- module_init(iic_init);
- module_exit(iic_exit);
-+#else
-+/*
-+ * Register single IIC interface
-+ */
-+static int __devinit iic_probe(struct of_device *ofdev,
-+			       const struct of_device_id *match)
-+{
-+	static int index = 0;
-+	struct device_node *np = ofdev->node;
-+	struct ibm_iic_private* dev;
-+	struct i2c_adapter* adap;
-+	const u32 *indexp, *freq;
-+	int ret;
-+
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-+	if (!dev) {
-+		printk(KERN_ERR "ibm-iic: failed to allocate device data\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* This assumes we don't mix index and non-index entries. */
-+	indexp = of_get_property(np, "index", NULL);
-+	dev->idx = indexp ? *indexp : index++;
-+
-+	dev_set_drvdata(&ofdev->dev, dev);
-+
-+	dev->vaddr = of_iomap(np, 0);
-+	if (dev->vaddr == NULL) {
-+		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
-+			dev->idx);
-+		ret = -ENXIO;
-+		goto fail1;
-+	}
-+
-+	init_waitqueue_head(&dev->wq);
-+
-+	if (iic_force_poll)
-+		dev->irq = NO_IRQ;
-+	else {
-+		dev->irq = irq_of_parse_and_map(np, 0);
-+		if (dev->irq == NO_IRQ)
-+			printk(KERN_ERR __FILE__ ": irq_of_parse_and_map failed\n");
-+		else {
-+			/* Disable interrupts until we finish initialization,
-+			   assumes level-sensitive IRQ setup...
-+			*/
-+			iic_interrupt_mode(dev, 0);
-+			if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
-+				printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
-+				       dev->idx, dev->irq);
-+				/* Fallback to the polling mode */
-+				dev->irq = NO_IRQ;
-+			}
-+		}
-+	}
-+
-+	if (dev->irq == NO_IRQ)
-+		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
-+			   dev->idx);
-+
-+	/* Board specific settings */
-+	if (iic_force_fast || of_get_property(np, "fast-mode", NULL))
-+		dev->fast_mode = 1;
-+	else
-+		dev->fast_mode = 0;
-+
-+	/* clckdiv is the same for *all* IIC interfaces, but I'd rather
-+	 * make a copy than introduce another global. --ebs
-+	 */
-+	freq = of_get_property(np, "clock-frequency", NULL);
-+	if (freq == NULL) {
-+		freq = of_get_property(np->parent, "clock-frequency", NULL);
-+		if (freq == NULL) {
-+			printk(KERN_ERR "ibm-iic%d: Unable to get bus frequency\n",
-+			       dev->idx);
-+			ret = -EBUSY;
-+			goto fail;
-+		}
-+	}
-+
-+	dev->clckdiv = iic_clckdiv(*freq);
-+	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
-+
-+	/* Initialize IIC interface */
-+	iic_dev_init(dev);
-+
-+	/* Register it with i2c layer */
-+	adap = &dev->adap;
-+	adap->dev.parent = &ofdev->dev;
-+	strcpy(adap->name, "IBM IIC");
-+	i2c_set_adapdata(adap, dev);
-+	adap->id = I2C_HW_OCP;
-+	adap->class = I2C_CLASS_HWMON;
-+	adap->algo = &iic_algo;
-+	adap->client_register = NULL;
-+	adap->client_unregister = NULL;
-+	adap->timeout = 1;
-+	adap->retries = 1;
-+	adap->nr = dev->idx;
-+
-+	ret = i2c_add_numbered_adapter(adap);
-+	if (ret  < 0) {
-+		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
-+			dev->idx);
-+		goto fail;
-+	}
-+
-+	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
-+		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
-+
-+	return 0;
-+
-+fail:
-+	if (dev->irq != NO_IRQ){
-+		iic_interrupt_mode(dev, 0);
-+		free_irq(dev->irq, dev);
-+	}
-+
-+	iounmap(dev->vaddr);
-+fail1:
-+	dev_set_drvdata(&ofdev->dev, NULL);
-+	kfree(dev);
-+	return ret;
-+}
-+
-+/*
-+ * Cleanup initialized IIC interface
-+ */
-+static int __devexit iic_remove(struct of_device *ofdev)
-+{
-+	struct ibm_iic_private* dev = dev_get_drvdata(&ofdev->dev);
-+
-+	BUG_ON(dev == NULL);
-+	if (i2c_del_adapter(&dev->adap)){
-+		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
-+			dev->idx);
-+		/* That's *very* bad, just shutdown IRQ ... */
-+		if (dev->irq != NO_IRQ){
-+		    iic_interrupt_mode(dev, 0);
-+		    free_irq(dev->irq, dev);
-+		    dev->irq = NO_IRQ;
-+		}
-+	} else {
-+		if (dev->irq != NO_IRQ){
-+		    iic_interrupt_mode(dev, 0);
-+		    free_irq(dev->irq, dev);
-+		}
-+		iounmap(dev->vaddr);
-+		kfree(dev);
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static const struct of_device_id ibm_iic_match[] =
-+{
-+	{ .type = "i2c", .compatible = "ibm,iic-405ex", },
-+	{ .type = "i2c", .compatible = "ibm,iic-405gp", },
-+	{ .type = "i2c", .compatible = "ibm,iic-440gp", },
-+	{ .type = "i2c", .compatible = "ibm,iic-440gpx", },
-+	{ .type = "i2c", .compatible = "ibm,iic-440grx", },
-+	{}
-+};
-+
-+static struct of_platform_driver ibm_iic_driver =
-+{
-+	.name   = "ibm-iic",
-+	.match_table = ibm_iic_match,
-+	.probe  = iic_probe,
-+	.remove = iic_remove,
-+};
-+
-+static int __init ibm_iic_init(void)
-+{
-+	printk(KERN_INFO "IBM IIC driver v" DRIVER_VERSION "\n");
-+	return of_register_platform_driver(&ibm_iic_driver);
-+}
-+module_init(ibm_iic_init);
-+
-+static void __exit ibm_iic_exit(void)
-+{
-+	of_unregister_platform_driver(&ibm_iic_driver);
-+}
-+module_exit(ibm_iic_exit);
-+#endif
+I'm very curious whether it will work or not, and especially, how fast
+it'll be with i2c block reads.
+
+Last test results shows:
+
+Old driver:
+(time 25x i2cdump -s)
+real    0m27.375s
+user    0m0.008s
+sys     0m0.023s    
+--
+I2C_SMBUS_QUICK(nodev) 0.00222
+I2C_SMBUS_QUICK 0.00238
+I2C_SMBUS_BYTE 0.00203
+I2C_SMBUS_BYTE_DATA 0.00203
+I2C_SMBUS_WORD_DATA 0.00216
+
+New driver:
+(time 25x i2cdump -s)
+./bla (i2c-dump 25x)
+real    0m24.215s
+user    0m0.013s
+sys     0m0.175s
+--
+I2C_SMBUS_QUICK(nodev) 0.00112
+I2C_SMBUS_QUICK 0.00112
+I2C_SMBUS_BYTE 0.00110
+I2C_SMBUS_BYTE_DATA 0.00113
+I2C_SMBUS_WORD_DATA 0.00108
