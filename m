@@ -1,15 +1,11 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: i2c-remove-redundant-i2c_client-list.patch
-Date: Tue, 8 Jan 2008 14:27:12 -0800
-Message-ID: <200801081427.12484.david-b@pacbell.net>
-References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	<200801081344.45544.david-b@pacbell.net>
-	<20080108220445.GB3873@kroah.com>
+From: "Ivo Manca" <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c-i801: Regression between 2.6.19-1 & 2.6.23.9
+Date: Wed, 9 Jan 2008 12:08:28 +0100
+Message-ID: <dba8564e0801090308j34215f98rd758dff3702b194@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080108220445.GB3873-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -20,79 +16,98 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 08 January 2008, Greg KH wrote:
-> > > > > So it is supposed to work somehow...
-> > > > 
-> > > > Yeah, but then again ... the i2c stack does that oddball stuff with
-> > > > complete(&client->released) for legacy drivers, too.
+Hey all,
 
-Also the i2c_adapter devices, which might have a similar issue lurking...
+Trying to test  interrupt support for i801 I learned that somehow
+between kernel version 2.6.22.14 and 2.6.23.9, something went wrong
+with the bus driver. Is this a known issue?
+When I try to use i2cdump to block-read an EEP OM, my i2cbus hangs.
 
+Please find my output for 2.6.19-1 (working), 2.6.22.14-72 (working)
+and 2.6.23.9-85 (not working).
 
-> > > > 		That's always 
-> > > > been contrary to what the driver model expects, and I never quite
-> > > > bothered to sort out the issues.  Maybe this is one of them (sigh).
-> > > 
-> > > I see. I doubt I'll be of much help, as I could never figure out what
-> > > this completion stuff was for in the first place.
-> > 
-> > In which case I'm guessing it's stuff Greg did way back in the day.
-> > I cc'd him in hope that he can find time to comment on that ...
-> 
-> Ick, sorry about that mess :(
+Note: SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R)
 
-I was *hoping* for more than just sympathy!  ;)
+Ivo
 
+[root@localhost ~]# uname -r
+2.6.19-1.2911.fc6
 
-> > My understanding is that it was written early in sysfs conversions
-> > to help ensure sysfs wasn't keeping an open handle on the device.
-> > However, that early scheme proved to be quite error prone and now
-> > things are set up differently.  There was a particularly annoying
-> > class of problem with module removal.  Devices allocated by a driver
-> > needed to be freed by that driver, which implies not unloading any
-> > driver's module until device nodes it had allocated were freed.
-> 
-> Yes, that should not be used anymore, and I thought we had removed it
-> for some reason.  I guess I was just wishing it were so...
+[root@localhost ~]# modprobe i2c-dev
+[root@localhost ~]# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
+10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+40: XX XX XX XX 44 XX XX XX XX XX XX XX XX XX XX XX
+50: 50 XX XX XX 54 55 XX XX XX XX XX XX XX XX XX XX
+60: XX XX XX XX XX XX XX XX XX 69 XX XX XX XX XX XX
+70: XX XX XX 73 XX XX XX XX
 
-Do you remember any particular details about how it all got removed?
-Like in particular:
- 
-> > The simple way around that restriction involves never having modules
-> > allocate such devices ... clearly not easy for legacy I2C drivers.
+[root@localhost ~]# i2cdump -y 0 0x55 s
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
+10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
 
-Was there a better solution than that near-term unattractive one?
-It involves changing lots of legacy I2C code, making them provide
-proper remove methods and thus changing memory management policy ...
-Error prone, needs to be done slowly.
+[root@localhost ~]# i2cdump -y 0 0x55 s
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
+10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
 
+====
 
-> > Another way around it was to synchronize driver removal with the
-> > cleanup of those devices.  And that's what the current I2C stack is
-> > (still) doing for legacy drivers, with that completion logic.
-> > 
-> > - Dave
-> > 
-> > p.s. Greg, for context:  there are two patches in Jean's I2C queue
-> >      to remove some redundant I2C lists, in favor of using versions
-> >      maintained by i2c-core.  $SUBJECT relates to a patch removing
-> >      a third redundancy:  i2c_adapter.clients and i2c_client.list,
-> >      plus (the original problem) the lock for that list.
-> 
-> That sounds like a good idea, if the above race doesn't happen :)
-> 
-> Anything I can do to help out?
+[root@localhost ~]# uname -r
+2.6.22.14-72.fc6
 
-Verify that could cause the hang Jean observed ... you're more on top
-of this driver model stuff than most folk.  :)
+[root@localhost ~]# modprobe i2c-dev
 
-I'll forward you my copies of the three patches, so you can apply them
-and see the basic results of the cleanups.  Then have a look and see if
-you agree with me about that one solution being "near-term unattractive",
-or can otherwise suggest a clean solution.
+[root@localhost ~]# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
+10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+40: XX XX XX XX 44 XX XX XX XX XX XX XX XX XX XX XX
+50: 50 XX XX XX 54 55 XX XX XX XX XX XX XX XX XX XX
+60: XX XX XX XX XX XX XX XX XX 69 XX XX XX XX XX XX
+70: XX XX XX 73 XX XX XX XX
 
-- Dave
+[root@localhost ~]# i2cdump -y 0 0x55 s
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
+10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
+
+[root@localhost ~]# i2cdump -y 0 0x55 s
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: 08 07 0d 0a 01 40 00 04 60 70 00 82 08 00 01 0e    ?????@.?`p.??.??
+10: 04 0c 01 02 20 c0 75 70 00 00 48 30 48 2a 40 75    ???? ?up..H0H*@u
+
+====
+
+[root@localhost ~]# uname -r
+2.6.23.9-85.fc8
+
+[root@localhost ~]# modprobe i2c-dev
+
+[root@localhost ~]# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
+50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
+70: -- -- -- 73 -- -- -- --
+
+[root@localhost ~]# i2cdump -y 0 0x55 s
+Error: Block read failed, return code -1
+
+[root@localhost ~]# i2cdump -y 0 0x55 s
+Error: Block read failed, return code -1
+
+(i2c Bus hangs completely, poweroff needed.)
