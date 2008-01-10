@@ -1,16 +1,15 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-remove-redundant-i2c_client-list.patch
-Date: Thu, 10 Jan 2008 14:31:05 +0100
-Message-ID: <20080110143105.456ddaf0@hyperion.delvare>
-References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	<20080109142906.23a55f5f@hyperion.delvare>
-	<20080109171934.4f894bdc@hyperion.delvare>
-	<200801091321.29212.david-b@pacbell.net>
+Subject: Re: [PATCH 2/2] [resend] Add polling transfer for i2c-pxa
+Date: Thu, 10 Jan 2008 14:54:39 +0100
+Message-ID: <20080110145439.2e6a49af@hyperion.delvare>
+References: <476A7761.3050103@compulab.co.il>
+	<20080110112413.3b379781@hyperion.delvare>
+	<47860C86.5050801@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200801091321.29212.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <47860C86.5050801-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,37 +19,32 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: eric miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, ARM Linux <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 9 Jan 2008 13:21:28 -0800, David Brownell wrote:
-> Right now I'm thinking that we'll need a multi-phase approach:
+On Thu, 10 Jan 2008 14:16:06 +0200, Mike Rapoport wrote:
+> Jean Delvare wrote:
+> > Hi Mike,
+> > 
+> > On Thu, 20 Dec 2007 16:08:33 +0200, Mike Rapoport wrote:
+> >> The below patch adds polling I2C transfer implementation for PXA I2C.
+> > 
+> > This patch doesn't apply on top of my current stack, most probably due
+> > to a conflict with this patch by Eric Miao:
+> > 
+> > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-pxa-use-cpu_is_pxa27x.patch
+> > 
+> > Can you please update your patch so that it applies cleanly on top of
+> > 2.6.24-rc7 + the patch above?
 > 
-> (a) Start phasing out users of i2c_client.list and its lock, ASAP;
->     merging those DVB driver patches, and some i2c-core changes.
+> Hope this one will go...
 
-Fine with me. Can you please send the i2c-core patch? It would include
-i2c_verify_client(), then I can deal with the V4L drivers patch and
-these 2 patches can be pushed to -mm quickly.
+Yes, this one applied just fine, thank you. I've added it to my tree.
+However I don't have the hardware to test it, I can't even built the
+i2c-pxa driver. Can someone else please review and/or test the patch
+and add his/her Acked-by?
 
-> (b) But don't remove that list from the deletion path until ...
-> 
-> (c) ... We have a solution that removes that wait_for_completion()
->     and its infrastructure.  (Note the similar i2c_adapter logic
->     too, sigh.)
-> 
-> (d) Meanwhile, come up with a different solution to the deadlock
->     observed with i2c_adapter.clist ... which for some unknown
->     reason has *NOT* shown up for me with lockdep.
-> 
-> Of course, if (c) happens soon soon, this problem simplifies.  And
-> maybe someone will come up with a non-invasive solution to that
-> problem ... but if nobody does so before, say, Monday, I'm thinking
-> that (d) becomes a priority.
-
-I won't be able to help with this as I don't understand it fully,
-sorry. But I can do any amount of testing if someone sends patches.
-
+Thanks,
 -- 
 Jean Delvare
