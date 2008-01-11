@@ -1,7 +1,7 @@
 From: "Eric Miao" <ymiao3-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Subject: Re: [PATCH 2/2] [resend] Add polling transfer for i2c-pxa
-Date: Thu, 10 Jan 2008 17:03:25 -0800
-Message-ID: <E913911567467945BBEB9277E27868B06BC64A@msiexch01.marvell.com>
+Date: Thu, 10 Jan 2008 19:33:57 -0800
+Message-ID: <E913911567467945BBEB9277E27868B06BC773@msiexch01.marvell.com>
 References: <476A7761.3050103@compulab.co.il><20080110112413.3b379781@hyperion.delvare><47860C86.5050801@compulab.co.il>
 	<20080110145439.2e6a49af@hyperion.delvare>
 Mime-Version: 1.0
@@ -54,7 +54,10 @@ List-Id: linux-i2c@vger.kernel.org
 > and add his/her Acked-by?
 > 
 
-I can test this and get back to you by end of today.
+Acked-by: eric miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+
+I've tested this patch on zylonite/pxa3xx platform with both 'use_pio = 0'
+and 'use_pio = 1', and is known to work.
 
 > Thanks,
 > --
