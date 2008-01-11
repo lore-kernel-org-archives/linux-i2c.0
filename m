@@ -1,42 +1,36 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] [resend] Add polling transfer for i2c-pxa
-Date: Fri, 11 Jan 2008 08:44:22 +0100
-Message-ID: <20080111084422.05b1e4d8@hyperion.delvare>
-References: <476A7761.3050103@compulab.co.il>
-	<20080110112413.3b379781@hyperion.delvare>
-	<47860C86.5050801@compulab.co.il>
-	<20080110145439.2e6a49af@hyperion.delvare>
-	<E913911567467945BBEB9277E27868B06BC773@msiexch01.marvell.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [PATCH 0/5] Version 17,  series to add device tree naming
+ to i2c
+Date: Fri, 11 Jan 2008 09:56:38 +0100
+Message-ID: <20080111095638.775670ed@hyperion.delvare>
+References: <20071220044136.20091.70984.stgit@terra.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <E913911567467945BBEB9277E27868B06BC773-3TKN+kxLw8+HXkj8w7BxOhL4W9x8LtSr@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Eric Miao <ymiao3-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: ARM Linux <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758090AbYAKI44@vger.kernel.org>
+In-Reply-To: <20071220044136.20091.70984.stgit@terra.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: i2c@lm-sensors.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 10 Jan 2008 19:33:57 -0800, Eric Miao wrote:
-> > Yes, this one applied just fine, thank you. I've added it to my tree.
-> > However I don't have the hardware to test it, I can't even built the
-> > i2c-pxa driver. Can someone else please review and/or test the patch
-> > and add his/her Acked-by?
-> 
-> Acked-by: eric miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> 
-> I've tested this patch on zylonite/pxa3xx platform with both 'use_pio = 0'
-> and 'use_pio = 1', and is known to work.
+Hi Jon,
 
-Great, thanks Eric!
+On Wed, 19 Dec 2007 23:41:36 -0500, Jon Smirl wrote:
+> Since copying i2c-mpc.c to maintain support for the ppc architecture seems to be an issue; instead rework i2c-mpc.c to use CONFIG_PPC_MERGE #ifdefs to support both the ppc and powerpc architecture. When ppc is deleted in six months these #ifdefs will need to be removed.
+> 
+> Another rework of the i2c for powerpc device tree patch. This version implements standard alias naming only on the powerpc platform and only for the device tree names. The old naming mechanism of i2c_client.name,driver_name is left in place and not changed for non-powerpc platforms. This patch is fully capable of dynamically loading the i2c modules. You can modprobe in the i2c-mpc driver and the i2c modules described in the device tree will be automatically loaded. Modules also work if compiled in.
+> 
+> The follow on patch to module-init-tools is also needed since the i2c subsystem has never implemented dynamic loading.
+> 
+> The following series implements standard linux module aliasing for i2c modules on arch=powerpc. It then converts the mpc i2c driver from being a platform driver to an open firmware one. I2C device names are picked up from the device tree. Module aliasing is used to translate from device tree names into to linux kernel names. Several i2c drivers are updated to use the new aliasing. 
+
+Now that I have read all the previous versions of this patch series
+and, more importantly, all objections that were raised on the way, I
+can start reviewing the latest iteration of your patches. I'll also do
+some testing, although I have no powerpc stuff here, but at least I
+want to make sure that there are no regressions introduced by your
+patches on x86.
 
 -- 
 Jean Delvare
