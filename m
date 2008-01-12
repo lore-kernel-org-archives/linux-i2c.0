@@ -1,143 +1,57 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH 19 4/5] Convert PowerPC MPC i2c to of_platform_driver
- from platform_driver
-Date: Sat, 12 Jan 2008 15:07:14 +1100
-Message-ID: <20080112150714.0afc9c06.sfr@canb.auug.org.au>
-References: <20080112024737.7023.61680.stgit@terra.home>
-	<20080112024745.7023.66422.stgit@terra.home>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [PATCH 1/5] Implement module aliasing for i2c to
+	translate from device tree names
+Date: Sat, 12 Jan 2008 09:46:58 +0100
+Message-ID: <20080112094658.197acb08@hyperion.delvare>
+References: <20071220044136.20091.70984.stgit@terra.home>
+	<20071220044138.20091.31417.stgit@terra.home>
+	<20080111202015.65c3c160@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Sat__12_Jan_2008_15_07_14_+1100_qSMnnLHQ5V2je.d7"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759747AbYALEHj@vger.kernel.org>
-In-Reply-To: <20080112024745.7023.66422.stgit@terra.home>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080111202015.65c3c160@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 To: Jon Smirl <jonsmirl@gmail.com>
-Cc: i2c@lm-sensors.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
---Signature=_Sat__12_Jan_2008_15_07_14_+1100_qSMnnLHQ5V2je.d7
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 Hi Jon,
 
-On Fri, 11 Jan 2008 21:47:46 -0500 Jon Smirl <jonsmirl@gmail.com> wrote:
->
-> +++ b/drivers/i2c/busses/i2c-mpc.c
+On Fri, 11 Jan 2008 20:20:15 +0100, Jean Delvare wrote:
+> > +{
+> > +	/* only powerpc drivers implement the id_table,
+> > +	 * it is empty on other platforms */
+> > +	if (id) {
+> > +		while (id->name[0]) {
+> > +			if (strcmp(client->driver_name, id->name) == 0)
+> 
+> This doesn't look right to me. You should be comparing client->name,
+> not client->driver_name, with id->name. Where id_table is implemented,
+> client->driver_name might not even be set. I see that the next patch in
+> the series makes use of client->driver_name as well, so your code
+> "works"... but this ain't correct still.
 
-> +static void of_register_i2c_devices(struct i2c_adapter *adap, struct dev=
-ice_node *adap_node)
-> +{
-> +	struct device_node *node =3D NULL;
-> +
-> +	while ((node =3D of_get_next_child(adap_node, node))) {
+Err, scratch this (and related comments), I just realized what you were
+trying to do. That's different from what I had in mind and so I read
+your code wrong. I'll read it (and test it) again not making this
+incorrect assumption and my comments will likely be different after
+that. Well, I still think that it needs to be changed a bit, but
+probably not in the direction I suggested at first (which, I realize
+now, has its own share of issues - so it's not fair to me to point you
+there.)
 
-We have for_each_child_of_node(adap_node, node) now for this (and it
-means you don't need to initialize the "node" above).
+Sorry for the trouble. I'll post updated comments later today, but I'm
+also pretty busy with other issues, some of which need to be solved
+before 2.6.24 is released so I can't really delay them.
 
-> +		struct i2c_board_info info;
-> +		const u32 *addr;
-> +		const char *compatible;
-> +		int len;
-> +
-> +		addr =3D of_get_property(node, "reg", &len);
-> +		if (!addr || len < sizeof(int) || *addr > (1 << 10) - 1) {
-> +			printk(KERN_ERR "i2c-mpc.c: invalid entry, missing reg attribute\n");
-> +			continue;
-> +		}
-> +
-> +		info.irq =3D irq_of_parse_and_map(node, 0);
-> +		if (info.irq =3D=3D NO_IRQ)
-> +			info.irq =3D -1;
-> +
-> +		compatible =3D of_get_property(node, "compatible", &len);
-> +		if (!compatible) {
-> +			printk(KERN_ERR "i2c-mpc.c: invalid entry, missing compatible attribu=
-te\n");
-> +			continue;
-
-You may need to clean up from the irq_of_pase_and_map().
-
-> +		}
-> +	=09
-> +		/* need full alias i2c:NOF,vendor,device */
-> +		strcpy(info.type, I2C_OF_MODULE_PREFIX);
-> +		strncat(info.type, compatible, sizeof(info.type));
-> +		request_module(info.type);
-> +	=09
-> +		/* need module alias OF,vendor,device */
-> +		strcpy(info.type, OF_I2C_PREFIX);
-> +		strncat(info.type, compatible, sizeof(info.type));
-> +	=09
-> +		info.driver_name[0] =3D '\0';
-> +		info.platform_data =3D NULL;
-> +		info.addr =3D *addr;
-> +
-> +		if (!i2c_new_device(adap, &info)) {
-> +			printk(KERN_ERR "i2c-mpc.c: Failed to load driver for %s\n", info.typ=
-e);
-> +			continue;
-
-And again.
-
-> +		}
-> +	}
-> +}
-> +
-> +static int mpc_i2c_probe(struct of_device *op, const struct of_device_id=
- *match)
-> +{
-
-> +	dev_set_drvdata(&op->dev, i2c);
-> +
-> +	i2c->adap =3D mpc_ops;
-> +	i2c_set_adapdata(&i2c->adap, i2c);
-> +	i2c->adap.dev.parent =3D &op->dev;
-> +
-> +	result =3D i2c_add_adapter(&i2c->adap);
-> +	if (result < 0) {
-> +		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
-> +		goto fail_add;
-> +	}
-> +
-> +	of_register_i2c_devices(&i2c->adap, op->node);
-> +
-> +	return result;
-> +
-> +fail_add:
-
-	dev_set_dvdata(&op->dev, NULL);
-
-> +	free_irq(i2c->irq, i2c);
-> +fail_request:
-> +	irq_dispose_mapping(i2c->irq);
-> +fail_irq:
-> +	iounmap(i2c->base);
-> +fail_map:
-> +	kfree(i2c);
-> +	return result;
-> +};
-
-> +static struct of_device_id mpc_i2c_of_match[] =3D {
-
-const, please.
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Sat__12_Jan_2008_15_07_14_+1100_qSMnnLHQ5V2je.d7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHiDz4TgG2atn1QN8RAjUxAJ9EKsqJwr8ROLgJ7AxjWDQGbSVaSgCeK860
-NqKJFy9Qaslyhi+B8zY7s0s=
-=R6J4
------END PGP SIGNATURE-----
-
---Signature=_Sat__12_Jan_2008_15_07_14_+1100_qSMnnLHQ5V2je.d7--
+-- 
+Jean Delvare
