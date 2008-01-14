@@ -1,108 +1,82 @@
-From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Subject: [PATCH] i2c: i2c-au1550: properly terminate zero-byte
-	transfers
-Date: Mon, 14 Jan 2008 09:46:52 +0100
-Message-ID: <20080114084652.GA15392@roarinelk.homelinux.net>
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Subject: Re: [i2c] [PATCH] update module-init-tools to support the i2c
+ subsystem
+Date: Mon, 14 Jan 2008 11:57:52 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0801141154420.3058@vixen.sonytel.be>
+References: <9e4733910712171839h214e0bc3q179266c86e5987b1@mail.gmail.com>
+ <20080113152735.5dca46a1@hyperion.delvare> <9e4733910801130714m1be16826jf240171972324d16@mail.gmail.com>
+ <20080113163543.16e3d26b@hyperion.delvare> <9e4733910801130826l799e4897pe7380ccb973b5fd0@mail.gmail.com>
+ <20080113184337.5d4cd546@hyperion.delvare> <9e4733910801131004i669276e2pde04b195dd10bd90@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, cd-8pe3aW1LYQvVtiohHAVwjA@public.gmane.org
+Content-Type: MULTIPART/MIXED; BOUNDARY="-584349381-1465604188-1200308272=:3058"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756120AbYANK6O@vger.kernel.org>
+In-Reply-To: <9e4733910801131004i669276e2pde04b195dd10bd90@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Here is my third try to fix the corrupted RTC minute register
-on my board in conjunction with the i2c-au1550 driver.
+---584349381-1465604188-1200308272=:3058
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Here's a trace of the controller accessing the RTC (0xA2):
-http://mlau.at/files/i2c-au1550-original_behav.png
+On Sun, 13 Jan 2008, Jon Smirl wrote:
+> On 1/13/08, Jean Delvare <khali@linux-fr.org> wrote:
+> > On Sun, 13 Jan 2008 11:26:07 -0500, Jon Smirl wrote:
+> > > On 1/13/08, Jean Delvare <khali@linux-fr.org> wrote:
+> > > > On Sun, 13 Jan 2008 10:14:14 -0500, Jon Smirl wrote:
+> > > > > On 1/13/08, Jean Delvare <khali@linux-fr.org> wrote:
+> > > > > > On Mon, 17 Dec 2007 21:39:37 -0500, Jon Smirl wrote:
+> > > > > > > Follow on to: "Series to add device tree naming to i2c"
+> > > > > > > Teach module-init-tools about the i2c subsystem.
+> > > > > >
+> > > > > > Can you please explain what this patch does and why it is needed?
+> > > > >
+> > > > > It generates the entries needed for the user space module tools to
+> > > > > work with the aliases. For example modprobe/depmod. It is a standard
+> > > > > part of the kernel module system.
+> > > >
+> > > > What entries, where? What can you do after applying your patch that you
+> > > > couldn't do before?
+> > >
+> > > The drivers you are testing with don't depend on other drivers.
+> >
+> > They do. I'm testing with the lm90 driver, which depends on the hwmon
+> > driver. Both load automatically when the underlying i2c-parport driver
+> > instantiate an "adm1032" i2c device.
+> 
+> I don't know exactly what those modules tables are used for. I just
+> copied what the other subsystems do. Maybe they are used when you make
+> an initrd to know which drivers to copy into the image.
 
-Notice the missing stop condition after the quick probe.
+Module-init-tools needs those table to create module aliases in the *.ko
+files from the MODULE_DEVICE_TABLE(), so udev can load the modules based
+on the device IDs when the devices appear in sysfs.
 
-Here's a trace with the patch applied:
-http://mlau.at/files/i2c-au1550-misbehavior-patch-behav.png
+That's the generic part. How this applies to i2c devices on platforms
+without Open Firmware device trees is another question. I guess that's
+where Jean gets confused (i2c_device_id got _removed_ last year,
+because it didn't make sense (at the time?)).
 
-Please apply!
+With kind regards,
 
----
->From 443520b88bda030ba304dcbbbf14f977abad5ff5 Mon Sep 17 00:00:00 2001
-From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Date: Mon, 14 Jan 2008 09:28:11 +0100
-Subject: [PATCH] i2c: i2c-au1550: properly terminate zero-byte transfers
+Geert Uytterhoeven
+Software Architect
 
-Zero-bytes transfers would leave the bus transaction unfinished
-(no i2c stop is sent), with the following transfer actually
-sending the slave address to the previously addressed device,
-resulting in weird device failures (e.g. reset minute register
-values in my RTC).
-This patch instructs the controller to send an I2C STOP right after
-the slave address in case of a zero-byte transfer.
+Sony Network and Software Technology Center Europe
+The Corporate Village · Da Vincilaan 7-D1 · B-1935 Zaventem · Belgium
 
-Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
----
- drivers/i2c/busses/i2c-au1550.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
+Phone:    +32 (0)2 700 8453
+Fax:      +32 (0)2 700 8622
+E-mail:   Geert.Uytterhoeven@sonycom.com
+Internet: http://www.sony-europe.com/
 
-diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
-index 2f68416..7d51a43 100644
---- a/drivers/i2c/busses/i2c-au1550.c
-+++ b/drivers/i2c/busses/i2c-au1550.c
-@@ -105,7 +105,7 @@ wait_master_done(struct i2c_au1550_data *adap)
- }
- 
- static int
--do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
-+do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd, int q)
- {
- 	volatile psc_smb_t	*sp;
- 	u32			stat;
-@@ -134,6 +134,10 @@ do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
- 	if (rd)
- 		addr |= 1;
- 
-+	/* zero-byte xfers stop immediately */
-+	if (q)
-+		addr |= PSC_SMBTXRX_STP;
-+
- 	/* Put byte into fifo, start up master.
- 	*/
- 	sp->psc_smbtxrx = addr;
-@@ -142,7 +146,7 @@ do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
- 	au_sync();
- 	if (wait_ack(adap))
- 		return -EIO;
--	return 0;
-+	return (q) ? wait_master_done(adap) : 0;
- }
- 
- static u32
-@@ -262,7 +266,8 @@ au1550_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs, int num)
- 
- 	for (i = 0; !err && i < num; i++) {
- 		p = &msgs[i];
--		err = do_address(adap, p->addr, p->flags & I2C_M_RD);
-+		err = do_address(adap, p->addr, p->flags & I2C_M_RD,
-+				 (p->len == 0));
- 		if (err || !p->len)
- 			continue;
- 		if (p->flags & I2C_M_RD)
--- 
-1.5.3.7
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Sony Network and Software Technology Center Europe
+A division of Sony Service Centre (Europe) N.V.
+Registered office: Technologielaan 7 · B-1840 Londerzeel · Belgium
+VAT BE 0413.825.160 · RPR Brussels
+Fortis Bank Zaventem · Swift GEBABEBB08A · IBAN BE39001382358619
+---584349381-1465604188-1200308272=:3058--
