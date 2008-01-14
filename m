@@ -1,7 +1,7 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: i2c-remove-redundant-i2c_client-list.patch
-Date: Mon, 14 Jan 2008 14:20:48 -0800
-Message-ID: <200801141420.49274.david-b@pacbell.net>
+Date: Mon, 14 Jan 2008 14:42:48 -0800
+Message-ID: <200801141442.49220.david-b@pacbell.net>
 References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 	<200801091321.29212.david-b@pacbell.net>
 	<20080110143105.456ddaf0@hyperion.delvare>
@@ -25,276 +25,344 @@ Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz
 List-Id: linux-i2c@vger.kernel.org
 
 On Thursday 10 January 2008, Jean Delvare wrote:
-> On Wed, 9 Jan 2008 13:21:28 -0800, David Brownell wrote:
-> > Right now I'm thinking that we'll need a multi-phase approach:
+> > (b) But don't remove that list from the deletion path until ...
 > > =
 
-> > (a) Start phasing out users of i2c_client.list and its lock, ASAP;
-> > =A0 =A0 merging those DVB driver patches, and some i2c-core changes.
-> =
+> > (c) ... We have a solution that removes that wait_for_completion()
+> > =A0 =A0 and its infrastructure. =A0(Note the similar i2c_adapter logic
+> > =A0 =A0 too, sigh.)
+> > =
 
-> Fine with me. Can you please send the i2c-core patch? It would include
-> i2c_verify_client(), then I can deal with the V4L drivers patch and
-> these 2 patches can be pushed to -mm quickly.
+> > (d) Meanwhile, come up with a different solution to the deadlock
+> > =A0 =A0 observed with i2c_adapter.clist ... which for some unknown
+> > =A0 =A0 reason has *NOT* shown up for me with lockdep.
+> > =
 
-OK, here's the trimmed-down patch that leaves the deletion
-paths untouched until we have a better solution.  I've only
-build-tested it, but it's basically $SUBJECT without those
-troublesome paths.
+> > Of course, if (c) happens soon soon, this problem simplifies. =A0And
+> > maybe someone will come up with a non-invasive solution to that
+> > problem ... but if nobody does so before, say, Monday, I'm thinking
+> > that (d) becomes a priority.
+
+Oh, and for the record ... here's the part of $SUBJECT patch that
+does (b) without (c).  No (d) yet, sigh.  I suspect a few of these
+cleanups could become mergable with some work, but certainly not
+all of them.  Goes on top of what I just posted.
 
 - Dave
 
-=3D=3D=3D=3D=3D=3D=3D	CUT HERE
-The i2c_adapter.clients list of i2c_client nodes duplicates driver
-model state.  This patch starts removing that list, letting us remove
-most existing users of those i2c-core lists.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D	CUT
+Finish removing i2c_adapter.clients and its support.
 
- * The core I2C code now iterates over the driver model's list instead
-   of the i2c-internal one in some places where it's safe:
-      - Passing a command/ioctl to each client, a mechanims
-        used almost exclusively by DVB adapters;
-      - Device address checking, in both i2c-core and i2c-dev.
+NOTE:  this has self-deadlock issues with legacy drivers.  The issue
+seems to be an obsolete idiom whereby code deleting devices (in i2c-core
+both i2c_client and i2c_adapter nodes have this problem) waits for a
+completion event as a kind of synchronization.  That's problematic since
+the driver model turns that kind of synchronization into a self-deadlock.
 
- * Provide i2c_verify_client() to use with driver model iterators.
-
- * Flag the relevant i2c_adapter and i2c_client fields as deprecated,
-   to help prevent new users from appearing.
-
-For the moment the list needs to stick around, since some issues show
-up when deleting devices created by legacy I2C drivers.  (They don't
-follow standard driver model rules.  Removing those devices can cause
-self-deadlocks.)
-
-Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   78 ++++++++++++++++++++++++++++----------------=
+ drivers/i2c/i2c-core.c |  126 +++++++++++++++++++++-----------------------=
 -----
- drivers/i2c/i2c-dev.c  |   29 +++++++-----------
- include/linux/i2c.h    |    8 +++--
- 3 files changed, 63 insertions(+), 52 deletions(-)
+ include/linux/i2c.h    |    4 -
+ 2 files changed, 54 insertions(+), 76 deletions(-)
 
---- at91.orig/drivers/i2c/i2c-core.c	2008-01-14 13:56:28.000000000 -0800
-+++ at91/drivers/i2c/i2c-core.c	2008-01-14 14:01:50.000000000 -0800
-@@ -197,6 +197,25 @@ static struct bus_type i2c_bus_type =3D {
- 	.resume		=3D i2c_device_resume,
- };
- =
-
-+
-+/**
-+ * i2c_verify_client - return parameter as i2c_client, or NULL
-+ * @dev: device, probably from some driver model iterator
-+ *
-+ * When traversing the driver model tree, perhaps using driver model
-+ * iterators like @device_for_each_child(), you can't assume very much
-+ * about the nodes you find.  Use this function to avoid oopses caused
-+ * by wrongly treating some non-I2C device as an i2c_client.
-+ */
-+struct i2c_client *i2c_verify_client(struct device *dev)
-+{
-+	return (dev->bus =3D=3D &i2c_bus_type)
-+			? to_i2c_client(dev)
-+			: NULL;
-+}
-+EXPORT_SYMBOL(i2c_verify_client);
-+
-+
- /**
-  * i2c_new_device - instantiate an i2c device for use with a new style dri=
-ver
-  * @adap: the adapter managing the device
-@@ -713,28 +732,19 @@ EXPORT_SYMBOL(i2c_del_driver);
- =
-
- /* -----------------------------------------------------------------------=
--- */
- =
-
--static int __i2c_check_addr(struct i2c_adapter *adapter, unsigned int addr)
-+static int __i2c_check_addr(struct device *dev, void *addrp)
+--- at91.orig/drivers/i2c/i2c-core.c	2008-01-14 14:32:00.000000000 -0800
++++ at91/drivers/i2c/i2c-core.c	2008-01-14 14:32:19.000000000 -0800
+@@ -275,7 +275,6 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
+  */
+ void i2c_unregister_device(struct i2c_client *client)
  {
--	struct list_head   *item;
--	struct i2c_client  *client;
-+	struct i2c_client	*client =3D i2c_verify_client(dev);
-+	int			addr =3D *(int *)addrp;
+-	struct i2c_adapter	*adapter =3D client->adapter;
+ 	struct i2c_driver	*driver =3D client->driver;
  =
 
--	list_for_each(item,&adapter->clients) {
--		client =3D list_entry(item, struct i2c_client, list);
--		if (client->addr =3D=3D addr)
--			return -EBUSY;
--	}
-+	if (client && client->addr =3D=3D addr)
-+		return -EBUSY;
- 	return 0;
- }
- =
-
- static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
- {
--	int rval;
+ 	if (driver && !is_newstyle_driver(driver)) {
+@@ -284,11 +283,6 @@ void i2c_unregister_device(struct i2c_cl
+ 		WARN_ON(1);
+ 		return;
+ 	}
 -
 -	mutex_lock(&adapter->clist_lock);
--	rval =3D __i2c_check_addr(adapter, addr);
+-	list_del(&client->list);
 -	mutex_unlock(&adapter->clist_lock);
 -
--	return rval;
-+	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr);
+ 	device_unregister(&client->dev);
+ }
+ EXPORT_SYMBOL_GPL(i2c_unregister_device);
+@@ -400,8 +394,6 @@ static int i2c_register_adapter(struct i
+ 	int res =3D 0, dummy;
+ =
+
+ 	mutex_init(&adap->bus_lock);
+-	mutex_init(&adap->clist_lock);
+-	INIT_LIST_HEAD(&adap->clients);
+ =
+
+ 	mutex_lock(&core_lists);
+ =
+
+@@ -544,6 +536,32 @@ static int i2c_do_del_adapter(struct dev
+ 	return res;
  }
  =
 
- int i2c_attach_client(struct i2c_client *client)
-@@ -743,7 +753,7 @@ int i2c_attach_client(struct i2c_client =
-
++
++static int detach_all_clients(struct device *dev, void *x)
++{
++	struct i2c_client	*client =3D i2c_verify_client(dev);
++	struct i2c_driver	*driver;
++	int			res;
++
++	if (!client)
++		return 0;
++
++	driver =3D client->driver;
++
++	/* new style, follow standard driver model */
++	if (!driver || is_newstyle_driver(driver)) {
++		i2c_unregister_device(client);
++		return 0;
++	}
++
++	/* legacy drivers create and remove clients themselves */
++	if ((res =3D driver->detach_client(client)))
++		dev_err(dev, "detach_client [%s] failed at address 0x%02x\n",
++			client->name, client->addr);
++
++	return res;
++}
++
+ /**
+  * i2c_del_adapter - unregister I2C adapter
+  * @adap: the adapter being unregistered
+@@ -554,8 +572,6 @@ static int i2c_do_del_adapter(struct dev
+  */
+ int i2c_del_adapter(struct i2c_adapter *adap)
+ {
+-	struct list_head  *item, *_n;
+-	struct i2c_client *client;
  	int res =3D 0;
  =
 
- 	mutex_lock(&adapter->clist_lock);
--	if (__i2c_check_addr(client->adapter, client->addr)) {
-+	if (i2c_check_addr(client->adapter, client->addr)) {
- 		res =3D -EBUSY;
- 		goto out_unlock;
- 	}
-@@ -873,24 +883,28 @@ int i2c_release_client(struct i2c_client
- }
- EXPORT_SYMBOL(i2c_release_client);
+ 	mutex_lock(&core_lists);
+@@ -576,26 +592,9 @@ int i2c_del_adapter(struct i2c_adapter *
  =
 
-+struct i2c_cmd_arg {
-+	unsigned	cmd;
-+	void		*arg;
-+};
-+
-+static int i2c_cmd(struct device *dev, void *_arg)
+ 	/* detach any active clients. This must be done first, because
+ 	 * it can fail; in which case we give up. */
+-	list_for_each_safe(item, _n, &adap->clients) {
+-		struct i2c_driver	*driver;
+-
+-		client =3D list_entry(item, struct i2c_client, list);
+-		driver =3D client->driver;
+-
+-		/* new style, follow standard driver model */
+-		if (!driver || is_newstyle_driver(driver)) {
+-			i2c_unregister_device(client);
+-			continue;
+-		}
+-
+-		/* legacy drivers create and remove clients themselves */
+-		if ((res =3D driver->detach_client(client))) {
+-			dev_err(&adap->dev, "detach_client failed for client "
+-				"[%s] at address 0x%02x\n", client->name,
+-				client->addr);
+-			goto out_unlock;
+-		}
+-	}
++	res =3D device_for_each_child(&adap->dev, NULL, detach_all_clients);
++	if (res)
++		goto out_unlock;
+ =
+
+ 	/* clean up the sysfs representation */
+ 	init_completion(&adap->dev_released);
+@@ -674,6 +673,20 @@ int i2c_register_driver(struct module *o
+ }
+ EXPORT_SYMBOL(i2c_register_driver);
+ =
+
++static int detach_legacy_clients(struct device *dev, void *driver)
 +{
 +	struct i2c_client	*client =3D i2c_verify_client(dev);
-+	struct i2c_cmd_arg	*arg =3D _arg;
 +
-+	if (client && client->driver && client->driver->command)
-+		client->driver->command(client, arg->cmd, arg->arg);
++	if (client && client->driver =3D=3D driver) {
++		dev_dbg(dev, "detaching client [%s] at 0x%02x\n",
++				client->name, client->addr);
++		if (client->driver->detach_client(client))
++			dev_err(dev, "failed detach_client [%s] at 0x%02x\n",
++				client->name, client->addr);
++	}
 +	return 0;
 +}
 +
- void i2c_clients_command(struct i2c_adapter *adap, unsigned int cmd, void =
-*arg)
+ /**
+  * i2c_del_driver - unregister I2C driver
+  * @driver: the driver being unregistered
+@@ -681,8 +694,6 @@ EXPORT_SYMBOL(i2c_register_driver);
+  */
+ void i2c_del_driver(struct i2c_driver *driver)
  {
--	struct list_head  *item;
--	struct i2c_client *client;
-+	struct i2c_cmd_arg	cmd_arg;
+-	struct list_head   *item2, *_n;
+-	struct i2c_client  *client;
+ 	struct i2c_adapter *adap;
+ =
+
+ 	mutex_lock(&core_lists);
+@@ -703,22 +714,9 @@ void i2c_del_driver(struct i2c_driver *d
+ 					"for driver [%s]\n",
+ 					driver->driver.name);
+ 			}
+-		} else {
+-			list_for_each_safe(item2, _n, &adap->clients) {
+-				client =3D list_entry(item2, struct i2c_client, list);
+-				if (client->driver !=3D driver)
+-					continue;
+-				dev_dbg(&adap->dev, "detaching client [%s] "
+-					"at 0x%02x\n", client->name,
+-					client->addr);
+-				if (driver->detach_client(client)) {
+-					dev_err(&adap->dev, "detach_client "
+-						"failed for client [%s] at "
+-						"0x%02x\n", client->name,
+-						client->addr);
+-				}
+-			}
+-		}
++		} else
++			device_for_each_child(&adap->dev, driver,
++					detach_legacy_clients);
+ 	}
+ 	up(&i2c_adapter_class.sem);
+ =
+
+@@ -752,13 +750,6 @@ int i2c_attach_client(struct i2c_client =
+
+ 	struct i2c_adapter *adapter =3D client->adapter;
+ 	int res =3D 0;
+ =
+
+-	mutex_lock(&adapter->clist_lock);
+-	if (i2c_check_addr(client->adapter, client->addr)) {
+-		res =3D -EBUSY;
+-		goto out_unlock;
+-	}
+-	list_add_tail(&client->list,&adapter->clients);
+-
+ 	client->usage_count =3D 0;
+ =
+
+ 	client->dev.parent =3D &client->adapter->dev;
+@@ -775,12 +766,16 @@ int i2c_attach_client(struct i2c_client =
+
+ =
+
+ 	snprintf(&client->dev.bus_id[0], sizeof(client->dev.bus_id),
+ 		"%d-%04x", i2c_adapter_id(adapter), client->addr);
++	res =3D device_register(&client->dev);
++	if (res) {
++		dev_err(&adapter->dev,
++			"Failed to register i2c client %s at 0x%02x (%d)\n",
++			client->name, client->addr, res);
++		return res;
++	}
++
+ 	dev_dbg(&adapter->dev, "client [%s] registered with bus id %s\n",
+ 		client->name, client->dev.bus_id);
+-	res =3D device_register(&client->dev);
+-	if (res)
+-		goto out_list;
+-	mutex_unlock(&adapter->clist_lock);
+ =
+
+ 	if (adapter->client_register)  {
+ 		if (adapter->client_register(client)) {
+@@ -791,14 +786,6 @@ int i2c_attach_client(struct i2c_client =
+
+ 	}
+ =
+
+ 	return 0;
+-
+-out_list:
+-	list_del(&client->list);
+-	dev_err(&adapter->dev, "Failed to attach i2c client %s at 0x%02x "
+-		"(%d)\n", client->name, client->addr, res);
+-out_unlock:
+-	mutex_unlock(&adapter->clist_lock);
+-	return res;
+ }
+ EXPORT_SYMBOL(i2c_attach_client);
+ =
+
+@@ -823,11 +810,8 @@ int i2c_detach_client(struct i2c_client =
+
+ 		}
+ 	}
+ =
+
+-	mutex_lock(&adapter->clist_lock);
+-	list_del(&client->list);
+ 	init_completion(&client->released);
+ 	device_unregister(&client->dev);
+-	mutex_unlock(&adapter->clist_lock);
+ 	wait_for_completion(&client->released);
+ =
+
+  out:
+@@ -1165,7 +1149,6 @@ i2c_new_probed_device(struct i2c_adapter
+ 		return NULL;
+ 	}
  =
 
 -	mutex_lock(&adap->clist_lock);
--	list_for_each(item,&adap->clients) {
--		client =3D list_entry(item, struct i2c_client, list);
--		if (!try_module_get(client->driver->driver.owner))
--			continue;
--		if (NULL !=3D client->driver->command) {
--			mutex_unlock(&adap->clist_lock);
--			client->driver->command(client,cmd,arg);
--			mutex_lock(&adap->clist_lock);
--		}
--		module_put(client->driver->driver.owner);
--       }
--       mutex_unlock(&adap->clist_lock);
-+	cmd_arg.cmd =3D cmd;
-+	cmd_arg.arg =3D arg;
-+	device_for_each_child(&adap->dev, &cmd_arg, i2c_cmd);
- }
- EXPORT_SYMBOL(i2c_clients_command);
- =
-
-@@ -1161,7 +1175,7 @@ i2c_new_probed_device(struct i2c_adapter
+ 	for (i =3D 0; addr_list[i] !=3D I2C_CLIENT_END; i++) {
+ 		/* Check address validity */
+ 		if (addr_list[i] < 0x03 || addr_list[i] > 0x77) {
+@@ -1203,7 +1186,6 @@ i2c_new_probed_device(struct i2c_adapter
+ 				break;
  		}
+ 	}
+-	mutex_unlock(&adap->clist_lock);
  =
 
- 		/* Check address availability */
--		if (__i2c_check_addr(adap, addr_list[i])) {
-+		if (i2c_check_addr(adap, addr_list[i])) {
- 			dev_dbg(&adap->dev, "Address 0x%02x already in "
- 				"use, not probing\n", addr_list[i]);
- 			continue;
---- at91.orig/drivers/i2c/i2c-dev.c	2008-01-14 13:54:05.000000000 -0800
-+++ at91/drivers/i2c/i2c-dev.c	2008-01-14 14:03:43.000000000 -0800
-@@ -182,27 +182,22 @@ static ssize_t i2cdev_write (struct file
- 	return ret;
- }
- =
-
-+static int i2cdev_check(struct device *dev, void *addrp)
-+{
-+	struct i2c_client *client =3D i2c_verify_client(dev);
-+
-+	if (!client || client->addr !=3D *(unsigned int *)addrp)
-+		return 0;
-+
-+	return dev->driver ? -EBUSY : 0;
-+}
-+
- /* This address checking function differs from the one in i2c-core
-    in that it considers an address with a registered device, but no
--   bounded driver, as NOT busy. */
-+   driver bound to it, as NOT busy. */
- static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned int add=
-r)
- {
--	struct list_head *item;
--	struct i2c_client *client;
--	int res =3D 0;
--
--	mutex_lock(&adapter->clist_lock);
--	list_for_each(item, &adapter->clients) {
--		client =3D list_entry(item, struct i2c_client, list);
--		if (client->addr =3D=3D addr) {
--			if (client->driver)
--				res =3D -EBUSY;
--			break;
--		}
--	}
--	mutex_unlock(&adapter->clist_lock);
--
--	return res;
-+	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
- }
- =
-
- static int i2cdev_ioctl(struct inode *inode, struct file *file,
---- at91.orig/include/linux/i2c.h	2008-01-14 13:56:28.000000000 -0800
-+++ at91/include/linux/i2c.h	2008-01-14 13:56:29.000000000 -0800
-@@ -159,7 +159,7 @@ struct i2c_driver {
+ 	if (addr_list[i] =3D=3D I2C_CLIENT_END) {
+ 		dev_dbg(&adap->dev, "Probing failed, no device found\n");
+--- at91.orig/include/linux/i2c.h	2008-01-14 14:32:00.000000000 -0800
++++ at91/include/linux/i2c.h	2008-01-14 14:32:19.000000000 -0800
+@@ -159,7 +159,6 @@ struct i2c_driver {
   * @irq: indicates the IRQ generated by this device (if any)
   * @driver_name: Identifies new-style driver used with this device; also
   *	used as the module name for hotplug/coldplug modprobe support.
-- * @list: list of active/busy clients
-+ * @list: list of active/busy clients (DEPRECATED)
+- * @list: list of active/busy clients (DEPRECATED)
   * @released: used to synchronize client releases & detaches and references
   *
   * An i2c_client identifies a single device (i.e. chip) connected to an
-@@ -179,11 +179,13 @@ struct i2c_client {
+@@ -179,7 +178,6 @@ struct i2c_client {
  	struct device dev;		/* the device structure		*/
  	int irq;			/* irq issued by device (or -1) */
  	char driver_name[KOBJ_NAME_LEN];
--	struct list_head list;
-+	struct list_head list;		/* DEPRECATED */
+-	struct list_head list;		/* DEPRECATED */
  	struct completion released;
  };
  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+@@ -319,14 +317,12 @@ struct i2c_adapter {
+ 	/* data fields that are valid for all devices	*/
+ 	u8 level; 			/* nesting level for lockdep */
+ 	struct mutex bus_lock;
+-	struct mutex clist_lock;
  =
 
-+extern struct i2c_client *i2c_verify_client(struct device *dev);
-+
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
- {
- 	struct device * const dev =3D container_of(kobj, struct device, kobj);
-@@ -324,7 +326,7 @@ struct i2c_adapter {
+ 	int timeout;
+ 	int retries;
  	struct device dev;		/* the adapter device */
  =
 
  	int nr;
--	struct list_head clients;
-+	struct list_head clients;	/* DEPRECATED */
+-	struct list_head clients;	/* DEPRECATED */
  	char name[48];
  	struct completion dev_released;
  };
+
 
 _______________________________________________
 i2c mailing list
