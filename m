@@ -1,65 +1,108 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 1/5] Implement module aliasing for i2c to translate from
- device tree names
-Date: Sun, 13 Jan 2008 20:05:01 +0100
-Message-ID: <20080113200501.22ee5b0d@hyperion.delvare>
-References: <20071220044136.20091.70984.stgit@terra.home>
-	<20071220044138.20091.31417.stgit@terra.home>
-	<20080111202015.65c3c160@hyperion.delvare>
-	<20080112094658.197acb08@hyperion.delvare>
-	<9e4733910801120826haa8905dk863ed1c8e9f420c9@mail.gmail.com>
-	<20080113154114.4a1c5166@hyperion.delvare>
-	<9e4733910801130824i547b65a9n64e415f9626d6ab5@mail.gmail.com>
-	<20080113184017.7e3b409f@hyperion.delvare>
-	<9e4733910801131001o604c1474vc2fd021d32b8c2a3@mail.gmail.com>
-	<20080113194523.51683e97@hyperion.delvare>
-	<9e4733910801131050h5349f3c7g459f5dfb07724b19@mail.gmail.com>
+From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
+Subject: [PATCH] i2c: i2c-au1550: properly terminate zero-byte
+	transfers
+Date: Mon, 14 Jan 2008 09:46:52 +0100
+Message-ID: <20080114084652.GA15392@roarinelk.homelinux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754665AbYAMTFY@vger.kernel.org>
-In-Reply-To: <9e4733910801131050h5349f3c7g459f5dfb07724b19@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Greg KH <greg@kroah.com>, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, cd-8pe3aW1LYQvVtiohHAVwjA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 13 Jan 2008 13:50:46 -0500, Jon Smirl wrote:
-> On 1/13/08, Jean Delvare <khali@linux-fr.org> wrote:
-> > The eeprom case might be a bit confusing because that i2c driver
-> > supports a single device type, so the driver name is the same as the
-> > device name. Take a look at the hwmon/lm90 driver for a better example:
-> > this device supports 7 different devices. The devices are mostly
-> > compatible so it made sense to have a single driver for them, but they
-> > all differ in some way. For example, the LM90 doesn't support PEC,
-> > while the ADM1032 does. User-space needs to be able to distinguish
-> > between the various types. That's the reason why we export the device
-> > name through sysfs.
-> >
-> > Most i2c sensor drivers support several chip types, and libsensors has
-> > been relying heavily on the name attribute. Less so with the lm-sensors
-> > 3.0.0 rewrite, where most things are automatically detected, but if
-> > nothing else, giving humans a way to distinguish between the different
-> > sensor chip types is very useful. Also, not everyone will upgrade to
-> > lm-sensors 3.0.0 so we need to keep supporting the previous versions.
-> 
-> Another way to handle this is to have the drivers register multiple
-> times using different names. So LM90 would register as both LM90 and
-> ADM1032. All the code is shared, you just register it multiple times
-> under different names.
+Hi Jean,
 
-This won't let us get rid of the name attribute. As I repeatedly
-explained, removing that file now would instantly break at least all
-versions of lm-sensors before 3.0.0. This alone is enough to make it
-unacceptable for the years to come.
+Here is my third try to fix the corrupted RTC minute register
+on my board in conjunction with the i2c-au1550 driver.
 
-Not to mention that this seems like a waste of kernel memory. The name
-attribute certainly takes one order of magnitude less memory than
-registering the same driver multiple times.
+Here's a trace of the controller accessing the RTC (0xA2):
+http://mlau.at/files/i2c-au1550-original_behav.png
 
-I'm not sure why you want these i2c chip names to go way, given that
-the module aliases you'd like to add are almost the same, just in a
-different form and using OF names instead of arbitrary names.
+Notice the missing stop condition after the quick probe.
 
+Here's a trace with the patch applied:
+http://mlau.at/files/i2c-au1550-misbehavior-patch-behav.png
+
+Please apply!
+
+---
+>From 443520b88bda030ba304dcbbbf14f977abad5ff5 Mon Sep 17 00:00:00 2001
+From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
+Date: Mon, 14 Jan 2008 09:28:11 +0100
+Subject: [PATCH] i2c: i2c-au1550: properly terminate zero-byte transfers
+
+Zero-bytes transfers would leave the bus transaction unfinished
+(no i2c stop is sent), with the following transfer actually
+sending the slave address to the previously addressed device,
+resulting in weird device failures (e.g. reset minute register
+values in my RTC).
+This patch instructs the controller to send an I2C STOP right after
+the slave address in case of a zero-byte transfer.
+
+Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-au1550.c |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index 2f68416..7d51a43 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -105,7 +105,7 @@ wait_master_done(struct i2c_au1550_data *adap)
+ }
+ 
+ static int
+-do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
++do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd, int q)
+ {
+ 	volatile psc_smb_t	*sp;
+ 	u32			stat;
+@@ -134,6 +134,10 @@ do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
+ 	if (rd)
+ 		addr |= 1;
+ 
++	/* zero-byte xfers stop immediately */
++	if (q)
++		addr |= PSC_SMBTXRX_STP;
++
+ 	/* Put byte into fifo, start up master.
+ 	*/
+ 	sp->psc_smbtxrx = addr;
+@@ -142,7 +146,7 @@ do_address(struct i2c_au1550_data *adap, unsigned int addr, int rd)
+ 	au_sync();
+ 	if (wait_ack(adap))
+ 		return -EIO;
+-	return 0;
++	return (q) ? wait_master_done(adap) : 0;
+ }
+ 
+ static u32
+@@ -262,7 +266,8 @@ au1550_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs, int num)
+ 
+ 	for (i = 0; !err && i < num; i++) {
+ 		p = &msgs[i];
+-		err = do_address(adap, p->addr, p->flags & I2C_M_RD);
++		err = do_address(adap, p->addr, p->flags & I2C_M_RD,
++				 (p->len == 0));
+ 		if (err || !p->len)
+ 			continue;
+ 		if (p->flags & I2C_M_RD)
 -- 
-Jean Delvare
+1.5.3.7
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
