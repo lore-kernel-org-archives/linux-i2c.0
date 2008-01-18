@@ -1,16 +1,11 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: i2c-remove-redundant-i2c_client-list.patch
-Date: Fri, 18 Jan 2008 02:30:24 -0800
-Message-ID: <200801180230.24947.david-b@pacbell.net>
-References: <20071216052308.A0FB11668D7@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-	<200801141420.49274.david-b@pacbell.net>
-	<20080118111401.7ffdccc5@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Drop legacy locking in i2c_new_probed_device
+Date: Fri, 18 Jan 2008 12:57:23 +0100
+Message-ID: <20080118125723.03543668@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080118111401.7ffdccc5-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,39 +15,43 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 18 January 2008, Jean Delvare wrote:
-> > =A0static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
-> > =A0{
-> > -=A0=A0=A0=A0=A0int rval;
-> > -
-> > -=A0=A0=A0=A0=A0mutex_lock(&adapter->clist_lock);
-> > -=A0=A0=A0=A0=A0rval =3D __i2c_check_addr(adapter, addr);
-> > -=A0=A0=A0=A0=A0mutex_unlock(&adapter->clist_lock);
-> > -
-> > -=A0=A0=A0=A0=A0return rval;
-> > +=A0=A0=A0=A0=A0return device_for_each_child(&adapter->dev, &addr, __i2=
-c_check_addr);
-> > =A0}
-> > =A0
-> > =A0int i2c_attach_client(struct i2c_client *client)
-> =
+It is no longer required to hold adapter->clist_lock to call
+i2c_check_addr.
 
-> With this patch applied, any reason why i2c_new_probed_device() still
-> acquires adapter->clist_lock? My understanding is that it was there
-> because i2c_check_addr() was originally walking the internal client
-> list, but as this is no longer the case, the locking is no longer
-> needed, is it?
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+---
+This goes on top of David Brownell's patch that reworked i2c_check_addr.
 
-Doesn't look needed now, no.  It previously called __i2c_check_addr(),
-which needed that lock; could have used the non-underscore version
-all along.
+ drivers/i2c/i2c-core.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-- Dave
+--- linux-2.6.24-rc8.orig/drivers/i2c/i2c-core.c	2008-01-18 12:11:51.000000000 +0100
++++ linux-2.6.24-rc8/drivers/i2c/i2c-core.c	2008-01-18 12:11:57.000000000 +0100
+@@ -1086,7 +1086,6 @@ i2c_new_probed_device(struct i2c_adapter
+ 		return NULL;
+ 	}
+ 
+-	mutex_lock(&adap->clist_lock);
+ 	for (i = 0; addr_list[i] != I2C_CLIENT_END; i++) {
+ 		/* Check address validity */
+ 		if (addr_list[i] < 0x03 || addr_list[i] > 0x77) {
+@@ -1124,7 +1123,6 @@ i2c_new_probed_device(struct i2c_adapter
+ 				break;
+ 		}
+ 	}
+-	mutex_unlock(&adap->clist_lock);
+ 
+ 	if (addr_list[i] == I2C_CLIENT_END) {
+ 		dev_dbg(&adap->dev, "Probing failed, no device found\n");
 
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
