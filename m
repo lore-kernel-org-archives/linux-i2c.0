@@ -1,7 +1,7 @@
 From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
 Subject: Re: [PATCH] i2c-au1550: convert to platform driver
-Date: Fri, 18 Jan 2008 10:37:35 +0100
-Message-ID: <20080118093735.GA20411@roarinelk.homelinux.net>
+Date: Fri, 18 Jan 2008 10:53:20 +0100
+Message-ID: <20080118095320.GA20550@roarinelk.homelinux.net>
 References: <20071006161606.GB9270@roarinelk.homelinux.net>
 	<20071027200521.3d800147@hyperion.delvare>
 Mime-Version: 1.0
@@ -23,22 +23,25 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: cd-8pe3aW1LYQuzSzjNS9e3XA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean,
+Hi again,
 
-Here's a new diff which makes checkpatch happy, intended to be 
-applied on top of the zero-byte fix.
+To make my humiliation complete, here's the third iteration
+of this patch. The original authors put a lot of 'volatile's
+in there for good reason; without them the driver hangs very
+early. The previous iteration removed them because of checkpatch
+complaining.
 
 Thanks!
 	Manuel Lauss
-
 ---
->From be82598e26a13363fda3e14fcc67c45e6734fd07 Mon Sep 17 00:00:00 2001
-From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Date: Fri, 18 Jan 2008 09:48:52 +0100
-Subject: [PATCH] [PATCH] i2c: convert i2c-au1550 to platform driver.
 
-Converts the i2c-au1550 bus driver to platform driver and
-registers a platform device for the Alchemy Pb/Db series of
+>From 9cf3ca9cc3663cc6cf74f3da52097cf998e8f121 Mon Sep 17 00:00:00 2001
+From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
+Date: Fri, 18 Jan 2008 10:03:17 +0100
+Subject: [PATCH] [PATCH] i2c: convert i2c-au1550 to platform driver #3
+
+Convert the i2c-au1550 bus driver to platform driver, and
+register a platform device for the Alchemy Db/Pb series of
 boards.
 
 Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
@@ -92,7 +95,7 @@ index d51e18f..5f47674 100644
  
  int __init au1xxx_platform_init(void)
 diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
-index 7d51a43..801b00c 100644
+index 7d51a43..a03c2d1 100644
 --- a/drivers/i2c/busses/i2c-au1550.c
 +++ b/drivers/i2c/busses/i2c-au1550.c
 @@ -30,14 +30,22 @@
@@ -132,7 +135,7 @@ index 7d51a43..801b00c 100644
 -	volatile psc_smb_t	*sp;
 -	u32	stat;
 +	struct i2c_au1550_data *priv;
-+	psc_smb_t *sp;
++	volatile psc_smb_t *sp;
 +	struct resource *r;
 +	u32 stat;
 +	int ret;
@@ -171,7 +174,7 @@ index 7d51a43..801b00c 100644
  	/* Now, set up the PSC for SMBus PIO mode.
  	*/
 -	sp = (volatile psc_smb_t *)(adap->psc_base);
-+	sp = (psc_smb_t *)priv->psc_base;
++	sp = (volatile psc_smb_t *)priv->psc_base;
  	sp->psc_ctrl = PSC_CTRL_DISABLE;
  	au_sync();
  	sp->psc_sel = PSC_SEL_PS_SMBUSMODE;
@@ -207,7 +210,7 @@ index 7d51a43..801b00c 100644
  {
 -	return i2c_del_adapter(adap);
 +	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
-+	psc_smb_t *sp = (psc_smb_t *)priv->psc_base;
++	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
 +
 +	platform_set_drvdata(pdev, NULL);
 +	i2c_del_adapter(&priv->adap);
@@ -225,7 +228,7 @@ index 7d51a43..801b00c 100644
 +i2c_au1550_suspend(struct platform_device *pdev, pm_message_t state)
  {
 +	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
-+	psc_smb_t *sp = (psc_smb_t *)priv->psc_base;
++	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
 +
 +	sp->psc_ctrl = PSC_CTRL_SUSPEND;
 +	au_sync();
@@ -237,7 +240,7 @@ index 7d51a43..801b00c 100644
 +i2c_au1550_resume(struct platform_device *pdev)
  {
 +	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
-+	psc_smb_t *sp = (psc_smb_t *)priv->psc_base;
++	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
 +
 +	sp->psc_ctrl = PSC_CTRL_ENABLE;
 +	au_sync();
