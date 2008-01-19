@@ -1,13 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C_SMBUS_WORD Definition
-Date: Sat, 19 Jan 2008 17:49:50 +0100
-Message-ID: <20080119174950.1f12f3c0@hyperion.delvare>
-References: <Pine.LNX.4.64.0801181524040.14018@galley.ll.mit.edu>
+Subject: Re: Platform driver for PCA9564
+Date: Sat, 19 Jan 2008 19:02:21 +0100
+Message-ID: <20080119190221.6cd8bbe0@hyperion.delvare>
+References: <fmqck1$uam$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0801181524040.14018-kD1P2mHmSlqz6L9v6lnKkIdd74u8MsAO@public.gmane.org>
+In-Reply-To: <fmqck1$uam$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,18 +17,25 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Gary Chambers <gwc-OVIABD91gjs3uPMLIKxrzw@public.gmane.org>
-Cc: I2C Mailing List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Gary,
+Hi Wolfram,
 
-On Fri, 18 Jan 2008 15:30:56 -0500 (EST), Gary Chambers wrote:
-> Please forgive my ignorance and naivete, but will someone please tell me 
-> why i2c_smbus_read_word doesn't exist?  Thank you very much!
+On Fri, 18 Jan 2008 15:20:48 +0100, Wolfram Sang wrote:
+> I just finished a platform driver for the PCA9564. On the way, I had to 
+> change some things in i2c-algo-pca.[ch], too (like adding private data, 
+> support for a reset routine and such). My question now is if the 
+> i2c-pca-isa driver has to be adapted to the new algorithm or will it be 
+> replaced by the platform driver anyway?
 
-i2c_smbus_read_word_data() does exist, isn't it what you are looking
-for? It corresponds to a "read word" transaction in SMBus terminology.
+I don't know. I don't know on which systems the i2c-pca-isa driver is
+used these days, so I don't know if these can instantiate platform
+devices easily. I guess it shouldn't be too difficult to update the
+i2c-pca-isa driver so that it still works after your changes, then you
+can tag it as deprecated, and we wait for 6 months or so before we
+remove it?
 
 -- 
 Jean Delvare
