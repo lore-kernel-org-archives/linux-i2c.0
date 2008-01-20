@@ -1,51 +1,169 @@
 From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: I2C_PARPORT_LIGHT dependence problem
-Date: Sun, 20 Jan 2008 11:11:51 +0100
-Message-ID: <20080120111151.08b0266a@hyperion.delvare>
-References: <BAY101-W29C4113A3B79204F64B0DCC8430@phx.gbl>
+Subject: Re: [i2c] [PATCH 19 3/5] Clean up error returns
+Date: Sun, 20 Jan 2008 12:07:30 +0100
+Message-ID: <20080120120730.06dd8a7f@hyperion.delvare>
+References: <20080112024737.7023.61680.stgit@terra.home>
+	<20080112024743.7023.23630.stgit@terra.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753543AbYATKMS@vger.kernel.org>
-In-Reply-To: <BAY101-W29C4113A3B79204F64B0DCC8430@phx.gbl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753636AbYATLHm@vger.kernel.org>
+In-Reply-To: <20080112024743.7023.23630.stgit@terra.home>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Adam Turk <bofh1234@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: i2c@lm-sensors.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Adam,
+Hi Jon,
 
-On Sat, 19 Jan 2008 13:37:05 -0500, Adam Turk wrote:
-> I am updating an old config to run on 2.6.23.14 and noticed I am
-> still prompted for I2C_PARPORT_LIGHT even though I don't have
-> the parallel port driver enabled.  Shouldn't I2C_PARPORT_LIGHT
-> depend on the parallel port being selected? (...)
->=20
-> Symbol: I2C_PARPORT_LIGHT [=3Dn]
->   =E2=94=82 Prompt: Parallel port adapter (light)
->   =E2=94=82   Defined at drivers/i2c/busses/Kconfig:348
->   =E2=94=82   Depends on: I2C
->   =E2=94=82   Location:
->   =E2=94=82     -> Device Drivers
->   =E2=94=82       -> I2C support (I2C [=3Dm])
->   =E2=94=82         -> I2C Hardware Bus support
->   =E2=94=82   Selects: I2C_ALGOBIT
+On Fri, 11 Jan 2008 21:47:43 -0500, Jon Smirl wrote:
+> Return errors that were being ignored in the mpc-i2c driver
 
-The help text says:
+This wording is a bit excessive. The errors were not being ignored,
+only the error code was replaced with a less informative -1. Still,
+that's a good fix, although totally unrelated with the patch set it was
+hiding into. The only question I have is:
 
-"This driver is a light version of i2c-parport.  It doesn't depend on
-the parport driver, and uses direct I/O access instead."
+> 
+> Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+> ---
+> 
+>  drivers/i2c/busses/i2c-mpc.c |   30 +++++++++++++++++-------------
+>  1 files changed, 17 insertions(+), 13 deletions(-)
+> 
+> 
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index d8de4ac..7c35a8f 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -180,7 +180,7 @@ static void mpc_i2c_stop(struct mpc_i2c *i2c)
+>  static int mpc_write(struct mpc_i2c *i2c, int target,
+>  		     const u8 * data, int length, int restart)
+>  {
+> -	int i;
+> +	int i, result;
+>  	unsigned timeout = i2c->adap.timeout;
+>  	u32 flags = restart ? CCR_RSTA : 0;
+>  
+> @@ -192,15 +192,17 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
+>  	/* Write target byte */
+>  	writeb((target << 1), i2c->base + MPC_I2C_DR);
+>  
+> -	if (i2c_wait(i2c, timeout, 1) < 0)
+> -		return -1;
+> +	result = i2c_wait(i2c, timeout, 1);
+> +	if (result < 0)
+> +		return result;
+>  
+>  	for (i = 0; i < length; i++) {
+>  		/* Write data byte */
+>  		writeb(data[i], i2c->base + MPC_I2C_DR);
+>  
+> -		if (i2c_wait(i2c, timeout, 1) < 0)
+> -			return -1;
+> +		result = i2c_wait(i2c, timeout, 1);
+> +		if (result < 0)
+> +			return result;
+>  	}
+>  
+>  	return 0;
+> @@ -210,7 +212,7 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
+>  		    u8 * data, int length, int restart)
+>  {
+>  	unsigned timeout = i2c->adap.timeout;
+> -	int i;
+> +	int i, result;
+>  	u32 flags = restart ? CCR_RSTA : 0;
+>  
+>  	/* Start with MEN */
+> @@ -221,8 +223,9 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
+>  	/* Write target address byte - this time with the read flag set */
+>  	writeb((target << 1) | 1, i2c->base + MPC_I2C_DR);
+>  
+> -	if (i2c_wait(i2c, timeout, 1) < 0)
+> -		return -1;
+> +	result = i2c_wait(i2c, timeout, 1);
+> +	if (result < 0)
+> +		return result;
+>  
+>  	if (length) {
+>  		if (length == 1)
+> @@ -234,8 +237,9 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
+>  	}
+>  
+>  	for (i = 0; i < length; i++) {
+> -		if (i2c_wait(i2c, timeout, 0) < 0)
+> -			return -1;
+> +		result = i2c_wait(i2c, timeout, 0);
+> +		if (result < 0)
+> +			return result;
+>  
+>  		/* Generate txack on next to last byte */
+>  		if (i == length - 2)
+> @@ -321,9 +325,9 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+>  
+>  	pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
+>  
+> -	if (!(i2c = kzalloc(sizeof(*i2c), GFP_KERNEL))) {
+> +	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+> +	if (!i2c)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	i2c->irq = platform_get_irq(pdev, 0);
+>  	if (i2c->irq < 0) {
+> @@ -381,7 +385,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
+>  	i2c_del_adapter(&i2c->adap);
+>  	platform_set_drvdata(pdev, NULL);
+>  
+> -	if (i2c->irq != 0)
+> +	if (i2c->irq != NO_IRQ)
+>  		free_irq(i2c->irq, i2c);
+>  
+>  	iounmap(i2c->base);
+> 
+> 
 
-So I think that the (lack of) dependencies is correct. We don't want to
-force the user to select PARPORT (and built the parport driver) to get
-access to the i2c-parport-light driver which does NOT need this parport
-driver.
+Is this last chunk a cleanup or a bugfix? It seems that NO_IRQ can have
+value 0 or -1 depending on the architecture, so your change is real on
+some architectures.
 
---=20
+I have to admit that I'm a bit confused by the way IRQs are handled by
+this driver. On the one hand, there is code to handle polled-mode:
+
+static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+{
+	(...)
+	if (i2c->irq == 0)
+	{
+		(...)
+	} else {
+		/* Interrupt mode */
+
+But on the other hand the initialization code bails out if the platform
+device doesn't provide an IRQ:
+
+static int fsl_i2c_probe(struct platform_device *pdev)
+{
+	(...)
+	i2c->irq = platform_get_irq(pdev, 0);
+	if (i2c->irq < 0) {
+		result = -ENXIO;
+		goto fail_get_irq;
+	}
+
+So it seems to me like the polling mode code is never actually used?
+Unless some platforms include an "empty" IRQ in their device
+definition. Which indeed seems to be the case... but then they set the
+IRQ to 0, NOT to NO_IRQ, so I'm wondering if the change you propose is
+really correct.
+
+Either way, there are more places in the driver where the IRQ is
+compared to 0, so if your change is correct, it should be applied
+consistently. Thus I will revert this part for the time being, if any
+change is really needed with regards to interrupts in this driver,
+please send a separate patch. But please double-check first, as I said
+above it's trickier than it looks.
+
+-- 
 Jean Delvare
---
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
