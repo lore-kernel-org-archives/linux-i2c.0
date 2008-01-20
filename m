@@ -1,57 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C_SMBUS_WORD Definition
-Date: Sun, 20 Jan 2008 10:23:35 +0100
-Message-ID: <20080120102335.5cc6a936@hyperion.delvare>
-References: <Pine.LNX.4.64.0801181524040.14018@galley.ll.mit.edu>
-	<20080119174950.1f12f3c0@hyperion.delvare>
-	<Pine.LNX.4.64.0801191539500.18738@galley.ll.mit.edu>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: I2C_PARPORT_LIGHT dependence problem
+Date: Sun, 20 Jan 2008 11:11:51 +0100
+Message-ID: <20080120111151.08b0266a@hyperion.delvare>
+References: <BAY101-W29C4113A3B79204F64B0DCC8430@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0801191539500.18738-kD1P2mHmSlqz6L9v6lnKkIdd74u8MsAO@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Gary Chambers <gwc-OVIABD91gjs3uPMLIKxrzw@public.gmane.org>
-Cc: I2C Mailing List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753543AbYATKMS@vger.kernel.org>
+In-Reply-To: <BAY101-W29C4113A3B79204F64B0DCC8430@phx.gbl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Adam Turk <bofh1234@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Gary,
+Hi Adam,
 
-On Sat, 19 Jan 2008 15:55:42 -0500 (EST), Gary Chambers wrote:
-> > i2c_smbus_read_word_data() does exist, isn't it what you are looking
-> > for? It corresponds to a "read word" transaction in SMBus terminology.
-> 
-> i2c_smbus_read_word_data() implies (to me, anyway) a required 
-> data/command in the transaction.
+On Sat, 19 Jan 2008 13:37:05 -0500, Adam Turk wrote:
+> I am updating an old config to run on 2.6.23.14 and noticed I am
+> still prompted for I2C_PARPORT_LIGHT even though I don't have
+> the parallel port driver enabled.  Shouldn't I2C_PARPORT_LIGHT
+> depend on the parallel port being selected? (...)
+>=20
+> Symbol: I2C_PARPORT_LIGHT [=3Dn]
+>   =E2=94=82 Prompt: Parallel port adapter (light)
+>   =E2=94=82   Defined at drivers/i2c/busses/Kconfig:348
+>   =E2=94=82   Depends on: I2C
+>   =E2=94=82   Location:
+>   =E2=94=82     -> Device Drivers
+>   =E2=94=82       -> I2C support (I2C [=3Dm])
+>   =E2=94=82         -> I2C Hardware Bus support
+>   =E2=94=82   Selects: I2C_ALGOBIT
 
-That's correct, the "read word" SMBus transaction first writes a
-"command" byte to the device (typically a register address in the
-device) before reading two bytes from it.
+The help text says:
 
->                                   Some of the devices with which we deal 
-> apparently cannot tolerate this extra 8 bits on the bus when attempting 
-> to read a word from them.  The bus analyzer also indicates those extra 
-> bits are present.  I'm doing my work through the dev interface, and our 
-> functionality matrix seems to indicate that I cannot use pure I2C.  Any 
-> thoughts or insight?  Thanks very much!
+"This driver is a light version of i2c-parport.  It doesn't depend on
+the parport driver, and uses direct I/O access instead."
 
-Well, reading two bytes from a device directly doesn't correspond to any
-SMBus transaction, so if your bus controller doesn't support I2C
-messaging, I fear that you're pretty much stuck. What adapter is this?
-And what chip are you trying to talk to?
+So I think that the (lack of) dependencies is correct. We don't want to
+force the user to select PARPORT (and built the parport driver) to get
+access to the i2c-parport-light driver which does NOT need this parport
+driver.
 
--- 
+--=20
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+--
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
