@@ -1,83 +1,39 @@
-From: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Subject: [patch 6/6] Minor fixes for pxa-driver
-Date: Mon, 21 Jan 2008 15:20:16 +0100
-Message-ID: <20080121143659.089906703@pengutronix.de>
-References: <20080121142010.988419876@pengutronix.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [PATCH 19 3/5] Clean up error returns
+Date: Mon, 21 Jan 2008 17:10:25 +0100
+Message-ID: <20080121171025.524dc465@hyperion.delvare>
+References: <20080112024737.7023.61680.stgit@terra.home>
+	<20080112024743.7023.23630.stgit@terra.home>
+	<20080120120730.06dd8a7f@hyperion.delvare>
+	<9e4733910801200718q7304bc29q38e67580613189e4@mail.gmail.com>
+	<9e4733910801200739x502d5407x85f0d950ace80bee@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline; filename=i2c_busses_i2c_pxa-fixes.diff
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761107AbYAUQKi@vger.kernel.org>
+In-Reply-To: <9e4733910801200739x502d5407x85f0d950ace80bee@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-While working on the PCA9564-platform driver, I sometimes had a glimpse at the
-pxa-driver. I found some suspicious places, and this patch contains my
-suggestions. Note: They are not tested, due to no hardware.
+Hi Jon,
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+On Sun, 20 Jan 2008 10:39:43 -0500, Jon Smirl wrote:
+> Here' s a version with the compares to zero switched to NO_IRQ. If I
+> understand how NO_IRQ works it is the correct change. My understanding
+> is that under ppc IRQ zero was legal and NO_IRQ was -1. But then the
+> whole kernel switched to NO_IRQ = zero. Powerpc updated to NO_IRQ=0
+> and used virtual IRQs to move a physical IRQ 0 to another IRQ number.
+> ppc was not changed. This driver does not appear to have been updated
+> to track this global change since it didn't initially use the NO_IRQ
+> define everywhere.
 
-Index: linux-playground/drivers/i2c/busses/i2c-pxa.c
-===================================================================
---- linux-playground.orig/drivers/i2c/busses/i2c-pxa.c	2008-01-21 12:39:28.000000000 +0100
-+++ linux-playground/drivers/i2c/busses/i2c-pxa.c	2008-01-21 13:21:10.000000000 +0100
-@@ -870,7 +870,7 @@
- 	spin_lock_init(&i2c->lock);
- 	init_waitqueue_head(&i2c->wait);
- 
--	sprintf(i2c->adap.name, "pxa_i2c-i2c.%u", dev->id);
-+	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "pxa_i2c-i2c.%u", dev->id);
- 
- 	i2c->clk = clk_get(&dev->dev, "I2CCLK");
- 	if (IS_ERR(i2c->clk)) {
-@@ -963,6 +963,7 @@
- 		local_irq_enable();
- 	}
- #endif
-+	iounmap(i2c->reg_base);
- eremap:
- 	clk_put(i2c->clk);
- eclk:
-@@ -991,7 +992,7 @@
- 		local_irq_enable();
- 	}
- #endif
--
-+	iounmap(i2c->reg_base);
- 	release_mem_region(i2c->iobase, i2c->iosize);
- 	kfree(i2c);
- 
-@@ -1011,9 +1012,9 @@
- 	return platform_driver_register(&i2c_pxa_driver);
- }
- 
--static void i2c_adap_pxa_exit(void)
-+static void __exit i2c_adap_pxa_exit(void)
- {
--	return platform_driver_unregister(&i2c_pxa_driver);
-+	platform_driver_unregister(&i2c_pxa_driver);
- }
- 
- MODULE_LICENSE("GPL");
+As I have already applied the part of this patch that preserves error
+values in error paths, can you please send an incremental patch that
+only fixes the IRQ issues? These are separate issues so it's better to
+have separate patches anyway.
 
+Thanks,
 -- 
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jean Delvare
