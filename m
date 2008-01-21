@@ -1,16 +1,11 @@
-From: Gary Chambers <gwc-OVIABD91gjs3uPMLIKxrzw@public.gmane.org>
-Subject: Re: I2C_SMBUS_WORD Definition
-Date: Mon, 21 Jan 2008 14:17:00 -0500 (EST)
-Message-ID: <Pine.LNX.4.64.0801211310050.18738@galley.ll.mit.edu>
-References: <Pine.LNX.4.64.0801181524040.14018@galley.ll.mit.edu>
-	<20080119174950.1f12f3c0@hyperion.delvare>
-	<Pine.LNX.4.64.0801191539500.18738@galley.ll.mit.edu>
-	<20080120102335.5cc6a936@hyperion.delvare>
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] mpc i2c driver, compare to NO_IRQ instead of zero
+Date: Mon, 21 Jan 2008 15:07:40 -0500
+Message-ID: <20080121200740.13800.20524.stgit@terra.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080120102335.5cc6a936-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,37 +15,68 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: I2C Mailing List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean...
+Alter the mpc i2c driver to use the NO_IRQ symbol instead of the constant zero when checking for valid interrupts. NO_IRQ=-1 on ppc and NO_IRQ=0 on powerpc so the checks against zero are not correct.
 
-> Well, reading two bytes from a device directly doesn't correspond to 
-> any SMBus transaction, so if your bus controller doesn't support I2C 
-> messaging, I fear that you're pretty much stuck.
+Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
 
-How authoritative is the functionality matrix?  My call to it returns 
-0xcfffc006 -- no pure I2C, but it appears that I can perform I2C block 
-writes and reads.
+ drivers/i2c/busses/i2c-mpc.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-> What adapter is this?  And what chip are you trying to talk to?
 
-It's a [seemingly] simple TI DAC5571 (single-channel, 8-bit DAC) on an 
-evaluation module.
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index bbe787b..d20959d 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -99,7 +99,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+ 	u32 x;
+ 	int result = 0;
+ 
+-	if (i2c->irq == 0)
++	if (i2c->irq == NO_IRQ)
+ 	{
+ 		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
+ 			schedule();
+@@ -329,7 +329,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	i2c->irq = platform_get_irq(pdev, 0);
+-	if (i2c->irq < 0) {
++	if (i2c->irq < NO_IRQ) {
+ 		result = -ENXIO;
+ 		goto fail_get_irq;
+ 	}
+@@ -344,7 +344,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+ 		goto fail_map;
+ 	}
+ 
+-	if (i2c->irq != 0)
++	if (i2c->irq != NO_IRQ)
+ 		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
+ 					  IRQF_SHARED, "i2c-mpc", i2c)) < 0) {
+ 			printk(KERN_ERR
+@@ -367,7 +367,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+ 	return result;
+ 
+       fail_add:
+-	if (i2c->irq != 0)
++	if (i2c->irq != NO_IRQ)
+ 		free_irq(i2c->irq, i2c);
+       fail_irq:
+ 	iounmap(i2c->base);
+@@ -384,7 +384,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
+ 	i2c_del_adapter(&i2c->adap);
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	if (i2c->irq != 0)
++	if (i2c->irq != NO_IRQ)
+ 		free_irq(i2c->irq, i2c);
+ 
+ 	iounmap(i2c->base);
 
-Thanks for your (and the list's) patience while I gain some footing with 
-this.
-
--- 
-Gary Chambers
-
-// -------------------------------------
-// Advanced SatComm Systems & Operations
-// MIT Lincoln Laboratory / 781-981-0957
-// Lexington, Massachusetts
-// Nothing fancy and nothing Microsoft
-// -------------------------------------
 
 _______________________________________________
 i2c mailing list
