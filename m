@@ -1,66 +1,40 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-au1550: convert to platform driver #4
-Date: Mon, 21 Jan 2008 13:30:18 +0100
-Message-ID: <20080121133018.24054319@hyperion.delvare>
-References: <20071006161606.GB9270@roarinelk.homelinux.net>
-	<20071027200521.3d800147@hyperion.delvare>
-	<20080118095320.GA20550@roarinelk.homelinux.net>
-	<20080118195546.1d3818a9@hyperion.delvare>
-	<20080121084706.GA12519@roarinelk.homelinux.net>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [PATCH 0/3] i2c: Use the standard, alias-based
+	device/driver  matching scheme
+Date: Mon, 21 Jan 2008 13:34:57 +0100
+Message-ID: <20080121133457.4438a494@hyperion.delvare>
+References: <20080121112517.6fe35a89@hyperion.delvare>
+	<479478C7.5060807@assembler.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080121084706.GA12519-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <479478C7.5060807@assembler.cz>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Rudolf Marek <r.marek@assembler.cz>
+Cc: David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Manuel,
-
-On Mon, 21 Jan 2008 09:47:06 +0100, Manuel Lauss wrote:
-> Hi Jean,
+On Mon, 21 Jan 2008 11:49:43 +0100, Rudolf Marek wrote:
+> > Note: all the arm and powerpc stuff is untested.
 > 
-> Fixed all your concerns, except this one:
-> 
-> > > +	release_resource(priv->ioarea);
-> > > +	kfree(priv->ioarea);
-> > 
-> > I expected a call to release_mem_region() instead... but maybe that
-> > works as well.
-> 
-> Yes it does.  I like this one better because it only takes one parameter.
+> We at http://sysgo.com have some demo server, where you can access embedded 
+> systems remotely (via VNC to a server with cross tools (ELinOS)  + serial console),
+> there is 2.6.22 kernel, but I think the i2c core can be replaced. I think some 
+> PPC and ARMs are connected there. I will ask if you can get access to it if you 
+> are interested.
 
-OK, that's fine with me.
-
-> (...)
-> Convert the i2c-au1550 bus driver to platform driver, and
-> register a platform device for the Alchemy Db/Pb series of
-> boards.
-> 
-> Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-> ---
->  arch/mips/au1000/common/platform.c |   21 +++++
->  drivers/i2c/busses/i2c-au1550.c    |  166 ++++++++++++++++++++++--------------
->  drivers/i2c/busses/i2c-au1550.h    |   32 -------
->  3 files changed, 123 insertions(+), 96 deletions(-)
->  delete mode 100644 drivers/i2c/busses/i2c-au1550.h
-
-Patch applied, thanks!
+Thanks for the proposal, but in general I think it makes more sense
+that people who are familiar with these architectures test the patches
+themselves. That's less work for me, and they'll do a better job anyway.
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
