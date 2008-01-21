@@ -1,44 +1,56 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [i2c] [PATCH 19 3/5] Clean up error returns
-Date: Tue, 22 Jan 2008 10:04:44 +1100
-Message-ID: <1200956684.6807.14.camel@pasglop>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 19 3/5] Clean up error returns
+Date: Tue, 22 Jan 2008 10:06:41 +1100
+Message-ID: <1200956801.6807.16.camel@pasglop>
 References: <20080112024737.7023.61680.stgit@terra.home>
-	 <20080112024743.7023.23630.stgit@terra.home>
-	 <20080120120730.06dd8a7f@hyperion.delvare>
-	 <9e4733910801200718q7304bc29q38e67580613189e4@mail.gmail.com>
-	 <9e4733910801200739x502d5407x85f0d950ace80bee@mail.gmail.com>
-	 <20080121171025.524dc465@hyperion.delvare>
-Reply-To: benh@kernel.crashing.org
+	<20080112024743.7023.23630.stgit@terra.home>
+	<20080120120730.06dd8a7f@hyperion.delvare>
+	<9e4733910801200718q7304bc29q38e67580613189e4@mail.gmail.com>
+Reply-To: benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758763AbYAUXHq@vger.kernel.org>
-In-Reply-To: <20080121171025.524dc465@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910801200718q7304bc29q38e67580613189e4-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-On Mon, 2008-01-21 at 17:10 +0100, Jean Delvare wrote:
-> Hi Jon,
+On Sun, 2008-01-20 at 10:18 -0500, Jon Smirl wrote:
+> > So it seems to me like the polling mode code is never actually used?
+> > Unless some platforms include an "empty" IRQ in their device
+> > definition. Which indeed seems to be the case... but then they set
+> the
+> > IRQ to 0, NOT to NO_IRQ, so I'm wondering if the change you propose
+> is
+> > really correct.
 > 
-> On Sun, 20 Jan 2008 10:39:43 -0500, Jon Smirl wrote:
-> > Here' s a version with the compares to zero switched to NO_IRQ. If I
-> > understand how NO_IRQ works it is the correct change. My understanding
-> > is that under ppc IRQ zero was legal and NO_IRQ was -1. But then the
-> > whole kernel switched to NO_IRQ = zero. Powerpc updated to NO_IRQ=0
-> > and used virtual IRQs to move a physical IRQ 0 to another IRQ number.
-> > ppc was not changed. This driver does not appear to have been updated
-> > to track this global change since it didn't initially use the NO_IRQ
-> > define everywhere.
-> 
-> As I have already applied the part of this patch that preserves error
-> values in error paths, can you please send an incremental patch that
-> only fixes the IRQ issues? These are separate issues so it's better to
-> have separate patches anyway.
+> All of this is very confusing to me, There are physical IRQs and
+> virtual IRQs. Apparently zero is a legal physical IRQ but it is not a
+> legal virtual IRQ. We only get virtual IRQs in this code. We need to
+> get BenH to give us the right answer on these two cases.
 
-To be clear, nowadays, checking against 0 is correct unless you intend
-the driver to work with arch/ppc (which we'll deprecate soon).
+Testing against NO_IRQ for a linux IRQ number should always be correct.
+
+Physical IRQ numbers are remapped and shouldn't be visible to drivers,
+NO_IRQ is a value that never exist for a valid logical interrupt number,
+that is 0 for arch/powerpc and -1 for arch/ppc.
 
 Ben.
+
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
