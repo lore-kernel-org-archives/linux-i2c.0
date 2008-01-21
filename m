@@ -1,13 +1,13 @@
 From: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Subject: [patch 4/6] Platform driver for the PCA9564.
-Date: Mon, 21 Jan 2008 15:20:14 +0100
-Message-ID: <20080121143658.349646662@pengutronix.de>
+Subject: [patch 2/6] Extension of pca-algorithm
+Date: Mon, 21 Jan 2008 15:20:12 +0100
+Message-ID: <20080121143657.455317984@pengutronix.de>
 References: <20080121142010.988419876@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline; filename=i2c_busses_i2c-pca-platform.diff
+Content-Disposition: inline; filename=i2c_algos_i2c-algo-pca-extension.diff
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,352 +21,245 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+It now conatins a private data field and more per-instance data. The reset 
+routine has been moved to the adapters. It also supports add_numbered_adapter.
+
 Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig            |   11 +
- drivers/i2c/busses/Makefile           |    1 
- drivers/i2c/busses/i2c-pca-platform.c |  281 ++++++++++++++++++++++++++++++++++
- include/linux/i2c-pca-platform.h      |   13 +
- 4 files changed, 306 insertions(+)
+ drivers/i2c/algos/i2c-algo-pca.c |   94 ++++++++++++++++++++++-----------------
+ drivers/i2c/algos/i2c-algo-pca.h |    9 ---
+ include/linux/i2c-algo-pca.h     |   25 +++++++---
+ 3 files changed, 73 insertions(+), 55 deletions(-)
 
-Index: linux-playground/drivers/i2c/busses/i2c-pca-platform.c
+Index: linux-playground/include/linux/i2c-algo-pca.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-playground/drivers/i2c/busses/i2c-pca-platform.c	2008-01-21 13:10:54.000000000 +0100
-@@ -0,0 +1,281 @@
-+/*
-+ *  i2c_pca_platform.c
-+ *
-+ *  Platform driver for the PCA9564 I2C controller.
-+ *
-+ *  Copyright (C) 2008 Pengutronix
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
+--- linux-playground.orig/include/linux/i2c-algo-pca.h	2008-01-21 12:39:28.000000000 +0100
++++ linux-playground/include/linux/i2c-algo-pca.h	2008-01-21 12:42:14.000000000 +0100
+@@ -1,14 +1,27 @@
+ #ifndef _LINUX_I2C_ALGO_PCA_H
+ #define _LINUX_I2C_ALGO_PCA_H
+ 
++#define I2C_PCA_CON_330kHz	0x00
++#define I2C_PCA_CON_288kHz	0x01
++#define I2C_PCA_CON_217kHz	0x02
++#define I2C_PCA_CON_146kHz	0x03
++#define I2C_PCA_CON_88kHz	0x04
++#define I2C_PCA_CON_59kHz	0x05
++#define I2C_PCA_CON_44kHz	0x06
++#define I2C_PCA_CON_36kHz	0x07
++
+ struct i2c_algo_pca_data {
+-	int  (*get_own)			(struct i2c_algo_pca_data *adap); /* Obtain own address */
+-	int  (*get_clock)		(struct i2c_algo_pca_data *adap);
+-	void (*write_byte)		(struct i2c_algo_pca_data *adap, int reg, int val);
+-	int  (*read_byte)		(struct i2c_algo_pca_data *adap, int reg);
+-	int  (*wait_for_interrupt)	(struct i2c_algo_pca_data *adap);
++	void 				*data;	/* private low level data */
++	void (*write_byte)		(void *data, int reg, int val);
++	int  (*read_byte)		(void *data, int reg);
++	int  (*wait_for_completion)	(void *data);
++	void (*reset_chip)		(void *data);
++	unsigned int			my_slave_addr;
++	unsigned int			i2c_clock;
++	unsigned int			timeout;
+ };
+ 
+-int i2c_pca_add_bus(struct i2c_adapter *);
++int i2c_pca_add_adapter(struct i2c_adapter *);
++int i2c_pca_add_numbered_adapter(struct i2c_adapter *);
+ 
+ #endif /* _LINUX_I2C_ALGO_PCA_H */
+Index: linux-playground/drivers/i2c/algos/i2c-algo-pca.h
+===================================================================
+--- linux-playground.orig/drivers/i2c/algos/i2c-algo-pca.h	2008-01-21 12:39:28.000000000 +0100
++++ linux-playground/drivers/i2c/algos/i2c-algo-pca.h	2008-01-21 12:42:14.000000000 +0100
+@@ -14,13 +14,4 @@
+ #define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
+ #define I2C_PCA_CON_CR		0x07 /* Clock Rate (MASK) */
+ 
+-#define I2C_PCA_CON_330kHz	0x00
+-#define I2C_PCA_CON_288kHz	0x01
+-#define I2C_PCA_CON_217kHz	0x02
+-#define I2C_PCA_CON_146kHz	0x03
+-#define I2C_PCA_CON_88kHz	0x04
+-#define I2C_PCA_CON_59kHz	0x05
+-#define I2C_PCA_CON_44kHz	0x06
+-#define I2C_PCA_CON_36kHz	0x07
+-
+ #endif /* I2C_PCA9564_H */
+Index: linux-playground/drivers/i2c/algos/i2c-algo-pca.c
+===================================================================
+--- linux-playground.orig/drivers/i2c/algos/i2c-algo-pca.c	2008-01-21 12:39:28.000000000 +0100
++++ linux-playground/drivers/i2c/algos/i2c-algo-pca.c	2008-01-21 12:56:43.000000000 +0100
+@@ -1,6 +1,12 @@
+ /*
+  *  i2c-algo-pca.c i2c driver algorithms for PCA9564 adapters
+  *    Copyright (C) 2004 Arcom Control Systems
++ *    Copyright (C) 2008 Pengutronix
 + *
 + *  History:
-+ *    Jan 2008: Initial version [Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>]
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/i2c-algo-pca.h>
-+#include <linux/i2c-pca-platform.h>
-+#include <linux/irq.h>
-+#include <linux/io.h>
-+
-+#include <asm/gpio.h>
-+
-+#include "../algos/i2c-algo-pca.h"
-+
-+#define res_len(r)		((r)->end - (r)->start + 1)
-+
-+struct i2c_pca_pf_data {
-+	void __iomem			*reg_base;
-+	unsigned long			io_base;
-+	unsigned long			io_size;
-+	int				irq;	/* if negative, use polling */
-+	struct i2c_adapter		adap;
-+	struct i2c_algo_pca_data	algo_data;
-+	wait_queue_head_t		wait;
-+};
-+
-+/* Read/Write functions for different register alignments */
-+
-+static int i2c_pca_pf_readbyte8(void *pd, int reg)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	return ioread8(i2c->reg_base + reg);
-+}
-+
-+static int i2c_pca_pf_readbyte16(void *pd, int reg)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	return ioread8(i2c->reg_base + reg * 2);
-+}
-+
-+static int i2c_pca_pf_readbyte32(void *pd, int reg)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	return ioread8(i2c->reg_base + reg * 4);
-+}
-+
-+static void i2c_pca_pf_writebyte8(void *pd, int reg, int val)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	iowrite8(val, i2c->reg_base + reg);
-+}
-+
-+static void i2c_pca_pf_writebyte16(void *pd, int reg, int val)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	iowrite8(val, i2c->reg_base + reg * 2);
-+}
-+
-+static void i2c_pca_pf_writebyte32(void *pd, int reg, int val)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	iowrite8(val, i2c->reg_base + reg * 4);
-+}
-+
-+
-+static int i2c_pca_pf_waitforcompletion(void *pd)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	int ret = 0;
-+
-+	if (i2c->irq > -1) {
-+		ret = wait_event_interruptible(i2c->wait,
-+			i2c->algo_data.read_byte(i2c, I2C_PCA_CON)
-+			& I2C_PCA_CON_SI);
-+	} else {
-+		while ((i2c->algo_data.read_byte(i2c, I2C_PCA_CON)
-+				& I2C_PCA_CON_SI) == 0)
-+			udelay(100);
-+	}
-+
-+	return ret;
-+}
-+
-+static void i2c_pca_pf_dummyreset(void *pd)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	dev_warn(&i2c->adap.dev, "No reset-pin found. Chip may get stuck!\n");
-+}
-+
-+static void i2c_pca_pf_resetchip(void *pd)
-+{
-+	struct i2c_pca_pf_data *i2c = pd;
-+	struct i2c_pca9564_pf_platform_data *platform_data =
-+			i2c->adap.dev.parent->platform_data;
-+
-+	gpio_set_value(platform_data->gpio, 0);
-+	ndelay(100);
-+	gpio_set_value(platform_data->gpio, 1);
-+}
-+
-+static irqreturn_t i2c_pca_pf_handler(int this_irq, void *dev_id)
-+{
-+	struct i2c_pca_pf_data *i2c = dev_id;
-+
-+	if ((i2c->algo_data.read_byte(i2c, I2C_PCA_CON) & I2C_PCA_CON_SI) == 0)
-+		return IRQ_NONE;
-+
-+	wake_up_interruptible(&i2c->wait);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+
-+static int i2c_pca_pf_probe(struct platform_device *pdev)
-+{
-+	struct i2c_pca_pf_data *i2c;
-+	struct resource *res;
-+	struct i2c_pca9564_pf_platform_data *platform_data =
-+				pdev->dev.platform_data;
-+	int ret;
-+	int irq;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	irq = platform_get_irq(pdev, 0);
-+
-+	/* No need to check 'irq'. If it is below 0, we do polling. */
-+	if (res == NULL)
-+		return -ENODEV;
-+
-+	if (!request_mem_region(res->start, res_len(res), res->name))
-+		return -ENOMEM;
-+
-+	i2c = kzalloc(sizeof(struct i2c_pca_pf_data), GFP_KERNEL);
-+	if (!i2c) {
-+		ret = -ENOMEM;
-+		goto emalloc;
-+	}
-+
-+	init_waitqueue_head(&i2c->wait);
-+
-+	/*
-+	 * If "pdev->id" is negative we consider it as zero.
-+	 * The reason to do so is to avoid sysfs names that only make
-+	 * sense when there are multiple adapters.
-+	 */
-+	i2c->adap.nr = pdev->id != -1 ? pdev->id : 0;
-+
-+	i2c->adap.owner   = THIS_MODULE;
-+	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "i2c-pca9564.%u",
-+		pdev->id);
-+	i2c->adap.algo_data 	= &i2c->algo_data;
-+	i2c->adap.dev.parent 	= &pdev->dev;
-+	i2c->adap.class   	= I2C_CLASS_HWMON;
-+
-+	i2c->reg_base = ioremap(res->start, res_len(res));
-+	if (!i2c->reg_base) {
-+		ret = -EIO;
-+		goto eremap;
-+	}
-+	i2c->io_base	= res->start;
-+	i2c->io_size	= res_len(res);
-+	i2c->irq	= irq;
-+
-+	i2c->algo_data.my_slave_addr	= platform_data->my_slave_addr;
-+	i2c->algo_data.i2c_clock	= platform_data->i2c_clock_speed;
-+	i2c->algo_data.timeout		= platform_data->timeout;
-+
-+	i2c->algo_data.data	= i2c;
-+
-+	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
-+	case IORESOURCE_MEM_32BIT:
-+		i2c->algo_data.write_byte	= i2c_pca_pf_writebyte32;
-+		i2c->algo_data.read_byte	= i2c_pca_pf_readbyte32;
-+		break;
-+	case IORESOURCE_MEM_16BIT:
-+		i2c->algo_data.write_byte	= i2c_pca_pf_writebyte16;
-+		i2c->algo_data.read_byte	= i2c_pca_pf_readbyte16;
-+		break;
-+	case IORESOURCE_MEM_8BIT:
-+	default:
-+		i2c->algo_data.write_byte	= i2c_pca_pf_writebyte8;
-+		i2c->algo_data.read_byte	= i2c_pca_pf_readbyte8;
-+		break;
-+	}
-+
-+	i2c->algo_data.wait_for_completion	= i2c_pca_pf_waitforcompletion;
-+
-+	if (platform_data->gpio > -1)
-+		i2c->algo_data.reset_chip	= i2c_pca_pf_resetchip;
-+	else
-+		i2c->algo_data.reset_chip	= i2c_pca_pf_dummyreset;
-+
-+	if (irq > -1) {
-+		ret = request_irq(irq, i2c_pca_pf_handler,
-+			IRQF_TRIGGER_FALLING, i2c->adap.name, i2c);
-+		if (ret)
-+			goto ereqirq;
-+	}
-+
-+	if (i2c_pca_add_numbered_adapter(&i2c->adap) < 0) {
-+		dev_err(&i2c->adap.dev, "Failed to add PCA9564\n");
-+		goto eadapt;
-+	}
-+
-+	platform_set_drvdata(pdev, i2c);
-+
-+	dev_info(&i2c->adap.dev, "PCA9564 registered.\n");
-+	return 0;
-+
-+eadapt:
-+	if (irq > -1)
-+		free_irq(irq, i2c);
-+ereqirq:
-+	iounmap(i2c->reg_base);
-+eremap:
-+	kfree(i2c);
-+emalloc:
-+	release_mem_region(res->start, res_len(res));
-+	return ret;
-+}
-+
-+static int i2c_pca_pf_remove(struct platform_device *pdev)
-+{
-+	struct i2c_pca_pf_data *i2c = platform_get_drvdata(pdev);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	i2c_del_adapter(&i2c->adap);
-+
-+	if (i2c->irq > -1)
-+		free_irq(i2c->irq, i2c);
-+
-+	iounmap(i2c->reg_base);
-+	release_mem_region(i2c->io_base, i2c->io_size);
-+	kfree(i2c);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver i2c_pca_pf_driver = {
-+	.probe		= i2c_pca_pf_probe,
-+	.remove		= i2c_pca_pf_remove,
-+	.driver		= {
-+		.name	= "pca9564_platform",
-+	},
-+};
-+
-+static int __init i2c_pca_pf_init(void)
-+{
-+	return platform_driver_register(&i2c_pca_pf_driver);
-+}
-+
-+static void __exit i2c_pca_pf_exit(void)
-+{
-+	platform_driver_unregister(&i2c_pca_pf_driver);
-+}
-+
-+MODULE_AUTHOR("Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-+MODULE_DESCRIPTION("I2C-PCA9564 platform driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(i2c_pca_pf_init);
-+module_exit(i2c_pca_pf_exit);
-+
-Index: linux-playground/drivers/i2c/busses/Kconfig
-===================================================================
---- linux-playground.orig/drivers/i2c/busses/Kconfig	2008-01-21 12:39:28.000000000 +0100
-+++ linux-playground/drivers/i2c/busses/Kconfig	2008-01-21 13:10:54.000000000 +0100
-@@ -646,6 +646,17 @@
- 	  delays when I2C/SMBus chip drivers are loaded (e.g. at boot
- 	  time).  If unsure, say N.
++ *        2004: initial version [Ian Campbell]
++ *    Jan 2008: extended algo_data and adapter initialization to support
++ *              platform drivers [Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>]
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License as published by
+@@ -21,7 +27,6 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/delay.h>
+-#include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+@@ -36,15 +41,16 @@
  
-+config I2C_PCA_PLATFORM
-+	tristate "PCA9564 on platform bus"
-+	select I2C_ALGOPCA
-+	default n
-+	help
-+	  This driver supports a memory mapped Philips PCA 9564
-+	  Parallel bus to I2C bus controller
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-pca-platform.
-+
- config I2C_MV64XXX
- 	tristate "Marvell mv64xxx I2C Controller"
- 	depends on MV64X60 && EXPERIMENTAL
-Index: linux-playground/drivers/i2c/busses/Makefile
-===================================================================
---- linux-playground.orig/drivers/i2c/busses/Makefile	2008-01-21 12:39:28.000000000 +0100
-+++ linux-playground/drivers/i2c/busses/Makefile	2008-01-21 13:10:55.000000000 +0100
-@@ -31,6 +31,7 @@
- obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
- obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
- obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
-+obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
- obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
- obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
- obj-$(CONFIG_I2C_PNX)		+= i2c-pnx.o
-Index: linux-playground/include/linux/i2c-pca-platform.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-playground/include/linux/i2c-pca-platform.h	2008-01-21 13:10:55.000000000 +0100
-@@ -0,0 +1,13 @@
-+#ifndef I2C_PCA9564_PLATFORM_H
-+#define I2C_PCA9564_PLATFORM_H
-+
-+struct i2c_pca9564_pf_platform_data {
-+	int gpio;		/* pin to reset chip. driver will work when
-+				 * not supplied (negative value), but it
-+				 * cannot exit some error conditions then */
-+	int i2c_clock_speed;	/* values are defined in linux/i2c-algo-pca.h */
-+	int timeout;		/* timeout = this value * 10us */
-+	int my_slave_addr;	/* yet unused in pca-algo */
+ static int i2c_debug;
+ 
+-#define pca_outw(adap, reg, val) adap->write_byte(adap, reg, val)
+-#define pca_inw(adap, reg) adap->read_byte(adap, reg)
++#define pca_outw(adap, reg, val) adap->write_byte(adap->data, reg, val)
++#define pca_inw(adap, reg) adap->read_byte(adap->data, reg)
+ 
+ #define pca_status(adap) pca_inw(adap, I2C_PCA_STA)
+-#define pca_clock(adap) adap->get_clock(adap)
+-#define pca_own(adap) adap->get_own(adap)
++#define pca_clock(adap) adap->i2c_clock
++#define pca_own(adap) adap->my_slave_addr
+ #define pca_set_con(adap, val) pca_outw(adap, I2C_PCA_CON, val)
+ #define pca_get_con(adap) pca_inw(adap, I2C_PCA_CON)
+-#define pca_wait(adap) adap->wait_for_interrupt(adap)
++#define pca_wait(adap) adap->wait_for_completion(adap->data)
++#define pca_reset(adap) adap->reset_chip(adap->data)
+ 
+ /*
+  * Generate a start condition on the i2c bus.
+@@ -168,15 +174,6 @@
+ 	pca_wait(adap);
+ }
+ 
+-/*
+- * Reset the i2c bus / SIO
+- */
+-static void pca_reset(struct i2c_algo_pca_data *adap)
+-{
+-	/* apparently only an external reset will do it. not a lot can be done */
+-	printk(KERN_ERR DRIVER ": Haven't figured out how to do a reset yet\n");
+-}
+-
+ static int pca_xfer(struct i2c_adapter *i2c_adap,
+                     struct i2c_msg *msgs,
+                     int num)
+@@ -187,7 +184,7 @@
+ 	int numbytes = 0;
+ 	int state;
+ 	int ret;
+-	int timeout = 100;
++	int timeout = adap->timeout;
+ 
+ 	while ((state = pca_status(adap)) != 0xf8 && timeout--) {
+ 		msleep(10);
+@@ -317,7 +314,7 @@
+ 			pca_reset(adap);
+ 			goto out;
+ 		default:
+-			printk(KERN_ERR DRIVER ": unhandled SIO state 0x%02x\n", state);
++			dev_err(&i2c_adap->dev, "unhandled SIO state 0x%02x\n", state);
+ 			break;
+ 		}
+ 
+@@ -337,51 +334,68 @@
+         return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
+ 
+-static int pca_init(struct i2c_algo_pca_data *adap)
++static const struct i2c_algorithm pca_algo = {
++	.master_xfer	= pca_xfer,
++	.functionality	= pca_func,
 +};
 +
-+#endif /* I2C_PCA9564_PLATFORM_H */
++static int pca_init(struct i2c_adapter *adap)
+ {
+ 	static int freqs[] = {330,288,217,146,88,59,44,36};
+ 	int own, clock;
++	struct i2c_algo_pca_data *pca_data = adap->algo_data;
++
++	if (pca_data->i2c_clock > 7) {
++		dev_warn(&adap->dev, "Invalid I2C clock speed selected. Trying default.\n");
++		pca_data->i2c_clock = I2C_PCA_CON_59kHz;
++	}
++	/* No need to check my_slave_addr. driver can't handle slave mode */
++
++	adap->algo = &pca_algo;
++	adap->retries = 1;
+ 
+-	own = pca_own(adap);
+-	clock = pca_clock(adap);
+-	DEB1(KERN_INFO DRIVER ": own address is %#04x\n", own);
+-	DEB1(KERN_INFO DRIVER ": clock freqeuncy is %dkHz\n", freqs[clock]);
++	pca_reset(pca_data);
+ 
+-	pca_outw(adap, I2C_PCA_ADR, own << 1);
++	own = pca_own(pca_data);
++	clock = pca_clock(pca_data);
+ 
+-	pca_set_con(adap, I2C_PCA_CON_ENSIO | clock);
++	DEB1(KERN_INFO "%s: Own address is %#04x\n", adap->name, own);
++	DEB1(KERN_INFO "%s: Clock freqeuncy is %dkHz\n", adap->name, freqs[clock]);
++
++	pca_outw(pca_data, I2C_PCA_ADR, own << 1);
++
++	pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
+ 	udelay(500); /* 500 us for oscilator to stabilise */
+ 
+ 	return 0;
+ }
+ 
+-static const struct i2c_algorithm pca_algo = {
+-	.master_xfer	= pca_xfer,
+-	.functionality	= pca_func,
+-};
+-
+ /*
+  * registering functions to load algorithms at runtime
+  */
+-int i2c_pca_add_bus(struct i2c_adapter *adap)
++int i2c_pca_add_adapter(struct i2c_adapter *adap)
+ {
+-	struct i2c_algo_pca_data *pca_adap = adap->algo_data;
+ 	int rval;
+ 
+-	/* register new adapter to i2c module... */
+-	adap->algo = &pca_algo;
++	rval = pca_init(adap);
++	if (rval)
++		return rval;
+ 
+-	adap->timeout = 100;		/* default values, should	*/
+-	adap->retries = 3;		/* be replaced by defines	*/
++	return i2c_add_adapter(adap);
++}
++EXPORT_SYMBOL(i2c_pca_add_adapter);
+ 
+-	if ((rval = pca_init(pca_adap)))
+-		return rval;
++int i2c_pca_add_numbered_adapter(struct i2c_adapter *adap)
++{
++	int rval;
+ 
+-	rval = i2c_add_adapter(adap);
++	rval = pca_init(adap);
++	if (rval)
++		return rval;
+ 
+-	return rval;
++	return i2c_add_numbered_adapter(adap);
+ }
+-EXPORT_SYMBOL(i2c_pca_add_bus);
++EXPORT_SYMBOL(i2c_pca_add_numbered_adapter);
+ 
+ MODULE_AUTHOR("Ian Campbell <icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C-Bus PCA9564 algorithm");
 
 -- 
   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
