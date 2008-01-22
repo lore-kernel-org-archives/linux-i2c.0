@@ -1,14 +1,14 @@
 From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c_new_device is losing error codes
-Date: Tue, 22 Jan 2008 10:50:00 -0500
-Message-ID: <9e4733910801220750j6077034btfa17d1681fb338ab@mail.gmail.com>
-References: <9e4733910801211611u6d729fc2nee4914ca049bcd0d@mail.gmail.com>
-	<20080122153014.67a55fb1@hyperion.delvare>
+Subject: Re: i2c_adapter.class and new style drivers
+Date: Tue, 22 Jan 2008 10:55:37 -0500
+Message-ID: <9e4733910801220755j45b4c48m467679ebdd2ef911@mail.gmail.com>
+References: <9e4733910801211549v74ca13c4ya07179d36b35bff0@mail.gmail.com>
+	<20080122152347.1ebd0f4c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080122153014.67a55fb1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080122152347.1ebd0f4c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -26,63 +26,33 @@ List-Id: linux-i2c@vger.kernel.org
 On 1/22/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
 > Hi Jon,
 >
-> On Mon, 21 Jan 2008 19:11:23 -0500, Jon Smirl wrote:
-> > i2c_new_device() is not propagating error codes up. Callers will need
-> > to be fixed to use PTR_ERR() to recover the errors.
-> >
-> > struct i2c_client *
-> > i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-> > {
-> >       struct i2c_client       *client;
-> >       int                     status;
-> >
-> >       client = kzalloc(sizeof *client, GFP_KERNEL);
-> >       if (!client)
-> > --should return -ENOMEM;
-> >               return NULL;
-> >
-> >       client->adapter = adap;
-> >
-> >       client->dev.platform_data = info->platform_data;
-> >       device_init_wakeup(&client->dev, info->flags & I2C_CLIENT_WAKE);
-> >
-> >       client->flags = info->flags & ~I2C_CLIENT_WAKE;
-> >       client->addr = info->addr;
-> >       client->irq = info->irq;
-> >
-> >       strlcpy(client->name, info->type, sizeof(client->name));
-> >
-> >       /* a new style driver may be bound to this device when we
-> >        * return from this function, or any later moment (e.g. maybe
-> >        * hotplugging will load the driver module).  and the device
-> >        * refcount model is the standard driver model one.
-> >        */
-> >       status = i2c_attach_client(client);
-> > --error status is not propagated up
-> >       if (status < 0) {
-> >               kfree(client);
-> >               client = NULL;
-> >       }
-> >       return client;
-> > }
-> > EXPORT_SYMBOL_GPL(i2c_new_device);
+> On Mon, 21 Jan 2008 18:49:34 -0500, Jon Smirl wrote:
+> > Is i2c_adapter.class relevant anymore with new style drivers?
 >
-> That's an implementation decision. The PTR_ERR() mechanism is not
-> mandatory to use, I guess we didn't see a benefit in using it for this
-> function. I can't think of a recoverable error this function could
-> return, and if all errors are unrecoverable there's little point in
-> being able to distinguish between then, is there? If you have a use
-> case where the actual error code returned by i2c_new_device() would
-> lead the caller to do something different, please present it to us and
-> we'll discuss it.
+> No, it's not. The class is meant to limit the probing scope of
+> legacy i2c chip drivers. New-style i2c chip drivers shouldn't care.
+>
+> Note that these classes aren't going away anytime soon though: some
+> chip types just have to be probed (e.g. hardware monitoring chips or
+> EEPROMs on PC motherboards) so even if these drivers are eventually
+> converted to new-style i2c chip drivers, some (possibly external)
+> probing will still be necessary, and the class will be there to limit
+> the scope of this probing.
+>
+> > On 1/2/08, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org> wrote:
+> > > IMHO, there should be a node attribute to override
+> > > i2c_adapter.class. Legacy i2c drivers (in particular v4l and dvb
+> > > drivers) use this class to decide which adapter to bind to.
+> > > dbox2 needs I2C_CLASS_TV_DIGITAL (4).
+>
+> I am fine with a node attribute allowing control of this attribute,
+> that could be handy for testing and debugging purposes. If someone
+> submits a patch implementing this, I'll review and merge it.
 
-Passing up the actual error code is helpful to humans in locating the
-cause of the error. If I have the exact error I can search lower in
-the source code for where it was generated. In my code that calls this
-function I was going to print out the error result, but it is
-pointless if the error is always NULL. Right now if this function
-fails I have no clue as to why it failed, I will have to go document
-it with printfs and try to reproduce.
+Wouldn't it be better to convert the v4l and dvd drivers to new style
+and make progress on getting rid of class? It only takes about half an
+hour to convert a driver and the conversion mostly involves deleting
+code.
 
 >
 > --
