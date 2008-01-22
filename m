@@ -1,7 +1,7 @@
 From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c_adapter.class and new style drivers
-Date: Mon, 21 Jan 2008 18:49:34 -0500
-Message-ID: <9e4733910801211549v74ca13c4ya07179d36b35bff0@mail.gmail.com>
+Subject: i2c_new_device is losing error codes
+Date: Mon, 21 Jan 2008 19:11:23 -0500
+Message-ID: <9e4733910801211611u6d729fc2nee4914ca049bcd0d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,23 +16,49 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Is i2c_adapter.class relevant anymore with new style drivers?
+i2c_new_device() is not propagating error codes up. Callers will need
+to be fixed to use PTR_ERR() to recover the errors.
 
-On 1/2/08, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On 1/2/08, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org> wrote:
-> > IMHO, there should be a node attribute to override i2c_adapter.class. Legacy i2c drivers (in particular v4l and dvb drivers) use this class to decide which adapter to bind to. dbox2 needs I2C_CLASS_TV_DIGITAL (4).
->
-> I hadn't paid any attention to i2c_adapter.class. Now that you mention
-> it I wonder why i2c has it.  It appears to be a holdover from the
-> older mechanism of searching for devices and it is used as a filter to
-> reduce the number of device being searched. I would think a new style
-> driver could just ignore it.
->
-> It is probably best to fix it in a successive patch.
->
+struct i2c_client *
+i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+{
+	struct i2c_client	*client;
+	int			status;
+
+	client = kzalloc(sizeof *client, GFP_KERNEL);
+	if (!client)
+--should return -ENOMEM;
+		return NULL;
+
+	client->adapter = adap;
+
+	client->dev.platform_data = info->platform_data;
+	device_init_wakeup(&client->dev, info->flags & I2C_CLIENT_WAKE);
+
+	client->flags = info->flags & ~I2C_CLIENT_WAKE;
+	client->addr = info->addr;
+	client->irq = info->irq;
+
+	strlcpy(client->name, info->type, sizeof(client->name));
+
+	/* a new style driver may be bound to this device when we
+	 * return from this function, or any later moment (e.g. maybe
+	 * hotplugging will load the driver module).  and the device
+	 * refcount model is the standard driver model one.
+	 */
+	status = i2c_attach_client(client);
+--error status is not propagated up
+	if (status < 0) {
+		kfree(client);
+		client = NULL;
+	}
+	return client;
+}
+EXPORT_SYMBOL_GPL(i2c_new_device);
+
 
 -- 
 Jon Smirl
