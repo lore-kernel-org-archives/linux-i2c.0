@@ -1,44 +1,38 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/3] i2c: Convert all new-style drivers to use module
-	aliasing
-Date: Tue, 22 Jan 2008 11:09:51 +0100
-Message-ID: <20080122110951.6d896b2b@hyperion.delvare>
-References: <20080121112517.6fe35a89@hyperion.delvare>
-	<20080121114139.3aaa111a@hyperion.delvare>
-	<9e4733910801210850j39b9d51fy706b58ca15805f35@mail.gmail.com>
+From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+Subject: Re: i2c_adapter.class and new style drivers
+Date: Tue, 22 Jan 2008 12:15:42 +0100
+Message-ID: <4795D05E.8060501@scram.de>
+References: <9e4733910801211549v74ca13c4ya07179d36b35bff0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <9e4733910801210850j39b9d51fy706b58ca15805f35@mail.gmail.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910801211549v74ca13c4ya07179d36b35bff0-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Jon,
 
-On Mon, 21 Jan 2008 11:50:13 -0500, Jon Smirl wrote:
-> In my version of these patches new style drivers could be loaded with
-> both the driver_name/name scheme and the modalias. In these patches
-> new style drivers can only be loaded via modalias. Is that what you
-> intended? I'm all for making new style driver only use the modalias
-> scheme.
+> Is i2c_adapter.class relevant anymore with new style drivers?
 
-Yes, this is what I intended. I see no point in having two ways to
-achieve the same result, it makes things more complex, more costly and
-possibly confusing.
+it's not relevant for new style drivers anymore. However, there are
+still old style drivers using it like drivers/media/video/saa7127.c
+testing for I2C_CLASS_TV_ANALOG.
 
-I would reconsider if someone points out a very good reason to keep both
-schemes in parallel.
+Thanks,
+Jochen
 
--- 
-Jean Delvare
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
