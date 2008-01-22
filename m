@@ -1,70 +1,44 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c_new_device is losing error codes
-Date: Mon, 21 Jan 2008 19:11:23 -0500
-Message-ID: <9e4733910801211611u6d729fc2nee4914ca049bcd0d@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 2/3] i2c: Convert all new-style drivers to use module
+	aliasing
+Date: Tue, 22 Jan 2008 11:09:51 +0100
+Message-ID: <20080122110951.6d896b2b@hyperion.delvare>
+References: <20080121112517.6fe35a89@hyperion.delvare>
+	<20080121114139.3aaa111a@hyperion.delvare>
+	<9e4733910801210850j39b9d51fy706b58ca15805f35@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <9e4733910801210850j39b9d51fy706b58ca15805f35@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_new_device() is not propagating error codes up. Callers will need
-to be fixed to use PTR_ERR() to recover the errors.
+Hi Jon,
 
-struct i2c_client *
-i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
-{
-	struct i2c_client	*client;
-	int			status;
+On Mon, 21 Jan 2008 11:50:13 -0500, Jon Smirl wrote:
+> In my version of these patches new style drivers could be loaded with
+> both the driver_name/name scheme and the modalias. In these patches
+> new style drivers can only be loaded via modalias. Is that what you
+> intended? I'm all for making new style driver only use the modalias
+> scheme.
 
-	client = kzalloc(sizeof *client, GFP_KERNEL);
-	if (!client)
---should return -ENOMEM;
-		return NULL;
+Yes, this is what I intended. I see no point in having two ways to
+achieve the same result, it makes things more complex, more costly and
+possibly confusing.
 
-	client->adapter = adap;
-
-	client->dev.platform_data = info->platform_data;
-	device_init_wakeup(&client->dev, info->flags & I2C_CLIENT_WAKE);
-
-	client->flags = info->flags & ~I2C_CLIENT_WAKE;
-	client->addr = info->addr;
-	client->irq = info->irq;
-
-	strlcpy(client->name, info->type, sizeof(client->name));
-
-	/* a new style driver may be bound to this device when we
-	 * return from this function, or any later moment (e.g. maybe
-	 * hotplugging will load the driver module).  and the device
-	 * refcount model is the standard driver model one.
-	 */
-	status = i2c_attach_client(client);
---error status is not propagated up
-	if (status < 0) {
-		kfree(client);
-		client = NULL;
-	}
-	return client;
-}
-EXPORT_SYMBOL_GPL(i2c_new_device);
-
+I would reconsider if someone points out a very good reason to keep both
+schemes in parallel.
 
 -- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jean Delvare
