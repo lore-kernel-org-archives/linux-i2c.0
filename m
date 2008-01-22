@@ -1,17 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C_SMBUS_WORD Definition
-Date: Tue, 22 Jan 2008 15:01:15 +0100
-Message-ID: <20080122150115.03eed1b6@hyperion.delvare>
-References: <Pine.LNX.4.64.0801181524040.14018@galley.ll.mit.edu>
-	<20080119174950.1f12f3c0@hyperion.delvare>
-	<Pine.LNX.4.64.0801191539500.18738@galley.ll.mit.edu>
-	<20080120102335.5cc6a936@hyperion.delvare>
-	<Pine.LNX.4.64.0801211310050.18738@galley.ll.mit.edu>
+Subject: Re: i2c_adapter.class and new style drivers
+Date: Tue, 22 Jan 2008 15:23:47 +0100
+Message-ID: <20080122152347.1ebd0f4c@hyperion.delvare>
+References: <9e4733910801211549v74ca13c4ya07179d36b35bff0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0801211310050.18738-kD1P2mHmSlqz6L9v6lnKkIdd74u8MsAO@public.gmane.org>
+In-Reply-To: <9e4733910801211549v74ca13c4ya07179d36b35bff0-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,39 +17,34 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Gary Chambers <gwc-OVIABD91gjs3uPMLIKxrzw@public.gmane.org>
-Cc: I2C Mailing List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Gary,
+Hi Jon,
 
-On Mon, 21 Jan 2008 14:17:00 -0500 (EST), Gary Chambers wrote:
-> > Well, reading two bytes from a device directly doesn't correspond to 
-> > any SMBus transaction, so if your bus controller doesn't support I2C 
-> > messaging, I fear that you're pretty much stuck.
-> 
-> How authoritative is the functionality matrix?  My call to it returns 
-> 0xcfffc006 -- no pure I2C, but it appears that I can perform I2C block 
-> writes and reads.
+On Mon, 21 Jan 2008 18:49:34 -0500, Jon Smirl wrote:
+> Is i2c_adapter.class relevant anymore with new style drivers?
 
-The functionality matrix can be trusted in general, but if you'd tell
-me what i2c adapter driver this is, I could double-check. Also note
-that "i2cdetect -F" can list the functionality in a much more
-human-friendly format.
+No, it's not. The class is meant to limit the probing scope of
+legacy i2c chip drivers. New-style i2c chip drivers shouldn't care.
 
-> > What adapter is this?  And what chip are you trying to talk to?
-> 
-> It's a [seemingly] simple TI DAC5571 (single-channel, 8-bit DAC) on an 
-> evaluation module.
+Note that these classes aren't going away anytime soon though: some
+chip types just have to be probed (e.g. hardware monitoring chips or
+EEPROMs on PC motherboards) so even if these drivers are eventually
+converted to new-style i2c chip drivers, some (possibly external)
+probing will still be necessary, and the class will be there to limit
+the scope of this probing.
 
-Are you sure that the TI DAC5571 DAC value can be read at all? I've
-downloaded the datasheet and all it mentions is writing to the DAC5571,
-not reading from it.
+> On 1/2/08, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org> wrote:
+> > IMHO, there should be a node attribute to override
+> > i2c_adapter.class. Legacy i2c drivers (in particular v4l and dvb
+> > drivers) use this class to decide which adapter to bind to.
+> > dbox2 needs I2C_CLASS_TV_DIGITAL (4).
 
-> Thanks for your (and the list's) patience while I gain some footing with 
-> this.
-
-You're welcome.
+I am fine with a node attribute allowing control of this attribute,
+that could be handy for testing and debugging purposes. If someone
+submits a patch implementing this, I'll review and merge it.
 
 -- 
 Jean Delvare
