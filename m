@@ -1,85 +1,77 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [PATCH 2/3] Convert PowerPC MPC i2c to of_platform_driver from
-	platform_driver
-Date: Tue, 22 Jan 2008 23:18:46 -0500
-Message-ID: <9e4733910801222018m3b5b648ak90c4ee0a624a6d84@mail.gmail.com>
-References: <20080123020912.31675.48787.stgit@terra.home>
-	<20080123020914.31675.35659.stgit@terra.home>
-	<20080123141121.02c69526.sfr@canb.auug.org.au>
+From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] i2c-bfin-twi: Register adapter with a specific
+	bus	number
+Date: Wed, 23 Jan 2008 15:56:59 +0800
+Message-ID: <1201075019.6725.7.camel@roc-laptop>
+References: <Pine.LNX.4.64.0801222335050.11948@pc-213-140-179-32.aina.net>
+Reply-To: bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080123141121.02c69526.sfr@canb.auug.org.au>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.0801222335050.11948-er0LZAA46r2WwDxiJSwuDc1vFkv34tBQrE5yTffgRl4@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Kalle Pokki <kalle.pokki-loK5ZF7nR+A@public.gmane.org>
+Cc: bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 1/22/08, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> On Tue, 22 Jan 2008 21:09:14 -0500 Jon Smirl <jonsmirl@gmail.com> wrote:
-> >
-> > +static struct of_device_id mpc_i2c_of_match[] = {
->
-> (sfr winds up his broken record :-))  const, please.
 
-Fixed this
+On Tue, 2008-01-22 at 23:40 +0200, Kalle Pokki wrote:
+> All the users of this driver explicitly specify the I2C bus numbers
+> to be used in their platform data. Make the driver respect that.
+> 
+> Signed-off-by: Kalle Pokki <kalle.pokki-loK5ZF7nR+A@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-bfin-twi.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+> index 67224a4..7dbdaeb 100644
+> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+> @@ -550,6 +550,7 @@ static int i2c_bfin_twi_probe(struct platform_device *dev)
+>  
+>  	p_adap = &iface->adap;
+>  	p_adap->id = I2C_HW_BLACKFIN;
+> +	p_adap->nr = dev->id;
 
->
-> > +#else
-> > +
-> >  static int fsl_i2c_probe(struct platform_device *pdev)
->
-> While this code is still here, you should still explicitly include
-> <linux/platform.h>
+How do you think of following code, Kalle?
 
-Fixed this
+	 /*
+         * If "dev->id" is negative we consider it as zero.
+         * The reason to do so is to avoid sysfs names that only make
+         * sense when there are multiple adapters.
+         */
+        p_adap->nr = dev->id >= 0 ? dev->id : 0;
 
->
-> > -      fail_add:
-> > +fail_add:
->
-> If you are going to move labels, many people leave a single space in
-> front of them so that "diff -p" picks up the function name instead of the
-> label name.
+I found some i2c-gpio, i2c-ibm_iic.c and i2c-pxa.c using this code,
+while others use your idea.
 
-checkpatch told me to get rid of the spaces.
+>  	strlcpy(p_adap->name, dev->name, sizeof(p_adap->name));
+>  	p_adap->algo = &bfin_twi_algorithm;
+>  	p_adap->algo_data = iface;
+> @@ -576,7 +577,7 @@ static int i2c_bfin_twi_probe(struct platform_device *dev)
+>  	bfin_write_TWI_CONTROL(bfin_read_TWI_CONTROL() | TWI_ENA);
+>  	SSYNC();
+>  
+> -	rc = i2c_add_adapter(p_adap);
+> +	rc = i2c_add_numbered_adapter(p_adap);
+>  	if (rc < 0)
+>  		free_irq(iface->irq, iface);
+>  	else
 
->
-> > +void of_register_i2c_devices(struct i2c_adapter *adap, struct device_node *adap_node)
->
-> > +             compatible = of_get_property(node, "compatible", &len);
->
-> You can specify NULL instead of &len since you don't use the returned value.
+Thanks a lot
+-Bryan Wu
 
-fixed
-
->
-> > +             if (!compatible) {
-> > +                     printk(KERN_ERR "i2c-mpc.c: invalid entry, missing compatible attribute\n");
->
-> Some of these printk lines are a bit long.
-
-i got rid of "invalid entry,"
-
->
-> --
-> Cheers,
-> Stephen Rothwell                    sfr@canb.auug.org.au
-> http://www.canb.auug.org.au/~sfr/
->
->
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
