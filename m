@@ -1,57 +1,43 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [PATCHv2] i2c: adds support for i2c bus on Frescale CPM1/CPM2 controllers
-Date: Wed, 23 Jan 2008 09:28:01 -0500
-Message-ID: <9e4733910801230628w18285de2p211d761826e8064a@mail.gmail.com>
-References: <477BEB60.4070703@scram.de>
-	 <20080103104121.58697148.sfr@canb.auug.org.au>
-	 <20080123112941.23250948@hyperion.delvare> <479723CE.5020609@scram.de>
-	 <20080123140232.67273b22@hyperion.delvare>
+From: Jon Loeliger <jdl@jdl.com>
+Subject: Re: [PATCH 2/3] Convert PowerPC MPC i2c to of_platform_driver from
+	platform_driver
+Date: Wed, 23 Jan 2008 08:31:09 -0600
+Message-ID: <E1JHgdB-0002zV-F4@jdl.com>
+References: <20080123020912.31675.48787.stgit@terra.home>
+	<20080123020914.31675.35659.stgit@terra.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754808AbYAWO2U@vger.kernel.org>
-In-Reply-To: <20080123140232.67273b22@hyperion.delvare>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jochen Friedrich <jochen@scram.de>, Stephen Rothwell <sfr@canb.auug.org.au>, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: Your message of "Tue, 22 Jan 2008 21:09:14 EST."
+	<20080123020914.31675.35659.stgit@terra.home>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 1/23/08, Jean Delvare <khali@linux-fr.org> wrote:
-> Hallo Jochen,
->
-> On Wed, 23 Jan 2008 12:23:58 +0100, Jochen Friedrich wrote:
-> > Hi Jean,
-> >
-> > > Do you have an updated patch addressing Stephen's comment?
-> > >
-> > > Note: you'd rather send updates of this patch to the i2c list rather
-> > > than LKML.
-> >
-> > I'm currently looking at that last patches from Jon and try to make this
-> > driver fit in there (+ the class override stuff).
->
-> I'm not sure what patches exactly you're talking about, but the
-> aliasing stuff Jon and myself have been working on are still under
-> debate. Your patch shouldn't assume that any of these patches will go
-> upstream immediately, so your patch adding the i2c-cpm driver can
-> ignore them. I'll update the patches before merging them as needed, do
-> not worry too much about that.
+So, like, the other day Jon Smirl mumbled:
+> Convert MPC i2c driver from a platform_driver to a
+> of_platform_driver. Add the ability to dynamically load i2c drivers
+> based on device tree names. Routine names were changed from fsl_ to
+> mpc_ to make them match the file name. Common code moved to
+> powerpc-common.* Orginal ppc driver left intact for deletion when ppc
+> arch is removed.
 
-He wants the module name translation support I split out into powerpc-common.c.
+This seems backwards to me.  I was under the impression
+that our trend was _toward_ "Freescale" and "fsl" names...?
+And aren't the drivers also already using "fsl-i2c" in the
+DTS files as called out in the b-w-o.txt too?
 
->
-> > Note: will do. I just subscribed to this list.
->
-> Note hat you do not need to be subscribed to post to the i2c list (but
-> of course, if you have some interest in Linux i2c development,
-> subscribing was a good idea anyway.)
->
-> --
-> Jean Delvare
->
+Grumble long lines not hard-limited to 70-ish columns,
+yes, even in log messages... :-)
 
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+jdl
