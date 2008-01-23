@@ -1,15 +1,13 @@
-From: Kalle Pokki <kalle.pokki-loK5ZF7nR+A@public.gmane.org>
-Subject: Re: [PATCH] i2c-bfin-twi: Register adapter with a specific
-	bus number
-Date: Wed, 23 Jan 2008 10:54:45 +0200 (EET)
-Message-ID: <Pine.LNX.4.64.0801231047230.30599@pc-213-140-179-32.aina.net>
-References: <Pine.LNX.4.64.0801222335050.11948@pc-213-140-179-32.aina.net>
-	<1201075019.6725.7.camel@roc-laptop>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [patch 0/6] PCA9564-platform driver
+Date: Wed, 23 Jan 2008 10:33:32 +0100
+Message-ID: <fn71lc$f4n$1@ger.gmane.org>
+References: <20080121142010.988419876@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1201075019.6725.7.camel@roc-laptop>
+In-Reply-To: <20080121142010.988419876-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,29 +17,20 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 23 Jan 2008, Bryan Wu wrote:
+w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org wrote:
+> to extend the pca-algorithm a bit. I tried to adapt the existing ISA-driver
+> to the extensions, but cannot test it. The original maintainer receives
+> a cc.
+Meanwhile he replied to me and stated that he also has no longer access 
+to the ISA hardware. Pity.
 
-> How do you think of following code, Kalle?
-> 
-> 	 /*
->          * If "dev->id" is negative we consider it as zero.
->          * The reason to do so is to avoid sysfs names that only make
->          * sense when there are multiple adapters.
->          */
->         p_adap->nr = dev->id >= 0 ? dev->id : 0;
-> 
-> I found some i2c-gpio, i2c-ibm_iic.c and i2c-pxa.c using this code,
-> while others use your idea.
+-- 
+   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+  Pengutronix - Linux Solutions for Science and Industry
 
-I don't see the point in ever defining dev->id as -1. None of the current 
-users of i2c-bfin-twi does that. Another option could be to use dynamic 
-bus numbers with dev->id == -1, but I think the only sane way to enumerate 
-this kind of SOC busses is to fix the numbers in the machine 
-initialization time.
 
 _______________________________________________
 i2c mailing list
