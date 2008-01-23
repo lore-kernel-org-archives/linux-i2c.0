@@ -1,86 +1,70 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 3/6] Minor typos in i2c/algos/Kconfig
-Date: Wed, 23 Jan 2008 21:08:40 +0100
-Message-ID: <20080123210840.3f4a78e6@hyperion.delvare>
-References: <20080121142010.988419876@pengutronix.de>
-	<20080121143657.830988061@pengutronix.de>
+From: Matt Sealey <matt@genesi-usa.com>
+Subject: Re: [PATCH 3/3] Add device tree compatible aliases to i2c drivers
+Date: Wed, 23 Jan 2008 20:18:47 +0000
+Message-ID: <4797A127.8070401@genesi-usa.com>
+References: <20080123020912.31675.48787.stgit@terra.home>
+	<20080123020916.31675.98481.stgit@terra.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080121143657.830988061-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080123020916.31675.98481.stgit@terra.home>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Mon, 21 Jan 2008 15:20:13 +0100, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org wrote:
-> This patch corrects some minor typos. The term "below" in these paragraphs
-> might also be replaced by "later" or something similar?
-
-You're right, this is a remnant from the times where all the i2c
-options were in a single menu. Nowadays, 'under "I2C Hardware Bus
-support"' would be more appropriate. Or... nothing at all. After all,
-the i2c "algorithm" modules are selected automatically whenever a
-driver that relies on them is selected. They are visible in the menu
-only so that one can enable them for an hypothetical out-of-tree driver
-- but I doubt that this is terribly useful. So a 3rd option would be to
-simply remove these items from the configuration menu.
-
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/algos/Kconfig |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> Index: linux-playground/drivers/i2c/algos/Kconfig
-> ===================================================================
-> --- linux-playground.orig/drivers/i2c/algos/Kconfig	2008-01-21 11:04:53.000000000 +0100
-> +++ linux-playground/drivers/i2c/algos/Kconfig	2008-01-21 11:35:19.000000000 +0100
-> @@ -9,7 +9,7 @@
->  	help
->  	  This allows you to use a range of I2C adapters called bit-banging
->  	  adapters.  Say Y if you own an I2C adapter belonging to this class
-> -	  and then say Y to the specific driver for you adapter below.
-> +	  and then say Y to the specific driver for your adapter below.
->  
->  	  This support is also available as a module.  If so, the module 
->  	  will be called i2c-algo-bit.
-> @@ -19,7 +19,7 @@
->  	help
->  	  This allows you to use a range of I2C adapters called PCF adapters.
->  	  Say Y if you own an I2C adapter belonging to this class and then say
-> -	  Y to the specific driver for you adapter below.
-> +	  Y to the specific driver for your adapter below.
->  
->  	  This support is also available as a module.  If so, the module 
->  	  will be called i2c-algo-pcf.
-> @@ -29,7 +29,7 @@
->  	help
->  	  This allows you to use a range of I2C adapters called PCA adapters.
->  	  Say Y if you own an I2C adapter belonging to this class and then say
-> -	  Y to the specific driver for you adapter below.
-> +	  Y to the specific driver for your adapter below.
->  
->  	  This support is also available as a module.  If so, the module 
->  	  will be called i2c-algo-pca.
-> 
 
 
--- 
-Jean Delvare
+Jon Smirl wrote:
+> --- a/drivers/i2c/chips/tps65010.c
+> +++ b/drivers/i2c/chips/tps65010.c
+> @@ -571,6 +571,10 @@ static const struct i2c_device_id tps65010_id[] = {
+>  	{ "tps65011", TPS65011 },
+>  	{ "tps65012", TPS65012 },
+>  	{ "tps65013", TPS65013 },
+> +	OF_ID("ti,tps65010", TPS65010)
+> +	OF_ID("ti,tps65011", TPS65011)
+> +	OF_ID("ti,tps65012", TPS65012)
+> +	OF_ID("ri,tps65013", TPS65013)
+>  	{ },
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+ti, ti, ti, ri?
+
+> --- a/drivers/rtc/rtc-ds1307.c
+> +++ b/drivers/rtc/rtc-ds1307.c
+> @@ -129,6 +129,12 @@ static const struct i2c_device_id ds1307_id[] = {
+>  	{ "ds1339", ds_1339 },
+>  	{ "ds1340", ds_1340 },
+>  	{ "m41t00", m41t00 },
+> +	OF_ID("dallas,ds1307", ds_1307)
+> +	OF_ID("dallas,ds1337", ds_1337)
+> +	OF_ID("dallas,ds1338", ds_1338)
+> +	OF_ID("dallas,ds1339", ds_1339)
+> +	OF_ID("dallas,ds1340", ds_1340)
+> +	OF_ID("stm,m41t00", m41t00)
+>  	{},
+>  };
+
+The convention is to use the stock ticker, capitalized, if a company
+has one, I guess dallas is MXIM these days, but dallas is a good
+substitute based on the fact that most people still remember Dallas
+clock chips and so on from the Ancient Days. STMicroelectronics is STM.
+I couldn't care less about case sensitivity, but the stock ticker
+thing was always a good idea.. it gives a sort of grounding in reality
+for the manufacturer names.
+
+Are we still following this convention or are the names of devices
+simply arbitrarily defined by Linux kernel developers now?
+
+--
+Matt Sealey <matt@genesi-usa.com>
+Genesi, Manager, Developer Relations
