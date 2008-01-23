@@ -1,84 +1,66 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH 1/3] Rename i2c-mpc to i2c-mpc-drv in preparation for
-	breaking out common code.
-Date: Wed, 23 Jan 2008 13:46:54 +1100
-Message-ID: <20080123134654.cb5e249d.sfr@canb.auug.org.au>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] Rename i2c-mpc to i2c-mpc-drv in preparation
+	for breaking out common code.
+Date: Tue, 22 Jan 2008 21:50:13 -0500
+Message-ID: <9e4733910801221850k406f0985jd072876b681299da@mail.gmail.com>
 References: <20080123020912.31675.48787.stgit@terra.home>
+	<20080123134654.cb5e249d.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0185366466=="
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080123020912.31675.48787.stgit@terra.home>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Mime-version: 1.0
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080123134654.cb5e249d.sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============0185366466==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__23_Jan_2008_13_46_54_+1100_4VV2rh/jxS4l_yEV"
-
---Signature=_Wed__23_Jan_2008_13_46_54_+1100_4VV2rh/jxS4l_yEV
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Jon,
-
-On Tue, 22 Jan 2008 21:09:12 -0500 Jon Smirl <jonsmirl@gmail.com> wrote:
+On 1/22/08, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org> wrote:
+> Hi Jon,
 >
-> Rename i2c-mpc to i2c-mpc-drv in preparation for breaking out common code.
->=20
-> Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
-> ---
->=20
->  drivers/i2c/busses/Makefile      |    2=20
->  drivers/i2c/busses/i2c-mpc-drv.c |  421 ++++++++++++++++++++++++++++++++=
-++++++
->  drivers/i2c/busses/i2c-mpc.c     |  421 --------------------------------=
-------
->  3 files changed, 423 insertions(+), 421 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-mpc-drv.c
->  delete mode 100644 drivers/i2c/busses/i2c-mpc.c
+> On Tue, 22 Jan 2008 21:09:12 -0500 Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> >
+> > Rename i2c-mpc to i2c-mpc-drv in preparation for breaking out common code.
+> >
+> > Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > ---
+> >
+> >  drivers/i2c/busses/Makefile      |    2
+> >  drivers/i2c/busses/i2c-mpc-drv.c |  421 ++++++++++++++++++++++++++++++++++++++
+> >  drivers/i2c/busses/i2c-mpc.c     |  421 --------------------------------------
+> >  3 files changed, 423 insertions(+), 421 deletions(-)
+> >  create mode 100644 drivers/i2c/busses/i2c-mpc-drv.c
+> >  delete mode 100644 drivers/i2c/busses/i2c-mpc.c
+>
+> Adding -M or -C to the "git diff" should identify renames and
+> makes this sort of patch much easier to review.
 
-Adding -M or -C to the "git diff" should identify renames and
-makes this sort of patch much easier to review.
+I use stgit, I'll ask them how to generate rename patches. The actual
+git diff is buried inside stgit somewhere.
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+>
+> --
+> Cheers,
+> Stephen Rothwell                    sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org
+> http://www.canb.auug.org.au/~sfr/
+>
+>
 
---Signature=_Wed__23_Jan_2008_13_46_54_+1100_4VV2rh/jxS4l_yEV
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHlqqjTgG2atn1QN8RAq0ZAKCK+QsH2QGCkrx+YDMK+3NGiOx69ACdHLGY
-mZ61VkToH1dq/oWXudrnnRg=
-=TE9k
------END PGP SIGNATURE-----
-
---Signature=_Wed__23_Jan_2008_13_46_54_+1100_4VV2rh/jxS4l_yEV--
-
---===============0185366466==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 
 _______________________________________________
-Linuxppc-dev mailing list
-Linuxppc-dev@ozlabs.org
-https://ozlabs.org/mailman/listinfo/linuxppc-dev
---===============0185366466==--
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
