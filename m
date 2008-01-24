@@ -1,14 +1,14 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 5/6] pca-isa driver uses the new pca-algorithm
-Date: Thu, 24 Jan 2008 12:00:44 +0100
-Message-ID: <20080124120044.4052c351@hyperion.delvare>
-References: <20080121142010.988419876@pengutronix.de>
-	<20080121143658.662633756@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [patch 2/6] Extension of pca-algorithm
+Date: Thu, 24 Jan 2008 14:00:47 +0100
+Message-ID: <fna260$2f6$1@ger.gmane.org>
+References: <20080121142010.988419876@pengutronix.de>	<20080121143657.455317984@pengutronix.de>
+	<20080123205241.3e1235e7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080121143658.662633756-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20080123205241.3e1235e7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,210 +18,168 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hello Jean,
 
-On Mon, 21 Jan 2008 15:20:15 +0100, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org wrote:
-> This is untested, due to no hardware!
+first of all thank you for your detailed constructive criticism; I 
+appreciate your effort very much (and will try harder next time)!
 
-Did you at least try to build it? I guess not, because it fails here:
+Jean Delvare wrote:
 
-  CC [M]  drivers/i2c/busses/i2c-pca-isa.o
-drivers/i2c/busses/i2c-pca-isa.c: In function `pca_isa_waitforcompletion':
-drivers/i2c/busses/i2c-pca-isa.c:84: error: `adap' undeclared (first use in this function)
-drivers/i2c/busses/i2c-pca-isa.c:84: error: (Each undeclared identifier is reported only once
-drivers/i2c/busses/i2c-pca-isa.c:84: error: for each function it appears in.)
-drivers/i2c/busses/i2c-pca-isa.c: In function `pca_isa_resetchip':
-drivers/i2c/busses/i2c-pca-isa.c:96: error: syntax error before "DRIVER"
-drivers/i2c/busses/i2c-pca-isa.c: At top level:
-drivers/i2c/busses/i2c-pca-isa.c:108: error: unknown field `wait_for_competion' specified in initializer
-drivers/i2c/busses/i2c-pca-isa.c:110: error: initializer element is not constant
-drivers/i2c/busses/i2c-pca-isa.c:110: error: (near initialization for `pca_isa_data.my_slave_addr')
-drivers/i2c/busses/i2c-pca-isa.c:111: error: initializer element is not constant
-drivers/i2c/busses/i2c-pca-isa.c:111: error: (near initialization for `pca_isa_data.i2c_clock')
-drivers/i2c/busses/i2c-pca-isa.c: In function `pca_isa_probe':
-drivers/i2c/busses/i2c-pca-isa.c:140: error: implicit declaration of function `i2c_pca_add_bus'
-make[3]: *** [drivers/i2c/busses/i2c-pca-isa.o] Error 1
-make[2]: *** [drivers/i2c/busses] Error 2
-make[1]: *** [drivers/i2c] Error 2
-make: *** [drivers] Error 2
+> I would like a more detailed changelog entry. Please explain all the
+> changes you did and why you had to do them. If might be obvious to you,
+> but it may not be to others (including me.)
+Will do!
 
-Please fix.
+> This patch break the i2c-pca-isa driver, which is not OK. Your patchset
+> should be such that everything still builds and work after each
+> incremental patch. In practice, this means that patches 2/6 and 5/6
+> should be merged. Except for white-space cleanups which would rather
+> belong to patch 1/6.
+I understand, will restructure it this way...
 
 > 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-pca-isa.c |   52 +++++++++++++++++++--------------------
->  1 file changed, 26 insertions(+), 26 deletions(-)
+>> Index: linux-playground/include/linux/i2c-algo-pca.h
+>> ===================================================================
+[...]
+>>  struct i2c_algo_pca_data {
+>> -	int  (*get_own)			(struct i2c_algo_pca_data *adap); /* Obtain own address */
+>> -	int  (*get_clock)		(struct i2c_algo_pca_data *adap);
+>> -	void (*write_byte)		(struct i2c_algo_pca_data *adap, int reg, int val);
+>> -	int  (*read_byte)		(struct i2c_algo_pca_data *adap, int reg);
+>> -	int  (*wait_for_interrupt)	(struct i2c_algo_pca_data *adap);
+>> +	void 				*data;	/* private low level data */
+>> +	void (*write_byte)		(void *data, int reg, int val);
+>> +	int  (*read_byte)		(void *data, int reg);
+>> +	int  (*wait_for_completion)	(void *data);
+>> +	void (*reset_chip)		(void *data);
+>> +	unsigned int			my_slave_addr;
+>> +	unsigned int			i2c_clock;
+>> +	unsigned int			timeout;
+>>  };
+> I do not understand why you change struct i2c_algo_pca_data *adap to
+> void *data in these prototypes?
+I adopted this behaviour from the other algorithms, which do all use 
+void *data here. I guess, i2c-pca-algo used to pass the struct as it did 
+not have any private_data field before. The ISA-driver as the only user 
+of i2c-pca-algo never touched this parameter, as it gained all 
+neccessary data from its own static variables.
+
+> struct i2c_adapter already has a timeout field, so why define your own?
+Sorry, this the result of a mistake in my notes. Will fix.
+
+>> -int i2c_pca_add_bus(struct i2c_adapter *);
+>> +int i2c_pca_add_adapter(struct i2c_adapter *);
+> Why change this? All other algorithm drivers have i2c_foo_add_bus().
+I thought it makes it more "readable" what this function actually does. 
+Besides doing initialization, it mainly calls i2c_add_adapter. So, 
+giving them a similar name, it could perhaps be more obvious that this 
+function is a wrapper. But if you prefer consistency, I will go back to 
+i2c_pca_add_bus.
+
+>> Index: linux-playground/drivers/i2c/algos/i2c-algo-pca.h
+>> ===================================================================
+>> --- linux-playground.orig/drivers/i2c/algos/i2c-algo-pca.h	2008-01-21 12:39:28.000000000 +0100
+>> +++ linux-playground/drivers/i2c/algos/i2c-algo-pca.h	2008-01-21 12:42:14.000000000 +0100
+>> @@ -14,13 +14,4 @@
+>>  #define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
+>>  #define I2C_PCA_CON_CR		0x07 /* Clock Rate (MASK) */
+>>  
+>> -#define I2C_PCA_CON_330kHz	0x00
+>> -#define I2C_PCA_CON_288kHz	0x01
+>> -#define I2C_PCA_CON_217kHz	0x02
+>> -#define I2C_PCA_CON_146kHz	0x03
+>> -#define I2C_PCA_CON_88kHz	0x04
+>> -#define I2C_PCA_CON_59kHz	0x05
+>> -#define I2C_PCA_CON_44kHz	0x06
+>> -#define I2C_PCA_CON_36kHz	0x07
+>> -
+>>  #endif /* I2C_PCA9564_H */
 > 
-> Index: linux-playground/drivers/i2c/busses/i2c-pca-isa.c
-> ===================================================================
-> --- linux-playground.orig/drivers/i2c/busses/i2c-pca-isa.c	2008-01-21 12:39:28.000000000 +0100
-> +++ linux-playground/drivers/i2c/busses/i2c-pca-isa.c	2008-01-21 13:19:48.000000000 +0100
-> @@ -1,6 +1,12 @@
->  /*
->   *  i2c-pca-isa.c driver for PCA9564 on ISA boards
->   *    Copyright (C) 2004 Arcom Control Systems
-> + *    Copyright (C) 2008 Pengutronix
-> + *
-> + *  History:
-> + *        2004: initial version [Ian Campbell]
-> + *    Jan 2008: updates to use the newer PCA-algorithm
-> + *              [Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>]
+> Maybe you could get rid of this header file altogether? It never made
+> much sense to me. Symbols internal to i2c-algo-pca do not need to be in
+> a header file. Symbols needed by bus drivers or platform code should be
+> in a header file under include/linux, not drivers/i2c/algos.
+I'd like to do this, but it gave me a hard time already. The reason is, 
+that, in general, I would say all register definitions of the chip 
+should be inside the algorithm, as this is the abstraction which deals 
+with the chip and works with its registers. Now the problem is, 
+i2c-pca-algo defines a function wait_for_completion which has to be 
+filled by the adapter. (BTW, this routine used to have the name 
+"wait_for_interrupt". I renamed it, because it also does polling when no 
+interrupt is assigned, so this is a bit misleading) This function needs 
+to check a bit from the PCA9564 when calling wait_event_interruptible, 
+so it needs two definitions to work, namely those:
 
-No history in drivers.
+#define I2C_PCA_CON		0x03 /* CONTROL Read/Write */
+#define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
 
->   *
->   *  This program is free software; you can redistribute it and/or modify
->   *  it under the terms of the GNU General Public License as published by
-> @@ -22,7 +28,6 @@
->  #include <linux/module.h>
->  #include <linux/moduleparam.h>
->  #include <linux/delay.h>
-> -#include <linux/slab.h>
->  #include <linux/init.h>
->  #include <linux/interrupt.h>
->  #include <linux/wait.h>
-> @@ -30,16 +35,14 @@
->  #include <linux/isa.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-algo-pca.h>
-> -
-> -#include <asm/io.h>
-> -#include <asm/irq.h>
-> +#include <linux/io.h>
-> +#include <linux/irq.h>
+Furthermore it might be nice to have those definitions within the ISR, 
+so we can check if the interrupt was really caused by the PCA9564.
 
-Why? Many drivers include <asm/io.h> and <asm/irq.h>, it looks OK to me.
+I see the following options, which all have drawbacks.
 
->  
->  #include "../algos/i2c-algo-pca.h"
->  
->  #define IO_SIZE 4
->  
->  #undef DEBUG_IO
-> -//#define DEBUG_IO
+1) Do it like now, have a seperate i2c-pca-algo.h in /drivers/i2c/algos 
+and include it in algorithm and adapter. Drawback: There is an 
+additional .h-file.
 
-While you're here, the line before could be discarded as well.
+2) Put all register-definitions into /include/linux/i2c-pca-algo.h. 
+Drawback: All registers become visible, although not needed in most 
+cases when this file is being included.
 
->  
->  static unsigned long base   = 0x330;
->  static int irq 	  = 10;
-> @@ -52,18 +55,7 @@
->  
->  static wait_queue_head_t pca_wait;
->  
-> -static int pca_isa_getown(struct i2c_algo_pca_data *adap)
-> -{
-> -	return (own);
-> -}
-> -
-> -static int pca_isa_getclock(struct i2c_algo_pca_data *adap)
-> -{
-> -	return (clock);
-> -}
-> -
-> -static void
-> -pca_isa_writebyte(struct i2c_algo_pca_data *adap, int reg, int val)
-> +static void pca_isa_writebyte(void *pd, int reg, int val)
->  {
->  #ifdef DEBUG_IO
->  	static char *names[] = { "T/O", "DAT", "ADR", "CON" };
-> @@ -72,20 +64,19 @@
->  	outb(val, base+reg);
->  }
->  
-> -static int
-> -pca_isa_readbyte(struct i2c_algo_pca_data *adap, int reg)
-> +static int pca_isa_readbyte(void *pd, int reg)
->  {
->  	int res = inb(base+reg);
->  #ifdef DEBUG_IO
->  	{
-> -		static char *names[] = { "STA", "DAT", "ADR", "CON" };	
-> +		static char *names[] = { "STA", "DAT", "ADR", "CON" };
+3) Just put the two #defines from above into 
+/include/linux/i2c-pca-algo.h, the rest into i2c-pca-algo.c. Drawback: 
+Register definitions are scattered -> messy -> horrible.
 
-Such whitespace cleanups would rather belong to patch 1/6.
+4) Duplicate those two #defines in the adapter source code: Drawback: 
+Spoils maintainability pretty much. Also horrible.
 
->  		printk("*** read  %s => %#04x\n", names[reg], res);
->  	}
->  #endif
->  	return res;
->  }
->  
-> -static int pca_isa_waitforinterrupt(struct i2c_algo_pca_data *adap)
-> +static int pca_isa_waitforcompletion(void *pd)
->  {
->  	int ret = 0;
->  
-> @@ -93,23 +84,32 @@
->  		ret = wait_event_interruptible(pca_wait,
->  					       pca_isa_readbyte(adap, I2C_PCA_CON) & I2C_PCA_CON_SI);
->  	} else {
-> -		while ((pca_isa_readbyte(adap, I2C_PCA_CON) & I2C_PCA_CON_SI) == 0) 
-> +		while ((pca_isa_readbyte(adap, I2C_PCA_CON) & I2C_PCA_CON_SI) == 0)
+5) Move the wait_for_completion-function from the adapter to the 
+algorithm. Drawback: This function is connected to the wait_queue and 
+the ISR which better belong to the adapter and not the algorithm. I fear 
+the outcome will be unneccessarily complicated. We also lose the 
+possibility to check if the interrupt was caused by the PCA.
 
-Same here.
+6) Make the algorithm have a function i2c_pca_get_si_status which 
+reports the desired condition. Export it, so it can be called from 
+adapters. Drawback: I wonder if adapters should call the algorithms 
+except for foo_add_bus? Sounds like wrong direction to me.
 
->  			udelay(100);
->  	}
->  	return ret;
->  }
->  
-> +static void pca_isa_resetchip(void *pd)
-> +{
-> +	/* apparently only an external reset will do it. not a lot can be done */
-> +	printk(KERN_ERR DRIVER ": Haven't figured out how to do a reset yet\n");
-> +}
-> +
->  static irqreturn_t pca_handler(int this_irq, void *dev_id) {
->  	wake_up_interruptible(&pca_wait);
->  	return IRQ_HANDLED;
->  }
->  
->  static struct i2c_algo_pca_data pca_isa_data = {
-> -	.get_own		= pca_isa_getown,
-> -	.get_clock		= pca_isa_getclock,
-> +	.data			= NULL,
+I'd be happy to get opinions here (or option number 7 which is so simple 
+that I don't see it :))
 
-No need to initialize to NULL, the compiler does it for you. On a side
-note though, I fail to see how this could work, given that you changed
-the callbacks so that you pass this private data pointer to them
-instead of a pointer to struct i2c_algo_pca_data. This probably needs
-some more thinking.
+> History doesn't belong there, we have git for that.
+Will fix.
 
->  	.write_byte		= pca_isa_writebyte,
->  	.read_byte		= pca_isa_readbyte,
-> -	.wait_for_interrupt	= pca_isa_waitforinterrupt,
-> +	.wait_for_competion	= pca_isa_waitforcompletion,
-> +	.reset_chip		= pca_isa_resetchip,
-> +	.my_slave_addr		= own,
-> +	.i2c_clock		= clock,
-> +	.timeout		= 100,
->  };
->  
->  static struct i2c_adapter pca_isa_ops = {
-> @@ -157,7 +157,7 @@
->  {
->  	i2c_del_adapter(&pca_isa_ops);
->  
-> -	if (irq > 0) {
-> +	if (irq > -1) {
+>> +	if (pca_data->i2c_clock > 7) {
+>> +		dev_warn(&adap->dev, "Invalid I2C clock speed selected. Trying default.\n");
+>> +		pca_data->i2c_clock = I2C_PCA_CON_59kHz;
+>> +	}
+>> +	/* No need to check my_slave_addr. driver can't handle slave mode */
+> Why define it at all then?
+It was in the original PCA-driver; as it was never removed, I thought 
+there is a reason for being there.
 
-This deserves an explanation... In the light of previous discussions on
-the i2c list, I'd rather expect comparisons with NO_IRQ.
 
->  		disable_irq(irq);
->  		free_irq(irq, &pca_isa_ops);
->  	}
-> 
+>> +	adap->retries = 1;
+> Please don't set retries, the driver doesn't actually implement a retry
+> mechanism, and this structure field will be dropped soon in favor of a
+> different approach anyway.
+It used to be set to 3 without being implemented :) Will drop it.
+
+
+>> +	DEB1(KERN_INFO "%s: Own address is %#04x\n", adap->name, own);
+>> +	DEB1(KERN_INFO "%s: Clock freqeuncy is %dkHz\n", adap->name, freqs[clock]);
+> Typo: frequency.
+Legacy bug: Will fix.
 
 
 -- 
-Jean Delvare
+   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+  Pengutronix - Linux Solutions for Science and Industry
+
 
 _______________________________________________
 i2c mailing list
