@@ -1,123 +1,61 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] mpc i2c driver, compare to NO_IRQ instead of zero
-Date: Thu, 24 Jan 2008 18:07:38 -0500
-Message-ID: <9e4733910801241507t214561a4sb70bbb375b1f60a9@mail.gmail.com>
-References: <20080121200740.13800.20524.stgit@terra.home>
-	<9e4733910801241432r4424d41ayd5e41e57bc3e052b@mail.gmail.com>
-	<1201214138.6815.107.camel@pasglop>
+From: Olof Johansson <olof@lixom.net>
+Subject: Re: [i2c] [PATCH 3/3] Add device tree compatible aliases to i2c
+	drivers
+Date: Thu, 24 Jan 2008 18:32:49 -0600
+Message-ID: <20080125003249.GA30794@lixom.net>
+References: <20080123020912.31675.48787.stgit@terra.home>
+	<20080123020916.31675.98481.stgit@terra.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1201214138.6815.107.camel@pasglop>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+In-Reply-To: <20080123020916.31675.98481.stgit@terra.home>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 1/24/08, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org> wrote:
->
-> On Thu, 2008-01-24 at 17:32 -0500, Jon Smirl wrote:
-> > Ben, do you approve of this? How should error be checked for, is
-> > <NO_IRQ right? The current code in the kernel looks to be broken
-> > because of these checks, the ppc build is wrong and powerpc polled
-> > mode doesn't work.
->
->  == 0 should work on powerpc since NO_IRQ is defined to be 0 there no ?
+On Tue, Jan 22, 2008 at 09:09:16PM -0500, Jon Smirl wrote:
+> PowerPC device trees use a different naming convention than the Linux
+> kernel.  Provide alias names for i2c drivers in order to allow them to
+> be loaded by device tree name. The OF_ID macro ensures that the aliases
+> are only present in powerpc builds and separated into their own namespace.
 
-The driver being patched is used in both the powerpc and ppc builds.
+Hmm. I just realized that there's yet another twist to the PPC device
+bindings that's not yet considered:
 
->
-> Anyway, using the symbolic constant is always nicer I suppose.
->
-> Ben.
->
-> > On 1/21/08, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > > Alter the mpc i2c driver to use the NO_IRQ symbol instead of the constant zero when checking for valid interrupts. NO_IRQ=-1 on ppc and NO_IRQ=0 on powerpc so the checks against zero are not correct.
-> > >
-> > > Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > ---
-> > >
-> > >  drivers/i2c/busses/i2c-mpc.c |   10 +++++-----
-> > >  1 files changed, 5 insertions(+), 5 deletions(-)
-> > >
-> > >
-> > > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> > > index bbe787b..d20959d 100644
-> > > --- a/drivers/i2c/busses/i2c-mpc.c
-> > > +++ b/drivers/i2c/busses/i2c-mpc.c
-> > > @@ -99,7 +99,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
-> > >         u32 x;
-> > >         int result = 0;
-> > >
-> > > -       if (i2c->irq == 0)
-> > > +       if (i2c->irq == NO_IRQ)
-> > >         {
-> > >                 while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
-> > >                         schedule();
-> > > @@ -329,7 +329,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> > >                 return -ENOMEM;
-> > >
-> > >         i2c->irq = platform_get_irq(pdev, 0);
-> > > -       if (i2c->irq < 0) {
-> > > +       if (i2c->irq < NO_IRQ) {
-> > >                 result = -ENXIO;
-> > >                 goto fail_get_irq;
-> > >         }
-> > > @@ -344,7 +344,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> > >                 goto fail_map;
-> > >         }
-> > >
-> > > -       if (i2c->irq != 0)
-> > > +       if (i2c->irq != NO_IRQ)
-> > >                 if ((result = request_irq(i2c->irq, mpc_i2c_isr,
-> > >                                           IRQF_SHARED, "i2c-mpc", i2c)) < 0) {
-> > >                         printk(KERN_ERR
-> > > @@ -367,7 +367,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> > >         return result;
-> > >
-> > >        fail_add:
-> > > -       if (i2c->irq != 0)
-> > > +       if (i2c->irq != NO_IRQ)
-> > >                 free_irq(i2c->irq, i2c);
-> > >        fail_irq:
-> > >         iounmap(i2c->base);
-> > > @@ -384,7 +384,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
-> > >         i2c_del_adapter(&i2c->adap);
-> > >         platform_set_drvdata(pdev, NULL);
-> > >
-> > > -       if (i2c->irq != 0)
-> > > +       if (i2c->irq != NO_IRQ)
-> > >                 free_irq(i2c->irq, i2c);
-> > >
-> > >         iounmap(i2c->base);
-> > >
-> > >
-> > > _______________________________________________
-> > > i2c mailing list
-> > > i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> > > http://lists.lm-sensors.org/mailman/listinfo/i2c
-> > >
-> >
-> >
->
->
+Currently the device tree only contains one compatible field for most of
+the devices. But it's perfectly legal (actually, recommended) to have more
+than one compatible field -- they go from the specific to the generic.
+
+For example, for an eeprom I might have: "MCHP,24lc128est",
+"MCHP,24xx128", "24c128". The at24 driver (not in mainline yet :) would
+likely match with "24c128", and it would normally not make sense to have
+to list all specific vendors and models of the device type in question
+in the driver.
+
+I can't register a board_info for each of the compatible fields without
+changing the way the i2c drivers are registered, since the creation of
+the duplicate entries will start reporting errors. I also shouldn't
+(reasonably) have to register every single possible first (i.e. most
+specific) compatible-field -- that goes against the whole concept of
+having more than one compatible string.
+
+So it seems that the solution would be to make i2c_board_info take a
+list of names for the device, and each of them has to be matched with
+all drivers, taking the first match.
+
+Sounds reasonable to everyone? I can provide a patch to go on top of
+what's already proposed.
 
 
--- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-Olof
