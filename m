@@ -1,60 +1,36 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC PATCH 3/8] Philips PCA9536 4 bit I2C GPIO extender
-	driver
-Date: Sun, 27 Jan 2008 22:18:03 -0800
-Message-ID: <200801272218.04137.david-b@pacbell.net>
-References: <Pine.LNX.4.64.0801231646090.4932@axis700.grange>
-	<Pine.LNX.4.64.0801231820060.4932@axis700.grange>
-	<20080127224559.4eed7cea@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [GIT PULL] i2c updates for 2.6.25
+Date: Mon, 28 Jan 2008 10:43:48 +0100
+Message-ID: <20080128104348.0f6925f6@hyperion.delvare>
+References: <20080127182741.62bfe92a@hyperion.delvare>
+	<9e4733910801270936q7affdee3o3518c2265acaf61d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080127224559.4eed7cea-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759984AbYA1JoD@vger.kernel.org>
+In-Reply-To: <9e4733910801270936q7affdee3o3518c2265acaf61d@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday 27 January 2008, Jean Delvare wrote:
+Hi Jon,
+
+On Sun, 27 Jan 2008 12:36:03 -0500, Jon Smirl wrote:
+> On 1/27/08, Jean Delvare <khali@linux-fr.org> wrote:
+> > Linus,
+> >
+> > Please pull the i2c subsystem updates for Linux 2.6.25 from:
+> >
+> > git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 > 
-> There is a new GPIO subsystem (under driver/gpio), that's where you
-> should add this driver.
+> The support for modalias loading of i2c modules isn't in here, what's
+> the status?
 
-That should merge soonish into kernel GIT -- Linus is merging up a
-storm before LCA starts, but Andrew's not sent it yet -- but it's
-easy to grab from current MM.
+The status is that I want to give people some time to comment on my
+modalias patches before I merge them. I also didn't have the time to
+look into the latest patches you sent yet, and I'd rather merge
+everything at once. So the merge window for this is rather 2.6.26.
 
-There's a pca9539 driver there, and ISTR the 9536 is very similar
-except it has no IRQ support and only has 8-bit registers.  You
-should be able to reuse its platform_data structure.  It has a
-registration callback that should let you establish the linkage to
-the camera(s) you want to control.
-
-I suspect you'll come across one other issue... one potential fix
-being to add a mechanism matching a NOTE in the gpiolib sources.
-
-I think you should consider making one driver that can handle three
-chips: the 4-bit pca9536 (8 pins) and pca9537 (10 pins -- add irq and
-reset), plus their 8-bit pca9538 sibling (16 pins -- four more GPIOs,
-and two address bits).  Their register model is *identical* ... all
-that would mean is understanding that for some chips the high nibble
-is actually valid.  (And eventually, maybe, that some chips support
-input-changed IRQs that can help avoid synchronous register reads.
-If the i2c_client doesn't list an IRQ that's of course not an issue.)
-
-- Dave
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Jean Delvare
