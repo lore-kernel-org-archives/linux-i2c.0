@@ -1,115 +1,60 @@
-From: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
-Subject: Re: [i2c] [RFC PATCH 3/8] Philips PCA9536 4 bit I2C GPIO extender
- driver
-Date: Sun, 27 Jan 2008 23:27:41 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0801272313060.6715@axis700.grange>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [RFC PATCH 3/8] Philips PCA9536 4 bit I2C GPIO extender
+	driver
+Date: Sun, 27 Jan 2008 22:18:03 -0800
+Message-ID: <200801272218.04137.david-b@pacbell.net>
 References: <Pine.LNX.4.64.0801231646090.4932@axis700.grange>
 	<Pine.LNX.4.64.0801231820060.4932@axis700.grange>
 	<20080127224559.4eed7cea@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <video4linux-list-bounces@redhat.com>
-In-Reply-To: <20080127224559.4eed7cea@hyperion.delvare>
-List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
-	<mailto:video4linux-list-request@redhat.com?subject=unsubscribe>
-List-Archive: <https://www.redhat.com/mailman/private/video4linux-list>
-List-Post: <mailto:video4linux-list@redhat.com>
-List-Help: <mailto:video4linux-list-request@redhat.com?subject=help>
-List-Subscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
-	<mailto:video4linux-list-request@redhat.com?subject=subscribe>
-Sender: video4linux-list-bounces@redhat.com
-Errors-To: video4linux-list-bounces@redhat.com
-To: Jean Delvare <khali@linux-fr.org>
-Cc: David Brownell <david-b@pacbell.net>, video4linux-list@redhat.com, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080127224559.4eed7cea-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Guennadi Liakhovetski <g.liakhovetski-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 27 Jan 2008, Jean Delvare wrote:
-
-> Hi Guennadi,
-> 
-> On Wed, 23 Jan 2008 18:41:39 +0100 (CET), Guennadi Liakhovetski wrote:
-> > This driver will be used by the mt9m001 and the mt9v022 camera drivers,
-> > that can use a pca9536 to switch between 8 and 10 bit modes.
-> > 
-> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
-> > ---
-> >  drivers/i2c/chips/Kconfig   |   10 +++
-> >  drivers/i2c/chips/Makefile  |    1 +
-> >  drivers/i2c/chips/pca9536.c |  153 +++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 164 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/i2c/chips/pca9536.c
+On Sunday 27 January 2008, Jean Delvare wrote:
 > 
 > There is a new GPIO subsystem (under driver/gpio), that's where you
 > should add this driver.
 
-Right, thanks, will move there, as well as will fix all your clean up 
-suggestions - unneeded headers, dev_dbg, actually, might even remove 
-sysfs attributes - they were there only for debugging.
+That should merge soonish into kernel GIT -- Linus is merging up a
+storm before LCA starts, but Andrew's not sent it yet -- but it's
+easy to grab from current MM.
 
-> > +	if (client->dev.platform_data)
-> > +		/* This chip is going to be used from the kernel */
-> > +		*(struct i2c_client **)client->dev.platform_data = client;
-> 
-> This doesn't make any sense to me - what are you doing?
+There's a pca9539 driver there, and ISTR the 9536 is very similar
+except it has no IRQ support and only has 8-bit registers.  You
+should be able to reuse its platform_data structure.  It has a
+registration callback that should let you establish the linkage to
+the camera(s) you want to control.
 
-This was my way to call 
+I suspect you'll come across one other issue... one potential fix
+being to add a mechanism matching a NOTE in the gpiolib sources.
 
-int pca9536_set_level(struct i2c_client *client, u8 pin, u8 level)
-{
-...
-}
-EXPORT_SYMBOL(pca9536_set_level);
+I think you should consider making one driver that can handle three
+chips: the 4-bit pca9536 (8 pins) and pca9537 (10 pins -- add irq and
+reset), plus their 8-bit pca9538 sibling (16 pins -- four more GPIOs,
+and two address bits).  Their register model is *identical* ... all
+that would mean is understanding that for some chips the high nibble
+is actually valid.  (And eventually, maybe, that some chips support
+input-changed IRQs that can help avoid synchronous register reads.
+If the i2c_client doesn't list an IRQ that's of course not an issue.)
 
-from video drivers. But, if I make it a GPIO driver, I'll get a gpio API 
-too, so, will not have to export a new function, right (haven't looked at 
-gpio API yet)? But, probably, I still will need to somehow pass a handle 
-to this gpio-controller to the video driver. The idea is:
+- Dave
 
-in platform file we know, that a specific GPIO controller is attached to a 
-specific camera. So, I do
-
-static struct i2c_client *camera_data_bus_switch;
-
-static struct soc_camera_link iclink[] = {
-	{
-		.bus_id		= 0, /* Must match with the camera ID above */
-		.extender	= &camera_data_bus_switch,
-	}, {
-		.bus_id		= 0, /* Must match with the camera ID above */
-	}
-};
-
-/* Board I2C devices. */
-static struct i2c_board_info __initdata pcm027_i2c_devices[] = {
-	{
-		/* Must initialize before the camera(s) */
-		I2C_BOARD_INFO("pca9536", 0x41),
-		.type = "pca9536",
-		.platform_data = &camera_data_bus_switch,
-	}, {
-		I2C_BOARD_INFO("mt9v022", 0x48),
-		.type = "mt9v022",
-		.platform_data = &iclink[0], /* With extender */
-	}, {
-		I2C_BOARD_INFO("mt9m001", 0x5d),
-		.type = "mt9m001",
-		.platform_data = &iclink[0], /* With extender */
-	},
-};
-
-this way I tell, that the pca9536 extender with i2c address 0x41 is used 
-to switch both cameras. And in the pca9536 driver I fill in the 
-camera_data_bus_switch variable, so that cameras can later find and use 
-the switch.
-
-Well, I haven't find a better way to do this.
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
---
-video4linux-list mailing list
-Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
-https://www.redhat.com/mailman/listinfo/video4linux-list
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
