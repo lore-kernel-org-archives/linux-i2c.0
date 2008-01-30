@@ -1,7 +1,7 @@
 From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 3/3] [I2C] ID: add I2C Blackfin HW ID
-Date: Wed, 30 Jan 2008 18:09:56 +0800
-Message-ID: <1201687796-987-4-git-send-email-bryan.wu@analog.com>
+Subject: [PATCH 2/3] [I2C] add PCA9543 chip driver
+Date: Wed, 30 Jan 2008 18:09:55 +0800
+Message-ID: <1201687796-987-3-git-send-email-bryan.wu@analog.com>
 References: <1201687796-987-1-git-send-email-bryan.wu@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,21 +23,279 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 ---
- include/linux/i2c-id.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/i2c/chips/Kconfig   |   13 +++
+ drivers/i2c/chips/Makefile  |    1 +
+ drivers/i2c/chips/pca9543.c |  212 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-id.h      |    1 +
+ 4 files changed, 227 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/chips/pca9543.c
 
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index bb8c253..9f05f6f 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -60,6 +60,19 @@ config PCF8575
+ 	  This device is hard to detect and is rarely found on mainstream
+ 	  hardware.  If unsure, say N.
+ 
++config SENSORS_PCA9543
++	tristate "Philips PCA9543 bi-directional translating switch"
++	depends on I2C && EXPERIMENTAL
++	default n
++	help
++	  If you say yes here you get support for Philips PCA9543.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called pca9543.
++
++	  These devices are hard to detect and rarely found on mainstream
++	  hardware.  If unsure, say N.
++
+ config SENSORS_PCA9539
+ 	tristate "Philips PCA9539 16-bit I/O port"
+ 	depends on EXPERIMENTAL
+diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+index a1e1f5f..d5a1d98 100644
+--- a/drivers/i2c/chips/Makefile
++++ b/drivers/i2c/chips/Makefile
+@@ -7,6 +7,7 @@ obj-$(CONFIG_DS1682)		+= ds1682.o
+ obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
+ obj-$(CONFIG_SENSORS_MAX6875)	+= max6875.o
+ obj-$(CONFIG_SENSORS_PCA9539)	+= pca9539.o
++obj-$(CONFIG_SENSORS_PCA9543)	+= pca9543.o
+ obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
+ obj-$(CONFIG_PCF8575)		+= pcf8575.o
+ obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
+diff --git a/drivers/i2c/chips/pca9543.c b/drivers/i2c/chips/pca9543.c
+new file mode 100644
+index 0000000..dc19638
+--- /dev/null
++++ b/drivers/i2c/chips/pca9543.c
+@@ -0,0 +1,212 @@
++/*
++    pca9543.c - Part of lm_sensors, Linux kernel modules for hardware
++             monitoring
++    Copyright (c) 2000  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>,
++                        Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>,
++                        Dan Eaton <dan.eaton-RtyX3GHucphnQYSypqKXDg@public.gmane.org>
++    Ported to Linux 2.6 by Aurelien Jarno <aurel32-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org> with
++    the help of Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++
++    Copyright (C) 2007 Michael Hennerich, Analog Devices Inc.
++    			<hennerich-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
++	based on the pcf8574.c
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* A few notes about the PCA9543:
++
++*   The PCA9543 is a bi-directional translating switch, controlled by the
++    I2C bus. The SCL/SDA upstream pair fans out to two downstream
++    pairs, or channels. Any individual SCx/SDx channels or combination
++    of channels can be selected, determined by the contents of the
++    programmable control register. Two interrupt inputs, INT0 to INT3,
++    one for each of the downstream pairs, are provided. One interrupt
++    output INT, which acts as an AND of the two interrupt inputs, is
++    provided.
++
++*/
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++
++/* Addresses to scan */
++static unsigned short normal_i2c[] = { 0x70,0x71, 0x72, 0x73, I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD_1(pca9543);
++
++
++/* Each client has this additional data */
++struct pca9543_data {
++	struct i2c_client client;
++
++	u8 write;			/* Remember last written value */
++};
++
++static int pca9543_attach_adapter(struct i2c_adapter *adapter);
++static int pca9543_detect(struct i2c_adapter *adapter, int address, int kind);
++static int pca9543_detach_client(struct i2c_client *client);
++
++
++/* This is the driver that will be inserted */
++static struct i2c_driver pca9543_driver = {
++	.driver = {
++		.name	= "pca9543",
++	},
++	.id		= I2C_DRIVERID_PCF8574,
++	.attach_adapter	= pca9543_attach_adapter,
++	.detach_client	= pca9543_detach_client,
++};
++
++/* following are the sysfs callback functions */
++static ssize_t show_read(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	return sprintf(buf, "%u\n", i2c_smbus_read_byte(client));
++}
++
++static DEVICE_ATTR(read, S_IRUGO, show_read, NULL);
++
++static ssize_t show_write(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct pca9543_data *data = i2c_get_clientdata(to_i2c_client(dev));
++	return sprintf(buf, "%u\n", data->write);
++}
++
++static ssize_t set_write(struct device *dev, struct device_attribute *attr, const char *buf,
++			 size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct pca9543_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++
++	if (val > 0xff)
++		return -EINVAL;
++
++	data->write = val;
++	i2c_smbus_write_byte(client, data->write);
++	return count;
++}
++
++static DEVICE_ATTR(write, S_IWUSR | S_IRUGO, show_write, set_write);
++
++static struct attribute *pca9543_attributes[] = {
++	&dev_attr_read.attr,
++	&dev_attr_write.attr,
++	NULL
++};
++
++static const struct attribute_group pca9543_attr_group = {
++	.attrs = pca9543_attributes,
++};
++
++/*
++ * Real code
++ */
++
++static int pca9543_attach_adapter(struct i2c_adapter *adapter)
++{
++	return i2c_probe(adapter, &addr_data, pca9543_detect);
++}
++
++/* This function is called by i2c_probe */
++static int pca9543_detect(struct i2c_adapter *adapter, int address, int kind)
++{
++	struct i2c_client *new_client;
++	struct pca9543_data *data;
++	int err = 0;
++	const char *client_name = "pca9543";
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE))
++		goto exit;
++
++	/* OK. For now, we presume we have a valid client. We now create the
++	   client structure, even though we cannot fill it completely yet. */
++	if (!(data = kzalloc(sizeof(struct pca9543_data), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	new_client = &data->client;
++	i2c_set_clientdata(new_client, data);
++	new_client->addr = address;
++	new_client->adapter = adapter;
++	new_client->driver = &pca9543_driver;
++	new_client->flags = 0;
++
++	/* Now, we would do the remaining detection. But the PCF8574 is plainly
++	   impossible to detect! Stupid chip. */
++
++	/* Fill in the remaining client fields and put it into the global list */
++	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto exit_free;
++
++
++	/* Register sysfs hooks */
++	err = sysfs_create_group(&new_client->dev.kobj, &pca9543_attr_group);
++	if (err)
++		goto exit_detach;
++	return 0;
++
++      exit_detach:
++	i2c_detach_client(new_client);
++      exit_free:
++	kfree(data);
++      exit:
++	return err;
++}
++
++static int pca9543_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	sysfs_remove_group(&client->dev.kobj, &pca9543_attr_group);
++
++	if ((err = i2c_detach_client(client)))
++		return err;
++
++	kfree(i2c_get_clientdata(client));
++	return 0;
++}
++
++
++static int __init pca9543_init(void)
++{
++	return i2c_add_driver(&pca9543_driver);
++}
++
++static void __exit pca9543_exit(void)
++{
++	i2c_del_driver(&pca9543_driver);
++}
++
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>, "
++     "Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>, "
++     "Dan Eaton <dan.eaton-RtyX3GHucphnQYSypqKXDg@public.gmane.org> "
++     "and Aurelien Jarno <aurelien-rXXEIb44qovR7s880joybQ@public.gmane.org>"
++     "Michael Hennerich <hennerich-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>");
++MODULE_DESCRIPTION("PCA9543 driver");
++MODULE_LICENSE("GPL");
++
++module_init(pca9543_init);
++module_exit(pca9543_exit);
 diff --git a/include/linux/i2c-id.h b/include/linux/i2c-id.h
-index 6748bd2..402d21d 100644
+index 67d639d..6748bd2 100644
 --- a/include/linux/i2c-id.h
 +++ b/include/linux/i2c-id.h
-@@ -163,6 +163,7 @@
- #define I2C_HW_B_CX2341X	0x010020 /* Conexant CX2341X MPEG encoder cards */
- #define I2C_HW_B_INTELFB	0x010021 /* intel framebuffer driver */
- #define I2C_HW_B_CX23885	0x010022 /* conexant 23885 based tv cards (bus1) */
-+#define I2C_HW_B_BLACKFIN	0x010023 /* ADI Blackfin I2C TWI driver */
+@@ -134,6 +134,7 @@
+ #define I2C_DRIVERID_W83L785TS 1047
+ #define I2C_DRIVERID_OV7670 1048	/* Omnivision 7670 camera */
+ #define I2C_DRIVERID_AD5252 1049
++#define I2C_DRIVERID_PCF8575 1050
  
- /* --- PCF 8584 based algorithms					*/
- #define I2C_HW_P_ELEK		0x020002 /* Elektor ISA Bus inteface card */
+ /*
+  * ---- Adapter types ----------------------------------------------------
 -- 
 1.5.3.4
 
