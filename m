@@ -1,17 +1,13 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC PATCH 3/8] Add PCA9536 4 bit I2C GPIO extender
-	support to the pca9539 GPIO driver
-Date: Wed, 30 Jan 2008 20:52:03 -0800
-Message-ID: <200801302052.04336.david-b@pacbell.net>
-References: <Pine.LNX.4.64.0801231646090.4932@axis700.grange>
-	<Pine.LNX.4.64.0801301732550.6547@axis700.grange>
-	<f17812d70801301731n62597f12kc151d01c320e3dec@mail.gmail.com>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: Complex I2C device
+Date: Thu, 31 Jan 2008 10:16:19 +0100
+Message-ID: <20080131091619.GI9444@enneenne.com>
+References: <20080130144657.GA9444@enneenne.com>
+	<Pine.LNX.4.64.0801302126150.6547@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============3190690982019334618=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <f17812d70801301731n62597f12kc151d01c320e3dec-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0801302126150.6547-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,219 +17,139 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 30 January 2008, eric miao wrote:
-> I like this patch, overall looks ok. See my comments below.
 
-I basically like it, but I'd still like to see some changes.  :)
-
-I'd split this patch into two parts (feature addition, and renaming),
-and use simpler chip type handling.  Re that latter, in 2.6.26 there
-will be an i2c_device_id struct:
-
-  struct i2c_device_id {
-        char name[I2C_NAME_SIZE];
-        kernel_ulong_t driver_data;=A0=A0=A0=A0=A0/* Data private to the dr=
-iver */
-  };
-
-A little planning done now will make it easy to use that scheme.
-First, don't add a type field to the platform_data; that's what
-the i2c_client.name is for.  Then just map those strings to the
-number of GPIOs (eventually just use driver_data), and everything
-else follows from there.
+--===============3190690982019334618==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3duvV/J7KUqO/slB"
+Content-Disposition: inline
 
 
-> > --- a/drivers/gpio/Kconfig
-> > +++ b/drivers/gpio/Kconfig
-> > @@ -27,15 +27,15 @@ config DEBUG_GPIO
-> >
-> >  comment "I2C GPIO expanders:"
-> >
-> > -config GPIO_PCA9539
-> > -       tristate "PCA9539 16-bit I/O port"
-> > +config GPIO_PCA953X
-> > +       tristate "PCA953X I/O port"
+--3duvV/J7KUqO/slB
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"Ports"
+On Wed, Jan 30, 2008 at 09:32:38PM +0100, Guennadi Liakhovetski wrote:
+> Hi Rodolfo,
+>=20
+> On Wed, 30 Jan 2008, Rodolfo Giometti wrote:
+>=20
+> > my custom board has a =ABcomplex=BB device... let me explain better: it=
+'s
+> > formed by a custom I2C device and an I/O extender PCA9539.
+> >=20
+> > Ascii art:
+> >=20
+> >=20
+> >                 +---------+
+> >           --+---+         |
+> >             |   | PCA9539 |
+> >             |   +---------+
+> > Bus I2C ->> |      | | |
+> >             |      | | | <<--- GPIOs
+> >             |      | | |
+> >             |   +---------+
+> >             +---+         |
+> >                 |   CHIP  |
+> >                 +---------+ =20
+> >=20
+> > Some input GPIOs of CHIP are managed by the PCA9539. So fisically I
+> > have two devices but logically they are merged together into one.
+> >=20
+> > I can send commands to CHIP by both I2C bus and the GPIOs, which in
+> > turn are controlled by the PCA9539.
+> >=20
+> > Can you please suggest me the best way to manage this problem? My
+> > solution was to provide PCA9539's driver of some exported symbols and
+> > using them into the CHIP's driver. Is that right? Or, can I "call" (in
+> > any way) PCA9539 driver's methods from CHIP's driver?
+>=20
+> First, you want to use gpiolib, which in -mm tree now lives under=20
+> drivers/gpio and includes a driver for pca9539. With it the pca9539 drive=
+r=20
+> registers a gpio controller with the system, and then your driver for the=
+=20
+> other part can just request respective GPIOs as if they were normal CPU=
+=20
+> GPIOs or whatever else. And toggle them using the standard API. I will=20
+> (hopefully tomorrow) post an example of exactly this to the=20
+> video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org list. In my case this other chip is a CMOS=20
+> camera.
 
-> >         depends on I2C
-> >         help
-> > -         Say yes here to support the PCA9539 16-bit I/O port. These
-> > -         parts are made by NXP and TI.
-> > +         Say yes here to support PCA9539 16-bit and PCA9536 4-bit I/O =
-ports.
-
-This should IMO list the '38 (8-bit) and '37 (4-bit) parts too.
-Same register layout as the '36 (4-bit).  Otherwise the "x" seems
-misleading...
-
-
-> > diff --git a/drivers/gpio/pca9539.c b/drivers/gpio/pca953x.c
-> > similarity index 67%
-> > rename from drivers/gpio/pca9539.c
-> > rename to drivers/gpio/pca953x.c
-
-I'd prefer to see the new feature and the renaming be separate patches.
-
-
-> > -#define NR_PCA9539_GPIOS       16
-> > +struct pca953x_desc {
-> > +       unsigned int gpios;
-> > +       unsigned int input;
-> > +       unsigned int output;
-> > +       unsigned int invert;
-> > +       unsigned int direction;
-> > +};
-> =
-
-> I guess the register address can be inferred either from the number
-> of GPIOs or a single member field of "shift" may be sufficient.
-
-Yes, inferring that would be simpler.  The number of GPIOs is a
-function of the particular chip, and register offsets are 0/1/2/3
-except for the 16-GPIO part where they're twice that.
-
-What I'd do is save those four offsets directly in pca953x_chip,
-initialized near when gpio_chip.ngpio is set up and with no need
-for a separate "desc" type or table.  Eventually there'd be:
-
-	struct i2c_device_id chips [] =3D {
-		{ "pca9536", 4, },
-		{ "pca9537", 4, },
-		{ "pca9538", 8, },
-		{ "pca9539", 16, },
-	};
-	MODULE_DEVICE_TABLE(i2c, chips);
-
-Meanwhile, the equivalent of that table can come from a few strcmp()
-tests in the probe() logic -- like what you already have, except
-not using a "desc" type.
+Great, this would be a good solution for this scenario... but I'm
+looking something more "general". A related problem of mine is on
+another custom board which has the following:
 
 
-> > -static int pca9539_init_gpio(struct pca9539_chip *chip)
-> > +static int pca953x_init_gpio(struct pca953x_chip *chip)
-> >  {
-> >         struct gpio_chip *gc;
-> >
-> >         gc =3D &chip->gpio_chip;
-> >
-> > -       gc->direction_input  =3D pca9539_gpio_direction_input;
-> > -       gc->direction_output =3D pca9539_gpio_direction_output;
-> > -       gc->get =3D pca9539_gpio_get_value;
-> > -       gc->set =3D pca9539_gpio_set_value;
-> > +       gc->direction_input  =3D pca953x_gpio_direction_input;
-> > +       gc->direction_output =3D pca953x_gpio_direction_output;
-> > +       gc->get =3D pca953x_gpio_get_value;
-> > +       gc->set =3D pca953x_gpio_set_value;
-> >
-> >         gc->base =3D chip->gpio_start;
-> > -       gc->ngpio =3D NR_PCA9539_GPIOS;
-> > -       gc->label =3D "pca9539";
-> > +       gc->ngpio =3D chip->desc->gpios;
+                 +---------+
+           --+---+ Battery |
+             |   | Manager |
+             |   +---------+
+ Bus I2C ->> |
+             |
+             |
+             |   +---------+
+             +---+         |
+                 |  CHIP   |
+                 +---------+
 
-I'd expect "desc" to vanish, and ngpio to be an input to this function
-(see below).  Then ngpio could be used to choose the values to stuff
-into chip->{input,output,invert,direction} register offsets.
+A (complex) battery pack are managed by a "battery manager" and a
+custom chip connected by the I2C bus (my hardware designer _loves_ I2C
+bus :). Even these devices can be logically considered as only one
+(big) battery...
 
+Looking at I2C code, which uses the new style driver model, I see the
+function i2c_register_board_info() where we can specify the bus number
+and the devices list attached on that I2C bus, so I suppose we can add
+a function as:
 
-> > +       gc->label =3D "pca953x";
+	struct i2c_client *i2c_find_client(int busnum, unsigned short addr);
 
-Why not just set gc->label to be chip->client->name?
+which can return the i2c_client struct associated to the given bus
+number and i2c address.
 
-Might as well have /sys/kernel/debug/gpio output be
-that little bit more useful.  And save the space that
-would otherwise be wasted by that string.  :)
+This should resolve any possible problem related to every I2C
+"complex" device. Shouldn't it?
 
+Thanks for your help,
 
-> >
-> >         return gpiochip_add(gc);
-> >  }
-> >
-> > -static int __devinit pca9539_probe(struct i2c_client *client)
-> > +static int __devinit pca953x_probe(struct i2c_client *client)
-> >  {
-> > -       struct pca9539_platform_data *pdata;
-> > -       struct pca9539_chip *chip;
-> > +       struct pca953x_platform_data *pdata;
-> > +       struct pca953x_chip *chip;
-> >         int ret;
-> > +       int variant;
-> >
-> >         pdata =3D client->dev.platform_data;
-> >         if (pdata =3D=3D NULL)
-> >                 return -ENODEV;
-> >
-> > -       chip =3D kzalloc(sizeof(struct pca9539_chip), GFP_KERNEL);
-> > +       if (!strcmp("pca9539", pdata->name))
+Rodolfo
 
-Use client->name instead; there's no need to change pdata.
+--=20
+
+GNU/Linux Solutions                  e-mail:    giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                             giometti-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org
+Embedded Systems                     		giometti-k2GhghHVRtY@public.gmane.org
+UNIX programming                     phone:     +39 349 2432127
+
+--3duvV/J7KUqO/slB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHoZHiQaTCYNJaVjMRAi9KAKCvtzVFBx+rve22cp6zCHVuJxN65wCfW4AB
+4cgP7GBn/U2Ix1LglEHKDQk=
+=7INp
+-----END PGP SIGNATURE-----
+
+--3duvV/J7KUqO/slB--
 
 
-> > +               variant =3D PCA9539;
-> > +       else if (!strcmp("pca9536", pdata->name))
-> > +               variant =3D PCA9536;
-> > +       else
-> > +               return -ENODEV;
-> > +
-> =
-
-> I prefer integer here more than string, for simplicity and efficiency.
-
-Actually I'd use strings right now, and not change pdata at all.  But
-compare client->name, using that to figure out how many GPIOs.
-
-When, later, an i2c_device_id is passed in, the driver can get the
-number of GPIOs handed to it directly ... and won't need to worry
-about that ENODEV case.
-
-
-
-> > --- a/include/asm-generic/gpio.h
-> > +++ b/include/asm-generic/gpio.h
-> > @@ -16,6 +16,10 @@
-> >  #define ARCH_NR_GPIOS          256
-> >  #endif
-> >
-> > +#ifndef NO_GPIO
-> > +#define NO_GPIO                        ((unsigned int)-1)
-> > +#endif
-> > +
-> =
-
-> I don't understand this.
-
-Me either; *ANY* negative number is invalid as a GPIO number,
-not just "-1"...
-
-
-> > --- a/include/linux/i2c/pca9539.h
-> > +++ b/include/linux/i2c/pca953x.h
-> > @@ -1,9 +1,12 @@
-> > -/* platform data for the PCA9539 16-bit I/O expander driver */
-> > +/* platform data for the PCA953x I/O expander driver */
-> >
-> > -struct pca9539_platform_data {
-> > +struct pca953x_platform_data {
-> >         /* number of the first GPIO */
-> >         unsigned        gpio_base;
-> >
-> > +       /* chip variant. Currently supported "pca9536" and "pca9539" */
-> > +       const char      *name;
-> > +
-
-That's not needed; i2c_client.name should identify the chip.
-
-> >         /* initial polarity inversion setting */
-> >         uint16_t        invert;
-> >
-> > =
-
+--===============3190690982019334618==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============3190690982019334618==--
