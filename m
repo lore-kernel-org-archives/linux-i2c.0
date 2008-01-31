@@ -1,13 +1,17 @@
-From: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] i2c-ibm_iic driver
-Date: Wed, 30 Jan 2008 23:27:15 -0500
-Message-ID: <47A14E23.50807@pikatech.com>
-References: <4784FED1.2040206@pikatech.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [RFC PATCH 3/8] Add PCA9536 4 bit I2C GPIO extender
+	support to the pca9539 GPIO driver
+Date: Wed, 30 Jan 2008 20:52:03 -0800
+Message-ID: <200801302052.04336.david-b@pacbell.net>
+References: <Pine.LNX.4.64.0801231646090.4932@axis700.grange>
+	<Pine.LNX.4.64.0801301732550.6547@axis700.grange>
+	<f17812d70801301731n62597f12kc151d01c320e3dec@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4784FED1.2040206-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <f17812d70801301731n62597f12kc151d01c320e3dec-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,415 +21,216 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sean MacLennan wrote:
-> This patch allows the i2c-ibm_iic driver to be built either as an ocp 
-> driver or an of_platform driver. This allows it to run under the powerpc 
-> arch but maintains backward compatibility with the ppc arch.
->
->   
-The original patch had a "bug" in that it matched both device type and 
-compatibility. Current practice is to remove the i2c device types from 
-the device trees. So I have removed the device match from the match table.
+On Wednesday 30 January 2008, eric miao wrote:
+> I like this patch, overall looks ok. See my comments below.
 
-Cheers,
-    Sean
+I basically like it, but I'd still like to see some changes.  :)
 
-Signed-off-by: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
----
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index c466c6c..e9e1493 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -241,7 +241,6 @@ config I2C_PIIX4
- 
- config I2C_IBM_IIC
- 	tristate "IBM PPC 4xx on-chip I2C interface"
--	depends on IBM_OCP
- 	help
- 	  Say Y here if you want to use IIC peripheral found on 
- 	  embedded IBM PPC 4xx based systems. 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 9b43ff7..ea1c769 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -6,7 +6,10 @@
-  * Copyright (c) 2003, 2004 Zultys Technologies.
-  * Eugene Surovegin <eugene.surovegin-OMD3UA+2ZXrQT0dZR+AlfA@public.gmane.org> or <ebs-Iydg86zsFCHR7s880joybQ@public.gmane.org>
-  *
-- * Based on original work by 
-+ * Copyright (c) 2008 PIKA Technologies
-+ * Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-+ *
-+ * Based on original work by
-  * 	Ian DaSilva  <idasilva-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-  *      Armin Kuster <akuster-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-  * 	Matt Porter  <mporter-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-@@ -39,12 +42,17 @@
- #include <asm/io.h>
- #include <linux/i2c.h>
- #include <linux/i2c-id.h>
-+
-+#ifdef CONFIG_IBM_OCP
- #include <asm/ocp.h>
- #include <asm/ibm4xx.h>
-+#else
-+#include <linux/of_platform.h>
-+#endif
- 
- #include "i2c-ibm_iic.h"
- 
--#define DRIVER_VERSION "2.1"
-+#define DRIVER_VERSION "2.2"
- 
- MODULE_DESCRIPTION("IBM IIC driver v" DRIVER_VERSION);
- MODULE_LICENSE("GPL");
-@@ -650,13 +658,14 @@ static inline u8 iic_clckdiv(unsigned int opb)
- 	opb /= 1000000;
- 	
- 	if (opb < 20 || opb > 150){
--		printk(KERN_CRIT "ibm-iic: invalid OPB clock frequency %u MHz\n",
-+		printk(KERN_WARNING "ibm-iic: invalid OPB clock frequency %u MHz\n",
- 			opb);
- 		opb = opb < 20 ? 20 : 150;
- 	}
- 	return (u8)((opb + 9) / 10 - 1);
- }
- 
-+#ifdef CONFIG_IBM_OCP
- /*
-  * Register single IIC interface
-  */
-@@ -672,14 +681,14 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 			ocp->def->index);
- 
- 	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
--		printk(KERN_CRIT "ibm-iic%d: failed to allocate device data\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
- 			ocp->def->index);
- 		return -ENOMEM;
- 	}
- 
- 	dev->idx = ocp->def->index;
- 	ocp_set_drvdata(ocp, dev);
--	
-+
- 	if (!request_mem_region(ocp->def->paddr, sizeof(struct iic_regs),
- 				"ibm_iic")) {
- 		ret = -EBUSY;
-@@ -687,12 +696,12 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 	}
- 
- 	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
--		printk(KERN_CRIT "ibm-iic%d: failed to ioremap device registers\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
- 			dev->idx);
- 		ret = -ENXIO;
- 		goto fail2;
- 	}
--	
-+
- 	init_waitqueue_head(&dev->wq);
- 
- 	dev->irq = iic_force_poll ? -1 : ocp->def->irq;
-@@ -702,29 +711,29 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 		 */
- 		iic_interrupt_mode(dev, 0);
- 		if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
--			printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n", 
-+			printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
- 				dev->idx, dev->irq);
--			/* Fallback to the polling mode */	
-+			/* Fallback to the polling mode */
- 			dev->irq = -1;
- 		}
- 	}
--	
-+
- 	if (dev->irq < 0)
--		printk(KERN_WARNING "ibm-iic%d: using polling mode\n", 
-+		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
- 			dev->idx);
--		
-+
- 	/* Board specific settings */
- 	dev->fast_mode = iic_force_fast ? 1 : (iic_data ? iic_data->fast_mode : 0);
--	
--	/* clckdiv is the same for *all* IIC interfaces, 
-+
-+	/* clckdiv is the same for *all* IIC interfaces,
- 	 * but I'd rather make a copy than introduce another global. --ebs
- 	 */
- 	dev->clckdiv = iic_clckdiv(ocp_sys_info.opb_bus_freq);
- 	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
--	
-+
- 	/* Initialize IIC interface */
- 	iic_dev_init(dev);
--	
-+
- 	/* Register it with i2c layer */
- 	adap = &dev->adap;
- 	adap->dev.parent = &ocp->dev;
-@@ -746,28 +755,28 @@ static int __devinit iic_probe(struct ocp_device *ocp){
- 	adap->nr = dev->idx >= 0 ? dev->idx : 0;
- 
- 	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
--		printk(KERN_CRIT "ibm-iic%d: failed to register i2c adapter\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
- 			dev->idx);
- 		goto fail;
- 	}
--	
-+
- 	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
- 		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
- 
- 	return 0;
- 
--fail:	
-+fail:
- 	if (dev->irq >= 0){
- 		iic_interrupt_mode(dev, 0);
- 		free_irq(dev->irq, dev);
--	}	
-+	}
- 
- 	iounmap(dev->vaddr);
--fail2:	
-+fail2:
- 	release_mem_region(ocp->def->paddr, sizeof(struct iic_regs));
- fail1:
- 	ocp_set_drvdata(ocp, NULL);
--	kfree(dev);	
-+	kfree(dev);
- 	return ret;
- }
- 
-@@ -779,17 +788,17 @@ static void __devexit iic_remove(struct ocp_device *ocp)
- 	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
- 	BUG_ON(dev == NULL);
- 	if (i2c_del_adapter(&dev->adap)){
--		printk(KERN_CRIT "ibm-iic%d: failed to delete i2c adapter :(\n",
-+		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
- 			dev->idx);
- 		/* That's *very* bad, just shutdown IRQ ... */
- 		if (dev->irq >= 0){
--		    iic_interrupt_mode(dev, 0);	
-+		    iic_interrupt_mode(dev, 0);
- 		    free_irq(dev->irq, dev);
- 		    dev->irq = -1;
- 		}
- 	} else {
- 		if (dev->irq >= 0){
--		    iic_interrupt_mode(dev, 0);	
-+		    iic_interrupt_mode(dev, 0);
- 		    free_irq(dev->irq, dev);
- 		}
- 		iounmap(dev->vaddr);
-@@ -798,7 +807,7 @@ static void __devexit iic_remove(struct ocp_device *ocp)
- 	}
- }
- 
--static struct ocp_device_id ibm_iic_ids[] __devinitdata = 
-+static struct ocp_device_id ibm_iic_ids[] __devinitdata =
- {
- 	{ .vendor = OCP_VENDOR_IBM, .function = OCP_FUNC_IIC },
- 	{ .vendor = OCP_VENDOR_INVALID }
-@@ -831,3 +840,189 @@ static void __exit iic_exit(void)
- 
- module_init(iic_init);
- module_exit(iic_exit);
-+#else
-+/*
-+ * Register single IIC interface
-+ */
-+static int __devinit iic_probe(struct of_device *ofdev,
-+			       const struct of_device_id *match)
-+{
-+	static int index = 0;
-+	struct device_node *np = ofdev->node;
-+	struct ibm_iic_private* dev;
-+	struct i2c_adapter* adap;
-+	const u32 *indexp, *freq;
-+	int ret;
-+
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-+	if (!dev) {
-+		printk(KERN_ERR "ibm-iic: failed to allocate device data\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* This assumes we don't mix index and non-index entries. */
-+	indexp = of_get_property(np, "index", NULL);
-+	dev->idx = indexp ? *indexp : index++;
-+
-+	dev_set_drvdata(&ofdev->dev, dev);
-+
-+	dev->vaddr = of_iomap(np, 0);
-+	if (dev->vaddr == NULL) {
-+		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
-+			dev->idx);
-+		ret = -ENXIO;
-+		goto fail1;
-+	}
-+
-+	init_waitqueue_head(&dev->wq);
-+
-+	if (iic_force_poll)
-+		dev->irq = NO_IRQ;
-+	else {
-+		dev->irq = irq_of_parse_and_map(np, 0);
-+		if (dev->irq == NO_IRQ)
-+			printk(KERN_ERR __FILE__ ": irq_of_parse_and_map failed\n");
-+		else {
-+			/* Disable interrupts until we finish initialization,
-+			   assumes level-sensitive IRQ setup...
-+			*/
-+			iic_interrupt_mode(dev, 0);
-+			if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
-+				printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
-+				       dev->idx, dev->irq);
-+				/* Fallback to the polling mode */
-+				dev->irq = NO_IRQ;
-+			}
-+		}
-+	}
-+
-+	if (dev->irq == NO_IRQ)
-+		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
-+			   dev->idx);
-+
-+	/* Board specific settings */
-+	if (iic_force_fast || of_get_property(np, "fast-mode", NULL))
-+		dev->fast_mode = 1;
-+	else
-+		dev->fast_mode = 0;
-+
-+	/* clckdiv is the same for *all* IIC interfaces, but I'd rather
-+	 * make a copy than introduce another global. --ebs
-+	 */
-+	freq = of_get_property(np, "clock-frequency", NULL);
-+	if (freq == NULL) {
-+		freq = of_get_property(np->parent, "clock-frequency", NULL);
-+		if (freq == NULL) {
-+			printk(KERN_ERR "ibm-iic%d: Unable to get bus frequency\n",
-+			       dev->idx);
-+			ret = -EBUSY;
-+			goto fail;
-+		}
-+	}
-+
-+	dev->clckdiv = iic_clckdiv(*freq);
-+	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
-+
-+	/* Initialize IIC interface */
-+	iic_dev_init(dev);
-+
-+	/* Register it with i2c layer */
-+	adap = &dev->adap;
-+	adap->dev.parent = &ofdev->dev;
-+	strcpy(adap->name, "IBM IIC");
-+	i2c_set_adapdata(adap, dev);
-+	adap->id = I2C_HW_OCP;
-+	adap->class = I2C_CLASS_HWMON;
-+	adap->algo = &iic_algo;
-+	adap->client_register = NULL;
-+	adap->client_unregister = NULL;
-+	adap->timeout = 1;
-+	adap->retries = 1;
-+	adap->nr = dev->idx;
-+
-+	ret = i2c_add_numbered_adapter(adap);
-+	if (ret  < 0) {
-+		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
-+			dev->idx);
-+		goto fail;
-+	}
-+
-+	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
-+		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
-+
-+	return 0;
-+
-+fail:
-+	if (dev->irq != NO_IRQ){
-+		iic_interrupt_mode(dev, 0);
-+		free_irq(dev->irq, dev);
-+	}
-+
-+	iounmap(dev->vaddr);
-+fail1:
-+	dev_set_drvdata(&ofdev->dev, NULL);
-+	kfree(dev);
-+	return ret;
-+}
-+
-+/*
-+ * Cleanup initialized IIC interface
-+ */
-+static int __devexit iic_remove(struct of_device *ofdev)
-+{
-+	struct ibm_iic_private* dev = dev_get_drvdata(&ofdev->dev);
-+
-+	BUG_ON(dev == NULL);
-+	if (i2c_del_adapter(&dev->adap)){
-+		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
-+			dev->idx);
-+		/* That's *very* bad, just shutdown IRQ ... */
-+		if (dev->irq != NO_IRQ){
-+		    iic_interrupt_mode(dev, 0);
-+		    free_irq(dev->irq, dev);
-+		    dev->irq = NO_IRQ;
-+		}
-+	} else {
-+		if (dev->irq != NO_IRQ){
-+		    iic_interrupt_mode(dev, 0);
-+		    free_irq(dev->irq, dev);
-+		}
-+		iounmap(dev->vaddr);
-+		kfree(dev);
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static const struct of_device_id ibm_iic_match[] =
-+{
-+	{ .compatible = "ibm,iic-405ex", },
-+	{ .compatible = "ibm,iic-405gp", },
-+	{ .compatible = "ibm,iic-440gp", },
-+	{ .compatible = "ibm,iic-440gpx", },
-+	{ .compatible = "ibm,iic-440grx", },
-+	{}
-+};
-+
-+static struct of_platform_driver ibm_iic_driver =
-+{
-+	.name   = "ibm-iic",
-+	.match_table = ibm_iic_match,
-+	.probe  = iic_probe,
-+	.remove = iic_remove,
-+};
-+
-+static int __init ibm_iic_init(void)
-+{
-+	printk(KERN_INFO "IBM IIC driver v" DRIVER_VERSION "\n");
-+	return of_register_platform_driver(&ibm_iic_driver);
-+}
-+module_init(ibm_iic_init);
-+
-+static void __exit ibm_iic_exit(void)
-+{
-+	of_unregister_platform_driver(&ibm_iic_driver);
-+}
-+module_exit(ibm_iic_exit);
-+#endif
+I'd split this patch into two parts (feature addition, and renaming),
+and use simpler chip type handling.  Re that latter, in 2.6.26 there
+will be an i2c_device_id struct:
+
+  struct i2c_device_id {
+        char name[I2C_NAME_SIZE];
+        kernel_ulong_t driver_data;=A0=A0=A0=A0=A0/* Data private to the dr=
+iver */
+  };
+
+A little planning done now will make it easy to use that scheme.
+First, don't add a type field to the platform_data; that's what
+the i2c_client.name is for.  Then just map those strings to the
+number of GPIOs (eventually just use driver_data), and everything
+else follows from there.
 
 
+> > --- a/drivers/gpio/Kconfig
+> > +++ b/drivers/gpio/Kconfig
+> > @@ -27,15 +27,15 @@ config DEBUG_GPIO
+> >
+> >  comment "I2C GPIO expanders:"
+> >
+> > -config GPIO_PCA9539
+> > -       tristate "PCA9539 16-bit I/O port"
+> > +config GPIO_PCA953X
+> > +       tristate "PCA953X I/O port"
+
+"Ports"
+
+> >         depends on I2C
+> >         help
+> > -         Say yes here to support the PCA9539 16-bit I/O port. These
+> > -         parts are made by NXP and TI.
+> > +         Say yes here to support PCA9539 16-bit and PCA9536 4-bit I/O =
+ports.
+
+This should IMO list the '38 (8-bit) and '37 (4-bit) parts too.
+Same register layout as the '36 (4-bit).  Otherwise the "x" seems
+misleading...
+
+
+> > diff --git a/drivers/gpio/pca9539.c b/drivers/gpio/pca953x.c
+> > similarity index 67%
+> > rename from drivers/gpio/pca9539.c
+> > rename to drivers/gpio/pca953x.c
+
+I'd prefer to see the new feature and the renaming be separate patches.
+
+
+> > -#define NR_PCA9539_GPIOS       16
+> > +struct pca953x_desc {
+> > +       unsigned int gpios;
+> > +       unsigned int input;
+> > +       unsigned int output;
+> > +       unsigned int invert;
+> > +       unsigned int direction;
+> > +};
+> =
+
+> I guess the register address can be inferred either from the number
+> of GPIOs or a single member field of "shift" may be sufficient.
+
+Yes, inferring that would be simpler.  The number of GPIOs is a
+function of the particular chip, and register offsets are 0/1/2/3
+except for the 16-GPIO part where they're twice that.
+
+What I'd do is save those four offsets directly in pca953x_chip,
+initialized near when gpio_chip.ngpio is set up and with no need
+for a separate "desc" type or table.  Eventually there'd be:
+
+	struct i2c_device_id chips [] =3D {
+		{ "pca9536", 4, },
+		{ "pca9537", 4, },
+		{ "pca9538", 8, },
+		{ "pca9539", 16, },
+	};
+	MODULE_DEVICE_TABLE(i2c, chips);
+
+Meanwhile, the equivalent of that table can come from a few strcmp()
+tests in the probe() logic -- like what you already have, except
+not using a "desc" type.
+
+
+> > -static int pca9539_init_gpio(struct pca9539_chip *chip)
+> > +static int pca953x_init_gpio(struct pca953x_chip *chip)
+> >  {
+> >         struct gpio_chip *gc;
+> >
+> >         gc =3D &chip->gpio_chip;
+> >
+> > -       gc->direction_input  =3D pca9539_gpio_direction_input;
+> > -       gc->direction_output =3D pca9539_gpio_direction_output;
+> > -       gc->get =3D pca9539_gpio_get_value;
+> > -       gc->set =3D pca9539_gpio_set_value;
+> > +       gc->direction_input  =3D pca953x_gpio_direction_input;
+> > +       gc->direction_output =3D pca953x_gpio_direction_output;
+> > +       gc->get =3D pca953x_gpio_get_value;
+> > +       gc->set =3D pca953x_gpio_set_value;
+> >
+> >         gc->base =3D chip->gpio_start;
+> > -       gc->ngpio =3D NR_PCA9539_GPIOS;
+> > -       gc->label =3D "pca9539";
+> > +       gc->ngpio =3D chip->desc->gpios;
+
+I'd expect "desc" to vanish, and ngpio to be an input to this function
+(see below).  Then ngpio could be used to choose the values to stuff
+into chip->{input,output,invert,direction} register offsets.
+
+
+> > +       gc->label =3D "pca953x";
+
+Why not just set gc->label to be chip->client->name?
+
+Might as well have /sys/kernel/debug/gpio output be
+that little bit more useful.  And save the space that
+would otherwise be wasted by that string.  :)
+
+
+> >
+> >         return gpiochip_add(gc);
+> >  }
+> >
+> > -static int __devinit pca9539_probe(struct i2c_client *client)
+> > +static int __devinit pca953x_probe(struct i2c_client *client)
+> >  {
+> > -       struct pca9539_platform_data *pdata;
+> > -       struct pca9539_chip *chip;
+> > +       struct pca953x_platform_data *pdata;
+> > +       struct pca953x_chip *chip;
+> >         int ret;
+> > +       int variant;
+> >
+> >         pdata =3D client->dev.platform_data;
+> >         if (pdata =3D=3D NULL)
+> >                 return -ENODEV;
+> >
+> > -       chip =3D kzalloc(sizeof(struct pca9539_chip), GFP_KERNEL);
+> > +       if (!strcmp("pca9539", pdata->name))
+
+Use client->name instead; there's no need to change pdata.
+
+
+> > +               variant =3D PCA9539;
+> > +       else if (!strcmp("pca9536", pdata->name))
+> > +               variant =3D PCA9536;
+> > +       else
+> > +               return -ENODEV;
+> > +
+> =
+
+> I prefer integer here more than string, for simplicity and efficiency.
+
+Actually I'd use strings right now, and not change pdata at all.  But
+compare client->name, using that to figure out how many GPIOs.
+
+When, later, an i2c_device_id is passed in, the driver can get the
+number of GPIOs handed to it directly ... and won't need to worry
+about that ENODEV case.
+
+
+
+> > --- a/include/asm-generic/gpio.h
+> > +++ b/include/asm-generic/gpio.h
+> > @@ -16,6 +16,10 @@
+> >  #define ARCH_NR_GPIOS          256
+> >  #endif
+> >
+> > +#ifndef NO_GPIO
+> > +#define NO_GPIO                        ((unsigned int)-1)
+> > +#endif
+> > +
+> =
+
+> I don't understand this.
+
+Me either; *ANY* negative number is invalid as a GPIO number,
+not just "-1"...
+
+
+> > --- a/include/linux/i2c/pca9539.h
+> > +++ b/include/linux/i2c/pca953x.h
+> > @@ -1,9 +1,12 @@
+> > -/* platform data for the PCA9539 16-bit I/O expander driver */
+> > +/* platform data for the PCA953x I/O expander driver */
+> >
+> > -struct pca9539_platform_data {
+> > +struct pca953x_platform_data {
+> >         /* number of the first GPIO */
+> >         unsigned        gpio_base;
+> >
+> > +       /* chip variant. Currently supported "pca9536" and "pca9539" */
+> > +       const char      *name;
+> > +
+
+That's not needed; i2c_client.name should identify the chip.
+
+> >         /* initial polarity inversion setting */
+> >         uint16_t        invert;
+> >
+> > =
 
 
 _______________________________________________
