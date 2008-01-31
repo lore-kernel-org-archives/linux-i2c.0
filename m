@@ -1,8 +1,8 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [RFC PATCH 3/8] Add PCA9536 4 bit I2C GPIO extender
 	support to the pca9539 GPIO driver
-Date: Thu, 31 Jan 2008 03:46:16 -0800
-Message-ID: <200801310346.16424.david-b@pacbell.net>
+Date: Thu, 31 Jan 2008 03:49:41 -0800
+Message-ID: <200801310349.41945.david-b@pacbell.net>
 References: <Pine.LNX.4.64.0801231646090.4932@axis700.grange>
 	<200801310248.41076.david-b@pacbell.net>
 	<Pine.LNX.4.64.0801311204280.6494@axis700.grange>
@@ -28,30 +28,26 @@ List-Id: linux-i2c@vger.kernel.org
 On Thursday 31 January 2008, Guennadi Liakhovetski wrote:
 > =
 
-> > > > This should IMO list the '38 (8-bit) and '37 (4-bit) parts too.
-> > > > Same register layout as the '36 (4-bit). =A0Otherwise the "x" seems
-> > > > misleading...
-> > > =
+> > > So, actually, using my descriptor array is nearer to what it eventual=
+ly =
 
-> > > Ok, I don't want to look through all datasheets ATM, so, I'll just tr=
-ust =
+> > > should become, I think. Under 2.6.26 you'd also, probably, just have =
+a =
 
-> > > you, ok?
+> > > "struct i2c_device_id *" member in your pca953x_chip.
 > > =
 
-> > OK by me. =A0The NXP website makes them easy enough to find, but
-> > it's another one of those sites that tries to be too clever by
-> > overusing JavaScript.
+> > Well, I was also pointing out that all you need is the number of GPIOs;
+> > no need to save any ID struct at all. =A0These chips are VERY similar.
 > =
 
-> I'm actually adding 9534 (8-bit) and 9535 (16-bit) too atm, if you don't =
+> Ok, agreed, let's remove it then. For now I just use an array of structs =
 
-> mind:-)
+> similar to i2c_device_id only to avoid a long sequence of strcmp calls in =
 
-Do they have the same register interfaces?  I looked at them a long
-time ago, and don't recall.  If they have the same interface, then
-more power to you!
+> probe() and compare the name in a loop. Is this alright?
 
+Sure; it's your call on most such details, I just wanted clean patches.
 
 
 _______________________________________________
