@@ -1,75 +1,42 @@
-From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH 3/3] Add device tree compatible aliases to i2c drivers
-Date: Fri, 1 Feb 2008 18:32:12 +1100
-Message-ID: <20080201073212.GA18684@localhost.localdomain>
-References: <20080123020912.31675.48787.stgit@terra.home>
-	<20080123020916.31675.98481.stgit@terra.home>
-	<4797A127.8070401@genesi-usa.com>
+From: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
+Subject: Re: [PATCH 3/3] Add support for PCA953[4-8] I2C GPIO extenders to
+ the pca953x driver
+Date: Fri, 1 Feb 2008 11:57:01 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0802011156080.6065@axis700.grange>
+References: <Pine.LNX.4.64.0801311453470.8478@axis700.grange>
+	<200801311320.57437.david-b@pacbell.net>
+	<Pine.LNX.4.64.0801312308110.3704@axis700.grange>
+	<200801311535.41442.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <4797A127.8070401@genesi-usa.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Matt Sealey <matt@genesi-usa.com>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <video4linux-list-bounces@redhat.com>
+In-Reply-To: <200801311535.41442.david-b@pacbell.net>
+List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
+	<mailto:video4linux-list-request@redhat.com?subject=unsubscribe>
+List-Archive: <https://www.redhat.com/mailman/private/video4linux-list>
+List-Post: <mailto:video4linux-list@redhat.com>
+List-Help: <mailto:video4linux-list-request@redhat.com?subject=help>
+List-Subscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
+	<mailto:video4linux-list-request@redhat.com?subject=subscribe>
+Sender: video4linux-list-bounces@redhat.com
+Errors-To: video4linux-list-bounces@redhat.com
+To: David Brownell <david-b@pacbell.net>
+Cc: Jean Delvare <khali@linux-fr.org>, video4linux-list@redhat.com, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 23, 2008 at 08:18:47PM +0000, Matt Sealey wrote:
-> 
-> 
-> Jon Smirl wrote:
-> > --- a/drivers/i2c/chips/tps65010.c
-> > +++ b/drivers/i2c/chips/tps65010.c
-> > @@ -571,6 +571,10 @@ static const struct i2c_device_id tps65010_id[] = {
-> >  	{ "tps65011", TPS65011 },
-> >  	{ "tps65012", TPS65012 },
-> >  	{ "tps65013", TPS65013 },
-> > +	OF_ID("ti,tps65010", TPS65010)
-> > +	OF_ID("ti,tps65011", TPS65011)
-> > +	OF_ID("ti,tps65012", TPS65012)
-> > +	OF_ID("ri,tps65013", TPS65013)
-> >  	{ },
-> 
-> ti, ti, ti, ri?
-> 
-> > --- a/drivers/rtc/rtc-ds1307.c
-> > +++ b/drivers/rtc/rtc-ds1307.c
-> > @@ -129,6 +129,12 @@ static const struct i2c_device_id ds1307_id[] = {
-> >  	{ "ds1339", ds_1339 },
-> >  	{ "ds1340", ds_1340 },
-> >  	{ "m41t00", m41t00 },
-> > +	OF_ID("dallas,ds1307", ds_1307)
-> > +	OF_ID("dallas,ds1337", ds_1337)
-> > +	OF_ID("dallas,ds1338", ds_1338)
-> > +	OF_ID("dallas,ds1339", ds_1339)
-> > +	OF_ID("dallas,ds1340", ds_1340)
-> > +	OF_ID("stm,m41t00", m41t00)
-> >  	{},
-> >  };
-> 
-> The convention is to use the stock ticker, capitalized, if a company
-> has one, I guess dallas is MXIM these days, but dallas is a good
-> substitute based on the fact that most people still remember Dallas
-> clock chips and so on from the Ancient Days. STMicroelectronics is STM.
-> I couldn't care less about case sensitivity, but the stock ticker
-> thing was always a good idea.. it gives a sort of grounding in reality
-> for the manufacturer names.
+On Thu, 31 Jan 2008, David Brownell wrote:
 
-The stock ticker is a recent convention.  "dallas," has been used in
-existing IEEE1275 bindings, which to my mind trumps newer conventions.
+> Compare to this cleaned up version of your patch 3/3 ... which is a bit
+> smaller since it removes reg_shift.  (Tell me I didn't break anything!)
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+You didn't:-) It still works.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+--
+video4linux-list mailing list
+Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
+https://www.redhat.com/mailman/listinfo/video4linux-list
