@@ -1,7 +1,8 @@
 From: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Subject: [patch 2/3] fjkeyinf driver for FSC Lifebook laptops
-Date: Mon, 04 Feb 2008 23:40:22 -0800
-Message-ID: <200802050740.m157e3QI010068@imap1.linux-foundation.org>
+Subject: [patch 3/3] I2C: ISP1301_OMAP: New-style i2c driver updates,
+	part 1
+Date: Mon, 04 Feb 2008 23:40:23 -0800
+Message-ID: <200802050740.m157e4HM010071@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,308 +17,246 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: post-azCMwr5LJFZ+Wm55xJeGF4QuADTiUCJX@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Hendrik Sattler <post-azCMwr5LJFZ+Wm55xJeGF4QuADTiUCJX@public.gmane.org>
+From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
 
-This is another approach for FJKEYINF support for the FSC Lifebook laptop
-series.  In comparison to the apanel driver that was posted lately, it
-supports more than one entry in the table and slits off the actual handling of
-the I2C devices to seperate drivers, allowing resuse in other scenarios.
+The following two patches updates isp1301_omap.c to new-style i2c driver.  The
+patches are against curent linux mailine head.
 
-Signed-off-by: Hendrik Sattler <post-azCMwr5LJFZ+Wm55xJeGF4QuADTiUCJX@public.gmane.org>
+Tony Lindgren (Cc'ed here) already has a working version of this driver on his
+linux-omap git tree.  These are just a rework for them to apply cleanly on
+mainline.
+
+
+This patch:
+
+Based on David Brownell's patch for tps65010, this patch
+starts converting isp1301_omap.c to new-style i2c driver.
+
+Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 ---
 
- drivers/misc/Kconfig    |   16 ++
- drivers/misc/Makefile   |    1 
- drivers/misc/fjkeyinf.c |  242 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 259 insertions(+)
+ drivers/i2c/chips/isp1301_omap.c |   60 ++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 29 deletions(-)
 
-diff -puN drivers/misc/Kconfig~fjkeyinf-driver-for-fsc-lifebook-laptops drivers/misc/Kconfig
---- a/drivers/misc/Kconfig~fjkeyinf-driver-for-fsc-lifebook-laptops
-+++ a/drivers/misc/Kconfig
-@@ -264,6 +264,22 @@ config THINKPAD_ACPI_HOTKEY_POLL
- 	  If you are not sure, say Y here.  The driver enables polling only if
- 	  it is strictly necessary to do so.
+diff -puN drivers/i2c/chips/isp1301_omap.c~i2c-isp1301_omap-new-style-i2c-driver-updates-part-1 drivers/i2c/chips/isp1301_omap.c
+--- a/drivers/i2c/chips/isp1301_omap.c~i2c-isp1301_omap-new-style-i2c-driver-updates-part-1
++++ a/drivers/i2c/chips/isp1301_omap.c
+@@ -49,7 +49,8 @@ MODULE_LICENSE("GPL");
  
-+config FJKEYINF
-+	tristate "Fujutsu(-Siemens) Lifebook special BIOS signature support"
-+	depends on X86
-+	depends on I2C
-+	select I2C_I801
-+	select CHECK_SIGNATURE
-+	help
-+	  Say Y here to enable evaluation of the the special BIOS signature
-+	  present on may Fujitsu(-Siemens) Lifebooks.
-+	  The following SMBus chips are currently supported if the proper
-+	  signature is found:
-+	    - oz99x (for panel buttons and LEDs)
-+
-+	  To compile this driver as module, say M here: the module will be
-+	  called fjkeyinf.
-+
- config ATMEL_SSC
- 	tristate "Device driver for Atmel SSC peripheral"
- 	depends on AVR32 || ARCH_AT91
-diff -puN drivers/misc/Makefile~fjkeyinf-driver-for-fsc-lifebook-laptops drivers/misc/Makefile
---- a/drivers/misc/Makefile~fjkeyinf-driver-for-fsc-lifebook-laptops
-+++ a/drivers/misc/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_TC1100_WMI)	+= tc1100-wmi.o
- obj-$(CONFIG_LKDTM)		+= lkdtm.o
- obj-$(CONFIG_TIFM_CORE)       	+= tifm_core.o
- obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
-+obj-$(CONFIG_FJKEYINF)		+= fjkeyinf.o
- obj-$(CONFIG_PHANTOM)		+= phantom.o
- obj-$(CONFIG_SGI_IOC4)		+= ioc4.o
- obj-$(CONFIG_SONY_LAPTOP)	+= sony-laptop.o
-diff -puN /dev/null drivers/misc/fjkeyinf.c
---- /dev/null
-+++ a/drivers/misc/fjkeyinf.c
-@@ -0,0 +1,242 @@
-+/*
-+    Fujitsu Lifebook FJKEYINF information base
-+
-+    Copyright (C) 2001-2003 Jochen Eisinger <jochen-hvFg3w/y4bmps1mmpjUKfUB+6BGkLq7r@public.gmane.org>
-+                  2006-2007 Hendrik Sattler <post-azCMwr5LJFZ+Wm55xJeGF4QuADTiUCJX@public.gmane.org>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/version.h>
-+
-+#include <linux/ioport.h>
-+#include <linux/io.h>
-+#include <linux/kmod.h>
-+#include <linux/input.h>
-+#include <linux/i2c.h>
-+#include <linux/list.h>
-+
-+#include <linux/oz99x.h>
-+
-+/* scan the system rom for the signature "FJKEYINF" */
-+/* FSC Lifebook C-6637:
-+ * type = 5, access = 4 chip = 2, slave = 0x16 (unknown)
-+ * type = 1, access = 4 chip = 1, slave = 0x18 (OZ992S with buttons '1'-'4')
-+ * type = 6, access = 4 chip = 3, slave = 0x5c (unknown)
-+ */
-+
-+/* Scan the system ROM for the signature "FJKEYINF" */
-+static __init const void __iomem *bios_signature(const void __iomem *bios,
-+						 size_t len)
-+{
-+	size_t offset = 0;
-+	const char signature[] = {'F', 'J', 'K', 'E', 'Y', 'I', 'N', 'F'};
-+
-+	for (; offset < len; offset += 0x10)
-+		if (check_signature(bios + offset, signature,
-+				    sizeof(signature)))
-+			return bios + offset;
-+
-+	return NULL;
-+}
-+
-+static __init const void __iomem *fjkeyinf_get(void)
-+{
-+	struct resource *res = iomem_resource.child;
-+	const unsigned char __iomem *bios;
-+	const unsigned char __iomem *ptr;
-+	struct fjkeyinf_elem __iomem *retval = NULL;
-+	unsigned long len;
-+	const char sig[] = { 'F', 'J', 'K', 'E', 'Y', 'I', 'N', 'F' };
-+
-+	/* find the "System ROM" resource */
-+	while (res != NULL) {
-+		if (res->name && !strcmp("System ROM", res->name))
-+			break;
-+		res = res->sibling;
-+	}
-+
-+	if (!res) {
-+		pr_err("fjkeyinf: failed to locate System ROM resource\n");
-+		return NULL;
-+	}
-+	len = (res->end - res->start) + 1;
-+	bios = ioremap(res->start, len);
-+
-+	/* try to locate the signature in the System ROM */
-+	ptr = bios_signature(bios, len);
-+	if (ptr)
-+		retval = (struct fjkeyinf_elem __iomem *)(ptr+ARRAY_SIZE(sig));
-+
-+	return retval;
-+}
-+
-+static struct oz99x_platform_data keycodes[3] =  {
-+	{
-+		.keymap = {
-+			KEY_PROG1,
-+			KEY_PROG2,
-+			KEY_PROG3,
-+			KEY_PROG4
-+		}
-+	}, {
-+		.keymap = {
-+			KEY_MAIL,
-+			KEY_WWW,
-+			KEY_PROG1,
-+			KEY_PROG2
-+		}
-+	}, {
-+		.keymap = {
-+			KEY_FORWARD,
-+			KEY_REWIND,
-+			KEY_STOP,
-+			KEY_PLAYPAUSE
-+		}
-+	}
-+};
-+
-+struct fjkeyinf_client {
-+	struct i2c_client *client;
-+	struct list_head list;
-+};
-+static LIST_HEAD(fjkeyinf_clients);
-+
-+static int fjkeyinf_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	struct i2c_board_info board_info;
-+	struct fjkeyinf_client *data;
-+	const void __iomem *bios;
-+	const void __iomem *tmp;
-+	u8 func;
-+	u8 bus;
-+	u8 chip;
-+	u8 addr;
-+
-+	if (adapter->id != I2C_HW_SMBUS_I801)
-+		return -ENODEV;
-+
-+	bios = fjkeyinf_get();
-+	if (bios == NULL) {
-+		pr_err("fjkeyinf: no Fujitsu BIOS signature found.\n");
-+		return -ENODEV;
-+	}
-+
-+	tmp = bios;
-+	do {
-+		board_info.driver_name[0] = 0;
-+		board_info.addr = 0;
-+		board_info.platform_data = NULL;
-+
-+		func = readb(tmp);
-+		if (!func || (func & 0x80))
-+			break;
-+
-+		bus = readb(tmp+1);
-+		chip = readb(tmp+2);
-+		addr = readb(tmp+3);
-+
-+		pr_info("fjkeyinf: function = %d, bustype = %d, "
-+		       "chip = %d, address = 0x%02x\n",
-+		       (int)func,
-+		       (int)bus,
-+		       (int)chip,
-+		       (int)(addr >> 1) & 0x7F);
-+
-+		switch (chip) {
-+		case 1: /* OZ992 */
-+			strncat(board_info.driver_name, "oz99x",
-+				sizeof(board_info.driver_name));
-+			board_info.addr = ((addr >> 1)) & 0x7F;
-+			switch (func) {
-+			case 1: /* numbered buttons */
-+				board_info.platform_data = &keycodes[0];
-+				break;
-+
-+			case 2: /* CD control buttons */
-+				board_info.platform_data = &keycodes[2];
-+				break;
-+
-+			case 6: /* application buttons */
-+				board_info.platform_data = &keycodes[1];
-+				break;
-+			}
-+			break;
-+
-+		default: /* unknown/unsupported chip */
-+			break;
-+		}
-+		tmp += 4;
-+
-+		if (board_info.addr == 0)
-+			continue;
-+
-+		data = kzalloc(sizeof(*data), GFP_KERNEL);
-+		data->client = i2c_new_device(adapter, &board_info);
-+		if (!data->client) {
-+			pr_err("fjkeyinf: adding new i2c device failed\n");
-+			kfree(data);
-+			data = NULL;
-+		} else {
-+			list_add(&data->list, &fjkeyinf_clients);
-+		}
-+	} while (1);
-+	iounmap((void __iomem *)bios);
-+	return 0;
-+}
-+
-+static int fjkeyinf_detach_adapter(struct i2c_adapter *adapter)
-+{
-+	struct fjkeyinf_client *data, *tmp;
-+
-+	list_for_each_entry_safe(data, tmp, &fjkeyinf_clients, list) {
-+		if (data->client->adapter == adapter) {
-+			i2c_unregister_device(data->client);
-+			list_del(&data->list);
-+		}
-+	}
-+	return 0;
-+}
-+
-+static struct i2c_driver fjkeyinf_driver = {
-+	.driver = {
-+		.name   = "fjkeyinf",
-+	},
-+	.id             = 0,
-+	.attach_adapter = fjkeyinf_attach_adapter,
-+	.detach_adapter = fjkeyinf_detach_adapter
-+};
-+
-+static int __init fjkeyinf_module_init(void)
-+{
-+	return i2c_add_driver(&fjkeyinf_driver);
-+}
-+
-+static void __exit fjkeyinf_module_exit(void)
-+{
-+	i2c_del_driver(&fjkeyinf_driver);
-+}
-+
-+module_init(fjkeyinf_module_init);
-+module_exit(fjkeyinf_module_exit);
-+
-+MODULE_ALIAS("dmi:*:svnFUJITSU*:pnLifeBook*");
-+MODULE_ALIAS("dmi:*:svnFUJITSU*:pnLifebook*");
-+
-+MODULE_DESCRIPTION("Special devices table in Fujitsu-Siemens laptops");
-+MODULE_AUTHOR("Hendrik Sattler");
-+MODULE_LICENSE("GPL");
+ struct isp1301 {
+ 	struct otg_transceiver	otg;
+-	struct i2c_client	client;
++	struct i2c_client	*client;
++	struct i2c_client	c;
+ 	void			(*i2c_release)(struct device *dev);
+ 
+ 	int			irq;
+@@ -153,25 +154,25 @@ static struct i2c_driver isp1301_driver;
+ static inline u8
+ isp1301_get_u8(struct isp1301 *isp, u8 reg)
+ {
+-	return i2c_smbus_read_byte_data(&isp->client, reg + 0);
++	return i2c_smbus_read_byte_data(isp->client, reg + 0);
+ }
+ 
+ static inline int
+ isp1301_get_u16(struct isp1301 *isp, u8 reg)
+ {
+-	return i2c_smbus_read_word_data(&isp->client, reg);
++	return i2c_smbus_read_word_data(isp->client, reg);
+ }
+ 
+ static inline int
+ isp1301_set_bits(struct isp1301 *isp, u8 reg, u8 bits)
+ {
+-	return i2c_smbus_write_byte_data(&isp->client, reg + 0, bits);
++	return i2c_smbus_write_byte_data(isp->client, reg + 0, bits);
+ }
+ 
+ static inline int
+ isp1301_clear_bits(struct isp1301 *isp, u8 reg, u8 bits)
+ {
+-	return i2c_smbus_write_byte_data(&isp->client, reg + 1, bits);
++	return i2c_smbus_write_byte_data(isp->client, reg + 1, bits);
+ }
+ 
+ /*-------------------------------------------------------------------------*/
+@@ -349,10 +350,10 @@ isp1301_defer_work(struct isp1301 *isp, 
+ 	int status;
+ 
+ 	if (isp && !test_and_set_bit(work, &isp->todo)) {
+-		(void) get_device(&isp->client.dev);
++		(void) get_device(&isp->client->dev);
+ 		status = schedule_work(&isp->work);
+ 		if (!status && !isp->working)
+-			dev_vdbg(&isp->client.dev,
++			dev_vdbg(&isp->client->dev,
+ 				"work item %d may be lost\n", work);
+ 	}
+ }
+@@ -1107,7 +1108,7 @@ isp1301_work(struct work_struct *work)
+ 		/* transfer state from otg engine to isp1301 */
+ 		if (test_and_clear_bit(WORK_UPDATE_ISP, &isp->todo)) {
+ 			otg_update_isp(isp);
+-			put_device(&isp->client.dev);
++			put_device(&isp->client->dev);
+ 		}
+ #endif
+ 		/* transfer state from isp1301 to otg engine */
+@@ -1115,7 +1116,7 @@ isp1301_work(struct work_struct *work)
+ 			u8		stat = isp1301_clear_latch(isp);
+ 
+ 			isp_update_otg(isp, stat);
+-			put_device(&isp->client.dev);
++			put_device(&isp->client->dev);
+ 		}
+ 
+ 		if (test_and_clear_bit(WORK_HOST_RESUME, &isp->todo)) {
+@@ -1150,7 +1151,7 @@ isp1301_work(struct work_struct *work)
+ 			}
+ 			host_resume(isp);
+ 			// mdelay(10);
+-			put_device(&isp->client.dev);
++			put_device(&isp->client->dev);
+ 		}
+ 
+ 		if (test_and_clear_bit(WORK_TIMER, &isp->todo)) {
+@@ -1159,15 +1160,15 @@ isp1301_work(struct work_struct *work)
+ 			if (!stop)
+ 				mod_timer(&isp->timer, jiffies + TIMER_JIFFIES);
+ #endif
+-			put_device(&isp->client.dev);
++			put_device(&isp->client->dev);
+ 		}
+ 
+ 		if (isp->todo)
+-			dev_vdbg(&isp->client.dev,
++			dev_vdbg(&isp->client->dev,
+ 				"work done, todo = 0x%lx\n",
+ 				isp->todo);
+ 		if (stop) {
+-			dev_dbg(&isp->client.dev, "stop\n");
++			dev_dbg(&isp->client->dev, "stop\n");
+ 			break;
+ 		}
+ 	} while (isp->todo);
+@@ -1191,7 +1192,7 @@ static void isp1301_release(struct devic
+ {
+ 	struct isp1301	*isp;
+ 
+-	isp = container_of(dev, struct isp1301, client.dev);
++	isp = container_of(dev, struct isp1301, c.dev);
+ 
+ 	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
+ 	if (isp->i2c_release)
+@@ -1205,7 +1206,7 @@ static int isp1301_detach_client(struct 
+ {
+ 	struct isp1301	*isp;
+ 
+-	isp = container_of(i2c, struct isp1301, client);
++	isp = container_of(i2c, struct isp1301, c);
+ 
+ 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_FALLING, ~0);
+ 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_RISING, ~0);
+@@ -1257,7 +1258,7 @@ static int isp1301_otg_enable(struct isp
+ 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
+ 		INTR_VBUS_VLD | INTR_SESS_VLD | INTR_ID_GND);
+ 
+-	dev_info(&isp->client.dev, "ready for dual-role USB ...\n");
++	dev_info(&isp->client->dev, "ready for dual-role USB ...\n");
+ 
+ 	return 0;
+ }
+@@ -1282,7 +1283,7 @@ isp1301_set_host(struct otg_transceiver 
+ 
+ #ifdef	CONFIG_USB_OTG
+ 	isp->otg.host = host;
+-	dev_dbg(&isp->client.dev, "registered host\n");
++	dev_dbg(&isp->client->dev, "registered host\n");
+ 	host_suspend(isp);
+ 	if (isp->otg.gadget)
+ 		return isp1301_otg_enable(isp);
+@@ -1297,7 +1298,7 @@ isp1301_set_host(struct otg_transceiver 
+ 	if (machine_is_omap_h2())
+ 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1, MC1_DAT_SE0);
+ 
+-	dev_info(&isp->client.dev, "A-Host sessions ok\n");
++	dev_info(&isp->client->dev, "A-Host sessions ok\n");
+ 	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
+ 		INTR_ID_GND);
+ 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
+@@ -1315,7 +1316,7 @@ isp1301_set_host(struct otg_transceiver 
+ 	return 0;
+ 
+ #else
+-	dev_dbg(&isp->client.dev, "host sessions not allowed\n");
++	dev_dbg(&isp->client->dev, "host sessions not allowed\n");
+ 	return -EINVAL;
+ #endif
+ 
+@@ -1341,7 +1342,7 @@ isp1301_set_peripheral(struct otg_transc
+ 
+ #ifdef	CONFIG_USB_OTG
+ 	isp->otg.gadget = gadget;
+-	dev_dbg(&isp->client.dev, "registered gadget\n");
++	dev_dbg(&isp->client->dev, "registered gadget\n");
+ 	/* gadget driver may be suspended until vbus_connect () */
+ 	if (isp->otg.host)
+ 		return isp1301_otg_enable(isp);
+@@ -1364,7 +1365,7 @@ isp1301_set_peripheral(struct otg_transc
+ 		INTR_SESS_VLD);
+ 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
+ 		INTR_VBUS_VLD);
+-	dev_info(&isp->client.dev, "B-Peripheral sessions ok\n");
++	dev_info(&isp->client->dev, "B-Peripheral sessions ok\n");
+ 	dump_regs(isp, __FUNCTION__);
+ 
+ 	/* If this has a Mini-AB connector, this mode is highly
+@@ -1377,7 +1378,7 @@ isp1301_set_peripheral(struct otg_transc
+ 	return 0;
+ 
+ #else
+-	dev_dbg(&isp->client.dev, "peripheral sessions not allowed\n");
++	dev_dbg(&isp->client->dev, "peripheral sessions not allowed\n");
+ 	return -EINVAL;
+ #endif
+ }
+@@ -1493,12 +1494,13 @@ static int isp1301_probe(struct i2c_adap
+ 	isp->timer.data = (unsigned long) isp;
+ 
+ 	isp->irq = -1;
+-	isp->client.addr = address;
+-	i2c_set_clientdata(&isp->client, isp);
+-	isp->client.adapter = bus;
+-	isp->client.driver = &isp1301_driver;
+-	strlcpy(isp->client.name, DRIVER_NAME, I2C_NAME_SIZE);
+-	i2c = &isp->client;
++	isp->irq_type = 0;
++	isp->c.addr = address;
++	i2c_set_clientdata(&isp->c, isp);
++	isp->c.adapter = bus;
++	isp->c.driver = &isp1301_driver;
++	strlcpy(isp->c.name, DRIVER_NAME, I2C_NAME_SIZE);
++	isp->client = i2c = &isp->c;
+ 
+ 	/* if this is a true probe, verify the chip ... */
+ 	if (kind < 0) {
+@@ -1583,7 +1585,7 @@ fail2:
+ 		goto fail1;
+ 	}
+ 
+-	isp->otg.dev = &isp->client.dev;
++	isp->otg.dev = &isp->client->dev;
+ 	isp->otg.label = DRIVER_NAME;
+ 
+ 	isp->otg.set_host = isp1301_set_host,
 _
 
 _______________________________________________
