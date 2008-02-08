@@ -1,44 +1,75 @@
-From: "Andrej *" <union.kjesi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c isa and 2.6.24
-Date: Fri, 8 Feb 2008 23:46:54 +0100
-Message-ID: <7ed6758e0802081446i455c6a4q488d8f39a15aa537@mail.gmail.com>
-References: <7ed6758e0802080306v4ca26537ob578de47a03f8035@mail.gmail.com>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] Define a NO_GPIO macro to compare against and to use as an invalid GPIO
+Date: Fri, 8 Feb 2008 15:43:42 -0800
+Message-ID: <200802081543.42467.david-b@pacbell.net>
+References: <Pine.LNX.4.64.0801311624370.8478@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <7ed6758e0802080306v4ca26537ob578de47a03f8035-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759931AbYBHXn4@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0801311624370.8478@axis700.grange>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-> Before 2.6.24 I had also i2c_isa module, but there isn't any in latest
-> kernel, and I think that lack ot it is causing problem.
->
-> How can I get temperature, voltage and fan readings for MB with 2.6.24 kernel?
->
+On Thursday 31 January 2008, Guennadi Liakhovetski wrote:
+> As discussed on i2c mailing list with David Brownell, and number
+> outside of the 0...MAX_INT range is invalid as a GPIO number.
+> Define a macro, similar to NO_IRQ, to be used as a deliberate
+> invalid GPIO, rather than defining a is_valid_gpio() macro.
 
-I found that that temps etc. are shown when using kernel 2.6.23-14
-with exact same config.
-So I'm asuming that something changed in w83781d module.
+Actually I thought that what you needed was an is_valid_gpio();
+your motivation was that you needed a predicate.
 
-Only change in Changelog for 2.6.24 is this:
- hwmon: (w83781d) Add missing curly braces
+The problem I have with a #define for a single such invalid GPIO
+number is that people will inevitably start to assume it's the
+only such number.  In particular "if (gpio == NO_GPIO) ..."
+is by definition incorrect.
 
-    Missing curly braces cause an if statement to be evaluated when it
-    shouldn't. It happens to be harmless, but that's still worth fixing.
-    Thanks to Riku Voipio for reporting.
+So I'd really rather see a predicate like is_valid_gpio().
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+If you want to designate one value for use as an initializer,
+then I'd rather see a simple
+
+	#define NO_GPIO	(-EINVAL)
+
+without any option for arch-specific overrides ... along with a
+comment that this is only *one* of the numerous values which
+will fail is_valid_gpio().
+
+- Dave
+
+
+
+> 
+> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
+> 
+> ---
+> 
+> As gpiolib doesn't seem to have an own mailing list, sending it directly 
+> to LKML.
+> 
+>  include/asm-generic/gpio.h |    4 ++++
+>  1 files changed, 4 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/asm-generic/gpio.h b/include/asm-generic/gpio.h
+> index f29a502..806b86c 100644
+> --- a/include/asm-generic/gpio.h
+> +++ b/include/asm-generic/gpio.h
+> @@ -16,6 +16,10 @@
+>  #define ARCH_NR_GPIOS		256
+>  #endif
+>  
+> +#ifndef NO_GPIO
+> +#define NO_GPIO			((unsigned int)-1)
+> +#endif
+> +
+>  struct seq_file;
+>  
+>  /**
+> -- 
+> 1.5.3.4
+> 
