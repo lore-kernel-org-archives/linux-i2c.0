@@ -1,44 +1,45 @@
-From: Roel Kluin <12o3l@tiscali.nl>
-Subject: [PATCH] [arch/arm/mach-pnx4008/gpio.c] duplication in if ... else
- if branches
-Date: Sun, 10 Feb 2008 16:11:14 +0100
-Message-ID: <47AF1412.4090908@tiscali.nl>
+From: Guennadi Liakhovetski <g.liakhovetski@pengutronix.de>
+Subject: Re: [PATCH] Define a NO_GPIO macro to compare against and to use as
+ an invalid GPIO
+Date: Sun, 10 Feb 2008 18:59:39 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0802101856460.4417@axis700.grange>
+References: <Pine.LNX.4.64.0801311624370.8478@axis700.grange>
+ <200802081543.42467.david-b@pacbell.net> <Pine.LNX.4.64.0802100053450.7517@axis700.grange>
+ <200802091727.42628.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752892AbYBJPL1@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753911AbYBJR7j@vger.kernel.org>
+In-Reply-To: <200802091727.42628.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitalywool@gmail.com
-Cc: i2c@lm-sensors.org, lkml <linux-kernel@vger.kernel.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-There is a duplication of code in the following section. Possibly it was
-copy-pasted and it was forgotten to edit these lines? otherwise consider
-removing the duplicate lines with the patch below.
----
-Different if ... else if branches do the same, remove duplication
+David, you convinced me:-) I'll redo the patch. Just one comment:
 
-Signed-off-by: Roel Kluin <12o3l@tiscali.nl>
+On Sat, 9 Feb 2008, David Brownell wrote:
+
+> On Saturday 09 February 2008, Guennadi Liakhovetski wrote:
+> 
+> > And when those platforms share drivers, problems  
+> > arise. And the simple and efficient NO_IRQ notion, that would fis those 
+> > problems nicely, cannot seem to establish itself.
+> 
+> Inertia is one of the problems there ... plus, the only
+> obvious advantage of "#define NO_IRQ 0" is that it makes
+> it easier to be lazy about initialization.
+> 
+> Plus, changing platforms to use that convention means they
+> mostly need to adopt an *unnatural* step of mapping from the
+> hardware IRQ numbers (which often start at zero, as they do
+> on one system I just ssh'd into) to some "logical" ID.
+> Even if you believe that's worthwhile, it's work; and it
+> could easily break something.
+
+NO_IRQ doesn't have to be 0. Platforms, where 0 is a valid number can use 
+-1, or 256, or whatever they want:-)
+
+Thanks
+Guennadi
 ---
-diff --git a/arch/arm/mach-pnx4008/gpio.c b/arch/arm/mach-pnx4008/gpio.c
-index 1ab84ce..7a3b190 100644
---- a/arch/arm/mach-pnx4008/gpio.c
-+++ b/arch/arm/mach-pnx4008/gpio.c
-@@ -122,16 +122,11 @@ int pnx4008_gpio_register_pin(unsigned short pin)
- 	unsigned long bit = GPIO_BIT(pin);
- 	int ret = -EBUSY;	/* Already in use */
- 
- 	gpio_lock();
- 
--	if (GPIO_ISBID(pin)) {
--		if (access_map[GPIO_INDEX] & bit)
--			goto out;
--		access_map[GPIO_INDEX] |= bit;
--
--	} else if (GPIO_ISRAM(pin)) {
-+	if (GPIO_ISBID(pin) || GPIO_ISRAM(pin)) {
- 		if (access_map[GPIO_INDEX] & bit)
- 			goto out;
- 		access_map[GPIO_INDEX] |= bit;
- 
- 	} else if (GPIO_ISMUX(pin)) {
+Guennadi Liakhovetski
