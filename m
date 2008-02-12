@@ -1,7 +1,7 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Subject: [PATCH] ARM: DaVinci: i2c fix lost interrupt
-Date: Mon, 11 Feb 2008 19:00:31 -0700
-Message-ID: <1202781631-3318-1-git-send-email-troy.kisky@boundarydevices.com>
+Date: Mon, 11 Feb 2008 19:01:42 -0700
+Message-ID: <1202781702-3378-1-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,8 +17,6 @@ Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-From: Troy Kisky <tkisky@officeserver.(none)>
 
 ARM: DaVinci: i2c fix lost interrupt
 DAVINCI_I2C_STR_REG is a write 1 to clear register,
