@@ -1,106 +1,101 @@
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-Subject: [PATCH 2.6.25-rc1] i2c-i801: SMBus patch for Intel ICH10 DeviceID's
-Date: Mon, 11 Feb 2008 16:45:17 -0800
-Message-ID: <39B20DF628532344BC7A2692CB6AEE07024DFA4C@orsmsx420.amr.corp.intel.com>
+From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH] ARM: DaVinci: I2C: enable zero-length transfer hack
+Date: Mon, 11 Feb 2008 18:59:47 -0700
+Message-ID: <1202781587-3274-1-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761502AbYBLArY@vger.kernel.org>
-Content-class: urn:content-classes:message
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org, linux-kernel@vger.kernel.org, gregkh@suse.de, "Gaston, Jason D" <jason.d.gaston@intel.com>, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the Intel ICH10 SMBus Controller DeviceID's and updates
-Tolapai support.
+From: Vladimir Barinov <vbarinov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+ARM: DaVinci: I2C: enable zero-length transfer hack
+
+Signed-off-by: Vladimir Barinov <vbarinov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 6767988..f348ee0 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -41,6 +41,11 @@
+ 
+ #include <asm/arch/i2c.h>
+ 
++/* Hack to enable zero length transfers and smbus quick until clean fix
++ * is available
++ */
++#define DAVINCI_HACK
++
+ /* ----- global defines ----------------------------------------------- */
+ 
+ #define DAVINCI_I2C_TIMEOUT	(1*HZ)
+@@ -236,9 +241,14 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	u32 stat;
+ 	u16 w;
+ 	int r;
++#ifdef DAVINCI_HACK
++	u8 zero_byte = 0;
++#endif
+ 
++#ifndef DAVINCI_HACK
+ 	if (msg->len == 0)
+ 		return -EINVAL;
++#endif
+ 
+ 	if (!pdata)
+ 		pdata = &davinci_i2c_platform_data_default;
+@@ -249,8 +259,18 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	/* set the slave address */
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_SAR_REG, msg->addr);
+ 
++#ifndef DAVINCI_HACK
+ 	dev->buf = msg->buf;
+ 	dev->buf_len = msg->len;
++#else
++	if (msg->len == 0) {
++		dev->buf = &zero_byte;
++		dev->buf_len = 1;
++	} else {
++		dev->buf = msg->buf;
++		dev->buf_len = msg->len;
++	}
++#endif
+ 
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+ 
+@@ -349,7 +369,11 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ static u32 i2c_davinci_func(struct i2c_adapter *adap)
+ {
++#ifndef DAVINCI_HACK
+ 	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
++#else
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++#endif
+ }
+ 
+ /*
+-- 
+1.5.4
 
 
---- linux-2.6.25-rc1/Documentation/i2c/busses/i2c-i801.orig
-2008-02-11 15:17:33.000000000 -0800
-+++ linux-2.6.25-rc1/Documentation/i2c/busses/i2c-i801	2008-02-11
-15:18:13.000000000 -0800
-@@ -12,8 +12,9 @@
-   * Intel 82801G (ICH7)
-   * Intel 631xESB/632xESB (ESB2)
-   * Intel 82801H (ICH8)
--  * Intel ICH9
-+  * Intel 82801I (ICH9)
-   * Intel Tolapai
-+  * Intel ICH10
-    Datasheets: Publicly available at the Intel website
- 
- Authors: 
---- linux-2.6.25-rc1/drivers/i2c/busses/i2c-i801.c.orig	2008-02-11
-15:10:52.000000000 -0800
-+++ linux-2.6.25-rc1/drivers/i2c/busses/i2c-i801.c	2008-02-11
-16:30:11.000000000 -0800
-@@ -40,7 +40,9 @@
-   82801G   (ICH7)       0x27da     32     hard     yes     yes     yes
-   82801H   (ICH8)       0x283e     32     hard     yes     yes     yes
-   82801I   (ICH9)       0x2930     32     hard     yes     yes     yes
--  Tolapai               0x5032     32     hard     yes     ?       ?
-+  Tolapai               0x5032     32     hard     yes     yes     yes
-+  ICH10                 0x3a30     32     hard     yes     yes     yes
-+  ICH10                 0x3a60     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-   Software PEC                     no
-@@ -588,6 +590,8 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH8_5) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_6) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1)
-},
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4)
-},
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5)
-},
- 	{ 0, }
- };
- 
-@@ -608,10 +612,12 @@
- 	case PCI_DEVICE_ID_INTEL_ESB2_17:
- 	case PCI_DEVICE_ID_INTEL_ICH8_5:
- 	case PCI_DEVICE_ID_INTEL_ICH9_6:
-+	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
-+	case PCI_DEVICE_ID_INTEL_ICH10_4:
-+	case PCI_DEVICE_ID_INTEL_ICH10_5:
- 		i801_features |= FEATURE_I2C_BLOCK_READ;
- 		/* fall through */
- 	case PCI_DEVICE_ID_INTEL_82801DB_3:
--	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
- 		i801_features |= FEATURE_SMBUS_PEC;
- 		i801_features |= FEATURE_BLOCK_BUFFER;
- 		break;
---- linux-2.6.25-rc1/drivers/i2c/busses/Kconfig.orig	2008-02-11
-15:10:18.000000000 -0800
-+++ linux-2.6.25-rc1/drivers/i2c/busses/Kconfig	2008-02-11
-16:32:10.000000000 -0800
-@@ -177,6 +177,8 @@
- 	    ESB2
- 	    ICH8
- 	    ICH9
-+	    Tolapai
-+	    ICH10
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
---- linux-2.6.25-rc1/include/linux/pci_ids.h.orig	2008-02-11
-15:18:58.000000000 -0800
-+++ linux-2.6.25-rc1/include/linux/pci_ids.h	2008-02-11
-15:20:45.000000000 -0800
-@@ -2373,6 +2373,12 @@
- #define PCI_DEVICE_ID_INTEL_MCH_PC1	0x359a
- #define PCI_DEVICE_ID_INTEL_E7525_MCH	0x359e
- #define PCI_DEVICE_ID_INTEL_IOAT_CNB	0x360b
-+#define PCI_DEVICE_ID_INTEL_ICH10_0	0x3a14
-+#define PCI_DEVICE_ID_INTEL_ICH10_1	0x3a16
-+#define PCI_DEVICE_ID_INTEL_ICH10_2	0x3a18
-+#define PCI_DEVICE_ID_INTEL_ICH10_3	0x3a1a
-+#define PCI_DEVICE_ID_INTEL_ICH10_4	0x3a30
-+#define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
- #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
- #define PCI_DEVICE_ID_INTEL_IOAT_SCNB	0x65ff
- #define PCI_DEVICE_ID_INTEL_TOLAPAI_0	0x5031
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
