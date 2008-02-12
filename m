@@ -1,14 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] ARM: DaVinci: I2C: enable zero-length transfer
- hack
-Date: Tue, 12 Feb 2008 16:56:06 +0100
-Message-ID: <20080212165606.6ad455f6@hyperion.delvare>
-References: <1202781587-3274-1-git-send-email-troy.kisky@boundarydevices.com>
+Subject: Re: [PATCH] ARM: DaVinci: i2c fix lost interrupt
+Date: Tue, 12 Feb 2008 17:24:03 +0100
+Message-ID: <20080212172403.463318dd@hyperion.delvare>
+References: <1202781702-3378-1-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1202781587-3274-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1202781702-3378-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,88 +18,163 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Troy,
 
-On Mon, 11 Feb 2008 18:59:47 -0700, Troy Kisky wrote:
-> From: Vladimir Barinov <vbarinov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+On Mon, 11 Feb 2008 19:01:42 -0700, Troy Kisky wrote:
+> ARM: DaVinci: i2c fix lost interrupt
+> DAVINCI_I2C_STR_REG is a write 1 to clear register,
+> so don't use a read/modify/write cycle.
+> EVM doesn't have platform data yet, make bus_delay default correct
+
+Why don't you add the missing platform data instead? This would make
+more sense as far as I can see. It would be weird to have a bus delay
+by default just because one evaluation module needs it.
+
+> Ensure psc value gives a clock between 7-12 Mhz
+> Make sure no interrupts are pending before starting transfer
 > 
-> ARM: DaVinci: I2C: enable zero-length transfer hack
+> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> Acked-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 > 
-> Signed-off-by: Vladimir Barinov <vbarinov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-davinci.c |   24 ++++++++++++++++++++++++
->  1 files changed, 24 insertions(+), 0 deletions(-)
+>  drivers/i2c/busses/i2c-davinci.c |   38 ++++++++++++++++++--------------------
+>  1 files changed, 18 insertions(+), 20 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 6767988..f348ee0 100644
+> index f348ee0..488bd7c 100644
 > --- a/drivers/i2c/busses/i2c-davinci.c
 > +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -41,6 +41,11 @@
+> @@ -123,7 +123,7 @@ struct davinci_i2c_dev {
+>  /* default platform data to use if not supplied in the platform_device */
+>  static struct davinci_i2c_platform_data davinci_i2c_platform_data_default = {
+>  	.bus_freq	= 100,
+> -	.bus_delay	= 0,
+> +	.bus_delay	= 100,
+>  };
 >  
->  #include <asm/arch/i2c.h>
+>  static inline void davinci_i2c_write_reg(struct davinci_i2c_dev *i2c_dev,
+> @@ -147,6 +147,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+>  	u16 psc;
+>  	u32 clk;
+> +	u32 d;
+>  	u32 clkh;
+>  	u32 clkl;
+>  	u32 input_clock = clk_get_rate(dev->clk);
+> @@ -176,23 +177,26 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>  	 *       if PSC > 1 , d = 5
+>  	 */
 >  
-> +/* Hack to enable zero length transfers and smbus quick until clean fix
-> + * is available
-> + */
-> +#define DAVINCI_HACK
-> +
->  /* ----- global defines ----------------------------------------------- */
+> -	psc = 26; /* To get 1MHz clock */
+> +	psc = (input_clock/7000000)-1;			 /* To get  minimum of 7 MHz clock */
+> +	if ( (input_clock/(psc+1)) > 12000000) psc++;	 /* maximum of 12Mhz */
+> +	d = (psc>=2)? 5 : 7 - psc;
 >  
->  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
-> @@ -236,9 +241,14 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	u32 stat;
->  	u16 w;
->  	int r;
-> +#ifdef DAVINCI_HACK
-> +	u8 zero_byte = 0;
-> +#endif
+> -	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - 10;
+> -	clkh = (50 * clk) / 100;
+> +	clk = ((input_clock/(psc+1)) / (pdata->bus_freq * 1000)) - (d<<1);
+> +	clkh = clk>>1;
+>  	clkl = clk - clkh;
 >  
-> +#ifndef DAVINCI_HACK
->  	if (msg->len == 0)
->  		return -EINVAL;
-> +#endif
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
 >  
->  	if (!pdata)
->  		pdata = &davinci_i2c_platform_data_default;
-> @@ -249,8 +259,18 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	/* set the slave address */
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_SAR_REG, msg->addr);
+> -	dev_dbg(dev->dev, "CLK  = %d\n", clk);
+> +	dev_dbg(dev->dev, "input_clock=%d, CLK  = %d\n", input_clock,clk);
+
+Please come up with consistent spacing in this debugging message.
+Missing space after comma.
+
+>  	dev_dbg(dev->dev, "PSC  = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+>  	dev_dbg(dev->dev, "CLKL = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
+>  	dev_dbg(dev->dev, "CLKH = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
+> +	dev_dbg(dev->dev, "bus_freq = %dKHz bus_delay = %d\n",pdata->bus_freq,pdata->bus_delay);
+
+Typo: kHz. Missing space after comma, twice. Line too long. Please run
+your patch through scripts/checkpatch.pl and fix all the reported
+errors and warnings.
+
 >  
-> +#ifndef DAVINCI_HACK
->  	dev->buf = msg->buf;
->  	dev->buf_len = msg->len;
-> +#else
-> +	if (msg->len == 0) {
-> +		dev->buf = &zero_byte;
-> +		dev->buf_len = 1;
-> +	} else {
-> +		dev->buf = msg->buf;
-> +		dev->buf_len = msg->len;
-> +	}
-> +#endif
+>  	/* Take the I2C module out of reset: */
+>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> @@ -278,7 +282,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	dev->cmd_err = 0;
 >  
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+>  	/* Clear any pending interrupts by reading the IVR */
+> -	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
+> +	do {
+> +		stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
+> +	} while (stat);
+
+What guarantees that stat will ever be zero? This code has potential
+for deadlock. I would feel better with a timeout.
+
 >  
-> @@ -349,7 +369,11 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>  	/* Take I2C out of reset, configure it as master and set the
+>  	 * start bit */
+> @@ -358,12 +364,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 >  
->  static u32 i2c_davinci_func(struct i2c_adapter *adap)
->  {
-> +#ifndef DAVINCI_HACK
->  	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-> +#else
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +#endif
+>  	for (i = 0; i < num; i++) {
+>  		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+> +		dev_dbg(dev->dev, "%s ret: %d\n", __FUNCTION__, ret);
+>  		if (ret < 0)
+>  			return ret;
+>  	}
+> -
+> -	dev_dbg(dev->dev, "%s:%d ret: %d\n", __FUNCTION__, __LINE__, ret);
+> -
+>  	return num;
 >  }
 >  
->  /*
+> @@ -406,9 +410,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+>  			break;
+>  
+>  		case DAVINCI_I2C_IVR_ARDY:
+> -			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
+> -			MOD_REG_BIT(w, DAVINCI_I2C_STR_ARDY, 1);
+> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
+> +			davinci_i2c_write_reg(dev,
+> +				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_ARDY);
+>  			complete(&dev->cmd_complete);
+>  			break;
+>  
+> @@ -421,12 +424,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+>  				if (dev->buf_len)
+>  					continue;
+>  
+> -				w = davinci_i2c_read_reg(dev,
+> -							 DAVINCI_I2C_STR_REG);
+> -				MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 0);
+>  				davinci_i2c_write_reg(dev,
+> -						      DAVINCI_I2C_STR_REG,
+> -						      w);
+> +					DAVINCI_I2C_STR_REG,DAVINCI_I2C_IMR_RRDY);
 
-Nack. If the hardware doesn't support zero-byte transactions, it
-doesn't support them, period. The new i2c framework makes it very easy
-to live without these transactions anyway.
+Missing space after comma.
+
+>  			} else
+>  				dev_err(dev->dev, "RDR IRQ while no "
+>  					"data requested\n");
+> @@ -452,9 +451,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+>  			break;
+>  
+>  		case DAVINCI_I2C_IVR_SCD:
+> -			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
+> -			MOD_REG_BIT(w, DAVINCI_I2C_STR_SCD, 1);
+> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
+> +			davinci_i2c_write_reg(dev,
+> +				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_SCD);
+>  			complete(&dev->cmd_complete);
+>  			break;
+>  
+
 
 -- 
 Jean Delvare
