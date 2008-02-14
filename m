@@ -1,16 +1,14 @@
-From: "Eric Miao" <ymiao3-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [patch 6/6] Minor fixes for pxa-driver
-Date: Wed, 13 Feb 2008 18:23:04 -0800
-Message-ID: <E913911567467945BBEB9277E27868B088071D@msiexch01.marvell.com>
-References: <20080121142010.988419876@pengutronix.de>
-	<20080121143659.089906703@pengutronix.de>
-	<20080213095839.5d99d48a@hyperion.delvare>
-	<47B2DB21.7020404@compulab.co.il>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-ibm_iic driver
+Date: Thu, 14 Feb 2008 09:45:16 +0100
+Message-ID: <20080214094516.1b958ae4@hyperion.delvare>
+References: <4784FED1.2040206@pikatech.com>
+	<47A14E23.50807@pikatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-class: urn:content-classes:message
+In-Reply-To: <47A14E23.50807-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,59 +18,442 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Yeah, it also works here on zylonite/pxa3xx.
+Hi Sean,
 
-> -----Original Message-----
-> From: Mike Rapoport [mailto:mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org]
-> Sent: Wednesday, February 13, 2008 7:57 PM
-> To: Jean Delvare
-> Cc: Wolfram Sang; i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org; Eric Miao
-> Subject: Re: [i2c] [patch 6/6] Minor fixes for pxa-driver
-> 
-> Jean Delvare wrote:
-> > Hi Wolfram,
+On Wed, 30 Jan 2008 23:27:15 -0500, Sean MacLennan wrote:
+> Sean MacLennan wrote:
+> > This patch allows the i2c-ibm_iic driver to be built either as an ocp 
+> > driver or an of_platform driver. This allows it to run under the powerpc 
+> > arch but maintains backward compatibility with the ppc arch.
 > >
-> > On Mon, 21 Jan 2008 15:20:16 +0100, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org wrote:
-> >> While working on the PCA9564-platform driver, I sometimes had a glimpse at
-> the
-> >> pxa-driver. I found some suspicious places, and this patch contains my
-> >> suggestions. Note: They are not tested, due to no hardware.
-> >
-> > Looks good. I've added a couple more fixes, resulting patch is below.
-> > As I don't have hardware for testing either, I would appreciate if
-> > someone with a PXA board could test it and confirm that it causes no
-> > regression. Mike? Eric? I plan to send this patch to Linus for 2.6.25
-> > (i.e. quickly.)
+> >   
+> The original patch had a "bug" in that it matched both device type and 
+> compatibility. Current practice is to remove the i2c device types from 
+> the device trees. So I have removed the device match from the match table.
+
+Please split your patch into logical parts:
+* Whitespace and coding-style cleanups
+* Other cleanups (e.g. changing the log levels)
+* Add OF support
+
+Reviewing patches with mixed changes is very time-consuming, I can't
+afford this.
+
+Random things that I happened to notice (by no means a complete review):
+
 > 
-> This patch doesn't apply on top of Linus' tree most probably due
-> to a conflict with this patch by Eric Miao:
+> Cheers,
+>     Sean
 > 
-> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-pxa-use-cpu_is_
-> pxa27x.patch
-> 
-> Except that, it seems to be Ok, at least with the hardware I have.
-> 
-> 
-> > From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Subject: i2c-pxa: Misc fixes
-> >
-> > While working on the PCA9564-platform driver, I sometimes had a glimpse at
-> the
-> > pxa-driver. I found some suspicious places, and this patch contains my
-> > suggestions. Note: They are not tested, due to no hardware.
-> >
-> 
-> [ snip ]
-> 
-> 
-> 
-> --
-> Sincerely yours,
-> Mike.
+> Signed-off-by: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+> ---
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index c466c6c..e9e1493 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -241,7 +241,6 @@ config I2C_PIIX4
+>  
+>  config I2C_IBM_IIC
+>  	tristate "IBM PPC 4xx on-chip I2C interface"
+> -	depends on IBM_OCP
+>  	help
+>  	  Say Y here if you want to use IIC peripheral found on 
+>  	  embedded IBM PPC 4xx based systems. 
+> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+> index 9b43ff7..ea1c769 100644
+> --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> @@ -6,7 +6,10 @@
+>   * Copyright (c) 2003, 2004 Zultys Technologies.
+>   * Eugene Surovegin <eugene.surovegin-OMD3UA+2ZXrQT0dZR+AlfA@public.gmane.org> or <ebs-Iydg86zsFCHR7s880joybQ@public.gmane.org>
+>   *
+> - * Based on original work by 
+> + * Copyright (c) 2008 PIKA Technologies
+> + * Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+> + *
+> + * Based on original work by
+>   * 	Ian DaSilva  <idasilva-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+>   *      Armin Kuster <akuster-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+>   * 	Matt Porter  <mporter-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> @@ -39,12 +42,17 @@
+>  #include <asm/io.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-id.h>
+> +
+> +#ifdef CONFIG_IBM_OCP
+>  #include <asm/ocp.h>
+>  #include <asm/ibm4xx.h>
+> +#else
+> +#include <linux/of_platform.h>
+> +#endif
+>  
+>  #include "i2c-ibm_iic.h"
+>  
+> -#define DRIVER_VERSION "2.1"
+> +#define DRIVER_VERSION "2.2"
+>  
+>  MODULE_DESCRIPTION("IBM IIC driver v" DRIVER_VERSION);
+>  MODULE_LICENSE("GPL");
+> @@ -650,13 +658,14 @@ static inline u8 iic_clckdiv(unsigned int opb)
+>  	opb /= 1000000;
+>  	
+>  	if (opb < 20 || opb > 150){
+> -		printk(KERN_CRIT "ibm-iic: invalid OPB clock frequency %u MHz\n",
+> +		printk(KERN_WARNING "ibm-iic: invalid OPB clock frequency %u MHz\n",
+>  			opb);
+>  		opb = opb < 20 ? 20 : 150;
+>  	}
+>  	return (u8)((opb + 9) / 10 - 1);
+>  }
+>  
+> +#ifdef CONFIG_IBM_OCP
+>  /*
+>   * Register single IIC interface
+>   */
+> @@ -672,14 +681,14 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+>  			ocp->def->index);
+>  
+>  	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
+> -		printk(KERN_CRIT "ibm-iic%d: failed to allocate device data\n",
+> +		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
+>  			ocp->def->index);
+>  		return -ENOMEM;
+>  	}
+>  
+>  	dev->idx = ocp->def->index;
+>  	ocp_set_drvdata(ocp, dev);
+> -	
+> +
+>  	if (!request_mem_region(ocp->def->paddr, sizeof(struct iic_regs),
+>  				"ibm_iic")) {
+>  		ret = -EBUSY;
+> @@ -687,12 +696,12 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+>  	}
+>  
+>  	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
+> -		printk(KERN_CRIT "ibm-iic%d: failed to ioremap device registers\n",
+> +		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
+>  			dev->idx);
+>  		ret = -ENXIO;
+>  		goto fail2;
+>  	}
+> -	
+> +
+>  	init_waitqueue_head(&dev->wq);
+>  
+>  	dev->irq = iic_force_poll ? -1 : ocp->def->irq;
+> @@ -702,29 +711,29 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+>  		 */
+>  		iic_interrupt_mode(dev, 0);
+>  		if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
+> -			printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n", 
+> +			printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
+>  				dev->idx, dev->irq);
+> -			/* Fallback to the polling mode */	
+> +			/* Fallback to the polling mode */
+>  			dev->irq = -1;
+>  		}
+>  	}
+> -	
+> +
+>  	if (dev->irq < 0)
+> -		printk(KERN_WARNING "ibm-iic%d: using polling mode\n", 
+> +		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
+>  			dev->idx);
+> -		
+> +
+>  	/* Board specific settings */
+>  	dev->fast_mode = iic_force_fast ? 1 : (iic_data ? iic_data->fast_mode : 0);
+> -	
+> -	/* clckdiv is the same for *all* IIC interfaces, 
+> +
+> +	/* clckdiv is the same for *all* IIC interfaces,
+>  	 * but I'd rather make a copy than introduce another global. --ebs
+>  	 */
+>  	dev->clckdiv = iic_clckdiv(ocp_sys_info.opb_bus_freq);
+>  	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
+> -	
+> +
+>  	/* Initialize IIC interface */
+>  	iic_dev_init(dev);
+> -	
+> +
+>  	/* Register it with i2c layer */
+>  	adap = &dev->adap;
+>  	adap->dev.parent = &ocp->dev;
+> @@ -746,28 +755,28 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+>  	adap->nr = dev->idx >= 0 ? dev->idx : 0;
+>  
+>  	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
+> -		printk(KERN_CRIT "ibm-iic%d: failed to register i2c adapter\n",
+> +		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
+>  			dev->idx);
+>  		goto fail;
+>  	}
+> -	
+> +
+>  	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
+>  		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
+>  
+>  	return 0;
+>  
+> -fail:	
+> +fail:
+>  	if (dev->irq >= 0){
+>  		iic_interrupt_mode(dev, 0);
+>  		free_irq(dev->irq, dev);
+> -	}	
+> +	}
+>  
+>  	iounmap(dev->vaddr);
+> -fail2:	
+> +fail2:
+>  	release_mem_region(ocp->def->paddr, sizeof(struct iic_regs));
+>  fail1:
+>  	ocp_set_drvdata(ocp, NULL);
+> -	kfree(dev);	
+> +	kfree(dev);
+>  	return ret;
+>  }
+>  
+> @@ -779,17 +788,17 @@ static void __devexit iic_remove(struct ocp_device *ocp)
+>  	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
+>  	BUG_ON(dev == NULL);
+>  	if (i2c_del_adapter(&dev->adap)){
+> -		printk(KERN_CRIT "ibm-iic%d: failed to delete i2c adapter :(\n",
+> +		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
+>  			dev->idx);
+>  		/* That's *very* bad, just shutdown IRQ ... */
+>  		if (dev->irq >= 0){
+> -		    iic_interrupt_mode(dev, 0);	
+> +		    iic_interrupt_mode(dev, 0);
+>  		    free_irq(dev->irq, dev);
+>  		    dev->irq = -1;
+>  		}
+>  	} else {
+>  		if (dev->irq >= 0){
+> -		    iic_interrupt_mode(dev, 0);	
+> +		    iic_interrupt_mode(dev, 0);
+>  		    free_irq(dev->irq, dev);
+>  		}
+>  		iounmap(dev->vaddr);
+> @@ -798,7 +807,7 @@ static void __devexit iic_remove(struct ocp_device *ocp)
+>  	}
+>  }
+>  
+> -static struct ocp_device_id ibm_iic_ids[] __devinitdata = 
+> +static struct ocp_device_id ibm_iic_ids[] __devinitdata =
+>  {
+>  	{ .vendor = OCP_VENDOR_IBM, .function = OCP_FUNC_IIC },
+>  	{ .vendor = OCP_VENDOR_INVALID }
+> @@ -831,3 +840,189 @@ static void __exit iic_exit(void)
+>  
+>  module_init(iic_init);
+>  module_exit(iic_exit);
+> +#else
+> +/*
+> + * Register single IIC interface
+> + */
+> +static int __devinit iic_probe(struct of_device *ofdev,
+> +			       const struct of_device_id *match)
+> +{
+> +	static int index = 0;
+> +	struct device_node *np = ofdev->node;
+> +	struct ibm_iic_private* dev;
+> +	struct i2c_adapter* adap;
+> +	const u32 *indexp, *freq;
+> +	int ret;
+> +
+> +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+> +	if (!dev) {
+> +		printk(KERN_ERR "ibm-iic: failed to allocate device data\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	/* This assumes we don't mix index and non-index entries. */
+> +	indexp = of_get_property(np, "index", NULL);
+> +	dev->idx = indexp ? *indexp : index++;
+> +
+> +	dev_set_drvdata(&ofdev->dev, dev);
+> +
+> +	dev->vaddr = of_iomap(np, 0);
+> +	if (dev->vaddr == NULL) {
+> +		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
+> +			dev->idx);
+> +		ret = -ENXIO;
+> +		goto fail1;
+> +	}
+> +
+> +	init_waitqueue_head(&dev->wq);
+> +
+> +	if (iic_force_poll)
+> +		dev->irq = NO_IRQ;
+> +	else {
+> +		dev->irq = irq_of_parse_and_map(np, 0);
+> +		if (dev->irq == NO_IRQ)
+> +			printk(KERN_ERR __FILE__ ": irq_of_parse_and_map failed\n");
+> +		else {
+> +			/* Disable interrupts until we finish initialization,
+> +			   assumes level-sensitive IRQ setup...
+> +			*/
+> +			iic_interrupt_mode(dev, 0);
+> +			if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
+> +				printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
+> +				       dev->idx, dev->irq);
+> +				/* Fallback to the polling mode */
+> +				dev->irq = NO_IRQ;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (dev->irq == NO_IRQ)
+> +		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
+> +			   dev->idx);
+> +
+> +	/* Board specific settings */
+> +	if (iic_force_fast || of_get_property(np, "fast-mode", NULL))
+> +		dev->fast_mode = 1;
+> +	else
+> +		dev->fast_mode = 0;
+> +
+> +	/* clckdiv is the same for *all* IIC interfaces, but I'd rather
+> +	 * make a copy than introduce another global. --ebs
+> +	 */
+> +	freq = of_get_property(np, "clock-frequency", NULL);
+> +	if (freq == NULL) {
+> +		freq = of_get_property(np->parent, "clock-frequency", NULL);
+> +		if (freq == NULL) {
+> +			printk(KERN_ERR "ibm-iic%d: Unable to get bus frequency\n",
+> +			       dev->idx);
+> +			ret = -EBUSY;
+> +			goto fail;
+> +		}
+> +	}
+> +
+> +	dev->clckdiv = iic_clckdiv(*freq);
+> +	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
+> +
+> +	/* Initialize IIC interface */
+> +	iic_dev_init(dev);
+> +
+> +	/* Register it with i2c layer */
+> +	adap = &dev->adap;
+> +	adap->dev.parent = &ofdev->dev;
+> +	strcpy(adap->name, "IBM IIC");
+
+strlcpy
+
+> +	i2c_set_adapdata(adap, dev);
+> +	adap->id = I2C_HW_OCP;
+> +	adap->class = I2C_CLASS_HWMON;
+> +	adap->algo = &iic_algo;
+> +	adap->client_register = NULL;
+> +	adap->client_unregister = NULL;
+> +	adap->timeout = 1;
+> +	adap->retries = 1;
+
+Please don't set retries, this driver doesn't handle it, and this field
+is going away soon.
+
+> +	adap->nr = dev->idx;
+> +
+> +	ret = i2c_add_numbered_adapter(adap);
+> +	if (ret  < 0) {
+> +		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
+> +			dev->idx);
+> +		goto fail;
+> +	}
+> +
+> +	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
+> +		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
+> +
+> +	return 0;
+> +
+> +fail:
+> +	if (dev->irq != NO_IRQ){
+> +		iic_interrupt_mode(dev, 0);
+> +		free_irq(dev->irq, dev);
+> +	}
+> +
+> +	iounmap(dev->vaddr);
+> +fail1:
+> +	dev_set_drvdata(&ofdev->dev, NULL);
+> +	kfree(dev);
+> +	return ret;
+> +}
+> +
+> +/*
+> + * Cleanup initialized IIC interface
+> + */
+> +static int __devexit iic_remove(struct of_device *ofdev)
+> +{
+> +	struct ibm_iic_private* dev = dev_get_drvdata(&ofdev->dev);
+> +
+> +	BUG_ON(dev == NULL);
+> +	if (i2c_del_adapter(&dev->adap)){
+> +		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
+> +			dev->idx);
+> +		/* That's *very* bad, just shutdown IRQ ... */
+> +		if (dev->irq != NO_IRQ){
+> +		    iic_interrupt_mode(dev, 0);
+> +		    free_irq(dev->irq, dev);
+> +		    dev->irq = NO_IRQ;
+> +		}
+> +	} else {
+> +		if (dev->irq != NO_IRQ){
+> +		    iic_interrupt_mode(dev, 0);
+> +		    free_irq(dev->irq, dev);
+> +		}
+> +		iounmap(dev->vaddr);
+> +		kfree(dev);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +static const struct of_device_id ibm_iic_match[] =
+> +{
+> +	{ .compatible = "ibm,iic-405ex", },
+> +	{ .compatible = "ibm,iic-405gp", },
+> +	{ .compatible = "ibm,iic-440gp", },
+> +	{ .compatible = "ibm,iic-440gpx", },
+> +	{ .compatible = "ibm,iic-440grx", },
+> +	{}
+> +};
+> +
+> +static struct of_platform_driver ibm_iic_driver =
+> +{
+> +	.name   = "ibm-iic",
+> +	.match_table = ibm_iic_match,
+> +	.probe  = iic_probe,
+> +	.remove = iic_remove,
+> +};
+
+Don't use spaces for alignment.
+
+> +
+> +static int __init ibm_iic_init(void)
+> +{
+> +	printk(KERN_INFO "IBM IIC driver v" DRIVER_VERSION "\n");
+> +	return of_register_platform_driver(&ibm_iic_driver);
+> +}
+> +module_init(ibm_iic_init);
+> +
+> +static void __exit ibm_iic_exit(void)
+> +{
+> +	of_unregister_platform_driver(&ibm_iic_driver);
+> +}
+> +module_exit(ibm_iic_exit);
+> +#endif
+
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
