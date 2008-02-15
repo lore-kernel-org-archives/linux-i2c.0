@@ -1,14 +1,9 @@
-From: "Eric Miao" <ymiao3-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [patch 6/6] Minor fixes for pxa-driver
-Date: Thu, 14 Feb 2008 16:43:59 -0800
-Message-ID: <E913911567467945BBEB9277E27868B0880976@msiexch01.marvell.com>
-References: <20080121142010.988419876@pengutronix.de><20080121143659.089906703@pengutronix.de><20080213095839.5d99d48a@hyperion.delvare><fp22ri$d97$1@ger.gmane.org>
-	<20080214231138.3c696384@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Mail Delivery System <Mailer-Daemon-PatJo+VIPt04cpnwNp8Uvxar7b1XU7go@public.gmane.org>
+Subject: Mail delivery failed: returning message to sender
+Date: Thu, 14 Feb 2008 23:40:50 -0200
+Message-ID: <E1JPpZh-0002tS-41@sinope.serverbr12.com>
+Content-Type: multipart/mixed; boundary="===============4275674727599449313=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-class: urn:content-classes:message
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,40 +13,56 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I modified this by hand when the compiler complains, I thought it was typo
-and ignored this :-(
+--===============4275674727599449313==
 
-- eric
+This message was created automatically by mail delivery software.
 
-> -----Original Message-----
-> From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
-> Sent: Friday, February 15, 2008 6:12 AM
-> To: Wolfram Sang
-> Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org; Eric Miao; Mike Rapoport
-> Subject: Re: [i2c] [patch 6/6] Minor fixes for pxa-driver
-> 
-> On Thu, 14 Feb 2008 19:55:46 +0100, Wolfram Sang wrote:
-> > Hi Jean.
-> >
-> > Jean Delvare wrote:
-> >
-> > >  	.driver		= {
-> > >  		.name	= "pxa2xx-i2c",
-> > > +		.owner	= THIS_DRIVER,
-> > THIS_MODULE? Was it just too obvious to be mentioned or how come it
-> > builds at all? My platform driver complains...
-> 
-> Oops, you are totally right, thanks for catching my mistake.
-> 
-> This makes me wonder what Mike and Eric actually tested...
-> 
-> --
-> Jean Delvare
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+    Domain restaurandoisrael.com.br has exceeded the max emails per hour (200) allowed. Message discarded.
+
+------ This is a copy of the message, including all the headers. ------
+
+Return-path: <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Received: from 189-18-68-232.dsl.telesp.net.br ([189.18.68.232] helo=--------------------------)
+	by sinope.serverbr12.com with smtp (Exim 4.68)
+	(envelope-from <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>)
+	id 1JPpZg-0002sm-ID
+	for i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org; Thu, 14 Feb 2008 23:40:49 -0200
+From: FACULDADE DE TEOLOGIA E FILOSOFIA =?ISO-8859-1?Q?SILO=C9?=
+ <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Subject: =?ISO-8859-1?Q?Promo=E7=E3o?= em Cursos de TEOLOGIA
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain;
+Message-ID: -----------------------------
+Date: Thu, 14 Feb 2008 23:41:19 -0200
+X-Priority: 3
+
+FACULDADE DE TEOLOGIA E FILOSOFIA SILOÉ
+Graça e Paz do Senhor Jesus para sua vida! 
+TEOLOGIA A DISTÂNCIA
+Estude Teologia sem sair de casa! O curso a distância da FATESI têm ajudado Pastores(as), Obreiros(as) e amantes da Teologia Bíblica. O aluno recebe o material que pode ser através de: apostila, cd/ROM ou ainda por e-mail/PDF. Os valores da FATESI (estão no site www.fatesi.com.br) e são os melhores do mercado. A duração do curso varia conforme o tempo disponível do aluno que poderá concluir o curso no menor tempo possível. 
+O pagamento das mensalidades é via BOLETO BANCÁRIO.
+Acesse o site www.fatesi.com.br <http://www.fatesi.com.br>
+Nosso e-mail: secretaria-mRhrbp4JBolwFqzsTH5u/w@public.gmane.org <mailto:secretaria-mRhrbp4JBolwFqzsTH5u/w@public.gmane.org>
+Nosso telefone: 0xx11 5834-7672
+Nosso fax: 0xx11 5928-9067  
+A Diretoria
+
+
+--===============4275674727599449313==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============4275674727599449313==--
