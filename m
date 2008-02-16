@@ -1,68 +1,87 @@
-From: Mail Delivery System <Mailer-Daemon-PatJo+VIPt04cpnwNp8Uvxar7b1XU7go@public.gmane.org>
-Subject: Mail delivery failed: returning message to sender
-Date: Thu, 14 Feb 2008 23:40:50 -0200
-Message-ID: <E1JPpZh-0002tS-41@sinope.serverbr12.com>
-Content-Type: multipart/mixed; boundary="===============4275674727599449313=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+From: Sean MacLennan <smaclennan@pikatech.com>
+Subject: Re: [PATCH 1/2] i2c-ibm_iic driver
+Date: Fri, 15 Feb 2008 23:07:21 -0500
+Message-ID: <47B66179.9010501@pikatech.com>
+References: <4784FED1.2040206@pikatech.com><47A14E23.50807@pikatech.com>
+	<20080214094516.1b958ae4@hyperion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080214094516.1b958ae4@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LinuxPPC-dev <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============4275674727599449313==
+Jean Delvare wrote:
+> Please split your patch into logical parts:
+> * Whitespace and coding-style cleanups
+> * Other cleanups (e.g. changing the log levels)
+> * Add OF support
+>   
+Here is the first patch with everything except the OF support. Really 
+all I did was change the log levels based on feedback from linxppc-dev.
 
-This message was created automatically by mail delivery software.
+Cheers,
+   Sean
 
-A message that you sent could not be delivered to one or more of its
-recipients. This is a permanent error. The following address(es) failed:
-
-  i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-    Domain restaurandoisrael.com.br has exceeded the max emails per hour (200) allowed. Message discarded.
-
------- This is a copy of the message, including all the headers. ------
-
-Return-path: <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Received: from 189-18-68-232.dsl.telesp.net.br ([189.18.68.232] helo=--------------------------)
-	by sinope.serverbr12.com with smtp (Exim 4.68)
-	(envelope-from <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>)
-	id 1JPpZg-0002sm-ID
-	for i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org; Thu, 14 Feb 2008 23:40:49 -0200
-From: FACULDADE DE TEOLOGIA E FILOSOFIA =?ISO-8859-1?Q?SILO=C9?=
- <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Subject: =?ISO-8859-1?Q?Promo=E7=E3o?= em Cursos de TEOLOGIA
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Content-Type: text/plain;
-Message-ID: -----------------------------
-Date: Thu, 14 Feb 2008 23:41:19 -0200
-X-Priority: 3
-
-FACULDADE DE TEOLOGIA E FILOSOFIA SILOÉ
-Graça e Paz do Senhor Jesus para sua vida! 
-TEOLOGIA A DISTÂNCIA
-Estude Teologia sem sair de casa! O curso a distância da FATESI têm ajudado Pastores(as), Obreiros(as) e amantes da Teologia Bíblica. O aluno recebe o material que pode ser através de: apostila, cd/ROM ou ainda por e-mail/PDF. Os valores da FATESI (estão no site www.fatesi.com.br) e são os melhores do mercado. A duração do curso varia conforme o tempo disponível do aluno que poderá concluir o curso no menor tempo possível. 
-O pagamento das mensalidades é via BOLETO BANCÁRIO.
-Acesse o site www.fatesi.com.br <http://www.fatesi.com.br>
-Nosso e-mail: secretaria-mRhrbp4JBolwFqzsTH5u/w@public.gmane.org <mailto:secretaria-mRhrbp4JBolwFqzsTH5u/w@public.gmane.org>
-Nosso telefone: 0xx11 5834-7672
-Nosso fax: 0xx11 5928-9067  
-A Diretoria
-
-
---===============4275674727599449313==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4275674727599449313==--
+Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
+---
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 7c7eb0c..a981a17 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -650,7 +650,7 @@ static inline u8 iic_clckdiv(unsigned int opb)
+ 	opb /= 1000000;
+ 
+ 	if (opb < 20 || opb > 150){
+-		printk(KERN_CRIT "ibm-iic: invalid OPB clock frequency %u MHz\n",
++		printk(KERN_WARNING "ibm-iic: invalid OPB clock frequency %u MHz\n",
+ 			opb);
+ 		opb = opb < 20 ? 20 : 150;
+ 	}
+@@ -672,7 +672,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 			ocp->def->index);
+ 
+ 	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
+-		printk(KERN_CRIT "ibm-iic%d: failed to allocate device data\n",
++		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
+ 			ocp->def->index);
+ 		return -ENOMEM;
+ 	}
+@@ -687,7 +687,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 	}
+ 
+ 	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
+-		printk(KERN_CRIT "ibm-iic%d: failed to ioremap device registers\n",
++		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
+ 			dev->idx);
+ 		ret = -ENXIO;
+ 		goto fail2;
+@@ -745,7 +745,7 @@ static int __devinit iic_probe(struct ocp_device *ocp){
+ 	adap->nr = dev->idx >= 0 ? dev->idx : 0;
+ 
+ 	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
+-		printk(KERN_CRIT "ibm-iic%d: failed to register i2c adapter\n",
++		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
+ 			dev->idx);
+ 		goto fail;
+ 	}
+@@ -778,7 +778,7 @@ static void __devexit iic_remove(struct ocp_device *ocp)
+ 	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
+ 	BUG_ON(dev == NULL);
+ 	if (i2c_del_adapter(&dev->adap)){
+-		printk(KERN_CRIT "ibm-iic%d: failed to delete i2c adapter :(\n",
++		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
+ 			dev->idx);
+ 		/* That's *very* bad, just shutdown IRQ ... */
+ 		if (dev->irq >= 0){
