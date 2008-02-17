@@ -1,115 +1,77 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/2] i2c-ibm_iic driver
-Date: Sun, 17 Feb 2008 11:52:37 +0100
-Message-ID: <20080217115237.55d9f6d1@hyperion.delvare>
-References: <4784FED1.2040206@pikatech.com> <47A14E23.50807@pikatech.com>
-	<20080214094516.1b958ae4@hyperion.delvare>
-	<47B66260.8010902@pikatech.com>
-	<20080216103123.50a0128b@hyperion.delvare>
-	<47B74D76.1000708@pikatech.com>
+From: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
+Subject: [PATCH] i2c: Storage class should be before const qualifier
+Date: Sun, 17 Feb 2008 15:39:07 +0100
+Message-ID: <20080217143907.GA9270@distanz.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <47B74D76.1000708@pikatech.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Sean MacLennan <smaclennan@pikatech.com>
-Cc: LinuxPPC-dev <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sean,
+The C99 specification states in section 6.11.5:
 
-On Sat, 16 Feb 2008 15:54:14 -0500, Sean MacLennan wrote:
-> Jean Delvare wrote:
-> > Hi Sean,
-> >
-> > On Fri, 15 Feb 2008 23:11:12 -0500, Sean MacLennan wrote:
-> >   
-> >> Here is the of platform patch. I removed the retries and removed the spaces used for spacing.
-> >>
-> >> Cheers,
-> >>    Sean
-> >>
-> >> Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
-> >>     
-> >
-> > First of all: please run scripts/checkpatch.pl on your patch and fix
-> > the reported errors. It tells me:
-> >   total: 10 errors, 5 warnings, 222 lines checked
-> > which is definitely too much.
-> >   
-> Many of the errors/warnings are from the cut and paste of the original 
-> code. I realize this doesn't justify my new code, but does beg the 
-> question; should I also cleanup the original code? And how much? I am 
-> tempted to cleanup all but the #ifdef CONFIG_IBM_OCP part.
+The placement of a storage-class specifier other than at the
+beginning of the declaration specifiers in a declaration is an
+obsolescent feature.
 
-Just take care of the code you are adding. The old code will go away
-soon anyway as I understand it, so don't bother cleaning it up.
+Signed-off-by: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pmcmsp.c |    4 ++--
+ include/linux/i2c.h             |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-> 
-> A few comments, everything else I agree with.
-> 
-> >> +		return -ENOMEM;
-> >> +	}
-> >> +
-> >> +	/* This assumes we don't mix index and non-index entries. */
-> >> +	indexp = of_get_property(np, "index", NULL);
-> >> +	dev->idx = indexp ? *indexp : index++;
-> >>     
-> >
-> > I don't like this static index thing much. Can't you just make the
-> > "index" OF property mandatory? Mixing ways to number things can become
-> > very confusing. In particular as you are using dev->idx later to call
-> > i2c_add_numbered_adapter(), the caller is really supposed to know what
-> > they are doing with the bus numbers.
-> >   
-> I also don't really like mixing the two methods, hence the comment. I 
-> did this so existing dts files, which don't currently have an index, 
-> would work as is. Maybe it would be better to add the index?
-> 
-> Without my patch, or one like it, you cannot currently use the IBM IIC 
-> in the arch/powerpc branch, so maybe now *is* the time to enforce an index?
-> 
-> So if nobody responds with a good reason not to, I will change the code 
-> to require the index to be set. Less testing for me ;)
-
-Yes, I think this is the right time to enforce the index.
-
-> >> +	adap->timeout = 1;
-> >> +	adap->nr = dev->idx;
-> >>     
-> >
-> > Looks to me like the block above has much in common with the original
-> > probe function, maybe it would be worth sharing the code to make future
-> > maintenance easier?
-> >   
-> It is my understanding the the arch/ppc branch is going away in the 
-> middle of the year. So I kept the of platform code separate and clean 
-> expecting the CONFIG_IBM_OCP block to be removed in the near future. So 
-> future maintenance should not be an issue.
-
-OK, fine with me then.
-
-> > Note that I cannot test the code so I am relying on the linuxppc-dev
-> > folks to test it
-> I can test the of platform code and the common code. I am not setup to 
-> test the OCP code, which is why I am loath to change it. I use the IBM 
-> IIC for access to an  ad7414 thermal chip (currently not in the kernel, 
-> I am working on that too) and for reading an eeprom.
-
-Note that Frank Edelhaeuser has submitted a driver for this chip
-recently:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-February/022478.html
-I didn't have time to review this patch yet, maybe you will want to do
-it yourself.
-
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index be99c02..b03af56 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -122,7 +122,7 @@ struct pmcmsptwi_data {
+ };
+ 
+ /* The default settings */
+-const static struct pmcmsptwi_clockcfg pmcmsptwi_defclockcfg = {
++static const struct pmcmsptwi_clockcfg pmcmsptwi_defclockcfg = {
+ 	.standard = {
+ 		.filter	= 0x3,
+ 		.clock	= 0x1f,
+@@ -133,7 +133,7 @@ const static struct pmcmsptwi_clockcfg pmcmsptwi_defclockcfg = {
+ 	},
+ };
+ 
+-const static struct pmcmsptwi_cfg pmcmsptwi_defcfg = {
++static const struct pmcmsptwi_cfg pmcmsptwi_defcfg = {
+ 	.arbf		= 0x03,
+ 	.nak		= 0x03,
+ 	.add10		= 0x00,
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 76014f8..2d1c608 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -598,7 +598,7 @@ I2C_CLIENT_MODULE_PARM(probe, "List of adapter,address pairs to scan "	\
+ 		       "additionally");					\
+ I2C_CLIENT_MODULE_PARM(ignore, "List of adapter,address pairs not to "	\
+ 		       "scan");						\
+-const static struct i2c_client_address_data addr_data = {		\
++static const struct i2c_client_address_data addr_data = {		\
+ 	.normal_i2c	= normal_i2c,					\
+ 	.probe		= probe,					\
+ 	.ignore		= ignore,					\
 -- 
-Jean Delvare
+1.5.4.1
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
