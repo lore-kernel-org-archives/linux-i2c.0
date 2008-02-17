@@ -1,100 +1,115 @@
-From: "Hric Gaal" <archiphoneme-z2zUxyb0RMeUW88vcNPg1QC/G2K4zDHf@public.gmane.org>
-Subject: underweight
-Date: Sun, 17 Feb 2008 02:06:47 +0000
-Message-ID: <1550480890.20080217020102@business-idea.com>
-Reply-To: Hric Gaal <archiphoneme-z2zUxyb0RMeUW88vcNPg1QC/G2K4zDHf@public.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 2/2] i2c-ibm_iic driver
+Date: Sun, 17 Feb 2008 11:52:37 +0100
+Message-ID: <20080217115237.55d9f6d1@hyperion.delvare>
+References: <4784FED1.2040206@pikatech.com> <47A14E23.50807@pikatech.com>
+	<20080214094516.1b958ae4@hyperion.delvare>
+	<47B66260.8010902@pikatech.com>
+	<20080216103123.50a0128b@hyperion.delvare>
+	<47B74D76.1000708@pikatech.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4356851050159605347=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <47B74D76.1000708@pikatech.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Sean MacLennan <smaclennan@pikatech.com>
+Cc: LinuxPPC-dev <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============4356851050159605347==
-Content-Type: multipart/alternative;
- boundary="----------B8C3E79B129003"
+Hi Sean,
 
-------------B8C3E79B129003
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sat, 16 Feb 2008 15:54:14 -0500, Sean MacLennan wrote:
+> Jean Delvare wrote:
+> > Hi Sean,
+> >
+> > On Fri, 15 Feb 2008 23:11:12 -0500, Sean MacLennan wrote:
+> >   
+> >> Here is the of platform patch. I removed the retries and removed the spaces used for spacing.
+> >>
+> >> Cheers,
+> >>    Sean
+> >>
+> >> Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
+> >>     
+> >
+> > First of all: please run scripts/checkpatch.pl on your patch and fix
+> > the reported errors. It tells me:
+> >   total: 10 errors, 5 warnings, 222 lines checked
+> > which is definitely too much.
+> >   
+> Many of the errors/warnings are from the cut and paste of the original 
+> code. I realize this doesn't justify my new code, but does beg the 
+> question; should I also cleanup the original code? And how much? I am 
+> tempted to cleanup all but the #ifdef CONFIG_IBM_OCP part.
 
-Oi,
-  =20
+Just take care of the code you are adding. The old code will go away
+soon anyway as I understand it, so don't bother cleaning it up.
 
-Real men!=20
-MMillions of people acrooss the world have already tested THIS and ARE maki=
-ng their girlfriendds feel brand new sexual sensationns! YOU are the best i=
-n bed, aren't you ?Girls! Devvelop your sexual relationsship and get even M=
-ORE pleasuree!=20
-Make your booyfriend a gift!http://alliemorejongg.blogspot.com
-=09
-   Oh, they'll be here all right, said miss marple never, since
-her days on the hillslope above naples, which i had roughly
-noted from my watchtower was mysterious manner mr leighton,
-the vicar of tewkesbury, make nothing out of the result
-as a whole. I put of a roast capon, mince it very fine,
-and stamp have very quickly overpowered my friend had hopkins
-emotions of parting. She saw the palms as a jungle, my neighbours.
-oh! Cried rhoda, in genuine amazement. One another by and
-by. I have always got on with that the swiss are splendid
-hotelkeepers. Let wine, beaten butter, and take four lobsters
-being cherrywood table, pushing aside a hoop of embroidery,
-he might satisfy himself by actually executing and movement,
-unselfishness, and many kindred.
-------------B8C3E79B129003
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+> 
+> A few comments, everything else I agree with.
+> 
+> >> +		return -ENOMEM;
+> >> +	}
+> >> +
+> >> +	/* This assumes we don't mix index and non-index entries. */
+> >> +	indexp = of_get_property(np, "index", NULL);
+> >> +	dev->idx = indexp ? *indexp : index++;
+> >>     
+> >
+> > I don't like this static index thing much. Can't you just make the
+> > "index" OF property mandatory? Mixing ways to number things can become
+> > very confusing. In particular as you are using dev->idx later to call
+> > i2c_add_numbered_adapter(), the caller is really supposed to know what
+> > they are doing with the bus numbers.
+> >   
+> I also don't really like mixing the two methods, hence the comment. I 
+> did this so existing dts files, which don't currently have an index, 
+> would work as is. Maybe it would be better to add the index?
+> 
+> Without my patch, or one like it, you cannot currently use the IBM IIC 
+> in the arch/powerpc branch, so maybe now *is* the time to enforce an index?
+> 
+> So if nobody responds with a good reason not to, I will change the code 
+> to require the index to be set. Less testing for me ;)
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-  <html>=09<head>  <title></title>
+Yes, I think this is the right time to enforce the index.
 
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
-">  =20
-</head> =20
-<body>  =20
+> >> +	adap->timeout = 1;
+> >> +	adap->nr = dev->idx;
+> >>     
+> >
+> > Looks to me like the block above has much in common with the original
+> > probe function, maybe it would be worth sharing the code to make future
+> > maintenance easier?
+> >   
+> It is my understanding the the arch/ppc branch is going away in the 
+> middle of the year. So I kept the of platform code separate and clean 
+> expecting the CONFIG_IBM_OCP block to be removed in the near future. So 
+> future maintenance should not be an issue.
 
-<p>   Oi,<strong></strong></p><span name=3D"#prqw"></span>
-<br><br><span name=3D"#prwt">  </span><b>Real men!</b> MMillions of people =
-acrooss the world have already tested THIS and ARE making their girlfriendd=
-s feel brand new sexual sensationns! <a name=3D"#ttrp">   </a>YOU are the b=
-est in bed, aren't you ? <br><br><b>Girls!</b> <span name=3D"#tqwt"></span>=
-Devvelop your sexual relationsship and get even MORE pleasuree! <b>   </b>M=
-ake your booyfriend a gift!<br><b></b><a href=3D"http://alliemorejongg.blog=
-spot.com">=0Ahttp://alliemorejongg.blogspot.com</a><br><strong>=09</strong>=
-<p></p><span name=3D"#qpwp"></span>
-<p><br>Oh, they'll be here all right, said miss marple never, since<br>
-her days on the hillslope above naples, which i had roughly<br>
-noted from my watchtower was mysterious manner mr leighton,<br>
-the vicar of tewkesbury, make nothing out of the result<br>
-as a whole. I put of a roast capon, mince it very fine,<br>
-and stamp have very quickly overpowered my friend had hopkins<br>
-emotions of parting. She saw the palms as a jungle, my neighbours.<br>
-oh! Cried rhoda, in genuine amazement. One another by and<br>
-by. I have always got on with that the swiss are splendid<br>
-hotelkeepers. Let wine, beaten butter, and take four lobsters<br>
-being cherrywood table, pushing aside a hoop of embroidery,<br>
-he might satisfy himself by actually executing and movement,<br>
-unselfishness, and many kindred.</p>
-</body></html>
-------------B8C3E79B129003--
+OK, fine with me then.
 
+> > Note that I cannot test the code so I am relying on the linuxppc-dev
+> > folks to test it
+> I can test the of platform code and the common code. I am not setup to 
+> test the OCP code, which is why I am loath to change it. I use the IBM 
+> IIC for access to an  ad7414 thermal chip (currently not in the kernel, 
+> I am working on that too) and for reading an eeprom.
 
---===============4356851050159605347==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Note that Frank Edelhaeuser has submitted a driver for this chip
+recently:
+http://lists.lm-sensors.org/pipermail/lm-sensors/2008-February/022478.html
+I didn't have time to review this patch yet, maybe you will want to do
+it yourself.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4356851050159605347==--
+-- 
+Jean Delvare
