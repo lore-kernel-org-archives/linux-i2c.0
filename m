@@ -1,16 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Convert pfc8563 i2c driver from old style to new
-	style
-Date: Tue, 19 Feb 2008 17:37:00 +0100
-Message-ID: <20080219173700.0fee7c1b@hyperion.delvare>
-References: <20080121200901.15517.30253.stgit@terra.home>
-	<20080219161020.61f7ec10@hyperion.delvare>
-	<20080219172450.0e4ccc7c@i1501.lan.towertech.it>
+Subject: Re: [PATCH] mpc i2c driver, compare to NO_IRQ instead of zero
+Date: Tue, 19 Feb 2008 17:42:21 +0100
+Message-ID: <20080219174221.5b18cba8@hyperion.delvare>
+References: <20080121200740.13800.20524.stgit@terra.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080219172450.0e4ccc7c-1Z+4F8PJzVxlecnr3/Sf3RLwuzhV/fVh@public.gmane.org>
+In-Reply-To: <20080121200740.13800.20524.stgit-+J+k29bDNxlBDLzU/O5InQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,35 +17,95 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Clemens Koller <clemens.koller-IEdZaowOqhEb1SvskN2V4Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 19 Feb 2008 17:24:50 +0100, Alessandro Zummo wrote:
-> On Tue, 19 Feb 2008 16:10:20 +0100
-> Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> 
-> > Hi Jon,
-> > 
-> > On Mon, 21 Jan 2008 15:09:01 -0500, Jon Smirl wrote:
-> > > Convert pfc8563 i2c driver from old style to new style.
-> > > 
-> > > Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > ---
-> > > 
-> > >  drivers/rtc/rtc-pcf8563.c |  107 +++++++++++----------------------------------
-> > >  1 files changed, 27 insertions(+), 80 deletions(-)
-> > 
-> > Preliminary note: this driver belongs to the RTC subsystem, so it will
-> > be up to Alessandro Zummo (Cc'd) to push this patch upstream... when it
-> > is ready to go there.
-> 
->  A conversion to new style for this driver has already been
->  pushed upstream. Adapting platforms to instantiate the device
->  should be fairly easy, especially when you use the dts.
+Hi Jon,
 
-Ah, excellent. I didn't know, thanks for pointing it out. I'm glad I
-added you to Cc :)
+On Mon, 21 Jan 2008 15:07:40 -0500, Jon Smirl wrote:
+> Alter the mpc i2c driver to use the NO_IRQ symbol instead of
+> the constant zero when checking for valid interrupts. NO_IRQ=-1
+> on ppc and NO_IRQ=0 on powerpc so the checks against zero are
+> not correct.
+
+Using NO_IRQ sounds good, just one question:
+
+> 
+> Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+> 
+>  drivers/i2c/busses/i2c-mpc.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> 
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index bbe787b..d20959d 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -99,7 +99,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+>  	u32 x;
+>  	int result = 0;
+>  
+> -	if (i2c->irq == 0)
+> +	if (i2c->irq == NO_IRQ)
+>  	{
+>  		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
+>  			schedule();
+> @@ -329,7 +329,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  
+>  	i2c->irq = platform_get_irq(pdev, 0);
+> -	if (i2c->irq < 0) {
+> +	if (i2c->irq < NO_IRQ) {
+
+I am skeptical about this one. Can platform_get_irq() really return
+NO_IRQ? I thought that the IRQ resource would be plain missing if the
+device has no IRQ, so I would expect:
+
+ 	i2c->irq = platform_get_irq(pdev, 0);
+	if (i2c->irq < 0)
+		i2c->irq = NO_IRQ; /* Use polling */
+
+Testing against NO_IRQ suggests that devices with no IRQ would still
+have an IRQ resource defined and explicitly set to NO_IRQ. Sounds weird
+to me. Can you please clarify this point?
+
+For what it's worth, no other kernel driver checks for irq < NO_IRQ.
+They all check for irq < 0 after calling platform_get_irq().
+
+>  		result = -ENXIO;
+>  		goto fail_get_irq;
+>  	}
+> @@ -344,7 +344,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+>  		goto fail_map;
+>  	}
+>  
+> -	if (i2c->irq != 0)
+> +	if (i2c->irq != NO_IRQ)
+>  		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
+>  					  IRQF_SHARED, "i2c-mpc", i2c)) < 0) {
+>  			printk(KERN_ERR
+> @@ -367,7 +367,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+>  	return result;
+>  
+>        fail_add:
+> -	if (i2c->irq != 0)
+> +	if (i2c->irq != NO_IRQ)
+>  		free_irq(i2c->irq, i2c);
+>        fail_irq:
+>  	iounmap(i2c->base);
+> @@ -384,7 +384,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
+>  	i2c_del_adapter(&i2c->adap);
+>  	platform_set_drvdata(pdev, NULL);
+>  
+> -	if (i2c->irq != 0)
+> +	if (i2c->irq != NO_IRQ)
+>  		free_irq(i2c->irq, i2c);
+>  
+>  	iounmap(i2c->base);
+
+The rest looks good.
 
 -- 
 Jean Delvare
