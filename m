@@ -1,17 +1,14 @@
-From: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
-Subject: Re: [PATCH] Convert pfc8563 i2c driver from old style to new
-	style
-Date: Tue, 19 Feb 2008 17:43:11 +0100
-Message-ID: <20080219174311.68b0ce13@i1501.lan.towertech.it>
-References: <20080121200901.15517.30253.stgit@terra.home>
-	<20080219161020.61f7ec10@hyperion.delvare>
-	<20080219172450.0e4ccc7c@i1501.lan.towertech.it>
-	<20080219173700.0fee7c1b@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c-s3c2410: Pass I2C bus number via platform data
+Date: Tue, 19 Feb 2008 17:50:51 +0100
+Message-ID: <20080219175051.6c8a0fe5@hyperion.delvare>
+References: <20080131112452.859942220@fluff.org.uk>
+	<20080212122701.GA15415@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080219173700.0fee7c1b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080212122701.GA15415-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,33 +18,34 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Vincent Sanders <vince-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, I2C List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 19 Feb 2008 17:37:00 +0100
-Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+Hi Ben,
 
+On Tue, 12 Feb 2008 12:27:01 +0000, Ben Dooks wrote:
+> On Thu, Jan 31, 2008 at 11:24:53AM +0000, Ben Dooks wrote:
+> > Allow the platform data to specify the bus bumber of the
+> > I2C bus (or automatically choose one) for the driver.
 > > 
-> >  A conversion to new style for this driver has already been
-> >  pushed upstream. Adapting platforms to instantiate the device
-> >  should be fairly easy, especially when you use the dts.
+> > Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 > 
-> Ah, excellent. I didn't know, thanks for pointing it out. I'm glad I
-> added you to Cc :)
+> Did this get lost in the list traffic or should it have
+> been sent to someone specific to get it merged during the
+> now defunct merge window?
 
- I forgot to add you on the patch :) But I know you like those
- kind of conversions.. I have preserver the polarity field tough :)
+Lost in the traffic, I'm reviewing it just now, sorry.
+
+That being said, you sent this patch on January 31st while I issued my
+i2c git pull request to Linus on January 27th, so it was already too
+late. If you want changes to go upstream quickly, you shouldn't wait
+until the last minute for submitting them. Any change should be
+included in at least one -mm (or now linux-next) release before I
+consider pushing it upstream!
 
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Torino, Italy
-
-  http://www.towertech.it
-
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
