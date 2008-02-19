@@ -1,14 +1,15 @@
 From: Sean MacLennan <smaclennan@pikatech.com>
 Subject: Re: [PATCH 2/2] i2c-ibm_iic driver
-Date: Tue, 19 Feb 2008 16:58:01 -0500
-Message-ID: <47BB50E9.60508@pikatech.com>
-References: <4784FED1.2040206@pikatech.com><47A14E23.50807@pikatech.com><20080214094516.1b958ae4@hyperion.delvare><47B66260.8010902@pikatech.com><20080216103123.50a0128b@hyperion.delvare><47BA3416.5080405@pikatech.com>
-	<20080219092321.1fed233d@hyperion.delvare>
+Date: Tue, 19 Feb 2008 17:23:43 -0500
+Message-ID: <47BB56EF.7050708@pikatech.com>
+References: <4784FED1.2040206@pikatech.com>
+	<47BA3416.5080405@pikatech.com><20080219092321.1fed233d@hyperion.delvare>
+	<200802190959.41253.sr@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080219092321.1fed233d@hyperion.delvare>
+In-Reply-To: <200802190959.41253.sr@denx.de>
 List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -18,9 +19,22 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LinuxPPC-dev <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
+To: Stefan Roese <sr@denx.de>
+Cc: Jean Delvare <khali@linux-fr.org>, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
+
+Stefan Roese wrote:
+> How about this:
+>
+> -	depends on IBM_OCP
+> +	depends on 4xx
+>   
+That's what I did, great minds think alike ;) But the email does not 
+seem to have come through, so I will repost the patch. If you already 
+got an email with the above patch, you can ignore this one ;)
+
+Cheers,
+   Sean
 
 Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
 
