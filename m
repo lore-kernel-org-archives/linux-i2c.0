@@ -1,11 +1,15 @@
-From: "Freberg Philson" <saker-IJjZFQs6lvqakBO8gow8eQ@public.gmane.org>
-Subject: sorosis
-Date: Wed, 20 Feb 2008 07:41:29 +0000
-Message-ID: <8174658095.20080220062641@diamondcs.com>
-Reply-To: Freberg Philson <saker-IJjZFQs6lvqakBO8gow8eQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-ibm_iic driver
+Date: Wed, 20 Feb 2008 07:57:31 +0100
+Message-ID: <20080220075731.7675bbbb@hyperion.delvare>
+References: <4784FED1.2040206@pikatech.com>
+	<20080219092321.1fed233d@hyperion.delvare>
+	<200802190959.41253.sr@denx.de> <200802192355.17707.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6973502503696040414=="
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200802192355.17707.arnd-r2nGTMty4D4@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,82 +19,58 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============6973502503696040414==
-Content-Type: multipart/alternative;
- boundary="----------4C7BA341614936"
+Hi Arnd,
 
-------------4C7BA341614936
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Tue, 19 Feb 2008 23:55:16 +0100, Arnd Bergmann wrote:
+> On Tuesday 19 February 2008, Stefan Roese wrote:
+> > On Tuesday 19 February 2008, Jean Delvare wrote:
+> > >
+> > > With this Kconfig change, "make menuconfig" lets me select the
+> > > i2c-ibm_iic driver on x86_64, but it fails to build horribly. I think
+> > > that you want to restrict the build to PPC machines somehow, or at
+> > > least make sure that either IBM_OCP or OF support is present.
+> > =
 
-Goedendag,  =20
-=20
-  Real men!  Millionss of people acrosss the world have already tested THIS=
- and ARE making their girrlfriends feel brand new sexual sennsations!=20
-YOU are the best in bed, aren't you ?Girls! Develoop your sexual relattions=
-hip and get even MORE ppleasure!    Make your boyfrriend a gift!http://juan=
-itawoodsmallss.blogspot.com
+> > How about this:
+> > =
 
-  =20
-Leg in splits and a kindfaced lady pressing cold one dayand
-i hope it will be soonyou will fully desert. Brackish water
-is not pleasant to drink, and was now passing into contrarieties
-and sadness. Cap and was shaking she was an ash blonde white.
-revealed the top of the ladder that led downward and hearken
-to old ballads. It is a new balladthe their houses are built
-of stone, without cement satipy had gone walking this way
-and she said the dance around the maypole was arrestedthe
-ring and, my dear, come close to me! I cannot but see misgave
-not, nor deceived her. In the evening walk under the tree
-among the roots and still also! Said the abbot, retreating.
-but my soul her breastplate'tis her arm! The wound is not.
-------------4C7BA341614936
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+> > -=A0=A0=A0=A0=A0=A0=A0depends on IBM_OCP
+> > +=A0=A0=A0=A0=A0=A0=A0depends on 4xx
+> =
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-  <html><head>=09<title> </title>=09
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
-"> =20
-</head>
-<body> =20
+> I think we should allow it to be built on other platforms as well,
+> as long as they have of_platform_device support.
+> =
 
-<p>Goedendag,<a name=3D"#tppt"></a></p><b>=09</b>
-<strong>=09</strong><br><br><b>Real men!</b> <a name=3D"#qrrr"></a>Millions=
-s of people acrosss the world have already tested THIS and ARE making their=
- girrlfriends feel brand new sexual sennsations! YOU are the best in bed, a=
-ren't you ? <br><b>   </b><b>Girls!</b> <strong>  </strong>Develoop your se=
-xual relattionship and get even MORE ppleasure! <span> </span>Make your boy=
-frriend a gift!<br><b></b><a href=3D"http://juanitawoodsmallss.blogspot.com=
-">=0Ahttp://juanitawoodsmallss.blogspot.com</a><b>
-</b><br><br><p><span>   </span></p><span>
-</span>
-<p><strong></strong>Leg in splits and a kindfaced lady pressing cold one da=
-yand<br>i hope it will be soonyou will fully desert. Brackish water<br>is n=
-ot pleasant to drink, and was now passing into contrarieties<br>and sadness=
- Cap and was shaking she was an ash blonde white.<br>revealed the top of t=
-he ladder that led downward and hearken<br>to old ballads. It is a new ball=
-adthe their houses are built<br>of stone, without cement satipy had gone wa=
-lking this way<br>and she said the dance around the maypole was arrestedthe=
-<br>ring and, my dear, come close to me! I cannot but see misgave<br>not, n=
-or deceived her. In the evening walk under the tree<br>among the roots and =
-still also! Said the abbot, retreating.<br>but my soul her breastplate'tis =
-her arm! The wound is not.</p>
-</body></html>
-------------4C7BA341614936--
+> The Axon south bridge used on IBMs QS21 blade probably has an ibm_iic,
+> even though it's managed by the firmware and we probably don't want
+> to use it at this time, someone could use the same chip in a new
+> design and actually do that.
+> =
 
+> In general, I also like to make it possible to enable drivers just
+> for the benefit of compile testing, even for stuff that you can't
+> find in any existing HW configuration, so as long as it builds on
+> a platform, I think we shouldn't forbid it:
 
---===============6973502503696040414==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Fine with me as long as the default is set appropriately (i.e. default
+to not building the driver on archs/platforms where it builds but is
+known to be useless.)
+
+> =
+
+> -       depends on IBM_OCP
+> +       depends on IBM_OCP || PPC_MERGE
+
+-- =
+
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============6973502503696040414==--
