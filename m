@@ -1,76 +1,67 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [PATCH 2/2] i2c-ibm_iic driver
-Date: Wed, 20 Feb 2008 07:57:31 +0100
-Message-ID: <20080220075731.7675bbbb@hyperion.delvare>
-References: <4784FED1.2040206@pikatech.com>
+Date: Wed, 20 Feb 2008 08:20:27 +0100
+Message-ID: <20080220082027.3b2c59b8@hyperion.delvare>
+References: <4784FED1.2040206@pikatech.com> <47A14E23.50807@pikatech.com>
+	<20080214094516.1b958ae4@hyperion.delvare>
+	<47B66260.8010902@pikatech.com>
+	<20080216103123.50a0128b@hyperion.delvare>
+	<47BA3416.5080405@pikatech.com>
 	<20080219092321.1fed233d@hyperion.delvare>
-	<200802190959.41253.sr@denx.de> <200802192355.17707.arnd@arndb.de>
+	<47BB50E9.60508@pikatech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200802192355.17707.arnd-r2nGTMty4D4@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <47BB50E9.60508@pikatech.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Sean MacLennan <smaclennan@pikatech.com>
+Cc: LinuxPPC-dev <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd,
+Hi Sean,
 
-On Tue, 19 Feb 2008 23:55:16 +0100, Arnd Bergmann wrote:
-> On Tuesday 19 February 2008, Stefan Roese wrote:
-> > On Tuesday 19 February 2008, Jean Delvare wrote:
-> > >
-> > > With this Kconfig change, "make menuconfig" lets me select the
-> > > i2c-ibm_iic driver on x86_64, but it fails to build horribly. I think
-> > > that you want to restrict the build to PPC machines somehow, or at
-> > > least make sure that either IBM_OCP or OF support is present.
-> > =
+On Tue, 19 Feb 2008 16:58:01 -0500, Sean MacLennan wrote:
+> Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
+> 
+> --- for-2.6.25/drivers/i2c/busses/orig-i2c-ibm_iic.c	2008-02-18 16:36:30.000000000 -0500
+> +++ for-2.6.25/drivers/i2c/busses/i2c-ibm_iic.c	2008-02-19 16:46:35.000000000 -0500
+> @@ -6,6 +6,9 @@
+>   * Copyright (c) 2003, 2004 Zultys Technologies.
+>   * Eugene Surovegin <eugene.surovegin@zultys.com> or <ebs@ebshome.net>
+>   *
+> + * Copyright (c) 2008 PIKA Technologies
+> + * Sean MacLennan <smaclennan@pikatech.com>
+> + *
+>   * Based on original work by
+>   * 	Ian DaSilva  <idasilva@mvista.com>
+>   *      Armin Kuster <akuster@mvista.com>
+> (...)
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -244,7 +244,7 @@ config I2C_PIIX4
+>  
+>  config I2C_IBM_IIC
+>  	tristate "IBM PPC 4xx on-chip I2C interface"
+> -	depends on IBM_OCP
+> +	depends on 4xx
+>  	help
+>  	  Say Y here if you want to use IIC peripheral found on 
+>  	  embedded IBM PPC 4xx based systems. 
 
-> > How about this:
-> > =
+I've applied this version. I see that there are discussions going on
+about the best "depends on" statement in Kconfig, feel free to submit
+an updated (or incremental) patch as soon as a decision will have been
+taken.
 
-> > -=A0=A0=A0=A0=A0=A0=A0depends on IBM_OCP
-> > +=A0=A0=A0=A0=A0=A0=A0depends on 4xx
-> =
-
-> I think we should allow it to be built on other platforms as well,
-> as long as they have of_platform_device support.
-> =
-
-> The Axon south bridge used on IBMs QS21 blade probably has an ibm_iic,
-> even though it's managed by the firmware and we probably don't want
-> to use it at this time, someone could use the same chip in a new
-> design and actually do that.
-> =
-
-> In general, I also like to make it possible to enable drivers just
-> for the benefit of compile testing, even for stuff that you can't
-> find in any existing HW configuration, so as long as it builds on
-> a platform, I think we shouldn't forbid it:
-
-Fine with me as long as the default is set appropriately (i.e. default
-to not building the driver on archs/platforms where it builds but is
-known to be useless.)
-
-> =
-
-> -       depends on IBM_OCP
-> +       depends on IBM_OCP || PPC_MERGE
-
--- =
-
+Thanks,
+-- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
