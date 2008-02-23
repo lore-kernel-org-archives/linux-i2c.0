@@ -1,76 +1,51 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCHv4 2.6.25] i2c: adds support for i2c bus on Freescale
- CPM1/CPM2  controllers
-Date: Sat, 23 Feb 2008 13:43:35 +0100
-Message-ID: <20080223134335.0f5c7d79@hyperion.delvare>
-References: <47A1C4E9.4000003@scram.de>
-	<20080221130520.12b01553@hyperion.delvare>
-	<47BEAF00.50106@scram.de>
+From: ROASCIO Paolo <roa-VGgt2q2+T+FeoWH0uzbU5w@public.gmane.org>
+Subject: PCA954x I2C switch/multiplexer
+Date: Sat, 23 Feb 2008 17:07:01 +0100
+Message-ID: <200802231707.01967.roa@libero.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757037AbYBWMnv@vger.kernel.org>
-In-Reply-To: <47BEAF00.50106@scram.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Scott Wood <scottwood@freescale.com>, Kumar Gala <galak@kernel.crashing.org>, Vitaly Bordug <vitb@kernel.crashing.org>, linux-kernel@vger.kernel.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jochen,
+Hello, i'm new in this list, then please excuse me for my bad english...
 
-On Fri, 22 Feb 2008 12:16:16 +0100, Jochen Friedrich wrote:
-> Hi Jean,
-> 
-> >> +/*
-> >> + * Wait for patch from Jon Smirl
-> >> + * #include "powerpc-common.h"
-> >> + */
-> > 
-> > It doesn't make sense to merge this comment upstream.
-> 
-> I know you don't like the patch from Jon Smirl and you also explained your reasons.
-> Fortunately, I2c no longer uses numeric device IDs but names. So what are the alternatives?
-> 
-> 1. modify the I2c subsystem to accept OF names additionally to I2c names (proposed by Jon smirl).
+I read the Frank's message dated jan 31 2008 about a patch for the PCA954x i2c 
+mux family support.
 
-The problem I have with this is that it breaks compatibility. The chip
-name is not only used for device/driver matching, it is also exported
-to userspace as a sysfs attribute ("name"). Applications might rely on
-it. At least libsensors does.
+I patched my kernel (2.6.22) without problems, bu when i load the module 
+i2c_pca954x, nothing happens....
 
-One way to work around the problem would be to use separate fields for
-device/driver matching and the "name" attribute. However, this will add
-some complexity to the i2c-core code and cost some memory as well, so
-it is far from perfect.
+If i turn on all the kernel i2c debug related options, in dmesg i can see 
+something like:
 
-> 2. record the I2c name in the dts tree, either as seperate tag (like linux,i2c-name="<i2c-name>")
->    or as additional compatible entry (like compatible="...", "linux,<i2c-name>").
+[pca9540] registered,
 
-This would work, and it would require almost no change to the current
-i2c-core code, but I thought that these dts files were not under our
-control?
+but, when i launch sensors-detect, i can't see any bus other than my 
+i2c-amd-756.
 
-The problem I see with this approach is that the name translation would
-have to be done for each dts file, rather than just once for each device
-type. This means more work, but maybe this can be done if at least part
-of it is automated. I admit that I never considered this option because
-I considered the dts files as read-only. If this assumption was
-incorrect, then maybe this is the best solution. Can you please
-elaborate on the details of this proposal?
+I'm not a programmer, but reading the code, i can see that this module hasn't 
+load parameters (the same result as modinfo), then, please Frank, can you 
+explain me how to make the pca954x support start?
 
-> 3. use a glue layer with a translation map.
+I'm a GIGABYTE GA-7DPXDW owner, where a PCA9540 "shares" two LM-90 on the sam 
+i2c bus (one for each cpu), then i will be happy to test your patch if right 
+pointed.
 
-This is what we do at the moment (see i2c_devices in
-arch/powerpc/sysdev/fsl_soc.c). Jon Smirl is worried that it won't
-scale well though, and I can't disagree.
+Thanks.
 
-> What is the preferred way to do this?
-
-I still have to think about it. I didn't have much time to work on this
-during the last 2 weeks, hopefully I will fine some time to experiment
-again soon. As I underlined before, my patch set affects no less than 5
-subsystems with different needs and expectations, it's no trivial
-change.
-
--- 
-Jean Delvare
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
