@@ -1,47 +1,75 @@
-From: Jochen Friedrich <jochen@scram.de>
-Subject: Re: [PATCHv4 2.6.25] i2c: adds support for i2c bus on Freescale	CPM1/CPM2
- controllers
-Date: Mon, 25 Feb 2008 17:48:27 +0100
-Message-ID: <47C2F15B.8070703@scram.de>
-References: <47A1C4E9.4000003@scram.de> <20080221130520.12b01553@hyperion.delvare> <47BEAF00.50106@scram.de> <20080223212823.GA22131@lixom.net> <47C18A4E.5080804@scram.de> <20080224181509.GA6745@lixom.net>
+From: Marcin Slusarz <marcin.slusarz@gmail.com>
+Subject: [PATCH] video: limit stack usage of ir-kbd-i2c.c
+Date: Mon, 25 Feb 2008 21:51:00 +0100
+Message-ID: <20080225205055.GA27455@joi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759279AbYBYSfv@vger.kernel.org>
-In-Reply-To: <20080224181509.GA6745@lixom.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759591AbYBYUwX@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Olof Johansson <olof@lixom.net>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org, Scott Wood <scottwood@freescale.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Jean Delvare <khali@linux-fr.org>, i2c@lm-sensors.org, video4linux-list@redhat.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Olof,
+ir_probe allocated struct i2c_client on stack;
+it's pretty big structure, so allocate it with kzalloc
 
-> And even if you DO decide to go that route, guess what? You need a
-> translation table just as with (3) anyway!
+make checkstack output without this patch:
+x059d ir_probe [ir-kbd-i2c]:                           1000
 
-True.
+compile tested only
 
->>>> 3. use a glue layer with a translation map.
->>> In my opinion this is an OK solution since the same information has to
->>> be added somewhere already anyway -- eiither to the drivers or to this
->>> translation table. It should of course be an abstacted shared table,
->>> preferrably contained under the i2c source directories since several
->>> platforms and architectures might share them.
->> I could think of a mixture between 2. and 3.:
->>
->> Using the compatible attribute with the manufacturer stripped off as I2c name by default
->> and using an exception table. For now, the struct i2c_driver_device would currently only
->> need one entry ("dallas,ds1374", "rtc-ds1374").
-> 
-> You still need the translation table, you're just flattening the
-> namespace to one string instead of two, the same information still has
-> to be encoded. I can't see what the benefit of this approach compared to
-> the other one is. "dallas,ds1374" already only has one translation entry
-> in the table?
+Signed-off-by: Marcin Slusarz <marcin.slusarz@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/media/video/ir-kbd-i2c.c |   18 +++++++++++-------
+ 1 files changed, 11 insertions(+), 7 deletions(-)
 
-As soon as http://lists.lm-sensors.org/pipermail/i2c/2008-January/002752.html has been
-applied, one could get rid of all entries where the I2c (alias) name can be obtained from
-the OF name just by stripping the manufacturer.
-
-Thanks,
-Jochen
+diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
+index 9851987..aec122f 100644
+--- a/drivers/media/video/ir-kbd-i2c.c
++++ b/drivers/media/video/ir-kbd-i2c.c
+@@ -510,9 +510,9 @@ static int ir_probe(struct i2c_adapter *adap)
+ 	static const int probe_cx88[] = { 0x18, 0x6b, 0x71, -1 };
+ 	static const int probe_cx23885[] = { 0x6b, -1 };
+ 	const int *probe = NULL;
+-	struct i2c_client c;
++	struct i2c_client *c;
+ 	unsigned char buf;
+-	int i,rc;
++	int i, rc;
+ 
+ 	switch (adap->id) {
+ 	case I2C_HW_B_BT848:
+@@ -537,19 +537,23 @@ static int ir_probe(struct i2c_adapter *adap)
+ 	if (NULL == probe)
+ 		return 0;
+ 
+-	memset(&c,0,sizeof(c));
+-	c.adapter = adap;
++	c = kzalloc(sizeof(*c), GFP_KERNEL);
++	if (!c)
++		return -ENOMEM;
++
++	c->adapter = adap;
+ 	for (i = 0; -1 != probe[i]; i++) {
+-		c.addr = probe[i];
+-		rc = i2c_master_recv(&c,&buf,0);
++		c->addr = probe[i];
++		rc = i2c_master_recv(c, &buf, 0);
+ 		dprintk(1,"probe 0x%02x @ %s: %s\n",
+ 			probe[i], adap->name,
+ 			(0 == rc) ? "yes" : "no");
+ 		if (0 == rc) {
+-			ir_attach(adap,probe[i],0,0);
++			ir_attach(adap, probe[i], 0, 0);
+ 			break;
+ 		}
+ 	}
++	kfree(c);
+ 	return 0;
+ }
+ 
+-- 
+1.5.3.7
