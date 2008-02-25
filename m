@@ -1,14 +1,19 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: PCA954x I2C switch/multiplexer
-Date: Mon, 25 Feb 2008 09:02:37 +0100
-Message-ID: <20080225090237.200b5b88@hyperion.delvare>
-References: <200802231707.01967.roa@libero.it>
-	<A42C17A8FF150C4DB98BFD6497D1D000081DF898@ussvlexmbpf1.spansion.com>
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
+	updates, part 2
+Date: Mon, 25 Feb 2008 10:46:21 +0200
+Message-ID: <31e679430802250046h4df04aa0y6a32005e6d791e65@mail.gmail.com>
+References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
+	<200802231010.40108.david-b@pacbell.net>
+	<20080223202832.4a953910@hyperion.delvare>
+	<200802231153.04011.david-b@pacbell.net>
+	<20080224103052.66da6803@hyperion.delvare>
+	<31e679430802240305o62ec88a9jfcc54f0a3be658ff@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_Part_11773_19441648.1203929181825"
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <A42C17A8FF150C4DB98BFD6497D1D000081DF898-SepvG4MK2K7XgKAwtTS8dDuQPtp/YR6JAL8bYrjMMd8@public.gmane.org>
+In-Reply-To: <31e679430802240305o62ec88a9jfcc54f0a3be658ff-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,30 +23,284 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Edelhaeuser, Frank" <Frank.Edelhaeuser-CBC/uQSf1AZWk0Htik3J/w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, ROASCIO Paolo <roa-VGgt2q2+T+FeoWH0uzbU5w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Frank,
+------=_Part_11773_19441648.1203929181825
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Sun, 24 Feb 2008 21:41:54 -0800, Edelhaeuser, Frank wrote:
-> The driver I submitted implements the "new style" driver model. These
-> driver's don't probe the bus automatically. Instead, devices must be
-> instantiated by calling i2c_register_board_info() for each multiplexer
-> device. Please note that this driver implements a special syntax for the
-> type field: e.g. .type = "pxa9544,5" tells the driver to create 4
-> virtual i2c buses with ids 5, 6, 7 and 8. You would
-> i2c_register_board_info() your PXA9544 multiplexer with the root i2c bus
-> and your bus segment devices with those virtual i2c buses.
+On Sun, Feb 24, 2008 at 1:05 PM,  <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
+> sorry im topostig, but im using gmail through gprs and it sucks. Jean,
+>  thanks for explaining everything and applying the first part to your
+>  i2c tree. I'll try to address the issues today or tomorrow and send
+>  you a better patch.
+>
+>  Thanks again for your time ;)
+>
+>
+>
+>  On 2/24/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  > On Sat, 23 Feb 2008 11:53:03 -0800, David Brownell wrote:
+>  > > On Saturday 23 February 2008, Jean Delvare wrote:
+>  > > > On Sat, 23 Feb 2008 10:10:39 -0800, David Brownell wrote:
+>  > > > > On Saturday 23 February 2008, Felipe Balbi wrote:
+>  > > > > > Thanks Dave, the patch is attached. patch 1 is acked by Jean, right
+>  > Jean?
+>  > > >
+>  > > > Yes, except that my copy has "isp->irq_type = 0;" removed.
+>  > >
+>  > > From a bzeroed structure?  Then I won't worry about that difference...
+>  >
+>  > I removed this statement exactly because the structure is kzalloc'd.
+>  > You don't have to worry as a tester. I do worry as the i2c subsystem
+>  > maintainer, because I'd like Felipe to base his second patch on the
+>  > "right" first patch, so that it applies properly to my tree.
+>  >
+>  > Felipe, my version of the first patch is available here:
+>  > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-isp1301_omap-convert-to-new-style-1.patch
+>  >
+>  > Please make sure that the next update to the second part applies
+>  > properly on top of it.
+>  >
+>  > > > > But not yet in the I2C merge queue??
+>  > > >
+>  > > > I was waiting for the second part. The first part doesn't make much
+>  > > > sense alone. I could add the first part to my i2c tree, but I can't
+>  > > > merge it upstream without the second part.
+>  > >
+>  > > That makes no sense to me.  If the first part is OK, it's OK to
+>  > > merge without the second part.
+>  >
+>  > And if the second part never makes it, we end up with garbage in the
+>  > upstream kernel. Thanks but no thanks.
+>  >
+>  > > Even if you don't _plan_ to merge it soon, it'd be less confusing
+>  > > to have that in your queue ... say, towards the end, below a line
+>  > > that indicates a scheduled merge point.  (FWIW that's not unlike
+>  > > Andrew does with MM.)
+>  >
+>  > Indeed, the first patch in question has even been in -mm for quite some
+>  > time now, and Andrew keeps sending it to me so that I take it in my i2c
+>  > tree. So I've now included the first part in my public i2c patch queue
+>  > to make everyone happy. But then again, there is no "scheduled merge
+>  > point" for a patchset that is not yet complete.
+>  >
+>  > --
+>  > Jean Delvare
+>  >
+>
+>
+>
+>
+> --
+>  Best Regards,
+>
+>  Felipe Balbi
+>  felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+>
 
-Please don't abuse the type field, instead define a custom structure
-and pass it to the driver as platform data. This will give you much
-more flexibility as well.
+Another version here.
+Jean, I'm thinking about introducing include/asm/arch/isp1301.h so I
+can introduce struct isp1301_platform_data to pass irq_flags to the
+driver.
+What do you think ?
+
+Dave, any comments ?
 
 -- 
-Jean Delvare
+Best Regards,
+
+Felipe Balbi
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+
+------=_Part_11773_19441648.1203929181825
+Content-Type: text/x-patch;
+	name=0001-I2C-ISP1301_OMAP-New-style-i2c-driver-updates-part.diff
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_fd2satzk0
+Content-Disposition: attachment;
+	filename=0001-I2C-ISP1301_OMAP-New-style-i2c-driver-updates-part.diff
+
+RnJvbSA0NGE4MzA1OWE3NzZlNjA3ODM2MTM5ODkyZWQyZmQzZDdmYjMwN2IyIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBGZWxpcGUgQmFsYmkgPG1lQGZlbGlwZWJhbGJpLmNvbT4KRGF0
+ZTogVHVlLCAxIEphbiAyMDA4IDIzOjAwOjE4IC0wNTAwClN1YmplY3Q6IFtQQVRDSF0gSTJDOiBJ
+U1AxMzAxX09NQVA6IE5ldy1zdHlsZSBpMmMgZHJpdmVyIHVwZGF0ZXMsIHBhcnQgMgoKQmFzZWQg
+b24gRGF2aWQgQnJvd25lbGwncyBwYXRjaCBmb3IgdHBzNjUwMTAsIHRoaXMgcGF0Y2gKZmluaXNo
+IGNvbnZlcnN0aW5nIGlzcDEzMDFfb21hcC5jIHRvIG5ldy1zdHlsZSBpMmMgZHJpdmVyLgoKU2ln
+bmVkLW9mZi1ieTogRmVsaXBlIEJhbGJpIDxtZUBmZWxpcGViYWxiaS5jb20+Ci0tLQogYXJjaC9h
+cm0vbWFjaC1vbWFwMS9ib2FyZC1oMy5jICAgfCAgICA4ICsrCiBhcmNoL2FybS9tYWNoLW9tYXAy
+L2JvYXJkLWg0LmMgICB8ICAgMTEgKysrCiBkcml2ZXJzL2kyYy9jaGlwcy9pc3AxMzAxX29tYXAu
+YyB8ICAxMzUgKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogMyBmaWxlcyBj
+aGFuZ2VkLCA1NiBpbnNlcnRpb25zKCspLCA5OCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9h
+cmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgzLmMgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJk
+LWgzLmMKaW5kZXggNmZjNTE2OC4uN2MxYjk2NiAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1v
+bWFwMS9ib2FyZC1oMy5jCisrKyBiL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtaDMuYwpAQCAt
+NDY5LDYgKzQ2OSwxNCBAQCBzdGF0aWMgc3RydWN0IG9tYXBfZ3Bpb19zd2l0Y2ggaDNfZ3Bpb19z
+d2l0Y2hlc1tdIF9faW5pdGRhdGEgPSB7CiAJfSwKIH07CiAKK3N0YXRpYyBzdHJ1Y3QgaTJjX2Jv
+YXJkX2luZm8gX19pbml0ZGF0YSBoM19pMmNfYm9hcmRfaW5mb1tdID0geworICAgICAgIHsKKyAg
+ICAgICAgICAgICAgIEkyQ19CT0FSRF9JTkZPKCJpc3AxMzAxX29tYXAiLCAweDJkKSwKKyAgICAg
+ICAgICAgICAgIC50eXBlICAgICAgICAgICA9ICJpc3AxMzAxX29tYXAiLAorICAgICAgICAgICAg
+ICAgLmlycSAgICAgICAgICAgID0gT01BUF9HUElPX0lSUSgxNCksCisgICAgICAgfSwKK307CisK
+ICNkZWZpbmUgSDNfTkFORF9SQl9HUElPX1BJTgkxMAogCiBzdGF0aWMgaW50IG5hbmRfZGV2X3Jl
+YWR5KHN0cnVjdCBvbWFwX25hbmRfcGxhdGZvcm1fZGF0YSAqZGF0YSkKZGlmZiAtLWdpdCBhL2Fy
+Y2gvYXJtL21hY2gtb21hcDIvYm9hcmQtaDQuYyBiL2FyY2gvYXJtL21hY2gtb21hcDIvYm9hcmQt
+aDQuYwppbmRleCBmMTI1ZjQzLi5kNDY5YzYzIDEwMDY0NAotLS0gYS9hcmNoL2FybS9tYWNoLW9t
+YXAyL2JvYXJkLWg0LmMKKysrIGIvYXJjaC9hcm0vbWFjaC1vbWFwMi9ib2FyZC1oNC5jCkBAIC0z
+MDEsNiArMzAxLDE0IEBAIHN0YXRpYyBzdHJ1Y3Qgb21hcF9ib2FyZF9jb25maWdfa2VybmVsIGg0
+X2NvbmZpZ1tdID0gewogCXsgT01BUF9UQUdfTENELAkJJmg0X2xjZF9jb25maWcgfSwKIH07CiAK
+K3N0YXRpYyBzdHJ1Y3QgaTJjX2JvYXJkX2luZm8gX19pbml0ZGF0YSBoNF9pMmNfYm9hcmRfaW5m
+b1tdID0geworCXsKKwkJSTJDX0JPQVJEX0lORk8oImlzcDEzMDFfb21hcCIsIDB4MmQpLAorCQku
+dHlwZQkJPSAiaXNwMTMwMV9vbWFwIiwKKwkJLmlycQkJPSBPTUFQX0dQSU9fSVJRKDEyNSksCisJ
+fSwKK307CisKIHN0YXRpYyB2b2lkIF9faW5pdCBvbWFwX2g0X2luaXQodm9pZCkKIHsKIAkvKgpA
+QCAtMzIxLDYgKzMyOSw5IEBAIHN0YXRpYyB2b2lkIF9faW5pdCBvbWFwX2g0X2luaXQodm9pZCkK
+IAl9CiAjZW5kaWYKIAorCWkyY19yZWdpc3Rlcl9ib2FyZF9pbmZvKDEsIGg0X2kyY19ib2FyZF9p
+bmZvLAorCQkJQVJSQVlfU0laRShoNF9pMmNfYm9hcmRfaW5mbykpOworCiAJcGxhdGZvcm1fYWRk
+X2RldmljZXMoaDRfZGV2aWNlcywgQVJSQVlfU0laRShoNF9kZXZpY2VzKSk7CiAJb21hcF9ib2Fy
+ZF9jb25maWcgPSBoNF9jb25maWc7CiAJb21hcF9ib2FyZF9jb25maWdfc2l6ZSA9IEFSUkFZX1NJ
+WkUoaDRfY29uZmlnKTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2NoaXBzL2lzcDEzMDFfb21h
+cC5jIGIvZHJpdmVycy9pMmMvY2hpcHMvaXNwMTMwMV9vbWFwLmMKaW5kZXggOTJhOWMwMS4uM2Iy
+MDM2NiAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvY2hpcHMvaXNwMTMwMV9vbWFwLmMKKysrIGIv
+ZHJpdmVycy9pMmMvY2hpcHMvaXNwMTMwMV9vbWFwLmMKQEAgLTMxLDggKzMxLDYgQEAKICNpbmNs
+dWRlIDxsaW51eC91c2Ivb3RnLmg+CiAjaW5jbHVkZSA8bGludXgvaTJjLmg+CiAjaW5jbHVkZSA8
+bGludXgvd29ya3F1ZXVlLmg+Ci0KLSNpbmNsdWRlIDxhc20vaXJxLmg+CiAjaW5jbHVkZSA8YXNt
+L2FyY2gvdXNiLmg+CiAKIApAQCAtNTAsMTIgKzQ4LDggQEAgTU9EVUxFX0xJQ0VOU0UoIkdQTCIp
+Owogc3RydWN0IGlzcDEzMDEgewogCXN0cnVjdCBvdGdfdHJhbnNjZWl2ZXIJb3RnOwogCXN0cnVj
+dCBpMmNfY2xpZW50CSpjbGllbnQ7Ci0Jc3RydWN0IGkyY19jbGllbnQJYzsKIAl2b2lkCQkJKCpp
+MmNfcmVsZWFzZSkoc3RydWN0IGRldmljZSAqZGV2KTsKIAotCWludAkJCWlycTsKLQlpbnQJCQlp
+cnFfdHlwZTsKLQogCXUzMgkJCWxhc3Rfb3RnX2N0cmw7CiAJdW5zaWduZWQJCXdvcmtpbmc6MTsK
+IApAQCAtMTQwLDEzICsxMzQsNiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgbm90cmVzcG9uZGluZyhz
+dHJ1Y3QgaXNwMTMwMSAqaXNwKQogLyotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKi8KIAogLyogb25seSB0d28g
+YWRkcmVzc2VzIHBvc3NpYmxlICovCi0jZGVmaW5lCUlTUF9CQVNFCQkweDJjCi1zdGF0aWMgdW5z
+aWduZWQgc2hvcnQgbm9ybWFsX2kyY1tdID0gewotCUlTUF9CQVNFLCBJU1BfQkFTRSArIDEsCi0J
+STJDX0NMSUVOVF9FTkQgfTsKLQotSTJDX0NMSUVOVF9JTlNNT0Q7Ci0KIHN0YXRpYyBzdHJ1Y3Qg
+aTJjX2RyaXZlciBpc3AxMzAxX2RyaXZlcjsKIAogLyogc21idXMgYXBpcyBhcmUgdXNlZCBmb3Ig
+cG9ydGFiaWxpdHkgKi8KQEAgLTExOTAsOSArMTE3Nyw3IEBAIHN0YXRpYyB2b2lkIGlzcDEzMDFf
+dGltZXIodW5zaWduZWQgbG9uZyBfaXNwKQogCiBzdGF0aWMgdm9pZCBpc3AxMzAxX3JlbGVhc2Uo
+c3RydWN0IGRldmljZSAqZGV2KQogewotCXN0cnVjdCBpc3AxMzAxCSppc3A7Ci0KLQlpc3AgPSBj
+b250YWluZXJfb2YoZGV2LCBzdHJ1Y3QgaXNwMTMwMSwgYy5kZXYpOworCXN0cnVjdCBpc3AxMzAx
+CQkqaXNwID0gZGV2X2dldF9kcnZkYXRhKGRldik7CiAKIAkvKiB1Z2x5IC0tIGkyYyBoaWphY2tz
+IG91ciBtZW1vcnkgaG9vayB0byB3YWl0X2Zvcl9jb21wbGV0aW9uKCkgKi8KIAlpZiAoaXNwLT5p
+MmNfcmVsZWFzZSkKQEAgLTEyMDIsMzAgKzExODcsMjcgQEAgc3RhdGljIHZvaWQgaXNwMTMwMV9y
+ZWxlYXNlKHN0cnVjdCBkZXZpY2UgKmRldikKIAogc3RhdGljIHN0cnVjdCBpc3AxMzAxICp0aGVf
+dHJhbnNjZWl2ZXI7CiAKLXN0YXRpYyBpbnQgaXNwMTMwMV9kZXRhY2hfY2xpZW50KHN0cnVjdCBp
+MmNfY2xpZW50ICppMmMpCitzdGF0aWMgaW50IF9fZXhpdCBpc3AxMzAxX3JlbW92ZShzdHJ1Y3Qg
+aTJjX2NsaWVudCAqY2xpZW50KQogewotCXN0cnVjdCBpc3AxMzAxCSppc3A7Ci0KLQlpc3AgPSBj
+b250YWluZXJfb2YoaTJjLCBzdHJ1Y3QgaXNwMTMwMSwgYyk7CisJc3RydWN0IGlzcDEzMDEJKmlz
+cCA9IGkyY19nZXRfY2xpZW50ZGF0YShjbGllbnQpOwogCiAJaXNwMTMwMV9jbGVhcl9iaXRzKGlz
+cCwgSVNQMTMwMV9JTlRFUlJVUFRfRkFMTElORywgfjApOwogCWlzcDEzMDFfY2xlYXJfYml0cyhp
+c3AsIElTUDEzMDFfSU5URVJSVVBUX1JJU0lORywgfjApOwotCWZyZWVfaXJxKGlzcC0+aXJxLCBp
+c3ApOworCisJaWYgKGNsaWVudC0+aXJxID4gMCkKKwkJZnJlZV9pcnEoY2xpZW50LT5pcnEsIGlz
+cCk7CiAjaWZkZWYJQ09ORklHX1VTQl9PVEcKIAlvdGdfdW5iaW5kKGlzcCk7CiAjZW5kaWYKLQlp
+ZiAobWFjaGluZV9pc19vbWFwX2gyKCkpCi0JCW9tYXBfZnJlZV9ncGlvKDIpOwotCiAJaXNwLT50
+aW1lci5kYXRhID0gMDsKIAlzZXRfYml0KFdPUktfU1RPUCwgJmlzcC0+dG9kbyk7CiAJZGVsX3Rp
+bWVyX3N5bmMoJmlzcC0+dGltZXIpOwogCWZsdXNoX3NjaGVkdWxlZF93b3JrKCk7CiAKLQlwdXRf
+ZGV2aWNlKCZpMmMtPmRldik7CisJcHV0X2RldmljZSgmY2xpZW50LT5kZXYpOwogCXRoZV90cmFu
+c2NlaXZlciA9IDA7CiAKLQlyZXR1cm4gaTJjX2RldGFjaF9jbGllbnQoaTJjKTsKKwlyZXR1cm4g
+MDsKIH0KIAogLyotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKi8KQEAgLTEyOTUsOSArMTI3Nyw2IEBAIGlzcDEz
+MDFfc2V0X2hvc3Qoc3RydWN0IG90Z190cmFuc2NlaXZlciAqb3RnLCBzdHJ1Y3QgdXNiX2J1cyAq
+aG9zdCkKIAogCXBvd2VyX3VwKGlzcCk7CiAKLQlpZiAobWFjaGluZV9pc19vbWFwX2gyKCkpCi0J
+CWlzcDEzMDFfc2V0X2JpdHMoaXNwLCBJU1AxMzAxX01PREVfQ09OVFJPTF8xLCBNQzFfREFUX1NF
+MCk7Ci0KIAlkZXZfaW5mbygmaXNwLT5jbGllbnQtPmRldiwgIkEtSG9zdCBzZXNzaW9ucyBva1xu
+Iik7CiAJaXNwMTMwMV9zZXRfYml0cyhpc3AsIElTUDEzMDFfSU5URVJSVVBUX1JJU0lORywKIAkJ
+SU5UUl9JRF9HTkQpOwpAQCAtMTQ3NSwxMSArMTQ1NCwxMCBAQCBpc3AxMzAxX3N0YXJ0X2hucChz
+dHJ1Y3Qgb3RnX3RyYW5zY2VpdmVyICpkZXYpCiAvKi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0qLwogCiAvKiBu
+byBlcnJvciByZXR1cm5zLCB0aGV5J2QganVzdCBtYWtlIGJ1cyBzY2FubmluZyBzdG9wICovCi1z
+dGF0aWMgaW50IGlzcDEzMDFfcHJvYmUoc3RydWN0IGkyY19hZGFwdGVyICpidXMsIGludCBhZGRy
+ZXNzLCBpbnQga2luZCkKK3N0YXRpYyBpbnQgX19pbml0IGlzcDEzMDFfcHJvYmUoc3RydWN0IGky
+Y19jbGllbnQgKmNsaWVudCkKIHsKIAlpbnQJCQlzdGF0dXM7CiAJc3RydWN0IGlzcDEzMDEJCSpp
+c3A7Ci0Jc3RydWN0IGkyY19jbGllbnQJKmkyYzsKIAogCWlmICh0aGVfdHJhbnNjZWl2ZXIpCiAJ
+CXJldHVybiAwOwpAQCAtMTQ5Miw0NiArMTQ3MCwyOSBAQCBzdGF0aWMgaW50IGlzcDEzMDFfcHJv
+YmUoc3RydWN0IGkyY19hZGFwdGVyICpidXMsIGludCBhZGRyZXNzLCBpbnQga2luZCkKIAlpbml0
+X3RpbWVyKCZpc3AtPnRpbWVyKTsKIAlpc3AtPnRpbWVyLmZ1bmN0aW9uID0gaXNwMTMwMV90aW1l
+cjsKIAlpc3AtPnRpbWVyLmRhdGEgPSAodW5zaWduZWQgbG9uZykgaXNwOwotCi0JaXNwLT5pcnEg
+PSAtMTsKLQlpc3AtPmlycV90eXBlID0gMDsKLQlpc3AtPmMuYWRkciA9IGFkZHJlc3M7Ci0JaTJj
+X3NldF9jbGllbnRkYXRhKCZpc3AtPmMsIGlzcCk7Ci0JaXNwLT5jLmFkYXB0ZXIgPSBidXM7Ci0J
+aXNwLT5jLmRyaXZlciA9ICZpc3AxMzAxX2RyaXZlcjsKLQlzdHJsY3B5KGlzcC0+Yy5uYW1lLCBE
+UklWRVJfTkFNRSwgSTJDX05BTUVfU0laRSk7Ci0JaXNwLT5jbGllbnQgPSBpMmMgPSAmaXNwLT5j
+OworCWlzcC0+Y2xpZW50ID0gY2xpZW50OwogCiAJLyogaWYgdGhpcyBpcyBhIHRydWUgcHJvYmUs
+IHZlcmlmeSB0aGUgY2hpcCAuLi4gKi8KLQlpZiAoa2luZCA8IDApIHsKLQkJc3RhdHVzID0gaXNw
+MTMwMV9nZXRfdTE2KGlzcCwgSVNQMTMwMV9WRU5ET1JfSUQpOwotCQlpZiAoc3RhdHVzICE9IEky
+Q19WRU5ET1JfSURfUEhJTElQUykgewotCQkJZGV2X2RiZygmYnVzLT5kZXYsICJhZGRyICVkIG5v
+dCBwaGlsaXBzIGlkOiAlZFxuIiwKLQkJCQlhZGRyZXNzLCBzdGF0dXMpOwotCQkJZ290byBmYWls
+MTsKLQkJfQotCQlzdGF0dXMgPSBpc3AxMzAxX2dldF91MTYoaXNwLCBJU1AxMzAxX1BST0RVQ1Rf
+SUQpOwotCQlpZiAoc3RhdHVzICE9IEkyQ19QUk9EVUNUX0lEX1BISUxJUFNfMTMwMSkgewotCQkJ
+ZGV2X2RiZygmYnVzLT5kZXYsICIlZCBub3QgaXNwMTMwMSwgJWRcbiIsCi0JCQkJYWRkcmVzcywg
+c3RhdHVzKTsKLQkJCWdvdG8gZmFpbDE7Ci0JCX0KKwlzdGF0dXMgPSBpc3AxMzAxX2dldF91MTYo
+aXNwLCBJU1AxMzAxX1ZFTkRPUl9JRCk7CisJaWYgKHN0YXR1cyAhPSBJMkNfVkVORE9SX0lEX1BI
+SUxJUFMpIHsKKwkJZGV2X2RiZygmY2xpZW50LT5kZXYsICJub3QgcGhpbGlwcyBpZDogJWRcbiIs
+IHN0YXR1cyk7CisJCWdvdG8gZmFpbDE7CisJfQorCXN0YXR1cyA9IGlzcDEzMDFfZ2V0X3UxNihp
+c3AsIElTUDEzMDFfUFJPRFVDVF9JRCk7CisJaWYgKHN0YXR1cyAhPSBJMkNfUFJPRFVDVF9JRF9Q
+SElMSVBTXzEzMDEpIHsKKwkJZGV2X2RiZygmY2xpZW50LT5kZXYsICJub3QgaXNwMTMwMSwgJWRc
+biIsIHN0YXR1cyk7CisJCWdvdG8gZmFpbDE7CiAJfQogCi0Jc3RhdHVzID0gaTJjX2F0dGFjaF9j
+bGllbnQoaTJjKTsKLQlpZiAoc3RhdHVzIDwgMCkgewotCQlkZXZfZGJnKCZidXMtPmRldiwgImNh
+bid0IGF0dGFjaCAlcyB0byBkZXZpY2UgJWQsIGVyciAlZFxuIiwKLQkJCQlEUklWRVJfTkFNRSwg
+YWRkcmVzcywgc3RhdHVzKTsKIGZhaWwxOgogCQlrZnJlZShpc3ApOwogCQlyZXR1cm4gMDsKIAl9
+Ci0JaXNwLT5pMmNfcmVsZWFzZSA9IGkyYy0+ZGV2LnJlbGVhc2U7Ci0JaTJjLT5kZXYucmVsZWFz
+ZSA9IGlzcDEzMDFfcmVsZWFzZTsKKwlpc3AtPmkyY19yZWxlYXNlID0gY2xpZW50LT5kZXYucmVs
+ZWFzZSA9IGlzcDEzMDFfcmVsZWFzZTsKIAogCS8qIGluaXRpYWwgZGV2ZWxvcG1lbnQgdXNlZCBj
+aGlwcmV2IDIuMDAgKi8KLQlzdGF0dXMgPSBpMmNfc21idXNfcmVhZF93b3JkX2RhdGEoaTJjLCBJ
+U1AxMzAxX0JDRF9ERVZJQ0UpOwotCWRldl9pbmZvKCZpMmMtPmRldiwgImNoaXByZXYgJXguJTAy
+eCwgZHJpdmVyICIgRFJJVkVSX1ZFUlNJT04gIlxuIiwKKwlzdGF0dXMgPSBpMmNfc21idXNfcmVh
+ZF93b3JkX2RhdGEoY2xpZW50LCBJU1AxMzAxX0JDRF9ERVZJQ0UpOworCWRldl9pbmZvKCZjbGll
+bnQtPmRldiwgImNoaXByZXYgJXguJTAyeCwgZHJpdmVyICIgRFJJVkVSX1ZFUlNJT04gIlxuIiwK
+IAkJc3RhdHVzID4+IDgsIHN0YXR1cyAmIDB4ZmYpOwogCiAJLyogbWFrZSBsaWtlIHBvd2VyLW9u
+IHJlc2V0ICovCkBAIC0xNTUyLDQwICsxNTEzLDI2IEBAIGZhaWwxOgogI2lmZGVmCUNPTkZJR19V
+U0JfT1RHCiAJc3RhdHVzID0gb3RnX2JpbmQoaXNwKTsKIAlpZiAoc3RhdHVzIDwgMCkgewotCQlk
+ZXZfZGJnKCZpMmMtPmRldiwgImNhbid0IGJpbmQgT1RHXG4iKTsKKwkJZGV2X2RiZygmY2xpZW50
+LT5kZXYsICJjYW4ndCBiaW5kIE9UR1xuIik7CiAJCWdvdG8gZmFpbDI7CiAJfQogI2VuZGlmCiAK
+LQlpZiAobWFjaGluZV9pc19vbWFwX2gyKCkpIHsKLQkJLyogZnVsbCBzcGVlZCBzaWduYWxpbmcg
+YnkgZGVmYXVsdCAqLwotCQlpc3AxMzAxX3NldF9iaXRzKGlzcCwgSVNQMTMwMV9NT0RFX0NPTlRS
+T0xfMSwKLQkJCU1DMV9TUEVFRF9SRUcpOwotCQlpc3AxMzAxX3NldF9iaXRzKGlzcCwgSVNQMTMw
+MV9NT0RFX0NPTlRST0xfMiwKLQkJCU1DMl9TUERfU1VTUF9DVFJMKTsKLQotCQkvKiBJUlEgd2ly
+ZWQgYXQgTTE0ICovCi0JCW9tYXBfY2ZnX3JlZyhNMTRfMTUxMF9HUElPMik7Ci0JCWlzcC0+aXJx
+ID0gT01BUF9HUElPX0lSUSgyKTsKLQkJaWYgKGdwaW9fcmVxdWVzdCgyLCAiaXNwMTMwMSIpID09
+IDApCi0JCQlncGlvX2RpcmVjdGlvbl9pbnB1dCgyKTsKLQkJaXNwLT5pcnFfdHlwZSA9IElSUUZf
+VFJJR0dFUl9GQUxMSU5HOwotCX0KLQotCWlzcC0+aXJxX3R5cGUgfD0gSVJRRl9TQU1QTEVfUkFO
+RE9NOwotCXN0YXR1cyA9IHJlcXVlc3RfaXJxKGlzcC0+aXJxLCBpc3AxMzAxX2lycSwKLQkJCWlz
+cC0+aXJxX3R5cGUsIERSSVZFUl9OQU1FLCBpc3ApOwotCWlmIChzdGF0dXMgPCAwKSB7Ci0JCWRl
+dl9kYmcoJmkyYy0+ZGV2LCAiY2FuJ3QgZ2V0IElSUSAlZCwgZXJyICVkXG4iLAotCQkJCWlzcC0+
+aXJxLCBzdGF0dXMpOworCWlmIChjbGllbnQtPmlycSA+IDApIHsKKwkJc3RhdHVzID0gcmVxdWVz
+dF9pcnEoY2xpZW50LT5pcnEsIGlzcDEzMDFfaXJxLAorCQkJCUlSUUZfU0FNUExFX1JBTkRPTSB8
+IElSUUZfVFJJR0dFUl9GQUxMSU5HLAorCQkJCURSSVZFUl9OQU1FLCBpc3ApOworCQlpZiAoc3Rh
+dHVzIDwgMCkgeworCQkJZGV2X2RiZygmY2xpZW50LT5kZXYsICJjYW4ndCBnZXQgSVJRICVkLCBl
+cnIgJWRcbiIsCisJCQkJCWNsaWVudC0+aXJxLCBzdGF0dXMpOwogI2lmZGVmCUNPTkZJR19VU0Jf
+T1RHCiBmYWlsMjoKICNlbmRpZgotCQlpMmNfZGV0YWNoX2NsaWVudChpMmMpOwotCQlnb3RvIGZh
+aWwxOworCQkJZ290byBmYWlsMTsKKwkJfQogCX0KIAotCWlzcC0+b3RnLmRldiA9ICZpc3AtPmNs
+aWVudC0+ZGV2OworCWlzcC0+b3RnLmRldiA9ICZjbGllbnQtPmRldjsKIAlpc3AtPm90Zy5sYWJl
+bCA9IERSSVZFUl9OQU1FOwogCiAJaXNwLT5vdGcuc2V0X2hvc3QgPSBpc3AxMzAxX3NldF9ob3N0
+LApAQCAtMTYwNywzMSArMTU1NCwyMyBAQCBmYWlsMjoKIAogI2lmZGVmCVZFUkJPU0UKIAltb2Rf
+dGltZXIoJmlzcC0+dGltZXIsIGppZmZpZXMgKyBUSU1FUl9KSUZGSUVTKTsKLQlkZXZfZGJnKCZp
+MmMtPmRldiwgInNjaGVkdWxlZCB0aW1lciwgJWQgbWluXG4iLCBUSU1FUl9NSU5VVEVTKTsKKwlk
+ZXZfZGJnKCZjbGllbnQtPmRldiwgInNjaGVkdWxlZCB0aW1lciwgJWQgbWluXG4iLCBUSU1FUl9N
+SU5VVEVTKTsKICNlbmRpZgogCiAJc3RhdHVzID0gb3RnX3NldF90cmFuc2NlaXZlcigmaXNwLT5v
+dGcpOwogCWlmIChzdGF0dXMgPCAwKQotCQlkZXZfZXJyKCZpMmMtPmRldiwgImNhbid0IHJlZ2lz
+dGVyIHRyYW5zY2VpdmVyLCAlZFxuIiwKKwkJZGV2X2VycigmY2xpZW50LT5kZXYsICJjYW4ndCBy
+ZWdpc3RlciB0cmFuc2NlaXZlciwgJWRcbiIsCiAJCQlzdGF0dXMpOwogCiAJcmV0dXJuIDA7CiB9
+CiAKLXN0YXRpYyBpbnQgaXNwMTMwMV9zY2FuX2J1cyhzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmJ1cykK
+LXsKLQlpZiAoIWkyY19jaGVja19mdW5jdGlvbmFsaXR5KGJ1cywgSTJDX0ZVTkNfU01CVVNfQllU
+RV9EQVRBCi0JCQl8IEkyQ19GVU5DX1NNQlVTX1JFQURfV09SRF9EQVRBKSkKLQkJcmV0dXJuIC1F
+SU5WQUw7Ci0JcmV0dXJuIGkyY19wcm9iZShidXMsICZhZGRyX2RhdGEsIGlzcDEzMDFfcHJvYmUp
+OwotfQotCiBzdGF0aWMgc3RydWN0IGkyY19kcml2ZXIgaXNwMTMwMV9kcml2ZXIgPSB7CiAJLmRy
+aXZlciA9IHsKIAkJLm5hbWUJPSAiaXNwMTMwMV9vbWFwIiwKIAl9LAotCS5hdHRhY2hfYWRhcHRl
+cgk9IGlzcDEzMDFfc2Nhbl9idXMsCi0JLmRldGFjaF9jbGllbnQJPSBpc3AxMzAxX2RldGFjaF9j
+bGllbnQsCisJLnByb2JlCT0gaXNwMTMwMV9wcm9iZSwKKwkucmVtb3ZlCT0gX19leGl0X3AoaXNw
+MTMwMV9yZW1vdmUpLAogfTsKIAogLyotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKi8KLS0gCjEuNS40LjM0Lmcw
+NTNkOQoK
+------=_Part_11773_19441648.1203929181825
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+------=_Part_11773_19441648.1203929181825--
