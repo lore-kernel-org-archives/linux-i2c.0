@@ -1,137 +1,393 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] video: limit stack usage of ir-kbd-i2c.c
-Date: Tue, 26 Feb 2008 13:32:22 +0100
-Message-ID: <20080226133222.7af260b2@hyperion.delvare>
-References: <20080225205055.GA27455@joi>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-dev: Split i2cdev_ioctl
+Date: Tue, 26 Feb 2008 15:27:14 +0100
+Message-ID: <20080226152714.41bb9fe8@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760077AbYBZMcg@vger.kernel.org>
-In-Reply-To: <20080225205055.GA27455@joi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marcin Slusarz <marcin.slusarz@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, i2c@lm-sensors.org, video4linux-list@redhat.com
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marcin,
+Split the handling of the I2C_RDWR and I2C_SMBUS ioctls to their own
+functions. This saves one level of indentation and makes the code more
+readable.
 
-On Mon, 25 Feb 2008 21:51:00 +0100, Marcin Slusarz wrote:
-> ir_probe allocated struct i2c_client on stack;
-> it's pretty big structure, so allocate it with kzalloc
-> 
-> make checkstack output without this patch:
-> x059d ir_probe [ir-kbd-i2c]:                           1000
-> 
-> compile tested only
-> 
-> Signed-off-by: Marcin Slusarz <marcin.slusarz@gmail.com>
-> Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-> Cc: Jean Delvare <khali@linux-fr.org>
-> ---
->  drivers/media/video/ir-kbd-i2c.c |   18 +++++++++++-------
->  1 files changed, 11 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
-> index 9851987..aec122f 100644
-> --- a/drivers/media/video/ir-kbd-i2c.c
-> +++ b/drivers/media/video/ir-kbd-i2c.c
-> @@ -510,9 +510,9 @@ static int ir_probe(struct i2c_adapter *adap)
->  	static const int probe_cx88[] = { 0x18, 0x6b, 0x71, -1 };
->  	static const int probe_cx23885[] = { 0x6b, -1 };
->  	const int *probe = NULL;
-> -	struct i2c_client c;
-> +	struct i2c_client *c;
->  	unsigned char buf;
-> -	int i,rc;
-> +	int i, rc;
->  
->  	switch (adap->id) {
->  	case I2C_HW_B_BT848:
-> @@ -537,19 +537,23 @@ static int ir_probe(struct i2c_adapter *adap)
->  	if (NULL == probe)
->  		return 0;
->  
-> -	memset(&c,0,sizeof(c));
-> -	c.adapter = adap;
-> +	c = kzalloc(sizeof(*c), GFP_KERNEL);
-> +	if (!c)
-> +		return -ENOMEM;
-> +
-> +	c->adapter = adap;
->  	for (i = 0; -1 != probe[i]; i++) {
-> -		c.addr = probe[i];
-> -		rc = i2c_master_recv(&c,&buf,0);
-> +		c->addr = probe[i];
-> +		rc = i2c_master_recv(c, &buf, 0);
->  		dprintk(1,"probe 0x%02x @ %s: %s\n",
->  			probe[i], adap->name,
->  			(0 == rc) ? "yes" : "no");
->  		if (0 == rc) {
-> -			ir_attach(adap,probe[i],0,0);
-> +			ir_attach(adap, probe[i], 0, 0);
->  			break;
->  		}
->  	}
-> +	kfree(c);
->  	return 0;
->  }
->  
+Originally I did this to limit the stack usage, however gcc cleverly
+inlines the split functions anyway so it doesn't help at all. Still, I
+think that the change is worth keeping for the increased readability.
 
-While this works, I'd rather change the code to call i2c_transfer()
-instead of i2c_master_recv(). i2c_transfer() is meant exactly for this
-case (no i2c_client at hand.) This solves the stack usage problem
-without requiring a temporary memory allocation:
-
-* * * * *
-
-Limit stack usage in ir_probe by calling i2c_transfer, which doesn't
-require a struct i2c_client, instead of i2c_master_recv which does.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/media/video/ir-kbd-i2c.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/i2c/i2c-dev.c |  327 +++++++++++++++++++++++++------------------------
+ 1 file changed, 167 insertions(+), 160 deletions(-)
 
---- linux-2.6.25-rc3.orig/drivers/media/video/ir-kbd-i2c.c	2008-02-26 11:35:51.000000000 +0100
-+++ linux-2.6.25-rc3/drivers/media/video/ir-kbd-i2c.c	2008-02-26 11:44:54.000000000 +0100
-@@ -510,8 +510,11 @@ static int ir_probe(struct i2c_adapter *
- 	static const int probe_cx88[] = { 0x18, 0x6b, 0x71, -1 };
- 	static const int probe_cx23885[] = { 0x6b, -1 };
- 	const int *probe = NULL;
--	struct i2c_client c;
--	unsigned char buf;
-+	struct i2c_msg msg = {
-+		.flags = I2C_M_RD,
-+		.len = 0,
-+		.buf = NULL,
-+	};
- 	int i,rc;
+--- linux-2.6.25-rc3.orig/drivers/i2c/i2c-dev.c	2008-02-26 14:36:23.000000000 +0100
++++ linux-2.6.25-rc3/drivers/i2c/i2c-dev.c	2008-02-26 14:41:28.000000000 +0100
+@@ -200,16 +200,176 @@ static int i2cdev_check_addr(struct i2c_
+ 	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
+ }
  
- 	switch (adap->id) {
-@@ -537,15 +540,13 @@ static int ir_probe(struct i2c_adapter *
- 	if (NULL == probe)
- 		return 0;
+-static int i2cdev_ioctl(struct inode *inode, struct file *file,
++static int i2cdev_ioctl_rdrw(struct i2c_client *client,
+ 		unsigned int cmd, unsigned long arg)
+ {
+-	struct i2c_client *client = (struct i2c_client *)file->private_data;
+ 	struct i2c_rdwr_ioctl_data rdwr_arg;
+-	struct i2c_smbus_ioctl_data data_arg;
+-	union i2c_smbus_data temp;
+ 	struct i2c_msg *rdwr_pa;
+ 	u8 __user **data_ptrs;
+-	int i,datasize,res;
++	int i, res;
++
++	if (copy_from_user(&rdwr_arg,
++			   (struct i2c_rdwr_ioctl_data __user *)arg,
++			   sizeof(rdwr_arg)))
++		return -EFAULT;
++
++	/* Put an arbitrary limit on the number of messages that can
++	 * be sent at once */
++	if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
++		return -EINVAL;
++
++	rdwr_pa = (struct i2c_msg *)
++		kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg),
++		GFP_KERNEL);
++	if (!rdwr_pa)
++		return -ENOMEM;
++
++	if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
++			   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
++		kfree(rdwr_pa);
++		return -EFAULT;
++	}
++
++	data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
++	if (data_ptrs == NULL) {
++		kfree(rdwr_pa);
++		return -ENOMEM;
++	}
++
++	res = 0;
++	for (i = 0; i < rdwr_arg.nmsgs; i++) {
++		/* Limit the size of the message to a sane amount;
++		 * and don't let length change either. */
++		if ((rdwr_pa[i].len > 8192) ||
++		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
++			res = -EINVAL;
++			break;
++		}
++		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
++		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
++		if (rdwr_pa[i].buf == NULL) {
++			res = -ENOMEM;
++			break;
++		}
++		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
++				   rdwr_pa[i].len)) {
++				++i; /* Needs to be kfreed too */
++				res = -EFAULT;
++			break;
++		}
++	}
++	if (res < 0) {
++		int j;
++		for (j = 0; j < i; ++j)
++			kfree(rdwr_pa[j].buf);
++		kfree(data_ptrs);
++		kfree(rdwr_pa);
++		return res;
++	}
++
++	res = i2c_transfer(client->adapter, rdwr_pa, rdwr_arg.nmsgs);
++	while (i-- > 0) {
++		if (res >= 0 && (rdwr_pa[i].flags & I2C_M_RD)) {
++			if (copy_to_user(data_ptrs[i], rdwr_pa[i].buf,
++					 rdwr_pa[i].len))
++				res = -EFAULT;
++		}
++		kfree(rdwr_pa[i].buf);
++	}
++	kfree(data_ptrs);
++	kfree(rdwr_pa);
++	return res;
++}
++
++static int i2cdev_ioctl_smbus(struct i2c_client *client,
++		unsigned int cmd, unsigned long arg)
++{
++	struct i2c_smbus_ioctl_data data_arg;
++	union i2c_smbus_data temp;
++	int datasize, res;
++
++	if (copy_from_user(&data_arg,
++			   (struct i2c_smbus_ioctl_data __user *) arg,
++			   sizeof(struct i2c_smbus_ioctl_data)))
++		return -EFAULT;
++	if ((data_arg.size != I2C_SMBUS_BYTE) &&
++	    (data_arg.size != I2C_SMBUS_QUICK) &&
++	    (data_arg.size != I2C_SMBUS_BYTE_DATA) &&
++	    (data_arg.size != I2C_SMBUS_WORD_DATA) &&
++	    (data_arg.size != I2C_SMBUS_PROC_CALL) &&
++	    (data_arg.size != I2C_SMBUS_BLOCK_DATA) &&
++	    (data_arg.size != I2C_SMBUS_I2C_BLOCK_BROKEN) &&
++	    (data_arg.size != I2C_SMBUS_I2C_BLOCK_DATA) &&
++	    (data_arg.size != I2C_SMBUS_BLOCK_PROC_CALL)) {
++		dev_dbg(&client->adapter->dev,
++			"size out of range (%x) in ioctl I2C_SMBUS.\n",
++			data_arg.size);
++		return -EINVAL;
++	}
++	/* Note that I2C_SMBUS_READ and I2C_SMBUS_WRITE are 0 and 1,
++	   so the check is valid if size==I2C_SMBUS_QUICK too. */
++	if ((data_arg.read_write != I2C_SMBUS_READ) &&
++	    (data_arg.read_write != I2C_SMBUS_WRITE)) {
++		dev_dbg(&client->adapter->dev,
++			"read_write out of range (%x) in ioctl I2C_SMBUS.\n",
++			data_arg.read_write);
++		return -EINVAL;
++	}
++
++	/* Note that command values are always valid! */
++
++	if ((data_arg.size == I2C_SMBUS_QUICK) ||
++	    ((data_arg.size == I2C_SMBUS_BYTE) &&
++	    (data_arg.read_write == I2C_SMBUS_WRITE)))
++		/* These are special: we do not use data */
++		return i2c_smbus_xfer(client->adapter, client->addr,
++				      client->flags, data_arg.read_write,
++				      data_arg.command, data_arg.size, NULL);
++
++	if (data_arg.data == NULL) {
++		dev_dbg(&client->adapter->dev,
++			"data is NULL pointer in ioctl I2C_SMBUS.\n");
++		return -EINVAL;
++	}
++
++	if ((data_arg.size == I2C_SMBUS_BYTE_DATA) ||
++	    (data_arg.size == I2C_SMBUS_BYTE))
++		datasize = sizeof(data_arg.data->byte);
++	else if ((data_arg.size == I2C_SMBUS_WORD_DATA) ||
++		 (data_arg.size == I2C_SMBUS_PROC_CALL))
++		datasize = sizeof(data_arg.data->word);
++	else /* size == smbus block, i2c block, or block proc. call */
++		datasize = sizeof(data_arg.data->block);
++
++	if ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
++	    (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
++	    (data_arg.size == I2C_SMBUS_I2C_BLOCK_DATA) ||
++	    (data_arg.read_write == I2C_SMBUS_WRITE)) {
++		if (copy_from_user(&temp, data_arg.data, datasize))
++			return -EFAULT;
++	}
++	if (data_arg.size == I2C_SMBUS_I2C_BLOCK_BROKEN) {
++		/* Convert old I2C block commands to the new
++		   convention. This preserves binary compatibility. */
++		data_arg.size = I2C_SMBUS_I2C_BLOCK_DATA;
++		if (data_arg.read_write == I2C_SMBUS_READ)
++			temp.block[0] = I2C_SMBUS_BLOCK_MAX;
++	}
++	res = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++	      data_arg.read_write, data_arg.command, data_arg.size, &temp);
++	if (!res && ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
++		     (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
++		     (data_arg.read_write == I2C_SMBUS_READ))) {
++		if (copy_to_user(data_arg.data, &temp, datasize))
++			return -EFAULT;
++	}
++	return res;
++}
++
++static int i2cdev_ioctl(struct inode *inode, struct file *file,
++		unsigned int cmd, unsigned long arg)
++{
++	struct i2c_client *client = (struct i2c_client *)file->private_data;
+ 	unsigned long funcs;
  
--	memset(&c,0,sizeof(c));
--	c.adapter = adap;
- 	for (i = 0; -1 != probe[i]; i++) {
--		c.addr = probe[i];
--		rc = i2c_master_recv(&c,&buf,0);
-+		msg.addr = probe[i];
-+		rc = i2c_transfer(adap, &msg, 1);
- 		dprintk(1,"probe 0x%02x @ %s: %s\n",
- 			probe[i], adap->name,
--			(0 == rc) ? "yes" : "no");
--		if (0 == rc) {
-+			(1 == rc) ? "yes" : "no");
-+		if (1 == rc) {
- 			ir_attach(adap,probe[i],0,0);
- 			break;
- 		}
+ 	dev_dbg(&client->adapter->dev, "ioctl, cmd=0x%02x, arg=0x%02lx\n",
+@@ -253,164 +413,11 @@ static int i2cdev_ioctl(struct inode *in
+ 		return put_user(funcs, (unsigned long __user *)arg);
+ 
+ 	case I2C_RDWR:
+-		if (copy_from_user(&rdwr_arg,
+-				   (struct i2c_rdwr_ioctl_data __user *)arg,
+-				   sizeof(rdwr_arg)))
+-			return -EFAULT;
+-
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
+-		if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
+-			return -EINVAL;
+-
+-		rdwr_pa = (struct i2c_msg *)
+-			kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg),
+-			GFP_KERNEL);
+-
+-		if (rdwr_pa == NULL) return -ENOMEM;
+-
+-		if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
+-				   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
+-			kfree(rdwr_pa);
+-			return -EFAULT;
+-		}
+-
+-		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
+-		if (data_ptrs == NULL) {
+-			kfree(rdwr_pa);
+-			return -ENOMEM;
+-		}
+-
+-		res = 0;
+-		for( i=0; i<rdwr_arg.nmsgs; i++ ) {
+-			/* Limit the size of the message to a sane amount;
+-			 * and don't let length change either. */
+-			if ((rdwr_pa[i].len > 8192) ||
+-			    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
+-				res = -EINVAL;
+-				break;
+-			}
+-			data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
+-			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
+-			if(rdwr_pa[i].buf == NULL) {
+-				res = -ENOMEM;
+-				break;
+-			}
+-			if(copy_from_user(rdwr_pa[i].buf,
+-				data_ptrs[i],
+-				rdwr_pa[i].len)) {
+-					++i; /* Needs to be kfreed too */
+-					res = -EFAULT;
+-				break;
+-			}
+-		}
+-		if (res < 0) {
+-			int j;
+-			for (j = 0; j < i; ++j)
+-				kfree(rdwr_pa[j].buf);
+-			kfree(data_ptrs);
+-			kfree(rdwr_pa);
+-			return res;
+-		}
+-
+-		res = i2c_transfer(client->adapter,
+-			rdwr_pa,
+-			rdwr_arg.nmsgs);
+-		while(i-- > 0) {
+-			if( res>=0 && (rdwr_pa[i].flags & I2C_M_RD)) {
+-				if(copy_to_user(
+-					data_ptrs[i],
+-					rdwr_pa[i].buf,
+-					rdwr_pa[i].len)) {
+-					res = -EFAULT;
+-				}
+-			}
+-			kfree(rdwr_pa[i].buf);
+-		}
+-		kfree(data_ptrs);
+-		kfree(rdwr_pa);
+-		return res;
++		return i2cdev_ioctl_rdrw(client, cmd, arg);
+ 
+ 	case I2C_SMBUS:
+-		if (copy_from_user(&data_arg,
+-		                   (struct i2c_smbus_ioctl_data __user *) arg,
+-		                   sizeof(struct i2c_smbus_ioctl_data)))
+-			return -EFAULT;
+-		if ((data_arg.size != I2C_SMBUS_BYTE) &&
+-		    (data_arg.size != I2C_SMBUS_QUICK) &&
+-		    (data_arg.size != I2C_SMBUS_BYTE_DATA) &&
+-		    (data_arg.size != I2C_SMBUS_WORD_DATA) &&
+-		    (data_arg.size != I2C_SMBUS_PROC_CALL) &&
+-		    (data_arg.size != I2C_SMBUS_BLOCK_DATA) &&
+-		    (data_arg.size != I2C_SMBUS_I2C_BLOCK_BROKEN) &&
+-		    (data_arg.size != I2C_SMBUS_I2C_BLOCK_DATA) &&
+-		    (data_arg.size != I2C_SMBUS_BLOCK_PROC_CALL)) {
+-			dev_dbg(&client->adapter->dev,
+-				"size out of range (%x) in ioctl I2C_SMBUS.\n",
+-				data_arg.size);
+-			return -EINVAL;
+-		}
+-		/* Note that I2C_SMBUS_READ and I2C_SMBUS_WRITE are 0 and 1,
+-		   so the check is valid if size==I2C_SMBUS_QUICK too. */
+-		if ((data_arg.read_write != I2C_SMBUS_READ) &&
+-		    (data_arg.read_write != I2C_SMBUS_WRITE)) {
+-			dev_dbg(&client->adapter->dev,
+-				"read_write out of range (%x) in ioctl I2C_SMBUS.\n",
+-				data_arg.read_write);
+-			return -EINVAL;
+-		}
+-
+-		/* Note that command values are always valid! */
+-
+-		if ((data_arg.size == I2C_SMBUS_QUICK) ||
+-		    ((data_arg.size == I2C_SMBUS_BYTE) &&
+-		    (data_arg.read_write == I2C_SMBUS_WRITE)))
+-			/* These are special: we do not use data */
+-			return i2c_smbus_xfer(client->adapter, client->addr,
+-					      client->flags,
+-					      data_arg.read_write,
+-					      data_arg.command,
+-					      data_arg.size, NULL);
+-
+-		if (data_arg.data == NULL) {
+-			dev_dbg(&client->adapter->dev,
+-				"data is NULL pointer in ioctl I2C_SMBUS.\n");
+-			return -EINVAL;
+-		}
++		return i2cdev_ioctl_smbus(client, cmd, arg);
+ 
+-		if ((data_arg.size == I2C_SMBUS_BYTE_DATA) ||
+-		    (data_arg.size == I2C_SMBUS_BYTE))
+-			datasize = sizeof(data_arg.data->byte);
+-		else if ((data_arg.size == I2C_SMBUS_WORD_DATA) ||
+-		         (data_arg.size == I2C_SMBUS_PROC_CALL))
+-			datasize = sizeof(data_arg.data->word);
+-		else /* size == smbus block, i2c block, or block proc. call */
+-			datasize = sizeof(data_arg.data->block);
+-
+-		if ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
+-		    (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
+-		    (data_arg.size == I2C_SMBUS_I2C_BLOCK_DATA) ||
+-		    (data_arg.read_write == I2C_SMBUS_WRITE)) {
+-			if (copy_from_user(&temp, data_arg.data, datasize))
+-				return -EFAULT;
+-		}
+-		if (data_arg.size == I2C_SMBUS_I2C_BLOCK_BROKEN) {
+-			/* Convert old I2C block commands to the new
+-			   convention. This preserves binary compatibility. */
+-			data_arg.size = I2C_SMBUS_I2C_BLOCK_DATA;
+-			if (data_arg.read_write == I2C_SMBUS_READ)
+-				temp.block[0] = I2C_SMBUS_BLOCK_MAX;
+-		}
+-		res = i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-		      data_arg.read_write,
+-		      data_arg.command,data_arg.size,&temp);
+-		if (! res && ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
+-		              (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
+-			      (data_arg.read_write == I2C_SMBUS_READ))) {
+-			if (copy_to_user(data_arg.data, &temp, datasize))
+-				return -EFAULT;
+-		}
+-		return res;
+ 	case I2C_RETRIES:
+ 		client->adapter->retries = arg;
+ 		break;
 
-
-Built-tested, I've also tested loading the ir-kbd-i2c driver on an
-unsupported cx88 adapter. Review and more testing welcome.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
