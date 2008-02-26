@@ -1,130 +1,68 @@
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-Subject: Re: [i2c] [RFC PATCH] I2C bus driver for SH7760 SoC, #2
-Date: Tue, 26 Feb 2008 08:23:30 +0100
-Message-ID: <20080226072330.GB14289@roarinelk.homelinux.net>
-References: <20071105172313.GB17951@roarinelk.homelinux.net>
-	<20080223171513.678f04d0@hyperion.delvare>
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
+	updates, part 2
+Date: Tue, 26 Feb 2008 11:22:12 +0200
+Message-ID: <31e679430802260122xc30356ayd98fc3c079e613b7@mail.gmail.com>
+References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
+	<31e679430802240305o62ec88a9jfcc54f0a3be658ff@mail.gmail.com>
+	<31e679430802250046h4df04aa0y6a32005e6d791e65@mail.gmail.com>
+	<200802252138.30301.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxsh-dev-bounces@lists.sourceforge.net>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200802252138.30301.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080223171513.678f04d0@hyperion.delvare>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxsh-dev>,
-	<mailto:linuxsh-dev-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxsh-dev>
-List-Post: <mailto:linuxsh-dev@lists.sourceforge.net>
-List-Help: <mailto:linuxsh-dev-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxsh-dev>,
-	<mailto:linuxsh-dev-request@lists.sourceforge.net?subject=subscribe>
-Sender: linuxsh-dev-bounces@lists.sourceforge.net
-Errors-To: linuxsh-dev-bounces@lists.sourceforge.net
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linuxsh-dev@lists.sf.net, i2c@lm-sensors.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+On Tue, Feb 26, 2008 at 7:38 AM, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
+> On Monday 25 February 2008, Felipe Balbi wrote:
+>  > Jean, I'm thinking about introducing include/asm/arch/isp1301.h
+>
+>  Or maybe isp1301_omap.h to match the driver name.
+>
+>
+>
+>  > so I
+>  > can introduce struct isp1301_platform_data to pass irq_flags to the
+>  > driver.
+>
+>  Passing irq_flags???  That sounds like nonsense.  Please explain ...
 
-Thanks for looking at it.
+request_irq was using different irq flags depending on the board, so
+instead of keeping if (machine_is_*) in the driver just because of irq
+flags we could bring it from a platform_data.
 
-> > +
-> > +/* NOTE: SMBus QUICK Probe feature is "emulated" by reading 1 byte from
-> > + *	 the slave address, because the SH7760 I2C cannot be programmed
-> > + *	 to send a stop immediately after receiving the slave ACK/NACK.
-> > + *	 If this behavior is not wanted, set platform_data.noquick to 1.
-> > + */
-> 
-> This is not acceptable. This will have to be removed from the driver if
-> you want me to take it upstream. The SMBus quick command should no
-> longer be needed anyway with the advent of new-style i2c chip drivers.
+>
+>
+>  By the way, I see why there's no board-h2.c update.  One of
+>  the patches in December stripped out most of the tps65010
+>  i2c_board info from mainline, replacing some of it with
+>  isp1301 stuff ... that can't possibly work in mainline.
+>
+>  So there are going to be some H2 and H3 regression-fix
+>  patches upcoming...
 
-I wrote that driver for 2.6.12 initially, and it was completely useless
-without this hack.  I'm working on implementing zero-byte transfers in a
-saner way, but the hardware gives me headaches...
- 
+that's true...
 
-> > +	OUT32(id, I2CMSR, 0);
-> > +	if (id->msg->flags & I2C_M_NOSTART)
-> 
-> Do you actually need this? Is there any chip that is connected to this
-> bus in practice which needs this flag? Implementing this feature is
-> totally optional and should only be done when really needed (this is a
-> violation of the I2C standard.)
+-- 
+Best Regards,
 
-The i2c header had this define in it, so I implemented it.  I thought
-it was pretty useful when splitting an i2c transaction into multiple
-i2c_msgs.  Consider it gone.
+Felipe Balbi
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 
- 
-> > +	if (id->msg->flags & I2C_M_NOSTART)
-> 
-> Ditto.
-
-see above.
-
-
-> > +
-> > +	if (sh7760_i2c_busy_check(id)) {
-> > +		pr_debug("sh7760-i2c%d: bus is busy!\n", adap->nr);
-> 
-> Please use dev_dbg() instead. Or even better dev_err(), as you return
-> with an error, the user will want to know.
-
-done.
-
-
-> > +			if (msg->flags & I2C_M_REV_DIR_ADDR)
-> > +				addr ^= 1;
-> 
-> Again, do you actually need this? If not, please don't implement it.
-
-see above.
-
- 
-> > +	for (cdf = 3; cdf >= 0; cdf--) {
-> > +		iclk = mck / (1 + cdf);
-> > +		/* iclk must not be > 20MHz */
-> > +		if (iclk >= 20000000)
-> 
-> > or >=?
-> 
-> > +			continue;
-> > +		for (scgd = 0; scgd < 63; scgd++) {
-> > +			m1 = iclk / (20 + (scgd << 3));
-> > +			dff = abs(scl_hz - m1);
-> > +			if (dff < odff) {
-> > +				odff = dff;
-> > +				cdfm = cdf;
-> > +				scgdm = scgd;
-> > +			}
-> > +		}
-> > +	}
-> 
-> These imbricated loops don't look exactly optimal. Is there no way to
-> compute the right value right away?
-
-I'm open to suggestions. I just wanted to support (almost) every conceivable
-scl clock and module clock.
-
-> > +	printk(KERN_INFO "SH7760 I2C-%d, %d kHz, mmio %08x, irq %d\n",
-> > +		id->adap.nr, pd->speed_khz, res->start, id->irq);
-> 
-> Use dev_info (and you will no longer need to print id->adap.nr).
-
-Oh, neat!
- 
-
-I'll resend once I've managed to get zero-byte transfers working without
-ugly hacks.
-
-Best regards,
-	Manuel Lauss
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2008.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
 _______________________________________________
-linuxsh-dev mailing list
-linuxsh-dev@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/linuxsh-dev
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
