@@ -1,72 +1,47 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH] video: limit stack usage of ir-kbd-i2c.c
-Date: Wed, 27 Feb 2008 07:33:07 -0300
-Message-ID: <20080227073307.2ed6dc3d@areia>
-References: <20080225205055.GA27455@joi>
-	<20080226133222.7af260b2@hyperion.delvare>
-	<20080226210307.GA6085@joi>
-	<20080226232320.2df756d6@hyperion.delvare>
-	<20080227102309.GA6698@joi>
+From: Adrian Bunk <bunk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [2.6 patch] i2c-amd756.c: fix off-by-one
+Date: Wed, 27 Feb 2008 23:21:09 +0200
+Message-ID: <20080227212108.GR29269@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756857AbYB0KeV@vger.kernel.org>
-In-Reply-To: <20080227102309.GA6698@joi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marcin Slusarz <marcin.slusarz@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org, video4linux-list@redhat.com
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 27 Feb 2008 11:23:26 +0100
-Marcin Slusarz <marcin.slusarz@gmail.com> wrote:
+This patch fixes an off-by-one error spotted by the Coverity checker.
 
-> On Tue, Feb 26, 2008 at 11:23:20PM +0100, Jean Delvare wrote:
-> > Hi Marcin,
-> Hi
->  
-> > On Tue, 26 Feb 2008 22:03:16 +0100, Marcin Slusarz wrote:
-> > > Do you have an idea (or patch :D) how to solve this:
-> > > 0x00000234 v4l_compat_translate_ioctl [v4l1-compat]:    1376
-> > > ? That's on top of my make checkstack output
-> > 
-> > Random ideas (but I am in no way a specialist of this exercise):
-> > 
-> > * You could try moving the structures to the blocks where they are used,
-> > in the case a given structure is used for only one ioctl. I'm not too
-> > sure how gcc handles local variables declared inside blocks with
-> > regards to stack reservation though. I thought it would work but my
-> > experiments today seem to suggest it doesn't.
-> That won't work. Variables at beginning of function take only ~600 bytes,
-> so the rest must be from inner blocks and inlines (probably).
-> 
-> > * You can move the handling of some ioctls to dedicated functions, just
-> > like I did in i2c-dev:
-> > http://lists.lm-sensors.org/pipermail/i2c/2008-February/003010.html
-> > However there is a risk that gcc will inline these functions (that's
-> > what happened to me...) Not sure how to prevent gcc from inlining.
-> There's "noinline" attribute in linux/compiler.h (compiler-gcc.h actually)
-> for these situations.
->  
-> > * You can allocate the structures dynamically, as you originally wanted
-> > to do for ir-kbd-i2c. However this has a performance penalty and will
-> > fragment the memory, so it's not ideal.
-> > 
-> > * If each ioctl uses only one of the structures, you may define a union
-> > of all the structures. The size of the union will be the size of the
-> > biggest structure, so you save a lot of space on the stack.
-> Nice idea.
-> 
-> I'll try 2nd and 4th approaches.
+Signed-off-by: Adrian Bunk <bunk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-The union will probably solve. This function is very complex, since it needs to
-deal with almost all v4l1 v4l2 ioctls (about 80-90). Splitting into small
-functions might help, but probably, gcc will create the functions as inline.
+---
+f9829dd0d7dad9cbc08da3fceb105478e85c4137 foobar
+diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
+index 573abe4..2fa4318 100644
+--- a/drivers/i2c/busses/i2c-amd756.c
++++ b/drivers/i2c/busses/i2c-amd756.c
+@@ -335,7 +335,7 @@ static int __devinit amd756_probe(struct pci_dev *pdev,
+ 	u8 temp;
+ 	
+ 	/* driver_data might come from user-space, so check it */
+-	if (id->driver_data > ARRAY_SIZE(chipname))
++	if (id->driver_data >= ARRAY_SIZE(chipname))
+ 		return -EINVAL;
+ 
+ 	if (amd756_ioport) {
 
 
-> 
-> Marcin Slusarz
-
-
-
-Cheers,
-Mauro
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
