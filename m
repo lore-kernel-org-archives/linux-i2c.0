@@ -1,13 +1,20 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] I2C bus driver for SH7760 SoC, #3
-Date: Thu, 28 Feb 2008 21:43:08 +0100
-Message-ID: <20080228214308.56123f61@hyperion.delvare>
-References: <20080228133330.GA3288@roarinelk.homelinux.net>
+Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
+ updates, part 2
+Date: Thu, 28 Feb 2008 22:50:32 +0100
+Message-ID: <20080228225032.61f07a18@hyperion.delvare>
+References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
+	<200802231010.40108.david-b@pacbell.net>
+	<20080223202832.4a953910@hyperion.delvare>
+	<200802231153.04011.david-b@pacbell.net>
+	<20080224103052.66da6803@hyperion.delvare>
+	<31e679430802240305o62ec88a9jfcc54f0a3be658ff@mail.gmail.com>
+	<31e679430802250046h4df04aa0y6a32005e6d791e65@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080228133330.GA3288-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
+In-Reply-To: <31e679430802250046h4df04aa0y6a32005e6d791e65-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,163 +24,20 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Manuel,
+Hi Felipe,
 
-On Thu, 28 Feb 2008 14:33:30 +0100, Manuel Lauss wrote:
-> Good Day,
-> 
-> Version 3 of the SH7760 I2C master driver.
-> 
-> Changes V2->V3:
-> 	- removed the SMBUS quick emulation hack.
-> 	- implemented Jean Delvare's suggestions.
-> 
-> Changes V1->V2:
-> 	- implement Paul Mundt'S suggestions.
-> 
-> Comments, flames, welcome!
-> 
-> Thanks,
-> 	Manuel Lauss
-> 
-> --- 
-> 
-> >From c7cf5ec922e59e54275fe9977c14399a8ff79114 Mon Sep 17 00:00:00 2001
-> From: Manuel Lauss <mlau-XXGV8rIhxyHQT0dZR+AlfA@public.gmane.org>
-> Date: Thu, 28 Feb 2008 14:24:29 +0100
-> Subject: [PATCH] Renesas SH7760 I2C master driver
-> 
-> Driver for I2C interfaces in master mode on SH7760.
-> 
-> Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig      |    9 +
->  drivers/i2c/busses/Makefile     |    1 +
->  drivers/i2c/busses/i2c-sh7760.c |  578 +++++++++++++++++++++++++++++++++++++++
->  include/asm-sh/i2c-sh7760.h     |   22 ++
->  4 files changed, 610 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-sh7760.c
->  create mode 100644 include/asm-sh/i2c-sh7760.h
+On Mon, 25 Feb 2008 10:46:21 +0200, Felipe Balbi wrote:
+> Jean, I'm thinking about introducing include/asm/arch/isp1301.h so I
+> can introduce struct isp1301_platform_data to pass irq_flags to the
+> driver.
+> What do you think ?
 
-Thanks for the quick update. I've added your patch to my i2c tree. I've
-only changed one thing:
-
-> +static int __devinit sh7760_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct sh7760_i2c_platdata *pd;
-> +	struct resource *res;
-> +	struct cami2c *id;
-> +	int ret;
-> +
-> +	pd = pdev->dev.platform_data;
-> +	if (!pd) {
-> +		dev_err(&pdev->dev, "no platform_data!\n");
-> +		ret = -ENODEV;
-> +		goto out0;
-> +	}
-> +
-> +	id = kzalloc(sizeof(struct cami2c), GFP_KERNEL);
-> +	if (!id) {
-> +		dev_err(&pdev->dev, "no mem for private data\n");
-> +		ret = -ENOMEM;
-> +		goto out0;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "no mmio resources\n");
-> +		ret = -ENODEV;
-> +		goto out1;
-> +	}
-> +
-> +	id->ioarea = request_mem_region(res->start, REGSIZE, pdev->name);
-> +	if (!id->ioarea) {
-> +		dev_err(&pdev->dev, "mmio already reserved\n");
-> +		ret = -EBUSY;
-> +		goto out1;
-> +	}
-> +
-> +	id->iobase = ioremap(res->start, REGSIZE);
-> +	if (!id->iobase) {
-> +		dev_err(&pdev->dev, "cannot ioremap\n");
-> +		ret = -ENODEV;
-> +		goto out2;
-> +	}
-> +
-> +	id->irq = platform_get_irq(pdev, 0);
-> +
-> +	id->adap.nr = pdev->id;
-> +	id->adap.algo = &sh7760_i2c_algo;
-> +	id->adap.class = I2C_CLASS_ALL;
-> +	id->adap.retries = 3;
-> +	id->adap.algo_data = id;
-> +	id->adap.dev.parent = &pdev->dev;
-> +	strcpy(id->adap.name, SH7760_I2C_DEVNAME);
-> +	snprintf(id->adap.name, sizeof(id->adap.name),
-> +		"SH7760 I2C at %08lx", (unsigned long)res->start);
-
-Obviously the strcpy is superfluous.
-
-> +
-> +	OUT32(id, I2CMCR, 0);
-> +	OUT32(id, I2CMSR, 0);
-> +	OUT32(id, I2CMIER, 0);
-> +	OUT32(id, I2CMAR, 0);
-> +	OUT32(id, I2CSIER, 0);
-> +	OUT32(id, I2CSAR, 0);
-> +	OUT32(id, I2CSCR, 0);
-> +	OUT32(id, I2CSSR, 0);
-> +	OUT32(id, I2CFIER, 0);
-> +	OUT32(id, I2CFCR, FCR_RFRST | FCR_TFRST);
-> +	OUT32(id, I2CFSR, 0);
-> +
-> +	ret = calc_CCR(pd->speed_khz * 1000);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "invalid SCL clock: %dkHz\n",
-> +			pd->speed_khz);
-> +		goto out3;
-> +	}
-> +	OUT32(id, I2CCCR, ret);
-> +
-> +	if (request_irq(id->irq, sh7760_i2c_irq, IRQF_DISABLED,
-> +			SH7760_I2C_DEVNAME, id)) {
-> +		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
-> +		ret = -EBUSY;
-> +		goto out3;
-> +	}
-> +
-> +	ret = i2c_add_numbered_adapter(&id->adap);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "reg adap failed: %d\n", ret);
-> +		goto out4;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, id);
-> +
-> +	dev_info(&pdev->dev, "%d kHz mmio %08x irq %d\n",
-> +		 pd->speed_khz, res->start, id->irq);
-> +
-> +	return 0;
-> +
-> +out4:
-> +	free_irq(id->irq, id);
-> +out3:
-> +	iounmap(id->iobase);
-> +out2:
-> +	release_resource(id->ioarea);
-> +	kfree(id->ioarea);
-> +out1:
-> +	kfree(id);
-> +out0:
-> +	return ret;
-> +}
-
-The rest looks alright now. No need to resend, I've fixed the above
-myself.
+This would rather be include/linux/i2c/isp1301_omap.h, now that we have
+created this directory.
 
 -- 
 Jean Delvare
