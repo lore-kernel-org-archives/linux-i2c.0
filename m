@@ -1,48 +1,44 @@
-From: Frederick Williams <fred_williams1957-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
-Subject: I NEED TO HEAR FROM YOU TODAY!!
-Date: Thu, 28 Feb 2008 19:31:38 +0000
-Message-ID: <E1JUoTi-0006he-MS@billing.lastdigital.net>
-Reply-To: fred_williams1957-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [2.6 patch] i2c-amd756.c: fix off-by-one
+Date: Thu, 28 Feb 2008 21:05:42 +0100
+Message-ID: <20080228210542.1c774c28@hyperion.delvare>
+References: <20080227212108.GR29269@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763850AbYB1UGD@vger.kernel.org>
+In-Reply-To: <20080227212108.GR29269@cs181133002.pp.htv.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Good Day ,
- 
-My Name is Frederick Williams, the Manager of reputable bank here in London. Pardon me if the email does not conform to your moral standards, I do not know you and you do not know me but for reasons which will become obvious to you as you read on, I obtained Your email address from an Internet address listing hoping and Believing God that you will be trustworthy, reliable and willing to assist Me.
-Please Sir exercise some patience while you read through my message. I would like to strike a business deal with you if you would approve and consider it.
-There was a Non Resident Account opened in my Branch and for the past  6 years, this account has been dormant without operation for over 4 years and at the same time nobody has come to claim the money in the
-account. 
-This made me to trace the source and origin of the funds and the beneficiary status starting since the year 2005 and today I have gathered every report confirming that the account owner was a Top Oil merchant in his country and now have passed away five years ago leaving  no legal inheritance instructions on the account.
-On enquiries no family members exist and no one knows of the existence of this account and money because the account was opened with a  different name in order to maintain the privacy of the account in question.
-On this note, this account will be converted into the bank treasury by the end of the last quarter of this year if no one comes forward for the claiming of the funds.
-Therefore, I come to you to know if you will agree to this offer so that I will present you officially as the legal Next of Kin/beneficiary  to claim the funds while official documents will be processed/secured and prepared by an attorney here in England to support our claims. This is a straight and legitimate deal without any risk
-attached/associated with it as long as it will prosecuted legally and official according and within the precepts of the monetary policies of the British Government. 
-Our sharing ratio will be 50:50 incase you are interested.
-Please confirm your
- direct telephone numbers, 
-full name and address for
-further discussion of this offer in details.
-Regards,
-Frederick Williams.
+Hi Adrian,
 
+On Wed, 27 Feb 2008 23:21:09 +0200, Adrian Bunk wrote:
+> This patch fixes an off-by-one error spotted by the Coverity checker.
+> 
+> Signed-off-by: Adrian Bunk <bunk@kernel.org>
+> 
+> ---
+> f9829dd0d7dad9cbc08da3fceb105478e85c4137 foobar
+> diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
+> index 573abe4..2fa4318 100644
+> --- a/drivers/i2c/busses/i2c-amd756.c
+> +++ b/drivers/i2c/busses/i2c-amd756.c
+> @@ -335,7 +335,7 @@ static int __devinit amd756_probe(struct pci_dev *pdev,
+>  	u8 temp;
+>  	
+>  	/* driver_data might come from user-space, so check it */
+> -	if (id->driver_data > ARRAY_SIZE(chipname))
+> +	if (id->driver_data >= ARRAY_SIZE(chipname))
+>  		return -EINVAL;
+>  
+>  	if (amd756_ioport) {
+> 
 
+Good catch, not sure how I managed to mess it up that way. Patch
+applied, thank you.
 
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Jean Delvare
