@@ -1,13 +1,13 @@
 From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: [PATCH] More DDR2 data for decode-dimms.pl
-Date: Thu, 28 Feb 2008 14:19:02 -0800 (PST)
-Message-ID: <Pine.LNX.4.58.0802281401020.14140__1550.62051858312$1205699514$gmane$org@shell4.speakeasy.net>
+Subject: [PATCH] Read SPD data from a hexdump
+Date: Thu, 28 Feb 2008 14:19:11 -0800 (PST)
+Message-ID: <Pine.LNX.4.58.0802281405040.14140__39095.4213486568$1205699573$gmane$org@shell4.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 ReSent-To: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-ReSent-Message-ID: <Pine.LNX.4.58.0803161329010.20723-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
+ReSent-Message-ID: <Pine.LNX.4.58.0803161329270.20723-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,152 +20,151 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This lets decode-dimms.pl decode almost all of the SPD data for DDR2 dimms.
-Including all the detailed timing parameters with their standard tXXX
-names, useful if one is trying to program a DDR memory controller for
-example.
+This adds a "-x" option to decode_dimms.pl, which lets one supply a list of
+file names to read SPD data from.  It can parse various hexdump formats,
+such as the output from i2cdump and the util-linux and Busybox hexdump
+progams run on a sysfs eeprom file.
 
+Useful for decoding SPD data that you cut and pasted from a manufacturer's
+website or from a DIMM installed on an embeded system that does not have
+perl/etc, but does have a serial console with busybox.
 
-Index: decode-dimms.pl
-===================================================================
---- i2c-tools/eeprom/decode-dimms.pl	(revision 5132)
-+++ i2c-tools/eeprom/decode-dimms.pl	(working copy)
-@@ -834,6 +834,20 @@
- 	return $atime;
+--- i2c-tools/eeprom/decode-dimms.pl.orig	2008-02-28 13:45:43.000000000 -0800
++++ i2c-tools/eeprom/decode-dimms.pl	2008-02-28 13:46:03.000000000 -0800
+@@ -46,7 +46,7 @@
+ use strict;
+ use POSIX;
+ use Fcntl qw(:DEFAULT :seek);
+-use vars qw($opt_html $opt_body $opt_bodyonly $opt_igncheck $use_sysfs
++use vars qw($opt_html $opt_body $opt_bodyonly $opt_igncheck $use_sysfs $use_hexdump
+ 	    @vendors %decode_callback $revision);
+
+ $revision = '$Revision: 5089 $ ($Date: 2008-01-04 08:34:36 -0800 (Fri, 04 Jan 2008) $)';
+@@ -1084,7 +1084,38 @@
+ sub readspd64 ($$) { # reads 64 bytes from SPD-EEPROM
+ 	my ($offset, $dimm_i) = @_;
+ 	my @bytes;
+-	if ($use_sysfs) {
++	if ($use_hexdump) {
++	    my $addr = 0;
++	    my $repstart = 0;
++	    open F, '<', "$dimm_i" or die;
++	    while(<F>) {
++		chomp;
++		if(/^\*$/) {
++		    $repstart = $addr;
++		    next;
++		}
++		/^([a-fA-F\d]{2,7}):? ((:?[a-fA-F\d]{4}\s*){8}|(:?[a-fA-F\d]{2}\s*){16})/ ||
++		/^([a-fA-F\d]{2,7}):?\s*$/ or die "Can't parse data";
++		$addr = hex $1;
++		if ($repstart) {
++		    @bytes[$repstart .. ($addr-1)] = ($bytes[$repstart-1]) x ($addr-$repstart);
++		    $repstart = 0;
++		}
++		last unless defined $2;
++		foreach (split(/\s+/, $2)) {
++		    if(/^(..)(..)$/) {
++			$bytes[$addr++] = hex($1);
++			$bytes[$addr++] = hex($2);
++		    } elsif(/^(..)$/) {
++			$bytes[$addr++] = hex($1);
++		    } else {
++			print "Can't parse hex word '$_'\n";
++		    }
++		}
++	    }
++	    close F;
++	    return @bytes[$offset..($offset+63)];
++	} elsif ($use_sysfs) {
+ 		# Kernel 2.6 with sysfs
+ 		sysopen(HANDLE, "/sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom", O_RDONLY)
+ 			or die "Cannot open /sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom";
+@@ -1103,20 +1134,25 @@
+ 	return @bytes;
  }
 
-+sub ddrx_sdram_rtime($$$)
-+{
-+	my ($t, $b1, $b2) = @_;
-+	my $rtime = $b1;
-+	if($t == 2) {
-+		$rtime += ($b2 & 1) * 256;
-+		my @table = (0, .250, .330, .500, .660, .750);
-+		$rtime += $table[($b2>>1)&7];
++my @dimm_list;
++
+ for (@ARGV) {
+     if (/-h/) {
+-		print "Usage: $0 [-c] [-f [-b]]\n",
++		print "Usage: $0 [-c] [-f [-b]] [-x file [files..]]\n",
+ 			"       $0 -h\n\n",
+ 			"  -f, --format            print nice html output\n",
+ 			"  -b, --bodyonly          don't print html header\n",
+ 			"                          (useful for postprocessing the output)\n",
+ 			"  -c, --checksum          decode completely even if checksum fails\n",
++			"  -x,                     Read data from hexdump files\n",
+ 			"  -h, --help              display this usage summary\n";
+ 		exit;
+     }
+     $opt_html = 1 if (/-f/);
+     $opt_bodyonly = 1 if (/-b/);
+     $opt_igncheck = 1 if (/-c/);
++    $use_hexdump = 1 if(/-x/);
++    push @dimm_list, $_ if($use_hexdump && !/^-[fbcx]$/);
+ }
+ $opt_body = $opt_html && ! $opt_bodyonly;
+
+@@ -1136,21 +1172,24 @@
+
+
+ my $dimm_count=0;
+-my @dimm_list;
+ my $dir;
+-if ($use_sysfs) { $dir = '/sys/bus/i2c/drivers/eeprom'; }
+-else { $dir = '/proc/sys/dev/sensors'; }
+-if (-d $dir) {
+-	@dimm_list = split(/\s+/, `ls $dir`);
+-} elsif (! -d '/sys/module/eeprom') {
+-	print "No EEPROM found, are you sure the eeprom module is loaded?\n";
+-	exit;
++
++if (!$use_hexdump) {
++	if ($use_sysfs) { $dir = '/sys/bus/i2c/drivers/eeprom'; }
++	else { $dir = '/proc/sys/dev/sensors'; }
++	if (-d $dir) {
++		@dimm_list = split(/\s+/, `ls $dir`);
++	} elsif (! -d '/sys/module/eeprom') {
++		print "No EEPROM found, are you sure the eeprom module is loaded?\n";
++		exit;
 +	}
-+	return $rtime;
-+}
-+
-+sub tns($) { return sprintf("%3.2f ns", $_[0]); }
-+
- # Parameter: bytes 0-63
- sub decode_ddr2_sdram($)
- {
-@@ -875,6 +889,40 @@
- 				       $bytes->[5] . "," . $bytes->[17];
- 	}
-
-+	printl "Banks x Rows x Columns x Bits",
-+	       join(' x ', $bytes->[17], $bytes->[3], $bytes->[4], $bytes->[6]);
-+	printl "Ranks", ($bytes->[5]&7) + 1;
-+
-+	printl "SDRAM Device Width", $bytes->[13]." bits";
-+
-+	my @heights = ("< 25.4", "25.4", "25.4 - 30.0", "30.0", "30.5", "> 30.5");
-+	printl "Module Height", $heights[$bytes->[5]>>5]." mm";
-+	my @types = ("RDIMM", "UDIMM", "SO-DIMM", "Micro-DIMM",
-+		     "Mini-RDIMM", "Mini-UDIMM");
-+	my @widths = (133.35, 133.25, 67.6, 45.5, 82.0, 82.0);
-+	my @suptypes;
-+	foreach $ii (0..5) {
-+		push @suptypes, "$types[$ii] ($widths[$ii] mm)"
-+			if($bytes->[20] & (1<<$ii));
-+	}
-+	printl "Module Type".(@suptypes>1?'s':''),  join(', ', @suptypes);
-+	printl "DRAM Package", $bytes->[5]&0x10 ? "Stack" : "Planar";
-+
-+	my @volts = ("TTL/5V Tolerant", "LVTTL", "HSTL 1.5V",
-+		     "SSTL 3.3V", "SSTL 2.5V", "SSTL 1.8V", "TBD");
-+	printl "Voltage Interface Level", $volts[$bytes->[8]];
-+
-+	my @refresh = qw(Normal Reduced Reduced Extended Extended Extended);
-+	my @refresht = (15.625,3.9,7.8,31.3,62.5,125);
-+	printl "Refresh Rate",
-+	       "$refresh[$bytes->[12]&0x7f] ($refresht[$bytes->[12]&0x7f] us)".
-+	       ($bytes->[12]&0x80 ? " - Self Refresh" : "");
-+
-+	my @burst;
-+	push @burst, 4 if ($bytes->[16] & 4);
-+	push @burst, 8 if ($bytes->[16] & 8);
-+	printl "Burst lengths supported", join(', ', @burst);
-+
- 	my $highestCAS = 0;
- 	my %cas;
- 	for ($ii = 2; $ii < 7; $ii++) {
-@@ -899,31 +947,59 @@
- 		ceil($tras/$ctime);
-
- # latencies
--	if (keys %cas) { $temp = join ', ', sort { $b <=> $a } keys %cas; }
-+	if (keys %cas) { $temp = join ', ', map("${_}T",sort { $b <=> $a } keys %cas); }
- 	else { $temp = "None"; }
--	printl "Supported CAS Latencies", $temp;
-+	printl "Supported CAS Latencies (tCL)", $temp;
-
- # timings
- 	if (exists $cas{$highestCAS}) {
--		printl "Minimum Cycle Time (CAS $highestCAS)",
--		       "$ctime ns";
--		printl "Maximum Access Time (CAS $highestCAS)",
--		       ddr2_sdram_atime($bytes->[10]) . " ns";
-+		printl "Minimum Cycle Time @ CAS $highestCAS (tCK min)",
-+		       tns($ctime);
-+		printl "Maximum Access Time @ CAS $highestCAS (tAC)",
-+		       tns(ddr2_sdram_atime($bytes->[10]));
- 	}
-
- 	if (exists $cas{$highestCAS-1} && spd_written(@$bytes[23..24])) {
--		printl "Minimum Cycle Time (CAS ".($highestCAS-1).")",
--		       ddr2_sdram_ctime($bytes->[23]) . " ns";
--		printl "Maximum Access Time (CAS ".($highestCAS-1).")",
--		       ddr2_sdram_atime($bytes->[24]) . " ns";
-+		printl "Minimum Cycle Time @ CAS ".($highestCAS-1),
-+		       tns(ddr2_sdram_ctime($bytes->[23]));
-+		printl "Maximum Access Time @ CAS ".($highestCAS-1),
-+		       tns(ddr2_sdram_atime($bytes->[24]));
- 	}
-
- 	if (exists $cas{$highestCAS-2} && spd_written(@$bytes[25..26])) {
--		printl "Minimum Cycle Time (CAS ".($highestCAS-2).")",
--		       ddr2_sdram_ctime($bytes->[25]) . " ns";
--		printl "Maximum Access Time (CAS ".($highestCAS-2).")",
--		       ddr2_sdram_atime($bytes->[26]) . " ns";
-+		printl "Minimum Cycle Time @ CAS ".($highestCAS-2),
-+		       tns(ddr2_sdram_ctime($bytes->[25]));
-+		printl "Maximum Access Time @ CAS ".($highestCAS-2),
-+		       tns(ddr2_sdram_atime($bytes->[26]));
- 	}
-+	printl "Maximim Device Cycle Time (tCK max)",
-+	       tns(ddr2_sdram_ctime($bytes->[43]));
-+
-+	# Some timing information
-+	prints("Timing Parameters");
-+	printl "Address/Command Setup Time Before Clock (tIS)",
-+	       tns(ddr2_sdram_atime($bytes->[32]));
-+	printl "Address/Command Hold Time After Clock (tIH)",
-+	       tns(ddr2_sdram_atime($bytes->[33]));
-+	printl "Data Input Setup Time Before Strobe (tDS)",
-+	       tns(ddr2_sdram_atime($bytes->[34]));
-+	printl "Data Input Hold Time After Strobe (tDH)",
-+	       tns(ddr2_sdram_atime($bytes->[35]));
-+	printl "Minimum Row Precharge Delay (tRP)", tns($trp);
-+	printl "Minimum Row Active to Row Active Delay (tRRD)",
-+	       tns($bytes->[28]/4);
-+	printl "Minimum RAS# to CAS# Delay (tRCD)", tns($trcd);
-+	printl "Minimum RAS# Pulse Width (tRAS)", tns($tras);
-+	printl "Write Recovery Time (tWR)", tns($bytes->[36]/4);
-+	printl "Minimum Write to Read CMD Delay (tWTR)", tns($bytes->[37]/4);
-+	printl "Minimum Read to Pre-charge CMD Delay (tRTP)", tns($bytes->[38]/4);
-+	printl "Minimum Active to Auto-refresh Delay (tRC)",
-+	       tns(ddrx_sdram_rtime(2, $bytes->[41], ($bytes->[40]>>3)&0xe));
-+	printl "Minimum Recovery Delay (tRFC)",
-+	       tns(ddrx_sdram_rtime(2, $bytes->[42], $bytes->[40]));
-+	printl "Maximum DQS to DQ Skew (tDQSQ)", tns($bytes->[44]/100);
-+	printl "Maximum Read Data Hold Skew (tQHS)", tns($bytes->[45]/100);
-+	printl "PLL Relock Time", $bytes->[46] . " us" if ($bytes->[46]);
  }
 
- # Parameter: bytes 0-63
+ for my $i ( 0 .. $#dimm_list ) {
+ 	$_=$dimm_list[$i];
+ 	if (($use_sysfs && /^\d+-\d+$/)
+-	 || (!$use_sysfs && /^eeprom-/)) {
++	 || (!$use_sysfs&& /^eeprom-/)
++	 || $use_hexdump) {
+ 		my @bytes = readspd64(0, $dimm_list[$i]);
+ 		my $dimm_checksum = 0;
+ 		$dimm_checksum += $bytes[$_] foreach (0 .. 62);
+@@ -1160,15 +1199,18 @@
+ 		$dimm_count++;
+
+ 		print "<b><u>" if $opt_html;
+-		printl2 "\n\nDecoding EEPROM", ($use_sysfs ?
++		printl2 "\n\nDecoding EEPROM",
++		        $use_hexdump ? $dimm_list[$i] : ($use_sysfs ?
+ 			"/sys/bus/i2c/drivers/eeprom/$dimm_list[$i]" :
+ 			"/proc/sys/dev/sensors/$dimm_list[$i]");
+ 		print "</u></b>" if $opt_html;
+ 		print "<table border=1>\n" if $opt_html;
+-		if (($use_sysfs && /^[^-]+-([^-]+)$/)
+-		 || (!$use_sysfs && /^[^-]+-[^-]+-[^-]+-([^-]+)$/)) {
+-			my $dimm_num=$1 - 49;
+-			printl "Guessing DIMM is in", "bank $dimm_num";
++		if (!$use_hexdump) {
++			if (($use_sysfs && /^[^-]+-([^-]+)$/)
++			 || (!$use_sysfs && /^[^-]+-[^-]+-[^-]+-([^-]+)$/)) {
++				my $dimm_num=$1 - 49;
++				printl "Guessing DIMM is in", "bank $dimm_num";
++			}
+ 		}
+
+ # Decode first 3 bytes (0-2)
 
 _______________________________________________
 i2c mailing list
