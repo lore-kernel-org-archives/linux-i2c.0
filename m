@@ -1,20 +1,13 @@
 From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] Add platform driver on top of the new
- pca-algorithm
-Date: Sun, 16 Mar 2008 12:55:34 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0803161249040.20723@shell4.speakeasy.net>
-References: <20080308111337.440a7c83@hyperion.delvare>
-	<20080310112640.GB12128@pengutronix.de>
-	<20080310223116.73277c4f@hyperion.delvare>
-	<20080314145010.GA28612@pengutronix.de>
-	<20080314194628.07630698@hyperion.delvare>
-	<20080316142834.GA4485@pengutronix.de>
-	<20080316164457.19157e0c@hyperion.delvare>
+Subject: [PATCH] More DDR2 data for decode-dimms.pl
+Date: Thu, 28 Feb 2008 14:19:02 -0800 (PST)
+Message-ID: <Pine.LNX.4.58.0802281401020.14140__1550.62051858312$1205699514$gmane$org@shell4.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080316164457.19157e0c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+ReSent-To: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+ReSent-Message-ID: <Pine.LNX.4.58.0803161329010.20723-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -24,41 +17,155 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 16 Mar 2008, Jean Delvare wrote:
-> On Sun, 16 Mar 2008 15:28:34 +0100, Wolfram Sang wrote:
-> > On Fri, Mar 14, 2008 at 07:46:28PM +0100, Jean Delvare wrote:
-> >
-> > > > +	/* Use gpio_is_valid() when in mainline */
-> > > > +	if (i2c->gpio > -1)
-> > > > +		ret = gpio_request(i2c->gpio, i2c->adap.name);
-> > > > +		if (ret == 0) {
-> > > > +			gpio_direction_output(i2c->gpio, 1);
-> > > > +			i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
-> > > > +		} else {
-> > > > +			printk(KERN_WARNING "%s: Registering gpio failed!\n",
-> > > > +				i2c->adap.name);
-> > > > +			i2c->gpio = ret;
-> > > > +		}
-> > >
-> > > You're missing curly braces around this block, aren't you?
-> > Holy ..., yes, you are right. This is why I used to have braces even
-> > around single instructions after if. This is, where CodingStyle gives me
-> > most trouble.
->
-> I can't agree more... This type of warning I am carefully ignoring when
-> checkpatch.pl complains. In many cases, the extra braces don't hurt and
-> protect us against future mistakes.
+This lets decode-dimms.pl decode almost all of the SPD data for DDR2 dimms.
+Including all the detailed timing parameters with their standard tXXX
+names, useful if one is trying to program a DDR memory controller for
+example.
 
-I've been bit by this exact same problem enough times that I've come to the
-same conclusion.  Adding a second statement to a one-statement if and then
-forgetting to add the brances almost always produces code that compiles
-without warnings and almost works.  It ends up being very hard to track
-down, and even when you do, it's easy to stare at right at the bug and not
-see the missing braces.
+
+Index: decode-dimms.pl
+===================================================================
+--- i2c-tools/eeprom/decode-dimms.pl	(revision 5132)
++++ i2c-tools/eeprom/decode-dimms.pl	(working copy)
+@@ -834,6 +834,20 @@
+ 	return $atime;
+ }
+
++sub ddrx_sdram_rtime($$$)
++{
++	my ($t, $b1, $b2) = @_;
++	my $rtime = $b1;
++	if($t == 2) {
++		$rtime += ($b2 & 1) * 256;
++		my @table = (0, .250, .330, .500, .660, .750);
++		$rtime += $table[($b2>>1)&7];
++	}
++	return $rtime;
++}
++
++sub tns($) { return sprintf("%3.2f ns", $_[0]); }
++
+ # Parameter: bytes 0-63
+ sub decode_ddr2_sdram($)
+ {
+@@ -875,6 +889,40 @@
+ 				       $bytes->[5] . "," . $bytes->[17];
+ 	}
+
++	printl "Banks x Rows x Columns x Bits",
++	       join(' x ', $bytes->[17], $bytes->[3], $bytes->[4], $bytes->[6]);
++	printl "Ranks", ($bytes->[5]&7) + 1;
++
++	printl "SDRAM Device Width", $bytes->[13]." bits";
++
++	my @heights = ("< 25.4", "25.4", "25.4 - 30.0", "30.0", "30.5", "> 30.5");
++	printl "Module Height", $heights[$bytes->[5]>>5]." mm";
++	my @types = ("RDIMM", "UDIMM", "SO-DIMM", "Micro-DIMM",
++		     "Mini-RDIMM", "Mini-UDIMM");
++	my @widths = (133.35, 133.25, 67.6, 45.5, 82.0, 82.0);
++	my @suptypes;
++	foreach $ii (0..5) {
++		push @suptypes, "$types[$ii] ($widths[$ii] mm)"
++			if($bytes->[20] & (1<<$ii));
++	}
++	printl "Module Type".(@suptypes>1?'s':''),  join(', ', @suptypes);
++	printl "DRAM Package", $bytes->[5]&0x10 ? "Stack" : "Planar";
++
++	my @volts = ("TTL/5V Tolerant", "LVTTL", "HSTL 1.5V",
++		     "SSTL 3.3V", "SSTL 2.5V", "SSTL 1.8V", "TBD");
++	printl "Voltage Interface Level", $volts[$bytes->[8]];
++
++	my @refresh = qw(Normal Reduced Reduced Extended Extended Extended);
++	my @refresht = (15.625,3.9,7.8,31.3,62.5,125);
++	printl "Refresh Rate",
++	       "$refresh[$bytes->[12]&0x7f] ($refresht[$bytes->[12]&0x7f] us)".
++	       ($bytes->[12]&0x80 ? " - Self Refresh" : "");
++
++	my @burst;
++	push @burst, 4 if ($bytes->[16] & 4);
++	push @burst, 8 if ($bytes->[16] & 8);
++	printl "Burst lengths supported", join(', ', @burst);
++
+ 	my $highestCAS = 0;
+ 	my %cas;
+ 	for ($ii = 2; $ii < 7; $ii++) {
+@@ -899,31 +947,59 @@
+ 		ceil($tras/$ctime);
+
+ # latencies
+-	if (keys %cas) { $temp = join ', ', sort { $b <=> $a } keys %cas; }
++	if (keys %cas) { $temp = join ', ', map("${_}T",sort { $b <=> $a } keys %cas); }
+ 	else { $temp = "None"; }
+-	printl "Supported CAS Latencies", $temp;
++	printl "Supported CAS Latencies (tCL)", $temp;
+
+ # timings
+ 	if (exists $cas{$highestCAS}) {
+-		printl "Minimum Cycle Time (CAS $highestCAS)",
+-		       "$ctime ns";
+-		printl "Maximum Access Time (CAS $highestCAS)",
+-		       ddr2_sdram_atime($bytes->[10]) . " ns";
++		printl "Minimum Cycle Time @ CAS $highestCAS (tCK min)",
++		       tns($ctime);
++		printl "Maximum Access Time @ CAS $highestCAS (tAC)",
++		       tns(ddr2_sdram_atime($bytes->[10]));
+ 	}
+
+ 	if (exists $cas{$highestCAS-1} && spd_written(@$bytes[23..24])) {
+-		printl "Minimum Cycle Time (CAS ".($highestCAS-1).")",
+-		       ddr2_sdram_ctime($bytes->[23]) . " ns";
+-		printl "Maximum Access Time (CAS ".($highestCAS-1).")",
+-		       ddr2_sdram_atime($bytes->[24]) . " ns";
++		printl "Minimum Cycle Time @ CAS ".($highestCAS-1),
++		       tns(ddr2_sdram_ctime($bytes->[23]));
++		printl "Maximum Access Time @ CAS ".($highestCAS-1),
++		       tns(ddr2_sdram_atime($bytes->[24]));
+ 	}
+
+ 	if (exists $cas{$highestCAS-2} && spd_written(@$bytes[25..26])) {
+-		printl "Minimum Cycle Time (CAS ".($highestCAS-2).")",
+-		       ddr2_sdram_ctime($bytes->[25]) . " ns";
+-		printl "Maximum Access Time (CAS ".($highestCAS-2).")",
+-		       ddr2_sdram_atime($bytes->[26]) . " ns";
++		printl "Minimum Cycle Time @ CAS ".($highestCAS-2),
++		       tns(ddr2_sdram_ctime($bytes->[25]));
++		printl "Maximum Access Time @ CAS ".($highestCAS-2),
++		       tns(ddr2_sdram_atime($bytes->[26]));
+ 	}
++	printl "Maximim Device Cycle Time (tCK max)",
++	       tns(ddr2_sdram_ctime($bytes->[43]));
++
++	# Some timing information
++	prints("Timing Parameters");
++	printl "Address/Command Setup Time Before Clock (tIS)",
++	       tns(ddr2_sdram_atime($bytes->[32]));
++	printl "Address/Command Hold Time After Clock (tIH)",
++	       tns(ddr2_sdram_atime($bytes->[33]));
++	printl "Data Input Setup Time Before Strobe (tDS)",
++	       tns(ddr2_sdram_atime($bytes->[34]));
++	printl "Data Input Hold Time After Strobe (tDH)",
++	       tns(ddr2_sdram_atime($bytes->[35]));
++	printl "Minimum Row Precharge Delay (tRP)", tns($trp);
++	printl "Minimum Row Active to Row Active Delay (tRRD)",
++	       tns($bytes->[28]/4);
++	printl "Minimum RAS# to CAS# Delay (tRCD)", tns($trcd);
++	printl "Minimum RAS# Pulse Width (tRAS)", tns($tras);
++	printl "Write Recovery Time (tWR)", tns($bytes->[36]/4);
++	printl "Minimum Write to Read CMD Delay (tWTR)", tns($bytes->[37]/4);
++	printl "Minimum Read to Pre-charge CMD Delay (tRTP)", tns($bytes->[38]/4);
++	printl "Minimum Active to Auto-refresh Delay (tRC)",
++	       tns(ddrx_sdram_rtime(2, $bytes->[41], ($bytes->[40]>>3)&0xe));
++	printl "Minimum Recovery Delay (tRFC)",
++	       tns(ddrx_sdram_rtime(2, $bytes->[42], $bytes->[40]));
++	printl "Maximum DQS to DQ Skew (tDQSQ)", tns($bytes->[44]/100);
++	printl "Maximum Read Data Hold Skew (tQHS)", tns($bytes->[45]/100);
++	printl "PLL Relock Time", $bytes->[46] . " us" if ($bytes->[46]);
+ }
+
+ # Parameter: bytes 0-63
 
 _______________________________________________
 i2c mailing list
