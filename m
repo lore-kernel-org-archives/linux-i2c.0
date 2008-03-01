@@ -1,67 +1,80 @@
-From: ROASCIO Paolo <roa-VGgt2q2+T+FeoWH0uzbU5w@public.gmane.org>
-Subject: Re: PCA954x I2C switch/multiplexer
-Date: Fri, 29 Feb 2008 20:07:06 +0100
-Message-ID: <200802292007.06309.roa@libero.it>
-References: <200802231707.01967.roa@libero.it>
-	<A42C17A8FF150C4DB98BFD6497D1D000081DF898@ussvlexmbpf1.spansion.com>
-	<20080225090237.200b5b88@hyperion.delvare>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: m32r and ISA
+Date: Sat, 1 Mar 2008 21:01:10 +0200
+Message-ID: <20080301190110.GE25835@cs181133002.pp.htv.fi>
+References: <20080227073728.GD10603@cs181133002.pp.htv.fi> <20080228184912.48cde1f3@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080225090237.200b5b88-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758853AbYCATCu@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+In-Reply-To: <20080228184912.48cde1f3@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, takata@linux-m32r.org
+Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org, linux-m32r@ml.linux-m32r.org
 List-Id: linux-i2c@vger.kernel.org
 
-Il Monday 25 February 2008 09:02:37 hai scritto:
-> Hi Frank,
->
-> On Sun, 24 Feb 2008 21:41:54 -0800, Edelhaeuser, Frank wrote:
-> > The driver I submitted implements the "new style" driver model. These
-> > driver's don't probe the bus automatically. Instead, devices must be
-> > instantiated by calling i2c_register_board_info() for each multiplexer
-> > device. Please note that this driver implements a special syntax for the
-> > type field: e.g. .type = "pxa9544,5" tells the driver to create 4
-> > virtual i2c buses with ids 5, 6, 7 and 8. You would
-> > i2c_register_board_info() your PXA9544 multiplexer with the root i2c bus
-> > and your bus segment devices with those virtual i2c buses.
->
-> Please don't abuse the type field, instead define a custom structure
-> and pass it to the driver as platform data. This will give you much
-> more flexibility as well.
+On Thu, Feb 28, 2008 at 06:49:12PM +0100, Jean Delvare wrote:
+> Hi Adrian,
+> 
+> On Wed, 27 Feb 2008 09:37:28 +0200, Adrian Bunk wrote:
+> > This patch fixes the following compile error on m32r:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   CC [M]  drivers/i2c/busses/i2c-elektor.o
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c: In function 'pcf_isa_setbyte':
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c:80: error: implicit declaration of function 'iowrite8'
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c: In function 'pcf_isa_getbyte':
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c:90: error: implicit declaration of function 'ioread8'
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c: In function 'pcf_isa_init':
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c:153: error: implicit declaration of function 'ioport_map'
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c:153: warning: assignment makes pointer from integer without a cast
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c: In function 'elektor_probe':
+> > /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/i2c/busses/i2c-elektor.c:290: error: implicit declaration of function 'ioport_unmap'
+> > make[4]: *** [drivers/i2c/busses/i2c-elektor.o] Error 1
+> > 
+> > <--  snip  -->
+> > 
+> > Signed-off-by: Adrian Bunk <adrian.bunk@movial.fi>
+> > 
+> > ---
+> > c8a75f0dd2390ae8c8f91c451ff6b0e113d0ebd0 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 476b0bb..3bed6b9 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -129,7 +129,7 @@ config I2C_DAVINCI
+> >  
+> >  config I2C_ELEKTOR
+> >  	tristate "Elektor ISA card"
+> > -	depends on ISA && BROKEN_ON_SMP
+> > +	depends on ISA && HAS_IOPORT && BROKEN_ON_SMP
+> >  	select I2C_ALGOPCF
+> >  	help
+> >  	  This supports the PCF8584 ISA bus I2C adapter.  Say Y if you own
+> > 
+> 
+> Looks weird to me. As you can see, I2C_ELEKTOR already depends on ISA
+> and I thought it would be sufficient. Your m32r system has
+> CONFIG_HAS_IOPORT=n but CONFIG_ISA=y? I fail to see how a system could
+> have ISA slots but not have IO ports.
 
-Hello, thanks for your answers
+I don't have any m32r system.
 
-Well, i googled this days to learn something about the 
-i2c_register_board_info() and the platform data structures. This requires a 
-good knowledge of programming as i haven't :(
+I'm just doing the sisyphus task of getting as many defconfigs as 
+possible compiling.
 
-I understood that pca9540 (in my case) definitions have to be hardcoded 
-somewhere (the only thread i found about this regards a SIP device 
-registration on arm platform), but, where? and these needs to be coded as 
-a "C" struct (the "type" field is part of this struct?)?
+I've added the m32r maintainer as recipient for this email since he 
+might be the best person to answer your question.
 
-Well, i think i'm not enough skinned to manage this driver, peraph a whish: 
-will be implemented something like a modprobe option to make this driver more 
-user friendly?
+> Jean Delvare
 
-Please feel free to point me to adequate documentation about the platform data 
-structure, in the meanwhile i continue googling...
+cu
+Adrian
 
- 
-Roascio paolo
+-- 
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
