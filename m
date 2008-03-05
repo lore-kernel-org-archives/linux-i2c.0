@@ -1,13 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-dev: Split i2cdev_ioctl (#2)
-Date: Wed, 5 Mar 2008 08:34:43 +0100
-Message-ID: <20080305083443.1f91fc60@hyperion.delvare>
-References: <20080226152714.41bb9fe8@hyperion.delvare>
+From: pierre demanax <baddemanax-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: problem reading LM92 and AD7416
+Date: Wed, 5 Mar 2008 16:34:59 +0100
+Message-ID: <BAY119-W27152207CA3FDC732228BCD2110@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4710585131290154992=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080226152714.41bb9fe8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,379 +14,140 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Split the handling of the I2C_RDWR and I2C_SMBUS ioctls to their own
-functions. This limits the stack usage, saves one level of indentation
-and makes the code more readable.
+--===============4710585131290154992==
+Content-Type: multipart/alternative;
+	boundary="_95040a7b-a57b-42c7-a91d-1816cd18b58b_"
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Updates since version #1:
-* Use noinline to prevent gcc from inlining the split functions.
-* Remove unused "cmd" parameter.
+--_95040a7b-a57b-42c7-a91d-1816cd18b58b_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
- drivers/i2c/i2c-dev.c |  329 +++++++++++++++++++++++++------------------------
- 1 file changed, 168 insertions(+), 161 deletions(-)
 
---- linux-2.6.25-rc3.orig/drivers/i2c/i2c-dev.c	2008-03-02 23:02:09.000000000 +0100
-+++ linux-2.6.25-rc3/drivers/i2c/i2c-dev.c	2008-03-05 08:23:10.000000000 +0100
-@@ -200,16 +200,176 @@ static int i2cdev_check_addr(struct i2c_
- 	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
- }
- 
--static int i2cdev_ioctl(struct inode *inode, struct file *file,
--		unsigned int cmd, unsigned long arg)
-+static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
-+		unsigned long arg)
- {
--	struct i2c_client *client = (struct i2c_client *)file->private_data;
- 	struct i2c_rdwr_ioctl_data rdwr_arg;
--	struct i2c_smbus_ioctl_data data_arg;
--	union i2c_smbus_data temp;
- 	struct i2c_msg *rdwr_pa;
- 	u8 __user **data_ptrs;
--	int i,datasize,res;
-+	int i, res;
-+
-+	if (copy_from_user(&rdwr_arg,
-+			   (struct i2c_rdwr_ioctl_data __user *)arg,
-+			   sizeof(rdwr_arg)))
-+		return -EFAULT;
-+
-+	/* Put an arbitrary limit on the number of messages that can
-+	 * be sent at once */
-+	if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
-+		return -EINVAL;
-+
-+	rdwr_pa = (struct i2c_msg *)
-+		kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg),
-+		GFP_KERNEL);
-+	if (!rdwr_pa)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
-+			   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
-+		kfree(rdwr_pa);
-+		return -EFAULT;
-+	}
-+
-+	data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
-+	if (data_ptrs == NULL) {
-+		kfree(rdwr_pa);
-+		return -ENOMEM;
-+	}
-+
-+	res = 0;
-+	for (i = 0; i < rdwr_arg.nmsgs; i++) {
-+		/* Limit the size of the message to a sane amount;
-+		 * and don't let length change either. */
-+		if ((rdwr_pa[i].len > 8192) ||
-+		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
-+			res = -EINVAL;
-+			break;
-+		}
-+		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
-+		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
-+		if (rdwr_pa[i].buf == NULL) {
-+			res = -ENOMEM;
-+			break;
-+		}
-+		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
-+				   rdwr_pa[i].len)) {
-+				++i; /* Needs to be kfreed too */
-+				res = -EFAULT;
-+			break;
-+		}
-+	}
-+	if (res < 0) {
-+		int j;
-+		for (j = 0; j < i; ++j)
-+			kfree(rdwr_pa[j].buf);
-+		kfree(data_ptrs);
-+		kfree(rdwr_pa);
-+		return res;
-+	}
-+
-+	res = i2c_transfer(client->adapter, rdwr_pa, rdwr_arg.nmsgs);
-+	while (i-- > 0) {
-+		if (res >= 0 && (rdwr_pa[i].flags & I2C_M_RD)) {
-+			if (copy_to_user(data_ptrs[i], rdwr_pa[i].buf,
-+					 rdwr_pa[i].len))
-+				res = -EFAULT;
-+		}
-+		kfree(rdwr_pa[i].buf);
-+	}
-+	kfree(data_ptrs);
-+	kfree(rdwr_pa);
-+	return res;
-+}
-+
-+static noinline int i2cdev_ioctl_smbus(struct i2c_client *client,
-+		unsigned long arg)
-+{
-+	struct i2c_smbus_ioctl_data data_arg;
-+	union i2c_smbus_data temp;
-+	int datasize, res;
-+
-+	if (copy_from_user(&data_arg,
-+			   (struct i2c_smbus_ioctl_data __user *) arg,
-+			   sizeof(struct i2c_smbus_ioctl_data)))
-+		return -EFAULT;
-+	if ((data_arg.size != I2C_SMBUS_BYTE) &&
-+	    (data_arg.size != I2C_SMBUS_QUICK) &&
-+	    (data_arg.size != I2C_SMBUS_BYTE_DATA) &&
-+	    (data_arg.size != I2C_SMBUS_WORD_DATA) &&
-+	    (data_arg.size != I2C_SMBUS_PROC_CALL) &&
-+	    (data_arg.size != I2C_SMBUS_BLOCK_DATA) &&
-+	    (data_arg.size != I2C_SMBUS_I2C_BLOCK_BROKEN) &&
-+	    (data_arg.size != I2C_SMBUS_I2C_BLOCK_DATA) &&
-+	    (data_arg.size != I2C_SMBUS_BLOCK_PROC_CALL)) {
-+		dev_dbg(&client->adapter->dev,
-+			"size out of range (%x) in ioctl I2C_SMBUS.\n",
-+			data_arg.size);
-+		return -EINVAL;
-+	}
-+	/* Note that I2C_SMBUS_READ and I2C_SMBUS_WRITE are 0 and 1,
-+	   so the check is valid if size==I2C_SMBUS_QUICK too. */
-+	if ((data_arg.read_write != I2C_SMBUS_READ) &&
-+	    (data_arg.read_write != I2C_SMBUS_WRITE)) {
-+		dev_dbg(&client->adapter->dev,
-+			"read_write out of range (%x) in ioctl I2C_SMBUS.\n",
-+			data_arg.read_write);
-+		return -EINVAL;
-+	}
-+
-+	/* Note that command values are always valid! */
-+
-+	if ((data_arg.size == I2C_SMBUS_QUICK) ||
-+	    ((data_arg.size == I2C_SMBUS_BYTE) &&
-+	    (data_arg.read_write == I2C_SMBUS_WRITE)))
-+		/* These are special: we do not use data */
-+		return i2c_smbus_xfer(client->adapter, client->addr,
-+				      client->flags, data_arg.read_write,
-+				      data_arg.command, data_arg.size, NULL);
-+
-+	if (data_arg.data == NULL) {
-+		dev_dbg(&client->adapter->dev,
-+			"data is NULL pointer in ioctl I2C_SMBUS.\n");
-+		return -EINVAL;
-+	}
-+
-+	if ((data_arg.size == I2C_SMBUS_BYTE_DATA) ||
-+	    (data_arg.size == I2C_SMBUS_BYTE))
-+		datasize = sizeof(data_arg.data->byte);
-+	else if ((data_arg.size == I2C_SMBUS_WORD_DATA) ||
-+		 (data_arg.size == I2C_SMBUS_PROC_CALL))
-+		datasize = sizeof(data_arg.data->word);
-+	else /* size == smbus block, i2c block, or block proc. call */
-+		datasize = sizeof(data_arg.data->block);
-+
-+	if ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
-+	    (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
-+	    (data_arg.size == I2C_SMBUS_I2C_BLOCK_DATA) ||
-+	    (data_arg.read_write == I2C_SMBUS_WRITE)) {
-+		if (copy_from_user(&temp, data_arg.data, datasize))
-+			return -EFAULT;
-+	}
-+	if (data_arg.size == I2C_SMBUS_I2C_BLOCK_BROKEN) {
-+		/* Convert old I2C block commands to the new
-+		   convention. This preserves binary compatibility. */
-+		data_arg.size = I2C_SMBUS_I2C_BLOCK_DATA;
-+		if (data_arg.read_write == I2C_SMBUS_READ)
-+			temp.block[0] = I2C_SMBUS_BLOCK_MAX;
-+	}
-+	res = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+	      data_arg.read_write, data_arg.command, data_arg.size, &temp);
-+	if (!res && ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
-+		     (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
-+		     (data_arg.read_write == I2C_SMBUS_READ))) {
-+		if (copy_to_user(data_arg.data, &temp, datasize))
-+			return -EFAULT;
-+	}
-+	return res;
-+}
-+
-+static int i2cdev_ioctl(struct inode *inode, struct file *file,
-+		unsigned int cmd, unsigned long arg)
-+{
-+	struct i2c_client *client = (struct i2c_client *)file->private_data;
- 	unsigned long funcs;
- 
- 	dev_dbg(&client->adapter->dev, "ioctl, cmd=0x%02x, arg=0x%02lx\n",
-@@ -253,164 +413,11 @@ static int i2cdev_ioctl(struct inode *in
- 		return put_user(funcs, (unsigned long __user *)arg);
- 
- 	case I2C_RDWR:
--		if (copy_from_user(&rdwr_arg,
--				   (struct i2c_rdwr_ioctl_data __user *)arg,
--				   sizeof(rdwr_arg)))
--			return -EFAULT;
--
--		/* Put an arbitrary limit on the number of messages that can
--		 * be sent at once */
--		if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
--			return -EINVAL;
--
--		rdwr_pa = (struct i2c_msg *)
--			kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg),
--			GFP_KERNEL);
--
--		if (rdwr_pa == NULL) return -ENOMEM;
--
--		if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
--				   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
--			kfree(rdwr_pa);
--			return -EFAULT;
--		}
--
--		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
--		if (data_ptrs == NULL) {
--			kfree(rdwr_pa);
--			return -ENOMEM;
--		}
--
--		res = 0;
--		for( i=0; i<rdwr_arg.nmsgs; i++ ) {
--			/* Limit the size of the message to a sane amount;
--			 * and don't let length change either. */
--			if ((rdwr_pa[i].len > 8192) ||
--			    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
--				res = -EINVAL;
--				break;
--			}
--			data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
--			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
--			if(rdwr_pa[i].buf == NULL) {
--				res = -ENOMEM;
--				break;
--			}
--			if(copy_from_user(rdwr_pa[i].buf,
--				data_ptrs[i],
--				rdwr_pa[i].len)) {
--					++i; /* Needs to be kfreed too */
--					res = -EFAULT;
--				break;
--			}
--		}
--		if (res < 0) {
--			int j;
--			for (j = 0; j < i; ++j)
--				kfree(rdwr_pa[j].buf);
--			kfree(data_ptrs);
--			kfree(rdwr_pa);
--			return res;
--		}
--
--		res = i2c_transfer(client->adapter,
--			rdwr_pa,
--			rdwr_arg.nmsgs);
--		while(i-- > 0) {
--			if( res>=0 && (rdwr_pa[i].flags & I2C_M_RD)) {
--				if(copy_to_user(
--					data_ptrs[i],
--					rdwr_pa[i].buf,
--					rdwr_pa[i].len)) {
--					res = -EFAULT;
--				}
--			}
--			kfree(rdwr_pa[i].buf);
--		}
--		kfree(data_ptrs);
--		kfree(rdwr_pa);
--		return res;
-+		return i2cdev_ioctl_rdrw(client, arg);
- 
- 	case I2C_SMBUS:
--		if (copy_from_user(&data_arg,
--		                   (struct i2c_smbus_ioctl_data __user *) arg,
--		                   sizeof(struct i2c_smbus_ioctl_data)))
--			return -EFAULT;
--		if ((data_arg.size != I2C_SMBUS_BYTE) &&
--		    (data_arg.size != I2C_SMBUS_QUICK) &&
--		    (data_arg.size != I2C_SMBUS_BYTE_DATA) &&
--		    (data_arg.size != I2C_SMBUS_WORD_DATA) &&
--		    (data_arg.size != I2C_SMBUS_PROC_CALL) &&
--		    (data_arg.size != I2C_SMBUS_BLOCK_DATA) &&
--		    (data_arg.size != I2C_SMBUS_I2C_BLOCK_BROKEN) &&
--		    (data_arg.size != I2C_SMBUS_I2C_BLOCK_DATA) &&
--		    (data_arg.size != I2C_SMBUS_BLOCK_PROC_CALL)) {
--			dev_dbg(&client->adapter->dev,
--				"size out of range (%x) in ioctl I2C_SMBUS.\n",
--				data_arg.size);
--			return -EINVAL;
--		}
--		/* Note that I2C_SMBUS_READ and I2C_SMBUS_WRITE are 0 and 1,
--		   so the check is valid if size==I2C_SMBUS_QUICK too. */
--		if ((data_arg.read_write != I2C_SMBUS_READ) &&
--		    (data_arg.read_write != I2C_SMBUS_WRITE)) {
--			dev_dbg(&client->adapter->dev,
--				"read_write out of range (%x) in ioctl I2C_SMBUS.\n",
--				data_arg.read_write);
--			return -EINVAL;
--		}
--
--		/* Note that command values are always valid! */
--
--		if ((data_arg.size == I2C_SMBUS_QUICK) ||
--		    ((data_arg.size == I2C_SMBUS_BYTE) &&
--		    (data_arg.read_write == I2C_SMBUS_WRITE)))
--			/* These are special: we do not use data */
--			return i2c_smbus_xfer(client->adapter, client->addr,
--					      client->flags,
--					      data_arg.read_write,
--					      data_arg.command,
--					      data_arg.size, NULL);
--
--		if (data_arg.data == NULL) {
--			dev_dbg(&client->adapter->dev,
--				"data is NULL pointer in ioctl I2C_SMBUS.\n");
--			return -EINVAL;
--		}
-+		return i2cdev_ioctl_smbus(client, arg);
- 
--		if ((data_arg.size == I2C_SMBUS_BYTE_DATA) ||
--		    (data_arg.size == I2C_SMBUS_BYTE))
--			datasize = sizeof(data_arg.data->byte);
--		else if ((data_arg.size == I2C_SMBUS_WORD_DATA) ||
--		         (data_arg.size == I2C_SMBUS_PROC_CALL))
--			datasize = sizeof(data_arg.data->word);
--		else /* size == smbus block, i2c block, or block proc. call */
--			datasize = sizeof(data_arg.data->block);
--
--		if ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
--		    (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
--		    (data_arg.size == I2C_SMBUS_I2C_BLOCK_DATA) ||
--		    (data_arg.read_write == I2C_SMBUS_WRITE)) {
--			if (copy_from_user(&temp, data_arg.data, datasize))
--				return -EFAULT;
--		}
--		if (data_arg.size == I2C_SMBUS_I2C_BLOCK_BROKEN) {
--			/* Convert old I2C block commands to the new
--			   convention. This preserves binary compatibility. */
--			data_arg.size = I2C_SMBUS_I2C_BLOCK_DATA;
--			if (data_arg.read_write == I2C_SMBUS_READ)
--				temp.block[0] = I2C_SMBUS_BLOCK_MAX;
--		}
--		res = i2c_smbus_xfer(client->adapter,client->addr,client->flags,
--		      data_arg.read_write,
--		      data_arg.command,data_arg.size,&temp);
--		if (! res && ((data_arg.size == I2C_SMBUS_PROC_CALL) ||
--		              (data_arg.size == I2C_SMBUS_BLOCK_PROC_CALL) ||
--			      (data_arg.read_write == I2C_SMBUS_READ))) {
--			if (copy_to_user(data_arg.data, &temp, datasize))
--				return -EFAULT;
--		}
--		return res;
- 	case I2C_RETRIES:
- 		client->adapter->retries = arg;
- 		break;
+Hi all,
+=20
+I have some trouble in reading temperature value from LM and AD sensors.
+I use different i2c bus setup and with all of them i have different results=
+.
+As interface i use the followings one:
+=20
 
--- 
-Jean Delvare
+paralelle port ( ELV) one with pull ups of 3k3
+i2c-tiny-usb from till harbaum and same pull up value
+self made interface using atmega8 (TWI driver) and USB.
+=20
+I manage having a connection with all of the interfaces, (i2cdetect works a=
+nd detect the different sensors), i can read the default register ( nl hyst=
+, temp min, temp max...), but once i read the actual temperature i have wie=
+rd results:
+=20
+i used the same sensors with same cables for all of the interfaces :=20
+=20
+
+PP : i measure 25=B0
+tiny : i measure 27=B0
+self made : i measure 30=B0
+( my personnal thermometer is showing me 22=B0, i come always to the same v=
+alue when i redo the test)
+=20
+I have those behaviours with all of my sensors and if i change the length o=
+f the cables, the temperature also change ( actually it decreases with the =
+length).
+=20
+So as i2c is a digital communication i can't understand why the temperature=
+ is so sensitive to interfaces or cable length, as the bus has nothing to d=
+o with the sensors ?.
+I am stuk, and i don't see what i could do to find the problem.
+=20
+has someone of you ever been experimenting such a strange behaviour?
+=20
+what could be the cause of it ?
+=20
+regards
+vincent
+_________________________________________________________________
+Emmenez vos amis avec vous, gr=E2ce =E0 Messenger sur votre GSM.
+http://get.live.com=
+
+--_95040a7b-a57b-42c7-a91d-1816cd18b58b_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<style>
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+FONT-SIZE: 10pt;
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body class=3D'hmmessage'>
+Hi all,<BR>
+&nbsp;<BR>
+I have&nbsp;some trouble in reading temperature value from LM and AD sensor=
+s.<BR>
+I&nbsp;use different i2c bus setup and with all of them i have different re=
+sults.<BR>
+As interface i use the followings one:<BR>
+&nbsp;<BR>
+<OL>
+<LI>paralelle port ( ELV) one with pull ups of 3k3</LI>
+<LI>i2c-tiny-usb from till harbaum and same pull up value</LI>
+<LI>self made interface using atmega8 (TWI driver) and USB.</LI></OL>
+&nbsp;<BR>
+I manage having a connection with all of the interfaces, (i2cdetect works a=
+nd detect the different sensors), i can read the default register ( nl hyst=
+, temp min, temp max...), but once i read the actual temperature i have wie=
+rd results:<BR>
+&nbsp;<BR>
+i used the same sensors with same cables for all of the interfaces : <BR>
+&nbsp;<BR>
+<OL>
+<LI>PP : i measure 25=B0</LI>
+<LI>tiny : i measure 27=B0</LI>
+<LI>self made : i measure 30=B0</LI></OL>
+( my personnal thermometer is showing me 22=B0, i come always to the same v=
+alue when i redo the test)<BR>
+&nbsp;<BR>
+I have those behaviours with all of my sensors and if i change the length o=
+f the cables, the temperature also change ( actually it decreases with the =
+length).<BR>
+&nbsp;<BR>
+So as i2c is a digital communication i can't understand why the temperature=
+ is so sensitive to interfaces or cable length, as the bus has nothing to d=
+o with the sensors ?.<BR>
+I am stuk, and i don't see what i could do to find the problem.<BR>
+&nbsp;<BR>
+has someone of you ever been experimenting such a strange behaviour?<BR>
+&nbsp;<BR>
+what could be the cause of it ?<BR>
+&nbsp;<BR>
+regards<BR>
+vincent<BR><br /><hr />Les partager, au lieu de les laisser au fin fond d'u=
+n fichier... <a href=3D'http://get.live.com' target=3D'_new'>Qu'allez-vous =
+faire de vos photos ? </a></body>
+</html>=
+
+--_95040a7b-a57b-42c7-a91d-1816cd18b58b_--
+
+
+--===============4710585131290154992==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============4710585131290154992==--
