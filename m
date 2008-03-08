@@ -1,18 +1,17 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
-	updates, part 2
-Date: Fri, 7 Mar 2008 23:00:40 +0200
-Message-ID: <31e679430803071300w2f2e80ddqd4516a976df4474@mail.gmail.com>
-References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
-	<200802252138.30301.david-b@pacbell.net>
-	<31e679430802260122xc30356ayd98fc3c079e613b7@mail.gmail.com>
-	<200803071220.10744.david-b@pacbell.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCHv2 3/3] Add platform driver on top of the new
+ pca-algorithm
+Date: Sat, 8 Mar 2008 11:13:37 +0100
+Message-ID: <20080308111337.440a7c83@hyperion.delvare>
+References: <20080206202056.364404622@pengutronix.de>
+	<20080206203037.228001815@pengutronix.de>
+	<20080212225306.4cf2bd74@hyperion.delvare>
+	<fqrob6$3e6$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200803071220.10744.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <fqrob6$3e6$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,95 +21,70 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Wolfgang,
 
-On Fri, Mar 7, 2008 at 10:20 PM, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
-> On Tuesday 26 February 2008, Felipe Balbi wrote:
->  > >
->  > >  Passing irq_flags???  That sounds like nonsense.  Please explain ...
->  >
->  > request_irq was using different irq flags depending on the board, so
->  > instead of keeping if (machine_is_*) in the driver just because of irq
->  > flags we could bring it from a platform_data.
->
->  Just use the resource type flags ... IORESOURCE_IRQ can
->  be combined with
+On Fri, 07 Mar 2008 16:52:05 +0100, Wolfram Sang wrote:
+> nearly a month since your reply, I am sorry. Work was shifting in a 
+> different direction meanwhile.
 
-but then isp1301 should become a platform_driver, shouldn't it?
-I'd need a struct platform_device on the board file and get the device
-on probe just to get an irq flag?
+No problem, I have been pretty busy myself.
 
-Maybe I'm missing something but I'm understanding something like:
+> (Everything I did not comment on is already fixed as suggested)
+> 
+> >> +/* Read/Write functions for different register alignments */
+> >> +
+> >> +static int i2c_pca_pf_readbyte8(void *pd, int reg)
+> >> +{
+> >> +	struct i2c_pca_pf_data *i2c = pd;
+> >> +	return ioread8(i2c->reg_base + reg);
+> >> +}
+> >> +
+> >> +static int i2c_pca_pf_readbyte16(void *pd, int reg)
+> >> +{
+> >> +	struct i2c_pca_pf_data *i2c = pd;
+> >> +	return ioread8(i2c->reg_base + reg * 2);
+> > 
+> > Shouldn't this be ioread16?
+> I don't think so. The registers get scattered differently in the 
+> address-room, but their size itself is still 8 bit. I expect that 
+> ioread8 gives me just those 8 bits I want, hiding that some busses 
+> actually do 32-bit accesses only. Am I wrong?
 
---- a/arch/arm/mach-omap1/board-h2.c
-+++ b/arch/arm/mach-omap1/board-h2.c
-@@ -140,6 +140,17 @@ static struct platform_device h2_nor_device = {
-        .resource       = &h2_nor_resource,
- };
+I really don't know, I am not familiar with the hardware. Leave it as
+is, we'll fix it later if someone complains.
 
-+static struct resource h2_isp1301_resource = {
-+       .flags          = IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
-+};
-+
-+static struct platform_device h2_nor_device = {
-+       .name           = "isp1301_omap",
-+       .id             = 0,
-+       .num_resources  = 1,
-+       .resource       = &h2_isp1301_resource,
-+};
-+
- static struct mtd_partition h2_nand_partitions[] = {
- #if 0
-        /* REVISIT:  enable these partitions if you make NAND BOOT
-diff --git a/drivers/i2c/chips/isp1301_omap.c b/drivers/i2c/chips/isp1301_omap.c
-index 4bb931c..d0a5825 100644
---- a/drivers/i2c/chips/isp1301_omap.c
-+++ b/drivers/i2c/chips/isp1301_omap.c
-@@ -1453,6 +1453,27 @@ isp1301_start_hnp(struct otg_transceiver *dev)
+> >> +	if (i2c->irq) {
+> >> +		ret = wait_event_interruptible(i2c->wait,
+> >> +			i2c->algo_data.read_byte(i2c, I2C_PCA_CON)
+> >> +			& I2C_PCA_CON_SI);
+> >> +	} else {
+> >> +		while ((i2c->algo_data.read_byte(i2c, I2C_PCA_CON)
+> >> +				& I2C_PCA_CON_SI) == 0)
+> >> +			udelay(100);
+> > 
+> > No timeout?
+> You got a point there. The thing is that the underlying pca-algorithm 
+> does not have a timeout when expecting this condition (interrupt bit 
+> set). Even when using interrupts instead of polling, it will just sleep 
+> forever, if there goes something _really_ wrong. I could copy at least 
+> this behaviour by replacing the udelay(100); with an msleep(x) with x 
+> being a module parameter. I hope this is good enough, connecting the IRQ 
+> is preferred anyhow. (I am afraid that I don't have the time to add a 
+> sane and tested timeout mechanism to the algorithm)
 
- /*-------------------------------------------------------------------------*/
+I'd rather not make the driver more complex for a mode you do not want
+to encourage anyway. Leave the code as is, once again we can improve it
+later if really needed.
 
-+struct platform_driver isp1301_plat_driver = {
-+       .driver = {
-+               .name   = DRIVER_NAME,
-+               .bus    = &platform_bus_type,
-+               .owner  = THIS_MODULE,
-+       },
-+};
-+
-+static int __init isp1301_plat_probe(struct platform_device *pdev)
-+{
-+       struct resource *resource;
-+
-+       resource = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+       if (!resource)
-+               return -ENODEV;
-+
-+       the_transceiver->irq_type = resource->flags;
-+}
-+
-+/*-------------------------------------------------------------------------*/
-+
- /* no error returns, they'd just make bus scanning stop */
- static int __init isp1301_probe(struct i2c_client *client)
- {
-
-(of course the code above doesn't work, it's just to clear my mind :-p)
-
-Anyways, wouldn't be easier to put a platform_data that can ship
-withing struct i2c_board_info?
-
-Sorry if I'm being pointless :-s
+Waiting for an updated patch, then I'll push it to -mm. Patches 1/3 and
+2/3 are already there.
 
 -- 
-Best Regards,
-
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
