@@ -1,16 +1,15 @@
-From: Jeremy Murphy <jeremy.william.murphy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Monitor's EDID not recognised
-Date: Sun, 9 Mar 2008 17:08:20 +1100
-Message-ID: <200803091708.21053.jeremy.william.murphy@gmail.com>
-References: <200803071923.32035.jeremy.william.murphy@gmail.com>
-	<200803080039.55332.jeremy.william.murphy@gmail.com>
-	<20080307150827.0cfa9b5c@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Keep client->driver and client->dev.driver
+	in sync
+Date: Sun, 9 Mar 2008 11:16:26 +0100
+Message-ID: <20080309111626.1d531cd4@hyperion.delvare>
+References: <20080308214911.5344eba9@hyperion.delvare>
+	<200803081312.36524.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080307150827.0cfa9b5c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <200803081312.36524.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,59 +19,60 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 8 Mar 2008 01:08:27 am Jean Delvare wrote:
->
-> BTW, note that you should NOT access the nvidia I2C buses created by
-> the binary nvidia X11 driver while not under X.
+Hi David,
 
-OK, thanks.  I did look for them outside of X, but they weren't there.
+On Sat, 8 Mar 2008 13:12:36 -0800, David Brownell wrote:
+> The only issue I have is that code which the driver probe()
+> calls may expect client->driver to be set, but it won't be...
+> 
+> While I'd rather see client->driver vanish, in this case I'd
+> just suggest leaving the early assignment, and nulling it out
+> on error (instead of assigning it on success).
+
+Oh well, that's exactly what Hans' patch did originally, I changed it
+to make the code more simple, but if you think it is better that way,
+I'll revert this change of mine. Here you go:
+
+From: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+
+Ensure that client->driver is set to NULL if the probe() returns an
+error (this keeps client->driver and client->dev.driver in sync).
+
+Signed-off-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- linux-2.6.25-rc4.orig/drivers/i2c/i2c-core.c	2008-03-08 17:57:52.000000000 +0100
++++ linux-2.6.25-rc4/drivers/i2c/i2c-core.c	2008-03-09 11:03:53.000000000 +0100
+@@ -90,12 +90,16 @@ static int i2c_device_probe(struct devic
+ {
+ 	struct i2c_client	*client = to_i2c_client(dev);
+ 	struct i2c_driver	*driver = to_i2c_driver(dev->driver);
++	int status;
+ 
+ 	if (!driver->probe)
+ 		return -ENODEV;
+ 	client->driver = driver;
+ 	dev_dbg(dev, "probe\n");
+-	return driver->probe(client);
++	status = driver->probe(client);
++	if (status)
++		client->driver = NULL;
++	return status;
+ }
+ 
+ static int i2c_device_remove(struct device *dev)
 
 
-> OK. Two more things you can try:
->
-> * Get rid of the binary nvidia driver for a moment, and try the
-> nvidiafb driver. If it gets better, it suggests that the binary nvidia
-> driver is at fault. If you get the same noise, it has to be a hardware
-> issue.
 
-There are no nVidia I2C buses visible with the nvidiafb driver, i2cdetect 
-reports only the SMBus.  Here's a snippet from the X log, though:
-
-(II) Loading sub module "i2c"
-(II) LoadModule: "i2c"(II) Module already built-in
-(II) Loading sub module "ddc"
-(II) LoadModule: "ddc"(II) Module already built-in
-(II) NV(0): I2C bus "DDC" initialized.
-(II) NV(0): Probing for analog device on output A...
-(--) NV(0):   ...found one
-(II) NV(0): Probing for analog device on output B...
-(--) NV(0):   ...can't find one
-(II) NV(0): Probing for EDID on I2C bus A...
-(II) NV(0): I2C device "DDC:ddc2" registered at address 0xA0.
-(II) NV(0): I2C device "DDC:ddc2" removed.
-(II) NV(0):   ... none found
-(II) NV(0): Probing for EDID on I2C bus B...
-(II) NV(0): I2C device "DDC:ddc2" registered at address 0xA0.
-(II) NV(0): I2C device "DDC:ddc2" removed.
-(II) NV(0):   ... none found
-(--) NV(0): CRTC 0 appears to have a CRT attached
-(II) NV(0): Using CRT on CRTC 0
-
-Address 0xA0?  Should that be 0x50?  
-
-
-> * Did you try another video cable? The I2C bus signal is carried over 2
-> dedicated pins on the VGA connector (12 and 15), if your cable happens
-> to not have them wired properly for some reason, this could explain
-> your problem.
-
-OK, I'll have to ask around for one.  Thanks for your help.
-
-Jeremy
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
