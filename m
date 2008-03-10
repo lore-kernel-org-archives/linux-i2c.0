@@ -1,15 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: possible recursive locking detected
-Date: Mon, 10 Mar 2008 14:29:21 +0100
-Message-ID: <20080310142921.2696e8b9@hyperion.delvare>
-References: <1205082504.47d41988f0db5@imp.free.fr>
-	<alpine.DEB.1.00.0803092215010.5349@sheep.housecafe.de>
-	<Pine.LNX.4.64.0803092332160.18589@twin.jikos.cz>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] Replace dev_warn with printk in pca-algo
+Date: Mon, 10 Mar 2008 14:29:09 +0100
+Message-ID: <20080310132909.GA13941@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4186754103154602494=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0803092332160.18589-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,77 +14,91 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Christian Kujau <lists-AanptEQQ3TL9uQeqpI+JUg@public.gmane.org>, bruno.roussel-GANU6spQydw@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: I2C Mailing List <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 9 Mar 2008 23:41:50 +0100 (CET), Jiri Kosina wrote:
-> On Sun, 9 Mar 2008, Christian Kujau wrote:
-> 
-> > > =============================================
-> > > [ INFO: possible recursive locking detected ]
-> > > 2.6.24.2-1mdv #1
-> > > ---------------------------------------------
-> > Hm, strange: a similiar looking issue has been reported back in 2006, it 
-> > even comes with a patch: http://lkml.org/lkml/2006/10/14/38
-> > ..but I cannot tell if the patch made it into mainline. I've Cc'ed the i2c
-> > folks, maybe they can tell what's going on here.
-> 
-> I don't recall this, but from looking at the source it seems that only 
-> part of my patch made it upstream for some reason ...
 
-I applied the i2c-core part:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6ea23039cb1cc7c379eb5fba0ed2c53291e9bea7
+--===============4186754103154602494==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Content-Disposition: inline
 
-But I have no idea what happened to the DVB device-driver specific part.
 
-> 
-> Bruno, does the patch below remove the warning for you? (we should rather 
-> used lockdep_set_class() now, when this is already available ... it wasn't 
-> in the time I was doping the original patch back in 2006).
-> 
-> 
-> 
-> Set locking depth properly (level == 0 for DVB frontend, level == 1 for 
-> DVB adapter).
-> 
-> Signed-off-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-> 
-> diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c b/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> index 23428cd..8c5dc35 100644
-> --- a/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> +++ b/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> @@ -27,6 +27,7 @@ int dvb_usb_i2c_init(struct dvb_usb_device *d)
->  #endif
->  	d->i2c_adap.algo      = d->props.i2c_algo;
->  	d->i2c_adap.algo_data = NULL;
-> +	d->i2c_adap.level = 1;
->  	d->i2c_adap.dev.parent = &d->udev->dev;
->  
->  	i2c_set_adapdata(&d->i2c_adap, d);
-> diff --git a/drivers/media/dvb/frontends/dibx000_common.c b/drivers/media/dvb/frontends/dibx000_common.c
-> index 315e09e..a3ed8cf 100644
-> --- a/drivers/media/dvb/frontends/dibx000_common.c
-> +++ b/drivers/media/dvb/frontends/dibx000_common.c
-> @@ -111,6 +111,7 @@ static int i2c_adapter_init(struct i2c_adapter *i2c_adap, struct i2c_algorithm *
->  	i2c_adap->class     = I2C_CLASS_TV_DIGITAL,
->  	i2c_adap->algo      = algo;
->  	i2c_adap->algo_data = NULL;
-> +	i2c_adap->level = 0;
->  	i2c_set_adapdata(i2c_adap, mst);
->  	if (i2c_add_adapter(i2c_adap) < 0)
->  		return -ENODEV;
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also note:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=cea443a81c9c6257bf2d00f1392f7d1d4ce03b75
+Hello,
 
-This patch that was applied recently to i2c-core might cause lockdep
-issues. For some reason there's no "nested" variant of mutex_trylock?
+this patch needs to be applied on top of my patch
+'i2c-pca-algo_extensions.diff'.
 
--- 
-Jean Delvare
+Bye,
+
+   Wolfram
+
+=3D=3D=3D
+
+Subject: Replace dev_warn with printk in pca-algo
+=46rom: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+Replace dev_warn as it would be executed before the device is registered.
+
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-pca.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+Index: linux-playground/drivers/i2c/algos/i2c-algo-pca.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-playground.orig/drivers/i2c/algos/i2c-algo-pca.c	2008-03-10 14:10=
+:59.000000000 +0100
++++ linux-playground/drivers/i2c/algos/i2c-algo-pca.c	2008-03-10 14:15:36.0=
+00000000 +0100
+@@ -337,7 +337,9 @@
+ 	struct i2c_algo_pca_data *pca_data =3D adap->algo_data;
+=20
+ 	if (pca_data->i2c_clock > 7) {
+-		dev_warn(&adap->dev, "Invalid I2C clock speed selected. Trying default.\=
+n");
++		printk(KERN_WARNING "%s: Invalid I2C clock speed selected. Trying defaul=
+t.\n",
++			adap->name);
+ 		pca_data->i2c_clock =3D I2C_PCA_CON_59kHz;
+ 	}
+=20
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH1TelD27XaX1/VRsRAunCAKDJTV0SqCkfWI1PpYEu+QOeyyFvRwCglPA+
+qU7+4xTlwQZ1g1KyIwDERD8=
+=GYT6
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--
+
+
+--===============4186754103154602494==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============4186754103154602494==--
