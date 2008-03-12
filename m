@@ -1,46 +1,38 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] Add platform driver on top of the new
- pca-algorithm
-Date: Wed, 12 Mar 2008 11:43:26 +0100
-Message-ID: <20080312114326.7ab11c06@hyperion.delvare>
-References: <20080206202056.364404622@pengutronix.de>
-	<20080206203037.228001815@pengutronix.de>
-	<20080212225306.4cf2bd74@hyperion.delvare>
-	<fqrob6$3e6$1@ger.gmane.org>
-	<20080308111337.440a7c83@hyperion.delvare>
-	<20080310112640.GB12128@pengutronix.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c fixes for 2.6.25
+Date: Wed, 12 Mar 2008 16:01:42 +0100
+Message-ID: <20080312160142.7adce5cc@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080310112640.GB12128-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753357AbYCLPB4@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram:
+Linus,
 
-Just noticed the following warnings on x86_64:
-drivers/i2c/busses/i2c-pca-platform.c: In function "i2c_pca_pf_probe":
-drivers/i2c/busses/i2c-pca-platform.c:181: warning: format "%08x" expects type "unsigned int", but argument 2 has type "resource_size_t"
-drivers/i2c/busses/i2c-pca-platform.c:186: warning: format "%08x" expects type "unsigned int", but argument 4 has type "resource_size_t"
-drivers/i2c/busses/i2c-pca-platform.c:186: warning: format "%08x" expects type "unsigned int", but argument 4 has type "resource_size_t"
+Please pull the i2c subsystem fixes for Linux 2.6.25 from:
 
-Please fix in next iteration.
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
+ drivers/i2c/busses/i2c-amd756.c |    2 +-
+ drivers/i2c/chips/Makefile      |    7 +++++++
+ drivers/i2c/i2c-core.c          |    6 +++++-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+---------------
+
+Adrian Bunk (1):
+      i2c-amd756: Fix off-by-one
+
+Hans Verkuil (1):
+      i2c: Keep client->driver and client->dev.driver in sync
+
+Jean Delvare (1):
+      i2c: chips subdirectory is deprecated
+
+Thanks,
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
