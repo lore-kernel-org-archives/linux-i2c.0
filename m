@@ -1,14 +1,13 @@
 From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 5/6] Blackfin I2C TWI driver: use simpler comment
-	headers and strip out information that is maintained in the
-	scm's log
-Date: Wed, 12 Mar 2008 16:28:09 +0000 (UTC)
-Message-ID: <1205479360-25240-6-git-send-email-cooloney@kernel.org>
+Subject: [PATCH 4/6] Blackfin I2C/TWI driver: add driver descriptions,
+	versions and some module useful information
+Date: Wed, 12 Mar 2008 16:28:50 +0000 (UTC)
+Message-ID: <1205479360-25240-5-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Date: Fri, 14 Mar 2008 00:22:39 -0700
+Date: Fri, 14 Mar 2008 00:22:38 -0700
 In-Reply-To: <>
 References: <>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
@@ -21,52 +20,44 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Cc: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Signed-off-by: Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   22 ++++------------------
- 1 files changed, 4 insertions(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 6ce6873..91760d2 100644
+index 674c053..6ce6873 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -1,25 +1,11 @@
- /*
-- * drivers/i2c/busses/i2c-bfin-twi.c
-+ * Blackfin On-Chip Two Wire Interface Driver
-  *
-- * Description: Driver for Blackfin Two Wire Interface
-+ * Copyright 2005-2007 Analog Devices Inc.
-  *
-- * Author:      sonicz  <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-+ * Enter bugs at http://blackfin.uclinux.org/
-  *
-- * Copyright (c) 2005-2007 Analog Devices, Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ * Licensed under the GPL-2 or later.
-  */
+@@ -707,7 +707,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
  
- #include <linux/module.h>
+ 	platform_set_drvdata(pdev, iface);
+ 
+-	dev_info(&pdev->dev, "Blackfin I2C TWI controller, regs_base@%p\n",
++	dev_info(&pdev->dev, "Blackfin BF5xx on-chip I2C TWI Contoller, regs_base@%p\n",
+ 		iface->regs_base);
+ 
+ 	return 0;
+@@ -760,9 +760,9 @@ static void __exit i2c_bfin_twi_exit(void)
+ 	platform_driver_unregister(&i2c_bfin_twi_driver);
+ }
+ 
+-MODULE_AUTHOR("Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>");
+-MODULE_DESCRIPTION("I2C-Bus adapter routines for Blackfin TWI");
+-MODULE_LICENSE("GPL");
+-
+ module_init(i2c_bfin_twi_init);
+ module_exit(i2c_bfin_twi_exit);
++
++MODULE_AUTHOR("Bryan Wu, Sonic Zhang");
++MODULE_DESCRIPTION("Blackfin BF5xx on-chip I2C TWI Contoller Driver");
++MODULE_LICENSE("GPL");
 -- 
 1.5.4.3
 
