@@ -1,15 +1,13 @@
-From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 6/6] Blackfin I2C TWI driver: ADSP-BF52x arch/mach
-	support
-Date: Wed, 12 Mar 2008 16:28:55 +0000 (UTC)
-Message-ID: <1205479360-25240-7-git-send-email-cooloney@kernel.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 0/6] Blackfin I2C TWI driver updates
+Date: Wed, 12 Mar 2008 19:37:18 +0100
+Message-ID: <20080312193718.1aa86caf@hyperion.delvare>
+References: <1205479360-25240-1-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Date: Fri, 14 Mar 2008 00:22:40 -0700
-In-Reply-To: <>
-References: <>
+In-Reply-To: <1205479360-25240-1-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,40 +17,29 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Hi Bryan,
 
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/Kconfig |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Fri, 14 Mar 2008 00:22:34 -0700, Bryan Wu wrote:
+> I reworked this series updates according to you review in previous email.
+> Could you please apply these patches to 2.6.25, because Blackfin BF54x compiling
+> will fail without these?
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 476b0bb..a1351ce 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -100,10 +100,10 @@ config I2C_AU1550
- 
- config I2C_BLACKFIN_TWI
- 	tristate "Blackfin TWI I2C support"
--	depends on BF534 || BF536 || BF537 || BF54x
-+	depends on BF534 || BF536 || BF537 || BF54x || BF522 || BF525 || BF527
- 	help
--	  This is the TWI I2C device driver for Blackfin 534/536/537/54x.
--	  This driver can also be built as a module.  If so, the module
-+	  This is the TWI I2C device driver for Blackfin 522/525/527/534/536/537/54x.
-+	  This driver can also be built as a module. If so, the module
- 	  will be called i2c-bfin-twi.
- 
- config I2C_BLACKFIN_TWI_CLK_KHZ
+No, sorry. We're at rc5 already. If you wanted these changes in 2.6.25,
+you should have sent them 2 months ago. Plus, none of the 6 patches in
+this series says that it fixes a build failure.
+
+At this point of the release cycle I can only accept build fixes, bug
+fixes and documentation updates. If anything like this is needed for
+the i2c-bfin-twi driver, please send short, clean, documented patches
+that do not depend on other patches, and I'll review and apply them.
+Anything else will have to wait until 2.6.26.
+
 -- 
-1.5.4.3
-
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
