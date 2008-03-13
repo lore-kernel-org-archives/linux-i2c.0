@@ -1,19 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/6] Blackfin I2C TWI driver updates
-Date: Thu, 13 Mar 2008 18:13:52 +0100
-Message-ID: <20080313181352.1fbbb94c@hyperion.delvare>
-References: <1205479360-25240-1-git-send-email-cooloney@kernel.org>
-	<20080312193718.1aa86caf@hyperion.delvare>
-	<386072610803121907y499903ban37456d06d36a07a8@mail.gmail.com>
-	<Pine.LNX.4.64.0803130726410.26435@pc-213-140-179-32.aina.net>
-	<386072610803130050j47f2659bpbf53199c7dec4916@mail.gmail.com>
-	<20080313153412.6c978e24@hyperion.delvare>
-	<386072610803130925r3353032kc4e47d4a0948dba4@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] I2C driver for IMX
+Date: Thu, 13 Mar 2008 22:05:46 +0100
+Message-ID: <20080313210546.GA4483@pengutronix.de>
+References: <frbjjv$ndk$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1131604006643805358=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <386072610803130925r3353032kc4e47d4a0948dba4-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <frbjjv$ndk$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,22 +16,91 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Kalle Pokki <kalle.pokki-jgfpPLbCha8@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 13 Mar 2008 09:25:49 -0700, Bryan Wu wrote:
-> OK, Killing BF54x from drivers/i2c/busses/Kconfig is acceptable.
-> And the whole i2c function of BF54x will be disabled in 2.6.25, it
-> will be fixed in 2.6.26, right?
 
-Exactly.
+--===============1131604006643805358==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Content-Disposition: inline
 
-Thanks,
--- 
-Jean Delvare
+
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 13, 2008 at 06:07:45PM +0200, Darius wrote:
+
+Hello,
+
+(I know I am myself quite new here. I don't want to boast, just trying
+to be a little bit helpful.)
+
+I found some things concerning the formal side:
+
+> + * History: 2002/2/07 use msgs[]
+I have been told here that histories are not wanted as they are achieved
+through git.
+
+> +static struct platform_driver i2c_imx_driver =3D {
+> +	.probe		=3D i2c_imx_probe,
+> +	.remove		=3D i2c_imx_remove,
+> +	.driver		=3D {
+> +		.name	=3D DRIVER_NAME,
+> +        .owner	=3D THIS_MODULE,
+Indentation seems wrong here and in some other places...
+
+> +struct imx_i2c_struct {
+> +    struct i2c_adapter  adapter;
+> +	struct resource		*res;
+> +	void   __iomem		*base;
+=2E..like here and so on.
+
+> +    #ifdef CONFIG_I2C_DEBUG_BUS
+> +        printk("I2C: <i2c_imx_bus_busy>\n");
+> +    #endif
+Maybe you can define a debug-printing-macro that only prints when
+DEBUG_BUS is set and is simply empty when it is unset? This should make
+the code more readable, I think (or use pr_debug).
+
+> +	// chech or i2c bus is not busy
+CodingStyle suggests not using //.
+
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH2ZcqD27XaX1/VRsRAml2AKDB/LWdk9I6qg900YaKrvCKF6KdRgCfS6Px
+lS+2OwtqKZMfiP8khwtiFeY=
+=qge9
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--
+
+
+--===============1131604006643805358==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1131604006643805358==--
