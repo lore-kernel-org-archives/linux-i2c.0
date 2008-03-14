@@ -1,182 +1,50 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C: Fix unhandled fault in i2c-omap controller
-Date: Fri, 14 Mar 2008 18:52:18 +0100
-Message-ID: <20080314185218.3fa69d19@hyperion.delvare>
-References: <20080313155123.GI11653@atomide.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [PATCH] I2C driver for IMX
+Date: Fri, 14 Mar 2008 19:03:18 +0100
+Message-ID: <20080314190318.732d84e2@hyperion.delvare>
+References: <frbjjv$ndk$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080313155123.GI11653-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+In-Reply-To: <frbjjv$ndk$1@ger.gmane.org>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Darius <augulis.darius@gmail.com>
+Cc: i2c@lm-sensors.org, linux-arm-kernel@lists.arm.linux.org.uk
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 13 Mar 2008 17:51:24 +0200, Tony Lindgren wrote:
-> Hi Jean,
-> 
-> Here's an omap I2C fix that would be nice to get into 2.6.25 if still
-> possible.
+Hi Darius,
 
-Review:
+On Thu, 13 Mar 2008 18:07:45 +0200, Darius wrote:
+> Almost written from scratch - only small piece of code leaved from old 
+> driver, witch never was originally in vanilla kernel.
+> SMB is NOT supported currently.
 
-> commit 8e4f19286e68d38d589451ad2a10545f2c40032d
-> Author: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-> Date:   Mon Feb 18 20:16:00 2008 -0800
-> 
->     I2C: Fix unhandled fault in i2c-omap controller
->     
->     If an I2C interrupt happens between disabling interface clock
->     and functional clock, the interrupt handler will produce an
->     external abort on non-linefetch error when trying to access
->     driver registers while interface clock is disabled.
->     
->     This patch fixes the problem by saving and disabling i2c-omap
->     interrupt before turning off the clocks. Also disable functional
->     clock before the interface clock as suggested by Paul Walmsley.
->     
->     Patch also renames enable/disable_clocks functions to unidle/idle
->     functions. Note that the driver is currently not taking advantage
->     of the idle interrupts. To use the idle interrupts, driver would
->     have to enable interface clock based on the idle interrupt
->     and dev->idle flag.
->     
->     Cc: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
->     Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index da66397..862dd69 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -128,6 +128,8 @@ struct omap_i2c_dev {
->  	size_t			buf_len;
->  	struct i2c_adapter	adapter;
->  	unsigned		rev1:1;
-> +	unsigned		idle:1;
-> +	u16			iestate;	/* Saved interrupt register */
->  };
->  
->  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
-> @@ -174,18 +176,30 @@ static void omap_i2c_put_clocks(struct omap_i2c_dev *dev)
->  	}
->  }
->  
-> -static void omap_i2c_enable_clocks(struct omap_i2c_dev *dev)
-> +static void omap_i2c_unidle(struct omap_i2c_dev *dev)
->  {
->  	if (dev->iclk != NULL)
->  		clk_enable(dev->iclk);
->  	clk_enable(dev->fclk);
-> +	if (dev->iestate)
-> +		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
-> +	dev->idle = 0;
->  }
->  
-> -static void omap_i2c_disable_clocks(struct omap_i2c_dev *dev)
-> +static void omap_i2c_idle(struct omap_i2c_dev *dev)
->  {
-> +	u16 iv;
-> +
-> +	dev->idle = 1;
-> +	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
-> +	if (dev->rev1)
-> +		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG);
+Assuming that you mean SMBus, it is in fact almost supported, because
+i2c-core can emulate most of SMBus over I2C. Just add
+I2C_FUNC_SMBUS_EMUL to i2c_imx_func() and you're done. If the device
+doesn't support zero-byte messages, you might have to remove
+I2C_FUNC_SMBUS_QUICK but that's about it.
 
-Reading OMAP_I2C_IV_REG but not doing anything with the value? This
-deserves at least a comment if this is done on purpose (but then I
-don't think you need the iv variable at all.)
+> Tested on the MXLADS v2.0 board with i2c client driver (driver for 
+> NT7651 LCD controller). All works fine, stable.
 
-> +	else
-> +		omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, dev->iestate);
-> +	clk_disable(dev->fclk);
->  	if (dev->iclk != NULL)
->  		clk_disable(dev->iclk);
-> -	clk_disable(dev->fclk);
->  }
->  
->  static int omap_i2c_init(struct omap_i2c_dev *dev)
-> @@ -360,7 +374,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  	int i;
->  	int r;
->  
-> -	omap_i2c_enable_clocks(dev);
-> +	omap_i2c_unidle(dev);
->  
->  	if ((r = omap_i2c_wait_for_bb(dev)) < 0)
->  		goto out;
-> @@ -374,7 +388,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  	if (r == 0)
->  		r = num;
->  out:
-> -	omap_i2c_disable_clocks(dev);
-> +	omap_i2c_idle(dev);
->  	return r;
->  }
->  
-> @@ -403,6 +417,9 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
->  	struct omap_i2c_dev *dev = dev_id;
->  	u16 iv, w;
->  
-> +	if (dev->idle)
-> +		return IRQ_NONE;
-> +
->  	iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG);
->  	switch (iv) {
->  	case 0x00:	/* None */
-> @@ -457,6 +474,9 @@ omap_i2c_isr(int this_irq, void *dev_id)
->  	u16 stat, w;
->  	int count = 0;
->  
-> +	if (dev->idle)
-> +		return IRQ_NONE;
-> +
->  	bits = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
->  	while ((stat = (omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG))) & bits) {
->  		dev_dbg(dev->dev, "IRQ (ISR = 0x%04x)\n", stat);
-> @@ -575,7 +595,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  	if ((r = omap_i2c_get_clocks(dev)) != 0)
->  		goto err_free_mem;
->  
-> -	omap_i2c_enable_clocks(dev);
-> +	omap_i2c_unidle(dev);
->  
->  	if (cpu_is_omap15xx())
->  		dev->rev1 = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) < 0x20;
-> @@ -610,7 +630,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  		goto err_free_irq;
->  	}
->  
-> -	omap_i2c_disable_clocks(dev);
-> +	omap_i2c_idle(dev);
->  
->  	return 0;
->  
-> @@ -618,7 +638,7 @@ err_free_irq:
->  	free_irq(dev->irq, dev);
->  err_unuse_clocks:
->  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-> -	omap_i2c_disable_clocks(dev);
-> +	omap_i2c_idle(dev);
->  	omap_i2c_put_clocks(dev);
->  err_free_mem:
->  	platform_set_drvdata(pdev, NULL);
-
-The rest of the patch looks OK to me.
+You really need to read Documentation/CodingStyle and adjust your code
+accordingly before I will consider merging your patch.
+scripts/checkpatch.pl is your friend too.
 
 -- 
 Jean Delvare
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
