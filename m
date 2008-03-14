@@ -1,68 +1,77 @@
-From: =?iso-8859-15?q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCH] I2C driver for IMX
-Date: Fri, 14 Mar 2008 08:37:16 +0100
-Message-ID: <18394.11052.709243.186544@ipc1.ka-ro>
-References: <frbjjv$ndk$1@ger.gmane.org>
+Date: Fri, 14 Mar 2008 09:57:40 +0100
+Message-ID: <20080314085740.GA4758@pengutronix.de>
+References: <frbjjv$ndk$1@ger.gmane.org> <20080313210546.GA4483@pengutronix.de>
+	<frd9ei$rqj$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1750941825=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <frbjjv$ndk$1@ger.gmane.org>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: Darius <augulis.darius@gmail.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, i2c@lm-sensors.org
+Content-Type: multipart/mixed; boundary="===============9201076058640836180=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <frd9ei$rqj$1@ger.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============1750941825==
 
-Hi,
-
-> +    #ifdef CONFIG_I2C_DEBUG_BUS
-> +        printk("I2C: <i2c_imx_bus_busy>\n");
-> +    #endif
->
-Using a macro that evaluates to nothing in case CONFIG_I2C_DEBUG_BUS is
-not defined would make the code much more readable.
-
-> +	temp = readb ( i2c_imx->base + IMX_I2C_I2CR);
-> +    temp |= I2CR_MSTA;
->
-inconsistent indentation with tabs and spaces (througout the whole patch).
-
-> +	if (!i2c_imx) {
-> +		printk("I2C: can't allocate inteface!\n");
-                                               ^^
-typo.
+--===============9201076058640836180==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
 
 
-Lothar Wassmann
--- 
-___________________________________________________________
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ka-Ro electronics GmbH | Pascalstraße 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Geschäftsführer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
+On Fri, Mar 14, 2008 at 09:26:28AM +0200, Darius wrote:
 
-www.karo-electronics.de | info@karo-electronics.de
-___________________________________________________________
+> thanks for comments. What I should do with corrected patch? Place
+> there again?
+Just send it again. You could add stuff like [PATCHV2] in the subject or
+a list of changes since the last revision in the description.
+
+Bye,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH2j4ED27XaX1/VRsRAnpOAJ46VnZgdVYuZradQEtLH5ZNJkDSAgCgsqpU
+NFtlDTvU7kn5nGTshT58e8I=
+=d5B9
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
 
 
---===============1750941825==
+--===============9201076058640836180==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
---===============1750941825==--
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============9201076058640836180==--
