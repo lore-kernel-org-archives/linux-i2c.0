@@ -1,17 +1,18 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] Add platform driver on top of the new
- pca-algorithm
-Date: Fri, 14 Mar 2008 19:46:28 +0100
-Message-ID: <20080314194628.07630698@hyperion.delvare>
-References: <20080308111337.440a7c83@hyperion.delvare>
-	<20080310112640.GB12128@pengutronix.de>
-	<20080310223116.73277c4f@hyperion.delvare>
-	<20080314145010.GA28612@pengutronix.de>
+Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
+ updates, part 2
+Date: Sat, 15 Mar 2008 12:59:40 +0100
+Message-ID: <20080315125940.2fe84f24@hyperion.delvare>
+References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
+	<200802252138.30301.david-b@pacbell.net>
+	<31e679430802260122xc30356ayd98fc3c079e613b7@mail.gmail.com>
+	<200803071220.10744.david-b@pacbell.net>
+	<31e679430803071300w2f2e80ddqd4516a976df4474@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080314145010.GA28612-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <31e679430803071300w2f2e80ddqd4516a976df4474-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,199 +22,127 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 14 Mar 2008 15:50:10 +0100, Wolfram Sang wrote:
-> Hello,
-> 
-> I sent this patch to myself a minute ago and could apply it. Dunno what went
-> wrong the last time. I am very sorry (I know that patch fixing is
-> annoying).
-> 
-> All the best,
-> 
->    Wolfram
-> 
-> ---
-> 
-> Subject: Add platform driver on top of the new pca-algorithm
-> From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> 
-> Changes since last revision:
->  - use <linux/gpio.h> and remove #ifdefs CONFIG_GENERIC_GPIO
->  - correct reference to gpio_is_valid()
->  - register and setup gpio in the driver
->  - just print whole lines with printk
->  - removed warnings
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> 
-> Changes since last revision:
->  - check against CONFIG_GENERIC_GPIO (was GENERIC_GPIO :( )
->  - don't use platform data anymore, copy all over to own struct
->  - give info about mem & irq when booting (and switch to printk
->    as device is not yet registered)
->  - add comment about problems with polling
->  - added proper __devinit and __devexit
->  - added owner to module
->  - removed whitespace alignment in code
->  - driver now named "i2c-pca-platform" (as the module)
->  - fixed typos in Kconfig
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> 
-> Tested on a blackfin.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> 
-> ---
->  drivers/i2c/busses/Kconfig            |   15 +
->  drivers/i2c/busses/Makefile           |    1 
->  drivers/i2c/busses/i2c-pca-platform.c |  298 ++++++++++++++++++++++++++++++++++
->  include/linux/i2c-pca-platform.h      |   12 +
->  4 files changed, 324 insertions(+), 2 deletions(-)
-> 
-> Index: linux-playground/drivers/i2c/busses/i2c-pca-platform.c
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-playground/drivers/i2c/busses/i2c-pca-platform.c	2008-03-14 14:45:34.000000000 +0100
-> (...)
-> +static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
+Hi Felipe,
+
+On Fri, 7 Mar 2008 23:00:40 +0200, Felipe Balbi wrote:
+> Hi,
+> =
+
+> On Fri, Mar 7, 2008 at 10:20 PM, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wro=
+te:
+> > On Tuesday 26 February 2008, Felipe Balbi wrote:
+> >  > >
+> >  > >  Passing irq_flags???  That sounds like nonsense.  Please explain =
+...
+> >  >
+> >  > request_irq was using different irq flags depending on the board, so
+> >  > instead of keeping if (machine_is_*) in the driver just because of i=
+rq
+> >  > flags we could bring it from a platform_data.
+> >
+> >  Just use the resource type flags ... IORESOURCE_IRQ can
+> >  be combined with
+> =
+
+> but then isp1301 should become a platform_driver, shouldn't it?
+> I'd need a struct platform_device on the board file and get the device
+> on probe just to get an irq flag?
+> =
+
+> Maybe I'm missing something but I'm understanding something like:
+> =
+
+> --- a/arch/arm/mach-omap1/board-h2.c
+> +++ b/arch/arm/mach-omap1/board-h2.c
+> @@ -140,6 +140,17 @@ static struct platform_device h2_nor_device =3D {
+>         .resource       =3D &h2_nor_resource,
+>  };
+> =
+
+> +static struct resource h2_isp1301_resource =3D {
+> +       .flags          =3D IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
+> +};
+> +
+> +static struct platform_device h2_nor_device =3D {
+> +       .name           =3D "isp1301_omap",
+> +       .id             =3D 0,
+> +       .num_resources  =3D 1,
+> +       .resource       =3D &h2_isp1301_resource,
+> +};
+> +
+>  static struct mtd_partition h2_nand_partitions[] =3D {
+>  #if 0
+>         /* REVISIT:  enable these partitions if you make NAND BOOT
+> diff --git a/drivers/i2c/chips/isp1301_omap.c b/drivers/i2c/chips/isp1301=
+_omap.c
+> index 4bb931c..d0a5825 100644
+> --- a/drivers/i2c/chips/isp1301_omap.c
+> +++ b/drivers/i2c/chips/isp1301_omap.c
+> @@ -1453,6 +1453,27 @@ isp1301_start_hnp(struct otg_transceiver *dev)
+> =
+
+>  /*----------------------------------------------------------------------=
+---*/
+> =
+
+> +struct platform_driver isp1301_plat_driver =3D {
+> +       .driver =3D {
+> +               .name   =3D DRIVER_NAME,
+> +               .bus    =3D &platform_bus_type,
+> +               .owner  =3D THIS_MODULE,
+> +       },
+> +};
+> +
+> +static int __init isp1301_plat_probe(struct platform_device *pdev)
 > +{
-> +	struct i2c_pca_pf_data *i2c;
-> +	struct resource *res;
-> +	struct i2c_pca9564_pf_platform_data *platform_data =
-> +				pdev->dev.platform_data;
-> +	int ret = 0;
-> +	int irq;
+> +       struct resource *resource;
 > +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	irq = platform_get_irq(pdev, 0);
-> +	/* If irq is 0, we do polling. */
+> +       resource =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> +       if (!resource)
+> +               return -ENODEV;
 > +
-> +	if (res == NULL) {
-> +		ret = -ENODEV;
-> +		goto e_print;
-> +	}
-> +
-> +	if (!request_mem_region(res->start, res_len(res), res->name)) {
-> +		ret = -ENOMEM;
-> +		goto e_print;
-> +	}
-> +
-> +	i2c = kzalloc(sizeof(struct i2c_pca_pf_data), GFP_KERNEL);
-> +	if (!i2c) {
-> +		ret = -ENOMEM;
-> +		goto e_alloc;
-> +	}
-> +
-> +	init_waitqueue_head(&i2c->wait);
-> +
-> +	i2c->reg_base = ioremap(res->start, res_len(res));
-> +	if (!i2c->reg_base) {
-> +		ret = -EIO;
-> +		goto e_remap;
-> +	}
-> +	i2c->io_base = res->start;
-> +	i2c->io_size = res_len(res);
-> +	i2c->irq = irq;
-> +
-> +	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
-> +	i2c->adap.owner = THIS_MODULE;
-> +	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "PCA9564 at 0x%08lx",
-> +		(unsigned long) res->start);
-> +	i2c->adap.algo_data = &i2c->algo_data;
-> +	i2c->adap.dev.parent = &pdev->dev;
-> +	i2c->adap.timeout = platform_data->timeout;
-> +
-> +	i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
-> +	i2c->algo_data.data = i2c;
-> +
-> +	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
-> +	case IORESOURCE_MEM_32BIT:
-> +		i2c->algo_data.write_byte = i2c_pca_pf_writebyte32;
-> +		i2c->algo_data.read_byte = i2c_pca_pf_readbyte32;
-> +		break;
-> +	case IORESOURCE_MEM_16BIT:
-> +		i2c->algo_data.write_byte = i2c_pca_pf_writebyte16;
-> +		i2c->algo_data.read_byte = i2c_pca_pf_readbyte16;
-> +		break;
-> +	case IORESOURCE_MEM_8BIT:
-> +	default:
-> +		i2c->algo_data.write_byte = i2c_pca_pf_writebyte8;
-> +		i2c->algo_data.read_byte = i2c_pca_pf_readbyte8;
-> +		break;
-> +	}
-> +
-> +	i2c->algo_data.wait_for_completion = i2c_pca_pf_waitforcompletion;
-> +
-> +
-
-No double blank lines inside functions please (they confuse patch too
-easily.)
-
-> +	i2c->gpio = platform_data->gpio;
-> +	i2c->algo_data.reset_chip = i2c_pca_pf_dummyreset;
-> +
-> +	/* Use gpio_is_valid() when in mainline */
-> +	if (i2c->gpio > -1)
-> +		ret = gpio_request(i2c->gpio, i2c->adap.name);
-> +		if (ret == 0) {
-> +			gpio_direction_output(i2c->gpio, 1);
-> +			i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
-> +		} else {
-> +			printk(KERN_WARNING "%s: Registering gpio failed!\n",
-> +				i2c->adap.name);
-> +			i2c->gpio = ret;
-> +		}
-
-You're missing curly braces around this block, aren't you?
-
-> +
-> +	if (irq) {
-> +		ret = request_irq(irq, i2c_pca_pf_handler,
-> +			IRQF_TRIGGER_FALLING, i2c->adap.name, i2c);
-> +		if (ret)
-> +			goto e_reqirq;
-> +	}
-> +
-> +	if (i2c_pca_add_numbered_bus(&i2c->adap) < 0) {
-> +		ret = -ENODEV;
-> +		goto e_adapt;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, i2c);
-> +
-> +	printk(KERN_INFO "%s registered.\n", i2c->adap.name);
-> +
-> +	return 0;
-> +
-> +e_adapt:
-> +	if (irq)
-> +		free_irq(irq, i2c);
-> +e_reqirq:
-> +	if (i2c->gpio > -1)
-> +		gpio_free(i2c->gpio);
-> +
-> +	iounmap(i2c->reg_base);
-> +e_remap:
-> +	kfree(i2c);
-> +e_alloc:
-> +	release_mem_region(res->start, res_len(res));
-> +e_print:
-> +	printk(KERN_ERR "Registering PCA9564 FAILED! (%d)\n", ret);
-> +	return ret;
+> +       the_transceiver->irq_type =3D resource->flags;
 > +}
+> +
+> +/*----------------------------------------------------------------------=
+---*/
+> +
+>  /* no error returns, they'd just make bus scanning stop */
+>  static int __init isp1301_probe(struct i2c_client *client)
+>  {
+> =
 
-The rest looks OK, so I can fix this myself and queue up your patch for
-2.6.26.
+> (of course the code above doesn't work, it's just to clear my mind :-p)
+> =
 
-Thanks,
--- 
+> Anyways, wouldn't be easier to put a platform_data that can ship
+> withing struct i2c_board_info?
+
+The above looks all wrong to me. The ISP1301 is an I=B2C device, it gets
+an i2c driver, not a platform driver.
+
+If you need to pass any extra parameter from the platform code to the
+isp1301 driver, you must define a custom structure and pass it as
+i2c_board_info->platform_data. In your case, it would look like:
+
+struct isp1301_platform_data {
+	int irq_type;
+}
+
+David, please correct me if I'm wrong.
+
+That being said, if many drivers need an irq_type field in addition to
+the irq number, we might consider adding an irq_type field to struct
+i2c_board_info and struct i2c_client directly. It probably doesn't make
+much sense to have irq and irq_type take different routes if they are
+most often needed together.
+
+-- =
+
 Jean Delvare
 
 _______________________________________________
