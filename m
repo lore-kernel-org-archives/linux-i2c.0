@@ -1,94 +1,80 @@
-From: bruno.roussel@free.fr
-Subject: Re: possible recursive locking detected
-Date: Sat, 15 Mar 2008 18:00:16 +0100
-Message-ID: <1205600416.47dc00a0cd55b@imp.free.fr>
-References: <1205082504.47d41988f0db5@imp.free.fr> <alpine.DEB.1.00.0803092215010.5349@sheep.housecafe.de> <Pine.LNX.4.64.0803092332160.18589@twin.jikos.cz> <20080310142921.2696e8b9@hyperion.delvare>
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: [PATH 0/3] isp1301 changes
+Date: Sun, 16 Mar 2008 01:22:11 +0200
+Message-ID: <31e679430803151622k3a76371bk4a6c898a9507e7d3@mail.gmail.com>
+References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
+	<20080315162832.067b8088@hyperion.delvare>
+	<31e679430803150838n6638be05k53800bb74eeb3462@mail.gmail.com>
+	<31e679430803150840p334e8d17ncdd1fdc431de8d82@mail.gmail.com>
+	<20080315174731.29cfb554@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753729AbYCORAg@vger.kernel.org>
-In-Reply-To: <20080310142921.2696e8b9@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Christian Kujau <lists@nerdbynature.de>, bruno.roussel@free.fr, LKML <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080315174731.29cfb554-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I have switch to the new 2.6.24.3 kernel version and it's OK now
-Strange ...
+On Sat, Mar 15, 2008 at 6:47 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> On Sat, Mar 15, 2008 at 5:38 PM, Felipe Balbi
+>  <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
+>  > On Sat, Mar 15, 2008 at 5:28 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  >  > On Sat, 15 Mar 2008 14:47:14 +0200, Felipe Balbi wrote:
+>  >  >  > Hi Jean,
+>  >  >  >
+>  >  >  > I have a new approach for the isp1301 driver, took your idea
+>  >  >  > of adding a new irq_flags member to i2c_boardinfo and i2c_client.
+>  >  >
+>  >  >  I said we could do this _if_ many drivers needed this field. I didn't
+>  >  >  mean to do it right now... So far I only know of the isp1301 driver
+>  >  >  which would need this. And at any rate I'd like to hear David's opinion
+>  >  >  before adding a new field to the core i2c structures.
+>  >
+>  >  Ok, so I'll prepare other patch based on addind include/i2c/isp1301_omap.h with
+>  >  struct isp1301_platform_data.
+>
+>  Would be better, yes. If we finally decide to add an irq_flags field to
+>  the i2c core structures, we'll update the isp1301 driver accordingly.
 
-Thank's for all
+Ok, tomorrow probably i won't be able to work on that, but I'll update
+asap and keep the other patches in a separate branch ;-)
 
-Selon Jean Delvare <khali@linux-fr.org>:
+>  >  But still, it makes really much sense adding this field cuz the
+>  >  probability of having different irq flags on different boards is quite
+>  >  high. Also, a driver shouldn't be conditional to an architecture. I
+>  >  mean, isp1301 can be used with any arch, not only with omap. So as
+>  >  much as we can make it platform independent as better driver we get.
+>
+>  I agree that it would be great if the isp1301 driver was arch-neutral.
+>  But I fail to see how this is related to adding an irq_flags field to
+>  struct i2c_board_info and struct i2c_client or not.
 
-> On Sun, 9 Mar 2008 23:41:50 +0100 (CET), Jiri Kosina wrote:
-> > On Sun, 9 Mar 2008, Christian Kujau wrote:
-> >
-> > > > =============================================
-> > > > [ INFO: possible recursive locking detected ]
-> > > > 2.6.24.2-1mdv #1
-> > > > ---------------------------------------------
-> > > Hm, strange: a similiar looking issue has been reported back in 2006, it
-> > > even comes with a patch: http://lkml.org/lkml/2006/10/14/38
-> > > ..but I cannot tell if the patch made it into mainline. I've Cc'ed the
-> i2c
-> > > folks, maybe they can tell what's going on here.
-> >
-> > I don't recall this, but from looking at the source it seems that only
-> > part of my patch made it upstream for some reason ...
->
-> I applied the i2c-core part:
->
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=6ea23039cb1cc7c379eb5fba0ed2c53291e9bea7
->
-> But I have no idea what happened to the DVB device-driver specific part.
->
-> >
-> > Bruno, does the patch below remove the warning for you? (we should rather
-> > used lockdep_set_class() now, when this is already available ... it wasn't
-> > in the time I was doping the original patch back in 2006).
-> >
-> >
-> >
-> > Set locking depth properly (level == 0 for DVB frontend, level == 1 for
-> > DVB adapter).
-> >
-> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> >
-> > diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> b/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> > index 23428cd..8c5dc35 100644
-> > --- a/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> > +++ b/drivers/media/dvb/dvb-usb/dvb-usb-i2c.c
-> > @@ -27,6 +27,7 @@ int dvb_usb_i2c_init(struct dvb_usb_device *d)
-> >  #endif
-> >  	d->i2c_adap.algo      = d->props.i2c_algo;
-> >  	d->i2c_adap.algo_data = NULL;
-> > +	d->i2c_adap.level = 1;
-> >  	d->i2c_adap.dev.parent = &d->udev->dev;
-> >
-> >  	i2c_set_adapdata(&d->i2c_adap, d);
-> > diff --git a/drivers/media/dvb/frontends/dibx000_common.c
-> b/drivers/media/dvb/frontends/dibx000_common.c
-> > index 315e09e..a3ed8cf 100644
-> > --- a/drivers/media/dvb/frontends/dibx000_common.c
-> > +++ b/drivers/media/dvb/frontends/dibx000_common.c
-> > @@ -111,6 +111,7 @@ static int i2c_adapter_init(struct i2c_adapter
-> *i2c_adap, struct i2c_algorithm *
-> >  	i2c_adap->class     = I2C_CLASS_TV_DIGITAL,
-> >  	i2c_adap->algo      = algo;
-> >  	i2c_adap->algo_data = NULL;
-> > +	i2c_adap->level = 0;
-> >  	i2c_set_adapdata(i2c_adap, mst);
-> >  	if (i2c_add_adapter(i2c_adap) < 0)
-> >  		return -ENODEV;
->
-> Also note:
->
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=cea443a81c9c6257bf2d00f1392f7d1d4ce03b75
->
-> This patch that was applied recently to i2c-core might cause lockdep
-> issues. For some reason there's no "nested" variant of mutex_trylock?
->
-> --
-> Jean Delvare
->
+We're gonna have to keep adding arch-conditional code on that, if the
+code were arch neutral a simple i2c_boardinfo and
+i2c_register_boardinfo(); would be enough for the driver to work on
+the new arch (possibly); otherwise we still have to keep "hacking"
+isp1301 driver to add more arch-conditional code mostly cuz of
+irq_flags (and some other bits we have to set on different arch, but
+that makes sense going on a platform_data as well).
+
+-- 
+Best Regards,
+
+Felipe Balbi
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
