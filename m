@@ -1,20 +1,21 @@
 From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
 Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
 	part 2
-Date: Sat, 15 Mar 2008 14:54:59 +0200
-Message-ID: <20080315125458.GB21547@kedavra.cpe.vivax.com.br>
+Date: Sat, 15 Mar 2008 15:13:11 +0200
+Message-ID: <20080315131309.GA24990@kedavra.cpe.vivax.com.br>
 References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
 	<1205585237-21492-2-git-send-email-me@felipebalbi.com>
 	<1205585237-21492-3-git-send-email-me@felipebalbi.com>
 	<1205585237-21492-4-git-send-email-me@felipebalbi.com>
 	<20080315124918.GA21547@kedavra.cpe.vivax.com.br>
+	<20080315125458.GB21547@kedavra.cpe.vivax.com.br>
 Reply-To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080315124918.GA21547-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
+In-Reply-To: <20080315125458.GB21547-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,15 +26,18 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, David Brownell <david-b-ZKR15rr3LjGsTnJN9+BGXg@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Now it's ok.
-patch inline.
+On Sat, Mar 15, 2008 at 02:54:59PM +0200, Felipe Balbi wrote:
+> Now it's ok.
+> patch inline.
 
-======================== CUT HERE =====================
+Ugh, missing interrupt.h
 
->From 779861bf9c1efdf7eec7da541ce0d2771be6e620 Mon Sep 17 00:00:00 2001
+============== CUT HERE ==============
+
+>From 6018acbb287b6f72874bfe6588541eba3b1f919b Mon Sep 17 00:00:00 2001
 From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
 Date: Tue, 1 Jan 2008 23:00:18 -0500
 Subject: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates, part 2
@@ -43,17 +47,25 @@ finish conversting isp1301_omap.c to new-style i2c driver.
 
 Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
 ---
- arch/arm/mach-omap1/board-h2.c   |    1 +
- arch/arm/mach-omap1/board-h3.c   |    6 ++
- arch/arm/mach-omap2/board-h4.c   |   12 +++
- drivers/i2c/chips/isp1301_omap.c |  140 ++++++++++----------------------------
- 4 files changed, 56 insertions(+), 103 deletions(-)
+ arch/arm/mach-omap1/board-h2.c   |    2 +
+ arch/arm/mach-omap1/board-h3.c   |    7 ++
+ arch/arm/mach-omap2/board-h4.c   |   13 ++++
+ drivers/i2c/chips/isp1301_omap.c |  135 ++++++++++---------------------------
+ 4 files changed, 59 insertions(+), 98 deletions(-)
 
 diff --git a/arch/arm/mach-omap1/board-h2.c b/arch/arm/mach-omap1/board-h2.c
-index 5079877..81a8c87 100644
+index 5079877..7dec922 100644
 --- a/arch/arm/mach-omap1/board-h2.c
 +++ b/arch/arm/mach-omap1/board-h2.c
-@@ -357,6 +357,7 @@ static struct i2c_board_info __initdata h2_i2c_board_info[] = {
+@@ -22,6 +22,7 @@
+ #include <linux/kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/delay.h>
++#include <linux/interrupt.h>
+ #include <linux/i2c.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/nand.h>
+@@ -357,6 +358,7 @@ static struct i2c_board_info __initdata h2_i2c_board_info[] = {
  		I2C_BOARD_INFO("isp1301_omap", 0x2d),
  		.type		= "isp1301_omap",
  		.irq		= OMAP_GPIO_IRQ(2),
@@ -62,10 +74,18 @@ index 5079877..81a8c87 100644
  };
  
 diff --git a/arch/arm/mach-omap1/board-h3.c b/arch/arm/mach-omap1/board-h3.c
-index c3ef1ee..474921f 100644
+index c3ef1ee..6b785b8 100644
 --- a/arch/arm/mach-omap1/board-h3.c
 +++ b/arch/arm/mach-omap1/board-h3.c
-@@ -477,6 +477,12 @@ static struct i2c_board_info __initdata h3_i2c_board_info[] = {
+@@ -19,6 +19,7 @@
+ #include <linux/major.h>
+ #include <linux/kernel.h>
+ #include <linux/platform_device.h>
++#include <linux/interrupt.h>
+ #include <linux/errno.h>
+ #include <linux/workqueue.h>
+ #include <linux/i2c.h>
+@@ -477,6 +478,12 @@ static struct i2c_board_info __initdata h3_i2c_board_info[] = {
                 .type           = "tps65013",
                 /* .irq         = OMAP_GPIO_IRQ(??), */
         },
@@ -79,10 +99,18 @@ index c3ef1ee..474921f 100644
  
  static struct omap_gpio_switch h3_gpio_switches[] __initdata = {
 diff --git a/arch/arm/mach-omap2/board-h4.c b/arch/arm/mach-omap2/board-h4.c
-index f125f43..6e57021 100644
+index f125f43..b43347c 100644
 --- a/arch/arm/mach-omap2/board-h4.c
 +++ b/arch/arm/mach-omap2/board-h4.c
-@@ -301,6 +301,15 @@ static struct omap_board_config_kernel h4_config[] = {
+@@ -14,6 +14,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
++#include <linux/interrupt.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/delay.h>
+@@ -301,6 +302,15 @@ static struct omap_board_config_kernel h4_config[] = {
  	{ OMAP_TAG_LCD,		&h4_lcd_config },
  };
  
@@ -98,7 +126,7 @@ index f125f43..6e57021 100644
  static void __init omap_h4_init(void)
  {
  	/*
-@@ -321,6 +330,9 @@ static void __init omap_h4_init(void)
+@@ -321,6 +331,9 @@ static void __init omap_h4_init(void)
  	}
  #endif
  
@@ -109,28 +137,19 @@ index f125f43..6e57021 100644
  	omap_board_config = h4_config;
  	omap_board_config_size = ARRAY_SIZE(h4_config);
 diff --git a/drivers/i2c/chips/isp1301_omap.c b/drivers/i2c/chips/isp1301_omap.c
-index d094b99..0f5a2ae 100644
+index d094b99..f79e7de 100644
 --- a/drivers/i2c/chips/isp1301_omap.c
 +++ b/drivers/i2c/chips/isp1301_omap.c
-@@ -25,17 +25,10 @@
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
--#include <linux/usb/ch9.h>
--#include <linux/usb/gadget.h>
--#include <linux/usb.h>
--#include <linux/usb/otg.h>
+@@ -31,8 +31,6 @@
+ #include <linux/usb/otg.h>
  #include <linux/i2c.h>
  #include <linux/workqueue.h>
 -
 -#include <asm/irq.h>
  #include <asm/arch/usb.h>
  
--
- #ifndef	DEBUG
- #undef	VERBOSE
- #endif
-@@ -50,12 +43,8 @@ MODULE_LICENSE("GPL");
+ 
+@@ -50,12 +48,8 @@ MODULE_LICENSE("GPL");
  struct isp1301 {
  	struct otg_transceiver	otg;
  	struct i2c_client	*client;
@@ -143,7 +162,7 @@ index d094b99..0f5a2ae 100644
  	u32			last_otg_ctrl;
  	unsigned		working:1;
  
-@@ -140,13 +129,6 @@ static inline void notresponding(struct isp1301 *isp)
+@@ -140,13 +134,6 @@ static inline void notresponding(struct isp1301 *isp)
  /*-------------------------------------------------------------------------*/
  
  /* only two addresses possible */
@@ -157,7 +176,7 @@ index d094b99..0f5a2ae 100644
  static struct i2c_driver isp1301_driver;
  
  /* smbus apis are used for portability */
-@@ -1190,9 +1172,7 @@ static void isp1301_timer(unsigned long _isp)
+@@ -1190,9 +1177,7 @@ static void isp1301_timer(unsigned long _isp)
  
  static void isp1301_release(struct device *dev)
  {
@@ -168,7 +187,7 @@ index d094b99..0f5a2ae 100644
  
  	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
  	if (isp->i2c_release)
-@@ -1202,30 +1182,27 @@ static void isp1301_release(struct device *dev)
+@@ -1202,30 +1187,27 @@ static void isp1301_release(struct device *dev)
  
  static struct isp1301 *the_transceiver;
  
@@ -206,7 +225,7 @@ index d094b99..0f5a2ae 100644
  }
  
  /*-------------------------------------------------------------------------*/
-@@ -1295,9 +1272,6 @@ isp1301_set_host(struct otg_transceiver *otg, struct usb_bus *host)
+@@ -1295,9 +1277,6 @@ isp1301_set_host(struct otg_transceiver *otg, struct usb_bus *host)
  
  	power_up(isp);
  
@@ -216,7 +235,7 @@ index d094b99..0f5a2ae 100644
  	dev_info(&isp->client->dev, "A-Host sessions ok\n");
  	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
  		INTR_ID_GND);
-@@ -1475,11 +1449,10 @@ isp1301_start_hnp(struct otg_transceiver *dev)
+@@ -1475,11 +1454,10 @@ isp1301_start_hnp(struct otg_transceiver *dev)
  /*-------------------------------------------------------------------------*/
  
  /* no error returns, they'd just make bus scanning stop */
@@ -229,7 +248,7 @@ index d094b99..0f5a2ae 100644
  
  	if (the_transceiver)
  		return 0;
-@@ -1492,45 +1465,29 @@ static int isp1301_probe(struct i2c_adapter *bus, int address, int kind)
+@@ -1492,45 +1470,29 @@ static int isp1301_probe(struct i2c_adapter *bus, int address, int kind)
  	init_timer(&isp->timer);
  	isp->timer.function = isp1301_timer;
  	isp->timer.data = (unsigned long) isp;
@@ -289,7 +308,7 @@ index d094b99..0f5a2ae 100644
  		status >> 8, status & 0xff);
  
  	/* make like power-on reset */
-@@ -1551,40 +1508,25 @@ fail1:
+@@ -1551,40 +1513,25 @@ fail1:
  #ifdef	CONFIG_USB_OTG
  	status = otg_bind(isp);
  	if (status < 0) {
@@ -340,7 +359,7 @@ index d094b99..0f5a2ae 100644
  	isp->otg.label = DRIVER_NAME;
  
  	isp->otg.set_host = isp1301_set_host,
-@@ -1606,31 +1548,23 @@ fail2:
+@@ -1606,31 +1553,23 @@ fail2:
  
  #ifdef	VERBOSE
  	mod_timer(&isp->timer, jiffies + TIMER_JIFFIES);
@@ -378,6 +397,9 @@ index d094b99..0f5a2ae 100644
  /*-------------------------------------------------------------------------*/
 -- 
 1.5.4.3.447.gc95b3
+
+
+
 
 -- 
 Best Regards,
