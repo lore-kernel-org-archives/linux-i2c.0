@@ -1,16 +1,16 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATH 0/3] isp1301 changes
-Date: Sat, 15 Mar 2008 17:40:06 +0200
-Message-ID: <31e679430803150840p334e8d17ncdd1fdc431de8d82@mail.gmail.com>
+Date: Sat, 15 Mar 2008 17:47:31 +0100
+Message-ID: <20080315174731.29cfb554@hyperion.delvare>
 References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
 	<20080315162832.067b8088@hyperion.delvare>
 	<31e679430803150838n6638be05k53800bb74eeb3462@mail.gmail.com>
+	<31e679430803150840p334e8d17ncdd1fdc431de8d82@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <31e679430803150838n6638be05k53800bb74eeb3462-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <31e679430803150840p334e8d17ncdd1fdc431de8d82-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,11 +20,9 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-Fixing Dave's email. It was mis-spelled earlier.
 
 On Sat, Mar 15, 2008 at 5:38 PM, Felipe Balbi
 <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
@@ -42,39 +40,22 @@ On Sat, Mar 15, 2008 at 5:38 PM, Felipe Balbi
 >
 >  Ok, so I'll prepare other patch based on addind include/i2c/isp1301_omap.h with
 >  struct isp1301_platform_data.
->
+
+Would be better, yes. If we finally decide to add an irq_flags field to
+the i2c core structures, we'll update the isp1301 driver accordingly.
+
 >  But still, it makes really much sense adding this field cuz the
 >  probability of having different irq flags on different boards is quite
 >  high. Also, a driver shouldn't be conditional to an architecture. I
 >  mean, isp1301 can be used with any arch, not only with omap. So as
 >  much as we can make it platform independent as better driver we get.
->
->
->  >  > If it's ok for you, i'll also send a patch putting linux-omap and
->  >  > linux-mailine isp1301 in sync.
->  >
->  >  This would be great, yes. Divergence between trees tend to confuse
->  >  developers, often I receive patches which do not apply to my tree
->  >  because of this.
->
->  I already have such patch for both linux-omap and linux-mainline, but
->  it's based on adding irq_flags to i2c_boardinfo and i2c_client. So
->  let's wait Dave's comments ;-)
->
->  --
->  Best Regards,
->
->  Felipe Balbi
->  felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
->
 
-
+I agree that it would be great if the isp1301 driver was arch-neutral.
+But I fail to see how this is related to adding an irq_flags field to
+struct i2c_board_info and struct i2c_client or not.
 
 -- 
-Best Regards,
-
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
