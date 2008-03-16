@@ -1,22 +1,20 @@
-From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
-Subject: Re: [PATCH] I2C: ISP1301: Sync with linux-omap
-Date: Sun, 16 Mar 2008 13:00:35 +0200
-Message-ID: <20080316110033.GB4503@kedavra.cpe.vivax.com.br>
-References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
-	<1205585237-21492-2-git-send-email-me@felipebalbi.com>
-	<1205585237-21492-3-git-send-email-me@felipebalbi.com>
-	<1205585237-21492-4-git-send-email-me@felipebalbi.com>
-	<20080315124918.GA21547@kedavra.cpe.vivax.com.br>
-	<20080315125458.GB21547@kedavra.cpe.vivax.com.br>
-	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
-	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
-Reply-To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
+	updates, part 2
+Date: Sun, 16 Mar 2008 13:07:52 +0200
+Message-ID: <31e679430803160407ja048481hb9a1de47c71752a4@mail.gmail.com>
+References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
+	<31e679430803071300w2f2e80ddqd4516a976df4474@mail.gmail.com>
+	<20080315125940.2fe84f24@hyperion.delvare>
+	<200803152057.19375.david-b@pacbell.net>
+	<31e679430803160322v7b8d6ecepf03bd8b87d975553@mail.gmail.com>
+	<20080316114043.57e38dd7@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080316114043.57e38dd7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -26,135 +24,78 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-There are some changes on linux-omap's isp1301_omap.c
-that could already be in linux-mainline after
-omap1/2 got merged.
+On Sun, Mar 16, 2008 at 12:40 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>
+> On Sun, 16 Mar 2008 12:22:10 +0200, Felipe Balbi wrote:
+>  > On Sun, Mar 16, 2008 at 5:57 AM, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> =
+wrote:
+>  > > On Saturday 15 March 2008, Jean Delvare wrote:
+>  > >  > The above looks all wrong to me. The ISP1301 is an I=B2C device, =
+it gets
+>  > >  > an i2c driver, not a platform driver.
+>  > >
+>  > >  Right; blame that on me, for a moment I forgot and so I
+>  > >  mentioned the use of the IORESOURCE_IRQ_* flags, which work
+>  > >  on busses using resources -- like "platform" and "pnp").
+>  > >  Not helpful here.
+>  > >
+>  > >
+>  > >
+>  > >  > That being said, if many drivers need an irq_type field in additi=
+on to
+>  > >  > the irq number, we might consider adding an irq_type field to str=
+uct
+>  > >  > i2c_board_info and struct i2c_client directly. It probably doesn'=
+t make
+>  > >  > much sense to have irq and irq_type take different routes if they=
+ are
+>  > >  > most often needed together.
+>  > >
+>  > >  Actually ... why not just require the board-specific setup
+>  > >  code to set the right trigger mode?  Use set_irq_type().
+>  > >
+>  > >  That's what x86 does, and it works fine.  Drivers don't need
+>  > >  to worry about trigger modes ("irq_type") at all, since the
+>  > >  board setup code (on PCs: ACPI or BIOS) just stuffs the same
+>  > >  registers that set_irq_type() would stuff.  Drivers can just:
+>  > >
+>  > >    status =3D request_irq(irq, handler, 0, "name", data);
+>  > >
+>  > >  Platforms already do the pinmux setup, making sure that the
+>  > >  relevant pin is set up as an external interrupt source or
+>  > >  GPIO input as appropriate.  They can just as well do the rest.
+>  >
+>  > Good catch dave, actually osk is doing that already :-)
+>  > so I'll add set_irq_type($ISP1301_IRQ, $ISP1301_FLAGS); for all 3
+>  > boards and on the driver i'll request_irq like you said above.
+>
+>  Very nice. I wanted to suggest this originally, but stepped back as I
+>  noticed that request_irq() had a parameter for the IRQ flags. As
+>  request_irq() must be called by the device driver, I concluded that we
+>  really needed to carry the IRQ flags from the platform code to the
+>  driver... I didn't know that there was a way to configure the IRQ
+>  before requesting it. That's obviously much nicer. Would be great if we
+>  could get rid of that flags parameter of request_irq(), if you ask me.
 
-This patch sync such changes from linux-omap into linux-mailine.
+I was just thinking about the same :-)
+If all the irq configuration were moved to board-files, we could get
+rid of that parameter and it'd be just great ;-)
 
-Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
----
- drivers/i2c/chips/isp1301_omap.c |   40 +++++++++++++++++++++++++++++--------
- 1 files changed, 31 insertions(+), 9 deletions(-)
+Thanks Dave and Jean for all your time during this patch. Hopefully
+it's now good enough. I also sent the patch putting linux-omap and
+linux-mainline in sync. If tell me that's ok, i'll send a similar
+patch to linux-omap asap Cc:ing both you and Dave.
 
-diff --git a/drivers/i2c/chips/isp1301_omap.c b/drivers/i2c/chips/isp1301_omap.c
-index 9f2ccaf..9e3a6f3 100644
---- a/drivers/i2c/chips/isp1301_omap.c
-+++ b/drivers/i2c/chips/isp1301_omap.c
-@@ -84,7 +84,8 @@ struct isp1301 {
- 
- /*-------------------------------------------------------------------------*/
- 
--#ifdef	CONFIG_MACH_OMAP_H2
-+#if	defined(CONFIG_MACH_OMAP_H2) || \
-+	defined(CONFIG_MACH_OMAP_H3)
- 
- /* board-specific PM hooks */
- 
-@@ -122,17 +123,30 @@ static void enable_vbus_source(struct isp1301 *isp)
- }
- 
- 
--/* products will deliver OTG messages with LEDs, GUI, etc */
--static inline void notresponding(struct isp1301 *isp)
-+#else
-+
-+static void enable_vbus_draw(struct isp1301 *isp, unsigned mA)
- {
--	printk(KERN_NOTICE "OTG device not responding.\n");
-+	pr_debug("%s UNIMPL\n", __FUNCTION__);
- }
- 
-+static void enable_vbus_source(struct isp1301 *isp)
-+{
-+	pr_debug("%s UNIMPL\n", __FUNCTION__);
-+}
- 
- #endif
- 
- /*-------------------------------------------------------------------------*/
- 
-+/* products will deliver OTG messages with LEDs, GUI, etc */
-+static inline void notresponding(struct isp1301 *isp)
-+{
-+	printk(KERN_NOTICE "OTG device not responding.\n");
-+}
-+
-+/*-------------------------------------------------------------------------*/
-+
- /* only two addresses possible */
- static struct i2c_driver isp1301_driver;
- 
-@@ -495,6 +509,7 @@ static inline void check_state(struct isp1301 *isp, const char *tag) { }
- static void update_otg1(struct isp1301 *isp, u8 int_src)
- {
- 	u32	otg_ctrl;
-+	u8      int_id;
- 
- 	otg_ctrl = OTG_CTRL_REG
- 			& OTG_CTRL_MASK
-@@ -508,7 +523,10 @@ static void update_otg1(struct isp1301 *isp, u8 int_src)
- 	}
- 	if (int_src & INTR_VBUS_VLD)
- 		otg_ctrl |= OTG_VBUSVLD;
--	if (int_src & INTR_ID_GND) {		/* default-A */
-+
-+	int_id = isp1301_get_u8(isp, ISP1301_INTERRUPT_SOURCE);
-+
-+	if (int_id & INTR_ID_GND) {		/* default-A */
- 		if (isp->otg.state == OTG_STATE_B_IDLE
- 				|| isp->otg.state == OTG_STATE_UNDEFINED) {
- 			a_idle(isp, "init");
-@@ -1063,7 +1081,7 @@ static void isp_update_otg(struct isp1301 *isp, u8 stat)
- 	/* update the OTG controller state to match the isp1301; may
- 	 * trigger OPRT_CHG irqs for changes going to the isp1301.
- 	 */
--	update_otg1(isp, isp_stat);
-+	update_otg1(isp, isp_stat); /* pass the actual interrupt latch status */
- 	update_otg2(isp, isp_bstat);
- 	check_state(isp, __FUNCTION__);
- #endif
-@@ -1337,13 +1355,13 @@ isp1301_set_peripheral(struct otg_transceiver *otg, struct usb_gadget *gadget)
- 	power_up(isp);
- 	isp->otg.state = OTG_STATE_B_IDLE;
- 
--	if (machine_is_omap_h2())
-+	if (machine_is_omap_h2() || machine_is_omap_h3())
- 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1, MC1_DAT_SE0);
- 
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
--		INTR_SESS_VLD);
-+		INTR_SESS_VLD | INTR_VBUS_VLD);
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
--		INTR_VBUS_VLD);
-+		INTR_VBUS_VLD | INTR_SESS_VLD);
- 	dev_info(&isp->client->dev, "B-Peripheral sessions ok\n");
- 	dump_regs(isp, __func__);
- 
-@@ -1420,6 +1438,10 @@ isp1301_start_hnp(struct otg_transceiver *dev)
- 	 * So do this part as early as possible...
- 	 */
- 	switch (isp->otg.state) {
-+	case OTG_STATE_B_PERIPHERAL:
-+		isp->otg.state = OTG_STATE_B_WAIT_ACON;
-+		isp1301_defer_work(isp, WORK_UPDATE_ISP);
-+		break;
- 	case OTG_STATE_B_HOST:
- 		isp->otg.state = OTG_STATE_B_PERIPHERAL;
- 		/* caller will suspend next */
--- 
-1.5.4.3.447.gc95b3
+-- =
 
--- 
 Best Regards,
 
 Felipe Balbi
-me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
-http://blog.felipebalbi.com
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 
 _______________________________________________
 i2c mailing list
