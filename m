@@ -1,19 +1,17 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] Add platform driver on top of the new
- pca-algorithm
-Date: Sun, 16 Mar 2008 16:44:57 +0100
-Message-ID: <20080316164457.19157e0c@hyperion.delvare>
-References: <20080308111337.440a7c83@hyperion.delvare>
-	<20080310112640.GB12128@pengutronix.de>
-	<20080310223116.73277c4f@hyperion.delvare>
-	<20080314145010.GA28612@pengutronix.de>
-	<20080314194628.07630698@hyperion.delvare>
-	<20080316142834.GA4485@pengutronix.de>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
+	part 2
+Date: Sun, 16 Mar 2008 09:55:48 -0800
+Message-ID: <200803161055.49158.david-b@pacbell.net>
+References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
+	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
+	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080316142834.GA4485-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,45 +21,38 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 16 Mar 2008 15:28:34 +0100, Wolfram Sang wrote:
-> On Fri, Mar 14, 2008 at 07:46:28PM +0100, Jean Delvare wrote:
-> 
-> > > +	/* Use gpio_is_valid() when in mainline */
-> > > +	if (i2c->gpio > -1)
-> > > +		ret = gpio_request(i2c->gpio, i2c->adap.name);
-> > > +		if (ret == 0) {
-> > > +			gpio_direction_output(i2c->gpio, 1);
-> > > +			i2c->algo_data.reset_chip = i2c_pca_pf_resetchip;
-> > > +		} else {
-> > > +			printk(KERN_WARNING "%s: Registering gpio failed!\n",
-> > > +				i2c->adap.name);
-> > > +			i2c->gpio = ret;
-> > > +		}
-> > 
-> > You're missing curly braces around this block, aren't you?
-> Holy ..., yes, you are right. This is why I used to have braces even
-> around single instructions after if. This is, where CodingStyle gives me
-> most trouble.
+On Sunday 16 March 2008, Felipe Balbi wrote:
+> +=A0=A0=A0=A0=A0=A0=A0set_irq_type(OMAP_GPIO_IRQ(14), IRQF_SAMPLE_RANDOM);
 
-I can't agree more... This type of warning I am carefully ignoring when
-checkpatch.pl complains. In many cases, the extra braces don't hurt and
-protect us against future mistakes.
+You should provide *only* IRQF_TRIGGER_* bits when
+you call set_irq_type() ... while the docs are weak
+here (too), notice how kernel/irq/manage.c masks
+out all except the four bits in IRQF_TRIGGER_MASK.
 
-> > The rest looks OK, so I can fix this myself and queue up your patch for
-> > 2.6.26.
->
-> Ah, finally! \o/ Thanks a _lot_ for your help, I learnt a lot and this
-> will hopefully show in my next submission :)
+No irq_chip should pay attention to other bits in
+that call.  Other flags, like IRQF_{DISABLED,SHARED},
+are driver-specific.
 
-You're welcome. It has been a pleasure to work with you and I am
-looking forward to your next submissions!
+Plus, the whole point is to specify the trigger mode,
+so calling this the equivalent of "use the default"
+(IRQF_TRIGGER_NONE =3D=3D 0) is pointless.  :)
 
--- 
-Jean Delvare
+Also, I'm sure someone will be tempted to remove the
+IRQF_SAMPLE_RANDOM here, and it's something of a fair
+argument for externally controlled signals.  It's not
+random when an external agent can control delivery of
+signals at the millisecond level... hence it's not a
+crypto-strong source of randomness.  Luckily most
+OMAPs include a hardware RNG (except the 35xx series,
+for some odd reason?) so that's not a real issue.
+
+- Dave
+
+
 
 _______________________________________________
 i2c mailing list
