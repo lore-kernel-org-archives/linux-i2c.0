@@ -1,20 +1,17 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: Re: [PATCH 2/2] I2C: ISP1301_OMAP: New-style i2c driver
-	updates, part 2
-Date: Sun, 16 Mar 2008 13:07:52 +0200
-Message-ID: <31e679430803160407ja048481hb9a1de47c71752a4@mail.gmail.com>
-References: <1199379597-6273-1-git-send-email-me@felipebalbi.com>
-	<31e679430803071300w2f2e80ddqd4516a976df4474@mail.gmail.com>
-	<20080315125940.2fe84f24@hyperion.delvare>
-	<200803152057.19375.david-b@pacbell.net>
-	<31e679430803160322v7b8d6ecepf03bd8b87d975553@mail.gmail.com>
-	<20080316114043.57e38dd7@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCHv2 3/3] Add platform driver on top of the
+	new	pca-algorithm
+Date: Sun, 16 Mar 2008 15:28:34 +0100
+Message-ID: <20080316142834.GA4485@pengutronix.de>
+References: <20080308111337.440a7c83@hyperion.delvare>
+	<20080310112640.GB12128@pengutronix.de>
+	<20080310223116.73277c4f@hyperion.delvare>
+	<20080314145010.GA28612@pengutronix.de>
+	<20080314194628.07630698@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============8623732016049463801=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080316114043.57e38dd7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080314194628.07630698-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,79 +22,77 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 16, 2008 at 12:40 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->
-> On Sun, 16 Mar 2008 12:22:10 +0200, Felipe Balbi wrote:
->  > On Sun, Mar 16, 2008 at 5:57 AM, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> =
-wrote:
->  > > On Saturday 15 March 2008, Jean Delvare wrote:
->  > >  > The above looks all wrong to me. The ISP1301 is an I=B2C device, =
-it gets
->  > >  > an i2c driver, not a platform driver.
->  > >
->  > >  Right; blame that on me, for a moment I forgot and so I
->  > >  mentioned the use of the IORESOURCE_IRQ_* flags, which work
->  > >  on busses using resources -- like "platform" and "pnp").
->  > >  Not helpful here.
->  > >
->  > >
->  > >
->  > >  > That being said, if many drivers need an irq_type field in additi=
-on to
->  > >  > the irq number, we might consider adding an irq_type field to str=
-uct
->  > >  > i2c_board_info and struct i2c_client directly. It probably doesn'=
-t make
->  > >  > much sense to have irq and irq_type take different routes if they=
- are
->  > >  > most often needed together.
->  > >
->  > >  Actually ... why not just require the board-specific setup
->  > >  code to set the right trigger mode?  Use set_irq_type().
->  > >
->  > >  That's what x86 does, and it works fine.  Drivers don't need
->  > >  to worry about trigger modes ("irq_type") at all, since the
->  > >  board setup code (on PCs: ACPI or BIOS) just stuffs the same
->  > >  registers that set_irq_type() would stuff.  Drivers can just:
->  > >
->  > >    status =3D request_irq(irq, handler, 0, "name", data);
->  > >
->  > >  Platforms already do the pinmux setup, making sure that the
->  > >  relevant pin is set up as an external interrupt source or
->  > >  GPIO input as appropriate.  They can just as well do the rest.
->  >
->  > Good catch dave, actually osk is doing that already :-)
->  > so I'll add set_irq_type($ISP1301_IRQ, $ISP1301_FLAGS); for all 3
->  > boards and on the driver i'll request_irq like you said above.
->
->  Very nice. I wanted to suggest this originally, but stepped back as I
->  noticed that request_irq() had a parameter for the IRQ flags. As
->  request_irq() must be called by the device driver, I concluded that we
->  really needed to carry the IRQ flags from the platform code to the
->  driver... I didn't know that there was a way to configure the IRQ
->  before requesting it. That's obviously much nicer. Would be great if we
->  could get rid of that flags parameter of request_irq(), if you ask me.
 
-I was just thinking about the same :-)
-If all the irq configuration were moved to board-files, we could get
-rid of that parameter and it'd be just great ;-)
+--===============8623732016049463801==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Content-Disposition: inline
 
-Thanks Dave and Jean for all your time during this patch. Hopefully
-it's now good enough. I also sent the patch putting linux-omap and
-linux-mainline in sync. If tell me that's ok, i'll send a similar
-patch to linux-omap asap Cc:ing both you and Dave.
 
--- =
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best Regards,
+On Fri, Mar 14, 2008 at 07:46:28PM +0100, Jean Delvare wrote:
 
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+> > +	/* Use gpio_is_valid() when in mainline */
+> > +	if (i2c->gpio > -1)
+> > +		ret =3D gpio_request(i2c->gpio, i2c->adap.name);
+> > +		if (ret =3D=3D 0) {
+> > +			gpio_direction_output(i2c->gpio, 1);
+> > +			i2c->algo_data.reset_chip =3D i2c_pca_pf_resetchip;
+> > +		} else {
+> > +			printk(KERN_WARNING "%s: Registering gpio failed!\n",
+> > +				i2c->adap.name);
+> > +			i2c->gpio =3D ret;
+> > +		}
+>=20
+> You're missing curly braces around this block, aren't you?
+Holy ..., yes, you are right. This is why I used to have braces even
+around single instructions after if. This is, where CodingStyle gives me
+most trouble.
+
+> The rest looks OK, so I can fix this myself and queue up your patch for
+> 2.6.26.
+Ah, finally! \o/ Thanks a _lot_ for your help, I learnt a lot and this
+will hopefully show in my next submission :)
+
+Best wishes,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH3S6SD27XaX1/VRsRAj9bAKCx8KiPXFSM3SOkYnRE8PMONQNPbgCfZouT
+IAP02iKwd8a04+qoN9div6g=
+=N0VK
+-----END PGP SIGNATURE-----
+
+--W/nzBZO5zC0uMSeA--
+
+
+--===============8623732016049463801==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8623732016049463801==--
