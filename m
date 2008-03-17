@@ -1,11 +1,12 @@
-From: "ing. Davide Rizzo" <davide-Rm2/HqoNtBE@public.gmane.org>
-Subject: [PATCH 2.6.24.3] 24xx Eeprom driver
-Date: Mon, 17 Mar 2008 09:41:47 +0100
-Message-ID: <47DE2ECB.6050609@elpa.it>
-Reply-To: davide-Rm2/HqoNtBE@public.gmane.org
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.24.3] 24xx Eeprom driver
+Date: Mon, 17 Mar 2008 10:21:54 +0100
+Message-ID: <20080317092154.GA6159@pengutronix.de>
+References: <47DE2ECB.6050609@elpa.it>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------030204060105090601070304"
+Content-Type: multipart/mixed; boundary="===============3054850549515161818=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <47DE2ECB.6050609-Rm2/HqoNtBE@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,384 +16,78 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: "ing. Davide Rizzo" <davide-Rm2/HqoNtBE@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030204060105090601070304
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Proposed for embedding in main kernel tree.
+--===============3054850549515161818==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
 
 
---------------030204060105090601070304
-Content-Type: text/plain;
- name="eeprom-rw"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="eeprom-rw"
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is a driver for the 24xx series of IICbus Eeprom.
-It allows read/write access, and manages different eeprom's sizes.
-Eeprom type can be specified by module's parameter or writing into a
- virtual file.
 
-Signed-off-by: Davide Rizzo <davide-Rm2/HqoNtBE@public.gmane.org>
-================================================================================
-diff -urpN linux-2.6.24.3/drivers/i2c/chips/eeprom-rw.c linux-2.6.24.3.elpa/drivers/i2c/chips/eeprom-rw.c
---- linux-2.6.24.3/drivers/i2c/chips/eeprom-rw.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.24.3.elpa/drivers/i2c/chips/eeprom-rw.c	2008-03-17 07:28:09.000000000 +0100
-@@ -0,0 +1,320 @@
-+/*
-+ eeprom-rw.c
-+
-+ Mostly rewritten Feb 2008 by Davide Rizzo <davide-Rm2/HqoNtBE@public.gmane.org>
-+ Starting from drivers/i2c/chips/eeprom.c
-+
-+ Copyright (C) 1998, 1999  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> and
-+ Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>
-+ Copyright (C) 2003 Greg Kroah-Hartman <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-+ Copyright (C) 2003 IBM Corp.
-+
-+ This program is free software; you can redistribute it and/or modify
-+ it under the terms of the GNU General Public License as published by
-+ the Free Software Foundation; either version 2 of the License, or
-+ (at your option) any later version.
-+
-+ This program is distributed in the hope that it will be useful,
-+ but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ GNU General Public License for more details.
-+
-+ You should have received a copy of the GNU General Public License
-+ along with this program; if not, write to the Free Software
-+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/jiffies.h>
-+#include <linux/i2c.h>
-+#include <linux/mutex.h>
-+#include <linux/delay.h>
-+
-+/* To avoid false aliases, it scans only address 0x50.
-+   Drawback: it cannot manage chips with hardware strapped address != 0 */
-+static unsigned short normal_i2c[] = {0x50, I2C_CLIENT_END};
-+
-+/* Insmod parameters */
-+I2C_CLIENT_INSMOD_1(eeprom);
-+
-+struct eeprom_device {
-+	int double_address, total_size, page_size, virt_device_len;
-+	int pin_address_mask;
-+	const char *name;
-+};
-+
-+static char *eeprom_name = "2408";
-+module_param_named(CHIP, eeprom_name, charp, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(CHIP, "Eeprom type (ex.2408,2416...)");
-+
-+static const struct eeprom_device eeproms[] = {
-+	{0,     16,   1,    16, 0,   "2400"},
-+	{0,    128,   8,   128, 0,   "2401"},
-+	{0,    128,  16,   128, 7,  "24014"},
-+	{0,    256,   8,   256, 0,   "2402"},
-+	{0,    256,  16,   256, 7,  "24024"},
-+	{0,    256,  16,   256, 7,  "24025"},
-+	{0,    512,  16,   256, 0,   "2404"},
-+	{0,   1024,  16,   256, 0,   "2408"},
-+	{0,   2048,  16,   256, 0,   "2416"},
-+	{1,   4096,  32,  4096, 7,   "2432"},
-+	{1,   8192,  32,  8192, 7,   "2464"},
-+	{1,   8192,  64,  8192, 7,   "2465"},
-+	{1,  16384,  64, 16384, 7,  "24128"},
-+	{1,  32768,  64, 32768, 7,  "24256"},
-+	{1,  65536, 128, 65536, 7,  "24512"},
-+	{1,  65536,  64, 32768, 3,  "24515"},
-+	{1, 131072, 256, 65536, 2, "241024"},
-+	{1, 131072, 128, 65536, 3, "241025"},
-+	{0,      0,   0,     0, 0,     NULL}
-+};
-+
-+#define MAX_EEPROM_PAGE_SIZE 256
-+
-+/* Each client has this additional data */
-+struct eeprom_info {
-+	struct i2c_client client;
-+	struct mutex update_lock;
-+	const struct eeprom_device *selected_eeprom;
-+	char buf[MAX_EEPROM_PAGE_SIZE + 2];
-+};
-+
-+static ssize_t eeprom_read(struct kobject *kobj, struct bin_attribute *t,
-+	char *buf, loff_t loff, size_t count)
-+{
-+	struct i2c_client *client =
-+		to_i2c_client(container_of(kobj, struct device, kobj));
-+	struct eeprom_info *info = i2c_get_clientdata(client);
-+	char offset[2];
-+	int ret, off = (int)loff;
-+	struct i2c_msg msgrd[2];
-+	if (off >= info->selected_eeprom->total_size)
-+		return(-EINVAL);
-+	if (off + count > info->selected_eeprom->total_size)
-+		count = info->selected_eeprom->total_size - off;
-+	if (count == 0)
-+		return(-EINVAL);
-+	mutex_lock(&info->update_lock);
-+	offset[0] = off >> 8;
-+	offset[1] = off & 0xFF;
-+	msgrd[0].addr = msgrd[1].addr = client->addr + off /
-+		info->selected_eeprom->virt_device_len;
-+	msgrd[0].flags = 0;
-+	if (info->selected_eeprom->double_address) {
-+		msgrd[0].len = 2;
-+		msgrd[0].buf = offset;
-+	} else {
-+		msgrd[0].len = 1;
-+		msgrd[0].buf = &offset[1];
-+	}
-+	msgrd[1].flags = I2C_M_RD; /* |I2C_M_NOSTART; */
-+	msgrd[1].len = count;
-+	msgrd[1].buf = buf;
-+	ret = i2c_transfer(client->adapter, msgrd, 2);
-+	mutex_unlock(&info->update_lock);
-+	return (ret == 2) ? count : ret;
-+}
-+
-+static ssize_t eeprom_write(struct kobject *kobj, struct bin_attribute *t,
-+	char *buf, loff_t loff, size_t count)
-+{
-+	struct i2c_client *client =
-+		to_i2c_client(container_of(kobj, struct device, kobj));
-+	struct eeprom_info *info = i2c_get_clientdata(client);
-+	struct i2c_msg msgwr, msgack;
-+	int i, tx = 0, off = (int)loff;
-+	if (off >= info->selected_eeprom->total_size)
-+		return -EINVAL;
-+	if ((off + count) > info->selected_eeprom->total_size)
-+		count = info->selected_eeprom->total_size-off;
-+	if (count == 0)
-+		return -EINVAL;
-+	msgwr.flags = 0;
-+	msgack.flags = 0;
-+	msgack.len = 0;
-+	mutex_lock(&info->update_lock);
-+	while (count) {
-+		int len = info->selected_eeprom->page_size -
-+			(off % info->selected_eeprom->page_size);
-+		if (len > count)
-+			len = count;
-+		msgwr.addr = msgack.addr = client->addr +
-+			off / info->selected_eeprom->virt_device_len;
-+		info->buf[0] = off >> 8;
-+		info->buf[1] = off & 0xFF;
-+		memcpy(info->buf + 2, buf, len);
-+		if (info->selected_eeprom->double_address) {
-+			msgwr.buf = info->buf;
-+			msgwr.len = len + 2;
-+		} else {
-+			msgwr.buf = 1 + info->buf;
-+			msgwr.len = len + 1;
-+		}
-+		if (i2c_transfer(client->adapter, &msgwr, 1) != 1)
-+			break;
-+		for (i = 0; i < 20; i++) {
-+			if (i2c_transfer(client->adapter, &msgack, 1) == 1)
-+				break;
-+			mdelay(1);
-+		}
-+		if (i >= 20)
-+			break;
-+		count -= len;
-+		off += len;
-+		buf += len;
-+		tx += len;
-+	}
-+	mutex_unlock(&info->update_lock);
-+	return tx;
-+}
-+
-+static struct bin_attribute eeprom_attr = {
-+	.attr =
-+	{
-+		.name = "data",
-+		.mode = S_IRUGO | S_IWUSR,
-+		.owner = THIS_MODULE,
-+	},
-+/*	.size = selected_eeprom->total_size, */
-+	.read = eeprom_read,
-+	.write = eeprom_write,
-+};
-+
-+static ssize_t chip_show(struct device *dev, struct device_attribute *attr,
-+	char *buffer)
-+{
-+	struct eeprom_info *info = (struct eeprom_info *)dev_get_drvdata(dev);
-+	return sprintf(buffer, "%s\n", info->selected_eeprom->name);
-+}
-+
-+static ssize_t chip_store(struct device *dev, struct device_attribute *attr,
-+	const char *buffer, size_t count)
-+{
-+	struct eeprom_info *info = (struct eeprom_info *)dev_get_drvdata(dev);
-+	const struct eeprom_device *ei_pt;
-+	if (buffer[count - 1] == '\n')
-+		count--;
-+	for (ei_pt = eeproms; ei_pt->name; ei_pt++)
-+		if (strncasecmp(buffer, ei_pt->name, count) == 0) {
-+			mutex_lock(&info->update_lock);
-+			info->selected_eeprom = ei_pt;
-+			sysfs_remove_bin_file(&info->client.dev.kobj,
-+				&eeprom_attr);
-+			eeprom_attr.size = info->selected_eeprom->total_size;
-+			sysfs_create_bin_file(&info->client.dev.kobj,
-+				&eeprom_attr);
-+			mutex_unlock(&info->update_lock);
-+		}
-+	return count;
-+}
-+
-+static DEVICE_ATTR(chip, S_IRUGO | S_IWUSR, chip_show, chip_store);
-+
-+static int eeprom_attach_adapter(struct i2c_adapter *adapter);
-+static int eeprom_detach_client(struct i2c_client *client);
-+
-+/* This is the driver that will be inserted */
-+static struct i2c_driver eeprom_driver = {
-+	.driver =
-+	{
-+		.name = "eeprom",
-+	},
-+	.id   = I2C_DRIVERID_EEPROM,
-+	.attach_adapter = eeprom_attach_adapter,
-+	.detach_client  = eeprom_detach_client,
-+};
-+
-+/* This function is called by i2c_probe */
-+static int eeprom_detect(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *new_client;
-+	struct eeprom_info *info;
-+	struct i2c_msg msg;
-+	int err = 0;
-+	const struct eeprom_device *ei_pt;
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA |
-+		I2C_FUNC_SMBUS_BYTE))
-+		goto exit;
-+	for (ei_pt = eeproms; ei_pt->name; ei_pt++)
-+		if (strcasecmp(eeprom_name, ei_pt->name) == 0)
-+			break;
-+/* if((address&0x07)%(ei_pt->total_size/ei_pt->virt_device_len)!=0)
-+   goto exit; */
-+	msg.addr = address;
-+	msg.flags = 0;
-+	msg.len = 0;
-+	if (i2c_transfer(adapter, &msg, 1) != 1)
-+		goto exit;
-+	info = kzalloc(sizeof(struct eeprom_info), GFP_KERNEL);
-+	if (!info) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+	info->selected_eeprom = ei_pt;
-+	new_client = &info->client;
-+	new_client->addr = address;
-+	new_client->adapter = adapter;
-+	new_client->driver = &eeprom_driver;
-+	new_client->flags = 0;
-+	strlcpy(new_client->name, "eeprom", I2C_NAME_SIZE);
-+	mutex_init(&info->update_lock);
-+	i2c_set_clientdata(new_client, info);
-+	err = i2c_attach_client(new_client);
-+	if (err)
-+		goto exit_kfree;
-+	eeprom_attr.size = ei_pt->total_size;
-+	err = sysfs_create_bin_file(&new_client->dev.kobj, &eeprom_attr);
-+	if (err)
-+		goto exit_detach;
-+	err = sysfs_create_file(&new_client->dev.kobj, &dev_attr_chip.attr);
-+	if (err)
-+		goto exit_detach2;
-+	return 0;
-+exit_detach2:
-+	sysfs_remove_bin_file(&new_client->dev.kobj, &eeprom_attr);
-+exit_detach:
-+	i2c_detach_client(new_client);
-+exit_kfree:
-+	kfree(info);
-+exit:
-+	return err;
-+}
-+
-+static int eeprom_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	return(i2c_probe(adapter, &addr_data, eeprom_detect));
-+}
-+
-+static int eeprom_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+	sysfs_remove_bin_file(&client->dev.kobj, &eeprom_attr);
-+	sysfs_remove_file(&client->dev.kobj, &dev_attr_chip.attr);
-+	err = i2c_detach_client(client);
-+	if (err)
-+		return(err);
-+	kfree(i2c_get_clientdata(client));
-+	return 0;
-+}
-+
-+static int __init eeprom_init(void)
-+{
-+	return(i2c_add_driver(&eeprom_driver));
-+}
-+
-+static void __exit eeprom_exit(void)
-+{
-+	i2c_del_driver(&eeprom_driver);
-+}
-+
-+MODULE_AUTHOR("Davide Rizzo <davide-Rm2/HqoNtBE@public.gmane.org>");
-+MODULE_DESCRIPTION("I2C EEPROM driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(eeprom_init);
-+module_exit(eeprom_exit);
-+
-diff -urpN linux-2.6.24.3/drivers/i2c/chips/Kconfig linux-2.6.24.3.elpa/drivers/i2c/chips/Kconfig
---- linux-2.6.24.3/drivers/i2c/chips/Kconfig	2008-01-24 23:58:37.000000000 +0100
-+++ linux-2.6.24.3.elpa/drivers/i2c/chips/Kconfig	2008-01-26 15:56:27.000000000 +0100
-@@ -163,4 +163,12 @@ config MENELAUS
- 	  and other features that are often used in portable devices like
- 	  cell phones and PDAs.
- 
-+config EEPROM_RW
-+	tristate "EEPROM"
-+	help
-+	  If you say yes here you get read/write access to the EEPROM data
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called eeprom-rw.
-+
- endmenu
-diff -urpN linux-2.6.24.3/drivers/i2c/chips/Makefile linux-2.6.24.3.elpa/drivers/i2c/chips/Makefile
---- linux-2.6.24.3/drivers/i2c/chips/Makefile	2008-01-24 23:58:37.000000000 +0100
-+++ linux-2.6.24.3.elpa/drivers/i2c/chips/Makefile	2008-01-26 15:56:13.000000000 +0100
-@@ -15,6 +15,7 @@ obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_om
- obj-$(CONFIG_TPS65010)		+= tps65010.o
- obj-$(CONFIG_MENELAUS)		+= menelaus.o
- obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
-+obj-$(CONFIG_EEPROM_RW)		+= eeprom-rw.o
- 
- ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
- EXTRA_CFLAGS += -DDEBUG
+Hello Davide,
 
---------------030204060105090601070304
+it was already discussed that writing to EEPROMs will not be included in
+the mainline kernel (it creates the possibility to destroy RAM modules).
+
+Besides, your driver uses the old I2C-binding model and other soon
+to-be-removed stuff like .id's.
+
+You might also consider using David Brownell's AT24 driver:
+
+http://lists.lm-sensors.org/pipermail/i2c/2007-May/001208.html
+
+(Side note to David: I already worked on adding platform_data, just need
+to test it in a quiet minute.)
+
+To all: Surely a lot of people need an eeprom driver with write
+capabilities, especially in the embedded world. I think it would be a
+good idea to make David's driver more visible. This wheel was probably
+reinvented too many times already (we also had a custom driver in our
+company). EEPROMs can be nasty, so one central driver would also be very
+good to collect all the quirks.
+
+To make a start I would suggest the following:
+
+Give the AT24 driver a repository (my company would provide this, if
+wanted/needed). Place a comment in mainline/eeprom.c (and maybe
+Kconfig?) that an advanced driver exists at this repository.
+
+Opinions? Especially David?
+
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH3jgyD27XaX1/VRsRAmvgAJ4/DbOW8dC5ysihM5dvNRJCoz2jrACgnMt7
+FcElR7mI6fZElimtg2xC7WI=
+=M9Jp
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--
+
+
+--===============3054850549515161818==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -402,4 +97,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---------------030204060105090601070304--
+--===============3054850549515161818==--
