@@ -1,13 +1,13 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCH 2.6.24.3] 24xx Eeprom driver
-Date: Mon, 17 Mar 2008 12:53:50 +0100
-Message-ID: <20080317125350.253cd04a@hyperion.delvare>
+Date: Mon, 17 Mar 2008 14:23:44 +0100
+Message-ID: <20080317132344.GA21177@pengutronix.de>
 References: <47DE2ECB.6050609@elpa.it> <20080317092154.GA6159@pengutronix.de>
+	<20080317125350.253cd04a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8184612221157435119=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080317092154.GA6159-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20080317125350.253cd04a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,63 +17,84 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: "ing. Davide Rizzo" <davide-Rm2/HqoNtBE@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Mon, 17 Mar 2008 10:21:54 +0100, Wolfram Sang wrote:
-> it was already discussed that writing to EEPROMs will not be included in
-> the mainline kernel (it creates the possibility to destroy RAM modules).
+--===============8184612221157435119==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
 
-Not sure if you refer to something I said, but that's not exactly what
-I said (or if I did, it no longer applied). I am fine with a driver
-that allows writing to EEPROMs as long long as it is a new-style I2C
-driver. What I don't want is a driver that binds automatically to
-anything at address 0x50-0x57 and lets people write to it, because
-users would inevitably break their hardware from times to times.
 
-> 
-> Besides, your driver uses the old I2C-binding model and other soon
-> to-be-removed stuff like .id's.
-> 
-> You might also consider using David Brownell's AT24 driver:
-> 
-> http://lists.lm-sensors.org/pipermail/i2c/2007-May/001208.html
-> 
-> (Side note to David: I already worked on adding platform_data, just need
-> to test it in a quiet minute.)
-> 
-> To all: Surely a lot of people need an eeprom driver with write
-> capabilities, especially in the embedded world. I think it would be a
-> good idea to make David's driver more visible. This wheel was probably
-> reinvented too many times already (we also had a custom driver in our
-> company). EEPROMs can be nasty, so one central driver would also be very
-> good to collect all the quirks.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I totally agree (even though I still don't get what's wrong with the
-user-space approach that has been working for years, with i2c-dev and
-eeprog). The only thing that prevented me from merging David Brownell's
-at24 driver is the lack of review and the lack of time to do the review
-myself. But I really would like to have this driver upstream as soon as
-possible if many people want to use it.
+On Mon, Mar 17, 2008 at 12:53:50PM +0100, Jean Delvare wrote:
 
-> To make a start I would suggest the following:
-> 
-> Give the AT24 driver a repository (my company would provide this, if
-> wanted/needed). Place a comment in mainline/eeprom.c (and maybe
-> Kconfig?) that an advanced driver exists at this repository.
-> 
-> Opinions? Especially David?
+> Not sure if you refer to something I said, but that's not exactly what
+> I said (or if I did, it no longer applied). I am fine with a driver
+> that allows writing to EEPROMs as long long as it is a new-style I2C
+> driver. What I don't want is a driver that binds automatically to
+> anything at address 0x50-0x57 and lets people write to it, because
+> users would inevitably break their hardware from times to times.
+Understood. When I discovered at24.c, I thought I found a thread coming
+to the conclusion I wrote. Well, I can't find this thread right now, but
+probably I simlpy got it wrong.
 
-I'd rather have David's driver reviewed and merged (possibly tagged
-EXPERIMENTAL) in 2.6.26. That's the best visibility it can get.
+> I totally agree (even though I still don't get what's wrong with the
+> user-space approach that has been working for years, with i2c-dev and
+> eeprog).
+For customer requirement specifications, it can make things a lot easier if
+you just say: We provide a file which can be accessed using standard
+unix file operations. No need to specify version numbers of extra tools,
+which are prone to change (with all side-effects).
 
--- 
-Jean Delvare
+> at24 driver is the lack of review and the lack of time to do the
+> review myself. But I really would like to have this driver upstream as
+> soon as possible if many people want to use it.
+Ah, this is great news! Then I will change my priorities, postpone the
+ADT7411-driver and test the EEPROM driver first when my time allows.
+
+> I'd rather have David's driver reviewed and merged (possibly tagged
+> EXPERIMENTAL) in 2.6.26. That's the best visibility it can get.
+That's for sure :)
+
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFH3nDgD27XaX1/VRsRApA1AKChACTWpc9ZbIhheivkkjq64lZTPwCgq1gs
+8C7JYyA628EFlwOqgxCJzzM=
+=rx3f
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
+
+
+--===============8184612221157435119==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8184612221157435119==--
