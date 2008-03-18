@@ -1,13 +1,21 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2.6.24.3] 24xx Eeprom driver
-Date: Mon, 17 Mar 2008 14:23:44 +0100
-Message-ID: <20080317132344.GA21177@pengutronix.de>
-References: <47DE2ECB.6050609@elpa.it> <20080317092154.GA6159@pengutronix.de>
-	<20080317125350.253cd04a@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
+	part 2
+Date: Tue, 18 Mar 2008 13:42:59 +0100
+Message-ID: <20080318134259.1b7e2878@hyperion.delvare>
+References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-2-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-3-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-4-git-send-email-me@felipebalbi.com>
+	<20080315124918.GA21547@kedavra.cpe.vivax.com.br>
+	<20080315125458.GB21547@kedavra.cpe.vivax.com.br>
+	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
+	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8184612221157435119=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080317125350.253cd04a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,84 +25,44 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "ing. Davide Rizzo" <davide-Rm2/HqoNtBE@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Felipe,
 
---===============8184612221157435119==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
+On Sun, 16 Mar 2008 12:56:18 +0200, Felipe Balbi wrote:
+> This patch uses set_irq_type as suggested by Dave.
+> 
+> ============= CUT HERE =========
+> 
+> From 293a73277794a1ca0f2307e7fe9d5ecd76d3ad06 Mon Sep 17 00:00:00 2001
+> From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+> Date: Tue, 1 Jan 2008 23:00:18 -0500
+> Subject: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates, part 2
+> 
+> Based on David Brownell's patch for tps65010, this patch
+> finish conversting isp1301_omap.c to new-style i2c driver.
+> 
+> Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+> ---
+>  arch/arm/mach-omap1/board-h2.c   |    4 +
+>  arch/arm/mach-omap1/board-h3.c   |    8 ++
+>  arch/arm/mach-omap2/board-h4.c   |   14 ++++
+>  drivers/i2c/chips/isp1301_omap.c |  134 ++++++++++---------------------------
+>  4 files changed, 62 insertions(+), 98 deletions(-)
 
+OK, I've applied this version of the patch. Note though that I am still
+worried that it removed platform-specific code (in
+isp1301_detach_client/isp1301_remove, isp1301_set_host and
+isp1301_probe). The IRQ mode setting has moved to the board code, but
+the rest has simply disappeared. I really would like you to confirm
+that it is OK, or to send an updated patch if not.
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Mar 17, 2008 at 12:53:50PM +0100, Jean Delvare wrote:
-
-> Not sure if you refer to something I said, but that's not exactly what
-> I said (or if I did, it no longer applied). I am fine with a driver
-> that allows writing to EEPROMs as long long as it is a new-style I2C
-> driver. What I don't want is a driver that binds automatically to
-> anything at address 0x50-0x57 and lets people write to it, because
-> users would inevitably break their hardware from times to times.
-Understood. When I discovered at24.c, I thought I found a thread coming
-to the conclusion I wrote. Well, I can't find this thread right now, but
-probably I simlpy got it wrong.
-
-> I totally agree (even though I still don't get what's wrong with the
-> user-space approach that has been working for years, with i2c-dev and
-> eeprog).
-For customer requirement specifications, it can make things a lot easier if
-you just say: We provide a file which can be accessed using standard
-unix file operations. No need to specify version numbers of extra tools,
-which are prone to change (with all side-effects).
-
-> at24 driver is the lack of review and the lack of time to do the
-> review myself. But I really would like to have this driver upstream as
-> soon as possible if many people want to use it.
-Ah, this is great news! Then I will change my priorities, postpone the
-ADT7411-driver and test the EEPROM driver first when my time allows.
-
-> I'd rather have David's driver reviewed and merged (possibly tagged
-> EXPERIMENTAL) in 2.6.26. That's the best visibility it can get.
-That's for sure :)
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFH3nDgD27XaX1/VRsRApA1AKChACTWpc9ZbIhheivkkjq64lZTPwCgq1gs
-8C7JYyA628EFlwOqgxCJzzM=
-=rx3f
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
-
-
---===============8184612221157435119==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8184612221157435119==--
