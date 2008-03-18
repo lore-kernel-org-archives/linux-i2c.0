@@ -1,8 +1,7 @@
 From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
-	part 2
-Date: Tue, 18 Mar 2008 15:06:38 +0200
-Message-ID: <31e679430803180606w51e5538ar1df7fbdfa5a0e894@mail.gmail.com>
+Subject: Re: [PATCH] I2C: ISP1301: Sync with linux-omap
+Date: Tue, 18 Mar 2008 15:09:43 +0200
+Message-ID: <31e679430803180609s2b404dabu1cac2e09f128ba96@mail.gmail.com>
 References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
 	<1205585237-21492-2-git-send-email-me@felipebalbi.com>
 	<1205585237-21492-3-git-send-email-me@felipebalbi.com>
@@ -11,12 +10,13 @@ References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
 	<20080315125458.GB21547@kedavra.cpe.vivax.com.br>
 	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
 	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
-	<20080318134259.1b7e2878@hyperion.delvare>
+	<20080316110033.GB4503@kedavra.cpe.vivax.com.br>
+	<20080318134633.16f6e5f1@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080318134259.1b7e2878-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080318134633.16f6e5f1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -31,43 +31,31 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-hi,
-
-On Tue, Mar 18, 2008 at 2:42 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+On Tue, Mar 18, 2008 at 2:46 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
 > Hi Felipe,
 >
 >
->  On Sun, 16 Mar 2008 12:56:18 +0200, Felipe Balbi wrote:
->  > This patch uses set_irq_type as suggested by Dave.
+>  On Sun, 16 Mar 2008 13:00:35 +0200, Felipe Balbi wrote:
+>  > There are some changes on linux-omap's isp1301_omap.c
+>  > that could already be in linux-mainline after
+>  > omap1/2 got merged.
 >  >
->  > ============= CUT HERE =========
->  >
->  > From 293a73277794a1ca0f2307e7fe9d5ecd76d3ad06 Mon Sep 17 00:00:00 2001
->  > From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
->  > Date: Tue, 1 Jan 2008 23:00:18 -0500
->  > Subject: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates, part 2
->  >
->  > Based on David Brownell's patch for tps65010, this patch
->  > finish conversting isp1301_omap.c to new-style i2c driver.
->  >
->  > Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
->  > ---
->  >  arch/arm/mach-omap1/board-h2.c   |    4 +
->  >  arch/arm/mach-omap1/board-h3.c   |    8 ++
->  >  arch/arm/mach-omap2/board-h4.c   |   14 ++++
->  >  drivers/i2c/chips/isp1301_omap.c |  134 ++++++++++---------------------------
->  >  4 files changed, 62 insertions(+), 98 deletions(-)
+>  > This patch sync such changes from linux-omap into linux-mailine.
 >
->  OK, I've applied this version of the patch. Note though that I am still
->  worried that it removed platform-specific code (in
->  isp1301_detach_client/isp1301_remove, isp1301_set_host and
->  isp1301_probe). The IRQ mode setting has moved to the board code, but
->  the rest has simply disappeared. I really would like you to confirm
->  that it is OK, or to send an updated patch if not.
+>  I fear I will need a better description than this. Please explain what
+>  the changes are and why they are needed. "sync with an external tree"
+>  isn't sufficient.
 
-The board specific code was regarding gpio interrupts, and we now get
-the correct gpio irq
-from i2c_board_info so when I free_irq() i'm already freeing the gpio, right ?
+Here's a better description:
+
+Now that omap1/2 were merged on mainline we can bring the isp1301_omap.c
+changes that were done for board-h3 and keep the code in sync. This will allow
+us to decrese the diff between linux-omap and mainline and avoid merge conflicts
+later.
+
+
+Is this good enough ?
+I can think in something else if you need a better description ;-)
 
 -- 
 Best Regards,
