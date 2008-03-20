@@ -1,15 +1,16 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] I2C: ISP1301: Sync with linux-omap
-Date: Thu, 20 Mar 2008 02:39:47 -0700
-Message-ID: <200803200239.47880.david-b@pacbell.net>
+Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
+	part 2
+Date: Thu, 20 Mar 2008 02:44:10 -0700
+Message-ID: <200803200244.10617.david-b@pacbell.net>
 References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
-	<20080318142337.0f9a2b5b@hyperion.delvare>
-	<31e679430803180628h7a4926a2t4e540d9617522e28@mail.gmail.com>
+	<31e679430803180606w51e5538ar1df7fbdfa5a0e894@mail.gmail.com>
+	<20080318142716.74d65ba1@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <31e679430803180628h7a4926a2t4e540d9617522e28-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20080318142716.74d65ba1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -20,39 +21,25 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 18 March 2008, Felipe Balbi wrote:
-> >
-> > =A0No. You are just paraphrasing, this doesn't help. I need an explanat=
-ion
-> > =A0of the _functional_ changes implemented by the patch. I don't care m=
-uch
-> > =A0that these changes come from the omap tree, I don't know anything ab=
-out
-> > =A0this tree. What I need to know is why the changes are needed by
-> > =A0themselves. What problem(s) does this patch address?
-> =
+> > The board specific code was regarding gpio interrupts, and we now get
+> > the correct gpio irq from i2c_board_info so when I free_irq() i'm
+> > already freeing the gpio, right ? 
 
-> otherwise the driver won't work on board-h3, simple enough
+Freeing an IRQ is not the same as freeing a GPIO; of course not.
 
-But the reason those changes were never pushed upstream is that
-they were known to break board-h2 !!
+I'd have to grab the latest version of this patch to see if this
+all makes sense.
 
-I was never keen on merging them into the OMAP tree in the first
-place, specifically for that reason ... the original idea was
-to merge patches that worked on *both* chip revisions.  Failing
-that, to follow up the H3 patches with bugfixes; those fixes
-never got submitted.
+- Dave
 
-So for what it's worth, I'll NAK those state machine updates.
-On the grounds that they *add* bugs.  H3 doesn't work in the
-mainline tree yet, so there's no way such a patch could ever
-be viewed as an improving anything whatsoever for mainline.
-
-
+ 
+> You aren't asking me, are you? I don't have any idea. I don't know
+> anything about embedded stuff, let alone omap in particular. Someone
+> else will have to answer this question.
 
 
 
