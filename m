@@ -1,17 +1,15 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
-	part 2
-Date: Thu, 20 Mar 2008 02:56:14 -0700
-Message-ID: <200803200256.14466.david-b@pacbell.net>
-References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
-	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
-	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] More DDR2 data for decode-dimms.pl
+Date: Thu, 20 Mar 2008 12:13:36 +0100
+Message-ID: <20080320121336.2109d6d3@hyperion.delvare>
+References: <Pine.LNX.4.58.0802281401020.14140@shell4.speakeasy.net>
+	<20080319141609.338c19b1@hyperion.delvare>
+	<Pine.LNX.4.58.0803191731500.16142@shell2.speakeasy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0803191731500.16142-nuiHJn5p267P3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,61 +19,70 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday 16 March 2008, Felipe Balbi wrote:
-> -=A0=A0=A0=A0=A0=A0=A0if (machine_is_omap_h2()) {
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* full speed signaling by =
-default */
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp1301_set_bits(isp, ISP13=
-01_MODE_CONTROL_1,
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MC1=
-_SPEED_REG);
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp1301_set_bits(isp, ISP13=
-01_MODE_CONTROL_2,
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MC2=
-_SPD_SUSP_CTRL);
+Hi Trent,
 
-Where did this code end up?  ISTR it was required since the
-transceiver's reset mode didn't match how this board was wired.
+On Wed, 19 Mar 2008 18:36:32 -0700 (PDT), Trent Piepho wrote:
+> On Wed, 19 Mar 2008, Jean Delvare wrote:
+> > As far as I can see, the masking isn't needed, as you do it again in
+> > ddrx_sdram_rtime(). That being said, it would probably make sense to do
+> > all the shifting and masking on the caller's side. Doing half of the
+> > shifting outside and the other half inside the function is pretty
+> > confusing.
+> 
+> This is better?
+> 
+>         printl "Minimum Active to Auto-refresh Delay (tRC)",
+>                tns(ddr2_sdram_rtime($bytes->[41], ($bytes->[40] >> 4) & 7));
+>         printl "Minimum Recovery Delay (tRFC)",
+>                tns(ddr2_sdram_rtime($bytes->[42] + ($bytes->[40] & 1) * 256,
+> 	                            ($bytes->[40] >> 1) & 7));
+> 
+> I was trying to do as much as possible on the callee's side.
 
-The details of how the transceiver is wired are something that
-should go into platform_data for each board, unless there's code
-to pull it out of the transceiver configuration register and
-then interpret it here (yeech).  This would be at the level of
-whether it uses 6-wire, 4-wire, or 3-wire signaling, and a few
-more related points...
+Yes I think it is better. I understand that putting more on the
+callee's side performs better and makes the code look better on the
+caller's side, but the problem is that the helper function then has an
+interface that is obscure and difficult to understand and validate. I
+prefer something a bit slower but with a clean interface.
 
-ISTR the original patch I sent didn't try to do so much, and
-left some of the board-specific code.
+If you want to move some more code in the callee, I propose the
+following:
 
+sub ddr2_sdram_rtime($$)
+{
+	my ($rtime, $ext1, $ext2) = @_;
+	my @table = (0, .25, .33, .50, .66, .75);
 
-> -
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* IRQ wired at M14 */
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0omap_cfg_reg(M14_1510_GPIO2=
-);
+	return $time + ext1 * 256 + $table[$ext2];
+}
 
-I don't recall seeing this pinmu directive move into
-the H2 board setup ... or the gpio_request, below.
-Only the IRQ setup moved; but IRQ setup presumes the
-pin has already been properly set up as a gpio input.
+(...)
+	printl "Minimum Active to Auto-refresh Delay (tRC)",
+	       tns(ddr2_sdram_rtime($bytes->[41], 0, ($bytes->[40] >> 4) & 7));
+	printl "Minimum Recovery Delay (tRFC)",
+	       tns(ddr2_sdram_rtime($bytes->[42], $bytes->[40] & 1,
+				    ($bytes->[40] >> 1) & 7));
 
-The result would be that this couldn't possibly work.
+That's probably the best trade-off you can get.
 
+I'm fine with the rest, with one question though:
 
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp->irq =3D OMAP_GPIO_IRQ(=
-2);
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (gpio_request(2, "isp130=
-1") =3D=3D 0)
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0gpi=
-o_direction_input(2);
-> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp->irq_type =3D IRQF_TRIG=
-GER_FALLING;
-> -=A0=A0=A0=A0=A0=A0=A0}
+> +	my @burst;
+> +	push @burst, 4 if ($bytes->[16] & 4);
+> +	push @burst, 8 if ($bytes->[16] & 8);
+> +	printl "Supported Burst Lengths", join(', ', @burst);
 
+Do DDR2 modules have to support burst at all? The SDR code assumes that
+the module might not support any burst length and prints "None" in this
+case. I suspect that we should do the same for DDR2.
 
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
