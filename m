@@ -1,16 +1,16 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
 	part 2
-Date: Thu, 20 Mar 2008 02:44:10 -0700
-Message-ID: <200803200244.10617.david-b@pacbell.net>
+Date: Thu, 20 Mar 2008 02:56:14 -0700
+Message-ID: <200803200256.14466.david-b@pacbell.net>
 References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
-	<31e679430803180606w51e5538ar1df7fbdfa5a0e894@mail.gmail.com>
-	<20080318142716.74d65ba1@hyperion.delvare>
+	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
+	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080318142716.74d65ba1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -21,25 +21,59 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Felipe Balbi <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > The board specific code was regarding gpio interrupts, and we now get
-> > the correct gpio irq from i2c_board_info so when I free_irq() i'm
-> > already freeing the gpio, right ? 
+On Sunday 16 March 2008, Felipe Balbi wrote:
+> -=A0=A0=A0=A0=A0=A0=A0if (machine_is_omap_h2()) {
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* full speed signaling by =
+default */
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp1301_set_bits(isp, ISP13=
+01_MODE_CONTROL_1,
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MC1=
+_SPEED_REG);
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp1301_set_bits(isp, ISP13=
+01_MODE_CONTROL_2,
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MC2=
+_SPD_SUSP_CTRL);
 
-Freeing an IRQ is not the same as freeing a GPIO; of course not.
+Where did this code end up?  ISTR it was required since the
+transceiver's reset mode didn't match how this board was wired.
 
-I'd have to grab the latest version of this patch to see if this
-all makes sense.
+The details of how the transceiver is wired are something that
+should go into platform_data for each board, unless there's code
+to pull it out of the transceiver configuration register and
+then interpret it here (yeech).  This would be at the level of
+whether it uses 6-wire, 4-wire, or 3-wire signaling, and a few
+more related points...
 
-- Dave
+ISTR the original patch I sent didn't try to do so much, and
+left some of the board-specific code.
 
- 
-> You aren't asking me, are you? I don't have any idea. I don't know
-> anything about embedded stuff, let alone omap in particular. Someone
-> else will have to answer this question.
+
+> -
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* IRQ wired at M14 */
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0omap_cfg_reg(M14_1510_GPIO2=
+);
+
+I don't recall seeing this pinmu directive move into
+the H2 board setup ... or the gpio_request, below.
+Only the IRQ setup moved; but IRQ setup presumes the
+pin has already been properly set up as a gpio input.
+
+The result would be that this couldn't possibly work.
+
+
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp->irq =3D OMAP_GPIO_IRQ(=
+2);
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (gpio_request(2, "isp130=
+1") =3D=3D 0)
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0gpi=
+o_direction_input(2);
+> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0isp->irq_type =3D IRQF_TRIG=
+GER_FALLING;
+> -=A0=A0=A0=A0=A0=A0=A0}
 
 
 
