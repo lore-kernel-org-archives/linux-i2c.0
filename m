@@ -1,15 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Read SPD data from a hexdump (take 2)
-Date: Thu, 20 Mar 2008 17:58:51 +0100
-Message-ID: <20080320175851.2d4afb49@hyperion.delvare>
-References: <Pine.LNX.4.58.0803161427360.20723@shell4.speakeasy.net>
-	<20080320123315.648911cd@hyperion.delvare>
-	<Pine.LNX.4.58.0803200733220.16142@shell2.speakeasy.net>
+Subject: Re: [PATCH] i2c: fix docbook problem
+Date: Thu, 20 Mar 2008 21:14:50 +0100
+Message-ID: <20080320211450.62799973@hyperion.delvare>
+References: <20080318151259.49009828.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.58.0803200733220.16142-nuiHJn5p267P3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
+In-Reply-To: <20080318151259.49009828.randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,73 +17,57 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Cc: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 20 Mar 2008 07:59:37 -0700 (PDT), Trent Piepho wrote:
-> On Thu, 20 Mar 2008, Jean Delvare wrote:
-> > FYI, we already have a way to achieve this, using the i2c-stub kernel
-> > driver and the standard i2c tools. For simple cases, the
-> > i2c-stub-from-dump helper script (in the i2c-tools SVN repository [1])
-> > automates almost everything. That's what I used to test your new DDR2
-> > timing decoding code, as my workstation doesn't have DDR2 memory.
-> >
-> > The main drawback compared to your approach is that one needs root
-> > access to the development system, but in practice I doubt that this is
-> > a problem. The advantage is that it works without any change to the
-> > application (e.g. decode-dimms) so all applications are supported right
-> > away.
+Hi Randy,
+
+On Tue, 18 Mar 2008 15:12:59 -0700, Randy Dunlap wrote:
+> From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
 > 
-> It's also seriously inconvenient to have to compile and install a kernel
-> module just to decode some SPD data.  You can also only decode one file at
-> a time, since you can only load a single i2c-stub module.
+> Sometimes kernel-doc and xmlto conspire to create output that is invalid
+> and causes problems.  Until I know a real/better solution, change the
+> source code that causes this.
+> 
+> If anyone has better fixes or can just explain what is happening here,
+> that would be great.
 
-In fact you can decode up to 8 files at once (since kernel 2.6.24), as
-i2c-stub can create up to 10 virtual devices (could be increased if
-needed) and the eeprom driver attaches to devices at addresses
-0x50-0x57. We could also create more than one I2C adapter in i2c-stub
-if needed.
-
-> It also requires
-> one to be running Linux, a new enough kernel that has i2c-stub, and have
-> the kernel source if your distribution didn't come with i2c-stub (we have
-> people using Linux vmware images that aren't loaded with all this extra
-> stuff).  And there is no way to _not_ decode all the other DIMMs you have
-> in your system at the same time as one of files you want to inspect.
-
-You can unload the on-board SMBus adapter driver, that's what I did to
-test your DDR2 decoding patch. This might not be an option if there are
-other chips on the SMBus and you can't live without them, though.
+Would be nice, yes.
 
 > 
-> And of course one needs root access.  Doesn't that seem a little
-> ridiculous, that one needs to be root to decode a spd data file?  I can
-> hear the windows developers mocking me already.  "I can't decode SDP data
-> with your lunix tools because I need root access?  That's stupid!  My
-> windows tools for decoding spd don't need to be run as administrator!  Do
-> you need to be root to uncompress zip files?"
+> xmlto: input does not validate (status 1)
+> mmotm-2008-0314-1449/Documentation/DocBook/kernel-api.xml:71468: parser error : Opening and ending tag mismatch: programlisting line 71464 and para
+>    </para><para>
+>           ^
+> mmotm-2008-0314-1449/Documentation/DocBook/kernel-api.xml:71480: parser error : Opening and ending tag mismatch: para line 71473 and programlisting
+> </programlisting></informalexample>
+>                  ^
+> make[1]: *** [Documentation/DocBook/kernel-api.html] Error 1
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- mmotm-2008-0314-1449.orig/drivers/i2c/i2c-core.c
+> +++ mmotm-2008-0314-1449/drivers/i2c/i2c-core.c
+> @@ -489,8 +489,8 @@ EXPORT_SYMBOL(i2c_add_adapter);
+>   * Context: can sleep
+>   *
+>   * This routine is used to declare an I2C adapter when its bus number
+> - * matters.  Example: for I2C adapters from system-on-chip CPUs, or
+> - * otherwise built in to the system's mainboard, and where i2c_board_info
+> + * matters.  For example, use it for I2C adapters from system-on-chip CPUs,
+> + * or otherwise built in to the system's mainboard, and where i2c_board_info
+>   * is used to properly configure I2C devices.
+>   *
+>   * If no devices have pre-been declared for this bus, then be sure to
 
-I fail to see what Windows developers [1] have to do in the picture.
-Either the requirement to be root for this operation is acceptable to
-us in practice, or it is not. If it isn't, we fix it, for example by
-applying the patch you submitted. What people NOT using the code in
-question think about its usage requirements, I couldn't care less.
-
-I didn't mean to suggest that your patch was not welcome. I was only
-mentioning an alternative which is already implemented, for your
-information (thus the leading "FYI" in my reply.) Of course i2c-stub is
-not perfect for the job, it was not designed for it. i2c-stub was
-designed to allow I2C device emulation at kernel level. Using it for a
-purely user-space job as I suggested is a side use.
+Applied, thanks.
 
 -- 
 Jean Delvare
-
-[1] Especially when your Windows developer friend is most probably
-always logged as Administrator anyway because there are so many things
-that don't work properly as a regular user ;)
-
 
 _______________________________________________
 i2c mailing list
