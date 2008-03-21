@@ -1,13 +1,17 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 1/5] I2C: DaVinci: fix lost interrupt
-Date: Thu, 20 Mar 2008 20:06:06 -0700
-Message-ID: <1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 5/5] I2C: DaVinci: initialize cmd_complete sooner
+Date: Thu, 20 Mar 2008 20:06:10 -0700
+Message-ID: <1206068770-15458-6-git-send-email-troy.kisky@boundarydevices.com>
 References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-4-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-5-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1206068770-15458-5-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,62 +25,36 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DAVINCI_I2C_STR_REG is a write 1 to clear register,
-so don't use a read/modify/write cycle.
+If an interrupt happens before an I2c master read/write,
+complete is called on uninitialized structure.
 
 Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Acked-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |   17 ++++++-----------
- 1 files changed, 6 insertions(+), 11 deletions(-)
- mode change 100644 => 100755 drivers/i2c/busses/i2c-davinci.c
+ drivers/i2c/busses/i2c-davinci.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-old mode 100644
-new mode 100755
-index cce5a61..fde2634
+index 2ac56a2..f0b095f 100755
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -382,9 +382,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 			break;
+@@ -262,7 +262,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
  
- 		case DAVINCI_I2C_IVR_ARDY:
--			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
--			MOD_REG_BIT(w, DAVINCI_I2C_STR_ARDY, 1);
--			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
-+			davinci_i2c_write_reg(dev,
-+				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_ARDY);
- 			complete(&dev->cmd_complete);
- 			break;
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
  
-@@ -397,12 +396,9 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 				if (dev->buf_len)
- 					continue;
+-	init_completion(&dev->cmd_complete);
++	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
  
--				w = davinci_i2c_read_reg(dev,
--							 DAVINCI_I2C_STR_REG);
--				MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 0);
- 				davinci_i2c_write_reg(dev,
--						      DAVINCI_I2C_STR_REG,
--						      w);
-+					DAVINCI_I2C_STR_REG,
-+					DAVINCI_I2C_IMR_RRDY);
- 			} else
- 				dev_err(dev->dev, "RDR IRQ while no "
- 					"data requested\n");
-@@ -428,9 +424,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 			break;
+ 	/* Take I2C out of reset, configure it as master and set the
+@@ -518,6 +518,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		goto err_release_region;
+ 	}
  
- 		case DAVINCI_I2C_IVR_SCD:
--			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
--			MOD_REG_BIT(w, DAVINCI_I2C_STR_SCD, 1);
--			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
-+			davinci_i2c_write_reg(dev,
-+				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_SCD);
- 			complete(&dev->cmd_complete);
- 			break;
- 
++	init_completion(&dev->cmd_complete);
+ 	dev->dev = get_device(&pdev->dev);
+ 	dev->irq = irq->start;
+ 	platform_set_drvdata(pdev, dev);
 -- 
 1.5.4
 
