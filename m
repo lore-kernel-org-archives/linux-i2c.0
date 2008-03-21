@@ -1,17 +1,14 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 5/5] I2C: DaVinci: initialize cmd_complete sooner
-Date: Thu, 20 Mar 2008 20:06:10 -0700
-Message-ID: <1206068770-15458-6-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
+Date: Thu, 20 Mar 2008 20:06:07 -0700
+Message-ID: <1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
 References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
 	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-4-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-5-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-5-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1206068770-15458-2-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,36 +22,73 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If an interrupt happens before an I2c master read/write,
-complete is called on uninitialized structure.
-
+Ensure psc value gives a clock between 7-12 Mhz
 Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |   19 ++++++++++++-------
+ 1 files changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 2ac56a2..f0b095f 100755
+index fde2634..82d4b7f 100755
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -262,7 +262,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+@@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+ 	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+ 	u16 psc;
+ 	u32 clk;
++	u32 d;
+ 	u32 clkh;
+ 	u32 clkl;
+ 	u32 input_clock = clk_get_rate(dev->clk);
+@@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+ 	 *       if PSC > 1 , d = 5
+ 	 */
  
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+-	psc = 26; /* To get 1MHz clock */
++	/* get minimum of 7mHz clock, but max of 12mHz */
++	psc = (input_clock/7000000)-1;
++	if ((input_clock/(psc+1)) > 12000000)
++		psc++;
++	d = (psc >= 2)? 5 : 7 - psc;
  
--	init_completion(&dev->cmd_complete);
-+	INIT_COMPLETION(dev->cmd_complete);
- 	dev->cmd_err = 0;
+-	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - 10;
+-	clkh = (50 * clk) / 100;
++	clk = ((input_clock/(psc+1)) / (pdata->bus_freq * 1000)) - (d<<1);
++	clkh = clk>>1;
+ 	clkl = clk - clkh;
  
- 	/* Take I2C out of reset, configure it as master and set the
-@@ -518,6 +518,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 		goto err_release_region;
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
+ 
+-	dev_dbg(dev->dev, "CLK  = %d\n", clk);
++	dev_dbg(dev->dev, "input_clock=%d, CLK  = %d\n", input_clock, clk);
+ 	dev_dbg(dev->dev, "PSC  = %d\n",
+ 		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+ 	dev_dbg(dev->dev, "CLKL = %d\n",
+ 		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
+ 	dev_dbg(dev->dev, "CLKH = %d\n",
+ 		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
++	dev_dbg(dev->dev, "bus_freq = %dkHz bus_delay = %d\n",
++		pdata->bus_freq, pdata->bus_delay);
+ 
+ 	/* Take the I2C module out of reset: */
+ 	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+@@ -338,12 +345,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	for (i = 0; i < num; i++) {
+ 		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
++		dev_dbg(dev->dev, "%s ret: %d\n", __func__, ret);
+ 		if (ret < 0)
+ 			return ret;
  	}
+-
+-	dev_dbg(dev->dev, "%s:%d ret: %d\n", __FUNCTION__, __LINE__, ret);
+-
+ 	return num;
+ }
  
-+	init_completion(&dev->cmd_complete);
- 	dev->dev = get_device(&pdev->dev);
- 	dev->irq = irq->start;
- 	platform_set_drvdata(pdev, dev);
 -- 
 1.5.4
 
