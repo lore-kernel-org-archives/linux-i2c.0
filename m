@@ -1,32 +1,28 @@
-From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 0/5] I2C: DaVinci: host controller update
-Date: Thu, 20 Mar 2008 20:20:32 -0700
-Message-ID: <47E32980.8010203@boundarydevices.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] i2c: SuperH Mobile I2C Bus Controller
+Date: Fri, 21 Mar 2008 15:23:12 +0900
+Message-ID: <20080321062312.GA17225@linux-sh.org>
+References: <20080320141840.13560.24850.sendpatchset@rx1.opensource.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080320141840.13560.24850.sendpatchset@rx1.opensource.se>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: i2c@lm-sensors.org, khali@linux-fr.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is an updated version of the patch you kindly reviewed
-earlier. Sorry it has take so long to resubmit..
-
-Thanks
-Troy
-
-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+On Thu, Mar 20, 2008 at 11:18:40PM +0900, Magnus Damm wrote:
+> +static void sh_mobile_i2c_setup_channel(struct platform_device *dev)
+> +{
+> +	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
+> +	unsigned long peripheral_clk = CONFIG_SH_PCLK_FREQ;
+> +	u_int32_t num;
+> +	u_int32_t denom;
+> +	u_int32_t tmp;
+> +
+Use clk_get() and friends here for the module clock. This should
+absolutely not be hardcoded, especially as it can be scaled by the clock
+framework, and the i2c clock will need to rebalance itself to account for
+that. Any driver that references CONFIG_SH_PCLK_FREQ is utterly broken.
