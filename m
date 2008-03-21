@@ -1,15 +1,13 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 3/5] I2C: DaVinci: remove useless IVR read
-Date: Thu, 20 Mar 2008 20:06:08 -0700
-Message-ID: <1206068770-15458-4-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 1/5] I2C: DaVinci: fix lost interrupt
+Date: Thu, 20 Mar 2008 20:06:06 -0700
+Message-ID: <1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
 References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-3-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1206068770-15458-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,42 +21,62 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Interrupts are enabled at the point where
-the DAVINCI_I2C_IVR_REG is read, so unless
-an interrupt happened just at that moment,
-no interrupt would be pending. Even though
-documentation implies you should do this,
-I see no reason. If slave support is added,
-this read would cause a hard to reproduce bug.
+DAVINCI_I2C_STR_REG is a write 1 to clear register,
+so don't use a read/modify/write cycle.
 
 Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Acked-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |   17 ++++++-----------
+ 1 files changed, 6 insertions(+), 11 deletions(-)
+ mode change 100644 => 100755 drivers/i2c/busses/i2c-davinci.c
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 82d4b7f..da54fff 100755
+old mode 100644
+new mode 100755
+index cce5a61..fde2634
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -240,7 +240,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
- 	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
- 	u32 flag;
--	u32 stat;
- 	u16 w;
- 	int r;
+@@ -382,9 +382,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+ 			break;
  
-@@ -264,9 +263,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	init_completion(&dev->cmd_complete);
- 	dev->cmd_err = 0;
+ 		case DAVINCI_I2C_IVR_ARDY:
+-			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
+-			MOD_REG_BIT(w, DAVINCI_I2C_STR_ARDY, 1);
+-			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
++			davinci_i2c_write_reg(dev,
++				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_ARDY);
+ 			complete(&dev->cmd_complete);
+ 			break;
  
--	/* Clear any pending interrupts by reading the IVR */
--	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
--
- 	/* Take I2C out of reset, configure it as master and set the
- 	 * start bit */
- 	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
+@@ -397,12 +396,9 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+ 				if (dev->buf_len)
+ 					continue;
+ 
+-				w = davinci_i2c_read_reg(dev,
+-							 DAVINCI_I2C_STR_REG);
+-				MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 0);
+ 				davinci_i2c_write_reg(dev,
+-						      DAVINCI_I2C_STR_REG,
+-						      w);
++					DAVINCI_I2C_STR_REG,
++					DAVINCI_I2C_IMR_RRDY);
+ 			} else
+ 				dev_err(dev->dev, "RDR IRQ while no "
+ 					"data requested\n");
+@@ -428,9 +424,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+ 			break;
+ 
+ 		case DAVINCI_I2C_IVR_SCD:
+-			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
+-			MOD_REG_BIT(w, DAVINCI_I2C_STR_SCD, 1);
+-			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
++			davinci_i2c_write_reg(dev,
++				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_SCD);
+ 			complete(&dev->cmd_complete);
+ 			break;
+ 
 -- 
 1.5.4
 
