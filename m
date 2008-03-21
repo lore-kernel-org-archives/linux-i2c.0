@@ -1,7 +1,7 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 0/5]I2C: Davinci host controller changes
-Date: Thu, 20 Mar 2008 20:06:05 -0700
-Message-ID: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 0/5] I2C: DaVinci: host controller update
+Date: Thu, 20 Mar 2008 20:20:32 -0700
+Message-ID: <47E32980.8010203@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,8 +25,6 @@ Thanks
 Troy
 
 troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org
-
-
 
 _______________________________________________
 i2c mailing list
