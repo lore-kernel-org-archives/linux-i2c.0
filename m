@@ -1,14 +1,15 @@
 From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
 Subject: Re: [PATCH] Read SPD data from a hexdump (take 2)
-Date: Sat, 22 Mar 2008 14:46:43 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0803221346450.16142@shell2.speakeasy.net>
+Date: Sat, 22 Mar 2008 16:59:05 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0803221654220.16142@shell2.speakeasy.net>
 References: <Pine.LNX.4.58.0803161427360.20723@shell4.speakeasy.net>
 	<20080322150222.2a8ccc60@hyperion.delvare>
+	<Pine.LNX.4.58.0803221346450.16142@shell2.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080322150222.2a8ccc60-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.58.0803221346450.16142-nuiHJn5p267P3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,89 +23,12 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 22 Mar 2008, Jean Delvare wrote:
-> The function below chokes on the header line of i2cdump output:
->
-> <file>
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: 80 08 08 0e 0b 60 48 00 05 50 60 02 82 04 04 00    ?????`H.?P`????.
-> 10: ...
-> </file>
->
-> Can't parse data at eeprom/decode-dimms.pl line 1119, <F> line 1.
->
-> Of course I can delete this first line from the file and then it works,
-> but it would be better if the function could simply ignore this header
-> line.
+The regex for parsing hexdump -C was wrong.  I remember fixing that before,
+so I think some old code got in these patches.  It's a real pain to deal
+with a stack of outstanding patches with svn and merge against conflicts
+from upstream.
 
-[...]
-> You repeat the same byte for all the omitted block... this isn't how I
-> read man hexdump(1). As I understand it, you are supposed to repeat the
-> last line, not the last byte.
->
-> Alternatively you could drop support for this special format, which
-> doesn't make much sense for a 256-byte EEPROM if you ask me. And in
-> practice the only cases where it could happen is for rows of 0x00s or
-> 0xffs - it doesn't make a difference if you omit them completely.
 
-I've added code to ignore header lines.  The code to parse the repeat line
-syntax is there for the same reason:  hexdump produces that syntax when you
-run it on an eeprom file.  Not parsing it requires editing the hexdumps by
-hand, which is a lot more trouble than just deleting a one line header.
-
-As far as I can tell, hexdump and od only produce the line repeat when
-every byte in the line is the same, so repeating the last byte vs the last
-16 bytes is effectively the same.  My goal wasn't to code some complex
-"perfect" hex dump parser, but just to work correctly on the formats one
-typically has at hand.
-
-> You could use the /i regexp modifier so that you don't have to specify
-> both a-f and A-F each time.
-
-Good idea.
-
-> > +		foreach (split(/\s+/, $2)) {
-> > +			if(/^(..)(..)$/) {
-> > +				$bytes[$addr++] = hex($1);
-> > +				$bytes[$addr++] = hex($2);
->
-> I'm unsure if we want to support this ambiguous format. You assume
-> big-endian byte order here. Even though you document it in the comment
-> above, users might not read the source code and so might feed the
-> script with little-endian byte order data and get noise out of the
-> script.
-
-I've added some better documentation to the help output.  It's the default
-format of "hexdump" and I'm not sure if old versions of busybox can produce
-the -C format when compiled with certain options.  I think if you turn on
-hexdump but not od, you get a limited version that can't do everything.
-
-> > +			} elsif(/^(..)$/) {
-> > +				$bytes[$addr++] = hex($1);
-> > +			} else {
-> > +				print "Can't parse hex word '$_'\n";
->
-> I fail to see how this could ever happen.
-
-It was just defensive programming.  In case my regexs to parse the line
-were less than perfect, maybe it would get caught here.
-
-> >      $opt_html = 1 if (/-f/);
-> >      $opt_bodyonly = 1 if (/-b/);
-> >      $opt_igncheck = 1 if (/-c/);
-> > +    $use_hexdump = 1 if(/-x/);
-> > +    push @dimm_list, $_ if($use_hexdump && !/^-[fbcx]$/);
->
-> In anticipation of more options being added in the future, I'd
-> use !/^-/ instead. Your variant above also fails if long options are
-> used.
-
-Fixed.  Note that all the option regexes should be changed to something
-like '/^-?-f/'.  Otherwise a filename like hys72d32500gr-7-b will trigger
-the $opt_bodyonly option.  (that's a real example, I named my eeprom dumps
-after the part number, but in caps)
-
----------------------------------------------------------------------------
 This adds a "-x" option to decode_dimms.pl, which lets one supply a list of
 file names to read SPD data from.  It can parse various hexdump formats,
 such as the output from i2cdump and the util-linux and Busybox hexdump
@@ -130,7 +54,7 @@ Index: eeprom/decode-dimms.pl
 
  $revision = '$Revision$ ($Date$)';
  $revision =~ s/\$\w+: (.*?) \$/$1/g;
-@@ -1100,10 +1100,59 @@
+@@ -1100,10 +1100,60 @@
  	printl $l, $temp;
  }
 
@@ -153,8 +77,8 @@ Index: eeprom/decode-dimms.pl
 +			$repstart = $addr;
 +			next;
 +		}
-+		/^(?:0000 )?([a-f\d]{2,7}):? ((:?[a-f\d]{4}\s*){8}|(:?[a-f\d]{2}\s*){16})/i ||
-+		/^(?:0000 )?([a-f\d]{2,7}):?\s*$/i or $ok = 0;
++		/^(?:0000 )?([a-f\d]{2,8}):?\s+((:?[a-f\d]{4}\s*){8}|(:?[a-f\d]{2}\s*){16})/i ||
++		/^(?:0000 )?([a-f\d]{2,8}):?\s*$/i or $ok = 0;
 +		next if (!$ok && $header);		# skip leading unparsed lines
 +
 +		$ok or die "Unable to parse input";
@@ -177,6 +101,7 @@ Index: eeprom/decode-dimms.pl
 +		}
 +	}
 +	close F;
++	$header and die "Unable to parse any data from hexdump '$_[0]'";
 +	return @bytes;
 +}
 +
@@ -191,7 +116,7 @@ Index: eeprom/decode-dimms.pl
  		# Kernel 2.6 with sysfs
  		sysopen(HANDLE, "/sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom", O_RDONLY)
  			or die "Cannot open /sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom";
-@@ -1123,19 +1172,29 @@
+@@ -1123,19 +1173,29 @@
  }
 
  for (@ARGV) {
@@ -226,7 +151,7 @@ Index: eeprom/decode-dimms.pl
  }
  $opt_body = $opt_html && ! $opt_bodyonly;
 
-@@ -1155,21 +1214,23 @@
+@@ -1155,21 +1215,23 @@
 
 
  my $dimm_count = 0;
@@ -259,7 +184,7 @@ Index: eeprom/decode-dimms.pl
  		my @bytes = readspd64(0, $dimm_list[$i]);
  		my $dimm_checksum = 0;
  		$dimm_checksum += $bytes[$_] foreach (0 .. 62);
-@@ -1179,15 +1240,18 @@
+@@ -1179,15 +1241,18 @@
  		$dimm_count++;
 
  		print "<b><u>" if $opt_html;
