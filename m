@@ -1,14 +1,14 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/6] Blackfin I2C/TWI driver: Add repeat start
- feature to avoid break of a bundle of i2c master xfer operation.
-Date: Mon, 24 Mar 2008 19:20:45 +0100
-Message-ID: <20080324192045.2343293c@hyperion.delvare>
-References: <1205479360-25240-2-git-send-email-cooloney@kernel.org>
+Subject: Re: [PATCH 2/6] Blackfin I2C/TWI driver: Add
+ platform_resource interface to support multi-port TWI controllers
+Date: Mon, 24 Mar 2008 20:49:38 +0100
+Message-ID: <20080324204938.31350213@hyperion.delvare>
+References: <1205479360-25240-3-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1205479360-25240-2-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1205479360-25240-3-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,44 +19,53 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bryan,
-
-On Fri, 14 Mar 2008 00:22:35 -0700, Bryan Wu wrote:
-> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Fri, 14 Mar 2008 00:22:36 -0700, Bryan Wu wrote:
+> From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > 
->  - Create a new mode TWI_I2C_MODE_REPEAT.
->  - No change to smbus operation.
+>  - Dynamic alloc the resource of TWI driver data according to board information
+>  - TWI register read/write accessor based on dynamic regs_base
+>  - Support TWI0/TWI1 for BF54x
 > 
-> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-
-Just one Signed-off-by per person, please.
-
 > ---
->  drivers/i2c/busses/i2c-bfin-twi.c |  183 +++++++++++++++++++++++--------------
->  1 files changed, 113 insertions(+), 70 deletions(-)
-> 
+>  drivers/i2c/busses/i2c-bfin-twi.c |  281 +++++++++++++++++++++++--------------
+>  1 files changed, 174 insertions(+), 107 deletions(-)
+
+Looks good, except:
+
 > diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-> index 7dbdaeb..ea15125 100644
+> index ea15125..515fe08 100644
 > --- a/drivers/i2c/busses/i2c-bfin-twi.c
 > +++ b/drivers/i2c/busses/i2c-bfin-twi.c
 > (...)
+> @@ -593,39 +646,55 @@ static int i2c_bfin_twi_probe(struct platform_device *dev)
+> (...)
+> +	return 0;
+> +
+> +out_error_add_adapter:
+> +	free_irq(iface->irq, iface);
+> +out_error_req_irq:
+> +out_error_no_irq:
+> +	iounmap(iface->regs_base);
+> +out_error_ioremap:
+> +out_error_get_res:
+> +	kfree(iface);
+> +out_error_nomem:
+>  	return rc;
+>  }
 
-It seems that this patch is the exact same as the one you posted back in
-November 2007:
-http://lists.lm-sensors.org/pipermail/i2c/2007-November/002119.html
+You forgot to add the same steps when removing the device in
+i2c_bfin_twi_remove(): you must call iounmap() and kfree() there too!
 
-I did review this patch:
-http://lists.lm-sensors.org/pipermail/i2c/2007-November/002121.html
+Also, it looks to me like this patch makes many bfin_read_TWI_* and
+bfin_write_TWI_* macros in include/asm-blackfin/mach-bf537/cdefBF534.h
+and include/asm-blackfin/mach-bf527/cdefBF52x_base.h unneeded, so it
+would probably be a good idea to delete them now to avoid any confusion?
 
-So I would appreciate if you could take my comments into account and
-post an updated version.
-
-Thanks,
 -- 
 Jean Delvare
 
