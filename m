@@ -1,14 +1,14 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/6] Blackfin I2C/TWI driver: add missing pin mux
- operation
-Date: Mon, 24 Mar 2008 20:46:34 +0100
-Message-ID: <20080324204634.69cc87e6@hyperion.delvare>
-References: <1205479360-25240-4-git-send-email-cooloney@kernel.org>
+Subject: Re: [PATCH 6/6] Blackfin I2C TWI driver: ADSP-BF52x arch/mach
+ support
+Date: Mon, 24 Mar 2008 22:33:10 +0100
+Message-ID: <20080324223310.7e3df49b@hyperion.delvare>
+References: <1205479360-25240-7-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1205479360-25240-4-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1205479360-25240-7-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,125 +19,40 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bryan,
-
-On Fri, 14 Mar 2008 00:22:37 -0700, Bryan Wu wrote:
-> From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Fri, 14 Mar 2008 00:22:40 -0700, Bryan Wu wrote:
+> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > 
-> Blackfin TWI controller hardware pin should be requested from GPIO port controller
-> Before BF54x, there is no need to do this. But as long as BF54x and BF52x
-> are supported by this generic driver, the missing pin mux operation should be
-> added.
-> 
+> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-bfin-twi.c |   29 +++++++++++++++++++++++++++++
->  1 files changed, 29 insertions(+), 0 deletions(-)
+>  drivers/i2c/busses/Kconfig |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-> index 515fe08..674c053 100644
-> --- a/drivers/i2c/busses/i2c-bfin-twi.c
-> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-> @@ -34,6 +34,7 @@
->  #include <linux/platform_device.h>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 476b0bb..a1351ce 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -100,10 +100,10 @@ config I2C_AU1550
 >  
->  #include <asm/blackfin.h>
-> +#include <asm/portmux.h>
->  #include <asm/irq.h>
->  
->  #define POLL_TIMEOUT       (2 * HZ)
-> @@ -63,6 +64,7 @@ struct bfin_twi_iface {
->  	int			msg_num;
->  	int			cur_msg;
->  	void __iomem		*regs_base;
-> +	int			bus_num;
->  };
->  
->  
-> @@ -89,6 +91,23 @@ DEFINE_TWI_REG(XMT_DATA16, 0x84)
->  DEFINE_TWI_REG(RCV_DATA8, 0x88)
->  DEFINE_TWI_REG(RCV_DATA16, 0x8C)
->  
-> +static u16 pin_req[2][3] = {
-> +	{P_TWI0_SCL, P_TWI0_SDA, 0},
-> +	{P_TWI1_SCL, P_TWI1_SDA, 0},
-> +};
+>  config I2C_BLACKFIN_TWI
+>  	tristate "Blackfin TWI I2C support"
+> -	depends on BF534 || BF536 || BF537 || BF54x
+> +	depends on BF534 || BF536 || BF537 || BF54x || BF522 || BF525 || BF527
+>  	help
+> -	  This is the TWI I2C device driver for Blackfin 534/536/537/54x.
+> -	  This driver can also be built as a module.  If so, the module
+> +	  This is the TWI I2C device driver for Blackfin 522/525/527/534/536/537/54x.
+> +	  This driver can also be built as a module. If so, the module
+>  	  will be called i2c-bfin-twi.
 
-Could be const.
-
-> +
-> +static int setup_pin_mux(struct bfin_twi_iface *iface, int action)
-> +{
-> +	int rc = 0;
-> +
-> +	if (action)
-> +		rc = peripheral_request_list(pin_req[iface->bus_num], "i2c-bfin-twi");
-> +	else
-> +		peripheral_free_list(pin_req[iface->bus_num]);
-> +
-> +	return rc;
-> +}
-
-It didn't strike me the first time I reviewed this patch, but this
-function doesn't make much sense. Calling peripheral_request_list() and
-peripheral_free_list() directly would make the code more simple. But
-well, that's your driver, so that's your call. I can only hope that gcc
-properly optimizes away the additional costs.
-
-> +
->  static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
->  {
->  	unsigned short twi_int_status = read_INT_STAT(iface);
-> @@ -640,6 +659,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->  		goto out_error_no_irq;
->  	}
->  
-> +	iface->bus_num = pdev->id;
-
-I fail to see why you duplicate this value... why don't you use
-pdev->id directly?
-
->  	init_timer(&(iface->timeout_timer));
->  	iface->timeout_timer.function = bfin_twi_timeout;
->  	iface->timeout_timer.data = (unsigned long)iface;
-> @@ -653,6 +673,12 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->  	p_adap->class = I2C_CLASS_ALL;
->  	p_adap->dev.parent = &pdev->dev;
->  
-> +	rc = setup_pin_mux(iface, 1);
-> +	if (rc) {
-> +		dev_err(&pdev->dev, "Can't setup Pin Mux!\n");
-
-s/Pin Mux/pin mux/
-
-> +		goto out_error_pin_mux;
-> +	}
-> +
->  	rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
->  		IRQF_DISABLED, pdev->name, iface);
->  	if (rc) {
-> @@ -690,6 +716,8 @@ out_error_add_adapter:
->  	free_irq(iface->irq, iface);
->  out_error_req_irq:
->  out_error_no_irq:
-> +	setup_pin_mux(iface, 0);
-> +out_error_pin_mux:
->  	iounmap(iface->regs_base);
->  out_error_ioremap:
->  out_error_get_res:
-> @@ -706,6 +734,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
->  
->  	i2c_del_adapter(&(iface->adap));
->  	free_irq(iface->irq, iface);
-> +	setup_pin_mux(iface, 0);
->  
->  	return 0;
->  }
-
+Now that the i2c-bfin-twi driver no longer requires special defines in
+the arch/mach header files, wouldn't it be more simple to just make it
+depend on BLACKFIN? Otherwise we'll have to update the "depends on"
+statement over and over again with every new machine.
 
 -- 
 Jean Delvare
