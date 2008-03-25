@@ -1,15 +1,15 @@
 From: "Bryan Wu" <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/6] Blackfin I2C/TWI driver: Add
-	platform_resource interface to support multi-port TWI controllers
-Date: Tue, 25 Mar 2008 11:16:45 +0800
-Message-ID: <386072610803242016h2aa2bf79q1483456495e5da6f@mail.gmail.com>
-References: <1205479360-25240-3-git-send-email-cooloney@kernel.org>
-	<20080324204938.31350213@hyperion.delvare>
+Subject: Re: [PATCH 6/6] Blackfin I2C TWI driver: ADSP-BF52x arch/mach
+	support
+Date: Tue, 25 Mar 2008 11:55:14 +0800
+Message-ID: <386072610803242055h648bc250sa27f7193044f18d5@mail.gmail.com>
+References: <1205479360-25240-7-git-send-email-cooloney@kernel.org>
+	<20080324223310.7e3df49b@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080324204938.31350213-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080324223310.7e3df49b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -21,66 +21,52 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 25, 2008 at 3:49 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Fri, 14 Mar 2008 00:22:36 -0700, Bryan Wu wrote:
->  > From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Tue, Mar 25, 2008 at 5:33 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>
+> On Fri, 14 Mar 2008 00:22:40 -0700, Bryan Wu wrote:
+>  > From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 >  >
->  >  - Dynamic alloc the resource of TWI driver data according to board information
->  >  - TWI register read/write accessor based on dynamic regs_base
->  >  - Support TWI0/TWI1 for BF54x
->  >
+>  > Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 >  > Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 >  > Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 >  > ---
->  >  drivers/i2c/busses/i2c-bfin-twi.c |  281 +++++++++++++++++++++++--------------
->  >  1 files changed, 174 insertions(+), 107 deletions(-)
+>  >  drivers/i2c/busses/Kconfig |    6 +++---
+>  >  1 files changed, 3 insertions(+), 3 deletions(-)
+>  >
+>  > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>  > index 476b0bb..a1351ce 100644
+>  > --- a/drivers/i2c/busses/Kconfig
+>  > +++ b/drivers/i2c/busses/Kconfig
+>  > @@ -100,10 +100,10 @@ config I2C_AU1550
+>  >
+>  >  config I2C_BLACKFIN_TWI
+>  >       tristate "Blackfin TWI I2C support"
+>  > -     depends on BF534 || BF536 || BF537 || BF54x
+>  > +     depends on BF534 || BF536 || BF537 || BF54x || BF522 || BF525 || BF527
+>  >       help
+>  > -       This is the TWI I2C device driver for Blackfin 534/536/537/54x.
+>  > -       This driver can also be built as a module.  If so, the module
+>  > +       This is the TWI I2C device driver for Blackfin 522/525/527/534/536/537/54x.
+>  > +       This driver can also be built as a module. If so, the module
+>  >         will be called i2c-bfin-twi.
 >
->  Looks good, except:
->
->
->  > diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
->  > index ea15125..515fe08 100644
->  > --- a/drivers/i2c/busses/i2c-bfin-twi.c
->  > +++ b/drivers/i2c/busses/i2c-bfin-twi.c
->  > (...)
->
-> > @@ -593,39 +646,55 @@ static int i2c_bfin_twi_probe(struct platform_device *dev)
->  > (...)
->
-> > +     return 0;
->  > +
->  > +out_error_add_adapter:
->  > +     free_irq(iface->irq, iface);
->  > +out_error_req_irq:
->  > +out_error_no_irq:
->  > +     iounmap(iface->regs_base);
->  > +out_error_ioremap:
->  > +out_error_get_res:
->  > +     kfree(iface);
->  > +out_error_nomem:
->  >       return rc;
->  >  }
->
->  You forgot to add the same steps when removing the device in
->  i2c_bfin_twi_remove(): you must call iounmap() and kfree() there too!
+>  Now that the i2c-bfin-twi driver no longer requires special defines in
+>  the arch/mach header files, wouldn't it be more simple to just make it
+>  depend on BLACKFIN? Otherwise we'll have to update the "depends on"
+>  statement over and over again with every new machine.
 >
 
-Exactly, I will add them.
+Unfortunately, 2 important Blackfin processor family BF533 and  BF561
+do not integrate on-chip i2c twi controller.
+They can use this driver. I plan to define HAVE_BFIN_I2C_TWI in each
+Blackfin family, then Blackfin I2C TWI driver just "depends on
+BLACKFIN && HAVE_BFIN_I2C_TWI". We don't change this configuration
+again when new machine born.
 
->  Also, it looks to me like this patch makes many bfin_read_TWI_* and
->  bfin_write_TWI_* macros in include/asm-blackfin/mach-bf537/cdefBF534.h
->  and include/asm-blackfin/mach-bf527/cdefBF52x_base.h unneeded, so it
->  would probably be a good idea to delete them now to avoid any confusion?
->
-
-This bfin_write_TWI_* macros are generated by script automatically. As
-we moved to use low level bfin_write/bfin_read
-, those TWI macros are useless. I will remove them in other patch.
-
-Thanks a lot
+Thanks
 -Bryan
 
 _______________________________________________
