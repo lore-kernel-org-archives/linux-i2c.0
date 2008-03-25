@@ -1,51 +1,55 @@
-From: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: i2c-ibm_iic fast mode parm desc fixup.
-Date: Tue, 25 Mar 2008 15:35:29 +0900
-Message-ID: <20080325063529.GB29012@linux-sh.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] Wanted: i2c subsystem co-maintainer
+Date: Tue, 25 Mar 2008 09:50:28 +0100
+Message-ID: <20080325095028.07a73b11@hyperion.delvare>
+References: <20080304184512.3f78d296@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754040AbYCYJLk@vger.kernel.org>
+In-Reply-To: <20080304184512.3f78d296@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Noticed this when grepping for fast mode module params, the i2c-ibm_iic
-driver was using a non-existent variable for MODULE_PARM_DESC. Fix it up
-to reflect what it's actually supposed to be describing.
+On Tue, 4 Mar 2008 18:45:12 +0100, Jean Delvare wrote:
+> I have a hard time maintaining the i2c subsystem alone. New drivers
+> and, more importantly, subsystem evolutions are submitted much faster
+> than I can review and merge them. I am hearing complaints about this.
+> It has been lasting for a while now and it doesn't seem like the
+> situation is going to improve. Thus, I think it would be better if
+> someone was co-maintaining the i2c subsystem with me.
+> 
+> So, if anyone is interested in co-maintaining the i2c subsystem with
+> me, please let me know. The ideal candidate would come from the
+> embedded world, as I have absolutely no experience with this myself and
+> most of the new drivers are for embedded devices, and should have
+> contributed to the kernel in a significant way already.
 
-Signed-off-by: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+Ben Dooks agreed to become my co-maintainer for the i2c subsystem. In
+particular, Ben will help with drivers for embedded systems, of which
+my experience is inexistent. Thanks Ben and welcome on board!
 
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 ---
+Ben, please give by your ack on this patch, then I will push it
+upstream.
 
- drivers/i2c/busses/i2c-ibm_iic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 7c7eb0c..22bb247 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -55,7 +55,7 @@ MODULE_PARM_DESC(iic_force_poll, "Force polling mode");
- 
- static int iic_force_fast;
- module_param(iic_force_fast, bool, 0);
--MODULE_PARM_DESC(iic_fast_poll, "Force fast mode (400 kHz)");
-+MODULE_PARM_DESC(iic_force_fast, "Force fast mode (400 kHz)");
- 
- #define DBG_LEVEL 0
- 
+--- linux-2.6.25-rc6.orig/MAINTAINERS	2008-03-21 10:58:23.000000000 +0100
++++ linux-2.6.25-rc6/MAINTAINERS	2008-03-23 15:16:11.000000000 +0100
+@@ -1883,6 +1883,8 @@ S:	Maintained
+ I2C SUBSYSTEM
+ P:	Jean Delvare
+ M:	khali@linux-fr.org
++P:	Ben Dooks
++M:	ben-linux@fluff.org
+ L:	i2c@lm-sensors.org
+ T:	quilt http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
+ S:	Maintained
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Jean Delvare
