@@ -1,93 +1,216 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 6/6] Blackfin I2C TWI driver: ADSP-BF52x arch/mach
- support
-Date: Tue, 25 Mar 2008 15:17:32 +0100
-Message-ID: <20080325151732.6a491de1@hyperion.delvare>
-References: <1205479360-25240-7-git-send-email-cooloney@kernel.org>
-	<20080324223310.7e3df49b@hyperion.delvare>
-	<386072610803242055h648bc250sa27f7193044f18d5@mail.gmail.com>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: Re: [PATCHv4 2.6.25] i2c: adds support for i2c bus on Freescale CPM1/CPM2
+  controllers
+Date: Tue, 25 Mar 2008 19:46:41 +0100
+Message-ID: <47E94891.6020000@scram.de>
+References: <47A1C4E9.4000003@scram.de>	<20080221130520.12b01553@hyperion.delvare>	<47BEAF00.50106@scram.de> <20080223134335.0f5c7d79@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <386072610803242055h648bc250sa27f7193044f18d5-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759699AbYCYSqV@vger.kernel.org>
+In-Reply-To: <20080223134335.0f5c7d79@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Scott Wood <scottwood@freescale.com>, Kumar Gala <galak@kernel.crashing.org>, Vitaly Bordug <vitb@kernel.crashing.org>, linux-kernel@vger.kernel.org, linuxppc-dev list <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 25 Mar 2008 11:55:14 +0800, Bryan Wu wrote:
-> On Tue, Mar 25, 2008 at 5:33 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> >
-> > On Fri, 14 Mar 2008 00:22:40 -0700, Bryan Wu wrote:
-> >  > From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> >  >
-> >  > Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> >  > Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> >  > Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> >  > ---
-> >  >  drivers/i2c/busses/Kconfig |    6 +++---
-> >  >  1 files changed, 3 insertions(+), 3 deletions(-)
-> >  >
-> >  > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> >  > index 476b0bb..a1351ce 100644
-> >  > --- a/drivers/i2c/busses/Kconfig
-> >  > +++ b/drivers/i2c/busses/Kconfig
-> >  > @@ -100,10 +100,10 @@ config I2C_AU1550
-> >  >
-> >  >  config I2C_BLACKFIN_TWI
-> >  >       tristate "Blackfin TWI I2C support"
-> >  > -     depends on BF534 || BF536 || BF537 || BF54x
-> >  > +     depends on BF534 || BF536 || BF537 || BF54x || BF522 || BF525 || BF527
-> >  >       help
-> >  > -       This is the TWI I2C device driver for Blackfin 534/536/537/54x.
-> >  > -       This driver can also be built as a module.  If so, the module
-> >  > +       This is the TWI I2C device driver for Blackfin 522/525/527/534/536/537/54x.
-> >  > +       This driver can also be built as a module. If so, the module
-> >  >         will be called i2c-bfin-twi.
-> >
-> >  Now that the i2c-bfin-twi driver no longer requires special defines in
-> >  the arch/mach header files, wouldn't it be more simple to just make it
-> >  depend on BLACKFIN? Otherwise we'll have to update the "depends on"
-> >  statement over and over again with every new machine.
-> >
+Hi Jean,
+
+>> What is the preferred way to do this?
 > 
-> Unfortunately, 2 important Blackfin processor family BF533 and  BF561
-> do not integrate on-chip i2c twi controller.
-> They can use this driver. I plan to define HAVE_BFIN_I2C_TWI in each
+> I still have to think about it. I didn't have much time to work on this
+> during the last 2 weeks, hopefully I will fine some time to experiment
+> again soon. As I underlined before, my patch set affects no less than 5
+> subsystems with different needs and expectations, it's no trivial
+> change.
 
-I guess you meant "they can NOT use this driver"?
+Sorry for the late response, but I was pretty busy the last couple of weeks.
 
-> Blackfin family, then Blackfin I2C TWI driver just "depends on
-> BLACKFIN && HAVE_BFIN_I2C_TWI". We don't change this configuration
-> again when new machine born.
+I'm thinking about something like this (based on http://patchwork.ozlabs.org/linuxppc/patch?id=16282 to 16284):
 
-Well, there's nothing wrong with letting people build this driver even
-if the platform doesn't have any supported device. As long as it
-doesn't cause a build failure, it's alright. So you could simply use
-"depends on BLACKFIN" (which is technically correct) and just document
-which machines have the device (as you already did).
+This patch implements various helpers to support OF bindings for
+the i2c API.
 
-But if you prefer to introduce HAVE_BFIN_I2C_TWI, that's fine with me,
-it's really as you prefer.
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
+---
+ drivers/of/Kconfig     |    6 +++
+ drivers/of/Makefile    |    1 +
+ drivers/of/i2c.c       |  113 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/of_i2c.h |   24 ++++++++++
+ 4 files changed, 144 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/of/i2c.c
+ create mode 100644 include/linux/of_i2c.h
 
-Out of curiosity, isn't it possible to build a single kernel that would
-support more than just one Blackfin machine? I wonder if this is
-something people could be interested in - I have seen such requirements
-for other platforms already.
-
+diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
+index c03072b..3cff449 100644
+--- a/drivers/of/Kconfig
++++ b/drivers/of/Kconfig
+@@ -1,3 +1,9 @@
+ config OF_DEVICE
+ 	def_bool y
+ 	depends on OF && (SPARC || PPC_OF)
++
++config OF_I2C
++	def_bool y
++	depends on OF && PPC_OF && I2C
++	help
++	  OpenFirmware I2C accessors
+diff --git a/drivers/of/Makefile b/drivers/of/Makefile
+index ab9be5d..655b982 100644
+--- a/drivers/of/Makefile
++++ b/drivers/of/Makefile
+@@ -1,2 +1,3 @@
+ obj-y = base.o
+ obj-$(CONFIG_OF_DEVICE) += device.o platform.o
++obj-$(CONFIG_OF_I2C)	+= i2c.o
+diff --git a/drivers/of/i2c.c b/drivers/of/i2c.c
+new file mode 100644
+index 0000000..d3d1e9e
+--- /dev/null
++++ b/drivers/of/i2c.c
+@@ -0,0 +1,113 @@
++/*
++ * OF helpers for the I2C API
++ *
++ * Copyright (c) 2008 Jochen Friedrich <jochen@scram.de>
++ *
++ * Based on a previous patch from Jon Smirl <jonsmirl@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/i2c.h>
++#include <asm/prom.h>
++
++struct i2c_driver_device {
++	char    *of_device;
++	char    *i2c_type;
++};
++
++static struct i2c_driver_device i2c_devices[] = {
++	{"dallas,ds1374", "rtc-ds1374",},
++};
++
++static int of_find_i2c_driver(struct device_node *node,
++			      struct i2c_board_info *info)
++{
++	int i, cplen;
++	const char *compatible;
++	const char *p;
++
++	/* 1. search for exception list entry */
++	for (i = 0; i < ARRAY_SIZE(i2c_devices); i++) {
++		if (!of_device_is_compatible(node, i2c_devices[i].of_device))
++			continue;
++		if (strlcpy(info->type, i2c_devices[i].i2c_type,
++			    I2C_NAME_SIZE) >= I2C_NAME_SIZE)
++			return -ENOMEM;
++
++		return 0;
++	}
++
++	compatible = of_get_property(node, "compatible", &cplen);
++	if (!compatible)
++		return -ENODEV;
++
++	/* 2. search for linux,<i2c-type> entry */
++	p = compatible;
++	while (cplen > 0) {
++		if (!strncmp(p, "linux,", 6)) {
++			p += 6;
++			if (strlcpy(info->type, p,
++				    I2C_NAME_SIZE) >= I2C_NAME_SIZE)
++				return -ENOMEM;
++			return 0;
++		}
++
++		i = strlen(p) + 1;
++		p += i;
++		cplen -= i;
++	}
++
++	/* 3. take fist compatible entry and strip manufacturer */
++	p = strchr(compatible, ',');
++	if (!p)
++		return -ENODEV;
++	p++;
++	if (strlcpy(info->type, p, I2C_NAME_SIZE) >= I2C_NAME_SIZE)
++		return -ENOMEM;
++	return 0;
++}
++
++void of_register_i2c_devices(struct i2c_adapter *adap,
++			     struct device_node *adap_node)
++{
++	void *result;
++	struct device_node *node = NULL;
++
++	while ((node = of_get_next_child(adap_node, node))) {
++		struct i2c_board_info info = {};
++		const u32 *addr;
++		int len;
++
++		addr = of_get_property(node, "reg", &len);
++		if (!addr || len < sizeof(int) || *addr > (1 << 10) - 1) {
++			printk(KERN_ERR
++			       "of-i2c: invalid i2c device entry\n");
++			continue;
++		}
++
++		info.irq = irq_of_parse_and_map(node, 0);
++		if (info.irq == NO_IRQ)
++			info.irq = -1;
++
++		if (of_find_i2c_driver(node, &info) < 0)
++			continue;
++
++		info.addr = *addr;
++
++		request_module(info.type);
++
++		result = i2c_new_device(adap, &info);
++		if (result == NULL) {
++			printk(KERN_ERR
++			       "of-i2c: Failed to load driver for %s\n",
++			       info.type);
++			irq_dispose_mapping(info.irq);
++			continue;
++		}
++	}
++}
++EXPORT_SYMBOL(of_register_i2c_devices);
+diff --git a/include/linux/of_i2c.h b/include/linux/of_i2c.h
+new file mode 100644
+index 0000000..2e5a967
+--- /dev/null
++++ b/include/linux/of_i2c.h
+@@ -0,0 +1,24 @@
++/*
++ * Generic I2C API implementation for PowerPC.
++ *
++ * Copyright (c) 2008 Jochen Friedrich <jochen@scram.de>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef __LINUX_OF_I2C_H
++#define __LINUX_OF_I2C_H
++
++#include <linux/i2c.h>
++
++#ifdef CONFIG_OF_I2C
++
++void of_register_i2c_devices(struct i2c_adapter *adap,
++			     struct device_node *adap_node);
++
++#endif /* CONFIG_OF_I2C */
++
++#endif /* __LINUX_OF_I2C_H */
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+1.5.4.4
