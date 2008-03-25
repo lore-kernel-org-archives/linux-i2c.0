@@ -1,13 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-ibm_iic fast mode parm desc fixup.
-Date: Tue, 25 Mar 2008 14:16:53 +0100
-Message-ID: <20080325141653.5ce67d6a@hyperion.delvare>
-References: <20080325063529.GB29012@linux-sh.org>
+Subject: Re: [PATCH 1/6] Blackfin I2C/TWI driver: Add repeat start
+ feature to avoid break of a bundle of i2c master xfer operation.
+Date: Tue, 25 Mar 2008 15:04:28 +0100
+Message-ID: <20080325150428.6031264f@hyperion.delvare>
+References: <1205479360-25240-2-git-send-email-cooloney@kernel.org>
+	<20080324192045.2343293c@hyperion.delvare>
+	<0F1B54C89D5F954D8535DB252AF412FA01B17710@chinexm1.ad.analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080325063529.GB29012-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <0F1B54C89D5F954D8535DB252AF412FA01B17710-SGdA1W8gREmuVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,42 +20,26 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Paul,
+Hi Sonic,
 
-On Tue, 25 Mar 2008 15:35:29 +0900, Paul Mundt wrote:
-> Noticed this when grepping for fast mode module params, the i2c-ibm_iic
-> driver was using a non-existent variable for MODULE_PARM_DESC. Fix it up
-> to reflect what it's actually supposed to be describing.
-> 
-> Signed-off-by: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-> 
-> ---
-> 
->  drivers/i2c/busses/i2c-ibm_iic.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-> index 7c7eb0c..22bb247 100644
-> --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> @@ -55,7 +55,7 @@ MODULE_PARM_DESC(iic_force_poll, "Force polling mode");
->  
->  static int iic_force_fast;
->  module_param(iic_force_fast, bool, 0);
-> -MODULE_PARM_DESC(iic_fast_poll, "Force fast mode (400 kHz)");
-> +MODULE_PARM_DESC(iic_force_fast, "Force fast mode (400 kHz)");
->  
->  #define DBG_LEVEL 0
->  
+On Tue, 25 Mar 2008 11:01:18 +0800, Zhang, Sonic wrote:
+> I have already discussed your questions with you in attached email. See
+> bellow. The twi controller is designed to support SMBus protocol in
+> hardware. That's why we implement bfin_twi_smbus_xfer().
 
-Good catch. Patch applied, thank you. It seems that it has been broken
-pretty much forever. I thought that building would fail in this case,
-but it seems not.
+This is news to me, you did not tell this to me before. If there are
+hardware optimizations for SMBus then indeed it makes sense to have
+different code in the driver for I2C support and SMBus support.
 
+Still, I had several objections to the patch that was submitted in
+November 2007 (and resubmitted unchanged one week ago). I really would
+like to see them addressed.
+
+Thanks,
 -- 
 Jean Delvare
 
