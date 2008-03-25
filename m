@@ -1,16 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/6] Blackfin I2C/TWI driver: Add repeat start
- feature to avoid break of a bundle of i2c master xfer operation.
-Date: Tue, 25 Mar 2008 15:04:28 +0100
-Message-ID: <20080325150428.6031264f@hyperion.delvare>
-References: <1205479360-25240-2-git-send-email-cooloney@kernel.org>
-	<20080324192045.2343293c@hyperion.delvare>
-	<0F1B54C89D5F954D8535DB252AF412FA01B17710@chinexm1.ad.analog.com>
+Subject: Re: [PATCH 6/6] Blackfin I2C TWI driver: ADSP-BF52x arch/mach
+ support
+Date: Tue, 25 Mar 2008 15:17:32 +0100
+Message-ID: <20080325151732.6a491de1@hyperion.delvare>
+References: <1205479360-25240-7-git-send-email-cooloney@kernel.org>
+	<20080324223310.7e3df49b@hyperion.delvare>
+	<386072610803242055h648bc250sa27f7193044f18d5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <0F1B54C89D5F954D8535DB252AF412FA01B17710-SGdA1W8gREmuVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
+In-Reply-To: <386072610803242055h648bc250sa27f7193044f18d5-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,26 +20,70 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sonic,
+On Tue, 25 Mar 2008 11:55:14 +0800, Bryan Wu wrote:
+> On Tue, Mar 25, 2008 at 5:33 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> >
+> > On Fri, 14 Mar 2008 00:22:40 -0700, Bryan Wu wrote:
+> >  > From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> >  >
+> >  > Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> >  > Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> >  > Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> >  > ---
+> >  >  drivers/i2c/busses/Kconfig |    6 +++---
+> >  >  1 files changed, 3 insertions(+), 3 deletions(-)
+> >  >
+> >  > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> >  > index 476b0bb..a1351ce 100644
+> >  > --- a/drivers/i2c/busses/Kconfig
+> >  > +++ b/drivers/i2c/busses/Kconfig
+> >  > @@ -100,10 +100,10 @@ config I2C_AU1550
+> >  >
+> >  >  config I2C_BLACKFIN_TWI
+> >  >       tristate "Blackfin TWI I2C support"
+> >  > -     depends on BF534 || BF536 || BF537 || BF54x
+> >  > +     depends on BF534 || BF536 || BF537 || BF54x || BF522 || BF525 || BF527
+> >  >       help
+> >  > -       This is the TWI I2C device driver for Blackfin 534/536/537/54x.
+> >  > -       This driver can also be built as a module.  If so, the module
+> >  > +       This is the TWI I2C device driver for Blackfin 522/525/527/534/536/537/54x.
+> >  > +       This driver can also be built as a module. If so, the module
+> >  >         will be called i2c-bfin-twi.
+> >
+> >  Now that the i2c-bfin-twi driver no longer requires special defines in
+> >  the arch/mach header files, wouldn't it be more simple to just make it
+> >  depend on BLACKFIN? Otherwise we'll have to update the "depends on"
+> >  statement over and over again with every new machine.
+> >
+> 
+> Unfortunately, 2 important Blackfin processor family BF533 and  BF561
+> do not integrate on-chip i2c twi controller.
+> They can use this driver. I plan to define HAVE_BFIN_I2C_TWI in each
 
-On Tue, 25 Mar 2008 11:01:18 +0800, Zhang, Sonic wrote:
-> I have already discussed your questions with you in attached email. See
-> bellow. The twi controller is designed to support SMBus protocol in
-> hardware. That's why we implement bfin_twi_smbus_xfer().
+I guess you meant "they can NOT use this driver"?
 
-This is news to me, you did not tell this to me before. If there are
-hardware optimizations for SMBus then indeed it makes sense to have
-different code in the driver for I2C support and SMBus support.
+> Blackfin family, then Blackfin I2C TWI driver just "depends on
+> BLACKFIN && HAVE_BFIN_I2C_TWI". We don't change this configuration
+> again when new machine born.
 
-Still, I had several objections to the patch that was submitted in
-November 2007 (and resubmitted unchanged one week ago). I really would
-like to see them addressed.
+Well, there's nothing wrong with letting people build this driver even
+if the platform doesn't have any supported device. As long as it
+doesn't cause a build failure, it's alright. So you could simply use
+"depends on BLACKFIN" (which is technically correct) and just document
+which machines have the device (as you already did).
 
-Thanks,
+But if you prefer to introduce HAVE_BFIN_I2C_TWI, that's fine with me,
+it's really as you prefer.
+
+Out of curiosity, isn't it possible to build a single kernel that would
+support more than just one Blackfin machine? I wonder if this is
+something people could be interested in - I have seen such requirements
+for other platforms already.
+
 -- 
 Jean Delvare
 
