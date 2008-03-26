@@ -1,134 +1,124 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: Regression (gdm no longer shuts down) - 2.4.24.x and 2.6.25
-Date: Wed, 26 Mar 2008 20:10:31 +0100
-Message-ID: <20080326201031.7c2cefb2@hyperion.delvare>
-References: <20080325200714.GA25487@deepthought>
-	<20080326161934.7eae544f@hyperion.delvare>
-	<20080326173701.GA16882@deepthought>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] i2c: SuperH Mobile I2C Bus Controller V3
+Date: Wed, 26 Mar 2008 12:56:37 -0700
+Message-ID: <20080326125637.56ab7c85.akpm@linux-foundation.org>
+References: <20080325105559.GA30232@linux-sh.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754906AbYCZTWg@vger.kernel.org>
-In-Reply-To: <20080326173701.GA16882@deepthought>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ken Moffat <zarniwhoop@ntlworld.com>
-Cc: Dave Airlie <airlied@gmail.com>, I2C <i2c@lm-sensors.org>, lkml <linux-kernel@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080325105559.GA30232@linux-sh.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: i2c@lm-sensors.org, khali@linux-fr.org, magnus.damm@gmail.com, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 26 Mar 2008 17:37:01 +0000, Ken Moffat wrote:
-> On Wed, Mar 26, 2008 at 04:19:34PM +0100, Jean Delvare wrote:
-> > Hi Ken,
-> > 
-> > On Tue, 25 Mar 2008 20:07:14 +0000, Ken Moffat wrote:
-> > > Hi,
-> > > 
-> > >  on one of my boxes, I've got a problem with gdm and kernels newer
-> > > than 2.6.24 (tested on 2.6.24.2, 2.6.24.4).  If I try to restart or
-> > > shut down from gdm, the window disappears but the X background remains
-> > > and the box stays in runlevel 5 until I switch to a tty and shut it
-> > > down (as root) or give it a 3-fingered salute to reboot.
-> > 
-> > I have to admit that I am very skeptical. The i2c-viapro driver deals
-> > with the motherboard's SMBus. It's not related in any way to gdm nor
-> > drm, so I just can't see how it could cause the problem you report.
-> > What gave you the idea to try unloading this driver?
->
->  Your skepticism seems reasonable.  I tried this after I went back
-> to the "bad" 2.6.24.4 (to see if there was anything in the X log)
-> only to discover it was now shutting sown ok.  I knew I had
-> forgotten to change the extraversion when I reverted the patch, so
-> I figured it must be something in the modules (i.e. the good ones
-> overwrote the bad ones - dunno if they all load or not).
+On Tue, 25 Mar 2008 19:55:59 +0900
+Paul Mundt <lethal@linux-sh.org> wrote:
 
-The fact is that there is no i2c-viapro change in 2.6.24.2 nor .4, and
-in fact no i2c change at all. So if anything changed in this driver,
-this has to be a side effect of some (non-i2c) header file change.
-That's a long shot, though.
-
+> This is V3 of the SuperH Mobile I2C Controller Driver. A simple Master
+> only driver for the I2C block included in processors such as sh7343,
+> sh7722 and sh7723. Tested on a sh7722 MigoR using a rs5c372b rtc.
 > 
->  After going back to 2.6.24.2 where I'd first seen this, I had a
-> look at what was loaded - only r8169, w83627hf with hwmon_vid, and
-> i2c_viapro.  I tried hwmon_vid and w83627hf but it didn't help.
-> Then I tried i2c_viapro and it seemed to fix it.
+> +#include <asm/io.h>
 
-Did you try unloading r8169 instead? It's certainly less easy to test,
-but I think it's worth a try. The only thing that unloading i2c-viapro
-really does is unbinding a PCI device and removing a PCI driver. So, if
-for some reason shaking the PCI bits solves your problem, then maybe
-unloading r8169 would have the same effect.
+please use checkpatch.
 
-You could also try reloading i2c-viapro after unloading it. I wonder if
-your problem will be back or not. (Not that I would be able to come up
-to any conclusion either way...)
+> +static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
+> +			    int op, unsigned char data)
+> +{
+> +	unsigned char ret = 0;
+> +
+> +	dev_dbg(pd->dev, "op %d, data in 0x%02x\n", op, data);
+> +
+> +	spin_lock_irq(&pd->lock);
+> +
+> +	switch (op) {
+> +	case OP_START:
+> +		iowrite8(0x94, ICCR(pd));
+> +		break;
+> +	case OP_TX_ONLY:
+> +		iowrite8(data, ICDR(pd));
+> +		break;
+> +	case OP_TX_STOP:
+> +		iowrite8(data, ICDR(pd));
+> +		iowrite8(0x90, ICCR(pd));
+> +		iowrite8(ICIC_ALE | ICIC_TACKE, ICIC(pd));
+> +		break;
+> +	case OP_TX_TO_RX:
+> +		iowrite8(data, ICDR(pd));
+> +		iowrite8(0x81, ICCR(pd));
+> +		break;
+> +	case OP_RX_ONLY:
+> +		ret = ioread8(ICDR(pd));
+> +		break;
+> +	case OP_RX_STOP:
+> +		ret = ioread8(ICDR(pd));
+> +		iowrite8(0xc0, ICCR(pd));
+> +		break;
+> +	}
+> +
+> +	spin_unlock_irq(&pd->lock);
+> +
+> +	dev_dbg(pd->dev, "op %d, data out 0x%02x\n", op, ret);
+> +	return ret;
+> +}
 
-> > 
-> > Do you have I2C or SMBus devices connected to the SMBus on that machine?
-> > If you don't know, i2cdetect should tell.
-> 
->  After modprobing i2c-dev I get
-> root@bluesbreaker /home/ken #i2cdetect -l
-> i2c-0	i2c       	monid                           	I2C
-> adapter
-> i2c-1	i2c       	dvi                             	I2C
-> adapter
-> i2c-2	i2c       	vga                             	I2C
-> adapter
-> i2c-3	i2c       	crt2                            	I2C
-> adapter
-> i2c-4	smbus     	SMBus Via Pro adapter at 0400
-> SMBus adapter
->  [ nothing shows on 1 ]
-> root@bluesbreaker /home/ken #i2cdetect 2
-> WARNING! This program can confuse your I2C bus, cause data loss and
-> worse!
-> I will probe file /dev/i2c-2.
-> I will probe address range 0x03-0x77.
-> Continue? [Y/n] 
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 70: -- -- -- -- -- -- -- --                         
+I'd be a bit concerned about reenabling interrupts...
 
-Totally unrelated, but FYI: the chip at 0x50 is an EDID EEPROM in your
-display (which the radeonfb driver can use to switch to the correct
-resolution / refresh rate.)
+> +static irqreturn_t sh_mobile_i2c_isr(int irq, void *dev_id)
+> +{
+> +	struct platform_device *dev = dev_id;
+> +	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
+> +	struct i2c_msg *msg = pd->msg;
+> +	unsigned char data, sr;
+> +	int wakeup = 0;
+> +
+> +	sr = ioread8(ICSR(pd));
+> +	pd->sr |= sr;
+> +
+> +	dev_dbg(pd->dev, "i2c_isr 0x%02x 0x%02x %s %d %d!\n", sr, pd->sr,
+> +	       (msg->flags & I2C_M_RD) ? "read" : "write",
+> +	       pd->pos, msg->len);
+> +
+> +	if (sr & (ICSR_AL | ICSR_TACK)) {
+> +		iowrite8(0, ICIC(pd)); /* disable interrupts */
+> +		wakeup = 1;
+> +		goto do_wakeup;
+> +	}
+> +
+> +	if (pd->pos == msg->len) {
+> +		i2c_op(pd, OP_RX_ONLY, 0);
 
->  [ othing shows on 3 ]
+from the interrupt handler...
 
-Just in case... You might want to check that the problem is still
-present with the radeonfb driver not built into your kernel (and
-not loaded as a module either). Framebuffer drivers and X can fight
-for resources sometimes.
+> +static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
+> +{
+> +	struct resource *res;
+> +	int ret = -ENXIO;
+> +	int q, m;
+> +	int k = 0;
+> +	int n = 0;
+> +
+> +	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
+> +		for (n = res->start; hook && n <= res->end; n++) {
+> +			if (request_irq(n, sh_mobile_i2c_isr, 0,
+> +					dev->dev.bus_id, dev))
 
-> root@bluesbreaker /home/ken #i2cdetect 4
-> WARNING! This program can confuse your I2C bus, cause data loss and
-> worse!
-> I will probe file /dev/i2c-4.
-> I will probe address range 0x03-0x77.
-> Continue? [Y/n] 
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 2f 
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 50: 50 51 -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- -- 
-> 70: -- -- -- -- -- -- -- --                         
+even though it isn't using IRQF_DISABLED here,
 
-OK... 0x50 and 0x51 are the SPD EEPROMs on your two memory modules. At
-0x69 you have a clock chip. At 0x2f... maybe a hardware monitoring
-chip, maybe something else. But more importantly, no driver attached to
-any of these chips. So, the mysterious effect of unloading the
-i2c-viapro driver can't be explained by an i2c chip driver detaching
-from its device. So, again, I really can't see how i2c can be involved
-in your problem.
 
-Good luck,
--- 
-Jean Delvare
+: int request_irq(unsigned int irq, irq_handler_t handler,
+: 		unsigned long irqflags, const char *devname, void *dev_id)
+: {
+: 	struct irqaction *action;
+: 	int retval;
+: 
+: #ifdef CONFIG_LOCKDEP
+: 	/*
+: 	 * Lockdep wants atomic interrupt handlers:
+: 	 */
+: 	irqflags |= IRQF_DISABLED;
+: #endif
+
+it will do so if lockdep is supported.
