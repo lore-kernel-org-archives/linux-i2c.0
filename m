@@ -1,76 +1,145 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] New VID/PID pair for i2c-tiny-usb
-Date: Wed, 26 Mar 2008 15:44:15 +0100
-Message-ID: <20080326154415.2981961a@hyperion.delvare>
-References: <200803241042.31263.lists@harbaum.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: Regression (gdm no longer shuts down) - 2.4.24.x and 2.6.25
+Date: Wed, 26 Mar 2008 16:19:34 +0100
+Message-ID: <20080326161934.7eae544f@hyperion.delvare>
+References: <20080325200714.GA25487@deepthought>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200803241042.31263.lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Till Harbaum / Lists <lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758640AbYCZPp1@vger.kernel.org>
+In-Reply-To: <20080325200714.GA25487@deepthought>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ken Moffat <zarniwhoop@ntlworld.com>
+Cc: Dave Airlie <airlied@gmail.com>, I2C <i2c@lm-sensors.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Till,
+Hi Ken,
 
-On Mon, 24 Mar 2008 10:42:30 +0100, Till Harbaum / Lists wrote:
-> I have recently bought some USB PIDs from EZPrototypes for my USB projects
-> and one will be for the i2c-tiny-usb. I have not yet started to use the new 
-> one in the official i2c-tiny-usb firmware since i think it makes sense to get 
-> the change into the kernel before releasing a modified firmware.
+On Tue, 25 Mar 2008 20:07:14 +0000, Ken Moffat wrote:
+> Hi,
 > 
-> This patch adds support for the EZPrototypes USB vid/pid pair used in later
-> i2c-tiny-usb firmware versions (avrusb v1.06 and up, usbtiny v2.06 and up).
+>  on one of my boxes, I've got a problem with gdm and kernels newer
+> than 2.6.24 (tested on 2.6.24.2, 2.6.24.4).  If I try to restart or
+> shut down from gdm, the window disappears but the X background remains
+> and the box stays in runlevel 5 until I switch to a tty and shut it
+> down (as root) or give it a 3-fingered salute to reboot.
 > 
-> Signed-off-by: Till Harbaum <Till-zicpKgigMvpAfugRpC6u6w@public.gmane.org>
+>  The same with 2.6.25-rc6-git8.
 > 
-> --- linux-2.6.24.3.orig/drivers/i2c/busses/i2c-tiny-usb.c	2008-02-26 
-> 01:20:20.000000000 +0100
-> +++ linux-2.6.24.3/drivers/i2c/busses/i2c-tiny-usb.c	2008-03-24 
-> 10:27:13.000000000 +0100
+>  The only oddity in the logs is a large block of
+> Mar 24 13:49:29 bluesbreaker gdm[2554]: Handling user message:
+> 'GET_CONFIG greeter/SetPosition :0'
+> Mar 24 13:49:29 bluesbreaker gdmlogin[2995]:   Got response: 'OK
+> false'
+> Mar 24 13:49:29 bluesbreaker gdmlogin[2995]: Sending command:
+> 'CLOSE'
+> Mar 24 13:49:29 bluesbreaker gdm[2554]: Handling user message:
+> 'CLOSE'
+> Mar 24 13:49:29 bluesbreaker gdm[2562]: gdm_slave_wait_for_login: In
+> loop
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login:
+> end verify for ''
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login: No
+> login/Bad login
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login: In
+> loop
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login:
+> end verify for ''
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login: No
+> login/Bad login
+> Mar 24 13:49:35 bluesbreaker gdm[2562]: gdm_slave_wait_for_login: In
+> loop
+> ... about 165 repeats of these 3 lines, it seems to stop the
+> messages on its own, then I ran shutdown and got the normal
+> 
+> Mar 24 13:50:02 bluesbreaker shutdown[3000]: shutting down for
+> system halt
+> Mar 24 13:50:02 bluesbreaker init: Switching to runlevel: 0
+> Mar 24 13:50:08 bluesbreaker logger: /etc/rc.d/init.d/rc called with
+> arg 0
+> Mar 24 13:50:08 bluesbreaker logger: /etc/rc.d/rc0.d/K01cups called
+> with arg stop
+>  and so forth.
+> 
+>  Yes, I've got a lot of debugging in there, I used this box to find
+> out why gdm-2.20 gave me a messy shutdown, and left it in after I
+> reverted to gdm-2.18.
+> 
+>  This only happens with 64-bit kernels, I've been using it as i686
+> without any issues.
+> 
+>  While trying to debug this, I reverted the two drm patches from
+> 2.6.24.1 (in 2.6.24.4) and normal behaviour was restored.  I forgot
+> to change the extraversion, which meant my modules were overwritten.
+> When I later went back to the "bad 2.6.24.4" it shut down correctly.
+> Examination showed i2c_viapro was the key - if I rmmod it in
+> 2.6.24.x, gdm works correctly.  For the record, my 32-bit config is
+> very different, but does include i2c_viapro as a module.
 
-Note: your e-mail client is wrapping long lines -> patch doesn't apply.
+I have to admit that I am very skeptical. The i2c-viapro driver deals
+with the motherboard's SMBus. It's not related in any way to gdm nor
+drm, so I just can't see how it could cause the problem you report.
+What gave you the idea to try unloading this driver?
 
-> @@ -131,11 +131,13 @@
+Do you have I2C or SMBus devices connected to the SMBus on that machine?
+If you don't know, i2cdetect should tell.
+
+You say that your 32-bit and 64-bit configs are very different. It
+might be interesting to get them to match as much as possible. This
+could either point at a 64-bit specific problem, or isolate a kernel
+configuration option which causes the problem.
+
+> 
+>  So, I started to think it might be an i2c problem.  But with
+> 2.6.25-rc6-git8 I can't get gdm to work correctly, neither by
+> reverting the patches, nor with rmmod, so for the moment I'm in the
+> dark.  My notes say that I managed to fix it one time on -rc6-git8,
+> by 'rmmod i2c_viapro' before logging out, but all subsequent attempts
+> to repeat this have failed.
+
+This brings a question: how many times (out of how many tries) did you
+manage to fix your 2.6.24.x kernel with "rmmod i2c-viapro"? If it's
+just 1 our of 1 try, it could be just luck? Did you try to rmmod any
+other driver?
+
+> 
+>  FWIW, the via ISA bridge is a 1106:3227 (VIA_8237, also
+> described as VT8237R in i2c-viapro).
+> 
+>  Going back to 2.6.24.4 and reverting only the following patch,
+> normal behaviour is restored:
+> 
+> diff --git a/drivers/char/drm/drm_vm.c b/drivers/char/drm/drm_vm.c
+> index e8d50af..ef5e6b1 100644
+> --- a/drivers/char/drm/drm_vm.c
+> +++ b/drivers/char/drm/drm_vm.c
+> @@ -506,6 +506,7 @@ static int drm_mmap_dma(struct file *filp,
+> struct vm_area_struct *vma)
+>         vma->vm_ops = &drm_vm_dma_ops;
 >  
->  /* ----- begin of usb layer ---------------------------------------------- */
+>         vma->vm_flags |= VM_RESERVED;   /* Don't swap */
+> +       vma->vm_flags |= VM_DONTEXPAND;
 >  
-> -/* The usb i2c interface uses a vid/pid pair donated by */
-> -/* Future Technology Devices International Ltd. */
-> +/* Initially the usb i2c interface used a vid/pid pair donated by */
-> +/* Future Technology Devices International Ltd., later a pair was */
-> +/* bought from EZPrototypes */
-
-Please use a single /* */ pair for multi-line comments.
-
->  static struct usb_device_id i2c_tiny_usb_table [] = {
-> -	{ USB_DEVICE(0x0403, 0xc631) },
-> -	{ }			/* Terminating entry */
-> +	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
-> +	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
-> +	{ } /* Terminating entry */
->  };
+>         vma->vm_file = filp;    /* Needed for drm_vm_open() */
+>         drm_vm_open_locked(vma);
+> @@ -655,6 +656,7 @@ static int drm_mmap_locked(struct file *filp,
+> struct vm_area_struct *vma)
+>                 return -EINVAL; /* This should never happen. */
+>         }
+>         vma->vm_flags |= VM_RESERVED;   /* Don't swap */
+> +       vma->vm_flags |= VM_DONTEXPAND;
 >  
->  MODULE_DEVICE_TABLE(usb, i2c_tiny_usb_table);
+>         vma->vm_file = filp;    /* Needed for drm_vm_open() */
+>         drm_vm_open_locked(vma);
+> 
+>  I haven't been following 2.6.25 closely, but I assume that what got
+> applied to 2.6.24-stable was only part of the change to 2.6.25, and
+> perhaps some other part of it is affecting me ?
+> 
+>  .config.gz for 2.6.25-rc6-git8 is attached.
+> 
+> Ken
 
-Maybe I'm missing something obvious, but if you already have a device
-ID, what's the point of switching to another? The original ID is not
-going to be deprecated and/or used for something else, is it?
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
