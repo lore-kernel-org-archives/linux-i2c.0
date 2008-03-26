@@ -1,16 +1,11 @@
-From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/6] Blackfin I2C/TWI driver: Add repeat start
-	feature to avoid break of a bundle of i2c master xfer operation.
-Date: Wed, 26 Mar 2008 15:59:26 +0800
-Message-ID: <0F1B54C89D5F954D8535DB252AF412FA01B180A0@chinexm1.ad.analog.com>
-References: <1205479360-25240-2-git-send-email-cooloney@kernel.org><20080324192045.2343293c@hyperion.delvare><0F1B54C89D5F954D8535DB252AF412FA01B17710@chinexm1.ad.analog.com>
-	<20080325150428.6031264f@hyperion.delvare>
+From: "Zancada Gonzalez, Jose" <jzancada-JRLKtyB2FXw@public.gmane.org>
+Subject: mpc5200B i2c problem
+Date: Wed, 26 Mar 2008 09:51:24 +0100
+Message-ID: <A669FF5F9E30C8409D252F245ABD8D0A19C4AA@MADARRMAIL2.indra.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7946574886427636447=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-class: urn:content-classes:message
-In-Reply-To: <20080325150428.6031264f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,43 +15,112 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+This is a multi-part message in MIME format.
 
-I just fixed rest issues in the twi driver according to your last
-comments in
-http://lists.lm-sensors.org/pipermail/i2c/2007-November/002121.html .
-Bryan will send you the latest patch.
+--===============7946574886427636447==
+Content-class: urn:content-classes:message
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C88F1E.927113ED"
 
-Thank you for your suggestion.
+This is a multi-part message in MIME format.
 
-Sonic Zhang
- 
+------_=_NextPart_001_01C88F1E.927113ED
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
------Original Message-----
-From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org] 
-Sent: Tuesday, March 25, 2008 10:04 PM
-To: Zhang, Sonic
-Cc: Bryan Wu; i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Subject: Re: [PATCH 1/6] Blackfin I2C/TWI driver: Add repeat start
-feature to avoid break of a bundle of i2c master xfer operation.
+Hello
+We are using I2C to communicate some devices as slaves.=20
+We are having errors when doing read/writes, from time to time.
+We do not know what is happening. We have attached an osciloscope to the =
+hardware lines and have detected some strange things: or the slave =
+address was not correct (as if a missing bit ) or the complete sequences =
+was not right. It seems that if there is a hardware problem related with =
+set-up / hold / rise times, noise signals, etc., but they look ok. We =
+have had a look to the file in kernel
+/eldk40/usr/src/linux-2.6.16.11/drivers/i2c/busses/i2c-mpc.c
+and see some comments into the code related with this problem _SCLCLKFIX
+We are new in this kind of linux development and we do not know what to =
+do next. This is my first time in mailing list, so I do not know how it =
+works, how to consult information related to this problem, or more =
+people with the same problem and solved.
 
-Hi Sonic,
+The linux enviroment is:
+Linux 2.6.16.11 (DENX ELDK 4.1 4.0.0)
+mpc5200B
+ARCH=3Dppc
 
-On Tue, 25 Mar 2008 11:01:18 +0800, Zhang, Sonic wrote:
-> I have already discussed your questions with you in attached email. 
-> See bellow. The twi controller is designed to support SMBus protocol 
-> in hardware. That's why we implement bfin_twi_smbus_xfer().
+Please, if you can help send me any comment. I can send you more details =
+if needed.
 
-This is news to me, you did not tell this to me before. If there are
-hardware optimizations for SMBus then indeed it makes sense to have
-different code in the driver for I2C support and SMBus support.
+Thanks in advance,
+/jose zancada
 
-Still, I had several objections to the patch that was submitted in
-November 2007 (and resubmitted unchanged one week ago). I really would
-like to see them addressed.
 
-Thanks,
+------_=_NextPart_001_01C88F1E.927113ED
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Diso-8859-1">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
+6.5.7652.24">
+<TITLE>mpc5200B i2c problem</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/plain format -->
+
+<P><FONT SIZE=3D2>Hello<BR>
+We are using I2C to communicate some devices as slaves.<BR>
+We are having errors when doing read/writes, from time to time.<BR>
+We do not know what is happening. We have attached an osciloscope to the =
+hardware lines and have detected some strange things: or the slave =
+address was not correct (as if a missing bit ) or the complete sequences =
+was not right. It seems that if there is a hardware problem related with =
+set-up / hold / rise times, noise signals, etc., but they look ok. We =
+have had a look to the file in kernel<BR>
+/eldk40/usr/src/linux-2.6.16.11/drivers/i2c/busses/i2c-mpc.c<BR>
+and see some comments into the code related with this problem =
+_SCLCLKFIX<BR>
+We are new in this kind of linux development and we do not know what to =
+do next. This is my first time in mailing list, so I do not know how it =
+works, how to consult information related to this problem, or more =
+people with the same problem and solved.<BR>
+<BR>
+The linux enviroment is:<BR>
+Linux 2.6.16.11 (DENX ELDK 4.1 4.0.0)<BR>
+mpc5200B<BR>
+ARCH=3Dppc<BR>
+<BR>
+Please, if you can help send me any comment. I can send you more details =
+if needed.<BR>
+<BR>
+Thanks in advance,<BR>
+/jose zancada<BR>
+<BR>
+</FONT>
+</P>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C88F1E.927113ED--
+
+
+--===============7946574886427636447==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7946574886427636447==--
