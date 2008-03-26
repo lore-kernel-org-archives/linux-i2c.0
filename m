@@ -1,40 +1,26 @@
-From: "Bryan Wu" <cooloney@kernel.org>
+From: "Mike Frysinger" <vapier.adi@gmail.com>
 Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Wed, 26 Mar 2008 03:47:28 -0700
-Message-ID: <386072610803260347l4dd3b82cr1704b6a0a79d6ed8@mail.gmail.com>
+Date: Wed, 26 Mar 2008 10:36:30 -0400
+Message-ID: <8bd0f97a0803260736v58c11f8g8a5f740c62891174@mail.gmail.com>
 References: <1206579622-21915-1-git-send-email-cooloney@kernel.org>
-	 <20080326101850.GA9184@ahaupt-debian-vm.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20080326101850.GA9184@ahaupt-debian-vm.localdomain>
+In-Reply-To: <1206579622-21915-1-git-send-email-cooloney@kernel.org>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
-To: Andre Haupt <andre@bitwigglers.org>
+To: Bryan Wu <cooloney@kernel.org>
 Cc: dmitry.torokhov@gmail.com, khali@linux-fr.org, linux-input@vger.kernel.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <bryan.wu@analog.com>
 List-Id: linux-i2c@vger.kernel.org
 
->  > diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
->  > index 7c662ee..e65aeb6 100644
->  > --- a/drivers/input/joystick/Kconfig
->  > +++ b/drivers/input/joystick/Kconfig
->  > @@ -282,4 +282,10 @@ config JOYSTICK_XPAD_LEDS
->  >         This option enables support for the LED which surrounds the Big X on
->  >         XBox 360 controller.
->  >
->  > +config JOYSTICK_AD7142
->  > +     tristate "Analog Devices AD7142 Joystick support"
->  > +     depends on BLACKFIN && I2C
->  does this really have to depend on Blackfin?
->
->  regards,
->
->  Andre
->
+On Wed, Mar 26, 2008 at 9:00 PM, Bryan Wu <cooloney@kernel.org> wrote:
+>  +config JOYSTICK_AD7142
+>  +       tristate "Analog Devices AD7142 Joystick support"
+>  +       depends on BLACKFIN && I2C
+>  +       ---help---
+>  +         Say Y here if you want to support an AD7142 joystick
 
-Right, I think it is ok for other architecture, while I only tested on Blackfin.
-I will remove this depends.
-
-Thanks
--Bryan
+since you're going to send another patch anyways ;), this kconfig text
+could use a line telling you the module name if built as a module.
+-mike
