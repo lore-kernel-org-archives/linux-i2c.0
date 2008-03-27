@@ -1,9 +1,9 @@
 From: badguy development <badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
 Subject: i2c Questions
-Date: Thu, 27 Mar 2008 21:14:53 +0000
-Message-ID: <BLU106-W751DECBB6A8A8CAAE3C71B0FE0@phx.gbl>
+Date: Thu, 27 Mar 2008 21:15:06 +0000
+Message-ID: <BLU106-W52D3FF1BA3646B227EFA3B0FE0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1358864218315078164=="
+Content-Type: multipart/mixed; boundary="===============8214136396178080608=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -17,11 +17,11 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============1358864218315078164==
+--===============8214136396178080608==
 Content-Type: multipart/alternative;
-	boundary="_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_"
+	boundary="_63d76343-7fd6-4a10-9f2e-c109472d9bb4_"
 
---_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_
+--_63d76343-7fd6-4a10-9f2e-c109472d9bb4_
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -61,11 +61,10 @@ Thanks ahead of time for your wealth of knowledge.
 
 
 _________________________________________________________________
-Sympatico/MSN Autos wants to put YOU in a 2008 Eclipse! Click here to enter=
-!
-http://g.msn.ca/ca55/212=
+Send a smile, make someone laugh, have some fun!  Start now!
+http://g.msn.ca/ca55/208=
 
---_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_
+--_63d76343-7fd6-4a10-9f2e-c109472d9bb4_
 Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -98,15 +97,15 @@ br>and finally where should a noobie to this i2c stuff be asking questions =
 like this?<br><br>Please forward any response to this to my email here:<br>=
 badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org<br><br>&nbsp;I am trying to join the list, bu=
 t have not received confirmation yet.<br><br>Thanks ahead of time for your =
-wealth of knowledge.<br><br><br><br><br /><hr />You could win a 2008 Mitsub=
-ishi Eclipse from Sympatico / MSN Autos.  <a href=3D'http://g.msn.ca/ca55/2=
-10' target=3D'_new'>Hunt for the Total Eclipse NOW!</a></body>
+wealth of knowledge.<br><br><br><br><br /><hr />Send a smile, make someone =
+laugh, have some fun! <a href=3D'http://g.msn.ca/ca55/208' target=3D'_new'>=
+Start now!</a></body>
 </html>=
 
---_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_--
+--_63d76343-7fd6-4a10-9f2e-c109472d9bb4_--
 
 
---===============1358864218315078164==
+--===============8214136396178080608==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -116,4 +115,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============1358864218315078164==--
+--===============8214136396178080608==--
