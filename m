@@ -1,83 +1,293 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/5] I2C: DaVinci: remove useless IVR read
-Date: Thu, 27 Mar 2008 16:56:41 +0100
-Message-ID: <20080327165641.4380a7f1@hyperion.delvare>
-References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-4-git-send-email-troy.kisky@boundarydevices.com>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 4/5] i2c: MPC837xRDB Power Management and GPIO expander
+	driver
+Date: Thu, 27 Mar 2008 20:10:44 +0300
+Message-ID: <20080327171044.GA1582@localhost.localdomain>
+References: <20080326202511.GD1772@localhost.localdomain>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-4-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <20080326202511.GD1772@localhost.localdomain>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: i2c@lm-sensors.org
+Cc: linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 20 Mar 2008 20:06:08 -0700, Troy Kisky wrote:
-> Interrupts are enabled at the point where
-> the DAVINCI_I2C_IVR_REG is read, so unless
-> an interrupt happened just at that moment,
-> no interrupt would be pending. Even though
-> documentation implies you should do this,
-> I see no reason. If slave support is added,
-> this read would cause a hard to reproduce bug.
-
-This is only a problem if the device can operate in master mode and
-slave mode concurrently. Is it the case? But even then, as you can't
-have master and slave activity going on at the same time on a given I2C
-bus, it only matters if some DaVinci boards have more than one i2c
-buses. Is it the case?
-
-I have to admit that I am a bit reluctant to remove this register read
-if the documentation says it should be there. But if nobody objects I
-can take this patch for 2.6.26.
-
+On Wed, Mar 26, 2008 at 11:25:11PM +0300, Anton Vorontsov wrote:
+> On the MPC837xRDB boards there is MC9S08QG8 (MCU) chip with the custom
+> firmware pre-programmed. This firmware offers to control some of the MCU
+> GPIO pins via I2C (two pins, connected to the LEDs, but also available
+> from the J28 and J43 headers, plus another (third) pin is a GPIO as well
+> but on this board it is reserved for Power-Off function). MCU have some
+> other functions, but these are not implemented yet.
 > 
-> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
 > ---
->  drivers/i2c/busses/i2c-davinci.c |    4 ----
->  1 files changed, 0 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 82d4b7f..da54fff 100755
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -240,7 +240,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
->  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
->  	u32 flag;
-> -	u32 stat;
->  	u16 w;
->  	int r;
->  
-> @@ -264,9 +263,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	init_completion(&dev->cmd_complete);
->  	dev->cmd_err = 0;
->  
-> -	/* Clear any pending interrupts by reading the IVR */
-> -	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
-> -
->  	/* Take I2C out of reset, configure it as master and set the
->  	 * start bit */
->  	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
+> This patch depends on the not yet applied OF/PowerPC GPIO patches, so
+> please consider this for RFC only.
+> 
+> Thanks.
 
+Since the same chip with the identical firmware also found on the
+MPC8349E-mITXE board (thanks to Timur Tabi for noticing) here is an updated
+patch. MPC8349E-mITX board predates MPC837X-RDB boards, so I renamed this
+driver to mcu_mpc8349emitx.
 
+- - - -
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: i2c: MPC8349E-mITX/MPC837x-RDB Power Management and GPIO expander driver
+
+On the MPC8349E-mITX and MPC837x-RDB boards there is MC9S08QG8 (MCU) chip
+with the custom firmware pre-programmed. This firmware offers to control
+some of the MCU GPIO pins (used for LEDs and soft power-off) via I2C. MCU
+have some other functions, but these are not implemented yet.
+
+Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+---
+ drivers/i2c/chips/Kconfig            |   11 ++
+ drivers/i2c/chips/Makefile           |    1 +
+ drivers/i2c/chips/mcu_mpc8349emitx.c |  189 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 201 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/chips/mcu_mpc8349emitx.c
+
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index 09d4937..d3e3bfb 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -150,4 +150,15 @@ config OZ99X
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called oz99x.
+ 
++config MCU_MPC8349EMITX
++	tristate "MPC8349E-mITX/MPC837X-RDB MCU driver"
++	depends on I2C && (MPC834x_ITX || MPC837x_RDB)
++	select GENERIC_GPIO
++	select HAVE_GPIO_LIB
++	help
++	  Say Y here to enable soft power-off functionality on the Freescale
++	  MPC8349E-mITX and MPC837X-RDB boards, plus this driver will register
++	  MCU GPIOs as a generic GPIO API chip, so you'll able to use some MCU
++	  pins as a GPIOs and LEDs.
++
+ endmenu
+diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+index c69f891..89c92df 100644
+--- a/drivers/i2c/chips/Makefile
++++ b/drivers/i2c/chips/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_TPS65010)		+= tps65010.o
+ obj-$(CONFIG_MENELAUS)		+= menelaus.o
+ obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
+ obj-$(CONFIG_OZ99X)		+= oz99x.o
++obj-$(CONFIG_MCU_MPC8349EMITX)	+= mcu_mpc8349emitx.o
+ 
+ ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
+ EXTRA_CFLAGS += -DDEBUG
+diff --git a/drivers/i2c/chips/mcu_mpc8349emitx.c b/drivers/i2c/chips/mcu_mpc8349emitx.c
+new file mode 100644
+index 0000000..b90dbe9
+--- /dev/null
++++ b/drivers/i2c/chips/mcu_mpc8349emitx.c
+@@ -0,0 +1,189 @@
++/*
++ * MPC8349E-mITX/MPC837x-RDB Power Management and GPIO expander driver
++ *
++ * On the MPC8349E-mITX and MPC837x-RDB boards there is MC9S08QG8 (MCU) chip
++ * with the custom firmware pre-programmed. This firmware offers to control
++ * some of the MCU GPIO pins (used for LEDs and soft power-off) via I2C. MCU
++ * have some other functions, but these are not implemented yet.
++ *
++ * Copyright (c) 2008  MontaVista Software, Inc.
++ *
++ * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/i2c.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++#include <asm/machdep.h>
++
++/*
++ * I don't have specifications for the MCU firmware that is used on the
++ * MPC8349E-mITX/MPC837XRDB boards, I found this register and bits positions
++ * by the trial&error method.
++ */
++#define MCU_REG_CTRL	0x20
++#define MCU_CTRL_POFF	0x40
++#define MCU_NUM_GPIO	2
++
++struct mcu {
++	spinlock_t lock;
++	struct device_node *np;
++	struct i2c_client *client;
++	struct of_gpio_chip of_gc;
++	u8 reg_ctrl;
++};
++
++static struct mcu *glob_mcu;
++
++static void mcu_power_off(void)
++{
++	struct mcu *mcu = glob_mcu;
++
++	pr_info("Sending power-off request to the MCU...\n");
++	spin_lock(&mcu->lock);
++	i2c_smbus_write_byte_data(glob_mcu->client, MCU_REG_CTRL,
++				  mcu->reg_ctrl | MCU_CTRL_POFF);
++	spin_unlock(&mcu->lock);
++}
++
++static void mcu_gpio_set(struct gpio_chip *gc, unsigned int gpio, int val)
++{
++	struct of_gpio_chip *of_gc = to_of_gpio_chip(gc);
++	struct mcu *mcu = container_of(of_gc, struct mcu, of_gc);
++	u8 bit = 1 << (4 + gpio);
++
++	spin_lock(&mcu->lock);
++	if (val)
++		mcu->reg_ctrl |= bit;
++	else
++		mcu->reg_ctrl &= ~bit;
++
++	i2c_smbus_write_byte_data(mcu->client, MCU_REG_CTRL, mcu->reg_ctrl);
++	spin_unlock(&mcu->lock);
++}
++
++static int mcu_gpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
++{
++	mcu_gpio_set(gc, gpio, val);
++	return 0;
++}
++
++static int mcu_gpiochip_add(struct mcu *mcu)
++{
++	struct device_node *np;
++	struct of_gpio_chip *of_gc = &mcu->of_gc;
++	struct gpio_chip *gc = &of_gc->gc;
++
++	np = of_find_compatible_node(NULL, NULL, "fsl,mcu-mpc8349emitx");
++	if (!np)
++		return -ENODEV;
++
++	gc->label = np->full_name;
++	gc->can_sleep = 1;
++	gc->ngpio = MCU_NUM_GPIO;
++	gc->base = -1;
++	gc->set = mcu_gpio_set;
++	gc->direction_output = mcu_gpio_dir_out;
++	of_gc->gpio_cells = 1;
++	of_gc->xlate = of_gpio_simple_xlate;
++
++	np->data = of_gc;
++	mcu->np = np;
++
++	/*
++	 * We don't want to lose the node, its ->data and ->full_name...
++	 * So, there is no of_node_put(np); here.
++	 */
++	return gpiochip_add(gc);
++}
++
++static void mcu_gpiochip_remove(struct mcu *mcu)
++{
++	gpiochip_remove(&mcu->of_gc.gc);
++	of_node_put(mcu->np);
++}
++
++static int mcu_probe(struct i2c_client *client)
++{
++	struct mcu *mcu;
++	int ret;
++
++	mcu = kzalloc(sizeof(*mcu), GFP_KERNEL);
++	if (!mcu)
++		return -ENOMEM;
++
++	spin_lock_init(&mcu->lock);
++	mcu->client = client;
++	i2c_set_clientdata(client, mcu);
++
++	ret = i2c_smbus_read_byte_data(mcu->client, MCU_REG_CTRL);
++	if (ret < 0)
++		goto err_iic_read;
++	mcu->reg_ctrl = ret;
++
++	ret = mcu_gpiochip_add(mcu);
++	if (ret)
++		goto err_gpio;
++
++	/* XXX: this is potentionally racy, but there is no ppc_md lock */
++	if (!ppc_md.power_off) {
++		glob_mcu = mcu;
++		ppc_md.power_off = mcu_power_off;
++		dev_info(&client->dev, "will provide power-off service\n");
++	}
++
++	return 0;
++err_gpio:
++	mcu_gpiochip_remove(mcu);
++err_iic_read:
++	kfree(mcu);
++	return ret;
++}
++
++static int mcu_remove(struct i2c_client *client)
++{
++	struct mcu *mcu = i2c_get_clientdata(client);
++
++	if (glob_mcu == mcu) {
++		ppc_md.power_off = NULL;
++		glob_mcu = NULL;
++	}
++
++	i2c_set_clientdata(client, NULL);
++	mcu_gpiochip_remove(mcu);
++	kfree(mcu);
++	return 0;
++}
++
++static struct i2c_driver mcu_driver = {
++	.driver = {
++		.name = "mcu-mpc8349emitx",
++		.owner = THIS_MODULE,
++	},
++	.probe = mcu_probe,
++	.remove	= mcu_remove,
++};
++
++static int __init mcu_init(void)
++{
++	return i2c_add_driver(&mcu_driver);
++}
++module_init(mcu_init);
++
++static void __exit mcu_exit(void)
++{
++	i2c_del_driver(&mcu_driver);
++}
++module_exit(mcu_exit);
++
++MODULE_DESCRIPTION("MPC8349E-mITX/MPC837x-RDB Power Management and GPIO "
++		   "expander driver");
++MODULE_AUTHOR("Anton Vorontsov <avorontsov@ru.mvista.com>");
++MODULE_LICENSE("GPL");
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+1.5.2.2
