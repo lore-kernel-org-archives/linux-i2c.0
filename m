@@ -1,9 +1,8 @@
 From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 5/7] Blackfin I2C/TWI driver: use simpler comment
-	headers and strip out information that is maintained in the
-	scm's log
-Date: Wed, 26 Mar 2008 17:46:47 -0700
-Message-ID: <1206578809-16038-6-git-send-email-cooloney@kernel.org>
+Subject: [PATCH 7/7] Blackfin I2C/TWI driver: fix bug - missmatch in
+	add timer and delete timer
+Date: Wed, 26 Mar 2008 17:46:49 -0700
+Message-ID: <1206578809-16038-8-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,51 +19,49 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Hans Schillstrom <hans.schillstrom-j/w4dDtn67bQT0dZR+AlfA@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Hans Schillstrom <hans.schillstrom-j/w4dDtn67bQT0dZR+AlfA@public.gmane.org>
 
-Signed-off-by: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Move init_completion to just before i2c transfer.
+http://blackfin.uclinux.org/gf/project/uclinux-dist/tracker/?action=TrackerItemEdit&tracker_item_id=3385
+
+Signed-off-by: Hans Schillstrom <hans.schillstrom-j/w4dDtn67bQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   22 ++++------------------
- 1 files changed, 4 insertions(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 77f88d3..9a8ab6c 100644
+index 9a8ab6c..6560df5 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -1,25 +1,11 @@
- /*
-- * drivers/i2c/busses/i2c-bfin-twi.c
-+ * Blackfin On-Chip Two Wire Interface Driver
-  *
-- * Description: Driver for Blackfin Two Wire Interface
-+ * Copyright 2005-2007 Analog Devices Inc.
-  *
-- * Author:      sonicz  <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-+ * Enter bugs at http://blackfin.uclinux.org/
-  *
-- * Copyright (c) 2005-2007 Analog Devices, Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ * Licensed under the GPL-2 or later.
-  */
+@@ -308,6 +308,7 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
+ 	iface->writeNum = iface->readNum = pmsg->len;
+ 	iface->result = 0;
+ 	iface->timeout_count = 10;
++	init_completion(&(iface->complete));
+ 	/* Set Transmit device address */
+ 	write_MASTER_ADDR(iface, pmsg->addr);
  
- #include <linux/module.h>
+@@ -447,6 +448,7 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 	iface->read_write = read_write;
+ 	iface->command = command;
+ 	iface->timeout_count = 10;
++	init_completion(&(iface->complete));
+ 
+ 	/* FIFO Initiation. Data in FIFO should be discarded before
+ 	 * start a new operation.
+@@ -608,7 +610,6 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	spin_lock_init(&(iface->lock));
+-	init_completion(&(iface->complete));
+ 
+ 	/* Find and map our resources */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
 1.5.4.3
 
