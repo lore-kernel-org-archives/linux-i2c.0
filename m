@@ -1,15 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
-Date: Thu, 27 Mar 2008 16:36:26 +0100
-Message-ID: <20080327163626.75d1bd51@hyperion.delvare>
+Subject: Re: [PATCH 3/5] I2C: DaVinci: remove useless IVR read
+Date: Thu, 27 Mar 2008 16:56:41 +0100
+Message-ID: <20080327165641.4380a7f1@hyperion.delvare>
 References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
 	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
 	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-4-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-3-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1206068770-15458-4-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,104 +24,55 @@ To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Troy,
+On Thu, 20 Mar 2008 20:06:08 -0700, Troy Kisky wrote:
+> Interrupts are enabled at the point where
+> the DAVINCI_I2C_IVR_REG is read, so unless
+> an interrupt happened just at that moment,
+> no interrupt would be pending. Even though
+> documentation implies you should do this,
+> I see no reason. If slave support is added,
+> this read would cause a hard to reproduce bug.
 
-On Thu, 20 Mar 2008 20:06:07 -0700, Troy Kisky wrote:
-> Ensure psc value gives a clock between 7-12 Mhz
+This is only a problem if the device can operate in master mode and
+slave mode concurrently. Is it the case? But even then, as you can't
+have master and slave activity going on at the same time on a given I2C
+bus, it only matters if some DaVinci boards have more than one i2c
+buses. Is it the case?
 
-Correct spelling is MHz.
+I have to admit that I am a bit reluctant to remove this register read
+if the documentation says it should be there. But if nobody objects I
+can take this patch for 2.6.26.
 
+> 
 > Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 > Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-davinci.c |   19 ++++++++++++-------
->  1 files changed, 12 insertions(+), 7 deletions(-)
+>  drivers/i2c/busses/i2c-davinci.c |    4 ----
+>  1 files changed, 0 insertions(+), 4 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index fde2634..82d4b7f 100755
+> index 82d4b7f..da54fff 100755
 > --- a/drivers/i2c/busses/i2c-davinci.c
 > +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> @@ -240,7 +240,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
 >  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
->  	u16 psc;
->  	u32 clk;
-> +	u32 d;
->  	u32 clkh;
->  	u32 clkl;
->  	u32 input_clock = clk_get_rate(dev->clk);
-> @@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  	 *       if PSC > 1 , d = 5
->  	 */
+>  	u32 flag;
+> -	u32 stat;
+>  	u16 w;
+>  	int r;
 >  
-> -	psc = 26; /* To get 1MHz clock */
-> +	/* get minimum of 7mHz clock, but max of 12mHz */
-
-Correct spelling is MHz.
-
-> +	psc = (input_clock/7000000)-1;
-
-The usual coding style is to leave spaces around all operators. Same
-problem below.
-
-Note: if input_clock < 7000000, you're in trouble.
-
-> +	if ((input_clock/(psc+1)) > 12000000)
-> +		psc++;
-
-The only case where this will happen as far as I can see is if
-input_clock is between 12 and 14 MHz. In this case, you'll get a clock
-lower than 7 MHz (worst case is 6 MHz). Is this OK?
-
-> +	d = (psc >= 2)? 5 : 7 - psc;
+> @@ -264,9 +263,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	init_completion(&dev->cmd_complete);
+>  	dev->cmd_err = 0;
 >  
-> -	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - 10;
-> -	clkh = (50 * clk) / 100;
-> +	clk = ((input_clock/(psc+1)) / (pdata->bus_freq * 1000)) - (d<<1);
-> +	clkh = clk>>1;
->  	clkl = clk - clkh;
->  
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
->  
-> -	dev_dbg(dev->dev, "CLK  = %d\n", clk);
-> +	dev_dbg(dev->dev, "input_clock=%d, CLK  = %d\n", input_clock, clk);
-
-As I already wrote in my previous review: please come up with
-consistent spacing in this debugging message. Having no space around
-the first "=", but two spaced before and one after the second "=",
-doesn't look good.
-
->  	dev_dbg(dev->dev, "PSC  = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
->  	dev_dbg(dev->dev, "CLKL = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
->  	dev_dbg(dev->dev, "CLKH = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
-> +	dev_dbg(dev->dev, "bus_freq = %dkHz bus_delay = %d\n",
-
-For consistency, you should add a comma after kHz.
-
-> +		pdata->bus_freq, pdata->bus_delay);
->  
->  	/* Take the I2C module out of reset: */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> @@ -338,12 +345,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  
->  	for (i = 0; i < num; i++) {
->  		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
-> +		dev_dbg(dev->dev, "%s ret: %d\n", __func__, ret);
->  		if (ret < 0)
->  			return ret;
->  	}
+> -	/* Clear any pending interrupts by reading the IVR */
+> -	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
 > -
-> -	dev_dbg(dev->dev, "%s:%d ret: %d\n", __FUNCTION__, __LINE__, ret);
-> -
->  	return num;
->  }
->  
+>  	/* Take I2C out of reset, configure it as master and set the
+>  	 * start bit */
+>  	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
 
-Not sure how this last chunk is supposed to belong to this patch?
 
 -- 
 Jean Delvare
