@@ -1,54 +1,119 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: Re: [PATCH 4/5] i2c: MPC837xRDB Power Management and GPIO expander
-	driver
-Date: Thu, 27 Mar 2008 23:02:34 +0300
-Message-ID: <20080327200234.GA17818@localhost.localdomain>
-References: <20080326202511.GD1772@localhost.localdomain>
-	<20080327171044.GA1582@localhost.localdomain>
-Reply-To: avorontsov@ru.mvista.com
+From: badguy development <badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: i2c Questions
+Date: Thu, 27 Mar 2008 21:14:53 +0000
+Message-ID: <BLU106-W751DECBB6A8A8CAAE3C71B0FE0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <20080327171044.GA1582@localhost.localdomain>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: i2c@lm-sensors.org
-Cc: linuxppc-dev@ozlabs.org
+Content-Type: multipart/mixed; boundary="===============1358864218315078164=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Incidentally I used some weird .config without preemption and
-CONFIG_ENABLE_MUST_CHECK. Heh.
+--===============1358864218315078164==
+Content-Type: multipart/alternative;
+	boundary="_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_"
 
-[...]
-> + * I don't have specifications for the MCU firmware that is used on the
-> + * MPC8349E-mITX/MPC837XRDB boards, I found this register and bits positions
-> + * by the trial&error method.
-> + */
-> +#define MCU_REG_CTRL	0x20
-> +#define MCU_CTRL_POFF	0x40
-> +#define MCU_NUM_GPIO	2
-> +
-> +struct mcu {
-> +	spinlock_t lock;
+--_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-This should be mutex of course, otherwise preemptable kernel
-will complain.
 
-[...]
-> +	gpiochip_remove(&mcu->of_gc.gc);
+Hello,
 
-Should check return value.
+ I am creating 2 i2c drivers.
 
--- 
-Anton Vorontsov
-email: cboumailru@gmail.com
-irc://irc.freenode.net/bd2
+I have started a driver for the LTC1760=20
+ and that one is working and well under way.
+
+I have to now develop a driver for bus address 0x01
+ and in the code I have located that to be an invalid address.
+
+the code tests for address < 0x03 && address > 0x77
+then promptly fails with invalid address.
+
+I am hoping to find an understanding for this.
+this is a programmable address, and I will have it changed if I have to.
+
+Also, I have 3 i2c busses on this iMX31 SOM
+
+how can I tell my device to only query / operate on a specific bus.
+do I need to?
+
+and finally where should a noobie to this i2c stuff be asking questions lik=
+e this?
+
+Please forward any response to this to my email here:
+badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+
+ I am trying to join the list, but have not received confirmation yet.
+
+Thanks ahead of time for your wealth of knowledge.
+
+
+
+
+_________________________________________________________________
+Sympatico/MSN Autos wants to put YOU in a 2008 Eclipse! Click here to enter=
+!
+http://g.msn.ca/ca55/212=
+
+--_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<style>
+.hmmessage P
+{
+margin:0px;
+padding:0px
+}
+body.hmmessage
+{
+FONT-SIZE: 10pt;
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body class=3D'hmmessage'>
+Hello,<br><br>&nbsp;I am creating 2 i2c drivers.<br><br>I have started a dr=
+iver for the LTC1760 <br>&nbsp;and that one is working and well under way.<=
+br><br>I have to now develop a driver for bus address 0x01<br>&nbsp;and in =
+the code I have located that to be an invalid address.<br><br>the code test=
+s for address &lt; 0x03 &amp;&amp; address &gt; 0x77<br>then promptly fails=
+ with invalid address.<br><br>I am hoping to find an understanding for this=
+.<br>this is a programmable address, and I will have it changed if I have t=
+o.<br><br>Also, I have 3 i2c busses on this iMX31 SOM<br><br>how can I tell=
+ my device to only query / operate on a specific bus.<br>do I need to?<br><=
+br>and finally where should a noobie to this i2c stuff be asking questions =
+like this?<br><br>Please forward any response to this to my email here:<br>=
+badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org<br><br>&nbsp;I am trying to join the list, bu=
+t have not received confirmation yet.<br><br>Thanks ahead of time for your =
+wealth of knowledge.<br><br><br><br><br /><hr />You could win a 2008 Mitsub=
+ishi Eclipse from Sympatico / MSN Autos.  <a href=3D'http://g.msn.ca/ca55/2=
+10' target=3D'_new'>Hunt for the Total Eclipse NOW!</a></body>
+</html>=
+
+--_cb13fcb3-06d5-4fa4-a948-4a69b1585a66_--
+
+
+--===============1358864218315078164==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1358864218315078164==--
