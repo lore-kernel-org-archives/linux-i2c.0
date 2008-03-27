@@ -1,67 +1,54 @@
-From: Till Harbaum / Lists <lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
-Subject: Re: [PATCH] New VID/PID pair for i2c-tiny-usb
-Date: Thu, 27 Mar 2008 20:47:21 +0100
-Message-ID: <200803272047.21505.lists@harbaum.org>
-References: <200803241042.31263.lists@harbaum.org>
-	<20080326154415.2981961a@hyperion.delvare>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 4/5] i2c: MPC837xRDB Power Management and GPIO expander
+	driver
+Date: Thu, 27 Mar 2008 23:02:34 +0300
+Message-ID: <20080327200234.GA17818@localhost.localdomain>
+References: <20080326202511.GD1772@localhost.localdomain>
+	<20080327171044.GA1582@localhost.localdomain>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080326154415.2981961a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+In-Reply-To: <20080327171044.GA1582@localhost.localdomain>
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: i2c@lm-sensors.org
+Cc: linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Incidentally I used some weird .config without preemption and
+CONFIG_ENABLE_MUST_CHECK. Heh.
 
-Am Mittwoch 26 M=E4rz 2008 schrieb Jean Delvare:
-> Note: your e-mail client is wrapping long lines -> patch doesn't apply.
-I thought i've verified that, but obviously it happened anyway.
+[...]
+> + * I don't have specifications for the MCU firmware that is used on the
+> + * MPC8349E-mITX/MPC837XRDB boards, I found this register and bits positions
+> + * by the trial&error method.
+> + */
+> +#define MCU_REG_CTRL	0x20
+> +#define MCU_CTRL_POFF	0x40
+> +#define MCU_NUM_GPIO	2
+> +
+> +struct mcu {
+> +	spinlock_t lock;
 
-> Please use a single /* */ pair for multi-line comments.
-Ok
+This should be mutex of course, otherwise preemptable kernel
+will complain.
 
-> Maybe I'm missing something obvious, but if you already have a device
-> ID, what's the point of switching to another? The original ID is not
-> going to be deprecated and/or used for something else, is it?
-The original id was donated by ftdi without stating anywhere that the id ha=
-s =
+[...]
+> +	gpiochip_remove(&mcu->of_gc.gc);
 
-to be used with their products. So i used it for the i2c-tiny-usb which =
+Should check return value.
 
-obviously isn't based on a ftdi chipset. I've been told that ftdi has chang=
-ed =
-
-that policy lately. While i don't expect them to actually ask me not to use =
-
-their id without using the chips i thought it was clever to switch to an id =
-
-i've explicitely bought to avoid future problems with ftdis new policies. =
-
-I'll change the id from the ftdi ones to the ones i recently bought on all =
-my =
-
-projects. Just to avoid future problems as early as possible.
-
-Does this make sense?
-
-Updated patch will follow.
-
-Regards,
-  Till
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Anton Vorontsov
+email: cboumailru@gmail.com
+irc://irc.freenode.net/bd2
