@@ -1,17 +1,15 @@
-From: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-Subject: Re: [PATCH 4/5] i2c: MPC837xRDB Power Management and GPIO
-	expander driver
-Date: Thu, 27 Mar 2008 20:10:43 +0300
-Message-ID: <20080327171043.GA31049@localhost.localdomain>
-References: <20080326202511.GD1772@localhost.localdomain>
-	<47EAB885.7000006@freescale.com> <20080326225611.GA2799@zarina>
-Reply-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
+From: Till Harbaum / Lists <lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+Subject: Re: [PATCH] New VID/PID pair for i2c-tiny-usb
+Date: Thu, 27 Mar 2008 20:47:21 +0100
+Message-ID: <200803272047.21505.lists@harbaum.org>
+References: <200803241042.31263.lists@harbaum.org>
+	<20080326154415.2981961a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080326154415.2981961a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080326225611.GA2799@zarina>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,294 +19,47 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 27, 2008 at 01:56:11AM +0300, Anton Vorontsov wrote:
-> On Wed, Mar 26, 2008 at 03:56:37PM -0500, Timur Tabi wrote:
-> > Anton Vorontsov wrote:
-> > 
-> > > +config MCU_MPC837XRDB
-> > > +	tristate "MPC837XRDB MCU driver"
-> > > +	depends on I2C && MPC837x_RDB && OF_GPIO
-> > 
-> > The MPC8349E-mITX also has this chip.  Can you include support for that board as
-> > well?
-> 
-> Well, only if it has the same (or compatible) firmware.. then yes.
+Hi,
 
-Ok, they're the same and everything works fine. Except one mitx-specific
-thing though... on the power-off call I can see that MCU is driving its
-PTA1 pin low as expected, but the board doesn't turn off. PTA1 pin is
-wired to the J19 jumper pin1, pin2 is PORESET# and pin3 is RESET#.
-It doesn't work in both [1-2] and [2-3] positions...
+Am Mittwoch 26 M=E4rz 2008 schrieb Jean Delvare:
+> Note: your e-mail client is wrapping long lines -> patch doesn't apply.
+I thought i've verified that, but obviously it happened anyway.
 
-This is surely not a software issue though. And just in case, on the
-board I have the PWR button isn't functional, so this is hw issues (or
-just need to find another jumper somewhere ;-).
+> Please use a single /* */ pair for multi-line comments.
+Ok
 
-Updated patch follows.
+> Maybe I'm missing something obvious, but if you already have a device
+> ID, what's the point of switching to another? The original ID is not
+> going to be deprecated and/or used for something else, is it?
+The original id was donated by ftdi without stating anywhere that the id ha=
+s =
 
-- - - -
-From: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-Subject: [POWERPC] mpc8349emitx/mpc837xrdb: add support for MCU
+to be used with their products. So i used it for the i2c-tiny-usb which =
 
-MCU is an external Freescale MC9S08QG8 microcontroller, mainly used to
-provide soft power-off function, but also exports two GPIOs (wired to
-the LEDs, but also available from the external headers).
+obviously isn't based on a ftdi chipset. I've been told that ftdi has chang=
+ed =
 
-Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
----
- arch/powerpc/boot/dts/mpc8349emitx.dts    |   39 ++++++++++++++++++++++++++++-
- arch/powerpc/boot/dts/mpc8377_rdb.dts     |   29 ++++++++++++++++++++-
- arch/powerpc/boot/dts/mpc8378_rdb.dts     |   29 ++++++++++++++++++++-
- arch/powerpc/boot/dts/mpc8379_rdb.dts     |   29 ++++++++++++++++++++-
- arch/powerpc/platforms/83xx/mpc834x_itx.c |    1 +
- arch/powerpc/platforms/83xx/mpc837x_rdb.c |    1 +
- arch/powerpc/sysdev/fsl_soc.c             |    1 +
- 7 files changed, 125 insertions(+), 4 deletions(-)
+that policy lately. While i don't expect them to actually ask me not to use =
 
-diff --git a/arch/powerpc/boot/dts/mpc8349emitx.dts b/arch/powerpc/boot/dts/mpc8349emitx.dts
-index 9426676..0ad85af 100644
---- a/arch/powerpc/boot/dts/mpc8349emitx.dts
-+++ b/arch/powerpc/boot/dts/mpc8349emitx.dts
-@@ -51,6 +51,8 @@
- 	soc8349@e0000000 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
-+		compatible = "fsl,immr-mpc8349e", "fsl,immr", "fsl,soc",
-+			     "simple-bus";
- 		device_type = "soc";
- 		ranges = <0x0 0xe0000000 0x00100000>;
- 		reg = <0xe0000000 0x00000200>;
-@@ -66,11 +68,46 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <0>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl-i2c", "simple-bus";
- 			reg = <0x3000 0x100>;
- 			interrupts = <14 0x8>;
- 			interrupt-parent = <&ipic>;
- 			dfsrr;
-+
-+			rtc@68 {
-+				device_type = "rtc";
-+				compatible = "dallas,ds1339";
-+				reg = <0x68>;
-+			};
-+
-+			mcu_pio: mcu@0a {
-+				#address-cells = <0>;
-+				#size-cells = <0>;
-+				#gpio-cells = <1>;
-+				compatible = "fsl,mc9s08qg8-mpc8349emitx",
-+					     "fsl,mcu-mpc8349emitx",
-+					     "simple-bus";
-+				reg = <0x0a>;
-+				gpio-controller;
-+
-+				led@0 {
-+					compatible = "fsl,mcu-mpc8349emitx-led2",
-+						     "gpio-led";
-+					linux,name = "pwr";
-+					linux,brightness = <1>;
-+					linux,active-low;
-+					gpios = <&mcu_pio 0>;
-+				};
-+
-+				led@1 {
-+					compatible = "fsl,mcu-mpc8349emitx-led1",
-+						     "gpio-led";
-+					linux,name = "hdd";
-+					linux,default-trigger = "ide-disk";
-+					linux,active-low;
-+					gpios = <&mcu_pio 1>;
-+				};
-+			};
- 		};
- 
- 		i2c@3100 {
-diff --git a/arch/powerpc/boot/dts/mpc8377_rdb.dts b/arch/powerpc/boot/dts/mpc8377_rdb.dts
-index 440aa4d..20d7e29 100644
---- a/arch/powerpc/boot/dts/mpc8377_rdb.dts
-+++ b/arch/powerpc/boot/dts/mpc8377_rdb.dts
-@@ -111,7 +111,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <0>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl-i2c", "simple-bus";
- 			reg = <0x3000 0x100>;
- 			interrupts = <14 0x8>;
- 			interrupt-parent = <&ipic>;
-@@ -121,6 +121,33 @@
- 				compatible = "dallas,ds1339";
- 				reg = <0x68>;
- 			};
-+			mcu_pio: mcu@0a {
-+				#address-cells = <0>;
-+				#size-cells = <0>;
-+				#gpio-cells = <1>;
-+				compatible = "fsl,mc9s08qg8-mpc837xrdb",
-+					     "fsl,mcu-mpc837xrdb",
-+					     "fsl,mcu-mpc8349emitx",
-+					     "simple-bus";
-+				reg = <0x0a>;
-+				gpio-controller;
-+
-+				led@0 {
-+					compatible = "fsl,mcu-mpc837xrdb-led2",
-+						     "gpio-led";
-+					linux,name = "mcu2";
-+					linux,active-low;
-+					gpios = <&mcu_pio 0>;
-+				};
-+
-+				led@1 {
-+					compatible = "fsl,mcu-mpc837xrdb-led1",
-+						     "gpio-led";
-+					linux,name = "mcu1";
-+					linux,active-low;
-+					gpios = <&mcu_pio 1>;
-+				};
-+			};
- 		};
- 
- 		i2c@3100 {
-diff --git a/arch/powerpc/boot/dts/mpc8378_rdb.dts b/arch/powerpc/boot/dts/mpc8378_rdb.dts
-index 9271153..fdd2e9b 100644
---- a/arch/powerpc/boot/dts/mpc8378_rdb.dts
-+++ b/arch/powerpc/boot/dts/mpc8378_rdb.dts
-@@ -111,7 +111,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <0>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl-i2c", "simple-bus";
- 			reg = <0x3000 0x100>;
- 			interrupts = <14 0x8>;
- 			interrupt-parent = <&ipic>;
-@@ -121,6 +121,33 @@
- 				compatible = "dallas,ds1339";
- 				reg = <0x68>;
- 			};
-+			mcu_pio: mcu@0a {
-+				#address-cells = <0>;
-+				#size-cells = <0>;
-+				#gpio-cells = <1>;
-+				compatible = "fsl,mc9s08qg8-mpc837xrdb",
-+					     "fsl,mcu-mpc837xrdb",
-+					     "fsl,mcu-mpc8349emitx",
-+					     "simple-bus";
-+				reg = <0x0a>;
-+				gpio-controller;
-+
-+				led@0 {
-+					compatible = "fsl,mcu-mpc837xrdb-led2",
-+						     "gpio-led";
-+					linux,name = "mcu2";
-+					linux,active-low;
-+					gpios = <&mcu_pio 0>;
-+				};
-+
-+				led@1 {
-+					compatible = "fsl,mcu-mpc837xrdb-led1",
-+						     "gpio-led";
-+					linux,name = "mcu1";
-+					linux,active-low;
-+					gpios = <&mcu_pio 1>;
-+				};
-+			};
- 		};
- 
- 		i2c@3100 {
-diff --git a/arch/powerpc/boot/dts/mpc8379_rdb.dts b/arch/powerpc/boot/dts/mpc8379_rdb.dts
-index 0dda2fc..c7a0152 100644
---- a/arch/powerpc/boot/dts/mpc8379_rdb.dts
-+++ b/arch/powerpc/boot/dts/mpc8379_rdb.dts
-@@ -111,7 +111,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <0>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl-i2c", "simple-bus";
- 			reg = <0x3000 0x100>;
- 			interrupts = <14 0x8>;
- 			interrupt-parent = <&ipic>;
-@@ -121,6 +121,33 @@
- 				compatible = "dallas,ds1339";
- 				reg = <0x68>;
- 			};
-+			mcu_pio: mcu@0a {
-+				#address-cells = <0>;
-+				#size-cells = <0>;
-+				#gpio-cells = <1>;
-+				compatible = "fsl,mc9s08qg8-mpc837xrdb",
-+					     "fsl,mcu-mpc837xrdb",
-+					     "fsl,mcu-mpc8349emitx",
-+					     "simple-bus";
-+				reg = <0x0a>;
-+				gpio-controller;
-+
-+				led@0 {
-+					compatible = "fsl,mcu-mpc837xrdb-led2",
-+						     "gpio-led";
-+					linux,name = "mcu2";
-+					linux,active-low;
-+					gpios = <&mcu_pio 0>;
-+				};
-+
-+				led@1 {
-+					compatible = "fsl,mcu-mpc837xrdb-led1",
-+						     "gpio-led";
-+					linux,name = "mcu1";
-+					linux,active-low;
-+					gpios = <&mcu_pio 1>;
-+				};
-+			};
- 		};
- 
- 		i2c@3100 {
-diff --git a/arch/powerpc/platforms/83xx/mpc834x_itx.c b/arch/powerpc/platforms/83xx/mpc834x_itx.c
-index 50e8f63..1b3451c 100644
---- a/arch/powerpc/platforms/83xx/mpc834x_itx.c
-+++ b/arch/powerpc/platforms/83xx/mpc834x_itx.c
-@@ -40,6 +40,7 @@
- 
- static struct of_device_id __initdata mpc834x_itx_ids[] = {
- 	{ .compatible = "fsl,pq2pro-localbus", },
-+	{ .compatible = "simple-bus", },
- 	{},
- };
- 
-diff --git a/arch/powerpc/platforms/83xx/mpc837x_rdb.c b/arch/powerpc/platforms/83xx/mpc837x_rdb.c
-index 2293ae5..c00356b 100644
---- a/arch/powerpc/platforms/83xx/mpc837x_rdb.c
-+++ b/arch/powerpc/platforms/83xx/mpc837x_rdb.c
-@@ -46,6 +46,7 @@ static void __init mpc837x_rdb_setup_arch(void)
- static struct of_device_id mpc837x_ids[] = {
- 	{ .type = "soc", },
- 	{ .compatible = "soc", },
-+	{ .compatible = "simple-bus", },
- 	{},
- };
- 
-diff --git a/arch/powerpc/sysdev/fsl_soc.c b/arch/powerpc/sysdev/fsl_soc.c
-index 7ad9bce..e8fe369 100644
---- a/arch/powerpc/sysdev/fsl_soc.c
-+++ b/arch/powerpc/sysdev/fsl_soc.c
-@@ -410,6 +410,7 @@ static struct i2c_driver_device i2c_devices[] __initdata = {
- 	{"dallas,ds1340",  "rtc-ds1307",  "ds1340",},
- 	{"stm,m41t00",     "rtc-ds1307",  "m41t00"},
- 	{"dallas,ds1374",  "rtc-ds1374",  "rtc-ds1374",},
-+	{"fsl,mcu-mpc8349emitx", "mcu-mpc8349emitx", "mcu-mpc8349emitx"},
- };
- 
- static int __init of_find_i2c_driver(struct device_node *node,
--- 
-1.5.2.2
+their id without using the chips i thought it was clever to switch to an id =
+
+i've explicitely bought to avoid future problems with ftdis new policies. =
+
+I'll change the id from the ftdi ones to the ones i recently bought on all =
+my =
+
+projects. Just to avoid future problems as early as possible.
+
+Does this make sense?
+
+Updated patch will follow.
+
+Regards,
+  Till
 
 _______________________________________________
 i2c mailing list
