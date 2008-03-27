@@ -1,8 +1,8 @@
 From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/7] Blackfin I2C/TWI driver: Add repeat start feature
-	to avoid break of a bundle of i2c master xfer operation.
-Date: Wed, 26 Mar 2008 17:46:43 -0700
-Message-ID: <1206578809-16038-2-git-send-email-cooloney@kernel.org>
+Subject: [PATCH 6/7] Blackfin I2C/TWI driver: Just let i2c-bfin-twi
+	driver depends on BLACKFIN
+Date: Wed, 26 Mar 2008 17:46:48 -0700
+Message-ID: <1206578809-16038-7-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,280 +19,37 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+simply use "depends on BLACKFIN" (which is technically correct) and just document
+which machines have the device
 
- - Create a new mode TWI_I2C_MODE_REPEAT.
- - No change to smbus operation.
-
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |  189 +++++++++++++++++++++++--------------
- 1 files changed, 116 insertions(+), 73 deletions(-)
+ drivers/i2c/busses/Kconfig |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 7dbdaeb..aedd8be 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -39,9 +39,10 @@
- #define POLL_TIMEOUT       (2 * HZ)
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 5fa9c3c..8891e22 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -100,10 +100,13 @@ config I2C_AU1550
  
- /* SMBus mode*/
--#define TWI_I2C_MODE_STANDARD		0x01
--#define TWI_I2C_MODE_STANDARDSUB	0x02
--#define TWI_I2C_MODE_COMBINED		0x04
-+#define TWI_I2C_MODE_STANDARD		1
-+#define TWI_I2C_MODE_STANDARDSUB	2
-+#define TWI_I2C_MODE_COMBINED		3	
-+#define TWI_I2C_MODE_REPEAT		4
- 
- struct bfin_twi_iface {
- 	int			irq;
-@@ -58,6 +59,9 @@ struct bfin_twi_iface {
- 	struct timer_list	timeout_timer;
- 	struct i2c_adapter	adap;
- 	struct completion	complete;
-+	struct i2c_msg 		*pmsg;
-+	int			msg_num;
-+	int			cur_msg;
- };
- 
- static struct bfin_twi_iface twi_iface;
-@@ -76,12 +80,16 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 		/* start receive immediately after complete sending in
- 		 * combine mode.
- 		 */
--		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
-+		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
- 			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL()
- 				| MDIR | RSTART);
--		} else if (iface->manual_stop)
-+		else if (iface->manual_stop)
- 			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL()
- 				| STOP);
-+		else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+				iface->cur_msg+1 < iface->msg_num)
-+			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL()
-+				| RSTART);
- 		SSYNC();
- 		/* Clear status */
- 		bfin_write_TWI_INT_STAT(XMTSERV);
-@@ -108,6 +116,11 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL()
- 				| STOP);
- 			SSYNC();
-+		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+				iface->cur_msg+1 < iface->msg_num) {
-+			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL()
-+				| RSTART);
-+			SSYNC();
- 		}
- 		/* Clear interrupt source */
- 		bfin_write_TWI_INT_STAT(RCVSERV);
-@@ -119,7 +132,7 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 		bfin_write_TWI_MASTER_STAT(0x3e);
- 		bfin_write_TWI_MASTER_CTL(0);
- 		SSYNC();
--		iface->result = -1;
-+		iface->result = -EIO;
- 		/* if both err and complete int stats are set, return proper
- 		 * results.
- 		 */
-@@ -170,6 +183,42 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() |
- 				MEN | MDIR);
- 			SSYNC();
-+		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+				iface->cur_msg+1 < iface->msg_num) {
-+			iface->cur_msg++;
-+			iface->transPtr = iface->pmsg[iface->cur_msg].buf;
-+			iface->writeNum = iface->readNum =
-+				iface->pmsg[iface->cur_msg].len;
-+			/* Set Transmit device address */
-+			bfin_write_TWI_MASTER_ADDR(
-+				iface->pmsg[iface->cur_msg].addr);
-+			if (iface->pmsg[iface->cur_msg].flags & I2C_M_RD)
-+				iface->read_write = I2C_SMBUS_READ;
-+			else {
-+				iface->read_write = I2C_SMBUS_WRITE;
-+				/* Transmit first data */
-+				if (iface->writeNum > 0) {
-+					bfin_write_TWI_XMT_DATA8(
-+						*(iface->transPtr++));
-+					iface->writeNum--;
-+					SSYNC();
-+				}
-+			}
+ config I2C_BLACKFIN_TWI
+ 	tristate "Blackfin TWI I2C support"
+-	depends on BF534 || BF536 || BF537
++	depends on BLACKFIN
+ 	help
+-	  This is the TWI I2C device driver for Blackfin 534/536/537/54x.
+-	  This driver can also be built as a module.  If so, the module
++	  This is the TWI I2C device driver for Blackfin BF522, BF525,
++	  BF527, BF534, BF536, BF537 and BF54x. For other Blackfin processors,
++	  please don't use this driver.
 +
-+			if (iface->pmsg[iface->cur_msg].len <= 255)
-+				bfin_write_TWI_MASTER_CTL(
-+				iface->pmsg[iface->cur_msg].len << 6);
-+			else {
-+				bfin_write_TWI_MASTER_CTL(0xff << 6);
-+				iface->manual_stop = 1;
-+			}
-+			/* remove restart bit and enable master receive */
-+			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() &
-+				~RSTART);
-+			bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() |
-+				MEN | ((iface->read_write == I2C_SMBUS_READ) ?
-+				MDIR : 0));
-+			SSYNC();
- 		} else {
- 			iface->result = 1;
- 			bfin_write_TWI_INT_MASK(0);
-@@ -221,7 +270,6 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
- {
- 	struct bfin_twi_iface *iface = adap->algo_data;
- 	struct i2c_msg *pmsg;
--	int i, ret;
- 	int rc = 0;
++	  This driver can also be built as a module. If so, the module
+ 	  will be called i2c-bfin-twi.
  
- 	if (!(bfin_read_TWI_CONTROL() & TWI_ENA))
-@@ -231,81 +279,76 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
- 		yield();
- 	}
- 
--	ret = 0;
--	for (i = 0; rc >= 0 && i < num; i++) {
--		pmsg = &msgs[i];
--		if (pmsg->flags & I2C_M_TEN) {
--			dev_err(&(adap->dev), "i2c-bfin-twi: 10 bits addr "
--				"not supported !\n");
--			rc = -EINVAL;
--			break;
--		}
-+	iface->pmsg = msgs;
-+	iface->msg_num = num;
-+	iface->cur_msg = 0;
- 
--		iface->cur_mode = TWI_I2C_MODE_STANDARD;
--		iface->manual_stop = 0;
--		iface->transPtr = pmsg->buf;
--		iface->writeNum = iface->readNum = pmsg->len;
--		iface->result = 0;
--		iface->timeout_count = 10;
--		/* Set Transmit device address */
--		bfin_write_TWI_MASTER_ADDR(pmsg->addr);
--
--		/* FIFO Initiation. Data in FIFO should be
--		 *  discarded before start a new operation.
--		 */
--		bfin_write_TWI_FIFO_CTL(0x3);
--		SSYNC();
--		bfin_write_TWI_FIFO_CTL(0);
--		SSYNC();
-+	pmsg = &msgs[0];
-+	if (pmsg->flags & I2C_M_TEN) {
-+		dev_err(&adap->dev, "10 bits addr not supported!\n");
-+		return -EINVAL;
-+	}
- 
--		if (pmsg->flags & I2C_M_RD)
--			iface->read_write = I2C_SMBUS_READ;
--		else {
--			iface->read_write = I2C_SMBUS_WRITE;
--			/* Transmit first data */
--			if (iface->writeNum > 0) {
--				bfin_write_TWI_XMT_DATA8(*(iface->transPtr++));
--				iface->writeNum--;
--				SSYNC();
--			}
-+	iface->cur_mode = TWI_I2C_MODE_REPEAT;
-+	iface->manual_stop = 0;
-+	iface->transPtr = pmsg->buf;
-+	iface->writeNum = iface->readNum = pmsg->len;
-+	iface->result = 0;
-+	iface->timeout_count = 10;
-+	/* Set Transmit device address */
-+	bfin_write_TWI_MASTER_ADDR(pmsg->addr);
-+
-+	/* FIFO Initiation. Data in FIFO should be
-+	 *  discarded before start a new operation.
-+	 */
-+	bfin_write_TWI_FIFO_CTL(0x3);
-+	SSYNC();
-+	bfin_write_TWI_FIFO_CTL(0);
-+	SSYNC();
-+
-+	if (pmsg->flags & I2C_M_RD)
-+		iface->read_write = I2C_SMBUS_READ;
-+	else {
-+		iface->read_write = I2C_SMBUS_WRITE;
-+		/* Transmit first data */
-+		if (iface->writeNum > 0) {
-+			bfin_write_TWI_XMT_DATA8(*(iface->transPtr++));
-+			iface->writeNum--;
-+			SSYNC();
- 		}
-+	}
- 
--		/* clear int stat */
--		bfin_write_TWI_INT_STAT(MERR|MCOMP|XMTSERV|RCVSERV);
-+	/* clear int stat */
-+	bfin_write_TWI_INT_STAT(MERR | MCOMP | XMTSERV | RCVSERV);
- 
--		/* Interrupt mask . Enable XMT, RCV interrupt */
--		bfin_write_TWI_INT_MASK(MCOMP | MERR |
--			((iface->read_write == I2C_SMBUS_READ)?
--			RCVSERV : XMTSERV));
--		SSYNC();
-+	/* Interrupt mask . Enable XMT, RCV interrupt */
-+	bfin_write_TWI_INT_MASK(MCOMP | MERR | RCVSERV | XMTSERV);
-+	SSYNC();
- 
--		if (pmsg->len > 0 && pmsg->len <= 255)
--			bfin_write_TWI_MASTER_CTL(pmsg->len << 6);
--		else if (pmsg->len > 255) {
--			bfin_write_TWI_MASTER_CTL(0xff << 6);
--			iface->manual_stop = 1;
--		} else
--			break;
-+	if (pmsg->len <= 255)
-+		bfin_write_TWI_MASTER_CTL(pmsg->len << 6);
-+	else {
-+		bfin_write_TWI_MASTER_CTL(0xff << 6);
-+		iface->manual_stop = 1;
-+	}
- 
--		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
--		add_timer(&iface->timeout_timer);
-+	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
-+	add_timer(&iface->timeout_timer);
- 
--		/* Master enable */
--		bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() | MEN |
--			((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
--			((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ>100) ? FAST : 0));
--		SSYNC();
-+	/* Master enable */
-+	bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() | MEN |
-+		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
-+		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
-+	SSYNC();
- 
--		wait_for_completion(&iface->complete);
-+	wait_for_completion(&iface->complete);
- 
--		rc = iface->result;
--		if (rc == 1)
--			ret++;
--		else if (rc == -1)
--			break;
--	}
-+	rc = iface->result;
- 
--	return ret;
-+	if (rc == 1)
-+		return num;
-+	else
-+		return rc;
- }
- 
- /*
+ config I2C_BLACKFIN_TWI_CLK_KHZ
 -- 
 1.5.4.3
 
