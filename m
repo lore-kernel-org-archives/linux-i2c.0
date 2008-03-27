@@ -1,14 +1,15 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/5] I2C: DaVinci: fix lost interrupt
-Date: Thu, 27 Mar 2008 14:18:38 +0100
-Message-ID: <20080327141838.30c10828@hyperion.delvare>
+Subject: Re: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
+Date: Thu, 27 Mar 2008 16:36:26 +0100
+Message-ID: <20080327163626.75d1bd51@hyperion.delvare>
 References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
 	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
+	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1206068770-15458-2-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1206068770-15458-3-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -24,70 +25,102 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi Troy,
 
-On Thu, 20 Mar 2008 20:06:06 -0700, Troy Kisky wrote:
-> DAVINCI_I2C_STR_REG is a write 1 to clear register,
-> so don't use a read/modify/write cycle.
-> 
+On Thu, 20 Mar 2008 20:06:07 -0700, Troy Kisky wrote:
+> Ensure psc value gives a clock between 7-12 Mhz
+
+Correct spelling is MHz.
+
 > Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Acked-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-davinci.c |   17 ++++++-----------
->  1 files changed, 6 insertions(+), 11 deletions(-)
->  mode change 100644 => 100755 drivers/i2c/busses/i2c-davinci.c
-
-This mode change is bogus, so I'm discarding it.
-
+>  drivers/i2c/busses/i2c-davinci.c |   19 ++++++++++++-------
+>  1 files changed, 12 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> old mode 100644
-> new mode 100755
-> index cce5a61..fde2634
+> index fde2634..82d4b7f 100755
 > --- a/drivers/i2c/busses/i2c-davinci.c
 > +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -382,9 +382,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->  			break;
+> @@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+>  	u16 psc;
+>  	u32 clk;
+> +	u32 d;
+>  	u32 clkh;
+>  	u32 clkl;
+>  	u32 input_clock = clk_get_rate(dev->clk);
+> @@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>  	 *       if PSC > 1 , d = 5
+>  	 */
 >  
->  		case DAVINCI_I2C_IVR_ARDY:
-> -			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
-> -			MOD_REG_BIT(w, DAVINCI_I2C_STR_ARDY, 1);
-> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
-> +			davinci_i2c_write_reg(dev,
-> +				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_ARDY);
->  			complete(&dev->cmd_complete);
->  			break;
+> -	psc = 26; /* To get 1MHz clock */
+> +	/* get minimum of 7mHz clock, but max of 12mHz */
+
+Correct spelling is MHz.
+
+> +	psc = (input_clock/7000000)-1;
+
+The usual coding style is to leave spaces around all operators. Same
+problem below.
+
+Note: if input_clock < 7000000, you're in trouble.
+
+> +	if ((input_clock/(psc+1)) > 12000000)
+> +		psc++;
+
+The only case where this will happen as far as I can see is if
+input_clock is between 12 and 14 MHz. In this case, you'll get a clock
+lower than 7 MHz (worst case is 6 MHz). Is this OK?
+
+> +	d = (psc >= 2)? 5 : 7 - psc;
 >  
-> @@ -397,12 +396,9 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->  				if (dev->buf_len)
->  					continue;
+> -	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - 10;
+> -	clkh = (50 * clk) / 100;
+> +	clk = ((input_clock/(psc+1)) / (pdata->bus_freq * 1000)) - (d<<1);
+> +	clkh = clk>>1;
+>  	clkl = clk - clkh;
 >  
-> -				w = davinci_i2c_read_reg(dev,
-> -							 DAVINCI_I2C_STR_REG);
-> -				MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 0);
->  				davinci_i2c_write_reg(dev,
-> -						      DAVINCI_I2C_STR_REG,
-> -						      w);
-> +					DAVINCI_I2C_STR_REG,
-> +					DAVINCI_I2C_IMR_RRDY);
->  			} else
->  				dev_err(dev->dev, "RDR IRQ while no "
->  					"data requested\n");
-> @@ -428,9 +424,8 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->  			break;
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
 >  
->  		case DAVINCI_I2C_IVR_SCD:
-> -			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG);
-> -			MOD_REG_BIT(w, DAVINCI_I2C_STR_SCD, 1);
-> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_STR_REG, w);
-> +			davinci_i2c_write_reg(dev,
-> +				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_SCD);
->  			complete(&dev->cmd_complete);
->  			break;
+> -	dev_dbg(dev->dev, "CLK  = %d\n", clk);
+> +	dev_dbg(dev->dev, "input_clock=%d, CLK  = %d\n", input_clock, clk);
+
+As I already wrote in my previous review: please come up with
+consistent spacing in this debugging message. Having no space around
+the first "=", but two spaced before and one after the second "=",
+doesn't look good.
+
+>  	dev_dbg(dev->dev, "PSC  = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+>  	dev_dbg(dev->dev, "CLKL = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
+>  	dev_dbg(dev->dev, "CLKH = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
+> +	dev_dbg(dev->dev, "bus_freq = %dkHz bus_delay = %d\n",
+
+For consistency, you should add a comma after kHz.
+
+> +		pdata->bus_freq, pdata->bus_delay);
+>  
+>  	/* Take the I2C module out of reset: */
+>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> @@ -338,12 +345,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>  
+>  	for (i = 0; i < num; i++) {
+>  		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+> +		dev_dbg(dev->dev, "%s ret: %d\n", __func__, ret);
+>  		if (ret < 0)
+>  			return ret;
+>  	}
+> -
+> -	dev_dbg(dev->dev, "%s:%d ret: %d\n", __FUNCTION__, __LINE__, ret);
+> -
+>  	return num;
+>  }
 >  
 
-Patch applied, thank you. It's queued for 2.6.25 if I have a chance to
-push more patches to Linus before it's released. If not, it'll go in
-2.6.26-rc1.
+Not sure how this last chunk is supposed to belong to this patch?
 
 -- 
 Jean Delvare
