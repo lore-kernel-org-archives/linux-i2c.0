@@ -1,15 +1,15 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Till Harbaum / Lists <lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
 Subject: Re: [PATCH] New VID/PID pair for i2c-tiny-usb
-Date: Sun, 30 Mar 2008 14:31:07 +0200
-Message-ID: <20080330143107.1575e1bf@hyperion.delvare>
+Date: Sun, 30 Mar 2008 19:55:15 +0100
+Message-ID: <200803302055.15948.lists@harbaum.org>
 References: <200803241042.31263.lists@harbaum.org>
-	<20080326154415.2981961a@hyperion.delvare>
 	<200803272047.21505.lists@harbaum.org>
+	<20080330143107.1575e1bf@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_TI+7HJ7fi8uqZXw"
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200803272047.21505.lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+In-Reply-To: <20080330143107.1575e1bf-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,62 +19,83 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Till Harbaum / Lists <lists-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Till,
+--Boundary-00=_TI+7HJ7fi8uqZXw
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thu, 27 Mar 2008 20:47:21 +0100, Till Harbaum / Lists wrote:
-> Am Mittwoch 26 M=E4rz 2008 schrieb Jean Delvare:
-> > Note: your e-mail client is wrapping long lines -> patch doesn't apply.
-> I thought i've verified that, but obviously it happened anyway.
-> =
+Hi,
 
-> > Please use a single /* */ pair for multi-line comments.
-> Ok
-> =
+Am Sonntag 30 M=E4rz 2008 schrieb Jean Delvare:
+> > Does this make sense?
+>
+> Yes it does, thanks for clarifying. Please send an updated patch and
+> I'll apply it.
+Please find a new patch attached.
 
-> > Maybe I'm missing something obvious, but if you already have a device
-> > ID, what's the point of switching to another? The original ID is not
-> > going to be deprecated and/or used for something else, is it?
-> The original id was donated by ftdi without stating anywhere that the id =
-has =
+> Do you plan to phase out the old VID/PID pair? If so, I'll have to send
+> you back my i2c-tiny-usb device for a firmware update.
+Nothing will change for people using the old vid/pid pair as the driver sti=
+ll=20
+supports that and i don't think there's a reason to also remove
+the old vid/pid pair from the driver. But since you don't have the latest=20
+firmware, you might of course return your device anyway to get it updated.=
+=20
+It'll then be detected correctly if it's plugged in at boot time.
 
-> to be used with their products. So i used it for the i2c-tiny-usb which =
+Till
 
-> obviously isn't based on a ftdi chipset. I've been told that ftdi has cha=
-nged =
+So here we go:
 
-> that policy lately. While i don't expect them to actually ask me not to u=
-se =
+This patch adds support for the EZPrototypes USB vid/pid pair used in later
+i2c-tiny-usb firmware versions (avrusb v1.06 and up, usbtiny v2.06 and up).
 
-> their id without using the chips i thought it was clever to switch to an =
-id =
+Signed-off-by: Till Harbaum <Till-zicpKgigMvpAfugRpC6u6w@public.gmane.org>
 
-> i've explicitely bought to avoid future problems with ftdis new policies. =
 
-> I'll change the id from the ftdi ones to the ones i recently bought on al=
-l my =
+--Boundary-00=_TI+7HJ7fi8uqZXw
+Content-Type: text/x-diff; charset="iso-8859-1";
+	name="i2c-tiny-usb-ezprototypes.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="i2c-tiny-usb-ezprototypes.patch"
 
-> projects. Just to avoid future problems as early as possible.
-> =
+--- linux-2.6.24.3.orig/drivers/i2c/busses/i2c-tiny-usb.c	2008-02-26 01:20:20.000000000 +0100
++++ linux-2.6.24.3/drivers/i2c/busses/i2c-tiny-usb.c	2008-03-30 20:47:46.000000000 +0200
+@@ -131,11 +131,15 @@
+ 
+ /* ----- begin of usb layer ---------------------------------------------- */
+ 
+-/* The usb i2c interface uses a vid/pid pair donated by */
+-/* Future Technology Devices International Ltd. */
++/* 
++ * Initially the usb i2c interface uses a vid/pid pair donated by
++ * Future Technology Devices International Ltd., later a pair was
++ * bought from EZPrototypes 
++ */
+ static struct usb_device_id i2c_tiny_usb_table [] = {
+-	{ USB_DEVICE(0x0403, 0xc631) },
+-	{ }			/* Terminating entry */
++	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
++	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
++	{ }                               /* Terminating entry */
+ };
+ 
+ MODULE_DEVICE_TABLE(usb, i2c_tiny_usb_table);
 
-> Does this make sense?
-
-Yes it does, thanks for clarifying. Please send an updated patch and
-I'll apply it.
-
-> Updated patch will follow.
-
-Do you plan to phase out the old VID/PID pair? If so, I'll have to send
-you back my i2c-tiny-usb device for a firmware update.
-
--- =
-
-Jean Delvare
+--Boundary-00=_TI+7HJ7fi8uqZXw
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--Boundary-00=_TI+7HJ7fi8uqZXw--
