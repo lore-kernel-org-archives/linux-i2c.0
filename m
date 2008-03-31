@@ -1,43 +1,86 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [2.6 patch] i2c/busses/scx200_acb.c: don't use 0 as NULL
- pointer
-Date: Mon, 31 Mar 2008 10:51:54 +0200
-Message-ID: <20080331105154.0a38ebf7@hyperion.delvare>
-References: <20080330232228.GR28445@cs181133002.pp.htv.fi>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates,
+	part 2
+Date: Mon, 31 Mar 2008 18:37:49 +0100
+Message-ID: <20080331173749.GA10234@fluff.org.uk>
+References: <1205585237-21492-1-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-2-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-3-git-send-email-me@felipebalbi.com>
+	<1205585237-21492-4-git-send-email-me@felipebalbi.com>
+	<20080315124918.GA21547@kedavra.cpe.vivax.com.br>
+	<20080315125458.GB21547@kedavra.cpe.vivax.com.br>
+	<20080315131309.GA24990@kedavra.cpe.vivax.com.br>
+	<20080316105617.GA4503@kedavra.cpe.vivax.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755637AbYCaIwe@vger.kernel.org>
-In-Reply-To: <20080330232228.GR28445@cs181133002.pp.htv.fi>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Adrian Bunk <bunk@kernel.org>
-Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20080316105617.GA4503-4vvIQG7NF+ITKvXZea5imILpUPVTGn5w@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 31 Mar 2008 02:22:28 +0300, Adrian Bunk wrote:
-> Don't use 0 as NULL pointer.
+On Sun, Mar 16, 2008 at 12:56:18PM +0200, Felipe Balbi wrote:
+> This patch uses set_irq_type as suggested by Dave.
 > 
-> Spotted by sparse.
+> ============= CUT HERE =========
 > 
-> Signed-off-by: Adrian Bunk <bunk@kernel.org>
+> >From 293a73277794a1ca0f2307e7fe9d5ecd76d3ad06 Mon Sep 17 00:00:00 2001
+> From: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
+> Date: Tue, 1 Jan 2008 23:00:18 -0500
+> Subject: [PATCH] I2C: ISP1301_OMAP: New-style i2c driver updates, part 2
 > 
+> Based on David Brownell's patch for tps65010, this patch
+> finish conversting isp1301_omap.c to new-style i2c driver.
+> 
+> Signed-off-by: Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org>
 > ---
-> 4a2495930cc9bc83f4302de3b73ebf3e8849dc1a diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
-> index f5e7a70..61abe0f 100644
-> --- a/drivers/i2c/busses/scx200_acb.c
-> +++ b/drivers/i2c/busses/scx200_acb.c
-> @@ -527,7 +527,7 @@ static int __init scx200_create_isa(const char *text, unsigned long base,
->  	if (iface == NULL)
->  		return -ENOMEM;
->  
-> -	if (request_region(base, 8, iface->adapter.name) == 0) {
-> +	if (!request_region(base, 8, iface->adapter.name)) {
->  		printk(KERN_ERR NAME ": can't allocate io 0x%lx-0x%lx\n",
->  		       base, base + 8 - 1);
->  		rc = -EBUSY;
+>  arch/arm/mach-omap1/board-h2.c   |    4 +
+>  arch/arm/mach-omap1/board-h3.c   |    8 ++
+>  arch/arm/mach-omap2/board-h4.c   |   14 ++++
+>  drivers/i2c/chips/isp1301_omap.c |  134 ++++++++++---------------------------
+>  4 files changed, 62 insertions(+), 98 deletions(-)
 > 
+> diff --git a/arch/arm/mach-omap1/board-h2.c b/arch/arm/mach-omap1/board-h2.c
+> index 5079877..fd9567c 100644
+> --- a/arch/arm/mach-omap1/board-h2.c
+> +++ b/arch/arm/mach-omap1/board-h2.c
+> @@ -22,6 +22,8 @@
+>  #include <linux/kernel.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/delay.h>
+> +#include <linux/irq.h>
+> +#include <linux/interrupt.h>
+>  #include <linux/i2c.h>
+>  #include <linux/mtd/mtd.h>
+>  #include <linux/mtd/nand.h>
+> @@ -366,6 +368,8 @@ static void __init h2_init_irq(void)
+>  	omap_init_irq();
+>  	omap_gpio_init();
+>  	h2_init_smc91x();
+> +	set_irq_type(OMAP_GPIO_IRQ(2),
+> +			IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_FALLING);
 
-Applied, thanks.
+Calling set_irq_type directly is not the recommended way of doing
+this. Use the correct trigger flags to request_irq().
+
 
 -- 
-Jean Delvare
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
