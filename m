@@ -1,48 +1,40 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [i2c] [PATCH] i2c: SuperH Mobile I2C Bus Controller V4
-Date: Mon, 31 Mar 2008 15:36:08 -0700
-Message-ID: <20080331153608.09293906.akpm@linux-foundation.org>
-References: <20080328093530.32474.78684.sendpatchset@rx1.opensource.se>
-	<20080329175732.GA9638@fluff.org.uk>
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+Subject: Re: Regression (gdm no longer shuts down) - 2.4.24.x and 2.6.25
+Date: Tue, 1 Apr 2008 20:05:52 +0100
+Message-ID: <20080401190552.GB10046@deepthought>
+References: <20080325200714.GA25487@deepthought> <20080326161934.7eae544f@hyperion.delvare> <20080326173701.GA16882@deepthought> <20080326201031.7c2cefb2@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080329175732.GA9638@fluff.org.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: magnus.damm@gmail.com, i2c@lm-sensors.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758868AbYDATGV@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080326201031.7c2cefb2@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Dave Airlie <airlied@gmail.com>, I2C <i2c@lm-sensors.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 29 Mar 2008 17:57:32 +0000
-Ben Dooks <ben-linux@fluff.org> wrote:
+On Wed, Mar 26, 2008 at 08:10:31PM +0100, Jean Delvare wrote:
+>=20
+> The fact is that there is no i2c-viapro change in 2.6.24.2 nor .4, an=
+d
+> in fact no i2c change at all. So if anything changed in this driver,
+> this has to be a side effect of some (non-i2c) header file change.
+> That's a long shot, though.
+>=20
+ I've been attending to more-urgent non-kernel problems.
 
-> On Fri, Mar 28, 2008 at 06:35:30PM +0900, Magnus Damm wrote:
-> > This is V4 of the SuperH Mobile I2C Controller Driver. A simple Master
-> > only driver for the I2C block included in processors such as sh7343,
-> > sh7722 and sh7723. Tested on a sh7722 MigoR using a rs5c732b rtc.
-> > 
-> > Changes since V3:
-> >  - Added SUPERH Kconfig dependency
-> >  - Use spin_lock_irqsave() and spin_unlock_irqrestore()
-> >  - Use IRQF_DISABLED
-> >  - Checkpatch fixes
-> > Changes since V2:
-> >  - dev_xxx() use
-> >  - Kill off superfluous ioarea resource
-> >  - Add SMBus emulation
-> > Changes since V1:
-> >  - Use clk_get()/clk_put()/clk_get_rate() to get peripheral clock rate.
-> >  - Use pdev->dev.bus_id instead of dev->name
-> 
-> Do we really need these in the change message, we tend to assume that
-> the changes before submission aren't really relevant. I would advise
-> on removing these.
+ In fact, i2c-viapro is not contributory, and drm may have nothing
+to do with it - the problem seems to happen with any kernel > 2.6.24,
+but not always.
 
-They are valuable for people who have reviewed earlier versions of the
-patchset so yes, please do maintain them.
+ So, to be clear, 2.6.24.4 with the drm patch reverted, and
+2.6.25-rc1, and 2.6.25-rc7 ALL intermittently fail.  I'll start
+bisecting.  Actually, I suppose I'd better try 2.6.24 itself a few
+more times, so that I have a little more confidence it was 'good'
+for this (fortunately, no other users on that box).  Apologies for
+attributing possible blame to i2c.
 
-I will snip them out when I merge them however - this short-term
-inter-version information isn't appropriate to the final git commit.
-
-
+Ken
+--=20
+das eine Mal als Trag=F6die, das andere Mal als Farce
