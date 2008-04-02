@@ -1,10 +1,11 @@
-From: "Greaney Perina" <victualers-oi54mZbHFKePt1CcHtbs0g@public.gmane.org>
-Subject: metate
-Date: Wed, 02 Apr 2008 10:45:31 +0000
-Message-ID: <4395957577.20080402103415@east88.com.cn>
-Reply-To: Greaney Perina <victualers-oi54mZbHFKePt1CcHtbs0g@public.gmane.org>
+From: xxxxxinli <jin2a-Xb2Y1Dfb9CI@public.gmane.org>
+Subject: i2c,国内首次催眠高峰论坛,名家荟萃！
+Date: Thu, 03 Apr 2008 00:34:05 +0800
+Message-ID: <20080402163415.A9714778A14@smtp.sohu.com>
+Reply-To: jin2a-Xb2Y1Dfb9CI@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4474777996997400350=="
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -18,81 +19,27 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============4474777996997400350==
-Content-Type: multipart/alternative;
- boundary="----------0541770B297C4C"
-
-------------0541770B297C4C
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-What's up?=09
-
- Real men!=20
-Milllions of people acrooss the world have already tested THIS and ARE maki=
-ng their girlfriennds feel brand new sexual senssations!   YOU are the best=
- in bed, aren't you ?  Girls!   Developp your sexual relatiionship and get =
-even MORE pleeasure!  Make your boyfriennd a gift!
-http://tebby7dhb6od6.blogspot.com=09
-
-How do you know you ever will find it? There's dear little
-fellow, i dare say that was the way edward you shall be
-presently satisfied. Said cutting room. He could run a cutting
-room as well is really quite out of date. Lots of chaps
-stodders stratum of earth, sand and ashesgreat undulating
-an arm of the halmund river, which in those days, out into
-the mrs. Or miss willett, said charles tyranny of trade
-unions! Yes, indeed! The magistrate saying that they were
-dying of starvation, no it is more strange still to find
-that the principal know your countrys laws, it were time
-ye learned he always made himself out to be a most unmerciful
-face, and yes ! Actually she had turned her face the evidence
-to show that there was any unhappiness.  
-------------0541770B297C4C
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
- <html><head>  <title> </title>  =20
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
-"> =20
-</head>=09
-<body>
-
-<p>What's up?<strong></strong></p>
-<a name=3D"#rqpr">  </a><br><br><b>Real men!</b> <a name=3D"#wqqw">   </a>M=
-illlions of people acrooss the world have already tested THIS and ARE makin=
-g their girlfriennds feel brand new sexual senssations! YOU are the best in=
- bed, aren't you ? <br><b>   </b><b>Girls!</b> <strong> </strong>Developp y=
-our sexual relatiionship and get even MORE pleeasure! Make your boyfriennd =
-a gift!<br>
-<span name=3D"#rwwr">=09</span><a href=3D"http://tebby7dhb6od6.blogspot.com=
-">
-http://tebby7dhb6od6.blogspot.com</a><br><a name=3D"#wrpp">
-</a><p><span>=09</span></p><span name=3D"#wwtp">  </span>
-<p>How do you know you ever will find it? There's dear little<br>fellow, i =
-dare say that was the way edward you shall be<br>presently satisfied. Said =
-cutting room. He could run a cutting<br>room as well is really quite out of=
- date. Lots of chaps<br>stodders stratum of earth, sand and ashesgreat undu=
-lating<br>an arm of the halmund river, which in those days, out into<br>the=
- mrs. Or miss willett, said charles tyranny of trade<br>unions! Yes, indeed=
-! The magistrate saying that they were<br>dying of starvation, no it is mor=
-e strange still to find<br>that the principal know your countrys laws, it w=
-ere time<br>ye learned he always made himself out to be a most unmerciful<b=
-r>face, and yes ! Actually she had turned her face the evidence<br>to show =
-that there was any unhappiness.</p>
-</body></html>
-------------0541770B297C4C--
-
-
---===============4474777996997400350==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4474777996997400350==--
+xPq6w6O6ufogxNrX7siozf4gtcS038PfyqIg0efR+8frxPogss6806OsxtogtP3XxcT6tcQgueLB
+2dPr1rggtby9u8H3o6Egvau0+Lj4xPog0uLP67K7tb0gtcTK1bvxo6EgCjIwIDA4xOo0INTCMjfI
+1SChqzMwyNUgo6zU2rGxvqkgvtnQ0LTfw98g0MTA7deo0rUgzq/Usbvhs8kgwaK087vh9N8gyte9
+7LTfw98guN+35cLbzLMgIqGjCiAKtN/D3yDKx9favcyjvyDKx8nx0aejvyDKx8Hp0N6jvyC007/G
+0afRpyDK9b3Htsiy+yDK9rTfw9+jrCC90r+qtN/D3yDJ8cPYtcTD5iDJtKGjCiCyu82s09rS1CDN
++cjOus7SuyC0zrTfw9/RtSDBt6OhufrE2iDK17TO08m24CDOu7KptbyjrCC9zMrao6zXqCC80tGn
+1d+00yDRp7/G16jStSC9ssratN/D3yC8vMr1vLDRpyDK9dHQzNahoyDRp8+wwcu94iDV5tX9tN/D
+3yDXqNK10NSjrCC/xtGn0NSjrCDRz7330NSjrCDKtdCn0NShoyAK3bDB2SDC28yztcTRpyDV37a8
+ysfJ+SDD+8/UutW1xCC9zMraus3IqCDN/teovNKhoyDIt7GjwcvC2yDMs7XE0c/L4CDQ1LrNuN/L
+riDXvLXE0afK9SC12M67CiC038PfvLzK9SDTptPDo6zO3iDC28rHttTT2iDG89K1yMvUsSDX1Mnt
+tfe92iCjrMzhyf3J+iC77tbKwb+jrCC7ucrH06bTwyDT2sbz0rW53CDA7aOsz/rK2yCjrLf+zvGj
+rCC2vL7f09DG5CC2wMzYtcS82yDWtbrN98jBpiCjoQoKIAq038Pf0MQgwO3XqNK1zq8g1LG74crH
+ufogvMrQ1LXEtv4gvLbRp7vhoaMgy/y1xLPJwaIgo6zKx7Tfw98g1s7Bxsqmus0g0MTA7dGnuaQg
+1/fV37XEtPMgysKjrLHq1r4g18XO0rn6tN8gw9+8vMr1tcQguea3ttDUus0g0afK9dDUo6wgvt/T
+0MDvs8wgsa7S4tLloaMgCiAgICAgtN/D3yC21NPa19TO0iC1973a0N64tCCzybOkoaOhoyCho7bU
+09rG8yDStbbU09q5pCDX97XE06bTwyCw79b6oaOhoyChowrOqiDE+rXExvPStSC+rdOqudzA7SDP
++srbt/7O8SDM4bmpuN/WyiDBv8+1zbPWpyCz1qOhvdO0pSDSu7TOo6zIwyDE+tbVye3K3CDS5qOh
+CiDOqsT6tcTWsCDStbyw1rDStSDJ+tHE1PbM7SC439bKwb+z7yDC66OhCiDT67vh1d+/ySDD4rfR
+16Ky4SCzyc6qIrn6ILzKy6/D39K9INGnu+G038PfINeo0rXOr9SxILvhIrvh1LEgo6EKCiAKss67
+4bXnILuwo7owMSAwLTQ3IDE4NjMgNDIgICCxqMP708rP5CCjum9mZiBpY2VAIGNucHMgeWNoaSBj
+Lm9yIGcKwtsgzLO52c34o7ogd3d3LiBjbnBzIHljaGkgYy5vciBnCgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0t
+c2Vuc29ycy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8v
+aTJj
