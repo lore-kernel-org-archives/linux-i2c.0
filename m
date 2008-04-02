@@ -1,40 +1,55 @@
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-Subject: Re: Regression (gdm no longer shuts down) - 2.4.24.x and 2.6.25
-Date: Tue, 1 Apr 2008 20:05:52 +0100
-Message-ID: <20080401190552.GB10046@deepthought>
-References: <20080325200714.GA25487@deepthought> <20080326161934.7eae544f@hyperion.delvare> <20080326173701.GA16882@deepthought> <20080326201031.7c2cefb2@hyperion.delvare>
+From: "Magnus Damm" <magnus.damm@gmail.com>
+Subject: Re: [i2c] [PATCH] i2c: SuperH Mobile I2C Bus Controller V4
+Date: Wed, 2 Apr 2008 10:20:56 +0900
+Message-ID: <aec7e5c30804011820v3a0d49fetb6d74ea74d78c0ae@mail.gmail.com>
+References: <20080328093530.32474.78684.sendpatchset@rx1.opensource.se>
+	 <20080329175732.GA9638@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758868AbYDATGV@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080329175732.GA9638@fluff.org.uk>
 Content-Disposition: inline
-In-Reply-To: <20080326201031.7c2cefb2@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Dave Airlie <airlied@gmail.com>, I2C <i2c@lm-sensors.org>, lkml <linux-kernel@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: i2c@lm-sensors.org, akpm@linux-foundation.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 26, 2008 at 08:10:31PM +0100, Jean Delvare wrote:
->=20
-> The fact is that there is no i2c-viapro change in 2.6.24.2 nor .4, an=
-d
-> in fact no i2c change at all. So if anything changed in this driver,
-> this has to be a side effect of some (non-i2c) header file change.
-> That's a long shot, though.
->=20
- I've been attending to more-urgent non-kernel problems.
+Hi Ben,
 
- In fact, i2c-viapro is not contributory, and drm may have nothing
-to do with it - the problem seems to happen with any kernel > 2.6.24,
-but not always.
+On Sun, Mar 30, 2008 at 2:57 AM, Ben Dooks <ben-linux@fluff.org> wrote:
+> On Fri, Mar 28, 2008 at 06:35:30PM +0900, Magnus Damm wrote:
+>  > This is V4 of the SuperH Mobile I2C Controller Driver. A simple Master
+>  > only driver for the I2C block included in processors such as sh7343,
+>  > sh7722 and sh7723. Tested on a sh7722 MigoR using a rs5c732b rtc.
 
- So, to be clear, 2.6.24.4 with the drm patch reverted, and
-2.6.25-rc1, and 2.6.25-rc7 ALL intermittently fail.  I'll start
-bisecting.  Actually, I suppose I'd better try 2.6.24 itself a few
-more times, so that I have a little more confidence it was 'good'
-for this (fortunately, no other users on that box).  Apologies for
-attributing possible blame to i2c.
+>  How many IRQs can one controller have?
 
-Ken
---=20
-das eine Mal als Trag=F6die, das andere Mal als Farce
+Four IRQs per channel for this particular version of I2C controller.
+
+>  I note that you do not call clk_enable() or clk_disable() for this
+>  clock, is this some form of global always-on clock, or is an
+>  assumption that some other driver is holding the clock open for you?
+
+Nice catch. I'll add code that does clk_enable() and clk_disable().
+
+>  > +     size = (res->end - res->start) + 1;
+>
+>  hmm, has no-one done as res_size() macro yet?
+
+It's been on my TODO list forever. =)
+
+>  > +MODULE_LICENSE("GPL");
+>
+>  IIRC, your header license says GPL v2, so this should be changed to
+>  agree with that statement.
+
+Uhm, right. Thanks for pointing that out.
+
+>  Overall, the code looks fine other than a few comments could be added
+>  and possibly some function descriptions before their declerations so
+>  that you can get an idea of what is going on in them.
+
+I'll fix up things and repost. Thanks for your review!
+
+/ magnus
