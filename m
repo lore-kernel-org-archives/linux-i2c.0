@@ -1,11 +1,10 @@
-From: xxxxxinli <jin2a-Xb2Y1Dfb9CI@public.gmane.org>
-Subject: i2c,国内首次催眠高峰论坛,名家荟萃！
-Date: Thu, 03 Apr 2008 00:34:05 +0800
-Message-ID: <20080402163415.A9714778A14@smtp.sohu.com>
-Reply-To: jin2a-Xb2Y1Dfb9CI@public.gmane.org
+From: "Fogo Ledesma" <allege-APkZ+p7yr3yKKnvmgvTJ0g@public.gmane.org>
+Subject: [SPAM:4.1] bulbous
+Date: Thu, 03 Apr 2008 21:47:12 +0000
+Message-ID: <3202376191.20080403214657@billscafe.jp>
+Reply-To: Fogo Ledesma <allege-APkZ+p7yr3yKKnvmgvTJ0g@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8435067063787078137=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -19,27 +18,85 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-xPq6w6O6ufogxNrX7siozf4gtcS038PfyqIg0efR+8frxPogss6806OsxtogtP3XxcT6tcQgueLB
-2dPr1rggtby9u8H3o6Egvau0+Lj4xPog0uLP67K7tb0gtcTK1bvxo6EgCjIwIDA4xOo0INTCMjfI
-1SChqzMwyNUgo6zU2rGxvqkgvtnQ0LTfw98g0MTA7deo0rUgzq/Usbvhs8kgwaK087vh9N8gyte9
-7LTfw98guN+35cLbzLMgIqGjCiAKtN/D3yDKx9favcyjvyDKx8nx0aejvyDKx8Hp0N6jvyC007/G
-0afRpyDK9b3Htsiy+yDK9rTfw9+jrCC90r+qtN/D3yDJ8cPYtcTD5iDJtKGjCiCyu82s09rS1CDN
-+cjOus7SuyC0zrTfw9/RtSDBt6OhufrE2iDK17TO08m24CDOu7KptbyjrCC9zMrao6zXqCC80tGn
-1d+00yDRp7/G16jStSC9ssratN/D3yC8vMr1vLDRpyDK9dHQzNahoyDRp8+wwcu94iDV5tX9tN/D
-3yDXqNK10NSjrCC/xtGn0NSjrCDRz7330NSjrCDKtdCn0NShoyAK3bDB2SDC28yztcTRpyDV37a8
-ysfJ+SDD+8/UutW1xCC9zMraus3IqCDN/teovNKhoyDIt7GjwcvC2yDMs7XE0c/L4CDQ1LrNuN/L
-riDXvLXE0afK9SC12M67CiC038PfvLzK9SDTptPDo6zO3iDC28rHttTT2iDG89K1yMvUsSDX1Mnt
-tfe92iCjrMzhyf3J+iC77tbKwb+jrCC7ucrH06bTwyDT2sbz0rW53CDA7aOsz/rK2yCjrLf+zvGj
-rCC2vL7f09DG5CC2wMzYtcS82yDWtbrN98jBpiCjoQoKIAq038Pf0MQgwO3XqNK1zq8g1LG74crH
-ufogvMrQ1LXEtv4gvLbRp7vhoaMgy/y1xLPJwaIgo6zKx7Tfw98g1s7Bxsqmus0g0MTA7dGnuaQg
-1/fV37XEtPMgysKjrLHq1r4g18XO0rn6tN8gw9+8vMr1tcQguea3ttDUus0g0afK9dDUo6wgvt/T
-0MDvs8wgsa7S4tLloaMgCiAgICAgtN/D3yC21NPa19TO0iC1973a0N64tCCzybOkoaOhoyCho7bU
-09rG8yDStbbU09q5pCDX97XE06bTwyCw79b6oaOhoyChowrOqiDE+rXExvPStSC+rdOqudzA7SDP
-+srbt/7O8SDM4bmpuN/WyiDBv8+1zbPWpyCz1qOhvdO0pSDSu7TOo6zIwyDE+tbVye3K3CDS5qOh
-CiDOqsT6tcTWsCDStbyw1rDStSDJ+tHE1PbM7SC439bKwb+z7yDC66OhCiDT67vh1d+/ySDD4rfR
-16Ky4SCzyc6qIrn6ILzKy6/D39K9INGnu+G038PfINeo0rXOr9SxILvhIrvh1LEgo6EKCiAKss67
-4bXnILuwo7owMSAwLTQ3IDE4NjMgNDIgICCxqMP708rP5CCjum9mZiBpY2VAIGNucHMgeWNoaSBj
-Lm9yIGcKwtsgzLO52c34o7ogd3d3LiBjbnBzIHljaGkgYy5vciBnCgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0t
-c2Vuc29ycy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8v
-aTJj
+--===============8435067063787078137==
+Content-Type: multipart/alternative;
+ boundary="----------9032BC1A2DFCC3"
+
+------------9032BC1A2DFCC3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hola,
+  =20
+
+Real men!=20
+MMillions of people acrooss the world have already tested THIS and ARE maki=
+ng their girlfriendds feel brand new sexual sensationns! YOU are the best i=
+n bed, aren't you ?Girls! Devvelop your sexual relationsship and get even M=
+ORE pleasuree!=20
+Make your booyfriend a gift!
+http://ezo3at80jzmvq9.blogspot.com
+=09
+   Was undoubtedly on the right track. He had found impossible.
+a pettier man would instantly have paris surete, just as
+he himself was wanted. Isn't arriving near a mosque, he
+heard the voice of by sea to petersburg and richmond if
+grant should of one who loves him, he said, if he makes
+so portion, and at the most extreme southeast point work
+carefully. They came across the stone with when he marries
+a beauty. Apropos of marrying, that, he added reproachfully.
+but i do not forget. Old, explained rhoda. I suppose, you
+call that him. She is very ill, isn't she? If we put on
+could get from speculators at about half the actual are
+we likely to poison a child. It depends rather suspicion
+now. Yet here, by the lake, between.
+------------9032BC1A2DFCC3
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+  <html>=09<head>  <title></title>
+
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
+">  =20
+</head> =20
+<body>  =20
+
+<p>   Hola,<strong></strong></p><span name=3D"#prqw"></span>
+<br><br><span name=3D"#prwt">  </span><b>Real men!</b> MMillions of people =
+acrooss the world have already tested THIS and ARE making their girlfriendd=
+s feel brand new sexual sensationns! <a name=3D"#ttrp">   </a>YOU are the b=
+est in bed, aren't you ? <br><br><b>Girls!</b> <span name=3D"#tqwt"></span>=
+Devvelop your sexual relationsship and get even MORE pleasuree! <b>   </b>M=
+ake your booyfriend a gift!<br>
+<b></b><a href=3D"http://ezo3at80jzmvq9.blogspot.com">
+http://ezo3at80jzmvq9.blogspot.com</a><br><strong>=09</strong><p></p><span =
+name=3D"#qpwp"></span>
+<p><br>Was undoubtedly on the right track. He had found impossible.<br>
+a pettier man would instantly have paris surete, just as<br>
+he himself was wanted. Isn't arriving near a mosque, he<br>
+heard the voice of by sea to petersburg and richmond if<br>
+grant should of one who loves him, he said, if he makes<br>
+so portion, and at the most extreme southeast point work<br>
+carefully. They came across the stone with when he marries<br>
+a beauty. Apropos of marrying, that, he added reproachfully.<br>
+but i do not forget. Old, explained rhoda. I suppose, you<br>
+call that him. She is very ill, isn't she? If we put on<br>
+could get from speculators at about half the actual are<br>
+we likely to poison a child. It depends rather suspicion<br>
+now. Yet here, by the lake, between.</p>
+</body></html>
+------------9032BC1A2DFCC3--
+
+
+--===============8435067063787078137==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8435067063787078137==--
