@@ -1,9 +1,9 @@
 From: badguy development <badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Subject: (no subject)
-Date: Thu, 3 Apr 2008 22:53:56 +0000
-Message-ID: <BLU106-W40FD644DBCDD885A8EAAEFB0F70@phx.gbl>
+Subject: LTC1760, ISR Questions
+Date: Thu, 3 Apr 2008 23:04:02 +0000
+Message-ID: <BLU106-W40B1D2DF94BBAC071ED2E2B0F70@phx.gbl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2928147127218244425=="
+Content-Type: multipart/mixed; boundary="===============5370590827251087969=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -17,13 +17,16 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============2928147127218244425==
+--===============5370590827251087969==
 Content-Type: multipart/alternative;
-	boundary="_5ba43880-3bab-44bc-99a9-e7a6797ff88e_"
+	boundary="_f7da6e94-46d4-40e6-898b-e0ef8d724bf4_"
 
---_5ba43880-3bab-44bc-99a9-e7a6797ff88e_
+--_f7da6e94-46d4-40e6-898b-e0ef8d724bf4_
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+
+
+
 
 
 Hello,
@@ -84,14 +87,22 @@ aterial I should look at to find this answer.
 
 Thanks ahead of time.
 
-       -Christian Hunt
+Please CC me at badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org=20
+I am still trying to join the list.
 
+P.S.
+  I accidently clicked send before filling out the Subject, so I scanned th=
+e maillist and did not find my message.
+I think perhaps it was rejected due to no subject, if it was not, and I sub=
+mitted two of them please accept my apologies.
+
+       -Christian Hunt
 _________________________________________________________________
 Try Chicktionary, a game that tests how many words you can form from the le=
 tters given. Find this and more puzzles at Live Search Games!
 http://g.msn.ca/ca55/207=
 
---_5ba43880-3bab-44bc-99a9-e7a6797ff88e_
+--_f7da6e94-46d4-40e6-898b-e0ef8d724bf4_
 Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -111,6 +122,9 @@ FONT-FAMILY:Tahoma
 </style>
 </head>
 <body class=3D'hmmessage'>
+
+
+
 Hello,<br><br>I am developing a driver for the LTC1760 dual battery charger=
 .<br><br>&nbsp;I have an interrupt occur and I get notification of that.<br=
 >
@@ -143,17 +157,22 @@ to how to handle linux interrupts.<br><br>I need to send a request command =
 out i2c to this device to clear this interrupt.<br>I am not 100% sure about=
  this, but it is what the data sheet has led me to believe.<br><br>I would =
 appreciate any help on this, and perhaps even a reference to what material =
-I should look at to find this answer.<br><br>Thanks ahead of time.<br><br>&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Christian Hunt<br><br /><hr />Sign in =
-today. When you sign in to Windows Live Messenger you could win $1000 a day=
- until May 12th. <a href=3D'http://g.msn.ca/ca55/209' target=3D'_new'>Learn=
- more at SignInAndWIN.ca</a></body>
+I should look at to find this answer.<br><br>Thanks ahead of time.<br><br>P=
+lease CC me at badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org <br>I am still trying to join =
+the list.<br><br>P.S.<br>&nbsp; I accidently clicked send before filling ou=
+t the Subject, so I scanned the maillist and did not find my message.<br>I =
+think perhaps it was rejected due to no subject, if it was not, and I submi=
+tted two of them please accept my apologies.<br><br>&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp; -Christian Hunt<br /><hr />Sign in today. When you sign in to=
+ Windows Live Messenger you could win $1000 a day until May 12th. <a href=
+=3D'http://g.msn.ca/ca55/209' target=3D'_new'>Learn more at SignInAndWIN.ca=
+</a></body>
 </html>=
 
---_5ba43880-3bab-44bc-99a9-e7a6797ff88e_--
+--_f7da6e94-46d4-40e6-898b-e0ef8d724bf4_--
 
 
---===============2928147127218244425==
+--===============5370590827251087969==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -163,4 +182,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2928147127218244425==--
+--===============5370590827251087969==--
