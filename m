@@ -1,61 +1,49 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c: SuperH Mobile I2C Bus Controller V5
-Date: Sat, 5 Apr 2008 10:50:33 +0200
-Message-ID: <20080405105033.3687c785@hyperion.delvare>
-References: <20080402025950.1026.44461.sendpatchset@rx1.opensource.se>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: AU1550 I2C driver - why not wait for bus free?
+Date: Sat, 5 Apr 2008 11:24:09 +0200
+Message-ID: <20080405112409.68b6c1a3@hyperion.delvare>
+References: <47F3549E.2090500@emcraft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080402025950.1026.44461.sendpatchset@rx1.opensource.se>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: i2c@lm-sensors.org, linux-sh@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, Ben Dooks <ben-linux@fluff.org>, Andrew Morton <akpm@linux-foundation.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <47F3549E.2090500-qv+LCo8X3VpBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Sergei Poselenov <sposelenov-qv+LCo8X3VpBDgjK7y7TUQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Magnus,
+Hi Sergei,
 
-On Wed, 02 Apr 2008 11:59:50 +0900, Magnus Damm wrote:
-> This is V5 of the SuperH Mobile I2C Controller Driver. A simple Master
-> only driver for the I2C block included in processors such as sh7343,
-> sh7722 and sh7723. Tested on a sh7722 MigoR using a rs5c732b rtc.
+On Wed, 02 Apr 2008 13:40:46 +0400, Sergei Poselenov wrote:
+> I have a question about AU1550 I2C driver.
+> Why the driver starts transfer regardless of the state
+> of I2C bus? Shouldn't it wait for the "bus busy" bit
+> in smbstat to become zero before setting the
+> "master start" bit?
 > 
-> Signed-off-by: Magnus Damm <damm@igel.co.jp>
-> Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-> ---
-> 
->  Changes since V4:
->   - Use sh_mobile_i2c_op enum
->   - Remove fast_mode and rx_ack_high code
->   - Use variable name retry_count instead of k
->   - Encoding fixes
->   - Use clk_enable() and clk_disable()
->   - Remove deactivate_ch() call from setup_channel()
->   - Use dev_err() if i2c_add_numbered_adapter() fails
->   - MODULE_LICENSE("GPL v2")
->   - Comment fix, cleaned up header
->  Changes since V3:
->   - Added SUPERH Kconfig dependency
->   - Use spin_lock_irqsave() and spin_unlock_irqrestore()
->   - Use IRQF_DISABLED
->   - Checkpatch fixes
->  Changes since V2:
->   - dev_xxx() use
->   - Kill off superfluous ioarea resource
->   - Add SMBus emulation
->  Changes since V1:
->   - Use clk_get()/clk_put()/clk_get_rate() to get peripheral clock rate.
->   - Use pdev->dev.bus_id instead of dev->name
-> 
->  Verified with the rtc-rs5c372 SMBus conversion patches currently in -mm.
-> 
->  drivers/i2c/busses/Kconfig         |   10 
->  drivers/i2c/busses/Makefile        |    1 
->  drivers/i2c/busses/i2c-sh_mobile.c |  500 ++++++++++++++++++++++++++++++++++++
->  3 files changed, 511 insertions(+)
+> I see, in the 2.4 version of the driver the above logic
+> was present, but avoided in 2.6.
 
-Patch added to my i2c tree and queued up for merge in 2.6.26-rc1.
-Thanks to everyone who reviewed the previous versions of the driver.
+I wasn't aware that there was a 2.4 i2c-au1550 driver... I don't see it
+in mainline at least.
+
+Checking for the bus busy bit before starting a transaction sounds like
+a good idea, feel free to submit a patch implementing this and we'll
+review it.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
