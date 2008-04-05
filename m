@@ -1,49 +1,60 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: AU1550 I2C driver - why not wait for bus free?
-Date: Sat, 5 Apr 2008 11:24:09 +0200
-Message-ID: <20080405112409.68b6c1a3@hyperion.delvare>
-References: <47F3549E.2090500@emcraft.com>
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Subject: [PATCH] Alchemy: SMBus resource fix
+Date: Sat, 5 Apr 2008 22:16:21 +0400
+Message-ID: <200804052216.21699.sshtylyov@ru.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <47F3549E.2090500-qv+LCo8X3VpBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Sergei Poselenov <sposelenov-qv+LCo8X3VpBDgjK7y7TUQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: linux-mips@linux-mips.org, i2c@lm-sensors.org
+Cc: ralf@linux-mips.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sergei,
+The Alchemy platform code registers the SMBus device using the virtual address
+of its registers instead of the physical one -- fix this, taking into account
+that actually the whole megabyte is decoded by any of the programmable serial
+controllers (one of which is SMBus), and that all the Alchemy peripherals are
+directly mappable into KSEG1 kernel space and therefore ioremap() call would
+just boil down to CKSEG1ADDR() invocation.
 
-On Wed, 02 Apr 2008 13:40:46 +0400, Sergei Poselenov wrote:
-> I have a question about AU1550 I2C driver.
-> Why the driver starts transfer regardless of the state
-> of I2C bus? Shouldn't it wait for the "bus busy" bit
-> in smbstat to become zero before setting the
-> "master start" bit?
-> 
-> I see, in the 2.4 version of the driver the above logic
-> was present, but avoided in 2.6.
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
-I wasn't aware that there was a 2.4 i2c-au1550 driver... I don't see it
-in mainline at least.
+---
+I'm not sure thru which tree this should go -- probably thru Linux/MIPS one...
 
-Checking for the bus busy bit before starting a transaction sounds like
-a good idea, feel free to submit a patch implementing this and we'll
-review it.
+ arch/mips/au1000/common/platform.c |    4 ++--
+ drivers/i2c/busses/i2c-au1550.c    |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Index: linux-2.6/arch/mips/au1000/common/platform.c
+===================================================================
+--- linux-2.6.orig/arch/mips/au1000/common/platform.c
++++ linux-2.6/arch/mips/au1000/common/platform.c
+@@ -274,8 +274,8 @@ static struct platform_device smc91x_dev
+ #ifdef SMBUS_PSC_BASE
+ static struct resource pbdb_smbus_resources[] = {
+ 	{
+-		.start	= SMBUS_PSC_BASE,
+-		.end	= SMBUS_PSC_BASE + 0x24 - 1,
++		.start	= CPHYSADDR(SMBUS_PSC_BASE),
++		.end	= CPHYSADDR(SMBUS_PSC_BASE + 0xfffff),
+ 		.flags	= IORESOURCE_MEM,
+ 	},
+ };
+Index: linux-2.6/drivers/i2c/busses/i2c-au1550.c
+===================================================================
+--- linux-2.6.orig/drivers/i2c/busses/i2c-au1550.c
++++ linux-2.6/drivers/i2c/busses/i2c-au1550.c
+@@ -335,7 +335,7 @@ i2c_au1550_probe(struct platform_device 
+ 		goto out_mem;
+ 	}
+ 
+-	priv->psc_base = r->start;
++	priv->psc_base = CKSEG1ADDR(r->start);
+ 	priv->xfer_timeout = 200;
+ 	priv->ack_timeout = 200;
+ 
