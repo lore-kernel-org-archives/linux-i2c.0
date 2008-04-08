@@ -1,33 +1,61 @@
-From: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH] Alchemy: SMBus resource fix
-Date: Tue, 8 Apr 2008 12:05:47 +0100
-Message-ID: <20080408110547.GA424@linux-mips.org>
-References: <200804052216.21699.sshtylyov@ru.mvista.com>
+From: DR USMAN SHAMSUDEEN   <info-zBUHx2jJwRFdG78yCdSDWg@public.gmane.org>
+Subject: NOTIFICATION OF PAYMENT VIA ATM CARD
+Date: Wed,  9 Apr 2008 01:39:54 +0200 (CEST)
+Message-ID: <20080409001215.346B11978D99@bravo582.server4you.de>
+Reply-To: fmf.dr_usman-whZMOeQn8C0@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <200804052216.21699.sshtylyov@ru.mvista.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: linux-mips@linux-mips.org, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Apr 05, 2008 at 10:16:21PM +0400, Sergei Shtylyov wrote:
 
-> The Alchemy platform code registers the SMBus device using the virtual address
-> of its registers instead of the physical one -- fix this, taking into account
-> that actually the whole megabyte is decoded by any of the programmable serial
-> controllers (one of which is SMBus), and that all the Alchemy peripherals are
-> directly mappable into KSEG1 kernel space and therefore ioremap() call would
-> just boil down to CKSEG1ADDR() invocation.
-> 
-> Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-> 
-> ---
-> I'm not sure thru which tree this should go -- probably thru Linux/MIPS one...
+>From the FMF, Federal Ministry of Finance
+No 12 edidi lane Idumota Lagos
+Honourable Minister of Finance, DR USMAN SHAMSUDEEN
+Approved by the Nigerian Government
+http://www.fmf.gov.ng/portal/detail.php?link=hmf
 
-Looks ok, so I'll send it to Linus.
 
-  Ralf
+NOTIFICATION OF PAYMENT VIA ATM CARD
+
+This is to officially inform you that we have verified your contract file presently on my desk, and I found out that you have not received your payment due to your lack of co-operation and not fulfilling the obligations giving to you in respect to your contract payment.
+
+Secondly, you are hereby advised to stop dealing with some non-officials in the bank as this is an illegal act and will have to stop if you so wish to receive your payment immediately.
+
+After the Board of director's meeting held in Abuja, we have resolved in finding a solution to your problem. We have arranged your payment through our SWIFT CARD PAYMENT CENTRE in Europe, America,Africa
+and Asia Pacific,This is part of an instruction/mandate passed by the Senate in respect to overseas contract payment and debt re scheduling. And also the Nigerian Government is using this mean to rewards all the citizens of the United states and all part of europe including asia,australia,south america, Antartica e.t.c and all those who have lost their funds in either scam, or an uncompleted business, or otherwise.
+
+You should know that if you are interested to receive your ATM card which will be credited with $920,000 united states dollars before it is been sent to you direct to your doorstep through any courier service of your choice.
+
+Kindly get back to me with the following informations below so i can start arrangement on how to get your Atm Card shipped to you
+
+(1) Your Full Name
+(2) Full residential address
+(3) Phone number
+
+This message is supported by the Nigerian Government, After you might have started making use of your ATM card, you can reward my firm one way or the other you knows best.
+
+Thanks for your co-operation.
+
+>From the FMF, Federal Ministry of Finance
+DR USMAN SHAMSUDEEN
+
+
+
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
