@@ -1,13 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: LTC1760, ISR Questions
-Date: Wed, 9 Apr 2008 12:04:38 +0200
-Message-ID: <20080409120438.6e399bf3@hyperion.delvare>
-References: <BLU106-W40B1D2DF94BBAC071ED2E2B0F70@phx.gbl>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: [patch 2.6.25-rc8] i2c: fix platform driver hotplug/coldplug
+Date: Wed, 9 Apr 2008 13:54:07 -0700
+Message-ID: <200804091354.07807.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <BLU106-W40B1D2DF94BBAC071ED2E2B0F70-MsuGFMq8XAE@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,87 +16,206 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: badguy development <badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 3 Apr 2008 23:04:02 +0000, badguy development wrote:
-> I am developing a driver for the LTC1760 dual battery charger.
-> 
->  I have an interrupt occur and I get notification of that.
-> 
-> however I cannot seem to clear the interrupt from inside the ISR and thus I am ruined.
-> 
-> 
-> 
-> I have learned from the research and looking around I have done, that I cannot call just any code in an ISR.
-> 
-> the code I want to call will read the AlertResponse register of my LTC1760 chip and that will clear the interrupt.
-> 
-> 
-> 
-> but I get angry kernel response when I do, below is a brief dump of what I get:
-> 
-> BUG: scheduling while atomic: swapper/0x00010002/0
-> bad: scheduling from the idle thread!
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> pgd = c0004000
-> [00000000] *pgd=00000000
-> Internal error: Oops: 17 [#1]
-> Modules linked in: i2c_battery swcamera(PF) clcdc(PF) pvr(PF) gecko_devices
-> CPU: 0
-> PC is at dequeue_task+0xc/0xa8
-> LR is at deactivate_task+0x38/0x44
-> pc : [<c009b070>]    lr : [<c009b218>]    Tainted: PF
-> sp : c0331c6c  ip : c0331c80  fp : c0331c7c
-> r10: 00000000  r9 : 00989642  r8 : b0e7aa00
-> r7 : c0335f98  r6 : c0331cd8  r5 : 00000001  r4 : c0335f98
-> r3 : 00000080  r2 : 00000000  r1 : 00000000  r0 : c0335f98
-> Flags: Nzcv  IRQs off  FIQs on  Mode SVC_32  Segment kernel
-> Control: C5387F
-> Table: 868E8000  DAC: 00000017
-> Process swapper (pid: 0, stack limit = 0xc0330250)
-> 
-> All the example code I can find regarding ISR, have access to register offsets and can simply clear the interrupt that way.
-> I am new to this and am having a hard time finding direction with regards to how to handle linux interrupts.
-> 
-> I need to send a request command out i2c to this device to clear this interrupt.
-> I am not 100% sure about this, but it is what the data sheet has led me to believe.
-> 
-> I would appreciate any help on this, and perhaps even a reference to what material I should look at to find this answer.
+From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 
-Indeed, there are many things you can't do in interrupt context, and in
-particular you cannot sleep, while most i2c bus drivers do sleep, so
-reading from or writing to an I2C device is not possible. There are two
-ways to work around this:
+Since 43cc71eed1250755986da4c0f9898f9a635cb3bf, the platform
+modalias is prefixed with "platform:". Add MODULE_ALIAS() to the
+hotpluggable I2C platform drivers, to allow module auto loading.
 
-* Use a workqueue to do the job. The ISR will add a job to the queue
-and return, and the job will be run later. Workqueues have their own
-context so accessing the I2C device is OK for them. This is explained
-in greater detail in LDD3 [1].
+[ db: add some more drivers ]
 
-* Implement a non-sleeping mode in your i2c bus driver. That's
-something new in kernel 2.6.25, so far only the i2c-pxa driver has support
-for non-sleeping mode.
+Signed-off-by: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c      |    2 +-
+ drivers/i2c/busses/i2c-au1550.c    |    1 +
+ drivers/i2c/busses/i2c-bfin-twi.c  |    1 +
+ drivers/i2c/busses/i2c-davinci.c   |    3 +++
+ drivers/i2c/busses/i2c-gpio.c      |    1 +
+ drivers/i2c/busses/i2c-iop3xx.c    |    1 +
+ drivers/i2c/busses/i2c-ixp2000.c   |    1 +
+ drivers/i2c/busses/i2c-mpc.c       |    3 +++
+ drivers/i2c/busses/i2c-ocores.c    |    3 +++
+ drivers/i2c/busses/i2c-omap.c      |    1 +
+ drivers/i2c/busses/i2c-pmcmsp.c    |    3 +++
+ drivers/i2c/busses/i2c-pnx.c       |    1 +
+ drivers/i2c/busses/i2c-powermac.c  |    3 +++
+ drivers/i2c/busses/i2c-pxa.c       |    1 +
+ drivers/i2c/busses/i2c-s3c2410.c   |    1 +
+ drivers/i2c/busses/i2c-simtec.c    |    3 +++
+ drivers/i2c/busses/i2c-versatile.c |    1 +
+ 17 files changed, 29 insertions(+), 1 deletion(-)
 
-> 
-> Thanks ahead of time.
-> 
-> Please CC me at badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org 
-> I am still trying to join the list.
-> 
-> P.S.
->   I accidently clicked send before filling out the Subject, so I scanned the maillist and did not find my message.
-> I think perhaps it was rejected due to no subject, if it was not, and I submitted two of them please accept my apologies.
-
-The messages can take a couple hours before they show in the archive.
-Your message was not rejected - although messages with no subject are
-bad and likely to be ignored by many ;)
-
-[1] http://lwn.net/Kernel/LDD3/
-
--- 
-Jean Delvare
+--- g26.orig/drivers/i2c/busses/i2c-at91.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-at91.c	2008-04-09 13:13:24.000000000 -0700
+@@ -298,7 +298,7 @@ static int at91_i2c_resume(struct platfo
+ #endif
+ 
+ /* work with "modprobe at91_i2c" from hotplugging or coldplugging */
+-MODULE_ALIAS("at91_i2c");
++MODULE_ALIAS("platform:at91_i2c");
+ 
+ static struct platform_driver at91_i2c_driver = {
+ 	.probe		= at91_i2c_probe,
+--- g26.orig/drivers/i2c/busses/i2c-au1550.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-au1550.c	2008-04-09 13:13:24.000000000 -0700
+@@ -472,6 +472,7 @@ i2c_au1550_exit(void)
+ MODULE_AUTHOR("Dan Malek, Embedded Edge, LLC.");
+ MODULE_DESCRIPTION("SMBus adapter Alchemy pb1550");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:au1xpsc_smbus");
+ 
+ module_init (i2c_au1550_init);
+ module_exit (i2c_au1550_exit);
+--- g26.orig/drivers/i2c/busses/i2c-bfin-twi.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-bfin-twi.c	2008-04-09 13:13:24.000000000 -0700
+@@ -624,6 +624,7 @@ static void __exit i2c_bfin_twi_exit(voi
+ MODULE_AUTHOR("Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C-Bus adapter routines for Blackfin TWI");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:i2c-bfin-twi");
+ 
+ module_init(i2c_bfin_twi_init);
+ module_exit(i2c_bfin_twi_exit);
+--- g26.orig/drivers/i2c/busses/i2c-davinci.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-davinci.c	2008-04-09 13:13:24.000000000 -0700
+@@ -558,6 +558,9 @@ static int davinci_i2c_remove(struct pla
+ 	return 0;
+ }
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:i2c_davinci");
++
+ static struct platform_driver davinci_i2c_driver = {
+ 	.probe		= davinci_i2c_probe,
+ 	.remove		= davinci_i2c_remove,
+--- g26.orig/drivers/i2c/busses/i2c-gpio.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-gpio.c	2008-04-09 13:13:24.000000000 -0700
+@@ -226,3 +226,4 @@ module_exit(i2c_gpio_exit);
+ MODULE_AUTHOR("Haavard Skinnemoen <hskinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>");
+ MODULE_DESCRIPTION("Platform-independent bitbanging I2C driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:i2c-gpio");
+--- g26.orig/drivers/i2c/busses/i2c-iop3xx.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-iop3xx.c	2008-04-09 13:13:24.000000000 -0700
+@@ -550,3 +550,4 @@ module_exit (i2c_iop3xx_exit);
+ MODULE_AUTHOR("D-TACQ Solutions Ltd <www.d-tacq.com>");
+ MODULE_DESCRIPTION("IOP3xx iic algorithm and driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:IOP3xx-I2C");
+--- g26.orig/drivers/i2c/busses/i2c-ixp2000.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-ixp2000.c	2008-04-09 13:13:24.000000000 -0700
+@@ -164,4 +164,5 @@ module_exit(ixp2000_i2c_exit);
+ MODULE_AUTHOR ("Deepak Saxena <dsaxena-k7pgMgclrJvR7s880joybQ@public.gmane.org>");
+ MODULE_DESCRIPTION("IXP2000 GPIO-based I2C bus driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:IXP2000-I2C");
+ 
+--- g26.orig/drivers/i2c/busses/i2c-mpc.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-mpc.c	2008-04-09 13:13:24.000000000 -0700
+@@ -392,6 +392,9 @@ static int fsl_i2c_remove(struct platfor
+ 	return 0;
+ };
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:fsl-i2c");
++
+ /* Structure for a device driver */
+ static struct platform_driver fsl_i2c_driver = {
+ 	.probe = fsl_i2c_probe,
+--- g26.orig/drivers/i2c/busses/i2c-ocores.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-ocores.c	2008-04-09 13:13:24.000000000 -0700
+@@ -312,6 +312,9 @@ static int __devexit ocores_i2c_remove(s
+ 	return 0;
+ }
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:ocores-i2c");
++
+ static struct platform_driver ocores_i2c_driver = {
+ 	.probe  = ocores_i2c_probe,
+ 	.remove = __devexit_p(ocores_i2c_remove),
+--- g26.orig/drivers/i2c/busses/i2c-omap.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-omap.c	2008-04-09 13:13:24.000000000 -0700
+@@ -693,3 +693,4 @@ module_exit(omap_i2c_exit_driver);
+ MODULE_AUTHOR("MontaVista Software, Inc. (and others)");
+ MODULE_DESCRIPTION("TI OMAP I2C bus adapter");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:i2c_omap");
+--- g26.orig/drivers/i2c/busses/i2c-pmcmsp.c	2008-04-09 13:03:24.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-pmcmsp.c	2008-04-09 13:13:24.000000000 -0700
+@@ -627,6 +627,9 @@ static struct i2c_adapter pmcmsptwi_adap
+ 	.name		= DRV_NAME,
+ };
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:" DRV_NAME);
++
+ static struct platform_driver pmcmsptwi_driver = {
+ 	.probe  = pmcmsptwi_probe,
+ 	.remove	= __devexit_p(pmcmsptwi_remove),
+--- g26.orig/drivers/i2c/busses/i2c-pnx.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-pnx.c	2008-04-09 13:13:24.000000000 -0700
+@@ -697,6 +697,7 @@ static void __exit i2c_adap_pnx_exit(voi
+ MODULE_AUTHOR("Vitaly Wool, Dennis Kovalev <source-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C driver for Philips IP3204-based I2C busses");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:pnx-i2c");
+ 
+ /* We need to make sure I2C is initialized before USB */
+ subsys_initcall(i2c_adap_pnx_init);
+--- g26.orig/drivers/i2c/busses/i2c-powermac.c	2008-04-09 13:03:24.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-powermac.c	2008-04-09 13:13:24.000000000 -0700
+@@ -263,6 +263,9 @@ static int __devexit i2c_powermac_probe(
+ }
+ 
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:i2c-powermac");
++
+ static struct platform_driver i2c_powermac_driver = {
+ 	.probe = i2c_powermac_probe,
+ 	.remove = __devexit_p(i2c_powermac_remove),
+--- g26.orig/drivers/i2c/busses/i2c-pxa.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-pxa.c	2008-04-09 13:13:24.000000000 -0700
+@@ -1131,6 +1131,7 @@ static void __exit i2c_adap_pxa_exit(voi
+ }
+ 
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:pxa2xx-i2c");
+ 
+ module_init(i2c_adap_pxa_init);
+ module_exit(i2c_adap_pxa_exit);
+--- g26.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-s3c2410.c	2008-04-09 13:13:24.000000000 -0700
+@@ -948,3 +948,4 @@ module_exit(i2c_adap_s3c_exit);
+ MODULE_DESCRIPTION("S3C24XX I2C Bus driver");
+ MODULE_AUTHOR("Ben Dooks, <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:s3c2410-i2c");
+--- g26.orig/drivers/i2c/busses/i2c-simtec.c	2008-04-09 13:03:24.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-simtec.c	2008-04-09 13:13:24.000000000 -0700
+@@ -159,6 +159,9 @@ static int simtec_i2c_remove(struct plat
+ 
+ /* device driver */
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:simtec-i2c");
++
+ static struct platform_driver simtec_i2c_driver = {
+ 	.driver		= {
+ 		.name		= "simtec-i2c",
+--- g26.orig/drivers/i2c/busses/i2c-versatile.c	2008-04-09 13:12:59.000000000 -0700
++++ g26/drivers/i2c/busses/i2c-versatile.c	2008-04-09 13:13:24.000000000 -0700
+@@ -151,3 +151,4 @@ module_exit(i2c_versatile_exit);
+ 
+ MODULE_DESCRIPTION("ARM Versatile I2C bus driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:versatile-i2c");
 
 _______________________________________________
 i2c mailing list
