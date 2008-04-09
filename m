@@ -1,12 +1,13 @@
-From: DR USMAN SHAMSUDEEN   <info-zBUHx2jJwRFdG78yCdSDWg@public.gmane.org>
-Subject: NOTIFICATION OF PAYMENT VIA ATM CARD
-Date: Wed,  9 Apr 2008 01:39:54 +0200 (CEST)
-Message-ID: <20080409001215.346B11978D99@bravo582.server4you.de>
-Reply-To: fmf.dr_usman-whZMOeQn8C0@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: LTC1760, ISR Questions
+Date: Wed, 9 Apr 2008 12:04:38 +0200
+Message-ID: <20080409120438.6e399bf3@hyperion.delvare>
+References: <BLU106-W40B1D2DF94BBAC071ED2E2B0F70@phx.gbl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <BLU106-W40B1D2DF94BBAC071ED2E2B0F70-MsuGFMq8XAE@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,44 +17,87 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: badguy development <badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 3 Apr 2008 23:04:02 +0000, badguy development wrote:
+> I am developing a driver for the LTC1760 dual battery charger.
+> 
+>  I have an interrupt occur and I get notification of that.
+> 
+> however I cannot seem to clear the interrupt from inside the ISR and thus I am ruined.
+> 
+> 
+> 
+> I have learned from the research and looking around I have done, that I cannot call just any code in an ISR.
+> 
+> the code I want to call will read the AlertResponse register of my LTC1760 chip and that will clear the interrupt.
+> 
+> 
+> 
+> but I get angry kernel response when I do, below is a brief dump of what I get:
+> 
+> BUG: scheduling while atomic: swapper/0x00010002/0
+> bad: scheduling from the idle thread!
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> pgd = c0004000
+> [00000000] *pgd=00000000
+> Internal error: Oops: 17 [#1]
+> Modules linked in: i2c_battery swcamera(PF) clcdc(PF) pvr(PF) gecko_devices
+> CPU: 0
+> PC is at dequeue_task+0xc/0xa8
+> LR is at deactivate_task+0x38/0x44
+> pc : [<c009b070>]    lr : [<c009b218>]    Tainted: PF
+> sp : c0331c6c  ip : c0331c80  fp : c0331c7c
+> r10: 00000000  r9 : 00989642  r8 : b0e7aa00
+> r7 : c0335f98  r6 : c0331cd8  r5 : 00000001  r4 : c0335f98
+> r3 : 00000080  r2 : 00000000  r1 : 00000000  r0 : c0335f98
+> Flags: Nzcv  IRQs off  FIQs on  Mode SVC_32  Segment kernel
+> Control: C5387F
+> Table: 868E8000  DAC: 00000017
+> Process swapper (pid: 0, stack limit = 0xc0330250)
+> 
+> All the example code I can find regarding ISR, have access to register offsets and can simply clear the interrupt that way.
+> I am new to this and am having a hard time finding direction with regards to how to handle linux interrupts.
+> 
+> I need to send a request command out i2c to this device to clear this interrupt.
+> I am not 100% sure about this, but it is what the data sheet has led me to believe.
+> 
+> I would appreciate any help on this, and perhaps even a reference to what material I should look at to find this answer.
 
->From the FMF, Federal Ministry of Finance
-No 12 edidi lane Idumota Lagos
-Honourable Minister of Finance, DR USMAN SHAMSUDEEN
-Approved by the Nigerian Government
-http://www.fmf.gov.ng/portal/detail.php?link=hmf
+Indeed, there are many things you can't do in interrupt context, and in
+particular you cannot sleep, while most i2c bus drivers do sleep, so
+reading from or writing to an I2C device is not possible. There are two
+ways to work around this:
 
+* Use a workqueue to do the job. The ISR will add a job to the queue
+and return, and the job will be run later. Workqueues have their own
+context so accessing the I2C device is OK for them. This is explained
+in greater detail in LDD3 [1].
 
-NOTIFICATION OF PAYMENT VIA ATM CARD
+* Implement a non-sleeping mode in your i2c bus driver. That's
+something new in kernel 2.6.25, so far only the i2c-pxa driver has support
+for non-sleeping mode.
 
-This is to officially inform you that we have verified your contract file presently on my desk, and I found out that you have not received your payment due to your lack of co-operation and not fulfilling the obligations giving to you in respect to your contract payment.
+> 
+> Thanks ahead of time.
+> 
+> Please CC me at badguydevelopment-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org 
+> I am still trying to join the list.
+> 
+> P.S.
+>   I accidently clicked send before filling out the Subject, so I scanned the maillist and did not find my message.
+> I think perhaps it was rejected due to no subject, if it was not, and I submitted two of them please accept my apologies.
 
-Secondly, you are hereby advised to stop dealing with some non-officials in the bank as this is an illegal act and will have to stop if you so wish to receive your payment immediately.
+The messages can take a couple hours before they show in the archive.
+Your message was not rejected - although messages with no subject are
+bad and likely to be ignored by many ;)
 
-After the Board of director's meeting held in Abuja, we have resolved in finding a solution to your problem. We have arranged your payment through our SWIFT CARD PAYMENT CENTRE in Europe, America,Africa
-and Asia Pacific,This is part of an instruction/mandate passed by the Senate in respect to overseas contract payment and debt re scheduling. And also the Nigerian Government is using this mean to rewards all the citizens of the United states and all part of europe including asia,australia,south america, Antartica e.t.c and all those who have lost their funds in either scam, or an uncompleted business, or otherwise.
+[1] http://lwn.net/Kernel/LDD3/
 
-You should know that if you are interested to receive your ATM card which will be credited with $920,000 united states dollars before it is been sent to you direct to your doorstep through any courier service of your choice.
-
-Kindly get back to me with the following informations below so i can start arrangement on how to get your Atm Card shipped to you
-
-(1) Your Full Name
-(2) Full residential address
-(3) Phone number
-
-This message is supported by the Nigerian Government, After you might have started making use of your ATM card, you can reward my firm one way or the other you knows best.
-
-Thanks for your co-operation.
-
->From the FMF, Federal Ministry of Finance
-DR USMAN SHAMSUDEEN
-
-
-
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
