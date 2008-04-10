@@ -1,16 +1,17 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [patch 2.6.25-rc8] i2c: fix platform driver
- hotplug/coldplug
-Date: Thu, 10 Apr 2008 19:51:18 +0200
-Message-ID: <20080410195118.327575f5@hyperion.delvare>
+	hotplug/coldplug
+Date: Thu, 10 Apr 2008 11:07:17 -0700
+Message-ID: <200804101107.18130.david-b@pacbell.net>
 References: <200804091354.07807.david-b@pacbell.net>
-	<20080410133444.6f910312@hyperion.delvare>
 	<200804100949.10255.david-b@pacbell.net>
+	<20080410103009.0d3f39ec.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200804100949.10255.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <20080410103009.0d3f39ec.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,50 +21,54 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kay-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 10 Apr 2008 09:49:09 -0700, David Brownell wrote:
-> On Thursday 10 April 2008, Jean Delvare wrote:
-> > On Wed, 9 Apr 2008 13:54:07 -0700, David Brownell wrote:
-> > > From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
-> > > 
-> > > Since 43cc71eed1250755986da4c0f9898f9a635cb3bf, the platform
-> > > modalias is prefixed with "platform:". Add MODULE_ALIAS() to the
-> > > hotpluggable I2C platform drivers, to allow module auto loading.
-> > > 
-> > > [ db: add some more drivers ]
-> > > 
-> > > Signed-off-by: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
-> > > Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> > > ---
-> > >  drivers/i2c/busses/...
-> > >  17 files changed, 29 insertions(+), 1 deletion(-)
+On Thursday 10 April 2008, Andrew Morton wrote:
+> On Thu, 10 Apr 2008 09:49:09 -0700 David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
+> 
+> > It was a regresssion as of 2.6.24, for 200+ drivers;
+> > every platform_bus driver used have hotplug/coldplug
+> > support, but that patch stopped that from working.
 > > 
-> > <snip>
+> > The thing is, that had only been working for a few
+> > releases at that time, so not many folk were relying
+> > on it yet.  They would just have been able to start
+> > doing so when that mechanism stopped working.
 > > 
-> > OK... Is this a regression we need to fix in 2.6.25, or can this patch
-> > wait until 2.6.26?
+> > So I can't see a rush to get this into 2.6.25 now.
+> > I think the 200+ drivers will hotplug/coldplug again
+> > in 2.6.26 ... I've pushed almost a hundred such driver
+> > updates by now (sigh).
+> > 
 > 
-> It was a regresssion as of 2.6.24, for 200+ drivers;
-> every platform_bus driver used have hotplug/coldplug
-> support, but that patch stopped that from working.
-> 
-> The thing is, that had only been working for a few
-> releases at that time, so not many folk were relying
-> on it yet.  They would just have been able to start
-> doing so when that mechanism stopped working.
-> 
-> So I can't see a rush to get this into 2.6.25 now.
-> I think the 200+ drivers will hotplug/coldplug again
-> in 2.6.26 ... I've pushed almost a hundred such driver
-> updates by now (sigh).
+> Oh.  I was thinking we should slam all these fixes into 2.6.25.
 
-OK, patch queued up for 2.6.26, thanks.
+I would not object to that.  I can't see the patches I
+signed off on could break anything, and I dislike the
+notion of regression fixes getting deferred even longer.
 
--- 
-Jean Delvare
+(That includes I2C, RTC, SPI, USB, and Watchdog patches
+I posted yesterday, and the earlier EHCI one ... fixing
+about 90 drivers, and those entire subsystems.)
+
+It's just that one kind of gets the feeling 2.6.25-final
+was just around the corner... and there's still the 122
+drivers from Kay's patch to review, plus the ones missing
+from those patches.  (Another 15-20 percent if numbers
+from the subsystems I looked at continue to hold.)
+
+
+> If a couple fo them cause problems then we can patch things up in
+> 2.6.25.x, but that's beter than having hundreds of broken drivers.
+> 
+> Or does your "as of" above mean that 2.6.24 is also busted?
+
+Yes, that "platform:" change broke hotplug/coldplug for
+most platform_bus drivers on 2.6.24 kernels too.
+
+- Dave
 
 _______________________________________________
 i2c mailing list
