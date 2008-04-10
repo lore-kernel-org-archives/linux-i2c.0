@@ -1,76 +1,67 @@
-From: Juergen Beisert <jbe@pengutronix.de>
-Subject: Re: [PATCH V3] I2C driver for IMX
-Date: Thu, 10 Apr 2008 13:33:51 +0200
-Message-ID: <200804101333.52241.jbe@pengutronix.de>
-References: <ftf8ud$pl6$1@ger.gmane.org>
-	<20080410120141.4d220d27@hyperion.delvare>
-	<ftkqk1$hsa$1@ger.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.25-rc8] i2c: fix platform driver
+ hotplug/coldplug
+Date: Thu, 10 Apr 2008 13:34:44 +0200
+Message-ID: <20080410133444.6f910312@hyperion.delvare>
+References: <200804091354.07807.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <ftkqk1$hsa$1@ger.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Darius <augulis.darius@gmail.com>, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200804091354.07807.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kay-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 10 April 2008 12:33, Darius wrote:
-> Jean Delvare wrote:
-> > On Wed, 9 Apr 2008 22:25:39 -0500 (CDT), Kumar Gala wrote:
-> >> On Thu, 10 Apr 2008, Ben Dooks wrote:
-> >>> On Tue, Apr 08, 2008 at 11:01:25AM +0300, Darius wrote:
-> >>>> changes:
-> >>>> 1. Removed hardcoded constants
-> >>>> 2. Fixed bug in chip hardware
-> >>>> 3. Added i2c device for mx1ads
-> >>>>
-> >>>> Tested with mx1ads v2.0 board and LCD on I2C interface driver
-> >>>>
-> >>>> Signed-off-by: Darius Augulis <augulis.darius@gmail.com>
-> >>>> ---
-> >>>
-> >>> Hmm, this hasn't appeared on the i2c list where it should be being
-> >>> reviewed before submission. Not bothered to look or snip the rest.
-> >>
-> >> looking at this it seems the HW is identical to the driver handled by
-> >> i2c-mpc.c.  (which is used on Motorola and now Freescale PPC chips).
+On Wed, 9 Apr 2008 13:54:07 -0700, David Brownell wrote:
+> From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+> 
+> Since 43cc71eed1250755986da4c0f9898f9a635cb3bf, the platform
+> modalias is prefixed with "platform:". Add MODULE_ALIAS() to the
+> hotpluggable I2C platform drivers, to allow module auto loading.
+> 
+> [ db: add some more drivers ]
+> 
+> Signed-off-by: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-at91.c      |    2 +-
+>  drivers/i2c/busses/i2c-au1550.c    |    1 +
+>  drivers/i2c/busses/i2c-bfin-twi.c  |    1 +
+>  drivers/i2c/busses/i2c-davinci.c   |    3 +++
+>  drivers/i2c/busses/i2c-gpio.c      |    1 +
+>  drivers/i2c/busses/i2c-iop3xx.c    |    1 +
+>  drivers/i2c/busses/i2c-ixp2000.c   |    1 +
+>  drivers/i2c/busses/i2c-mpc.c       |    3 +++
+>  drivers/i2c/busses/i2c-ocores.c    |    3 +++
+>  drivers/i2c/busses/i2c-omap.c      |    1 +
+>  drivers/i2c/busses/i2c-pmcmsp.c    |    3 +++
+>  drivers/i2c/busses/i2c-pnx.c       |    1 +
+>  drivers/i2c/busses/i2c-powermac.c  |    3 +++
+>  drivers/i2c/busses/i2c-pxa.c       |    1 +
+>  drivers/i2c/busses/i2c-s3c2410.c   |    1 +
+>  drivers/i2c/busses/i2c-simtec.c    |    3 +++
+>  drivers/i2c/busses/i2c-versatile.c |    1 +
+>  17 files changed, 29 insertions(+), 1 deletion(-)
 
-Same answer as last year.
+<snip>
 
-> > Then I guess that we want to add support to the i2c-mpc driver rather
-> > than adding another driver to the kernel tree?
->
-> I prefer to use separate driver for imx i2c inteface.
-> if it's not needed for all, I'll leave it for my private needs.
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-As I did with my imx i2c driver last year....Yes, this I2C controller is =
+OK... Is this a regression we need to fix in 2.6.25, or can this patch
+wait until 2.6.26?
 
-mostly the same than the one in the MPC family and mostly the same the ones =
+-- 
+Jean Delvare
 
-we can find in the MCX family (i.MX21/27, i.MX31?). But it seems there is =
-
-noone who is able to write such a generic driver.
-
-Juergen
--- =
-
-Dipl.-Ing. Juergen Beisert | http://www.pengutronix.de
-=A0Pengutronix - Linux Solutions for Science and Industry
-=A0   Handelsregister: Amtsgericht Hildesheim, HRA 2686
-=A0 =A0 =A0    Vertretung Sued/Muenchen, Germany
-   Phone: +49-8766-939 228 |  Fax: +49-5121-206917-9
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
