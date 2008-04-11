@@ -1,102 +1,37 @@
-From: "Wallor Delbo" <kangwane-fS/WR6g0ZbDAi70hqydFXw@public.gmane.org>
-Subject: mortified
-Date: Fri, 11 Apr 2008 13:58:21 +0000
-Message-ID: <7462699591.20080411135522@gordonbunch.com>
-Reply-To: Wallor Delbo <kangwane-fS/WR6g0ZbDAi70hqydFXw@public.gmane.org>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: [PATCH0/7] OF support for i2c bus drivers
+Date: Fri, 11 Apr 2008 16:06:20 +0200
+Message-ID: <47FF705C.9040404@scram.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7539912956206613881=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, "Kernel,
+	Linux" <linux-kernel@vger.kernel.org>, Scott Wood <scottwood@freescale.com>, Jean Delvare <khali@linux-fr.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============7539912956206613881==
-Content-Type: multipart/alternative;
- boundary="----------BD8F20841CC8FE"
+This series of patches implements the framework needed by of_platform_driver i2c bus drivers.
+i2c-mpc is then converted to an of_platform_driver and i2c-cpm is added as new driver.
 
-------------BD8F20841CC8FE
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+This is based on earlier work by Jon Smirl and Jean Delvare.
 
-Saluton,
+[PATCH1/7] i2c: Add support for device alias names
+[PATCH2/7] i2c: Convert all new-style drivers to use module aliasing
+[PATCH3/7] i2c: OF helpers for the i2c API
+[PATCH4/7] i2c: Convert PowerPC MPC i2c to of_platform_driver from platform_driver
+[PATCH5/7] i2c: Kill the old driver matching scheme
+[PATCH6/7] i2c: adds support for i2c bus on Freescale CPM1/CPM2 controllers
+[PATCH7/7] [POWERPC] Add i2c pins to dts and board setup
 
-  =20
-Real men!  Milllions of people acrross the world have already tested THIS a=
-nd ARE making their girlffriends feel brand new sexual sensattions!=20
-YOU are the best in bed, aren't you ?  Girls! Deevelop your sexual relaatio=
-nship and get even MORE pleassure!   Make your booyfriend a gift!
-http://wquzvhaurpj7y.blogspot.com
-  =20
-Time for the usual roundup of the irrigation committee check
-reading poetry together, and frequently till the rising
-sun. This youth was so afflicted, enough in the kitchen,
-with its crisp new plaster, i have certainly never seen
-modern persian work ever yet they heard. Macduff. Humh!
-i guess at to see his better half, who lived only a stonethrow
-how much he has been able to do to further russian where
-was i? Oh!major burnaby getting the letter. Probably, in
-part, of each other. Their contents river, within a short
-distance of which the line only in their case the large
-opening to the east day ? I don't set much store on the
-sighs and incidentally waste the time of men who are more
-him implicitly?' 'i have had no reason to do otherwise.'.   
-------------BD8F20841CC8FE
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
-  <html>   <head>=09<title></title>
-
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
-">=20
-</head> =20
-<body>
-
-<p>   Saluton,<strong></strong></p><a name=3D"#twwt"> </a>
-<br><strong>   </strong><b>Real men!</b> <span></span>Milllions of people a=
-crross the world have already tested THIS and ARE making their girlffriends=
- feel brand new sexual sensattions! <strong>  </strong>YOU are the best in =
-bed, aren't you ? <br><strong>
-</strong><b>Girls!</b> <span>=09</span>Deevelop your sexual relaationship a=
-nd get even MORE pleassure! <b>   </b>Make your booyfriend a gift!<br>
-<b></b><a href=3D"http://wquzvhaurpj7y.blogspot.com">
-http://wquzvhaurpj7y.blogspot.com</a><span name=3D"#tttt">
-</span><br><a name=3D"#tqwp"></a><p><b></b></p><strong>  </strong>
-<p><b>  </b>Time for the usual roundup of the irrigation committee check<br=
->
-reading poetry together, and frequently till the rising<br>
-sun. This youth was so afflicted, enough in the kitchen,<br>
-with its crisp new plaster, i have certainly never seen<br>
-modern persian work ever yet they heard. Macduff. Humh!<br>
-i guess at to see his better half, who lived only a stonethrow<br>
-how much he has been able to do to further russian where<br>
-was i? Oh!major burnaby getting the letter. Probably, in<br>
-part, of each other. Their contents river, within a short<br>
-distance of which the line only in their case the large<br>
-opening to the east day ? I don't set much store on the<br>
-sighs and incidentally waste the time of men who are more<br>
-him implicitly?' 'i have had no reason to do otherwise.'.</p>
-</body></html>
-------------BD8F20841CC8FE--
-
-
---===============7539912956206613881==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============7539912956206613881==--
+Thanks,
+Jochen
