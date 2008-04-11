@@ -1,45 +1,31 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH7/7] [POWERPC] Add i2c pins to dts and board setup
-Date: Fri, 11 Apr 2008 10:02:51 -0500
-Message-ID: <47FF7D9B.4060306@freescale.com>
-References: <47FF71B1.9070907@scram.de>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH3/7] i2c: OF helpers for the i2c API
+Date: Fri, 11 Apr 2008 10:43:06 -0700 (PDT)
+Message-ID: <20080411.104306.93639801.davem@davemloft.net>
+References: <47FF710D.2040208@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <47FF71B1.9070907-NIgtFMG+Po8@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Cc: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, "Kernel,
-	Linux" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761932AbYDKRnT@vger.kernel.org>
+In-Reply-To: <47FF710D.2040208@scram.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jochen@scram.de
+Cc: galak@kernel.crashing.org, khali@linux-fr.org, scottwood@freescale.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, jonsmirl@gmail.com, laurentp@cse-semaphore.com
 List-Id: linux-i2c@vger.kernel.org
 
-Jochen Friedrich wrote:
-> diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
-> index 7285ca1..7273996 100644
-> --- a/arch/powerpc/boot/dts/mpc8272ads.dts
-> +++ b/arch/powerpc/boot/dts/mpc8272ads.dts
-> @@ -215,6 +215,16 @@
->  				linux,network-index = <1>;
->  				fsl,cpm-command = <16200300>;
->  			};
+From: Jochen Friedrich <jochen@scram.de>
+Date: Fri, 11 Apr 2008 16:09:17 +0200
+
 > +
-> +			i2c@11860 {
-> +				compatible = "fsl,mpc8248-i2c",
+> +config OF_I2C
+> +	def_bool y
+> +	depends on OF && PPC_OF && I2C
+> +	help
+> +	  OpenFirmware I2C accessors
 
-mpc8272-i2c
+I wouldn't mind trying to use this infrastructure on
+sparc64, and I don't see any powerpc specific interfaces
+being invoked, so if you could remove the PPC_OF
+requirement I'd appreciate it.
 
--Scott
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Thanks.
