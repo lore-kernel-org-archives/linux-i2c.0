@@ -1,13 +1,11 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Fri, 11 Apr 2008 14:24:55 +0200
-Message-ID: <ftnlao$o2r$1@ger.gmane.org>
-References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
+From: "Wallor Delbo" <kangwane-fS/WR6g0ZbDAi70hqydFXw@public.gmane.org>
+Subject: mortified
+Date: Fri, 11 Apr 2008 13:58:21 +0000
+Message-ID: <7462699591.20080411135522@gordonbunch.com>
+Reply-To: Wallor Delbo <kangwane-fS/WR6g0ZbDAi70hqydFXw@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7539912956206613881=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1207914198-8561-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,130 +18,85 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+--===============7539912956206613881==
+Content-Type: multipart/alternative;
+ boundary="----------BD8F20841CC8FE"
 
-I'll just review myself to ask for some comments where I think some more 
-opinions would be good. I also tried to contact David Brownell as the 
-original author directly last week, but all my mails got blocked; I hope 
-we can negotiate through this list.
+------------BD8F20841CC8FE
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I tested this version of the driver on a blackfin based board with a 
-24c02. In the next days, a powerpc based board with a X24645 (strange 
-one) will follow. On x86 and x86-64, it builds without warnings.
+Saluton,
 
-> + * at24.c - handle most I2C EEPROMs
-Maybe rename the driver? at24 is vendor-specific. 24xx? 24cxx? 
-eeprom-ng? I'd go for 24xx.
+  =20
+Real men!  Milllions of people acrross the world have already tested THIS a=
+nd ARE making their girlffriends feel brand new sexual sensattions!=20
+YOU are the best in bed, aren't you ?  Girls! Deevelop your sexual relaatio=
+nship and get even MORE pleassure!   Make your booyfriend a gift!
+http://wquzvhaurpj7y.blogspot.com
+  =20
+Time for the usual roundup of the irrigation committee check
+reading poetry together, and frequently till the rising
+sun. This youth was so afflicted, enough in the kitchen,
+with its crisp new plaster, i have certainly never seen
+modern persian work ever yet they heard. Macduff. Humh!
+i guess at to see his better half, who lived only a stonethrow
+how much he has been able to do to further russian where
+was i? Oh!major burnaby getting the letter. Probably, in
+part, of each other. Their contents river, within a short
+distance of which the line only in their case the large
+opening to the east day ? I don't set much store on the
+sighs and incidentally waste the time of men who are more
+him implicitly?' 'i have had no reason to do otherwise.'.   
+------------BD8F20841CC8FE
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> +/* One chip may consume up to this numbe of clients */
-> +#define AT24_MAX_CLIENTS 8
-> +
-> +struct at24_data {
-> +	struct at24_platform_data	chip;
-> +	bool				use_smbus;
-> +
-> +	/* Lock protects against activities from other Linux tasks,
-> +	 * but not from changes by other I2C masters.
-> +	 */
-> +	struct mutex		lock;
-> +	struct bin_attribute	bin;
-> +
-> +	/* Some chips tie up multiple I2C addresses; dummy devices reserve
-> +	 * them for ourselves, and we'll use them with SMBus calls.
-> +	 */
-> +	struct i2c_client	*client[AT24_MAX_CLIENTS];
-> +
-> +	u8			*writebuf;
-> +	unsigned		write_max;
-> +};
-To support the X24645, it would be necessary to raise AT24_MAX_CLIENTS 
-to 32 (what a beast!). Then again, most eeproms will just need one 
-client, so this would cause quite some overhead in most use-cases. Maybe 
-it pays off to hande this dynamically?
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
-> +/*
-> + * This routine supports chips which consume multiple I2C addresess.  It
-> + * computes the addressing information to be used for a given r/w request.
-> + */
-> +static struct i2c_client *at24_ee_address(
-> +	struct at24_data	*at24,
-> +	u16			*addr,
-> +	unsigned		*offset
-> +)
-> +{
-> +	unsigned			per_address = 256;
-> +	struct at24_platform_data	*chip = &at24->chip;
-> +	unsigned			i;
-> +
-> +	if (*offset >= chip->byte_len)
-> +		return NULL;
-> +
-> +	if (chip->flags & AT24_EE_ADDR2)
-> +		per_address = 64 * 1024;
-> +	*addr = at24->client[0]->addr;
-> +	for (i = 0; *offset >= per_address; i++) {
-> +		(*addr)++;
-> +		*offset -= per_address;
-> +	}
-> +
-> +	return at24->client[i];
-> +}
-I would suggest shortening it like this, unless I fail to see a drawback:
+  <html>   <head>=09<title></title>
 
----
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
+">=20
+</head> =20
+<body>
 
-static struct i2c_client *at24_ee_address(
-	struct at24_data	*at24,
-	u16			*addr,
-	unsigned		*offset
-)
-{
-	const struct chip_desc	*chip = &at24->chip;
-	unsigned		i;
+<p>   Saluton,<strong></strong></p><a name=3D"#twwt"> </a>
+<br><strong>   </strong><b>Real men!</b> <span></span>Milllions of people a=
+crross the world have already tested THIS and ARE making their girlffriends=
+ feel brand new sexual sensattions! <strong>  </strong>YOU are the best in =
+bed, aren't you ? <br><strong>
+</strong><b>Girls!</b> <span>=09</span>Deevelop your sexual relaationship a=
+nd get even MORE pleassure! <b>   </b>Make your booyfriend a gift!<br>
+<b></b><a href=3D"http://wquzvhaurpj7y.blogspot.com">
+http://wquzvhaurpj7y.blogspot.com</a><span name=3D"#tttt">
+</span><br><a name=3D"#tqwp"></a><p><b></b></p><strong>  </strong>
+<p><b>  </b>Time for the usual roundup of the irrigation committee check<br=
+>
+reading poetry together, and frequently till the rising<br>
+sun. This youth was so afflicted, enough in the kitchen,<br>
+with its crisp new plaster, i have certainly never seen<br>
+modern persian work ever yet they heard. Macduff. Humh!<br>
+i guess at to see his better half, who lived only a stonethrow<br>
+how much he has been able to do to further russian where<br>
+was i? Oh!major burnaby getting the letter. Probably, in<br>
+part, of each other. Their contents river, within a short<br>
+distance of which the line only in their case the large<br>
+opening to the east day ? I don't set much store on the<br>
+sighs and incidentally waste the time of men who are more<br>
+him implicitly?' 'i have had no reason to do otherwise.'.</p>
+</body></html>
+------------BD8F20841CC8FE--
 
-	if (*offset >= chip->byte_len)
-		return NULL;
 
-	if (chip->flags & EE_ADDR2) {
-		i = *offset >> 16;
-		*offset &= 0xffff;
-	} else {
-		i = *offset >> 8;
-		*offset &= 0x00ff;
-	}
-
-	*addr = at24->client[i]->addr;
-	return at24->client[i];
-}
-
----
-
-This will save the for-loop and a variable.
-
-> +	/* Export the EEPROM bytes through sysfs, since that's convenient.
-> +	 * By default, only root should see the data (maybe passwords etc)
-> +	 */
-> +	at24->bin.attr.name = "eeprom";
-> +	at24->bin.attr.mode = S_IRUSR;
-> +	at24->bin.attr.owner = THIS_MODULE;
-> +	at24->bin.read = at24_bin_read;
-> +
-> +	at24->bin.size = at24->chip.byte_len;
-Use C99 initialization in struct at24_data above?
-
-I guess, there is more to come during the discussion. But hopefully, 
-this is a start to get it into 2.6.26... That would be great!
-
-Kind regards,
-
-    Wolfram
-
--- 
-   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
-  Pengutronix - Linux Solutions for Science and Industry
-
+--===============7539912956206613881==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7539912956206613881==--
