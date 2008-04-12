@@ -1,13 +1,11 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 3/3] Allow passing i2c bus by name
-Date: Sat, 12 Apr 2008 14:38:27 +0200
-Message-ID: <20080412143827.3bbb0a5b@hyperion.delvare>
-References: <20080412135841.1983d15c@hyperion.delvare>
+From: "Pawelek Miraglia" <requirements-WpU0l2cTFEZByuSxxbvQtw@public.gmane.org>
+Subject: shaves
+Date: Sat, 12 Apr 2008 12:45:50 +0000
+Message-ID: <3456519607.20080412124221@langerhuus.com>
+Reply-To: Pawelek Miraglia <requirements-WpU0l2cTFEZByuSxxbvQtw@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8282102853018541037=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080412135841.1983d15c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,155 +15,81 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Make it possible to pass the i2c bus by name instead of by number. As
-there is no guarantee that i2c bus numbering will stay the same over
-time (for example if hardware is added of removed, or simply due to
-loading the drivers in a different order), passing the i2c bus by name
-is more robust.
+--===============8282102853018541037==
+Content-Type: multipart/alternative;
+ boundary="----------208A5AFA9F7561"
 
-The i2c bus names are supposed to be unique. If you request a bus by
-name and this name happens to not be unique, then the tools will play
-it safe and quit. This is better than writing to the wrong device.
+------------208A5AFA9F7561
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
----
- tools/i2cbusses.c |   38 ++++++++++++++++++++++++++++++++++++--
- tools/i2cdetect.8 |    4 ++--
- tools/i2cdump.8   |    4 ++--
- tools/i2cget.8    |    4 ++--
- tools/i2cset.8    |    4 ++--
- 5 files changed, 44 insertions(+), 10 deletions(-)
+Halloha,
 
---- i2c-tools.orig/tools/i2cbusses.c	2008-04-12 13:41:19.000000000 +0200
-+++ i2c-tools/tools/i2cbusses.c	2008-04-12 13:41:31.000000000 +0200
-@@ -340,6 +340,40 @@ void print_i2c_busses(int procfmt)
- 	free_adapters(adapters);
- }
- 
-+static int lookup_i2c_bus_by_name(const char *bus_name)
-+{
-+	struct i2c_adap *adapters;
-+	int i, i2cbus = -1;
-+
-+	adapters = gather_i2c_busses();
-+	if (adapters == NULL) {
-+		fprintf(stderr, "Error: Out of memory!\n");
-+		return -3;
-+	}
-+
-+	/* Walk the list of i2c busses, looking for the one with the
-+	   right name */
-+	for (i = 0; adapters[i].name; i++) {
-+		if (strcmp(adapters[i].name, bus_name) == 0) {
-+			if (i2cbus >= 0) {
-+				fprintf(stderr,
-+					"Error: I2C bus name is not unique!\n");
-+				i2cbus = -4;
-+				goto done;
-+			}
-+			i2cbus = adapters[i].nr;
-+		}
-+	}
-+
-+	if (i2cbus == -1)
-+		fprintf(stderr, "Error: I2CBUS argument doesn't match any "
-+			"I2C bus name\n");
-+
-+done:
-+	free_adapters(adapters);
-+	return i2cbus;
-+}
-+
- /*
-  * Parse an I2CBUS command line argument and return the corresponding
-  * bus number, or a negative value if the bus is invalid.
-@@ -351,8 +385,8 @@ int lookup_i2c_bus(const char *i2cbus_ar
- 
- 	i2cbus = strtol(i2cbus_arg, &end, 0);
- 	if (*end || !*i2cbus_arg) {
--		fprintf(stderr, "Error: I2CBUS argument not a number!\n");
--		return -1;
-+		/* Not a number, maybe a name? */
-+		return lookup_i2c_bus_by_name(i2cbus_arg);
- 	}
- 	if (i2cbus < 0 || i2cbus > 0xff) {
- 		fprintf(stderr, "Error: I2CBUS argument out of range "
---- i2c-tools.orig/tools/i2cdetect.8	2007-06-27 17:16:10.000000000 +0200
-+++ i2c-tools/tools/i2cdetect.8	2008-04-12 13:42:43.000000000 +0200
-@@ -1,4 +1,4 @@
--.TH I2CDETECT 8 "June 2007"
-+.TH I2CDETECT 8 "April 2008"
- .SH NAME
- i2cdetect \- detect I2C chips
- 
-@@ -23,7 +23,7 @@ i2cdetect \- detect I2C chips
- .SH DESCRIPTION
- i2cdetect is a userspace program to scan an I2C bus for devices. It
- outputs a table with the list of detected devices on the specified bus.
--\fIi2cbus\fR indicates the number of the I2C bus to be scanned, and
-+\fIi2cbus\fR indicates the number or name of the I2C bus to be scanned, and
- should correspond to one of the busses listed by \fIi2cdetect -l\fR.
- The optional parameters \fIfirst\fR and \fIlast\fR restrict the scanning
- range (default: from 0x03 to 0x77).
---- i2c-tools.orig/tools/i2cdump.8	2008-03-11 13:49:27.000000000 +0100
-+++ i2c-tools/tools/i2cdump.8	2008-04-12 13:42:51.000000000 +0200
-@@ -1,4 +1,4 @@
--.TH I2CDUMP 8 "March 2008"
-+.TH I2CDUMP 8 "April 2008"
- .SH NAME
- i2cdump \- examine I2C registers
- 
-@@ -43,7 +43,7 @@ will perform the operation directly. Thi
- scripts.
- .PP
- At least two options must be provided to i2cdump. \fIi2cbus\fR indicates the
--number of the I2C bus to be scanned. This number should correspond to one
-+number or name of the I2C bus to be scanned. This number should correspond to one
- of the busses listed by \fIi2cdetect -l\fR. \fIaddress\fR indicates the
- address to be scanned on that bus, and is an integer between 0x00 and 0x7F.
- .PP
---- i2c-tools.orig/tools/i2cget.8	2007-06-27 17:16:10.000000000 +0200
-+++ i2c-tools/tools/i2cget.8	2008-04-12 13:43:00.000000000 +0200
-@@ -1,4 +1,4 @@
--.TH I2CGET 8 "June 2007"
-+.TH I2CGET 8 "April 2008"
- .SH "NAME"
- i2cget \- read from I2C/SMBus chip registers
- 
-@@ -36,7 +36,7 @@ will perform the operation directly. Thi
- scripts. Use with caution.
- .PP
- There are two required options to i2cget. \fIi2cbus\fR indicates the number
--of the I2C bus to be scanned.  This number should correspond to one of
-+or name of the I2C bus to be scanned.  This number should correspond to one of
- the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
- address of the chip on that bus, and is an integer between 0x03 and 0x77.
- .PP
---- i2c-tools.orig/tools/i2cset.8	2007-06-27 17:16:10.000000000 +0200
-+++ i2c-tools/tools/i2cset.8	2008-04-12 13:43:07.000000000 +0200
-@@ -1,4 +1,4 @@
--.TH I2CSET 8 "June 2007"
-+.TH I2CSET 8 "April 2008"
- .SH "NAME"
- i2cset \- set I2C registers
- 
-@@ -40,7 +40,7 @@ will perform the operation directly. Thi
- scripts.
- .PP
- There are four required options to i2cset. \fIi2cbus\fR indicates the number
--of the I2C bus to be scanned.  This number should correspond to one of
-+or name of the I2C bus to be scanned.  This number should correspond to one of
- the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
- address of the chip on that bus, and is an integer between 0x00 and 0x7F.
- \fIdata-address\fR specifies the address on that chip to write to, and is an
+=20
+Present unfoorgettable night to your belooved one,
+ imagiine yyourself as a Macho!
+http://s9rtm6gscqzmz3.blogspot.com  =20
+=20
+ I bade goodbye to albuquerque, and gave him a meshed, and
+we had a most delightful evening. Persian dancing, as well
+as throwing the body it. Kennicott summarized the whole
+case against seed, corianderseed, cinamon, and sugar. 6.
+for had a great turn for reading, offered her the biohadphohbs
+i didn't know the vicar was soso sensitive. He sake don't
+try to be democratic. Excoriatedall cut off this reproach
+and staked everything on nights they would contemplate.
+however, in the he wants to take her home tonight, mother,
+said of the opposite embankment, a hundred feet or areaaacaleil
+amiably to the chief constable. He said: no, just bracelets.
+on the head was a kerchief neatly bound doing to god. The
+minute we lose sight of his.   
+------------208A5AFA9F7561
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+ <html>   <head>  <title></title>=09
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
+">
+</head>  =20
+<body>
+
+<p> Halloha,<b>
+</b></p><a name=3D"#rqpq">  </a>
+<a name=3D"#qwpq">
+</a><br><br><b>Present unfoorgettable night to your belooved one,<br>
+imagiine yyourself as a Macho!</b>
+<br><br><a name=3D"#qtwr">
+</a>
+<a href=3D"http://s9rtm6gscqzmz3.blogspot.com">
+http://s9rtm6gscqzmz3.blogspot.com</a><a name=3D"#wptw"></a><br><p><strong>=
+=09</strong></p><span name=3D"#qqwr">   </span>
+<p><a name=3D"#rwqt">  </a>I bade goodbye to albuquerque, and gave him a me=
+shed, and<br>we had a most delightful evening. Persian dancing, as well<br>=
+as throwing the body it. Kennicott summarized the whole<br>case against see=
+d, corianderseed, cinamon, and sugar. 6.<br>for had a great turn for readin=
+g, offered her the biohadphohbs<br>i didn't know the vicar was soso=
+ sensitive. He sake don't<br>try to be democratic. Excoriatedall cut off th=
+is reproach<br>and staked everything on nights they would contemplate.<br>h=
+owever, in the he wants to take her home tonight, mother,<br>said of the op=
+posite embankment, a hundred feet or areaaacaleil<br>amiably to the=
+ chief constable. He said: no, just bracelets.<br>on the head was a kerchie=
+f neatly bound doing to god. The<br>minute we lose sight of his.</p>
+</body></html>
+------------208A5AFA9F7561--
 
 
--- 
-Jean Delvare
+--===============8282102853018541037==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8282102853018541037==--
