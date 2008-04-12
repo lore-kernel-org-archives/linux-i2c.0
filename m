@@ -1,8 +1,8 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/3] Refactor the handling of the i2cbus command line
- argument
-Date: Sat, 12 Apr 2008 14:34:05 +0200
-Message-ID: <20080412143405.2b98af62@hyperion.delvare>
+Subject: [PATCH 2/3] Split print_i2c_busses into a gathering part and
+ a printing part
+Date: Sat, 12 Apr 2008 14:35:26 +0200
+Message-ID: <20080412143526.26651e31@hyperion.delvare>
 References: <20080412135841.1983d15c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,140 +21,242 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Refactor the handling of the I2CBUS parameter. This ensures more
-consistency accross the i2c tools.
+Split print_i2c_busses into a gathering part and a printing part.
 
 ---
- tools/i2cbusses.c |   24 ++++++++++++++++++++++++
- tools/i2cbusses.h |    1 +
- tools/i2cdetect.c |   11 ++---------
- tools/i2cdump.c   |   10 ++--------
- tools/i2cget.c    |    6 ++----
- tools/i2cset.c    |    6 ++----
- 6 files changed, 33 insertions(+), 25 deletions(-)
+ tools/i2cbusses.c |  172 +++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 147 insertions(+), 25 deletions(-)
 
---- i2c-tools.orig/tools/i2cbusses.c	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cbusses.c	2008-04-12 13:31:43.000000000 +0200
-@@ -25,6 +25,7 @@
- #include <sys/stat.h>
- #include <string.h>
- #include <stdio.h>
-+#include <stdlib.h>
- #include <unistd.h>
- #include <limits.h>
- #include <dirent.h>
-@@ -217,6 +218,29 @@ done:
- 		               "and also modprobed your i2c bus drivers\n");
+--- i2c-tools.orig/tools/i2cbusses.c	2008-04-12 13:31:43.000000000 +0200
++++ i2c-tools/tools/i2cbusses.c	2008-04-12 13:41:19.000000000 +0200
+@@ -4,6 +4,7 @@
+                devices.
+     Copyright (c) 1999-2003  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> and
+                              Mark D. Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
++    Copyright (C) 2008       Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+ 
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+@@ -54,6 +55,13 @@ static struct adap_type adap_types[5] = 
+ 	  .algo		= "N/A", },
+ };
+ 
++struct i2c_adap {
++	int nr;
++	char *name;
++	const char *funcs;
++	const char *algo;
++};
++
+ static enum adt i2c_get_funcs(int i2cbus)
+ {
+ 	unsigned long funcs;
+@@ -80,14 +88,47 @@ static enum adt i2c_get_funcs(int i2cbus
+ 	return ret;
  }
  
-+/*
-+ * Parse an I2CBUS command line argument and return the corresponding
-+ * bus number, or a negative value if the bus is invalid.
-+ */
-+int lookup_i2c_bus(const char *i2cbus_arg)
+-/*
+-   this just prints out the installed i2c busses in a consistent format, whether
+-   on a 2.4 kernel using /proc or a 2.6 kernel using /sys.
+-   If procfmt == 1, print out exactly /proc/bus/i2c format on stdout.
+-   This allows this to be used in a program to emulate /proc/bus/i2c on a
+-   sysfs system.
+-*/
+-void print_i2c_busses(int procfmt)
++/* Remove trailing spaces from a string
++   Return the new string length including the trailing NUL */
++static int rtrim(char *s)
 +{
-+	long i2cbus;
-+	char *end;
++	int i;
 +
-+	i2cbus = strtol(i2cbus_arg, &end, 0);
-+	if (*end || !*i2cbus_arg) {
-+		fprintf(stderr, "Error: I2CBUS argument not a number!\n");
-+		return -1;
-+	}
-+	if (i2cbus < 0 || i2cbus > 0xff) {
-+		fprintf(stderr, "Error: I2CBUS argument out of range "
-+		        "(0-255)!\n");
-+		return -2;
-+	}
-+
-+	return i2cbus;
++	for (i = strlen(s) - 1; i >= 0 && (s[i] == ' ' || s[i] == '\n'); i--)
++		s[i] = '\0';
++	return i + 2;
 +}
 +
- int open_i2c_dev(const int i2cbus, char *filename, const int quiet)
++static void free_adapters(struct i2c_adap *adapters)
++{
++	int i;
++
++	for (i = 0; adapters[i].name; i++)
++		free(adapters[i].name);
++	free(adapters);
++}
++
++/* We allocate space for the adapters in bunches. The last item is a
++   terminator, so here we start with room for 7 adapters, which should
++   be enough in most cases. If not, we allocate more later as needed. */
++#define BUNCH	8
++
++/* n must match the size of adapters at calling time */
++static struct i2c_adap *more_adapters(struct i2c_adap *adapters, int n)
++{
++	struct i2c_adap *new_adapters;
++
++	new_adapters = realloc(adapters, (n + BUNCH) * sizeof(struct i2c_adap));
++	if (!new_adapters) {
++		free_adapters(adapters);
++		return NULL;
++	}
++	memset(new_adapters + n, 0, BUNCH * sizeof(struct i2c_adap));
++
++	return new_adapters;
++}
++
++static struct i2c_adap *gather_i2c_busses(void)
  {
- 	int file;
---- i2c-tools.orig/tools/i2cbusses.h	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cbusses.h	2008-04-12 11:28:55.000000000 +0200
-@@ -24,6 +24,7 @@
+ 	FILE *fptr;
+ 	char s[100];
+@@ -98,17 +139,51 @@ void print_i2c_busses(int procfmt)
+ 	char dev[NAME_MAX], fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
+ 	int foundsysfs = 0;
+ 	int count=0;
++	struct i2c_adap *adapters;
  
- void print_i2c_busses(int procfmt);
++	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
++	if (!adapters)
++		return NULL;
  
-+int lookup_i2c_bus(const char *i2cbus_arg);
- int open_i2c_dev(const int i2cbus, char *filename, const int quiet);
- int set_slave_addr(int file, int address, int force);
+ 	/* look in /proc/bus/i2c */
+ 	if((fptr = fopen("/proc/bus/i2c", "r"))) {
+ 		while(fgets(s, 100, fptr)) {
+-			if(count++ == 0 && !procfmt)
+-				fprintf(stderr,"  Installed I2C busses:\n");
+-			if(procfmt)
+-				printf("%s", s);	
+-			else
+-				fprintf(stderr, "    %s", s);	
++			char *algo, *name, *type, *all;
++			int len_algo, len_name, len_type;
++			int i2cbus;
++
++			algo = strrchr(s, '\t');
++			*(algo++) = '\0';
++			len_algo = rtrim(algo);
++
++			name = strrchr(s, '\t');
++			*(name++) = '\0';
++			len_name = rtrim(name);
++
++			type = strrchr(s, '\t');
++			*(type++) = '\0';
++			len_type = rtrim(type);
++
++			sscanf(s, "i2c-%d", &i2cbus);
++
++			if ((count + 1) % BUNCH == 0) {
++				/* We need more space */
++				adapters = more_adapters(adapters, count + 1);
++				if (!adapters)
++					return NULL;
++			}
++
++			all = malloc(len_name + len_type + len_algo);
++			if (all == NULL) {
++				free_adapters(adapters);
++				return NULL;
++			}
++			adapters[count].nr = i2cbus;
++			adapters[count].name = strcpy(all, name);
++			adapters[count].funcs = strcpy(all + len_name, type);
++			adapters[count].algo = strcpy(all + len_name + len_type,
++						      algo);
++			count++;
+ 		}
+ 		fclose(fptr);
+ 		goto done;
+@@ -189,33 +264,80 @@ found:
+ 			}
+ 			if ((border = strchr(x, '\n')) != NULL)
+ 				*border = 0;
+-			if(count++ == 0 && !procfmt)
+-				fprintf(stderr,"  Installed I2C busses:\n");
+-			/* match 2.4 /proc/bus/i2c format as closely as possible */
++			if (!sscanf(de->d_name, "i2c-%d", &i2cbus))
++				continue;
+ 			if(!strncmp(x, "ISA ", 4)) {
+ 				type = adt_isa;
+-			} else if(!sscanf(de->d_name, "i2c-%d", &i2cbus)) {
+-				type = adt_dummy;
+ 			} else {
+ 				/* Attempt to probe for adapter capabilities */
+ 				type = i2c_get_funcs(i2cbus);
+ 			}
  
---- i2c-tools.orig/tools/i2cdetect.c	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cdetect.c	2008-04-12 11:28:55.000000000 +0200
-@@ -235,15 +235,8 @@ int main(int argc, char *argv[])
- 		help();
- 		exit(1);
+-			if (procfmt)
+-				printf("%s\t%-10s\t%-32s\t%s\n", de->d_name,
+-					adap_types[type].funcs, x, adap_types[type].algo);
+-			else
+-				fprintf(stderr, "    %s\t%-10s\t%s\n", de->d_name,
+-					adap_types[type].funcs, x);
++			if ((count + 1) % BUNCH == 0) {
++				/* We need more space */
++				adapters = more_adapters(adapters, count + 1);
++				if (!adapters)
++					return NULL;
++			}
++
++			adapters[count].nr = i2cbus;
++			adapters[count].name = strdup(x);
++			if (adapters[count].name == NULL) {
++				free_adapters(adapters);
++				return NULL;
++			}
++			adapters[count].funcs = adap_types[type].funcs;
++			adapters[count].algo = adap_types[type].algo;
++			count++;
+ 		}
  	}
--	i2cbus = strtol(argv[flags+1], &end, 0);
--	if (*end) {
--		fprintf(stderr, "Error: I2CBUS argument not a number!\n");
--		help();
--		exit(1);
--	}
--	if ((i2cbus < 0) || (i2cbus > 0xff)) {
--		fprintf(stderr, "Error: I2CBUS argument out of range "
--		        "(0-255)!\n");
-+	i2cbus = lookup_i2c_bus(argv[flags+1]);
-+	if (i2cbus < 0) {
- 		help();
- 		exit(1);
- 	}
---- i2c-tools.orig/tools/i2cdump.c	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cdump.c	2008-04-12 11:28:55.000000000 +0200
-@@ -91,14 +91,8 @@ int main(int argc, char *argv[])
- 		help();
- 		exit(1);
- 	}
--	i2cbus = strtol(argv[flags+1], &end, 0);
--	if (*end) {
--		fprintf(stderr, "Error: First argument not a number!\n");
--		help();
--		exit(1);
--	}
--	if (i2cbus < 0 || i2cbus > 0xff) {
--		fprintf(stderr, "Error: I2CBUS argument out of range!\n");
-+	i2cbus = lookup_i2c_bus(argv[flags+1]);
-+	if (i2cbus < 0) {
- 		help();
- 		exit(1);
- 	}
---- i2c-tools.orig/tools/i2cget.c	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cget.c	2008-04-12 11:28:55.000000000 +0200
-@@ -187,11 +187,9 @@ int main(int argc, char *argv[])
- 	if (argc - flags < 3)
- 		help();
+ 	closedir(dir);
  
--	i2cbus = strtol(argv[flags+1], &end, 0);
--	if (*end || i2cbus < 0 || i2cbus > 0x3f) {
--		fprintf(stderr, "Error: I2CBUS argument invalid!\n");
-+	i2cbus = lookup_i2c_bus(argv[flags+1]);
-+	if (i2cbus < 0)
- 		help();
--	}
+ done:
++	return adapters;
++}
++
++/*
++   this just prints out the installed i2c busses in a consistent format, whether
++   on a 2.4 kernel using /proc or a 2.6 kernel using /sys.
++   If procfmt == 1, print out exactly /proc/bus/i2c format on stdout.
++   This allows this to be used in a program to emulate /proc/bus/i2c on a
++   sysfs system.
++*/
++void print_i2c_busses(int procfmt)
++{
++	struct i2c_adap *adapters;
++	int count;
++
++	adapters = gather_i2c_busses();
++	if (adapters == NULL) {
++		fprintf(stderr, "Error: Out of memory!\n");
++		return;
++	}
++
++	for (count = 0; adapters[count].name; count++) {
++		if (count == 0 && !procfmt)
++			fprintf(stderr,"  Installed I2C busses:\n");
++		if (procfmt)
++			/* match 2.4 /proc/bus/i2c format as closely as possible */
++			printf("i2c-%d\t%-10s\t%-32s\t%s\n",
++				adapters[count].nr,
++				adapters[count].funcs,
++				adapters[count].name,
++				adapters[count].algo);
++		else
++			fprintf(stderr, "    i2c-%d\t%-10s\t%s\n",
++				adapters[count].nr,
++				adapters[count].funcs,
++				adapters[count].name);
++	}
++
+ 	if(count == 0 && !procfmt)
+ 		fprintf(stderr,"Error: No I2C busses found!\n"
+ 		               "Be sure you have done 'modprobe i2c-dev'\n"
+ 		               "and also modprobed your i2c bus drivers\n");
++
++	free_adapters(adapters);
+ }
  
- 	address = strtol(argv[flags+2], &end, 0);
- 	if (*end || address < 3 || address > 0x77) {
---- i2c-tools.orig/tools/i2cset.c	2008-04-12 11:26:14.000000000 +0200
-+++ i2c-tools/tools/i2cset.c	2008-04-12 11:28:55.000000000 +0200
-@@ -78,11 +78,9 @@ int main(int argc, char *argv[])
- 	if (argc < flags + 5)
- 		help();
- 
--	i2cbus = strtol(argv[flags+1], &end, 0);
--	if (*end || i2cbus < 0 || i2cbus > 0x3f) {
--		fprintf(stderr, "Error: I2CBUS argument invalid!\n");
-+	i2cbus = lookup_i2c_bus(argv[flags+1]);
-+	if (i2cbus < 0)
- 		help();
--	}
- 
- 	address = strtol(argv[flags+2], &end, 0);
- 	if (*end || address < 0 || address > 0x7f) {
-
+ /*
 
 -- 
 Jean Delvare
