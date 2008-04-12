@@ -1,8 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/3] Split print_i2c_busses into a gathering part and
- a printing part
-Date: Sat, 12 Apr 2008 14:35:26 +0200
-Message-ID: <20080412143526.26651e31@hyperion.delvare>
+Subject: [PATCH 3/3] Allow passing i2c bus by name
+Date: Sat, 12 Apr 2008 14:38:27 +0200
+Message-ID: <20080412143827.3bbb0a5b@hyperion.delvare>
 References: <20080412135841.1983d15c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,242 +20,147 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Split print_i2c_busses into a gathering part and a printing part.
+Make it possible to pass the i2c bus by name instead of by number. As
+there is no guarantee that i2c bus numbering will stay the same over
+time (for example if hardware is added of removed, or simply due to
+loading the drivers in a different order), passing the i2c bus by name
+is more robust.
+
+The i2c bus names are supposed to be unique. If you request a bus by
+name and this name happens to not be unique, then the tools will play
+it safe and quit. This is better than writing to the wrong device.
 
 ---
- tools/i2cbusses.c |  172 +++++++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 147 insertions(+), 25 deletions(-)
+ tools/i2cbusses.c |   38 ++++++++++++++++++++++++++++++++++++--
+ tools/i2cdetect.8 |    4 ++--
+ tools/i2cdump.8   |    4 ++--
+ tools/i2cget.8    |    4 ++--
+ tools/i2cset.8    |    4 ++--
+ 5 files changed, 44 insertions(+), 10 deletions(-)
 
---- i2c-tools.orig/tools/i2cbusses.c	2008-04-12 13:31:43.000000000 +0200
-+++ i2c-tools/tools/i2cbusses.c	2008-04-12 13:41:19.000000000 +0200
-@@ -4,6 +4,7 @@
-                devices.
-     Copyright (c) 1999-2003  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> and
-                              Mark D. Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-+    Copyright (C) 2008       Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
- 
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-@@ -54,6 +55,13 @@ static struct adap_type adap_types[5] = 
- 	  .algo		= "N/A", },
- };
- 
-+struct i2c_adap {
-+	int nr;
-+	char *name;
-+	const char *funcs;
-+	const char *algo;
-+};
-+
- static enum adt i2c_get_funcs(int i2cbus)
- {
- 	unsigned long funcs;
-@@ -80,14 +88,47 @@ static enum adt i2c_get_funcs(int i2cbus
- 	return ret;
+--- i2c-tools.orig/tools/i2cbusses.c	2008-04-12 13:41:19.000000000 +0200
++++ i2c-tools/tools/i2cbusses.c	2008-04-12 13:41:31.000000000 +0200
+@@ -340,6 +340,40 @@ void print_i2c_busses(int procfmt)
+ 	free_adapters(adapters);
  }
  
--/*
--   this just prints out the installed i2c busses in a consistent format, whether
--   on a 2.4 kernel using /proc or a 2.6 kernel using /sys.
--   If procfmt == 1, print out exactly /proc/bus/i2c format on stdout.
--   This allows this to be used in a program to emulate /proc/bus/i2c on a
--   sysfs system.
--*/
--void print_i2c_busses(int procfmt)
-+/* Remove trailing spaces from a string
-+   Return the new string length including the trailing NUL */
-+static int rtrim(char *s)
-+{
-+	int i;
-+
-+	for (i = strlen(s) - 1; i >= 0 && (s[i] == ' ' || s[i] == '\n'); i--)
-+		s[i] = '\0';
-+	return i + 2;
-+}
-+
-+static void free_adapters(struct i2c_adap *adapters)
-+{
-+	int i;
-+
-+	for (i = 0; adapters[i].name; i++)
-+		free(adapters[i].name);
-+	free(adapters);
-+}
-+
-+/* We allocate space for the adapters in bunches. The last item is a
-+   terminator, so here we start with room for 7 adapters, which should
-+   be enough in most cases. If not, we allocate more later as needed. */
-+#define BUNCH	8
-+
-+/* n must match the size of adapters at calling time */
-+static struct i2c_adap *more_adapters(struct i2c_adap *adapters, int n)
-+{
-+	struct i2c_adap *new_adapters;
-+
-+	new_adapters = realloc(adapters, (n + BUNCH) * sizeof(struct i2c_adap));
-+	if (!new_adapters) {
-+		free_adapters(adapters);
-+		return NULL;
-+	}
-+	memset(new_adapters + n, 0, BUNCH * sizeof(struct i2c_adap));
-+
-+	return new_adapters;
-+}
-+
-+static struct i2c_adap *gather_i2c_busses(void)
- {
- 	FILE *fptr;
- 	char s[100];
-@@ -98,17 +139,51 @@ void print_i2c_busses(int procfmt)
- 	char dev[NAME_MAX], fstype[NAME_MAX], sysfs[NAME_MAX], n[NAME_MAX];
- 	int foundsysfs = 0;
- 	int count=0;
-+	struct i2c_adap *adapters;
- 
-+	adapters = calloc(BUNCH, sizeof(struct i2c_adap));
-+	if (!adapters)
-+		return NULL;
- 
- 	/* look in /proc/bus/i2c */
- 	if((fptr = fopen("/proc/bus/i2c", "r"))) {
- 		while(fgets(s, 100, fptr)) {
--			if(count++ == 0 && !procfmt)
--				fprintf(stderr,"  Installed I2C busses:\n");
--			if(procfmt)
--				printf("%s", s);	
--			else
--				fprintf(stderr, "    %s", s);	
-+			char *algo, *name, *type, *all;
-+			int len_algo, len_name, len_type;
-+			int i2cbus;
-+
-+			algo = strrchr(s, '\t');
-+			*(algo++) = '\0';
-+			len_algo = rtrim(algo);
-+
-+			name = strrchr(s, '\t');
-+			*(name++) = '\0';
-+			len_name = rtrim(name);
-+
-+			type = strrchr(s, '\t');
-+			*(type++) = '\0';
-+			len_type = rtrim(type);
-+
-+			sscanf(s, "i2c-%d", &i2cbus);
-+
-+			if ((count + 1) % BUNCH == 0) {
-+				/* We need more space */
-+				adapters = more_adapters(adapters, count + 1);
-+				if (!adapters)
-+					return NULL;
-+			}
-+
-+			all = malloc(len_name + len_type + len_algo);
-+			if (all == NULL) {
-+				free_adapters(adapters);
-+				return NULL;
-+			}
-+			adapters[count].nr = i2cbus;
-+			adapters[count].name = strcpy(all, name);
-+			adapters[count].funcs = strcpy(all + len_name, type);
-+			adapters[count].algo = strcpy(all + len_name + len_type,
-+						      algo);
-+			count++;
- 		}
- 		fclose(fptr);
- 		goto done;
-@@ -189,33 +264,80 @@ found:
- 			}
- 			if ((border = strchr(x, '\n')) != NULL)
- 				*border = 0;
--			if(count++ == 0 && !procfmt)
--				fprintf(stderr,"  Installed I2C busses:\n");
--			/* match 2.4 /proc/bus/i2c format as closely as possible */
-+			if (!sscanf(de->d_name, "i2c-%d", &i2cbus))
-+				continue;
- 			if(!strncmp(x, "ISA ", 4)) {
- 				type = adt_isa;
--			} else if(!sscanf(de->d_name, "i2c-%d", &i2cbus)) {
--				type = adt_dummy;
- 			} else {
- 				/* Attempt to probe for adapter capabilities */
- 				type = i2c_get_funcs(i2cbus);
- 			}
- 
--			if (procfmt)
--				printf("%s\t%-10s\t%-32s\t%s\n", de->d_name,
--					adap_types[type].funcs, x, adap_types[type].algo);
--			else
--				fprintf(stderr, "    %s\t%-10s\t%s\n", de->d_name,
--					adap_types[type].funcs, x);
-+			if ((count + 1) % BUNCH == 0) {
-+				/* We need more space */
-+				adapters = more_adapters(adapters, count + 1);
-+				if (!adapters)
-+					return NULL;
-+			}
-+
-+			adapters[count].nr = i2cbus;
-+			adapters[count].name = strdup(x);
-+			if (adapters[count].name == NULL) {
-+				free_adapters(adapters);
-+				return NULL;
-+			}
-+			adapters[count].funcs = adap_types[type].funcs;
-+			adapters[count].algo = adap_types[type].algo;
-+			count++;
- 		}
- 	}
- 	closedir(dir);
- 
- done:
-+	return adapters;
-+}
-+
-+/*
-+   this just prints out the installed i2c busses in a consistent format, whether
-+   on a 2.4 kernel using /proc or a 2.6 kernel using /sys.
-+   If procfmt == 1, print out exactly /proc/bus/i2c format on stdout.
-+   This allows this to be used in a program to emulate /proc/bus/i2c on a
-+   sysfs system.
-+*/
-+void print_i2c_busses(int procfmt)
++static int lookup_i2c_bus_by_name(const char *bus_name)
 +{
 +	struct i2c_adap *adapters;
-+	int count;
++	int i, i2cbus = -1;
 +
 +	adapters = gather_i2c_busses();
 +	if (adapters == NULL) {
 +		fprintf(stderr, "Error: Out of memory!\n");
-+		return;
++		return -3;
 +	}
 +
-+	for (count = 0; adapters[count].name; count++) {
-+		if (count == 0 && !procfmt)
-+			fprintf(stderr,"  Installed I2C busses:\n");
-+		if (procfmt)
-+			/* match 2.4 /proc/bus/i2c format as closely as possible */
-+			printf("i2c-%d\t%-10s\t%-32s\t%s\n",
-+				adapters[count].nr,
-+				adapters[count].funcs,
-+				adapters[count].name,
-+				adapters[count].algo);
-+		else
-+			fprintf(stderr, "    i2c-%d\t%-10s\t%s\n",
-+				adapters[count].nr,
-+				adapters[count].funcs,
-+				adapters[count].name);
++	/* Walk the list of i2c busses, looking for the one with the
++	   right name */
++	for (i = 0; adapters[i].name; i++) {
++		if (strcmp(adapters[i].name, bus_name) == 0) {
++			if (i2cbus >= 0) {
++				fprintf(stderr,
++					"Error: I2C bus name is not unique!\n");
++				i2cbus = -4;
++				goto done;
++			}
++			i2cbus = adapters[i].nr;
++		}
 +	}
 +
- 	if(count == 0 && !procfmt)
- 		fprintf(stderr,"Error: No I2C busses found!\n"
- 		               "Be sure you have done 'modprobe i2c-dev'\n"
- 		               "and also modprobed your i2c bus drivers\n");
++	if (i2cbus == -1)
++		fprintf(stderr, "Error: I2CBUS argument doesn't match any "
++			"I2C bus name\n");
 +
++done:
 +	free_adapters(adapters);
- }
- 
++	return i2cbus;
++}
++
  /*
+  * Parse an I2CBUS command line argument and return the corresponding
+  * bus number, or a negative value if the bus is invalid.
+@@ -351,8 +385,8 @@ int lookup_i2c_bus(const char *i2cbus_ar
+ 
+ 	i2cbus = strtol(i2cbus_arg, &end, 0);
+ 	if (*end || !*i2cbus_arg) {
+-		fprintf(stderr, "Error: I2CBUS argument not a number!\n");
+-		return -1;
++		/* Not a number, maybe a name? */
++		return lookup_i2c_bus_by_name(i2cbus_arg);
+ 	}
+ 	if (i2cbus < 0 || i2cbus > 0xff) {
+ 		fprintf(stderr, "Error: I2CBUS argument out of range "
+--- i2c-tools.orig/tools/i2cdetect.8	2007-06-27 17:16:10.000000000 +0200
++++ i2c-tools/tools/i2cdetect.8	2008-04-12 13:42:43.000000000 +0200
+@@ -1,4 +1,4 @@
+-.TH I2CDETECT 8 "June 2007"
++.TH I2CDETECT 8 "April 2008"
+ .SH NAME
+ i2cdetect \- detect I2C chips
+ 
+@@ -23,7 +23,7 @@ i2cdetect \- detect I2C chips
+ .SH DESCRIPTION
+ i2cdetect is a userspace program to scan an I2C bus for devices. It
+ outputs a table with the list of detected devices on the specified bus.
+-\fIi2cbus\fR indicates the number of the I2C bus to be scanned, and
++\fIi2cbus\fR indicates the number or name of the I2C bus to be scanned, and
+ should correspond to one of the busses listed by \fIi2cdetect -l\fR.
+ The optional parameters \fIfirst\fR and \fIlast\fR restrict the scanning
+ range (default: from 0x03 to 0x77).
+--- i2c-tools.orig/tools/i2cdump.8	2008-03-11 13:49:27.000000000 +0100
++++ i2c-tools/tools/i2cdump.8	2008-04-12 13:42:51.000000000 +0200
+@@ -1,4 +1,4 @@
+-.TH I2CDUMP 8 "March 2008"
++.TH I2CDUMP 8 "April 2008"
+ .SH NAME
+ i2cdump \- examine I2C registers
+ 
+@@ -43,7 +43,7 @@ will perform the operation directly. Thi
+ scripts.
+ .PP
+ At least two options must be provided to i2cdump. \fIi2cbus\fR indicates the
+-number of the I2C bus to be scanned. This number should correspond to one
++number or name of the I2C bus to be scanned. This number should correspond to one
+ of the busses listed by \fIi2cdetect -l\fR. \fIaddress\fR indicates the
+ address to be scanned on that bus, and is an integer between 0x00 and 0x7F.
+ .PP
+--- i2c-tools.orig/tools/i2cget.8	2007-06-27 17:16:10.000000000 +0200
++++ i2c-tools/tools/i2cget.8	2008-04-12 13:43:00.000000000 +0200
+@@ -1,4 +1,4 @@
+-.TH I2CGET 8 "June 2007"
++.TH I2CGET 8 "April 2008"
+ .SH "NAME"
+ i2cget \- read from I2C/SMBus chip registers
+ 
+@@ -36,7 +36,7 @@ will perform the operation directly. Thi
+ scripts. Use with caution.
+ .PP
+ There are two required options to i2cget. \fIi2cbus\fR indicates the number
+-of the I2C bus to be scanned.  This number should correspond to one of
++or name of the I2C bus to be scanned.  This number should correspond to one of
+ the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
+ address of the chip on that bus, and is an integer between 0x03 and 0x77.
+ .PP
+--- i2c-tools.orig/tools/i2cset.8	2007-06-27 17:16:10.000000000 +0200
++++ i2c-tools/tools/i2cset.8	2008-04-12 13:43:07.000000000 +0200
+@@ -1,4 +1,4 @@
+-.TH I2CSET 8 "June 2007"
++.TH I2CSET 8 "April 2008"
+ .SH "NAME"
+ i2cset \- set I2C registers
+ 
+@@ -40,7 +40,7 @@ will perform the operation directly. Thi
+ scripts.
+ .PP
+ There are four required options to i2cset. \fIi2cbus\fR indicates the number
+-of the I2C bus to be scanned.  This number should correspond to one of
++or name of the I2C bus to be scanned.  This number should correspond to one of
+ the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
+ address of the chip on that bus, and is an integer between 0x00 and 0x7F.
+ \fIdata-address\fR specifies the address on that chip to write to, and is an
+
 
 -- 
 Jean Delvare
