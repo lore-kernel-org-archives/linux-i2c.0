@@ -1,16 +1,15 @@
-From: Pavel Pisa <ppisa4lists-hnFyeMMZ0rvQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH V3] I2C driver for IMX
-Date: Mon, 14 Apr 2008 02:55:46 +0200
-Message-ID: <200804140255.46603.ppisa4lists@pikron.com>
-References: <ftf8ud$pl6$1@ger.gmane.org>
-	<20080410122404.GE26575@flint.arm.linux.org.uk>
-	<ftl1i0$e5n$1@ger.gmane.org>
+From: Robert Schwebel <r.schwebel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
+Date: Mon, 14 Apr 2008 09:22:27 +0200
+Message-ID: <20080414072227.GU13814@pengutronix.de>
+References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
+	<ftnlao$o2r$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <ftl1i0$e5n$1@ger.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <ftnlao$o2r$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,96 +19,64 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
-Cc: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 10 April 2008 14:31, Darius wrote:
-> Russell King - ARM Linux wrote:
-> > On Thu, Apr 10, 2008 at 01:33:51PM +0200, Juergen Beisert wrote:
-> >> On Thursday 10 April 2008 12:33, Darius wrote:
-> >>>> Then I guess that we want to add support to the i2c-mpc driver rather
-> >>>> than adding another driver to the kernel tree?
-> >>>
-> >>> I prefer to use separate driver for imx i2c inteface.
-> >>> if it's not needed for all, I'll leave it for my private needs.
-> >>
-> >>                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> >> As I did with my imx i2c driver last year....Yes, this I2C controller is
-> >> mostly the same than the one in the MPC family and mostly the same the
-> >> ones we can find in the MCX family (i.MX21/27, i.MX31?). But it seems
-> >> there is noone who is able to write such a generic driver.
-> >
-> > Which basically means everyone gets to write their own IMX I2C driver.
-> > What a brilliant advert for open source software. ;(
->
-> why not to submit this my driver into kernel? i2c driver is not so big
-> fat thing, kernel size will not increase dramatically, even mpc has
-> similar hardware and similar driver.
+On Fri, Apr 11, 2008 at 02:24:55PM +0200, Wolfram Sang wrote:
+> I'll just review myself to ask for some comments where I think some
+> more opinions would be good. I also tried to contact David Brownell as
+> the original author directly last week, but all my mails got blocked;
+> I hope we can negotiate through this list.
 
-Hello All,
+Hmm, usually, this should work.
 
-I agree, that it is better to include this driver than to wait for common
-one. If there be even two fully working and tested variants, then it could
-be simpler to prepare generic one in future.
+> > + * at24.c - handle most I2C EEPROMs
+> Maybe rename the driver? at24 is vendor-specific. 24xx? 24cxx?
+> eeprom-ng? I'd go for 24xx.
 
-I admit that I am the one who noticed similarity of the i.MX and MPC
-I2C cores last year but the differences/lack of functionality
-of i.MX version makes reuse of MPC one very problematic.
-I have tried to contact MPC variant author, but nobody
-replied => separate i.MX version is probably the best option
-for now.
+Don't use to many "xx" characters. Last time someone did that, he was
+blocked by rmk's spam filter :-) Maybe "i2c-eeprom"?
 
-Best wishes
+> > +	/* Lock protects against activities from other Linux tasks,
+> > +	 * but not from changes by other I2C masters.
+> > +	 */
 
-             Pavel
+Multi-line comments are usually written like
 
-On Friday 10 August 2007 17:15, Pavel Pisa wrote:
-....
-> The curious information for you could be, that driver for
-> I2C core same/similar to one found in i.MX families is
-> already included in mainline kernel.
->
->   linux-2.6.23-git/drivers/i2c/busses/i2c-mpc.c
->
-> It is I2C core for PowerPC MPC5200 chips.
-> Unfortunately, the i.MX version lacks
-> I2C Interrupt Control Register, which is later
-> patch added to MPC5200. It is common to both MPC5200
-> I2C interfaces. It provides very wanted feature.
-> It allow s to ask for signaling interrupt when bus
-> becomes free (BNBE1 and BNBE2 bits). It is paintfully
-> missing on i.MX. This means, that probing for bus
-> free condition has to be solved by polling timer on MX1.
->
-> The other difference is missing bit AKF in Status Register,
-> which complicates processing of lost arbitration and
-> simultaneous addressed as slave condition.
->
-> The less important is missing support for glitches
-> filtering configuration register.
->
-> I suggest to look at MPC5200 documentation, because
-> it is little more comprehensive. The other source
-> of documentation Tundra Universe II VME to PCI bridge
-> manual, because this chip contains same I2C core too.
->
-> I have even written fully interrupt driven driver
-> for MX1 for RTEMS executive. It runs in its own thread.
-> I have not finished functionality yet, but master works
-> reliably. I can send it as other reference.
->
-> Generally it would be nice if "i2c-mpc" driver could
-> be reuse by i.MX familly. It is better to have not
-> two drivers implementations for same IP core.
-> But due to lack of BNBEx and other minor differences
-> it would require some ifdefs in the source or processing
-> altered by core variant flags. The free bus polling
-> timer for BNBEx would be required too. So I am not
-> sure if something like that is acceptable for PowerPC
-> people or if the code should be duplicated.
-> I am sending copy to Adrian Cox who seems
-> to be author of MPC5200 driver.
+/*
+ * foo
+ */
+
+> To support the X24645, it would be necessary to raise AT24_MAX_CLIENTS
+> to 32 (what a beast!). Then again, most eeproms will just need one
+> client, so this would cause quite some overhead in most use-cases.
+> Maybe it pays off to hande this dynamically?
+
+As eeproms are normally slow things anyway, would it be a big
+performance impact?
+
+> > +static struct i2c_client *at24_ee_address(
+> > +	struct at24_data	*at24,
+> > +	u16			*addr,
+> > +	unsigned		*offset
+
+Minor nit: the kernel usually doesn't aling the variables vertically; if
+you add more and longer data types, it might be necessary to move around
+all other lines, which clutters patches. So I'd write this as
+
+	struct at24_data *at24,
+	u16 *addr,
+	unsigned *offset
+
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+
 
 _______________________________________________
 i2c mailing list
