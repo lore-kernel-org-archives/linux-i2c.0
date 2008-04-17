@@ -1,35 +1,49 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: build breakage from of i2c helper patch
-Date: Thu, 17 Apr 2008 02:11:41 -0500
-Message-ID: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>
-Mime-Version: 1.0 (Apple Message framework v919.2)
+From: Jochen Friedrich <jochen@scram.de>
+Subject: Re: build breakage from of i2c helper patch
+Date: Thu, 17 Apr 2008 11:25:12 +0200
+Message-ID: <48071778.2000405@scram.de>
+References: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Cc: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org list" <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Paul Mackerras <paulus@samba.org>, Linux I2C <i2c@lm-sensors.org>, "linuxppc-dev@ozlabs.org list" <linuxppc-dev@ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I'm guessing the "[POWERPC] i2c: OF helpers for the i2c API"
+Hi Kumar,
 
-http://git.kernel.org/?p=linux/kernel/git/paulus/powerpc.git;a=commitdiff;h=612212a3f2f053ea68ce9cd16d3deeca7754e8c9
+> I'm guessing the "[POWERPC] i2c: OF helpers for the i2c API"
+> 
+> http://git.kernel.org/?p=linux/kernel/git/paulus/powerpc.git;a=commitdiff;h=612212a3f2f053ea68ce9cd16d3deeca7754e8c9
+> 
+> is causing this build failure:
+> 
+> http://kisskb.ellerman.id.au/kisskb/buildresult/24375/
 
-is causing this build failure:
+It looks like it. i2c-core needs to be compiled static for the OF bindings to work.
+I guess in Kconfig "depends on OF && I2C" must be changed into "depends on OF && (I2C=y)"
 
-http://kisskb.ellerman.id.au/kisskb/buildresult/24375/
+On the other hand, i didn't test the patch without the dependent patches, so it might not work as expected:
 
-- k
+http://patchwork.ozlabs.org/linuxppc/patch?id=17833
+http://patchwork.ozlabs.org/linuxppc/patch?id=17834
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+or the original ones from Jean Delvare:
+
+http://patchwork.ozlabs.org/linuxppc/patch?id=16282
+http://patchwork.ozlabs.org/linuxppc/patch?id=16283
+http://patchwork.ozlabs.org/linuxppc/patch?id=16284
+
+Thanks,
+Jochen
