@@ -1,14 +1,16 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Thu, 17 Apr 2008 18:24:03 +0200
-Message-ID: <20080417182403.09b570e4@hyperion.delvare>
+Date: Thu, 17 Apr 2008 14:17:23 -0700
+Message-ID: <200804171417.23753.david-b@pacbell.net>
 References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
-	<fu7sgc$lgt$1@ger.gmane.org>
+	<20080414143925.31b55b39@hyperion.delvare>
+	<200804140857.33732.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <fu7sgc$lgt$1@ger.gmane.org>
+In-Reply-To: <200804140857.33732.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,15 +20,10 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 17 Apr 2008 18:05:32 +0200, Wolfram Sang wrote:
-> Greetings,
-> 
-> (this goes mostly to David, I assume)
-> 
 > In at24_ee_write:
 > > +	/* Writes fail if the previous one didn't complete yet.  We'll
 > > +	 * loop a few times until this one succeeds, waiting at least
@@ -57,28 +54,62 @@ On Thu, 17 Apr 2008 18:05:32 +0200, Wolfram Sang wrote:
 > > +			continue;
 > > +		}
 > > +	}
-> I assume 'retries < 3' (always true) and 'continue' (nothing follows) 
-> are left-overs from earlier revisions and can be thrown out? My main 
-> questions is 'msleep(1)' though: As I understand it, this means the 
-> for-loop will wait roughly 3ms on failures until it reports a timeout 
-> (assuming good precision of msleep). Comparing this to AT24_EE_TIMEOUT 
-> (25 ms), it looks to me that the msleep value could be increased a 
-> little (maybe to AT24_EE_TIMEOUT / 3)? Or is i2c_transfer slow enough 
+>
+> I assume 'retries < 3' (always true)
+
+You mean, in that "if" at the end.
+
+
+> and 'continue' (nothing follows) 
+
+That particular "continue" is not necessary.
+
+
+> are left-overs from earlier revisions and can be thrown out?
+
+Both of those tests should be moved into the for() test,
+so the tail end of the loop always does an msleep.  It'd
+be clearer as:
+
+	timeout = ... ;
+	retries = 0;
+	while (retries++ < 3 || time_before(jiffies, timeout)) {
+		... try write, quit loop on success ...
+		msleep(1);
+	}
+
+Yes, that loop has lots of leftovers.  :(
+
+
+> My main 
+> questions is 'msleep(1)' though: As I understand it, this means the
+> for-loop will wait roughly 3ms on failures until it reports a timeout
+> (assuming good precision of msleep).
+
+That was obviously tested only at HZ=100 or with quick-ish
+EEPROMs!  I seem to recall just doing enough work on it to
+make sure it didn't break ... that wasn't a top priority.
+
+That loop should (a) run at least a few times, maybe three;
+and (b) not exit before the timeout passes.
+
+
+> Comparing this to AT24_EE_TIMEOUT 
+> (25 ms), it looks to me that the msleep value could be increased a
+> little (maybe to AT24_EE_TIMEOUT / 3)? Or is i2c_transfer slow enough
 > and can we count on that behaviour?
 
-msleep() can't sleep less than one jiffie, so msleep(1) is the same as
-msleep(10) at HZ=100. At HZ=1000, msleep(1) is almost possible,
-although it might sleep for up to 2 ms in practice (finish the current
-jiffie + the next jiffie.)
+An msleep(1) -- when the platform can deliver it -- would
+be desirable, since most EEPROMs don't actually need those
+long delays.  Their writes finish in just a few msecs,
+hardly anything needs that huge timeout.  At HZ=100 it's
+likely to sleep 10 msec or more; that's OK, but slow.
 
-The bottom line is that you never really know how much msleep(N)
-will sleep for small values of N.
+The point of having an msleep() rather than just relying
+on scheduler delay is that most EEPROMs do need some short
+delay to finish their writes.  So a busy-wait is wasteful.
 
-I realize that it doesn't really answer your question, but that's still
-worth keeping in mind.
-
--- 
-Jean Delvare
+- Dave
 
 _______________________________________________
 i2c mailing list
