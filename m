@@ -1,16 +1,13 @@
-From: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by
- OF helpers
-Date: Sat, 19 Apr 2008 15:22:37 +1000
-Message-ID: <18441.33181.511355.338428@cargo.ozlabs.ibm.com>
-References: <4808AEC7.8040000@scram.de>
-	<18441.28496.84724.411784@cargo.ozlabs.ibm.com>
-	<20080418.210933.01471700.davem@davemloft.net>
+From: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
+Subject: Re: [rtc-linux] [PATCH] rtc-pcf8563: Add device ids table
+Date: Fri, 18 Apr 2008 23:54:51 +0200
+Message-ID: <20080418235451.2643183b@i1501.lan.towertech.it>
+References: <200804171708.32847.laurentp@cse-semaphore.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080418.210933.01471700.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+In-Reply-To: <200804171708.32847.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,44 +17,35 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Cc: sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-David Miller writes:
-> From: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
-> Date: Sat, 19 Apr 2008 14:04:32 +1000
+On Thu, 17 Apr 2008 17:08:32 +0200
+Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org> wrote:
+
 > 
-> > Jochen Friedrich writes:
-> > 
-> > > Fix build breakage introduced in commit
-> > > "[POWERPC] i2c: OF helpers for the i2c API".
-> > > If i2c-core is compiled as module, the helper needs to be
-> > > compiled as module, as well. Rename i2c.c to of_i2c.c to
-> > > avoid name space conflict.
-> > 
-> > Actually, since only powerpc has irq_of_parse_and_map, I'm now
-> > inclined to think that drivers/of/i2c.c should live under arch/powerpc
-> > for now, or at the least its option should depend on PPC_OF.
+> Hi,
 > 
-> I specifically asked for this to not be PPC only so that I
-> can make use of this infrastructure on sparc64 for I2C devices.
+> here's a patch against 2.6.25-rc8-mm2 that adds support for device tree names
+> to the rtc-pcf8563 driver.
 
-OK.
+ thanks!
+ 
+> Is the new-style driver conversion patch in 2.6.25-rc8-mm2 scheduled for
+> 2.6.26 ?
 
-> It's OK if this breaks the sparc64 allmodconfig build, I'll take
-> care of this once it's merged in.
+ hope so! :)
 
-It breaks the sparc32 allmodconfig build, which seems to be a
-concern.  How do you suggest we fix that?
+-- 
 
-> Please merge the PPC tree to Linus soon, so that I can merge
-> in my sparc64 NUMA bits which depend upon the LMB changesets
-> in the PPC tree.
+ Best regards,
 
-Sure, it's just this sparc32 breakage which is holding me up.
+ Alessandro Zummo,
+  Tower Technologies - Torino, Italy
 
-Paul.
+  http://www.towertech.it
+
 
 _______________________________________________
 i2c mailing list
