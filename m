@@ -1,45 +1,51 @@
-From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+From: Paul Mackerras <paulus@samba.org>
 Subject: Re: build breakage from of i2c helper patch
-Date: Fri, 18 Apr 2008 14:27:52 +0200
-Message-ID: <480893C8.6020300@scram.de>
-References: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>	<48071778.2000405@scram.de>
-	<20080417113703.0f24c578@hyperion.delvare>
+Date: Fri, 18 Apr 2008 21:27:54 +1000
+Message-ID: <18440.34234.28845.7398@cargo.ozlabs.ibm.com>
+References: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>
+	<48071778.2000405@scram.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080417113703.0f24c578-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org list" <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <48071778.2000405@scram.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linux I2C <i2c@lm-sensors.org>, "linuxppc-dev@ozlabs.org list" <linuxppc-dev@ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Jochen Friedrich writes:
 
-> (blind shot) Maybe this means that some code that is in i2c-core should
-> be moved to i2c-boardinfo instead? i2c-boardinfo is always built into
-> the kernel even when i2c-core is modular.
+> It looks like it. i2c-core needs to be compiled static for the OF
+> bindings to work.
+> I guess in Kconfig "depends on OF && I2C" must be changed into
+> "depends on OF && (I2C=y)"
+> 
+> On the other hand, i didn't test the patch without the dependent
+> patches, so it might not work as expected:
 
-unfortunately, i2c_new_device() tries to attach the module, so this function
-really needs full i2c-core functionality.
+Which way around is this dependency?  Do you mean that the patches you
+listed depend on the "OF helpers for the i2c API" patch, or that the
+OF helpers patch depends on these other ones?
 
-I think the best way to fix this is to make the OF helpers def_tristate I2C, so
-it will be compiled as module if i2c-core is compiled as module, as well.
+> http://patchwork.ozlabs.org/linuxppc/patch?id=17833
+> http://patchwork.ozlabs.org/linuxppc/patch?id=17834
+> 
+> or the original ones from Jean Delvare:
+> 
+> http://patchwork.ozlabs.org/linuxppc/patch?id=16282
+> http://patchwork.ozlabs.org/linuxppc/patch?id=16283
+> http://patchwork.ozlabs.org/linuxppc/patch?id=16284
 
-I'll send an updated patch in a minute.
+What's the best way to fix this now?  We need to get a reasonable fix
+in before I ask Linux to pull the powerpc tree.
 
-Thanks,
-Jochen
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Paul.
