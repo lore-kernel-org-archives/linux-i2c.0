@@ -1,53 +1,33 @@
-From: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
-Subject: Re: [rtc-linux] [PATCH] rtc-pcf8563: Add device ids table
-Date: Fri, 18 Apr 2008 23:54:51 +0200
-Message-ID: <20080418235451.2643183b@i1501.lan.towertech.it>
-References: <200804171708.32847.laurentp@cse-semaphore.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by OF
+ helpers
+Date: Fri, 18 Apr 2008 23:11:28 -0700 (PDT)
+Message-ID: <20080418.231128.97404791.davem@davemloft.net>
+References: <18441.28496.84724.411784@cargo.ozlabs.ibm.com>
+	<20080418.210933.01471700.davem@davemloft.net>
+	<18441.33181.511355.338428@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200804171708.32847.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760002AbYDSGLu@vger.kernel.org>
+In-Reply-To: <18441.33181.511355.338428@cargo.ozlabs.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: paulus@samba.org
+Cc: jochen@scram.de, sfr@canb.auug.org.au, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, scottwood@freescale.com, i2c@lm-sensors.org, khali@linux-fr.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 17 Apr 2008 17:08:32 +0200
-Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org> wrote:
+From: Paul Mackerras <paulus@samba.org>
+Date: Sat, 19 Apr 2008 15:22:37 +1000
 
+> David Miller writes:
+> > From: Paul Mackerras <paulus@samba.org>
+> > Date: Sat, 19 Apr 2008 14:04:32 +1000
+> > 
+> > It's OK if this breaks the sparc64 allmodconfig build, I'll take
+> > care of this once it's merged in.
 > 
-> Hi,
-> 
-> here's a patch against 2.6.25-rc8-mm2 that adds support for device tree names
-> to the rtc-pcf8563 driver.
+> It breaks the sparc32 allmodconfig build, which seems to be a
+> concern.  How do you suggest we fix that?
 
- thanks!
- 
-> Is the new-style driver conversion patch in 2.6.25-rc8-mm2 scheduled for
-> 2.6.26 ?
-
- hope so! :)
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Torino, Italy
-
-  http://www.towertech.it
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+I'll fix both sparc64 and sparc32 builds when I merge my sparc
+tree in.
