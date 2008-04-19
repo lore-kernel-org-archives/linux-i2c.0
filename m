@@ -1,18 +1,16 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Fri, 18 Apr 2008 16:06:14 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0804181555560.15372@shell4.speakeasy.net>
-References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
-	<20080414143925.31b55b39@hyperion.delvare>
-	<200804140857.33732.david-b@pacbell.net>
-	<200804171417.23753.david-b@pacbell.net>
-	<Pine.LNX.4.58.0804172346580.10592@shell2.speakeasy.net>
-	<20080418103149.GA4245@pengutronix.de>
+From: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by
+ OF helpers
+Date: Sat, 19 Apr 2008 15:22:37 +1000
+Message-ID: <18441.33181.511355.338428@cargo.ozlabs.ibm.com>
+References: <4808AEC7.8040000@scram.de>
+	<18441.28496.84724.411784@cargo.ozlabs.ibm.com>
+	<20080418.210933.01471700.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080418103149.GA4245-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20080418.210933.01471700.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,28 +20,44 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Cc: sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 18 Apr 2008, Wolfram Sang wrote:
-> On Fri, Apr 18, 2008 at 01:07:51AM -0700, Trent Piepho wrote:
->
-> > So the loop tries the write for the first time, fails (which is perfectly
-> > acceptable), then sleeps for more than timeout jiffies.  The timeout
-> > expires and the write is never tried again.
-> Ehrm, the conditions for the while loop are OR-ed not AND-ed. So, even if
-> time_before changes to false, 'retries < 3' will keep the loop running.
-> I think this minimum of three tries will also cover the other issues you
-> (correctly) mentioned.
+David Miller writes:
+> From: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+> Date: Sat, 19 Apr 2008 14:04:32 +1000
+> 
+> > Jochen Friedrich writes:
+> > 
+> > > Fix build breakage introduced in commit
+> > > "[POWERPC] i2c: OF helpers for the i2c API".
+> > > If i2c-core is compiled as module, the helper needs to be
+> > > compiled as module, as well. Rename i2c.c to of_i2c.c to
+> > > avoid name space conflict.
+> > 
+> > Actually, since only powerpc has irq_of_parse_and_map, I'm now
+> > inclined to think that drivers/of/i2c.c should live under arch/powerpc
+> > for now, or at the least its option should depend on PPC_OF.
+> 
+> I specifically asked for this to not be PPC only so that I
+> can make use of this infrastructure on sparc64 for I2C devices.
 
-Oh, of course.  I had ignored the retries because it seemed like a bad
-idea.  If the timeout is based on time, why does it matter how many tries
-there were?
+OK.
 
-Still, if you want to wait at least 25 ms, on a HZ=1000 system you might
-wait only 3 ms.  And on a HZ=100 system, you'll wait at least 60 ms when
-the timeout only needed to be 25 ms.
+> It's OK if this breaks the sparc64 allmodconfig build, I'll take
+> care of this once it's merged in.
+
+It breaks the sparc32 allmodconfig build, which seems to be a
+concern.  How do you suggest we fix that?
+
+> Please merge the PPC tree to Linus soon, so that I can merge
+> in my sparc64 NUMA bits which depend upon the LMB changesets
+> in the PPC tree.
+
+Sure, it's just this sparc32 breakage which is holding me up.
+
+Paul.
 
 _______________________________________________
 i2c mailing list
