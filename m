@@ -1,34 +1,50 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by OF
- helpers
-Date: Sat, 19 Apr 2008 02:12:56 -0700 (PDT)
-Message-ID: <20080419.021256.26059313.davem@davemloft.net>
-References: <18441.33181.511355.338428@cargo.ozlabs.ibm.com>
-	<20080418.231128.97404791.davem@davemloft.net>
-	<20080419110934.672648e6@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
+Date: Sat, 19 Apr 2008 11:34:17 +0200
+Message-ID: <20080419113417.19f5567a@hyperion.delvare>
+References: <200804171708.32847.laurentp@cse-semaphore.com>
+	<20080418235451.2643183b@i1501.lan.towertech.it>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753286AbYDSJNP@vger.kernel.org>
-In-Reply-To: <20080419110934.672648e6@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org
-Cc: paulus@samba.org, jochen@scram.de, sfr@canb.auug.org.au, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, scottwood@freescale.com, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080418235451.2643183b-1Z+4F8PJzVxlecnr3/Sf3RLwuzhV/fVh@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean Delvare <khali@linux-fr.org>
-Date: Sat, 19 Apr 2008 11:09:34 +0200
+On Fri, 18 Apr 2008 23:54:51 +0200, Alessandro Zummo wrote:
+> On Thu, 17 Apr 2008 17:08:32 +0200
+> Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org> wrote:
+> 
+> > 
+> > Hi,
+> > 
+> > here's a patch against 2.6.25-rc8-mm2 that adds support for device tree names
+> > to the rtc-pcf8563 driver.
+> 
+>  thanks!
+>  
+> > Is the new-style driver conversion patch in 2.6.25-rc8-mm2 scheduled for
+> > 2.6.26 ?
+> 
+>  hope so! :)
 
-> Guys, you're doing things the wrong way around. Breaking things to fix
-> them later is not OK, it's a pain for testers and also when bisecting
-> the kernel. Everything should still work after merging the powerpc
-> tree. Dave, if you need to loosen the dependency, you should do it
-> yourself _after_ having changed whatever needs to be in the sparc32 and
-> sparc64 trees so that loosening the dependency doesn't break anything.
-> As far as I can see it's only a matter of changing one line in a
-> Kconfig file, that's not exactly difficult to do it in the right order.
+Note that this patch depends on i2c patches which aren't upstream yet.
 
-Fair enough.
+-- 
+Jean Delvare
 
-At least don't move this stuff under arch/powerpc as paulus originally
-had suggested.
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
