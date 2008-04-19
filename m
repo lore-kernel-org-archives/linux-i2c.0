@@ -1,51 +1,48 @@
-From: Paul Mackerras <paulus@samba.org>
-Subject: Re: build breakage from of i2c helper patch
-Date: Fri, 18 Apr 2008 21:27:54 +1000
-Message-ID: <18440.34234.28845.7398@cargo.ozlabs.ibm.com>
-References: <CDDD8C0A-4B40-4CA7-BB84-50B2A93C7804@kernel.crashing.org>
-	<48071778.2000405@scram.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by OF
+ helpers
+Date: Sat, 19 Apr 2008 11:09:34 +0200
+Message-ID: <20080419110934.672648e6@hyperion.delvare>
+References: <18441.28496.84724.411784@cargo.ozlabs.ibm.com>
+	<20080418.210933.01471700.davem@davemloft.net>
+	<18441.33181.511355.338428@cargo.ozlabs.ibm.com>
+	<20080418.231128.97404791.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <48071778.2000405@scram.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linux I2C <i2c@lm-sensors.org>, "linuxppc-dev@ozlabs.org list" <linuxppc-dev@ozlabs.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754361AbYDSJKP@vger.kernel.org>
+In-Reply-To: <20080418.231128.97404791.davem@davemloft.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: paulus@samba.org, jochen@scram.de, sfr@canb.auug.org.au, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, scottwood@freescale.com, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jochen Friedrich writes:
-
-> It looks like it. i2c-core needs to be compiled static for the OF
-> bindings to work.
-> I guess in Kconfig "depends on OF && I2C" must be changed into
-> "depends on OF && (I2C=y)"
+On Fri, 18 Apr 2008 23:11:28 -0700 (PDT), David Miller wrote:
+> From: Paul Mackerras <paulus@samba.org>
+> Date: Sat, 19 Apr 2008 15:22:37 +1000
 > 
-> On the other hand, i didn't test the patch without the dependent
-> patches, so it might not work as expected:
-
-Which way around is this dependency?  Do you mean that the patches you
-listed depend on the "OF helpers for the i2c API" patch, or that the
-OF helpers patch depends on these other ones?
-
-> http://patchwork.ozlabs.org/linuxppc/patch?id=17833
-> http://patchwork.ozlabs.org/linuxppc/patch?id=17834
+> > David Miller writes:
+> > > From: Paul Mackerras <paulus@samba.org>
+> > > Date: Sat, 19 Apr 2008 14:04:32 +1000
+> > > 
+> > > It's OK if this breaks the sparc64 allmodconfig build, I'll take
+> > > care of this once it's merged in.
+> > 
+> > It breaks the sparc32 allmodconfig build, which seems to be a
+> > concern.  How do you suggest we fix that?
 > 
-> or the original ones from Jean Delvare:
-> 
-> http://patchwork.ozlabs.org/linuxppc/patch?id=16282
-> http://patchwork.ozlabs.org/linuxppc/patch?id=16283
-> http://patchwork.ozlabs.org/linuxppc/patch?id=16284
+> I'll fix both sparc64 and sparc32 builds when I merge my sparc
+> tree in.
 
-What's the best way to fix this now?  We need to get a reasonable fix
-in before I ask Linux to pull the powerpc tree.
+Guys, you're doing things the wrong way around. Breaking things to fix
+them later is not OK, it's a pain for testers and also when bisecting
+the kernel. Everything should still work after merging the powerpc
+tree. Dave, if you need to loosen the dependency, you should do it
+yourself _after_ having changed whatever needs to be in the sparc32 and
+sparc64 trees so that loosening the dependency doesn't break anything.
+As far as I can see it's only a matter of changing one line in a
+Kconfig file, that's not exactly difficult to do it in the right order.
 
-Paul.
+Thanks,
+-- 
+Jean Delvare
