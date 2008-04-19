@@ -1,55 +1,43 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Fri, 18 Apr 2008 10:59:53 +0200
-Message-ID: <fu9nua$b0l$1@ger.gmane.org>
-References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>	<20080414143925.31b55b39@hyperion.delvare>	<200804140857.33732.david-b@pacbell.net>
-	<200804171417.23753.david-b@pacbell.net>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by OF
+ helpers
+Date: Fri, 18 Apr 2008 21:09:33 -0700 (PDT)
+Message-ID: <20080418.210933.01471700.davem@davemloft.net>
+References: <4808AEC7.8040000@scram.de>
+	<18441.28496.84724.411784@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200804171417.23753.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756188AbYDSEJl@vger.kernel.org>
+In-Reply-To: <18441.28496.84724.411784@cargo.ozlabs.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: paulus@samba.org
+Cc: jochen@scram.de, sfr@canb.auug.org.au, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, scottwood@freescale.com, i2c@lm-sensors.org, khali@linux-fr.org
 List-Id: linux-i2c@vger.kernel.org
 
-David Brownell wrote:
+From: Paul Mackerras <paulus@samba.org>
+Date: Sat, 19 Apr 2008 14:04:32 +1000
 
-> That was obviously tested only at HZ=100 or with quick-ish
-> EEPROMs!
-Ah, okay. I was aware that msleep(1) waits not less than 10ms with 
-HZ=100. I simply wondered, how to reach the timeout value for bigger 
-HZ-values.
+> Jochen Friedrich writes:
+> 
+> > Fix build breakage introduced in commit
+> > "[POWERPC] i2c: OF helpers for the i2c API".
+> > If i2c-core is compiled as module, the helper needs to be
+> > compiled as module, as well. Rename i2c.c to of_i2c.c to
+> > avoid name space conflict.
+> 
+> Actually, since only powerpc has irq_of_parse_and_map, I'm now
+> inclined to think that drivers/of/i2c.c should live under arch/powerpc
+> for now, or at the least its option should depend on PPC_OF.
 
-> That loop should (a) run at least a few times, maybe three;
-> and (b) not exit before the timeout passes.
-...or (c) return successfully as soon as possible. This is why you used 
-msleep(1) and not something like msleep(AT24_EE_TIMEOUT / 2). I got it :)
+I specifically asked for this to not be PPC only so that I
+can make use of this infrastructure on sparc64 for I2C devices.
 
- > 	timeout = ... ;
- > 	retries = 0;
- > 	while (retries++ < 3 || time_before(jiffies, timeout)) {
- > 		... try write, quit loop on success ...
- > 		msleep(1);
- > 	}
-This looks good, will include it!
+It's OK if this breaks the sparc64 allmodconfig build, I'll take
+care of this once it's merged in.
 
-    Wolfram
+Please merge the PPC tree to Linus soon, so that I can merge
+in my sparc64 NUMA bits which depend upon the LMB changesets
+in the PPC tree.
 
--- 
-   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
-  Pengutronix - Linux Solutions for Science and Industry
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Thanks.
