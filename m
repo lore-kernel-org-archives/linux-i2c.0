@@ -1,48 +1,34 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH] [POWERPC] i2c: fix build breakage introduced by OF
  helpers
-Date: Sat, 19 Apr 2008 11:09:34 +0200
-Message-ID: <20080419110934.672648e6@hyperion.delvare>
-References: <18441.28496.84724.411784@cargo.ozlabs.ibm.com>
-	<20080418.210933.01471700.davem@davemloft.net>
-	<18441.33181.511355.338428@cargo.ozlabs.ibm.com>
+Date: Sat, 19 Apr 2008 02:12:56 -0700 (PDT)
+Message-ID: <20080419.021256.26059313.davem@davemloft.net>
+References: <18441.33181.511355.338428@cargo.ozlabs.ibm.com>
 	<20080418.231128.97404791.davem@davemloft.net>
+	<20080419110934.672648e6@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754361AbYDSJKP@vger.kernel.org>
-In-Reply-To: <20080418.231128.97404791.davem@davemloft.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753286AbYDSJNP@vger.kernel.org>
+In-Reply-To: <20080419110934.672648e6@hyperion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
+To: khali@linux-fr.org
 Cc: paulus@samba.org, jochen@scram.de, sfr@canb.auug.org.au, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, scottwood@freescale.com, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 18 Apr 2008 23:11:28 -0700 (PDT), David Miller wrote:
-> From: Paul Mackerras <paulus@samba.org>
-> Date: Sat, 19 Apr 2008 15:22:37 +1000
-> 
-> > David Miller writes:
-> > > From: Paul Mackerras <paulus@samba.org>
-> > > Date: Sat, 19 Apr 2008 14:04:32 +1000
-> > > 
-> > > It's OK if this breaks the sparc64 allmodconfig build, I'll take
-> > > care of this once it's merged in.
-> > 
-> > It breaks the sparc32 allmodconfig build, which seems to be a
-> > concern.  How do you suggest we fix that?
-> 
-> I'll fix both sparc64 and sparc32 builds when I merge my sparc
-> tree in.
+From: Jean Delvare <khali@linux-fr.org>
+Date: Sat, 19 Apr 2008 11:09:34 +0200
 
-Guys, you're doing things the wrong way around. Breaking things to fix
-them later is not OK, it's a pain for testers and also when bisecting
-the kernel. Everything should still work after merging the powerpc
-tree. Dave, if you need to loosen the dependency, you should do it
-yourself _after_ having changed whatever needs to be in the sparc32 and
-sparc64 trees so that loosening the dependency doesn't break anything.
-As far as I can see it's only a matter of changing one line in a
-Kconfig file, that's not exactly difficult to do it in the right order.
+> Guys, you're doing things the wrong way around. Breaking things to fix
+> them later is not OK, it's a pain for testers and also when bisecting
+> the kernel. Everything should still work after merging the powerpc
+> tree. Dave, if you need to loosen the dependency, you should do it
+> yourself _after_ having changed whatever needs to be in the sparc32 and
+> sparc64 trees so that loosening the dependency doesn't break anything.
+> As far as I can see it's only a matter of changing one line in a
+> Kconfig file, that's not exactly difficult to do it in the right order.
 
-Thanks,
--- 
-Jean Delvare
+Fair enough.
+
+At least don't move this stuff under arch/powerpc as paulus originally
+had suggested.
