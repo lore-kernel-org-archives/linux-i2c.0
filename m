@@ -1,16 +1,20 @@
-From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
-Date: Mon, 21 Apr 2008 14:12:48 +0200
-Message-ID: <200804211412.49201.sr@denx.de>
-References: <200804171708.32847.laurentp@cse-semaphore.com>
-	<480A2117.7020502@scram.de>
-	<200804211356.10192.laurentp@cse-semaphore.com>
+From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
+Date: Mon, 21 Apr 2008 10:20:17 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0804211005410.15697@shell2.speakeasy.net>
+References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
+	<20080414143925.31b55b39@hyperion.delvare>
+	<200804140857.33732.david-b@pacbell.net>
+	<200804171417.23753.david-b@pacbell.net>
+	<Pine.LNX.4.58.0804172346580.10592@shell2.speakeasy.net>
+	<20080418103149.GA4245@pengutronix.de>
+	<Pine.LNX.4.58.0804181555560.15372@shell4.speakeasy.net>
+	<fuhm3r$sok$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200804211356.10192.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <fuhm3r$sok$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,27 +24,46 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Cc: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 21 April 2008, Laurent Pinchart wrote:
-> > > > Is there any chance they will got to 2.6.26?
-> > >
-> > > I'm not sure. I didn't have the time to look at it myself, but I am
-> > > under the impression that the powerpc folks are tired of having to wait
-> > > for me and may push it to Linus through their tree? That would be fine
-> > > with me, as I don't want to be the one delaying something many
-> > > developers want (but I also can't sign patches I've not even read.)
->
-> The patches are required for long awaited I2C support on various PowerPC
-> boards. As the ppc architecture support is going away in 2.6.27, it would
-> be nice to have them applied in 2.6.26.
+On Mon, 21 Apr 2008, Wolfram Sang wrote:
+> Trent Piepho wrote:
+> > Oh, of course.  I had ignored the retries because it seemed like a bad
+> > idea.  If the timeout is based on time, why does it matter how many tries
+> > there were?
+> Because then you have a guaranteed number of tries, even if the timeout
+> value was reached due to some reason.
 
-Yes, please.
+Is there a reason to always try at least a certain number of times?
 
-Best regards,
-Stefan
+If it hasn't been long enough since the last write, the next write isn't
+suppose to work.  That's the expected operation of the device.  But if it
+has been long enough, and the write still fails, then it seems to me that
+the behavior has changed from normal operation to an error.
+
+> > Still, if you want to wait at least 25 ms, on a HZ=1000 system you might
+> > wait only 3 ms.
+> I'm sorry, I fail to see this. If there are more than three retries,
+> then there is still the time_before-condition which keeps the loop
+> running until the timeout is reached, no?
+
+Except for the timing problem I pointed out before.  The timeout is checked
+before the write takes place.  So if after the 3rd attempt the msleep(), or
+kernel preemption, etc., delays for 22 ms or more, the next write will
+never happen.
+
+> > And on a HZ=100 system, you'll wait at least 60 ms when
+> > the timeout only needed to be 25 ms.
+> Yes, because there is this policy to retry at least three times. Maybe
+> it is an idea to introduce a module parameter which lets the user select
+> a suitable retry parameter?
+
+I wouldn't have extra retries.  It's part of the chip's specs that there
+has to be some delay, exactly how much we don't know, between writes.  But
+is there an eeprom that says in its specs that writes are unreliable?  That
+they may fail for no reason and should be tried multiple times?
 
 _______________________________________________
 i2c mailing list
