@@ -1,54 +1,110 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Mon, 21 Apr 2008 11:17:46 +0200
-Message-ID: <fuhm3r$sok$1@ger.gmane.org>
-References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>	<20080414143925.31b55b39@hyperion.delvare>	<200804140857.33732.david-b@pacbell.net>	<200804171417.23753.david-b@pacbell.net>	<Pine.LNX.4.58.0804172346580.10592@shell2.speakeasy.net>	<20080418103149.GA4245@pengutronix.de>
-	<Pine.LNX.4.58.0804181555560.15372@shell4.speakeasy.net>
+From: Laurent Pinchart <laurentp@cse-semaphore.com>
+Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
+Date: Mon, 21 Apr 2008 13:56:09 +0200
+Message-ID: <200804211356.10192.laurentp@cse-semaphore.com>
+References: <200804171708.32847.laurentp@cse-semaphore.com>
+	<20080419162358.746b714c@hyperion.delvare>
+	<480A2117.7020502@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.58.0804181555560.15372-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============1614637543=="
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <480A2117.7020502@scram.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Mime-version: 1.0
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Jean Delvare <khali@linux-fr.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Alessandro Zummo <alessandro.zummo@towertech.it>, i2c@lm-sensors.org, rtc-linux@googlegroups.com
 List-Id: linux-i2c@vger.kernel.org
 
-Trent Piepho wrote:
+--===============1614637543==
+Content-Type: multipart/signed;
+  boundary="nextPart1693107.9xNIqqW0Io";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-> Oh, of course.  I had ignored the retries because it seemed like a bad
-> idea.  If the timeout is based on time, why does it matter how many tries
-> there were?
-Because then you have a guaranteed number of tries, even if the timeout 
-value was reached due to some reason.
+--nextPart1693107.9xNIqqW0Io
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Still, if you want to wait at least 25 ms, on a HZ=1000 system you might
-> wait only 3 ms.  
-I'm sorry, I fail to see this. If there are more than three retries, 
-then there is still the time_before-condition which keeps the loop 
-running until the timeout is reached, no?
+On Saturday 19 April 2008 18:43, Jochen Friedrich wrote:
+> Jean Delvare wrote:
+> > On Sat, 19 Apr 2008 15:09:55 +0200, Jochen Friedrich wrote:
+> > > Hi Jean,
+> > >
+> > > > > > Is the new-style driver conversion patch in 2.6.25-rc8-mm2
+> > > > > > scheduled for 2.6.26 ?
+> > > > >  hope so! :)
+> > > > Note that this patch depends on i2c patches which aren't upstream y=
+et.
+> > > Is there any chance they will got to 2.6.26?
+> >=20
+> > I'm not sure. I didn't have the time to look at it myself, but I am
+> > under the impression that the powerpc folks are tired of having to wait
+> > for me and may push it to Linus through their tree? That would be fine
+> > with me, as I don't want to be the one delaying something many
+> > developers want (but I also can't sign patches I've not even read.)
 
-> And on a HZ=100 system, you'll wait at least 60 ms when
-> the timeout only needed to be 25 ms.
-Yes, because there is this policy to retry at least three times. Maybe 
-it is an idea to introduce a module parameter which lets the user select 
-a suitable retry parameter?
+The patches are required for long awaited I2C support on various PowerPC=20
+boards. As the ppc architecture support is going away in 2.6.27, it would b=
+e=20
+nice to have them applied in 2.6.26.
 
-    Wolfram
+> The required patches are:
+>=20
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D17833
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D17834
+>=20
+> which are just the forward ported patches you sent to the poweprc mailing
+> list some time ago:=20
+>=20
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D16282
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D16283
+>=20
+> Thanks,
+> Jochen
 
--- 
-   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
-  Pengutronix - Linux Solutions for Science and Industry
+=2D-=20
+Laurent Pinchart
+CSE Semaphore Belgium
 
+Chaussee de Bruxelles, 732A
+B-1410 Waterloo
+Belgium
+
+T +32 (2) 387 42 59
+=46 +32 (2) 387 42 75
+
+--nextPart1693107.9xNIqqW0Io
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBIDIDa8y9gWxC9vpcRAsmuAKDHl9S60v+HwQXs/KsowljmpGGHdwCgrCTQ
+IDZTZLv+cL8zSTGJTwwdhJk=
+=wwEJ
+-----END PGP SIGNATURE-----
+
+--nextPart1693107.9xNIqqW0Io--
+
+--===============1614637543==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Linuxppc-dev mailing list
+Linuxppc-dev@ozlabs.org
+https://ozlabs.org/mailman/listinfo/linuxppc-dev
+--===============1614637543==--
