@@ -1,71 +1,111 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Mon, 21 Apr 2008 10:20:17 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0804211005410.15697@shell2.speakeasy.net>
-References: <1207914198-8561-1-git-send-email-w.sang@pengutronix.de>
-	<20080414143925.31b55b39@hyperion.delvare>
-	<200804140857.33732.david-b@pacbell.net>
-	<200804171417.23753.david-b@pacbell.net>
-	<Pine.LNX.4.58.0804172346580.10592@shell2.speakeasy.net>
-	<20080418103149.GA4245@pengutronix.de>
-	<Pine.LNX.4.58.0804181555560.15372@shell4.speakeasy.net>
-	<fuhm3r$sok$1@ger.gmane.org>
+From: Laurent Pinchart <laurentp@cse-semaphore.com>
+Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
+Date: Tue, 22 Apr 2008 16:11:56 +0200
+Message-ID: <200804221612.06745.laurentp@cse-semaphore.com>
+References: <200804171708.32847.laurentp@cse-semaphore.com>
+	<20080419162358.746b714c@hyperion.delvare>
+	<480A2117.7020502@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <fuhm3r$sok$1@ger.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============1769331478=="
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <480A2117.7020502@scram.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Mime-version: 1.0
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, Alessandro Zummo <alessandro.zummo@towertech.it>, rtc-linux@googlegroups.com, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 21 Apr 2008, Wolfram Sang wrote:
-> Trent Piepho wrote:
-> > Oh, of course.  I had ignored the retries because it seemed like a bad
-> > idea.  If the timeout is based on time, why does it matter how many tries
-> > there were?
-> Because then you have a guaranteed number of tries, even if the timeout
-> value was reached due to some reason.
+--===============1769331478==
+Content-Type: multipart/signed;
+  boundary="nextPart22813803.oepq2cn4Ao";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-Is there a reason to always try at least a certain number of times?
+--nextPart22813803.oepq2cn4Ao
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-If it hasn't been long enough since the last write, the next write isn't
-suppose to work.  That's the expected operation of the device.  But if it
-has been long enough, and the write still fails, then it seems to me that
-the behavior has changed from normal operation to an error.
+Hi Jean,
 
-> > Still, if you want to wait at least 25 ms, on a HZ=1000 system you might
-> > wait only 3 ms.
-> I'm sorry, I fail to see this. If there are more than three retries,
-> then there is still the time_before-condition which keeps the loop
-> running until the timeout is reached, no?
+On Saturday 19 April 2008 18:43, Jochen Friedrich wrote:
+> Jean Delvare wrote:
+> > On Sat, 19 Apr 2008 15:09:55 +0200, Jochen Friedrich wrote:
+> >> Hi Jean,
+> >>
+> >>>>> Is the new-style driver conversion patch in 2.6.25-rc8-mm2 scheduled
+> >>>>> for 2.6.26 ?
+> >>>>  hope so! :)
+> >>> Note that this patch depends on i2c patches which aren't upstream yet.
+> >> Is there any chance they will got to 2.6.26?
+> >=20
+> > I'm not sure. I didn't have the time to look at it myself, but I am
+> > under the impression that the powerpc folks are tired of having to wait
+> > for me and may push it to Linus through their tree? That would be fine
+> > with me, as I don't want to be the one delaying something many
+> > developers want (but I also can't sign patches I've not even read.)
+>=20
+> The required patches are:
+>=20
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D17833
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D17834
+>=20
+> which are just the forward ported patches you sent to the poweprc mailing
+> list some time ago:=20
+>=20
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D16282
+> http://patchwork.ozlabs.org/linuxppc/patch?id=3D16283
 
-Except for the timing problem I pointed out before.  The timeout is checked
-before the write takes place.  So if after the 3rd attempt the msleep(), or
-kernel preemption, etc., delays for 22 ms or more, the next write will
-never happen.
+Given that the required patches are just forward-ported versions of patches=
+=20
+you sent (and thus probably reviewed as well :-)), what's the best way to g=
+et=20
+them in 2.6.26 (if at all possible) ?
 
-> > And on a HZ=100 system, you'll wait at least 60 ms when
-> > the timeout only needed to be 25 ms.
-> Yes, because there is this policy to retry at least three times. Maybe
-> it is an idea to introduce a module parameter which lets the user select
-> a suitable retry parameter?
+Best regards,
 
-I wouldn't have extra retries.  It's part of the chip's specs that there
-has to be some delay, exactly how much we don't know, between writes.  But
-is there an eeprom that says in its specs that writes are unreliable?  That
-they may fail for no reason and should be tried multiple times?
+=2D-=20
+Laurent Pinchart
+CSE Semaphore Belgium
+
+Chaussee de Bruxelles, 732A
+B-1410 Waterloo
+Belgium
+
+T +32 (2) 387 42 59
+=46 +32 (2) 387 42 75
+
+--nextPart22813803.oepq2cn4Ao
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBIDfI28y9gWxC9vpcRAtfwAJwOmE1mpU/4Au0hU+65yO7bNacEYwCgpRtx
+r4nrrYL/G06uKy++uyRK70E=
+=4Lrd
+-----END PGP SIGNATURE-----
+
+--nextPart22813803.oepq2cn4Ao--
+
+--===============1769331478==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Linuxppc-dev mailing list
+Linuxppc-dev@ozlabs.org
+https://ozlabs.org/mailman/listinfo/linuxppc-dev
+--===============1769331478==--
