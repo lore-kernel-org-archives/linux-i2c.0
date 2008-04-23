@@ -1,49 +1,77 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
-Date: Wed, 23 Apr 2008 13:09:19 +0200
-Message-ID: <20080423130919.5d55feff@hyperion.delvare>
+Date: Wed, 23 Apr 2008 13:16:57 +0200
+Message-ID: <20080423131657.71d6312f@hyperion.delvare>
 References: <200804171708.32847.laurentp@cse-semaphore.com>
+	<20080419162358.746b714c@hyperion.delvare>
 	<480A2117.7020502@scram.de>
-	<200804211356.10192.laurentp@cse-semaphore.com>
-	<200804211412.49201.sr@denx.de>
+	<200804221612.06745.laurentp@cse-semaphore.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200804211412.49201.sr@denx.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Stefan Roese <sr@denx.de>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>, rtc-linux@googlegroups.com, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200804221612.06745.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
+Cc: linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 21 Apr 2008 14:12:48 +0200, Stefan Roese wrote:
-> On Monday 21 April 2008, Laurent Pinchart wrote:
-> > > > > Is there any chance they will got to 2.6.26?
-> > > >
-> > > > I'm not sure. I didn't have the time to look at it myself, but I am
-> > > > under the impression that the powerpc folks are tired of having to wait
-> > > > for me and may push it to Linus through their tree? That would be fine
-> > > > with me, as I don't want to be the one delaying something many
-> > > > developers want (but I also can't sign patches I've not even read.)
-> >
-> > The patches are required for long awaited I2C support on various PowerPC
-> > boards. As the ppc architecture support is going away in 2.6.27, it would
-> > be nice to have them applied in 2.6.26.
-> 
-> Yes, please.
+Hi Laurent,
 
-I know that many people would like to see these patches upstream
-quickly, no question about that. The problem is that I am very busy
-with my day job and my family life these days so I just don't know when
-I will find the time an energy to go through this huge patch set.
+On Tue, 22 Apr 2008 16:11:56 +0200, Laurent Pinchart wrote:
+> Hi Jean,
+> 
+> On Saturday 19 April 2008 18:43, Jochen Friedrich wrote:
+> > Jean Delvare wrote:
+> > > I'm not sure. I didn't have the time to look at it myself, but I am
+> > > under the impression that the powerpc folks are tired of having to wait
+> > > for me and may push it to Linus through their tree? That would be fine
+> > > with me, as I don't want to be the one delaying something many
+> > > developers want (but I also can't sign patches I've not even read.)
+
+I still don't know exactly what happened there... I think I saw some
+"OpenFirmware i2c" patches go upstream yesterday? But not the ones
+listed below, which I thought they depended upon.
+
+> > The required patches are:
+> > 
+> > http://patchwork.ozlabs.org/linuxppc/patch?id=17833
+> > http://patchwork.ozlabs.org/linuxppc/patch?id=17834
+> > 
+> > which are just the forward ported patches you sent to the poweprc mailing
+> > list some time ago: 
+> > 
+> > http://patchwork.ozlabs.org/linuxppc/patch?id=16282
+> > http://patchwork.ozlabs.org/linuxppc/patch?id=16283
+> 
+> Given that the required patches are just forward-ported versions of patches 
+> you sent (and thus probably reviewed as well :-)), what's the best way to get 
+> them in 2.6.26 (if at all possible) ?
+
+It's not that easy. A lot of new new-style i2c drivers have shown up in
+the kernel since I wrote my patches (themselves derived heavily from
+Jon Smirl's). Even if Jochen's patches are based on mine, we still need
+to take a careful look on how each driver is modified, I remember for
+example that some v4l drivers were using the original new-style driver
+binding in a way I did not expect. So I can't just sign these patches
+and hope they didn't break anything. It needs care, and this requires
+time.
+
+I will do my best to get this done before the 2.6.26 merge window
+closes, but I can't promise anything.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
