@@ -1,86 +1,39 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: platform_data when using of?
-Date: Wed, 23 Apr 2008 18:45:23 +0200
-Message-ID: <20080423164523.GA4190@pengutronix.de>
+From: Manuel Lauss <mano@roarinelk.homelinux.net>
+Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
+Date: Wed, 23 Apr 2008 20:11:01 +0200
+Message-ID: <20080423181101.GA2931@roarinelk.homelinux.net>
+References: <20080325063236.GA29012@linux-sh.org> <20080423134156.1b368163@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8949838498501884249=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080423134156.1b368163@hyperion.delvare>
+Sender: linux-sh-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Paul Mundt <lethal@linux-sh.org>, i2c@lm-sensors.org, Andrew Morton <akpm@linux-foundation.org>, linux-sh@vger.kernel.org, Magnus Damm <damm@igel.co.jp>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
 
---===============8949838498501884249==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
+On Wed, Apr 23, 2008 at 01:41:56PM +0200, Jean Delvare wrote:
+> On Tue, 25 Mar 2008 15:32:36 +0900, Paul Mundt wrote:
+> > This adds support for the SMBus adapter found in the various FPGAs on
+> > the Renesas Highlander platforms. Particularly the R0P7780LC0011RL and
+> > R0P7785LC0011RL FPGAs.
+> > 
+> > Functionality is fairly restricted, in that only byte and block data
+> > transfers are supported. Normal/fast mode and IRQ/polling are also
+> > supported. Primarily used for various RTCs and thermal sensors.
+> > 
+> > Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+> 
+> No volunteer to review this driver? Manuel or Magnus maybe?
 
+I don't think I'm qualified to review other peoples' code (it looks
+fine to me).  The other thing is Renesas demoboards are impossible to
+get outside of Japan so I think Paul is the only user of this hardware
+who is also interested in linux support. And I'm convinced he knows
+what he's doing ;-)
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello,
-
-I finally could get the work started with I2C on a MPC8260-based
-platform. I applied Jochen's series on top of 2.6.25 and it seems I
-could get the i2c-cpm and the rtc-rs5c372 driver working (except that it
-doesn't autoload as a module, but I think this is my fault somewhere).
-I have not checked all yet, but at least some reasonable things do happen.
-
-I now wanted to test the latest at24-driver on top of that and stumbled
-over the fact, that I can't directly add platform_data to the dts-file.
-(As at24 shall be a generic driver, data about the eeprom type needs to
-be provided.) If I understood of correctly, I need to create another
-child node and put all necessary data in there (what also means one
-cannot use the predefined macros for known chips in at24.h). After that
-I use of_get_property and collect the data.
-
-So, at the end, every driver using platform_data has to cope with two
-mechanisms to get the desired data? This sounds questionable to me, but
-maybe I just got something wrong as this is my first contact with of.
-
-Kind regards,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---FL5UXtIhxfXey3p5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFID2ejD27XaX1/VRsRAt6XAJoDaOgpybdGMF3jNQTWJ34WdvMmhgCfeMW2
-KQt77EFFfsUHWO3uC2VjTaM=
-=+aCi
------END PGP SIGNATURE-----
-
---FL5UXtIhxfXey3p5--
-
-
---===============8949838498501884249==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8949838498501884249==--
+Thanks,
+	Manuel Lauss
