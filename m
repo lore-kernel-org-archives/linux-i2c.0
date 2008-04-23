@@ -1,161 +1,86 @@
-From: Laurent Pinchart <laurentp@cse-semaphore.com>
-Subject: Re: [PATCH] rtc-pcf8563: Add device ids table
-Date: Wed, 23 Apr 2008 15:53:14 +0200
-Message-ID: <200804231553.17926.laurentp@cse-semaphore.com>
-References: <200804171708.32847.laurentp@cse-semaphore.com>
-	<200804231412.40038.laurentp@cse-semaphore.com>
-	<20080423144756.3fc9b1bf@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: platform_data when using of?
+Date: Wed, 23 Apr 2008 18:45:23 +0200
+Message-ID: <20080423164523.GA4190@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1723564125=="
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080423144756.3fc9b1bf@hyperion.delvare>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Mime-version: 1.0
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, Alessandro Zummo <alessandro.zummo@towertech.it>, rtc-linux@googlegroups.com, i2c@lm-sensors.org
+Content-Type: multipart/mixed; boundary="===============8949838498501884249=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============1723564125==
-Content-Type: multipart/signed;
-  boundary="nextPart9233562.uNRQ6XUGWQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
 
---nextPart9233562.uNRQ6XUGWQ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+--===============8949838498501884249==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Content-Disposition: inline
 
-On Wednesday 23 April 2008 14:47, Jean Delvare wrote:
-> On Wed, 23 Apr 2008 14:12:37 +0200, Laurent Pinchart wrote:
-> > On Wednesday 23 April 2008 13:16, Jean Delvare wrote:
-> > > I still don't know exactly what happened there... I think I saw some
-> > > "OpenFirmware i2c" patches go upstream yesterday? But not the ones
-> > > listed below, which I thought they depended upon.
-> >=20
-> > The code that went upstream introduces helper functions to create i2c
-> > devices from information supplied by the OF device tree. It doesn't
-> > strictly depend on the below patches, but the new devices won't be
-> > properly bound to a driver without them.
->=20
-> OK. So... Out of the 7 patches Jochen sent originally, only 1 ([3/7] OF
-> helpers for the i2c API) went upstream. Am I correct?
->=20
-> Jochen, I'm a bit confused by the dependencies that exist - or not -
-> between these 7 patches you sent at once. I thought they had to be
-> applied in sequence but it seems not? And some of them should
-> apparently go through me i2c tree but others (e.g. [7/7]) not?
->=20
-> I would appreciate if you could summarize quickly which patches depend
-> on others in which way. If we can make smaller subsets of patches, that
-> will be easier for me to review and push upstream on my limited time.
 
-Here is a summary based on my understanding of the situation. Jochen please=
-=20
-correct me if I'm wrong.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[PATCH1/7] i2c: Add support for device alias names
+Hello,
 
-This patch allows new-style i2c chip drivers to have alias names using
-the official kernel aliasing system and MODULE_DEVICE_TABLE(). It basically=
-=20
-adds device id table found in various subsystems (PCI, USB, ...) to i2c=20
-new-style drivers.
+I finally could get the work started with I2C on a MPC8260-based
+platform. I applied Jochen's series on top of 2.6.25 and it seems I
+could get the i2c-cpm and the rtc-rs5c372 driver working (except that it
+doesn't autoload as a module, but I think this is my fault somewhere).
+I have not checked all yet, but at least some reasonable things do happen.
 
-The patch extends the new-style i2c device/driver matching code to support=
-=20
-device id tables. It modifies the drivers accordingly, as the probe functio=
-n=20
-now takes an extra argument (pointer to the device id entry that matched),=
-=20
-but doesn't add device id tables to the drivers.
+I now wanted to test the latest at24-driver on top of that and stumbled
+over the fact, that I can't directly add platform_data to the dts-file.
+(As at24 shall be a generic driver, data about the eeprom type needs to
+be provided.) If I understood of correctly, I need to create another
+child node and put all necessary data in there (what also means one
+cannot use the predefined macros for known chips in at24.h). After that
+I use of_get_property and collect the data.
 
-[PATCH2/7] i2c: Convert all new-style drivers to use module aliasing
+So, at the end, every driver using platform_data has to cope with two
+mechanisms to get the desired data? This sounds questionable to me, but
+maybe I just got something wrong as this is my first contact with of.
 
-This patch adds the device id tables to the new-style i2c drivers. It depen=
-ds=20
-on the previous patch.
+Kind regards,
 
-[PATCH3/7] i2c: OF helpers for the i2c API
+   Wolfram
 
-This one has already been applied through the ppc subsystem. It adds helper=
-=20
-functions to instantiate i2c devices from the OF device tree. The patch has=
-=20
-no compile time dependencies but relies on 1/7 and 2/7 to bind devices to=20
-drivers at runtime.
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
 
-[PATCH4/7] i2c: Convert PowerPC MPC i2c to of_platform_driver from=20
-platform_driver
-
-This patch should go through the ppc subsystem. It adds OF device tree supp=
-ort=20
-to the i2c-mpc driver. To the best of my knowledge it depends on 3/7 only.
-
-[PATCH5/7] i2c: Kill the old driver matching scheme
-
-This patch removes the old driver_name/type scheme for i2c driver matching.=
-=20
-Only the new matching scheme introduced by 2/7 remains for new-style driver=
-s.
-
-[PATCH6/7] i2c: adds support for i2c bus on Freescale CPM1/CPM2 controllers
-
-This one introduces a new i2c bus driver. It should go through the ppc=20
-subsystem. To the best of my knowledge it depends on 3/7 only.
-
-[PATCH7/7] [POWERPC] Add i2c pins to dts and board setup
-
-This last patch configures i2c pins on various powerpc boards and updates t=
-he=20
-associated device trees to include the i2c controller. It should go through=
-=20
-the ppc subsystem. It has no compile-time dependency on any other patch in=
-=20
-the serie.
-
-=2D-=20
-Laurent Pinchart
-CSE Semaphore Belgium
-
-Chaussee de Bruxelles, 732A
-B-1410 Waterloo
-Belgium
-
-T +32 (2) 387 42 59
-=46 +32 (2) 387 42 75
-
---nextPart9233562.uNRQ6XUGWQ
-Content-Type: application/pgp-signature
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQBIDz9N8y9gWxC9vpcRAqBsAJ9oADBm6R00DzJRCK9xxhL6RQaRnQCdHQQw
-YgfMHJs4GJ6hEnKOkMPoJI4=
-=LMqq
+iD8DBQFID2ejD27XaX1/VRsRAt6XAJoDaOgpybdGMF3jNQTWJ34WdvMmhgCfeMW2
+KQt77EFFfsUHWO3uC2VjTaM=
+=+aCi
 -----END PGP SIGNATURE-----
 
---nextPart9233562.uNRQ6XUGWQ--
+--FL5UXtIhxfXey3p5--
 
---===============1723564125==
+
+--===============8949838498501884249==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 _______________________________________________
-Linuxppc-dev mailing list
-Linuxppc-dev@ozlabs.org
-https://ozlabs.org/mailman/listinfo/linuxppc-dev
---===============1723564125==--
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8949838498501884249==--
