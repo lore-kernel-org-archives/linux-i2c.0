@@ -1,39 +1,53 @@
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
-Date: Wed, 23 Apr 2008 20:11:01 +0200
-Message-ID: <20080423181101.GA2931@roarinelk.homelinux.net>
-References: <20080325063236.GA29012@linux-sh.org> <20080423134156.1b368163@hyperion.delvare>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: Re: [i2c] platform_data when using of?
+Date: Wed, 23 Apr 2008 20:20:50 +0200
+Message-ID: <480F7E02.4020400@scram.de>
+References: <20080423164523.GA4190@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080423134156.1b368163@hyperion.delvare>
-Sender: linux-sh-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Paul Mundt <lethal@linux-sh.org>, i2c@lm-sensors.org, Andrew Morton <akpm@linux-foundation.org>, linux-sh@vger.kernel.org, Magnus Damm <damm@igel.co.jp>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080423164523.GA4190@pengutronix.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi Wolfram,
 
-On Wed, Apr 23, 2008 at 01:41:56PM +0200, Jean Delvare wrote:
-> On Tue, 25 Mar 2008 15:32:36 +0900, Paul Mundt wrote:
-> > This adds support for the SMBus adapter found in the various FPGAs on
-> > the Renesas Highlander platforms. Particularly the R0P7780LC0011RL and
-> > R0P7785LC0011RL FPGAs.
-> > 
-> > Functionality is fairly restricted, in that only byte and block data
-> > transfers are supported. Normal/fast mode and IRQ/polling are also
-> > supported. Primarily used for various RTCs and thermal sensors.
-> > 
-> > Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+> Hello,
 > 
-> No volunteer to review this driver? Manuel or Magnus maybe?
+> I finally could get the work started with I2C on a MPC8260-based
+> platform. I applied Jochen's series on top of 2.6.25 and it seems I
+> could get the i2c-cpm and the rtc-rs5c372 driver working (except that it
+> doesn't autoload as a module, but I think this is my fault somewhere).
+> I have not checked all yet, but at least some reasonable things do happen.
+> 
+> I now wanted to test the latest at24-driver on top of that and stumbled
+> over the fact, that I can't directly add platform_data to the dts-file.
+> (As at24 shall be a generic driver, data about the eeprom type needs to
+> be provided.) If I understood of correctly, I need to create another
+> child node and put all necessary data in there (what also means one
+> cannot use the predefined macros for known chips in at24.h). After that
+> I use of_get_property and collect the data.
+> 
+> So, at the end, every driver using platform_data has to cope with two
+> mechanisms to get the desired data? This sounds questionable to me, but
+> maybe I just got something wrong as this is my first contact with of.
+> 
+> Kind regards,
+> 
+>    Wolfram
 
-I don't think I'm qualified to review other peoples' code (it looks
-fine to me).  The other thing is Renesas demoboards are impossible to
-get outside of Japan so I think Paul is the only user of this hardware
-who is also interested in linux support. And I'm convinced he knows
-what he's doing ;-)
+You should probably send this question to the Powerpc list (added to cc)
 
 Thanks,
-	Manuel Lauss
+Jochen
