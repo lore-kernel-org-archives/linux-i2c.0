@@ -1,45 +1,44 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
-Date: Wed, 23 Apr 2008 20:31:04 +0200
-Message-ID: <20080423203104.0ca0f301@hyperion.delvare>
-References: <20080325063236.GA29012@linux-sh.org>
-	<20080423134156.1b368163@hyperion.delvare>
-	<20080423181101.GA2931@roarinelk.homelinux.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: platform_data when using of?
+Date: Wed, 23 Apr 2008 20:30:12 +0200
+Message-ID: <20080423203012.24ed38b6@hyperion.delvare>
+References: <20080423164523.GA4190@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080423181101.GA2931@roarinelk.homelinux.net>
-Sender: linux-sh-owner@vger.kernel.org
-To: Manuel Lauss <mano@roarinelk.homelinux.net>
-Cc: Paul Mundt <lethal@linux-sh.org>, i2c@lm-sensors.org, Andrew Morton <akpm@linux-foundation.org>, linux-sh@vger.kernel.org, Magnus Damm <damm@igel.co.jp>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080423164523.GA4190-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 23 Apr 2008 20:11:01 +0200, Manuel Lauss wrote:
-> Hi Jean,
-> 
-> On Wed, Apr 23, 2008 at 01:41:56PM +0200, Jean Delvare wrote:
-> > On Tue, 25 Mar 2008 15:32:36 +0900, Paul Mundt wrote:
-> > > This adds support for the SMBus adapter found in the various FPGAs on
-> > > the Renesas Highlander platforms. Particularly the R0P7780LC0011RL and
-> > > R0P7785LC0011RL FPGAs.
-> > > 
-> > > Functionality is fairly restricted, in that only byte and block data
-> > > transfers are supported. Normal/fast mode and IRQ/polling are also
-> > > supported. Primarily used for various RTCs and thermal sensors.
-> > > 
-> > > Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-> > 
-> > No volunteer to review this driver? Manuel or Magnus maybe?
-> 
-> I don't think I'm qualified to review other peoples' code (it looks
-> fine to me).  The other thing is Renesas demoboards are impossible to
-> get outside of Japan so I think Paul is the only user of this hardware
-> who is also interested in linux support. And I'm convinced he knows
-> what he's doing ;-)
+Hi Wolfram,
 
-I guess that there are more users than just Paul, otherwise he wouldn't
-bother pushing his driver upstream, would he?
+On Wed, 23 Apr 2008 18:45:23 +0200, Wolfram Sang wrote:
+> (As at24 shall be a generic driver, data about the eeprom type needs to
+> be provided.)
+
+Each i2c driver can support many different devices, which are
+differentiated simply by their name. So the driver can behave
+differently for each device type as needed.
+
+But of course this doesn't cover the way the chip is wired, e.g.
+interrupt setup, pin polarities etc. For that you really need platform
+data, carried in a driver-specific structure.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
