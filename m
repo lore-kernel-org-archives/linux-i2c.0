@@ -1,88 +1,117 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
-Date: Fri, 25 Apr 2008 11:41:46 +0200
-Message-ID: <20080425114146.2dbedee6@hyperion.delvare>
-References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>
-	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>
-	<20080327163626.75d1bd51@hyperion.delvare>
-	<47ED4F3A.5060007@boundarydevices.com>
-	<20080328213649.508b4f3c@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] mpc i2c driver, compare to NO_IRQ instead of zero
+Date: Fri, 25 Apr 2008 11:43:18 +0200
+Message-ID: <20080425114318.36e3fd03@hyperion.delvare>
+References: <20080121200740.13800.20524.stgit@terra.home>
+	<20080219174221.5b18cba8@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080328213649.508b4f3c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080219174221.5b18cba8@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Troy,
+Hi Jon,
 
-On Fri, 28 Mar 2008 21:36:49 +0100, Jean Delvare wrote:
-> On Fri, 28 Mar 2008 13:04:10 -0700, Troy Kisky wrote:
-> > Jean Delvare wrote:
-> > > Hi Troy,
-> > > 
-> > > On Thu, 20 Mar 2008 20:06:07 -0700, Troy Kisky wrote:
-> > >> Ensure psc value gives a clock between 7-12 Mhz
-> > > 
-> > > Correct spelling is MHz.
-> > > 
-> > >> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> > >> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> > >> ---
-> > >>  drivers/i2c/busses/i2c-davinci.c |   19 ++++++++++++-------
-> > >>  1 files changed, 12 insertions(+), 7 deletions(-)
-> > >>
-> > >> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> > >> index fde2634..82d4b7f 100755
-> > >> --- a/drivers/i2c/busses/i2c-davinci.c
-> > >> +++ b/drivers/i2c/busses/i2c-davinci.c
-> > >> @@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
-> > >>  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> > >>  	u16 psc;
-> > >>  	u32 clk;
-> > >> +	u32 d;
-> > >>  	u32 clkh;
-> > >>  	u32 clkl;
-> > >>  	u32 input_clock = clk_get_rate(dev->clk);
-> > >> @@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
-> > >>  	 *       if PSC > 1 , d = 5
-> > >>  	 */
-> > >>  
-> > >> -	psc = 26; /* To get 1MHz clock */
-> > >> +	/* get minimum of 7mHz clock, but max of 12mHz */
-> > > 
-> > > Correct spelling is MHz.
-> > 
-> > 
-> > Hmm... I seems weird that kHz and MHz are correct, as opposed to
-> > kHz and mHz,  or KHz and MHz.
+On Tue, 19 Feb 2008 17:42:21 +0100, Jean Delvare wrote:
+> On Mon, 21 Jan 2008 15:07:40 -0500, Jon Smirl wrote:
+> > Alter the mpc i2c driver to use the NO_IRQ symbol instead of
+> > the constant zero when checking for valid interrupts. NO_IRQ=-1
+> > on ppc and NO_IRQ=0 on powerpc so the checks against zero are
+> > not correct.
 > 
-> These are the standard international unit prefixes. Please see:
-> http://en.wikipedia.org/wiki/SI_prefix#List_of_SI_prefixes
-> kilo- is "k", mega- is "M". "m" would be milli-, which isn't what you
-> want here.
+> Using NO_IRQ sounds good, just one question:
+> 
+> > 
+> > Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
+> > ---
+> > 
+> >  drivers/i2c/busses/i2c-mpc.c |   10 +++++-----
+> >  1 files changed, 5 insertions(+), 5 deletions(-)
+> > 
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> > index bbe787b..d20959d 100644
+> > --- a/drivers/i2c/busses/i2c-mpc.c
+> > +++ b/drivers/i2c/busses/i2c-mpc.c
+> > @@ -99,7 +99,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+> >  	u32 x;
+> >  	int result = 0;
+> >  
+> > -	if (i2c->irq == 0)
+> > +	if (i2c->irq == NO_IRQ)
+> >  	{
+> >  		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
+> >  			schedule();
+> > @@ -329,7 +329,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+> >  		return -ENOMEM;
+> >  
+> >  	i2c->irq = platform_get_irq(pdev, 0);
+> > -	if (i2c->irq < 0) {
+> > +	if (i2c->irq < NO_IRQ) {
+> 
+> I am skeptical about this one. Can platform_get_irq() really return
+> NO_IRQ? I thought that the IRQ resource would be plain missing if the
+> device has no IRQ, so I would expect:
+> 
+>  	i2c->irq = platform_get_irq(pdev, 0);
+> 	if (i2c->irq < 0)
+> 		i2c->irq = NO_IRQ; /* Use polling */
+> 
+> Testing against NO_IRQ suggests that devices with no IRQ would still
+> have an IRQ resource defined and explicitly set to NO_IRQ. Sounds weird
+> to me. Can you please clarify this point?
+> 
+> For what it's worth, no other kernel driver checks for irq < NO_IRQ.
+> They all check for irq < 0 after calling platform_get_irq().
+> 
+> >  		result = -ENXIO;
+> >  		goto fail_get_irq;
+> >  	}
+> > @@ -344,7 +344,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+> >  		goto fail_map;
+> >  	}
+> >  
+> > -	if (i2c->irq != 0)
+> > +	if (i2c->irq != NO_IRQ)
+> >  		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
+> >  					  IRQF_SHARED, "i2c-mpc", i2c)) < 0) {
+> >  			printk(KERN_ERR
+> > @@ -367,7 +367,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
+> >  	return result;
+> >  
+> >        fail_add:
+> > -	if (i2c->irq != 0)
+> > +	if (i2c->irq != NO_IRQ)
+> >  		free_irq(i2c->irq, i2c);
+> >        fail_irq:
+> >  	iounmap(i2c->base);
+> > @@ -384,7 +384,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
+> >  	i2c_del_adapter(&i2c->adap);
+> >  	platform_set_drvdata(pdev, NULL);
+> >  
+> > -	if (i2c->irq != 0)
+> > +	if (i2c->irq != NO_IRQ)
+> >  		free_irq(i2c->irq, i2c);
+> >  
+> >  	iounmap(i2c->base);
+> 
+> The rest looks good.
 
-<snip>
-
-Any update available for this patch? If you want it (and patch 3/5 of
-this series) to go in 2.6.26 we better hurry up.
+Any news about this patch? I had a question above which is left
+unanswered. If you want this patch merged in 2.6.26 you'll have to be
+quick.
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
