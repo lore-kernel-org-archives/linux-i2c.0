@@ -1,14 +1,16 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
-Date: Fri, 25 Apr 2008 09:06:25 -0700
-Message-ID: <48120181.7000303@boundarydevices.com>
-References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>	<20080327163626.75d1bd51@hyperion.delvare>	<47ED4F3A.5060007@boundarydevices.com>	<20080328213649.508b4f3c@hyperion.delvare>	<20080425114146.2dbedee6@hyperion.delvare>
-	<4811FC79.10803@boundarydevices.com>
+Subject: [PATCH 5/5] I2C: DaVinci: initialize cmd_complete sooner
+Date: Fri, 25 Apr 2008 09:58:14 -0700
+Message-ID: <1209142694-30046-5-git-send-email-troy.kisky@boundarydevices.com>
+References: <1209142694-30046-1-git-send-email-troy.kisky@boundarydevices.com>
+	<1209142694-30046-2-git-send-email-troy.kisky@boundarydevices.com>
+	<1209142694-30046-3-git-send-email-troy.kisky@boundarydevices.com>
+	<1209142694-30046-4-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4811FC79.10803-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1209142694-30046-4-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,25 +20,42 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->> Any update available for this patch? If you want it (and patch 3/5 of
->> this series) to go in 2.6.26 we better hurry up.
->>
-> Kevin's approval for 1 of the patches has temporarily been revoked.
-> 
-> I'm waiting to get it back.
-> 
-> Thanks
-> Troy
-> 
-I just noticed it was back in his tree. Sorry for the noise.
-I'll get on the next revision.
+If an interrupt happens before an I2c master read/write,
+complete is called on uninitialized structure.
 
-Thanks
-Troy
+Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 6719cdb..7d8f1b0 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -262,7 +262,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+ 
+-	init_completion(&dev->cmd_complete);
++	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
+ 
+ 	/* Take I2C out of reset, configure it as master and set the
+@@ -518,6 +518,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		goto err_release_region;
+ 	}
+ 
++	init_completion(&dev->cmd_complete);
+ 	dev->dev = get_device(&pdev->dev);
+ 	dev->irq = irq->start;
+ 	platform_set_drvdata(pdev, dev);
+-- 
+1.5.4
 
 
 _______________________________________________
