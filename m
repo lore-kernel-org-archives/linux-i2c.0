@@ -1,54 +1,86 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142 joystick
-	driver (v2)
-Date: Fri, 25 Apr 2008 11:39:59 -0400
-Message-ID: <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
-References: <1206643110-8789-1-git-send-email-cooloney@kernel.org> <20080418131149.ZZRA012@mailhub.coreip.homeip.net> <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com>
+From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH 2/5] I2C: DaVinci: clock between 7-12 Mhz
+Date: Fri, 25 Apr 2008 08:44:57 -0700
+Message-ID: <4811FC79.10803@boundarydevices.com>
+References: <1206068770-15458-1-git-send-email-troy.kisky@boundarydevices.com>	<1206068770-15458-2-git-send-email-troy.kisky@boundarydevices.com>	<1206068770-15458-3-git-send-email-troy.kisky@boundarydevices.com>	<20080327163626.75d1bd51@hyperion.delvare>	<47ED4F3A.5060007@boundarydevices.com>	<20080328213649.508b4f3c@hyperion.delvare>
+	<20080425114146.2dbedee6@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759197AbYDYPk1@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bryan Wu <cooloney@kernel.org>
-Cc: khali@linux-fr.org, andre@bitwigglers.org, linux-input@vger.kernel.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org, vapier.adi@gmail.com, Michael Hennerich <michael.hennerich@analog.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080425114146.2dbedee6-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 25, 2008 at 06:09:52PM +0800, Bryan Wu wrote:
-> On Sat, Apr 19, 2008 at 1:15 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Bryan,
-> >
-> >
-> >  On Thu, Mar 27, 2008 at 11:38:30AM -0700, Bryan Wu wrote:
-> >  > +     input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
-> >  > +                                             BIT_MASK(BTN_BASE2) |
-> >  > +                                             BIT_MASK(BTN_BASE3) |
-> >  > +                                             BIT_MASK(BTN_BASE4);
-> >  > +     input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
-> >  > +                                             BIT_MASK(KEY_DOWN) |
-> >  > +                                             BIT_MASK(KEY_LEFT) |
-> >  > +                                             BIT_MASK(KEY_RIGHT);
-> >  > +
-> >
-> >  Why don't you use REL_X/REL_Y to report directional movement? Using
-> >  buttons for that is pretty unusual.
-> >
+Jean Delvare wrote:
+> Hi Troy,
 > 
-> In our development board, it includes UP/DOWN/LEFT/RIGHT 4 buttons. So
-> this driver matches this.
-> Please found some information about the hardware as below:
-> http://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors&s[]=ad7142
+> On Fri, 28 Mar 2008 21:36:49 +0100, Jean Delvare wrote:
+>> On Fri, 28 Mar 2008 13:04:10 -0700, Troy Kisky wrote:
+>>> Jean Delvare wrote:
+>>>> Hi Troy,
+>>>>
+>>>> On Thu, 20 Mar 2008 20:06:07 -0700, Troy Kisky wrote:
+>>>>> Ensure psc value gives a clock between 7-12 Mhz
+>>>> Correct spelling is MHz.
+>>>>
+>>>>> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+>>>>> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+>>>>> ---
+>>>>>  drivers/i2c/busses/i2c-davinci.c |   19 ++++++++++++-------
+>>>>>  1 files changed, 12 insertions(+), 7 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+>>>>> index fde2634..82d4b7f 100755
+>>>>> --- a/drivers/i2c/busses/i2c-davinci.c
+>>>>> +++ b/drivers/i2c/busses/i2c-davinci.c
+>>>>> @@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>>>>>  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+>>>>>  	u16 psc;
+>>>>>  	u32 clk;
+>>>>> +	u32 d;
+>>>>>  	u32 clkh;
+>>>>>  	u32 clkl;
+>>>>>  	u32 input_clock = clk_get_rate(dev->clk);
+>>>>> @@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>>>>>  	 *       if PSC > 1 , d = 5
+>>>>>  	 */
+>>>>>  
+>>>>> -	psc = 26; /* To get 1MHz clock */
+>>>>> +	/* get minimum of 7mHz clock, but max of 12mHz */
+>>>> Correct spelling is MHz.
+>>>
+>>> Hmm... I seems weird that kHz and MHz are correct, as opposed to
+>>> kHz and mHz,  or KHz and MHz.
+>> These are the standard international unit prefixes. Please see:
+>> http://en.wikipedia.org/wiki/SI_prefix#List_of_SI_prefixes
+>> kilo- is "k", mega- is "M". "m" would be milli-, which isn't what you
+>> want here.
+> 
+> <snip>
+> 
+> Any update available for this patch? If you want it (and patch 3/5 of
+> this series) to go in 2.6.26 we better hurry up.
+> 
+Kevin's approval for 1 of the patches has temporarily been revoked.
 
-What is the expected behaviur when a person touches one of these
-buttons? Is it generatig a left/rigth mouse button clocks or moving a
-pointer in some direction? Judging by the category of the devices you
-are placing it in (joystick) it seems that latter is what you want,
-therefore it should generate REL_X and REL_Y events. Otherwise it
-should probably be called a button driver and live either in
-drivers/input/keyboard or driver/input/misc. Do you agree?
+I'm waiting to get it back.
 
-Thanks.
+Thanks
+Troy
 
--- 
-Dmitry
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
