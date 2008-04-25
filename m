@@ -1,117 +1,74 @@
 From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] mpc i2c driver, compare to NO_IRQ instead of zero
-Date: Fri, 25 Apr 2008 11:43:18 +0200
-Message-ID: <20080425114318.36e3fd03@hyperion.delvare>
-References: <20080121200740.13800.20524.stgit@terra.home>
-	<20080219174221.5b18cba8@hyperion.delvare>
+Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
+Date: Fri, 25 Apr 2008 12:03:49 +0200
+Message-ID: <20080425120349.32aa94a9@hyperion.delvare>
+References: <20080325063236.GA29012@linux-sh.org>
+	<20080423134156.1b368163@hyperion.delvare>
+	<20080423181101.GA2931@roarinelk.homelinux.net>
+	<20080423203104.0ca0f301@hyperion.delvare>
+	<20080425013011.GA27359@linux-sh.org>
+	<20080424231207.11a03f3d.akpm@linux-foundation.org>
+	<20080425062208.GA29452@linux-sh.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080219174221.5b18cba8@hyperion.delvare>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080425062208.GA29452@linux-sh.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, mano@roarinelk.homelinux.net, i2c@lm-sensors.org, linux-sh@vger.kernel.org, damm@igel.co.jp
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jon,
+On Fri, 25 Apr 2008 15:22:08 +0900, Paul Mundt wrote:
+> On Thu, Apr 24, 2008 at 11:12:07PM -0700, Andrew Morton wrote:
+> > > On Fri, 25 Apr 2008 10:30:11 +0900 Paul Mundt <lethal@linux-sh.org> wrote:
+> > > On Wed, Apr 23, 2008 at 08:31:04PM +0200, Jean Delvare wrote:
+> > > > On Wed, 23 Apr 2008 20:11:01 +0200, Manuel Lauss wrote:
+> > > > > I don't think I'm qualified to review other peoples' code (it looks
+> > > > > fine to me).
+> > 
+> > I looked through it when I merged it - believe it or not, I always do
+> > (well, except for some dopey mechanical code transformation patches where
+> > I'll just believe the changelog).  I saw nothing worth commenting on.  As
+> > is always the case when I don't comment ;)
+> > 
+> > So here's a
+> > Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+> > 
+> > Although that is of course of limited use, coming from a person
+> > who isn't terribly sure what an i2c is.
+> 
+> This is the root of the issue, none of the people asked to review the
+> code are i2c people either. This is a pretty sad state for the subsystem
+> if the subsystem maintainer needs to defer to people with little to no
+> knowledge of the subsystem to "review" a driver before it can be merged.
+>
+> While Manuel, Magnus, and I can easily review and ack our patches, none
+> of this changes the fact that outside of the platform and architecture
+> specific bits in the driver, there's very little we can generally comment
+> on. The reason for soliciting feedback from the i2c list in the first
+> place was to get review and comments on the subsystem-specific bits from
+> the people who are obviously far more familiar with these things. I
+> understand that Jean isn't an embedded person and therefore isn't
+> comfortable reviewing those sorts of drivers, but in these cases it's the
+> bus-specific stuff where the review really matters, which obviously the
+> rest of us aren't in the best position to self-review.
 
-On Tue, 19 Feb 2008 17:42:21 +0100, Jean Delvare wrote:
-> On Mon, 21 Jan 2008 15:07:40 -0500, Jon Smirl wrote:
-> > Alter the mpc i2c driver to use the NO_IRQ symbol instead of
-> > the constant zero when checking for valid interrupts. NO_IRQ=-1
-> > on ppc and NO_IRQ=0 on powerpc so the checks against zero are
-> > not correct.
-> 
-> Using NO_IRQ sounds good, just one question:
-> 
-> > 
-> > Signed-off-by: Jon Smirl <jonsmirl@gmail.com>
-> > ---
-> > 
-> >  drivers/i2c/busses/i2c-mpc.c |   10 +++++-----
-> >  1 files changed, 5 insertions(+), 5 deletions(-)
-> > 
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> > index bbe787b..d20959d 100644
-> > --- a/drivers/i2c/busses/i2c-mpc.c
-> > +++ b/drivers/i2c/busses/i2c-mpc.c
-> > @@ -99,7 +99,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
-> >  	u32 x;
-> >  	int result = 0;
-> >  
-> > -	if (i2c->irq == 0)
-> > +	if (i2c->irq == NO_IRQ)
-> >  	{
-> >  		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
-> >  			schedule();
-> > @@ -329,7 +329,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> >  		return -ENOMEM;
-> >  
-> >  	i2c->irq = platform_get_irq(pdev, 0);
-> > -	if (i2c->irq < 0) {
-> > +	if (i2c->irq < NO_IRQ) {
-> 
-> I am skeptical about this one. Can platform_get_irq() really return
-> NO_IRQ? I thought that the IRQ resource would be plain missing if the
-> device has no IRQ, so I would expect:
-> 
->  	i2c->irq = platform_get_irq(pdev, 0);
-> 	if (i2c->irq < 0)
-> 		i2c->irq = NO_IRQ; /* Use polling */
-> 
-> Testing against NO_IRQ suggests that devices with no IRQ would still
-> have an IRQ resource defined and explicitly set to NO_IRQ. Sounds weird
-> to me. Can you please clarify this point?
-> 
-> For what it's worth, no other kernel driver checks for irq < NO_IRQ.
-> They all check for irq < 0 after calling platform_get_irq().
-> 
-> >  		result = -ENXIO;
-> >  		goto fail_get_irq;
-> >  	}
-> > @@ -344,7 +344,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> >  		goto fail_map;
-> >  	}
-> >  
-> > -	if (i2c->irq != 0)
-> > +	if (i2c->irq != NO_IRQ)
-> >  		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
-> >  					  IRQF_SHARED, "i2c-mpc", i2c)) < 0) {
-> >  			printk(KERN_ERR
-> > @@ -367,7 +367,7 @@ static int fsl_i2c_probe(struct platform_device *pdev)
-> >  	return result;
-> >  
-> >        fail_add:
-> > -	if (i2c->irq != 0)
-> > +	if (i2c->irq != NO_IRQ)
-> >  		free_irq(i2c->irq, i2c);
-> >        fail_irq:
-> >  	iounmap(i2c->base);
-> > @@ -384,7 +384,7 @@ static int fsl_i2c_remove(struct platform_device *pdev)
-> >  	i2c_del_adapter(&i2c->adap);
-> >  	platform_set_drvdata(pdev, NULL);
-> >  
-> > -	if (i2c->irq != 0)
-> > +	if (i2c->irq != NO_IRQ)
-> >  		free_irq(i2c->irq, i2c);
-> >  
-> >  	iounmap(i2c->base);
-> 
-> The rest looks good.
+OK, I just reviewed your driver. I had 20 comments, only 6 of them
+required knowledge about the i2c subsystem. The 14 remaining comments
+could have been made by about anybody with some experience with Linux
+kernel development.
 
-Any news about this patch? I had a question above which is left
-unanswered. If you want this patch merged in 2.6.26 you'll have to be
-quick.
+Given the limited time I have to review new i2c drivers, my hope was
+some other people could take care of the first review catching most of
+the non-i2c-related issues, and then I could just focus on the i2c side
+of things. But I guess I'm asking for too much.
+
+> If it's not possible to get a subsystem maintainer to review a patch,
+> what's the point of having a centralized subsystem in the first place?
+
+I don't even understand your question, but I doubt it deserves an
+answer anyway.
 
 -- 
 Jean Delvare
