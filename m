@@ -1,14 +1,13 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 3/5] I2C: DaVinci: remove useless IVR read
-Date: Fri, 25 Apr 2008 09:58:12 -0700
-Message-ID: <1209142694-30046-3-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 2/5] I2C: DaVinci: move dev_debug line for more output
+Date: Fri, 25 Apr 2008 09:58:11 -0700
+Message-ID: <1209142694-30046-2-git-send-email-troy.kisky@boundarydevices.com>
 References: <1209142694-30046-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1209142694-30046-2-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1209142694-30046-2-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1209142694-30046-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,42 +21,33 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Interrupts are enabled at the point where
-the DAVINCI_I2C_IVR_REG is read, so unless
-an interrupt happened just at that moment,
-no interrupt would be pending. Even though
-documentation implies you should do this,
-I see no reason. If slave support is added,
-this read would cause a hard to reproduce bug.
+Previously the dev_dbg only printed if no error.
+Printing also on an error is more useful
 
 Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 318579b..d9752ae 100644
+index 0e5a39c..318579b 100644
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -240,7 +240,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
- 	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
- 	u32 flag;
--	u32 stat;
- 	u16 w;
- 	int r;
+@@ -345,12 +345,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
  
-@@ -264,9 +263,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	init_completion(&dev->cmd_complete);
- 	dev->cmd_err = 0;
- 
--	/* Clear any pending interrupts by reading the IVR */
--	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
+ 	for (i = 0; i < num; i++) {
+ 		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
++		dev_dbg(dev->dev, "%s ret: %d\n", __func__, ret);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
 -
- 	/* Take I2C out of reset, configure it as master and set the
- 	 * start bit */
- 	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
+-	dev_dbg(dev->dev, "%s:%d ret: %d\n", __func__, __LINE__, ret);
+-
+ 	return num;
+ }
+ 
 -- 
 1.5.4
 
