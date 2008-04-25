@@ -1,61 +1,45 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: platform_data when using of?
-Date: Thu, 24 Apr 2008 13:07:49 +0200
-Message-ID: <20080424130749.7e217ccf@hyperion.delvare>
-References: <20080423164523.GA4190@pengutronix.de>
-	<20080423203012.24ed38b6@hyperion.delvare>
-	<20080424090045.GA4201@pengutronix.de>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
+Date: Fri, 25 Apr 2008 10:30:11 +0900
+Message-ID: <20080425013011.GA27359@linux-sh.org>
+References: <20080325063236.GA29012@linux-sh.org> <20080423134156.1b368163@hyperion.delvare> <20080423181101.GA2931@roarinelk.homelinux.net> <20080423203104.0ca0f301@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080424090045.GA4201-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080423203104.0ca0f301@hyperion.delvare>
+Sender: linux-sh-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Manuel Lauss <mano@roarinelk.homelinux.net>, i2c@lm-sensors.org, Andrew Morton <akpm@linux-foundation.org>, linux-sh@vger.kernel.org, Magnus Damm <damm@igel.co.jp>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 24 Apr 2008 11:00:45 +0200, Wolfram Sang wrote:
-> On Wed, Apr 23, 2008 at 08:30:12PM +0200, Jean Delvare wrote:
-> > Each i2c driver can support many different devices, which are
-> > differentiated simply by their name. So the driver can behave
-> > differently for each device type as needed.
->
-> We exactly threw this out of at24 in the new revision, as name-matching
-> stored quite some data in the driver which was needed only once during
-> initialization. Also, it was not very flexible; what if you want to mark
-> this chip as read-only, your variant has bigger page size and could be
-> faster... The list of device names would grow too fast IMHO, adding a
-> new feature which is selectable by a flag could easily double it.
-
-The interest of separate chip names depend on the variety of devices
-your driver support. I am not suggesting to have one name for every
-different device the at24 driver will support, that would obviously be
-way too many. But if you could come up with families (e.g. one name per
-EEPROM size) with sane default settings, and then you can adjust
-parameters through platform data, for example to maximize performance
-if your actual EEPROM can handle larger page, or to enable write
-access. So you probably have to find the right balance between one name
-for all devices, and a separate name for each device.
-
-> Then again: If Jochen's patches get applied, then I have to use
-> MODULE_DEVICE_TABLE anyhow, or?
-
-If you want your driver to load automatically, yes. But this doesn't
-have much to do with the problem discussed above.
-
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+On Wed, Apr 23, 2008 at 08:31:04PM +0200, Jean Delvare wrote:
+> On Wed, 23 Apr 2008 20:11:01 +0200, Manuel Lauss wrote:
+> > On Wed, Apr 23, 2008 at 01:41:56PM +0200, Jean Delvare wrote:
+> > > On Tue, 25 Mar 2008 15:32:36 +0900, Paul Mundt wrote:
+> > > > This adds support for the SMBus adapter found in the various FPGAs on
+> > > > the Renesas Highlander platforms. Particularly the R0P7780LC0011RL and
+> > > > R0P7785LC0011RL FPGAs.
+> > > > 
+> > > > Functionality is fairly restricted, in that only byte and block data
+> > > > transfers are supported. Normal/fast mode and IRQ/polling are also
+> > > > supported. Primarily used for various RTCs and thermal sensors.
+> > > > 
+> > > > Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+> > > 
+> > > No volunteer to review this driver? Manuel or Magnus maybe?
+> > 
+> > I don't think I'm qualified to review other peoples' code (it looks
+> > fine to me).  The other thing is Renesas demoboards are impossible to
+> > get outside of Japan so I think Paul is the only user of this hardware
+> > who is also interested in linux support. And I'm convinced he knows
+> > what he's doing ;-)
+> 
+> I guess that there are more users than just Paul, otherwise he wouldn't
+> bother pushing his driver upstream, would he?
+> 
+Even if I were the only user, I would still push it upstream. Though in
+this case, there are plenty of other users. This is a fairly common
+reference board in Japan, which we've supported in the kernel in various
+forms for a few years already. The FPGA SMBus implementation is one of
+the outstanding bits of support for the platform.
