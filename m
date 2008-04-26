@@ -1,14 +1,14 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support.
-Date: Sat, 26 Apr 2008 00:26:25 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0804252329110.598@shell2.speakeasy.net>
-References: <20080325063236.GA29012@linux-sh.org>
-	<20080425113835.5c212918@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Add Intel SCH I2C SMBus support
+Date: Sat, 26 Apr 2008 09:50:11 +0200
+Message-ID: <20080426095011.2d27b75b@hyperion.delvare>
+References: <20080424100510.09cc2d4b@dxy.sh.intel.com>
+	<48124673.8020808@assembler.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080425113835.5c212918-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <48124673.8020808-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,134 +18,168 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Alek Du <alek.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 25 Apr 2008, Jean Delvare wrote:
-> > +static void smbus_write_data(u8 *src, u16 *dst, int len)
-> > +{
-> > +	int i, j;
-> > +
-> > +	if (len == 1)
-> > +		*dst = *src << 8;
-> > +	else {
-> > +		j = 0;
-> > +		for (i = 0; i < len; i += 2) {
-> > +			*(dst + j) = *(src + i) << 8 | *(src + i + 1);
-> > +			j++;
-> > +		}
-> > +	}
-> > +}
+Hi Rudolf,
 
-	for (; len > 1; len -= 2) {
-		*dst++ = be16_to_cpup((u16*)src);
-		src += 2;
-	}
-	if (len)
-		*dst = *src << 8;
+thanks for the review.
 
-> > +static void smbus_read_data(u16 *src, u8 *dst, int len)
-> > +{
-> > +	int i, j;
-> > +
-> > +	if (len == 1)
-> > +		*dst = *src >> 8;
-> > +	else {
-> > +		j = 0;
-> > +		for (i = 0; i < len; i += 2) {
-> > +			*(dst + i) = *(src + j) >> 8;
-> > +			*(dst + i + 1) = *(src + j) & 0x00ff;
-> > +			j++;
-> > +		}
-> > +	}
-> > +}
+One preliminary note about the driver name. I'm a bit worried by the
+name "i2c-sch" because there is another manufacturer (SMSC) making
+chips named SCH-something which could include an SMBus controller. This
+could be a bit confusing for the users. Maybe we could rename this
+driver to i2c-isch, to make it clearer that it's for Intel SCH chips?
+
+On Fri, 25 Apr 2008 23:00:35 +0200, Rudolf Marek wrote:
+> Hello Alek,
+> 
+> Please check the review bellow. It took me hour and half which was quite
+> unexpected when I started. Jean would you please take a look too?
+
+I'll review the next iteration. Some comments on what you wrote:
+
+> > +/*
+> > +    i2c-sch.c - Part of lm_sensors, Linux kernel modules for hardware
+> > +    monitoring
+
+These drivers are no longer "part of lm_sensors".
+
+> > (...)
+> > +#include <linux/module.h>
+> > +#include <linux/moduleparam.h>
+> > +#include <linux/pci.h>
+> > +#include <linux/kernel.h>
+> > +#include <linux/delay.h>
+> > +#include <linux/stddef.h>
+> > +#include <linux/sched.h>
+> > +#include <linux/ioport.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/init.h>
+> > +#include <linux/apm_bios.h>
+
+I'm very curious why you'd need this one? Presumably a leftover from
+the i2c-piix4 driver...
+
+> > +#include <linux/io.h>
+
+> (...)
+> Maybe your mailer did something to the tabs. You can run:
+> 
+> indent -kr -i8 i2ci-sch.c
 >
-> If I read the code above correctly, you are merely converting 16-bit
-> words from cpu-endian to long-endian and back, so using be16_to_cpu and
-> cpu_to_be16 would perform better. If the Highlander is big-endian, you
-> should be able to let the compiler optimize out most of the code.
+> It will fix all coding style issues. (I think except that it put labels
+> indented, you may revert that). We take here also text attachments, which are
+> fine through thunderbird. You seem to use clawmail so I cant help much.
 
-	for (; len > 1; len -= 2) {
-		*(u16*)dst = cpu_to_be16p(src++);
-		dst += 2;
-	}
-	if (len)
-		*dst = *src >> 8;
+There's scripts/Lindent which has all the options.
 
-> > +static void highlander_i2c_command(struct highlander_i2c_dev *dev, u8 command, int len)
-> > +{
-> > +	u16 cmd[32];
-> > +	int i, j;
 > > +
-> > +	j = 0;
-> > +	if (len == 1)
-> > +		cmd[j++] = (command << 8);
-> > +	else
-> > +		for (i = 0; i < len; i += 2)
-> > +			cmd[j++] = (command << 8) | command;
+> > +/* insmod parameters */
 > > +
-> > +	for (i = 0; i < j; i++) {
-> > +		iowrite16(cmd[i], dev->base + SMSADR + (i * sizeof(u16)));
-> > +		dev_dbg(dev->dev, "command data[%x] 0x%04x\n", i, cmd[i]);
-> > +	}
-> > +}
+> > +/* If force is set to anything different from 0, we forcibly enable the
+> > +   SCH. DANGEROUS! */
+> > +static int force;
+> > +module_param(force, int, 0);
+> > +MODULE_PARM_DESC(force, "Forcibly enable the I2C. DANGEROUS!");
+> 
+> Hmm not sure if it is good now. The newer BIOSes are much more saner than the
+> old - but here it is some left_over - check bellow.
 
-Is there a reason to have a 32 element array for cmd?  Each element is the
-same.
+I agree with Rudolf here, we don't want any "force" parameter that
+isn't strictly necessary. And even then we'd rather complain to the
+manufacturers quickly, so that the BIOS can be fixed and the driver can
+be kept clean.
 
-	unsigned int i;
-	u16 cmd = (command << 8) | command;
-	for (i = 0; i < len; i += 2) {
-		if (len - i == 1)
-			cmd = command << 8;
-		iowrite16(cmd, dev->base + SMSADR + i);
-		dev_dbg(dev->dev, "command data[%x] 0x%04x\n", i/2, cmd);
-	}
+> > (...)
+> > +       switch (size) {
+> > +       case I2C_SMBUS_PROC_CALL:
+> > +               dev_err(&adap->dev, "I2C_SMBUS_PROC_CALL not supported!\n");
+> > +               return -EPERM;
+> 
+> I think this should not happen.
 
-These versions will work for odd values of len.  If the hardware can't
-handle this, except when len == 1, it would probably make more sense to
-catch the error sooner and never call them with unsupported values of len.
+It could happen, but there's no need to handle unsupported cases
+explicitly, just have a default case at the end which catches all the
+unsupported sizes and returns -EINVAL.
 
-> > +static int highlander_i2c_wait_for_bbsy(struct highlander_i2c_dev *dev)
-> > +{
-> > +	unsigned long timeout;
-> > +
-> > +	timeout = jiffies + msecs_to_jiffies(iic_timeout);
-> > +	while (ioread16(dev->base + SMCR) & SMCR_BBSY) {
+> (...)
+> MAybe you can test the driver with following commands. Assuming that you have
+> SPD eeprom on 0x50.
+> 
+> modprobe i2c-dev
+> modprobe i2c-sch
+> 
+> i2cdump -l
 
-If there is some delay here (interrupt or kernel preemption for example),
-then the timeout could be triggered incorrectly.
+i2cdetect -l
 
-> > +		if (time_after(jiffies, timeout)) {
-> > +			dev_warn(dev->dev, "timeout waiting for bus ready\n");
-> > +			return -ETIMEDOUT;
-> > +		}
-> > +
-> > +		msleep(1);
-> > +	}
-> > +
-> > +	return 0;
-> > +}
+> will list the busses, assuming it is 0 please try following:
+> 
+> i2cdetect 0
+> 
+> It should detect all devices, maybe on 0x50 or 0x51 SPD eeprom. Use this device
+> for other tests:
+> 
+> i2cdump  0 0x50 b
+> i2cdump  0 0x50 c
+> i2cdump  0 0x50 W
+> i2cdump  0 0x50 s
+> 
+> This commands should produce same results.
+> 
+> i2cdump  0 0x50 w
+> 
+> You should see above in daisy chained mode. If the byte mode was:
+> 00: 80 08 07 0d 0a 02 40 00 04 50 60 00 82 08 00 01    ??????@.?P`.??.?
+> 
+> Now you should see:
+> 
+> 00: 0880 0708 0d07 0a0d 020a 4002 0040 0400
+> 08: 5004 6050 0060 8200 0882 0008 0100 0e01 (e1 is from offset 0x10)
+> 
+> CHeck log aftewards if there is nothing unusual.
 
-> > +	/*
-> > +	 * The R0P7780LC0011RL FPGA on the SH7780-based Highlanders
-> > +	 * needs a significant delay in the read path. SH7785 Highlanders
-> > +	 * don't have this issue, so restrict it entirely to those.
-> > +	 */
-> > +	if (mach_is_r7780rp() || mach_is_r7780mp())
-> > +		mdelay(1000);
->
-> A one second busy-wait is nasty. Can't you use msleep here instead?
->
-> Having to wait for 1 second after each read makes this driver pretty
-> unusable on these machines anyway, doesn't it? :(
+This is very important to check that the contents of the EEPROMs have
+not been modified by the dumps. If they are, it means that there's a
+bug in the driver, and also your system probably won't boot next time
+because the memory module won't be recognized. Better do you tests with
+a cheap memory module ;)
 
-Does it need to wait 1 sec after each read, or does it really need a 1 sec
-delay _between_ reads?  If it's the later, you would be much better off
-storing the time of the last read, and delaying one second from this time
-before starting a new read.  If you're only trying to poll a sensor chip
-every second, you won't need to busy wait at all this way.
+> > (...)
+> > +       switch (size) {
+> > +       case SCH_BYTE:
+> > +               /* Where is the result put? I assume here it is in
+> > +                  SMBHSTDAT0 but it might just as well be in the
+> > +                  SMBHSTCMD. No clue in the docs */
+> 
+> Well check with my test ;)
+
+The comment above is taken directly from the i2c-piix4 driver, does it
+apply to the SCH at all? We should probably remove it from the
+i2c-piix4 driver anyway, we know the answer by now.
+
+> > (...)
+> > +static struct pci_device_id sch_ids[] = {
+> > +       { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC),
+> > +         .driver_data = 0xf8 },
+> 
+> Please set it to 0x40 as suggested above.
+
+Or just don't use driver_data at all for now? With a single device
+supported at the moment, I don't see the idea.
+
+> > (...)
+> > +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> and "
+> > +               "Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org> and "
+> > +               "Jacob Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> ");
+
+You can remove Frodo and Philip here, they aren't the authors of _this_
+driver.
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
