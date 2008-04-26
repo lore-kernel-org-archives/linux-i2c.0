@@ -1,14 +1,11 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Add Intel SCH I2C SMBus support
-Date: Sat, 26 Apr 2008 09:50:11 +0200
-Message-ID: <20080426095011.2d27b75b@hyperion.delvare>
-References: <20080424100510.09cc2d4b@dxy.sh.intel.com>
-	<48124673.8020808@assembler.cz>
+Subject: [PATCH] i2c-piix4: Minor cleanups
+Date: Sat, 26 Apr 2008 11:05:31 +0200
+Message-ID: <20080426110531.1c9b060f@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48124673.8020808-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,165 +15,43 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Alek Du <alek.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rudolf,
+* Remove a needless include.
+* Remove a legacy comment in piix4_access.
+* Minor optimization in piix4_access.
 
-thanks for the review.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-piix4.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-One preliminary note about the driver name. I'm a bit worried by the
-name "i2c-sch" because there is another manufacturer (SMSC) making
-chips named SCH-something which could include an SMBus controller. This
-could be a bit confusing for the users. Maybe we could rename this
-driver to i2c-isch, to make it clearer that it's for Intel SCH chips?
+--- linux-2.6.26-rc0.orig/drivers/i2c/busses/i2c-piix4.c	2008-04-26 10:44:05.000000000 +0200
++++ linux-2.6.26-rc0/drivers/i2c/busses/i2c-piix4.c	2008-04-26 10:49:16.000000000 +0200
+@@ -38,7 +38,6 @@
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+-#include <linux/apm_bios.h>
+ #include <linux/dmi.h>
+ #include <asm/io.h>
+ 
+@@ -343,12 +342,7 @@ static s32 piix4_access(struct i2c_adapt
+ 
+ 
+ 	switch (size) {
+-	case PIIX4_BYTE:	/* Where is the result put? I assume here it is in
+-				   SMBHSTDAT0 but it might just as well be in the
+-				   SMBHSTCMD. No clue in the docs */
+-
+-		data->byte = inb_p(SMBHSTDAT0);
+-		break;
++	case PIIX4_BYTE:
+ 	case PIIX4_BYTE_DATA:
+ 		data->byte = inb_p(SMBHSTDAT0);
+ 		break;
 
-On Fri, 25 Apr 2008 23:00:35 +0200, Rudolf Marek wrote:
-> Hello Alek,
-> 
-> Please check the review bellow. It took me hour and half which was quite
-> unexpected when I started. Jean would you please take a look too?
-
-I'll review the next iteration. Some comments on what you wrote:
-
-> > +/*
-> > +    i2c-sch.c - Part of lm_sensors, Linux kernel modules for hardware
-> > +    monitoring
-
-These drivers are no longer "part of lm_sensors".
-
-> > (...)
-> > +#include <linux/module.h>
-> > +#include <linux/moduleparam.h>
-> > +#include <linux/pci.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/delay.h>
-> > +#include <linux/stddef.h>
-> > +#include <linux/sched.h>
-> > +#include <linux/ioport.h>
-> > +#include <linux/i2c.h>
-> > +#include <linux/init.h>
-> > +#include <linux/apm_bios.h>
-
-I'm very curious why you'd need this one? Presumably a leftover from
-the i2c-piix4 driver...
-
-> > +#include <linux/io.h>
-
-> (...)
-> Maybe your mailer did something to the tabs. You can run:
-> 
-> indent -kr -i8 i2ci-sch.c
->
-> It will fix all coding style issues. (I think except that it put labels
-> indented, you may revert that). We take here also text attachments, which are
-> fine through thunderbird. You seem to use clawmail so I cant help much.
-
-There's scripts/Lindent which has all the options.
-
-> > +
-> > +/* insmod parameters */
-> > +
-> > +/* If force is set to anything different from 0, we forcibly enable the
-> > +   SCH. DANGEROUS! */
-> > +static int force;
-> > +module_param(force, int, 0);
-> > +MODULE_PARM_DESC(force, "Forcibly enable the I2C. DANGEROUS!");
-> 
-> Hmm not sure if it is good now. The newer BIOSes are much more saner than the
-> old - but here it is some left_over - check bellow.
-
-I agree with Rudolf here, we don't want any "force" parameter that
-isn't strictly necessary. And even then we'd rather complain to the
-manufacturers quickly, so that the BIOS can be fixed and the driver can
-be kept clean.
-
-> > (...)
-> > +       switch (size) {
-> > +       case I2C_SMBUS_PROC_CALL:
-> > +               dev_err(&adap->dev, "I2C_SMBUS_PROC_CALL not supported!\n");
-> > +               return -EPERM;
-> 
-> I think this should not happen.
-
-It could happen, but there's no need to handle unsupported cases
-explicitly, just have a default case at the end which catches all the
-unsupported sizes and returns -EINVAL.
-
-> (...)
-> MAybe you can test the driver with following commands. Assuming that you have
-> SPD eeprom on 0x50.
-> 
-> modprobe i2c-dev
-> modprobe i2c-sch
-> 
-> i2cdump -l
-
-i2cdetect -l
-
-> will list the busses, assuming it is 0 please try following:
-> 
-> i2cdetect 0
-> 
-> It should detect all devices, maybe on 0x50 or 0x51 SPD eeprom. Use this device
-> for other tests:
-> 
-> i2cdump  0 0x50 b
-> i2cdump  0 0x50 c
-> i2cdump  0 0x50 W
-> i2cdump  0 0x50 s
-> 
-> This commands should produce same results.
-> 
-> i2cdump  0 0x50 w
-> 
-> You should see above in daisy chained mode. If the byte mode was:
-> 00: 80 08 07 0d 0a 02 40 00 04 50 60 00 82 08 00 01    ??????@.?P`.??.?
-> 
-> Now you should see:
-> 
-> 00: 0880 0708 0d07 0a0d 020a 4002 0040 0400
-> 08: 5004 6050 0060 8200 0882 0008 0100 0e01 (e1 is from offset 0x10)
-> 
-> CHeck log aftewards if there is nothing unusual.
-
-This is very important to check that the contents of the EEPROMs have
-not been modified by the dumps. If they are, it means that there's a
-bug in the driver, and also your system probably won't boot next time
-because the memory module won't be recognized. Better do you tests with
-a cheap memory module ;)
-
-> > (...)
-> > +       switch (size) {
-> > +       case SCH_BYTE:
-> > +               /* Where is the result put? I assume here it is in
-> > +                  SMBHSTDAT0 but it might just as well be in the
-> > +                  SMBHSTCMD. No clue in the docs */
-> 
-> Well check with my test ;)
-
-The comment above is taken directly from the i2c-piix4 driver, does it
-apply to the SCH at all? We should probably remove it from the
-i2c-piix4 driver anyway, we know the answer by now.
-
-> > (...)
-> > +static struct pci_device_id sch_ids[] = {
-> > +       { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC),
-> > +         .driver_data = 0xf8 },
-> 
-> Please set it to 0x40 as suggested above.
-
-Or just don't use driver_data at all for now? With a single device
-supported at the moment, I don't see the idea.
-
-> > (...)
-> > +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> and "
-> > +               "Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org> and "
-> > +               "Jacob Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> ");
-
-You can remove Frodo and Philip here, they aren't the authors of _this_
-driver.
 
 -- 
 Jean Delvare
