@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-piix4: Minor cleanups
-Date: Sat, 26 Apr 2008 11:05:31 +0200
-Message-ID: <20080426110531.1c9b060f@hyperion.delvare>
+Subject: [PATCH] i2c-sis5595: Minor cleanups in sis5595_access
+Date: Sat, 26 Apr 2008 11:08:01 +0200
+Message-ID: <20080426110801.67f204c1@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,38 +18,43 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Remove a needless include.
-* Remove a legacy comment in piix4_access.
-* Minor optimization in piix4_access.
+* Remove commented-out code.
+* Use dev_warn instead of printk.
+* Remove a legacy comment.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-piix4.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-sis5595.c |   12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- linux-2.6.26-rc0.orig/drivers/i2c/busses/i2c-piix4.c	2008-04-26 10:44:05.000000000 +0200
-+++ linux-2.6.26-rc0/drivers/i2c/busses/i2c-piix4.c	2008-04-26 10:49:16.000000000 +0200
-@@ -38,7 +38,6 @@
- #include <linux/ioport.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
--#include <linux/apm_bios.h>
- #include <linux/dmi.h>
- #include <asm/io.h>
+--- linux-2.6.26-rc0.orig/drivers/i2c/busses/i2c-sis5595.c	2008-04-26 10:44:00.000000000 +0200
++++ linux-2.6.26-rc0/drivers/i2c/busses/i2c-sis5595.c	2008-04-26 10:56:05.000000000 +0200
+@@ -316,14 +316,8 @@ static s32 sis5595_access(struct i2c_ada
+ 		}
+ 		size = (size == I2C_SMBUS_PROC_CALL) ? SIS5595_PROC_CALL : SIS5595_WORD_DATA;
+ 		break;
+-/*
+-	case I2C_SMBUS_BLOCK_DATA:
+-		printk(KERN_WARNING "sis5595.o: Block data not yet implemented!\n");
+-		return -1;
+-		break;
+-*/
+ 	default:
+-		printk(KERN_WARNING "sis5595.o: Unsupported transaction %d\n", size);
++		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
+ 		return -1;
+ 	}
  
-@@ -343,12 +342,7 @@ static s32 piix4_access(struct i2c_adapt
+@@ -338,9 +332,7 @@ static s32 sis5595_access(struct i2c_ada
  
  
  	switch (size) {
--	case PIIX4_BYTE:	/* Where is the result put? I assume here it is in
--				   SMBHSTDAT0 but it might just as well be in the
--				   SMBHSTCMD. No clue in the docs */
--
--		data->byte = inb_p(SMBHSTDAT0);
--		break;
-+	case PIIX4_BYTE:
- 	case PIIX4_BYTE_DATA:
- 		data->byte = inb_p(SMBHSTDAT0);
+-	case SIS5595_BYTE:	/* Where is the result put? I assume here it is in
+-				   SMB_DATA but it might just as well be in the
+-				   SMB_CMD. No clue in the docs */
++	case SIS5595_BYTE:
+ 	case SIS5595_BYTE_DATA:
+ 		data->byte = sis5595_read(SMB_BYTE);
  		break;
 
 
