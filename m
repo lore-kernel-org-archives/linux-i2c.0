@@ -1,120 +1,60 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/3] i2c: Convert all new-style drivers to use module
-	aliasing
-Date: Sun, 27 Apr 2008 18:56:06 +0200
-Message-ID: <20080427185606.6d694218@hyperion.delvare>
-References: <20080121112517.6fe35a89@hyperion.delvare>
-	<20080121114139.3aaa111a@hyperion.delvare>
-	<200801271040.20248.david-b@pacbell.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c/tps65010: Add missing intialization of client data
+Date: Sun, 27 Apr 2008 20:16:22 +0200
+Message-ID: <20080427201622.01649249@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200801271040.20248.david-b@pacbell.net>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 27 Jan 2008 10:40:19 -0800, David Brownell wrote:
-> General comment:  if you're going to index arrays by enum
-> values, it's best to initialize them that way too.  Else
-> you're expecting a particular optional policy for how the
-> enums get grown...
-> 
-> - Dave
-> 
-> 
-> On Monday 21 January 2008, Jean Delvare wrote:
-> > --- linux-2.6.24-rc8.orig/drivers/rtc/rtc-ds1307.c	2008-01-20 17:26:58.000000000 +0100
-> > +++ linux-2.6.24-rc8/drivers/rtc/rtc-ds1307.c	2008-01-20 19:03:48.000000000 +0100
-> > @@ -102,42 +102,36 @@ struct chip_desc {
-> >  	char			name[9];
-> >  	unsigned		nvram56:1;
-> >  	unsigned		alarm:1;
-> > -	enum ds_type		type;
-> >  };
-> >  
-> >  static const struct chip_desc chips[] = { {
-> >  	.name		= "ds1307",
-> > -	.type		= ds_1307,
-> >  	.nvram56	= 1,
-> >  }, {
-> 
-> So tables like this would become
-> 
-> 	[ds1307] = { ... },
-> 	[ds1337] = { ... },
-> 
-> >  	.name		= "ds1337",
-> > -	.type		= ds_1337,
-> >  	.alarm		= 1,
-> >  }, {
-> >  	.name		= "ds1338",
-> > -	.type		= ds_1338,
-> >  	.nvram56	= 1,
-> >  }, {
-> >  	.name		= "ds1339",
-> > -	.type		= ds_1339,
-> >  	.alarm		= 1,
-> >  }, {
-> >  	.name		= "ds1340",
-> > -	.type		= ds_1340,
-> >  }, {
-> >  	.name		= "m41t00",
-> > -	.type		= m41t00,
-> >  }, };
-> >  
-> > -static inline const struct chip_desc *find_chip(const char *s)
-> > -{
-> > -	unsigned i;
-> > -
-> > -	for (i = 0; i < ARRAY_SIZE(chips); i++)
-> > -		if (strnicmp(s, chips[i].name, sizeof chips[i].name) == 0)
-> > -			return &chips[i];
-> > -	return NULL;
-> > -}
-> > +static const struct i2c_device_id ds1307_id[] = {
-> > +	{ "ds1307", ds_1307 },
-> > +	{ "ds1337", ds_1337 },
-> > +	{ "ds1338", ds_1338 },
-> > +	{ "ds1339", ds_1339 },
-> > +	{ "ds1340", ds_1340 },
-> > +	{ "m41t00", m41t00 },
-> > +	{},
-> > +};
-> > +MODULE_DEVICE_TABLE(i2c, ds1307_id);
-> >  
-> >  static int ds1307_get_time(struct device *dev, struct rtc_time *t)
-> >  {
-> > @@ -335,12 +329,7 @@ static int __devinit ds1307_probe(struct
-> >  	const struct chip_desc	*chip;
-> >  	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
-> >  
-> > -	chip = find_chip(client->name);
-> > -	if (!chip) {
-> > -		dev_err(&client->dev, "unknown chip type '%s'\n",
-> > -				client->name);
-> > -		return -ENODEV;
-> > -	}
-> > +	chip = &chips[id->driver_data];
-> 
-> ... and that would *ensure* such lines always work right,
-> no matter how the enum values grow.
-> 
-> >  
-> >  	if (!i2c_check_functionality(adapter,
-> >  			I2C_FUNC_I2C | I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+tps65010_remove() calls i2c_get_clientdata(client) but the client data
+is never set during initialization, so it gets a NULL pointer at best.
 
-Done, thanks for the suggestion and sorry for the delay.
+I guess it was never spotted because the tps65010 driver is typically
+not built modular so this function is discarded.
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+ drivers/i2c/chips/tps65010.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- linux-2.6.26-rc0.orig/drivers/i2c/chips/tps65010.c	2008-04-27 20:03:14.000000000 +0200
++++ linux-2.6.26-rc0/drivers/i2c/chips/tps65010.c	2008-04-27 20:05:23.000000000 +0200
+@@ -527,6 +527,7 @@ static int __exit tps65010_remove(struct
+ 	flush_scheduled_work();
+ 	debugfs_remove(tps->file);
+ 	kfree(tps);
++	i2c_set_clientdata(client, NULL);
+ 	the_tps = NULL;
+ 	return 0;
+ }
+@@ -616,6 +617,7 @@ static int tps65010_probe(struct i2c_cli
+ 		i2c_smbus_read_byte_data(client, TPS_DEFGPIO),
+ 		i2c_smbus_read_byte_data(client, TPS_MASK3));
+ 
++	i2c_set_clientdata(client, tps);
+ 	the_tps = tps;
+ 
+ #if	defined(CONFIG_USB_GADGET) && !defined(CONFIG_USB_OTG)
+
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
