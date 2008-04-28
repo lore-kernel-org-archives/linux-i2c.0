@@ -1,33 +1,31 @@
-From: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [i2c] i2c or eeprom enumeration problem
-Date: Mon, 28 Apr 2008 07:16:50 -0700
-Message-ID: <4815DC52.1050908@redhat.com>
-References: <4815509A.9040802@redhat.com>	<20080428050515.fcc05689.akpm@linux-foundation.org> <20080428141526.2f4e993f@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: i2c or eeprom enumeration problem
+Date: Mon, 28 Apr 2008 16:21:23 +0200
+Message-ID: <20080428162123.7fd8eb04@hyperion.delvare>
+References: <4815509A.9040802@redhat.com>
+	<20080428050515.fcc05689.akpm@linux-foundation.org>
+	<20080428141526.2f4e993f@hyperion.delvare>
+	<4815DC52.1050908@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934591AbYD1OUM@vger.kernel.org>
-In-Reply-To: <20080428141526.2f4e993f@hyperion.delvare>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934767AbYD1OWV@vger.kernel.org>
+In-Reply-To: <4815DC52.1050908@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
+To: Ulrich Drepper <drepper@redhat.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 28 Apr 2008 07:16:50 -0700, Ulrich Drepper wrote:
+> Jean Delvare wrote:
+> > Motherboard manufacturer and model?
+> 
+> Tyan S4985.  It's a quad socket, quad core AMD system.
 
-Jean Delvare wrote:
-> Motherboard manufacturer and model?
+OK. Maybe it uses the same trick as the S4882... Can you get the
+information from Tyan?
 
-Tyan S4985.  It's a quad socket, quad core AMD system.
+Please provide the output of i2cdetect for all the SMBus channels.
 
-- --
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro S=
-t =E2=9E=A7 Mountain View, CA =E2=9D=96
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQFIFdxS2ijCOnn/RHQRAnnuAJ4oMLsIW3U1cWZuHCubPZVWvOTcNwCfY4NV
-A24BWrZf19VkKnX3QKcS3qc=3D
-=3DE3Vp
------END PGP SIGNATURE-----
+-- 
+Jean Delvare
