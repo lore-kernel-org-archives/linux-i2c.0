@@ -1,78 +1,92 @@
-From: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: i2c or eeprom enumeration problem
-Date: Mon, 28 Apr 2008 08:27:12 -0700
-Message-ID: <4815ECD0.80201@redhat.com>
-References: <4815509A.9040802@redhat.com>	<20080428050515.fcc05689.akpm@linux-foundation.org>	<20080428141526.2f4e993f@hyperion.delvare>	<4815DC52.1050908@redhat.com> <20080428162123.7fd8eb04@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 0/2] i2c: Add support for device alias names
+Date: Mon, 28 Apr 2008 17:35:43 +0200
+Message-ID: <20080428153543.GB4353@pengutronix.de>
+References: <20080428113052.6d024bda@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935727AbYD1PaB@vger.kernel.org>
-In-Reply-To: <20080428162123.7fd8eb04@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+Content-Type: multipart/mixed; boundary="===============6678767877752803099=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080428113052.6d024bda-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, Laurent-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Kay-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jean Delvare wrote:
-> OK. Maybe it uses the same trick as the S4882... Can you get the
-> information from Tyan?
-
-I don't have a special link to Tyan but I can try.  What information do
-you need?
+--===============6678767877752803099==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
+Content-Disposition: inline
 
 
-> Please provide the output of i2cdetect for all the SMBus channels.
+--cmJC7u66zC7hs+87
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[Strange, the lm_sensors package in F9 doesn't have i2cdetect anymore.
-Anything replacing it?]
+Hello Jean,
 
-I see two busses:
+I tested on this hardware
 
-  Installed I2C busses:
-    i2c-0       smbus           SMBus nForce2 adapter at a000
-    i2c-1       smbus           SMBus nForce2 adapter at a040
+ MPC8260 (powerpc) + PCF8575 (io expander) + LM84 (sensor)
+ + RS5C372 (rtc) + X24645 (eeprom)
 
-Using -a to get all the info on those busses I see this:
+the following software
 
-Bus 0:
+ 2.6.25-git11 + your 2 patches + Patches 5-7 from Jochen's series
+ (for the CPM2-bus-driver)
 
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00: -- -- -- -- -- -- -- -- 08 -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- 18 -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-50: UU UU UU UU -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+The rtc and the eeprom were assigend through of-tree. The expander
+and the sensor were assigned via the old-binding method using
+force-parameters.
 
+It builds fine, except for two warnings of redefinitions in Jochen's
+patches. (I think they need a few updates anyhow). The output in
+modules.alias and /sys make sense. I2C works flawlessly for all
+devices.
 
-Bus 1:
+Please let me know, if you need to more information.
 
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00: -- -- -- -- -- -- -- -- 08 -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- 19 -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- 2d -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- 48 49 -- -- -- -- -- --
-50: -- UU -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+All the best,
 
+   Wolfram
 
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
 
-This motherboard uses the NVidia nForce n4250QE chipset.
+--cmJC7u66zC7hs+87
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-- --
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro S=
-t =E2=9E=A7 Mountain View, CA =E2=9D=96
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIFezP2ijCOnn/RHQRAmd2AJ4gAQWzPhjBylM8g0Tzrw4L88xy0ACghI9q
-Za0TJOrHDSlMzq8S2DShh4o=3D
-=3DaCCS
+iD8DBQFIFe7PD27XaX1/VRsRApJ0AJ4hu0eSjFjaM/lgiLv3bOoz7mv+zQCdH9jE
+aPqEJiBlQhXddi3O389OFrI=
+=5Vz8
 -----END PGP SIGNATURE-----
+
+--cmJC7u66zC7hs+87--
+
+
+--===============6678767877752803099==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============6678767877752803099==--
