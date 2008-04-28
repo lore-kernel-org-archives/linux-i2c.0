@@ -1,60 +1,78 @@
-From: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
-Date: Mon, 28 Apr 2008 17:07:25 +0200
-Message-ID: <1209395245.3666.9.camel@linux.site>
-References: <20080428113052.6d024bda@hyperion.delvare>
-	<20080428113901.2772e9d9@hyperion.delvare>
+From: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: i2c or eeprom enumeration problem
+Date: Mon, 28 Apr 2008 08:27:12 -0700
+Message-ID: <4815ECD0.80201@redhat.com>
+References: <4815509A.9040802@redhat.com>	<20080428050515.fcc05689.akpm@linux-foundation.org>	<20080428141526.2f4e993f@hyperion.delvare>	<4815DC52.1050908@redhat.com> <20080428162123.7fd8eb04@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080428113901.2772e9d9@hyperion.delvare>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935727AbYD1PaB@vger.kernel.org>
+In-Reply-To: <20080428162123.7fd8eb04@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <khali@linux-fr.org>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, Paul Mundt <lethal@linux-sh.org>, Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gTW9uLCAyMDA4LTA0LTI4IGF0IDExOjM5ICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6Cj4g
-QmFzZWQgb24gZWFybGllciB3b3JrIGJ5IEpvbiBTbWlybCBhbmQgSm9jaGVuIEZyaWVkcmljaC4K
-PiAKPiBUaGlzIHBhdGNoIGFsbG93cyBuZXctc3R5bGUgaTJjIGNoaXAgZHJpdmVycyB0byBoYXZl
-IGFsaWFzIG5hbWVzIHVzaW5nCj4gdGhlIG9mZmljaWFsIGtlcm5lbCBhbGlhc2luZyBzeXN0ZW0g
-YW5kIE1PRFVMRV9ERVZJQ0VfVEFCTEUoKS4gQXQgdGhpcwo+IHBvaW50LCB0aGUgb2xkIGkyYyBk
-cml2ZXIgYmluZGluZyBzY2hlbWUgKGRyaXZlcl9uYW1lL3R5cGUpIGlzIHN0aWxsCj4gc3VwcG9y
-dGVkLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEplYW4gRGVsdmFyZSA8a2hhbGlAbGludXgtZnIub3Jn
-Pgo+IENjOiBKb2NoZW4gRnJpZWRyaWNoIDxqb2NoZW5Ac2NyYW0uZGU+Cj4gQ2M6IEpvbiBTbWly
-bCA8am9uc21pcmxAZ21haWwuY29tPgo+IENjOiBLYXkgU2lldmVycyA8a2F5LnNpZXZlcnNAdnJm
-eS5vcmc+Cj4gLS0tCj4gT25lIHRoaW5nIEkgYW0gc3RpbGwgbm90IGhhcHB5IHdpdGggaXMgdGhh
-dCB0aGUgYWxpYXNlcyBjcmVhdGVkIGhhdmUgYQo+IHRyYWlsaW5nICIqIjoKPiAKPiAkIC9zYmlu
-L21vZGluZm8gbG05MAo+IGZpbGVuYW1lOiAgICAgICAvbGliL21vZHVsZXMvMi42LjI1LWdpdDEx
-L2tlcm5lbC9kcml2ZXJzL2h3bW9uL2xtOTAua28KPiBhdXRob3I6ICAgICAgICAgSmVhbiBEZWx2
-YXJlIDxraGFsaUBsaW51eC1mci5vcmc+Cj4gZGVzY3JpcHRpb246ICAgIExNOTAvQURNMTAzMiBk
-cml2ZXIKPiBsaWNlbnNlOiAgICAgICAgR1BMCj4gdmVybWFnaWM6ICAgICAgIDIuNi4yNS1naXQx
-MSBtb2RfdW5sb2FkCj4gZGVwZW5kczogICAgICAgIGh3bW9uCj4gYWxpYXM6ICAgICAgICAgIGky
-YzpsbTkwKgo+IGFsaWFzOiAgICAgICAgICBpMmM6YWRtMTAzMioKPiBhbGlhczogICAgICAgICAg
-aTJjOmxtOTkqCj4gYWxpYXM6ICAgICAgICAgIGkyYzpsbTg2Kgo+IGFsaWFzOiAgICAgICAgICBp
-MmM6bWF4NjY1NyoKPiBhbGlhczogICAgICAgICAgaTJjOmFkdDc0NjEqCj4gYWxpYXM6ICAgICAg
-ICAgIGkyYzptYXg2NjgwKgo+ICQKPiAKPiBUaGlzIHdvdWxkIGNhdXNlIHRyb3VibGUgaWYgb25l
-IEkyQyBjaGlwIG5hbWUgbWF0Y2hlcyB0aGUgYmVnaW5uaW5nIG9mCj4gYW5vdGhlciBJMkMgY2hp
-cCBuYW1lIGFuZCBib3RoIGNoaXBzIGFyZSBzdXBwb3J0ZWQgYnkgZGlmZmVyZW50Cj4gZHJpdmVy
-cy4gVGhpcyBoYXMgeWV0IHRvIGJlIHNlZW4sIGJ1dCBzdGlsbCwgSSdkIGxpa2UgdG8gc2VlIHRo
-aXMKPiBwcm9ibGVtIGZpeGVkIHF1aWNrbHkuCgrvu79SaWdodCwgdGhlIHRyYWlsaW5nICIqIiBp
-cyBub3QgbmljZS4KCldlIHNob3VsZCB0ZXJtaW5hdGUgdGhlIHN0cmluZywgc28gdGhlIHRyYWls
-aW5nICIqIiB3aWxsIG5vdCBtYXRjaApsb25nZXIgc3RyaW5ncy4gVGhlIHVzdWFsIHRoaW5nIGlz
-IHRvIGFkZCBhICI6IiB0byB0aGUgZW5kLCB3aGljaCB3b3VsZAp0aGVuIHNob3cgdXAgYXMKICBh
-bGlhczogaTJjOm1heDY2ODA6KgoKU2VlIERNSSBhbmQgQUNQSToKICBhbGlhcyBkbWk6Kjpzdm5G
-VUpJVFNVOnBuTGlmZUJvb2sqOnB2cio6cnZuRlVKSVRTVToqIGFwYW5lbAogIGFsaWFzIGFjcGkq
-OkFTSU0wMDAwOiogYXRsYXNfYnRucwoKSWYgaTJjIGRldmljZSBtb2RhbGlhc2VzIGNvdWxkIGV2
-ZXIgY29udGFpbiBtdWx0aXBsZSBzdHJpbmdzLCBpdCBzaG91bGQKYmU6CiAgYWxpYXM6IGkyYyo6
-bWF4NjY4MDoqCu+7v3RvIG1hdGNoIHRoZSBtb2R1bGUsIHJlZ2FyZGxlc3Mgb2YgdGhlIG9yZGVy
-IG9mIHRoZSBzdHJpbmdzIGluIHRoZQptb2RhbGlhczoKClRoYW5rcywKS2F5CgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eHBwYy1kZXYgbWFpbGlu
-ZyBsaXN0CkxpbnV4cHBjLWRldkBvemxhYnMub3JnCmh0dHBzOi8vb3psYWJzLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2xpbnV4cHBjLWRldg==
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Jean Delvare wrote:
+> OK. Maybe it uses the same trick as the S4882... Can you get the
+> information from Tyan?
+
+I don't have a special link to Tyan but I can try.  What information do
+you need?
+
+
+> Please provide the output of i2cdetect for all the SMBus channels.
+
+[Strange, the lm_sensors package in F9 doesn't have i2cdetect anymore.
+Anything replacing it?]
+
+I see two busses:
+
+  Installed I2C busses:
+    i2c-0       smbus           SMBus nForce2 adapter at a000
+    i2c-1       smbus           SMBus nForce2 adapter at a040
+
+Using -a to get all the info on those busses I see this:
+
+Bus 0:
+
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00: -- -- -- -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- 18 -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: UU UU UU UU -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+Bus 1:
+
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00: -- -- -- -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- 19 -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- 2d -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- 48 49 -- -- -- -- -- --
+50: -- UU -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+
+
+This motherboard uses the NVidia nForce n4250QE chipset.
+
+- --
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro S=
+t =E2=9E=A7 Mountain View, CA =E2=9D=96
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQFIFezP2ijCOnn/RHQRAmd2AJ4gAQWzPhjBylM8g0Tzrw4L88xy0ACghI9q
+Za0TJOrHDSlMzq8S2DShh4o=3D
+=3DaCCS
+-----END PGP SIGNATURE-----
