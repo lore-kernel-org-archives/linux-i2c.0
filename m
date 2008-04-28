@@ -1,88 +1,79 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
-Date: Mon, 28 Apr 2008 10:43:35 -0400
-Message-ID: <9e4733910804280743q2de1da62m120c607b200cafa0@mail.gmail.com>
-References: <20080428113052.6d024bda@hyperion.delvare>
-	<20080428113901.2772e9d9@hyperion.delvare>
+From: "Will Newton" <will.newton-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] pca953x: Add support for pca9555 I2C I/O expander.
+Date: Mon, 28 Apr 2008 16:07:59 +0100
+Message-ID: <87a5b0800804280807g30895902na3691f52208fb75e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080428113901.2772e9d9@hyperion.delvare>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Paul Mundt <lethal@linux-sh.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>
+Content-Type: multipart/mixed;
+	boundary="----=_Part_666_26590464.1209395279240"
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux Kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, eric miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 4/28/08, Jean Delvare <khali@linux-fr.org> wrote:
-> Based on earlier work by Jon Smirl and Jochen Friedrich.
->
->  This patch allows new-style i2c chip drivers to have alias names using
->  the official kernel aliasing system and MODULE_DEVICE_TABLE(). At this
->  point, the old i2c driver binding scheme (driver_name/type) is still
->  supported.
->
->  Signed-off-by: Jean Delvare <khali@linux-fr.org>
->  Cc: Jochen Friedrich <jochen@scram.de>
->  Cc: Jon Smirl <jonsmirl@gmail.com>
->  Cc: Kay Sievers <kay.sievers@vrfy.org>
->  ---
->  One thing I am still not happy with is that the aliases created have a
->  trailing "*":
->
->  $ /sbin/modinfo lm90
->  filename:       /lib/modules/2.6.25-git11/kernel/drivers/hwmon/lm90.ko
->  author:         Jean Delvare <khali@linux-fr.org>
->  description:    LM90/ADM1032 driver
->  license:        GPL
->  vermagic:       2.6.25-git11 mod_unload
->  depends:        hwmon
->  alias:          i2c:lm90*
->  alias:          i2c:adm1032*
->  alias:          i2c:lm99*
->  alias:          i2c:lm86*
->  alias:          i2c:max6657*
->  alias:          i2c:adt7461*
->  alias:          i2c:max6680*
->  $
->
->  This would cause trouble if one I2C chip name matches the beginning of
->  another I2C chip name and both chips are supported by different
->  drivers. This has yet to be seen, but still, I'd like to see this
->  problem fixed quickly.
+------=_Part_666_26590464.1209395279240
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Add support for pca9555 I2C I/O expander. As the comment suggests this
+part is software compatible with the pca9539.
 
-Trailing wildcard is always added by file2alias.c:
+Signed-off-by: Will Newton <will.newton-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/gpio/pca953x.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-                if (do_entry(mod->name, symval+i, alias)) {
-                        /* Always end in a wildcard, for future extension */
-                        if (alias[strlen(alias)-1] != '*')
-                                strcat(alias, "*");
-
-
-Can't the match order be controlled in the makefile? For example if
-you had lm905* and lm90*, put lm905* into into the makefile first
-which will cause it to appear in the alias file first. But that would
-still cause problems if only lm90 was built and you had a lm905
-device.
-
-Alternatively you could change the code to append something like a
-period to the name string.
-
-sprintf(alias, I2C_MODULE_PREFIX "%s.", id->name);
-
-I was using macros to alter the name strings to move the PowerPC names
-into their own namespace.
+diff --git a/drivers/gpio/pca953x.c b/drivers/gpio/pca953x.c
+index 6e72fd3..4ff274f 100644
+--- a/drivers/gpio/pca953x.c
++++ b/drivers/gpio/pca953x.c
+@@ -36,6 +36,7 @@ static const struct pca953x_desc pca953x_descs[] = {
+ 	{ "pca9537", 4, },
+ 	{ "pca9538", 8, },
+ 	{ "pca9539", 16, },
++	{ "pca9555", 16, },
+ 	/* REVISIT several pca955x parts should work here too */
+ };
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+1.5.5.1
+
+------=_Part_666_26590464.1209395279240
+Content-Type: text/x-patch; name=0001-pca953x.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ffl6ouab0
+Content-Disposition: attachment; filename=0001-pca953x.patch
+
+RnJvbSA5ZGUxNDZhYjlmN2ZiM2I4MWVmYWViMjIzZmUzY2U5MDlhYTg3MDgyIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBXaWxsIE5ld3RvbiA8d2lsbC5uZXd0b25AaW1ndGVjLmNvbT4K
+RGF0ZTogTW9uLCAyOCBBcHIgMjAwOCAxNjowMzoyOSArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHBj
+YTk1M3g6IEFkZCBzdXBwb3J0IGZvciBwY2E5NTU1IEkyQyBJL08gZXhwYW5kZXIuCgpBZGQgc3Vw
+cG9ydCBmb3IgcGNhOTU1NSBJMkMgSS9PIGV4cGFuZGVyLgoKU2lnbmVkLW9mZi1ieTogV2lsbCBO
+ZXd0b24gPHdpbGwubmV3dG9uQGltZ3RlYy5jb20+Ci0tLQogZHJpdmVycy9ncGlvL3BjYTk1M3gu
+YyB8ICAgIDEgKwogMSBmaWxlcyBjaGFuZ2VkLCAxIGluc2VydGlvbnMoKyksIDAgZGVsZXRpb25z
+KC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncGlvL3BjYTk1M3guYyBiL2RyaXZlcnMvZ3Bpby9w
+Y2E5NTN4LmMKaW5kZXggNmU3MmZkMy4uNGZmMjc0ZiAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncGlv
+L3BjYTk1M3guYworKysgYi9kcml2ZXJzL2dwaW8vcGNhOTUzeC5jCkBAIC0zNiw2ICszNiw3IEBA
+IHN0YXRpYyBjb25zdCBzdHJ1Y3QgcGNhOTUzeF9kZXNjIHBjYTk1M3hfZGVzY3NbXSA9IHsKIAl7
+ICJwY2E5NTM3IiwgNCwgfSwKIAl7ICJwY2E5NTM4IiwgOCwgfSwKIAl7ICJwY2E5NTM5IiwgMTYs
+IH0sCisJeyAicGNhOTU1NSIsIDE2LCB9LAogCS8qIFJFVklTSVQgc2V2ZXJhbCBwY2E5NTV4IHBh
+cnRzIHNob3VsZCB3b3JrIGhlcmUgdG9vICovCiB9OwogCi0tIAoxLjUuNS4xCgo=
+------=_Part_666_26590464.1209395279240
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+------=_Part_666_26590464.1209395279240--
