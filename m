@@ -1,72 +1,89 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/5] I2C: DaVinci: remove useless IVR read
-Date: Mon, 28 Apr 2008 18:08:00 +0200
-Message-ID: <20080428180800.4ece979c@hyperion.delvare>
-References: <1209142694-30046-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1209142694-30046-2-git-send-email-troy.kisky@boundarydevices.com>
-	<1209142694-30046-3-git-send-email-troy.kisky@boundarydevices.com>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
+Date: Mon, 28 Apr 2008 18:16:17 +0200
+Message-ID: <1209399377.3666.30.camel@linux.site>
+References: <20080428113052.6d024bda@hyperion.delvare>
+	<20080428113901.2772e9d9@hyperion.delvare>
+	<1209395245.3666.9.camel@linux.site>
+	<20080428174010.5a40c2c0@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1209142694-30046-3-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080428174010.5a40c2c0@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>, Paul Mundt <lethal@linux-sh.org>, Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 25 Apr 2008 09:58:12 -0700, Troy Kisky wrote:
-> Interrupts are enabled at the point where
-> the DAVINCI_I2C_IVR_REG is read, so unless
-> an interrupt happened just at that moment,
-> no interrupt would be pending. Even though
-> documentation implies you should do this,
-> I see no reason. If slave support is added,
-> this read would cause a hard to reproduce bug.
-> 
-> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-davinci.c |    4 ----
->  1 files changed, 0 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 318579b..d9752ae 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -240,7 +240,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
->  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
->  	u32 flag;
-> -	u32 stat;
->  	u16 w;
->  	int r;
->  
-> @@ -264,9 +263,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	init_completion(&dev->cmd_complete);
->  	dev->cmd_err = 0;
->  
-> -	/* Clear any pending interrupts by reading the IVR */
-> -	stat = davinci_i2c_read_reg(dev, DAVINCI_I2C_IVR_REG);
-> -
->  	/* Take I2C out of reset, configure it as master and set the
->  	 * start bit */
->  	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
-
-Applied, thanks.
-
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+T24gTW9uLCAyMDA4LTA0LTI4IGF0IDE3OjQwICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6Cj4g
+T24gTW9uLCAyOCBBcHIgMjAwOCAxNzowNzoyNSArMDIwMCwgS2F5IFNpZXZlcnMgd3JvdGU6Cj4g
+PiBPbiBNb24sIDIwMDgtMDQtMjggYXQgMTE6MzkgKzAyMDAsIEplYW4gRGVsdmFyZSB3cm90ZToK
+PiA+ID4gT25lIHRoaW5nIEkgYW0gc3RpbGwgbm90IGhhcHB5IHdpdGggaXMgdGhhdCB0aGUgYWxp
+YXNlcyBjcmVhdGVkIGhhdmUgYQo+ID4gPiB0cmFpbGluZyAiKiI6Cj4gPiA+IAo+ID4gPiAkIC9z
+YmluL21vZGluZm8gbG05MAo+ID4gPiBmaWxlbmFtZTogICAgICAgL2xpYi9tb2R1bGVzLzIuNi4y
+NS1naXQxMS9rZXJuZWwvZHJpdmVycy9od21vbi9sbTkwLmtvCj4gPiA+IGF1dGhvcjogICAgICAg
+ICBKZWFuIERlbHZhcmUgPGtoYWxpQGxpbnV4LWZyLm9yZz4KPiA+ID4gZGVzY3JpcHRpb246ICAg
+IExNOTAvQURNMTAzMiBkcml2ZXIKPiA+ID4gbGljZW5zZTogICAgICAgIEdQTAo+ID4gPiB2ZXJt
+YWdpYzogICAgICAgMi42LjI1LWdpdDExIG1vZF91bmxvYWQKPiA+ID4gZGVwZW5kczogICAgICAg
+IGh3bW9uCj4gPiA+IGFsaWFzOiAgICAgICAgICBpMmM6bG05MCoKPiA+ID4gYWxpYXM6ICAgICAg
+ICAgIGkyYzphZG0xMDMyKgo+ID4gPiBhbGlhczogICAgICAgICAgaTJjOmxtOTkqCj4gPiA+IGFs
+aWFzOiAgICAgICAgICBpMmM6bG04NioKPiA+ID4gYWxpYXM6ICAgICAgICAgIGkyYzptYXg2NjU3
+Kgo+ID4gPiBhbGlhczogICAgICAgICAgaTJjOmFkdDc0NjEqCj4gPiA+IGFsaWFzOiAgICAgICAg
+ICBpMmM6bWF4NjY4MCoKPiA+ID4gJAo+ID4gPiAKPiA+ID4gVGhpcyB3b3VsZCBjYXVzZSB0cm91
+YmxlIGlmIG9uZSBJMkMgY2hpcCBuYW1lIG1hdGNoZXMgdGhlIGJlZ2lubmluZyBvZgo+ID4gPiBh
+bm90aGVyIEkyQyBjaGlwIG5hbWUgYW5kIGJvdGggY2hpcHMgYXJlIHN1cHBvcnRlZCBieSBkaWZm
+ZXJlbnQKPiA+ID4gZHJpdmVycy4gVGhpcyBoYXMgeWV0IHRvIGJlIHNlZW4sIGJ1dCBzdGlsbCwg
+SSdkIGxpa2UgdG8gc2VlIHRoaXMKPiA+ID4gcHJvYmxlbSBmaXhlZCBxdWlja2x5Lgo+ID4gCj4g
+PiDvu79SaWdodCwgdGhlIHRyYWlsaW5nICIqIiBpcyBub3QgbmljZS4KPiA+IAo+ID4gV2Ugc2hv
+dWxkIHRlcm1pbmF0ZSB0aGUgc3RyaW5nLCBzbyB0aGUgdHJhaWxpbmcgIioiIHdpbGwgbm90IG1h
+dGNoCj4gPiBsb25nZXIgc3RyaW5ncy4gVGhlIHVzdWFsIHRoaW5nIGlzIHRvIGFkZCBhICI6IiB0
+byB0aGUgZW5kLCB3aGljaCB3b3VsZAo+ID4gdGhlbiBzaG93IHVwIGFzCj4gPiAgIGFsaWFzOiBp
+MmM6bWF4NjY4MDoqCj4gPiAKPiA+IFNlZSBETUkgYW5kIEFDUEk6Cj4gPiAgIGFsaWFzIGRtaToq
+OnN2bkZVSklUU1U6cG5MaWZlQm9vayo6cHZyKjpydm5GVUpJVFNVOiogYXBhbmVsCj4gPiAgIGFs
+aWFzIGFjcGkqOkFTSU0wMDAwOiogYXRsYXNfYnRucwo+IAo+IEkgZGlkbid0IGtub3cgYWJvdXQg
+dGhlc2UgY2FzZXMsIHRoYW5rcyBmb3IgdGhlIGhpbnQuCj4gCj4gPiAKPiA+IElmIGkyYyBkZXZp
+Y2UgbW9kYWxpYXNlcyBjb3VsZCBldmVyIGNvbnRhaW4gbXVsdGlwbGUgc3RyaW5ncywgaXQgc2hv
+dWxkCj4gPiBiZToKPiA+ICAgYWxpYXM6IGkyYyo6bWF4NjY4MDoqCj4gPiDvu790byBtYXRjaCB0
+aGUgbW9kdWxlLCByZWdhcmRsZXNzIG9mIHRoZSBvcmRlciBvZiB0aGUgc3RyaW5ncyBpbiB0aGUK
+PiA+IG1vZGFsaWFzOgo+IAo+IFdoeSB3b3VsZCBpMmMgZGV2aWNlIG1vZGFsaWFzZXMgZXZlciBj
+b250YWluIG11bHRpcGxlIHN0cmluZ3M/IEEgZGV2aWNlCj4gY2FuJ3QgaGF2ZSBtdWx0aXBsZSBu
+YW1lcywgY2FuIGl0PwoKTGlrZSBBQ1BJL1BOUCBkZXZpY2VzLCB3aGljaCBjYW4gaGF2ZSBzZXZl
+cmFsIGNvbXBhdCBpZCdzLCB3aGljaCBtZWFucwp0aGF0IGEgc2luZ2xlIGRldmljZSBjYW4gaGF2
+ZSAibXVsdGlwbGUgbmFtZXMiOgogICQgY2F0IC9zeXMvYnVzL3BucC9kZXZpY2VzLzAwOjA5L2lk
+CiAgSUJNMDA1NwogIFBOUDBmMTMKCj4gQWRkaW5nIGEgIjoiIGF0IHRoZSBlbmQgb2YgdGhlIGky
+YyBkZXZpY2UgbmFtZXMgc29sdmVzIHRoZSBwcm9ibGVtIEkKPiB3YXMgbWVudGlvbmluZywgc3Vy
+ZSwgYnV0IHdoeSBkb24ndCB3ZSBzaW1wbHkgcmVtb3ZlIHRoZSB0cmFpbGluZyAiKiIsCj4gaW5z
+dGVhZCBvZiB0cnlpbmcgdG8gd29yayBhcm91bmQgaXQ/IEEgdHJhaWxpbmcgIioiIHNpbXBseSBt
+YWtlcyBubwo+IHNlbnNlIGZvciBhbGlhc2VzIHdoaWNoIGFyZSBzaW1wbGUgZGV2aWNlIG5hbWVz
+LgoKU3VyZSwgaWYgdGhlcmUgaXMgb25seSBvbmUgc2luZ2xlIHN0cmluZywgaXQncyBub3QgdXNl
+ZnVsLgoKPiBUaGlzIGlzIG5vdCBvbmx5IGkyYwo+IGRldmljZXMsIGJ1dCBhbHNvIHBsYXRmb3Jt
+IGRldmljZXMsIGFjcGksIGRtaSwgcG5wLi4uCgpBQ1BJLCBETUksIFBOUCAoUE5QIGRvZXMgbm90
+IGRvIG1vZGFsaWFzKSBuZWVkcyB0byBiZSBhYmxlIHRvIG1hdGNoIG9ubHkKb25lIHN0cmluZyBp
+biBhIGdpdmVuIGxpc3QsIHNvIHRoZSB0cmFpbGluZyAiKiIgaXMgbmVlZGVkLgoKPiBMb29raW5n
+IGF0IHRoZQo+IHZhcmlvdXMgZGV2aWNlIHR5cGVzIGhhbmRsZWQgYnkgZmlsZTJhbGlhcy5jLCBp
+dCBzZWVtcyB0aGF0IG1vc3Qgb2YKPiB0aGVtIGRvbid0IG5lZWQgdGhlIHRyYWlsaW5nICIqIiwg
+YW5kIG1hbnkgb2YgdGhlbSBoYXZlIHRoZSBwcm9ibGVtIEkKPiB3YXMgbWVudGlvbmluZy4KPiAK
+PiBDYW4ndCB3ZSBqdXN0IHN0b3AgaGFuZGxlX21vZGRldnRhYmxlKCkgZnJvbSBhZGRpbmcgYSB0
+YWlsaW5nICIqIgo+IGF1dG9tYXRpY2FsbHksIGFuZCBqdXN0IGxldCB0aGUgZGV2aWNlIHR5cGVz
+IHdoaWNoIG5lZWQgaXQsIGFkZCBpdCBvbgo+IHRoZWlyIG93bj8KCkZvciBhIGxvdCBzdWJzeXN0
+ZW1zIGl0J3MgZmluZSB0byBoYXZlIGl0IGFwcGVuZGVkLCBhcyB0aGVyZSBpcyBhCmRlZmluZWQg
+bGlzdCBvZiBpZGVudGlmaWVycywgd2hpY2ggbXVzdCBhcHBlYXIgaW4gdGhlIHNhbWUgb3JkZXIs
+IGFuZApuZXcgaWRlbnRpZmllcnMgYXJlIGFwcGVuZGVkIHRvIHRoZSBlbmQuIFNvIHRoZSAiKiIg
+c3RpbGwgbWF0Y2hlcwptb2R1bGVzIHdpdGggcG9zc2libHkgZXh0ZW5kZWQgbW9kYWxpYXMgc3Ry
+aW5ncy4KCldlIHdvdWxkIGFsc28gbmVlZCB0byByZXZpZXcgYWxsIGJ1c2VzIHdoaWNoIGV4cG9y
+dCBtb2RhbGlhcywgaWYgdGhleQpuZWVkIHRoZSAiKiIgb3Igbm90LCBhbmQgYWRkIHRoZW0gYnkg
+aGFuZCwgaWYgbmVlZGVkLgoKSSBndWVzcywgaXQncyBlYXNpZXIgdG8gaW50cm9kdWNlIGFuIGFk
+ZGl0aW9uYWwgcGFyYW1ldGVyIHRvCmZpbGUyYWxpYXM6OmRvX3RhYmxlKCkgYW5kIHN1cHByZXNz
+IHRoZSB0cmFpbGluZyAiKiIgZm9yIGkyYz8KClRoYW5rcywKS2F5CgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eHBwYy1kZXYgbWFpbGluZyBsaXN0
+CkxpbnV4cHBjLWRldkBvemxhYnMub3JnCmh0dHBzOi8vb3psYWJzLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL2xpbnV4cHBjLWRldg==
