@@ -1,15 +1,15 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
-Date: Mon, 28 Apr 2008 17:42:20 +0200
-Message-ID: <20080428174220.0860ab25@hyperion.delvare>
-References: <20080428113052.6d024bda@hyperion.delvare>
-	<20080428113901.2772e9d9@hyperion.delvare>
-	<9e4733910804280743q2de1da62m120c607b200cafa0@mail.gmail.com>
+Subject: Re: [PATCH 2/5] I2C: DaVinci: move dev_debug line for more
+ output
+Date: Mon, 28 Apr 2008 18:04:37 +0200
+Message-ID: <20080428180437.272109dc@hyperion.delvare>
+References: <1209142694-30046-1-git-send-email-troy.kisky@boundarydevices.com>
+	<1209142694-30046-2-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910804280743q2de1da62m120c607b200cafa0-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1209142694-30046-2-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,69 +19,53 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jon,
+Hi Troy,
 
-On Mon, 28 Apr 2008 10:43:35 -0400, Jon Smirl wrote:
-> On 4/28/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> >  One thing I am still not happy with is that the aliases created have a
-> >  trailing "*":
-> >
-> >  $ /sbin/modinfo lm90
-> >  filename:       /lib/modules/2.6.25-git11/kernel/drivers/hwmon/lm90.ko
-> >  author:         Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> >  description:    LM90/ADM1032 driver
-> >  license:        GPL
-> >  vermagic:       2.6.25-git11 mod_unload
-> >  depends:        hwmon
-> >  alias:          i2c:lm90*
-> >  alias:          i2c:adm1032*
-> >  alias:          i2c:lm99*
-> >  alias:          i2c:lm86*
-> >  alias:          i2c:max6657*
-> >  alias:          i2c:adt7461*
-> >  alias:          i2c:max6680*
-> >  $
-> >
-> >  This would cause trouble if one I2C chip name matches the beginning of
-> >  another I2C chip name and both chips are supported by different
-> >  drivers. This has yet to be seen, but still, I'd like to see this
-> >  problem fixed quickly.
+On Fri, 25 Apr 2008 09:58:11 -0700, Troy Kisky wrote:
+> Previously the dev_dbg only printed if no error.
+> Printing also on an error is more useful
 > 
+> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-davinci.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
 > 
-> Trailing wildcard is always added by file2alias.c:
-> 
->                 if (do_entry(mod->name, symval+i, alias)) {
->                         /* Always end in a wildcard, for future extension */
->                         if (alias[strlen(alias)-1] != '*')
->                                 strcat(alias, "*");
-> 
-> 
-> Can't the match order be controlled in the makefile? For example if
-> you had lm905* and lm90*, put lm905* into into the makefile first
-> which will cause it to appear in the alias file first. But that would
-> still cause problems if only lm90 was built and you had a lm905
-> device.
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 0e5a39c..318579b 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -345,12 +345,10 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>  
+>  	for (i = 0; i < num; i++) {
+>  		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+> +		dev_dbg(dev->dev, "%s ret: %d\n", __func__, ret);
+>  		if (ret < 0)
+>  			return ret;
+>  	}
 
-That's too trickly and fragile - I'd rather make sure that wrong
-matches just can't happen.
+I would like to suggest an improvement. Right now, if a transaction has
+several messages, you will print as many debug lines. If several
+transactions happen in a row, all the lines in the logs will look
+alike, and you won't be able to differentiate the various transactions.
 
-> 
-> Alternatively you could change the code to append something like a
-> period to the name string.
-> 
-> sprintf(alias, I2C_MODULE_PREFIX "%s.", id->name);
+I suggest the following:
 
-Similar to what Kay proposed. It works and we'll do that if we have to,
-but if we can just get rid of the "*" I'd rather do that.
+		dev_dbg(dev->dev, "%s [%d/%d] ret: %d\n", __func__, i + 1, num, ret);
 
-> 
-> I was using macros to alter the name strings to move the PowerPC names
-> into their own namespace.
-> 
+So you know how many messages there are in every transaction. What do
+you think?
+
+> -
+> -	dev_dbg(dev->dev, "%s:%d ret: %d\n", __func__, __LINE__, ret);
+> -
+>  	return num;
+>  }
+>  
 
 
 -- 
