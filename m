@@ -1,12 +1,15 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 0/2] i2c: Add support for device alias names
-Date: Mon, 28 Apr 2008 17:35:43 +0200
-Message-ID: <20080428153543.GB4353@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
+Date: Mon, 28 Apr 2008 17:40:10 +0200
+Message-ID: <20080428174010.5a40c2c0@hyperion.delvare>
 References: <20080428113052.6d024bda@hyperion.delvare>
+	<20080428113901.2772e9d9@hyperion.delvare>
+	<1209395245.3666.9.camel@linux.site>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6678767877752803099=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080428113052.6d024bda-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1209395245.3666.9.camel-YbU/o29LwNHN0uC3ymp8PA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,77 +19,51 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>, Laurent-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Kay-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+Cc: linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jon-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============6678767877752803099==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
-Content-Disposition: inline
-
-
---cmJC7u66zC7hs+87
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello Jean,
-
-I tested on this hardware
-
- MPC8260 (powerpc) + PCF8575 (io expander) + LM84 (sensor)
- + RS5C372 (rtc) + X24645 (eeprom)
-
-the following software
-
- 2.6.25-git11 + your 2 patches + Patches 5-7 from Jochen's series
- (for the CPM2-bus-driver)
-
-The rtc and the eeprom were assigend through of-tree. The expander
-and the sensor were assigned via the old-binding method using
-force-parameters.
-
-It builds fine, except for two warnings of redefinitions in Jochen's
-patches. (I think they need a few updates anyhow). The output in
-modules.alias and /sys make sense. I2C works flawlessly for all
-devices.
-
-Please let me know, if you need to more information.
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---cmJC7u66zC7hs+87
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIFe7PD27XaX1/VRsRApJ0AJ4hu0eSjFjaM/lgiLv3bOoz7mv+zQCdH9jE
-aPqEJiBlQhXddi3O389OFrI=
-=5Vz8
------END PGP SIGNATURE-----
-
---cmJC7u66zC7hs+87--
-
-
---===============6678767877752803099==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============6678767877752803099==--
+SGkgS2F5LAoKT24gTW9uLCAyOCBBcHIgMjAwOCAxNzowNzoyNSArMDIwMCwgS2F5IFNpZXZlcnMg
+d3JvdGU6Cj4gT24gTW9uLCAyMDA4LTA0LTI4IGF0IDExOjM5ICswMjAwLCBKZWFuIERlbHZhcmUg
+d3JvdGU6Cj4gPiBPbmUgdGhpbmcgSSBhbSBzdGlsbCBub3QgaGFwcHkgd2l0aCBpcyB0aGF0IHRo
+ZSBhbGlhc2VzIGNyZWF0ZWQgaGF2ZSBhCj4gPiB0cmFpbGluZyAiKiI6Cj4gPiAKPiA+ICQgL3Ni
+aW4vbW9kaW5mbyBsbTkwCj4gPiBmaWxlbmFtZTogICAgICAgL2xpYi9tb2R1bGVzLzIuNi4yNS1n
+aXQxMS9rZXJuZWwvZHJpdmVycy9od21vbi9sbTkwLmtvCj4gPiBhdXRob3I6ICAgICAgICAgSmVh
+biBEZWx2YXJlIDxraGFsaUBsaW51eC1mci5vcmc+Cj4gPiBkZXNjcmlwdGlvbjogICAgTE05MC9B
+RE0xMDMyIGRyaXZlcgo+ID4gbGljZW5zZTogICAgICAgIEdQTAo+ID4gdmVybWFnaWM6ICAgICAg
+IDIuNi4yNS1naXQxMSBtb2RfdW5sb2FkCj4gPiBkZXBlbmRzOiAgICAgICAgaHdtb24KPiA+IGFs
+aWFzOiAgICAgICAgICBpMmM6bG05MCoKPiA+IGFsaWFzOiAgICAgICAgICBpMmM6YWRtMTAzMioK
+PiA+IGFsaWFzOiAgICAgICAgICBpMmM6bG05OSoKPiA+IGFsaWFzOiAgICAgICAgICBpMmM6bG04
+NioKPiA+IGFsaWFzOiAgICAgICAgICBpMmM6bWF4NjY1NyoKPiA+IGFsaWFzOiAgICAgICAgICBp
+MmM6YWR0NzQ2MSoKPiA+IGFsaWFzOiAgICAgICAgICBpMmM6bWF4NjY4MCoKPiA+ICQKPiA+IAo+
+ID4gVGhpcyB3b3VsZCBjYXVzZSB0cm91YmxlIGlmIG9uZSBJMkMgY2hpcCBuYW1lIG1hdGNoZXMg
+dGhlIGJlZ2lubmluZyBvZgo+ID4gYW5vdGhlciBJMkMgY2hpcCBuYW1lIGFuZCBib3RoIGNoaXBz
+IGFyZSBzdXBwb3J0ZWQgYnkgZGlmZmVyZW50Cj4gPiBkcml2ZXJzLiBUaGlzIGhhcyB5ZXQgdG8g
+YmUgc2VlbiwgYnV0IHN0aWxsLCBJJ2QgbGlrZSB0byBzZWUgdGhpcwo+ID4gcHJvYmxlbSBmaXhl
+ZCBxdWlja2x5Lgo+IAo+IO+7v1JpZ2h0LCB0aGUgdHJhaWxpbmcgIioiIGlzIG5vdCBuaWNlLgo+
+IAo+IFdlIHNob3VsZCB0ZXJtaW5hdGUgdGhlIHN0cmluZywgc28gdGhlIHRyYWlsaW5nICIqIiB3
+aWxsIG5vdCBtYXRjaAo+IGxvbmdlciBzdHJpbmdzLiBUaGUgdXN1YWwgdGhpbmcgaXMgdG8gYWRk
+IGEgIjoiIHRvIHRoZSBlbmQsIHdoaWNoIHdvdWxkCj4gdGhlbiBzaG93IHVwIGFzCj4gICBhbGlh
+czogaTJjOm1heDY2ODA6Kgo+IAo+IFNlZSBETUkgYW5kIEFDUEk6Cj4gICBhbGlhcyBkbWk6Kjpz
+dm5GVUpJVFNVOnBuTGlmZUJvb2sqOnB2cio6cnZuRlVKSVRTVToqIGFwYW5lbAo+ICAgYWxpYXMg
+YWNwaSo6QVNJTTAwMDA6KiBhdGxhc19idG5zCgpJIGRpZG4ndCBrbm93IGFib3V0IHRoZXNlIGNh
+c2VzLCB0aGFua3MgZm9yIHRoZSBoaW50LgoKPiAKPiBJZiBpMmMgZGV2aWNlIG1vZGFsaWFzZXMg
+Y291bGQgZXZlciBjb250YWluIG11bHRpcGxlIHN0cmluZ3MsIGl0IHNob3VsZAo+IGJlOgo+ICAg
+YWxpYXM6IGkyYyo6bWF4NjY4MDoqCj4g77u/dG8gbWF0Y2ggdGhlIG1vZHVsZSwgcmVnYXJkbGVz
+cyBvZiB0aGUgb3JkZXIgb2YgdGhlIHN0cmluZ3MgaW4gdGhlCj4gbW9kYWxpYXM6CgpXaHkgd291
+bGQgaTJjIGRldmljZSBtb2RhbGlhc2VzIGV2ZXIgY29udGFpbiBtdWx0aXBsZSBzdHJpbmdzPyBB
+IGRldmljZQpjYW4ndCBoYXZlIG11bHRpcGxlIG5hbWVzLCBjYW4gaXQ/CgpBZGRpbmcgYSAiOiIg
+YXQgdGhlIGVuZCBvZiB0aGUgaTJjIGRldmljZSBuYW1lcyBzb2x2ZXMgdGhlIHByb2JsZW0gSQp3
+YXMgbWVudGlvbmluZywgc3VyZSwgYnV0IHdoeSBkb24ndCB3ZSBzaW1wbHkgcmVtb3ZlIHRoZSB0
+cmFpbGluZyAiKiIsCmluc3RlYWQgb2YgdHJ5aW5nIHRvIHdvcmsgYXJvdW5kIGl0PyBBIHRyYWls
+aW5nICIqIiBzaW1wbHkgbWFrZXMgbm8Kc2Vuc2UgZm9yIGFsaWFzZXMgd2hpY2ggYXJlIHNpbXBs
+ZSBkZXZpY2UgbmFtZXMuIFRoaXMgaXMgbm90IG9ubHkgaTJjCmRldmljZXMsIGJ1dCBhbHNvIHBs
+YXRmb3JtIGRldmljZXMsIGFjcGksIGRtaSwgcG5wLi4uIExvb2tpbmcgYXQgdGhlCnZhcmlvdXMg
+ZGV2aWNlIHR5cGVzIGhhbmRsZWQgYnkgZmlsZTJhbGlhcy5jLCBpdCBzZWVtcyB0aGF0IG1vc3Qg
+b2YKdGhlbSBkb24ndCBuZWVkIHRoZSB0cmFpbGluZyAiKiIsIGFuZCBtYW55IG9mIHRoZW0gaGF2
+ZSB0aGUgcHJvYmxlbSBJCndhcyBtZW50aW9uaW5nLgoKQ2FuJ3Qgd2UganVzdCBzdG9wIGhhbmRs
+ZV9tb2RkZXZ0YWJsZSgpIGZyb20gYWRkaW5nIGEgdGFpbGluZyAiKiIKYXV0b21hdGljYWxseSwg
+YW5kIGp1c3QgbGV0IHRoZSBkZXZpY2UgdHlwZXMgd2hpY2ggbmVlZCBpdCwgYWRkIGl0IG9uCnRo
+ZWlyIG93bj8KClRoYW5rcywKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vuc29y
+cy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
