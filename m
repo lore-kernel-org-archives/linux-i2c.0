@@ -1,87 +1,88 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/5] I2C: DaVinci: clock between 7-12 MHz
-Date: Mon, 28 Apr 2008 16:32:17 +0200
-Message-ID: <20080428163217.207423cf@hyperion.delvare>
-References: <1209142694-30046-1-git-send-email-troy.kisky@boundarydevices.com>
+From: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
+Date: Mon, 28 Apr 2008 10:43:35 -0400
+Message-ID: <9e4733910804280743q2de1da62m120c607b200cafa0@mail.gmail.com>
+References: <20080428113052.6d024bda@hyperion.delvare>
+	<20080428113901.2772e9d9@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1209142694-30046-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080428113901.2772e9d9@hyperion.delvare>
+Content-Disposition: inline
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Paul Mundt <lethal@linux-sh.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 25 Apr 2008 09:58:10 -0700, Troy Kisky wrote:
-> Ensure psc value gives a clock between 7-12 MHz
-> Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-davinci.c |   15 +++++++++++----
->  1 files changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 7ecbfc4..0e5a39c 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -142,6 +142,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
->  	u16 psc;
->  	u32 clk;
-> +	u32 d;
->  	u32 clkh;
->  	u32 clkl;
->  	u32 input_clock = clk_get_rate(dev->clk);
-> @@ -171,23 +172,29 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  	 *       if PSC > 1 , d = 5
->  	 */
->  
-> -	psc = 26; /* To get 1MHz clock */
-> +	/* get minimum of 7 MHz clock, but max of 12 MHz */
-> +	psc = (input_clock / 7000000) - 1;
-> +	if ((input_clock / (psc + 1)) > 12000000)
-> +		psc++;	/* better to run under spec than over */
-> +	d = (psc >= 2)? 5 : 7 - psc;
->  
-> -	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - 10;
-> -	clkh = (50 * clk) / 100;
-> +	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - (d<<1);
-> +	clkh = clk>>1;
->  	clkl = clk - clkh;
->  
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
->  
-> -	dev_dbg(dev->dev, "CLK  = %d\n", clk);
-> +	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
->  	dev_dbg(dev->dev, "PSC  = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
->  	dev_dbg(dev->dev, "CLKL = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKL_REG));
->  	dev_dbg(dev->dev, "CLKH = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_CLKH_REG));
-> +	dev_dbg(dev->dev, "bus_freq = %dkHz, bus_delay = %d\n",
-> +		pdata->bus_freq, pdata->bus_delay);
->  
->  	/* Take the I2C module out of reset: */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+On 4/28/08, Jean Delvare <khali@linux-fr.org> wrote:
+> Based on earlier work by Jon Smirl and Jochen Friedrich.
+>
+>  This patch allows new-style i2c chip drivers to have alias names using
+>  the official kernel aliasing system and MODULE_DEVICE_TABLE(). At this
+>  point, the old i2c driver binding scheme (driver_name/type) is still
+>  supported.
+>
+>  Signed-off-by: Jean Delvare <khali@linux-fr.org>
+>  Cc: Jochen Friedrich <jochen@scram.de>
+>  Cc: Jon Smirl <jonsmirl@gmail.com>
+>  Cc: Kay Sievers <kay.sievers@vrfy.org>
+>  ---
+>  One thing I am still not happy with is that the aliases created have a
+>  trailing "*":
+>
+>  $ /sbin/modinfo lm90
+>  filename:       /lib/modules/2.6.25-git11/kernel/drivers/hwmon/lm90.ko
+>  author:         Jean Delvare <khali@linux-fr.org>
+>  description:    LM90/ADM1032 driver
+>  license:        GPL
+>  vermagic:       2.6.25-git11 mod_unload
+>  depends:        hwmon
+>  alias:          i2c:lm90*
+>  alias:          i2c:adm1032*
+>  alias:          i2c:lm99*
+>  alias:          i2c:lm86*
+>  alias:          i2c:max6657*
+>  alias:          i2c:adt7461*
+>  alias:          i2c:max6680*
+>  $
+>
+>  This would cause trouble if one I2C chip name matches the beginning of
+>  another I2C chip name and both chips are supported by different
+>  drivers. This has yet to be seen, but still, I'd like to see this
+>  problem fixed quickly.
 
-Applied, with a few remaining coding-style cleanups, thanks.
+
+Trailing wildcard is always added by file2alias.c:
+
+                if (do_entry(mod->name, symval+i, alias)) {
+                        /* Always end in a wildcard, for future extension */
+                        if (alias[strlen(alias)-1] != '*')
+                                strcat(alias, "*");
+
+
+Can't the match order be controlled in the makefile? For example if
+you had lm905* and lm90*, put lm905* into into the makefile first
+which will cause it to appear in the alias file first. But that would
+still cause problems if only lm90 was built and you had a lm905
+device.
+
+Alternatively you could change the code to append something like a
+period to the name string.
+
+sprintf(alias, I2C_MODULE_PREFIX "%s.", id->name);
+
+I was using macros to alter the name strings to move the PowerPC names
+into their own namespace.
 
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jon Smirl
+jonsmirl@gmail.com
