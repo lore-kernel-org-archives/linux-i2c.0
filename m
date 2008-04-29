@@ -1,7 +1,7 @@
-From: "Hans J. Koch" <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Two start conditions for PCA9554
-Date: Tue, 29 Apr 2008 15:11:14 +0200
-Message-ID: <20080429131114.GF3195@local>
+From: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c-piix4-inc-delay-after-starting-transaction
+Date: Tue, 29 Apr 2008 12:00:53 -0500
+Message-ID: <20080429170053.GA16863@dhcp-210.hsv.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,26 +16,36 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I have an embedded board with a PCA9554 on it. It's an 8-bit IO expander
-similar to the PCF8574 in mainline. One difference is that when reading
-from the inputs, you have to do the following:
+Per the PIIX4 errata, there maybe a delay between setting the
+start bit in the Smbus Host Controller Register and the transaction
+actually starting. If the driver doesn't delay long enough, it
+may appear that the transaction is complete when actually it
+hasn't started, this may lead to bus collisions.
 
-- start condition
-- send slave address, R/W=0
-- send command (0x00 = read input register)
-- issue another start condition (!)
-- send slave address, R/W=1
-- read data
-- stop condition
+Signed-off-by: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/ata/libata-core.c      |    0 
+ drivers/i2c/busses/i2c-piix4.c |    2 +-
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-Can such a protocol be handled by the i2c subsystem?
-
-Thanks,
-Hans
-
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 9bbe96c..84a70ac 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -232,7 +232,7 @@ static int piix4_transaction(void)
+ 
+ 	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
+ 	do {
+-		msleep(1);
++		msleep(2);
+ 		temp = inb_p(SMBHSTSTS);
+ 	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
+ 
 
 _______________________________________________
 i2c mailing list
