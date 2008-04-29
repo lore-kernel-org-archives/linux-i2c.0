@@ -1,12 +1,10 @@
-From: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c-piix4-inc-delay-after-starting-transaction
-Date: Tue, 29 Apr 2008 12:00:53 -0500
-Message-ID: <20080429170053.GA16863@dhcp-210.hsv.redhat.com>
+From: "Darren Zhang" <darrentw-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: driver support for smbus mux
+Date: Tue, 29 Apr 2008 16:00:29 -0700
+Message-ID: <d4d59c9a0804291600s744e27bfta8144d376824ea58@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0274811978655460134=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,38 +14,60 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Per the PIIX4 errata, there maybe a delay between setting the
-start bit in the Smbus Host Controller Register and the transaction
-actually starting. If the driver doesn't delay long enough, it
-may appear that the transaction is complete when actually it
-hasn't started, this may lead to bus collisions.
+--===============0274811978655460134==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_5444_22409978.1209510029897"
 
-Signed-off-by: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- drivers/ata/libata-core.c      |    0 
- drivers/i2c/busses/i2c-piix4.c |    2 +-
- 2 files changed, 1 insertion(+), 1 deletion(-)
+------=_Part_5444_22409978.1209510029897
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 9bbe96c..84a70ac 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -232,7 +232,7 @@ static int piix4_transaction(void)
- 
- 	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
- 	do {
--		msleep(1);
-+		msleep(2);
- 		temp = inb_p(SMBHSTSTS);
- 	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
- 
+In my system the I2C bus is multiplexed into 4 segments using an analog
+multiplexer.
+When I use i2cdetect, only devices before the i2c mux can be detected.
+I wonder if this kind of hardware configuration is supported in the latest
+2.6 kernal
+s.t. I can use i2ctools (i2cdetect/i2cdump/i2cset) to access devices behind
+the i2c mux?
+Any suggestion appreciated.
+
+                         -------------- <-------->
+                        | i2c mux | <-------->
+   i2c-0 <------->  |             | <-------->
+                        |             | <-------->
+                         -------------
+
+Thanks
+
+------=_Part_5444_22409978.1209510029897
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div>In my system the I2C bus is multiplexed into 4 segments using an analog multiplexer.</div>
+<div>When I use i2cdetect, only devices&nbsp;before the i2c mux can be detected.</div>
+<div>I wonder if&nbsp;this kind of hardware&nbsp;configuration is supported in the latest 2.6 kernal&nbsp;</div>
+<div>s.t. I can&nbsp;use i2ctools (i2cdetect/i2cdump/i2cset) to access devices behind the&nbsp;i2c mux?</div>
+<div>Any suggestion appreciated.</div>
+<div><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -------------- &lt;--------&gt;&nbsp; </div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | i2c mux | &lt;--------&gt;&nbsp;<br>&nbsp;&nbsp; i2c-0 &lt;-------&gt;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &lt;--------&gt;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &lt;--------&gt;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -------------<br>
+<br>Thanks&nbsp;</div>
+
+------=_Part_5444_22409978.1209510029897--
+
+
+--===============0274811978655460134==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============0274811978655460134==--
