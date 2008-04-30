@@ -1,14 +1,13 @@
 From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 3/3] I2C: DaVinci: fix signal handling bug
-Date: Wed, 30 Apr 2008 16:53:58 -0700
-Message-ID: <1209599638-17057-3-git-send-email-troy.kisky@boundarydevices.com>
+Subject: [PATCH 2/3] I2C: DaVinci: initialize cmd_complete sooner
+Date: Wed, 30 Apr 2008 16:53:57 -0700
+Message-ID: <1209599638-17057-2-git-send-email-troy.kisky@boundarydevices.com>
 References: <1209599638-17057-1-git-send-email-troy.kisky@boundarydevices.com>
-	<1209599638-17057-2-git-send-email-troy.kisky@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1209599638-17057-2-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1209599638-17057-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,146 +21,36 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If wait_for_completion_interruptible_timeout exits due
-to a signal, the i2c bus was locking up.
+If an interrupt happens before an I2c master read/write,
+complete is called on uninitialized structure.
 
 Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |   62 +++++++++++++++++++++++++++++++------
- 1 files changed, 52 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 77c9822..c44ef4a 100644
+index fd97cca..77c9822 100644
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -85,6 +85,7 @@
- #define DAVINCI_I2C_MDR_MST	(1 << 10)
- #define DAVINCI_I2C_MDR_TRX	(1 << 9)
- #define DAVINCI_I2C_MDR_XA	(1 << 8)
-+#define DAVINCI_I2C_MDR_RM	(1 << 7)
- #define DAVINCI_I2C_MDR_IRS	(1 << 5)
+@@ -260,7 +260,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
  
- #define DAVINCI_I2C_IMR_AAS	(1 << 6)
-@@ -112,6 +113,7 @@ struct davinci_i2c_dev {
- 	u8			*buf;
- 	size_t			buf_len;
- 	int			irq;
-+	u8			terminate;
- 	struct i2c_adapter	adapter;
- };
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
  
-@@ -283,20 +285,34 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 		MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 1);
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+-	init_completion(&dev->cmd_complete);
++	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
  
-+	dev->terminate = 0;
- 	/* write the data into mode register */
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
- 
- 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
- 						      DAVINCI_I2C_TIMEOUT);
--	dev->buf_len = 0;
--	if (r < 0)
--		return r;
--
- 	if (r == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		i2c_davinci_init(dev);
-+		dev->buf_len = 0;
- 		return -ETIMEDOUT;
+ 	/* Take I2C out of reset, configure it as master and set the
+@@ -476,6 +476,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		goto err_release_region;
  	}
-+	if (dev->buf_len) {
-+		/* This should be 0 if all bytes were transferred
-+		 * or dev->cmd_err denotes an error.
-+		 * A signal may have aborted the transfer.
-+		 */
-+		if (r >= 0) {
-+			dev_err(dev->dev, "abnormal termination buf_len=%i\n",
-+				dev->buf_len);
-+			r = -EREMOTEIO;
-+		}
-+		dev->terminate = 1;
-+		wmb();
-+		dev->buf_len = 0;
-+	}
-+	if (r < 0)
-+		return r;
  
- 	/* no error */
- 	if (likely(!dev->cmd_err))
-@@ -353,6 +369,27 @@ static u32 i2c_davinci_func(struct i2c_adapter *adap)
- 	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
- }
- 
-+static void terminate_read(struct davinci_i2c_dev *dev)
-+{
-+	u16 w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-+	w |= DAVINCI_I2C_MDR_NACK;
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-+
-+	/* Throw away data */
-+	davinci_i2c_read_reg(dev, DAVINCI_I2C_DRR_REG);
-+	if (!dev->terminate)
-+		dev_err(dev->dev, "RDR IRQ while no data requested\n");
-+}
-+static void terminate_write(struct davinci_i2c_dev *dev)
-+{
-+	u16 w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-+	w |= DAVINCI_I2C_MDR_RM | DAVINCI_I2C_MDR_STP;
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-+
-+	if (!dev->terminate)
-+		dev_err(dev->dev, "TDR IRQ while no data to send\n");
-+}
-+
- /*
-  * Interrupt service routine. This gets called whenever an I2C interrupt
-  * occurs.
-@@ -373,12 +410,15 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 
- 		switch (stat) {
- 		case DAVINCI_I2C_IVR_AL:
-+			/* Arbitration lost, must retry */
- 			dev->cmd_err |= DAVINCI_I2C_STR_AL;
-+			dev->buf_len = 0;
- 			complete(&dev->cmd_complete);
- 			break;
- 
- 		case DAVINCI_I2C_IVR_NACK:
- 			dev->cmd_err |= DAVINCI_I2C_STR_NACK;
-+			dev->buf_len = 0;
- 			complete(&dev->cmd_complete);
- 			break;
- 
-@@ -400,9 +440,10 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 				davinci_i2c_write_reg(dev,
- 					DAVINCI_I2C_STR_REG,
- 					DAVINCI_I2C_IMR_RRDY);
--			} else
--				dev_err(dev->dev, "RDR IRQ while no "
--					"data requested\n");
-+			} else {
-+				/* signal can terminate transfer */
-+				terminate_read(dev);
-+			}
- 			break;
- 
- 		case DAVINCI_I2C_IVR_XRDY:
-@@ -419,9 +460,10 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 				davinci_i2c_write_reg(dev,
- 						      DAVINCI_I2C_IMR_REG,
- 						      w);
--			} else
--				dev_err(dev->dev, "TDR IRQ while no data to "
--					"send\n");
-+			} else {
-+				/* signal can terminate transfer */
-+				terminate_write(dev);
-+			}
- 			break;
- 
- 		case DAVINCI_I2C_IVR_SCD:
++	init_completion(&dev->cmd_complete);
+ 	dev->dev = get_device(&pdev->dev);
+ 	dev->irq = irq->start;
+ 	platform_set_drvdata(pdev, dev);
 -- 
 1.5.4
 
