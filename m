@@ -1,13 +1,12 @@
-From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 2/3] I2C: DaVinci: initialize cmd_complete sooner
-Date: Wed, 30 Apr 2008 16:53:57 -0700
-Message-ID: <1209599638-17057-2-git-send-email-troy.kisky@boundarydevices.com>
-References: <1209599638-17057-1-git-send-email-troy.kisky@boundarydevices.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: Two start conditions for PCA9554
+Date: Wed, 30 Apr 2008 23:01:56 -0700
+Message-ID: <200804302301.56732.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1209599638-17057-1-git-send-email-troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,43 +16,22 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+To: =?iso-8859-1?q?Hans-J=FCrgen_Koch?= <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If an interrupt happens before an I2c master read/write,
-complete is called on uninitialized structure.
+> I have an embedded board with a PCA9554 on it. It's an 8-bit IO expander
+> similar to the PCF8574 in mainline.
 
-Signed-off-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Signed-off-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-davinci.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+More like the pca9534 or pca9538.
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index fd97cca..77c9822 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -260,7 +260,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
- 
--	init_completion(&dev->cmd_complete);
-+	INIT_COMPLETION(dev->cmd_complete);
- 	dev->cmd_err = 0;
- 
- 	/* Take I2C out of reset, configure it as master and set the
-@@ -476,6 +476,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 		goto err_release_region;
- 	}
- 
-+	init_completion(&dev->cmd_complete);
- 	dev->dev = get_device(&pdev->dev);
- 	dev->irq = irq->start;
- 	platform_set_drvdata(pdev, dev);
--- 
-1.5.4
 
+> Can such a protocol be handled by the i2c subsystem?
+
+Try to tell drivers/gpio/pca953x.c that it's a pca9534;
+I think they're register-compatible.
+
+- Dave
 
 _______________________________________________
 i2c mailing list
