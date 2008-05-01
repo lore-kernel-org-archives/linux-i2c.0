@@ -1,18 +1,14 @@
-From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Add support for device alias names
-Date: Thu, 01 May 2008 17:51:29 +0200
-Message-ID: <1209657089.20889.46.camel@linux.site>
-References: <20080428113052.6d024bda@hyperion.delvare>
-	<20080428113901.2772e9d9@hyperion.delvare>
-	<1209395245.3666.9.camel@linux.site>
-	<20080428174010.5a40c2c0@hyperion.delvare>
-	<1209399377.3666.30.camel@linux.site>
-	<20080501100409.1b04fdb7@hyperion.delvare>
+From: "Hans J. Koch" <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: Two start conditions for PCA9554
+Date: Thu, 1 May 2008 22:35:01 +0200
+Message-ID: <20080501203500.GC3210@local>
+References: <200804302301.56732.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080501100409.1b04fdb7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <200804302301.56732.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,62 +18,28 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1LCAyMDA4LTA1LTAxIGF0IDEwOjA0ICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6Cj4g
-T24gTW9uLCAyOCBBcHIgMjAwOCAxODoxNjoxNyArMDIwMCwgS2F5IFNpZXZlcnMgd3JvdGU6Cj4g
-PiBPbiBNb24sIDIwMDgtMDQtMjggYXQgMTc6NDAgKzAyMDAsIEplYW4gRGVsdmFyZSB3cm90ZToK
-PiA+ID4gV2h5IHdvdWxkIGkyYyBkZXZpY2UgbW9kYWxpYXNlcyBldmVyIGNvbnRhaW4gbXVsdGlw
-bGUgc3RyaW5ncz8gQSBkZXZpY2UKPiA+ID4gY2FuJ3QgaGF2ZSBtdWx0aXBsZSBuYW1lcywgY2Fu
-IGl0Pwo+ID4gCj4gPiBMaWtlIEFDUEkvUE5QIGRldmljZXMsIHdoaWNoIGNhbiBoYXZlIHNldmVy
-YWwgY29tcGF0IGlkJ3MsIHdoaWNoIG1lYW5zCj4gPiB0aGF0IGEgc2luZ2xlIGRldmljZSBjYW4g
-aGF2ZSAibXVsdGlwbGUgbmFtZXMiOgo+ID4gICAkIGNhdCAvc3lzL2J1cy9wbnAvZGV2aWNlcy8w
-MDowOS9pZAo+ID4gICBJQk0wMDU3Cj4gPiAgIFBOUDBmMTMKPiAKPiBBaCwgSSBkaWRuJ3Qga25v
-dyBhYm91dCB0aGlzLiBOb3cgSSdtIGN1cmlvdXMgaG93IGl0IGNhbiB3b3JrLiBEb2VzIGl0Cj4g
-bWVhbiB0aGF0IHNldmVyYWwgZHJpdmVycyBhdHRlbXB0IHRvIGJpbmQgdG8gdGhpcyBkZXZpY2U/
-IAoK77u/VGhleSBhcmUgdXN1YWxseSBhbGwgaWQncyBmb3IgdGhlIHNhbWUgdHlwZSBvZiBkZXZp
-Y2UsIGFuZCBkb24ndCBkZXNjcmliZQptdWx0aXBsZSBmdW5jdGlvbnMgYXQgdGhlIHNhbWUgdGlt
-ZS4gSW4gbW9zdCBjYXNlcyB0aGUgdmVuZG9yIGlkJ3MsIGxpa2UKIklCTTAwNTciIGhlcmUsIGRv
-IG5vdCBtYXRjaCBhbnl0aGluZy4KCj4gPiA+IENhbid0IHdlIGp1c3Qgc3RvcCBoYW5kbGVfbW9k
-ZGV2dGFibGUoKSBmcm9tIGFkZGluZyBhIHRhaWxpbmcgIioiCj4gPiA+IGF1dG9tYXRpY2FsbHks
-IGFuZCBqdXN0IGxldCB0aGUgZGV2aWNlIHR5cGVzIHdoaWNoIG5lZWQgaXQsIGFkZCBpdCBvbgo+
-ID4gPiB0aGVpciBvd24/Cj4gPiAKPiA+IEZvciBhIGxvdCBzdWJzeXN0ZW1zIGl0J3MgZmluZSB0
-byBoYXZlIGl0IGFwcGVuZGVkLCBhcyB0aGVyZSBpcyBhCj4gPiBkZWZpbmVkIGxpc3Qgb2YgaWRl
-bnRpZmllcnMsIHdoaWNoIG11c3QgYXBwZWFyIGluIHRoZSBzYW1lIG9yZGVyLCBhbmQKPiA+IG5l
-dyBpZGVudGlmaWVycyBhcmUgYXBwZW5kZWQgdG8gdGhlIGVuZC4gU28gdGhlICIqIiBzdGlsbCBt
-YXRjaGVzCj4gPiBtb2R1bGVzIHdpdGggcG9zc2libHkgZXh0ZW5kZWQgbW9kYWxpYXMgc3RyaW5n
-cy4KPiAKPiBJIHVuZGVyc3RhbmQgdGhlIGxvZ2ljLCBob3dldmVyIEkgYW0gc2tlcHRpY2FsIGhv
-dyB1c2VmdWwgaXQgaXMgaW4KPiBwcmFjdGljZS4gSWYgd2UgYWRkIGFuIGlkZW50aWZpZXIgdG8g
-dGhlIGRldmljZSBhbGlhc2VzLCB0aGVuIHdlIGFsc28KPiB1cGRhdGUgdGhlIGNvcnJlc3BvbmRp
-bmcgbW9kYWxpYXMsIHNvIG5vIGluLXRyZWUgZHJpdmVyIGNhbiBicmVhay4gVGhlCj4gb25seSBj
-YXNlIHdoZXJlIGl0IG1ha2VzIGEgZGlmZmVyZW5jZSwgYXMgZmFyIGFzIEkgY2FuIHNlZSwgaXMg
-Zm9yCj4gb3V0LW9mLXRyZWUgZHJpdmVycy4gQW0gSSBjb3JyZWN0PwoK77u/VGhhdCBzb3VuZHMg
-Y29ycmVjdCwgeWVzLgoKPiBPbiB0b3Agb2YgdGhhdCwgSSBkb3VidCB0aGF0IHdlCj4gYWN0dWFs
-bHkgYWRkIG5ldyBpZGVudGlmaWVycyB0aGF0IGZyZXF1ZW50bHksIGRvIHdlPwoKTm90IHRoYXQg
-SSBrbm93LgoKPiA+IFdlIHdvdWxkIGFsc28gbmVlZCB0byByZXZpZXcgYWxsIGJ1c2VzIHdoaWNo
-IGV4cG9ydCBtb2RhbGlhcywgaWYgdGhleQo+ID4gbmVlZCB0aGUgIioiIG9yIG5vdCwgYW5kIGFk
-ZCB0aGVtIGJ5IGhhbmQsIGlmIG5lZWRlZC4KPiA+IAo+ID4gSSBndWVzcywgaXQncyBlYXNpZXIg
-dG8gaW50cm9kdWNlIGFuIGFkZGl0aW9uYWwgcGFyYW1ldGVyIHRvCj4gPiBmaWxlMmFsaWFzOjpk
-b190YWJsZSgpIGFuZCBzdXBwcmVzcyB0aGUgdHJhaWxpbmcgIioiIGZvciBpMmM/Cj4gCj4gVGhh
-dCdzIG9uZSBwb3NzaWJpbGl0eSwgYnV0IEkgaGFkIGEgc2xpZ2h0bHkgZGlmZmVyZW50IGFwcHJv
-YWNoLCB3aGljaAo+IGlzIHRvIGp1c3QgbGV0IHRoZSB0eXBlLXNwZWNpZmljIGhhbmRsZXJzIGFk
-ZCB0aGUgdHJhaWxpbmcgIioiIGJ5Cj4gdGhlbXNlbHZlcyBpZiB0aGV5IG5lZWQgaXQuIFRoaXMg
-YWxsb3dzIGZvciBvcHRpbWl6YXRpb24gaW4gYSBmZXcKPiBjYXNlcy4KPiAKPiBTdWJqZWN0OiBt
-b2Rwb3N0OiBpMmMgYWxpYXNlcyBuZWVkIG5vIHRyYWlsaW5nIHdpbGRjYXJkCj4gCj4gTm90IGFs
-bCBkZXZpY2UgdHlwZSBhbGlhc2VzIG5lZWQgYSB0cmFpbGluZyB3aWxkY2FyZCwgaW4gcGFydGlj
-dWxhcgo+IHRoZSBpMmMgYWxpYXNlcyBkb24ndC4gRG9uJ3QgYWRkIGEgd2lsZGNhcmQgYnkgZGVm
-YXVsdCBpbiBkb190YWJsZSgpLAo+IGluc3RlYWQgbGV0IGVhY2ggZGV2aWNlIHR5cGUgaGFuZGxl
-ciBhZGQgaXQgaWYgbmVlZGVkLgoKLi4uCgo+IFRoZSBwYXRjaCBvbmx5IGNoYW5nZXMgdGhlIGky
-YyBhbGlhc2VzLCBhbGwgdGhlIHJlc3QgaXMgdGhlIHNhbWUgYXMKPiBiZWZvcmUgKHVubGVzcyBJ
-IG1lc3NlZCB1cCBzb21ld2hlcmUsIHRoYXQgaXMuKSBEbyB5b3UgdGhpbmsgdGhpcyB3b3VsZAo+
-IGJlIGFjY2VwdGFibGUgZm9yIHVwc3RyZWFtPyBJZiB5b3UgdGhpbmsgaXQncyBiZXR0ZXIgdG8g
-YWRkIGEgcGFyYW1ldGVyCj4gdG8gZG9fdGFibGUoKSBhbmQgbGV0IGl0IGFkZCB0aGUgIioiIGFz
-IGl0IGRpZCBzbyBmYXIsIHRoYXQncyBhbHNvIGZpbmUKPiB3aXRoIG1lLCBJIGNhbiB1cGRhdGUg
-dGhlIHBhdGNoIHRvIGRvIHRoYXQuCgpMb29rcyBmaW5lIHRvIG1lLgoKSWYgdGhlIGNvbnRlbnQg
-b2Y6CiAgL2xpYi9tb2R1bGVzLyQodW5hbWUgLXIpL21vZHVsZXMuYWxpYXMKbG9va3MgY29ycmVj
-dCBhZnRlciB0aGUgcGF0Y2gsIHRoaXMgc2hvdWxkIGdvIGluLCBJIHRoaW5rLgoKVGhhbmtzLApL
-YXkKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwppMmMg
-bWFpbGluZyBsaXN0CmkyY0BsbS1zZW5zb3JzLm9yZwpodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5v
-cmcvbWFpbG1hbi9saXN0aW5mby9pMmM=
+On Wed, Apr 30, 2008 at 11:01:56PM -0700, David Brownell wrote:
+> > I have an embedded board with a PCA9554 on it. It's an 8-bit IO expander
+> > similar to the PCF8574 in mainline.
+> 
+> More like the pca9534 or pca9538.
+> 
+> 
+> > Can such a protocol be handled by the i2c subsystem?
+> 
+> Try to tell drivers/gpio/pca953x.c that it's a pca9534;
+> I think they're register-compatible.
+
+Ah, I only looked in drivers/i2c/chips. I'll give it a try.
+
+Thanks a lot for that hint,
+Hans
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
