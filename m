@@ -1,232 +1,86 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Fri, 2 May 2008 20:37:21 +0200
-Message-ID: <20080502203721.70c5dc09@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-piix4-inc-delay-after-starting-transaction
+Date: Fri, 2 May 2008 22:05:28 +0200
+Message-ID: <20080502220528.65c07727@hyperion.delvare>
+References: <20080429170053.GA16863@dhcp-210.hsv.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S936051AbYEBShp@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080429170053.GA16863-MyKPER+WmwNgWwbpmQC+TKfLeoKvNuZc@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+Hi David,
 
-[Once more with Sam's address fixed, sorry for the noise.]
+On Tue, 29 Apr 2008 12:00:53 -0500, David Milburn wrote:
+> Per the PIIX4 errata, there maybe a delay between setting the
+> start bit in the Smbus Host Controller Register and the transaction
+> actually starting. If the driver doesn't delay long enough, it
+> may appear that the transaction is complete when actually it
+> hasn't started, this may lead to bus collisions.
 
-Not all device types need a wildcard at the end of their module
-aliases. In particular, for i2c module aliases, the trailing wildcard
-is not only unneeded, it could also cause the wrong driver to be
-loaded.
+The driver was already waiting at least 1 ms before checking the busy
+bit. I don't see any value mentioned in the PIIX4 specification update,
+so what makes you think that 2 ms is required? And what makes you think
+it's sufficient?
 
-As I2C devices have no IDs, i2c module aliases are simple, arbitrary
-device names. For example:
+I've never seen any problem with the i2c-piix4 driver on my PIIX4,
+while I tested it hard at HZ=1000. On which chip did you hit the
+problem? On what machine? Which transaction? How frequently? And how
+did you notice? Details please.
 
-$ /sbin/modinfo lm90
-filename:       /lib/modules/2.6.25-git18/kernel/drivers/hwmon/lm90.ko
-author:         Jean Delvare <khali@linux-fr.org>
-description:    LM90/ADM1032 driver
-license:        GPL
-vermagic:       2.6.25-git18 mod_unload
-depends:        hwmon
-alias:          i2c:lm90*
-alias:          i2c:adm1032*
-alias:          i2c:lm99*
-alias:          i2c:lm86*
-alias:          i2c:max6657*
-alias:          i2c:adt7461*
-alias:          i2c:max6680*
-$
+> 
+> Signed-off-by: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+>  drivers/ata/libata-core.c      |    0 
+>  drivers/i2c/busses/i2c-piix4.c |    2 +-
+>  2 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 9bbe96c..84a70ac 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -232,7 +232,7 @@ static int piix4_transaction(void)
+>  
+>  	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
+>  	do {
+> -		msleep(1);
+> +		msleep(2);
+>  		temp = inb_p(SMBHSTSTS);
+>  	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
+>  
 
-This would cause trouble if one I2C chip name matches the beginning of
-another I2C chip name and both chips are supported by different
-drivers. For example, an i2c device named lm9042 would cause the lm90
-driver to be loaded, while it doesn't support that device. This case
-has yet to be seen in practice, but still, I'd like to fix it now. The
-cleanest fix is to remove the trailing wildcard from i2c module aliases.
+This is not only increasing the delay before checking the busy bit
+right after starting a transaction. This also slows down the polling
+loop. And this also has the side effect of doubling the timeout - not
+really your fault, count-based timeouts are broken by design.
 
-Here's a patch doing this. If nobody objects, I'll send it to Linus
-through my i2c tree next week.
+I am additionally worried that you are changing this for all devices,
+while presumably only the PIIX4 (and maybe the 82443MX? not sure) are
+affected. If seems unfair to slow down the more recent devices.
 
-* * * * *
+I'd like you to update your patch to only change the initial wait time
+and not the polling loop interval. It should be fairly easy. I also
+would like you to make this change device-dependent, so that newer
+devices aren't slowed down.
 
-Not all device type aliases need a trailing wildcard, in particular
-the i2c aliases don't. Don't add a wildcard by default in do_table(),
-instead let each device type handler add it if needed.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
-I have tested types acpi, dmi, eisa, i2c, ide, ieee1394, input, pci,
-pcmcia, platform, pnp, scsi, serio, ssb and usb. Other types (ccw, of,
-vio, parisc, sdio and virtio) are untested.
-
- scripts/mod/file2alias.c |   35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
-
---- linux-2.6.26-rc0.orig/scripts/mod/file2alias.c	2008-05-02 18:37:38.000000000 +0200
-+++ linux-2.6.26-rc0/scripts/mod/file2alias.c	2008-05-02 20:23:07.000000000 +0200
-@@ -51,6 +51,15 @@ do {                                    
-                 sprintf(str + strlen(str), "*");                \
- } while(0)
- 
-+/* Always end in a wildcard, for future extension */
-+static inline void add_wildcard(char *str)
-+{
-+	int len = strlen(str);
-+
-+	if (str[len - 1] != '*')
-+		strcat(str + len, "*");
-+}
-+
- unsigned int cross_build = 0;
- /**
-  * Check that sizeof(device_id type) are consistent with size of section
-@@ -133,9 +142,7 @@ static void do_usb_entry(struct usb_devi
- 	    id->match_flags&USB_DEVICE_ID_MATCH_INT_PROTOCOL,
- 	    id->bInterfaceProtocol);
- 
--	/* Always end in a wildcard, for future extension */
--	if (alias[strlen(alias)-1] != '*')
--		strcat(alias, "*");
-+	add_wildcard(alias);
- 	buf_printf(&mod->dev_table_buf,
- 		   "MODULE_ALIAS(\"%s\");\n", alias);
- }
-@@ -219,6 +226,7 @@ static int do_ieee1394_entry(const char 
- 	ADD(alias, "ver", id->match_flags & IEEE1394_MATCH_VERSION,
- 	    id->version);
- 
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -261,6 +269,7 @@ static int do_pci_entry(const char *file
- 	ADD(alias, "bc", baseclass_mask == 0xFF, baseclass);
- 	ADD(alias, "sc", subclass_mask == 0xFF, subclass);
- 	ADD(alias, "i", interface_mask == 0xFF, interface);
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -283,6 +292,7 @@ static int do_ccw_entry(const char *file
- 	    id->dev_type);
- 	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_MODEL,
- 	    id->dev_model);
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -290,7 +300,7 @@ static int do_ccw_entry(const char *file
- static int do_ap_entry(const char *filename,
- 		       struct ap_device_id *id, char *alias)
- {
--	sprintf(alias, "ap:t%02X", id->dev_type);
-+	sprintf(alias, "ap:t%02X*", id->dev_type);
- 	return 1;
- }
- 
-@@ -309,6 +319,7 @@ static int do_serio_entry(const char *fi
- 	ADD(alias, "id", id->id != SERIO_ANY, id->id);
- 	ADD(alias, "ex", id->extra != SERIO_ANY, id->extra);
- 
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -316,7 +327,7 @@ static int do_serio_entry(const char *fi
- static int do_acpi_entry(const char *filename,
- 			struct acpi_device_id *id, char *alias)
- {
--	sprintf(alias, "acpi*:%s:", id->id);
-+	sprintf(alias, "acpi*:%s:*", id->id);
- 	return 1;
- }
- 
-@@ -324,7 +335,7 @@ static int do_acpi_entry(const char *fil
- static int do_pnp_entry(const char *filename,
- 			struct pnp_device_id *id, char *alias)
- {
--	sprintf(alias, "pnp:d%s", id->id);
-+	sprintf(alias, "pnp:d%s*", id->id);
- 	return 1;
- }
- 
-@@ -409,6 +420,7 @@ static int do_pcmcia_entry(const char *f
-        ADD(alias, "pc", id->match_flags & PCMCIA_DEV_ID_MATCH_PROD_ID3, id->prod_id_hash[2]);
-        ADD(alias, "pd", id->match_flags & PCMCIA_DEV_ID_MATCH_PROD_ID4, id->prod_id_hash[3]);
- 
-+	add_wildcard(alias);
-        return 1;
- }
- 
-@@ -432,6 +444,7 @@ static int do_of_entry (const char *file
-         if (isspace (*tmp))
-             *tmp = '_';
- 
-+    add_wildcard(alias);
-     return 1;
- }
- 
-@@ -448,6 +461,7 @@ static int do_vio_entry(const char *file
- 		if (isspace (*tmp))
- 			*tmp = '_';
- 
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -511,6 +525,8 @@ static int do_eisa_entry(const char *fil
- {
- 	if (eisa->sig[0])
- 		sprintf(alias, EISA_DEVICE_MODALIAS_FMT "*", eisa->sig);
-+	else
-+		strcat(alias, "*");
- 	return 1;
- }
- 
-@@ -529,6 +545,7 @@ static int do_parisc_entry(const char *f
- 	ADD(alias, "rev", id->hversion_rev != PA_HVERSION_REV_ANY_ID, id->hversion_rev);
- 	ADD(alias, "sv", id->sversion != PA_SVERSION_ANY_ID, id->sversion);
- 
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -544,6 +561,7 @@ static int do_sdio_entry(const char *fil
- 	ADD(alias, "c", id->class != (__u8)SDIO_ANY_ID, id->class);
- 	ADD(alias, "v", id->vendor != (__u16)SDIO_ANY_ID, id->vendor);
- 	ADD(alias, "d", id->device != (__u16)SDIO_ANY_ID, id->device);
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -559,6 +577,7 @@ static int do_ssb_entry(const char *file
- 	ADD(alias, "v", id->vendor != SSB_ANY_VENDOR, id->vendor);
- 	ADD(alias, "id", id->coreid != SSB_ANY_ID, id->coreid);
- 	ADD(alias, "rev", id->revision != SSB_ANY_REV, id->revision);
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -573,6 +592,7 @@ static int do_virtio_entry(const char *f
- 	ADD(alias, "d", 1, id->device);
- 	ADD(alias, "v", id->vendor != VIRTIO_DEV_ANY_ID, id->vendor);
- 
-+	add_wildcard(alias);
- 	return 1;
- }
- 
-@@ -612,9 +632,6 @@ static void do_table(void *symval, unsig
- 
- 	for (i = 0; i < size; i += id_size) {
- 		if (do_entry(mod->name, symval+i, alias)) {
--			/* Always end in a wildcard, for future extension */
--			if (alias[strlen(alias)-1] != '*')
--				strcat(alias, "*");
- 			buf_printf(&mod->dev_table_buf,
- 				   "MODULE_ALIAS(\"%s\");\n", alias);
- 		}
-
+Thanks,
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
