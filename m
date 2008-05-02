@@ -1,14 +1,16 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: driver support for smbus mux
-Date: Fri, 2 May 2008 09:47:46 +0200
-Message-ID: <20080502094746.57f9a445@hyperion.delvare>
-References: <d4d59c9a0804291600s744e27bfta8144d376824ea58@mail.gmail.com>
-	<Pine.LNX.4.58.0804301428150.9894@shell4.speakeasy.net>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: [patch 2.6.25-git] i2c: smbalert# support
+Date: Fri, 2 May 2008 04:10:44 -0700
+Message-ID: <200805020410.44723.david-b@pacbell.net>
+References: <200804161434.54335.laurentp@cse-semaphore.com>
+	<20080416153043.02f89554@hyperion.delvare>
+	<200804161027.49943.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.58.0804301428150.9894-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
+In-Reply-To: <200804161027.49943.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,71 +20,319 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Darren Zhang <darrentw-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Darren, hi Trent,
+Infrastructure supporting SMBALERT# interrupts and the related SMBus
+protocols.  These are defined as "optional" by the spec.
 
-On Wed, 30 Apr 2008 14:38:52 -0700 (PDT), Trent Piepho wrote:
-> On Tue, 29 Apr 2008, Darren Zhang wrote:
-> > In my system the I2C bus is multiplexed into 4 segments using an analog
-> > multiplexer.
+ - The i2c_adapter now includes a work_struct doing the work of talking
+   to the Alert Response Address until nobody responds any more (and
+   hence the IRQ is no longer asserted).  Follows SMBus 2.0 not 1.1;
+   there seems to be no point in trying to handle ten-bit addresses.
 
-Is it by any chance a Tyan motherboard?
+ - Some of the ways that work_struct could be driven:
 
-> > When I use i2cdetect, only devices before the i2c mux can be detected.
-> > I wonder if this kind of hardware configuration is supported in the latest
-> > 2.6 kernal
-> > s.t. I can use i2ctools (i2cdetect/i2cdump/i2cset) to access devices behind
-> > the i2c mux?
-> > Any suggestion appreciated.
-> 
-> Lot of DVB cards have the same issue, with stuff behind a i2c gateway to
-> shield it from the noise of i2c traffic for other chips.
+     * Adapter driver provides an IRQ, which is bound to a handler
+       which schedules that work_struct (using keventd for now).
+       NOTE:  it's nicest if this is edge triggered, but the code
+       should handle level triggered IRQs too.
 
-Gates and muxes are different. Of course you can think of a gate as a
-one-segment mux, but at least it is relatively easy to use handle gates with
-the current i2c core code (as the DVB subsystem does) while handling
-muxes is more difficult and ugly, because you have to take into account
-the case where multiple segments have chips sharing an I2C address
-(which is the reason #1 for using a mux in the first place.)
+     * Adapter driver schedules that work struct itself, maybe even
+       on a workqueue of its own.  It asks the core to set it up by
+       setting i2c_adapter.do_setup_alert ... SMBALERT# could be a
+       subcase of the adapter's normal interrupt handler.  (Or, some
+       boards may want to use polling.)
 
-> 
-> You could always program the MUX (with i2c-dev or write a driver), scan
-> the bus, change the mux, scan again, etc.
+ - The "i2c-gpio" driver now handles an optional named resource for
+   that SMBus alert signal.  Named since, when this is substituted
+   for a misbehaving "native" driver, positional ids should be left
+   alone.  (It might be better to put this logic into i2c core, to
+   apply whenever the i2c_adapter.dev.parent is a platform device.)
 
-Just for scanning, it works, but you can't register multiple i2c
-clients at the same address, so you are quickly stuck.
+ - There's a new driver method used to report that a given device has
+   issued an alert. Its parameter includes the one bit of information
+   provided by the device in its alert response message.
 
-> 
-> I've thought that it might be useful in some cases to create a "virtual"
-> i2c bus for what's behind the i2c gate or on each branch of the mux.
-> 
-> What you do is write a driver for the mux chip that registers four new i2c
-> busses.  This driver's i2c transfer function just sets the mux to the
-> proper channel (if it's not already there) and then passes on it's
-> arguments to the i2c transfer of the bus the mux is on.
-> 
-> You'd need to make sure the mux driver has a common mutex for all four
-> virtual busses, as I think the i2c layer mutex is per bus and wouldn't stop
-> simultaneous transactions on multiple virtual busses at once.
+The IRQ driven code path is always enabled, if it's available.
 
-We clearly need better infrastructure in i2c-core to handle these
-cases. This is one of the next big things I want to work on. I've
-always delayed it so far because we lacked explicit I2C device
-registration, and a GPIO subsystem. Now that we have both, it'll be
-finally worth looking at. The only remaining problem is that I still
-don't have a motherboard with such a multiplexed SMBus, so I won't be
-able to test my (or someone else's) patches.
+Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+CHANGES since last post:  cope with updated "new style binding";
+work better with (preferred) edge triggered IRQs.
 
-For now, the only SMBus mux we support is the one on the Tyan S4882
-(with a dedicated driver i2c-amd756-s4882), but it's everything but
-nice. I also have a similar driver for the Tyan S4985 which I wrote a
-few days ago but isn't upstream yet.
+ drivers/i2c/busses/i2c-gpio.c |   10 ++
+ drivers/i2c/i2c-core.c        |  146 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h           |   14 ++++
+ 3 files changed, 170 insertions(+)
 
--- 
-Jean Delvare
+--- a/drivers/i2c/busses/i2c-gpio.c	2008-05-02 00:15:29.000000000 -0700
++++ b/drivers/i2c/busses/i2c-gpio.c	2008-05-02 01:53:33.000000000 -0700
+@@ -82,6 +82,7 @@ static int __init i2c_gpio_probe(struct 
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_algo_bit_data *bit_data;
+ 	struct i2c_adapter *adap;
++	struct resource *smbalert;
+ 	int ret;
+ 
+ 	pdata = pdev->dev.platform_data;
+@@ -143,6 +144,15 @@ static int __init i2c_gpio_probe(struct 
+ 	adap->class = I2C_CLASS_HWMON;
+ 	adap->dev.parent = &pdev->dev;
+ 
++	smbalert = platform_get_resource_byname(pdev, IORESOURCE_IRQ,
++			"smbalert#");
++	if (smbalert) {
++		adap->irq = smbalert->start;
++		if ((IORESOURCE_IRQ_LOWEDGE | IORESOURCE_IRQ_HIGHEDGE)
++				& smbalert->flags)
++			adap->alert_edge_triggered = 1;
++	}
++
+ 	/*
+ 	 * If "dev->id" is negative we consider it as zero.
+ 	 * The reason to do so is to avoid sysfs names that only make
+--- a/drivers/i2c/i2c-core.c	2008-05-02 00:15:29.000000000 -0700
++++ b/drivers/i2c/i2c-core.c	2008-05-02 01:52:36.000000000 -0700
+@@ -33,6 +33,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/mutex.h>
+ #include <linux/completion.h>
++#include <linux/interrupt.h>
++
+ #include <linux/hardirq.h>
+ #include <linux/irqflags.h>
+ #include <linux/semaphore.h>
+@@ -433,6 +435,108 @@ static int i2c_do_add_adapter(struct dev
+ 	return 0;
+ }
+ 
++/*
++ * The IRQ handler needs to hand work off to a task which can issue SMBus
++ * calls, because those sleeping calls can't be made in IRQ context.
++ */
++static void smbus_alert(struct work_struct *work)
++{
++	struct i2c_adapter	*bus;
++
++	bus = container_of(work, struct i2c_adapter, alert);
++	for (;;) {
++		s32			status;
++		unsigned short		addr;
++		struct i2c_client	*client;
++		bool			flag;
++
++		/* Devices with pending alerts reply in address order, low
++		 * to high, because of arbitration.  After responding, an
++		 * SMBus device stops asserting SMBALERT# ... so we can
++		 * re-enable the IRQ as soon as read_byte() gets no reply.
++		 *
++		 * NOTE that SMBus 2.0 reserves 10-bit addresess for future
++		 * use.  We neither handle them, nor try to use PEC here.
++		 */
++		status = i2c_smbus_read_byte(bus->ara);
++		if (status < 0)
++			break;
++		flag = status & 1;
++		addr = status >> 1;
++
++		dev_dbg(&bus->dev, "SMBALERT# %d from dev 0x%02x\n", flag, addr);
++
++		/* Notify any driver for the device which issued the alert.
++		 * The locking ensures it won't disappear while we do that.
++		 */
++		mutex_lock(&core_lock);
++		list_for_each_entry(client, &bus->clients, list) {
++			if (client->addr != addr)
++				continue;
++			if (client->flags & I2C_CLIENT_TEN)
++				continue;
++			if (!client->driver)
++				break;
++
++			/* Drivers should either disable alerts or provide
++			 * at least a minimal handler.
++			 *
++			 * REVISIT:  drop lock while we call alert().
++			 */
++			if (client->driver->alert)
++				client->driver->alert(client, flag);
++			else
++				dev_warn(&client->dev, "no driver alert()!\n");
++			break;
++		}
++		mutex_unlock(&core_lock);
++	}
++
++	/* reenable level-triggered IRQs */
++	if (!bus->alert_edge_triggered)
++		enable_irq(bus->irq);
++}
++
++static irqreturn_t smbus_irq(int irq, void *adap)
++{
++	struct i2c_adapter	*bus = adap;
++
++	/* disable level-triggered IRQs until we handle them */
++	if (!bus->alert_edge_triggered)
++		disable_irq_nosync(irq);
++
++	schedule_work(&bus->alert);
++	return IRQ_HANDLED;
++}
++
++static int smbalert_probe(struct i2c_client *c, const struct i2c_device_id *id)
++{
++	return 0;
++}
++
++static int smbalert_remove(struct i2c_client *c)
++{
++	return 0;
++}
++
++static const struct i2c_device_id smbalert_ids[] = {
++	{ "smbus_alert", 0, },
++	{ /* LIST END */ },
++};
++
++static struct i2c_driver smbalert_driver = {
++	.driver = {
++		.name	= "smbus_alert",
++	},
++	.probe		= smbalert_probe,
++	.remove		= smbalert_remove,
++	.id_table	= smbalert_ids,
++};
++
++static const struct i2c_board_info ara_board_info = {
++	I2C_BOARD_INFO("smbus_alert", 0x0c),
++};
++
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
+ 	int res = 0, dummy;
+@@ -441,6 +545,9 @@ static int i2c_register_adapter(struct i
+ 	mutex_init(&adap->clist_lock);
+ 	INIT_LIST_HEAD(&adap->clients);
+ 
++	/* Setup SMBALERT# infrastructure. */
++	INIT_WORK(&adap->alert, smbus_alert);
++
+ 	mutex_lock(&core_lock);
+ 
+ 	/* Add the adapter to the driver core.
+@@ -459,6 +566,33 @@ static int i2c_register_adapter(struct i
+ 	if (res)
+ 		goto out_list;
+ 
++	/* If we'll be handling SMBus alerts, register the alert responder
++	 * address so that nobody else can accidentally claim it.
++	 * Handling can be done either through our IRQ handler, or by the
++	 * adapter (from its handler, periodic polling, or whatever).
++	 *
++	 * NOTE that if we manage the IRQ, we *MUST* know if it's level or
++	 * edge triggered in order to hand it to the workqueue correctly.
++	 * If triggering the alert seems to wedge the system, you probably
++	 * should have said it's level triggered.
++	 */
++	if (adap->irq > 0 || adap->do_setup_alert)
++		adap->ara = i2c_new_device(adap, &ara_board_info);
++
++	if (adap->irq > 0 && adap->ara) {
++		res = devm_request_irq(&adap->dev, adap->irq, smbus_irq,
++				0, "smbus_alert", adap);
++		if (res == 0) {
++			dev_info(&adap->dev,
++				"supports SMBALERT#, %s trigger\n",
++				adap->alert_edge_triggered
++					? "edge" : "level");
++			adap->has_alert_irq = 1;
++		} else
++			res = 0;
++
++	}
++
+ 	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
+ 
+ 	/* create pre-declared device nodes for new-style drivers */
+@@ -635,6 +769,12 @@ int i2c_del_adapter(struct i2c_adapter *
+ 		}
+ 	}
+ 
++	if (adap->has_alert_irq) {
++		devm_free_irq(&adap->dev, adap->irq, adap);
++		adap->has_alert_irq = 0;
++	}
++	cancel_work_sync(&adap->alert);
++
+ 	/* clean up the sysfs representation */
+ 	init_completion(&adap->dev_released);
+ 	device_unregister(&adap->dev);
+@@ -922,6 +1062,9 @@ static int __init i2c_init(void)
+ 	retval = bus_register(&i2c_bus_type);
+ 	if (retval)
+ 		return retval;
++	retval = i2c_add_driver(&smbalert_driver);
++	if (retval)
++		goto alert_err;
+ 	retval = class_register(&i2c_adapter_class);
+ 	if (retval)
+ 		goto bus_err;
+@@ -933,6 +1076,8 @@ static int __init i2c_init(void)
+ class_err:
+ 	class_unregister(&i2c_adapter_class);
+ bus_err:
++	i2c_del_driver(&smbalert_driver);
++alert_err:
+ 	bus_unregister(&i2c_bus_type);
+ 	return retval;
+ }
+@@ -941,6 +1086,7 @@ static void __exit i2c_exit(void)
+ {
+ 	i2c_del_driver(&dummy_driver);
+ 	class_unregister(&i2c_adapter_class);
++	i2c_del_driver(&smbalert_driver);
+ 	bus_unregister(&i2c_bus_type);
+ }
+ 
+--- a/include/linux/i2c.h	2008-05-02 00:15:29.000000000 -0700
++++ b/include/linux/i2c.h	2008-05-02 01:53:43.000000000 -0700
+@@ -34,6 +34,7 @@
+ #include <linux/device.h>	/* for struct device */
+ #include <linux/sched.h>	/* for completion */
+ #include <linux/mutex.h>
++#include <linux/workqueue.h>
+ 
+ /* --- General options ------------------------------------------------	*/
+ 
+@@ -134,6 +135,11 @@ struct i2c_driver {
+ 	int (*suspend)(struct i2c_client *, pm_message_t mesg);
+ 	int (*resume)(struct i2c_client *);
+ 
++	/* SMBus alert protocol support; the low bit of the code sometimes
++	 * passes event data (e.g. exceeding upper vs lower limit).
++	 */
++	void (*alert)(struct i2c_client *, bool flag);
++
+ 	/* a ioctl like command that can be used to perform specific functions
+ 	 * with the device.
+ 	 */
+@@ -332,6 +338,14 @@ struct i2c_adapter {
+ 	struct list_head clients;	/* DEPRECATED */
+ 	char name[48];
+ 	struct completion dev_released;
++
++	/* SMBALERT# support */
++	unsigned		do_setup_alert:1;
++	unsigned		has_alert_irq:1;
++	unsigned		alert_edge_triggered:1;
++	int			irq;
++	struct i2c_client	*ara;
++	struct work_struct	alert;
+ };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 
 
 _______________________________________________
 i2c mailing list
