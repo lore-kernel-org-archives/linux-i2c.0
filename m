@@ -1,39 +1,219 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Sat, 3 May 2008 21:12:57 +0200
-Message-ID: <20080503211257.389a0607@hyperion.delvare>
-References: <20080502203721.70c5dc09@hyperion.delvare>
-	<20080503180420.GA17990@uranus.ravnborg.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: [patch 2.6.25-git] i2c-core: return -Errno, not -1
+Date: Sat, 3 May 2008 13:06:16 -0700
+Message-ID: <200805031306.16698.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753235AbYECTNT@vger.kernel.org>
-In-Reply-To: <20080503180420.GA17990@uranus.ravnborg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sam,
+More updates to the I2C stack's fault reporting:  make the core stop
+returning "-1" (usually "-EPERM") for all faults.  Instead, pass lower
+level fault code up the stack, or return some appropriate errno.
 
-On Sat, 3 May 2008 20:04:20 +0200, Sam Ravnborg wrote:
-> On Fri, May 02, 2008 at 08:37:21PM +0200, Jean Delvare wrote:
-> > Hi all,
-> > 
-> > [Once more with Sam's address fixed, sorry for the noise.]
-> > 
-> > Not all device types need a wildcard at the end of their module
-> > aliases. In particular, for i2c module aliases, the trailing wildcard
-> > is not only unneeded, it could also cause the wrong driver to be
-> > loaded.
-> ...
-> Hi Jean.
-> 
-> Do you expect me to take this via kbuild.git?
+This patch happens to touch almost exclusively SMBus calls.
 
-At your option. If it's easier for you to synchronize with other
-patches possibly touching this file, please do. If not, I can push it
-via my i2c tree. Just let me know.
+Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+Combine this and the previous i2c_adapter patch, and I suspect that
+well over half the causes of bogus "-EPERM" reports are now gone ...
+including in particular those reported by i2c-dev to userspace when
+it issues SMBus calls "for portability".
 
--- 
-Jean Delvare
+ drivers/i2c/i2c-core.c |   76 +++++++++++++++++++++++++++----------------------
+ 1 file changed, 43 insertions(+), 33 deletions(-)
+
+--- g26.orig/drivers/i2c/i2c-core.c	2008-05-03 12:57:16.000000000 -0700
++++ g26/drivers/i2c/i2c-core.c	2008-05-03 12:58:10.000000000 -0700
+@@ -1113,7 +1113,7 @@ int i2c_probe(struct i2c_adapter *adapte
+ 
+ 		dev_warn(&adapter->dev, "SMBus Quick command not supported, "
+ 			 "can't probe for chips\n");
+-		return -1;
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	/* Probe entries are done second, and are not affected by ignore
+@@ -1305,7 +1305,7 @@ static int i2c_smbus_check_pec(u8 cpec, 
+ 	if (rpec != cpec) {
+ 		pr_debug("i2c-core: Bad PEC 0x%02x vs. 0x%02x\n",
+ 			rpec, cpec);
+-		return -1;
++		return -EPROTO;
+ 	}
+ 	return 0;
+ }
+@@ -1320,11 +1320,12 @@ EXPORT_SYMBOL(i2c_smbus_write_quick);
+ s32 i2c_smbus_read_byte(struct i2c_client *client)
+ {
+ 	union i2c_smbus_data data;
+-	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                   I2C_SMBUS_READ,0,I2C_SMBUS_BYTE, &data))
+-		return -1;
+-	else
+-		return data.byte;
++	int status;
++
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			I2C_SMBUS_READ, 0,
++			I2C_SMBUS_BYTE, &data);
++	return (status < 0) ? status : data.byte;
+ }
+ EXPORT_SYMBOL(i2c_smbus_read_byte);
+ 
+@@ -1338,11 +1339,12 @@ EXPORT_SYMBOL(i2c_smbus_write_byte);
+ s32 i2c_smbus_read_byte_data(struct i2c_client *client, u8 command)
+ {
+ 	union i2c_smbus_data data;
+-	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                   I2C_SMBUS_READ,command, I2C_SMBUS_BYTE_DATA,&data))
+-		return -1;
+-	else
+-		return data.byte;
++	int status;
++
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			I2C_SMBUS_READ, command,
++			I2C_SMBUS_BYTE_DATA, &data);
++	return (status < 0) ? status : data.byte;
+ }
+ EXPORT_SYMBOL(i2c_smbus_read_byte_data);
+ 
+@@ -1359,11 +1361,12 @@ EXPORT_SYMBOL(i2c_smbus_write_byte_data)
+ s32 i2c_smbus_read_word_data(struct i2c_client *client, u8 command)
+ {
+ 	union i2c_smbus_data data;
+-	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                   I2C_SMBUS_READ,command, I2C_SMBUS_WORD_DATA, &data))
+-		return -1;
+-	else
+-		return data.word;
++	int status;
++
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			I2C_SMBUS_READ, command,
++			I2C_SMBUS_WORD_DATA,  &data);
++	return (status < 0) ? status : data.word;
+ }
+ EXPORT_SYMBOL(i2c_smbus_read_word_data);
+ 
+@@ -1397,11 +1400,13 @@ s32 i2c_smbus_read_block_data(struct i2c
+ 			      u8 *values)
+ {
+ 	union i2c_smbus_data data;
++	int status;
+ 
+-	if (i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+-	                   I2C_SMBUS_READ, command,
+-	                   I2C_SMBUS_BLOCK_DATA, &data))
+-		return -1;
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			I2C_SMBUS_READ, command,
++			I2C_SMBUS_BLOCK_DATA, &data);
++	if (status)
++		return status;
+ 
+ 	memcpy(values, &data.block[1], data.block[0]);
+ 	return data.block[0];
+@@ -1428,14 +1433,16 @@ s32 i2c_smbus_read_i2c_block_data(struct
+ 				  u8 length, u8 *values)
+ {
+ 	union i2c_smbus_data data;
++	int status;
+ 
+ 	if (length > I2C_SMBUS_BLOCK_MAX)
+ 		length = I2C_SMBUS_BLOCK_MAX;
+ 	data.block[0] = length;
+-	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                      I2C_SMBUS_READ,command,
+-	                      I2C_SMBUS_I2C_BLOCK_DATA,&data))
+-		return -1;
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			I2C_SMBUS_READ, command,
++			I2C_SMBUS_I2C_BLOCK_DATA, &data);
++	if (status < 0)
++		return status;
+ 
+ 	memcpy(values, &data.block[1], data.block[0]);
+ 	return data.block[0];
+@@ -1476,6 +1483,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 	                        };
+ 	int i;
+ 	u8 partial_pec = 0;
++	int status;
+ 
+ 	msgbuf0[0] = command;
+ 	switch(size) {
+@@ -1528,7 +1536,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 				dev_err(&adapter->dev, "smbus_access called with "
+ 				       "invalid block write size (%d)\n",
+ 				       data->block[0]);
+-				return -1;
++				return -EMSGSIZE;
+ 			}
+ 			for (i = 1; i < msg[0].len; i++)
+ 				msgbuf0[i] = data->block[i-1];
+@@ -1541,7 +1549,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 			dev_err(&adapter->dev, "%s called with invalid "
+ 				"block proc call size (%d)\n", __func__,
+ 				data->block[0]);
+-			return -1;
++			return -EMSGSIZE;
+ 		}
+ 		msg[0].len = data->block[0] + 2;
+ 		for (i = 1; i < msg[0].len; i++)
+@@ -1559,7 +1567,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 				dev_err(&adapter->dev, "i2c_smbus_xfer_emulated called with "
+ 				       "invalid block write size (%d)\n",
+ 				       data->block[0]);
+-				return -1;
++				return -EMSGSIZE;
+ 			}
+ 			for (i = 1; i <= data->block[0]; i++)
+ 				msgbuf0[i] = data->block[i];
+@@ -1568,7 +1576,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 	default:
+ 		dev_err(&adapter->dev, "smbus_access called with invalid size (%d)\n",
+ 		       size);
+-		return -1;
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	i = ((flags & I2C_CLIENT_PEC) && size != I2C_SMBUS_QUICK
+@@ -1586,13 +1594,15 @@ static s32 i2c_smbus_xfer_emulated(struc
+ 			msg[num-1].len++;
+ 	}
+ 
+-	if (i2c_transfer(adapter, msg, num) < 0)
+-		return -1;
++	status = i2c_transfer(adapter, msg, num);
++	if (status < 0)
++		return status;
+ 
+ 	/* Check PEC if last message is a read */
+ 	if (i && (msg[num-1].flags & I2C_M_RD)) {
+-		if (i2c_smbus_check_pec(partial_pec, &msg[num-1]) < 0)
+-			return -1;
++		status = i2c_smbus_check_pec(partial_pec, &msg[num-1]);
++		if (status < 0)
++			return status;
+ 	}
+ 
+ 	if (read_write == I2C_SMBUS_READ)
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
