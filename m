@@ -1,46 +1,34 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-piix4-inc-delay-after-starting-transaction
-Date: Sat, 3 May 2008 12:03:43 +0200
-Message-ID: <20080503120343.04ff0ea5@hyperion.delvare>
-References: <20080429170053.GA16863@dhcp-210.hsv.redhat.com>
-	<20080502220528.65c07727@hyperion.delvare>
-	<481B86D0.7080306@redhat.com>
-	<20080503082250.39fdaf60@hyperion.delvare>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: Re: [i2c] [PATCH] modpost: i2c aliases need no trailing wildcard
+Date: Sat, 03 May 2008 14:21:20 +0200
+Message-ID: <481C58C0.4040107@scram.de>
+References: <20080502203721.70c5dc09@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080503082250.39fdaf60-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Milburn <dmilburn-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762787AbYECMVh@vger.kernel.org>
+In-Reply-To: <20080502203721.70c5dc09@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, Kay Sievers <kay.sievers@vrfy.org>, Sam Ravnborg <sam@ravnborg.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 3 May 2008 08:22:50 +0200, Jean Delvare wrote:
-> I think I have a old SuperMicro board with a ServerWorks OSB4, I'll do
-> some tests with it. I think it has only seen 2.4 kernels so far, so
-> HZ=100, where the initial delay was at least 10 ms. I'll test it at
-> HZ=1000 and see if I can reproduce the problem. If I can, then I guess
-> we are better increasing the delay for all the old ServerWorks chips
-> (OSB4, CSB5 and CSB6.) If I can't then maybe just increase the delay
-> for the CSB5?
+Hi Jean,
 
-I've tested my OSB4 for 2 hours continuously at HZ=1000 without your
-patch and it worked perfectly. So I suggest that we only increase the
-initial delay for the CSB5 for now - if that's what the reporter has.
+> Here's a patch doing this. If nobody objects, I'll send it to Linus
+> through my i2c tree next week.
 
--- 
-Jean Delvare
+looks good to me:
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+#cat modules.alias 
+# Aliases extracted from modules themselves.
+alias i2c:dbox2-fp dbox2_fp
+alias of:N*T*Cfsl,cpm-i2c* i2c_cpm
+alias i2c:dummy i2c_core
+alias i2c:saa7129 saa7127
+alias i2c:saa7128 saa7127
+alias i2c:saa7127 saa7127
+alias i2c:saa7126 saa7127
+
+Thanks,
+Jochen
