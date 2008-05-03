@@ -1,34 +1,45 @@
 From: Jochen Friedrich <jochen@scram.de>
-Subject: Re: [i2c] [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Sat, 03 May 2008 14:21:20 +0200
-Message-ID: <481C58C0.4040107@scram.de>
-References: <20080502203721.70c5dc09@hyperion.delvare>
+Subject: [PATCH] [POWERPC] Fix of_i2c include for module compilation
+Date: Sat, 03 May 2008 14:42:56 +0200
+Message-ID: <481C5DD0.5090503@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762787AbYECMVh@vger.kernel.org>
-In-Reply-To: <20080502203721.70c5dc09@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>, Kay Sievers <kay.sievers@vrfy.org>, Sam Ravnborg <sam@ravnborg.org>, Linux I2C <i2c@lm-sensors.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, "Kernel,
+	Linux" <linux-kernel@vger.kernel.org>, Scott Wood <scottwood@freescale.com>, Paul Mackerras <paulus@samba.org>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Now that of_i2c may be compiled as module, the header must be
+exported for module compilation, as well.
 
-> Here's a patch doing this. If nobody objects, I'll send it to Linus
-> through my i2c tree next week.
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
+---
+ include/linux/of_i2c.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-looks good to me:
-
-#cat modules.alias 
-# Aliases extracted from modules themselves.
-alias i2c:dbox2-fp dbox2_fp
-alias of:N*T*Cfsl,cpm-i2c* i2c_cpm
-alias i2c:dummy i2c_core
-alias i2c:saa7129 saa7127
-alias i2c:saa7128 saa7127
-alias i2c:saa7127 saa7127
-alias i2c:saa7126 saa7127
-
-Thanks,
-Jochen
+diff --git a/include/linux/of_i2c.h b/include/linux/of_i2c.h
+index 2e5a967..dca6013 100644
+--- a/include/linux/of_i2c.h
++++ b/include/linux/of_i2c.h
+@@ -14,7 +14,7 @@
+ 
+ #include <linux/i2c.h>
+ 
+-#ifdef CONFIG_OF_I2C
++#if defined(CONFIG_OF_I2C) || defined(CONFIG_OF_I2C_MODULE)
+ 
+ void of_register_i2c_devices(struct i2c_adapter *adap,
+ 			     struct device_node *adap_node);
+-- 
+1.5.5.1
