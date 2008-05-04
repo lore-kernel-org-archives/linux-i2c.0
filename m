@@ -1,7 +1,7 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: [patch 2.6.25-rc1] i2c: kerneldoc for most i/o calls
-Date: Sat, 3 May 2008 17:51:26 -0700
-Message-ID: <200805031751.26920.david-b@pacbell.net>
+Subject: [patch 2.6.25-rc1] i2c: improve smbus-protocol documentation
+Date: Sat, 3 May 2008 17:50:33 -0700
+Message-ID: <200805031750.34306.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,286 +19,216 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Provide kerneldoc for most of the I2C and SMBus I/O calls.  Add a
-summarizing some fault reporting issues which affect the ability to
-provide clean fault reports through I2C master transfer calls.
-(Making it hard to precisely specify their return values...)
+Improve the smbus-protocol documentation file somewhat:
+
+ - Use the names of the SMBus protocol operations (from the 2.0
+   specification), not made-up-for-Linux names.
+
+ - Add the name of the call used to execute each operation ... and
+   point out that there are mismatches, where functions execute
+   different protocol operations than their names specify.
+   
+The most confusing examples are that "Read Byte" isn't executed by
+i2c_smbus_read_byte(), and that "Write Byte" isn't executed by
+i2c_smbus_write_byte().  When coding, that's not as bad as it may
+seem; but that case would seem to be worth fixing.
 
 Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
-NOTE:  depends on the previous patch which stops the bogus returns
-of "-1" instead of real errno values.
+As doc-only, this is appropriate for bundling with any I2C fixes
+before the 2.6.26-final code freeze.  Note that this doesn't address
+the confusion between "command" and "register" in this text, though
+in some cases it reduces confusion between "command" and "protocol
+operation" or "function call".
 
- drivers/i2c/i2c-core.c |  156 +++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 145 insertions(+), 11 deletions(-)
+ Documentation/i2c/smbus-protocol |   75 +++++++++++++++++++++------------------
+ 1 file changed, 42 insertions(+), 33 deletions(-)
 
---- g26.orig/drivers/i2c/i2c-core.c	2008-05-03 14:58:08.000000000 -0700
-+++ g26/drivers/i2c/i2c-core.c	2008-05-03 17:35:19.000000000 -0700
-@@ -1098,10 +1098,43 @@ module_exit(i2c_exit);
-  * ----------------------------------------------------
-  */
- 
-+/**
-+ * i2c_transfer - execute a single or combined I2C message
-+ * @adap: Identifies an I2C bus
-+ * @msgs: One or more messages to execute before STOP is issued to
-+ *	terminate the operation; each message begins with a START.
-+ * @num: Number of messages to be executed.
-+ *
-+ * Returns negative errno, else the number of messages executed.
-+ *
-+ * Note that there is no requirement that each message be sent to
-+ * the same slave address, although that is the most common model.
-+ */
- int i2c_transfer(struct i2c_adapter * adap, struct i2c_msg *msgs, int num)
- {
- 	int ret;
- 
-+	/* REVISIT the fault reporting model here is weak:
-+	 *
-+	 *  - When we get an error after receiving N bytes from a slave,
-+	 *    there is no way to report "N".
-+	 *
-+	 *  - When we get a NAK after transmitting N bytes to a slave,
-+	 *    there is no way to report "N" ... or to let the master
-+	 *    continue executing the rest of this combined message, if
-+	 *    that's the appropriate response.
-+	 *
-+	 *  - When for example "num" is two and we successfully complete
-+	 *    the first message but get an error part way through the
-+	 *    second, it's unclear whether that should be reported as
-+	 *    one (discarding status on the second message) or errno
-+	 *    (discarding status on the first one).
-+	 *
-+	 *  - In multi-master cases, there's no consistent way to report
-+	 *    lost arbitration (and properly decide to reissue messages
-+	 *    that need it).
-+	 */
+--- g26.orig/Documentation/i2c/smbus-protocol	2008-05-03 15:44:04.000000000 -0700
++++ g26/Documentation/i2c/smbus-protocol	2008-05-03 17:48:09.000000000 -0700
+@@ -8,6 +8,7 @@ this package are briefly described at th
+ Some adapters understand only the SMBus (System Management Bus) protocol,
+ which is a subset from the I2C protocol. Fortunately, many devices use
+ only the same subset, which makes it possible to put them on an SMBus.
 +
- 	if (adap->algo->master_xfer) {
- #ifdef DEBUG
- 		for (ret = 0; ret < num; ret++) {
-@@ -1132,6 +1165,14 @@ int i2c_transfer(struct i2c_adapter * ad
- }
- EXPORT_SYMBOL(i2c_transfer);
+ If you write a driver for some I2C device, please try to use the SMBus
+ commands if at all possible (if the device uses only that subset of the
+ I2C protocol). This makes it possible to use the device driver on both
+@@ -15,7 +16,12 @@ SMBus adapters and I2C adapters (the SMB
+ translated to I2C on I2C adapters, but plain I2C commands can not be
+ handled at all on most pure SMBus adapters).
  
-+/**
-+ * i2c_master_send - issue a single I2C message in master transmit mode
-+ * @client: Handle to slave device
-+ * @buf: Data that will be written to the slave
-+ * @count: How many bytes to write
-+ *
-+ * Returns negative errno, or else the number of bytes written.
-+ */
- int i2c_master_send(struct i2c_client *client,const char *buf ,int count)
- {
- 	int ret;
-@@ -1151,6 +1192,14 @@ int i2c_master_send(struct i2c_client *c
- }
- EXPORT_SYMBOL(i2c_master_send);
+-Below is a list of SMBus commands.
++Below is a list of SMBus protocol operations, and the functions executing
++them.  Note that the names used in the SMBus protocol specifications usually
++don't match these function names.  For some of the operations which pass a
++single data byte, the functions using SMBus protocol operation names execute
++a different protocol operation entirely.
++
  
-+/**
-+ * i2c_master_recv - issue a single I2C message in master receive mode
-+ * @client: Handle to slave device
-+ * @buf: Where to store data read from slave
-+ * @count: How many bytes to read
-+ *
-+ * Returns negative errno, or else the number of bytes read.
-+ */
- int i2c_master_recv(struct i2c_client *client, char *buf ,int count)
- {
- 	struct i2c_adapter *adap=client->adapter;
-@@ -1456,6 +1505,21 @@ static int i2c_smbus_check_pec(u8 cpec, 
- 	return 0;
- }
+ Key to symbols
+ ==============
+@@ -35,17 +41,16 @@ Count (8 bits): A data byte containing t
+ [..]: Data sent by I2C device, as opposed to data sent by the host adapter.
  
-+/**
-+ * i2c_smbus_write_quick - SMBus "quick command" protocol
-+ * @client: Handle to slave device
-+ * @value: I2C_SMBUS_READ or I2C_SMBUS_WRITE
-+ *
-+ * This executes the SMBus "quick command" protocol, returning negative errno
-+ * else zero on success.
-+ *
-+ * SMBus devices are required to ACK these messages, so they are often used
-+ * for device discovery.  Pure I2C devices may choose not to ACK them if they
-+ * are busy.  Messages to PMBus devices must start with I2C_SMBUS_WRITE, so
-+ * a "quick" message of I2C_SMBUS_READ to an PMBus device will be get a NAK
-+ * response and may also trigger a protocol error notification (SMBALERT# or
-+ * host notify).
-+ */
- s32 i2c_smbus_write_quick(struct i2c_client *client, u8 value)
- {
- 	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-@@ -1463,6 +1527,13 @@ s32 i2c_smbus_write_quick(struct i2c_cli
- }
- EXPORT_SYMBOL(i2c_smbus_write_quick);
  
-+/**
-+ * i2c_smbus_read_byte - SMBus "receive byte" protocol
-+ * @client: Handle to slave device
-+ *
-+ * This executes the SMBus "receive byte" protocol, returning negative errno
-+ * else the byte received from the device.
-+ */
- s32 i2c_smbus_read_byte(struct i2c_client *client)
- {
- 	union i2c_smbus_data data;
-@@ -1475,6 +1546,14 @@ s32 i2c_smbus_read_byte(struct i2c_clien
- }
- EXPORT_SYMBOL(i2c_smbus_read_byte);
+-SMBus Write Quick
+-=================
++SMBus Quick Command:  i2c_smbus_write_quick()
++=============================================
  
-+/**
-+ * i2c_smbus_write_byte - SMBus "send byte" protocol
-+ * @client: Handle to slave device
-+ * @value: Byte to be sent
-+ *
-+ * This executes the SMBus "send byte" protocol, returning negative errno
-+ * else zero on success.
-+ */
- s32 i2c_smbus_write_byte(struct i2c_client *client, u8 value)
- {
- 	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-@@ -1482,6 +1561,14 @@ s32 i2c_smbus_write_byte(struct i2c_clie
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte);
+ This sends a single bit to the device, at the place of the Rd/Wr bit.
+-There is no equivalent Read Quick command.
  
-+/**
-+ * i2c_smbus_read_byte_data - SMBus "read byte" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ *
-+ * This executes the SMBus "read byte" protocol, returning negative errno
-+ * else a data byte received from the device.
-+ */
- s32 i2c_smbus_read_byte_data(struct i2c_client *client, u8 command)
- {
- 	union i2c_smbus_data data;
-@@ -1494,6 +1581,15 @@ s32 i2c_smbus_read_byte_data(struct i2c_
- }
- EXPORT_SYMBOL(i2c_smbus_read_byte_data);
+ A Addr Rd/Wr [A] P
  
-+/**
-+ * i2c_smbus_write_byte_data - SMBus "write byte" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @value: Byte being written
-+ *
-+ * This executes the SMBus "write byte" protocol, returning negative errno
-+ * else zero on success.
-+ */
- s32 i2c_smbus_write_byte_data(struct i2c_client *client, u8 command, u8 value)
- {
- 	union i2c_smbus_data data;
-@@ -1504,6 +1600,14 @@ s32 i2c_smbus_write_byte_data(struct i2c
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte_data);
  
-+/**
-+ * i2c_smbus_read_word_data - SMBus "read word" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ *
-+ * This executes the SMBus "read word" protocol, returning negative errno
-+ * else a sixteen bit unsigned "word" received from the device.
-+ */
- s32 i2c_smbus_read_word_data(struct i2c_client *client, u8 command)
- {
- 	union i2c_smbus_data data;
-@@ -1516,6 +1620,15 @@ s32 i2c_smbus_read_word_data(struct i2c_
- }
- EXPORT_SYMBOL(i2c_smbus_read_word_data);
+-SMBus Read Byte
+-===============
++SMBus Receive Byte:  i2c_smbus_read_byte()
++==========================================
  
-+/**
-+ * i2c_smbus_write_word_data - SMBus "write word" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @value: Sixteen bit "word" being written
-+ *
-+ * This executes the SMBus "write word" protocol, returning negative errno
-+ * else zero on success.
-+ */
- s32 i2c_smbus_write_word_data(struct i2c_client *client, u8 command, u16 value)
- {
- 	union i2c_smbus_data data;
-@@ -1527,15 +1640,14 @@ s32 i2c_smbus_write_word_data(struct i2c
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
+ This reads a single byte from a device, without specifying a device
+ register. Some devices are so simple that this interface is enough; for
+@@ -55,17 +60,17 @@ the previous SMBus command.
+ S Addr Rd [A] [Data] NA P
  
- /**
-- * i2c_smbus_read_block_data - SMBus block read request
-+ * i2c_smbus_read_block_data - SMBus "block read" protocol
-  * @client: Handle to slave device
-- * @command: Command byte issued to let the slave know what data should
-- *	be returned
-+ * @command: Byte interpreted by slave
-  * @values: Byte array into which data will be read; big enough to hold
-  *	the data returned by the slave.  SMBus allows at most 32 bytes.
-  *
-- * Returns the number of bytes read in the slave's response, else a
-- * negative number to indicate some kind of error.
-+ * This executes the SMBus "block read" protocol, returning negative errno
-+ * else the number of data bytes in the slave's response.
-  *
-  * Note that using this function requires that the client's adapter support
-  * the I2C_FUNC_SMBUS_READ_BLOCK_DATA functionality.  Not all adapter drivers
-@@ -1559,6 +1671,16 @@ s32 i2c_smbus_read_block_data(struct i2c
- }
- EXPORT_SYMBOL(i2c_smbus_read_block_data);
  
-+/**
-+ * i2c_smbus_write_block_data - SMBus "block write" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @length: Size of data block; SMBus allows at most 32 bytes
-+ * @values: Byte array which will be written.
-+ *
-+ * This executes the SMBus "block write" protocol, returning negative errno
-+ * else zero on success.
-+ */
- s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
- 			       u8 length, const u8 *values)
- {
-@@ -1776,10 +1898,22 @@ static s32 i2c_smbus_xfer_emulated(struc
- 	return 0;
- }
+-SMBus Write Byte
+-================
++SMBus Send Byte:  i2c_smbus_write_byte()
++========================================
  
--
--s32 i2c_smbus_xfer(struct i2c_adapter * adapter, u16 addr, unsigned short flags,
--                   char read_write, u8 command, int size,
--                   union i2c_smbus_data * data)
-+/**
-+ * i2c_smbus_xfer - execute SMBus protocol operations
-+ * @adapter: Identifies an I2C bus
-+ * @addr: Address of SMBus slave on that bus
-+ * @flags: I2C_CLIENT_* flags (usually zero or I2C_CLIENT_PEC)
-+ * @read_write: I2C_SMBUS_READ or I2C_SMBUS_WRITE
-+ * @command: Byte interpreted by slave, for protocols which use such bytes
-+ * @protocol: SMBus protocol operation to execute, such as I2C_PROC_CALL
-+ * @data: Data to be read or written
-+ *
-+ * This executes an SMBus protocol operation, and returns a negative
-+ * errno code else zero on success.
-+ */
-+s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
-+		char read_write, u8 command, int protocol,
-+		union i2c_smbus_data *data)
- {
- 	s32 res;
+-This is the reverse of Read Byte: it sends a single byte to a device.
+-See Read Byte for more information.
++This operation is the reverse of Receive Byte: it sends a single byte
++to a device.  See Receive Byte for more information.
  
-@@ -1788,11 +1922,11 @@ s32 i2c_smbus_xfer(struct i2c_adapter * 
- 	if (adapter->algo->smbus_xfer) {
- 		mutex_lock(&adapter->bus_lock);
- 		res = adapter->algo->smbus_xfer(adapter,addr,flags,read_write,
--		                                command,size,data);
-+				command, protocol, data);
- 		mutex_unlock(&adapter->bus_lock);
- 	} else
- 		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
--	                                      command,size,data);
-+				command, protocol, data);
+ S Addr Wr [A] Data [A] P
  
- 	return res;
- }
+ 
+-SMBus Read Byte Data
+-====================
++SMBus Read Byte:  i2c_smbus_read_byte_data()
++============================================
+ 
+ This reads a single byte from a device, from a designated register.
+ The register is specified through the Comm byte.
+@@ -73,30 +78,30 @@ The register is specified through the Co
+ S Addr Wr [A] Comm [A] S Addr Rd [A] [Data] NA P
+ 
+ 
+-SMBus Read Word Data
+-====================
++SMBus Read Word:  i2c_smbus_read_word_data()
++============================================
+ 
+-This command is very like Read Byte Data; again, data is read from a
++This operation is very like Read Byte; again, data is read from a
+ device, from a designated register that is specified through the Comm
+ byte. But this time, the data is a complete word (16 bits).
+ 
+ S Addr Wr [A] Comm [A] S Addr Rd [A] [DataLow] A [DataHigh] NA P
+ 
+ 
+-SMBus Write Byte Data
+-=====================
++SMBus Write Byte:  i2c_smbus_write_byte_data()
++==============================================
+ 
+ This writes a single byte to a device, to a designated register. The
+ register is specified through the Comm byte. This is the opposite of
+-the Read Byte Data command.
++the Read Byte operation.
+ 
+ S Addr Wr [A] Comm [A] Data [A] P
+ 
+ 
+-SMBus Write Word Data
+-=====================
++SMBus Write Word:  i2c_smbus_write_word_data()
++==============================================
+ 
+-This is the opposite operation of the Read Word Data command. 16 bits
++This is the opposite of the Read Word operation. 16 bits
+ of data is written to a device, to the designated register that is
+ specified through the Comm byte. 
+ 
+@@ -113,8 +118,8 @@ S Addr Wr [A] Comm [A] DataLow [A] DataH
+                              S Addr Rd [A] [DataLow] A [DataHigh] NA P
+ 
+ 
+-SMBus Block Read
+-================
++SMBus Block Read:  i2c_smbus_read_block_data()
++==============================================
+ 
+ This command reads a block of up to 32 bytes from a device, from a 
+ designated register that is specified through the Comm byte. The amount
+@@ -124,8 +129,8 @@ S Addr Wr [A] Comm [A] 
+            S Addr Rd [A] [Count] A [Data] A [Data] A ... A [Data] NA P
+ 
+ 
+-SMBus Block Write
+-=================
++SMBus Block Write:  i2c_smbus_write_block_data()
++================================================
+ 
+ The opposite of the Block Read command, this writes up to 32 bytes to 
+ a device, to a designated register that is specified through the
+@@ -134,10 +139,11 @@ Comm byte. The amount of data is specifi
+ S Addr Wr [A] Comm [A] Count [A] Data [A] Data [A] ... [A] Data [A] P
+ 
+ 
+-SMBus Block Process Call
+-========================
++SMBus Block Write - Block Read Process Call
++===========================================
+ 
+-SMBus Block Process Call was introduced in Revision 2.0 of the specification.
++SMBus Block Write - Block Read Process Call was introduced in
++Revision 2.0 of the specification.
+ 
+ This command selects a device register (through the Comm byte), sends
+ 1 to 31 bytes of data to it, and reads 1 to 31 bytes of data in return.
+@@ -161,7 +167,8 @@ Packet Error Checking (PEC)
+ ===========================
+ Packet Error Checking was introduced in Revision 1.1 of the specification.
+ 
+-PEC adds a CRC-8 error-checking byte to all transfers.
++PEC adds a CRC-8 error-checking byte to transfers using it, immediately
++before the terminating STOP.
+ 
+ 
+ Address Resolution Protocol (ARP)
+@@ -179,12 +186,14 @@ I2C Block Transactions
+ ======================
+ The following I2C block transactions are supported by the
+ SMBus layer and are described here for completeness.
++They are *NOT* defined by the SMBus specification.
++
+ I2C block transactions do not limit the number of bytes transferred
+ but the SMBus layer places a limit of 32 bytes.
+ 
+ 
+-I2C Block Read
+-==============
++I2C Block Read:  i2c_smbus_read_i2c_block_data()
++================================================
+ 
+ This command reads a block of bytes from a device, from a 
+ designated register that is specified through the Comm byte.
+@@ -203,8 +212,8 @@ S Addr Wr [A] Comm1 [A] Comm2 [A] 
+            S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
+ 
+ 
+-I2C Block Write
+-===============
++I2C Block Write:  i2c_smbus_write_i2c_block_data()
++==================================================
+ 
+ The opposite of the Block Read command, this writes bytes to 
+ a device, to a designated register that is specified through the
 
 _______________________________________________
 i2c mailing list
