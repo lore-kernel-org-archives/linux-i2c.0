@@ -1,17 +1,18 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-piix4: Blacklist two mainboards
-Date: Sun, 4 May 2008 14:57:17 +0200
-Message-ID: <20080504145717.75063c54@hyperion.delvare>
+Subject: Re: [PATCH] i2c-piix4: Blacklist two mainboards
+Date: Sun, 4 May 2008 15:38:41 +0200
+Message-ID: <20080504153841.639d7639@hyperion.delvare>
 References: <481B851A.10800@ag-web.biz>
 	<20080503091831.30cef838@hyperion.delvare>
 	<1209828454.4289.1.camel@debian-9850.ag-home.muc>
 	<20080503182701.58a0c146@hyperion.delvare>
 	<20080503201659.2ab17cbc@hyperion.delvare>
+	<20080504145717.75063c54@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080503201659.2ab17cbc-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080504145717.75063c54-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -32,15 +33,14 @@ device on that machine. Also blacklist a similar board made by DFI.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
-Updated to also blacklist the DFI Lanparty UT 790FX, as it has the same
-issue.
+Once again... I forgot to refresh the patch before sending it, sorry.
 
- drivers/i2c/busses/i2c-piix4.c |   30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c |   32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
 --- linux-2.6.25.orig/drivers/i2c/busses/i2c-piix4.c	2008-04-19 11:11:56.000000000 +0200
-+++ linux-2.6.25/drivers/i2c/busses/i2c-piix4.c	2008-05-04 09:44:42.000000000 +0200
-@@ -108,7 +108,25 @@ static unsigned short piix4_smba;
++++ linux-2.6.25/drivers/i2c/busses/i2c-piix4.c	2008-05-04 09:56:00.000000000 +0200
+@@ -108,7 +108,27 @@ static unsigned short piix4_smba;
  static struct pci_driver piix4_driver;
  static struct i2c_adapter piix4_adapter;
  
@@ -52,6 +52,8 @@ issue.
 +			DMI_MATCH(DMI_BOARD_VENDOR, "SAPPHIRE Inc."),
 +			DMI_MATCH(DMI_BOARD_NAME, "PC-AM2RD790"),
 +		},
++	},
++	{
 +		.ident = "DFI Lanparty UT 790FX",
 +		.matches = {
 +			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Inc."),
@@ -67,7 +69,7 @@ issue.
  	{
  		.ident = "IBM",
  		.matches = { DMI_MATCH(DMI_SYS_VENDOR, "IBM"), },
-@@ -123,8 +141,16 @@ static int __devinit piix4_setup(struct 
+@@ -123,8 +143,16 @@ static int __devinit piix4_setup(struct 
  
  	dev_info(&PIIX4_dev->dev, "Found %s device\n", pci_name(PIIX4_dev));
  
