@@ -1,39 +1,29 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Mon, 5 May 2008 10:09:05 +1000
-Message-ID: <200805051009.06159.rusty@rustcorp.com.au>
-References: <20080502203721.70c5dc09@hyperion.delvare>
+From: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] [POWERPC] Fix of_i2c include for module compilation
+Date: Mon, 5 May 2008 14:15:14 +1000
+Message-ID: <18462.35282.374180.770237@cargo.ozlabs.ibm.com>
+References: <481C5DD0.5090503@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755618AbYEEAJY@vger.kernel.org>
-In-Reply-To: <20080502203721.70c5dc09@hyperion.delvare>
-Content-Disposition: inline
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754084AbYEEEYy@vger.kernel.org>
+In-Reply-To: <481C5DD0.5090503@scram.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Kumar Gala <galak@kernel.crashing.org>, Jean Delvare <khali@linux-fr.org>, Scott Wood <scottwood@freescale.com>, "Kernel, Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Jon Smirl <jonsmirl@gmail.com>, Laurent Pinchart <laurentp@cse-semaphore.com>, David Miller <davem@davemloft.net>, Stephen Rothwell <sfr@canb.auug.org.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 03 May 2008 04:37:21 Jean Delvare wrote:
-> Hi all,
->
-> [Once more with Sam's address fixed, sorry for the noise.]
->
-> Not all device types need a wildcard at the end of their module
-> aliases. In particular, for i2c module aliases, the trailing wildcard
-> is not only unneeded, it could also cause the wrong driver to be
-> loaded.
+Jochen Friedrich writes:
 
-Hi Jean,
+> -#ifdef CONFIG_OF_I2C
+> +#if defined(CONFIG_OF_I2C) || defined(CONFIG_OF_I2C_MODULE)
+>  
+>  void of_register_i2c_devices(struct i2c_adapter *adap,
+>  			     struct device_node *adap_node);
 
-   i2c would have been better using a terminator char after the device name.  
-The wildcard would then allow future extensions without having the current 
-potential confusion.
+Why do we have that ifdef there at all?  There's only that one
+external declaration within it, so the #ifdef and #endif could just be
+removed.  If the ifdef hadn't been there in the first place we
+wouldn't have had this problem.
 
-Still, there's nothing wrong with this patch, happy for you to send it.
-
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Cheers,
-Rusty.
+Paul.
