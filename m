@@ -1,30 +1,42 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Mon, 5 May 2008 20:30:32 +1000
-Message-ID: <200805052030.33084.rusty@rustcorp.com.au>
-References: <20080502203721.70c5dc09@hyperion.delvare> <20080505104816.1f666613@hyperion.delvare> <20080505090929.GA29310@uranus.ravnborg.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Match dummy devices by type
+Date: Mon, 5 May 2008 08:33:54 -0700
+Message-ID: <200805050833.55242.david-b@pacbell.net>
+References: <20080505112858.5101c99a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757085AbYEEKa5@vger.kernel.org>
-In-Reply-To: <20080505090929.GA29310@uranus.ravnborg.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080505112858.5101c99a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 05 May 2008 19:09:29 Sam Ravnborg wrote:
-> > > Still, there's nothing wrong with this patch, happy for you to send it.
-> > >
-> > > Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-> >
-> > Thanks,
->
-> The patch is in -linus already so I cannot add the "Acked-by".
+On Monday 05 May 2008, Jean Delvare wrote:
+> little reason to use these i2c clients to log messages.
 
-Since the purpose is to ease passage into Linus' tree, it seems academic?
+I'd assume the opposite, actually.  Any i2c_client should
+be sensible to use for message logging.
 
-Cheers,
-Rusty.
+
+> +MODULE_DEVICE_TABLE(i2c, dummy_id);
+
+Strike that.  There's no reason to export this, is there?
+The only dummy devices are the ones drivers which tell th
+core about.  We wouldn't *want* to try hotplugging them.
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
