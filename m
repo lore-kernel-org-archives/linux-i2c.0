@@ -1,53 +1,24 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: Sam Ravnborg <sam@ravnborg.org>
 Subject: Re: [PATCH] modpost: i2c aliases need no trailing wildcard
-Date: Mon, 5 May 2008 10:48:16 +0200
-Message-ID: <20080505104816.1f666613@hyperion.delvare>
-References: <20080502203721.70c5dc09@hyperion.delvare>
-	<200805051009.06159.rusty@rustcorp.com.au>
+Date: Mon, 5 May 2008 11:09:29 +0200
+Message-ID: <20080505090929.GA29310@uranus.ravnborg.org>
+References: <20080502203721.70c5dc09@hyperion.delvare> <200805051009.06159.rusty@rustcorp.com.au> <20080505104816.1f666613@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757832AbYEEIsf@vger.kernel.org>
-In-Reply-To: <200805051009.06159.rusty@rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758179AbYEEJJI@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080505104816.1f666613@hyperion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rusty,
-
-On Mon, 5 May 2008 10:09:05 +1000, Rusty Russell wrote:
-> On Saturday 03 May 2008 04:37:21 Jean Delvare wrote:
-> > Hi all,
-> >
-> > [Once more with Sam's address fixed, sorry for the noise.]
-> >
-> > Not all device types need a wildcard at the end of their module
-> > aliases. In particular, for i2c module aliases, the trailing wildcard
-> > is not only unneeded, it could also cause the wrong driver to be
-> > loaded.
+> > Still, there's nothing wrong with this patch, happy for you to send it.
+> > 
+> > Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> Hi Jean,
-> 
->    i2c would have been better using a terminator char after the device name.  
-> The wildcard would then allow future extensions without having the current 
-> potential confusion.
+> Thanks,
 
-This has been discussed already:
-http://lists.lm-sensors.org/pipermail/i2c/2008-April/003429.html
+The patch is in -linus already so I cannot add the "Acked-by".
 
-I understand that the idea of the trailing wildcard was to allow for
-future extensions, however in the case of i2c I can't foresee any such
-extension. On top of that, it really only matters for external drivers
-(for in-tree drivers, if the alias format changes, the drivers will
-also be updated so no harm done) and I don't think external drivers are
-worth the effort and cost of anticipating a change which most certainly
-will never happen.
-
-> Still, there's nothing wrong with this patch, happy for you to send it.
-> 
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Thanks,
--- 
-Jean Delvare
+	Sam
