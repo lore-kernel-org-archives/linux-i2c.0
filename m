@@ -1,97 +1,39 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-piix4: Blacklist two mainboards
-Date: Sun, 4 May 2008 15:38:41 +0200
-Message-ID: <20080504153841.639d7639@hyperion.delvare>
-References: <481B851A.10800@ag-web.biz>
-	<20080503091831.30cef838@hyperion.delvare>
-	<1209828454.4289.1.camel@debian-9850.ag-home.muc>
-	<20080503182701.58a0c146@hyperion.delvare>
-	<20080503201659.2ab17cbc@hyperion.delvare>
-	<20080504145717.75063c54@hyperion.delvare>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] modpost: i2c aliases need no trailing wildcard
+Date: Mon, 5 May 2008 10:09:05 +1000
+Message-ID: <200805051009.06159.rusty@rustcorp.com.au>
+References: <20080502203721.70c5dc09@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080504145717.75063c54-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755618AbYEEAJY@vger.kernel.org>
+In-Reply-To: <20080502203721.70c5dc09@hyperion.delvare>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@ravnborg.org>, Kay Sievers <kay.sievers@vrfy.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We had a report that running sensors-detect on a Sapphire AM2RD790
-motherbord killed the CPU. While the exact cause is still unknown,
-I'd rather play it safe and prevent any access to the SMBus on that
-machine by not letting the i2c-piix4 driver attach to the SMBus host
-device on that machine. Also blacklist a similar board made by DFI.
+On Saturday 03 May 2008 04:37:21 Jean Delvare wrote:
+> Hi all,
+>
+> [Once more with Sam's address fixed, sorry for the noise.]
+>
+> Not all device types need a wildcard at the end of their module
+> aliases. In particular, for i2c module aliases, the trailing wildcard
+> is not only unneeded, it could also cause the wrong driver to be
+> loaded.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Once again... I forgot to refresh the patch before sending it, sorry.
+Hi Jean,
 
- drivers/i2c/busses/i2c-piix4.c |   32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+   i2c would have been better using a terminator char after the device name.  
+The wildcard would then allow future extensions without having the current 
+potential confusion.
 
---- linux-2.6.25.orig/drivers/i2c/busses/i2c-piix4.c	2008-04-19 11:11:56.000000000 +0200
-+++ linux-2.6.25/drivers/i2c/busses/i2c-piix4.c	2008-05-04 09:56:00.000000000 +0200
-@@ -108,7 +108,27 @@ static unsigned short piix4_smba;
- static struct pci_driver piix4_driver;
- static struct i2c_adapter piix4_adapter;
- 
--static struct dmi_system_id __devinitdata piix4_dmi_table[] = {
-+static struct dmi_system_id __devinitdata piix4_dmi_blacklist[] = {
-+	{
-+		.ident = "Sapphire AM2RD790",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "SAPPHIRE Inc."),
-+			DMI_MATCH(DMI_BOARD_NAME, "PC-AM2RD790"),
-+		},
-+	},
-+	{
-+		.ident = "DFI Lanparty UT 790FX",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Inc."),
-+			DMI_MATCH(DMI_BOARD_NAME, "LP UT 790FX"),
-+		},
-+	},
-+	{ }
-+};
-+
-+/* The IBM entry is in a separate table because we only check it
-+   on Intel-based systems */
-+static struct dmi_system_id __devinitdata piix4_dmi_ibm[] = {
- 	{
- 		.ident = "IBM",
- 		.matches = { DMI_MATCH(DMI_SYS_VENDOR, "IBM"), },
-@@ -123,8 +143,16 @@ static int __devinit piix4_setup(struct 
- 
- 	dev_info(&PIIX4_dev->dev, "Found %s device\n", pci_name(PIIX4_dev));
- 
-+	/* On some motherboards, it was reported that accessing the SMBus
-+	   caused severe hardware problems */
-+	if (dmi_check_system(piix4_dmi_blacklist)) {
-+		dev_err(&PIIX4_dev->dev,
-+			"Accessing the SMBus on this system is unsafe!\n");
-+		return -EPERM;
-+	}
-+
- 	/* Don't access SMBus on IBM systems which get corrupted eeproms */
--	if (dmi_check_system(piix4_dmi_table) &&
-+	if (dmi_check_system(piix4_dmi_ibm) &&
- 			PIIX4_dev->vendor == PCI_VENDOR_ID_INTEL) {
- 		dev_err(&PIIX4_dev->dev, "IBM system detected; this module "
- 			"may corrupt your serial eeprom! Refusing to load "
+Still, there's nothing wrong with this patch, happy for you to send it.
 
--- 
-Jean Delvare
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Cheers,
+Rusty.
