@@ -1,46 +1,48 @@
-From: "john stultz" <johnstul@us.ibm.com>
-Subject: Re: [RFC][PATCH 1/4] RTC: Class device support for persistent clock
-Date: Wed, 7 May 2008 14:18:01 -0700
-Message-ID: <1f1b08da0805071418q365680bexafb1996dcc77ebb0@mail.gmail.com>
-References: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [RFC][PATCH 2/4] RTC: SWARM I2C board initialization
+Date: Wed, 7 May 2008 22:25:08 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805072214090.25644@cliff.in.clinika.pl>
+References: <Pine.LNX.4.55.0805070031410.16173@cliff.in.clinika.pl>
+ <20080507090514.3a86cf4b@hyperion.delvare> <Pine.LNX.4.64.0805070936060.6341@anakin>
+ <20080507094343.25f279b9@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765523AbYEGVS1@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753622AbYEGV2P@vger.kernel.org>
+In-Reply-To: <20080507094343.25f279b9@hyperion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Alessandro Zummo <a.zummo@towertech.it>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 6, 2008 at 5:40 PM, Maciej W. Rozycki <macro@linux-mips.org> wrote:
->  This is a generic implementation of rtc_read_persistent_clock() and
->  rtc_update_persistent_clock() suitable for platforms to be used for
->  read_persistent_clock() and update_persistent_clock() calls.  An RTC
->  device selected by the user with the RTC_HCTOSYS_DEVICE option is used.
->
->   As rtc_read_persistent_clock() is not available at the time
->  timekeeping_init() is called, it will now be disabled if the class device
->  is to be used as a reference.  In this case rtc_hctosys(), already
->  present, will be used to set up the system time at the late initcall time.
->  This call has now been rewritten to make use of
->  rtc_read_persistent_clock().
+Hi Jean,
 
-Hrmm. So how is this going to work with suspend and resume?
+> > > i2c-foo.c is consistently used for i2c bus driver themselves so far.
+> > > It's somewhat confusing to see you name platform code that way. It's
+> > > also redundant, given that the file lives in the swarm platform
+> > > directory. May I suggest naming this file just
+> > > arch/mips/sibyte/swarm/i2c.c? Other architectures (cris, arm) are doing
+> > > this already.
+> > 
+> > Is there any chance CONFIG_I2C_BOARDINFO could become tristate?
+> > If yes, it's problematic if you have multiple modules called i2c.ko.
+> 
+> No, CONFIG_I2C_BOARDINFO is boolean by nature, it will never become
+> tristate.
 
-Ideally, on resume we want to update the clock before interrupts are
-reenabled so we don't get stale time values post-resume.  For systems
-that sleep on reading the persistent clock, I'm open to having them
-fix it up as best they can later (partly why the code can handle
-read_persistent_clock() not returning anything), but unless I'm
-misreading this, it seems you're proposing to make systems that do
-have a safe persistent clock have to have the window where code may
-see the pre-suspend time after resume.
+ I can do that and I have considered it while preparing the change.  What
+convinced me not to use a name that is already present elsewhere in the
+tree is the confusion that it sometimes causes.  For example during a
+debugging session GDB only reports the file name and not the leading
+pathname (and some people do run GDB over the kernel).  Of course the
+actual file can still be chased with some `find' and `grep' scriptery, but
+why to create a problem in the first place?
 
-Am I missing something here?
+ I consider repeated file names throughout a tree of a single program a 
+namespace pollution similar to one with repeated static symbol names.  
+While syntactically valid and working, it asks for unnecessary confusion.
 
-thanks
--john
+ This is my point of view, but I can see others may not necessarily follow
+it.  I am fine with changing the name to i2c.c as it is unlikely I will
+run GDB over it. ;-)
 
-Maciej: Sorry for the dup, I forgot to reply to all on my first mail.
+  Maciej
