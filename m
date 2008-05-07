@@ -1,64 +1,77 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
-Date: Wed, 7 May 2008 01:20:03 -0700
-Message-ID: <200805070120.03821.david-b@pacbell.net>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [rtc-linux] [RFC][PATCH 1/4] RTC: Class device support for
+	persistent clock
+Date: Wed, 07 May 2008 09:24:15 +0100
+Message-ID: <1210148655.25560.825.camel@pmac.infradead.org>
+References: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761986AbYEGIZO@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: rtc-linux@googlegroups.com
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch is way too big for what it does.  Lots of whitespace
-and similar noise (did those headers *need* rearranging?).
-
-
-But most importantly, that driver already uses SMBus calls.
-So you shouldn't *stop* it from using them by adding wrapper
-code like this:
-
-> +static int m41t80_write_byte_data(struct i2c_client *client, u8 reg, u8 val)
-> +{ 
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> +		return m41t80_i2c_transfer(client, 1, reg, 1, &val);
-> +	else
-> +		return i2c_smbus_write_byte_data(client, reg, val);
+On Wed, 2008-05-07 at 01:40 +0100, Maciej W. Rozycki wrote:
+> 
+> +int rtc_update_persistent_clock(struct timespec now)
+> +{
+> +       struct rtc_device *rtc =
+> rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
+> +       int err;
+> +
+> +       if (rtc == NULL) {
+> +               printk(KERN_ERR "hctosys: unable to open rtc device (%
+> s)\n",
+> +                      CONFIG_RTC_HCTOSYS_DEVICE);
+> +               err = -ENXIO;
+> +               goto out;
+>         }
+> -       else
+> +       err = rtc_set_mmss(rtc, now.tv_sec);
+> +       if (err < 0) {
+>                 dev_err(rtc->dev.parent,
+> -                       "hctosys: unable to read the hardware clock
+> \n");
+> +                       "hctosys: unable to set the hardware clock
+> \n");
+> +               goto out_close;
+> +       }
+>  
+> +       err = 0;
+> +
+> +out_close:
+>         rtc_class_close(rtc);
+> +out:
+> +       return err;
 > +}
 
-That's because if an I2C controller can execute that protocol,
-it can do so through the SMBus calls too.  And the current code
-already verifies that will work ... those wrappers are pointless,
-as well as untested.
+Ooh, shiny -- you saved me the trouble of doing this (and hopefully also
+the trouble of looking through it to check whether all the callers of
+read_persistent_clock() can sleep, etc.?)
 
+One thing I was going to do in rtc_update_persistent_clock() was make it
+use mutex_trylock() for grabbing rtc->lock. We go to great lengths to
+make sure we're updating the clock at the correct time -- we don't want
+to be doing things which delay the update. So we should probably just
+use mutex_trylock() and abort the update (this time) if it fails.
 
-The chip docs basically tell us that if the underlying SMBus
-controller can issue i2c_smbus_read_i2c_block_data() and its
-write-side sibling, it can *easily* talk to this chip.
+I was also thinking of holding the RTC_HCTOSYS device open all the time,
+too. If it's a problem that you then couldn't unload the module, perhaps
+a sysfs interface to set/change/clear which device is used for this?
 
-So wouldn't it be a better idea to just replace the existing
-calls to i2c_transfer() with those pseudo-SMBus block calls?
+When we discussed it last week, Alessandro was concerned that the
+'update at precisely 500ms past the second' rule was not universal to
+all RTC devices, although I'm not entirely sure. It might be worth
+moving that logic into a 'default' NTP-sync routine provided by the RTC
+class, so that if any strange devices exist which require different
+treatment, they can override that.
 
-And then *separately* add workarounds for i2c-sibyte, and
-similar controllers that don't offer block transfers?  Maybe
-using your existing structure ... just not replacing those
-existing perfectly-fine SMBus calls.
+I wouldn't worry too much about leaving the old
+update_persistent_clock() and read_persistent_clock() -- I hope we can
+plan to remove those entirely in favour of the RTC class methods.
 
-- Dave
-
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+dwmw2
