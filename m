@@ -1,77 +1,97 @@
-From: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [rtc-linux] [RFC][PATCH 1/4] RTC: Class device support for
-	persistent clock
-Date: Wed, 07 May 2008 09:24:15 +0100
-Message-ID: <1210148655.25560.825.camel@pmac.infradead.org>
-References: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-nforce2: Disable the second SMBus channel on the
+ DFI Lanparty NF4 Expert
+Date: Wed, 7 May 2008 14:00:00 +0200
+Message-ID: <20080507140000.2dee027e@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761986AbYEGIZO@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0805070015360.16173@cliff.in.clinika.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: rtc-linux@googlegroups.com
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Jean Delvare <khali@linux-fr.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2008-05-07 at 01:40 +0100, Maciej W. Rozycki wrote:
-> 
-> +int rtc_update_persistent_clock(struct timespec now)
-> +{
-> +       struct rtc_device *rtc =
-> rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
-> +       int err;
-> +
-> +       if (rtc == NULL) {
-> +               printk(KERN_ERR "hctosys: unable to open rtc device (%
-> s)\n",
-> +                      CONFIG_RTC_HCTOSYS_DEVICE);
-> +               err = -ENXIO;
-> +               goto out;
->         }
-> -       else
-> +       err = rtc_set_mmss(rtc, now.tv_sec);
-> +       if (err < 0) {
->                 dev_err(rtc->dev.parent,
-> -                       "hctosys: unable to read the hardware clock
-> \n");
-> +                       "hctosys: unable to set the hardware clock
-> \n");
-> +               goto out_close;
-> +       }
->  
-> +       err = 0;
-> +
-> +out_close:
->         rtc_class_close(rtc);
-> +out:
-> +       return err;
-> +}
+There is a strange chip at 0x2e on the second SMBus channel of the
+DFI Lanparty NF4 Expert motherboard. Accessing the chip reboots the
+system. As there's nothing interesting on this SMBus channel, the
+easiest and safest thing to do is to disable it on that board.
 
-Ooh, shiny -- you saved me the trouble of doing this (and hopefully also
-the trouble of looking through it to check whether all the callers of
-read_persistent_clock() can sleep, etc.?)
+This is a better fix to bug #5889 than the it87 driver update that was
+done originally:
+http://bugzilla.kernel.org/show_bug.cgi?id=5889
 
-One thing I was going to do in rtc_update_persistent_clock() was make it
-use mutex_trylock() for grabbing rtc->lock. We go to great lengths to
-make sure we're updating the clock at the correct time -- we don't want
-to be doing things which delay the update. So we should probably just
-use mutex_trylock() and abort the update (this time) if it fails.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+If anyone with this board could test the patch, that would be great.
 
-I was also thinking of holding the RTC_HCTOSYS device open all the time,
-too. If it's a problem that you then couldn't unload the module, perhaps
-a sysfs interface to set/change/clear which device is used for this?
+ drivers/i2c/busses/i2c-nforce2.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-When we discussed it last week, Alessandro was concerned that the
-'update at precisely 500ms past the second' rule was not universal to
-all RTC devices, although I'm not entirely sure. It might be worth
-moving that logic into a 'default' NTP-sync routine provided by the RTC
-class, so that if any strange devices exist which require different
-treatment, they can override that.
+--- linux-2.6.26-rc1.orig/drivers/i2c/busses/i2c-nforce2.c	2008-05-07 09:29:36.000000000 +0200
++++ linux-2.6.26-rc1/drivers/i2c/busses/i2c-nforce2.c	2008-05-07 13:52:44.000000000 +0200
+@@ -50,6 +50,7 @@
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <asm/io.h>
+ 
+ MODULE_LICENSE("GPL");
+@@ -109,6 +110,18 @@ struct nforce2_smbus {
+ /* Misc definitions */
+ #define MAX_TIMEOUT	100
+ 
++/* We disable the second SMBus channel on these boards */
++static struct dmi_system_id __devinitdata nforce2_dmi_blacklist2[] = {
++	{
++		.ident = "DFI Lanparty NF4 Expert",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Corp,LTD"),
++			DMI_MATCH(DMI_BOARD_NAME, "LP UT NF4 Expert"),
++		},
++	},
++	{ }
++};
++
+ static struct pci_driver nforce2_driver;
+ 
+ static void nforce2_abort(struct i2c_adapter *adap)
+@@ -367,10 +380,17 @@ static int __devinit nforce2_probe(struc
+ 		smbuses[0].base = 0;	/* to have a check value */
+ 	}
+ 	/* SMBus adapter 2 */
+-	res2 = nforce2_probe_smb(dev, 5, NFORCE_PCI_SMB2, &smbuses[1], "SMB2");
+-	if (res2 < 0) {
+-		dev_err(&dev->dev, "Error probing SMB2.\n");
+-		smbuses[1].base = 0;	/* to have a check value */
++	if (dmi_check_system(nforce2_dmi_blacklist2)) {
++		dev_err(&dev->dev, "Disabling SMB2 for safety reasons.\n");
++		res2 = -EPERM;
++		smbuses[1].base = 0;
++	} else {
++		res2 = nforce2_probe_smb(dev, 5, NFORCE_PCI_SMB2, &smbuses[1],
++					 "SMB2");
++		if (res2 < 0) {
++			dev_err(&dev->dev, "Error probing SMB2.\n");
++			smbuses[1].base = 0;	/* to have a check value */
++		}
+ 	}
+ 	if ((res1 < 0) && (res2 < 0)) {
+ 		/* we did not find even one of the SMBuses, so we give up */
 
-I wouldn't worry too much about leaving the old
-update_persistent_clock() and read_persistent_clock() -- I hope we can
-plan to remove those entirely in favour of the RTC class methods.
 
 -- 
-dwmw2
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
