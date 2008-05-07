@@ -1,12 +1,15 @@
-From: =?iso-8859-15?q?Lothar_Wa=DFmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [patch 2.6.26-rc1] i2c_core:  return -Errno not -1
-Date: Wed, 7 May 2008 10:00:27 +0200
-Message-ID: <18465.24987.883028.499873@ipc1.ka-ro>
+Date: Wed, 7 May 2008 01:18:39 -0700
+Message-ID: <200805070118.39969.david-b@pacbell.net>
 References: <18465.22635.646092.18578@ipc1.ka-ro>
 	<20080507095209.32a6faa2@hyperion.delvare>
-Content-Type: multipart/mixed; boundary="===============5271182426546200474=="
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 In-Reply-To: <20080507095209.32a6faa2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,43 +20,25 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Lothar =?iso-8859-1?q?Wa=DFmann?= <LW-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============5271182426546200474==
-
-Hi,
-
+On Wednesday 07 May 2008, Jean Delvare wrote:
 > Hmm, how does your patch differ from the one David Brownell sent a few
 > days ago?
 > 
 > http://lists.lm-sensors.org/pipermail/i2c/2008-May/003503.html
-> 
-Not really probably. I only found a patch from him addressing some
-algo-* files, but not that one addressing i2c-core.c
 
+Almost exactly the same title.  ;)
 
-Lothar Waßmann
--- 
-___________________________________________________________
+My version passes "checkpatch.pl --strict" as I recall.  And
+some of the errno values are different ... I tried to avoid
+overusing EINVAL and EIO, and made PEC errors be unique.
 
-Ka-Ro electronics GmbH | Pascalstraße 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Geschäftsführer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
+- Dave
 
-www.karo-electronics.de | info-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org
-___________________________________________________________
-
-
---===============5271182426546200474==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5271182426546200474==--
