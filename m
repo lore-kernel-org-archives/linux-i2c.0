@@ -1,73 +1,130 @@
 From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [RFC][PATCH 2/4] RTC: SWARM I2C board initialization
-Date: Thu, 8 May 2008 09:56:58 +0200
-Message-ID: <20080508095658.40eb74f4@hyperion.delvare>
+Date: Thu, 8 May 2008 10:59:05 +0200
+Message-ID: <20080508105905.3209c659@hyperion.delvare>
 References: <Pine.LNX.4.55.0805070031410.16173@cliff.in.clinika.pl>
-	<20080507090514.3a86cf4b@hyperion.delvare>
-	<Pine.LNX.4.64.0805070936060.6341@anakin>
-	<20080507094343.25f279b9@hyperion.delvare>
-	<Pine.LNX.4.55.0805072214090.25644@cliff.in.clinika.pl>
+	<20080507085953.2c08b854@hyperion.delvare>
+	<Pine.LNX.4.55.0805072145040.25644@cliff.in.clinika.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <Pine.LNX.4.55.0805072214090.25644@cliff.in.clinika.pl>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755597AbYEHI7u@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0805072145040.25644@cliff.in.clinika.pl>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Alessandro Zummo <a.zummo@towertech.it>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Alessandro Zummo <a.zummo@towertech.it>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Maciej,
 
-On Wed, 7 May 2008 22:25:08 +0100 (BST), Maciej W. Rozycki wrote:
-> > i2c-foo.c is consistently used for i2c bus driver themselves so far.
-> > It's somewhat confusing to see you name platform code that way. It's
-> > also redundant, given that the file lives in the swarm platform
-> > directory. May I suggest naming this file just
-> > arch/mips/sibyte/swarm/i2c.c? Other architectures (cris, arm) are doing
-> > this already.
->
->  I can do that and I have considered it while preparing the change.  What
-> convinced me not to use a name that is already present elsewhere in the
-> tree is the confusion that it sometimes causes.  For example during a
-> debugging session GDB only reports the file name and not the leading
-> pathname (and some people do run GDB over the kernel).  Of course the
-> actual file can still be chased with some `find' and `grep' scriptery, but
-> why to create a problem in the first place?
->
->  I consider repeated file names throughout a tree of a single program a 
-> namespace pollution similar to one with repeated static symbol names.  
-> While syntactically valid and working, it asks for unnecessary confusion.
+On Wed, 7 May 2008 22:13:23 +0100 (BST), Maciej W. Rozycki wrote:
+> Hi Jean,
+> 
+> > Minor corrections which would ideally belong to a separate patch
+> > (there's a whole lot more cleanups that could be done in that driver,
+> > BTW...)
+> 
+>  Not suprising, as usually with most pieces of code for the SWARM and the 
+> SiByte SOC.  That can be done gradually, but mixing a driver overhaul with 
+> functional changes usually only results in confusion later on.
 
-$ find linux-2.6.26-rc1 -name Kconfig | wc -l
-455
-$ find linux-2.6.26-rc1 -name Makefile | wc -l
-1030
-$
+I fully agree.
 
-Not to mention the 102 setup.c, 87 irq.c, 62 time.c... It is very
-common to have duplicated file names in the kernel tree because it
-supports so many architectures and platforms. In general, when you work
-on a given architecture or platform, names become unique again. Taking
-GDB as an example again, you definitely know what architecture you are
-debugging, so there should be relatively little ambiguity on what files
-are involved.
+> > I don't think that the minor changes below are enough for you to claim
+> > copyright on that driver.
+> 
+>  Well, I decide whether or not to add one based on how important changes
+> are from the piece's of code point of view.  In this case the change is
+> essential for new-style client drivers to work at all, which I think is
+> more important than e.g. a lot of cosmetical changes throughout would be.  
+> But I do not insist on keeping it -- if you think I misjudged on this
+> occasion, I see no problem with discarding it.
 
-(On top of that, I'd argue that we _should_ be able to display relative
-paths to file names when debugging.)
+If you had to add a missing semicolon to a source file to get it to
+build again, it would be an "essential" change (without it nothing
+works) but still, you can't claim you added any intellectual value to
+the source file. So, no copyright. The copyright is about how much
+value you add, not how important the change is in the big picture.
 
-Your point about the "single program namespace" is certainly valid for
-small to medium-size programs, but in the case of something as big as
-the kernel, it probably no longer holds.
+> > Why do you double the space and the end of comments? Never seen that
+> > before, and I can't see the idea.
+> 
+>  This is mostly habitual -- this is what the GNU Coding Standard specifies
+> for comments and which is enforced for GNU software which I have dealt a
+> lot with.
 
->  This is my point of view, but I can see others may not necessarily follow
-> it.  I am fine with changing the name to i2c.c as it is unlikely I will
-> run GDB over it. ;-)
+>From Documentation/CodingStyle:
 
-I don't have a strong opinion on this either, it is very unlikely that
-I'll ever have to deal with this file personally. I'm only telling you
-what the common practice is in the kernel tree.
+"First off, I'd suggest printing out a copy of the GNU coding standards,
+and NOT read it.  Burn them, it's a great symbolic gesture."
 
+I'm not going to tell how bad I think the GNU coding standards are, the
+point here is that we don't follow them at all, so whatever they say is
+totally irrelevant. Read Documentation/CodingStyle, it describes what
+we do. Also make sure that you run your patches through
+scripts/checkpatch.pl. The rest is up to you, but in general, when
+modifying existing code, you want to stick to what the surrounding code
+looks like.
+
+>  I think the idea is it improves readability and I tend to
+> agree.  The same goes for using a capital at the beginning and a full stop
+> at the end of sentences in comments -- it improves readability and
+> (together with a good style of code itself) makes the result look more
+> professional.  Certainly well-formatted code is easier to comprehend for 
+> someone looking at it for the first time.
+> 
+>  I do not insist on the extraneous space if you have a strong opinion 
+> against though.
+
+I do insist ;) Admittedly, double spaces at end of comments are used in
+some places in the kernel tree (I had never seen that before), but they
+are still outnumbered by single-space ending comments, 50 to 1. Do
+what you want in the drivers your create or maintain, but please don't
+change existing comments, especially not in the middle of functional
+changes.
+
+> > I'm not sure how you intend to push these changes upstream. I would
+> > take a patch only touching drivers/i2c/busses/i2c-sibyte.c in my i2c
+> > tree, however a patch also touching arch code, must be handled be the
+> > maintainer for that architecture or platform.
+> 
+>  Andrew has spoken (thank you, Andrew) and I would only like to add an
+> explanation why I have not split this change further.  Certainly it is
+> functionally consistent.  Then adding i2c-swarm.c only breaks things as
+> the onchip buses suddenly get the numbers 2 and 3.  On the other hand, if
+> adding the i2c-sibyte.c change only, it will take a while until it
+> propagates back to the MIPS tree and without that as it is there is no
+> single way to use the whole set of changes as the clock device will not be
+> seen.
+> 
+>  If you are scared off by the MIPS-specific Makefile (lib vs obj) changes,
+> then I think they should be reasonably easy to sort out separately in a
+> couple of days as functionally not changing anything.  The only other file
+> in the affected subdirectory that depends on a config option uses
+> CONFIG_KGDB which does not seem to rely on being pulled implicitly by the
+> linker.  But such a mechanical change by itself would make little sense 
+> (don't fix what isn't broken), so I have not pushed it without a 
+> reasonable justification.
+> 
+>  Ralf -- what do you think about the Makefile changes?  I can send you a 
+> separate patch which will reduce the span of this one.
+
+That's not a matter of being scared, and I was also _not_ asking you to
+split the patch. That's a matter of synchronizing merges between me and
+the architecture maintainer. If I take a patch in my i2c tree which
+touches architecture-specific files, and I only push it to Linus in 2
+months, then chances are that the architecture-specific files in
+question will change several times meanwhile, resulting in conflicts in
+-next and -mm. I am only trying to prevent this from happening. I
+simply think that it is easier to synchronize patches if all
+architecture-specific patches go through the relevant architecture tree.
+
+BTW, SWARM seems to be only one of the 4 SiByte platforms we support.
+What about the other ones? Your changes to the i2c-sibyte driver could
+cause the i2c bus registration to fail, as the other platforms do not
+declare I2C devices, the bus numbers 0 and 1 won't be reserved by
+i2c-core. Care to comment on this?
+
+Thanks,
 -- 
 Jean Delvare
