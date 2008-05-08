@@ -1,202 +1,193 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
-Date: Wed, 7 May 2008 16:25:20 -0700
-Message-ID: <200805071625.20430.david-b@pacbell.net>
-References: <200805070120.03821.david-b@pacbell.net>
-	<Pine.LNX.4.55.0805072226180.25644@cliff.in.clinika.pl>
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80, etc. driver
+Date: Thu, 08 May 2008 13:38:47 +0900 (JST)
+Message-ID: <20080508.133847.74565891.nemoto@toshiba-tops.co.jp>
+References: <Pine.LNX.4.55.0805070102460.16173@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.55.0805072226180.25644-j8+e0ZhYU2SU0huXySazC6sMm+1xrEX8@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <Pine.LNX.4.55.0805070102460.16173@cliff.in.clinika.pl>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: macro@linux-mips.org
+Cc: a.zummo@towertech.it, khali@linux-fr.org, ralf@linux-mips.org, tglx@linutronix.de, akpm@linux-foundation.org, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, ab@mycable.de, mgreer@mvista.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 07 May 2008, Maciej W. Rozycki wrote:
-> On Wed, 7 May 2008, David Brownell wrote:
+Added CC to authers of the driver.
+
+On Wed, 7 May 2008 01:40:41 +0100 (BST), "Maciej W. Rozycki" <macro@linux-mips.org> wrote:
+>  The BCM1250A SOC which is used on the SWARM board utilising an M41T81
+> chip only supports pure I2C in the raw bit-banged mode.  Nobody sane
+> really wants to use it unless absolutely necessary and the M41T80, etc.  
+> chips work just fine with an SMBus controller which is what the standard
+> mode of operation of the BCM1250A.  The only drawback of byte accesses
+> with the M41T80 is the chip only latches clock data registers for the
+> duration of an I2C transaction which works fine with a block transfers,
+> but not byte-wise accesses.
 > 
-> > But most importantly, that driver already uses SMBus calls.
-> > So you shouldn't *stop* it from using them by adding wrapper
-> > code like this:
+>  The driver currently requires an I2C controller providing both SMBus and
+> pure I2C access.  This is a set of changes to make it work with either,
+> with a preference to pure I2C.  The problem of unlatched clock data if
+> SMBus transactions are used is resolved in the standard way.
 > 
->  Well, I have to admit what I know in detail about I2C and how it is 
-> handled by Linux is what I gathered over the last weekend.  The idea of 
-> the change, given a change had to be done, was to make the driver a bit 
-> more flexible.  Of all the I2C RTC drivers this seems to be one of the two 
-> only that require *both* I2C *and* SMBus functionality in the driving 
-> controller at the same time.  With this change in place only either of the 
-> two is needed.  Please correct me if I am wrong.
-
-It checks for "I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE_DATA" which is
-admittedly odd.  Because if it can do I2C, it can assuredly do
-that minor subset of SMBus.  (Modulo bugs in how drivers end up
-reporting their capabilities.)
-
-
-> > > +static int m41t80_write_byte_data(struct i2c_client *client, u8 reg, u8 val)
-> > > +{ 
-> > > +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> > > +		return m41t80_i2c_transfer(client, 1, reg, 1, &val);
-> > > +	else
-> > > +		return i2c_smbus_write_byte_data(client, reg, val);
-> > > +}
-> > 
-> > That's because if an I2C controller can execute that protocol,
-> > it can do so through the SMBus calls too.  And the current code
-> > already verifies that will work ... those wrappers are pointless,
-> > as well as untested.
+>  Whether a choice between SMBus and pure I2C access is possible is 
+> obviously device dependent.  If the code proved useful for other I2C 
+> devices, then it could be moved to a more generic place.  It is a code
+> simplification regardless -- similar I2C packet definitions are not 
+> scattered throughout the driver anymore.
 > 
->  Do you mean our generic I2C code emulates SMBus calls if the hardware
-> does not support them directly?  Well, it looks to me it indeed does and
-> you are right, but I have assumed, perhaps mistakenly, (but I generally
-> trust if a piece of code is there, it is for a reason), that this driver
-> checks for I2C_FUNC_SMBUS_BYTE_DATA for a purpose.
+> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+> ---
+>  Please note I have no means to test these changes with a pure I2C 
+> controller -- anybody interested, please help.
 
-That purpose being:  it makes those SMBus calls explicitly.
-(And it makes i2c_transfer calls explicitly too...)
+I tested this with i2c-gpio.  It needs some fix.  Detailed below.
 
+> -static int m41t80_get_datetime(struct i2c_client *client,
+> -			       struct rtc_time *tm)
+> +
+> +static int m41t80_i2c_transfer(struct i2c_client *client, int write,
+> +			       u8 reg, u8 num, u8 *buf)
+>  {
+> -	u8 buf[M41T80_DATETIME_REG_SIZE], dt_addr[1] = { M41T80_REG_SEC };
+>  	struct i2c_msg msgs[] = {
+>  		{
+>  			.addr	= client->addr,
+>  			.flags	= 0,
+>  			.len	= 1,
+> -			.buf	= dt_addr,
+> +			.buf	= &reg,
+>  		},
+>  		{
+>  			.addr	= client->addr,
+> -			.flags	= I2C_M_RD,
+> -			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
+> -			.buf	= buf + M41T80_REG_SEC,
+> +			.flags	= write ? 0 : I2C_M_RD,
+> +			.len	= num,
+> +			.buf	= buf,
+>  		},
+>  	};
+>  
+> -	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
+> -		dev_err(&client->dev, "read error\n");
+> -		return -EIO;
+> +	return i2c_transfer(client->adapter, msgs, 2);
+> +}
 
-> > The chip docs basically tell us that if the underlying SMBus
-> > controller can issue i2c_smbus_read_i2c_block_data() and its
-> > write-side sibling, it can *easily* talk to this chip.
-> 
->  Well, I have obviously missed the existence of the SMBus block transfer
-> and you have correctly inferred this means the controller used here does
-> not support them.  The SOC implements a "subset of a standard SMBus
-> controller with some extensions" -- the subset being send/receive byte,
-> write/read byte and write/read word.
+For write transfer, you must use only one i2c_msg.  If two i2c_msg
+were used, the slave address is inserted between register number and
+first data.  This chip cannot accept such sequence.
 
-That's what I noticed in the current driver, yes.
+> +static int m41t80_transfer(struct i2c_client *client, int write,
+> +			   u8 reg, u8 num, u8 *buf)
+> +{
+> +	int i, rc;
+> +
+> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+> +		return m41t80_i2c_transfer(client, write, reg, num, buf);
 
-
-> The extensions are 16-bit commands 
-> (required by another RTC chip used on some of these boards) and an obscure
-> subset of the process call and block read/write commands (called an EEPROM
-> read and an extended write/read, respectively).
-
-Subset of process call??  That's send-three-bytes, receive-two-bytes.
-Not possible to subset it ... anything else isn't a process call!!
-
-Presumably those block read/write commands aren't quite enough
-for you to implement i2c_smbus_read_i2c_block_data() and friend?
-
-
-> > So wouldn't it be a better idea to just replace the existing
-> > calls to i2c_transfer() with those pseudo-SMBus block calls?
-> 
->  I can do that, no problem.  It looks like a good way to eliminate code 
-> duplication here.
-
-And work on systems that don't support full I2C messaging, but
-can support that minor SMBus extension.  (Which includes all
-systems capable of full I2C, and a few others that this driver
-currently won't support.)
-
-
-> > And then *separately* add workarounds for i2c-sibyte, and
-> > similar controllers that don't offer block transfers?  Maybe
-> > using your existing structure ... just not replacing those
-> > existing perfectly-fine SMBus calls.
-> 
->  Given the driver uses a mixture of SMBus calls and raw I2C calls, I would
-> assume the other controller currently used with the driver (that's the
-> D-Link DNS-323 platform -- I cannot immediately figure out which I2C
-> controller this one would use) does not support these SMBus block calls
-> either.
-
-If it can support the I2C version of those calls, it can support
-the I2C version of those calls as made by the SMBus "emulation"
-code.  Don't worry about that.
+On success, m41t80_i2c_transfer() returns positive value, but
+m41t80_transfer() should return 0.
 
 
->  I feel a bit uneasy about unconditional emulation of SMBus block calls
-> with a series of corresponding byte read/write calls.  The reason is it
-> changes the semantics
+Here is a proposed fix on top of your patch.
 
-No it doesn't.  The I2C signal transitions (SCL/SDA) will be
-exactly the same.  It's IMO very misleading to call it "emulation"
-since it's nothing more than a different software interface to
-the same functionality.
-
-
->     -- given how the I2C bus is specified, a device is 
-> free to interpret a series of byte calls differently to seemingly
-> equivalent block calls.  It may not support one or the other altogether as
-> well.  Even this simple RTC device differs slightly in this respect, by
-> latching or not the clock registers.
-
-That's a different issue.  In that case you're switching to
-different protocol operations, to cope with limitations of
-the underlying controller.
-
-Different protocol == different semantics.
-
-So that's not the same as just using a different programming
-interface to execute a given sequence of protocol messages.
-
-
-> Admittedly in this case the effect 
-> of the difference can be eliminated by rereading the least significant 
-> part of the timestamp considered, but it cannot be universally guaranteed.  
-> Which is why I would prefer not to hide these details behind an interface.
-
-That would be internal to the m41t80 driver, not part of the
-i2c core.  (As your patch already does ...)
-
+--- drivers/rtc/rtc-m41t80.c.orig	2008-05-08 11:08:57.000000000 +0900
++++ drivers/rtc/rtc-m41t80.c	2008-05-08 12:30:49.000000000 +0900
+@@ -83,8 +83,8 @@ struct m41t80_data {
+ };
  
->  I think a pair of functions called i2c_smbus_read_i2c_byte_data() and
-> i2c_smbus_write_i2c_byte_data() could be added to the core though.
-
-Too late.  Those calls have been in the I2C core for a long
-time now.  ;)
-
-
-> Their 
-> implementations might choose either byte or block transfers as available
-> within a given SMBus controller and they could be used by drivers known
-> for sure not to care about which kind of the transfers is uses (either
-> because the relevant piece of hardware does not care or because the driver
-> caters for either scenario).  What do you think?
-
-You shouldn't think about changing the i2c core for that.
-
-
->  BTW, as mentioned elsewhere the SMBus controller of the BCM1250A SOC can
-> be switched into a bit-banged raw I2C mode, where you can send whatever
-> you want over the bus and block tranfers would not be a problem at all,
-> but hopefully you agree this is not necessarily the best idea ever.
-
-Between two drivers that both busy-wait and burn CPU cycles, I'd
-much rather have the one that provides the full functionality
-needed for the bus.  So I'd choose that bitbanger, no question.
-
-If the SMBus driver were more functional, AND didn't busy-wait,
-then I'd consider using the native hardware.
-
-- Dave
-
-
-
-
->  Thanks a lot for your review!
-> 
->   Maciej
-> 
-
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+ 
+-static int m41t80_i2c_transfer(struct i2c_client *client, int write,
+-			       u8 reg, u8 num, u8 *buf)
++static int m41t80_i2c_read_transfer(struct i2c_client *client,
++				    u8 reg, u8 num, u8 *buf)
+ {
+ 	struct i2c_msg msgs[] = {
+ 		{
+@@ -95,7 +95,7 @@ static int m41t80_i2c_transfer(struct i2
+ 		},
+ 		{
+ 			.addr	= client->addr,
+-			.flags	= write ? 0 : I2C_M_RD,
++			.flags	= I2C_M_RD,
+ 			.len	= num,
+ 			.buf	= buf,
+ 		},
+@@ -104,13 +104,29 @@ static int m41t80_i2c_transfer(struct i2
+ 	return i2c_transfer(client->adapter, msgs, 2);
+ }
+ 
++static int m41t80_i2c_write_transfer(struct i2c_client *client,
++				     u8 reg, u8 num, u8 *buf)
++{
++	u8 wbuf[M41T80_DATETIME_REG_SIZE + 1];
++	struct i2c_msg msg = {
++		.addr	= client->addr,
++		.flags	= 0,
++		.len	= num + 1,
++		.buf	= wbuf,
++	};
++
++	wbuf[0] = reg;
++	memcpy(wbuf + 1, buf, num);
++	return i2c_transfer(client->adapter, &msg, 1);
++}
++
+ static int m41t80_read_byte_data(struct i2c_client *client, u8 reg)
+ {
+ 	int rc;
+ 	u8 val;
+ 
+ 	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		rc = m41t80_i2c_transfer(client, 0, reg, 1, &val);
++		rc = m41t80_i2c_read_transfer(client, reg, 1, &val);
+ 		if (rc < 0)
+ 			return rc;
+ 		else
+@@ -122,7 +138,7 @@ static int m41t80_read_byte_data(struct 
+ static int m41t80_write_byte_data(struct i2c_client *client, u8 reg, u8 val)
+ {
+ 	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+-		return m41t80_i2c_transfer(client, 1, reg, 1, &val);
++		return m41t80_i2c_write_transfer(client, reg, 1, &val);
+ 	else
+ 		return i2c_smbus_write_byte_data(client, reg, val);
+ }
+@@ -132,16 +148,20 @@ static int m41t80_transfer(struct i2c_cl
+ {
+ 	int i, rc;
+ 
+-	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+-		return m41t80_i2c_transfer(client, write, reg, num, buf);
+-	else if (write) {
++	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		if (write)
++			rc = m41t80_i2c_write_transfer(client, reg, num, buf);
++		else
++			rc = m41t80_i2c_read_transfer(client, reg, num, buf);
++		if (rc < 0)
++			return rc;
++	} else if (write) {
+ 		for (i = 0; i < num; i++) {
+ 			rc = i2c_smbus_write_byte_data(client, reg + i,
+ 						       buf[i]);
+ 			if (rc < 0)
+ 				return rc;
+ 		}
+-		return 0;
+ 	} else {
+ 		for (i = 0; i < num; i++) {
+ 			rc = i2c_smbus_read_byte_data(client, reg + i);
+@@ -149,8 +169,8 @@ static int m41t80_transfer(struct i2c_cl
+ 				return rc;
+ 			buf[i] = rc;
+ 		}
+-		return 0;
+ 	}
++	return 0;
+ }
+ 
+ static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
