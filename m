@@ -1,74 +1,63 @@
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [RFC][PATCH 2/4] RTC: SWARM I2C board initialization
-Date: Fri, 9 May 2008 20:36:00 +0100 (BST)
-Message-ID: <Pine.LNX.4.55.0805092019100.10552@cliff.in.clinika.pl>
-References: <Pine.LNX.4.55.0805070031410.16173@cliff.in.clinika.pl>
- <20080507090514.3a86cf4b@hyperion.delvare> <Pine.LNX.4.64.0805070936060.6341@anakin>
- <20080507094343.25f279b9@hyperion.delvare> <Pine.LNX.4.55.0805072214090.25644@cliff.in.clinika.pl>
- <20080508095658.40eb74f4@hyperion.delvare>
+From: Jenifer dam <jenifer.dam01-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: From Jenifer
+Date: Fri, 9 May 2008 13:03:42 -0700 (PDT)
+Message-ID: <492868.29568.qm@web63111.mail.re1.yahoo.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20080508095658.40eb74f4@hyperion.delvare>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Alessandro Zummo <a.zummo@towertech.it>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
+Content-Type: multipart/mixed; boundary="===============1733050791738946540=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+--===============1733050791738946540==
+Content-Type: multipart/alternative; boundary="0-660504282-1210363422=:29568"
+Content-Transfer-Encoding: 8bit
 
-> $ find linux-2.6.26-rc1 -name Kconfig | wc -l
-> 455
-> $ find linux-2.6.26-rc1 -name Makefile | wc -l
-> 1030
-> $
+--0-660504282-1210363422=:29568
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
- Well, these are not pieces of code and serve a different purpose, don't
-they?
+hello friend,
+With warm heart I offer my friendship, and greetings. However strange or surprising this contact might seem to you, as we have not met personally or had any dealings in the past.I humbly ask that you take due consideration of its importance and immense benefit. My name is jenifer dambuza, from Sierra-Leone.
+I have a reasonable amount of money inherited from my late father which i would like to invest in your country with a very and honest person and agian, in a very profitable venture. And for you being in a business line and for your country being so peaceful i think you are in a good position to assist me.
+Time is not on my side, i will appreciate if you can reply me immediately you receive this letter so that i can give you more information about my proposal.
+Thanks and God bless, i’m looking forward to hear from you. jenifer.dam02-Qt13gs6zZMY@public.gmane.org
+Warmest regards, 
+Miss jenifer dambuza
+       
+---------------------------------
+Be a better friend, newshound, and know-it-all with Yahoo! Mobile.  Try it now.
+--0-660504282-1210363422=:29568
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-> Not to mention the 102 setup.c, 87 irq.c, 62 time.c... It is very
-> common to have duplicated file names in the kernel tree because it
-> supports so many architectures and platforms. In general, when you work
+hello friend,<BR>With warm heart I offer my friendship, and greetings. However strange or surprising this contact might seem to you, as we have not met personally or had any dealings in the past.I humbly ask that you take due consideration of its importance and immense benefit. My name is jenifer dambuza, from <SPAN id=lw_1189877657_1 style="BACKGROUND: none transparent scroll repeat 0% 0%; CURSOR: hand; BORDER-BOTTOM: #0066cc 1px dashed; HEIGHT: 1em"><SPAN id=lw_1190046744_3 style="CURSOR: hand; BORDER-BOTTOM: #0066cc 1px dashed; HEIGHT: 1em">Sierra-Leone</SPAN></SPAN>.<BR>I have a reasonable amount of money inherited from my late father which i would like to invest in your country with a very and honest person and agian, in a very profitable venture. And for you being in a business line 
+ and for your country being so peaceful i think you are in a good position to assist me.<BR>Time is not on my side, i will appreciate if you can reply me immediately you receive this letter
+ so that i can give you more information about my proposal.<BR>Thanks and God bless, i’m looking forward to hear from you. <A href="http://us.f631.mail.yahoo.com/ym/Compose?To=jenifer.dam02-Qt13gs6zZMY@public.gmane.org" target=_blank rel=nofollow><SPAN id=lw_1189877657_2><FONT color=#003399><SPAN id=lw_1190046744_4>jenifer.dam02-Qt13gs6zZMY@public.gmane.org</SPAN></FONT></SPAN></A><BR>Warmest regards, <BR>Miss jenifer dambuza<p>&#32;
 
- Well, that is not a technical argument.  It is a fact of life, sure, but
-it does not necessarily mean it is right, but perhaps that nobody has
-really thought about it.
 
-> on a given architecture or platform, names become unique again. Taking
-> GDB as an example again, you definitely know what architecture you are
-> debugging, so there should be relatively little ambiguity on what files
-> are involved.
 
- Hmm, why to have little ambiguity, when you can have none?  We do not
-rely on crippled filesystems, so we do not have to save characters in file
-names -- we keep them reasonably short anyway.  I say there is no
-technical advantage in having duplicate file names throughout the tree
-(please name one if I am wrong) and there are advantages -- however small,
-but still -- in keeping file names unique.  Therefore the gain from
-converting the existing file names may not justify the effort required,
-but it does not mean new additions may not take the gain into account?
+      <hr size=1>Be a better friend, newshound, and 
+know-it-all with Yahoo! Mobile. <a href="http://us.rd.yahoo.com/evt=51733/*http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ "> Try it now.</a>
+--0-660504282-1210363422=:29568--
 
-> (On top of that, I'd argue that we _should_ be able to display relative
-> paths to file names when debugging.)
 
- Human's perception is limited -- GDB's `info frame' is probably already
-overloaded with information, so adding the path to the source file in
-question will not make it any better.
+--===============1733050791738946540==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Your point about the "single program namespace" is certainly valid for
-> small to medium-size programs, but in the case of something as big as
-> the kernel, it probably no longer holds.
-
- I think it is actually the reverse -- the bigger a project is, the easier
-to get lost within. ;-)  With small programs it is easier to maintain,
-while with bigger ones it is really where it pays off.
-
-> I don't have a strong opinion on this either, it is very unlikely that
-> I'll ever have to deal with this file personally. I'm only telling you
-> what the common practice is in the kernel tree.
-
- I don't think this practice has been architected and see above for
-justification why it may not necessarily be the cleverest idea. :-)
-
-  Maciej
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1733050791738946540==--
