@@ -1,93 +1,102 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [i2c] [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
-Date: Fri, 9 May 2008 23:21:46 +0200
-Message-ID: <20080509232146.18638986@hyperion.delvare>
-References: <200805070120.03821.david-b@pacbell.net>
-	<Pine.LNX.4.55.0805072226180.25644@cliff.in.clinika.pl>
-	<200805071625.20430.david-b@pacbell.net>
-	<Pine.LNX.4.55.0805080306080.32613@cliff.in.clinika.pl>
-	<20080509100841.151eabcd@hyperion.delvare>
-	<Pine.LNX.4.55.0805092127410.10552@cliff.in.clinika.pl>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
+Date: Fri, 9 May 2008 22:22:11 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805092202380.10552@cliff.in.clinika.pl>
+References: <200805070120.03821.david-b@pacbell.net> <200805071625.20430.david-b@pacbell.net>
+ <Pine.LNX.4.55.0805080306080.32613@cliff.in.clinika.pl>
+ <200805090218.52570.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <Pine.LNX.4.55.0805092127410.10552@cliff.in.clinika.pl>
+In-Reply-To: <200805090218.52570.david-b@pacbell.net>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: David Brownell <david-b@pacbell.net>, linux-mips@linux-mips.org, mgreer@mvista.com, rtc-linux@googlegroups.com, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org, i2c@lm-sensors.org, ab@mycable.de, Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, ab@mycable.de, mgreer@mvista.com, i2c@lm-sensors.org, rtc-linux@googlegroups.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Maciej,
+Hi David,
 
-On Fri, 9 May 2008 21:55:38 +0100 (BST), Maciej W. Rozycki wrote:
-> > This is reimplementing i2c_smbus_write_i2c_block_data().
+> >  Please do not remove other lists cc-ed as there are people interested in 
+> > this piece of hardware who are neither on i2c nor on rtc-linux (I am on 
+> > neither of the lists too).
 > 
->  Where does it come from?  I fail to see this type of transfer being 
-> defined anywhere in the SMBus spec.
+> I didn't.  I responded to a message from list archives, and could
 
-It is indeed not.
+ I just asked not to remove from now on -- no implied double meaning and 
+thanks for respecting my request. :-)
 
->                                      I checked the spec before I referred 
-> to the implementation in our I2C core and I hope you agree I may not have 
-> expected any extensions beyond what the SMBus spec defines.
+> not tell how many lists were copied ... "WAY too many", clearly.
 
-The "smbus" in these function names are more about "what SMBus
-controllers usually can do" than about the SMBus specification. But I
-admit you couldn't guess.
+ Just enough plus the usual LKML everyone is free to ignore if they 
+cannot stand the volume.  And I got responses from linux-mips, which means 
+my choice was right.
 
->  That written, you are of course correct WRT the reimplementation and I am 
-> eager to remove it -- thanks for the point.  I'll skip all your other 
-> comments related as obviously implied by this change.
+> No; as Jean also noted, since it makes some explicit calls,
+> it should test for the functionality of those calls.  It should
+> not call i2c_transfer() unless the underlying adapter accepts
+> those calls.
+
+ As mentioned elsewhere I misunderstood the semantics of the flags in the 
+API.
+
+> >  I misinterpreted the SMBus spec -- I have thought the receive part is
+> > variable, sorry.  The controller implements a command which issues a write
+> > byte transfer followed by a receive four bytes transfer.  Not quite a
+> > process call although the idea is the same.
 > 
->  Given the function and friends make use of apparently a non-standard
-> SMBus transfer, I think they should be called differently, perhaps
-> i2c_smbusext_write_i2c_block_data(), etc. or suchlike.
+> That is, no STOP in between, just a repeated START?  In which
+> case that's a subset of i2c_smbus_read_i2c_block_data().
 
-This was an option when the functions where introduced 9 years ago.
-But now that it was done, renaming them would cause even more
-confusion, I think. I would be fine with adding comments in i2c-core.c
-or improving Documentation/i2c/smbus-protocol to make it more obious,
-though.
+ There is the usual second START in between to turn around the direction.  
+There is no STOP in the process call either, which is what makes it
+different from an ordinary write transaction followed by a read
+transaction.
 
-On a related note, you will notice that the other i2c_smbus_* functions
-do not follow the naming of SMBus transactions. Again that's something
-I regret but I feel that changing the names now would cause a lot of
-confusion amongst developers, so I'm not doing it.
-
-> > Mixing code cleanups with functional changes is a Bad Idea (TM).
+> >  You can issue a block read of up to 5 bytes (6 if you add the PEC byte
+> > which is not interpreted by the controller in any way).  And you can issue
+> > a block write of up to 4 bytes (5 with PEC).  That's clearly not enough
+> > for the m41t81 let alone a generic implementation.
 > 
->  I am happy to bother you with a separate patch including style fixes.  I
-> can even create a handful of them, grouping functionally consistent
-> changes.
+> Right.  Possibly worth updating i2c-sibyte to be able to perform
+> those calls through the "smbus i2c_block" calls; but maybe not.
+> (Those calls aren't true SMBus calls, but many otherwise-SMBus-only
+> controllers can handle them, hence the i2c_smbus_* prefix.)
 
-Just one patch should be enough, if I agree with all the changes. You
-might make a separate patch with the things I may not agree with, so
-that you don't have to cherry-revert them if I indeed don't agree, and
-we just merge them if I do agree.
+ I am not sure such a limited functionality is worth the hassle of making 
+it available to clients in a reasonably clean way.  How common an 
+extension of this kind is among SMBus controllers?  I would say if there 
+are other controllers providing it (perhaps for a different range of 
+transfer lengths) and clients benefitting from it, it might be worth 
+adding it for this controller as well.  Otherwise perhaps let's wait till 
+somebody complains about the lack of this functionality?
 
-> > >  	dev_info(&client->dev,
-> > > -		 "chip found, driver version " DRV_VERSION "\n");
-> > > +		 "%s chip found, driver version " DRV_VERSION "\n",
-> > > +		 client->name);
-> > 
-> > Incorrect change, dev_info() already includes the chip name.
+> If that second protocol sequence (many messages) happens to
+> work for a given chip, it can be done *portably* too using
+> pure SMBus "write byte" calls:  i2c_smbus_write_byte_data().
 > 
->  My system must be a notable exception then, as this change modifies 
-> output:
-> 
-> rtc-m41t80 1-0068: chip found, driver version 0.05
-> 
-> to:
-> 
-> rtc-m41t80 1-0068: m41t81 chip found, driver version 0.05
-> 
-> here.
+> And that knowledge is very chip-specific, so it's IMO more
+> appropriate to keep it out of infrastructure like i2c-core.
+[...]
+> I can't quite see the point though.  Any driver can write a loop
+> that calls i2c_smbus_write_byte_data(), if that's an alternative
+> way to achieve the task on that chip.
 
-My bad, for some reason I thought that dev_printk() included the device
-name but it in fact includes the driver name. I was wrong, just ignore
-me.
+ Well, it seems generic enough we may provide wrappers around loops using
+i2c_smbus_read_byte_data() and i2c_smbus_write_byte_data() to perform
+transactions involving consecutive values of commands for clients to pick.  
+You may be right it may be too trivial to bother though -- I am not sure.  
+In any case, as suggested elsewhere, the core does not seem the right
+place indeed, but a header file or drivers/i2c/lib/ should be appropriate.
 
--- 
-Jean Delvare
+> It can be rather annoying to try getting some I2C drivers to cope
+> with a variety of broken I2C adapters.  But that's exactly why
+> there's a way to ask adapters what they can do.  If they can't
+> execute the I2C_FUNC_SMBUS_I2C_BLOCK protocols, then M41T80 code
+> must provide less efficient substitutes ... like looping over
+> byte-at-a-time calls, and coping with various time roll-over cases
+> that such substitutes will surface.
+
+ Of course.
+
+  Maciej
