@@ -1,41 +1,125 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [RFC][PATCH 2/4] RTC: SWARM I2C board initialization
-Date: Fri, 9 May 2008 22:38:45 +0200
-Message-ID: <20080509223845.4a38d751@hyperion.delvare>
-References: <Pine.LNX.4.55.0805070031410.16173@cliff.in.clinika.pl>
-	<20080507085953.2c08b854@hyperion.delvare>
-	<Pine.LNX.4.55.0805072145040.25644@cliff.in.clinika.pl>
-	<20080508105905.3209c659@hyperion.delvare>
-	<Pine.LNX.4.55.0805082344040.5944@cliff.in.clinika.pl>
-	<20080509092835.3bbf0f55@hyperion.delvare>
-	<Pine.LNX.4.55.0805092054030.10552@cliff.in.clinika.pl>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [i2c] [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
+Date: Fri, 9 May 2008 21:55:38 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805092127410.10552@cliff.in.clinika.pl>
+References: <200805070120.03821.david-b@pacbell.net>
+ <Pine.LNX.4.55.0805072226180.25644@cliff.in.clinika.pl>
+ <200805071625.20430.david-b@pacbell.net> <Pine.LNX.4.55.0805080306080.32613@cliff.in.clinika.pl>
+ <20080509100841.151eabcd@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <Pine.LNX.4.55.0805092054030.10552@cliff.in.clinika.pl>
+In-Reply-To: <20080509100841.151eabcd@hyperion.delvare>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Alessandro Zummo <a.zummo@towertech.it>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: David Brownell <david-b@pacbell.net>, linux-mips@linux-mips.org, mgreer@mvista.com, rtc-linux@googlegroups.com, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org, i2c@lm-sensors.org, ab@mycable.de, Alessandro Zummo <alessandro.zummo@towertech.it>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Maciej,
+Hi Jean,
 
-On Fri, 9 May 2008 21:27:04 +0100 (BST), Maciej W. Rozycki wrote:
->  Well, sorry, but I could only sense the lack of style in this piece of
-> code, which is why I tried to apply some.
+> Maybe you shouldn't have included 4 different mailing lists to start
+> with, especially for a patch which is rather hardware-specific and not
+> overly important.
 
-I agree, i2c-sibyte is very old code, and unmaintained, coding style is
-horrible. That's one more reason to not include random style cleanups
-in a patch doing functional changes, the improvement will hardly be
-visible. If you care about cleaning up the code of this driver - and I
-would appreciate that - please make a separate patch.
+ Well, there is more interest in these changes on the linux-mips mailing
+list than on any other one -- I seriously doubt there is any user of
+hardware based around the BCM1250A SOC on either of the i2c and rtc-linux
+lists.  And the LKML is to be cc-ed on all patch submissions.
 
->                                            You are free to disagree and as
-> you have undertaken maintenance of this area I am going to respect it.
+> > @@ -78,31 +83,104 @@ struct m41t80_data {
+> >  	struct rtc_device *rtc;
+> >  };
+> >  
+> > -static int m41t80_get_datetime(struct i2c_client *client,
+> > -			       struct rtc_time *tm)
+> > +
+> > +static int m41t80_i2c_write(struct i2c_client *client, u8 reg, u8 num, u8 *buf)
+> > +{
+> > +	u8 wbuf[num + 1];
+> > +	struct i2c_msg msgs[] = {
+> > +		{
+> > +			.addr	= client->addr,
+> > +			.flags	= 0,
+> > +			.len	= num + 1,
+> > +			.buf	= wbuf,
+> > +		},
+> > +	};
+> > +
+> > +	wbuf[0] = reg;
+> > +	memcpy(wbuf + 1, buf, num);
+> > +	return i2c_transfer(client->adapter, msgs, 1);
+> > +}
+> 
+> This is reimplementing i2c_smbus_write_i2c_block_data().
 
-And I thank you for that.
+ Where does it come from?  I fail to see this type of transfer being 
+defined anywhere in the SMBus spec.  I checked the spec before I referred 
+to the implementation in our I2C core and I hope you agree I may not have 
+expected any extensions beyond what the SMBus spec defines.
 
--- 
-Jean Delvare
+ That written, you are of course correct WRT the reimplementation and I am 
+eager to remove it -- thanks for the point.  I'll skip all your other 
+comments related as obviously implied by this change.
+
+ Given the function and friends make use of apparently a non-standard
+SMBus transfer, I think they should be called differently, perhaps
+i2c_smbusext_write_i2c_block_data(), etc. or suchlike.
+
+> Mixing code cleanups with functional changes is a Bad Idea (TM).
+
+ I am happy to bother you with a separate patch including style fixes.  I
+can even create a handful of them, grouping functionally consistent
+changes.
+
+> >  	dev_info(&client->dev,
+> > -		 "chip found, driver version " DRV_VERSION "\n");
+> > +		 "%s chip found, driver version " DRV_VERSION "\n",
+> > +		 client->name);
+> 
+> Incorrect change, dev_info() already includes the chip name.
+
+ My system must be a notable exception then, as this change modifies 
+output:
+
+rtc-m41t80 1-0068: chip found, driver version 0.05
+
+to:
+
+rtc-m41t80 1-0068: m41t81 chip found, driver version 0.05
+
+here.
+
+> I'm not the one who will take your patch, I'll leave it to Alessandro
+> to tell you what he wants, but one thing for sure: it would be much
+> easier to review and validate your patches if you were not mixing
+> functional changes and code cleanups.
+
+ You seem to have your boundary set differently to me and a few other
+people.  This is perfectly fine, as the line is thin here and each of the
+subsystems follows slightly different rules.  You cannot always satisfy
+everybody and if something makes your life easier and does not make mine
+more difficult, I see no problem with adapting myself. :-)
+
+> > @@ -803,6 +786,7 @@ static int m41t80_probe(struct i2c_clien
+> >  
+> >  #ifdef CONFIG_RTC_DRV_M41T80_WDT
+> >  	if (clientdata->features & M41T80_FEATURE_HT) {
+> > +		save_client = client;
+> >  		rc = misc_register(&wdt_dev);
+> >  		if (rc)
+> >  			goto exit;
+> > @@ -811,7 +795,6 @@ static int m41t80_probe(struct i2c_clien
+> >  			misc_deregister(&wdt_dev);
+> >  			goto exit;
+> >  		}
+> > -		save_client = client;
+> >  	}
+> >  #endif
+> >  	return 0;
+> 
+> This one deserves a patch on its own IMHO.
+
+ No problem.
+
+  Maciej
