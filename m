@@ -1,151 +1,61 @@
-From: David Brownell <david-b@pacbell.net>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
-Date: Fri, 9 May 2008 02:18:51 -0700
-Message-ID: <200805090218.52570.david-b@pacbell.net>
-References: <200805070120.03821.david-b@pacbell.net> <200805071625.20430.david-b@pacbell.net> <Pine.LNX.4.55.0805080306080.32613@cliff.in.clinika.pl>
+Date: Fri, 9 May 2008 01:39:13 -0700
+Message-ID: <200805090139.14285.david-b@pacbell.net>
+References: <200805070120.03821.david-b@pacbell.net>
+	<200805071625.20430.david-b@pacbell.net>
+	<20080508094620.5e6c973b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758770AbYEIJVj@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0805080306080.32613@cliff.in.clinika.pl>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080508094620.5e6c973b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, ab@mycable.de, mgreer@mvista.com, i2c@lm-sensors.org, rtc-linux@googlegroups.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 08 May 2008, Maciej W. Rozycki wrote:
-> Hi David,
-> 
->  Please do not remove other lists cc-ed as there are people interested in 
-> this piece of hardware who are neither on i2c nor on rtc-linux (I am on 
-> neither of the lists too).
+On Thursday 08 May 2008, Jean Delvare wrote:
+> > > =A0I think a pair of functions called i2c_smbus_read_i2c_byte_data() =
+and
+> > > i2c_smbus_write_i2c_byte_data() could be added to the core though.
+> > =
 
-I didn't.  I responded to a message from list archives, and could
-not tell how many lists were copied ... "WAY too many", clearly.
+> > Too late. =A0Those calls have been in the I2C core for a long
+> > time now. =A0;)
+> =
 
+> No, we don't have any function named that way. Not that I think that
+> these names would be appropriate, though. I'd rather have
+> i2c_smbus_read_i2c_block_emul() for example.
 
-> > >  Do you mean our generic I2C code emulates SMBus calls if the hardware
-> > > does not support them directly?  Well, it looks to me it indeed does and
-> > > you are right, but I have assumed, perhaps mistakenly, (but I generally
-> > > trust if a piece of code is there, it is for a reason), that this driver
-> > > checks for I2C_FUNC_SMBUS_BYTE_DATA for a purpose.
-> > 
-> > That purpose being:  it makes those SMBus calls explicitly.
-> > (And it makes i2c_transfer calls explicitly too...)
-> 
->  Then, given the emulation, the client should be satisfied with either of
-> the flags instead of both at a time.  Exactly how I changed it.
+I didn't pick up on the context switch Maciej stuck in, as a
+not-quite-response to my comment about the functions that the
+m41t80 driver could *portably* use:  the ones that have been
+in the I2C core for some time now.  I thought he missed the
+point that those operations were already present...
 
-No; as Jean also noted, since it makes some explicit calls,
-it should test for the functionality of those calls.  It should
-not call i2c_transfer() unless the underlying adapter accepts
-those calls.
+It's not at all clear what a "read i2c byte data" function
+might do, for that matter.  I2C doesn't define semantics
+even to the weak level SMBus does.
 
- 
-> > > The extensions are 16-bit commands 
-> > > (required by another RTC chip used on some of these boards) and an obscure
-> > > subset of the process call and block read/write commands (called an EEPROM
-> > > read and an extended write/read, respectively).
-> > 
-> > Subset of process call??  That's send-three-bytes, receive-two-bytes.
-> > Not possible to subset it ... anything else isn't a process call!!
-> 
->  I misinterpreted the SMBus spec -- I have thought the receive part is
-> variable, sorry.  The controller implements a command which issues a write
-> byte transfer followed by a receive four bytes transfer.  Not quite a
-> process call although the idea is the same.
-
-That is, no STOP in between, just a repeated START?  In which
-case that's a subset of i2c_smbus_read_i2c_block_data().
-
- 
-> > Presumably those block read/write commands aren't quite enough
-> > for you to implement i2c_smbus_read_i2c_block_data() and friend?
-> 
->  You can issue a block read of up to 5 bytes (6 if you add the PEC byte
-> which is not interpreted by the controller in any way).  And you can issue
-> a block write of up to 4 bytes (5 with PEC).  That's clearly not enough
-> for the m41t81 let alone a generic implementation.
-
-Right.  Possibly worth updating i2c-sibyte to be able to perform
-those calls through the "smbus i2c_block" calls; but maybe not.
-(Those calls aren't true SMBus calls, but many otherwise-SMBus-only
-controllers can handle them, hence the i2c_smbus_* prefix.)
-
- 
->  But as Atsushi-san pointed out, the block transfer transactions
-> implemented by the M41T81 do not quite follow the rules of SMBus block
-> transfers, so the call is out of question -- either i2c_transfer() or a
-> sequence of byte transactions have to be used.
-
-See above:  they sound like subsets of the Linux "smbus i2c block"
-calls.  (Those calls allow up to 32 bytes, much more than what the
-i2c-sibyte hardware allows.)
-
-
-> > >  I feel a bit uneasy about unconditional emulation of SMBus block calls
-> > > with a series of corresponding byte read/write calls.  The reason is it
-> > > changes the semantics
-> > 
-> > No it doesn't.  The I2C signal transitions (SCL/SDA) will be
-> > exactly the same.  It's IMO very misleading to call it "emulation"
-> > since it's nothing more than a different software interface to
-> > the same functionality.
-> 
->  It is not the same.  Assuming a write for a block transfer you have:
-> 
-> start:address:ack:command:ack:data:ack:data:ack:data:ack...stop
-> 
-> on the wire
-
-That's true using both native SMBus calls and the
-SMBus "emulated" (by native I2C) implementation of
-the i2c_smbus_write_i2c_block_data() interface.
-
-
-You introduced something entirely different:
-
-> while for a series of byte calls you have: 
-> 
-> start:address:ack:command:ack:data:ack:stop
-> start:address:ack:command:ack:data:ack:stop
-> start:address:ack:command:ack:data:ack...stop
-
-(I broke each separate I2C message onto its own line for clarity.)
-
- 
-> This is what I mean here -- I gather you are thinking in the terms of raw 
-> I2C block vs SMBus block transfer.
-
-I was talking in terms of i2c_smbus_write_i2c_block_data()
-and i2c_smbus_read_i2c_block_data() ... which m41t80 should
-be happy with.  (But i2c-sibyte won't be.)
-
-If that second protocol sequence (many messages) happens to
-work for a given chip, it can be done *portably* too using
-pure SMBus "write byte" calls:  i2c_smbus_write_byte_data().
-
-And that knowledge is very chip-specific, so it's IMO more
-appropriate to keep it out of infrastructure like i2c-core.
-
-
->  It could be useful enough for other drivers to have the emulated calls 
-> available as a part of the API.  No need to rush adding that though 
-> obviously -- we can wait till we have a user (now that this driver has 
-> been ruled out).
-
-I can't quite see the point though.  Any driver can write a loop
-that calls i2c_smbus_write_byte_data(), if that's an alternative
-way to achieve the task on that chip.
-
-It can be rather annoying to try getting some I2C drivers to cope
-with a variety of broken I2C adapters.  But that's exactly why
-there's a way to ask adapters what they can do.  If they can't
-execute the I2C_FUNC_SMBUS_I2C_BLOCK protocols, then M41T80 code
-must provide less efficient substitutes ... like looping over
-byte-at-a-time calls, and coping with various time roll-over cases
-that such substitutes will surface.
+If I had noticed that some previously un-discussed primitive
+had been introduced, I would have asked for a definition in
+terms of protocol, and expected semantics; I can't guess.
 
 - Dave
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
