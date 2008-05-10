@@ -1,62 +1,145 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.25-rc1] i2c: improve smbus-protocol
- documentation
-Date: Sat, 10 May 2008 09:25:08 +0200
-Message-ID: <20080510092508.6f9bd2d2@hyperion.delvare>
-References: <200805031750.34306.david-b@pacbell.net>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80
+Date: Sat, 10 May 2008 10:35:44 +0200
+Message-ID: <20080510103544.701c7b3f@hyperion.delvare>
+References: <200805070120.03821.david-b@pacbell.net>
+	<Pine.LNX.4.55.0805072226180.25644@cliff.in.clinika.pl>
+	<20080508093456.340a42b0@hyperion.delvare>
+	<Pine.LNX.4.55.0805091917370.10552@cliff.in.clinika.pl>
+	<20080509222754.03de1c54@hyperion.delvare>
+	<Pine.LNX.4.55.0805100116290.10552@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200805031750.34306.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <Pine.LNX.4.55.0805100116290.10552@cliff.in.clinika.pl>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: David Brownell <david-b@pacbell.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexander Bigga <ab@mycable.de>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, i2c@lm-sensors.org, rtc-linux@googlegroups.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+Hi Maciej,
 
-On Sat, 3 May 2008 17:50:33 -0700, David Brownell wrote:
-> Improve the smbus-protocol documentation file somewhat:
+On Sat, 10 May 2008 02:35:18 +0100 (BST), Maciej W. Rozycki wrote:
+> > >  Ah, I see -- I must have missed it from documentation or perhaps it is
+> > > somewhat unclear.  You mean our I2C API implies a driver for a
+> > 
+> > It's documented in Documentation/i2c/functionality. If something is
+> > unclear, please let me know and/or send a patch.
 > 
->  - Use the names of the SMBus protocol operations (from the 2.0
->    specification), not made-up-for-Linux names.
-> 
->  - Add the name of the call used to execute each operation ... and
->    point out that there are mismatches, where functions execute
->    different protocol operations than their names specify.
->    
-> The most confusing examples are that "Read Byte" isn't executed by
-> i2c_smbus_read_byte(), and that "Write Byte" isn't executed by
-> i2c_smbus_write_byte().  When coding, that's not as bad as it may
-> seem; but that case would seem to be worth fixing.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> ---
-> As doc-only, this is appropriate for bundling with any I2C fixes
-> before the 2.6.26-final code freeze.  Note that this doesn't address
-> the confusion between "command" and "register" in this text, though
-> in some cases it reduces confusion between "command" and "protocol
-> operation" or "function call".
-> 
->  Documentation/i2c/smbus-protocol |   75 +++++++++++++++++++++------------------
->  1 file changed, 42 insertions(+), 33 deletions(-)
+>  Well, I had a look at this file while writing my changes and this is the 
+> very thing that is unclear.  The only place the description refers to 
+> emulation is the I2C_FUNC_SMBUS_EMUL flag and there is nothing said
+> about any other I2C_FUNC_SMBUS_* flag in the context of emulation.  The 
+> rest of the file refers to functionality provided by the adapter, which 
+> can be reasonably assumed to be such provided directly by hardware.
 
-Applied, thanks for doing this. This patch will be included in my next
-batch to Linus (probably today or tomorrow.)
+OK, I've just spent some time trying to improve this piece of
+documentation. I'll send it to you and the i2c list in a moment, to not
+overload this thread. Please tell me if my proposed changes make the
+document clearer.
+
+> (...)
+>  Will see.  For now here is a new version of the change -- aside taking 
+> your and other people's comments into account I have improved the logic 
+> behind required bus adapter's feature determination.
+
+Only commenting on the i2c bits...
+
+> -static int m41t80_get_datetime(struct i2c_client *client,
+> -			       struct rtc_time *tm)
+> +
+> +static int m41t80_transfer(struct i2c_client *client, int write,
+> +			   u8 reg, u8 num, u8 *buf)
+>  {
+> -	u8 buf[M41T80_DATETIME_REG_SIZE], dt_addr[1] = { M41T80_REG_SEC };
+> -	struct i2c_msg msgs[] = {
+> -		{
+> -			.addr	= client->addr,
+> -			.flags	= 0,
+> -			.len	= 1,
+> -			.buf	= dt_addr,
+> -		},
+> -		{
+> -			.addr	= client->addr,
+> -			.flags	= I2C_M_RD,
+> -			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
+> -			.buf	= buf + M41T80_REG_SEC,
+> -		},
+> -	};
+> +	int i, rc;
+>  
+> -	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
+> -		dev_err(&client->dev, "read error\n");
+> -		return -EIO;
+> +	if (write) {
+> +		if (i2c_check_functionality(client->adapter,
+> +					    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+> +			i = i2c_smbus_write_i2c_block_data(client,
+> +							   reg, num, buf);
+> +		} else {
+> +			for (i = 0; i < num; i++) {
+> +				rc = i2c_smbus_write_byte_data(client, reg + i,
+> +							       buf[i]);
+> +				if (rc < 0) {
+> +					i = rc;
+> +					goto out;
+> +				}
+> +			}
+> +		}
+> +	} else {
+> +		if (i2c_check_functionality(client->adapter,
+> +					    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> +			i = i2c_smbus_read_i2c_block_data(client,
+> +							  reg, num, buf);
+> +		} else {
+> +			for (i = 0; i < num; i++) {
+> +				rc = i2c_smbus_read_byte_data(client, reg + i);
+> +				if (rc < 0) {
+> +					i = rc;
+> +					goto out;
+> +				}
+> +				buf[i] = rc;
+> +			}
+> +		}
+>  	}
+> +out:
+> +	return i;
+> +}
+
+I don't understand why you insist on having a single m41t80_transfer()
+function for read and write transactions, when the read and write cases
+share zero code. Separate functions would perform better.
+
+> (...)
+> -	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C
+> -				     | I2C_FUNC_SMBUS_BYTE_DATA)) {
+> +	func = i2c_get_functionality(client->adapter);
+> +	if (!(func & (I2C_FUNC_SMBUS_READ_I2C_BLOCK |
+> +		      I2C_FUNC_SMBUS_READ_BYTE)) ||
+> +	    !(func & (I2C_FUNC_SMBUS_WRITE_I2C_BLOCK |
+> +		      I2C_FUNC_SMBUS_WRITE_BYTE))) {
+>  		rc = -ENODEV;
+>  		goto exit;
+>  	}
+
+Still not correct, sorry. The driver is still making unconditional
+calls to i2c_smbus_read_byte_data() and i2c_smbus_write_byte_data(), so
+the underlying adapter _must_ support I2C_FUNC_SMBUS_READ_BYTE_DATA and
+I2C_FUNC_SMBUS_WRITE_BYTE_DATA (i.e. I2C_FUNC_SMBUS_BYTE_DATA), even if
+it also supports the block transactions. Also, you don't have to check
+for the availability of these block transactions at this point, because
+you test for them at run-time in m41t80_transfer(), and the driver will
+work find without them.
+
+So the proper test here would simply be:
+
+	if (!i2c_check_functionality(client->adapter,
+				     I2C_FUNC_SMBUS_BYTE_DATA)) {
+ 		rc = -ENODEV;
+ 		goto exit;
+ 	}
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
