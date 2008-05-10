@@ -1,179 +1,142 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Improve the functionality documentation
-Date: Sat, 10 May 2008 10:39:37 +0200
-Message-ID: <20080510103937.1c74ca8c@hyperion.delvare>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: [PATCH] [POWERPC] Add i2c pins to dts and board setup
+Date: Sat, 10 May 2008 17:50:29 +0200
+Message-ID: <4825C445.4020004@scram.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Attempt to make the documentation about the I2C/SMBus functionality
-checking API clearer.
+Initialize I2C pins on boards with CPM1/CPM2 controllers.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
 ---
- Documentation/i2c/functionality |  101 +++++++++++++++++++++------------------
- 1 file changed, 55 insertions(+), 46 deletions(-)
+ arch/powerpc/boot/dts/mpc8272ads.dts         |   10 ++++++++++
+ arch/powerpc/boot/dts/mpc866ads.dts          |   10 ++++++++++
+ arch/powerpc/boot/dts/mpc885ads.dts          |   10 ++++++++++
+ arch/powerpc/platforms/82xx/mpc8272_ads.c    |    4 ++++
+ arch/powerpc/platforms/8xx/mpc86xads_setup.c |    4 ++++
+ arch/powerpc/platforms/8xx/mpc885ads_setup.c |    3 +++
+ 6 files changed, 41 insertions(+), 0 deletions(-)
 
---- linux-2.6.26-rc1.orig/Documentation/i2c/functionality	2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.26-rc1/Documentation/i2c/functionality	2008-05-10 10:22:44.000000000 +0200
-@@ -51,26 +51,38 @@ A few combinations of the above flags ar
-                                   the transparent emulation layer)
- 
- 
--ALGORITHM/ADAPTER IMPLEMENTATION
----------------------------------
-+ADAPTER IMPLEMENTATION
-+----------------------
- 
--When you write a new algorithm driver, you will have to implement a
--function callback `functionality', that gets an i2c_adapter structure
--pointer as its only parameter:
-+When you write a new adapter driver, you will have to implement a
-+function callback `functionality'. Typical implementations are given
-+below.
- 
--  struct i2c_algorithm {
--	/* Many other things of course; check <linux/i2c.h>! */
--	u32 (*functionality) (struct i2c_adapter *);
-+A typical SMBus-only adapter would list all the SMBus transactions it
-+supports. This example comes from the i2c-piix4 driver:
+diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
+index 46e2da3..57abcc1 100644
+--- a/arch/powerpc/boot/dts/mpc8272ads.dts
++++ b/arch/powerpc/boot/dts/mpc8272ads.dts
+@@ -217,6 +217,16 @@
+ 				linux,network-index = <1>;
+ 				fsl,cpm-command = <0x16200300>;
+ 			};
 +
-+  static u32 piix4_func(struct i2c_adapter *adapter)
-+  {
-+	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+	       I2C_FUNC_SMBUS_BLOCK_DATA;
-   }
++			i2c@11860 {
++				compatible = "fsl,mpc8272-i2c",
++					     "fsl,cpm2-i2c",
++					     "fsl,cpm-i2c";
++				reg = <11860 20 8afc 2>;
++				interrupts = <1 8>;
++				interrupt-parent = <&PIC>;
++				fsl,cpm-command = <29600000>;
++			};
+ 		};
  
--A typically implementation is given below, from i2c-algo-bit.c:
-+A typical full-I2C adapter would use the following (from the i2c-pxa
-+driver):
- 
--  static u32 bit_func(struct i2c_adapter *adap)
-+  static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
-   {
--	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR | 
--	       I2C_FUNC_PROTOCOL_MANGLING;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-   }
- 
-+I2C_FUNC_SMBUS_EMUL includes all the SMBus transactions (with the
-+addition of I2C block transactions) which i2c-core can emulate using
-+I2C_FUNC_I2C without any help from the adapter driver. The idea is
-+to let the client drivers check for the support of SMBus functions
-+without having to care whether the said functions are implemented in
-+hardware by the adapter, or emulated in software by i2c-core on top
-+of an I2C adapter.
- 
- 
- CLIENT CHECKING
-@@ -78,36 +90,33 @@ CLIENT CHECKING
- 
- Before a client tries to attach to an adapter, or even do tests to check
- whether one of the devices it supports is present on an adapter, it should
--check whether the needed functionality is present. There are two functions
--defined which should be used instead of calling the functionality hook
--in the algorithm structure directly:
--
--  /* Return the functionality mask */
--  extern u32 i2c_get_functionality (struct i2c_adapter *adap);
--
--  /* Return 1 if adapter supports everything we need, 0 if not. */
--  extern int i2c_check_functionality (struct i2c_adapter *adap, u32 func);
--
--This is a typical way to use these functions (from the writing-clients
--document):
--  int foo_detect_client(struct i2c_adapter *adapter, int address, 
--                          unsigned short flags, int kind)
--  {
--	/* Define needed variables */
--
--	/* As the very first action, we check whether the adapter has the
--	   needed functionality: we need the SMBus read_word_data,
--           write_word_data and write_byte functions in this example. */
--	if (!i2c_check_functionality(adapter,I2C_FUNC_SMBUS_WORD_DATA |
--	                                     I2C_FUNC_SMBUS_WRITE_BYTE))
--		goto ERROR0;
--
--	/* Now we can do the real detection */
--
--	ERROR0:
--		/* Return an error */
--  }
-+check whether the needed functionality is present. The typical way to do
-+this is (from the lm75 driver):
- 
-+  static int lm75_detect(...)
-+  {
-+	(...)
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-+				     I2C_FUNC_SMBUS_WORD_DATA))
-+		goto exit;
-+	(...)
-+  }
+ 		PIC: interrupt-controller@10c00 {
+diff --git a/arch/powerpc/boot/dts/mpc866ads.dts b/arch/powerpc/boot/dts/mpc866ads.dts
+index 765e43c..84c190e 100644
+--- a/arch/powerpc/boot/dts/mpc866ads.dts
++++ b/arch/powerpc/boot/dts/mpc866ads.dts
+@@ -171,6 +171,16 @@
+ 				fsl,cpm-command = <0000>;
+ 				linux,network-index = <1>;
+ 			};
 +
-+Here, the lm75 driver checks if the adapter can do both SMBus byte data
-+and SMBus word data transactions. If not, then the driver won't work on
-+this adapter and there's no point in going on. If the check above is
-+successful, then the driver knows that it can call the following
-+functions: i2c_smbus_read_byte_data(), i2c_smbus_write_byte_data(),
-+i2c_smbus_read_word_data() and i2c_smbus_write_word_data(). As a rule of
-+thumb, the functionality constants you test for with
-+i2c_check_functionality() should match exactly the i2c_smbus_* functions
-+which you driver is calling.
++			i2c@860 {
++				compatible = "fsl,mpc866-i2c",
++					     "fsl,cpm1-i2c",
++					     "fsl,cpm-i2c";
++				reg = <860 20 3c80 30>;
++				interrupts = <10>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0010>;
++			};
+ 		};
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/mpc885ads.dts b/arch/powerpc/boot/dts/mpc885ads.dts
+index 9895043..67d0e8d 100644
+--- a/arch/powerpc/boot/dts/mpc885ads.dts
++++ b/arch/powerpc/boot/dts/mpc885ads.dts
+@@ -215,6 +215,16 @@
+ 				fsl,cpm-command = <0x80>;
+ 				linux,network-index = <2>;
+ 			};
 +
-+Note that the check above doesn't tell whether the functionalities are
-+implemented in hardware by the underlying adapter or emulated in
-+software by i2c-core. Client drivers don't have to care about this, as
-+i2c-core will transparently implement SMBus transactions on top of I2C
-+adapters.
++			i2c@860 {
++				compatible = "fsl,mpc885-i2c",
++					     "fsl,cpm1-i2c",
++					     "fsl,cpm-i2c";
++				reg = <860 20 3c80 30>;
++				interrupts = <10>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0010>;
++			};
+ 		};
+ 	};
  
+diff --git a/arch/powerpc/platforms/82xx/mpc8272_ads.c b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+index 7d30187..8054c68 100644
+--- a/arch/powerpc/platforms/82xx/mpc8272_ads.c
++++ b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+@@ -96,6 +96,10 @@ static struct cpm_pin mpc8272_ads_pins[] = {
+ 	{1, 31, CPM_PIN_OUTPUT | CPM_PIN_PRIMARY},
+ 	{2, 16, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
+ 	{2, 17, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
++
++	/* I2C */
++	{3, 14, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
++	{3, 15, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
+ };
  
- CHECKING THROUGH /DEV
-@@ -116,19 +125,19 @@ CHECKING THROUGH /DEV
- If you try to access an adapter from a userspace program, you will have
- to use the /dev interface. You will still have to check whether the
- functionality you need is supported, of course. This is done using
--the I2C_FUNCS ioctl. An example, adapted from the lm_sensors i2cdetect
--program, is below:
-+the I2C_FUNCS ioctl. An example, adapted from the i2cdetect program, is
-+below:
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc86xads_setup.c b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+index c028a5b..caaec29 100644
+--- a/arch/powerpc/platforms/8xx/mpc86xads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+@@ -65,6 +65,10 @@ static struct cpm_pin mpc866ads_pins[] = {
+ 	{CPM_PORTD, 13, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 14, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 15, CPM_PIN_OUTPUT},
++
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
  
-   int file;
--  if (file = open("/dev/i2c-0",O_RDWR) < 0) {
-+  if (file = open("/dev/i2c-0", O_RDWR) < 0) {
- 	/* Some kind of error handling */
- 	exit(1);
-   }
--  if (ioctl(file,I2C_FUNCS,&funcs) < 0) {
-+  if (ioctl(file, I2C_FUNCS, &funcs) < 0) {
- 	/* Some kind of error handling */
- 	exit(1);
-   }
--  if (! (funcs & I2C_FUNC_SMBUS_QUICK)) {
-+  if (!(funcs & I2C_FUNC_SMBUS_QUICK)) {
- 	/* Oops, the needed functionality (SMBus write_quick function) is
-            not available! */
- 	exit(1);
-
-
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc885ads_setup.c b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+index 6e7ded0..45ed6cd 100644
+--- a/arch/powerpc/platforms/8xx/mpc885ads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+@@ -158,6 +158,9 @@ static struct cpm_pin mpc885ads_pins[] = {
+ 	{CPM_PORTE, 28, CPM_PIN_OUTPUT},
+ 	{CPM_PORTE, 29, CPM_PIN_OUTPUT},
+ #endif
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
+ 
+ static void __init init_ioports(void)
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+1.5.5.1
