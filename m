@@ -1,45 +1,60 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
-Date: Sun, 11 May 2008 00:32:53 -0700
-Message-ID: <200805110032.54247.david-b@pacbell.net>
-References: <200805012046.07885.david-b@pacbell.net>
-	<20080510201825.489198d2@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80
+Date: Sun, 11 May 2008 09:40:48 +0200
+Message-ID: <20080511094048.292c885d@hyperion.delvare>
+References: <200805070120.03821.david-b@pacbell.net>
+	<Pine.LNX.4.55.0805072226180.25644@cliff.in.clinika.pl>
+	<20080508093456.340a42b0@hyperion.delvare>
+	<Pine.LNX.4.55.0805091917370.10552@cliff.in.clinika.pl>
+	<20080509222754.03de1c54@hyperion.delvare>
+	<Pine.LNX.4.55.0805100116290.10552@cliff.in.clinika.pl>
+	<20080510103544.701c7b3f@hyperion.delvare>
+	<Pine.LNX.4.55.0805110045010.18978@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080510201825.489198d2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <Pine.LNX.4.55.0805110045010.18978@cliff.in.clinika.pl>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: David Brownell <david-b@pacbell.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexander Bigga <ab@mycable.de>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, i2c@lm-sensors.org, rtc-linux@googlegroups.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 10 May 2008, Jean Delvare wrote:
-> I am in the process of reviewing and testing this patch. I think it
-> would help me if you could list your error value choices for the common
-> error conditions of I2C and SMBus controllers (bus busy, arbitration
-> lost, transaction timeout, etc.) With such a list I could check the
-> different drivers for consistency, and maybe this could even become
-> documentation for future driver authors.
+Hi Maciej,
 
-Yeah, I'll write something up.  Agreed that would be handy ... and
-since not all the fault codes indicate errors (losing arbitration,
-for example), it's important to agree on codes where we think that
-drivers should eventually be able to kick in recovery strategies.
+On Sun, 11 May 2008 02:59:34 +0100 (BST), Maciej W. Rozycki wrote:
+> > Still not correct, sorry. The driver is still making unconditional
+> > calls to i2c_smbus_read_byte_data() and i2c_smbus_write_byte_data(), so
+> > the underlying adapter _must_ support I2C_FUNC_SMBUS_READ_BYTE_DATA and
+> > I2C_FUNC_SMBUS_WRITE_BYTE_DATA (i.e. I2C_FUNC_SMBUS_BYTE_DATA), even if
+> 
+>  Well, as I understand the support for I2C_FUNC_SMBUS_I2C_BLOCK
+> (read/write, as appropriate) implies I2C_FUNC_SMBUS_BYTE_DATA as the
+> latter is a special case of the former, where the length of the transfer
+> equals one.
 
-- Dave
+In theory you are right, yes. But as I wrote before, functionality are
+expressed in a boolean way, so adapters can't express their limitations
+if there are any. Think of an adapter which could only transfer blocks
+of even size, it would most certainly declare itself
+I2C_FUNC_SMBUS_I2C_BLOCK capable (even though it can't do all of it)
+but wouldn't declare I2C_FUNC_SMBUS_BYTE_DATA as it can't do it. This
+is just an example of course, in practice I just can't remember of any
+I2C or SMBus adapter not implementing I2C_FUNC_SMBUS_BYTE_DATA.
 
+The bottom line is that you should never assume that support for a
+given transaction type implies support for another transaction type.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+>              But I agree -- in the light of what you wrote previously a
+> bus adapter that supports say I2C_FUNC_SMBUS_READ_I2C_BLOCK is meant to
+> have I2C_FUNC_SMBUS_READ_BYTE set as well, so no need to check for it
+> here.
+> 
+>  If we agree on this one, I will retest and submit the whole batch again,
+> updated as needed.
+
+Yes, you code looks correct to me now, i2c-wise.
+
+-- 
+Jean Delvare
