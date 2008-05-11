@@ -1,7 +1,7 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
-Date: Sun, 11 May 2008 10:13:25 -0700
-Message-ID: <200805111013.25440.david-b@pacbell.net>
+Date: Sun, 11 May 2008 10:16:59 -0700
+Message-ID: <200805111016.59365.david-b@pacbell.net>
 References: <200805012046.07885.david-b@pacbell.net>
 	<20080510225548.36297637@hyperion.delvare>
 Mime-Version: 1.0
@@ -23,33 +23,25 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 10 May 2008, you wrote:
+On Saturday 10 May 2008, Jean Delvare wrote:
+> > =A0=A0=A0=A0=A0=A0amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
+> > =A0=A0=A0=A0=A0=A0amd_ec_write(smbus, AMD_SMB_PRTCL, protocol);
 > > =A0
-> > =A0static int ali1563_block_start(struct i2c_adapter * a)
-> > @@ -170,7 +170,7 @@ static int ali1563_block_start(struct i2
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data & HST_STS_BUSERR ? "No r=
-esponse or Bus Collision " : "",
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data & HST_STS_DEVERR ? "Devi=
-ce Error " : "",
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0!(data & HST_STS_DONE) ? "Tra=
-nsaction Never Finished " : "");
-> > -=A0=A0=A0=A0=A0return -1;
-> > +=A0=A0=A0=A0=A0return -EIO;
-> > =A0}
+> > +=A0=A0=A0=A0=A0/* FIXME this discards status from ec_read() ... */
+> > =A0=A0=A0=A0=A0=A0amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
 > =
 
-> And same here. That's a little more work, admittedly.
+> Same is true of almost all amd_ec_write and amd_ec_read calls, so I
+> don't get the point of adding a comment for this one occurrence in
+> particular.
+> =
 
-Returning ENXIO for BUSERR/no-response doesn't follow your
-heuristic of trusting the logspam-eliminators ... plus, it's
-not clear that's not a different failure mode on that path.
+> > =A0
+> > =A0=A0=A0=A0=A0=A0if (~temp[0] & AMD_SMB_STS_DONE) {
 
-NVidia seems to not have ALI 1563 specs on line (sigh) so
-for now I'll just stick to your heuristic.
- =
-
-I did make the "timeout" fault unique there, since that
-fault was clearly distinguishable.
+I updated that comment.  The issue is that temp[0] will
+have random stack garbage at that point, so the rest of
+that routine is at best dicey.
 
 
 _______________________________________________
