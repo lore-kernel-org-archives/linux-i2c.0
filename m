@@ -1,50 +1,62 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
-Date: Sun, 11 May 2008 10:16:59 -0700
-Message-ID: <200805111016.59365.david-b@pacbell.net>
-References: <200805012046.07885.david-b@pacbell.net>
-	<20080510225548.36297637@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] More i2c updates for 2.6.26
+Date: Sun, 11 May 2008 21:12:34 +0200
+Message-ID: <20080511211234.11215916@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080510225548.36297637-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757540AbYEKTNM@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 10 May 2008, Jean Delvare wrote:
-> > =A0=A0=A0=A0=A0=A0amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
-> > =A0=A0=A0=A0=A0=A0amd_ec_write(smbus, AMD_SMB_PRTCL, protocol);
-> > =A0
-> > +=A0=A0=A0=A0=A0/* FIXME this discards status from ec_read() ... */
-> > =A0=A0=A0=A0=A0=A0amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
-> =
+Linus,
 
-> Same is true of almost all amd_ec_write and amd_ec_read calls, so I
-> don't get the point of adding a comment for this one occurrence in
-> particular.
-> =
+Please pull the i2c subsystem updates for Linux 2.6.26 from:
 
-> > =A0
-> > =A0=A0=A0=A0=A0=A0if (~temp[0] & AMD_SMB_STS_DONE) {
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
-I updated that comment.  The issue is that temp[0] will
-have random stack garbage at that point, so the rest of
-that routine is at best dicey.
+You'll get more pieces of the conversion of the device/driver matching
+model of the i2c subsystem, blacklisting of 2 motherboards in the
+i2c-piix4 SMBus controller driver for safety reasons, documentation
+updates and a few random fixes.
 
+ Documentation/i2c/functionality     |   95 +++++++++++++++++++----------------
+ Documentation/i2c/smbus-protocol    |   81 +++++++++++++++++-------------
+ drivers/i2c/busses/i2c-mpc.c        |   16 +++---
+ drivers/i2c/busses/i2c-piix4.c      |   47 +++++++++++++++--
+ drivers/i2c/busses/i2c-sibyte.c     |    6 +-
+ drivers/i2c/i2c-core.c              |   14 +++--
+ drivers/media/video/tcm825x.c       |    7 +++
+ drivers/media/video/tlv320aic23b.c  |    6 ++
+ drivers/media/video/tvaudio.c       |   13 ++++-
+ drivers/rtc/rtc-s35390a.c           |    2 +-
+ include/linux/i2c.h                 |    2 +-
+ include/media/v4l2-i2c-drv-legacy.h |    2 +
+ include/media/v4l2-i2c-drv.h        |    2 +
+ 13 files changed, 189 insertions(+), 104 deletions(-)
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+---------------
+
+David Brownell (1):
+      i2c: Improve smbus-protocol documentation
+
+David Milburn (1):
+      i2c-piix4: Increase the intitial delay for the ServerWorks CSB5
+
+Jean Delvare (4):
+      i2c-piix4: Blacklist two mainboards
+      i2c: Improve the functionality documentation
+      i2c: Match dummy devices by type
+      i2c: Convert some more new-style drivers to use module aliasing
+
+Jon Smirl (1):
+      i2c-mpc: Compare to NO_IRQ instead of zero
+
+Maciej W. Rozycki (2):
+      i2c-sibyte: Correct a comment about frequency
+      i2c-sibyte: Mark i2c_sibyte_add_bus() as static
+
+Thanks,
+-- 
+Jean Delvare
