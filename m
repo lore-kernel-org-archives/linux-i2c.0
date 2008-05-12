@@ -1,59 +1,54 @@
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Subject: Re: [RFC][PATCH 4/4] RTC: SMBus support for the M41T80
-Date: Mon, 12 May 2008 11:45:44 +0900 (JST)
-Message-ID: <20080512.114544.41629483.nemoto@toshiba-tops.co.jp>
-References: <Pine.LNX.4.55.0805100116290.10552@cliff.in.clinika.pl>
-	<20080510103544.701c7b3f@hyperion.delvare>
-	<Pine.LNX.4.55.0805110045010.18978@cliff.in.clinika.pl>
+From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] Blackfin I2C Driver: since only a few Blackfins
+	lack TWI, just list them in the depends string
+Date: Mon, 12 May 2008 12:18:31 +0800
+Message-ID: <1210565911-4633-1-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760741AbYELCqX@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0805110045010.18978@cliff.in.clinika.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: macro@linux-mips.org
-Cc: khali@linux-fr.org, david-b@pacbell.net, a.zummo@towertech.it, ab@mycable.de, anemo@mba.ocn.ne.jp, i2c@lm-sensors.org, rtc-linux@googlegroups.com, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 11 May 2008 02:59:34 +0100 (BST), "Maciej W. Rozycki" <macro@linux-mips.org> wrote:
->  If we agree on this one, I will retest and submit the whole batch again,
-> updated as needed.
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Works OK for me (m41t80 + i2c-gpio).
-
-Tested-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-
-One minor style comment.
-
-> +	if (i2c_check_functionality(client->adapter,
-> +				    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-> +		i = i2c_smbus_write_i2c_block_data(client, reg, num, buf);
-> +	} else {
-> +		for (i = 0; i < num; i++) {
-> +			rc = i2c_smbus_write_byte_data(client, reg + i,
-> +						       buf[i]);
-> +			if (rc < 0) {
-> +				i = rc;
-> +				goto out;
-> +			}
-> +		}
->  	}
-> +out:
-> +	return i;
-
-This part can be a bit shorter.
-
-	if (i2c_check_functionality(client->adapter,
-				    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK))
-		return i2c_smbus_write_i2c_block_data(client, reg, num, buf);
-	for (i = 0; i < num; i++) {
-		rc = i2c_smbus_write_byte_data(client, reg + i, buf[i]);
-		if (rc < 0)
-			return rc;
-	}
-	return i;
-
-Saves 6 lines.  Not a big issue.
-
+Signed-off-by: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
-Atsushi Nemoto
+ drivers/i2c/busses/Kconfig |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 48438cc..b93186b 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -101,10 +101,9 @@ config I2C_AU1550
+ config I2C_BLACKFIN_TWI
+ 	tristate "Blackfin TWI I2C support"
+ 	depends on BLACKFIN
++	depends on !BF561 && !BF531 && !BF532 && !BF533
+ 	help
+-	  This is the TWI I2C device driver for Blackfin BF522, BF525,
+-	  BF527, BF534, BF536, BF537 and BF54x. For other Blackfin processors,
+-	  please don't use this driver.
++	  This is the I2C device driver for Blackfin on-chip TWI interface.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-bfin-twi.
+-- 
+1.5.5
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
