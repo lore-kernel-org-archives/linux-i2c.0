@@ -1,15 +1,14 @@
-From: "Bryan Wu" <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 0/2] Two I2C Chips drivers from Blackfin team
-Date: Mon, 12 May 2008 20:07:56 +0800
-Message-ID: <386072610805120507p41447907v618afbb8b8da2463@mail.gmail.com>
+From: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
+Subject: Re: [PATCH 2/2] [I2C] add PCA9543 chip driver
+Date: Mon, 12 May 2008 15:30:43 +0300
+Message-ID: <48283873.5090709@movial.fi>
 References: <1210586847-8955-1-git-send-email-cooloney@kernel.org>
-	<20080512133453.23bde88d@hyperion.delvare>
+	<1210586847-8955-3-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080512133453.23bde88d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <1210586847-8955-3-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,35 +18,68 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 12, 2008 at 7:34 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> Hi Bryan,
+Bryan Wu wrote:
+> From: Michael Hennerich 
+> --- /dev/null
+> +++ b/drivers/i2c/chips/pca9543.c
+> @@ -0,0 +1,212 @@
+> +/*
+> +    pca9543.c - Part of lm_sensors, Linux kernel modules for hardware
+> +             monitoring
+>   
+Not a sensor chip..
+> +/* A few notes about the PCA9543:
+> +
+> +*   The PCA9543 is a bi-directional translating switch, controlled by the
+> +    I2C bus. The SCL/SDA upstream pair fans out to two downstream
+> +    pairs, or channels. Any individual SCx/SDx channels or combination
+> +    of channels can be selected, determined by the contents of the
+> +    programmable control register. Two interrupt inputs, INT0 to INT3,
+> +    one for each of the downstream pairs, are provided. One interrupt
+> +    output INT, which acts as an AND of the two interrupt inputs, is
+> +    provided.
+> +
+> +*/
+>   
+You might want to add a url to the datasheet, rather than
+a copypaste from it. Any description in the driver sould
+> +
+> +/* This is the driver that will be inserted */
+> +static struct i2c_driver pca9543_driver = {
+> +	.driver = {
+> +		.name	= "pca9543",
+> +	},
+> +	.id		= I2C_DRIVERID_PCF8574,
+> +	.attach_adapter	= pca9543_attach_adapter,
+> +	.detach_client	= pca9543_detach_client,
+> +};
+>   
+Since the chip is undetectable, and used on embedded platform, I think you
+should consider a "new-style" driver with .probe/remove instead.
+See i2c/writing-clients
+> +	struct i2c_client *new_client;
 >
+> +	new_client = &data->client;
+> +	i2c_set_clientdata(new_client, data);
+> +	new_client->addr = address;
+> +	new_client->adapter = adapter;
+> +	new_client->driver = &pca9543_driver;
+> +	new_client->flags = 0;
 >
->  On Mon, 12 May 2008 18:07:25 +0800, Bryan Wu wrote:
->  > Sorry for resending this 2 patches, because I delete that useless I2C ID
->  > patch from my previous patch set.
->
->  Resending patches if fine, no problem with this.
->
->
->  > Could you please review these patches?
->
->  I'm awfully busy these days, and I already have several patch reviews
->  pending, so it is unlikely that I will have the time to review these
->  patches in a near future, sorry.
->
+>   
+s/new_client/client/ please.
+> +	/* Now, we would do the remaining detection. But the PCF8574 is plainly
+> +	   impossible to detect! Stupid chip. */
+> +
+>   
+copypaste from PCF8574 driver? :) Again, consider if the new style drivers
+would me more useful for your platform.
 
-Understand, would you please add these patches into you review pending queue.
-When you got time, please help us to review these. IMO, these drive
-may be helpful for
-other developers.
 
-Thanks
--Bryan Wu
 
 _______________________________________________
 i2c mailing list
