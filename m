@@ -1,15 +1,14 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: New style i2c drivers for ALSA SoC
-Date: Mon, 12 May 2008 23:05:25 +0200
-Message-ID: <20080512230525.0d3952bd@hyperion.delvare>
+Date: Mon, 12 May 2008 22:15:30 +0100
+Message-ID: <20080512211530.GC10234@fluff.org.uk>
 References: <482795E7.9040007@bluewatersys.com>
-	<20080512082025.01e5d0c0@hyperion.delvare>
-	<4828AE22.2030705@bluewatersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4828AE22.2030705-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <482795E7.9040007-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,58 +22,46 @@ To: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ryan,
-
-On Tue, 13 May 2008 08:52:50 +1200, Ryan Mallon wrote:
-> Jean Delvare wrote:
-> > Since 2.6.26-rc1, you can and should provide a list of devices
-> > supported by your driver. Your driver definition would look like:
-> > 
-> > static const struct i2c_device_id aic2x_i2c_id[] = {
-> > 	{ "tlv320aic2x", 0 },
-> > 	{ }
-> > };
-> > MODULE_DEVICE_TABLE(i2c, aic2x_i2c_id);
+On Mon, May 12, 2008 at 12:57:11PM +1200, Ryan Mallon wrote:
+> I am writing drivers to support ALSA SoC for an ARM based system. The
+> system has an i2c codec. I want to use the new style driver for the
+> codec driver, but I cannot get it to work properly. In my codec driver
+> (sound/soc/codecs/tlv320aic2x.c) I have:
 > 
-> Done. I had thought this was option if a driver only supported a single
-> device?
-
-It is optional up to and including 2.6.26-rc2, but hopefully I'll be
-done with the cleanups for 2.6.26-rc3 and using .id_table will be the
-only way for a driver to match its devices.
-
+> static struct i2c_driver aic2x_i2c_driver = {
+> 	.driver		= {
+> 		.name	= "tlv320aic2x",
+> 		.owner	= THIS_MODULE,
+> 	},
+> 	.probe		= aic2x_i2c_probe,
+> 	.remove		= aic2x_i2c_remove,
+> };
 > 
-> > static struct i2c_driver aic2x_i2c_driver = {
-> > 	.driver		= {
-> > 		.name	= "tlv320aic2x",
-> > 		.owner	= THIS_MODULE,
-> > 	},
-> > 	.probe		= aic2x_i2c_probe,
-> > 	.remove		= aic2x_i2c_remove,
-> > 	.id_table	= aic2x_i2c_id,
-> > };
-> > 
-> > Also note that there's already a driver in the kernel tree
-> > (drivers/media/video/tlv320aic23b.c) for apparently the same hardware,
-> > so maybe there's some code to share.
+> static int __init aic2x_init(void)
+> {
+> 	return i2c_add_driver(&aic2x_i2c_driver);
+> }
 > 
-> Yes. The tlv320aic23b is both an audio codec and a video decoder of some
-> sort. We only use the audio codec part on our particular board. The
-> driver under drivers/media/video is pretty minimal, and appears that it
-> may have been hard coded for a particular graphics card that it appears
-> on? The driver I have for the audio codec is already substantially
-> larger. There is also the problem that the soc codec stuff should live
-> under sound/soc/codecs and video decoders should live under
-> drivers/media/video. Assuming I post patches for my work at some stage
-> (which I intend to do), perhaps it is easier to have two drivers to
-> start with, and then merge them if people have hardware which is using
-> both the audio and video codec functionality?
+> static void __exit aic2x_exit(void)
+> {
+> 	i2c_del_driver(&aic2x_i2c_driver);
+> }
+> 
+> module_init(aic2x_init);
+> module_exit(aic2x_exit);
 
-I don't know what it the best approach myself. I just wanted you to be
-aware that this other driver existed.
+I belive that you need a bit of glue to bind your SoC system
+to the codec and audio hardware. ASoC is littered with a number
+of examples of how to do it.
+
+> Finally, a stylistic question: Should the i2c_board_info (or similar)
+> for a codec device be defined in the machine initialisation code
+> (arch/arm/ directory), or in the sound/soc machine file?
 
 -- 
-Jean Delvare
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
 
 _______________________________________________
 i2c mailing list
