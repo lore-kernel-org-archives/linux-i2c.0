@@ -1,14 +1,15 @@
-From: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
-Subject: Re: [PATCH 2/2] [I2C] add PCA9543 chip driver
-Date: Mon, 12 May 2008 15:30:43 +0300
-Message-ID: <48283873.5090709@movial.fi>
-References: <1210586847-8955-1-git-send-email-cooloney@kernel.org>
-	<1210586847-8955-3-git-send-email-cooloney@kernel.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
+Date: Mon, 12 May 2008 15:05:12 +0200
+Message-ID: <20080512150512.1837e3e7@hyperion.delvare>
+References: <200805012046.07885.david-b@pacbell.net>
+	<20080510225548.36297637@hyperion.delvare>
+	<200805111013.25440.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1210586847-8955-3-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <200805111013.25440.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,68 +19,58 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Bryan Wu wrote:
-> From: Michael Hennerich 
-> --- /dev/null
-> +++ b/drivers/i2c/chips/pca9543.c
-> @@ -0,0 +1,212 @@
-> +/*
-> +    pca9543.c - Part of lm_sensors, Linux kernel modules for hardware
-> +             monitoring
->   
-Not a sensor chip..
-> +/* A few notes about the PCA9543:
-> +
-> +*   The PCA9543 is a bi-directional translating switch, controlled by the
-> +    I2C bus. The SCL/SDA upstream pair fans out to two downstream
-> +    pairs, or channels. Any individual SCx/SDx channels or combination
-> +    of channels can be selected, determined by the contents of the
-> +    programmable control register. Two interrupt inputs, INT0 to INT3,
-> +    one for each of the downstream pairs, are provided. One interrupt
-> +    output INT, which acts as an AND of the two interrupt inputs, is
-> +    provided.
-> +
-> +*/
->   
-You might want to add a url to the datasheet, rather than
-a copypaste from it. Any description in the driver sould
-> +
-> +/* This is the driver that will be inserted */
-> +static struct i2c_driver pca9543_driver = {
-> +	.driver = {
-> +		.name	= "pca9543",
-> +	},
-> +	.id		= I2C_DRIVERID_PCF8574,
-> +	.attach_adapter	= pca9543_attach_adapter,
-> +	.detach_client	= pca9543_detach_client,
-> +};
->   
-Since the chip is undetectable, and used on embedded platform, I think you
-should consider a "new-style" driver with .probe/remove instead.
-See i2c/writing-clients
-> +	struct i2c_client *new_client;
->
-> +	new_client = &data->client;
-> +	i2c_set_clientdata(new_client, data);
-> +	new_client->addr = address;
-> +	new_client->adapter = adapter;
-> +	new_client->driver = &pca9543_driver;
-> +	new_client->flags = 0;
->
->   
-s/new_client/client/ please.
-> +	/* Now, we would do the remaining detection. But the PCF8574 is plainly
-> +	   impossible to detect! Stupid chip. */
-> +
->   
-copypaste from PCF8574 driver? :) Again, consider if the new style drivers
-would me more useful for your platform.
+On Sun, 11 May 2008 10:13:25 -0700, David Brownell wrote:
+> On Saturday 10 May 2008, you wrote:
+> > > =A0
+> > > =A0static int ali1563_block_start(struct i2c_adapter * a)
+> > > @@ -170,7 +170,7 @@ static int ali1563_block_start(struct i2
+> > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data & HST_STS_BUSERR ? "No=
+ response or Bus Collision " : "",
+> > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data & HST_STS_DEVERR ? "De=
+vice Error " : "",
+> > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0!(data & HST_STS_DONE) ? "T=
+ransaction Never Finished " : "");
+> > > -=A0=A0=A0=A0=A0return -1;
+> > > +=A0=A0=A0=A0=A0return -EIO;
+> > > =A0}
+> > =
 
+> > And same here. That's a little more work, admittedly.
+> =
 
+> Returning ENXIO for BUSERR/no-response doesn't follow your
+> heuristic of trusting the logspam-eliminators ... plus, it's
+> not clear that's not a different failure mode on that path.
+
+Elsewhere in this driver there is:
+
+	/* device error - no response, ignore the autodetection case */
+	if ((data & HST_STS_DEVERR) && (size !=3D HST_CNTL2_QUICK)) {
+		dev_err(&a->dev, "Device error!\n");
+	}
+
+which makes it clear to me that HST_STS_DEVERR is what you get when no
+device acks a transaction. So returning -ENODEV would make sense.
+
+> NVidia seems to not have ALI 1563 specs on line (sigh) so
+> for now I'll just stick to your heuristic.
+
+Not sure why nVidia would host ALi datasheets in the first place? Let
+alone the fact that nVidia is notoriously known to _not_ publish
+datasheets anyway :(
+
+> I did make the "timeout" fault unique there, since that
+> fault was clearly distinguishable.
+
+Agreed.
+
+-- =
+
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
