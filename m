@@ -1,111 +1,82 @@
-From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2/2] [I2C] add PCA9543 chip driver
-Date: Tue, 13 May 2008 12:54:21 +0100
-Message-ID: <8A42379416420646B9BFAC9682273B6D015F5379@limkexm3.ad.analog.com>
-References: <1210586847-8955-1-git-send-email-cooloney@kernel.org>
-	<1210586847-8955-3-git-send-email-cooloney@kernel.org>
-	<48283873.5090709@movial.fi>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 5/6] RTC: SMBus support for the M41T80, etc. driver (#2)
+Date: Tue, 13 May 2008 14:04:44 +0200
+Message-ID: <20080513140444.49d7a044@hyperion.delvare>
+References: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <48283873.5090709-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>, Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Morton <akpm@linux-foundation.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, David Woodhouse <dwmw2@infradead.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Maciej,
 
+On Tue, 13 May 2008 04:27:30 +0100 (BST), Maciej W. Rozycki wrote:
+>  The BCM1250A SOC which is used on the SWARM board utilising an M41T81
+> chip only supports pure I2C in the raw bit-banged mode.  Nobody sane
+> really wants to use it unless absolutely necessary and the M41T80, etc.  
+> chips work just fine with an SMBus adapter which is what the standard mode
+> of operation of the BCM1250A.  The only drawback of byte accesses with the
+> M41T80 is the chip only latches clock data registers for the duration of
+> an I2C transaction which works fine with a block transfers, but not
+> byte-wise accesses.
+> 
+>  The driver currently requires an I2C adapter providing both SMBus and raw
+> I2C access.  This is a set of changes to make it work with any SMBus
+> adapter providing at least read byte and write byte protocols.  
+> Additionally, if a given SMBus adapter supports I2C block read and/or
+> write protocols (a common extension beyond the SMBus spec), they are used
+> as well.  The problem of unlatched clock data if SMBus byte transactions
+> are used is resolved in the standard way.  For raw I2C controllers this
+> functionality is provided by the I2C core as SMBus emulation in a
+> transparent way.
+> 
+> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 
->-----Original Message-----
->From: Riku Voipio [mailto:riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org]
->Sent: Montag, 12. Mai 2008 14:31
->To: Bryan Wu
->Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; Michael Hennerich
->Subject: Re: [i2c] [PATCH 2/2] [I2C] add PCA9543 chip driver
->
->Bryan Wu wrote:
->> From: Michael Hennerich
->> --- /dev/null
->> +++ b/drivers/i2c/chips/pca9543.c
->> @@ -0,0 +1,212 @@
->> +/*
->> +    pca9543.c - Part of lm_sensors, Linux kernel modules for
-hardware
->> +             monitoring
->>
->Not a sensor chip..
->> +/* A few notes about the PCA9543:
->> +
->> +*   The PCA9543 is a bi-directional translating switch, controlled
-by
->the
->> +    I2C bus. The SCL/SDA upstream pair fans out to two downstream
->> +    pairs, or channels. Any individual SCx/SDx channels or
-combination
->> +    of channels can be selected, determined by the contents of the
->> +    programmable control register. Two interrupt inputs, INT0 to
-INT3,
->> +    one for each of the downstream pairs, are provided. One
-interrupt
->> +    output INT, which acts as an AND of the two interrupt inputs, is
->> +    provided.
->> +
->> +*/
->>
->You might want to add a url to the datasheet, rather than
->a copypaste from it. Any description in the driver sould
->> +
->> +/* This is the driver that will be inserted */
->> +static struct i2c_driver pca9543_driver = {
->> +	.driver = {
->> +		.name	= "pca9543",
->> +	},
->> +	.id		= I2C_DRIVERID_PCF8574,
->> +	.attach_adapter	= pca9543_attach_adapter,
->> +	.detach_client	= pca9543_detach_client,
->> +};
->>
->Since the chip is undetectable, and used on embedded platform, I think
-you
->should consider a "new-style" driver with .probe/remove instead.
->See i2c/writing-clients
->> +	struct i2c_client *new_client;
->>
->> +	new_client = &data->client;
->> +	i2c_set_clientdata(new_client, data);
->> +	new_client->addr = address;
->> +	new_client->adapter = adapter;
->> +	new_client->driver = &pca9543_driver;
->> +	new_client->flags = 0;
->>
->>
->s/new_client/client/ please.
->> +	/* Now, we would do the remaining detection. But the PCF8574 is
->plainly
->> +	   impossible to detect! Stupid chip. */
->> +
->>
->copypaste from PCF8574 driver? :) Again, consider if the new style
-drivers
->would me more useful for your platform.
+The I2C part of the changes look OK to me. With one comment below:
 
-Yes copypaste from PCF8574 driver. There is not much value in here, we
-either send a new patch including your feedback or drop this. 
+> +static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+> +{
+> +	u8 buf[M41T80_DATETIME_REG_SIZE];
+> +	int loops = 2;
+> +	int sec0, sec1;
+> +
+> +	/*
+> +	 * Time registers are latched by this chip if an I2C block
+> +	 * transfer is used, but with SMBus-style byte accesses
+> +	 * this is not the case, so check seconds for a wraparound.
+> +	 */
+> +	do {
+> +		if (m41t80_read_block_data(client, M41T80_REG_SEC,
+> +					   M41T80_DATETIME_REG_SIZE -
+> +					   M41T80_REG_SEC,
+> +					   buf + M41T80_REG_SEC) < 0) {
+> +			dev_err(&client->dev, "read error\n");
+> +			return -EIO;
+> +		}
+> +		sec0 = buf[M41T80_REG_SEC];
+>  
+> -	tm->tm_sec = BCD2BIN(buf[M41T80_REG_SEC] & 0x7f);
+> +		sec1 = i2c_smbus_read_byte_data(client, M41T80_REG_SEC);
+> +		if (sec1 < 0) {
+> +			dev_err(&client->dev, "read error\n");
+> +			return -EIO;
+> +		}
+> +
+> +		sec0 = BCD2BIN(sec0 & 0x7f);
+> +		sec1 = BCD2BIN(sec1 & 0x7f);
+> +	} while (sec1 < sec0 && --loops);
 
-Best regards,
-Michael
+You will do this even if all the registers were read as a block and the
+RTC latched the register values so they have to be correct. Isn't it a
+bit unfair / inefficient? If client->adapter has the
+I2C_FUNC_SMBUS_READ_I2C_BLOCK functionality you can skip the comparison
+and retry mechanism completely, saving some time and CPU cycles.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Jean Delvare
