@@ -1,53 +1,103 @@
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [PATCH 3/6] RTC: SWARM I2C board initialization (#2)
-Date: Tue, 13 May 2008 17:51:32 +0100 (BST)
-Message-ID: <Pine.LNX.4.55.0805131747590.7267@cliff.in.clinika.pl>
-References: <Pine.LNX.4.55.0805130249230.535@cliff.in.clinika.pl>
- <20080513133416.59a8d943@hyperion.delvare>
+From: Scott Wood <scottwood@freescale.com>
+Subject: Re: [PATCH] [POWERPC] Add i2c pins to dts and board setup
+Date: Tue, 13 May 2008 11:46:46 -0500
+Message-ID: <4829C5F6.8010206@freescale.com>
+References: <4825C445.4020004@scram.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20080513133416.59a8d943@hyperion.delvare>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Morton <akpm@linux-foundation.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, David Woodhouse <dwmw2@infradead.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <4825C445.4020004@scram.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jochen Friedrich <jochen@scram.de>
+Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
-
-> > 1. swarm-i2c.c -- SWARM I2C board setup, currently for the M41T80 chip on 
-> >    the bus #1 only (there is a MAX6654 temperature sensor on the bus #0 
-> >    which may be added in the future if we have a driver for that chip).
+Jochen Friedrich wrote:
+> Initialize I2C pins on boards with CPM1/CPM2 controllers.
 > 
-> We don't have a driver yet, however the datasheet for that chip is
-> publicly available and writing a driver would be easy. Or maybe just
-> reuse an existing driver - from a quick look at the datasheet I suspect
-> that this device is essentially compatible with the LM90 and ADM1032
-> chips supported by the lm90 driver.
-
- True, but someone has to do that.  I feel no incentive at the moment. ;-)
-
-> > 2. The i2c-sibyte.c BCM1250A SMBus controller driver now registers its 
-> >    buses as numbered so that board setup is correctly applied.
-> > 
-> > Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-> > ---
-> >  I have renamed i2c-swarm.c to swarm-i2c.c for consistency with names 
-> > of other files under arch/mips/.
+> Signed-off-by: Jochen Friedrich <jochen@scram.de>
+> ---
+>  arch/powerpc/boot/dts/mpc8272ads.dts         |   10 ++++++++++
+>  arch/powerpc/boot/dts/mpc866ads.dts          |   10 ++++++++++
+>  arch/powerpc/boot/dts/mpc885ads.dts          |   10 ++++++++++
+>  arch/powerpc/platforms/82xx/mpc8272_ads.c    |    4 ++++
+>  arch/powerpc/platforms/8xx/mpc86xads_setup.c |    4 ++++
+>  arch/powerpc/platforms/8xx/mpc885ads_setup.c |    3 +++
+>  6 files changed, 41 insertions(+), 0 deletions(-)
 > 
-> But you forgot to update the log message accordingly...
+> diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
+> index 46e2da3..57abcc1 100644
+> --- a/arch/powerpc/boot/dts/mpc8272ads.dts
+> +++ b/arch/powerpc/boot/dts/mpc8272ads.dts
+> @@ -217,6 +217,16 @@
+>  				linux,network-index = <1>;
+>  				fsl,cpm-command = <0x16200300>;
+>  			};
+> +
+> +			i2c@11860 {
+> +				compatible = "fsl,mpc8272-i2c",
+> +					     "fsl,cpm2-i2c",
+> +					     "fsl,cpm-i2c";
+> +				reg = <11860 20 8afc 2>;
+> +				interrupts = <1 8>;
+> +				interrupt-parent = <&PIC>;
+> +				fsl,cpm-command = <29600000>;
+> +			};
+>  		};
+>  
+>  		PIC: interrupt-controller@10c00 {
+> diff --git a/arch/powerpc/boot/dts/mpc866ads.dts b/arch/powerpc/boot/dts/mpc866ads.dts
+> index 765e43c..84c190e 100644
+> --- a/arch/powerpc/boot/dts/mpc866ads.dts
+> +++ b/arch/powerpc/boot/dts/mpc866ads.dts
+> @@ -171,6 +171,16 @@
+>  				fsl,cpm-command = <0000>;
+>  				linux,network-index = <1>;
+>  			};
+> +
+> +			i2c@860 {
+> +				compatible = "fsl,mpc866-i2c",
+> +					     "fsl,cpm1-i2c",
+> +					     "fsl,cpm-i2c";
+> +				reg = <860 20 3c80 30>;
+> +				interrupts = <10>;
+> +				interrupt-parent = <&CPM_PIC>;
+> +				fsl,cpm-command = <0010>;
+> +			};
+>  		};
+>  	};
+>  
+> diff --git a/arch/powerpc/boot/dts/mpc885ads.dts b/arch/powerpc/boot/dts/mpc885ads.dts
+> index 9895043..67d0e8d 100644
+> --- a/arch/powerpc/boot/dts/mpc885ads.dts
+> +++ b/arch/powerpc/boot/dts/mpc885ads.dts
+> @@ -215,6 +215,16 @@
+>  				fsl,cpm-command = <0x80>;
+>  				linux,network-index = <2>;
+>  			};
+> +
+> +			i2c@860 {
+> +				compatible = "fsl,mpc885-i2c",
+> +					     "fsl,cpm1-i2c",
+> +					     "fsl,cpm-i2c";
+> +				reg = <860 20 3c80 30>;
+> +				interrupts = <10>;
+> +				interrupt-parent = <&CPM_PIC>;
+> +				fsl,cpm-command = <0010>;
+> +			};
+>  		};
+>  	};
+>  
 
- I did not, unless I am missing something.
+These are v1 dts files -- you need an 0x  prefix on the hex numbers.
 
-> >  Please note this patch trivially depends on
-> > patch-2.6.26-rc1-20080505-swarm-core-16 -- 2/6 of this set.
-> 
-> OK, so I should just wait for patch 2/6 to get upstream before I add
-> this one to my i2c tree?
-
- Either this or you can apply both and remove the local copy of the former
-when it comes back from upstream.  Whatever you prefer -- it is your
-choice.
-
-  Maciej
+-Scott
