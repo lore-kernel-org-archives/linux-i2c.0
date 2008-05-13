@@ -1,82 +1,125 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 5/6] RTC: SMBus support for the M41T80, etc. driver (#2)
-Date: Tue, 13 May 2008 14:04:44 +0200
-Message-ID: <20080513140444.49d7a044@hyperion.delvare>
-References: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: new style i2c client problem: probe () is not called
+Date: Tue, 13 May 2008 14:13:37 +0200
+Message-ID: <20080513141337.20068339@hyperion.delvare>
+References: <g0bqa9$b3$1@ger.gmane.org> <20080513104921.GA4485@pengutronix.de>
+	<g0bub0$eqh$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Morton <akpm@linux-foundation.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, David Woodhouse <dwmw2@infradead.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <g0bub0$eqh$1@ger.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Maciej,
+Hi Darius,
 
-On Tue, 13 May 2008 04:27:30 +0100 (BST), Maciej W. Rozycki wrote:
->  The BCM1250A SOC which is used on the SWARM board utilising an M41T81
-> chip only supports pure I2C in the raw bit-banged mode.  Nobody sane
-> really wants to use it unless absolutely necessary and the M41T80, etc.  
-> chips work just fine with an SMBus adapter which is what the standard mode
-> of operation of the BCM1250A.  The only drawback of byte accesses with the
-> M41T80 is the chip only latches clock data registers for the duration of
-> an I2C transaction which works fine with a block transfers, but not
-> byte-wise accesses.
+On Tue, 13 May 2008 14:29:03 +0300, Darius wrote:
+> I attach simplified i2c code part from my driver above:
 > 
->  The driver currently requires an I2C adapter providing both SMBus and raw
-> I2C access.  This is a set of changes to make it work with any SMBus
-> adapter providing at least read byte and write byte protocols.  
-> Additionally, if a given SMBus adapter supports I2C block read and/or
-> write protocols (a common extension beyond the SMBus spec), they are used
-> as well.  The problem of unlatched clock data if SMBus byte transactions
-> are used is resolved in the standard way.  For raw I2C controllers this
-> functionality is provided by the I2C core as SMBus emulation in a
-> transparent way.
+> ---------------------------------------------------------------------------------------------------------
 > 
-> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+> struct ov7670 {
+> 	struct i2c_client *client;
+> };
+> 
+> static int ov7670_probe(struct i2c_client *client, const struct 
+> i2c_device_id *did)
+> {
+> 	struct ov7670 *ov7670;
+> 	struct i2c_adapter *adapter =to_i2c_adapter(client->dev.parent);
+> 	int ret;
+> 
+> 	printk ("OV7670: error1\n");
+> 
+> 	if (!i2c_check_functionality(adapter,I2C_FUNC_SMBUS_WORD_DATA)){
+> 		return -EIO;
+> 	}
+> 	
+> 	ov7670 = kzalloc(sizeof(struct ov7670), GFP_KERNEL);
+> 	if (!ov7670)
+> 		return -ENOMEM;
+> 	ov7670->client = client;
+> 	i2c_set_clientdata(client, ov7670);
+> 	return 0;
+> }
+> 
+> static int ov7670_remove(struct i2c_client *client)
+> {
+> 	struct ov7670 *ov7670 = i2c_get_clientdata(client);
+> 	struct i2c_adapter *adapter =to_i2c_adapter(client->dev.parent);
+> 	kfree(ov7670);
+> 	return 0;
+> }
+> 
+> static const struct i2c_device_id ov7670_id[] = {
+> 	{ "ov7670", 0 },
+> 	{ }
+> };
+> MODULE_DEVICE_TABLE(i2c, ov7670_id);
+> 
+> static struct i2c_driver ov7670_i2c_driver = {
+> 	.driver = 	
+> 			{
+> 				.name = "ov7670",
+> 			},
+> 	.probe		= ov7670_probe,
+> 	.remove		= ov7670_remove,
+> 	.id_table	= ov7670_id,
+> };
+> 
+> static int __init ov7670_init(void)
+> {
+> 	printk ("OV7670: driver init\n");
+> 	return i2c_add_driver(&ov7670_i2c_driver);
+> }
+> 
+> static void __exit ov7670_exit(void)
+> {
+> 	printk ("OV7670: driver exit\n");	
+> 	i2c_del_driver(&ov7670_i2c_driver);
+> }
+> 
+> module_init(ov7670_init);
+> module_exit(ov7670_exit);
+> 
+> 
+> -------------------------------------------------------------------------------------------
+> 
+> And piece from board init:
+> 
+> ------------------------------------------------------------------------------------------
+> 
+> static struct i2c_board_info __initdata mx1ads_i2c_devices[] = {
+> 	{
+> 		I2C_BOARD_INFO("ov7670", 0x42),
+> 	}
+> };
+> 
+> <...>
+> i2c_register_board_info(0,mx1ads_i2c_devices,ARRAY_SIZE(mx1ads_i2c_devices));
+> <...>
 
-The I2C part of the changes look OK to me. With one comment below:
-
-> +static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-> +{
-> +	u8 buf[M41T80_DATETIME_REG_SIZE];
-> +	int loops = 2;
-> +	int sec0, sec1;
-> +
-> +	/*
-> +	 * Time registers are latched by this chip if an I2C block
-> +	 * transfer is used, but with SMBus-style byte accesses
-> +	 * this is not the case, so check seconds for a wraparound.
-> +	 */
-> +	do {
-> +		if (m41t80_read_block_data(client, M41T80_REG_SEC,
-> +					   M41T80_DATETIME_REG_SIZE -
-> +					   M41T80_REG_SEC,
-> +					   buf + M41T80_REG_SEC) < 0) {
-> +			dev_err(&client->dev, "read error\n");
-> +			return -EIO;
-> +		}
-> +		sec0 = buf[M41T80_REG_SEC];
->  
-> -	tm->tm_sec = BCD2BIN(buf[M41T80_REG_SEC] & 0x7f);
-> +		sec1 = i2c_smbus_read_byte_data(client, M41T80_REG_SEC);
-> +		if (sec1 < 0) {
-> +			dev_err(&client->dev, "read error\n");
-> +			return -EIO;
-> +		}
-> +
-> +		sec0 = BCD2BIN(sec0 & 0x7f);
-> +		sec1 = BCD2BIN(sec1 & 0x7f);
-> +	} while (sec1 < sec0 && --loops);
-
-You will do this even if all the registers were read as a block and the
-RTC latched the register values so they have to be correct. Isn't it a
-bit unfair / inefficient? If client->adapter has the
-I2C_FUNC_SMBUS_READ_I2C_BLOCK functionality you can skip the comparison
-and retry mechanism completely, saving some time and CPU cycles.
+This code looks OK to me. But which driver handles i2c bus 0? Does your
+platform code create i2c bus 0? i2c-code will instantiate the ov7670
+i2c device when i2c bus 0 is created by i2c_add_numbered_adapter(). So
+if you don't see it created, I suspect that i2c bus 0 itself is never
+registered.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
