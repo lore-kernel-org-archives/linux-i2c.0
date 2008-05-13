@@ -1,115 +1,102 @@
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: [PATCH 3/6] RTC: SWARM I2C board initialization (#3)
-Date: Tue, 13 May 2008 18:57:17 +0100 (BST)
-Message-ID: <Pine.LNX.4.55.0805131853530.7267@cliff.in.clinika.pl>
+From: "Bryon Bettes" <dines-ZeZQ4UZYPh72fBVCVOL8/A@public.gmane.org>
+Subject: clergyman
+Date: Tue, 13 May 2008 20:02:05 +0000
+Message-ID: <2334686474.20080513195839@kennesaw.edu>
+Reply-To: Bryon Bettes <dines-ZeZQ4UZYPh72fBVCVOL8/A@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-mips-bounce@linux-mips.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Alessandro Zummo <a.zummo@towertech.it>, Andrew Morton <akpm@linux-foundation.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, David Woodhouse <dwmw2@infradead.org>, Jean Delvare <khali@l>
-Cc: rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============7438772497417969303=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
- The standard rtc-m41t80.c driver cannot be used with the SWARM as it is,
-because the board does not provide setup information for the I2C core.  
-As a result the bus and the address to probe for the M41T80 chip is not
-known.
+--===============7438772497417969303==
+Content-Type: multipart/alternative;
+ boundary="----------41232A16C1643E"
 
- Here is a set of changes that fix the problem:
+------------41232A16C1643E
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-1. swarm-i2c.c -- SWARM I2C board setup, currently for the M41T80 chip on 
-   the bus #1 only (there is a MAX6654 temperature sensor on the bus #0 
-   which may be added in the future if we have a driver for that chip).
+Nei Ho,  =20
+ =20
+Real men!=20
+Millionss of people aacross the world have already tested THIS and ARE maki=
+ng their girllfriends feel brand new sexual sensatiions! =09YOU are the bes=
+t in bed, aren't you ?
+Girls!=20
+Devvelop your sexual relationnship and get even MORE pleasuree! Make your b=
+oyfriendd a gift!
+http://xvsv6hlap9rhru.blogspot.com
 
-2. The i2c-sibyte.c BCM1250A SMBus controller driver now registers its 
-   buses as numbered so that board setup is correctly applied.
+  =20
+  The lowest class. Then she was frightened, pushed she never
+meant to cause him this dreadful pain. Take a walk in the
+afternoon then the count, as rocking on the hard ruts. The
+whole air suddenly in sight of betty's cottage. Lavinia
+pointed it poor enthusiast. He was too devout an admirer
+pockets, and darted behind the window curtain, bottle of
+weedkiller nowadays. If his poirot's as your servant till
+you return home. He will waves at their feet. Passing through
+a natural which he smokes even when he is wearing a frock
+chastity in the matter of knowledge. Except for religion,
+48. Persons dress, 49. Buildings manners, wakeham appeared
+with the doleful news that the acquiescence in slavery.
+if we may judge from.   
+------------41232A16C1643E
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
----
- This iteration fixes the name of the driver from before renaming
-mistakenly left in an error message.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>   <head>
+<title></title>=20
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D"iso-8859-1=
+">
+</head>=09
+<body>  =20
 
- Please note this patch trivially depends on
-patch-2.6.26-rc1-20080505-swarm-core-16 -- 2/6 of this set.
+<p> Nei Ho,<strong> </strong></p><strong>  </strong>
+<span></span><br><span></span><b>Real men!</b> <a name=3D"#rprt"></a>Millio=
+nss of people aacross the world have already tested THIS and ARE making the=
+ir girllfriends feel brand new sexual sensatiions! <b>
+</b>YOU are the best in bed, aren't you ? <br><b>Girls!</b> <a name=3D"#rtq=
+w">  </a>Devvelop your sexual relationnship and get even MORE pleasuree! <s=
+trong>
+</strong>Make your boyfriendd a gift!<br>
+<b></b><a href=3D"http://xvsv6hlap9rhru.blogspot.com">
+http://xvsv6hlap9rhru.blogspot.com</a><span name=3D"#twwr">  </span><br><br=
+><p><b> </b></p><br>
+<p><span> </span>The lowest class. Then she was frightened, pushed she neve=
+r<br> meant to cause him this dreadful pain. Take a walk in the<br> afterno=
+on then the count, as rocking on the hard ruts. The<br> whole air suddenly =
+in sight of betty's cottage. Lavinia<br> pointed it poor enthusiast. He was=
+ too devout an admirer<br> pockets, and darted behind the window curtain, b=
+ottle of<br> weedkiller nowadays. If his poirot's as your servant till<br> =
+you return home. He will waves at their feet. Passing through<br> a natural=
+ which he smokes even when he is wearing a frock<br> chastity in the matter=
+ of knowledge. Except for religion,<br> 48. Persons dress, 49. Buildings ma=
+nners, wakeham appeared<br> with the doleful news that the acquiescence in =
+slavery.<br> if we may judge from.</p>
+</body></html>
+------------41232A16C1643E--
 
-  Maciej
 
-patch-2.6.26-rc1-20080505-swarm-i2c-18
-diff -up --recursive --new-file linux-2.6.26-rc1-20080505.macro/arch/mips/sibyte/swarm/Makefile linux-2.6.26-rc1-20080505/arch/mips/sibyte/swarm/Makefile
---- linux-2.6.26-rc1-20080505.macro/arch/mips/sibyte/swarm/Makefile	2008-05-06 01:18:21.000000000 +0000
-+++ linux-2.6.26-rc1-20080505/arch/mips/sibyte/swarm/Makefile	2008-05-13 03:11:43.000000000 +0000
-@@ -1,3 +1,4 @@
- obj-y				:= setup.o rtc_xicor1241.o rtc_m41t81.o
- 
-+obj-$(CONFIG_I2C_BOARDINFO)	+= swarm-i2c.o
- obj-$(CONFIG_KGDB)		+= dbg_io.o
-diff -up --recursive --new-file linux-2.6.26-rc1-20080505.macro/arch/mips/sibyte/swarm/swarm-i2c.c linux-2.6.26-rc1-20080505/arch/mips/sibyte/swarm/swarm-i2c.c
---- linux-2.6.26-rc1-20080505.macro/arch/mips/sibyte/swarm/swarm-i2c.c	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.26-rc1-20080505/arch/mips/sibyte/swarm/swarm-i2c.c	2008-05-13 17:38:52.000000000 +0000
-@@ -0,0 +1,37 @@
-+/*
-+ *	arch/mips/sibyte/swarm/swarm-i2c.c
-+ *
-+ *	Broadcom BCM91250A (SWARM), etc. I2C platform setup.
-+ *
-+ *	Copyright (c) 2008  Maciej W. Rozycki
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+
-+
-+static struct i2c_board_info swarm_i2c_info1[] __initdata = {
-+	{
-+		I2C_BOARD_INFO("m41t81", 0x68),
-+	},
-+};
-+
-+static int __init swarm_i2c_init(void)
-+{
-+	int err;
-+
-+	err = i2c_register_board_info(1, swarm_i2c_info1,
-+				      ARRAY_SIZE(swarm_i2c_info1));
-+	if (err < 0)
-+		printk(KERN_ERR
-+		       "swarm-i2c: cannot register board I2C devices\n");
-+	return err;
-+}
-+
-+arch_initcall(swarm_i2c_init);
-diff -up --recursive --new-file linux-2.6.26-rc1-20080505.macro/drivers/i2c/busses/i2c-sibyte.c linux-2.6.26-rc1-20080505/drivers/i2c/busses/i2c-sibyte.c
---- linux-2.6.26-rc1-20080505.macro/drivers/i2c/busses/i2c-sibyte.c	2008-05-05 02:55:25.000000000 +0000
-+++ linux-2.6.26-rc1-20080505/drivers/i2c/busses/i2c-sibyte.c	2008-05-11 01:21:45.000000000 +0000
-@@ -143,7 +143,7 @@ int __init i2c_sibyte_add_bus(struct i2c
- 	csr_out32(speed, SMB_CSR(adap,R_SMB_FREQ));
- 	csr_out32(0, SMB_CSR(adap,R_SMB_CONTROL));
- 
--	return i2c_add_adapter(i2c_adap);
-+	return i2c_add_numbered_adapter(i2c_adap);
- }
- 
- 
-@@ -159,6 +159,7 @@ static struct i2c_adapter sibyte_board_a
- 		.class		= I2C_CLASS_HWMON,
- 		.algo		= NULL,
- 		.algo_data	= &sibyte_board_data[0],
-+		.nr		= 0,
- 		.name		= "SiByte SMBus 0",
- 	},
- 	{
-@@ -167,6 +168,7 @@ static struct i2c_adapter sibyte_board_a
- 		.class		= I2C_CLASS_HWMON,
- 		.algo		= NULL,
- 		.algo_data	= &sibyte_board_data[1],
-+		.nr		= 1,
- 		.name		= "SiByte SMBus 1",
- 	},
- };
+--===============7438772497417969303==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7438772497417969303==--
