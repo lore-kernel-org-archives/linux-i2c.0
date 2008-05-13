@@ -1,103 +1,66 @@
-From: Scott Wood <scottwood@freescale.com>
-Subject: Re: [PATCH] [POWERPC] Add i2c pins to dts and board setup
-Date: Tue, 13 May 2008 11:46:46 -0500
-Message-ID: <4829C5F6.8010206@freescale.com>
-References: <4825C445.4020004@scram.de>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [PATCH 5/6] RTC: SMBus support for the M41T80, etc. driver (#2)
+Date: Tue, 13 May 2008 17:57:52 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805131752340.7267@cliff.in.clinika.pl>
+References: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
+ <20080513140444.49d7a044@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <4825C445.4020004@scram.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jochen Friedrich <jochen@scram.de>
-Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Jean Delvare <khali@linux-fr.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20080513140444.49d7a044@hyperion.delvare>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, Andrew Morton <akpm@linux-foundation.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, David Woodhouse <dwmw2@infradead.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Gleixner <tglx@linutronix.de>, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jochen Friedrich wrote:
-> Initialize I2C pins on boards with CPM1/CPM2 controllers.
-> 
-> Signed-off-by: Jochen Friedrich <jochen@scram.de>
-> ---
->  arch/powerpc/boot/dts/mpc8272ads.dts         |   10 ++++++++++
->  arch/powerpc/boot/dts/mpc866ads.dts          |   10 ++++++++++
->  arch/powerpc/boot/dts/mpc885ads.dts          |   10 ++++++++++
->  arch/powerpc/platforms/82xx/mpc8272_ads.c    |    4 ++++
->  arch/powerpc/platforms/8xx/mpc86xads_setup.c |    4 ++++
->  arch/powerpc/platforms/8xx/mpc885ads_setup.c |    3 +++
->  6 files changed, 41 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
-> index 46e2da3..57abcc1 100644
-> --- a/arch/powerpc/boot/dts/mpc8272ads.dts
-> +++ b/arch/powerpc/boot/dts/mpc8272ads.dts
-> @@ -217,6 +217,16 @@
->  				linux,network-index = <1>;
->  				fsl,cpm-command = <0x16200300>;
->  			};
-> +
-> +			i2c@11860 {
-> +				compatible = "fsl,mpc8272-i2c",
-> +					     "fsl,cpm2-i2c",
-> +					     "fsl,cpm-i2c";
-> +				reg = <11860 20 8afc 2>;
-> +				interrupts = <1 8>;
-> +				interrupt-parent = <&PIC>;
-> +				fsl,cpm-command = <29600000>;
-> +			};
->  		};
->  
->  		PIC: interrupt-controller@10c00 {
-> diff --git a/arch/powerpc/boot/dts/mpc866ads.dts b/arch/powerpc/boot/dts/mpc866ads.dts
-> index 765e43c..84c190e 100644
-> --- a/arch/powerpc/boot/dts/mpc866ads.dts
-> +++ b/arch/powerpc/boot/dts/mpc866ads.dts
-> @@ -171,6 +171,16 @@
->  				fsl,cpm-command = <0000>;
->  				linux,network-index = <1>;
->  			};
-> +
-> +			i2c@860 {
-> +				compatible = "fsl,mpc866-i2c",
-> +					     "fsl,cpm1-i2c",
-> +					     "fsl,cpm-i2c";
-> +				reg = <860 20 3c80 30>;
-> +				interrupts = <10>;
-> +				interrupt-parent = <&CPM_PIC>;
-> +				fsl,cpm-command = <0010>;
-> +			};
->  		};
->  	};
->  
-> diff --git a/arch/powerpc/boot/dts/mpc885ads.dts b/arch/powerpc/boot/dts/mpc885ads.dts
-> index 9895043..67d0e8d 100644
-> --- a/arch/powerpc/boot/dts/mpc885ads.dts
-> +++ b/arch/powerpc/boot/dts/mpc885ads.dts
-> @@ -215,6 +215,16 @@
->  				fsl,cpm-command = <0x80>;
->  				linux,network-index = <2>;
->  			};
-> +
-> +			i2c@860 {
-> +				compatible = "fsl,mpc885-i2c",
-> +					     "fsl,cpm1-i2c",
-> +					     "fsl,cpm-i2c";
-> +				reg = <860 20 3c80 30>;
-> +				interrupts = <10>;
-> +				interrupt-parent = <&CPM_PIC>;
-> +				fsl,cpm-command = <0010>;
-> +			};
->  		};
->  	};
->  
+Hi Jean,
 
-These are v1 dts files -- you need an 0x  prefix on the hex numbers.
+> The I2C part of the changes look OK to me. With one comment below:
+> 
+> > +static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+> > +{
+> > +	u8 buf[M41T80_DATETIME_REG_SIZE];
+> > +	int loops = 2;
+> > +	int sec0, sec1;
+> > +
+> > +	/*
+> > +	 * Time registers are latched by this chip if an I2C block
+> > +	 * transfer is used, but with SMBus-style byte accesses
+> > +	 * this is not the case, so check seconds for a wraparound.
+> > +	 */
+> > +	do {
+> > +		if (m41t80_read_block_data(client, M41T80_REG_SEC,
+> > +					   M41T80_DATETIME_REG_SIZE -
+> > +					   M41T80_REG_SEC,
+> > +					   buf + M41T80_REG_SEC) < 0) {
+> > +			dev_err(&client->dev, "read error\n");
+> > +			return -EIO;
+> > +		}
+> > +		sec0 = buf[M41T80_REG_SEC];
+> >  
+> > -	tm->tm_sec = BCD2BIN(buf[M41T80_REG_SEC] & 0x7f);
+> > +		sec1 = i2c_smbus_read_byte_data(client, M41T80_REG_SEC);
+> > +		if (sec1 < 0) {
+> > +			dev_err(&client->dev, "read error\n");
+> > +			return -EIO;
+> > +		}
+> > +
+> > +		sec0 = BCD2BIN(sec0 & 0x7f);
+> > +		sec1 = BCD2BIN(sec1 & 0x7f);
+> > +	} while (sec1 < sec0 && --loops);
+> 
+> You will do this even if all the registers were read as a block and the
+> RTC latched the register values so they have to be correct. Isn't it a
+> bit unfair / inefficient? If client->adapter has the
+> I2C_FUNC_SMBUS_READ_I2C_BLOCK functionality you can skip the comparison
+> and retry mechanism completely, saving some time and CPU cycles.
 
--Scott
+ Well, actually there is a reason beyond that.  It may change if we
+support subsecond resolution, but we currently do not.  The reason is if
+we return the original timestamp and the seconds register changes while
+the timestamp is being read, then effectively we return a value that is
+off by one second.  This is why for seconds I decided to return the second
+value read all the time.
+
+  Maciej
