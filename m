@@ -1,62 +1,43 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: SFC driver implements its own I2C support
-Date: Wed, 14 May 2008 22:58:20 +0100
-Message-ID: <20080514215818.GH28241@solarflare.com>
-References: <20080513103325.1ab317cf@hyperion.delvare>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [i2c] [PATCH] I2C: SiByte: Convert the driver to make use of
+ interrupts
+Date: Wed, 14 May 2008 23:46:05 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805142309190.15223@cliff.in.clinika.pl>
+References: <Pine.LNX.4.55.0805130353250.535@cliff.in.clinika.pl>
+ <20080514213841.GC16881@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080513103325.1ab317cf@hyperion.delvare>
-Sender: netdev-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jeff Garzik <jgarzik@redhat.com>, netdev@vger.kernel.org, Linux I2C <i2c@lm-sensors.org>, linux-net-drivers@solarflare.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20080514213841.GC16881@fluff.org.uk>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Ben Dooks <ben@fluff.org>
+Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@linux-foundation.org>, linux-mips@linux-mips.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi Ben, hi Jeff,
+On Wed, 14 May 2008, Ben Dooks wrote:
 
-Please use the address linux-net-drivers@solarflare.com, as listed in
-MAINTAINERS, which goes to everyone working on the sfc driver here.
+> My recollection is that the return of ioremap() was meant to be
+> used with read{b,w,l} and not their __raw_xxx() counterparts.
 
-> My attention was brought to the drivers/net/sfc/i2c-direct.c file which
-> appeared recently in the Linux kernel. Apparently this is a custom
-> implementation of I2C support, including software bit-banging. All this
-> is already available in the Linux kernel in:
->   drivers/i2c/i2c-core.c
->   drivers/i2c/algos/i2c-algo-bit.c
-> So it really doesn't make sense to duplicate the code in the sfc
-> network driver.
->
-> Can you please get rid of this custom I2C implementation and use the
-> standard one?
+ Well, what would the definition of the cookie passed to these raw MMIO
+access calls be then?
 
-We intend to do so, but may not be able to do it before 2.6.26.
+ They have to be used here, because SOC on-chip registers are accessed by
+the driver and therefore data transferred must never be swapped in any
+way.  The internal registers always have the same numerical value (bit
+positions) regardless of the endianness configured when the SOC's on-chip
+CPU cores are reset.
 
-> It should be really easy, all you have to do is include
-> <linux/i2c.h> and <linux/i2c-algo-bit.h>, pack your SDA and SCL get/set
-> functions in a struct i2c_algo_bit_data, and call i2c_bit_add_bus() on
-> it. See drivers/video/intelfb/intelfb_i2c.c (or any framebuffer driver
-> with I2C/DDC support) for an example.
+ For the external buses the arrangement varies, for example the PCI
+interface is always little-endian and the Generic Bus is always
+big-endian.  To access these, cooked MMIO calls would normally be used
+(these without a prefix) which swap bytes as necessary to preserve bit
+positions.  The notable exception are PIO-style data transfers, such as
+ones used by some IDE drivers (including the GenBus one), where the
+ultimate destination is system memory (which is endian-neutral) and thus
+bit positions do not matter but addresses of individual bytes do --
+__mem_xxx() calls have been defined for this purpose, which swap bytes as
+necessary.  See include/asm-mips/mach-generic/mangle-port.h for details.
 
-I have made a start on this, and it looked like it would be a bit more
-difficult than that.  But then perhaps I was doing more work than I
-really needed to.
-
-Also, see comments from the original author of our I2C code in
-<http://thread.gmane.org/gmane.linux.kernel.commits.head/145999/focus=92866>.
-
-> Using the standard I2C implementation will give you access to all the
-> i2c debugging tools, user-space access to the I2C bus if needed, and
-> compatibility with all the Linux i2c device drivers, including hardware
-> monitoring and GPIO drivers which apparently the SFC hardware uses.
-
-Right.  But the most immediate requirement is that we be able to
-configure I2C devices from the sfc driver.  Most of our reference
-designs require that as part of their initialisation.
-
-Ben.
-
--- 
-Ben Hutchings, Senior Software Engineer, Solarflare Communications
-Not speaking for my employer; that's the marketing department's job.
+  Maciej
