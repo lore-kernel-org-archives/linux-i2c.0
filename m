@@ -1,11 +1,17 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/2] i2c: Kill the old driver matching scheme
-Date: Wed, 14 May 2008 22:13:18 +0200
-Message-ID: <20080514221318.1b525ca5@hyperion.delvare>
+From: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: new style i2c client problem: probe () is not called
+Date: Wed, 14 May 2008 22:20:06 +0100
+Message-ID: <20080514212006.GA16881@fluff.org.uk>
+References: <g0bqa9$b3$1@ger.gmane.org> <20080513104921.GA4485@pengutronix.de>
+	<g0bub0$eqh$1@ger.gmane.org>
+	<20080513141337.20068339@hyperion.delvare>
+	<g0c2qb$ue1$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <g0c2qb$ue1$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,114 +21,45 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Remove the old driver_name/type scheme for i2c driver matching. Only the
-standard aliasing model will be used from now on.
+On Tue, May 13, 2008 at 03:45:29PM +0300, Darius wrote:
+>   > This code looks OK to me. But which driver handles i2c bus 0? Does your
+> > platform code create i2c bus 0? i2c-code will instantiate the ov7670
+> > i2c device when i2c bus 0 is created by i2c_add_numbered_adapter(). So
+> > if you don't see it created, I suspect that i2c bus 0 itself is never
+> > registered.
+> > 
+> 
+> Thanks, there was the problem. I have modified i2c adapter driver to use 
+>   i2c_add_numbered_adapter() instead i2c_add_adapter() and pass to the 
+> adapter->nr = pdev->id. now probe is called.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Testers are welcome.
+I'm not so sure this 1:1 mapping of platform to i2c bus ID is such a
+good idea, what if you have two i2c controllers and want to swap the
+two of them around?
+ 
+> Jean, what do you think about adding my i2c driver to mainline kernel?
+> I've added this to Russel patch tracking system. Now it is a bit 
+> ugraded. Should I make new patch and send it here?
 
- drivers/i2c/i2c-core.c |   22 +++++-----------------
- include/linux/i2c.h    |    7 +------
- 2 files changed, 6 insertions(+), 23 deletions(-)
+As a rule, stuff that touches drivers/i2c should be submitted via the
+i2c list with a cc: to the architecture specific list as a courtesy to
+the maintainer of that arch. It is not really within Russell (or any
+other arch maintainer) remit to be actually submitting upstream for
+drivers/i2c.
 
---- linux-2.6.26-rc2.orig/drivers/i2c/i2c-core.c	2008-05-13 22:39:48.000000000 +0200
-+++ linux-2.6.26-rc2/drivers/i2c/i2c-core.c	2008-05-13 22:45:48.000000000 +0200
-@@ -74,10 +74,7 @@ static int i2c_device_match(struct devic
- 	if (driver->id_table)
- 		return i2c_match_id(driver->id_table, client) != NULL;
- 
--	/* new style drivers use the same kind of driver matching policy
--	 * as platform devices or SPI:  compare device and driver IDs.
--	 */
--	return strcmp(client->driver_name, drv->name) == 0;
-+	return 0;
- }
- 
- #ifdef	CONFIG_HOTPLUG
-@@ -91,14 +88,9 @@ static int i2c_device_uevent(struct devi
- 	if (dev->driver)
- 		return 0;
- 
--	if (client->driver_name[0]) {
--		if (add_uevent_var(env, "MODALIAS=%s", client->driver_name))
--			return -ENOMEM;
--	} else {
--		if (add_uevent_var(env, "MODALIAS=%s%s",
--				   I2C_MODULE_PREFIX, client->name))
--			return -ENOMEM;
--	}
-+	if (add_uevent_var(env, "MODALIAS=%s%s",
-+			   I2C_MODULE_PREFIX, client->name))
-+		return -ENOMEM;
- 	dev_dbg(dev, "uevent\n");
- 	return 0;
- }
-@@ -206,9 +198,7 @@ static ssize_t show_client_name(struct d
- static ssize_t show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	return client->driver_name[0]
--		? sprintf(buf, "%s\n", client->driver_name)
--		: sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
-+	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
- }
- 
- static struct device_attribute i2c_dev_attrs[] = {
-@@ -282,8 +272,6 @@ i2c_new_device(struct i2c_adapter *adap,
- 	client->addr = info->addr;
- 	client->irq = info->irq;
- 
--	strlcpy(client->driver_name, info->driver_name,
--		sizeof(client->driver_name));
- 	strlcpy(client->name, info->type, sizeof(client->name));
- 
- 	/* a new style driver may be bound to this device when we
---- linux-2.6.26-rc2.orig/include/linux/i2c.h	2008-05-13 22:39:48.000000000 +0200
-+++ linux-2.6.26-rc2/include/linux/i2c.h	2008-05-13 22:45:48.000000000 +0200
-@@ -155,8 +155,6 @@ struct i2c_driver {
-  * @driver: device's driver, hence pointer to access routines
-  * @dev: Driver model device node for the slave.
-  * @irq: indicates the IRQ generated by this device (if any)
-- * @driver_name: Identifies new-style driver used with this device; also
-- *	used as the module name for hotplug/coldplug modprobe support.
-  * @list: list of active/busy clients (DEPRECATED)
-  * @released: used to synchronize client releases & detaches and references
-  *
-@@ -174,7 +172,6 @@ struct i2c_client {
- 	struct i2c_driver *driver;	/* and our access routines	*/
- 	struct device dev;		/* the device structure		*/
- 	int irq;			/* irq issued by device (or -1) */
--	char driver_name[KOBJ_NAME_LEN];
- 	struct list_head list;		/* DEPRECATED */
- 	struct completion released;
- };
-@@ -200,8 +197,7 @@ static inline void i2c_set_clientdata (s
- 
- /**
-  * struct i2c_board_info - template for device creation
-- * @driver_name: identifies the driver to be bound to the device
-- * @type: optional chip type information, to initialize i2c_client.name
-+ * @type: chip type, to initialize i2c_client.name
-  * @flags: to initialize i2c_client.flags
-  * @addr: stored in i2c_client.addr
-  * @platform_data: stored in i2c_client.dev.platform_data
-@@ -220,7 +216,6 @@ static inline void i2c_set_clientdata (s
-  * with the adapter already known.
-  */
- struct i2c_board_info {
--	char		driver_name[KOBJ_NAME_LEN];
- 	char		type[I2C_NAME_SIZE];
- 	unsigned short	flags;
- 	unsigned short	addr;
-
+If a patch really has to touch both drivers/i2c and some other part of
+the kernel, then it either is up to the architecture maintainer(s) to
+ack the package for inclusion via the i2c tree, or up to both the i2c
+and architecture maintainers to get someone like akpm to merge.
 
 -- 
-Jean Delvare
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
 
 _______________________________________________
 i2c mailing list
