@@ -1,12 +1,16 @@
-From: Johnson Lukman <johnson.lukman-whZMOeQn8C0@public.gmane.org>
-Subject: This is to inform you officially that we have verified your
-	contract/inheritanc
-Date: 14 May 2008 05:35:47 -0700
-Message-ID: <E1JwGF9-00080P-0o@teufli.physik.fu-berlin.de>
-Reply-To: johnson.lukman-whZMOeQn8C0@public.gmane.org
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
+Date: Wed, 14 May 2008 07:48:36 -0700
+Message-ID: <200805140748.36400.david-b@pacbell.net>
+References: <200805012046.07885.david-b@pacbell.net>
+	<200805120948.23842.david-b@pacbell.net>
+	<20080514141738.327be680@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1421199901577949502=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080514141738.327be680-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,169 +20,110 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============1421199901577949502==
-Content-Type: multipart/alternative;
-	boundary="YCalInvites=20WLAvgwjCN88PIt1kbDNfwOGh4Z7QB1210768541-1"
+On Wednesday 14 May 2008, Jean Delvare wrote:
+> Hi David,
+> 
+> On Mon, 12 May 2008 09:48:23 -0700, David Brownell wrote:
+> > On Saturday 10 May 2008, Jean Delvare wrote:
+> > > ... list your error value choices for the common
+> > > error conditions of I2C and SMBus controllers ...
+> > 
+> > Here's a patch adding such information ... against 2.6.26-rc2 and
+> > in synch with both the "-Errno not -1" patches I've sent.
+> 
+> Thanks for doing this. This document will be very helpful both for me
+> when reviewing your patches, and for both I2C bus and I2C device driver
+> authors later.
 
---YCalInvites=20WLAvgwjCN88PIt1kbDNfwOGh4Z7QB1210768541-1
-Content-type: text/plain; charset=windows-1252;
-Content-Transfer-Encoding: 8bit 
+Exactly.  ;)
 
-Sei stato invitato a "This is to  inform you officially that we have verified your contract/inheritanc".
-
-
-Dall'organizzatore  :
-
-
-     Data:		mercoledì, 14 maggio 2008
-
-     Ora:		11:00 - 12:00 (GMT +00:00)
-     Luogo:		This is to inform you officially that we have verified your contract/inheritance fund file and found out that you have not received your fund,you will receive it thru this card,forward your name, address and direct telephone number.Mr.johnson lukman.+234-8029094044.
-
-Ci sarai anche tu? Rispondi all'invito qui:
-
-     http://calendar.yahoo.com/johnson.lukman?v=126&a1=0&iid=-xallsj%40Nd%40VaOHmaxmUEGdb4lOL%40oZvphAcMx%40%40&igid=ghB3hefbptMBA-kzJxQSYUd%40umDKak5uux%40GoNnbYev%40
-    
-Copyright © 2008 Tutti i diritti riservati
- www.yahoo.it
-
-Yahoo! e la tua privacy:
- http://privacy.yahoo.com/privacy/it/
-
-Condizioni Generali per l'Utilizzo del Servizio:
- http://it.docs.yahoo.com/info/utos.html
-
---YCalInvites=20WLAvgwjCN88PIt1kbDNfwOGh4Z7QB1210768541-1
-Content-type: text/html; charset=windows-1252;
-Content-Transfer-Encoding: 8bit
+I addressed your comments; no further responses except as below.
 
 
+> > +EBADMSG
+> > +	Returned by SMBus logic when an invalid Packet Error Code byte
+> > +	is received.  This code is a CRC covering all bytes in the
+> > +	transaction, and is sent before the terminating STOP.  This
+> > +	fault is only reported on read transactions; the SMBus slave
+> > +	may have a way to report PEC mismatches on writes from the
+> > +	host.  Note that even if PECs are in use, you should not rely
+> > +	on these as the only way to detect incorrect data transfers.
+> 
+> As far as I can see, only the i2c-core is returning this error when
+> SMBus is emulated over I2C, SMBus master drivers do not? 
+
+I didn't check hardware specs or driver details for the three
+adapters currently reporting I2C_FUNC_SMBUS_PEC:  amd8111, i801,
+and nforce2.  So I don't know what they report ...
 
 
-                    
+> If it is a 
+> hardware limitation of most SMBus controllers then I wonder if it is
+> worth having a separate error code just for i2c-core.
 
-<html>
+As a rule, it's important to know that an error is "soft" (like
+PEC corruption) or not ... soft errors are very amenable to retries.
 
-<style type="text/css">
-    a {color:#0066CC;text-decoration:none;}
-    body {text-align:center; font-family:Arial;}
-    .propertyname{text-align:right; font-size:10px; font-size:13px; color:7A8180; width:100px; vertical-align:top;white-space:nowrap;}
-    .propertyvalue{text-align:left; font-size:13px; vertical-align:top;}
-    .divider{width:10px; }
-    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;}
-    #invite_main_info {background-color:white; margin: 0px 10px 0px 10px;clear:both; zoom:1; width:505px; overflow-x:auto;}
-    .header_images {height:55px; margin-left:10px; margin-right:10px;zoom:1}
-    #header_yahoo_image {margin-top:13px; float:left; width:274px; height:28px; text-align:left;}
-    #header_second_image {margin-top:10px; float:right; width:53px; height:35px;}
-    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;margin-bottom:10px}
-    #copyright_footer {font-size:10px;}
-    #tip_footer {font-size:10px;}
-    #main_table{padding:0; border-spacing:0; margin: 15px 10px 10px 10px;}
-    #guests_div{overflow-y:auto; height:40px;}
-    .item_list { width:400px;}
-    .event_time { width:70px; text-align:right;}
-    .event_title { width:100px; text-align:left;}
-    .task_title { width:100px; text-align:left;}
-    .event_title_daily { width:250px; text-align:left;}
-    .add_link { width:300px; text-align:left;}
-    .task_header_priority{ width:100px; text-align:left;}
-    .task_header_date{ width:100px; text-align:right;}
-    .task_priority{ width:10px; text-align:center;}
-    .task_date{ width:75px; text-align:right;}
-    .nowrap {white-space:nowrap;}  
-    .new {font-size:8px; text-transform:uppercase; color:#FF6600;}
-    .clear_line{font-size:8px}
-</style>
-
-<body>
-<center>
-<div id="invite_main">
-	<div class="header_images"> 
-		<div id="header_yahoo_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/it/pim/cal/email/ma_2.gif" border=0 alt=""/></div>
-		<div id="header_second_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/gr/cal_em_invite_1.gif" border=0 alt=""/></div>
-	</div>
-	<div id="invite_main_info">
-		<table id="main_table" cellpadding=0>
-
-                            <tr><td class="propertyname">Sei stato invitato a:</td>
-                <td class="divider">&nbsp;</td>
-                <td class="propertyvalue">This is to  inform you officially that we have verified your contract/inheritanc</td></tr>
-            
-                                                <tr><td class="propertyname">Dall'organizzatore:</td>
-                    <td class="divider">&nbsp;</td>
-                    <td class="propertyvalue">Johnson Lukman</td></tr>
-                                
-                <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>              
-
-			    	
-             
-              
-            
-
-                <tr><td class="propertyname">Data:</td>
-    <td class="divider">&nbsp;</td> 
-			<td class="propertyvalue">mercoledì, 14 maggio 2008
-		    	</td>
-	</tr>
+So even if those SMBus controllers have braindead designs which
+don't let drivers know if the failure was from PEC, I'd think that
+it's worth having such a code.  After all, it's not like there's
+anything *preventing* sane nardware.  (Right?!?)
 
 
-    <tr><td class="propertyname">Ora:</td>
-    <td class="divider">&nbsp;</td> 
-			<td class="propertyvalue">11:00 - 12:00
-				&nbsp;(GMT +00:00)
-				</td>
-	</tr>
+> > +EOPNOTSUPP
+> > +	Returned by an adapter when asked to perform an operation
+> > +	that it doesn't, or can't, support.  For example, if an
+> > +	adapter doesn't support SMBus block transfers, this would
+> > +	be returned when it is asked to issue one.  Or if an I2C
+> > +	adapter can't execute all legal I2C messages, it should
+> > +	return this in some cases.
+> 
+> It might be worth mentioning here that I2C device drivers are supposed
+> to check the adapter functionality before they run any transaction. 
+
+Done.
 
 
-	
-    <tr><td class="propertyname">Luogo:</td>
-    <td class="divider">&nbsp;</td> 
-    <td class="propertyvalue">This is to inform you officially that we have verified your contract/inheritance fund file and found out that you have not received your fund,you will receive it thru this card,forward your name, address and direct telephone number.Mr.johnson lukman.+234-8029094044.
-				</td>
-	</tr>
-	
+> So, 
+> in most cases, I2C bus drivers would be in their own right to return
+> -EINVAL when requested to perform operations they don't support.
+
+I'll disagree.  The request was valid, and the only thing that
+was inappropriate was sending it to *this* adapter.  Whether a
+request is valid (or not) should be minimally context-sensitive.
+
+It's an error to make a given valid request to certain adapters;
+sure.  But the *reason* is that the adapter doesn't support such
+calls ... not that the request itself is invalid.
+
+
+>	As far as I remember, clock stretching by a slave during the
+> address byte is not even allowed.
+
+It's allowed anywhere.  Remember that one of the reasons to stretch
+is to make sure the device has enough time to react ... and also
+that multi-master configurations will effectively need to arbitrate
+the clock signal (looks just like clock stretching), not just the
+data signal.
+
+
+> So, there is no need to mention ENXIO and the address byte here.
+
+Right, I realized that but it was time to send for review rather
+than make more edits.  ;)
+
+Updated patch in a separate message.
+
+- Dave
 
 
 
-
-
-            
-            <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>
-            
-			                                     <tr><td class="propertyname">Ci sarai anche tu?</td>
-                     <td class="divider">&nbsp;</td>
-                     <td class="propertyvalue"><b><a href="http://calendar.yahoo.com/johnson.lukman?v=126&a1=0&iid=-xallsj%40Nd%40VaOHmaxmUEGdb4lOL%40oZvphAcMx%40%40&igid=ghB3hefbptMBA-kzJxQSYUd%40umDKak5uux%40GoNnbYev%40">Si prega di rispondere all'invito</a></b></td></tr>
-	                                                
-            						
-		</table>
-	</div>
-</div>
-
-<span id="copyright_footer">
-    Copyright © 2008
-&nbsp;<a target=_blank href="http://it.yahoo.com">Yahoo!</a>&nbsp;Tutti i diritti riservati |
-<a target=_blank href="http://it.docs.yahoo.com/info/utos.html">Condizioni Generali per l'Utilizzo del Servizio</a> | <a target=_blank href="http://privacy.yahoo.com/privacy/it/">Yahoo! e la tua privacy</a>  
-
-</span>
-</center>
-
-</body>
-</html>
-
---YCalInvites=20WLAvgwjCN88PIt1kbDNfwOGh4Z7QB1210768541-1--
-
-
---===============1421199901577949502==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============1421199901577949502==--
