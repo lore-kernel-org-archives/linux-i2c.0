@@ -1,106 +1,191 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c-pcf8575: check for errors when accessing the chip
-Date: Thu, 15 May 2008 16:35:27 +0200
-Message-ID: <1210862127-9493-1-git-send-email-w.sang@pengutronix.de>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: [PATCHv2] [POWERPC] Add i2c pins to dts and board setup
+Date: Thu, 15 May 2008 16:44:03 +0200
+Message-ID: <482C4C32.4060503@scram.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: bart.vanassche-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hennerich-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760797AbYEOOoc@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>, Kumar Gala <galak@kernel.crashing.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, "Kernel, Linux" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make the driver check and report error cases when reading from or writing to
-the chip. It used to assume 'always success' and could even deliver bogus
-values.
+Initialize I2C pins on boards with CPM1/CPM2 controllers.
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
 ---
+ Documentation/powerpc/booting-without-of.txt |   39 ++++++++++++++++++++++++++
+ arch/powerpc/boot/dts/mpc8272ads.dts         |   12 ++++++++
+ arch/powerpc/boot/dts/mpc866ads.dts          |   12 ++++++++
+ arch/powerpc/boot/dts/mpc885ads.dts          |   12 ++++++++
+ arch/powerpc/platforms/82xx/mpc8272_ads.c    |    4 ++
+ arch/powerpc/platforms/8xx/mpc86xads_setup.c |    4 ++
+ arch/powerpc/platforms/8xx/mpc885ads_setup.c |    3 ++
+ 7 files changed, 86 insertions(+), 0 deletions(-)
 
-The PCF on my system seems broken, it does not respond (and I can't probe as my
-master doesn't support smbus_quick). The broken chip went unnoticed as the
-driver reported some (= bogus) values. So, I can only test the properly
-reported error cases, hopefully someone else can confirm the working case.
-(Michael and Bart, sorry for double post)
+diff --git a/Documentation/powerpc/booting-without-of.txt b/Documentation/powerpc/booting-without-of.txt
+index 1d2a772..b95f03a 100644
+--- a/Documentation/powerpc/booting-without-of.txt
++++ b/Documentation/powerpc/booting-without-of.txt
+@@ -2132,6 +2132,45 @@ platforms are moved over to use the flattened-device-tree model.
+ 		};
+ 	};
 
- drivers/i2c/chips/pcf8575.c |   29 +++++++++++++++++++++--------
- 1 files changed, 21 insertions(+), 8 deletions(-)
++   ix) I2C
++
++   The I2C controller is expressed as a bus under the CPM node.
++
++   Properties:
++   - compatible      : "fsl,cpm1-i2c", "fsl,cpm2-i2c", "fsl,cpm-i2c"
++   - reg             : On CPM2 devices, the second resource doesn't specify
++		       the I2C Parameter RAM itself, but the I2C_BASE field
++		       of the CPM2 Parameter RAM (typically 0x8afc 0x2).
++   - #address-cells  : Should be one. The cell is the i2c device address with
++		       the r/w bit set to zero.
++   - #size-cells     : Should be zero.
++   - linux,i2c-index : Can be used to hard code an i2c bus nummer.
++   - linux,i2c-class : Can be used to override the i2c class. The class is used
++		       by old style i2c device drivers to find a bus in a
++		       specific context like system management, video or sound.
++		       By default, I2C_CLASS_HWMON (1) is being used. The
++		       definition of the classes can be found in
++		       include/i2c/i2c.h
++		
++   Example, based on mpc823:
++
++	i2c@860 {
++		compatible = "fsl,mpc823-i2c",
++			     "fsl,cpm1-i2c",
++			     "fsl,cpm-i2c";
++		reg = <0x860 0x20 0x3c80 0x30>;
++		interrupts = <16>;
++		interrupt-parent = <&CPM_PIC>;
++		fsl,cpm-command = <0x10>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		rtc@68 {
++			compatible = "dallas,ds1307";
++			reg = <0x68>;
++		};
++	};
++
+    m) Chipselect/Local Bus
 
-diff --git a/drivers/i2c/chips/pcf8575.c b/drivers/i2c/chips/pcf8575.c
-index 3ea08ac..4a4247d 100644
---- a/drivers/i2c/chips/pcf8575.c
-+++ b/drivers/i2c/chips/pcf8575.c
-@@ -67,15 +67,22 @@ static ssize_t show_read(struct device *dev, struct device_attribute *attr,
- 			 char *buf)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	int status, retval = -EIO;
- 	u16 val;
- 	u8 iopin_state[2];
- 
--	i2c_master_recv(client, iopin_state, 2);
-+	status = i2c_master_recv(client, iopin_state, 2);
- 
--	val = iopin_state[0];
--	val |= iopin_state[1] << 8;
-+	if (status == 2) {
-+		val = iopin_state[0];
-+		val |= iopin_state[1] << 8;
-+		return sprintf(buf, "%u\n", val);
-+	}
+    Properties:
+diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
+index 46e2da3..8ed1d22 100644
+--- a/arch/powerpc/boot/dts/mpc8272ads.dts
++++ b/arch/powerpc/boot/dts/mpc8272ads.dts
+@@ -217,6 +217,18 @@
+ 				linux,network-index = <1>;
+ 				fsl,cpm-command = <0x16200300>;
+ 			};
 +
-+	if (status < 0)
-+	    retval = status;
- 
--	return sprintf(buf, "%u\n", val);
-+	return retval;
- }
- 
- static DEVICE_ATTR(read, S_IRUGO, show_read, NULL);
-@@ -95,19 +102,25 @@ static ssize_t set_write(struct device *dev, struct device_attribute *attr,
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct pcf8575_data *data = i2c_get_clientdata(client);
- 	unsigned long val = simple_strtoul(buf, NULL, 10);
-+	int status, retval = -EIO;
- 	u8 iopin_state[2];
- 
- 	if (val > 0xffff)
- 		return -EINVAL;
- 
--	data->write = val;
--
- 	iopin_state[0] = val & 0xFF;
- 	iopin_state[1] = val >> 8;
- 
--	i2c_master_send(client, iopin_state, 2);
-+	status = i2c_master_send(client, iopin_state, 2);
++			i2c@11860 {
++				compatible = "fsl,mpc8272-i2c",
++					     "fsl,cpm2-i2c",
++					     "fsl,cpm-i2c";
++				reg = <0x11860 0x20 0x8afc 0x2>;
++				interrupts = <1 8>;
++				interrupt-parent = <&PIC>;
++				fsl,cpm-command = <0x29600000>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
+
+ 		PIC: interrupt-controller@10c00 {
+diff --git a/arch/powerpc/boot/dts/mpc866ads.dts b/arch/powerpc/boot/dts/mpc866ads.dts
+index 765e43c..50565b5 100644
+--- a/arch/powerpc/boot/dts/mpc866ads.dts
++++ b/arch/powerpc/boot/dts/mpc866ads.dts
+@@ -171,6 +171,18 @@
+ 				fsl,cpm-command = <0000>;
+ 				linux,network-index = <1>;
+ 			};
 +
-+	if (status == 2)
-+		retval = count;
-+	else if (status < 0)
-+		retval = status;
++			i2c@860 {
++				compatible = "fsl,mpc866-i2c",
++					     "fsl,cpm1-i2c",
++					     "fsl,cpm-i2c";
++				reg = <0x860 0x20 0x3c80 0x30>;
++				interrupts = <16>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0x10>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
+ 	};
+
+diff --git a/arch/powerpc/boot/dts/mpc885ads.dts b/arch/powerpc/boot/dts/mpc885ads.dts
+index 9895043..d76331a 100644
+--- a/arch/powerpc/boot/dts/mpc885ads.dts
++++ b/arch/powerpc/boot/dts/mpc885ads.dts
+@@ -215,6 +215,18 @@
+ 				fsl,cpm-command = <0x80>;
+ 				linux,network-index = <2>;
+ 			};
 +
-+	data->write = (status == 2) ? val : retval;
- 
--	return count;
-+	return retval;
- }
- 
- static DEVICE_ATTR(write, S_IWUSR | S_IRUGO, show_write, set_write);
++			i2c@860 {
++				compatible = "fsl,mpc885-i2c",
++					     "fsl,cpm1-i2c",
++					     "fsl,cpm-i2c";
++				reg = <0x860 0x20 0x3c80 0x30>;
++				interrupts = <16>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0x10>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
+ 	};
+
+diff --git a/arch/powerpc/platforms/82xx/mpc8272_ads.c b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+index 7d30187..8054c68 100644
+--- a/arch/powerpc/platforms/82xx/mpc8272_ads.c
++++ b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+@@ -96,6 +96,10 @@ static struct cpm_pin mpc8272_ads_pins[] = {
+ 	{1, 31, CPM_PIN_OUTPUT | CPM_PIN_PRIMARY},
+ 	{2, 16, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
+ 	{2, 17, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
++
++	/* I2C */
++	{3, 14, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
++	{3, 15, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc86xads_setup.c b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+index c028a5b..caaec29 100644
+--- a/arch/powerpc/platforms/8xx/mpc86xads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+@@ -65,6 +65,10 @@ static struct cpm_pin mpc866ads_pins[] = {
+ 	{CPM_PORTD, 13, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 14, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 15, CPM_PIN_OUTPUT},
++
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc885ads_setup.c b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+index 6e7ded0..45ed6cd 100644
+--- a/arch/powerpc/platforms/8xx/mpc885ads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+@@ -158,6 +158,9 @@ static struct cpm_pin mpc885ads_pins[] = {
+ 	{CPM_PORTE, 28, CPM_PIN_OUTPUT},
+ 	{CPM_PORTE, 29, CPM_PIN_OUTPUT},
+ #endif
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
 -- 
 1.5.5.1
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
