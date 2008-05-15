@@ -1,44 +1,68 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V4] I2C bus driver for IMX
-Date: Thu, 15 May 2008 11:59:22 +0200
-Message-ID: <20080515115922.3290d916@hyperion.delvare>
-References: <g0c44d$2ji$1@ger.gmane.org> <20080514213214.GB16881@fluff.org.uk>
-	<g0gqiq$21q$1@ger.gmane.org>
+From: Ben Dooks <ben@trinity.fluff.org>
+Subject: Re: [i2c] Wanted: i2c subsystem co-maintainer
+Date: Thu, 15 May 2008 11:16:38 +0100
+Message-ID: <20080515101638.GC22585@trinity.fluff.org>
+References: <20080304184512.3f78d296@hyperion.delvare> <20080325095028.07a73b11@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <g0gqiq$21q$1@ger.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756712AbYEOKo3@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080325095028.07a73b11@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 15 May 2008 10:55:30 +0300, Darius wrote:
-> seems, everybody has her own opinion. Is there somebody one, who can say 
-> how that should be? Because I have already two times changed that... I'm 
-> only beginner, so ambiguous comments are very unwanted...  As I know, 
-> Jean Delvare is responsible for I2C drivers. So, his word is welcome:)
+On Tue, Mar 25, 2008 at 09:50:28AM +0100, Jean Delvare wrote:
+> On Tue, 4 Mar 2008 18:45:12 +0100, Jean Delvare wrote:
+> > I have a hard time maintaining the i2c subsystem alone. New drivers
+> > and, more importantly, subsystem evolutions are submitted much faster
+> > than I can review and merge them. I am hearing complaints about this.
+> > It has been lasting for a while now and it doesn't seem like the
+> > situation is going to improve. Thus, I think it would be better if
+> > someone was co-maintaining the i2c subsystem with me.
+> > 
+> > So, if anyone is interested in co-maintaining the i2c subsystem with
+> > me, please let me know. The ideal candidate would come from the
+> > embedded world, as I have absolutely no experience with this myself and
+> > most of the new drivers are for embedded devices, and should have
+> > contributed to the kernel in a significant way already.
+> 
+> Ben Dooks agreed to become my co-maintainer for the i2c subsystem. In
+> particular, Ben will help with drivers for embedded systems, of which
+> my experience is inexistent. Thanks Ben and welcome on board!
+> 
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Acked-by: Ben Dooks <ben-linux@fluff.org>
+> ---
+> Ben, please give by your ack on this patch, then I will push it
+> upstream.
 
-Actually Ben is responsible for the embedded i2c drivers now. It would
-be written in MAINTAINERS already if said Ben had acked the patch
-adding his name there [1], but I am still waiting for that ack. Ben,
-please?
+Sorry, my main mailbox got hit by a major spam flood, have mostly
+sorted this out now.
 
-[1] http://lists.lm-sensors.org/pipermail/i2c/2008-March/003199.html
+> 
+>  MAINTAINERS |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> --- linux-2.6.25-rc6.orig/MAINTAINERS	2008-03-21 10:58:23.000000000 +0100
+> +++ linux-2.6.25-rc6/MAINTAINERS	2008-03-23 15:16:11.000000000 +0100
+> @@ -1883,6 +1883,8 @@ S:	Maintained
+>  I2C SUBSYSTEM
+>  P:	Jean Delvare
+>  M:	khali@linux-fr.org
+> +P:	Ben Dooks
+> +M:	ben-linux@fluff.org
+>  L:	i2c@lm-sensors.org
+>  T:	quilt http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
+>  S:	Maintained
+> 
+> -- 
+> Jean Delvare
 
 -- 
-Jean Delvare
+-- 
+Ben
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
