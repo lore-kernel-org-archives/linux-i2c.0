@@ -1,91 +1,101 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V4] I2C bus driver for IMX
-Date: Thu, 15 May 2008 10:30:04 +0200
-Message-ID: <20080515083004.GA4302@pengutronix.de>
-References: <g0c44d$2ji$1@ger.gmane.org> <20080514213214.GB16881@fluff.org.uk>
-	<g0gqiq$21q$1@ger.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: SFC driver implements its own I2C support
+Date: Thu, 15 May 2008 11:24:16 +0200
+Message-ID: <20080515112416.55ffd328@hyperion.delvare>
+References: <20080513103325.1ab317cf@hyperion.delvare>
+	<20080514215818.GH28241@solarflare.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8196090245684529531=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <g0gqiq$21q$1@ger.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080514215818.GH28241@solarflare.com>
+Sender: netdev-owner@vger.kernel.org
+To: Ben Hutchings <bhutchings@solarflare.com>
+Cc: Jeff Garzik <jgarzik@redhat.com>, netdev@vger.kernel.org, Linux I2C <i2c@lm-sensors.org>, linux-net-drivers@solarflare.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
 
---===============8196090245684529531==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
+On Wed, 14 May 2008 22:58:20 +0100, Ben Hutchings wrote:
+> Jean Delvare wrote:
+> > Hi Ben, hi Jeff,
+> 
+> Please use the address linux-net-drivers@solarflare.com, as listed in
+> MAINTAINERS, which goes to everyone working on the sfc driver here.
 
+OK, will do.
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > My attention was brought to the drivers/net/sfc/i2c-direct.c file which
+> > appeared recently in the Linux kernel. Apparently this is a custom
+> > implementation of I2C support, including software bit-banging. All this
+> > is already available in the Linux kernel in:
+> >   drivers/i2c/i2c-core.c
+> >   drivers/i2c/algos/i2c-algo-bit.c
+> > So it really doesn't make sense to duplicate the code in the sfc
+> > network driver.
+> >
+> > Can you please get rid of this custom I2C implementation and use the
+> > standard one?
+> 
+> We intend to do so, but may not be able to do it before 2.6.26.
 
-On Thu, May 15, 2008 at 10:55:30AM +0300, Darius wrote:
+OK, thanks. I understand that it's a bit late for 2.6.26, but you
+should work on it now so that it's ready for the 2.6.27 merge window.
 
-> >> +	for (i=3D0; i<I2C_IMX_TIME_BUSY; i++) {
-> > spacing in here: for (i =3D 0; i < I2C_IMX_TIME_BUSY; i++)
-> what is there wrong with spacing?
->
-> > spacing in here, (temp & I2CR_IEN) ? 1 : 0
-> I really should add dummy spaces...?
-Please do. Documentation/CodingStyle recommends it. While personal
-opinions on ceratin topics may vary, I think it is indeed helpful,
-if all kernel sources look somewhat similar.
+> > It should be really easy, all you have to do is include
+> > <linux/i2c.h> and <linux/i2c-algo-bit.h>, pack your SDA and SCL get/set
+> > functions in a struct i2c_algo_bit_data, and call i2c_bit_add_bus() on
+> > it. See drivers/video/intelfb/intelfb_i2c.c (or any framebuffer driver
+> > with I2C/DDC support) for an example.
+> 
+> I have made a start on this, and it looked like it would be a bit more
+> difficult than that.  But then perhaps I was doing more work than I
+> really needed to.
 
-> > yeurk, put these in a seperate header file, or place them near
-> > the driver. The "One Big Register File" is horrible, and hopefully
-> seems, everybody has her own opinion. Is there somebody one, who can say
-> how that should be? Because I have already two times changed that... I'm
-> only beginner, so ambiguous comments are very unwanted...  As I know,
-> Jean Delvare is responsible for I2C drivers. So, his word is welcome:)
-He suggested the same (=3D no register file) to me in January for the
-PCA9564-driver.
+If you come to the conclusion that either i2c-core or i2c-algo-bit
+misses something for you to be able (and happy) to use the standard i2c
+subsystem, please let me know. I'd rather add the missing pieces there
+for everybody to benefit than add yet another reimplementation of i2c.
+There are way too many already :(
 
-All the best,
+If you need help with the conversion, just ask me or on the i2c list.
 
-   Wolfram
+> Also, see comments from the original author of our I2C code in
+> <http://thread.gmane.org/gmane.linux.kernel.commits.head/145999/focus=92866>.
 
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
+Quoting this post:
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> Last time I checked (i.e. when I originally wrote this bit of the code), 
+> the kernel's own i2c layer didn't provide any clean way for kernel code 
+> (rather than user code) to access i2c devices.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+I am not sure what Michael was referring to exactly, but access to i2c
+devices from the kernel has been supported pretty much forever. Maybe
+he really meant access to hardware monitoring devices? For these indeed
+there is a standard user-space interface (through sysfs) but no
+standard in-kernel access; mainly because there has never been a clear
+need for one. Again, if you need something, please discuss it on the
+relevant mailing lists and we'll find a way for you to use the standard
+subsystems rather than reimplementing them for your own use.
 
-iD8DBQFIK/SMD27XaX1/VRsRAp2kAJ96+ZkP4a6aUmSGKNkJthnOZDzROwCgtLfU
-DeMaVYsvDS8vr9Xq6kaE1y0=
-=3+x+
------END PGP SIGNATURE-----
+> > Using the standard I2C implementation will give you access to all the
+> > i2c debugging tools, user-space access to the I2C bus if needed, and
+> > compatibility with all the Linux i2c device drivers, including hardware
+> > monitoring and GPIO drivers which apparently the SFC hardware uses.
+> 
+> Right.  But the most immediate requirement is that we be able to
+> configure I2C devices from the sfc driver.  Most of our reference
+> designs require that as part of their initialisation.
 
---dDRMvlgZJXvWKvBx--
+The changes that went into the i2c subsystem since kernel 2.6.22 should
+make it possible and relatively easy. You can instantiate the I2C
+devices you know are present on each adapter, and access them directly
+for specific configuration as needed. For hardware monitoring devices,
+you will have to add support for explicit device creation (aka
+new-style i2c driver), only a couple of hardware monitoring drivers have
+been converted at the moment (in particular the lm87 driver has not.)
+Again I can help with that if needed.
 
-
---===============8196090245684529531==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8196090245684529531==--
+Thanks,
+-- 
+Jean Delvare
