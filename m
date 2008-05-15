@@ -1,54 +1,42 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 1/3] i2c: Renesas Highlander FPGA SMBus support
-Date: Thu, 15 May 2008 13:58:31 +0200
-Message-ID: <20080515135831.0518489e@hyperion.delvare>
-References: <200805142314.m4ENEiMW026310@imap1.linux-foundation.org>
+From: Michael Brown <mbrown@fensystems.co.uk>
+Subject: Re: SFC driver implements its own I2C support
+Date: Thu, 15 May 2008 13:04:50 +0100 (BST)
+Message-ID: <Pine.LNX.4.62.0805151258150.13626@dolphin.home>
+References: <20080513103325.1ab317cf@hyperion.delvare> <20080514215818.GH28241@solarflare.com>
+ <20080515112416.55ffd328@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200805142314.m4ENEiMW026310-AB4EexQrvXRQetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080515112416.55ffd328@hyperion.delvare>
+Sender: netdev-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ben Hutchings <bhutchings@solarflare.com>, Jeff Garzik <jgarzik@redhat.com>, netdev@vger.kernel.org, Linux I2C <i2c@lm-sensors.org>, linux-net-drivers@solarflare.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
-
-On Wed, 14 May 2008 16:14:44 -0700, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
-> From: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+On Thu, 15 May 2008, Jean Delvare wrote:
+> > Last time I checked (i.e. when I originally wrote this bit of the 
+> > code), the kernel's own i2c layer didn't provide any clean way for 
+> > kernel code (rather than user code) to access i2c devices.
 > 
-> This adds support for the SMBus adapter found in the various FPGAs on the
-> Renesas Highlander platforms.  Particularly the R0P7780LC0011RL and
-> R0P7785LC0011RL FPGAs.
-> 
-> Functionality is fairly restricted, in that only byte and block data transfers
-> are supported.  Normal/fast mode and IRQ/polling are also supported. 
-> Primarily used for various RTCs and thermal sensors.
-> 
-> Signed-off-by: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-> Acked-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+> I am not sure what Michael was referring to exactly, but access to i2c 
+> devices from the kernel has been supported pretty much forever. Maybe he 
+> really meant access to hardware monitoring devices? For these indeed 
+> there is a standard user-space interface (through sysfs) but no standard 
+> in-kernel access; mainly because there has never been a clear need for 
+> one. Again, if you need something, please discuss it on the relevant 
+> mailing lists and we'll find a way for you to use the standard 
+> subsystems rather than reimplementing them for your own use.
 
-I have reviewed this new driver on April 25th:
-http://lists.lm-sensors.org/pipermail/i2c/2008-April/003397.html
-Trent Piepho added some valuable comments too. I am now waiting for
-Paul to submit an updated patch, but it did not happen yet. Which is
-why this patch isn't in my i2c tree.
+>From memory (and this may be inaccurate), it looked as though the i2c 
+subsystem code for EEPROM access was contained within 
+drivers/i2c/chips/eeprom.c, and that this code provided an interface for 
+userspace to access the EEPROM contents, but no interface for kernel code 
+to do so.
 
--- 
-Jean Delvare
+I think there may also have been issues with the fact that the i2c system 
+allows for failures on the shutdown path (e.g. i2c_detach_client() can 
+return a failure), which becomes awkward to handle when you are in the 
+middle of a shutdown path that is not allowed to fail (e.g. a
+pci_driver->remove method).
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Michael
