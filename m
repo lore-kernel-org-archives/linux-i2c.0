@@ -1,13 +1,13 @@
-From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCH V4] I2C bus driver for IMX
-Date: Thu, 15 May 2008 10:55:30 +0300
-Message-ID: <g0gqiq$21q$1@ger.gmane.org>
+Date: Thu, 15 May 2008 10:30:04 +0200
+Message-ID: <20080515083004.GA4302@pengutronix.de>
 References: <g0c44d$2ji$1@ger.gmane.org> <20080514213214.GB16881@fluff.org.uk>
+	<g0gqiq$21q$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8196090245684529531=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080514213214.GB16881-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <g0gqiq$21q$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,143 +17,75 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> do you really need to invent a new debugging type here? why not use
-> dev_dbg() to do the work, and ensure that your debug output is also
-> tagged with the device-id of the device it is being done for.
-> 
 
-ok, there was some problems using dev_dbg(), but I'll change it.
-
-
-> this is wrapping, how about not indenting. I do not belive yoy need to
-> use __init in the forward decleration of these functions.
-
-ok, changed.
+--===============8196090245684529531==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
 
 
->> +	for (i=0; i<I2C_IMX_TIME_BUSY; i++) {
-> 
-> spacing in here: for (i = 0; i < I2C_IMX_TIME_BUSY; i++)
-> 
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-what is there wrong with spacing?
+On Thu, May 15, 2008 at 10:55:30AM +0300, Darius wrote:
 
-> spacing in here, (temp & I2CR_IEN) ? 1 : 0
+> >> +	for (i=3D0; i<I2C_IMX_TIME_BUSY; i++) {
+> > spacing in here: for (i =3D 0; i < I2C_IMX_TIME_BUSY; i++)
+> what is there wrong with spacing?
+>
+> > spacing in here, (temp & I2CR_IEN) ? 1 : 0
+> I really should add dummy spaces...?
+Please do. Documentation/CodingStyle recommends it. While personal
+opinions on ceratin topics may vary, I think it is indeed helpful,
+if all kernel sources look somewhat similar.
 
-I really should add dummy spaces...?
+> > yeurk, put these in a seperate header file, or place them near
+> > the driver. The "One Big Register File" is horrible, and hopefully
+> seems, everybody has her own opinion. Is there somebody one, who can say
+> how that should be? Because I have already two times changed that... I'm
+> only beginner, so ambiguous comments are very unwanted...  As I know,
+> Jean Delvare is responsible for I2C drivers. So, his word is welcome:)
+He suggested the same (=3D no register file) to me in January for the
+PCA9564-driver.
 
-> 
-> given the amount of times these get used, an inline function would
-> have made it easier to write this.
+All the best,
 
-yes, now I removed it form most places, because it was not very useful 
-debug info. Only in ISR is leaved.
+   Wolfram
 
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
 
->> +
->> +	print_dbg("I2C: <i2c_imx_set_clk>\n");
->> +	sysclk = imx_get_system_clk ();
->> +	hclk = imx_get_hclk();
->> +	desired_div = hclk / rate;
-> 
-> really, is there not a decent clk_xxx() API support to get the
-> system and HCLK values?
-> 
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-there are two API functions to get SYSCLK and HCLK: imx_get_system_clk 
-(); and imx_get_hclk();
-And they are used there. Where is a problem?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
+iD8DBQFIK/SMD27XaX1/VRsRAp2kAJ96+ZkP4a6aUmSGKNkJthnOZDzROwCgtLfU
+DeMaVYsvDS8vr9Xq6kaE1y0=
+=3+x+
+-----END PGP SIGNATURE-----
 
->> +	if (desired_div & 0x01)
->> +		desired_div++;
->> +	if (desired_div < 22)
->> +		desired_div = 22;
->> +	if (desired_div > 3840)
->> +		desired_div = 3840;
->> +	for (i=0; i<50; i++) {
-> 
-> ARRAY_SIZE() is applicable here.
-> 
-
-ok, changed.
-
->> +
->> +	/* setup bus to read data */
->> +	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
->> +	temp &= ~I2CR_MTX;
->> +	if (msgs->len-1)
->> +	temp &= ~I2CR_TXAK;
-> 
-> indentation here.. completely unreadable.
-
-strange, because only one 'tab' symbol used. For me and others all seems 
-  ok.
-
->> +		if (i==(msgs->len-1)) {
->> +			print_dbg("I2C: <i2c_imx_read> clear MSTA\n");
->> +	    		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
->> +	    		temp &= ~I2CR_MSTA;
->> +	    		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
->> +		}
-> 
-> no line break needed
-
-where do you see line break?
-
-> keeping a pointer to the current message would have been more
-> efficient here, ie:
-> 
-> 	ptr = msgs;
-> 	for (i = 0; i < num; i++, ptr++) {
-> 		....
-> 	}
-
-what is meaning of this pointer? there I need only count messages, 
-nothing else...
-
-> 
-> use dev_err() here, and some line spacing wouldn't go amiss either.
-
-ok. I'll change all debug prints.
-
->> +	res_size = (res->end) - (res->start) + 1;
-> 
-> are the brackets necessary?
-
-maybe it is strange, but, for example, if I remove brakets from there 
-(first parameter):
-writeb(((msgs->addr<<1)|0x01), i2c_imx->base + IMX_I2C_I2DR);
-address is sent without LSB bit cleared. Therefore I've added brakets. I 
-think it does not make damage:)
+--dDRMvlgZJXvWKvBx--
 
 
-> you've miseed the MODULE_ALIAS() for the platform device.
-> 
-
-ok, added.
-
-> 
-> yeurk, put these in a seperate header file, or place them near
-> the driver. The "One Big Register File" is horrible, and hopefully
-> is going the same way as the Dodo.
-> 
-
-please, read this:
-news://news.gmane.org:119/c166aa9f0803140300n75f6790enee3f28bdebeba945-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org
-(03/14/2008 12:00 PM post from Andrew Dyer)
-
-seems, everybody has her own opinion. Is there somebody one, who can say 
-how that should be? Because I have already two times changed that... I'm 
-only beginner, so ambiguous comments are very unwanted...  As I know, 
-Jean Delvare is responsible for I2C drivers. So, his word is welcome:)
-
+--===============8196090245684529531==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8196090245684529531==--
