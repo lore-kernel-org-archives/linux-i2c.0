@@ -1,49 +1,54 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [i2c] SFC driver implements its own I2C support
-Date: Thu, 15 May 2008 14:58:16 +0200
-Message-ID: <20080515125816.GB4302@pengutronix.de>
-References: <20080513103325.1ab317cf@hyperion.delvare> <20080514215818.GH28241@solarflare.com> <20080515112416.55ffd328@hyperion.delvare> <Pine.LNX.4.62.0805151258150.13626@dolphin.home> <20080515143954.15bc4170@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Clean up Blackfin BF527 I2C device declarations
+Date: Thu, 15 May 2008 14:58:23 +0200
+Message-ID: <20080515145823.07af7819@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080515143954.15bc4170@hyperion.delvare>
-Sender: netdev-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Michael Brown <mbrown@fensystems.co.uk>, Ben Hutchings <bhutchings@solarflare.com>, netdev@vger.kernel.org, linux-net-drivers@solarflare.com, Jeff Garzik <jgarzik@redhat.com>, Linux I2C <i2c@lm-sensors.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+I2C_BOARD_INFO() now sets the type field so no need to set it
+separatetly.
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+---
+ arch/blackfin/mach-bf527/boards/ezkit.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-On Thu, May 15, 2008 at 02:39:54PM +0200, Jean Delvare wrote:
-> Apparently there are a lot of people interested in this so I will have
-> to find some time to finally review and merge the driver if it is ready
-> to go. Help with testing and review is welcome.
-Will send another version today (updated and ported to 2.6.26).
-Promised!
+--- linux-2.6.26-rc2.orig/arch/blackfin/mach-bf527/boards/ezkit.c	2008-05-12 08:22:03.000000000 +0200
++++ linux-2.6.26-rc2/arch/blackfin/mach-bf527/boards/ezkit.c	2008-05-15 14:53:00.000000000 +0200
+@@ -799,13 +799,11 @@ static struct i2c_board_info __initdata 
+ #if defined(CONFIG_TWI_LCD) || defined(CONFIG_TWI_LCD_MODULE)
+ 	{
+ 		I2C_BOARD_INFO("pcf8574_lcd", 0x22),
+-		.type = "pcf8574_lcd",
+ 	},
+ #endif
+ #if defined(CONFIG_TWI_KEYPAD) || defined(CONFIG_TWI_KEYPAD_MODULE)
+ 	{
+ 		I2C_BOARD_INFO("pcf8574_keypad", 0x27),
+-		.type = "pcf8574_keypad",
+ 		.irq = IRQ_PF8,
+ 	},
+ #endif
 
-   Wolfram
 
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
+-- 
+Jean Delvare
 
---yEPQxsgoJgBvi8ip
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFILDNoD27XaX1/VRsRArC7AKCjcbgpMBgoIKdz+tZMSqGEraUlOQCgvkAE
-2MLlokHlTmbRB08oHp2lPzg=
-=r3b/
------END PGP SIGNATURE-----
-
---yEPQxsgoJgBvi8ip--
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
