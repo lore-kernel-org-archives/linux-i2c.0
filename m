@@ -1,10 +1,13 @@
-From: Wei Liang <weiliang10-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-Subject: I2C device driver to simutaneously support 2 devices
-Date: Wed, 14 May 2008 23:18:46 -0700 (PDT)
-Message-ID: <213411.97989.qm@web30304.mail.mud.yahoo.com>
+From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V4] I2C bus driver for IMX
+Date: Thu, 15 May 2008 10:55:30 +0300
+Message-ID: <g0gqiq$21q$1@ger.gmane.org>
+References: <g0c44d$2ji$1@ger.gmane.org> <20080514213214.GB16881@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2756282725842624599=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080514213214.GB16881-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,68 +18,142 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============2756282725842624599==
-Content-Type: multipart/alternative; boundary="0-1960046990-1210832326=:97989"
+> do you really need to invent a new debugging type here? why not use
+> dev_dbg() to do the work, and ensure that your debug output is also
+> tagged with the device-id of the device it is being done for.
+> 
 
---0-1960046990-1210832326=:97989
-Content-Type: text/plain; charset=us-ascii
-
-Hi,
-
-I received this email address from Gregg Koah-Hartman.  I am writing to seek your advise  on writing a I2C device
-driver.  
-
-I am currently writing a device driver based on the sample code by Gregg in Linux Journal (http://www.linuxjournal.com/article/7252).  
-I am new to linux device driver development and am currently attempting
-to modify the code to enable it to simultaneously support 2 I2C devices
-- both devices resides on different addresses.  
-
-I have tried
-adding another i2c_add_driver function in 'static int __init
-tiny_init(void)' and subsequently reduplicate all functions involved in
-registering a
-new driver (e.g. static struct i2c_driver, i2c_detect, etc).  However,
-the code didn't seem to start.   I have scoured through I2C
-documentations in the Linux kernel  and also the book Linux Device Driver (O'Reilly) but have yet to come  across any reference for the above-mentioned task.  
-
-I am hoping that you could provide a few pointers on how best to proceed.  Thanks in advance.
-
-Cheers,
-Wei Liang
+ok, there was some problems using dev_dbg(), but I'll change it.
 
 
-      
---0-1960046990-1210832326=:97989
-Content-Type: text/html; charset=us-ascii
+> this is wrapping, how about not indenting. I do not belive yoy need to
+> use __init in the forward decleration of these functions.
 
-<html><head><style type="text/css"><!-- DIV {margin:0px;} --></style></head><body><div style="font-family:verdana,helvetica,sans-serif;font-size:10pt"><div style="font-family: verdana,helvetica,sans-serif; font-size: 10pt;">Hi,<br><br>I received this email address from Gregg Koah-Hartman.&nbsp; I am writing to seek your advise&nbsp; on writing a I2C device
-driver.&nbsp; <br><br>I am currently writing a device driver based on the sample code by Gregg in Linux Journal (<a target="_blank" href="http://www.linuxjournal.com/article/7252"><span class="yshortcuts" id="lw_1210824491_0">http://www.linuxjournal.com/article/7252</span></a>).&nbsp;&nbsp;
-I am new to linux device driver development and am currently attempting
-to modify the code to enable it to simultaneously support 2 I2C devices
-- both devices resides on different addresses.&nbsp; <br><br>I have tried
-adding another i2c_add_driver function in 'static int __init
-tiny_init(void)' and subsequently reduplicate all functions involved in
-registering a
-new driver (e.g. static struct i2c_driver, i2c_detect, etc).&nbsp; However,
-the code didn't seem to start.&nbsp;&nbsp; I have scoured through I2C
-documentations in the Linux kernel&nbsp; and also the book <span style="border-bottom: 1px dashed rgb(0, 102, 204); background: transparent none repeat scroll 0% 50%; cursor: pointer; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;" class="yshortcuts" id="lw_1210824491_1">Linux</span> Device Driver (O'Reilly) but have yet to come&nbsp; across any reference for the above-mentioned task.&nbsp; <br><br>I am hoping that you could provide a few pointers on how best to proceed.&nbsp; Thanks in advance.<br><br>Cheers,<br>Wei Liang</div></div><br>
+ok, changed.
 
 
+>> +	for (i=0; i<I2C_IMX_TIME_BUSY; i++) {
+> 
+> spacing in here: for (i = 0; i < I2C_IMX_TIME_BUSY; i++)
+> 
 
-      </body></html>
---0-1960046990-1210832326=:97989--
+what is there wrong with spacing?
+
+> spacing in here, (temp & I2CR_IEN) ? 1 : 0
+
+I really should add dummy spaces...?
+
+> 
+> given the amount of times these get used, an inline function would
+> have made it easier to write this.
+
+yes, now I removed it form most places, because it was not very useful 
+debug info. Only in ISR is leaved.
 
 
---===============2756282725842624599==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>> +
+>> +	print_dbg("I2C: <i2c_imx_set_clk>\n");
+>> +	sysclk = imx_get_system_clk ();
+>> +	hclk = imx_get_hclk();
+>> +	desired_div = hclk / rate;
+> 
+> really, is there not a decent clk_xxx() API support to get the
+> system and HCLK values?
+> 
+
+there are two API functions to get SYSCLK and HCLK: imx_get_system_clk 
+(); and imx_get_hclk();
+And they are used there. Where is a problem?
+
+
+>> +	if (desired_div & 0x01)
+>> +		desired_div++;
+>> +	if (desired_div < 22)
+>> +		desired_div = 22;
+>> +	if (desired_div > 3840)
+>> +		desired_div = 3840;
+>> +	for (i=0; i<50; i++) {
+> 
+> ARRAY_SIZE() is applicable here.
+> 
+
+ok, changed.
+
+>> +
+>> +	/* setup bus to read data */
+>> +	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+>> +	temp &= ~I2CR_MTX;
+>> +	if (msgs->len-1)
+>> +	temp &= ~I2CR_TXAK;
+> 
+> indentation here.. completely unreadable.
+
+strange, because only one 'tab' symbol used. For me and others all seems 
+  ok.
+
+>> +		if (i==(msgs->len-1)) {
+>> +			print_dbg("I2C: <i2c_imx_read> clear MSTA\n");
+>> +	    		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+>> +	    		temp &= ~I2CR_MSTA;
+>> +	    		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+>> +		}
+> 
+> no line break needed
+
+where do you see line break?
+
+> keeping a pointer to the current message would have been more
+> efficient here, ie:
+> 
+> 	ptr = msgs;
+> 	for (i = 0; i < num; i++, ptr++) {
+> 		....
+> 	}
+
+what is meaning of this pointer? there I need only count messages, 
+nothing else...
+
+> 
+> use dev_err() here, and some line spacing wouldn't go amiss either.
+
+ok. I'll change all debug prints.
+
+>> +	res_size = (res->end) - (res->start) + 1;
+> 
+> are the brackets necessary?
+
+maybe it is strange, but, for example, if I remove brakets from there 
+(first parameter):
+writeb(((msgs->addr<<1)|0x01), i2c_imx->base + IMX_I2C_I2DR);
+address is sent without LSB bit cleared. Therefore I've added brakets. I 
+think it does not make damage:)
+
+
+> you've miseed the MODULE_ALIAS() for the platform device.
+> 
+
+ok, added.
+
+> 
+> yeurk, put these in a seperate header file, or place them near
+> the driver. The "One Big Register File" is horrible, and hopefully
+> is going the same way as the Dodo.
+> 
+
+please, read this:
+news://news.gmane.org:119/c166aa9f0803140300n75f6790enee3f28bdebeba945-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org
+(03/14/2008 12:00 PM post from Andrew Dyer)
+
+seems, everybody has her own opinion. Is there somebody one, who can say 
+how that should be? Because I have already two times changed that... I'm 
+only beginner, so ambiguous comments are very unwanted...  As I know, 
+Jean Delvare is responsible for I2C drivers. So, his word is welcome:)
+
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2756282725842624599==--
