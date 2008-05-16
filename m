@@ -1,14 +1,13 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.26-rc1-git] i2c-core: return -Errno, not -1
-Date: Fri, 16 May 2008 09:14:58 +0200
-Message-ID: <20080516091458.28f9f5ca@hyperion.delvare>
-References: <200805031306.16698.david-b@pacbell.net>
-	<200805111516.08453.david-b@pacbell.net>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [patch 3/3] i2c: add support for i2c bus on
+	Freescale	CPM1/CPM2 controllers
+Date: Fri, 16 May 2008 10:37:43 +0200
+Message-ID: <20080516083743.GA4180@pengutronix.de>
+References: <200805142314.m4ENEjPV026316@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7870570749652878877=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200805111516.08453.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <200805142314.m4ENEjPV026316-AB4EexQrvXRQetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,72 +17,114 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: vitb-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, htoa-hi6Y0CQ0nG0@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, tmbinc-hi6Y0CQ0nG0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
 
-On Sun, 11 May 2008 15:16:07 -0700, David Brownell wrote:
-> More updates to the I2C stack's fault reporting:  make the core stop
-> returning "-1" (usually "-EPERM") for all faults.  Instead, pass lower
-> level fault code up the stack, or return some appropriate errno.
-> 
-> This patch happens to touch almost exclusively SMBus calls.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> ---
-> This is an updated version of:
-> 	http://marc.info/?l=i2c&m=120984528415259&w=2
-> with some return codes updated to address feedback from the similar
-> patch for the x86 I2C/SMBus adapters.
-> 
->  drivers/i2c/i2c-core.c |   78 +++++++++++++++++++++++++++----------------------
->  1 file changed, 44 insertions(+), 34 deletions(-)
-> 
+--===============7870570749652878877==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
 
-Looks very good, with just one suggested change:
 
-> --- g26.orig/drivers/i2c/i2c-core.c	2008-05-11 13:07:56.000000000 -0700
-> +++ g26/drivers/i2c/i2c-core.c	2008-05-11 15:09:00.000000000 -0700
-> (...)
-> @@ -1568,7 +1576,7 @@ static s32 i2c_smbus_xfer_emulated(struc
->  	default:
->  		dev_err(&adapter->dev, "smbus_access called with invalid size (%d)\n",
->  		       size);
-> -		return -1;
-> +		return -EOPNOTSUPP;
->  	}
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd rather use -EINVAL here. This case is a bit different from what we
-did in the bus drivers, because here the function handles all
-transaction types that exist. So if we reach the default case, it means
-that the caller passed an invalid parameter. -EOPNOTSUPP is not
-fundamentally incorrect but it's a little less precise.
+On Wed, May 14, 2008 at 04:14:45PM -0700, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
 
-In theory, in bus drivers we should separate between invalid
-transaction types and unsupported transaction types, returning -EINVAL
-for the former and -EOPNOTSUPP only for the latter. We do not simply
-because it makes little sense to make the drivers bigger just to report
-finer-grained error codes, especially when these error paths are almost
-never reached, and also because it's convenient to be able to grep for
-I2C_SMBUS_* transaction type constants to find out which drivers
-support a given transaction type.
+I just managed to test the latest version of this driver.
 
-BTW, feel free to adjust the debugging message above, as you did in
-some bus drivers already, to clearly say that we're speaking about a
-transaction type and not a "size".
+> +static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, =
+int num)
+> +{
+> +	struct cpm_i2c *cpm =3D i2c_get_adapdata(adap);
+> +	struct i2c_reg __iomem *i2c_reg =3D cpm->i2c_reg;
+> +	struct i2c_ram __iomem *i2c_ram =3D cpm->i2c_ram;
+> +	struct i2c_msg *pmsg;
+> +	int ret, i;
+> +	int tptr;
+> +	int rptr;
+> +	cbd_t __iomem *tbdf;
+> +	cbd_t __iomem *rbdf;
+> +
+> +	if (num > CPM_MAXBD)
+> +		return -EINVAL;
+> +
+> +	/* Check if we have any oversized READ requests */
+> +	for (i =3D 0; i < num; i++) {
+> +		pmsg =3D &msgs[i];
+> +		if (pmsg->len >=3D CPM_MAX_READ)
+> +			return -EINVAL;
+> +	}
+> +
+> +	/* Reset to use first buffer */
+> +	out_be16(&i2c_ram->rbptr, in_be16(&i2c_ram->rbase));
+> +	out_be16(&i2c_ram->tbptr, in_be16(&i2c_ram->tbase));
+> +
+> +	tbdf =3D cpm->tbase;
+> +	rbdf =3D cpm->rbase;
+> +
+> +	tptr =3D 0;
+> +	rptr =3D 0;
+> +
+> +	while (tptr < num) {
+> +		pmsg =3D &msgs[tptr];
+> +		dev_dbg(&adap->dev, "R: %d T: %d\n", rptr, tptr);
+> +
+> +		cpm_i2c_parse_message(adap, pmsg, num, tptr, rptr);
+> +		if (pmsg->flags & I2C_M_RD)
+> +			rptr++;
+> +		tptr++;
+> +	}
+> +	/* Start transfer now */
+> +	/* Enable RX/TX/Error interupts */
+> +	out_8(&i2c_reg->i2cmr, I2CER_BUSY | I2CER_TXB | I2CER_RXB);
+> +	out_8(&i2c_reg->i2cer, 0xff);	/* Clear interrupt status */
+> +	/* Chip bug, set enable here */
+> +	setbits8(&i2c_reg->i2mod, I2MOD_EN);	/* Enable */
+> +	/* Begin transmission */
+> +	setbits8(&i2c_reg->i2com, I2COM_MASTER);
+Bummer! This should not be I2COM_MASTER but I2COM_START! Otherwise no
+I2C communication will happen.
 
-All the rest looks OK to me from a functional point of view. As far as
-style is concerned, please keep the alignment on opening parenthesis
-when the original code did that. i2c-core uses this style consistently
-and I like it.
+After applying this change, the driver works fine on an MPC8260 (like
+the previous version did).
 
-Thanks,
--- 
-Jean Delvare
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD4DBQFILUfXD27XaX1/VRsRAsFqAJ9okWIIqx16mXNRCfa+KLytNAVy9gCYnd8J
+sbAnHh/ZNcxQx95DvLy4wA==
+=CnPn
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--
+
+
+--===============7870570749652878877==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7870570749652878877==--
