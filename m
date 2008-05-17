@@ -1,39 +1,120 @@
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Subject: Re: [PATCH 5/6] RTC: SMBus support for the M41T80, etc. driver (#2)
-Date: Sun, 18 May 2008 00:31:57 +0900 (JST)
-Message-ID: <20080518.003157.126143021.anemo@mba.ocn.ne.jp>
-References: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
-	<20080513140444.49d7a044@hyperion.delvare>
-	<Pine.LNX.4.55.0805131752340.7267@cliff.in.clinika.pl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Delete unused function i2c_smbus_write_quick
+Date: Sat, 17 May 2008 17:51:00 +0200
+Message-ID: <20080517175100.5bf2ee05@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757289AbYEQPa5@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0805131752340.7267@cliff.in.clinika.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: macro@linux-mips.org
-Cc: khali@linux-fr.org, a.zummo@towertech.it, akpm@linux-foundation.org, dwmw2@infradead.org, ralf@linux-mips.org, tglx@linutronix.de, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 13 May 2008 17:57:52 +0100 (BST), "Maciej W. Rozycki" <macro@linux-mips.org> wrote:
-> > You will do this even if all the registers were read as a block and the
-> > RTC latched the register values so they have to be correct. Isn't it a
-> > bit unfair / inefficient? If client->adapter has the
-> > I2C_FUNC_SMBUS_READ_I2C_BLOCK functionality you can skip the comparison
-> > and retry mechanism completely, saving some time and CPU cycles.
-> 
->  Well, actually there is a reason beyond that.  It may change if we
-> support subsecond resolution, but we currently do not.  The reason is if
-> we return the original timestamp and the seconds register changes while
-> the timestamp is being read, then effectively we return a value that is
-> off by one second.  This is why for seconds I decided to return the second
-> value read all the time.
+Function i2c_smbus_write_quick has no users left, so we can delete it.
 
-I suppose the "off by one second" issue is not the matter each driver
-should take care of.  This race is common for most RTC chip.
+Also update the list of these helper functions which are gone but
+could be added back if needed.
 
-I do not have strong opinion for optimization suggested by Jean.  It
-might be better, but I'm OK with current your patch.
-
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
-Atsushi Nemoto
+ Documentation/i2c/smbus-protocol  |    4 ++--
+ Documentation/i2c/writing-clients |   14 +++++++-------
+ drivers/i2c/i2c-core.c            |    7 -------
+ include/linux/i2c.h               |    1 -
+ 4 files changed, 9 insertions(+), 17 deletions(-)
+
+--- linux-2.6.26-rc2.orig/Documentation/i2c/smbus-protocol	2008-05-12 08:22:03.000000000 +0200
++++ linux-2.6.26-rc2/Documentation/i2c/smbus-protocol	2008-05-17 17:02:07.000000000 +0200
+@@ -42,8 +42,8 @@ Count (8 bits): A data byte containing t
+ [..]: Data sent by I2C device, as opposed to data sent by the host adapter.
+ 
+ 
+-SMBus Quick Command:  i2c_smbus_write_quick()
+-=============================================
++SMBus Quick Command
++===================
+ 
+ This sends a single bit to the device, at the place of the Rd/Wr bit.
+ 
+--- linux-2.6.26-rc2.orig/Documentation/i2c/writing-clients	2008-05-04 09:49:36.000000000 +0200
++++ linux-2.6.26-rc2/Documentation/i2c/writing-clients	2008-05-17 17:37:24.000000000 +0200
+@@ -559,7 +559,6 @@ SMBus communication
+   in terms of it. Never use this function directly!
+ 
+ 
+-  extern s32 i2c_smbus_write_quick(struct i2c_client * client, u8 value);
+   extern s32 i2c_smbus_read_byte(struct i2c_client * client);
+   extern s32 i2c_smbus_write_byte(struct i2c_client * client, u8 value);
+   extern s32 i2c_smbus_read_byte_data(struct i2c_client * client, u8 command);
+@@ -568,20 +567,21 @@ SMBus communication
+   extern s32 i2c_smbus_read_word_data(struct i2c_client * client, u8 command);
+   extern s32 i2c_smbus_write_word_data(struct i2c_client * client,
+                                        u8 command, u16 value);
++  extern s32 i2c_smbus_read_block_data(struct i2c_client * client,
++                                       u8 command, u8 *values);
+   extern s32 i2c_smbus_write_block_data(struct i2c_client * client,
+                                         u8 command, u8 length,
+                                         u8 *values);
+   extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
+                                            u8 command, u8 length, u8 *values);
+-
+-These ones were removed in Linux 2.6.10 because they had no users, but could
+-be added back later if needed:
+-
+-  extern s32 i2c_smbus_read_block_data(struct i2c_client * client,
+-                                       u8 command, u8 *values);
+   extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
+                                             u8 command, u8 length,
+                                             u8 *values);
++
++These ones were removed from i2c-core because they had no users, but could
++be added back later if needed:
++
++  extern s32 i2c_smbus_write_quick(struct i2c_client * client, u8 value);
+   extern s32 i2c_smbus_process_call(struct i2c_client * client,
+                                     u8 command, u16 value);
+   extern s32 i2c_smbus_block_process_call(struct i2c_client *client,
+--- linux-2.6.26-rc2.orig/drivers/i2c/i2c-core.c	2008-05-17 16:54:32.000000000 +0200
++++ linux-2.6.26-rc2/drivers/i2c/i2c-core.c	2008-05-17 17:03:56.000000000 +0200
+@@ -1299,13 +1299,6 @@ static int i2c_smbus_check_pec(u8 cpec, 
+ 	return 0;
+ }
+ 
+-s32 i2c_smbus_write_quick(struct i2c_client *client, u8 value)
+-{
+-	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                      value,0,I2C_SMBUS_QUICK,NULL);
+-}
+-EXPORT_SYMBOL(i2c_smbus_write_quick);
+-
+ s32 i2c_smbus_read_byte(struct i2c_client *client)
+ {
+ 	union i2c_smbus_data data;
+--- linux-2.6.26-rc2.orig/include/linux/i2c.h	2008-05-15 15:14:18.000000000 +0200
++++ linux-2.6.26-rc2/include/linux/i2c.h	2008-05-17 17:12:04.000000000 +0200
+@@ -71,7 +71,6 @@ extern s32 i2c_smbus_xfer (struct i2c_ad
+ /* Now follow the 'nice' access routines. These also document the calling
+    conventions of smbus_access. */
+ 
+-extern s32 i2c_smbus_write_quick(struct i2c_client * client, u8 value);
+ extern s32 i2c_smbus_read_byte(struct i2c_client * client);
+ extern s32 i2c_smbus_write_byte(struct i2c_client * client, u8 value);
+ extern s32 i2c_smbus_read_byte_data(struct i2c_client * client, u8 command);
+
+
+-- 
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
