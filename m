@@ -1,13 +1,15 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C device driver to simutaneously support 2 devices
-Date: Fri, 16 May 2008 21:54:56 +0200
-Message-ID: <20080516215456.097c248c@hyperion.delvare>
-References: <213411.97989.qm@web30304.mail.mud.yahoo.com>
+Subject: Re: [patch 2.6.26-rc1-git] i2c-core: return -Errno, not -1
+Date: Sat, 17 May 2008 08:15:37 +0200
+Message-ID: <20080517081537.17220cd0@hyperion.delvare>
+References: <200805031306.16698.david-b@pacbell.net>
+	<200805111516.08453.david-b@pacbell.net>
+	<20080516091458.28f9f5ca@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <213411.97989.qm-1S7A5l4uV2KvuULXzWHTWIglqE1Y4D90QQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <20080516091458.28f9f5ca-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,64 +19,68 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wei Liang <weiliang10-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wei,
-
-On Wed, 14 May 2008 23:18:46 -0700 (PDT), Wei Liang wrote:
-> I received this email address from Gregg Koah-Hartman.  I am writing
-> to seek your advise  on writing a I2C device driver.  
+On Fri, 16 May 2008 09:14:58 +0200, Jean Delvare wrote:
+> Hi David,
 > 
-> I am currently writing a device driver based on the sample code by
-> Gregg in Linux Journal (http://www.linuxjournal.com/article/7252).
-
-I didn't even know that Greg had been writing articles about I2C.
-
-Please note that this article is getting old, and many things it
-mentions have changed since then. I strongly suggest that you take
-a look at what i2c drivers in the current kernel tree look like, it
-will give you a better picture of the current situation than Greg's
-article.
-
-> I am new to linux device driver development and am currently attempting
-> to modify the code to enable it to simultaneously support 2 I2C devices
-> - both devices resides on different addresses.  
+> On Sun, 11 May 2008 15:16:07 -0700, David Brownell wrote:
+> > More updates to the I2C stack's fault reporting:  make the core stop
+> > returning "-1" (usually "-EPERM") for all faults.  Instead, pass lower
+> > level fault code up the stack, or return some appropriate errno.
+> > 
+> > This patch happens to touch almost exclusively SMBus calls.
+> > 
+> > Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> > ---
+> > This is an updated version of:
+> > 	http://marc.info/?l=i2c&m=120984528415259&w=2
+> > with some return codes updated to address feedback from the similar
+> > patch for the x86 I2C/SMBus adapters.
+> > 
+> >  drivers/i2c/i2c-core.c |   78 +++++++++++++++++++++++++++----------------------
+> >  1 file changed, 44 insertions(+), 34 deletions(-)
+> > 
 > 
-> I have tried
-> adding another i2c_add_driver function in 'static int __init
-> tiny_init(void)' and subsequently reduplicate all functions involved in
-> registering a
-> new driver (e.g. static struct i2c_driver, i2c_detect, etc).  However,
-> the code didn't seem to start.   I have scoured through I2C
-> documentations in the Linux kernel  and also the book Linux Device Driver
-> (O'Reilly) but have yet to come  across any reference for the
-> above-mentioned task.  
+> Looks very good, with just one suggested change:
 > 
-> I am hoping that you could provide a few pointers on how best to proceed.
+> > --- g26.orig/drivers/i2c/i2c-core.c	2008-05-11 13:07:56.000000000 -0700
+> > +++ g26/drivers/i2c/i2c-core.c	2008-05-11 15:09:00.000000000 -0700
+> > (...)
+> > @@ -1568,7 +1576,7 @@ static s32 i2c_smbus_xfer_emulated(struc
+> >  	default:
+> >  		dev_err(&adapter->dev, "smbus_access called with invalid size (%d)\n",
+> >  		       size);
+> > -		return -1;
+> > +		return -EOPNOTSUPP;
+> >  	}
+> 
+> I'd rather use -EINVAL here. (...)
 
-You definitely do not want to have more than one struct i2c_driver
-in your module. If you are going to support really different devices,
-you want to write separate modules for them. If your 2 devices are
-similar enough to be supported by the same driver, then a single
-struct i2c_driver should work fine.
+Hmh, scratch this. Thinking about it some more (night helps)
+-EOPNOTSUPP is consistent with what we did for the bus drivers after
+all, and it also anticipates addition of new transaction types to
+<linux/i2c.h> or removal of support for some transaction types from
+i2c_smbus_xfer_emulated() (which might as well happen, if you look
+carefully you'll see that there are no in-kernel users of transaction
+types I2C_SMBUS_PROC_CALL and I2C_SMBUS_BLOCK_PROC_CALL so we might
+decide to remove thir support from i2c_smbus_xfer_emulated someday.)
 
-I don't really understand what your problem is. Having an I2C driver
-supporting several devices at different addresses doesn't present any
-special difficulty, it is the default behavior. A lot of I2C drivers in
-the kernel do that, just take a look at them. For example, the max6650
-hardware monitoring driver supports I2C devices at 4 different
-addresses, and declares them with:
+> (..)
+> BTW, feel free to adjust the debugging message above, as you did in
+> some bus drivers already, to clearly say that we're speaking about a
+> transaction type and not a "size".
+> 
+> All the rest looks OK to me from a functional point of view. As far as
+> style is concerned, please keep the alignment on opening parenthesis
+> when the original code did that. i2c-core uses this style consistently
+> and I like it.
 
-static const unsigned short normal_i2c[] = {0x1b, 0x1f, 0x48, 0x4b,
-						I2C_CLIENT_END};
+I'll do all this myself now, no need to resend.
 
-If you write a legacy i2c driver (which is what Greg's article
-describes) then you would have something like the above in your module.
-Your i2c_driver will then attempt to attach to any I2C device living at
-any of the addresses in the list.
-
+Thanks,
 -- 
 Jean Delvare
 
