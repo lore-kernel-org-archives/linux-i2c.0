@@ -1,51 +1,39 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [patch 2.6.26-rc1] i2c_use_client() defends against NULL
-Date: Sat, 17 May 2008 11:53:04 -0700
-Message-ID: <200805171153.04995.david-b@pacbell.net>
-References: <200805041306.21074.david-b@pacbell.net>
-	<200805170657.56833.david-b@pacbell.net>
-	<Pine.LNX.4.58.0805171048070.4196@shell4.speakeasy.net>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [PATCH 5/6] RTC: SMBus support for the M41T80, etc. driver (#2)
+Date: Sat, 17 May 2008 21:46:35 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805172134420.10067@cliff.in.clinika.pl>
+References: <Pine.LNX.4.55.0805130254420.535@cliff.in.clinika.pl>
+ <20080513140444.49d7a044@hyperion.delvare> <Pine.LNX.4.55.0805131752340.7267@cliff.in.clinika.pl>
+ <20080518.003157.126143021.anemo@mba.ocn.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.58.0805171048070.4196-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20080518.003157.126143021.anemo@mba.ocn.ne.jp>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: khali@linux-fr.org, a.zummo@towertech.it, akpm@linux-foundation.org, dwmw2@infradead.org, ralf@linux-mips.org, tglx@linutronix.de, rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 17 May 2008, Trent Piepho wrote:
-> > > Passing NULL to the current functions would just crash, it wouldn't
-> > > morph anything.
-> >
-> > That's only if you assume an MMU set up to cause oopsing on reference
-> > to the first and last pages of memory. =A0Not the best of assumptions...
-> =
+On Sun, 18 May 2008, Atsushi Nemoto wrote:
 
-> Maybe BUG_ON(!client) would be better? =A0It seems more likely to catch
-> a programming error.
+> I suppose the "off by one second" issue is not the matter each driver
+> should take care of.  This race is common for most RTC chip.
 
-BUG_ON() is almost always the wrong answer though ... it's only
-appropriate when there's no way for the system to continue.
+ I agree, but with the reread it comes for free here.  Given you have two 
+values of seconds available here, which one would you choose?  You can't 
+take both at once. ;-)
 
-And in fact, here it's *not* a bug...
+> I do not have strong opinion for optimization suggested by Jean.  It
+> might be better, but I'm OK with current your patch.
 
-Passing NULL around is more often OK than not.  Example, it's
-expected that passing it to a "free this object" routine will
-work, saving callers a NULL check.  Similarly, refcount calls.
+ Hmm, it looks as simple as putting a clause like:
 
+	if (i2c_check_functionality(client->adapter, 
+				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)
+		break;
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+into the loop and even at 400kHz it saves a considerable amount of time.
+It sounds plausible -- I'll do that.
+
+  Maciej
