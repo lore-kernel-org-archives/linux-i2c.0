@@ -1,182 +1,400 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [patch 2.6.25-git] i2c_adapters:  return -Errno not -1
-Date: Sat, 17 May 2008 17:54:15 -0700
-Message-ID: <200805171754.15976.david-b@pacbell.net>
-References: <200805012046.07885.david-b@pacbell.net>
-	<200805120943.04899.david-b@pacbell.net>
-	<20080515191631.7791346c@hyperion.delvare>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: [PATCH 5/6 #3] RTC: SMBus support for the M41T80, etc. driver
+Date: Sun, 18 May 2008 04:53:54 +0100 (BST)
+Message-ID: <Pine.LNX.4.55.0805180447210.10067@cliff.in.clinika.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080515191631.7791346c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-mips-bounce@linux-mips.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Alessandro Zummo <a.zummo@towertech.it>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, Jean Delvare <khali@linux-fr.org>
+Cc: rtc-linux@googlegroups.com, i2c@lm-sensors.org, linux-mips@linux-mips.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 15 May 2008, Jean Delvare wrote:
-> Hi David,
-> 
-> On Mon, 12 May 2008 09:43:04 -0700, David Brownell wrote:
-> > --- g26.orig/drivers/i2c/busses/i2c-ali1563.c	2008-05-11 17:55:01.000000000 -0700
-> > +++ g26/drivers/i2c/busses/i2c-ali1563.c	2008-05-11 17:55:08.000000000 -0700
-> > 	...
-> 
-> This one doesn't look right. You should return -ENXIO in all cases (but
-> only print the error message on size != HST_CNTL2_QUICK.) The right way
-> to do this, I think, would be to move this specific check at the end of
-> the function, so that the other error checks are still done in all
-> cases.
+ The BCM1250A SOC which is used on the SWARM board utilising an M41T81
+chip only supports pure I2C in the raw bit-banged mode.  Nobody sane
+really wants to use it unless absolutely necessary and the M41T80, etc.  
+chips work just fine with an SMBus adapter which is what the standard mode
+of operation of the BCM1250A.  The only drawback of byte accesses with the
+M41T80 is the chip only latches clock data registers for the duration of
+an I2C transaction which works fine with a block transfers, but not
+byte-wise accesses.
 
-OK, done ...
+ The driver currently requires an I2C adapter providing both SMBus and raw
+I2C access.  This is a set of changes to make it work with any SMBus
+adapter providing at least read byte and write byte protocols.  
+Additionally, if a given SMBus adapter supports I2C block read and/or
+write protocols (a common extension beyond the SMBus spec), they are used
+as well.  The problem of unlatched clock data if SMBus byte transactions
+are used is resolved in the standard way.  For raw I2C controllers this
+functionality is provided by the I2C core as SMBus emulation in a
+transparent way.
 
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+---
+ Following a suggestion from Jean, here is an updated version that does 
+not reread the seconds when block transfers are used.  Please apply this 
+one instead.
 
-> > @@ -164,13 +168,17 @@ static int ali1563_block_start(struct i2
-> >  
-> >  	if (timeout && !(data & HST_STS_BAD))
-> >  		return 0;
-> > +
-> > +	if (timeout == 0 && !(data & HST_STS_DONE))
-> > +		status = -ETIMEDOUT;
-> 
-> That's pretty strange to check for both timeout == 0 and !(data &
-> HST_STS_DONE), given that the former implies the latter if I read the
-> code correctly. The same strangeness is present in the code below, if
-> we print "Timeout" then we will also print "Transaction Never Finished".
+  Maciej
 
-Without chip docs, and knowing that it overloads lots of fault
-cases into not enough bits, I wouldn't rely on such conclusions.
-Instead, I just tried to make sure the ETIMEDOUT means exactly
-what is promised in the faultcode writeup.
-
-
-> > +
-> >  	dev_err(&a->dev, "SMBus Error: %s%s%s%s%s\n",
-> >  		timeout ? "Timeout " : "",
-> 
-> BTW, isn't there a bug here? I think the test should be timeout == 0.
-
-Right, fixed.
-
-> >  		data & HST_STS_FAIL ? "Transaction Failed " : "",
-> >  		data & HST_STS_BUSERR ? "No response or Bus Collision " : "",
-> >  		data & HST_STS_DEVERR ? "Device Error " : "",
-> >  		!(data & HST_STS_DONE) ? "Transaction Never Finished " : "");
-> > -	return -1;
-> > +	return status;
-> >  }
-> 
-> I thought we had agreed that we would return -ENXIO for HST_STS_DEVERR,
-> as we already do in ali1563_transaction()?
-
-I thought we'd agreed to not play guessing games about the behavior
-of chips we don't have docs for ... ;)
-
+patch-2.6.26-rc1-20080505-m41t80-smbus-18
+diff -up --recursive --new-file linux-2.6.26-rc1-20080505.macro/drivers/rtc/rtc-m41t80.c linux-2.6.26-rc1-20080505/drivers/rtc/rtc-m41t80.c
+--- linux-2.6.26-rc1-20080505.macro/drivers/rtc/rtc-m41t80.c	2008-05-05 02:55:40.000000000 +0000
++++ linux-2.6.26-rc1-20080505/drivers/rtc/rtc-m41t80.c	2008-05-18 02:56:08.000000000 +0000
+@@ -6,6 +6,7 @@
+  * Based on m41t00.c by Mark A. Greer <mgreer@mvista.com>
+  *
+  * 2006 (c) mycable GmbH
++ * Copyright (c) 2008  Maciej W. Rozycki
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -36,6 +37,8 @@
+ #define M41T80_REG_DAY	5
+ #define M41T80_REG_MON	6
+ #define M41T80_REG_YEAR	7
++#define M41T80_REG_CONTROL	8
++#define M41T80_REG_WATCHDOG	9
+ #define M41T80_REG_ALARM_MON	0xa
+ #define M41T80_REG_ALARM_DAY	0xb
+ #define M41T80_REG_ALARM_HOUR	0xc
+@@ -58,7 +61,7 @@
+ #define M41T80_FEATURE_HT	(1 << 0)
+ #define M41T80_FEATURE_BL	(1 << 1)
  
-> > --- g26.orig/drivers/i2c/busses/i2c-viapro.c	2008-05-11 17:55:01.000000000 -0700
-> > +++ g26/drivers/i2c/busses/i2c-viapro.c	2008-05-11 17:55:08.000000000 -0700
-> > @@ -152,7 +152,7 @@ static int vt596_transaction(u8 size)
-> > (...)
-> >  	if (temp & 0x04) {
-> >  		int read = inb_p(SMBHSTADD) & 0x01;
-> > -		result = -1;
-> > +		result = -EIO;
-> >  		/* The quick and receive byte commands are used to probe
-> >  		   for chips, so errors are expected, and we don't want
-> >  		   to frighten the user. */
-> >  		if (!((size == VT596_QUICK && !read) ||
-> >  		      (size == VT596_BYTE && read)))
-> >  			dev_err(&vt596_adapter.dev, "Transaction error!\n");
-> > +		else
-> > +			result = -ENXIO;
-> >  	}
-> 
-> This is not correct, the result is always -ENXIO, whether you display
-> an error message or not.
-
-Fixed.
-
-
-> All the rest looks fine now. BTW, I can test i2c-piix4, i2c-i801,
-> i2c-viapro and i2c-nforce2 here, and will do soon.
-
-Appended is a small fixup patch addressing the issues above ...
-
-- Dave
-
-
---- g26.orig/drivers/i2c/busses/i2c-ali1563.c	2008-05-17 17:53:24.000000000 -0700
-+++ g26/drivers/i2c/busses/i2c-ali1563.c	2008-05-17 17:48:01.000000000 -0700
-@@ -105,14 +105,6 @@ static int ali1563_transaction(struct i2
- 		data = inb_p(SMB_HST_STS);
-  	}
+-#define DRV_VERSION "0.05"
++#define DRV_VERSION "0.06"
  
--	/* device error - no response, ignore the autodetection case */
--	if (data & HST_STS_DEVERR) {
--		if (size != HST_CNTL2_QUICK)
--			dev_err(&a->dev, "Device error!\n");
--		else
--			return -ENXIO;
--	}
--
- 	/* bus collision */
- 	if (data & HST_STS_BUSERR) {
- 		dev_err(&a->dev, "Bus collision!\n");
-@@ -125,6 +117,13 @@ static int ali1563_transaction(struct i2
- 		outb_p(0x0,SMB_HST_CNTL2);
+ static const struct i2c_device_id m41t80_id[] = {
+ 	{ "m41t80", 0 },
+@@ -78,31 +81,88 @@ struct m41t80_data {
+ 	struct rtc_device *rtc;
+ };
+ 
+-static int m41t80_get_datetime(struct i2c_client *client,
+-			       struct rtc_time *tm)
++
++static int m41t80_write_block_data(struct i2c_client *client,
++				   u8 reg, u8 num, u8 *buf)
+ {
+-	u8 buf[M41T80_DATETIME_REG_SIZE], dt_addr[1] = { M41T80_REG_SEC };
+-	struct i2c_msg msgs[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1,
+-			.buf	= dt_addr,
+-		},
+-		{
+-			.addr	= client->addr,
+-			.flags	= I2C_M_RD,
+-			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
+-			.buf	= buf + M41T80_REG_SEC,
+-		},
+-	};
++	int i, rc;
+ 
+-	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
+-		dev_err(&client->dev, "read error\n");
+-		return -EIO;
++	if (i2c_check_functionality(client->adapter,
++				    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++		i = i2c_smbus_write_i2c_block_data(client, reg, num, buf);
++	} else {
++		for (i = 0; i < num; i++) {
++			rc = i2c_smbus_write_byte_data(client, reg + i,
++						       buf[i]);
++			if (rc < 0) {
++				i = rc;
++				goto out;
++			}
++		}
+ 	}
++out:
++	return i;
++}
++
++static int m41t80_read_block_data(struct i2c_client *client,
++				  u8 reg, u8 num, u8 *buf)
++{
++	int i, rc;
++
++	if (i2c_check_functionality(client->adapter,
++				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
++		i = i2c_smbus_read_i2c_block_data(client, reg, num, buf);
++	} else {
++		for (i = 0; i < num; i++) {
++			rc = i2c_smbus_read_byte_data(client, reg + i);
++			if (rc < 0) {
++				i = rc;
++				goto out;
++			}
++			buf[i] = rc;
++		}
++	}
++out:
++	return i;
++}
++
++static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	u8 buf[M41T80_DATETIME_REG_SIZE];
++	int loops = 2;
++	int sec0, sec1;
++
++	/*
++	 * Time registers are latched by this chip if an I2C block
++	 * transfer is used, but with SMBus-style byte accesses
++	 * this is not the case, so check seconds for a wraparound.
++	 */
++	do {
++		if (m41t80_read_block_data(client, M41T80_REG_SEC,
++					   M41T80_DATETIME_REG_SIZE -
++					   M41T80_REG_SEC,
++					   buf + M41T80_REG_SEC) < 0) {
++			dev_err(&client->dev, "read error\n");
++			return -EIO;
++		}
++		if (i2c_check_functionality(client->adapter,
++					    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
++			sec1 = buf[M41T80_REG_SEC];
++			break;
++		}
+ 
+-	tm->tm_sec = BCD2BIN(buf[M41T80_REG_SEC] & 0x7f);
++		sec0 = buf[M41T80_REG_SEC];
++		sec1 = i2c_smbus_read_byte_data(client, M41T80_REG_SEC);
++		if (sec1 < 0) {
++			dev_err(&client->dev, "read error\n");
++			return -EIO;
++		}
++
++		sec0 = BCD2BIN(sec0 & 0x7f);
++		sec1 = BCD2BIN(sec1 & 0x7f);
++	} while (sec1 < sec0 && --loops);
++
++	tm->tm_sec = sec1;
+ 	tm->tm_min = BCD2BIN(buf[M41T80_REG_MIN] & 0x7f);
+ 	tm->tm_hour = BCD2BIN(buf[M41T80_REG_HOUR] & 0x3f);
+ 	tm->tm_mday = BCD2BIN(buf[M41T80_REG_DAY] & 0x3f);
+@@ -117,39 +177,16 @@ static int m41t80_get_datetime(struct i2
+ /* Sets the given date and time to the real time clock. */
+ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+-	u8 wbuf[1 + M41T80_DATETIME_REG_SIZE];
+-	u8 *buf = &wbuf[1];
+-	u8 dt_addr[1] = { M41T80_REG_SEC };
+-	struct i2c_msg msgs_in[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1,
+-			.buf	= dt_addr,
+-		},
+-		{
+-			.addr	= client->addr,
+-			.flags	= I2C_M_RD,
+-			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
+-			.buf	= buf + M41T80_REG_SEC,
+-		},
+-	};
+-	struct i2c_msg msgs[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1 + M41T80_DATETIME_REG_SIZE,
+-			.buf	= wbuf,
+-		 },
+-	};
++	u8 buf[M41T80_DATETIME_REG_SIZE];
+ 
+ 	/* Read current reg values into buf[1..7] */
+-	if (i2c_transfer(client->adapter, msgs_in, 2) < 0) {
++	if (m41t80_read_block_data(client, M41T80_REG_SEC,
++				   M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
++				   buf + M41T80_REG_SEC) < 0) {
+ 		dev_err(&client->dev, "read error\n");
+ 		return -EIO;
  	}
  
-+	/* device error - no response, ignore the autodetection case */
-+	if (data & HST_STS_DEVERR) {
-+		if (size != HST_CNTL2_QUICK)
-+			dev_err(&a->dev, "Device error!\n");
-+		return -ENXIO;
-+	}
-+
- 	return -EIO;
+-	wbuf[0] = 0; /* offset into rtc's regs */
+ 	/* Merge time-data and register flags into buf[0..7] */
+ 	buf[M41T80_REG_SSEC] = 0;
+ 	buf[M41T80_REG_SEC] =
+@@ -167,7 +204,8 @@ static int m41t80_set_datetime(struct i2
+ 	/* assume 20YY not 19YY */
+ 	buf[M41T80_REG_YEAR] = BIN2BCD(tm->tm_year % 100);
+ 
+-	if (i2c_transfer(client->adapter, msgs, 1) != 1) {
++	if (m41t80_write_block_data(client, M41T80_REG_SSEC,
++				    M41T80_DATETIME_REG_SIZE, buf) < 0) {
+ 		dev_err(&client->dev, "write error\n");
+ 		return -EIO;
+ 	}
+@@ -241,34 +279,11 @@ err:
+ static int m41t80_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	u8 wbuf[1 + M41T80_ALARM_REG_SIZE];
+-	u8 *buf = &wbuf[1];
++	u8 buf[M41T80_ALARM_REG_SIZE];
+ 	u8 *reg = buf - M41T80_REG_ALARM_MON;
+-	u8 dt_addr[1] = { M41T80_REG_ALARM_MON };
+-	struct i2c_msg msgs_in[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1,
+-			.buf	= dt_addr,
+-		},
+-		{
+-			.addr	= client->addr,
+-			.flags	= I2C_M_RD,
+-			.len	= M41T80_ALARM_REG_SIZE,
+-			.buf	= buf,
+-		},
+-	};
+-	struct i2c_msg msgs[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1 + M41T80_ALARM_REG_SIZE,
+-			.buf	= wbuf,
+-		 },
+-	};
+ 
+-	if (i2c_transfer(client->adapter, msgs_in, 2) < 0) {
++	if (m41t80_read_block_data(client, M41T80_REG_ALARM_MON,
++				   M41T80_ALARM_REG_SIZE, buf) < 0) {
+ 		dev_err(&client->dev, "read error\n");
+ 		return -EIO;
+ 	}
+@@ -278,7 +293,6 @@ static int m41t80_rtc_set_alarm(struct d
+ 	reg[M41T80_REG_ALARM_MIN] = 0;
+ 	reg[M41T80_REG_ALARM_SEC] = 0;
+ 
+-	wbuf[0] = M41T80_REG_ALARM_MON; /* offset into rtc's regs */
+ 	reg[M41T80_REG_ALARM_SEC] |= t->time.tm_sec >= 0 ?
+ 		BIN2BCD(t->time.tm_sec) : 0x80;
+ 	reg[M41T80_REG_ALARM_MIN] |= t->time.tm_min >= 0 ?
+@@ -292,7 +306,8 @@ static int m41t80_rtc_set_alarm(struct d
+ 	else
+ 		reg[M41T80_REG_ALARM_DAY] |= 0x40;
+ 
+-	if (i2c_transfer(client->adapter, msgs, 1) != 1) {
++	if (m41t80_write_block_data(client, M41T80_REG_ALARM_MON,
++				    M41T80_ALARM_REG_SIZE, buf) < 0) {
+ 		dev_err(&client->dev, "write error\n");
+ 		return -EIO;
+ 	}
+@@ -312,24 +327,10 @@ static int m41t80_rtc_read_alarm(struct 
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	u8 buf[M41T80_ALARM_REG_SIZE + 1]; /* all alarm regs and flags */
+-	u8 dt_addr[1] = { M41T80_REG_ALARM_MON };
+ 	u8 *reg = buf - M41T80_REG_ALARM_MON;
+-	struct i2c_msg msgs[] = {
+-		{
+-			.addr	= client->addr,
+-			.flags	= 0,
+-			.len	= 1,
+-			.buf	= dt_addr,
+-		},
+-		{
+-			.addr	= client->addr,
+-			.flags	= I2C_M_RD,
+-			.len	= M41T80_ALARM_REG_SIZE + 1,
+-			.buf	= buf,
+-		},
+-	};
+ 
+-	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
++	if (m41t80_read_block_data(client, M41T80_REG_ALARM_MON,
++				   M41T80_ALARM_REG_SIZE + 1, buf) < 0) {
+ 		dev_err(&client->dev, "read error\n");
+ 		return -EIO;
+ 	}
+@@ -488,26 +489,16 @@ static int boot_flag;
+  */
+ static void wdt_ping(void)
+ {
+-	unsigned char i2c_data[2];
+-	struct i2c_msg msgs1[1] = {
+-		{
+-			.addr	= save_client->addr,
+-			.flags	= 0,
+-			.len	= 2,
+-			.buf	= i2c_data,
+-		},
+-	};
+-	i2c_data[0] = 0x09;		/* watchdog register */
++	u8 wdt = 0x80;				/* WDS = 1 (0x80)  */
+ 
+ 	if (wdt_margin > 31)
+-		i2c_data[1] = (wdt_margin & 0xFC) | 0x83; /* resolution = 4s */
++		/* mulitplier = WD_TIMO / 4, resolution = 4s (0x3)  */
++		wdt |= (wdt_margin & 0xfc) | 0x3;
+ 	else
+-		/*
+-		 * WDS = 1 (0x80), mulitplier = WD_TIMO, resolution = 1s (0x02)
+-		 */
+-		i2c_data[1] = wdt_margin<<2 | 0x82;
++		/* mulitplier = WD_TIMO, resolution = 1s (0x2)  */
++		wdt |= wdt_margin << 2 | 0x2;
+ 
+-	i2c_transfer(save_client->adapter, msgs1, 1);
++	i2c_smbus_write_byte_data(save_client, M41T80_REG_WATCHDOG, wdt);
  }
  
-@@ -173,7 +172,7 @@ static int ali1563_block_start(struct i2
- 		status = -ETIMEDOUT;
+ /**
+@@ -517,36 +508,8 @@ static void wdt_ping(void)
+  */
+ static void wdt_disable(void)
+ {
+-	unsigned char i2c_data[2], i2c_buf[0x10];
+-	struct i2c_msg msgs0[2] = {
+-		{
+-			.addr	= save_client->addr,
+-			.flags	= 0,
+-			.len	= 1,
+-			.buf	= i2c_data,
+-		},
+-		{
+-			.addr	= save_client->addr,
+-			.flags	= I2C_M_RD,
+-			.len	= 1,
+-			.buf	= i2c_buf,
+-		},
+-	};
+-	struct i2c_msg msgs1[1] = {
+-		{
+-			.addr	= save_client->addr,
+-			.flags	= 0,
+-			.len	= 2,
+-			.buf	= i2c_data,
+-		},
+-	};
+-
+-	i2c_data[0] = 0x09;
+-	i2c_transfer(save_client->adapter, msgs0, 2);
+-
+-	i2c_data[0] = 0x09;
+-	i2c_data[1] = 0x00;
+-	i2c_transfer(save_client->adapter, msgs1, 1);
++	i2c_smbus_read_byte_data(save_client, M41T80_REG_WATCHDOG);
++	i2c_smbus_write_byte_data(save_client, M41T80_REG_WATCHDOG, 0);
+ }
  
- 	dev_err(&a->dev, "SMBus Error: %s%s%s%s%s\n",
--		timeout ? "Timeout " : "",
-+		timeout ? "" : "Timeout ",
- 		data & HST_STS_FAIL ? "Transaction Failed " : "",
- 		data & HST_STS_BUSERR ? "No response or Bus Collision " : "",
- 		data & HST_STS_DEVERR ? "Device Error " : "",
---- g26.orig/drivers/i2c/busses/i2c-viapro.c	2008-05-17 17:53:24.000000000 -0700
-+++ g26/drivers/i2c/busses/i2c-viapro.c	2008-05-17 17:45:52.000000000 -0700
-@@ -184,15 +184,14 @@ static int vt596_transaction(u8 size)
+ /**
+@@ -737,8 +700,8 @@ static int m41t80_probe(struct i2c_clien
+ 	struct rtc_time tm;
+ 	struct m41t80_data *clientdata = NULL;
  
- 	if (temp & 0x04) {
- 		int read = inb_p(SMBHSTADD) & 0x01;
--		result = -EIO;
-+
- 		/* The quick and receive byte commands are used to probe
- 		   for chips, so errors are expected, and we don't want
- 		   to frighten the user. */
- 		if (!((size == VT596_QUICK && !read) ||
- 		      (size == VT596_BYTE && read)))
- 			dev_err(&vt596_adapter.dev, "Transaction error!\n");
--		else
--			result = -ENXIO;
-+		result = -ENXIO;
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C
+-				     | I2C_FUNC_SMBUS_BYTE_DATA)) {
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_BYTE_DATA)) {
+ 		rc = -ENODEV;
+ 		goto exit;
  	}
- 
- 	/* Resetting status register */
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
