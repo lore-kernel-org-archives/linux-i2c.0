@@ -1,15 +1,11 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 3/3] i2c: add support for i2c bus on Freescale
- CPM1/CPM2 controllers
-Date: Mon, 19 May 2008 18:49:07 +0200
-Message-ID: <20080519184907.651a4e48@hyperion.delvare>
-References: <200805142314.m4ENEjPV026316@imap1.linux-foundation.org>
-	<20080519155443.GA4279@pengutronix.de>
+Subject: [PATCH] tuner: Do not alter i2c_client.name
+Date: Mon, 19 May 2008 20:48:34 +0200
+Message-ID: <20080519204834.223ff5d6@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080519155443.GA4279-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,87 +15,97 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: vitb-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, htoa-hi6Y0CQ0nG0@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, tmbinc-hi6Y0CQ0nG0@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+From: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
 
-On Mon, 19 May 2008 17:54:43 +0200, Wolfram Sang wrote:
-> On Wed, May 14, 2008 at 04:14:45PM -0700, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
-> 
-> Here is a more detailed review of this driver. After applying my fix, it
-> worked fine on a MPC8260 + X24645 (EEPROM) + LM84 (Sensor) + RS5C372
-> (RTC). I use this and the previous version for more than two weeks on a
-> daily basis now.
+The tuner driver used to change i2c_client.name for its own needs, but
+it really shouldn't, as this field is used by i2c-core to do the
+device/driver matching. So, create and use a separate field for the
+tuner driver needs.
 
-Thanks for the review.
+Signed-off-by: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+This patch will go in 2.6.26.
 
-> > +	/* Set up the IIC parameters in the parameter ram. */
->
-> Minor nit, in most cases within the driver I2C was preferred to IIC. Is
-> there a preferred way, Jean?
+ drivers/media/video/tuner-core.c |   20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
-"I2C" is preferred.
+--- linux-2.6.26-rc3.orig/drivers/media/video/tuner-core.c	2008-05-19 09:18:59.000000000 +0200
++++ linux-2.6.26-rc3/drivers/media/video/tuner-core.c	2008-05-19 20:35:13.000000000 +0200
+@@ -92,6 +92,7 @@ struct tuner {
+ 	unsigned int        type; /* chip type id */
+ 	unsigned int        config;
+ 	int (*tuner_callback) (void *dev, int command, int arg);
++	const char          *name;
+ };
+ 
+ /* standard i2c insmod options */
+@@ -330,13 +331,13 @@ static void tuner_i2c_address_check(stru
+ 	tuner_warn("Support for tuners in i2c address range 0x64 thru 0x6f\n");
+ 	tuner_warn("will soon be dropped. This message indicates that your\n");
+ 	tuner_warn("hardware has a %s tuner at i2c address 0x%02x.\n",
+-		   t->i2c->name, t->i2c->addr);
++		   t->name, t->i2c->addr);
+ 	tuner_warn("To ensure continued support for your device, please\n");
+ 	tuner_warn("send a copy of this message, along with full dmesg\n");
+ 	tuner_warn("output to v4l-dvb-maintainer-dJidKbW2IEtAfugRpC6u6w@public.gmane.org\n");
+ 	tuner_warn("Please use subject line: \"obsolete tuner i2c address.\"\n");
+ 	tuner_warn("driver: %s, addr: 0x%02x, type: %d (%s)\n",
+-		   t->i2c->adapter->name, t->i2c->addr, t->type, t->i2c->name);
++		   t->i2c->adapter->name, t->i2c->addr, t->type, t->name);
+ 	tuner_warn("====================== WARNING! ======================\n");
+ }
+ 
+@@ -470,19 +471,17 @@ static void set_type(struct i2c_client *
+ 	if ((NULL == analog_ops->set_params) &&
+ 	    (fe_tuner_ops->set_analog_params)) {
+ 
+-		strlcpy(t->i2c->name, fe_tuner_ops->info.name,
+-			sizeof(t->i2c->name));
++		t->name = fe_tuner_ops->info.name;
+ 
+ 		t->fe.analog_demod_priv = t;
+ 		memcpy(analog_ops, &tuner_core_ops,
+ 		       sizeof(struct analog_demod_ops));
+ 
+ 	} else {
+-		strlcpy(t->i2c->name, analog_ops->info.name,
+-			sizeof(t->i2c->name));
++		t->name = analog_ops->info.name;
+ 	}
+ 
+-	tuner_dbg("type set to %s\n", t->i2c->name);
++	tuner_dbg("type set to %s\n", t->name);
+ 
+ 	if (t->mode_mask == T_UNINITIALIZED)
+ 		t->mode_mask = new_mode_mask;
+@@ -1115,6 +1114,7 @@ static int tuner_probe(struct i2c_client
+ 	if (NULL == t)
+ 		return -ENOMEM;
+ 	t->i2c = client;
++	t->name = "(tuner unset)";
+ 	i2c_set_clientdata(client, t);
+ 	t->type = UNSET;
+ 	t->audmode = V4L2_TUNER_MODE_STEREO;
+@@ -1272,12 +1272,6 @@ static int tuner_remove(struct i2c_clien
+ 
+ 	list_del(&t->list);
+ 	kfree(t);
+-
+-	/* The probing code has overwritten the device name, restore it so
+-	   that reloading the driver will work. Ideally the device name
+-	   should not be overwritten in the first place, but for now that
+-	   will do. */
+-	strlcpy(client->name, "tuner", I2C_NAME_SIZE);
+ 	return 0;
+ }
+ 
 
-> > +	if (pmsg->flags & I2C_M_RD) {
-> > +		dev_dbg(&adap->dev, "tx sc 0x%04x, rx sc 0x%04x\n",
-> > +			in_be16(&tbdf->cbd_sc), in_be16(&rbdf->cbd_sc));
-> > +
-> > +		if (in_be16(&tbdf->cbd_sc) & BD_SC_NAK) {
-> > +			dev_err(&adap->dev, "IIC read; No ack\n");
-> > +			return -EIO;
-> > +		}
-> > +		if (in_be16(&rbdf->cbd_sc) & BD_SC_EMPTY) {
-> > +			dev_err(&adap->dev,
-> > +				"IIC read; complete but rbuf empty\n");
-> > +			return -EREMOTEIO;
-> > +		}
-> > +		if (in_be16(&rbdf->cbd_sc) & BD_SC_OV) {
-> > +			dev_err(&adap->dev, "IIC read; Overrun\n");
-> > +			return -EREMOTEIO;
-> > +		}
-> > +		memcpy(pmsg->buf, rb, pmsg->len);
-> > +	} else {
-> > +		dev_dbg(&adap->dev, "tx sc %d 0x%04x\n", tx,
-> > +			in_be16(&tbdf->cbd_sc));
-> > +
-> > +		if (in_be16(&tbdf->cbd_sc) & BD_SC_NAK) {
-> > +			dev_err(&adap->dev, "IIC write; No ack\n");
-> > +			return -EIO;
-> > +		}
-> > +		if (in_be16(&tbdf->cbd_sc) & BD_SC_UN) {
-> > +			dev_err(&adap->dev, "IIC write; Underrun\n");
-> > +			return -EIO;
-> > +		}
-> > +		if (in_be16(&tbdf->cbd_sc) & BD_SC_CL) {
-> > +			dev_err(&adap->dev, "IIC write; Collision\n");
-> > +			return -EIO;
-> > +		}
-> 
-> The dev_err-statements are too strong, IMHO. For example, the
-> at24-driver tries to write as fast as possible and may recieve a NACK,
-> then it will wait a bit and retry. I wouldn't call this NACK an error
-> then. I also wonder if it is worth a warning, as there is a timeout
-> message later on, which will be printed as dev_dbg only. As other
-> drivers I glimpsed at also don't write anything on NACK, maybe dev_dbg
-> consistency would be preferable.
-> 
-> > +	}
-> > +	return 0;
-> > +}
 
-I agree that dev_err() on nack is too strong, most drivers log it at
-dev_dbg() level. However I fail to see the relation with timeout? A
-nack isn't a timeout. A timeout would be very wrong and should be
-reported with dev_err() I think.
-
-Oh, BTW, nacks should be reported with -ENXIO according to:
-http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-document-standard-fault-codes.patch
-It might be worth checking that this new driver complies with these
-freshly adopted error codes standard.
-
-Thanks,
 -- 
 Jean Delvare
 
