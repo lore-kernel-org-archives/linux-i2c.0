@@ -1,114 +1,123 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Problem with unstable i2c communication with i810 bus
- driver
-Date: Tue, 20 May 2008 09:18:07 +0200
-Message-ID: <20080520091807.071f1032@hyperion.delvare>
-References: <48321FD9.2010007@gmx.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
+Date: Tue, 20 May 2008 11:20:40 +0200
+Message-ID: <20080520112040.08c809a1@hyperion.delvare>
+References: <200805070120.03821.david-b@pacbell.net>
+	<Pine.LNX.4.55.0805100301100.10552@cliff.in.clinika.pl>
+	<20080510085340.29c26aef@hyperion.delvare>
+	<200805100936.52057.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48321FD9.2010007-Mmb7MZpHnFY@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wilken Haase <Hibbelharry-Mmb7MZpHnFY@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <200805100936.52057.david-b@pacbell.net>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: David Brownell <david-b@pacbell.net>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, linux-mips@linux-mips.org, mgreer@mvista.com, rtc-linux@googlegroups.com, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org, i2c@lm-sensors.org, ab@mycable.de, Alessandro Zummo <alessandro.zummo@towertech.it>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wilken,
+Hi David,
 
-On Tue, 20 May 2008 02:48:25 +0200, Wilken Haase wrote:
-> Hi People,
-> i own a Samsung TV settopbox which is nice to use with linux, even while
-> its manufacturer samsung ships it with another operating system. The box
-> consists of a intel i815 chipset with integrated graphics, connected to
-> a focus enhancements fs454 scan converter which is controlled by i2c
-> commands and which must be setup correctly to produce a useable picture.
+On Sat, 10 May 2008 09:36:50 -0700, David Brownell wrote:
+> > It's not that easy. There are some drivers which are both in-tree and
+> > out-of-tree, for which such a change means adding ifdefs.
 > 
-> In the current state it kinda works. If i do a dump of the registers of
-> the fs454 I always get some bogus values back, even while most registers
-> are read out correctly. There is no visible pattern in what registers
-> give back wrong values, it differs from dump to dump. As another fact
-> writing to the chip is unstable, too. I often need to rewrite the values
-> 2 or 3 times to get them in place.
-> 
-> I did test some different kernel versions up to the current 2.6.25 and i
-> saw a nice little increase in reliability but still its a piece off from
-> perfect.
-> 
-> Failures in writing are producing the following messages in syslog:
-> 
-> May 20 02:33:13 smt i2c-adapter i2c-1: sendbytes: NAK bailout.
-> 
-> Identified busses derived from the output of i2cdump are:
-> 
-> i2c-0    i2c           I810-DDC
-> i2c-1    i2c           I810-I2C
-> i2c-2    i2c           I810-GPIOC
-> i2c-3    smbus         SMBus I801 adapter at 1810
-> i2c-4    i2c           cx88[0]
-> 
-> The fs454 scan converter is located on I810-I2C.
-> 
-> I tried some different values for delays in i2c-i810.c like here:
-> 
-> /* delays */
-> #define CYCLE_DELAY             100
-> #define TIMEOUT                 100
-> 
-> But this didn't seem to offer advantages.
+> Actually, I thought it *WAS* that easy.  See the appended patch,
+> which goes on top of the various doc and (mostly SMBus) fault
+> handling patches I've sent ... the old names are still available
+> (only needed by out-of-tree drivers), but marked as __deprecated.
+> So:  no #ifdefs required.
 
-I think that you are not modifying the right file. Apparently you
-modified the delay values in drivers/i2c/busses/i2c-i810.c? While bus
-I810-I2C is created by driver i810fb. So if you want to change the
-timings, you should edit chan->algo.udelay and chan->algo.timeout in
-drivers/video/i810/i810-i2c.c.
+No #ifdefs required until we drop the deprecated helpers, which will
+inevitably happen, even if only in several years. So in practice,
+#ifdefs would be required for out-of-tree drivers (or semi-out-of-tree
+drivers such as v4l/dvb drivers).
 
-Note that the i2c-i810 driver is deprecated and will be removed in
-kernel 2.6.27, this should help clear the confusion.
+> I agree it's not worth while for *all* the SMBus functions that
+> use names-made-up-for-Linux.  But for the two which are really
+> badly misnamed (after *different* SMBus operations), I suggest
+> fixing would be a reasonable thing.
 
-> What else can i do ?
-> Any suggestions ?
-> If more information is needed feel free to drop me a mail, i will offer
-> any information as needed.
+That's tempting, but see below.
 
-Are there other I2C devices connected to the i810? It would be
-interesting to know whether the problem happens only with the FS454 or
-also with other devices. If all I2C devices are affected then the
-problem is probably hardware noise, maybe you have a defective part,
-and there's not much we can do. If only the FS454 is affected, maybe
-this specific device is not able of clock stretching and does support
-only very slow I2C transactions (in which case increasing
-chan->algo.udelay should help). But the current speed isn't very high
-(50 kHz) so I'd be surprised.
+> > And there is 
+> > i2c-dev.h (the user-space one) which has similar functions,
+> 
+> That's problematic in its own right though.  Not only that
+> the *kernel* file Documentation/i2c/dev-interface referring
+> to those functions, which are unavailable from the header
+> provided by the kernel.  Or that there's no relationship
+> between the kernel and userspace files of the same name.
+> But also that those functions are actually a bit too large
+> to be appropriate as inlines, even once you manage to track
+> it down (as part of a "tools" package, not a "library").
 
-Or maybe the FS454 simply needs a delay between reads and writes, I've
-seen other I2C devices like this before. It is common for the device to
-simply nack the transactions (as you see in your logs) while it is
-busy. In this case the fix is to add delays in the fs454 driver (or
-user-space tool accessing the device over i2c-dev) between transactions.
+I agree that the i2c-dev.h mess needs some love and this is on my to-do
+list for this year. That's not necessarily related to the problem at
+hand though.
 
-If you have access to the FS454 datasheet, it should tell whether the
-device can stretch the clock and whether it needs a delay between the
-transactions.
+> > if we 
+> > rename only the kernel variants, there will be some confusion. But if
+> > we rename also the user-space variants, then it's up to 2.4 kernel
+> > users to have different names for kernel-space and user-space functions.
+> 
+> True, but that would be a question for a "libsmbus" or somesuch
+> to deal with.  Not a kernel issue.
 
-As an additional note, I seem to remember that i2c-algo-bit (which
-I810-I2C uses) doesn't properly support bus arbitration. So, if you
-have a multi-master bus, that could explain your problems, too. You'd
-need to know the exact I2C bus topology of your system to rule out this
-possibility.
+Whether it's in the kernel or outside the kernel is irrelevant. The
+developers are likely to be the same, and the person who will have to
+deal with the confusion is the same (i.e.: me.)
 
+> ===========
+> Two of the SMBus operations are using confusingly inappropriate names:
+> 
+>   i2c_smbus_read_byte() does not execute the SMBus "Read Byte" protocol
+>   	... it implements the SMBus "Receive Byte" protocol instead!!
+> 
+>   i2c_smbus_write_byte() does not execute the SMBus "Write Byte" protocol
+>   	... it implements the SMBus "Send Byte" protocol instead!!
+> 
+> This patch changes the names of those functions, so they no longer
+> use names of different operations (which they do not implement).
+> 
+> ---
+>  Documentation/i2c/chips/max6875   |    4 ++--
+>  Documentation/i2c/smbus-protocol  |   12 +++++-------
+>  Documentation/i2c/writing-clients |    4 ++--
+>  drivers/gpio/pcf857x.c            |    8 ++++----
+>  drivers/hwmon/ds1621.c            |    2 +-
+>  drivers/hwmon/lm90.c              |    2 +-
+>  drivers/i2c/chips/eeprom.c        |   10 +++++-----
+>  drivers/i2c/chips/max6875.c       |    2 +-
+>  drivers/i2c/chips/pcf8574.c       |    4 ++--
+>  drivers/i2c/chips/pcf8591.c       |   10 +++++-----
+>  drivers/i2c/chips/tsl2550.c       |   16 ++++++++--------
+>  drivers/i2c/i2c-core.c            |   12 ++++++------
+>  drivers/media/video/saa7110.c     |    2 +-
+>  drivers/media/video/saa7185.c     |    2 +-
+>  drivers/media/video/tda9840.c     |    8 ++++----
+>  drivers/media/video/tea6415c.c    |    4 ++--
+>  drivers/media/video/tea6420.c     |    4 ++--
+>  drivers/w1/masters/ds2482.c       |   10 +++++-----
+>  include/linux/i2c.h               |   20 ++++++++++++++++++--
+>  19 files changed, 75 insertions(+), 61 deletions(-)
+
+I'm not going to take this, sorry. I still believe that it will cause
+more trouble than is worth at this point in time. For example, after
+applying your patch, we'd have functionality defines no longer matching
+the SMBus helper names (I2C_FUNC_SMBUS_READ_BYTE,
+I2C_FUNC_SMBUS_WRITE_BYTE). And you can't easily rename these because
+they are part of the i2c-dev API.
+
+I'm not saying that the suggested cleanup shouldn't be done, nor that
+it cannot be done. All I'm saying is that it will be a lot of work if
+we do it properly, and potentially a lot of trouble for many developers
+out there, all for a marginal benefit, and I think that our time can be
+better used to solve other, more important problems. And you've done a
+very good job at documenting the current implementation, so I hope that
+it is clear enough for everyone now.
+
+Thanks,
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
