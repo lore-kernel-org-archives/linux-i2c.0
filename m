@@ -1,123 +1,74 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [i2c] [RFC][PATCH 4/4] RTC: SMBus support for the M41T80,
-Date: Tue, 20 May 2008 11:20:40 +0200
-Message-ID: <20080520112040.08c809a1@hyperion.delvare>
-References: <200805070120.03821.david-b@pacbell.net>
-	<Pine.LNX.4.55.0805100301100.10552@cliff.in.clinika.pl>
-	<20080510085340.29c26aef@hyperion.delvare>
-	<200805100936.52057.david-b@pacbell.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: Add Intel SCH I2C SMBus support
+Date: Tue, 20 May 2008 11:31:40 +0200
+Message-ID: <20080520113140.44e40b77@hyperion.delvare>
+References: <20080428105738.06429ed2@hyperion.delvare>
+	<20080429110628.66d4892b@dxy.sh.intel.com>
+	<8AD95083DC3E36478732061D97524415030F8FAA@pdsmsx411.ccr.corp.intel.com>
+	<20080430080351.57b8c21d@hyperion.delvare>
+	<20080505141807.1aa458e1@dxy.sh.intel.com>
+	<20080505110757.6454c220@hyperion.delvare>
+	<20080506095036.274e91f1@dxy.sh.intel.com>
+	<20080512225718.7440ab42@hyperion.delvare>
+	<20080520135635.55238a08@dxy.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <200805100936.52057.david-b@pacbell.net>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: David Brownell <david-b@pacbell.net>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, linux-mips@linux-mips.org, mgreer@mvista.com, rtc-linux@googlegroups.com, Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org, i2c@lm-sensors.org, ab@mycable.de, Alessandro Zummo <alessandro.zummo@towertech.it>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080520135635.55238a08-PCb9FJy6fea75v1z/vFq2g@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Alek Du <alek.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+Hi Alek,
 
-On Sat, 10 May 2008 09:36:50 -0700, David Brownell wrote:
-> > It's not that easy. There are some drivers which are both in-tree and
-> > out-of-tree, for which such a change means adding ifdefs.
+On Tue, 20 May 2008 13:56:35 +0800, Alek Du wrote:
+> Modify the patch according to your last comments except for two cases:
 > 
-> Actually, I thought it *WAS* that easy.  See the appended patch,
-> which goes on top of the various doc and (mostly SMBus) fault
-> handling patches I've sent ... the old names are still available
-> (only needed by out-of-tree drivers), but marked as __deprecated.
-> So:  no #ifdefs required.
-
-No #ifdefs required until we drop the deprecated helpers, which will
-inevitably happen, even if only in several years. So in practice,
-#ifdefs would be required for out-of-tree drivers (or semi-out-of-tree
-drivers such as v4l/dvb drivers).
-
-> I agree it's not worth while for *all* the SMBus functions that
-> use names-made-up-for-Linux.  But for the two which are really
-> badly misnamed (after *different* SMBus operations), I suggest
-> fixing would be a reasonable thing.
-
-That's tempting, but see below.
-
-> > And there is 
-> > i2c-dev.h (the user-space one) which has similar functions,
+> > > +
+> > > +     /* If the SMBus is still busy, we give up */
+> > > +     if (timeout >= MAX_TIMEOUT) {
+> > > +             dev_err(&sch_adapter.dev, "SMBus Timeout!\n");
+> > > +             result = -EPERM;
+> >
+> > -ETIMEDOUT
 > 
-> That's problematic in its own right though.  Not only that
-> the *kernel* file Documentation/i2c/dev-interface referring
-> to those functions, which are unavailable from the header
-> provided by the kernel.  Or that there's no relationship
-> between the kernel and userspace files of the same name.
-> But also that those functions are actually a bit too large
-> to be appropriate as inlines, even once you manage to track
-> it down (as part of a "tools" package, not a "library").
+> there is no -ETIMEOUT defined
 
-I agree that the i2c-dev.h mess needs some love and this is on my to-do
-list for this year. That's not necessarily related to the problem at
-hand though.
+ETIMEOUT is indeed not defined, but ETIMEDOUT (what I wrote) is.
 
-> > if we 
-> > rename only the kernel variants, there will be some confusion. But if
-> > we rename also the user-space variants, then it's up to 2.4 kernel
-> > users to have different names for kernel-space and user-space functions.
+> > > +     dev_dbg(&dev->dev, "SMBA = 0x%X\n", sch_smba);
 > 
-> True, but that would be a question for a "libsmbus" or somesuch
-> to deal with.  Not a kernel issue.
-
-Whether it's in the kernel or outside the kernel is irrelevant. The
-developers are likely to be the same, and the person who will have to
-deal with the confusion is the same (i.e.: me.)
-
-> ===========
-> Two of the SMBus operations are using confusingly inappropriate names:
+> > What about bit 31 of this register? It says whether the I/O area is
+> > enabled or not. If it's not then you're registering the device but it
+> > won't work, that's no good.
 > 
->   i2c_smbus_read_byte() does not execute the SMBus "Read Byte" protocol
->   	... it implements the SMBus "Receive Byte" protocol instead!!
-> 
->   i2c_smbus_write_byte() does not execute the SMBus "Write Byte" protocol
->   	... it implements the SMBus "Send Byte" protocol instead!!
-> 
-> This patch changes the names of those functions, so they no longer
-> use names of different operations (which they do not implement).
-> 
-> ---
->  Documentation/i2c/chips/max6875   |    4 ++--
->  Documentation/i2c/smbus-protocol  |   12 +++++-------
->  Documentation/i2c/writing-clients |    4 ++--
->  drivers/gpio/pcf857x.c            |    8 ++++----
->  drivers/hwmon/ds1621.c            |    2 +-
->  drivers/hwmon/lm90.c              |    2 +-
->  drivers/i2c/chips/eeprom.c        |   10 +++++-----
->  drivers/i2c/chips/max6875.c       |    2 +-
->  drivers/i2c/chips/pcf8574.c       |    4 ++--
->  drivers/i2c/chips/pcf8591.c       |   10 +++++-----
->  drivers/i2c/chips/tsl2550.c       |   16 ++++++++--------
->  drivers/i2c/i2c-core.c            |   12 ++++++------
->  drivers/media/video/saa7110.c     |    2 +-
->  drivers/media/video/saa7185.c     |    2 +-
->  drivers/media/video/tda9840.c     |    8 ++++----
->  drivers/media/video/tea6415c.c    |    4 ++--
->  drivers/media/video/tea6420.c     |    4 ++--
->  drivers/w1/masters/ds2482.c       |   10 +++++-----
->  include/linux/i2c.h               |   20 ++++++++++++++++++--
->  19 files changed, 75 insertions(+), 61 deletions(-)
+> As I tested, the bit 31 of this register is always 0...
 
-I'm not going to take this, sorry. I still believe that it will cause
-more trouble than is worth at this point in time. For example, after
-applying your patch, we'd have functionality defines no longer matching
-the SMBus helper names (I2C_FUNC_SMBUS_READ_BYTE,
-I2C_FUNC_SMBUS_WRITE_BYTE). And you can't easily rename these because
-they are part of the i2c-dev API.
+Well, the datasheet clearly says otherwise. How did you test bit 31?
+Your code uses pci_read_config_word() at the moment so you can't read
+bit 31, you'd need to use pci_read_config_dword() instead. If Bit 31
+really isn't used by the hardware, please report to whoever at Intel is
+in charge of the technical documentation for this chip, so that they
+can update the datahseet.
 
-I'm not saying that the suggested cleanup shouldn't be done, nor that
-it cannot be done. All I'm saying is that it will be a lot of work if
-we do it properly, and potentially a lot of trouble for many developers
-out there, all for a marginal benefit, and I think that our time can be
-better used to solve other, more important problems. And you've done a
-very good job at documenting the current implementation, so I hope that
-it is clear enough for everyone now.
+> Here is my patch v3, please help to review it:
 
-Thanks,
+I'll review it later today as my time permits.
+
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
