@@ -1,7 +1,7 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c-pca-algo: Fix errorcode
-Date: Tue, 20 May 2008 19:18:49 +0200
-Message-ID: <20080520171848.10908.23451.stgit@octopus.labnet.pengutronix.de>
+Subject: [PATCH] i2c-pca-platform: Fix errorcode
+Date: Tue, 20 May 2008 19:18:54 +0200
+Message-ID: <20080520171854.10908.95737.stgit@octopus.labnet.pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,27 +18,27 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Give a more concrete error code, when the bus is not idle.
+Fix errorcode to be more descriptive when ioremap fails.
 
 Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
 
- drivers/i2c/algos/i2c-algo-pca.c |    2 +-
+ drivers/i2c/busses/i2c-pca-platform.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index e954a20..8001d6d 100644
---- a/drivers/i2c/algos/i2c-algo-pca.c
-+++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -182,7 +182,7 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
- 	}
- 	if (state != 0xf8) {
- 		dev_dbg(&i2c_adap->dev, "bus is not idle. status is %#04x\n", state);
--		return -EIO;
-+		return -EBUSY;
- 	}
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 9d75f51..6bb15ad 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -163,7 +163,7 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
  
- 	DEB1("{{{ XFER %d messages\n", num);
+ 	i2c->reg_base = ioremap(res->start, res_len(res));
+ 	if (!i2c->reg_base) {
+-		ret = -EIO;
++		ret = -ENOMEM;
+ 		goto e_remap;
+ 	}
+ 	i2c->io_base = res->start;
 
 
 _______________________________________________
