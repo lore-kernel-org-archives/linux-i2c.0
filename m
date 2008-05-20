@@ -1,13 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-pca-algo: Fix errorcode
-Date: Tue, 20 May 2008 20:17:55 +0200
-Message-ID: <20080520201755.59b140f5@hyperion.delvare>
-References: <20080520171848.10908.23451.stgit@octopus.labnet.pengutronix.de>
+Subject: Re: Problem with unstable i2c communication with i810 bus
+ driver
+Date: Tue, 20 May 2008 20:37:15 +0200
+Message-ID: <20080520203715.68c502f3@hyperion.delvare>
+References: <48321FD9.2010007@gmx.de>
+	<20080520091807.071f1032@hyperion.delvare>
+	<4832C0C8.2090401@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080520171848.10908.23451.stgit-WosDo8ZsKtpoC+DoxizDebTfikLOBL9CDsAVuJBuCrE@public.gmane.org>
+In-Reply-To: <4832C0C8.2090401-Mmb7MZpHnFY@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,38 +20,41 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wilken Haase <Hibbelharry-Mmb7MZpHnFY@public.gmane.org>
+Cc: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Wilken,
 
-On Tue, 20 May 2008 19:18:49 +0200, Wolfram Sang wrote:
-> Give a more concrete error code, when the bus is not idle.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> 
->  drivers/i2c/algos/i2c-algo-pca.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-> index e954a20..8001d6d 100644
-> --- a/drivers/i2c/algos/i2c-algo-pca.c
-> +++ b/drivers/i2c/algos/i2c-algo-pca.c
-> @@ -182,7 +182,7 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
->  	}
->  	if (state != 0xf8) {
->  		dev_dbg(&i2c_adap->dev, "bus is not idle. status is %#04x\n", state);
-> -		return -EIO;
-> +		return -EBUSY;
->  	}
->  
->  	DEB1("{{{ XFER %d messages\n", num);
+On Tue, 20 May 2008 14:15:04 +0200, Wilken Haase wrote:
+> Badly I don't know of anymore devices connected to this bus.
 
-EBUSY is a fatal error, while a you should be able to retry the
-transaction later when the bus is free. So I think that EAGAIN would be
-more appropriate.
+You could probe the bus using i2cdetect. Just testing if i2cdetect works
+will be a good test already.
+
+> I do have the datasheets and read them multiple times just to be sure.
+> The data sheet talks of needed delays.
+
+What does it say exactly?
+
+> I tried experimenting with udelay values at the right file and did slow
+> the bus down, both values up to 150.
+
+Note: values above 50 are not compatible with SMBus.
+
+> But while dumping the chip slowed noticeably
+> down i still got some bogus values back. Think that's maybe not the
+> right idea.
+> On another sidenote: I own another settopbox which is partly similar and
+> also uses a fs454 scan konverter, but controlled by an intel i830 chipset.
+> The fs454 is accessible without any problems there with the stock kernel
+> driver. I really don't think the bus is multi mastered. Maybe this is a
+> termination problem.
+
+If the other system works OK with basically the same type of hardware,
+then I indeed suspect a hardware defect on the failing box. Maybe try
+to find out someone else with exactly the same box which is failing for
+you, and see if it also fails for him/her?
 
 -- 
 Jean Delvare
