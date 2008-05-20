@@ -1,186 +1,93 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 1/3] i2c : use class_for_each_device
-Date: Tue, 20 May 2008 19:31:13 +0200
-Message-ID: <20080520193113.19ef0dc5@hyperion.delvare>
-References: <20080509072029.GA2740@darkstar.te-china.tietoenator.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch/rft 2.6.26-rc1] i2c-core: stop using
+ i2c_adapter.clients
+Date: Tue, 20 May 2008 20:15:32 +0200
+Message-ID: <20080520201532.6ad2bd45@hyperion.delvare>
+References: <200805042124.45551.david-b@pacbell.net>
+	<20080520155232.4937c52a@hyperion.delvare>
+	<200805200922.19990.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932976AbYETRbh@vger.kernel.org>
-In-Reply-To: <20080509072029.GA2740@darkstar.te-china.tietoenator.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Young <hidave.darkstar@gmail.com>
-Cc: gregkh@suse.de, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200805200922.19990.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dave,
+Hi David,
 
-On Fri, 9 May 2008 15:20:29 +0800, Dave Young wrote:
-> Use class_for_each_device for iteration.
-> 
-> Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
-> 
-> ---
->  drivers/i2c/i2c-core.c |   96 ++++++++++++++++++++++++++-----------------------
->  1 file changed, 52 insertions(+), 44 deletions(-)
-> 
-> diff -upr a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> --- a/drivers/i2c/i2c-core.c	2008-05-09 13:55:41.000000000 +0800
-> +++ b/drivers/i2c/i2c-core.c	2008-05-09 14:24:07.000000000 +0800
-> @@ -35,7 +35,6 @@
->  #include <linux/completion.h>
->  #include <linux/hardirq.h>
->  #include <linux/irqflags.h>
-> -#include <linux/semaphore.h>
->  #include <asm/uaccess.h>
->  
->  #include "i2c-core.h"
-> @@ -655,6 +654,16 @@ EXPORT_SYMBOL(i2c_del_adapter);
->  
->  
->  /* ------------------------------------------------------------------------- */
-> +static int __attach_adapter(struct device *dev, void *data)
-> +{
-> +	struct i2c_adapter *adapter;
-> +	struct i2c_driver *driver = data;
-> +
-> +	adapter = container_of(dev, struct i2c_adapter, dev);
+On Tue, 20 May 2008 09:22:19 -0700, David Brownell wrote:
+> On Tuesday 20 May 2008, Jean Delvare wrote:
+> > I remember doing the same change several months ago, but finally
+> > dropping the patch because it was deadlocking. Your patch has the exact
+> > same problem: rmmod'ing a legacy i2c driver deadlocks.
+> =
 
-You could use to_i2c_adapter(dev).
+> I thought that had been resolved as part of another patch
+> resolving a self-deadlock ... I guess not!  I'll have to
+> set up a test rig with a legacy driver module, I guess.
 
-> +	driver->attach_adapter(adapter);
-> +
-> +	return 0;
-> +}
->  
->  /*
->   * An i2c_driver is used with one or more i2c_client (device) nodes to access
-> @@ -696,21 +705,52 @@ int i2c_register_driver(struct module *o
->  	pr_debug("i2c-core: driver [%s] registered\n", driver->driver.name);
->  
->  	/* legacy drivers scan i2c busses directly */
-> -	if (driver->attach_adapter) {
-> -		struct i2c_adapter *adapter;
-> +	if (driver->attach_adapter)
-> +		class_for_each_device(&i2c_adapter_class, driver,
-> +					__attach_adapter);
-> +
-> +	mutex_unlock(&core_lock);
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(i2c_register_driver);
-> +
-> +static int __detach_adapter(struct device *dev, void *data)
-> +{
-> +	struct list_head   *item2, *_n;
-> +	struct i2c_client  *client;
-> +	struct i2c_adapter *adap;
-> +	struct i2c_driver *driver = data;
->  
-> -		down(&i2c_adapter_class.sem);
-> -		list_for_each_entry(adapter, &i2c_adapter_class.devices,
-> -				    dev.node) {
-> -			driver->attach_adapter(adapter);
-> +	/* Have a look at each adapter, if clients of this driver
-> +	 * are still attached. If so, detach them to be able to
-> +	 * kill the driver afterwards.
-> +	 */
-> +	adap = container_of(dev, struct i2c_adapter, dev);
+An easy way to do this, is to build the i2c-stub and eeprom drivers,
+load i2c-stub with chip_addr=3D0x50, and then load eeprom. It should
+attach to the fake chip at 0x50 on the stub bus.
 
-You could use to_i2c_adapter(dev).
+> I'll have a closer look at this.  This wait-for-completion
+> hook is clearly an abuse of the driver model code, but it
+> might be practical to solve it by upping refcounts for legacy
+> code and having a list of pending deletes.
+> =
 
-> +	if (driver->detach_adapter) {
+> Did lockdep tell you more about locking goofage here, or
+> is this the only symptiom?
 
-Testing for a method...
+Unfortunately, lockdep wasn't enabled in my kernel at that time, so I
+can't tell. I've just enabled it again.
 
-> +		if (driver->attach_adapter(adap))
+> > rmmod =A0 =A0 =A0 =A0 D ffffffff80443380 =A0 =A0 0 =A04669 =A0 4652
+> > =A0ffff81002e177cc8 0000000000000086 ffff81002e1dc190 ffff81003f8a1240
+> > =A0ffff81002e177cc8 ffff81002e177cc8 ffff81002e226b90 7fffffffffffffff
+> > =A00000000000000002 7fffffffffffffff ffff81003f172648 ffff81002e177d48
+> > Call Trace:
+> > =A0[<ffffffff8042c175>] schedule_timeout+0x95/0xd0
+> > =A0[<ffffffff802c3ce0>] ? sysfs_remove_dir+0x60/0x80
+> > =A0[<ffffffff8042bf31>] wait_for_common+0xd1/0x160
+> > =A0[<ffffffff80225080>] ? default_wake_function+0x0/0x10
+> > =A0[<ffffffff8030d4e7>] ? kobject_put+0x27/0x60
+> > =A0[<ffffffff8042c058>] wait_for_completion+0x18/0x20
+> > =A0[<ffffffff803b4fe2>] i2c_detach_client+0x82/0xc0
+> > =A0[<ffffffffa02e4071>] :lm90:lm90_detach_client+0x71/0x90
+> > =A0[<ffffffff803b4f0b>] i2c_do_detach_client+0x8b/0xe0
+> > =A0[<ffffffff803b4e80>] ? i2c_do_detach_client+0x0/0xe0
+> > =A0[<ffffffff8038d473>] device_for_each_child+0x33/0x60
+> > =A0[<ffffffff803b45e6>] i2c_del_driver+0x106/0x120
+> > =A0[<ffffffffa02e4f10>] :lm90:sensors_lm90_exit+0x10/0x12
+> > =A0[<ffffffff8024d41e>] sys_delete_module+0x12e/0x1f0
+> > =A0[<ffffffff8020b43b>] system_call_after_swapgs+0x7b/0x80
+> > =
 
-... but calling another one? Can't be correct. Which raises a question:
-you didn't test your patch, did you? I'm also surprised how you managed
-to mess this up, given that all you had to do was to move already
-existing code around.
+> > I even seem to remember that you had been able to explain this deadlock
+> > back then...
+> =
 
-> +			dev_err(&adap->dev, "detach_adapter failed "
-> +					"for driver [%s]\n",
-> +					driver->driver.name);
-> +	} else {
-> +		list_for_each_safe(item2, _n, &adap->clients) {
-> +			client = list_entry(item2, struct i2c_client,
-> +					list);
-> +			if (client->driver != driver)
-> +				continue;
-> +			dev_dbg(&adap->dev, "detaching client [%s] "
-> +				"at 0x%02x\n", client->name,
-> +				client->addr);
-> +			if (driver->detach_client(client)) {
-> +				dev_err(&adap->dev, "detach_client "
-> +					"failed for client [%s] at "
-> +					"0x%02x\n", client->name,
-> +					client->addr);
-> +			}
->  		}
-> -		up(&i2c_adapter_class.sem);
->  	}
->  
-> -	mutex_unlock(&core_lock);
->  	return 0;
->  }
-> -EXPORT_SYMBOL(i2c_register_driver);
->  
->  /**
->   * i2c_del_driver - unregister I2C driver
-> @@ -719,46 +759,14 @@ EXPORT_SYMBOL(i2c_register_driver);
->   */
->  void i2c_del_driver(struct i2c_driver *driver)
->  {
-> -	struct list_head   *item2, *_n;
-> -	struct i2c_client  *client;
-> -	struct i2c_adapter *adap;
-> -
->  	mutex_lock(&core_lock);
->  
->  	/* new-style driver? */
->  	if (is_newstyle_driver(driver))
->  		goto unregister;
->  
-> -	/* Have a look at each adapter, if clients of this driver are still
-> -	 * attached. If so, detach them to be able to kill the driver
-> -	 * afterwards.
-> -	 */
-> -	down(&i2c_adapter_class.sem);
-> -	list_for_each_entry(adap, &i2c_adapter_class.devices, dev.node) {
-> -		if (driver->detach_adapter) {
-> -			if (driver->detach_adapter(adap)) {
-> -				dev_err(&adap->dev, "detach_adapter failed "
-> -					"for driver [%s]\n",
-> -					driver->driver.name);
-> -			}
-> -		} else {
-> -			list_for_each_safe(item2, _n, &adap->clients) {
-> -				client = list_entry(item2, struct i2c_client, list);
-> -				if (client->driver != driver)
-> -					continue;
-> -				dev_dbg(&adap->dev, "detaching client [%s] "
-> -					"at 0x%02x\n", client->name,
-> -					client->addr);
-> -				if (driver->detach_client(client)) {
-> -					dev_err(&adap->dev, "detach_client "
-> -						"failed for client [%s] at "
-> -						"0x%02x\n", client->name,
-> -						client->addr);
-> -				}
-> -			}
-> -		}
-> -	}
-> -	up(&i2c_adapter_class.sem);
-> +	class_for_each_device(&i2c_adapter_class, driver,
-> +				__detach_adapter);
->  
->   unregister:
->  	driver_unregister(&driver->driver);
+> Yeah, that's why I have various i2c lock removal patches
+> floating around.
 
-The rest looks OK. I'll fix the patch myself and add it to my i2c tree
-now.
+Thanks,
+-- =
 
--- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
