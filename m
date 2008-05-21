@@ -1,18 +1,23 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Problem with unstable i2c communication with i810 bus
- driver
-Date: Wed, 21 May 2008 09:14:40 +0200
-Message-ID: <20080521091440.2252167d@hyperion.delvare>
-References: <48321FD9.2010007@gmx.de>
-	<20080520091807.071f1032@hyperion.delvare>
-	<4832C0C8.2090401@gmx.de>
-	<20080520203715.68c502f3@hyperion.delvare>
-	<483352EA.2090005@gmx.de>
+Subject: Re: [PATCH v4] i2c: Add Intel SCH I2C SMBus support
+Date: Wed, 21 May 2008 11:04:12 +0200
+Message-ID: <20080521110412.3617b022@hyperion.delvare>
+References: <20080428105738.06429ed2@hyperion.delvare>
+	<20080429110628.66d4892b@dxy.sh.intel.com>
+	<8AD95083DC3E36478732061D97524415030F8FAA@pdsmsx411.ccr.corp.intel.com>
+	<20080430080351.57b8c21d@hyperion.delvare>
+	<20080505141807.1aa458e1@dxy.sh.intel.com>
+	<20080505110757.6454c220@hyperion.delvare>
+	<20080506095036.274e91f1@dxy.sh.intel.com>
+	<20080512225718.7440ab42@hyperion.delvare>
+	<20080520135635.55238a08@dxy.sh.intel.com>
+	<20080520113140.44e40b77@hyperion.delvare>
+	<20080521102105.13d75e59@dxy.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <483352EA.2090005-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <20080521102105.13d75e59-PCb9FJy6fea75v1z/vFq2g@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,61 +27,48 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wilken Haase <Hibbelharry-Mmb7MZpHnFY@public.gmane.org>
-Cc: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Alek Du <alek.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 21 May 2008 00:38:34 +0200, Wilken Haase wrote:
-> I am able to probe the bus. The only discovered device on the bus is the
-> fs454 at 0x6a and the master at 0x00.
+Hi Alek,
 
-0x00 is actually the broadcast address. I've never seed used so far,
-but apparently the FS454 supports broadcast messages.
+On Wed, 21 May 2008 10:21:05 +0800, Alek Du wrote:
+> On Tue, 20 May 2008 17:31:40 +0800
+> "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> 
+> > ETIMEOUT is indeed not defined, but ETIMEDOUT (what I wrote) is.
+> Ok, my bad.
+> > 
+> > Well, the datasheet clearly says otherwise. How did you test bit 31?
+> > Your code uses pci_read_config_word() at the moment so you can't read
+> > bit 31, you'd need to use pci_read_config_dword() instead. If Bit 31
+> Yes, my bad again. fixed now.
+> 
+> Again, here is the updated patch, thanks for your kind review:
+> 
+> This patch adds Intel SCH chipsets (AF82US15W, AF82US15L, AF82UL11L) i2c bus support.
 
-BTW, you must be using an old version of i2cdetect. Newer versions
-don't probe address 0 by default.
+OK, this is the right one this time. I've added your patch to my i2c
+tree as:
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-add-intel-sch-i2c-smbus-support.patch
+It will go in linux-next and is scheduled for merge in kernel
+2.6.27-rc1.
 
-What about the DDC channel? If there is a screen connected with an EDID
-EEPROM you should see it on the DDC channel, and then you could test if
-it has transaction errors as well.
+I've also updated sensors-detect and http://www.lm-sensors.org/wiki/Devices .
 
-> "The FS453 registers are accessed through a serial input/output bus (SIO)
-> which is I2C*-compatible and SMBus-compatible. These registers can be
-> read or written at any time the part is receiving a reference clock at
-> XTAL_IN and not being held in reset via the RESET_L pin."
+Any further patch to this driver should be an incremental one based on
+what I have in my tree. Things that could be improved include:
+* Allocate the device data dynamically to get rid of the assumption
+  that only one SMBus interface is present.
+* Rework the timeout mechanism so that it doesn't depend on HZ.
+* Documentation. Most SMBus host controller drivers have a
+  documentation file under Documentation/i2c/busses, it would be nice to
+  have one for this new i2c-isch driver.
 
-OK, this doesn't sound like any delay is required between accesses then.
-
-> Isn't this true i2c here ?
-
-As the FS454 is advertised as compatible with I2C, yes.
-
-> A hardware defect is not the problem here. There is a growing community
-> on these settopboxes in Germany
-> and I do talk to many of the owners actively. All the Samsung SMT-7020S
-> share the same problem when used with Linux. This is no single defect. 
-
-OK.
-
-> On a sidenote: I never saw the Original WindowsCE Operating System or
-> the Intel IEGD Driver fail on setting up the fs454 once, but those both
-> are dead end solutions. The IEGD Drivers for older chipsets don't work
-> with newer software like Linux Kernel >2.6.15, the original Operating
-> System is really plagued by obscure Bugs and missing functionality...
-
-Maybe the i810fb driver is missing an initialization which your system
-needs. You might want to discuss your problem with the i810fb driver
-maintainer (Antonino Daplas).
-
-You could try the old i2c-i810 driver temporarily and see if it does a
-better job, but I wouldn't hold my breath. Both drivers use the same
-helper driver (i2c-algo-bit) for the actual work. 
-
-I don't have any more ideas, sorry.
-
+Thanks,
 -- 
 Jean Delvare
-
 
 _______________________________________________
 i2c mailing list
