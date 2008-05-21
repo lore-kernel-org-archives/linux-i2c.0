@@ -1,97 +1,195 @@
-From: Wilken Haase <Hibbelharry-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Problem with unstable i2c communication with i810 bus
- driver
-Date: Wed, 21 May 2008 00:38:34 +0200
-Message-ID: <483352EA.2090005@gmx.de>
-References: <48321FD9.2010007@gmx.de>	<20080520091807.071f1032@hyperion.delvare>	<4832C0C8.2090401@gmx.de>
-	<20080520203715.68c502f3@hyperion.delvare>
+From: "Dave Young" <hidave.darkstar@gmail.com>
+Subject: Re: [PATCH 1/3] i2c : use class_for_each_device
+Date: Wed, 21 May 2008 09:29:51 +0800
+Message-ID: <a8e1da0805201829n439f251uef438bca0b1d006@mail.gmail.com>
+References: <20080509072029.GA2740@darkstar.te-china.tietoenator.com>
+	 <20080520193113.19ef0dc5@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080520203715.68c502f3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934063AbYEUBaI@vger.kernel.org>
+In-Reply-To: <20080520193113.19ef0dc5@hyperion.delvare>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: gregkh@suse.de, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi Wilken,
+On Wed, May 21, 2008 at 1:31 AM, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Dave,
 >
-> On Tue, 20 May 2008 14:15:04 +0200, Wilken Haase wrote:
->   
->> Badly I don't know of anymore devices connected to this bus.
->>     
+> On Fri, 9 May 2008 15:20:29 +0800, Dave Young wrote:
+>> Use class_for_each_device for iteration.
+>>
+>> Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
+>>
+>> ---
+>>  drivers/i2c/i2c-core.c |   96 ++++++++++++++++++++++++++-----------------------
+>>  1 file changed, 52 insertions(+), 44 deletions(-)
+>>
+>> diff -upr a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> --- a/drivers/i2c/i2c-core.c  2008-05-09 13:55:41.000000000 +0800
+>> +++ b/drivers/i2c/i2c-core.c  2008-05-09 14:24:07.000000000 +0800
+>> @@ -35,7 +35,6 @@
+>>  #include <linux/completion.h>
+>>  #include <linux/hardirq.h>
+>>  #include <linux/irqflags.h>
+>> -#include <linux/semaphore.h>
+>>  #include <asm/uaccess.h>
+>>
+>>  #include "i2c-core.h"
+>> @@ -655,6 +654,16 @@ EXPORT_SYMBOL(i2c_del_adapter);
+>>
+>>
+>>  /* ------------------------------------------------------------------------- */
+>> +static int __attach_adapter(struct device *dev, void *data)
+>> +{
+>> +     struct i2c_adapter *adapter;
+>> +     struct i2c_driver *driver = data;
+>> +
+>> +     adapter = container_of(dev, struct i2c_adapter, dev);
 >
-> You could probe the bus using i2cdetect. Just testing if i2cdetect works
-> will be a good test already.
+> You could use to_i2c_adapter(dev).
 >
->   
-I am able to probe the bus. The only discovered device on the bus is the
-fs454 at 0x6a and the master at 0x00.
->> I do have the datasheets and read them multiple times just to be sure.
->> The data sheet talks of needed delays.
->>     
+>> +     driver->attach_adapter(adapter);
+>> +
+>> +     return 0;
+>> +}
+>>
+>>  /*
+>>   * An i2c_driver is used with one or more i2c_client (device) nodes to access
+>> @@ -696,21 +705,52 @@ int i2c_register_driver(struct module *o
+>>       pr_debug("i2c-core: driver [%s] registered\n", driver->driver.name);
+>>
+>>       /* legacy drivers scan i2c busses directly */
+>> -     if (driver->attach_adapter) {
+>> -             struct i2c_adapter *adapter;
+>> +     if (driver->attach_adapter)
+>> +             class_for_each_device(&i2c_adapter_class, driver,
+>> +                                     __attach_adapter);
+>> +
+>> +     mutex_unlock(&core_lock);
+>> +     return 0;
+>> +}
+>> +EXPORT_SYMBOL(i2c_register_driver);
+>> +
+>> +static int __detach_adapter(struct device *dev, void *data)
+>> +{
+>> +     struct list_head   *item2, *_n;
+>> +     struct i2c_client  *client;
+>> +     struct i2c_adapter *adap;
+>> +     struct i2c_driver *driver = data;
+>>
+>> -             down(&i2c_adapter_class.sem);
+>> -             list_for_each_entry(adapter, &i2c_adapter_class.devices,
+>> -                                 dev.node) {
+>> -                     driver->attach_adapter(adapter);
+>> +     /* Have a look at each adapter, if clients of this driver
+>> +      * are still attached. If so, detach them to be able to
+>> +      * kill the driver afterwards.
+>> +      */
+>> +     adap = container_of(dev, struct i2c_adapter, dev);
 >
-> What does it say exactly?
->   
-"The FS453 registers are accessed through a serial input/output bus (SIO) which is I2C*-compatible and SMBus-compatible. These registers can be read or written at any time the part is receiving a reference clock at XTAL_IN and not being held in reset via the RESET_L pin."
+> You could use to_i2c_adapter(dev).
+>
+>> +     if (driver->detach_adapter) {
+>
+> Testing for a method...
+>
+>> +             if (driver->attach_adapter(adap))
+>
+> ... but calling another one? Can't be correct. Which raises a question:
+> you didn't test your patch, did you? I'm also surprised how you managed
+> to mess this up, given that all you had to do was to move already
+> existing code around.
 
-see Hardware Datasheet, Page 8 at:
-http://ingeninge.homelinux.net/ingmar/zenega/Datenbl%E4tter/FS453-4___FS455-6_HW_v31.pdf
-,page 8
+Thanks for review, It's only boot-tested with i2c part as built-in by
+me because I have the i2c device to test.
 
-you can find the Software Reference there too if you need more
-information, but id not find anything related there:
-http://ingeninge.homelinux.net/ingmar/zenega/Datenbl%E4tter/FS453-4___FS455-6_SW_v31.pdf
-
->> I tried experimenting with udelay values at the right file and did slow
->> the bus down, both values up to 150.
->>     
 >
-> Note: values above 50 are not compatible with SMBus.
+>> +                     dev_err(&adap->dev, "detach_adapter failed "
+>> +                                     "for driver [%s]\n",
+>> +                                     driver->driver.name);
+>> +     } else {
+>> +             list_for_each_safe(item2, _n, &adap->clients) {
+>> +                     client = list_entry(item2, struct i2c_client,
+>> +                                     list);
+>> +                     if (client->driver != driver)
+>> +                             continue;
+>> +                     dev_dbg(&adap->dev, "detaching client [%s] "
+>> +                             "at 0x%02x\n", client->name,
+>> +                             client->addr);
+>> +                     if (driver->detach_client(client)) {
+>> +                             dev_err(&adap->dev, "detach_client "
+>> +                                     "failed for client [%s] at "
+>> +                                     "0x%02x\n", client->name,
+>> +                                     client->addr);
+>> +                     }
+>>               }
+>> -             up(&i2c_adapter_class.sem);
+>>       }
+>>
+>> -     mutex_unlock(&core_lock);
+>>       return 0;
+>>  }
+>> -EXPORT_SYMBOL(i2c_register_driver);
+>>
+>>  /**
+>>   * i2c_del_driver - unregister I2C driver
+>> @@ -719,46 +759,14 @@ EXPORT_SYMBOL(i2c_register_driver);
+>>   */
+>>  void i2c_del_driver(struct i2c_driver *driver)
+>>  {
+>> -     struct list_head   *item2, *_n;
+>> -     struct i2c_client  *client;
+>> -     struct i2c_adapter *adap;
+>> -
+>>       mutex_lock(&core_lock);
+>>
+>>       /* new-style driver? */
+>>       if (is_newstyle_driver(driver))
+>>               goto unregister;
+>>
+>> -     /* Have a look at each adapter, if clients of this driver are still
+>> -      * attached. If so, detach them to be able to kill the driver
+>> -      * afterwards.
+>> -      */
+>> -     down(&i2c_adapter_class.sem);
+>> -     list_for_each_entry(adap, &i2c_adapter_class.devices, dev.node) {
+>> -             if (driver->detach_adapter) {
+>> -                     if (driver->detach_adapter(adap)) {
+>> -                             dev_err(&adap->dev, "detach_adapter failed "
+>> -                                     "for driver [%s]\n",
+>> -                                     driver->driver.name);
+>> -                     }
+>> -             } else {
+>> -                     list_for_each_safe(item2, _n, &adap->clients) {
+>> -                             client = list_entry(item2, struct i2c_client, list);
+>> -                             if (client->driver != driver)
+>> -                                     continue;
+>> -                             dev_dbg(&adap->dev, "detaching client [%s] "
+>> -                                     "at 0x%02x\n", client->name,
+>> -                                     client->addr);
+>> -                             if (driver->detach_client(client)) {
+>> -                                     dev_err(&adap->dev, "detach_client "
+>> -                                             "failed for client [%s] at "
+>> -                                             "0x%02x\n", client->name,
+>> -                                             client->addr);
+>> -                             }
+>> -                     }
+>> -             }
+>> -     }
+>> -     up(&i2c_adapter_class.sem);
+>> +     class_for_each_device(&i2c_adapter_class, driver,
+>> +                             __detach_adapter);
+>>
+>>   unregister:
+>>       driver_unregister(&driver->driver);
 >
->   
-Isn't this true i2c here ?
->> But while dumping the chip slowed noticeably
->> down i still got some bogus values back. Think that's maybe not the
->> right idea.
->> On another sidenote: I own another settopbox which is partly similar and
->> also uses a fs454 scan konverter, but controlled by an intel i830 chipset.
->> The fs454 is accessible without any problems there with the stock kernel
->> driver. I really don't think the bus is multi mastered. Maybe this is a
->> termination problem.
->>     
->
-> If the other system works OK with basically the same type of hardware,
-> then I indeed suspect a hardware defect on the failing box. Maybe try
-> to find out someone else with exactly the same box which is failing for
-> you, and see if it also fails for him/her?
->
->   
+> The rest looks OK. I'll fix the patch myself and add it to my i2c tree
+> now.
 
-A hardware defect is not the problem here. There is a growing community
-on these settopboxes in Germany
-and I do talk to many of the owners actively. All the Samsung SMT-7020S
-share the same problem when used with Linux. This is no single defect. 
-On a sidenote: I never saw the Original WindowsCE Operating System or
-the Intel IEGD Driver fail on setting up the fs454 once, but those both
-are dead end solutions. The IEGD Drivers for older chipsets don't work
-with newer software like Linux Kernel >2.6.15, the original Operating
-System is really plagued by obscure Bugs and missing functionality...
+Glad to see that, thanks.
 
-Greetings
-Wilken Haase
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Regards
+dave
