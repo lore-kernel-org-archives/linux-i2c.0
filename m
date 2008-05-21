@@ -1,76 +1,196 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: Add Intel SCH I2C SMBus support
-Date: Wed, 21 May 2008 11:04:12 +0200
-Message-ID: <20080521110412.3617b022@hyperion.delvare>
-References: <20080428105738.06429ed2@hyperion.delvare>
-	<20080429110628.66d4892b@dxy.sh.intel.com>
-	<8AD95083DC3E36478732061D97524415030F8FAA@pdsmsx411.ccr.corp.intel.com>
-	<20080430080351.57b8c21d@hyperion.delvare>
-	<20080505141807.1aa458e1@dxy.sh.intel.com>
-	<20080505110757.6454c220@hyperion.delvare>
-	<20080506095036.274e91f1@dxy.sh.intel.com>
-	<20080512225718.7440ab42@hyperion.delvare>
-	<20080520135635.55238a08@dxy.sh.intel.com>
-	<20080520113140.44e40b77@hyperion.delvare>
-	<20080521102105.13d75e59@dxy.sh.intel.com>
+From: Jochen Friedrich <jochen@scram.de>
+Subject: [PATCH] [POWERPC] Add i2c pins to dts and board setup
+Date: Wed, 21 May 2008 12:31:40 +0200
+Message-ID: <4833FA0C.5090800@scram.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080521102105.13d75e59-PCb9FJy6fea75v1z/vFq2g@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Alek Du <alek.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Paul Mackerras <paulus@samba.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>, Andrew Morton <akpm@linux-foundation.org>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alek,
+Initialize I2C pins on boards with CPM1/CPM2 controllers.
 
-On Wed, 21 May 2008 10:21:05 +0800, Alek Du wrote:
-> On Tue, 20 May 2008 17:31:40 +0800
-> "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> 
-> > ETIMEOUT is indeed not defined, but ETIMEDOUT (what I wrote) is.
-> Ok, my bad.
-> > 
-> > Well, the datasheet clearly says otherwise. How did you test bit 31?
-> > Your code uses pci_read_config_word() at the moment so you can't read
-> > bit 31, you'd need to use pci_read_config_dword() instead. If Bit 31
-> Yes, my bad again. fixed now.
-> 
-> Again, here is the updated patch, thanks for your kind review:
-> 
-> This patch adds Intel SCH chipsets (AF82US15W, AF82US15L, AF82UL11L) i2c bus support.
+Signed-off-by: Jochen Friedrich <jochen@scram.de>
+---
+ Documentation/powerpc/booting-without-of.txt |   39 ++++++++++++++++++++++++++
+ arch/powerpc/boot/dts/mpc8272ads.dts         |   11 +++++++
+ arch/powerpc/boot/dts/mpc866ads.dts          |   11 +++++++
+ arch/powerpc/boot/dts/mpc885ads.dts          |   11 +++++++
+ arch/powerpc/platforms/82xx/mpc8272_ads.c    |    4 ++
+ arch/powerpc/platforms/8xx/mpc86xads_setup.c |    4 ++
+ arch/powerpc/platforms/8xx/mpc885ads_setup.c |    3 ++
+ 7 files changed, 83 insertions(+), 0 deletions(-)
 
-OK, this is the right one this time. I've added your patch to my i2c
-tree as:
-http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-add-intel-sch-i2c-smbus-support.patch
-It will go in linux-next and is scheduled for merge in kernel
-2.6.27-rc1.
+diff --git a/Documentation/powerpc/booting-without-of.txt b/Documentation/powerpc/booting-without-of.txt
+index 1d2a772..3fc4eb2 100644
+--- a/Documentation/powerpc/booting-without-of.txt
++++ b/Documentation/powerpc/booting-without-of.txt
+@@ -2132,6 +2132,45 @@ platforms are moved over to use the flattened-device-tree model.
+ 		};
+ 	};
 
-I've also updated sensors-detect and http://www.lm-sensors.org/wiki/Devices .
++   ix) I2C
++
++   The I2C controller is expressed as a bus under the CPM node.
++
++   Properties:
++   - compatible : "fsl,cpm1-i2c", "fsl,cpm2-i2c"
++   - reg : On CPM2 devices, the second resource doesn't specify the I2C
++     Parameter RAM itself, but the I2C_BASE field of the CPM2 Parameter RAM
++     (typically 0x8afc 0x2).
++   - #address-cells : Should be one. The cell is the i2c device address with
++     the r/w bit set to zero.
++   - #size-cells : Should be zero.
++   - linux,i2c-index : Can be used to hard code an i2c bus nummer.
++   - linux,i2c-class : Can be used to override the i2c class. The class is used
++     by old style i2c device drivers to find a bus in a specific context like
++     system management, video or sound. By default, I2C_CLASS_HWMON (1) is
++     being used. The definition of the classes can be found in
++     include/i2c/i2c.h
++   - bus-frequency : Can be used to set the i2c bus frequency. If unspecified,
++     a default frequency of 60kHz is being used.
++
++   Example, based on mpc823:
++
++	i2c@860 {
++		compatible = "fsl,mpc823-i2c",
++			     "fsl,cpm1-i2c";
++		reg = <0x860 0x20 0x3c80 0x30>;
++		interrupts = <16>;
++		interrupt-parent = <&CPM_PIC>;
++		fsl,cpm-command = <0x10>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		rtc@68 {
++			compatible = "dallas,ds1307";
++			reg = <0x68>;
++		};
++	};
++
+    m) Chipselect/Local Bus
 
-Any further patch to this driver should be an incremental one based on
-what I have in my tree. Things that could be improved include:
-* Allocate the device data dynamically to get rid of the assumption
-  that only one SMBus interface is present.
-* Rework the timeout mechanism so that it doesn't depend on HZ.
-* Documentation. Most SMBus host controller drivers have a
-  documentation file under Documentation/i2c/busses, it would be nice to
-  have one for this new i2c-isch driver.
+    Properties:
+diff --git a/arch/powerpc/boot/dts/mpc8272ads.dts b/arch/powerpc/boot/dts/mpc8272ads.dts
+index 46e2da3..d27f8a7 100644
+--- a/arch/powerpc/boot/dts/mpc8272ads.dts
++++ b/arch/powerpc/boot/dts/mpc8272ads.dts
+@@ -217,6 +217,17 @@
+ 				linux,network-index = <1>;
+ 				fsl,cpm-command = <0x16200300>;
+ 			};
++
++			i2c@11860 {
++				compatible = "fsl,mpc8272-i2c",
++					     "fsl,cpm2-i2c";
++				reg = <0x11860 0x20 0x8afc 0x2>;
++				interrupts = <1 8>;
++				interrupt-parent = <&PIC>;
++				fsl,cpm-command = <0x29600000>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
 
-Thanks,
+ 		PIC: interrupt-controller@10c00 {
+diff --git a/arch/powerpc/boot/dts/mpc866ads.dts b/arch/powerpc/boot/dts/mpc866ads.dts
+index 765e43c..bd70065 100644
+--- a/arch/powerpc/boot/dts/mpc866ads.dts
++++ b/arch/powerpc/boot/dts/mpc866ads.dts
+@@ -171,6 +171,17 @@
+ 				fsl,cpm-command = <0000>;
+ 				linux,network-index = <1>;
+ 			};
++
++			i2c@860 {
++				compatible = "fsl,mpc866-i2c",
++					     "fsl,cpm1-i2c";
++				reg = <0x860 0x20 0x3c80 0x30>;
++				interrupts = <16>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0x10>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
+ 	};
+
+diff --git a/arch/powerpc/boot/dts/mpc885ads.dts b/arch/powerpc/boot/dts/mpc885ads.dts
+index 9895043..b123e9f 100644
+--- a/arch/powerpc/boot/dts/mpc885ads.dts
++++ b/arch/powerpc/boot/dts/mpc885ads.dts
+@@ -215,6 +215,17 @@
+ 				fsl,cpm-command = <0x80>;
+ 				linux,network-index = <2>;
+ 			};
++
++			i2c@860 {
++				compatible = "fsl,mpc885-i2c",
++					     "fsl,cpm1-i2c";
++				reg = <0x860 0x20 0x3c80 0x30>;
++				interrupts = <16>;
++				interrupt-parent = <&CPM_PIC>;
++				fsl,cpm-command = <0x10>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
+ 		};
+ 	};
+
+diff --git a/arch/powerpc/platforms/82xx/mpc8272_ads.c b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+index 7d30187..8054c68 100644
+--- a/arch/powerpc/platforms/82xx/mpc8272_ads.c
++++ b/arch/powerpc/platforms/82xx/mpc8272_ads.c
+@@ -96,6 +96,10 @@ static struct cpm_pin mpc8272_ads_pins[] = {
+ 	{1, 31, CPM_PIN_OUTPUT | CPM_PIN_PRIMARY},
+ 	{2, 16, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
+ 	{2, 17, CPM_PIN_INPUT | CPM_PIN_PRIMARY},
++
++	/* I2C */
++	{3, 14, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
++	{3, 15, CPM_PIN_INPUT | CPM_PIN_SECONDARY | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc86xads_setup.c b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+index c028a5b..caaec29 100644
+--- a/arch/powerpc/platforms/8xx/mpc86xads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc86xads_setup.c
+@@ -65,6 +65,10 @@ static struct cpm_pin mpc866ads_pins[] = {
+ 	{CPM_PORTD, 13, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 14, CPM_PIN_OUTPUT},
+ 	{CPM_PORTD, 15, CPM_PIN_OUTPUT},
++
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
+diff --git a/arch/powerpc/platforms/8xx/mpc885ads_setup.c b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+index 6e7ded0..45ed6cd 100644
+--- a/arch/powerpc/platforms/8xx/mpc885ads_setup.c
++++ b/arch/powerpc/platforms/8xx/mpc885ads_setup.c
+@@ -158,6 +158,9 @@ static struct cpm_pin mpc885ads_pins[] = {
+ 	{CPM_PORTE, 28, CPM_PIN_OUTPUT},
+ 	{CPM_PORTE, 29, CPM_PIN_OUTPUT},
+ #endif
++	/* I2C */
++	{CPM_PORTB, 26, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
++	{CPM_PORTB, 27, CPM_PIN_INPUT | CPM_PIN_OPENDRAIN},
+ };
+
+ static void __init init_ioports(void)
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+1.5.5.1
