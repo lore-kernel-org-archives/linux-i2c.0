@@ -1,45 +1,52 @@
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [PATCH] i2c: Push ioctl BKL down into the i2c code
-Date: Fri, 23 May 2008 20:08:37 +0200
-Message-ID: <48370825.9070304@s5r6.in-berlin.de>
-References: <20080522222327.1af72794@core>	<20080523093545.175c769c@hyperion.delvare>	<48368466.5040600@s5r6.in-berlin.de> <20080523195302.42846394@hyperion.delvare>
+From: "hijack" <2-interpret-wL/Akq42T/T/skAAmJ5avw@public.gmane.org>
+Subject: Databases for specialties such as:  Gynecologists, surgeons,
+	radiologists  and a whole list of others
+Date: Fri, 23 May 2008 20:36:15 +0000 (UTC)
+Message-ID: <23507.4806063951$1211575021@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758634AbYEWSJB@vger.kernel.org>
-In-Reply-To: <20080523195302.42846394@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Date: Sat, 24 May 2008 21:28:05 -0300
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: npark-vyEQ8BhI9K1iuyyxrZMbN/7wmygKZyH0@public.gmane.org, wholesale-o0E0kPfQMR0ud/4VRtRfoCkBLnlaf3ui@public.gmane.org, casey-SLkFgh3bCKyGw2W2V5x0Bw@public.gmane.org, awc-qr3db25JwszQT0dZR+AlfA@public.gmane.org, detroit-NrGnF9dIBh3QT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> On Fri, 23 May 2008 10:46:30 +0200, Stefan Richter wrote:
->> AFAIU it's a preparation for
->> 
->> --- a/include/linux/fs.h
->> +++ b/include/linux/fs.h
->> @@ ?? @@ struct file_operations {
->>  	unsigned int (*poll) (struct file *, struct poll_table_struct *);
->> -	int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
->>  	long (*unlocked_ioctl) (struct file *, unsigned int, unsigned long);
->>
->> Obvious benefits:
->>   - No new .ioctl()s.
-> 
-> I fail to see how this is related to the locking change.
 
-I meant:  After struct file_operations.ioctl is removed, developers can 
-only implement unlocked_ioctl methods.  This includes code that is not 
-(yet) in mainline.  To keep it compilable, it has to be converted to 
-unlocked_ioctl.
 
-[The quickest kind of conversion is to replace the ioctl method by an 
-unlocked_ioctl method which itself takes the BKL.  This kind of 
-conversion has of course no direct benefit for the functioning of the 
-kernel, but as mentioned it at least puts the BKL issue into the line of 
-sight of the people who work with the code.]
--- 
-Stefan Richter
--=====-==--- -=-= =-===
-http://arcgraph.de/sr/
+
+Marketing a targeted campaign to promote your business to MDs
+
+--> MD Marketing List !!!!!!!
+
+716,583 MDs
+520,542 Office Phones
+270,064 Office Fax Numbers
+17,469 Clinic Emails
+
+Featuring the most accurate contact information in many different areas of medicine
+
+many fields which can easily be sorted in excel
+
+This week only you pay only: $296
+
+send and email to:  samanthamargossian-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+
+during this week only
+
+
+email with 450 in the subject to ensure no further communication from us
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
