@@ -1,37 +1,83 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PULL] i2c fixes for 2.6.26
-Date: Mon, 26 May 2008 19:08:47 +0200
-Message-ID: <20080526190847.0574f747@hyperion.delvare>
+From: Laurent Pinchart <laurentp@cse-semaphore.com>
+Subject: How to set device's platform_data field for OF-described I2C devices ?
+Date: Tue, 27 May 2008 13:47:59 +0200
+Message-ID: <200805271348.06470.laurentp@cse-semaphore.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756560AbYEZRIm@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="===============1927832139=="
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Mime-version: 1.0
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Linux I2C <i2c@lm-sensors.org>
+Cc: linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-Linus,
+--===============1927832139==
+Content-Type: multipart/signed;
+  boundary="nextPart1578720.ZKAOKRFCBV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 
-Please pull the i2c subsystem fixes for Linux 2.6.26 from:
+--nextPart1578720.ZKAOKRFCBV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+Hi everybody,
 
-(Note to other readers: please do NOT pull the whole kernel tree from
-this location, my line wouldn't like it.)
+I'm running into a small issue with the pca953x I2C GPIO driver. The driver=
+=20
+requires platform data (to set the GPIO base number among other information=
+).=20
+As the device is automatically instantiated from the OF device tree, I can'=
+t=20
+find a way to add platform data in the process.
 
- drivers/media/video/tuner-core.c |   20 +++++++-------------
- include/linux/mod_devicetable.h  |    3 ++-
- 2 files changed, 9 insertions(+), 14 deletions(-)
+What's the best way to specify platform data for OF-described I2C devices ?
 
----------------
+Best regards,
 
-Jiri Slaby (1):
-      i2c: Align i2c_device_id
+=2D-=20
+Laurent Pinchart
+CSE Semaphore Belgium
 
-Michael Krufky (1):
-      tuner: Do not alter i2c_client.name
+Chaussee de Bruxelles, 732A
+B-1410 Waterloo
+Belgium
 
-Thanks,
--- 
-Jean Delvare
+T +32 (2) 387 42 59
+=46 +32 (2) 387 42 75
+
+--nextPart1578720.ZKAOKRFCBV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBIO/T28y9gWxC9vpcRAqTZAKCuNgeopQtdva+DnU6JxckNmT8P/ACg3nUz
+YZCp2UZyA0Ab1h+SxMEQ6aA=
+=rmXC
+-----END PGP SIGNATURE-----
+
+--nextPart1578720.ZKAOKRFCBV--
+
+--===============1927832139==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Linuxppc-dev mailing list
+Linuxppc-dev@ozlabs.org
+https://ozlabs.org/mailman/listinfo/linuxppc-dev
+--===============1927832139==--
