@@ -1,49 +1,81 @@
-From: Jochen Friedrich <jochen@scram.de>
-Subject: Re: How to set device's platform_data field for OF-described I2C
-	devices ?
-Date: Tue, 27 May 2008 17:35:15 +0200
-Message-ID: <483C2A33.1020309@scram.de>
-References: <200805271348.06470.laurentp@cse-semaphore.com>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH][UPDATE] i2c: Add support for virtual I2C adapters
+Date: Wed, 28 May 2008 15:30:15 +0200
+Message-ID: <20080528133015.GS9698@enneenne.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <200805271348.06470.laurentp@cse-semaphore.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Laurent Pinchart <laurentp@cse-semaphore.com>
-Cc: linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
+Content-Type: multipart/mixed; boundary="===============3265350723529722736=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Laurent,
 
-> I'm running into a small issue with the pca953x I2C GPIO driver. The driver 
-> requires platform data (to set the GPIO base number among other information). 
-> As the device is automatically instantiated from the OF device tree, I can't 
-> find a way to add platform data in the process.
+--===============3265350723529722736==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Bdcc8l/1lFRK/qa7"
+Content-Disposition: inline
 
-Platform data really is a problem for devices loaded by OF device trees (see the
-discussion at http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056728.html and
-in particular http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056752.html).
 
-In case of this particular chip it might be feasible to support the new libgpio
-API to get a GPIO base number dynamically and use some defaults for the other
-platform data to enable the chip to be used without platform data.
+--Bdcc8l/1lFRK/qa7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Otherwise, you could only bypass the OF bindings totally and add the device
-manually from platform code with the platform data filled in.
+Hello,
 
-> What's the best way to specify platform data for OF-described I2C devices ?
+I'd like to know why the patches at:
 
-This depends on the data. For example function pointers can't be described in the
-device tree, at all.
+   http://lists.linuxcoding.com/kernel/2006-q1/msg32516.html
 
-Thanks,
-Jochen
+have never been applied to the main kernel tree.
+
+I'd like to use them and maybe I can update them to the latest kernel
+version for submission. :)
+
+Ciao,
+
+Rodolfo
+
+--=20
+
+GNU/Linux Solutions                  e-mail:    giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                             giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:	+39 349 2432127
+UNIX programming                     skype:     rodolfo.giometti
+
+--Bdcc8l/1lFRK/qa7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFIPV5mQaTCYNJaVjMRAsfjAKCTO/Gz+kLAvyW4nsZHzDPD7xBrtgCg4DGC
+IpEIX9Zt97emq1PEl153fHo=
+=Mm5u
+-----END PGP SIGNATURE-----
+
+--Bdcc8l/1lFRK/qa7--
+
+
+--===============3265350723529722736==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============3265350723529722736==--
