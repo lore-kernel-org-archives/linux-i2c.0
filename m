@@ -1,13 +1,13 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH][UPDATE] i2c: Add support for virtual I2C adapters
-Date: Thu, 29 May 2008 14:03:29 +0200
-Message-ID: <20080529120329.GX9698@enneenne.com>
+Date: Thu, 29 May 2008 13:54:51 +0200
+Message-ID: <20080529135451.7aa9ffde@hyperion.delvare>
 References: <20080528133015.GS9698@enneenne.com>
-	<20080528225325.GA6226@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3324925978157105089=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080528225325.GA6226-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20080528133015.GS9698-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,84 +17,56 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Rodolfo,
 
---===============3324925978157105089==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/lFFBEHT4+C4z/Jh"
-Content-Disposition: inline
+On Wed, 28 May 2008 15:30:15 +0200, Rodolfo Giometti wrote:
+> I'd like to know why the patches at:
+> 
+>    http://lists.linuxcoding.com/kernel/2006-q1/msg32516.html
+> 
+> have never been applied to the main kernel tree.
 
+There are two main reasons:
 
---/lFFBEHT4+C4z/Jh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1* Nobody reviewed the patches in question. I don't even remember
+seeing test reports about these patches, but this could as well be my
+defective memory. A patch affecting i2c-core definitely needs good
+review and testing before it can go upstream.
 
-On Wed, May 28, 2008 at 11:53:25PM +0100, Ben Dooks wrote:
-> On Wed, May 28, 2008 at 03:30:15PM +0200, Rodolfo Giometti wrote:
-> > Hello,
-> >=20
-> > I'd like to know why the patches at:
-> >=20
-> >    http://lists.linuxcoding.com/kernel/2006-q1/msg32516.html
-> >=20
-> > have never been applied to the main kernel tree.
-> >=20
-> > I'd like to use them and maybe I can update them to the latest kernel
-> > version for submission. :)
->=20
-> Personally, a quick check over shows that I think
-> there are not bad, and would have a review of it
-> myself (although this is probably not totally under
-> my portion of maintainership).
+2* When this patch was sent, the i2c subsystem was still using the
+legacy model where device drivers have to probe for and instantiate
+their devices themselves. This model is fundamentally incompatible with
+a generic for of I2C multiplexing support. So I didn't pay too much
+attention to attempts to support multiplexing of i2c adapters because I
+suspected it would be ugly at best. Now that we have new-style i2c
+device/driver binding which follows the device driver model, it's
+probably the right time to think about multiplexing support again.
 
-I've already done it and I'm testing it just right now. :)
+Another reason, I guess, is that I do not have any system with a
+multiplexed I2C bus myself, so I can't test the code and I also lack
+personal motivation to push this forward.
 
-If you wish I can submit a pre-patch.
+There are still some cleanups needed in i2c-core, most notably with
+respect to duplication and locking, and ideally I'd like to see it done
+before we add multiplexing support, but admittedly there is no roadmap
+so I can't make this a mandatory requirement.
 
-> Have you tried contacting the original authour and
-> seeing if it can be resubmitted?
+> I'd like to use them and maybe I can update them to the latest kernel
+> version for submission. :)
 
-Yes, several days ago, but I got no answers. :'(
+You are welcome to update and resubmit the patch, however I suspect
+that what is needed is more than that. The code was written with the
+legacy model in mind, while we want to support primarily (and maybe
+even exclusively) the new-style binding model.
 
-Ciao,
-
-Rodolfo
-
---=20
-
-GNU/Linux Solutions                  e-mail:    giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                             giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:	+39 349 2432127
-UNIX programming                     skype:     rodolfo.giometti
-
---/lFFBEHT4+C4z/Jh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIPpuRQaTCYNJaVjMRAhQBAKCixNF1f3kRsSGrydfH1EYlNAKg4QCgkJAo
-cI50gRVlBW932kAFMvtZstU=
-=eOmR
------END PGP SIGNATURE-----
-
---/lFFBEHT4+C4z/Jh--
-
-
---===============3324925978157105089==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============3324925978157105089==--
