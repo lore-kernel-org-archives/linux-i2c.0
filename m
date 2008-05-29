@@ -1,14 +1,14 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: [patch 8/8] ANUBIS: Add i2c device list to Simtec Anubis
-Date: Thu, 29 May 2008 14:22:52 +0100
-Message-ID: <20080529132407.411945350@fluff.org.uk>
+Subject: [patch 7/8] VR1000: Add i2c device list to Thorcom VR1000
+Date: Thu, 29 May 2008 14:22:51 +0100
+Message-ID: <20080529132407.211335410@fluff.org.uk>
 References: <20080529132244.818543231@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline;
-	filename=simtec/simtec-mach-anubis-add-i2c-boardinfo.patch
+	filename=simtec/simtec-mach-vr1000-add-i2c-boardinfo.patch
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,60 +22,65 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c board info initialiser to setup the list of
-I2C devices present on an Simtec Anubis.
+Add i2c board intialisers to specify the I2C devices
+attached on the Thorcom VR1000.
 
 Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-Index: linux-2.6.26-rc4-quilt1/arch/arm/mach-s3c2440/mach-anubis.c
+Index: linux-2.6.26-rc4-quilt1/arch/arm/mach-s3c2410/mach-vr1000.c
 ===================================================================
---- linux-2.6.26-rc4-quilt1.orig/arch/arm/mach-s3c2440/mach-anubis.c	2008-05-28 00:04:12.000000000 +0100
-+++ linux-2.6.26-rc4-quilt1/arch/arm/mach-s3c2440/mach-anubis.c	2008-05-28 00:05:42.000000000 +0100
+--- linux-2.6.26-rc4-quilt1.orig/arch/arm/mach-s3c2410/mach-vr1000.c	2008-05-27 23:31:41.000000000 +0100
++++ linux-2.6.26-rc4-quilt1/arch/arm/mach-s3c2410/mach-vr1000.c	2008-05-27 23:59:05.000000000 +0100
 @@ -1,6 +1,6 @@
- /* linux/arch/arm/mach-s3c2440/mach-anubis.c
+ /* linux/arch/arm/mach-s3c2410/mach-vr1000.c
   *
 - * Copyright (c) 2003-2005 Simtec Electronics
 + * Copyright (c) 2003-2005,2008 Simtec Electronics
-  *	http://armlinux.simtec.co.uk/
-  *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+  *   Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
   *
-@@ -18,6 +18,7 @@
- #include <linux/serial_core.h>
- #include <linux/platform_device.h>
- #include <linux/ata_platform.h>
+  * Machine support for Thorcom VR1000 board. Designed for Thorcom by
+@@ -19,6 +19,7 @@
+ #include <linux/timer.h>
+ #include <linux/init.h>
+ #include <linux/dm9000.h>
 +#include <linux/i2c.h>
  
- #include <linux/sm501.h>
- #include <linux/sm501-regs.h>
-@@ -421,6 +422,19 @@ static struct clk *anubis_clocks[] = {
- 	&s3c24xx_uclk,
+ #include <linux/serial.h>
+ #include <linux/tty.h>
+@@ -315,6 +316,24 @@ static struct platform_device vr1000_led
+ 	},
  };
  
 +/* I2C devices. */
 +
-+static struct i2c_board_info anubis_i2c_info[] __initdata = {
++static struct i2c_board_info vr1000_i2c_info[] __initdata = {
 +	{
-+		.type	= "tps65011",
++		.type	= "tlv320aic23",
++		.addr	= 0x1a,
++	}, {
++		.type	= "tmp101",
 +		.addr	= 0x48,
-+		.irq	= IRQ_EINT20,
 +	}, {
 +		.type	= "eeprom",
 +		.addr	= 0x50,
-+	}
++	}, {
++		.type	= "m41st87",
++		.addr	= 0x68,
++	},
 +};
 +
- static void __init anubis_map_io(void)
- {
- 	/* initialise the clocks */
-@@ -460,6 +474,9 @@ static void __init anubis_map_io(void)
- static void __init anubis_init(void)
- {
- 	platform_add_devices(anubis_devices, ARRAY_SIZE(anubis_devices));
-+
-+	i2c_register_board_info(0, anubis_i2c_info,
-+				ARRAY_SIZE(anubis_i2c_info));
- }
+ /* devices for this board */
  
+ static struct platform_device *vr1000_devices[] __initdata = {
+@@ -373,6 +392,9 @@ static void __init vr1000_init(void)
+ {
+ 	platform_add_devices(vr1000_devices, ARRAY_SIZE(vr1000_devices));
+ 
++	i2c_register_board_info(0, vr1000_i2c_info,
++				ARRAY_SIZE(vr1000_i2c_info));
++
+ 	nor_simtec_init();
+ }
  
 
 -- 
