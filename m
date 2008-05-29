@@ -1,82 +1,49 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: [patch 1/8] I2C: S3C2410: Check ACK on byte transmission
-Date: Thu, 29 May 2008 14:22:45 +0100
-Message-ID: <20080529132405.971048345@fluff.org.uk>
-References: <20080529132244.818543231@fluff.org.uk>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCHv2] i2c: adds support for i2c bus on Freescale CPM1/CPM2
+	controllers
+Date: Thu, 29 May 2008 17:52:26 +0200
+Message-ID: <20080529175226.273f9d49@hyperion.delvare>
+References: <4834504E.6060205@scram.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline;
-	filename=simtec/simtec-drivers-i2c-s3c2410-fixack.patch
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <4834504E.6060205@scram.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jochen Friedrich <jochen@scram.de>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, "Kernel,
+	Linux" <linux-kernel@vger.kernel.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>, Andrew Morton <akpm@linux-foundation.org>, Boris Shteinbock <bshtein@yahoo.com>
 List-Id: linux-i2c@vger.kernel.org
 
-We should check for the reception of an ACK after transmissint each
-data byte. The address send has been correctly checking this, but the
-data write byte state should have also been checking for these failures.
+On Wed, 21 May 2008 18:39:42 +0200, Jochen Friedrich wrote:
+> This driver uses the port of 2.4 code from Vitaly Bordug
+> <vitb@kernel.crashing.org> and the actual algorithm used by the i2c
+> driver of the DBox code on cvs.tuxboc.org from Felix Domke
+> (tmbinc@gmx.net) and Gillem (htoa@gmx.net) converted to an
+> of_platform_driver. Tested on CPM1 (MPC823 on dbox2 hardware) and
+> CPM2 (MPC8272).
+> 
+> Signed-off-by: Jochen Friedrich <jochen@scram.de>
+> ---
+>  drivers/i2c/busses/Kconfig   |   10 +
+>  drivers/i2c/busses/Makefile  |    1 +
+>  drivers/i2c/busses/i2c-cpm.c |  745 ++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 756 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-cpm.c
+> 
+> Changes since last version:
+> - change bus-frequency -> clock-frequency to comply to OF standard.
+> 
 
-As part of the same fix, we remove the ACK checking from the receive
-path where it should not have been checking for an ACK which our hardware
-was sending.
-
-Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-
-Index: linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c
-===================================================================
---- linux-2.6.26-rc4-quilt1.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:49:18.000000000 +0100
-+++ linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:56:14.000000000 +0100
-@@ -324,6 +324,15 @@ static int i2s_s3c_irq_nextbyte(struct s
- 		 */
- 
- 	retry_write:
-+		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
-+			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
-+				dev_dbg(i2c->dev, "WRITE: No Ack\n");
-+
-+				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
-+				goto out_ack;
-+			}
-+		}
-+
- 		if (!is_msgend(i2c)) {
- 			byte = i2c->msg->buf[i2c->msg_ptr++];
- 			writeb(byte, i2c->regs + S3C2410_IICDS);
-@@ -377,17 +386,6 @@ static int i2s_s3c_irq_nextbyte(struct s
- 		 * going to do any more read/write
- 		 */
- 
--		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK) &&
--		    !(is_msglast(i2c) && is_lastmsg(i2c))) {
--
--			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
--				dev_dbg(i2c->dev, "READ: No Ack\n");
--
--				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
--				goto out_ack;
--			}
--		}
--
- 		byte = readb(i2c->regs + S3C2410_IICDS);
- 		i2c->msg->buf[i2c->msg_ptr++] = byte;
- 
+Applied, thanks. And thanks a lot to Wolfram for the review :)
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jean Delvare
