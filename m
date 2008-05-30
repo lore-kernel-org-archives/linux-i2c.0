@@ -1,15 +1,13 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2/8] I2C: S3C2410: Add MODULE_ALIAS() for s3c2440
- device.
-Date: Fri, 30 May 2008 21:54:52 +0200
-Message-ID: <20080530215452.2ee3d4a7@hyperion.delvare>
-References: <20080529132244.818543231@fluff.org.uk>
-	<20080529132406.186957190@fluff.org.uk>
+From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: Problem Configuring Micron sensor MT9D131 using i2c
+Date: Fri, 30 May 2008 22:23:46 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0805302218580.13362@axis700.grange>
+References: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1@IE10EV813.global.ds.honeywell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080529132406.186957190-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1-8tR4ov5Cr7uXeP9mKtfZqKJzXdaVS04K4Jgwf8ORaLoAvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,39 +17,35 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: "Tekkalkot, Seetaram (IE10)" <Seetaram.Tekkalkot-TF0kVB3jB5US+FvcfC7Uqw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Fri, 30 May 2008, Tekkalkot, Seetaram (IE10) wrote:
 
-On Thu, 29 May 2008 14:22:46 +0100, Ben Dooks wrote:
-> Add a MODULE_ALIAS() statement for the i2c-s3c2410 controller
-> to ensure that it can be autoloaded on the S3C2440 systems that
-> we support.
+> I am trying to configure the Micron sensor MTD131 using Linux 2.6 i2c.
 > 
-> Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> The sensor data sheet mentions 0x90 as the write i2c address and 0x91 as
+> read i2c address.
 > 
-> Index: linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c
-> ===================================================================
-> --- linux-2.6.26-rc4-quilt1.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:56:54.000000000 +0100
-> +++ linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:57:12.000000000 +0100
-> @@ -947,3 +947,4 @@ MODULE_DESCRIPTION("S3C24XX I2C Bus driv
->  MODULE_AUTHOR("Ben Dooks, <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>");
->  MODULE_LICENSE("GPL");
->  MODULE_ALIAS("platform:s3c2410-i2c");
-> +MODULE_ALIAS("platform:s3c2440-i2c");
+> It also mentions that, the last bit in the address is used to indicate
+> read or write operation.
+> 
+> I am using 0x48 (0x90 shifted right once to get 7 bit i2c address) to
+> detect the sensor using i2cdetect tool.
+> 
+> I am not able to detect this device!. I tried reading this device using
+> i2cget tool but it fails to read.
 
-With the current driver code, that's correct.
+I understand it is connected to a camera-host interface. Some cameras, 
+including Micron cameras, do not reply to i2c commands until the camera 
+interface (master clock) is activated.
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-That being said, I think the approach is wrong. You shouldn't register
-two different platform drivers just to be able to differentiate between
-device types. You have platform_data for that, it's cleaner and cheaper.
-
--- 
-Jean Delvare
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
 
 _______________________________________________
 i2c mailing list
