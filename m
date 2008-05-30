@@ -1,15 +1,11 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Fri, 30 May 2008 12:45:39 +0200
-Message-ID: <20080530104539.GA30482@pengutronix.de>
-References: <1210883799-25188-1-git-send-email-w.sang@pengutronix.de>
-	<20080522222022.68d65cd7@hyperion.delvare>
-	<20080530091534.GB727@pengutronix.de>
-	<20080530115131.0e111fdb@hyperion.delvare>
+From: "Tekkalkot, Seetaram (IE10)" <Seetaram.Tekkalkot-TF0kVB3jB5US+FvcfC7Uqw@public.gmane.org>
+Subject: Problem Configuring Micron sensor MT9D131 using i2c
+Date: Fri, 30 May 2008 16:36:03 +0530
+Message-ID: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1@IE10EV813.global.ds.honeywell.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5476323144721175609=="
+Content-Type: multipart/mixed; boundary="===============1782427286191108529=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080530115131.0e111fdb-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-class: urn:content-classes:message
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,56 +15,235 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---===============5476323144721175609==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
+--===============1782427286191108529==
+Content-class: urn:content-classes:message
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C8C245.2849D624"
 
+This is a multi-part message in MIME format.
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+------_=_NextPart_001_01C8C245.2849D624
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Jean,
+Hi,
 
-On Fri, May 30, 2008 at 11:51:31AM +0200, Jean Delvare wrote:
-> > I was about to address this issue in the next version. Still need to
-> > think about side-effects and corner-cases in a quiet minute.
-> I'd rather see this addressed now rather than later, as struct
-> at24_platform_data is public, changing it later would be non-trivial.
-I agree. With "next version" I did not mean "next version after it went
-upstream" but "next revision after the version I sent lately". I am
-already on it!
+=20
 
-   Wolfram
+I am trying to configure the Micron sensor MTD131 using Linux 2.6 i2c.
 
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
+=20
 
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+The sensor data sheet mentions 0x90 as the write i2c address and 0x91 as
+read i2c address.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+It also mentions that, the last bit in the address is used to indicate
+read or write operation.
 
-iD8DBQFIP9rTD27XaX1/VRsRAjX6AJ9FnraQ5VdED81fm9yDthEER2gffwCeIteN
-7RP1UgZnlXFP1sZxxsVLYqU=
-=95kk
------END PGP SIGNATURE-----
+I am using 0x48 (0x90 shifted right once to get 7 bit i2c address) to
+detect the sensor using i2cdetect tool.
 
---SLDf9lqlvOQaIe6s--
+I am not able to detect this device!. I tried reading this device using
+i2cget tool but it fails to read.
+
+=20
+
+I have the following questions.
+
+=20
+
+1.	As per the datasheet the i2c read address is 0x91 and write
+address is 0x90, should I set any of these slave addresses based on
+whether I am reading or writing?
+2.	I am using 7 bits from 0x91 which 0x48, is this correct?
+3.	Why i2cdetect doesn't detect this device and also i2cget can't
+read from register 0x00?
+
+=20
+
+Please suggest.
+
+=20
+
+Regards
+
+Seetaram
 
 
---===============5476323144721175609==
+------_=_NextPart_001_01C8C245.2849D624
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:1552037019;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-841985798 67698703 67698713 67698715 67698703 =
+67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hi,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I am trying to configure the Micron sensor MTD131 =
+using Linux
+2.6 i2c.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>The sensor data sheet mentions 0x90 as the write i2c =
+address
+and 0x91 as read i2c address.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>It also mentions that, the last bit in the address is =
+used
+to indicate read or write operation.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I am using 0x48 (0x90 shifted right once to get 7 bit =
+i2c
+address) to detect the sensor using i2cdetect =
+tool.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I am not able to detect this device!. I tried reading =
+this
+device using i2cget tool but it fails to =
+read.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I have the following =
+questions.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<ol style=3D'margin-top:0in' start=3D1 type=3D1>
+ <li class=3DMsoNormal style=3D'mso-list:l0 level1 lfo1'><font size=3D2 =
+face=3DArial><span
+     style=3D'font-size:10.0pt;font-family:Arial'>As per the datasheet =
+the i2c
+     read address is 0x91 and write address is 0x90, should I set any of =
+these
+     slave addresses based on whether I am reading or =
+writing?<o:p></o:p></span></font></li>
+ <li class=3DMsoNormal style=3D'mso-list:l0 level1 lfo1'><font size=3D2 =
+face=3DArial><span
+     style=3D'font-size:10.0pt;font-family:Arial'>I am using 7 bits from =
+0x91
+     which 0x48, is this correct?<o:p></o:p></span></font></li>
+ <li class=3DMsoNormal style=3D'mso-list:l0 level1 lfo1'><font size=3D2 =
+face=3DArial><span
+     style=3D'font-size:10.0pt;font-family:Arial'>Why i2cdetect =
+doesn&#8217;t
+     detect this device and also i2cget can&#8217;t read from register =
+0x00?<o:p></o:p></span></font></li>
+</ol>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Please suggest.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Regards<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Seetaram<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C8C245.2849D624--
+
+
+--===============1782427286191108529==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -78,4 +253,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5476323144721175609==--
+--===============1782427286191108529==--
