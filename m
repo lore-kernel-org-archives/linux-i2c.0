@@ -1,12 +1,14 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Problem Configuring Micron sensor MT9D131 using i2c
-Date: Fri, 30 May 2008 16:33:22 +0200
-Message-ID: <20080530143322.GA4872@pengutronix.de>
-References: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1@IE10EV813.global.ds.honeywell.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 1/8] I2C: S3C2410: Check ACK on byte transmission
+Date: Fri, 30 May 2008 21:45:40 +0200
+Message-ID: <20080530214540.638008b7@hyperion.delvare>
+References: <20080529132244.818543231@fluff.org.uk>
+	<20080529132405.971048345@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4899609359587304066=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1-8tR4ov5Cr7uXeP9mKtfZqKJzXdaVS04K4Jgwf8ORaLoAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20080529132405.971048345-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,74 +18,76 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Tekkalkot, Seetaram (IE10)" <Seetaram.Tekkalkot-TF0kVB3jB5US+FvcfC7Uqw@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
 
---===============4899609359587304066==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
+On Thu, 29 May 2008 14:22:45 +0100, Ben Dooks wrote:
+> We should check for the reception of an ACK after transmissint each
+
+Spelling: transmitting.
+
+> data byte. The address send has been correctly checking this, but the
+> data write byte state should have also been checking for these failures.
+> 
+> As part of the same fix, we remove the ACK checking from the receive
+> path where it should not have been checking for an ACK which our hardware
+> was sending.
+> 
+> Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> 
+> Index: linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c
+> ===================================================================
+> --- linux-2.6.26-rc4-quilt1.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:49:18.000000000 +0100
+> +++ linux-2.6.26-rc4-quilt1/drivers/i2c/busses/i2c-s3c2410.c	2008-05-28 11:56:14.000000000 +0100
+> @@ -324,6 +324,15 @@ static int i2s_s3c_irq_nextbyte(struct s
+>  		 */
+>  
+>  	retry_write:
+> +		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+> +			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
+> +				dev_dbg(i2c->dev, "WRITE: No Ack\n");
+> +
+> +				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
+> +				goto out_ack;
+> +			}
+> +		}
+> +
+
+Do you really want to check this again when you jump to retry_write? I
+doubt it. My guess is that you want to add the code before the
+retry_write label, rather than after it.
+
+>  		if (!is_msgend(i2c)) {
+>  			byte = i2c->msg->buf[i2c->msg_ptr++];
+>  			writeb(byte, i2c->regs + S3C2410_IICDS);
+> @@ -377,17 +386,6 @@ static int i2s_s3c_irq_nextbyte(struct s
+>  		 * going to do any more read/write
+>  		 */
+>  
+> -		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK) &&
+> -		    !(is_msglast(i2c) && is_lastmsg(i2c))) {
+> -
+> -			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
+> -				dev_dbg(i2c->dev, "READ: No Ack\n");
+> -
+> -				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
+> -				goto out_ack;
+> -			}
+> -		}
+> -
+>  		byte = readb(i2c->regs + S3C2410_IICDS);
+>  		i2c->msg->buf[i2c->msg_ptr++] = byte;
+>  
+> 
 
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Fri, May 30, 2008 at 04:36:03PM +0530, Tekkalkot, Seetaram (IE10) wrote:
-
-> 1.	As per the datasheet the i2c read address is 0x91 and write
-> address is 0x90, should I set any of these slave addresses based on
-> whether I am reading or writing?
-The datasheet seems obscure. An I2C-address is 7-bit and then there is a
-bit stating if the access shall be r/w. Of course, together they form a
-byte, but the address is 7 bit _only_ (there is a 10 bit extension, but
-this exception does not apply here). So, the _address_ is 0x48.
-
-> 2.	I am using 7 bits from 0x91 which 0x48, is this correct?
-Yes.
-
-> 3.	Why i2cdetect doesn't detect this device and also i2cget can't
-> read from register 0x00?
-Is there anything detected on that bus? Is there something else
-connected to that bus?
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---IS0zKkzwUGydFO0o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIQBAyD27XaX1/VRsRAl09AJ0fJjhMpTJkQRHpi9UZ3ffdLRK9JACfVR06
-6I6CvcRP8CajTfaMcBB73FQ=
-=hPRG
------END PGP SIGNATURE-----
-
---IS0zKkzwUGydFO0o--
-
-
---===============4899609359587304066==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4899609359587304066==--
