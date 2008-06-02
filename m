@@ -1,16 +1,15 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 7/8] VR1000: Add i2c device list to Thorcom VR1000
-Date: Mon, 2 Jun 2008 08:35:55 +0200
-Message-ID: <20080602083555.7fe56175@hyperion.delvare>
-References: <20080529132244.818543231@fluff.org.uk>
-	<20080529132407.211335410@fluff.org.uk>
-	<20080601093215.67a1ac41@hyperion.delvare>
-	<20080601213855.GI7334@trinity.fluff.org>
+From: "Tekkalkot, Seetaram (IE10)" <Seetaram.Tekkalkot-TF0kVB3jB5US+FvcfC7Uqw@public.gmane.org>
+Subject: Re: Problem Configuring Micron sensor MT9D131 using i2c
+Date: Mon, 2 Jun 2008 12:07:12 +0530
+Message-ID: <1106299A6DFA0E4D8E13CFD83A7611F09E3425@IE10EV813.global.ds.honeywell.com>
+References: <1106299A6DFA0E4D8E13CFD83A7611F09E2CA1@IE10EV813.global.ds.honeywell.com>
+	<Pine.LNX.4.64.0805302218580.13362@axis700.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080601213855.GI7334-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <Pine.LNX.4.64.0805302218580.13362-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,50 +19,60 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 1 Jun 2008 22:38:55 +0100, Ben Dooks wrote:
-> On Sun, Jun 01, 2008 at 09:32:15AM +0200, Jean Delvare wrote:
-> > On Thu, 29 May 2008 14:22:51 +0100, Ben Dooks wrote:
-> > > +/* I2C devices. */
-> > > +
-> > > +static struct i2c_board_info vr1000_i2c_info[] __initdata = {
-> > > +	{
-> > > +		.type	= "tlv320aic23",
-> > > +		.addr	= 0x1a,
-> > > +	}, {
-> > > +		.type	= "tmp101",
-> > > +		.addr	= 0x48,
-> > 
-> > Same problem as "eeprom"... The lm75 driver doesn't yet support the
-> > "tmp101" as a new-style device in mainline, so this won't work and will
-> > prevent the lm75 driver from attaching as a legacy driver too. So this
-> > device declaration should be delayed or commented out until the lm75
-> > driver is ready.
+Thanks for the valuable inputs.
+
+The master clock signal is derived from within the sensor board using an
+oscillator. I am getting 11.2 Mhz clock to the sensor. The host
+interface includes Data lines (d0 to d7), pixel clock, line valid and
+frame valid signals. All these are output signals.Currently these wires
+are not connected to the host and are left open. I have only connected,
+SDA, SCLk and power to the sensor board. When I run i2cdetect, some
+devices on the host i2c-0 bus are getting detected at the address 0x50,
+0x51 etc. But my Sensor board is not getting detected.
+Please advice.
+
+Thanks
+seetaram
+
+
+-----Original Message-----
+From: Guennadi Liakhovetski [mailto:g.liakhovetski-Mmb7MZpHnFY@public.gmane.org] 
+Sent: Saturday, May 31, 2008 1:54 AM
+To: Tekkalkot, Seetaram (IE10)
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Subject: Re: [i2c] Problem Configuring Micron sensor MT9D131 using i2c
+
+On Fri, 30 May 2008, Tekkalkot, Seetaram (IE10) wrote:
+
+> I am trying to configure the Micron sensor MTD131 using Linux 2.6 i2c.
 > 
-> I'll think about that one, although it does take a force to load the lm75
-> on current kernels due to it not being 'truly' lm75 compatible.
+> The sensor data sheet mentions 0x90 as the write i2c address and 0x91
+as
+> read i2c address.
+> 
+> It also mentions that, the last bit in the address is used to indicate
+> read or write operation.
+> 
+> I am using 0x48 (0x90 shifted right once to get 7 bit i2c address) to
+> detect the sensor using i2cdetect tool.
+> 
+> I am not able to detect this device!. I tried reading this device
+using
+> i2cget tool but it fails to read.
 
-That's still better than not being able to load the driver at all,
-which will happen with your device declaration above without the
-updated lm75 driver.
+I understand it is connected to a camera-host interface. Some cameras, 
+including Micron cameras, do not reply to i2c commands until the camera 
+interface (master clock) is activated.
 
-> Is there
-> any chance of the new driver being merged during the next change window?
-
-Depends on Mark M. Hoffman (Cc'd), not me. I've reviewed and acked the
-lm75 patches, but it's up to Mark to merge them.
-
-> PS, I've done a quick test of the new lm75 driver and it seems to work
-> fine for me and would like to see a solution where we don't need to force
-> probe the lm75 module.
-
-Of course, the updated driver is the way to go in your case.
-
--- 
-Jean Delvare
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
 
 _______________________________________________
 i2c mailing list
