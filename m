@@ -1,19 +1,16 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [patch 3/3] i2c: add support for i2c bus on
-	Freescale	CPM1/CPM2 controllers
-Date: Mon, 2 Jun 2008 20:26:30 +0100
-Message-ID: <20080602192630.GD6226@fluff.org.uk>
-References: <200805142314.m4ENEjPV026316@imap1.linux-foundation.org>
-	<20080519155443.GA4279@pengutronix.de>
-	<20080519184907.651a4e48@hyperion.delvare>
-	<20080601222428.GC6226@fluff.org.uk>
-	<20080602090850.1b8db039@hyperion.delvare>
+Subject: Re: [patch 1/8] I2C: S3C2410: Check ACK on byte transmission
+Date: Mon, 2 Jun 2008 20:29:09 +0100
+Message-ID: <20080602192909.GE6226@fluff.org.uk>
+References: <20080529132244.818543231@fluff.org.uk>
+	<20080529132405.971048345@fluff.org.uk>
+	<20080530214540.638008b7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080602090850.1b8db039-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080530214540.638008b7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -27,28 +24,34 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 02, 2008 at 09:08:50AM +0200, Jean Delvare wrote:
+On Fri, May 30, 2008 at 09:45:40PM +0200, Jean Delvare wrote:
 > Hi Ben,
 > 
-> On Sun, 1 Jun 2008 23:24:28 +0100, Ben Dooks wrote:
-> > On Mon, May 19, 2008 at 06:49:07PM +0200, Jean Delvare wrote:
-> > > Oh, BTW, nacks should be reported with -ENXIO according to:
-> > > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-document-standard-fault-codes.patch
-> > > It might be worth checking that this new driver complies with these
-> > > freshly adopted error codes standard.
-> > 
-> > Hmm, where ECONREFUSED or EPIPE (if NAK in already selected device)
-> > entertained?
+> On Thu, 29 May 2008 14:22:45 +0100, Ben Dooks wrote:
+> > We should check for the reception of an ACK after transmissint each
+> 
+> Spelling: transmitting.
 
-[snip]
+fixed.
+ 
 
-> As for the error code, it doesn't matter that much I think, as long as
-> it is consistent. We've settled for ENXIO and I wouldn't change this
-> now without a very good reason.
+> > +		if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+> > +			if (iicstat & S3C2410_IICSTAT_LASTBIT) {
+> > +				dev_dbg(i2c->dev, "WRITE: No Ack\n");
+> > +
+> > +				s3c24xx_i2c_stop(i2c, -ECONNREFUSED);
+> > +				goto out_ack;
+> > +			}
+> > +		}
+> > +
+> 
+> Do you really want to check this again when you jump to retry_write? I
+> doubt it. My guess is that you want to add the code before the
+> retry_write label, rather than after it.
 
-Sorry, I meant what happens if a NAK is received after the address
-part of the i2c_msg has been sent, when sending the msg data? Is this
-a case for an error like EPIPE, ENOLINK or EREMOTEIO?
+fixed, not really a bug, but more efficient to not try and run this
+through again after we've already checked the i2c master status in
+the interrupt.
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
