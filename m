@@ -1,16 +1,16 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 5/8] OSIRIS: Add i2c device list to Simtec Osiris
-Date: Mon, 2 Jun 2008 08:31:42 +0200
-Message-ID: <20080602083142.5f2504e7@hyperion.delvare>
+Subject: Re: [patch 7/8] VR1000: Add i2c device list to Thorcom VR1000
+Date: Mon, 2 Jun 2008 08:35:55 +0200
+Message-ID: <20080602083555.7fe56175@hyperion.delvare>
 References: <20080529132244.818543231@fluff.org.uk>
-	<20080529132406.837870894@fluff.org.uk>
-	<20080601092116.63c4808e@hyperion.delvare>
-	<20080601213509.GH7334@trinity.fluff.org>
+	<20080529132407.211335410@fluff.org.uk>
+	<20080601093215.67a1ac41@hyperion.delvare>
+	<20080601213855.GI7334@trinity.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080601213509.GH7334-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <20080601213855.GI7334-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -24,23 +24,43 @@ To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 1 Jun 2008 22:35:09 +0100, Ben Dooks wrote:
-> On Sun, Jun 01, 2008 at 09:21:16AM +0200, Jean Delvare wrote:
-> > The "eeprom" driver is not a new-style i2c driver, so it won't be able
-> > to bind to device. Having it declared here even prevents the legacy
-> > binding to happen, because the address will be busy. So you should
-> > either not list the eeprom here and let the legacy eeprom driver pick
-> > it later, or add a new-style mode to the eeprom driver - but then you
-> > probably want to use David Brownell and Wolfram Sang's at24 driver
-> > instead, it's much better.
+On Sun, 1 Jun 2008 22:38:55 +0100, Ben Dooks wrote:
+> On Sun, Jun 01, 2008 at 09:32:15AM +0200, Jean Delvare wrote:
+> > On Thu, 29 May 2008 14:22:51 +0100, Ben Dooks wrote:
+> > > +/* I2C devices. */
+> > > +
+> > > +static struct i2c_board_info vr1000_i2c_info[] __initdata = {
+> > > +	{
+> > > +		.type	= "tlv320aic23",
+> > > +		.addr	= 0x1a,
+> > > +	}, {
+> > > +		.type	= "tmp101",
+> > > +		.addr	= 0x48,
+> > 
+> > Same problem as "eeprom"... The lm75 driver doesn't yet support the
+> > "tmp101" as a new-style device in mainline, so this won't work and will
+> > prevent the lm75 driver from attaching as a legacy driver too. So this
+> > device declaration should be delayed or commented out until the lm75
+> > driver is ready.
 > 
-> Thanks, I'll change this to at94. Is this driver going to be included
-> on the next kernel window?
+> I'll think about that one, although it does take a force to load the lm75
+> on current kernels due to it not being 'truly' lm75 compatible.
 
-at24, not at94 ;) I hope so. I've reviewed the driver and am now
-waiting for Wolfram to send an updated version. The code looked good so
-if I receive something soon enough, there's really no reason why it
-wouldn't make it in kernel 2.6.27.
+That's still better than not being able to load the driver at all,
+which will happen with your device declaration above without the
+updated lm75 driver.
+
+> Is there
+> any chance of the new driver being merged during the next change window?
+
+Depends on Mark M. Hoffman (Cc'd), not me. I've reviewed and acked the
+lm75 patches, but it's up to Mark to merge them.
+
+> PS, I've done a quick test of the new lm75 driver and it seems to work
+> fine for me and would like to see a solution where we don't need to force
+> probe the lm75 module.
+
+Of course, the updated driver is the way to go in your case.
 
 -- 
 Jean Delvare
