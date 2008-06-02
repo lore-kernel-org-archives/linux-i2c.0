@@ -1,17 +1,16 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [patch 3/3] i2c: add support for i2c bus on
-	Freescale	CPM1/CPM2 controllers
-Date: Sun, 1 Jun 2008 23:24:28 +0100
-Message-ID: <20080601222428.GC6226@fluff.org.uk>
-References: <200805142314.m4ENEjPV026316@imap1.linux-foundation.org>
-	<20080519155443.GA4279@pengutronix.de>
-	<20080519184907.651a4e48@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 5/8] OSIRIS: Add i2c device list to Simtec Osiris
+Date: Mon, 2 Jun 2008 08:31:42 +0200
+Message-ID: <20080602083142.5f2504e7@hyperion.delvare>
+References: <20080529132244.818543231@fluff.org.uk>
+	<20080529132406.837870894@fluff.org.uk>
+	<20080601092116.63c4808e@hyperion.delvare>
+	<20080601213509.GH7334@trinity.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20080519184907.651a4e48-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080601213509.GH7334-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,46 +20,30 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: vitb-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, htoa-hi6Y0CQ0nG0@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, tmbinc-hi6Y0CQ0nG0@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 19, 2008 at 06:49:07PM +0200, Jean Delvare wrote:
-> Hi Wolfram,
+On Sun, 1 Jun 2008 22:35:09 +0100, Ben Dooks wrote:
+> On Sun, Jun 01, 2008 at 09:21:16AM +0200, Jean Delvare wrote:
+> > The "eeprom" driver is not a new-style i2c driver, so it won't be able
+> > to bind to device. Having it declared here even prevents the legacy
+> > binding to happen, because the address will be busy. So you should
+> > either not list the eeprom here and let the legacy eeprom driver pick
+> > it later, or add a new-style mode to the eeprom driver - but then you
+> > probably want to use David Brownell and Wolfram Sang's at24 driver
+> > instead, it's much better.
 > 
-> > The dev_err-statements are too strong, IMHO. For example, the
-> > at24-driver tries to write as fast as possible and may recieve a NACK,
-> > then it will wait a bit and retry. I wouldn't call this NACK an error
-> > then. I also wonder if it is worth a warning, as there is a timeout
-> > message later on, which will be printed as dev_dbg only. As other
-> > drivers I glimpsed at also don't write anything on NACK, maybe dev_dbg
-> > consistency would be preferable.
+> Thanks, I'll change this to at94. Is this driver going to be included
+> on the next kernel window?
 
-dev_err() for a number of i2c bus errors are too strong, think about
-the case where a system is having i2cprobe run on it (you will get a
-lot of errors). It isn't as if the error is lost downstream anyway.
-
-> > > +	return 0;
-> > > +}
-> 
-> I agree that dev_err() on nack is too strong, most drivers log it at
-> dev_dbg() level. However I fail to see the relation with timeout? A
-> nack isn't a timeout. A timeout would be very wrong and should be
-> reported with dev_err() I think.
-> 
-> Oh, BTW, nacks should be reported with -ENXIO according to:
-> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-document-standard-fault-codes.patch
-> It might be worth checking that this new driver complies with these
-> freshly adopted error codes standard.
-
-Hmm, where ECONREFUSED or EPIPE (if NAK in already selected device)
-entertained?
-
+at24, not at94 ;) I hope so. I've reviewed the driver and am now
+waiting for Wolfram to send an updated version. The code looked good so
+if I receive something soon enough, there's really no reason why it
+wouldn't make it in kernel 2.6.27.
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
