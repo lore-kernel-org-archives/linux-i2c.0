@@ -1,16 +1,18 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Tue, 3 Jun 2008 13:36:35 -0700
-Message-ID: <200806031336.35678.david-b@pacbell.net>
-References: <1210883799-25188-1-git-send-email-w.sang@pengutronix.de>
-	<200806021233.46781.david-b@pacbell.net>
-	<20080602214823.15ca190b@hyperion.delvare>
+From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Subject: Re: [patch 3/3] i2c: add support for i2c bus on	Freescale
+ CPM1/CPM2 controllers
+Date: Tue, 3 Jun 2008 13:49:52 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0806031338350.10290@shell4.speakeasy.net>
+References: <200805142314.m4ENEjPV026316@imap1.linux-foundation.org>
+	<20080602192630.GD6226@fluff.org.uk>
+	<20080602215343.07ad6e02@hyperion.delvare>
+	<200806021403.46232.david-b@pacbell.net>
+	<20080602221923.GF6226@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080602214823.15ca190b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080602221923.GF6226-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,53 +22,37 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 02 June 2008, Jean Delvare wrote:
-> > ISTR the point was safety: =A0letting other drivers potentially
-> > access the device was a bad idea. =A0;)
-> =
+On Mon, 2 Jun 2008, Ben Dooks wrote:
+> makes reporting the amount of data written difficult, how do you
+> indicate I wrote m bytes, got an error, and then continued on to
+> write all n bytes of the i2c_msgs provided? Can anyone think of
+> an actual example of where this would be useful?
 
-> I'm not even sure what problem it could cause in practice...
+Useful enough that someone would actually write the code to use it?  No.
 
-Who knows what protocol the "other drivers" expect to work.
+> Yes, that does make sense to return the amount of data written to
+> the user, however having a quick look through all users of
+> i2c_transfer() all just want to know if all the messages where
+> sent (which is an easier check that to compute the amount of
+> data in all the messages).
+>
+> Would it better to add an new i2c_transfer-alike call which would
+> return the amount of data written, instead of going around modifying
+> all users of i2c_transfer() ? This would also make transfering from
+> one call to the other, with i2c_transfer becoming deprecated?
 
-It might happen to look like writing to arbitrary addresses.
-Not unlike "read with 16-bit address" starts out with bytes
-that look just like "write to 8-bit address"...
+My experience with I2C drivers is the same.  No one cares how many bytes
+were written before a NAK, they're just going to take same failure path no
+matter what (assuming they even check for an error at all).
 
-
-> > > Problem solved :)
-> > =
-
-> > Not really. =A0The "eeprom" driver, or various other legacy
-> > drivers knowing about the 0x50..0x57 address range, could
-> > bind to those addresses. =A0That problem would not be solved.
-> =
-
-> If you're using the at24 driver on that bus, you're most certainly
-> using only new-style drivers and not even setting a "class" for legacy
-> i2c drivers to probe the i2c adapter.
-
-Not yet true.  There are systems that still need to use legacy
-drivers.  In a few years, I hope you're correct about this.
-
-
-> Yes, the eeprom driver currently doesn't check for i2c_adapter.class,
-> and yes, it's a bug. We need to define a class flag for it
-> (I2C_CLASS_SPD?), set it in all PC SMBus host drivers, and have the
-> eeprom check for (I2C_CLASS_SPD | I2C_CLASS_DDC).
-> =
-
-> Once this is fixed, I really see zero benefit in requesting all the
-> addresses the 24C00 replies to in the at24 driver.
-
-I personally won't worry much about 24c00 chips; I have some for
-testing, but haven't seen new systems using them for some time.
-It was news for me that they exist on DDC links!
-
+I think it's enough to document the interface can't provide this
+information, and if someone does have a real use for it in the future, let
+them add support when the time comes.  There's no point in creating an
+interface that no one is going to use.
 
 _______________________________________________
 i2c mailing list
