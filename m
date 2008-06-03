@@ -1,14 +1,11 @@
-From: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: i2c: Documentation: fix device matching description
-Date: Tue, 3 Jun 2008 18:28:57 +0100
-Message-ID: <20080603172857.GC8391@fluff.org.uk>
-References: <20080603172603.246034423@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Simplify i2c_device_probe
+Date: Tue, 3 Jun 2008 20:29:54 +0200
+Message-ID: <20080603202954.64d5971c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20080603172603.246034423-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,68 +15,46 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 03, 2008 at 06:26:03PM +0100, Ben Dooks wrote:
-> The matching process described for new style clients in
-> Documentation/i2c/writing-clients is classed as out-of-date
-> as it requires the presence of an .id_table entry in the
-> driver's i2c_driver entry.
-> 
-> Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> 
-> Index: linux-2.6.26-rc4-quilt3/Documentation/i2c/writing-clients
-> ===================================================================
-> --- linux-2.6.26-rc4-quilt3.orig/Documentation/i2c/writing-clients	2008-06-03 18:05:36.000000000 +0100
-> +++ linux-2.6.26-rc4-quilt3/Documentation/i2c/writing-clients	2008-06-03 18:25:45.000000000 +0100
-> @@ -25,12 +25,23 @@ routines, and should be zero-initialized
->  provide.  A client structure holds device-specific information like the
->  driver model device node, and its I2C address.
->  
-> +/* iff driver uses driver model ("new style") binding model: */
-> +
-> +static struct i2c_device_id foo_idtable[] = {
-> +	{ "foo", my_id_for_foo },
-> +	{ "bar", my_id_for_bar },
-> +	{ }
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, foo_idtable);
-> +
->  static struct i2c_driver foo_driver = {
->  	.driver = {
->  		.name	= "foo",
->  	},
->  
->  	/* iff driver uses driver model ("new style") binding model: */
-> +	.id_table	= foo_ids,
->  	.probe		= foo_probe,
->  	.remove		= foo_remove,
->  
-> @@ -173,10 +184,9 @@ handle may be used during foo_probe().  
->  (zero not a negative status code) it may save the handle and use it until
->  foo_remove() returns.  That binding model is used by most Linux drivers.
->  
-> -Drivers match devices when i2c_client.driver_name and the driver name are
-> -the same; this approach is used in several other busses that don't have
-> -device typing support in the hardware.  The driver and module name should
-> -match, so hotplug/coldplug mechanisms will modprobe the driver.
-> +The probe function is called when an entry in the id_table name field
-> +matches the device's name. The probe function is passed the entry that
-> +was matched so that it can support different versions of a device.
+i2c_driver.id_table is mandatory now, so we can simplify
+i2c_device_probe() a bit.
 
-Hmm, that would have read better as:
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-The probe function is called when an entry in the id_table name field
-matches the device's name. It is passed the entry that was matched so
-the driver knows which one in the table matched.
+--- linux-2.6.26-rc4.orig/drivers/i2c/i2c-core.c	2008-06-03 10:57:55.000000000 +0200
++++ linux-2.6.26-rc4/drivers/i2c/i2c-core.c	2008-06-03 16:38:37.000000000 +0200
+@@ -101,19 +101,14 @@ static int i2c_device_probe(struct devic
+ {
+ 	struct i2c_client	*client = to_i2c_client(dev);
+ 	struct i2c_driver	*driver = to_i2c_driver(dev->driver);
+-	const struct i2c_device_id *id;
+ 	int status;
+ 
+-	if (!driver->probe)
++	if (!driver->probe || !driver->id_table)
+ 		return -ENODEV;
+ 	client->driver = driver;
+ 	dev_dbg(dev, "probe\n");
+ 
+-	if (driver->id_table)
+-		id = i2c_match_id(driver->id_table, client);
+-	else
+-		id = NULL;
+-	status = driver->probe(client, id);
++	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+ 	if (status)
+ 		client->driver = NULL;
+ 	return status;
+
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
