@@ -1,11 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 3/3] i2c/eeprom: Only probe buses with DDC or SPD class
-Date: Tue, 3 Jun 2008 13:03:43 +0200
-Message-ID: <20080603130343.1a4704a9@hyperion.delvare>
+From: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: RFC: Add documentation on upgrading clients
+Date: Tue, 3 Jun 2008 12:19:22 +0100
+Message-ID: <20080603111922.GA11500@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,46 +16,211 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The eeprom driver shouldn't probe i2c buses which don't want to be
-probed.
+I would like to get people's opinions on adding
+the following as Documentation/i2c/upgrading-clients.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/chips/eeprom.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
 
---- linux-2.6.26-rc4.orig/drivers/i2c/chips/eeprom.c	2008-06-03 09:57:31.000000000 +0200
-+++ linux-2.6.26-rc4/drivers/i2c/chips/eeprom.c	2008-06-03 10:46:09.000000000 +0200
-@@ -159,6 +159,8 @@ static struct bin_attribute eeprom_attr 
+Upgrading I2C Drivers to the new 2.6 Driver Model
+=================================================
+
+Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+
+Introduction
+------------
+
+This guide outlines how to alter existing Linux 2.6 client drivers from
+the old to the new new binding methods.
+
+
+Example old-style driver
+------------------------
+
  
- static int eeprom_attach_adapter(struct i2c_adapter *adapter)
- {
-+	if (!(adapter->class & (I2C_CLASS_DDC | I2C_CLASS_SPD)))
-+		return 0;
- 	return i2c_probe(adapter, &addr_data, eeprom_detect);
+struct example_state {
+	struct i2c_client	client;
+	....
+};
+
+static struct i2c_driver example_driver;
+
+static unsigned short ignore[] = { I2C_CLIENT_END };
+static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
+
+static struct i2c_client_address_data addr_data = {
+	.normal_i2c		= normal_addr,
+	.probe			= ignore,
+	.ignore			= ignore,
+};
+
+static int example_attach(struct i2c_adapter *adap, int addr, int kind)
+{
+	struct example_state *state;
+	struct device *dev = &adap->dev;
+	int ret;
+
+	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
+	if (state == NULL) {
+		dev_err(dev, "failed to create our state\n");
+		return -ENOMEM;
+	}
+
+	example->i2c_client.addr    = addr;
+	example->i2c_client.flags   = 0;
+	example->i2c_client.adapter = adap;
+
+	i2c_set_clientdata(&state->i2c_client, state);
+	strlcpy(client->i2c_client.name, example_driver.driver.name,
+		I2C_NAME_SIZE);
+	
+	ret = i2c_attach_client(&state->i2c_client);
+	if (ret < 0) {
+		dev_err(dev, "failed to attach client\n");
+		kfree(state);
+		return ret;
+	}
+
+	dev = &state->i2c_client.dev;
+
+	/* rest of the initialisation goes here. */
+
+	return 0;
+}
+
+static int example_remove(struct i2c_client *client)
+{
+	struct example_state *state = i2c_get_clientdata(client);
+
+	i2c_detach_client(client);
+	kfree(state);
+	return 0;
+}
+
+static int example_attach_adapter(struct i2c_adapter *adap)
+{
+	return i2c_probe(adap, &addr_data, example_attach);
+}
+
+static struct i2c_driver example_driver = {
+ 	.driver		= {
+		.owner		= THIS_MODULE,
+		.name		= "example",
+	},
+	.attach_adapter = example_attach_adapter,
+	.detach_client	= example_detach,
+	.suspend	= example_suspend,
+	.resume		= example_resume,
+};
+
+
+Updating the client
+-------------------
+
+The new style binding model will check against a list of
+supported devices and their associated address supplied by
+the code registering the busses. This means that the driver
+.attach_adapter and .detach_adapter methods can be removed,
+along with the addr_data, as follows
+
+- static struct i2c_driver example_driver;
+
+- static unsigned short ignore[] = { I2C_CLIENT_END };
+- static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
+
+- static struct i2c_client_address_data addr_data = {
+-	.normal_i2c		= normal_addr,
+-	.probe			= ignore,
+- 	.ignore			= ignore,
+- };
+
+- static int example_attach_adapter(struct i2c_adapter *adap)
+- {
+- 	return i2c_probe(adap, &addr_data, example_attach);
+- }
+
+ static struct i2c_driver example_driver = {
+-	.attach_adapter = example_attach_adapter,
+-	.detach_client	= example_detach,
  }
- 
-@@ -169,6 +171,12 @@ static int eeprom_detect(struct i2c_adap
- 	struct eeprom_data *data;
- 	int err = 0;
- 
-+	/* EDID EEPROMs are often 24C00 EEPROMs, which answer to all
-+	   addresses 0x50-0x57, but we only care about 0x50. So decline
-+	   attaching to addresses >= 0x51 on DDC buses */
-+	if (!(adapter->class & I2C_CLASS_SPD) && address >= 0x51)
-+		goto exit;
-+
- 	/* There are three ways we can read the EEPROM data:
- 	   (1) I2C block reads (faster, but unsupported by most adapters)
- 	   (2) Consecutive byte reads (100% overhead)
+
+Add the probe and remove methods to the i2c_driver, as so:
+
+ static struct i2c_driver example_driver = {
++	.probe		= simtec_pmu_probe,
++	.remove		= simtec_pmu_remove,
+ }
+
+Change the example_attach method to accept the new parameters
+which include the i2c_client that it will be working with:
+
+- static int example_attach(struct i2c_adapter *adap, int addr, int kind)
++ static int example_probe(struct i2c_client *i2c_client,
++			   const struct i2c_device_id *id)
+
+Note, we change the name of example_attach to example_probe to
+align it with the i2c_driver entry names. The rest of the probe routine
+will now need to be changed as the i2c_client has already been setup
+for use.
+
+Remove the  setting of address and adapter, they are now not needed.
+
+-	example->i2c_client.addr    = addr;
+-	example->i2c_client.flags   = 0;
+-	example->i2c_client.adapter = adap;
+
+Also remove the strlcpy, as the i2c_client's name is already filled
+in by the caller.
+
+-	strlcpy(client->i2c_client.name, example_driver.driver.name,
+-		I2C_NAME_SIZE);
+
+The call to i2c_attach_client is no longer needed, if the probe
+routine exits succssfully, then the driver has been attached. Change
+the probe routine as so:
+
+-	ret = i2c_attach_client(&state->i2c_client);
+-	if (ret < 0) {
+-		dev_err(dev, "failed to attach client\n");
+-		kfree(state);
+-		return ret;
+-	}
 
 
--- 
-Jean Delvare
+Remove the storage of  'struct i2c_client' from the 'struct example_state'
+as we are provided with the i2c_client in our example_probe. Instead we
+store a pointer to it for when it is needed.
+
+struct example_state {
+-	struct i2c_client	client;
++	struct i2c_client	*client;
+
+In the probe routine, ensure that the new state has the client stored
+in it.
+
+static int example_probe(struct i2c_client *i2c_client,
+			 const struct i2c_device_id *id)
+{
+	struct example_state *state;
+	struct device *dev = &adap->dev;
+	int ret;
+
+	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
+	if (state == NULL) {
+		dev_err(dev, "failed to create our state\n");
+		return -ENOMEM;
+	}
+
++	state->client = i2c_client;
+
+Update the remove method to delete the i2c_detach_client call.
+
+static int example_remove(struct i2c_client *client)
+{
+	struct example_state *state = i2c_get_clientdata(client);
+
+-	i2c_detach_client(client);
 
 _______________________________________________
 i2c mailing list
