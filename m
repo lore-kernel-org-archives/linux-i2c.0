@@ -1,7 +1,7 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Simplify i2c_device_probe
-Date: Tue, 3 Jun 2008 20:29:54 +0200
-Message-ID: <20080603202954.64d5971c@hyperion.delvare>
+From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+Subject: [PATCH] i2c: Add MAINTAINER entry for i2c-cpm.
+Date: Tue, 03 Jun 2008 22:19:34 +0200
+Message-ID: <4845A756.6010407@scram.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,46 +15,36 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_driver.id_table is mandatory now, so we can simplify
-i2c_device_probe() a bit.
-
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ MAINTAINERS |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
---- linux-2.6.26-rc4.orig/drivers/i2c/i2c-core.c	2008-06-03 10:57:55.000000000 +0200
-+++ linux-2.6.26-rc4/drivers/i2c/i2c-core.c	2008-06-03 16:38:37.000000000 +0200
-@@ -101,19 +101,14 @@ static int i2c_device_probe(struct devic
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
- 	struct i2c_driver	*driver = to_i2c_driver(dev->driver);
--	const struct i2c_device_id *id;
- 	int status;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0a6d2ca..bdfc7bd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1659,6 +1659,13 @@ L:	linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org (moderated for non-subscribers)
+ W:	http://linux-fbdev.sourceforge.net/
+ S:	Maintained
  
--	if (!driver->probe)
-+	if (!driver->probe || !driver->id_table)
- 		return -ENODEV;
- 	client->driver = driver;
- 	dev_dbg(dev, "probe\n");
- 
--	if (driver->id_table)
--		id = i2c_match_id(driver->id_table, client);
--	else
--		id = NULL;
--	status = driver->probe(client, id);
-+	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status)
- 		client->driver = NULL;
- 	return status;
-
-
++FREESCALE I2C CPM DRIVER
++P:	Jochen Friedrich
++M:	jochen-NIgtFMG+Po8@public.gmane.org
++L:	linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
++L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
++S:	Maintained
++
+ FREESCALE DMA DRIVER
+ P:	Li Yang
+ M:	leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 -- 
-Jean Delvare
+1.5.5.3
+
 
 _______________________________________________
 i2c mailing list
