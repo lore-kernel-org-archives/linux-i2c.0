@@ -1,15 +1,11 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: RFC: Add documentation on upgrading clients
-Date: Tue, 3 Jun 2008 14:46:37 +0100
-Message-ID: <20080603134637.GB8391@fluff.org.uk>
-References: <20080603111922.GA11500@fluff.org.uk>
-	<200806031329.10290.laurentp@cse-semaphore.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c/eeprom: Fall back to SMBus read word transactions
+Date: Tue, 3 Jun 2008 16:12:35 +0200
+Message-ID: <20080603161235.381b7866@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <200806031329.10290.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,281 +15,110 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 03, 2008 at 01:29:06PM +0200, Laurent Pinchart wrote:
+When I2C block reads are not supported by the underlying adapter, use
+SMBus read word transactions instead of consecutive byte reads.
+Reasons for this change are:
 
-Thanks, here's the next version, and I have included the example
-driver post-editing at the end of the file. Also found a couple of
-items that I forgot to add.
+* The consecutive byte read approach is not safe on multi-master buses.
 
-V2:
+* While consecutive byte reads have less overhead if you only count the
+  bytes on the bus, it takes more than twice as many transactions as
+  with SMBus read word transactions, and each transaction has a cost:
+  taking and releasing the adapter mutex, and for polling drivers,
+  waiting for the transaction to complete.
 
-Upgrading I2C Drivers to the new 2.6 Driver Model
-=================================================
+This change yields a significant performance boost at HZ=250 with
+EEPROMs on an Intel 82801 bus (basically twice as fast.)
 
-Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+SMBus read word transactions are widely supported so I don't expect
+compatibility issues.
 
-Introduction
-------------
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/chips/eeprom.c |   39 +++++++++++++++++++--------------------
+ 1 file changed, 19 insertions(+), 20 deletions(-)
 
-This guide outlines how to alter existing Linux 2.6 client drivers from
-the old to the new new binding methods.
-
-
-Example old-style driver
-------------------------
-
+--- linux-2.6.26-rc4.orig/drivers/i2c/chips/eeprom.c	2008-06-03 15:24:16.000000000 +0200
++++ linux-2.6.26-rc4/drivers/i2c/chips/eeprom.c	2008-06-03 15:24:27.000000000 +0200
+@@ -78,7 +78,7 @@ static struct i2c_driver eeprom_driver =
+ static void eeprom_update_client(struct i2c_client *client, u8 slice)
+ {
+ 	struct eeprom_data *data = i2c_get_clientdata(client);
+-	int i, j;
++	int i;
  
-struct example_state {
-	struct i2c_client	client;
-	....
-};
-
-static struct i2c_driver example_driver;
-
-static unsigned short ignore[] = { I2C_CLIENT_END };
-static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
-
-static struct i2c_client_address_data addr_data = {
-	.normal_i2c		= normal_addr,
-	.probe			= ignore,
-	.ignore			= ignore,
-};
-
-static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-{
-	struct example_state *state;
-	struct device *dev = &adap->dev;
-	int ret;
-
-	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-	if (state == NULL) {
-		dev_err(dev, "failed to create our state\n");
-		return -ENOMEM;
-	}
-
-	example->i2c_client.addr    = addr;
-	example->i2c_client.flags   = 0;
-	example->i2c_client.adapter = adap;
-
-	i2c_set_clientdata(&state->i2c_client, state);
-	strlcpy(client->i2c_client.name, example_driver.driver.name,
-		I2C_NAME_SIZE);
-	
-	ret = i2c_attach_client(&state->i2c_client);
-	if (ret < 0) {
-		dev_err(dev, "failed to attach client\n");
-		kfree(state);
-		return ret;
-	}
-
-	dev = &state->i2c_client.dev;
-
-	/* rest of the initialisation goes here. */
-
-	return 0;
-}
-
-static int example_remove(struct i2c_client *client)
-{
-	struct example_state *state = i2c_get_clientdata(client);
-
-	i2c_detach_client(client);
-	kfree(state);
-	return 0;
-}
-
-static int example_attach_adapter(struct i2c_adapter *adap)
-{
-	return i2c_probe(adap, &addr_data, example_attach);
-}
-
-static struct i2c_driver example_driver = {
- 	.driver		= {
-		.owner		= THIS_MODULE,
-		.name		= "example",
-	},
-	.attach_adapter = example_attach_adapter,
-	.detach_client	= example_detach,
-	.suspend	= example_suspend,
-	.resume		= example_resume,
-};
+ 	mutex_lock(&data->update_lock);
+ 
+@@ -93,15 +93,12 @@ static void eeprom_update_client(struct 
+ 							!= 32)
+ 					goto exit;
+ 		} else {
+-			if (i2c_smbus_write_byte(client, slice << 5)) {
+-				dev_dbg(&client->dev, "eeprom read start has failed!\n");
+-				goto exit;
+-			}
+-			for (i = slice << 5; i < (slice + 1) << 5; i++) {
+-				j = i2c_smbus_read_byte(client);
+-				if (j < 0)
++			for (i = slice << 5; i < (slice + 1) << 5; i += 2) {
++				int word = i2c_smbus_read_word_data(client, i);
++				if (word < 0)
+ 					goto exit;
+-				data->data[i] = (u8) j;
++				data->data[i] = word & 0xff;
++				data->data[i + 1] = word >> 8;
+ 			}
+ 		}
+ 		data->last_updated[slice] = jiffies;
+@@ -177,14 +174,15 @@ static int eeprom_detect(struct i2c_adap
+ 	if (!(adapter->class & I2C_CLASS_SPD) && address >= 0x51)
+ 		goto exit;
+ 
+-	/* There are three ways we can read the EEPROM data:
++	/* There are four ways we can read the EEPROM data:
+ 	   (1) I2C block reads (faster, but unsupported by most adapters)
+-	   (2) Consecutive byte reads (100% overhead)
+-	   (3) Regular byte data reads (200% overhead)
+-	   The third method is not implemented by this driver because all
+-	   known adapters support at least the second. */
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA
+-					    | I2C_FUNC_SMBUS_BYTE))
++	   (2) Word reads (128% overhead)
++	   (3) Consecutive byte reads (88% overhead, unsafe)
++	   (4) Regular byte data reads (265% overhead)
++	   The third and fourth methods are not implemented by this driver
++	   because all known adapters support one of the first two. */
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_WORD_DATA)
++	 && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
+ 		goto exit;
+ 
+ 	if (!(data = kzalloc(sizeof(struct eeprom_data), GFP_KERNEL))) {
+@@ -212,13 +210,14 @@ static int eeprom_detect(struct i2c_adap
+ 
+ 	/* Detect the Vaio nature of EEPROMs.
+ 	   We use the "PCG-" or "VGN-" prefix as the signature. */
+-	if (address == 0x57) {
++	if (address == 0x57
++	 && i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+ 		char name[4];
+ 
+ 		name[0] = i2c_smbus_read_byte_data(new_client, 0x80);
+-		name[1] = i2c_smbus_read_byte(new_client);
+-		name[2] = i2c_smbus_read_byte(new_client);
+-		name[3] = i2c_smbus_read_byte(new_client);
++		name[1] = i2c_smbus_read_byte_data(new_client, 0x81);
++		name[2] = i2c_smbus_read_byte_data(new_client, 0x82);
++		name[3] = i2c_smbus_read_byte_data(new_client, 0x83);
+ 
+ 		if (!memcmp(name, "PCG-", 4) || !memcmp(name, "VGN-", 4)) {
+ 			dev_info(&new_client->dev, "Vaio EEPROM detected, "
 
 
-Updating the client
--------------------
-
-The new style binding model will check against a list of
-supported devices and their associated address supplied by
-the code registering the busses. This means that the driver
-.attach_adapter and .detach_adapter methods can be removed,
-along with the addr_data, as follows
-
-- static struct i2c_driver example_driver;
-
-- static unsigned short ignore[] = { I2C_CLIENT_END };
-- static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
-
-- static struct i2c_client_address_data addr_data = {
--	.normal_i2c		= normal_addr,
--	.probe			= ignore,
-- 	.ignore			= ignore,
-- };
-
-- static int example_attach_adapter(struct i2c_adapter *adap)
-- {
-- 	return i2c_probe(adap, &addr_data, example_attach);
-- }
-
- static struct i2c_driver example_driver = {
--	.attach_adapter = example_attach_adapter,
--	.detach_client	= example_detach,
- }
-
-Add the probe and remove methods to the i2c_driver, as so:
-
- static struct i2c_driver example_driver = {
-+	.probe		= example_probe,
-+	.remove		= example_remove,
- }
-
-Change the example_attach method to accept the new parameters
-which include the i2c_client that it will be working with:
-
-- static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-+ static int example_probe(struct i2c_client *i2c_client,
-+			   const struct i2c_device_id *id)
-
-Change the name of example_attach to example_probe to align it with the
-i2c_driver entry names. The rest of the probe routine will now need to be
-changed as the i2c_client has already been setup for use.
-
-Remove the  setting of address and adapter, they are now not needed.
-
--	example->i2c_client.addr    = addr;
--	example->i2c_client.flags   = 0;
--	example->i2c_client.adapter = adap;
-
-Also remove the strlcpy, as the i2c_client's name is already filled
-in by the caller.
-
--	strlcpy(client->i2c_client.name, example_driver.driver.name,
--		I2C_NAME_SIZE);
-
-The i2c_set_clientdata is now:
-
--	i2c_set_clientdata(&state->i2c_client, state);
-+	i2c_set_clientdata(i2c_client, state);
-
-The call to i2c_attach_client is no longer needed, if the probe
-routine exits successfully, then the driver will be automatically
-attached by the core. Change the probe routine as so:
-
--	ret = i2c_attach_client(&state->i2c_client);
--	if (ret < 0) {
--		dev_err(dev, "failed to attach client\n");
--		kfree(state);
--		return ret;
--	}
-
-
-Remove the storage of  'struct i2c_client' from the 'struct example_state'
-as we are provided with the i2c_client in our example_probe. Instead we
-store a pointer to it for when it is needed.
-
-struct example_state {
--	struct i2c_client	client;
-+	struct i2c_client	*client;
-
-It is also necessary to change the temporary dev pointer to point into
-the new i2c client as so:
-
--	struct device *dev = &adap->dev;
-+ 	struct device *dev = &i2c_client->dev;
-
-And remove the change aftre our client is attached, as the driver no
-longer needs to register a new client structure with the core:
-
--	dev = &state->i2c_client.dev;
-
-In the probe routine, ensure that the new state has the client stored
-in it:
-
-static int example_probe(struct i2c_client *i2c_client,
-			 const struct i2c_device_id *id)
-{
-	struct example_state *state;
- 	struct device *dev = &i2c_client->dev;
-	int ret;
-
-	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-	if (state == NULL) {
-		dev_err(dev, "failed to create our state\n");
-		return -ENOMEM;
-	}
-
-+	state->client = i2c_client;
-
-Update the remove method to delete the i2c_detach_client call.
-
-static int example_remove(struct i2c_client *client)
-{
-	struct example_state *state = i2c_get_clientdata(client);
-
--	i2c_detach_client(client);
-
-
-
-Our driver should now look like this:
-
-struct example_state {
-	struct i2c_client	client;
-	....
-};
-
-static int example_probe(struct i2c_client *i2c_client,
-		         const struct i2c_device_id *id)
-{
-	struct example_state *state;
-	struct device *dev = &i2c_client->dev;
-	int ret;
-
-	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-	if (state == NULL) {
-		dev_err(dev, "failed to create our state\n");
-		return -ENOMEM;
-	}
-
-	state->client = i2c_client;
-	i2c_set_clientdata(i2c_client, state);
-
-	/* rest of the initialisation goes here. */
-
-	return 0;
-}
-
-static int example_remove(struct i2c_client *client)
-{
-	struct example_state *state = i2c_get_clientdata(client);
-
-	kfree(state);
-	return 0;
-}
-
-static struct i2c_driver example_driver = {
- 	.driver		= {
-		.owner		= THIS_MODULE,
-		.name		= "example",
-	},
-	.probe		= example_probe,
-	.remove		= example_remove,
-	.suspend	= example_suspend,
-	.resume		= example_resume,
-};
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
