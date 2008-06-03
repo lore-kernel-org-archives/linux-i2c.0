@@ -1,17 +1,14 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: Let bus drivers add SPD to their class
-Date: Tue, 3 Jun 2008 18:03:39 -0400
-Message-ID: <9e4733910806031503w46662d4fib36d3b67563bbdf1@mail.gmail.com>
-References: <20080603130221.1f819e64@hyperion.delvare>
-	<200806031319.56606.david-b@pacbell.net>
-	<9e4733910806031412t52e7ed1bl8fd56751bef12a7a@mail.gmail.com>
-	<Pine.LNX.4.58.0806031420160.10290@shell4.speakeasy.net>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c: Simplify i2c_device_probe
+Date: Wed, 4 Jun 2008 00:43:59 +0100
+Message-ID: <20080603234359.GF11277@trinity.fluff.org>
+References: <20080603202954.64d5971c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.58.0806031420160.10290-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <20080603202954.64d5971c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,42 +18,57 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 6/3/08, Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org> wrote:
-> On Tue, 3 Jun 2008, Jon Smirl wrote:
->  > >  >  drivers/i2c/busses/i2c-elektor.c       |    2 +-
->  > >  >  drivers/i2c/busses/i2c-gpio.c          |    2 +-
->  > >  >  drivers/i2c/busses/i2c-i801.c          |    2 +-
->  > >  >  drivers/i2c/busses/i2c-ibm_iic.c       |    4 ++--
->  > >  >  drivers/i2c/busses/i2c-iop3xx.c        |    2 +-
->  > >  >  drivers/i2c/busses/i2c-isch.c          |    2 +-
->  > >  >  drivers/i2c/busses/i2c-mpc.c           |    2 +-
->  >
->  > Freescale embedded, no sticks
->
->
-> I know you're wrong about this one, because I have a Freescale board with
->  an mpc i2c adapter with SPD SODIMMs on the I2C bus sitting right in front
->  of me.  The whole reason I added hexdump support the I2C tools' SPD parser
->  was so I could parse the SPD data by hexdumping the eeproms with busybox.
+On Tue, Jun 03, 2008 at 08:29:54PM +0200, Jean Delvare wrote:
+> i2c_driver.id_table is mandatory now, so we can simplify
+> i2c_device_probe() a bit.
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c |    9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> --- linux-2.6.26-rc4.orig/drivers/i2c/i2c-core.c	2008-06-03 10:57:55.000000000 +0200
+> +++ linux-2.6.26-rc4/drivers/i2c/i2c-core.c	2008-06-03 16:38:37.000000000 +0200
+> @@ -101,19 +101,14 @@ static int i2c_device_probe(struct devic
+>  {
+>  	struct i2c_client	*client = to_i2c_client(dev);
+>  	struct i2c_driver	*driver = to_i2c_driver(dev->driver);
+> -	const struct i2c_device_id *id;
+>  	int status;
+>  
+> -	if (!driver->probe)
+> +	if (!driver->probe || !driver->id_table)
+>  		return -ENODEV;
+>  	client->driver = driver;
+>  	dev_dbg(dev, "probe\n");
+>  
+> -	if (driver->id_table)
+> -		id = i2c_match_id(driver->id_table, client);
+> -	else
+> -		id = NULL;
+> -	status = driver->probe(client, id);
+> +	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+>  	if (status)
+>  		client->driver = NULL;
+>  	return status;
 
-Which CPU are you using? Maybe we should change to a socket.
-
->  Using SPD with embedded boards isn't uncommon.  It's much easier to design
->  a board with a SO-DIMM slot than actual chips.  In small quantities at
->  least, it's cheaper too.  Using SPD is much more flexiable when you want to
->  change memory size or speed, even if the memory isn't socketed.  If you
->  look at U-Boot, most platforms are using SPD for DRAM controller setup and
->  not hard coded values.
->
-
+Looks ok, will give it a test tommorow if possible.
+ 
+> 
+> -- 
+> Jean Delvare
 
 -- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+-- 
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
+
 
 _______________________________________________
 i2c mailing list
