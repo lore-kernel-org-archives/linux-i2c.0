@@ -1,14 +1,15 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
-Date: Wed, 4 Jun 2008 15:28:54 -0400
-Message-ID: <9e4733910806041228i330e145q439d3ee43494f4c4@mail.gmail.com>
-References: <20080604201334.19636f30@hyperion.delvare>
-	<9e4733910806041155n7551ac74lf29c8a32163ec09a@mail.gmail.com>
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c-ibm_iic: Remove deprecated OCP style part of
+	the driver
+Date: Wed, 4 Jun 2008 21:33:18 +0200
+Message-ID: <200806042133.18215.sr@denx.de>
+References: <1212592932-24031-1-git-send-email-sr@denx.de>
+	<20080604210400.0d7abb8e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910806041155n7551ac74lf29c8a32163ec09a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20080604210400.0d7abb8e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -20,34 +21,33 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 6/4/08, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On 6/4/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->  > Hi all,
->  >
->  >  This patch set demonstrates a new concept which I would like to add to
->  >  the i2c subsystem. It is named "i2c listeners" and is based on the
->  >  following structure:
+On Wednesday 04 June 2008, Jean Delvare wrote:
+> On Wed,  4 Jun 2008 17:22:12 +0200, Stefan Roese wrote:
+> > The deprecated OCP style driver part is used by the "old" arch/ppc
+> > platform. This platform is scheduled for removal in June/July this year.
+> > This patch now removes the OCP driver part from the IBM I2C driver.
+> >
+> > Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-ibm_iic.c |  181
+> > -------------------------------------- 1 files changed, 0 insertions(+),
+> > 181 deletions(-)
+>
+> Applied, queued for 2.6.27, thanks Stefan.
 
-Could the existing API be used something like this?
+Thanks. I'll post some smaller follow-up patches probably tomorrow.
 
-Drivers register with i2c core using standard driver registration.
-Class and address ranges are exposed in a structure like PCI IDs. I2C
-can make up it's own ID structure equivalent to the PCI IDs one.
+> BTW, would you happen to know if read-only EEPROMs such as SPD or EDID
+> can be found on the i2c-ibm_iic adapters?
 
-When a new adapter/bus is created i2c core gets the event. Core then
-scans the registered driver structures looking for class matches. When
-a match is encountered it repeatedly calls the driver's probe function
-with the addresses from the range. Driver returns true/false on each
-probe which triggers creation of the device.
+Yes. Some PPC4xx boards are equipped with DIMM modules. Those SPD EEPROM's are 
+connected to the I2C bus controller by the i2c-ibm_iic driver.
 
-Why do drivers need the bus creation (attach/detach adapter) events?
-
--- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Best regards,
+Stefan
 
 _______________________________________________
 i2c mailing list
