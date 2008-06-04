@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 3/4] i2c: Use i2c_listener in driver f75375s
-Date: Wed, 4 Jun 2008 20:33:22 +0200
-Message-ID: <20080604203322.472f8653@hyperion.delvare>
+Subject: [PATCH 4/4] i2c: Use i2c_listener in driver lm75
+Date: Wed, 4 Jun 2008 20:35:47 +0200
+Message-ID: <20080604203547.2530182e@hyperion.delvare>
 References: <20080604201334.19636f30@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,147 +21,145 @@ To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Replace the legacy f75375s i2c_driver by an i2c_listener.
+Replace the legacy lm75 i2c_driver by an i2c_listener.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
-Riku, any chance you could test this one? Thanks.
+This goes on top of David Brownell's patches:
+http://lists.lm-sensors.org/pipermail/lm-sensors/2008-April/022931.html
+http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023040.html
+http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023041.html
 
- drivers/hwmon/f75375s.c |   67 +++++++++--------------------------------------
- 1 file changed, 14 insertions(+), 53 deletions(-)
+Also available from:
+http://jdelvare.pck.nerim.net/sensors/lm75/
 
---- linux-2.6.26-rc4.orig/drivers/hwmon/f75375s.c	2008-05-04 09:49:47.000000000 +0200
-+++ linux-2.6.26-rc4/drivers/hwmon/f75375s.c	2008-06-04 11:32:22.000000000 +0200
-@@ -114,19 +114,16 @@ struct f75375_data {
- 	s8 temp_max_hyst[2];
+David, any chance you could test this one? Thanks.
+
+ drivers/hwmon/lm75.c |   64 ++++++++++----------------------------------------
+ 1 file changed, 14 insertions(+), 50 deletions(-)
+
+--- linux-2.6.26-rc4.orig/drivers/hwmon/lm75.c	2008-06-04 11:44:57.000000000 +0200
++++ linux-2.6.26-rc4/drivers/hwmon/lm75.c	2008-06-04 11:49:24.000000000 +0200
+@@ -54,11 +54,11 @@ enum lm75_type {		/* keep sorted in alph
+ 	tmp75,
  };
  
--static int f75375_attach_adapter(struct i2c_adapter *adapter);
--static int f75375_detect(struct i2c_adapter *adapter, int address, int kind);
--static int f75375_detach_client(struct i2c_client *client);
-+static int f75375_detect(struct i2c_adapter *adapter, int address, int kind,
-+			 struct i2c_board_info *info);
- static int f75375_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id);
- static int f75375_remove(struct i2c_client *client);
+-/* Addresses scanned by legacy style driver binding */
++/* Addresses scanned by listener */
+ static const unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, 0x4c,
+ 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
  
--static struct i2c_driver f75375_legacy_driver = {
--	.driver = {
--		.name = "f75375_legacy",
--	},
--	.attach_adapter = f75375_attach_adapter,
--	.detach_client = f75375_detach_client,
-+static struct i2c_listener f75375_listener = {
-+	.class		= I2C_CLASS_HWMON,
-+	.address_data	= &addr_data,
-+	.detect		= f75375_detect,
- };
+-/* Insmod parameters (only for legacy style driver binding) */
++/* Insmod parameters (for listener) */
+ I2C_CLIENT_INSMOD_1(lm75);
  
- static const struct i2c_device_id f75375_id[] = {
-@@ -607,22 +604,6 @@ static const struct attribute_group f753
- 	.attrs = f75375_attributes,
- };
  
--static int f75375_detach_client(struct i2c_client *client)
--{
--	int err;
+@@ -247,16 +247,12 @@ static struct i2c_driver lm75_driver = {
+ 
+ /*-----------------------------------------------------------------------*/
+ 
+-/* "Legacy" I2C driver binding */
 -
--	f75375_remove(client);
--	err = i2c_detach_client(client);
--	if (err) {
--		dev_err(&client->dev,
--			"Client deregistration failed, "
--			"client not detached.\n");
--		return err;
--	}
--	kfree(client);
--	return 0;
--}
+-static struct i2c_driver lm75_legacy_driver;
 -
- static void f75375_init(struct i2c_client *client, struct f75375_data *data,
- 		struct f75375s_platform_data *f75375s_pdata)
+-/* This function is called by i2c_probe */
+-static int lm75_detect(struct i2c_adapter *adapter, int address, int kind)
++static int lm75_detect(struct i2c_adapter *adapter, int address, int kind,
++		       struct i2c_board_info *info)
  {
-@@ -700,21 +681,14 @@ static int f75375_remove(struct i2c_clie
- 	return 0;
- }
- 
--static int f75375_attach_adapter(struct i2c_adapter *adapter)
--{
--	if (!(adapter->class & I2C_CLASS_HWMON))
--		return 0;
--	return i2c_probe(adapter, &addr_data, f75375_detect);
--}
--
- /* This function is called by i2c_probe */
--static int f75375_detect(struct i2c_adapter *adapter, int address, int kind)
-+static int f75375_detect(struct i2c_adapter *adapter, int address, int kind,
-+			 struct i2c_board_info *info)
- {
- 	struct i2c_client *client;
- 	u8 version = 0;
+ 	int i;
+ 	struct i2c_client *new_client;
 -	int err = 0;
 +	int err = -ENODEV;
- 	const char *name = "";
--	struct i2c_device_id id;
  
- 	if (!(client = kzalloc(sizeof(*client), GFP_KERNEL))) {
- 		err = -ENOMEM;
-@@ -722,7 +696,6 @@ static int f75375_detect(struct i2c_adap
- 	}
- 	client->addr = address;
- 	client->adapter = adapter;
--	client->driver = &f75375_legacy_driver;
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+ 				     I2C_FUNC_SMBUS_WORD_DATA))
+@@ -273,8 +269,6 @@ static int lm75_detect(struct i2c_adapte
  
- 	if (kind < 0) {
- 		u16 vendid = f75375_read16(client, F75375_REG_VENDOR);
-@@ -739,6 +712,7 @@ static int f75375_detect(struct i2c_adap
- 			goto exit_free;
- 		}
+ 	new_client->addr = address;
+ 	new_client->adapter = adapter;
+-	new_client->driver = &lm75_legacy_driver;
+-	new_client->flags = 0;
+ 
+ 	/* Now, we do the remaining detection. There is no identification-
+ 	   dedicated register so we have to rely on several tricks:
+@@ -313,52 +307,24 @@ static int lm75_detect(struct i2c_adapte
+ 			 || i2c_smbus_read_word_data(new_client, i + 3) != os)
+ 				goto exit_free;
  	}
 +	err = 0;	/* detection OK */
  
- 	if (kind == f75375) {
- 		name = "f75375";
-@@ -746,20 +720,9 @@ static int f75375_detect(struct i2c_adap
- 		name = "f75373";
- 	}
- 	dev_info(&adapter->dev, "found %s version: %02X\n", name, version);
--	strlcpy(client->name, name, I2C_NAME_SIZE);
+ 	/* NOTE: we treat "force=..." and "force_lm75=..." the same.
+ 	 * Only new-style driver binding distinguishes chip types.
+ 	 */
+-	strlcpy(new_client->name, "lm75", I2C_NAME_SIZE);
 -
--	if ((err = i2c_attach_client(client)))
+-	/* Tell the I2C layer a new client has arrived */
+-	err = i2c_attach_client(new_client);
+-	if (err)
 -		goto exit_free;
 -
--	strlcpy(id.name, name, I2C_NAME_SIZE);
--	id.driver_data = kind;
--	if ((err = f75375_probe(client, &id)) < 0)
+-	err = lm75_probe(new_client, NULL);
+-	if (err < 0)
 -		goto exit_detach;
-+	strlcpy(info->type, name, I2C_NAME_SIZE);
++	strlcpy(info->type, "lm75", I2C_NAME_SIZE);
 +	info->addr = address;
  
 -	return 0;
 -
 -exit_detach:
--	i2c_detach_client(client);
+-	i2c_detach_client(new_client);
  exit_free:
- 	kfree(client);
+ 	kfree(new_client);
  exit:
-@@ -773,16 +736,14 @@ static int __init sensors_f75375_init(vo
- 	if (status)
+ 	return err;
+ }
+ 
+-static int lm75_attach_adapter(struct i2c_adapter *adapter)
+-{
+-	if (!(adapter->class & I2C_CLASS_HWMON))
+-		return 0;
+-	return i2c_probe(adapter, &addr_data, lm75_detect);
+-}
+-
+-static int lm75_detach_client(struct i2c_client *client)
+-{
+-	lm75_remove(client);
+-	i2c_detach_client(client);
+-	kfree(client);
+-	return 0;
+-}
+-
+-static struct i2c_driver lm75_legacy_driver = {
+-	.driver = {
+-		.name	= "lm75_legacy",
+-	},
+-	.attach_adapter	= lm75_attach_adapter,
+-	.detach_client	= lm75_detach_client,
++static struct i2c_listener lm75_listener = {
++	.class		= I2C_CLASS_HWMON,
++	.address_data	= &addr_data,
++	.detect		= lm75_detect,
+ };
+ 
+ /*-----------------------------------------------------------------------*/
+@@ -430,16 +396,14 @@ static int __init sensors_lm75_init(void
+ 	if (status < 0)
  		return status;
  
--	status = i2c_add_driver(&f75375_legacy_driver);
--	if (status)
--		i2c_del_driver(&f75375_driver);
-+	i2c_add_listener(&f75375_listener);
+-	status = i2c_add_driver(&lm75_legacy_driver);
+-	if (status < 0)
+-		i2c_del_driver(&lm75_driver);
++	i2c_add_listener(&lm75_listener);
  
  	return status;
  }
  
- static void __exit sensors_f75375_exit(void)
+ static void __exit sensors_lm75_exit(void)
  {
--	i2c_del_driver(&f75375_legacy_driver);
-+	i2c_del_listener(&f75375_listener);
- 	i2c_del_driver(&f75375_driver);
+-	i2c_del_driver(&lm75_legacy_driver);
++	i2c_del_listener(&lm75_listener);
+ 	i2c_del_driver(&lm75_driver);
  }
  
 
