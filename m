@@ -1,16 +1,13 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Wed, 4 Jun 2008 13:51:35 +0200
-Message-ID: <20080604115135.GA30363@pengutronix.de>
-References: <1210883799-25188-1-git-send-email-w.sang@pengutronix.de>
-	<200806021233.46781.david-b@pacbell.net>
-	<20080602214823.15ca190b@hyperion.delvare>
-	<200806031336.35678.david-b@pacbell.net>
-	<20080603231927.61f9eb61@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] unhide smbus on Compaq Deskpro EN
+Date: Wed, 4 Jun 2008 13:58:40 +0200
+Message-ID: <20080604135840.1c443824@hyperion.delvare>
+References: <20080530232118.1b0078ff.krzysztof.h1@wp.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3599324624490544805=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080603231927.61f9eb61-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080530232118.1b0078ff.krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,68 +17,50 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+Cc: =?UTF-8?B?UmFmYcWCIEhhxYJhZHVkYQ==?= <rh1985-5tc4TXWwyLM@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============3599324624490544805==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-
-
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jun 03, 2008 at 11:19:27PM +0200, Jean Delvare wrote:
-> I agree that in theory something wrong could happen in the current
-> state of things if the extra addresses of the 24C00 chip are not
-> "protected" by the at24 driver, but in practice I very much doubt that
-> it'll happen, and if it does, it would be easy to fix. So I reiterate
-> that the at24 driver doesn't need to handle this.
-After removing i2c_addr_mask, it turned out that it just needed one
-if-case and anonther flag to handle the 24c00-quirk. Hoping that this
-will be the only case needing such treatment ;), I think it is worth the
-price.
-
-Sidenote: I just finished hacking in all points from my to-do-list. Now,
-I want to validate the implicit casts and give the driver some really
-good testing as some parts had to be rewritten for v3.
-
-All the best,
-
-   Wolfram
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIRoHHD27XaX1/VRsRAninAKDM0Ivc1cLJxiJwzIcYA0txcrpWWACcDX+x
-7MGyWOWtwqYN1wYTWx+6D6Q=
-=SrmH
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
-
-
---===============3599324624490544805==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============3599324624490544805==--
+T24gRnJpLCAzMCBNYXkgMjAwOCAyMzoyMToxOCArMDIwMCwgS3J6eXN6dG9mIEhlbHQgd3JvdGU6
+Cj4gRnJvbTogS3J6eXN6dG9mIEhlbHQgPGtyenlzenRvZi5oMUB3cC5wbD4KPiAKPiBUaGlzIHBh
+dGNoIHVuaGlkZXMgdGhlIHNtYnVzIG9uIENvbXBhcSBEZXNrcHJvIEVOCj4gU0ZGIFA2Njcgd2l0
+aCB0aGUgSW50ZWwgODE1RSBjaGlwc2V0LiAKPiBUaGUgcGF0Y2ggd2FzIHRlc3RlZCBvbiBGZWRv
+cmEgQ29yZSA5IHdpdGggMi42LjI1LjQga2VybmVsLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEtyenlz
+enRvZiBIZWx0IDxrcnp5c3p0b2YuaDFAd3AucGw+Cj4gVGVzdGVkLWJ5OiBSYWZhxYIgSGHFgmFk
+dWRhIDxyaDE5ODVAd3AucGw+Cj4gCj4gLS0tCj4gCj4gTm8gc2lkZSBlZmZlY3RzIHdlcmUgb2Jz
+ZXJ2ZWQuIFRoZSBBQ1BJIGNvbnRyb2xsZWQgZmFuCj4gY29ycmVjdGx5IHdpdGggdGhlIHBhdGNo
+IGFwcGxpZWQuIFRlc3RlZCB3aXRoIDY2NyBhbmQKPiAxMDAwIE1IeiBDUFVzLgo+IFRoZSBwYXRj
+aCBhbGxvd3MgdXNpbmcgdGhlIFRITUM1MSBzZW5zb3IgY2hpcCBvbgo+IHRoZSBtb3RoZXJib2Fy
+ZC4KPiBUaGUgcGF0Y2ggd2FzIGRvbmUgYWdhaW5zdCB0aGUga2VybmVsIDIuNi4yNi1yYzItbW0x
+Cj4gCj4gZGlmZiAtdXJwIGxpbnV4LTIuNi4yNS9kcml2ZXJzL3BjaS9xdWlya3MuYyBsaW51eC1u
+ZXcvZHJpdmVycy9wY2kvcXVpcmtzLmMKPiAtLS0gbGludXgtMi42LjI1L2RyaXZlcnMvcGNpL3F1
+aXJrcy5jCTIwMDgtMDUtMjcgMjE6NTg6MzQuMzgwMTQ0NjA3ICswMjAwCj4gKysrIGxpbnV4LW5l
+dy9kcml2ZXJzL3BjaS9xdWlya3MuYwkyMDA4LTA1LTMwIDIzOjEyOjU3LjUxMDIxOTQ1MCArMDIw
+MAo+IEBAIC0xMDU0LDYgKzEwNTQsMTQgQEAgc3RhdGljIHZvaWQgX19pbml0IGFzdXNfaGlkZXNf
+c21idXNfaG9zdAo+ICAJCQkJICogaXRzIG9uLWJvYXJkIFZHQSBjb250cm9sbGVyICovCj4gIAkJ
+CQlhc3VzX2hpZGVzX3NtYnVzID0gMTsKPiAgCQkJfQo+ICsJCWVsc2UgaWYgKGRldi0+ZGV2aWNl
+ID09IFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MTVfQ0dDKQo+ICsJCQlzd2l0Y2ggKGRldi0+c3Vi
+c3lzdGVtX2RldmljZSkgewo+ICsJCQljYXNlIDB4MDAxQTogLyogQ29tcGFxIERlc2twcm8gRU4g
+RU5TL1A2NjcvZSAqLwo+ICsJCQkJLyogTW90aGVyYm9hcmQgZG9lc24ndCBoYXZlIEhvc3QgYnJp
+ZGdlCj4gKwkJCQkgKiBzdWJ2ZW5kb3Ivc3ViZGV2aWNlIElEcywgdGhlcmVmb3JlIGNoZWNraW5n
+Cj4gKwkJCQkgKiBpdHMgb24tYm9hcmQgVkdBIGNvbnRyb2xsZXIgKi8KPiArCQkJCWFzdXNfaGlk
+ZXNfc21idXMgPSAxOwo+ICsJCQl9Cj4gIAl9Cj4gIH0KPiAgREVDTEFSRV9QQ0lfRklYVVBfSEVB
+REVSKFBDSV9WRU5ET1JfSURfSU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfODI4NDVfSEIsCWFz
+dXNfaGlkZXNfc21idXNfaG9zdGJyaWRnZSk7Cj4gQEAgLTEwNjgsNiArMTA3Niw3IEBAIERFQ0xB
+UkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0kKPiAgREVDTEFSRV9QQ0lfRklYVVBf
+SEVBREVSKFBDSV9WRU5ET1JfSURfSU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfODI5MTVHTV9I
+QiwgYXN1c19oaWRlc19zbWJ1c19ob3N0YnJpZGdlKTsKPiAgCj4gIERFQ0xBUkVfUENJX0ZJWFVQ
+X0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODEwX0lH
+MywJYXN1c19oaWRlc19zbWJ1c19ob3N0YnJpZGdlKTsKPiArREVDTEFSRV9QQ0lfRklYVVBfSEVB
+REVSKFBDSV9WRU5ET1JfSURfSU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfODI4MTVfQ0dDLAlh
+c3VzX2hpZGVzX3NtYnVzX2hvc3RicmlkZ2UpOwo+ICAKPiAgc3RhdGljIHZvaWQgYXN1c19oaWRl
+c19zbWJ1c19scGMoc3RydWN0IHBjaV9kZXYgKmRldikKPiAgewoKUGF0Y2ggbG9va3MgT0ssIGJ1
+dCBpdCBzaG91bGQgYmUgc2VudCB0byB0aGUgcGNpIHN1YnN5c3RlbSBtYWludGFpbmVyLApub3Qg
+bWUuCgpCdXQgZmlyc3QgeW91IHdhbnQgdG8gZG91YmxlIGNoZWNrIHRoYXQgbm90aGluZyB3cm9u
+ZyB3aWxsIGhhcHBlbi4gQUNQSQpsb29rcyBPSyBidXQgdGhlcmUgaXMgc3RpbGwgdGhlIHBvc3Np
+YmlsaXR5IG9mIFNNTSBxdWlya3MuIFRvIG1ha2Ugc3VyZSwKeW91IG5lZWQgdG8gZ2V0IHlvdXIg
+aGFuZHMgb24gdGhlIFRITUM1MSBkYXRhc2hlZXQgYW5kL29yIHRlc3QgaWYgdGhlCmZhbiBpcyBz
+ZWxmLXJlZ3VsYXRlZC4gQW5kIGNoZWNrIGlmIHRoZSBsb3cvaGlnaCBsaW1pdHMgY2hhbmdlIG92
+ZXIKdGltZSwgdG9vLgoKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vuc29ycy5v
+cmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
