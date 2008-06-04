@@ -1,16 +1,14 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: Let bus drivers add SPD to their class
-Date: Wed, 4 Jun 2008 00:18:10 -0700
-Message-ID: <200806040018.10191.david-b@pacbell.net>
-References: <20080603130221.1f819e64@hyperion.delvare>
-	<200806031319.56606.david-b@pacbell.net>
-	<20080604080933.456c8ce2@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c: Documentation: fix device matching description
+Date: Wed, 4 Jun 2008 13:12:06 +0200
+Message-ID: <20080604131206.243f00fc@hyperion.delvare>
+References: <20080603172603.246034423@fluff.org.uk>
+	<20080603172857.GC8391@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080604080933.456c8ce2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080603172857.GC8391-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,134 +18,70 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 03 June 2008, Jean Delvare wrote:
+On Tue, 3 Jun 2008 18:28:57 +0100, Ben Dooks wrote:
+> On Tue, Jun 03, 2008 at 06:26:03PM +0100, Ben Dooks wrote:
+> > The matching process described for new style clients in
+> > Documentation/i2c/writing-clients is classed as out-of-date
+> > as it requires the presence of an .id_table entry in the
+> > driver's i2c_driver entry.
+> > 
+> > Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > 
+> > Index: linux-2.6.26-rc4-quilt3/Documentation/i2c/writing-clients
+> > ===================================================================
+> > --- linux-2.6.26-rc4-quilt3.orig/Documentation/i2c/writing-clients	2008-06-03 18:05:36.000000000 +0100
+> > +++ linux-2.6.26-rc4-quilt3/Documentation/i2c/writing-clients	2008-06-03 18:25:45.000000000 +0100
+> > @@ -25,12 +25,23 @@ routines, and should be zero-initialized
+> >  provide.  A client structure holds device-specific information like the
+> >  driver model device node, and its I2C address.
+> >  
+> > +/* iff driver uses driver model ("new style") binding model: */
+> > +
+> > +static struct i2c_device_id foo_idtable[] = {
+> > +	{ "foo", my_id_for_foo },
+> > +	{ "bar", my_id_for_bar },
+> > +	{ }
+> > +};
+> > +
+> > +MODULE_DEVICE_TABLE(i2c, foo_idtable);
+> > +
+> >  static struct i2c_driver foo_driver = {
+> >  	.driver = {
+> >  		.name	= "foo",
+> >  	},
+> >  
+> >  	/* iff driver uses driver model ("new style") binding model: */
+> > +	.id_table	= foo_ids,
+> >  	.probe		= foo_probe,
+> >  	.remove		= foo_remove,
+> >  
+> > @@ -173,10 +184,9 @@ handle may be used during foo_probe().  
+> >  (zero not a negative status code) it may save the handle and use it until
+> >  foo_remove() returns.  That binding model is used by most Linux drivers.
+> >  
+> > -Drivers match devices when i2c_client.driver_name and the driver name are
+> > -the same; this approach is used in several other busses that don't have
+> > -device typing support in the hardware.  The driver and module name should
+> > -match, so hotplug/coldplug mechanisms will modprobe the driver.
+> > +The probe function is called when an entry in the id_table name field
+> > +matches the device's name. The probe function is passed the entry that
+> > +was matched so that it can support different versions of a device.
+> 
+> Hmm, that would have read better as:
+> 
+> The probe function is called when an entry in the id_table name field
+> matches the device's name. It is passed the entry that was matched so
+> the driver knows which one in the table matched.
 
-> > Few embedded platforms use discrete sticks of DRAM.
-> > My two cents:  use the opposite default in those cases.
-> =
+Applied and queued for 2.6.26, if I have more patches to send to Linus
+(2.6.27 otherwise). Thank you.
 
-> I wish I knew which of these bus drivers exactly are for embedded
-> platforms.
-
-To be strictly correct, "embedded" is an application issue
-more than a hardware issue.  One can "embed" mainframes in
-an Air Traffic Control system.
-
-So the issue there is more whether such usage is common
-or, in some cases, even practical.
-
-
-> Would you be able to give me a list of all drivers under =
-
-> drivers/i2c/busses that fall in this category? I would be able to update
-> http://lists.lm-sensors.org/pipermail/i2c/2008-May/003713.html
-> then.
-
-Not really; sorry.
-
-
-> Also, couldn't these platforms have other EEPROMs on these buses,
-> either EDID EEPROMs or proprietary ones, for which people might be
-> using the read-only eeprom driver at the moment? I don't want users to
-> experience a regression by applying this patch set. I'd rather have
-> them migrate their platform to the at24 driver once it is upstream and
-> remove the I2C_CLASS_SPD flag when they do.
-
-Unlikely.  At least in the cases I called out.
-
-Oh, and parport.  DRAM sticks, or LCD displays, over parport
-links would be strange.  ;)
-
-- Dave
-
-
-
-> > I'll highlight a few below, where I happen to have more
-> > specific knowledge.
-> > =
-
-> > =
-
-> > > So, bus driver maintainers and users =
-
-> > > should feel free to remove the SPD class from drivers those buses nev=
-er
-> > > have SPD EEPROMs or they don't want the eeprom driver to bind to them.
-> > > Likewise, feel free to add the SPD class to any bus driver I might ha=
-ve
-> > > missed.
-> > > =
-
-> > > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > ---
-> > > =A0drivers/i2c/busses/i2c-ali1535.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-ali1563.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-ali15x3.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-amd756.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-amd8111.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-at91.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > =
-
-> > I've never heard of an AT91 board using DRAM sticks ...
-> > =
-
-> > > =A0drivers/i2c/busses/i2c-cpm.c =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-davinci.c =A0 =A0 =A0 | =A0 =A02 +-
-> > =
-
-> > ... or a DaVinci one ...
-> > =
-
-> > =
-
-> > > =A0drivers/i2c/busses/i2c-elektor.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-gpio.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-i801.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-ibm_iic.c =A0 =A0 =A0 | =A0 =A04 ++--
-> > > =A0drivers/i2c/busses/i2c-iop3xx.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-isch.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-mpc.c =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-mv64xxx.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-nforce2.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-ocores.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-omap.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > =
-
-> > ... or an OMAP one ...
-> > =
-
-> > > =A0drivers/i2c/busses/i2c-parport-light.c | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-parport.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-pasemi.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-piix4.c =A0 =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-pmcmsp.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-s3c2410.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-sibyte.c =A0 =A0 =A0 =A0| =A0 =A04 ++--
-> > > =A0drivers/i2c/busses/i2c-sis5595.c =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-sis630.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-sis96x.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-stub.c =A0 =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-tiny-usb.c =A0 =A0 =A0| =A0 =A02 +-
-> > =
-
-> > ... DRAM-over-USB would be bizarre too ...
-> > =
-
-> > > =A0drivers/i2c/busses/i2c-via.c =A0 =A0 =A0 =A0 =A0 | =A0 =A02 +-
-> > > =A0drivers/i2c/busses/i2c-viapro.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0drivers/i2c/busses/scx200_acb.c =A0 =A0 =A0 =A0| =A0 =A02 +-
-> > > =A0include/linux/i2c.h =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0| =A0 =
-=A01 +
-> > > =A035 files changed, 37 insertions(+), 36 deletions(-)
-> =
-
-> OK, I'll revert the change for these 4 drivers.
-
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
