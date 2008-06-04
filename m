@@ -1,41 +1,55 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c-ibm_iic: Remove deprecated OCP style part of the
-	driver
-Date: Wed, 4 Jun 2008 21:04:00 +0200
-Message-ID: <20080604210400.0d7abb8e@hyperion.delvare>
-References: <1212592932-24031-1-git-send-email-sr@denx.de>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
+Date: Wed, 4 Jun 2008 15:28:54 -0400
+Message-ID: <9e4733910806041228i330e145q439d3ee43494f4c4@mail.gmail.com>
+References: <20080604201334.19636f30@hyperion.delvare>
+	<9e4733910806041155n7551ac74lf29c8a32163ec09a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <1212592932-24031-1-git-send-email-sr@denx.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Stefan Roese <sr@denx.de>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910806041155n7551ac74lf29c8a32163ec09a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  4 Jun 2008 17:22:12 +0200, Stefan Roese wrote:
-> The deprecated OCP style driver part is used by the "old" arch/ppc
-> platform. This platform is scheduled for removal in June/July this year.
-> This patch now removes the OCP driver part from the IBM I2C driver.
-> 
-> Signed-off-by: Stefan Roese <sr@denx.de>
-> ---
->  drivers/i2c/busses/i2c-ibm_iic.c |  181 --------------------------------------
->  1 files changed, 0 insertions(+), 181 deletions(-)
+On 6/4/08, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On 6/4/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  > Hi all,
+>  >
+>  >  This patch set demonstrates a new concept which I would like to add to
+>  >  the i2c subsystem. It is named "i2c listeners" and is based on the
+>  >  following structure:
 
-Applied, queued for 2.6.27, thanks Stefan.
+Could the existing API be used something like this?
 
-BTW, would you happen to know if read-only EEPROMs such as SPD or EDID
-can be found on the i2c-ibm_iic adapters?
+Drivers register with i2c core using standard driver registration.
+Class and address ranges are exposed in a structure like PCI IDs. I2C
+can make up it's own ID structure equivalent to the PCI IDs one.
+
+When a new adapter/bus is created i2c core gets the event. Core then
+scans the registered driver structures looking for class matches. When
+a match is encountered it repeatedly calls the driver's probe function
+with the addresses from the range. Driver returns true/false on each
+probe which triggers creation of the device.
+
+Why do drivers need the bus creation (attach/detach adapter) events?
 
 -- 
-Jean Delvare
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
