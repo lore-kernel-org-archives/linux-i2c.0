@@ -1,11 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 0/4] i2c: Introduce i2c listeners
-Date: Wed, 4 Jun 2008 20:13:34 +0200
-Message-ID: <20080604201334.19636f30@hyperion.delvare>
+Subject: [PATCH 1/4] i2c: Introduce i2c listeners
+Date: Wed, 4 Jun 2008 20:18:38 +0200
+Message-ID: <20080604201838.25807602@hyperion.delvare>
+References: <20080604201334.19636f30@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080604201334.19636f30-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,101 +21,386 @@ To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+Add an i2c listener mechanism to the i2c-subsystem. This mechanism
+lets device drivers be notified of addition and removal of adapters,
+and gives them a chance to detect devices they would support and to ask
+i2c-core to instantiate them.
 
-This patch set demonstrates a new concept which I would like to add to
-the i2c subsystem. It is named "i2c listeners" and is based on the
-following structure:
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+This patch depends on:
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-use-class_for_each_device.patch
 
-/**
- * struct i2c_listener - Be informed of adapter addition and removal
- * @class: What kind of i2c device the listener may instantiate
- * @attach_adapter: Called after adapter addition (unimplemented)
- * @detach_adapter: Called before adapter removal (unimplemented)
- * @address_data: The I2C addresses to probe, ignore or force
- * @detect: Callback for device detection
- * @clients: List of detected clients we created
- *
- * The @detect callback returns an i2c_board_info structure for device
- * creation if the detection was successful, NULL otherwise.
- *
- * The @clients list is handled by i2c-core.
- */
-struct i2c_listener {
-	unsigned int class;
+Implementation note: i2c_detect and i2c_detect_address are basically
+clones of i2c_probe and i2c_probe_address but operating on a callback
+with a slightly different prototype. This duplicated code accounts
+for a large part of the patch, but once legacy drivers are gone,
+i2c_probe and i2c_probe_address will be removed, so thus is no
+long-term duplication.
 
-	int (*attach_adapter)(struct i2c_adapter *);
-	int (*detach_adapter)(struct i2c_adapter *);
+ drivers/i2c/i2c-core.c |  235 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |   34 ++++++
+ 2 files changed, 269 insertions(+)
 
-	const struct i2c_client_address_data *address_data;
-	int (*detect)(struct i2c_adapter *, int address, int kind,
-		      struct i2c_board_info *);
-	struct list_head clients;
-
-	struct list_head list;
-};
-
-The goal is to replace legacy i2c drivers. The functional differences
-between legacy drivers and new-style ones are that legacy drivers get
-notified when i2c adapters are created or deleted, they create their
-own devices, and they can probe the hardware before they do so. There
-are cases where we want to be able to do this (e.g. for hardware
-monitoring devices on PC motherboards) so we can't just switch to
-new-style everywhere. Still, legacy drivers are a pain to handle, they
-cause headaches to developers because their locking model is weird, and
-they duplicate a lot of code.
-
-By implementing the needed functionality, almost unchanged, outside of
-the drivers, my hope is to be able to convert all legacy drivers to
-new-style drivers in a matter of months. Without it, it would take
-years... or even never happen at all.
-
-There are two distinct parts in i2c_listener: the notification
-callbacks, and the device detection callback. The notification
-callbacks are exactly the same as what legacy i2c drivers already have.
-I did not implement them yet, as I have no immediate need for them, but
-I suspect I will have to for the V4L/DVB drivers (if not I'll just
-remove them.) The device detection part is implemented in patch 1/4.
-
-The mechanism behind the device detection callback is as follows:
-* When a new i2c_notifier is added, for each existing i2c_adapter,
-  address_data (those format is the same as what i2c_probe() is already
-  using for legacy drivers) is processed by i2c-core. For each relevant
-  address, the detect callback will be called, with a pointer to an
-  empty struct i2c_board_info address as the last parameter. The detect
-  callback will attempt to detect a supported device at the given
-  address, and if successful, it will fill the struct i2c_board_info
-  with the parameters required to instantiate a new-style i2c device.
-* When a new i2c_adapter is added, for each existing i2c_notifier, the
-  same happens.
-* When it gets a filled struct i2c_board_info from a detect callback,
-  i2c-core will instantiate it. If a new-style driver exists for the
-  device, it will be able to bind with the device.
-* We keep track of the devices created that way, in a per-listener list.
-* When an i2c_listener is removed, all devices that originate from it
-  are destroyed.
-* When an i2c_adapter is removed, all devices on it that were created
-  by an i2c_listener are destroyed.
-
-So, drivers which currently implement both a new-style i2c_driver and a
-legacy i2c_driver (or drivers which would be converted that way soon) can
-instead implement a new-style i2c_driver and an i2c_listener. There are
-two major advantages in doing so:
-* All i2c drivers become new-style drivers. We get rid of legacy
-  drivers altogether, allowing for long awaited cleanups in i2c-core.
-* The code needed in each driver to implement an i2c_listener is way
-  smaller than the code needed to implement a legacy driver, even when
-  we were sharing as much code as possible between the new-style driver
-  and the legacy driver. This is very visible in patches 3/4 and 4/4,
-  which remove ~35 lines of code per driver.
-
-I would appreciate feedback on both the concept and the implementation.
-David, I am particularly interested in your feedback, of course.
-
-Patch 1/4 implements the mechanism, then patches 2/4, 3/4 and 4/4
-demonstrate its use in 3 hardware monitoring drivers (lm90, f75375s and
-lm75, respectively.) The patches go on top of 2.6.26-rc4 with some
-additional dependencies listed in each patch. Testers welcome!
+--- linux-2.6.26-rc4.orig/include/linux/i2c.h	2008-06-04 08:26:05.000000000 +0200
++++ linux-2.6.26-rc4/include/linux/i2c.h	2008-06-04 08:26:05.000000000 +0200
+@@ -43,6 +43,7 @@ struct i2c_adapter;
+ struct i2c_client;
+ struct i2c_driver;
+ union i2c_smbus_data;
++struct i2c_board_info;
+ 
+ /*
+  * The master routines are the ones normally used to transmit data to devices
+@@ -92,6 +93,34 @@ extern s32 i2c_smbus_write_i2c_block_dat
+ 					  u8 command, u8 length,
+ 					  const u8 *values);
+ 
++/**
++ * struct i2c_listener - Be informed of adapter addition and removal
++ * @class: What kind of i2c device the listener may instantiate
++ * @attach_adapter: Called after adapter addition (unimplemented)
++ * @detach_adapter: Called before adapter removal (unimplemented)
++ * @address_data: The I2C addresses to probe, ignore or force
++ * @detect: Callback for device detection
++ * @clients: List of detected clients we created
++ *
++ * The @detect callback returns an i2c_board_info structure for device
++ * creation if the detection was successful, NULL otherwise.
++ *
++ * The @clients list is handled by i2c-core.
++ */
++struct i2c_listener {
++	unsigned int class;
++
++	int (*attach_adapter)(struct i2c_adapter *);
++	int (*detach_adapter)(struct i2c_adapter *);
++
++	const struct i2c_client_address_data *address_data;
++	int (*detect)(struct i2c_adapter *, int address, int kind,
++		      struct i2c_board_info *);
++	struct list_head clients;
++
++	struct list_head list;
++};
++
+ /*
+  * A driver is capable of handling one or more physical devices present on
+  * I2C adapters. This information is used to inform the driver of adapter
+@@ -155,6 +184,7 @@ struct i2c_driver {
+  * @dev: Driver model device node for the slave.
+  * @irq: indicates the IRQ generated by this device (if any)
+  * @list: list of active/busy clients (DEPRECATED)
++ * @detected: member of i2c_listener.clients
+  * @released: used to synchronize client releases & detaches and references
+  *
+  * An i2c_client identifies a single device (i.e. chip) connected to an
+@@ -172,6 +202,7 @@ struct i2c_client {
+ 	struct device dev;		/* the device structure		*/
+ 	int irq;			/* irq issued by device (or -1) */
+ 	struct list_head list;		/* DEPRECATED */
++	struct list_head detected;
+ 	struct completion released;
+ };
+ #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+@@ -382,6 +413,9 @@ extern int i2c_add_adapter(struct i2c_ad
+ extern int i2c_del_adapter(struct i2c_adapter *);
+ extern int i2c_add_numbered_adapter(struct i2c_adapter *);
+ 
++extern void i2c_add_listener(struct i2c_listener *);
++extern void i2c_del_listener(struct i2c_listener *);
++
+ extern int i2c_register_driver(struct module *, struct i2c_driver *);
+ extern void i2c_del_driver(struct i2c_driver *);
+ 
+--- linux-2.6.26-rc4.orig/drivers/i2c/i2c-core.c	2008-06-04 08:26:05.000000000 +0200
++++ linux-2.6.26-rc4/drivers/i2c/i2c-core.c	2008-06-04 11:38:02.000000000 +0200
+@@ -42,8 +42,16 @@
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+ 
++/* listeners_lock protects the listeners list. If you need both core_lock
++   and listeners_lock, core_lock must be taken first. */
++static DEFINE_MUTEX(listeners_lock);
++static LIST_HEAD(listeners);
++
+ #define is_newstyle_driver(d) ((d)->probe || (d)->remove)
+ 
++static int i2c_detect(struct i2c_adapter *adapter,
++		      struct i2c_listener *listener);
++
+ /* ------------------------------------------------------------------------- */
+ 
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -418,6 +426,7 @@ static int i2c_do_add_adapter(struct dev
+ 
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
++	struct i2c_listener *listener;
+ 	int res = 0, dummy;
+ 
+ 	mutex_init(&adap->bus_lock);
+@@ -448,6 +457,13 @@ static int i2c_register_adapter(struct i
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
+ 
++	/* let listeners know that a bus has arrived */
++	mutex_lock(&listeners_lock);
++	list_for_each_entry(listener, &listeners, list) {
++		i2c_detect(adap, listener);
++	}
++	mutex_unlock(&listeners_lock);
++
+ 	/* let legacy drivers scan this bus for matching devices */
+ 	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+ 				 i2c_do_add_adapter);
+@@ -576,6 +592,7 @@ static int i2c_do_del_adapter(struct dev
+ int i2c_del_adapter(struct i2c_adapter *adap)
+ {
+ 	struct i2c_client *client, *_n;
++	struct i2c_listener *listener;
+ 	int res = 0;
+ 
+ 	mutex_lock(&core_lock);
+@@ -588,6 +605,21 @@ int i2c_del_adapter(struct i2c_adapter *
+ 		goto out_unlock;
+ 	}
+ 
++	/* Walk the listeners to remove the devices we created ourselves */
++	mutex_lock(&listeners_lock);
++	list_for_each_entry(listener, &listeners, list) {
++		list_for_each_entry_safe(client, _n, &listener->clients,
++					 detected) {
++			if (client->adapter == adap) {
++				dev_dbg(&adap->dev, "Removing %s at 0x%x\n",
++					client->name, client->addr);
++				list_del(&client->detected);
++				i2c_unregister_device(client);
++			}
++		}
++	}
++	mutex_unlock(&listeners_lock);
++
+ 	/* Tell drivers about this removal */
+ 	res = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+ 			       i2c_do_del_adapter);
+@@ -752,6 +784,53 @@ EXPORT_SYMBOL(i2c_del_driver);
+ 
+ /* ------------------------------------------------------------------------- */
+ 
++static int __i2c_detect(struct device *dev, void *data)
++{
++	struct i2c_adapter *adapter = to_i2c_adapter(dev);
++	struct i2c_listener *listener = data;
++
++	i2c_detect(adapter, listener);
++
++	return 0;
++}
++
++void i2c_add_listener(struct i2c_listener *listener)
++{
++	mutex_lock(&core_lock);
++	mutex_lock(&listeners_lock);
++	INIT_LIST_HEAD(&listener->clients);
++	list_add_tail(&listener->list, &listeners);
++	pr_debug("i2c: Listener %p added\n", listener);
++
++	/* let this listener know about buses that are already there */
++	class_for_each_device(&i2c_adapter_class, listener, __i2c_detect);
++	mutex_unlock(&listeners_lock);
++	mutex_unlock(&core_lock);
++}
++EXPORT_SYMBOL_GPL(i2c_add_listener);
++
++void i2c_del_listener(struct i2c_listener *listener)
++{
++	struct i2c_client *client, *_n;
++
++	mutex_lock(&listeners_lock);
++	/* remove all clients that originate from this listener */
++	list_for_each_entry_safe(client, _n, &listener->clients, detected) {
++		dev_dbg(&client->adapter->dev, "Removing %s at 0x%x\n",
++			client->name, client->addr);
++		list_del(&client->detected);
++		i2c_unregister_device(client);
++	}
++
++	list_del(&listener->list);
++	pr_debug("i2c: Listener %p deleted\n", listener);
++	mutex_unlock(&listeners_lock);
++
++}
++EXPORT_SYMBOL_GPL(i2c_del_listener);
++
++/* ------------------------------------------------------------------------- */
++
+ static int __i2c_check_addr(struct device *dev, void *addrp)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+@@ -1196,6 +1275,162 @@ int i2c_probe(struct i2c_adapter *adapte
+ }
+ EXPORT_SYMBOL(i2c_probe);
+ 
++/* Separate detection function for listeners */
++static int i2c_detect_address(struct i2c_adapter *adapter,
++			      int addr, int kind,
++			      struct i2c_listener *listener)
++{
++	struct i2c_board_info info;
++	struct i2c_client *client;
++	int err;
++
++	/* Make sure the address is valid */
++	if (addr < 0x03 || addr > 0x77) {
++		dev_warn(&adapter->dev, "Invalid probe address 0x%02x\n",
++			 addr);
++		return -EINVAL;
++	}
++
++	/* Skip if already in use */
++	if (i2c_check_addr(adapter, addr))
++		return 0;
++
++	/* Make sure there is something at this address, unless forced */
++	if (kind < 0) {
++		if (i2c_smbus_xfer(adapter, addr, 0, 0, 0,
++				   I2C_SMBUS_QUICK, NULL) < 0)
++			return 0;
++
++		/* prevent 24RF08 corruption */
++		if ((addr & ~0x0f) == 0x50)
++			i2c_smbus_xfer(adapter, addr, 0, 0, 0,
++				       I2C_SMBUS_QUICK, NULL);
++	}
++
++	/* Finally call the custom detection function */
++	memset(&info, 0, sizeof(struct i2c_board_info));
++	err = listener->detect(adapter, addr, kind, &info);
++	if (err) {
++		/* -ENODEV can be returned if there is a chip at the given address
++		   but it isn't supported by this chip driver. We catch it here as
++		   this isn't an error. */
++		return err == -ENODEV ? 0 : err;
++	}
++
++	/* Consistency check */
++	if (info.type[0] == '\0' || info.addr != addr) {
++		dev_err(&adapter->dev, "Detection function returned "
++			"inconsistent data for 0x%x\n", addr);
++	} else {
++		/* Detection succeeded, instantiate the device */
++		dev_dbg(&adapter->dev, "Creating %s at 0x%x\n",
++			info.type, info.addr);
++		client = i2c_new_device(adapter, &info);
++		list_add_tail(&client->detected, &listener->clients);
++	}
++	return 0;
++}
++
++static int i2c_detect(struct i2c_adapter *adapter,
++		      struct i2c_listener *listener)
++{
++	const struct i2c_client_address_data *address_data;
++	int i, err;
++	int adap_id = i2c_adapter_id(adapter);
++
++	address_data = listener->address_data;
++
++	/* Force entries are done first, and are not affected by ignore
++	   entries */
++	if (address_data->forces) {
++		const unsigned short * const *forces = address_data->forces;
++		int kind;
++
++		for (kind = 0; forces[kind]; kind++) {
++			for (i = 0; forces[kind][i] != I2C_CLIENT_END;
++			     i += 2) {
++				if (forces[kind][i] == adap_id
++				 || forces[kind][i] == ANY_I2C_BUS) {
++					dev_dbg(&adapter->dev, "found force "
++						"parameter for adapter %d, "
++						"addr 0x%02x, kind %d\n",
++						adap_id, forces[kind][i + 1],
++						kind);
++					err = i2c_detect_address(adapter,
++						forces[kind][i + 1],
++						kind, listener);
++					if (err)
++						return err;
++				}
++			}
++		}
++	}
++
++	/* Stop here if we can't use SMBUS_QUICK */
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK)) {
++		if (address_data->probe[0] == I2C_CLIENT_END
++		 && address_data->normal_i2c[0] == I2C_CLIENT_END)
++			return 0;
++
++		dev_warn(&adapter->dev, "SMBus Quick command not supported, "
++			 "can't probe for chips\n");
++		return -EOPNOTSUPP;
++	}
++
++	/* Probe entries are done second, and are not affected by ignore
++	   entries either */
++	for (i = 0; address_data->probe[i] != I2C_CLIENT_END; i += 2) {
++		if (address_data->probe[i] == adap_id
++		 || address_data->probe[i] == ANY_I2C_BUS) {
++			dev_dbg(&adapter->dev, "found probe parameter for "
++				"adapter %d, addr 0x%02x\n", adap_id,
++				address_data->probe[i + 1]);
++			err = i2c_detect_address(adapter,
++						 address_data->probe[i + 1],
++						 -1, listener);
++			if (err)
++				return err;
++		}
++	}
++
++	/* Stop here if the classes do not match */
++	if (!(adapter->class & listener->class))
++		return 0;
++
++	/* Normal entries are done last, unless shadowed by an ignore entry */
++	for (i = 0; address_data->normal_i2c[i] != I2C_CLIENT_END; i += 1) {
++		int j, ignore;
++
++		ignore = 0;
++		for (j = 0; address_data->ignore[j] != I2C_CLIENT_END;
++		     j += 2) {
++			if ((address_data->ignore[j] == adap_id ||
++			     address_data->ignore[j] == ANY_I2C_BUS)
++			 && address_data->ignore[j + 1]
++			    == address_data->normal_i2c[i]) {
++				dev_dbg(&adapter->dev, "found ignore "
++					"parameter for adapter %d, "
++					"addr 0x%02x\n", adap_id,
++					address_data->ignore[j + 1]);
++				ignore = 1;
++				break;
++			}
++		}
++		if (ignore)
++			continue;
++
++		dev_dbg(&adapter->dev, "found normal entry for adapter %d, "
++			"addr 0x%02x\n", adap_id,
++			address_data->normal_i2c[i]);
++		err = i2c_detect_address(adapter, address_data->normal_i2c[i],
++					 -1, listener);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
++
+ struct i2c_client *
+ i2c_new_probed_device(struct i2c_adapter *adap,
+ 		      struct i2c_board_info *info,
 
 -- 
 Jean Delvare
