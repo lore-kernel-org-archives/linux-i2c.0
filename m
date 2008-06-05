@@ -1,14 +1,17 @@
-From: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
-Subject: Re: [PATCH 3/4] i2c: Use i2c_listener in driver f75375s
-Date: Thu, 05 Jun 2008 11:33:38 +0300
-Message-ID: <4847A4E2.9040406@movial.fi>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
+Date: Thu, 5 Jun 2008 10:49:14 +0200
+Message-ID: <20080605104914.2dd622b2@hyperion.delvare>
 References: <20080604201334.19636f30@hyperion.delvare>
-	<20080604203322.472f8653@hyperion.delvare>
+	<200806041710.59338.david-b@pacbell.net>
+	<9e4733910806041742va67401en608c8c4b8c4c11b9@mail.gmail.com>
+	<200806041921.26293.david-b@pacbell.net>
+	<9e4733910806042104l70cf8a30sc6329b1c3016c879@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080604203322.472f8653-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <9e4733910806042104l70cf8a30sc6329b1c3016c879-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,161 +21,73 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> Replace the legacy f75375s i2c_driver by an i2c_listener.
->
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
-> Riku, any chance you could test this one? Thanks.
->   
-I can test that the new style driver still works after these tests,
-but I don't have testing if the driver still works  in
-cases were f75375_legacy driver used to work (which I guess is what
-you are interested in) is tricker. I do however like the concept.
->  drivers/hwmon/f75375s.c |   67 +++++++++--------------------------------------
->  1 file changed, 14 insertions(+), 53 deletions(-)
->
-> --- linux-2.6.26-rc4.orig/drivers/hwmon/f75375s.c	2008-05-04 09:49:47.000000000 +0200
-> +++ linux-2.6.26-rc4/drivers/hwmon/f75375s.c	2008-06-04 11:32:22.000000000 +0200
-> @@ -114,19 +114,16 @@ struct f75375_data {
->  	s8 temp_max_hyst[2];
->  };
->  
-> -static int f75375_attach_adapter(struct i2c_adapter *adapter);
-> -static int f75375_detect(struct i2c_adapter *adapter, int address, int kind);
-> -static int f75375_detach_client(struct i2c_client *client);
-> +static int f75375_detect(struct i2c_adapter *adapter, int address, int kind,
-> +			 struct i2c_board_info *info);
->  static int f75375_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id);
->  static int f75375_remove(struct i2c_client *client);
->  
-> -static struct i2c_driver f75375_legacy_driver = {
-> -	.driver = {
-> -		.name = "f75375_legacy",
-> -	},
-> -	.attach_adapter = f75375_attach_adapter,
-> -	.detach_client = f75375_detach_client,
-> +static struct i2c_listener f75375_listener = {
-> +	.class		= I2C_CLASS_HWMON,
-> +	.address_data	= &addr_data,
-> +	.detect		= f75375_detect,
->  };
->  
->  static const struct i2c_device_id f75375_id[] = {
-> @@ -607,22 +604,6 @@ static const struct attribute_group f753
->  	.attrs = f75375_attributes,
->  };
->  
-> -static int f75375_detach_client(struct i2c_client *client)
-> -{
-> -	int err;
-> -
-> -	f75375_remove(client);
-> -	err = i2c_detach_client(client);
-> -	if (err) {
-> -		dev_err(&client->dev,
-> -			"Client deregistration failed, "
-> -			"client not detached.\n");
-> -		return err;
-> -	}
-> -	kfree(client);
-> -	return 0;
-> -}
-> -
->  static void f75375_init(struct i2c_client *client, struct f75375_data *data,
->  		struct f75375s_platform_data *f75375s_pdata)
->  {
-> @@ -700,21 +681,14 @@ static int f75375_remove(struct i2c_clie
->  	return 0;
->  }
->  
-> -static int f75375_attach_adapter(struct i2c_adapter *adapter)
-> -{
-> -	if (!(adapter->class & I2C_CLASS_HWMON))
-> -		return 0;
-> -	return i2c_probe(adapter, &addr_data, f75375_detect);
-> -}
-> -
->  /* This function is called by i2c_probe */
-> -static int f75375_detect(struct i2c_adapter *adapter, int address, int kind)
-> +static int f75375_detect(struct i2c_adapter *adapter, int address, int kind,
-> +			 struct i2c_board_info *info)
->  {
->  	struct i2c_client *client;
->  	u8 version = 0;
-> -	int err = 0;
-> +	int err = -ENODEV;
->  	const char *name = "";
-> -	struct i2c_device_id id;
->  
->  	if (!(client = kzalloc(sizeof(*client), GFP_KERNEL))) {
->  		err = -ENOMEM;
-> @@ -722,7 +696,6 @@ static int f75375_detect(struct i2c_adap
->  	}
->  	client->addr = address;
->  	client->adapter = adapter;
-> -	client->driver = &f75375_legacy_driver;
->  
->  	if (kind < 0) {
->  		u16 vendid = f75375_read16(client, F75375_REG_VENDOR);
-> @@ -739,6 +712,7 @@ static int f75375_detect(struct i2c_adap
->  			goto exit_free;
->  		}
->  	}
-> +	err = 0;	/* detection OK */
->  
->  	if (kind == f75375) {
->  		name = "f75375";
-> @@ -746,20 +720,9 @@ static int f75375_detect(struct i2c_adap
->  		name = "f75373";
->  	}
->  	dev_info(&adapter->dev, "found %s version: %02X\n", name, version);
-> -	strlcpy(client->name, name, I2C_NAME_SIZE);
-> -
-> -	if ((err = i2c_attach_client(client)))
-> -		goto exit_free;
-> -
-> -	strlcpy(id.name, name, I2C_NAME_SIZE);
-> -	id.driver_data = kind;
-> -	if ((err = f75375_probe(client, &id)) < 0)
-> -		goto exit_detach;
-> +	strlcpy(info->type, name, I2C_NAME_SIZE);
-> +	info->addr = address;
->  
-> -	return 0;
-> -
-> -exit_detach:
-> -	i2c_detach_client(client);
->  exit_free:
->  	kfree(client);
->  exit:
-> @@ -773,16 +736,14 @@ static int __init sensors_f75375_init(vo
->  	if (status)
->  		return status;
->  
-> -	status = i2c_add_driver(&f75375_legacy_driver);
-> -	if (status)
-> -		i2c_del_driver(&f75375_driver);
-> +	i2c_add_listener(&f75375_listener);
->  
->  	return status;
->  }
->  
->  static void __exit sensors_f75375_exit(void)
->  {
-> -	i2c_del_driver(&f75375_legacy_driver);
-> +	i2c_del_listener(&f75375_listener);
->  	i2c_del_driver(&f75375_driver);
->  }
->  
->
->   
+On Thu, 5 Jun 2008 00:04:00 -0400, Jon Smirl wrote:
+> I don't think it is out of the scope of what already exists. The
+> alternative is to add a new pre-probe() API which does the function of
+> the original probe and then calls the current probe(). Why don't we
+> just stick with probe() and use it like it was before we had things
+> like ACPI?
 
+You're thinking of probing the wrong way around, methinks. We want to
+add something _before_ the current probe function, not after it. Adding
+the actual hardware detection/identification after the driver model's
+probe() implies that a device has already been created
+(otherwise .probe() can't be called). Chicken and egg problem.
+
+> Now that we've had this discussion it looks to me that the scan
+> capability should be added to struct i2c_driver instead of being
+> standalone.
+
+After a good night of sleep I've reached the same conclusion. Given
+that many drivers would have a new-style i2c driver and an i2c
+listener, it's probably easier to merge both. I'll give it a try when I
+get time, but as stated elsewhere in this thread, I wouldn't be too
+surprised to hit a deadlock or two on the road.
+
+> I guess what is a little strange to me is that the pre-probe()
+> function is like a static driver function and probe() is an instance
+> function. Are there other examples of static driver  functions? Which
+> way you do it is a style question, they will both work.
+
+I guess it depends on what you mean with a "static function" and
+"instance function" for a non-object language ;) Put it simple terms,
+the hardware detection function has to operate on addresses (i.e.
+potential devices) while the device driver model's probe function
+operates on actual devices. I fully agree with David that this function
+should really be named .bind(), not .probe().
+
+> Doesn't something like this work? (obviously this isn't complete)
+> 
+> for (address = start; address <= stop;) {
+> 	make a new client
+> 	for (; address <=stop; address++) {
+> 		client->address = address;
+> 		res = device_register(&client->dev);
+> 		if (res != -ENODEV)
+> 			break;
+> 	}
+> }
+> delete the extra client
+
+You don't seriously propose to scan all addresses on every I2C bus for
+every i2c chip driver that we load, do you? This would be awfully slow
+and dangerous. No way.
+
+> Can these driver functions be eliminated?
+> 	int (*attach_adapter)(struct i2c_adapter *);
+> 	int (*detach_adapter)(struct i2c_adapter *);
+> 	int (*detach_client)(struct i2c_client *);
+
+This is exactly my goal with i2c_notifier (or any similar approach -
+again I'm not claiming my proposal is the only way to go). Sorry if it
+wasn't clear, maybe I should have mentioned it explicitly in patch 0/4.
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
