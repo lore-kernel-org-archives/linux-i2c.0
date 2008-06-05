@@ -1,63 +1,82 @@
-From: Josh Boyer <jwboyer@linux.vnet.ibm.com>
-Subject: Re: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx variants in
-	arch/powerpc
-Date: Thu, 5 Jun 2008 06:27:26 -0500
-Message-ID: <20080605062726.1bf39860@vader.jdub.homelinux.org>
-References: <1212653453-26093-1-git-send-email-sr@denx.de>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
+Date: Thu, 5 Jun 2008 10:30:05 -0400
+Message-ID: <9e4733910806050730i26ed3276me23e18d1b208d621@mail.gmail.com>
+References: <20080604201334.19636f30@hyperion.delvare>
+	<200806041710.59338.david-b@pacbell.net>
+	<9e4733910806041742va67401en608c8c4b8c4c11b9@mail.gmail.com>
+	<200806041921.26293.david-b@pacbell.net>
+	<9e4733910806042104l70cf8a30sc6329b1c3016c879@mail.gmail.com>
+	<20080605104914.2dd622b2@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <1212653453-26093-1-git-send-email-sr@denx.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Stefan Roese <sr@denx.de>
-Cc: khali@linux-fr.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080605104914.2dd622b2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu,  5 Jun 2008 10:10:53 +0200
-Stefan Roese <sr@denx.de> wrote:
+On 6/5/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  > Doesn't something like this work? (obviously this isn't complete)
+>  >
+>  > for (address = start; address <= stop;) {
+>  >       make a new client
+>  >       for (; address <=stop; address++) {
+>  >               client->address = address;
+>  >               res = device_register(&client->dev);
+>  >               if (res != -ENODEV)
+>  >                       break;
+>  >       }
+>  > }
+>  > delete the extra client
+>
+>
+> You don't seriously propose to scan all addresses on every I2C bus for
+>  every i2c chip driver that we load, do you? This would be awfully slow
+>  and dangerous. No way.
 
-> This patch enables the IBM I2C driver for all PPC4xx variants by adding
-> "ibm,iic" to the compatible list. This way all currently available
-> arch/powerpc 4xx ports can make use of this driver without any changes.
-> Additionally all "other" compatible entries are removed since they are
-> not needed anymore.
-> 
-> Currently all 4xx PPC's have the same compatible I2C macro. If at some
-> time an incompatibility is detected we can take care of this with an
-> additional property.
-> 
-> Signed-off-by: Stefan Roese <sr@denx.de>
+This is just a small part of the code, you need to add in all the
+other parts from the patch.
+Exactly the same addresses would be scanned  under each scheme. .My
+question is, does the driver need two entry points (detect and probe)
+or could only one (probe) be used? I think detect and probe can be the
+same function.
 
-Acked-by: Josh Boyer <jwboyer@linux.vnet.ibm.com>
+With the detect() function it would look somthing like this:
 
-josh
-> ---
->  drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
->  1 files changed, 1 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-> index 3a364a7..ed73801 100644
-> --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> @@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device *ofdev)
->  }
->  
->  static const struct of_device_id ibm_iic_match[] = {
-> -	{ .compatible = "ibm,iic-405ex", },
-> -	{ .compatible = "ibm,iic-405gp", },
-> -	{ .compatible = "ibm,iic-440gp", },
-> -	{ .compatible = "ibm,iic-440gpx", },
-> -	{ .compatible = "ibm,iic-440grx", },
-> +	{ .compatible = "ibm,iic", },
->  	{}
->  };
->  
+for (address = start; address <= stop;) {
+      for (; address <=stop; address++) {
+             do a generic detect
+              if (driver->detect(address) {
+                     make a new client
+                     client->address = address;
+                     res = device_register(&client->dev);
+                     if (!res)
+                            delete the extra client
+             }
+       }
+}
+
+
+
+
+
+-- 
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
