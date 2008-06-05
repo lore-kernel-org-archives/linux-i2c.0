@@ -1,16 +1,12 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
-Date: Thu, 5 Jun 2008 00:08:51 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0806042349251.10290@shell4.speakeasy.net>
-References: <20080604201334.19636f30@hyperion.delvare>
-	<200806041727.51746.david-b@pacbell.net>
-	<Pine.LNX.4.58.0806041731250.10290@shell4.speakeasy.net>
-	<200806041914.27291.david-b@pacbell.net>
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx variants in
+	arch/powerpc
+Date: Thu,  5 Jun 2008 10:10:53 +0200
+Message-ID: <1212653453-26093-1-git-send-email-sr@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200806041914.27291.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,32 +16,44 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 4 Jun 2008, David Brownell wrote:
-> On Wednesday 04 June 2008, Trent Piepho wrote:
-> > So scanning an I2C bus doesn't work as well as with PCI, we all know that.
->
-> As I said, not just "scanning" but also "identifying".
+This patch enables the IBM I2C driver for all PPC4xx variants by adding
+"ibm,iic" to the compatible list. This way all currently available
+arch/powerpc 4xx ports can make use of this driver without any changes.
+Additionally all "other" compatible entries are removed since they are
+not needed anymore.
 
-No need to be so pedantic, by scanning I meant probing and identifying.
+Currently all 4xx PPC's have the same compatible I2C macro. If at some
+time an incompatibility is detected we can take care of this with an
+additional property.
 
-> PCI was designed explicitly for automatic configuration.
-> I2C was not.
->
->
-> > How does creating a new "i2c listeners" system solve any of these problems?
->
-> That's an entirely different (and unrelated) question.
+Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
 
-For a thread on the subject "Introduce i2c listeners", I don't think so.
-When I first saw the patch, I wondered why exsting driver model couldn't
-handle it.  It looks like Jon thought the same thing.  No one ever said
-scanning/probing/identifying/whatever an I2C bus worked as well as it does
-on a bus like PCI.  But I don't see why that prevents the driver model from
-being used.
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 3a364a7..ed73801 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device *ofdev)
+ }
+ 
+ static const struct of_device_id ibm_iic_match[] = {
+-	{ .compatible = "ibm,iic-405ex", },
+-	{ .compatible = "ibm,iic-405gp", },
+-	{ .compatible = "ibm,iic-440gp", },
+-	{ .compatible = "ibm,iic-440gpx", },
+-	{ .compatible = "ibm,iic-440grx", },
++	{ .compatible = "ibm,iic", },
+ 	{}
+ };
+ 
+-- 
+1.5.5.3
+
 
 _______________________________________________
 i2c mailing list
