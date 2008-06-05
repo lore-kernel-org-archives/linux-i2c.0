@@ -1,12 +1,16 @@
-From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx variants in
-	arch/powerpc
-Date: Thu,  5 Jun 2008 10:10:53 +0200
-Message-ID: <1212653453-26093-1-git-send-email-sr@denx.de>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
+Date: Thu, 5 Jun 2008 01:15:08 -0700
+Message-ID: <200806050115.08953.david-b@pacbell.net>
+References: <20080604201334.19636f30@hyperion.delvare>
+	<200806041914.27291.david-b@pacbell.net>
+	<Pine.LNX.4.58.0806042349251.10290@shell4.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.58.0806042349251.10290-13q4cmjDBaTP3RPoUHIrnuTW4wlIGRCZ@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,44 +20,53 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch enables the IBM I2C driver for all PPC4xx variants by adding
-"ibm,iic" to the compatible list. This way all currently available
-arch/powerpc 4xx ports can make use of this driver without any changes.
-Additionally all "other" compatible entries are removed since they are
-not needed anymore.
+On Thursday 05 June 2008, Trent Piepho wrote:.
+> 
+> > PCI was designed explicitly for automatic configuration.
+> > I2C was not.
+> >
+> >
+> > > How does creating a new "i2c listeners" system solve any of these problems?
+> >
+> > That's an entirely different (and unrelated) question.
+> 
+> For a thread on the subject "Introduce i2c listeners", I don't think so.
 
-Currently all 4xx PPC's have the same compatible I2C macro. If at some
-time an incompatibility is detected we can take care of this with an
-additional property.
+For the subthread on why I2C can't scan like PCI ... it
+sure seemed to me like it was!  But ok, you maybe weren't
+focussed on that subthread.
 
-Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
----
- drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
- 1 files changed, 1 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 3a364a7..ed73801 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device *ofdev)
- }
- 
- static const struct of_device_id ibm_iic_match[] = {
--	{ .compatible = "ibm,iic-405ex", },
--	{ .compatible = "ibm,iic-405gp", },
--	{ .compatible = "ibm,iic-440gp", },
--	{ .compatible = "ibm,iic-440gpx", },
--	{ .compatible = "ibm,iic-440grx", },
-+	{ .compatible = "ibm,iic", },
- 	{}
- };
- 
--- 
-1.5.5.3
+> When I first saw the patch, I wondered why exsting driver model couldn't
+> handle it.  It looks like Jon thought the same thing.  No one ever said
+> scanning/probing/identifying/whatever an I2C bus worked as well as it does
+> on a bus like PCI.  But I don't see why that prevents the driver model from
+> being used.
 
+Well, without commenting on these new listeners/notifiers ...
+
+All I can observe is that what the driver model provides is just
+the framework through which the device enumeration is exposed.
+
+That device enumeration is bus-specific.  It can build on hardware
+for device identification (as with USB and PCI) and maybe hotplug
+(USB, and PCI flavors like Cardbus and hotplug PCI).  Or it can
+build on software tables, as in PNPACPI and OpenFirmware.  You can
+view cases like USB and PCMCIA cards (8/16 bits) as being hybrid:
+hotplug hardware, combined with software tables in the device.
+
+The I2C problem has been that hardware conventions can't work in
+general, so Linux has had to come up with its own conventions for
+software tables.
+
+If nothing else, we have an existence proof (in "new style" I2C
+drivers) that we *can* use the driver model with I2C.
+
+- Dave
 
 _______________________________________________
 i2c mailing list
