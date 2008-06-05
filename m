@@ -1,18 +1,16 @@
 From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
-Date: Thu, 5 Jun 2008 10:30:05 -0400
-Message-ID: <9e4733910806050730i26ed3276me23e18d1b208d621@mail.gmail.com>
+Date: Thu, 5 Jun 2008 10:55:28 -0400
+Message-ID: <9e4733910806050755n3835d20xfc4d018c2222d5d3@mail.gmail.com>
 References: <20080604201334.19636f30@hyperion.delvare>
-	<200806041710.59338.david-b@pacbell.net>
-	<9e4733910806041742va67401en608c8c4b8c4c11b9@mail.gmail.com>
 	<200806041921.26293.david-b@pacbell.net>
 	<9e4733910806042104l70cf8a30sc6329b1c3016c879@mail.gmail.com>
-	<20080605104914.2dd622b2@hyperion.delvare>
+	<200806050118.23706.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080605104914.2dd622b2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <200806050118.23706.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -23,53 +21,46 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 6/5/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->  > Doesn't something like this work? (obviously this isn't complete)
+On 6/5/08, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
+> On Wednesday 04 June 2008, Jon Smirl wrote:
+>
+> > Now that we've had this discussion it looks to me that the scan
+>  > capability should be added to struct i2c_driver instead of being
+>  > standalone.
 >  >
->  > for (address = start; address <= stop;) {
->  >       make a new client
->  >       for (; address <=stop; address++) {
->  >               client->address = address;
->  >               res = device_register(&client->dev);
->  >               if (res != -ENODEV)
->  >                       break;
->  >       }
->  > }
->  > delete the extra client
+>  > I guess what is a little strange to me is that the pre-probe()
+>  > function is like a static driver function and probe() is an instance
+>  > function.
 >
 >
-> You don't seriously propose to scan all addresses on every I2C bus for
->  every i2c chip driver that we load, do you? This would be awfully slow
->  and dangerous. No way.
+> The problem there is:  how do you know which pre-probe()
+>  function(s) to try?  If you could answer that reliably
+>  you'd be able to probe() directly.  If you can't, you'd
+>  need to load all I2C driver modules until one works...
+>  not the desired system model.
+>
 
-This is just a small part of the code, you need to add in all the
-other parts from the patch.
-Exactly the same addresses would be scanned  under each scheme. .My
-question is, does the driver need two entry points (detect and probe)
-or could only one (probe) be used? I think detect and probe can be the
-same function.
+I see now that the adapter class should be added to the driver name
+alias string. The we could load all modules of a given class.
 
-With the detect() function it would look somthing like this:
+But I don't think we need to go searching for the right module to load
+since i2c is not generally a dynamic bus. If you install a video card
+with an i2c bus, the driver for the video card can just load_module
+the right i2c driver modules.
 
-for (address = start; address <= stop;) {
-      for (; address <=stop; address++) {
-             do a generic detect
-              if (driver->detect(address) {
-                     make a new client
-                     client->address = address;
-                     res = device_register(&client->dev);
-                     if (!res)
-                            delete the extra client
-             }
-       }
-}
-
-
-
+I do wonder if we could get hardware monitors to autoload. When the
+adapter driver for the motherboard loads, it could load module all
+drivers of class hardware_monitor. Then each one could do its
+detection thing. Unload the ones that weren't found. That would really
+help people who can figure out the right driver module to load. You
+could even get fancy and generate a uevent after the right module was
+found. A script in the uevent could save the info so you don't have to
+repeat on each boot. Of course this assume that the hardware monitor
+modules can reliably autodetect.
 
 
 -- 
