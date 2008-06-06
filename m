@@ -1,7 +1,8 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 4/4] i2c: Drop legacy lm75 driver
-Date: Fri, 6 Jun 2008 16:11:04 +0200
-Message-ID: <20080606161104.44a29b95@hyperion.delvare>
+From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: Add detection capability to new-style
+ drivers
+Date: Fri, 6 Jun 2008 16:17:03 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0806061550510.10290@shell4.speakeasy.net>
 References: <20080606145212.76f95d52@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -17,210 +18,60 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Drop the legacy lm75 driver, and add a detect callback to the
-new-style driver to achieve the same functionality.
+On Fri, 6 Jun 2008, Jean Delvare wrote:
+> The mechanism behind the device detection callback is as follows:
+> * When a new-style i2c_driver is added, for each existing i2c_adapter,
+>   address_data (those format is the same as what i2c_probe() is already
+>   using for legacy drivers) is processed by i2c-core. For each relevant
+>   address, the detect callback will be called, with a pointer to an
+>   empty struct i2c_board_info address as the last parameter. The detect
+>   callback will attempt to identify a supported device at the given
+>   address, and if successful, it will fill the struct i2c_board_info
+>   with the parameters required to instantiate a new-style i2c device.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-This goes on top of David Brownell's patches:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-April/022931.html
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023040.html
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023041.html
+Isn't the detect callback going to be the same for almost every driver?
 
-Also available from:
-http://jdelvare.pck.nerim.net/sensors/lm75/
+It seems like you could have the i2c core do the detection.  Take the "to
+be probed" addresses listed by the driver, do a standard i2c probe on them,
+and pass a device to the driver's probe function if something is detected.
+The probe function is of course free to return ENODEV if it has some
+additional way to check for device presence.  If an address is on the force
+list, then the device is created and passed to the driver's probe without
+the core doing any kind of i2c probe.  The driver can do a non-standard
+probe if it has one and return ENODEV if nothing is there.
 
- drivers/hwmon/lm75.c |  120 ++++++++++++++------------------------------------
- 1 file changed, 35 insertions(+), 85 deletions(-)
+> * When a new i2c_adapter is added, for each existing new-style
+>   i2c_driver, the same happens.
 
---- linux-2.6.26-rc5.orig/drivers/hwmon/lm75.c	2008-06-05 21:04:26.000000000 +0200
-+++ linux-2.6.26-rc5/drivers/hwmon/lm75.c	2008-06-05 22:19:23.000000000 +0200
-@@ -54,11 +54,11 @@ enum lm75_type {		/* keep sorted in alph
- 	tmp75,
- };
- 
--/* Addresses scanned by legacy style driver binding */
-+/* Addresses scanned */
- static const unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, 0x4c,
- 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
- 
--/* Insmod parameters (only for legacy style driver binding) */
-+/* Insmod parameters */
- I2C_CLIENT_INSMOD_1(lm75);
- 
- 
-@@ -217,46 +217,12 @@ static int lm75_remove(struct i2c_client
- 	return 0;
- }
- 
--static const struct i2c_device_id lm75_ids[] = {
--	{ "ds1775", ds1775, },
--	{ "ds75", ds75, },
--	{ "lm75", lm75, },
--	{ "lm75a", lm75a, },
--	{ "max6625", max6625, },
--	{ "max6626", max6626, },
--	{ "mcp980x", mcp980x, },
--	{ "stds75", stds75, },
--	{ "tcn75", tcn75, },
--	{ "tmp100", tmp100, },
--	{ "tmp101", tmp101, },
--	{ "tmp175", tmp175, },
--	{ "tmp275", tmp275, },
--	{ "tmp75", tmp75, },
--	{ /* LIST END */ }
--};
--MODULE_DEVICE_TABLE(i2c, lm75_ids);
--
--static struct i2c_driver lm75_driver = {
--	.driver = {
--		.name	= "lm75",
--	},
--	.probe		= lm75_probe,
--	.remove		= lm75_remove,
--	.id_table	= lm75_ids,
--};
--
--/*-----------------------------------------------------------------------*/
--
--/* "Legacy" I2C driver binding */
--
--static struct i2c_driver lm75_legacy_driver;
--
--/* This function is called by i2c_probe */
--static int lm75_detect(struct i2c_adapter *adapter, int address, int kind)
-+static int lm75_detect(struct i2c_adapter *adapter, int address, int kind,
-+		       struct i2c_board_info *info)
- {
- 	int i;
- 	struct i2c_client *new_client;
--	int err = 0;
-+	int err = -ENODEV;
- 
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
- 				     I2C_FUNC_SMBUS_WORD_DATA))
-@@ -273,8 +239,6 @@ static int lm75_detect(struct i2c_adapte
- 
- 	new_client->addr = address;
- 	new_client->adapter = adapter;
--	new_client->driver = &lm75_legacy_driver;
--	new_client->flags = 0;
- 
- 	/* Now, we do the remaining detection. There is no identification-
- 	   dedicated register so we have to rely on several tricks:
-@@ -313,52 +277,49 @@ static int lm75_detect(struct i2c_adapte
- 			 || i2c_smbus_read_word_data(new_client, i + 3) != os)
- 				goto exit_free;
- 	}
-+	err = 0;	/* detection OK */
- 
- 	/* NOTE: we treat "force=..." and "force_lm75=..." the same.
- 	 * Only new-style driver binding distinguishes chip types.
- 	 */
--	strlcpy(new_client->name, "lm75", I2C_NAME_SIZE);
--
--	/* Tell the I2C layer a new client has arrived */
--	err = i2c_attach_client(new_client);
--	if (err)
--		goto exit_free;
--
--	err = lm75_probe(new_client, NULL);
--	if (err < 0)
--		goto exit_detach;
-+	strlcpy(info->type, "lm75", I2C_NAME_SIZE);
-+	info->addr = address;
- 
--	return 0;
--
--exit_detach:
--	i2c_detach_client(new_client);
- exit_free:
- 	kfree(new_client);
- exit:
- 	return err;
- }
- 
--static int lm75_attach_adapter(struct i2c_adapter *adapter)
--{
--	if (!(adapter->class & I2C_CLASS_HWMON))
--		return 0;
--	return i2c_probe(adapter, &addr_data, lm75_detect);
--}
--
--static int lm75_detach_client(struct i2c_client *client)
--{
--	lm75_remove(client);
--	i2c_detach_client(client);
--	kfree(client);
--	return 0;
--}
-+static const struct i2c_device_id lm75_ids[] = {
-+	{ "ds1775", ds1775, },
-+	{ "ds75", ds75, },
-+	{ "lm75", lm75, },
-+	{ "lm75a", lm75a, },
-+	{ "max6625", max6625, },
-+	{ "max6626", max6626, },
-+	{ "mcp980x", mcp980x, },
-+	{ "stds75", stds75, },
-+	{ "tcn75", tcn75, },
-+	{ "tmp100", tmp100, },
-+	{ "tmp101", tmp101, },
-+	{ "tmp175", tmp175, },
-+	{ "tmp275", tmp275, },
-+	{ "tmp75", tmp75, },
-+	{ /* LIST END */ }
-+};
-+MODULE_DEVICE_TABLE(i2c, lm75_ids);
- 
--static struct i2c_driver lm75_legacy_driver = {
-+static struct i2c_driver lm75_driver = {
-+	.class		= I2C_CLASS_HWMON,
- 	.driver = {
--		.name	= "lm75_legacy",
-+		.name	= "lm75",
- 	},
--	.attach_adapter	= lm75_attach_adapter,
--	.detach_client	= lm75_detach_client,
-+	.probe		= lm75_probe,
-+	.remove		= lm75_remove,
-+	.id_table	= lm75_ids,
-+	.detect		= lm75_detect,
-+	.address_data	= &addr_data,
- };
- 
- /*-----------------------------------------------------------------------*/
-@@ -424,22 +385,11 @@ static struct lm75_data *lm75_update_dev
- 
- static int __init sensors_lm75_init(void)
- {
--	int status;
--
--	status = i2c_add_driver(&lm75_driver);
--	if (status < 0)
--		return status;
--
--	status = i2c_add_driver(&lm75_legacy_driver);
--	if (status < 0)
--		i2c_del_driver(&lm75_driver);
--
--	return status;
-+	return i2c_add_driver(&lm75_driver);
- }
- 
- static void __exit sensors_lm75_exit(void)
- {
--	i2c_del_driver(&lm75_legacy_driver);
- 	i2c_del_driver(&lm75_driver);
- }
- 
+It would nice if there was a no-probe option when creating an i2c_adapter.
+Some hardware doesn't support probing of any kind, usually because there is
+no way to detect a NAK.  In some cases the creator of the i2c_adapter knows
+exactly what's on the bus it's creating and doesn't want whatever random
+i2c drivers happen to be loaded to probe it.  For instance, the ivtv TV
+card driver knows what tuners are on the i2c bus, while the bttv driver
+doesn't.  The ivtv driver could use this to prevent an i2c driver used by
+bttv from probing ivtv's i2c bus.
 
--- 
-Jean Delvare
+> * When it gets a filled struct i2c_board_info from a detect callback,
+>   i2c-core will instantiate it. If a new-style driver exists for the
+>   device, it will be able to bind with the device.
+> * We keep track of the devices created that way, in a per-driver list.
+> * When a new-style i2c_driver is removed, all devices that originate
+>   from it are destroyed.
+
+Is it necessary to remove the devices?  They are still there after all.
+It's perfectly normal to have devices with no drivers loaded for them on
+other busses.
+
+> * When an i2c_adapter is removed, all devices on it that were created
+>   as the result of calling a detect callback, are destroyed.
+
+Shouldn't all devices on it, no matter how they were created, be removed?
+Or is that the case?
 
 _______________________________________________
 i2c mailing list
