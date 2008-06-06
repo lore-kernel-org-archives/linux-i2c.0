@@ -1,14 +1,14 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 0/4] i2c: Introduce i2c listeners
-Date: Thu, 5 Jun 2008 19:47:30 -0700
-Message-ID: <200806051947.30697.david-b@pacbell.net>
-References: <20080604201334.19636f30@hyperion.delvare>
+From: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
+Subject: Re: [PATCH 3/4] i2c: Use i2c_listener in driver f75375s
+Date: Fri, 06 Jun 2008 13:21:23 +0300
+Message-ID: <48490FA3.8020702@movial.fi>
+References: <20080604201334.19636f30@hyperion.delvare>	<20080604203322.472f8653@hyperion.delvare>	<4847A4E2.9040406@movial.fi>
+	<20080605110659.3456fbe4@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080604201334.19636f30-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080605110659.3456fbe4-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,28 +22,35 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 04 June 2008, Jean Delvare wrote:
-> I would appreciate feedback on both the concept and the implementation.
-> David, I am particularly interested in your feedback, of course.
+Jean Delvare wrote:
+> I have already tested the latter, using i2c-stub + a dump of a F75375S
+> chip. So if you can test the former (new-style) we cover the whole set
+> of possibilities and that's alright :)
+>
+> Thanks,
+>   
+I failed to get the patchset against Linux 2.6.26-rc5, and didn't have time
+to fight:
 
-Which, for the record, will be a bit delayed with respect to
-the core i2c_listener abstraction.  This deserves a bit more
-thought than I can put into it in the immediate future.
-(Ditto firing up the rig needed to test the lm75 updates.)
+ > patch -p1 --dry-run < 
+../p2/\[PATCH_1_4\]_i2c__Introduce_i2c_listeners.txt
+patching file include/linux/i2c.h
+Hunk #2 succeeded at 94 (offset 1 line).
+Hunk #3 succeeded at 185 (offset 1 line).
+Hunk #4 succeeded at 203 (offset 1 line).
+patching file drivers/i2c/i2c-core.c
+Hunk #1 succeeded at 43 (offset 1 line).
+Hunk #2 succeeded at 432 (offset 6 lines).
+Hunk #3 succeeded at 463 (offset 6 lines).
+Hunk #4 FAILED at 598.
+Hunk #5 succeeded at 612 (offset 7 lines).
+Hunk #6 succeeded at 796 (offset 12 lines).
+Hunk #7 succeeded at 1240 (offset -35 lines).
+1 out of 7 hunks FAILED -- saving rejects to file drivers/i2c/i2c-core.c.rej
 
-Except for this small bit of instafeedback:  the approach of
-splitting the detect() logic out, as an adjunct to a core
-"new style" driver, is an interesting way to address some core
-problems with legacy drivers (vs the driver model).
+However, none of the functions you touched are used in F75375S driver
+with new-style loading path, so it would seem fine for me.
 
-It gives a graceful migration model towards new-style code, and
-lets drivers get updated without needing to start by abandoning
-the "poke at the hardware" style enumeration in those cases
-where it seems to act mostly OK today.  While I'd like to see
-that poking be largely removed from the kernel, factoring it out
-(in i2c_listener or whatever) is clearly useful.
-
-- Dave
 
 _______________________________________________
 i2c mailing list
