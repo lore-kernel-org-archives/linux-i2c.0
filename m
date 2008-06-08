@@ -1,53 +1,66 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
- device_ids)
-Date: Sun, 8 Jun 2008 11:53:11 +0200
-Message-ID: <20080608115311.30b27448@hyperion.delvare>
-References: <20080605193103.GA13062@pengutronix.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx variants in
+	arch/powerpc
+Date: Sun, 8 Jun 2008 14:48:43 +0200
+Message-ID: <20080608144843.58857324@hyperion.delvare>
+References: <1212653453-26093-1-git-send-email-sr@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080605193103.GA13062-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <1212653453-26093-1-git-send-email-sr@denx.de>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Stefan Roese <sr@denx.de>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-And some more nit-picking for the road...
+Hi Stefan,
 
-On Thu, 5 Jun 2008 21:31:03 +0200, Wolfram Sang wrote:
-> --- /dev/null
-> +++ linux-2.6.26-rc4/include/linux/i2c/at24.h
-> @@ -0,0 +1,104 @@
-> (...)
-> + * If you set up a custom eeprom type, please make sure you
-> + * have double-checked the parameters. Especially page_size needs extra care,
+On Thu,  5 Jun 2008 10:10:53 +0200, Stefan Roese wrote:
+> This patch enables the IBM I2C driver for all PPC4xx variants by adding
+> "ibm,iic" to the compatible list. This way all currently available
+> arch/powerpc 4xx ports can make use of this driver without any changes.
+> Additionally all "other" compatible entries are removed since they are
+> not needed anymore.
+> 
+> Currently all 4xx PPC's have the same compatible I2C macro. If at some
+> time an incompatibility is detected we can take care of this with an
+> additional property.
+> 
+> Signed-off-by: Stefan Roese <sr@denx.de>
+> ---
+>  drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
+>  1 files changed, 1 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+> index 3a364a7..ed73801 100644
+> --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> @@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device *ofdev)
+>  }
+>  
+>  static const struct of_device_id ibm_iic_match[] = {
+> -	{ .compatible = "ibm,iic-405ex", },
+> -	{ .compatible = "ibm,iic-405gp", },
+> -	{ .compatible = "ibm,iic-440gp", },
+> -	{ .compatible = "ibm,iic-440gpx", },
+> -	{ .compatible = "ibm,iic-440grx", },
+> +	{ .compatible = "ibm,iic", },
+>  	{}
+>  };
+>  
 
-"Make sure" and "double-checked" are somewhat redundant.
-
-> + * as you risk data loss if your value is bigger than what the chip actually
-> + * supports! A typical custom type declaration would look similar to this:
-> + *
-> + *	struct const at24_platform_data my_eeprom_data {
-
-const struct, in this order.
-
-> + *		AT24_PLATFORM_DATA(byte_len, page_size, flags);
-> + *	};
+OK, I can take this in my tree, unless it depends on arch-specific
+patches which have not hit mainline yet. I guess this is 2.6.27
+material?
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
