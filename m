@@ -1,80 +1,114 @@
-From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx
-	variants in arch/powerpc
-Date: Mon, 9 Jun 2008 06:48:24 +0200
-Message-ID: <200806090648.24339.sr@denx.de>
-References: <1212653453-26093-1-git-send-email-sr@denx.de>
-	<20080608144843.58857324@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: Multiple Zoran MJPEG cards and i2c misattachments
+Date: Mon, 9 Jun 2008 08:51:10 +0200
+Message-ID: <20080609085110.65de75ae@hyperion.delvare>
+References: <5a8e970805311139r1355cfccy6933605f7b6441b6@mail.gmail.com>
+	<20080601212837.GA10699@fluff.org.uk>
+	<20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080608144843.58857324-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757051AbYFIGwH@vger.kernel.org>
+In-Reply-To: <20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martin Samuelsson <sam.linux.kernel@gmail.com>
+Cc: Ben Dooks <ben@fluff.org>, linux-dvb@linuxtv.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi Sam,
 
-On Sunday 08 June 2008, Jean Delvare wrote:
-> > This patch enables the IBM I2C driver for all PPC4xx variants by adding
-> > "ibm,iic" to the compatible list. This way all currently available
-> > arch/powerpc 4xx ports can make use of this driver without any changes.
-> > Additionally all "other" compatible entries are removed since they are
-> > not needed anymore.
-> >
-> > Currently all 4xx PPC's have the same compatible I2C macro. If at some
-> > time an incompatibility is detected we can take care of this with an
-> > additional property.
-> >
-> > Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
-> >  1 files changed, 1 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-ibm_iic.c
-> > b/drivers/i2c/busses/i2c-ibm_iic.c index 3a364a7..ed73801 100644
-> > --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> > +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> > @@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device
-> > *ofdev) }
-> >
-> >  static const struct of_device_id ibm_iic_match[] = {
-> > -	{ .compatible = "ibm,iic-405ex", },
-> > -	{ .compatible = "ibm,iic-405gp", },
-> > -	{ .compatible = "ibm,iic-440gp", },
-> > -	{ .compatible = "ibm,iic-440gpx", },
-> > -	{ .compatible = "ibm,iic-440grx", },
-> > +	{ .compatible = "ibm,iic", },
-> >  	{}
-> >  };
->
-> OK, I can take this in my tree, unless it depends on arch-specific
-> patches which have not hit mainline yet.
+On Mon, 2 Jun 2008 11:32:37 +0200, Martin Samuelsson wrote:
+> On Sun, 1 Jun 2008 22:28:37 +0100, Ben Dooks wrote:
+> > On Sat, May 31, 2008 at 08:39:25PM +0200, Martin Samuelsson wrote:
+> > > I'm working on avs6eyes improvements in the current kernel. As I've
+> > > equipped my machine with no less than three MJPEG-cards; Buz, 6 Eyes
+> > > and DC10+, I happened to run into a bit of a snag:
+> > > 
+> > > saa7185, the video encoder of the Buz, and bt866, video encoder of the
+> > > 6 Eyes, share the same i2c address, 0x88. This should not be a
+> > > problem, because they are connected to different i2c buses, and are
+> > > initialized separately. However, zoran_card.c, via i2c_bit_add_bus(),
+> > > creates one i2c bus for each card in the detection loop, and makes
+> > > them available system-wide. This means that the saa7185 driver, as the
+> > > cards are detected in Buz, 6 Eyes, DC10+ order in my computer, is
+> > > being requested by the zoran driver and initializes itself (not very
+> > > much to do, as there is not yet any i2c bus). The zoran driver then
+> > > creates bus 0, and initializes the saa7185 driver once again, it finds
+> > > bus 0 and a chip at 0x88, which it attaches to.
+> > > 
+> > > Now, that bus is visible to the system. The 6 Eyes is being
+> > > initialized, the bt866 driver loaded, and it initializes itself.
+> > > Here's the problem: At load, the drivers automatically searches the
+> > > system for available buses. bt866 finds bus 0, belonging to Buz, and a
+> > > chip at 0x88, which it promptly attaches to, marking itself as in use.
+> > 
+> > Do each of the devices creating the i2c busses know what devices are
+> > on the i2c bus at time of creation? If so then the use of the new
+> > style driver addition and device binding would be far more appropriate
+> > to this, as the i2c devices will be bound depending on the device list
+> > registered at bus creation time.
+> 
+> I'd say yes, they do. zoran_card.c contain lists detailing chips, and those
+> are available for reference at bus creation time. Would you know of any
+> driver I can look at to see how this new style stuff works? The "new style"
+> i2c things I've encountered so far is the 2.6 i2c subsystem as used when 2.4
+> style drivers are converted with a minimum amount of work involved.
 
-No, this doesn't depend on other pathes.
+"New-style" i2c drivers are drivers which follow the device driver
+model and do not create their own devices (i2c_client). As opposed to
+"legacy" i2c drivers in 2.4 kernels and early 2.6 kernels (and still a
+lot of drivers in the current 2.6 kernel) which create their own
+i2c_client.
 
-> I guess this is 2.6.27 
-> material?
+Ben wrote a guide about converting legacy drivers to new-style drivers:
+  http://marc.info/?l=i2c&m=121250094017709&w=2
+It's not finalized yet. Ben, any chance you could send an updated
+version of the document in the form of a patch, so that I can push it
+upstream?
 
-Yes. No real hurry here.
+If you want to go that route for the zoran driver, you'll have to
+convert some of the chip drivers (at least bt866 and saa7185 if they
+are the ones causing trouble), and also modify the main zoran driver to
+create these devices (using i2c_new_device or i2c_new_probed_device) and
+remove them (using i2c_unregister_device) as needed.
 
-Thanks.
+One problem may be if some of the chip drivers are shared with other
+V4L adapters (apparently the bt866 driver is zoran-only, but I'm not
+sure about the saa7185 driver). In that case you can't just convert
+them to new-style, or you would break the other adapters which expect
+the legacy drivers. So you'd have to make hybrid chip drivers, keeping
+the legacy driver (for other adapters) and adding a new-style driver
+(for zoran.)
 
-Best regards,
-Stefan
+In that case, you probably want to look at what Hans Verkuil did for
+the ivtv and cx18 adapters, and maybe talk to him. He wrote helper
+wrappers to write such hybrid chip drivers easily.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+I am working on merging the legacy driver behavior into new-style
+drivers to make that kind of migration easier, but that's still work in
+progress.
+
+> > > What would be a working approach to fix this situation? I'm woefully
+> > > unaware of the i2c intricacies in the kernel, and know no immediate
+> > > fix.
+> > > 
+> > > Is it possible to register i2c buses that are not visible to drivers
+> > > you modprobe? That would prevent the initial scan of the buses, and
+> > > the misattachments. zoran_card.c explicitly initialize the correct
+> > > drivers after bus creation anyway.
+
+That's not possible with legacy drivers. All legacy chip drivers "see"
+all i2c buses, by design. New-style drivers only "see" what they are
+told to, that's a major difference.
+
+Note that I have a DC10+ somewhere in a drawer, so if you're going to
+convert the zoran drivers to the new-style model, I can help you with
+testing. And if you have questions in the process, feel free to ask.
+I'll be happy to review your patches.
+
+P.S.: I don't know how much energy you are going to put in the zoran
+driver, but I have a number of patches for it, which never made it
+upstream, if you're interested.
+
+-- 
+Jean Delvare
