@@ -1,114 +1,209 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: Multiple Zoran MJPEG cards and i2c misattachments
-Date: Mon, 9 Jun 2008 08:51:10 +0200
-Message-ID: <20080609085110.65de75ae@hyperion.delvare>
-References: <5a8e970805311139r1355cfccy6933605f7b6441b6@mail.gmail.com>
-	<20080601212837.GA10699@fluff.org.uk>
-	<20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
+From: "Amit Walambe" <amit.walambe-ymFC7zkAqBLaL3YF3Y4TSbVCufUGDwFn@public.gmane.org>
+Subject: Re: [PATCH] fix i801_transaction() and ioctl return values
+	for i2c-i801
+Date: Mon, 9 Jun 2008 11:56:56 +0100
+Message-ID: <20080609115656.27d37dc2@eurotech-ltd.co.uk>
+References: <20080606124447.756f8262@eurotech-ltd.co.uk>
+	<20080608201828.18483a17@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757051AbYFIGwH@vger.kernel.org>
-In-Reply-To: <20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Samuelsson <sam.linux.kernel@gmail.com>
-Cc: Ben Dooks <ben@fluff.org>, linux-dvb@linuxtv.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080608201828.18483a17-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sam,
+Hi!
+Over the weekend, I have investigated a bit more and the problem doesn't
+appear on 2.6.23 from Fedora 8. So, this discussion holds value only if
+anyone thinks the problem is a function of latencies (due to 
+responsiveness of the controller and/or other factors) and can surface 
+some other time. Otherwise, put a return 0 right here :). 
 
-On Mon, 2 Jun 2008 11:32:37 +0200, Martin Samuelsson wrote:
-> On Sun, 1 Jun 2008 22:28:37 +0100, Ben Dooks wrote:
-> > On Sat, May 31, 2008 at 08:39:25PM +0200, Martin Samuelsson wrote:
-> > > I'm working on avs6eyes improvements in the current kernel. As I've
-> > > equipped my machine with no less than three MJPEG-cards; Buz, 6 Eyes
-> > > and DC10+, I happened to run into a bit of a snag:
-> > > 
-> > > saa7185, the video encoder of the Buz, and bt866, video encoder of the
-> > > 6 Eyes, share the same i2c address, 0x88. This should not be a
-> > > problem, because they are connected to different i2c buses, and are
-> > > initialized separately. However, zoran_card.c, via i2c_bit_add_bus(),
-> > > creates one i2c bus for each card in the detection loop, and makes
-> > > them available system-wide. This means that the saa7185 driver, as the
-> > > cards are detected in Buz, 6 Eyes, DC10+ order in my computer, is
-> > > being requested by the zoran driver and initializes itself (not very
-> > > much to do, as there is not yet any i2c bus). The zoran driver then
-> > > creates bus 0, and initializes the saa7185 driver once again, it finds
-> > > bus 0 and a chip at 0x88, which it attaches to.
-> > > 
-> > > Now, that bus is visible to the system. The 6 Eyes is being
-> > > initialized, the bt866 driver loaded, and it initializes itself.
-> > > Here's the problem: At load, the drivers automatically searches the
-> > > system for available buses. bt866 finds bus 0, belonging to Buz, and a
-> > > chip at 0x88, which it promptly attaches to, marking itself as in use.
-> > 
-> > Do each of the devices creating the i2c busses know what devices are
-> > on the i2c bus at time of creation? If so then the use of the new
-> > style driver addition and device binding would be far more appropriate
-> > to this, as the i2c devices will be bound depending on the device list
-> > registered at bus creation time.
+I still think the patch is applicable even to the latest kernels. Please 
+bear with me for a bit longish reply.
+
+On Sun, 8 Jun 2008 20:18:28 +0200
+"Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Out of curiosity, why are you using this proprietary utility instead
+> of the standard i2cget and i2cset programs?
 > 
-> I'd say yes, they do. zoran_card.c contain lists detailing chips, and those
-> are available for reference at bus creation time. Would you know of any
-> driver I can look at to see how this new style stuff works? The "new style"
-> i2c things I've encountered so far is the 2.6 i2c subsystem as used when 2.4
-> style drivers are converted with a minimum amount of work involved.
+> > This is the relevant line from the lspci output : 
+> > 00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M)
+> > SMBus Controller (rev 02)
+> 
+> Which kernel is your customer using? There have been a number of
+> improvements done to the i2c-i801 driver over the last year. And what
+> motherboard is this? Please provide the output of i2cdetect for this
+> bus.
+The board is a SBC named Apollo from Eurotech. Kernel is 2.6.9 from
+Fedora 3. (At first, I looked through the latest kernel code to see if
+I can backport any fixes, but there wasn't anything relevant to the
+problem at hand.) 
 
-"New-style" i2c drivers are drivers which follow the device driver
-model and do not create their own devices (i2c_client). As opposed to
-"legacy" i2c drivers in 2.4 kernels and early 2.6 kernels (and still a
-lot of drivers in the current 2.6 kernel) which create their own
-i2c_client.
+i2regs is still around because 'if it works, don't change it' thing.
+Also, it has 'mask' functionality which some people use. We can put
+masks into standard utilities if you wish to do so.
 
-Ben wrote a guide about converting legacy drivers to new-style drivers:
-  http://marc.info/?l=i2c&m=121250094017709&w=2
-It's not finalized yet. Ben, any chance you could send an updated
-version of the document in the form of a patch, so that I can push it
-upstream?
+Here is the i2cdetect output : 
+#./i2cdetect -l
+i2c-0   smbus           SMBus I801 adapter at 1880              SMBus
+adapter
 
-If you want to go that route for the zoran driver, you'll have to
-convert some of the chip drivers (at least bt866 and saa7185 if they
-are the ones causing trouble), and also modify the main zoran driver to
-create these devices (using i2c_new_device or i2c_new_probed_device) and
-remove them (using i2c_unregister_device) as needed.
+> Is there a second master on the SMBus on the customer's system?
+I think you are pointing to the i801 errattum about the second host on
+the same bus. There is a I2C master in ethernet device (for remote
+monitoring etc.) on the same bus but it is disabled in the EPROM
+itself. So it can't generate any traffic. Just to be safe about this,
+we had protocol analyser running on the system and there was no other
+i2c activities going on except that by the script.
 
-One problem may be if some of the chip drivers are shared with other
-V4L adapters (apparently the bt866 driver is zoran-only, but I'm not
-sure about the saa7185 driver). In that case you can't just convert
-them to new-style, or you would break the other adapters which expect
-the legacy drivers. So you'd have to make hybrid chip drivers, keeping
-the legacy driver (for other adapters) and adding a new-style driver
-(for zoran.)
+> > Enabling debug in kernel produced following messages : 
+> > i801_smbus 0000:00:1f.3: Failed reset at end of transaction(01)
+> > i801_smbus 0000:00:1f.3: SMBus busy (01). Resetting... 
+> > i801_smbus 0000:00:1f.3: Failed! (01)
+> > i801_smbus 0000:00:1f.3: SMBus busy (01). Resetting... 
+> > i801_smbus 0000:00:1f.3: Failed! (01)
+> > i801_smbus 0000:00:1f.3: SMBus busy (02). Resetting... 
+> > i801_smbus 0000:00:1f.3: Successfull!
+> > The fix involved was to write a loop to wait for the final reset to
+> > go through. After that, we still see following messages, but
+> > atleast it is not failing over : 
+> > i801_smbus 0000:00:1f.3: SMBus busy (02).Resetting... 
+> > i801_smbus 0000:00:1f.3: Successfull! 
+> > i801_smbus 0000:00:1f.3: SMBus busy (02). Resetting... 
+> > i801_smbus 0000:00:1f.3: Successfull!
+> 
+> Comparing this to the log above, I don't see any change. Resetting
+> when register value was 02 was already working. It's resetting when
+> register value was 01 that was failing, so that's what you need to
+> check with the patch applied.
+I think the problem was that resetting after a transaction was taking a
+bit longer and as we are doing heavy read/writes, the next request
+would arrive, only to find the host controller busy.
+The patch only waits till the operation finishes, so that no subsequent
+transaction gets 01 (busy) error.
+I guess the above log shows that the scenario is taken care by the
+patch. The second condition (02 : INTR bit set : transaction complete)
+is seen by the next transaction rarely and is a status message, not
+failure.
 
-In that case, you probably want to look at what Hans Verkuil did for
-the ivtv and cx18 adapters, and maybe talk to him. He wrote helper
-wrappers to write such hybrid chip drivers easily.
+> > happens because i801_transaction returns -1 for all the failures
+> > and that value is taken up to the user level. So I have changed the
+> > return values to suit the cause better. This is also included in
+> > the same patch. 
+> 
+> We already have a fix pending for this problem:
+> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-adapters-return-proper-error-codes.patch
+> It will be merged in kernel 2.6.27.
+I missed the boat then :)
 
-I am working on merging the legacy driver behavior into new-style
-drivers to make that kind of migration easier, but that's still work in
-progress.
+> First of all: please note that the kernel code uses tabs for
+> indentation, while your patch uses 4 spaces. You'll have to fix your
+> patch.
+I am aware of this. I use vi with 'set tabstop=4' and obtained patch
+using 'git diff > i2c-i801.patch'. Mail client (claws-mail) couldn't
+have messed it up as I used the patch as attachment (and not inline as
+it is expected).
+I am not sure where it went wrong, will check up. Sorry about that.
 
-> > > What would be a working approach to fix this situation? I'm woefully
-> > > unaware of the i2c intricacies in the kernel, and know no immediate
-> > > fix.
-> > > 
-> > > Is it possible to register i2c buses that are not visible to drivers
-> > > you modprobe? That would prevent the initial scan of the buses, and
-> > > the misattachments. zoran_card.c explicitly initialize the correct
-> > > drivers after bus creation anyway.
+> I am very worried by the code 01 which triggers the reset (which is
+> probably not the right thing to do, BTW.) The host should never be
+> busy when we start a transaction. If the problem happens frequently,
+I think we have a case where it is busy because the final operation
+(resetting the status bits) in the last transaction didn't finish. 
+I first tried to reduce reads/writes for the reset to make it "less
+busy" and added a small delay, but it didn't work : 
+diff --git a/drivers/i2c/busses/i2c-i801.c
+b/drivers/i2c/busses/i2c-i801.c index b0f771f..0dde673 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -195,9 +195,10 @@ static int i801_transaction(int xact)
+                dev_dbg(&I801_dev->dev, "Error: no response!\n");
+        }
+ 
+-       if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
+-               outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++       if ((temp = (inb_p(SMBHSTSTS) & 0x1f)) != 0x00)
++               outb_p(temp, SMBHSTSTS);
+ 
++       msleep(1);
+        if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+                dev_dbg(&I801_dev->dev, "Failed reset at end of
+transaction " "(%02x)\n", temp);
 
-That's not possible with legacy drivers. All legacy chip drivers "see"
-all i2c buses, by design. New-style drivers only "see" what they are
-told to, that's a major difference.
+> this strongly suggests that some other code is making use of the host
+> controller. This could for example be ACPI code. Please provide the
+> DSDT for this machine (in private.)
+I can assure you that there are no other transactions on the bus. We
+verified using an analyser.
 
-Note that I have a DC10+ somewhere in a drawer, so if you're going to
-convert the zoran drivers to the new-style model, I can help you with
-testing. And if you have questions in the process, feel free to ask.
-I'll be happy to review your patches.
+> If something else is making use of the SMBus host then the i2c-i801
+> driver can't use it safely, no matter how you look at it. So my
+> feeling is that your patch, if it does anything, is not actually
+> solving the problem but only hiding it or making it less likely to
+> happen.
+I think I didn't provide sufficient information last time. Apologies.
+Please let me know what you think now. This is the patch which I ran
+over the weekend without any failures : 
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index b0f771f..d165829 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -198,9 +198,17 @@ static int i801_transaction(int xact)
+        if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
+                outb_p(inb(SMBHSTSTS), SMBHSTSTS);
+ 
+-       if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
+-               dev_dbg(&I801_dev->dev, "Failed reset at end of transaction "
+-                       "(%02x)\n", temp);
++       /* We wait for a fraction of a second! */
++       do {
++               msleep(1);
++               temp = inb_p(SMBHSTSTS);
++       } while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
++
++       /* If the SMBus is still busy, we give up */
++       if (timeout >= MAX_TIMEOUT) {
++               result = -EBUSY;
++               dev_dbg(&I801_dev->dev, "Failed reset at end of transaction"
++                               "(%02x)\n", temp);
+        }
+        dev_dbg(&I801_dev->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
+                "ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
 
-P.S.: I don't know how much energy you are going to put in the zoran
-driver, but I have a number of patches for it, which never made it
-upstream, if you're interested.
+Thanks and regards
 
 -- 
-Jean Delvare
+Amit Walambe
+Design Engineer
+
+Eurotech Ltd,
+3 Clifton Court,
+Cambridge CB1 7BN,
+United Kingdom.
+
+Tel: +44 (0)1223 403465 Direct
+Tel: +44 (0)1223 411200 Switchboard
+Fax: +44 (0)1223 410457
+E-Mail: amit.walambe-ymFC7zkAqBLaL3YF3Y4TSbVCufUGDwFn@public.gmane.org
+Web: http://www.eurotech-ltd.co.uk
+
+Eurotech Ltd is a subsidiary of Eurotech S.p.A
+VAT No. GB 314961067    Registered in England 1608562
+Registered Office: 3 Clifton Court, Clifton Road, Cambridge CB1 7BN  UK
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
