@@ -1,15 +1,15 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] Add a new-style driver for most I2C EEPROMs
-Date: Sun, 8 Jun 2008 13:26:50 -0700
-Message-ID: <200806081326.50442.david-b@pacbell.net>
-References: <1210883799-25188-1-git-send-email-w.sang@pengutronix.de>
-	<200806031336.35678.david-b@pacbell.net>
-	<20080608104038.006be072@hyperion.delvare>
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c-ibm_iic: Enable driver for all PPC4xx
+	variants in arch/powerpc
+Date: Mon, 9 Jun 2008 06:48:24 +0200
+Message-ID: <200806090648.24339.sr@denx.de>
+References: <1212653453-26093-1-git-send-email-sr@denx.de>
+	<20080608144843.58857324@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080608104038.006be072-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080608144843.58857324-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -21,34 +21,58 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
+
 On Sunday 08 June 2008, Jean Delvare wrote:
-> On Tue, 3 Jun 2008 13:36:35 -0700, David Brownell wrote:
-> > I personally won't worry much about 24c00 chips; I have some for
-> > testing, but haven't seen new systems using them for some time.
-> > It was news for me that they exist on DDC links!
-> 
-> Actually I don't think there are 24C00 chips on DDC links. These chips
-> only provide 128 bit (16 bytes) of storage space, which is insufficient
-> to hold EDID data. So I think these are 24C01 chips (1 kb) which
-> behave like the 24C00 as far as I2C addressing is concerned (i.e.
-> answering to all addresses 0x50-0x57.) Apparently Atmel make such
-> chips (the datasheet doesn't mention any I2C address, and the 3 EEPROM
-> pins which are typically used for address selection are labelled "NC".)
+> > This patch enables the IBM I2C driver for all PPC4xx variants by adding
+> > "ibm,iic" to the compatible list. This way all currently available
+> > arch/powerpc 4xx ports can make use of this driver without any changes.
+> > Additionally all "other" compatible entries are removed since they are
+> > not needed anymore.
+> >
+> > Currently all 4xx PPC's have the same compatible I2C macro. If at some
+> > time an incompatibility is detected we can take care of this with an
+> > additional property.
+> >
+> > Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-ibm_iic.c |    6 +-----
+> >  1 files changed, 1 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-ibm_iic.c
+> > b/drivers/i2c/busses/i2c-ibm_iic.c index 3a364a7..ed73801 100644
+> > --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> > +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> > @@ -807,11 +807,7 @@ static int __devexit iic_remove(struct of_device
+> > *ofdev) }
+> >
+> >  static const struct of_device_id ibm_iic_match[] = {
+> > -	{ .compatible = "ibm,iic-405ex", },
+> > -	{ .compatible = "ibm,iic-405gp", },
+> > -	{ .compatible = "ibm,iic-440gp", },
+> > -	{ .compatible = "ibm,iic-440gpx", },
+> > -	{ .compatible = "ibm,iic-440grx", },
+> > +	{ .compatible = "ibm,iic", },
+> >  	{}
+> >  };
+>
+> OK, I can take this in my tree, unless it depends on arch-specific
+> patches which have not hit mainline yet.
 
-I see.  The only data sheet I had handy lists 24c01A parts,
-which *do* have address pins, not marked as NC ("No Connect").
-But I see the 24c01 is as you describe, though it's "not for
-new designs".
+No, this doesn't depend on other pathes.
 
-And I'm a bit puzzled how the SOT23-5 package for the 24c01B
-parts will be addressed ... those signals aren't pinned out
-there (couldn't be!), and the address doesn't appear to be an
-option which is exposed in the part number.
+> I guess this is 2.6.27 
+> material?
 
-- Dave
+Yes. No real hurry here.
+
+Thanks.
+
+Best regards,
+Stefan
 
 _______________________________________________
 i2c mailing list
