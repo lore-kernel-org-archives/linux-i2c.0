@@ -1,14 +1,14 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver
-	(with	device_ids)
-Date: Tue, 10 Jun 2008 15:43:47 +0200
-Message-ID: <20080610134347.GA4210@pengutronix.de>
-References: <20080605193103.GA13062@pengutronix.de>
-	<20080608115033.5dd91786@hyperion.delvare>
+From: arnd-r2nGTMty4D4@public.gmane.org
+Subject: [PATCH 3/5] powerpc/ibm_iic: remove support for OCP
+Date: Tue, 10 Jun 2008 16:27:05 +0200
+Message-ID: <20080610142947.974805307@arndb.de>
+References: <20080610142702.354823071@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9063509624776735568=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080608115033.5dd91786-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline;
+	filename=0003-powerpc-ibm_iic-remove-support-for-OCP.patch
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,134 +18,233 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linuxppc-dev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+OCP is dead, so all code referring to it can go away as well.
 
---===============9063509624776735568==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ibm_iic.c |  181 --------------------------------------
+ 1 files changed, 0 insertions(+), 181 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index 85dbf34..3a364a7 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -42,13 +42,7 @@
+ #include <asm/io.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-id.h>
+-
+-#ifdef CONFIG_IBM_OCP
+-#include <asm/ocp.h>
+-#include <asm/ibm4xx.h>
+-#else
+ #include <linux/of_platform.h>
+-#endif
+ 
+ #include "i2c-ibm_iic.h"
+ 
+@@ -665,180 +659,6 @@ static inline u8 iic_clckdiv(unsigned int opb)
+ 	return (u8)((opb + 9) / 10 - 1);
+ }
+ 
+-#ifdef CONFIG_IBM_OCP
+-/*
+- * Register single IIC interface
+- */
+-static int __devinit iic_probe(struct ocp_device *ocp){
+-
+-	struct ibm_iic_private* dev;
+-	struct i2c_adapter* adap;
+-	struct ocp_func_iic_data* iic_data = ocp->def->additions;
+-	int ret;
+-
+-	if (!iic_data)
+-		printk(KERN_WARNING"ibm-iic%d: missing additional data!\n",
+-			ocp->def->index);
+-
+-	if (!(dev = kzalloc(sizeof(*dev), GFP_KERNEL))) {
+-		printk(KERN_ERR "ibm-iic%d: failed to allocate device data\n",
+-			ocp->def->index);
+-		return -ENOMEM;
+-	}
+-
+-	dev->idx = ocp->def->index;
+-	ocp_set_drvdata(ocp, dev);
+-
+-	if (!request_mem_region(ocp->def->paddr, sizeof(struct iic_regs),
+-				"ibm_iic")) {
+-		ret = -EBUSY;
+-		goto fail1;
+-	}
+-
+-	if (!(dev->vaddr = ioremap(ocp->def->paddr, sizeof(struct iic_regs)))){
+-		printk(KERN_ERR "ibm-iic%d: failed to ioremap device registers\n",
+-			dev->idx);
+-		ret = -ENXIO;
+-		goto fail2;
+-	}
+-
+-	init_waitqueue_head(&dev->wq);
+-
+-	dev->irq = iic_force_poll ? -1 : ocp->def->irq;
+-	if (dev->irq >= 0){
+-		/* Disable interrupts until we finish initialization,
+-		   assumes level-sensitive IRQ setup...
+-		 */
+-		iic_interrupt_mode(dev, 0);
+-		if (request_irq(dev->irq, iic_handler, 0, "IBM IIC", dev)){
+-			printk(KERN_ERR "ibm-iic%d: request_irq %d failed\n",
+-				dev->idx, dev->irq);
+-			/* Fallback to the polling mode */
+-			dev->irq = -1;
+-		}
+-	}
+-
+-	if (dev->irq < 0)
+-		printk(KERN_WARNING "ibm-iic%d: using polling mode\n",
+-			dev->idx);
+-
+-	/* Board specific settings */
+-	dev->fast_mode = iic_force_fast ? 1 : (iic_data ? iic_data->fast_mode : 0);
+-
+-	/* clckdiv is the same for *all* IIC interfaces,
+-	 * but I'd rather make a copy than introduce another global. --ebs
+-	 */
+-	dev->clckdiv = iic_clckdiv(ocp_sys_info.opb_bus_freq);
+-	DBG("%d: clckdiv = %d\n", dev->idx, dev->clckdiv);
+-
+-	/* Initialize IIC interface */
+-	iic_dev_init(dev);
+-
+-	/* Register it with i2c layer */
+-	adap = &dev->adap;
+-	adap->dev.parent = &ocp->dev;
+-	strcpy(adap->name, "IBM IIC");
+-	i2c_set_adapdata(adap, dev);
+-	adap->id = I2C_HW_OCP;
+-	adap->class = I2C_CLASS_HWMON;
+-	adap->algo = &iic_algo;
+-	adap->client_register = NULL;
+-	adap->client_unregister = NULL;
+-	adap->timeout = 1;
+-
+-	/*
+-	 * If "dev->idx" is negative we consider it as zero.
+-	 * The reason to do so is to avoid sysfs names that only make
+-	 * sense when there are multiple adapters.
+-	 */
+-	adap->nr = dev->idx >= 0 ? dev->idx : 0;
+-
+-	if ((ret = i2c_add_numbered_adapter(adap)) < 0) {
+-		printk(KERN_ERR "ibm-iic%d: failed to register i2c adapter\n",
+-			dev->idx);
+-		goto fail;
+-	}
+-
+-	printk(KERN_INFO "ibm-iic%d: using %s mode\n", dev->idx,
+-		dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
+-
+-	return 0;
+-
+-fail:
+-	if (dev->irq >= 0){
+-		iic_interrupt_mode(dev, 0);
+-		free_irq(dev->irq, dev);
+-	}
+-
+-	iounmap(dev->vaddr);
+-fail2:
+-	release_mem_region(ocp->def->paddr, sizeof(struct iic_regs));
+-fail1:
+-	ocp_set_drvdata(ocp, NULL);
+-	kfree(dev);
+-	return ret;
+-}
+-
+-/*
+- * Cleanup initialized IIC interface
+- */
+-static void __devexit iic_remove(struct ocp_device *ocp)
+-{
+-	struct ibm_iic_private* dev = (struct ibm_iic_private*)ocp_get_drvdata(ocp);
+-	BUG_ON(dev == NULL);
+-	if (i2c_del_adapter(&dev->adap)){
+-		printk(KERN_ERR "ibm-iic%d: failed to delete i2c adapter :(\n",
+-			dev->idx);
+-		/* That's *very* bad, just shutdown IRQ ... */
+-		if (dev->irq >= 0){
+-		    iic_interrupt_mode(dev, 0);
+-		    free_irq(dev->irq, dev);
+-		    dev->irq = -1;
+-		}
+-	} else {
+-		if (dev->irq >= 0){
+-		    iic_interrupt_mode(dev, 0);
+-		    free_irq(dev->irq, dev);
+-		}
+-		iounmap(dev->vaddr);
+-		release_mem_region(ocp->def->paddr, sizeof(struct iic_regs));
+-		kfree(dev);
+-	}
+-}
+-
+-static struct ocp_device_id ibm_iic_ids[] __devinitdata =
+-{
+-	{ .vendor = OCP_VENDOR_IBM, .function = OCP_FUNC_IIC },
+-	{ .vendor = OCP_VENDOR_INVALID }
+-};
+-
+-MODULE_DEVICE_TABLE(ocp, ibm_iic_ids);
+-
+-static struct ocp_driver ibm_iic_driver =
+-{
+-	.name 		= "iic",
+-	.id_table	= ibm_iic_ids,
+-	.probe		= iic_probe,
+-	.remove		= __devexit_p(iic_remove),
+-#if defined(CONFIG_PM)
+-	.suspend	= NULL,
+-	.resume		= NULL,
+-#endif
+-};
+-
+-static int __init iic_init(void)
+-{
+-	printk(KERN_INFO "IBM IIC driver v" DRIVER_VERSION "\n");
+-	return ocp_register_driver(&ibm_iic_driver);
+-}
+-
+-static void __exit iic_exit(void)
+-{
+-	ocp_unregister_driver(&ibm_iic_driver);
+-}
+-
+-#else  /* !CONFIG_IBM_OCP */
+-
+ static int __devinit iic_request_irq(struct of_device *ofdev,
+ 				     struct ibm_iic_private *dev)
+ {
+@@ -1011,7 +831,6 @@ static void __exit iic_exit(void)
+ {
+ 	of_unregister_platform_driver(&ibm_iic_driver);
+ }
+-#endif /* CONFIG_IBM_OCP */
+ 
+ module_init(iic_init);
+ module_exit(iic_exit);
+-- 
+1.5.4.3
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-- 
 
-Hi Jean,
-
-thanks again for your review!
-
-> As said before, I don't think it's needed, but if you and David insist
-> on picking all addresses of the 24C00, so be it.
-
-A new issue is now that some 24C01 also have this behaviour, so I guess the
-flag should be renamed from AT24_FLAG_24C00 to AT24_FLAG_TAKE8ADDR or
-something.
-
-> > +/*--------------------------------------------------------------------=
------*/
-> > +
-> > +static int at24_probe(struct i2c_client *client, const struct i2c_devi=
-ce_id *id)
-> > +{
-> > +	struct at24_platform_data *chip;
-> > +	bool writable;
-> > +	bool use_smbus =3D false;
-> > +	struct at24_data *at24;
-> > +	int err;
-> > +	unsigned i, num_addresses;
-> > +	kernel_ulong_t magic;
-> > +
-> > +	if (id->driver_data) {
-> > +		chip =3D kmalloc(sizeof(struct at24_platform_data), GFP_KERNEL);
-> > +		if (!chip) {
->
-> You allocate this just to copy it to another structure and free it
-> immediately. Allocating the other structure (struct at24_data) earlier
-> would save this temporary allocation. Alternatively, just put the struct
-> at24_platform_data on the stack, it's small enough to do so.
-
-I can't allocate at24_data beforehand, as I need to know num_addresses,
-so I can then calculate the actual size of at24_data. Will use the stack.
-
-> > +		if (!at24->client[i]) {
-> > +			dev_err(&client->dev, "address 0x%04x unavailable\n",
->=20
-> These are 7-bit addresses, so: 0x%02x.
-
-I was unsure because of the 10-bit-addresses (and %03x looked even more
-unusual). Will revert to %02x.
-
-> > +/*
-> > + * Chip data. Parameters are byte_len, page_size and flags
-> > + */
-> > +
-> > +/* 128 bit chip, I2C A0-A2 ignored */
-> > +#define AT24_DATA_24C00 128 / 8, 1, AT24_FLAG_24C00
-> > +
-> > +/* 1 Kbit chip, some have 16 byte pages: 24lc014, ... */
-> > +#define AT24_DATA_24C01 1024 / 8, 8, 0
->=20
-> The Atmel 24C01 datasheet says page size is 4 bytes, and the Microchip
-> 24C01A datasheet says 2 bytes. So defaulting to 8 doesn't look safe.
-
-Will go back to 2 because of Microchip. But 24C01 seems to have lots of
-variants, which makes a generic entry difficult. Some would need
-AT24_FLAG_24C00 (doesn't really matter), and AT24C01 needs 128
-addresses?? (please, someone, prove me wrong)
-
-> You're going to quite some extent to obfuscate simple things ;) All
-
-I wanted to make the transition from at24_v2 to at24_v3 easier by
-reusing the defines containing chip data. I agree though, that the
-benefit is mainly for those who already dared to use this driver (is
-there anyone besides David and me?), and not for upstream. Will try to
-make it more simple.
-
-> In the end, the only things that must go in at24.h are the definition
-> of struct at24_platform_data and its flags. All the rest is internal to
-> the driver and should go in at24.c.
-
-I wanted to have the AT24_SIZE_* flags next to the struct, so I won't
-forget to change their size if anything inside the struct will change.
-Then again, I might work with sizeof here; the result will probably look
-a bit nasty, too...
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfralfum Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIToUTD27XaX1/VRsRAun8AKChsbNQDk/dRJoLtAOY8vw4GiPSuwCgyVKA
-hrROQCmzzKtp8s/uqarGYiA=
-=xOao
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--
-
-
---===============9063509624776735568==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============9063509624776735568==--
