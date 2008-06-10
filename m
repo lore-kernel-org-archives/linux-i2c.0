@@ -1,54 +1,91 @@
 From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: Frame buffers and early i2c
-Date: Tue, 10 Jun 2008 08:25:27 +0200
-Message-ID: <20080610082527.0e6d643a@hyperion.delvare>
-References: <200806091647.42757.u.luckas@road.de>
-	<20080609205212.4b0f1ba6@hyperion.delvare>
-	<200806092359.36080.u.luckas@road.de>
+Subject: Re: [PATCH, RFC] Earlier I2C initialization
+Date: Tue, 10 Jun 2008 08:57:08 +0200
+Message-ID: <20080610085708.12c2d2a2@hyperion.delvare>
+References: <200806091541.43899.u.luckas@road.de>
+	<20080609135739.GE30971@flint.arm.linux.org.uk>
+	<484D947D.1090900@bluewatersys.com>
+	<200806091359.12791.david-b@pacbell.net>
+	<484DA046.4010804@bluewatersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754787AbYFJG0T@vger.kernel.org>
-In-Reply-To: <200806092359.36080.u.luckas@road.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752355AbYFJG5z@vger.kernel.org>
+In-Reply-To: <484DA046.4010804@bluewatersys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uli Luckas <u.luckas@road.de>
-Cc: linux-kernel@vger.kernel.org, adaplas@gmail.com, Linux I2C <i2c@lm-sensors.org>
+To: Ryan Mallon <ryan@bluewatersys.com>
+Cc: David Brownell <david-b@pacbell.net>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uli,
+On Tue, 10 Jun 2008 09:27:34 +1200, Ryan Mallon wrote:
+> David Brownell wrote:
+> > On Monday 09 June 2008, Ryan Mallon wrote:
+> >   
+> >>> Talk to i2c and framebuffer people about changing the link order.
+> >>>
+> >>> i2c should really be initialised before framebuffer devices because
+> >>> framebuffer devices tend to want to read DDC from monitors, which is
+> >>> basically a I2C EEPROM in the monitor.
 
-On Mon, 9 Jun 2008 23:59:35 +0200, Uli Luckas wrote:
-> On Monday 09 June 2008, Jean Delvare wrote:
-> > Why don't you ask on the i2c mailing list? Cc added.
->
-> I wanted to get i2c developers plus frame buffer and other i2c client 
-> developers involved. Crossposting to more then 2 lists seemed wrong.
+This is already the case. i2c-core is initialized with
+subsys_initcall(), so it's available to all drivers initialized with
+module_init().
 
-So you prefer to post to one random list than the two lists where your
-target audience is? Interesting approach. If you really don't want to
-post to two lists at once, just send two separate posts?
+> >>> ... but there's probably some reason why it's done the way it is today,
+> >>> and changing it could well cause stuff to break.
+> >>>       
+> >> We have made i2c the first driver subsystem to come up in our 2.6.20
+> >> kernel since we use i2c io expanders for power domain control. All we
+> >> did was change drivers/Makefile so that obj-$(CONFIG_I2C) += i2c/ is at
+> >> the very top of the file. We didn't have any problems with doing this.
+> >> YMMV of course.
 
-> > Interestingly enough, they appear to do fine, despite the linking
-> > order. Maybe because i2c_init is a subsys_initcall() while framebuffer
-> > drivers are initialized with module_init()? Then I'm not sure why your
-> > own driver has a problem there.
+Why don't you simply initialize the drivers in question with
+subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
+tps65010 are doing at the moment.
+
+> > OMAP does much the same thing, for the same reason, and the I2C
+> > adapter gets initialized earlier too (so power management chips
+> > will be fully usable before driver_initcall code runs).
 > >
-> Well, this is only very partially true. Try:
-> rgrep -l subsys_initcall drivers/i2c/
-> rgrep -l module_init drivers/i2c/
+> > Unless there's a downside on x86, I'd just suggest someone submit
+> > a patch moving I2C init "early" so it merges in 2.6.27 ... cc to
+> > LKML to scare out more potential problems, but I have a hard time
+> > imagining there'd really be any.
+>
+> Okay, heres the patch. Is untested though (other than our experience 
+> under 2.6.20), so it probably needs some people to test. I'm not 
+> subscribed to LKML, so can people CC me if necessary.
 > 
-> The last of which gives drivers/i2c/busses/i2c-pxa.c for example.
+> Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
+> 
+> diff --git a/drivers/Makefile b/drivers/Makefile
+> index f65deda..9eaf236 100644
+> --- a/drivers/Makefile
+> +++ b/drivers/Makefile
+> @@ -5,6 +5,7 @@
+>  # Rewritten to use lists instead of if-statements.
+>  #
+>  
+> +obj-y				+= i2c/
+>  obj-$(CONFIG_HAVE_GPIO_LIB)	+= gpio/
 
-Sorry, I didn't understand what you wanted originally. I thought you
-only wanted the i2c-core up before pxafb (which is in fact already the
-case) while what you actually want it i2c-pxa up before pxafb (which
-isn't yet the case.)
+Some i2c bus drivers bit-bang GPIO pins...
 
-> I'll change the pxa i2c driver to subsys_initcall and try if that works when I 
-> get back to my desk tomorrow.
+>  obj-$(CONFIG_PCI)		+= pci/
 
-I expect it to work, as apparently other platforms are doing exactly
-that already.
+... and many are PCI devices, so will this work OK?
+
+>  obj-$(CONFIG_PARISC)		+= parisc/
+> @@ -61,7 +62,6 @@ obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+>  obj-$(CONFIG_INPUT)		+= input/
+>  obj-$(CONFIG_I2O)		+= message/
+>  obj-$(CONFIG_RTC_LIB)		+= rtc/
+> -obj-y				+= i2c/
+>  obj-$(CONFIG_W1)		+= w1/
+>  obj-$(CONFIG_POWER_SUPPLY)	+= power/
+>  obj-$(CONFIG_HWMON)		+= hwmon/
+
 
 -- 
 Jean Delvare
