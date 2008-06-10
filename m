@@ -1,65 +1,79 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
- device_ids)
-Date: Tue, 10 Jun 2008 18:54:43 +0200
-Message-ID: <20080610185443.14a4516e@hyperion.delvare>
-References: <20080605193103.GA13062@pengutronix.de>
-	<20080608115033.5dd91786@hyperion.delvare>
-	<20080610134347.GA4210@pengutronix.de>
+From: Martin Samuelsson <sam.linux.kernel@gmail.com>
+Subject: Re: Multiple Zoran MJPEG cards and i2c misattachments
+Date: Tue, 10 Jun 2008 19:48:50 +0200
+Message-ID: <20080610194850.71b30d73.sam.linux.kernel@gmail.com>
+References: <5a8e970805311139r1355cfccy6933605f7b6441b6@mail.gmail.com>
+	<20080601212837.GA10699@fluff.org.uk>
+	<20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
+	<20080609085110.65de75ae@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080610134347.GA4210-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756530AbYFJRtH@vger.kernel.org>
+In-Reply-To: <20080609085110.65de75ae@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ben Dooks <ben@fluff.org>, linux-dvb@linuxtv.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 10 Jun 2008 15:43:47 +0200, Wolfram Sang wrote:
-> > The Atmel 24C01 datasheet says page size is 4 bytes, and the Microchip
-> > 24C01A datasheet says 2 bytes. So defaulting to 8 doesn't look safe.
+On Mon, 9 Jun 2008 08:51:10 +0200
+Jean Delvare <khali@linux-fr.org> wrote:
+
+Hi, Jean!
+ 
+> > I'd say yes, they do. zoran_card.c contain lists detailing chips, and those
+> > are available for reference at bus creation time. Would you know of any
+> > driver I can look at to see how this new style stuff works? The "new style"
+> > i2c things I've encountered so far is the 2.6 i2c subsystem as used when 2.4
+> > style drivers are converted with a minimum amount of work involved.
 > 
-> Will go back to 2 because of Microchip. But 24C01 seems to have lots of
-> variants, which makes a generic entry difficult. Some would need
+> "New-style" i2c drivers are drivers which follow the device driver
+> model and do not create their own devices (i2c_client). As opposed to
+> "legacy" i2c drivers in 2.4 kernels and early 2.6 kernels (and still a
+> lot of drivers in the current 2.6 kernel) which create their own
+> i2c_client.
 
-Feel free to not make a generic entry at all if you think it's not
-worth it.
+That explains things. Good, then that should be the route to take.
 
-> AT24_FLAG_24C00 (doesn't really matter), and AT24C01 needs 128
-> addresses?? (please, someone, prove me wrong)
+> Ben wrote a guide about converting legacy drivers to new-style drivers:
+>   http://marc.info/?l=i2c&m=121250094017709&w=2
 
-Why do you think so? My personal guess is that they simply forgot to
-mention the address in the datasheet. A chip responding to all
-addresses would prevent any other chip from being connected to the bus,
-that's impractical enough to be reasonably certain that no manufacturer
-did this.
+Excellent, it looks simple enough.
 
-> > In the end, the only things that must go in at24.h are the definition
-> > of struct at24_platform_data and its flags. All the rest is internal to
-> > the driver and should go in at24.c.
+> If you want to go that route for the zoran driver, you'll have to
+> convert some of the chip drivers (at least bt866 and saa7185 if they
+> are the ones causing trouble), and also modify the main zoran driver to
+> create these devices (using i2c_new_device or i2c_new_probed_device) and
+> remove them (using i2c_unregister_device) as needed.
+
+bt866 belongs to the avs6eyes part of the zoran driver, while saa7185 belongs to the buz one.
+
+> One problem may be if some of the chip drivers are shared with other
+> V4L adapters (apparently the bt866 driver is zoran-only, but I'm not
+> sure about the saa7185 driver). In that case you can't just convert
+> them to new-style, or you would break the other adapters which expect
+> the legacy drivers. So you'd have to make hybrid chip drivers, keeping
+> the legacy driver (for other adapters) and adding a new-style driver
+> (for zoran.)
 > 
-> I wanted to have the AT24_SIZE_* flags next to the struct, so I won't
-> forget to change their size if anything inside the struct will change.
-> Then again, I might work with sizeof here; the result will probably look
-> a bit nasty, too...
+> In that case, you probably want to look at what Hans Verkuil did for
+> the ivtv and cx18 adapters, and maybe talk to him. He wrote helper
+> wrappers to write such hybrid chip drivers easily.
 
-I see, it makes some sense to keep these flags around then. But then
-please add a warning that these are for the driver internal use only
-and shouldn't be considered stable.
+That sounds good, too. Breaking other people's drivers isn't nice.
 
--- 
-Jean Delvare
+> Note that I have a DC10+ somewhere in a drawer, so if you're going to
+> convert the zoran drivers to the new-style model, I can help you with
+> testing. And if you have questions in the process, feel free to ask.
+> I'll be happy to review your patches.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Very good indeed. I'd work on some other chips, too, but there should be people that can test those not on the DC10+.
+
+> P.S.: I don't know how much energy you are going to put in the zoran
+> driver, but I have a number of patches for it, which never made it
+> upstream, if you're interested.
+
+I'm not going to commit myself to it full time. Not even half time or anything resembling that, because I seldom get away from life long enough for serious hacking. Zoran improvements are good, though, and if you don't have the time to commit them, I might do.
+
+Regards,
+/Sam
