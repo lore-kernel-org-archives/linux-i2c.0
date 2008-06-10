@@ -1,79 +1,34 @@
-From: Martin Samuelsson <sam.linux.kernel@gmail.com>
-Subject: Re: Multiple Zoran MJPEG cards and i2c misattachments
-Date: Tue, 10 Jun 2008 19:48:50 +0200
-Message-ID: <20080610194850.71b30d73.sam.linux.kernel@gmail.com>
-References: <5a8e970805311139r1355cfccy6933605f7b6441b6@mail.gmail.com>
-	<20080601212837.GA10699@fluff.org.uk>
-	<20080602113237.e6094cfd.sam.linux.kernel@gmail.com>
-	<20080609085110.65de75ae@hyperion.delvare>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 3/5] powerpc/ibm_iic: remove support for OCP
+Date: Tue, 10 Jun 2008 20:40:13 +0200
+Message-ID: <200806102040.13516.arnd@arndb.de>
+References: <20080610142702.354823071@arndb.de>
+	<20080610142947.974805307@arndb.de>
+	<20080611022442.80fc8092.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756530AbYFJRtH@vger.kernel.org>
-In-Reply-To: <20080609085110.65de75ae@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Ben Dooks <ben@fluff.org>, linux-dvb@linuxtv.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080611022442.80fc8092.sfr@canb.auug.org.au>
+Content-Disposition: inline
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: linuxppc-dev@ozlabs.org
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, paulus@samba.org, i2c@lm-sensors.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 9 Jun 2008 08:51:10 +0200
-Jean Delvare <khali@linux-fr.org> wrote:
+On Tuesday 10 June 2008, Stephen Rothwell wrote:
+> There is already a patch in the i2c tree to do this one. =A0Commit id
+> c73327b0f4d96f76a9b57eecdc7594a98c04ab62 ("i2c-ibm_iic: Remove deprecated
+> OCP style part") in today's linux-next tree if you want to compare.
 
-Hi, Jean!
- 
-> > I'd say yes, they do. zoran_card.c contain lists detailing chips, and those
-> > are available for reference at bus creation time. Would you know of any
-> > driver I can look at to see how this new style stuff works? The "new style"
-> > i2c things I've encountered so far is the 2.6 i2c subsystem as used when 2.4
-> > style drivers are converted with a minimum amount of work involved.
-> 
-> "New-style" i2c drivers are drivers which follow the device driver
-> model and do not create their own devices (i2c_client). As opposed to
-> "legacy" i2c drivers in 2.4 kernels and early 2.6 kernels (and still a
-> lot of drivers in the current 2.6 kernel) which create their own
-> i2c_client.
+Ok, I removed it from my git tree now.
 
-That explains things. Good, then that should be the route to take.
-
-> Ben wrote a guide about converting legacy drivers to new-style drivers:
->   http://marc.info/?l=i2c&m=121250094017709&w=2
-
-Excellent, it looks simple enough.
-
-> If you want to go that route for the zoran driver, you'll have to
-> convert some of the chip drivers (at least bt866 and saa7185 if they
-> are the ones causing trouble), and also modify the main zoran driver to
-> create these devices (using i2c_new_device or i2c_new_probed_device) and
-> remove them (using i2c_unregister_device) as needed.
-
-bt866 belongs to the avs6eyes part of the zoran driver, while saa7185 belongs to the buz one.
-
-> One problem may be if some of the chip drivers are shared with other
-> V4L adapters (apparently the bt866 driver is zoran-only, but I'm not
-> sure about the saa7185 driver). In that case you can't just convert
-> them to new-style, or you would break the other adapters which expect
-> the legacy drivers. So you'd have to make hybrid chip drivers, keeping
-> the legacy driver (for other adapters) and adding a new-style driver
-> (for zoran.)
-> 
-> In that case, you probably want to look at what Hans Verkuil did for
-> the ivtv and cx18 adapters, and maybe talk to him. He wrote helper
-> wrappers to write such hybrid chip drivers easily.
-
-That sounds good, too. Breaking other people's drivers isn't nice.
-
-> Note that I have a DC10+ somewhere in a drawer, so if you're going to
-> convert the zoran drivers to the new-style model, I can help you with
-> testing. And if you have questions in the process, feel free to ask.
-> I'll be happy to review your patches.
-
-Very good indeed. I'd work on some other chips, too, but there should be people that can test those not on the DC10+.
-
-> P.S.: I don't know how much energy you are going to put in the zoran
-> driver, but I have a number of patches for it, which never made it
-> upstream, if you're interested.
-
-I'm not going to commit myself to it full time. Not even half time or anything resembling that, because I seldom get away from life long enough for serious hacking. Zoran improvements are good, though, and if you don't have the time to commit them, I might do.
-
-Regards,
-/Sam
+	Arnd <><
