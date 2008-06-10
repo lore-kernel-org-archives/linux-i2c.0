@@ -1,61 +1,55 @@
-From: Uli Luckas <u.luckas@road.de>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Tue, 10 Jun 2008 11:46:11 +0200
-Message-ID: <200806101146.11915.u.luckas@road.de>
-References: <200806091541.43899.u.luckas@road.de> <20080610085708.12c2d2a2@hyperion.delvare> <484EF343.9090102@bluewatersys.com>
+From: Ben Dooks <ben@fluff.org>
+Subject: Re: [i2c] Frame buffers and early i2c
+Date: Tue, 10 Jun 2008 11:02:50 +0100
+Message-ID: <20080610100249.GA30539@fluff.org.uk>
+References: <200806091647.42757.u.luckas@road.de> <200806092359.36080.u.luckas@road.de> <20080610082527.0e6d643a@hyperion.delvare> <200806101131.19763.u.luckas@road.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756856AbYFJJqW@vger.kernel.org>
-In-Reply-To: <484EF343.9090102@bluewatersys.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760294AbYFJKDU@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <200806101131.19763.u.luckas@road.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ryan Mallon <ryan@bluewatersys.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+To: Uli Luckas <u.luckas@road.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, adaplas@gmail.com, David Brownell <david-b@pacbell.net>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-OT: David Brownell, I get bounces from your mail server refering me to a site 
-that is down:
-http://worldnet.att.net/general-info/bls_info/block_inquiry.html
-
-On Tuesday, 10. June 2008, Ryan Mallon wrote:
-> Jean Delvare wrote:
-> > On Tue, 10 Jun 2008 09:27:34 +1200, Ryan Mallon wrote:
-> >> David Brownell wrote:
-> >>> On Monday 09 June 2008, Ryan Mallon wrote:
-> >>>> We have made i2c the first driver subsystem to come up in our 2.6.20
-> >>>> kernel since we use i2c io expanders for power domain control. All we
-> >>>> did was change drivers/Makefile so that obj-$(CONFIG_I2C) += i2c/ is
-> >>>> at the very top of the file. We didn't have any problems with doing
-> >>>> this. YMMV of course.
+On Tue, Jun 10, 2008 at 11:31:19AM +0200, Uli Luckas wrote:
+> On Tuesday, 10. June 2008, Jean Delvare wrote:
+> > Hi Uli,
 > >
-> > Why don't you simply initialize the drivers in question with
-> > subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
-> > tps65010 are doing at the moment.
->
-> How does this work for embedded devices where the same architecture is
-> used in many different configurations? For example, we have a PXA270
-> setup where we need i2c early, but many other PXA setups do not, so
-> making i2c-pxa subsys_initcall to support a single board is maybe the
-> wrong way to go?
->
-Why would an architecture not want i2c to be available early? The only reason 
-would be dependencies of the bus driver. These are constant over all pxa 
-platforms though. So most likely the platforms that don't _need_ early i2c 
-just don't care.
+> > On Mon, 9 Jun 2008 23:59:35 +0200, Uli Luckas wrote:
+> > > On Monday 09 June 2008, Jean Delvare wrote:
+> > > > Why don't you ask on the i2c mailing list? Cc added.
+> > >
+> > > I wanted to get i2c developers plus frame buffer and other i2c client
+> > > developers involved. Crossposting to more then 2 lists seemed wrong.
+> >
+> > So you prefer to post to one random list than the two lists where your
+> > target audience is? Interesting approach. If you really don't want to
+> > post to two lists at once, just send two separate posts?
+> >
+> And have two seperate threads of communication??? lfml is where they all are 
+> and avery maintainer has different preferences. Anyway, I got your point and 
+> will come to the i2c list in the future if you prefere.
+> 
+> > > I'll change the pxa i2c driver to subsys_initcall and try if that works
+> > > when I get back to my desk tomorrow.
+> >
+> > I expect it to work, as apparently other platforms are doing exactly
+> > that already.
+> >
+> Just changing the initcall to subsys really did the trick. I thought, this was 
+> the first thing I tried and I thought it crashed my device. But obviousely I 
+> had some other problem.
+> If Russell gives his Ack, could this be pushed upstream through i2c?
+
+Does this work if the code is built as a module? 
+
+BTW, if people do have these sort of dependencies, then modules
+are another way of sorting out the load order, unless you have
+the module autoload enabled.
 
 -- 
+Ben (ben@fluff.org, http://www.fluff.org/)
 
-------- ROAD ...the handyPC Company - - -  ) ) )
-
-Uli Luckas
-Software Development
-
-ROAD GmbH
-Bennigsenstr. 14 | 12159 Berlin | Germany
-fon: +49 (30) 230069 - 64 | fax: +49 (30) 230069 - 69
-url: www.road.de
-
-Amtsgericht Charlottenburg: HRB 96688 B
-Managing directors: Hans-Peter Constien, Hubertus von Streit
+  'a smiley only costs 4 bytes'
