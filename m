@@ -1,55 +1,37 @@
-From: Ben Dooks <ben@fluff.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [i2c] Frame buffers and early i2c
-Date: Tue, 10 Jun 2008 11:02:50 +0100
-Message-ID: <20080610100249.GA30539@fluff.org.uk>
-References: <200806091647.42757.u.luckas@road.de> <200806092359.36080.u.luckas@road.de> <20080610082527.0e6d643a@hyperion.delvare> <200806101131.19763.u.luckas@road.de>
+Date: Tue, 10 Jun 2008 12:18:53 +0200
+Message-ID: <20080610121853.26b4d432@hyperion.delvare>
+References: <200806091647.42757.u.luckas@road.de>
+	<200806092359.36080.u.luckas@road.de>
+	<20080610082527.0e6d643a@hyperion.delvare>
+	<200806101131.19763.u.luckas@road.de>
+	<20080610100249.GA30539@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760294AbYFJKDU@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200806101131.19763.u.luckas@road.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760905AbYFJKTd@vger.kernel.org>
+In-Reply-To: <20080610100249.GA30539@fluff.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uli Luckas <u.luckas@road.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, adaplas@gmail.com, David Brownell <david-b@pacbell.net>, Linux I2C <i2c@lm-sensors.org>
+To: Ben Dooks <ben@fluff.org>
+Cc: Uli Luckas <u.luckas@road.de>, David Brownell <david-b@pacbell.net>, Russell King - ARM Linux <linux@arm.linux.org.uk>, LKML <linux-kernel@vger.kernel.org>, adaplas@gmail.com, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 10, 2008 at 11:31:19AM +0200, Uli Luckas wrote:
-> On Tuesday, 10. June 2008, Jean Delvare wrote:
-> > Hi Uli,
-> >
-> > On Mon, 9 Jun 2008 23:59:35 +0200, Uli Luckas wrote:
-> > > On Monday 09 June 2008, Jean Delvare wrote:
-> > > > Why don't you ask on the i2c mailing list? Cc added.
-> > >
-> > > I wanted to get i2c developers plus frame buffer and other i2c client
-> > > developers involved. Crossposting to more then 2 lists seemed wrong.
-> >
-> > So you prefer to post to one random list than the two lists where your
-> > target audience is? Interesting approach. If you really don't want to
-> > post to two lists at once, just send two separate posts?
-> >
-> And have two seperate threads of communication??? lfml is where they all are 
-> and avery maintainer has different preferences. Anyway, I got your point and 
-> will come to the i2c list in the future if you prefere.
+On Tue, 10 Jun 2008 11:02:50 +0100, Ben Dooks wrote:
+> On Tue, Jun 10, 2008 at 11:31:19AM +0200, Uli Luckas wrote:
+> > Just changing the initcall to subsys really did the trick. I thought, this was 
+> > the first thing I tried and I thought it crashed my device. But obviousely I 
+> > had some other problem.
+> > If Russell gives his Ack, could this be pushed upstream through i2c?
 > 
-> > > I'll change the pxa i2c driver to subsys_initcall and try if that works
-> > > when I get back to my desk tomorrow.
-> >
-> > I expect it to work, as apparently other platforms are doing exactly
-> > that already.
-> >
-> Just changing the initcall to subsys really did the trick. I thought, this was 
-> the first thing I tried and I thought it crashed my device. But obviousely I 
-> had some other problem.
-> If Russell gives his Ack, could this be pushed upstream through i2c?
+> Does this work if the code is built as a module?
 
-Does this work if the code is built as a module? 
+subsys_initcall degrades to module_init in modules, so Uli's patch
+doesn't change anything in that case.
 
-BTW, if people do have these sort of dependencies, then modules
-are another way of sorting out the load order, unless you have
-the module autoload enabled.
+> BTW, if people do have these sort of dependencies, then modules
+> are another way of sorting out the load order, unless you have
+> the module autoload enabled.
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
