@@ -1,105 +1,84 @@
-From: Amit Walambe <amit.walambe-ymFC7zkAqBLaL3YF3Y4TSbVCufUGDwFn@public.gmane.org>
-Subject: Re:
-	=?utf-8?q?=5BPATCH=5D_fix_i801=5Ftransaction=28=29_and_ioct?=
-	=?utf-8?q?l_return_values_for_i2c-i801?=
-Date: Mon, 9 Jun 2008 15:27:50 +0000 (UTC)
-Message-ID: <loom.20080609T150250-626@post.gmane.org>
-References: <20080606124447.756f8262@eurotech-ltd.co.uk>
-	<20080608201828.18483a17@hyperion.delvare>
-	<20080609115656.27d37dc2@eurotech-ltd.co.uk>
-	<20080609152352.40f3b5eb@hyperion.delvare>
+From: Uli Luckas <u.luckas@road.de>
+Subject: Re: Frame buffers and early i2c
+Date: Tue, 10 Jun 2008 11:31:19 +0200
+Message-ID: <200806101131.19763.u.luckas@road.de>
+References: <200806091647.42757.u.luckas@road.de> <200806092359.36080.u.luckas@road.de> <20080610082527.0e6d643a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758697AbYFJJbc@vger.kernel.org>
+In-Reply-To: <20080610082527.0e6d643a@hyperion.delvare>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Jean Delvare <khali@linux-fr.org>, adaplas@gmail.com, Linux I2C <i2c@lm-sensors.org>, Ryan Mallon <ryan@bluewatersys.com>, David Brownell <david-b@pacbell.net>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Eric Miao <eric.y.miao@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare <khali@...> writes:
-
-> 
-> Hi Amit,
-Hi Jean!
-I didn't receive this reply in my inbox. Otherwise I wouldn't have sent my
-corrected patch. Sorry about that.
-
-> I don't understand. You just said yourself that the problem didn't show
-> on a 2.6.23 kernel, meaning that we somehow fixed the bug already, but
-> still you want your patch to be applied?
-My patch only waits till the busy bit clears. As you have said in your reply, it
-adds unconditional delay of atleast 1 ms, but it avoided a few subsequent user
-requests from failing.
-I agree this happened on a very old kernel with vastly different behaviour, but
-there is nothing in the current code to prevent it from happening. Still, I make
-it your call if too cautious (but slow) patch is a good idea or not.
-Please let me know if you think.
-
-> For example, this patch:
+On Tuesday, 10. June 2008, Jean Delvare wrote:
+> Hi Uli,
 >
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ca8b9e32a11a7cbfecbef00c8451a79fe1af392e
-> seems pretty relevant to me, as it attempts to cleanly stop the
-> controller on transaction timeout. It went into kernel 2.6.23.
-This patch is useful to handle the failure that has occured (a new request fails
-since controller is still busy with previous operation). But it doesn't avoid
-this situation.
+> On Mon, 9 Jun 2008 23:59:35 +0200, Uli Luckas wrote:
+> > On Monday 09 June 2008, Jean Delvare wrote:
+> > > Why don't you ask on the i2c mailing list? Cc added.
+> >
+> > I wanted to get i2c developers plus frame buffer and other i2c client
+> > developers involved. Crossposting to more then 2 lists seemed wrong.
+>
+> So you prefer to post to one random list than the two lists where your
+> target audience is? Interesting approach. If you really don't want to
+> post to two lists at once, just send two separate posts?
+>
+And have two seperate threads of communication??? lfml is where they all are 
+and avery maintainer has different preferences. Anyway, I got your point and 
+will come to the i2c list in the future if you prefere.
 
-> i2cset supports this functionality since October 2004.
-Apologies.
+> > I'll change the pxa i2c driver to subsys_initcall and try if that works
+> > when I get back to my desk tomorrow.
+>
+> I expect it to work, as apparently other platforms are doing exactly
+> that already.
+>
+Just changing the initcall to subsys really did the trick. I thought, this was 
+the first thing I tried and I thought it crashed my device. But obviousely I 
+had some other problem.
+If Russell gives his Ack, could this be pushed upstream through i2c?
 
-> I asked for the output of i2cdetect (i2cdetect 0 in your case), not
-> i2cdetect -l. I wanted to have an idea what chips were present on the
-> bus.
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- 08 -- -- -- -- -- -- -- 
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-30: 30 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-40: -- -- -- -- 44 -- -- -- 48 -- -- -- -- -- -- -- 
-50: 50 -- -- -- 54 -- -- -- -- -- -- -- -- -- -- -- 
-60: -- -- -- -- -- -- -- -- -- 69 6a -- -- -- -- -- 
-70: -- -- -- -- -- -- -- --                         
-
-> Please note that "resetting" is not really the correct term for what
-I used the "resetting the status bits" at some other places in the my email.
-Shouldn't have used it interchangebly.
-
-> One important thing to notice is that the driver is still doing
-> something wrong in this area. If the host is found busy (bit 0 of the
-> status register) the driver attempts to write 1 to that bit. Given that
-> the bit in question is read-only, I'd say the chances that it works are
-> thin... 
-Ok, so the bit manipulation part is useless and wait part is only relevant.
-
-> One thing that might still be worth investigating is why some
-> transactions do not complete in the first place.
-> 
-> This might be related to the fact that the timeout loop was written
-> with HZ=100 in mind and is broken by design. It timeouts in count (100,
-> where all but one drivers have 500), not time. Depending on various
-> parameters (amongst which the value of HZ), the actual time it waits
-> for is very different. At HZ=100 it was typically 2 seconds, but at
-> HZ=1000 it would be 200 ms, which isn't that much. Although at 16 kHz,
-> a 32-byte I2C block read transaction would take 20 ms if I count
-> correctly, so it still fits.
-> 
-> Could it be that some slave on the customer's I2C bus is misbehaving
-> and holding the clock line low for longer than it should?
-I will investigate more on this line. 
-
-Thanks a lot for your help. 
-- Amit
+regards,
+Uli
 
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+
+Initialize the pxa i2c bus during subsystem initialization to make it
+available during driver initialization (e.g. display powerup for pxafb).
+
+Signed-off-by: Uli Luckas <u.luckas@road.de>
+---
+ drivers/i2c/busses/i2c-pxa.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index eb69fba..78c0fc4 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1134,5 +1134,5 @@ static void __exit i2c_adap_pxa_exit(void)
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:pxa2xx-i2c");
+ 
+-module_init(i2c_adap_pxa_init);
++subsys_initcall(i2c_adap_pxa_init);
+ module_exit(i2c_adap_pxa_exit);
+-- 
+
+------- ROAD ...the handyPC Company - - -  ) ) )
+
+Uli Luckas
+Software Development
+
+ROAD GmbH
+Bennigsenstr. 14 | 12159 Berlin | Germany
+fon: +49 (30) 230069 - 64 | fax: +49 (30) 230069 - 69
+url: www.road.de
+
+Amtsgericht Charlottenburg: HRB 96688 B
+Managing directors: Hans-Peter Constien, Hubertus von Streit
