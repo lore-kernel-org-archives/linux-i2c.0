@@ -1,77 +1,65 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH 3/5] powerpc/ibm_iic: remove support for OCP
-Date: Wed, 11 Jun 2008 02:24:42 +1000
-Message-ID: <20080611022442.80fc8092.sfr@canb.auug.org.au>
-References: <20080610142702.354823071@arndb.de>
-	<20080610142947.974805307@arndb.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
+ device_ids)
+Date: Tue, 10 Jun 2008 18:54:43 +0200
+Message-ID: <20080610185443.14a4516e@hyperion.delvare>
+References: <20080605193103.GA13062@pengutronix.de>
+	<20080608115033.5dd91786@hyperion.delvare>
+	<20080610134347.GA4210@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0969844792=="
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080610142947.974805307@arndb.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Mime-version: 1.0
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: arnd@arndb.de
-Cc: linuxppc-dev@ozlabs.org, paulus@samba.org, i2c@lm-sensors.org, Ben Dooks <ben-linux@fluff.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080610134347.GA4210-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============0969844792==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__11_Jun_2008_02_24_42_+1000_lC8Vq/mD5Qf0QoZU"
+On Tue, 10 Jun 2008 15:43:47 +0200, Wolfram Sang wrote:
+> > The Atmel 24C01 datasheet says page size is 4 bytes, and the Microchip
+> > 24C01A datasheet says 2 bytes. So defaulting to 8 doesn't look safe.
+> 
+> Will go back to 2 because of Microchip. But 24C01 seems to have lots of
+> variants, which makes a generic entry difficult. Some would need
 
---Signature=_Wed__11_Jun_2008_02_24_42_+1000_lC8Vq/mD5Qf0QoZU
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Feel free to not make a generic entry at all if you think it's not
+worth it.
 
-Hi Arnd,
+> AT24_FLAG_24C00 (doesn't really matter), and AT24C01 needs 128
+> addresses?? (please, someone, prove me wrong)
 
-On Tue, 10 Jun 2008 16:27:05 +0200 arnd@arndb.de wrote:
->
-> OCP is dead, so all code referring to it can go away as well.
->=20
-> Cc: i2c@lm-sensors.org
-> Cc: Ben Dooks <ben-linux@fluff.org>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Why do you think so? My personal guess is that they simply forgot to
+mention the address in the datasheet. A chip responding to all
+addresses would prevent any other chip from being connected to the bus,
+that's impractical enough to be reasonably certain that no manufacturer
+did this.
 
-There is already a patch in the i2c tree to do this one.  Commit id
-c73327b0f4d96f76a9b57eecdc7594a98c04ab62 ("i2c-ibm_iic: Remove deprecated
-OCP style part") in today's linux-next tree if you want to compare.
+> > In the end, the only things that must go in at24.h are the definition
+> > of struct at24_platform_data and its flags. All the rest is internal to
+> > the driver and should go in at24.c.
+> 
+> I wanted to have the AT24_SIZE_* flags next to the struct, so I won't
+> forget to change their size if anything inside the struct will change.
+> Then again, I might work with sizeof here; the result will probably look
+> a bit nasty, too...
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I see, it makes some sense to keep these flags around then. But then
+please add a warning that these are for the driver internal use only
+and shouldn't be considered stable.
 
---Signature=_Wed__11_Jun_2008_02_24_42_+1000_lC8Vq/mD5Qf0QoZU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkhOqsoACgkQTgG2atn1QN8SDgCggfjI2jM2aMvnPTF0C5zpi37N
-AU0An3Gvkkrv2nEPmGDTAi8ApaVbQeSq
-=9D2v
------END PGP SIGNATURE-----
-
---Signature=_Wed__11_Jun_2008_02_24_42_+1000_lC8Vq/mD5Qf0QoZU--
-
---===============0969844792==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
-Linuxppc-dev mailing list
-Linuxppc-dev@ozlabs.org
-https://ozlabs.org/mailman/listinfo/linuxppc-dev
---===============0969844792==--
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
