@@ -1,95 +1,58 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Tue, 10 Jun 2008 13:55:07 -0700
-Message-ID: <200806101355.07792.david-b@pacbell.net>
-References: <200806091541.43899.u.luckas@road.de> <484DA046.4010804@bluewatersys.com> <20080610085708.12c2d2a2@hyperion.delvare>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
+	device_ids)
+Date: Tue, 10 Jun 2008 14:02:44 -0700
+Message-ID: <200806101402.44392.david-b@pacbell.net>
+References: <20080605193103.GA13062@pengutronix.de>
+	<20080608115033.5dd91786@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758691AbYFJVDL@vger.kernel.org>
-In-Reply-To: <20080610085708.12c2d2a2@hyperion.delvare>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080608115033.5dd91786-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > >>> i2c should really be initialised before framebuffer devices because
-> > >>> framebuffer devices tend to want to read DDC from monitors, which is
-> > >>> basically a I2C EEPROM in the monitor.
-> 
-> This is already the case. i2c-core is initialized with
-> subsys_initcall(), so it's available to all drivers initialized with
-> module_init().
+On Sunday 08 June 2008, Jean Delvare wrote:
+> You need to include <linux/bitops.h> for BIT().
 
-That's only one of many examples.  The more general reason to
-want to change the position of I2C so it's early in the link
-order (like many other "system" busses) is to ensure that I2C
-drivers can rely on that initialization no matter where they
-are in *link order* ... it's not just an init sequence issue.
+That's handled by <linux/kernel.h> ... I rather think it's OK
+to rely on a few basics like that.
 
 
-> > >>> ... but there's probably some reason why it's done the way it is today,
-> > >>> and changing it could well cause stuff to break.
-> > >>>       
-> > >> We have made i2c the first driver subsystem to come up in our 2.6.20
-> > >> kernel since we use i2c io expanders for power domain control. All we
-> > >> did was change drivers/Makefile so that obj-$(CONFIG_I2C) += i2c/ is at
-> > >> the very top of the file. We didn't have any problems with doing this.
-> > >> YMMV of course.
-> 
-> Why don't you simply initialize the drivers in question with
-> subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
-> tps65010 are doing at the moment.
+> You're going to quite some extent to obfuscate simple things ;) All
+> these defines are for the sole internal purpose of the at24 driver
+> (custom eeprom types would use platform data instead) and should
+> not be in the public header file... if they should defined at all.
 
-If they happen to sit outside the I2C tree and *before* it in
-link order, things will misbehave.
+The original notion was to get the driver out of the business of
+holding a large table of device parameters including worst-case
+pagesizes (e.g. Microchip pages being half or a quarter the size
+of Atmel pages) and address consumption (e.g. Atmel 24c01 vs 24c01a,
+or the SOT23 versions doing who-knows-undocumented-what).
 
-Agreed init sequencing declarations should Do The Right Thing.
-But those declarations are of two types:  *_initcall() stuff,
-and link order.  We've seen cases where the initcalls alone are
-insufficient.
+So I think those #defines are somewhat a legacy of having had to
+change direction mid-steam to cope with the new "i2c_device_id"
+and its expectation that drivers *would* have such large tables
+with worst-case parameters.
 
-> >  
-> > +obj-y				+= i2c/
-> >  obj-$(CONFIG_HAVE_GPIO_LIB)	+= gpio/
-> 
-> Some i2c bus drivers bit-bang GPIO pins...
-> 
-> >  obj-$(CONFIG_PCI)		+= pci/
-> 
-> ... and many are PCI devices, so will this work OK?
-
-The gpiochip_add() function needed a bit of care to ensure that
-platforms can use GPIOs well before tasking and IRQs work, and
-thus before any initcalls run.  So that's not a problem.
-
-Re PCI ... someone could investigate.
-
-
-For the record, the OMAP tree puts I2C in the link order
-later than this.  It wasn't moved earlier mostly out of
-paranoia like yours.  (See below.  I'm not sure why "cbus"
-is listed twice, or what OMAP boards have similar issues
-with serio ...)
+Just so you know.  :)
 
 - Dave
-
-# we also need input/serio early so serio bus is initialized by the time
-# serial drivers start registering their serio ports
-obj-$(CONFIG_SERIO)             += input/serio/
-obj-y                           += serial/
-obj-$(CONFIG_PARPORT)           += parport/
-obj-y                           += base/ block/ misc/ mfd/ net/ media/ cbus/
-obj-y                           += i2c/
-obj-y                           += cbus/
-obj-$(CONFIG_ARCH_OMAP)         += dsp/dspgateway/
-obj-$(CONFIG_NUBUS)             += nubus/
-obj-$(CONFIG_ATM)               += atm/
-obj-y                           += macintosh/
-obj-$(CONFIG_IDE)               += ide/
-obj-$(CONFIG_SCSI)              += scsi/
-obj-$(CONFIG_ATA)               += ata/
-obj-$(CONFIG_FUSION)            += message/
  
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
