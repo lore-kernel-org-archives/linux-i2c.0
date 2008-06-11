@@ -1,13 +1,16 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: rtc pfc8563 driver lost a chip id
-Date: Wed, 11 Jun 2008 09:04:58 +0200
-Message-ID: <20080611090458.2c22cb43@hyperion.delvare>
-References: <9e4733910806101522o1e29c404t72de63772d34f1b7@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver
+	(with	device_ids)
+Date: Wed, 11 Jun 2008 09:33:25 +0200
+Message-ID: <20080611073323.GA4257@pengutronix.de>
+References: <20080605193103.GA13062@pengutronix.de>
+	<20080608115033.5dd91786@hyperion.delvare>
+	<20080610134347.GA4210@pengutronix.de>
+	<20080610185443.14a4516e@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1584577597725427998=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910806101522o1e29c404t72de63772d34f1b7-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20080610185443.14a4516e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,35 +20,70 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jon,
 
-On Tue, 10 Jun 2008 18:22:50 -0400, Jon Smirl wrote:
-> It does the rtc8564 too.
-> 
-> diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-> index 0fc4c36..748a502 100644
-> --- a/drivers/rtc/rtc-pcf8563.c
-> +++ b/drivers/rtc/rtc-pcf8563.c
-> @@ -302,6 +302,7 @@ static int pcf8563_remove(struct i2c_client *client)
-> 
->  static const struct i2c_device_id pcf8563_id[] = {
->         { "pcf8563", 0 },
-> +       { "rtc8564", 0 },
->         { }
->  };
->  MODULE_DEVICE_TABLE(i2c, pcf8563_id);
+--===============1584577597725427998==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
 
-Please check MAINTAINERS for the right person and list to send this
-patch to.
 
--- 
-Jean Delvare
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> > AT24_FLAG_24C00 (doesn't really matter), and AT24C01 needs 128
+> > addresses?? (please, someone, prove me wrong)
+>=20
+> Why do you think so? My personal guess is that they simply forgot to
+> mention the address in the datasheet. A chip responding to all
+> addresses would prevent any other chip from being connected to the bus,
+> that's impractical enough to be reasonably certain that no manufacturer
+> did this.
+
+No I2C-address is mentioned in the whole datasheet; all the timing
+diagrams put the memory offset to the place where one would expect the
+I2C-address; the pins usually named A0-A2 are not connected...
+
+Maybe it once made the chip one cent cheaper, I dunno, but I wouldn't be
+that surprised :) Doesn't really matter for at24, luckily.
+
+Kind regards,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFIT3/DD27XaX1/VRsRAnzbAKCHaRuVfjPBlOErhbmfhWYeh3xLfQCfenac
+6xpKQpcr+FatS9bt4XG9mBo=
+=oj8/
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--
+
+
+--===============1584577597725427998==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1584577597725427998==--
