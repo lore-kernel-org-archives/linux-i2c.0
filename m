@@ -1,18 +1,18 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Wed, 11 Jun 2008 11:14:15 +0200
-Message-ID: <20080611111415.2a677a10@hyperion.delvare>
+Date: Wed, 11 Jun 2008 14:05:15 +0200
+Message-ID: <20080611140515.3b464e52@hyperion.delvare>
 References: <200806091541.43899.u.luckas@road.de>
 	<484DA046.4010804@bluewatersys.com>
 	<20080610085708.12c2d2a2@hyperion.delvare>
 	<200806101355.07792.david-b@pacbell.net>
 	<20080611101130.1a667abe@hyperion.delvare>
-	<20080611090016.GA5338@flint.arm.linux.org.uk>
+	<48503432.6010105@bluewatersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080611090016.GA5338-f404yB8NqCZvn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+In-Reply-To: <48503432.6010105-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,46 +22,61 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Uli Luckas <u.luckas-vFjI0mZ6VZs@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Uli Luckas <u.luckas-vFjI0mZ6VZs@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Russell,
+On Thu, 12 Jun 2008 08:23:14 +1200, Ryan Mallon wrote:
+> Jean Delvare wrote:
+> >
+> > That's easier to get right if you restrict yourself to a single
+> > platform. For the vanilla kernel, the order of the dependencies is way
+> > more difficult to figure out and get right. There are some hints in
+> > drivers/Makefile but most dependencies aren't spelled out.
+> >
+> > My feeling is that we won't be able to solve this without first moving
+> > the different type of i2c bus drivers (and possibly chip drivers) to
+> > separate directories. For example, moving external I2C bus drivers
+> > (i2c-parport-light, i2c-parport, i2c-taos-evm and i2c-tiny-usb) to a
+> > separate directory that is always initialized late, would remove the
+> > dependencies on parport, serio and USB for the "must initialize i2c
+> > early" problem.
+> >
+> > I've already attempted a categorization of the i2c bus drivers:
+> > http://lists.lm-sensors.org/pipermail/i2c/2008-May/003713.html
+> > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-group-bus-drivers.patch
+> > I would welcome comments on this, and suggestions for further
+> > categorization of group "other".
+>
+> I like this idea. Is it possible to move (or mark as subsys_initcall) the
+> i2c busses which are likely to be needed early: pxa, omap, gpio, etc and
+> leave the PC/external busses alone. Then having the i2c chip drivers in
+> the correct place (ie drivers/gpio) would effectively fix the problem.
 
-On Wed, 11 Jun 2008 10:00:16 +0100, Russell King - ARM Linux wrote:
-> On Wed, Jun 11, 2008 at 10:11:30AM +0200, Jean Delvare wrote:
-> > Hi David,
-> > 
-> > On Tue, 10 Jun 2008 13:55:07 -0700, David Brownell wrote:
-> > > > Why don't you simply initialize the drivers in question with
-> > > > subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
-> > > > tps65010 are doing at the moment.
-> > > 
-> > > If they happen to sit outside the I2C tree and *before* it in
-> > > link order, things will misbehave.
-> > 
-> > Well, i2c system bus drivers shouldn't sit outside of the I2C tree, so
-> > that's not a problem. If you start accepting that drivers live at
-> > random places in the source tree, then there's simply no way to get
-> > things right.
-> 
-> That's simply not a realistic view.  As I've already pointed out,
-> framebuffer devices have I2C busses for reading the DDC information
-> from monitors.  These I2C bus drivers live in drivers/video.
-> 
-> Video grabbers have I2C busses for controlling, eg, tuners and video
-> decoders.  These live in drivers/media.
-> 
-> If I follow your argument, would you like cyber2000fb.c to be moved
-> entirely from drivers/video into drivers/i2c/busses because it contains
-> an i2c bus driver?  Clearly not.
+That's certainly possible to move them, the only problem is: how do we
+select the drivers which need it? As you can see from the categories I
+made, there's a fairly large list of "other" drivers are the moment.
+All drivers you mentioned, and the ones already using
+subsys_initcall(), are there. They fall under the "embedded" category
+but I suspect that many drivers in the group "other" are not. So first
+of all I think we need to refine my original grouping. If we can't make
+a definitive list right away, maybe we can make an "embedded" group and
+each developer or maintainer moves the drivers they know are embedded
+there.
 
-Please read what I wrote again. I said: I2C SYSTEM BUS drivers should
-live under drivers/i2c. DDC channels on graphics adapters and I2C buses
-on multimedia adapters definitely do not qualify as system buses (and
-don't need to be initialized early, either.)
+But that's only one side of the problem. The other side is that is is
+entirely possible that some embedded platforms don't need the early i2c
+initialization, and non-embedded platforms do. I have no example at the
+moment but obviously it could happen. So, while moving the external bus
+adapter drivers to a separate directory is fine (they just can't be
+initialized early), for the rest it's mainly a per-driver attribute, so
+maybe we just want an "early" directory with drivers that must be
+initialized early, regardless of their platform type.
 
-Thanks,
+If we want a general solution to the problem, then I think that's the
+way to go. If you only want to fix the problem at hand, just use
+subsys_initcall() in your bus driver for now.
+
 -- 
 Jean Delvare
 
