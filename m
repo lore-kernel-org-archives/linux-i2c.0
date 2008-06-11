@@ -1,41 +1,58 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Wed, 11 Jun 2008 10:00:16 +0100
-Message-ID: <20080611090016.GA5338@flint.arm.linux.org.uk>
-References: <200806091541.43899.u.luckas@road.de> <484DA046.4010804@bluewatersys.com> <20080610085708.12c2d2a2@hyperion.delvare> <200806101355.07792.david-b@pacbell.net> <20080611101130.1a667abe@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
+ device_ids)
+Date: Wed, 11 Jun 2008 11:09:21 +0200
+Message-ID: <20080611110921.5bf770dd@hyperion.delvare>
+References: <20080605193103.GA13062@pengutronix.de>
+	<20080608115033.5dd91786@hyperion.delvare>
+	<20080610134347.GA4210@pengutronix.de>
+	<20080610185443.14a4516e@hyperion.delvare>
+	<20080611073323.GA4257@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757279AbYFKJFG@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080611101130.1a667abe@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: David Brownell <david-b@pacbell.net>, Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080611073323.GA4257-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 11, 2008 at 10:11:30AM +0200, Jean Delvare wrote:
-> Hi David,
-> 
-> On Tue, 10 Jun 2008 13:55:07 -0700, David Brownell wrote:
-> > > Why don't you simply initialize the drivers in question with
-> > > subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
-> > > tps65010 are doing at the moment.
+On Wed, 11 Jun 2008 09:33:25 +0200, Wolfram Sang wrote:
+> > > AT24_FLAG_24C00 (doesn't really matter), and AT24C01 needs 128
+> > > addresses?? (please, someone, prove me wrong)
 > > 
-> > If they happen to sit outside the I2C tree and *before* it in
-> > link order, things will misbehave.
+> > Why do you think so? My personal guess is that they simply forgot to
+> > mention the address in the datasheet. A chip responding to all
+> > addresses would prevent any other chip from being connected to the bus,
+> > that's impractical enough to be reasonably certain that no manufacturer
+> > did this.
 > 
-> Well, i2c system bus drivers shouldn't sit outside of the I2C tree, so
-> that's not a problem. If you start accepting that drivers live at
-> random places in the source tree, then there's simply no way to get
-> things right.
+> No I2C-address is mentioned in the whole datasheet; all the timing
+> diagrams put the memory offset to the place where one would expect the
+> I2C-address; the pins usually named A0-A2 are not connected...
 
-That's simply not a realistic view.  As I've already pointed out,
-framebuffer devices have I2C busses for reading the DDC information
-from monitors.  These I2C bus drivers live in drivers/video.
+Ooch. I didn't notice the timing diagrams... OMG.
 
-Video grabbers have I2C busses for controlling, eg, tuners and video
-decoders.  These live in drivers/media.
+> Maybe it once made the chip one cent cheaper, I dunno, but I wouldn't be
+> that surprised :) Doesn't really matter for at24, luckily.
 
-If I follow your argument, would you like cyber2000fb.c to be moved
-entirely from drivers/video into drivers/i2c/busses because it contains
-an i2c bus driver?  Clearly not.
+Indeed. If this chip is the crazy thing you suspect (and I now fear you
+are correct), it's not compatible with the other EEPROMs, so we don't
+really care about it.
+
+-- 
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
