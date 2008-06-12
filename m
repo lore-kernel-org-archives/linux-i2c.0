@@ -1,136 +1,137 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Thu, 12 Jun 2008 20:44:08 +0200
-Message-ID: <20080612204408.6f0a3e04@hyperion.delvare>
-References: <200806091541.43899.u.luckas@road.de>
-	<200806101355.07792.david-b@pacbell.net>
-	<20080611101130.1a667abe@hyperion.delvare>
-	<200806111131.50501.david-b@pacbell.net>
+Date: Thu, 12 Jun 2008 12:57:47 -0700
+Message-ID: <200806121257.47936.david-b@pacbell.net>
+References: <200806091541.43899.u.luckas@road.de> <200806111131.50501.david-b@pacbell.net> <20080612204408.6f0a3e04@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755324AbYFLSow@vger.kernel.org>
-In-Reply-To: <200806111131.50501.david-b@pacbell.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759748AbYFLT6A@vger.kernel.org>
+In-Reply-To: <20080612204408.6f0a3e04@hyperion.delvare>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
+To: Jean Delvare <khali@linux-fr.org>
 Cc: Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+On Thursday 12 June 2008, Jean Delvare wrote:
 
-On Wed, 11 Jun 2008 11:31:50 -0700, David Brownell wrote:
-> On Wednesday 11 June 2008, Jean Delvare wrote:
-> > Hi David,
+> > So while (a) having i2c and some i2c_adapter drivers at subsys_initcall
+> > is an essential first step, the *link order* issue comes up in two other
+> > ways:  (b1) drivers "outside the I2C tree and *before* it in link order"
+> > that may need to be subsys_initcall too, thus depending on core I2C
+> > stuff being available, and (b2) some other subsystems may need to rely
+> > on I2C in their bringup, such as by enabling a specific power domain
+> > and the chips using it.
+> 
+> (b1) and (b2) are the same problem as far as I can see, and is down to:
+> is the needed i2c_adapter driver initialized early enough.
+
+... and *BEFORE* the "i2c_client" driver.  Moving I2C earlier in the
+link order may be necessary to ensure that.
+
+Yes, (b2) is essentially the "30,000 foot view" of the problem for
+which (b1) is the lower altitude "5,000 foot view".  The PCI version
+of that problem has the relevant init code running at arch_initcall
+level (in at least those MIPS cases) and also getting linked before
+all the code in the "drivers" subtree.
+
+
+> Which can be 
+> solved by either using subsys_initcall in said driver, or by moving
+> said driver earlier in the link order. Do we agree on this?
+
+No; that would be a case of moving other subsystems *AFTER* I2C in
+the link order, not moving any i2c_client driver earlier.
+
+Remember, you were wanting (appropriately!) to move drivers out of
+the i2c subtree when they have a better home.  And in this case,
+(b2) explains why that surfaces this requirement for earlier init
+of I2C ... if those drivers were in drivers/i2c/chips, the link order
+would not be an issue.
+
+
+> > > (...)
+> > > These were only two examples. We have i2c bus drivers depending on PCI,
+> > > parport, USB, ISA, GPIO and serio. Given the current linking order,
+> > > this makes it impossible to move I2C up in the link order without
+> > > moving all these too.
 > > 
-> > On Tue, 10 Jun 2008 13:55:07 -0700, David Brownell wrote:
-> > > > Why don't you simply initialize the drivers in question with
-> > > > subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
-> > > > tps65010 are doing at the moment.
-> > > 
-> > > If they happen to sit outside the I2C tree and *before* it in
-> > > link order, things will misbehave.
+> > Not really; those particular i2c_adapter drivers don't actually get used
+> > early in system bringup.  They aren't subsys_initcall, and neither of
+> > the (b1) or (b2) cases apply.  Moving those adapters doesn't imply moving
+> > those other subsystems.
+> 
+> If said subsystems are designed properly, I agree. But it they are not,
+> I suspect it's easier to not move the "external" i2c bus drivers, than
+> to fix these subsystems. But maybe I'm wrong on that.
+
+Missing my point:  since those i2c_adapter drivers aren't getting
+used early (subsys_initcall etc), this issue *can't* come up with them.
+Whether or not those subsystems "play well with others".  This issue
+is *only* for drivers outside the i2c subtree which are essential for
+system bringup, at the subsys_initcall level.
+
+
+> > Likewise for PCI.  As I said earlier, GPIO is already covered (has to
+> > be usable before initcalls could be run, etc).  I think i2c-parport
+> > should behave OK too,
+> 
+> I have a doubt on parport, given that
+>   grep -r _initcall drivers/parport
+> doesn't return anything.
+
+I see a bunch of module_init(), which means device_initcall(),
+which means well after subsys_initcall().  So i2c-parport should
+behave.
+
+
+> > and i2c-parport-light.
+> 
+> i2c-parport-light doesn't depend on anything (thus the name), so it
+> can't have any problem. I shouldn't have mentioned it, sorry.
+
+Well, it's a legacy driver so automatically has that class of problems
+(making its own device node etc) ... but those issues are unrelated to
+the $SUBJECT issue.
+
+
+> > > My feeling is that we won't be able to solve this without first moving
+> > > the different type of i2c bus drivers (and possibly chip drivers) to
+> > > separate directories. For example, moving external I2C bus drivers
+> > > (i2c-parport-light, i2c-parport, i2c-taos-evm and i2c-tiny-usb) to a
+> > > separate directory that is always initialized late, would remove the
+> > > dependencies on parport, serio and USB for the "must initialize i2c
+> > > early" problem.
 > > 
-> > Well, i2c system bus drivers shouldn't sit outside of the I2C tree, so
-> > that's not a problem. If you start accepting that drivers live at
-> > random places in the source tree, then there's simply no way to get
-> > things right.
+> > I think you're looking at this wrong.  First, as I noted already,
+> > most of those drivers don't have this issue.  Second, if there *are*
+> > such issues, they'd be bus-specific issues to resolve, not reasons
+> > to avoid fixing the (b1) and (b2) problems by moving I2C earlier.
 > 
-> The "drivers in question" aren't necessarily all i2c_adapter drivers,
-> or even *only* i2c_adapter drivers (they could expose an i2c_adapter
-> interface as a secondary function).
+> Not a reason to not change the link order, you're right. But definitely
+> a good reason to watch for breakage as we do, so that we can fix them.
 
-Drivers exposing an i2c interface as a secondary function are, in my
-experience, not drivers for system i2c bus. So, we just don't care
-about them here.
+Always.  :)
 
-Non-i2c_adapter drivers, are up to their respective subsystem
-maintainers. i2c-core is initialized early thanks to subsys_initcall,
-so if the needed i2c_adapter is also initialized early (be it thanks to
-subsys_initcall or to the link order), my job, as the i2c subsystem
-maintainer, is done.
 
-> I think I introduced the term "system bus driver", but you didn't read
-> it the way I meant it.  To elaborate a bit:  "system bus" as in "a bus
-> used for system bringup and management".  On PCs, the main such bus is
-> PCI but there are little fragments of other stuff too.  Many smaller
-> embedded systems use I2C for that (and don't have PCI).  The drivers
-> relevant are both (a) the bus driver itself, e.g. i2c_adapter or its
-> PCI analogue, and (b) drivers for devices on that bus.
-> 
-> So while (a) having i2c and some i2c_adapter drivers at subsys_initcall
-> is an essential first step, the *link order* issue comes up in two other
-> ways:  (b1) drivers "outside the I2C tree and *before* it in link order"
-> that may need to be subsys_initcall too, thus depending on core I2C
-> stuff being available, and (b2) some other subsystems may need to rely
-> on I2C in their bringup, such as by enabling a specific power domain
-> and the chips using it.
+> Now I am a bit confused as to your position about how to solve the
+> problem. In an earlier post, you were claiming that using
+> subsys_initcall in i2c bus drivers wasn't an abuse. And now you suggest
+> that moving i2c earlier in the build order is the way to go. As I
+> understand it we have no reason to do both. Or do we?
 
-(b1) and (b2) are the same problem as far as I can see, and is down to:
-is the needed i2c_adapter driver initialized early enough. Which can be
-solved by either using subsys_initcall in said driver, or by moving
-said driver earlier in the link order. Do we agree on this? I think we
-do.
+We have reason to do both.  That's why I called out cases (a) vs (b)
+(and b1/b2) above.  They address different problems.
 
-> > (...)
-> > These were only two examples. We have i2c bus drivers depending on PCI,
-> > parport, USB, ISA, GPIO and serio. Given the current linking order,
-> > this makes it impossible to move I2C up in the link order without
-> > moving all these too.
-> 
-> Not really; those particular i2c_adapter drivers don't actually get used
-> early in system bringup.  They aren't subsys_initcall, and neither of
-> the (b1) or (b2) cases apply.  Moving those adapters doesn't imply moving
-> those other subsystems.
+This is confusing stuff, in part because this part of initialization
+is all driven by side effects and is thus normally hidden.
 
-If said subsystems are designed properly, I agree. But it they are not,
-I suspect it's easier to not move the "external" i2c bus drivers, than
-to fix these subsystems. But maybe I'm wrong on that.
+The arch_initcall/subsys_initcall/device_initcall/... stuff (a) is at
+least partially explicit.  But the sequencing of initcalls within a
+given grouping (b) is purely a link order side effect.
 
-> Example:  USB subsystem is initialized early (subsystem_init).  From then
-> on, drivers can register freely -- including i2c-tiny-usb.  The usbcore
-> code remembers them, and then when the HCDs (analogues: i2c_adapter) start
-> to connect, usb devices enumerate and get bound to devices as needed.  So
-> it doesn't matter *when* i2c-tiny-usb does its module_init(), so long as
-> it's after usbcore does its subsys_initcall.
+So every time changing the link order comes up, confusion arises.
 
-You're right, I had forgotten about subsys_initcall here, I was only
-watching the link order. My bad.
-
-> Likewise for PCI.  As I said earlier, GPIO is already covered (has to
-> be usable before initcalls could be run, etc).  I think i2c-parport
-> should behave OK too,
-
-I have a doubt on parport, given that
-  grep -r _initcall drivers/parport
-doesn't return anything.
-
-> and i2c-parport-light.
-
-i2c-parport-light doesn't depend on anything (thus the name), so it
-can't have any problem. I shouldn't have mentioned it, sorry.
-
-> > My feeling is that we won't be able to solve this without first moving
-> > the different type of i2c bus drivers (and possibly chip drivers) to
-> > separate directories. For example, moving external I2C bus drivers
-> > (i2c-parport-light, i2c-parport, i2c-taos-evm and i2c-tiny-usb) to a
-> > separate directory that is always initialized late, would remove the
-> > dependencies on parport, serio and USB for the "must initialize i2c
-> > early" problem.
-> 
-> I think you're looking at this wrong.  First, as I noted already,
-> most of those drivers don't have this issue.  Second, if there *are*
-> such issues, they'd be bus-specific issues to resolve, not reasons
-> to avoid fixing the (b1) and (b2) problems by moving I2C earlier.
-
-Not a reason to not change the link order, you're right. But definitely
-a good reason to watch for breakage as we do, so that we can fix them.
-
-Now I am a bit confused as to your position about how to solve the
-problem. In an earlier post, you were claiming that using
-subsys_initcall in i2c bus drivers wasn't an abuse. And now you suggest
-that moving i2c earlier in the build order is the way to go. As I
-understand it we have no reason to do both. Or do we?
-
-Thanks,
--- 
-Jean Delvare
+- Dave
