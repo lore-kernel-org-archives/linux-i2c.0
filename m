@@ -1,13 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: FInding the right hwmon driver on x86
-Date: Thu, 12 Jun 2008 11:30:34 +0200
-Message-ID: <20080612113034.1d35d0ab@hyperion.delvare>
-References: <9e4733910806112050q1bc4e9d0lafa75a520e467f7f@mail.gmail.com>
+Subject: Re: [PATCH] [OF] request_module() use format string
+Date: Thu, 12 Jun 2008 08:27:26 +0200
+Message-ID: <20080612082726.0f495687@hyperion.delvare>
+References: <1213246926-10043-1-git-send-email-max@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910806112050q1bc4e9d0lafa75a520e467f7f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1213246926-10043-1-git-send-email-max-U9r9yeDMy7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,18 +17,43 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: maximilian attems <max-U9r9yeDMy7A@public.gmane.org>
+Cc: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jon,
+Hi Maximilian,
 
-On Wed, 11 Jun 2008 23:50:14 -0400, Jon Smirl wrote:
-> Does ACPI or something like that have a field containing the name of
-> the hardware monitor chip? If so, we can do the same thing the powerpc
-> code is doing and dynamically load the right module.
+On Thu, 12 Jun 2008 07:02:06 +0200, maximilian attems wrote:
+> similar to 326f6a5c9c9e1a62aec37bdc0c3f8d53adabe77b,
+> maybe writable by root thus worth fixing.
 
-Totally off-topic for this list, sorry.
+I don't think root can affect the value of the string, but the file it
+is read from could be broken. So yes it seems worth fixing.
+
+> 
+> Signed-off-by: maximilian attems <max-U9r9yeDMy7A@public.gmane.org>
+> ---
+>  drivers/of/of_i2c.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+> index b2ccdcb..117de8b 100644
+> --- a/drivers/of/of_i2c.c
+> +++ b/drivers/of/of_i2c.c
+> @@ -100,7 +100,7 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  
+>  		info.addr = *addr;
+>  
+> -		request_module(info.type);
+> +		request_module("%s", info.type);
+>  
+>  		result = i2c_new_device(adap, &info);
+>  		if (result == NULL) {
+
+Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+
+I think you want to send this fix to Jochen Friedrich and Paul
+Mackerras (both Cc'd) as they are the ones working on this driver.
 
 -- 
 Jean Delvare
