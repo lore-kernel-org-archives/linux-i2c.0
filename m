@@ -1,58 +1,67 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Thu, 12 Jun 2008 13:21:03 -0700
-Message-ID: <200806121321.03429.david-b@pacbell.net>
-References: <200806091541.43899.u.luckas@road.de> <20080611225416.169574a0@hyperion.delvare> <Pine.LNX.4.55.0806112226060.14077@cliff.in.clinika.pl>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [patch/rfc 2.6.26-rc5] i2c: schedule legacy gpio driver
+	removal
+Date: Thu, 12 Jun 2008 13:55:23 -0700
+Message-ID: <200806121355.23222.david-b@pacbell.net>
+References: <200806111317.21060.david-b@pacbell.net>
+	<20080612125729.136d642b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759563AbYFLUVT@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0806112226060.14077@cliff.in.clinika.pl>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080612125729.136d642b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Jean Delvare <khali@linux-fr.org>, Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 11 June 2008, Maciej W. Rozycki wrote:
-> > That being said, I'm not sure if the comparison with the PCI subsys=
-tem
-> > holds... I am under the impression that PCI bus handling doesn't
-> > require dedicated drivers? At least I can't see any under drivers/p=
-ci.
->=20
-> =A0Of course it does require them. =A0It is just due to their very na=
-ture they
-> tend to be placed under arch/,
+On Thursday 12 June 2008, Jean Delvare wrote:
+> > I think the only other blocking issue would be a way to configure
+> > such new-style drivers from sysfs, primarily for one-off hardware
+> > hacking usage (in at least this case).
+> 
+> This is the problem. Until there is a way to instantiate new-style
+> drivers from user-space, we just can't remove the deprecated drivers.
+> Even tagging it as deprecated is dishonest to some extent.
 
-PCI root hubs, yes.  The drivers/pci/hotplug bridges are slightly
-more generic, ditto drivers/pci/pcie and the CardBus bridges in
-drivers/pcmcia.  At one point, lack of a generic (non-hotplug) PCI
-bridge driver was viewed as a weakness of that driver stack.
-
-Also, drivers/acpi/pci_root.c binds the root at subsys_initcall.
-That's done *after* some earlier PCI magic; I never bothered
-to sort through that little maze.
+Not really; anyone who *can* use the newer stuff should do so.
+If they can't, the older stuff is still there.
 
 
-> although there are some cases where the=20
-> same system controller can be used for a range of processors (e.g. so=
-me
-> Marvell chips can be used either with MIPS or PowerPC CPUs) and they =
-might
-> be arguably put in a place more suitable for sharing between
-> architectures. =A0See arch/mips/pci/ for an example of a generous bun=
-ch of
-> PCI host drivers.
+> So I see no 
+> point in adding these drivers to the feature removal list for now. We
+> can do that later, when we really offer an alternative with the same
+> features.
+> 
+> You shouldn't fear that we forget to remove these drivers. They are the
+> dust in my eye, I can't forget them.
 
-Which, for the record, get very early initialization using two
-different mechanisms:
+OK.  :)
 
-  - many use arch_initcall()
+ 
+> >                                       Teaching the two new-style
+> > drivers to use dynamic GPIO number allocation when there's no
+> > platform_data is trivial,
+> 
+> Good to know...
+> 
+> >                           and not otherwise desirable.
+> 
+> I'm confused now.
 
-  - the "arch" subtree is linked before the "drivers" subtree
+The GPIOs can't really be used in-kernel without platform data.
 
-I don't think I2C needs to worry about arch_initcall just now,
-but if necessary it could initialize earlier than subsys_initcall.
 
-- Dave
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
