@@ -1,31 +1,51 @@
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Wed, 11 Jun 2008 22:31:27 +0100 (BST)
-Message-ID: <Pine.LNX.4.55.0806112226060.14077@cliff.in.clinika.pl>
-References: <200806091541.43899.u.luckas@road.de> <485031D5.3020606@bluewatersys.com>
- <20080611141852.3ccd89ea@hyperion.delvare> <200806111327.09298.david-b@pacbell.net>
- <20080611225416.169574a0@hyperion.delvare>
+From: maximilian attems <max-U9r9yeDMy7A@public.gmane.org>
+Subject: [PATCH] [OF] of_i2c: fix request_module() usage
+Date: Thu, 12 Jun 2008 09:44:07 +0200
+Message-ID: <1213256647-22708-1-git-send-email-max@stro.at>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756744AbYFKVcf@vger.kernel.org>
-In-Reply-To: <20080611225416.169574a0@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: David Brownell <david-b@pacbell.net>, Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+Cc: maximilian attems <max-U9r9yeDMy7A@public.gmane.org>, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 11 Jun 2008, Jean Delvare wrote:
+similar to 326f6a5c9c9e1a62aec37bdc0c3f8d53adabe77b,
+the file the info.type value is read from could be broken.
 
-> That being said, I'm not sure if the comparison with the PCI subsystem
-> holds... I am under the impression that PCI bus handling doesn't
-> require dedicated drivers? At least I can't see any under drivers/pci.
+Signed-off-by: maximilian attems <max-U9r9yeDMy7A@public.gmane.org>
+Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/of/of_i2c.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- Of course it does require them.  It is just due to their very nature they
-tend to be placed under arch/, although there are some cases where the
-same system controller can be used for a range of processors (e.g. some
-Marvell chips can be used either with MIPS or PowerPC CPUs) and they might
-be arguably put in a place more suitable for sharing between
-architectures.  See arch/mips/pci/ for an example of a generous bunch of
-PCI host drivers.
+diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+index b2ccdcb..117de8b 100644
+--- a/drivers/of/of_i2c.c
++++ b/drivers/of/of_i2c.c
+@@ -100,7 +100,7 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+ 
+ 		info.addr = *addr;
+ 
+-		request_module(info.type);
++		request_module("%s", info.type);
+ 
+ 		result = i2c_new_device(adap, &info);
+ 		if (result == NULL) {
+-- 
+1.5.5.3
 
-  Maciej
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
