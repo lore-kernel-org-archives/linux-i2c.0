@@ -1,103 +1,136 @@
-From: "John Stoffel" <john@stoffel.org>
-Subject: 2.6.26-rc5: CFI: Found no ck804xrom @ffc00000 device at
-   location zero
-Date: Thu, 12 Jun 2008 14:34:36 -0400
-Message-ID: <18513.27708.452410.527696@stoffel.org>
-References: <20080612182308.GA1091@ldl.fc.hp.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH, RFC] Earlier I2C initialization
+Date: Thu, 12 Jun 2008 20:44:08 +0200
+Message-ID: <20080612204408.6f0a3e04@hyperion.delvare>
+References: <200806091541.43899.u.luckas@road.de>
+	<200806101355.07792.david-b@pacbell.net>
+	<20080611101130.1a667abe@hyperion.delvare>
+	<200806111131.50501.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080612182308.GA1091@ldl.fc.hp.com>
-Sender: netdev-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: i2c@lm-sensors.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755324AbYFLSow@vger.kernel.org>
+In-Reply-To: <200806111131.50501.david-b@pacbell.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi David,
 
-Hi,
+On Wed, 11 Jun 2008 11:31:50 -0700, David Brownell wrote:
+> On Wednesday 11 June 2008, Jean Delvare wrote:
+> > Hi David,
+> > 
+> > On Tue, 10 Jun 2008 13:55:07 -0700, David Brownell wrote:
+> > > > Why don't you simply initialize the drivers in question with
+> > > > subsys_initcall()? That's what i2c-pnx, i2c-omap, i2c-davinci and
+> > > > tps65010 are doing at the moment.
+> > > 
+> > > If they happen to sit outside the I2C tree and *before* it in
+> > > link order, things will misbehave.
+> > 
+> > Well, i2c system bus drivers shouldn't sit outside of the I2C tree, so
+> > that's not a problem. If you start accepting that drivers live at
+> > random places in the source tree, then there's simply no way to get
+> > things right.
+> 
+> The "drivers in question" aren't necessarily all i2c_adapter drivers,
+> or even *only* i2c_adapter drivers (they could expose an i2c_adapter
+> interface as a secondary function).
 
-I'm running a AMD X2 box with 4gb of RAM, Ubuntu 8.04 x86_64.  I just
-rebooted the system and I notice the following repeated messages
-(errors? warnings?) in my dmesg output.  I think this is from my
-nForce ethernet chips, but I'm not sure.
+Drivers exposing an i2c interface as a secondary function are, in my
+experience, not drivers for system i2c bus. So, we just don't care
+about them here.
 
-[   13.268005] ck804xrom ck804xrom_init_one(): Unable to register resource 0x00000000ff000000-0x00000000ffffffff - kernel bug?
-[   13.336752] i2c-adapter i2c-0: nForce2 SMBus adapter at 0x1c00
-[   13.336786] i2c-adapter i2c-1: nForce2 SMBus adapter at 0x1c40
-[   13.376771] CFI: Found no ck804xrom @ffc00000 device at location zero
-[   13.398810] JEDEC: Found no ck804xrom @ffc00000 device at location zero
-[   13.398822] CFI: Found no ck804xrom @ffc00000 device at location zero
-[   13.398883] JEDEC: Found no ck804xrom @ffc00000 device at location zero
-[   13.398889] CFI: Found no ck804xrom @ffc00000 device at location zero
-[   13.398928] JEDEC: Found no ck804xrom @ffc00000 device at location zero
-[   13.398934] CFI: Found no ck804xrom @ffc10000 device at location zero
-[   13.398971] JEDEC: Found no ck804xrom @ffc10000 device at location zero
-[   13.398980] CFI: Found no ck804xrom @ffc10000 device at location zero
-[   13.399042] JEDEC: Found no ck804xrom @ffc10000 device at location zero
-[   13.399048] CFI: Found no ck804xrom @ffc10000 device at location zero
-[   13.399579] JEDEC: Found no ck804xrom @ffc10000 device at location zero
-[   13.399579] CFI: Found no ck804xrom @ffc20000 device at location zero
-[   13.399582] JEDEC: Found no ck804xrom @ffc20000 device at location zero
-[   13.399591] CFI: Found no ck804xrom @ffc20000 device at location zero
-[   13.399652] JEDEC: Found no ck804xrom @ffc20000 device at location zero
-[   13.399658] CFI: Found no ck804xrom @ffc20000 device at location zero
-[   13.399696] JEDEC: Found no ck804xrom @ffc20000 device at location zero
-[   13.399702] CFI: Found no ck804xrom @ffc30000 device at location zero
-[   13.399739] JEDEC: Found no ck804xrom @ffc30000 device at location zero
-[   13.399748] CFI: Found no ck804xrom @ffc30000 device at location zero
-[   13.399809] JEDEC: Found no ck804xrom @ffc30000 device at location zero
-[   13.399815] CFI: Found no ck804xrom @ffc30000 device at location zero
-[   13.399853] JEDEC: Found no ck804xrom @ffc30000 device at location zero
-[   13.399859] CFI: Found no ck804xrom @ffc40000 device at location zero
-[   13.399896] JEDEC: Found no ck804xrom @ffc40000 device at location zero
-[   13.399905] CFI: Found no ck804xrom @ffc40000 device at location zero
-[   13.400587] JEDEC: Found no ck804xrom @ffc40000 device at location zero
-[   13.400593] CFI: Found no ck804xrom @ffc40000 device at location zero
-[   13.400631] JEDEC: Found no ck804xrom @ffc40000 device at location zero
-[   13.400637] CFI: Found no ck804xrom @ffc50000 device at location zero
-[   13.400674] JEDEC: Found no ck804xrom @ffc50000 device at location zero
-[   13.400683] CFI: Found no ck804xrom @ffc50000 device at location zero
-[   13.400744] JEDEC: Found no ck804xrom @ffc50000 device at location zero
-[   13.400750] CFI: Found no ck804xrom @ffc50000 device at location zero
-[   13.400788] JEDEC: Found no ck804xrom @ffc50000 device at location zero
-[   13.400795] CFI: Found no ck804xrom @ffc60000 device at location zero
-[   13.400831] JEDEC: Found no ck804xrom @ffc60000 device at location zero
-[   13.400840] CFI: Found no ck804xrom @ffc60000 device at location zero
-[   13.400902] JEDEC: Found no ck804xrom @ffc60000 device at location zero
-[   13.400908] CFI: Found no ck804xrom @ffc60000 device at location zero
-[   13.401577] JEDEC: Found no ck804xrom @ffc60000 device at location zero
-[   13.401577] CFI: Found no ck804xrom @ffc70000 device at location zero
-.
-.
-.
-.
-.
-.
-[   13.420781] JEDEC: Found no ck804xrom @fff60000 device at location zero
-[   13.420789] CFI: Found no ck804xrom @fff60000 device at location zero
-[   13.420851] JEDEC: Found no ck804xrom @fff60000 device at location zero
-[   13.420857] CFI: Found no ck804xrom @fff60000 device at location zero
-[   13.420895] JEDEC: Found no ck804xrom @fff60000 device at location zero
-[   13.420901] CFI: Found no ck804xrom @fff70000 device at location zero
-[   13.421576] JEDEC: Found no ck804xrom @fff70000 device at location zero
-[   13.421576] CFI: Found no ck804xrom @fff70000 device at location zero
-[   13.421626] JEDEC: Found no ck804xrom @fff70000 device at location zero
-[   13.421632] CFI: Found no ck804xrom @fff70000 device at location zero
-[   13.421670] JEDEC: Found no ck804xrom @fff70000 device at location zero
-[   13.421698] CFI: Found no ck804xrom @fff80000 device at location zero
-[   13.421881] JEDEC: Found no ck804xrom @fff80000 device at location zero
-[   13.421908] CFI: Found no ck804xrom @fff80000 device at location zero
-[   13.422716] JEDEC: Found no ck804xrom @fff80000 device at location zero
-[   13.422728] CFI: Found no ck804xrom @fff80000 device at location zero
-[   13.422752] Found: PMC Pm49FL004
-[   13.422775] ck804xrom @fff80000: Found 1 x8 devices at 0x0 in 8-bit bank
-[   13.486876] number of JEDEC chips: 1
-[   13.486897] cfi_cmdset_0002: Disabling erase-suspend-program due to code brokenness.
+Non-i2c_adapter drivers, are up to their respective subsystem
+maintainers. i2c-core is initialized early thanks to subsys_initcall,
+so if the needed i2c_adapter is also initialized early (be it thanks to
+subsys_initcall or to the link order), my job, as the i2c subsystem
+maintainer, is done.
 
+> I think I introduced the term "system bus driver", but you didn't read
+> it the way I meant it.  To elaborate a bit:  "system bus" as in "a bus
+> used for system bringup and management".  On PCs, the main such bus is
+> PCI but there are little fragments of other stuff too.  Many smaller
+> embedded systems use I2C for that (and don't have PCI).  The drivers
+> relevant are both (a) the bus driver itself, e.g. i2c_adapter or its
+> PCI analogue, and (b) drivers for devices on that bus.
+> 
+> So while (a) having i2c and some i2c_adapter drivers at subsys_initcall
+> is an essential first step, the *link order* issue comes up in two other
+> ways:  (b1) drivers "outside the I2C tree and *before* it in link order"
+> that may need to be subsys_initcall too, thus depending on core I2C
+> stuff being available, and (b2) some other subsystems may need to rely
+> on I2C in their bringup, such as by enabling a specific power domain
+> and the chips using it.
 
+(b1) and (b2) are the same problem as far as I can see, and is down to:
+is the needed i2c_adapter driver initialized early enough. Which can be
+solved by either using subsys_initcall in said driver, or by moving
+said driver earlier in the link order. Do we agree on this? I think we
+do.
 
+> > (...)
+> > These were only two examples. We have i2c bus drivers depending on PCI,
+> > parport, USB, ISA, GPIO and serio. Given the current linking order,
+> > this makes it impossible to move I2C up in the link order without
+> > moving all these too.
+> 
+> Not really; those particular i2c_adapter drivers don't actually get used
+> early in system bringup.  They aren't subsys_initcall, and neither of
+> the (b1) or (b2) cases apply.  Moving those adapters doesn't imply moving
+> those other subsystems.
 
-These messages seem really damn noisy, esp since it does find a JEDEC chip eventually.  I'll try and see about bisecting this later on if I get a chance.
+If said subsystems are designed properly, I agree. But it they are not,
+I suspect it's easier to not move the "external" i2c bus drivers, than
+to fix these subsystems. But maybe I'm wrong on that.
 
-John
+> Example:  USB subsystem is initialized early (subsystem_init).  From then
+> on, drivers can register freely -- including i2c-tiny-usb.  The usbcore
+> code remembers them, and then when the HCDs (analogues: i2c_adapter) start
+> to connect, usb devices enumerate and get bound to devices as needed.  So
+> it doesn't matter *when* i2c-tiny-usb does its module_init(), so long as
+> it's after usbcore does its subsys_initcall.
+
+You're right, I had forgotten about subsys_initcall here, I was only
+watching the link order. My bad.
+
+> Likewise for PCI.  As I said earlier, GPIO is already covered (has to
+> be usable before initcalls could be run, etc).  I think i2c-parport
+> should behave OK too,
+
+I have a doubt on parport, given that
+  grep -r _initcall drivers/parport
+doesn't return anything.
+
+> and i2c-parport-light.
+
+i2c-parport-light doesn't depend on anything (thus the name), so it
+can't have any problem. I shouldn't have mentioned it, sorry.
+
+> > My feeling is that we won't be able to solve this without first moving
+> > the different type of i2c bus drivers (and possibly chip drivers) to
+> > separate directories. For example, moving external I2C bus drivers
+> > (i2c-parport-light, i2c-parport, i2c-taos-evm and i2c-tiny-usb) to a
+> > separate directory that is always initialized late, would remove the
+> > dependencies on parport, serio and USB for the "must initialize i2c
+> > early" problem.
+> 
+> I think you're looking at this wrong.  First, as I noted already,
+> most of those drivers don't have this issue.  Second, if there *are*
+> such issues, they'd be bus-specific issues to resolve, not reasons
+> to avoid fixing the (b1) and (b2) problems by moving I2C earlier.
+
+Not a reason to not change the link order, you're right. But definitely
+a good reason to watch for breakage as we do, so that we can fix them.
+
+Now I am a bit confused as to your position about how to solve the
+problem. In an earlier post, you were claiming that using
+subsys_initcall in i2c bus drivers wasn't an abuse. And now you suggest
+that moving i2c earlier in the build order is the way to go. As I
+understand it we have no reason to do both. Or do we?
+
+Thanks,
+-- 
+Jean Delvare
