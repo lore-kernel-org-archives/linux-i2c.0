@@ -1,13 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.26-rc5] i2c: deprecate the legacy gpio drivers
-Date: Thu, 12 Jun 2008 12:13:23 +0200
-Message-ID: <20080612121323.5661472c@hyperion.delvare>
-References: <200806111308.15166.david-b@pacbell.net>
+Subject: Re: FInding the right hwmon driver on x86
+Date: Thu, 12 Jun 2008 11:30:34 +0200
+Message-ID: <20080612113034.1d35d0ab@hyperion.delvare>
+References: <9e4733910806112050q1bc4e9d0lafa75a520e467f7f@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200806111308.15166.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <9e4733910806112050q1bc4e9d0lafa75a520e467f7f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,29 +17,18 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+Hi Jon,
 
-On Wed, 11 Jun 2008 13:08:15 -0700, David Brownell wrote:
-> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> 
-> The legacy pcf8574/8574a and pcf8575 drivers should be avoided
-> on systems using the new gpiolib code, and generally deprecated
-> in the same way the legacy pca9539 driver is deprecated.
-> 
-> Also, correct the pca9539 deprecation to match the current name
-> of the preferred driver:  pca953x, supporting several more chips.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> 
-> --- a/drivers/i2c/chips/Kconfig	2008-06-11 12:46:52.000000000 -0700
-> +++ b/drivers/i2c/chips/Kconfig	2008-06-11 12:21:45.000000000 -0700
-> (...)
+On Wed, 11 Jun 2008 23:50:14 -0400, Jon Smirl wrote:
+> Does ACPI or something like that have a field containing the name of
+> the hardware monitor chip? If so, we can do the same thing the powerpc
+> code is doing and dynamically load the right module.
 
-Applied, thanks.
+Totally off-topic for this list, sorry.
 
 -- 
 Jean Delvare
