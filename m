@@ -1,10 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-algo-pcf: Drop unused struct members
-Date: Fri, 13 Jun 2008 10:25:10 +0200
-Message-ID: <20080613102510.0b40b352@hyperion.delvare>
+From: "=?UTF-8?Q?Petr_Jake=C5=A1?=" <petr.jakes-VOAeGBCOg48@public.gmane.org>
+Subject: parport (i2c bus) maximum speed
+Date: Fri, 13 Jun 2008 15:44:12 +0200
+Message-ID: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
+Reply-To: petr.jakes-VOAeGBCOg48@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7619923313819142823=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -15,52 +15,47 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: Eric Brower <ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Daniel Smolik <marvin-0pWKB23IDFjrBKCeMvbIDA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Struct members udelay and timeout aren't used anywhere, so drop them.
+--===============7619923313819142823==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_18531_2356862.1213364652877"
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Eric, Daniel, you're using i2c-algo-pcf more than me, can you please
-check and confirm that this patch is correct? It applies on top of
-Eric's patch for lost arbitration handling.
+------=_Part_18531_2356862.1213364652877
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
- drivers/i2c/busses/i2c-elektor.c |    2 --
- include/linux/i2c-algo-pcf.h     |    4 ----
- 2 files changed, 6 deletions(-)
+I am thinking about to build an I2C-parport HW adapter. I would like to
+know, what is the maximum speed one can get on the I2C bus using parport HW
+adapter. I expect 100kbps is a standard speed but if it possible to go to
+400k it will be great.
+If it is not possible to get 400kbps speed using the parport, other hints
+are appreciated of course :-)
+Thanks for your reply
 
---- linux-2.6.26-rc5.orig/drivers/i2c/busses/i2c-elektor.c	2008-06-12 15:22:32.000000000 +0200
-+++ linux-2.6.26-rc5/drivers/i2c/busses/i2c-elektor.c	2008-06-13 09:32:27.000000000 +0200
-@@ -196,8 +196,6 @@ static struct i2c_algo_pcf_data pcf_isa_
- 	.getown	    = pcf_isa_getown,
- 	.getclock   = pcf_isa_getclock,
- 	.waitforpin = pcf_isa_waitforpin,
--	.udelay	    = 10,
--	.timeout    = 100,
- };
- 
- static struct i2c_adapter pcf_isa_ops = {
---- linux-2.6.26-rc5.orig/include/linux/i2c-algo-pcf.h	2008-06-13 09:08:00.000000000 +0200
-+++ linux-2.6.26-rc5/include/linux/i2c-algo-pcf.h	2008-06-13 09:11:50.000000000 +0200
-@@ -33,10 +33,6 @@ struct i2c_algo_pcf_data {
- 	int  (*getclock) (void *data);
- 	void (*waitforpin) (void);
- 
--	/* local settings */
--	int udelay;
--	int timeout;
--
- 	/* Multi-master lost arbitration back-off delay (msecs)
- 	 * This should be set by the bus adapter or knowledgable client
- 	 * if bus is multi-mastered, else zero
+Petr Jakes
+
+------=_Part_18531_2356862.1213364652877
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I am thinking about to build an I2C-parport HW adapter. I would like to know, what is the maximum speed one can get on the I2C bus using parport HW adapter. I expect 100kbps is a standard speed but if it possible to go to 400k it will be great.<br>
+If it is not possible to get 400kbps speed using the parport, other hints are appreciated of course :-)<br>Thanks for your reply<br><br>Petr Jakes<br>
+
+------=_Part_18531_2356862.1213364652877--
 
 
--- 
-Jean Delvare
+--===============7619923313819142823==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7619923313819142823==--
