@@ -1,13 +1,11 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: parport (i2c bus) maximum speed
-Date: Fri, 13 Jun 2008 16:02:05 +0200
-Message-ID: <20080613160205.60b719c3@hyperion.delvare>
-References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
+From: "Portal EcoViagem" <turismo-Khf0NFRIK+lpCbRfmMzf6w@public.gmane.org>
+Subject: Turismo lucra com a internet
+Date: Fri, 13 Jun 2008 12:39:06 -0300
+Message-ID: <189A4894201C42FD97C7C25C02B94A5E@ecoviagem.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2737778578647217499=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <c193ec310806130644p22c1e466g9cd6e6711d4b691b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Class: urn:content-classes:message
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,31 +15,58 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: petr.jakes-VOAeGBCOg48@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgUGV0ciwKCk9uIEZyaSwgMTMgSnVuIDIwMDggMTU6NDQ6MTIgKzAyMDAsIFBldHIgSmFrZcWh
-IHdyb3RlOgo+IEkgYW0gdGhpbmtpbmcgYWJvdXQgdG8gYnVpbGQgYW4gSTJDLXBhcnBvcnQgSFcg
-YWRhcHRlci4gSSB3b3VsZCBsaWtlIHRvCj4ga25vdywgd2hhdCBpcyB0aGUgbWF4aW11bSBzcGVl
-ZCBvbmUgY2FuIGdldCBvbiB0aGUgSTJDIGJ1cyB1c2luZyBwYXJwb3J0IEhXCj4gYWRhcHRlci4g
-SSBleHBlY3QgMTAwa2JwcyBpcyBhIHN0YW5kYXJkIHNwZWVkIGJ1dCBpZiBpdCBwb3NzaWJsZSB0
-byBnbyB0bwo+IDQwMGsgaXQgd2lsbCBiZSBncmVhdC4KPiBJZiBpdCBpcyBub3QgcG9zc2libGUg
-dG8gZ2V0IDQwMGticHMgc3BlZWQgdXNpbmcgdGhlIHBhcnBvcnQsIG90aGVyIGhpbnRzCj4gYXJl
-IGFwcHJlY2lhdGVkIG9mIGNvdXJzZSA6LSkKCk91ciBjdXJyZW50IGkyYy1hbGdvLWJpdCBpbXBs
-ZW1lbnRhdGlvbiBjYW4ndCBnbyBmYXN0ZXIgdGhhbiAyNTAga2JwcwpieSBkZXNpZ24uIEkgdGhp
-bmsgSSByZW1lbWJlciB0cnlpbmcgaXQgYW5kIGl0IHdhcyB3b3JraW5nIGZpbmUuIEJ1dCBpZgpt
-ZW1vcnkgc2VydmVzIHRoZSBhY3R1YWwgc3BlZWQgZW5kZWQgdXAgYmVpbmcgc2lnbmlmaWNhbnRs
-eSBsZXNzIHRoYW4KMjUwIGtwYnMsIG1heWJlIDE2MCBrYnBzLiBKdXN0IGxpa2UgeW91IGRvbid0
-IGFjdHVhbGx5IGdldCAxMDAga2Jwcwp3aGVuIHlvdSBhc2sgZm9yIDEwMCBrYnBzLiBJIGd1ZXNz
-IHRoYXQgdGhlcmUncyBsYXRlbmN5IGluIHN3aXRjaGluZwp0aGUgcGFycG9ydCBwaW5zLCB3aGlj
-aCBiZWNvbWVzIHZpc2libGUgYXMgdGhlIHNwZWVkIGluY3JlYXNlcy4KCklmIHlvdSBwbGFuIG9u
-IGRvaW5nIGZhc3QgSTJDIG92ZXIgcGFycG9ydCwgdGhlbiBJIHRoaW5rIHlvdSB3YW50IHRvCmdp
-dmUgdXAgb24gYml0LWJhbmdpbmcgYW5kIGluc3RlYWQgY29udHJvbCBhbiBJMkMgbWFzdGVyIGJl
-eW9uZCB0aGUKcGFyYWxsZWwgcG9ydC4gVGhhdCB3YXkgeW91IHRha2UgYmVuZWZpdCBvZiB0aGUg
-cGFyYWxsZWwgYXNwZWN0IG9mCnBhcnBvcnQgYW5kIHlvdSBzaG91bGQgYmUgYWJsZSB0byByZWFj
-aCA0MDAga2Jwcy4gVXNpbmcgYSBjaGlwIHdlCmFscmVhZHkgaGF2ZSBhYnN0cmFjdGVkIHN1cHBv
-cnQgZm9yIChQQ0Y4NTg0IG9yIFBDQTk1NjQpIHRoaXMgc2hvdWxkbid0CmJlIHRvbyBkaWZmaWN1
-bHQuCgotLSAKSmVhbiBEZWx2YXJlCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwppMmMgbWFpbGluZyBsaXN0CmkyY0BsbS1zZW5zb3JzLm9yZwpodHRwOi8v
-bGlzdHMubG0tc2Vuc29ycy5vcmcvbWFpbG1hbi9saXN0aW5mby9pMmM=
+--===============2737778578647217499==
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Content-Class: urn:content-classes:message
+
+Bom dia,
+
+Em agosto de 2007, surgiu, no mercado brasileiro, um novo conceito de site de turismo. Foi lançado o EcoViagem, um site que oferece para hotéis, pousadas e agências de viagens e turismo, anúncios de qualidade, totalmente GRÁTIS.
+
+Deste seu lançamento, mais de 1900 empresas já criaram seus anúncios, e hoje este é o site brasileiro que mais cresce em sua categoria, atingindo uma audiência que ultrapassa os 280 mil turistas; e as visitas não páram de aumentar, em média, 12% ao mês.
+
+Apesar de totalmente GRATUITO, o anúncio possibilita uma infinidade de detalhes da empresa e de suas ofertas, que nenhum outro site, mesmo pago, já ofereceu. Ele não limita o número de fotos, vídeos, produtos, entre outros, que a empresa pode anunciar.
+
+Para conhecer exemplos reais de anúncios já montados por algumas empresas, clique nos links abaixo:
+
+Agência de Viagens
+http://www.ecoviagem.com.br/a/251/25138-exemplo-agencia-turismo.asp
+
+Hotéis e Pousadas
+http://www.ecoviagem.com.br/a/251/25138-exemplo-hoteis-pousadas.asp
+
+Para anunciar basta acessar http://www.ecoviagem.com.br/a/251/25138-anuncio-gratis.asp e preencher os formulários.
+
+Sugerimos aos interessados em anunciar neste site, que assistam às VÍDEO-AULAS disponibilizadas na página de cadastro, pois elas ensinam passo-a-passo como se destacar para atrair mais visitas e contatos dos turistas.
+
+Desde já aguardamos o seu anúncio e desejamos que suas vendas aumentem.
+
+Obrigado e  aguardamos o seu anúncio.
+
+Atenciosamente,
+
+Anderson Cattoni
+anderson-Khf0NFRIK+lpCbRfmMzf6w@public.gmane.org
+Skype: turistec-ecoviagem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EcoViagem - Turismo fácil e interativo
+http://www.ecoviagem.com.br/a/251/25138-anuncio-gratis.asp
+
+Email enviado em 13/6/2008 12:39:06 para i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+
+
+--===============2737778578647217499==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============2737778578647217499==--
