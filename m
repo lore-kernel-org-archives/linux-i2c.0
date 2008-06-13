@@ -1,17 +1,18 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: "=?UTF-8?Q?Petr_Jake=C5=A1?=" <petr.jakes-VOAeGBCOg48@public.gmane.org>
 Subject: Re: parport (i2c bus) maximum speed
-Date: Fri, 13 Jun 2008 22:56:24 +0200
-Message-ID: <20080613225624.11ad3ece@hyperion.delvare>
+Date: Sat, 14 Jun 2008 00:32:38 +0200
+Message-ID: <c193ec310806131532o1e7a8bdasc4856aa09b90e9ae@mail.gmail.com>
 References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
 	<20080613160205.60b719c3@hyperion.delvare>
 	<c193ec310806130855s2227f429pd151466a88539c90@mail.gmail.com>
 	<20080613191707.13731136@hyperion.delvare>
 	<c193ec310806131104wcbba767g602db89266492f31@mail.gmail.com>
+	<20080613225624.11ad3ece@hyperion.delvare>
+Reply-To: petr.jakes-VOAeGBCOg48@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5464950115044124295=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <c193ec310806131104wcbba767g602db89266492f31-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20080613225624.11ad3ece-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,56 +22,122 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: petr.jakes-VOAeGBCOg48@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpLCAxMyBKdW4gMjAwOCAyMDowNDowMiArMDIwMCwgUGV0ciBKYWtlxaEgd3JvdGU6Cj4g
-TWF5YmUgSSB3YXMgbm90IHNwZWNpZmljIGVub3VnaC4gQWN0dWFsbHkgdGhlcmUgaXMgYW4gU0NI
-MzExNCBjaGlwIG9uIG91cgo+IG1vdGhlcmJvYXJkIChodHRwOi8vd3d3LnNtc2MuY29tL21haW4v
-Y2F0YWxvZy9zY2gzMTF4Lmh0bWwgKSBhbmQgbG0tc2Vuc29ycwo+IG5lZWQgZG1lMTczNyBtb2R1
-bGUgZm9yIHRoaXMgY2hpcC4KPiBUaGlzIGNoaXAgYWN0cyBhcyBhIFNNQnVzIG1hc3Rlci4KCkkg
-c2VyaW91c2x5IGRvdWJ0IGl0LiBJIGhhdmUgdGhlIFNDSDMxMXggZGF0YXNoZWV0IHVuZGVyIHRo
-ZSBleWVzIGFuZAppdCBkb2Vzbid0IGV2ZW4gbWVudGlvbiBTTUJ1cy4gTmVpdGhlciBhcyBhIHNs
-YXZlIG5vciBhcyBhIG1hc3Rlci4KVW5sZXNzIHlvdSBhcmUgdXNpbmcgR1BJTyBwaW5zIHRvIGlt
-cGxlbWVudCBhIGJpdC1iYW5nZWQgSTJDIGJ1cyB1c2luZwphIGN1c3RvbSBrZXJuZWwgZHJpdmVy
-Li4uCgpUaGUgZG1lMTczNyBkcml2ZXIgc3VwcG9ydHMgdGhlIGhhcmR3YXJlIG1vbml0b3Jpbmcg
-YmxvY2sgb2YgdGhlClNDSDMxMXguIFRoaXMgZnVuY3Rpb25hbGl0eSBpcyBhY2Nlc3NlZCBvdmVy
-IHRoZSBMUEMgYnVzLCBub3QgdGhlIFNNQnVzLgoKPiA+IEknbSBjb25mdXNlZCBub3cuIEhvdyBp
-cyBJMkMvU01CdXMgc3BlZWQgcmVsYXRlZCB0byBsbS1zZW5zb3JzIGF0IGFsbD8KPiAKPiAKPiBJ
-IGFtIGNvbmZ1c2VkIGFzIHdlbGwgOi0pCj4gTXkgZmVlbGluZyB3YXMgbG0tc2Vuc29ycyBhcmUg
-aGVyZSB0bzoKPiAKPiAgICAxLiBlbmFibGUgU01CdXMvSTJDIGNvbW11bmljYXRpb24gKG1haW5s
-eSB1c2luZyBIVyBtYXN0ZXJzIHByZXNlbnRlZCBvbgo+ICAgIHRoZSBtb3RoZXJib2FyZHMpICB0
-byBjb21tdW5pY2F0ZSB3aXRoIFNNQnVzIHNsYXZlcyAobWFpbmx5IHByZXNlbnRlZCBvbiB0aGUK
-PiAgICBQQyBtb3RoZXJib2FyZHMsIGllIGNsb2NrLCB0ZW1wZXJhdHVyZSwgZmFucyAuLi4uKS4K
-PiAgICAyLiBlbmFibGUgU01CdXMvSTJDIGNvbW11bmljYXRpb24gd2l0aCBzb21lIG90aGVyIGNo
-aXBzIHdoaWNoIG9uZSBjYW4KPiAgICBjb25uZWN0IHRvIHRoZSBidXMKClRvZGF5LCBsbS1zZW5z
-b3JzIGlzIGEgbGlicmFyeSBhbmQgYSBzZXQgb2YgdG9vbHMgdG8gbGV0IHVzZXJzIG1vbml0b3IK
-dGhlaXIgaGFyZHdhcmUsIGkuZS4gd2F0Y2ggdGhlIHRlbXBlcmF0dXJlcywgdm9sdGFnZXMgYW5k
-IGZhbnMuIFRoZXNlCm1vbml0b3JpbmcgZGV2aWNlcyBjYW4gZWl0aGVyIGJlIG9uIHRoZSBTTUJ1
-cywgb3Igb24gdGhlIExQQyBidXMuIEluCnRoZSBmb3JtZXIgY2FzZSwgYW4gYWRkaXRpb25hbCBk
-cml2ZXIgaXMgbmVlZGVkLCBidXQgdGhhdCdzIGFuCmltcGxlbWVudGF0aW9uIGRldGFpbC4gVGhl
-IEkyQyAoU01CdXMpIGJ1cyBkcml2ZXJzIGFyZSBwcm92aWRlZCBieSB0aGUKa2VybmVsLCBhbmQg
-c28gYXJlIHRoZSBod21vbiBkcml2ZXJzLiBJIHdvdWxkIGJlIHRlbXB0ZWQgdG8gc2F5IHRoYXQK
-dGhlIGh3bW9uIGRyaXZlcnMgbm8gbG9uZ2VyIGJlbG9uZyB0byAibG0tc2Vuc29ycyIsIGJ1dCBp
-ZiB5b3Ugd2FudCB0bwp0aGluayBvZiB0aGVtIGFzIGJlbG9uZ2luZyB0byBsbS1zZW5zb3JzLCB3
-aHkgbm90LgoKSW4gdGhlIHBhc3QsIHRoZSBsbS1zZW5zb3JzIHBhY2thZ2UgaGFzIGluY2x1ZGVk
-IGkyYyBidXMgZHJpdmVycywKYmVjYXVzZSB0aGV5IHdlcmUgbm90IHlldCBtZXJnZWQgaW4gdGhl
-IGtlcm5lbCBhbmQgd2UgbmVlZGVkIHRoZW0uIEJ1dAp0aGF0IHdhcyB5ZWFycyBhZ28uIFRoaW5r
-aW5nIG9mIHRoZSBpMmMgYnVzIGRyaXZlcnMgYXMgYmVpbmcgcGFydCBvZgpsbS1zZW5zb3JzIHRv
-ZGF5IGlzIG5vIGdvb2QsIGJlY2F1c2UgdGhlbiB5b3UgZm9yZ2V0IHRoYXQgbWFueSBoYXJkd2Fy
-ZQptb25pdG9yaW5nIGNoaXBzIGRvbid0IG5lZWQgSTJDL1NNQnVzIGF0IGFsbCwgYW5kIHRoYXQg
-bWFueSBJMkMvU01CdXMKZGV2aWNlcyBhcmUgbm90IGhhcmR3YXJlIG1vbml0b3JpbmcgY2hpcHMu
-CgpUaGUgaTJjIG1haWxpbmcgbGlzdCBhbmQgdGhlIGkyYy10b29scyBTVk4gcmVwb3NpdG9yeSBh
-cmUgaG9zdGVkIG9uCmxtLXNlbnNvcnMub3JnIGZvciBoaXN0b3JpY2FsIHJlYXNvbnMgb25seS4g
-VGhleSBhcmUgY29tcGxldGVseQppbmRlcGVuZGVudCBmcm9tIHRoZSBsbS1zZW5zb3JzIHByb2pl
-Y3QuCgo+IEJlY2F1c2Ugb2YgYWJvdmUgbWVudGlvbmVkIHdlIGhhdmUgZG9uZSBzb21lIGRldmVs
-b3BtZW50IGFuZCB3ZSBhcmUgYWJsZSwKPiB1c2luZyBsbS1zZW5zb3JzLCB0byBjb21tdW5pY2F0
-ZSB3aXRoIFBJQyBtaWNyb2NvbnRyb2xlcnMgKHRoZXkgYXJlIGFjdGluZwo+IGFzIEkyQyBzbGF2
-ZXMpIG9uIHRoZSBWSUEgYW5kIFVuaWNvcm4gbW90aGVyYm9hcmRzLiBGcm9tIG91ciB0ZXN0IGl0
-IGxvb2tzCj4gbGlrZSB3ZSBhcmUgY29tbXVuaWNhdGluZyBjbG9zZSB0byB0aGUgMTAwa2Jwcy4K
-CllvdSBhcmUgbm90IHVzaW5nIGxtLXNlbnNvcnMgZm9yIHRoYXQuIFlvdSBhcmUgdXNpbmcgdGhl
-IGtlcm5lbCdzIGkyYwpidXMgZHJpdmVycy4gbG0tc2Vuc29ycyBpcyBmb3IgaGFyZHdhcmUgbW9u
-aXRvcmluZyBvbmx5LgoKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vuc29ycy5v
-cmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
+--===============5464950115044124295==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_1901_5432697.1213396359613"
+
+------=_Part_1901_5432697.1213396359613
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+>
+> I seriously doubt it. I have the SCH311x datasheet under the eyes and
+> it doesn't even mention SMBus. Neither as a slave nor as a master.
+> Unless you are using GPIO pins to implement a bit-banged I2C bus using
+> a custom kernel driver...
+>
+> The dme1737 driver supports the hardware monitoring block of the
+> SCH311x. This functionality is accessed over the LPC bus, not the SMBus.
+>
+
+Yes, you are right, I was writing my mail and I did not re-check our
+installation and my memory did not work properly. Sorry for that mistake.
+Now, after checking it I see we are using scx200_acb and i2c-dev modules for
+the I2C communication (using i2cdetect, i2cdump, i2cget commands for the
+basic recognition of devices on the bus and the py-smbus binding for the
+main communication on the bus) and the dme1737 to read the voltage and
+temperature from the SCH311x chip
+
+
+> Today, lm-sensors is a library and a set of tools to let users monitor
+> their hardware, i.e. watch the temperatures, voltages and fans. These
+> monitoring devices can either be on the SMBus, or on the LPC bus. In
+> the former case, an additional driver is needed, but that's an
+> implementation detail. The I2C (SMBus) bus drivers are provided by the
+> kernel, and so are the hwmon drivers. I would be tempted to say that
+> the hwmon drivers no longer belong to "lm-sensors", but if you want to
+> think of them as belonging to lm-sensors, why not.
+>
+> In the past, the lm-sensors package has included i2c bus drivers,
+> because they were not yet merged in the kernel and we needed them. But
+> that was years ago. Thinking of the i2c bus drivers as being part of
+> lm-sensors today is no good, because then you forget that many hardware
+> monitoring chips don't need I2C/SMBus at all, and that many I2C/SMBus
+> devices are not hardware monitoring chips.
+>
+> The i2c mailing list and the i2c-tools SVN repository are hosted on
+> lm-sensors.org for historical reasons only. They are completely
+> independent from the lm-sensors project.
+
+
+I feel terribly bad I did not study the details on the web before asking
+"basic" questions and wasting your time... thanks for your patience...
+
+>
+> You are not using lm-sensors for that. You are using the kernel's i2c
+> bus drivers. lm-sensors is for hardware monitoring only.
+
+
+Anyway, if I understand it properly, there is not the way how the set up the
+speed of the i2c bus.
+
+Petr Jakes
+
+------=_Part_1901_5432697.1213396359613
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div class="gmail_quote"><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">I seriously doubt it. I have the SCH311x datasheet under the eyes and<br>
+
+it doesn&#39;t even mention SMBus. Neither as a slave nor as a master.<br>
+Unless you are using GPIO pins to implement a bit-banged I2C bus using<br>
+a custom kernel driver...<br>
+<br>
+The dme1737 driver supports the hardware monitoring block of the<br>
+SCH311x. This functionality is accessed over the LPC bus, not the SMBus.<br>
+<div class="Ih2E3d"></div></blockquote><div><br>Yes, you are right, I was writing my mail and I did not re-check our installation and my memory did not work properly. Sorry for that mistake. Now, after checking it I see we are using scx200_acb and i2c-dev modules for the I2C communication (using i2cdetect, i2cdump, i2cget commands for the basic recognition of devices on the
+bus and the py-smbus binding for the main communication on the bus) and the dme1737 to read the voltage and temperature from the SCH311x chip<br><br></div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<br>
+Today, lm-sensors is a library and a set of tools to let users monitor<br>
+their hardware, i.e. watch the temperatures, voltages and fans. These<br>
+monitoring devices can either be on the SMBus, or on the LPC bus. In<br>
+the former case, an additional driver is needed, but that&#39;s an<br>
+implementation detail. The I2C (SMBus) bus drivers are provided by the <br>
+kernel, and so are the hwmon drivers. I would be tempted to say that<br>
+the hwmon drivers no longer belong to &quot;lm-sensors&quot;, but if you want to<br>
+think of them as belonging to lm-sensors, why not.<br>
+<br>
+In the past, the lm-sensors package has included i2c bus drivers,<br>
+because they were not yet merged in the kernel and we needed them. But<br>
+that was years ago. Thinking of the i2c bus drivers as being part of<br>
+lm-sensors today is no good, because then you forget that many hardware<br>
+monitoring chips don&#39;t need I2C/SMBus at all, and that many I2C/SMBus<br>
+devices are not hardware monitoring chips.<br>
+<br>
+The i2c mailing list and the i2c-tools SVN repository are hosted on<br>
+<a href="http://lm-sensors.org" target="_blank">lm-sensors.org</a> for historical reasons only. They are completely<br>
+independent from the lm-sensors project.</blockquote><div><br>I feel terribly bad I did not study the details on the web before asking&nbsp; &quot;basic&quot; questions and wasting your time... thanks for your patience...<br>
+</div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><br>
+You are not using lm-sensors for that. You are using the kernel&#39;s i2c<br>
+bus drivers. lm-sensors is for hardware monitoring only.</blockquote><div><br>Anyway, if I understand it properly, there is not the way how the set up the speed of the i2c bus.<br><br>Petr Jakes <br><br></div></div>
+
+------=_Part_1901_5432697.1213396359613--
+
+
+--===============5464950115044124295==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============5464950115044124295==--
