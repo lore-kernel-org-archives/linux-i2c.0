@@ -1,16 +1,17 @@
-From: "=?UTF-8?Q?Petr_Jake=C5=A1?=" <petr.jakes-VOAeGBCOg48@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: parport (i2c bus) maximum speed
-Date: Fri, 13 Jun 2008 20:04:02 +0200
-Message-ID: <c193ec310806131104wcbba767g602db89266492f31@mail.gmail.com>
+Date: Fri, 13 Jun 2008 22:56:24 +0200
+Message-ID: <20080613225624.11ad3ece@hyperion.delvare>
 References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
 	<20080613160205.60b719c3@hyperion.delvare>
 	<c193ec310806130855s2227f429pd151466a88539c90@mail.gmail.com>
 	<20080613191707.13731136@hyperion.delvare>
-Reply-To: petr.jakes-VOAeGBCOg48@public.gmane.org
+	<c193ec310806131104wcbba767g602db89266492f31@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8266414946145940995=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080613191707.13731136-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <c193ec310806131104wcbba767g602db89266492f31-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,135 +21,56 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: petr.jakes-VOAeGBCOg48@public.gmane.org
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============8266414946145940995==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_28520_3048641.1213380242360"
-
-------=_Part_28520_3048641.1213380242360
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
->
-> > Now we do SMBus communication through dme1737 (we have compatilbe chip on
-> > the motherboard). I guess it is not possible to change the bus speed
-> because
-> > the master (DME1737) is generating the clock frequency of the SMBus.
->
-> I don't think the DME1737 can act as an SMBus master, or can it? As far
-> as I know the DME1737 is an SMBus slave and multiplexer, but not a
-> master. If I am correct then what matters is the actual SMBus master on
-> the motherboard.
-
-Maybe I was not specific enough. Actually there is an SCH3114 chip on our
-motherboard (http://www.smsc.com/main/catalog/sch311x.html ) and lm-sensors
-need dme1737 module for this chip.
-This chip acts as a SMBus master.
-
->
-> > Just for your information we have PIC 16F887 connected to the bus as a
-> slave
-> > (which was really pain and a lot of SW hacking on the PIC side - it looks
-> > like Microchip I2C HW/SW implementation does not work properly
-> "sometimes").
-> >
-> > The good thing is we have slaves connected directly to the system SMBus
-> and
-> > we are doing MISSIVE communication on the bus (motors control, keyboard,
-> LCD
-> > display, I/O) and we have not observed any single problem (we are using
-> > py-smbus binding for the communication).
-> >
-> > Are there some other ways (HW interfaces etc.) to get lm-sensors work on
-> the
-> > higher speed?
->
-> I'm confused now. How is I2C/SMBus speed related to lm-sensors at all?
-
-
-I am confused as well :-)
-My feeling was lm-sensors are here to:
-
-   1. enable SMBus/I2C communication (mainly using HW masters presented on
-   the motherboards)  to communicate with SMBus slaves (mainly presented on the
-   PC motherboards, ie clock, temperature, fans ....).
-   2. enable SMBus/I2C communication with some other chips which one can
-   connect to the bus
-
-Because of above mentioned we have done some development and we are able,
-using lm-sensors, to communicate with PIC microcontrolers (they are acting
-as I2C slaves) on the VIA and Unicorn motherboards. From our test it looks
-like we are communicating close to the 100kbps.
-
-I was just wondering if it is possible to set the lm-sensors to communicate
-faser, so I posted my question to this discussion group.
-
-
-> Most SMBus controllers on PC motherboards run at low speeds (from 10 to
-> 64 kbps), mainly because there's no need for speed when you only have a
-> hardware monitoring chip and a couple SPD EEPROMs on the bus. So If you
-> want high-speed you'll have to use an additional controller, but I
-> don't know of any (except for parallel port or USB do-it-yourself
-> adapters, but that's not much faster.)
-
-
-OK, thanks for this info
-
-Petr Jakes
-
-------=_Part_28520_3048641.1213380242360
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<div class="gmail_quote"><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div class="Ih2E3d">&gt; Now we do SMBus communication through dme1737 (we have compatilbe chip on<br>
-
-&gt; the motherboard). I guess it is not possible to change the bus speed because<br>
-&gt; the master (DME1737) is generating the clock frequency of the SMBus.<br>
-<br>
-</div>I don&#39;t think the DME1737 can act as an SMBus master, or can it? As far<br>
-as I know the DME1737 is an SMBus slave and multiplexer, but not a<br>
-master. If I am correct then what matters is the actual SMBus master on<br>
-the motherboard.</blockquote><div>Maybe I was not specific enough. Actually there is an SCH3114 chip on our motherboard (<a href="http://www.smsc.com/main/catalog/sch311x.html">http://www.smsc.com/main/catalog/sch311x.html</a> ) and lm-sensors need dme1737 module for this chip.<br>
-This chip acts as a SMBus master.<br> 
-</div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div class="Ih2E3d"><br>
-&gt; Just for your information we have PIC 16F887 connected to the bus as a slave<br>
-&gt; (which was really pain and a lot of SW hacking on the PIC side - it looks<br>
-&gt; like Microchip I2C HW/SW implementation does not work properly &quot;sometimes&quot;).<br>
-&gt;<br>
-&gt; The good thing is we have slaves connected directly to the system SMBus and<br>
-&gt; we are doing MISSIVE communication on the bus (motors control, keyboard, LCD<br>
-&gt; display, I/O) and we have not observed any single problem (we are using<br>
-&gt; py-smbus binding for the communication).<br>
-&gt;<br>
-&gt; Are there some other ways (HW interfaces etc.) to get lm-sensors work on the<br>
-&gt; higher speed?<br>
-<br>
-</div>I&#39;m confused now. How is I2C/SMBus speed related to lm-sensors at all?</blockquote><div><br>I am confused as well :-) <br>My feeling was lm-sensors are here to:<br><ol><li>enable SMBus/I2C communication (mainly using HW masters presented on the motherboards)&nbsp; to communicate with SMBus slaves (mainly presented on the PC motherboards, ie clock, temperature, fans ....).&nbsp;&nbsp; </li>
-<li>enable SMBus/I2C communication with some other chips which one can connect to the bus</li></ol>Because of above mentioned we have done some development and we are able, using lm-sensors, to communicate with PIC microcontrolers (they are acting as I2C slaves) on the VIA and Unicorn motherboards. From our test it looks like we are communicating close to the 100kbps. <br>
-<br>I was just wondering if it is possible to set the lm-sensors to communicate faser, so I posted my question to this discussion group.<br></div><div>&nbsp;</div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-Most SMBus controllers on PC motherboards run at low speeds (from 10 to<br>
-64 kbps), mainly because there&#39;s no need for speed when you only have a<br>
-hardware monitoring chip and a couple SPD EEPROMs on the bus. So If you<br>
-want high-speed you&#39;ll have to use an additional controller, but I<br>
-don&#39;t know of any (except for parallel port or USB do-it-yourself<br>
-adapters, but that&#39;s not much faster.)</blockquote><div>&nbsp;</div><div>OK, thanks for this info<br><br>Petr Jakes<br> </div></div><br>
-
-------=_Part_28520_3048641.1213380242360--
-
-
---===============8266414946145940995==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8266414946145940995==--
+T24gRnJpLCAxMyBKdW4gMjAwOCAyMDowNDowMiArMDIwMCwgUGV0ciBKYWtlxaEgd3JvdGU6Cj4g
+TWF5YmUgSSB3YXMgbm90IHNwZWNpZmljIGVub3VnaC4gQWN0dWFsbHkgdGhlcmUgaXMgYW4gU0NI
+MzExNCBjaGlwIG9uIG91cgo+IG1vdGhlcmJvYXJkIChodHRwOi8vd3d3LnNtc2MuY29tL21haW4v
+Y2F0YWxvZy9zY2gzMTF4Lmh0bWwgKSBhbmQgbG0tc2Vuc29ycwo+IG5lZWQgZG1lMTczNyBtb2R1
+bGUgZm9yIHRoaXMgY2hpcC4KPiBUaGlzIGNoaXAgYWN0cyBhcyBhIFNNQnVzIG1hc3Rlci4KCkkg
+c2VyaW91c2x5IGRvdWJ0IGl0LiBJIGhhdmUgdGhlIFNDSDMxMXggZGF0YXNoZWV0IHVuZGVyIHRo
+ZSBleWVzIGFuZAppdCBkb2Vzbid0IGV2ZW4gbWVudGlvbiBTTUJ1cy4gTmVpdGhlciBhcyBhIHNs
+YXZlIG5vciBhcyBhIG1hc3Rlci4KVW5sZXNzIHlvdSBhcmUgdXNpbmcgR1BJTyBwaW5zIHRvIGlt
+cGxlbWVudCBhIGJpdC1iYW5nZWQgSTJDIGJ1cyB1c2luZwphIGN1c3RvbSBrZXJuZWwgZHJpdmVy
+Li4uCgpUaGUgZG1lMTczNyBkcml2ZXIgc3VwcG9ydHMgdGhlIGhhcmR3YXJlIG1vbml0b3Jpbmcg
+YmxvY2sgb2YgdGhlClNDSDMxMXguIFRoaXMgZnVuY3Rpb25hbGl0eSBpcyBhY2Nlc3NlZCBvdmVy
+IHRoZSBMUEMgYnVzLCBub3QgdGhlIFNNQnVzLgoKPiA+IEknbSBjb25mdXNlZCBub3cuIEhvdyBp
+cyBJMkMvU01CdXMgc3BlZWQgcmVsYXRlZCB0byBsbS1zZW5zb3JzIGF0IGFsbD8KPiAKPiAKPiBJ
+IGFtIGNvbmZ1c2VkIGFzIHdlbGwgOi0pCj4gTXkgZmVlbGluZyB3YXMgbG0tc2Vuc29ycyBhcmUg
+aGVyZSB0bzoKPiAKPiAgICAxLiBlbmFibGUgU01CdXMvSTJDIGNvbW11bmljYXRpb24gKG1haW5s
+eSB1c2luZyBIVyBtYXN0ZXJzIHByZXNlbnRlZCBvbgo+ICAgIHRoZSBtb3RoZXJib2FyZHMpICB0
+byBjb21tdW5pY2F0ZSB3aXRoIFNNQnVzIHNsYXZlcyAobWFpbmx5IHByZXNlbnRlZCBvbiB0aGUK
+PiAgICBQQyBtb3RoZXJib2FyZHMsIGllIGNsb2NrLCB0ZW1wZXJhdHVyZSwgZmFucyAuLi4uKS4K
+PiAgICAyLiBlbmFibGUgU01CdXMvSTJDIGNvbW11bmljYXRpb24gd2l0aCBzb21lIG90aGVyIGNo
+aXBzIHdoaWNoIG9uZSBjYW4KPiAgICBjb25uZWN0IHRvIHRoZSBidXMKClRvZGF5LCBsbS1zZW5z
+b3JzIGlzIGEgbGlicmFyeSBhbmQgYSBzZXQgb2YgdG9vbHMgdG8gbGV0IHVzZXJzIG1vbml0b3IK
+dGhlaXIgaGFyZHdhcmUsIGkuZS4gd2F0Y2ggdGhlIHRlbXBlcmF0dXJlcywgdm9sdGFnZXMgYW5k
+IGZhbnMuIFRoZXNlCm1vbml0b3JpbmcgZGV2aWNlcyBjYW4gZWl0aGVyIGJlIG9uIHRoZSBTTUJ1
+cywgb3Igb24gdGhlIExQQyBidXMuIEluCnRoZSBmb3JtZXIgY2FzZSwgYW4gYWRkaXRpb25hbCBk
+cml2ZXIgaXMgbmVlZGVkLCBidXQgdGhhdCdzIGFuCmltcGxlbWVudGF0aW9uIGRldGFpbC4gVGhl
+IEkyQyAoU01CdXMpIGJ1cyBkcml2ZXJzIGFyZSBwcm92aWRlZCBieSB0aGUKa2VybmVsLCBhbmQg
+c28gYXJlIHRoZSBod21vbiBkcml2ZXJzLiBJIHdvdWxkIGJlIHRlbXB0ZWQgdG8gc2F5IHRoYXQK
+dGhlIGh3bW9uIGRyaXZlcnMgbm8gbG9uZ2VyIGJlbG9uZyB0byAibG0tc2Vuc29ycyIsIGJ1dCBp
+ZiB5b3Ugd2FudCB0bwp0aGluayBvZiB0aGVtIGFzIGJlbG9uZ2luZyB0byBsbS1zZW5zb3JzLCB3
+aHkgbm90LgoKSW4gdGhlIHBhc3QsIHRoZSBsbS1zZW5zb3JzIHBhY2thZ2UgaGFzIGluY2x1ZGVk
+IGkyYyBidXMgZHJpdmVycywKYmVjYXVzZSB0aGV5IHdlcmUgbm90IHlldCBtZXJnZWQgaW4gdGhl
+IGtlcm5lbCBhbmQgd2UgbmVlZGVkIHRoZW0uIEJ1dAp0aGF0IHdhcyB5ZWFycyBhZ28uIFRoaW5r
+aW5nIG9mIHRoZSBpMmMgYnVzIGRyaXZlcnMgYXMgYmVpbmcgcGFydCBvZgpsbS1zZW5zb3JzIHRv
+ZGF5IGlzIG5vIGdvb2QsIGJlY2F1c2UgdGhlbiB5b3UgZm9yZ2V0IHRoYXQgbWFueSBoYXJkd2Fy
+ZQptb25pdG9yaW5nIGNoaXBzIGRvbid0IG5lZWQgSTJDL1NNQnVzIGF0IGFsbCwgYW5kIHRoYXQg
+bWFueSBJMkMvU01CdXMKZGV2aWNlcyBhcmUgbm90IGhhcmR3YXJlIG1vbml0b3JpbmcgY2hpcHMu
+CgpUaGUgaTJjIG1haWxpbmcgbGlzdCBhbmQgdGhlIGkyYy10b29scyBTVk4gcmVwb3NpdG9yeSBh
+cmUgaG9zdGVkIG9uCmxtLXNlbnNvcnMub3JnIGZvciBoaXN0b3JpY2FsIHJlYXNvbnMgb25seS4g
+VGhleSBhcmUgY29tcGxldGVseQppbmRlcGVuZGVudCBmcm9tIHRoZSBsbS1zZW5zb3JzIHByb2pl
+Y3QuCgo+IEJlY2F1c2Ugb2YgYWJvdmUgbWVudGlvbmVkIHdlIGhhdmUgZG9uZSBzb21lIGRldmVs
+b3BtZW50IGFuZCB3ZSBhcmUgYWJsZSwKPiB1c2luZyBsbS1zZW5zb3JzLCB0byBjb21tdW5pY2F0
+ZSB3aXRoIFBJQyBtaWNyb2NvbnRyb2xlcnMgKHRoZXkgYXJlIGFjdGluZwo+IGFzIEkyQyBzbGF2
+ZXMpIG9uIHRoZSBWSUEgYW5kIFVuaWNvcm4gbW90aGVyYm9hcmRzLiBGcm9tIG91ciB0ZXN0IGl0
+IGxvb2tzCj4gbGlrZSB3ZSBhcmUgY29tbXVuaWNhdGluZyBjbG9zZSB0byB0aGUgMTAwa2Jwcy4K
+CllvdSBhcmUgbm90IHVzaW5nIGxtLXNlbnNvcnMgZm9yIHRoYXQuIFlvdSBhcmUgdXNpbmcgdGhl
+IGtlcm5lbCdzIGkyYwpidXMgZHJpdmVycy4gbG0tc2Vuc29ycyBpcyBmb3IgaGFyZHdhcmUgbW9u
+aXRvcmluZyBvbmx5LgoKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vuc29ycy5v
+cmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
