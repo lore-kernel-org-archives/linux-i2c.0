@@ -1,11 +1,13 @@
-From: "=?UTF-8?Q?Petr_Jake=C5=A1?=" <petr.jakes-VOAeGBCOg48@public.gmane.org>
-Subject: parport (i2c bus) maximum speed
-Date: Fri, 13 Jun 2008 15:44:12 +0200
-Message-ID: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
-Reply-To: petr.jakes-VOAeGBCOg48@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: parport (i2c bus) maximum speed
+Date: Fri, 13 Jun 2008 16:02:05 +0200
+Message-ID: <20080613160205.60b719c3@hyperion.delvare>
+References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7619923313819142823=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <c193ec310806130644p22c1e466g9cd6e6711d4b691b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,47 +17,31 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: petr.jakes-VOAeGBCOg48@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============7619923313819142823==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_18531_2356862.1213364652877"
-
-------=_Part_18531_2356862.1213364652877
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I am thinking about to build an I2C-parport HW adapter. I would like to
-know, what is the maximum speed one can get on the I2C bus using parport HW
-adapter. I expect 100kbps is a standard speed but if it possible to go to
-400k it will be great.
-If it is not possible to get 400kbps speed using the parport, other hints
-are appreciated of course :-)
-Thanks for your reply
-
-Petr Jakes
-
-------=_Part_18531_2356862.1213364652877
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I am thinking about to build an I2C-parport HW adapter. I would like to know, what is the maximum speed one can get on the I2C bus using parport HW adapter. I expect 100kbps is a standard speed but if it possible to go to 400k it will be great.<br>
-If it is not possible to get 400kbps speed using the parport, other hints are appreciated of course :-)<br>Thanks for your reply<br><br>Petr Jakes<br>
-
-------=_Part_18531_2356862.1213364652877--
-
-
---===============7619923313819142823==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============7619923313819142823==--
+SGkgUGV0ciwKCk9uIEZyaSwgMTMgSnVuIDIwMDggMTU6NDQ6MTIgKzAyMDAsIFBldHIgSmFrZcWh
+IHdyb3RlOgo+IEkgYW0gdGhpbmtpbmcgYWJvdXQgdG8gYnVpbGQgYW4gSTJDLXBhcnBvcnQgSFcg
+YWRhcHRlci4gSSB3b3VsZCBsaWtlIHRvCj4ga25vdywgd2hhdCBpcyB0aGUgbWF4aW11bSBzcGVl
+ZCBvbmUgY2FuIGdldCBvbiB0aGUgSTJDIGJ1cyB1c2luZyBwYXJwb3J0IEhXCj4gYWRhcHRlci4g
+SSBleHBlY3QgMTAwa2JwcyBpcyBhIHN0YW5kYXJkIHNwZWVkIGJ1dCBpZiBpdCBwb3NzaWJsZSB0
+byBnbyB0bwo+IDQwMGsgaXQgd2lsbCBiZSBncmVhdC4KPiBJZiBpdCBpcyBub3QgcG9zc2libGUg
+dG8gZ2V0IDQwMGticHMgc3BlZWQgdXNpbmcgdGhlIHBhcnBvcnQsIG90aGVyIGhpbnRzCj4gYXJl
+IGFwcHJlY2lhdGVkIG9mIGNvdXJzZSA6LSkKCk91ciBjdXJyZW50IGkyYy1hbGdvLWJpdCBpbXBs
+ZW1lbnRhdGlvbiBjYW4ndCBnbyBmYXN0ZXIgdGhhbiAyNTAga2JwcwpieSBkZXNpZ24uIEkgdGhp
+bmsgSSByZW1lbWJlciB0cnlpbmcgaXQgYW5kIGl0IHdhcyB3b3JraW5nIGZpbmUuIEJ1dCBpZgpt
+ZW1vcnkgc2VydmVzIHRoZSBhY3R1YWwgc3BlZWQgZW5kZWQgdXAgYmVpbmcgc2lnbmlmaWNhbnRs
+eSBsZXNzIHRoYW4KMjUwIGtwYnMsIG1heWJlIDE2MCBrYnBzLiBKdXN0IGxpa2UgeW91IGRvbid0
+IGFjdHVhbGx5IGdldCAxMDAga2Jwcwp3aGVuIHlvdSBhc2sgZm9yIDEwMCBrYnBzLiBJIGd1ZXNz
+IHRoYXQgdGhlcmUncyBsYXRlbmN5IGluIHN3aXRjaGluZwp0aGUgcGFycG9ydCBwaW5zLCB3aGlj
+aCBiZWNvbWVzIHZpc2libGUgYXMgdGhlIHNwZWVkIGluY3JlYXNlcy4KCklmIHlvdSBwbGFuIG9u
+IGRvaW5nIGZhc3QgSTJDIG92ZXIgcGFycG9ydCwgdGhlbiBJIHRoaW5rIHlvdSB3YW50IHRvCmdp
+dmUgdXAgb24gYml0LWJhbmdpbmcgYW5kIGluc3RlYWQgY29udHJvbCBhbiBJMkMgbWFzdGVyIGJl
+eW9uZCB0aGUKcGFyYWxsZWwgcG9ydC4gVGhhdCB3YXkgeW91IHRha2UgYmVuZWZpdCBvZiB0aGUg
+cGFyYWxsZWwgYXNwZWN0IG9mCnBhcnBvcnQgYW5kIHlvdSBzaG91bGQgYmUgYWJsZSB0byByZWFj
+aCA0MDAga2Jwcy4gVXNpbmcgYSBjaGlwIHdlCmFscmVhZHkgaGF2ZSBhYnN0cmFjdGVkIHN1cHBv
+cnQgZm9yIChQQ0Y4NTg0IG9yIFBDQTk1NjQpIHRoaXMgc2hvdWxkbid0CmJlIHRvbyBkaWZmaWN1
+bHQuCgotLSAKSmVhbiBEZWx2YXJlCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwppMmMgbWFpbGluZyBsaXN0CmkyY0BsbS1zZW5zb3JzLm9yZwpodHRwOi8v
+bGlzdHMubG0tc2Vuc29ycy5vcmcvbWFpbG1hbi9saXN0aW5mby9pMmM=
