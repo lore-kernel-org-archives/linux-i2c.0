@@ -1,11 +1,14 @@
-From: "Portal EcoViagem" <turismo-Khf0NFRIK+lpCbRfmMzf6w@public.gmane.org>
-Subject: Turismo lucra com a internet
-Date: Fri, 13 Jun 2008 12:39:06 -0300
-Message-ID: <189A4894201C42FD97C7C25C02B94A5E@ecoviagem.com.br>
+From: "Eric Brower" <ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c-algo-pcf: Drop unused struct members
+Date: Fri, 13 Jun 2008 08:54:40 -0700
+Message-ID: <ec7cefb0806130854y66f93fa8x9b671b539d9b2492@mail.gmail.com>
+References: <20080613102510.0b40b352@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2737778578647217499=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Class: urn:content-classes:message
+In-Reply-To: <20080613102510.0b40b352-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,58 +18,67 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Daniel Smolik <marvin-0pWKB23IDFjrBKCeMvbIDA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============2737778578647217499==
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-Content-Class: urn:content-classes:message
+On Fri, Jun 13, 2008 at 1:25 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Struct members udelay and timeout aren't used anywhere, so drop them.
+>
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> ---
+> Eric, Daniel, you're using i2c-algo-pcf more than me, can you please
+> check and confirm that this patch is correct? It applies on top of
+> Eric's patch for lost arbitration handling.
+>
+>  drivers/i2c/busses/i2c-elektor.c |    2 --
+>  include/linux/i2c-algo-pcf.h     |    4 ----
+>  2 files changed, 6 deletions(-)
+>
+> --- linux-2.6.26-rc5.orig/drivers/i2c/busses/i2c-elektor.c      2008-06-12 15:22:32.000000000 +0200
+> +++ linux-2.6.26-rc5/drivers/i2c/busses/i2c-elektor.c   2008-06-13 09:32:27.000000000 +0200
+> @@ -196,8 +196,6 @@ static struct i2c_algo_pcf_data pcf_isa_
+>        .getown     = pcf_isa_getown,
+>        .getclock   = pcf_isa_getclock,
+>        .waitforpin = pcf_isa_waitforpin,
+> -       .udelay     = 10,
+> -       .timeout    = 100,
+>  };
+>
+>  static struct i2c_adapter pcf_isa_ops = {
+> --- linux-2.6.26-rc5.orig/include/linux/i2c-algo-pcf.h  2008-06-13 09:08:00.000000000 +0200
+> +++ linux-2.6.26-rc5/include/linux/i2c-algo-pcf.h       2008-06-13 09:11:50.000000000 +0200
+> @@ -33,10 +33,6 @@ struct i2c_algo_pcf_data {
+>        int  (*getclock) (void *data);
+>        void (*waitforpin) (void);
+>
+> -       /* local settings */
+> -       int udelay;
+> -       int timeout;
+> -
+>        /* Multi-master lost arbitration back-off delay (msecs)
+>         * This should be set by the bus adapter or knowledgable client
+>         * if bus is multi-mastered, else zero
+>
+>
+> --
+> Jean Delvare
+>
 
-Bom dia,
+ACKed on 2.6.26-rc1.  Compiles (and runs) fine.
 
-Em agosto de 2007, surgiu, no mercado brasileiro, um novo conceito de site de turismo. Foi lançado o EcoViagem, um site que oferece para hotéis, pousadas e agências de viagens e turismo, anúncios de qualidade, totalmente GRÁTIS.
+[Daniel, this requires changes to i2c-envctrl, since it references the
+removed members when initializing the i2c_algo_pcf_data struct.]
 
-Deste seu lançamento, mais de 1900 empresas já criaram seus anúncios, e hoje este é o site brasileiro que mais cresce em sua categoria, atingindo uma audiência que ultrapassa os 280 mil turistas; e as visitas não páram de aumentar, em média, 12% ao mês.
+Thanks again, Jean.
 
-Apesar de totalmente GRATUITO, o anúncio possibilita uma infinidade de detalhes da empresa e de suas ofertas, que nenhum outro site, mesmo pago, já ofereceu. Ele não limita o número de fotos, vídeos, produtos, entre outros, que a empresa pode anunciar.
-
-Para conhecer exemplos reais de anúncios já montados por algumas empresas, clique nos links abaixo:
-
-Agência de Viagens
-http://www.ecoviagem.com.br/a/251/25138-exemplo-agencia-turismo.asp
-
-Hotéis e Pousadas
-http://www.ecoviagem.com.br/a/251/25138-exemplo-hoteis-pousadas.asp
-
-Para anunciar basta acessar http://www.ecoviagem.com.br/a/251/25138-anuncio-gratis.asp e preencher os formulários.
-
-Sugerimos aos interessados em anunciar neste site, que assistam às VÍDEO-AULAS disponibilizadas na página de cadastro, pois elas ensinam passo-a-passo como se destacar para atrair mais visitas e contatos dos turistas.
-
-Desde já aguardamos o seu anúncio e desejamos que suas vendas aumentem.
-
-Obrigado e  aguardamos o seu anúncio.
-
-Atenciosamente,
-
-Anderson Cattoni
-anderson-Khf0NFRIK+lpCbRfmMzf6w@public.gmane.org
-Skype: turistec-ecoviagem
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-EcoViagem - Turismo fácil e interativo
-http://www.ecoviagem.com.br/a/251/25138-anuncio-gratis.asp
-
-Email enviado em 13/6/2008 12:39:06 para i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+E
 
 
---===============2737778578647217499==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+E
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2737778578647217499==--
