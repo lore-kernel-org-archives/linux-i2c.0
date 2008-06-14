@@ -1,18 +1,19 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] fix i801_transaction() and ioctl return values
- for i2c-i801
-Date: Sat, 14 Jun 2008 22:26:35 +0200
-Message-ID: <20080614222635.15b41914@hyperion.delvare>
-References: <20080606124447.756f8262@eurotech-ltd.co.uk>
-	<20080608201828.18483a17@hyperion.delvare>
-	<20080609115656.27d37dc2@eurotech-ltd.co.uk>
-	<20080609152352.40f3b5eb@hyperion.delvare>
-	<loom.20080609T150250-626@post.gmane.org>
+Subject: Re: parport (i2c bus) maximum speed
+Date: Sat, 14 Jun 2008 22:37:23 +0200
+Message-ID: <20080614223723.4eab2298@hyperion.delvare>
+References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
+	<20080613160205.60b719c3@hyperion.delvare>
+	<c193ec310806130855s2227f429pd151466a88539c90@mail.gmail.com>
+	<20080613191707.13731136@hyperion.delvare>
+	<c193ec310806131104wcbba767g602db89266492f31@mail.gmail.com>
+	<20080613225624.11ad3ece@hyperion.delvare>
+	<c193ec310806131532o1e7a8bdasc4856aa09b90e9ae@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <loom.20080609T150250-626-eS7Uydv5nfjZ+VzJOa5vwg@public.gmane.org>
+In-Reply-To: <c193ec310806131532o1e7a8bdasc4856aa09b90e9ae-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,95 +23,39 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Amit Walambe <amit.walambe-ymFC7zkAqBLaL3YF3Y4TSbVCufUGDwFn@public.gmane.org>
+To: petr.jakes-VOAeGBCOg48@public.gmane.org
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Amit,
-
-Sorry for the late reply, I wanted to have some code to show before
-replying and it took longer to write than expected.
-
-On Mon, 9 Jun 2008 15:27:50 +0000 (UTC), Amit Walambe wrote:
-> > I don't understand. You just said yourself that the problem didn't show
-> > on a 2.6.23 kernel, meaning that we somehow fixed the bug already, but
-> > still you want your patch to be applied?
-> My patch only waits till the busy bit clears. As you have said in your reply, it
-> adds unconditional delay of atleast 1 ms, but it avoided a few subsequent user
-> requests from failing.
-> I agree this happened on a very old kernel with vastly different behaviour, but
-> there is nothing in the current code to prevent it from happening. Still, I make
-> it your call if too cautious (but slow) patch is a good idea or not.
-> Please let me know if you think.
-
-The slowdown caused by your patch is clearly not acceptable. It would
-be very easy to rewrite it to only delay as necessary. But the reason
-why I dislike your patch goes beyond this: I think it's broken by
-design. I can't see how it is different from simply changing the value
-of MAX_TIMEOUT from 100 to 200 as far as delay is concerned. And
-increasing MAX_TIMEOUT to 200 would have the added benefit that the
-first transaction would even succeed instead of failing (if the issue
-is that the transaction takes more time than the driver expects.)
-
-Have you tried increasing MAX_TIMEOUT to 200 or even 500, to see if it
-would solve your problem?
-
-> > For example, this patch:
-> >
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ca8b9e32a11a7cbfecbef00c8451a79fe1af392e
-> > seems pretty relevant to me, as it attempts to cleanly stop the
-> > controller on transaction timeout. It went into kernel 2.6.23.
-> This patch is useful to handle the failure that has occured (a new request fails
-> since controller is still busy with previous operation). But it doesn't avoid
-> this situation.
-
-It is supposed to address exactly the problem you reported, by not
-leaving the controller in a busy state at the end of a "failing"
-transaction (where "failing" can mean "takes too long" too). Whether
-this actually works or not, is another story... I gave it a try today
-on an ICH5-based system, and the only error case I could test (SMBus
-block read with invalid size) was not recovered properly. The code
-looks good though, so maybe it's a hardware issue. I would really like
-to know if it works in your case.
-
-> > I asked for the output of i2cdetect (i2cdetect 0 in your case), not
-> > i2cdetect -l. I wanted to have an idea what chips were present on the
-> > bus.
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- 08 -- -- -- -- -- -- -- 
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 30: 30 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
-> 40: -- -- -- -- 44 -- -- -- 48 -- -- -- -- -- -- -- 
-> 50: 50 -- -- -- 54 -- -- -- -- -- -- -- -- -- -- -- 
-> 60: -- -- -- -- -- -- -- -- -- 69 6a -- -- -- -- -- 
-> 70: -- -- -- -- -- -- -- --                         
-
-I/O, EEPROM, thermal sensor, clock chips... lot of stuff on this bus!
-
-> > One important thing to notice is that the driver is still doing
-> > something wrong in this area. If the host is found busy (bit 0 of the
-> > status register) the driver attempts to write 1 to that bit. Given that
-> > the bit in question is read-only, I'd say the chances that it works are
-> > thin... 
-> Ok, so the bit manipulation part is useless and wait part is only relevant.
-
-Correct.
-
-As you may have seen already, I've just sent the i2c-i801 patches I've
-been working on. The 4th one:
-  http://lists.lm-sensors.org/pipermail/i2c/2008-June/004070.html
-fixes the handling of the HOST_BUSY bit, amongst other error handling
-cleanups. It would be great if you could test it, although I understand
-that it might be difficult, or even impossible, if your customer has to
-stick to kernel 2.6.9. But one thing for sure, is that I won't take
-your patch, unless you test both kernel 2.6.25 and Linus' latest with
-my patches applied, and both keep failing in your situation.
-
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+T24gU2F0LCAxNCBKdW4gMjAwOCAwMDozMjozOCArMDIwMCwgUGV0ciBKYWtlxaEgd3JvdGU6Cj4g
+PiBJIHNlcmlvdXNseSBkb3VidCBpdC4gSSBoYXZlIHRoZSBTQ0gzMTF4IGRhdGFzaGVldCB1bmRl
+ciB0aGUgZXllcyBhbmQKPiA+IGl0IGRvZXNuJ3QgZXZlbiBtZW50aW9uIFNNQnVzLiBOZWl0aGVy
+IGFzIGEgc2xhdmUgbm9yIGFzIGEgbWFzdGVyLgo+ID4gVW5sZXNzIHlvdSBhcmUgdXNpbmcgR1BJ
+TyBwaW5zIHRvIGltcGxlbWVudCBhIGJpdC1iYW5nZWQgSTJDIGJ1cyB1c2luZwo+ID4gYSBjdXN0
+b20ga2VybmVsIGRyaXZlci4uLgo+ID4KPiA+IFRoZSBkbWUxNzM3IGRyaXZlciBzdXBwb3J0cyB0
+aGUgaGFyZHdhcmUgbW9uaXRvcmluZyBibG9jayBvZiB0aGUKPiA+IFNDSDMxMXguIFRoaXMgZnVu
+Y3Rpb25hbGl0eSBpcyBhY2Nlc3NlZCBvdmVyIHRoZSBMUEMgYnVzLCBub3QgdGhlIFNNQnVzLgo+
+IAo+IFllcywgeW91IGFyZSByaWdodCwgSSB3YXMgd3JpdGluZyBteSBtYWlsIGFuZCBJIGRpZCBu
+b3QgcmUtY2hlY2sgb3VyCj4gaW5zdGFsbGF0aW9uIGFuZCBteSBtZW1vcnkgZGlkIG5vdCB3b3Jr
+IHByb3Blcmx5LiBTb3JyeSBmb3IgdGhhdCBtaXN0YWtlLgo+IE5vdywgYWZ0ZXIgY2hlY2tpbmcg
+aXQgSSBzZWUgd2UgYXJlIHVzaW5nIHNjeDIwMF9hY2IgYW5kIGkyYy1kZXYgbW9kdWxlcyBmb3IK
+PiB0aGUgSTJDIGNvbW11bmljYXRpb24gKHVzaW5nIGkyY2RldGVjdCwgaTJjZHVtcCwgaTJjZ2V0
+IGNvbW1hbmRzIGZvciB0aGUKPiBiYXNpYyByZWNvZ25pdGlvbiBvZiBkZXZpY2VzIG9uIHRoZSBi
+dXMgYW5kIHRoZSBweS1zbWJ1cyBiaW5kaW5nIGZvciB0aGUKPiBtYWluIGNvbW11bmljYXRpb24g
+b24gdGhlIGJ1cykgYW5kIHRoZSBkbWUxNzM3IHRvIHJlYWQgdGhlIHZvbHRhZ2UgYW5kCj4gdGVt
+cGVyYXR1cmUgZnJvbSB0aGUgU0NIMzExeCBjaGlwCgpPSywgdGhhdCBtYWtlcyBzZW5zZS4KCj4g
+KC4uLikKPiBJIGZlZWwgdGVycmlibHkgYmFkIEkgZGlkIG5vdCBzdHVkeSB0aGUgZGV0YWlscyBv
+biB0aGUgd2ViIGJlZm9yZSBhc2tpbmcKPiAiYmFzaWMiIHF1ZXN0aW9ucyBhbmQgd2FzdGluZyB5
+b3VyIHRpbWUuLi4gdGhhbmtzIGZvciB5b3VyIHBhdGllbmNlLi4uCgpObyBwcm9ibGVtLi4uIFRo
+ZSBoaXN0b3J5IG9mIHRoZSBwcm9qZWN0IG1ha2VzIHRoaW5ncyBjb25mdXNpbmcuIEkndmUKbWFk
+ZSBteSBiZXN0IHRvIGNsYXJpZnkgdGhlIHNpdHVhdGlvbiBidXQgSSBrbm93IHdlJ3JlIG5vdCB0
+aGVyZSB5ZXQuCgo+ID4gWW91IGFyZSBub3QgdXNpbmcgbG0tc2Vuc29ycyBmb3IgdGhhdC4gWW91
+IGFyZSB1c2luZyB0aGUga2VybmVsJ3MgaTJjCj4gPiBidXMgZHJpdmVycy4gbG0tc2Vuc29ycyBp
+cyBmb3IgaGFyZHdhcmUgbW9uaXRvcmluZyBvbmx5Lgo+IAo+IEFueXdheSwgaWYgSSB1bmRlcnN0
+YW5kIGl0IHByb3Blcmx5LCB0aGVyZSBpcyBub3QgdGhlIHdheSBob3cgdGhlIHNldCB1cCB0aGUK
+PiBzcGVlZCBvZiB0aGUgaTJjIGJ1cy4KCklmIHRoZXJlIGlzIGEgd2F5LCBpdCdzIHNwZWNpZmlj
+IHRvIHRoZSBzY3gyMDBfYWNiIGRyaXZlciBhbmQgdGhlCnVuZGVybHlpbmcgaGFyZHdhcmUuIEkg
+YW0gbm90IGZhbWlsaWFyIHdpdGggdGhpcyBoYXJkd2FyZSBteXNlbGYsIHNvIEkKY2FuJ3QgdGVs
+bC4KCi0tIApKZWFuIERlbHZhcmUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fCmkyYyBtYWlsaW5nIGxpc3QKaTJjQGxtLXNlbnNvcnMub3JnCmh0dHA6Ly9s
+aXN0cy5sbS1zZW5zb3JzLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2kyYw==
