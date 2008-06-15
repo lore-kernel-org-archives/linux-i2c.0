@@ -1,19 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: parport (i2c bus) maximum speed
-Date: Sat, 14 Jun 2008 22:37:23 +0200
-Message-ID: <20080614223723.4eab2298@hyperion.delvare>
-References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>
-	<20080613160205.60b719c3@hyperion.delvare>
-	<c193ec310806130855s2227f429pd151466a88539c90@mail.gmail.com>
-	<20080613191707.13731136@hyperion.delvare>
-	<c193ec310806131104wcbba767g602db89266492f31@mail.gmail.com>
-	<20080613225624.11ad3ece@hyperion.delvare>
-	<c193ec310806131532o1e7a8bdasc4856aa09b90e9ae@mail.gmail.com>
+From: "kenon brucie" <liam29-VnFHk5q7WL3QT0dZR+AlfA@public.gmane.org>
+Subject: Revenge is a funny thing
+Date: Sun, 15 Jun 2008 12:39:24 +0000
+Message-ID: <000a01c8cef3$0776eaad$100614aa@mrnak>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============3848553636606420813=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <c193ec310806131532o1e7a8bdasc4856aa09b90e9ae-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,39 +14,78 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: petr.jakes-VOAeGBCOg48@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gU2F0LCAxNCBKdW4gMjAwOCAwMDozMjozOCArMDIwMCwgUGV0ciBKYWtlxaEgd3JvdGU6Cj4g
-PiBJIHNlcmlvdXNseSBkb3VidCBpdC4gSSBoYXZlIHRoZSBTQ0gzMTF4IGRhdGFzaGVldCB1bmRl
-ciB0aGUgZXllcyBhbmQKPiA+IGl0IGRvZXNuJ3QgZXZlbiBtZW50aW9uIFNNQnVzLiBOZWl0aGVy
-IGFzIGEgc2xhdmUgbm9yIGFzIGEgbWFzdGVyLgo+ID4gVW5sZXNzIHlvdSBhcmUgdXNpbmcgR1BJ
-TyBwaW5zIHRvIGltcGxlbWVudCBhIGJpdC1iYW5nZWQgSTJDIGJ1cyB1c2luZwo+ID4gYSBjdXN0
-b20ga2VybmVsIGRyaXZlci4uLgo+ID4KPiA+IFRoZSBkbWUxNzM3IGRyaXZlciBzdXBwb3J0cyB0
-aGUgaGFyZHdhcmUgbW9uaXRvcmluZyBibG9jayBvZiB0aGUKPiA+IFNDSDMxMXguIFRoaXMgZnVu
-Y3Rpb25hbGl0eSBpcyBhY2Nlc3NlZCBvdmVyIHRoZSBMUEMgYnVzLCBub3QgdGhlIFNNQnVzLgo+
-IAo+IFllcywgeW91IGFyZSByaWdodCwgSSB3YXMgd3JpdGluZyBteSBtYWlsIGFuZCBJIGRpZCBu
-b3QgcmUtY2hlY2sgb3VyCj4gaW5zdGFsbGF0aW9uIGFuZCBteSBtZW1vcnkgZGlkIG5vdCB3b3Jr
-IHByb3Blcmx5LiBTb3JyeSBmb3IgdGhhdCBtaXN0YWtlLgo+IE5vdywgYWZ0ZXIgY2hlY2tpbmcg
-aXQgSSBzZWUgd2UgYXJlIHVzaW5nIHNjeDIwMF9hY2IgYW5kIGkyYy1kZXYgbW9kdWxlcyBmb3IK
-PiB0aGUgSTJDIGNvbW11bmljYXRpb24gKHVzaW5nIGkyY2RldGVjdCwgaTJjZHVtcCwgaTJjZ2V0
-IGNvbW1hbmRzIGZvciB0aGUKPiBiYXNpYyByZWNvZ25pdGlvbiBvZiBkZXZpY2VzIG9uIHRoZSBi
-dXMgYW5kIHRoZSBweS1zbWJ1cyBiaW5kaW5nIGZvciB0aGUKPiBtYWluIGNvbW11bmljYXRpb24g
-b24gdGhlIGJ1cykgYW5kIHRoZSBkbWUxNzM3IHRvIHJlYWQgdGhlIHZvbHRhZ2UgYW5kCj4gdGVt
-cGVyYXR1cmUgZnJvbSB0aGUgU0NIMzExeCBjaGlwCgpPSywgdGhhdCBtYWtlcyBzZW5zZS4KCj4g
-KC4uLikKPiBJIGZlZWwgdGVycmlibHkgYmFkIEkgZGlkIG5vdCBzdHVkeSB0aGUgZGV0YWlscyBv
-biB0aGUgd2ViIGJlZm9yZSBhc2tpbmcKPiAiYmFzaWMiIHF1ZXN0aW9ucyBhbmQgd2FzdGluZyB5
-b3VyIHRpbWUuLi4gdGhhbmtzIGZvciB5b3VyIHBhdGllbmNlLi4uCgpObyBwcm9ibGVtLi4uIFRo
-ZSBoaXN0b3J5IG9mIHRoZSBwcm9qZWN0IG1ha2VzIHRoaW5ncyBjb25mdXNpbmcuIEkndmUKbWFk
-ZSBteSBiZXN0IHRvIGNsYXJpZnkgdGhlIHNpdHVhdGlvbiBidXQgSSBrbm93IHdlJ3JlIG5vdCB0
-aGVyZSB5ZXQuCgo+ID4gWW91IGFyZSBub3QgdXNpbmcgbG0tc2Vuc29ycyBmb3IgdGhhdC4gWW91
-IGFyZSB1c2luZyB0aGUga2VybmVsJ3MgaTJjCj4gPiBidXMgZHJpdmVycy4gbG0tc2Vuc29ycyBp
-cyBmb3IgaGFyZHdhcmUgbW9uaXRvcmluZyBvbmx5Lgo+IAo+IEFueXdheSwgaWYgSSB1bmRlcnN0
-YW5kIGl0IHByb3Blcmx5LCB0aGVyZSBpcyBub3QgdGhlIHdheSBob3cgdGhlIHNldCB1cCB0aGUK
-PiBzcGVlZCBvZiB0aGUgaTJjIGJ1cy4KCklmIHRoZXJlIGlzIGEgd2F5LCBpdCdzIHNwZWNpZmlj
-IHRvIHRoZSBzY3gyMDBfYWNiIGRyaXZlciBhbmQgdGhlCnVuZGVybHlpbmcgaGFyZHdhcmUuIEkg
-YW0gbm90IGZhbWlsaWFyIHdpdGggdGhpcyBoYXJkd2FyZSBteXNlbGYsIHNvIEkKY2FuJ3QgdGVs
-bC4KCi0tIApKZWFuIERlbHZhcmUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fCmkyYyBtYWlsaW5nIGxpc3QKaTJjQGxtLXNlbnNvcnMub3JnCmh0dHA6Ly9s
-aXN0cy5sbS1zZW5zb3JzLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2kyYw==
+This is a multi-part message in MIME format.
+
+--===============3848553636606420813==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C8CEF3.0773938A"
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0007_01C8CEF3.0773938A
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+      &nbsp;     &nbsp;     &nbsp;  =20
+      &nbsp;     Click here
+TAKE RISKS, OR YOU WILL LOOSE!
+     &nbsp;  =20
+      &nbsp;     &nbsp;     &nbsp;  =20
+
+------=_NextPart_000_0007_01C8CEF3.0773938A
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3199" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<TABLE width=3D"800" border=3D"0" cellspacing=3D"0" cellpadding=3D"5" =
+align=3D"center">
+  <TR style=3D"background-color:#33CCFF ">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR>
+    <TD style=3D"background-color:#33CCFF ">&nbsp;</TD>
+    <TD  style=3D"background-color:#FFFF99"><P align=3D"center" =
+style=3D"font-family:impact; font-size:32px; "><A =
+href=3D"http://www.yellowacid.com">Click here</A></P>
+
+<P align=3D"center" style=3D"font-size:36px; font-family:Impact; =
+color:#FF3300 ">TAKE RISKS, OR YOU WILL LOOSE!</P>
+</TD>
+    <TD style=3D"background-color:#33CCFF ">&nbsp;</TD>
+  </TR>
+  <TR style=3D"background-color:#33CCFF ">
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp;</TD>
+  </TR>
+</TABLE></BODY></HTML>
+------=_NextPart_000_0007_01C8CEF3.0773938A--
+
+
+
+
+--===============3848553636606420813==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============3848553636606420813==--
