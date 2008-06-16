@@ -1,7 +1,8 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 4/5] i2c: Drop legacy lm75 driver
-Date: Mon, 16 Jun 2008 22:20:32 +0200
-Message-ID: <20080616222032.5845baff@hyperion.delvare>
+Subject: [PATCH 5/5] i2c: Convert the eeprom driver to a new-style i2c
+ driver
+Date: Mon, 16 Jun 2008 22:23:28 +0200
+Message-ID: <20080616222328.526402b8@hyperion.delvare>
 References: <20080616221257.446a2145@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,224 +22,173 @@ To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Drop the legacy lm75 driver, and add a detect callback to the
-new-style driver to achieve the same functionality.
+The new-style eeprom driver implements the optional detect() callback
+to cover the use cases of the legacy driver.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
-This goes on top of David Brownell's patches:
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-April/022931.html
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023040.html
-http://lists.lm-sensors.org/pipermail/lm-sensors/2008-May/023041.html
+Depends on at least the following patches:
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-03-eeprom-should-not-probe-all-adapters.patch
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-eeprom-use-word-read-transactions.patch
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-clean-up-old-chip-drivers.patch
 
-Also available from:
-http://jdelvare.pck.nerim.net/sensors/lm75/
+ drivers/i2c/chips/eeprom.c |   82 ++++++++++++++++++++------------------------
+ 1 file changed, 38 insertions(+), 44 deletions(-)
 
- drivers/hwmon/lm75.c |  114 +++++++++-----------------------------------------
- 1 file changed, 22 insertions(+), 92 deletions(-)
-
---- linux-2.6.26-rc6.orig/drivers/hwmon/lm75.c	2008-06-16 20:36:34.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/hwmon/lm75.c	2008-06-16 21:15:00.000000000 +0200
-@@ -54,11 +54,11 @@ enum lm75_type {		/* keep sorted in alph
- 	tmp75,
- };
- 
--/* Addresses scanned by legacy style driver binding */
-+/* Addresses scanned */
- static const unsigned short normal_i2c[] = { 0x48, 0x49, 0x4a, 0x4b, 0x4c,
- 					0x4d, 0x4e, 0x4f, I2C_CLIENT_END };
- 
--/* Insmod parameters (only for legacy style driver binding) */
-+/* Insmod parameters */
- I2C_CLIENT_INSMOD_1(lm75);
- 
- 
-@@ -72,7 +72,6 @@ static const u8 LM75_REG_TEMP[3] = {
+--- linux-2.6.26-rc6.orig/drivers/i2c/chips/eeprom.c	2008-06-16 20:28:46.000000000 +0200
++++ linux-2.6.26-rc6/drivers/i2c/chips/eeprom.c	2008-06-16 21:02:13.000000000 +0200
+@@ -51,7 +51,6 @@ enum eeprom_nature {
  
  /* Each client has this additional data */
- struct lm75_data {
--	struct i2c_client	*client;
- 	struct device		*hwmon_dev;
- 	struct mutex		update_lock;
- 	u8			orig_conf;
-@@ -138,7 +137,7 @@ static const struct attribute_group lm75
- 
- /*-----------------------------------------------------------------------*/
- 
--/* "New style" I2C driver binding -- following the driver model */
-+/* device probe and removal */
- 
- static int
- lm75_probe(struct i2c_client *client, const struct i2c_device_id *id)
-@@ -157,8 +156,6 @@ lm75_probe(struct i2c_client *client, co
- 		return -ENOMEM;
- 
- 	i2c_set_clientdata(client, data);
--
--	data->client = client;
- 	mutex_init(&data->update_lock);
- 
- 	/* Set to LM75 resolution (9 bits, 1/2 degree C) and range.
-@@ -236,45 +233,16 @@ static const struct i2c_device_id lm75_i
+ struct eeprom_data {
+-	struct i2c_client client;
+ 	struct mutex update_lock;
+ 	u8 valid;			/* bitfield, bit!=0 if slice is valid */
+ 	unsigned long last_updated[8];	/* In jiffies, 8 slices */
+@@ -60,17 +59,28 @@ struct eeprom_data {
  };
- MODULE_DEVICE_TABLE(i2c, lm75_ids);
  
--static struct i2c_driver lm75_driver = {
--	.driver = {
--		.name	= "lm75",
--	},
--	.probe		= lm75_probe,
--	.remove		= lm75_remove,
--	.id_table	= lm75_ids,
--};
--
--/*-----------------------------------------------------------------------*/
--
--/* "Legacy" I2C driver binding */
--
--static struct i2c_driver lm75_legacy_driver;
--
--/* This function is called by i2c_probe */
--static int lm75_detect(struct i2c_adapter *adapter, int address, int kind)
-+/* Return 0 if detection is successful, -ENODEV otherwise */
-+static int lm75_detect(struct i2c_client *new_client, int kind,
-+		       struct i2c_board_info *info)
- {
-+	struct i2c_adapter *adapter = new_client->adapter;
- 	int i;
--	struct i2c_client *new_client;
--	int err = 0;
  
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
- 				     I2C_FUNC_SMBUS_WORD_DATA))
--		goto exit;
--
--	/* OK. For now, we presume we have a valid address. We create the
--	   client structure, even though there may be no sensor present.
--	   But it allows us to use i2c_smbus_read_*_data() calls. */
--	new_client = kzalloc(sizeof *new_client, GFP_KERNEL);
--	if (!new_client) {
--		err = -ENOMEM;
--		goto exit;
--	}
--
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &lm75_legacy_driver;
--	new_client->flags = 0;
-+		return -ENODEV;
+-static int eeprom_attach_adapter(struct i2c_adapter *adapter);
+-static int eeprom_detect(struct i2c_adapter *adapter, int address, int kind);
+-static int eeprom_detach_client(struct i2c_client *client);
++static int eeprom_probe(struct i2c_client *client,
++			const struct i2c_device_id *id);
++static int eeprom_detect(struct i2c_client *client, int kind,
++			 struct i2c_board_info *info);
++static int eeprom_remove(struct i2c_client *client);
++
++static struct i2c_device_id eeprom_id[] = {
++	{ "eeprom", 0 },
++	{ }
++};
  
- 	/* Now, we do the remaining detection. There is no identification-
- 	   dedicated register so we have to rely on several tricks:
-@@ -294,71 +262,44 @@ static int lm75_detect(struct i2c_adapte
- 		 || i2c_smbus_read_word_data(new_client, 5) != hyst
- 		 || i2c_smbus_read_word_data(new_client, 6) != hyst
- 		 || i2c_smbus_read_word_data(new_client, 7) != hyst)
--			goto exit_free;
-+			return -ENODEV;
- 		os = i2c_smbus_read_word_data(new_client, 3);
- 		if (i2c_smbus_read_word_data(new_client, 4) != os
- 		 || i2c_smbus_read_word_data(new_client, 5) != os
- 		 || i2c_smbus_read_word_data(new_client, 6) != os
- 		 || i2c_smbus_read_word_data(new_client, 7) != os)
--			goto exit_free;
-+			return -ENODEV;
- 
- 		/* Unused bits */
- 		if (conf & 0xe0)
--			goto exit_free;
-+			return -ENODEV;
- 
- 		/* Addresses cycling */
- 		for (i = 8; i < 0xff; i += 8)
- 			if (i2c_smbus_read_byte_data(new_client, i + 1) != conf
- 			 || i2c_smbus_read_word_data(new_client, i + 2) != hyst
- 			 || i2c_smbus_read_word_data(new_client, i + 3) != os)
--				goto exit_free;
-+				return -ENODEV;
- 	}
- 
- 	/* NOTE: we treat "force=..." and "force_lm75=..." the same.
- 	 * Only new-style driver binding distinguishes chip types.
- 	 */
--	strlcpy(new_client->name, "lm75", I2C_NAME_SIZE);
--
--	/* Tell the I2C layer a new client has arrived */
--	err = i2c_attach_client(new_client);
--	if (err)
--		goto exit_free;
-+	strlcpy(info->type, "lm75", I2C_NAME_SIZE);
- 
--	err = lm75_probe(new_client, NULL);
--	if (err < 0)
--		goto exit_detach;
--
--	return 0;
--
--exit_detach:
--	i2c_detach_client(new_client);
--exit_free:
--	kfree(new_client);
--exit:
--	return err;
--}
--
--static int lm75_attach_adapter(struct i2c_adapter *adapter)
--{
--	if (!(adapter->class & I2C_CLASS_HWMON))
--		return 0;
--	return i2c_probe(adapter, &addr_data, lm75_detect);
--}
--
--static int lm75_detach_client(struct i2c_client *client)
--{
--	lm75_remove(client);
--	i2c_detach_client(client);
--	kfree(client);
- 	return 0;
- }
- 
--static struct i2c_driver lm75_legacy_driver = {
-+static struct i2c_driver lm75_driver = {
-+	.class		= I2C_CLASS_HWMON,
+ /* This is the driver that will be inserted */
+ static struct i2c_driver eeprom_driver = {
++	.class		= I2C_CLASS_DDC | I2C_CLASS_SPD,
  	.driver = {
--		.name	= "lm75_legacy",
-+		.name	= "lm75",
+ 		.name	= "eeprom",
  	},
--	.attach_adapter	= lm75_attach_adapter,
--	.detach_client	= lm75_detach_client,
-+	.probe		= lm75_probe,
-+	.remove		= lm75_remove,
-+	.id_table	= lm75_ids,
-+	.detect		= lm75_detect,
+-	.attach_adapter	= eeprom_attach_adapter,
+-	.detach_client	= eeprom_detach_client,
++	.probe		= eeprom_probe,
++	.remove		= eeprom_remove,
++	.detect		= eeprom_detect,
++	.id_table	= eeprom_id,
 +	.address_data	= &addr_data,
  };
  
- /*-----------------------------------------------------------------------*/
-@@ -424,22 +365,11 @@ static struct lm75_data *lm75_update_dev
+ static void eeprom_update_client(struct i2c_client *client, u8 slice)
+@@ -152,25 +162,17 @@ static struct bin_attribute eeprom_attr 
+ 	.read = eeprom_read,
+ };
  
- static int __init sensors_lm75_init(void)
+-static int eeprom_attach_adapter(struct i2c_adapter *adapter)
++/* Return 0 if detection is successful, -ENODEV otherwise */
++static int eeprom_detect(struct i2c_client *client, int kind,
++			 struct i2c_board_info *info)
  {
--	int status;
+-	if (!(adapter->class & (I2C_CLASS_DDC | I2C_CLASS_SPD)))
+-		return 0;
+-	return i2c_probe(adapter, &addr_data, eeprom_detect);
+-}
 -
--	status = i2c_add_driver(&lm75_driver);
--	if (status < 0)
--		return status;
+-/* This function is called by i2c_probe */
+-static int eeprom_detect(struct i2c_adapter *adapter, int address, int kind)
+-{
+-	struct i2c_client *client;
+-	struct eeprom_data *data;
+-	int err = 0;
++	struct i2c_adapter *adapter = client->adapter;
+ 
+ 	/* EDID EEPROMs are often 24C00 EEPROMs, which answer to all
+ 	   addresses 0x50-0x57, but we only care about 0x50. So decline
+ 	   attaching to addresses >= 0x51 on DDC buses */
+-	if (!(adapter->class & I2C_CLASS_SPD) && address >= 0x51)
+-		goto exit;
++	if (!(adapter->class & I2C_CLASS_SPD) && client->addr >= 0x51)
++		return -ENODEV;
+ 
+ 	/* There are four ways we can read the EEPROM data:
+ 	   (1) I2C block reads (faster, but unsupported by most adapters)
+@@ -181,32 +183,33 @@ static int eeprom_detect(struct i2c_adap
+ 	   because all known adapters support one of the first two. */
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_WORD_DATA)
+ 	 && !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
+-		goto exit;
++		return -ENODEV;
++
++	strlcpy(info->type, "eeprom", I2C_NAME_SIZE);
++
++	return 0;
++}
++
++static int eeprom_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct i2c_adapter *adapter = client->adapter;
++	struct eeprom_data *data;
++	int err;
+ 
+ 	if (!(data = kzalloc(sizeof(struct eeprom_data), GFP_KERNEL))) {
+ 		err = -ENOMEM;
+ 		goto exit;
+ 	}
+ 
+-	client = &data->client;
+ 	memset(data->data, 0xff, EEPROM_SIZE);
+ 	i2c_set_clientdata(client, data);
+-	client->addr = address;
+-	client->adapter = adapter;
+-	client->driver = &eeprom_driver;
 -
--	status = i2c_add_driver(&lm75_legacy_driver);
--	if (status < 0)
--		i2c_del_driver(&lm75_driver);
+-	/* Fill in the remaining client fields */
+-	strlcpy(client->name, "eeprom", I2C_NAME_SIZE);
+ 	mutex_init(&data->update_lock);
+ 	data->nature = UNKNOWN;
+ 
+-	/* Tell the I2C layer a new client has arrived */
+-	if ((err = i2c_attach_client(client)))
+-		goto exit_kfree;
 -
--	return status;
-+	return i2c_add_driver(&lm75_driver);
+ 	/* Detect the Vaio nature of EEPROMs.
+ 	   We use the "PCG-" or "VGN-" prefix as the signature. */
+-	if (address == 0x57
++	if (client->addr == 0x57
+ 	 && i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+ 		char name[4];
+ 
+@@ -225,28 +228,19 @@ static int eeprom_detect(struct i2c_adap
+ 	/* create the sysfs eeprom file */
+ 	err = sysfs_create_bin_file(&client->dev.kobj, &eeprom_attr);
+ 	if (err)
+-		goto exit_detach;
++		goto exit_kfree;
+ 
+ 	return 0;
+ 
+-exit_detach:
+-	i2c_detach_client(client);
+ exit_kfree:
+ 	kfree(data);
+ exit:
+ 	return err;
  }
  
- static void __exit sensors_lm75_exit(void)
+-static int eeprom_detach_client(struct i2c_client *client)
++static int eeprom_remove(struct i2c_client *client)
  {
--	i2c_del_driver(&lm75_legacy_driver);
- 	i2c_del_driver(&lm75_driver);
- }
+-	int err;
+-
+ 	sysfs_remove_bin_file(&client->dev.kobj, &eeprom_attr);
+-
+-	err = i2c_detach_client(client);
+-	if (err)
+-		return err;
+-
+ 	kfree(i2c_get_clientdata(client));
  
+ 	return 0;
 
 -- 
 Jean Delvare
