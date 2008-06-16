@@ -1,11 +1,13 @@
-From: "Christian Gmeiner" <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Fix Kconfig for I2C-Algos
-Date: Mon, 16 Jun 2008 17:24:59 +0000
-Message-ID: <3192d3cd0806161024u6a07abddpe4af78b3bb6ec4e7@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] Fix Kconfig for I2C-Algos
+Date: Mon, 16 Jun 2008 20:15:45 +0200
+Message-ID: <20080616201545.7e514d36@hyperion.delvare>
+References: <3192d3cd0806161024u6a07abddpe4af78b3bb6ec4e7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_46377_32018027.1213637099230"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <3192d3cd0806161024u6a07abddpe4af78b3bb6ec4e7-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,47 +17,30 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-------=_Part_46377_32018027.1213637099230
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Christian,
 
-HI,
+On Mon, 16 Jun 2008 17:24:59 +0000, Christian Gmeiner wrote:
+> this patch fixes wrong kconf file so that it will be possible to
+> select wanted i2c algorithms.
 
-this patch fixes wrong kconf file so that it will be possible to
-select wanted i2c algorithms.
+We moved in the exact opposite direction two months ago, on the basis
+that i2c bus drivers select the algorithm driver they need
+automatically so the user shouldn't have to care:
 
-greets,
-Christian Gmeiner
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=3845de25c5f83cd52729570f7b501679d37ca8de
 
-------=_Part_46377_32018027.1213637099230
-Content-Type: application/octet-stream; name=i2c_kconfig.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fhjgdpv40
-Content-Disposition: attachment; filename=i2c_kconfig.patch
+So, it's not a bug, it's a feature. If you have some i2c bus driver
+which needs an i2c algorithm driver and doesn't select it, fix that
+driver.
 
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2FsZ29zL0tjb25maWcgYi9kcml2ZXJzL2kyYy9hbGdv
-cy9LY29uZmlnCmluZGV4IDcxMzdhMTcuLjkxZDdmZmYgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJj
-L2FsZ29zL0tjb25maWcKKysrIGIvZHJpdmVycy9pMmMvYWxnb3MvS2NvbmZpZwpAQCAtMSwxNiAr
-MSwxOSBAQAogIwogIyBJMkMgYWxnb3JpdGhtIGRyaXZlcnMgY29uZmlndXJhdGlvbgogIworbWVu
-dSAiSTJDIEFsZ29yaXRobXMiCiAKIGNvbmZpZyBJMkNfQUxHT0JJVAotCXRyaXN0YXRlCisJdHJp
-c3RhdGUgIkkyQyBiaXQtYmFuZ2luZyBpbnRlcmZhY2VzIgogCiBjb25maWcgSTJDX0FMR09QQ0YK
-LQl0cmlzdGF0ZQorCXRyaXN0YXRlICJJMkMgUENGIDg1ODQgaW50ZXJmYWNlcyIKIAogY29uZmln
-IEkyQ19BTEdPUENBCi0JdHJpc3RhdGUKKwl0cmlzdGF0ZSAiSTJDIFBDQSA5NTY0IGludGVyZmFj
-ZXMiCiAKIGNvbmZpZyBJMkNfQUxHT19TR0kKLQl0cmlzdGF0ZQorCXRyaXN0YXRlICJJMkMgU0dJ
-IGludGVyZmFjZXMiCiAJZGVwZW5kcyBvbiBTR0lfSVAyMiB8fCBTR0lfSVAzMiB8fCBYODZfVklT
-V1MKKworZW5kbWVudQo=
-------=_Part_46377_32018027.1213637099230
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
-------=_Part_46377_32018027.1213637099230--
