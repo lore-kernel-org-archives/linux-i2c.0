@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Clean up old chip drivers
-Date: Mon, 16 Jun 2008 20:36:06 +0200
-Message-ID: <20080616203606.3379b192@hyperion.delvare>
+Subject: [PATCH 0/5] i2c: Add detection capability to new-style drivers
+Date: Mon, 16 Jun 2008 22:12:57 +0200
+Message-ID: <20080616221257.446a2145@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,325 +16,92 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Clean up old i2c chip drivers:
-* Name the i2c_client "client" instead of "new_client".
-* Drop useless initializations to 0.
+Hi all,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/chips/eeprom.c  |   32 +++++++++++++++-----------------
- drivers/i2c/chips/max6875.c |    4 +---
- drivers/i2c/chips/pca9539.c |   25 ++++++++++++-------------
- drivers/i2c/chips/pcf8574.c |   23 +++++++++++------------
- drivers/i2c/chips/pcf8591.c |   31 +++++++++++++++----------------
- 5 files changed, 54 insertions(+), 61 deletions(-)
+This is an update of a patch set I posted 10 days ago. The main change
+if that the detect callback is handed a dummy i2c_client structure
+which can be used to call i2c_smbus_read_byte_data and friends. Almost
+all detect callbacks will want to use one of these functions, and it's
+more efficient to have i2c-core allocate and initialize this structure,
+than have each callback do it on its own. This update also includes
+better documentation, a few cleanups here and there, and one more
+converted driver (eeprom).
 
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/eeprom.c	2008-06-16 20:28:22.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/eeprom.c	2008-06-16 20:28:46.000000000 +0200
-@@ -162,7 +162,7 @@ static int eeprom_attach_adapter(struct 
- /* This function is called by i2c_probe */
- static int eeprom_detect(struct i2c_adapter *adapter, int address, int kind)
- {
--	struct i2c_client *new_client;
-+	struct i2c_client *client;
- 	struct eeprom_data *data;
- 	int err = 0;
- 
-@@ -188,22 +188,20 @@ static int eeprom_detect(struct i2c_adap
- 		goto exit;
- 	}
- 
--	new_client = &data->client;
-+	client = &data->client;
- 	memset(data->data, 0xff, EEPROM_SIZE);
--	i2c_set_clientdata(new_client, data);
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &eeprom_driver;
--	new_client->flags = 0;
-+	i2c_set_clientdata(client, data);
-+	client->addr = address;
-+	client->adapter = adapter;
-+	client->driver = &eeprom_driver;
- 
- 	/* Fill in the remaining client fields */
--	strlcpy(new_client->name, "eeprom", I2C_NAME_SIZE);
--	data->valid = 0;
-+	strlcpy(client->name, "eeprom", I2C_NAME_SIZE);
- 	mutex_init(&data->update_lock);
- 	data->nature = UNKNOWN;
- 
- 	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(new_client)))
-+	if ((err = i2c_attach_client(client)))
- 		goto exit_kfree;
- 
- 	/* Detect the Vaio nature of EEPROMs.
-@@ -212,27 +210,27 @@ static int eeprom_detect(struct i2c_adap
- 	 && i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
- 		char name[4];
- 
--		name[0] = i2c_smbus_read_byte_data(new_client, 0x80);
--		name[1] = i2c_smbus_read_byte_data(new_client, 0x81);
--		name[2] = i2c_smbus_read_byte_data(new_client, 0x82);
--		name[3] = i2c_smbus_read_byte_data(new_client, 0x83);
-+		name[0] = i2c_smbus_read_byte_data(client, 0x80);
-+		name[1] = i2c_smbus_read_byte_data(client, 0x81);
-+		name[2] = i2c_smbus_read_byte_data(client, 0x82);
-+		name[3] = i2c_smbus_read_byte_data(client, 0x83);
- 
- 		if (!memcmp(name, "PCG-", 4) || !memcmp(name, "VGN-", 4)) {
--			dev_info(&new_client->dev, "Vaio EEPROM detected, "
-+			dev_info(&client->dev, "Vaio EEPROM detected, "
- 				 "enabling privacy protection\n");
- 			data->nature = VAIO;
- 		}
- 	}
- 
- 	/* create the sysfs eeprom file */
--	err = sysfs_create_bin_file(&new_client->dev.kobj, &eeprom_attr);
-+	err = sysfs_create_bin_file(&client->dev.kobj, &eeprom_attr);
- 	if (err)
- 		goto exit_detach;
- 
- 	return 0;
- 
- exit_detach:
--	i2c_detach_client(new_client);
-+	i2c_detach_client(client);
- exit_kfree:
- 	kfree(data);
- exit:
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/max6875.c	2008-06-16 20:28:22.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/max6875.c	2008-06-16 20:28:46.000000000 +0200
-@@ -170,7 +170,7 @@ static int max6875_detect(struct i2c_ada
- 	struct i2c_client *real_client;
- 	struct i2c_client *fake_client;
- 	struct max6875_data *data;
--	int err = 0;
-+	int err;
- 
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE_DATA
- 				     | I2C_FUNC_SMBUS_READ_BYTE))
-@@ -195,7 +195,6 @@ static int max6875_detect(struct i2c_ada
- 	real_client->addr = address;
- 	real_client->adapter = adapter;
- 	real_client->driver = &max6875_driver;
--	real_client->flags = 0;
- 	strlcpy(real_client->name, "max6875", I2C_NAME_SIZE);
- 	mutex_init(&data->update_lock);
- 
-@@ -204,7 +203,6 @@ static int max6875_detect(struct i2c_ada
- 	fake_client->addr = address | 1;
- 	fake_client->adapter = adapter;
- 	fake_client->driver = &max6875_driver;
--	fake_client->flags = 0;
- 	strlcpy(fake_client->name, "max6875 subclient", I2C_NAME_SIZE);
- 
- 	if ((err = i2c_attach_client(real_client)) != 0)
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/pca9539.c	2008-06-16 20:28:22.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/pca9539.c	2008-06-16 20:28:46.000000000 +0200
-@@ -113,7 +113,7 @@ static int pca9539_attach_adapter(struct
- /* This function is called by i2c_probe */
- static int pca9539_detect(struct i2c_adapter *adapter, int address, int kind)
- {
--	struct i2c_client *new_client;
-+	struct i2c_client *client;
- 	struct pca9539_data *data;
- 	int err = 0;
- 
-@@ -127,29 +127,28 @@ static int pca9539_detect(struct i2c_ada
- 		goto exit;
- 	}
- 
--	new_client = &data->client;
--	i2c_set_clientdata(new_client, data);
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &pca9539_driver;
--	new_client->flags = 0;
-+	client = &data->client;
-+	i2c_set_clientdata(client, data);
-+	client->addr = address;
-+	client->adapter = adapter;
-+	client->driver = &pca9539_driver;
- 
- 	if (kind < 0) {
- 		/* Detection: the pca9539 only has 8 registers (0-7).
- 		   A read of 7 should succeed, but a read of 8 should fail. */
--		if ((i2c_smbus_read_byte_data(new_client, 7) < 0) ||
--		    (i2c_smbus_read_byte_data(new_client, 8) >= 0))
-+		if ((i2c_smbus_read_byte_data(client, 7) < 0) ||
-+		    (i2c_smbus_read_byte_data(client, 8) >= 0))
- 			goto exit_kfree;
- 	}
- 
--	strlcpy(new_client->name, "pca9539", I2C_NAME_SIZE);
-+	strlcpy(client->name, "pca9539", I2C_NAME_SIZE);
- 
- 	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(new_client)))
-+	if ((err = i2c_attach_client(client)))
- 		goto exit_kfree;
- 
- 	/* Register sysfs hooks */
--	err = sysfs_create_group(&new_client->dev.kobj,
-+	err = sysfs_create_group(&client->dev.kobj,
- 				 &pca9539_defattr_group);
- 	if (err)
- 		goto exit_detach;
-@@ -157,7 +156,7 @@ static int pca9539_detect(struct i2c_ada
- 	return 0;
- 
- exit_detach:
--	i2c_detach_client(new_client);
-+	i2c_detach_client(client);
- exit_kfree:
- 	kfree(data);
- exit:
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/pcf8574.c	2008-06-16 20:28:22.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/pcf8574.c	2008-06-16 20:28:46.000000000 +0200
-@@ -127,7 +127,7 @@ static int pcf8574_attach_adapter(struct
- /* This function is called by i2c_probe */
- static int pcf8574_detect(struct i2c_adapter *adapter, int address, int kind)
- {
--	struct i2c_client *new_client;
-+	struct i2c_client *client;
- 	struct pcf8574_data *data;
- 	int err = 0;
- 	const char *client_name = "";
-@@ -142,12 +142,11 @@ static int pcf8574_detect(struct i2c_ada
- 		goto exit;
- 	}
- 
--	new_client = &data->client;
--	i2c_set_clientdata(new_client, data);
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &pcf8574_driver;
--	new_client->flags = 0;
-+	client = &data->client;
-+	i2c_set_clientdata(client, data);
-+	client->addr = address;
-+	client->adapter = adapter;
-+	client->driver = &pcf8574_driver;
- 
- 	/* Now, we would do the remaining detection. But the PCF8574 is plainly
- 	   impossible to detect! Stupid chip. */
-@@ -166,23 +165,23 @@ static int pcf8574_detect(struct i2c_ada
- 		client_name = "pcf8574";
- 
- 	/* Fill in the remaining client fields and put it into the global list */
--	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
-+	strlcpy(client->name, client_name, I2C_NAME_SIZE);
- 
- 	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(new_client)))
-+	if ((err = i2c_attach_client(client)))
- 		goto exit_free;
- 	
- 	/* Initialize the PCF8574 chip */
--	pcf8574_init_client(new_client);
-+	pcf8574_init_client(client);
- 
- 	/* Register sysfs hooks */
--	err = sysfs_create_group(&new_client->dev.kobj, &pcf8574_attr_group);
-+	err = sysfs_create_group(&client->dev.kobj, &pcf8574_attr_group);
- 	if (err)
- 		goto exit_detach;
- 	return 0;
- 
-       exit_detach:
--	i2c_detach_client(new_client);
-+	i2c_detach_client(client);
-       exit_free:
- 	kfree(data);
-       exit:
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/pcf8591.c	2008-06-16 20:28:22.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/pcf8591.c	2008-06-16 20:28:46.000000000 +0200
-@@ -188,7 +188,7 @@ static int pcf8591_attach_adapter(struct
- /* This function is called by i2c_probe */
- static int pcf8591_detect(struct i2c_adapter *adapter, int address, int kind)
- {
--	struct i2c_client *new_client;
-+	struct i2c_client *client;
- 	struct pcf8591_data *data;
- 	int err = 0;
- 
-@@ -203,12 +203,11 @@ static int pcf8591_detect(struct i2c_ada
- 		goto exit;
- 	}
- 	
--	new_client = &data->client;
--	i2c_set_clientdata(new_client, data);
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &pcf8591_driver;
--	new_client->flags = 0;
-+	client = &data->client;
-+	i2c_set_clientdata(client, data);
-+	client->addr = address;
-+	client->adapter = adapter;
-+	client->driver = &pcf8591_driver;
- 
- 	/* Now, we would do the remaining detection. But the PCF8591 is plainly
- 	   impossible to detect! Stupid chip. */
-@@ -219,31 +218,31 @@ static int pcf8591_detect(struct i2c_ada
- 
- 	/* Fill in the remaining client fields and put it into the global 
- 	   list */
--	strlcpy(new_client->name, "pcf8591", I2C_NAME_SIZE);
-+	strlcpy(client->name, "pcf8591", I2C_NAME_SIZE);
- 	mutex_init(&data->update_lock);
- 
- 	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(new_client)))
-+	if ((err = i2c_attach_client(client)))
- 		goto exit_kfree;
- 
- 	/* Initialize the PCF8591 chip */
--	pcf8591_init_client(new_client);
-+	pcf8591_init_client(client);
- 
- 	/* Register sysfs hooks */
--	err = sysfs_create_group(&new_client->dev.kobj, &pcf8591_attr_group);
-+	err = sysfs_create_group(&client->dev.kobj, &pcf8591_attr_group);
- 	if (err)
- 		goto exit_detach;
- 
- 	/* Register input2 if not in "two differential inputs" mode */
- 	if (input_mode != 3) {
--		if ((err = device_create_file(&new_client->dev,
-+		if ((err = device_create_file(&client->dev,
- 					      &dev_attr_in2_input)))
- 			goto exit_sysfs_remove;
- 	}
- 
- 	/* Register input3 only in "four single ended inputs" mode */
- 	if (input_mode == 0) {
--		if ((err = device_create_file(&new_client->dev,
-+		if ((err = device_create_file(&client->dev,
- 					      &dev_attr_in3_input)))
- 			goto exit_sysfs_remove;
- 	}
-@@ -251,10 +250,10 @@ static int pcf8591_detect(struct i2c_ada
- 	return 0;
- 
- exit_sysfs_remove:
--	sysfs_remove_group(&new_client->dev.kobj, &pcf8591_attr_group_opt);
--	sysfs_remove_group(&new_client->dev.kobj, &pcf8591_attr_group);
-+	sysfs_remove_group(&client->dev.kobj, &pcf8591_attr_group_opt);
-+	sysfs_remove_group(&client->dev.kobj, &pcf8591_attr_group);
- exit_detach:
--	i2c_detach_client(new_client);
-+	i2c_detach_client(client);
- exit_kfree:
- 	kfree(data);
- exit:
+This patch set is now part of my i2c tree, except for the changes to
+the lm75 driver, which I can't easily include because they go on top of
+patches which currently live in another tree. I want to push these
+changes in kernel 2.6.27, and in order to do this safely, it needs to
+get more testing. That's what linux-next is for.
 
+* * * * *
 
+The goal is to replace legacy i2c drivers. The functional differences
+between legacy drivers and new-style ones are that legacy drivers get
+notified when i2c adapters are created or deleted, they create their
+own devices, and they can probe the hardware before they do so. There
+are cases where we want to be able to do this (e.g. for hardware
+monitoring devices on PC motherboards) so we can't just switch to
+new-style everywhere. Still, legacy drivers are a pain to handle, they
+cause headaches to developers because their locking model is weird, and
+they duplicate a lot of code.
+
+By implementing the needed functionality, almost unchanged, in a way
+which is compatible with the new i2c device/driver binding model, my
+hope is to be able to convert all legacy drivers to new-style drivers
+in a matter of months. Without it, it would take years... or even never
+happen at all. This patch set attempts to cover the device detection
+part. The notification of additional/removal of adapters will be dealt
+with later.
+
+The mechanism behind the device detection callback is as follows:
+* When a new-style i2c_driver is added, for each existing i2c_adapter,
+  address_data (those format is the same as what i2c_probe() is already
+  using for legacy drivers) is processed by i2c-core. For each relevant
+  address, the detect callback will be called, with a pointer to an
+  empty struct i2c_board_info address as the last parameter. The detect
+  callback will attempt to identify a supported device at the given
+  address, and if successful, it will fill the struct i2c_board_info
+  with the parameters required to instantiate a new-style i2c device.
+* When a new i2c_adapter is added, for each existing new-style
+  i2c_driver, the same happens.
+* When it gets a filled struct i2c_board_info from a detect callback,
+  i2c-core will instantiate it. If a new-style driver exists for the
+  device, it will be able to bind with the device.
+* We keep track of the devices created that way, in a per-driver list.
+* When a new-style i2c_driver is removed, all devices that originate
+  from it are destroyed.
+* When an i2c_adapter is removed, all devices on it that were created
+  as the result of calling a detect callback, are destroyed.
+
+So, drivers which currently implement both a new-style i2c_driver and a
+legacy i2c_driver (or drivers which would be converted that way soon) can
+instead implement a detect callback in their new-style i2c_driver.
+There are two major advantages in doing so:
+* All i2c drivers become new-style drivers. We get rid of legacy
+  drivers altogether, allowing for long awaited cleanups in i2c-core.
+* The code needed in each driver to implement a detect callback is way
+  smaller than the code needed to implement a legacy driver, even when
+  we were sharing as much code as possible between the new-style driver
+  and the legacy driver. This is very visible in patches 3/5 and 4/5,
+  which remove 65 lines of code per driver.
+
+I would appreciate feedback on both the concept and the implementation.
+David, I am particularly interested in your feedback, of course.
+
+Patch 1/5 implements the mechanism, then patches 2/5, 3/5, 4/5 and 5/5
+demonstrate its use in 3 hardware monitoring drivers (lm90, f75375s and
+lm75) and the eeprom driver. The patches go on top of 2.6.26-rc6-git3
+with additional dependencies listed in each patch. Testers welcome! For
+testing, it's probably easier to just pick my i2c tree at:
+  http://khali.linux-fr.org/devel/linux-2.6/
+so that you don't have to deal with the various dependencies. Except
+for the lm75 driver, for which you still have to download and apply
+the patches individually.
+
+Thanks,
 -- 
 Jean Delvare
 
