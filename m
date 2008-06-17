@@ -1,530 +1,409 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: testers wanted: isp1301_omap conversion to new-style i2c driver
-Date: Tue, 17 Jun 2008 20:43:00 +0200
-Message-ID: <20080617204300.77c8e516@hyperion.delvare>
+From: "Chuck Kamas" <ckamas-mizZ2TCXIxVBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c-pxa.c recover from false start
+Date: Tue, 17 Jun 2008 15:39:16 -0700
+Message-ID: <36A8B4824CA88E478F1A25136D0597610112DD04@mail.ad.skymv.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MP_/hPkB.PxeQ19voBOnKoB3aQ3"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>, Linux I2C <i2c@lm-sensors.org>
+Content-Type: multipart/mixed; boundary="===============5736030892570623728=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-class: urn:content-classes:message
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---MP_/hPkB.PxeQ19voBOnKoB3aQ3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is a multi-part message in MIME format.
+
+--===============5736030892570623728==
+Content-class: urn:content-classes:message
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C8D0CA.F925C092"
+
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01C8D0CA.F925C092
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
 Hi all,
 
-I have converted the isp1301_omap driver to a new-style i2c driver. The
-problem is that I don't have an OMAP system nor even an ARM compiler,
-so I cannot test my work at all. So, I would appreciate if someone with
-access to an OMAP system could test if the isp1301_omap driver still
-builds and works fine after applying the two attached patches.
+=20
 
-Thanks,
--- 
-Jean Delvare
+I made this patch to recover from a false start on the bus.  This
+scenario happens in my system when a device is hot-inserted onto the bus
+causing a false start.  This is caused by the new device pulling SDA
+low.  The PXA then thinks someone is trying to talk on the bus and will
+not transmit.  My solution is to detect this fault and reset the pxa's
+i2c subsystem... not nice I know.  If there is a better way, let me
+know!
 
---MP_/hPkB.PxeQ19voBOnKoB3aQ3
-Content-Type: text/plain;
- name=i2c-isp1301_omap-convert-to-new-style-part-1.patch
+=20
+
+Chuck
+
+=20
+
+--- i2c-pxa.c.orig      2008-06-12 00:22:11.000000000 -0700
+
++++ i2c-pxa.c   2008-06-17 15:34:45.000000000 -0700
+
+@@ -540,6 +540,18 @@
+
+        writel(icr | ICR_START | ICR_TB, _ICR(i2c));
+
+ }
+
+=20
+
++static inline void i2c_pxa_stop_message(struct pxa_i2c *i2c)
+
++{
+
++       u32 icr;
+
++
+
++       /*
+
++        * Clear the STOP and ACK flags
+
++        */
+
++       icr =3D readl(_ICR(i2c));
+
++       icr &=3D ~(ICR_STOP | ICR_ACKNAK);
+
++       writel(icr, _ICR(i2c));
+
++}
+
++
+
+ /*
+
+  * We are protected by the adapter bus mutex.
+
+  */
+
+@@ -554,6 +566,7 @@
+
+        ret =3D i2c_pxa_wait_bus_not_busy(i2c);
+
+        if (ret) {
+
+                dev_err(&i2c->adap.dev, "i2c_pxa: timeout waiting for
+bus free\n");
+
++               i2c_pxa_reset(i2c);
+
+                goto out;
+
+        }
+
+=20
+
+@@ -582,6 +595,7 @@
+
+         * The rest of the processing occurs in the interrupt handler.
+
+         */
+
+        timeout =3D wait_event_timeout(i2c->wait, i2c->msg_num =3D=3D 0, =
+HZ *
+5);
+
++       i2c_pxa_stop_message(i2c);
+
+=20
+
+        /*
+
+         * We place the return code in i2c->msg_idx.
+
+
+------_=_NextPart_001_01C8D0CA.F925C092
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hi all,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I made this patch to recover from a false start on =
+the bus.&nbsp;
+This scenario happens in my system when a device is hot-inserted onto =
+the bus causing
+a false start.&nbsp; This is caused by the new device pulling SDA =
+low.&nbsp; The PXA then
+thinks someone is trying to talk on the bus and will not transmit.&nbsp; =
+My solution
+is to detect this fault and reset the pxa&#8217;s i2c subsystem&#8230; =
+not nice
+I know.&nbsp; If there is a better way, let me =
+know!<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Chuck<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>--- i2c-pxa.c.orig&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+2008-06-12 00:22:11.000000000 -0700<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+++ i2c-pxa.c&nbsp;&nbsp; 2008-06-17 =
+15:34:45.000000000 -0700<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>@@ -540,6 +540,18 @@<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writel(icr =
+| ICR_START | ICR_TB, _ICR(i2c));<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;}<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+static inline void i2c_pxa_stop_message(struct =
+pxa_i2c
+*i2c)<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+{<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u32 =
+icr;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+/*<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * Clear =
+the STOP and ACK flags<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+*/<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icr =3D =
+readl(_ICR(i2c));<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; icr &amp;=3D =
+~(ICR_STOP | ICR_ACKNAK);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; writel(icr, =
+_ICR(i2c));<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+}<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;/*<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp; * We are protected by the adapter bus =
+mutex.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp; */<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>@@ -554,6 +566,7 @@<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ret =3D =
+i2c_pxa_wait_bus_not_busy(i2c);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (ret) =
+{<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dev_err(&amp;i2c-&gt;adap.dev,
+&quot;i2c_pxa: timeout waiting for bus =
+free\n&quot;);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+i2c_pxa_reset(i2c);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; goto =
+out;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+}<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>@@ -582,6 +595,7 @@<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * =
+The rest of the processing occurs in the
+interrupt handler.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+&nbsp;*/<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout =
+=3D wait_event_timeout(i2c-&gt;wait,
+i2c-&gt;msg_num =3D=3D 0, HZ * 5);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+i2c_pxa_stop_message(i2c);<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =
+/*<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * We =
+place the return code in i2c-&gt;msg_idx.<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C8D0CA.F925C092--
+
+
+--===============5736030892570623728==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename=i2c-isp1301_omap-convert-to-new-style-part-1.patch
+Content-Disposition: inline
 
-From: Felipe Balbi <me@felipebalbi.com>
-Subject: i2c/isp1301_omap: Convert to a new-style i2c driver, part 1
-
-Based on David Brownell's patch for tps65010, this patch
-starts converting isp1301_omap.c to new-style i2c driver.
-
-Signed-off-by: Felipe Balbi <me@felipebalbi.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
-This needs testing! Both build-time and run-time.
-
- drivers/i2c/chips/isp1301_omap.c |   59 +++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 29 deletions(-)
-
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/isp1301_omap.c	2008-05-04 09:49:48.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/isp1301_omap.c	2008-06-17 16:07:46.000000000 +0200
-@@ -49,7 +49,8 @@ MODULE_LICENSE("GPL");
- 
- struct isp1301 {
- 	struct otg_transceiver	otg;
--	struct i2c_client	client;
-+	struct i2c_client	*client;
-+	struct i2c_client	c;
- 	void			(*i2c_release)(struct device *dev);
- 
- 	int			irq;
-@@ -153,25 +154,25 @@ static struct i2c_driver isp1301_driver;
- static inline u8
- isp1301_get_u8(struct isp1301 *isp, u8 reg)
- {
--	return i2c_smbus_read_byte_data(&isp->client, reg + 0);
-+	return i2c_smbus_read_byte_data(isp->client, reg + 0);
- }
- 
- static inline int
- isp1301_get_u16(struct isp1301 *isp, u8 reg)
- {
--	return i2c_smbus_read_word_data(&isp->client, reg);
-+	return i2c_smbus_read_word_data(isp->client, reg);
- }
- 
- static inline int
- isp1301_set_bits(struct isp1301 *isp, u8 reg, u8 bits)
- {
--	return i2c_smbus_write_byte_data(&isp->client, reg + 0, bits);
-+	return i2c_smbus_write_byte_data(isp->client, reg + 0, bits);
- }
- 
- static inline int
- isp1301_clear_bits(struct isp1301 *isp, u8 reg, u8 bits)
- {
--	return i2c_smbus_write_byte_data(&isp->client, reg + 1, bits);
-+	return i2c_smbus_write_byte_data(isp->client, reg + 1, bits);
- }
- 
- /*-------------------------------------------------------------------------*/
-@@ -349,10 +350,10 @@ isp1301_defer_work(struct isp1301 *isp, 
- 	int status;
- 
- 	if (isp && !test_and_set_bit(work, &isp->todo)) {
--		(void) get_device(&isp->client.dev);
-+		(void) get_device(&isp->client->dev);
- 		status = schedule_work(&isp->work);
- 		if (!status && !isp->working)
--			dev_vdbg(&isp->client.dev,
-+			dev_vdbg(&isp->client->dev,
- 				"work item %d may be lost\n", work);
- 	}
- }
-@@ -1107,7 +1108,7 @@ isp1301_work(struct work_struct *work)
- 		/* transfer state from otg engine to isp1301 */
- 		if (test_and_clear_bit(WORK_UPDATE_ISP, &isp->todo)) {
- 			otg_update_isp(isp);
--			put_device(&isp->client.dev);
-+			put_device(&isp->client->dev);
- 		}
- #endif
- 		/* transfer state from isp1301 to otg engine */
-@@ -1115,7 +1116,7 @@ isp1301_work(struct work_struct *work)
- 			u8		stat = isp1301_clear_latch(isp);
- 
- 			isp_update_otg(isp, stat);
--			put_device(&isp->client.dev);
-+			put_device(&isp->client->dev);
- 		}
- 
- 		if (test_and_clear_bit(WORK_HOST_RESUME, &isp->todo)) {
-@@ -1150,7 +1151,7 @@ isp1301_work(struct work_struct *work)
- 			}
- 			host_resume(isp);
- 			// mdelay(10);
--			put_device(&isp->client.dev);
-+			put_device(&isp->client->dev);
- 		}
- 
- 		if (test_and_clear_bit(WORK_TIMER, &isp->todo)) {
-@@ -1159,15 +1160,15 @@ isp1301_work(struct work_struct *work)
- 			if (!stop)
- 				mod_timer(&isp->timer, jiffies + TIMER_JIFFIES);
- #endif
--			put_device(&isp->client.dev);
-+			put_device(&isp->client->dev);
- 		}
- 
- 		if (isp->todo)
--			dev_vdbg(&isp->client.dev,
-+			dev_vdbg(&isp->client->dev,
- 				"work done, todo = 0x%lx\n",
- 				isp->todo);
- 		if (stop) {
--			dev_dbg(&isp->client.dev, "stop\n");
-+			dev_dbg(&isp->client->dev, "stop\n");
- 			break;
- 		}
- 	} while (isp->todo);
-@@ -1191,7 +1192,7 @@ static void isp1301_release(struct devic
- {
- 	struct isp1301	*isp;
- 
--	isp = container_of(dev, struct isp1301, client.dev);
-+	isp = device_get_drvdata(dev);
- 
- 	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
- 	if (isp->i2c_release)
-@@ -1205,7 +1206,7 @@ static int isp1301_detach_client(struct 
- {
- 	struct isp1301	*isp;
- 
--	isp = container_of(i2c, struct isp1301, client);
-+	isp = i2c_get_clientdata(i2c);
- 
- 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_FALLING, ~0);
- 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_RISING, ~0);
-@@ -1257,7 +1258,7 @@ static int isp1301_otg_enable(struct isp
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
- 		INTR_VBUS_VLD | INTR_SESS_VLD | INTR_ID_GND);
- 
--	dev_info(&isp->client.dev, "ready for dual-role USB ...\n");
-+	dev_info(&isp->client->dev, "ready for dual-role USB ...\n");
- 
- 	return 0;
- }
-@@ -1282,7 +1283,7 @@ isp1301_set_host(struct otg_transceiver 
- 
- #ifdef	CONFIG_USB_OTG
- 	isp->otg.host = host;
--	dev_dbg(&isp->client.dev, "registered host\n");
-+	dev_dbg(&isp->client->dev, "registered host\n");
- 	host_suspend(isp);
- 	if (isp->otg.gadget)
- 		return isp1301_otg_enable(isp);
-@@ -1297,7 +1298,7 @@ isp1301_set_host(struct otg_transceiver 
- 	if (machine_is_omap_h2())
- 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1, MC1_DAT_SE0);
- 
--	dev_info(&isp->client.dev, "A-Host sessions ok\n");
-+	dev_info(&isp->client->dev, "A-Host sessions ok\n");
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
- 		INTR_ID_GND);
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
-@@ -1315,7 +1316,7 @@ isp1301_set_host(struct otg_transceiver 
- 	return 0;
- 
- #else
--	dev_dbg(&isp->client.dev, "host sessions not allowed\n");
-+	dev_dbg(&isp->client->dev, "host sessions not allowed\n");
- 	return -EINVAL;
- #endif
- 
-@@ -1341,7 +1342,7 @@ isp1301_set_peripheral(struct otg_transc
- 
- #ifdef	CONFIG_USB_OTG
- 	isp->otg.gadget = gadget;
--	dev_dbg(&isp->client.dev, "registered gadget\n");
-+	dev_dbg(&isp->client->dev, "registered gadget\n");
- 	/* gadget driver may be suspended until vbus_connect () */
- 	if (isp->otg.host)
- 		return isp1301_otg_enable(isp);
-@@ -1364,7 +1365,7 @@ isp1301_set_peripheral(struct otg_transc
- 		INTR_SESS_VLD);
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_FALLING,
- 		INTR_VBUS_VLD);
--	dev_info(&isp->client.dev, "B-Peripheral sessions ok\n");
-+	dev_info(&isp->client->dev, "B-Peripheral sessions ok\n");
- 	dump_regs(isp, __func__);
- 
- 	/* If this has a Mini-AB connector, this mode is highly
-@@ -1377,7 +1378,7 @@ isp1301_set_peripheral(struct otg_transc
- 	return 0;
- 
- #else
--	dev_dbg(&isp->client.dev, "peripheral sessions not allowed\n");
-+	dev_dbg(&isp->client->dev, "peripheral sessions not allowed\n");
- 	return -EINVAL;
- #endif
- }
-@@ -1493,12 +1494,12 @@ static int isp1301_probe(struct i2c_adap
- 	isp->timer.data = (unsigned long) isp;
- 
- 	isp->irq = -1;
--	isp->client.addr = address;
--	i2c_set_clientdata(&isp->client, isp);
--	isp->client.adapter = bus;
--	isp->client.driver = &isp1301_driver;
--	strlcpy(isp->client.name, DRIVER_NAME, I2C_NAME_SIZE);
--	i2c = &isp->client;
-+	isp->c.addr = address;
-+	i2c_set_clientdata(&isp->c, isp);
-+	isp->c.adapter = bus;
-+	isp->c.driver = &isp1301_driver;
-+	strlcpy(isp->c.name, DRIVER_NAME, I2C_NAME_SIZE);
-+	isp->client = i2c = &isp->c;
- 
- 	/* if this is a true probe, verify the chip ... */
- 	if (kind < 0) {
-@@ -1583,7 +1584,7 @@ fail2:
- 		goto fail1;
- 	}
- 
--	isp->otg.dev = &isp->client.dev;
-+	isp->otg.dev = &isp->client->dev;
- 	isp->otg.label = DRIVER_NAME;
- 
- 	isp->otg.set_host = isp1301_set_host,
-
---MP_/hPkB.PxeQ19voBOnKoB3aQ3
-Content-Type: text/plain;
- name=i2c-isp1301_omap-convert-to-new-style-part-2.patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename=i2c-isp1301_omap-convert-to-new-style-part-2.patch
-
-From: Jean Delvare <khali@linux-fr.org>
-Subject: i2c/isp1301_omap: Convert to a new-style i2c driver, part 2
-
-Based on David Brownell's patch for tps65010 and previous work by
-Felipe Balbi, this patch finishes conversting isp1301_omap to a
-new-style i2c driver.
-
-There's definitely room for further drivers cleanups, but these are
-out of the scope of this patch.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
-This needs testing! Both build-time and run-time.
-
- arch/arm/mach-omap1/board-h3.c   |    4 +
- arch/arm/mach-omap2/board-h4.c   |   11 ++++
- drivers/i2c/chips/isp1301_omap.c |   98 ++++++++++++--------------------------
- 3 files changed, 48 insertions(+), 65 deletions(-)
-
---- linux-2.6.26-rc6.orig/arch/arm/mach-omap1/board-h3.c	2008-06-17 16:07:25.000000000 +0200
-+++ linux-2.6.26-rc6/arch/arm/mach-omap1/board-h3.c	2008-06-17 16:07:54.000000000 +0200
-@@ -476,6 +476,10 @@ static struct i2c_board_info __initdata 
- 		I2C_BOARD_INFO("tps65013", 0x48),
-                /* .irq         = OMAP_GPIO_IRQ(??), */
-        },
-+	{
-+		I2C_BOARD_INFO("isp1301_omap", 0x2d),
-+		.irq		= OMAP_GPIO_IRQ(14),
-+	},
- };
- 
- static struct omap_gpio_switch h3_gpio_switches[] __initdata = {
---- linux-2.6.26-rc6.orig/arch/arm/mach-omap2/board-h4.c	2008-06-17 16:07:25.000000000 +0200
-+++ linux-2.6.26-rc6/arch/arm/mach-omap2/board-h4.c	2008-06-17 16:07:54.000000000 +0200
-@@ -18,6 +18,7 @@
- #include <linux/mtd/partitions.h>
- #include <linux/delay.h>
- #include <linux/workqueue.h>
-+#include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/err.h>
- #include <linux/clk.h>
-@@ -392,6 +393,13 @@ static struct omap_board_config_kernel h
- 	{ OMAP_TAG_LCD,		&h4_lcd_config },
- };
- 
-+static struct i2c_board_info __initdata h4_i2c_board_info[] = {
-+	{
-+		I2C_BOARD_INFO("isp1301_omap", 0x2d),
-+		.irq		= OMAP_GPIO_IRQ(125),
-+	},
-+};
-+
- static void __init omap_h4_init(void)
- {
- 	/*
-@@ -412,6 +420,9 @@ static void __init omap_h4_init(void)
- 	}
- #endif
- 
-+	i2c_register_board_info(1, h4_i2c_board_info,
-+			ARRAY_SIZE(h4_i2c_board_info));
-+
- 	platform_add_devices(h4_devices, ARRAY_SIZE(h4_devices));
- 	omap_board_config = h4_config;
- 	omap_board_config_size = ARRAY_SIZE(h4_config);
---- linux-2.6.26-rc6.orig/drivers/i2c/chips/isp1301_omap.c	2008-06-17 16:07:46.000000000 +0200
-+++ linux-2.6.26-rc6/drivers/i2c/chips/isp1301_omap.c	2008-06-17 16:19:55.000000000 +0200
-@@ -50,10 +50,8 @@ MODULE_LICENSE("GPL");
- struct isp1301 {
- 	struct otg_transceiver	otg;
- 	struct i2c_client	*client;
--	struct i2c_client	c;
- 	void			(*i2c_release)(struct device *dev);
- 
--	int			irq;
- 	int			irq_type;
- 
- 	u32			last_otg_ctrl;
-@@ -139,14 +137,6 @@ static inline void notresponding(struct 
- 
- /*-------------------------------------------------------------------------*/
- 
--/* only two addresses possible */
--#define	ISP_BASE		0x2c
--static unsigned short normal_i2c[] = {
--	ISP_BASE, ISP_BASE + 1,
--	I2C_CLIENT_END };
--
--I2C_CLIENT_INSMOD;
--
- static struct i2c_driver isp1301_driver;
- 
- /* smbus apis are used for portability */
-@@ -1202,7 +1192,7 @@ static void isp1301_release(struct devic
- 
- static struct isp1301 *the_transceiver;
- 
--static int isp1301_detach_client(struct i2c_client *i2c)
-+static int __exit isp1301_remove(struct i2c_client *i2c)
- {
- 	struct isp1301	*isp;
- 
-@@ -1210,7 +1200,7 @@ static int isp1301_detach_client(struct 
- 
- 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_FALLING, ~0);
- 	isp1301_clear_bits(isp, ISP1301_INTERRUPT_RISING, ~0);
--	free_irq(isp->irq, isp);
-+	free_irq(i2c->irq, isp);
- #ifdef	CONFIG_USB_OTG
- 	otg_unbind(isp);
- #endif
-@@ -1225,7 +1215,7 @@ static int isp1301_detach_client(struct 
- 	put_device(&i2c->dev);
- 	the_transceiver = 0;
- 
--	return i2c_detach_client(i2c);
-+	return 0;
- }
- 
- /*-------------------------------------------------------------------------*/
-@@ -1474,12 +1464,10 @@ isp1301_start_hnp(struct otg_transceiver
- 
- /*-------------------------------------------------------------------------*/
- 
--/* no error returns, they'd just make bus scanning stop */
--static int isp1301_probe(struct i2c_adapter *bus, int address, int kind)
-+static int __init isp1301_probe(struct i2c_client *i2c)
- {
- 	int			status;
- 	struct isp1301		*isp;
--	struct i2c_client	*i2c;
- 
- 	if (the_transceiver)
- 		return 0;
-@@ -1493,37 +1481,19 @@ static int isp1301_probe(struct i2c_adap
- 	isp->timer.function = isp1301_timer;
- 	isp->timer.data = (unsigned long) isp;
- 
--	isp->irq = -1;
--	isp->c.addr = address;
--	i2c_set_clientdata(&isp->c, isp);
--	isp->c.adapter = bus;
--	isp->c.driver = &isp1301_driver;
--	strlcpy(isp->c.name, DRIVER_NAME, I2C_NAME_SIZE);
--	isp->client = i2c = &isp->c;
--
--	/* if this is a true probe, verify the chip ... */
--	if (kind < 0) {
--		status = isp1301_get_u16(isp, ISP1301_VENDOR_ID);
--		if (status != I2C_VENDOR_ID_PHILIPS) {
--			dev_dbg(&bus->dev, "addr %d not philips id: %d\n",
--				address, status);
--			goto fail1;
--		}
--		status = isp1301_get_u16(isp, ISP1301_PRODUCT_ID);
--		if (status != I2C_PRODUCT_ID_PHILIPS_1301) {
--			dev_dbg(&bus->dev, "%d not isp1301, %d\n",
--				address, status);
--			goto fail1;
--		}
--	}
-+	i2c_set_clientdata(i2c, isp);
-+	isp->client = i2c;
- 
--	status = i2c_attach_client(i2c);
--	if (status < 0) {
--		dev_dbg(&bus->dev, "can't attach %s to device %d, err %d\n",
--				DRIVER_NAME, address, status);
--fail1:
--		kfree(isp);
--		return 0;
-+	/* verify the chip (shouldn't be necesary) */
-+	status = isp1301_get_u16(isp, ISP1301_VENDOR_ID);
-+	if (status != I2C_VENDOR_ID_PHILIPS) {
-+		dev_dbg(&i2c->dev, "not philips id: %d\n", status);
-+		goto fail;
-+	}
-+	status = isp1301_get_u16(isp, ISP1301_PRODUCT_ID);
-+	if (status != I2C_PRODUCT_ID_PHILIPS_1301) {
-+		dev_dbg(&i2c->dev, "not isp1301, %d\n", status);
-+		goto fail;
- 	}
- 	isp->i2c_release = i2c->dev.release;
- 	i2c->dev.release = isp1301_release;
-@@ -1552,7 +1522,7 @@ fail1:
- 	status = otg_bind(isp);
- 	if (status < 0) {
- 		dev_dbg(&i2c->dev, "can't bind OTG\n");
--		goto fail2;
-+		goto fail;
- 	}
- #endif
- 
-@@ -1565,26 +1535,21 @@ fail1:
- 
- 		/* IRQ wired at M14 */
- 		omap_cfg_reg(M14_1510_GPIO2);
--		isp->irq = OMAP_GPIO_IRQ(2);
- 		if (gpio_request(2, "isp1301") == 0)
- 			gpio_direction_input(2);
- 		isp->irq_type = IRQF_TRIGGER_FALLING;
- 	}
- 
- 	isp->irq_type |= IRQF_SAMPLE_RANDOM;
--	status = request_irq(isp->irq, isp1301_irq,
-+	status = request_irq(i2c->irq, isp1301_irq,
- 			isp->irq_type, DRIVER_NAME, isp);
- 	if (status < 0) {
- 		dev_dbg(&i2c->dev, "can't get IRQ %d, err %d\n",
--				isp->irq, status);
--#ifdef	CONFIG_USB_OTG
--fail2:
--#endif
--		i2c_detach_client(i2c);
--		goto fail1;
-+				i2c->irq, status);
-+		goto fail;
- 	}
- 
--	isp->otg.dev = &isp->client->dev;
-+	isp->otg.dev = &i2c->dev;
- 	isp->otg.label = DRIVER_NAME;
- 
- 	isp->otg.set_host = isp1301_set_host,
-@@ -1615,22 +1580,25 @@ fail2:
- 			status);
- 
- 	return 0;
--}
- 
--static int isp1301_scan_bus(struct i2c_adapter *bus)
--{
--	if (!i2c_check_functionality(bus, I2C_FUNC_SMBUS_BYTE_DATA
--			| I2C_FUNC_SMBUS_READ_WORD_DATA))
--		return -EINVAL;
--	return i2c_probe(bus, &addr_data, isp1301_probe);
-+fail:
-+	kfree(isp);
-+	return -ENODEV;
- }
- 
-+static struct i2c_device_id isp1301_id[] = {
-+	{ "isp1301_omap", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, isp1301_id);
-+
- static struct i2c_driver isp1301_driver = {
- 	.driver = {
- 		.name	= "isp1301_omap",
- 	},
--	.attach_adapter	= isp1301_scan_bus,
--	.detach_client	= isp1301_detach_client,
-+	.probe		= isp1301_probe,
-+	.remove		= __exit_p(isp1301_remove),
-+	.id_table	= isp1301_id,
- };
- 
- /*-------------------------------------------------------------------------*/
-
---MP_/hPkB.PxeQ19voBOnKoB3aQ3--
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============5736030892570623728==--
