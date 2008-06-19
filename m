@@ -1,14 +1,16 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support.
-Date: Wed, 18 Jun 2008 20:00:08 +0100
-Message-ID: <20080618190008.GK10351@trinity.fluff.org>
-References: <1213794365-8089-1-git-send-email-giometti@linux.it>
+From: "Eric Brower" <ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: multi-master lost-arbitration improvement
+	for i2c-algo-pcf (take 2)
+Date: Wed, 18 Jun 2008 17:59:00 -0700
+Message-ID: <ec7cefb0806181759n56229fbdga0aaa0b6060a6c3f@mail.gmail.com>
+References: <ec7cefb0806121410g154b546dx1cb2562898dba4b6@mail.gmail.com>
+	<20080613090746.0008ed77@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080613090746.0008ed77-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1213794365-8089-1-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,280 +20,179 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Daniel Smolik <marvin-0pWKB23IDFjrBKCeMvbIDA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 18, 2008 at 03:06:03PM +0200, Rodolfo Giometti wrote:
-> Simplifies access to complex multiplexed I2C bus topologies, by
-> presenting each multiplexed bus segment as a virtual I2C adapter. In
-> this manner I2C devices "after" the multiplexer can ba managed as
-> usual.
-> 
-> Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-> ---
->  drivers/i2c/Kconfig    |    9 +++
->  drivers/i2c/Makefile   |    1 +
->  drivers/i2c/i2c-virt.c |  188 ++++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c-id.h |    3 +
->  include/linux/i2c.h    |   17 +++++
->  5 files changed, 218 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/i2c-virt.c
-> 
-> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> index 9686734..053fe2f 100644
-> --- a/drivers/i2c/Kconfig
-> +++ b/drivers/i2c/Kconfig
-> @@ -27,6 +27,15 @@ config I2C_BOARDINFO
->  	boolean
->  	default y
->  
-> +config I2C_VIRT
-> +	tristate "I2C virtual adapter support"
-> +	depends on I2C
-> +	help
-> +	  Say Y here if you want the I2C core to support the ability to have
-> +	  virtual adapters. Virtual adapters are useful to handle multiplexed
-> +	  I2C bus topologies, by presenting each multiplexed segment as a
-> +	  I2C adapter.
-> +
->  config I2C_CHARDEV
->  	tristate "I2C device interface"
->  	help
-> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-> index ba26e6c..db72ed9 100644
-> --- a/drivers/i2c/Makefile
-> +++ b/drivers/i2c/Makefile
-> @@ -4,6 +4,7 @@
->  
->  obj-$(CONFIG_I2C_BOARDINFO)	+= i2c-boardinfo.o
->  obj-$(CONFIG_I2C)		+= i2c-core.o
-> +obj-$(CONFIG_I2C_VIRT)		+= i2c-virt.o
->  obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
->  obj-y				+= busses/ chips/ algos/
->  
-> diff --git a/drivers/i2c/i2c-virt.c b/drivers/i2c/i2c-virt.c
-> new file mode 100644
-> index 0000000..ed58f64
-> --- /dev/null
-> +++ b/drivers/i2c/i2c-virt.c
-> @@ -0,0 +1,188 @@
-> +/*
-> + * i2c-virt.c - Virtual I2C bus driver.
-> + *
-> + * Copyright (c) 2008 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-> + * Copyright (c) 2008 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
-> + *
-> + * Simplifies access to complex multiplexed I2C bus topologies, by presenting
-> + * each multiplexed bus segment as a virtual I2C adapter.  Supports multi-level
-> + * mux'ing (mux behind a mux).
-> + *
-> + * Based on:
-> + *    i2c-virt.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-> + *    i2c-virtual.c from Copyright (c) 2004 Google, Inc. (Ken Harrenstien)
-> + *    i2c-virtual.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-> + * which was:
-> + *    Adapted from i2c-adap-ibm_ocp.c
-> + *    Original file Copyright 2000-2002 MontaVista Software Inc.
-> + *
-> + * This file is licensed under the terms of the GNU General Public
-> + * License version 2. This program is licensed "as is" without any
-> + * warranty of any kind, whether express or implied.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/i2c-id.h>
-> +
-> +struct i2c_virt_priv {
-> +	struct i2c_adapter *parent_adap;
-> +	struct i2c_client *client;	/* The mux chip/device */
-> +
-> +	u32 id;				/* the mux id */
-> +
-> +	int (*select)(struct i2c_adapter *, struct i2c_client *, u32);
-> +					/* Enable the mux */
-> +	int (*deselect)(struct i2c_adapter *, struct i2c_client *, u32);
-> +					/* Disable the mux */
-> +};
-> +
-> +#define VIRT_TIMEOUT		(HZ/2)
-> +#define VIRT_RETRIES		3
-> +
-> +static int i2c_virt_master_xfer(struct i2c_adapter *adap,
-> +				struct i2c_msg msgs[], int num)
-> +{
-> +	struct i2c_virt_priv *priv = adap->algo_data;
-> +	struct i2c_adapter *parent = priv->parent_adap;
-> +	int ret;
-> +
-> +	/* Grab the lock for the parent adapter. We already hold the lock for
-> +	 * the virtual adapter. Then select the right mux port and perform
-> +	 * the transfer.
-> +	 */
-> +
-> +	mutex_lock(&parent->bus_lock);
-> +
-> +	ret = priv->select(parent, priv->client, priv->id);
-> +	if (ret >= 0)
-> +		ret = parent->algo->master_xfer(parent, msgs, num);
-> +	priv->deselect(parent, priv->client, priv->id);
-> +
-> +	mutex_unlock(&parent->bus_lock);
-> +
-> +	return ret;
-> +}
+On Fri, Jun 13, 2008 at 12:07 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Hi Eric,
+>
+> Thanks for the updated patch.
+>
+> On Thu, 12 Jun 2008 14:10:03 -0700, Eric Brower wrote:
+>> Attached is a revised patch to provide enhanced multi-master
+>> arbitration support for i2c-algo-pcf.  The initial patch was
+>> commented-on about 10 months ago, so I've included the prior mail
+>> below for reference and interspersed my comments.  I am not a member
+>> of this list, so please copy me directly on replies.  The attached
+>> patch has been tested against a fairly recent Linus 2.6 GIT tree.
+>>
+>> Ref: http://lists.lm-sensors.org/pipermail/i2c/2007-August/001690.html
+>>
+>> Commit text:
+>> Improve lost-arbitration handling of PCF8584.  This is necessary for
+>> support of a currently out-of-kernel driver for Sun Microsystems E250
+>> environmental management; perhaps others.
+>> Signed-off-by: Eric Brower <ebrower at gmail.com>
+>>
+>> Daniel, please ACK if you are comfortable doing so.
+>>
+>> >> +static inline void handle_lab(struct i2c_algo_pcf_data *adap, const int *status)
+>> >> +{
+>> >> +  DEB2(printk(KERN_INFO
+>> >> +          "i2c-algo-pcf.o: lost arbitration (CSR 0x%02x)\n",
+>> >> +           *status));
+>> >> +  /* Cleanup from LAB-- reset and enable ESO.
+>> >> +   * This resets the PCF8584; since we've lost the bus, no
+>> >> +   * further attempts should be made by callers to clean up
+>> >> +   * (no i2c_stop() etc.)
+>> >> +   */
+>> >> +  set_pcf(adap, 1, I2C_PCF_PIN);
+>> >> +  set_pcf(adap, 1, I2C_PCF_ESO);
+>> >> +  /* We pause for a time period sufficient for any running
+>> >> +   * I2C transaction to complete-- the arbitration logic won't
+>> >> +   * work properly until the next START is seen.
+>> >> +   * It is assumed the bus driver or client has set a proper value.
+>> >> +   */
+>> >> +  if (adap->lab_mdelay) {
+>> >> +          mdelay(adap->lab_mdelay);
+>> >> +  }
+>> >
+>> > Out of curiosity: on what basis will the value of lab_mdelay be chosen
+>> > by the driver author? This seems to be pretty arbitrary, as you don't
+>> > know what kind of transactions the other master is doing. The
+>> > underlying question being: is it worth having a per-adapter parameter
+>> > for this, as opposed to a hard-coded value?
+>>
+>> The driver (bus adapter) author shall select a value that is longer
+>> than the longest start/stop bus transaction possible by either master.
+>>  This is not entirely arbitrary, and can be determined by snooping the
+>> i2c bus.  Unfortunately, for proper lost-arbitration functionality
+>> with PCF8584 you must determine a sufficient value.  This is described
+>> in the Philips/NXP AN96040 document:
+>>
+>> "Attention ! In both cases, the PCF8584 is not able to recognise that
+>> there is still an ongoing
+>> transmission. In order to prevent another arbitration problem the
+>> controlling software should
+>> wait for a time, longer than the longest message which can be sent
+>> over the bus, before trying
+>> to access the bus again."
+>>
+>> The parameter should be per-adapter, not hard-coded, for the above reason.
+>>
+>> Here's an example of a bus driver (i2c-envctrl) setting a desired value:
+>>
+>> static struct i2c_algo_pcf_data pcf_envctrl_data = {
+>>         .setpcf     = pcf_envctrl_setbyte,
+>>         .getpcf     = pcf_envctrl_getbyte,
+>>         .getown     = pcf_envctrl_getown,
+>>         .getclock   = pcf_envctrl_getclock,
+>>         .waitforpin = pcf_envctrl_waitforpin,
+>>         .udelay     = 10,
+>>         .timeout    = 100,
+>>         /*
+>>          * This could be made dynamic based upon get_clock(), but
+>>          * we know clock does not change within this implementation, so:
+>>          * 10,000 uSec per bit (@100kHz) * 9 bits/byte * 3 trans
+>
+> FWIW, 100 kHz is 10 us per bit, not 10,000. But anyway, assuming 100
+> kHz is dangerous (slaves can stretch the clock to slow it down) and
+> most transactions take more than 3 bytes. And you're not counting the
+> time taken by possible repeated start and stop signals. A more
+> reasonable computation would be: 100 us * (9 bits/byte * 36 bytes + 2)
+> = 32.6 ms. So a sane default for lab_mdelay would be 33.
 
-Out of interest, is it going to be better to hide the parent
-away completely from the system? I suppose if clients have
-already bound to it then we're probably going to just have to
-live with it being available.
+Thanks for catching that; I'll update our out-of-kernel driver to be
+less egregious on the timing.
 
-> +static int i2c_virt_smbus_xfer(struct i2c_adapter *adap,
-> +				u16 addr, unsigned short flags,
-> +				char read_write, u8 command,
-> +				int size, union i2c_smbus_data *data)
-> +{
-> +	struct i2c_virt_priv *priv = adap->algo_data;
-> +	struct i2c_adapter *parent = priv->parent_adap;
-> +	int ret;
-> +
-> +	/* Grab the lock for the parent adapter.  We already hold the lock for
-> +	 * the virtual adapter.  Then select the right mux port and perform
-> +	 * the transfer.
-> +	 */
-> +
-> +	mutex_lock(&parent->bus_lock);
-> +
-> +	ret = priv->select(parent, priv->client, priv->id);
-> +	if (ret == 0)
-> +		ret = parent->algo->smbus_xfer(parent, addr, flags,
-> +					   read_write, command, size, data);
-> +	priv->deselect(parent, priv->client, priv->id);
-> +
-> +	mutex_unlock(&parent->bus_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +/* Return the parent's functionality for the virtual adapter */
-> +static u32 i2c_virt_functionality(struct i2c_adapter *adap)
-> +{
-> +	struct i2c_virt_priv *priv = adap->algo_data;
-> +	struct i2c_adapter *parent = priv->parent_adap;
-> +
-> +	return parent->algo->functionality(parent);
-> +}
-> +
-> +struct i2c_adapter *i2c_add_virt_adapter(struct i2c_adapter *parent,
-> +				struct i2c_client *client,
-> +				u32 force_nr, u32 mux_val,
-> +				int (*select_cb) (struct i2c_adapter *,
-> +						struct i2c_client *, u32),
-> +				int (*deselect_cb) (struct i2c_adapter *,
-> +						struct i2c_client *, u32))
-> +{
-> +	struct i2c_adapter *adap;
-> +	struct i2c_virt_priv *priv;
-> +	struct i2c_algorithm *algo;
-> +	int ret;
-> +
-> +	adap = kzalloc(sizeof(struct i2c_adapter)
-> +			+ sizeof(struct i2c_virt_priv)
-> +			+ sizeof(struct i2c_algorithm), GFP_KERNEL);
-> +	if (!adap)
-> +		return NULL;
-> +
-> +	priv = (struct i2c_virt_priv *)(adap + 1);
-> +	algo = (struct i2c_algorithm *)(priv + 1);
+>
+>>          */
+>>         .lab_mdelay = 270,
+>>  };
+>>
+>>
+>> >
+>> > Also, it seems to me that you could sleep here. If you sleep a bit
+>> > longer than expected, it shouldn't be a problem, right?
+>>
+>> Not a problem.  The pause is only intended to ensure at least
+>> "lab_mdelay" msecs prior to the next attempt to use the bus.  This
+>> gives the internal state machine of PCF8584 sufficient time to see a
+>> stop or start sequence on the bus.
+>
+> You said "not a problem" but you did not change the code? It's still
+> using mdelay rather than msleep. msleep would be more reasonable, you
+> really have no reason to keep the CPU busy while waiting for the other
+> master to complete his transaction. I'm doing this change.
 
-you shouldn't need force-typecast here.
+I recall the reason.  On this implementation (Sun envctrltwo), i2c
+components are used in interrupt context (environmental monitoring
+interrupts are ack'ed by reading a PCF8574).  This is not really
+within the design of the in-kernel I2C subsystem (due to use of
+mutexes in i2c_transfer), but we've managed to wrap all accesses to
+i2c with spinlocks-- ugly, but it lets us work.  I'm not sure if there
+is any work going on to address this drawback, or if any other
+consumer needs in_interrupt access as my driver does.  As an aside,
+this out-of-kernel driver was done as a proof-of-concept to remove
+existing drivers (prior to the i2c subsystem) that do their own I2C;
+you decide which is worse. :)
 
-you could always make your i2c_virt_priv data contain the i2c_adapter
-and i2c_algorithm structure so you can easily go between them.
+My preference is to mdelay() here, so we don't exacerbate the issue of
+sleeping code in the i2c subsystem.  A few bus drivers do this, but
+that is fine-- the bus drivers understand the platform well enough to
+know this is safe for them.  No (other) algo drivers do this.
 
-> +	/* Set up private adapter data */
-> +	priv->parent_adap = parent;
-> +	priv->client = client;
-> +	priv->id = mux_val;
-> +	priv->select = select_cb;
-> +	priv->deselect = deselect_cb;
-> +
-> +	/* Need to do algo dynamically because we don't know ahead
-> +	 * of time what sort of physical adapter we'll be dealing with.
-> +	 */
-> +	algo->master_xfer = (parent->algo->master_xfer
-> +					? i2c_virt_master_xfer : NULL);
-> +	algo->smbus_xfer = (parent->algo->smbus_xfer
-> +					? i2c_virt_smbus_xfer : NULL);
-> +	algo->functionality = i2c_virt_functionality;
+If you object, perhaps we can implement a callback in i2c-algo-pcf
+rather than an mdelay value.  A default value could msleep for some
+arbitrary time period (as you have suggested), or can be reassigned to
+mdelay().
 
-you're using kzalloc, so this boils down to the neater:
+Given the infrequency of lost arbitration, and the lack of any other
+consumers of lab_mdelay in i2c-algo-pcf, I'm voting for mdelay rather
+than a callback implementation.
 
-	if (parent->algo->master_xfer)
-		algo->master_xfer = i2c_virt_master_xfer;
-etc.
+>
+>> > As a side question, shouldn't i2c-algo-pcf retry, rather than fail, on
+>> > arbitration lost?
+>>
+>> It is not a safe assumption that a command (or series of commands) can
+>> be re-tried after arbitration is lost.  A convenience function or
+>> setting in the driver may be worthwhile for cases where the consumer
+>> knows the action to be safe, but I would divorce such an enhancement
+>> from this proposed patch.
+>
+> Agreed. In a recent discussion it was decided to return -EAGAIN on lost
+> arbitration and let the caller decide what to do:
+> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-document-standard-fault-codes.patch
+> So you could prepare and send a second patch doing that.
 
-> +	/* Now fill out new adapter structure */
-> +	snprintf(adap->name, sizeof(adap->name),
-> +			"i2c-%d-virt (mux %02x:%02x)",
-> +			i2c_adapter_id(parent), client->addr, mux_val);
-> +	adap->id = I2C_HW_VIRT | i2c_adapter_id(parent);
-> +	adap->algo = algo;
-> +	adap->algo_data = priv;
-> +	adap->timeout = VIRT_TIMEOUT;
-> +	adap->retries = VIRT_RETRIES;
-> +	adap->dev.parent = &parent->dev;
+Yes, I'll do so-- thank you.
 
-How about creating a struct with the callbacks in, and the data
-for timeout, retries and any other data that would be needed?
+>
+>> Thank you again for your consideration.  Apologies for the tardiness of a reply.
+>
+> Better late than never :) I'll apply the patch with the change
+> mentioned above, thanks.
+>
+> --
+> Jean Delvare
+>
 
-> +	if (force_nr) {
-> +		adap->nr = force_nr;
-> +		ret = i2c_add_numbered_adapter(adap);
-> +	} else
-> +		ret = i2c_add_adapter(adap);
-> +	if (ret < 0) {
-> +		kfree(adap);
-> +		return NULL;
-> +	}
-> +
-> +	dev_info(&parent->dev, "i2c-virt-%d: Virtual I2C bus - "
-> +		"physical bus i2c-%d, multiplexer 0x%02x port %d\n",
-> +		i2c_adapter_id(adap), i2c_adapter_id(parent),
-> +		client->addr, mux_val);
-> +
-> +	return adap;
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_add_virt_adapter);
-> +
-> +int i2c_del_virt_adapter(struct i2c_adapter *adap)
-> +{
-> +	int ret;
-> +
-> +	ret = i2c_del_adapter(adap);
-> +	if (ret < 0)
-> +		return ret;
-> +	kfree(adap);
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_del_virt_adapter);
-> +
-> +MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org, " \
-> +		"Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>");
-> +MODULE_DESCRIPTION("Virtual I2C driver for multiplexed I2C busses");
-> +MODULE_LICENSE("GPL");
 
-"GPL v2" is the definition you probably want here.
 
 -- 
-Ben
-
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
-
+E
 
 _______________________________________________
 i2c mailing list
