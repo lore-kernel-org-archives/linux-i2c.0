@@ -1,7 +1,7 @@
 From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
-Subject: [PATCH] i2c-au1550: fix PM support.
-Date: Thu, 19 Jun 2008 10:27:49 +0200
-Message-ID: <20080619082749.GA20058@roarinelk.homelinux.net>
+Subject: [PATCH] i2c-ocores: basic PM support.
+Date: Thu, 19 Jun 2008 10:30:22 +0200
+Message-ID: <20080619083022.GB20058@roarinelk.homelinux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,205 +16,103 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
 
-Factor out reset/disable code to separate functions as they are
-also required for suspend/resume.
-
-Tested on Au1200.
+Basic PM support: reinit the core on resume, disable it on suspend.
 
 Signed-off-by: Manuel Lauss <mano-nEyxjcs6f3Vin2gBucwGBecsttgLyre6@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-au1550.c |  119 +++++++++++++++++++++------------------
- 1 files changed, 64 insertions(+), 55 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c |   42 ++++++++++++++++++++++++++++++++------
+ 1 files changed, 35 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
-index 8c4d9c7..2f23b32 100644
---- a/drivers/i2c/busses/i2c-au1550.c
-+++ b/drivers/i2c/busses/i2c-au1550.c
-@@ -312,6 +312,58 @@ static const struct i2c_algorithm au1550_algo = {
- 	.functionality	= au1550_func,
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 876d3f8..f530ec7 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -29,6 +29,7 @@ struct ocores_i2c {
+ 	int pos;
+ 	int nmsgs;
+ 	int state; /* see STATE_ */
++	int clock_khz;
  };
  
-+static void i2c_au1550_setup(struct i2c_au1550_data *priv)
-+{
-+	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
-+	u32 stat;
-+
-+	sp->psc_ctrl = PSC_CTRL_DISABLE;
-+	au_sync();
-+	sp->psc_sel = PSC_SEL_PS_SMBUSMODE;
-+	sp->psc_smbcfg = 0;
-+	au_sync();
-+	sp->psc_ctrl = PSC_CTRL_ENABLE;
-+	au_sync();
-+	do {
-+		stat = sp->psc_smbstat;
-+		au_sync();
-+	} while ((stat & PSC_SMBSTAT_SR) == 0);
-+
-+	sp->psc_smbcfg = (PSC_SMBCFG_RT_FIFO8 | PSC_SMBCFG_TT_FIFO8 |
-+				PSC_SMBCFG_DD_DISABLE);
-+
-+	/* Divide by 8 to get a 6.25 MHz clock.  The later protocol
-+	 * timings are based on this clock.
-+	 */
-+	sp->psc_smbcfg |= PSC_SMBCFG_SET_DIV(PSC_SMBCFG_DIV8);
-+	sp->psc_smbmsk = PSC_SMBMSK_ALLMASK;
-+	au_sync();
-+
-+	/* Set the protocol timer values.  See Table 71 in the
-+	 * Au1550 Data Book for standard timing values.
-+	 */
-+	sp->psc_smbtmr = PSC_SMBTMR_SET_TH(0) | PSC_SMBTMR_SET_PS(15) | \
-+		PSC_SMBTMR_SET_PU(15) | PSC_SMBTMR_SET_SH(15) | \
-+		PSC_SMBTMR_SET_SU(15) | PSC_SMBTMR_SET_CL(15) | \
-+		PSC_SMBTMR_SET_CH(15);
-+	au_sync();
-+
-+	sp->psc_smbcfg |= PSC_SMBCFG_DE_ENABLE;
-+	do {
-+		stat = sp->psc_smbstat;
-+		au_sync();
-+	} while ((stat & PSC_SMBSTAT_SR) == 0);
-+}
-+
-+static void i2c_au1550_disable(struct i2c_au1550_data *priv)
-+{
-+	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
-+
-+	sp->psc_smbcfg = 0;
-+	sp->psc_ctrl = PSC_CTRL_DISABLE;
-+	au_sync();
-+}
-+
- /*
-  * registering functions to load algorithms at runtime
-  * Prior to calling us, the 50MHz clock frequency and routing
-@@ -321,9 +373,7 @@ static int __devinit
- i2c_au1550_probe(struct platform_device *pdev)
+ /* registers */
+@@ -173,8 +174,7 @@ static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		return -ETIMEDOUT;
+ }
+ 
+-static void ocores_init(struct ocores_i2c *i2c,
+-			struct ocores_i2c_platform_data *pdata)
++static void ocores_init(struct ocores_i2c *i2c)
  {
- 	struct i2c_au1550_data *priv;
--	volatile psc_smb_t *sp;
- 	struct resource *r;
--	u32 stat;
- 	int ret;
+ 	int prescale;
+ 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+@@ -182,7 +182,7 @@ static void ocores_init(struct ocores_i2c *i2c,
+ 	/* make sure the device is disabled */
+ 	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -362,43 +412,7 @@ i2c_au1550_probe(struct platform_device *pdev)
+-	prescale = (pdata->clock_khz / (5*100)) - 1;
++	prescale = (i2c->clock_khz / (5*100)) - 1;
+ 	oc_setreg(i2c, OCI2C_PRELOW, prescale & 0xff);
+ 	oc_setreg(i2c, OCI2C_PREHIGH, prescale >> 8);
  
- 	/* Now, set up the PSC for SMBus PIO mode.
- 	*/
--	sp = (volatile psc_smb_t *)priv->psc_base;
--	sp->psc_ctrl = PSC_CTRL_DISABLE;
--	au_sync();
--	sp->psc_sel = PSC_SEL_PS_SMBUSMODE;
--	sp->psc_smbcfg = 0;
--	au_sync();
--	sp->psc_ctrl = PSC_CTRL_ENABLE;
--	au_sync();
--	do {
--		stat = sp->psc_smbstat;
--		au_sync();
--	} while ((stat & PSC_SMBSTAT_SR) == 0);
--
--	sp->psc_smbcfg = (PSC_SMBCFG_RT_FIFO8 | PSC_SMBCFG_TT_FIFO8 |
--				PSC_SMBCFG_DD_DISABLE);
--
--	/* Divide by 8 to get a 6.25 MHz clock.  The later protocol
--	 * timings are based on this clock.
--	 */
--	sp->psc_smbcfg |= PSC_SMBCFG_SET_DIV(PSC_SMBCFG_DIV8);
--	sp->psc_smbmsk = PSC_SMBMSK_ALLMASK;
--	au_sync();
--
--	/* Set the protocol timer values.  See Table 71 in the
--	 * Au1550 Data Book for standard timing values.
--	 */
--	sp->psc_smbtmr = PSC_SMBTMR_SET_TH(0) | PSC_SMBTMR_SET_PS(15) | \
--		PSC_SMBTMR_SET_PU(15) | PSC_SMBTMR_SET_SH(15) | \
--		PSC_SMBTMR_SET_SU(15) | PSC_SMBTMR_SET_CL(15) | \
--		PSC_SMBTMR_SET_CH(15);
--	au_sync();
--
--	sp->psc_smbcfg |= PSC_SMBCFG_DE_ENABLE;
--	do {
--		stat = sp->psc_smbstat;
--		au_sync();
--	} while ((stat & PSC_SMBSTAT_DR) == 0);
-+	i2c_au1550_setup(priv);
- 
- 	ret = i2c_add_numbered_adapter(&priv->adap);
- 	if (ret == 0) {
-@@ -406,10 +420,7 @@ i2c_au1550_probe(struct platform_device *pdev)
- 		return 0;
+@@ -248,7 +248,8 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
  	}
  
--	/* disable the PSC */
--	sp->psc_smbcfg = 0;
--	sp->psc_ctrl = PSC_CTRL_DISABLE;
--	au_sync();
-+	i2c_au1550_disable(priv);
+ 	i2c->regstep = pdata->regstep;
+-	ocores_init(i2c, pdata);
++	i2c->clock_khz = pdata->clock_khz;
++	ocores_init(i2c);
  
- 	iounmap((void *)priv->psc_base);
- out_map:
-@@ -425,13 +436,10 @@ static int __devexit
- i2c_au1550_remove(struct platform_device *pdev)
- {
- 	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
--	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
- 
- 	platform_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&priv->adap);
--	sp->psc_smbcfg = 0;
--	sp->psc_ctrl = PSC_CTRL_DISABLE;
--	au_sync();
-+	i2c_au1550_disable(priv);
- 	iounmap((void *)priv->psc_base);
- 	release_resource(priv->ioarea);
- 	kfree(priv->ioarea);
-@@ -439,14 +447,14 @@ i2c_au1550_remove(struct platform_device *pdev)
+ 	init_waitqueue_head(&i2c->wait);
+ 	ret = request_irq(res2->start, ocores_isr, 0, pdev->name, i2c);
+@@ -313,13 +314,40 @@ static int __devexit ocores_i2c_remove(struct platform_device* pdev)
  	return 0;
  }
  
 +#ifdef CONFIG_PM
- static int
- i2c_au1550_suspend(struct platform_device *pdev, pm_message_t state)
- {
- 	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
--	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
- 
--	sp->psc_ctrl = PSC_CTRL_SUSPEND;
--	au_sync();
-+	i2c_au1550_disable(priv);
++static int ocores_i2c_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
++	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
 +
- 	return 0;
- }
- 
-@@ -454,14 +462,15 @@ static int
- i2c_au1550_resume(struct platform_device *pdev)
- {
- 	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
--	volatile psc_smb_t *sp = (volatile psc_smb_t *)priv->psc_base;
- 
--	sp->psc_ctrl = PSC_CTRL_ENABLE;
--	au_sync();
--	while (!(sp->psc_smbstat & PSC_SMBSTAT_SR))
--		au_sync();
-+	i2c_au1550_setup(priv);
++	/* make sure the device is disabled */
++	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
 +
- 	return 0;
- }
++	return 0;
++}
++
++static int ocores_i2c_resume(struct platform_device *pdev)
++{
++	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
++
++	ocores_init(i2c);
++
++	return 0;
++}
 +#else
-+#define i2c_au1550_suspend	NULL
-+#define i2c_au1550_resume	NULL
++#define ocores_i2c_suspend	NULL
++#define ocores_i2c_resume	NULL
 +#endif
++
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:ocores-i2c");
  
- static struct platform_driver au1xpsc_smbus_driver = {
- 	.driver = {
+ static struct platform_driver ocores_i2c_driver = {
+-	.probe  = ocores_i2c_probe,
+-	.remove = __devexit_p(ocores_i2c_remove),
+-	.driver = {
++	.probe   = ocores_i2c_probe,
++	.remove  = __devexit_p(ocores_i2c_remove),
++	.suspend = ocores_i2c_suspend,
++	.resume  = ocores_i2c_resume,
++	.driver  = {
+ 		.owner = THIS_MODULE,
+ 		.name = "ocores-i2c",
+ 	},
 -- 
 1.5.5.4
 
