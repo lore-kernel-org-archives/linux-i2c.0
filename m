@@ -1,16 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: multi-master lost-arbitration improvement
- for i2c-algo-pcf (take 2)
-Date: Thu, 19 Jun 2008 14:01:43 +0200
-Message-ID: <20080619140143.3cd40e71@hyperion.delvare>
-References: <ec7cefb0806121410g154b546dx1cb2562898dba4b6@mail.gmail.com>
-	<20080613090746.0008ed77@hyperion.delvare>
-	<ec7cefb0806181759n56229fbdga0aaa0b6060a6c3f@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] Bugfixes for i2c-cpm.c
+Date: Thu, 19 Jun 2008 15:09:22 +0200
+Message-ID: <20080619130922.GF3860@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1970621783843099549=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <ec7cefb0806181759n56229fbdga0aaa0b6060a6c3f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,84 +14,107 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Eric Brower <ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Daniel Smolik <marvin-0pWKB23IDFjrBKCeMvbIDA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Eric,
 
-On Wed, 18 Jun 2008 17:59:00 -0700, Eric Brower wrote:
-> On Fri, Jun 13, 2008 at 12:07 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > You said "not a problem" but you did not change the code? It's still
-> > using mdelay rather than msleep. msleep would be more reasonable, you
-> > really have no reason to keep the CPU busy while waiting for the other
-> > master to complete his transaction. I'm doing this change.
-> 
-> I recall the reason.  On this implementation (Sun envctrltwo), i2c
-> components are used in interrupt context (environmental monitoring
-> interrupts are ack'ed by reading a PCF8574).  This is not really
-> within the design of the in-kernel I2C subsystem (due to use of
-> mutexes in i2c_transfer), but we've managed to wrap all accesses to
-> i2c with spinlocks-- ugly, but it lets us work.  I'm not sure if there
-> is any work going on to address this drawback, or if any other
-> consumer needs in_interrupt access as my driver does.  As an aside,
-> this out-of-kernel driver was done as a proof-of-concept to remove
-> existing drivers (prior to the i2c subsystem) that do their own I2C;
-> you decide which is worse. :)
-> 
-> My preference is to mdelay() here, so we don't exacerbate the issue of
-> sleeping code in the i2c subsystem.  A few bus drivers do this, but
-> that is fine-- the bus drivers understand the platform well enough to
-> know this is safe for them.  No (other) algo drivers do this.
+--===============1970621783843099549==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JcvBIhDvR6w3jUPA"
+Content-Disposition: inline
 
-Actually the i2c-algo-pca driver does sleep (while waiting for bus to
-become free.) Given that there are only 3 algo drivers, that's 33% ;)
 
-> If you object, perhaps we can implement a callback in i2c-algo-pcf
-> rather than an mdelay value.  A default value could msleep for some
-> arbitrary time period (as you have suggested), or can be reassigned to
-> mdelay().
-> 
-> Given the infrequency of lost arbitration, and the lack of any other
-> consumers of lab_mdelay in i2c-algo-pcf, I'm voting for mdelay rather
-> than a callback implementation.
+--JcvBIhDvR6w3jUPA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The infrequency of lost arbitration is hardly an argument. It might be
-frequent in some setups, we just don't know. And the increased latency
-might be a problem to some, even if not frequent.
 
-I agree that having a callback for lab_mdelay would be overkill.
+Bugfixes to the i2c-cpm driver
 
-We already started implementing support for non-sleeping i2c transactions:
+- enable correct interrupts (I2CER_TXE instead of I2CER_BUSY)
+- replace forgotten iic with i2c
+- fix typo (devided)
+- prefix debug-output on init with 0x and add frequency
 
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=cea443a81c9c6257bf2d00f1392f7d1d4ce03b75
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-cpm.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-But later on, Andrew Morton complained that this approach (detecting
-the context) was wrong and we should always know the context in
-advance. Meaning that we should let i2c bus drivers advertise is they
-must never sleep. I made a proposal to fix the problem:
+Index: drivers/i2c/busses/i2c-cpm.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- drivers/i2c/busses/i2c-cpm.c.orig
++++ drivers/i2c/busses/i2c-cpm.c
+@@ -241,7 +241,7 @@
+ 		eieio();
+ 		setbits16(&tbdf->cbd_sc, BD_SC_READY);
+ 	} else {
+-		dev_dbg(&adap->dev, "cpm_iic_write(abyte=3D0x%x)\n", addr);
++		dev_dbg(&adap->dev, "cpm_i2c_write(abyte=3D0x%x)\n", addr);
+=20
+ 		memcpy(tb+1, pmsg->buf, pmsg->len);
+=20
+@@ -350,7 +350,7 @@
+ 	}
+ 	/* Start transfer now */
+ 	/* Enable RX/TX/Error interupts */
+-	out_8(&i2c_reg->i2cmr, I2CER_BUSY | I2CER_TXB | I2CER_RXB);
++	out_8(&i2c_reg->i2cmr, I2CER_TXE | I2CER_TXB | I2CER_RXB);
+ 	out_8(&i2c_reg->i2cer, 0xff);	/* Clear interrupt status */
+ 	/* Chip bug, set enable here */
+ 	setbits8(&i2c_reg->i2mod, I2MOD_EN);	/* Enable */
+@@ -553,8 +553,8 @@
+=20
+ 	cpm_reset_i2c_params(cpm);
+=20
+-	dev_dbg(&cpm->ofdev->dev, "i2c_ram %p, i2c_addr 0x%04x\n",
+-		cpm->i2c_ram, cpm->i2c_addr);
++	dev_dbg(&cpm->ofdev->dev, "i2c_ram 0x%p, i2c_addr 0x%04x, freq %d\n",
++		cpm->i2c_ram, cpm->i2c_addr, cpm->freq);
+ 	dev_dbg(&cpm->ofdev->dev, "tbase 0x%04x, rbase 0x%04x\n",
+ 		(u8 __iomem *)cpm->tbase - DPRAM_BASE,
+ 		(u8 __iomem *)cpm->rbase - DPRAM_BASE);
+@@ -568,7 +568,7 @@
+=20
+ 	/*
+ 	 * PDIV is set to 00 in i2mod, so brgclk/32 is used as input to the
+-	 * i2c baud rate generator. This is devided by 2 x (DIV + 3) to get
++	 * i2c baud rate generator. This is divided by 2 x (DIV + 3) to get
+ 	 * the actual i2c bus frequency.
+ 	 */
+ 	brg =3D get_brgfreq() / (32 * 2 * cpm->freq) - 3;
 
-http://lists.lm-sensors.org/pipermail/i2c/2008-March/003177.html
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
 
-but the thread died quickly and nothing actually happened. My plan was
-to add a no_sleep flag to struct i2c_adapter, and let i2c_transfer
-decide between mutex_trylock and mutex_lock_nested based on this. If we
-did that, then i2c-algo-pcf could check the value of this flag to
-decide whether mdelay or msleep is the right thing to do.
+--JcvBIhDvR6w3jUPA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-I didn't have the time (nor motivation) to implement the idea. As you
-apparently have an interest in this, would you possibly take care of
-this?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-For now I've reverted my change, so i2c-algo-pcf uses mdelay again. But
-I've added a comment stating that this should be revisited once we have
-a way to know if sleeping is OK or not.
+iD8DBQFIWlqCD27XaX1/VRsRAtVlAKCckfiJDR+wB3eI2fRDbTWnkQ7WIwCbBdCp
+3mBbSVcvfE7so4+APJZCyjM=
+=KCib
+-----END PGP SIGNATURE-----
 
-Thanks,
--- 
-Jean Delvare
+--JcvBIhDvR6w3jUPA--
+
+
+--===============1970621783843099549==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1970621783843099549==--
