@@ -1,15 +1,15 @@
-From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Subject: [PATCH] i2c: driver for PCA954x I2C multiplexer series.
-Date: Thu, 19 Jun 2008 19:15:01 +0200
-Message-ID: <1213895701-9872-4-git-send-email-giometti@linux.it>
-References: <> <1213895701-9872-1-git-send-email-giometti@linux.it>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH] i2c: virtual i2c adapter support.
+Date: Sun, 22 Jun 2008 10:37:16 +0200
+Message-ID: <87fxr5sw5f.fsf@macbook.be.48ers.dk>
+References: <1213895701-9872-1-git-send-email-giometti@linux.it>
 	<1213895701-9872-2-git-send-email-giometti@linux.it>
-	<1213895701-9872-3-git-send-email-giometti@linux.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1213895701-9872-3-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
+In-Reply-To: <1213895701-9872-2-git-send-email-giometti-k2GhghHVRtY@public.gmane.org> (Rodolfo
+	Giometti's message of "Thu\, 19 Jun 2008 19\:14\:59 +0200")
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,372 +19,210 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+To: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
----
- drivers/i2c/muxes/Kconfig   |    9 ++
- drivers/i2c/muxes/Makefile  |    8 +
- drivers/i2c/muxes/pca954x.c |  300 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c/pca954x.h |    6 +
- 4 files changed, 323 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/muxes/pca954x.c
- create mode 100644 include/linux/i2c/pca954x.h
+>>>>> "Rodolfo" == Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org> writes:
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index f69f326..5a869db 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -5,4 +5,13 @@
- menu "Multiplexer I2C Chip support"
- 	depends on I2C && I2C_VIRT && EXPERIMENTAL
- 
-+config I2CVIRT_PCA954x
-+	tristate "Philips PCA953x I2C Mux/switches"
-+	help
-+	  If you say yes here you get support for the Philips PCA954x
-+	  I2C mux/switch devices.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called pca954x.
-+
- endmenu
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index e69de29..918ba1d 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Makefile for multiplexer I2C chip drivers.
-+
-+obj-$(CONFIG_I2CVIRT_PCA954x)	+= pca954x.o
-+
-+ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
-+EXTRA_CFLAGS += -DDEBUG
-+endif
-diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
-new file mode 100644
-index 0000000..66efbca
---- /dev/null
-+++ b/drivers/i2c/muxes/pca954x.c
-@@ -0,0 +1,300 @@
-+/*
-+ * pca954x.c - I2C multiplexer
-+ *
-+ * Copyright (c) 2008 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-+ * Copyright (c) 2008 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
-+ *
-+ * This module supports the PCA954x series of I2C multiplexer/switch chips
-+ * made by Philips Semiconductors.
-+ * This includes the:
-+ *     PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
-+ *     and PCA9548.
-+ *
-+ * These chips are all controlled via the I2C bus itself, and all have a
-+ * single 8-bit register (normally at 0x70).  The upstream "parent" bus fans
-+ * out to two, four, or eight downstream busses or channels; which of these
-+ * are selected is determined by the chip type and register contents.  A
-+ * mux can select only one sub-bus at a time; a switch can select any
-+ * combination simultaneously.
-+ *
-+ * Based on:
-+ *    pca954x.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-+ * Copyright (C) 2006
-+ *
-+ * Based on:
-+ *    pca954x.c from Ken Harrenstien
-+ * Copyright (C) 2004 Google, Inc. (Ken Harrenstien)
-+ *
-+ * Based on:
-+ *    i2c-virtual_cb.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-+ * and
-+ *    pca9540.c from Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, which was
-+ *    based on pcf8574.c from the same project by Frodo Looijaard,
-+ *    Philip Edelbrock, Dan Eaton and Aurelien Jarno.
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+
-+#include <linux/i2c/pca954x.h>
-+
-+#define PCA954X_MAX_NCHANS 8
-+
-+enum pca_type {
-+	pca_9540,
-+	pca_9542,
-+	pca_9543,
-+	pca_9544,
-+	pca_9545,
-+	pca_9546,
-+	pca_9547,
-+	pca_9548,
-+};
-+
-+struct pca954x {
-+	struct i2c_client *client;
-+	struct i2c_client dev;
-+	unsigned int type;
-+	u8 last_chan;
-+	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
-+};
-+
-+struct chip_desc {
-+	u8 nchans;
-+	u8 enable;		/* used for muxes only */
-+	enum muxtype {
-+		pca954x_ismux = 0,
-+		pca954x_isswi
-+	} muxtype;
-+};
-+
-+/* Provide specs for the PCA954x types we know about */
-+static struct chip_desc chips[] = {
-+	[pca_9540] = {
-+		.nchans = 2,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9542] = {
-+		.nchans = 2,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9543] = {
-+		.nchans = 2,
-+		.enable = 0x0,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9544] = {
-+		.nchans = 4,
-+		.enable = 0x4,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9542] = {
-+		.nchans = 4,
-+		.enable = 0x0,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9542] = {
-+		.nchans = 4,
-+		.enable = 0x0,
-+		.muxtype = pca954x_isswi,
-+	},
-+	[pca_9542] = {
-+		.nchans = 8,
-+		.enable = 0x8,
-+		.muxtype = pca954x_ismux,
-+	},
-+	[pca_9542] = {
-+		.nchans = 8,
-+		.enable = 0x0,
-+		.muxtype = pca954x_isswi,
-+	},
-+};
-+
-+static const struct i2c_device_id pca954x_id[] = {
-+	{ "pca9540", pca_9540 },
-+	{ "pca9542", pca_9542 },
-+	{ "pca9543", pca_9543 },
-+	{ "pca9544", pca_9544 },
-+	{ "pca9545", pca_9545 },
-+	{ "pca9546", pca_9546 },
-+	{ "pca9547", pca_9547 },
-+	{ "pca9548", pca_9548 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, pca954x_id);
-+
-+static int pca954x_xfer(struct i2c_adapter *adap,
-+			struct i2c_client *client, int read_write, u8 *val)
-+{
-+	int ret = -ENODEV;
-+
-+	if (adap->algo->master_xfer) {
-+		struct i2c_msg msg;
-+		char buf[1];
-+
-+		msg.addr = client->addr;
-+		msg.flags = (read_write == I2C_SMBUS_READ ? I2C_M_RD : 0);
-+		msg.len = 1;
-+		buf[0] = *val;
-+		msg.buf = buf;
-+		ret = adap->algo->master_xfer(adap, &msg, 1);
-+	} else if (adap->algo->smbus_xfer) {
-+		union i2c_smbus_data data;
-+		ret = adap->algo->smbus_xfer(adap, client->addr,
-+						client->flags & I2C_M_TEN,
-+						read_write,
-+						*val, I2C_SMBUS_BYTE, &data);
-+	}
-+
-+	return ret;
-+}
-+
-+static int pca954x_select_chan(struct i2c_adapter *adap,
-+				struct i2c_client *client, u32 chan)
-+{
-+	struct pca954x *data = i2c_get_clientdata(client);
-+	struct chip_desc *chip = &chips[data->type];
-+	u8 regval = 0;
-+	int ret = 0;
-+
-+	/* we make switches look like muxes, not sure how to be smarter */
-+	if (chip->muxtype == pca954x_ismux)
-+		regval = chan | chip->enable;
-+	else
-+		regval = 1 << chan;
-+
-+	/* Only select the channel if its different from the last channel */
-+	if (data->last_chan != chan) {
-+		ret = pca954x_xfer(adap, client, I2C_SMBUS_WRITE, &regval);
-+		data->last_chan = chan;
-+	}
-+
-+	return ret;
-+}
-+
-+static int pca954x_deselect_mux(struct i2c_adapter *adap,
-+				struct i2c_client *client, u32 value)
-+{
-+	/* We never deselect, just stay on the last channel we selected */
-+	return 0;
-+}
-+
-+/*
-+ * I2C init/probing/exit functions
-+ */
-+
-+static int pca954x_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-+	struct pca954x_platform_data *pdata = client->dev.platform_data;
-+	int i, n, f;
-+	struct pca954x *data;
-+	int ret = -ENODEV;
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
-+	goto err;
-+
-+	data = kzalloc(sizeof(struct pca954x), GFP_KERNEL);
-+	if (!data) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	i2c_set_clientdata(client, data);
-+
-+	/* Read the mux register at addr.  This does two things: it verifies
-+	 * that the mux is in fact present, and fetches its current
-+	 * contents for possible use with a future deselect algorithm.
-+	 */
-+	i = i2c_smbus_read_byte(client);
-+	if (i < 0) {
-+		dev_warn(&client->dev, "probe failed\n");
-+		goto exit_free;
-+	}
-+
-+	data->type = id->driver_data;
-+	data->last_chan = -1;			/* force the first selection */
-+
-+	/* Now create virtual busses and adapters for them */
-+	for (i = 0; i < chips[data->type].nchans; i++) {
-+		f = 0;				/* dynamic adap number */
-+		if (pdata && (i < pdata->len))
-+			f = pdata->adap_ids[i];	/* force static adap number */
-+
-+		data->virt_adaps[i] = i2c_add_virt_adapter(adap, client, f, i,
-+						&pca954x_select_chan,
-+						&pca954x_deselect_mux);
-+		if (data->virt_adaps[i] == NULL) {
-+			ret = -ENODEV;
-+			goto virt_reg_failed;
-+		}
-+	}
-+
-+	dev_info(&client->dev, "registered %d virtual busses for I2C %s %s\n",
-+			i, chips[data->type].muxtype == pca954x_ismux ?
-+					"mux" : "switch", client->name);
-+
-+	return 0;
-+
-+virt_reg_failed:
-+	for (n = 0; n < i; n++)
-+		i2c_del_virt_adapter(data->virt_adaps[n]);
-+	i2c_detach_client(client);
-+exit_free:
-+	kfree(data);
-+err:
-+	return ret;
-+}
-+
-+static int __devexit pca954x_remove(struct i2c_client *client)
-+{
-+	struct pca954x *data = i2c_get_clientdata(client);
-+	struct chip_desc *chip = &chips[data->type];
-+	int i, err;
-+
-+	for (i = 0; i < chip->nchans; ++i)
-+		if (data->virt_adaps[i]) {
-+			err = i2c_del_virt_adapter(data->virt_adaps[i]);
-+			if (err)
-+				return err;
-+			data->virt_adaps[i] = NULL;
-+		}
-+
-+	kfree(data);
-+	return 0;
-+}
-+
-+static struct i2c_driver pca954x_driver = {
-+	.driver = {
-+		.name	= "pca954x",
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe	= pca954x_probe,
-+	.remove	= __devexit_p(pca954x_remove),
-+	.id_table = pca954x_id,
-+};
-+
-+static int __init pca954x_init(void)
-+{
-+	return i2c_add_driver(&pca954x_driver);
-+}
-+
-+static void __exit pca954x_exit(void)
-+{
-+	i2c_del_driver(&pca954x_driver);
-+}
-+
-+module_init(pca954x_init);
-+module_exit(pca954x_exit);
-+
-+MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
-+MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c/pca954x.h b/include/linux/i2c/pca954x.h
-new file mode 100644
-index 0000000..ba4504f
---- /dev/null
-+++ b/include/linux/i2c/pca954x.h
-@@ -0,0 +1,6 @@
-+/* platform data for the PCA954x I2C multiplexers */
-+
-+struct pca954x_platform_data {
-+	int *adap_ids;
-+	int len;
-+};
+Hi,
+
+ Rodolfo> +
+ Rodolfo> +struct i2c_adapter *i2c_add_virt_adapter(struct i2c_adapter *parent,
+ Rodolfo> +				struct i2c_client *client,
+ Rodolfo> +				u32 force_nr, u32 mux_val,
+ Rodolfo> +				int (*select_cb) (struct i2c_adapter *,
+ Rodolfo> +						struct i2c_client *, u32),
+ Rodolfo> +				int (*deselect_cb) (struct i2c_adapter *,
+ Rodolfo> +						struct i2c_client *, u32))
+ Rodolfo> +{
+
+How about changing the struct i2c_client to an anonymous void *data
+instead so it can be used for systems where the multiplexing hardware
+isn't a i2c device? E.G. I have a driver (currently not in mainline)
+for a I2C multiplexer implemented in a FPGA together with the
+opencores I2C controller:
+
+/*
+ * i2c-thinlitemux.c: I2C multiplexer on Barco Thinlite board.
+ *
+ * Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+ *
+ * This file is licensed under the terms of the GNU General Public License
+ * version 2.  This program is licensed "as is" without any warranty of any
+ * kind, whether express or implied.
+ */
+
+#include <linux/errno.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/platform_device.h>
+#include <linux/i2c.h>
+#include <asm/io.h>
+#include <asm/uaccess.h>
+
+#define THINLITEMUX_BUSSES 6
+#define THINLITEMUX_IDLE   7
+
+struct thinlitemux_i2c {
+	u16 __iomem *base;
+	struct i2c_adapter *parent;
+	struct i2c_adapter adap;
+	int pos;
+};
+
+static int thinlitemux_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+			int num)
+{
+	struct thinlitemux_i2c *i2c = i2c_get_adapdata(adap);
+	int ret;
+
+	mutex_lock(&i2c->parent->bus_lock);
+	out_be16(i2c->base, i2c->pos);
+	ret = i2c->parent->algo->master_xfer(i2c->parent, msgs, num);
+	out_be16(i2c->base, THINLITEMUX_IDLE);
+	mutex_unlock(&i2c->parent->bus_lock);
+
+	return ret;
+}
+
+static u32 thinlitemux_func(struct i2c_adapter *adap)
+{
+	struct thinlitemux_i2c *i2c = i2c_get_adapdata(adap);
+
+	return i2c->parent->algo->functionality(i2c->parent);
+}
+
+static struct i2c_algorithm thinlitemux_algorithm = {
+	.master_xfer	= thinlitemux_xfer,
+	.functionality	= thinlitemux_func,
+};
+
+static struct i2c_adapter thinlitemux_adapter = {
+	.owner		= THIS_MODULE,
+	.name		= "thinlitemux",
+	.class		= I2C_CLASS_HWMON,
+	.algo		= &thinlitemux_algorithm,
+	.timeout	= 2,
+	.retries	= 1
+};
+
+static int __devinit thinlitemux_probe(struct platform_device *pdev)
+{
+	struct thinlitemux_i2c *i2c;
+	struct i2c_adapter *adap;
+	struct resource *res;
+	u16 __iomem *base;
+	int i, j, ret;
+
+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	if (!res)
+		return -ENODEV;
+
+	adap = i2c_get_adapter((int)pdev->dev.platform_data);
+	if (!adap) {
+		dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
+			(int)pdev->dev.platform_data);
+		return -ENODEV;
+	}
+
+	base = ioremap(res->start, res->end - res->start + 1);
+	if (!base) {
+		dev_err(&pdev->dev, "Unable to map registers\n");
+		ret = -EIO;
+		goto map_failed;
+	}
+
+	i2c = kzalloc(sizeof(*i2c)*THINLITEMUX_BUSSES, GFP_KERNEL);
+	if (!i2c) {
+		ret = -ENOMEM;
+		goto alloc_failed;
+	}
+
+	for (i=0; i<THINLITEMUX_BUSSES; i++) {
+		i2c[i].base   = base;
+		i2c[i].pos    = i;
+		i2c[i].parent = adap;
+		i2c[i].adap   = thinlitemux_adapter;
+		i2c[i].adap.dev.parent = &adap->dev;
+		i2c[i].adap.nr = i+1;
+
+		snprintf(i2c[i].adap.name, I2C_NAME_SIZE, "%s.%d",
+			 thinlitemux_adapter.name, i);
+		i2c_set_adapdata(&i2c[i].adap, &i2c[i]);
+		ret = i2c_add_numbered_adapter(&i2c[i].adap);
+		if (ret) {
+			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
+			goto add_adapter_failed;
+		}
+	}
+
+	/* disable parent bus so probes won't find devices on it */
+	out_be16(base, THINLITEMUX_IDLE);
+
+	dev_info(&pdev->dev, "%d port mux at 0x%lx on %s adapter\n",
+		 THINLITEMUX_BUSSES, (unsigned long)res->start, adap->name);
+
+	platform_set_drvdata(pdev, i2c);
+
+	return 0;
+
+ add_adapter_failed:
+	for (j=0; j<i; j++)
+		i2c_del_adapter(&i2c[j].adap);
+ alloc_failed:
+	iounmap(base);
+ map_failed:
+	i2c_put_adapter(adap);
+
+	return ret;
+}
+
+static int __devexit thinlitemux_remove(struct platform_device* pdev)
+{
+	struct thinlitemux_i2c *i2c = platform_get_drvdata(pdev);
+	int i;
+
+	for (i=0; i<THINLITEMUX_BUSSES; i++)
+		i2c_del_adapter(&i2c[i].adap);
+	iounmap(i2c->base);
+	platform_set_drvdata(pdev, NULL);
+	i2c_put_adapter(i2c->parent);
+	kfree(i2c);
+
+	return 0;
+}
+
+static struct platform_driver thinlitemux_driver = {
+	.probe  = thinlitemux_probe,
+	.remove = __devexit_p(thinlitemux_remove),
+	.driver = {
+		.owner = THIS_MODULE,
+		.name = "thinlitei2cmux",
+	},
+};
+
+static int __init thinlitemux_init(void)
+{
+	return platform_driver_register(&thinlitemux_driver);
+}
+
+static void __exit thinlitemux_exit(void)
+{
+	platform_driver_unregister(&thinlitemux_driver);
+}
+
+module_init(thinlitemux_init);
+module_exit(thinlitemux_exit);
+
+MODULE_DESCRIPTION("Barco ThinLite I2C multiplexer driver");
+MODULE_AUTHOR("Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>");
+MODULE_LICENSE("GPL");
+
+It would be nice to be able to use the i2c-virtual stuff for it.
+
 -- 
-1.5.4.3
-
+Bye, Peter Korsgaard
 
 _______________________________________________
 i2c mailing list
