@@ -1,14 +1,14 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Bugfixes for i2c-cpm.c
-Date: Mon, 23 Jun 2008 17:07:10 +0200
-Message-ID: <20080623150710.GH3926@pengutronix.de>
-References: <20080620084155.GA17701@pengutronix.de>
-	<20080623124425.GE3926@pengutronix.de>
-	<20080623155909.525f5095@hyperion.delvare>
+From: Cyrille Derory <cyrille.derory-39ZsbGIQGT5GWvitb5QawA@public.gmane.org>
+Subject: Re: parport (i2c bus) maximum speed
+Date: Mon, 23 Jun 2008 21:51:32 +0200
+Message-ID: <485FFEC4.6000306@wanadoo.fr>
+References: <c193ec310806130644p22c1e466g9cd6e6711d4b691b@mail.gmail.com>	<20080613160205.60b719c3@hyperion.delvare>
+	<c193ec310806130855s2227f429pd151466a88539c90@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3032269909761486543=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080623155909.525f5095-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <c193ec310806130855s2227f429pd151466a88539c90-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,64 +18,19 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: petr.jakes-VOAeGBCOg48@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============3032269909761486543==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KscVNZbUup0vZz0f"
-Content-Disposition: inline
-
-
---KscVNZbUup0vZz0f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jun 23, 2008 at 03:59:09PM +0200, Jean Delvare wrote:
-
-> I was away for the week-end and am now processing the stacked e-mail
-> and other real-life tasks (takes time.)
-This was more addressed to Jochen; should have pointed out, that I was
-waiting for his ACK.
-
-> I fail to see how there would be a regression here given that the
-> i2c-cpm driver is new and is not in kernel 2.6.26.
-Ups, sigh, I remembered you added it to your tree and mistook it that
-you also already pushed it. Point taken, not that urgent. Sorry!
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---KscVNZbUup0vZz0f
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIX7weD27XaX1/VRsRAiffAKC/0w7vnKU73eBu9qA9CpdVnGb2ZACfYDgC
-SDz1Smu/WhJq7FERlw8f6T0=
-=IRV0
------END PGP SIGNATURE-----
-
---KscVNZbUup0vZz0f--
-
-
---===============3032269909761486543==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============3032269909761486543==--
+UGV0ciBKYWtlxaEgYSDDqWNyaXQgOgo+Cj4gSnVzdCBmb3IgeW91ciBpbmZvcm1hdGlvbiB3ZSBo
+YXZlIFBJQyAxNkY4ODcgY29ubmVjdGVkIHRvIHRoZSBidXMgYXMgYSAKPiBzbGF2ZSAod2hpY2gg
+d2FzIHJlYWxseSBwYWluIGFuZCBhIGxvdCBvZiBTVyBoYWNraW5nIG9uIHRoZSBQSUMgc2lkZSAt
+IAo+IGl0IGxvb2tzIGxpa2UgTWljcm9jaGlwIEkyQyBIVy9TVyBpbXBsZW1lbnRhdGlvbiBkb2Vz
+IG5vdCB3b3JrIAo+IHByb3Blcmx5ICJzb21ldGltZXMiKS4KPiBfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwo+IGkyYyBtYWlsaW5nIGxpc3QKPiBpMmNAbG0t
+c2Vuc29ycy5vcmcKPiBodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5vcmcvbWFpbG1hbi9saXN0aW5m
+by9pMmMKSGkgUGV0ciwKCkkgYW0gaW50ZXJyZXN0ZWQgaW4geW91ciB3b3JrIG9uIFBJQyAxNkY4
+ODcuIEkgaGF2ZSB0byBjb25uZWN0IGEgClBJQzE2Rjg4IHdpdGggdGhlIGkyYyBwYXJwb3J0IGFk
+YXB0ZXIuIERvIHlvdSBoYXZlIG1vcmUgaW5mb3JtYXRpb25zLgoKVGhhbmtzIGluIGFkdmFuY2Uu
+CgpDeXJpbGxlIERFUk9SWQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vuc29ycy5vcmcKaHR0cDovL2xpc3Rz
+LmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
