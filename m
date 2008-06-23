@@ -1,10 +1,16 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] Bugfixes for i2c-cpm.c
-Date: Fri, 20 Jun 2008 10:41:55 +0200
-Message-ID: <20080620084155.GA17701@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: virtual i2c adapter support.
+Date: Mon, 23 Jun 2008 09:14:06 +0200
+Message-ID: <20080623091406.2a68e9d1@hyperion.delvare>
+References: <1213895701-9872-1-git-send-email-giometti@linux.it>
+	<1213895701-9872-2-git-send-email-giometti@linux.it>
+	<87fxr5sw5f.fsf@macbook.be.48ers.dk>
+	<20080622085206.GM10695@enneenne.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5389117310367902936=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080622085206.GM10695-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -14,111 +20,59 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: jochen-NIgtFMG+Po8@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Rodolfo,
 
---===============5389117310367902936==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
+On Sun, 22 Jun 2008 10:52:06 +0200, Rodolfo Giometti wrote:
+> On Sun, Jun 22, 2008 at 10:37:16AM +0200, Peter Korsgaard wrote:
+> > >>>>> "Rodolfo" == Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org> writes:
+> > 
+> > Hi,
+> > 
+> >  Rodolfo> +
+> >  Rodolfo> +struct i2c_adapter *i2c_add_virt_adapter(struct i2c_adapter *parent,
+> >  Rodolfo> +				struct i2c_client *client,
+> >  Rodolfo> +				u32 force_nr, u32 mux_val,
+> >  Rodolfo> +				int (*select_cb) (struct i2c_adapter *,
+> >  Rodolfo> +						struct i2c_client *, u32),
+> >  Rodolfo> +				int (*deselect_cb) (struct i2c_adapter *,
+> >  Rodolfo> +						struct i2c_client *, u32))
+> >  Rodolfo> +{
+> > 
+> > How about changing the struct i2c_client to an anonymous void *data
+> > instead so it can be used for systems where the multiplexing hardware
+> > isn't a i2c device? E.G. I have a driver (currently not in mainline)
+> > for a I2C multiplexer implemented in a FPGA together with the
+> > opencores I2C controller:
+> > [snip] 
+> > It would be nice to be able to use the i2c-virtual stuff for it.
+> 
+> Mmm... I suppose is not so easy as we wish since there are several
+> references to the i2c parent struct into the code.
+> 
+> I suppose you can get better result if you define your i2c multiplexer
+> as a dummy i2c device. The you can force it to be connected with a
+> real i2c parent by using the i2c_register_board_info() function.
 
+Don't even think about it. We've done dummy i2c devices before and it
+took me 3 years to clean up the mess. Not again, please.
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Peter is totally right, there's no reason why I2C multiplexers would
+always be I2C devices themselves (and when they are, they do not have
+to live on the bus they are multiplexing, even though this is the most
+frequent case). That's only one of the possible cases. The core i2c
+multiplexing code shouldn't assume anything about the nature of the
+multiplexer, that's something for the actual implementation of specific
+multiplexer drivers to deal with.
 
-
-Bugfixes to the i2c-cpm driver
-
-- enable correct interrupts (I2CER_TXE instead of I2CER_BUSY)
-- replace forgotten iic with i2c
-- fix typo (devided)
-- prefix debug-output on init with 0x and add frequency
-
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
-Sorry for the resend; the CC to Jochen was dropped, haven't figured out
-why, yet.
-
- drivers/i2c/busses/i2c-cpm.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-Index: drivers/i2c/busses/i2c-cpm.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- drivers/i2c/busses/i2c-cpm.c.orig
-+++ drivers/i2c/busses/i2c-cpm.c
-@@ -241,7 +241,7 @@
- 		eieio();
- 		setbits16(&tbdf->cbd_sc, BD_SC_READY);
- 	} else {
--		dev_dbg(&adap->dev, "cpm_iic_write(abyte=3D0x%x)\n", addr);
-+		dev_dbg(&adap->dev, "cpm_i2c_write(abyte=3D0x%x)\n", addr);
-=20
- 		memcpy(tb+1, pmsg->buf, pmsg->len);
-=20
-@@ -350,7 +350,7 @@
- 	}
- 	/* Start transfer now */
- 	/* Enable RX/TX/Error interupts */
--	out_8(&i2c_reg->i2cmr, I2CER_BUSY | I2CER_TXB | I2CER_RXB);
-+	out_8(&i2c_reg->i2cmr, I2CER_TXE | I2CER_TXB | I2CER_RXB);
- 	out_8(&i2c_reg->i2cer, 0xff);	/* Clear interrupt status */
- 	/* Chip bug, set enable here */
- 	setbits8(&i2c_reg->i2mod, I2MOD_EN);	/* Enable */
-@@ -553,8 +553,8 @@
-=20
- 	cpm_reset_i2c_params(cpm);
-=20
--	dev_dbg(&cpm->ofdev->dev, "i2c_ram %p, i2c_addr 0x%04x\n",
--		cpm->i2c_ram, cpm->i2c_addr);
-+	dev_dbg(&cpm->ofdev->dev, "i2c_ram 0x%p, i2c_addr 0x%04x, freq %d\n",
-+		cpm->i2c_ram, cpm->i2c_addr, cpm->freq);
- 	dev_dbg(&cpm->ofdev->dev, "tbase 0x%04x, rbase 0x%04x\n",
- 		(u8 __iomem *)cpm->tbase - DPRAM_BASE,
- 		(u8 __iomem *)cpm->rbase - DPRAM_BASE);
-@@ -568,7 +568,7 @@
-=20
- 	/*
- 	 * PDIV is set to 00 in i2mod, so brgclk/32 is used as input to the
--	 * i2c baud rate generator. This is devided by 2 x (DIV + 3) to get
-+	 * i2c baud rate generator. This is divided by 2 x (DIV + 3) to get
- 	 * the actual i2c bus frequency.
- 	 */
- 	brg =3D get_brgfreq() / (32 * 2 * cpm->freq) - 3;
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIW21TD27XaX1/VRsRAj1aAJ91ZJSPbLnNgHYf1cYlGo7+v2NBVwCgmGlf
-emSd/7wLfv+CpSTxo26efZU=
-=Pe7/
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
-
-
---===============5389117310367902936==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5389117310367902936==--
