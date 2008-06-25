@@ -1,102 +1,68 @@
 From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Tue, 24 Jun 2008 19:06:48 +0200
-Message-ID: <20080624190648.00ebbf6c@hyperion.delvare>
-References: <200806091541.43899.u.luckas@road.de>
-	<200806111131.50501.david-b@pacbell.net>
-	<20080612204408.6f0a3e04@hyperion.delvare>
-	<200806121257.47936.david-b@pacbell.net>
+Subject: Re: [i2c] [PATCH] Convert i2c-mpc from a platform driver to an
+	of_platform one
+Date: Wed, 25 Jun 2008 15:25:42 +0200
+Message-ID: <20080625152542.40003d30@hyperion.delvare>
+References: <9e4733910806101940o7f2f9863jb5e556ee2fc39a7e@mail.gmail.com>
+	<20080611160048.GB4257@pengutronix.de>
+	<9e4733910806110914v2fb9e4a3o3736663bd54a03cd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758778AbYFXRHZ@vger.kernel.org>
-In-Reply-To: <200806121257.47936.david-b@pacbell.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Ryan Mallon <ryan@bluewatersys.com>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <9e4733910806110914v2fb9e4a3o3736663bd54a03cd@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linuxppc-dev list <Linuxppc-dev@ozlabs.org>, Wolfram Sang <w.sang@pengutronix.de>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+Hi Jon,
 
-Sorry for the late answer.
+On Wed, 11 Jun 2008 12:14:08 -0400, Jon Smirl wrote:
+> On 6/11/08, Wolfram Sang <w.sang@pengutronix.de> wrote:
+> > On Tue, Jun 10, 2008 at 10:40:45PM -0400, Jon Smirl wrote:
+> >  > Convert i2c-mpc from a platform driver into an of_platform driver.
+> >  > This patch is much smaller since Jochen already added
+> >  > of_find_i2c_driver(). Versions of this have been posted before.
+> >  >
+> >  > Signed-ff-by: Jon Smirl <jonsmirl@gmail.com>
+> >
+> > Typo: Signed-off... (I'm curious, do such typos enforce resending the
+> >  patch?)
 
-On Thu, 12 Jun 2008 12:57:47 -0700, David Brownell wrote:
-> On Thursday 12 June 2008, Jean Delvare wrote:
-> 
-> > > So while (a) having i2c and some i2c_adapter drivers at subsys_initcall
-> > > is an essential first step, the *link order* issue comes up in two other
-> > > ways:  (b1) drivers "outside the I2C tree and *before* it in link order"
-> > > that may need to be subsys_initcall too, thus depending on core I2C
-> > > stuff being available, and (b2) some other subsystems may need to rely
-> > > on I2C in their bringup, such as by enabling a specific power domain
-> > > and the chips using it.
-> > 
-> > (b1) and (b2) are the same problem as far as I can see, and is down to:
-> > is the needed i2c_adapter driver initialized early enough.
-> 
-> ... and *BEFORE* the "i2c_client" driver.  Moving I2C earlier in the
-> link order may be necessary to ensure that.
+In theory it should. The line means that you've read the "Developer's
+Certificate of Origin" and you agree with it, so it's somewhat binding.
+I guess a lawyer would argue that the line isn't worth anything if
+"Signed-off-by" isn't spelled properly.
 
-Ah, I'm getting it now (it took time, sorry.) You want the i2c core and
-bus driver to be available not to let the i2c client driver register (it
-doesn't need the i2c bus driver for that) but to actually bind to and
-initialize whatever device it is driving, because other subsystem need
-this initialization to happen before themselves can work. That's the
-part I had been missing from the beginning.
+Thanks Wolfram for the review, BTW.
 
-> Yes, (b2) is essentially the "30,000 foot view" of the problem for
-> which (b1) is the lower altitude "5,000 foot view".  The PCI version
-> of that problem has the relevant init code running at arch_initcall
-> level (in at least those MIPS cases) and also getting linked before
-> all the code in the "drivers" subtree.
-> 
-> 
-> > Which can be 
-> > solved by either using subsys_initcall in said driver, or by moving
-> > said driver earlier in the link order. Do we agree on this?
-> 
-> No; that would be a case of moving other subsystems *AFTER* I2C in
-> the link order, not moving any i2c_client driver earlier.
+> I just cut and pasted this version to get the comments. Next pass I
+> will send it using stgit which will add the right signed-off line and
+> fix the wrapping.
 
-I think I had bus drivers in mind when I wrote that, not i2c client
-drivers.
+That's doing things the wrong way around. If you want people to comment
+on your patch, the least you can do is make sure they can apply it.
 
-> Remember, you were wanting (appropriately!) to move drivers out of
-> the i2c subtree when they have a better home.  And in this case,
-> (b2) explains why that surfaces this requirement for earlier init
-> of I2C ... if those drivers were in drivers/i2c/chips, the link order
-> would not be an issue.
+If I can't apply your patch, that means I can't verify if it applies
+properly, I can't run checkpatch.pl on it, I can't get quilt to color
+it, and I can't compare it to a previous version of the same patch.
 
-I think there would still be an issue as long as i2c is late in the
-linking order. If i2c is early in the linking order and chip drivers
-are in drivers/i2c/chips, I agree there is no problem. But as I already
-said I don't want this to happen, it doesn't really matter.
+Also, it would be a good idea to keep Jochen Friedrich in the loop
+(Cc'd), as he proposed a similar patch based on a previous version of
+yours back in April. I suppose he has some interest in it.
 
-> > (...)
-> > Now I am a bit confused as to your position about how to solve the
-> > problem. In an earlier post, you were claiming that using
-> > subsys_initcall in i2c bus drivers wasn't an abuse. And now you suggest
-> > that moving i2c earlier in the build order is the way to go. As I
-> > understand it we have no reason to do both. Or do we?
-> 
-> We have reason to do both.  That's why I called out cases (a) vs (b)
-> (and b1/b2) above.  They address different problems.
-> 
-> This is confusing stuff, in part because this part of initialization
-> is all driven by side effects and is thus normally hidden.
-> 
-> The arch_initcall/subsys_initcall/device_initcall/... stuff (a) is at
-> least partially explicit.  But the sequencing of initcalls within a
-> given grouping (b) is purely a link order side effect.
-> 
-> So every time changing the link order comes up, confusion arises.
-
-I think I have a clearer picture of the whole problem and dependencies
-now, thanks. Meaning that anyone who has an actual problem with the
-current link order is free to work up a patch and send it to me and
-I'll review it. I won't be driving the effort myself, as I don't have
-any system requiring these changes, I don't think I would be the right
-person for the job.
+While mentioning Jochen's version of the patch: it was deleting 123
+lines from arch/powerpc/sysdev/fsl_soc.c. Yours doesn't. Should it?
+http://lists.lm-sensors.org/pipermail/i2c/2008-April/003314.html
 
 -- 
 Jean Delvare
