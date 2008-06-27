@@ -1,85 +1,93 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] Bugfixes for i2c-cpm.c
-Date: Fri, 27 Jun 2008 10:40:27 +0200
-Message-ID: <20080627084027.GA3931@pengutronix.de>
-References: <20080620084155.GA17701@pengutronix.de>
-	<200806241615.08826.laurentp@cse-semaphore.com>
-	<4864A342.4020900@scram.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH, RFC] Earlier I2C initialization
+Date: Fri, 27 Jun 2008 12:41:43 +0200
+Message-ID: <20080627124143.23ac7b7b@hyperion.delvare>
+References: <200806091541.43899.u.luckas@road.de>
+	<485031D5.3020606@bluewatersys.com>
+	<20080611141852.3ccd89ea@hyperion.delvare>
+	<200806111327.09298.david-b@pacbell.net>
+	<20080611225416.169574a0@hyperion.delvare>
+	<485042A6.3030705@bluewatersys.com>
+	<20080624183945.367c88cf@hyperion.delvare>
+	<48640656.9010802@bluewatersys.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2147819218779942607=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4864A342.4020900-NIgtFMG+Po8@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754590AbYF0Km4@vger.kernel.org>
+In-Reply-To: <48640656.9010802@bluewatersys.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ryan Mallon <ryan@bluewatersys.com>
+Cc: David Brownell <david-b@pacbell.net>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ryan,
 
---===============2147819218779942607==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
+On Fri, 27 Jun 2008 09:12:54 +1200, Ryan Mallon wrote:
+> Jean Delvare wrote:
+> > I don't like option 2 at all. drivers/i2c/early could be, but not
+> > drivers/i2c-early.
+> 
+> I don't think its a good idea either. The point was that in order to
+> have two sets of i2c drivers with different link order (with regard to
+> the rest of the driver subsystems) you would need two top level
+> directories in drivers/.
 
+I don't think so. Look at what the input subsystem does (from
+drivers/Makefile):
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+obj-$(CONFIG_SERIO)		+= input/serio/
+obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+obj-$(CONFIG_INPUT)		+= input/
 
-Hi Jochen,
+And there are similar examples with video (video/i810/ and
+video/intelfb/ are early in the list). We could do the same with i2c:
 
-On Fri, Jun 27, 2008 at 10:22:26AM +0200, Jochen Friedrich wrote:
+obj-$(CONFIG_I2C)		+= i2c/early/
 
-> What kind of problems have this been? In normal operation there shouldn't=
- be
-> any I2CER_TXE interrupts being generated.
-I had problems when writing to an EEPROM, reading worked, though.
+(... lots of things ...)
 
-I didn't really investigate why this happened. I just saw that the old
-version used a hardcoded 0x13 to set interrupts and the replacement
-using defined constants resulted in 0x7. Changing constants to achieve
-0x13 solved my problems.
+obj-$(CONFIG_I2C)		+= i2c/
 
-All the best,
+Of course this implies minor edits to drivers/i2c/Makefile. I don't
+know if we want to do that, but from a technical point of view it seems
+doable.
 
-   Wolfram
+> The other way of course, is to use one
+> directory, or subdirectories under drivers/i2c/ and use subsys_initcall.
 
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
+> > (...)
+> > If we are going to keep using subsys_initcall in bus drivers, then
+> > moving the bus drivers using it to a separate directory is not needed.
+> > Which doesn't mean we don't want to split the i2c bus drivers into
+> > subdirectories for other reasons, but I want to see this as a separate
+> > issue. BTW, I started categorizing the different types of i2c bus
+> > drivers:
+> > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-group-bus-drivers.patch
+> > If you want to help with embedded stuff or SOC or whatever makes sense
+> > to group together, please do! For now, everything I am not familiar
+> > with is in group "Others".
+> 
+> I don't know all of the embedded systems, but at a glance the following
+> busses from your others section are used on embedded ARM processors:
+> 
+> i2c-at91
+> i2c-davinci
+> i2c-ixp2000
+> i2c-omap
+> i2c-pxa
+> i2c-s3c2410
+> i2c-versatile
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+OK, I've moved these to a section titled "Embebbed system I2C host
+controller drivers", thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+> I'm sure someone else can point out any I missed, and any embedded i2c
+> controllers from other architectures. i2c-gpio should probably also go
+> under an embedded section as I assume that it is mostly used on embedded
+> systems where there is no SoC i2c controller.
 
-iD8DBQFIZKd7D27XaX1/VRsRAhtXAKCdUJXZTj1e4tlVxDlDewkAsgBbjQCfYpnO
-VhxUzQqs3/ddcIgDQk+8EDw=
-=/o+k
------END PGP SIGNATURE-----
+OK, I did this too. In theory, i2c-gpio could be used on any system,
+but in practice you are most certainly right.
 
---LZvS9be/3tNcYl/X--
-
-
---===============2147819218779942607==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2147819218779942607==--
+-- 
+Jean Delvare
