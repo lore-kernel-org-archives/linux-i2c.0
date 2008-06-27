@@ -1,93 +1,105 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH, RFC] Earlier I2C initialization
-Date: Fri, 27 Jun 2008 12:41:43 +0200
-Message-ID: <20080627124143.23ac7b7b@hyperion.delvare>
-References: <200806091541.43899.u.luckas@road.de>
-	<485031D5.3020606@bluewatersys.com>
-	<20080611141852.3ccd89ea@hyperion.delvare>
-	<200806111327.09298.david-b@pacbell.net>
-	<20080611225416.169574a0@hyperion.delvare>
-	<485042A6.3030705@bluewatersys.com>
-	<20080624183945.367c88cf@hyperion.delvare>
-	<48640656.9010802@bluewatersys.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Grouping i2c bus drivers
+Date: Fri, 27 Jun 2008 14:52:36 +0200
+Message-ID: <20080627145236.2a20aaad@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754590AbYF0Km4@vger.kernel.org>
-In-Reply-To: <48640656.9010802@bluewatersys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ryan Mallon <ryan@bluewatersys.com>
-Cc: David Brownell <david-b@pacbell.net>, Uli Luckas <u.luckas@road.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ryan,
+Hi all,
 
-On Fri, 27 Jun 2008 09:12:54 +1200, Ryan Mallon wrote:
-> Jean Delvare wrote:
-> > I don't like option 2 at all. drivers/i2c/early could be, but not
-> > drivers/i2c-early.
-> 
-> I don't think its a good idea either. The point was that in order to
-> have two sets of i2c drivers with different link order (with regard to
-> the rest of the driver subsystems) you would need two top level
-> directories in drivers/.
+As was mentioned previously, I have decided to group the i2c bus
+drivers to make it easier for the users to know what they need (and also
+for me to know what drivers might be affected by a given problem.) Here
+is the list I have at the moment. There are still many drivers in the
+"Other" category. I suspect that many of these should move to the
+"Embedded" category, but I don't know for sure. So I would welcome
+comments and suggestions for improvements.
 
-I don't think so. Look at what the input subsystem does (from
-drivers/Makefile):
+# PC SMBus host controller drivers
+obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
+obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
+obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
+obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
+obj-$(CONFIG_I2C_AMD756_S4882)	+= i2c-amd756-s4882.o
+obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
+obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
+obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
+obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
+obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
+obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
+obj-$(CONFIG_I2C_SIS630)	+= i2c-sis630.o
+obj-$(CONFIG_I2C_SIS96X)	+= i2c-sis96x.o
+obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
+obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
 
-obj-$(CONFIG_SERIO)		+= input/serio/
-obj-$(CONFIG_GAMEPORT)		+= input/gameport/
-obj-$(CONFIG_INPUT)		+= input/
+# Mac SMBus host controller drivers
+obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
+obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
 
-And there are similar examples with video (video/i810/ and
-video/intelfb/ are early in the list). We could do the same with i2c:
+# Embebbed system I2C/SMBus host controller drivers
+obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+obj-$(CONFIG_I2C_IXP2000)	+= i2c-ixp2000.o
+obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
+obj-$(CONFIG_I2C_PXA)		+= i2c-pxa.o
+obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
+obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
 
-obj-$(CONFIG_I2C)		+= i2c/early/
+# External I2C/SMBus adapter drivers
+obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
+obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
+obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
 
-(... lots of things ...)
+# Graphics adapter I2C/DDC channel drivers
+obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
 
-obj-$(CONFIG_I2C)		+= i2c/
+# Other I2C/SMBus bus drivers
+obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
+obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
+obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
+obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
+obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
+obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
+obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
+obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
+obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
+obj-$(CONFIG_I2C_PNX)		+= i2c-pnx.o
+obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
+obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
+obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
+obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
 
-Of course this implies minor edits to drivers/i2c/Makefile. I don't
-know if we want to do that, but from a technical point of view it seems
-doable.
+(Of course, Kconfig has similar groups.)
 
-> The other way of course, is to use one
-> directory, or subdirectories under drivers/i2c/ and use subsys_initcall.
-
-> > (...)
-> > If we are going to keep using subsys_initcall in bus drivers, then
-> > moving the bus drivers using it to a separate directory is not needed.
-> > Which doesn't mean we don't want to split the i2c bus drivers into
-> > subdirectories for other reasons, but I want to see this as a separate
-> > issue. BTW, I started categorizing the different types of i2c bus
-> > drivers:
-> > http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-group-bus-drivers.patch
-> > If you want to help with embedded stuff or SOC or whatever makes sense
-> > to group together, please do! For now, everything I am not familiar
-> > with is in group "Others".
-> 
-> I don't know all of the embedded systems, but at a glance the following
-> busses from your others section are used on embedded ARM processors:
-> 
-> i2c-at91
-> i2c-davinci
-> i2c-ixp2000
-> i2c-omap
-> i2c-pxa
-> i2c-s3c2410
-> i2c-versatile
-
-OK, I've moved these to a section titled "Embebbed system I2C host
-controller drivers", thanks.
-
-> I'm sure someone else can point out any I missed, and any embedded i2c
-> controllers from other architectures. i2c-gpio should probably also go
-> under an embedded section as I assume that it is mostly used on embedded
-> systems where there is no SoC i2c controller.
-
-OK, I did this too. In theory, i2c-gpio could be used on any system,
-but in practice you are most certainly right.
-
+Thanks,
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
