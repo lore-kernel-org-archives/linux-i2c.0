@@ -1,81 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Convert i2c-mpc from a platform driver to an
- of_platform one
-Date: Sun, 29 Jun 2008 09:17:25 +0200
-Message-ID: <20080629091725.291974e9@hyperion.delvare>
+From: Sean MacLennan <smaclennan@pikatech.com>
+Subject: Re: [i2c] [PATCH] Convert i2c-mpc from a platform driver to an
+	of_platform one
+Date: Sun, 29 Jun 2008 12:24:39 -0400
+Message-ID: <20080629122439.6295d63c@lappy.seanm.ca>
 References: <9e4733910806101940o7f2f9863jb5e556ee2fc39a7e@mail.gmail.com>
 	<20080625155825.43d07d20@hyperion.delvare>
 	<9e4733910806281905l61714e33h8b26870e2c93539e@mail.gmail.com>
 	<20080629044940.GC13658@secretlab.ca>
 	<20080629083143.7f39b3c1@hyperion.delvare>
 	<20080629065812.GO13876@secretlab.ca>
+	<20080629091725.291974e9@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080629065812.GO13876-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linuxppc-dev list <Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Linux-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080629091725.291974e9@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: David Brownell <david-b@pacbell.net>, Wolfram Sang <w.sang@pengutronix.de>, linuxppc-dev list <Linuxppc-dev@ozlabs.org>, Linux@ozlabs.org, Timur Tabi <timur@freescale.com>, I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 29 Jun 2008 00:58:12 -0600, Grant Likely wrote:
-> On Sun, Jun 29, 2008 at 08:31:43AM +0200, Jean Delvare wrote:
-> > Hi Jon, Grant,
-> > 
-> > On Sat, 28 Jun 2008 22:49:40 -0600, Grant Likely wrote:
-> > > On Sat, Jun 28, 2008 at 10:05:28PM -0400, Jon Smirl wrote:
-> > > > >
-> > > > > The driver was previously using i2c_add_numbered_adapter(), giving MPC
-> > > > >  platform the possibility to use new-style i2c drivers:
-> > > > >  http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1469fa263870acd890a4b9f6ef557acc5d673b44
-> > > > >  You're breaking this, I doubt it's on purpose?
-> > > > 
-> > > > Grant, what do you want here? You're the one who converted it to
-> > > > i2c_add_numbered_adapter. But in other posts you've said that the
-> > > > device tree should have nothing to do with bus numbering.
-> > > 
-> > > Yes, I did make that change, but that was when it was a platform bus
-> > > driver.  Converting it to an of_platform bus driver entirely changes the
-> > > situation and it should go back to using i2c_add_adapter() with a parse
-> > > of the device tree for child nodes.
-> > 
-> > I am surprised and disappointed, as this sounds like a regression.
-> > Registering the i2c buses with random numbers and parsing the device
-> > tree later to figure out which devices are where, is what everybody was
-> > doing before the new i2c device/driver matching model was implemented,
-> > because there was no other way. I'm curious why you are going back to
-> > this approach when i2c-core now offers something way cleaner and more
-> > efficient.
-> 
-> Ah, but the whole random number parsing thing is no longer necessary
-> because we ensure that registration of i2c devices always occurs
-> after the i2c adapter is created (for device tree aware i2c adapter
-> drivers.  adapters that aren't device tree aware still need to assign a
-> number).
-> 
-> After the i2c adapter registers itself, of_register_i2c_devices() is called
-> which walks through the child nodes of the i2c adapter node in the device
-> tree.  Each child node is an i2c device, and it immediately get
-> registered with the adapter.  Because this ensures that i2c device
-> registration always happens after adapter registration, and since the
-> pointer to the i2c_adapter is known, then i2c_new_device() can be used
-> directly without ever needing to know the bus number.
+On Sun, 29 Jun 2008 09:17:25 +0200
+"Jean Delvare" <khali@linux-fr.org> wrote:
 
-Ah, OK. If you use i2c_new_device() then it's alright.
+> Ah, OK. If you use i2c_new_device() then it's alright.
 
--- 
-Jean Delvare
+Correct.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+I have done the same thing for the i2c-ibm_iic.c driver. Jean, I think
+you will like this. It gets rid of the index and the numbered drivers.
+And the walking of the device tree is very clean because the dts knows
+all the devices.
+
+For example here is the relevant portion of the dts for the Warp:
+
+IIC0: i2c@ef600700 {
+	compatible = "ibm,iic-440ep", "ibm,iic-440gp", "ibm,iic";
+	reg = <ef600700 14>;
+	interrupt-parent = <&UIC0>;
+	interrupts = <2 4>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ad7414@4a {
+		compatible = "adi,ad7414";
+		reg = <4a>;
+		interrupts = <19 8>;
+		interrupt-parent = <&UIC0>;
+	};
+};
+
+It clearly shows that first i2c controller (IIC0) contains one ad7414 device at address 4A.
+
+Cheers,
+   Sean
