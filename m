@@ -1,16 +1,13 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+From: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Subject: Re: Grouping i2c bus drivers
-Date: Mon, 30 Jun 2008 11:01:02 +0200
-Message-ID: <87d4lzjnzl.fsf@macbook.be.48ers.dk>
+Date: Mon, 30 Jun 2008 12:56:29 +0300
+Message-ID: <4868ADCD.3080305@compulab.co.il>
 References: <20080627145236.2a20aaad@hyperion.delvare>
-	<20080627134436.GC3931@pengutronix.de>
-	<20080628105850.2c56f1a2@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080628105850.2c56f1a2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org> (Jean Delvare's
-	message of "Sat\, 28 Jun 2008 10\:58\:50 +0200")
+In-Reply-To: <20080627145236.2a20aaad-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -24,15 +21,35 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Jean" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
 
- >> > obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
- >> > obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
 
-Ocores should probably also be embedded.
+Jean Delvare wrote:
+> Hi all,
+> 
+> As was mentioned previously, I have decided to group the i2c bus
+> drivers to make it easier for the users to know what they need (and also
+> for me to know what drivers might be affected by a given problem.) Here
+> is the list I have at the moment. There are still many drivers in the
+> "Other" category. I suspect that many of these should move to the
+> "Embedded" category, but I don't know for sure. So I would welcome
+> comments and suggestions for improvements.
+> 
+
+[ snip ]
+
+> obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+> obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+
+SCx200 are Geode GX/LX devices, so I think it also can be moved to embedded.
+
+> (Of course, Kconfig has similar groups.)
+> 
+> Thanks,
 
 -- 
-Bye, Peter Korsgaard
+Sincerely yours,
+Mike.
+
 
 _______________________________________________
 i2c mailing list
