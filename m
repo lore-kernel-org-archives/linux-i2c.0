@@ -1,7 +1,7 @@
-From: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+From: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
 Subject: Re: Grouping i2c bus drivers
-Date: Mon, 30 Jun 2008 12:56:29 +0300
-Message-ID: <4868ADCD.3080305@compulab.co.il>
+Date: Mon, 30 Jun 2008 14:06:31 +0300
+Message-ID: <4868BE37.1090405@movial.fi>
 References: <20080627145236.2a20aaad@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,11 +21,9 @@ To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
 Jean Delvare wrote:
 > Hi all,
-> 
+>
 > As was mentioned previously, I have decided to group the i2c bus
 > drivers to make it easier for the users to know what they need (and also
 > for me to know what drivers might be affected by a given problem.) Here
@@ -33,22 +31,23 @@ Jean Delvare wrote:
 > "Other" category. I suspect that many of these should move to the
 > "Embedded" category, but I don't know for sure. So I would welcome
 > comments and suggestions for improvements.
-> 
+>
+>
+> # Other I2C/SMBus bus drivers
+>
+> obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+> obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+> obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+>   
+Wolfram picked others, these are embedded too.
 
-[ snip ]
+ > obj-$(CONFIG_I2C_PASEMI) += i2c-pasemi.o
 
-> obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
-> obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+I'm not sure if one would classify pa semi dualcore 2GHz systems
+as "embedded", but this i2c controller is embedded into the
+PA SEMI cpu.. 
 
-SCx200 are Geode GX/LX devices, so I think it also can be moved to embedded.
 
-> (Of course, Kconfig has similar groups.)
-> 
-> Thanks,
-
--- 
-Sincerely yours,
-Mike.
 
 
 _______________________________________________
