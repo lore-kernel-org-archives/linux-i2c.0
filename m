@@ -1,47 +1,56 @@
-From: Scott Wood <scottwood@freescale.com>
-Subject: Re: [PATCH 1/2] Convert i2c-mpc from a platform driver into a
-	of_platform driver, V3
-Date: Mon, 30 Jun 2008 13:54:43 -0500
-Message-ID: <20080630185442.GA3528@ld0162-tx32.am.freescale.net>
-References: <20080630183413.4614.8840.stgit@terra>
+From: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
+Subject: Re: Grouping i2c bus drivers
+Date: Tue, 01 Jul 2008 08:27:12 +1200
+Message-ID: <486941A0.70401@bluewatersys.com>
+References: <20080627145236.2a20aaad@hyperion.delvare>	<4868BE37.1090405@movial.fi>
+	<20080630145532.5a8452b5@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <20080630183413.4614.8840.stgit@terra>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080630145532.5a8452b5-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 30, 2008 at 02:34:13PM -0400, Jon Smirl wrote:
-> +		result = request_irq(i2c->irq, mpc_i2c_isr,
-> +							IRQF_SHARED, "i2c-mpc", i2c);
+Jean Delvare wrote:
+> On Mon, 30 Jun 2008 14:06:31 +0300, Riku Voipio wrote:
+>> Jean Delvare wrote:
+>>> Hi all,
 
-That's a rather excessive indentation of the continuation line -- it
-looks like it was aligned using 4-character tabs.  It's best to use
-spaces for alignment (after using tabs to reach the indentation level),
-especially if you're using a non-standard tab size.
+>> I'm not sure if one would classify pa semi dualcore 2GHz systems
+>> as "embedded", but this i2c controller is embedded into the
+>> PA SEMI cpu.. 
+> 
+> By "embedded", I had "embedded systems" in mind, not whether the I2C
+> controller was part of the CPU. So it's down to: what systems are using
+> the PA Semi hardware.
+> 
 
->  static int __init fsl_i2c_init(void)
->  {
-> -	return platform_driver_register(&fsl_i2c_driver);
-> +	int rv;
-> +
-> +	rv = of_register_platform_driver(&mpc_i2c_driver);
-> +	if (rv)
-> +		printk(KERN_ERR DRV_NAME 
-> +		" of_register_platform_driver failed (%i)\n", rv);
+You could always call it embedded/system on chip.
 
-Please align the continuation line with the first parameter.
+~Ryan
 
--Scott
+-- 
+Bluewater Systems Ltd - ARM Technology Solution Centre
+
+       Ryan Mallon                              Unit 5, Amuri Park
+       Phone: +64 3 3779127                     404 Barbadoes St
+       Fax:   +64 3 3779135                     PO Box 13 889
+       Email: ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org             Christchurch, 8013
+       Web:   http://www.bluewatersys.com       New Zealand
+       Freecall Australia  1800 148 751         USA 1800 261 2934
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
