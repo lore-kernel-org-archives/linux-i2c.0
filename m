@@ -1,14 +1,14 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: Grouping i2c bus drivers
-Date: Mon, 30 Jun 2008 14:49:48 +0200
-Message-ID: <20080630144948.3f05b8f4@hyperion.delvare>
+Date: Mon, 30 Jun 2008 14:55:32 +0200
+Message-ID: <20080630145532.5a8452b5@hyperion.delvare>
 References: <20080627145236.2a20aaad@hyperion.delvare>
-	<200806301346.53185.sr@denx.de>
+	<4868BE37.1090405@movial.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200806301346.53185.sr-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <4868BE37.1090405-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,25 +18,42 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Riku Voipio <riku.voipio-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 30 Jun 2008 13:46:53 +0200, Stefan Roese wrote:
-> On Friday 27 June 2008, Jean Delvare wrote:
+On Mon, 30 Jun 2008 14:06:31 +0300, Riku Voipio wrote:
+> Jean Delvare wrote:
+> > Hi all,
+> >
+> > As was mentioned previously, I have decided to group the i2c bus
+> > drivers to make it easier for the users to know what they need (and also
+> > for me to know what drivers might be affected by a given problem.) Here
+> > is the list I have at the moment. There are still many drivers in the
+> > "Other" category. I suspect that many of these should move to the
+> > "Embedded" category, but I don't know for sure. So I would welcome
+> > comments and suggestions for improvements.
+> >
+> >
 > > # Other I2C/SMBus bus drivers
-> > obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
+> >
 > > obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
-> > obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
-> > obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
-> > obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
-> > obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
-> 
-> IBM-I2C is embedded too. It's used on IBM/AMCC PPC4xx embedded PPC's. Perhaps 
-> it would sense to rename this driver to i2c-ppc4xx at some time.
+> > obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+> > obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+> >   
+> Wolfram picked others, these are embedded too.
 
-Done, thanks. I wouldn't object to the driver being renamed,
-i2c-ibm_iic always sounded pretty odd to me.
+Done, thanks.
+
+>  > obj-$(CONFIG_I2C_PASEMI) += i2c-pasemi.o
+> 
+> I'm not sure if one would classify pa semi dualcore 2GHz systems
+> as "embedded", but this i2c controller is embedded into the
+> PA SEMI cpu.. 
+
+By "embedded", I had "embedded systems" in mind, not whether the I2C
+controller was part of the CPU. So it's down to: what systems are using
+the PA Semi hardware.
 
 -- 
 Jean Delvare
