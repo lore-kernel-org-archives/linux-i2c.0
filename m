@@ -1,49 +1,64 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [i2c] i2c pull request for s3c24xx driver
-Date: Tue, 1 Jul 2008 16:11:27 +0200
-Message-ID: <20080701161127.16724c11@hyperion.delvare>
-References: <20080701133739.GA7933@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3] New-style I2C and SMBus EEPROM driver (with
+ device_ids)
+Date: Tue, 1 Jul 2008 16:28:08 +0200
+Message-ID: <20080701162808.28c070a5@hyperion.delvare>
+References: <20080605193103.GA13062@pengutronix.de>
+	<200806111025.08951.david-b@pacbell.net>
+	<20080611214135.090ea690@hyperion.delvare>
+	<200806121417.51446.david-b@pacbell.net>
+	<20080613101644.6333fcff@hyperion.delvare>
+	<20080701132050.GA3836@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758949AbYGAOMd@vger.kernel.org>
-In-Reply-To: <20080701133739.GA7933@fluff.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Dooks <ben-linu@fluff.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080701132050.GA3836-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben, Linus,
+Hi Wolfram,
 
-On Tue, 1 Jul 2008 14:37:39 +0100, Ben Dooks wrote:
-> Pull request for i2c driver fixes to the S3C24XX i2c driver
-> suitable for applying to the current kernel.
-> 
-> Linus please take this unless Jean wants to pull this into
-> his own i2c tree.
+On Tue, 1 Jul 2008 15:20:51 +0200, Wolfram Sang wrote:
+> hopefully, I now have the time to finish at24 for good. Do you think it
+> can go through the next merge window?
 
-I'm totally fine with Linus pulling from your git tree directly.
-That's less work for me, and you're the i2c subsystem co-maintainer
-now. The whole point of you becoming a co-maintainer was that you could
-offload some work from me.
+Yes, it can and should.
 
+> > > As I said, my thought there is to make it safe for most
+> > > developers to just say "24c32" (or whatever) and have a
+> > > sane default ... while making sure that they *always* have
+> > > a way to set chips up to be readonly, or provide a better
+> > > page size (if they need better bulk write speeds).
+> > 
+> > I agree on the principle. But the question remains: what is a sane
+> > default in this context? Using the smallest page size amongst commonly
+> > used EEPROM models? Using the smallest page size amongst known models?
+> > Using the smallest possible page size (that would be 1 byte for all
+> > EEPROM sizes as I understand it)? This 3rd possibility would probably
+> > be no better than defaulting to read-only, as the write performance
+> > would be so bad that every developer would specify custom platform data.
 > 
-> The following changes since commit e1441b9a41c33aa9236008a7cfe49a8e723fb397:
->   Linus Torvalds (1):
->         Merge branch 'for-linus' of git://git.kernel.org/.../dtor/input
-> 
-> are available in the git repository at:
-> 
->   git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-fix
-> 
-> Ben Dooks (3):
->       I2C: S3C2410: Check ACK on byte transmission
->       I2C: S3C2410: Fixup error codes returned rom a transfer.
->       I2C: S3C2410: Add MODULE_ALIAS() for s3c2440 device.
-> 
->  drivers/i2c/busses/i2c-s3c2410.c |   28 ++++++++++++++--------------
->  1 files changed, 14 insertions(+), 14 deletions(-)
+> Hmm, I tend to set all page_sizes to 1. It is a bit awkward to write
+> "double check those parameters" and then provide values you cannot be
+> absolutely sure of. Still, a minimal write-possibility may come in
+> handy, I think. I agree with Jean here, that it will be so slow, that
+> developers surely will create their own platform_devices.
 
-Thanks,
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
