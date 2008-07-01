@@ -1,137 +1,70 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [PATCH 2/2] Add the of_find_i2c_device_by_node function, V4
-Date: Tue, 1 Jul 2008 14:18:53 -0400
-Message-ID: <9e4733910807011118u59fafa6es816cded2385ddf27@mail.gmail.com>
-References: <20080630230126.12482.87927.stgit@terra>
-	<20080630230128.12482.79570.stgit@terra>
-	<20080701170544.72051418@hyperion.delvare>
-	<9e4733910807010812h30e49144v5b3012e6c156ecca@mail.gmail.com>
-	<20080701164329.GF6918@secretlab.ca>
-	<9e4733910807011000t67e3abe5kb39302e911558dad@mail.gmail.com>
-	<20080701191224.10ed2437@hyperion.delvare>
-	<9e4733910807011027m5802cf76n3f68b8692ff6832f@mail.gmail.com>
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] Export the i2c_bus_type symbol, standalone V1
+Date: Tue, 01 Jul 2008 14:20:36 -0400
+Message-ID: <20080701182036.14694.30720.stgit@terra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <9e4733910807011027m5802cf76n3f68b8692ff6832f@mail.gmail.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/1/08, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On 7/1/08, Jean Delvare <khali@linux-fr.org> wrote:
->
-> > On Tue, 1 Jul 2008 13:00:08 -0400, Jon Smirl wrote:
->  >  > On 7/1/08, Grant Likely <grant.likely@secretlab.ca> wrote:
->  >
->  > > > My preference is for things like of_spi and of_i2c to go with the
->  >  > >  related busses; I think it makes more sense to keep all the I2C stuff
->  >  > >  together, but I've already lost that battle once.
->  >  >
->  >  > This is a similar problem to adding aliases to the i2c driver drivers
->  >  > for the device tree names of the i2c devices. Instead we have code in
->  >  > drivers/of/of_i2c.c that tries to guess the translation from device
->  >  > tree to linux names. Adding aliases to the drivers would eliminate the
->  >  > need for of_find_i2c_driver().
->  >  >
->  >  > I've previously posted patches implementing device tree names in the
->  >  > drivers that used ifdef to only instantiate on powerpc builds. For
->  >  > example....
->  >  >
->  >  > diff --git a/drivers/i2c/chips/tps65010.c b/drivers/i2c/chips/tps65010.c
->  >  > index e07274d..9cd1770 100644
->  >  > --- a/drivers/i2c/chips/tps65010.c
->  >  > +++ b/drivers/i2c/chips/tps65010.c
->  >  > @@ -571,6 +571,10 @@ static const struct i2c_device_id tps65010_id[] = {
->  >  >         { "tps65011", TPS65011 },
->  >  >         { "tps65012", TPS65012 },
->  >  >         { "tps65013", TPS65013 },
->  >  > +       OF_ID("ti,tps65010", TPS65010)
->  >  > +       OF_ID("ti,tps65011", TPS65011)
->  >  > +       OF_ID("ti,tps65012", TPS65012)
->  >  > +       OF_ID("ti,tps65013", TPS65013)
->  >  >         { },
->  >  >  };
->  >  >  MODULE_DEVICE_TABLE(i2c, tps65010_id);
->  >
->  >
->  > Yeah, yeah, you've been asking for this for months already, but it's
->  >  just not going to happen, sorry. You want to abuse the standard Linux
->  >  alias mechanism for your personal (i.e. openfirmware) use, but that's
->  >  bad. Linux drivers shouldn't have to know whether they are used in
->  >  openfirmware trees and what device names are used there. And device
->  >  names as seen by user-space shouldn't vary depending on whether the
->  >  device comes from an openfirmware tree or not - otherwise all
->  >  user-space apps need to learn about both naming conversions.
->  >
->  >  Unsurprisingly, no other subsystem does what you propose.
->
->
-> Then what are all of the PCI aliases doing?
->
->  The only difference is that you are recognizing the PCI group as a
->  naming authority and not recognizing the PowerPC device tree group.
->  But on the PowerPC platform that is our naming authority. That's why I
->  proposed adding the names on ifdefs so that they disappear on non
->  PowerPC platforms.
->
->  PS - adding an alias to a driver does not change the name of the
->  driver. My PCI e1000 module has about 100 aliases but it is always
->  e1000.
+Export the root of the i2c bus so that PowerPC device tree code can iterate over devices on the i2c bus.
 
-Here's my e1000e sysfs entry:
+Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
 
-jonsmirl@terra:/sys/bus/pci/devices/0000:00:19.0$ ls
-broken_parity_status  device  local_cpus  power      resource2         uevent
-bus                   driver  modalias    resource   subsystem         vendor
-class                 enable  msi_bus     resource0  subsystem_device
-config                irq     net:eth0    resource1  subsystem_vendor
+ drivers/i2c/i2c-core.c |    3 ++-
+ include/linux/i2c.h    |    3 +++
+ 2 files changed, 5 insertions(+), 1 deletions(-)
 
-jonsmirl@terra:/sys/bus/pci/devices/0000:00:19.0$ cat modalias
-pci:v00008086d0000104Bsv00001028sd000001DBbc02sc00i00
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d0175f4..05866ef 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -208,7 +208,7 @@ static struct device_attribute i2c_dev_attrs[] = {
+ 	{ },
+ };
+ 
+-static struct bus_type i2c_bus_type = {
++struct bus_type i2c_bus_type = {
+ 	.name		= "i2c",
+ 	.dev_attrs	= i2c_dev_attrs,
+ 	.match		= i2c_device_match,
+@@ -219,6 +219,7 @@ static struct bus_type i2c_bus_type = {
+ 	.suspend	= i2c_device_suspend,
+ 	.resume		= i2c_device_resume,
+ };
++EXPORT_SYMBOL_GPL(i2c_bus_type);
+ 
+ 
+ /**
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fb9af6a..186b22d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -92,6 +92,9 @@ extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
+ extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
+ 					  u8 command, u8 length,
+ 					  const u8 *values);
++					  
++/* Base of the i2c bus */
++extern struct bus_type i2c_bus_type; 
+ 
+ /*
+  * A driver is capable of handling one or more physical devices present on
 
->>>>  This is the module alias that was used to load the driver.
 
-jonsmirl@terra:/sys/bus/pci/devices/0000:00:19.0$ ls -l driver
-lrwxrwxrwx 1 root root 0 2008-07-01 08:52 driver ->
-../../../bus/pci/drivers/e1000e
-
->>>>  The driver is always e1000e no matter which alias was used to load it. "e1000e"  is controled by the name field of the driver structure.  That's the publicly visible name for the driver.
-
->>>>  Adding the OF aliases would change the modalias entry, not the driver name.
-
-The i2c implementation is adding a field to a device entry that
-contains the driver name. No other device drivers I could find do
-this.
-
-jonsmirl@terra:/sys/bus/i2c/devices/1-0050$ ls
-bus  driver  eeprom  modalias  name  power  subsystem  uevent
-jonsmirl@terra:/sys/bus/i2c/devices/1-0050$ cat name
-eeprom
-jonsmirl@terra:/sys/bus/i2c/devices/1-0050$ ls -l driver
-lrwxrwxrwx 1 root root 0 2008-07-01 14:05 driver ->
-../../../../bus/i2c/drivers/eeprom
-jonsmirl@terra:/sys/bus/i2c/devices/1-0050$ cat modalias
-
-jonsmirl@terra:/sys/bus/i2c/devices/1-0050$
-
-I believe the correct way to get the driver name from sysfs is to
-follow the driver link. The name field is probably legacy.  Other
-drivers in the system don't have a name entry on the device node.
-
-Is the user space i2c code looking at the modalias entry?
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
