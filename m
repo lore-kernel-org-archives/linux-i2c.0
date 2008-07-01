@@ -1,11 +1,21 @@
-From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] Export the i2c_bus_type symbol, standalone V1
-Date: Tue, 01 Jul 2008 14:20:36 -0400
-Message-ID: <20080701182036.14694.30720.stgit@terra>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/2] Add the of_find_i2c_device_by_node function,
+	V4
+Date: Tue, 1 Jul 2008 20:24:54 +0200
+Message-ID: <20080701202454.688fd7d7@hyperion.delvare>
+References: <20080630230126.12482.87927.stgit@terra>
+	<20080630230128.12482.79570.stgit@terra>
+	<20080701170544.72051418@hyperion.delvare>
+	<9e4733910807010812h30e49144v5b3012e6c156ecca@mail.gmail.com>
+	<20080701182949.12119d6e@hyperion.delvare>
+	<20080701164518.GG6918@secretlab.ca>
+	<20080701190151.76782bbd@hyperion.delvare>
+	<9e4733910807011006t20c7689ctfe26931f96c84092@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910807011006t20c7689ctfe26931f96c84092-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,54 +25,53 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Export the root of the i2c bus so that PowerPC device tree code can iterate over devices on the i2c bus.
+On Tue, 1 Jul 2008 13:06:37 -0400, Jon Smirl wrote:
+> On 7/1/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > On Tue, 1 Jul 2008 10:45:18 -0600, Grant Likely wrote:
+> >  > But the other side of the coin is that each driver must have
+> >  > driver-specific OF code to translate data in the device tree to data
+> >  > usable by the driver.  It doesn't make any sense to me for that stuff to
+> >  > live anywhere other that with the driver that it supports.
+> >
+> >
+> > This code is glue between OF and subsystems. As with any glue code, you
+> >  can argue forever on which side you want to push the code to. Both
+> >  answers are valid.
+> >
+> >  All I see on my personal side is that I don't have any system using OF
+> >  and no knowledge about it either, so I can't maintain of_i2c. So having
+> >  that file in drivers/of rather than drivers/i2c will make my life
+> >  easier for sure. While I'd guess that most (all?) OF-based systems have
+> >  an I2C bus, so whoever is responsible for drivers/of should be able to
+> >  maintain of_i2c.
+> 
+> We could modify the Makefile for i2c core to get the source out of
+> drivers/of and link it into i2c-core. That would remove the need to
+> export symbols.
 
-Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
+That might be a bit confusing, but could be done. I still don't know
+what problem you are trying to solve though. As I repeated, exporting
+i2c_bus_type is perfectly fine. All other bus types are always
+exported. So if it's all you need from i2c-core, there's no problem and
+we can stop the discussion here.
 
- drivers/i2c/i2c-core.c |    3 ++-
- include/linux/i2c.h    |    3 +++
- 2 files changed, 5 insertions(+), 1 deletions(-)
+> Or you could move the file into the i2c directory and just put a note
+> on it that Grant is the maintainer.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d0175f4..05866ef 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -208,7 +208,7 @@ static struct device_attribute i2c_dev_attrs[] = {
- 	{ },
- };
- 
--static struct bus_type i2c_bus_type = {
-+struct bus_type i2c_bus_type = {
- 	.name		= "i2c",
- 	.dev_attrs	= i2c_dev_attrs,
- 	.match		= i2c_device_match,
-@@ -219,6 +219,7 @@ static struct bus_type i2c_bus_type = {
- 	.suspend	= i2c_device_suspend,
- 	.resume		= i2c_device_resume,
- };
-+EXPORT_SYMBOL_GPL(i2c_bus_type);
- 
- 
- /**
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index fb9af6a..186b22d 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -92,6 +92,9 @@ extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
- extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client * client,
- 					  u8 command, u8 length,
- 					  const u8 *values);
-+					  
-+/* Base of the i2c bus */
-+extern struct bus_type i2c_bus_type; 
- 
- /*
-  * A driver is capable of handling one or more physical devices present on
+Assuming that developers will read the source code to find out who the
+maintainer is, when we have told everyone to search for this
+information in MAINTAINERS. I'd rather add an entry in MAINTAINERS, but
+even then I have a doubt that people will get it. My experience is that
+people map maintainer names to directories and that's about it. That's
+one of the reasons why I wanted to move the i2c device drivers from
+drivers/i2c/chips to drivers/hwmon, drivers/rtc, drivers/gpio, etc.
 
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
