@@ -1,70 +1,73 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/2] Add the of_find_i2c_device_by_node function, V4
-Date: Tue, 1 Jul 2008 18:35:09 +0200
-Message-ID: <20080701183509.0d2f0274@hyperion.delvare>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] Add the of_find_i2c_device_by_node function,
+	V4
+Date: Tue, 1 Jul 2008 12:38:05 -0400
+Message-ID: <9e4733910807010938w67bab979tfba888641debe72f@mail.gmail.com>
 References: <20080630230126.12482.87927.stgit@terra>
 	<20080630230128.12482.79570.stgit@terra>
 	<20080701170544.72051418@hyperion.delvare>
-	<9e4733910807010929k7088f97ekbadf854c949fbc64@mail.gmail.com>
+	<9e4733910807010812h30e49144v5b3012e6c156ecca@mail.gmail.com>
+	<20080701182949.12119d6e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <9e4733910807010929k7088f97ekbadf854c949fbc64@mail.gmail.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080701182949.12119d6e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 1 Jul 2008 12:29:29 -0400, Jon Smirl wrote:
-> On 7/1/08, Jean Delvare <khali@linux-fr.org> wrote:
-> > Hi Jon,
-> >
-> >
-> >  On Mon, 30 Jun 2008 19:01:28 -0400, Jon Smirl wrote:
-> >  > Add the of_find_i2c_device_by_node function. This allows you to
-> >  > follow a reference in the device to an i2c device node and then
-> >  > locate the linux device instantiated by the device tree. Example
-> >  > use, an i2s codec controlled by i2c.
-> >  > ---
-> >  >
-> >  >  drivers/i2c/i2c-core.c |    2 +-
-> >  >  drivers/of/of_i2c.c    |   37 ++++++++++++++++++++++++++-----------
-> >  >  include/linux/i2c.h    |    3 +++
-> >  >  include/linux/of_i2c.h |    2 ++
-> >  >  4 files changed, 32 insertions(+), 12 deletions(-)
-> >  >
-> >  > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> >  > index d0175f4..e3abe1b 100644
-> >  > --- a/drivers/i2c/i2c-core.c
-> >  > +++ b/drivers/i2c/i2c-core.c
-> >  > @@ -208,7 +208,7 @@ static struct device_attribute i2c_dev_attrs[] = {
-> >  >       { },
-> >  >  };
-> >  >
-> >  > -static struct bus_type i2c_bus_type = {
-> >  > +struct bus_type i2c_bus_type = {
-> >  >       .name           = "i2c",
-> >  >       .dev_attrs      = i2c_dev_attrs,
-> >  >       .match          = i2c_device_match,
-> >
-> >
-> > What if i2c-core is built as a module? Don't you need to export the
-> >  symbol then?
-> 
-> Jean, can you re-export i2c_bus_type and then I'll drop that part from
-> the patch? That way the patch won't hit multiple maintainers.
+On 7/1/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> On Tue, 1 Jul 2008 11:12:58 -0400, Jon Smirl wrote:
+>  > On 7/1/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  > > I'm fine with this patch. In particular, exporting i2c_bus_type is OK.
+>  > >  It was un-exported only because it had no user left, but it can be
+>  > >  exported again if needed.
+>  >
+>  > Another solution would be to move drivers/of/of_i2c into the i2c
+>  > directory and make it part of i2c core on powerpc builds.
+>
+>
+> I don't think this is a good idea. Merging arch-specific code (or
+>  half-arch-specific code in this case) into arch-neutral drivers ends up
+>  being a pain to maintain. People will keep sending me patches for stuff
+>  I don't know anything about and can't help with. Having of-specific
+>  stuff in just one directory as is the case now sounds much better to
+>  me. All it's missing is a MAINTAINERS entry.
 
-Just send me a patch doing just that and I will be glad to push early in
-the 2.6.27 merge window.
+A side effect of this is that the small pieces of code in drivers/of
+have to be compiled into stand alone modules and they may need access
+to internal symbols from the subsystem. If they were directly linked
+into the subsystems you wouldn't need to make the internal symbols
+visible. Now the subsystems have to be careful about breaking the
+in-kernel, external users of the symbols and we've made it possible
+for out of tree drivers to get to internal structures.
+
+
+
+
+>
+>  --
+>
+> Jean Delvare
+>
+
 
 -- 
-Jean Delvare
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
