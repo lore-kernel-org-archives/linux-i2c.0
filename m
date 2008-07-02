@@ -1,86 +1,64 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Wed, 02 Jul 2008 16:26:40 +0100
-Message-ID: <486B9E30.80806@cam.ac.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Grouping i2c bus drivers
+Date: Wed, 2 Jul 2008 16:42:07 +0200
+Message-ID: <20080702164207.76304a01@hyperion.delvare>
+References: <20080627145236.2a20aaad@hyperion.delvare>
+	<4868ADCD.3080305@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: linux-arm-kernel@lists.arm.linux.org.uk, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <4868ADCD.3080305-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
-appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
-than frequency as this driver is also used for the i2c_pxa_pwr bus which has
-different normal and fast frequencies.
+Hi Mike,
 
-Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
----
- drivers/i2c/busses/i2c-pxa.c        |    4 +++-
- include/asm-arm/arch-pxa/i2c.h      |    1 +
- include/asm-arm/arch-pxa/pxa-regs.h |    1 +
- 3 files changed, 5 insertions(+), 1 deletion(-)
+On Mon, 30 Jun 2008 12:56:29 +0300, Mike Rapoport wrote:
+> Jean Delvare wrote:
+> > Hi all,
+> > 
+> > As was mentioned previously, I have decided to group the i2c bus
+> > drivers to make it easier for the users to know what they need (and also
+> > for me to know what drivers might be affected by a given problem.) Here
+> > is the list I have at the moment. There are still many drivers in the
+> > "Other" category. I suspect that many of these should move to the
+> > "Embedded" category, but I don't know for sure. So I would welcome
+> > comments and suggestions for improvements.
+> > 
+> 
+> [ snip ]
+> 
+> > obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+> > obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+> 
+> SCx200 are Geode GX/LX devices, so I think it also can be moved to embedded.
 
---- a/include/asm-arm/arch-pxa/pxa-regs.h	2008-06-30 20:06:02.000000000 +0100
-+++ b/include/asm-arm/arch-pxa/pxa-regs.h	2008-07-02 14:03:19.000000000 +0100
-@@ -448,6 +448,7 @@
- #define ICR_ALDIE	(1 << 12)	   /* enable arbitration interrupt */
- #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
- #define ICR_UR		(1 << 14)	   /* unit reset */
-+#define ICR_FM		(1 << 15)	   /* fast mode */
- 
- #define ISR_RWM		(1 << 0)	   /* read/write mode */
- #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
---- a/include/asm-arm/arch-pxa/i2c.h	2008-06-30 20:04:02.000000000 +0100
-+++ b/include/asm-arm/arch-pxa/i2c.h	2008-07-02 13:59:59.000000000 +0100
-@@ -66,6 +66,7 @@ struct i2c_pxa_platform_data {
- 	struct i2c_slave_client	*slave;
- 	unsigned int		class;
- 	int			use_pio;
-+	int			fast_mode;
- };
- 
- extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
---- a/drivers/i2c/busses/i2c-pxa.c	2008-06-30 20:05:51.000000000 +0100
-+++ b/drivers/i2c/busses/i2c-pxa.c	2008-07-02 15:50:31.000000000 +0100
-@@ -67,6 +67,7 @@ struct pxa_i2c {
- 
- 	int			irq;
- 	int			use_pio;
-+	int			fast_mode;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_base + 0)
-@@ -365,7 +366,7 @@ static void i2c_pxa_reset(struct pxa_i2c
- 	writel(i2c->slave_addr, _ISAR(i2c));
- 
- 	/* set control register values */
--	writel(I2C_ICR_INIT, _ICR(i2c));
-+	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
- 
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-@@ -1041,6 +1042,7 @@ static int i2c_pxa_probe(struct platform
- 	if (plat) {
- 		i2c->adap.class = plat->class;
- 		i2c->use_pio = plat->use_pio;
-+		i2c->fast_mode = plat->fast_mode;
- 	}
- 
- 	if (i2c->use_pio) {
+As far as I know, the Geode uses I2C as a peripheral bus, much like PCs
+do, not a system bus as most embedded systems do. So, in the light of
+other discussions in this thread, it's probably better to not put these
+drivers in the "embedded" category (which might in turn be renamed to
+"System I2C host controller drivers (mostly embedded)" or similar.)
 
+But honestly I'm not too sure what to do. Grouping by functionality
+makes sense for the user, but grouping by bus usage makes more sense if
+we end up splitting the bus drivers depending on the time at which they
+need to come up.
 
+-- 
+Jean Delvare
 
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
