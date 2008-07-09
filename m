@@ -1,15 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 1/2] I2C: S3C2410: Pass the I2C bus number via
- drivers platform data
-Date: Wed, 9 Jul 2008 18:40:23 +0200
-Message-ID: <20080709184023.67656075@hyperion.delvare>
-References: <20080709125147.721679556@fluff.org>
-	<20080709125215.590626489@fluff.org>
+Subject: Re: [PATCH 1/1] I2C pxa fast mode (400khz) support
+Date: Wed, 9 Jul 2008 18:48:22 +0200
+Message-ID: <20080709184822.27535d1a@hyperion.delvare>
+References: <486B9E30.80806@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080709125215.590626489-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+In-Reply-To: <486B9E30.80806-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,92 +17,73 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
-
-On Wed, 09 Jul 2008 13:51:48 +0100, Ben Dooks wrote:
-> Allow the platform data to specify the bus bumber that the
-> new I2C bus will be given. This is to allow the use of the
-> board registration mechanism to specify the new style of
-> I2C device registration which allows boards to provide a
-> list of attached devices.
+On Wed, 02 Jul 2008 16:26:40 +0100, Jonathan Cameron wrote:
+> Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
+> appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
+> than frequency as this driver is also used for the i2c_pxa_pwr bus which has
+> different normal and fast frequencies.
 > 
-> Note, as discussed on the mailing list, we have dropped
-> backwards compatibility of adding an dynamic bus number
-> as it should not affect most boards to have the bus pinned
-> to 0 if they have either not specified platform data for
-
-either?
-
-> driver. Any board supplying platform data will automatically
-> have the bus_num field set to 0, and anyone who needs the
-> driver on a different bus number can supply platform data
-> to set bus_num.
-
-Sounds OK to me.
-
+> Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-pxa.c        |    4 +++-
+>  include/asm-arm/arch-pxa/i2c.h      |    1 +
+>  include/asm-arm/arch-pxa/pxa-regs.h |    1 +
+>  3 files changed, 5 insertions(+), 1 deletion(-)
 > 
-> Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> 
-> Index: linux-2.6.26-rc4-quilt3/drivers/i2c/busses/i2c-s3c2410.c
-> ===================================================================
-> --- linux-2.6.26-rc4-quilt3.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-06-02 22:55:20.000000000 +0100
-> +++ linux-2.6.26-rc4-quilt3/drivers/i2c/busses/i2c-s3c2410.c	2008-06-02 22:55:29.000000000 +0100
-> @@ -752,9 +752,12 @@ static int s3c24xx_i2c_init(struct s3c24
->  static int s3c24xx_i2c_probe(struct platform_device *pdev)
->  {
->  	struct s3c24xx_i2c *i2c = &s3c24xx_i2c;
-> +	struct s3c2410_platform_i2c *pdata;
->  	struct resource *res;
->  	int ret;
+> --- a/include/asm-arm/arch-pxa/pxa-regs.h	2008-06-30 20:06:02.000000000 +0100
+> +++ b/include/asm-arm/arch-pxa/pxa-regs.h	2008-07-02 14:03:19.000000000 +0100
+> @@ -448,6 +448,7 @@
+>  #define ICR_ALDIE	(1 << 12)	   /* enable arbitration interrupt */
+>  #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+>  #define ICR_UR		(1 << 14)	   /* unit reset */
+> +#define ICR_FM		(1 << 15)	   /* fast mode */
 >  
-> +	pdata = s3c24xx_i2c_get_platformdata(&pdev->dev);
-> +
->  	/* find the clock and enable it */
+>  #define ISR_RWM		(1 << 0)	   /* read/write mode */
+>  #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
+> --- a/include/asm-arm/arch-pxa/i2c.h	2008-06-30 20:04:02.000000000 +0100
+> +++ b/include/asm-arm/arch-pxa/i2c.h	2008-07-02 13:59:59.000000000 +0100
+> @@ -66,6 +66,7 @@ struct i2c_pxa_platform_data {
+>  	struct i2c_slave_client	*slave;
+>  	unsigned int		class;
+>  	int			use_pio;
+> +	int			fast_mode;
+>  };
 >  
->  	i2c->dev = &pdev->dev;
-> @@ -832,7 +835,15 @@ static int s3c24xx_i2c_probe(struct plat
->  	dev_dbg(&pdev->dev, "irq resource %p (%lu)\n", res,
->  		(unsigned long)res->start);
+>  extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+> --- a/drivers/i2c/busses/i2c-pxa.c	2008-06-30 20:05:51.000000000 +0100
+> +++ b/drivers/i2c/busses/i2c-pxa.c	2008-07-02 15:50:31.000000000 +0100
+> @@ -67,6 +67,7 @@ struct pxa_i2c {
 >  
-> -	ret = i2c_add_adapter(&i2c->adap);
-> +	/* Note, previous versions of the driver used i2c_add_adapter()
-> +	 * to add an bus at any number. We now pass the bus number via
-
-"an bus" doesn't look correct.
-
-> +	 * the platform data, so if unset it will now default to always
-> +	 * being bus 0.
-> +	 */
-> +
-> +	i2c->adap.nr = pdata->bus_num;
-> +	ret = i2c_add_numbered_adapter(&i2c->adap);
-> +
->  	if (ret < 0) {
-
-Best practice is to not have a blank line between a function call and
-the test of its return value.
-
->  		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
->  		goto err_irq;
-> Index: linux-2.6.26-rc4-quilt3/include/asm-arm/plat-s3c/iic.h
-> ===================================================================
-> --- linux-2.6.26-rc4-quilt3.orig/include/asm-arm/plat-s3c/iic.h	2008-06-02 20:12:47.000000000 +0100
-> +++ linux-2.6.26-rc4-quilt3/include/asm-arm/plat-s3c/iic.h	2008-06-02 22:55:29.000000000 +0100
-> @@ -21,6 +21,7 @@
->  */
+>  	int			irq;
+>  	int			use_pio;
+> +	int			fast_mode;
+>  };
 >  
->  struct s3c2410_platform_i2c {
-> +	int		bus_num;	/* bus number to use */
->  	unsigned int	flags;
->  	unsigned int	slave_addr;	/* slave address for controller */
->  	unsigned long	bus_freq;	/* standard bus frequency */
-> 
+>  #define _IBMR(i2c)	((i2c)->reg_base + 0)
+> @@ -365,7 +366,7 @@ static void i2c_pxa_reset(struct pxa_i2c
+>  	writel(i2c->slave_addr, _ISAR(i2c));
+>  
+>  	/* set control register values */
+> -	writel(I2C_ICR_INIT, _ICR(i2c));
+> +	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+>  
+>  #ifdef CONFIG_I2C_PXA_SLAVE
+>  	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+> @@ -1041,6 +1042,7 @@ static int i2c_pxa_probe(struct platform
+>  	if (plat) {
+>  		i2c->adap.class = plat->class;
+>  		i2c->use_pio = plat->use_pio;
+> +		i2c->fast_mode = plat->fast_mode;
+>  	}
+>  
+>  	if (i2c->use_pio) {
 
-Other than these details, the patch looks OK to me.
+Patch looks OK to me. Ben, i2c-pxa is embedded so this is something for
+you.
 
 -- 
 Jean Delvare
