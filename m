@@ -1,52 +1,54 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Thu, 10 Jul 2008 14:31:50 +0100
-Message-ID: <20080710133150.GH30539@fluff.org.uk>
-References: <486B9E30.80806@cam.ac.uk>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [patch 1/1] i2c_gpio: keep probe resident for
+	hotplugged	devices.
+Date: Thu, 10 Jul 2008 14:29:17 +0100
+Message-ID: <20080710132917.GF30539@fluff.org.uk>
+References: <20080702101611.757880819@fluff.org>
+	<20080702101611.858837181@fluff.org>
+	<20080702124406.2f3d1384@hskinnemo-gx745.norway.atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <486B9E30.80806@cam.ac.uk>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, i2c@lm-sensors.org
+In-Reply-To: <20080702124406.2f3d1384-+1Ci8juu1zowFJ3MlZkdtq14KzY7BuZjUIXZgC+OUhs@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Haavard Skinnemoen <haavard.skinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Haavard Skinnemoen <hskinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Ben-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 02, 2008 at 04:26:40PM +0100, Jonathan Cameron wrote:
-> Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
-> appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
-> than frequency as this driver is also used for the i2c_pxa_pwr bus which has
-> different normal and fast frequencies.
+On Wed, Jul 02, 2008 at 12:44:06PM +0200, Haavard Skinnemoen wrote:
+> Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> > Change the i2c_gpio driver to use platform_driver_register()
+> > instead of platform_driver_probe() to ensure that is can
+> > attach to any devices that may be loaded after it has initialised.
 > 
-> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
+> Does anyone actually do that?
 
-Unfortuantely due to the problem of all the registers in
-one place, this really will need to be applied by RMK. However
-due to the current amount of work in the PXA tree, and the
-number of patches he is carrying for merging this is going
-to be too late for this kernel merge.
+At the moment our standard kernel configuration only
+builds in the SM501 which will work without this patch
+on.
 
-I would like to see the pxa-regs.h split up further so that
-subsystems can issue patches to it without causing problems
-for Russell... I will bring this up for the next round of
-development.
+However, we have clients that do build module kernels
+and I would like to replace i2c-simtec.c with the gpio
+driver and if the relevant module instantiating the gpio
+support is loaded post kernel init, then we will need to
+do this.
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
   'a smiley only costs 4 bytes'
 
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
