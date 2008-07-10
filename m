@@ -1,14 +1,15 @@
-From: "eric miao" <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Thu, 10 Jul 2008 21:48:16 +0800
-Message-ID: <f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
-References: <486B9E30.80806@cam.ac.uk> <20080710133150.GH30539@fluff.org.uk>
-Mime-Version: 1.0
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH 1/2] Convert i2c-mpc from a platform driver into a
+	of_platform driver, V4
+Date: Thu, 10 Jul 2008 12:36:58 -0400
+Message-ID: <8EAD138A-6CE4-4AC7-BCBF-13B8E7C24CF1@freescale.com>
+References: <20080630230126.12482.87927.stgit@terra>
+	<fa686aa40807091022q22f6be99j89f311780bd3d369@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v926)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080710133150.GH30539-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <fa686aa40807091022q22f6be99j89f311780bd3d369-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,36 +19,24 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 10, 2008 at 9:31 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Wed, Jul 02, 2008 at 04:26:40PM +0100, Jonathan Cameron wrote:
->> Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
->> appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
->> than frequency as this driver is also used for the i2c_pxa_pwr bus which has
->> different normal and fast frequencies.
->>
->> Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+
+On Jul 9, 2008, at 1:22 PM, Grant Likely wrote:
+
+> On Mon, Jun 30, 2008 at 5:01 PM, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> Convert i2c-mpc to an of_platform driver. Utilize the code in  
+>> drivers/of-i2c.c to make i2c modules dynamically loadable by the  
+>> device tree.
 >
-> Unfortuantely due to the problem of all the registers in
-> one place, this really will need to be applied by RMK. However
-> due to the current amount of work in the PXA tree, and the
-> number of patches he is carrying for merging this is going
-> to be too late for this kernel merge.
->
+> Timur, can you please test this one on an 83xx platform?  It works on
+> 5200, but I want to make sure 83xx doesn't break before I pick it up.
 
-Actually, this round of separation work of the pxa-regs.h has been
-done several weeks ago, so I don't see this patch is likely to
-cause any merge conflict.
+I'm on vacation this week, so I'll have to deal with it next week,  
+after I've handled higher-priority issues.
 
-But Russell is going to freeze the pxa branch, I see little chance
-this be fixed quickly and get into :(
-
--- 
-Cheers
-- eric
 
 _______________________________________________
 i2c mailing list
