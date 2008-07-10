@@ -1,99 +1,116 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] powerpc: i2c-ibm_iic register child nodes
-Date: Thu, 10 Jul 2008 13:49:06 +0200
-Message-ID: <20080710134906.6e419fcd@hyperion.delvare>
-References: <20080708144609.14bae1de@lappy.seanm.ca>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
+Date: Thu, 10 Jul 2008 14:29:56 +0100
+Message-ID: <20080710132956.GG30539@fluff.org.uk>
+References: <486B9E30.80806@cam.ac.uk> <486C32C4.8050007@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20080708144609.14bae1de@lappy.seanm.ca>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Sean MacLennan <smaclennan@pikatech.com>
-Cc: linuxppc-dev <linuxppc-dev@ozlabs.org>, Linux I2C <i2c@lm-sensors.org>, Ben Dooks <ben-linux@fluff.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Content-Disposition: inline
+In-Reply-To: <486C32C4.8050007@gmail.com>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: i2c@lm-sensors.org, linux-arm-kernel@lists.arm.linux.org.uk
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sean,
-
-On Tue, 8 Jul 2008 14:46:09 -0400, Sean MacLennan wrote:
-> This patch completes the conversion of the IBM IIC driver to an
-> of-platform driver.
+On Thu, Jul 03, 2008 at 10:00:36AM +0800, Eric Miao wrote:
+> Jonathan Cameron wrote:
+> > Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
+> > appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
+> > than frequency as this driver is also used for the i2c_pxa_pwr bus which has
+> > different normal and fast frequencies.
 > 
-> It removes the index from the IBM IIC driver and makes it an unnumbered
-> driver. It then calls of_register_i2c_devices to properly register all
-> the child nodes in the DTS.
-> 
-> Signed-off-by: Sean MacLennan <smaclennan@pikatech.com>
-> ---
-> 
-> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-> index 070f078..651f2f1 100644
-> --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> @@ -43,6 +43,7 @@
->  #include <linux/i2c.h>
->  #include <linux/i2c-id.h>
->  #include <linux/of_platform.h>
-> +#include <linux/of_i2c.h>
->  
->  #include "i2c-ibm_iic.h"
->  
-> @@ -696,7 +697,7 @@ static int __devinit iic_probe(struct of_device *ofdev,
->  	struct device_node *np = ofdev->node;
->  	struct ibm_iic_private *dev;
->  	struct i2c_adapter *adap;
-> -	const u32 *indexp, *freq;
-> +	const u32 *freq;
->  	int ret;
->  
->  	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-> @@ -707,14 +708,6 @@ static int __devinit iic_probe(struct of_device *ofdev,
->  
->  	dev_set_drvdata(&ofdev->dev, dev);
->  
-> -	indexp = of_get_property(np, "index", NULL);
-> -	if (!indexp) {
-> -		dev_err(&ofdev->dev, "no index specified\n");
-> -		ret = -EINVAL;
-> -		goto error_cleanup;
-> -	}
-> -	dev->idx = *indexp;
-> -
->  	dev->vaddr = of_iomap(np, 0);
->  	if (dev->vaddr == NULL) {
->  		dev_err(&ofdev->dev, "failed to iomap device\n");
-> @@ -757,14 +750,16 @@ static int __devinit iic_probe(struct of_device *ofdev,
->  	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
->  	adap->algo = &iic_algo;
->  	adap->timeout = 1;
-> -	adap->nr = dev->idx;
->  
-> -	ret = i2c_add_numbered_adapter(adap);
-> +	ret = i2c_add_adapter(adap);
->  	if (ret  < 0) {
->  		dev_err(&ofdev->dev, "failed to register i2c adapter\n");
->  		goto error_cleanup;
->  	}
->  
-> +	/* Now register all the child nodes */
-> +	of_register_i2c_devices(adap, np);
-> +
->  	dev_info(&ofdev->dev, "using %s mode\n",
->  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
->  
+> Maybe we should convert that (as well as 'use_pio') to a bit field to save
+> another byte.
 
-Looks OK. As I already have patches touching
-drivers/i2c/busses/i2c-ibm_iic.c in my tree, I'm taking this patch
-also. I will push it upstream during the 2.6.27 merge window.
+I think use_pio and fast_mode could both be bits.
+ 
+> Otherwise looks OK to me.
+> 
+> > 
+> > Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
+> > ---
+> >  drivers/i2c/busses/i2c-pxa.c        |    4 +++-
+> >  include/asm-arm/arch-pxa/i2c.h      |    1 +
+> >  include/asm-arm/arch-pxa/pxa-regs.h |    1 +
+> >  3 files changed, 5 insertions(+), 1 deletion(-)
+> > 
+> > --- a/include/asm-arm/arch-pxa/pxa-regs.h	2008-06-30 20:06:02.000000000 +0100
+> > +++ b/include/asm-arm/arch-pxa/pxa-regs.h	2008-07-02 14:03:19.000000000 +0100
+> > @@ -448,6 +448,7 @@
+> >  #define ICR_ALDIE	(1 << 12)	   /* enable arbitration interrupt */
+> >  #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+> >  #define ICR_UR		(1 << 14)	   /* unit reset */
+> > +#define ICR_FM		(1 << 15)	   /* fast mode */
+> >  
+> >  #define ISR_RWM		(1 << 0)	   /* read/write mode */
+> >  #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
+> > --- a/include/asm-arm/arch-pxa/i2c.h	2008-06-30 20:04:02.000000000 +0100
+> > +++ b/include/asm-arm/arch-pxa/i2c.h	2008-07-02 13:59:59.000000000 +0100
+> > @@ -66,6 +66,7 @@ struct i2c_pxa_platform_data {
+> >  	struct i2c_slave_client	*slave;
+> >  	unsigned int		class;
+> >  	int			use_pio;
+> > +	int			fast_mode;
+> >  };
+> >  
+> >  extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+> > --- a/drivers/i2c/busses/i2c-pxa.c	2008-06-30 20:05:51.000000000 +0100
+> > +++ b/drivers/i2c/busses/i2c-pxa.c	2008-07-02 15:50:31.000000000 +0100
+> > @@ -67,6 +67,7 @@ struct pxa_i2c {
+> >  
+> >  	int			irq;
+> >  	int			use_pio;
+> > +	int			fast_mode;
+> >  };
+> >  
+> >  #define _IBMR(i2c)	((i2c)->reg_base + 0)
+> > @@ -365,7 +366,7 @@ static void i2c_pxa_reset(struct pxa_i2c
+> >  	writel(i2c->slave_addr, _ISAR(i2c));
+> >  
+> >  	/* set control register values */
+> > -	writel(I2C_ICR_INIT, _ICR(i2c));
+> > +	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+> >  
+> >  #ifdef CONFIG_I2C_PXA_SLAVE
+> >  	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+> > @@ -1041,6 +1042,7 @@ static int i2c_pxa_probe(struct platform
+> >  	if (plat) {
+> >  		i2c->adap.class = plat->class;
+> >  		i2c->use_pio = plat->use_pio;
+> > +		i2c->fast_mode = plat->fast_mode;
+> >  	}
+> >  
+> >  	if (i2c->use_pio) {
+> > 
+> > 
+> > 
+> > _______________________________________________
+> > i2c mailing list
+> > i2c@lm-sensors.org
+> > http://lists.lm-sensors.org/mailman/listinfo/i2c
+> 
+> 
+> _______________________________________________
+> i2c mailing list
+> i2c@lm-sensors.org
+> http://lists.lm-sensors.org/mailman/listinfo/i2c
 
-Thanks,
 -- 
-Jean Delvare
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
