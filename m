@@ -1,17 +1,15 @@
 From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 1/2] Convert i2c-mpc from a platform driver into a
-	of_platform driver, V4
-Date: Fri, 11 Jul 2008 12:12:14 -0600
-Message-ID: <20080711181214.GA15321@secretlab.ca>
-References: <20080630230126.12482.87927.stgit@terra>
-	<fa686aa40807091022q22f6be99j89f311780bd3d369@mail.gmail.com>
-	<8EAD138A-6CE4-4AC7-BCBF-13B8E7C24CF1@freescale.com>
+Subject: Re: [PATCH] of/i2c: don't pass -1 to irq_dispose_mapping,
+	otherwise kernel will oops
+Date: Fri, 11 Jul 2008 12:23:23 -0600
+Message-ID: <20080711182323.GB15321@secretlab.ca>
+References: <20080711174859.GA24260@polina.dev.rtsoft.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
 Content-Disposition: inline
-In-Reply-To: <8EAD138A-6CE4-4AC7-BCBF-13B8E7C24CF1@freescale.com>
+In-Reply-To: <20080711174859.GA24260@polina.dev.rtsoft.ru>
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -21,29 +19,25 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Timur Tabi <timur@freescale.com>
-Cc: Linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: khali@linux-fr.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 10, 2008 at 12:36:58PM -0400, Timur Tabi wrote:
+On Fri, Jul 11, 2008 at 09:48:59PM +0400, Anton Vorontsov wrote:
+> Firstly kernel warns at set_irq_chip, and then dies completely:
+> 
+> Trying to install chip for IRQ-1
 >
-> On Jul 9, 2008, at 1:22 PM, Grant Likely wrote:
->
->> On Mon, Jun 30, 2008 at 5:01 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
->>> Convert i2c-mpc to an of_platform driver. Utilize the code in  
->>> drivers/of-i2c.c to make i2c modules dynamically loadable by the  
->>> device tree.
->>
->> Timur, can you please test this one on an 83xx platform?  It works on
->> 5200, but I want to make sure 83xx doesn't break before I pick it up.
->
-> I'm on vacation this week, so I'll have to deal with it next week, after 
-> I've handled higher-priority issues.
+> diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+> index b2ccdcb..95a24de 100644
+> --- a/drivers/of/of_i2c.c
+> +++ b/drivers/of/of_i2c.c
+> @@ -93,10 +93,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  		if (info.irq == NO_IRQ)
+>  			info.irq = -1;
 
-Kumar, is there anyone else who can test this out before the merge
-window opens?
-
-OTOH, it should be pretty safe.  It's been tested on 5200.  I could just
-pick it up without 8xxx testing if you're okay with it.
+What is the reason that info.irq is set to -1 in the first place?  This
+looks like another bug to me.  Does something in the i2c layer depend on
+the -1 value?
 
 g.
