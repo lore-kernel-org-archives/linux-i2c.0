@@ -1,52 +1,42 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
+From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
 Subject: Re: [PATCH] of/i2c: don't pass -1 to irq_dispose_mapping,
-	otherwise kernel will oops
-Date: Fri, 11 Jul 2008 22:55:46 +0400
-Message-ID: <20080711185546.GA17371@polina.dev.rtsoft.ru>
+ otherwise kernel will oops
+Date: Fri, 11 Jul 2008 21:01:10 +0200
+Message-ID: <4877ADF6.8070702@scram.de>
 References: <20080711174859.GA24260@polina.dev.rtsoft.ru>
 	<20080711182323.GB15321@secretlab.ca>
-Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <20080711182323.GB15321@secretlab.ca>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: khali@linux-fr.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080711182323.GB15321-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 11, 2008 at 12:23:23PM -0600, Grant Likely wrote:
-> On Fri, Jul 11, 2008 at 09:48:59PM +0400, Anton Vorontsov wrote:
-> > Firstly kernel warns at set_irq_chip, and then dies completely:
-> > 
-> > Trying to install chip for IRQ-1
-> >
-> > diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
-> > index b2ccdcb..95a24de 100644
-> > --- a/drivers/of/of_i2c.c
-> > +++ b/drivers/of/of_i2c.c
-> > @@ -93,10 +93,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
-> >  		if (info.irq == NO_IRQ)
-> >  			info.irq = -1;
-> 
-> What is the reason that info.irq is set to -1 in the first place?
+Hi Grant,
 
-I believe this is because of this checking mess:
+> What is the reason that info.irq is set to -1 in the first place?  This
+> looks like another bug to me.  Does something in the i2c layer depend on
+> the -1 value?
 
-grep irq -r drivers/rtc/ drivers/i2c/chips/ | grep if
-grep "define NO_IRQ" -r include/
+Nope, it was a bug in the i2c documentation fixed recently:
 
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=8e29da9ee8958cc17e27f4053420f1c982614793
+
+Thanks,
+Jochen
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
