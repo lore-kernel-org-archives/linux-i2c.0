@@ -1,10 +1,14 @@
-From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH V9] I2C driver for IMX
-Date: Fri, 11 Jul 2008 09:29:29 +0300
-Message-ID: <g56uvk$e6s$1@ger.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] gpio: max732x: add support for MAX7319,
+ MAX7320-7327 I2C  Port Expanders
+Date: Fri, 11 Jul 2008 10:29:52 +0200
+Message-ID: <20080711102952.31d2d943@hyperion.delvare>
+References: <4875A893.3090402@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------030505080707080504030707"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <4875A893.3090402-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -14,421 +18,524 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030505080707080504030707
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Eric, David,
 
-Changes from V8 version:
+On Thu, 10 Jul 2008 14:13:39 +0800, Eric Miao wrote:
+> 
+> Signed-off-by: Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-- Error numbers replaced to standard numbers from errno.h
-- Enable/Start and Disable/Stop functions merged into two Start and Stop functions
-- Removed all unused info about slave mode
-- Removed unused includes
+David, maybe you should create an entry for the gpio subsystem in
+MAINTAINERS?
 
-Can somebody review functional part of this I2C driver? Because all other part is already acked by ARM Linux kernel guys.
+> ---
+>  drivers/gpio/Kconfig        |   22 +++
+>  drivers/gpio/Makefile       |    1 +
+>  drivers/gpio/max732x.c      |  342 +++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/max732x.h |   19 +++
+>  4 files changed, 384 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/gpio/max732x.c
+>  create mode 100644 include/linux/i2c/max732x.h
+> 
 
-Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
+Quick review, essentially on the i2c side of things as I don't know
+much about the gpio subsystem:
 
---------------030505080707080504030707
-Content-Type: text/plain;
- name="patch-i2c-imx"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="patch-i2c-imx"
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index bbd2834..9f8d030 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -61,6 +61,28 @@ config GPIO_PCF857X
+>  	  This driver provides an in-kernel interface to those GPIOs using
+>  	  platform-neutral GPIO calls.
+>  
+> +config GPIO_MAX732X
+> +	tristate "MAX7319, MAX7320-7327 8/16-bit I2C Port Expanders"
+> +	depends on I2C
+> +	help
+> +	  Say yes here to support the MAX7319, MAX7320-7327 series of I2C
+> +	  Port Expanders. Each IO port on these chips has a fixed role of
 
-SW5kZXg6IGxpbnV4LTIuNi4yNi1yYzkvYXJjaC9hcm0vbWFjaC1pbXgvbXgxYWRzLmMKPT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PQotLS0gbGludXgtMi42LjI2LXJjOS5vcmlnL2FyY2gvYXJtL21hY2gtaW14
-L214MWFkcy5jCisrKyBsaW51eC0yLjYuMjYtcmM5L2FyY2gvYXJtL21hY2gtaW14L214MWFk
-cy5jCkBAIC0xMDksMTAgKzEwOSwzMSBAQCBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2Rldmlj
-ZSBpbXhfdWFydDJfCiAJfQogfTsKIAorc3RhdGljIHN0cnVjdCByZXNvdXJjZSBpbXhfaTJj
-X3Jlc291cmNlc1tdID0geworCVswXSA9IHsKKwkJLnN0YXJ0ICA9IDB4MDAyMTcwMDAsCisJ
-CS5lbmQgICAgPSAweDAwMjE3MDEwLAorCQkuZmxhZ3MgID0gSU9SRVNPVVJDRV9NRU0sCisJ
-fSwKKwlbMV0gPSB7CisJCS5zdGFydCAgPSBJMkNfSU5ULAorCQkuZW5kICAgID0gSTJDX0lO
-VCwKKwkJLmZsYWdzICA9IElPUkVTT1VSQ0VfSVJRLAorCX0sCit9OworCitzdGF0aWMgc3Ry
-dWN0IHBsYXRmb3JtX2RldmljZSBpbXhfaTJjX2RldmljZSA9IHsKKwkubmFtZSAgICAgICAg
-ICAgPSAiaW14LWkyYyIsCisJLmlkICAgICAgICAgICAgID0gMCwKKwkucmVzb3VyY2UgICAg
-ICAgPSBpbXhfaTJjX3Jlc291cmNlcywKKwkubnVtX3Jlc291cmNlcyAgPSBBUlJBWV9TSVpF
-KGlteF9pMmNfcmVzb3VyY2VzKSwKK307CisKIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZGV2
-aWNlICpkZXZpY2VzW10gX19pbml0ZGF0YSA9IHsKIAkmY3M4OXgwX2RldmljZSwKIAkmaW14
-X3VhcnQxX2RldmljZSwKIAkmaW14X3VhcnQyX2RldmljZSwKKwkmaW14X2kyY19kZXZpY2Us
-CiB9OwogCiAjaWZkZWYgQ09ORklHX01NQ19JTVgKSW5kZXg6IGxpbnV4LTIuNi4yNi1yYzkv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYwo9PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAvZGV2L251
-bGwKKysrIGxpbnV4LTIuNi4yNi1yYzkvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYwpA
-QCAtMCwwICsxLDYwMiBAQAorLyoKKyAqCUNvcHlyaWdodCAoQykgMjAwMiBNb3Rvcm9sYSBH
-U0ctQ2hpbmEKKyAqCisgKglUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNh
-biByZWRpc3RyaWJ1dGUgaXQgYW5kL29yCisgKgltb2RpZnkgaXQgdW5kZXIgdGhlIHRlcm1z
-IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQorICoJYXMgcHVibGlzaGVkIGJ5
-IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIKKyAqCW9m
-IHRoZSBMaWNlbnNlLCBvciAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgor
-ICoKKyAqCVRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0
-IHdpbGwgYmUgdXNlZnVsLAorICoJYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0
-IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YKKyAqCU1FUkNIQU5UQUJJTElUWSBvciBG
-SVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRS4gIFNlZSB0aGUKKyAqCUdOVSBHZW5l
-cmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCisgKgorICoJWW91IHNob3Vs
-ZCBoYXZlIHJlY2VpdmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
-c2UKKyAqCWFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBG
-cmVlIFNvZnR3YXJlCisgKglGb3VuZGF0aW9uLCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UgLSBT
-dWl0ZSAzMzAsIEJvc3RvbiwgTUEgIDAyMTExLTEzMDcsCisgKglVU0EuCisgKgorICogQXV0
-aG9yOgorICoJRGFyaXVzIEF1Z3VsaXMsIFRlbHRvbmlrYSBJbmMuCisgKgorICogRGVzYy46
-CisgKglJbXBsZW1lbnRhdGlvbiBvZiBJMkMgQWRhcHRlci9BbGdvcml0aG0gRHJpdmVyCisg
-KglEcml2ZXIgZm9yIEkyQyBCdXMgaW50ZWdyYXRlZCBpbiBpLk1YTCwgaS5NWDEKKyAqCisg
-Kgltb2R1bGUgcGFyYW1ldGVyczoKKyAqCQktIGNsa2ZyZXE6CisgKgkJCVNldHMgdGhlIGRl
-c2lyZWQgY2xvY2sgcmF0ZQorICoJCQlUaGUgZGVmYXVsdCB2YWx1ZSBpcyAxMDAwMDAKKyAq
-CQkJTWF4IHZhbHVlIGlzIDQwMDAwMAorICoKKyAqCURlcml2ZWQgZnJvbSBNb3Rvcm9sYSBH
-U0cgQ2hpbmEgSTJDIGV4YW1wbGUgZHJpdmVyCisgKgorICoJQ29weXJpZ2h0IChDKSAyMDA1
-IFRvcnN0ZW4gS29zY2hvcnJlayA8a29zY2hvcnJlayBhdCBzeW5lcnRyb25peHguZGUKKyAq
-CVBvcnRpb25zOgorICoJQ29weXJpZ2h0IChDKSAyMDA1IE1hdHRoaWFzIEJsYXNjaGtlIDxi
-bGFzY2hrZSBhdCBzeW5lcnRyb25peHguZGUKKyAqCUNvcHlyaWdodCAoQykgMjAwNyBSaWdo
-dEhhbmQgVGVjaG5vbG9naWVzLCBJbmMuIDxhZHllcmF0cmlnaHRoYW5kdGVjaC5jb20+Cisg
-KglDb3B5cmlnaHQgKEMpIDIwMDggRGFyaXVzIEF1Z3VsaXMgPGRhcml1cy5hdWd1bGlzIGF0
-IHRlbHRvbmlrYS5sdD4KKyAqCisgKi8KKworLyoqIEluY2x1ZGVzICoqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioK
-KyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKiovCisKKyNpbmNsdWRlIDxsaW51eC9pbml0Lmg+
-CisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+
-CisjaW5jbHVkZSA8bGludXgvZXJybm8uaD4KKyNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQu
-aD4KKyNpbmNsdWRlIDxsaW51eC9kZWxheS5oPgorI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgor
-I2luY2x1ZGUgPGxpbnV4L2lvLmg+CisjaW5jbHVkZSA8bGludXgvcGxhdGZvcm1fZGV2aWNl
-Lmg+CisjaW5jbHVkZSA8YXNtL2FyY2gvaXJxcy5oPgorI2luY2x1ZGUgPGFzbS9hcmNoL2hh
-cmR3YXJlLmg+CisjaW5jbHVkZSA8YXNtL2FyY2gvaW14LXJlZ3MuaD4KKworLyoqIERlZmlu
-ZXMgKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioKKyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiovCisKKy8qIFRo
-aXMgd2lsbCBiZSB0aGUgZHJpdmVyIG5hbWUgdGhlIGtlcm5lbCByZXBvcnRzICovCisjZGVm
-aW5lIERSSVZFUl9OQU1FICJpbXgtaTJjIgorCisvKiBEZWZhdWx0IHZhbHVlcyBvZiBtb2R1
-bGUgcGFyYW1ldGVycyAqLworI2RlZmluZSBJTVhfSTJDX0JJVF9SQVRFCTEwMDAwMAkvKiAx
-MDBrSHogKi8KKworLyogVGltZW91dHMgKi8KKyNkZWZpbmUgSTJDX0lNWF9USU1FX0JVU1kJ
-MjAwMAkvKiBsb29wIGNvdW50ICovCisjZGVmaW5lIEkyQ19JTVhfVElNRV9BQ0sJMjAwMAkv
-KiBsb29wIGNvdW50ICovCisjZGVmaW5lIEkyQ19JTVhfVElNRV9UUlgJNQkvKiBzZWNvbmRz
-ICovCisKKy8qIElNWCBJMkMgcmVnaXN0ZXJzICovCisjZGVmaW5lIElNWF9JMkNfSUFEUgkw
-eDAwCS8qIGkyYyBzbGF2ZSBhZGRyZXNzICovCisjZGVmaW5lIElNWF9JMkNfSUZEUgkweDA0
-CS8qIGkyYyBmcmVxdWVuY3kgZGl2aWRlciAqLworI2RlZmluZSBJTVhfSTJDX0kyQ1IJMHgw
-OAkvKiBpMmMgY29udHJvbCAqLworI2RlZmluZSBJTVhfSTJDX0kyU1IJMHgwQwkvKiBpMmMg
-c3RhdHVzICovCisjZGVmaW5lIElNWF9JMkNfSTJEUgkweDEwCS8qIGkyYyB0cmFuc2ZlciBk
-YXRhICovCisKKy8qIEJpdHMgb2YgSU1YIEkyQyByZWdpc3RlcnMgKi8KKyNkZWZpbmUgSTJT
-Ul9SWEFLCTB4MDEKKyNkZWZpbmUgSTJTUl9JSUYJMHgwMgorI2RlZmluZSBJMlNSX1NSVwkw
-eDA0CisjZGVmaW5lIEkyU1JfSUFMCTB4MTAKKyNkZWZpbmUgSTJTUl9JQkIJMHgyMAorI2Rl
-ZmluZSBJMlNSX0lBQVMJMHg0MAorI2RlZmluZSBJMlNSX0lDRgkweDgwCisjZGVmaW5lIEky
-Q1JfUlNUQQkweDA0CisjZGVmaW5lIEkyQ1JfVFhBSwkweDA4CisjZGVmaW5lIEkyQ1JfTVRY
-CTB4MTAKKyNkZWZpbmUgSTJDUl9NU1RBCTB4MjAKKyNkZWZpbmUgSTJDUl9JSUVOCTB4NDAK
-KyNkZWZpbmUgSTJDUl9JRU4JMHg4MAorCisvKiogVmFyaWFibGVzICoqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgor
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKi8KKworc3RhdGljIHVuc2lnbmVkIGludCBjbGtm
-cmVxID0gSU1YX0kyQ19CSVRfUkFURTsKK3N0YXRpYyB1bnNpZ25lZCBpbnQgZGlzYWJsZV9k
-ZWxheTsJLyogRHVtbXkgZGVsYXkgKi8KKworLyoKKyAqIHNvcnRlZCBsaXN0IG9mIGNsb2Nr
-IGRpdmlkZXIsIHJlZ2lzdGVyIHZhbHVlIHBhaXJzCisgKiB0YWtlbiBmcm9tIHRhYmxlIDI2
-LTUsIHAuMjYtOSwgRnJlZXNjYWxlIGkuTVgKKyAqIEludGVncmF0ZWQgUG9ydGFibGUgU3lz
-dGVtIFByb2Nlc3NvciBSZWZlcmVuY2UgTWFudWFsCisgKiBEb2N1bWVudCBOdW1iZXI6IE1D
-OTMyOE1YTFJNLCBSZXYuIDUuMSwgMDYvMjAwNworICoKKyAqIER1cGxpY2F0ZWQgZGl2aWRl
-ciB2YWx1ZXMgcmVtb3ZlZCBmcm9tIGxpc3QKKyAqLworCitzdGF0aWMgdTE2IF9faW5pdGRh
-dGEgaTJjX2lteF9jbGtfZGl2aWRlciBbNTBdIFsyXSA9IHsKKwl7IDIyLAkweDIwIH0sIHsg
-MjQsCTB4MjEgfSwgeyAyNiwJMHgyMiB9LCB7IDI4LAkweDIzIH0sCisJeyAzMCwJMHgwMCB9
-LAl7IDMyLAkweDI0IH0sIHsgMzYsCTB4MjUgfSwgeyA0MCwJMHgyNiB9LAorCXsgNDIsCTB4
-MDMgfSwgeyA0NCwJMHgyNyB9LAl7IDQ4LAkweDI4IH0sIHsgNTIsCTB4MDUgfSwKKwl7IDU2
-LAkweDI5IH0sIHsgNjAsCTB4MDYgfSwgeyA2NCwJMHgyQSB9LAl7IDcyLAkweDJCIH0sCisJ
-eyA4MCwJMHgyQyB9LCB7IDg4LAkweDA5IH0sIHsgOTYsCTB4MkQgfSwgeyAxMDQsCTB4MEEg
-fSwKKwl7IDExMiwJMHgyRSB9LCB7IDEyOCwJMHgyRiB9LCB7IDE0NCwJMHgwQyB9LCB7IDE2
-MCwJMHgzMCB9LAorCXsgMTkyLAkweDMxIH0sCXsgMjI0LAkweDMyIH0sIHsgMjQwLAkweDBG
-IH0sIHsgMjU2LAkweDMzIH0sCisJeyAyODgsCTB4MTAgfSwgeyAzMjAsCTB4MzQgfSwJeyAz
-ODQsCTB4MzUgfSwgeyA0NDgsCTB4MzYgfSwKKwl7IDQ4MCwJMHgxMyB9LCB7IDUxMiwJMHgz
-NyB9LCB7IDU3NiwJMHgxNCB9LAl7IDY0MCwJMHgzOCB9LAorCXsgNzY4LAkweDM5IH0sIHsg
-ODk2LAkweDNBIH0sIHsgOTYwLAkweDE3IH0sIHsgMTAyNCwJMHgzQiB9LAorCXsgMTE1MiwJ
-MHgxOCB9LCB7IDEyODAsCTB4M0MgfSwgeyAxNTM2LAkweDNEIH0sIHsgMTc5MiwJMHgzRSB9
-LAorCXsgMTkyMCwJMHgxQiB9LAl7IDIwNDgsCTB4M0YgfSwgeyAyMzA0LAkweDFDIH0sIHsg
-MjU2MCwJMHgxRCB9LAorCXsgMzA3MiwJMHgxRSB9LCB7IDM4NDAsCTB4MUYgfQorfTsKKwor
-c3RydWN0IGlteF9pMmNfc3RydWN0IHsKKwlzdHJ1Y3QgaTJjX2FkYXB0ZXIJYWRhcHRlcjsK
-KwlzdHJ1Y3QgcmVzb3VyY2UJCSpyZXM7CisJdm9pZCBfX2lvbWVtCQkqYmFzZTsKKwlpbnQJ
-CQlpcnE7CisJd2FpdF9xdWV1ZV9oZWFkX3QJcXVldWU7CisJdW5zaWduZWQgbG9uZwkJaTJj
-c3I7Cit9OworCisvKiogRnVuY3Rpb25zIGZvciBJTVggSTJDIGFkYXB0ZXIgZHJpdmVyICoq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgorKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKi8KKworc3RhdGljIGludCBpMmNfaW14X2J1c19idXN5KHN0cnVjdCBpbXhf
-aTJjX3N0cnVjdCAqaTJjX2lteCkKK3sKKwl1bnNpZ25lZCBpbnQgaSA9IDA7CisKKwlkZXZf
-ZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIjwlcz5cbiIsIF9fZnVuY19fKTsKKworCS8q
-IHdhaXQgZm9yIGJ1cyBub3QgYnVzeSAqLworCWZvciAoaSA9IDA7IGkgPCBJMkNfSU1YX1RJ
-TUVfQlVTWTsgaSsrKSB7CisJCWlmICghKHJlYWRiKGkyY19pbXgtPmJhc2UgKyBJTVhfSTJD
-X0kyU1IpICYgKEkyU1JfSUJCIHwgSTJTUl9JQUwpKSkKKwkJCXJldHVybiAwOworCQl1ZGVs
-YXkoMSk7CisJfQorCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiPCVzPiBJMkMg
-YnVzIGlzIGJ1c3khXG4iLCBfX2Z1bmNfXyk7CisJcmV0dXJuIC1FQlVTWTsKK30KKworc3Rh
-dGljIGludCBpMmNfaW14X3RyeF9jb21wbGV0ZShzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmky
-Y19pbXgpCit7CisJaW50IHJlc3VsdDsKKworCXJlc3VsdCA9IHdhaXRfZXZlbnRfaW50ZXJy
-dXB0aWJsZV90aW1lb3V0KGkyY19pbXgtPnF1ZXVlLAorCQkoaTJjX2lteC0+aTJjc3IgJiBJ
-MlNSX0lJRiksIEkyQ19JTVhfVElNRV9UUlggKiBIWik7CisKKwlpZiAodW5saWtlbHkocmVz
-dWx0IDwgMCkpIHsKKwkJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsICI8JXM+IHJl
-c3VsdCA8IDAhXG4iLCBfX2Z1bmNfXyk7CisJCXJldHVybiByZXN1bHQ7CisJfSBlbHNlIGlm
-ICh1bmxpa2VseSghKGkyY19pbXgtPmkyY3NyICYgSTJTUl9JSUYpKSkgeworCQlkZXZfZGJn
-KCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIjwlcz4gVGltZW91dCFcbiIsIF9fZnVuY19fKTsK
-KwkJcmV0dXJuIC1FVElNRURPVVQ7CisJfQorCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIu
-ZGV2LCAiPCVzPiBUUlggY29tcGxldGUhXG4iLCBfX2Z1bmNfXyk7CisJaTJjX2lteC0+aTJj
-c3IgPSAwOworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50IGkyY19pbXhfYWNrZWQoc3Ry
-dWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14KQoreworCXVuc2lnbmVkIGludCBpID0gMDsK
-KworCWZvciAoaSA9IDA7IGkgPCBJMkNfSU1YX1RJTUVfQUNLOyBpKyspIHsKKwkJaWYgKCEo
-cmVhZGIoaTJjX2lteC0+YmFzZSArIElNWF9JMkNfSTJTUikgJiBJMlNSX1JYQUspKSB7CisJ
-CQlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwKKwkJCQkiPCVzPiBBQ0sgcmVjZWl2
-ZWRcbiIsIF9fZnVuY19fKTsKKwkJCXJldHVybiAwOworCQl9CisJCXVkZWxheSgxKTsKKwl9
-CisJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsICI8JXM+IE5vIEFDSyFcbiIsIF9f
-ZnVuY19fKTsKKwlyZXR1cm4gLUVJTzsgICAvKiBObyBBQ0sgKi8KK30KKworc3RhdGljIHZv
-aWQgaTJjX2lteF9zdGFydChzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgpCit7CisJ
-dW5zaWduZWQgaW50IHRlbXAgPSAwOworCisJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5k
-ZXYsICI8JXM+XG4iLCBfX2Z1bmNfXyk7CisKKwkvKiBFbmFibGUgSTJDIGNvbnRyb2xsZXIg
-Ki8KKwl3cml0ZWIoSTJDUl9JRU4sIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0kyQ1IpOwor
-CS8qIFN0YXJ0IEkyQyB0cmFuc2FjdGlvbiAqLworCXRlbXAgPSByZWFkYihpMmNfaW14LT5i
-YXNlICsgSU1YX0kyQ19JMkNSKTsKKwl0ZW1wIHw9IEkyQ1JfTVNUQTsKKwl3cml0ZWIodGVt
-cCwgaTJjX2lteC0+YmFzZSArIElNWF9JMkNfSTJDUik7CisJdGVtcCB8PSAoSTJDUl9JSUVO
-IHwgSTJDUl9NVFggfCBJMkNSX1RYQUspOworCXdyaXRlYih0ZW1wLCBpMmNfaW14LT5iYXNl
-ICsgSU1YX0kyQ19JMkNSKTsKK30KKworc3RhdGljIHZvaWQgaTJjX2lteF9zdG9wKHN0cnVj
-dCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCkKK3sKKwl1bnNpZ25lZCBpbnQgdGVtcCA9IDA7
-CisKKwkvKiBTdG9wIEkyQyB0cmFuc2FjdGlvbiAqLworCWRldl9kYmcoJmkyY19pbXgtPmFk
-YXB0ZXIuZGV2LCAiPCVzPlxuIiwgX19mdW5jX18pOworCXRlbXAgPSByZWFkYihpMmNfaW14
-LT5iYXNlICsgSU1YX0kyQ19JMkNSKTsKKwl0ZW1wICY9IH5JMkNSX01TVEE7CisJd3JpdGVi
-KHRlbXAsIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0kyQ1IpOworCS8qIHNldHVwIGNoaXAg
-cmVnaXN0ZXJzIHRvIGRlZmF1bHRzICovCisJd3JpdGViKEkyQ1JfSUVOLCBpMmNfaW14LT5i
-YXNlICsgSU1YX0kyQ19JMkNSKTsKKwl3cml0ZWIoMCwgaTJjX2lteC0+YmFzZSArIElNWF9J
-MkNfSTJTUik7CisJLyoKKwkgKiBUaGlzIGRlbGF5IGNhdXNlZCBieSBhbiBpLk1YTCBoYXJk
-d2FyZSBidWcuCisJICogSWYgbm8gKG9yIHRvbyBzaG9ydCkgZGVsYXksIG5vICJTVE9QIiBi
-aXQgd2lsbCBiZSBnZW5lcmF0ZWQuCisJICovCisJdWRlbGF5KGRpc2FibGVfZGVsYXkpOwor
-CS8qIERpc2FibGUgSTJDIGNvbnRyb2xsZXIgKi8KKwl3cml0ZWIoMCwgaTJjX2lteC0+YmFz
-ZSArIElNWF9JMkNfSTJDUik7Cit9CisKK3N0YXRpYyB2b2lkIF9faW5pdCBpMmNfaW14X3Nl
-dF9jbGsoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LCB1bnNpZ25lZCBpbnQgcmF0
-ZSkKK3sKKwl1bnNpZ25lZCBpbnQgaGNsazsKKwl1bnNpZ25lZCBpbnQgZGVzaXJlZF9kaXY7
-CisJaW50IGk7CisKKwkvKiBEaXZpZGVyIHZhbHVlIGNhbGN1bGF0aW9uICovCisJaGNsayA9
-IGlteF9nZXRfaGNsaygpOworCWRlc2lyZWRfZGl2ID0gKGhjbGsgKyByYXRlIC0gMSkgLyBy
-YXRlOworCWlmIChkZXNpcmVkX2RpdiA8IGkyY19pbXhfY2xrX2RpdmlkZXJbMF1bMF0pCisJ
-CWkgPSAwOworCWVsc2UgaWYgKGRlc2lyZWRfZGl2ID4gaTJjX2lteF9jbGtfZGl2aWRlcltB
-UlJBWV9TSVpFKGkyY19pbXhfY2xrX2RpdmlkZXIpLTFdWzBdKQorCQlpID0gQVJSQVlfU0la
-RShpMmNfaW14X2Nsa19kaXZpZGVyKSAtIDE7CisJZWxzZQorCQlmb3IgKGkgPSAwOyBpMmNf
-aW14X2Nsa19kaXZpZGVyW2ldWzBdIDwgZGVzaXJlZF9kaXY7IGkrKyk7CisKKwkvKiBXcml0
-ZSBkaXZpZGVyIHZhbHVlIHRvIHJlZ2lzdGVyICovCisJd3JpdGViKGkyY19pbXhfY2xrX2Rp
-dmlkZXJbaV1bMV0sIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0lGRFIpOworCisJLyoKKwkg
-KiBUaGVyZSBkdW1teSBkZWxheSBpcyBjYWxjdWxhdGVkLgorCSAqIEl0IHNob3VsZCBiZSBh
-Ym91dCBvbmUgSTJDIGNsb2NrIHBlcmlvZCBsb25nLgorCSAqIFRoaXMgZGVsYXkgaXMgdXNl
-ZCBpbiBJMkMgYnVzIGRpc2FibGUgZnVuY3Rpb24KKwkgKiB0byBmaXggY2hpcCBoYXJkd2Fy
-ZSBidWcuCisJICovCisJZGlzYWJsZV9kZWxheSA9ICg1MDAwMDBVICogaTJjX2lteF9jbGtf
-ZGl2aWRlcltpXVswXQorCQkrIChoY2xrIC8gMikgLSAxKSAvIChoY2xrIC8gMik7CisKKwkv
-KiBkZXZfZGJnKCkgY2FuJ3QgYmUgdXNlZCwgYmVjYXVzZSBhZGFwdGVyIGlzIG5vdCB5ZXQg
-cmVnaXN0ZXJlZCAqLworI2lmZGVmIENPTkZJR19JMkNfREVCVUdfQlVTCisJdW5zaWduZWQg
-aW50IHN5c2NsazsKKwlzeXNjbGsgPSBpbXhfZ2V0X3N5c3RlbV9jbGsoKTsKKwlwcmludGso
-S0VSTl9ERUJVRyAiSTJDOiA8JXM+IFNZU0NMSz0lZCwgSENMSz0lZCwgUkVRIERJVj0lZFxu
-IiwKKwkJX19mdW5jX18sIHN5c2NsaywgaGNsaywgZGVzaXJlZF9kaXYpOworCXByaW50ayhL
-RVJOX0RFQlVHICJJMkM6IDwlcz4gSUZEUltJQ109MHgleCwgUkVBTCBESVY9JWRcbiIsIF9f
-ZnVuY19fLAorCQlpMmNfaW14X2Nsa19kaXZpZGVyW2ldWzFdLCBpMmNfaW14X2Nsa19kaXZp
-ZGVyW2ldWzBdKTsKKyNlbmRpZgorfQorCitzdGF0aWMgaXJxcmV0dXJuX3QgaTJjX2lteF9p
-c3IoaW50IGlycSwgdm9pZCAqZGV2X2lkKQoreworCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAq
-aTJjX2lteCA9IGRldl9pZDsKKwl1bnNpZ25lZCBpbnQgdGVtcDsKKworCXRlbXAgPSByZWFk
-YihpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMlNSKTsKKwlpZiAodGVtcCAmIEkyU1JfSUlG
-KSB7CisJCS8qIHNhdmUgc3RhdHVzIHJlZ2lzdGVyICovCisJCWkyY19pbXgtPmkyY3NyID0g
-dGVtcDsKKwkJdGVtcCAmPSB+STJTUl9JSUY7CisJCXdyaXRlYih0ZW1wLCBpMmNfaW14LT5i
-YXNlICsgSU1YX0kyQ19JMlNSKTsKKwkJd2FrZV91cF9pbnRlcnJ1cHRpYmxlKCZpMmNfaW14
-LT5xdWV1ZSk7CisJfQorCisJcmV0dXJuIElSUV9IQU5ETEVEOworfQorCitzdGF0aWMgaW50
-IGkyY19pbXhfd3JpdGUoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LCBzdHJ1Y3Qg
-aTJjX21zZyAqbXNncykKK3sKKwlpbnQgaSwgcmVzdWx0OworCisJZGV2X2RiZygmaTJjX2lt
-eC0+YWRhcHRlci5kZXYsICI8JXM+IHdyaXRlIHNsYXZlIGFkZHJlc3M6IGFkZHI9MHgleFxu
-IiwKKwkJX19mdW5jX18sIChtc2dzLT5hZGRyKSk7CisKKwkvKiB3cml0ZSBzbGF2ZSBhZGRy
-ZXNzICovCisJd3JpdGViKChtc2dzLT5hZGRyKSwgaTJjX2lteC0+YmFzZSArIElNWF9JMkNf
-STJEUik7CisJcmVzdWx0ID0gaTJjX2lteF90cnhfY29tcGxldGUoaTJjX2lteCk7CisJaWYg
-KHJlc3VsdCkKKwkJcmV0dXJuIHJlc3VsdDsKKwlyZXN1bHQgPSBpMmNfaW14X2Fja2VkKGky
-Y19pbXgpOworCWlmIChyZXN1bHQpCisJCXJldHVybiByZXN1bHQ7CisJZGV2X2RiZygmaTJj
-X2lteC0+YWRhcHRlci5kZXYsICI8JXM+IHdyaXRlIGRhdGFcbiIsIF9fZnVuY19fKTsKKwor
-CS8qIHdyaXRlIGRhdGEgKi8KKwlmb3IgKGkgPSAwOyBpIDwgbXNncy0+bGVuOyBpKyspIHsK
-KwkJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsCisJCQkiPCVzPiB3cml0ZSBieXRl
-OiBCJWQ9MHglWFxuIiwgX19mdW5jX18sCisJCQlpLCBtc2dzLT5idWZbaV0pOworCQl3cml0
-ZWIobXNncy0+YnVmW2ldLCBpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMkRSKTsKKwkJcmVz
-dWx0ID0gaTJjX2lteF90cnhfY29tcGxldGUoaTJjX2lteCk7CisJCWlmIChyZXN1bHQpCisJ
-CQlyZXR1cm4gcmVzdWx0OworCQlyZXN1bHQgPSBpMmNfaW14X2Fja2VkKGkyY19pbXgpOwor
-CQlpZiAocmVzdWx0KQorCQkJcmV0dXJuIHJlc3VsdDsKKwl9CisJcmV0dXJuIDA7Cit9CisK
-K3N0YXRpYyBpbnQgaTJjX2lteF9yZWFkKHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lt
-eCwgc3RydWN0IGkyY19tc2cgKm1zZ3MpCit7CisJaW50IGksIHJlc3VsdDsKKwl1bnNpZ25l
-ZCBpbnQgdGVtcDsKKworCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LAorCQkiPCVz
-PiB3cml0ZSBzbGF2ZSBhZGRyZXNzOiBhZGRyPTB4JXhcbiIsIF9fZnVuY19fLAorCQkoKG1z
-Z3MtPmFkZHIpfDB4MDEpKTsKKworCS8qIHdyaXRlIHNsYXZlIGFkZHJlc3MgKi8KKwl3cml0
-ZWIoKChtc2dzLT5hZGRyKXwweDAxKSwgaTJjX2lteC0+YmFzZSArIElNWF9JMkNfSTJEUik7
-CisJcmVzdWx0ID0gaTJjX2lteF90cnhfY29tcGxldGUoaTJjX2lteCk7CisJaWYgKHJlc3Vs
-dCkKKwkJcmV0dXJuIHJlc3VsdDsKKwlyZXN1bHQgPSBpMmNfaW14X2Fja2VkKGkyY19pbXgp
-OworCWlmIChyZXN1bHQpCisJCXJldHVybiByZXN1bHQ7CisKKwlkZXZfZGJnKCZpMmNfaW14
-LT5hZGFwdGVyLmRldiwgIjwlcz4gc2V0dXAgYnVzXG4iLCBfX2Z1bmNfXyk7CisKKwkvKiBz
-ZXR1cCBidXMgdG8gcmVhZCBkYXRhICovCisJdGVtcCA9IHJlYWRiKGkyY19pbXgtPmJhc2Ug
-KyBJTVhfSTJDX0kyQ1IpOworCXRlbXAgJj0gfkkyQ1JfTVRYOworCWlmIChtc2dzLT5sZW4t
-MSkKKwkJdGVtcCAmPSB+STJDUl9UWEFLOworCXdyaXRlYih0ZW1wLCBpMmNfaW14LT5iYXNl
-ICsgSU1YX0kyQ19JMkNSKTsKKwlyZWFkYihpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMkRS
-KTsgLyogZHVtbXkgcmVhZCAqLworCisJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYs
-ICI8JXM+IHJlYWQgZGF0YVxuIiwgX19mdW5jX18pOworCisJLyogcmVhZCBkYXRhICovCisJ
-Zm9yIChpID0gMDsgaSA8IG1zZ3MtPmxlbjsgaSsrKSB7CisJCXJlc3VsdCA9IGkyY19pbXhf
-dHJ4X2NvbXBsZXRlKGkyY19pbXgpOworCQlpZiAocmVzdWx0KQorCQkJcmV0dXJuIHJlc3Vs
-dDsKKwkJaWYgKGkgPT0gKG1zZ3MtPmxlbi0xKSkgeworCQkJZGV2X2RiZygmaTJjX2lteC0+
-YWRhcHRlci5kZXYsCisJCQkJIjwlcz4gY2xlYXIgTVNUQVxuIiwgX19mdW5jX18pOworCQkJ
-dGVtcCA9IHJlYWRiKGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0kyQ1IpOworCQkJdGVtcCAm
-PSB+STJDUl9NU1RBOworCQkJd3JpdGViKHRlbXAsIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJD
-X0kyQ1IpOworCQl9IGVsc2UgaWYgKGkgPT0gKG1zZ3MtPmxlbi0yKSkgeworCQkJZGV2X2Ri
-ZygmaTJjX2lteC0+YWRhcHRlci5kZXYsCisJCQkJIjwlcz4gc2V0IFRYQUtcbiIsIF9fZnVu
-Y19fKTsKKwkJCXRlbXAgPSByZWFkYihpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMkNSKTsK
-KwkJCXRlbXAgfD0gSTJDUl9UWEFLOworCQkJd3JpdGViKHRlbXAsIGkyY19pbXgtPmJhc2Ug
-KyBJTVhfSTJDX0kyQ1IpOworCQl9CisJCW1zZ3MtPmJ1ZltpXSA9IHJlYWRiKGkyY19pbXgt
-PmJhc2UgKyBJTVhfSTJDX0kyRFIpOworCQlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRl
-diwKKwkJCSI8JXM+IHJlYWQgYnl0ZTogQiVkPTB4JVhcbiIsIF9fZnVuY19fLAorCQkJaSwg
-bXNncy0+YnVmW2ldKTsKKwl9CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQgaTJjX2lt
-eF94ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlciwgc3RydWN0IGkyY19tc2cgKm1z
-Z3MsIGludCBudW0pCit7CisJdW5zaWduZWQgaW50IGksIHRlbXA7CisJaW50IHJlc3VsdDsK
-KwlzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXggPSBpMmNfZ2V0X2FkYXBkYXRhKGFk
-YXB0ZXIpOworCisJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsICI8JXM+XG4iLCBf
-X2Z1bmNfXyk7CisKKwkvKiBDaGVjayBvciBpMmMgYnVzIGlzIG5vdCBidXN5ICovCisJcmVz
-dWx0ID0gaTJjX2lteF9idXNfYnVzeShpMmNfaW14KTsKKwlpZiAocmVzdWx0KQorCQlnb3Rv
-IGZhaWwwOworCisJLyogU3RhcnQgSTJDIHRyYW5zZmVyICovCisJaTJjX2lteF9zdGFydChp
-MmNfaW14KTsKKworCS8qIHJlYWQvd3JpdGUgZGF0YSAqLworCWZvciAoaSA9IDA7IGkgPCBu
-dW07IGkrKykgeworCQlpZiAoaSkgeworCQkJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5k
-ZXYsCisJCQkJIjwlcz4gcmVwZWF0ZWQgc3RhcnRcbiIsIF9fZnVuY19fKTsKKwkJCXRlbXAg
-PSByZWFkYihpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMkNSKTsKKwkJCXRlbXAgfD0gSTJD
-Ul9SU1RBOworCQkJd3JpdGViKHRlbXAsIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0kyQ1Ip
-OworCQl9CisJCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LAorCQkJIjwlcz4gdHJh
-bnNmZXIgbWVzc2FnZTogJWRcbiIsIF9fZnVuY19fLCBpKTsKKwkJLyogd3JpdGUvcmVhZCBk
-YXRhICovCisjaWZkZWYgQ09ORklHX0kyQ19ERUJVR19CVVMKKwkJdGVtcCA9IHJlYWRiKGky
-Y19pbXgtPmJhc2UgKyBJTVhfSTJDX0kyQ1IpOworCQlkZXZfZGJnKCZpMmNfaW14LT5hZGFw
-dGVyLmRldiwgIjwlcz4gQ09OVFJPTDogSUVOPSVkLCBJSUVOPSVkLCAiCisJCQkiTVNUQT0l
-ZCwgTVRYPSVkLCBUWEFLPSVkLCBSU1RBPSVkXG4iLCBfX2Z1bmNfXywKKwkJCSh0ZW1wJkky
-Q1JfSUVOID8gMSA6IDApLCAodGVtcCZJMkNSX0lJRU4gPyAxIDogMCksCisJCQkodGVtcCZJ
-MkNSX01TVEEgPyAxIDogMCksICh0ZW1wJkkyQ1JfTVRYID8gMSA6IDApLAorCQkJKHRlbXAm
-STJDUl9UWEFLID8gMSA6IDApLCAodGVtcCZJMkNSX1JTVEEgPyAxIDogMCkpOworCQl0ZW1w
-ID0gcmVhZGIoaTJjX2lteC0+YmFzZSArIElNWF9JMkNfSTJTUik7CisJCWRldl9kYmcoJmky
-Y19pbXgtPmFkYXB0ZXIuZGV2LAorCQkJIjwlcz4gU1RBVFVTOiBJQ0Y9JWQsIElBQVM9JWQs
-IElCQj0lZCwgIgorCQkJIklBTD0lZCwgU1JXPSVkLCBJSUY9JWQsIFJYQUs9JWRcbiIsIF9f
-ZnVuY19fLAorCQkJKHRlbXAmSTJTUl9JQ0YgPyAxIDogMCksICh0ZW1wJkkyU1JfSUFBUyA/
-IDEgOiAwKSwKKwkJCSh0ZW1wJkkyU1JfSUJCID8gMSA6IDApLCAodGVtcCZJMlNSX0lBTCA/
-IDEgOiAwKSwKKwkJCSh0ZW1wJkkyU1JfU1JXID8gMSA6IDApLCAodGVtcCZJMlNSX0lJRiA/
-IDEgOiAwKSwKKwkJCSh0ZW1wJkkyU1JfUlhBSyA/IDEgOiAwKSk7CisjZW5kaWYKKwkJaWYg
-KG1zZ3NbaV0uZmxhZ3MgJiBJMkNfTV9SRCkKKwkJCXJlc3VsdCA9IGkyY19pbXhfcmVhZChp
-MmNfaW14LCAmbXNnc1tpXSk7CisJCWVsc2UKKwkJCXJlc3VsdCA9IGkyY19pbXhfd3JpdGUo
-aTJjX2lteCwgJm1zZ3NbaV0pOworCX0KKworZmFpbDA6CisJLyogU3RvcCBJMkMgdHJhbnNm
-ZXIgKi8KKwlpMmNfaW14X3N0b3AoaTJjX2lteCk7CisKKwlkZXZfZGJnKCZpMmNfaW14LT5h
-ZGFwdGVyLmRldiwgIjwlcz4gZXhpdCB3aXRoOiAlczogJWRcbiIsIF9fZnVuY19fLAorCQko
-cmVzdWx0IDwgMCkgPyAiZXJyb3IiIDogInN1Y2Nlc3MgbXNnIiwgKHJlc3VsdCA8IDApID8g
-cmVzdWx0IDogbnVtKTsKKwlyZXR1cm4gKHJlc3VsdCA8IDApID8gcmVzdWx0IDogbnVtOwor
-fQorCitzdGF0aWMgdTMyIGkyY19pbXhfZnVuYyhzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXB0
-ZXIpCit7CisJcmV0dXJuIEkyQ19GVU5DX0kyQyB8IEkyQ19GVU5DX1NNQlVTX0VNVUw7Cit9
-CisKK3N0YXRpYyBzdHJ1Y3QgaTJjX2FsZ29yaXRobSBpMmNfaW14X2FsZ28gPSB7CisJLm1h
-c3Rlcl94ZmVyCT0gaTJjX2lteF94ZmVyLAorCS5mdW5jdGlvbmFsaXR5CT0gaTJjX2lteF9m
-dW5jLAorfTsKKworc3RhdGljIGludCBfX2luaXQgaTJjX2lteF9wcm9iZShzdHJ1Y3QgcGxh
-dGZvcm1fZGV2aWNlICpwZGV2KQoreworCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lt
-eDsKKwlzdHJ1Y3QgcmVzb3VyY2UgKnJlczsKKwl2b2lkIF9faW9tZW0gKmJhc2U7CisJaW50
-IGlycTsKKwlpbnQgcmVzX3NpemU7CisJaW50IHJldDsKKworCWRldl9kYmcoJnBkZXYtPmRl
-diwgIjwlcz5cbiIsIF9fZnVuY19fKTsKKworCXJlcyA9IHBsYXRmb3JtX2dldF9yZXNvdXJj
-ZShwZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7CisJaXJxID0gcGxhdGZvcm1fZ2V0X2lycShw
-ZGV2LCAwKTsKKwlpZiAoIXJlcykgeworCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJjYW4ndCBn
-ZXQgZGV2aWNlIHJlc291cmNlcyFcbiIpOworCQlyZXR1cm4gLUVOT0RFVjsKKwl9CisJaWYg
-KGlycSA8IDApIHsKKwkJZGV2X2VycigmcGRldi0+ZGV2LCAiY2FuJ3QgZ2V0IGlycSBudW1i
-ZXIhXG4iKTsKKwkJcmV0dXJuIC1FTk9ERVY7CisJfQorCXJlc19zaXplID0gKHJlcy0+ZW5k
-KSAtIChyZXMtPnN0YXJ0KSArIDE7CisJaWYgKCFyZXF1ZXN0X21lbV9yZWdpb24ocmVzLT5z
-dGFydCwgcmVzX3NpemUsIHJlcy0+bmFtZSkpIHsKKwkJZGV2X2VycigmcGRldi0+ZGV2LCAi
-Y2FuJ3QgYWxsb2NhdGUgJWQgYnl0ZXMgYXQgJWQgYWRkcmVzcyFcbiIsCisJCQlyZXNfc2l6
-ZSwgcmVzLT5zdGFydCk7CisJCXJldHVybiAtRU5PTUVNOworCX0KKwliYXNlID0gaW9yZW1h
-cChyZXMtPnN0YXJ0LCByZXNfc2l6ZSk7CisJaWYgKCFiYXNlKSB7CisJCWRldl9lcnIoJnBk
-ZXYtPmRldiwgImlvcmVtYXAgZmFpbGVkIVxuIik7CisJCXJldCA9IC1FSU87CisJCWdvdG8g
-ZmFpbDA7CisJfQorCWkyY19pbXggPSBremFsbG9jKHNpemVvZihzdHJ1Y3QgaW14X2kyY19z
-dHJ1Y3QpLCBHRlBfS0VSTkVMKTsKKwlpZiAoIWkyY19pbXgpIHsKKwkJZGV2X2VycigmcGRl
-di0+ZGV2LCAiY2FuJ3QgYWxsb2NhdGUgaW50ZXJmYWNlIVxuIik7CisJCXJldCA9IC1FTk9N
-RU07CisJCWdvdG8gZmFpbDE7CisJfQorCisJLyogU2V0dXAgaTJjX2lteCBkcml2ZXIgc3Ry
-dWN0dXJlICovCisJc3RyY3B5KGkyY19pbXgtPmFkYXB0ZXIubmFtZSwgcGRldi0+bmFtZSk7
-CisJaTJjX2lteC0+YWRhcHRlci5vd25lcgkJPSBUSElTX01PRFVMRTsKKwlpMmNfaW14LT5h
-ZGFwdGVyLmFsZ28JCT0gJmkyY19pbXhfYWxnbzsKKwlpMmNfaW14LT5hZGFwdGVyLmRldi5w
-YXJlbnQJPSAmcGRldi0+ZGV2OworCWkyY19pbXgtPmFkYXB0ZXIuY2xhc3MgCQk9IEkyQ19D
-TEFTU19IV01PTjsKKwlpMmNfaW14LT5hZGFwdGVyLm5yIAkJPSBwZGV2LT5pZDsKKwlpMmNf
-aW14LT5pcnEJCQk9IGlycTsKKwlpMmNfaW14LT5iYXNlCQkJPSBiYXNlOworCWkyY19pbXgt
-PnJlcwkJCT0gcmVzOworCisJaW5pdF93YWl0cXVldWVfaGVhZCgmaTJjX2lteC0+cXVldWUp
-OworCisJLyogU2V0IHVwIHBsYXRmb3JtIGRyaXZlciBkYXRhICovCisJcGxhdGZvcm1fc2V0
-X2RydmRhdGEocGRldiwgaTJjX2lteCk7CisKKwlyZXQgPSByZXF1ZXN0X2lycShpMmNfaW14
-LT5pcnEsIGkyY19pbXhfaXNyLAorCQlJUlFGX0RJU0FCTEVELCBwZGV2LT5uYW1lLCBpMmNf
-aW14KTsKKwlpZiAocmV0KSB7CisJCWRldl9lcnIoJnBkZXYtPmRldiwgImNhbm5vdCBjbGFp
-bSBpcnEgJWQgIVxuIiwgaTJjX2lteC0+aXJxKTsKKwkJZ290byBmYWlsMjsKKwl9CisKKwkv
-KiBTZXQgdXAgYWRhcHRlciBkYXRhICovCisJaTJjX3NldF9hZGFwZGF0YSgmaTJjX2lteC0+
-YWRhcHRlciwgaTJjX2lteCk7CisKKwkvKiBTZXQgdXAgY2xvY2sgZGl2aWRlciAqLworCWky
-Y19pbXhfc2V0X2NsayhpMmNfaW14LCBjbGtmcmVxKTsKKworCS8qIFNldCB1cCBJL08gcGlu
-cyBmb3IgSTJDKi8KKwlpbXhfZ3Bpb19tb2RlKFBBMTVfUEZfSTJDX1NEQSk7CisJaW14X2dw
-aW9fbW9kZShQQTE2X1BGX0kyQ19TQ0wpOworCisJLyogU2V0IHVwIGNoaXAgcmVnaXN0ZXJz
-IHRvIGRlZmF1bHRzICovCisJd3JpdGViKDAsIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0ky
-Q1IpOworCXdyaXRlYigwLCBpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMlNSKTsKKworCisJ
-LyogQWRkIEkyQyBhZGFwdGVyICovCisJcmV0ID0gaTJjX2FkZF9udW1iZXJlZF9hZGFwdGVy
-KCZpMmNfaW14LT5hZGFwdGVyKTsKKwlpZiAocmV0IDwgMCkgeworCQlkZXZfZXJyKCZwZGV2
-LT5kZXYsICJyZWdpc3RyYXRpb24gZmFpbGVkXG4iKTsKKwkJZ290byBmYWlsMzsKKwl9CisK
-KwlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgImNsYWltZWQgaXJxICVkXG4iLCBp
-MmNfaW14LT5pcnEpOworCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiZGV2aWNl
-IHJlc291cmNlcyBmcm9tIDB4JXggdG8gMHgleFxuIiwKKwkJaTJjX2lteC0+cmVzLT5zdGFy
-dCwgaTJjX2lteC0+cmVzLT5lbmQpOworCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2
-LCAiYWxsb2NhdGVkICVkIGJ5dGVzIGF0IDB4JXggXG4iLAorCQlyZXNfc2l6ZSwgaTJjX2lt
-eC0+cmVzLT5zdGFydCk7CisJZGV2X2RiZygmaTJjX2lteC0+YWRhcHRlci5kZXYsICJhZGFw
-dGVyIG5hbWU6IFwiJXNcIlxuIiwKKwkJaTJjX2lteC0+YWRhcHRlci5uYW1lKTsKKwlkZXZf
-ZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIklNWCBJMkMgYWRhcHRlciByZWdpc3RlcmVk
-XG4iKTsKKworCXJldHVybiAwOyAgIC8qIFJldHVybiBPSyAqLworCitmYWlsMzoKKwlmcmVl
-X2lycShpMmNfaW14LT5pcnEsIGkyY19pbXgpOworZmFpbDI6CisJcGxhdGZvcm1fc2V0X2Ry
-dmRhdGEocGRldiwgTlVMTCk7CisJa2ZyZWUoaTJjX2lteCk7CitmYWlsMToKKwlpb3VubWFw
-KGkyY19pbXgtPmJhc2UpOworZmFpbDA6CisJcmVsZWFzZV9tZW1fcmVnaW9uKHJlcy0+c3Rh
-cnQsIHJlc19zaXplKTsKKwlyZXR1cm4gcmV0OyAvKiBSZXR1cm4gZXJyb3IgbnVtYmVyICov
-Cit9CisKK3N0YXRpYyBpbnQgX19kZXZleGl0IGkyY19pbXhfcmVtb3ZlKHN0cnVjdCBwbGF0
-Zm9ybV9kZXZpY2UgKnBkZXYpCit7CisJc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14
-ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7CisKKwkvKiByZW1vdmUgYWRhcHRlciAq
-LworCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiYWRhcHRlciByZW1vdmVkXG4i
-KTsKKwlpMmNfZGVsX2FkYXB0ZXIoJmkyY19pbXgtPmFkYXB0ZXIpOworCXBsYXRmb3JtX3Nl
-dF9kcnZkYXRhKHBkZXYsIE5VTEwpOworCisJLyogZnJlZSBpbnRlcnJ1cHQgKi8KKwlmcmVl
-X2lycShpMmNfaW14LT5pcnEsIGkyY19pbXgpOworCisJLyogc2V0dXAgY2hpcCByZWdpc3Rl
-cnMgdG8gZGVmYXVsdHMgKi8KKwl3cml0ZWIoMCwgaTJjX2lteC0+YmFzZSArIElNWF9JMkNf
-SUFEUik7CisJd3JpdGViKDAsIGkyY19pbXgtPmJhc2UgKyBJTVhfSTJDX0lGRFIpOworCXdy
-aXRlYigwLCBpMmNfaW14LT5iYXNlICsgSU1YX0kyQ19JMkNSKTsKKwl3cml0ZWIoMCwgaTJj
-X2lteC0+YmFzZSArIElNWF9JMkNfSTJTUik7CisKKwkvKiByZWxlYXNlIG1lbW9yeSAqLwor
-CXJlbGVhc2VfbWVtX3JlZ2lvbihpMmNfaW14LT5yZXMtPnN0YXJ0LAorCQkoaTJjX2lteC0+
-cmVzLT5lbmQgLSBpMmNfaW14LT5yZXMtPnN0YXJ0KSArIDEpOworCWlvdW5tYXAoaTJjX2lt
-eC0+YmFzZSk7CisJa2ZyZWUoaTJjX2lteCk7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBz
-dHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGkyY19pbXhfZHJpdmVyID0geworCS5wcm9iZQkJPSBp
-MmNfaW14X3Byb2JlLAorCS5yZW1vdmUJCT0gX19kZXZleGl0X3AoaTJjX2lteF9yZW1vdmUp
-LAorCS5kcml2ZXIJPSB7CisJCS5uYW1lCT0gRFJJVkVSX05BTUUsCisJCS5vd25lcgk9IFRI
-SVNfTU9EVUxFLAorCX0KK307CisKK3N0YXRpYyBpbnQgX19pbml0IGkyY19hZGFwX2lteF9p
-bml0KHZvaWQpCit7CisJcmV0dXJuIHBsYXRmb3JtX2RyaXZlcl9yZWdpc3RlcigmaTJjX2lt
-eF9kcml2ZXIpOworfQorCitzdGF0aWMgdm9pZCBfX2V4aXQgaTJjX2FkYXBfaW14X2V4aXQo
-dm9pZCkKK3sKKwlwbGF0Zm9ybV9kcml2ZXJfdW5yZWdpc3RlcigmaTJjX2lteF9kcml2ZXIp
-OworCXJldHVybjsKK30KKworbW9kdWxlX2luaXQoaTJjX2FkYXBfaW14X2luaXQpOworbW9k
-dWxlX2V4aXQoaTJjX2FkYXBfaW14X2V4aXQpOworCittb2R1bGVfcGFyYW0oY2xrZnJlcSwg
-dWludCwgU19JUlVHTyk7CitNT0RVTEVfUEFSTV9ERVNDKGNsa2ZyZXEsICJkZXNpcmVkIElN
-WCBJMkMgQ2xvY2sgUmF0ZSBpbiBIeiIpOworCitNT0RVTEVfTElDRU5TRSgiR1BMIik7CitN
-T0RVTEVfQVVUSE9SKCJEYXJpdXMgQXVndWxpcyIpOworTU9EVUxFX0RFU0NSSVBUSU9OKCJJ
-MkMgYWRhcHRlciBkcml2ZXIgZm9yIElNWCBJMkMgYnVzIik7CitNT0RVTEVfQUxJQVMoInBs
-YXRmb3JtOiIgRFJJVkVSX05BTUUpOwpJbmRleDogbGludXgtMi42LjI2LXJjOS9kcml2ZXJz
-L2kyYy9idXNzZXMvS2NvbmZpZwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMjYtcmM5
-Lm9yaWcvZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcKKysrIGxpbnV4LTIuNi4yNi1yYzkv
-ZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcKQEAgLTI1Nyw2ICsyNTcsMTYgQEAgY29uZmln
-IEkyQ19JQk1fSUlDCiAJICBUaGlzIGRyaXZlciBjYW4gYWxzbyBiZSBidWlsdCBhcyBhIG1v
-ZHVsZS4gIElmIHNvLCB0aGUgbW9kdWxlCiAJICB3aWxsIGJlIGNhbGxlZCBpMmMtaWJtX2lp
-Yy4KIAorY29uZmlnIEkyQ19JTVgKKwl0cmlzdGF0ZSAiSU1YIEkyQyBpbnRlcmZhY2UiCisJ
-ZGVwZW5kcyBvbiBBUkNIX0lNWAorCWhlbHAKKwkgIFNheSBZIGhlcmUgaWYgeW91IHdhbnQg
-dG8gdXNlIHRoZSBJSUMgYnVzIGNvbnRyb2xsZXIgb24KKwkgIHRoZSBGcmVlc2NhbGUgaS5N
-WEwgYW5kIGkuTVgxIHByb2Nlc3NvcnMuCisKKwkgIFRoaXMgZHJpdmVyIGNhbiBhbHNvIGJl
-IGJ1aWx0IGFzIGEgbW9kdWxlLiAgSWYgc28sIHRoZSBtb2R1bGUKKwkgIHdpbGwgYmUgY2Fs
-bGVkIGkyYy1pbXguCisKIGNvbmZpZyBJMkNfSU9QM1hYCiAJdHJpc3RhdGUgIkludGVsIElP
-UHgzeHggYW5kIElYUDR4eCBvbi1jaGlwIEkyQyBpbnRlcmZhY2UiCiAJZGVwZW5kcyBvbiBB
-UkNIX0lPUDMyWCB8fCBBUkNIX0lPUDMzWCB8fCBBUkNIX0lYUDRYWCB8fCBBUkNIX0lPUDEz
-WFgKSW5kZXg6IGxpbnV4LTIuNi4yNi1yYzkvZHJpdmVycy9pMmMvYnVzc2VzL01ha2VmaWxl
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0KLS0tIGxpbnV4LTIuNi4yNi1yYzkub3JpZy9kcml2ZXJzL2kyYy9i
-dXNzZXMvTWFrZWZpbGUKKysrIGxpbnV4LTIuNi4yNi1yYzkvZHJpdmVycy9pMmMvYnVzc2Vz
-L01ha2VmaWxlCkBAIC0xOCw2ICsxOCw3IEBAIG9iai0kKENPTkZJR19JMkNfSFlEUkEpCQkr
-PSBpMmMtaHlkcmEubwogb2JqLSQoQ09ORklHX0kyQ19JODAxKQkJKz0gaTJjLWk4MDEubwog
-b2JqLSQoQ09ORklHX0kyQ19JODEwKQkJKz0gaTJjLWk4MTAubwogb2JqLSQoQ09ORklHX0ky
-Q19JQk1fSUlDKQkrPSBpMmMtaWJtX2lpYy5vCitvYmotJChDT05GSUdfSTJDX0lNWCkJCSs9
-IGkyYy1pbXgubwogb2JqLSQoQ09ORklHX0kyQ19JT1AzWFgpCSs9IGkyYy1pb3AzeHgubwog
-b2JqLSQoQ09ORklHX0kyQ19JWFAyMDAwKQkrPSBpMmMtaXhwMjAwMC5vCiBvYmotJChDT05G
-SUdfSTJDX1BPV0VSTUFDKQkrPSBpMmMtcG93ZXJtYWMubwo=
---------------030505080707080504030707
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I have a personal preference for "I/O" over "IO", but maybe that's just
+me.
+
+> +	  Input (designated by 'I'), Push-Pull Output ('O'), or Open-Drain
+> +	  Input and Output (designed by 'P'). The combinations are listed
+> +	  below:
+
+'O' for push-pull and 'P' for open-drain, this is brilliant! :(
+
+> +
+> +	    MAX7319 (8I), MAX7320 (8O), MAX7321 (8P), MAX7322 (4I4O),
+> +	    MAX7323 (4P4O), MAX7324 (8I8O), MAX7325 (8P8O)
+> +	    MAX7326 (4I12O), MAX7327 (4P12O)
+> +
+> +	  The board code has to specify the model to use, and the start
+> +	  number for these GPIOs. Model specific information is calculated
+> +	  automatically. Due to the fixed role of each port, configuration
+> +	  of the port direction will be ignored and a warning be issued if
+> +	  the corresponding port isn't applicable. And gpio_get_value() to
+> +	  those output only ports will return the configured output status
+> +	  instead of a real input.
+> +
+>  comment "SPI GPIO expanders:"
+>  
+>  config GPIO_MCP23S08
+> diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+> index fdde992..814698c 100644
+> --- a/drivers/gpio/Makefile
+> +++ b/drivers/gpio/Makefile
+> @@ -7,3 +7,4 @@ obj-$(CONFIG_HAVE_GPIO_LIB)	+= gpiolib.o
+>  obj-$(CONFIG_GPIO_MCP23S08)	+= mcp23s08.o
+>  obj-$(CONFIG_GPIO_PCA953X)	+= pca953x.o
+>  obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x.o
+> +obj-$(CONFIG_GPIO_MAX732X)	+= max732x.o
+
+Alphabetical order?
+
+> diff --git a/drivers/gpio/max732x.c b/drivers/gpio/max732x.c
+> new file mode 100644
+> index 0000000..b1b9b62
+> --- /dev/null
+> +++ b/drivers/gpio/max732x.c
+> @@ -0,0 +1,342 @@
+> +/*
+> + *  max732x.c - I2C Port Expander with 8/16 I/O
+> + *
+> + *  Copyright (C) 2007 Marvell International Ltd.
+> + *  Copyright (C) 2008 Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> + *  Copyright (C) 2008 Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> + *
+> + *  Derived from drivers/gpio/pca953x.c
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; version 2 of the License.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/i2c.h>
+> +#include <linux/i2c/max732x.h>
+
+You also need to include <linux/slab.h> for kzalloc and kfree.
+
+> +
+> +#include <asm/gpio.h>
+> +
+> +/* Each port of MAX732x (including MAX7319) falls into one of the
+> + * following three types:
+> + *
+> + *   - Push Pull Output
+> + *   - Input
+> + *   - Open Drain I/O
+> + *
+> + * designated by 'O', 'I' and 'P' individually according to MAXIM's
+> + * datasheets.
+> + *
+> + * There are two groups of I/O ports, each group usually includes
+> + * up to 8 I/O ports, and is accessed by different I2C address:
+
+"by a specific I2C address"?
+
+> + *
+> + *   - Group A : by I2C address 0b'110xxxx
+> + *   - Group B : by I2C address 0b'101xxxx
+> + *
+> + * where 'xxxx' is decided by the connections of pin AD2/AD0.
+
+AD2-AD0 (assuming there there is an AD1 pin)
+
+> + *
+> + * Within each group of ports, there are five known combinations of
+> + * I/O ports: 4I4O, 4P4O, 8I, 8P, 8O, see the definitions below for
+> + * the detailed organization of these ports.
+> + *
+> + * GPIO numbers start from 'gpio_base + 0' to 'gpio_base + 8/16',
+> + * and GPIOs from GROUP_A are numbered before those from GROUP_B
+> + * (if there are two groups).
+> + *
+> + * NOTE: MAX7328/MAX7329, however, resembles much closer to PCF8574,
+> + * they are not supported by this driver.
+> + */
+> +
+> +#define PORT_NONE	0x0	/* '/' No Port */
+
+You don't use this define anywhere.
+
+> +#define PORT_OUTPUT	0x1	/* 'O' Push-Pull, Output Only */
+> +#define PORT_INPUT	0x2	/* 'I' Input Only */
+> +#define PORT_OPENDRAIN	0x3	/* 'P' Open-Drain, I/O */
+> +
+> +#define IO_4I4O		0x5AA5	/* O7 O6 I5 I4 I3 I2 O1 O0 */
+> +#define IO_4P4O		0x5FF5	/* O7 O6 P5 P4 P3 P2 O1 O0 */
+> +#define IO_8I		0xAAAA	/* I7 I6 I5 I4 I3 I2 I1 I0 */
+> +#define IO_8P		0xFFFF	/* P7 P6 P5 P4 P3 P2 P1 P0 */
+> +#define IO_8O		0x5555	/* O7 O6 O5 O4 O3 O2 O1 O0 */
+> +
+> +#define GROUP_A(x)	((x) & 0xffff)	/* I2C Addr: 0b'110xxxx */
+
+The masking doesn't seem necessary.
+
+> +#define GROUP_B(x)	((x) << 16)	/* I2C Addr: 0b'101xxxx */
+> +
+> +static const struct i2c_device_id max732x_id[] = {
+> +	{ "max7319", GROUP_A(IO_8I) },
+> +	{ "max7320", GROUP_B(IO_8O) },
+> +	{ "max7321", GROUP_A(IO_8P) },
+> +	{ "max7322", GROUP_A(IO_4I4O) },
+> +	{ "max7323", GROUP_A(IO_4P4O) },
+> +	{ "max7324", GROUP_A(IO_8I) | GROUP_B(IO_8O) },
+> +	{ "max7325", GROUP_A(IO_8P) | GROUP_B(IO_8O) },
+> +	{ "max7326", GROUP_A(IO_4I4O) | GROUP_B(IO_8O) },
+> +	{ "max7327", GROUP_A(IO_4P4O) | GROUP_B(IO_8O) },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(i2c, max732x_id);
+> +
+> +struct max732x_chip {
+> +	struct i2c_client *client;
+> +	struct gpio_chip gpio_chip;
+> +
+> +	unsigned	gpio_start;
+> +	unsigned short	addr_group_a;
+> +	unsigned short	addr_group_b;
+> +
+> +	unsigned int	mask_group_a;
+> +	unsigned int	dir_input;
+> +	unsigned int	dir_output;
+> +	uint8_t		reg_out[2];
+> +};
+> +
+> +/* NOTE:  we can't currently rely on fault codes to come from SMBus
+> + * calls, so we map all errors to EIO here and return zero otherwise.
+> + */
+
+With David's patches which will be merged in 2.6.27, you actually can
+in most cases:
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-adapters-return-proper-error-codes.patch
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-core-return-proper-error-codes.patch
+
+So I would suggest that you do not overwrite the error codes in your
+driver. If you notice problems with the error codes that come from a
+specific i2c bus driver, please fix that bus driver instead.
+
+> +static int max732x_write(struct max732x_chip *chip, int group_a, uint8_t val)
+> +{
+> +	struct i2c_client *client = chip->client;
+> +	int ret;
+> +
+> +	client->addr = group_a ? chip->addr_group_a : chip->addr_group_b;
+
+This is prohibited. The i2c client is registered with i2c-core with a
+given address, which it marks as busy so that other drivers can't
+attach. Changing the client address on the fly defeats these safety
+checks.
+
+If you need more than one i2c_client, you can get the extra ones using
+i2c_new_dummy() at device probe time. The new at24 eeprom driver is
+doing this very well:
+http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-at24-new-eeprom-driver.patch
+
+> +
+> +	ret = i2c_smbus_write_byte(client, val);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "failed writing\n");
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int max732x_read(struct max732x_chip *chip, int group_a, uint8_t *val)
+> +{
+> +	struct i2c_client *client = chip->client;
+> +	int ret;
+> +
+> +	client->addr = group_a ? chip->addr_group_a : chip->addr_group_b;
+
+Same problem here.
+
+> +
+> +	ret = i2c_smbus_read_byte(client);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "failed reading\n");
+> +		return -EIO;
+> +	}
+> +
+> +	*val = (uint8_t)ret;
+> +	return 0;
+> +}
+> +
+> +static inline int is_group_a(struct max732x_chip *chip, unsigned off)
+> +{
+> +	return (1u << off) & chip->mask_group_a;
+> +}
+> +
+> +static int max732x_gpio_get_value(struct gpio_chip *gc, unsigned off)
+> +{
+> +	struct max732x_chip *chip;
+> +	uint8_t reg_val;
+> +	int ret;
+> +
+> +	chip = container_of(gc, struct max732x_chip, gpio_chip);
+> +
+> +	ret = max732x_read(chip, is_group_a(chip, off), &reg_val);
+> +	if (ret < 0)
+> +		return 0;
+> +
+> +	return (reg_val & (1u << (off & 0x7))) ? 1 : 0;
+> +}
+> +
+> +static void max732x_gpio_set_value(struct gpio_chip *gc, unsigned off, int val)
+> +{
+> +	struct max732x_chip *chip;
+> +	uint8_t reg_out, mask = 1u << (off & 0x7);
+> +	int ret;
+> +
+> +	chip = container_of(gc, struct max732x_chip, gpio_chip);
+> +
+> +	reg_out = (off > 7) ? chip->reg_out[1] : chip->reg_out[0];
+> +	reg_out = (val) ? reg_out | mask : reg_out & ~mask;
+> +
+> +	ret = max732x_write(chip, is_group_a(chip, off), reg_out);
+> +	if (ret < 0)
+> +		return;
+> +
+> +	/* update the shadow register then */
+> +	if (off > 7)
+> +		chip->reg_out[1] = reg_out;
+> +	else
+> +		chip->reg_out[0] = reg_out;
+> +}
+> +
+> +static int max732x_gpio_direction_input(struct gpio_chip *gc, unsigned off)
+> +{
+> +	struct max732x_chip *chip;
+> +	unsigned int mask = 1u << off;
+> +
+> +	chip = container_of(gc, struct max732x_chip, gpio_chip);
+> +
+> +	if ((mask & chip->dir_input) == 0)
+> +		pr_warning("%s: port %d is output only\n", __func__, off);
+> +
+> +	return 0;
+> +}
+> +
+> +static int max732x_gpio_direction_output(struct gpio_chip *gc,
+> +		unsigned off, int val)
+> +{
+> +	struct max732x_chip *chip;
+> +	unsigned int mask = 1u << off;
+> +
+> +	chip = container_of(gc, struct max732x_chip, gpio_chip);
+> +
+> +	if ((mask & chip->dir_output) == 0) {
+> +		pr_warning("%s: port %d is input only\n", __func__, off);
+> +		return 0;
+> +	}
+> +
+> +	max732x_gpio_set_value(gc, off, val);
+> +	return 0;
+> +}
+> +
+> +static void max732x_setup_gpio(struct max732x_chip *chip, uint32_t id_data)
+> +{
+> +	struct gpio_chip *gc = &chip->gpio_chip;
+> +	int i, port = 0, nr_port;
+> +
+> +	for (i = 0; i < 16; i++, id_data >>= 2) {
+> +		unsigned int mask = 1 << port;
+> +
+> +		switch (id_data & 0x3) {
+> +		case PORT_OUTPUT:
+> +			chip->dir_output |= mask;
+> +			break;
+> +		case PORT_INPUT:
+> +			chip->dir_input |= mask;
+> +			break;
+> +		case PORT_OPENDRAIN:
+> +			chip->dir_output |= mask;
+> +			chip->dir_input |= mask;
+> +			break;
+> +		default:
+> +			continue;
+> +		}
+> +
+> +		if (i < 8)
+> +			chip->mask_group_a |= mask;
+> +		port++;
+> +	}
+> +
+> +	nr_port = port;
+
+Why do you need 2 variables for that?
+
+> +
+> +	if (nr_port > 7) {
+> +		max732x_read(chip, is_group_a(chip, 0), &chip->reg_out[0]);
+> +		max732x_read(chip, is_group_a(chip, 8), &chip->reg_out[1]);
+> +	} else
+> +		max732x_read(chip, is_group_a(chip, 0), &chip->reg_out[0]);
+
+Isn't this better written:
+
+	max732x_read(chip, is_group_a(chip, 0), &chip->reg_out[0]);
+	if (nr_port > 7)
+		max732x_read(chip, is_group_a(chip, 8), &chip->reg_out[1]);
+
+?
+
+> +
+> +	gc->direction_input  = max732x_gpio_direction_input;
+> +	gc->direction_output = max732x_gpio_direction_output;
+> +	gc->get = max732x_gpio_get_value;
+> +	gc->set = max732x_gpio_set_value;
+> +	gc->can_sleep = 1;
+> +
+> +	gc->base = chip->gpio_start;
+> +	gc->ngpio = port;
+> +	gc->label = chip->client->name;
+> +	gc->owner = THIS_MODULE;
+> +}
+> +
+> +static int __devinit max732x_probe(struct i2c_client *client,
+> +				   const struct i2c_device_id *id)
+> +{
+> +	struct max732x_platform_data *pdata;
+> +	struct max732x_chip *chip;
+> +	int ret;
+> +
+> +	pdata = client->dev.platform_data;
+> +	if (pdata == NULL)
+> +		return -ENODEV;
+> +
+> +	chip = kzalloc(sizeof(struct max732x_chip), GFP_KERNEL);
+> +	if (chip == NULL)
+> +		return -ENOMEM;
+> +
+> +	chip->client = client;
+> +
+> +	chip->gpio_start = pdata->gpio_base;
+> +	chip->addr_group_a = (client->addr & 0x0f) | 0x60;
+> +	chip->addr_group_b = (client->addr & 0x0f) | 0x50;
+
+As written above, this needs some rework. For one thing, you should
+check that client->addr actually matches either chip->addr_group_a or
+chip->addr_group_b. For another, for chips which use 2 addresses, you
+must get a client for the second one by calling i2c_new_dummy (and
+i2c_unregister_device at remove time.)
+
+> +
+> +	max732x_setup_gpio(chip, id->driver_data);
+> +
+> +	ret = gpiochip_add(&chip->gpio_chip);
+> +	if (ret)
+> +		goto out_failed;
+> +
+> +	if (pdata->setup) {
+> +		ret = pdata->setup(client, chip->gpio_chip.base,
+> +				chip->gpio_chip.ngpio, pdata->context);
+> +		if (ret < 0)
+> +			dev_warn(&client->dev, "setup failed, %d\n", ret);
+> +	}
+> +
+> +	i2c_set_clientdata(client, chip);
+> +	return 0;
+> +
+> +out_failed:
+> +	kfree(chip);
+> +	return ret;
+> +}
+> +
+> +static int max732x_remove(struct i2c_client *client)
+> +{
+> +	struct max732x_platform_data *pdata = client->dev.platform_data;
+> +	struct max732x_chip *chip = i2c_get_clientdata(client);
+> +	int ret = 0;
+
+Initialization of ret isn't needed as far as I can tell.
+
+> +
+> +	if (pdata->teardown) {
+> +		ret = pdata->teardown(client, chip->gpio_chip.base,
+> +				chip->gpio_chip.ngpio, pdata->context);
+> +		if (ret < 0) {
+> +			dev_err(&client->dev, "%s failed, %d\n",
+> +					"teardown", ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	ret = gpiochip_remove(&chip->gpio_chip);
+> +	if (ret) {
+> +		dev_err(&client->dev, "%s failed, %d\n",
+> +				"gpiochip_remove()", ret);
+> +		return ret;
+> +	}
+> +
+> +	kfree(chip);
+> +	return 0;
+> +}
+> +
+> +static struct i2c_driver max732x_driver = {
+> +	.driver = {
+> +		.name	= "max732x",
+> +	},
+> +	.probe		= max732x_probe,
+> +	.remove		= max732x_remove,
+> +	.id_table	= max732x_id,
+> +};
+> +
+> +static int __init max732x_init(void)
+> +{
+> +	return i2c_add_driver(&max732x_driver);
+> +}
+> +module_init(max732x_init);
+> +
+> +static void __exit max732x_exit(void)
+> +{
+> +	i2c_del_driver(&max732x_driver);
+> +}
+> +module_exit(max732x_exit);
+> +
+> +MODULE_AUTHOR("Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("GPIO expander driver for MAX732X");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c/max732x.h b/include/linux/i2c/max732x.h
+> new file mode 100644
+> index 0000000..e103366
+> --- /dev/null
+> +++ b/include/linux/i2c/max732x.h
+> @@ -0,0 +1,19 @@
+> +#ifndef __LINUX_I2C_MAX732X_H
+> +#define __LINUX_I2C_MAX732X_H
+> +
+> +/* platform data for the MAX732x 8/16-bit I/O expander driver */
+> +
+> +struct max732x_platform_data {
+> +	/* number of the first GPIO */
+> +	unsigned	gpio_base;
+> +
+> +	void		*context;	/* param to setup/teardown */
+> +
+> +	int		(*setup)(struct i2c_client *client,
+> +				unsigned gpio, unsigned ngpio,
+> +				void *context);
+> +	int		(*teardown)(struct i2c_client *client,
+> +				unsigned gpio, unsigned ngpio,
+> +				void *context);
+> +};
+> +#endif /* __LINUX_I2C_MAX732X_H */
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---------------030505080707080504030707--
