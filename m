@@ -1,12 +1,16 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: twl4030 module rewrite
-Date: Fri, 11 Jul 2008 12:16:23 +0300
-Message-ID: <31e679430807110216n4ee1c42dy4c5d6e49926f90f3@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] gpio: max732x: add support for MAX7319,
+ MAX7320-7327 I2C Port Expanders
+Date: Fri, 11 Jul 2008 11:31:14 +0200
+Message-ID: <20080711113114.79d80212@hyperion.delvare>
+References: <4875A893.3090402@gmail.com>
+	<20080711102952.31d2d943@hyperion.delvare>
+	<f17812d70807110157p5e421222sc9ef420ceb80970c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <f17812d70807110157p5e421222sc9ef420ceb80970c-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,31 +20,74 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello all,
+On Fri, 11 Jul 2008 16:57:36 +0800, eric miao wrote:
+> On Fri, Jul 11, 2008 at 4:29 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > On Thu, 10 Jul 2008 14:13:39 +0800, Eric Miao wrote:
+> >> + *   - Group A : by I2C address 0b'110xxxx
+> >> + *   - Group B : by I2C address 0b'101xxxx
+> >> + *
+> >> + * where 'xxxx' is decided by the connections of pin AD2/AD0.
+> >
+> > AD2-AD0 (assuming there there is an AD1 pin)
+> 
+> Unfortunately, no AD1 pin
 
-twl4030 is the power management chip for omap3-based boards, its
-driver can be found in [1].
+Ah, these are 2 four-state address pins, I get it now.
 
-My question is:
+> >> (...)
+> >> +#define PORT_NONE    0x0     /* '/' No Port */
+> >
+> > You don't use this define anywhere.
+> 
+> Just defined here to illustrate the purpose of the "0" here means
+> NO PORT exist in that bit position, it helps people to better
+> understand the port organization and initialization sequence
 
-twl4030 provides 4 addresses for different functions using the same
-i2c bus. Which means that one client driver would have to handle 4
-clients.
+Could be a comment rather than a define, but up to you.
 
-Putting all the addresses in i2c_board_info would be enough for that
-driver to be called 4 times or should I rely in the driver been called
-only one and iterate to initialize all 4 clients ?
+> >> (...)
+> >> +     nr_port = port;
+> >
+> > Why do you need 2 variables for that?
+> 
+> Again, better readability :-)
+> 
+> I can remove that if you mind.
 
-[1] http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap-2.6.git;a=blob;f=drivers/i2c/chips/twl4030-core.c;h=adc45d4a98b97254999d9cc3bbc739962d727a27;hb=7786cd7a00ae0b18923185789380a88052f4eee7
+Personally I tend to think that it makes the readability worse not
+better. Looking at just the end of the function, I see:
+
+	if (nr_port > 7) {
+(...)
+	gc->ngpio = port;
+
+And I have to scroll up a bit to find out that "nr_port" and "port"
+always have the same value by construction. So indeed I would suggest
+to drop "port" and use "nr_port" everywhere for clarity.
+
+Oh, and one more thing as I just notice it:
+
+> +static inline int is_group_a(struct max732x_chip *chip, unsigned off)
+> +{
+> +	return (1u << off) & chip->mask_group_a;
+> +}
+
+Given the way you use it, can't you just define this function as:
+
+static inline int is_group_a(struct max732x_chip *chip, unsigned off)
+{
+	return (off < 8);
+}
+
+? As this is the only place where you use chip->mask_group_a, you would
+be able to get rid of it.
 
 -- 
-Best Regards,
-
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
