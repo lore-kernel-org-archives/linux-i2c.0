@@ -1,19 +1,14 @@
-From: "eric miao" <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] gpio: max732x: add support for MAX7319,
-	MAX7320-7327 I2C Port Expanders
-Date: Fri, 11 Jul 2008 18:04:51 +0800
-Message-ID: <f17812d70807110304h3a46bf9bi10fce0a3da9a27b7@mail.gmail.com>
-References: <4875A893.3090402@gmail.com>
-	<20080711102952.31d2d943@hyperion.delvare>
-	<f17812d70807110157p5e421222sc9ef420ceb80970c@mail.gmail.com>
-	<20080711113114.79d80212@hyperion.delvare>
-	<f17812d70807110239q6c175f5cn70db966681ae387d@mail.gmail.com>
-	<20080711115436.22134ce7@hyperion.delvare>
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: twl4030 module rewrite
+Date: Fri, 11 Jul 2008 13:38:47 +0300
+Message-ID: <31e679430807110338x4c06fa5bx1f8025c91919933b@mail.gmail.com>
+References: <31e679430807110216n4ee1c42dy4c5d6e49926f90f3@mail.gmail.com>
+	<20080711120107.6a719943@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080711115436.22134ce7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080711120107.6a719943-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -25,52 +20,28 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 11, 2008 at 5:54 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Fri, 11 Jul 2008 17:39:50 +0800, eric miao wrote:
->> >
->> > Oh, and one more thing as I just notice it:
->> >
->> >> +static inline int is_group_a(struct max732x_chip *chip, unsigned off)
->> >> +{
->> >> +     return (1u << off) & chip->mask_group_a;
->> >> +}
->> >
->> > Given the way you use it, can't you just define this function as:
->> >
->> > static inline int is_group_a(struct max732x_chip *chip, unsigned off)
->> > {
->> >        return (off < 8);
->> > }
->> >
->> > ? As this is the only place where you use chip->mask_group_a, you would
->> > be able to get rid of it.
->> >
->>
->> I want to get rid of it either but I'm afraid not. (off < 8) doesn't necessarily
->> mean it's in group_a, max7320 is an exception.
->
-> I didn't look into the details (and won't have the time to) but my
-> feeling is that it only depends on how you decide to handle the
-> max7320. If you want to make it fit with the rest of the supported
-> chips, I see no reason why it wouldn't work.
+Hi Jean,
 
-That's possible, but I really want to keep it generic enough, so that
-user has the freedom to define arbitrary combinitions of
-GROUP_A(XXX) | GROUP_B(XXX).
+On 7/11/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
 
->
-> --
-> Jean Delvare
->
+> If you want the same driver to handle all 4 addresses, and you want
+>  them to show as a single device, then the usual way to handle this
+>  would be to have a single address declared in i2c_board_info, and have
+>  the driver itself call i2c_new_dummy() 3 times to request the 3
+>  additional addresses during device probe.
 
-
+Thanks for this pointer. So to clear my mind, in this time I'd have to
+keep a list of all 4 i2c_client pointers because they'd have different
+addresses (although it's the same adapter).
 
 -- 
-Cheers
-- eric
+Best Regards,
+
+Felipe Balbi
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 
 _______________________________________________
 i2c mailing list
