@@ -1,15 +1,17 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Fri, 11 Jul 2008 19:20:29 -0700
-Message-ID: <200807111920.29739.david-b@pacbell.net>
-References: <486B9E30.80806@cam.ac.uk> <486C32C4.8050007@gmail.com>
-	<20080710132956.GG30539@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 1/1] i2c_gpio: keep probe resident for hotplugged
+ devices.
+Date: Sat, 12 Jul 2008 09:06:00 +0200
+Message-ID: <20080712090600.680f3c2e@hyperion.delvare>
+References: <20080702101611.757880819@fluff.org>
+	<20080702101611.858837181@fluff.org>
+	<20080702124406.2f3d1384@hskinnemo-gx745.norway.atmel.com>
+	<20080710132917.GF30539@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080710132956.GG30539-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080710132917.GF30539-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,27 +22,34 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Haavard Skinnemoen <haavard.skinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 10 July 2008, Ben Dooks wrote:
-> On Thu, Jul 03, 2008 at 10:00:36AM +0800, Eric Miao wrote:
-> > Jonathan Cameron wrote:
-> > > Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
-> > > appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
-> > > than frequency as this driver is also used for the i2c_pxa_pwr bus which has
-> > > different normal and fast frequencies.
-> > 
-> > Maybe we should convert that (as well as 'use_pio') to a bit field to save
-> > another byte.
-> 
-> I think use_pio and fast_mode could both be bits.
+Ben,
 
-Or alternatively, "bool" ... which is usually a byte, and
-on ARM will let GCC eliminate a comparision instruction.
-Just load byte and branch on zero/nonzero, vs needing one
-more instruction.  (In odd cases, it can be more important
-to conserve the extra seven bits.)
+On Thu, 10 Jul 2008 14:29:17 +0100, Ben Dooks wrote:
+> On Wed, Jul 02, 2008 at 12:44:06PM +0200, Haavard Skinnemoen wrote:
+> > Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> > > Change the i2c_gpio driver to use platform_driver_register()
+> > > instead of platform_driver_probe() to ensure that is can
+> > > attach to any devices that may be loaded after it has initialised.
+> > 
+> > Does anyone actually do that?
+> 
+> At the moment our standard kernel configuration only
+> builds in the SM501 which will work without this patch
+> on.
+> 
+> However, we have clients that do build module kernels
+> and I would like to replace i2c-simtec.c with the gpio
+> driver and if the relevant module instantiating the gpio
+> support is loaded post kernel init, then we will need to
+> do this.
+
+Should I take this patch in my i2c tree, or will you take it in yours?
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
