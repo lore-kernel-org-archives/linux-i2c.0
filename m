@@ -1,51 +1,94 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] gpio: max732x: add support for MAX7319,
-	MAX7320-7327 I2C Port Expanders
-Date: Sat, 12 Jul 2008 14:42:30 -0700
-Message-ID: <200807121442.30693.david-b@pacbell.net>
-References: <4875A893.3090402@gmail.com>
-	<200807120046.29389.david-b@pacbell.net>
-	<20080712095300.1ba4b3a7@hyperion.delvare>
+From: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: [i2c] [PATCH] of/i2c: don't pass -1 to irq_dispose_mapping,
+	otherwise kernel will oops
+Date: Sat, 12 Jul 2008 23:59:03 -0400
+Message-ID: <9e4733910807122059q6ca37b22i161a12cd7723ef2d@mail.gmail.com>
+References: <20080711174859.GA24260@polina.dev.rtsoft.ru>
+	<20080711182323.GB15321@secretlab.ca>
+	<20080712080004.GA16739@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080712095300.1ba4b3a7-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20080712080004.GA16739@pengutronix.de>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 12 July 2008, Jean Delvare wrote:
-> On Sat, 12 Jul 2008 00:46:29 -0700, David Brownell wrote:
-> > On Saturday 12 July 2008, Jean Delvare wrote:
-> > > > Why not just insist the 0x5x address be registered/probed?  This
-> > > > extra stuff is needless and confusing.
-> > > 
-> > > Because some of the chips supported by this driver (max7319, max7321,
-> > > max7322 and max7323) only use address 0x6x.
-> > 
-> > That's not the behavior implemented here though ... it's always
-> > creating a dummy, even when it's not needed.
-> 
-> Did you miss this comment of mine maybe?
-> http://lists.lm-sensors.org/pipermail/i2c/2008-July/004267.html
+On 7/12/08, Wolfram Sang <w.sang@pengutronix.de> wrote:
+> On Fri, Jul 11, 2008 at 12:23:23PM -0600, Grant Likely wrote:
+>
+> > On Fri, Jul 11, 2008 at 09:48:59PM +0400, Anton Vorontsov wrote:
+>  > > Firstly kernel warns at set_irq_chip, and then dies completely:
+>  > >
+>  > > Trying to install chip for IRQ-1
+>  > >
+>  > > diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+>  > > index b2ccdcb..95a24de 100644
+>  > > --- a/drivers/of/of_i2c.c
+>  > > +++ b/drivers/of/of_i2c.c
+>  > > @@ -93,10 +93,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  > >             if (info.irq == NO_IRQ)
+>  > >                     info.irq = -1;
+>  >
+>  > What is the reason that info.irq is set to -1 in the first place?  This
+>  > looks like another bug to me.  Does something in the i2c layer depend on
+>  > the -1 value?
+>  >
+>
+>
+> You already acked a fix to this :) I wasn't sure if my patch would
+>  make it on its own, as Jon Smirl was also working on fixes to of_i2c.c
+>  and he seemed to pick up this issue, too.
 
-Server not responding; can't tell.  Using the MARC.info archive [1]
-what message is that?  Are you disagreeing with what I said?
+I did another patch for the mpc-i2c driver changing all of the
+comparisons to NO_IRQ. My understanding of this is the ppc has NO_IRQ
+set to -1, and powerpc has NO_IRQ = 0. So to make all of this work
+right you have to use the NO_IRQ symbol and you can't check against 0
+or -1 directly. I also believe work is underway to get all platforms
+to NO_IRQ = 0 but I don't know if it is completed yet.
 
-[1] http://marc.info/?t=121567059700001&r=1&w=2
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+>
+>  (Original patch is here:
+>  http://ozlabs.org/pipermail/linuxppc-dev/2008-June/058801.html
+>  )
+>
+>  All the best,
+>
+>    Wolfram
+>
+>
+>  --
+>   Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+>   Pengutronix - Linux Solutions for Science and Industry
+>
+> -----BEGIN PGP SIGNATURE-----
+>  Version: GnuPG v1.4.6 (GNU/Linux)
+>
+>  iD8DBQFIeGSED27XaX1/VRsRAr+EAJ948UwobnY7WSSR4i/ywjof1+8dJACfWzPN
+>  bhW6NXgBCnwqITIC5rSXeAI=
+>  =W3sj
+>  -----END PGP SIGNATURE-----
+>
+> _______________________________________________
+>  Linuxppc-dev mailing list
+>  Linuxppc-dev@ozlabs.org
+>  https://ozlabs.org/mailman/listinfo/linuxppc-dev
+>
+>
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com
