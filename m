@@ -1,57 +1,66 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] gpio: max732x: add support for MAX7319,
- MAX7320-7327 I2C Port Expanders
-Date: Sun, 13 Jul 2008 16:37:54 +0200
-Message-ID: <20080713163754.46eb4de4@hyperion.delvare>
-References: <4875A893.3090402@gmail.com>
-	<200807111425.00961.david-b@pacbell.net>
-	<20080712091610.4ec242c3@hyperion.delvare>
-	<200807120046.29389.david-b@pacbell.net>
-	<f17812d70807122304o533d8af9k1384db653b264912@mail.gmail.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
+Date: Sun, 13 Jul 2008 16:40:27 +0100
+Message-ID: <487A21EB.9050304@cam.ac.uk>
+References: <486B9E30.80806@cam.ac.uk> <20080710133150.GH30539@fluff.org.uk>
+	<f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <f17812d70807122304o533d8af9k1384db653b264912-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+In-Reply-To: <f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: eric miao <eric.y.miao@gmail.com>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, Ben Dooks <ben-linux@fluff.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 13 Jul 2008 14:04:28 +0800, eric miao wrote:
-> From 562e78eec627092610db817e28c4ff9be6af13e1 Mon Sep 17 00:00:00 2001
-> From: Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> Date: Thu, 10 Jul 2008 13:37:59 +0800
-> Subject: [PATCH] gpio: max732x: add support for MAX7319, MAX7320-7327
-> I2C Port Expanders
+eric miao wrote:
+> On Thu, Jul 10, 2008 at 9:31 PM, Ben Dooks <ben-linux@fluff.org> wrote:
+>> On Wed, Jul 02, 2008 at 04:26:40PM +0100, Jonathan Cameron wrote:
+>>> Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
+>>> appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
+>>> than frequency as this driver is also used for the i2c_pxa_pwr bus which has
+>>> different normal and fast frequencies.
+>>>
+>>> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
+>> Unfortuantely due to the problem of all the registers in
+>> one place, this really will need to be applied by RMK. However
+>> due to the current amount of work in the PXA tree, and the
+>> number of patches he is carrying for merging this is going
+>> to be too late for this kernel merge.
+>>
 > 
-> Signed-off-by: Jack Ren <jack.ren-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> (...)
+> Actually, this round of separation work of the pxa-regs.h has been
+> done several weeks ago, so I don't see this patch is likely to
+> cause any merge conflict.
 > 
->  drivers/gpio/Kconfig        |   22 +++
->  drivers/gpio/Makefile       |    1 +
->  drivers/gpio/max732x.c      |  380 +++++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/max732x.h |   19 ++
->  4 files changed, 422 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/gpio/max732x.c
->  create mode 100644 include/linux/i2c/max732x.h
-> (...)
+> But Russell is going to freeze the pxa branch, I see little chance
+> this be fixed quickly and get into :(
+> 
+Dear all, thanks for the comments.
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+I'll switch the use_pio and fast_mode flags to bit fields and resend 
+when next kernel merge begins.
 
--- 
-Jean Delvare
+As I'm maintaining rather a lot of platform specific stuff anyway for
+my use, one more won't do any harm for a few weeks!
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Cheers,
+
+--
+Jonathan Cameron
+
+
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
