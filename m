@@ -1,51 +1,75 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Tue, 15 Jul 2008 11:51:38 +0100
-Message-ID: <20080715105138.GC8494@flint.arm.linux.org.uk>
-References: <486B9E30.80806@cam.ac.uk> <20080710133150.GH30539@fluff.org.uk>
-	<f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
-	<487A21EB.9050304@cam.ac.uk> <20080715094324.GJ30539@fluff.org.uk>
-	<20080715095443.GB8494@flint.arm.linux.org.uk>
-	<20080715103725.GB16952@digi.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c_smbus_write_block_data does not send all bytes?!
+Date: Tue, 15 Jul 2008 12:57:02 +0200
+Message-ID: <20080715125702.48c9569b@hyperion.delvare>
+References: <884255.29098.qm@web27605.mail.ukl.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-Content-Disposition: inline
-In-Reply-To: <20080715103725.GB16952@digi.com>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <Uwe.Kleine-Koenig@digi.com>
-Cc: "i2c@lm-sensors.org" <i2c@lm-sensors.org>, Ben Dooks <ben-linux@fluff.org>, "linux-arm-kernel@lists.arm.linux.org.uk" <linux-arm-kernel@lists.arm.linux.org.uk>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <884255.29098.qm-WOTGQye7mknGRxTy+Q50vsz6deESKz/lQQ4Iyu8u01E@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Nick Teen <xpage_de-LWAfsSFWpa4@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 15, 2008 at 12:37:25PM +0200, Uwe Kleine-K=F6nig wrote:
-> Hm, I don't see that with your current tree:
-> =
+On Tue, 15 Jul 2008 08:29:27 +0000 (GMT), Nick Teen wrote:
+> > I don't remember any similar problem, so no idea either. I can only
+> > suspect that your bus driver is doing something wrong. So please give
+> > us the detail of your setup:
+> > 
+> > * Which version of i2c-dev.h are you using?
+> 
+> libi2c-dev, 3.0.0-1 (debian)
+> 
+> > * What architecture are you working on?
+> 
+> i386
+> 
+> > * Which kernel version are you using?
+> 
+> 2.6.24.2
+> 
+> > * What i2c bus driver are you using?
+> 
+> i2c_i801                9008  0
+> i2c_dev                 8164  0
 
-> 	ukleinek@zentaur:~/gsrc/linux-2.6$ git merge-base --all rmk/pxa rmk/mast=
-er
-> 	543cf4cb3fe6f6cae3651ba918b9c56200b257d0
+Hmm, did you connect something to a SMBus header on your motherboard?
+Or are you talking to an I2C chip on your motherboard?
 
-That's because you're not looking at the right master.  My master branch
-is now Linus' tip, but I'm not pushing that update out because my scripts
-will also push out the patch and mbox files (which, because of this, for
-PXA and devel will be empty.)
+> smsc47m1                9700  0
 
-I fully understand why this happens, it's just annoying when it does that
-we lose the ability to have a nice clean patch.
+Not related to i2c at all...
 
-It'll all resolve itself in the fullness of time (iow, after the SPI tree
-has been merged followed by the remainder of the PXA tree.)
+> smsc47m192             14656  0
 
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+An i2c chip driver, unrelated to your problem.
+
+> 
+> > * How do you know for sure what actually goes on the bus?
+> 
+> Milksop GPL Reflasher - 0.20 - (c)2002 andy-/Zus8d0mwwtBDgjK7y7TUQ@public.gmane.org
+> with CheapI2C
+
+Err, what is this exactly? Hardware? Software? Please explain your
+setup in details.
+
+> I hope this helps... writing words & bytes works fine.
+
+
+-- 
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
