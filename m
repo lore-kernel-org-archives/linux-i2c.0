@@ -1,12 +1,13 @@
-From: Agile Aspect <agile.aspect-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: temperature monitor
-Date: Tue, 15 Jul 2008 08:43:18 -0700
-Message-ID: <487CC596.3050608@GMail.COM>
-Reply-To: Agile.Aspect-0K3CJo2NoDF8zQARNC3f2A@public.gmane.org
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: i2c: Documentation: upgrading clients HOWTO
+Date: Tue, 15 Jul 2008 16:51:44 +0100
+Message-ID: <20080715155144.136915800@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline;
+	filename=simtec/simtec-i2c-documentation-upgrading-a-client.patch
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,109 +18,304 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi - I'm new to lm_sensors and I'm trying to monitor the temperature on
-a 8 CPU (Intel Xeon CPU X5460  @ 3.16GHz) running CentOS 4.4
-(2.6.9-42.ELsmp.)
+Add a document describing how i2c clients on Linux 2.6 can be
+moved from the old to the new driver model.
 
-The command
+Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-    i2cdetect -l
-
-returns
-
-    i2c-0   dummy           ISA main adapter                        ISA 
-bus algorithm
-
-and the command
-
-    No sensors found!
-   
-Enclosed is the output of lspci.
-
-Any ideas on how I get a temperature monitor working?
-
-For instance, is this the right mailing list?
-
-Any help would be greatly appreciated!
-
-;------------------------------------
-00:00.0 Host bridge: Intel Corporation 5000X Chipset Memory Controller 
-Hub (rev 12)
-00:02.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x4 
-Port 2 (rev 12)
-00:03.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x4 
-Port 3 (rev 12)
-00:04.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x4 
-Port 4 (rev 12)
-00:05.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x4 
-Port 5 (rev 12)
-00:06.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x8 
-Port 6-7 (rev 12)
-00:07.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express x4 
-Port 7 (rev 12)
-00:10.0 Host bridge: Intel Corporation 5000 Series Chipset Error 
-Reporting Registers (rev 12)
-00:10.1 Host bridge: Intel Corporation 5000 Series Chipset Error 
-Reporting Registers (rev 12)
-00:10.2 Host bridge: Intel Corporation 5000 Series Chipset Error 
-Reporting Registers (rev 12)
-00:11.0 Host bridge: Intel Corporation 5000 Series Chipset Reserved 
-Registers (rev 12)
-00:13.0 Host bridge: Intel Corporation 5000 Series Chipset Reserved 
-Registers (rev 12)
-00:15.0 Host bridge: Intel Corporation 5000 Series Chipset FBD Registers 
-(rev 12)
-00:16.0 Host bridge: Intel Corporation 5000 Series Chipset FBD Registers 
-(rev 12)
-00:1c.0 PCI bridge: Intel Corporation 631xESB/632xESB/3100 Chipset PCI 
-Express Root Port 1 (rev 09)
-00:1d.0 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset 
-UHCI USB Controller #1 (rev 09)
-00:1d.1 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset 
-UHCI USB Controller #2 (rev 09)
-00:1d.2 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset 
-UHCI USB Controller #3 (rev 09)
-00:1d.3 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset 
-UHCI USB Controller #4 (rev 09)
-00:1d.7 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset 
-EHCI USB2 Controller (rev 09)
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev d9)
-00:1f.0 ISA bridge: Intel Corporation 631xESB/632xESB/3100 Chipset LPC 
-Interface Controller (rev 09)
-00:1f.2 IDE interface: Intel Corporation 631xESB/632xESB/3100 Chipset 
-SATA Storage Controller IDE (rev 09)
-01:00.0 SCSI storage controller: LSI Logic / Symbios Logic SAS1068E 
-PCI-Express Fusion-MPT SAS (rev 08)
-02:00.0 PCI bridge: Broadcom: Unknown device 0103 (rev c3)
-03:00.0 Ethernet controller: Broadcom Corporation NetXtreme II BCM5708 
-Gigabit Ethernet (rev 12)
-04:00.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express 
-Upstream Port (rev 01)
-04:00.3 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express to 
-PCI-X Bridge (rev 01)
-05:00.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express 
-Downstream Port E1 (rev 01)
-05:01.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express 
-Downstream Port E2 (rev 01)
-06:00.0 PCI bridge: Broadcom: Unknown device 0103 (rev c3)
-07:00.0 Ethernet controller: Broadcom Corporation NetXtreme II BCM5708 
-Gigabit Ethernet (rev 12)
-0e:0d.0 VGA compatible controller: ATI Technologies Inc ES1000 (rev 02)
-;------------------------------------
+Index: linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients	2008-07-15 16:51:11.000000000 +0100
+@@ -0,0 +1,280 @@
++Upgrading I2C Drivers to the new 2.6 Driver Model
++=================================================
++
++Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
++
++Introduction
++------------
++
++This guide outlines how to alter existing Linux 2.6 client drivers from
++the old to the new new binding methods.
++
++
++Example old-style driver
++------------------------
++
++
++struct example_state {
++	struct i2c_client	client;
++	....
++};
++
++static struct i2c_driver example_driver;
++
++static unsigned short ignore[] = { I2C_CLIENT_END };
++static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
++
++I2C_CLIENT_INSMOD;
++
++static int example_attach(struct i2c_adapter *adap, int addr, int kind)
++{
++	struct example_state *state;
++	struct device *dev = &adap->dev;  /* to use for dev_ reports */
++	int ret;
++
++	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
++	if (state == NULL) {
++		dev_err(dev, "failed to create our state\n");
++		return -ENOMEM;
++	}
++
++	example->client.addr    = addr;
++	example->client.flags   = 0;
++	example->client.adapter = adap;
++
++	i2c_set_clientdata(&state->i2c_client, state);
++	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
++
++	ret = i2c_attach_client(&state->i2c_client);
++	if (ret < 0) {
++		dev_err(dev, "failed to attach client\n");
++		kfree(state);
++		return ret;
++	}
++
++	dev = &state->i2c_client.dev;
++
++	/* rest of the initialisation goes here. */
++
++	dev_info(dev, "example client created\n");
++
++	return 0;
++}
++
++static int example_detach(struct i2c_client *client)
++{
++	struct example_state *state = i2c_get_clientdata(client);
++
++	i2c_detach_client(client);
++	kfree(state);
++	return 0;
++}
++
++static int example_attach_adapter(struct i2c_adapter *adap)
++{
++	return i2c_probe(adap, &addr_data, example_attach);
++}
++
++static struct i2c_driver example_driver = {
++ 	.driver		= {
++		.owner		= THIS_MODULE,
++		.name		= "example",
++	},
++	.attach_adapter = example_attach_adapter,
++	.detach_client	= example_detach,
++	.suspend	= example_suspend,
++	.resume		= example_resume,
++};
++
++
++Updating the client
++-------------------
++
++The new style binding model will check against a list of supported
++devices and their associated address supplied by the code registering
++the busses. This means that the driver .attach_adapter and
++.detach_adapter methods can be removed, along with the addr_data,
++as follows:
++
++- static struct i2c_driver example_driver;
++
++- static unsigned short ignore[] = { I2C_CLIENT_END };
++- static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
++
++- I2C_CLIENT_INSMOD;
++
++- static int example_attach_adapter(struct i2c_adapter *adap)
++- {
++- 	return i2c_probe(adap, &addr_data, example_attach);
++- }
++
++ static struct i2c_driver example_driver = {
++-	.attach_adapter = example_attach_adapter,
++-	.detach_client	= example_detach,
++ }
++
++Add the probe and remove methods to the i2c_driver, as so:
++
++ static struct i2c_driver example_driver = {
+++	.probe		= example_probe,
+++	.remove		= example_remove,
++ }
++
++Change the example_attach method to accept the new parameters
++which include the i2c_client that it will be working with:
++
++- static int example_attach(struct i2c_adapter *adap, int addr, int kind)
+++ static int example_probe(struct i2c_client *client,
+++			   const struct i2c_device_id *id)
++
++Change the name of example_attach to example_probe to align it with the
++i2c_driver entry names. The rest of the probe routine will now need to be
++changed as the i2c_client has already been setup for use.
++
++The necessary client fields have already been setup before
++the probe function is called, so the following client setup
++can be removed:
++
++-	example->client.addr    = addr;
++-	example->client.flags   = 0;
++-	example->client.adapter = adap;
++-
++-	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
++
++The i2c_set_clientdata is now:
++
++-	i2c_set_clientdata(&state->client, state);
+++	i2c_set_clientdata(client, state);
++
++The call to i2c_attach_client is no longer needed, if the probe
++routine exits successfully, then the driver will be automatically
++attached by the core. Change the probe routine as so:
++
++-	ret = i2c_attach_client(&state->i2c_client);
++-	if (ret < 0) {
++-		dev_err(dev, "failed to attach client\n");
++-		kfree(state);
++-		return ret;
++-	}
++
++
++Remove the storage of 'struct i2c_client' from the 'struct example_state'
++as we are provided with the i2c_client in our example_probe. Instead we
++store a pointer to it for when it is needed.
++
++struct example_state {
++-	struct i2c_client	client;
+++	struct i2c_client	*client;
++
++the new i2c client as so:
++
++-	struct device *dev = &adap->dev;  /* to use for dev_ reports */
+++ 	struct device *dev = &i2c_client->dev;  /* to use for dev_ reports */
++
++And remove the change after our client is attached, as the driver no
++longer needs to register a new client structure with the core:
++
++-	dev = &state->i2c_client.dev;
++
++In the probe routine, ensure that the new state has the client stored
++in it:
++
++static int example_probe(struct i2c_client *i2c_client,
++			 const struct i2c_device_id *id)
++{
++	struct example_state *state;
++ 	struct device *dev = &i2c_client->dev;
++	int ret;
++
++	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
++	if (state == NULL) {
++		dev_err(dev, "failed to create our state\n");
++		return -ENOMEM;
++	}
++
+++	state->client = i2c_client;
++
++Update the detatch method, by changing the name to _remove and
++to delete the i2c_detach_client call.
++
++- static int example_detach(struct i2c_client *client)
+++ static int example_remove(struct i2c_client *client)
++{
++	struct example_state *state = i2c_get_clientdata(client);
++
++-	i2c_detach_client(client);
++
++And finally ensure that we have the correct ID table for the i2c-core
++and other utilties:
++
+++ struct i2c_device_id example_idtable[] = {
+++       { "example", 0 },
+++       { }
+++};
+++
+++MODULE_DEVICE_TABLE(i2c, example_idtable);
++
++static struct i2c_driver example_driver = {
++ 	.driver		= {
++		.owner		= THIS_MODULE,
++		.name		= "example",
++	},
+++	.id_table	= example_ids,
++
++
++Our driver should now look like this:
++
++struct example_state {
++	struct i2c_client	*client;
++	....
++};
++
++static int example_probe(struct i2c_client *client,
++		         const struct i2c_device_id *id)
++{
++	struct example_state *state;
++	struct device *dev = &client->dev;
++	int ret;
++
++	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
++	if (state == NULL) {
++		dev_err(dev, "failed to create our state\n");
++		return -ENOMEM;
++	}
++
++	state->client = client;
++	i2c_set_clientdata(client, state);
++
++	/* rest of the initialisation goes here. */
++
++	dev_info(dev, "example client created\n");
++
++	return 0;
++}
++
++static int example_remove(struct i2c_client *client)
++{
++	struct example_state *state = i2c_get_clientdata(client);
++
++	kfree(state);
++	return 0;
++}
++
++static struct i2c_device_id example_idtable[] = {
++	{ "example", 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(i2c, example_idtable);
++
++static struct i2c_driver example_driver = {
++ 	.driver		= {
++		.owner		= THIS_MODULE,
++		.name		= "example",
++	},
++	.id_table	= example_idtable,
++	.probe		= example_probe,
++	.remove		= example_remove,
++	.suspend	= example_suspend,
++	.resume		= example_resume,
++};
 
 -- 
-Article. VI. Clause 3 of the constitution of the United States states: 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-"The Senators and Representatives before mentioned, and the Members of 
-the several State Legislatures, and all executive and judicial Officers, 
-both of the United States and of the several States, shall be bound by 
-Oath or Affirmation, to support this Constitution; but no religious Test 
-shall ever be required as a Qualification to any Office or public Trust 
-under the United States." 
-
-
+  'a smiley only costs 4 bytes'
 
 _______________________________________________
 i2c mailing list
