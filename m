@@ -1,13 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c_smbus_write_block_data does not send all bytes?!
-Date: Tue, 15 Jul 2008 12:57:02 +0200
-Message-ID: <20080715125702.48c9569b@hyperion.delvare>
-References: <884255.29098.qm@web27605.mail.ukl.yahoo.com>
+Subject: Re: [PATCH V9] I2C driver for IMX
+Date: Tue, 15 Jul 2008 13:52:31 +0200
+Message-ID: <20080715135231.491c41bb@hyperion.delvare>
+References: <g56uvk$e6s$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <884255.29098.qm-WOTGQye7mknGRxTy+Q50vsz6deESKz/lQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <g56uvk$e6s$1@ger.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,54 +17,25 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Nick Teen <xpage_de-LWAfsSFWpa4@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 15 Jul 2008 08:29:27 +0000 (GMT), Nick Teen wrote:
-> > I don't remember any similar problem, so no idea either. I can only
-> > suspect that your bus driver is doing something wrong. So please give
-> > us the detail of your setup:
-> > 
-> > * Which version of i2c-dev.h are you using?
+On Fri, 11 Jul 2008 09:29:29 +0300, Darius wrote:
+> Changes from V8 version:
 > 
-> libi2c-dev, 3.0.0-1 (debian)
+> - Error numbers replaced to standard numbers from errno.h
+> - Enable/Start and Disable/Stop functions merged into two Start and Stop functions
+> - Removed all unused info about slave mode
+> - Removed unused includes
 > 
-> > * What architecture are you working on?
+> Can somebody review functional part of this I2C driver? Because all
+> other part is already acked by ARM Linux kernel guys.
 > 
-> i386
-> 
-> > * Which kernel version are you using?
-> 
-> 2.6.24.2
-> 
-> > * What i2c bus driver are you using?
-> 
-> i2c_i801                9008  0
-> i2c_dev                 8164  0
+> Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
 
-Hmm, did you connect something to a SMBus header on your motherboard?
-Or are you talking to an I2C chip on your motherboard?
-
-> smsc47m1                9700  0
-
-Not related to i2c at all...
-
-> smsc47m192             14656  0
-
-An i2c chip driver, unrelated to your problem.
-
-> 
-> > * How do you know for sure what actually goes on the bus?
-> 
-> Milksop GPL Reflasher - 0.20 - (c)2002 andy-/Zus8d0mwwtBDgjK7y7TUQ@public.gmane.org
-> with CheapI2C
-
-Err, what is this exactly? Hardware? Software? Please explain your
-setup in details.
-
-> I hope this helps... writing words & bytes works fine.
-
+Ben, this is something for you as well.
 
 -- 
 Jean Delvare
