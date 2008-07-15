@@ -1,70 +1,65 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [patch 1/1] i2c_gpio: keep probe resident for
-	hotplugged	devices.
-Date: Tue, 15 Jul 2008 10:41:47 +0100
-Message-ID: <20080715094147.GI30539@fluff.org.uk>
-References: <20080702101611.757880819@fluff.org>
-	<20080702101611.858837181@fluff.org>
-	<20080702124406.2f3d1384@hskinnemo-gx745.norway.atmel.com>
-	<20080710132917.GF30539@fluff.org.uk>
-	<20080712090600.680f3c2e@hyperion.delvare>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
+Date: Tue, 15 Jul 2008 10:54:43 +0100
+Message-ID: <20080715095443.GB8494@flint.arm.linux.org.uk>
+References: <486B9E30.80806@cam.ac.uk> <20080710133150.GH30539@fluff.org.uk>
+	<f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
+	<487A21EB.9050304@cam.ac.uk> <20080715094324.GJ30539@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
 Content-Disposition: inline
-In-Reply-To: <20080712090600.680f3c2e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Haavard Skinnemoen <haavard.skinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+In-Reply-To: <20080715094324.GJ30539@fluff.org.uk>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: i2c@lm-sensors.org, linux-arm-kernel@lists.arm.linux.org.uk
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jul 12, 2008 at 09:06:00AM +0200, Jean Delvare wrote:
-> Ben,
-> 
-> On Thu, 10 Jul 2008 14:29:17 +0100, Ben Dooks wrote:
-> > On Wed, Jul 02, 2008 at 12:44:06PM +0200, Haavard Skinnemoen wrote:
-> > > Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> > > > Change the i2c_gpio driver to use platform_driver_register()
-> > > > instead of platform_driver_probe() to ensure that is can
-> > > > attach to any devices that may be loaded after it has initialised.
-> > > 
-> > > Does anyone actually do that?
-> > 
-> > At the moment our standard kernel configuration only
-> > builds in the SM501 which will work without this patch
-> > on.
-> > 
-> > However, we have clients that do build module kernels
-> > and I would like to replace i2c-simtec.c with the gpio
-> > driver and if the relevant module instantiating the gpio
-> > support is loaded post kernel init, then we will need to
-> > do this.
-> 
-> Should I take this patch in my i2c tree, or will you take it in yours?
+On Tue, Jul 15, 2008 at 10:43:24AM +0100, Ben Dooks wrote:
+> I think most of RMK's pxa tree has been merged, so a diff
+> against a current -git release should give you a better
+> starting point.
 
-I'll take it, I was just waiting to see if there
-where any more objections from Haavard before applying
-this.
+There's still around 300K of PXA stuff outstanding - but unfortunately
+I can't update the 'nightly' snapshots with the outstanding commits
+because I can't get a reasonable patch out of git:
 
-If i've not received an objection by 0900GMT 2008-07-16
-then I will add it to my rather small git tree and ask
-linus to pull.
+$ git-diff -u master...pxa |less
+diff --cc MAINTAINERS
+index 1528e58,8f0ec46,c68a118..20aef95
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@@@ -481,11 -475,11 -475,11 +475,28 @@@@ M:    kernel@wantstofly.or
+   L:   linux-arm-kernel@lists.arm.linux.org.uk (subscribers-only)
+   S:   Maintained
 
--- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
++++ARM/COMPULAB CM-X270/EM-X270 MACHINE SUPPORT
++++P:   Mike Rapoport
++++M:   mike@compulab.co.il
++++L:   linux-arm-kernel@lists.arm.linux.org.uk (subscribers-only)
++++S:   Maintained
++++
 
-  'a smiley only costs 4 bytes'
+This is basically because 'master...pxa' has multiple common ancestors.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+You can get a diff from 'master..pxa' but that will be a patch which
+removes changes in master but not pxa, and applies changes in pxa but
+not master, which isn't useful.
+
+Of course, those with git can get the full tree and there isn't a
+problem moving through the history... those using the patches, however,
+are going to be facing a problem for the time being.
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
