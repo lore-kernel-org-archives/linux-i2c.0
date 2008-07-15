@@ -1,12 +1,18 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: i2c: Documentation: upgrading clients HOWTO
-Date: Tue, 15 Jul 2008 20:35:43 +0200
-Message-ID: <20080715183543.GA5158@pengutronix.de>
-References: <20080715155144.136915800@fluff.org.uk>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c: cdev lock_kernel() pushdown
+Date: Tue, 15 Jul 2008 14:58:51 -0400
+Message-ID: <9e4733910807151158s33e7f757i35a671c4b1f76249@mail.gmail.com>
+References: <20080715174155.2d52e6f6@hyperion.delvare>
+	<20080715101406.6b4517e3@bike.lwn.net>
+	<20080715183552.7e1b797a@hyperion.delvare>
+	<9e4733910807151001r88ed121o4f13546e1d3d93ff@mail.gmail.com>
+	<20080715194550.79dbb226@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9098878071822675230=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080715155144.136915800-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20080715194550.79dbb226-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,378 +22,116 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 7/15/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Hi Jon,
+>
+>
+>  On Tue, 15 Jul 2008 13:01:07 -0400, Jon Smirl wrote:
+>  > On 7/15/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>  > > On Tue, 15 Jul 2008 10:14:06 -0600, Jonathan Corbet wrote:
+>  > >  > Hi, Jean,
+>  > >  >
+>  > >  > > I am looking at this patch of yours:
+>  > >  > > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3db633ee352bfe20d4a2b0c3c8a46ce31a6c7149
+>  > >  > >
+>  > >  > > I believe that no locking is needed in i2cdev_open(). Do you have any
+>  > >  > > reason to think it does? If not, can I simply revert this patch?
+>  > >  >
+>  > >  > Before now, i2cdev_open() has always had the protection of the BKL.
+>  > >  > When I pushed that locking down into the individual open() functions, I
+>  > >  > really had to take a pretty conservative approach and assume that the
+>  > >  > BKL was needed unless that was really obviously not the case.  In
+>  > >  > i2cdev_open(), for example, there's:
+>  > >  >
+>  > >  >       i2c_dev = i2c_dev_get_by_minor(minor);
+>  > >  >
+>  > >  > and I really don't know what keeps *i2c_dev from going away during the
+>  > >  > rest of the call.  I'm *not* saying there is a problem here; I just
+>  > >  > don't know.  So the only thing I could really do is to push the BKL
+>  > >  > down and let the maintainers sort it out.
+>  > >  >
+>  > >  > ...all of which is my long-winded way of saying that, if you're
+>  > >  > convinced that i2cdev_open() is safe in the absence of the BKL, feel
+>  > >  > free to take it out.
+>  > >
+>  > >
+>  > > Good point. i2c_dev is guaranteed to stay thanks to the call to
+>  > >  i2c_get_adapter(), however it happens _after_ the call to
+>  > >  i2c_dev_get_by_minor(), so without additional locking, this is racy.
+>  > >  That being said, I'm not sure how lock_kernel() is supposed to help. Is
+>  > >  the BKL held when i2cdev_detach_adapter() is called? If not, then I
+>  > >  suspect that the current code is already racy.
+>  > >
+>  > >  I'll look into this, thanks for the hint.
+>  >
+>  > Is i2c-dev vulnerable to the i2c device disappearing, for example
+>  > rmmod it?
+>
+>
+> In general no, but there is a race where this can actually happen.
+>
+>
+>  > Would combining i2c-dev into i2c core and integrating it
+>  > with the core's lock protection make things easier to lock?
+>
+>
+> Definitely. That's something I want to do for other reasons anyway.
+>
+>
+>  > You could
+>  > make a compile time option to remove it for small systems. If it's in
+>  > the core is attach/detach adapter still needed?
+>
+>
+> i2c-dev will probably soon be the last user of
+>  i2c_adapter.attach_adapter and i2c_adapter.detach_adapter, and this is
+>  indeed one of my incentives to look into how things could be rearranged.
+>
+>
+>  > I haven't looked at
+>  > any of this in detail, but i2c-dev is only 6K of code. Half of the 6K
+>  > might disappear if integrated into the core.
+>
+>
+> I doubt we can remove 3 kB just by moving things around. The
+>  book-keeping is relatively small. But this isn't my goal anyway. My
+>  goal is to make things cleaner and possibly safer.
+>
+>  One thing we may do if size is a concern, is keep the functional part
+>  of i2c-dev in its separate module, and only merge the book-keeping and
+>  char device creation into i2c-core.
+>
+>
+>  > What happens if user space and an in-kernel user both try using the
+>  > device? I've never tried doing that. Should the presence of an
+>  > in-kernel user make the user space device disappear?
+>
+>
+> What do you mean by "device"? The i2c bus, or a specific i2c device
+>  (client)? The i2c bus can be used by any amount of users, in-kernel or
+>  user-space. For i2c devices, it's more complex, depending on whether an
+>  i2c_client is registered or not. Only one i2c_client can be registered
+>  at a given address, but nothing prevents "raw" accesses to the devices.
+>  i2c-dev makes such "raw" accesses, even though it has an initial check
+>  whether the i2c address is in used by a registered client or not. This
+>  needs to be cleaned up from the ground up, the current approach is not
+>  satisfactory at all and things are getting worse with the advent of
+>  new-style i2c devices, because the have a different notion of business.
+>
 
---===============9098878071822675230==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
+My idea was that when a client registers it would indicate whether or
+not it wants a user space device. Most in-kernel clients would not
+want a user space device. A sysfs attribute could force the creation
+of a user space device for debugging.
 
+You might also want to make a global i2c sysfs attribute that you
+would echo an i2c address into. Doing that would cause a user space
+device to be created for that address. Now you can manipulate devices
+with no in-kernel driver.
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Ben,
-
-some minor remarks...
-
-On Tue, Jul 15, 2008 at 04:51:44PM +0100, Ben Dooks wrote:
-> Add a document describing how i2c clients on Linux 2.6 can be
-> moved from the old to the new driver model.
->=20
-> Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
->=20
-> Index: linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients	2008-07-15 16=
-:51:11.000000000 +0100
-> @@ -0,0 +1,280 @@
-> +Upgrading I2C Drivers to the new 2.6 Driver Model
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> +
-> +Introduction
-> +------------
-> +
-> +This guide outlines how to alter existing Linux 2.6 client drivers from
-> +the old to the new new binding methods.
-> +
-> +
-> +Example old-style driver
-> +------------------------
-> +
-> +
-> +struct example_state {
-> +	struct i2c_client	client;
-> +	....
-> +};
-> +
-> +static struct i2c_driver example_driver;
-> +
-> +static unsigned short ignore[] =3D { I2C_CLIENT_END };
-> +static unsigned short normal_addr[] =3D { OUR_ADDR, I2C_CLIENT_END };
-> +
-> +I2C_CLIENT_INSMOD;
-> +
-> +static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-> +{
-> +	struct example_state *state;
-> +	struct device *dev =3D &adap->dev;  /* to use for dev_ reports */
-> +	int ret;
-> +
-> +	state =3D kzalloc(sizeof(struct example_state), GFP_KERNEL);
-> +	if (state =3D=3D NULL) {
-> +		dev_err(dev, "failed to create our state\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	example->client.addr    =3D addr;
-> +	example->client.flags   =3D 0;
-> +	example->client.adapter =3D adap;
-> +
-> +	i2c_set_clientdata(&state->i2c_client, state);
-> +	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
-> +
-> +	ret =3D i2c_attach_client(&state->i2c_client);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to attach client\n");
-> +		kfree(state);
-> +		return ret;
-> +	}
-> +
-> +	dev =3D &state->i2c_client.dev;
-> +
-> +	/* rest of the initialisation goes here. */
-> +
-> +	dev_info(dev, "example client created\n");
-> +
-> +	return 0;
-> +}
-> +
-> +static int example_detach(struct i2c_client *client)
-> +{
-> +	struct example_state *state =3D i2c_get_clientdata(client);
-> +
-> +	i2c_detach_client(client);
-> +	kfree(state);
-> +	return 0;
-> +}
-> +
-> +static int example_attach_adapter(struct i2c_adapter *adap)
-> +{
-> +	return i2c_probe(adap, &addr_data, example_attach);
-> +}
-> +
-> +static struct i2c_driver example_driver =3D {
-> + 	.driver		=3D {
-> +		.owner		=3D THIS_MODULE,
-> +		.name		=3D "example",
-> +	},
-> +	.attach_adapter =3D example_attach_adapter,
-> +	.detach_client	=3D example_detach,
-> +	.suspend	=3D example_suspend,
-> +	.resume		=3D example_resume,
-> +};
-> +
-> +
-> +Updating the client
-> +-------------------
-> +
-> +The new style binding model will check against a list of supported
-> +devices and their associated address supplied by the code registering
-> +the busses. This means that the driver .attach_adapter and
-> +.detach_adapter methods can be removed, along with the addr_data,
-> +as follows:
-> +
-> +- static struct i2c_driver example_driver;
-> +
-> +- static unsigned short ignore[] =3D { I2C_CLIENT_END };
-> +- static unsigned short normal_addr[] =3D { OUR_ADDR, I2C_CLIENT_END };
-> +
-> +- I2C_CLIENT_INSMOD;
-> +
-> +- static int example_attach_adapter(struct i2c_adapter *adap)
-> +- {
-> +- 	return i2c_probe(adap, &addr_data, example_attach);
-> +- }
-> +
-> + static struct i2c_driver example_driver =3D {
-> +-	.attach_adapter =3D example_attach_adapter,
-> +-	.detach_client	=3D example_detach,
-> + }
-> +
-> +Add the probe and remove methods to the i2c_driver, as so:
-> +
-> + static struct i2c_driver example_driver =3D {
-> ++	.probe		=3D example_probe,
-> ++	.remove		=3D example_remove,
-> + }
-> +
-> +Change the example_attach method to accept the new parameters
-> +which include the i2c_client that it will be working with:
-> +
-> +- static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-> ++ static int example_probe(struct i2c_client *client,
-> ++			   const struct i2c_device_id *id)
-> +
-> +Change the name of example_attach to example_probe to align it with the
-> +i2c_driver entry names. The rest of the probe routine will now need to be
-> +changed as the i2c_client has already been setup for use.
-> +
-> +The necessary client fields have already been setup before
-> +the probe function is called, so the following client setup
-> +can be removed:
-> +
-> +-	example->client.addr    =3D addr;
-> +-	example->client.flags   =3D 0;
-> +-	example->client.adapter =3D adap;
-> +-
-> +-	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
-> +
-> +The i2c_set_clientdata is now:
-> +
-> +-	i2c_set_clientdata(&state->client, state);
-> ++	i2c_set_clientdata(client, state);
-> +
-> +The call to i2c_attach_client is no longer needed, if the probe
-> +routine exits successfully, then the driver will be automatically
-> +attached by the core. Change the probe routine as so:
-> +
-> +-	ret =3D i2c_attach_client(&state->i2c_client);
-> +-	if (ret < 0) {
-> +-		dev_err(dev, "failed to attach client\n");
-> +-		kfree(state);
-> +-		return ret;
-> +-	}
-> +
-> +
-> +Remove the storage of 'struct i2c_client' from the 'struct example_state'
-> +as we are provided with the i2c_client in our example_probe. Instead we
-> +store a pointer to it for when it is needed.
-> +
-> +struct example_state {
-> +-	struct i2c_client	client;
-> ++	struct i2c_client	*client;
-> +
-> +the new i2c client as so:
-> +
-> +-	struct device *dev =3D &adap->dev;  /* to use for dev_ reports */
-> ++ 	struct device *dev =3D &i2c_client->dev;  /* to use for dev_ reports =
-*/
-> +
-> +And remove the change after our client is attached, as the driver no
-> +longer needs to register a new client structure with the core:
-> +
-> +-	dev =3D &state->i2c_client.dev;
-> +
-> +In the probe routine, ensure that the new state has the client stored
-> +in it:
-> +
-> +static int example_probe(struct i2c_client *i2c_client,
-> +			 const struct i2c_device_id *id)
-> +{
-> +	struct example_state *state;
-> + 	struct device *dev =3D &i2c_client->dev;
-> +	int ret;
-> +
-> +	state =3D kzalloc(sizeof(struct example_state), GFP_KERNEL);
-> +	if (state =3D=3D NULL) {
-> +		dev_err(dev, "failed to create our state\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> ++	state->client =3D i2c_client;
-> +
-> +Update the detatch method, by changing the name to _remove and
-Typo: detach
-
-> +to delete the i2c_detach_client call.
-> +
-> +- static int example_detach(struct i2c_client *client)
-> ++ static int example_remove(struct i2c_client *client)
-> +{
-> +	struct example_state *state =3D i2c_get_clientdata(client);
-> +
-> +-	i2c_detach_client(client);
-> +
-> +And finally ensure that we have the correct ID table for the i2c-core
-> +and other utilties:
-Typo: utilities
-
-> +
-> ++ struct i2c_device_id example_idtable[] =3D {
-> ++       { "example", 0 },
-> ++       { }
-> ++};
-> ++
-> ++MODULE_DEVICE_TABLE(i2c, example_idtable);
-> +
-> +static struct i2c_driver example_driver =3D {
-> + 	.driver		=3D {
-> +		.owner		=3D THIS_MODULE,
-> +		.name		=3D "example",
-> +	},
-> ++	.id_table	=3D example_ids,
-> +
-> +
-> +Our driver should now look like this:
-> +
-> +struct example_state {
-> +	struct i2c_client	*client;
-> +	....
-> +};
-> +
-> +static int example_probe(struct i2c_client *client,
-> +		         const struct i2c_device_id *id)
-> +{
-> +	struct example_state *state;
-> +	struct device *dev =3D &client->dev;
-> +	int ret;
-ret is not needed in the updated example. Maybe mention that it could
-also be removed?
-
-> +
-> +	state =3D kzalloc(sizeof(struct example_state), GFP_KERNEL);
-> +	if (state =3D=3D NULL) {
-> +		dev_err(dev, "failed to create our state\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	state->client =3D client;
-> +	i2c_set_clientdata(client, state);
-> +
-> +	/* rest of the initialisation goes here. */
-> +
-> +	dev_info(dev, "example client created\n");
-> +
-> +	return 0;
-> +}
-> +
-> +static int example_remove(struct i2c_client *client)
-__devexit
-
-> +{
-> +	struct example_state *state =3D i2c_get_clientdata(client);
-> +
-> +	kfree(state);
-> +	return 0;
-> +}
-> +
-> +static struct i2c_device_id example_idtable[] =3D {
-> +	{ "example", 0 },
-> +	{ }
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, example_idtable);
-> +
-> +static struct i2c_driver example_driver =3D {
-> + 	.driver		=3D {
-> +		.owner		=3D THIS_MODULE,
-> +		.name		=3D "example",
-> +	},
-> +	.id_table	=3D example_idtable,
-> +	.probe		=3D example_probe,
-> +	.remove		=3D example_remove,
-__devexit_p
-
-> +	.suspend	=3D example_suspend,
-> +	.resume		=3D example_resume,
-> +};
->=20
-> --=20
-> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
->=20
->   'a smiley only costs 4 bytes'
->=20
-> _______________________________________________
-> i2c mailing list
-> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> http://lists.lm-sensors.org/mailman/listinfo/i2c
-
-Thanks for this work!
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIfO3/D27XaX1/VRsRAlKKAJ0YgSB4Lye0GzoEYG9lmiOJL9LEdQCfW+je
-KtevyQV3zKRmDwhUqNC2+FA=
-=x3Up
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
-
-
---===============9098878071822675230==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============9098878071822675230==--
+Of course we can't stop raw access but life is simpler if everyone
+avoids doing it.
