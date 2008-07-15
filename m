@@ -1,13 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c_smbus_write_block_data does not send all bytes?!
-Date: Tue, 15 Jul 2008 09:47:53 +0200
-Message-ID: <20080715094753.475708cd@hyperion.delvare>
-References: <180252.53613.qm@web27607.mail.ukl.yahoo.com>
+From: Nick Teen <xpage_de-LWAfsSFWpa4@public.gmane.org>
+Subject: i2c_smbus_write_block_data does not send all bytes?!
+Date: Tue, 15 Jul 2008 08:29:27 +0000 (GMT)
+Message-ID: <884255.29098.qm@web27605.mail.ukl.yahoo.com>
+Reply-To: xpage_de-LWAfsSFWpa4@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <180252.53613.qm-WQsacCdWWGLGRxTy+Q50vsz6deESKz/lQQ4Iyu8u01E@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,46 +16,49 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Nick Teen <xpage_de-LWAfsSFWpa4@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Nick,
-
-On Tue, 15 Jul 2008 07:29:56 +0000 (GMT), Nick Teen wrote:
-> > You probably want to use i2c_smbus_write_i2c_block_data instead. With
-> > i2c_smbus_write_block_data, the first data byte isn't real data,
-> > instead in indicates how many bytes follow until the end of the block.
-> > It should result in "5D W 11 33 44" in your case though, not sure why
-> > you get "5D W 11 03 33" instead.
+> I don't remember any similar problem, so no idea either. I can only
+> suspect that your bus driver is doing something wrong. So please give
+> us the detail of your setup:
 > 
-> i'm aware of the length field and i2c_smbus_write_i2c_block_data doesn't
-> work, too. Now i get: 5D W 11 44
-> 
-> unsigned char values[3];
-> int reg = 0x11;
-> values[0] = 0x33;
-> values[1] = 0x44;
-> i2c_smbus_write_i2c_block_data(fd, reg, 2, values);
-> 
-> If i change the third parameter (length) to 1 I get the 0x33.
+> * Which version of i2c-dev.h are you using?
 
-Ah, you're in user-space, using i2c-dev? You should have told us so.
+libi2c-dev, 3.0.0-1 (debian)
 
-> I've no idea! :-(
+> * What architecture are you working on?
 
-I don't remember any similar problem, so no idea either. I can only
-suspect that your bus driver is doing something wrong. So please give
-us the detail of your setup:
+i386
 
-* Which version of i2c-dev.h are you using?
-* What architecture are you working on?
-* Which kernel version are you using?
-* What i2c bus driver are you using?
-* How do you know for sure what actually goes on the bus?
+> * Which kernel version are you using?
 
--- 
-Jean Delvare
+2.6.24.2
+
+> * What i2c bus driver are you using?
+
+i2c_i801                9008  0
+i2c_dev                 8164  0
+smsc47m1                9700  0
+smsc47m192             14656  0
+
+> * How do you know for sure what actually goes on the bus?
+
+Milksop GPL Reflasher - 0.20 - (c)2002 andy-/Zus8d0mwwtBDgjK7y7TUQ@public.gmane.org
+with CheapI2C
+
+
+I hope this helps... writing words & bytes works fine.
+
+Regards,
+
+Nick
+
+
+      __________________________________________________________
+Gesendet von Yahoo! Mail.
+Dem pfiffigeren Posteingang.
+http://de.overview.mail.yahoo.com
 
 _______________________________________________
 i2c mailing list
