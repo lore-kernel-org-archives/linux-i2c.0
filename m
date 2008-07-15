@@ -1,7 +1,7 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: i2c: cdev lock_kernel() pushdown
-Date: Tue, 15 Jul 2008 18:33:44 +0100
-Message-ID: <20080715173344.GM30539@fluff.org.uk>
+Date: Tue, 15 Jul 2008 19:45:50 +0200
+Message-ID: <20080715194550.79dbb226@hyperion.delvare>
 References: <20080715174155.2d52e6f6@hyperion.delvare>
 	<20080715101406.6b4517e3@bike.lwn.net>
 	<20080715183552.7e1b797a@hyperion.delvare>
@@ -10,7 +10,6 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
 In-Reply-To: <9e4733910807151001r88ed121o4f13546e1d3d93ff-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -25,7 +24,9 @@ To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 15, 2008 at 01:01:07PM -0400, Jon Smirl wrote:
+Hi Jon,
+
+On Tue, 15 Jul 2008 13:01:07 -0400, Jon Smirl wrote:
 > On 7/15/08, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
 > > On Tue, 15 Jul 2008 10:14:06 -0600, Jonathan Corbet wrote:
 > >  > Hi, Jean,
@@ -64,37 +65,52 @@ On Tue, Jul 15, 2008 at 01:01:07PM -0400, Jon Smirl wrote:
 > >  I'll look into this, thanks for the hint.
 > 
 > Is i2c-dev vulnerable to the i2c device disappearing, for example
-> rmmod it? Would combining i2c-dev into i2c core and integrating it
-> with the core's lock protection make things easier to lock? You could
+> rmmod it?
+
+In general no, but there is a race where this can actually happen.
+
+> Would combining i2c-dev into i2c core and integrating it
+> with the core's lock protection make things easier to lock?
+
+Definitely. That's something I want to do for other reasons anyway.
+
+> You could
 > make a compile time option to remove it for small systems. If it's in
-> the core is attach/detach adapter still needed? I haven't looked at
+> the core is attach/detach adapter still needed?
+
+i2c-dev will probably soon be the last user of
+i2c_adapter.attach_adapter and i2c_adapter.detach_adapter, and this is
+indeed one of my incentives to look into how things could be rearranged.
+
+> I haven't looked at
 > any of this in detail, but i2c-dev is only 6K of code. Half of the 6K
 > might disappear if integrated into the core.
 
-The i2c-dev code calls i2c_get_adapter() op open, so as long as the
-device stays open the adapter should not be able to go away as
-i2c_get_adater() calls try_module_get() on the adapter's module.
+I doubt we can remove 3 kB just by moving things around. The
+book-keeping is relatively small. But this isn't my goal anyway. My
+goal is to make things cleaner and possibly safer.
 
-The i2c-dev has it's own THIS_MODULE in the fops field, so should
-be kept as long as there is a file open.
- 
+One thing we may do if size is a concern, is keep the functional part
+of i2c-dev in its separate module, and only merge the book-keeping and
+char device creation into i2c-core.
+
 > What happens if user space and an in-kernel user both try using the
 > device? I've never tried doing that. Should the presence of an
 > in-kernel user make the user space device disappear?
-> 
-> -- 
-> Jon Smirl
-> jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-> 
-> _______________________________________________
-> i2c mailing list
-> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> http://lists.lm-sensors.org/mailman/listinfo/i2c
+
+What do you mean by "device"? The i2c bus, or a specific i2c device
+(client)? The i2c bus can be used by any amount of users, in-kernel or
+user-space. For i2c devices, it's more complex, depending on whether an
+i2c_client is registered or not. Only one i2c_client can be registered
+at a given address, but nothing prevents "raw" accesses to the devices.
+i2c-dev makes such "raw" accesses, even though it has an initial check
+whether the i2c address is in used by a registered client or not. This
+needs to be cleaned up from the ground up, the current approach is not
+satisfactory at all and things are getting worse with the advent of
+new-style i2c devices, because the have a different notion of business.
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
