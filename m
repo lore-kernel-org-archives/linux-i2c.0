@@ -1,13 +1,13 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: i2c: Documentation: upgrading clients HOWTO
-Date: Tue, 15 Jul 2008 16:51:44 +0100
-Message-ID: <20080715155144.136915800@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: temperature monitor
+Date: Tue, 15 Jul 2008 18:04:39 +0200
+Message-ID: <20080715180439.01ade138@hyperion.delvare>
+References: <487CC596.3050608@GMail.COM>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline;
-	filename=simtec/simtec-i2c-documentation-upgrading-a-client.patch
+In-Reply-To: <487CC596.3050608-0K3CJo2NoDF8zQARNC3f2A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,305 +17,40 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Agile.Aspect-0K3CJo2NoDF8zQARNC3f2A@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add a document describing how i2c clients on Linux 2.6 can be
-moved from the old to the new driver model.
+On Tue, 15 Jul 2008 08:43:18 -0700, Agile Aspect wrote:
+> Hi - I'm new to lm_sensors and I'm trying to monitor the temperature on
+> a 8 CPU (Intel Xeon CPU X5460  @ 3.16GHz) running CentOS 4.4
+> (2.6.9-42.ELsmp.)
+> 
+> The command
+> 
+>     i2cdetect -l
+> 
+> returns
+> 
+>     i2c-0   dummy           ISA main adapter                        ISA 
+> bus algorithm
+> 
+> and the command
+> 
+>     No sensors found!
+>    
+> Enclosed is the output of lspci.
+> 
+> Any ideas on how I get a temperature monitor working?
+> 
+> For instance, is this the right mailing list?
 
-Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+No, it's not. Please use instead:
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
 
-Index: linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.26-quilt2/Documentation/i2c/upgrading-clients	2008-07-15 16:51:11.000000000 +0100
-@@ -0,0 +1,280 @@
-+Upgrading I2C Drivers to the new 2.6 Driver Model
-+=================================================
-+
-+Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-+
-+Introduction
-+------------
-+
-+This guide outlines how to alter existing Linux 2.6 client drivers from
-+the old to the new new binding methods.
-+
-+
-+Example old-style driver
-+------------------------
-+
-+
-+struct example_state {
-+	struct i2c_client	client;
-+	....
-+};
-+
-+static struct i2c_driver example_driver;
-+
-+static unsigned short ignore[] = { I2C_CLIENT_END };
-+static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
-+
-+I2C_CLIENT_INSMOD;
-+
-+static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-+{
-+	struct example_state *state;
-+	struct device *dev = &adap->dev;  /* to use for dev_ reports */
-+	int ret;
-+
-+	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-+	if (state == NULL) {
-+		dev_err(dev, "failed to create our state\n");
-+		return -ENOMEM;
-+	}
-+
-+	example->client.addr    = addr;
-+	example->client.flags   = 0;
-+	example->client.adapter = adap;
-+
-+	i2c_set_clientdata(&state->i2c_client, state);
-+	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
-+
-+	ret = i2c_attach_client(&state->i2c_client);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to attach client\n");
-+		kfree(state);
-+		return ret;
-+	}
-+
-+	dev = &state->i2c_client.dev;
-+
-+	/* rest of the initialisation goes here. */
-+
-+	dev_info(dev, "example client created\n");
-+
-+	return 0;
-+}
-+
-+static int example_detach(struct i2c_client *client)
-+{
-+	struct example_state *state = i2c_get_clientdata(client);
-+
-+	i2c_detach_client(client);
-+	kfree(state);
-+	return 0;
-+}
-+
-+static int example_attach_adapter(struct i2c_adapter *adap)
-+{
-+	return i2c_probe(adap, &addr_data, example_attach);
-+}
-+
-+static struct i2c_driver example_driver = {
-+ 	.driver		= {
-+		.owner		= THIS_MODULE,
-+		.name		= "example",
-+	},
-+	.attach_adapter = example_attach_adapter,
-+	.detach_client	= example_detach,
-+	.suspend	= example_suspend,
-+	.resume		= example_resume,
-+};
-+
-+
-+Updating the client
-+-------------------
-+
-+The new style binding model will check against a list of supported
-+devices and their associated address supplied by the code registering
-+the busses. This means that the driver .attach_adapter and
-+.detach_adapter methods can be removed, along with the addr_data,
-+as follows:
-+
-+- static struct i2c_driver example_driver;
-+
-+- static unsigned short ignore[] = { I2C_CLIENT_END };
-+- static unsigned short normal_addr[] = { OUR_ADDR, I2C_CLIENT_END };
-+
-+- I2C_CLIENT_INSMOD;
-+
-+- static int example_attach_adapter(struct i2c_adapter *adap)
-+- {
-+- 	return i2c_probe(adap, &addr_data, example_attach);
-+- }
-+
-+ static struct i2c_driver example_driver = {
-+-	.attach_adapter = example_attach_adapter,
-+-	.detach_client	= example_detach,
-+ }
-+
-+Add the probe and remove methods to the i2c_driver, as so:
-+
-+ static struct i2c_driver example_driver = {
-++	.probe		= example_probe,
-++	.remove		= example_remove,
-+ }
-+
-+Change the example_attach method to accept the new parameters
-+which include the i2c_client that it will be working with:
-+
-+- static int example_attach(struct i2c_adapter *adap, int addr, int kind)
-++ static int example_probe(struct i2c_client *client,
-++			   const struct i2c_device_id *id)
-+
-+Change the name of example_attach to example_probe to align it with the
-+i2c_driver entry names. The rest of the probe routine will now need to be
-+changed as the i2c_client has already been setup for use.
-+
-+The necessary client fields have already been setup before
-+the probe function is called, so the following client setup
-+can be removed:
-+
-+-	example->client.addr    = addr;
-+-	example->client.flags   = 0;
-+-	example->client.adapter = adap;
-+-
-+-	strlcpy(client->i2c_client.name, "example", I2C_NAME_SIZE);
-+
-+The i2c_set_clientdata is now:
-+
-+-	i2c_set_clientdata(&state->client, state);
-++	i2c_set_clientdata(client, state);
-+
-+The call to i2c_attach_client is no longer needed, if the probe
-+routine exits successfully, then the driver will be automatically
-+attached by the core. Change the probe routine as so:
-+
-+-	ret = i2c_attach_client(&state->i2c_client);
-+-	if (ret < 0) {
-+-		dev_err(dev, "failed to attach client\n");
-+-		kfree(state);
-+-		return ret;
-+-	}
-+
-+
-+Remove the storage of 'struct i2c_client' from the 'struct example_state'
-+as we are provided with the i2c_client in our example_probe. Instead we
-+store a pointer to it for when it is needed.
-+
-+struct example_state {
-+-	struct i2c_client	client;
-++	struct i2c_client	*client;
-+
-+the new i2c client as so:
-+
-+-	struct device *dev = &adap->dev;  /* to use for dev_ reports */
-++ 	struct device *dev = &i2c_client->dev;  /* to use for dev_ reports */
-+
-+And remove the change after our client is attached, as the driver no
-+longer needs to register a new client structure with the core:
-+
-+-	dev = &state->i2c_client.dev;
-+
-+In the probe routine, ensure that the new state has the client stored
-+in it:
-+
-+static int example_probe(struct i2c_client *i2c_client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct example_state *state;
-+ 	struct device *dev = &i2c_client->dev;
-+	int ret;
-+
-+	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-+	if (state == NULL) {
-+		dev_err(dev, "failed to create our state\n");
-+		return -ENOMEM;
-+	}
-+
-++	state->client = i2c_client;
-+
-+Update the detatch method, by changing the name to _remove and
-+to delete the i2c_detach_client call.
-+
-+- static int example_detach(struct i2c_client *client)
-++ static int example_remove(struct i2c_client *client)
-+{
-+	struct example_state *state = i2c_get_clientdata(client);
-+
-+-	i2c_detach_client(client);
-+
-+And finally ensure that we have the correct ID table for the i2c-core
-+and other utilties:
-+
-++ struct i2c_device_id example_idtable[] = {
-++       { "example", 0 },
-++       { }
-++};
-++
-++MODULE_DEVICE_TABLE(i2c, example_idtable);
-+
-+static struct i2c_driver example_driver = {
-+ 	.driver		= {
-+		.owner		= THIS_MODULE,
-+		.name		= "example",
-+	},
-++	.id_table	= example_ids,
-+
-+
-+Our driver should now look like this:
-+
-+struct example_state {
-+	struct i2c_client	*client;
-+	....
-+};
-+
-+static int example_probe(struct i2c_client *client,
-+		         const struct i2c_device_id *id)
-+{
-+	struct example_state *state;
-+	struct device *dev = &client->dev;
-+	int ret;
-+
-+	state = kzalloc(sizeof(struct example_state), GFP_KERNEL);
-+	if (state == NULL) {
-+		dev_err(dev, "failed to create our state\n");
-+		return -ENOMEM;
-+	}
-+
-+	state->client = client;
-+	i2c_set_clientdata(client, state);
-+
-+	/* rest of the initialisation goes here. */
-+
-+	dev_info(dev, "example client created\n");
-+
-+	return 0;
-+}
-+
-+static int example_remove(struct i2c_client *client)
-+{
-+	struct example_state *state = i2c_get_clientdata(client);
-+
-+	kfree(state);
-+	return 0;
-+}
-+
-+static struct i2c_device_id example_idtable[] = {
-+	{ "example", 0 },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, example_idtable);
-+
-+static struct i2c_driver example_driver = {
-+ 	.driver		= {
-+		.owner		= THIS_MODULE,
-+		.name		= "example",
-+	},
-+	.id_table	= example_idtable,
-+	.probe		= example_probe,
-+	.remove		= example_remove,
-+	.suspend	= example_suspend,
-+	.resume		= example_resume,
-+};
-
+Thanks,
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
