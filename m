@@ -1,13 +1,13 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: temperature monitor
-Date: Tue, 15 Jul 2008 18:04:39 +0200
-Message-ID: <20080715180439.01ade138@hyperion.delvare>
-References: <487CC596.3050608@GMail.COM>
+From: Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>
+Subject: Re: i2c: cdev lock_kernel() pushdown
+Date: Tue, 15 Jul 2008 10:14:06 -0600
+Message-ID: <20080715101406.6b4517e3@bike.lwn.net>
+References: <20080715174155.2d52e6f6@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <487CC596.3050608-0K3CJo2NoDF8zQARNC3f2A@public.gmane.org>
+In-Reply-To: <20080715174155.2d52e6f6-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,40 +17,38 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Agile.Aspect-0K3CJo2NoDF8zQARNC3f2A@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 15 Jul 2008 08:43:18 -0700, Agile Aspect wrote:
-> Hi - I'm new to lm_sensors and I'm trying to monitor the temperature on
-> a 8 CPU (Intel Xeon CPU X5460  @ 3.16GHz) running CentOS 4.4
-> (2.6.9-42.ELsmp.)
-> 
-> The command
-> 
->     i2cdetect -l
-> 
-> returns
-> 
->     i2c-0   dummy           ISA main adapter                        ISA 
-> bus algorithm
-> 
-> and the command
-> 
->     No sensors found!
->    
-> Enclosed is the output of lspci.
-> 
-> Any ideas on how I get a temperature monitor working?
-> 
-> For instance, is this the right mailing list?
+Hi, Jean,
 
-No, it's not. Please use instead:
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+> I am looking at this patch of yours:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3db633ee352bfe20d4a2b0c3c8a46ce31a6c7149
+> 
+> I believe that no locking is needed in i2cdev_open(). Do you have any
+> reason to think it does? If not, can I simply revert this patch?
+
+Before now, i2cdev_open() has always had the protection of the BKL.
+When I pushed that locking down into the individual open() functions, I
+really had to take a pretty conservative approach and assume that the
+BKL was needed unless that was really obviously not the case.  In
+i2cdev_open(), for example, there's:
+
+	i2c_dev = i2c_dev_get_by_minor(minor);
+
+and I really don't know what keeps *i2c_dev from going away during the
+rest of the call.  I'm *not* saying there is a problem here; I just
+don't know.  So the only thing I could really do is to push the BKL
+down and let the maintainers sort it out.
+
+...all of which is my long-winded way of saying that, if you're
+convinced that i2cdev_open() is safe in the absence of the BKL, feel
+free to take it out.
 
 Thanks,
--- 
-Jean Delvare
+
+jon
 
 _______________________________________________
 i2c mailing list
