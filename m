@@ -1,71 +1,70 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [i2c] [PATCH 1/1] I2C pxa fast mode (400khz) support
-Date: Tue, 15 Jul 2008 10:43:24 +0100
-Message-ID: <20080715094324.GJ30539@fluff.org.uk>
-References: <486B9E30.80806@cam.ac.uk> <20080710133150.GH30539@fluff.org.uk>
-	<f17812d70807100648m13896650xdafab02b5dc448ec@mail.gmail.com>
-	<487A21EB.9050304@cam.ac.uk>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [patch 1/1] i2c_gpio: keep probe resident for
+	hotplugged	devices.
+Date: Tue, 15 Jul 2008 10:41:47 +0100
+Message-ID: <20080715094147.GI30539@fluff.org.uk>
+References: <20080702101611.757880819@fluff.org>
+	<20080702101611.858837181@fluff.org>
+	<20080702124406.2f3d1384@hskinnemo-gx745.norway.atmel.com>
+	<20080710132917.GF30539@fluff.org.uk>
+	<20080712090600.680f3c2e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <487A21EB.9050304@cam.ac.uk>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, Ben Dooks <ben-linux@fluff.org>, i2c@lm-sensors.org
+In-Reply-To: <20080712090600.680f3c2e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Haavard Skinnemoen <haavard.skinnemoen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jul 13, 2008 at 04:40:27PM +0100, Jonathan Cameron wrote:
-> eric miao wrote:
-> > On Thu, Jul 10, 2008 at 9:31 PM, Ben Dooks <ben-linux@fluff.org> wrote:
-> >> On Wed, Jul 02, 2008 at 04:26:40PM +0100, Jonathan Cameron wrote:
-> >>> Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
-> >>> appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
-> >>> than frequency as this driver is also used for the i2c_pxa_pwr bus which has
-> >>> different normal and fast frequencies.
-> >>>
-> >>> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
-> >> Unfortuantely due to the problem of all the registers in
-> >> one place, this really will need to be applied by RMK. However
-> >> due to the current amount of work in the PXA tree, and the
-> >> number of patches he is carrying for merging this is going
-> >> to be too late for this kernel merge.
-> >>
-> > 
-> > Actually, this round of separation work of the pxa-regs.h has been
-> > done several weeks ago, so I don't see this patch is likely to
-> > cause any merge conflict.
-> > 
-> > But Russell is going to freeze the pxa branch, I see little chance
-> > this be fixed quickly and get into :(
-> > 
-> Dear all, thanks for the comments.
+On Sat, Jul 12, 2008 at 09:06:00AM +0200, Jean Delvare wrote:
+> Ben,
 > 
-> I'll switch the use_pio and fast_mode flags to bit fields and resend 
-> when next kernel merge begins.
+> On Thu, 10 Jul 2008 14:29:17 +0100, Ben Dooks wrote:
+> > On Wed, Jul 02, 2008 at 12:44:06PM +0200, Haavard Skinnemoen wrote:
+> > > Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> > > > Change the i2c_gpio driver to use platform_driver_register()
+> > > > instead of platform_driver_probe() to ensure that is can
+> > > > attach to any devices that may be loaded after it has initialised.
+> > > 
+> > > Does anyone actually do that?
+> > 
+> > At the moment our standard kernel configuration only
+> > builds in the SM501 which will work without this patch
+> > on.
+> > 
+> > However, we have clients that do build module kernels
+> > and I would like to replace i2c-simtec.c with the gpio
+> > driver and if the relevant module instantiating the gpio
+> > support is loaded post kernel init, then we will need to
+> > do this.
 > 
-> As I'm maintaining rather a lot of platform specific stuff anyway for
-> my use, one more won't do any harm for a few weeks!
+> Should I take this patch in my i2c tree, or will you take it in yours?
 
-I think most of RMK's pxa tree has been merged, so a diff
-against a current -git release should give you a better
-starting point.
+I'll take it, I was just waiting to see if there
+where any more objections from Haavard before applying
+this.
+
+If i've not received an objection by 0900GMT 2008-07-16
+then I will add it to my rather small git tree and ask
+linus to pull.
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
   'a smiley only costs 4 bytes'
 
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
