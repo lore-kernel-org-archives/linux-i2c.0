@@ -1,37 +1,40 @@
-From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon: (lm77) Convert to a new-style
- i2c driver
-Date: Wed, 16 Jul 2008 20:28:31 +0200
-Message-ID: <487E3DCF.3090403@hhs.nl>
-References: <20080716164000.6a9f4d9c@hyperion.delvare>
+From: Hans de Goede <j.w.r.degoede@hhs.nl>
+Subject: Re: [PATCH] hwmon: (lm93) Convert to a new-style i2c
+ driver
+Date: Wed, 16 Jul 2008 20:30:51 +0200
+Message-ID: <487E3E5B.6020807@hhs.nl>
+References: <20080716172952.07fd7fc7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716164000.6a9f4d9c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Andras Bali <drewie-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+In-Reply-To: <20080716172952.07fd7fc7@hyperion.delvare>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Eric J. Bowersox" <ericb@aspsys.com>, "Mark M. Hoffman" <mhoffman@lightlink.com>, Carsten Emde <cbe@osadl.org>, Linux I2C <i2c@lm-sensors.org>, LM Sensors <lm-sensors@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Jean Delvare wrote:
-> The new-style lm77 driver implements the optional detect() callback
+> The new-style lm93 driver implements the optional detect() callback
 > to cover the use cases of the legacy driver.
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Andras Bali <drewie-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> Cc: Mark M. Hoffman <mhoffman@lightlink.com>
+> Cc: Eric J. Bowersox <ericb@aspsys.com>
+> Cc: Carsten Emde <cbe@osadl.org>
+> Cc: Hans J. Koch <hjk@linutronix.de>
 
 Looks good,
 
-Acked-by: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+Acked-by: Hans de Goede <j.w.r.degoede@hhs.nl>
 
 Regards,
 
@@ -39,223 +42,215 @@ Hans
 
 
 
-
 > ---
->  drivers/hwmon/lm77.c |  102 ++++++++++++++++++++++----------------------------
->  1 file changed, 45 insertions(+), 57 deletions(-)
+>  drivers/hwmon/lm93.c |  126 +++++++++++++++++++++++---------------------------
+>  1 file changed, 60 insertions(+), 66 deletions(-)
 > 
-> --- linux-2.6.26-rc9.orig/drivers/hwmon/lm77.c	2008-07-12 09:20:29.000000000 +0200
-> +++ linux-2.6.26-rc9/drivers/hwmon/lm77.c	2008-07-12 10:27:19.000000000 +0200
-> @@ -52,7 +52,6 @@ I2C_CLIENT_INSMOD_1(lm77);
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/lm93.c	2008-07-12 09:20:29.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/lm93.c	2008-07-12 10:27:15.000000000 +0200
+> @@ -200,7 +200,6 @@ struct block1_t {
+>   * Client-specific data
+>   */
+>  struct lm93_data {
+> -	struct i2c_client client;
+>  	struct device *hwmon_dev;
 >  
->  /* Each client has this additional data */
->  struct lm77_data {
-> -	struct i2c_client	client;
->  	struct device 		*hwmon_dev;
->  	struct mutex		update_lock;
->  	char			valid;
-> @@ -65,23 +64,35 @@ struct lm77_data {
->  	u8			alarms;
->  };
+>  	struct mutex update_lock;
+> @@ -2501,45 +2500,14 @@ static void lm93_init_client(struct i2c_
+>  		 "chip to signal ready!\n");
+>  }
 >  
-> -static int lm77_attach_adapter(struct i2c_adapter *adapter);
-> -static int lm77_detect(struct i2c_adapter *adapter, int address, int kind);
-> +static int lm77_probe(struct i2c_client *client,
-> +		      const struct i2c_device_id *id);
-> +static int lm77_detect(struct i2c_client *client, int kind,
-> +		       struct i2c_board_info *info);
->  static void lm77_init_client(struct i2c_client *client);
-> -static int lm77_detach_client(struct i2c_client *client);
-> +static int lm77_remove(struct i2c_client *client);
->  static u16 lm77_read_value(struct i2c_client *client, u8 reg);
->  static int lm77_write_value(struct i2c_client *client, u8 reg, u16 value);
->  
->  static struct lm77_data *lm77_update_device(struct device *dev);
->  
->  
-> +static const struct i2c_device_id lm77_id[] = {
-> +	{ "lm77", lm77 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, lm77_id);
-> +
->  /* This is the driver that will be inserted */
->  static struct i2c_driver lm77_driver = {
-> +	.class		= I2C_CLASS_HWMON,
->  	.driver = {
->  		.name	= "lm77",
->  	},
-> -	.attach_adapter = lm77_attach_adapter,
-> -	.detach_client	= lm77_detach_client,
-> +	.probe		= lm77_probe,
-> +	.remove		= lm77_remove,
-> +	.id_table	= lm77_id,
-> +	.detect		= lm77_detect,
-> +	.address_data	= &addr_data,
->  };
->  
->  /* straight from the datasheet */
-> @@ -215,13 +226,6 @@ static SENSOR_DEVICE_ATTR(temp1_crit_ala
->  static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL, 0);
->  static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, show_alarm, NULL, 1);
->  
-> -static int lm77_attach_adapter(struct i2c_adapter *adapter)
-> -{
-> -	if (!(adapter->class & I2C_CLASS_HWMON))
-> -		return 0;
-> -	return i2c_probe(adapter, &addr_data, lm77_detect);
-> -}
-> -
->  static struct attribute *lm77_attributes[] = {
->  	&dev_attr_temp1_input.attr,
->  	&dev_attr_temp1_crit.attr,
-> @@ -240,32 +244,15 @@ static const struct attribute_group lm77
->  	.attrs = lm77_attributes,
->  };
->  
-> -/* This function is called by i2c_probe */
-> -static int lm77_detect(struct i2c_adapter *adapter, int address, int kind)
+> -static int lm93_detect(struct i2c_adapter *adapter, int address, int kind)
 > +/* Return 0 if detection is successful, -ENODEV otherwise */
-> +static int lm77_detect(struct i2c_client *new_client, int kind,
+> +static int lm93_detect(struct i2c_client *client, int kind,
 > +		       struct i2c_board_info *info)
 >  {
-> -	struct i2c_client *new_client;
-> -	struct lm77_data *data;
-> -	int err = 0;
-> -	const char *name = "";
-> +	struct i2c_adapter *adapter = new_client->adapter;
->  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
->  				     I2C_FUNC_SMBUS_WORD_DATA))
-> -		goto exit;
+> -	struct lm93_data *data;
+> -	struct i2c_client *client;
 > -
+> -	int err = -ENODEV, func;
+> -	void (*update)(struct lm93_data *, struct i2c_client *);
+> -
+> -	/* choose update routine based on bus capabilities */
+> -	func = i2c_get_functionality(adapter);
+> -	if ( ((LM93_SMBUS_FUNC_FULL & func) == LM93_SMBUS_FUNC_FULL) &&
+> -			(!disable_block) ) {
+> -		dev_dbg(&adapter->dev,"using SMBus block data transactions\n");
+> -		update = lm93_update_client_full;
+> -	} else if ((LM93_SMBUS_FUNC_MIN & func) == LM93_SMBUS_FUNC_MIN) {
+> -		dev_dbg(&adapter->dev,"disabled SMBus block data "
+> -			"transactions\n");
+> -		update = lm93_update_client_min;
+> -	} else {
+> -		dev_dbg(&adapter->dev,"detect failed, "
+> -			"smbus byte and/or word data not supported!\n");
+> -		goto err_out;
+> -	}
+> +	struct i2c_adapter *adapter = client->adapter;
+>  
 > -	/* OK. For now, we presume we have a valid client. We now create the
 > -	   client structure, even though we cannot fill it completely yet.
-> -	   But it allows us to access lm77_{read,write}_value. */
-> -	if (!(data = kzalloc(sizeof(struct lm77_data), GFP_KERNEL))) {
+> -	   But it allows us to access lm78_{read,write}_value. */
+> -
+> -	if ( !(data = kzalloc(sizeof(struct lm93_data), GFP_KERNEL))) {
+> -		dev_dbg(&adapter->dev,"out of memory!\n");
 > -		err = -ENOMEM;
-> -		goto exit;
+> -		goto err_out;
 > -	}
 > -
-> -	new_client = &data->client;
-> -	i2c_set_clientdata(new_client, data);
-> -	new_client->addr = address;
-> -	new_client->adapter = adapter;
-> -	new_client->driver = &lm77_driver;
-> -	new_client->flags = 0;
+> -	client = &data->client;
+> -	i2c_set_clientdata(client, data);
+> -	client->addr = address;
+> -	client->adapter = adapter;
+> -	client->driver = &lm93_driver;
+> +	if (!i2c_check_functionality(adapter, LM93_SMBUS_FUNC_MIN))
 > +		return -ENODEV;
 >  
->  	/* Here comes the remaining detection.  Since the LM77 has no
->  	   register dedicated to identification, we have to rely on the
-> @@ -294,7 +281,7 @@ static int lm77_detect(struct i2c_adapte
->  			    || i2c_smbus_read_word_data(new_client, i + 3) != crit
->  			    || i2c_smbus_read_word_data(new_client, i + 4) != min
->  			    || i2c_smbus_read_word_data(new_client, i + 5) != max)
-> -				goto exit_free;
-> +				return -ENODEV;
->  
->  		/* sign bits */
->  		if (((cur & 0x00f0) != 0xf0 && (cur & 0x00f0) != 0x0)
-> @@ -302,51 +289,55 @@ static int lm77_detect(struct i2c_adapte
->  		    || ((crit & 0x00f0) != 0xf0 && (crit & 0x00f0) != 0x0)
->  		    || ((min & 0x00f0) != 0xf0 && (min & 0x00f0) != 0x0)
->  		    || ((max & 0x00f0) != 0xf0 && (max & 0x00f0) != 0x0))
-> -			goto exit_free;
+>  	/* detection */
+>  	if (kind < 0) {
+> @@ -2548,7 +2516,7 @@ static int lm93_detect(struct i2c_adapte
+>  		if (mfr != 0x01) {
+>  			dev_dbg(&adapter->dev,"detect failed, "
+>  				"bad manufacturer id 0x%02x!\n", mfr);
+> -			goto err_free;
 > +			return -ENODEV;
->  
->  		/* unused bits */
->  		if (conf & 0xe0)
-> -			goto exit_free;
-> +			return -ENODEV;
->  
->  		/* 0x06 and 0x07 return the last read value */
->  		cur = i2c_smbus_read_word_data(new_client, 0);
->  		if (i2c_smbus_read_word_data(new_client, 6) != cur
->  		    || i2c_smbus_read_word_data(new_client, 7) != cur)
-> -			goto exit_free;
-> +			return -ENODEV;
->  		hyst = i2c_smbus_read_word_data(new_client, 2);
->  		if (i2c_smbus_read_word_data(new_client, 6) != hyst
->  		    || i2c_smbus_read_word_data(new_client, 7) != hyst)
-> -			goto exit_free;
-> +			return -ENODEV;
->  		min = i2c_smbus_read_word_data(new_client, 4);
->  		if (i2c_smbus_read_word_data(new_client, 6) != min
->  		    || i2c_smbus_read_word_data(new_client, 7) != min)
-> -			goto exit_free;
-> +			return -ENODEV;
->  
+>  		}
 >  	}
 >  
-> -	/* Determine the chip type - only one kind supported! */
-> -	if (kind <= 0)
-> -		kind = lm77;
-> +	strlcpy(info->type, "lm77", I2C_NAME_SIZE);
+> @@ -2563,31 +2531,61 @@ static int lm93_detect(struct i2c_adapte
+>  			if (kind == 0)
+>  				dev_dbg(&adapter->dev,
+>  					"(ignored 'force' parameter)\n");
+> -			goto err_free;
+> +			return -ENODEV;
+>  		}
+>  	}
 >  
-> -	if (kind == lm77) {
-> -		name = "lm77";
+> -	/* fill in remaining client fields */
+> -	strlcpy(client->name, "lm93", I2C_NAME_SIZE);
+> +	strlcpy(info->type, "lm93", I2C_NAME_SIZE);
+>  	dev_dbg(&adapter->dev,"loading %s at %d,0x%02x\n",
+>  		client->name, i2c_adapter_id(client->adapter),
+>  		client->addr);
+>  
 > +	return 0;
 > +}
 > +
-> +static int lm77_probe(struct i2c_client *new_client,
+> +static int lm93_probe(struct i2c_client *client,
 > +		      const struct i2c_device_id *id)
 > +{
-> +	struct lm77_data *data;
-> +	int err;
+> +	struct lm93_data *data;
+> +	int err, func;
+> +	void (*update)(struct lm93_data *, struct i2c_client *);
 > +
-> +	data = kzalloc(sizeof(struct lm77_data), GFP_KERNEL);
+> +	/* choose update routine based on bus capabilities */
+> +	func = i2c_get_functionality(client->adapter);
+> +	if (((LM93_SMBUS_FUNC_FULL & func) == LM93_SMBUS_FUNC_FULL) &&
+> +			(!disable_block)) {
+> +		dev_dbg(&client->dev, "using SMBus block data transactions\n");
+> +		update = lm93_update_client_full;
+> +	} else if ((LM93_SMBUS_FUNC_MIN & func) == LM93_SMBUS_FUNC_MIN) {
+> +		dev_dbg(&client->dev, "disabled SMBus block data "
+> +			"transactions\n");
+> +		update = lm93_update_client_min;
+> +	} else {
+> +		dev_dbg(&client->dev, "detect failed, "
+> +			"smbus byte and/or word data not supported!\n");
+> +		err = -ENODEV;
+> +		goto err_out;
+> +	}
+> +
+> +	data = kzalloc(sizeof(struct lm93_data), GFP_KERNEL);
 > +	if (!data) {
+> +		dev_dbg(&client->dev, "out of memory!\n");
 > +		err = -ENOMEM;
-> +		goto exit;
->  	}
->  
-> -	/* Fill in the remaining client fields and put it into the global list */
-> -	strlcpy(new_client->name, name, I2C_NAME_SIZE);
-> +	i2c_set_clientdata(new_client, data);
+> +		goto err_out;
+> +	}
+> +	i2c_set_clientdata(client, data);
+> +
+>  	/* housekeeping */
 >  	data->valid = 0;
+>  	data->update = update;
 >  	mutex_init(&data->update_lock);
 >  
-> -	/* Tell the I2C layer a new client has arrived */
-> -	if ((err = i2c_attach_client(new_client)))
-> -		goto exit_free;
+> -	/* tell the I2C layer a new client has arrived */
+> -	if ((err = i2c_attach_client(client)))
+> -		goto err_free;
 > -
->  	/* Initialize the LM77 chip */
->  	lm77_init_client(new_client);
+>  	/* initialize the chip */
+>  	lm93_init_client(client);
 >  
->  	/* Register sysfs hooks */
->  	if ((err = sysfs_create_group(&new_client->dev.kobj, &lm77_group)))
-> -		goto exit_detach;
-> +		goto exit_free;
+>  	err = sysfs_create_group(&client->dev.kobj, &lm93_attr_grp);
+>  	if (err)
+> -		goto err_detach;
+> +		goto err_free;
 >  
->  	data->hwmon_dev = hwmon_device_register(&new_client->dev);
->  	if (IS_ERR(data->hwmon_dev)) {
-> @@ -358,20 +349,17 @@ static int lm77_detect(struct i2c_adapte
->  
->  exit_remove:
->  	sysfs_remove_group(&new_client->dev.kobj, &lm77_group);
-> -exit_detach:
-> -	i2c_detach_client(new_client);
->  exit_free:
+>  	/* Register hwmon driver class */
+>  	data->hwmon_dev = hwmon_device_register(&client->dev);
+> @@ -2597,43 +2595,39 @@ static int lm93_detect(struct i2c_adapte
+>  	err = PTR_ERR(data->hwmon_dev);
+>  	dev_err(&client->dev, "error registering hwmon device.\n");
+>  	sysfs_remove_group(&client->dev.kobj, &lm93_attr_grp);
+> -err_detach:
+> -	i2c_detach_client(client);
+>  err_free:
 >  	kfree(data);
->  exit:
+>  err_out:
 >  	return err;
 >  }
 >  
-> -static int lm77_detach_client(struct i2c_client *client)
-> +static int lm77_remove(struct i2c_client *client)
+> -/* This function is called when:
+> -     * lm93_driver is inserted (when this module is loaded), for each
+> -       available adapter
+> -     * when a new adapter is inserted (and lm93_driver is still present) */
+> -static int lm93_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	return i2c_probe(adapter, &addr_data, lm93_detect);
+> -}
+> -
+> -static int lm93_detach_client(struct i2c_client *client)
+> +static int lm93_remove(struct i2c_client *client)
 >  {
->  	struct lm77_data *data = i2c_get_clientdata(client);
+>  	struct lm93_data *data = i2c_get_clientdata(client);
+> -	int err = 0;
+>  
 >  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &lm77_group);
-> -	i2c_detach_client(client);
->  	kfree(data);
->  	return 0;
+>  	sysfs_remove_group(&client->dev.kobj, &lm93_attr_grp);
+>  
+> -	err = i2c_detach_client(client);
+> -	if (!err)
+> -		kfree(data);
+> -	return err;
+> +	kfree(data);
+> +	return 0;
 >  }
+>  
+> +static const struct i2c_device_id lm93_id[] = {
+> +	{ "lm93", lm93 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, lm93_id);
+> +
+>  static struct i2c_driver lm93_driver = {
+> +	.class		= I2C_CLASS_HWMON,
+>  	.driver = {
+>  		.name	= "lm93",
+>  	},
+> -	.attach_adapter	= lm93_attach_adapter,
+> -	.detach_client	= lm93_detach_client,
+> +	.probe		= lm93_probe,
+> +	.remove		= lm93_remove,
+> +	.id_table	= lm93_id,
+> +	.detect		= lm93_detect,
+> +	.address_data	= &addr_data,
+>  };
+>  
+>  static int __init lm93_init(void)
 > 
 > 
 
 
 _______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
