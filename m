@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] hwmon: (adt7473) Convert to a new-style i2c driver
-Date: Wed, 16 Jul 2008 16:34:48 +0200
-Message-ID: <20080716163448.46442517@hyperion.delvare>
+Subject: [PATCH] hwmon: (fscher) Convert to a new-style i2c driver
+Date: Wed, 16 Jul 2008 16:35:39 +0200
+Message-ID: <20080716163539.4149f0e3@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,187 +16,180 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Cc: Reinhard Nissl <rnissl-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The new-style adt7473 driver implements the optional detect() callback
+The new-style fscher driver implements the optional detect() callback
 to cover the use cases of the legacy driver.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Darrick J. Wong <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Cc: Reinhard Nissl <rnissl-Mmb7MZpHnFY@public.gmane.org>
 ---
- drivers/hwmon/adt7473.c |  102 ++++++++++++++++++++++-------------------------
- 1 file changed, 48 insertions(+), 54 deletions(-)
+ drivers/hwmon/fscher.c |   93 +++++++++++++++++++++---------------------------
+ 1 file changed, 42 insertions(+), 51 deletions(-)
 
---- linux-2.6.26-rc9.orig/drivers/hwmon/adt7473.c	2008-07-12 09:20:30.000000000 +0200
-+++ linux-2.6.26-rc9/drivers/hwmon/adt7473.c	2008-07-12 10:27:28.000000000 +0200
-@@ -143,7 +143,6 @@ I2C_CLIENT_INSMOD_1(adt7473);
- #define FAN_DATA_VALID(x)	((x) && (x) != FAN_PERIOD_INVALID)
+--- linux-2.6.26-rc9.orig/drivers/hwmon/fscher.c	2008-07-12 09:20:30.000000000 +0200
++++ linux-2.6.26-rc9/drivers/hwmon/fscher.c	2008-07-12 10:27:24.000000000 +0200
+@@ -106,9 +106,11 @@ I2C_CLIENT_INSMOD_1(fscher);
+  * Functions declaration
+  */
  
- struct adt7473_data {
--	struct i2c_client	client;
- 	struct device		*hwmon_dev;
- 	struct attribute_group	attrs;
- 	struct mutex		lock;
-@@ -178,16 +177,28 @@ struct adt7473_data {
- 	u8			max_duty_at_overheat;
- };
+-static int fscher_attach_adapter(struct i2c_adapter *adapter);
+-static int fscher_detect(struct i2c_adapter *adapter, int address, int kind);
+-static int fscher_detach_client(struct i2c_client *client);
++static int fscher_probe(struct i2c_client *client,
++			const struct i2c_device_id *id);
++static int fscher_detect(struct i2c_client *client, int kind,
++			 struct i2c_board_info *info);
++static int fscher_remove(struct i2c_client *client);
+ static struct fscher_data *fscher_update_device(struct device *dev);
+ static void fscher_init_client(struct i2c_client *client);
  
--static int adt7473_attach_adapter(struct i2c_adapter *adapter);
--static int adt7473_detect(struct i2c_adapter *adapter, int address, int kind);
--static int adt7473_detach_client(struct i2c_client *client);
-+static int adt7473_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id);
-+static int adt7473_detect(struct i2c_client *client, int kind,
-+			  struct i2c_board_info *info);
-+static int adt7473_remove(struct i2c_client *client);
-+
-+static const struct i2c_device_id adt7473_id[] = {
-+	{ "adt7473", adt7473 },
+@@ -119,12 +121,21 @@ static int fscher_write_value(struct i2c
+  * Driver data (common to all clients)
+  */
+  
++static const struct i2c_device_id fscher_id[] = {
++	{ "fscher", fscher },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(i2c, adt7473_id);
- 
- static struct i2c_driver adt7473_driver = {
++
+ static struct i2c_driver fscher_driver = {
 +	.class		= I2C_CLASS_HWMON,
  	.driver = {
- 		.name	= "adt7473",
+ 		.name	= "fscher",
  	},
--	.attach_adapter	= adt7473_attach_adapter,
--	.detach_client	= adt7473_detach_client,
-+	.probe		= adt7473_probe,
-+	.remove		= adt7473_remove,
-+	.id_table	= adt7473_id,
-+	.detect		= adt7473_detect,
+-	.attach_adapter	= fscher_attach_adapter,
+-	.detach_client	= fscher_detach_client,
++	.probe		= fscher_probe,
++	.remove		= fscher_remove,
++	.id_table	= fscher_id,
++	.detect		= fscher_detect,
 +	.address_data	= &addr_data,
  };
  
  /*
-@@ -1042,66 +1053,52 @@ static struct attribute *adt7473_attr[] 
- 	NULL
- };
+@@ -132,7 +143,6 @@ static struct i2c_driver fscher_driver =
+  */
  
--static int adt7473_attach_adapter(struct i2c_adapter *adapter)
-+/* Return 0 if detection is successful, -ENODEV otherwise */
-+static int adt7473_detect(struct i2c_client *client, int kind,
-+			  struct i2c_board_info *info)
- {
+ struct fscher_data {
+-	struct i2c_client client;
+ 	struct device *hwmon_dev;
+ 	struct mutex update_lock;
+ 	char valid; /* zero until following fields are valid */
+@@ -283,38 +293,14 @@ static const struct attribute_group fsch
+  * Real code
+  */
+ 
+-static int fscher_attach_adapter(struct i2c_adapter *adapter)
+-{
 -	if (!(adapter->class & I2C_CLASS_HWMON))
 -		return 0;
--	return i2c_probe(adapter, &addr_data, adt7473_detect);
+-	return i2c_probe(adapter, &addr_data, fscher_detect);
 -}
 -
--static int adt7473_detect(struct i2c_adapter *adapter, int address, int kind)
--{
--	struct i2c_client *client;
--	struct adt7473_data *data;
+-static int fscher_detect(struct i2c_adapter *adapter, int address, int kind)
++/* Return 0 if detection is successful, -ENODEV otherwise */
++static int fscher_detect(struct i2c_client *new_client, int kind,
++			 struct i2c_board_info *info)
+ {
+-	struct i2c_client *new_client;
+-	struct fscher_data *data;
 -	int err = 0;
-+	struct i2c_adapter *adapter = client->adapter;
++	struct i2c_adapter *adapter = new_client->adapter;
  
  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 -		goto exit;
 -
--	data = kzalloc(sizeof(struct adt7473_data), GFP_KERNEL);
--	if (!data) {
+-	/* OK. For now, we presume we have a valid client. We now create the
+-	 * client structure, even though we cannot fill it completely yet.
+-	 * But it allows us to access i2c_smbus_read_byte_data. */
+-	if (!(data = kzalloc(sizeof(struct fscher_data), GFP_KERNEL))) {
 -		err = -ENOMEM;
 -		goto exit;
--	}
+-  	}
 -
--	client = &data->client;
--	client->addr = address;
--	client->adapter = adapter;
--	client->driver = &adt7473_driver;
--
--	i2c_set_clientdata(client, data);
--
--	mutex_init(&data->lock);
+-	/* The common I2C client data is placed right before the
+-	 * Hermes-specific data. */
+-	new_client = &data->client;
+-	i2c_set_clientdata(new_client, data);
+-	new_client->addr = address;
+-	new_client->adapter = adapter;
+-	new_client->driver = &fscher_driver;
+-	new_client->flags = 0;
 +		return -ENODEV;
  
- 	if (kind <= 0) {
- 		int vendor, device, revision;
- 
- 		vendor = i2c_smbus_read_byte_data(client, ADT7473_REG_VENDOR);
--		if (vendor != ADT7473_VENDOR) {
--			err = -ENODEV;
+ 	/* Do the remaining detection unless force or force_fscher parameter */
+ 	if (kind < 0) {
+@@ -324,24 +310,35 @@ static int fscher_detect(struct i2c_adap
+ 		     FSCHER_REG_IDENT_1) != 0x45)	/* 'E' */
+ 		 || (i2c_smbus_read_byte_data(new_client,
+ 		     FSCHER_REG_IDENT_2) != 0x52))	/* 'R' */
 -			goto exit_free;
--		}
-+		if (vendor != ADT7473_VENDOR)
 +			return -ENODEV;
- 
- 		device = i2c_smbus_read_byte_data(client, ADT7473_REG_DEVICE);
--		if (device != ADT7473_DEVICE) {
--			err = -ENODEV;
--			goto exit_free;
--		}
-+		if (device != ADT7473_DEVICE)
-+			return -ENODEV;
- 
- 		revision = i2c_smbus_read_byte_data(client,
- 						    ADT7473_REG_REVISION);
--		if (revision != ADT7473_REV_68 && revision != ADT7473_REV_69) {
--			err = -ENODEV;
--			goto exit_free;
--		}
-+		if (revision != ADT7473_REV_68 && revision != ADT7473_REV_69)
-+			return -ENODEV;
- 	} else
- 		dev_dbg(&adapter->dev, "detection forced\n");
- 
--	strlcpy(client->name, "adt7473", I2C_NAME_SIZE);
-+	strlcpy(info->type, "adt7473", I2C_NAME_SIZE);
- 
--	err = i2c_attach_client(client);
--	if (err)
--		goto exit_free;
++	}
++
++	strlcpy(info->type, "fscher", I2C_NAME_SIZE);
++
 +	return 0;
 +}
 +
-+static int adt7473_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
++static int fscher_probe(struct i2c_client *new_client,
++			const struct i2c_device_id *id)
 +{
-+	struct adt7473_data *data;
++	struct fscher_data *data;
 +	int err;
 +
-+	data = kzalloc(sizeof(struct adt7473_data), GFP_KERNEL);
++	data = kzalloc(sizeof(struct fscher_data), GFP_KERNEL);
 +	if (!data) {
 +		err = -ENOMEM;
 +		goto exit;
-+	}
-+
-+	i2c_set_clientdata(client, data);
-+	mutex_init(&data->lock);
+ 	}
  
- 	dev_info(&client->dev, "%s chip found\n", client->name);
+-	/* Fill in the remaining client fields and put it into the
+-	 * global list */
+-	strlcpy(new_client->name, "fscher", I2C_NAME_SIZE);
++	i2c_set_clientdata(new_client, data);
+ 	data->valid = 0;
+ 	mutex_init(&data->update_lock);
  
-@@ -1112,7 +1109,7 @@ static int adt7473_detect(struct i2c_ada
- 	data->attrs.attrs = adt7473_attr;
- 	err = sysfs_create_group(&client->dev.kobj, &data->attrs);
- 	if (err)
+-	/* Tell the I2C layer a new client has arrived */
+-	if ((err = i2c_attach_client(new_client)))
+-		goto exit_free;
+-
+ 	fscher_init_client(new_client);
+ 
+ 	/* Register sysfs hooks */
+ 	if ((err = sysfs_create_group(&new_client->dev.kobj, &fscher_group)))
 -		goto exit_detach;
 +		goto exit_free;
  
- 	data->hwmon_dev = hwmon_device_register(&client->dev);
+ 	data->hwmon_dev = hwmon_device_register(&new_client->dev);
  	if (IS_ERR(data->hwmon_dev)) {
-@@ -1124,21 +1121,18 @@ static int adt7473_detect(struct i2c_ada
+@@ -353,25 +350,19 @@ static int fscher_detect(struct i2c_adap
  
- exit_remove:
- 	sysfs_remove_group(&client->dev.kobj, &data->attrs);
+ exit_remove_files:
+ 	sysfs_remove_group(&new_client->dev.kobj, &fscher_group);
 -exit_detach:
--	i2c_detach_client(client);
+-	i2c_detach_client(new_client);
  exit_free:
  	kfree(data);
  exit:
  	return err;
  }
  
--static int adt7473_detach_client(struct i2c_client *client)
-+static int adt7473_remove(struct i2c_client *client)
+-static int fscher_detach_client(struct i2c_client *client)
++static int fscher_remove(struct i2c_client *client)
  {
- 	struct adt7473_data *data = i2c_get_clientdata(client);
+ 	struct fscher_data *data = i2c_get_clientdata(client);
+-	int err;
  
  	hwmon_device_unregister(data->hwmon_dev);
- 	sysfs_remove_group(&client->dev.kobj, &data->attrs);
--	i2c_detach_client(client);
+ 	sysfs_remove_group(&client->dev.kobj, &fscher_group);
+ 
+-	if ((err = i2c_detach_client(client)))
+-		return err;
+-
  	kfree(data);
  	return 0;
  }
