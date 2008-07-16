@@ -1,14 +1,14 @@
 From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon: (thmc50) Convert to a
- new-style i2c driver
-Date: Wed, 16 Jul 2008 23:04:11 +0200
-Message-ID: <487E624B.4060908@hhs.nl>
-References: <20080716173316.1e8c5c42@hyperion.delvare>
+Subject: Re: [lm-sensors] [PATCH] hwmon: (lm87) Convert to a new-style
+ i2c driver
+Date: Wed, 16 Jul 2008 23:05:35 +0200
+Message-ID: <487E629F.8040804@hhs.nl>
+References: <20080716164128.46f6766e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716173316.1e8c5c42-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080716164128.46f6766e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,55 +19,224 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Jean Delvare wrote:
-> The new-style thmc50 driver implements the optional detect()
-> callback to cover the use cases of the legacy driver.
+> The new-style lm87 driver implements the optional detect() callback
+> to cover the use cases of the legacy driver.
 > 
 > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+> Cc: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
 
-> @@ -307,21 +304,22 @@ static int thmc50_detect(struct i2c_adap
->  	}
->  	if (err == -ENODEV) {
->  		pr_debug("thmc50: Detection of THMC50/ADM1022 failed\n");
-> -		goto exit_free;
-> +		return err;
->  	}
-> -	data->type = kind;
->  
->  	if (kind == adm1022) {
->  		int id = i2c_adapter_id(client->adapter);
->  		int i;
->  
->  		type_name = "adm1022";
-> -		data->has_temp3 = (config >> 7) & 1;	/* config MSB */
->  		for (i = 0; i + 1 < adm1022_temp3_num; i += 2)
->  			if (adm1022_temp3[i] == id &&
-> -			    adm1022_temp3[i + 1] == address) {
-> +			    adm1022_temp3[i + 1] == client->addr) {
->  				/* enable 2nd remote temp */
-> -				data->has_temp3 = 1;
-> +				config |= (1 << 7);
-> +				i2c_smbus_write_byte_data(client,
-> +							  THMC50_REG_CONF,
-> +							  config);
->  				break;
->  			}
->  	} else {
+Looks good,
 
-Hmm, This does not seem right, you are _writing_ to the device in a the detect 
-function changing its configuration. I understand you can no longer set 
-data->has_temp3 as there is no data yet in the detect, instead the entire loop 
-which checks if the device has temp3 forced through a module option should be 
-moved to the probe function. Writing to a config register in the detect 
-function feels wrong to me.
+Acked-by: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
 
 Regards,
 
 Hans
+
+
+> ---
+>  drivers/hwmon/lm87.c |   99 +++++++++++++++++++++++---------------------------
+>  1 file changed, 46 insertions(+), 53 deletions(-)
+> 
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/lm87.c	2008-07-12 09:20:29.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/lm87.c	2008-07-12 10:27:17.000000000 +0200
+> @@ -5,7 +5,7 @@
+>   *                          Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>
+>   *                          Stephen Rousset <stephen.rousset-RtyX3GHucphnQYSypqKXDg@public.gmane.org>
+>   *                          Dan Eaton <dan.eaton-RtyX3GHucphnQYSypqKXDg@public.gmane.org>
+> - * Copyright (C) 2004,2007  Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> + * Copyright (C) 2004-2008  Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>   *
+>   * Original port to Linux 2.6 by Jeff Oliver.
+>   *
+> @@ -157,22 +157,35 @@ static u8 LM87_REG_TEMP_LOW[3] = { 0x3A,
+>   * Functions declaration
+>   */
+>  
+> -static int lm87_attach_adapter(struct i2c_adapter *adapter);
+> -static int lm87_detect(struct i2c_adapter *adapter, int address, int kind);
+> +static int lm87_probe(struct i2c_client *client,
+> +		      const struct i2c_device_id *id);
+> +static int lm87_detect(struct i2c_client *new_client, int kind,
+> +		       struct i2c_board_info *info);
+>  static void lm87_init_client(struct i2c_client *client);
+> -static int lm87_detach_client(struct i2c_client *client);
+> +static int lm87_remove(struct i2c_client *client);
+>  static struct lm87_data *lm87_update_device(struct device *dev);
+>  
+>  /*
+>   * Driver data (common to all clients)
+>   */
+>  
+> +static const struct i2c_device_id lm87_id[] = {
+> +	{ "lm87", lm87 },
+> +	{ "adm1024", adm1024 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, lm87_id);
+> +
+>  static struct i2c_driver lm87_driver = {
+> +	.class		= I2C_CLASS_HWMON,
+>  	.driver = {
+>  		.name	= "lm87",
+>  	},
+> -	.attach_adapter	= lm87_attach_adapter,
+> -	.detach_client	= lm87_detach_client,
+> +	.probe		= lm87_probe,
+> +	.remove		= lm87_remove,
+> +	.id_table	= lm87_id,
+> +	.detect		= lm87_detect,
+> +	.address_data	= &addr_data,
+>  };
+>  
+>  /*
+> @@ -180,7 +193,6 @@ static struct i2c_driver lm87_driver = {
+>   */
+>  
+>  struct lm87_data {
+> -	struct i2c_client client;
+>  	struct device *hwmon_dev;
+>  	struct mutex update_lock;
+>  	char valid; /* zero until following fields are valid */
+> @@ -562,13 +574,6 @@ static SENSOR_DEVICE_ATTR(temp3_fault, S
+>   * Real code
+>   */
+>  
+> -static int lm87_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	if (!(adapter->class & I2C_CLASS_HWMON))
+> -		return 0;
+> -	return i2c_probe(adapter, &addr_data, lm87_detect);
+> -}
+> -
+>  static struct attribute *lm87_attributes[] = {
+>  	&dev_attr_in1_input.attr,
+>  	&dev_attr_in1_min.attr,
+> @@ -656,33 +661,15 @@ static const struct attribute_group lm87
+>  	.attrs = lm87_attributes_opt,
+>  };
+>  
+> -/*
+> - * The following function does more than just detection. If detection
+> - * succeeds, it also registers the new chip.
+> - */
+> -static int lm87_detect(struct i2c_adapter *adapter, int address, int kind)
+> +/* Return 0 if detection is successful, -ENODEV otherwise */
+> +static int lm87_detect(struct i2c_client *new_client, int kind,
+> +		       struct i2c_board_info *info)
+>  {
+> -	struct i2c_client *new_client;
+> -	struct lm87_data *data;
+> -	int err = 0;
+> +	struct i2c_adapter *adapter = new_client->adapter;
+>  	static const char *names[] = { "lm87", "adm1024" };
+>  
+>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+> -		goto exit;
+> -
+> -	if (!(data = kzalloc(sizeof(struct lm87_data), GFP_KERNEL))) {
+> -		err = -ENOMEM;
+> -		goto exit;
+> -	}
+> -
+> -	/* The common I2C client data is placed right before the
+> -	   LM87-specific data. */
+> -	new_client = &data->client;
+> -	i2c_set_clientdata(new_client, data);
+> -	new_client->addr = address;
+> -	new_client->adapter = adapter;
+> -	new_client->driver = &lm87_driver;
+> -	new_client->flags = 0;
+> +		return -ENODEV;
+>  
+>  	/* Default to an LM87 if forced */
+>  	if (kind == 0)
+> @@ -704,20 +691,32 @@ static int lm87_detect(struct i2c_adapte
+>  		 || (lm87_read_value(new_client, LM87_REG_CONFIG) & 0x80)) {
+>  			dev_dbg(&adapter->dev,
+>  				"LM87 detection failed at 0x%02x.\n",
+> -				address);
+> -			goto exit_free;
+> +				new_client->addr);
+> +			return -ENODEV;
+>  		}
+>  	}
+>  
+> -	/* We can fill in the remaining client fields */
+> -	strlcpy(new_client->name, names[kind - 1], I2C_NAME_SIZE);
+> +	strlcpy(info->type, names[kind - 1], I2C_NAME_SIZE);
+> +
+> +	return 0;
+> +}
+> +
+> +static int lm87_probe(struct i2c_client *new_client,
+> +		      const struct i2c_device_id *id)
+> +{
+> +	struct lm87_data *data;
+> +	int err;
+> +
+> +	data = kzalloc(sizeof(struct lm87_data), GFP_KERNEL);
+> +	if (!data) {
+> +		err = -ENOMEM;
+> +		goto exit;
+> +	}
+> +
+> +	i2c_set_clientdata(new_client, data);
+>  	data->valid = 0;
+>  	mutex_init(&data->update_lock);
+>  
+> -	/* Tell the I2C layer a new client has arrived */
+> -	if ((err = i2c_attach_client(new_client)))
+> -		goto exit_free;
+> -
+>  	/* Initialize the LM87 chip */
+>  	lm87_init_client(new_client);
+>  
+> @@ -732,7 +731,7 @@ static int lm87_detect(struct i2c_adapte
+>  
+>  	/* Register sysfs hooks */
+>  	if ((err = sysfs_create_group(&new_client->dev.kobj, &lm87_group)))
+> -		goto exit_detach;
+> +		goto exit_free;
+>  
+>  	if (data->channel & CHAN_NO_FAN(0)) {
+>  		if ((err = device_create_file(&new_client->dev,
+> @@ -832,8 +831,6 @@ static int lm87_detect(struct i2c_adapte
+>  exit_remove:
+>  	sysfs_remove_group(&new_client->dev.kobj, &lm87_group);
+>  	sysfs_remove_group(&new_client->dev.kobj, &lm87_group_opt);
+> -exit_detach:
+> -	i2c_detach_client(new_client);
+>  exit_free:
+>  	kfree(data);
+>  exit:
+> @@ -877,18 +874,14 @@ static void lm87_init_client(struct i2c_
+>  	}
+>  }
+>  
+> -static int lm87_detach_client(struct i2c_client *client)
+> +static int lm87_remove(struct i2c_client *client)
+>  {
+>  	struct lm87_data *data = i2c_get_clientdata(client);
+> -	int err;
+>  
+>  	hwmon_device_unregister(data->hwmon_dev);
+>  	sysfs_remove_group(&client->dev.kobj, &lm87_group);
+>  	sysfs_remove_group(&client->dev.kobj, &lm87_group_opt);
+>  
+> -	if ((err = i2c_detach_client(client)))
+> -		return err;
+> -
+>  	kfree(data);
+>  	return 0;
+>  }
+> 
+> 
+
 
 _______________________________________________
 i2c mailing list
