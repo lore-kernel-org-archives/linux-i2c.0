@@ -1,14 +1,14 @@
 From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon: (adm9240) Convert to a
+Subject: Re: [lm-sensors] [PATCH] hwmon: (adt7470) Convert to a
  new-style i2c	driver
-Date: Wed, 16 Jul 2008 20:16:39 +0200
-Message-ID: <487E3B07.6030000@hhs.nl>
-References: <20080716163257.107e9340@hyperion.delvare>
+Date: Wed, 16 Jul 2008 20:17:48 +0200
+Message-ID: <487E3B4C.1010705@hhs.nl>
+References: <20080716163337.72604b28@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716163257.107e9340-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080716163337.72604b28-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,15 +19,15 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Jean Delvare wrote:
-> The new-style adm9240 driver implements the optional detect() callback
+> The new-style adt7470 driver implements the optional detect() callback
 > to cover the use cases of the legacy driver.
 > 
 > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Darrick J. Wong <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
 
 Looks good,
 
@@ -41,179 +41,176 @@ Hans
 
 
 > ---
->  drivers/hwmon/adm9240.c |   93 +++++++++++++++++++++++------------------------
->  1 file changed, 46 insertions(+), 47 deletions(-)
+>  drivers/hwmon/adt7470.c |  100 ++++++++++++++++++++++-------------------------
+>  1 file changed, 48 insertions(+), 52 deletions(-)
 > 
-> --- linux-2.6.26-rc9.orig/drivers/hwmon/adm9240.c	2008-07-12 09:20:31.000000000 +0200
-> +++ linux-2.6.26-rc9/drivers/hwmon/adm9240.c	2008-07-12 10:27:31.000000000 +0200
-> @@ -130,25 +130,37 @@ static inline unsigned int AOUT_FROM_REG
->  	return SCALE(reg, 1250, 255);
->  }
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/adt7470.c	2008-07-12 09:20:30.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/adt7470.c	2008-07-12 10:27:29.000000000 +0200
+> @@ -138,7 +138,6 @@ I2C_CLIENT_INSMOD_1(adt7470);
+>  #define FAN_DATA_VALID(x)	((x) && (x) != FAN_PERIOD_INVALID)
 >  
-> -static int adm9240_attach_adapter(struct i2c_adapter *adapter);
-> -static int adm9240_detect(struct i2c_adapter *adapter, int address, int kind);
-> +static int adm9240_probe(struct i2c_client *client,
+>  struct adt7470_data {
+> -	struct i2c_client	client;
+>  	struct device		*hwmon_dev;
+>  	struct attribute_group	attrs;
+>  	struct mutex		lock;
+> @@ -164,16 +163,28 @@ struct adt7470_data {
+>  	u8			pwm_auto_temp[ADT7470_PWM_COUNT];
+>  };
+>  
+> -static int adt7470_attach_adapter(struct i2c_adapter *adapter);
+> -static int adt7470_detect(struct i2c_adapter *adapter, int address, int kind);
+> -static int adt7470_detach_client(struct i2c_client *client);
+> +static int adt7470_probe(struct i2c_client *client,
 > +			 const struct i2c_device_id *id);
-> +static int adm9240_detect(struct i2c_client *client, int kind,
+> +static int adt7470_detect(struct i2c_client *client, int kind,
 > +			  struct i2c_board_info *info);
->  static void adm9240_init_client(struct i2c_client *client);
-> -static int adm9240_detach_client(struct i2c_client *client);
-> +static int adm9240_remove(struct i2c_client *client);
->  static struct adm9240_data *adm9240_update_device(struct device *dev);
->  
->  /* driver data */
-> +static const struct i2c_device_id adm9240_id[] = {
-> +	{ "adm9240", adm9240 },
-> +	{ "ds1780", ds1780 },
-> +	{ "lm81", lm81 },
+> +static int adt7470_remove(struct i2c_client *client);
+> +
+> +static const struct i2c_device_id adt7470_id[] = {
+> +	{ "adt7470", adt7470 },
 > +	{ }
 > +};
-> +MODULE_DEVICE_TABLE(i2c, adm9240_id);
-> +
->  static struct i2c_driver adm9240_driver = {
+> +MODULE_DEVICE_TABLE(i2c, adt7470_id);
+>  
+>  static struct i2c_driver adt7470_driver = {
 > +	.class		= I2C_CLASS_HWMON,
 >  	.driver = {
->  		.name	= "adm9240",
+>  		.name	= "adt7470",
 >  	},
-> -	.attach_adapter	= adm9240_attach_adapter,
-> -	.detach_client	= adm9240_detach_client,
-> +	.probe		= adm9240_probe,
-> +	.remove		= adm9240_remove,
-> +	.id_table	= adm9240_id,
-> +	.detect		= adm9240_detect,
+> -	.attach_adapter	= adt7470_attach_adapter,
+> -	.detach_client	= adt7470_detach_client,
+> +	.probe		= adt7470_probe,
+> +	.remove		= adt7470_remove,
+> +	.id_table	= adt7470_id,
+> +	.detect		= adt7470_detect,
 > +	.address_data	= &addr_data,
 >  };
 >  
->  /* per client data */
->  struct adm9240_data {
-> -	enum chips type;
-> -	struct i2c_client client;
->  	struct device *hwmon_dev;
->  	struct mutex update_lock;
->  	char valid;
-> @@ -532,28 +544,17 @@ static const struct attribute_group adm9
+>  /*
+> @@ -1004,64 +1015,52 @@ static struct attribute *adt7470_attr[] 
+>  	NULL
+>  };
 >  
->  /*** sensor chip detect and driver install ***/
->  
-> -static int adm9240_detect(struct i2c_adapter *adapter, int address, int kind)
+> -static int adt7470_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	if (!(adapter->class & I2C_CLASS_HWMON))
+> -		return 0;
+> -	return i2c_probe(adapter, &addr_data, adt7470_detect);
+> -}
+> -
+> -static int adt7470_detect(struct i2c_adapter *adapter, int address, int kind)
 > +/* Return 0 if detection is successful, -ENODEV otherwise */
-> +static int adm9240_detect(struct i2c_client *new_client, int kind,
+> +static int adt7470_detect(struct i2c_client *client, int kind,
 > +			  struct i2c_board_info *info)
 >  {
-> -	struct i2c_client *new_client;
-> -	struct adm9240_data *data;
+> -	struct i2c_client *client;
+> -	struct adt7470_data *data;
 > -	int err = 0;
-> +	struct i2c_adapter *adapter = new_client->adapter;
->  	const char *name = "";
-> +	int address = new_client->addr;
->  	u8 man_id, die_rev;
+> +	struct i2c_adapter *adapter = client->adapter;
 >  
 >  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 > -		goto exit;
 > -
-> -	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
+> -	if (!(data = kzalloc(sizeof(struct adt7470_data), GFP_KERNEL))) {
 > -		err = -ENOMEM;
 > -		goto exit;
 > -	}
 > -
-> -	new_client = &data->client;
-> -	i2c_set_clientdata(new_client, data);
-> -	new_client->addr = address;
-> -	new_client->adapter = adapter;
-> -	new_client->driver = &adm9240_driver;
-> -	new_client->flags = 0;
+> -	client = &data->client;
+> -	client->addr = address;
+> -	client->adapter = adapter;
+> -	client->driver = &adt7470_driver;
+> -
+> -	i2c_set_clientdata(client, data);
+> -
+> -	mutex_init(&data->lock);
 > +		return -ENODEV;
 >  
->  	if (kind == 0) {
->  		kind = adm9240;
-> @@ -566,7 +567,7 @@ static int adm9240_detect(struct i2c_ada
->  				!= address) {
->  			dev_err(&adapter->dev, "detect fail: address match, "
->  					"0x%02x\n", address);
+>  	if (kind <= 0) {
+>  		int vendor, device, revision;
+>  
+>  		vendor = i2c_smbus_read_byte_data(client, ADT7470_REG_VENDOR);
+> -		if (vendor != ADT7470_VENDOR) {
+> -			err = -ENODEV;
 > -			goto exit_free;
+> -		}
+> +		if (vendor != ADT7470_VENDOR)
 > +			return -ENODEV;
->  		}
 >  
->  		/* check known chip manufacturer */
-> @@ -581,7 +582,7 @@ static int adm9240_detect(struct i2c_ada
->  		} else {
->  			dev_err(&adapter->dev, "detect fail: unknown manuf, "
->  					"0x%02x\n", man_id);
+>  		device = i2c_smbus_read_byte_data(client, ADT7470_REG_DEVICE);
+> -		if (device != ADT7470_DEVICE) {
+> -			err = -ENODEV;
 > -			goto exit_free;
+> -		}
+> +		if (device != ADT7470_DEVICE)
 > +			return -ENODEV;
->  		}
 >  
->  		/* successful detect, print chip info */
-> @@ -600,20 +601,31 @@ static int adm9240_detect(struct i2c_ada
->  	} else if (kind == lm81) {
->  		name = "lm81";
->  	}
-> +	strlcpy(info->type, name, I2C_NAME_SIZE);
+>  		revision = i2c_smbus_read_byte_data(client,
+>  						    ADT7470_REG_REVISION);
+> -		if (revision != ADT7470_REVISION) {
+> -			err = -ENODEV;
+> -			goto exit_free;
+> -		}
+> +		if (revision != ADT7470_REVISION)
+> +			return -ENODEV;
+>  	} else
+>  		dev_dbg(&adapter->dev, "detection forced\n");
 >  
-> -	/* fill in the remaining client fields and attach */
-> -	strlcpy(new_client->name, name, I2C_NAME_SIZE);
-> -	data->type = kind;
-> -	mutex_init(&data->update_lock);
+> -	strlcpy(client->name, "adt7470", I2C_NAME_SIZE);
+> +	strlcpy(info->type, "adt7470", I2C_NAME_SIZE);
+>  
+> -	if ((err = i2c_attach_client(client)))
+> -		goto exit_free;
 > +	return 0;
 > +}
->  
-> -	if ((err = i2c_attach_client(new_client)))
-> -		goto exit_free;
-> +static int adm9240_probe(struct i2c_client *new_client,
+> +
+> +static int adt7470_probe(struct i2c_client *client,
 > +			 const struct i2c_device_id *id)
 > +{
-> +	struct adm9240_data *data;
+> +	struct adt7470_data *data;
 > +	int err;
 > +
-> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +	data = kzalloc(sizeof(struct adt7470_data), GFP_KERNEL);
 > +	if (!data) {
 > +		err = -ENOMEM;
 > +		goto exit;
 > +	}
 > +
-> +	i2c_set_clientdata(new_client, data);
-> +	mutex_init(&data->update_lock);
+> +	i2c_set_clientdata(client, data);
+> +	mutex_init(&data->lock);
 >  
->  	adm9240_init_client(new_client);
+>  	dev_info(&client->dev, "%s chip found\n", client->name);
 >  
->  	/* populate sysfs filesystem */
->  	if ((err = sysfs_create_group(&new_client->dev.kobj, &adm9240_group)))
+> @@ -1071,7 +1070,7 @@ static int adt7470_detect(struct i2c_ada
+>  	/* Register sysfs hooks */
+>  	data->attrs.attrs = adt7470_attr;
+>  	if ((err = sysfs_create_group(&client->dev.kobj, &data->attrs)))
 > -		goto exit_detach;
 > +		goto exit_free;
 >  
->  	data->hwmon_dev = hwmon_device_register(&new_client->dev);
+>  	data->hwmon_dev = hwmon_device_register(&client->dev);
 >  	if (IS_ERR(data->hwmon_dev)) {
-> @@ -625,32 +637,19 @@ static int adm9240_detect(struct i2c_ada
+> @@ -1083,21 +1082,18 @@ static int adt7470_detect(struct i2c_ada
 >  
 >  exit_remove:
->  	sysfs_remove_group(&new_client->dev.kobj, &adm9240_group);
+>  	sysfs_remove_group(&client->dev.kobj, &data->attrs);
 > -exit_detach:
-> -	i2c_detach_client(new_client);
+> -	i2c_detach_client(client);
 >  exit_free:
 >  	kfree(data);
 >  exit:
 >  	return err;
 >  }
 >  
-> -static int adm9240_attach_adapter(struct i2c_adapter *adapter)
-> -{
-> -	if (!(adapter->class & I2C_CLASS_HWMON))
-> -		return 0;
-> -	return i2c_probe(adapter, &addr_data, adm9240_detect);
-> -}
-> -
-> -static int adm9240_detach_client(struct i2c_client *client)
-> +static int adm9240_remove(struct i2c_client *client)
+> -static int adt7470_detach_client(struct i2c_client *client)
+> +static int adt7470_remove(struct i2c_client *client)
 >  {
->  	struct adm9240_data *data = i2c_get_clientdata(client);
-> -	int err;
+>  	struct adt7470_data *data = i2c_get_clientdata(client);
 >  
 >  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &adm9240_group);
->  
-> -	if ((err = i2c_detach_client(client)))
-> -		return err;
-> -
+>  	sysfs_remove_group(&client->dev.kobj, &data->attrs);
+> -	i2c_detach_client(client);
 >  	kfree(data);
 >  	return 0;
 >  }
