@@ -1,209 +1,213 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [crash, bisected] I2C,  kobject (ffff81003e8c4160): tried to
- init an initialized object
-Date: Wed, 16 Jul 2008 14:18:26 +0200
-Message-ID: <20080716141826.1d88d05e@hyperion.delvare>
-References: <20080714224945.629446fa@hyperion.delvare>
-	<20080716082352.GA30483@elte.hu>
-	<20080716110702.3ca61eb2@hyperion.delvare>
-	<20080716120801.3e9b4c80@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] hwmon: (adm1029) Convert to a new-style i2c driver
+Date: Wed, 16 Jul 2008 14:50:34 +0200
+Message-ID: <20080716145034.49a730b6@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757283AbYGPMSz@vger.kernel.org>
-In-Reply-To: <20080716120801.3e9b4c80@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john stultz <johnstul@us.ibm.com>, Greg KH <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Linux I2C <i2c@lm-sensors.org>, Ulrich Drepper <drepper@redhat.com>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ingo, John,
+The new-style adm1029 driver implements the optional detect() callback
+to cover the use cases of the legacy driver.
 
-Thanks a lot for reporting this bug quickly, BTW.
-
-On Wed, 16 Jul 2008 12:08:01 +0200, Jean Delvare wrote:
-> On Wed, 16 Jul 2008 11:07:02 +0200, Jean Delvare wrote:
-> > On Wed, 16 Jul 2008 10:23:52 +0200, Ingo Molnar wrote:
-> > > 
-> > > * Jean Delvare <khali@linux-fr.org> wrote:
-> > > 
-> > > >       i2c-nforce2: Add support for multiplexing on the Tyan S4985
-> > > 
-> > > -tip random boot testing started triggering the following upstream boot 
-> > > crash, starting two days ago when the i2c tree was merged:
-> > > 
-> > > [   11.772002] kobject (ffff81003e8c4160): tried to init an initialized object, something is seriously wrong.
-> > > [   11.784004] Pid: 1, comm: swapper Not tainted 2.6.26-00007-g279e902-dirty #19896
-> > > [   11.793651] 
-> > > [   11.793651] Call Trace:
-> > > [   11.793651]  [<ffffffff8054471a>] kobject_init+0x7a/0x80
-> > > [   11.798969]  [<ffffffff805f0f9d>] device_initialize+0x2d/0xd0
-> > > [   11.806323]  [<ffffffff805f19a1>] device_register+0x11/0x20
-> > > [   11.811903]  [<ffffffff8087ee3b>] i2c_register_adapter+0xab/0x1d0
-> > > [   11.817666]  [<ffffffff8087f0e6>] i2c_add_adapter+0x96/0xb0
-> > > [   11.823761]  [<ffffffff81196372>] nforce2_s4985_init+0x272/0x370
-> > > [   11.829358]  [<ffffffff8027516a>] ? getnstimeofday+0x3a/0xc0
-> > > [   11.835365]  [<ffffffff802728ba>] ? ktime_get_ts+0x4a/0x60
-> > > [   11.840853]  [<ffffffff81196100>] ? nforce2_s4985_init+0x0/0x370
-> > > [   11.846859]  [<ffffffff81160aa3>] kernel_init+0x123/0x300
-> > > [   11.852261]  [<ffffffff81160140>] ? early_idt_handler+0x0/0x74
-> > > [   11.857957]  [<ffffffff80228548>] child_rip+0xa/0x12
-> > > [   11.863781]  [<ffffffff81160140>] ? early_idt_handler+0x0/0x74
-> > > [   11.868757]  [<ffffffff81160980>] ? kernel_init+0x0/0x300
-> > > [   11.874160]  [<ffffffff8022853e>] ? child_rip+0x0/0x12
-> > > [   11.879989] 
-> > > [   11.881141] general protection fault: 0000 [1] SMP 
-> > > [   11.881141] CPU 1 
-> 
-> Good news: I can reproduce this locally. Stay tuned...
-
-OK, here's the fix. I'll push it to Linus later today, unless someone
-objects. I've tested it on a board without multiplexing. It would be
-great if someone could now test on a board with multiplexing, just to
-make sure I didn't break anything. Ulrich?
-
-* * * * *
-
-From: Jean Delvare <khali@linux-fr.org>
-Subject: i2c: Clear i2c_adapter.dev on adapter removal
-
-Clear i2c_adapter.dev on adapter removal. This makes it possible to
-re-add the adapter at a later point, which some drivers
-(i2c-amd756-s4882, i2c-nforce2-s4985) actually do.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-amd756-s4882.c  |   27 +++++++++++++--------------
- drivers/i2c/busses/i2c-nforce2-s4985.c |   31 +++++++++++++++----------------
- drivers/i2c/i2c-core.c                 |    4 ++++
- 3 files changed, 32 insertions(+), 30 deletions(-)
+ drivers/hwmon/adm1029.c |   97 +++++++++++++++++++++--------------------------
+ 1 file changed, 44 insertions(+), 53 deletions(-)
 
---- linux-2.6.27-rc0.orig/drivers/i2c/i2c-core.c	2008-07-16 13:13:00.000000000 +0200
-+++ linux-2.6.27-rc0/drivers/i2c/i2c-core.c	2008-07-16 13:27:48.000000000 +0200
-@@ -654,6 +654,10 @@ int i2c_del_adapter(struct i2c_adapter *
+--- linux-2.6.26-rc9.orig/drivers/hwmon/adm1029.c	2008-07-12 09:20:31.000000000 +0200
++++ linux-2.6.26-rc9/drivers/hwmon/adm1029.c	2008-07-12 10:27:32.000000000 +0200
+@@ -115,9 +115,11 @@ static const u8 ADM1029_REG_FAN_DIV[] = 
+  * Functions declaration
+  */
  
- 	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
+-static int adm1029_attach_adapter(struct i2c_adapter *adapter);
+-static int adm1029_detect(struct i2c_adapter *adapter, int address, int kind);
+-static int adm1029_detach_client(struct i2c_client *client);
++static int adm1029_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id);
++static int adm1029_detect(struct i2c_client *client, int kind,
++			  struct i2c_board_info *info);
++static int adm1029_remove(struct i2c_client *client);
+ static struct adm1029_data *adm1029_update_device(struct device *dev);
+ static int adm1029_init_client(struct i2c_client *client);
  
-+	/* Clear the device structure in case this adapter is ever going to be
-+	   added again */
-+	memset(&adap->dev, 0, sizeof(adap->dev));
+@@ -125,12 +127,22 @@ static int adm1029_init_client(struct i2
+  * Driver data (common to all clients)
+  */
+ 
++static const struct i2c_device_id adm1029_id[] = {
++	{ "adm1029", adm1029 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, adm1029_id);
 +
-  out_unlock:
- 	mutex_unlock(&core_lock);
- 	return res;
---- linux-2.6.27-rc0.orig/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-07-16 10:41:52.000000000 +0200
-+++ linux-2.6.27-rc0/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-07-16 13:58:43.000000000 +0200
-@@ -150,6 +150,16 @@ static int __init nforce2_s4985_init(voi
- 	int i, error;
- 	union i2c_smbus_data ioconfig;
+ static struct i2c_driver adm1029_driver = {
++	.class		= I2C_CLASS_HWMON,
+ 	.driver = {
+ 		.name = "adm1029",
+ 	},
+-	.attach_adapter = adm1029_attach_adapter,
+-	.detach_client = adm1029_detach_client,
++	.probe		= adm1029_probe,
++	.remove		= adm1029_remove,
++	.id_table	= adm1029_id,
++	.detect		= adm1029_detect,
++	.address_data	= &addr_data,
+ };
  
-+	/* Configure the PCA9556 multiplexer */
-+	ioconfig.byte = 0x00; /* All I/O to output mode */
-+	error = i2c_smbus_xfer(nforce2_smbus, 0x18, 0, I2C_SMBUS_WRITE, 0x03,
-+			       I2C_SMBUS_BYTE_DATA, &ioconfig);
-+	if (error) {
-+		dev_err(&nforce2_smbus->dev, "PCA9556 configuration failed\n");
-+		error = -EIO;
-+		goto ERROR0;
-+	}
-+
- 	/* Unregister physical bus */
- 	if (!nforce2_smbus)
- 		return -ENODEV;
-@@ -191,24 +201,13 @@ static int __init nforce2_s4985_init(voi
- 	s4985_algo[3].smbus_xfer = nforce2_access_virt3;
- 	s4985_algo[4].smbus_xfer = nforce2_access_virt4;
+ /*
+@@ -138,7 +150,6 @@ static struct i2c_driver adm1029_driver 
+  */
  
--	/* Configure the PCA9556 multiplexer */
--	ioconfig.byte = 0x00; /* All I/O to output mode */
--	error = nforce2_smbus->algo->smbus_xfer(nforce2_smbus, 0x18, 0,
--						I2C_SMBUS_WRITE, 0x03,
--						I2C_SMBUS_BYTE_DATA, &ioconfig);
--	if (error) {
--		dev_err(&nforce2_smbus->dev, "PCA9556 configuration failed\n");
--		error = -EIO;
--		goto ERROR3;
+ struct adm1029_data {
+-	struct i2c_client client;
+ 	struct device *hwmon_dev;
+ 	struct mutex update_lock;
+ 	char valid;		/* zero until following fields are valid */
+@@ -284,37 +295,14 @@ static const struct attribute_group adm1
+  * Real code
+  */
+ 
+-static int adm1029_attach_adapter(struct i2c_adapter *adapter)
++/* Return 0 if detection is successful, -ENODEV otherwise */
++static int adm1029_detect(struct i2c_client *client, int kind,
++			  struct i2c_board_info *info)
+ {
+-	if (!(adapter->class & I2C_CLASS_HWMON))
+-		return 0;
+-	return i2c_probe(adapter, &addr_data, adm1029_detect);
+-}
++	struct i2c_adapter *adapter = client->adapter;
+ 
+-/*
+- * The following function does more than just detection. If detection
+- * succeeds, it also registers the new chip.
+- */
+-
+-static int adm1029_detect(struct i2c_adapter *adapter, int address, int kind)
+-{
+-	struct i2c_client *client;
+-	struct adm1029_data *data;
+-	int err = 0;
+-	const char *name = "";
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+-		goto exit;
+-
+-	if (!(data = kzalloc(sizeof(struct adm1029_data), GFP_KERNEL))) {
+-		err = -ENOMEM;
+-		goto exit;
 -	}
 -
- 	/* Register virtual adapters */
- 	for (i = 0; i < 5; i++) {
- 		error = i2c_add_adapter(s4985_adapter + i);
- 		if (error) {
--			dev_err(&nforce2_smbus->dev,
--				"Virtual adapter %d registration "
--				"failed, module not inserted\n", i);
-+			printk(KERN_ERR "i2c-nforce2-s4985: "
-+			       "Virtual adapter %d registration "
-+			       "failed, module not inserted\n", i);
- 			for (i--; i >= 0; i--)
- 				i2c_del_adapter(s4985_adapter + i);
- 			goto ERROR3;
-@@ -245,8 +244,8 @@ static void __exit nforce2_s4985_exit(vo
+-	client = &data->client;
+-	i2c_set_clientdata(client, data);
+-	client->addr = address;
+-	client->adapter = adapter;
+-	client->driver = &adm1029_driver;
++		return -ENODEV;
  
- 	/* Restore physical bus */
- 	if (i2c_add_adapter(nforce2_smbus))
--		dev_err(&nforce2_smbus->dev, "Physical bus restoration "
--			"failed\n");
-+		printk(KERN_ERR "i2c-nforce2-s4985: "
-+		       "Physical bus restoration failed\n");
- }
+ 	/* Now we do the detection and identification. A negative kind
+ 	 * means that the driver was loaded with no force parameter
+@@ -362,32 +350,41 @@ static int adm1029_detect(struct i2c_ada
+ 		if (kind <= 0) {	/* identification failed */
+ 			pr_debug("adm1029: Unsupported chip (man_id=0x%02X, "
+ 				 "chip_id=0x%02X)\n", man_id, chip_id);
+-			goto exit_free;
++			return -ENODEV;
+ 		}
+ 	}
++	strlcpy(info->type, "adm1029", I2C_NAME_SIZE);
  
- MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
---- linux-2.6.27-rc0.orig/drivers/i2c/busses/i2c-amd756-s4882.c	2008-07-16 10:41:52.000000000 +0200
-+++ linux-2.6.27-rc0/drivers/i2c/busses/i2c-amd756-s4882.c	2008-07-16 13:58:25.000000000 +0200
-@@ -155,6 +155,16 @@ static int __init amd756_s4882_init(void
- 	int i, error;
- 	union i2c_smbus_data ioconfig;
- 
-+	/* Configure the PCA9556 multiplexer */
-+	ioconfig.byte = 0x00; /* All I/O to output mode */
-+	error = i2c_smbus_xfer(&amd756_smbus, 0x18, 0, I2C_SMBUS_WRITE, 0x03,
-+			       I2C_SMBUS_BYTE_DATA, &ioconfig);
-+	if (error) {
-+		dev_err(&amd756_smbus.dev, "PCA9556 configuration failed\n");
-+		error = -EIO;
-+		goto ERROR0;
-+	}
+-	if (kind == adm1029) {
+-		name = "adm1029";
++	return 0;
++}
 +
- 	/* Unregister physical bus */
- 	error = i2c_del_adapter(&amd756_smbus);
- 	if (error) {
-@@ -198,22 +208,11 @@ static int __init amd756_s4882_init(void
- 	s4882_algo[3].smbus_xfer = amd756_access_virt3;
- 	s4882_algo[4].smbus_xfer = amd756_access_virt4;
++static int adm1029_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	struct adm1029_data *data;
++	int err;
++
++	data = kzalloc(sizeof(struct adm1029_data), GFP_KERNEL);
++	if (!data) {
++		err = -ENOMEM;
++		goto exit;
+ 	}
  
--	/* Configure the PCA9556 multiplexer */
--	ioconfig.byte = 0x00; /* All I/O to output mode */
--	error = amd756_smbus.algo->smbus_xfer(&amd756_smbus, 0x18, 0,
--					      I2C_SMBUS_WRITE, 0x03,
--					      I2C_SMBUS_BYTE_DATA, &ioconfig);
--	if (error) {
--		dev_err(&amd756_smbus.dev, "PCA9556 configuration failed\n");
--		error = -EIO;
--		goto ERROR3;
--	}
+-	/* We can fill in the remaining client fields */
+-	strlcpy(client->name, name, I2C_NAME_SIZE);
++	i2c_set_clientdata(client, data);
+ 	mutex_init(&data->update_lock);
+ 
+-	/* Tell the I2C layer a new client has arrived */
+-	if ((err = i2c_attach_client(client)))
+-		goto exit_free;
 -
- 	/* Register virtual adapters */
- 	for (i = 0; i < 5; i++) {
- 		error = i2c_add_adapter(s4882_adapter+i);
- 		if (error) {
--			dev_err(&amd756_smbus.dev,
-+			printk(KERN_ERR "i2c-amd756-s4882: "
- 			       "Virtual adapter %d registration "
- 			       "failed, module not inserted\n", i);
- 			for (i--; i >= 0; i--)
-@@ -252,8 +251,8 @@ static void __exit amd756_s4882_exit(voi
+ 	/*
+ 	 * Initialize the ADM1029 chip
+ 	 * Check config register
+ 	 */
+-	if (adm1029_init_client(client) == 0)
+-		goto exit_detach;
++	if (adm1029_init_client(client) == 0) {
++		err = -ENODEV;
++		goto exit_free;
++	}
  
- 	/* Restore physical bus */
- 	if (i2c_add_adapter(&amd756_smbus))
--		dev_err(&amd756_smbus.dev, "Physical bus restoration "
--			"failed\n");
-+		printk(KERN_ERR "i2c-amd756-s4882: "
-+		       "Physical bus restoration failed\n");
+ 	/* Register sysfs hooks */
+ 	if ((err = sysfs_create_group(&client->dev.kobj, &adm1029_group)))
+-		goto exit_detach;
++		goto exit_free;
+ 
+ 	data->hwmon_dev = hwmon_device_register(&client->dev);
+ 	if (IS_ERR(data->hwmon_dev)) {
+@@ -399,8 +396,6 @@ static int adm1029_detect(struct i2c_ada
+ 
+  exit_remove_files:
+ 	sysfs_remove_group(&client->dev.kobj, &adm1029_group);
+- exit_detach:
+-	i2c_detach_client(client);
+  exit_free:
+ 	kfree(data);
+  exit:
+@@ -424,17 +419,13 @@ static int adm1029_init_client(struct i2
+ 	return 1;
  }
  
- MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
-
+-static int adm1029_detach_client(struct i2c_client *client)
++static int adm1029_remove(struct i2c_client *client)
+ {
+ 	struct adm1029_data *data = i2c_get_clientdata(client);
+-	int err;
+ 
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&client->dev.kobj, &adm1029_group);
+ 
+-	if ((err = i2c_detach_client(client)))
+-		return err;
+-
+ 	kfree(data);
+ 	return 0;
+ }
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
