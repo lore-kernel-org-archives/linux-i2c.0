@@ -1,223 +1,110 @@
-From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon: (w83l786ng) Convert to a
- new-style i2c	driver
-Date: Wed, 16 Jul 2008 23:10:58 +0200
-Message-ID: <487E63E2.4010501@hhs.nl>
-References: <20080716173503.31f72571@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] hwmon: (thmc50) Convert to a new-style i2c
+	driver
+Date: Wed, 16 Jul 2008 23:14:38 +0200
+Message-ID: <20080716231438.2913afc4@hyperion.delvare>
+References: <20080716173316.1e8c5c42@hyperion.delvare>
+	<487E624B.4060908@hhs.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716173503.31f72571-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+In-Reply-To: <487E624B.4060908@hhs.nl>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: Hans de Goede <j.w.r.degoede@hhs.nl>
+Cc: Krzysztof Helt <krzysztof.h1@wp.pl>, Linux I2C <i2c@lm-sensors.org>, LM Sensors <lm-sensors@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> The new-style w83l786ng driver implements the optional detect()
-> callback to cover the use cases of the legacy driver.
+Hi Hans,
+
+Thanks for all the reviews :)
+
+On Wed, 16 Jul 2008 23:04:11 +0200, Hans de Goede wrote:
+> Jean Delvare wrote:
+> > The new-style thmc50 driver implements the optional detect()
+> > callback to cover the use cases of the legacy driver.
+> > 
+> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> > Cc: Krzysztof Helt <krzysztof.h1@wp.pl>
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Kevin Lo <kevlo-M03WffYOTozYtjvyW6yDsg@public.gmane.org>
-
-Looks good,
-
-Acked-by: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-
-Regards,
-
-Hans
-
-
-
-> ---
->  drivers/hwmon/w83l786ng.c |   98 ++++++++++++++++++++-------------------------
->  1 file changed, 45 insertions(+), 53 deletions(-)
+> > @@ -307,21 +304,22 @@ static int thmc50_detect(struct i2c_adap
+> >  	}
+> >  	if (err == -ENODEV) {
+> >  		pr_debug("thmc50: Detection of THMC50/ADM1022 failed\n");
+> > -		goto exit_free;
+> > +		return err;
+> >  	}
+> > -	data->type = kind;
+> >  
+> >  	if (kind == adm1022) {
+> >  		int id = i2c_adapter_id(client->adapter);
+> >  		int i;
+> >  
+> >  		type_name = "adm1022";
+> > -		data->has_temp3 = (config >> 7) & 1;	/* config MSB */
+> >  		for (i = 0; i + 1 < adm1022_temp3_num; i += 2)
+> >  			if (adm1022_temp3[i] == id &&
+> > -			    adm1022_temp3[i + 1] == address) {
+> > +			    adm1022_temp3[i + 1] == client->addr) {
+> >  				/* enable 2nd remote temp */
+> > -				data->has_temp3 = 1;
+> > +				config |= (1 << 7);
+> > +				i2c_smbus_write_byte_data(client,
+> > +							  THMC50_REG_CONF,
+> > +							  config);
+> >  				break;
+> >  			}
+> >  	} else {
 > 
-> --- linux-2.6.26-rc9.orig/drivers/hwmon/w83l786ng.c	2008-07-12 09:20:28.000000000 +0200
-> +++ linux-2.6.26-rc9/drivers/hwmon/w83l786ng.c	2008-07-12 10:27:08.000000000 +0200
-> @@ -121,7 +121,6 @@ DIV_TO_REG(long val)
->  }
->  
->  struct w83l786ng_data {
-> -	struct i2c_client client;
->  	struct device *hwmon_dev;
->  	struct mutex update_lock;
->  	char valid;			/* !=0 if following fields are valid */
-> @@ -146,18 +145,30 @@ struct w83l786ng_data {
->  	u8 tolerance[2];
->  };
->  
-> -static int w83l786ng_attach_adapter(struct i2c_adapter *adapter);
-> -static int w83l786ng_detect(struct i2c_adapter *adapter, int address, int kind);
-> -static int w83l786ng_detach_client(struct i2c_client *client);
-> +static int w83l786ng_probe(struct i2c_client *client,
-> +			   const struct i2c_device_id *id);
-> +static int w83l786ng_detect(struct i2c_client *client, int kind,
-> +			    struct i2c_board_info *info);
-> +static int w83l786ng_remove(struct i2c_client *client);
->  static void w83l786ng_init_client(struct i2c_client *client);
->  static struct w83l786ng_data *w83l786ng_update_device(struct device *dev);
->  
-> +static const struct i2c_device_id w83l786ng_id[] = {
-> +	{ "w83l786ng", w83l786ng },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, w83l786ng_id);
-> +
->  static struct i2c_driver w83l786ng_driver = {
-> +	.class		= I2C_CLASS_HWMON,
->  	.driver = {
->  		   .name = "w83l786ng",
->  	},
-> -	.attach_adapter = w83l786ng_attach_adapter,
-> -	.detach_client = w83l786ng_detach_client,
-> +	.probe		= w83l786ng_probe,
-> +	.remove		= w83l786ng_remove,
-> +	.id_table	= w83l786ng_id,
-> +	.detect		= w83l786ng_detect,
-> +	.address_data	= &addr_data,
->  };
->  
->  static u8
-> @@ -575,42 +586,15 @@ static const struct attribute_group w83l
->  };
->  
->  static int
-> -w83l786ng_attach_adapter(struct i2c_adapter *adapter)
-> +w83l786ng_detect(struct i2c_client *client, int kind,
-> +		 struct i2c_board_info *info)
->  {
-> -	if (!(adapter->class & I2C_CLASS_HWMON))
-> -		return 0;
-> -	return i2c_probe(adapter, &addr_data, w83l786ng_detect);
-> -}
-> -
-> -static int
-> -w83l786ng_detect(struct i2c_adapter *adapter, int address, int kind)
-> -{
-> -	struct i2c_client *client;
-> -	struct device *dev;
-> -	struct w83l786ng_data *data;
-> -	int i, err = 0;
-> -	u8 reg_tmp;
-> +	struct i2c_adapter *adapter = client->adapter;
->  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
-> -		goto exit;
-> -	}
-> -
-> -	/* OK. For now, we presume we have a valid client. We now create the
-> -	   client structure, even though we cannot fill it completely yet.
-> -	   But it allows us to access w83l786ng_{read,write}_value. */
-> -
-> -	if (!(data = kzalloc(sizeof(struct w83l786ng_data), GFP_KERNEL))) {
-> -		err = -ENOMEM;
-> -		goto exit;
-> +		return -ENODEV;
->  	}
->  
-> -	client = &data->client;
-> -	dev = &client->dev;
-> -	i2c_set_clientdata(client, data);
-> -	client->addr = address;
-> -	client->adapter = adapter;
-> -	client->driver = &w83l786ng_driver;
-> -
->  	/*
->  	 * Now we do the remaining detection. A negative kind means that
->  	 * the driver was loaded with no force parameter (default), so we
-> @@ -627,8 +611,8 @@ w83l786ng_detect(struct i2c_adapter *ada
->  		    W83L786NG_REG_CONFIG) & 0x80) != 0x00)) {
->  			dev_dbg(&adapter->dev,
->  				"W83L786NG detection failed at 0x%02x.\n",
-> -				address);
-> -			goto exit_free;
-> +				client->addr);
-> +			return -ENODEV;
->  		}
->  	}
->  
-> @@ -651,17 +635,31 @@ w83l786ng_detect(struct i2c_adapter *ada
->  			dev_info(&adapter->dev,
->  			    "Unsupported chip (man_id=0x%04X, "
->  			    "chip_id=0x%02X).\n", man_id, chip_id);
-> -			goto exit_free;
-> +			return -ENODEV;
->  		}
->  	}
->  
-> -	/* Fill in the remaining client fields and put into the global list */
-> -	strlcpy(client->name, "w83l786ng", I2C_NAME_SIZE);
-> -	mutex_init(&data->update_lock);
-> +	strlcpy(info->type, "w83l786ng", I2C_NAME_SIZE);
->  
-> -	/* Tell the I2C layer a new client has arrived */
-> -	if ((err = i2c_attach_client(client)))
-> -		goto exit_free;
-> +	return 0;
-> +}
-> +
-> +static int
-> +w83l786ng_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> +{
-> +	struct device *dev = &client->dev;
-> +	struct w83l786ng_data *data;
-> +	int i, err = 0;
-> +	u8 reg_tmp;
-> +
-> +	data = kzalloc(sizeof(struct w83l786ng_data), GFP_KERNEL);
-> +	if (!data) {
-> +		err = -ENOMEM;
-> +		goto exit;
-> +	}
-> +
-> +	i2c_set_clientdata(client, data);
-> +	mutex_init(&data->update_lock);
->  
->  	/* Initialize the chip */
->  	w83l786ng_init_client(client);
-> @@ -693,25 +691,19 @@ w83l786ng_detect(struct i2c_adapter *ada
->  
->  exit_remove:
->  	sysfs_remove_group(&client->dev.kobj, &w83l786ng_group);
-> -	i2c_detach_client(client);
-> -exit_free:
->  	kfree(data);
->  exit:
->  	return err;
->  }
->  
->  static int
-> -w83l786ng_detach_client(struct i2c_client *client)
-> +w83l786ng_remove(struct i2c_client *client)
->  {
->  	struct w83l786ng_data *data = i2c_get_clientdata(client);
-> -	int err;
->  
->  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &w83l786ng_group);
->  
-> -	if ((err = i2c_detach_client(client)))
-> -		return err;
-> -
->  	kfree(data);
->  
->  	return 0;
-> 
-> 
+> Hmm, This does not seem right, you are _writing_ to the device in a the detect 
+> function changing its configuration. I understand you can no longer set 
+> data->has_temp3 as there is no data yet in the detect, instead the entire loop 
+> which checks if the device has temp3 forced through a module option should be 
+> moved to the probe function. Writing to a config register in the detect 
+> function feels wrong to me.
 
+Note that:
+* This is only done when the user passes a specific kernel module
+  parameter. By default the chip configuration is left unchanged.
+* The behavior is exactly the same as those of the original code. It is
+  more clearly visible now, but the original code would set
+  data->has_temp3, and then call the initialization function which
+  itself would write to the chip if data->has_temp3 is set.
+
+So I don't think there is any problem here. If you think that my patch
+changes the behavior, then please point this out to me, as this was not
+my intent.
+
+I am not shocked by the fact that the detect function is processing the
+module parameter. After all, the other module parameters (force,
+ignore, etc.) are also handled at this point in the code too (just
+before, actually.) And I don't want to do it later because the
+initialization function is shared between legacy clients and new-style
+ones, and module parameters should not affect new-style clients IMHO.
+Chip-specific configuration for new-style clients should be done
+through platform data, not module parameters.
+
+If you insist on doing it clean, then the solution would be to convert
+the module parameter to platform data in the detection function, and
+process that platform data in the probe function (or initialization
+function - that's pretty much the same.) If there ever is a new-style
+THMC50 or ADM1022 device, we will certainly do that anyway. But I hope
+that we agree that this is only moving the code around and not changing
+the functional behavior.
+
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
