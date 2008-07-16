@@ -1,209 +1,128 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] hwmon: (w83l786ng) Convert to a new-style i2c driver
-Date: Wed, 16 Jul 2008 17:35:03 +0200
-Message-ID: <20080716173503.31f72571@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c updates for 2.6.27, round 2
+Date: Wed, 16 Jul 2008 20:04:11 +0200
+Message-ID: <20080716200411.3aeb716c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: Kevin Lo <kevlo-M03WffYOTozYtjvyW6yDsg@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754437AbYGPSE3@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The new-style w83l786ng driver implements the optional detect()
-callback to cover the use cases of the legacy driver.
+Hi Linus,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Kevin Lo <kevlo-M03WffYOTozYtjvyW6yDsg@public.gmane.org>
----
- drivers/hwmon/w83l786ng.c |   98 ++++++++++++++++++++-------------------------
- 1 file changed, 45 insertions(+), 53 deletions(-)
+Please pull the second round of i2c subsystem updates for Linux 2.6.27
+from:
 
---- linux-2.6.26-rc9.orig/drivers/hwmon/w83l786ng.c	2008-07-12 09:20:28.000000000 +0200
-+++ linux-2.6.26-rc9/drivers/hwmon/w83l786ng.c	2008-07-12 10:27:08.000000000 +0200
-@@ -121,7 +121,6 @@ DIV_TO_REG(long val)
- }
- 
- struct w83l786ng_data {
--	struct i2c_client client;
- 	struct device *hwmon_dev;
- 	struct mutex update_lock;
- 	char valid;			/* !=0 if following fields are valid */
-@@ -146,18 +145,30 @@ struct w83l786ng_data {
- 	u8 tolerance[2];
- };
- 
--static int w83l786ng_attach_adapter(struct i2c_adapter *adapter);
--static int w83l786ng_detect(struct i2c_adapter *adapter, int address, int kind);
--static int w83l786ng_detach_client(struct i2c_client *client);
-+static int w83l786ng_probe(struct i2c_client *client,
-+			   const struct i2c_device_id *id);
-+static int w83l786ng_detect(struct i2c_client *client, int kind,
-+			    struct i2c_board_info *info);
-+static int w83l786ng_remove(struct i2c_client *client);
- static void w83l786ng_init_client(struct i2c_client *client);
- static struct w83l786ng_data *w83l786ng_update_device(struct device *dev);
- 
-+static const struct i2c_device_id w83l786ng_id[] = {
-+	{ "w83l786ng", w83l786ng },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, w83l786ng_id);
-+
- static struct i2c_driver w83l786ng_driver = {
-+	.class		= I2C_CLASS_HWMON,
- 	.driver = {
- 		   .name = "w83l786ng",
- 	},
--	.attach_adapter = w83l786ng_attach_adapter,
--	.detach_client = w83l786ng_detach_client,
-+	.probe		= w83l786ng_probe,
-+	.remove		= w83l786ng_remove,
-+	.id_table	= w83l786ng_id,
-+	.detect		= w83l786ng_detect,
-+	.address_data	= &addr_data,
- };
- 
- static u8
-@@ -575,42 +586,15 @@ static const struct attribute_group w83l
- };
- 
- static int
--w83l786ng_attach_adapter(struct i2c_adapter *adapter)
-+w83l786ng_detect(struct i2c_client *client, int kind,
-+		 struct i2c_board_info *info)
- {
--	if (!(adapter->class & I2C_CLASS_HWMON))
--		return 0;
--	return i2c_probe(adapter, &addr_data, w83l786ng_detect);
--}
--
--static int
--w83l786ng_detect(struct i2c_adapter *adapter, int address, int kind)
--{
--	struct i2c_client *client;
--	struct device *dev;
--	struct w83l786ng_data *data;
--	int i, err = 0;
--	u8 reg_tmp;
-+	struct i2c_adapter *adapter = client->adapter;
- 
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
--		goto exit;
--	}
--
--	/* OK. For now, we presume we have a valid client. We now create the
--	   client structure, even though we cannot fill it completely yet.
--	   But it allows us to access w83l786ng_{read,write}_value. */
--
--	if (!(data = kzalloc(sizeof(struct w83l786ng_data), GFP_KERNEL))) {
--		err = -ENOMEM;
--		goto exit;
-+		return -ENODEV;
- 	}
- 
--	client = &data->client;
--	dev = &client->dev;
--	i2c_set_clientdata(client, data);
--	client->addr = address;
--	client->adapter = adapter;
--	client->driver = &w83l786ng_driver;
--
- 	/*
- 	 * Now we do the remaining detection. A negative kind means that
- 	 * the driver was loaded with no force parameter (default), so we
-@@ -627,8 +611,8 @@ w83l786ng_detect(struct i2c_adapter *ada
- 		    W83L786NG_REG_CONFIG) & 0x80) != 0x00)) {
- 			dev_dbg(&adapter->dev,
- 				"W83L786NG detection failed at 0x%02x.\n",
--				address);
--			goto exit_free;
-+				client->addr);
-+			return -ENODEV;
- 		}
- 	}
- 
-@@ -651,17 +635,31 @@ w83l786ng_detect(struct i2c_adapter *ada
- 			dev_info(&adapter->dev,
- 			    "Unsupported chip (man_id=0x%04X, "
- 			    "chip_id=0x%02X).\n", man_id, chip_id);
--			goto exit_free;
-+			return -ENODEV;
- 		}
- 	}
- 
--	/* Fill in the remaining client fields and put into the global list */
--	strlcpy(client->name, "w83l786ng", I2C_NAME_SIZE);
--	mutex_init(&data->update_lock);
-+	strlcpy(info->type, "w83l786ng", I2C_NAME_SIZE);
- 
--	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(client)))
--		goto exit_free;
-+	return 0;
-+}
-+
-+static int
-+w83l786ng_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct w83l786ng_data *data;
-+	int i, err = 0;
-+	u8 reg_tmp;
-+
-+	data = kzalloc(sizeof(struct w83l786ng_data), GFP_KERNEL);
-+	if (!data) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	i2c_set_clientdata(client, data);
-+	mutex_init(&data->update_lock);
- 
- 	/* Initialize the chip */
- 	w83l786ng_init_client(client);
-@@ -693,25 +691,19 @@ w83l786ng_detect(struct i2c_adapter *ada
- 
- exit_remove:
- 	sysfs_remove_group(&client->dev.kobj, &w83l786ng_group);
--	i2c_detach_client(client);
--exit_free:
- 	kfree(data);
- exit:
- 	return err;
- }
- 
- static int
--w83l786ng_detach_client(struct i2c_client *client)
-+w83l786ng_remove(struct i2c_client *client)
- {
- 	struct w83l786ng_data *data = i2c_get_clientdata(client);
--	int err;
- 
- 	hwmon_device_unregister(data->hwmon_dev);
- 	sysfs_remove_group(&client->dev.kobj, &w83l786ng_group);
- 
--	if ((err = i2c_detach_client(client)))
--		return err;
--
- 	kfree(data);
- 
- 	return 0;
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+
+This contains almost exclusively driver conversion from the legacy
+binding model to the new (standard) one.
+
+
+ Documentation/i2c/chips/max6875        |    2 +-
+ Documentation/i2c/chips/pca9539        |   10 ++-
+ Documentation/i2c/chips/pcf8574        |   12 +-
+ Documentation/i2c/chips/pcf8575        |    9 +-
+ drivers/hwmon/ad7418.c                 |  109 ++++------------
+ drivers/hwmon/adm1021.c                |  105 ++++++++-------
+ drivers/hwmon/adm1025.c                |  101 +++++++-------
+ drivers/hwmon/adm1026.c                |  109 ++++++---------
+ drivers/hwmon/adm1029.c                |   97 ++++++--------
+ drivers/hwmon/adm1031.c                |   96 +++++++-------
+ drivers/hwmon/adm9240.c                |   93 +++++++-------
+ drivers/hwmon/ads7828.c                |   89 ++++++-------
+ drivers/hwmon/adt7470.c                |  100 +++++++-------
+ drivers/hwmon/adt7473.c                |  102 +++++++--------
+ drivers/hwmon/asb100.c                 |  207 ++++++++++++-----------------
+ drivers/hwmon/atxp1.c                  |  109 +++++++--------
+ drivers/hwmon/ds1621.c                 |   99 +++++++-------
+ drivers/hwmon/f75375s.c                |   89 ++-----------
+ drivers/hwmon/fscher.c                 |   93 ++++++-------
+ drivers/hwmon/fschmd.c                 |  112 ++++++++--------
+ drivers/hwmon/fscpos.c                 |   94 ++++++--------
+ drivers/hwmon/gl518sm.c                |   99 +++++++-------
+ drivers/hwmon/gl520sm.c                |   91 ++++++-------
+ drivers/hwmon/lm63.c                   |   99 ++++++--------
+ drivers/hwmon/lm77.c                   |  102 +++++++--------
+ drivers/hwmon/lm80.c                   |   94 ++++++-------
+ drivers/hwmon/lm83.c                   |  104 +++++++--------
+ drivers/hwmon/lm87.c                   |   99 +++++++--------
+ drivers/hwmon/lm90.c                   |  119 +++++++++--------
+ drivers/hwmon/lm92.c                   |   98 ++++++--------
+ drivers/hwmon/lm93.c                   |  126 +++++++++---------
+ drivers/hwmon/max1619.c                |  101 ++++++--------
+ drivers/hwmon/max6650.c                |  102 +++++++--------
+ drivers/hwmon/smsc47m192.c             |  102 +++++++--------
+ drivers/hwmon/thmc50.c                 |  107 ++++++++--------
+ drivers/hwmon/w83791d.c                |  205 ++++++++++-------------------
+ drivers/hwmon/w83792d.c                |  214 ++++++++++--------------------
+ drivers/hwmon/w83793.c                 |  227 +++++++++++++-------------------
+ drivers/hwmon/w83l785ts.c              |  117 +++++++++--------
+ drivers/hwmon/w83l786ng.c              |   98 +++++++--------
+ drivers/i2c/busses/i2c-amd756-s4882.c  |   27 ++--
+ drivers/i2c/busses/i2c-nforce2-s4985.c |   31 ++---
+ drivers/i2c/chips/eeprom.c             |   92 ++++++-------
+ drivers/i2c/chips/max6875.c            |  120 +++++++----------
+ drivers/i2c/chips/pca9539.c            |  109 +++++-----------
+ drivers/i2c/chips/pcf8574.c            |  108 +++++++---------
+ drivers/i2c/chips/pcf8575.c            |   96 ++++++--------
+ drivers/i2c/chips/pcf8591.c            |   94 ++++++--------
+ drivers/i2c/i2c-core.c                 |    4 +
+ drivers/w1/masters/ds2482.c            |  104 ++++++---------
+ 50 files changed, 2129 insertions(+), 2797 deletions(-)
+
+---------------
+
+Jean Delvare (44):
+      i2c: Clear i2c_adapter.dev on adapter removal
+      i2c: Convert the eeprom driver to a new-style i2c driver
+      i2c: Convert the pcf8591 driver to a new-style i2c driver
+      i2c: Convert the pcf8574 driver to a new-style i2c driver
+      i2c: Convert the pcf8575 driver to a new-style i2c driver
+      i2c: Convert the pca9539 driver to a new-style i2c driver
+      i2c: Convert the max6875 driver to a new-style i2c driver
+      w1/ds2482: Convert to a new-style driver
+      hwmon: (ad7418) Convert to a new-style i2c driver
+      hwmon: (adm1021) Convert to a new-style i2c driver
+      hwmon: (adm1025) Convert to a new-style i2c driver
+      hwmon: (adm1026) Convert to a new-style i2c driver
+      hwmon: (adm1029) Convert to a new-style i2c driver
+      hwmon: (adm1031) Convert to a new-style i2c driver
+      hwmon: (adm9240) Convert to a new-style i2c driver
+      hwmon: (ads7828) Convert to a new-style i2c driver
+      hwmon: (adt7470) Convert to a new-style i2c driver
+      hwmon: (adt7473) Convert to a new-style i2c driver
+      hwmon: (asb100) Convert to a new-style i2c driver
+      hwmon: (atxp1) Convert to a new-style i2c driver
+      hwmon: (ds1621) Convert to a new-style i2c driver
+      hwmon: (f75375s) Drop legacy i2c driver
+      hwmon: (fscher) Convert to a new-style i2c driver
+      hwmon: (fschmd) Convert to a new-style i2c driver
+      hwmon: (fscpos) Convert to a new-style i2c driver
+      hwmon: (gl518sm) Convert to a new-style i2c driver
+      hwmon: (gl520sm) Convert to a new-style i2c driver
+      hwmon: (lm63) Convert to a new-style i2c driver
+      hwmon: (lm77) Convert to a new-style i2c driver
+      hwmon: (lm80) Convert to a new-style i2c driver
+      hwmon: (lm83) Convert to a new-style i2c driver
+      hwmon: (lm87) Convert to a new-style i2c driver
+      hwmon: (lm90) Convert to a new-style i2c driver
+      hwmon: (lm92) Convert to a new-style i2c driver
+      hwmon: (lm93) Convert to a new-style i2c driver
+      hwmon: (max1619) Convert to a new-style i2c driver
+      hwmon: (max6650) Convert to a new-style i2c driver
+      hwmon: (smsc47m192) Convert to a new-style i2c driver
+      hwmon: (thmc50) Convert to a new-style i2c driver
+      hwmon: (w83791d) Convert to a new-style i2c driver
+      hwmon: (w83792d) Convert to a new-style i2c driver
+      hwmon: (w83793) Convert to a new-style i2c driver
+      hwmon: (w83l785ts) Convert to a new-style i2c driver
+      hwmon: (w83l786ng) Convert to a new-style i2c driver
+
 
 
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
