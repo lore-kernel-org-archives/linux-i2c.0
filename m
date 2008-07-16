@@ -1,88 +1,86 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [crash, bisected] I2C, kobject (ffff81003e8c4160): tried to
- init  an initialized object (was: Re: [GIT PULL] i2c updates for 2.6.27,
- round 1)
-Date: Wed, 16 Jul 2008 11:07:02 +0200
-Message-ID: <20080716110702.3ca61eb2@hyperion.delvare>
-References: <20080714224945.629446fa@hyperion.delvare>
-	<20080716082352.GA30483@elte.hu>
+From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V9] I2C driver for IMX
+Date: Wed, 16 Jul 2008 12:50:51 +0300
+Message-ID: <g5kgl6$sva$1@ger.gmane.org>
+References: <g56uvk$e6s$1@ger.gmane.org> <20080715163734.GK30539@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759375AbYGPJH2@vger.kernel.org>
-In-Reply-To: <20080716082352.GA30483@elte.hu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, Greg KH <gregkh@suse.de>, john stultz <johnstul@us.ibm.com>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080715163734.GK30539-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ingo,
+Ben Dooks wrote:
 
-On Wed, 16 Jul 2008 10:23:52 +0200, Ingo Molnar wrote:
 > 
-> hi Jean,
-> 
-> * Jean Delvare <khali@linux-fr.org> wrote:
-> 
-> >       i2c-nforce2: Add support for multiplexing on the Tyan S4985
-> 
-> -tip random boot testing started triggering the following upstream boot 
-> crash, starting two days ago when the i2c tree was merged:
-> 
-> [   11.772002] kobject (ffff81003e8c4160): tried to init an initialized object, something is seriously wrong.
-> [   11.784004] Pid: 1, comm: swapper Not tainted 2.6.26-00007-g279e902-dirty #19896
-> [   11.793651] 
-> [   11.793651] Call Trace:
-> [   11.793651]  [<ffffffff8054471a>] kobject_init+0x7a/0x80
-> [   11.798969]  [<ffffffff805f0f9d>] device_initialize+0x2d/0xd0
-> [   11.806323]  [<ffffffff805f19a1>] device_register+0x11/0x20
-> [   11.811903]  [<ffffffff8087ee3b>] i2c_register_adapter+0xab/0x1d0
-> [   11.817666]  [<ffffffff8087f0e6>] i2c_add_adapter+0x96/0xb0
-> [   11.823761]  [<ffffffff81196372>] nforce2_s4985_init+0x272/0x370
-> [   11.829358]  [<ffffffff8027516a>] ? getnstimeofday+0x3a/0xc0
-> [   11.835365]  [<ffffffff802728ba>] ? ktime_get_ts+0x4a/0x60
-> [   11.840853]  [<ffffffff81196100>] ? nforce2_s4985_init+0x0/0x370
-> [   11.846859]  [<ffffffff81160aa3>] kernel_init+0x123/0x300
-> [   11.852261]  [<ffffffff81160140>] ? early_idt_handler+0x0/0x74
-> [   11.857957]  [<ffffffff80228548>] child_rip+0xa/0x12
-> [   11.863781]  [<ffffffff81160140>] ? early_idt_handler+0x0/0x74
-> [   11.868757]  [<ffffffff81160980>] ? kernel_init+0x0/0x300
-> [   11.874160]  [<ffffffff8022853e>] ? child_rip+0x0/0x12
-> [   11.879989] 
-> [   11.881141] general protection fault: 0000 [1] SMP 
-> [   11.881141] CPU 1 
-> 
-> with this config:
-> 
->    http://redhat.com/~mingo/misc/config-Wed_Jul_16_02_26_04_CEST_2008.bad
-> 
-> today i had time to do a bisection run, and it came up with this commit:
-> 
-> | 279e902445557897707d325182916a6e28ba80de is first bad commit
-> | commit 279e902445557897707d325182916a6e28ba80de
-> | Author: Jean Delvare <khali@linux-fr.org>
-> | Date:   Mon Jul 14 22:38:21 2008 +0200
-> |
-> |    i2c-nforce2: Add support for multiplexing on the Tyan S4985
-> 
-> the crash is reproducible and i can test any fix patch in short order. 
-> As a quick temporary hack i've reverted this patch for now via the patch 
-> below, to keep the tests going. (Can send more details about the 
-> test-system if needed.)
+> I'll need a reasonable header/description in place of the
+> changelog before this can be merged.
 
-Probably the same problem as reported by John Stultz:
-http://lkml.org/lkml/2008/7/15/720
+I'll send it with patch final release, ok?
 
-I'll look into it once I am done with higher priority tasks (read:
-baby's bath ;)).
+> 
+> I'm not going to step on RMK's toes unless he gives me explicit
+> acknowledgement to merge arch/arm/mach-imx/mx1ads.c 
 
-> btw., Greg, the kobject debugging check and output is really nice, 
-> informative and useful! It likely pinpoints the real bug here.
+I can split this patch into two separate patches: one with I2C driver only, second with MX1ADS support for this driver only.
+Should I do so?
 
-Is this something new in 2.6.26-gitX? I want to know if the bug is
-something new or if it could be already present in 2.6.26 and earlier
-kernels and went unnoticed so far.
+>> +	/* wait for bus not busy */
+>> +	for (i = 0; i < I2C_IMX_TIME_BUSY; i++) {
+>> +		if (!(readb(i2c_imx->base + IMX_I2C_I2SR) & (I2SR_IBB | I2SR_IAL)))
+>> +			return 0;
+>> +		udelay(1);
+>> +	}
+>> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C bus is busy!\n", __func__);
+>> +	return -EBUSY;
+>> +}
+> 
+> out of interest, do you really want to be busy-looping here and
+> not allowing the task to sleep?
 
-Thanks,
--- 
-Jean Delvare
+Really not. I see that i2c-mpc driver handles this bit different.
+Maybe it's a good idea to make the same in i2c-imx driver, because I2C controller itself is the same in MPC and in IMX.
+
+
+>> +static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+>> +{
+>> +	unsigned int i = 0;
+>> +
+>> +	for (i = 0; i < I2C_IMX_TIME_ACK; i++) {
+>> +		if (!(readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_RXAK)) {
+>> +			dev_dbg(&i2c_imx->adapter.dev,
+>> +				"<%s> ACK received\n", __func__);
+>> +			return 0;
+>> +		}
+>> +		udelay(1);
+>> +	}
+>> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK!\n", __func__);
+>> +	return -EIO;   /* No ACK */
+>> +}
+
+btw, with this function is similar situation like in previous one.
+I'll change it in the same way.
+
+
+> My only comments are:
+> 
+> 1) over-use of () where they are not needed
+> 2) you need to insert spaces in expressions.
+
+already fixed.
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
