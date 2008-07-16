@@ -1,37 +1,37 @@
-From: Hans de Goede <j.w.r.degoede@hhs.nl>
-Subject: Re: [PATCH] hwmon: (max1619) Convert to a new-style
- i2c	driver
-Date: Wed, 16 Jul 2008 22:51:48 +0200
-Message-ID: <487E5F64.9010007@hhs.nl>
-References: <20080716173030.43988f36@hyperion.delvare>
+From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+Subject: Re: [lm-sensors] [PATCH] hwmon: (smsc47m192) Convert to a
+ new-style i2c	driver
+Date: Wed, 16 Jul 2008 22:54:48 +0200
+Message-ID: <487E6018.5010106@hhs.nl>
+References: <20080716173219.35ae9ff3@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <20080716173030.43988f36@hyperion.delvare>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Alexey Fisher <fishor@mail.ru>, Linux I2C <i2c@lm-sensors.org>, LM Sensors <lm-sensors@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080716173219.35ae9ff3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Hartmut Rick <linux-b/THyiajkxVQ8441yD4n9A@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Jean Delvare wrote:
-> The new-style max1619 driver implements the optional detect() callback
-> to cover the use cases of the legacy driver.
+> The new-style smsc47m192 driver implements the optional detect()
+> callback to cover the use cases of the legacy driver.
 > 
-> Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> Cc: Alexey Fisher <fishor@mail.ru>
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Hartmut Rick <linux-b/THyiajkxVQ8441yD4n9A@public.gmane.org>
 
 Looks good,
 
-Acked-by: Hans de Goede <j.w.r.degoede@hhs.nl>
+Acked-by: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
 
 Regards,
 
@@ -40,199 +40,193 @@ Hans
 
 
 > ---
->  drivers/hwmon/max1619.c |  101 ++++++++++++++++++++---------------------------
->  1 file changed, 44 insertions(+), 57 deletions(-)
+>  drivers/hwmon/smsc47m192.c |  102 +++++++++++++++++++-------------------------
+>  1 file changed, 46 insertions(+), 56 deletions(-)
 > 
-> --- linux-2.6.26-rc9.orig/drivers/hwmon/max1619.c	2008-07-12 09:20:29.000000000 +0200
-> +++ linux-2.6.26-rc9/drivers/hwmon/max1619.c	2008-07-12 10:27:14.000000000 +0200
-> @@ -79,23 +79,34 @@ I2C_CLIENT_INSMOD_1(max1619);
->   * Functions declaration
->   */
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/smsc47m192.c	2008-07-12 09:20:29.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/smsc47m192.c	2008-07-12 10:27:12.000000000 +0200
+> @@ -96,7 +96,6 @@ static inline int TEMP_FROM_REG(s8 val)
+>  }
 >  
-> -static int max1619_attach_adapter(struct i2c_adapter *adapter);
-> -static int max1619_detect(struct i2c_adapter *adapter, int address,
-> -	int kind);
-> +static int max1619_probe(struct i2c_client *client,
-> +			 const struct i2c_device_id *id);
-> +static int max1619_detect(struct i2c_client *client, int kind,
-> +			  struct i2c_board_info *info);
->  static void max1619_init_client(struct i2c_client *client);
-> -static int max1619_detach_client(struct i2c_client *client);
-> +static int max1619_remove(struct i2c_client *client);
->  static struct max1619_data *max1619_update_device(struct device *dev);
->  
->  /*
->   * Driver data (common to all clients)
->   */
->  
-> +static const struct i2c_device_id max1619_id[] = {
-> +	{ "max1619", max1619 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, max1619_id);
-> +
->  static struct i2c_driver max1619_driver = {
-> +	.class		= I2C_CLASS_HWMON,
->  	.driver = {
->  		.name	= "max1619",
->  	},
-> -	.attach_adapter	= max1619_attach_adapter,
-> -	.detach_client	= max1619_detach_client,
-> +	.probe		= max1619_probe,
-> +	.remove		= max1619_remove,
-> +	.id_table	= max1619_id,
-> +	.detect		= max1619_detect,
-> +	.address_data	= &addr_data,
->  };
->  
->  /*
-> @@ -103,7 +114,6 @@ static struct i2c_driver max1619_driver 
->   */
->  
->  struct max1619_data {
+>  struct smsc47m192_data {
 > -	struct i2c_client client;
 >  	struct device *hwmon_dev;
 >  	struct mutex update_lock;
->  	char valid; /* zero until following fields are valid */
-> @@ -208,41 +218,15 @@ static const struct attribute_group max1
->   * Real code
->   */
+>  	char valid;		/* !=0 if following fields are valid */
+> @@ -114,18 +113,29 @@ struct smsc47m192_data {
+>  	u8 vrm;
+>  };
 >  
-> -static int max1619_attach_adapter(struct i2c_adapter *adapter)
+> -static int smsc47m192_attach_adapter(struct i2c_adapter *adapter);
+> -static int smsc47m192_detect(struct i2c_adapter *adapter, int address,
+> -		int kind);
+> -static int smsc47m192_detach_client(struct i2c_client *client);
+> +static int smsc47m192_probe(struct i2c_client *client,
+> +			    const struct i2c_device_id *id);
+> +static int smsc47m192_detect(struct i2c_client *client, int kind,
+> +			     struct i2c_board_info *info);
+> +static int smsc47m192_remove(struct i2c_client *client);
+>  static struct smsc47m192_data *smsc47m192_update_device(struct device *dev);
+>  
+> +static const struct i2c_device_id smsc47m192_id[] = {
+> +	{ "smsc47m192", smsc47m192 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, smsc47m192_id);
+> +
+>  static struct i2c_driver smsc47m192_driver = {
+> +	.class		= I2C_CLASS_HWMON,
+>  	.driver = {
+>  		.name	= "smsc47m192",
+>  	},
+> -	.attach_adapter	= smsc47m192_attach_adapter,
+> -	.detach_client	= smsc47m192_detach_client,
+> +	.probe		= smsc47m192_probe,
+> +	.remove		= smsc47m192_remove,
+> +	.id_table	= smsc47m192_id,
+> +	.detect		= smsc47m192_detect,
+> +	.address_data	= &addr_data,
+>  };
+>  
+>  /* Voltages */
+> @@ -440,17 +450,6 @@ static const struct attribute_group smsc
+>  	.attrs = smsc47m192_attributes_in4,
+>  };
+>  
+> -/* This function is called when:
+> -    * smsc47m192_driver is inserted (when this module is loaded), for each
+> -      available adapter
+> -    * when a new adapter is inserted (and smsc47m192_driver is still present) */
+> -static int smsc47m192_attach_adapter(struct i2c_adapter *adapter)
 > -{
 > -	if (!(adapter->class & I2C_CLASS_HWMON))
 > -		return 0;
-> -	return i2c_probe(adapter, &addr_data, max1619_detect);
+> -	return i2c_probe(adapter, &addr_data, smsc47m192_detect);
 > -}
 > -
-> -/*
-> - * The following function does more than just detection. If detection
-> - * succeeds, it also registers the new chip.
-> - */
-> -static int max1619_detect(struct i2c_adapter *adapter, int address, int kind)
-> +/* Return 0 if detection is successful, -ENODEV otherwise */
-> +static int max1619_detect(struct i2c_client *new_client, int kind,
-> +			  struct i2c_board_info *info)
+>  static void smsc47m192_init_client(struct i2c_client *client)
 >  {
-> -	struct i2c_client *new_client;
-> -	struct max1619_data *data;
+>  	int i;
+> @@ -481,31 +480,15 @@ static void smsc47m192_init_client(struc
+>  	}
+>  }
+>  
+> -/* This function is called by i2c_probe */
+> -static int smsc47m192_detect(struct i2c_adapter *adapter, int address,
+> -		int kind)
+> +/* Return 0 if detection is successful, -ENODEV otherwise */
+> +static int smsc47m192_detect(struct i2c_client *client, int kind,
+> +			     struct i2c_board_info *info)
+>  {
+> -	struct i2c_client *client;
+> -	struct smsc47m192_data *data;
 > -	int err = 0;
-> -	const char *name = "";	
-> +	struct i2c_adapter *adapter = new_client->adapter;
->  	u8 reg_config=0, reg_convrate=0, reg_status=0;
+> -	int version, config;
+> +	struct i2c_adapter *adapter = client->adapter;
+> +	int version;
 >  
 >  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 > -		goto exit;
 > -
-> -	if (!(data = kzalloc(sizeof(struct max1619_data), GFP_KERNEL))) {
+> -	if (!(data = kzalloc(sizeof(struct smsc47m192_data), GFP_KERNEL))) {
 > -		err = -ENOMEM;
 > -		goto exit;
 > -	}
 > -
-> -	/* The common I2C client data is placed right before the
-> -	   MAX1619-specific data. */
-> -	new_client = &data->client;
-> -	i2c_set_clientdata(new_client, data);
-> -	new_client->addr = address;
-> -	new_client->adapter = adapter;
-> -	new_client->driver = &max1619_driver;
-> -	new_client->flags = 0;
+> -	client = &data->client;
+> -	i2c_set_clientdata(client, data);
+> -	client->addr = address;
+> -	client->adapter = adapter;
+> -	client->driver = &smsc47m192_driver;
+> -
+> -	if (kind == 0)
+> -		kind = smsc47m192;
 > +		return -ENODEV;
 >  
->  	/*
->  	 * Now we do the remaining detection. A negative kind means that
-> @@ -265,8 +249,8 @@ static int max1619_detect(struct i2c_ada
->  		 || reg_convrate > 0x07 || (reg_status & 0x61 ) !=0x00) {
+>  	/* Detection criteria from sensors_detect script */
+>  	if (kind < 0) {
+> @@ -523,26 +506,39 @@ static int smsc47m192_detect(struct i2c_
+>  		} else {
 >  			dev_dbg(&adapter->dev,
->  				"MAX1619 detection failed at 0x%02x.\n",
+>  				"SMSC47M192 detection failed at 0x%02x\n",
 > -				address);
 > -			goto exit_free;
-> +				new_client->addr);
+> +				client->addr);
 > +			return -ENODEV;
 >  		}
 >  	}
 >  
-> @@ -285,28 +269,37 @@ static int max1619_detect(struct i2c_ada
->  			dev_info(&adapter->dev,
->  			    "Unsupported chip (man_id=0x%02X, "
->  			    "chip_id=0x%02X).\n", man_id, chip_id);
-> -			goto exit_free;
-> +			return -ENODEV;
->  		}
->  	}
->  
-> -	if (kind == max1619)
-> -		name = "max1619";
-> +	strlcpy(info->type, "max1619", I2C_NAME_SIZE);
+> -	/* Fill in the remaining client fields and put into the global list */
+> -	strlcpy(client->name, "smsc47m192", I2C_NAME_SIZE);
+> +	strlcpy(info->type, "smsc47m192", I2C_NAME_SIZE);
 > +
 > +	return 0;
 > +}
 > +
-> +static int max1619_probe(struct i2c_client *new_client,
-> +			 const struct i2c_device_id *id)
+> +static int smsc47m192_probe(struct i2c_client *client,
+> +			    const struct i2c_device_id *id)
 > +{
-> +	struct max1619_data *data;
+> +	struct smsc47m192_data *data;
+> +	int config;
 > +	int err;
 > +
-> +	data = kzalloc(sizeof(struct max1619_data), GFP_KERNEL);
+> +	data = kzalloc(sizeof(struct smsc47m192_data), GFP_KERNEL);
 > +	if (!data) {
 > +		err = -ENOMEM;
 > +		goto exit;
 > +	}
->  
-> -	/* We can fill in the remaining client fields */
-> -	strlcpy(new_client->name, name, I2C_NAME_SIZE);
-> +	i2c_set_clientdata(new_client, data);
->  	data->valid = 0;
+> +
+> +	i2c_set_clientdata(client, data);
+>  	data->vrm = vid_which_vrm();
 >  	mutex_init(&data->update_lock);
 >  
 > -	/* Tell the I2C layer a new client has arrived */
-> -	if ((err = i2c_attach_client(new_client)))
+> -	if ((err = i2c_attach_client(client)))
 > -		goto exit_free;
 > -
->  	/* Initialize the MAX1619 chip */
->  	max1619_init_client(new_client);
+>  	/* Initialize the SMSC47M192 chip */
+>  	smsc47m192_init_client(client);
 >  
 >  	/* Register sysfs hooks */
->  	if ((err = sysfs_create_group(&new_client->dev.kobj, &max1619_group)))
+>  	if ((err = sysfs_create_group(&client->dev.kobj, &smsc47m192_group)))
 > -		goto exit_detach;
 > +		goto exit_free;
 >  
->  	data->hwmon_dev = hwmon_device_register(&new_client->dev);
->  	if (IS_ERR(data->hwmon_dev)) {
-> @@ -318,8 +311,6 @@ static int max1619_detect(struct i2c_ada
->  
+>  	/* Pin 110 is either in4 (+12V) or VID4 */
+>  	config = i2c_smbus_read_byte_data(client, SMSC47M192_REG_CONFIG);
+> @@ -563,26 +559,20 @@ static int smsc47m192_detect(struct i2c_
 >  exit_remove_files:
->  	sysfs_remove_group(&new_client->dev.kobj, &max1619_group);
+>  	sysfs_remove_group(&client->dev.kobj, &smsc47m192_group);
+>  	sysfs_remove_group(&client->dev.kobj, &smsc47m192_group_in4);
 > -exit_detach:
-> -	i2c_detach_client(new_client);
+> -	i2c_detach_client(client);
 >  exit_free:
 >  	kfree(data);
 >  exit:
-> @@ -341,17 +332,13 @@ static void max1619_init_client(struct i
->  					  config & 0xBF); /* run */
+>  	return err;
 >  }
 >  
-> -static int max1619_detach_client(struct i2c_client *client)
-> +static int max1619_remove(struct i2c_client *client)
+> -static int smsc47m192_detach_client(struct i2c_client *client)
+> +static int smsc47m192_remove(struct i2c_client *client)
 >  {
->  	struct max1619_data *data = i2c_get_clientdata(client);
+>  	struct smsc47m192_data *data = i2c_get_clientdata(client);
 > -	int err;
 >  
 >  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &max1619_group);
+>  	sysfs_remove_group(&client->dev.kobj, &smsc47m192_group);
+>  	sysfs_remove_group(&client->dev.kobj, &smsc47m192_group_in4);
 >  
 > -	if ((err = i2c_detach_client(client)))
 > -		return err;
 > -
 >  	kfree(data);
+>  
 >  	return 0;
->  }
 > 
 > 
 
 
 _______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
