@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] hwmon: (lm87) Convert to a new-style i2c driver
-Date: Wed, 16 Jul 2008 16:41:28 +0200
-Message-ID: <20080716164128.46f6766e@hyperion.delvare>
+Subject: [PATCH] hwmon: (lm93) Convert to a new-style i2c driver
+Date: Wed, 16 Jul 2008 17:29:52 +0200
+Message-ID: <20080716172952.07fd7fc7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,210 +16,221 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Cc: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+Cc: Carsten Emde <cbe-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, "Eric J. Bowersox" <ericb-DfBhb2MYPLjQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The new-style lm87 driver implements the optional detect() callback
+The new-style lm93 driver implements the optional detect() callback
 to cover the use cases of the legacy driver.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+Cc: Mark M. Hoffman <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
+Cc: Eric J. Bowersox <ericb-DfBhb2MYPLjQT0dZR+AlfA@public.gmane.org>
+Cc: Carsten Emde <cbe-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Cc: Hans J. Koch <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 ---
- drivers/hwmon/lm87.c |   99 +++++++++++++++++++++++---------------------------
- 1 file changed, 46 insertions(+), 53 deletions(-)
+ drivers/hwmon/lm93.c |  126 +++++++++++++++++++++++---------------------------
+ 1 file changed, 60 insertions(+), 66 deletions(-)
 
---- linux-2.6.26-rc9.orig/drivers/hwmon/lm87.c	2008-07-12 09:20:29.000000000 +0200
-+++ linux-2.6.26-rc9/drivers/hwmon/lm87.c	2008-07-12 10:27:17.000000000 +0200
-@@ -5,7 +5,7 @@
-  *                          Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>
-  *                          Stephen Rousset <stephen.rousset-RtyX3GHucphnQYSypqKXDg@public.gmane.org>
-  *                          Dan Eaton <dan.eaton-RtyX3GHucphnQYSypqKXDg@public.gmane.org>
-- * Copyright (C) 2004,2007  Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-+ * Copyright (C) 2004-2008  Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-  *
-  * Original port to Linux 2.6 by Jeff Oliver.
-  *
-@@ -157,22 +157,35 @@ static u8 LM87_REG_TEMP_LOW[3] = { 0x3A,
-  * Functions declaration
+--- linux-2.6.26-rc9.orig/drivers/hwmon/lm93.c	2008-07-12 09:20:29.000000000 +0200
++++ linux-2.6.26-rc9/drivers/hwmon/lm93.c	2008-07-12 10:27:15.000000000 +0200
+@@ -200,7 +200,6 @@ struct block1_t {
+  * Client-specific data
   */
- 
--static int lm87_attach_adapter(struct i2c_adapter *adapter);
--static int lm87_detect(struct i2c_adapter *adapter, int address, int kind);
-+static int lm87_probe(struct i2c_client *client,
-+		      const struct i2c_device_id *id);
-+static int lm87_detect(struct i2c_client *new_client, int kind,
-+		       struct i2c_board_info *info);
- static void lm87_init_client(struct i2c_client *client);
--static int lm87_detach_client(struct i2c_client *client);
-+static int lm87_remove(struct i2c_client *client);
- static struct lm87_data *lm87_update_device(struct device *dev);
- 
- /*
-  * Driver data (common to all clients)
-  */
- 
-+static const struct i2c_device_id lm87_id[] = {
-+	{ "lm87", lm87 },
-+	{ "adm1024", adm1024 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, lm87_id);
-+
- static struct i2c_driver lm87_driver = {
-+	.class		= I2C_CLASS_HWMON,
- 	.driver = {
- 		.name	= "lm87",
- 	},
--	.attach_adapter	= lm87_attach_adapter,
--	.detach_client	= lm87_detach_client,
-+	.probe		= lm87_probe,
-+	.remove		= lm87_remove,
-+	.id_table	= lm87_id,
-+	.detect		= lm87_detect,
-+	.address_data	= &addr_data,
- };
- 
- /*
-@@ -180,7 +193,6 @@ static struct i2c_driver lm87_driver = {
-  */
- 
- struct lm87_data {
+ struct lm93_data {
 -	struct i2c_client client;
  	struct device *hwmon_dev;
+ 
  	struct mutex update_lock;
- 	char valid; /* zero until following fields are valid */
-@@ -562,13 +574,6 @@ static SENSOR_DEVICE_ATTR(temp3_fault, S
-  * Real code
-  */
+@@ -2501,45 +2500,14 @@ static void lm93_init_client(struct i2c_
+ 		 "chip to signal ready!\n");
+ }
  
--static int lm87_attach_adapter(struct i2c_adapter *adapter)
--{
--	if (!(adapter->class & I2C_CLASS_HWMON))
--		return 0;
--	return i2c_probe(adapter, &addr_data, lm87_detect);
--}
--
- static struct attribute *lm87_attributes[] = {
- 	&dev_attr_in1_input.attr,
- 	&dev_attr_in1_min.attr,
-@@ -656,33 +661,15 @@ static const struct attribute_group lm87
- 	.attrs = lm87_attributes_opt,
- };
- 
--/*
-- * The following function does more than just detection. If detection
-- * succeeds, it also registers the new chip.
-- */
--static int lm87_detect(struct i2c_adapter *adapter, int address, int kind)
+-static int lm93_detect(struct i2c_adapter *adapter, int address, int kind)
 +/* Return 0 if detection is successful, -ENODEV otherwise */
-+static int lm87_detect(struct i2c_client *new_client, int kind,
++static int lm93_detect(struct i2c_client *client, int kind,
 +		       struct i2c_board_info *info)
  {
--	struct i2c_client *new_client;
--	struct lm87_data *data;
--	int err = 0;
-+	struct i2c_adapter *adapter = new_client->adapter;
- 	static const char *names[] = { "lm87", "adm1024" };
- 
- 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
--		goto exit;
+-	struct lm93_data *data;
+-	struct i2c_client *client;
 -
--	if (!(data = kzalloc(sizeof(struct lm87_data), GFP_KERNEL))) {
+-	int err = -ENODEV, func;
+-	void (*update)(struct lm93_data *, struct i2c_client *);
+-
+-	/* choose update routine based on bus capabilities */
+-	func = i2c_get_functionality(adapter);
+-	if ( ((LM93_SMBUS_FUNC_FULL & func) == LM93_SMBUS_FUNC_FULL) &&
+-			(!disable_block) ) {
+-		dev_dbg(&adapter->dev,"using SMBus block data transactions\n");
+-		update = lm93_update_client_full;
+-	} else if ((LM93_SMBUS_FUNC_MIN & func) == LM93_SMBUS_FUNC_MIN) {
+-		dev_dbg(&adapter->dev,"disabled SMBus block data "
+-			"transactions\n");
+-		update = lm93_update_client_min;
+-	} else {
+-		dev_dbg(&adapter->dev,"detect failed, "
+-			"smbus byte and/or word data not supported!\n");
+-		goto err_out;
+-	}
++	struct i2c_adapter *adapter = client->adapter;
+ 
+-	/* OK. For now, we presume we have a valid client. We now create the
+-	   client structure, even though we cannot fill it completely yet.
+-	   But it allows us to access lm78_{read,write}_value. */
+-
+-	if ( !(data = kzalloc(sizeof(struct lm93_data), GFP_KERNEL))) {
+-		dev_dbg(&adapter->dev,"out of memory!\n");
 -		err = -ENOMEM;
--		goto exit;
+-		goto err_out;
 -	}
 -
--	/* The common I2C client data is placed right before the
--	   LM87-specific data. */
--	new_client = &data->client;
--	i2c_set_clientdata(new_client, data);
--	new_client->addr = address;
--	new_client->adapter = adapter;
--	new_client->driver = &lm87_driver;
--	new_client->flags = 0;
+-	client = &data->client;
+-	i2c_set_clientdata(client, data);
+-	client->addr = address;
+-	client->adapter = adapter;
+-	client->driver = &lm93_driver;
++	if (!i2c_check_functionality(adapter, LM93_SMBUS_FUNC_MIN))
 +		return -ENODEV;
  
- 	/* Default to an LM87 if forced */
- 	if (kind == 0)
-@@ -704,20 +691,32 @@ static int lm87_detect(struct i2c_adapte
- 		 || (lm87_read_value(new_client, LM87_REG_CONFIG) & 0x80)) {
- 			dev_dbg(&adapter->dev,
- 				"LM87 detection failed at 0x%02x.\n",
--				address);
--			goto exit_free;
-+				new_client->addr);
+ 	/* detection */
+ 	if (kind < 0) {
+@@ -2548,7 +2516,7 @@ static int lm93_detect(struct i2c_adapte
+ 		if (mfr != 0x01) {
+ 			dev_dbg(&adapter->dev,"detect failed, "
+ 				"bad manufacturer id 0x%02x!\n", mfr);
+-			goto err_free;
 +			return -ENODEV;
  		}
  	}
  
--	/* We can fill in the remaining client fields */
--	strlcpy(new_client->name, names[kind - 1], I2C_NAME_SIZE);
-+	strlcpy(info->type, names[kind - 1], I2C_NAME_SIZE);
-+
+@@ -2563,31 +2531,61 @@ static int lm93_detect(struct i2c_adapte
+ 			if (kind == 0)
+ 				dev_dbg(&adapter->dev,
+ 					"(ignored 'force' parameter)\n");
+-			goto err_free;
++			return -ENODEV;
+ 		}
+ 	}
+ 
+-	/* fill in remaining client fields */
+-	strlcpy(client->name, "lm93", I2C_NAME_SIZE);
++	strlcpy(info->type, "lm93", I2C_NAME_SIZE);
+ 	dev_dbg(&adapter->dev,"loading %s at %d,0x%02x\n",
+ 		client->name, i2c_adapter_id(client->adapter),
+ 		client->addr);
+ 
 +	return 0;
 +}
 +
-+static int lm87_probe(struct i2c_client *new_client,
++static int lm93_probe(struct i2c_client *client,
 +		      const struct i2c_device_id *id)
 +{
-+	struct lm87_data *data;
-+	int err;
++	struct lm93_data *data;
++	int err, func;
++	void (*update)(struct lm93_data *, struct i2c_client *);
 +
-+	data = kzalloc(sizeof(struct lm87_data), GFP_KERNEL);
-+	if (!data) {
-+		err = -ENOMEM;
-+		goto exit;
++	/* choose update routine based on bus capabilities */
++	func = i2c_get_functionality(client->adapter);
++	if (((LM93_SMBUS_FUNC_FULL & func) == LM93_SMBUS_FUNC_FULL) &&
++			(!disable_block)) {
++		dev_dbg(&client->dev, "using SMBus block data transactions\n");
++		update = lm93_update_client_full;
++	} else if ((LM93_SMBUS_FUNC_MIN & func) == LM93_SMBUS_FUNC_MIN) {
++		dev_dbg(&client->dev, "disabled SMBus block data "
++			"transactions\n");
++		update = lm93_update_client_min;
++	} else {
++		dev_dbg(&client->dev, "detect failed, "
++			"smbus byte and/or word data not supported!\n");
++		err = -ENODEV;
++		goto err_out;
 +	}
 +
-+	i2c_set_clientdata(new_client, data);
++	data = kzalloc(sizeof(struct lm93_data), GFP_KERNEL);
++	if (!data) {
++		dev_dbg(&client->dev, "out of memory!\n");
++		err = -ENOMEM;
++		goto err_out;
++	}
++	i2c_set_clientdata(client, data);
++
+ 	/* housekeeping */
  	data->valid = 0;
+ 	data->update = update;
  	mutex_init(&data->update_lock);
  
--	/* Tell the I2C layer a new client has arrived */
--	if ((err = i2c_attach_client(new_client)))
--		goto exit_free;
+-	/* tell the I2C layer a new client has arrived */
+-	if ((err = i2c_attach_client(client)))
+-		goto err_free;
 -
- 	/* Initialize the LM87 chip */
- 	lm87_init_client(new_client);
+ 	/* initialize the chip */
+ 	lm93_init_client(client);
  
-@@ -732,7 +731,7 @@ static int lm87_detect(struct i2c_adapte
+ 	err = sysfs_create_group(&client->dev.kobj, &lm93_attr_grp);
+ 	if (err)
+-		goto err_detach;
++		goto err_free;
  
- 	/* Register sysfs hooks */
- 	if ((err = sysfs_create_group(&new_client->dev.kobj, &lm87_group)))
--		goto exit_detach;
-+		goto exit_free;
- 
- 	if (data->channel & CHAN_NO_FAN(0)) {
- 		if ((err = device_create_file(&new_client->dev,
-@@ -832,8 +831,6 @@ static int lm87_detect(struct i2c_adapte
- exit_remove:
- 	sysfs_remove_group(&new_client->dev.kobj, &lm87_group);
- 	sysfs_remove_group(&new_client->dev.kobj, &lm87_group_opt);
--exit_detach:
--	i2c_detach_client(new_client);
- exit_free:
+ 	/* Register hwmon driver class */
+ 	data->hwmon_dev = hwmon_device_register(&client->dev);
+@@ -2597,43 +2595,39 @@ static int lm93_detect(struct i2c_adapte
+ 	err = PTR_ERR(data->hwmon_dev);
+ 	dev_err(&client->dev, "error registering hwmon device.\n");
+ 	sysfs_remove_group(&client->dev.kobj, &lm93_attr_grp);
+-err_detach:
+-	i2c_detach_client(client);
+ err_free:
  	kfree(data);
- exit:
-@@ -877,18 +874,14 @@ static void lm87_init_client(struct i2c_
- 	}
+ err_out:
+ 	return err;
  }
  
--static int lm87_detach_client(struct i2c_client *client)
-+static int lm87_remove(struct i2c_client *client)
+-/* This function is called when:
+-     * lm93_driver is inserted (when this module is loaded), for each
+-       available adapter
+-     * when a new adapter is inserted (and lm93_driver is still present) */
+-static int lm93_attach_adapter(struct i2c_adapter *adapter)
+-{
+-	return i2c_probe(adapter, &addr_data, lm93_detect);
+-}
+-
+-static int lm93_detach_client(struct i2c_client *client)
++static int lm93_remove(struct i2c_client *client)
  {
- 	struct lm87_data *data = i2c_get_clientdata(client);
--	int err;
+ 	struct lm93_data *data = i2c_get_clientdata(client);
+-	int err = 0;
  
  	hwmon_device_unregister(data->hwmon_dev);
- 	sysfs_remove_group(&client->dev.kobj, &lm87_group);
- 	sysfs_remove_group(&client->dev.kobj, &lm87_group_opt);
+ 	sysfs_remove_group(&client->dev.kobj, &lm93_attr_grp);
  
--	if ((err = i2c_detach_client(client)))
--		return err;
--
- 	kfree(data);
- 	return 0;
+-	err = i2c_detach_client(client);
+-	if (!err)
+-		kfree(data);
+-	return err;
++	kfree(data);
++	return 0;
  }
+ 
++static const struct i2c_device_id lm93_id[] = {
++	{ "lm93", lm93 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, lm93_id);
++
+ static struct i2c_driver lm93_driver = {
++	.class		= I2C_CLASS_HWMON,
+ 	.driver = {
+ 		.name	= "lm93",
+ 	},
+-	.attach_adapter	= lm93_attach_adapter,
+-	.detach_client	= lm93_detach_client,
++	.probe		= lm93_probe,
++	.remove		= lm93_remove,
++	.id_table	= lm93_id,
++	.detect		= lm93_detect,
++	.address_data	= &addr_data,
+ };
+ 
+ static int __init lm93_init(void)
 
 
 -- 
