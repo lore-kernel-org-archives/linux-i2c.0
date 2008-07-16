@@ -1,14 +1,14 @@
 From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH] hwmon: (fscher) Convert to a
- new-style i2c driver
-Date: Wed, 16 Jul 2008 20:26:21 +0200
-Message-ID: <487E3D4D.20702@hhs.nl>
-References: <20080716163539.4149f0e3@hyperion.delvare>
+Subject: Re: [lm-sensors] [PATCH] hwmon: (gl520sm) Convert to a
+ new-style i2c	driver
+Date: Wed, 16 Jul 2008 20:27:13 +0200
+Message-ID: <487E3D81.5070603@hhs.nl>
+References: <20080716163723.61391a7a@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716163539.4149f0e3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080716163723.61391a7a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,15 +19,15 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Reinhard Nissl <rnissl-Mmb7MZpHnFY@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Maarten Deprez <maartendeprez-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Jean Delvare wrote:
-> The new-style fscher driver implements the optional detect() callback
+> The new-style gl520sm driver implements the optional detect() callback
 > to cover the use cases of the legacy driver.
 > 
 > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Reinhard Nissl <rnissl-Mmb7MZpHnFY@public.gmane.org>
+> Cc: Maarten Deprez <maartendeprez-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 
 Looks good,
 
@@ -40,167 +40,165 @@ Hans
 
 
 > ---
->  drivers/hwmon/fscher.c |   93 +++++++++++++++++++++---------------------------
->  1 file changed, 42 insertions(+), 51 deletions(-)
+>  drivers/hwmon/gl520sm.c |   91 ++++++++++++++++++++++-------------------------
+>  1 file changed, 43 insertions(+), 48 deletions(-)
 > 
-> --- linux-2.6.26-rc9.orig/drivers/hwmon/fscher.c	2008-07-12 09:20:30.000000000 +0200
-> +++ linux-2.6.26-rc9/drivers/hwmon/fscher.c	2008-07-12 10:27:24.000000000 +0200
-> @@ -106,9 +106,11 @@ I2C_CLIENT_INSMOD_1(fscher);
->   * Functions declaration
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/gl520sm.c	2008-07-12 09:20:30.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/gl520sm.c	2008-07-12 10:27:21.000000000 +0200
+> @@ -79,26 +79,37 @@ static const u8 GL520_REG_TEMP_MAX_HYST[
+>   * Function declarations
 >   */
 >  
-> -static int fscher_attach_adapter(struct i2c_adapter *adapter);
-> -static int fscher_detect(struct i2c_adapter *adapter, int address, int kind);
-> -static int fscher_detach_client(struct i2c_client *client);
-> +static int fscher_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id);
-> +static int fscher_detect(struct i2c_client *client, int kind,
-> +			 struct i2c_board_info *info);
-> +static int fscher_remove(struct i2c_client *client);
->  static struct fscher_data *fscher_update_device(struct device *dev);
->  static void fscher_init_client(struct i2c_client *client);
+> -static int gl520_attach_adapter(struct i2c_adapter *adapter);
+> -static int gl520_detect(struct i2c_adapter *adapter, int address, int kind);
+> +static int gl520_probe(struct i2c_client *client,
+> +		       const struct i2c_device_id *id);
+> +static int gl520_detect(struct i2c_client *client, int kind,
+> +			struct i2c_board_info *info);
+>  static void gl520_init_client(struct i2c_client *client);
+> -static int gl520_detach_client(struct i2c_client *client);
+> +static int gl520_remove(struct i2c_client *client);
+>  static int gl520_read_value(struct i2c_client *client, u8 reg);
+>  static int gl520_write_value(struct i2c_client *client, u8 reg, u16 value);
+>  static struct gl520_data *gl520_update_device(struct device *dev);
 >  
-> @@ -119,12 +121,21 @@ static int fscher_write_value(struct i2c
->   * Driver data (common to all clients)
->   */
->   
-> +static const struct i2c_device_id fscher_id[] = {
-> +	{ "fscher", fscher },
+>  /* Driver data */
+> +static const struct i2c_device_id gl520_id[] = {
+> +	{ "gl520sm", gl520sm },
 > +	{ }
 > +};
+> +MODULE_DEVICE_TABLE(i2c, gl520_id);
 > +
->  static struct i2c_driver fscher_driver = {
+>  static struct i2c_driver gl520_driver = {
 > +	.class		= I2C_CLASS_HWMON,
 >  	.driver = {
->  		.name	= "fscher",
+>  		.name	= "gl520sm",
 >  	},
-> -	.attach_adapter	= fscher_attach_adapter,
-> -	.detach_client	= fscher_detach_client,
-> +	.probe		= fscher_probe,
-> +	.remove		= fscher_remove,
-> +	.id_table	= fscher_id,
-> +	.detect		= fscher_detect,
+> -	.attach_adapter	= gl520_attach_adapter,
+> -	.detach_client	= gl520_detach_client,
+> +	.probe		= gl520_probe,
+> +	.remove		= gl520_remove,
+> +	.id_table	= gl520_id,
+> +	.detect		= gl520_detect,
 > +	.address_data	= &addr_data,
 >  };
 >  
->  /*
-> @@ -132,7 +143,6 @@ static struct i2c_driver fscher_driver =
->   */
->  
->  struct fscher_data {
+>  /* Client data */
+>  struct gl520_data {
 > -	struct i2c_client client;
 >  	struct device *hwmon_dev;
 >  	struct mutex update_lock;
->  	char valid; /* zero until following fields are valid */
-> @@ -283,38 +293,14 @@ static const struct attribute_group fsch
+>  	char valid;		/* zero until the following fields are valid */
+> @@ -669,37 +680,15 @@ static const struct attribute_group gl52
 >   * Real code
 >   */
 >  
-> -static int fscher_attach_adapter(struct i2c_adapter *adapter)
+> -static int gl520_attach_adapter(struct i2c_adapter *adapter)
 > -{
 > -	if (!(adapter->class & I2C_CLASS_HWMON))
 > -		return 0;
-> -	return i2c_probe(adapter, &addr_data, fscher_detect);
+> -	return i2c_probe(adapter, &addr_data, gl520_detect);
 > -}
 > -
-> -static int fscher_detect(struct i2c_adapter *adapter, int address, int kind)
+> -static int gl520_detect(struct i2c_adapter *adapter, int address, int kind)
 > +/* Return 0 if detection is successful, -ENODEV otherwise */
-> +static int fscher_detect(struct i2c_client *new_client, int kind,
-> +			 struct i2c_board_info *info)
+> +static int gl520_detect(struct i2c_client *client, int kind,
+> +			struct i2c_board_info *info)
 >  {
-> -	struct i2c_client *new_client;
-> -	struct fscher_data *data;
+> -	struct i2c_client *client;
+> -	struct gl520_data *data;
 > -	int err = 0;
-> +	struct i2c_adapter *adapter = new_client->adapter;
+> +	struct i2c_adapter *adapter = client->adapter;
 >  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+>  				     I2C_FUNC_SMBUS_WORD_DATA))
 > -		goto exit;
 > -
 > -	/* OK. For now, we presume we have a valid client. We now create the
-> -	 * client structure, even though we cannot fill it completely yet.
-> -	 * But it allows us to access i2c_smbus_read_byte_data. */
-> -	if (!(data = kzalloc(sizeof(struct fscher_data), GFP_KERNEL))) {
+> -	   client structure, even though we cannot fill it completely yet.
+> -	   But it allows us to access gl520_{read,write}_value. */
+> -
+> -	if (!(data = kzalloc(sizeof(struct gl520_data), GFP_KERNEL))) {
 > -		err = -ENOMEM;
 > -		goto exit;
-> -  	}
+> -	}
 > -
-> -	/* The common I2C client data is placed right before the
-> -	 * Hermes-specific data. */
-> -	new_client = &data->client;
-> -	i2c_set_clientdata(new_client, data);
-> -	new_client->addr = address;
-> -	new_client->adapter = adapter;
-> -	new_client->driver = &fscher_driver;
-> -	new_client->flags = 0;
+> -	client = &data->client;
+> -	i2c_set_clientdata(client, data);
+> -	client->addr = address;
+> -	client->adapter = adapter;
+> -	client->driver = &gl520_driver;
 > +		return -ENODEV;
 >  
->  	/* Do the remaining detection unless force or force_fscher parameter */
+>  	/* Determine the chip type. */
 >  	if (kind < 0) {
-> @@ -324,24 +310,35 @@ static int fscher_detect(struct i2c_adap
->  		     FSCHER_REG_IDENT_1) != 0x45)	/* 'E' */
->  		 || (i2c_smbus_read_byte_data(new_client,
->  		     FSCHER_REG_IDENT_2) != 0x52))	/* 'R' */
+> @@ -707,24 +696,36 @@ static int gl520_detect(struct i2c_adapt
+>  		    ((gl520_read_value(client, GL520_REG_REVISION) & 0x7f) != 0x00) ||
+>  		    ((gl520_read_value(client, GL520_REG_CONF) & 0x80) != 0x00)) {
+>  			dev_dbg(&client->dev, "Unknown chip type, skipping\n");
 > -			goto exit_free;
 > +			return -ENODEV;
-> +	}
-> +
-> +	strlcpy(info->type, "fscher", I2C_NAME_SIZE);
-> +
+>  		}
+>  	}
+>  
+> -	/* Fill in the remaining client fields */
+> -	strlcpy(client->name, "gl520sm", I2C_NAME_SIZE);
+> -	mutex_init(&data->update_lock);
+> +	strlcpy(info->type, "gl520sm", I2C_NAME_SIZE);
+>  
+> -	/* Tell the I2C layer a new client has arrived */
+> -	if ((err = i2c_attach_client(client)))
+> -		goto exit_free;
 > +	return 0;
 > +}
 > +
-> +static int fscher_probe(struct i2c_client *new_client,
-> +			const struct i2c_device_id *id)
+> +static int gl520_probe(struct i2c_client *client,
+> +		       const struct i2c_device_id *id)
 > +{
-> +	struct fscher_data *data;
+> +	struct gl520_data *data;
 > +	int err;
 > +
-> +	data = kzalloc(sizeof(struct fscher_data), GFP_KERNEL);
+> +	data = kzalloc(sizeof(struct gl520_data), GFP_KERNEL);
 > +	if (!data) {
 > +		err = -ENOMEM;
 > +		goto exit;
->  	}
+> +	}
+> +
+> +	i2c_set_clientdata(client, data);
+> +	mutex_init(&data->update_lock);
 >  
-> -	/* Fill in the remaining client fields and put it into the
-> -	 * global list */
-> -	strlcpy(new_client->name, "fscher", I2C_NAME_SIZE);
-> +	i2c_set_clientdata(new_client, data);
->  	data->valid = 0;
->  	mutex_init(&data->update_lock);
->  
-> -	/* Tell the I2C layer a new client has arrived */
-> -	if ((err = i2c_attach_client(new_client)))
-> -		goto exit_free;
-> -
->  	fscher_init_client(new_client);
+>  	/* Initialize the GL520SM chip */
+>  	gl520_init_client(client);
 >  
 >  	/* Register sysfs hooks */
->  	if ((err = sysfs_create_group(&new_client->dev.kobj, &fscher_group)))
+>  	if ((err = sysfs_create_group(&client->dev.kobj, &gl520_group)))
 > -		goto exit_detach;
 > +		goto exit_free;
 >  
->  	data->hwmon_dev = hwmon_device_register(&new_client->dev);
->  	if (IS_ERR(data->hwmon_dev)) {
-> @@ -353,25 +350,19 @@ static int fscher_detect(struct i2c_adap
->  
+>  	if (data->two_temps) {
+>  		if ((err = device_create_file(&client->dev,
+> @@ -764,8 +765,6 @@ static int gl520_detect(struct i2c_adapt
 >  exit_remove_files:
->  	sysfs_remove_group(&new_client->dev.kobj, &fscher_group);
+>  	sysfs_remove_group(&client->dev.kobj, &gl520_group);
+>  	sysfs_remove_group(&client->dev.kobj, &gl520_group_opt);
 > -exit_detach:
-> -	i2c_detach_client(new_client);
+> -	i2c_detach_client(client);
 >  exit_free:
 >  	kfree(data);
 >  exit:
->  	return err;
+> @@ -811,18 +810,14 @@ static void gl520_init_client(struct i2c
+>  	gl520_write_value(client, GL520_REG_BEEP_MASK, data->beep_mask);
 >  }
 >  
-> -static int fscher_detach_client(struct i2c_client *client)
-> +static int fscher_remove(struct i2c_client *client)
+> -static int gl520_detach_client(struct i2c_client *client)
+> +static int gl520_remove(struct i2c_client *client)
 >  {
->  	struct fscher_data *data = i2c_get_clientdata(client);
+>  	struct gl520_data *data = i2c_get_clientdata(client);
 > -	int err;
 >  
 >  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &fscher_group);
+>  	sysfs_remove_group(&client->dev.kobj, &gl520_group);
+>  	sysfs_remove_group(&client->dev.kobj, &gl520_group_opt);
 >  
 > -	if ((err = i2c_detach_client(client)))
 > -		return err;
