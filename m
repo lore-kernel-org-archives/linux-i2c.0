@@ -1,117 +1,69 @@
-From: Hans de Goede <j.w.r.degoede@hhs.nl>
-Subject: Re: [PATCH] hwmon: (thmc50) Convert to a new-style i2c
-	driver
-Date: Wed, 16 Jul 2008 23:31:12 +0200
-Message-ID: <487E68A0.7070905@hhs.nl>
-References: <20080716173316.1e8c5c42@hyperion.delvare>	<487E624B.4060908@hhs.nl>
-	<20080716231438.2913afc4@hyperion.delvare>
+From: "Grant Likely" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] of/i2c: don't pass -1 to irq_dispose_mapping,
+	otherwise kernel will oops
+Date: Wed, 16 Jul 2008 16:20:20 -0600
+Message-ID: <fa686aa40807161520rfaf056elcd2116b70371d95d@mail.gmail.com>
+References: <20080711174859.GA24260@polina.dev.rtsoft.ru>
+	<20080711182323.GB15321@secretlab.ca>
+	<20080712080004.GA16739@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <20080716231438.2913afc4@hyperion.delvare>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Krzysztof Helt <krzysztof.h1@wp.pl>, Linux I2C <i2c@lm-sensors.org>, LM Sensors <lm-sensors@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080712080004.GA16739-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi Hans,
-> 
-> Thanks for all the reviews :)
-> 
-> On Wed, 16 Jul 2008 23:04:11 +0200, Hans de Goede wrote:
->> Jean Delvare wrote:
->>> The new-style thmc50 driver implements the optional detect()
->>> callback to cover the use cases of the legacy driver.
->>>
->>> Signed-off-by: Jean Delvare <khali@linux-fr.org>
->>> Cc: Krzysztof Helt <krzysztof.h1@wp.pl>
->>> @@ -307,21 +304,22 @@ static int thmc50_detect(struct i2c_adap
->>>  	}
->>>  	if (err == -ENODEV) {
->>>  		pr_debug("thmc50: Detection of THMC50/ADM1022 failed\n");
->>> -		goto exit_free;
->>> +		return err;
->>>  	}
->>> -	data->type = kind;
->>>  
->>>  	if (kind == adm1022) {
->>>  		int id = i2c_adapter_id(client->adapter);
->>>  		int i;
->>>  
->>>  		type_name = "adm1022";
->>> -		data->has_temp3 = (config >> 7) & 1;	/* config MSB */
->>>  		for (i = 0; i + 1 < adm1022_temp3_num; i += 2)
->>>  			if (adm1022_temp3[i] == id &&
->>> -			    adm1022_temp3[i + 1] == address) {
->>> +			    adm1022_temp3[i + 1] == client->addr) {
->>>  				/* enable 2nd remote temp */
->>> -				data->has_temp3 = 1;
->>> +				config |= (1 << 7);
->>> +				i2c_smbus_write_byte_data(client,
->>> +							  THMC50_REG_CONF,
->>> +							  config);
->>>  				break;
->>>  			}
->>>  	} else {
->> Hmm, This does not seem right, you are _writing_ to the device in a the detect 
->> function changing its configuration. I understand you can no longer set 
->> data->has_temp3 as there is no data yet in the detect, instead the entire loop 
->> which checks if the device has temp3 forced through a module option should be 
->> moved to the probe function. Writing to a config register in the detect 
->> function feels wrong to me.
-> 
-> Note that:
-> * This is only done when the user passes a specific kernel module
->   parameter. By default the chip configuration is left unchanged.
-> * The behavior is exactly the same as those of the original code. It is
->   more clearly visible now, but the original code would set
->   data->has_temp3, and then call the initialization function which
->   itself would write to the chip if data->has_temp3 is set.
-> 
-> So I don't think there is any problem here. If you think that my patch
-> changes the behavior, then please point this out to me, as this was not
-> my intent.
-> 
-> I am not shocked by the fact that the detect function is processing the
-> module parameter. After all, the other module parameters (force,
-> ignore, etc.) are also handled at this point in the code too (just
-> before, actually.) And I don't want to do it later because the
-> initialization function is shared between legacy clients and new-style
-> ones, and module parameters should not affect new-style clients IMHO.
-> Chip-specific configuration for new-style clients should be done
-> through platform data, not module parameters.
-> 
-> If you insist on doing it clean, then the solution would be to convert
-> the module parameter to platform data in the detection function, and
-> process that platform data in the probe function (or initialization
-> function - that's pretty much the same.) If there ever is a new-style
-> THMC50 or ADM1022 device, we will certainly do that anyway. But I hope
-> that we agree that this is only moving the code around and not changing
-> the functional behavior.
-> 
+On Sat, Jul 12, 2008 at 2:00 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> On Fri, Jul 11, 2008 at 12:23:23PM -0600, Grant Likely wrote:
+>> On Fri, Jul 11, 2008 at 09:48:59PM +0400, Anton Vorontsov wrote:
+>> > Firstly kernel warns at set_irq_chip, and then dies completely:
+>> >
+>> > Trying to install chip for IRQ-1
+>> >
+>> > diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+>> > index b2ccdcb..95a24de 100644
+>> > --- a/drivers/of/of_i2c.c
+>> > +++ b/drivers/of/of_i2c.c
+>> > @@ -93,10 +93,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>> >             if (info.irq == NO_IRQ)
+>> >                     info.irq = -1;
+>>
+>> What is the reason that info.irq is set to -1 in the first place?  This
+>> looks like another bug to me.  Does something in the i2c layer depend on
+>> the -1 value?
+>>
+>
+> You already acked a fix to this :) I wasn't sure if my patch would
+> make it on its own, as Jon Smirl was also working on fixes to of_i2c.c
+> and he seemed to pick up this issue, too.
 
-Hmm, me still thinks its not pretty, but I accept your explanation:
+Ugh, I have trouble remembering what I've done from one day to the next.  :-/
 
-Acked-by: Hans de Goede <j.w.r.degoede@hhs.nl>
+After looking at it again, I'm inclined to prefer the NO_IRQ fix.
+There is a smaller user base of of_i2c and so it will have a much
+smaller impact if it breaks stuff.  It also has the added advantage of
+encouraging people to actually fix the drivers that assume -1.
 
-Regards,
+Cheers,
+g.
 
-Hans
-
-
-
+-- 
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
 
 _______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
