@@ -1,21 +1,13 @@
-From: Ingo Molnar <mingo-X9Un+BFzKDI@public.gmane.org>
-Subject: Re: [crash, bisected] I2C,
-	kobject (ffff81003e8c4160): tried to	init an initialized object
-Date: Thu, 17 Jul 2008 11:59:44 +0200
-Message-ID: <20080717095944.GA2097@elte.hu>
-References: <20080714224945.629446fa@hyperion.delvare>
-	<20080716082352.GA30483@elte.hu>
-	<20080716110702.3ca61eb2@hyperion.delvare>
-	<20080716120801.3e9b4c80@hyperion.delvare>
-	<20080716141826.1d88d05e@hyperion.delvare>
-	<20080717092655.GA6115@elte.hu> <20080717093329.GA20032@elte.hu>
-	<20080717094858.GA18687@martell.zuzino.mipt.ru>
+From: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+Subject: Re: [PATCH] hwmon: (fschmd) Convert to a new-style i2c driver
+Date: Thu, 17 Jul 2008 14:40:50 +0200
+Message-ID: <487F3DD2.50602@hhs.nl>
+References: <20080716163629.58e7c98f@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20080717094858.GA18687-QDJVlCTZ4KWTKS93B3g+7KFoa47nwP16@public.gmane.org>
+In-Reply-To: <20080716163629.58e7c98f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,50 +17,260 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: john stultz <johnstul-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Ulrich Drepper <drepper-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-* Alexey Dobriyan <adobriyan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-
-> On Thu, Jul 17, 2008 at 11:33:30AM +0200, Ingo Molnar wrote:
-> > 
-> > * Ingo Molnar <mingo-X9Un+BFzKDI@public.gmane.org> wrote:
-> > 
-> > > Jean,
-> > > 
-> > > -tip testing found another (similar) i2c crash with latest -git, on a 
-> > > Core2Duo laptop:
-> > > 
-> > > calling  nforce2_init+0x0/0x1b
-> > > initcall nforce2_init+0x0/0x1b returned 0 after 0 msecs
-> > > calling  nforce2_s4985_init+0x0/0x275
-> > > BUG: unable to handle kernel NULL pointer dereference at 0000000c
-> > > IP: [<c04af2cf>] i2c_smbus_xfer+0x27/0x3f0
-> > > *pdpt = 00000000009cb001 *pde = 0000000000000000 
-> > > Oops: 0000 [#1] SMP 
-> > 
-> > turning off I2C_NFORCE2_S4985 makes the system boot up fine. Workaround 
-> > patch below.
+Jean Delvare wrote:
+> The new-style fschmd driver implements the optional detect() callback
+> to cover the use cases of the legacy driver.
 > 
-> Well, it's pretty easy oops unless I misread something.
-> It happened on not nforce2 motherboard, right?
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
 
-yeah.
+Tested as promised, still works fine.
 
-> nforce2_init will just register PCI driver,
-> no matching PCI ids => nforce2_set_reference() isn't called =>
-> nforce2_smbus stays NULL.
+Signed-off-by: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+
+Regards,
+
+Hans
+
+
+
+> ---
+>  drivers/hwmon/fschmd.c |  112 ++++++++++++++++++++++++------------------------
+>  1 file changed, 57 insertions(+), 55 deletions(-)
 > 
-> Second module loads and tries to i2c_smbus_xfer(NULL, ) in module_init()
-> hook which oopses.
+> --- linux-2.6.26-rc9.orig/drivers/hwmon/fschmd.c	2008-07-12 09:20:30.000000000 +0200
+> +++ linux-2.6.26-rc9/drivers/hwmon/fschmd.c	2008-07-12 10:27:23.000000000 +0200
+> @@ -171,20 +171,37 @@ static const int FSCHMD_NO_TEMP_SENSORS[
+>   * Functions declarations
+>   */
+>  
+> -static int fschmd_attach_adapter(struct i2c_adapter *adapter);
+> -static int fschmd_detach_client(struct i2c_client *client);
+> +static int fschmd_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id);
+> +static int fschmd_detect(struct i2c_client *client, int kind,
+> +			 struct i2c_board_info *info);
+> +static int fschmd_remove(struct i2c_client *client);
+>  static struct fschmd_data *fschmd_update_device(struct device *dev);
+>  
+>  /*
+>   * Driver data (common to all clients)
+>   */
+>  
+> +static const struct i2c_device_id fschmd_id[] = {
+> +	{ "fscpos", fscpos },
+> +	{ "fscher", fscher },
+> +	{ "fscscy", fscscy },
+> +	{ "fschrc", fschrc },
+> +	{ "fschmd", fschmd },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, fschmd_id);
+> +
+>  static struct i2c_driver fschmd_driver = {
+> +	.class		= I2C_CLASS_HWMON,
+>  	.driver = {
+>  		.name	= FSCHMD_NAME,
+>  	},
+> -	.attach_adapter	= fschmd_attach_adapter,
+> -	.detach_client	= fschmd_detach_client,
+> +	.probe		= fschmd_probe,
+> +	.remove		= fschmd_remove,
+> +	.id_table	= fschmd_id,
+> +	.detect		= fschmd_detect,
+> +	.address_data	= &addr_data,
+>  };
+>  
+>  /*
+> @@ -192,7 +209,6 @@ static struct i2c_driver fschmd_driver =
+>   */
+>  
+>  struct fschmd_data {
+> -	struct i2c_client client;
+>  	struct device *hwmon_dev;
+>  	struct mutex update_lock;
+>  	int kind;
+> @@ -269,7 +285,7 @@ static ssize_t store_temp_max(struct dev
+>  	v = SENSORS_LIMIT(v, -128, 127) + 128;
+>  
+>  	mutex_lock(&data->update_lock);
+> -	i2c_smbus_write_byte_data(&data->client,
+> +	i2c_smbus_write_byte_data(to_i2c_client(dev),
+>  		FSCHMD_REG_TEMP_LIMIT[data->kind][index], v);
+>  	data->temp_max[index] = v;
+>  	mutex_unlock(&data->update_lock);
+> @@ -346,14 +362,14 @@ static ssize_t store_fan_div(struct devi
+>  
+>  	mutex_lock(&data->update_lock);
+>  
+> -	reg = i2c_smbus_read_byte_data(&data->client,
+> +	reg = i2c_smbus_read_byte_data(to_i2c_client(dev),
+>  		FSCHMD_REG_FAN_RIPPLE[data->kind][index]);
+>  
+>  	/* bits 2..7 reserved => mask with 0x03 */
+>  	reg &= ~0x03;
+>  	reg |= v;
+>  
+> -	i2c_smbus_write_byte_data(&data->client,
+> +	i2c_smbus_write_byte_data(to_i2c_client(dev),
+>  		FSCHMD_REG_FAN_RIPPLE[data->kind][index], reg);
+>  
+>  	data->fan_ripple[index] = reg;
+> @@ -416,7 +432,7 @@ static ssize_t store_pwm_auto_point1_pwm
+>  
+>  	mutex_lock(&data->update_lock);
+>  
+> -	i2c_smbus_write_byte_data(&data->client,
+> +	i2c_smbus_write_byte_data(to_i2c_client(dev),
+>  		FSCHMD_REG_FAN_MIN[data->kind][index], v);
+>  	data->fan_min[index] = v;
+>  
+> @@ -448,14 +464,14 @@ static ssize_t store_alert_led(struct de
+>  
+>  	mutex_lock(&data->update_lock);
+>  
+> -	reg = i2c_smbus_read_byte_data(&data->client, FSCHMD_REG_CONTROL);
+> +	reg = i2c_smbus_read_byte_data(to_i2c_client(dev), FSCHMD_REG_CONTROL);
+>  
+>  	if (v)
+>  		reg |= FSCHMD_CONTROL_ALERT_LED_MASK;
+>  	else
+>  		reg &= ~FSCHMD_CONTROL_ALERT_LED_MASK;
+>  
+> -	i2c_smbus_write_byte_data(&data->client, FSCHMD_REG_CONTROL, reg);
+> +	i2c_smbus_write_byte_data(to_i2c_client(dev), FSCHMD_REG_CONTROL, reg);
+>  
+>  	data->global_control = reg;
+>  
+> @@ -600,32 +616,15 @@ static void fschmd_dmi_decode(const stru
+>  	}
+>  }
+>  
+> -static int fschmd_detect(struct i2c_adapter *adapter, int address, int kind)
+> +static int fschmd_detect(struct i2c_client *client, int kind,
+> +			 struct i2c_board_info *info)
+>  {
+> -	struct i2c_client *client;
+> -	struct fschmd_data *data;
+> -	u8 revision;
+> -	const char * const names[5] = { "Poseidon", "Hermes", "Scylla",
+> -					"Heracles", "Heimdall" };
+> +	struct i2c_adapter *adapter = client->adapter;
+>  	const char * const client_names[5] = { "fscpos", "fscher", "fscscy",
+>  						"fschrc", "fschmd" };
+> -	int i, err = 0;
+>  
+>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
+> -		return 0;
+> -
+> -	/* OK. For now, we presume we have a valid client. We now create the
+> -	 * client structure, even though we cannot fill it completely yet.
+> -	 * But it allows us to access i2c_smbus_read_byte_data. */
+> -	if (!(data = kzalloc(sizeof(struct fschmd_data), GFP_KERNEL)))
+> -		return -ENOMEM;
+> -
+> -	client = &data->client;
+> -	i2c_set_clientdata(client, data);
+> -	client->addr = address;
+> -	client->adapter = adapter;
+> -	client->driver = &fschmd_driver;
+> -	mutex_init(&data->update_lock);
+> +		return -ENODEV;
+>  
+>  	/* Detect & Identify the chip */
+>  	if (kind <= 0) {
+> @@ -650,9 +649,31 @@ static int fschmd_detect(struct i2c_adap
+>  		else if (!strcmp(id, "HMD"))
+>  			kind = fschmd;
+>  		else
+> -			goto exit_free;
+> +			return -ENODEV;
+>  	}
+>  
+> +	strlcpy(info->type, client_names[kind - 1], I2C_NAME_SIZE);
+> +
+> +	return 0;
+> +}
+> +
+> +static int fschmd_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id)
+> +{
+> +	struct fschmd_data *data;
+> +	u8 revision;
+> +	const char * const names[5] = { "Poseidon", "Hermes", "Scylla",
+> +					"Heracles", "Heimdall" };
+> +	int i, err;
+> +	enum chips kind = id->driver_data;
+> +
+> +	data = kzalloc(sizeof(struct fschmd_data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	i2c_set_clientdata(client, data);
+> +	mutex_init(&data->update_lock);
+> +
+>  	if (kind == fscpos) {
+>  		/* The Poseidon has hardwired temp limits, fill these
+>  		   in for the alarm resetting code */
+> @@ -674,11 +695,6 @@ static int fschmd_detect(struct i2c_adap
+>  
+>  	/* i2c kind goes from 1-5, we want from 0-4 to address arrays */
+>  	data->kind = kind - 1;
+> -	strlcpy(client->name, client_names[data->kind], I2C_NAME_SIZE);
+> -
+> -	/* Tell the I2C layer a new client has arrived */
+> -	if ((err = i2c_attach_client(client)))
+> -		goto exit_free;
+>  
+>  	for (i = 0; i < ARRAY_SIZE(fschmd_attr); i++) {
+>  		err = device_create_file(&client->dev,
+> @@ -726,25 +742,14 @@ static int fschmd_detect(struct i2c_adap
+>  	return 0;
+>  
+>  exit_detach:
+> -	fschmd_detach_client(client); /* will also free data for us */
+> -	return err;
+> -
+> -exit_free:
+> -	kfree(data);
+> +	fschmd_remove(client); /* will also free data for us */
+>  	return err;
+>  }
+>  
+> -static int fschmd_attach_adapter(struct i2c_adapter *adapter)
+> -{
+> -	if (!(adapter->class & I2C_CLASS_HWMON))
+> -		return 0;
+> -	return i2c_probe(adapter, &addr_data, fschmd_detect);
+> -}
+> -
+> -static int fschmd_detach_client(struct i2c_client *client)
+> +static int fschmd_remove(struct i2c_client *client)
+>  {
+>  	struct fschmd_data *data = i2c_get_clientdata(client);
+> -	int i, err;
+> +	int i;
+>  
+>  	/* Check if registered in case we're called from fschmd_detect
+>  	   to cleanup after an error */
+> @@ -760,9 +765,6 @@ static int fschmd_detach_client(struct i
+>  		device_remove_file(&client->dev,
+>  					&fschmd_fan_attr[i].dev_attr);
+>  
+> -	if ((err = i2c_detach_client(client)))
+> -		return err;
+> -
+>  	kfree(data);
+>  	return 0;
+>  }
+> 
+> 
 
-can try patches, but got other 5 fresh upstream oopses/hangs/crashes to 
-investigate now. (so i went for the minimal-effort 
-turn-off-the-failing-part approach)
 
-	Ingo
 
 _______________________________________________
 i2c mailing list
