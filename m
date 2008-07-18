@@ -1,65 +1,29 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH 04/05] i2c-sh_mobile: IORESOURCE_CLK support
-Date: Fri, 18 Jul 2008 09:04:57 +0100
-Message-ID: <20080718080457.GM24620@fluff.org.uk>
-References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se> <20080718074036.32713.92629.sendpatchset@rx1.opensource.se>
+From: "Magnus Damm" <magnus.damm@gmail.com>
+Subject: Re: [PATCH 02/05] resource: add resource_type() and IORESOURCE_TYPE_BITS
+Date: Fri, 18 Jul 2008 17:24:59 +0900
+Message-ID: <aec7e5c30807180124j3623675fwaeedcaf23e4b0b05@mail.gmail.com>
+References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
+	 <20080718074018.32713.11976.sendpatchset@rx1.opensource.se>
+	 <20080718075601.GL24620@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080718075601.GL24620@fluff.org.uk>
 Content-Disposition: inline
-In-Reply-To: <20080718074036.32713.92629.sendpatchset@rx1.opensource.se>
 Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
+To: Ben Dooks <ben-linux@fluff.org>
 Cc: linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org, gregkh@suse.de, lethal@linux-sh.org, i2c@lm-sensors.org, akpm@linux-foundation.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 18, 2008 at 04:40:36PM +0900, Magnus Damm wrote:
-> From: Magnus Damm <damm@igel.co.jp>
-> 
-> This patch makes the i2c-sh_mobile driver get the clock name from the
-> struct resource with type IORESOURCE_CLK provided by the platform data.
-> 
-> Signed-off-by: Magnus Damm <damm@igel.co.jp>
-> ---
-> 
->  drivers/i2c/busses/i2c-sh_mobile.c |    8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> --- 0001/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ work/drivers/i2c/busses/i2c-sh_mobile.c	2008-07-18 14:56:40.000000000 +0900
-> @@ -390,13 +390,19 @@ static int sh_mobile_i2c_probe(struct pl
->  	int size;
->  	int ret;
->  
-> +	res = platform_get_resource(dev, IORESOURCE_CLK, 0);
-> +	if (res == NULL || res->name == NULL) {
-> +		dev_err(&dev->dev, "cannot find CLK resource\n");
-> +		return -ENOENT;
-> +	}
-> +
->  	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
->  	if (pd == NULL) {
->  		dev_err(&dev->dev, "cannot allocate private data\n");
->  		return -ENOMEM;
->  	}
->  
-> -	pd->clk = clk_get(&dev->dev, "peripheral_clk");
+On Fri, Jul 18, 2008 at 4:56 PM, Ben Dooks <ben-linux@fluff.org> wrote:
+> You are changing a simple test to a mask and compare, is anyone going
+> to produce resources with an IORESOURCE_MEM and an IORESOURCE_IO
+> together?
 
-I think that is working correctly and there isn't really any
-need to change this. The clk_get is supplied the device that
-it needs the clock for, and the name of the clock needed.
+Actually, I'd like to replace the one-bit-per-type strategy with a
+N-bit counter. But that is not very compatible with the case you are
+pointing out. I'm not sure if that's a combination we really want to
+support though. Both IRQ and DMA doesn't make much sense to me. =)
 
-> +	pd->clk = clk_get(&dev->dev, res->name);
->  	if (IS_ERR(pd->clk)) {
->  		dev_err(&dev->dev, "cannot get peripheral clock\n");
->  		ret = PTR_ERR(pd->clk);
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+/ magnus
