@@ -1,7 +1,7 @@
 From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH 02/05] resource: add resource_type() and IORESOURCE_TYPE_BITS
-Date: Fri, 18 Jul 2008 16:40:18 +0900
-Message-ID: <20080718074018.32713.11976.sendpatchset@rx1.opensource.se>
+Subject: [PATCH 04/05] i2c-sh_mobile: IORESOURCE_CLK support
+Date: Fri, 18 Jul 2008 16:40:36 +0900
+Message-ID: <20080718074036.32713.92629.sendpatchset@rx1.opensource.se>
 References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
@@ -12,105 +12,35 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Magnus Damm <damm@igel.co.jp>
 
-This patch adds resource_type() and IORESOURCE_TYPE_BITS. They make it
-easier to add more resource types without having to rewrite tons of code.
+This patch makes the i2c-sh_mobile driver get the clock name from the
+struct resource with type IORESOURCE_CLK provided by the platform data.
 
 Signed-off-by: Magnus Damm <damm@igel.co.jp>
 ---
 
- drivers/base/platform.c |   31 +++++++++++++++++--------------
- include/linux/ioport.h  |    7 ++++++-
- 2 files changed, 23 insertions(+), 15 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- 0001/drivers/base/platform.c
-+++ work/drivers/base/platform.c	2008-07-09 20:19:16.000000000 +0900
-@@ -42,10 +42,8 @@ struct resource *platform_get_resource(s
- 	for (i = 0; i < dev->num_resources; i++) {
- 		struct resource *r = &dev->resource[i];
+--- 0001/drivers/i2c/busses/i2c-sh_mobile.c
++++ work/drivers/i2c/busses/i2c-sh_mobile.c	2008-07-18 14:56:40.000000000 +0900
+@@ -390,13 +390,19 @@ static int sh_mobile_i2c_probe(struct pl
+ 	int size;
+ 	int ret;
  
--		if ((r->flags & (IORESOURCE_IO|IORESOURCE_MEM|
--				 IORESOURCE_IRQ|IORESOURCE_DMA)) == type)
--			if (num-- == 0)
--				return r;
-+		if (type == resource_type(r) && num-- == 0)
-+			return r;
- 	}
- 	return NULL;
- }
-@@ -78,10 +76,8 @@ struct resource *platform_get_resource_b
- 	for (i = 0; i < dev->num_resources; i++) {
- 		struct resource *r = &dev->resource[i];
- 
--		if ((r->flags & (IORESOURCE_IO|IORESOURCE_MEM|
--				 IORESOURCE_IRQ|IORESOURCE_DMA)) == type)
--			if (!strcmp(r->name, name))
--				return r;
-+		if (type == resource_type(r) && !strcmp(r->name, name))
-+			return r;
- 	}
- 	return NULL;
- }
-@@ -259,9 +255,9 @@ int platform_device_add(struct platform_
- 
- 		p = r->parent;
- 		if (!p) {
--			if (r->flags & IORESOURCE_MEM)
-+			if (resource_type(r) == IORESOURCE_MEM)
- 				p = &iomem_resource;
--			else if (r->flags & IORESOURCE_IO)
-+			else if (resource_type(r) == IORESOURCE_IO)
- 				p = &ioport_resource;
- 		}
- 
-@@ -282,9 +278,14 @@ int platform_device_add(struct platform_
- 		return ret;
- 
-  failed:
--	while (--i >= 0)
--		if (pdev->resource[i].flags & (IORESOURCE_MEM|IORESOURCE_IO))
--			release_resource(&pdev->resource[i]);
-+	while (--i >= 0) {
-+		struct resource *r = &pdev->resource[i];
-+		unsigned long type = resource_type(r);
-+
-+		if (type == IORESOURCE_MEM || type == IORESOURCE_IO)
-+			release_resource(r);
++	res = platform_get_resource(dev, IORESOURCE_CLK, 0);
++	if (res == NULL || res->name == NULL) {
++		dev_err(&dev->dev, "cannot find CLK resource\n");
++		return -ENOENT;
 +	}
 +
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(platform_device_add);
-@@ -306,7 +307,9 @@ void platform_device_del(struct platform
- 
- 		for (i = 0; i < pdev->num_resources; i++) {
- 			struct resource *r = &pdev->resource[i];
--			if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
-+			unsigned long type = resource_type(r);
-+
-+			if (type == IORESOURCE_MEM || type == IORESOURCE_IO)
- 				release_resource(r);
- 		}
+ 	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+ 	if (pd == NULL) {
+ 		dev_err(&dev->dev, "cannot allocate private data\n");
+ 		return -ENOMEM;
  	}
---- 0002/include/linux/ioport.h
-+++ work/include/linux/ioport.h	2008-07-09 15:16:48.000000000 +0900
-@@ -34,7 +34,8 @@ struct resource_list {
-  */
- #define IORESOURCE_BITS		0x000000ff	/* Bus-specific bits */
  
--#define IORESOURCE_IO		0x00000100	/* Resource type */
-+#define IORESOURCE_TYPE_BITS	0x00000f00	/* Resource type */
-+#define IORESOURCE_IO		0x00000100
- #define IORESOURCE_MEM		0x00000200
- #define IORESOURCE_IRQ		0x00000400
- #define IORESOURCE_DMA		0x00000800
-@@ -117,6 +118,10 @@ static inline resource_size_t resource_s
- {
- 	return res->end - res->start + 1;
- }
-+static inline unsigned long resource_type(struct resource *res)
-+{
-+	return res->flags & IORESOURCE_TYPE_BITS;
-+}
- 
- /* Convenience shorthand with allocation */
- #define request_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name))
+-	pd->clk = clk_get(&dev->dev, "peripheral_clk");
++	pd->clk = clk_get(&dev->dev, res->name);
+ 	if (IS_ERR(pd->clk)) {
+ 		dev_err(&dev->dev, "cannot get peripheral clock\n");
+ 		ret = PTR_ERR(pd->clk);
