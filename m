@@ -1,14 +1,13 @@
-From: Grant Coady <grant_lkml-rGYn+TmxqGy6c6uEtOJ/EA@public.gmane.org>
-Subject: Re: [PATCH] hwmon: (adm9240) Convert to a new-style i2c driver
-Date: Fri, 18 Jul 2008 11:17:07 +1000
-Message-ID: <mhrv74lbjdmsp5cv24kang9vucqqtsrqkb@4ax.com>
-References: <20080716163257.107e9340@hyperion.delvare>
-Reply-To: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: "Wen Wang" <sickdoctor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Access 16bits address register in a device through I2C
+Date: Fri, 18 Jul 2008 10:51:35 +0800
+Message-ID: <56458e0807171951k3dba3d7eree400ee1ccfadf61@mail.gmail.com>
+References: <56458e0807170913k10adc9k2c479eddbe600fdb@mail.gmail.com>
+	<20080717170649.GD4199@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0904777924569864168=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080716163257.107e9340-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20080717170649.GD4199-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,207 +17,115 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 16 Jul 2008 16:32:57 +0200, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+--===============0904777924569864168==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_5852_25236425.1216349495719"
 
->The new-style adm9240 driver implements the optional detect() callback
->to cover the use cases of the legacy driver.
+------=_Part_5852_25236425.1216349495719
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi Guys,
+
+Thank you for your kindly heads up, that really helps me a lot :)
+
+BRs
+Wen
+
+On Fri, Jul 18, 2008 at 1:06 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+
+> Hi Wen,
 >
->Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->Cc: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Tested both as compiled in, and as modules, with 2.6.26-git6, no problems 
-found, userspace:
-~$ sensors --version
-sensors version 3.0.2 with libsensors version 3.0.2
-
-sensors-detect, sensors and 'sensors -s' behaved as expected.
-
-Acked-by: Grant Coady <gcoady.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
->---
-> drivers/hwmon/adm9240.c |   93 +++++++++++++++++++++++------------------------
-> 1 file changed, 46 insertions(+), 47 deletions(-)
+> On Fri, Jul 18, 2008 at 12:13:30AM +0800, Wen Wang wrote:
 >
->--- linux-2.6.26-rc9.orig/drivers/hwmon/adm9240.c	2008-07-12 09:20:31.000000000 +0200
->+++ linux-2.6.26-rc9/drivers/hwmon/adm9240.c	2008-07-12 10:27:31.000000000 +0200
->@@ -130,25 +130,37 @@ static inline unsigned int AOUT_FROM_REG
-> 	return SCALE(reg, 1250, 255);
-> }
-> 
->-static int adm9240_attach_adapter(struct i2c_adapter *adapter);
->-static int adm9240_detect(struct i2c_adapter *adapter, int address, int kind);
->+static int adm9240_probe(struct i2c_client *client,
->+			 const struct i2c_device_id *id);
->+static int adm9240_detect(struct i2c_client *client, int kind,
->+			  struct i2c_board_info *info);
-> static void adm9240_init_client(struct i2c_client *client);
->-static int adm9240_detach_client(struct i2c_client *client);
->+static int adm9240_remove(struct i2c_client *client);
-> static struct adm9240_data *adm9240_update_device(struct device *dev);
-> 
-> /* driver data */
->+static const struct i2c_device_id adm9240_id[] = {
->+	{ "adm9240", adm9240 },
->+	{ "ds1780", ds1780 },
->+	{ "lm81", lm81 },
->+	{ }
->+};
->+MODULE_DEVICE_TABLE(i2c, adm9240_id);
->+
-> static struct i2c_driver adm9240_driver = {
->+	.class		= I2C_CLASS_HWMON,
-> 	.driver = {
-> 		.name	= "adm9240",
-> 	},
->-	.attach_adapter	= adm9240_attach_adapter,
->-	.detach_client	= adm9240_detach_client,
->+	.probe		= adm9240_probe,
->+	.remove		= adm9240_remove,
->+	.id_table	= adm9240_id,
->+	.detect		= adm9240_detect,
->+	.address_data	= &addr_data,
-> };
-> 
-> /* per client data */
-> struct adm9240_data {
->-	enum chips type;
->-	struct i2c_client client;
-> 	struct device *hwmon_dev;
-> 	struct mutex update_lock;
-> 	char valid;
->@@ -532,28 +544,17 @@ static const struct attribute_group adm9
-> 
-> /*** sensor chip detect and driver install ***/
-> 
->-static int adm9240_detect(struct i2c_adapter *adapter, int address, int kind)
->+/* Return 0 if detection is successful, -ENODEV otherwise */
->+static int adm9240_detect(struct i2c_client *new_client, int kind,
->+			  struct i2c_board_info *info)
-> {
->-	struct i2c_client *new_client;
->-	struct adm9240_data *data;
->-	int err = 0;
->+	struct i2c_adapter *adapter = new_client->adapter;
-> 	const char *name = "";
->+	int address = new_client->addr;
-> 	u8 man_id, die_rev;
-> 
-> 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
->-		goto exit;
->-
->-	if (!(data = kzalloc(sizeof(*data), GFP_KERNEL))) {
->-		err = -ENOMEM;
->-		goto exit;
->-	}
->-
->-	new_client = &data->client;
->-	i2c_set_clientdata(new_client, data);
->-	new_client->addr = address;
->-	new_client->adapter = adapter;
->-	new_client->driver = &adm9240_driver;
->-	new_client->flags = 0;
->+		return -ENODEV;
-> 
-> 	if (kind == 0) {
-> 		kind = adm9240;
->@@ -566,7 +567,7 @@ static int adm9240_detect(struct i2c_ada
-> 				!= address) {
-> 			dev_err(&adapter->dev, "detect fail: address match, "
-> 					"0x%02x\n", address);
->-			goto exit_free;
->+			return -ENODEV;
-> 		}
-> 
-> 		/* check known chip manufacturer */
->@@ -581,7 +582,7 @@ static int adm9240_detect(struct i2c_ada
-> 		} else {
-> 			dev_err(&adapter->dev, "detect fail: unknown manuf, "
-> 					"0x%02x\n", man_id);
->-			goto exit_free;
->+			return -ENODEV;
-> 		}
-> 
-> 		/* successful detect, print chip info */
->@@ -600,20 +601,31 @@ static int adm9240_detect(struct i2c_ada
-> 	} else if (kind == lm81) {
-> 		name = "lm81";
-> 	}
->+	strlcpy(info->type, name, I2C_NAME_SIZE);
-> 
->-	/* fill in the remaining client fields and attach */
->-	strlcpy(new_client->name, name, I2C_NAME_SIZE);
->-	data->type = kind;
->-	mutex_init(&data->update_lock);
->+	return 0;
->+}
-> 
->-	if ((err = i2c_attach_client(new_client)))
->-		goto exit_free;
->+static int adm9240_probe(struct i2c_client *new_client,
->+			 const struct i2c_device_id *id)
->+{
->+	struct adm9240_data *data;
->+	int err;
->+
->+	data = kzalloc(sizeof(*data), GFP_KERNEL);
->+	if (!data) {
->+		err = -ENOMEM;
->+		goto exit;
->+	}
->+
->+	i2c_set_clientdata(new_client, data);
->+	mutex_init(&data->update_lock);
-> 
-> 	adm9240_init_client(new_client);
-> 
-> 	/* populate sysfs filesystem */
-> 	if ((err = sysfs_create_group(&new_client->dev.kobj, &adm9240_group)))
->-		goto exit_detach;
->+		goto exit_free;
-> 
-> 	data->hwmon_dev = hwmon_device_register(&new_client->dev);
-> 	if (IS_ERR(data->hwmon_dev)) {
->@@ -625,32 +637,19 @@ static int adm9240_detect(struct i2c_ada
-> 
-> exit_remove:
-> 	sysfs_remove_group(&new_client->dev.kobj, &adm9240_group);
->-exit_detach:
->-	i2c_detach_client(new_client);
-> exit_free:
-> 	kfree(data);
-> exit:
-> 	return err;
-> }
-> 
->-static int adm9240_attach_adapter(struct i2c_adapter *adapter)
->-{
->-	if (!(adapter->class & I2C_CLASS_HWMON))
->-		return 0;
->-	return i2c_probe(adapter, &addr_data, adm9240_detect);
->-}
->-
->-static int adm9240_detach_client(struct i2c_client *client)
->+static int adm9240_remove(struct i2c_client *client)
-> {
-> 	struct adm9240_data *data = i2c_get_clientdata(client);
->-	int err;
-> 
-> 	hwmon_device_unregister(data->hwmon_dev);
-> 	sysfs_remove_group(&client->dev.kobj, &adm9240_group);
-> 
->-	if ((err = i2c_detach_client(client)))
->-		return err;
->-
-> 	kfree(data);
-> 	return 0;
-> }
+> > So I'm wondering do I miss something or what can I do? Any ideas?
+>
+> For an example what Ben suggested (2 messages), have a look at the
+> at24-driver, which just went through the merge-window.
+>
+> http://article.gmane.org/gmane.linux.drivers.i2c/1661
+>
+> Check functions 'at24_eeprom_[read|write]' for details.
+>
+> All the best,
+>
+>   Wolfram
+>
+> --
+>  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+>  Pengutronix - Linux Solutions for Science and Industry
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.6 (GNU/Linux)
+>
+> iD8DBQFIf3wpD27XaX1/VRsRAjXBAKCx28nzPbkyMx3aN6KNN03jNFIRLwCgiyAL
+> +zHcrnvXfuzWngEpflY5KZg=
+> =sUwl
+> -----END PGP SIGNATURE-----
+>
+>
 
+------=_Part_5852_25236425.1216349495719
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr">Hi Guys,<br>
+
+<br>
+
+Thank you for your kindly heads up, that really helps me a lot :)<br>
+
+<br>
+
+BRs<br>
+
+Wen<br><br><div class="gmail_quote">On Fri, Jul 18, 2008 at 1:06 AM, Wolfram Sang &lt;<a href="mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org">w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org</a>&gt; wrote:<br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+Hi Wen,<br>
+<div class="Ih2E3d"><br>
+On Fri, Jul 18, 2008 at 12:13:30AM +0800, Wen Wang wrote:<br>
+<br>
+</div><div class="Ih2E3d">&gt; So I&#39;m wondering do I miss something or what can I do? Any ideas?<br>
+<br>
+</div>For an example what Ben suggested (2 messages), have a look at the<br>
+at24-driver, which just went through the merge-window.<br>
+<br>
+<a href="http://article.gmane.org/gmane.linux.drivers.i2c/1661" target="_blank">http://article.gmane.org/gmane.linux.drivers.i2c/1661</a><br>
+<br>
+Check functions &#39;at24_eeprom_[read|write]&#39; for details.<br>
+<br>
+All the best,<br>
+<br>
+ &nbsp; Wolfram<br>
+<font color="#888888"><br>
+--<br>
+ &nbsp;Dipl.-Ing. Wolfram Sang | <a href="http://www.pengutronix.de" target="_blank">http://www.pengutronix.de</a><br>
+&nbsp;Pengutronix - Linux Solutions for Science and Industry<br>
+</font><br>-----BEGIN PGP SIGNATURE-----<br>
+Version: GnuPG v1.4.6 (GNU/Linux)<br>
+<br>
+iD8DBQFIf3wpD27XaX1/VRsRAjXBAKCx28nzPbkyMx3aN6KNN03jNFIRLwCgiyAL<br>
++zHcrnvXfuzWngEpflY5KZg=<br>
+=sUwl<br>
+-----END PGP SIGNATURE-----<br>
+<br></blockquote></div><br></div>
+
+------=_Part_5852_25236425.1216349495719--
+
+
+--===============0904777924569864168==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============0904777924569864168==--
