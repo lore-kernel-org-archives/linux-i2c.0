@@ -1,34 +1,49 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH 02/05] resource: add resource_type() and
-	IORESOURCE_TYPE_BITS
-Date: Fri, 18 Jul 2008 09:33:17 +0100
-Message-ID: <20080718083317.GN24620@fluff.org.uk>
-References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se> <20080718074018.32713.11976.sendpatchset@rx1.opensource.se> <20080718075601.GL24620@fluff.org.uk> <aec7e5c30807180124j3623675fwaeedcaf23e4b0b05@mail.gmail.com>
+From: "Magnus Damm" <magnus.damm@gmail.com>
+Subject: Re: [i2c] [PATCH 03/05] resource: add new IORESOURCE_CLK type V2
+Date: Fri, 18 Jul 2008 17:53:43 +0900
+Message-ID: <aec7e5c30807180153s4aac361fwdbc5064e575acf02@mail.gmail.com>
+References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
+	 <20080718074027.32713.15674.sendpatchset@rx1.opensource.se>
+	 <20080718075302.GP30539@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080718075302.GP30539@fluff.org.uk>
 Content-Disposition: inline
-In-Reply-To: <aec7e5c30807180124j3623675fwaeedcaf23e4b0b05@mail.gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org, gregkh@suse.de, lethal@linux-sh.org, i2c@lm-sensors.org, akpm@linux-foundation.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org, gregkh@suse.de, lethal@linux-sh.org, i2c@lm-sensors.org, akpm@linux-foundation.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 18, 2008 at 05:24:59PM +0900, Magnus Damm wrote:
-> On Fri, Jul 18, 2008 at 4:56 PM, Ben Dooks <ben-linux@fluff.org> wrote:
-> > You are changing a simple test to a mask and compare, is anyone going
-> > to produce resources with an IORESOURCE_MEM and an IORESOURCE_IO
-> > together?
-> 
-> Actually, I'd like to replace the one-bit-per-type strategy with a
-> N-bit counter. But that is not very compatible with the case you are
-> pointing out. I'm not sure if that's a combination we really want to
-> support though. Both IRQ and DMA doesn't make much sense to me. =)
+On Fri, Jul 18, 2008 at 4:53 PM, Ben Dooks <ben-linux@fluff.org> wrote:
+> On Fri, Jul 18, 2008 at 04:40:27PM +0900, Magnus Damm wrote:
+>> From: Magnus Damm <damm@igel.co.jp>
+>>
+>> So far struct resource has been used with the types IORESOURCE_MEM,
+>> IORESOURCE_IO and IORESOUCE_IRQ to pass I/O and interrupt parameters
+>> to platform drivers. This patch extends this with IORESOURCE_CLK which
+>> should be used to pass a clock string to the platform driver. This
+>> string points out which specific clock that should be used with clk_get()
+>> for a certain driver instance.
+>>
+>> Using a hard coded strings in the device driver won't do since we may
+>> have multiple instances of drivers that need to use different clocks.
+>
+> It works already. The S3C24XX has n-number of H and P clocks fed to
+> each driver, differentiated by the device being supplied. This is
+> why clk_get() has two arguments, a device pointer and a name.
 
-I'm not saying it is a bad idea, I just do not know if anyone is
-currently relying on this to work... 
+Oh, I see. Both the platform device id and the string seems to be used
+in the comparison.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+> This might be useful to allow optional clocks to be passed, but I'm
+> not sure if it is necessary.
 
-  'a smiley only costs 4 bytes'
+No, you are right. It is possible to use platform device id to
+differentiate between devices. I'm not sure if it maps well to our
+SuperH Mobile clock stop bits though...
+
+Thanks for your comments!
+
+/ magnus
