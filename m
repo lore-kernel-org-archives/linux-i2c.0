@@ -1,7 +1,7 @@
 From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH 05/05] sh: add IORESOURCE_CLK to SuperH Mobile I2C platform data
-Date: Fri, 18 Jul 2008 16:40:44 +0900
-Message-ID: <20080718074044.32713.83039.sendpatchset@rx1.opensource.se>
+Subject: [PATCH 03/05] resource: add new IORESOURCE_CLK type V2
+Date: Fri, 18 Jul 2008 16:40:27 +0900
+Message-ID: <20080718074027.32713.15674.sendpatchset@rx1.opensource.se>
 References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
@@ -12,125 +12,54 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Magnus Damm <damm@igel.co.jp>
 
-This patch passes processor specific IORESOURCE_CLK information to the
-i2c-sh_mobile driver. With this change the clock to the IIC block will
-be disabled while the I2C bus is inactive. Without this patch the clock
-is always on.
+So far struct resource has been used with the types IORESOURCE_MEM,
+IORESOURCE_IO and IORESOUCE_IRQ to pass I/O and interrupt parameters
+to platform drivers. This patch extends this with IORESOURCE_CLK which
+should be used to pass a clock string to the platform driver. This
+string points out which specific clock that should be used with clk_get()
+for a certain driver instance.
+
+Using a hard coded strings in the device driver won't do since we may
+have multiple instances of drivers that need to use different clocks.
 
 Signed-off-by: Magnus Damm <damm@igel.co.jp>
 ---
 
- Applies to 6b4b0121a22649640e997b17dd00bb40e97e254d of sh-2.6 git
+ Changes since V1:
+ - Use a new bit for IORESOURCE_CLK instead of switching to a counter
 
- arch/sh/kernel/cpu/sh4a/setup-sh7343.c |   14 ++++++++++----
- arch/sh/kernel/cpu/sh4a/setup-sh7366.c |    7 +++++--
- arch/sh/kernel/cpu/sh4a/setup-sh7722.c |    7 +++++--
- arch/sh/kernel/cpu/sh4a/setup-sh7723.c |    7 +++++--
- 4 files changed, 25 insertions(+), 10 deletions(-)
+ include/linux/ioport.h |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- 0001/arch/sh/kernel/cpu/sh4a/setup-sh7343.c
-+++ work/arch/sh/kernel/cpu/sh4a/setup-sh7343.c	2008-07-18 14:37:33.000000000 +0900
-@@ -25,7 +25,11 @@ static struct resource iic0_resources[] 
- 		.start  = 96,
- 		.end    = 99,
- 		.flags  = IORESOURCE_IRQ,
--       },
-+	},
-+	[2] = {
-+		.name   = "mstp109",
-+		.flags  = IORESOURCE_CLK,
-+	},
- };
+--- 0003/include/linux/ioport.h
++++ work/include/linux/ioport.h	2008-07-18 14:29:48.000000000 +0900
+@@ -34,20 +34,21 @@ struct resource_list {
+  */
+ #define IORESOURCE_BITS		0x000000ff	/* Bus-specific bits */
  
- static struct platform_device iic0_device = {
-@@ -45,7 +49,11 @@ static struct resource iic1_resources[] 
- 		.start  = 44,
- 		.end    = 47,
- 		.flags  = IORESOURCE_IRQ,
--       },
-+	},
-+	[2] = {
-+		.name   = "mstp108",
-+		.flags  = IORESOURCE_CLK,
-+	},
- };
+-#define IORESOURCE_TYPE_BITS	0x00000f00	/* Resource type */
++#define IORESOURCE_TYPE_BITS	0x00001f00	/* Resource type */
+ #define IORESOURCE_IO		0x00000100
+ #define IORESOURCE_MEM		0x00000200
+ #define IORESOURCE_IRQ		0x00000400
+ #define IORESOURCE_DMA		0x00000800
++#define IORESOURCE_CLK		0x00001000
  
- static struct platform_device iic1_device = {
-@@ -147,8 +155,6 @@ static int __init sh7343_devices_setup(v
- 	clk_always_enable("mstp023"); /* INTC3 */
- 	clk_always_enable("mstp022"); /* INTC */
- 	clk_always_enable("mstp020"); /* SuperHyway */
--	clk_always_enable("mstp109"); /* I2C0 */
--	clk_always_enable("mstp108"); /* I2C1 */
- 	clk_always_enable("mstp202"); /* VEU */
- 	clk_always_enable("mstp201"); /* VPU */
+-#define IORESOURCE_PREFETCH	0x00001000	/* No side effects */
+-#define IORESOURCE_READONLY	0x00002000
+-#define IORESOURCE_CACHEABLE	0x00004000
+-#define IORESOURCE_RANGELENGTH	0x00008000
+-#define IORESOURCE_SHADOWABLE	0x00010000
++#define IORESOURCE_PREFETCH	0x00002000	/* No side effects */
++#define IORESOURCE_READONLY	0x00004000
++#define IORESOURCE_CACHEABLE	0x00008000
++#define IORESOURCE_RANGELENGTH	0x00010000
++#define IORESOURCE_SHADOWABLE	0x00020000
  
---- 0001/arch/sh/kernel/cpu/sh4a/setup-sh7366.c
-+++ work/arch/sh/kernel/cpu/sh4a/setup-sh7366.c	2008-07-18 14:37:06.000000000 +0900
-@@ -27,7 +27,11 @@ static struct resource iic_resources[] =
- 		.start  = 96,
- 		.end    = 99,
- 		.flags  = IORESOURCE_IRQ,
--       },
-+	},
-+	[2] = {
-+		.name   = "mstp109",
-+		.flags  = IORESOURCE_CLK,
-+	},
- };
+-#define IORESOURCE_SIZEALIGN	0x00020000	/* size indicates alignment */
+-#define IORESOURCE_STARTALIGN	0x00040000	/* start field is alignment */
++#define IORESOURCE_SIZEALIGN	0x00040000	/* size indicates alignment */
++#define IORESOURCE_STARTALIGN	0x00080000	/* start field is alignment */
  
- static struct platform_device iic_device = {
-@@ -157,7 +161,6 @@ static int __init sh7366_devices_setup(v
- 	clk_always_enable("mstp023"); /* INTC3 */
- 	clk_always_enable("mstp022"); /* INTC */
- 	clk_always_enable("mstp020"); /* SuperHyway */
--	clk_always_enable("mstp109"); /* I2C */
- 	clk_always_enable("mstp207"); /* VEU-2 */
- 	clk_always_enable("mstp202"); /* VEU-1 */
- 	clk_always_enable("mstp201"); /* VPU */
---- 0001/arch/sh/kernel/cpu/sh4a/setup-sh7722.c
-+++ work/arch/sh/kernel/cpu/sh4a/setup-sh7722.c	2008-07-18 14:35:43.000000000 +0900
-@@ -52,7 +52,11 @@ static struct resource iic_resources[] =
- 		.start  = 96,
- 		.end    = 99,
- 		.flags  = IORESOURCE_IRQ,
--       },
-+	},
-+	[2] = {
-+		.name   = "mstp109",
-+		.flags  = IORESOURCE_CLK,
-+	},
- };
- 
- static struct platform_device iic_device = {
-@@ -166,7 +170,6 @@ static int __init sh7722_devices_setup(v
- 	clk_always_enable("mstp026"); /* XYMEM */
- 	clk_always_enable("mstp022"); /* INTC */
- 	clk_always_enable("mstp020"); /* SuperHyway */
--	clk_always_enable("mstp109"); /* I2C */
- 	clk_always_enable("mstp211"); /* USB */
- 	clk_always_enable("mstp202"); /* VEU */
- 	clk_always_enable("mstp201"); /* VPU */
---- 0001/arch/sh/kernel/cpu/sh4a/setup-sh7723.c
-+++ work/arch/sh/kernel/cpu/sh4a/setup-sh7723.c	2008-07-18 14:36:23.000000000 +0900
-@@ -210,7 +210,11 @@ static struct resource iic_resources[] =
- 		.start  = 96,
- 		.end    = 99,
- 		.flags  = IORESOURCE_IRQ,
--       },
-+	},
-+	[2] = {
-+		.name   = "mstp109",
-+		.flags  = IORESOURCE_CLK,
-+	},
- };
- 
- static struct platform_device iic_device = {
-@@ -238,7 +242,6 @@ static int __init sh7723_devices_setup(v
- 	clk_always_enable("mstp022"); /* INTC */
- 	clk_always_enable("mstp020"); /* SuperHyway */
- 	clk_always_enable("mstp000"); /* MERAM */
--	clk_always_enable("mstp109"); /* I2C */
- 	clk_always_enable("mstp108"); /* RTC */
- 	clk_always_enable("mstp211"); /* USB */
- 	clk_always_enable("mstp206"); /* VEU2H1 */
+ #define IORESOURCE_DISABLED	0x10000000
+ #define IORESOURCE_UNSET	0x20000000
