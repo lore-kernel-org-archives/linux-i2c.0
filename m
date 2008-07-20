@@ -1,30 +1,51 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 05/05] sh: add IORESOURCE_CLK to SuperH Mobile I2C
- platform data
-Date: Fri, 18 Jul 2008 16:36:09 -0700
-Message-ID: <20080718163609.4eaa2d2d.akpm@linux-foundation.org>
-References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se>
-	<20080718074044.32713.83039.sendpatchset@rx1.opensource.se>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: int vs uint
+Date: Sat, 19 Jul 2008 20:46:41 -0400
+Message-ID: <9e4733910807191746oe5aca3av581bdc5cfab293c3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080718074044.32713.83039.sendpatchset@rx1.opensource.se>
-Sender: linux-sh-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-sh@vger.kernel.org, gregkh@suse.de, lethal@linux-sh.org, i2c@lm-sensors.org, magnus.damm@gmail.com
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 18 Jul 2008 16:40:44 +0900
-Magnus Damm <magnus.damm@gmail.com> wrote:
+There are a lot places in the i2c API where int is used when the
+parameter can't be negative. For example, there are more....
 
-> This patch passes processor specific IORESOURCE_CLK information to the
-> i2c-sh_mobile driver. With this change the clock to the IIC block will
-> be disabled while the I2C bus is inactive. Without this patch the clock
-> is always on.
-> 
-> Signed-off-by: Magnus Damm <damm@igel.co.jp>
-> ---
-> 
->  Applies to 6b4b0121a22649640e997b17dd00bb40e97e254d of sh-2.6 git
+/*
+ * The master routines are the ones normally used to transmit data to devices
+ * on a bus (or read from them). Apart from two basic transfer functions to
+ * transmit one message at a time, a more complex version can be used to
+ * transmit an arbitrary number of messages without interruption.
+ */
+extern int i2c_master_send(struct i2c_client *,const char* ,int);
+extern int i2c_master_recv(struct i2c_client *,char* ,int);
 
-I can't get this to even vaguely apply to linux-next from 20 minutes ago.
+/* Transfer num messages.
+ */
+extern int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg
+*msgs, int num);
+
+	u8 level; 			/* nesting level for lockdep */
+
+
+Wouldn't these generate more efficient code if switched to uints?
+
+-- 
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
