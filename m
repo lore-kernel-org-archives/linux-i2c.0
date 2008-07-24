@@ -1,15 +1,16 @@
-From: Wilken Haase <Hibbelharry-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Problem with unstable i2c communication with i810 bus
- driver
-Date: Thu, 24 Jul 2008 19:23:12 +0200
-Message-ID: <4888BA80.80109@gmx.de>
-References: <48321FD9.2010007@gmx.de>	<20080520091807.071f1032@hyperion.delvare>	<4832C0C8.2090401@gmx.de>	<20080520203715.68c502f3@hyperion.delvare>	<483352EA.2090005@gmx.de>
-	<20080521091440.2252167d@hyperion.delvare>
+From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: Re: New Style I2C Driver : how to get clients ?
+Date: Thu, 24 Jul 2008 21:23:31 +0300
+Message-ID: <31e679430807241123r32fbabc8ib7e671ed821e2187@mail.gmail.com>
+References: <1216903949.48887b0dd2039@imp.free.fr>
+	<31e679430807240616n4bed86c7sa5c5ce69e066d0b5@mail.gmail.com>
+	<1216909598.4888911eb6cea@imp.free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080521091440.2252167d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1216909598.4888911eb6cea-HZaT1/I6gcdWj0EZb7rXcA@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,114 +20,95 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c list <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: fuhz-GANU6spQydw@public.gmane.org
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi People,
-a while ago i asked for help on this list concerning unreliable i2c 
-communication in a pc based settopbox i own.
+Hi,
 
-Short explanation of the problem:
-Basically there is a scan converter on the mainboard which converts 
-video signals from the intel i815 graphics chip to tv compatible analog 
-signaling at the video outputs of the box. This converter is configured 
-via i2c. I2c communication works sort of, but is unreliable.
-While reading i always get some bogus values back, writing has often to 
-be done twice to work.
+On Thu, Jul 24, 2008 at 5:26 PM,  <fuhz-GANU6spQydw@public.gmane.org> wrote:
+> Hi,
+>
+> Thank you so much for help.
+>
+>
+>> yes, if you have the proper struct i2c_driver and struct i2c_device_id in
+>> your driver the i2c subsystem should call the probe of your device.
+>>
+>> check drivers/i2c/chips/menelaus.c for an example.
+>>
+>> See how I2C_BOARD_INFO() in arch/arm/mach-omap2/board-h4
+>> and struct i2c_device_id have the same name for the device (menelaus).
+>
+> I am not using the last snapshot of Linux, but the 2.6.23 release.
+> My source code is not completly up-to-date.
+>
+> For example there is no reference of I2C_BOARD_INFO in board-h4.
+> I have no 'i2c_device_id menelaus_id[]' in the i2c drivers code.
+>
+> Perhap's that's why I am quite confuse, I am refering to recent code exam=
+ples
+> and I am using not-so-recent Linux version.
 
-The scan konverter is the only device on the bus.
+might be. Why are you using 2.6.23 and not 2.6.26 ?
 
-As there is quite a big community with these boxes a defect in my box 
-can be ruled out. There is noone without these problems. Another fact: 
-Intel IEGD Drivers for Windows and Linux work without any failure, but 
-these are a dead end because they only support very old xfree and kernel 
-versions.
+Anyways, in 2.6.23 there was no i2c_device_id, so you can drop that comment.
 
-After this description some new stuff. I've found someone to do some i2c 
-oscilloscope dumps while accessing the chips. There seem to be problems 
-while ACK'ing. You can see the pictures here:
+But if you have to give the same name in the driver and in the i2c_board_in=
+fo().
 
-Dump of bios initializing the chip:
-http://beeker.campuspoint.de/pool/smt/bios_i2c_start.jpg
+something like:
 
-Dump of writing a 32bit value to the chip via console i2cset:
-http://beeker.campuspoint.de/pool/smt/i2cset_0x6a_0xc4_0x9842.jpg
-
-More details, same command, first 16bits:
-http://beeker.campuspoint.de/pool/smt/i2cset_0x6a_0xc4_0x9842_16bits.jpg
-
-Even more details:
-http://beeker.campuspoint.de/pool/smt/i2cset_0x6a_0xc4_0x9842_ACK_error.jpg
-
-Any idea what might go wrong here is appreciated. This should definately 
-be some issue in software.
-If any more infos are needed just ask, i will supply them.
-
-Greets
-Wilken Haase
+struct i2c_board_info *info[] =3D
+{
 
 
-Jean Delvare schrieb:
-> On Wed, 21 May 2008 00:38:34 +0200, Wilken Haase wrote:
->   
->> I am able to probe the bus. The only discovered device on the bus is the
->> fs454 at 0x6a and the master at 0x00.
->>     
 >
-> 0x00 is actually the broadcast address. I've never seed used so far,
-> but apparently the FS454 supports broadcast messages.
 >
-> BTW, you must be using an old version of i2cdetect. Newer versions
-> don't probe address 0 by default.
+> In the documentation, "New-style" drivers are presented very quickly.
+> In fact, I still don't know where must be located the valid client list:
+> - in the board init source code with I2C_BOARD_INFO() macro
+> - in the i2c driver source code
 >
-> What about the DDC channel? If there is a screen connected with an EDID
-> EEPROM you should see it on the DDC channel, and then you could test if
-> it has transaction errors as well.
 >
->   
->> "The FS453 registers are accessed through a serial input/output bus (SIO)
->> which is I2C*-compatible and SMBus-compatible. These registers can be
->> read or written at any time the part is receiving a reference clock at
->> XTAL_IN and not being held in reset via the RESET_L pin."
->>     
+>> no, i2c layer will call device probe based on the driver name being the =
+same
+>> in
+>> i2c_board_info and i2c_device_id (if I'm not wrong that's the match,
+>> Jean correct
+>> me if I'm wrong).
+>>
 >
-> OK, this doesn't sound like any delay is required between accesses then.
+> With my Linux version, i2c_device_id list was not present in the i2c_driv=
+er
+> structure. So i2c_board_info is supposed to match with what ?
 >
->   
->> Isn't this true i2c here ?
->>     
 >
-> As the FS454 is advertised as compatible with I2C, yes.
+>> That's old style i2c driver. You don't need that anymore ;-)
 >
->   
->> A hardware defect is not the problem here. There is a growing community
->> on these settopboxes in Germany
->> and I do talk to many of the owners actively. All the Samsung SMT-7020S
->> share the same problem when used with Linux. This is no single defect. 
->>     
+> Cool :)
+> Lines removed !
 >
-> OK.
 >
->   
->> On a sidenote: I never saw the Original WindowsCE Operating System or
->> the Intel IEGD Driver fail on setting up the fs454 once, but those both
->> are dead end solutions. The IEGD Drivers for older chipsets don't work
->> with newer software like Linux Kernel >2.6.15, the original Operating
->> System is really plagued by obscure Bugs and missing functionality...
->>     
 >
-> Maybe the i810fb driver is missing an initialization which your system
-> needs. You might want to discuss your problem with the i810fb driver
-> maintainer (Antonino Daplas).
+> Best regards,
 >
-> You could try the old i2c-i810 driver temporarily and see if it does a
-> better job, but I wouldn't hold my breath. Both drivers use the same
-> helper driver (i2c-algo-bit) for the actual work. 
+> L=E9gion.
 >
-> I don't have any more ideas, sorry.
+> _______________________________________________
+> i2c mailing list
+> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+> http://lists.lm-sensors.org/mailman/listinfo/i2c
 >
->   
 
+
+
+-- =
+
+Best Regards,
+
+Felipe Balbi
+felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 
 _______________________________________________
 i2c mailing list
