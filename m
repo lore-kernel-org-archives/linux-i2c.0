@@ -1,19 +1,11 @@
-From: fuhz-GANU6spQydw@public.gmane.org
-Subject: Re: New Style I2C Driver : how to get clients ?
-Date: Fri, 25 Jul 2008 16:30:21 +0200
-Message-ID: <1216996221.4889e37d41fa3@imp.free.fr>
-References: <1216903949.48887b0dd2039@imp.free.fr>
-	<31e679430807240616n4bed86c7sa5c5ce69e066d0b5@mail.gmail.com>
-	<1216909598.4888911eb6cea@imp.free.fr>
-	<31e679430807241126l5bcea400ieafcfa082d11783a@mail.gmail.com>
-	<1216976458.4889964a5d9e2@imp.free.fr>
-	<1216994898.4889de52becd3@imp.free.fr>
-	<31e679430807250726n3e4b189ehcff5dd02f46872f3@mail.gmail.com>
+From: Matti Kaasinen <matti.kaasinen-9Aww8k/80nUxHbG02/KK1g@public.gmane.org>
+Subject: at24.c - "convenient" byte transfer through sysfs
+Date: Sat, 26 Jul 2008 02:37:53 +0300
+Message-ID: <488A63D1.4020906@kolumbus.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <31e679430807250726n3e4b189ehcff5dd02f46872f3-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -26,27 +18,23 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi all!
 
-> should be the other way around. You first need a bus in order
-> to have clients.
+Could anyone explain a bit the "convenient" part of transferring bytes 
+through sysfs. Both reading and writing seems requiring kobject 
+reference to the client operation is directed to. I have tried finding 
+ways getting the  kobject reference for required i2c client without 
+getting too convinced without the my solutions. The best choice so far 
+is using bus_for_each_dev -helper function scanning through all the i2c 
+clients instantiated on i2c bus. That requires bus_type structure as its 
+first parameter. Unfortunately i2c_bus_type is not exported at least in 
+2.6.24 that I'm playing currently with. I've seen patch discussions 
+related to exporting/not exporting i2c_bus_type. Do anyone know the 
+current status/future plans with it or have other suggestions regarding 
+this byte transfer structure through sysfs to i2c clients?
 
-Ok, so I unload all the modules.
-
-First, I load the algorithm.
-Second, I load the adapter.
-And finally I load the client driver.
-
-There isn't any improvement.
-
-Any other ideas ?
-
-
-
-Best regards,
-
-L=E9gion.
-
+Thanks in advance,
+Matti Kaasinen
 
 _______________________________________________
 i2c mailing list
