@@ -1,17 +1,16 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+From: fuhz-GANU6spQydw@public.gmane.org
 Subject: Re: New Style I2C Driver : how to get clients ?
-Date: Thu, 24 Jul 2008 21:28:09 +0300
-Message-ID: <31e679430807241128g1ffe15c8u45cdaa3f2d990c95@mail.gmail.com>
+Date: Fri, 25 Jul 2008 11:00:58 +0200
+Message-ID: <1216976458.4889964a5d9e2@imp.free.fr>
 References: <1216903949.48887b0dd2039@imp.free.fr>
 	<31e679430807240616n4bed86c7sa5c5ce69e066d0b5@mail.gmail.com>
 	<1216909598.4888911eb6cea@imp.free.fr>
-	<1216915913.4888a9c91fc42@imp.free.fr>
+	<31e679430807241126l5bcea400ieafcfa082d11783a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1216915913.4888a9c91fc42-HZaT1/I6gcdWj0EZb7rXcA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <31e679430807241126l5bcea400ieafcfa082d11783a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,28 +20,51 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: fuhz-GANU6spQydw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On Thu, Jul 24, 2008 at 7:11 PM,  <fuhz-GANU6spQydw@public.gmane.org> wrote:
-> - Board init step #1
-> - I2C bus platform_driver initialisation
->
-> - Board init step #2 (register hardware i2c busses to the platform_driver)
-> - The I2C bus platform_driver register the new adapters to I2C layer
->
-> - Board init step #3 (register hardware devices present on each I2C bus)
+> are you writing a client driver or a bus driver ?
 
-are you writing a client driver or a bus driver ?
+In fact, I just want to write a client driver for a embedded board.
+But, the bus driver is not already ported, so I wrote an algorithm and
+an adapter. I am currently write the client driver, but no client is
+coming.
 
--- 
-Best Regards,
 
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+> might be. Why are you using 2.6.23 and not 2.6.26 ?
+
+I want to use the 2.6.23 release because I have already a patched and
+customized Linux directory tree, I don't want to merge it with new version =
+of
+kernel.
+
+
+> But if you have to give the same name in the driver and in the
+> i2c_board_info().
+
+Ok, I have this now.
+
+
+> got it ??
+
+Not really. Thanks to you, I anderstand more about i2c layer.
+But now, I think my problem is the bus driver.
+
+I have this error :
+"I2C adapter driver : forgot to specify physical device"
+
+I don't anderstand where we are supposed to associate an adapter
+with the client driver.
+
+
+Thanks for help.
+
+
+Best regards,
+
+L=E9gion.
 
 _______________________________________________
 i2c mailing list
