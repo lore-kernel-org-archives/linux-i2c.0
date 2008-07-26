@@ -1,42 +1,68 @@
-From: Matti Kaasinen <matti.kaasinen-9Aww8k/80nUxHbG02/KK1g@public.gmane.org>
-Subject: at24.c - "convenient" byte transfer through sysfs
-Date: Sat, 26 Jul 2008 02:37:53 +0300
-Message-ID: <488A63D1.4020906@kolumbus.fi>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
+Date: Fri, 25 Jul 2008 23:59:36 -0700
+Message-ID: <20080725235936.aeae8bc2.akpm@linux-foundation.org>
+References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753578AbYGZHAr@vger.kernel.org>
+In-Reply-To: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "D. Kelly" <user.kernel@gmail.com>
+Cc: "mailing list: linux-kernel" <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all!
+(cc's added)
 
-Could anyone explain a bit the "convenient" part of transferring bytes 
-through sysfs. Both reading and writing seems requiring kobject 
-reference to the client operation is directed to. I have tried finding 
-ways getting the  kobject reference for required i2c client without 
-getting too convinced without the my solutions. The best choice so far 
-is using bus_for_each_dev -helper function scanning through all the i2c 
-clients instantiated on i2c bus. That requires bus_type structure as its 
-first parameter. Unfortunately i2c_bus_type is not exported at least in 
-2.6.24 that I'm playing currently with. I've seen patch discussions 
-related to exporting/not exporting i2c_bus_type. Do anyone know the 
-current status/future plans with it or have other suggestions regarding 
-this byte transfer structure through sysfs to i2c clients?
+On Wed, 16 Jul 2008 12:33:57 -0700 "D. Kelly" <user.kernel@gmail.com> wrote:
 
-Thanks in advance,
-Matti Kaasinen
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3845de25c5f83cd52729570f7b501679d37ca8de
+> 
+> The patch at the preceeding url disables the users ability to select
+> I2C algorithms.  Specifically the reason stated was:
+> 
+> "The algorithm drivers are
+> helper drivers that are selected automatically
+> as needed. There's no point in listing them in the config menu, it can
+> only confuse users and waste their time."
+> 
+> The algorithm drivers will not be 'selected automatically as needed'
+> if the user is compiling something outside of the kernel that requires
+> them!  Just one example, there are drivers found in the V4L dvb driver
+> tree that require i2c bit-banging be enabled.  The drivers are now
+> broken because the user is not allowed to enable bit-banging himself.
+> The only way around this is to revert the patch manually or enable
+> something else in the kernel, that he doesn't need, just to get
+> bit-banging.
+> 
+> It's a very bad idea to assume that nothing built outside of the
+> kernel may need i2c algorithms.  Furthermore, the whole point of being
+> able to customize your kernel is so you can select only the things
+> which you need.  It makes no good sense to intentionally
+> disable/restrict the users ability to do so.  Additionally, assuming
+> the ability to select i2c algorithms will only confuse the user and
+> waste their time is ridiculous.  The user should be allowed to decide
+> for himself what he needs regarding this!
+> 
+> One of the biggest reasons people choose to compile things from
+> cvs/svn/mercurial/etc. is because it gives them access to newer bug
+> fixes and support for things not yet present in the kernel source.  A
+> perfect example, the multiproto dvb driver tree.  Users wanting
+> support for dvb-s2 devices have to compile drivers outside of the
+> kernel because it's simply not available in the kernel and won't be
+> for some time.
+> 
+> I've contacted one of the i2c subsystem maintainers, Jean Delvare, but
+> unfortunately he doesn't seem to care about this problem and his
+> advice in dealing with it is to "Just get these drivers merged in the
+> kernel. Ah ah ah!"...
+> 
+> Clearly the more sane and reasonable solution is to not cripple the
+> menu options in the first place, especially when it creates no benefit
+> and only serves to limit/restrict the users ability to select what he
+> needs.  I'm asking that the patch be reverted and anyone in agreement
+> to please voice their opinion here in public.
+> 
+> Best regards,
+> -Derek
