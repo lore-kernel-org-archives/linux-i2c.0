@@ -1,12 +1,12 @@
-From: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/1] Blackfin I2C Driver: Functional power management
-	support
-Date: Sun, 27 Jul 2008 14:41:54 +0800
-Message-ID: <1217140914-21718-1-git-send-email-cooloney@kernel.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: [patch 2.6.26-git] i2c: correct some size_t printk formats
+Date: Sat, 26 Jul 2008 21:38:27 -0700
+Message-ID: <200807262138.27799.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,93 +16,78 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 
-PM_SUSPEND_MEM: Blackfin does not maintain register state through
-Hibernate. Save and restore peripheral base initialization during
-PM transitions.
+Fix various printk format strings where %zd was passed a size_t;
+those should be %zu instead.  (Courtesy of a version of GCC which
+warns when these details are wrong.)
 
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   35 ++++++++++++++++++++++++-----------
- 1 files changed, 24 insertions(+), 11 deletions(-)
+ drivers/i2c/chips/at24.c |    8 ++++----
+ drivers/i2c/i2c-dev.c    |    4 ++--
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 48d084b..3c855ff 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -49,6 +49,8 @@ struct bfin_twi_iface {
- 	struct i2c_msg 		*pmsg;
- 	int			msg_num;
- 	int			cur_msg;
-+	u16			saved_clkdiv;
-+	u16			saved_control;
- 	void __iomem		*regs_base;
- };
+--- a/drivers/i2c/chips/at24.c	2008-07-26 21:05:14.000000000 -0700
++++ b/drivers/i2c/chips/at24.c	2008-07-26 21:05:26.000000000 -0700
+@@ -188,7 +188,7 @@ static ssize_t at24_eeprom_read(struct a
+ 			count = I2C_SMBUS_BLOCK_MAX;
+ 		status = i2c_smbus_read_i2c_block_data(client, offset,
+ 				count, buf);
+-		dev_dbg(&client->dev, "smbus read %zd@%d --> %d\n",
++		dev_dbg(&client->dev, "smbus read %zu@%d --> %d\n",
+ 				count, offset, status);
+ 		return (status < 0) ? -EIO : status;
+ 	}
+@@ -214,7 +214,7 @@ static ssize_t at24_eeprom_read(struct a
+ 	msg[1].len = count;
  
-@@ -565,32 +567,43 @@ static u32 bfin_twi_functionality(struct i2c_adapter *adap)
- 	       I2C_FUNC_I2C;
- }
+ 	status = i2c_transfer(client->adapter, msg, 2);
+-	dev_dbg(&client->dev, "i2c read %zd@%d --> %d\n",
++	dev_dbg(&client->dev, "i2c read %zu@%d --> %d\n",
+ 			count, offset, status);
  
--
- static struct i2c_algorithm bfin_twi_algorithm = {
- 	.master_xfer   = bfin_twi_master_xfer,
- 	.smbus_xfer    = bfin_twi_smbus_xfer,
- 	.functionality = bfin_twi_functionality,
- };
+ 	if (status == 2)
+@@ -334,7 +334,7 @@ static ssize_t at24_eeprom_write(struct 
+ 			if (status == 1)
+ 				status = count;
+ 		}
+-		dev_dbg(&client->dev, "write %zd@%d --> %zd (%ld)\n",
++		dev_dbg(&client->dev, "write %zu@%d --> %zd (%ld)\n",
+ 				count, offset, status, jiffies);
  
--
--static int i2c_bfin_twi_suspend(struct platform_device *dev, pm_message_t state)
-+static int i2c_bfin_twi_suspend(struct platform_device *pdev, pm_message_t state)
- {
--	struct bfin_twi_iface *iface = platform_get_drvdata(dev);
-+	struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
-+
-+	iface->saved_clkdiv = read_CLKDIV(iface);
-+	iface->saved_control = read_CONTROL(iface);
-+
-+	free_irq(iface->irq, iface);
+ 		if (status == count)
+@@ -512,7 +512,7 @@ static int at24_probe(struct i2c_client 
  
- 	/* Disable TWI */
--	write_CONTROL(iface, read_CONTROL(iface) & ~TWI_ENA);
--	SSYNC();
-+	write_CONTROL(iface, iface->saved_control & ~TWI_ENA);
+ 	i2c_set_clientdata(client, at24);
  
- 	return 0;
- }
+-	dev_info(&client->dev, "%Zd byte %s EEPROM %s\n",
++	dev_info(&client->dev, "%zu byte %s EEPROM %s\n",
+ 		at24->bin.size, client->name,
+ 		writable ? "(writable)" : "(read-only)");
+ 	dev_dbg(&client->dev,
+--- a/drivers/i2c/i2c-dev.c	2008-07-26 21:05:14.000000000 -0700
++++ b/drivers/i2c/i2c-dev.c	2008-07-26 21:05:26.000000000 -0700
+@@ -147,7 +147,7 @@ static ssize_t i2cdev_read (struct file 
+ 	if (tmp==NULL)
+ 		return -ENOMEM;
  
--static int i2c_bfin_twi_resume(struct platform_device *dev)
-+static int i2c_bfin_twi_resume(struct platform_device *pdev)
- {
--	struct bfin_twi_iface *iface = platform_get_drvdata(dev);
-+	struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
+-	pr_debug("i2c-dev: i2c-%d reading %zd bytes.\n",
++	pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
+ 		iminor(file->f_path.dentry->d_inode), count);
  
--	/* Enable TWI */
--	write_CONTROL(iface, read_CONTROL(iface) | TWI_ENA);
--	SSYNC();
-+	int rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
-+		IRQF_DISABLED, pdev->name, iface);
-+	if (rc) {
-+		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
-+		return -ENODEV;
-+	}
-+
-+	/* Resume TWI interface clock as specified */
-+	write_CLKDIV(iface, iface->saved_clkdiv);
-+
-+	/* Resume TWI */
-+	write_CONTROL(iface, iface->saved_control);
+ 	ret = i2c_master_recv(client,tmp,count);
+@@ -175,7 +175,7 @@ static ssize_t i2cdev_write (struct file
+ 		return -EFAULT;
+ 	}
  
- 	return 0;
- }
--- 
-1.5.6
-
+-	pr_debug("i2c-dev: i2c-%d writing %zd bytes.\n",
++	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
+ 		iminor(file->f_path.dentry->d_inode), count);
+ 
+ 	ret = i2c_master_send(client,tmp,count);
 
 _______________________________________________
 i2c mailing list
