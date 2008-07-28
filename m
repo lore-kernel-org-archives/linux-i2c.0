@@ -1,7 +1,7 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: (no subject)
-Date: Mon, 28 Jul 2008 16:01:22 +0100
-Message-ID: <E1KNUDy-0004Xj-F7@kira.home.fluff.org>
+Subject: Please pull bjdooks' i2c tree
+Date: Mon, 28 Jul 2008 16:05:02 +0100
+Message-ID: <E1KNUHW-0004ZA-EO@kira.home.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
