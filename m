@@ -1,21 +1,15 @@
-From: "Felipe Balbi" <felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: Re: New Style I2C Driver : how to get clients ?
-Date: Mon, 28 Jul 2008 12:59:17 +0300
-Message-ID: <31e679430807280259s67f28aeem8e35e0cf80de35e2@mail.gmail.com>
-References: <1216903949.48887b0dd2039@imp.free.fr>
-	<31e679430807240616n4bed86c7sa5c5ce69e066d0b5@mail.gmail.com>
-	<1216909598.4888911eb6cea@imp.free.fr>
-	<31e679430807241126l5bcea400ieafcfa082d11783a@mail.gmail.com>
-	<1216976458.4889964a5d9e2@imp.free.fr>
-	<1216994898.4889de52becd3@imp.free.fr>
-	<31e679430807250726n3e4b189ehcff5dd02f46872f3@mail.gmail.com>
-	<1216996221.4889e37d41fa3@imp.free.fr>
-	<1217237786.488d931ac5b9b@imp.free.fr>
+From: "Bryan Wu" <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/1] Blackfin I2C Driver: Functional power
+	management support
+Date: Mon, 28 Jul 2008 18:07:28 +0800
+Message-ID: <386072610807280307k7bed8922t396be43b28fa749a@mail.gmail.com>
+References: <1217140914-21718-1-git-send-email-cooloney@kernel.org>
+	<20080728092317.GB2716@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1217237786.488d931ac5b9b-HZaT1/I6gcdWj0EZb7rXcA@public.gmane.org>
+In-Reply-To: <20080728092317.GB2716-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -26,80 +20,108 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: fuhz-GANU6spQydw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-On Mon, Jul 28, 2008 at 12:36 PM,  <fuhz-GANU6spQydw@public.gmane.org> wrote:
-> Hi,
+On Mon, Jul 28, 2008 at 5:23 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Sun, Jul 27, 2008 at 02:41:54PM +0800, Bryan Wu wrote:
+>> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>
+>> PM_SUSPEND_MEM: Blackfin does not maintain register state through
+>> Hibernate. Save and restore peripheral base initialization during
+>> PM transitions.
+>>
+>> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-bfin-twi.c |   35 ++++++++++++++++++++++++-----------
+>>  1 files changed, 24 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+>> index 48d084b..3c855ff 100644
+>> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+>> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+>> @@ -49,6 +49,8 @@ struct bfin_twi_iface {
+>>       struct i2c_msg          *pmsg;
+>>       int                     msg_num;
+>>       int                     cur_msg;
+>> +     u16                     saved_clkdiv;
+>> +     u16                     saved_control;
+>>       void __iomem            *regs_base;
+>>  };
+>>
+>> @@ -565,32 +567,43 @@ static u32 bfin_twi_functionality(struct i2c_adapter *adap)
+>>              I2C_FUNC_I2C;
+>>  }
+>>
+>> -
+>>  static struct i2c_algorithm bfin_twi_algorithm = {
+>>       .master_xfer   = bfin_twi_master_xfer,
+>>       .smbus_xfer    = bfin_twi_smbus_xfer,
+>>       .functionality = bfin_twi_functionality,
+>>  };
+>>
+>> -
+>> -static int i2c_bfin_twi_suspend(struct platform_device *dev, pm_message_t state)
+>> +static int i2c_bfin_twi_suspend(struct platform_device *pdev, pm_message_t state)
+>>  {
+>> -     struct bfin_twi_iface *iface = platform_get_drvdata(dev);
+>> +     struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
+>> +
+>> +     iface->saved_clkdiv = read_CLKDIV(iface);
+>> +     iface->saved_control = read_CONTROL(iface);
+>> +
+>> +     free_irq(iface->irq, iface);
+>>
+>>       /* Disable TWI */
+>> -     write_CONTROL(iface, read_CONTROL(iface) & ~TWI_ENA);
+>> -     SSYNC();
+>> +     write_CONTROL(iface, iface->saved_control & ~TWI_ENA);
 >
-> In order to improve my understanding of Linux i2c layer, I read the source code.
-> I read i2c-core.c and I try to anderstand why my clients wasn't created.
+> I assume removing the SSYNC() call is valid?
 >
-> The problem is in the i2c_register_adapter function :
+
+Yes, I think it is OK for that. We tested on our platform.
+Actually, keeping the SSYNC() is not a big deal for this driver.
+How do you think Michael?
+
+>>       return 0;
+>>  }
+>>
+>> -static int i2c_bfin_twi_resume(struct platform_device *dev)
+>> +static int i2c_bfin_twi_resume(struct platform_device *pdev)
+>>  {
+>> -     struct bfin_twi_iface *iface = platform_get_drvdata(dev);
+>> +     struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
+>>
+>> -     /* Enable TWI */
+>> -     write_CONTROL(iface, read_CONTROL(iface) | TWI_ENA);
+>> -     SSYNC();
+>> +     int rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
+>> +             IRQF_DISABLED, pdev->name, iface);
+>> +     if (rc) {
+>> +             dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
+>> +             return -ENODEV;
+>> +     }
+>> +
+>> +     /* Resume TWI interface clock as specified */
+>> +     write_CLKDIV(iface, iface->saved_clkdiv);
+>> +
+>> +     /* Resume TWI */
+>> +     write_CONTROL(iface, iface->saved_control);
+>>
+>>       return 0;
+>>  }
+>> --
+>> 1.5.6
 >
-> /* create pre-declarated device nodes for new-style drivers */
-> if (adap->nr < __i2c_first_dynamic_bus_num)
->  i2c_scan_static_board_info(adap);
+> if removing the SSYNC() call is ok, then I'll queue this into
+> my tree which I will be requesting a pull asap.
 >
-> The test is NEVER true. So my clients are not created.
->
->
->
-> I read that __i2c_first_dynamic_bus_num is set to 1.
-> It does not seems to change.
 
-it changes in i2c-boardinfo.c@i2c_register_board_info:
-
-	/* dynamic bus numbers will be assigned after the last static one */
-	if (busnum >= __i2c_first_dynamic_bus_num)
-		__i2c_first_dynamic_bus_num = busnum + 1;
-
-which would make the above if() true :-)
-
-> And that adap->nr refers to "Dynamic Bus Number".
-> My first bus register with adap->nr=1.
-> The second register with adap->nr=2.
-
-hmm.. i suppose your calling i2c_register_board_info() with wrong
-parameters.
-
-> That's why the test fails.
->
->
-> So, I have had an idea to fix the problem.
->
-> I change :
-> i2c_add_adapter(adap);
->
-> with
-> adap->nr = 0;
-> i2c_add_numbered_adapter(adap);
->
->
-> But, it make new problems :
-> - I can't manage two busses
-> - I definitly don't anderstand how I2C_BOARD_INFO macro can associate
->  a client to a specified bus
-> - I don't anderstand what I am writing, and I really dislike it :c
-
-show me your i2c_register_board_info() call.
-
-it should be:
-
-i2c_register_board_info(bus number, struct i2c_board_info **,
-             ARRAY_SIZE(i2c_board_info));
-
-just a note, the first i2c bus is bus 1 and not bus 0. I suppose
-that's not your problem, right ?
-
--- 
-Best Regards,
-
-Felipe Balbi
-felipebalbi-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Thanks lot, I'd like to see that.
+-Bryan
 
 _______________________________________________
 i2c mailing list
