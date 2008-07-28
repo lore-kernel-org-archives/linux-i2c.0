@@ -1,15 +1,11 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: at24.c,
-	how to get kobject for sysfs/bin_attribute methods?
-Date: Mon, 28 Jul 2008 09:25:15 -0400
-Message-ID: <9e4733910807280625k573fabf5x34f85636e4dcfd7d@mail.gmail.com>
-References: <488D6513.6070701@sitecno.fi>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: (no subject)
+Date: Mon, 28 Jul 2008 16:01:22 +0100
+Message-ID: <E1KNUDy-0004Xj-F7@kira.home.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <488D6513.6070701-91aMuT3/2DXHOG6cAo2yLw@public.gmane.org>
-Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,100 +15,33 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Matti Kaasinen <matti.kaasinen-91aMuT3/2DXHOG6cAo2yLw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-PowerPC is going to use this....
+The following changes since commit c9272c4f9fbe2087beb3392f526dc5b19efaa56b:
+  Linus Torvalds (1):
+        Merge branch 'hotfixes' of git://git.linux-nfs.org/projects/trondmy/nfs-2.6
 
-Add the of_find_i2c_device_by_node function
+are available in the git repository at:
 
-From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-linus
 
-Add the of_find_i2c_device_by_node function. This allows you to follow
-a reference in the device tree to an i2c device node and then locate
-the linux device instantiated by the device tree. Example use, an i2s
-codec controlled by i2c. Depends on patch exporting i2c root bus symbol.
+Ben Dooks (4):
+      i2c: S3C2410: Pass the I2C bus number via drivers platform data
+      i2c: i2c_gpio: keep probe resident for hotplugged devices.
+      i2c: S3C24XX I2C frequency scaling support.
+      i2c: Documentation: upgrading clients HOWTO
 
-Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
+Michael Hennerich (1):
+      i2c: Blackfin I2C Driver: Functional power management support
 
- drivers/of/of_i2c.c    |   28 ++++++++++++++++++++++++----
- include/linux/of_i2c.h |    2 ++
- 2 files changed, 26 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
-index 6a98dc8..ba7b394 100644
---- a/drivers/of/of_i2c.c
-+++ b/drivers/of/of_i2c.c
-@@ -19,7 +19,7 @@
- void of_register_i2c_devices(struct i2c_adapter *adap,
- 			     struct device_node *adap_node)
- {
--	void *result;
-+	struct i2c_client *i2c_dev;
- 	struct device_node *node;
-
- 	for_each_child_of_node(adap_node, node) {
-@@ -41,18 +41,38 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
-
- 		info.addr = *addr;
-
--		request_module(info.type);
-+		request_module("%s", info.type);
-
--		result = i2c_new_device(adap, &info);
--		if (result == NULL) {
-+		i2c_dev = i2c_new_device(adap, &info);
-+		if (i2c_dev == NULL) {
- 			printk(KERN_ERR
- 			       "of-i2c: Failed to load driver for %s\n",
- 			       info.type);
- 			irq_dispose_mapping(info.irq);
- 			continue;
- 		}
-+		
-+		i2c_dev->dev.archdata.of_node = of_node_get(node);
- 	}
- }
- EXPORT_SYMBOL(of_register_i2c_devices);
-
-+static int of_dev_node_match(struct device *dev, void *data)
-+{
-+        return dev->archdata.of_node == data;
-+}
-+
-+struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-+{
-+	struct device *dev;
-+	
-+	dev = bus_find_device(&i2c_bus_type, NULL, node,
-+					 of_dev_node_match);
-+	if (!dev)
-+		return NULL;
-+		
-+	return to_i2c_client(dev);
-+}
-+EXPORT_SYMBOL(of_find_i2c_device_by_node);
-+
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/of_i2c.h b/include/linux/of_i2c.h
-index bd2a870..17d5897 100644
---- a/include/linux/of_i2c.h
-+++ b/include/linux/of_i2c.h
-@@ -16,5 +16,7 @@
-
- void of_register_i2c_devices(struct i2c_adapter *adap,
- 			     struct device_node *adap_node);
-+struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
-+			
-
- #endif /* __LINUX_OF_I2C_H */
-
-
--- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+ Documentation/i2c/upgrading-clients |  281 +++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-bfin-twi.c   |   35 +++--
+ drivers/i2c/busses/i2c-gpio.c       |    9 +-
+ drivers/i2c/busses/i2c-s3c2410.c    |  129 ++++++++++++++--
+ include/asm-arm/plat-s3c/iic.h      |    1 +
+ 5 files changed, 426 insertions(+), 29 deletions(-)
+ create mode 100644 Documentation/i2c/upgrading-clients
 
 _______________________________________________
 i2c mailing list
