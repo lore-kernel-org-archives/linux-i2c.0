@@ -1,49 +1,67 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' i2c tree
-Date: Mon, 28 Jul 2008 16:05:02 +0100
-Message-ID: <E1KNUHW-0004ZA-EO@kira.home.fluff.org>
+From: Marc Pignat <marc.pignat@hevs.ch>
+Subject: [RFC,PATCH] i2c: fix device_init_wakeup place
+Date: Tue, 29 Jul 2008 15:35:44 +0200
+Message-ID: <200807291535.45689.marc.pignat@hevs.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757828AbYG2NgH@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org
+Cc: dbrownell@users.sourceforge.net, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit c9272c4f9fbe2087beb3392f526dc5b19efaa56b:
-  Linus Torvalds (1):
-        Merge branch 'hotfixes' of git://git.linux-nfs.org/projects/trondmy/nfs-2.6
+Move device_init_wakeup. At it's current place this is a noop (will be reset in
+device_initialize).
 
-are available in the git repository at:
+Signed-off-by: Marc Pignat <marc.pignat@hevs.ch>
+---
 
-  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-linus
+Hi all!
 
-Ben Dooks (4):
-      i2c: S3C2410: Pass the I2C bus number via drivers platform data
-      i2c: i2c_gpio: keep probe resident for hotplugged devices.
-      i2c: S3C24XX I2C frequency scaling support.
-      i2c: Documentation: upgrading clients HOWTO
+The current code calls device_init_wakeup() before device_register, but
+device_register will disable device wakeup.
 
-Michael Hennerich (1):
-      i2c: Blackfin I2C Driver: Functional power management support
+This patch (against 2.6.27-rc1) move the device_init_wakeup() call in the bus
+probe function,just before the probe call.
 
- Documentation/i2c/upgrading-clients |  281 +++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-bfin-twi.c   |   35 +++--
- drivers/i2c/busses/i2c-gpio.c       |    9 +-
- drivers/i2c/busses/i2c-s3c2410.c    |  129 ++++++++++++++--
- include/asm-arm/plat-s3c/iic.h      |    1 +
- 5 files changed, 426 insertions(+), 29 deletions(-)
- create mode 100644 Documentation/i2c/upgrading-clients
+This will fix 3bbb835d4c53faf0bca62f0e39835926bef40b1f ('New style devices can
+support driver modle wakeup flags')which in fact has no effect. I think there
+is no need to fix -stable, because there is no in-tree users of the
+I2C_CLIENT_WAKE flag.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+This patch also include a small functionnal change: the I2C_CLIENT_WAKE is no
+more removed from the client flags, but this should't hurt.
+
+
+Best regards
+
+Marc
+
+
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 7bf38c4..99c6a13 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -108,6 +108,7 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!driver->probe || !driver->id_table)
+ 		return -ENODEV;
+ 	client->driver = driver;
++	device_init_wakeup(&client->dev, client->flags & I2C_CLIENT_WAKE);
+ 	dev_dbg(dev, "probe\n");
+ 
+ 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+@@ -262,9 +263,8 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->adapter = adap;
+ 
+ 	client->dev.platform_data = info->platform_data;
+-	device_init_wakeup(&client->dev, info->flags & I2C_CLIENT_WAKE);
+ 
+-	client->flags = info->flags & ~I2C_CLIENT_WAKE;
++	client->flags = info->flags;
+ 	client->addr = info->addr;
+ 	client->irq = info->irq;
+ 
