@@ -1,57 +1,62 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
-	configurable	via FDT
-Date: Thu, 31 Jul 2008 12:21:42 -0600
-Message-ID: <20080731182141.GA29097@secretlab.ca>
-References: <4889FD1D.4010804@freescale.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
+	FDT
+Date: Thu, 31 Jul 2008 12:28:10 -0600
+Message-ID: <20080731182810.GB29097@secretlab.ca>
+References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
 	<20080727012722.GH12191@secretlab.ca>
 	<4891A744.6060005@grandegger.com>
 	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
 	<4891F4D8.9090905@grandegger.com>
 	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
-	<4891FC3A.7040609@freescale.com> <4891FF51.4020701@grandegger.com>
-	<fa686aa40807311107m44ce7fbk35e94d1a24b992fb@mail.gmail.com>
-	<48920016.5000506@freescale.com>
+	<4891FC3A.7040609@freescale.com>
+	<20080731180959.GA29057@secretlab.ca>
+	<489200B6.9060906@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
 Content-Disposition: inline
-In-Reply-To: <48920016.5000506-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <489200B6.9060906@freescale.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Timur Tabi <timur@freescale.com>
+Cc: Scott Wood <scottwood@freescale.com>, Linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 31, 2008 at 01:10:30PM -0500, Timur Tabi wrote:
+On Thu, Jul 31, 2008 at 01:13:10PM -0500, Timur Tabi wrote:
 > Grant Likely wrote:
-> > On Thu, Jul 31, 2008 at 12:07 PM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
-> >> We could add a property "source-clock-divider = <2/3>" if it's needed!?
-> > 
-> > fsl,source-clock-divider
-> > 
-> > But, yes, this is a good solution (assuming that it is a board or SoC
-> > characteristic, and not just a choice that the driver has the option
-> > of making on it's own).
 > 
-> I was going to suggest the actual clock frequency of the I2C device.  It would
-> be value of gd->i2c1_clk or gd->i2c2_clk from U-Boot.  The actual divider value
-> is meaningless.
+> > This is a solved problem.  The device tree simple claims compatibility
+> > with an older part that has the identical register-level interface.
+> 
+> That would assume that the clock frequency is the only thing that decides
+> compatibility, which may technically be true now, but I don't think it's a good
+> idea.
 
-I'm cool with that too, as long as it gets documented
+No it doesn't, it depends on the register interface to decide
+compatibility.  Clock interface is part of that.  I suggested encoding
+the clock divider directly in compatible (implicit in the SoC version),
+but it doesn't have to be that way.  If clock freq is obtained from
+another property or some other method then that is okay too.
+
+What is important is that if compatibility is claimed, then it must
+really be compatible!  If some new part appears in the future that
+breaks our assumptions, then we'll need to rework the driver anyway and
+the new part will *not* claim compatibility with the old.
+
+> I don't understand what's wrong with simply specifying the actual clock
+> frequency that the device uses?  It varies from SOC to SOC, but U-Boot
+> calculates today already:
+
+There is nothing wrong with it (as long as we agree and it gets
+documented).  I certainly don't have a problem with doing it this way.
 
 g.
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
