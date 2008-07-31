@@ -1,8 +1,8 @@
 From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
  configurable via FDT
-Date: Thu, 31 Jul 2008 14:22:29 -0500
-Message-ID: <489210F5.5090003@freescale.com>
+Date: Thu, 31 Jul 2008 14:24:41 -0500
+Message-ID: <48921179.1080403@freescale.com>
 References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
 	<20080727012722.GH12191@secretlab.ca>
 	<4891A744.6060005@grandegger.com>
@@ -13,14 +13,12 @@ References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
 	<20080731180959.GA29057@secretlab.ca>
 	<489200B6.9060906@freescale.com>
 	<20080731182810.GB29097@secretlab.ca>
-	<48920607.5040606@freescale.com> <48920C1A.7010605@freescale.com>
-	<48920D9B.5060406@freescale.com> <48920F69.6020909@freescale.com>
-	<48921057.8030807@freescale.com> <489210AF.7000909@freescale.com>
+	<48920607.5040606@freescale.com> <48921187.1090101@grandegger.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <489210AF.7000909-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <48921187.1090101-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -30,21 +28,24 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Scott Wood wrote:
-> Timur Tabi wrote:
->> True, but I'd rather we have a real clock-frequency property that contains the
->> calculated I2C input frequency, than a divider.  It's more consistent with other
->> properties,
-> 
-> Right, I wasn't saying i2c should be different from serial, pci, etc. 
-> It was more of a side comment about the way we specify clocks in general.
+Wolfgang Grandegger wrote:
 
-I guess it's agreed then.  If no one else gets around to it, I'll submit the
-U-Boot patch for updating the device tree.
+> No, the source clock is not identical for all 8[356]xx. Some use half or 
+> even a third of the SOC clock frequency. 
+
+The platform clock divided by 2 or 3 *is* the source clock to the I2C.  That's
+what I'm talking about.
+
+> Linux must determine the real
+> source clock frequency somehow. We may introduce the SOC property 
+> "i2c-clock-frequency", which could be fixed up by U-Boot or a pre-loader 
+> (in case U-Boot is not used). Like for other frequency properties as well.
+
+That's what I'm proposing, but drop the "i2c-".
 
 -- 
 Timur Tabi
