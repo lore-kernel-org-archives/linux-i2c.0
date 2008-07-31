@@ -1,8 +1,8 @@
-From: Wolfgang Grandegger <wg@grandegger.com>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
-	FDT
-Date: Thu, 31 Jul 2008 23:14:40 +0200
-Message-ID: <48922B40.3010808@grandegger.com>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
+ configurable via FDT
+Date: Thu, 31 Jul 2008 16:10:10 -0500
+Message-ID: <48922A32.9080503@freescale.com>
 References: <20080731182810.GB29097@secretlab.ca>	
 	<48921888.3020900@grandegger.com> <48921954.4020103@freescale.com>	
 	<48921DED.6010403@grandegger.com>	
@@ -14,49 +14,49 @@ References: <20080731182810.GB29097@secretlab.ca>
 	<48922715.2000304@freescale.com>
 	<9e4733910807311403o63c37366ldae30e873f33a21e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <9e4733910807311403o63c37366ldae30e873f33a21e@mail.gmail.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Scott Wood <scottwood@freescale.com>, Timur Tabi <timur@freescale.com>, Linux I2C <i2c@lm-sensors.org>, Linuxppc-dev@ozlabs.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910807311403o63c37366ldae30e873f33a21e-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Jon Smirl wrote:
-> On 7/31/08, Timur Tabi <timur@freescale.com> wrote:
->> Jon Smirl wrote:
->>
->>  > Isn't there a single global divider that generates all the i2c source
->>  > clocks? You don't want to copy a global value into each i2c node.
->>
->>
->> Why not?  There are only two I2C devices, and it's theoretically possible for
->>  them to have different input clock frequencies.   Keeping it in the I2C node
->>  allows the I2C driver to reference a property directly in the node that its probing.
-> 
+
 > But that's the same as saying we should copy the system clock
 > frequency into all of the PSC nodes because we might implement
 > hardware where they aren't all clocked off from the same input clock
 > source.
-> 
+
+The I2C clock is only visible to the I2C devices.  The system clock is seen by
+many devices.  There's the difference.
+
 >>  > Aren't we talking about the /2 or /3 or /1 divider that appears to be
 >>  > randomly implemented on various members of the mpc8xxx family?
 > 
 > I don't this these dividers or clocks need to be exposed at all if
 > you'd just put that ugly code snippet into your platform driver.
 
-U-Boot does not (yet) use the FDT and it has therefore to use that ugly 
-code to derive the I2C input clock frequency. I think its completely 
-legal to put that hardware specific information into the FDT and get rid 
-of such code.
+That's why I don't think the divider belongs in the device tree.  Just put the
+actual resulting clock frequency in the device tree.
 
-Wolfgang.
+Besides, putting that snippet in the platform driver *is* exposing it.
+
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
