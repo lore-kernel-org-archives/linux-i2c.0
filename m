@@ -1,20 +1,27 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
-	configurable via FDT
-Date: Thu, 31 Jul 2008 16:32:01 -0400
-Message-ID: <9e4733910807311332q611b43b3y26f64b5269ccb657@mail.gmail.com>
-References: <4889EFFE.2070201@grandegger.com>
-	<20080731180959.GA29057@secretlab.ca> <489200B6.9060906@freescale.com>
-	<20080731182810.GB29097@secretlab.ca> <48920607.5040606@freescale.com>
-	<48921187.1090101@grandegger.com> <48921179.1080403@freescale.com>
-	<48921888.3020900@grandegger.com> <48921954.4020103@freescale.com>
-	<48921DED.6010403@grandegger.com>
+ configurable via FDT
+Date: Thu, 31 Jul 2008 15:28:05 -0500
+Message-ID: <48922055.1040906@freescale.com>
+References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
+	<20080727012722.GH12191@secretlab.ca>
+	<4891A744.6060005@grandegger.com>
+	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
+	<4891F4D8.9090905@grandegger.com>
+	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
+	<4891FC3A.7040609@freescale.com>
+	<20080731180959.GA29057@secretlab.ca>
+	<489200B6.9060906@freescale.com>
+	<20080731182810.GB29097@secretlab.ca>
+	<48920607.5040606@freescale.com> <48921187.1090101@grandegger.com>
+	<48921179.1080403@freescale.com> <48921888.3020900@grandegger.com>
+	<48921954.4020103@freescale.com> <48921DED.6010403@grandegger.com>
+	<48921E44.7010502@freescale.com> <48922087.4050903@grandegger.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48921DED.6010403-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <48922087.4050903-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,92 +32,22 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/31/08, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
-> Timur Tabi wrote:
->
-> > Wolfgang Grandegger wrote:
-> >
-> >
-> > > But clock-frequency, aka bus-frequency, is already used by
-> fsl_get_sys_freq():
-> > >
-> > >
-> http://lxr.linux.no/linux+v2.6.26/arch/powerpc/sysdev/fsl_soc.c#L80
-> > >
-> >
-> > So?  clock-frequency is a per-node property.  I use it in the codec node
-> on the
-> > 8610 (mpc8610_hpcd.dts).  It does not mean "platform clock frequency".
-> >
-> >
-> > > U-Boot could then fixup that value like bus-frequency() and the i2c-mpc
-> driver simply calls fsl_get_i2c_freq().
-> > >
-> >
-> > This is just more complicated than it needs to be.  Why should the I2C
-> driver
-> > fetch the platform clock and the divider from the parent node, and then do
-> > additional math, when it could just get the value it needs right from the
-> node
-> > it's probing?
-> >
->
->  I'm a bit confused. The frequency of the I2C source clock and the real I2C
-> clock frequency are two different things. The first one is common for all
-> I2C devices, the second can be different. What properties would you like to
-> use for defining both?
+Wolfgang Grandegger wrote:
 
-For mpc5200 it is easy, mpc52xx_find_ipb_freq()  already exists to get
-the source clock for the i2c devices. Each i2c node in the device tree
-can then specify "clock-frequency = 400000;" or let it default. You
-have the input clock and the desired clock, do some math and you can
-set FDR.
+>> 2) The speed of the I2C bus, as seen by devices on that bus.  This is usually
+>> 400KHz.
+> 
+> Which should be defined with the property "current-speed", right?
 
-For the 8xxx chips there is no simple solution for obtain the input
-clock for the i2c section. Maybe create something like i2c-frequency
-and set it from uboot. The make another accessor function like
-mpc8xxx_find_i2c_freq().
-
-		PowerPC,8xxx@0 {
-			timebase-frequency = <0>;	/* From Bootloader  */
-			bus-frequency = <0>;		/* From Bootloader  */
-			clock-frequency = <0>;		/* From Bootloader  */
-			i2c-frequency = <0>;		/* From Bootloader  */
-		};
-
-Instead of creating i2c-frequency in the device tree, you could put
-this piece of code in the the mpc8xxx platform driver and use it to
-implement mpc8xxx_find_i2c_freq(). Read the PORDEVSR2_SEC_CFG bit back
-from whatever uboot set it too.
-
-#if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
-       defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
-       gd->i2c1_clk = sys_info.freqSystemBus;
-#elif defined(CONFIG_MPC8544)
-       /*
-        * On the 8544, the I2C clock is the same as the SEC clock.  This can be
-        * either CCB/2 or CCB/3, depending on the value of cfg_sec_freq. See
-        * 4.4.3.3 of the 8544 RM.  Note that this might actually work for all
-        * 85xx, but only the 8544 has cfg_sec_freq, so it's unknown if the
-        * PORDEVSR2_SEC_CFG bit is 0 on all 85xx boards that are not an 8544.
-        */
-       if (gur->pordevsr2 & MPC85xx_PORDEVSR2_SEC_CFG)
-               gd->i2c1_clk = sys_info.freqSystemBus / 3;
-       else
-               gd->i2c1_clk = sys_info.freqSystemBus / 2;
-#else
-       /* Most 85xx SOCs use CCB/2, so this is the default behavior. */
-       gd->i2c1_clk = sys_info.freqSystemBus / 2;
-#endif
-       gd->i2c2_clk = gd->i2c1_clk;
-
+I would use something like "bus-speed", but yes.  The word "current" shouldn't
+be in a property string.
 
 -- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Timur Tabi
+Linux kernel developer at Freescale
 
 _______________________________________________
 i2c mailing list
