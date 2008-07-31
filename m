@@ -1,8 +1,8 @@
-From: Wolfgang Grandegger <wg@grandegger.com>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
-	FDT
-Date: Thu, 31 Jul 2008 19:51:48 +0200
-Message-ID: <4891FBB4.9090901@grandegger.com>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
+ configurable via FDT
+Date: Thu, 31 Jul 2008 12:54:02 -0500
+Message-ID: <4891FC3A.7040609@freescale.com>
 References: <488982B5.4070102@grandegger.com>
 	<48899736.8020400@grandegger.com>	
 	<fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>	
@@ -14,68 +14,25 @@ References: <488982B5.4070102@grandegger.com>
 	<4891F4D8.9090905@grandegger.com>
 	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Scott Wood <scottwood@freescale.com>, Linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>, Timur Tabi <timur@freescale.com>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <fa686aa40807311031r66f6451aw206faf54509c14d9-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Grant Likely wrote:
-> On Thu, Jul 31, 2008 at 11:22 AM, Wolfgang Grandegger <wg@grandegger.com> wrote:
->> Jon Smirl wrote:
->>> On 7/31/08, Wolfgang Grandegger <wg@grandegger.com> wrote:
->>>> Grant Likely wrote:
->>>>
->>>>> On Fri, Jul 25, 2008 at 11:19:41AM -0500, Timur Tabi wrote:
->>>>>
->>>>>> Wolfgang Grandegger wrote:
->>>>>>
->>>>>>
->>>>>>> I know but we still need an algorithm for MPC52xx and MPC82xx as well.
->>>>>>>
->>>>>> That's true, but I still think hard-coding values of DFSR and FDR in
->>>>>> the
->>>> device
->>>>>> tree is not a good way to do this.
->>>>>>
->>>>> I agree, it should encode real frequencies, not raw register values.
->>>>>
->>>>  Digging deeper I'm frightened by plenty of platform specific code. We
->>>> would
->>>> need:
->>>>
->>>>  - one table of divider,fdr,dfsr values for the MPC82/3/5/6xx processors
->>>>  (already available from Timur's U-Boot implementation)
->>>>
->>>>  - one table of divider,fdr values for the MPC5200 rev A.
->>>>
->>>>  - one table of divider,fdr values for the MPC5200 rev B.
->>>>  (the Rev. B has two more pre-scaler bits).
->>> Aren't the tables in the manual there just to make it easy for a human
->>> to pick out the line they want? For a computer you'd program the
->>> formula that was used to create the tables.
->> I have the formulas to create the tables, also for the MPC5200 Rev. A and B.
-> 
-> Oh, hey, even better.
-> 
->> That was not my point. I'm worried about arch specific code in i2c-mpc.c. It
->> should go somewhere to arch/powerpc.
-> 
-> i2c-mpc *is* arch specific.  I really don't think you need to worry
-> about adding a block of code for each supported SoC family.  Just
-> change the of_match table to look something like this:
-> 
+
 > static const struct of_device_id mpc_i2c_of_match[] = {
 > 	{.compatible = "fsl,mpc5200b-i2c", .data = fsl_i2c_mpc5200b_set_freq, },
 > 	{.compatible = "fsl,mpc5200-i2c", .data = fsl_i2c_mpc5200_set_freq, },
@@ -84,17 +41,16 @@ Grant Likely wrote:
 > 	{.compatible = "fsl,mpc8540-i2c", .data = fsl_i2c_mpc8xxx_set_freq, },
 > 	{.compatible = "fsl,mpc8543-i2c", .data = fsl_i2c_mpc8xxx_div2_set_freq, },
 > 	{.compatible = "fsl,mpc8544-i2c", .data = fsl_i2c_mpc8xxx_div3_set_freq, },
-> 
->         /* keep this only for older device trees with some support
-> code to figure out
->            what .data should have pointed to. */
-> 	{.compatible = "fsl-i2c", },
-> 	{},
-> };
-> MODULE_DEVICE_TABLE(of, mpc_i2c_of_match);
 
-Cool, this would also make the "dfsrr" property obsolete. Just the 
-MPC8544 needs more attention because the I2C clock can be programmed to 
-  be freq/2 or freq/3.
+So we need to update this table every time there's a new SOC?  All 83xx, 85xx,
+and 86xx SOCs use the same table.  I'd prefer an implementation that does need a
+specific entry for each variant of 8[356]xx.
 
-Wolfgang.
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
