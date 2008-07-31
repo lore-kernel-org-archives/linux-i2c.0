@@ -1,151 +1,99 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
-	FDT
-Date: Thu, 31 Jul 2008 11:49:32 -0400
-Message-ID: <9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
-References: <488982B5.4070102@grandegger.com> <4889942C.4040800@scram.de>
-	<48899736.8020400@grandegger.com>
-	<fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>
-	<ed82fe3e0807250721n115d28c7ha1f641c9175c473d@mail.gmail.com>
-	<4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
-	<20080727012722.GH12191@secretlab.ca>
-	<4891A744.6060005@grandegger.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: [PATCH] i2c-pxa: fastmode support
+Date: Thu, 31 Jul 2008 16:56:53 +0100
+Message-ID: <4891E0C5.7020009@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <4891A744.6060005@grandegger.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Scott Wood <scottwood@freescale.com>, Timur Tabi <timur@freescale.com>, Linux I2C <i2c@lm-sensors.org>, Linuxppc-dev@ozlabs.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: linux-arm-kernel@lists.arm.linux.org.uk, i2c@lm-sensors.org
+Cc: linux@arm.linux.org.uk, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/31/08, Wolfgang Grandegger <wg@grandegger.com> wrote:
-> Grant Likely wrote:
->
-> > On Fri, Jul 25, 2008 at 11:19:41AM -0500, Timur Tabi wrote:
-> >
-> > > Wolfgang Grandegger wrote:
-> > >
-> > >
-> > > > I know but we still need an algorithm for MPC52xx and MPC82xx as well.
-> > > >
-> > > That's true, but I still think hard-coding values of DFSR and FDR in the
-> device
-> > > tree is not a good way to do this.
-> > >
-> >
-> > I agree, it should encode real frequencies, not raw register values.
-> >
->
->  Digging deeper I'm frightened by plenty of platform specific code. We would
-> need:
->
->  - one table of divider,fdr,dfsr values for the MPC82/3/5/6xx processors
->   (already available from Timur's U-Boot implementation)
->
->  - one table of divider,fdr values for the MPC5200 rev A.
->
->  - one table of divider,fdr values for the MPC5200 rev B.
->   (the Rev. B has two more pre-scaler bits).
+From: Jonathan Cameron <jic23@cam.ac.uk>
 
-Aren't the tables in the manual there just to make it easy for a human
-to pick out the line they want? For a computer you'd program the
-formula that was used to create the tables.
+Add fast_mode option to i2c_pxa_platform_data and use it to set the ICR_FM bit
+appropriately when i2c_pxa_reset is called. Parameter called fast_mode rather
+than frequency as this driver is also used for the i2c_pxa_pwr bus which has
+different normal and fast frequencies.
 
-I agree that it took me half an hour to figure out the formula that
-was needed to compute the i2s clocks, but once you figure out the
-formula it solves all of the cases and no one needs to read the manual
-any more. The i2c formula may even need a small loop which compares
-different solutions looking for the smallest error term. But it's a
-small space to search.
+Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
+--
+This is basically a repost of the original patch with use_pio and fast_mode converted
+to bit fields as suggested / agreed by Eric Miao and Ben Dooks.
 
-These device tree flags should be removed, the driver can ask the
-platform code what CPU it is running on.
+Patch is against 2.6.27-rc1
 
-        if (of_get_property(op->node, "dfsrr", NULL))
-                i2c->flags |= FSL_I2C_DEV_SEPARATE_DFSRR;
+ drivers/i2c/busses/i2c-pxa.c        |    6 ++++--
+ include/asm-arm/arch-pxa/i2c.h      |    3 ++-
+ include/asm-arm/arch-pxa/pxa-regs.h |    1 +
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-        if (of_device_is_compatible(op->node, "fsl,mpc5200-i2c") ||
-                        of_device_is_compatible(op->node, "mpc5200-i2c"))
-                i2c->flags |= FSL_I2C_DEV_CLOCK_5200;
+diff -uprN -X a/Documentation/dontdiff a/include/asm-arm/arch-pxa/pxa-regs.h b/include/asm-arm/arch-pxa/pxa-regs.h
+--- a/include/asm-arm/arch-pxa/pxa-regs.h	2008-07-31 12:02:51.000000000 +0100
++++ b/include/asm-arm/arch-pxa/pxa-regs.h	2008-07-31 12:34:44.000000000 +0100
+@@ -448,6 +448,7 @@
+ #define ICR_ALDIE	(1 << 12)	   /* enable arbitration interrupt */
+ #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+ #define ICR_UR		(1 << 14)	   /* unit reset */
++#define ICR_FM		(1 << 15)	   /* fast mode */
+ 
+ #define ISR_RWM		(1 << 0)	   /* read/write mode */
+ #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
+diff -uprN -X a/Documentation/dontdiff a/include/asm-arm/arch-pxa/i2c.h b/include/asm-arm/arch-pxa/i2c.h
+--- a/include/asm-arm/arch-pxa/i2c.h	2008-07-31 12:00:05.000000000 +0100
++++ b/include/asm-arm/arch-pxa/i2c.h	2008-07-31 16:01:28.000000000 +0100
+@@ -65,7 +65,8 @@ struct i2c_pxa_platform_data {
+ 	unsigned int		slave_addr;
+ 	struct i2c_slave_client	*slave;
+ 	unsigned int		class;
+-	int			use_pio;
++	int			use_pio:1;
++	int			fast_mode:1;
+ };
+ 
+ extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+diff -uprN -X a/Documentation/dontdiff a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+--- a/drivers/i2c/busses/i2c-pxa.c	2008-07-31 12:02:42.000000000 +0100
++++ b/drivers/i2c/busses/i2c-pxa.c	2008-07-31 16:10:43.000000000 +0100
+@@ -65,7 +65,8 @@ struct pxa_i2c {
+ 	unsigned long		iosize;
+ 
+ 	int			irq;
+-	int			use_pio;
++	int			use_pio:1;
++	int			fast_mode:1;
+ };
+ 
+ #define _IBMR(i2c)	((i2c)->reg_base + 0)
+@@ -364,7 +365,7 @@ static void i2c_pxa_reset(struct pxa_i2c
+ 	writel(i2c->slave_addr, _ISAR(i2c));
+ 
+ 	/* set control register values */
+-	writel(I2C_ICR_INIT, _ICR(i2c));
++	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+@@ -1013,6 +1014,7 @@ static int i2c_pxa_probe(struct platform
+ 	if (plat) {
+ 		i2c->adap.class = plat->class;
+ 		i2c->use_pio = plat->use_pio;
++		i2c->fast_mode = plat->fast_mode;
+ 	}
+ 
+ 	if (i2c->use_pio) {
 
-static void mpc_i2c_setclock(struct mpc_i2c *i2c)
-{
-        /* Set clock and filters */
-        if (i2c->flags & FSL_I2C_DEV_SEPARATE_DFSRR) {
-                writeb(0x31, i2c->base + MPC_I2C_FDR);
-                writeb(0x10, i2c->base + MPC_I2C_DFSRR);
-        } else if (i2c->flags & FSL_I2C_DEV_CLOCK_5200)
-                writeb(0x3f, i2c->base + MPC_I2C_FDR);
-        else
-                writel(0x1031, i2c->base + MPC_I2C_FDR);
-}
-
-These defines shouldn't be here, they should get the offset from the
-right header file for the CPU. But it appears that structures for the
-i2c memory map haven't been done for the various CPUs.
-
-#define MPC_I2C_FDR     0x04
-#define MPC_I2C_CR      0x08
-#define MPC_I2C_SR      0x0c
-#define MPC_I2C_DR      0x10
-#define MPC_I2C_DFSRR 0x14
-
-There appears to be one for i2x8xxx but not the other CPUs.
-
-/* I2C
-*/
-typedef struct i2c {
-        u_char  i2c_i2mod;
-        char    res1[3];
-        u_char  i2c_i2add;
-        char    res2[3];
-        u_char  i2c_i2brg;
-        char    res3[3];
-        u_char  i2c_i2com;
-        char    res4[3];
-        u_char  i2c_i2cer;
-        char    res5[3];
-        u_char  i2c_i2cmr;
-        char    res6[0x8b];
-} i2c8xx_t;
-
-
-
-
->  - furthermore, there are various mpc-specific I2C clock sources:
->
->   MPC82xx                     : fsl_get_sys_freq()
->   MPC5200                     : IPB
->   MPC83xx                     : fsl_get_sys_freq()
->   MPC8540/41/60/55,MPC8610    : fsl_get_sys_freq()
->   MPC8543/45/47/48/68, MPC8641: fsl_get_sys_freq()/2
->   MPC8544                     : fsl_get_sys_freq()/2 or /3
->
->   It would make sense to hand-over the I2C frequency from U-Boot to
->   Linux.
->
->  Wolfgang.
->
->
->
->  _______________________________________________
->  Linuxppc-dev mailing list
->  Linuxppc-dev@ozlabs.org
->  https://ozlabs.org/mailman/listinfo/linuxppc-dev
->
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
