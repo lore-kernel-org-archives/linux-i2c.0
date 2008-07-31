@@ -1,24 +1,21 @@
-From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
 Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
  configurable via FDT
-Date: Thu, 31 Jul 2008 16:17:24 -0500
-Message-ID: <48922BE4.5030507@freescale.com>
-References: <20080731182810.GB29097@secretlab.ca>	
-	<48921888.3020900@grandegger.com> <48921954.4020103@freescale.com>	
-	<48921DED.6010403@grandegger.com>	
-	<9e4733910807311332q611b43b3y26f64b5269ccb657@mail.gmail.com>	
-	<fa686aa40807311335t1dd123d0mc385234ebe55248@mail.gmail.com>	
-	<48922273.6070801@freescale.com>
-	<20080731204838.GA29834@secretlab.ca>	
-	<9e4733910807311355q3394b4bfg66c37055384451f7@mail.gmail.com>	
-	<48922715.2000304@freescale.com>
-	<9e4733910807311403o63c37366ldae30e873f33a21e@mail.gmail.com>
-	<48922B40.3010808@grandegger.com>
+Date: Thu, 31 Jul 2008 16:32:23 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0807311610170.10341@shell4.speakeasy.net>
+References: <488982B5.4070102@grandegger.com> <4889942C.4040800@scram.de>
+	<48899736.8020400@grandegger.com>
+	<fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>
+	<ed82fe3e0807250721n115d28c7ha1f641c9175c473d@mail.gmail.com>
+	<4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
+	<20080727012722.GH12191@secretlab.ca> <4891A744.6060005@grandegger.com>
+	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
+	<4891E06A.4070608@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48922B40.3010808-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+In-Reply-To: <4891E06A.4070608-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -28,25 +25,54 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfgang Grandegger wrote:
+On Thu, 31 Jul 2008, Timur Tabi wrote:
+> Jon Smirl wrote:
+>
+> > Aren't the tables in the manual there just to make it easy for a human
+> > to pick out the line they want? For a computer you'd program the
+> > formula that was used to create the tables.
+>
+> Actually, the tables in the manuals are just an example of what can be
+> programmed.  They don't cover all cases.  The tables assume a specific value of
+> DFSR.
+>
+> For 8xxx, you want to use AN2919 to figure out how to really program the device.
+>
+> The table I generated for U-Boot is based on the calculations outlined in
+> AN2919.  I debated trying to implement the actual algorithm, but decided that
+> pre-calculating the values was better.  The algorithm is very convoluted.
 
-> U-Boot does not (yet) use the FDT and it has therefore to use that ugly 
-> code to derive the I2C input clock frequency. I think its completely 
-> legal to put that hardware specific information into the FDT and get rid 
-> of such code.
+And I decided to program the algorithm.  It's not that complex and overall
+compiles to less total size than the table method.  It doesn't involve some
+black box table either.
 
-Huh?  U-Boot initializes several fields and creates several properties in the
-FDT today, so what's wrong with adding another one?  The clock frequencies have
-always been calculated by U-Boot, because putting them in the device tree is a
-bad idea.
+The real problem, which kept me from making a patch to do this months ago,
+is that the source clock that the I2C freq divider applies to is different
+for just about every MPC8xxx platform.  Not just a different value, but a
+totally different internal clock.  Sometimes is CCB, sometimes CCB/2,
+sometimes tsec2's clock, etc.  Sometimes the two i2c controllers don't even
+have the same clock.  I didn't see any easy way to get this information.
+In U-Boot I get it from the global board info struct, but I didn't see
+anything like this in Linux.
 
--- 
-Timur Tabi
-Linux kernel developer at Freescale
+> > I agree that it took me half an hour to figure out the formula that
+> > was needed to compute the i2s clocks, but once you figure out the
+> > formula it solves all of the cases and no one needs to read the manual
+> > any more. The i2c formula may even need a small loop which compares
+> > different solutions looking for the smallest error term. But it's a
+> > small space to search.
+
+Yes, I needed a loop.  The divider ends up having the form (a + c) << b,
+where a is from some set of eight integers between 2 and 15, b has a range
+of like 5 to 12, and c is usually zero.
+
+So, I find the divider I want to get, loop over each b, shift the divider
+right by b and find the closest (a+c) to that, calculate the error, and
+then use the best one.
 
 _______________________________________________
 i2c mailing list
