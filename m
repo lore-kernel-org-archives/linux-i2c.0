@@ -1,8 +1,8 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
  configurable via FDT
-Date: Thu, 31 Jul 2008 15:56:39 -0500
-Message-ID: <48922707.5020107@freescale.com>
+Date: Thu, 31 Jul 2008 15:56:53 -0500
+Message-ID: <48922715.2000304@freescale.com>
 References: <20080731182810.GB29097@secretlab.ca>	
 	<48921187.1090101@grandegger.com> <48921179.1080403@freescale.com>	
 	<48921888.3020900@grandegger.com> <48921954.4020103@freescale.com>	
@@ -27,19 +27,26 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Jon Smirl wrote:
+
 > Isn't there a single global divider that generates all the i2c source
 > clocks? You don't want to copy a global value into each i2c node.
 
-Why not?  The "compatible" is pretty much always going to be the same 
-for the i2c node, but we copy that, as well.
+Why not?  There are only two I2C devices, and it's theoretically possible for
+them to have different input clock frequencies.   Keeping it in the I2C node
+allows the I2C driver to reference a property directly in the node that its probing.
 
-Likewise for the clock-frequency of serial nodes.
+> Aren't we talking about the /2 or /3 or /1 divider that appears to be
+> randomly implemented on various members of the mpc8xxx family?
 
--Scott
+Yes.
+
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
 
 _______________________________________________
 i2c mailing list
