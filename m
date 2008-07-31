@@ -1,13 +1,9 @@
-From: Timur Tabi <timur@freescale.com>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
-	FDT
-Date: Thu, 31 Jul 2008 14:58:12 -0500
-Message-ID: <48921954.4020103@freescale.com>
-References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
-	<20080727012722.GH12191@secretlab.ca>
-	<4891A744.6060005@grandegger.com>
-	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
-	<4891F4D8.9090905@grandegger.com>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
+ configurable	via FDT
+Date: Thu, 31 Jul 2008 15:00:55 -0500
+Message-ID: <489219F7.4020406@freescale.com>
+References: <4891F4D8.9090905@grandegger.com>
 	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
 	<4891FC3A.7040609@freescale.com>
 	<20080731180959.GA29057@secretlab.ca>
@@ -15,46 +11,48 @@ References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
 	<20080731182810.GB29097@secretlab.ca>
 	<48920607.5040606@freescale.com> <48921187.1090101@grandegger.com>
 	<48921179.1080403@freescale.com> <48921888.3020900@grandegger.com>
+	<20080731195911.GA29610@secretlab.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <48921888.3020900@grandegger.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>, Linuxppc-dev@ozlabs.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080731195911.GA29610-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfgang Grandegger wrote:
+Grant Likely wrote:
 
-> But clock-frequency, aka bus-frequency, is already used by 
-> fsl_get_sys_freq():
-> 
-> http://lxr.linux.no/linux+v2.6.26/arch/powerpc/sysdev/fsl_soc.c#L80
+> Ugh.  This is specifically related to the i2c device, so please place
+> the property in the i2c device.  Remember, device tree design is not
+> about what will make the implementation simplest, but rather about what
+> describes the hardware in the best way.
 
-So?  clock-frequency is a per-node property.  I use it in the codec node on the
-8610 (mpc8610_hpcd.dts).  It does not mean "platform clock frequency".
+His proposal would make the implementation less simple, not more simple.
 
-> U-Boot could then fixup that value like bus-frequency() and the i2c-mpc 
-> driver simply calls fsl_get_i2c_freq().
+> Now, if you can argue that i2c-clock-frequency is actually a separate
+> clock domain defined at the SoC level, not the i2c device level, then I
+> will change my opinion.
 
-This is just more complicated than it needs to be.  Why should the I2C driver
-fetch the platform clock and the divider from the parent node, and then do
-additional math, when it could just get the value it needs right from the node
-it's probing?
-
-Besides, U-Boot does not currently store the divider value.  Look at the code
-I've posted twice already - it stores the frequency in i2c1_clk.  So now I would
-need to create another variable in the gd_t to store the divider?  No thanks.
+It isn't.  I don't have the Verilog for the I2C device, but I'm pretty sure the
+divider is a very simple circuit that's located just outside the I2C circuitry,
+but it still unique to the I2C device.  There is no "I2C clock" running through
+the SOC.
 
 -- 
 Timur Tabi
 Linux kernel developer at Freescale
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
