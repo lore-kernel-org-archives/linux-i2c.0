@@ -1,25 +1,22 @@
-From: Wolfgang Grandegger <wg@grandegger.com>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable via
-	FDT
-Date: Thu, 31 Jul 2008 21:54:48 +0200
-Message-ID: <48921888.3020900@grandegger.com>
-References: <4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
-	<20080727012722.GH12191@secretlab.ca>
-	<4891A744.6060005@grandegger.com>
-	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
-	<4891F4D8.9090905@grandegger.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers configurable
+	via FDT
+Date: Thu, 31 Jul 2008 13:59:11 -0600
+Message-ID: <20080731195911.GA29610@secretlab.ca>
+References: <4891F4D8.9090905@grandegger.com>
 	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
 	<4891FC3A.7040609@freescale.com>
 	<20080731180959.GA29057@secretlab.ca>
 	<489200B6.9060906@freescale.com>
 	<20080731182810.GB29097@secretlab.ca>
 	<48920607.5040606@freescale.com> <48921187.1090101@grandegger.com>
-	<48921179.1080403@freescale.com>
+	<48921179.1080403@freescale.com> <48921888.3020900@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <48921179.1080403@freescale.com>
+Content-Disposition: inline
+In-Reply-To: <48921888.3020900@grandegger.com>
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -29,45 +26,34 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Timur Tabi <timur@freescale.com>
-Cc: Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>, Linuxppc-dev@ozlabs.org
+To: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Scott Wood <scottwood@freescale.com>, Linuxppc-dev@ozlabs.org, Timur Tabi <timur@freescale.com>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Timur Tabi wrote:
-> Wolfgang Grandegger wrote:
-> 
->> No, the source clock is not identical for all 8[356]xx. Some use half or 
->> even a third of the SOC clock frequency. 
-> 
-> The platform clock divided by 2 or 3 *is* the source clock to the I2C.  That's
-> what I'm talking about.
-> 
->> Linux must determine the real
->> source clock frequency somehow. We may introduce the SOC property 
->> "i2c-clock-frequency", which could be fixed up by U-Boot or a pre-loader 
->> (in case U-Boot is not used). Like for other frequency properties as well.
-> 
-> That's what I'm proposing, but drop the "i2c-".
+On Thu, Jul 31, 2008 at 09:54:48PM +0200, Wolfgang Grandegger wrote:
+> Thinking more about it, it would be best to add the property  
+> "i2c-clock-divider" to the soc node and implement fsl_get_i2c_freq() in  
+> a similar way:
+>
+>         soc8541@e0000000 {
+>                 #address-cells = <1>;
+>                 #size-cells = <1>;
+>                 device_type = "soc";
+>                 ranges = <0x0 0xe0000000 0x100000>;
+>                 reg = <0xe0000000 0x1000>;      // CCSRBAR 1M
+>                 bus-frequency = <0>;
+>                 i2c-clock-divider = <2>;
+>
+> U-Boot could then fixup that value like bus-frequency() and the i2c-mpc  
+> driver simply calls fsl_get_i2c_freq().
 
-But clock-frequency, aka bus-frequency, is already used by 
-fsl_get_sys_freq():
+Ugh.  This is specifically related to the i2c device, so please place
+the property in the i2c device.  Remember, device tree design is not
+about what will make the implementation simplest, but rather about what
+describes the hardware in the best way.
 
-http://lxr.linux.no/linux+v2.6.26/arch/powerpc/sysdev/fsl_soc.c#L80
+Now, if you can argue that i2c-clock-frequency is actually a separate
+clock domain defined at the SoC level, not the i2c device level, then I
+will change my opinion.
 
-Thinking more about it, it would be best to add the property 
-"i2c-clock-divider" to the soc node and implement fsl_get_i2c_freq() in 
-a similar way:
-
-         soc8541@e0000000 {
-                 #address-cells = <1>;
-                 #size-cells = <1>;
-                 device_type = "soc";
-                 ranges = <0x0 0xe0000000 0x100000>;
-                 reg = <0xe0000000 0x1000>;      // CCSRBAR 1M
-                 bus-frequency = <0>;
-                 i2c-clock-divider = <2>;
-
-U-Boot could then fixup that value like bus-frequency() and the i2c-mpc 
-driver simply calls fsl_get_i2c_freq().
-
-Wolfgang.
+g.
