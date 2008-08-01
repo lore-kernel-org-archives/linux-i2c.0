@@ -1,76 +1,48 @@
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-Subject: Re: [i2c] [PATCH] powerpc: i2c-mpc: make speed registers configurable
-	via FDT
-Date: Fri, 1 Aug 2008 16:48:15 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0808011647330.26947@vixen.sonytel.be>
-References: <4891F4D8.9090905@grandegger.com>
-	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
-	<4891FC3A.7040609@freescale.com> <20080731180959.GA29057@secretlab.ca>
-	<489200B6.9060906@freescale.com> <20080731182810.GB29097@secretlab.ca>
-	<48920607.5040606@freescale.com> <48921187.1090101@grandegger.com>
-	<48921179.1080403@freescale.com> <48921888.3020900@grandegger.com>
-	<20080731195911.GA29610@secretlab.ca>
-	<Pine.LNX.4.58.0807311742230.10341@shell4.speakeasy.net>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
+ configurable via FDT
+Date: Fri, 01 Aug 2008 10:02:17 -0500
+Message-ID: <48932579.3040705@freescale.com>
+References: <4889EFFE.2070201@grandegger.com> <4891FC3A.7040609@freescale.com>	
+	<20080731180959.GA29057@secretlab.ca>
+	<489200B6.9060906@freescale.com>	
+	<20080731182810.GB29097@secretlab.ca>
+	<48920607.5040606@freescale.com>	
+	<9e4733910807311157q358640ddyef1f14865c069b8@mail.gmail.com>	
+	<Pine.LNX.4.58.0807311656250.10341@shell4.speakeasy.net>	
+	<9e4733910807311819i60872285ga4829c841185fdc0@mail.gmail.com>	
+	<Pine.LNX.4.58.0807311828580.10341@shell4.speakeasy.net>
+	<9e4733910807311844p142b26ffyb4105df3e136f65@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED;
-	BOUNDARY="-584349381-452549990-1217602095=:26947"
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <Pine.LNX.4.58.0807311742230.10341@shell4.speakeasy.net>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Scott Wood <scottwood@freescale.com>, Timur Tabi <timur@freescale.com>, Linux I2C <i2c@lm-sensors.org>, Linuxppc-dev@ozlabs.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910807311844p142b26ffyb4105df3e136f65-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Jon Smirl wrote:
 
----584349381-452549990-1217602095=:26947
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+> What about the Efika which is mpc5200 based and doesn't use uboot?
 
-On Thu, 31 Jul 2008, Trent Piepho wrote:
-> The i2c controller just uses some system clock that was handy.  For eac=
-h
-> chip, the designers consult tea leaves to choose a system clock at rand=
-om
-> to connect to the i2c controller.
+How does the Efika handle the dozen other properties that U-Boot normally 
+initializes in the device tree?
 
-Oh, they decided which clock to choose at design time, not at power-on ti=
-me?
-
-With kind regards,
-
-Geert Uytterhoeven
-Software Architect
-
-Sony Techsoft Centre Europe
-The Corporate Village =C2=B7 Da Vincilaan 7-D1 =C2=B7 B-1935 Zaventem =C2=
-=B7 Belgium
-
-Phone:    +32 (0)2 700 8453
-Fax:      +32 (0)2 700 8622
-E-mail:   Geert.Uytterhoeven@sonycom.com
-Internet: http://www.sony-europe.com/
-
-A division of Sony Europe (Belgium) N.V.
-VAT BE 0413.825.160 =C2=B7 RPR Brussels
-Fortis 293-0376800-10 GEBA-BE-BB
----584349381-452549990-1217602095=:26947
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Timur Tabi
+Linux Kernel Developer @ Freescale
 
 _______________________________________________
-Linuxppc-dev mailing list
-Linuxppc-dev@ozlabs.org
-https://ozlabs.org/mailman/listinfo/linuxppc-dev
----584349381-452549990-1217602095=:26947--
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
