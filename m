@@ -1,80 +1,75 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
- configurable via FDT
-Date: Thu, 31 Jul 2008 16:32:23 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0807311610170.10341@shell4.speakeasy.net>
-References: <488982B5.4070102@grandegger.com> <4889942C.4040800@scram.de>
-	<48899736.8020400@grandegger.com>
-	<fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>
-	<ed82fe3e0807250721n115d28c7ha1f641c9175c473d@mail.gmail.com>
-	<4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
-	<20080727012722.GH12191@secretlab.ca> <4891A744.6060005@grandegger.com>
+From: Trent Piepho <xyzzy@speakeasy.org>
+Subject: Re: [i2c] [PATCH] powerpc: i2c-mpc: make speed registers	configurable
+	via FDT
+Date: Thu, 31 Jul 2008 17:22:28 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0807311656250.10341@shell4.speakeasy.net>
+References: <4889EFFE.2070201@grandegger.com> <4891A744.6060005@grandegger.com>
 	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
-	<4891E06A.4070608@freescale.com>
+	<4891F4D8.9090905@grandegger.com>
+	<fa686aa40807311031r66f6451aw206faf54509c14d9@mail.gmail.com>
+	<4891FC3A.7040609@freescale.com> <20080731180959.GA29057@secretlab.ca>
+	<489200B6.9060906@freescale.com> <20080731182810.GB29097@secretlab.ca>
+	<48920607.5040606@freescale.com>
+	<9e4733910807311157q358640ddyef1f14865c069b8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4891E06A.4070608-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <9e4733910807311157q358640ddyef1f14865c069b8@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>, Scott Wood <scottwood@freescale.com>, Timur Tabi <timur@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 31 Jul 2008, Timur Tabi wrote:
-> Jon Smirl wrote:
->
-> > Aren't the tables in the manual there just to make it easy for a human
-> > to pick out the line they want? For a computer you'd program the
-> > formula that was used to create the tables.
->
-> Actually, the tables in the manuals are just an example of what can be
-> programmed.  They don't cover all cases.  The tables assume a specific value of
-> DFSR.
->
-> For 8xxx, you want to use AN2919 to figure out how to really program the device.
->
-> The table I generated for U-Boot is based on the calculations outlined in
-> AN2919.  I debated trying to implement the actual algorithm, but decided that
-> pre-calculating the values was better.  The algorithm is very convoluted.
+On Thu, 31 Jul 2008, Jon Smirl wrote:
+> As for the source clock, how about creating a new global like
+> ppc_proc_freq called ppc_ipb_freq. The platform code can then set the
+> right clock value into the variable. For mpc8xxxx get it from uboot.
+> mpc5200 can easily compute it from ppc_proc_freq and checking how the
+> ipb divider is set. That will move the clock problem out of the i2c
+> driver.
 
-And I decided to program the algorithm.  It's not that complex and overall
-compiles to less total size than the table method.  It doesn't involve some
-black box table either.
+There is a huge variation in where the I2C source clock comes from.
+Sometimes it's the system bus, sometimes ethernet, sometimes SEC, etc.  If
+I look at u-boot (which might not be entirely correct or complete), I see:
 
-The real problem, which kept me from making a patch to do this months ago,
-is that the source clock that the I2C freq divider applies to is different
-for just about every MPC8xxx platform.  Not just a different value, but a
-totally different internal clock.  Sometimes is CCB, sometimes CCB/2,
-sometimes tsec2's clock, etc.  Sometimes the two i2c controllers don't even
-have the same clock.  I didn't see any easy way to get this information.
-In U-Boot I get it from the global board info struct, but I didn't see
-anything like this in Linux.
+83xx:  5 different clock sources
+85xx:  3 different clock sources
+86xx:  2 different clock sources
 
-> > I agree that it took me half an hour to figure out the formula that
-> > was needed to compute the i2s clocks, but once you figure out the
-> > formula it solves all of the cases and no one needs to read the manual
-> > any more. The i2c formula may even need a small loop which compares
-> > different solutions looking for the smallest error term. But it's a
-> > small space to search.
+But there's more.  Sometimes the two I2C controllers don't use the same
+clock!  So even if you add 10 globals with different clocks, and then add
+code to the mpc i2c driver so if can figure out which one to use given the
+platform, it's still not enough because you need to know which controller
+the device node is for.
 
-Yes, I needed a loop.  The divider ends up having the form (a + c) << b,
-where a is from some set of eight integers between 2 and 15, b has a range
-of like 5 to 12, and c is usually zero.
+IMHO, what Timur suggested of having u-boot put the source clock into the
+i2c node makes the most sense.  U-boot has to figure this out, so why
+duplicate the work?
 
-So, I find the divider I want to get, loop over each b, shift the divider
-right by b and find the closest (a+c) to that, calculate the error, and
-then use the best one.
+Here's my idea:
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+	i2c@0 {
+		compatible = "fsl-i2c";
+		bus-frequency = <100000>;
+
+		/* Either */
+		source-clock-frequency = <0>;
+		/* OR */
+		source-clock = <&ccb>;
+	};
+
+bus-frequency is the desired frequency of the i2c bus, i.e. 100 kHz or 400
+kHz usually.  source-clock-frequency is the the source clock to this i2c
+controller.  U-Boot can fill this in since it already knows it anyway.  Or,
+instead of source-clock-frequency, source-clock can be specified as a
+phandle to a device which has the clock to use.  This could be useful if
+Linux can change the clock frequency.
