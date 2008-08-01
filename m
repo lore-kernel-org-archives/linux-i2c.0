@@ -1,48 +1,46 @@
-From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
- configurable via FDT
-Date: Fri, 01 Aug 2008 10:02:17 -0500
-Message-ID: <48932579.3040705@freescale.com>
-References: <4889EFFE.2070201@grandegger.com> <4891FC3A.7040609@freescale.com>	
-	<20080731180959.GA29057@secretlab.ca>
-	<489200B6.9060906@freescale.com>	
-	<20080731182810.GB29097@secretlab.ca>
-	<48920607.5040606@freescale.com>	
-	<9e4733910807311157q358640ddyef1f14865c069b8@mail.gmail.com>	
-	<Pine.LNX.4.58.0807311656250.10341@shell4.speakeasy.net>	
-	<9e4733910807311819i60872285ga4829c841185fdc0@mail.gmail.com>	
-	<Pine.LNX.4.58.0807311828580.10341@shell4.speakeasy.net>
-	<9e4733910807311844p142b26ffyb4105df3e136f65@mail.gmail.com>
+From: Scott Wood <scottwood@freescale.com>
+Subject: Re: [i2c] [PATCH] powerpc: i2c-mpc: make speed registers configurable
+	via FDT
+Date: Fri, 1 Aug 2008 10:47:39 -0500
+Message-ID: <20080801154739.GB24875@ld0162-tx32.am.freescale.net>
+References: <fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>
+	<ed82fe3e0807250721n115d28c7ha1f641c9175c473d@mail.gmail.com>
+	<4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
+	<20080727012722.GH12191@secretlab.ca>
+	<4891A744.6060005@grandegger.com>
+	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
+	<4891E06A.4070608@freescale.com>
+	<Pine.LNX.4.58.0807311610170.10341@shell4.speakeasy.net>
+	<ed82fe3e0808010617u101855f7x70d3cbd2bed31f8c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <9e4733910807311844p142b26ffyb4105df3e136f65-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <ed82fe3e0808010617u101855f7x70d3cbd2bed31f8c@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Timur Tabi <timur@freescale.com>
+Cc: Linuxppc-dev@ozlabs.org, Trent Piepho <xyzzy@speakeasy.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jon Smirl wrote:
+On Fri, Aug 01, 2008 at 08:17:25AM -0500, Timur Tabi wrote:
+> On Thu, Jul 31, 2008 at 6:32 PM, Trent Piepho <xyzzy@speakeasy.org> wrote:
+> >  Sometimes the two i2c controllers don't even
+> > have the same clock.
+> 
+> On which platform is that the case?  I thought I had all 8[356]xx
+> boards covered.  Did I miss some?
 
-> What about the Efika which is mpc5200 based and doesn't use uboot?
+On 8313, i2c1 is driven by the encryption clock (whose divider from the
+CSB clock is programmable as 1, 2, or 3), but i2c2 is driven directly by
+the CSB clock.
 
-How does the Efika handle the dozen other properties that U-Boot normally 
-initializes in the device tree?
-
--- 
-Timur Tabi
-Linux Kernel Developer @ Freescale
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-Scott
