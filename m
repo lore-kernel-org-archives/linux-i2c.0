@@ -1,8 +1,8 @@
-From: "Jon Smirl" <jonsmirl@gmail.com>
-Subject: Re: [i2c] [PATCH] powerpc: i2c-mpc: make speed registers configurable
-	via FDT
-Date: Fri, 1 Aug 2008 10:28:38 -0400
-Message-ID: <9e4733910808010728i29597225j2272bd56f7e5a184@mail.gmail.com>
+From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] powerpc: i2c-mpc: make speed registers
+	configurable via FDT
+Date: Fri, 1 Aug 2008 10:32:12 -0400
+Message-ID: <9e4733910808010732u48ed06a4vc2121c133d91bbbd@mail.gmail.com>
 References: <4891F4D8.9090905@grandegger.com> <489200B6.9060906@freescale.com>
 	<20080731182810.GB29097@secretlab.ca>
 	<48920607.5040606@freescale.com>
@@ -15,24 +15,24 @@ References: <4891F4D8.9090905@grandegger.com> <489200B6.9060906@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <ed82fe3e0808010625q53680d42l83f28a6df835f959@mail.gmail.com>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <ed82fe3e0808010625q53680d42l83f28a6df835f959-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Timur Tabi <timur@freescale.com>
-Cc: Linuxppc-dev@ozlabs.org, Trent Piepho <xyzzy@speakeasy.org>, Scott Wood <scottwood@freescale.com>, Linux I2C <i2c@lm-sensors.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 8/1/08, Timur Tabi <timur@freescale.com> wrote:
-> On Thu, Jul 31, 2008 at 9:35 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
+On 8/1/08, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
+> On Thu, Jul 31, 2008 at 9:35 PM, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 >
 >  > I've having trouble with whether these clocks are a system resource or
 >  > something that belongs to i2c. If they are a system resource then we
@@ -71,4 +71,9 @@ implies using the root node to communicate the clock speeds to Linux.
 
 -- 
 Jon Smirl
-jonsmirl@gmail.com
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
