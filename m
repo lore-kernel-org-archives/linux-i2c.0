@@ -1,119 +1,52 @@
-From: "Eric Miao" <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-pxa: fastmode support (format cleanups)
-Date: Fri, 1 Aug 2008 18:37:14 +0800
-Message-ID: <f17812d70808010337s54a3b9a1laac1166b27742764@mail.gmail.com>
-References: <4891E0C5.7020009@cam.ac.uk>
-	<20080801094257.GK26938@trinity.fluff.org>
-	<4892E014.3040208@cam.ac.uk>
-	<20080801100936.GB17442@flint.arm.linux.org.uk>
-	<4892E183.7090601@cam.ac.uk> <4892E28E.40202@cam.ac.uk>
+From: "Timur Tabi" <timur@freescale.com>
+Subject: Re: [i2c] [PATCH] powerpc: i2c-mpc: make speed registers configurable
+	via FDT
+Date: Fri, 1 Aug 2008 08:17:25 -0500
+Message-ID: <ed82fe3e0808010617u101855f7x70d3cbd2bed31f8c@mail.gmail.com>
+References: <488982B5.4070102@grandegger.com>
+	<fa686aa40807250612g34b5167dtbe70c810f30a5d32@mail.gmail.com>
+	<ed82fe3e0807250721n115d28c7ha1f641c9175c473d@mail.gmail.com>
+	<4889EFFE.2070201@grandegger.com> <4889FD1D.4010804@freescale.com>
+	<20080727012722.GH12191@secretlab.ca>
+	<4891A744.6060005@grandegger.com>
+	<9e4733910807310849g7e5612dbk9536733e061af8ad@mail.gmail.com>
+	<4891E06A.4070608@freescale.com>
+	<Pine.LNX.4.58.0807311610170.10341@shell4.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4892E28E.40202-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <Pine.LNX.4.58.0807311610170.10341@shell4.speakeasy.net>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Scott Wood <scottwood@freescale.com>, Linuxppc-dev@ozlabs.org, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 1, 2008 at 6:16 PM, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org> wrote:
-> From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
->
-> Add fast_mode option to i2c_pxa_platform_data and use it to set the
-> ICR_FM bit appropriately when i2c_pxa_reset is called. Parameter
-> called fast_mode rather than frequency as this driver is also used
-> for the i2c_pxa_pwr bus which has different normal and fast frequencies.
->
-> Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+On Thu, Jul 31, 2008 at 6:32 PM, Trent Piepho <xyzzy@speakeasy.org> wrote:
 
-Acked-by: Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> The real problem, which kept me from making a patch to do this months ago,
+> is that the source clock that the I2C freq divider applies to is different
+> for just about every MPC8xxx platform.  Not just a different value, but a
+> totally different internal clock.  Sometimes is CCB, sometimes CCB/2,
+> sometimes tsec2's clock, etc.
 
->
-> --
-> This is basically a repost of the original patch with use_pio and
-> fast_mode converted to bit fields as suggested / agreed by Eric Miao and
-> Ben Dooks.
->
->  drivers/i2c/busses/i2c-pxa.c        |    6 ++++--
->  include/asm-arm/arch-pxa/i2c.h      |    3 ++-
->  include/asm-arm/arch-pxa/pxa-regs.h |    1 +
->  3 files changed, 7 insertions(+), 3 deletions(-)
->
-> --- a/drivers/i2c/busses/i2c-pxa.c      2008-07-31 12:02:42.000000000 +0100
-> +++ b/drivers/i2c/busses/i2c-pxa.c      2008-08-01 10:50:38.000000000 +0100
-> @@ -65,7 +65,8 @@ struct pxa_i2c {
->        unsigned long           iosize;
->
->        int                     irq;
-> -       int                     use_pio;
-> +       unsigned int            use_pio:1;
-> +       unsigned int            fast_mode:1;
->  };
->
->  #define _IBMR(i2c)     ((i2c)->reg_base + 0)
-> @@ -364,7 +365,7 @@ static void i2c_pxa_reset(struct pxa_i2c
->        writel(i2c->slave_addr, _ISAR(i2c));
->
->        /* set control register values */
-> -       writel(I2C_ICR_INIT, _ICR(i2c));
-> +       writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
->
->  #ifdef CONFIG_I2C_PXA_SLAVE
->        dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-> @@ -1013,6 +1014,7 @@ static int i2c_pxa_probe(struct platform
->        if (plat) {
->                i2c->adap.class = plat->class;
->                i2c->use_pio = plat->use_pio;
-> +               i2c->fast_mode = plat->fast_mode;
->        }
->
->        if (i2c->use_pio) {
-> --- a/include/asm-arm/arch-pxa/i2c.h    2008-07-31 12:00:05.000000000 +0100
-> +++ b/include/asm-arm/arch-pxa/i2c.h    2008-08-01 10:51:40.000000000 +0100
-> @@ -65,7 +65,8 @@ struct i2c_pxa_platform_data {
->        unsigned int            slave_addr;
->        struct i2c_slave_client *slave;
->        unsigned int            class;
-> -       int                     use_pio;
-> +       unsigned int            use_pio:1;
-> +       unsigned int            fast_mode:1;
->  };
->
->  extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
-> --- a/include/asm-arm/arch-pxa/pxa-regs.h       2008-07-31 12:02:51.000000000 +0100
-> +++ b/include/asm-arm/arch-pxa/pxa-regs.h       2008-07-31 12:34:44.000000000 +0100
-> @@ -448,6 +448,7 @@
->  #define ICR_ALDIE      (1 << 12)          /* enable arbitration interrupt */
->  #define ICR_SADIE      (1 << 13)          /* slave address detected int enable */
->  #define ICR_UR         (1 << 14)          /* unit reset */
-> +#define ICR_FM         (1 << 15)          /* fast mode */
->
->  #define ISR_RWM                (1 << 0)           /* read/write mode */
->  #define ISR_ACKNAK     (1 << 1)           /* ack/nak status */
->
-> _______________________________________________
-> i2c mailing list
-> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> http://lists.lm-sensors.org/mailman/listinfo/i2c
->
+On which SOC is it the tesc2 clock?
 
+>  Sometimes the two i2c controllers don't even
+> have the same clock.
 
+On which platform is that the case?  I thought I had all 8[356]xx
+boards covered.  Did I miss some?
 
 -- 
-Cheers
-- eric
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Timur Tabi
+Linux kernel developer at Freescale
