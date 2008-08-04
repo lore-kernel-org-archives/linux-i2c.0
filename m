@@ -1,49 +1,57 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [i2c] N800 problems with MMC, LM8323 on current linux-omap git
-	head
-Date: Mon, 4 Aug 2008 17:42:59 +0300
-Message-ID: <20080804144258.GN8885@atomide.com>
-References: <20080722124743.GA5820@kos.to> <90eb4be1e5a489819f08e76ad872e920@felipebalbi.com> <20080722133742.GA7492@kos.to> <20080722134314.GC8318@fluff.org.uk> <eb09f11f1e5a25903cfd4c2157ecbba5@felipebalbi.com> <20080723093849.GA13505@kos.to> <0487ae10263d239a8a891c9ed068da1c@felipebalbi.com>
+From: David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: [patch] i2c: fix virtual i2c adapter lockdep warning
+Date: Mon, 4 Aug 2008 10:50:42 -0700 (PDT)
+Message-ID: <alpine.DEB.1.10.0808032024130.2365@chino.kir.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0487ae10263d239a8a891c9ed068da1c@felipebalbi.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <me@felipebalbi.com>
-Cc: Riku Voipio <riku.voipio@iki.fi>, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Felipe Balbi <me@felipebalbi.com> [080723 13:13]:
-> 
-> 
-> On Wed, 23 Jul 2008 12:38:49 +0300, Riku Voipio <riku.voipio@iki.fi> wrote:
-> > Indeed - compared to my previous version, this one makes the boardfile
-> > even smaller:
-> > 
-> >    text    data     bss     dec     hex filename
-> >    2362    1552       4    3918     f4e
-> > old/arch/arm/mach-omap2/board-n800.o
-> >    2354    1456       4    3814     ee6
-> > new/arch/arm/mach-omap2/board-n800.o
-> 
-> Cool :-)
+bus_lock for both the virtual adapter and its parent have the same lock
+class.  Since both are taken in i2c_virt_master_xfer() and
+i2c_virt_smbus_xfer(), lockdep needs an annotation that the nesting is
+safe.
 
-Pushing to linux-omap tree.
+Signed-off-by: David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/i2c-virt.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Tony
+diff --git a/drivers/i2c/i2c-virt.c b/drivers/i2c/i2c-virt.c
+--- a/drivers/i2c/i2c-virt.c
++++ b/drivers/i2c/i2c-virt.c
+@@ -53,7 +53,7 @@ static int i2c_virt_master_xfer(struct i2c_adapter *adap,
+ 	 * the transfer.
+ 	 */
+ 
+-	mutex_lock(&parent->bus_lock);
++	mutex_lock_nested(&parent->bus_lock, SINGLE_DEPTH_NESTING);
+ 
+ 	ret = priv->select(parent, priv->client, priv->id);
+ 	if (ret >= 0)
+@@ -79,7 +79,7 @@ static int i2c_virt_smbus_xfer(struct i2c_adapter *adap,
+ 	 * the transfer.
+ 	 */
+ 
+-	mutex_lock(&parent->bus_lock);
++	mutex_lock_nested(&parent->bus_lock, SINGLE_DEPTH_NESTING);
+ 
+ 	ret = priv->select(parent, priv->client, priv->id);
+ 	if (ret == 0)
 
-
-> Acked-by: Felipe Balbi <felipe.balbi@nokia.com>
-> 
-> -- 
-> Best Regards,
-> 
-> Felipe Balbi
-> http://blog.felipebalbi.com
-> me@felipebalbi.com
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
