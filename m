@@ -1,10 +1,10 @@
 From: Dave Mendoza <invitations-XTx5jYQzljeU1mmQivmxQNBPR1lH4CV8@public.gmane.org>
 Subject: Come join me on SDET Ninja...
-Date: Tue, 5 Aug 2008 00:25:54 +0000 (GMT)
-Message-ID: <5920831.1217895954499.JavaMail.xncore@omxp>
+Date: Tue, 5 Aug 2008 00:25:55 +0000 (GMT)
+Message-ID: <16713016.41542811217895955170.JavaMail.xncore@omxp>
 Reply-To: Dave Mendoza <ldavemendoza-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2759262833134154443=="
+Content-Type: multipart/mixed; boundary="===============6800035326097737324=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -18,11 +18,11 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============2759262833134154443==
+--===============6800035326097737324==
 Content-Type: multipart/alternative;
-	boundary="=_fc7386a631e669958c8ad0e638dd5534"
+	boundary="=_4d2e96a80d26bba2c92244fb9835f6a0"
 
---=_fc7386a631e669958c8ad0e638dd5534
+--=_4d2e96a80d26bba2c92244fb9835f6a0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 
@@ -43,21 +43,21 @@ please copy and paste it into your web browser
 --------------------
 
 Members already on SDET Ninja
-Scott Harrison, Jason Zhu, Alphonzo J. Spendoiky, MattTelles, kankan roy
+Lakshmi Tayyebi, Scott Harrison, Jason Zhu, Alphonzo J. Spendoiky, MattTelles
 
 --------------------
 
 About SDET Ninja...
 Software Design/Development and Test Coding Enthusiasts to to enhance knowledge and above all, to build community
 
-9 members
+10 members
 8 photos
 
 --------------------
 
 To control which emails you receive on the corner, or to opt-out, go to:
 http://sdetninja.ning.com/profiles/profile/emailSettings
---=_fc7386a631e669958c8ad0e638dd5534
+--=_4d2e96a80d26bba2c92244fb9835f6a0
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
@@ -104,7 +104,7 @@ Iqw7Lsyhzj7h5d/90397830.png?width=3D96&amp;height=3D96&amp;crop=3D1%3A1&amp=
 "http://sdetninja.ning.com/xn/detail/u_davemendoza" style=3D"text-decoratio=
 n:none"><a href=3D"http://sdetninja.ning.com/xn/detail/u_davemendoza" style=
 =3D"text-decoration:none">Dave Mendoza</a> has:</a></div>
-=09=09=09=09=09=09=09=09=09=09<span style=3D"font-size:11px">4 friends<br /=
+=09=09=09=09=09=09=09=09=09=09<span style=3D"font-size:11px">5 friends<br /=
 >1 event<br />2 videos<br />1 discussion</span>
 =09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</td>
 =09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td width=3D"*" valign=3D"t=
@@ -140,6 +140,18 @@ r:#000">Members already on SDET Ninja</td>
 =09=09=09=09=09=09=09=09<td>
 =09=09=09=09=09=09=09=09=09<table>
 =09=09=09=09=09=09=09=09=09=09<tr>
+=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
+yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
+=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
+/xn/detail/u_Ltayyebi"><img height=3D"64" width=3D"64" border=3D"0" alt=3D"=
+Lakshmi Tay..." src=3D"http://api.ning.com/files/wEN2stQzGOg39gICOwQ2MvU7xC=
+dyn0SZ1GMr3FCUNf*tBBLaIsRcWlv3-nQgOUVhw8o5qRrzbH2VXIRGHPt0JqdGfk9wJ32S/9051=
+0832.png?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a>=
+<br />
+=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
+/xn/detail/u_Ltayyebi" style=3D"font-size:11px; text-decoration:none">Laksh=
+mi Tayyebi</a>
+=09=09=09=09=09=09=09=09=09=09=09=09</td>
 =09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
 yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
 =09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
@@ -188,18 +200,6 @@ Tb2-CqpNGz6T6CYs0nj3N4iCECtg0sKbPIkhLGJXQwmFdOeorRriMAHYGziqWDmCqkUyAXF/904=
 /xn/detail/u_3li77kqz1zo76" style=3D"font-size:11px; text-decoration:none">=
 MattTelles</a>
 =09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1q99hvof1ki9f"><img height=3D"64" width=3D"64" border=3D"0" al=
-t=3D"kankan roy" src=3D"http://api.ning.com/files/J5RhaTjjhUpzI2kkNFEDbgEEk=
-B2NGindrMzINDkko1rs21E3POixLX00z8VJflf6ak8oRO2DNH1wPBRBybg5DXx9zAOGhk44/my.=
-jpg?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a><br /=
->
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1q99hvof1ki9f" style=3D"font-size:11px; text-decoration:none">=
-kankan roy</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
 =09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
 =09=09=09=09=09=09=09=09=09</table>
 =09=09=09=09=09=09=09=09</td>
@@ -228,9 +228,9 @@ d community</div>
 =09=09=09=09=09=09=09=09=09=09=09=09<table width=3D"100%" cellpadding=3D"0"=
  cellspacing=3D"0" border=3D"0">
 =09=09=09=09=09=09<tr>
-=09=09=09=09=09=09<td width=3D"35%" style=3D"font-size:12px">9 members</td>=
-<td width=3D"*" style=3D"font-size:12px">8 photos</td>=09=09=09=09=09=09</t=
-r>
+=09=09=09=09=09=09<td width=3D"35%" style=3D"font-size:12px">10 members</td=
+><td width=3D"*" style=3D"font-size:12px">8 photos</td>=09=09=09=09=09=09</=
+tr>
 =09=09=09=09=09</table>
 =09=09=09=09=09=09</td>
 =09</tr>
@@ -253,11 +253,11 @@ ing.com/profiles/profile/emailSettings</a>
 .gif" width=3D"1" height=3D"1" alt=3D"">
 </body>
 </html>
---=_fc7386a631e669958c8ad0e638dd5534--
+--=_4d2e96a80d26bba2c92244fb9835f6a0--
 
 
 
---===============2759262833134154443==
+--===============6800035326097737324==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -267,4 +267,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2759262833134154443==--
+--===============6800035326097737324==--
