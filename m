@@ -1,270 +1,82 @@
-From: Dave Mendoza <invitations-XTx5jYQzljeU1mmQivmxQNBPR1lH4CV8@public.gmane.org>
-Subject: Come join me on SDET Ninja...
-Date: Tue, 5 Aug 2008 17:38:47 +0000 (GMT)
-Message-ID: <22813037.1217957927722.JavaMail.xncore@omxp>
-Reply-To: Dave Mendoza <ldavemendoza-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support, v2.
+Date: Tue, 5 Aug 2008 14:37:51 -0700
+Message-ID: <20080805143751.3c98b1ac.akpm@linux-foundation.org>
+References: <20080731104354.GA21764@linux-sh.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2171954640768081372=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080731104354.GA21764@linux-sh.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: khali@linux-fr.org, xyzzy@speakeasy.org, i2c@lm-sensors.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============2171954640768081372==
-Content-Type: multipart/alternative;
-	boundary="=_7c5a170657b11ff6ca736c3e2753d016"
+On Thu, 31 Jul 2008 19:43:54 +0900
+Paul Mundt <lethal@linux-sh.org> wrote:
 
---=_7c5a170657b11ff6ca736c3e2753d016
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
-SDET Ninja: Coder's Community
-
-Dave Mendoza has invited you to join SDET Ninja
-
---------------------
-
-Become a founding member of SDET GURU!  Linkedin Networking,  C, C++,  Kernel, Mobility, DevTools, Test WinClient, DirectX and Scripts, Search, Distributed Systems, Building Automated Diagnostics
-
-Check out SDET Ninja:
-http://sdetninja.ning.com/?xgi=5mPWl3B
-
-If your email program doesn't recognize the web address above as an active link,
-please copy and paste it into your web browser
-
---------------------
-
-Members already on SDET Ninja
-Basel, Daria Mehra, Lily, Lakshmi Tayyebi, Scott Harrison
-
---------------------
-
-About SDET Ninja...
-Software Design/Development and Test Coding Enthusiasts to to enhance knowledge and above all, to build community
-
-15 members
-8 photos
-
---------------------
-
-To control which emails you receive on the corner, or to opt-out, go to:
-http://sdetninja.ning.com/profiles/profile/emailSettings
---=_7c5a170657b11ff6ca736c3e2753d016
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-=09<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8"=
+> This adds support for the SMBus adapter found in the various FPGAs on
+> the Renesas Highlander platforms. Particularly the R0P7780LC0011RL and
+> R0P7785LC0011RL FPGAs.
+> 
+> Functionality is fairly restricted, in that only byte and block data
+> transfers are supported. Normal/fast mode and IRQ/polling are also
+> supported. Primarily used for various RTCs and thermal sensors.
+> 
+> This version incorporates all of the comments from Jean Delvare and
+> Trent Piepho.
 >
-=09<title>Network Email</title>
-</head>
-<body style=3D"padding:0; margin:16px; font-size:12px; font-family:'lucida =
-grande', tahoma, helvetica, arial, sans-serif;">
-<table width=3D"98%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
-=09<tr>
-=09=09<td bgcolor=3D"#FFFFFF" width=3D"100%">
-=09=09=09<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"6=
-00">
-=09<tr>
-=09=09<td align=3D"left" bgcolor=3D"#FFFFFF" height=3D"44" valign=3D"middle=
-" style=3D"padding-left:12px; color:#1A3459;">
-=09=09=09<div style=3D"font-weight:bold; font-size:18px;">SDET Ninja</div>
-=09=09=09<div style=3D"font-size:12px;">Coder&#039;s Community</div>
-=09=09</td>
-=09</tr>
-</table>
-=09=09=09<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"6=
-00">
-=09=09=09=09<tr>
-=09=09=09=09=09<td width=3D"*" style=3D"font-size:12px;padding-top:8px" val=
-ign=3D"top">
-=09=09=09=09=09=09<table cellspacing=3D"0" cellpadding=3D"0" width=3D"100%"=
+> ...
 >
-=09=09=09=09=09=09=09<tr>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td width=3D"96" valign=3D"=
-top" style=3D"padding-right:16px;font-size:12px">
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://=
-sdetninja.ning.com/xn/detail/u_davemendoza"><img height=3D"96" width=3D"96"=
- border=3D"0" alt=3D"Dave Mendoza" src=3D"http://api.ning.com/files/mUyoXKJ=
-QdzSa4j4STcGVhEwSatH07-*CmlrIhUEkAVgNtiSQbbFq2s7AeySXHqCtSedbHAeclqq-X4EsLv=
-Iqw7Lsyhzj7h5d/90397830.png?width=3D96&amp;height=3D96&amp;crop=3D1%3A1&amp=
-;xn_auth=3Dno"></a>
-=09=09=09=09=09=09=09=09=09=09<div style=3D"padding-bottom:6px;"><a href=3D=
-"http://sdetninja.ning.com/xn/detail/u_davemendoza" style=3D"text-decoratio=
-n:none"><a href=3D"http://sdetninja.ning.com/xn/detail/u_davemendoza" style=
-=3D"text-decoration:none">Dave Mendoza</a> has:</a></div>
-=09=09=09=09=09=09=09=09=09=09<span style=3D"font-size:11px">10 friends<br =
-/>1 event<br />2 videos<br />1 discussion</span>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td width=3D"*" valign=3D"t=
-op" style=3D"font-size:12px">
-=09=09=09=09=09=09=09=09=09<div style=3D"font-size:14px; font-weight:bold; =
-padding-bottom:8px">Dave Mendoza has invited you to join SDET Ninja</div>
-=09=09=09=09=09=09=09=09=09<div style=3D"font-size:12px">Software Design/De=
-velopment and Test Coding Enthusiasts to to enhance knowledge and above all=
-, to build community</div>
-=09=09=09=09=09=09=09=09=09<div style=3D"border-bottom:1px solid #aaa; heig=
-ht:8px;">&nbsp;</div>
-<div style=3D"height:8px">&nbsp;</div>
-=09=09=09=09=09=09=09=09=09Become a founding member of SDET GURU!  Linkedin=
- Networking,  C, C++,  Kernel, Mobility, DevTools, Test WinClient, DirectX =
-and Scripts, Search, Distributed Systems, Building Automated Diagnostics=09=
-=09=09=09=09=09=09=09=09<br /><br />
-=09=09=09=09=09=09=09=09=09<div style=3D"font-weight:bold;font-size:12px">C=
-heck out SDET Ninja:</div>
-=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com/?xgi=3D5mPW=
-l3B">http://sdetninja.ning.com/?xgi=3D5mPWl3B</a><br />
-=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09</tr>
-=09=09=09=09=09=09</table>
-=09=09=09=09=09=09<div style=3D"border-bottom:1px solid #aaa; height:8px;">=
-&nbsp;</div>
-<div style=3D"height:8px">&nbsp;</div>
-=09=09=09=09=09=09<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0">
-=09=09=09=09=09=09=09<tr>
-=09=09=09=09=09=09=09=09<td style=3D"padding-bottom:6px;font-size:12px;colo=
-r:#000">Members already on SDET Ninja</td>
-=09=09=09=09=09=09=09</tr>
-=09=09=09=09=09=09=09<tr>
-=09=09=09=09=09=09=09=09<td>
-=09=09=09=09=09=09=09=09=09<table>
-=09=09=09=09=09=09=09=09=09=09<tr>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1ntn2huekjq9z"><img height=3D"64" width=3D"64" border=3D"0" al=
-t=3D"Basel" src=3D"http://api.ning.com/files/wXJ6kP1vcFIRa0frMWuMF**XIcVoFQ=
--epj4kpAAyeRfd9vmyu8BlMTpMm6WZXdCfF0Bnya6DeIyjXzuuFhCdV9DjOQWErWGN/90836131=
-.png?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a><br =
-/>
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1ntn2huekjq9z" style=3D"font-size:11px; text-decoration:none">=
-Basel</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_69f7bfw38pi8"><img height=3D"64" width=3D"64" border=3D"0" alt=
-=3D"Daria Mehra" src=3D"http://api.ning.com/files/32s7xhHayIO7lRpXVPtX9m-T6=
-dgmoF8s0K5BQdhFDRAb9XBYpjx9sOafB2GKkEG9N7T2zbL5m1ozMxK4JF*pa4Okd3sdLpGE/906=
-74111.png?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a=
-><br />
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_69f7bfw38pi8" style=3D"font-size:11px; text-decoration:none">D=
-aria Mehra</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_164tj79knb1ty"><img height=3D"64" width=3D"64" border=3D"0" al=
-t=3D"Lily" src=3D"http://api.ning.com/files/ZwPuyJh3StJmxGOVp*-Yz6WoV0t5heR=
-OqnIQSh3W8dsGU9BxwXmzNDPe*7di5gn5lrSmYa1nqYbJLX6Y4p8ifiCyetbTwTzx/90620871.=
-png?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a><br /=
+> +static int highlander_i2c_read(struct highlander_i2c_dev *dev)
+> +{
+> +	int i, cnt;
+> +	u16 data[16];
+> +
+> +	if (highlander_i2c_wait_for_bbsy(dev))
+> +		return -EAGAIN;
+> +
+> +	highlander_i2c_start(dev);
+> +
+> +	if (highlander_i2c_wait_xfer_done(dev)) {
+> +		dev_err(dev->dev, "Arbitration loss\n");
+> +		return -EAGAIN;
+> +	}
+> +
+> +	/*
+> +	 * The R0P7780LC0011RL FPGA needs a significant delay between
+> +	 * data read cycles, otherwise the transciever gets confused and
+> +	 * garbage is returned when the read is subsequently aborted.
+> +	 *
+> +	 * It is not sufficient to wait for BBSY.
+> +	 *
+> +	 * While this generally only applies to the older SH7780-based
+> +	 * Highlanders, the same issue can be observed on SH7785 ones,
+> +	 * albeit less frequently. SH7780-based Highlanders may need
+> +	 * this to be as high as 1000 ms.
+> +	 */
+> +	if (iic_read_delay && time_before(jiffies, dev->last_read_time +
+> +				 msecs_to_jiffies(iic_read_delay)))
+> +		msleep_interruptible(jiffies_to_msecs((dev->last_read_time +
+> +				msecs_to_jiffies(iic_read_delay)) - jiffies));
+
+If this task has signal_pending(), msleep_interruptible() will
+immediately return.
+
+> +	cnt = (dev->buf_len + 1) >> 1;
+> +	for (i = 0; i < cnt; i++) {
+> +		data[i] = ioread16(dev->base + SMTRDR + (i * sizeof(u16)));
+> +		dev_dbg(dev->dev, "read data[%x] 0x%04x\n", i, data[i]);
+> +	}
+> +
+> +	smbus_read_data(data, dev->buf, dev->buf_len);
+> +
+> +	dev->last_read_time = jiffies;
+
+In which case I assume that the above will screw up.
+
+> +	return 0;
+> +}
 >
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_164tj79knb1ty" style=3D"font-size:11px; text-decoration:none">=
-Lily</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_Ltayyebi"><img height=3D"64" width=3D"64" border=3D"0" alt=3D"=
-Lakshmi Tay..." src=3D"http://api.ning.com/files/wEN2stQzGOg39gICOwQ2MvU7xC=
-dyn0SZ1GMr3FCUNf*tBBLaIsRcWlv3-nQgOUVhw8o5qRrzbH2VXIRGHPt0JqdGfk9wJ32S/9051=
-0832.png?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_auth=3Dno"></a>=
-<br />
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_Ltayyebi" style=3D"font-size:11px; text-decoration:none">Laksh=
-mi Tayyebi</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09<td st=
-yle=3D"text-align:center; padding-right:10px;" valign=3D"top">
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1x4x9zfe70l1d"><img height=3D"64" width=3D"64" border=3D"0" al=
-t=3D"Scott Harrison" src=3D"http://api.ning.com/files/1uiUWtzNIuqwezpI3gf3P=
-bZWQvZiWZ35vpDae2AK0agZQWBJlGrFlO4Z9lJyhjrmzE2lKcZcQ1rrVX6U4LSU7aIEbxwYd-Ek=
-/shc_fin_research.jpg?width=3D64&amp;height=3D64&amp;crop=3D1%3A1&amp;xn_au=
-th=3Dno"></a><br />
-=09=09=09=09=09=09=09=09=09=09=09=09=09<a href=3D"http://sdetninja.ning.com=
-/xn/detail/u_1x4x9zfe70l1d" style=3D"font-size:11px; text-decoration:none">=
-Scott Harrison</a>
-=09=09=09=09=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09=09</tr>
-=09=09=09=09=09=09=09=09=09</table>
-=09=09=09=09=09=09=09=09</td>
-=09=09=09=09=09=09=09</tr>
-=09=09=09=09=09=09</table>
-=09=09=09=09=09=09<div style=3D"border-bottom:1px solid #aaa; height:8px;">=
-&nbsp;</div>
-<div style=3D"height:8px">&nbsp;</div>
-<table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"100%">
-=09<tr>
-=09=09=09=09<td style=3D"text-align:center; padding-right:12px" width=3D"96=
-" valign=3D"top">
-=09=09=09<a href=3D"http://sdetninja.ning.com/?xgi=3D5mPWl3B"><img height=
-=3D"96" width=3D"96" border=3D"0" alt=3D"SDET Ninja" src=3D"http://api.ning=
-.com/icons/appatar/2243896?default=3D2243896&amp;width=3D96&amp;height=3D96=
-"></a>
-=09=09</td>
-=09=09=09=09<td valign=3D"top" width=3D"*">
-=09=09=09<div style=3D"font-weight:bold;font-size:12px">About SDET Ninja...=
-</div>
-=09=09=09<br />
-=09=09=09=09=09=09<div style=3D"font-size:12px">Software Design/Development=
- and Test Coding Enthusiasts to to enhance knowledge and above all, to buil=
-d community</div>
-=09=09=09<br />
-=09=09=09=09=09=09=09=09=09=09=09=09<table width=3D"100%" cellpadding=3D"0"=
- cellspacing=3D"0" border=3D"0">
-=09=09=09=09=09=09<tr>
-=09=09=09=09=09=09<td width=3D"35%" style=3D"font-size:12px">15 members</td=
-><td width=3D"*" style=3D"font-size:12px">8 photos</td>=09=09=09=09=09=09</=
-tr>
-=09=09=09=09=09</table>
-=09=09=09=09=09=09</td>
-=09</tr>
-</table>
-=09=09=09=09=09=09<div style=3D"border-bottom:1px solid #aaa; height:8px;">=
-&nbsp;</div>
-<div style=3D"height:8px">&nbsp;</div>
-=09=09=09=09=09=09<div style=3D"color:#777777; font-size:11px;">
-=09To control which emails you receive on SDET Ninja, go to:=09<a href=3D"h=
-ttp://sdetninja.ning.com/profiles/profile/emailSettings">http://sdetninja.n=
-ing.com/profiles/profile/emailSettings</a>
-</div>
-=09=09=09=09=09</td>
-=09=09=09=09</tr>
-=09=09=09</table>
-=09=09</td>
-=09</tr>
-</table>
-<img src=3D"http://sdetninja.ning.com/xn_resources/widgets/index/gfx/spacer=
-.gif" width=3D"1" height=3D"1" alt=3D"">
-</body>
-</html>
---=_7c5a170657b11ff6ca736c3e2753d016--
-
-
-
---===============2171954640768081372==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============2171954640768081372==--
+> ...
