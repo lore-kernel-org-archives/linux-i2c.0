@@ -1,8 +1,8 @@
 From: Carlos Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
-Subject: [PATCH 4/6] I2C: MENELAUS: Move menelaus register map to
-	include/linux/i2c/menelaus.h
-Date: Wed, 06 Aug 2008 14:01:01 -0400
-Message-ID: <4899E6DD.90909@indt.org.br>
+Subject: [PATCH 3/6] I2C: MENELAUS: Move menelaus header to
+	include/linux/i2c
+Date: Wed, 06 Aug 2008 14:00:57 -0400
+Message-ID: <4899E6D9.8050306@indt.org.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -21,259 +21,98 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Carlos Eduardo Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
 
-This patch moves menelaus register map to include/linux/i2c/menelaus.h
+This patch moves menelaus header from include/asm-arm/arch-omap/
+to include/linux/i2c/
+
+It also includes menelaus' headers to include/linux/i2c
 
 Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
 ---
- drivers/i2c/chips/menelaus.c |  111 -----------------------------------------
- include/linux/i2c/menelaus.h |  112 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 112 insertions(+), 111 deletions(-)
+ arch/arm/mach-omap2/board-h4.c                     |    2 +-
+ arch/arm/plat-omap/devices.c                       |    2 +-
+ drivers/i2c/chips/menelaus.c                       |    2 +-
+ drivers/input/keyboard/omap-keypad.c               |    2 +-
+ .../{asm-arm/arch-omap => linux/i2c}/menelaus.h    |    0 
+ 5 files changed, 4 insertions(+), 4 deletions(-)
+ rename include/{asm-arm/arch-omap => linux/i2c}/menelaus.h (100%)
 
+diff --git a/arch/arm/mach-omap2/board-h4.c b/arch/arm/mach-omap2/board-h4.c
+index 0d28f68..b2e9d95 100644
+--- a/arch/arm/mach-omap2/board-h4.c
++++ b/arch/arm/mach-omap2/board-h4.c
+@@ -21,6 +21,7 @@
+ #include <linux/input.h>
+ #include <linux/err.h>
+ #include <linux/clk.h>
++#include <linux/i2c/menelaus.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/mach-types.h>
+@@ -37,7 +38,6 @@
+ #include <asm/arch/board.h>
+ #include <asm/arch/common.h>
+ #include <asm/arch/keypad.h>
+-#include <asm/arch/menelaus.h>
+ #include <asm/arch/dma.h>
+ #include <asm/arch/gpmc.h>
+ 
+diff --git a/arch/arm/plat-omap/devices.c b/arch/arm/plat-omap/devices.c
+index 81002b7..b755ced 100644
+--- a/arch/arm/plat-omap/devices.c
++++ b/arch/arm/plat-omap/devices.c
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
++#include <linux/i2c/menelaus.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/io.h>
+@@ -23,7 +24,6 @@
+ #include <asm/arch/board.h>
+ #include <asm/arch/mux.h>
+ #include <asm/arch/gpio.h>
+-#include <asm/arch/menelaus.h>
+ #include <asm/arch/mcbsp.h>
+ 
+ #if	defined(CONFIG_OMAP_DSP) || defined(CONFIG_OMAP_DSP_MODULE)
 diff --git a/drivers/i2c/chips/menelaus.c b/drivers/i2c/chips/menelaus.c
-index 1f098c3..87c4246 100644
+index 06387b4..1f098c3 100644
 --- a/drivers/i2c/chips/menelaus.c
 +++ b/drivers/i2c/chips/menelaus.c
-@@ -49,117 +49,6 @@
+@@ -40,12 +40,12 @@
+ #include <linux/delay.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
++#include <linux/i2c/menelaus.h>
+ 
+ #include <asm/mach-types.h>
+ #include <asm/mach/irq.h>
+ 
+ #include <asm/arch/gpio.h>
+-#include <asm/arch/menelaus.h>
  
  #define DRIVER_NAME			"menelaus"
  
--#define MENELAUS_I2C_ADDRESS		0x72
--
--#define MENELAUS_REV			0x01
--#define MENELAUS_VCORE_CTRL1		0x02
--#define MENELAUS_VCORE_CTRL2		0x03
--#define MENELAUS_VCORE_CTRL3		0x04
--#define MENELAUS_VCORE_CTRL4		0x05
--#define MENELAUS_VCORE_CTRL5		0x06
--#define MENELAUS_DCDC_CTRL1		0x07
--#define MENELAUS_DCDC_CTRL2		0x08
--#define MENELAUS_DCDC_CTRL3		0x09
--#define MENELAUS_LDO_CTRL1		0x0A
--#define MENELAUS_LDO_CTRL2		0x0B
--#define MENELAUS_LDO_CTRL3		0x0C
--#define MENELAUS_LDO_CTRL4		0x0D
--#define MENELAUS_LDO_CTRL5		0x0E
--#define MENELAUS_LDO_CTRL6		0x0F
--#define MENELAUS_LDO_CTRL7		0x10
--#define MENELAUS_LDO_CTRL8		0x11
--#define MENELAUS_SLEEP_CTRL1		0x12
--#define MENELAUS_SLEEP_CTRL2		0x13
--#define MENELAUS_DEVICE_OFF		0x14
--#define MENELAUS_OSC_CTRL		0x15
--#define MENELAUS_DETECT_CTRL		0x16
--#define MENELAUS_INT_MASK1		0x17
--#define MENELAUS_INT_MASK2		0x18
--#define MENELAUS_INT_STATUS1		0x19
--#define MENELAUS_INT_STATUS2		0x1A
--#define MENELAUS_INT_ACK1		0x1B
--#define MENELAUS_INT_ACK2		0x1C
--#define MENELAUS_GPIO_CTRL		0x1D
--#define MENELAUS_GPIO_IN		0x1E
--#define MENELAUS_GPIO_OUT		0x1F
--#define MENELAUS_BBSMS			0x20
--#define MENELAUS_RTC_CTRL		0x21
--#define MENELAUS_RTC_UPDATE		0x22
--#define MENELAUS_RTC_SEC		0x23
--#define MENELAUS_RTC_MIN		0x24
--#define MENELAUS_RTC_HR			0x25
--#define MENELAUS_RTC_DAY		0x26
--#define MENELAUS_RTC_MON		0x27
--#define MENELAUS_RTC_YR			0x28
--#define MENELAUS_RTC_WKDAY		0x29
--#define MENELAUS_RTC_AL_SEC		0x2A
--#define MENELAUS_RTC_AL_MIN		0x2B
--#define MENELAUS_RTC_AL_HR		0x2C
--#define MENELAUS_RTC_AL_DAY		0x2D
--#define MENELAUS_RTC_AL_MON		0x2E
--#define MENELAUS_RTC_AL_YR		0x2F
--#define MENELAUS_RTC_COMP_MSB		0x30
--#define MENELAUS_RTC_COMP_LSB		0x31
--#define MENELAUS_S1_PULL_EN		0x32
--#define MENELAUS_S1_PULL_DIR		0x33
--#define MENELAUS_S2_PULL_EN		0x34
--#define MENELAUS_S2_PULL_DIR		0x35
--#define MENELAUS_MCT_CTRL1		0x36
--#define MENELAUS_MCT_CTRL2		0x37
--#define MENELAUS_MCT_CTRL3		0x38
--#define MENELAUS_MCT_PIN_ST		0x39
--#define MENELAUS_DEBOUNCE1		0x3A
--
--#define IH_MENELAUS_IRQS		12
--#define MENELAUS_MMC_S1CD_IRQ		0	/* MMC slot 1 card change */
--#define MENELAUS_MMC_S2CD_IRQ		1	/* MMC slot 2 card change */
--#define MENELAUS_MMC_S1D1_IRQ		2	/* MMC DAT1 low in slot 1 */
--#define MENELAUS_MMC_S2D1_IRQ		3	/* MMC DAT1 low in slot 2 */
--#define MENELAUS_LOWBAT_IRQ		4	/* Low battery */
--#define MENELAUS_HOTDIE_IRQ		5	/* Hot die detect */
--#define MENELAUS_UVLO_IRQ		6	/* UVLO detect */
--#define MENELAUS_TSHUT_IRQ		7	/* Thermal shutdown */
--#define MENELAUS_RTCTMR_IRQ		8	/* RTC timer */
--#define MENELAUS_RTCALM_IRQ		9	/* RTC alarm */
--#define MENELAUS_RTCERR_IRQ		10	/* RTC error */
--#define MENELAUS_PSHBTN_IRQ		11	/* Push button */
--#define MENELAUS_RESERVED12_IRQ		12	/* Reserved */
--#define MENELAUS_RESERVED13_IRQ		13	/* Reserved */
--#define MENELAUS_RESERVED14_IRQ		14	/* Reserved */
--#define MENELAUS_RESERVED15_IRQ		15	/* Reserved */
--
--/* VCORE_CTRL1 register */
--#define VCORE_CTRL1_BYP_COMP		(1 << 5)
--#define VCORE_CTRL1_HW_NSW		(1 << 7)
--
--/* GPIO_CTRL register */
--#define GPIO_CTRL_SLOTSELEN		(1 << 5)
--#define GPIO_CTRL_SLPCTLEN		(1 << 6)
--#define GPIO1_DIR_INPUT 		(1 << 0)
--#define GPIO2_DIR_INPUT 		(1 << 1)
--#define GPIO3_DIR_INPUT 		(1 << 2)
--
--/* MCT_CTRL1 register */
--#define MCT_CTRL1_S1_CMD_OD		(1 << 2)
--#define MCT_CTRL1_S2_CMD_OD		(1 << 3)
--
--/* MCT_CTRL2 register */
--#define MCT_CTRL2_VS2_SEL_D0		(1 << 0)
--#define MCT_CTRL2_VS2_SEL_D1		(1 << 1)
--#define MCT_CTRL2_S1CD_BUFEN		(1 << 4)
--#define MCT_CTRL2_S2CD_BUFEN		(1 << 5)
--#define MCT_CTRL2_S1CD_DBEN		(1 << 6)
--#define MCT_CTRL2_S2CD_BEN		(1 << 7)
--
--/* MCT_CTRL3 register */
--#define MCT_CTRL3_SLOT1_EN		(1 << 0)
--#define MCT_CTRL3_SLOT2_EN		(1 << 1)
--#define MCT_CTRL3_S1_AUTO_EN		(1 << 2)
--#define MCT_CTRL3_S2_AUTO_EN		(1 << 3)
--
--/* MCT_PIN_ST register */
--#define MCT_PIN_ST_S1_CD_ST		(1 << 0)
--#define MCT_PIN_ST_S2_CD_ST		(1 << 1)
- 
- static void menelaus_work(struct work_struct *_menelaus);
- 
-diff --git a/include/linux/i2c/menelaus.h b/include/linux/i2c/menelaus.h
-index e1012c1..1660418 100644
---- a/include/linux/i2c/menelaus.h
-+++ b/include/linux/i2c/menelaus.h
-@@ -7,6 +7,118 @@
- #ifndef __ASM_ARCH_MENELAUS_H
- #define __ASM_ARCH_MENELAUS_H
- 
-+#define MENELAUS_I2C_ADDRESS		0x72
-+
-+#define MENELAUS_REV			0x01
-+#define MENELAUS_VCORE_CTRL1		0x02
-+#define MENELAUS_VCORE_CTRL2		0x03
-+#define MENELAUS_VCORE_CTRL3		0x04
-+#define MENELAUS_VCORE_CTRL4		0x05
-+#define MENELAUS_VCORE_CTRL5		0x06
-+#define MENELAUS_DCDC_CTRL1		0x07
-+#define MENELAUS_DCDC_CTRL2		0x08
-+#define MENELAUS_DCDC_CTRL3		0x09
-+#define MENELAUS_LDO_CTRL1		0x0A
-+#define MENELAUS_LDO_CTRL2		0x0B
-+#define MENELAUS_LDO_CTRL3		0x0C
-+#define MENELAUS_LDO_CTRL4		0x0D
-+#define MENELAUS_LDO_CTRL5		0x0E
-+#define MENELAUS_LDO_CTRL6		0x0F
-+#define MENELAUS_LDO_CTRL7		0x10
-+#define MENELAUS_LDO_CTRL8		0x11
-+#define MENELAUS_SLEEP_CTRL1		0x12
-+#define MENELAUS_SLEEP_CTRL2		0x13
-+#define MENELAUS_DEVICE_OFF		0x14
-+#define MENELAUS_OSC_CTRL		0x15
-+#define MENELAUS_DETECT_CTRL		0x16
-+#define MENELAUS_INT_MASK1		0x17
-+#define MENELAUS_INT_MASK2		0x18
-+#define MENELAUS_INT_STATUS1		0x19
-+#define MENELAUS_INT_STATUS2		0x1A
-+#define MENELAUS_INT_ACK1		0x1B
-+#define MENELAUS_INT_ACK2		0x1C
-+#define MENELAUS_GPIO_CTRL		0x1D
-+#define MENELAUS_GPIO_IN		0x1E
-+#define MENELAUS_GPIO_OUT		0x1F
-+#define MENELAUS_BBSMS			0x20
-+#define MENELAUS_RTC_CTRL		0x21
-+#define MENELAUS_RTC_UPDATE		0x22
-+#define MENELAUS_RTC_SEC		0x23
-+#define MENELAUS_RTC_MIN		0x24
-+#define MENELAUS_RTC_HR			0x25
-+#define MENELAUS_RTC_DAY		0x26
-+#define MENELAUS_RTC_MON		0x27
-+#define MENELAUS_RTC_YR			0x28
-+#define MENELAUS_RTC_WKDAY		0x29
-+#define MENELAUS_RTC_AL_SEC		0x2A
-+#define MENELAUS_RTC_AL_MIN		0x2B
-+#define MENELAUS_RTC_AL_HR		0x2C
-+#define MENELAUS_RTC_AL_DAY		0x2D
-+#define MENELAUS_RTC_AL_MON		0x2E
-+#define MENELAUS_RTC_AL_YR		0x2F
-+#define MENELAUS_RTC_COMP_MSB		0x30
-+#define MENELAUS_RTC_COMP_LSB		0x31
-+#define MENELAUS_S1_PULL_EN		0x32
-+#define MENELAUS_S1_PULL_DIR		0x33
-+#define MENELAUS_S2_PULL_EN		0x34
-+#define MENELAUS_S2_PULL_DIR		0x35
-+#define MENELAUS_MCT_CTRL1		0x36
-+#define MENELAUS_MCT_CTRL2		0x37
-+#define MENELAUS_MCT_CTRL3		0x38
-+#define MENELAUS_MCT_PIN_ST		0x39
-+#define MENELAUS_DEBOUNCE1		0x3A
-+
-+#define IH_MENELAUS_IRQS		12
-+#define MENELAUS_MMC_S1CD_IRQ		0	/* MMC slot 1 card change */
-+#define MENELAUS_MMC_S2CD_IRQ		1	/* MMC slot 2 card change */
-+#define MENELAUS_MMC_S1D1_IRQ		2	/* MMC DAT1 low in slot 1 */
-+#define MENELAUS_MMC_S2D1_IRQ		3	/* MMC DAT1 low in slot 2 */
-+#define MENELAUS_LOWBAT_IRQ		4	/* Low battery */
-+#define MENELAUS_HOTDIE_IRQ		5	/* Hot die detect */
-+#define MENELAUS_UVLO_IRQ		6	/* UVLO detect */
-+#define MENELAUS_TSHUT_IRQ		7	/* Thermal shutdown */
-+#define MENELAUS_RTCTMR_IRQ		8	/* RTC timer */
-+#define MENELAUS_RTCALM_IRQ		9	/* RTC alarm */
-+#define MENELAUS_RTCERR_IRQ		10	/* RTC error */
-+#define MENELAUS_PSHBTN_IRQ		11	/* Push button */
-+#define MENELAUS_RESERVED12_IRQ		12	/* Reserved */
-+#define MENELAUS_RESERVED13_IRQ		13	/* Reserved */
-+#define MENELAUS_RESERVED14_IRQ		14	/* Reserved */
-+#define MENELAUS_RESERVED15_IRQ		15	/* Reserved */
-+
-+/* VCORE_CTRL1 register */
-+#define VCORE_CTRL1_BYP_COMP		(1 << 5)
-+#define VCORE_CTRL1_HW_NSW		(1 << 7)
-+
-+/* GPIO_CTRL register */
-+#define GPIO_CTRL_SLOTSELEN		(1 << 5)
-+#define GPIO_CTRL_SLPCTLEN		(1 << 6)
-+#define GPIO1_DIR_INPUT 		(1 << 0)
-+#define GPIO2_DIR_INPUT 		(1 << 1)
-+#define GPIO3_DIR_INPUT 		(1 << 2)
-+
-+/* MCT_CTRL1 register */
-+#define MCT_CTRL1_S1_CMD_OD		(1 << 2)
-+#define MCT_CTRL1_S2_CMD_OD		(1 << 3)
-+
-+/* MCT_CTRL2 register */
-+#define MCT_CTRL2_VS2_SEL_D0		(1 << 0)
-+#define MCT_CTRL2_VS2_SEL_D1		(1 << 1)
-+#define MCT_CTRL2_S1CD_BUFEN		(1 << 4)
-+#define MCT_CTRL2_S2CD_BUFEN		(1 << 5)
-+#define MCT_CTRL2_S1CD_DBEN		(1 << 6)
-+#define MCT_CTRL2_S2CD_BEN		(1 << 7)
-+
-+/* MCT_CTRL3 register */
-+#define MCT_CTRL3_SLOT1_EN		(1 << 0)
-+#define MCT_CTRL3_SLOT2_EN		(1 << 1)
-+#define MCT_CTRL3_S1_AUTO_EN		(1 << 2)
-+#define MCT_CTRL3_S2_AUTO_EN		(1 << 3)
-+
-+/* MCT_PIN_ST register */
-+#define MCT_PIN_ST_S1_CD_ST		(1 << 0)
-+#define MCT_PIN_ST_S2_CD_ST		(1 << 1)
-+
- struct device;
- 
- struct menelaus_platform_data {
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index 10afd20..c379d63 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -34,9 +34,9 @@
+ #include <linux/platform_device.h>
+ #include <linux/mutex.h>
+ #include <linux/errno.h>
++#include <linux/i2c/menelaus.h>
+ #include <asm/arch/gpio.h>
+ #include <asm/arch/keypad.h>
+-#include <asm/arch/menelaus.h>
+ #include <asm/irq.h>
+ #include <asm/hardware.h>
+ #include <asm/io.h>
+diff --git a/include/asm-arm/arch-omap/menelaus.h b/include/linux/i2c/menelaus.h
+similarity index 100%
+rename from include/asm-arm/arch-omap/menelaus.h
+rename to include/linux/i2c/menelaus.h
 -- 1.5.5.1
 
 
