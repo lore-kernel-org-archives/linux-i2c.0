@@ -1,61 +1,61 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support, v2.
-Date: Tue, 5 Aug 2008 20:41:42 -0700
-Message-ID: <20080805204142.8f824e04.akpm@linux-foundation.org>
-References: <20080731104354.GA21764@linux-sh.org>
-	<20080805143751.3c98b1ac.akpm@linux-foundation.org>
-	<20080806024233.GB581@linux-sh.org>
+From: Carlos Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
+Subject: [PATCH 0/6] I2C: MENELAUS: Improvements on menelaus
+Date: Wed, 06 Aug 2008 14:00:22 -0400
+Message-ID: <4899E6B6.4090109@indt.org.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080806024233.GB581@linux-sh.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: khali@linux-fr.org, xyzzy@speakeasy.org, i2c@lm-sensors.org, linux-sh@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 6 Aug 2008 11:42:33 +0900 Paul Mundt <lethal@linux-sh.org> wrote:
+Hi folks,
 
-> On Tue, Aug 05, 2008 at 02:37:51PM -0700, Andrew Morton wrote:
-> > On Thu, 31 Jul 2008 19:43:54 +0900
-> > Paul Mundt <lethal@linux-sh.org> wrote:
-> > > +	/*
-> > > +	 * The R0P7780LC0011RL FPGA needs a significant delay between
-> > > +	 * data read cycles, otherwise the transciever gets confused and
-> > > +	 * garbage is returned when the read is subsequently aborted.
-> > > +	 *
-> > > +	 * It is not sufficient to wait for BBSY.
-> > > +	 *
-> > > +	 * While this generally only applies to the older SH7780-based
-> > > +	 * Highlanders, the same issue can be observed on SH7785 ones,
-> > > +	 * albeit less frequently. SH7780-based Highlanders may need
-> > > +	 * this to be as high as 1000 ms.
-> > > +	 */
-> > > +	if (iic_read_delay && time_before(jiffies, dev->last_read_time +
-> > > +				 msecs_to_jiffies(iic_read_delay)))
-> > > +		msleep_interruptible(jiffies_to_msecs((dev->last_read_time +
-> > > +				msecs_to_jiffies(iic_read_delay)) - jiffies));
-> > 
-> > If this task has signal_pending(), msleep_interruptible() will
-> > immediately return.
-> > 
-> > > +	cnt = (dev->buf_len + 1) >> 1;
-> > > +	for (i = 0; i < cnt; i++) {
-> > > +		data[i] = ioread16(dev->base + SMTRDR + (i * sizeof(u16)));
-> > > +		dev_dbg(dev->dev, "read data[%x] 0x%04x\n", i, data[i]);
-> > > +	}
-> > > +
-> > > +	smbus_read_data(data, dev->buf, dev->buf_len);
-> > > +
-> > > +	dev->last_read_time = jiffies;
-> > 
-> > In which case I assume that the above will screw up.
-> > 
-> Ah, right. Yes, that should be switched to msleep instead. Feel free to
-> drop the _interruptible part from the patch, or I can send an update if
-> you prefer.
+The patch series that follows contains some improvements and changes on 
+menelaus:
 
-I did that.
+PATCH 1/6: synchronizes the menelaus code with linux-omap tree.
 
-highlander_i2c_wait_xfer_done() might have the same problem?
+PATCH 2/6-5/6: continues synchronizing the menelaus code with linux-omap 
+tree, but with modifications I just recently added:
+
+- Use of macros instead of magic numbers
+- Move menelaus header to include/linux/i2c/
+- Move menelaus register map to include/linux/i2c/menelaus.h
+
+PATCH 6/6: renames menelaus to twl92230:
+
+- After some discussion at linux-omap mailing list, we thought a better 
+idea (for more understandability) to change the menelaus files names to 
+twl92230.
+
+
+This patch series can be applied against most updated mainline tree.
+
+BR,
+
+Carlos.
+
+PS: Thanks to Felipe Balbi for the hints and comments.
+
+-- 
+Carlos Eduardo Aguiar
+Software Engineer
+Mobile Linux Software
+Nokia Institute of Technology - INdT
+E-mail: carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
