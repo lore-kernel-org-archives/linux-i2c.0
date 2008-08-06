@@ -1,7 +1,7 @@
 From: Carlos Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
-Subject: [PATCH 1/6] I2C: MENELAUS: Sync with linux-omap tree.
-Date: Wed, 06 Aug 2008 14:00:48 -0400
-Message-ID: <4899E6D0.6030203@indt.org.br>
+Subject: [PATCH 6/6] I2C: MENELAUS: Renaming menelaus to twl92230
+Date: Wed, 06 Aug 2008 14:01:11 -0400
+Message-ID: <4899E6E7.5020003@indt.org.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,161 +20,110 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Carlos Eduardo Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
 
-This patch synchronizes menelaus code with linux-omap tree.
+This patch renames menelaus files and includes to twl92230,
+as discussed at linux-omap mailing list.
 
-Basically, this sync includes the following modifications on
-menelaus code:
-
-- i2c subsystem print error messages.
-- Adds menelaus_enable_slot() function to enables/disables the mmc
-  slots.
-- Fix MMC slot 2 misconfiguration.
-- Use dev_err() macro instead of pr_err() macro.
-- Few clean-ups.
-
-Also makes a modification at include/asm-arm/arch-omap/menelaus.h,
-prototyping menelaus_enable_slot() function.
+It also fix wrong menelaus chip name at drivers/i2c/chips/Kconfig
 
 Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar-knKY8vlp0dIIdKJ7tpkyPg@public.gmane.org>
 ---
- drivers/i2c/chips/menelaus.c         |   54 +++++++++++++++++++++++----------
- include/asm-arm/arch-omap/menelaus.h |    1 +
- 2 files changed, 38 insertions(+), 17 deletions(-)
+ arch/arm/mach-omap2/board-h4.c               |    2 +-
+ arch/arm/plat-omap/devices.c                 |    2 +-
+ drivers/i2c/chips/Kconfig                    |    4 ++--
+ drivers/i2c/chips/{menelaus.c => twl92230.c} |    2 +-
+ drivers/input/keyboard/omap-keypad.c         |    2 +-
+ include/linux/i2c/{menelaus.h => twl92230.h} |    2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
+ rename drivers/i2c/chips/{menelaus.c => twl92230.c} (99%)
+ rename include/linux/i2c/{menelaus.h => twl92230.h} (99%)
 
-diff --git a/drivers/i2c/chips/menelaus.c b/drivers/i2c/chips/menelaus.c
-index b36db17..18471b6 100644
+diff --git a/arch/arm/mach-omap2/board-h4.c b/arch/arm/mach-omap2/board-h4.c
+index b2e9d95..bde92e1 100644
+--- a/arch/arm/mach-omap2/board-h4.c
++++ b/arch/arm/mach-omap2/board-h4.c
+@@ -21,7 +21,7 @@
+ #include <linux/input.h>
+ #include <linux/err.h>
+ #include <linux/clk.h>
+-#include <linux/i2c/menelaus.h>
++#include <linux/i2c/twl92230.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/mach-types.h>
+diff --git a/arch/arm/plat-omap/devices.c b/arch/arm/plat-omap/devices.c
+index b755ced..8d2ca62 100644
+--- a/arch/arm/plat-omap/devices.c
++++ b/arch/arm/plat-omap/devices.c
+@@ -13,7 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+-#include <linux/i2c/menelaus.h>
++#include <linux/i2c/twl92230.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/io.h>
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index a95cb94..165b77c 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -163,11 +163,11 @@ config SENSORS_TSL2550
+ 	  will be called tsl2550.
+ 
+ config MENELAUS
+-	bool "TWL92330/Menelaus PM chip"
++	bool "TWL92230/Menelaus PM chip"
+ 	depends on I2C=y && ARCH_OMAP24XX
+ 	help
+ 	  If you say yes here you get support for the Texas Instruments
+-	  TWL92330/Menelaus Power Management chip. This include voltage
++	  TWL92230/Menelaus Power Management chip. This include voltage
+ 	  regulators, Dual slot memory card tranceivers, real-time clock
+ 	  and other features that are often used in portable devices like
+ 	  cell phones and PDAs.
+diff --git a/drivers/i2c/chips/menelaus.c b/drivers/i2c/chips/twl92230.c
+similarity index 99%
+rename from drivers/i2c/chips/menelaus.c
+rename to drivers/i2c/chips/twl92230.c
+index 87c4246..614edc0 100644
 --- a/drivers/i2c/chips/menelaus.c
-+++ b/drivers/i2c/chips/menelaus.c
-@@ -153,7 +153,7 @@ static int menelaus_write_reg(int reg, u8 value)
- 	int val = i2c_smbus_write_byte_data(the_menelaus->client, reg, value);
++++ b/drivers/i2c/chips/twl92230.c
+@@ -40,7 +40,7 @@
+ #include <linux/delay.h>
+ #include <linux/rtc.h>
+ #include <linux/bcd.h>
+-#include <linux/i2c/menelaus.h>
++#include <linux/i2c/twl92230.h>
  
- 	if (val < 0) {
--		pr_err(DRIVER_NAME ": write error");
-+		dev_err(&the_menelaus->client->dev, "write error");
- 		return val;
- 	}
- 
-@@ -165,7 +165,7 @@ static int menelaus_read_reg(int reg)
- 	int val = i2c_smbus_read_byte_data(the_menelaus->client, reg);
- 
- 	if (val < 0)
--		pr_err(DRIVER_NAME ": read error");
-+		dev_err(&the_menelaus->client->dev, "read error");
- 
- 	return val;
- }
-@@ -313,6 +313,34 @@ out:
- }
- EXPORT_SYMBOL(menelaus_set_slot_sel);
- 
-+int menelaus_enable_slot(int slot, int enable)
-+{
-+	int ret, val;
-+
-+	mutex_lock(&the_menelaus->lock);
-+	ret = menelaus_read_reg(MENELAUS_MCT_CTRL3);
-+	if (ret < 0)
-+		goto out;
-+	val = ret;
-+	if (slot == 1) {
-+		if (enable)
-+			val |= 1 << 0;
-+		else
-+			val &= ~(1 << 0);
-+	} else {
-+		if (enable)
-+			val |= 1 << 1;
-+		else
-+			val &= ~(1 << 1);
-+	}
-+	ret = menelaus_write_reg(MENELAUS_MCT_CTRL3, val);
-+
-+out:
-+	mutex_unlock(&the_menelaus->lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL(menelaus_enable_slot);
-+
- int menelaus_set_mmc_slot(int slot, int enable, int power, int cd_en)
- {
- 	int ret, val;
-@@ -356,9 +384,9 @@ int menelaus_set_mmc_slot(int slot, int enable, int power, int cd_en)
- 		int b;
- 
- 		if (enable)
--			ret |= 1 << 1;
-+			val |= 1 << 1;
- 		else
--			ret &= ~(1 << 1);
-+			val &= ~(1 << 1);
- 		b = menelaus_read_reg(MENELAUS_MCT_CTRL2);
- 		b &= ~0x03;
- 		b |= power;
-@@ -930,7 +958,7 @@ static int menelaus_set_time(struct device *dev, struct rtc_time *t)
- 		return status;
- 	status = menelaus_write_reg(MENELAUS_RTC_WKDAY, BIN2BCD(t->tm_wday));
- 	if (status < 0) {
--		dev_err(&the_menelaus->client->dev, "rtc write reg %02x "
-+		dev_err(&the_menelaus->client->dev, "rtc write reg %02x"
- 				"err %d\n", MENELAUS_RTC_WKDAY, status);
- 		return status;
- 	}
-@@ -1176,7 +1204,7 @@ static int menelaus_probe(struct i2c_client *client,
- 	/* If a true probe check the device */
- 	rev = menelaus_read_reg(MENELAUS_REV);
- 	if (rev < 0) {
--		pr_err(DRIVER_NAME ": device not found");
-+		dev_err(&client->dev, "device not found");
- 		err = -ENODEV;
- 		goto fail1;
- 	}
-@@ -1196,7 +1224,7 @@ static int menelaus_probe(struct i2c_client *client,
- 		err = request_irq(client->irq, menelaus_irq, IRQF_DISABLED,
- 				  DRIVER_NAME, menelaus);
- 		if (err) {
--			dev_dbg(&client->dev,  "can't get IRQ %d, err %d\n",
-+			dev_dbg(&client->dev,  "can't get IRQ %d, err %d",
- 					client->irq, err);
- 			goto fail1;
- 		}
-@@ -1205,7 +1233,7 @@ static int menelaus_probe(struct i2c_client *client,
- 	mutex_init(&menelaus->lock);
- 	INIT_WORK(&menelaus->work, menelaus_work);
- 
--	pr_info("Menelaus rev %d.%d\n", rev >> 4, rev & 0x0f);
-+	dev_info(&client->dev, "Menelaus rev %d.%d\n", rev >> 4, rev & 0x0f);
- 
- 	val = menelaus_read_reg(MENELAUS_VCORE_CTRL1);
- 	if (val < 0)
-@@ -1260,15 +1288,7 @@ static struct i2c_driver menelaus_i2c_driver = {
- 
- static int __init menelaus_init(void)
- {
--	int res;
--
--	res = i2c_add_driver(&menelaus_i2c_driver);
--	if (res < 0) {
--		pr_err(DRIVER_NAME ": driver registration failed\n");
--		return res;
--	}
--
--	return 0;
-+	return i2c_add_driver(&menelaus_i2c_driver);
- }
- 
- static void __exit menelaus_exit(void)
-diff --git a/include/asm-arm/arch-omap/menelaus.h b/include/asm-arm/arch-omap/menelaus.h
-index 69ed7ee..e1012c1 100644
---- a/include/asm-arm/arch-omap/menelaus.h
-+++ b/include/asm-arm/arch-omap/menelaus.h
-@@ -18,6 +18,7 @@ extern int menelaus_register_mmc_callback(void (*callback)(void *data, u8 card_m
- extern void menelaus_unregister_mmc_callback(void);
- extern int menelaus_set_mmc_opendrain(int slot, int enable);
- extern int menelaus_set_mmc_slot(int slot, int enable, int power, int cd_on);
-+extern int menelaus_enable_slot(int slot, int enable);
- 
- extern int menelaus_set_vmem(unsigned int mV);
- extern int menelaus_set_vio(unsigned int mV);
+ #include <asm/mach-types.h>
+ #include <asm/mach/irq.h>
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index c379d63..51c9118 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -34,7 +34,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/mutex.h>
+ #include <linux/errno.h>
+-#include <linux/i2c/menelaus.h>
++#include <linux/i2c/twl92230.h>
+ #include <asm/arch/gpio.h>
+ #include <asm/arch/keypad.h>
+ #include <asm/irq.h>
+diff --git a/include/linux/i2c/menelaus.h b/include/linux/i2c/twl92230.h
+similarity index 99%
+rename from include/linux/i2c/menelaus.h
+rename to include/linux/i2c/twl92230.h
+index 9587398..ce4ec2a 100644
+--- a/include/linux/i2c/menelaus.h
++++ b/include/linux/i2c/twl92230.h
+@@ -1,5 +1,5 @@
+ /*
+- * include/linux/i2c/menelaus.h
++ * include/linux/i2c/twl92230.h
+  *
+  * Functions to access Menelaus power management chip
+  */
 -- 1.5.5.1
 
 
