@@ -1,66 +1,113 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Thu, 7 Aug 2008 18:14:16 +0200
-Message-ID: <20080807181416.5de4ce6d@hyperion.delvare>
+Date: Thu, 7 Aug 2008 19:19:43 +0200
+Message-ID: <20080807191943.72d1802d@hyperion.delvare>
 References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
 	<20080807131357.59399ddf@hyperion.delvare>
 	<Pine.LNX.4.58.0808070851310.10341@shell4.speakeasy.net>
+	<20080807181416.5de4ce6d@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755683AbYHGQOn@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0808070851310.10341@shell4.speakeasy.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: "D. Kelly" <user.kernel@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, "mailing list: linux-kernel" <linux-kernel@vger.kernel.org>, Linux I2C <i2c@lm-sensors.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080807181416.5de4ce6d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Cc: "D. Kelly" <user.kernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>, "mailing list: linux-kernel" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trent,
-
-On Thu, 7 Aug 2008 09:01:35 -0700 (PDT), Trent Piepho wrote:
-> On Thu, 7 Aug 2008, Jean Delvare wrote:
-> > > One of the biggest reasons people choose to compile things from
-> > > cvs/svn/mercurial/etc. is because it gives them access to newer bug
-> > > fixes and support for things not yet present in the kernel source.  A
-> > > perfect example, the multiproto dvb driver tree.  Users wanting
-> > > support for dvb-s2 devices have to compile drivers outside of the
-> > > kernel because it's simply not available in the kernel and won't be
-> > > for some time.
-> >
-> > So basically you are telling that "thanks" to drivers being maintainers
-> > in external repositories, bugs are not fixed in the upstream kernel in
-> > a timely manner, and new features take more time to go there too? That
-> > must be the reason why kernel developers and users alike don't like
-> > external repositories in the first place.
+On Thu, 7 Aug 2008 18:14:16 +0200, Jean Delvare wrote:
+> Hi Trent,
 > 
-> Code needs to get testing before it's put in the kernel.  How's that
-> supposed to happen if it's not made available outside the kernel tree
-> first?
+> On Thu, 7 Aug 2008 09:01:35 -0700 (PDT), Trent Piepho wrote:
+> > Maybe an option to turn i2c algorithms on could do into the Library
+> > Routines menu.  There are already options for things like the crc routines
+> > here so they can be turned on if an out of tree driver needs them but
+> > nothing in the kernel does.
+> 
+> Having I2C-specific options selectable under the Library menu would
+> probably be even more confusing. However, it would be possible to do
+> something similar under the I2C menu. Much like
+> CONFIG_VIDEO_HELPER_CHIPS_AUTO does for the V4L subsystem:
+> CONFIG_I2C_ALGOS_AUTO would default to Y and would hide I2C algo driver
+> selection (as is the case in 2.6.26), changing it to N would present
+> the old menu for users to select the aldo drivers manually (as was the
+> case in 2.6.25.)
 
-linux-next.
+Something like this...
 
-> Why does the kernel build system support building out of tree modules if no
-> one should do it?
+Subject: i2c: Let users select algorithm drivers manually again
 
-I guess it can be convenient at times. But people doing that shouldn't
-dare to complain that everything isn't perfect for them.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/Kconfig       |   14 ++++++++++++++
+ drivers/i2c/algos/Kconfig |   11 ++++++++---
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-> Maybe an option to turn i2c algorithms on could do into the Library
-> Routines menu.  There are already options for things like the crc routines
-> here so they can be turned on if an out of tree driver needs them but
-> nothing in the kernel does.
+--- linux-2.6.27-rc2.orig/drivers/i2c/Kconfig	2008-04-17 04:49:44.000000000 +0200
++++ linux-2.6.27-rc2/drivers/i2c/Kconfig	2008-08-07 19:14:37.000000000 +0200
+@@ -38,6 +38,20 @@ config I2C_CHARDEV
+ 	  This support is also available as a module.  If so, the module 
+ 	  will be called i2c-dev.
+ 
++config I2C_HELPER_AUTO
++	bool "Autoselect pertinent helper modules"
++	default y
++	help
++	  Some I2C bus drivers require so-called "I2C algorithm" modules
++	  to work. These are basically software-only abstractions of generic
++	  I2C interfaces. This option will autoselect them so that you don't
++	  have to care.
++
++	  Unselect this only if you need to enable additional helper
++	  modules, for example for use with external I2C bus drivers.
++
++	  In doubt, say Y.
++
+ source drivers/i2c/algos/Kconfig
+ source drivers/i2c/busses/Kconfig
+ source drivers/i2c/chips/Kconfig
+--- linux-2.6.27-rc2.orig/drivers/i2c/algos/Kconfig	2008-07-14 11:14:59.000000000 +0200
++++ linux-2.6.27-rc2/drivers/i2c/algos/Kconfig	2008-08-07 18:50:43.000000000 +0200
+@@ -2,15 +2,20 @@
+ # I2C algorithm drivers configuration
+ #
+ 
++menu "I2C Algorithms"
++	depends on !I2C_HELPER_AUTO
++
+ config I2C_ALGOBIT
+-	tristate
++	tristate "I2C bit-banging interfaces"
+ 
+ config I2C_ALGOPCF
+-	tristate
++	tristate "I2C PCF 8584 interfaces"
+ 
+ config I2C_ALGOPCA
+-	tristate
++	tristate "I2C PCA 9564 interfaces"
+ 
+ config I2C_ALGO_SGI
+ 	tristate
+ 	depends on SGI_IP22 || SGI_IP32 || X86_VISWS
++
++endmenu
 
-Having I2C-specific options selectable under the Library menu would
-probably be even more confusing. However, it would be possible to do
-something similar under the I2C menu. Much like
-CONFIG_VIDEO_HELPER_CHIPS_AUTO does for the V4L subsystem:
-CONFIG_I2C_ALGOS_AUTO would default to Y and would hide I2C algo driver
-selection (as is the case in 2.6.26), changing it to N would present
-the old menu for users to select the aldo drivers manually (as was the
-case in 2.6.25.)
-
-Which doesn't change my point that most people complaining about the
-change would rather merge their drivers in the upstream kernel.
+Comment anyone?
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
