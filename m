@@ -1,13 +1,12 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Thu, 7 Aug 2008 13:13:57 +0200
-Message-ID: <20080807131357.59399ddf@hyperion.delvare>
-References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
+Subject: [PATCH] i2c: Fix NULL pointer dereference in
+	i2c_new_probed_device
+Date: Thu, 7 Aug 2008 15:12:30 +0200
+Message-ID: <20080807151230.5506c047@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,109 +16,38 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "D. Kelly" <user.kernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>, "mailing list: linux-kernel" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+From: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 
-Sorry for the late answer, I am just back from vacation.
+Fix a NULL pointer dereference that happened when calling
+i2c_new_probed_device on one of the addresses for which we use byte
+reads instead of quick write for detection purpose (that is: 0x30-0x37
+and 0x50-0x5f).
 
-On Wed, 16 Jul 2008 12:33:57 -0700, D. Kelly wrote:
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3845de25c5f83cd52729570f7b501679d37ca8de
-> 
-> The patch at the preceeding url disables the users ability to select
-> I2C algorithms.  Specifically the reason stated was:
-> 
-> "The algorithm drivers are
-> helper drivers that are selected automatically
-> as needed. There's no point in listing them in the config menu, it can
-> only confuse users and waste their time."
-> 
-> The algorithm drivers will not be 'selected automatically as needed'
-> if the user is compiling something outside of the kernel that requires
-> them!  Just one example, there are drivers found in the V4L dvb driver
-> tree that require i2c bit-banging be enabled.  The drivers are now
-> broken because the user is not allowed to enable bit-banging himself.
-> The only way around this is to revert the patch manually or enable
-> something else in the kernel, that he doesn't need, just to get
-> bit-banging.
+Signed-off-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Note how bad a user experience this is in the first place: not only the
-users don't get their driver directly in the kernel tree, but they also
-need to follow specific instructions about how to configure the kernel
-for said driver to build externally. This can be automated for drivers
-which live in the kernel tree.
+--- linux-2.6.27-rc2.orig/drivers/i2c/i2c-core.c	2008-08-05 18:17:05.000000000 +0200
++++ linux-2.6.27-rc2/drivers/i2c/i2c-core.c	2008-08-07 14:42:28.000000000 +0200
+@@ -1451,9 +1451,11 @@ i2c_new_probed_device(struct i2c_adapter
+ 		if ((addr_list[i] & ~0x07) == 0x30
+ 		 || (addr_list[i] & ~0x0f) == 0x50
+ 		 || !i2c_check_functionality(adap, I2C_FUNC_SMBUS_QUICK)) {
++			union i2c_smbus_data data;
++
+ 			if (i2c_smbus_xfer(adap, addr_list[i], 0,
+ 					   I2C_SMBUS_READ, 0,
+-					   I2C_SMBUS_BYTE, NULL) >= 0)
++					   I2C_SMBUS_BYTE, &data) >= 0)
+ 				break;
+ 		} else {
+ 			if (i2c_smbus_xfer(adap, addr_list[i], 0,
 
-A 3rd way around this is to simply merge the driver in question in the
-upstream kernel. This makes things much easier for kernel maintainers,
-drivers authors and end users.
-
-Alternatively, I am curious if our build system couldn't allow 3rd
-party drivers to select in-tree modules. Obviously this would require
-the complete kernel source tree to be available, instead of just the
-header and config files as is usually the case. Sam, is this possible
-to do that at this time? If not, is this something that could be
-implemented, or is this too much work for the thin benefit?
-
-> It's a very bad idea to assume that nothing built outside of the
-> kernel may need i2c algorithms.  Furthermore, the whole point of being
-> able to customize your kernel is so you can select only the things
-> which you need.  It makes no good sense to intentionally
-> disable/restrict the users ability to do so.  Additionally, assuming
-> the ability to select i2c algorithms will only confuse the user and
-> waste their time is ridiculous.  The user should be allowed to decide
-> for himself what he needs regarding this!
-
-You obviously haven't been the i2c subsystem maintainer for years. I
-have been, and clearly remember users repeatedly asking about these
-options. More generally, the kernel configuration menu has grown over
-the past few years to a point where newcomers can hardly make their way
-through all the options. Greg KH's "Linux kernel in a nutshell" helps a
-bit, but still, making the kernel configuration as simple as possible
-still stands as a valid goal.
-
-> One of the biggest reasons people choose to compile things from
-> cvs/svn/mercurial/etc. is because it gives them access to newer bug
-> fixes and support for things not yet present in the kernel source.  A
-> perfect example, the multiproto dvb driver tree.  Users wanting
-> support for dvb-s2 devices have to compile drivers outside of the
-> kernel because it's simply not available in the kernel and won't be
-> for some time.
-
-So basically you are telling that "thanks" to drivers being maintainers
-in external repositories, bugs are not fixed in the upstream kernel in
-a timely manner, and new features take more time to go there too? That
-must be the reason why kernel developers and users alike don't like
-external repositories in the first place.
-
-And please don't tell me how some drivers "must" live in external
-repositories. They just don't. In almost all cases that's a poor
-decision by the driver author, period.
-
-> I've contacted one of the i2c subsystem maintainers, Jean Delvare, but
-> unfortunately he doesn't seem to care about this problem and his
-> advice in dealing with it is to "Just get these drivers merged in the
-> kernel. Ah ah ah!"...
-
-Quoting people out of context and without their permission isn't fair.
-You forget to mention that you contacted me anonymously, boldly claimed
-that the 2.6.26 kernel was broken, omitted to explain exactly how the
-change in question was a problem to you, and insulted me later in the
-course of the discussion. So you received the treatment you deserved
-(i.e. I ignored you.)
-
-> Clearly the more sane and reasonable solution is to not cripple the
-> menu options in the first place, especially when it creates no benefit
-> and only serves to limit/restrict the users ability to select what he
-> needs.  I'm asking that the patch be reverted and anyone in agreement
-> to please voice their opinion here in public.
-
-That was 3 weeks ago and apparently nobody spoke in your favor. So
-either nobody cares, or everyone is on vacation. Or both.
-
-Note though that bug #11140 has been created for the same issue:
-http://bugzilla.kernel.org/show_bug.cgi?id=11140
 
 -- 
 Jean Delvare
