@@ -1,12 +1,14 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Fix NULL pointer dereference in
-	i2c_new_probed_device
-Date: Thu, 7 Aug 2008 15:12:30 +0200
-Message-ID: <20080807151230.5506c047@hyperion.delvare>
+From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
+Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
+Date: Thu, 7 Aug 2008 09:01:35 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0808070851310.10341@shell4.speakeasy.net>
+References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
+	<20080807131357.59399ddf@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080807131357.59399ddf-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,41 +18,36 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>, "D. Kelly" <user.kernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "mailing list: linux-kernel" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+On Thu, 7 Aug 2008, Jean Delvare wrote:
+> > One of the biggest reasons people choose to compile things from
+> > cvs/svn/mercurial/etc. is because it gives them access to newer bug
+> > fixes and support for things not yet present in the kernel source.  A
+> > perfect example, the multiproto dvb driver tree.  Users wanting
+> > support for dvb-s2 devices have to compile drivers outside of the
+> > kernel because it's simply not available in the kernel and won't be
+> > for some time.
+>
+> So basically you are telling that "thanks" to drivers being maintainers
+> in external repositories, bugs are not fixed in the upstream kernel in
+> a timely manner, and new features take more time to go there too? That
+> must be the reason why kernel developers and users alike don't like
+> external repositories in the first place.
 
-Fix a NULL pointer dereference that happened when calling
-i2c_new_probed_device on one of the addresses for which we use byte
-reads instead of quick write for detection purpose (that is: 0x30-0x37
-and 0x50-0x5f).
+Code needs to get testing before it's put in the kernel.  How's that
+supposed to happen if it's not made available outside the kernel tree
+first?
 
-Signed-off-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/i2c-core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Why does the kernel build system support building out of tree modules if no
+one should do it?
 
---- linux-2.6.27-rc2.orig/drivers/i2c/i2c-core.c	2008-08-05 18:17:05.000000000 +0200
-+++ linux-2.6.27-rc2/drivers/i2c/i2c-core.c	2008-08-07 14:42:28.000000000 +0200
-@@ -1451,9 +1451,11 @@ i2c_new_probed_device(struct i2c_adapter
- 		if ((addr_list[i] & ~0x07) == 0x30
- 		 || (addr_list[i] & ~0x0f) == 0x50
- 		 || !i2c_check_functionality(adap, I2C_FUNC_SMBUS_QUICK)) {
-+			union i2c_smbus_data data;
-+
- 			if (i2c_smbus_xfer(adap, addr_list[i], 0,
- 					   I2C_SMBUS_READ, 0,
--					   I2C_SMBUS_BYTE, NULL) >= 0)
-+					   I2C_SMBUS_BYTE, &data) >= 0)
- 				break;
- 		} else {
- 			if (i2c_smbus_xfer(adap, addr_list[i], 0,
-
-
--- 
-Jean Delvare
+Maybe an option to turn i2c algorithms on could do into the Library
+Routines menu.  There are already options for things like the crc routines
+here so they can be turned on if an out of tree driver needs them but
+nothing in the kernel does.
 
 _______________________________________________
 i2c mailing list
