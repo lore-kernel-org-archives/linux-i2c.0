@@ -1,66 +1,44 @@
-From: mkrufky@linuxtv.org
-Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Thu, 7 Aug 2008 17:34:30 -0400
-Message-ID: <489B6A66.40605@linuxtv.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] hwmon: (lm75) Drop legacy i2c driver
+Date: Thu, 7 Aug 2008 14:58:52 -0700
+Message-ID: <200808071458.52213.david-b@pacbell.net>
+References: <20080807091432.6a5eab3f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758035AbYHGVfs@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org
-Cc: sam@ravnborg.org, user.kernel@gmail.com, linux-kernel@vger.kernel.org, i2c@lm-sensors.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080807091432.6a5eab3f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi Michael,
->
-> On Thu, 7 Aug 2008 15:03:36 -0400, Michael Krufky wrote:
->   
->> I agree with Trent and D.Kelly
->>
->> These options should be made available to the user -- We should go
->> with the patch that Jean posted, "Subject: i2c: Let users select
->> algorithm drivers manually again" -- this is a fair compromise for
->> both sides -- users that dont know should leave the automatic
->> selection enabled.  Users that know better can disable the automatic
->> selection and enable what they need.
->>
->> The statement, "just have the external driver merged into the kernel"
->> is not a solution.
->>     
->
-> Why not, please? A vast majority of drivers work fine that way today. I
-> am still waiting for someone to give me a good reason why some other
-> drivers supposedly can't be merged upstream (something better than
-> "believe me, it's impossible".)
->
->   
+On Thursday 07 August 2008, Jean Delvare wrote:
+> David, if you haven't already, can you please test this patch and
+> confirm it doesn't cause any regression for you? Thanks.
 
-Nobody said that a driver "...can't be merged upstream" ...  but 
-REQUIRING a driver to be merged upstream to allow development and / or 
-testing is a problem, IMHO.
+Worked for me.  But I found a bizarre non-I2C problem.
 
-If you required that all of my development happens within a git 
-development repository, preventing me from working against distro-kernel 
-xyz, then I would simply spend more time on Windows driver development 
-and my Linux contributions would cease.
+It seems the second element of my i2c_boardinfo array
+is getting its "type" field clobbered very early ...
+it's correct in the object file, but not when the table
+gets handed off to the I2C code.  New behavior.  :(
 
-External subsystem development repositories allow us to work against 
-stable kernels at our own pace.  When driver X is ready to be merged, it 
-gets merged.
+- Dave
 
-With the model that you propose, "use linux-next for development" ... 
-well then what about testing?  Who is going to test my driver if it 
-requires a full kernel compile?
 
-Khali, you know me, and you know that I am always in favor of merging 
-drivers into the kernel.  The ability to choose a kernel's features is 
-an option that should not be removed.
 
->> Removing the option to build those additional algos is a regression, IMHO
->>     
->
-> Will be addressed soon, do not worry.
-Regards,
 
-Mike
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
