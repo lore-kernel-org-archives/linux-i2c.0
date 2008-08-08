@@ -1,54 +1,68 @@
-From: Stefan Richter <stefanr-MtYdepGKPcBMYopoZt5u/LNAH6kLmebB@public.gmane.org>
-Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Fri, 08 Aug 2008 02:17:52 +0200
-Message-ID: <489B90B0.5070303@s5r6.in-berlin.de>
-References: <489B6A66.40605@linuxtv.org>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support, v2.
+Date: Fri, 8 Aug 2008 16:15:34 +0900
+Message-ID: <20080808071534.GA6501@linux-sh.org>
+References: <20080731104354.GA21764@linux-sh.org> <20080805143751.3c98b1ac.akpm@linux-foundation.org> <20080806024233.GB581@linux-sh.org> <20080805204142.8f824e04.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <489B6A66.40605-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org
-Cc: user.kernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080805204142.8f824e04.akpm@linux-foundation.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: khali@linux-fr.org, xyzzy@speakeasy.org, i2c@lm-sensors.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org wrote:
-> With the model that you propose, "use linux-next for development" ... 
-> well then what about testing?  Who is going to test my driver if it 
-> requires a full kernel compile?
+On Tue, Aug 05, 2008 at 08:41:42PM -0700, Andrew Morton wrote:
+> On Wed, 6 Aug 2008 11:42:33 +0900 Paul Mundt <lethal@linux-sh.org> wrote:
+> 
+> > On Tue, Aug 05, 2008 at 02:37:51PM -0700, Andrew Morton wrote:
+> > > On Thu, 31 Jul 2008 19:43:54 +0900
+> > > Paul Mundt <lethal@linux-sh.org> wrote:
+> > > > +	/*
+> > > > +	 * The R0P7780LC0011RL FPGA needs a significant delay between
+> > > > +	 * data read cycles, otherwise the transciever gets confused and
+> > > > +	 * garbage is returned when the read is subsequently aborted.
+> > > > +	 *
+> > > > +	 * It is not sufficient to wait for BBSY.
+> > > > +	 *
+> > > > +	 * While this generally only applies to the older SH7780-based
+> > > > +	 * Highlanders, the same issue can be observed on SH7785 ones,
+> > > > +	 * albeit less frequently. SH7780-based Highlanders may need
+> > > > +	 * this to be as high as 1000 ms.
+> > > > +	 */
+> > > > +	if (iic_read_delay && time_before(jiffies, dev->last_read_time +
+> > > > +				 msecs_to_jiffies(iic_read_delay)))
+> > > > +		msleep_interruptible(jiffies_to_msecs((dev->last_read_time +
+> > > > +				msecs_to_jiffies(iic_read_delay)) - jiffies));
+> > > 
+> > > If this task has signal_pending(), msleep_interruptible() will
+> > > immediately return.
+> > > 
+> > > > +	cnt = (dev->buf_len + 1) >> 1;
+> > > > +	for (i = 0; i < cnt; i++) {
+> > > > +		data[i] = ioread16(dev->base + SMTRDR + (i * sizeof(u16)));
+> > > > +		dev_dbg(dev->dev, "read data[%x] 0x%04x\n", i, data[i]);
+> > > > +	}
+> > > > +
+> > > > +	smbus_read_data(data, dev->buf, dev->buf_len);
+> > > > +
+> > > > +	dev->last_read_time = jiffies;
+> > > 
+> > > In which case I assume that the above will screw up.
+> > > 
+> > Ah, right. Yes, that should be switched to msleep instead. Feel free to
+> > drop the _interruptible part from the patch, or I can send an update if
+> > you prefer.
+> 
+> I did that.
+> 
+> highlander_i2c_wait_xfer_done() might have the same problem?
 
-We almost _never_ use linux-next in the way that we base our development 
-on it.  We use it to prepare integration.
+Yes, that should also not be interruptible, we should be using
+wait_for_completion_timeout() there instead, or we risk checking for ACK
+too early and potentially resetting the device on abnormality. The
+-EAGAIN handling should do the correct thing in the interrupted case, but
+obviously it's undesirable to reset the controller in such a situation.
 
-
-BTW, looking back at this thread in the list archive, I see some people 
-thoroughly confusing
-   - unmerged code,
-   - external developer repositories/ external patchkits,
-   - module source files outside a complete kernel source directory.
-These are all independent matters.
-
-All code starts as unmerged code.
-All developers use external repositories.
-
-However, module source files which are outside of the kernel source 
-directory are not quite the norm.  (Because the kernel build system 
-doesn't support this.)
--- 
-Stefan Richter
--=====-==--- =--- -=---
-http://arcgraph.de/sr/
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Please drop the interruptible part from there as well.
