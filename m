@@ -1,57 +1,55 @@
-From: Trent Piepho <xyzzy@speakeasy.org>
-Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Fri, 8 Aug 2008 10:52:05 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0808081037080.3151@shell2.speakeasy.net>
-References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
- <20080807131357.59399ddf@hyperion.delvare> <Pine.LNX.4.58.0808070851310.10341@shell4.speakeasy.net>
- <20080807181416.5de4ce6d@hyperion.delvare> <Pine.LNX.4.58.0808071621060.22108@shell2.speakeasy.net>
- <20080808113753.03f49efe@hyperion.delvare>
+From: Seth Heasley <seth.heasley@intel.com>
+Subject: [PATCH 2.6.26.2] i2c-i801: SMBus patch for Intel Ibex Peak DeviceIDs
+Date: Fri, 8 Aug 2008 16:02:28 -0700
+Message-ID: <200808081602.28479.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758568AbYHHRwU@vger.kernel.org>
-In-Reply-To: <20080808113753.03f49efe@hyperion.delvare>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759226AbYHHW5q@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "D. Kelly" <user.kernel@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, "mailing list: linux-kernel" <linux-kernel@vger.kernel.org>, Linux I2C <i2c@lm-sensors.org>
+To: khali@linux-fr.org, linux-kernel@vger.kernel.org, i2c@lm-sensors.org
+Cc: seth.heasley@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 8 Aug 2008, Jean Delvare wrote:
-> On Thu, 7 Aug 2008 16:41:10 -0700 (PDT), Trent Piepho wrote:
-> > Expecting every developer to keep abreast of linux-next and the tens of
-> > thousands of patches it gets just isn't realisitic.
-> >
-> > The embedded platforms I develop on won't run linux-next.  Continuously
-> > porting them to linux-next is simply impossible.  The man hours required to
-> > do that would be staggering.
->
-> Once again a "believe me it's impossible" without any good reason
-> given. I fail to see why embedded platforms would be any different from
-> other platforms or subsystem trees. Please enlighten me.
+This patch adds the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
 
-Because they usually require lots of additional patches that aren't in the
-kernel.  Sometimes embedded developers try to get these patches into the
-mainline kernel, but some maintainers aren't interested in accepting
-patches that don't appear to be useful to desktop users.
+Signed-off by: Seth Heasley <seth.heasley@intel.com>
 
-> > The pool of testers available to a driver that requires running linux-next
-> > is going to be orders of magnitude less that a driver that can be compiled
-> > out of tree against 2.6.19 to 2.6.27.
->
-> Except that distributions start packaging linux-next, while in general
-> they don't package out-of-tree versions of packages that are also
-> available in the kernel tree. If the v4l-dvb tip was in linux-next (it
+--- linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c.orig   2008-08-08 11:28:08.000000000 -0700
++++ linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c        2008-08-08 11:32:18.000000000 -0700
+@@ -43,6 +43,7 @@
+   Tolapai               0x5032     32     hard     yes     yes     yes
+   ICH10                 0x3a30     32     hard     yes     yes     yes
+   ICH10                 0x3a60     32     hard     yes     yes     yes
++  PCH                   0x3b30     32     hard     yes     yes     yes
 
-Sure they do.  There are packages of the latest v4l-dvb, nvidia and ATI
-drivers, and more.  There is even a system, DKMS, used to allow kernel
-module source packages to be installed and automatically rebuilt for new
-kernels.
+   Features supported by this driver:
+   Software PEC                     no
+@@ -592,6 +593,7 @@
+        { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
+        { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+        { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
++       { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
+        { 0, }
+ };
 
-You can install and run a new module without even rebooting.  Installing
-linux next is quite a bit more complex.  Users won't test your driver if
-they have to install a new kernel for every revision.
+@@ -615,6 +617,7 @@
+        case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
+        case PCI_DEVICE_ID_INTEL_ICH10_4:
+        case PCI_DEVICE_ID_INTEL_ICH10_5:
++       case PCI_DEVICE_ID_INTEL_PCH_2:
+                i801_features |= FEATURE_I2C_BLOCK_READ;
+                /* fall through */
+        case PCI_DEVICE_ID_INTEL_82801DB_3:
+--- linux-2.6.26.2/drivers/i2c/busses/Kconfig.orig      2008-08-08 11:27:52.000000000 -0700
++++ linux-2.6.26.2/drivers/i2c/busses/Kconfig   2008-08-08 11:30:42.000000000 -0700
+@@ -182,6 +182,7 @@
+            ICH9
+            Tolapai
+            ICH10
++           PCH
 
-It's a nightmare for development too.  I can't develop the entire kernel,
-it's too big and there are too many changes.  If my driver has become
-unstable, is it something I did or one of the 20,000 patches that have
-appeared in linux-next?  Like Mike said, one needs a stable platform to
-develop on.
+          This driver can also be built as a module.  If so, the module
+          will be called i2c-i801.
