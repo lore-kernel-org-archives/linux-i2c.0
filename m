@@ -1,15 +1,13 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH V11] I2C driver for IMX
-Date: Fri, 8 Aug 2008 11:01:10 +0100
-Message-ID: <20080808100109.GA11503@trinity.fluff.org>
-References: <g66mel$v6s$1@ger.gmane.org>
-	<20080808115116.59d84d90@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.26-git] i2c: correct some size_t printk formats
+Date: Fri, 8 Aug 2008 12:32:48 +0200
+Message-ID: <20080808123248.37ee105f@hyperion.delvare>
+References: <200807262138.27799.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20080808115116.59d84d90-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <200807262138.27799.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,55 +17,87 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 08, 2008 at 11:51:16AM +0200, Jean Delvare wrote:
-> On Wed, 23 Jul 2008 10:20:12 +0300, Darius wrote:
-> > Description:
-> > 
-> > Implementation of I2C Adapter/Algorithm Driver
-> > for I2C Bus integrated in Freescale's i.MXL and i.MX1 processors
-> > 
-> > Changes from V10 version:
-> > 
-> > - adapter class changed to I2C_CLASS_ALL
-> 
-> Not a smart move if you ask me. All embedded platforms are moving away
-> from I2C probing and now use I2C device description at the platform
-> level. I expect I2C_CLASS_ALL to be discarded in 2.6.28. Almost all
-> hwmon and rtc drivers have been converted to the new I2C device driver
-> matching scheme at this point, and the few remaining ones will
-> definitely be converted for 2.6.28, hopefully with all the other legacy
-> I2C drivers in the kernel tree.
-> 
-> > - changes regarding new IMX Clock API
-> > 
-> > Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> 
-> Ben, this driver has been through many iterations already. Maybe it's
-> time for you to pick it up?
+Hi David,
 
-Yes, I think it is pretty much ready. If a version without the changelog
-is submitted I will look at queueing it for the next merge window.
- 
-> -- 
-> Jean Delvare
+On Sat, 26 Jul 2008 21:38:27 -0700, David Brownell wrote:
+> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 > 
-> -------------------------------------------------------------------
-> List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-> FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-> Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+> Fix various printk format strings where %zd was passed a size_t;
+> those should be %zu instead.  (Courtesy of a version of GCC which
+> warns when these details are wrong.)
+> 
+> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> ---
+>  drivers/i2c/chips/at24.c |    8 ++++----
+>  drivers/i2c/i2c-dev.c    |    4 ++--
+> 
+> --- a/drivers/i2c/chips/at24.c	2008-07-26 21:05:14.000000000 -0700
+> +++ b/drivers/i2c/chips/at24.c	2008-07-26 21:05:26.000000000 -0700
+> @@ -188,7 +188,7 @@ static ssize_t at24_eeprom_read(struct a
+>  			count = I2C_SMBUS_BLOCK_MAX;
+>  		status = i2c_smbus_read_i2c_block_data(client, offset,
+>  				count, buf);
+> -		dev_dbg(&client->dev, "smbus read %zd@%d --> %d\n",
+> +		dev_dbg(&client->dev, "smbus read %zu@%d --> %d\n",
+>  				count, offset, status);
+>  		return (status < 0) ? -EIO : status;
+>  	}
+> @@ -214,7 +214,7 @@ static ssize_t at24_eeprom_read(struct a
+>  	msg[1].len = count;
+>  
+>  	status = i2c_transfer(client->adapter, msg, 2);
+> -	dev_dbg(&client->dev, "i2c read %zd@%d --> %d\n",
+> +	dev_dbg(&client->dev, "i2c read %zu@%d --> %d\n",
+>  			count, offset, status);
+>  
+>  	if (status == 2)
+> @@ -334,7 +334,7 @@ static ssize_t at24_eeprom_write(struct 
+>  			if (status == 1)
+>  				status = count;
+>  		}
+> -		dev_dbg(&client->dev, "write %zd@%d --> %zd (%ld)\n",
+> +		dev_dbg(&client->dev, "write %zu@%d --> %zd (%ld)\n",
+>  				count, offset, status, jiffies);
+>  
+>  		if (status == count)
+> @@ -512,7 +512,7 @@ static int at24_probe(struct i2c_client 
+>  
+>  	i2c_set_clientdata(client, at24);
+>  
+> -	dev_info(&client->dev, "%Zd byte %s EEPROM %s\n",
+> +	dev_info(&client->dev, "%zu byte %s EEPROM %s\n",
+>  		at24->bin.size, client->name,
+>  		writable ? "(writable)" : "(read-only)");
+>  	dev_dbg(&client->dev,
+> --- a/drivers/i2c/i2c-dev.c	2008-07-26 21:05:14.000000000 -0700
+> +++ b/drivers/i2c/i2c-dev.c	2008-07-26 21:05:26.000000000 -0700
+> @@ -147,7 +147,7 @@ static ssize_t i2cdev_read (struct file 
+>  	if (tmp==NULL)
+>  		return -ENOMEM;
+>  
+> -	pr_debug("i2c-dev: i2c-%d reading %zd bytes.\n",
+> +	pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
+>  		iminor(file->f_path.dentry->d_inode), count);
+>  
+>  	ret = i2c_master_recv(client,tmp,count);
+> @@ -175,7 +175,7 @@ static ssize_t i2cdev_write (struct file
+>  		return -EFAULT;
+>  	}
+>  
+> -	pr_debug("i2c-dev: i2c-%d writing %zd bytes.\n",
+> +	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
+>  		iminor(file->f_path.dentry->d_inode), count);
+>  
+>  	ret = i2c_master_send(client,tmp,count);
+
+Applied, thanks.
 
 -- 
--- 
-Ben
-
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
-
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
