@@ -1,65 +1,54 @@
-From: Trent Piepho <xyzzy@speakeasy.org>
+From: Stefan Richter <stefanr-MtYdepGKPcBMYopoZt5u/LNAH6kLmebB@public.gmane.org>
 Subject: Re: Problem with restricted I2C algorithms in kernel 2.6.26!
-Date: Thu, 7 Aug 2008 16:41:10 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0808071621060.22108@shell2.speakeasy.net>
-References: <5ab239b10807161233i6c1c4d0we01ea1b8e6ccaa5b@mail.gmail.com>
- <20080807131357.59399ddf@hyperion.delvare> <Pine.LNX.4.58.0808070851310.10341@shell4.speakeasy.net>
- <20080807181416.5de4ce6d@hyperion.delvare>
+Date: Fri, 08 Aug 2008 02:17:52 +0200
+Message-ID: <489B90B0.5070303@s5r6.in-berlin.de>
+References: <489B6A66.40605@linuxtv.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755630AbYHGXlV@vger.kernel.org>
-In-Reply-To: <20080807181416.5de4ce6d@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "D. Kelly" <user.kernel@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, "mailing list: linux-kernel" <linux-kernel@vger.kernel.org>, Linux I2C <i2c@lm-sensors.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <489B6A66.40605-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org
+Cc: user.kernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 7 Aug 2008, Jean Delvare wrote:
-> On Thu, 7 Aug 2008 09:01:35 -0700 (PDT), Trent Piepho wrote:
-> > On Thu, 7 Aug 2008, Jean Delvare wrote:
-> > > > One of the biggest reasons people choose to compile things from
-> > > > cvs/svn/mercurial/etc. is because it gives them access to newer bug
-> > > > fixes and support for things not yet present in the kernel source.  A
-> > > > perfect example, the multiproto dvb driver tree.  Users wanting
-> > > > support for dvb-s2 devices have to compile drivers outside of the
-> > > > kernel because it's simply not available in the kernel and won't be
-> > > > for some time.
-> > >
-> > > So basically you are telling that "thanks" to drivers being maintainers
-> > > in external repositories, bugs are not fixed in the upstream kernel in
-> > > a timely manner, and new features take more time to go there too? That
-> > > must be the reason why kernel developers and users alike don't like
-> > > external repositories in the first place.
-> >
-> > Code needs to get testing before it's put in the kernel.  How's that
-> > supposed to happen if it's not made available outside the kernel tree
-> > first?
->
-> linux-next.
+mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org wrote:
+> With the model that you propose, "use linux-next for development" ... 
+> well then what about testing?  Who is going to test my driver if it 
+> requires a full kernel compile?
 
-Expecting every developer to keep abreast of linux-next and the tens of
-thousands of patches it gets just isn't realisitic.
+We almost _never_ use linux-next in the way that we base our development 
+on it.  We use it to prepare integration.
 
-The embedded platforms I develop on won't run linux-next.  Continuously
-porting them to linux-next is simply impossible.  The man hours required to
-do that would be staggering.
 
-The pool of testers available to a driver that requires running linux-next
-is going to be orders of magnitude less that a driver that can be compiled
-out of tree against 2.6.19 to 2.6.27.
+BTW, looking back at this thread in the list archive, I see some people 
+thoroughly confusing
+   - unmerged code,
+   - external developer repositories/ external patchkits,
+   - module source files outside a complete kernel source directory.
+These are all independent matters.
 
-> Having I2C-specific options selectable under the Library menu would
-> probably be even more confusing. However, it would be possible to do
-> something similar under the I2C menu. Much like
-> CONFIG_VIDEO_HELPER_CHIPS_AUTO does for the V4L subsystem:
-> CONFIG_I2C_ALGOS_AUTO would default to Y and would hide I2C algo driver
-> selection (as is the case in 2.6.26), changing it to N would present
-> the old menu for users to select the aldo drivers manually (as was the
-> case in 2.6.25.)
+All code starts as unmerged code.
+All developers use external repositories.
 
-This seems perfectly reasonable to me.
+However, module source files which are outside of the kernel source 
+directory are not quite the norm.  (Because the kernel build system 
+doesn't support this.)
+-- 
+Stefan Richter
+-=====-==--- =--- -=---
+http://arcgraph.de/sr/
 
-> Which doesn't change my point that most people complaining about the
-> change would rather merge their drivers in the upstream kernel.
-
-Somtimes maintainers aren't interested in the drivers.....
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
