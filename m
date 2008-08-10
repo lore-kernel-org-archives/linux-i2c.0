@@ -1,26 +1,69 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] i2c: Renesas Highlander FPGA SMBus support, v2.
-Date: Mon, 11 Aug 2008 00:31:46 +0900
-Message-ID: <20080810153146.GA29351@linux-sh.org>
-References: <20080731104354.GA21764@linux-sh.org> <20080810162931.3d9221af@hyperion.delvare> <20080810145053.GA9412@renesas.com> <20080810171342.14844957@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 00/03] i2c-i801: Add basic interrupt support
+Date: Sun, 10 Aug 2008 19:05:22 +0200
+Message-ID: <20080810190522.76a61673@hyperion.delvare>
+References: <488762A0.8030409@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080810171342.14844957@hyperion.delvare>
-Sender: linux-sh-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Trent Piepho <xyzzy@speakeasy.org>, Andrew Morton <akpm@linux-foundation.org>, i2c@lm-sensors.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <488762A0.8030409-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Hans-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Aug 10, 2008 at 05:13:42PM +0200, Jean Delvare wrote:
-> On Sun, 10 Aug 2008 23:50:54 +0900, Paul Mundt wrote:
-> > Hopefully that's answered above. Let me know if you have any other
-> > concerns or suggestions.
-> 
-> OK. I've fixed the strlcpy size issue myself, together with a couple
-> checkpatch warnings. The resulting patch is there:
-> http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/i2c-renesas-highlander-fpga-smbus-support.patch
-> It is queued for 2.6.28.
-> 
-Looks good, thanks Jean.
+SGkgSXZvLAoKT24gV2VkLCAyMyBKdWwgMjAwOCAxODo1NjowMCArMDIwMCwgSXZvIE1hbmNhIHdy
+b3RlOgo+IEhleSBBbGwsCj4gCj4gSXQncyBiZWVuIGEgd2hpbGUgc2luY2UgSSBsYXN0IHBvc3Rl
+ZCBhYm91dCB0aGlzIG1hdHRlciwgYnV0IHRoZSBwYXRjaCAKPiBpcyBmaW5hbGx5IHRoZXJlLgo+
+IAo+IFRoaXMgcGF0Y2ggYWRkcyBiYXNpYyBpbnRlcnJ1cHQgc3VwcG9ydCB0byB0aGUgaTJjLWk4
+MDEgYnVzIGRyaXZlci4gVGhpcyAKPiBtZWFucyBpMmMgdHJhbnNhY3Rpb25zIGNhbiBiZSBjb21w
+bGV0ZWQgd2l0aG91dCB1c2VsZXNzIGFuZCBwcmljeSAKPiB3YWl0aW5nIGxvb3BzICh0aGUgcG9s
+bGluZykgYW5kIHNwZWVkcyB0aGluZ3MgdXAuCj4gQ3VycmVudGx5IG9ubHkgYmFzaWMgdHJhbnNh
+Y3Rpb25zIGFyZSBzdXBwb3J0LiBUaGUgSFcgUEVDIG9yIGkyYyBibG9jayAKPiB0cmFuc2FjdGlv
+bnMgc3RpbGwgdXNlIHBvbGxpbmcuCgpBaCwgcmVhbGx5IGdyZWF0ISBUaGFua3MgZm9yIHdvcmtp
+bmcgb24gdGhpcyA6KQoKSXMgdGhlcmUgYW55IGluaGVyZW50IGRpZmZpY3VsdHkgdG8gZ2V0IGlu
+dGVycnVwdHMgdG8gd29yayB3aXRoIEhXIFBFQz8KQW5kIHdpdGggSTJDIGJsb2NrIHRyYW5zYWN0
+aW9ucz8gT3IgZGlkIHlvdSBqdXN0IG5vdCBnZXQgYXJvdW5kIHRvCmRvaW5nIGl0PwoKPiBUbyB3
+cml0ZSB0aGlzIHBhdGNoLCBJJ3ZlIGV4dGVuc2l2ZWx5IHVzZWQgTWFyayBNLiBIb2ZmbWFuJ3Mg
+aTJjLWk4MDEgCj4gcmV3cml0ZSBvZiB0aGUgaTJjLWk4MDEgZHJpdmVyIGRhdGluZyBiYWNrIGZy
+b20gMjggTm92IDIwMDguIFRoaXMgY2FuIGJlIAo+IGZvdW5kIGF0IGh0dHA6Ly9hcmNoaXZlcy5h
+bmRyZXcubmV0LmF1L2xtLXNlbnNvcnMvbXNnMjg0OTYuaHRtbAoKWWVhaCwgTWFyayBoYXMgYmVl
+biB0cmF2ZWxpbmcgYSBsb3QgaW4gdGltZSBsYXRlbHkuIFVuZm9ydHVuYXRlbHkgdGhpcwphbHNv
+IG1lYW5zIHRoYXQgd2UgY2FuJ3Qgd2F0Y2ggdGhpcyBhcmNoaXZlZCBwb3N0IHlldCwgaXQnbGwg
+YmUgYSBmZXcKbW9yZSBtb250aHMgYmVmb3JlIGl0IHNob3dzIHVwISA7KQoKKFNlcmlvdXNseSwg
+YXJjaGl2ZXMuYW5kcmV3Lm5ldC5hdSBpcyB0aGUgb2xkIGxpc3QgYXJjaGl2ZSBhbmQKYXBwYXJl
+bnRseSBpdCBoYXMgYmVlbiBkaXNjb250aW51ZWQsIHBsZWFzZSB1c2UgbGlzdHMubG0tc2Vuc29y
+cy5vcmcKaW5zdGVhZC4pCgo+IEkndmUgdGVzdGVkIHRoaXMgcGF0Y2ggZXh0ZW5zaXZlbHkgb24g
+YSBtYWNoaW5lIHByb3ZpZGVkIGJ5IHRoZSBIYWd1ZSAKPiBVbml2ZXJzaXR5IChUaGFua3MgSGFu
+cyEgOykgd2hpY2ggaXMgSUNINSBiYXNlZCwgYnV0IGl0IG5lZWRzIGEgbG90IG9mIAo+IG1vcmUg
+dGVzdGluZy4gU28gcGxlYXNlIGJlIHdlbGNvbWUgdG8gZ2l2ZSB0aGUgcGF0Y2ggYSBzaG90Lgo+
+IAo+IFNpbmNlIEnigJltIGNvbXBsZXRlbHkgbmV3IHRvIGxpbnV4IGRldmljZSBkcml2ZXIgZGV2
+ZWxvcG1lbnQsIGludGVycnVwdHMgCj4gYW5kIGkyYywgc3R1cGlkIG1pc3Rha2VzIGNhbiBiZSB2
+ZXJ5IHdlbGwgcG9zc2libGUuIFBsZWFzZSB1c2UgdGhpcyAKPiBwYXRjaCB3aXRoIGNhdXRpb24g
+YW5kIGxldCBtZSBrbm93IHdoYXRldmVyIEkgZGlkIHdyb25nIDopLiBPaCwgYW5kIGlmIAo+IHlv
+dXIgUEMgd29u4oCZdCBzdGFydCB1cCBhbnltb3JlLCByZW1vdmluZyBwb3dlciBmcm9tIHRoZSBQ
+QyBhbHdheXMgd29ya2VkIAo+IGZvciBtZSA7cC4KCkkndmUganVzdCBnaXZlbiBpdCBhIHF1aWNr
+IHRyeSBvbiBteSBvbGQgSUNIMy1NLWJhc2VkIGxhcHRvcCBhbmQgaXQKc2VlbXMgdG8gd29yayBm
+aW5lIHRoZXJlLiBUaGUgc3BlZWQgaW1wcm92ZW1lbnQgY29tcGFyZWQgdG8gdGhlIHBvbGxpbmcK
+Y29kZSBpcyB2ZXJ5IGltcHJlc3NpdmUuCgpJJ20gZ29pbmcgdG8gZG8gbW9yZSB0ZXN0cyBvbiAy
+IG90aGVyIG1hY2hpbmVzICh3aXRoIElDSDUgYW5kIElDSDcKcmVzcGVjdGl2ZWx5KSBhbmQgd2ls
+bCByZXBvcnQgd2hlbiBJJ20gZG9uZS4gQSBwYXRjaCByZXZpZXcgd2lsbCBhbHNvCmZvbGxvdy4K
+Cj4gQWxsIHBhdGNoZXMgYXJlIG1hZGUgYWdhaW5zdCAyLjYuMjYtcmM5CgpUaGUgaTJjLWk4MDEg
+ZHJpdmVyIGhhcyBjaGFuZ2VkIGEgbG90IHNpbmNlIHRoZW4uIEFueSBjaGFuY2UgeW91IGNvdWxk
+CnJlc3BpbiB0aGUgcGF0Y2hlcyBhZ2FpbnN0IDIuNi4yNy1yYzI/Cgo+IFBhdGNoIDEgaW1wbGVt
+ZW50cyB0aGUgZnVuY3Rpb25hbGl0eSwgd2hpbGUgcGF0Y2ggMiBvbmx5IGFkZHMgdGhlIAo+IGFs
+aWdubWVudCBjaGFuZ2VzLiBUaGlzIGlzIGRvbmUgdG8gbWFrZSBpdCBlYXNpZXIgcmV2aWV3YWJs
+ZS4gUGF0Y2ggMyBpcyAKPiBxdWl0ZSB1bnJlbGF0ZWQgYW5kIG9ubHkgZml4ZXMgc29tZSBjaGVj
+a1BhdGNoIHdhcm5pbmdzLi4KClRoYW5rcywKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNA
+bG0tc2Vuc29ycy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGlu
+Zm8vaTJj
