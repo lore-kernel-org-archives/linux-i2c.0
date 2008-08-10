@@ -1,13 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 00/03] i2c-i801: Add basic interrupt support
-Date: Sun, 10 Aug 2008 19:05:22 +0200
-Message-ID: <20080810190522.76a61673@hyperion.delvare>
-References: <488762A0.8030409@gmail.com>
+From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+Subject: [PATCH] Add VX800/VX820 support to i2c-viapro
+Date: Sun, 10 Aug 2008 21:15:57 +0200
+Message-ID: <489F3E6D.1010509@assembler.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="------------080707090602030803030704"
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <488762A0.8030409-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,53 +14,128 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Hans-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: bari <bari-LYzr9vXrEAJBDgjK7y7TUQ@public.gmane.org>, BruceChang-6hSdJfI2Hxp9nmWX13WWKA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgSXZvLAoKT24gV2VkLCAyMyBKdWwgMjAwOCAxODo1NjowMCArMDIwMCwgSXZvIE1hbmNhIHdy
-b3RlOgo+IEhleSBBbGwsCj4gCj4gSXQncyBiZWVuIGEgd2hpbGUgc2luY2UgSSBsYXN0IHBvc3Rl
-ZCBhYm91dCB0aGlzIG1hdHRlciwgYnV0IHRoZSBwYXRjaCAKPiBpcyBmaW5hbGx5IHRoZXJlLgo+
-IAo+IFRoaXMgcGF0Y2ggYWRkcyBiYXNpYyBpbnRlcnJ1cHQgc3VwcG9ydCB0byB0aGUgaTJjLWk4
-MDEgYnVzIGRyaXZlci4gVGhpcyAKPiBtZWFucyBpMmMgdHJhbnNhY3Rpb25zIGNhbiBiZSBjb21w
-bGV0ZWQgd2l0aG91dCB1c2VsZXNzIGFuZCBwcmljeSAKPiB3YWl0aW5nIGxvb3BzICh0aGUgcG9s
-bGluZykgYW5kIHNwZWVkcyB0aGluZ3MgdXAuCj4gQ3VycmVudGx5IG9ubHkgYmFzaWMgdHJhbnNh
-Y3Rpb25zIGFyZSBzdXBwb3J0LiBUaGUgSFcgUEVDIG9yIGkyYyBibG9jayAKPiB0cmFuc2FjdGlv
-bnMgc3RpbGwgdXNlIHBvbGxpbmcuCgpBaCwgcmVhbGx5IGdyZWF0ISBUaGFua3MgZm9yIHdvcmtp
-bmcgb24gdGhpcyA6KQoKSXMgdGhlcmUgYW55IGluaGVyZW50IGRpZmZpY3VsdHkgdG8gZ2V0IGlu
-dGVycnVwdHMgdG8gd29yayB3aXRoIEhXIFBFQz8KQW5kIHdpdGggSTJDIGJsb2NrIHRyYW5zYWN0
-aW9ucz8gT3IgZGlkIHlvdSBqdXN0IG5vdCBnZXQgYXJvdW5kIHRvCmRvaW5nIGl0PwoKPiBUbyB3
-cml0ZSB0aGlzIHBhdGNoLCBJJ3ZlIGV4dGVuc2l2ZWx5IHVzZWQgTWFyayBNLiBIb2ZmbWFuJ3Mg
-aTJjLWk4MDEgCj4gcmV3cml0ZSBvZiB0aGUgaTJjLWk4MDEgZHJpdmVyIGRhdGluZyBiYWNrIGZy
-b20gMjggTm92IDIwMDguIFRoaXMgY2FuIGJlIAo+IGZvdW5kIGF0IGh0dHA6Ly9hcmNoaXZlcy5h
-bmRyZXcubmV0LmF1L2xtLXNlbnNvcnMvbXNnMjg0OTYuaHRtbAoKWWVhaCwgTWFyayBoYXMgYmVl
-biB0cmF2ZWxpbmcgYSBsb3QgaW4gdGltZSBsYXRlbHkuIFVuZm9ydHVuYXRlbHkgdGhpcwphbHNv
-IG1lYW5zIHRoYXQgd2UgY2FuJ3Qgd2F0Y2ggdGhpcyBhcmNoaXZlZCBwb3N0IHlldCwgaXQnbGwg
-YmUgYSBmZXcKbW9yZSBtb250aHMgYmVmb3JlIGl0IHNob3dzIHVwISA7KQoKKFNlcmlvdXNseSwg
-YXJjaGl2ZXMuYW5kcmV3Lm5ldC5hdSBpcyB0aGUgb2xkIGxpc3QgYXJjaGl2ZSBhbmQKYXBwYXJl
-bnRseSBpdCBoYXMgYmVlbiBkaXNjb250aW51ZWQsIHBsZWFzZSB1c2UgbGlzdHMubG0tc2Vuc29y
-cy5vcmcKaW5zdGVhZC4pCgo+IEkndmUgdGVzdGVkIHRoaXMgcGF0Y2ggZXh0ZW5zaXZlbHkgb24g
-YSBtYWNoaW5lIHByb3ZpZGVkIGJ5IHRoZSBIYWd1ZSAKPiBVbml2ZXJzaXR5IChUaGFua3MgSGFu
-cyEgOykgd2hpY2ggaXMgSUNINSBiYXNlZCwgYnV0IGl0IG5lZWRzIGEgbG90IG9mIAo+IG1vcmUg
-dGVzdGluZy4gU28gcGxlYXNlIGJlIHdlbGNvbWUgdG8gZ2l2ZSB0aGUgcGF0Y2ggYSBzaG90Lgo+
-IAo+IFNpbmNlIEnigJltIGNvbXBsZXRlbHkgbmV3IHRvIGxpbnV4IGRldmljZSBkcml2ZXIgZGV2
-ZWxvcG1lbnQsIGludGVycnVwdHMgCj4gYW5kIGkyYywgc3R1cGlkIG1pc3Rha2VzIGNhbiBiZSB2
-ZXJ5IHdlbGwgcG9zc2libGUuIFBsZWFzZSB1c2UgdGhpcyAKPiBwYXRjaCB3aXRoIGNhdXRpb24g
-YW5kIGxldCBtZSBrbm93IHdoYXRldmVyIEkgZGlkIHdyb25nIDopLiBPaCwgYW5kIGlmIAo+IHlv
-dXIgUEMgd29u4oCZdCBzdGFydCB1cCBhbnltb3JlLCByZW1vdmluZyBwb3dlciBmcm9tIHRoZSBQ
-QyBhbHdheXMgd29ya2VkIAo+IGZvciBtZSA7cC4KCkkndmUganVzdCBnaXZlbiBpdCBhIHF1aWNr
-IHRyeSBvbiBteSBvbGQgSUNIMy1NLWJhc2VkIGxhcHRvcCBhbmQgaXQKc2VlbXMgdG8gd29yayBm
-aW5lIHRoZXJlLiBUaGUgc3BlZWQgaW1wcm92ZW1lbnQgY29tcGFyZWQgdG8gdGhlIHBvbGxpbmcK
-Y29kZSBpcyB2ZXJ5IGltcHJlc3NpdmUuCgpJJ20gZ29pbmcgdG8gZG8gbW9yZSB0ZXN0cyBvbiAy
-IG90aGVyIG1hY2hpbmVzICh3aXRoIElDSDUgYW5kIElDSDcKcmVzcGVjdGl2ZWx5KSBhbmQgd2ls
-bCByZXBvcnQgd2hlbiBJJ20gZG9uZS4gQSBwYXRjaCByZXZpZXcgd2lsbCBhbHNvCmZvbGxvdy4K
-Cj4gQWxsIHBhdGNoZXMgYXJlIG1hZGUgYWdhaW5zdCAyLjYuMjYtcmM5CgpUaGUgaTJjLWk4MDEg
-ZHJpdmVyIGhhcyBjaGFuZ2VkIGEgbG90IHNpbmNlIHRoZW4uIEFueSBjaGFuY2UgeW91IGNvdWxk
-CnJlc3BpbiB0aGUgcGF0Y2hlcyBhZ2FpbnN0IDIuNi4yNy1yYzI/Cgo+IFBhdGNoIDEgaW1wbGVt
-ZW50cyB0aGUgZnVuY3Rpb25hbGl0eSwgd2hpbGUgcGF0Y2ggMiBvbmx5IGFkZHMgdGhlIAo+IGFs
-aWdubWVudCBjaGFuZ2VzLiBUaGlzIGlzIGRvbmUgdG8gbWFrZSBpdCBlYXNpZXIgcmV2aWV3YWJs
-ZS4gUGF0Y2ggMyBpcyAKPiBxdWl0ZSB1bnJlbGF0ZWQgYW5kIG9ubHkgZml4ZXMgc29tZSBjaGVj
-a1BhdGNoIHdhcm5pbmdzLi4KClRoYW5rcywKLS0gCkplYW4gRGVsdmFyZQoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNA
-bG0tc2Vuc29ycy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGlu
-Zm8vaTJj
+This is a multi-part message in MIME format.
+--------------080707090602030803030704
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+Thanks to new datasheets published on http://linux.via.com.tw we can now add 
+support for VX800/VX820 chipsets.
+
+If anyone has the hardware, please test the patch in attachment. Some simple 
+test with i2cdump should be enough the hardware controller is same as on other 
+chipsets.
+
+Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+
+Thank you,
+
+Thanks,
+Rudolf
+
+--------------080707090602030803030704
+Content-Type: text/x-diff;
+ name="i2c-vx800.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline;
+ filename="i2c-vx800.patch"
+
+Index: linux-2.6.27-rc2/Documentation/i2c/busses/i2c-viapro
+===================================================================
+--- linux-2.6.27-rc2.orig/Documentation/i2c/busses/i2c-viapro	2008-08-10 20:18:18.318417241 +0200
++++ linux-2.6.27-rc2/Documentation/i2c/busses/i2c-viapro	2008-08-10 21:07:53.473368491 +0200
+@@ -16,6 +16,9 @@
+   * VIA Technologies, Inc. CX700
+     Datasheet: available on request and under NDA from VIA
+ 
++  * VIA Technologies, Inc. VX800/VX820
++    Datasheet: available on http://linux.via.com.tw
++
+ Authors:
+ 	Kyösti Mälkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org>,
+ 	Mark D. Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>,
+@@ -49,6 +52,7 @@
+  device 1106:3372   (VT8237S)
+  device 1106:3287   (VT8251)
+  device 1106:8324   (CX700)
++ device 1106:8353   (VX800/VX820)
+ 
+ If none of these show up, you should look in the BIOS for settings like
+ enable ACPI / SMBus or even USB.
+@@ -57,5 +61,5 @@
+ VT8231), this driver supports I2C block transactions. Such transactions
+ are mainly useful to read from and write to EEPROMs.
+ 
+-The CX700 additionally appears to support SMBus PEC, although this driver
+-doesn't implement it yet.
++The CX700/VX800/VX820 additionally appears to support SMBus PEC, although
++this driver doesn't implement it yet.
+Index: linux-2.6.27-rc2/drivers/i2c/busses/Kconfig
+===================================================================
+--- linux-2.6.27-rc2.orig/drivers/i2c/busses/Kconfig	2008-08-10 20:19:54.809322776 +0200
++++ linux-2.6.27-rc2/drivers/i2c/busses/Kconfig	2008-08-10 20:26:42.832574696 +0200
+@@ -209,7 +209,7 @@
+ 	  will be called i2c-via.
+ 
+ config I2C_VIAPRO
+-	tristate "VIA VT82C596/82C686/82xx and CX700"
++	tristate "VIA VT82C596/82C686/82xx and CX700/VX800/VX820"
+ 	depends on PCI
+ 	help
+ 	  If you say yes to this option, support will be included for the VIA
+@@ -223,6 +223,8 @@
+ 	    VT8237R/A/S
+ 	    VT8251
+ 	    CX700
++	    VX800
++	    VX820
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-viapro.
+Index: linux-2.6.27-rc2/drivers/i2c/busses/i2c-viapro.c
+===================================================================
+--- linux-2.6.27-rc2.orig/drivers/i2c/busses/i2c-viapro.c	2008-08-10 20:20:08.310092141 +0200
++++ linux-2.6.27-rc2/drivers/i2c/busses/i2c-viapro.c	2008-08-10 20:31:30.348959321 +0200
+@@ -36,6 +36,7 @@
+    VT8237S            0x3372             yes
+    VT8251             0x3287             yes
+    CX700              0x8324             yes
++   VX800/VX820        0x8353             yes
+ 
+    Note: we assume there can only be one device, with one SMBus interface.
+ */
+@@ -396,6 +397,7 @@
+ 
+ 	switch (pdev->device) {
+ 	case PCI_DEVICE_ID_VIA_CX700:
++	case PCI_DEVICE_ID_VIA_VX800:
+ 	case PCI_DEVICE_ID_VIA_8251:
+ 	case PCI_DEVICE_ID_VIA_8237:
+ 	case PCI_DEVICE_ID_VIA_8237A:
+@@ -459,6 +461,8 @@
+ 	  .driver_data = SMBBA3 },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_CX700),
+ 	  .driver_data = SMBBA3 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX800),
++	  .driver_data = SMBBA3 },
+ 	{ 0, }
+ };
+ 
+
+--------------080707090602030803030704
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--------------080707090602030803030704--
