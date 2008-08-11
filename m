@@ -1,76 +1,75 @@
-From: Marc Pignat <marc.pignat@hevs.ch>
-Subject: Re: [RFC,PATCH] i2c: fix device_init_wakeup place
-Date: Mon, 11 Aug 2008 09:03:58 +0200
-Message-ID: <200808110903.58658.marc.pignat@hevs.ch>
-References: <200807291535.45689.marc.pignat@hevs.ch> <20080809185619.6211fbf3@hyperion.delvare> <20080810230404.B2943B2AB@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+From: Darius <augulis.darius@gmail.com>
+Subject: Re: [PATCH V11] I2C driver for IMX
+Date: Mon, 11 Aug 2008 10:18:48 +0300
+Message-ID: <489FE7D8.6070406@gmail.com>
+References: <g66mel$v6s$1@ger.gmane.org>	<20080808115116.59d84d90@hyperion.delvare>
+	<20080808100109.GA11503@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752079AbYHKHET@vger.kernel.org>
-In-Reply-To: <20080810230404.B2943B2AB@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org, i2c@lm-sensors.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+In-Reply-To: <20080808100109.GA11503@trinity.fluff.org>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+Cc: i2c@lm-sensors.org, linux-arm-kernel@lists.arm.linux.org.uk
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all!
+Ben Dooks wrote:
+> On Fri, Aug 08, 2008 at 11:51:16AM +0200, Jean Delvare wrote:
+>> On Wed, 23 Jul 2008 10:20:12 +0300, Darius wrote:
+>>> Description:
+>>>
+>>> Implementation of I2C Adapter/Algorithm Driver
+>>> for I2C Bus integrated in Freescale's i.MXL and i.MX1 processors
+>>>
+>>> Changes from V10 version:
+>>>
+>>> - adapter class changed to I2C_CLASS_ALL
+>> Not a smart move if you ask me. All embedded platforms are moving away
+>> from I2C probing and now use I2C device description at the platform
+>> level. I expect I2C_CLASS_ALL to be discarded in 2.6.28. Almost all
+>> hwmon and rtc drivers have been converted to the new I2C device driver
+>> matching scheme at this point, and the few remaining ones will
+>> definitely be converted for 2.6.28, hopefully with all the other legacy
+>> I2C drivers in the kernel tree.
 
-First, I would like to ask David to exuse me for saying something like "your
-patch did nothing", it was crude.
+Why I should leave i2c class hwmon? i.MX I2C driver is common I2C driver, suitable for almost every kind of I2C clients, not only hwmon.
+For example digital camera and so on.
 
-David had a real good idea to add the flag I2C_CLIENT_WAKE.
-
-
-On Monday 11 August 2008, David Brownell wrote:
-> > > The current code calls device_init_wakeup() before device_register, but
-...
-> > Interesting point... David, what are you using this code for then? Same
-> > question for you Marc.
-...
-
-I use it for an rtc chip (ds1374), but the board is not in tree (should be
-soon).
-
+>>
+>>> - changes regarding new IMX Clock API
+>>>
+>>> Signed-off-by: Darius Augulis <augulis.darius@gmail.com>
+>>> ---
+>> Ben, this driver has been through many iterations already. Maybe it's
+>> time for you to pick it up?
 > 
+> Yes, I think it is pretty much ready. If a version without the changelog
+> is submitted I will look at queueing it for the next merge window.
+
+To merge this driver into kernel, we have to merge our and Pengutronix patches for ARCH_MXC first, because it depends on these patches.
+This I2C driver is not only for MX1 processors but for all i.MX family from now. Therefore it needs platform data and header file from arch dir.
+It does not compile before our ARCH_MXC patches are applied.
+
+>  
+>> -- 
+>> Jean Delvare
+>>
+>> -------------------------------------------------------------------
+>> List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+>> FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+>> Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
 > 
-> > > This patch also include a small functionnal change: the I2C_CLIENT_WAKE
-> > > is no more removed from the client flags, but this should't hurt.
-> >
-> > Why do you want to change this?
-> 
-> It's kind of essential to making this patch work!  Else the flag
-> won't be available when the i2c core gets control of that device
-> node again, after device_initialize() code zeroes those flags.
-
-Now the flag is used in the i2c_device_probe function and must be preserved
-for future use (probe of another device or re-probe).
-
-The downside is that it make this flag visible to the i2c_client.
-
-To preserve the original behavior (hide the flag to the driver), the flag
-should be saved, for instance in the i2c_device structure.
-I think adding more code and adding a field in the i2c_device structure costs
-more than making this flag visible (but if you think differently, I can fix the
-patch).
 
 
-
-> 
-> 
-...
-> Better would be to preserve any existing settings:
-> 
-> 	if (!device_can_wakeup(&client->dev))
-> 		device_init_wakeup(...)
-> 
-> That way the userspace policy setting is preserved unless the
-> device itself gets removed ... instead of being clobbered by
-> the simple act of (re)probing a driver.
-Ok, will be fixed in version 2
-
-
-Best regards
-
-Marc
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
