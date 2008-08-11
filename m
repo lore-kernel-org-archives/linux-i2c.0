@@ -1,88 +1,43 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 00/03] i2c-i801: Add basic interrupt support
-Date: Mon, 11 Aug 2008 18:07:52 +0200
-Message-ID: <20080811180752.22c2743b@hyperion.delvare>
-References: <488762A0.8030409@gmail.com>
-	<20080810190522.76a61673@hyperion.delvare>
-	<489F4AA3.3070101@gmail.com>
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH 2.6.26.2] pci_ids: patch for Intel Ibex Peak DeviceIDs
+Date: Mon, 11 Aug 2008 10:18:43 -0700
+Message-ID: <200808111018.44024.jbarnes@virtuousgeek.org>
+References: <200808081616.08158.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <489F4AA3.3070101-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Hans-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <200808081616.08158.seth.heasley@intel.com>
+Content-Disposition: inline
+Sender: linux-pci-owner@vger.kernel.org
+To: Seth Heasley <seth.heasley@intel.com>
+Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, khali@linux-fr.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Aug 2008 22:08:03 +0200, Ivo Manca wrote:
-> Hey Jean,
-> 
-> Jean Delvare wrote:
-> > Ah, really great! Thanks for working on this :)
-> >
-> > Is there any inherent difficulty to get interrupts to work with HW PEC?
-> > And with I2C block transactions? Or did you just not get around to
-> > doing it?
+On Friday, August 8, 2008 4:16 pm Seth Heasley wrote:
+> This patch adds the Intel Ibex Peak (PCH) LPC and SMBus Controller
+> DeviceIDs.
 >
-> To be honoust: I don't know a thing about HW PEC and was not able to 
-> test it anyway. Therefor, I decided not to touch this part yet. I did 
-> try to add support for interrupts with I2C block transactions. This 
-> however caused various nasty problems.
-
-PEC is an optional extra byte at the end of SMBus transactions,
-containing a checksum to detect transaction errors. It can be handled
-directly by the ICH4 hardware and later, thus the name "hwpec". The
-ICH3 can do software PEC but we don't support that.
-
-I don't think you need to care much about this as far as interrupts are
-concerned, this should be pretty transparent.
-
-I2C block writes shouldn't differ from other block transactions. I2C
-block reads OTOH are special in many aspects so I do expect special
-handling to be required for interrupt support.
-
-> That made me first want to test and implement basic interrupt support 
-> before going there again. When I know for sure the basics work correctly 
-> and stable (and when I know for sure I haven't made very stupid coding 
-> mistakes), I'll try again to add support for block transactions :).
-
-This is a good strategy, no question about that.
-
-> > I've just given it a quick try on my old ICH3-M-based laptop and it
-> > seems to work fine there. The speed improvement compared to the polling
-> > code is very impressive.
-> >
-> > I'm going to do more tests on 2 other machines (with ICH5 and ICH7
-> > respectively) and will report when I'm done. A patch review will also
-> > follow.
+> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
 >
-> Thanks! Glad to hear I didn't kill your laptop :).
+> --- linux-2.6.26.2/include/linux/pci_ids.h.orig 2008-08-08
+> 11:07:41.000000000 -0700 +++ linux-2.6.26.2/include/linux/pci_ids.h     
+> 2008-08-08 11:22:31.000000000 -0700 @@ -2385,6 +2385,9 @@
+>  #define PCI_DEVICE_ID_INTEL_ICH10_3    0x3a1a
+>  #define PCI_DEVICE_ID_INTEL_ICH10_4    0x3a30
+>  #define PCI_DEVICE_ID_INTEL_ICH10_5    0x3a60
+> +#define PCI_DEVICE_ID_INTEL_PCH_0      0x3b10
+> +#define PCI_DEVICE_ID_INTEL_PCH_1      0x3b11
+> +#define PCI_DEVICE_ID_INTEL_PCH_2      0x3b30
+>  #define PCI_DEVICE_ID_INTEL_IOAT_SNB   0x402f
+>  #define PCI_DEVICE_ID_INTEL_5400_ERR   0x4030
+>  #define PCI_DEVICE_ID_INTEL_5400_FBD0  0x4035
 
-Testing is done, and all 3 systems survived and actually worked :) Well
-done!
+Should PCH_2 also be added to arch/x86/pci/irq.c?  You may as well combine the 
+irq.c and pci_ids.h patches into one patch too.  Care to respin against my 
+for-linus branch and resubmit?
 
-> > The i2c-i801 driver has changed a lot since then. Any chance you could
-> > respin the patches against 2.6.27-rc2?
->
-> Sure, I'll try to respin it as soon as possible. Hopefully, that will be 
-> tomorrow.
-
-Thanks. No need to hurry though, take your time. You may want to wait
-for my review so that you can address my concerns at the same time.
-
+Thanks.
 -- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jesse Barnes, Intel Open Source Technology Center
