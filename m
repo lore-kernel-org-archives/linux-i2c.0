@@ -1,66 +1,47 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2.6.26.2][RESEND] i2c-i801: SMBus patch for Intel Ibex
- Peak DeviceIDs
-Date: Tue, 12 Aug 2008 13:58:02 +0200
-Message-ID: <20080812135802.53db9a8a@hyperion.delvare>
-References: <200808111702.38396.seth.heasley@intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] Add VX800/VX820 support to i2c-viapro
+Date: Tue, 12 Aug 2008 18:41:21 +0200
+Message-ID: <20080812184121.7794675a@hyperion.delvare>
+References: <489F3E6D.1010509@assembler.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753243AbYHLL6V@vger.kernel.org>
-In-Reply-To: <200808111702.38396.seth.heasley@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org, seth.heasley@intel.com
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <489F3E6D.1010509-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+Cc: BruceChang-6hSdJfI2Hxp9nmWX13WWKA@public.gmane.org, Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, bari <bari-LYzr9vXrEAJBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 11 Aug 2008 17:02:38 -0700, Seth Heasley wrote:
-> Resend with proper whitespace.
-> 
-> This patch adds the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
-> 
-> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
-> 
-> --- linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c.orig	2008-08-08 11:28:08.000000000 -0700
-> +++ linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c	2008-08-08 11:32:18.000000000 -0700
-> @@ -43,6 +43,7 @@
->    Tolapai               0x5032     32     hard     yes     yes     yes
->    ICH10                 0x3a30     32     hard     yes     yes     yes
->    ICH10                 0x3a60     32     hard     yes     yes     yes
-> +  PCH                   0x3b30     32     hard     yes     yes     yes
->  
->    Features supported by this driver:
->    Software PEC                     no
-> @@ -592,6 +593,7 @@
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
->  	{ 0, }
->  };
->  
-> @@ -615,6 +617,7 @@
->  	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
->  	case PCI_DEVICE_ID_INTEL_ICH10_4:
->  	case PCI_DEVICE_ID_INTEL_ICH10_5:
-> +	case PCI_DEVICE_ID_INTEL_PCH_2:
->  		i801_features |= FEATURE_I2C_BLOCK_READ;
->  		/* fall through */
->  	case PCI_DEVICE_ID_INTEL_82801DB_3:
-> --- linux-2.6.26.2/drivers/i2c/busses/Kconfig.orig	2008-08-08 11:27:52.000000000 -0700
-> +++ linux-2.6.26.2/drivers/i2c/busses/Kconfig	2008-08-08 11:30:42.000000000 -0700
-> @@ -182,6 +182,7 @@
->  	    ICH9
->  	    Tolapai
->  	    ICH10
-> +	    PCH
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> 
+Hi Rudolf,
 
-Looks good, I've added this to my tree. I will have to wait for the PCI
-IDs patch to go upstream before I can push it though.
+On Sun, 10 Aug 2008 21:15:57 +0200, Rudolf Marek wrote:
+> Hello,
+> 
+> Thanks to new datasheets published on http://linux.via.com.tw we can now add 
+> support for VX800/VX820 chipsets.
+> 
+> If anyone has the hardware, please test the patch in attachment. Some simple 
+> test with i2cdump should be enough the hardware controller is same as on other 
+> chipsets.
+> 
+> Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 
+Thanks. I've queued this patch for 2.6.28, so it's in linux-next now. I
+hope we can get some testing feedback in the next weeks.
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
