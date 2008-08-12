@@ -1,44 +1,57 @@
 From: Seth Heasley <seth.heasley@intel.com>
-Subject: [PATCH 2.6.26.2][RESEND] irq: irq and pci_ids patch for Intel Ibex Peak DeviceIDs
-Date: Mon, 11 Aug 2008 17:01:50 -0700
-Message-ID: <200808111701.50662.seth.heasley@intel.com>
+Subject: [PATCH 2.6.26.2][RESEND] i2c-i801: SMBus patch for Intel Ibex Peak DeviceIDs
+Date: Mon, 11 Aug 2008 17:02:38 -0700
+Message-ID: <200808111702.38396.seth.heasley@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757637AbYHKX5M@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758615AbYHKX6Y@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: i2c@lm-sensors.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, khali@linux-fr.org, jbarnes@virtuousgeek.org
+To: linux-kernel@vger.kernel.org, i2c@lm-sensors.org, khali@linux-fr.org
 Cc: seth.heasley@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
 Resend with proper whitespace.
 
-This patch adds the Intel Ibex Peak (PCH) LPC and SMBus Controller DeviceIDs.
+This patch adds the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
 
 Signed-off-by: Seth Heasley <seth.heasley@intel.com>
 
---- linux-2.6.26.2/include/linux/pci_ids.h.orig	2008-08-08 11:07:41.000000000 -0700
-+++ linux-2.6.26.2/include/linux/pci_ids.h	2008-08-08 11:22:31.000000000 -0700
-@@ -2385,6 +2385,9 @@
- #define PCI_DEVICE_ID_INTEL_ICH10_3	0x3a1a
- #define PCI_DEVICE_ID_INTEL_ICH10_4	0x3a30
- #define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
-+#define PCI_DEVICE_ID_INTEL_PCH_0	0x3b10
-+#define PCI_DEVICE_ID_INTEL_PCH_1	0x3b11
-+#define PCI_DEVICE_ID_INTEL_PCH_2	0x3b30
- #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
- #define PCI_DEVICE_ID_INTEL_5400_ERR	0x4030
- #define PCI_DEVICE_ID_INTEL_5400_FBD0	0x4035
---- linux-2.6.26.2/arch/x86/pci/irq.c.orig	2008-08-08 11:23:03.000000000 -0700
-+++ linux-2.6.26.2/arch/x86/pci/irq.c	2008-08-08 11:24:02.000000000 -0700
-@@ -589,6 +589,8 @@
- 		case PCI_DEVICE_ID_INTEL_ICH10_1:
- 		case PCI_DEVICE_ID_INTEL_ICH10_2:
- 		case PCI_DEVICE_ID_INTEL_ICH10_3:
-+		case PCI_DEVICE_ID_INTEL_PCH_0:
-+		case PCI_DEVICE_ID_INTEL_PCH_1:
- 			r->name = "PIIX/ICH";
- 			r->get = pirq_piix_get;
- 			r->set = pirq_piix_set;
+--- linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c.orig	2008-08-08 11:28:08.000000000 -0700
++++ linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c	2008-08-08 11:32:18.000000000 -0700
+@@ -43,6 +43,7 @@
+   Tolapai               0x5032     32     hard     yes     yes     yes
+   ICH10                 0x3a30     32     hard     yes     yes     yes
+   ICH10                 0x3a60     32     hard     yes     yes     yes
++  PCH                   0x3b30     32     hard     yes     yes     yes
+ 
+   Features supported by this driver:
+   Software PEC                     no
+@@ -592,6 +593,7 @@
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
+ 	{ 0, }
+ };
+ 
+@@ -615,6 +617,7 @@
+ 	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
+ 	case PCI_DEVICE_ID_INTEL_ICH10_4:
+ 	case PCI_DEVICE_ID_INTEL_ICH10_5:
++	case PCI_DEVICE_ID_INTEL_PCH_2:
+ 		i801_features |= FEATURE_I2C_BLOCK_READ;
+ 		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801DB_3:
+--- linux-2.6.26.2/drivers/i2c/busses/Kconfig.orig	2008-08-08 11:27:52.000000000 -0700
++++ linux-2.6.26.2/drivers/i2c/busses/Kconfig	2008-08-08 11:30:42.000000000 -0700
+@@ -182,6 +182,7 @@
+ 	    ICH9
+ 	    Tolapai
+ 	    ICH10
++	    PCH
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
