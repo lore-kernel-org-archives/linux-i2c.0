@@ -1,101 +1,66 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 03/03] i2c-i801: Fix minor style issues
-Date: Tue, 12 Aug 2008 10:27:11 +0200
-Message-ID: <20080812102711.6f8b178a@hyperion.delvare>
-References: <48876301.9020903@gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 2.6.26.2][RESEND] i2c-i801: SMBus patch for Intel Ibex
+ Peak DeviceIDs
+Date: Tue, 12 Aug 2008 13:58:02 +0200
+Message-ID: <20080812135802.53db9a8a@hyperion.delvare>
+References: <200808111702.38396.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48876301.9020903-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753243AbYHLL6V@vger.kernel.org>
+In-Reply-To: <200808111702.38396.seth.heasley@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org, seth.heasley@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 23 Jul 2008 18:57:37 +0200, Ivo Manca wrote:
-> This patch fixes minor style issues warned about by checkPatch
+On Mon, 11 Aug 2008 17:02:38 -0700, Seth Heasley wrote:
+> Resend with proper whitespace.
 > 
-> Signed-off-by: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
+> This patch adds the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
 > 
-> [PATCH 00/03] i2c-i801: Add basic interrupt support
-
-> --- __new	2008-07-23 10:51:28.000000000 +0200
-> +++ _new	2008-07-23 10:53:06.000000000 +0200
-> @@ -381,9 +381,8 @@ static int i801_block_transaction_byte_b
->  		do {
->  			msleep(1);
->  			temp = inb_p(SMBHSTSTS);
-> -		}
-> -		while ((!(temp & SMBHSTSTS_BYTE_DONE))
-> -		       && (timeout++ < MAX_TIMEOUT));
-> +		} while ((!(temp & SMBHSTSTS_BYTE_DONE))
-> +			 && (timeout++ < MAX_TIMEOUT));
+> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+> 
+> --- linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c.orig	2008-08-08 11:28:08.000000000 -0700
+> +++ linux-2.6.26.2/drivers/i2c/busses/i2c-i801.c	2008-08-08 11:32:18.000000000 -0700
+> @@ -43,6 +43,7 @@
+>    Tolapai               0x5032     32     hard     yes     yes     yes
+>    ICH10                 0x3a30     32     hard     yes     yes     yes
+>    ICH10                 0x3a60     32     hard     yes     yes     yes
+> +  PCH                   0x3b30     32     hard     yes     yes     yes
 >  
->  		/* If the SMBus is still busy, we give up */
->  		if (timeout >= MAX_TIMEOUT) {
-> @@ -502,7 +501,7 @@ static int i801_block_transaction(union 
->  }
+>    Features supported by this driver:
+>    Software PEC                     no
+> @@ -592,6 +593,7 @@
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
+>  	{ 0, }
+>  };
 >  
->  /* Return -1 on error. */
-> -static s32 i801_access(struct i2c_adapter * adap, u16 addr,
-> +static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  		       unsigned short flags, char read_write, u8 command,
->  		       int size, union i2c_smbus_data * data)
->  {
-> @@ -574,7 +573,7 @@ static s32 i801_access(struct i2c_adapte
->  	else
->  		outb_p(inb_p(SMBAUXCTL) & (~SMBAUXCTL_CRC), SMBAUXCTL);
+> @@ -615,6 +617,7 @@
+>  	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_4:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_5:
+> +	case PCI_DEVICE_ID_INTEL_PCH_2:
+>  		i801_features |= FEATURE_I2C_BLOCK_READ;
+>  		/* fall through */
+>  	case PCI_DEVICE_ID_INTEL_82801DB_3:
+> --- linux-2.6.26.2/drivers/i2c/busses/Kconfig.orig	2008-08-08 11:27:52.000000000 -0700
+> +++ linux-2.6.26.2/drivers/i2c/busses/Kconfig	2008-08-08 11:30:42.000000000 -0700
+> @@ -182,6 +182,7 @@
+>  	    ICH9
+>  	    Tolapai
+>  	    ICH10
+> +	    PCH
 >  
-> -	if(block)
-> +	if (block)
->  		ret = i801_block_transaction(data, read_write, size, hwpec);
->  	else
->  		ret = i801_transaction(xact | ENABLE_INT9);
-> @@ -586,9 +585,9 @@ static s32 i801_access(struct i2c_adapte
->  		outb_p(inb_p(SMBAUXCTL) & ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B),
->  		       SMBAUXCTL);
->  
-> -	if(block)
-> +	if (block)
->  		return ret;
-> -	if(ret)
-> +	if (ret)
->  		return -1;
->  	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
->  		return 0;
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-i801.
+> 
 
-Looks OK, thanks for doing that.
+Looks good, I've added this to my tree. I will have to wait for the PCI
+IDs patch to go upstream before I can push it though.
 
-I'm now waiting for an update of your patches based on 2.6.27-rc2 for a
-final review.
 
-Oh, one last note before I forget: as the interrupt-based logic is new
-and might not be as robust as the old poll-based one, it might make
-sense to give the user a way to disable the interrupt-based logic and
-fall back to polling in case the new code doesn't work correctly.
-Without that possibility, I won't feel too confident to push your
-patches to Linus. Remember that the ICH chips are very popular and we
-just can't afford breaking these systems.
-
-This could be implemented as a build time option enabling the new
-interrupt-based code, tagged EXPERIMENTAL and disabled by default, or a
-module parameter, or both.
-
-Thanks,
 -- 
 Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
