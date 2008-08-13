@@ -1,11 +1,15 @@
-From: Ali Jubril <mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org>
-Subject: investment/partnership proposal
-Date: 13 Aug 2008 09:04:05 -0700
-Message-ID: <E1KTMju-0000lG-Am@teufli.physik.fu-berlin.de>
-Reply-To: mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 01/03] i2c-i801: Add basic interrupt support
+Date: Wed, 13 Aug 2008 22:38:40 +0200
+Message-ID: <20080813223840.42ad6fb3@hyperion.delvare>
+References: <488762C8.6090105@gmail.com>
+	<20080812101545.600ca850@hyperion.delvare>
+	<48A33342.1050105@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8945015679568488132=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <48A33342.1050105-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,175 +19,54 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============8945015679568488132==
-Content-Type: multipart/alternative;
-	boundary="YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1"
+On Wed, 13 Aug 2008 21:17:22 +0200, Ivo Manca wrote:
+> Hey Jean,
+> > Ideally this define would replace MAX_TIMEOUT (in a separate patch) so 
+> > that both
+> > the poll-based and the interrupt-driven paths have the same timeout 
+> > value. Right now,
+> > the timeout handling of the poll-based path is rather ugly (the actual 
+> > timeout depends on
+> > the value of HZ.)
+>
+> Hm, seems like a very sensible thing to do. However, I have no idea how 
+> to implement that, since you don't really know how long msleep slept, or 
+> not? I sadly don't really have time to look into this right now, sorry.
 
---YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1
-Content-type: text/plain; charset=windows-1252;
+The trick is to not rely on the duration of the msleep(). As you
+rightly said, we have no clue how long it slept. Instead, we remember
+the initial value of jiffies, and check after each iteration whether
+the timeout has been exceeded or not. Something like:
 
-You are invited to "investment/partnership proposal".
+	unsigned long start = jiffies, now;
 
+	while (!time_after(now, jiffies + timeout)
+	 && !<other condition>) {
+		msleep(1);
+		<do something>
+	}
 
-By your host Ali Jubril:
+But if you don't have the time, this can be done later, no worry. It
+doesn't belong to your patch anyway.
 
-BY YOUR HOST Ali Jubril.
-DEAR PARTNER,
+> (...)
+> I'll send you an updated patch later this evening. I don't know anything 
+> about config files though, so that'll have to wait a bit... The module 
+> parameter will be added though.
 
-ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL
-ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)
-PHHONE:(00226)78336657
-I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE
-BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR 
-BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK
-BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM
+The Kconfig language is pretty easy. But don't worry about it if you
+don't have the time to look into it: I'll add a patch on top of yours
+implementing my idea, no problem.
 
-     Date:		Wednesday August 13, 2008
-
-     Time:		3:00 pm - 4:00 pm (GMT +00:00)
-
-Will you attend? RSVP to this invitation at:
-
-     http://calendar.yahoo.com/mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org?v=126&a1=0&iid=Fx%40S8K%40%40RMTi%40FFJLxBCdB%40%409radB5pDppAbup7%40aJ-x%40eqh8pEpA-%40%40um0X%40ErH&igid=ihaAjKl%406YgmaGQYvhhRRApaP%40uc%40hqThp%40desz%403I05%40uao-%40AvUJl%40angB%40fNXohq0th%40%40
-    
-Copyright © 2008 All Rights Reserved
- www.yahoo.com
-
-Privacy Policy:
- http://privacy.yahoo.com/privacy/us
-
-Terms of Service:
- http://docs.yahoo.com/info/terms/
-
---YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1
-Content-type: text/html; charset=windows-1252;
-
-
-
-
-                    
-
-<html>
-
-<style type="text/css">
-    a {color:#0066CC;text-decoration:none;}
-    body {text-align:center; font-family:Arial;}
-    .propertyname{text-align:right; font-size:10px; font-size:13px; color:7A8180; width:100px; vertical-align:top;white-space:nowrap;}
-    .propertyvalue{text-align:left; font-size:13px; vertical-align:top;}
-    .divider{width:10px; }
-    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;}
-    #invite_main_info {background-color:white; margin: 0px 10px 0px 10px;clear:both; zoom:1; width:505px; overflow-x:auto;}
-    .header_images {height:55px; margin-left:10px; margin-right:10px;zoom:1}
-    #header_yahoo_image {margin-top:13px; float:left; width:274px; height:28px; text-align:left;}
-    #header_second_image {margin-top:10px; float:right; width:53px; height:35px;}
-    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;margin-bottom:10px}
-    #copyright_footer {font-size:10px;}
-    #tip_footer {font-size:10px;}
-    #main_table{padding:0; border-spacing:0; margin: 15px 10px 10px 10px;}
-    #guests_div{overflow-y:auto; height:40px;}
-    .item_list { width:400px;}
-    .event_time { width:70px; text-align:right;}
-    .event_title { width:100px; text-align:left;}
-    .task_title { width:100px; text-align:left;}
-    .event_title_daily { width:250px; text-align:left;}
-    .add_link { width:300px; text-align:left;}
-    .task_header_priority{ width:100px; text-align:left;}
-    .task_header_date{ width:100px; text-align:right;}
-    .task_priority{ width:10px; text-align:center;}
-    .task_date{ width:75px; text-align:right;}
-    .nowrap {white-space:nowrap;}  
-    .new {font-size:8px; text-transform:uppercase; color:#FF6600;}
-    .clear_line{font-size:8px}
-</style>
-
-<body>
-<center>
-<div id="invite_main">
-	<div class="header_images"> 
-		<div id="header_yahoo_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/ma_2.gif" border=0 alt=""/></div>
-		<div id="header_second_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/gr/cal_em_invite_1.gif" border=0 alt=""/></div>
-	</div>
-	<div id="invite_main_info">
-		<table id="main_table" cellpadding=0>
-
-                            <tr><td class="propertyname">You're invited to:</td>
-                <td class="divider">&nbsp;</td>
-                <td class="propertyvalue">investment/partnership proposal</td></tr>
-            
-                                                <tr><td class="propertyname">By your host:</td>
-                    <td class="divider">&nbsp;</td>
-                    <td class="propertyvalue">Ali Jubril</td></tr>
-                                
-                <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>              
-
-			    		 		    <tr><td class="propertyname">Message:</td>
-                    <td class="divider">&nbsp;</td>
-                    <td class="propertyvalue">BY YOUR HOST Ali Jubril.<br>DEAR PARTNER,<br><br>ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL<br>ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)<br>PHHONE:(00226)78336657<br>I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE<br>BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR <br>BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK<br>BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM</td></tr>
-
-                    <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>	 
-		 	    	
-             
-              
-            
-
-                <tr><td class="propertyname">Date:</td>
-    <td class="divider">&nbsp;</td> 
-			<td class="propertyvalue">Wednesday August 13, 2008
-		    	</td>
-	</tr>
-
-
-    <tr><td class="propertyname">Time:</td>
-    <td class="divider">&nbsp;</td> 
-			<td class="propertyvalue">3:00 pm - 4:00 pm
-				&nbsp;(GMT +00:00)
-				</td>
-	</tr>
-
-
-	
-
-
-
-
-
-            
-            <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>
-            
-			                                     <tr><td class="propertyname">Will you attend?</td>
-                     <td class="divider">&nbsp;</td>
-                     <td class="propertyvalue"><b><a href="http://calendar.yahoo.com/mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org?v=126&a1=0&iid=Fx%40S8K%40%40RMTi%40FFJLxBCdB%40%409radB5pDppAbup7%40aJ-x%40eqh8pEpA-%40%40um0X%40ErH&igid=ihaAjKl%406YgmaGQYvhhRRApaP%40uc%40hqThp%40desz%403I05%40uao-%40AvUJl%40angB%40fNXohq0th%40%40">RSVP to this invitation</a></b></td></tr>
-	                                                
-            						
-		</table>
-	</div>
-</div>
-
-<span id="copyright_footer">
-    Copyright © 2008
-&nbsp;<a target=_blank href="http://www.yahoo.com">Yahoo! Inc.</a>&nbsp;All Rights Reserved |
-<a target=_blank href="http://docs.yahoo.com/info/terms/">Terms of Service</a> | <a target=_blank href="http://privacy.yahoo.com/">Privacy Policy</a>  
-
-</span>
-</center>
-
-</body>
-</html>
-
---YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1--
-
-
---===============8945015679568488132==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8945015679568488132==--
