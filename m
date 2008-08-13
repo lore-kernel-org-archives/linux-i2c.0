@@ -1,11 +1,14 @@
-From: Laurence Mayer <laurence-AgvQzd4wkYRiL9xFr9M+9AC/G2K4zDHf@public.gmane.org>
-Subject: Struggling to make this work
-Date: Wed, 13 Aug 2008 20:56:05 +0300
-Message-ID: <1218650165.5738.12.camel@laurence-desktop>
+From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 01/03] i2c-i801: Add basic interrupt support
+Date: Wed, 13 Aug 2008 21:17:22 +0200
+Message-ID: <48A33342.1050105@gmail.com>
+References: <488762C8.6090105@gmail.com>
+	<20080812101545.600ca850@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080812101545.600ca850-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,143 +18,153 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-77u/SGksClBsZWFzZSBjYW4geW91IGhlbHAuCgpJIGhhdmUgbGl0ZXJhbGx5IHNwZW50IGRheXMt
-b24tZW5kIHRyeWluZyB0byBnZXQgdGhpcyB3b3JraW5nIHdpdGgKYWJzb2x1dGVseSBubyBwcm9n
-cmVzcy4KClBsZWFzZSBsZXQgbWUga25vdyBpZiB5b3UgcmVxdWlyZSBmdXJodGVyIGluZm9ybWF0
-aW9uLgoKClNlZSBiZWxvdzoKCgpIYXJkd2FyZTogREVMTCAyOTUwCgpbcm9vdEBmczEgfl0jIHVu
-YW1lIC1hCkxpbnV4IGZzMSAyLjYuMTgtOTIuMS42LmVsNSAjMSBTTVAgVHVlIEp1bCA4IDE0OjI3
-OjUxIEVEVCAyMDA4IHg4Nl82NAp4ODZfNjQgeDg2XzY0IEdOVS9MaW51eAoKW3Jvb3RAZnMxIH5d
-IyBzZW5zb3JzLWRldGVjdCAKIyBzZW5zb3JzLWRldGVjdCByZXZpc2lvbiA1MjQ5ICgyMDA4LTA1
-LTExIDIyOjU2OjI1ICswMjAwKQoKW3Jvb3RAZnMxIH5dIyBsc21vZCB8IGdyZXAgaTJjCmkyY19k
-ZXYgICAgICAgICAgICAgICAgNDM4NDkgIDAgCmkyY19lYyAgICAgICAgICAgICAgICAgMzg1OTMg
-IDEgc2JzCmkyY19jb3JlICAgICAgICAgICAgICAgNTYxMjkgIDIgaTJjX2RldixpMmNfZWMKClty
-b290QGZzMSB+XSMgbHNtb2QgfGdyZXAgLWkgcHJvY2Vzc29yClJldHVybnMgbm90aGluZwoKW3Jv
-b3RAZnMxIH5dIyBsc21vZCB8Z3JlcCAtaSB0aGVybWFsClJldHVybnMgbm90aGluZwoKW3Jvb3RA
-ZnMxIH5dIyBtb3VudAovZGV2L3NkYTMgb24gLyB0eXBlIGV4dDMgKHJ3KQpwcm9jIG9uIC9wcm9j
-IHR5cGUgcHJvYyAocncpCnN5c2ZzIG9uIC9zeXMgdHlwZSBzeXNmcyAocncpCmRldnB0cyBvbiAv
-ZGV2L3B0cyB0eXBlIGRldnB0cyAocncsZ2lkPTUsbW9kZT02MjApCi9kZXYvc2RhMSBvbiAvYm9v
-dCB0eXBlIGV4dDMgKHJ3KQp0bXBmcyBvbiAvZGV2L3NobSB0eXBlIHRtcGZzIChydykKL2Rldi9z
-ZGIxIG9uIC9ob21lIHR5cGUgZXh0MyAocncpCi9kZXYvc2RiMiBvbiAvcHVibGljIHR5cGUgZXh0
-MyAocncpCm5vbmUgb24gL3Byb2Mvc3lzL2ZzL2JpbmZtdF9taXNjIHR5cGUgYmluZm10X21pc2Mg
-KHJ3KQpzdW5ycGMgb24gL3Zhci9saWIvbmZzL3JwY19waXBlZnMgdHlwZSBycGNfcGlwZWZzIChy
-dykKbmZzZCBvbiAvcHJvYy9mcy9uZnNkIHR5cGUgbmZzZCAocncpCgoKW3Jvb3RAZnMxIGV0Y10j
-IGxzcGNpIAowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwWCBDaGlw
-c2V0IE1lbW9yeSBDb250cm9sbGVyCkh1YiAocmV2IDEyKQowMDowMi4wIFBDSSBicmlkZ2U6IElu
-dGVsIENvcnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgUENJIEV4cHJlc3MgeDQKUG9ydCAy
-IChyZXYgMTIpCjAwOjAzLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJp
-ZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDMgKHJldiAxMikKMDA6MDQuMCBQQ0kgYnJp
-ZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IFBDSSBFeHByZXNzIHg4
-ClBvcnQgNC01IChyZXYgMTIpCjAwOjA1LjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24g
-NTAwMCBTZXJpZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDUgKHJldiAxMikKMDA6MDYu
-MCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IFBDSSBF
-eHByZXNzIHg4ClBvcnQgNi03IChyZXYgMTIpCjAwOjA3LjAgUENJIGJyaWRnZTogSW50ZWwgQ29y
-cG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDcgKHJldiAx
-MikKMDA6MTAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hp
-cHNldCBGU0IgUmVnaXN0ZXJzCihyZXYgMTIpCjAwOjEwLjEgSG9zdCBicmlkZ2U6IEludGVsIENv
-cnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgRlNCIFJlZ2lzdGVycwoocmV2IDEyKQowMDox
-MC4yIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IEZT
-QiBSZWdpc3RlcnMKKHJldiAxMikKMDA6MTEuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRp
-b24gNTAwMCBTZXJpZXMgQ2hpcHNldCBSZXNlcnZlZApSZWdpc3RlcnMgKHJldiAxMikKMDA6MTMu
-MCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBSZXNl
-cnZlZApSZWdpc3RlcnMgKHJldiAxMikKMDA6MTUuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9y
-YXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBGQkQgUmVnaXN0ZXJzCihyZXYgMTIpCjAwOjE2LjAg
-SG9zdCBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgRkJEIFJl
-Z2lzdGVycwoocmV2IDEyKQowMDoxYy4wIFBDSSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDYz
-MXhFU0IvNjMyeEVTQi8zMTAwIENoaXBzZXQgUENJCkV4cHJlc3MgUm9vdCBQb3J0IDEgKHJldiAw
-OSkKMDA6MWQuMCBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gNjMxeEVTQi82MzJ4
-RVNCLzMxMDAgQ2hpcHNldApVSENJIFVTQiBDb250cm9sbGVyICMxIChyZXYgMDkpCjAwOjFkLjEg
-VVNCIENvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9uIDYzMXhFU0IvNjMyeEVTQi8zMTAwIENo
-aXBzZXQKVUhDSSBVU0IgQ29udHJvbGxlciAjMiAocmV2IDA5KQowMDoxZC4yIFVTQiBDb250cm9s
-bGVyOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzF4RVNCLzYzMnhFU0IvMzEwMCBDaGlwc2V0ClVIQ0kg
-VVNCIENvbnRyb2xsZXIgIzMgKHJldiAwOSkKMDA6MWQuMyBVU0IgQ29udHJvbGxlcjogSW50ZWwg
-Q29ycG9yYXRpb24gNjMxeEVTQi82MzJ4RVNCLzMxMDAgQ2hpcHNldApVSENJIFVTQiBDb250cm9s
-bGVyICM0IChyZXYgMDkpCjAwOjFkLjcgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9u
-IDYzMXhFU0IvNjMyeEVTQi8zMTAwIENoaXBzZXQKRUhDSSBVU0IyIENvbnRyb2xsZXIgKHJldiAw
-OSkKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMSBQQ0kgQnJpZGdl
-IChyZXYgZDkpCjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNjMxeEVTQi82
-MzJ4RVNCLzMxMDAgQ2hpcHNldCBMUEMKSW50ZXJmYWNlIENvbnRyb2xsZXIgKHJldiAwOSkKMDA6
-MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzF4RVNCLzYzMnhFU0IgSURF
-IENvbnRyb2xsZXIKKHJldiAwOSkKMDE6MDAuMCBSQUlEIGJ1cyBjb250cm9sbGVyOiBMU0kgTG9n
-aWMgLyBTeW1iaW9zIExvZ2ljIE1lZ2FSQUlEIFNBUyAxMDc4CihyZXYgMDQpCjAyOjAwLjAgUENJ
-IGJyaWRnZTogQnJvYWRjb20gRVBCIFBDSS1FeHByZXNzIHRvIFBDSS1YIEJyaWRnZSAocmV2IGMz
-KQowMzowMC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEJyb2FkY29tIENvcnBvcmF0aW9uIE5ldFh0
-cmVtZSBJSSBCQ001NzA4CkdpZ2FiaXQgRXRoZXJuZXQgKHJldiAxMikKMDQ6MDAuMCBQQ0kgYnJp
-ZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzExRVNCLzYzMjFFU0IgUENJIEV4cHJlc3MKVXBzdHJl
-YW0gUG9ydCAocmV2IDAxKQowNDowMC4zIFBDSSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDYz
-MTFFU0IvNjMyMUVTQiBQQ0kgRXhwcmVzcyB0bwpQQ0ktWCBCcmlkZ2UgKHJldiAwMSkKMDU6MDAu
-MCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzExRVNCLzYzMjFFU0IgUENJIEV4cHJl
-c3MKRG93bnN0cmVhbSBQb3J0IEUxIChyZXYgMDEpCjA1OjAxLjAgUENJIGJyaWRnZTogSW50ZWwg
-Q29ycG9yYXRpb24gNjMxMUVTQi82MzIxRVNCIFBDSSBFeHByZXNzCkRvd25zdHJlYW0gUG9ydCBF
-MiAocmV2IDAxKQowNjowMC4wIFBDSSBicmlkZ2U6IEJyb2FkY29tIEVQQiBQQ0ktRXhwcmVzcyB0
-byBQQ0ktWCBCcmlkZ2UgKHJldiBjMykKMDc6MDAuMCBFdGhlcm5ldCBjb250cm9sbGVyOiBCcm9h
-ZGNvbSBDb3Jwb3JhdGlvbiBOZXRYdHJlbWUgSUkgQkNNNTcwOApHaWdhYml0IEV0aGVybmV0IChy
-ZXYgMTIpCjBlOjBkLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogQVRJIFRlY2hub2xvZ2ll
-cyBJbmMgRVMxMDAwIChyZXYgMDIpCgoKCgpFUlJPUjoKClRoaXMgcHJvZ3JhbSB3aWxsIGhlbHAg
-eW91IGRldGVybWluZSB3aGljaCBrZXJuZWwgbW9kdWxlcyB5b3UgbmVlZAp0byBsb2FkIHRvIHVz
-ZSBsbV9zZW5zb3JzIG1vc3QgZWZmZWN0aXZlbHkuIEl0IGlzIGdlbmVyYWxseSBzYWZlCmFuZCBy
-ZWNvbW1lbmRlZCB0byBhY2NlcHQgdGhlIGRlZmF1bHQgYW5zd2VycyB0byBhbGwgcXVlc3Rpb25z
-LAp1bmxlc3MgeW91IGtub3cgd2hhdCB5b3UncmUgZG9pbmcuCgpXZSBjYW4gc3RhcnQgd2l0aCBw
-cm9iaW5nIGZvciAoUENJKSBJMkMgb3IgU01CdXMgYWRhcHRlcnMuCkRvIHlvdSB3YW50IHRvIHBy
-b2JlIG5vdz8gKFlFUy9ubyk6IApQcm9iaW5nIGZvciBQQ0kgYnVzIGFkYXB0ZXJzLi4uClNvcnJ5
-LCBubyBzdXBwb3J0ZWQgUENJIGJ1cyBhZGFwdGVycyBmb3VuZC4KCklmIHlvdSBoYXZlIHVuZGV0
-ZWN0YWJsZSBvciB1bnN1cHBvcnRlZCBJMkMvU01CdXMgYWRhcHRlcnMsIHlvdSBjYW4gaGF2ZQp0
-aGVtIHNjYW5uZWQgYnkgbWFudWFsbHkgbG9hZGluZyB0aGUgbW9kdWxlcyBiZWZvcmUgcnVubmlu
-ZyB0aGlzIHNjcmlwdC4KCldlIGFyZSBub3cgZ29pbmcgdG8gZG8gdGhlIEkyQy9TTUJ1cyBhZGFw
-dGVyIHByb2JpbmdzLiBTb21lIGNoaXBzIG1heQpiZSBkb3VibGUgZGV0ZWN0ZWQ7IHdlIGNob29z
-ZSB0aGUgb25lIHdpdGggdGhlIGhpZ2hlc3QgY29uZmlkZW5jZQp2YWx1ZSBpbiB0aGF0IGNhc2Uu
-CklmIHlvdSBmb3VuZCB0aGF0IHRoZSBhZGFwdGVyIGh1bmcgYWZ0ZXIgcHJvYmluZyBhIGNlcnRh
-aW4gYWRkcmVzcywKeW91IGNhbiBzcGVjaWZ5IHRoYXQgYWRkcmVzcyB0byByZW1haW4gdW5wcm9i
-ZWQuCgpTb21lIGNoaXBzIGFyZSBhbHNvIGFjY2Vzc2libGUgdGhyb3VnaCB0aGUgSVNBIEkvTyBw
-b3J0cy4gV2UgaGF2ZSB0bwp3cml0ZSB0byBhcmJpdHJhcnkgSS9PIHBvcnRzIHRvIHByb2JlIHRo
-ZW0uIFRoaXMgaXMgdXN1YWxseSBzYWZlIHRob3VnaC4KWWVzLCB5b3UgZG8gaGF2ZSBJU0EgSS9P
-IHBvcnRzIGV2ZW4gaWYgeW91IGRvIG5vdCBoYXZlIGFueSBJU0Egc2xvdHMhCkRvIHlvdSB3YW50
-IHRvIHNjYW4gdGhlIElTQSBJL08gcG9ydHM/IChZRVMvbm8pOiAKUHJvYmluZyBmb3IgYE5hdGlv
-bmFsIFNlbWljb25kdWN0b3IgTE03OCcgYXQgMHgyOTAuLi4gICAgICAgTm8KUHJvYmluZyBmb3Ig
-YE5hdGlvbmFsIFNlbWljb25kdWN0b3IgTE03OC1KJyBhdCAweDI5MC4uLiAgICAgTm8KUHJvYmlu
-ZyBmb3IgYE5hdGlvbmFsIFNlbWljb25kdWN0b3IgTE03OScgYXQgMHgyOTAuLi4gICAgICAgTm8K
-UHJvYmluZyBmb3IgYFdpbmJvbmQgVzgzNzgxRCcgYXQgMHgyOTAuLi4gICAgICAgICAgICAgICAg
-ICAgTm8KUHJvYmluZyBmb3IgYFdpbmJvbmQgVzgzNzgyRCcgYXQgMHgyOTAuLi4gICAgICAgICAg
-ICAgICAgICAgTm8KUHJvYmluZyBmb3IgYElQTUkgQk1DIEtDUycgYXQgMHhjYTAuLi4gICAgICAg
-ICAgICAgICAgICAgICAgTm8KUHJvYmluZyBmb3IgYElQTUkgQk1DIFNNSUMnIGF0IDB4Y2E4Li4u
-ICAgICAgICAgICAgICAgICAgICAgTm8KClNvbWUgU3VwZXIgSS9PIGNoaXBzIG1heSBhbHNvIGNv
-bnRhaW4gc2Vuc29ycy4gV2UgaGF2ZSB0byB3cml0ZSB0bwpzdGFuZGFyZCBJL08gcG9ydHMgdG8g
-cHJvYmUgdGhlbS4gVGhpcyBpcyB1c3VhbGx5IHNhZmUuCkRvIHlvdSB3YW50IHRvIHNjYW4gZm9y
-IFN1cGVyIEkvTyBzZW5zb3JzPyAoWUVTL25vKTogClByb2JpbmcgZm9yIFN1cGVyLUkvTyBhdCAw
-eDJlLzB4MmYKVHJ5aW5nIGZhbWlseSBgTmF0aW9uYWwgU2VtaWNvbmR1Y3RvcicuLi4gICAgICAg
-ICAgICAgICAgICAgTm8KVHJ5aW5nIGZhbWlseSBgU01TQycuLi4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgWWVzCkZvdW5kIHVua25vd24gY2hpcCB3aXRoIElEIDB4NjcwMQpQ
-cm9iaW5nIGZvciBTdXBlci1JL08gYXQgMHg0ZS8weDRmClRyeWluZyBmYW1pbHkgYE5hdGlvbmFs
-IFNlbWljb25kdWN0b3InLi4uICAgICAgICAgICAgICAgICAgIE5vClRyeWluZyBmYW1pbHkgYFNN
-U0MnLi4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE5vClRyeWluZyBmYW1p
-bHkgYFZJQS9XaW5ib25kL0ZpbnRlaycuLi4gICAgICAgICAgICAgICAgICAgICAgIE5vClRyeWlu
-ZyBmYW1pbHkgYElURScuLi4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE5v
-CgpTb21lIHNvdXRoIGJyaWRnZXMsIENQVXMgb3IgbWVtb3J5IGNvbnRyb2xsZXJzIG1heSBhbHNv
-IGNvbnRhaW4KZW1iZWRkZWQgc2Vuc29ycy4gRG8geW91IHdhbnQgdG8gc2NhbiBmb3IgdGhlbT8g
-KFlFUy9ubyk6IApTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBTSVM1NTk1Li4uICAgICAgICAg
-ICAgICAgICAgICAgICBObwpWSUEgVlQ4MkM2ODYgSW50ZWdyYXRlZCBTZW5zb3JzLi4uICAgICAg
-ICAgICAgICAgICAgICAgICAgICBObwpWSUEgVlQ4MjMxIEludGVncmF0ZWQgU2Vuc29ycy4uLiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBObwpBTUQgSzggdGhlcm1hbCBzZW5zb3JzLi4uICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBObwpBTUQgSzEwIHRoZXJtYWwgc2Vuc29y
-cy4uLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBObwpJbnRlbCBDb3JlIGZhbWls
-eSB0aGVybWFsIHNlbnNvci4uLiAgICAgICAgICAgICAgICAgICAgICAgICBTdWNjZXNzIQogICAg
-KGRyaXZlciBgY29yZXRlbXAnKQpJbnRlbCBBTUIgRkItRElNTSB0aGVybWFsIHNlbnNvci4uLiAg
-ICAgICAgICAgICAgICAgICAgICAgICBTdWNjZXNzIQogICAgKGRyaXZlciBgdG8tYmUtd3JpdHRl
-bicpCgpOb3cgZm9sbG93cyBhIHN1bW1hcnkgb2YgdGhlIHByb2JlcyBJIGhhdmUganVzdCBkb25l
-LgpKdXN0IHByZXNzIEVOVEVSIHRvIGNvbnRpbnVlOiAKCkRyaXZlciBgY29yZXRlbXAnIChzaG91
-bGQgYmUgaW5zZXJ0ZWQpOgogIERldGVjdHMgY29ycmVjdGx5OgogICogQ2hpcCBgSW50ZWwgQ29y
-ZSBmYW1pbHkgdGhlcm1hbCBzZW5zb3InIChjb25maWRlbmNlOiA5KQoKRHJpdmVyIGB0by1iZS13
-cml0dGVuJyAoc2hvdWxkIGJlIGluc2VydGVkKToKICBEZXRlY3RzIGNvcnJlY3RseToKICAqIENo
-aXAgYEludGVsIEFNQiBGQi1ESU1NIHRoZXJtYWwgc2Vuc29yJyAoY29uZmlkZW5jZTogOSkKCkRv
-IHlvdSB3YW50IHRvIG92ZXJ3cml0ZSAvZXRjL3N5c2NvbmZpZy9sbV9zZW5zb3JzPyAoWUVTL25v
-KTogClN0YXJ0aW5nIGxtX3NlbnNvcnM6IENhbid0IGFjY2VzcyBwcm9jZnMvc3lzZnMgZmlsZQpV
-bmFibGUgdG8gZmluZCBpMmMgYnVzIGluZm9ybWF0aW9uOwpGb3IgMi42IGtlcm5lbHMsIG1ha2Ug
-c3VyZSB5b3UgaGF2ZSBtb3VudGVkIHN5c2ZzIGFuZCBsaWJzZW5zb3JzCndhcyBjb21waWxlZCB3
-aXRoIHN5c2ZzIHN1cHBvcnQhCkZvciBvbGRlciBrZXJuZWxzLCBtYWtlIHN1cmUgeW91IGhhdmUg
-ZG9uZSAnbW9kcHJvYmUgaTJjLXByb2MnIQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIFtGQUlMRURdCgoKCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwppMmMgbWFpbGluZyBsaXN0CmkyY0BsbS1z
-ZW5zb3JzLm9yZwpodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5vcmcvbWFpbG1hbi9saXN0aW5mby9p
-MmM=
+Hey Jean,
+> Please provide patches that can be applied with patch -p1 from the root
+> of the kernel source tree.
+>   
+Will do, sorry about that
+
+> Having this here is a bit confusing, you should leave all the
+> transaction types (from I801_QUICK to I801_I2C_BLOCK_LAST) as a block.
+>   
+Oops, not a smart place to put this constant, I agree. Moved to
+
+> I801_HST_CNT_INTREN (which could probably be renamed to just
+> I801_INTREN for brevity) would go first.
+>
+> Also note that the drivers already had a define for this flag, named
+> ENABLE_INT9, although it was disabled. I agree that I801_INTREN is a
+> better name, but it would probably be a good idea to delete ENABLE_INT9
+> and all references thereto first, otherwise the code becomes a little
+> confusing.
+>   
+Will do. I'll just delete ENABLE_INT9 all together.
+
+> You never really use the irq value, only whether it is -1 or not. So it
+> might make more sense to turn it into a flag and rename it to use_irq?
+>   
+Yup, seems like a waste to store the value :)
+
+> Please make this HZ/2 a define so that it's easy to change. 
+Done
+
+> Ideally this define would replace MAX_TIMEOUT (in a separate patch) so 
+> that both
+> the poll-based and the interrupt-driven paths have the same timeout 
+> value. Right now,
+> the timeout handling of the poll-based path is rather ugly (the actual 
+> timeout depends on
+> the value of HZ.)
+Hm, seems like a very sensible thing to do. However, I have no idea how 
+to implement that, since you don't really know how long msleep slept, or 
+not? I sadly don't really have time to look into this right now, sorry.
+
+> Not sure why you make this wait interruptible. The poll-based path
+> isn't interruptible, and you do not handle the interrupted case anyway.
+>   
+I'm not an expert, but I think this is the right way to use it.
+The interupt handler i801_isr catches the interrupt, saves the status to 
+algo_data and calls wake_up_interruptable. This will wake up the wait.
+
+I'm not sure whether this is the correct way or not. Any input from an 
+interrupt expert is very much welcome.
+I did test it without the event_interruptable, which produces nonsense, 
+like:
+
+====
+polling
+====
+[root@localhost busses]# time i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
+50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
+70: -- -- -- UU -- -- -- --
+
+real    0m0.235s
+user    0m0.000s
+sys     0m0.003s
+
+====
+wait_event_interruptable_timeout
+====
+[root@localhost busses]# time i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
+50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
+70: -- -- -- UU -- -- -- --
+
+real    0m0.130s
+user    0m0.001s
+sys     0m0.009s
+
+====
+wait_event_timeout
+====
+[root@localhost busses]# time i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- 0a -- -- -- -- --
+10: 10 -- -- -- -- -- -- -- -- 19 -- -- -- -- 1e --
+20: -- -- -- -- 24 -- -- -- -- 29 -- -- -- -- -- --
+30: 30 -- -- 33 -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+real    0m4.090s
+user    0m0.000s
+sys     0m0.004s
+
+> The polled-based path has additional logic to handle the timeout case
+> (by resetting the controller.) I would guess you want the same for the
+> interrupt-driven path?
+>   
+Agree. After merging to 2.6.27-rc3, I noticed a helper function called 
+i801_check_post was added. Seems to be the ideal place to pass the 
+return data to.
+
+> Please add a trailing comma.
+>   
+Done
+> i801_adapter.name is a rather long string, I think I'd rather use
+> i801_driver.name to register the IRQ.
+>   
+Ok
+> I think you have a race here. You free the irq before removing the i2c
+> adapter. What will happen if someone initiates an I2C transaction after
+> the IRQ has been freed? It would probably be better to remove the i2c
+> adapter first.
+>   
+Quite an obvious race as well... Changed already.
+> Other than that, it looks good to me, good work. Note though that I am
+> in no way an expert of interrupt handling, as this is the first
+> PC-style SMBus controller driver which gets converted to use interrupts
+> instead of polling.
+>   
+Thanks. I'm by no means an expert as well, it's all quite new to me. 
+Thanks a lot for your patience.
+
+I'll send you an updated patch later this evening. I don't know anything 
+about config files though, so that'll have to wait a bit... The module 
+parameter will be added though.
+
+Ivo
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
