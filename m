@@ -1,9 +1,10 @@
-From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH][RESEND] i2c-i801: Add basic interrupt support
-Date: Wed, 13 Aug 2008 22:05:11 +0200
-Message-ID: <48A33E77.7060502@gmail.com>
+From: Ali Jubril <mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org>
+Subject: investment/partnership proposal
+Date: 13 Aug 2008 09:04:05 -0700
+Message-ID: <E1KTMju-0000lG-Am@teufli.physik.fu-berlin.de>
+Reply-To: mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------040207000908080305020305"
+Content-Type: multipart/mixed; boundary="===============8945015679568488132=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -14,176 +15,168 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040207000908080305020305
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--===============8945015679568488132==
+Content-Type: multipart/alternative;
+	boundary="YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1"
 
-This patch adds basic interrupt support to the i2c-i801 driver, 
-configurable by the module parameter use_irq.
+--YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1
+Content-type: text/plain; charset=windows-1252;
 
-Signed-off-by: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- i2c-i801.c |  151 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 136 insertions(+), 15 deletions(-)
+You are invited to "investment/partnership proposal".
 
 
+By your host Ali Jubril:
 
---------------040207000908080305020305
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="diff"
+BY YOUR HOST Ali Jubril.
+DEAR PARTNER,
 
-ZGlmZiAtdXByIGxpbnV4LTIuNi4yNy1yYzMvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAx
-LmMgbGludXgtMi42LjI3LXJjMy5uZXcvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAxLmMK
-LS0tIGxpbnV4LTIuNi4yNy1yYzMvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAxLmMJMjAw
-OC0wOC0xMyAyMDo0NTo1MC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4yNy1yYzMu
-bmV3L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaTgwMS5jCTIwMDgtMDgtMTMgMjE6MDQ6NTAu
-MDAwMDAwMDAwICswMjAwCkBAIC02MSw2ICs2MSw3IEBACiAjaW5jbHVkZSA8bGludXgvZGVs
-YXkuaD4KICNpbmNsdWRlIDxsaW51eC9pb3BvcnQuaD4KICNpbmNsdWRlIDxsaW51eC9pbml0
-Lmg+CisjaW5jbHVkZSA8bGludXgvaW50ZXJydXB0Lmg+CiAjaW5jbHVkZSA8bGludXgvaTJj
-Lmg+CiAjaW5jbHVkZSA8bGludXgvYWNwaS5oPgogI2luY2x1ZGUgPGFzbS9pby5oPgpAQCAt
-OTMsOSArOTQsOSBAQAogLyoga2lsbCBiaXQgZm9yIFNNQkhTVENOVCAqLwogI2RlZmluZSBT
-TUJIU1RDTlRfS0lMTAkJMgogCi0vKiBPdGhlciBzZXR0aW5ncyAqLworLyogVGltZW91dCBz
-ZXR0aW5ncyAqLwogI2RlZmluZSBNQVhfVElNRU9VVAkJMTAwCi0jZGVmaW5lIEVOQUJMRV9J
-TlQ5CQkwCS8qIHNldCB0byAweDAxIHRvIGVuYWJsZSAtIHVudGVzdGVkICovCisjZGVmaW5l
-IElOVEVSUlVQVF9USU1FT1VUCShIWi8yKQogCiAvKiBJODAxIGNvbW1hbmQgY29uc3RhbnRz
-ICovCiAjZGVmaW5lIEk4MDFfUVVJQ0sJCTB4MDAKQEAgLTEyMCwyMSArMTIxLDcxIEBACiAj
-ZGVmaW5lIFNNQkhTVFNUU19JTlRSCQkweDAyCiAjZGVmaW5lIFNNQkhTVFNUU19IT1NUX0JV
-U1kJMHgwMQogCisvKiBJbnRlcnJ1cHQgZW5hYmxlZCAqLworI2RlZmluZSBJODAxX0lOVFJF
-TgkJMHgwMQorCisvKiBNYXNrIGZvciBldmVudHMgd2Ugbm9ybWFsbHkgaGFuZGxlICovCisj
-ZGVmaW5lIEk4MDFfSFNUX1NUU19NQVNLX05PUk0gKCBcCisJCVNNQkhTVFNUU19GQUlMRUQg
-fCBcCisJCVNNQkhTVFNUU19CVVNfRVJSIHwgXAorCQlTTUJIU1RTVFNfREVWX0VSUiB8IFwK
-KwkJU01CSFNUU1RTX0lOVFIpCisKKy8qIE1hc2sgZm9yIGFsbCBldmVudHMgKi8KKyNkZWZp
-bmUgSTgwMV9IU1RfU1RTX01BU0tfQUxMICggXAorCQlTTUJIU1RTVFNfQllURV9ET05FIHwg
-XAorCQlTTUJIU1RTVFNfU01CQUxFUlRfU1RTIHwgXAorCQlTTUJIU1RTVFNfRkFJTEVEIHwg
-XAorCQlTTUJIU1RTVFNfQlVTX0VSUiB8IFwKKwkJU01CSFNUU1RTX0RFVl9FUlIgfCBcCisJ
-CVNNQkhTVFNUU19JTlRSKQorCiAjZGVmaW5lIFNUQVRVU19GTEFHUwkJKFNNQkhTVFNUU19C
-WVRFX0RPTkUgfCBTTUJIU1RTVFNfRkFJTEVEIHwgXAogCQkJCSBTTUJIU1RTVFNfQlVTX0VS
-UiB8IFNNQkhTVFNUU19ERVZfRVJSIHwgXAogCQkJCSBTTUJIU1RTVFNfSU5UUikKIAorLyog
-SWYgdXNlX2lycSBpcyBzZXQgdG8gYW55dGhpbmcgZGlmZmVyZW50IHRoYW4gMCwgaW50ZXJy
-dXB0cyB3aWxsIGJlIHVzZWQKKyAgIGlmIGF2YWlsYWJlLiBFWFBFUklNRU5UQUwhICovCitz
-dGF0aWMgaW50IHVzZV9pcnE7Cittb2R1bGVfcGFyYW0odXNlX2lycSwgYm9vbCwgU19JUlVH
-Tyk7CitNT0RVTEVfUEFSTV9ERVNDKGZvcmNlLCAiVXNlIGludGVycnVwdHMgaWYgYXZhaWxh
-YmxlLiBFWFBFUklNRU5UQUwhIik7CisKIHN0YXRpYyB1bnNpZ25lZCBsb25nIGk4MDFfc21i
-YTsKIHN0YXRpYyB1bnNpZ25lZCBjaGFyIGk4MDFfb3JpZ2luYWxfaHN0Y2ZnOworc3RhdGlj
-IHN0cnVjdCBpMmNfYWRhcHRlciBpODAxX2FkYXB0ZXI7CiBzdGF0aWMgc3RydWN0IHBjaV9k
-cml2ZXIgaTgwMV9kcml2ZXI7CiBzdGF0aWMgc3RydWN0IHBjaV9kZXYgKkk4MDFfZGV2Owog
-CitzdHJ1Y3QgaTJjX2k4MDFfYWxnb19kYXRhIHsKKwlzcGlubG9ja190IGxvY2s7CisJd2Fp
-dF9xdWV1ZV9oZWFkX3Qgd2FpdHE7CisJaW50IHN0YXR1czsgLyogY29weSBvZiBoL3cgcmVn
-aXN0ZXIgKi8KKwlib29sIHVzZV9pcnE7Cit9OworCitzdGF0aWMgc3RydWN0IGkyY19pODAx
-X2FsZ29fZGF0YSBpODAxX2FsZ29fZGF0YTsKKwogI2RlZmluZSBGRUFUVVJFX1NNQlVTX1BF
-QwkoMSA8PCAwKQogI2RlZmluZSBGRUFUVVJFX0JMT0NLX0JVRkZFUgkoMSA8PCAxKQogI2Rl
-ZmluZSBGRUFUVVJFX0JMT0NLX1BST0MJKDEgPDwgMikKICNkZWZpbmUgRkVBVFVSRV9JMkNf
-QkxPQ0tfUkVBRAkoMSA8PCAzKQogc3RhdGljIHVuc2lnbmVkIGludCBpODAxX2ZlYXR1cmVz
-OwogCisvKiBpbnRlcnJ1cHQgaGFuZGxpbmc6IGZldGNoICYgY29uc3VtZSBob3N0IHN0YXR1
-cyBvdXQgb2YgYWxnb19kYXRhICovCitzdGF0aWMgaW5saW5lIGludCBpODAxX2dldF9zdGF0
-dXMoc3RydWN0IGkyY19pODAxX2FsZ29fZGF0YSAqYWxnb19kYXRhKQoreworCXVuc2lnbmVk
-IGxvbmcgZmxhZ3M7CisJaW50IHN0YXR1czsKKworCXNwaW5fbG9ja19pcnFzYXZlKCZhbGdv
-X2RhdGEtPmxvY2ssIGZsYWdzKTsKKwlzdGF0dXMgPSBhbGdvX2RhdGEtPnN0YXR1czsKKwlh
-bGdvX2RhdGEtPnN0YXR1cyA9IDA7CisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmYWxnb19k
-YXRhLT5sb2NrLCBmbGFncyk7CisKKwlyZXR1cm4gc3RhdHVzOworfQorCisKIC8qIE1ha2Ug
-c3VyZSB0aGUgU01CdXMgaG9zdCBpcyByZWFkeSB0byBzdGFydCB0cmFuc21pdHRpbmcuCiAg
-ICBSZXR1cm4gMCBpZiBpdCBpcywgLUVCVVNZIGlmIGl0IGlzIG5vdC4gKi8KIHN0YXRpYyBp
-bnQgaTgwMV9jaGVja19wcmUodm9pZCkKQEAgLTIyMSwyMSArMjcyLDMzIEBAIHN0YXRpYyBp
-bnQgaTgwMV90cmFuc2FjdGlvbihpbnQgeGFjdCkKIAlpbnQgcmVzdWx0OwogCWludCB0aW1l
-b3V0ID0gMDsKIAorCXN0cnVjdCBpMmNfaTgwMV9hbGdvX2RhdGEgKmFsZ29fZGF0YSA9IGk4
-MDFfYWRhcHRlci5hbGdvX2RhdGE7CisKIAlyZXN1bHQgPSBpODAxX2NoZWNrX3ByZSgpOwog
-CWlmIChyZXN1bHQgPCAwKQogCQlyZXR1cm4gcmVzdWx0OwogCiAJLyogdGhlIGN1cnJlbnQg
-Y29udGVudHMgb2YgU01CSFNUQ05UIGNhbiBiZSBvdmVyd3JpdHRlbiwgc2luY2UgUEVDLAog
-CSAqIElOVFJFTiwgU01CU0NNRCBhcmUgcGFzc2VkIGluIHhhY3QgKi8KLQlvdXRiX3AoeGFj
-dCB8IEk4MDFfU1RBUlQsIFNNQkhTVENOVCk7CisJaWYgKGFsZ29fZGF0YS0+dXNlX2lycSkg
-eworCQlvdXRiX3AoeGFjdCB8IEk4MDFfU1RBUlQgfCBJODAxX0lOVFJFTiwgU01CSFNUQ05U
-KTsKIAotCS8qIFdlIHdpbGwgYWx3YXlzIHdhaXQgZm9yIGEgZnJhY3Rpb24gb2YgYSBzZWNv
-bmQhICovCi0JZG8gewotCQltc2xlZXAoMSk7Ci0JCXN0YXR1cyA9IGluYl9wKFNNQkhTVFNU
-Uyk7Ci0JfSB3aGlsZSAoKHN0YXR1cyAmIFNNQkhTVFNUU19IT1NUX0JVU1kpICYmICh0aW1l
-b3V0KysgPCBNQVhfVElNRU9VVCkpOworCQl0aW1lb3V0ID0gd2FpdF9ldmVudF90aW1lb3V0
-KGFsZ29fZGF0YS0+d2FpdHEsCisJCQkJKChzdGF0dXMgPSBpODAxX2dldF9zdGF0dXMoYWxn
-b19kYXRhKSkKKwkJCQkmIEk4MDFfSFNUX1NUU19NQVNLX05PUk0pLCBJTlRFUlJVUFRfVElN
-RU9VVCk7CisJCXJlc3VsdCA9IGk4MDFfY2hlY2tfcG9zdChzdGF0dXMsIHRpbWVvdXQgPT0g
-MCk7CisJfSBlbHNlIHsKKwkJb3V0Yl9wKHhhY3QgfCBJODAxX1NUQVJULCBTTUJIU1RDTlQp
-OworCisJCS8qIFdlIHdpbGwgYWx3YXlzIHdhaXQgZm9yIGEgZnJhY3Rpb24gb2YgYSBzZWNv
-bmQhICovCisJCWRvIHsKKwkJCW1zbGVlcCgxKTsKKwkJCXN0YXR1cyA9IGluYl9wKFNNQkhT
-VFNUUyk7CisJCX0gd2hpbGUgKChzdGF0dXMgJiBTTUJIU1RTVFNfSE9TVF9CVVNZKSAmJgor
-CQkJICh0aW1lb3V0KysgPCBNQVhfVElNRU9VVCkpOworCQlyZXN1bHQgPSBpODAxX2NoZWNr
-X3Bvc3Qoc3RhdHVzLCB0aW1lb3V0ID49IE1BWF9USU1FT1VUKTsKKwl9CiAKLQlyZXN1bHQg
-PSBpODAxX2NoZWNrX3Bvc3Qoc3RhdHVzLCB0aW1lb3V0ID49IE1BWF9USU1FT1VUKTsKIAlp
-ZiAocmVzdWx0IDwgMCkKIAkJcmV0dXJuIHJlc3VsdDsKIApAQCAtMjc3LDggKzM0MCw3IEBA
-IHN0YXRpYyBpbnQgaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieV9ibG8KIAkJCW91dGJfcChk
-YXRhLT5ibG9ja1tpKzFdLCBTTUJCTEtEQVQpOwogCX0KIAotCXN0YXR1cyA9IGk4MDFfdHJh
-bnNhY3Rpb24oSTgwMV9CTE9DS19EQVRBIHwgRU5BQkxFX0lOVDkgfAotCQkJCSAgSTgwMV9Q
-RUNfRU4gKiBod3BlYyk7CisJc3RhdHVzID0gaTgwMV90cmFuc2FjdGlvbihJODAxX0JMT0NL
-X0RBVEEgfCBJODAxX1BFQ19FTiAqIGh3cGVjKTsKIAlpZiAoc3RhdHVzKQogCQlyZXR1cm4g
-c3RhdHVzOwogCkBAIC0zMjgsNyArMzkwLDcgQEAgc3RhdGljIGludCBpODAxX2Jsb2NrX3Ry
-YW5zYWN0aW9uX2J5dGVfYgogCQkJZWxzZQogCQkJCXNtYmNtZCA9IEk4MDFfQkxPQ0tfREFU
-QTsKIAkJfQotCQlvdXRiX3Aoc21iY21kIHwgRU5BQkxFX0lOVDksIFNNQkhTVENOVCk7CisJ
-CW91dGJfcChzbWJjbWQsIFNNQkhTVENOVCk7CiAKIAkJaWYgKGkgPT0gMSkKIAkJCW91dGJf
-cChpbmIoU01CSFNUQ05UKSB8IEk4MDFfU1RBUlQsIFNNQkhTVENOVCk7CkBAIC01MDksNyAr
-NTcxLDcgQEAgc3RhdGljIHMzMiBpODAxX2FjY2VzcyhzdHJ1Y3QgaTJjX2FkYXB0ZQogCWlm
-KGJsb2NrKQogCQlyZXQgPSBpODAxX2Jsb2NrX3RyYW5zYWN0aW9uKGRhdGEsIHJlYWRfd3Jp
-dGUsIHNpemUsIGh3cGVjKTsKIAllbHNlCi0JCXJldCA9IGk4MDFfdHJhbnNhY3Rpb24oeGFj
-dCB8IEVOQUJMRV9JTlQ5KTsKKwkJcmV0ID0gaTgwMV90cmFuc2FjdGlvbih4YWN0KTsKIAog
-CS8qIFNvbWUgQklPU2VzIGRvbid0IGxpa2UgaXQgd2hlbiBQRUMgaXMgZW5hYmxlZCBhdCBy
-ZWJvb3Qgb3IgcmVzdW1lCiAJICAgdGltZSwgc28gd2UgZm9yY2libHkgZGlzYWJsZSBpdCBh
-ZnRlciBldmVyeSB0cmFuc2FjdGlvbi4gVHVybiBvZmYKQEAgLTU1OCw2ICs2MjAsNyBAQCBz
-dGF0aWMgc3RydWN0IGkyY19hZGFwdGVyIGk4MDFfYWRhcHRlciA9CiAJLmlkCQk9IEkyQ19I
-V19TTUJVU19JODAxLAogCS5jbGFzcwkJPSBJMkNfQ0xBU1NfSFdNT04gfCBJMkNfQ0xBU1Nf
-U1BELAogCS5hbGdvCQk9ICZzbWJ1c19hbGdvcml0aG0sCisJLmFsZ29fZGF0YQk9ICZpODAx
-X2FsZ29fZGF0YSwKIH07CiAKIHN0YXRpYyBzdHJ1Y3QgcGNpX2RldmljZV9pZCBpODAxX2lk
-c1tdID0gewpAQCAtNTgxLDggKzY0NCwzOCBAQCBzdGF0aWMgc3RydWN0IHBjaV9kZXZpY2Vf
-aWQgaTgwMV9pZHNbXSA9CiAKIE1PRFVMRV9ERVZJQ0VfVEFCTEUgKHBjaSwgaTgwMV9pZHMp
-OwogCitzdGF0aWMgaXJxcmV0dXJuX3QgaTgwMV9pc3IoaW50IGlycSwgdm9pZCAqZGV2X2lk
-KQoreworCXU4IHN0YXR1cyA9IGluYihTTUJIU1RTVFMpOworCisJLyogYmFpbCBpZiBpdCdz
-IG5vdCBvdXJzICovCisJaWYgKCEoc3RhdHVzICYgSTgwMV9IU1RfU1RTX01BU0tfQUxMKSkg
-eworCQlkZXZfZGJnKCZJODAxX2Rldi0+ZGV2LCAiQkFJTElORyBpbnRlcnJ1cHRcbiIpOwor
-CQlyZXR1cm4gSVJRX05PTkU7CisJfQorCisJZGV2X2RiZygmSTgwMV9kZXYtPmRldiwgIklO
-VEVSUlVQVDogSVJRIHN0YXR1czogMHglMDJ4XG4iLCBzdGF0dXMpOworCisJLyogQUNLICov
-CisJb3V0Yigoc3RhdHVzICYgSTgwMV9IU1RfU1RTX01BU0tfQUxMKSwgU01CSFNUU1RTKTsK
-KworCWlmIChzdGF0dXMgJiBJODAxX0hTVF9TVFNfTUFTS19OT1JNKSB7CisJCXN0cnVjdCBp
-MmNfYWRhcHRlciAqYWRhcCA9IGRldl9pZDsKKwkJc3RydWN0IGkyY19pODAxX2FsZ29fZGF0
-YSAqYWxnb19kYXRhID0gYWRhcC0+YWxnb19kYXRhOworCQl1bnNpZ25lZCBsb25nIGZsYWdz
-OworCisJCXNwaW5fbG9ja19pcnFzYXZlKCZhbGdvX2RhdGEtPmxvY2ssIGZsYWdzKTsKKwkJ
-YWxnb19kYXRhLT5zdGF0dXMgPSBzdGF0dXM7CisJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUo
-JmFsZ29fZGF0YS0+bG9jaywgZmxhZ3MpOworCQl3YWtlX3VwKCZhbGdvX2RhdGEtPndhaXRx
-KTsKKwl9CisKKwlyZXR1cm4gSVJRX0hBTkRMRUQ7Cit9CisKIHN0YXRpYyBpbnQgX19kZXZp
-bml0IGk4MDFfcHJvYmUoc3RydWN0IHBjaV9kZXYgKmRldiwgY29uc3Qgc3RydWN0IHBjaV9k
-ZXZpY2VfaWQgKmlkKQogeworCXN0cnVjdCBpMmNfaTgwMV9hbGdvX2RhdGEgKmFsZ29fZGF0
-YSA9IGk4MDFfYWRhcHRlci5hbGdvX2RhdGE7CiAJdW5zaWduZWQgY2hhciB0ZW1wOwogCWlu
-dCBlcnI7CiAKQEAgLTY0NCwxMCArNzM3LDMyIEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGk4
-MDFfcHJvYmUoc3RydWN0IHAKIAl9CiAJcGNpX3dyaXRlX2NvbmZpZ19ieXRlKEk4MDFfZGV2
-LCBTTUJIU1RDRkcsIHRlbXApOwogCi0JaWYgKHRlbXAgJiBTTUJIU1RDRkdfU01CX1NNSV9F
-TikKKwlpZiAodGVtcCAmIFNNQkhTVENGR19TTUJfU01JX0VOKSB7CiAJCWRldl9kYmcoJmRl
-di0+ZGV2LCAiU01CdXMgdXNpbmcgaW50ZXJydXB0IFNNSSNcbiIpOwotCWVsc2UKKwkJYWxn
-b19kYXRhLT51c2VfaXJxID0gZmFsc2U7CisJfSBlbHNlIHsKIAkJZGV2X2RiZygmZGV2LT5k
-ZXYsICJTTUJ1cyB1c2luZyBQQ0kgSW50ZXJydXB0XG4iKTsKKwkJaWYgKHVzZV9pcnEpIHsK
-KwkJCWlmICgocmVxdWVzdF9pcnEoSTgwMV9kZXYtPmlycSwgaTgwMV9pc3IsIElSUUZfU0hB
-UkVELAorCQkJCQkgaTgwMV9kcml2ZXIubmFtZSwgJmk4MDFfYWRhcHRlcikpKSB7CisJCQkJ
-ZGV2X2VycigmZGV2LT5kZXYsICJyZXF1ZXN0IGlycSAlZCBmYWlsZWQhXG4iLAorCQkJCQkJ
-ICAgSTgwMV9kZXYtPmlycSk7CisJCQkJYWxnb19kYXRhLT51c2VfaXJxID0gZmFsc2U7CisJ
-CQl9IGVsc2UgeworCQkJCWRldl9kYmcoJmRldi0+ZGV2LCAiU01CdXMgYmFzZSBhZGRyZXNz
-OiAiCisJCQkJCQkgICAiMHglMDRseCwgSVJROiAlZFxuIiwKKwkJCQkJCSAgIGk4MDFfc21i
-YSwgSTgwMV9kZXYtPmlycSk7CisKKwkJCQlhbGdvX2RhdGEtPnVzZV9pcnEgPSB0cnVlOwor
-CQkJCWFsZ29fZGF0YS0+c3RhdHVzID0gMDsKKwkJCQlpbml0X3dhaXRxdWV1ZV9oZWFkKCZh
-bGdvX2RhdGEtPndhaXRxKTsKKwkJCQlzcGluX2xvY2tfaW5pdCgmYWxnb19kYXRhLT5sb2Nr
-KTsKKwkJCX0KKwkJfSBlbHNlIHsKKwkJCWFsZ29fZGF0YS0+dXNlX2lycSA9IGZhbHNlOwor
-CQkJZGV2X2RiZygmZGV2LT5kZXYsICJJbnRlcnJ1cHRzIGRpc2FibGVkLlxuIik7CisJCX0K
-Kwl9CiAKIAkvKiBDbGVhciBzcGVjaWFsIG1vZGUgYml0cyAqLwogCWlmIChpODAxX2ZlYXR1
-cmVzICYgKEZFQVRVUkVfU01CVVNfUEVDIHwgRkVBVFVSRV9CTE9DS19CVUZGRVIpKQpAQCAt
-Njc0LDcgKzc4OSwxMyBAQCBleGl0OgogCiBzdGF0aWMgdm9pZCBfX2RldmV4aXQgaTgwMV9y
-ZW1vdmUoc3RydWN0IHBjaV9kZXYgKmRldikKIHsKKwlzdHJ1Y3QgaTJjX2k4MDFfYWxnb19k
-YXRhICphbGdvX2RhdGEgPSBpODAxX2FkYXB0ZXIuYWxnb19kYXRhOworCiAJaTJjX2RlbF9h
-ZGFwdGVyKCZpODAxX2FkYXB0ZXIpOworCisJaWYgKGFsZ29fZGF0YS0+dXNlX2lycSkKKwkJ
-ZnJlZV9pcnEoZGV2LT5pcnEsICZpODAxX2FkYXB0ZXIpOworCiAJcGNpX3dyaXRlX2NvbmZp
-Z19ieXRlKEk4MDFfZGV2LCBTTUJIU1RDRkcsIGk4MDFfb3JpZ2luYWxfaHN0Y2ZnKTsKIAlw
-Y2lfcmVsZWFzZV9yZWdpb24oZGV2LCBTTUJCQVIpOwogCS8q
---------------040207000908080305020305
+ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL
+ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)
+PHHONE:(00226)78336657
+I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE
+BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR 
+BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK
+BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM
+
+     Date:		Wednesday August 13, 2008
+
+     Time:		3:00 pm - 4:00 pm (GMT +00:00)
+
+Will you attend? RSVP to this invitation at:
+
+     http://calendar.yahoo.com/mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org?v=126&a1=0&iid=Fx%40S8K%40%40RMTi%40FFJLxBCdB%40%409radB5pDppAbup7%40aJ-x%40eqh8pEpA-%40%40um0X%40ErH&igid=ihaAjKl%406YgmaGQYvhhRRApaP%40uc%40hqThp%40desz%403I05%40uao-%40AvUJl%40angB%40fNXohq0th%40%40
+    
+Copyright © 2008 All Rights Reserved
+ www.yahoo.com
+
+Privacy Policy:
+ http://privacy.yahoo.com/privacy/us
+
+Terms of Service:
+ http://docs.yahoo.com/info/terms/
+
+--YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1
+Content-type: text/html; charset=windows-1252;
+
+
+
+
+                    
+
+<html>
+
+<style type="text/css">
+    a {color:#0066CC;text-decoration:none;}
+    body {text-align:center; font-family:Arial;}
+    .propertyname{text-align:right; font-size:10px; font-size:13px; color:7A8180; width:100px; vertical-align:top;white-space:nowrap;}
+    .propertyvalue{text-align:left; font-size:13px; vertical-align:top;}
+    .divider{width:10px; }
+    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;}
+    #invite_main_info {background-color:white; margin: 0px 10px 0px 10px;clear:both; zoom:1; width:505px; overflow-x:auto;}
+    .header_images {height:55px; margin-left:10px; margin-right:10px;zoom:1}
+    #header_yahoo_image {margin-top:13px; float:left; width:274px; height:28px; text-align:left;}
+    #header_second_image {margin-top:10px; float:right; width:53px; height:35px;}
+    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;margin-bottom:10px}
+    #copyright_footer {font-size:10px;}
+    #tip_footer {font-size:10px;}
+    #main_table{padding:0; border-spacing:0; margin: 15px 10px 10px 10px;}
+    #guests_div{overflow-y:auto; height:40px;}
+    .item_list { width:400px;}
+    .event_time { width:70px; text-align:right;}
+    .event_title { width:100px; text-align:left;}
+    .task_title { width:100px; text-align:left;}
+    .event_title_daily { width:250px; text-align:left;}
+    .add_link { width:300px; text-align:left;}
+    .task_header_priority{ width:100px; text-align:left;}
+    .task_header_date{ width:100px; text-align:right;}
+    .task_priority{ width:10px; text-align:center;}
+    .task_date{ width:75px; text-align:right;}
+    .nowrap {white-space:nowrap;}  
+    .new {font-size:8px; text-transform:uppercase; color:#FF6600;}
+    .clear_line{font-size:8px}
+</style>
+
+<body>
+<center>
+<div id="invite_main">
+	<div class="header_images"> 
+		<div id="header_yahoo_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/ma_2.gif" border=0 alt=""/></div>
+		<div id="header_second_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/gr/cal_em_invite_1.gif" border=0 alt=""/></div>
+	</div>
+	<div id="invite_main_info">
+		<table id="main_table" cellpadding=0>
+
+                            <tr><td class="propertyname">You're invited to:</td>
+                <td class="divider">&nbsp;</td>
+                <td class="propertyvalue">investment/partnership proposal</td></tr>
+            
+                                                <tr><td class="propertyname">By your host:</td>
+                    <td class="divider">&nbsp;</td>
+                    <td class="propertyvalue">Ali Jubril</td></tr>
+                                
+                <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>              
+
+			    		 		    <tr><td class="propertyname">Message:</td>
+                    <td class="divider">&nbsp;</td>
+                    <td class="propertyvalue">BY YOUR HOST Ali Jubril.<br>DEAR PARTNER,<br><br>ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL<br>ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)<br>PHHONE:(00226)78336657<br>I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE<br>BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR <br>BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK<br>BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM</td></tr>
+
+                    <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>	 
+		 	    	
+             
+              
+            
+
+                <tr><td class="propertyname">Date:</td>
+    <td class="divider">&nbsp;</td> 
+			<td class="propertyvalue">Wednesday August 13, 2008
+		    	</td>
+	</tr>
+
+
+    <tr><td class="propertyname">Time:</td>
+    <td class="divider">&nbsp;</td> 
+			<td class="propertyvalue">3:00 pm - 4:00 pm
+				&nbsp;(GMT +00:00)
+				</td>
+	</tr>
+
+
+	
+
+
+
+
+
+            
+            <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>
+            
+			                                     <tr><td class="propertyname">Will you attend?</td>
+                     <td class="divider">&nbsp;</td>
+                     <td class="propertyvalue"><b><a href="http://calendar.yahoo.com/mralijubril04-ur4TIblo6goN+BqQ9rBEUg@public.gmane.org?v=126&a1=0&iid=Fx%40S8K%40%40RMTi%40FFJLxBCdB%40%409radB5pDppAbup7%40aJ-x%40eqh8pEpA-%40%40um0X%40ErH&igid=ihaAjKl%406YgmaGQYvhhRRApaP%40uc%40hqThp%40desz%403I05%40uao-%40AvUJl%40angB%40fNXohq0th%40%40">RSVP to this invitation</a></b></td></tr>
+	                                                
+            						
+		</table>
+	</div>
+</div>
+
+<span id="copyright_footer">
+    Copyright © 2008
+&nbsp;<a target=_blank href="http://www.yahoo.com">Yahoo! Inc.</a>&nbsp;All Rights Reserved |
+<a target=_blank href="http://docs.yahoo.com/info/terms/">Terms of Service</a> | <a target=_blank href="http://privacy.yahoo.com/">Privacy Policy</a>  
+
+</span>
+</center>
+
+</body>
+</html>
+
+--YCalInvites=qZ89JS7TBMDAYpehIBYQeO2iRUv3YAU1218643420-1--
+
+
+--===============8945015679568488132==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -193,4 +186,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---------------040207000908080305020305--
+--===============8945015679568488132==--
