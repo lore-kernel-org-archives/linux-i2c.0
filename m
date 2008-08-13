@@ -1,14 +1,11 @@
-From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 01/03] i2c-i801: Add basic interrupt support
-Date: Wed, 13 Aug 2008 21:17:22 +0200
-Message-ID: <48A33342.1050105@gmail.com>
-References: <488762C8.6090105@gmail.com>
-	<20080812101545.600ca850@hyperion.delvare>
+From: Ali Jubril <mralijubril08-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: investment/partnership proposal
+Date: 13 Aug 2008 09:05:23 -0700
+Message-ID: <E1KTMCA-0000UO-Pi@teufli.physik.fu-berlin.de>
+Reply-To: mralijubril08-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7004286294587342823=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080812101545.600ca850-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,153 +15,175 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hey Jean,
-> Please provide patches that can be applied with patch -p1 from the root
-> of the kernel source tree.
->   
-Will do, sorry about that
+--===============7004286294587342823==
+Content-Type: multipart/alternative;
+	boundary="YCalInvites=ZZ89JS7TBMDAYpehIBYDeO2iRUv3YsP1218643461-1"
 
-> Having this here is a bit confusing, you should leave all the
-> transaction types (from I801_QUICK to I801_I2C_BLOCK_LAST) as a block.
->   
-Oops, not a smart place to put this constant, I agree. Moved to
+--YCalInvites=ZZ89JS7TBMDAYpehIBYDeO2iRUv3YsP1218643461-1
+Content-type: text/plain; charset=windows-1252;
 
-> I801_HST_CNT_INTREN (which could probably be renamed to just
-> I801_INTREN for brevity) would go first.
->
-> Also note that the drivers already had a define for this flag, named
-> ENABLE_INT9, although it was disabled. I agree that I801_INTREN is a
-> better name, but it would probably be a good idea to delete ENABLE_INT9
-> and all references thereto first, otherwise the code becomes a little
-> confusing.
->   
-Will do. I'll just delete ENABLE_INT9 all together.
+You are invited to "investment/partnership proposal".
 
-> You never really use the irq value, only whether it is -1 or not. So it
-> might make more sense to turn it into a flag and rename it to use_irq?
->   
-Yup, seems like a waste to store the value :)
 
-> Please make this HZ/2 a define so that it's easy to change. 
-Done
+By your host Ali Jubril:
 
-> Ideally this define would replace MAX_TIMEOUT (in a separate patch) so 
-> that both
-> the poll-based and the interrupt-driven paths have the same timeout 
-> value. Right now,
-> the timeout handling of the poll-based path is rather ugly (the actual 
-> timeout depends on
-> the value of HZ.)
-Hm, seems like a very sensible thing to do. However, I have no idea how 
-to implement that, since you don't really know how long msleep slept, or 
-not? I sadly don't really have time to look into this right now, sorry.
+BY YOUR HOST Ali Jubril.
+DEAR PARTNER,
 
-> Not sure why you make this wait interruptible. The poll-based path
-> isn't interruptible, and you do not handle the interrupted case anyway.
->   
-I'm not an expert, but I think this is the right way to use it.
-The interupt handler i801_isr catches the interrupt, saves the status to 
-algo_data and calls wake_up_interruptable. This will wake up the wait.
+ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL
+ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)
+PHHONE:(00226)78336657
+I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE
+BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR 
+BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK
+BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM
 
-I'm not sure whether this is the correct way or not. Any input from an 
-interrupt expert is very much welcome.
-I did test it without the event_interruptable, which produces nonsense, 
-like:
+     Date:		Wednesday August 13, 2008
 
-====
-polling
-====
-[root@localhost busses]# time i2cdetect -y 0
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
-50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
-70: -- -- -- UU -- -- -- --
+     Time:		3:00 pm - 4:00 pm (GMT +00:00)
 
-real    0m0.235s
-user    0m0.000s
-sys     0m0.003s
+Will you attend? RSVP to this invitation at:
 
-====
-wait_event_interruptable_timeout
-====
-[root@localhost busses]# time i2cdetect -y 0
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- 44 -- -- -- -- -- -- -- -- -- -- --
-50: 50 -- -- -- 54 55 -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- 69 -- -- -- -- -- --
-70: -- -- -- UU -- -- -- --
+     http://calendar.yahoo.com/mralijubril08?v=126&a1=0&iid=BxAHHZx%40aLr3%40EaNghhF%40Q3%40cdes%40iBWi%40%40M%40h%40%40&igid=ehaEfNpb%40Mv7%40AtNDx%40AYTd%40He%40balhGBp%40wRt7%40r9v%40
+    
+Copyright © 2008 All Rights Reserved
+ www.yahoo.com
 
-real    0m0.130s
-user    0m0.001s
-sys     0m0.009s
+Privacy Policy:
+ http://privacy.yahoo.com/privacy/us
 
-====
-wait_event_timeout
-====
-[root@localhost busses]# time i2cdetect -y 0
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- 0a -- -- -- -- --
-10: 10 -- -- -- -- -- -- -- -- 19 -- -- -- -- 1e --
-20: -- -- -- -- 24 -- -- -- -- 29 -- -- -- -- -- --
-30: 30 -- -- 33 -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
+Terms of Service:
+ http://docs.yahoo.com/info/terms/
 
-real    0m4.090s
-user    0m0.000s
-sys     0m0.004s
+--YCalInvites=ZZ89JS7TBMDAYpehIBYDeO2iRUv3YsP1218643461-1
+Content-type: text/html; charset=windows-1252;
 
-> The polled-based path has additional logic to handle the timeout case
-> (by resetting the controller.) I would guess you want the same for the
-> interrupt-driven path?
->   
-Agree. After merging to 2.6.27-rc3, I noticed a helper function called 
-i801_check_post was added. Seems to be the ideal place to pass the 
-return data to.
 
-> Please add a trailing comma.
->   
-Done
-> i801_adapter.name is a rather long string, I think I'd rather use
-> i801_driver.name to register the IRQ.
->   
-Ok
-> I think you have a race here. You free the irq before removing the i2c
-> adapter. What will happen if someone initiates an I2C transaction after
-> the IRQ has been freed? It would probably be better to remove the i2c
-> adapter first.
->   
-Quite an obvious race as well... Changed already.
-> Other than that, it looks good to me, good work. Note though that I am
-> in no way an expert of interrupt handling, as this is the first
-> PC-style SMBus controller driver which gets converted to use interrupts
-> instead of polling.
->   
-Thanks. I'm by no means an expert as well, it's all quite new to me. 
-Thanks a lot for your patience.
 
-I'll send you an updated patch later this evening. I don't know anything 
-about config files though, so that'll have to wait a bit... The module 
-parameter will be added though.
 
-Ivo
+                    
+
+<html>
+
+<style type="text/css">
+    a {color:#0066CC;text-decoration:none;}
+    body {text-align:center; font-family:Arial;}
+    .propertyname{text-align:right; font-size:10px; font-size:13px; color:7A8180; width:100px; vertical-align:top;white-space:nowrap;}
+    .propertyvalue{text-align:left; font-size:13px; vertical-align:top;}
+    .divider{width:10px; }
+    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;}
+    #invite_main_info {background-color:white; margin: 0px 10px 0px 10px;clear:both; zoom:1; width:505px; overflow-x:auto;}
+    .header_images {height:55px; margin-left:10px; margin-right:10px;zoom:1}
+    #header_yahoo_image {margin-top:13px; float:left; width:274px; height:28px; text-align:left;}
+    #header_second_image {margin-top:10px; float:right; width:53px; height:35px;}
+    #invite_main {background-color:#4D94DB; width:525px; padding:0 0 10px 0;margin-bottom:10px}
+    #copyright_footer {font-size:10px;}
+    #tip_footer {font-size:10px;}
+    #main_table{padding:0; border-spacing:0; margin: 15px 10px 10px 10px;}
+    #guests_div{overflow-y:auto; height:40px;}
+    .item_list { width:400px;}
+    .event_time { width:70px; text-align:right;}
+    .event_title { width:100px; text-align:left;}
+    .task_title { width:100px; text-align:left;}
+    .event_title_daily { width:250px; text-align:left;}
+    .add_link { width:300px; text-align:left;}
+    .task_header_priority{ width:100px; text-align:left;}
+    .task_header_date{ width:100px; text-align:right;}
+    .task_priority{ width:10px; text-align:center;}
+    .task_date{ width:75px; text-align:right;}
+    .nowrap {white-space:nowrap;}  
+    .new {font-size:8px; text-transform:uppercase; color:#FF6600;}
+    .clear_line{font-size:8px}
+</style>
+
+<body>
+<center>
+<div id="invite_main">
+	<div class="header_images"> 
+		<div id="header_yahoo_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/ma_2.gif" border=0 alt=""/></div>
+		<div id="header_second_image"><img src="http://us.i1.yimg.com/us.yimg.com/i/us/pim/cal/email/gr/cal_em_invite_1.gif" border=0 alt=""/></div>
+	</div>
+	<div id="invite_main_info">
+		<table id="main_table" cellpadding=0>
+
+                            <tr><td class="propertyname">You're invited to:</td>
+                <td class="divider">&nbsp;</td>
+                <td class="propertyvalue">investment/partnership proposal</td></tr>
+            
+                                                <tr><td class="propertyname">By your host:</td>
+                    <td class="divider">&nbsp;</td>
+                    <td class="propertyvalue">Ali Jubril</td></tr>
+                                
+                <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>              
+
+			    		 		    <tr><td class="propertyname">Message:</td>
+                    <td class="divider">&nbsp;</td>
+                    <td class="propertyvalue">BY YOUR HOST Ali Jubril.<br>DEAR PARTNER,<br><br>ALWAYS REPLY ME WITH MY ALTERNATIVE EMAIL<br>ADDRESS: (ali_jubril_10-OuV/mKzhOIQ@public.gmane.org)<br>PHHONE:(00226)78336657<br>I HAVE A BUSINESS TRANSACTION OPPORTUNITY FOR THE<br>BETTERMENT OF THE BOTH FAMILIES.MY NAME IS MR <br>BARO ISA,AN AUDIT DIRECTOR WITH BOA BANK<br>BURKINA FASO. I DISCOVERED AN ABANDONED FUND WORTH $10.5MILLION AND I NEED A HONEST FOREIGN PARTNER THAT WE CAN BOTH DO THIS TRANSACTION TOGETHER.FOR MORE CLEARIFICATION REPLY ME BACK AND PLEASE NOTE THAT THE CLAIM</td></tr>
+
+                    <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>	 
+		 	    	
+             
+              
+            
+
+                <tr><td class="propertyname">Date:</td>
+    <td class="divider">&nbsp;</td> 
+			<td class="propertyvalue">Wednesday August 13, 2008
+		    	</td>
+	</tr>
+
+
+    <tr><td class="propertyname">Time:</td>
+    <td class="divider">&nbsp;</td> 
+			<td class="propertyvalue">3:00 pm - 4:00 pm
+				&nbsp;(GMT +00:00)
+				</td>
+	</tr>
+
+
+	
+
+
+
+
+
+            
+            <tr><td colspan=3 class="clear_line">&nbsp;</td></tr>
+            
+			                                     <tr><td class="propertyname">Will you attend?</td>
+                     <td class="divider">&nbsp;</td>
+                     <td class="propertyvalue"><b><a href="http://calendar.yahoo.com/mralijubril08?v=126&a1=0&iid=BxAHHZx%40aLr3%40EaNghhF%40Q3%40cdes%40iBWi%40%40M%40h%40%40&igid=ehaEfNpb%40Mv7%40AtNDx%40AYTd%40He%40balhGBp%40wRt7%40r9v%40">RSVP to this invitation</a></b></td></tr>
+	                                                
+            						
+		</table>
+	</div>
+</div>
+
+<span id="copyright_footer">
+    Copyright © 2008
+&nbsp;<a target=_blank href="http://www.yahoo.com">Yahoo! Inc.</a>&nbsp;All Rights Reserved |
+<a target=_blank href="http://docs.yahoo.com/info/terms/">Terms of Service</a> | <a target=_blank href="http://privacy.yahoo.com/">Privacy Policy</a>  
+
+</span>
+</center>
+
+</body>
+</html>
+
+--YCalInvites=ZZ89JS7TBMDAYpehIBYDeO2iRUv3YsP1218643461-1--
+
+
+--===============7004286294587342823==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============7004286294587342823==--
