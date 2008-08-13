@@ -1,9 +1,10 @@
 From: Laurence Mayer <laurence-AgvQzd4wkYRiL9xFr9M+9AC/G2K4zDHf@public.gmane.org>
-Subject: Struggling to make this work...
-Date: Wed, 13 Aug 2008 18:06:14 +0300
-Message-ID: <48A2F866.5070705@istraresearch.com>
+Subject: Struggling to make this work
+Date: Wed, 13 Aug 2008 20:56:05 +0300
+Message-ID: <1218650165.5738.12.camel@laurence-desktop>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7673702378591766471=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -17,218 +18,140 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============7673702378591766471==
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-</head>
-<body dir="ltr" bgcolor="#ffffff" text="#000000">
-Hi,<br>
-Please can you help.<br>
-<br>
-I have literally spent days-on-end trying to get this working with
-absolutely no progress.<br>
-<br>
-Please let me know if you require furhter information.<br>
-<br>
-<br>
-See below:<br>
-<br>
-<br>
-Hardware: DELL 2950<br>
-<br>
-[root@fs1 ~]# uname -a<br>
-Linux fs1 2.6.18-92.1.6.el5 #1 SMP Tue Jul 8 14:27:51 EDT 2008 x86_64
-x86_64 x86_64 GNU/Linux<br>
-<br>
-[root@fs1 ~]# sensors-detect <br>
-# sensors-detect revision 5249 (2008-05-11 22:56:25 +0200)<br>
-<br>
-[root@fs1 ~]# lsmod | grep i2c<br>
-i2c_dev&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 43849&nbsp; 0 <br>
-i2c_ec&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 38593&nbsp; 1 sbs<br>
-i2c_core&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 56129&nbsp; 2 i2c_dev,i2c_ec<br>
-<br>
-[root@fs1 ~]# lsmod |grep -i processor<br>
-Returns nothing<br>
-<br>
-[root@fs1 ~]# lsmod |grep -i thermal<br>
-Returns nothing<br>
-<br>
-[root@fs1 ~]# mount<br>
-/dev/sda3 on / type ext3 (rw)<br>
-proc on /proc type proc (rw)<br>
-sysfs on /sys type sysfs (rw)<br>
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)<br>
-/dev/sda1 on /boot type ext3 (rw)<br>
-tmpfs on /dev/shm type tmpfs (rw)<br>
-/dev/sdb1 on /home type ext3 (rw)<br>
-/dev/sdb2 on /public type ext3 (rw)<br>
-none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw)<br>
-sunrpc on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)<br>
-nfsd on /proc/fs/nfsd type nfsd (rw)<br>
-<br>
-<br>
-[root@fs1 etc]# lspci <br>
-00:00.0 Host bridge: Intel Corporation 5000X Chipset Memory Controller
-Hub (rev 12)<br>
-00:02.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x4 Port 2 (rev 12)<br>
-00:03.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x4 Port 3 (rev 12)<br>
-00:04.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x8 Port 4-5 (rev 12)<br>
-00:05.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x4 Port 5 (rev 12)<br>
-00:06.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x8 Port 6-7 (rev 12)<br>
-00:07.0 PCI bridge: Intel Corporation 5000 Series Chipset PCI Express
-x4 Port 7 (rev 12)<br>
-00:10.0 Host bridge: Intel Corporation 5000 Series Chipset FSB
-Registers (rev 12)<br>
-00:10.1 Host bridge: Intel Corporation 5000 Series Chipset FSB
-Registers (rev 12)<br>
-00:10.2 Host bridge: Intel Corporation 5000 Series Chipset FSB
-Registers (rev 12)<br>
-00:11.0 Host bridge: Intel Corporation 5000 Series Chipset Reserved
-Registers (rev 12)<br>
-00:13.0 Host bridge: Intel Corporation 5000 Series Chipset Reserved
-Registers (rev 12)<br>
-00:15.0 Host bridge: Intel Corporation 5000 Series Chipset FBD
-Registers (rev 12)<br>
-00:16.0 Host bridge: Intel Corporation 5000 Series Chipset FBD
-Registers (rev 12)<br>
-00:1c.0 PCI bridge: Intel Corporation 631xESB/632xESB/3100 Chipset PCI
-Express Root Port 1 (rev 09)<br>
-00:1d.0 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset
-UHCI USB Controller #1 (rev 09)<br>
-00:1d.1 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset
-UHCI USB Controller #2 (rev 09)<br>
-00:1d.2 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset
-UHCI USB Controller #3 (rev 09)<br>
-00:1d.3 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset
-UHCI USB Controller #4 (rev 09)<br>
-00:1d.7 USB Controller: Intel Corporation 631xESB/632xESB/3100 Chipset
-EHCI USB2 Controller (rev 09)<br>
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev d9)<br>
-00:1f.0 ISA bridge: Intel Corporation 631xESB/632xESB/3100 Chipset LPC
-Interface Controller (rev 09)<br>
-00:1f.1 IDE interface: Intel Corporation 631xESB/632xESB IDE Controller
-(rev 09)<br>
-01:00.0 RAID bus controller: LSI Logic / Symbios Logic MegaRAID SAS
-1078 (rev 04)<br>
-02:00.0 PCI bridge: Broadcom EPB PCI-Express to PCI-X Bridge (rev c3)<br>
-03:00.0 Ethernet controller: Broadcom Corporation NetXtreme II BCM5708
-Gigabit Ethernet (rev 12)<br>
-04:00.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express
-Upstream Port (rev 01)<br>
-04:00.3 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express to
-PCI-X Bridge (rev 01)<br>
-05:00.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express
-Downstream Port E1 (rev 01)<br>
-05:01.0 PCI bridge: Intel Corporation 6311ESB/6321ESB PCI Express
-Downstream Port E2 (rev 01)<br>
-06:00.0 PCI bridge: Broadcom EPB PCI-Express to PCI-X Bridge (rev c3)<br>
-07:00.0 Ethernet controller: Broadcom Corporation NetXtreme II BCM5708
-Gigabit Ethernet (rev 12)<br>
-0e:0d.0 VGA compatible controller: ATI Technologies Inc ES1000 (rev 02)<br>
-<br>
-<br>
-<br>
-<br>
-ERROR:<br>
-<br>
-This program will help you determine which kernel modules you need<br>
-to load to use lm_sensors most effectively. It is generally safe<br>
-and recommended to accept the default answers to all questions,<br>
-unless you know what you're doing.<br>
-<br>
-We can start with probing for (PCI) I2C or SMBus adapters.<br>
-Do you want to probe now? (YES/no): <br>
-Probing for PCI bus adapters...<br>
-Sorry, no supported PCI bus adapters found.<br>
-<br>
-If you have undetectable or unsupported I2C/SMBus adapters, you can have<br>
-them scanned by manually loading the modules before running this script.<br>
-<br>
-We are now going to do the I2C/SMBus adapter probings. Some chips may<br>
-be double detected; we choose the one with the highest confidence<br>
-value in that case.<br>
-If you found that the adapter hung after probing a certain address,<br>
-you can specify that address to remain unprobed.<br>
-<br>
-Some chips are also accessible through the ISA I/O ports. We have to<br>
-write to arbitrary I/O ports to probe them. This is usually safe though.<br>
-Yes, you do have ISA I/O ports even if you do not have any ISA slots!<br>
-Do you want to scan the ISA I/O ports? (YES/no): <br>
-Probing for `National Semiconductor LM78' at 0x290...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `National Semiconductor LM78-J' at 0x290...&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `National Semiconductor LM79' at 0x290...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `Winbond W83781D' at 0x290...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `Winbond W83782D' at 0x290...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `IPMI BMC KCS' at 0xca0...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Probing for `IPMI BMC SMIC' at 0xca8...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-<br>
-Some Super I/O chips may also contain sensors. We have to write to<br>
-standard I/O ports to probe them. This is usually safe.<br>
-Do you want to scan for Super I/O sensors? (YES/no): <br>
-Probing for Super-I/O at 0x2e/0x2f<br>
-Trying family `National Semiconductor'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Trying family `SMSC'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Yes<br>
-Found unknown chip with ID 0x6701<br>
-Probing for Super-I/O at 0x4e/0x4f<br>
-Trying family `National Semiconductor'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Trying family `SMSC'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Trying family `VIA/Winbond/Fintek'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Trying family `ITE'...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-<br>
-Some south bridges, CPUs or memory controllers may also contain<br>
-embedded sensors. Do you want to scan for them? (YES/no): <br>
-Silicon Integrated Systems SIS5595...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-VIA VT82C686 Integrated Sensors...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-VIA VT8231 Integrated Sensors...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-AMD K8 thermal sensors...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-AMD K10 thermal sensors...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; No<br>
-Intel Core family thermal sensor...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Success!<br>
-&nbsp;&nbsp;&nbsp; (driver `coretemp')<br>
-Intel AMB FB-DIMM thermal sensor...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Success!<br>
-&nbsp;&nbsp;&nbsp; (driver `to-be-written')<br>
-<br>
-Now follows a summary of the probes I have just done.<br>
-Just press ENTER to continue: <br>
-<br>
-Driver `coretemp' (should be inserted):<br>
-&nbsp; Detects correctly:<br>
-&nbsp; * Chip `Intel Core family thermal sensor' (confidence: 9)<br>
-<br>
-Driver `to-be-written' (should be inserted):<br>
-&nbsp; Detects correctly:<br>
-&nbsp; * Chip `Intel AMB FB-DIMM thermal sensor' (confidence: 9)<br>
-<br>
-Do you want to overwrite /etc/sysconfig/lm_sensors? (YES/no): <br>
-Starting lm_sensors: Can't access procfs/sysfs file<br>
-Unable to find i2c bus information;<br>
-For 2.6 kernels, make sure you have mounted sysfs and libsensors<br>
-was compiled with sysfs support!<br>
-For older kernels, make sure you have done 'modprobe i2c-proc'!<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [FAILED]<br>
-<br>
-<br>
-</body>
-</html>
-
-
---===============7673702378591766471==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============7673702378591766471==--
+77u/SGksClBsZWFzZSBjYW4geW91IGhlbHAuCgpJIGhhdmUgbGl0ZXJhbGx5IHNwZW50IGRheXMt
+b24tZW5kIHRyeWluZyB0byBnZXQgdGhpcyB3b3JraW5nIHdpdGgKYWJzb2x1dGVseSBubyBwcm9n
+cmVzcy4KClBsZWFzZSBsZXQgbWUga25vdyBpZiB5b3UgcmVxdWlyZSBmdXJodGVyIGluZm9ybWF0
+aW9uLgoKClNlZSBiZWxvdzoKCgpIYXJkd2FyZTogREVMTCAyOTUwCgpbcm9vdEBmczEgfl0jIHVu
+YW1lIC1hCkxpbnV4IGZzMSAyLjYuMTgtOTIuMS42LmVsNSAjMSBTTVAgVHVlIEp1bCA4IDE0OjI3
+OjUxIEVEVCAyMDA4IHg4Nl82NAp4ODZfNjQgeDg2XzY0IEdOVS9MaW51eAoKW3Jvb3RAZnMxIH5d
+IyBzZW5zb3JzLWRldGVjdCAKIyBzZW5zb3JzLWRldGVjdCByZXZpc2lvbiA1MjQ5ICgyMDA4LTA1
+LTExIDIyOjU2OjI1ICswMjAwKQoKW3Jvb3RAZnMxIH5dIyBsc21vZCB8IGdyZXAgaTJjCmkyY19k
+ZXYgICAgICAgICAgICAgICAgNDM4NDkgIDAgCmkyY19lYyAgICAgICAgICAgICAgICAgMzg1OTMg
+IDEgc2JzCmkyY19jb3JlICAgICAgICAgICAgICAgNTYxMjkgIDIgaTJjX2RldixpMmNfZWMKClty
+b290QGZzMSB+XSMgbHNtb2QgfGdyZXAgLWkgcHJvY2Vzc29yClJldHVybnMgbm90aGluZwoKW3Jv
+b3RAZnMxIH5dIyBsc21vZCB8Z3JlcCAtaSB0aGVybWFsClJldHVybnMgbm90aGluZwoKW3Jvb3RA
+ZnMxIH5dIyBtb3VudAovZGV2L3NkYTMgb24gLyB0eXBlIGV4dDMgKHJ3KQpwcm9jIG9uIC9wcm9j
+IHR5cGUgcHJvYyAocncpCnN5c2ZzIG9uIC9zeXMgdHlwZSBzeXNmcyAocncpCmRldnB0cyBvbiAv
+ZGV2L3B0cyB0eXBlIGRldnB0cyAocncsZ2lkPTUsbW9kZT02MjApCi9kZXYvc2RhMSBvbiAvYm9v
+dCB0eXBlIGV4dDMgKHJ3KQp0bXBmcyBvbiAvZGV2L3NobSB0eXBlIHRtcGZzIChydykKL2Rldi9z
+ZGIxIG9uIC9ob21lIHR5cGUgZXh0MyAocncpCi9kZXYvc2RiMiBvbiAvcHVibGljIHR5cGUgZXh0
+MyAocncpCm5vbmUgb24gL3Byb2Mvc3lzL2ZzL2JpbmZtdF9taXNjIHR5cGUgYmluZm10X21pc2Mg
+KHJ3KQpzdW5ycGMgb24gL3Zhci9saWIvbmZzL3JwY19waXBlZnMgdHlwZSBycGNfcGlwZWZzIChy
+dykKbmZzZCBvbiAvcHJvYy9mcy9uZnNkIHR5cGUgbmZzZCAocncpCgoKW3Jvb3RAZnMxIGV0Y10j
+IGxzcGNpIAowMDowMC4wIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwWCBDaGlw
+c2V0IE1lbW9yeSBDb250cm9sbGVyCkh1YiAocmV2IDEyKQowMDowMi4wIFBDSSBicmlkZ2U6IElu
+dGVsIENvcnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgUENJIEV4cHJlc3MgeDQKUG9ydCAy
+IChyZXYgMTIpCjAwOjAzLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJp
+ZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDMgKHJldiAxMikKMDA6MDQuMCBQQ0kgYnJp
+ZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IFBDSSBFeHByZXNzIHg4
+ClBvcnQgNC01IChyZXYgMTIpCjAwOjA1LjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24g
+NTAwMCBTZXJpZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDUgKHJldiAxMikKMDA6MDYu
+MCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IFBDSSBF
+eHByZXNzIHg4ClBvcnQgNi03IChyZXYgMTIpCjAwOjA3LjAgUENJIGJyaWRnZTogSW50ZWwgQ29y
+cG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBQQ0kgRXhwcmVzcyB4NApQb3J0IDcgKHJldiAx
+MikKMDA6MTAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hp
+cHNldCBGU0IgUmVnaXN0ZXJzCihyZXYgMTIpCjAwOjEwLjEgSG9zdCBicmlkZ2U6IEludGVsIENv
+cnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgRlNCIFJlZ2lzdGVycwoocmV2IDEyKQowMDox
+MC4yIEhvc3QgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA1MDAwIFNlcmllcyBDaGlwc2V0IEZT
+QiBSZWdpc3RlcnMKKHJldiAxMikKMDA6MTEuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRp
+b24gNTAwMCBTZXJpZXMgQ2hpcHNldCBSZXNlcnZlZApSZWdpc3RlcnMgKHJldiAxMikKMDA6MTMu
+MCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBSZXNl
+cnZlZApSZWdpc3RlcnMgKHJldiAxMikKMDA6MTUuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9y
+YXRpb24gNTAwMCBTZXJpZXMgQ2hpcHNldCBGQkQgUmVnaXN0ZXJzCihyZXYgMTIpCjAwOjE2LjAg
+SG9zdCBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDUwMDAgU2VyaWVzIENoaXBzZXQgRkJEIFJl
+Z2lzdGVycwoocmV2IDEyKQowMDoxYy4wIFBDSSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDYz
+MXhFU0IvNjMyeEVTQi8zMTAwIENoaXBzZXQgUENJCkV4cHJlc3MgUm9vdCBQb3J0IDEgKHJldiAw
+OSkKMDA6MWQuMCBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gNjMxeEVTQi82MzJ4
+RVNCLzMxMDAgQ2hpcHNldApVSENJIFVTQiBDb250cm9sbGVyICMxIChyZXYgMDkpCjAwOjFkLjEg
+VVNCIENvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9uIDYzMXhFU0IvNjMyeEVTQi8zMTAwIENo
+aXBzZXQKVUhDSSBVU0IgQ29udHJvbGxlciAjMiAocmV2IDA5KQowMDoxZC4yIFVTQiBDb250cm9s
+bGVyOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzF4RVNCLzYzMnhFU0IvMzEwMCBDaGlwc2V0ClVIQ0kg
+VVNCIENvbnRyb2xsZXIgIzMgKHJldiAwOSkKMDA6MWQuMyBVU0IgQ29udHJvbGxlcjogSW50ZWwg
+Q29ycG9yYXRpb24gNjMxeEVTQi82MzJ4RVNCLzMxMDAgQ2hpcHNldApVSENJIFVTQiBDb250cm9s
+bGVyICM0IChyZXYgMDkpCjAwOjFkLjcgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9u
+IDYzMXhFU0IvNjMyeEVTQi8zMTAwIENoaXBzZXQKRUhDSSBVU0IyIENvbnRyb2xsZXIgKHJldiAw
+OSkKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMSBQQ0kgQnJpZGdl
+IChyZXYgZDkpCjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNjMxeEVTQi82
+MzJ4RVNCLzMxMDAgQ2hpcHNldCBMUEMKSW50ZXJmYWNlIENvbnRyb2xsZXIgKHJldiAwOSkKMDA6
+MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzF4RVNCLzYzMnhFU0IgSURF
+IENvbnRyb2xsZXIKKHJldiAwOSkKMDE6MDAuMCBSQUlEIGJ1cyBjb250cm9sbGVyOiBMU0kgTG9n
+aWMgLyBTeW1iaW9zIExvZ2ljIE1lZ2FSQUlEIFNBUyAxMDc4CihyZXYgMDQpCjAyOjAwLjAgUENJ
+IGJyaWRnZTogQnJvYWRjb20gRVBCIFBDSS1FeHByZXNzIHRvIFBDSS1YIEJyaWRnZSAocmV2IGMz
+KQowMzowMC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEJyb2FkY29tIENvcnBvcmF0aW9uIE5ldFh0
+cmVtZSBJSSBCQ001NzA4CkdpZ2FiaXQgRXRoZXJuZXQgKHJldiAxMikKMDQ6MDAuMCBQQ0kgYnJp
+ZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzExRVNCLzYzMjFFU0IgUENJIEV4cHJlc3MKVXBzdHJl
+YW0gUG9ydCAocmV2IDAxKQowNDowMC4zIFBDSSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDYz
+MTFFU0IvNjMyMUVTQiBQQ0kgRXhwcmVzcyB0bwpQQ0ktWCBCcmlkZ2UgKHJldiAwMSkKMDU6MDAu
+MCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA2MzExRVNCLzYzMjFFU0IgUENJIEV4cHJl
+c3MKRG93bnN0cmVhbSBQb3J0IEUxIChyZXYgMDEpCjA1OjAxLjAgUENJIGJyaWRnZTogSW50ZWwg
+Q29ycG9yYXRpb24gNjMxMUVTQi82MzIxRVNCIFBDSSBFeHByZXNzCkRvd25zdHJlYW0gUG9ydCBF
+MiAocmV2IDAxKQowNjowMC4wIFBDSSBicmlkZ2U6IEJyb2FkY29tIEVQQiBQQ0ktRXhwcmVzcyB0
+byBQQ0ktWCBCcmlkZ2UgKHJldiBjMykKMDc6MDAuMCBFdGhlcm5ldCBjb250cm9sbGVyOiBCcm9h
+ZGNvbSBDb3Jwb3JhdGlvbiBOZXRYdHJlbWUgSUkgQkNNNTcwOApHaWdhYml0IEV0aGVybmV0IChy
+ZXYgMTIpCjBlOjBkLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogQVRJIFRlY2hub2xvZ2ll
+cyBJbmMgRVMxMDAwIChyZXYgMDIpCgoKCgpFUlJPUjoKClRoaXMgcHJvZ3JhbSB3aWxsIGhlbHAg
+eW91IGRldGVybWluZSB3aGljaCBrZXJuZWwgbW9kdWxlcyB5b3UgbmVlZAp0byBsb2FkIHRvIHVz
+ZSBsbV9zZW5zb3JzIG1vc3QgZWZmZWN0aXZlbHkuIEl0IGlzIGdlbmVyYWxseSBzYWZlCmFuZCBy
+ZWNvbW1lbmRlZCB0byBhY2NlcHQgdGhlIGRlZmF1bHQgYW5zd2VycyB0byBhbGwgcXVlc3Rpb25z
+LAp1bmxlc3MgeW91IGtub3cgd2hhdCB5b3UncmUgZG9pbmcuCgpXZSBjYW4gc3RhcnQgd2l0aCBw
+cm9iaW5nIGZvciAoUENJKSBJMkMgb3IgU01CdXMgYWRhcHRlcnMuCkRvIHlvdSB3YW50IHRvIHBy
+b2JlIG5vdz8gKFlFUy9ubyk6IApQcm9iaW5nIGZvciBQQ0kgYnVzIGFkYXB0ZXJzLi4uClNvcnJ5
+LCBubyBzdXBwb3J0ZWQgUENJIGJ1cyBhZGFwdGVycyBmb3VuZC4KCklmIHlvdSBoYXZlIHVuZGV0
+ZWN0YWJsZSBvciB1bnN1cHBvcnRlZCBJMkMvU01CdXMgYWRhcHRlcnMsIHlvdSBjYW4gaGF2ZQp0
+aGVtIHNjYW5uZWQgYnkgbWFudWFsbHkgbG9hZGluZyB0aGUgbW9kdWxlcyBiZWZvcmUgcnVubmlu
+ZyB0aGlzIHNjcmlwdC4KCldlIGFyZSBub3cgZ29pbmcgdG8gZG8gdGhlIEkyQy9TTUJ1cyBhZGFw
+dGVyIHByb2JpbmdzLiBTb21lIGNoaXBzIG1heQpiZSBkb3VibGUgZGV0ZWN0ZWQ7IHdlIGNob29z
+ZSB0aGUgb25lIHdpdGggdGhlIGhpZ2hlc3QgY29uZmlkZW5jZQp2YWx1ZSBpbiB0aGF0IGNhc2Uu
+CklmIHlvdSBmb3VuZCB0aGF0IHRoZSBhZGFwdGVyIGh1bmcgYWZ0ZXIgcHJvYmluZyBhIGNlcnRh
+aW4gYWRkcmVzcywKeW91IGNhbiBzcGVjaWZ5IHRoYXQgYWRkcmVzcyB0byByZW1haW4gdW5wcm9i
+ZWQuCgpTb21lIGNoaXBzIGFyZSBhbHNvIGFjY2Vzc2libGUgdGhyb3VnaCB0aGUgSVNBIEkvTyBw
+b3J0cy4gV2UgaGF2ZSB0bwp3cml0ZSB0byBhcmJpdHJhcnkgSS9PIHBvcnRzIHRvIHByb2JlIHRo
+ZW0uIFRoaXMgaXMgdXN1YWxseSBzYWZlIHRob3VnaC4KWWVzLCB5b3UgZG8gaGF2ZSBJU0EgSS9P
+IHBvcnRzIGV2ZW4gaWYgeW91IGRvIG5vdCBoYXZlIGFueSBJU0Egc2xvdHMhCkRvIHlvdSB3YW50
+IHRvIHNjYW4gdGhlIElTQSBJL08gcG9ydHM/IChZRVMvbm8pOiAKUHJvYmluZyBmb3IgYE5hdGlv
+bmFsIFNlbWljb25kdWN0b3IgTE03OCcgYXQgMHgyOTAuLi4gICAgICAgTm8KUHJvYmluZyBmb3Ig
+YE5hdGlvbmFsIFNlbWljb25kdWN0b3IgTE03OC1KJyBhdCAweDI5MC4uLiAgICAgTm8KUHJvYmlu
+ZyBmb3IgYE5hdGlvbmFsIFNlbWljb25kdWN0b3IgTE03OScgYXQgMHgyOTAuLi4gICAgICAgTm8K
+UHJvYmluZyBmb3IgYFdpbmJvbmQgVzgzNzgxRCcgYXQgMHgyOTAuLi4gICAgICAgICAgICAgICAg
+ICAgTm8KUHJvYmluZyBmb3IgYFdpbmJvbmQgVzgzNzgyRCcgYXQgMHgyOTAuLi4gICAgICAgICAg
+ICAgICAgICAgTm8KUHJvYmluZyBmb3IgYElQTUkgQk1DIEtDUycgYXQgMHhjYTAuLi4gICAgICAg
+ICAgICAgICAgICAgICAgTm8KUHJvYmluZyBmb3IgYElQTUkgQk1DIFNNSUMnIGF0IDB4Y2E4Li4u
+ICAgICAgICAgICAgICAgICAgICAgTm8KClNvbWUgU3VwZXIgSS9PIGNoaXBzIG1heSBhbHNvIGNv
+bnRhaW4gc2Vuc29ycy4gV2UgaGF2ZSB0byB3cml0ZSB0bwpzdGFuZGFyZCBJL08gcG9ydHMgdG8g
+cHJvYmUgdGhlbS4gVGhpcyBpcyB1c3VhbGx5IHNhZmUuCkRvIHlvdSB3YW50IHRvIHNjYW4gZm9y
+IFN1cGVyIEkvTyBzZW5zb3JzPyAoWUVTL25vKTogClByb2JpbmcgZm9yIFN1cGVyLUkvTyBhdCAw
+eDJlLzB4MmYKVHJ5aW5nIGZhbWlseSBgTmF0aW9uYWwgU2VtaWNvbmR1Y3RvcicuLi4gICAgICAg
+ICAgICAgICAgICAgTm8KVHJ5aW5nIGZhbWlseSBgU01TQycuLi4gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgWWVzCkZvdW5kIHVua25vd24gY2hpcCB3aXRoIElEIDB4NjcwMQpQ
+cm9iaW5nIGZvciBTdXBlci1JL08gYXQgMHg0ZS8weDRmClRyeWluZyBmYW1pbHkgYE5hdGlvbmFs
+IFNlbWljb25kdWN0b3InLi4uICAgICAgICAgICAgICAgICAgIE5vClRyeWluZyBmYW1pbHkgYFNN
+U0MnLi4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE5vClRyeWluZyBmYW1p
+bHkgYFZJQS9XaW5ib25kL0ZpbnRlaycuLi4gICAgICAgICAgICAgICAgICAgICAgIE5vClRyeWlu
+ZyBmYW1pbHkgYElURScuLi4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE5v
+CgpTb21lIHNvdXRoIGJyaWRnZXMsIENQVXMgb3IgbWVtb3J5IGNvbnRyb2xsZXJzIG1heSBhbHNv
+IGNvbnRhaW4KZW1iZWRkZWQgc2Vuc29ycy4gRG8geW91IHdhbnQgdG8gc2NhbiBmb3IgdGhlbT8g
+KFlFUy9ubyk6IApTaWxpY29uIEludGVncmF0ZWQgU3lzdGVtcyBTSVM1NTk1Li4uICAgICAgICAg
+ICAgICAgICAgICAgICBObwpWSUEgVlQ4MkM2ODYgSW50ZWdyYXRlZCBTZW5zb3JzLi4uICAgICAg
+ICAgICAgICAgICAgICAgICAgICBObwpWSUEgVlQ4MjMxIEludGVncmF0ZWQgU2Vuc29ycy4uLiAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBObwpBTUQgSzggdGhlcm1hbCBzZW5zb3JzLi4uICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBObwpBTUQgSzEwIHRoZXJtYWwgc2Vuc29y
+cy4uLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBObwpJbnRlbCBDb3JlIGZhbWls
+eSB0aGVybWFsIHNlbnNvci4uLiAgICAgICAgICAgICAgICAgICAgICAgICBTdWNjZXNzIQogICAg
+KGRyaXZlciBgY29yZXRlbXAnKQpJbnRlbCBBTUIgRkItRElNTSB0aGVybWFsIHNlbnNvci4uLiAg
+ICAgICAgICAgICAgICAgICAgICAgICBTdWNjZXNzIQogICAgKGRyaXZlciBgdG8tYmUtd3JpdHRl
+bicpCgpOb3cgZm9sbG93cyBhIHN1bW1hcnkgb2YgdGhlIHByb2JlcyBJIGhhdmUganVzdCBkb25l
+LgpKdXN0IHByZXNzIEVOVEVSIHRvIGNvbnRpbnVlOiAKCkRyaXZlciBgY29yZXRlbXAnIChzaG91
+bGQgYmUgaW5zZXJ0ZWQpOgogIERldGVjdHMgY29ycmVjdGx5OgogICogQ2hpcCBgSW50ZWwgQ29y
+ZSBmYW1pbHkgdGhlcm1hbCBzZW5zb3InIChjb25maWRlbmNlOiA5KQoKRHJpdmVyIGB0by1iZS13
+cml0dGVuJyAoc2hvdWxkIGJlIGluc2VydGVkKToKICBEZXRlY3RzIGNvcnJlY3RseToKICAqIENo
+aXAgYEludGVsIEFNQiBGQi1ESU1NIHRoZXJtYWwgc2Vuc29yJyAoY29uZmlkZW5jZTogOSkKCkRv
+IHlvdSB3YW50IHRvIG92ZXJ3cml0ZSAvZXRjL3N5c2NvbmZpZy9sbV9zZW5zb3JzPyAoWUVTL25v
+KTogClN0YXJ0aW5nIGxtX3NlbnNvcnM6IENhbid0IGFjY2VzcyBwcm9jZnMvc3lzZnMgZmlsZQpV
+bmFibGUgdG8gZmluZCBpMmMgYnVzIGluZm9ybWF0aW9uOwpGb3IgMi42IGtlcm5lbHMsIG1ha2Ug
+c3VyZSB5b3UgaGF2ZSBtb3VudGVkIHN5c2ZzIGFuZCBsaWJzZW5zb3JzCndhcyBjb21waWxlZCB3
+aXRoIHN5c2ZzIHN1cHBvcnQhCkZvciBvbGRlciBrZXJuZWxzLCBtYWtlIHN1cmUgeW91IGhhdmUg
+ZG9uZSAnbW9kcHJvYmUgaTJjLXByb2MnIQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIFtGQUlMRURdCgoKCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwppMmMgbWFpbGluZyBsaXN0CmkyY0BsbS1z
+ZW5zb3JzLm9yZwpodHRwOi8vbGlzdHMubG0tc2Vuc29ycy5vcmcvbWFpbG1hbi9saXN0aW5mby9p
+MmM=
