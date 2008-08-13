@@ -1,60 +1,83 @@
-From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 03/03] i2c-i801: Fix minor style issues
-Date: Tue, 12 Aug 2008 22:50:55 +0200
-Message-ID: <48A1F7AF.4030707@gmail.com>
-References: <48876301.9020903@gmail.com>
-	<20080812102711.6f8b178a@hyperion.delvare>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [i2c] [PATCH 04/05] i2c-sh_mobile: IORESOURCE_CLK support
+Date: Wed, 13 Aug 2008 06:54:53 +0100
+Message-ID: <20080813055452.GG2716@fluff.org.uk>
+References: <20080718074002.32713.73442.sendpatchset@rx1.opensource.se> <20080718074036.32713.92629.sendpatchset@rx1.opensource.se> <20080718080457.GM24620@fluff.org.uk> <aec7e5c30807180218y1911d3d3h2e80f5a097a79a14@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080812102711.6f8b178a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <aec7e5c30807180218y1911d3d3h2e80f5a097a79a14@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, linux-sh@vger.kernel.org, gregkh@suse.de, linux-kernel@vger.kernel.org, lethal@linux-sh.org, i2c@lm-sensors.org, akpm@linux-foundation.org, RMK <rmk@arm.linux.org.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Jul 18, 2008 at 06:18:06PM +0900, Magnus Damm wrote:
+> On Fri, Jul 18, 2008 at 5:04 PM, Ben Dooks <ben-linux@fluff.org> wrote:
+> > On Fri, Jul 18, 2008 at 04:40:36PM +0900, Magnus Damm wrote:
+> >> From: Magnus Damm <damm@igel.co.jp>
+> >>
+> >> This patch makes the i2c-sh_mobile driver get the clock name from the
+> >> struct resource with type IORESOURCE_CLK provided by the platform data.
+> >>
+> >> Signed-off-by: Magnus Damm <damm@igel.co.jp>
+> >> ---
+> >>
+> >>  drivers/i2c/busses/i2c-sh_mobile.c |    8 +++++++-
+> >>  1 file changed, 7 insertions(+), 1 deletion(-)
+> >>
+> >> --- 0001/drivers/i2c/busses/i2c-sh_mobile.c
+> >> +++ work/drivers/i2c/busses/i2c-sh_mobile.c   2008-07-18 14:56:40.000000000 +0900
+> >> @@ -390,13 +390,19 @@ static int sh_mobile_i2c_probe(struct pl
+> >>       int size;
+> >>       int ret;
+> >>
+> >> +     res = platform_get_resource(dev, IORESOURCE_CLK, 0);
+> >> +     if (res == NULL || res->name == NULL) {
+> >> +             dev_err(&dev->dev, "cannot find CLK resource\n");
+> >> +             return -ENOENT;
+> >> +     }
 
-> Looks OK, thanks for doing that.
->   
-Seemed to be the easiest and best way to shut checkpatch up ;)
-> I'm now waiting for an update of your patches based on 2.6.27-rc2 for a
-> final review.
->   
-I hope to have them finnished and sent tomorrow.
-> Oh, one last note before I forget: as the interrupt-based logic is new
-> and might not be as robust as the old poll-based one, 
-Likely
-> it might make
-> sense to give the user a way to disable the interrupt-based logic and
-> fall back to polling in case the new code doesn't work correctly.
-> Without that possibility, I won't feel too confident to push your
-> patches to Linus. Remember that the ICH chips are very popular and we
-> just can't afford breaking these systems.
->   
-True, i'd rather have that option as well.
-> This could be implemented as a build time option enabling the new
-> interrupt-based code, tagged EXPERIMENTAL and disabled by default, or a
-> module parameter, or both.
->   
-What option do you think will generate more use and thus more testing? A 
-build time option (which is disabled by default thus won't be used by 
-the generic user) or a module parameter which people might not know the 
-existance of, but is easy to enable? Not sure what the best option is :).
+I note in this one you are re-using the resource.name field in the way
+it was not intended to be used. This field is for use to differentiate
+resources where this is more than one of them and they may not all be
+present in the list. This is not a good course of action.
 
-> Thanks,
->   
-Ivo
+> >>       pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+> >>       if (pd == NULL) {
+> >>               dev_err(&dev->dev, "cannot allocate private data\n");
+> >>               return -ENOMEM;
+> >>       }
+> >>
+> >> -     pd->clk = clk_get(&dev->dev, "peripheral_clk");
+> >
+> > I think that is working correctly and there isn't really any
+> > need to change this. The clk_get is supplied the device that
+> > it needs the clock for, and the name of the clock needed.
+> 
+> Right, we could handle this "under the hood" of the clock frame work
+> implementation, or we could deal with it together with the rest of the
+> platform data and have one unique string per hardware block. On SuperH
+> Mobile we currently have one shared clock implementation that supports
+> multiple processors. Which clock that is assigned to what hardware
+> block is currently handled by per-cpu platform data, and that's where
+> this patch comes in.
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+We have a shared implementation for the s3c24xx, which all have subtly
+different clock requirements and we change the clock registration for
+the chip, instead of trying to subvert the platform system. I do not
+see this as being "under the hood", changing resources at registration
+time is done all over the place.
+
+Techincally, if there is only one clock per block, then you don't
+actually need a name, just supply the device that you are looking up
+a clock for.
+
+Note, added Russell King to the discussion, as he is the original
+authour of the clock framework anyway.
+
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
