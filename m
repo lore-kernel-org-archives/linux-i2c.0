@@ -1,55 +1,46 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: ExpressCard to SMBus adapters?
-Date: Fri, 15 Aug 2008 23:28:06 -0700
-Message-ID: <200808152328.06495.david-b@pacbell.net>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [i2c] [RFC] PXA3xx: Add support for power i2c bus
+Date: Sat, 16 Aug 2008 09:41:27 +0100
+Message-ID: <20080816084126.GB5946@flint.arm.linux.org.uk>
+References: <48A3F2EB.8030809@compulab.co.il>
+	<20080814103956.GB4610@flint.arm.linux.org.uk>
+	<48A41921.7020306@compulab.co.il>
+	<20080814130709.GH2716@fluff.org.uk>
+	<48A43671.6000302@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+In-Reply-To: <48A43671.6000302@compulab.co.il>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Mike Rapoport <mike@compulab.co.il>
+Cc: ARM Linux <linux-arm-kernel@lists.arm.linux.org.uk>, Ben Dooks <ben-linux@fluff.org>, Linux I2C <i2c@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I'm mostly just curious here ... as many folk know, modern laptops
-tend to have "ExpressCard" instead of PCMCIA/CardBus.  And what's
-available on the ExpressCard connectors?
+On Thu, Aug 14, 2008 at 04:43:13PM +0300, Mike Rapoport wrote:
+> This is really much nicer. The fixed patch follows:
+> 
+> Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+> 
+>  arch/arm/mach-pxa/devices.h          |    1 +
+>  arch/arm/mach-pxa/include/mach/i2c.h |    6 ++++-
+>  arch/arm/mach-pxa/pxa27x.c           |    2 +-
+>  arch/arm/mach-pxa/pxa3xx.c           |   45 ++++++++++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-pxa.c         |   12 +++++----
+>  5 files changed, 59 insertions(+), 7 deletions(-)
 
-	- PCIE x1 channel
-	- USB (high/full/low speed support)
-	- SMBus
-	- 3.3V power, average 1000 mA
-	- 1.5V power, average  500 mA 
+Ok.
 
-So in lieu of USB-to-I2C adapters like i2c-tiny, it seems to me
-one should be able to get a fairly simple ExpressCard, maybe with
-some buffering to protect the circuits, giving access to the PC's
-SMBus for developer type stuff.
-
-This is of course complicated by the SMBus support being optional.
-(Anyone know how common that is?  I'd expect it should be common...) 
-
-Some web searching turned up
-
-	http://www.allion.com/test_tool_ExpressCard.html
-
-listing an "ExpressCard Test fixture" which is basically a card
-extender with test points.  No price listed; must be Free.  ;)
-
-Does anyone know about other products doing this?  Or have comments
-on the notion?
-
-- Dave
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
