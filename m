@@ -1,11 +1,15 @@
-From: Wojciech Matys <mcom-05MzZNw9fWQ@public.gmane.org>
-Subject: i2c-ipmi
-Date: Sat, 16 Aug 2008 18:23:21 +0200
-Message-ID: <48A6FEF9.3070309@koba.pl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH][RESEND] i2c-i801: Add basic interrupt support
+Date: Sat, 16 Aug 2008 18:50:13 +0200
+Message-ID: <20080816185013.30fcf4ee@hyperion.delvare>
+References: <48A33E77.7060502@gmail.com>
+	<20080816155856.2e0bcf4c@hyperion.delvare>
+	<48A6FECC.8020801@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <48A6FECC.8020801-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,70 +19,21 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Sat, 16 Aug 2008 18:22:36 +0200, Ivo Manca wrote:
+> Great and thanks. Am really curious about the stability of this code :)
 
-I have intel mainboard S5000PAL and Debian etch installed. I was trying
-to get to work thermal sensors.  sensors-detect  says that I  need i2c-ipmi
-and bmcsensors (ipmisensors). I found that there is patch for kernel on
-website:
-
-http://bmcsensors-26.sourceforge.net/
-
-but patching failing no matter which version of patch I use:
- 
-server:/usr/src/linux# patch -p1 < ../ipmisensors-20060805-0622.diff
-patching file drivers/char/ipmi/ipmi_msghandler.c
-Hunk #1 succeeded at 1951 (offset 207 lines).
-Hunk #2 succeeded at 4203 (offset 372 lines).
-patching file drivers/hwmon/Kconfig
-Hunk #1 succeeded at 333 with fuzz 2 (offset 153 lines).
-patching file drivers/hwmon/Makefile
-Hunk #1 FAILED at 26.
-1 out of 1 hunk FAILED -- saving rejects to file drivers/hwmon/Makefile.rej
-patching file drivers/hwmon/ipmisensors.c
-patching file drivers/hwmon/ipmisensors.h
-patching file include/linux/ipmi.h
-Hunk #1 succeeded at 300 (offset 16 lines).
-patching file include/linux/ipmi_msgdefs.h
-Hunk #1 succeeded at 45 with fuzz 2.
-Hunk #2 succeeded at 58 (offset 2 lines).
-Hunk #3 FAILED at 81.
-1 out of 3 hunks FAILED -- saving rejects to file
-include/linux/ipmi_msgdefs.h.rej
-
-------------------------------------------------------------------------------------
-
-server:/usr/src/linux# patch -p1 < ../ipmisensors-20070630-1330.diff
-patching file drivers/char/ipmi/ipmi_msghandler.c
-Hunk #1 succeeded at 1951 (offset -2 lines).
-Hunk #2 succeeded at 4210 (offset -4 lines).
-patching file drivers/hwmon/Kconfig
-Hunk #1 succeeded at 312 (offset 72 lines).
-patching file drivers/hwmon/Makefile
-Hunk #1 FAILED at 32.
-1 out of 1 hunk FAILED -- saving rejects to file drivers/hwmon/Makefile.rej
-patching file drivers/hwmon/ipmisensors.c
-patching file drivers/hwmon/ipmisensors.h
-patching file include/linux/ipmi.h
-patching file include/linux/ipmi_msgdefs.h
-
----------------------------------------------------------------------------------------------
-
-I've tried it with debian's  linux-source-2.6.24 and linux-source-2.6.18
-and with
-vanilla linux-source-2.6.25 as well. Is there any solution to get to
-work sensors
-on that mainboard?
-
-server:/usr/src# sensors -v
-sensors version 2.10.1 with libsensors version 2.10.1
+I'm hitting the first problems, with SMBus block transactions. They
+fail on my ICH3 with use_irq=1. That's strange because these
+transactions shouldn't make use of interrupts on the ICH3, but I still
+see the IRQ handler being called 3 times, and then the transaction
+times out. I'm debugging this now.
 
 -- 
-mcom
-
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
