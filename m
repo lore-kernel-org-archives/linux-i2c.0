@@ -1,15 +1,12 @@
 From: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
-Subject: Re: [PATCH] i2c: Floppy controller bus driver
-Date: Mon, 18 Aug 2008 03:27:39 +0200
-Message-ID: <20080818012739.GD8052@MAIL.13thfloor.at>
-References: <20080815205012.GA20308@MAIL.13thfloor.at>
-	<20080817224511.06e82a74@hyperion.delvare>
+Subject: [PATCH] i2c: Floppy controller bus driver (V0.2)
+Date: Mon, 18 Aug 2008 05:10:46 +0200
+Message-ID: <20080818031046.GE8052@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080817224511.06e82a74-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,480 +16,374 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: I2C ML <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: I2C ML <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Aug 17, 2008 at 10:45:11PM +0200, Jean Delvare wrote:
-> Hi Herbert,
-> 
-> On Fri, 15 Aug 2008 22:50:12 +0200, Herbert Poetzl wrote:
-> > 
-> > Greetings!
-> > 
-> > I recently got the idea to (re)use the (at least for me)
-> > very often unused floppy connector to attach some hardware
-> > to monitor system temperature and control some fans
-> > 
-> > the basic idea is to connect one of the Motor Control
-> > lines with the Disk Changed input to form the SDA line,
-> > and the other Motor Control line to control the SCL
-> > 
-> > this works surprisingly well, as the Motor Control lines
-> > are open drain, and the Disk Changed input is CMOS/TTL
-> > (depending on the controller)
-> > 
-> > here is the tested patch for 2.6.27-rc3 with configurable
-> > floppy base address, but hardcoded Motor signals
-> 
-> That's fine with me, as long as the default address is 
-> somewhat standard.
 
-yep, see below ...
+here is the updated version of the floppy controller to I2C
+adapter driver, which uses the Motor Control and Disk Changed
+lines to interface to an I2C bus.
 
-> > please consider for (mainline) inclusion!
-> > 
-> > TIA,
-> > Herbert
-> > 
-> > 
-> > diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/i2c-floppy.c linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/i2c-floppy.c
-> > --- linux-2.6.27-rc3/drivers/i2c/busses/i2c-floppy.c	1970-01-01 01:00:00.000000000 +0100
-> > +++ linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/i2c-floppy.c	2008-08-15 21:49:26.000000000 +0200
-> > @@ -0,0 +1,271 @@
-> > +/* ------------------------------------------------------------------------ *
-> > + * i2c-floppy.c I2C bus over floppy controller                              *
-> > + * ------------------------------------------------------------------------ *
-> > +   Copyright (C) 2008 Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
-> > +
-> > +   Somewhat based on i2c-parport-light.c driver
-> > +   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > +
-> > +   This program is free software; you can redistribute it and/or modify
-> > +   it under the terms of the GNU General Public License as published by
-> > +   the Free Software Foundation; either version 2 of the License, or
-> > +   (at your option) any later version.
-> > +
-> > +   This program is distributed in the hope that it will be useful,
-> > +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > +   GNU General Public License for more details.
-> > +
-> > +   You should have received a copy of the GNU General Public License
-> > +   along with this program; if not, write to the Free Software
-> > +   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> > + * ------------------------------------------------------------------------ */
-> > +
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> > +#include <linux/init.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/ioport.h>
-> > +#include <linux/i2c.h>
-> > +#include <linux/i2c-algo-bit.h>
-> > +#include <asm/io.h>
-> > +
-> > +
-> > +#ifndef I2C_HW_B_FLOPPY
-> > +#define I2C_HW_B_FLOPPY         0x010001 /* Floppy controller */
-> > +#endif
-> 
-> As discussed on IRC, these driver IDs are optional and will be removed
-> soon. So please don't define a new one.
-> 
-> > +
-> > +static struct platform_device *pdev;
-> > +static unsigned char dor = 0;
-> > +
-> > +static u16 base = 0;
-> 
-> Do not initialize static globals to 0 - the compiler does it for you.
-> BTW, please run scripts/checkpatch.pl on your patch and fix the errors
-> and warnings.
+I hope I fixed the style issues (except for the access to 
+global var from "remove" function - to keep it similar to
+the i2c-parport-light for now)
 
-okay, will do, thanks for the hint
+of course the patch is compile and run tested on PC style
+hardware with my test circuit connecting to an LM75 and
+LM85 (temp/fan/pwm)
 
-> > +module_param(base, ushort, 0);
-> > +MODULE_PARM_DESC(base, "Base I/O address");
-> > +
-> > +
-> > +
-> > +#define DEFAULT_BASE	0x3F0
-> 
-> Is this address any standard?
+please consider for (mainline) inclusion!
 
-yep, it is the default address for PC floppy controllers
-
-http://www.pcguide.com/ref/fdd/confUsage-c.html
-
-> > +#define DRVNAME		"i2c-floppy"
-> > +
-> > +
-> > +#define FOFF_DOR	0x02
-> > +#define FOFF_DIR	0x07
-> > +
-> > +#define FDOR_MOTEA	0x10
-> > +#define FDOR_MOTEB	0x20
-> > +
-> > +#define FDIR_DCHNG	0x80
-> > +
-> > +#define SCL		FDOR_MOTEA
-> > +#define SDA		FDOR_MOTEB
-> > +#define SDA_IN		FDIR_DCHNG
-> > +
-> > +#define LO_INV		(SDA|SCL)
-> > +#define LI_INV		(SDA_IN)
-> > +
-> > +
-> > +
-> > +
-
-> Fewer blank lines wouldn't hurt.
-
-k, no problem ...
-
-> > +/* ----- Device list ------------------------------------------------------ */
-> > +
-> > +struct i2c_floppy_data {
-> > +	unsigned char dor;
-> > +};
-> 
-> That's a bit confusing. You define a structure for private data (which
-> is good) but apparently the driver code instead accesses a global
-> variable?
-
-yep, sorry, is a leftover from the previous version
-which was more like the i2c-parport driver than the
-i2c-parport-light, will remove it for now ...
-
-> > +
-> > +struct i2c_floppy {
-> > +	struct i2c_adapter adapter;
-> > +	struct i2c_algo_bit_data algo_data;
-> > +	struct i2c_floppy_data data;
-> > +	struct i2c_floppy *next;
-> 
-> Your driver doesn't actually support multiple devices, so this last
-> pointer is useless.
-
-correct, another leftover ...
-
-> Hmm, looking at the rest of the driver code, you don't actually use
-> this structure anywhere? This definitely needs some cleanup.
-> 
-> > +};
-> > +
-> > +
-> > +/* ----- Low-level floppy access ------------------------------------------ */
-> > +
-> > +static void port_dor_out(unsigned char d)
-> > +{
-> > +	outb(d ^ LO_INV, base + FOFF_DOR);
-> > +}
-> > +
-> > +static unsigned char port_dir_in(void)
-> > +{
-> > +	return inb(base + FOFF_DIR) ^ LI_INV;
-> > +}
-> 
-> These two functions are certainly worth inlining.
-
-okay, static inline fine?
-
-> > +
-> > +
-> > +/* ----- I2C algorithm call-back functions and structures ----------------- */
-> > +
-> > +static void floppy_setscl(void *data, int state)
-> > +{
-> > +	if (state)
-> > +		dor |= SCL;
-> > +	else
-> > +		dor &= ~SCL;
-> > +
-> > +	port_dor_out(dor);
-> > +}
-> > +
-> > +static void floppy_setsda(void *data, int state)
-> > +{
-> > +	if (state)
-> > +		dor |= SDA;
-> > +	else
-> > +		dor &= ~SDA;
-> > +
-> > +	port_dor_out(dor);
-> > +}
-> > +
-> > +static int floppy_getsda(void *data)
-> > +{
-> > +	return port_dir_in() & SDA_IN;
-> > +}
-> > +
-> > +
-> > +/* Encapsulate the functions above in the correct structure
-> > +   Note that getscl will be set to NULL by the attaching code for adapters
-> > +   that cannot read SCL back */
-> 
-> You must have copied this comment from another driver... but it doesn't
-> apply to yours.
-
-yep .. will clean that up
-
-> > +static struct i2c_algo_bit_data floppy_algo_data = {
-> > +	.setsda		= floppy_setsda,
-> > +	.setscl		= floppy_setscl,
-> > +	.getsda		= floppy_getsda,
-> > +	.getscl		= NULL,
-> 
-> No need to initialize to NULL explicitly, the compiler does it for you.
-
-yes, I know, I just wanted to keep it there to remind me
-that scl cannot be read back atm
-
-> > +	.udelay		= 50,
-> > +	.timeout	= HZ,
-> > +};
-> > +
-> > +
-> > +
-> > +/* ----- Driver registration ---------------------------------------------- */
-> > +
-> > +static struct i2c_adapter floppy_adapter = {
-> > +	.owner		= THIS_MODULE,
-> > +	.class		= I2C_CLASS_HWMON,
-> > +	.id		= I2C_HW_B_FLOPPY,
-> 
-> Drop.
-
-k, will do
-
-> > +	.algo_data	= &floppy_algo_data,
-> > +	.name		= "Floppy controller adapter",
-> > +};
-> > +
-> > +static int __devinit i2c_floppy_probe(struct platform_device *pdev)
-> > +{
-> > +	int err;
-> > +	struct resource *res;
-> > +
-> > +	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> > +	if (!request_region(res->start, res->end - res->start + 1, DRVNAME))
-> > +		return -EBUSY;
-> > +
-> > +	/* Reset hardware to a sane state (SCL and SDA high) */
-> > +	floppy_setsda(NULL, 1);
-> > +	floppy_setscl(NULL, 1);
-> > +
-> > +	floppy_adapter.dev.parent = &pdev->dev;
-> > +	err = i2c_bit_add_bus(&floppy_adapter);
-> > +	if (err) {
-> > +		dev_err(&pdev->dev, "Unable to register with I2C\n");
-> > +		goto exit_region;
-> > +	}
-> > +	return 0;
-> > +
-> > +exit_region:
-> > +	release_region(res->start, res->end - res->start + 1);
-> > +	return err;
-> > +}
-> > +
-> > +static int __devexit i2c_floppy_remove(struct platform_device *pdev)
-> > +{
-> > +	struct resource *res;
-> > +
-> > +	i2c_del_adapter(&floppy_adapter);
-> 
-> In general, "remove" functions should avoid accessing globals. You
-> should always be able to get access to everything you need based on the
-> device that is passed into parameter. Just use platform_get_drvdata
-> (and use platform_set_drvdata in the "probe" function.)
-
-hmm, is that something you plan to change in the
-i2c-parport-light driver too, if so, please point
-me to the patch, I'll gladly adjust it to match that
-
-> > +
-> > +	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> > +	release_region(res->start, res->end - res->start + 1);
-> > +	return 0;
-> > +}
-> > +
-> > +static struct platform_driver i2c_floppy_driver = {
-> > +	.driver = {
-> > +		.owner	= THIS_MODULE,
-> > +		.name	= DRVNAME,
-> > +	},
-> > +	.probe		= i2c_floppy_probe,
-> > +	.remove		= __devexit_p(i2c_floppy_remove),
-> > +};
-> > +
-> > +static int __init i2c_floppy_device_add(u16 address)
-> > +{
-> > +	struct resource res = {
-> > +		.start	= address,
-> > +		.end	= address + 7,
-> > +		.name	= DRVNAME,
-> > +		.flags	= IORESOURCE_IO,
-> > +	};
-> > +	int err;
-> > +
-> > +	pdev = platform_device_alloc(DRVNAME, -1);
-> > +	if (!pdev) {
-> > +		err = -ENOMEM;
-> > +		printk(KERN_ERR DRVNAME ": Device allocation failed\n");
-> > +		goto exit;
-> > +	}
-> > +
-> > +	err = platform_device_add_resources(pdev, &res, 1);
-> > +	if (err) {
-> > +		printk(KERN_ERR DRVNAME ": Device resource addition failed "
-> > +		       "(%d)\n", err);
-> > +		goto exit_device_put;
-> > +	}
-> > +
-> > +	err = platform_device_add(pdev);
-> > +	if (err) {
-> > +		printk(KERN_ERR DRVNAME ": Device addition failed (%d)\n",
-> > +		       err);
-> > +		goto exit_device_put;
-> > +	}
-> > +
-> > +	return 0;
-> > +
-> > +exit_device_put:
-> > +	platform_device_put(pdev);
-> > +exit:
-> > +	return err;
-> > +}
-> > +
-> > +static int __init i2c_floppy_init(void)
-> > +{
-> > +	int err;
-> > +
-> > +	if (base == 0) {
-> > +		pr_info(DRVNAME ": using default base 0x%x\n", DEFAULT_BASE);
-> > +		base = DEFAULT_BASE;
-> > +	}
-> > +
-> > +	/* Sets global pdev as a side effect */
-> > +	err = i2c_floppy_device_add(base);
-> > +	if (err)
-> > +		goto exit;
-> > +
-> > +	err = platform_driver_register(&i2c_floppy_driver);
-> > +	if (err)
-> > +		goto exit_device;
-> > +
-> > +	return 0;
-> > +
-> > +exit_device:
-> > +	platform_device_unregister(pdev);
-> > +exit:
-> > +	return err;
-> > +}
-> > +
-> > +static void __exit i2c_floppy_exit(void)
-> > +{
-> > +	platform_driver_unregister(&i2c_floppy_driver);
-> > +	platform_device_unregister(pdev);
-> > +}
-> > +
-> > +
-> > +MODULE_AUTHOR("Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>");
-> > +MODULE_DESCRIPTION("I2C bus over floppy controller");
-> > +MODULE_LICENSE("GPL");
-> > +
-> > +module_init(i2c_floppy_init);
-> > +module_exit(i2c_floppy_exit);
-> > diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/Kconfig linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/Kconfig
-> > --- linux-2.6.27-rc3/drivers/i2c/busses/Kconfig	2008-08-15 21:19:24.000000000 +0200
-> > +++ linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/Kconfig	2008-08-15 21:51:33.000000000 +0200
-> > @@ -564,6 +564,17 @@ config I2C_TINY_USB
-> >  	  This driver can also be built as a module.  If so, the module
-> >  	  will be called i2c-tiny-usb.
-> >  
-> > +config I2C_FLOPPY
-> 
-> Right subsection, but please follow the alphabetical order.
-
-okay, will do
-
-> > +	tristate "Floppy controller adapter"
-> > +	select I2C_ALGOBIT
-> 
-> You probably want to add "default n", as most users will never need
-> this driver.
-
-yep, that's correct ... for now :)
-
-> > +	help
-> > +	  This supports floppy controller I2C adapters using the motor
-> > +	  control lines for SDA and SCL, and the drive change for SDA
-> > +	  readback.
-> > +
-> > +	  This support is also available as a module.  If so, the module
-> > +	  will be called i2c-floppy.
-> 
-> This lacks a warning that this driver is meant for do-it-yourself
-> hardware and most people can safely say no.
-> 
-> Out of curiosity, what would happen if someone was to run this driver
-> with actual floppy disk drives connected?
-
-I'd say the drive(s) will spin up a little, but
-that's about all that can happen, the driver doesn't
-do anything 'bad' with the floppy controller
-
-the other way round is probably more a problem, as
-the floppy driver will not handle the changing input
-line that gracefully, but that is a problem users
-of this kind of hardware should be able to deal with
-
-> > +
-> >  comment "Graphics adapter I2C/DDC channel drivers"
-> >  	depends on PCI
-> >  
-> > diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/Makefile linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/Makefile
-> > --- linux-2.6.27-rc3/drivers/i2c/busses/Makefile	2008-08-15 21:19:24.000000000 +0200
-> > +++ linux-2.6.27-rc3-fi2c-v0.1/drivers/i2c/busses/Makefile	2008-08-15 21:43:03.000000000 +0200
-> > @@ -52,6 +52,7 @@ obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport
-> >  obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
-> >  obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
-> >  obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
-> > +obj-$(CONFIG_I2C_FLOPPY)	+= i2c-floppy.o
-> 
-> Alphabetical order please.
-
-k, consider it done
-
-> >  
-> >  # Graphics adapter I2C/DDC channel drivers
-> >  obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
-> > diff -NurpP --minimal linux-2.6.27-rc3/include/linux/i2c-id.h linux-2.6.27-rc3-fi2c-v0.1/include/linux/i2c-id.h
-> > --- linux-2.6.27-rc3/include/linux/i2c-id.h	2008-08-15 21:20:04.000000000 +0200
-> > +++ linux-2.6.27-rc3-fi2c-v0.1/include/linux/i2c-id.h	2008-08-15 21:42:14.000000000 +0200
-> > @@ -91,6 +91,7 @@
-> >  
-> >  /* --- Bit algorithm adapters						*/
-> >  #define I2C_HW_B_LP		0x010000 /* Parallel port Philips style */
-> > +#define I2C_HW_B_FLOPPY		0x010001 /* Floppy controller */
-> >  #define I2C_HW_B_BT848		0x010005 /* BT848 video boards */
-> >  #define I2C_HW_B_VIA		0x010007 /* Via vt82c586b */
-> >  #define I2C_HW_B_HYDRA		0x010008 /* Apple Hydra Mac I/O */
-> 
-> Your patch misses Documentation/i2c/busses/i2c-floppy explaining 
-> how to build the hardware, things to pay attention to, etc.
-
-okay, something like the i2c-parport-light is fine?
-(including the pinout description of course)
-
-thanks for the feedback,
+TIA,
 Herbert
 
-PS: expect an updated version soon ...
 
-> -- 
-> Jean Delvare
+Signed-off-by: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
+
+diff -NurpP --minimal linux-2.6.27-rc3/Documentation/i2c/busses/i2c-floppy linux-2.6.27-rc3-fi2c-v0.2/Documentation/i2c/busses/i2c-floppy
+--- linux-2.6.27-rc3/Documentation/i2c/busses/i2c-floppy	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.27-rc3-fi2c-v0.2/Documentation/i2c/busses/i2c-floppy	2008-08-18 04:34:53.000000000 +0200
+@@ -0,0 +1,38 @@
++Kernel driver i2c-floppy
++
++Author: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
++
++This driver is for a simple do-it-yourself floppy controller to
++I2C adapters which uses direct I/O access to control both Motor
++Enable lines (A/B) and read back data via the Disk Changed line.
++
++The following circuit is not suited to be used together with
++a Floppy drive (which would need some logic to work properly)
++but as replacement.
++
++ +---+
++ | F |  Motor Enable A [/MOTEA,10] -------------- SCL
++ | L |
++ | O |  Motor Enable B [/MOTEB,16] ------+------- SDA
++ | P |                                   |
++ | P |                                   |
++ | Y |  Disk Change   [/DSKCHG,34] ------+    +-- GND
++ +-+-+                                        |
++   |                                          |
++  GND	                                     GND
++
++the Motor Enable output of Floppy Disk Controllers is an open
++drain output (48mA), usually pulled up to +5V via 1k or higher,
++and the Disk Change is a Schmitt Trigger (0.8V/2.2V) input with
++max 150uA input current (data taken from the WD/FDC 37C6xx
++Floppy Disk Subsystem Controller datasheets, which basically
++combine all the necessary parts of the PC Floppy Circuit)
++
++so it should be fine to connect it to all 5V i2c devices, and
++most 3.3V devices (which are usually capable of handling 5V
++i2c bus voltages)
++
++power for those devices can be drawn from either the Floppy
++power connector (+5V/+12V) or from the SATA 3.3V lines
++(or if you prefer from some external source)
++
+diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/i2c-floppy.c linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/i2c-floppy.c
+--- linux-2.6.27-rc3/drivers/i2c/busses/i2c-floppy.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/i2c-floppy.c	2008-08-18 03:35:34.000000000 +0200
+@@ -0,0 +1,261 @@
++/* ------------------------------------------------------------------------ *
++ * i2c-floppy.c I2C bus over floppy controller                              *
++ * ------------------------------------------------------------------------ *
++   Copyright (C) 2008 Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
++
++   Somewhat based on i2c-parport-light.c driver
++   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++
++   This program is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2 of the License, or
++   (at your option) any later version.
++
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this program; if not, write to the Free Software
++   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * ------------------------------------------------------------------------ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/platform_device.h>
++#include <linux/ioport.h>
++#include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
++#include <linux/io.h>
++
++static struct platform_device *pdev;
++static unsigned char dor;
++
++static u16 base;
++module_param(base, ushort, 0);
++MODULE_PARM_DESC(base, "Base I/O address");
++
++
++#define DEFAULT_BASE	0x3F0		/* for PC style hardware */
++#define DRVNAME		"i2c-floppy"
++
++
++#define FOFF_DOR	0x02
++#define FOFF_DIR	0x07
++
++#define FDOR_MOTEA	0x10
++#define FDOR_MOTEB	0x20
++
++#define FDIR_DCHNG	0x80
++
++#define SCL		FDOR_MOTEA
++#define SDA		FDOR_MOTEB
++#define SDA_IN		FDIR_DCHNG
++
++#define LO_INV		(SDA|SCL)
++#define LI_INV		(SDA_IN)
++
++
++/* ----- Device list ------------------------------------------------------ */
++
++#if 0
++struct i2c_floppy_data {
++	unsigned char dor;
++};
++
++struct i2c_floppy {
++	struct i2c_adapter adapter;
++	struct i2c_algo_bit_data algo_data;
++	struct i2c_floppy_data data;
++	struct i2c_floppy *next;
++};
++#endif
++
++
++/* ----- Low-level floppy access ------------------------------------------ */
++
++static inline void port_dor_out(unsigned char d)
++{
++	outb(d ^ LO_INV, base + FOFF_DOR);
++}
++
++static inline unsigned char port_dir_in(void)
++{
++	return inb(base + FOFF_DIR) ^ LI_INV;
++}
++
++
++/* ----- I2C algorithm call-back functions and structures ----------------- */
++
++static void floppy_setscl(void *data, int state)
++{
++	if (state)
++		dor |= SCL;
++	else
++		dor &= ~SCL;
++
++	port_dor_out(dor);
++}
++
++static void floppy_setsda(void *data, int state)
++{
++	if (state)
++		dor |= SDA;
++	else
++		dor &= ~SDA;
++
++	port_dor_out(dor);
++}
++
++static int floppy_getsda(void *data)
++{
++	return port_dir_in() & SDA_IN;
++}
++
++/* Encapsulate the functions above in the correct structure
++   Note that getscl is set to NULL because SCL cannot be read
++   back with the current driver */
++static struct i2c_algo_bit_data floppy_algo_data = {
++	.setsda		= floppy_setsda,
++	.setscl		= floppy_setscl,
++	.getsda		= floppy_getsda,
++	.udelay		= 50,
++	.timeout	= HZ,
++};
++
++
++/* ----- Driver registration ---------------------------------------------- */
++
++static struct i2c_adapter floppy_adapter = {
++	.owner		= THIS_MODULE,
++	.class		= I2C_CLASS_HWMON,
++	.algo_data	= &floppy_algo_data,
++	.name		= "Floppy controller adapter",
++};
++
++static int __devinit i2c_floppy_probe(struct platform_device *pdev)
++{
++	int err;
++	struct resource *res;
++
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	if (!request_region(res->start, res->end - res->start + 1, DRVNAME))
++		return -EBUSY;
++
++	/* Reset hardware to a sane state (SCL and SDA high) */
++	floppy_setsda(NULL, 1);
++	floppy_setscl(NULL, 1);
++
++	floppy_adapter.dev.parent = &pdev->dev;
++	err = i2c_bit_add_bus(&floppy_adapter);
++	if (err) {
++		dev_err(&pdev->dev, "Unable to register with I2C\n");
++		goto exit_region;
++	}
++	return 0;
++
++exit_region:
++	release_region(res->start, res->end - res->start + 1);
++	return err;
++}
++
++static int __devexit i2c_floppy_remove(struct platform_device *pdev)
++{
++	struct resource *res;
++
++	i2c_del_adapter(&floppy_adapter);
++
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	release_region(res->start, res->end - res->start + 1);
++	return 0;
++}
++
++static struct platform_driver i2c_floppy_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= DRVNAME,
++	},
++	.probe		= i2c_floppy_probe,
++	.remove		= __devexit_p(i2c_floppy_remove),
++};
++
++static int __init i2c_floppy_device_add(u16 address)
++{
++	struct resource res = {
++		.start	= address,
++		.end	= address + 7,
++		.name	= DRVNAME,
++		.flags	= IORESOURCE_IO,
++	};
++	int err;
++
++	pdev = platform_device_alloc(DRVNAME, -1);
++	if (!pdev) {
++		err = -ENOMEM;
++		printk(KERN_ERR DRVNAME ": Device allocation failed\n");
++		goto exit;
++	}
++
++	err = platform_device_add_resources(pdev, &res, 1);
++	if (err) {
++		printk(KERN_ERR DRVNAME ": Device resource addition failed "
++		       "(%d)\n", err);
++		goto exit_device_put;
++	}
++
++	err = platform_device_add(pdev);
++	if (err) {
++		printk(KERN_ERR DRVNAME ": Device addition failed (%d)\n",
++		       err);
++		goto exit_device_put;
++	}
++
++	return 0;
++
++exit_device_put:
++	platform_device_put(pdev);
++exit:
++	return err;
++}
++
++static int __init i2c_floppy_init(void)
++{
++	int err;
++
++	if (base == 0) {
++		pr_info(DRVNAME ": using default base 0x%x\n", DEFAULT_BASE);
++		base = DEFAULT_BASE;
++	}
++
++	/* Sets global pdev as a side effect */
++	err = i2c_floppy_device_add(base);
++	if (err)
++		goto exit;
++
++	err = platform_driver_register(&i2c_floppy_driver);
++	if (err)
++		goto exit_device;
++
++	return 0;
++
++exit_device:
++	platform_device_unregister(pdev);
++exit:
++	return err;
++}
++
++static void __exit i2c_floppy_exit(void)
++{
++	platform_driver_unregister(&i2c_floppy_driver);
++	platform_device_unregister(pdev);
++}
++
++
++MODULE_AUTHOR("Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>");
++MODULE_DESCRIPTION("I2C bus over floppy controller");
++MODULE_LICENSE("GPL");
++
++module_init(i2c_floppy_init);
++module_exit(i2c_floppy_exit);
+diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/Kconfig linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/Kconfig
+--- linux-2.6.27-rc3/drivers/i2c/busses/Kconfig	2008-08-15 21:19:24.000000000 +0200
++++ linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/Kconfig	2008-08-18 03:46:31.000000000 +0200
+@@ -490,6 +490,22 @@ config I2C_VERSATILE
+ 
+ comment "External I2C/SMBus adapter drivers"
+ 
++config I2C_FLOPPY
++	tristate "Floppy controller adapter"
++	select I2C_ALGOBIT
++	default n
++	help
++	  This supports a simple do-it-yourself floppy controller to
++	  I2C adapters using the motor control lines for SDA and SCL,
++	  and the drive change input for SDA readback.
++
++	  This support is also available as a module.  If so, the module
++	  will be called i2c-floppy.
++
++	  If you do not have such a device, and do not plan to build one,
++	  it's safe to say N here. Do not say Y here and to the floppy
++	  driver unless you know exactly what you are doing.
++
+ config I2C_PARPORT
+ 	tristate "Parallel port adapter"
+ 	depends on PARPORT
+diff -NurpP --minimal linux-2.6.27-rc3/drivers/i2c/busses/Makefile linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/Makefile
+--- linux-2.6.27-rc3/drivers/i2c/busses/Makefile	2008-08-15 21:19:24.000000000 +0200
++++ linux-2.6.27-rc3-fi2c-v0.2/drivers/i2c/busses/Makefile	2008-08-18 03:46:42.000000000 +0200
+@@ -48,6 +48,7 @@ obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+ 
+ # External I2C/SMBus adapter drivers
++obj-$(CONFIG_I2C_FLOPPY)	+= i2c-floppy.o
+ obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+ obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
+ obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
 
 _______________________________________________
 i2c mailing list
