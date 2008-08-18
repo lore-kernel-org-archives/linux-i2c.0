@@ -1,12 +1,15 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: [patch 2.6.27-rc3] tps65010: vibrator hookup to gpiolib
-Date: Mon, 18 Aug 2008 00:24:32 -0700
-Message-ID: <200808180024.32954.david-b@pacbell.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Floppy controller bus driver
+Date: Mon, 18 Aug 2008 09:41:15 +0200
+Message-ID: <20080818094115.7c5f5136@hyperion.delvare>
+References: <20080815205012.GA20308@MAIL.13thfloor.at>
+	<20080817224511.06e82a74@hyperion.delvare>
+	<20080818012739.GD8052@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20080818012739.GD8052-ZD0Mn47LIGX0Pe/G4T7+5F6hYfS7NtTn@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,73 +19,75 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+To: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
+Cc: I2C ML <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Mon, 18 Aug 2008 03:27:39 +0200, Herbert Poetzl wrote:
+> On Sun, Aug 17, 2008 at 10:45:11PM +0200, Jean Delvare wrote:
+> > On Fri, 15 Aug 2008 22:50:12 +0200, Herbert Poetzl wrote:
+> > > (...)
+> > > +static void port_dor_out(unsigned char d)
+> > > +{
+> > > +	outb(d ^ LO_INV, base + FOFF_DOR);
+> > > +}
+> > > +
+> > > +static unsigned char port_dir_in(void)
+> > > +{
+> > > +	return inb(base + FOFF_DIR) ^ LI_INV;
+> > > +}
+> > 
+> > These two functions are certainly worth inlining.
+> 
+> okay, static inline fine?
 
-All the tps6501{0,1,2,3,4} chips have a signal for hooking up with
-a vibrator (for non-auditory cell phone "ring") ... expose that as
-one more (output-only) GPIO.
+Yes.
 
-[ dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org: comments; list tps65014 too ]
+> > (...)
+> > In general, "remove" functions should avoid accessing globals. You
+> > should always be able to get access to everything you need based on the
+> > device that is passed into parameter. Just use platform_get_drvdata
+> > (and use platform_set_drvdata in the "probe" function.)
+> 
+> hmm, is that something you plan to change in the
+> i2c-parport-light driver too, if so, please point
+> me to the patch, I'll gladly adjust it to match that
 
-Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
----
- drivers/i2c/chips/tps65010.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+In fact, I was counting on you to fix your driver and then send a patch
+cleaning up i2c-parport-light in a similar way ;)
 
---- a/drivers/i2c/chips/tps65010.c	2008-07-25 12:28:08.000000000 -0700
-+++ b/drivers/i2c/chips/tps65010.c	2008-08-18 00:22:48.000000000 -0700
-@@ -456,14 +456,17 @@ static irqreturn_t tps65010_irq(int irq,
- 
- /* offsets 0..3 == GPIO1..GPIO4
-  * offsets 4..5 == LED1/nPG, LED2 (we set one of the non-BLINK modes)
-+ * offset 6 == vibrator motor driver
-  */
- static void
- tps65010_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
- {
- 	if (offset < 4)
- 		tps65010_set_gpio_out_value(offset + 1, value);
--	else
-+	else if (offset < 6)
- 		tps65010_set_led(offset - 3, value ? ON : OFF);
-+	else
-+		tps65010_set_vib(value);
- }
- 
- static int
-@@ -477,8 +480,10 @@ tps65010_output(struct gpio_chip *chip, 
- 		if (!(tps->outmask & (1 << offset)))
- 			return -EINVAL;
- 		tps65010_set_gpio_out_value(offset + 1, value);
--	} else
-+	} else if (offset < 6)
- 		tps65010_set_led(offset - 3, value ? ON : OFF);
-+	else
-+		tps65010_set_vib(value);
- 
- 	return 0;
- }
-@@ -646,7 +651,7 @@ static int tps65010_probe(struct i2c_cli
- 		tps->chip.get = tps65010_gpio_get;
- 
- 		tps->chip.base = board->base;
--		tps->chip.ngpio = 6;
-+		tps->chip.ngpio = 7;
- 		tps->chip.can_sleep = 1;
- 
- 		status = gpiochip_add(&tps->chip);
-@@ -675,6 +680,7 @@ static const struct i2c_device_id tps650
- 	{ "tps65011", TPS65011 },
- 	{ "tps65012", TPS65012 },
- 	{ "tps65013", TPS65013 },
-+	{ "tps65014", TPS65011 },	/* tps65011 charging at 6.5V max */
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, tps65010_id);
+> > (...)
+> > This lacks a warning that this driver is meant for do-it-yourself
+> > hardware and most people can safely say no.
+> > 
+> > Out of curiosity, what would happen if someone was to run this driver
+> > with actual floppy disk drives connected?
+> 
+> I'd say the drive(s) will spin up a little, but
+> that's about all that can happen, the driver doesn't
+> do anything 'bad' with the floppy controller
+
+No risk that the relatively fast motor on/off switching could damage it?
+
+> the other way round is probably more a problem, as
+> the floppy driver will not handle the changing input
+> line that gracefully, but that is a problem users
+> of this kind of hardware should be able to deal with
+
+Correct, but that's still worth a warning in the documentation. Better
+safe than sorry.
+
+> > (...)
+> > Your patch misses Documentation/i2c/busses/i2c-floppy explaining 
+> > how to build the hardware, things to pay attention to, etc.
+> 
+> okay, something like the i2c-parport-light is fine?
+> (including the pinout description of course)
+
+Yes.
+
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
