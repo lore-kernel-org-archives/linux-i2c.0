@@ -1,12 +1,11 @@
-From: "Barnes insoluble" <xzabdttzuheKirk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [SPAM:4.4] ****SPAM**** Healthcare Industry Marketing List
-Date: Tue, 19 Aug 2008 05:34:51 +0000 (UTC)
-Message-ID: <9168.40606737441$1219124150@news.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-nforce2-s4985: Load automatically as needed
+Date: Tue, 19 Aug 2008 18:16:39 +0200
+Message-ID: <20080819181639.6f6f5552@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Date: Wed, 20 Aug 2008 11:14:27 +0300
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,34 +15,49 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: hugol-9TEW0ZjJ/5lWk0Htik3J/w@public.gmane.org, fborestrom-mqadx3qycjCIF+2jduOq3qxOck334EZe@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, sleepboy-YDxpq3io04c@public.gmane.org, 11775-lxJ5RJqBPN/0d+JFtaHRRQ@public.gmane.org, jsoberon-Gd1dGiWIQInVSm+WProj4sM5IpDPU1no@public.gmane.org, hrd-BZUAXFMOgoasTnJN9+BGXg@public.gmane.org, marlowe-4OAA3tfUOQIEMDE80E2L+VaTQe2KTcn/@public.gmane.org
+To: Ulrich Drepper <drepper-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Let the i2c-nforce2-s4985 module load automatically on the Tyan S4985.
+We use the PCI sub-IDs for this.
 
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+Ulrich, can you please test this patch again, on top of Linus' latest
+kernel tree? There have been a number of fixes done to the
+i2c-nforce-s4985 driver meanwhile, so maybe this patch will work fine
+now.
 
+ drivers/i2c/busses/i2c-nforce2-s4985.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Current Physicians in the US 
+--- linux-2.6.26-rc1.orig/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-05-07 14:39:05.000000000 +0200
++++ linux-2.6.26-rc1/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-05-07 21:00:10.000000000 +0200
+@@ -37,6 +37,20 @@
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/mutex.h>
++#include <linux/pci_ids.h>
++#include <linux/mod_devicetable.h>
++
++/* Let the driver autoload */
++static struct pci_device_id s4985_ids[] = {
++	{
++		.vendor 	= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE4_SMBUS,
++		.subvendor	= 0x10f1,	/* Tyan Computer */
++		.subdevice	= 0x4985,	/* S4985 */
++	},
++	{ }
++};
++MODULE_DEVICE_TABLE(pci, s4985_ids);
+ 
+ extern struct i2c_adapter *nforce2_smbus;
+ 
 
-Physician in over 32 specialties
-
-many fields which can easily be sorted in excel
-
-reduced price is now: $398
-
-
-*** ITEMS BELOW ARE INCLUDED IN THE DEAL AT NO EXTRA COST ***
-
-==> Alternative Medicine
-
-==> Psychologists
-
-==> Physical Therapists
-
-==> Nursing Homes
-
-contact:: sudhirreddy-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
-  
-this offer is only valid until Aug 22, 2008 --------   Put this number in the heading: 363 and send this email back to be delisted
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
