@@ -1,14 +1,11 @@
-From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH][RESEND] i2c-i801: Add basic interrupt support
-Date: Wed, 20 Aug 2008 06:53:48 +0200
-Message-ID: <48ABA35C.50404@gmail.com>
-References: <48A33E77.7060502@gmail.com>	<20080816155856.2e0bcf4c@hyperion.delvare>	<48A6FECC.8020801@gmail.com>	<20080816185013.30fcf4ee@hyperion.delvare>	<20080816194147.7c0a11dc@hyperion.delvare>	<48A715FE.80802@hhs.nl>
-	<20080816203347.0af81c5b@hyperion.delvare>
+From: =?utf-8?q?Barristerfestus=20Oku?= <barristerfestuso-/E1597aS9LRLRg2oqZjkVg@public.gmane.org>
+Subject: [SPAM:4.7] Business Transaction to be my Client Next of Kin pls
+Date: Wed, 20 Aug 2008 06:36:55 -0700 (PDT)
+Message-ID: <390336.96411.qm@web59504.mail.ac4.yahoo.com>
+Reply-To: barrister.festusoku-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8096305508738882172=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080816203347.0af81c5b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,55 +15,42 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hey Jean,
+--===============8096305508738882172==
+Content-Type: multipart/alternative; boundary="0-1967896002-1219239415=:96411"
+Content-Transfer-Encoding: 8bit
 
-Jean Delvare wrote:
->>> OK, I see what's going on. On this laptop, IRQ 9 is used by many
->>> things, not just SMBus. So the interrupt handler keeps being called even
->>> without SMBus activity or with polled-based SMBus activity. That's what
->>> happens during SMBus block transactions: the interrupt handler is
->>> called but not for us. However the interrupt handler thinks it is
->>> called by us and clears the status register value. This causes the
->>> polled-based loop to wait forever: by the time it looks for the status
->>> register value, it has been cleared.
->>>
->>> So we need to change the code in either of three ways:
->>> * Drop support for byte-by-byte block transactions.
->>> * Inhibit the interrupt handler during polled-based block transactions.
->>> * Convert the byteb-by-byte block transaction code to use interrupts
->>>   instead of polling.
->>> The latter would be cleaner, but that's also more work.
->>>       
-I tried monday to add interrupt support to the byte-by-byte block 
-transactions, but it's not working yet. Keeps messing up (and eventually 
-crashing) my I2C bus.
+--0-1967896002-1219239415=:96411
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
->> Erm, is this testing with or without your merging of the status flags defines? 
->> Maybe that is causing this?
->>     
->
-> This is indeed with my merging of the status flag defines. But the
-> problem would happen regardless: the interrupt handler resets all the
-> status flags if any flag of I801_HST_STS_MASK_ALL, not just
-> I801_HST_STS_MASK_NORM, is set.
->
-> You might argue that the interrupt handler could be modified to only
-> reset the flags it knows about, i.e. I801_HST_STS_MASK_NORM. This is
-> probably correct, but even then, it doesn't feel safe to have an
-> interrupt handler triggered while poll-based code operated on the same
-> register values
-True, it shouldn't happen. However, always only resetting flags it knows 
-about seems to make sense in every case, or not?
+¡Tengo nueva dirección de correo!Ahora puedes escribirme a:barristerfestuso-/E1597aS9LRLRg2oqZjkVg@public.gmane.org
 
-Not sure when i'll have some more time to look into it though...
 
-Ivo
+
+-  I am Barrister Festus Oku a legal attorney to Mr.Thomas who died in the October 23rd bellview airline crash here in Nigeria with all his family,my client has about($15. 5 Million dollars)with Access Bank plc,I have made all attempts to locate any of my client's relative but all attempts have proved unsuccessful.I want to introduce you to the Access Bank Plc as the relative to my client so that the bank will pay the money to you as the next of kin to my client.Pls if you are intrested in this business let me know,i need your full name telephone and fax number copy of your passport to enable me summit your name to the bank as the next of kin to my client for payment.view the BBC web page www.cnn.com/2005/WORLD/africa/10/23/nigeria.plane/Barrister Festus Oku.
+
+
+--0-1967896002-1219239415=:96411
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<div style="border: solid 1px #cccccc; width:448px; background-color:white; margin:10px 0px;";><table border=0 cellspacing=0 cellpadding=0 width="448"><tr><td class=tablot background="http://us.i1.yimg.com/us.yimg.com/i/us/pim/gr/gr_announce_1.gif" valign=center height=57><big style="padding:10px;">¡Tengo nueva dirección de correo!</big></td></tr></table><div style="padding:10px;">Ahora puedes escribirme a:<b>barristerfestuso-/E1597aS9LRLRg2oqZjkVg@public.gmane.org</b><br><br><span style="color:green;"></span><br><br>- <span style="color:green;"> I am Barrister Festus Oku a legal attorney to Mr.Thomas who died in the October 23rd bellview airline crash here in Nigeria with all his family,my client has about($15. 5 Million dollars)with Access Bank plc,I have made all attempts to locate any of my client's relative b
+ ut all attempts have proved unsuccessful.I want to introduce you to the Access Bank Plc as the relative to my client so that the bank will pay the money to you as the next of kin to my client.Pls if you are intrested in this business let me know,i need your full name telephone and fax number copy of your passport to enable me summit your name to the bank as the next of kin to my client for payment.view the BBC web page www.cnn.com/2005/WORLD/africa/10/23/nigeria.plane/Barrister Festus Oku.</span></div></div>
+--0-1967896002-1219239415=:96411--
+
+
+
+--===============8096305508738882172==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8096305508738882172==--
