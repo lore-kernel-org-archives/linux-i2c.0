@@ -1,10 +1,11 @@
-From: =?utf-8?q?Access=20Bank?= <mr.jamesudi-/E1597aS9LRLRg2oqZjkVg@public.gmane.org>
-Subject: Access Bank Plc Your contract payment is Ready
-Date: Wed, 20 Aug 2008 10:55:29 -0700 (PDT)
-Message-ID: <603771.25070.qm@web59706.mail.ac4.yahoo.com>
-Reply-To: james_udi-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+From: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Subject: [patch 1/1] i2c-i801: SMBus patch for Intel Ibex Peak
+	DeviceIDs
+Date: Wed, 20 Aug 2008 16:45:26 -0700
+Message-ID: <200808202345.m7KNjRBv005585@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4065549690234340592=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -15,43 +16,64 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============4065549690234340592==
-Content-Type: multipart/alternative; boundary="0-274623404-1219254929=:25070"
-Content-Transfer-Encoding: 8bit
+From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
---0-274623404-1219254929=:25070
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Add the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
 
-¡Tengo nueva dirección de correo!Ahora puedes escribirme a:mr.jamesudi-/E1597aS9LRLRg2oqZjkVg@public.gmane.org
+Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+---
 
+ drivers/i2c/busses/Kconfig    |    1 +
+ drivers/i2c/busses/i2c-i801.c |    3 +++
+ 2 files changed, 4 insertions(+)
 
-
-- Access Bank Nigeria Plc Plot 1665,Oyin Jolayemi Street Victoria Island Lagos Nigeria Telephone:234-1-720-5753 Dear Contractor,How are you doing today,This is to inform you that the President Federal Rep of Nigeria has chosen our bank to pay all the contractors so all the contractors will receive their payment from Access Bank Nig Plc.Sir, all we need from you is to reconfirm your contract amount,contract number and bank deatils to avoid paying to a wrong account.We want to tell you that you need to get a waiver from federal high court to enable you receive your payment with out paying any charges,if you can get the waiver by your self that is good.You must be seruois if you want to get your payment paid,You make sure you send a copy of your passport to avoid paying to wrong person.If you
-  have a lawyer in your country who will help you to get the waiver that should be good,but if not let us know so that our bank lawyer will help you to get the document tomorrow.Please confirm your details:Regards Mr.Udi James Access Bank Nig Plc
-
-
---0-274623404-1219254929=:25070
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-<div style="border: solid 1px #cccccc; width:448px; background-color:white; margin:10px 0px;";><table border=0 cellspacing=0 cellpadding=0 width="448"><tr><td class=tablot background="http://us.i1.yimg.com/us.yimg.com/i/us/pim/gr/gr_announce_1.gif" valign=center height=57><big style="padding:10px;">¡Tengo nueva dirección de correo!</big></td></tr></table><div style="padding:10px;">Ahora puedes escribirme a:<b>mr.jamesudi-/E1597aS9LRLRg2oqZjkVg@public.gmane.org</b><br><br><span style="color:green;"></span><br><br>- <span style="color:green;">Access Bank Nigeria Plc Plot 1665,Oyin Jolayemi Street Victoria Island Lagos Nigeria Telephone:234-1-720-5753 Dear Contractor,How are you doing today,This is to inform you that the President Federal Rep of Nigeria has chosen our bank to pay all the contractors so all the contra
- ctors will receive their payment from Access Bank Nig Plc.Sir, all we need from you is to reconfirm your contract amount,contract number and bank deatils to avoid paying to a wrong account.We want to tell you that you need to get a waiver from federal high court to enable you receive your payment with out paying any charges,if you can get the waiver by your self that is good.You must be seruois if you want to get your payment paid,You make sure you send a copy of your passport to avoid paying to wrong person.If you have a lawyer in your country who will help you to get the waiver that should be good,but if not let us know so that our bank lawyer will help you to get the document tomorrow.Please confirm your details:Regards Mr.Udi James Access Bank Nig Plc</span></div></div>
---0-274623404-1219254929=:25070--
-
-
-
---===============4065549690234340592==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+diff -puN drivers/i2c/busses/Kconfig~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids
++++ a/drivers/i2c/busses/Kconfig
+@@ -97,6 +97,7 @@ config I2C_I801
+ 	    ICH9
+ 	    Tolapai
+ 	    ICH10
++	    PCH
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff -puN drivers/i2c/busses/i2c-i801.c~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids drivers/i2c/busses/i2c-i801.c
+--- a/drivers/i2c/busses/i2c-i801.c~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids
++++ a/drivers/i2c/busses/i2c-i801.c
+@@ -41,6 +41,7 @@
+   Tolapai               0x5032     32     hard     yes     yes     yes
+   ICH10                 0x3a30     32     hard     yes     yes     yes
+   ICH10                 0x3a60     32     hard     yes     yes     yes
++  PCH                   0x3b30     32     hard     yes     yes     yes
+ 
+   Features supported by this driver:
+   Software PEC                     no
+@@ -576,6 +577,7 @@ static struct pci_device_id i801_ids[] =
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
+ 	{ 0, }
+ };
+ 
+@@ -599,6 +601,7 @@ static int __devinit i801_probe(struct p
+ 	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
+ 	case PCI_DEVICE_ID_INTEL_ICH10_4:
+ 	case PCI_DEVICE_ID_INTEL_ICH10_5:
++	case PCI_DEVICE_ID_INTEL_PCH_2:
+ 		i801_features |= FEATURE_I2C_BLOCK_READ;
+ 		/* fall through */
+ 	case PCI_DEVICE_ID_INTEL_82801DB_3:
+_
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4065549690234340592==--
