@@ -1,11 +1,14 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-nforce2-s4985: Load automatically as needed
-Date: Tue, 19 Aug 2008 18:16:39 +0200
-Message-ID: <20080819181639.6f6f5552@hyperion.delvare>
+From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH][RESEND] i2c-i801: Add basic interrupt support
+Date: Wed, 20 Aug 2008 06:53:48 +0200
+Message-ID: <48ABA35C.50404@gmail.com>
+References: <48A33E77.7060502@gmail.com>	<20080816155856.2e0bcf4c@hyperion.delvare>	<48A6FECC.8020801@gmail.com>	<20080816185013.30fcf4ee@hyperion.delvare>	<20080816194147.7c0a11dc@hyperion.delvare>	<48A715FE.80802@hhs.nl>
+	<20080816203347.0af81c5b@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080816203347.0af81c5b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,49 +18,53 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ulrich Drepper <drepper-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Let the i2c-nforce2-s4985 module load automatically on the Tyan S4985.
-We use the PCI sub-IDs for this.
+Hey Jean,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Ulrich, can you please test this patch again, on top of Linus' latest
-kernel tree? There have been a number of fixes done to the
-i2c-nforce-s4985 driver meanwhile, so maybe this patch will work fine
-now.
+Jean Delvare wrote:
+>>> OK, I see what's going on. On this laptop, IRQ 9 is used by many
+>>> things, not just SMBus. So the interrupt handler keeps being called even
+>>> without SMBus activity or with polled-based SMBus activity. That's what
+>>> happens during SMBus block transactions: the interrupt handler is
+>>> called but not for us. However the interrupt handler thinks it is
+>>> called by us and clears the status register value. This causes the
+>>> polled-based loop to wait forever: by the time it looks for the status
+>>> register value, it has been cleared.
+>>>
+>>> So we need to change the code in either of three ways:
+>>> * Drop support for byte-by-byte block transactions.
+>>> * Inhibit the interrupt handler during polled-based block transactions.
+>>> * Convert the byteb-by-byte block transaction code to use interrupts
+>>>   instead of polling.
+>>> The latter would be cleaner, but that's also more work.
+>>>       
+I tried monday to add interrupt support to the byte-by-byte block 
+transactions, but it's not working yet. Keeps messing up (and eventually 
+crashing) my I2C bus.
 
- drivers/i2c/busses/i2c-nforce2-s4985.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+>> Erm, is this testing with or without your merging of the status flags defines? 
+>> Maybe that is causing this?
+>>     
+>
+> This is indeed with my merging of the status flag defines. But the
+> problem would happen regardless: the interrupt handler resets all the
+> status flags if any flag of I801_HST_STS_MASK_ALL, not just
+> I801_HST_STS_MASK_NORM, is set.
+>
+> You might argue that the interrupt handler could be modified to only
+> reset the flags it knows about, i.e. I801_HST_STS_MASK_NORM. This is
+> probably correct, but even then, it doesn't feel safe to have an
+> interrupt handler triggered while poll-based code operated on the same
+> register values
+True, it shouldn't happen. However, always only resetting flags it knows 
+about seems to make sense in every case, or not?
 
---- linux-2.6.26-rc1.orig/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-05-07 14:39:05.000000000 +0200
-+++ linux-2.6.26-rc1/drivers/i2c/busses/i2c-nforce2-s4985.c	2008-05-07 21:00:10.000000000 +0200
-@@ -37,6 +37,20 @@
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/mutex.h>
-+#include <linux/pci_ids.h>
-+#include <linux/mod_devicetable.h>
-+
-+/* Let the driver autoload */
-+static struct pci_device_id s4985_ids[] = {
-+	{
-+		.vendor 	= PCI_VENDOR_ID_NVIDIA,
-+		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE4_SMBUS,
-+		.subvendor	= 0x10f1,	/* Tyan Computer */
-+		.subdevice	= 0x4985,	/* S4985 */
-+	},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(pci, s4985_ids);
- 
- extern struct i2c_adapter *nforce2_smbus;
- 
+Not sure when i'll have some more time to look into it though...
 
--- 
-Jean Delvare
+Ivo
 
 _______________________________________________
 i2c mailing list
