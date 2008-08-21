@@ -1,8 +1,7 @@
 From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Subject: [PATCH 2/6]: i2c-pcf: Add adapter hooks around xfer begin and
-	end.
-Date: Thu, 21 Aug 2008 02:43:22 -0700 (PDT)
-Message-ID: <20080821.024322.35962617.davem@davemloft.net>
+Subject: [PATCH 6/6]: i2c-pcf: Add bus addressing support.
+Date: Thu, 21 Aug 2008 02:43:33 -0700 (PDT)
+Message-ID: <20080821.024333.137538181.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,116 +19,100 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-i2c-pcf: Add adapter hooks around xfer begin and end.
-
-Some I2C bus implementations need to synchronize with external
-entities, such as system firmware, which might also be programming the
-same I2C bus.
-
-In order to facilitate this add ->xfer_begin() and ->xfer_end() hooks
-which are invoked around pcf_xfer().
+i2c-pcf: Add bus addressing support.
 
 Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 
 diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
-index a8a5b6d..b57bc9a 100644
+index b8e34b0..8031e92 100644
 --- a/drivers/i2c/algos/i2c-algo-pcf.c
 +++ b/drivers/i2c/algos/i2c-algo-pcf.c
-@@ -331,13 +331,15 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
- 	int i;
- 	int ret=0, timeout, status;
-     
-+	adap->xfer_begin(adap->data);
+@@ -312,7 +312,7 @@ static int pcf_doAddress(struct i2c_algo_pcf_data *adap,
+ 	unsigned short flags = msg->flags;
+ 	unsigned char addr;
  
- 	/* Check for bus busy */
- 	timeout = wait_for_bb(adap);
- 	if (timeout) {
- 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: "
- 		            "Timeout waiting for BB in pcf_xfer\n");)
--		return -EIO;
-+		i = -EIO;
-+		goto out;
+-	addr = msg->addr << 1;
++	addr = I2C_ADDR_GET_ADDR(msg->addr) << 1;
+ 	if (flags & I2C_M_RD)
+ 		addr |= 1;
+ 	if (flags & I2C_M_REV_DIR_ADDR)
+@@ -342,6 +342,18 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 		goto out;
  	}
  	
++	/* We must set the I2C bus after waiting for bus-busy, otherwise
++	 * STOP bits from previous transfers will not propagate and the
++	 * bus will hang.
++	 *
++	 * Currently we assume that we will not switch busses during a
++	 * single xfer request.  If that were possible we'd have to add
++	 * complicated START/STOP logic below, and extra wait_for_bb()
++	 * calls.
++	 */
++	if (adap->set_bus && num)
++		adap->set_bus(adap->data, I2C_ADDR_GET_BUS(msgs[0].addr));
++
  	for (i = 0;ret >= 0 && i < num; i++) {
-@@ -359,12 +361,14 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
- 		if (timeout) {
- 			if (timeout == -EINTR) {
- 				/* arbitration lost */
--				return (-EINTR);
-+				i = -EINTR;
-+				goto out;
- 			}
- 			i2c_stop(adap);
- 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: Timeout waiting "
- 				    "for PIN(1) in pcf_xfer\n");)
--			return (-EREMOTEIO);
-+			i = -EREMOTEIO;
-+			goto out;
- 		}
-     
- #ifndef STUB_I2C
-@@ -372,7 +376,8 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
- 		if (status & I2C_PCF_LRB) {
- 			i2c_stop(adap);
- 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: No LRB(1) in pcf_xfer\n");)
--			return (-EREMOTEIO);
-+			i = -EREMOTEIO;
-+			goto out;
- 		}
- #endif
-     
-@@ -404,6 +409,8 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
- 		}
- 	}
+ 		pmsg = &msgs[i];
  
-+out:
-+	adap->xfer_end(adap->data);
- 	return (i);
- }
+@@ -431,7 +443,7 @@ static const struct i2c_algorithm pcf_algo = {
+ /* 
+  * registering functions to load algorithms at runtime 
+  */
+-int i2c_pcf_add_bus(struct i2c_adapter *adap, int support_smbus_quick)
++int i2c_pcf_add_bus(struct i2c_adapter *adap, int flags)
+ {
+ 	struct i2c_algo_pcf_data *pcf_adap = adap->algo_data;
+ 	int rval;
+@@ -440,8 +452,10 @@ int i2c_pcf_add_bus(struct i2c_adapter *adap, int support_smbus_quick)
  
+ 	pcf_adap->func_flags = (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | 
+ 				I2C_FUNC_PROTOCOL_MANGLING);
+-	if (!support_smbus_quick)
++	if (!(flags & I2C_PCF_SUPPORT_SMBUS_QUICK))
+ 		pcf_adap->func_flags &= ~I2C_FUNC_SMBUS_QUICK;
++	if (flags & I2C_PCF_SUPPORT_BUS_ADDRESSING)
++		pcf_adap->func_flags |= I2C_FUNC_BUS_ADDRESSING;
+ 
+ 	/* register new adapter to i2c module... */
+ 	adap->algo = &pcf_algo;
 diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
-index 05f7d09..37bb528 100644
+index 2be6b5b..d200b3a 100644
 --- a/drivers/i2c/busses/i2c-elektor.c
 +++ b/drivers/i2c/busses/i2c-elektor.c
-@@ -186,6 +186,14 @@ static int pcf_isa_init(void)
- 	return 0;
- }
+@@ -281,7 +281,7 @@ static int __devinit elektor_probe(struct device *dev, unsigned int id)
+ 	if (pcf_isa_init())
+ 		return -ENODEV;
+ 	pcf_isa_ops.dev.parent = dev;
+-	if (i2c_pcf_add_bus(&pcf_isa_ops, 1) < 0)
++	if (i2c_pcf_add_bus(&pcf_isa_ops, I2C_PCF_SUPPORT_SMBUS_QUICK) < 0)
+ 		goto fail;
  
-+static void pcf_isa_xfer_begin(void *data)
-+{
-+}
-+
-+static void pcf_isa_xfer_end(void *data)
-+{
-+}
-+
- /* ------------------------------------------------------------------------
-  * Encapsulate the above functions in the correct operations structure.
-  * This is only done when more than one hardware adapter is supported.
-@@ -196,6 +204,8 @@ static struct i2c_algo_pcf_data pcf_isa_data = {
- 	.getown	    = pcf_isa_getown,
- 	.getclock   = pcf_isa_getclock,
- 	.waitforpin = pcf_isa_waitforpin,
-+	.xfer_begin = pcf_isa_xfer_begin,
-+	.xfer_end   = pcf_isa_xfer_end,
- };
- 
- static struct i2c_adapter pcf_isa_ops = {
+ 	dev_info(dev, "found device at %#x\n", base);
 diff --git a/include/linux/i2c-algo-pcf.h b/include/linux/i2c-algo-pcf.h
-index 5de8a31..78c62ed 100644
+index 388776a..bb68d07 100644
 --- a/include/linux/i2c-algo-pcf.h
 +++ b/include/linux/i2c-algo-pcf.h
-@@ -33,6 +33,9 @@ struct i2c_algo_pcf_data {
- 	int  (*getclock) (void *data);
- 	void (*waitforpin) (void *data);
+@@ -36,6 +36,8 @@ struct i2c_algo_pcf_data {
+ 	void (*xfer_begin)(void *data);
+ 	void (*xfer_end)(void *data);
  
-+	void (*xfer_begin)(void *data);
-+	void (*xfer_end)(void *data);
++	void (*set_bus)(void *data, int addr);
 +
+ 	u32 func_flags;
+ 
  	/* Multi-master lost arbitration back-off delay (msecs)
- 	 * This should be set by the bus adapter or knowledgable client
- 	 * if bus is multi-mastered, else zero
+@@ -45,6 +47,9 @@ struct i2c_algo_pcf_data {
+ 	unsigned long lab_mdelay;
+ };
+ 
+-int i2c_pcf_add_bus(struct i2c_adapter *adap, int support_smbus_quick);
++int i2c_pcf_add_bus(struct i2c_adapter *adap, int flags);
++
++#define I2C_PCF_SUPPORT_SMBUS_QUICK		0x00000001
++#define I2C_PCF_SUPPORT_BUS_ADDRESSING		0x00000002
+ 
+ #endif /* _LINUX_I2C_ALGO_PCF_H */
 -- 
 1.5.6.5.GIT
 
