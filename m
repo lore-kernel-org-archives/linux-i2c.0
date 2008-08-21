@@ -1,16 +1,21 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 1/1] i2c-i801: SMBus patch for Intel Ibex Peak
-	DeviceIDs
-Date: Thu, 21 Aug 2008 09:05:29 +0200
-Message-ID: <20080821090529.4ce209c7@hyperion.delvare>
-References: <200808202345.m7KNjRBv005585@imap1.linux-foundation.org>
-	<20080821084446.6cdb11d3@hyperion.delvare>
-	<20080820235541.da8f690c.akpm@linux-foundation.org>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c: virtual i2c adapter support.
+Date: Thu, 21 Aug 2008 10:45:19 +0200
+Message-ID: <20080821084518.GY21330@tekkaman>
+References: <1213895701-9872-2-git-send-email-giometti@linux.it>
+	<87fxr5sw5f.fsf@macbook.be.48ers.dk>
+	<20080622085206.GM10695@enneenne.com>
+	<87bq1tsue5.fsf@macbook.be.48ers.dk>
+	<20080622093939.GO10695@enneenne.com>
+	<8763s1spuw.fsf@macbook.be.48ers.dk>
+	<20080622125010.GP10695@enneenne.com>
+	<87hcblqmi0.fsf@macbook.be.48ers.dk>
+	<20080623092658.75bddce4@hyperion.delvare>
+	<8763s0pp0r.fsf@macbook.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5156209992799071438=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080820235541.da8f690c.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8763s0pp0r.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,84 +25,82 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 20 Aug 2008 23:55:41 -0700, Andrew Morton wrote:
-> On Thu, 21 Aug 2008 08:44:46 +0200 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> 
-> > Hi Andrew,
-> > 
-> > On Wed, 20 Aug 2008 16:45:26 -0700, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
-> > > From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > > 
-> > > Add the Intel Ibex Peak (PCH) SMBus Controller DeviceIDs.
-> > > 
-> > > Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-> > > ---
-> > > 
-> > >  drivers/i2c/busses/Kconfig    |    1 +
-> > >  drivers/i2c/busses/i2c-i801.c |    3 +++
-> > >  2 files changed, 4 insertions(+)
-> > 
-> > I have this patch in my tree already, but I can't export it, because it
-> > depends on a pci_ids.h patch which is not yet in Linus' tree.
-> 
-> Sigh.
-> 
-> > > 
-> > > diff -puN drivers/i2c/busses/Kconfig~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids drivers/i2c/busses/Kconfig
-> > > --- a/drivers/i2c/busses/Kconfig~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids
-> > > +++ a/drivers/i2c/busses/Kconfig
-> > > @@ -97,6 +97,7 @@ config I2C_I801
-> > >  	    ICH9
-> > >  	    Tolapai
-> > >  	    ICH10
-> > > +	    PCH
-> > >  
-> > >  	  This driver can also be built as a module.  If so, the module
-> > >  	  will be called i2c-i801.
-> > > diff -puN drivers/i2c/busses/i2c-i801.c~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids drivers/i2c/busses/i2c-i801.c
-> > > --- a/drivers/i2c/busses/i2c-i801.c~i2c-i801-smbus-patch-for-intel-ibex-peak-deviceids
-> > > +++ a/drivers/i2c/busses/i2c-i801.c
-> > > @@ -41,6 +41,7 @@
-> > >    Tolapai               0x5032     32     hard     yes     yes     yes
-> > >    ICH10                 0x3a30     32     hard     yes     yes     yes
-> > >    ICH10                 0x3a60     32     hard     yes     yes     yes
-> > > +  PCH                   0x3b30     32     hard     yes     yes     yes
-> > >  
-> > >    Features supported by this driver:
-> > >    Software PEC                     no
-> > > @@ -576,6 +577,7 @@ static struct pci_device_id i801_ids[] =
-> > >  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
-> > >  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
-> > >  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
-> > > +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_2) },
-> > >  	{ 0, }
-> > >  };
-> > >  
-> > > @@ -599,6 +601,7 @@ static int __devinit i801_probe(struct p
-> > >  	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
-> > >  	case PCI_DEVICE_ID_INTEL_ICH10_4:
-> > >  	case PCI_DEVICE_ID_INTEL_ICH10_5:
-> > > +	case PCI_DEVICE_ID_INTEL_PCH_2:
-> > >  		i801_features |= FEATURE_I2C_BLOCK_READ;
-> > >  		/* fall through */
-> > >  	case PCI_DEVICE_ID_INTEL_82801DB_3:
-> > > _
-> 
-> Are you sure?  PCI_DEVICE_ID_INTEL_PCH_2 is there in 2.6.27-rc4.
 
-Ah, must have happened overnight, it wasn't there yesterday. I'll
-resync my tree now.
+--===============5156209992799071438==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="w1TwAseT95X423KH"
+Content-Disposition: inline
 
--- 
-Jean Delvare
+
+--w1TwAseT95X423KH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jun 23, 2008 at 09:51:48AM +0200, Peter Korsgaard wrote:
+> >>>>> "Jean" =3D=3D Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
+>=20
+> Hi,
+>=20
+>  >> Except that core_lock is static in i2c-core.c.
+>=20
+>  Jean> This construct is broken by design. If you don't know if the
+>  Jean> mutex is locked, it means that you're not the one holding
+>  Jean> it. If you're not the one holding it, you don't know when it
+>  Jean> will be released. So it could be released in the middle of
+>  Jean> whatever you are doing which requires the lock to be held, and
+>  Jean> that's bad.
+>=20
+> Exactly. Either we put it on hold for the core rework or we add a
+> i2c_del_virt_adapter_nolock() variant for the mux-on-i2c case.
+
+The problem is that into i2c_del_virt_adapter() we have to call
+i2c_del_adapter() and the lock is already holded by i2c_del_driver()
+since the mux is an i2c chip itself.
+
+Do you think that the problem can be resolved if we use
+mutex_lock_nested(&core_lock, SINGLE_DEPTH_NESTING) into
+i2c_del_adapter()?
+
+Thanks for your help,
+
+Rodolfo
+
+--=20
+
+GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
+
+--w1TwAseT95X423KH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFIrSseQaTCYNJaVjMRAvyUAJ0Y0V31x9zU6LBuOXXeEK9yA4EC9QCfZDzG
+QgUfN+GFSrtouNDL9eGRj2A=
+=7zaZ
+-----END PGP SIGNATURE-----
+
+--w1TwAseT95X423KH--
+
+
+--===============5156209992799071438==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============5156209992799071438==--
