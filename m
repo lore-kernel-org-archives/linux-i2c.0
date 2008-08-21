@@ -1,8 +1,8 @@
 From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Subject: [PATCH 1/6]: i2c-pcf: Pass adapter data into ->waitforpin()
-	method.
-Date: Thu, 21 Aug 2008 02:43:19 -0700 (PDT)
-Message-ID: <20080821.024319.22788780.davem@davemloft.net>
+Subject: [PATCH 2/6]: i2c-pcf: Add adapter hooks around xfer begin and
+	end.
+Date: Thu, 21 Aug 2008 02:43:22 -0700 (PDT)
+Message-ID: <20080821.024322.35962617.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,49 +20,116 @@ To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-i2c-pcf: Pass adapter data into ->waitforpin() method.
+i2c-pcf: Add adapter hooks around xfer begin and end.
+
+Some I2C bus implementations need to synchronize with external
+entities, such as system firmware, which might also be programming the
+same I2C bus.
+
+In order to facilitate this add ->xfer_begin() and ->xfer_end() hooks
+which are invoked around pcf_xfer().
 
 Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 
 diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
-index 1e328d1..a8a5b6d 100644
+index a8a5b6d..b57bc9a 100644
 --- a/drivers/i2c/algos/i2c-algo-pcf.c
 +++ b/drivers/i2c/algos/i2c-algo-pcf.c
-@@ -135,7 +135,7 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status) {
- 	*status = get_pcf(adap, 1);
- #ifndef STUB_I2C
- 	while (timeout-- && (*status & I2C_PCF_PIN)) {
--		adap->waitforpin();
-+		adap->waitforpin(adap->data);
- 		*status = get_pcf(adap, 1);
+@@ -331,13 +331,15 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 	int i;
+ 	int ret=0, timeout, status;
+     
++	adap->xfer_begin(adap->data);
+ 
+ 	/* Check for bus busy */
+ 	timeout = wait_for_bb(adap);
+ 	if (timeout) {
+ 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: "
+ 		            "Timeout waiting for BB in pcf_xfer\n");)
+-		return -EIO;
++		i = -EIO;
++		goto out;
  	}
- 	if (*status & I2C_PCF_LAB) {
-diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
-index 7f38c01..05f7d09 100644
---- a/drivers/i2c/busses/i2c-elektor.c
-+++ b/drivers/i2c/busses/i2c-elektor.c
-@@ -104,7 +104,7 @@ static int pcf_isa_getclock(void *data)
- 	return (clock);
+ 	
+ 	for (i = 0;ret >= 0 && i < num; i++) {
+@@ -359,12 +361,14 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 		if (timeout) {
+ 			if (timeout == -EINTR) {
+ 				/* arbitration lost */
+-				return (-EINTR);
++				i = -EINTR;
++				goto out;
+ 			}
+ 			i2c_stop(adap);
+ 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: Timeout waiting "
+ 				    "for PIN(1) in pcf_xfer\n");)
+-			return (-EREMOTEIO);
++			i = -EREMOTEIO;
++			goto out;
+ 		}
+     
+ #ifndef STUB_I2C
+@@ -372,7 +376,8 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 		if (status & I2C_PCF_LRB) {
+ 			i2c_stop(adap);
+ 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: No LRB(1) in pcf_xfer\n");)
+-			return (-EREMOTEIO);
++			i = -EREMOTEIO;
++			goto out;
+ 		}
+ #endif
+     
+@@ -404,6 +409,8 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 		}
+ 	}
+ 
++out:
++	adap->xfer_end(adap->data);
+ 	return (i);
  }
  
--static void pcf_isa_waitforpin(void) {
-+static void pcf_isa_waitforpin(void *data) {
- 	DEFINE_WAIT(wait);
- 	int timeout = 2;
- 	unsigned long flags;
+diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
+index 05f7d09..37bb528 100644
+--- a/drivers/i2c/busses/i2c-elektor.c
++++ b/drivers/i2c/busses/i2c-elektor.c
+@@ -186,6 +186,14 @@ static int pcf_isa_init(void)
+ 	return 0;
+ }
+ 
++static void pcf_isa_xfer_begin(void *data)
++{
++}
++
++static void pcf_isa_xfer_end(void *data)
++{
++}
++
+ /* ------------------------------------------------------------------------
+  * Encapsulate the above functions in the correct operations structure.
+  * This is only done when more than one hardware adapter is supported.
+@@ -196,6 +204,8 @@ static struct i2c_algo_pcf_data pcf_isa_data = {
+ 	.getown	    = pcf_isa_getown,
+ 	.getclock   = pcf_isa_getclock,
+ 	.waitforpin = pcf_isa_waitforpin,
++	.xfer_begin = pcf_isa_xfer_begin,
++	.xfer_end   = pcf_isa_xfer_end,
+ };
+ 
+ static struct i2c_adapter pcf_isa_ops = {
 diff --git a/include/linux/i2c-algo-pcf.h b/include/linux/i2c-algo-pcf.h
-index 0177d28..5de8a31 100644
+index 5de8a31..78c62ed 100644
 --- a/include/linux/i2c-algo-pcf.h
 +++ b/include/linux/i2c-algo-pcf.h
-@@ -31,7 +31,7 @@ struct i2c_algo_pcf_data {
- 	int  (*getpcf) (void *data, int ctl);
- 	int  (*getown) (void *data);
+@@ -33,6 +33,9 @@ struct i2c_algo_pcf_data {
  	int  (*getclock) (void *data);
--	void (*waitforpin) (void);
-+	void (*waitforpin) (void *data);
+ 	void (*waitforpin) (void *data);
  
++	void (*xfer_begin)(void *data);
++	void (*xfer_end)(void *data);
++
  	/* Multi-master lost arbitration back-off delay (msecs)
  	 * This should be set by the bus adapter or knowledgable client
+ 	 * if bus is multi-mastered, else zero
 -- 
 1.5.6.5.GIT
 
