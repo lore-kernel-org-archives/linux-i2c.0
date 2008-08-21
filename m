@@ -1,21 +1,11 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] i2c: virtual i2c adapter support.
-Date: Thu, 21 Aug 2008 10:45:19 +0200
-Message-ID: <20080821084518.GY21330@tekkaman>
-References: <1213895701-9872-2-git-send-email-giometti@linux.it>
-	<87fxr5sw5f.fsf@macbook.be.48ers.dk>
-	<20080622085206.GM10695@enneenne.com>
-	<87bq1tsue5.fsf@macbook.be.48ers.dk>
-	<20080622093939.GO10695@enneenne.com>
-	<8763s1spuw.fsf@macbook.be.48ers.dk>
-	<20080622125010.GP10695@enneenne.com>
-	<87hcblqmi0.fsf@macbook.be.48ers.dk>
-	<20080623092658.75bddce4@hyperion.delvare>
-	<8763s0pp0r.fsf@macbook.be.48ers.dk>
+From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Subject: [PATCH 0/6]: Infrastructure for Sparc PCF I2C support.
+Date: Thu, 21 Aug 2008 02:43:13 -0700 (PDT)
+Message-ID: <20080821.024313.48896997.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5156209992799071438=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <8763s0pp0r.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -25,82 +15,56 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5156209992799071438==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w1TwAseT95X423KH"
-Content-Disposition: inline
+This series of patches implements versious pieces of infrastructure that
+I need for a pcf8584 based I2C bus driver I've written.  It uses the
+PCF algo code and works quite well for the few I2C devices I've tested
+so far.
 
+Once I work out some details with the powerpc folks wrt. sparc support
+for the drivers/of/of_i2c.c code, I can post the i2c-sunpcf.c driver
+itself for inclusion.
 
---w1TwAseT95X423KH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The first patch fixes the PCF callbacks so that the ->waitforpin()
+method can get at the bus driver private information.  The only other
+user of the PCF algo layer is an ISA driver, i2c-elektor, which only
+supports a single device so this interface limitation was not noticed.
 
-On Mon, Jun 23, 2008 at 09:51:48AM +0200, Peter Korsgaard wrote:
-> >>>>> "Jean" =3D=3D Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
->=20
-> Hi,
->=20
->  >> Except that core_lock is static in i2c-core.c.
->=20
->  Jean> This construct is broken by design. If you don't know if the
->  Jean> mutex is locked, it means that you're not the one holding
->  Jean> it. If you're not the one holding it, you don't know when it
->  Jean> will be released. So it could be released in the middle of
->  Jean> whatever you are doing which requires the lock to be held, and
->  Jean> that's bad.
->=20
-> Exactly. Either we put it on hold for the core rework or we add a
-> i2c_del_virt_adapter_nolock() variant for the mux-on-i2c case.
+The second patch addresses a synchronization issue that exists on
+sparc64 systems with I2C busses.  Often the system firwmare shares the
+I2C bus with the running kernel, in order to implement writes to the
+EEPROM on the motherboard.  Thus, when firmware properties are set,
+that call into the firmware can program the same I2C bus.  In my
+Sun pcf8584 driver I will take a mutex which is also taken by the firmware
+call in question, to ensure that two entities don't try to program the
+I2C bus at the same time.  From PCF algo's perspective, these are just
+two hooks called around the entirety of pcf_xfer().
 
-The problem is that into i2c_del_virt_adapter() we have to call
-i2c_del_adapter() and the lock is already holded by i2c_del_driver()
-since the mux is an i2c chip itself.
+The third patch is a simple type fix in a debugging message of PCF algo.
 
-Do you think that the problem can be resolved if we use
-mutex_lock_nested(&core_lock, SINGLE_DEPTH_NESTING) into
-i2c_del_adapter()?
+The fourth patch allows a PCF algo bus driver to request that support
+for SMBUS quick support not be advertised.  This will disable automatic
+probing sequences done by some I2C client drivers.  We absolutely do not
+want this on sparc systems, where the openfirmware device tree tells us
+exactly where all I2C bus devices are located.
 
-Thanks for your help,
+The fifth patch adds "bus" addressing to the I2C layer.  Some variants
+of the Sun pcf8584 controllers support an auxiliary register that
+allows selecting a completely different I2C bus segment.  In the openfirmware
+device tree, I2C client device addresses indicate which bus the device
+is on.  I strove to implement this in the simplest way possible, with
+full transparent backwards and forwards compatibility, for both I2C
+userspace and existing drivers.
 
-Rodolfo
+The sixth and final patch adds bus addressing support to the PCF algo
+code.
 
---=20
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-
---w1TwAseT95X423KH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIrSseQaTCYNJaVjMRAvyUAJ0Y0V31x9zU6LBuOXXeEK9yA4EC9QCfZDzG
-QgUfN+GFSrtouNDL9eGRj2A=
-=7zaZ
------END PGP SIGNATURE-----
-
---w1TwAseT95X423KH--
-
-
---===============5156209992799071438==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5156209992799071438==--
