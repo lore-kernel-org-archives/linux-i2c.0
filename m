@@ -1,19 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH][RESEND] i2c-i801: Add basic interrupt support
-Date: Sat, 23 Aug 2008 10:11:15 +0200
-Message-ID: <20080823101115.5a10c1c1@hyperion.delvare>
-References: <48A33E77.7060502@gmail.com>
-	<20080816155856.2e0bcf4c@hyperion.delvare>
-	<48A6FECC.8020801@gmail.com>
-	<20080816185013.30fcf4ee@hyperion.delvare>
-	<20080816194147.7c0a11dc@hyperion.delvare> <48A715FE.80802@hhs.nl>
-	<20080816203347.0af81c5b@hyperion.delvare>
-	<48ABA35C.50404@gmail.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: [patch 2.6.27-rc4] i2c-davinci: behave with i2cdetect
+Date: Sun, 24 Aug 2008 23:42:53 -0700
+Message-ID: <200808242342.53944.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48ABA35C.50404-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -23,69 +16,62 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Hans de Goede <j.w.r.degoede-fbo2DhPpy/Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 20 Aug 2008 06:53:48 +0200, Ivo Manca wrote:
-> Hey Jean,
-> 
-> Jean Delvare wrote:
-> >>> OK, I see what's going on. On this laptop, IRQ 9 is used by many
-> >>> things, not just SMBus. So the interrupt handler keeps being called even
-> >>> without SMBus activity or with polled-based SMBus activity. That's what
-> >>> happens during SMBus block transactions: the interrupt handler is
-> >>> called but not for us. However the interrupt handler thinks it is
-> >>> called by us and clears the status register value. This causes the
-> >>> polled-based loop to wait forever: by the time it looks for the status
-> >>> register value, it has been cleared.
-> >>>
-> >>> So we need to change the code in either of three ways:
-> >>> * Drop support for byte-by-byte block transactions.
-> >>> * Inhibit the interrupt handler during polled-based block transactions.
-> >>> * Convert the byteb-by-byte block transaction code to use interrupts
-> >>>   instead of polling.
-> >>> The latter would be cleaner, but that's also more work.
-> >>>       
-> I tried monday to add interrupt support to the byte-by-byte block 
-> transactions, but it's not working yet. Keeps messing up (and eventually 
-> crashing) my I2C bus.
+From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 
-I did some experiment too but didn't have too much success either. My
-last attempt froze the system completely and I finally had to give up
-due to a lack of time.
+Make i2c-davinci cope properly with "i2cdetect":  don't spew
+syslog spam on perfectly normal behaviors, or respond to any
+address other than the one reserved for the SMBus host.
 
-> >> Erm, is this testing with or without your merging of the status flags defines? 
-> >> Maybe that is causing this?
-> >
-> > This is indeed with my merging of the status flag defines. But the
-> > problem would happen regardless: the interrupt handler resets all the
-> > status flags if any flag of I801_HST_STS_MASK_ALL, not just
-> > I801_HST_STS_MASK_NORM, is set.
-> >
-> > You might argue that the interrupt handler could be modified to only
-> > reset the flags it knows about, i.e. I801_HST_STS_MASK_NORM. This is
-> > probably correct, but even then, it doesn't feel safe to have an
-> > interrupt handler triggered while poll-based code operated on the same
-> > register values
->
-> True, it shouldn't happen. However, always only resetting flags it knows 
-> about seems to make sense in every case, or not?
+Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-I will be fine with anything that works.
-
-One important thing is that you must not clear the BYTE_DONE flag
-before you are done handling the current data byte of the block
-transaction. I guess that the interrupt handler should be modified to
-read the block data byte and store it in the private data structure
-(as it does with the status register) before clearing the flags.
-
-> Not sure when i'll have some more time to look into it though...
-
-Same problem here...
-
--- 
-Jean Delvare
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -188,6 +188,11 @@ static int i2c_davinci_init(struct davin
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
+ 
++	/* Respond at reserved "SMBus Host" slave address" (and zero);
++	 * we seem to have no option to not respond...
++	 */
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
++
+ 	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
+ 	dev_dbg(dev->dev, "PSC  = %d\n",
+ 		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+@@ -400,7 +405,7 @@ static void terminate_write(struct davin
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+ 
+ 	if (!dev->terminate)
+-		dev_err(dev->dev, "TDR IRQ while no data to send\n");
++		dev_dbg(dev->dev, "TDR IRQ while no data to send\n");
+ }
+ 
+ /*
+@@ -494,9 +499,14 @@ static irqreturn_t i2c_davinci_isr(int t
+ 			break;
+ 
+ 		case DAVINCI_I2C_IVR_AAS:
+-			dev_warn(dev->dev, "Address as slave interrupt\n");
+-		}/* switch */
+-	}/* while */
++			dev_dbg(dev->dev, "Address as slave interrupt\n");
++			break;
++
++		default:
++			dev_warn(dev->dev, "Unrecognized irq stat %d\n", stat);
++			break;
++		}
++	}
+ 
+ 	return count ? IRQ_HANDLED : IRQ_NONE;
+ }
 
 _______________________________________________
 i2c mailing list
