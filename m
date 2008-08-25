@@ -1,84 +1,48 @@
-From: "Felipe Balbi" <felipebalbi@users.sourceforge.net>
-Subject: Re: [i2c] i2c 2 issues on omap3430
-Date: Mon, 25 Aug 2008 11:41:03 +0300
-Message-ID: <31e679430808250141h3f03c75dq84c6ad0406a57939@mail.gmail.com>
+From: Nishanth Menon <menon.nishanth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c 2 issues on omap3430
+Date: Mon, 25 Aug 2008 06:54:45 -0500
+Message-ID: <48B29D85.5030208@gmail.com>
 References: <ef0d8a250808250005sbf8bb8cg9cfacc6a6f2b4195@mail.gmail.com>
-	 <ef0d8a250808250018w587c2de0s726511c52c0794e3@mail.gmail.com>
+	<ef0d8a250808250018w587c2de0s726511c52c0794e3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <ef0d8a250808250018w587c2de0s726511c52c0794e3@mail.gmail.com>
-Content-Disposition: inline
-Sender: linux-omap-owner@vger.kernel.org
-To: naveen krishna ch <naveenkrishna.ch@gmail.com>
-Cc: i2c@lm-sensors.org, linux-omap@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <ef0d8a250808250018w587c2de0s726511c52c0794e3-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: naveen krishna ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Naveen,
 
-On Mon, Aug 25, 2008 at 10:18 AM, naveen krishna ch
-<naveenkrishna.ch@gmail.com> wrote:
->
->
-> Hi,
->     I am facing some i2c issues on omap3430 with linux 2.6.24 kernel.
->
+naveen krishna ch said the following on 08/25/2008 02:18 AM:
 >     My device is a slave sitting on I2C2 of OMAP3430.
 >
 >     I am observing the following,
 >
->      1) Sometimes i get "i2c_omap.2: controller timed out"
+>      1) Sometimes i get "i2c_omap.2: controller timed out" 
 >
 >                    i2c_omap.2: No acknowledmentif i use i2c 2 at 100khz
 >         and i dont find them when i run at 400khz.
->
->      2) Sometimes the i2c write and read succeeds but data received is junk.
->
->      3) The I2C reads are not consistent. with same image if i boot several
-> times
+>   
+Please see the discussion here:
+http://groups.google.com/group/beagleboard/browse_thread/thread/ff79a14907cc8805/2dc9d0e5f08c9247?#2dc9d0e5f08c9247
 
-I think most of this (if not all of them) are fixed in current
-linux-omap git tree.
-Could you try that out and report if the same error appears on linux-omap
-HEAD ?
+You could also discuss this on linux-omap on vger mailing list.
 
-Care to keep linux-omap@vger.kernel.org on the loop
+Regards,
+Nishanth Menon
 
->
->
->         The readed values keep variying.
->
->       I am not sure what could be the problem. The mux settings seems okay.
->
->      The client creation seems fine. Can any one suggest me the exact
->      i2c bus registration steps. right now i only have
->
->
->
-> omap_register_i2c_bus(1, CONFIG_I2C_OMAP34XX_HS_BUS1, NULL, 0);
->
-> in the board file. and
->
-> MUX configurations in the
->
-> arch/arm/plat-omap/i2c.c
-> arch/arm/mach-omap2/mux.c
-> include/asm/arch/mux.h
->
->
->
-> files
->
->      Am i missing something?
->
->      Please advice,
-
-
-
-
--- 
-Best Regards,
-
-Felipe Balbi
-felipebalbi@users.sourceforge.net
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
