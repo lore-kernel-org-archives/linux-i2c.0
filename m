@@ -1,59 +1,84 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c: remove unused #include <version.h>
-Date: Mon, 25 Aug 2008 09:49:23 +0200
-Message-ID: <20080825094923.37dacad8@hyperion.delvare>
-References: <20080823130840.1265.WEIYI.HUANG@gmail.com>
-	<20080823094544.2b79f563@hyperion.delvare>
+From: "Felipe Balbi" <felipebalbi@users.sourceforge.net>
+Subject: Re: [i2c] i2c 2 issues on omap3430
+Date: Mon, 25 Aug 2008 11:41:03 +0300
+Message-ID: <31e679430808250141h3f03c75dq84c6ad0406a57939@mail.gmail.com>
+References: <ef0d8a250808250005sbf8bb8cg9cfacc6a6f2b4195@mail.gmail.com>
+	 <ef0d8a250808250018w587c2de0s726511c52c0794e3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080823094544.2b79f563-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Huang Weiyi <weiyi.huang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <ef0d8a250808250018w587c2de0s726511c52c0794e3@mail.gmail.com>
+Content-Disposition: inline
+Sender: linux-omap-owner@vger.kernel.org
+To: naveen krishna ch <naveenkrishna.ch@gmail.com>
+Cc: i2c@lm-sensors.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 23 Aug 2008 09:45:44 +0200, Jean Delvare wrote:
-> On Sat, 23 Aug 2008 13:56:04 +0800, Huang Weiyi wrote:
-> > The driver(s) below do not use LINUX_VERSION_CODE nor KERNEL_VERSION.
-> >   drivers/i2c/busses/i2c-at91.c
-> > 
-> > This patch removes the said #include <version.h>.
-> > 
-> > Signed-off-by: Huang Weiyi <weiyi.huang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> > index c1adcdb..9efb021 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -14,7 +14,6 @@
-> >  */
-> > 
-> >  #include <linux/module.h>
-> > -#include <linux/version.h>
-> >  #include <linux/kernel.h>
-> >  #include <linux/err.h>
-> >  #include <linux/slab.h>
-> > 
-> 
-> Applied, thanks.
+Hi,
 
-Actually, Adrian Bunk sent this fix to Linus already, so I'm backing
-out your version from my tree.
+On Mon, Aug 25, 2008 at 10:18 AM, naveen krishna ch
+<naveenkrishna.ch@gmail.com> wrote:
+>
+>
+> Hi,
+>     I am facing some i2c issues on omap3430 with linux 2.6.24 kernel.
+>
+>     My device is a slave sitting on I2C2 of OMAP3430.
+>
+>     I am observing the following,
+>
+>      1) Sometimes i get "i2c_omap.2: controller timed out"
+>
+>                    i2c_omap.2: No acknowledmentif i use i2c 2 at 100khz
+>         and i dont find them when i run at 400khz.
+>
+>      2) Sometimes the i2c write and read succeeds but data received is junk.
+>
+>      3) The I2C reads are not consistent. with same image if i boot several
+> times
+
+I think most of this (if not all of them) are fixed in current
+linux-omap git tree.
+Could you try that out and report if the same error appears on linux-omap
+HEAD ?
+
+Care to keep linux-omap@vger.kernel.org on the loop
+
+>
+>
+>         The readed values keep variying.
+>
+>       I am not sure what could be the problem. The mux settings seems okay.
+>
+>      The client creation seems fine. Can any one suggest me the exact
+>      i2c bus registration steps. right now i only have
+>
+>
+>
+> omap_register_i2c_bus(1, CONFIG_I2C_OMAP34XX_HS_BUS1, NULL, 0);
+>
+> in the board file. and
+>
+> MUX configurations in the
+>
+> arch/arm/plat-omap/i2c.c
+> arch/arm/mach-omap2/mux.c
+> include/asm/arch/mux.h
+>
+>
+>
+> files
+>
+>      Am i missing something?
+>
+>      Please advice,
+
+
+
 
 -- 
-Jean Delvare
+Best Regards,
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Felipe Balbi
+felipebalbi@users.sourceforge.net
