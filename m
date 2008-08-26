@@ -1,15 +1,16 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: install functioning lm-sensors on CentOS 5 - Intel/Xeon
- combo. Help pls.
-Date: Tue, 26 Aug 2008 16:51:42 +0200
-Message-ID: <20080826165142.5c805d27@hyperion.delvare>
-References: <48B3AE8C.9090505@attitia.com>
-	<48B40F2E.1090600@attitia.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: Fwd: [PATCH 2/3] I2C: at24: add kernel interface for
+	reading/writing EEPROM
+Date: Tue, 26 Aug 2008 12:37:29 -0700
+Message-ID: <200808261237.29870.david-b@pacbell.net>
+References: <200808251941.54964.david-b@pacbell.net>
+	<9e4733910808252040j69b10ea8n1e3e40d16e86a3ae@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48B40F2E.1090600-I2D4Bl1yN1BBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <9e4733910808252040j69b10ea8n1e3e40d16e86a3ae-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,36 +20,48 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Kyle <kl-I2D4Bl1yN1BBDgjK7y7TUQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Kyle,
-
-On Wed, 27 Aug 2008 00:11:58 +1000, Kyle wrote:
-> I'm not sure how this is the wrong mailing list.
+On Monday 25 August 2008, Jon Smirl wrote:
+> On 8/25/08, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
+> > My own comments on this:
+> >
+> >         - I'd like to see at24.c use something running before
+> >           device_initcall, so suitably configured system can
+> >           have drivers calling platform_device_probe() from
+> >           their own initcalls and yet have access to the config
+> >           data from the EEPROMs.
+> >
+> >         - Seems to me that "struct at24_iface" should be more
+> >           generic ... the same notion works for SPI eeproms,
+> >           NVRAM as found in RTCs, etc.
+> >
+> >  Comments?
 > 
-> I'm looking for assistance on getting lm-sensors installed on a 
-> particular OS / CPU combination.  My subject line didn't originally 
-> state "install lm-sensors on CentOS 5 - Intel/Xeon combo. Help pls." as 
-> I would expect that on the lm-sensors mailing list, that would be 
-> understood.
-> 
-> Is this not the mailing list to ask for assistance in installing 
-> lm-sensors? If not, pls do let me know to which mailing list I should 
-> post? If I knew which mailing list to ask, I would've posted there.
+> Would it make sense to use bus notifiers to track the detection of a
+> at24 chip? 
 
-No, it's not the right list. I'm not sure how you came to the i2c list,
-but both http://www.lm-sensors.org/wiki/FeedbackAndSupport and the
-MAINTAINERS file in the kernel source tree point lm-sensors and hardware
-monitoring chip users to the lm-sensors list instead:
-  http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+Not to me ... but then, I'm no fan of notifiers in such cases.
+Some differences associated with these setup callbacks:
+ 
+  - Notifiers would have to poke at the parameters to sort
+    out (a) BUS_NOTIFY_BOUND_DRIVER (b) with a device bound
+    to this specific driver, and in fact (c) which specific
+    devices is involved, maybe platform_data pointer checks;
+    and then (d) use some API that the driver exports, which
+    implies (e) link-time dependencies.
 
-The i2c list is for, well, i2c problems and development. It's hosted at
-lm-sensors.org for historical reasons only.
+  - setup() can be chip-specific, eliminating (a,b,c);
 
--- 
-Jean Delvare
+  - at24_iface just uses function pointers, eliminating (d,e).
+
+Architecturally, the elimination of (d,e) seems significant;
+but eliminating (a,b,c) is certainly convenient when writing
+code to hook it all up!
+
+- Dave
 
 _______________________________________________
 i2c mailing list
