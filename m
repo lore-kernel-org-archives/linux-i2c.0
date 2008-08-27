@@ -1,92 +1,39 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Fwd: [PATCH 2/3] I2C: at24: add kernel interface for
-	reading/writing EEPROM
-Date: Wed, 27 Aug 2008 09:40:22 -0400
-Message-ID: <9e4733910808270640h2e5fb88fn46548d3630b7f45d@mail.gmail.com>
-References: <200808251941.54964.david-b@pacbell.net>
-	<200808261335.36103.david-b@pacbell.net>
-	<Pine.LNX.4.58.0808261852580.2423@shell2.speakeasy.net>
-	<200808270019.12987.david-b@pacbell.net>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] i2c: fix i2c-sh_mobile timing issues
+Date: Wed, 27 Aug 2008 23:40:48 +0900
+Message-ID: <20080827144048.GA32530@linux-sh.org>
+References: <20080827093356.9145.33751.sendpatchset@rx1.opensource.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200808270019.12987.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+In-Reply-To: <20080827093356.9145.33751.sendpatchset@rx1.opensource.se>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: i2c@lm-sensors.org, khali@linux-fr.org, linux-sh@vger.kernel.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 8/27/08, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> wrote:
-> On Tuesday 26 August 2008, Trent Piepho wrote:
->  > Lots of tv cards have eeproms with configuration information.  They use an
->  > I2C driver called tveeprom that exports this:
->  >
->  > int tveeprom_read(struct i2c_client *c, unsigned char *eedata, int len)
->
->
-> That presumes the driver somehow has access to that I2C client.
-
-How about using bus_find_device? PowerPC uses it to locate the i2c
-device using pointers in the device tree.
-
-+static int of_dev_node_match(struct device *dev, void *data)
-+{
-+        return dev->archdata.of_node == data;
-+}
-+
-+struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-+{
-+	struct device *dev;
-+	
-+	dev = bus_find_device(&i2c_bus_type, NULL, node,
-+					 of_dev_node_match);
-+	if (!dev)
-+		return NULL;
-+		
-+	return to_i2c_client(dev);
-+}
-+EXPORT_SYMBOL(of_find_i2c_device_by_node);
-+
-
-
-
-
->
->  (Also, that it's an I2C EEPROM.  I keep wanting to have something
->  usable for SPI EEPROMs and NVRAM too.  But maybe nobody else cares.)
->
->
->
->  > > Last I heard, the U-Boot policy was not to touch controllers that are
->  > > not required during boot.  Despite relatively common cases like needing
->  > > to set up MAC addresses ... maybe this patch of Kevin's can make it a
->  > > bunch easier to cope with that U-Boot policy.  :)
->  >
->  > U-boot can put the MAC address into a property of the MAC's device node in
->  > the OF device tree (which u-boot passes to the kernel).
->
->
-> Maybe with PowerPC it does.  Not on ARM.  ;)
->
->
->
-
-
--- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+On Wed, Aug 27, 2008 at 06:33:56PM +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm@igel.co.jp>
+> 
+> This patch teaches the i2c-sh_mobile driver to make use of wait irqs.
+> Without this patch only dte irqs are used which may lead to overruns
+> and cases of missing stop and extra bytes being read on the i2c bus.
+> 
+> Use of wait irqs forces the hardware to pause and wait until the cpu
+> is ready. Polling is also reworked in this patch to fix ms delay issues.
+> 
+> Verified with bus analyzer and tested on MigoR and AP325RXA boards.
+> 
+> Signed-off-by: Magnus Damm <damm@igel.co.jp>
+> ---
+> 
+>  Paul, can you merge this for 2.6.27?
+> 
+>  drivers/i2c/busses/i2c-sh_mobile.c |  271 +++++++++++++++++++++++++++---------
+>  1 file changed, 208 insertions(+), 63 deletions(-)
+> 
+I'll add it to my queue if Jean and Ben don't have any issues with the
+patch. If the polling works as is, I would suggest that it is not 2.6.27
+material, but if it's fixing operational bugs then it doesn't make sense
+to leave 2.6.27 in a known broken state.
