@@ -1,149 +1,81 @@
-From: "Heasley, Seth" <seth.heasley@intel.com>
-Subject: RE: [PATCH 2.6.27-rc4] irq: irq and pci_ids patch for Intel Ibex
-   Peak DeviceIDs
-Date: Thu, 28 Aug 2008 08:40:16 -0700
-Message-ID: <CF9C39F99A89134C9CF9C4CCB68B8DDF177A1752@orsmsx501.amr.corp.intel.com>
-References: <200808271658.26313.seth.heasley@intel.com>
-	<20080828094935.0f50af24@hyperion.delvare>
-	<200808280712.47908.jbarnes@virtuousgeek.org>
-	<CF9C39F99A89134C9CF9C4CCB68B8DDF177A16F0@orsmsx501.amr.corp.intel.com>
- <20080828173035.73069de6@hyperion.delvare>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [patch 2.6.27-rc4] i2c-davinci: behave with i2cdetect
+Date: Thu, 28 Aug 2008 09:59:21 -0700
+Message-ID: <874p552hzq.fsf@deeprootsystems.com>
+References: <200808242342.53944.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20080828173035.73069de6@hyperion.delvare>
-Content-Language: en-US
-Sender: linux-pci-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jesse Barnes <jbarnes@virtuousgeek.org>, "i2c@lm-sensors.org" <i2c@lm-sensors.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <200808242342.53944.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> (David Brownell's
+	message of "Sun\, 24 Aug 2008 23\:42\:53 -0700")
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->On Thu, 28 Aug 2008 08:18:19 -0700, Heasley, Seth wrote:
->> >On Thursday, August 28, 2008 12:49 am Jean Delvare wrote:
->> >> Hi Seth,
->> >>
->> >> On Wed, 27 Aug 2008 16:58:26 -0700, Seth Heasley wrote:
->> >> > This patch updates the Intel Ibex Peak (PCH) LPC and SMBus
->Controller
->> >> > DeviceIDs.
->> >> >
->> >> > Signed-off-by: Seth Heasley <seth.heasley@intel.com>
->> >> >
->> >> > --- linux-2.6/include/linux/pci_ids.h.orig  2008-08-27
->> >11:54:07.000000000
->> >> > -0700 +++ linux-2.6/include/linux/pci_ids.h 2008-08-27
->> >12:01:53.000000000
->> >> > -0700 @@ -2428,9 +2428,39 @@
->> >> >  #define PCI_DEVICE_ID_INTEL_ICH10_3        0x3a1a
->> >> >  #define PCI_DEVICE_ID_INTEL_ICH10_4        0x3a30
->> >> >  #define PCI_DEVICE_ID_INTEL_ICH10_5        0x3a60
->> >> > -#define PCI_DEVICE_ID_INTEL_PCH_0  0x3b10
->> >> > -#define PCI_DEVICE_ID_INTEL_PCH_1  0x3b11
->> >> > -#define PCI_DEVICE_ID_INTEL_PCH_2  0x3b30
->> >> > +#define PCI_DEVICE_ID_INTEL_PCH_0  0x3b00
->> >> > +#define PCI_DEVICE_ID_INTEL_PCH_1  0x3b01
->> >> > +#define PCI_DEVICE_ID_INTEL_PCH_2  0x3b02
->> >>
->> >> Changing device ID definitions that way is really bad practice. It
->> >> needs to be synchronized between all involved subsystems.
->> >>
->> >> > --- linux-2.6/arch/x86/pci/irq.c.orig       2008-08-27
->> >11:53:13.000000000 -0700
->> >> > +++ linux-2.6/arch/x86/pci/irq.c    2008-08-27 12:07:21.000000000 -
->0700
->> >> > @@ -592,6 +592,36 @@
->> >> >     case PCI_DEVICE_ID_INTEL_ICH10_3:
->> >> >     case PCI_DEVICE_ID_INTEL_PCH_0:
->> >> >     case PCI_DEVICE_ID_INTEL_PCH_1:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_2:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_3:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_4:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_5:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_6:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_7:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_8:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_9:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_10:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_11:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_12:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_13:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_14:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_15:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_16:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_17:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_18:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_19:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_20:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_21:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_22:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_23:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_24:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_25:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_26:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_27:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_28:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_29:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_30:
->> >> > +   case PCI_DEVICE_ID_INTEL_PCH_31:
->> >>
->> >> I am no PCI IRQ routing expert, but I have to admit that I a bit
->> >> skeptical that all the PCH functions are IRQ routers. You're adding as
->> >> many entries here for the PCH than there have been for all Intel chips
->> >> in the past 10 years or so...
->> >>
->> >> >             r->name = "PIIX/ICH";
->> >> >             r->get = pirq_piix_get;
->> >> >             r->set = pirq_piix_set;
->> >
->> >Yeah, this has me confused now too.  I remember specifically asking if
->the
->> >other PCHs needed to be added to this list when the last patch was
->applied..
->> >What happened?  Can you give us some more background here, Seth?  The
->> >changelog should definitely include an explanation of why the IDs need
->to
->> >be
->> >changed (i.e. why the old commit was wrong).
->> >
->> >Thanks,
->> >--
->> >Jesse Barnes, Intel Open Source Technology Center
->>
->> I'm not sure what's "messy," given that I changed what was required
->> to be changed, then added the new IDs.  These IDs are as follows:
->>
->> LPC Controller: 3b00-3b1f (final ID set in Firmware, but 32
->possibilities)
->> SMBus: 3b30
->>
->> In terms of the irq stuff, I'm adding only the LPC Controller IDs
->> there.  There are just a lot of them.  Normally we have a handful of
->> IDs, but in this case the list is longer.
+David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org> writes:
+
+> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 >
->So basically, you (Intel) have no clue what IDs will be used, and
->instead of waiting until you have the information, you prefer to add a
->bunch of device IDs to the Linux kernel, most of which will never
->exist? This is making the kernel code bigger and slower. Not by much,
->but still... That's bad engineering, really. Especially if you don't
->clean up afterwards, as happens to be the case for the ICH10. I
->compared the ICH10 datasheet with the IDs we have in the kernel and
->only 3 of the 6 defined device IDs are actually used by existing ICH10
->chips.
-
-I can't speak to the engineering, although I agree that blocking out 32 IDs is strange.  I don't believe it's a matter of not knowing what will be used but rather that the firmware has the flexibility to change the ID in that range.
-
-On the ICH10 side, we don't have a datasheet released yet for one of the skus of the product (the other sku has not launched).  The other three IDs are from that sku.  No cleanup will be needed.
-
+> Make i2c-davinci cope properly with "i2cdetect":  don't spew
+> syslog spam on perfectly normal behaviors, or respond to any
+> address other than the one reserved for the SMBus host.
 >
->> I suppose what "messy" means is, I should have kept the existing
->> defines and only added the new?  I can resubmit if that's the way
->> it should be done.
->
->That's one part of the messiness, yes. Which underlines how bad the
->symbol naming scheme is to start with.
->
+> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 
-I have no history here, but I'm inclined to agree it's a strange naming scheme.
+Thanks, pushing today.
 
--Seth
+Kevin
+
+>  drivers/i2c/busses/i2c-davinci.c |   18 ++++++++++++++----
+>  1 file changed, 14 insertions(+), 4 deletions(-)
+>
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -188,6 +188,11 @@ static int i2c_davinci_init(struct davin
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
+>  
+> +	/* Respond at reserved "SMBus Host" slave address" (and zero);
+> +	 * we seem to have no option to not respond...
+> +	 */
+> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
+> +
+>  	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
+>  	dev_dbg(dev->dev, "PSC  = %d\n",
+>  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+> @@ -400,7 +405,7 @@ static void terminate_write(struct davin
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+>  
+>  	if (!dev->terminate)
+> -		dev_err(dev->dev, "TDR IRQ while no data to send\n");
+> +		dev_dbg(dev->dev, "TDR IRQ while no data to send\n");
+>  }
+>  
+>  /*
+> @@ -494,9 +499,14 @@ static irqreturn_t i2c_davinci_isr(int t
+>  			break;
+>  
+>  		case DAVINCI_I2C_IVR_AAS:
+> -			dev_warn(dev->dev, "Address as slave interrupt\n");
+> -		}/* switch */
+> -	}/* while */
+> +			dev_dbg(dev->dev, "Address as slave interrupt\n");
+> +			break;
+> +
+> +		default:
+> +			dev_warn(dev->dev, "Unrecognized irq stat %d\n", stat);
+> +			break;
+> +		}
+> +	}
+>  
+>  	return count ? IRQ_HANDLED : IRQ_NONE;
+>  }
