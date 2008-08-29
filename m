@@ -1,72 +1,49 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2.6.27-rc4][RESEND] irq: irq and pci_ids patch for Intel
- Ibex Peak DeviceIDs
-Date: Fri, 29 Aug 2008 10:01:53 +0200
-Message-ID: <20080829100153.5ccdf0ae@hyperion.delvare>
-References: <200808281540.59657.seth.heasley@intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: s390 allmodconfig
+Date: Fri, 29 Aug 2008 10:45:33 +0200
+Message-ID: <20080829104533.0e65f43a@hyperion.delvare>
+References: <20080829005217.509a6c23.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <200808281540.59657.seth.heasley@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Seth Heasley <seth.heasley@intel.com>
-Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, jbarnes@virtuousgeek.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080829005217.509a6c23.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Martin Schwidefsky <schwidefsky-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Heiko-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 28 Aug 2008 15:40:59 -0700, Seth Heasley wrote:
-> This patch updates the Intel Ibex Peak (PCH) LPC and SMBus Controller DeviceIDs.
-> 
-> The LPC Controller ID is set by Firmware within the range of 0x3b00-3b1f.  This range is included in pci_ids.h using min and max values, and irq.c now has code to handle the range (in lieu of 32 additions to a SWITCH statement).
-> 
-> The SMBus Controller ID is a fixed-value and will not change.
-> 
-> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
-> 
-> --- linux-2.6/include/linux/pci_ids.h.orig	2008-08-27 11:54:07.000000000 -0700
-> +++ linux-2.6/include/linux/pci_ids.h	2008-08-28 14:59:35.000000000 -0700
-> @@ -2428,9 +2428,9 @@
->  #define PCI_DEVICE_ID_INTEL_ICH10_3	0x3a1a
->  #define PCI_DEVICE_ID_INTEL_ICH10_4	0x3a30
->  #define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
-> -#define PCI_DEVICE_ID_INTEL_PCH_0	0x3b10
-> -#define PCI_DEVICE_ID_INTEL_PCH_1	0x3b11
-> -#define PCI_DEVICE_ID_INTEL_PCH_2	0x3b30
-> +#define PCI_DEVICE_ID_INTEL_PCH_LPC_MIN	0x3b00
-> +#define PCI_DEVICE_ID_INTEL_PCH_LPC_MAX	0x3b1f
-> +#define PCI_DEVICE_ID_INTEL_PCH_SMBUS	0x3b30
->  #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
->  #define PCI_DEVICE_ID_INTEL_5100_16	0x65f0
->  #define PCI_DEVICE_ID_INTEL_5100_21	0x65f5
-> --- linux-2.6/arch/x86/pci/irq.c.orig	2008-08-27 11:53:13.000000000 -0700
-> +++ linux-2.6/arch/x86/pci/irq.c	2008-08-28 15:12:04.000000000 -0700
-> @@ -590,13 +590,20 @@
->  	case PCI_DEVICE_ID_INTEL_ICH10_1:
->  	case PCI_DEVICE_ID_INTEL_ICH10_2:
->  	case PCI_DEVICE_ID_INTEL_ICH10_3:
-> -	case PCI_DEVICE_ID_INTEL_PCH_0:
-> -	case PCI_DEVICE_ID_INTEL_PCH_1:
->  		r->name = "PIIX/ICH";
->  		r->get = pirq_piix_get;
->  		r->set = pirq_piix_set;
->  		return 1;
->  	}
-> +
-> +	if ((device >= PCI_DEVICE_ID_INTEL_PCH_LPC_MIN) && 
-> +		(device <= PCI_DEVICE_ID_INTEL_PCH_LPC_MAX)) {
-> +		r->name = "PIIX/ICH";
-> +		r->get = pirq_piix_get;
-> +		r->set = pirq_piix_set;
-> +		return 1;
-> +	}
-> +
->  	return 0;
->  }
->  
+Hi Andrew,
 
-Looks good to me, thanks for doing that.
+On Fri, 29 Aug 2008 00:52:17 -0700, Andrew Morton wrote:
+> drivers/i2c/busses/i2c-ocores.c: In function 'oc_setreg':
+> drivers/i2c/busses/i2c-ocores.c:68: error: implicit declaration of function 'iowrite8'
+> drivers/i2c/busses/i2c-ocores.c: In function 'oc_getreg':
+> drivers/i2c/busses/i2c-ocores.c:73: error: implicit declaration of function 'ioread8'
+> drivers/i2c/busses/i2c-ocores.c: In function 'ocores_i2c_probe':
+> drivers/i2c/busses/i2c-ocores.c:243: error: implicit declaration of function 'ioremap'
+> drivers/i2c/busses/i2c-ocores.c:243: warning: assignment makes pointer from integer without a cast
+> drivers/i2c/busses/i2c-ocores.c:279: error: implicit declaration of function 'iounmap'
+> 
+> Some missing Kconfig dependency.  s390 can't do IO :)
 
-Acked-by: Jean Delvare <khali@linux-fr.org>
+Where is this failure happening? In Linus' tree, I2C depends on
+HAS_IOMEM (which s390 doesn't have), and I2C_OCORES depends on I2C. So
+I fail to see how a make allmodconfig can select I2C_OCORES on s390.
+Can you share the .config file?
 
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
