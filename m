@@ -1,90 +1,93 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2.6.27-rc4][RESEND] i2c-i801: SMBus patch for Intel Ibex
- Peak DeviceIDs
-Date: Fri, 29 Aug 2008 11:52:27 +0200
-Message-ID: <20080829115227.068adb03@hyperion.delvare>
-References: <200808281543.00557.seth.heasley@intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: s390 allmodconfig
+Date: Fri, 29 Aug 2008 12:47:16 +0200
+Message-ID: <20080829124716.50b0f671@hyperion.delvare>
+References: <20080829005217.509a6c23.akpm@linux-foundation.org>
+	<20080829104533.0e65f43a@hyperion.delvare>
+	<20080829020409.2880013b.akpm@linux-foundation.org>
+	<20080829090918.GP16696@tekkaman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <200808281543.00557.seth.heasley@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Seth Heasley <seth.heasley@intel.com>
-Cc: linux-kernel@vger.kernel.org, i2c@lm-sensors.org, linux-pci@vger.kernel.org, jbarnes@virtuousgeek.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080829090918.GP16696@tekkaman>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: Schwidefsky <schwidefsky-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Heiko Carstens <heiko.carstens-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Martin-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Seth,
-
-On Thu, 28 Aug 2008 15:43:00 -0700, Seth Heasley wrote:
-> This patch adds the Intel Ibex Peak (PCH) SMBus Controller
-> DeviceIDs.
+On Fri, 29 Aug 2008 11:09:18 +0200, Rodolfo Giometti wrote:
+> On Fri, Aug 29, 2008 at 02:04:09AM -0700, Andrew Morton wrote:
+> > On Fri, 29 Aug 2008 10:45:33 +0200 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > 
+> > > Hi Andrew,
+> > > 
+> > > On Fri, 29 Aug 2008 00:52:17 -0700, Andrew Morton wrote:
+> > > > drivers/i2c/busses/i2c-ocores.c: In function 'oc_setreg':
+> > > > drivers/i2c/busses/i2c-ocores.c:68: error: implicit declaration of function 'iowrite8'
+> > > > drivers/i2c/busses/i2c-ocores.c: In function 'oc_getreg':
+> > > > drivers/i2c/busses/i2c-ocores.c:73: error: implicit declaration of function 'ioread8'
+> > > > drivers/i2c/busses/i2c-ocores.c: In function 'ocores_i2c_probe':
+> > > > drivers/i2c/busses/i2c-ocores.c:243: error: implicit declaration of function 'ioremap'
+> > > > drivers/i2c/busses/i2c-ocores.c:243: warning: assignment makes pointer from integer without a cast
+> > > > drivers/i2c/busses/i2c-ocores.c:279: error: implicit declaration of function 'iounmap'
+> > > > 
+> > > > Some missing Kconfig dependency.  s390 can't do IO :)
+> > > 
+> > > Where is this failure happening? In Linus' tree, I2C depends on
+> > > HAS_IOMEM (which s390 doesn't have), and I2C_OCORES depends on I2C. So
+> > > I fail to see how a make allmodconfig can select I2C_OCORES on s390.
+> > > Can you share the .config file?
+> > > 
+> > 
+> > <bisects>
+> > 
+> > It's
+> > power-support-for-texas-instruments-bq27x00-battery-managers.patch,
+> > which does
+> > 
+> > --- a/drivers/power/Kconfig~power-support-for-texas-instruments-bq27x00-battery-managers
+> > +++ a/drivers/power/Kconfig
+> > @@ -62,4 +62,17 @@ config BATTERY_PALMTX
+> >  	help
+> >  	  Say Y to enable support for the battery in Palm T|X.
+> >  
+> > +config BATTERY_BQ27x00
+> > +	tristate "BQ27x00 battery driver"
+> > +	help
+> > +	  Say Y here to enable support for batteries with BQ27000 or
+> > +	  BQ27200 chip.
+> > +
+> > +config BATTERY_BQ27200
+> > +	bool "BQ27200 battery driver"
+> > +	depends on BATTERY_BQ27x00
+> > +	select I2C
+> > +	help
+> > +	  Say Y here to enable support for batteries with BQ27200(I2C) chip.
+> > +
+> > 
+> > 
+> > which enables I2C stuff in s390 allmodconfig.  Should it be `depends on'?
 > 
-> Changes are reflected in i2c-i801.c in response to updates to
-> pci_ids.h.  The SMBus Controller is now referred to as
-> PCI_DEVICE_ID_INTEL_PCH_SMBUS, a change to the old naming
-> convention of PCI_DEVICE_ID_INTEL_PCH_x.
-
-Except for a missing chunk in the header comment of i2c-i801.c (where
-we list the features of all supported devices) this looks OK to me.
-I've added that chunk back (your original patch had it.) As soon as the
-pci_ids.h patch is merged upstream, I'll add the i2c-i801 patch to my
-i2c tree.
-
-> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+> Yes.
 > 
-> --- linux-2.6/Documentation/i2c/busses/i2c-i801.orig	2008-08-28 10:11:27.000000000 -0700
-> +++ linux-2.6/Documentation/i2c/busses/i2c-i801	2008-08-28 10:25:24.000000000 -0700
-> @@ -13,8 +13,9 @@
->    * Intel 631xESB/632xESB (ESB2)
->    * Intel 82801H (ICH8)
->    * Intel 82801I (ICH9)
-> -  * Intel Tolapai
-> -  * Intel ICH10
-> +  * Intel EP80579 (Tolapai)
-> +  * Intel 82801JI (ICH10)
-> +  * Intel PCH
->     Datasheets: Publicly available at the Intel website
->  
->  Authors: 
-> @@ -32,7 +33,7 @@
->  -----------
->  
->  The ICH (properly known as the 82801AA), ICH0 (82801AB), ICH2 (82801BA),
-> -ICH3 (82801CA/CAM) and later devices are Intel chips that are a part of
-> +ICH3 (82801CA/CAM) and later devices (PCH) are Intel chips that are a part of
->  Intel's '810' chipset for Celeron-based PCs, '810E' chipset for
->  Pentium-based PCs, '815E' chipset, and others.
->  
-> --- linux-2.6/drivers/i2c/busses/i2c-i801.c.orig	2008-08-27 11:52:45.000000000 -0700
-> +++ linux-2.6/drivers/i2c/busses/i2c-i801.c	2008-08-28 15:01:14.000000000 -0700
-> @@ -577,6 +577,7 @@
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_SMBUS) },
->  	{ 0, }
->  };
->  
-> @@ -600,6 +601,7 @@
->  	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
->  	case PCI_DEVICE_ID_INTEL_ICH10_4:
->  	case PCI_DEVICE_ID_INTEL_ICH10_5:
-> +	case PCI_DEVICE_ID_INTEL_PCH_SMBUS:
->  		i801_features |= FEATURE_I2C_BLOCK_READ;
->  		/* fall through */
->  	case PCI_DEVICE_ID_INTEL_82801DB_3:
-> --- linux-2.6/drivers/i2c/busses/Kconfig.orig	2008-08-27 12:11:03.000000000 -0700
-> +++ linux-2.6/drivers/i2c/busses/Kconfig	2008-08-27 12:11:24.000000000 -0700
-> @@ -97,6 +97,7 @@
->  	    ICH9
->  	    Tolapai
->  	    ICH10
-> +	    PCH
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
+> 	depends on I2C && BATTERY_BQ27x00
+> 
 
-Thanks,
+Yes please. Ideally nothing but arch files should ever select I2C.
+
 -- 
 Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
