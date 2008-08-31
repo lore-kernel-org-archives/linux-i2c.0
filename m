@@ -1,12 +1,12 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-parport-light: Don't register a platform device
- resource
-Date: Sun, 31 Aug 2008 12:07:37 +0200
-Message-ID: <20080831120737.0ee934ea@hyperion.delvare>
+From: Adrian Bunk <bunk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [RFC: 2.6 patch] remove the i2c-at91.c driver
+Date: Sun, 31 Aug 2008 19:10:05 +0300
+Message-ID: <20080831161005.GC3695@cs181140183.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,136 +16,673 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Andrew Victor <andrew-eS41wJS13H5l57MIdRCFDg@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-parport-light driver isn't a real platform driver, so it
-should not instantiate platform devices with resources. The resource
-management system can't cope with colliding resources, and we are
-likely to create such a colliding resource.
+David Brownell marked this driver as broken in kernel 2.6.24 due to
+hardware problems.
 
-So, better just try to grab the I/O ports we need right at module
-initialization time, and bail out if we can't. It has the added
-benefit that the module will no longer load if it isn't going to work,
-which is definitely more user-friendly.
+If it depends on BROKEN it can as well be removed.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Adrian Bunk <bunk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
 ---
- drivers/i2c/busses/i2c-parport-light.c |   39 ++++++--------------------------
- 1 file changed, 8 insertions(+), 31 deletions(-)
 
---- linux-2.6.27-rc5.orig/drivers/i2c/busses/i2c-parport-light.c	2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.27-rc5/drivers/i2c/busses/i2c-parport-light.c	2008-08-30 17:05:45.000000000 +0200
-@@ -123,11 +123,6 @@ static struct i2c_adapter parport_adapte
- static int __devinit i2c_parport_probe(struct platform_device *pdev)
- {
- 	int err;
--	struct resource *res;
+ arch/arm/mach-at91/at91cap9_devices.c    |   34 --
+ arch/arm/mach-at91/at91rm9200_devices.c  |   34 --
+ arch/arm/mach-at91/at91sam9260_devices.c |   34 --
+ arch/arm/mach-at91/at91sam9261_devices.c |   34 --
+ arch/arm/mach-at91/at91sam9263_devices.c |   34 --
+ arch/arm/mach-at91/at91sam9rl_devices.c  |   34 --
+ drivers/i2c/busses/Kconfig               |   15 -
+ drivers/i2c/busses/Makefile              |    1 
+ drivers/i2c/busses/i2c-at91.c            |  328 -----------------------
+ 9 files changed, 548 deletions(-)
+
+
+diff --git a/arch/arm/mach-at91/at91cap9_devices.c b/arch/arm/mach-at91/at91cap9_devices.c
+index abb4aac..7b9ab24 100644
+--- a/arch/arm/mach-at91/at91cap9_devices.c
++++ b/arch/arm/mach-at91/at91cap9_devices.c
+@@ -486,40 +486,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91cap9_twi_device);
+ }
+ 
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
 -
--	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
--	if (!request_region(res->start, res->end - res->start + 1, DRVNAME))
--		return -EBUSY;
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91CAP9_BASE_TWI,
+-		.end	= AT91CAP9_BASE_TWI + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91CAP9_ID_TWI,
+-		.end	= AT91CAP9_ID_TWI,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91cap9_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_B_periph(AT91_PIN_PB4, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PB4, 1);
+-
+-	at91_set_B_periph(AT91_PIN_PB5, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PB5, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91cap9_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
+index 9338825..d500dea 100644
+--- a/arch/arm/mach-at91/at91rm9200_devices.c
++++ b/arch/arm/mach-at91/at91rm9200_devices.c
+@@ -470,40 +470,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91rm9200_twi_device);
+ }
  
- 	/* Reset hardware to a sane state (SCL and SDA high) */
- 	parport_setsda(NULL, 1);
-@@ -138,29 +133,19 @@ static int __devinit i2c_parport_probe(s
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
+-
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91RM9200_BASE_TWI,
+-		.end	= AT91RM9200_BASE_TWI + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91RM9200_ID_TWI,
+-		.end	= AT91RM9200_ID_TWI,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91rm9200_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PA25, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PA25, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PA26, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PA26, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91rm9200_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/arch/arm/mach-at91/at91sam9260_devices.c b/arch/arm/mach-at91/at91sam9260_devices.c
+index 7774d17..8aa8d1a 100644
+--- a/arch/arm/mach-at91/at91sam9260_devices.c
++++ b/arch/arm/mach-at91/at91sam9260_devices.c
+@@ -415,40 +415,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91sam9260_twi_device);
+ }
  
- 	parport_adapter.dev.parent = &pdev->dev;
- 	err = i2c_bit_add_bus(&parport_adapter);
--	if (err) {
-+	if (err)
- 		dev_err(&pdev->dev, "Unable to register with I2C\n");
--		goto exit_region;
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
+-
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91SAM9260_BASE_TWI,
+-		.end	= AT91SAM9260_BASE_TWI + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91SAM9260_ID_TWI,
+-		.end	= AT91SAM9260_ID_TWI,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91sam9260_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PA23, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PA23, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PA24, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PA24, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91sam9260_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/arch/arm/mach-at91/at91sam9261_devices.c b/arch/arm/mach-at91/at91sam9261_devices.c
+index 6b89172..1d5d44f 100644
+--- a/arch/arm/mach-at91/at91sam9261_devices.c
++++ b/arch/arm/mach-at91/at91sam9261_devices.c
+@@ -307,40 +307,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91sam9261_twi_device);
+ }
+ 
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
+-
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91SAM9261_BASE_TWI,
+-		.end	= AT91SAM9261_BASE_TWI + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91SAM9261_ID_TWI,
+-		.end	= AT91SAM9261_ID_TWI,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91sam9261_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PA7, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PA7, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PA8, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PA8, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91sam9261_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/arch/arm/mach-at91/at91sam9263_devices.c b/arch/arm/mach-at91/at91sam9263_devices.c
+index c93992f..a2a9e3d 100644
+--- a/arch/arm/mach-at91/at91sam9263_devices.c
++++ b/arch/arm/mach-at91/at91sam9263_devices.c
+@@ -462,40 +462,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91sam9263_twi_device);
+ }
+ 
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
+-
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91SAM9263_BASE_TWI,
+-		.end	= AT91SAM9263_BASE_TWI + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91SAM9263_ID_TWI,
+-		.end	= AT91SAM9263_ID_TWI,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91sam9263_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PB4, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PB4, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PB5, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PB5, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91sam9263_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/arch/arm/mach-at91/at91sam9rl_devices.c b/arch/arm/mach-at91/at91sam9rl_devices.c
+index 6208863..c9a36c0 100644
+--- a/arch/arm/mach-at91/at91sam9rl_devices.c
++++ b/arch/arm/mach-at91/at91sam9rl_devices.c
+@@ -304,40 +304,6 @@ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ 	platform_device_register(&at91sam9rl_twi_device);
+ }
+ 
+-#elif defined(CONFIG_I2C_AT91) || defined(CONFIG_I2C_AT91_MODULE)
+-
+-static struct resource twi_resources[] = {
+-	[0] = {
+-		.start	= AT91SAM9RL_BASE_TWI0,
+-		.end	= AT91SAM9RL_BASE_TWI0 + SZ_16K - 1,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= AT91SAM9RL_ID_TWI0,
+-		.end	= AT91SAM9RL_ID_TWI0,
+-		.flags	= IORESOURCE_IRQ,
+-	},
+-};
+-
+-static struct platform_device at91sam9rl_twi_device = {
+-	.name		= "at91_i2c",
+-	.id		= -1,
+-	.resource	= twi_resources,
+-	.num_resources	= ARRAY_SIZE(twi_resources),
+-};
+-
+-void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+-{
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PA23, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PA23, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PA24, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PA24, 1);
+-
+-	i2c_register_board_info(0, devices, nr_devices);
+-	platform_device_register(&at91sam9rl_twi_device);
+-}
+ #else
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices) {}
+ #endif
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 6ee997b..fb4cd11 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -256,21 +256,6 @@ config I2C_POWERMAC
+ 
+ comment "I2C system bus drivers (mostly embedded / system-on-chip)"
+ 
+-config I2C_AT91
+-	tristate "Atmel AT91 I2C Two-Wire interface (TWI)"
+-	depends on ARCH_AT91 && EXPERIMENTAL && BROKEN
+-	help
+-	  This supports the use of the I2C interface on Atmel AT91
+-	  processors.
+-
+-	  This driver is BROKEN because the controller which it uses
+-	  will easily trigger RX overrun and TX underrun errors.  Using
+-	  low I2C clock rates may partially work around those issues
+-	  on some systems.  Another serious problem is that there is no
+-	  documented way to issue repeated START conditions, as needed
+-	  to support combined I2C messages.  Use the i2c-gpio driver
+-	  unless your system can cope with those limitations.
+-
+ config I2C_AU1550
+ 	tristate "Au1550/Au1200 SMBus interface"
+ 	depends on SOC_AU1550 || SOC_AU1200
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 97dbfa2..69edefd 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -25,7 +25,6 @@ obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
+ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
+ 
+ # Embebbed system I2C/SMBus host controller drivers
+-obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+ obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+deleted file mode 100644
+index 9efb021..0000000
+--- a/drivers/i2c/busses/i2c-at91.c
++++ /dev/null
+@@ -1,328 +0,0 @@
+-/*
+-    i2c Support for Atmel's AT91 Two-Wire Interface (TWI)
+-
+-    Copyright (C) 2004 Rick Bronson
+-    Converted to 2.6 by Andrew Victor <andrew-eS41wJS13H5l57MIdRCFDg@public.gmane.org>
+-
+-    Borrowed heavily from original work by:
+-    Copyright (C) 2000 Philip Edelbrock <phil-LT64U7CwzWEZMC/lefXSXFaTQe2KTcn/@public.gmane.org>
+-
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-*/
+-
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/err.h>
+-#include <linux/slab.h>
+-#include <linux/types.h>
+-#include <linux/delay.h>
+-#include <linux/i2c.h>
+-#include <linux/init.h>
+-#include <linux/clk.h>
+-#include <linux/platform_device.h>
+-
+-#include <asm/io.h>
+-
+-#include <mach/at91_twi.h>
+-#include <mach/board.h>
+-#include <mach/cpu.h>
+-
+-#define TWI_CLOCK		100000		/* Hz. max 400 Kbits/sec */
+-
+-
+-static struct clk *twi_clk;
+-static void __iomem *twi_base;
+-
+-#define at91_twi_read(reg)		__raw_readl(twi_base + (reg))
+-#define at91_twi_write(reg, val)	__raw_writel((val), twi_base + (reg))
+-
+-
+-/*
+- * Initialize the TWI hardware registers.
+- */
+-static void __devinit at91_twi_hwinit(void)
+-{
+-	unsigned long cdiv, ckdiv;
+-
+-	at91_twi_write(AT91_TWI_IDR, 0xffffffff);	/* Disable all interrupts */
+-	at91_twi_write(AT91_TWI_CR, AT91_TWI_SWRST);	/* Reset peripheral */
+-	at91_twi_write(AT91_TWI_CR, AT91_TWI_MSEN);	/* Set Master mode */
+-
+-	/* Calcuate clock dividers */
+-	cdiv = (clk_get_rate(twi_clk) / (2 * TWI_CLOCK)) - 3;
+-	cdiv = cdiv + 1;	/* round up */
+-	ckdiv = 0;
+-	while (cdiv > 255) {
+-		ckdiv++;
+-		cdiv = cdiv >> 1;
 -	}
+-
+-	if (cpu_is_at91rm9200()) {			/* AT91RM9200 Errata #22 */
+-		if (ckdiv > 5) {
+-			printk(KERN_ERR "AT91 I2C: Invalid TWI_CLOCK value!\n");
+-			ckdiv = 5;
+-		}
+-	}
+-
+-	at91_twi_write(AT91_TWI_CWGR, (ckdiv << 16) | (cdiv << 8) | cdiv);
+-}
+-
+-/*
+- * Poll the i2c status register until the specified bit is set.
+- * Returns 0 if timed out (100 msec).
+- */
+-static short at91_poll_status(unsigned long bit)
+-{
+-	int loop_cntr = 10000;
+-
+-	do {
+-		udelay(10);
+-	} while (!(at91_twi_read(AT91_TWI_SR) & bit) && (--loop_cntr > 0));
+-
+-	return (loop_cntr > 0);
+-}
+-
+-static int xfer_read(struct i2c_adapter *adap, unsigned char *buf, int length)
+-{
+-	/* Send Start */
+-	at91_twi_write(AT91_TWI_CR, AT91_TWI_START);
+-
+-	/* Read data */
+-	while (length--) {
+-		if (!length)	/* need to send Stop before reading last byte */
+-			at91_twi_write(AT91_TWI_CR, AT91_TWI_STOP);
+-		if (!at91_poll_status(AT91_TWI_RXRDY)) {
+-			dev_dbg(&adap->dev, "RXRDY timeout\n");
+-			return -ETIMEDOUT;
+-		}
+-		*buf++ = (at91_twi_read(AT91_TWI_RHR) & 0xff);
+-	}
+-
+-	return 0;
+-}
+-
+-static int xfer_write(struct i2c_adapter *adap, unsigned char *buf, int length)
+-{
+-	/* Load first byte into transmitter */
+-	at91_twi_write(AT91_TWI_THR, *buf++);
+-
+-	/* Send Start */
+-	at91_twi_write(AT91_TWI_CR, AT91_TWI_START);
+-
+-	do {
+-		if (!at91_poll_status(AT91_TWI_TXRDY)) {
+-			dev_dbg(&adap->dev, "TXRDY timeout\n");
+-			return -ETIMEDOUT;
+-		}
+-
+-		length--;	/* byte was transmitted */
+-
+-		if (length > 0)		/* more data to send? */
+-			at91_twi_write(AT91_TWI_THR, *buf++);
+-	} while (length);
+-
+-	/* Send Stop */
+-	at91_twi_write(AT91_TWI_CR, AT91_TWI_STOP);
+-
+-	return 0;
+-}
+-
+-/*
+- * Generic i2c master transfer entrypoint.
+- *
+- * Note: We do not use Atmel's feature of storing the "internal device address".
+- * Instead the "internal device address" has to be written using a separate
+- * i2c message.
+- * http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2004-September/024411.html
+- */
+-static int at91_xfer(struct i2c_adapter *adap, struct i2c_msg *pmsg, int num)
+-{
+-	int i, ret;
+-
+-	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+-
+-	for (i = 0; i < num; i++) {
+-		dev_dbg(&adap->dev, " #%d: %sing %d byte%s %s 0x%02x\n", i,
+-			pmsg->flags & I2C_M_RD ? "read" : "writ",
+-			pmsg->len, pmsg->len > 1 ? "s" : "",
+-			pmsg->flags & I2C_M_RD ? "from" : "to",	pmsg->addr);
+-
+-		at91_twi_write(AT91_TWI_MMR, (pmsg->addr << 16)
+-			| ((pmsg->flags & I2C_M_RD) ? AT91_TWI_MREAD : 0));
+-
+-		if (pmsg->len && pmsg->buf) {	/* sanity check */
+-			if (pmsg->flags & I2C_M_RD)
+-				ret = xfer_read(adap, pmsg->buf, pmsg->len);
+-			else
+-				ret = xfer_write(adap, pmsg->buf, pmsg->len);
+-
+-			if (ret)
+-				return ret;
+-
+-			/* Wait until transfer is finished */
+-			if (!at91_poll_status(AT91_TWI_TXCOMP)) {
+-				dev_dbg(&adap->dev, "TXCOMP timeout\n");
+-				return -ETIMEDOUT;
+-			}
+-		}
+-		dev_dbg(&adap->dev, "transfer complete\n");
+-		pmsg++;		/* next message */
+-	}
+-	return i;
+-}
+-
+-/*
+- * Return list of supported functionality.
+- */
+-static u32 at91_func(struct i2c_adapter *adapter)
+-{
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+-}
+-
+-static struct i2c_algorithm at91_algorithm = {
+-	.master_xfer	= at91_xfer,
+-	.functionality	= at91_func,
+-};
+-
+-/*
+- * Main initialization routine.
+- */
+-static int __devinit at91_i2c_probe(struct platform_device *pdev)
+-{
+-	struct i2c_adapter *adapter;
+-	struct resource *res;
+-	int rc;
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENXIO;
+-
+-	if (!request_mem_region(res->start, res->end - res->start + 1, "at91_i2c"))
+-		return -EBUSY;
+-
+-	twi_base = ioremap(res->start, res->end - res->start + 1);
+-	if (!twi_base) {
+-		rc = -ENOMEM;
+-		goto fail0;
+-	}
+-
+-	twi_clk = clk_get(NULL, "twi_clk");
+-	if (IS_ERR(twi_clk)) {
+-		dev_err(&pdev->dev, "no clock defined\n");
+-		rc = -ENODEV;
+-		goto fail1;
+-	}
+-
+-	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+-	if (adapter == NULL) {
+-		dev_err(&pdev->dev, "can't allocate inteface!\n");
+-		rc = -ENOMEM;
+-		goto fail2;
+-	}
+-	sprintf(adapter->name, "AT91");
+-	adapter->algo = &at91_algorithm;
+-	adapter->class = I2C_CLASS_HWMON;
+-	adapter->dev.parent = &pdev->dev;
+-	/* adapter->id == 0 ... only one TWI controller for now */
+-
+-	platform_set_drvdata(pdev, adapter);
+-
+-	clk_enable(twi_clk);		/* enable peripheral clock */
+-	at91_twi_hwinit();		/* initialize TWI controller */
+-
+-	rc = i2c_add_numbered_adapter(adapter);
+-	if (rc) {
+-		dev_err(&pdev->dev, "Adapter %s registration failed\n",
+-				adapter->name);
+-		goto fail3;
+-	}
+-
+-	dev_info(&pdev->dev, "AT91 i2c bus driver.\n");
 -	return 0;
 -
--exit_region:
--	release_region(res->start, res->end - res->start + 1);
- 	return err;
- }
- 
- static int __devexit i2c_parport_remove(struct platform_device *pdev)
- {
+-fail3:
+-	platform_set_drvdata(pdev, NULL);
+-	kfree(adapter);
+-	clk_disable(twi_clk);
+-fail2:
+-	clk_put(twi_clk);
+-fail1:
+-	iounmap(twi_base);
+-fail0:
+-	release_mem_region(res->start, res->end - res->start + 1);
+-
+-	return rc;
+-}
+-
+-static int __devexit at91_i2c_remove(struct platform_device *pdev)
+-{
+-	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
 -	struct resource *res;
+-	int rc;
 -
- 	i2c_del_adapter(&parport_adapter);
- 
- 	/* Un-init if needed (power off...) */
- 	if (adapter_parm[type].init.val)
- 		line_set(0, &adapter_parm[type].init);
- 
--	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
--	release_region(res->start, res->end - res->start + 1);
- 	return 0;
- }
- 
-@@ -175,12 +160,6 @@ static struct platform_driver i2c_parpor
- 
- static int __init i2c_parport_device_add(u16 address)
- {
--	struct resource res = {
--		.start	= address,
--		.end	= address + 2,
--		.name	= DRVNAME,
--		.flags	= IORESOURCE_IO,
--	};
- 	int err;
- 
- 	pdev = platform_device_alloc(DRVNAME, -1);
-@@ -190,13 +169,6 @@ static int __init i2c_parport_device_add
- 		goto exit;
- 	}
- 
--	err = platform_device_add_resources(pdev, &res, 1);
--	if (err) {
--		printk(KERN_ERR DRVNAME ": Device resource addition failed "
--		       "(%d)\n", err);
--		goto exit_device_put;
--	}
+-	rc = i2c_del_adapter(adapter);
+-	platform_set_drvdata(pdev, NULL);
 -
- 	err = platform_device_add(pdev);
- 	if (err) {
- 		printk(KERN_ERR DRVNAME ": Device addition failed (%d)\n",
-@@ -231,13 +203,16 @@ static int __init i2c_parport_init(void)
- 		base = DEFAULT_BASE;
- 	}
- 
-+	if (!request_region(base, 3, DRVNAME))
-+		return -EBUSY;
-+
-         if (!adapter_parm[type].getscl.val)
- 		parport_algo_data.getscl = NULL;
- 
- 	/* Sets global pdev as a side effect */
- 	err = i2c_parport_device_add(base);
- 	if (err)
--		goto exit;
-+		goto exit_release;
- 
- 	err = platform_driver_register(&i2c_parport_driver);
- 	if (err)
-@@ -247,7 +222,8 @@ static int __init i2c_parport_init(void)
- 
- exit_device:
- 	platform_device_unregister(pdev);
--exit:
-+exit_release:
-+	release_region(base, 3);
- 	return err;
- }
- 
-@@ -255,6 +231,7 @@ static void __exit i2c_parport_exit(void
- {
- 	platform_driver_unregister(&i2c_parport_driver);
- 	platform_device_unregister(pdev);
-+	release_region(base, 3);
- }
- 
- MODULE_AUTHOR("Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>");
-
-
--- 
-Jean Delvare
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	iounmap(twi_base);
+-	release_mem_region(res->start, res->end - res->start + 1);
+-
+-	clk_disable(twi_clk);		/* disable peripheral clock */
+-	clk_put(twi_clk);
+-
+-	return rc;
+-}
+-
+-#ifdef CONFIG_PM
+-
+-/* NOTE: could save a few mA by keeping clock off outside of at91_xfer... */
+-
+-static int at91_i2c_suspend(struct platform_device *pdev, pm_message_t mesg)
+-{
+-	clk_disable(twi_clk);
+-	return 0;
+-}
+-
+-static int at91_i2c_resume(struct platform_device *pdev)
+-{
+-	return clk_enable(twi_clk);
+-}
+-
+-#else
+-#define at91_i2c_suspend	NULL
+-#define at91_i2c_resume		NULL
+-#endif
+-
+-/* work with "modprobe at91_i2c" from hotplugging or coldplugging */
+-MODULE_ALIAS("platform:at91_i2c");
+-
+-static struct platform_driver at91_i2c_driver = {
+-	.probe		= at91_i2c_probe,
+-	.remove		= __devexit_p(at91_i2c_remove),
+-	.suspend	= at91_i2c_suspend,
+-	.resume		= at91_i2c_resume,
+-	.driver		= {
+-		.name	= "at91_i2c",
+-		.owner	= THIS_MODULE,
+-	},
+-};
+-
+-static int __init at91_i2c_init(void)
+-{
+-	return platform_driver_register(&at91_i2c_driver);
+-}
+-
+-static void __exit at91_i2c_exit(void)
+-{
+-	platform_driver_unregister(&at91_i2c_driver);
+-}
+-
+-module_init(at91_i2c_init);
+-module_exit(at91_i2c_exit);
+-
+-MODULE_AUTHOR("Rick Bronson");
+-MODULE_DESCRIPTION("I2C (TWI) driver for Atmel AT91");
+-MODULE_LICENSE("GPL");
 
 _______________________________________________
 i2c mailing list
