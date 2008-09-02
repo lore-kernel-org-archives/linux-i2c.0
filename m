@@ -1,7 +1,7 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: [RFC: 2.6 patch] remove the i2c-at91.c driver
-Date: Tue, 2 Sep 2008 11:11:27 +0100
-Message-ID: <20080902101127.GJ2716@fluff.org.uk>
+Date: Tue, 2 Sep 2008 11:24:09 +0100
+Message-ID: <20080902102409.GK2716@fluff.org.uk>
 References: <20080831161005.GC3695@cs181140183.pp.htv.fi>
 	<cd73a99e0809010613w40569b3fv9f5fc96a7bfb6a29@mail.gmail.com>
 Mime-Version: 1.0
@@ -35,11 +35,10 @@ On Mon, Sep 01, 2008 at 03:13:14PM +0200, Andrew Victor wrote:
 > Atmel have supposidly resolved all the hardware issues that caused
 > this driver to fail.
 
-Then would it be possible to have a patch to update the driver's
-help text, and possibly update the Kconfig to reflect the dependency
-on having working silicon?
-
-Would it be better to rename this driver?
+As a note, it would be worth filtering Adrian's patch to remove the
+hardware I2C support from the machines that cannot support it to
+avoid people falling into the trap of using a driver that is not
+going to function correctly?
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
