@@ -1,16 +1,15 @@
-From: "Andrew Victor" <avictor.za-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: [RFC: 2.6 patch] remove the i2c-at91.c driver
-Date: Thu, 4 Sep 2008 22:14:41 +0200
-Message-ID: <cd73a99e0809041314i54c7fd71ued53270517ecc829@mail.gmail.com>
+Date: Thu, 4 Sep 2008 13:25:30 -0700
+Message-ID: <200809041325.30330.david-b@pacbell.net>
 References: <20080831161005.GC3695@cs181140183.pp.htv.fi>
-	<20080902101127.GJ2716@fluff.org.uk>
-	<cd73a99e0809041155m1f9e576dt5659da679fffb56d@mail.gmail.com>
 	<200809041218.49604.david-b@pacbell.net>
+	<cd73a99e0809041314i54c7fd71ued53270517ecc829@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200809041218.49604.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <cd73a99e0809041314i54c7fd71ued53270517ecc829-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -21,29 +20,41 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+To: Andrew Victor <avictor.za-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-hi David,
+On Thursday 04 September 2008, Andrew Victor wrote:
+> According to the datasheet, the G20 supports both clock stretching and
+> repeated starts.
 
-> But I recall the lack of flow control to be a bigger issue.
-> The hardware liked to TX the next byte before it was loaded
-> into the (single byte) TX fifo, and then complain that there
-> was no byte there.  And likewise, to RX the next byte before
-> the previous one got removed.  Or ... if that's not what it
-> was doing, it sure acted like it was!  Now, *THOSE* issues
-> seem highly amenable to hardware-only fixes:  just stretch
-> the clock until the FIFO is ready.
+Same is true for docs about current silicon ... but the clock
+stretching doesn't prevent those FIFO problems, and repeated
+starts are barely enough to support older versions of SMBus.
 
-According to the datasheet, the G20 supports both clock stretching and
-repeated starts.
-The TWI is now also connected to a PDC, so we can set-up a DMA buffer
-for the TWI receives and transmits.
+Is that a *general* mechanism for repeated starts?
+
+Or is it just the current/limited one where there can be at most
+two segments in any combined message, going to the same slave
+address ... a write of up to 3 bytes (assuming 7bit addressses)
+then a longer read?
+
+Either way:  driver updates needed for that!
+
+(I'd call clock stretching to prevent those FIFO issues just
+a bugfix, myself.  It should need no driver updates.)
 
 
-Regards,
-  Andrew Victor
+> The TWI is now also connected to a PDC, so we can set-up a DMA buffer
+> for the TWI receives and transmits.
+
+Using DMA also implies driver updates.
+
+Maybe the best answer would be to remove this and have a g20-specific
+driver later.
+
+- Dave
+
 
 _______________________________________________
 i2c mailing list
