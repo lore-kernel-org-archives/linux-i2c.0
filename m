@@ -1,46 +1,42 @@
-From: "modus Brandon" <Goodson_Shana-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [SPAM:4.6] Dentists Contact List in the USA
-Date: Fri, 05 Sep 2008 00:19:20 -0500
-Message-ID: <41748.5469639816$1220517722@news.gmane.org>
+From: "Francis Moreau" <francis.moro@gmail.com>
+Subject: Re: qestion about I2C_CLASS_HWMON flag
+Date: Thu, 4 Sep 2008 10:49:55 +0200
+Message-ID: <38b2ab8a0809040149u2bc0342h5c32b87f9277322f@mail.gmail.com>
+References: <38b2ab8a0809040043g7f944872l47f84c53bb213829@mail.gmail.com>
+	 <38b2ab8a0809040105j7ae3aca8xd334a4d203d9415b@mail.gmail.com>
+	 <20080904103707.557ac764@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: radhika_fofalia-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org, info-e2RGNMzZojjAhBgpIQLLi1aTQe2KTcn/@public.gmane.org, keith.childress9ed-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, aroterohidas-QOiod4cnrWAN+BqQ9rBEUg@public.gmane.org, herbert.langenberger-4JhlDu4IDl0juwv8T7myQQ@public.gmane.org, webmaster-w374GcjY+yroEzMBXg+t2VaTQe2KTcn/@public.gmane.orgi
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757207AbYIDIuL@vger.kernel.org>
+In-Reply-To: <20080904103707.557ac764@hyperion.delvare>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Sep 4, 2008 at 10:37 AM, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Francis,
+>
+> On Thu, Sep 4, 2008 at 9:43 AM, Francis Moreau <francis.moro@gmail.com> wrote:
+>> I'm wondering why does this flag exist ?
+>>
+>> Why is a hw monitor device so special so that an I2C bus needs
+>> a flag to tell the rest of the world that it support it ?
+>
+> I don't understand your point. We have I2C_CLASS flags for many I2C
+> device types (analog TV, digital TV, etc.) I2C_CLASS_HWMON isn't the
+> exception you describe. Look at <linux/i2c.h> for a list of these flags.
+>
 
+My question (sorry if that silly) is why do we need these flags at all ?
 
+Can't I2C bus address any kinds of I2C devices ?
 
+What make hwmon devices special so that some I2C adapter can't
+talk to them ?
 
-
-New for this Year: Dentis.try Listing for the United States
-
-**> 164,281 Dentists 
-**> 158,009 Postal Addresses
-**> 163,763 Phone Nos
-**> 77,706 Facsimile Numbers
-**> 45,087 E-Mail Addresses
-
-from now until Friday the reduced price is $298 (reg $491)
-
-For details please send an email to WilfredKay-+RDuwT2PDVxWk0Htik3J/w@public.gmane.org
-
-
-
-
-To invoke no further correspondence status please send an email to hy456-+RDuwT2PDVxWk0Htik3J/w@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Thanks
+-- 
+Francis
