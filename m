@@ -1,68 +1,53 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: qestion about I2C_CLASS_HWMON flag
-Date: Thu, 4 Sep 2008 12:08:55 +0200
-Message-ID: <20080904120855.7e7b9720@hyperion.delvare>
-References: <38b2ab8a0809040043g7f944872l47f84c53bb213829@mail.gmail.com>
-	<38b2ab8a0809040105j7ae3aca8xd334a4d203d9415b@mail.gmail.com>
-	<20080904103707.557ac764@hyperion.delvare>
-	<38b2ab8a0809040149u2bc0342h5c32b87f9277322f@mail.gmail.com>
+From: "Andrew Victor" <avictor.za-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC: 2.6 patch] remove the i2c-at91.c driver
+Date: Thu, 4 Sep 2008 20:55:56 +0200
+Message-ID: <cd73a99e0809041155m1f9e576dt5659da679fffb56d@mail.gmail.com>
+References: <20080831161005.GC3695@cs181140183.pp.htv.fi>
+	<cd73a99e0809010613w40569b3fv9f5fc96a7bfb6a29@mail.gmail.com>
+	<20080902101127.GJ2716@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756838AbYIDKJV@vger.kernel.org>
-In-Reply-To: <38b2ab8a0809040149u2bc0342h5c32b87f9277322f@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Francis Moreau <francis.moro@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080902101127.GJ2716-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 4 Sep 2008 10:49:55 +0200, Francis Moreau wrote:
-> On Thu, Sep 4, 2008 at 10:37 AM, Jean Delvare <khali@linux-fr.org> wrote:
-> > Hi Francis,
-> >
-> > On Thu, Sep 4, 2008 at 9:43 AM, Francis Moreau <francis.moro@gmail.com> wrote:
-> >> I'm wondering why does this flag exist ?
-> >>
-> >> Why is a hw monitor device so special so that an I2C bus needs
-> >> a flag to tell the rest of the world that it support it ?
-> >
-> > I don't understand your point. We have I2C_CLASS flags for many I2C
-> > device types (analog TV, digital TV, etc.) I2C_CLASS_HWMON isn't the
-> > exception you describe. Look at <linux/i2c.h> for a list of these flags.
-> >
-> 
-> My question (sorry if that silly) is why do we need these flags at all ?
-> 
-> Can't I2C bus address any kinds of I2C devices ?
+hi Ben,
 
-In general they can, yes (where they can't, it's due to restrictions in
-protocol implementations, not device types.) But this isn't a matter of
-what devices can be on the bus. This is a matter of what devices can be
-probed for on a given bus. For example, hardware monitoring drivers
-which handle I2C devices, make sure that I2C_CLASS_HWMON is set before
-probing I2C addresses on a given bus in search of a device to
-auto-detect. On the other hand, if they are merely attaching to an I2C
-device which has already been instantiated (and thus no probing is
-needed) they do not care about the class. The reason for this mechanism
-is that probing can be risky, so we want to limit it to what is
-strictly needed. For example, there is no point in probing the I2C bus
-of a TV adapter for hardware monitoring chips - there simply can't be
-any there. If there ever was any, that would be such a special case
-that we would instantiate the I2C device in question explicitly from
-the adapter code, so we have no need for probing.
+>> This driver should be usable on the new AT91SAM9G20 processor.
+>> Atmel have supposidly resolved all the hardware issues that caused
+>> this driver to fail.
+>
+> Then would it be possible to have a patch to update the driver's
+> help text, and possibly update the Kconfig to reflect the dependency
+> on having working silicon?
 
-The general idea is that the class value is about what devices can be
-probed for, not what devices can be present. The field should probably
-have been named "probe_class" instead of just "class", but back when it
-was created, all I2C in the kernel was about probing so this precision
-didn't seem needed. Things have changed since then. Maybe we'll rename
-it at some point but I don't want to bother driver authors uselessly.
+I think the help text at the moment is pretty clear that the driver is
+marked as broken.
+All the in-kernel boards now by default use the bit-banging driver.
 
-> What make hwmon devices special so that some I2C adapter can't
-> talk to them ?
+I don't actually have G20 hardware to test it on, but until
+somebody/Atmel have verified if this driver works or not, I'd prefer
+to just to leave it as broken.
+If it still doesn't work, then just remove all references to the driver.
 
-Again there's nothing special about hwmon. All device types are (or
-should be) handled the same way.
 
--- 
-Jean Delvare
+Regards,
+  Andrew Victor
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
