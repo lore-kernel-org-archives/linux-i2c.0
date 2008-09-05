@@ -1,46 +1,50 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] i2c: fix i2c-sh_mobile timing issues
-Date: Fri, 5 Sep 2008 14:36:43 +0900
-Message-ID: <20080905053643.GA2051@linux-sh.org>
-References: <20080827093356.9145.33751.sendpatchset@rx1.opensource.se> <20080827144048.GA32530@linux-sh.org> <20080827174628.3b452f2d@hyperion.delvare>
+From: "Francis Moreau" <francis.moro@gmail.com>
+Subject: Re: qestion about I2C_CLASS_HWMON flag
+Date: Fri, 5 Sep 2008 10:57:56 +0200
+Message-ID: <38b2ab8a0809050157yfb21b08v23ae368d3337c1ca@mail.gmail.com>
+References: <38b2ab8a0809040043g7f944872l47f84c53bb213829@mail.gmail.com>
+	 <38b2ab8a0809040105j7ae3aca8xd334a4d203d9415b@mail.gmail.com>
+	 <20080904103707.557ac764@hyperion.delvare>
+	 <38b2ab8a0809040149u2bc0342h5c32b87f9277322f@mail.gmail.com>
+	 <20080904120855.7e7b9720@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753431AbYIEI6c@vger.kernel.org>
+In-Reply-To: <20080904120855.7e7b9720@hyperion.delvare>
 Content-Disposition: inline
-In-Reply-To: <20080827174628.3b452f2d@hyperion.delvare>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jean Delvare <khali@linux-fr.org>
-Cc: Magnus Damm <magnus.damm@gmail.com>, i2c@lm-sensors.org, linux-sh@vger.kernel.org, ben-linux@fluff.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 27, 2008 at 05:46:28PM +0200, Jean Delvare wrote:
-> On Wed, 27 Aug 2008 23:40:48 +0900, Paul Mundt wrote:
-> > On Wed, Aug 27, 2008 at 06:33:56PM +0900, Magnus Damm wrote:
-> > > From: Magnus Damm <damm@igel.co.jp>
-> > > 
-> > > This patch teaches the i2c-sh_mobile driver to make use of wait irqs.
-> > > Without this patch only dte irqs are used which may lead to overruns
-> > > and cases of missing stop and extra bytes being read on the i2c bus.
-> > > 
-> > > Use of wait irqs forces the hardware to pause and wait until the cpu
-> > > is ready. Polling is also reworked in this patch to fix ms delay issues.
-> > > 
-> > > Verified with bus analyzer and tested on MigoR and AP325RXA boards.
-> > > 
-> > > Signed-off-by: Magnus Damm <damm@igel.co.jp>
-> > > ---
-> > > 
-> > >  Paul, can you merge this for 2.6.27?
-> > > 
-> > >  drivers/i2c/busses/i2c-sh_mobile.c |  271 +++++++++++++++++++++++++++---------
-> > >  1 file changed, 208 insertions(+), 63 deletions(-)
-> > > 
-> > I'll add it to my queue if Jean and Ben don't have any issues with the
-> > patch. If the polling works as is, I would suggest that it is not 2.6.27
-> > material, but if it's fixing operational bugs then it doesn't make sense
-> > to leave 2.6.27 in a known broken state.
-> 
-> No objection from me, as this is outside of my jurisdiction.
-> 
-Well, it's been a week and there's been no comments, so I'll roll this in
-to my queue.
+Good morning Jean,
+
+On Thu, Sep 4, 2008 at 12:08 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> In general they can, yes (where they can't, it's due to restrictions in
+> protocol implementations, not device types.) But this isn't a matter of
+> what devices can be on the bus. This is a matter of what devices can be
+> probed for on a given bus. For example, hardware monitoring drivers
+> which handle I2C devices, make sure that I2C_CLASS_HWMON is set before
+> probing I2C addresses on a given bus in search of a device to
+> auto-detect. On the other hand, if they are merely attaching to an I2C
+> device which has already been instantiated (and thus no probing is
+> needed) they do not care about the class. The reason for this mechanism
+> is that probing can be risky, so we want to limit it to what is
+> strictly needed. For example, there is no point in probing the I2C bus
+> of a TV adapter for hardware monitoring chips - there simply can't be
+> any there. If there ever was any, that would be such a special case
+> that we would instantiate the I2C device in question explicitly from
+> the adapter code, so we have no need for probing.
+
+OK but which devices that can be connected to an I2C bus is platform specific,
+isn't it ? For example, an I2C adapter can be used in a TV and in that
+case there
+may be no point to probe for a HW mon chips but this same I2C adapter can be
+used by other platforms in a different context where there's a HW mon chip.
+
+So the flags probably are useful, but they're are hard coded in adapters...
+
+Sorry if I'm still missing something.
+-- 
+Francis
