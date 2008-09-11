@@ -1,56 +1,48 @@
-From: Engr Prince Ben <engrprinceben2000-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-Subject: I NEEDS YOUR  ASSISTANCCE
-Date: Wed, 10 Sep 2008 20:31:54 -0700 (PDT)
-Message-ID: <982384.87882.qm@web59708.mail.ac4.yahoo.com>
-Reply-To: engr_ben101-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c-dev: Return correct error code on class_create()
+ failure
+Date: Thu, 11 Sep 2008 13:04:42 +0200
+Message-ID: <20080911130442.6ebd10c6@hyperion.delvare>
+References: <alpine.LNX.2.00.0809102128110.19109@titan.stealer.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4554275068627755863=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755004AbYIKLFH@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.0809102128110.19109@titan.stealer.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sven Wegener <sven.wegener@stealer.net>
+Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============4554275068627755863==
-Content-Type: multipart/alternative; boundary="0-860676746-1221103914=:87882"
-Content-Transfer-Encoding: 8bit
+Hi Sven,
 
---0-860676746-1221103914=:87882
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+On Wed, 10 Sep 2008 21:30:27 +0200 (CEST), Sven Wegener wrote:
+> We need to convert the error pointer from class_create(), else we'll return the
+> successful return code from register_chrdev() on failure.
+> 
+> Signed-off-by: Sven Wegener <sven.wegener@stealer.net>
+> ---
+>  drivers/i2c/i2c-dev.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index af4491f..307d976 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -583,8 +583,10 @@ static int __init i2c_dev_init(void)
+>  		goto out;
+>  
+>  	i2c_dev_class = class_create(THIS_MODULE, "i2c-dev");
+> -	if (IS_ERR(i2c_dev_class))
+> +	if (IS_ERR(i2c_dev_class)) {
+> +		res = PTR_ERR(i2c_dev_class);
+>  		goto out_unreg_chrdev;
+> +	}
+>  
+>  	res = i2c_add_driver(&i2cdev_driver);
+>  	if (res)
 
-I have a new email address!You can now email me at: engrprinceben2000-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+Good catch. Patch applied, thanks.
 
-
-
-- Dear Friend,I know that this information may come to you as a surprise,  we have not met before, but I am entrusting this deal to you with hope that you will make it successful for our mutual benefit. i seek your assistance in the transfer of $125 million  dollars to you, Regards Engenier Price Ben
-
-
---0-860676746-1221103914=:87882
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-<div style="border: solid 1px #cccccc; width:448px; background-color:white; margin:10px 0px;";><table border=0 cellspacing=0 cellpadding=0 width="448"><tr><td class=tablot background="http://us.i1.yimg.com/us.yimg.com/i/us/pim/gr/gr_announce_1.gif" valign=center height=57><big style="padding:10px;">I have a new email address!</big></td></tr></table><div style="padding:10px;">You can now email me at: <b>engrprinceben2000-/E1597aS9LQAvxtiuMwx3w@public.gmane.org</b><br><br><span style="color:green;"></span><br><br>- <span style="color:green;">Dear Friend,I know that this information may come to you as a surprise,  we have not met before, but I am entrusting this deal to you with hope that you will make it successful for our mutual benefit. i seek your assistance in the transfer of $125 million  dollars to you, Regards Eng
- enier Price Ben</span></div></div>
---0-860676746-1221103914=:87882--
-
-
-
---===============4554275068627755863==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4554275068627755863==--
+-- 
+Jean Delvare
