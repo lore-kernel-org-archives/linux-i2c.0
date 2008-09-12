@@ -1,48 +1,46 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c-dev: Return correct error code on class_create()
- failure
-Date: Thu, 11 Sep 2008 13:04:42 +0200
-Message-ID: <20080911130442.6ebd10c6@hyperion.delvare>
-References: <alpine.LNX.2.00.0809102128110.19109@titan.stealer.net>
+From: vidhumouli hunsigida <hv_mouli-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: Supporting new features in I2C
+Date: Fri, 12 Sep 2008 06:35:43 -0700 (PDT)
+Message-ID: <863377.52660.qm@web57102.mail.re3.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755004AbYIKLFH@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.0809102128110.19109@titan.stealer.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sven Wegener <sven.wegener@stealer.net>
-Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sven,
+The I2C host controller chip has two features named
+HOLD and Slave Monitor.
 
-On Wed, 10 Sep 2008 21:30:27 +0200 (CEST), Sven Wegener wrote:
-> We need to convert the error pointer from class_create(), else we'll return the
-> successful return code from register_chrdev() on failure.
-> 
-> Signed-off-by: Sven Wegener <sven.wegener@stealer.net>
-> ---
->  drivers/i2c/i2c-dev.c |    4 +++-
->  1 files changed, 3 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index af4491f..307d976 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -583,8 +583,10 @@ static int __init i2c_dev_init(void)
->  		goto out;
->  
->  	i2c_dev_class = class_create(THIS_MODULE, "i2c-dev");
-> -	if (IS_ERR(i2c_dev_class))
-> +	if (IS_ERR(i2c_dev_class)) {
-> +		res = PTR_ERR(i2c_dev_class);
->  		goto out_unreg_chrdev;
-> +	}
->  
->  	res = i2c_add_driver(&i2cdev_driver);
->  	if (res)
+HOLD is the typical feature of holding the clock low to support for the slow devices.
+It can be enabled or disabled through software control by writing a bit in the registor.
 
-Good catch. Patch applied, thanks.
+I am writing a bus driver for this core.
+I am not sure where and how this provision is to be added in the I2C adapter code.
 
--- 
-Jean Delvare
+I could not find any such provision in the exising bus drivers.
+I could not find any related information in the Linux kernel documentation.
+
+Can any one give me how can this be done?
+
+Similarly for Slave Monitor, where a host monitors for the ack received from the slave device.
+This can also be enabled/disabled by setting a bit in the register. How is this to be handled in the current i2c adapter code?
+
+Thanks.
+
+
+      
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
