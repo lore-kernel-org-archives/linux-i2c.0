@@ -1,11 +1,9 @@
-From: "subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org" <subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org>
-Subject: SMBus of Sis650/961 P4 system not recognised
-Date: Sun, 14 Sep 2008 12:29:41 +0100
-Message-ID: <1221391781.31885.22.camel@localhost>
-Reply-To: subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org
+From: "Patrick" <kpa_info-Qt13gs6zZMY@public.gmane.org>
+Subject: Slave mode on PXA
+Date: Sun, 14 Sep 2008 19:01:46 +0200
+Message-ID: <200809141701.m8EH1tB1000592@smtp-auth-be-05.sunrise.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2714685286318584501=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
@@ -19,34 +17,182 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Problem: sensors-detect, revision 5249, doesn't detect any sensors.
+This is a multi-part message in MIME format.
 
-System:
-A928 ECS Desknote
-HW: P4, SiS 650/961 motherboard
-SW: Debian Etch 40R1, Linux 2.6.18-6, lm-sensors 3.0.2
+--===============2714685286318584501==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000C_01C9169C.55C8C4E0"
 
-Analysis, yet without solution:
-Under Windows XP (FanSpeed programme) a Winbond W83L784R and two LM75
-are detected and temperatures properly represented.
-Linux loads the i2c-sis96x busses driver.
-The chipset presents itself with vendor ID 1039 and devices IDs 0008 and
-0650 and 6325 (and 5513, 7012, 0001, 7012 but irrelevant here).
+This is a multi-part message in MIME format.
 
-FanSpeed (WinXP on dual-boot system) reports:
-SiS650	SMBus at $0B80
-	ISA Bus at $0290
-		SuperIO Winbond W83L517D
-SiSx30	SMBus at $0B80
-		Winbond W83L784R (ID=$51) @ $2D
-		LM75 @ $48
-		LM75 @ $49	
+------=_NextPart_000_000C_01C9169C.55C8C4E0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-How can I make lm-sensors / sensors-detect, and/or Linux 2.6.18-6 to
-discover this SMBus @ $0B80 with the sensors on it ??
+Hello all,
 
+ 
+
+I am trying to use the slave mode implemented in the I2C busses for PXA with
+the dev interface.
+
+ 
+
+By reading the code I understand that this slave mode is an eeprom
+emulation. All the data (of the emulated eeprom) are stored in
+i2c->slave->data.
+
+I have founded that the i2c->slave structure is initialised inside the
+i2c_pxa_probe function with the dev->dev.platform_data.slave.
+
+ 
+
+But I don't understand how this structure is given from the I2C-core and how
+can I access this structure from the dev interface. Do you have some
+information about how the core probe the I2C-pxa and how the parameters are
+managed?
+
+ 
+
+Thank you for all information.
+
+ 
+
+Patrick
+
+ 
+
+
+------=_NextPart_000_000C_01C9169C.55C8C4E0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 70.85pt 70.85pt 70.85pt;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=3DFR link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hello all,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>I am trying to use the slave mode implemented =
+in the
+I2C busses for PXA with the dev interface.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>By reading the code I understand that this =
+slave mode
+is an eeprom emulation. All the data (of the emulated eeprom) are stored =
+in i2c-&gt;slave-&gt;data.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>I have founded that the i2c-&gt;slave =
+structure is
+initialised inside the i2c_pxa_probe function with the
+dev-&gt;dev.platform_data.slave.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>But I don&#8217;t understand how this =
+structure is
+given from the I2C-core and how can I access this structure from the dev
+interface. Do you have some information about how the core probe the =
+I2C-pxa
+and how the parameters are managed?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>Thank you for all =
+information.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'>Patrick<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-GB =
+style=3D'font-size:
+10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_000C_01C9169C.55C8C4E0--
+
+
+
+--===============2714685286318584501==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============2714685286318584501==--
