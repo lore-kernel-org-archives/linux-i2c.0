@@ -1,49 +1,52 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: Supporting new features in I2C
-Date: Fri, 12 Sep 2008 17:35:35 +0100
-Message-ID: <20080912163534.GD1916@fluff.org.uk>
-References: <863377.52660.qm@web57102.mail.re3.yahoo.com>
+From: "subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org" <subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org>
+Subject: SMBus of Sis650/961 P4 system not recognised
+Date: Sun, 14 Sep 2008 12:29:41 +0100
+Message-ID: <1221391781.31885.22.camel@localhost>
+Reply-To: subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757237AbYILQje@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <863377.52660.qm@web57102.mail.re3.yahoo.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vidhumouli hunsigida <hv_mouli@yahoo.com>
-Cc: i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 12, 2008 at 06:35:43AM -0700, vidhumouli hunsigida wrote:
-> The I2C host controller chip has two features named
-> HOLD and Slave Monitor.
-> 
-> HOLD is the typical feature of holding the clock low to support for the slow devices.
-> It can be enabled or disabled through software control by writing a bit in the registor.
+Problem: sensors-detect, revision 5249, doesn't detect any sensors.
 
-This should be normal behaviour for an i2c bus, some controllers
-can support it, but there is no need to add any extra functionality
-to the i2c layer for this. The driver is free to do it or not do it.
+System:
+A928 ECS Desknote
+HW: P4, SiS 650/961 motherboard
+SW: Debian Etch 40R1, Linux 2.6.18-6, lm-sensors 3.0.2
 
-If you want to driver to do either, then you can either have it as a
-module parameter and/or have some configuration file in sysfs to change
-the state.
- 
-> I am writing a bus driver for this core.
-> I am not sure where and how this provision is to be added in the I2C adapter code.
-> 
-> I could not find any such provision in the exising bus drivers.
-> I could not find any related information in the Linux kernel documentation.
-> 
-> Can any one give me how can this be done?
-> 
-> Similarly for Slave Monitor, where a host monitors for the ack received from the slave device.
-> This can also be enabled/disabled by setting a bit in the register. How is this to be handled in the current i2c adapter code?
+Analysis, yet without solution:
+Under Windows XP (FanSpeed programme) a Winbond W83L784R and two LM75
+are detected and temperatures properly represented.
+Linux loads the i2c-sis96x busses driver.
+The chipset presents itself with vendor ID 1039 and devices IDs 0008 and
+0650 and 6325 (and 5513, 7012, 0001, 7012 but irrelevant here).
 
-I suggest you have a look at the drivers in drivers/i2c/busses and
-also include/linux/i2c.h (pay particual attention to 'struct i2c_algorithm'
-which can be used to add new bus drivers).
+FanSpeed (WinXP on dual-boot system) reports:
+SiS650	SMBus at $0B80
+	ISA Bus at $0290
+		SuperIO Winbond W83L517D
+SiSx30	SMBus at $0B80
+		Winbond W83L784R (ID=$51) @ $2D
+		LM75 @ $48
+		LM75 @ $49	
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+How can I make lm-sensors / sensors-detect, and/or Linux 2.6.18-6 to
+discover this SMBus @ $0B80 with the sensors on it ??
 
-  'a smiley only costs 4 bytes'
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
