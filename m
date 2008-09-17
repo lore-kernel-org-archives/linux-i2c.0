@@ -1,13 +1,11 @@
 From: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
-Subject: Re: PCA9665 controller
-Date: Tue, 16 Sep 2008 13:03:48 -0300
-Message-ID: <48CFD8E4.3000302@gamic.com>
-References: <48CFC9A7.4010104@gamic.com> <20080916155404.GE4318@pengutronix.de>
+Subject: pca9665
+Date: Wed, 17 Sep 2008 12:30:29 -0300
+Message-ID: <48D12295.8080008@gamic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080916155404.GE4318-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,27 +15,24 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+Hi Wolfram.
 
-Wolfram Sang wrote:
->> Is someone working on a driver for the PCA9665?
->> If not, I will start working on it.
->>     
->
-> You probably already found that yourself, I just want to make sure;
-> there already is a pca-platform-driver and a pca-algorithm. They should
-> be useful for you...
->   
-Thanks, I noticed that. The PCA driver is written for the PCA9564. There 
-are some differences between the 9665 and the 9564, that is why this 
-driver cannot be used as is, but still they are very similar, and I will 
-try to reuse as much code as possible.
+I looked into the code for i2c-algo-pca.c and, if I don't want to 
+implement the buffered mode (I can live without it for a while), the 
+only changes I need to do are:
+1. Implement the reset via parallel bus.
+2. Change the way the i2c clock rate is treated, by passing the 
+frequency directly instead of an index.
 
-Regards,
+After this, this module could handle both chips. I need your advice:
+Should I just duplicate all code and make the changes to this new algo 
+or should I add a chip_type field to i2c_algo_pca_data and handle the 
+chip on the existing algo code?
+
+Thanks in advance,
 
 Marco
 
