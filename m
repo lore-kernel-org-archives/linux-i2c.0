@@ -1,63 +1,49 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: tvp5150 new style i2c driver
-Date: Fri, 19 Sep 2008 22:26:08 +0200
-Message-ID: <20080919222608.030a3801@hyperion.delvare>
-References: <48D3C5A3.3080802@spesonline.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 1/2] i2c: expand I2C's id.name to 23 characters
+Date: Fri, 19 Sep 2008 14:39:03 -0600
+Message-ID: <20080919203903.GA10187@secretlab.ca>
+References: <20080919180339.GA13899@oksana.dev.rtsoft.ru>
+	<20080919220308.3173320e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48D3C5A3.3080802-wNesuFfO2Ajz1n+OaKNE4w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Luca Santini <luca.santini-wNesuFfO2Ajz1n+OaKNE4w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <20080919220308.3173320e@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Luca,
+On Fri, Sep 19, 2008 at 10:03:08PM +0200, Jean Delvare wrote:
+> On Fri, 19 Sep 2008 22:03:39 +0400, Anton Vorontsov wrote:
+> > It was discussed[1] that we should match on the first (most specific)
+> > entry in the device tree.
+> > 
+> > The most lengthy I2C compatible entry for the MPC8349E-mITX MCU
+> > devices is "mc9s08qg8-mpc8349emitx" (w/o vendor name). This means
+> > that we have to allow longer IDs to be used in the I2C subsystem.
+> > 
+> > [1] http://www.mail-archive.com/linuxppc-dev@ozlabs.org/msg21196.html
+> 
+> Nack. Just come up with shorter names. "mc9s08qg8-mpc8349emitx" is
+> simply too long to start with. Looking at the mcu_mpc8349emitx driver
+> you just submitted, you are clearly abusing the i2c client name to pass
+> platform-specific information, and that's bad. I'm not even sure why
+> you do that, given that all the names are then handled the same as far
+> as I can see.
 
-On Fri, 19 Sep 2008 17:30:43 +0200, Luca Santini wrote:
-> i need to interface with a TI tvp5150 (video codec), wired via
-> i2c on my custom board.
+The whole "matching on the first entry" thing is just a Linux-internal
+heuristic.  If the heuristic breaks down (like it does here), then there
+is a mechanism to override it in of_base.c which has a
+compatible-->modalias translation table.
 
-Which board is that? In particular, which i2c bus drivers are you using?
-
-> i'm on kernel 2.6.27git and i found there's a driver for the
-> codec... but i get the 'SMBus not supported' error when i try
-> to enable it.
-
-I can't find the error message "SMBus not supported" anywhere in the
-kernel tree, what is the exact error message?
-
-> So old style coding...
-
-New-style i2c drivers don't have much to do with what the underlying i2c
-bus driver supports. Legacy vs. new-style is about how the devices are
-created.
-
-> I was trying to convert it to new-style when i found on the ML
-> Archive someone had some similar problem....
->
-> do somebody have some pre-coded patch for me?
-
-Which mailing list archive? I can't remember any post related to the
-tvp5150 driver before yours on the i2c list.
- 
-> After i made it work, how to communicate with it?
-
-Not a question for this mailing list. Better ask the v4l people.
-
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+g.
