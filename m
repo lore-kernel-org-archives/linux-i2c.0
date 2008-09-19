@@ -1,12 +1,14 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: PCA9665 support added to i2c-algo-pca and i2c-pca-isa.c
-Date: Fri, 19 Sep 2008 16:55:00 +0200
-Message-ID: <20080919145500.GH4307@pengutronix.de>
-References: <48D3B5B7.1060402@gamic.com>
+From: Luca Santini <luca.santini-wNesuFfO2Ajz1n+OaKNE4w@public.gmane.org>
+Subject: tvp5150 new style i2c driver
+Date: Fri, 19 Sep 2008 17:04:05 +0200
+Message-ID: <48D3BF65.1020201@spesonline.com>
+References: <697640.78220.qm@web95212.mail.in2.yahoo.com>
+	<20080919144231.780fb37a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4235653748625944810=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48D3B5B7.1060402-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20080919144231.780fb37a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,85 +18,29 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
+i need to interface with a TI tvp5150 (video codec), wired via i2c on my custom board.
 
---===============4235653748625944810==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0XhtP95kHFp3KGBe"
-Content-Disposition: inline
+i'm on kernel 2.6.27git and i found there's a driver for the codec... but i get the 'SMBus not supported' error when i try to enable it. So old style coding...
+I was trying to convert it to new-style when i found on the ML Archive someone had some similar problem....
 
-
---0XhtP95kHFp3KGBe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+do somebody have some pre-coded patch for me? 
 
 
-> Here is the patch against 2.6.26.5.
-> Please tell me if I did something very wrong ;)
-
-I'm just about to leave the office, so just the first notes. Will have a
-deeper look later this evening...
-
-> +static void pca9665_reset(void *pd)
-> +{
-> +	struct i2c_algo_pca_data *adap =3D pd;
-> +	pca_outw(adap,I2C_PCA_INDPTR,I2C_PCA_IPRESET);
-> +	pca_outw(adap,I2C_PCA_IND,0xA5);
-> +	pca_outw(adap,I2C_PCA_IND,0x5A);
-
-CodingStyle issues (space after comma)...
-
-> +	if (pca_data->i2c_chip_type !=3D I2C_PCA_CHIP_9564 && pca_data->i2c_chi=
-p_type !=3D I2C_PCA_CHIP_9665 ) {
-
-Line is longer than 80 chars. Please be sure to have run checkpatch.pl
-before submitting.
-
-> +=09
-
-Trailing whitespaces here (and in some other places).
+After i made it work, how to communicate with it?
 
 
-> +		int minTLow, minTHi;
 
-This style of naming is at least unusual in kernel. Maybe min_tlow?
-
-So much for now, more later...
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---0XhtP95kHFp3KGBe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFI071BD27XaX1/VRsRAlzlAJ0Rk2uWyFeSeyh/OAfXRnnwDQzd2wCgivDm
-JNbwdhqbzHQ8+f4v29dHcz8=
-=d6+v
------END PGP SIGNATURE-----
-
---0XhtP95kHFp3KGBe--
+thanks,
+Luca Santini
 
 
---===============4235653748625944810==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+p.s. i have no idea how previous post fallen into the wrong thread !
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4235653748625944810==--
