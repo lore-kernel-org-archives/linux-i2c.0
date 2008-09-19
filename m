@@ -1,289 +1,68 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: [PATCH 2/2] i2c: MPC8349E-mITX Power Management and GPIO expander
-	driver
-Date: Fri, 19 Sep 2008 22:03:54 +0400
-Message-ID: <20080919180354.GB13899@oksana.dev.rtsoft.ru>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: expand I2C's id.name to 23 characters
+Date: Fri, 19 Sep 2008 22:03:08 +0200
+Message-ID: <20080919220308.3173320e@hyperion.delvare>
+References: <20080919180339.GA13899@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080919180339.GA13899-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On MPC8349E-mITX, MPC8315E-RDB and MPC837x-RDB boards there is a
-Freescale MC9S08QG8 (MCU) chip with the custom firmware
-pre-programmed. The chip is used to power-off the board by the
-software, and to control some GPIO pins.
+On Fri, 19 Sep 2008 22:03:39 +0400, Anton Vorontsov wrote:
+> It was discussed[1] that we should match on the first (most specific)
+> entry in the device tree.
+> 
+> The most lengthy I2C compatible entry for the MPC8349E-mITX MCU
+> devices is "mc9s08qg8-mpc8349emitx" (w/o vendor name). This means
+> that we have to allow longer IDs to be used in the I2C subsystem.
+> 
+> [1] http://www.mail-archive.com/linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org/msg21196.html
 
-Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
----
- drivers/i2c/chips/Kconfig            |   11 ++
- drivers/i2c/chips/Makefile           |    1 +
- drivers/i2c/chips/mcu_mpc8349emitx.c |  213 ++++++++++++++++++++++++++++++++++
- 3 files changed, 225 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/chips/mcu_mpc8349emitx.c
+Nack. Just come up with shorter names. "mc9s08qg8-mpc8349emitx" is
+simply too long to start with. Looking at the mcu_mpc8349emitx driver
+you just submitted, you are clearly abusing the i2c client name to pass
+platform-specific information, and that's bad. I'm not even sure why
+you do that, given that all the names are then handled the same as far
+as I can see.
 
-diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
-index a95cb94..1735682 100644
---- a/drivers/i2c/chips/Kconfig
-+++ b/drivers/i2c/chips/Kconfig
-@@ -172,4 +172,15 @@ config MENELAUS
- 	  and other features that are often used in portable devices like
- 	  cell phones and PDAs.
- 
-+config MCU_MPC8349EMITX
-+	tristate "MPC8349E-mITX MCU driver"
-+	depends on I2C && PPC_83xx
-+	select GENERIC_GPIO
-+	select ARCH_REQUIRE_GPIOLIB
-+	help
-+	  Say Y here to enable soft power-off functionality on the Freescale
-+	  boards with the MPC8349E-mITX-compatible MCU chips. This driver will
-+	  also register MCU GPIOs with the generic GPIO API, so you'll able
-+	  to use MCU pins as GPIOs.
-+
- endmenu
-diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
-index 39e3e69..ca520fa 100644
---- a/drivers/i2c/chips/Makefile
-+++ b/drivers/i2c/chips/Makefile
-@@ -21,6 +21,7 @@ obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_omap.o
- obj-$(CONFIG_TPS65010)		+= tps65010.o
- obj-$(CONFIG_MENELAUS)		+= menelaus.o
- obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
-+obj-$(CONFIG_MCU_MPC8349EMITX)	+= mcu_mpc8349emitx.o
- 
- ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
- EXTRA_CFLAGS += -DDEBUG
-diff --git a/drivers/i2c/chips/mcu_mpc8349emitx.c b/drivers/i2c/chips/mcu_mpc8349emitx.c
-new file mode 100644
-index 0000000..47b07b8
---- /dev/null
-+++ b/drivers/i2c/chips/mcu_mpc8349emitx.c
-@@ -0,0 +1,213 @@
-+/*
-+ * Power Management and GPIO expander driver for MPC8349E-mITX-compatible MCU
-+ *
-+ * Copyright (c) 2008  MontaVista Software, Inc.
-+ *
-+ * Author: Anton Vorontsov <avorontsov@ru.mvista.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/mutex.h>
-+#include <linux/i2c.h>
-+#include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <asm/prom.h>
-+#include <asm/machdep.h>
-+
-+/*
-+ * I don't have specifications for the MCU firmware, I found this register
-+ * and bits positions by the trial&error method.
-+ */
-+#define MCU_REG_CTRL	0x20
-+#define MCU_CTRL_POFF	0x40
-+
-+#define MCU_NUM_GPIO	2
-+
-+struct mcu {
-+	struct mutex lock;
-+	struct device_node *np;
-+	struct i2c_client *client;
-+	struct of_gpio_chip of_gc;
-+	u8 reg_ctrl;
-+};
-+
-+static struct mcu *glob_mcu;
-+
-+static void mcu_power_off(void)
-+{
-+	struct mcu *mcu = glob_mcu;
-+
-+	pr_info("Sending power-off request to the MCU...\n");
-+	mutex_lock(&mcu->lock);
-+	i2c_smbus_write_byte_data(glob_mcu->client, MCU_REG_CTRL,
-+				  mcu->reg_ctrl | MCU_CTRL_POFF);
-+	mutex_unlock(&mcu->lock);
-+}
-+
-+static void mcu_gpio_set(struct gpio_chip *gc, unsigned int gpio, int val)
-+{
-+	struct of_gpio_chip *of_gc = to_of_gpio_chip(gc);
-+	struct mcu *mcu = container_of(of_gc, struct mcu, of_gc);
-+	u8 bit = 1 << (4 + gpio);
-+
-+	mutex_lock(&mcu->lock);
-+	if (val)
-+		mcu->reg_ctrl &= ~bit;
-+	else
-+		mcu->reg_ctrl |= bit;
-+
-+	i2c_smbus_write_byte_data(mcu->client, MCU_REG_CTRL, mcu->reg_ctrl);
-+	mutex_unlock(&mcu->lock);
-+}
-+
-+static int mcu_gpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
-+{
-+	mcu_gpio_set(gc, gpio, val);
-+	return 0;
-+}
-+
-+static int mcu_gpiochip_add(struct mcu *mcu)
-+{
-+	struct device_node *np;
-+	struct of_gpio_chip *of_gc = &mcu->of_gc;
-+	struct gpio_chip *gc = &of_gc->gc;
-+	int ret;
-+
-+	np = of_find_compatible_node(NULL, NULL, "fsl,mcu-mpc8349emitx");
-+	if (!np)
-+		return -ENODEV;
-+
-+	gc->owner = THIS_MODULE;
-+	gc->label = np->full_name;
-+	gc->can_sleep = 1;
-+	gc->ngpio = MCU_NUM_GPIO;
-+	gc->base = -1;
-+	gc->set = mcu_gpio_set;
-+	gc->direction_output = mcu_gpio_dir_out;
-+	of_gc->gpio_cells = 2;
-+	of_gc->xlate = of_gpio_simple_xlate;
-+
-+	np->data = of_gc;
-+	mcu->np = np;
-+
-+	/*
-+	 * We don't want to lose the node, its ->data and ->full_name...
-+	 * So, if succeeded, we don't put the node here.
-+	 */
-+	ret = gpiochip_add(gc);
-+	if (ret)
-+		of_node_put(np);
-+	return ret;
-+}
-+
-+static int mcu_gpiochip_remove(struct mcu *mcu)
-+{
-+	int ret;
-+
-+	ret = gpiochip_remove(&mcu->of_gc.gc);
-+	if (ret)
-+		return ret;
-+	of_node_put(mcu->np);
-+
-+	return 0;
-+}
-+
-+static int __devinit mcu_probe(struct i2c_client *client,
-+			       const struct i2c_device_id *id)
-+{
-+	struct mcu *mcu;
-+	int ret;
-+
-+	mcu = kzalloc(sizeof(*mcu), GFP_KERNEL);
-+	if (!mcu)
-+		return -ENOMEM;
-+
-+	mutex_init(&mcu->lock);
-+	mcu->client = client;
-+	i2c_set_clientdata(client, mcu);
-+
-+	ret = i2c_smbus_read_byte_data(mcu->client, MCU_REG_CTRL);
-+	if (ret < 0)
-+		goto err;
-+	mcu->reg_ctrl = ret;
-+
-+	ret = mcu_gpiochip_add(mcu);
-+	if (ret)
-+		goto err;
-+
-+	/* XXX: this is potentially racy, but there is no lock for ppc_md */
-+	if (!ppc_md.power_off) {
-+		glob_mcu = mcu;
-+		ppc_md.power_off = mcu_power_off;
-+		dev_info(&client->dev, "will provide power-off service\n");
-+	}
-+
-+	return 0;
-+err:
-+	kfree(mcu);
-+	return ret;
-+}
-+
-+static int __devexit mcu_remove(struct i2c_client *client)
-+{
-+	struct mcu *mcu = i2c_get_clientdata(client);
-+	int ret;
-+
-+	if (glob_mcu == mcu) {
-+		ppc_md.power_off = NULL;
-+		glob_mcu = NULL;
-+	}
-+
-+	ret = mcu_gpiochip_remove(mcu);
-+	if (ret)
-+		return ret;
-+	i2c_set_clientdata(client, NULL);
-+	kfree(mcu);
-+	return 0;
-+}
-+
-+static const struct i2c_device_id mcu_ids[] = {
-+	{ "mc9s08qg8-mpc8349emitx", },
-+	{ "mc9s08qg8-mpc8377rdb", },
-+	{ "mc9s08qg8-mpc8378rdb", },
-+	{ "mc9s08qg8-mpc8379rdb", },
-+	{ "mc9s08qg8-mpc8315rdb", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(i2c, mcu_ids);
-+
-+static struct i2c_driver mcu_driver = {
-+	.driver = {
-+		.name = "mcu-mpc8349emitx",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = mcu_probe,
-+	.remove	= __devexit_p(mcu_remove),
-+	.id_table = mcu_ids,
-+};
-+
-+static int __init mcu_init(void)
-+{
-+	return i2c_add_driver(&mcu_driver);
-+}
-+module_init(mcu_init);
-+
-+static void __exit mcu_exit(void)
-+{
-+	i2c_del_driver(&mcu_driver);
-+}
-+module_exit(mcu_exit);
-+
-+MODULE_DESCRIPTION("Power Management and GPIO expander driver for "
-+		   "MPC8349E-mITX-compatible MCU");
-+MODULE_AUTHOR("Anton Vorontsov <avorontsov@ru.mvista.com>");
-+MODULE_LICENSE("GPL");
+> 
+> Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+> ---
+>  include/linux/mod_devicetable.h |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index c4db582..9d9d1f5 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -379,7 +379,7 @@ struct virtio_device_id {
+>  
+>  /* i2c */
+>  
+> -#define I2C_NAME_SIZE	20
+> +#define I2C_NAME_SIZE	23
+>  #define I2C_MODULE_PREFIX "i2c:"
+>  
+>  struct i2c_device_id {
+
+
 -- 
-1.5.6.3
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
