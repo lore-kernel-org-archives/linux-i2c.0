@@ -1,14 +1,11 @@
 From: Luca Santini <luca.santini-wNesuFfO2Ajz1n+OaKNE4w@public.gmane.org>
 Subject: tvp5150 new style i2c driver
-Date: Fri, 19 Sep 2008 17:27:10 +0200
-Message-ID: <48D3C4CE.80404@spesonline.com>
-References: <697640.78220.qm@web95212.mail.in2.yahoo.com>
-	<20080919144231.780fb37a@hyperion.delvare>
+Date: Fri, 19 Sep 2008 17:30:43 +0200
+Message-ID: <48D3C5A3.3080802@spesonline.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080919144231.780fb37a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -39,7 +36,6 @@ Luca Santini
 
 
 p.s. i have no idea how previous post fallen into the wrong thread !
-
 
 _______________________________________________
 i2c mailing list
