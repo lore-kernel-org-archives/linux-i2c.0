@@ -1,7 +1,8 @@
-From: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
-Subject: pca9665
-Date: Wed, 17 Sep 2008 12:30:29 -0300
-Message-ID: <48D12295.8080008@gamic.com>
+From: kalhan trisal <kalhantrisal-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: need soem help realter to I2C client
+Date: Fri, 19 Sep 2008 12:03:56 +0530 (IST)
+Message-ID: <697640.78220.qm@web95212.mail.in2.yahoo.com>
+Reply-To: kalhantrisal-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,23 +19,69 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram.
+Hello, 
+   I have platform which has 5 hw devices and I want single driver to control all the devices. I donot need probe as I know the devices are present and I know all the slave address. The interface for read write is using sysfs and I am planning to put it under hwmon. These all devices are separate chips.
 
-I looked into the code for i2c-algo-pca.c and, if I don't want to 
-implement the buffered mode (I can live without it for a while), the 
-only changes I need to do are:
-1. Implement the reset via parallel bus.
-2. Change the way the i2c clock rate is treated, by passing the 
-frequency directly instead of an index.
+   Can I do this please let me know.
 
-After this, this module could handle both chips. I need your advice:
-Should I just duplicate all code and make the changes to this new algo 
-or should I add a chip_type field to i2c_algo_pca_data and handle the 
-chip on the existing algo code?
 
-Thanks in advance,
+ struct foo_data { 
+    struct i2c_client client_data[5]; 
+   }; 
 
-Marco
+int foo_detect_client(struct i2c_adapter *adapter, int address,  
+                         unsigned short flags, int kind) 
+{ 
+     int err = 0; 
+     int i; 
+     int addrtemp[]= {0x42,0x45,0x46,0x47,0x48};
+     struct i2c_client *new_client; 
+     struct foo_data *data; 
+     const char *client_name = "";
+     
+      For(i=0;i<5;i++)
+      {
+           new_client = &data->client_data[i];
+           new_client->addr = addrtemp[i]; 
+           new_client->data = data; //lets consider it is same 
+           new_client->adapter = adapter; 
+           new_client->driver = &foo_driver; 
+           new_client->flags = 0; 
+     
+           strcpy(new_client->name,client_name); 
+          /* Tell the i2c layer a new client has arrived */ 
+          if ((err = i2c_attach_client(new_client))) 
+      }
+}
+
+Thanks
+Kalhan 
+
+--- On Thu, 18/9/08, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org> wrote:
+
+> From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+> Subject: Re: need soem help realter to I2C
+> To: kalhantrisal-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+> Date: Thursday, 18 September, 2008, 8:01 PM
+> Hello,
+> 
+> I'm very busy those days, but I think you will get the
+> answer on I2C mailing 
+> list. You dont need to be subscribed. But please be more
+> specic what do you mean 
+> by adapter, the sw entity in i2c subsys or real adapter?
+> Are you writing your 
+> own driver? Please explain there what you want to do more
+> globaly.
+> 
+> Please mail your question there, I can reply later,
+> 
+> Here is the mail i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+> 
+> Rudolf
+
+
+      Unlimited freedom, unlimited storage. Get it now, on http://help.yahoo.com/l/in/yahoo/mail/yahoomail/tools/tools-08.html/
 
 _______________________________________________
 i2c mailing list
