@@ -1,17 +1,16 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: PCA9665 support added to i2c-algo-pca and i2c-pca-isa.c
-Date: Wed, 24 Sep 2008 14:57:03 +0200
-Message-ID: <20080924125703.GB12845@pengutronix.de>
-References: <48D3B5B7.1060402@gamic.com> <20080919145500.GH4307@pengutronix.de>
-	<48D3C74E.1050801@gamic.com>
-	<20080920072131.GB12497@pengutronix.de>
-	<c76dcaf00809200409r7e0420c9rcb83a654d40e217a@mail.gmail.com>
-	<c76dcaf00809200510k7e6b4648v630dc33bf6401cca@mail.gmail.com>
-	<c76dcaf00809240545k4b7daf53ydbf374a88a5d686a@mail.gmail.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [patch 2.6.27-rc7] i2c: guard against oopses from bad
+	init sequences
+Date: Wed, 24 Sep 2008 08:55:52 -0700
+Message-ID: <200809240855.53043.david-b@pacbell.net>
+References: <200809231138.19583.david-b@pacbell.net>
+	<20080924115527.315d2968@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5094650892494207466=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <c76dcaf00809240545k4b7daf53ydbf374a88a5d686a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20080924115527.315d2968-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,64 +20,51 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wednesday 24 September 2008, Jean Delvare wrote:
+> Hi David,
+> 
+> On Tue, 23 Sep 2008 11:38:19 -0700, David Brownell wrote:
+> > From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> > 
+> > Guard I2C against oopsing because of init sequence problems...
+> > 
+> > Alternatively have postcore_initcall(i2c_init), which may
+> > be better ... the initcall levels are pretty limited, and
+> > in these cases the "subsystem" of interest builds on I2C
+> > and needs to work before device_initcall.  Having I2C use
+> > subsys_initcall kind of forces things into fs_initcall.
+> > 
+> > I'd encourage the anti-oopsing paranoia in any case, even
+> > if i2c switches to postcore_initcall (or earlier).
+> 
+> I'm confused. If i2c_register_adapter() is called before i2c_init(),
+> your patch prevents an oops, but things will still not work, right?
 
---===============5094650892494207466==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
-Content-Disposition: inline
-
-
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Marco,
-
-On Wed, Sep 24, 2008 at 09:45:06AM -0300, Marco Aurelio da Costa wrote:
-
-> Did you have time to look into the patch I sent?
-
-I had a look and found very minor issues only (spaces around operators),
-still I haven't had the time to actually test it on my pca9564-device. I
-haven't forgotten, but it is one of those weeks... :(
-
-All the best,
-
-   Wolfram
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFI2jkfD27XaX1/VRsRAj1lAJ0ajcgzsKq9IaZAnlFO4cxVPOduEgCfcgip
-UYDrFK1Z7jFxMGnyzU92b7Q=
-=Mwk/
------END PGP SIGNATURE-----
-
---oLBj+sq0vYjzfsbl--
+And it warns about exactly where the problem came from,
+because of the WARN_ON.  That addresses a long-standing
+debuggability problem which has afflicted these issues.
 
 
---===============5094650892494207466==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> So 
+> this doesn't seem to add much value. In any case we need to fix the
+> init sequence, so let's just do that.
+
+I'll send in a separate patch switching the driver model init
+to a postcore_initcall() -- it's not arch-specific and there
+seems no reason to have it earlier.
+
+Semi-related:  that module init/exit code is at a wierd place,
+in the middle of that file ... vs the conventional location at
+the end.  OK to change that?  In the same patch, or separate?
+
+- Dave
+
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============5094650892494207466==--
