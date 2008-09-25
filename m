@@ -1,86 +1,29 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.27-rc7] gpio: i2c expanders use subsys_init
-Date: Wed, 24 Sep 2008 10:40:43 -0700
-Message-ID: <200809241040.43943.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754643AbYIXRk4@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+From: Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 0/8] Updates for i2c-omap from linux-omap tree for review
+Date: Thu, 25 Sep 2008 10:16:26 +0300
+Message-ID: <1222326994-26836-1-git-send-email-tony@atomide.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: i2c@lm-sensors.org
+Cc: linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+Hi all,
 
-Make the I2C external GPIO expander drivers register themselves
-at subsys_initcall() time when they're statically linked.
+This series contains pending i2c-omap patches from linux-omap tree
+for review.
 
-SOC-integrated GPIOs are available starting very early -- early
-in arch_initcall() at latest, but often even before initcalls
-start to run -- so this improves consistency, so more subsystems
-can rely on GPIOs in their own subsys_initcall() code.
+Looks like we've managed to pile up stuff in the omap tree for this
+driver again... Anyways, future patches will be coming straight via
+the i2c list.
 
-(This isn't a theoretical problem.  This is one of several patches
-needed to resolve oopsing observed when statically linking kernels
-on a DaVinci EVM.  Its pcf857x GPIOs needed to be available well
-before some other drivers initialized.)
+The first two patches could be pushed as fixes to current -rc series,
+but I'm fine with them going in later too.
 
-This depends on a patch moving I2C's driver model init earlier
-in the boot sequence; otherwise this change would cause oopsing.
+I've left out some clean-up from the last patch so it won't conflict with
+omap ioremp changes that are currently in Russell King's devel
+branch.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
----
-For the 2.6.28-rc0 merge window.  Jean, can you include this
-in your I2C tree, so it only merges after the I2C init patch
-on which it depends?  We want "git bisect" to work.  ;)
+Regards,
 
- drivers/gpio/max732x.c |    5 ++++-
- drivers/gpio/pca953x.c |    5 ++++-
- drivers/gpio/pcf857x.c |    5 ++++-
- 3 files changed, 12 insertions(+), 3 deletions(-)
-
---- a/drivers/gpio/max732x.c
-+++ b/drivers/gpio/max732x.c
-@@ -372,7 +372,10 @@ static int __init max732x_init(void)
- {
- 	return i2c_add_driver(&max732x_driver);
- }
--module_init(max732x_init);
-+/* register after i2c postcore initcall and before
-+ * subsys initcalls that may rely on these GPIOs
-+ */
-+subsys_initcall(max732x_init);
- 
- static void __exit max732x_exit(void)
- {
---- a/drivers/gpio/pca953x.c
-+++ b/drivers/gpio/pca953x.c
-@@ -289,7 +289,10 @@ static int __init pca953x_init(void)
- {
- 	return i2c_add_driver(&pca953x_driver);
- }
--module_init(pca953x_init);
-+/* register after i2c postcore initcall and before
-+ * subsys initcalls that may rely on these GPIOs
-+ */
-+subsys_initcall(pca953x_init);
- 
- static void __exit pca953x_exit(void)
- {
---- a/drivers/gpio/pcf857x.c
-+++ b/drivers/gpio/pcf857x.c
-@@ -351,7 +351,10 @@ static int __init pcf857x_init(void)
- {
- 	return i2c_add_driver(&pcf857x_driver);
- }
--module_init(pcf857x_init);
-+/* register after i2c postcore initcall and before
-+ * subsys initcalls that may rely on these GPIOs
-+ */
-+subsys_initcall(pcf857x_init);
- 
- static void __exit pcf857x_exit(void)
- {
+Tony
