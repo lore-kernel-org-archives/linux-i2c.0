@@ -1,121 +1,46 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 8/8] i2c-omap: Clean-up i2c-omap
-Date: Thu, 25 Sep 2008 10:53:54 +0300
-Message-ID: <1222329234-31473-9-git-send-email-tony@atomide.com>
-References: <1222329234-31473-1-git-send-email-tony@atomide.com>
- <1222329234-31473-2-git-send-email-tony@atomide.com>
- <1222329234-31473-3-git-send-email-tony@atomide.com>
- <1222329234-31473-4-git-send-email-tony@atomide.com>
- <1222329234-31473-5-git-send-email-tony@atomide.com>
- <1222329234-31473-6-git-send-email-tony@atomide.com>
- <1222329234-31473-7-git-send-email-tony@atomide.com>
- <1222329234-31473-8-git-send-email-tony@atomide.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: SMBus of Sis650/961 P4 system not recognised
+Date: Thu, 25 Sep 2008 10:37:46 +0200
+Message-ID: <20080925103746.1f7bd810@hyperion.delvare>
+References: <1221391781.31885.22.camel@localhost>
+	<20080920134329.5e1b2198@hyperion.delvare>
+	<1221928948.32367.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1222329234-31473-8-git-send-email-tony@atomide.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: i2c@lm-sensors.org
-Cc: linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <1221928948.32367.4.camel@localhost>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Minor checkpatch and formatting clean-up. Also update copyrights.
+Hi Martin,
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
----
- drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++------------
- 1 files changed, 16 insertions(+), 12 deletions(-)
+Please keep the i2c list Cc'd.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-oma=
-p.c
-index 5c54864..a41b655 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -2,13 +2,15 @@
-  * TI OMAP I2C master mode driver
-  *
-  * Copyright (C) 2003 MontaVista Software, Inc.
-- * Copyright (C) 2004 Texas Instruments.
-- *
-- * Updated to work with multiple I2C interfaces on 24xx by
-- * Tony Lindgren <tony@atomide.com> and Imre Deak <imre.deak@nokia.com=
->
-  * Copyright (C) 2005 Nokia Corporation
-+ * Copyright (C) 2004 - 2007 Texas Instruments.
-  *
-- * Cleaned up by Juha Yrj=C3=B6l=C3=A4 <juha.yrjola@nokia.com>
-+ * Originally written by MontaVista Software, Inc.
-+ * Additional contributions by:
-+ *	Tony Lindgren <tony@atomide.com>
-+ *	Imre Deak <imre.deak@nokia.com>
-+ *	Juha Yrj=C3=B6l=C3=A4 <juha.yrjola@nokia.com>
-+ *	Syed Khasim <x0khasim@ti.com>
-  *
-  * This program is free software; you can redistribute it and/or modif=
-y
-  * it under the terms of the GNU General Public License as published b=
-y
-@@ -33,8 +35,7 @@
- #include <linux/completion.h>
- #include <linux/platform_device.h>
- #include <linux/clk.h>
--
--#include <asm/io.h>
-+#include <linux/io.h>
-=20
- /* timeout waiting for the controller to respond */
- #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
-@@ -215,7 +216,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- 	dev->iestate =3D omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
- 	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
- 	if (dev->rev1)
--		iv =3D omap_i2c_read_reg(dev, OMAP_I2C_IV_REG);	/* Read clears */
-+		iv =3D omap_i2c_read_reg(dev, OMAP_I2C_IV_REG); /* Read clears */
- 	else
- 		omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, dev->iestate);
- 	/*
-@@ -334,9 +335,9 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
-=20
- 	/* Enable interrupts */
- 	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
--			   (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
--			    OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
--			    OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
-+			(OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
-+			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
-+			OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
- 				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0));
- 	return 0;
- }
-@@ -402,8 +403,10 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *a=
-dap,
- 		w |=3D OMAP_I2C_CON_XA;
- 	if (!(msg->flags & I2C_M_RD))
- 		w |=3D OMAP_I2C_CON_TRX;
-+
- 	if (!dev->b_hw && stop)
- 		w |=3D OMAP_I2C_CON_STP;
-+
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, w);
-=20
- 	/*
-@@ -476,7 +479,8 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_=
-msg msgs[], int num)
-=20
- 	omap_i2c_unidle(dev);
-=20
--	if ((r =3D omap_i2c_wait_for_bb(dev)) < 0)
-+	r =3D omap_i2c_wait_for_bb(dev);
-+	if (r < 0)
- 		goto out;
-=20
- 	for (i =3D 0; i < num; i++) {
---=20
-1.5.6.rc3.21.g8c6b5
+On Sat, 20 Sep 2008 17:42:27 +0100, subscriptions-EwJsF0SrM7dWk0Htik3J/w@public.gmane.org wrote:
+> your response is most appreciated. ! However after loading the 12c-dev
+> module successfully I cannot run i2cdetect as it seems not to be a part
+> of the latest lm-sensors (3.0.2) for 2.6 kernels.
+> 
+> What should I do to cure the absence of this detection utility ?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+i2cdetect is part of the i2c-tools package:
+http://www.lm-sensors.org/wiki/I2CTools
+
+-- 
+Jean Delvare
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
