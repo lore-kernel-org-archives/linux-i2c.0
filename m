@@ -1,16 +1,13 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [lm-sensors] [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Thu, 25 Sep 2008 19:01:59 -0700
-Message-ID: <200809251902.00201.david-b@pacbell.net>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200809231532.40083.david-b@pacbell.net>
-	<Pine.LNX.4.64.0809251728130.7680@t2.domain.actdsltmp>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Question about vt82c596 SMBus driver (Via I2c Bus driver)
+Date: Fri, 26 Sep 2008 09:28:46 +0200
+Message-ID: <20080926092846.63ac885a@hyperion.delvare>
+References: <6601CF63C167F44A9A9E97E41EE4B16C902D37@CLUSTEREX.corporate.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0809251728130.7680-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <6601CF63C167F44A9A9E97E41EE4B16C902D37-5t2rvgrEeX4DiO1sSoDvakTPyXqlV3SlZkel5v8DVj8@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,88 +17,51 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: "Mortha, Prakash" <pmortha-UATguYvZg3tBDgjK7y7TUQ@public.gmane.org>
+Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 25 September 2008, Trent Piepho wrote:
-> On Tue, 23 Sep 2008, David Brownell wrote:
-> > From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> >
-> >       NOTE:  it's nicest if this is edge triggered, but the code
-> >       should handle level triggered IRQs too.
+Hi Prakash,
+
+Removing Kyosti and Mark, who have stepped back long ago, and adding
+the i2c mailing list instead, where people may have insight about your
+problem.
+
+On Thu, 25 Sep 2008 10:25:50 -0400, Mortha, Prakash wrote:
+> I am working with I2c bus driver in Via Ex mother board.
 > 
-> It seems like one could miss an IRQ with edge triggered interrupts.  If a
-> second interrupt from another device
+> I am trying to communicate with Micronas chip (MAP5401) on SMBus.
+> 
+> I need to send 1 sub command and 2 bytes of register address and then
+> have to read 2 bytes of data. For this to work I am trying to implement
+> I2C_SMBUS_PROC_CALL in function vt596_access() in the file
+> drivers/i2c/busses/i2c-viapro.c
+> 
+> One of the requirement here is I need to send REPEATED START after
+> sending 1 command byte and 2 register address bytes before reading 2
+> data bytes. But when I use the logic analyzer I could see that a STOP
+> being sent when I expect a REPEATED START.
+> 
+> How to I implement SMBus Process Call functionality. Please guide me.
 
-You mean, a second device pulling SMBALERT# low?  No problem.
-SMB hosts must poll until no more devices respond to the Alert
-Response Address -- and thus nobody will be pulling it low.
+Well, these VIA chips aren't I2C chips where you have full control of
+the clock and data lines, but SMBus master chips with a limited set of
+commands available. The SMBus Process Call is one of these commands, it
+is supposed to be supported by the VIA chips (protocol = 0100b). Adding
+support to the i2c-viapro driver should be trivial.
 
-> occurs while the first is asserted, then 
-> there won't be another edge and the second interrupt will be missed.
+However, if you did that and the logic analyzer reveals that the VIA
+chip doesn't implement the command properly, then this is a hardware
+bug and unfortunately there's nothing we can do. This makes me a bit
+curious... did you test the other commands with your logic analyzer to
+make sure they are correct?
 
-SMBALERT# is defined to be level triggered, active low.  But
-it's common to have only edge-triggered IRQ lines available.
-And there's an obvious equivalence between triggering once on
-a falling edge, and once when the edge has completely fallen.
-(And an obvious difference too, which is why "it's nicest if
-this is edge triggered.")
+Can you show us the patch you wrote?
 
-So long that line isn't shared with device(s) not following
-the SMBALERT# protcool you're fine.  By design and definition.
+What exact VIA chip are you using?
 
-
-> If all the devices on the irq are smbalerts, then maybe you are ok. 
-
-If the line is not obeying SMBALERT# signaling rules ... your
-hardware design is deeply buggy, go and replace it.  Or at least
-get them to stop claiming SMBALERT# support; they've just got
-some kind of hard-to-manage shared IRQ line.
-
-
-> I didn't try to use smbalert.  I'm not sure if my i2c adapter supports it.
-
-It's not a question of the I2C adapter supporting it.  It's a
-question of whether there's an SMBALERT# signal on your board,
-which can generate an interrupt.  If it can, this patch has an
-IRQ handler which implements the SMBus alert protocol.  Think
-of it as sideband signaling ... unknown to that adapter.
-
-
-> I associated the irq with the lm63 instead of the i2c adapter and put the
-> handler in the lm63 driver.  The code in drivers/of/of_i2c.c will map the irq
-> for me and add it to board_info for the lm63.
-
-Which may be fine for your specific application.  But it's not
-the SMBALERT# protocol, and that solution won't work when the
-system requires SMBALERT#.  (I read the lm63 spec.  It's very
-explicit about supporting that protocol.  There are other ways
-to use its IRQ generation too.)
-
-
-> A bigger problem is what happens while the alert continues.  The LM63 will
-> disable the alert irq until some code re-enables it. 
-
-That is, it disables its own generation of the alert signal.
-IRQs are on the host side; the lm63 hardware can't disable them.
-
-
-> At that point it will 
-> generate a new alert irq at the next internal temperature conversion (default
-> 16 Hz).  So when does the irq get re-enabled?  After acking it?  Then the
-> interrupt will be generated 16 times per second while the alert persists, is
-> that desirable?
-
-That's your job, if you're writing an alert() handler.  It'd
-probably be more intelligent not to re-enable the lm63 alert
-mode until the temperature is back in spec.  The TMP75 sensor
-I used was much more intelligent about that.
-
-- Dave
-
-
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
