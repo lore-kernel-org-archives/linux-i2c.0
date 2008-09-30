@@ -1,14 +1,11 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: guard against oopses from bad
- init sequences
-Date: Tue, 30 Sep 2008 11:29:20 +0200
-Message-ID: <20080930112920.11d0326c@hyperion.delvare>
-References: <200809231138.19583.david-b@pacbell.net>
+Subject: [PATCH] i2c: Only build Tyan SMBus mux drivers on x86
+Date: Tue, 30 Sep 2008 11:51:46 +0200
+Message-ID: <20080930115146.50ae52d7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200809231138.19583.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,104 +15,38 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+The two Tyan SMBus mux drivers (i2c-amd756-s4882 and i2c-nforce2-s4985)
+are only useful on specific x86 motherboards, so there is no point in
+letting them be built on other architectures.
 
-On Tue, 23 Sep 2008 11:38:19 -0700, David Brownell wrote:
-> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> 
-> Guard I2C against oopsing because of init sequence problems, by
-> verifying that i2c_init() has been called before calling any
-> routines that rely on that initialization.  This specific test
-> just requires that bus_register(&i2c_bus_type) was called.
-> 
-> Examples of this kind of oopsing come from subystems and drivers
-> which register I2C drivers in their subsys_initcall code but
-> which are statically linked before I2C by drivers/Makefile.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> ---
-> Alternatively have postcore_initcall(i2c_init), which may
-> be better ... the initcall levels are pretty limited, and
-> in these cases the "subsystem" of interest builds on I2C
-> and needs to work before device_initcall.  Having I2C use
-> subsys_initcall kind of forces things into fs_initcall.
-> 
-> I'd encourage the anti-oopsing paranoia in any case, even
-> if i2c switches to postcore_initcall (or earlier).
-> 
->  drivers/i2c/i2c-core.c |   10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -443,6 +443,12 @@ static int i2c_register_adapter(struct i
->  
->  	mutex_lock(&core_lock);
->  
-> +	/* can't register until after driver model init */
-> +	if (WARN_ON(!i2c_bus_type.p)) {
-> +		res = -ENOENT;
-> +		goto out_list;
-> +	}
-> +
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Why don't you test before acquiring core_lock? Or even, before doing
-anything else, as you do in i2c_register_driver. That's more consistent
-and makes the error path lighter.
-
->  	/* Add the adapter to the driver core.
->  	 * If the parent pointer is not set up,
->  	 * we add this adapter to the host bus.
-> @@ -696,6 +702,10 @@ int i2c_register_driver(struct module *o
->  {
->  	int res;
->  
-> +	/* can't register until after driver model init */
-> +	if (WARN_ON(!i2c_bus_type.p))
-> +		return -ENOENT;
-> +
->  	/* new style driver methods can't mix with legacy ones */
->  	if (is_newstyle_driver(driver)) {
->  		if (driver->attach_adapter || driver->detach_adapter
-
-Also, I see that you still have some love for unique error codes even
-where they don't match the actual error. There's hardly a file or
-directory involved here... I think -EAGAIN would make more sense, as
-the i2c bus type will become available at some later point in time.
-
-So, I would apply the following patch if that's OK with you:
-
- drivers/i2c/i2c-core.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- linux-2.6.27-rc8.orig/drivers/i2c/i2c-core.c	2008-09-30 10:14:21.000000000 +0200
-+++ linux-2.6.27-rc8/drivers/i2c/i2c-core.c	2008-09-30 11:19:30.000000000 +0200
-@@ -437,6 +437,10 @@ static int i2c_register_adapter(struct i
- {
- 	int res = 0, dummy;
+--- linux-2.6.27-rc8.orig/drivers/i2c/busses/Kconfig	2008-09-30 10:18:54.000000000 +0200
++++ linux-2.6.27-rc8/drivers/i2c/busses/Kconfig	2008-09-30 11:46:34.000000000 +0200
+@@ -55,7 +55,7 @@ config I2C_AMD756
  
-+	/* Can't register until after driver model init */
-+	if (WARN_ON(!i2c_bus_type.p))
-+		return -EAGAIN;
-+
- 	mutex_init(&adap->bus_lock);
- 	mutex_init(&adap->clist_lock);
- 	INIT_LIST_HEAD(&adap->clients);
-@@ -696,6 +700,10 @@ int i2c_register_driver(struct module *o
- {
- 	int res;
+ config I2C_AMD756_S4882
+ 	tristate "SMBus multiplexing on the Tyan S4882"
+-	depends on I2C_AMD756 && EXPERIMENTAL
++	depends on I2C_AMD756 && X86 && EXPERIMENTAL
+ 	help
+ 	  Enabling this option will add specific SMBus support for the Tyan
+ 	  S4882 motherboard.  On this 4-CPU board, the SMBus is multiplexed
+@@ -149,7 +149,7 @@ config I2C_NFORCE2
  
-+	/* Can't register until after driver model init */
-+	if (WARN_ON(!i2c_bus_type.p))
-+		return -EAGAIN;
-+
- 	/* new style driver methods can't mix with legacy ones */
- 	if (is_newstyle_driver(driver)) {
- 		if (driver->attach_adapter || driver->detach_adapter
+ config I2C_NFORCE2_S4985
+ 	tristate "SMBus multiplexing on the Tyan S4985"
+-	depends on I2C_NFORCE2 && EXPERIMENTAL
++	depends on I2C_NFORCE2 && X86 && EXPERIMENTAL
+ 	help
+ 	  Enabling this option will add specific SMBus support for the Tyan
+ 	  S4985 motherboard.  On this 4-CPU board, the SMBus is multiplexed
 
 
 -- 
