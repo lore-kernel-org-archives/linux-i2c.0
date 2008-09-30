@@ -1,46 +1,69 @@
-From: Jarkko Nikula <jarkko.nikula@nokia.com>
-Subject: Re: [i2c] [PATCH 1/8] i2c-omap: Do not use interruptible wait call
- in omap_i2c_xfer_msg
-Date: Tue, 30 Sep 2008 14:51:00 +0300
-Message-ID: <20080930145100.62fdb0fa.jarkko.nikula@nokia.com>
-References: <1222329234-31473-1-git-send-email-tony@atomide.com>
-	<1222329234-31473-2-git-send-email-tony@atomide.com>
-	<20080929222100.GN2716@fluff.org.uk>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 1/2] OF: add fsl,mcu-mpc8349emitx to the exception list
+Date: Tue, 30 Sep 2008 16:44:24 +0400
+Message-ID: <20080930124424.GA6878@oksana.dev.rtsoft.ru>
+References: <20080923141219.GA31262@oksana.dev.rtsoft.ru>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20080929222100.GN2716@fluff.org.uk>
-Sender: linux-omap-owner@vger.kernel.org
-To: ext Ben Dooks <ben-linux@fluff.org>
-Cc: Tony Lindgren <tony@atomide.com>, i2c@lm-sensors.org, Juha Yrjola <juha.yrjola@solidboot.com>, linux-omap@vger.kernel.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <20080923141219.GA31262@oksana.dev.rtsoft.ru>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 29 Sep 2008 23:21:00 +0100
-"ext Ben Dooks" <ben-linux@fluff.org> wrote:
-
-> On Thu, Sep 25, 2008 at 10:53:47AM +0300, Tony Lindgren wrote:
-> > From: Jarkko Nikula <jarkko.nikula@nokia.com>
-> > 
-> > If there is a signal pending and wait_for_completion_interruptible_timeout
-> > terminates with -ERESTARTSYS, we return and disable the i2c clocks in
-> > omap_i2c_xfer.
-> > 
-> > If we terminate before sending last i2c message with a stop condition, the
-> > bus remains busy and we are not able to send new messages into bus with
-> > successive omap_i2c_xfer calls. Therefore a pending signal is not caught
-> > here and we return only because of timeout or i2c error.
+On Tue, Sep 23, 2008 at 06:12:19PM +0400, Anton Vorontsov wrote:
+> of/base.c matches on the first (most specific) entries, which isn't
+> quite practical but it was discussed[1] that this won't change.
 > 
-> I assume that this is preferable to aborting an transfer when the
-> signal is caught (if possible) ?
+> The bindings specifies verbose information for the devices, but
+> it doesn't fit in the I2C ID's 20 characters limit. The limit won't
+> change[2], and the bindings won't change either as they're correct.
+> 
+> So we have to put an exception for the MPC8349E-mITX-compatible
+> MCUs.
+> 
+> [1] http://www.mail-archive.com/linuxppc-dev@ozlabs.org/msg21196.html
+> [2] http://www.nabble.com/-PATCH-1-2--i2c:-expand-I2C's-id.name-to-23-characters-td19577063.html
+> 
+> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+> ---
+>  drivers/of/base.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+
+Any issues with this or the second patch? Can we merge them?
+
+
+Thanks,
+
+> diff --git a/drivers/of/base.c b/drivers/of/base.c
+> index ad8ac1a..a726464 100644
+> --- a/drivers/of/base.c
+> +++ b/drivers/of/base.c
+> @@ -410,7 +410,7 @@ struct of_modalias_table {
+>  	char *modalias;
+>  };
+>  static struct of_modalias_table of_modalias_table[] = {
+> -	/* Empty for now; add entries as needed */
+> +	{ "fsl,mcu-mpc8349emitx", "mcu-mpc8349emitx" },
+>  };
 >  
-Most probably yes as long as the stop condition is generated
-successfully. IRCC bug behind this fix, OMAP I2C went into bus
-arbitration without code able to recover easily or something like that.
+>  /**
+> -- 
+> 1.5.6.3
 
-Would it be ok to let this fix as now, probably adding FIXME line near
-wait_for_completion_timeout so that we don't break anything now but
-note that this is not optimal fix?
-
-
-Jarkko
+-- 
+Anton Vorontsov
+email: cbouatmailru@gmail.com
+irc://irc.freenode.net/bd2
