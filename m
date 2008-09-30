@@ -1,69 +1,89 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: Re: [PATCH 1/2] OF: add fsl,mcu-mpc8349emitx to the exception list
-Date: Tue, 30 Sep 2008 16:44:24 +0400
-Message-ID: <20080930124424.GA6878@oksana.dev.rtsoft.ru>
-References: <20080923141219.GA31262@oksana.dev.rtsoft.ru>
-Reply-To: avorontsov@ru.mvista.com
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [patch 2.6.27-rc7] i2c: guard against oopses from bad
+	init sequences
+Date: Tue, 30 Sep 2008 08:50:41 -0700
+Message-ID: <200809300850.42213.david-b@pacbell.net>
+References: <200809231138.19583.david-b@pacbell.net>
+	<20080930112920.11d0326c@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20080930112920.11d0326c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080923141219.GA31262@oksana.dev.rtsoft.ru>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 23, 2008 at 06:12:19PM +0400, Anton Vorontsov wrote:
-> of/base.c matches on the first (most specific) entries, which isn't
-> quite practical but it was discussed[1] that this won't change.
-> 
-> The bindings specifies verbose information for the devices, but
-> it doesn't fit in the I2C ID's 20 characters limit. The limit won't
-> change[2], and the bindings won't change either as they're correct.
-> 
-> So we have to put an exception for the MPC8349E-mITX-compatible
-> MCUs.
-> 
-> [1] http://www.mail-archive.com/linuxppc-dev@ozlabs.org/msg21196.html
-> [2] http://www.nabble.com/-PATCH-1-2--i2c:-expand-I2C's-id.name-to-23-characters-td19577063.html
-> 
-> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
-> ---
->  drivers/of/base.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+On Tuesday 30 September 2008, Jean Delvare wrote:
 
-Any issues with this or the second patch? Can we merge them?
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -443,6 +443,12 @@ static int i2c_register_adapter(struct i
+> >  
+> >  	mutex_lock(&core_lock);
+> >  
+> > +	/* can't register until after driver model init */
+> > +	if (WARN_ON(!i2c_bus_type.p)) {
+> > +		res = -ENOENT;
+> > +		goto out_list;
+> > +	}
+> > +
+> 
+> Why don't you test before acquiring core_lock? Or even, before doing
+> anything else, as you do in i2c_register_driver. That's more consistent
+> and makes the error path lighter.
+
+One or the other was an afterthought.  I don't recall which one.  ;)
 
 
-Thanks,
+> So, I would apply the following patch if that's OK with you:
 
-> diff --git a/drivers/of/base.c b/drivers/of/base.c
-> index ad8ac1a..a726464 100644
-> --- a/drivers/of/base.c
-> +++ b/drivers/of/base.c
-> @@ -410,7 +410,7 @@ struct of_modalias_table {
->  	char *modalias;
->  };
->  static struct of_modalias_table of_modalias_table[] = {
-> -	/* Empty for now; add entries as needed */
-> +	{ "fsl,mcu-mpc8349emitx", "mcu-mpc8349emitx" },
->  };
+Sure ... I'll be happy to have such issues be more diagnosable.
+
+- Dave
+
+
+>  drivers/i2c/i2c-core.c |    8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> --- linux-2.6.27-rc8.orig/drivers/i2c/i2c-core.c	2008-09-30 10:14:21.000000000 +0200
+> +++ linux-2.6.27-rc8/drivers/i2c/i2c-core.c	2008-09-30 11:19:30.000000000 +0200
+> @@ -437,6 +437,10 @@ static int i2c_register_adapter(struct i
+>  {
+>  	int res = 0, dummy;
 >  
->  /**
-> -- 
-> 1.5.6.3
+> +	/* Can't register until after driver model init */
+> +	if (WARN_ON(!i2c_bus_type.p))
+> +		return -EAGAIN;
+> +
+>  	mutex_init(&adap->bus_lock);
+>  	mutex_init(&adap->clist_lock);
+>  	INIT_LIST_HEAD(&adap->clients);
+> @@ -696,6 +700,10 @@ int i2c_register_driver(struct module *o
+>  {
+>  	int res;
+>  
+> +	/* Can't register until after driver model init */
+> +	if (WARN_ON(!i2c_bus_type.p))
+> +		return -EAGAIN;
+> +
+>  	/* new style driver methods can't mix with legacy ones */
+>  	if (is_newstyle_driver(driver)) {
+>  		if (driver->attach_adapter || driver->detach_adapter
+> 
+> 
 
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
