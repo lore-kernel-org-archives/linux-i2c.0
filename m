@@ -1,60 +1,46 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: do earlier driver model init
-Date: Tue, 30 Sep 2008 13:13:07 +0200
-Message-ID: <20080930131307.5a1697bc@hyperion.delvare>
-References: <200809240915.39917.david-b@pacbell.net>
+From: Jarkko Nikula <jarkko.nikula@nokia.com>
+Subject: Re: [i2c] [PATCH 1/8] i2c-omap: Do not use interruptible wait call
+ in omap_i2c_xfer_msg
+Date: Tue, 30 Sep 2008 14:51:00 +0300
+Message-ID: <20080930145100.62fdb0fa.jarkko.nikula@nokia.com>
+References: <1222329234-31473-1-git-send-email-tony@atomide.com>
+	<1222329234-31473-2-git-send-email-tony@atomide.com>
+	<20080929222100.GN2716@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200809240915.39917.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20080929222100.GN2716@fluff.org.uk>
+Sender: linux-omap-owner@vger.kernel.org
+To: ext Ben Dooks <ben-linux@fluff.org>
+Cc: Tony Lindgren <tony@atomide.com>, i2c@lm-sensors.org, Juha Yrjola <juha.yrjola@solidboot.com>, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+On Mon, 29 Sep 2008 23:21:00 +0100
+"ext Ben Dooks" <ben-linux@fluff.org> wrote:
 
-On Wed, 24 Sep 2008 09:15:39 -0700, David Brownell wrote:
-> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> On Thu, Sep 25, 2008 at 10:53:47AM +0300, Tony Lindgren wrote:
+> > From: Jarkko Nikula <jarkko.nikula@nokia.com>
+> > 
+> > If there is a signal pending and wait_for_completion_interruptible_timeout
+> > terminates with -ERESTARTSYS, we return and disable the i2c clocks in
+> > omap_i2c_xfer.
+> > 
+> > If we terminate before sending last i2c message with a stop condition, the
+> > bus remains busy and we are not able to send new messages into bus with
+> > successive omap_i2c_xfer calls. Therefore a pending signal is not caught
+> > here and we return only because of timeout or i2c error.
 > 
-> Move I2C driver model init earlier in the boot sequence.
-> 
-> This avoids oopsing in statically linked systems when some
-> subsystems register I2C drivers in subsys_initcall() code,
-> but those subsystems are linked (and initialized) before I2C.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1143,7 +1143,7 @@ static void __exit i2c_exit(void)
->  	bus_unregister(&i2c_bus_type);
->  }
+> I assume that this is preferable to aborting an transfer when the
+> signal is caught (if possible) ?
 >  
-> -subsys_initcall(i2c_init);
-> +postcore_initcall(i2c_init);
->  module_exit(i2c_exit);
->  
+Most probably yes as long as the stop condition is generated
+successfully. IRCC bug behind this fix, OMAP I2C went into bus
+arbitration without code able to recover easily or something like that.
 
-Patch applied, thanks. Will go in 2.6.28, NOT 2.6.27 (too late there
-for such a change.)
+Would it be ok to let this fix as now, probably adding FIXME line near
+wait_for_completion_timeout so that we don't break anything now but
+note that this is not optimal fix?
 
--- 
-Jean Delvare
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jarkko
