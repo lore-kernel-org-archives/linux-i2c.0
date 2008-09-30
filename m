@@ -1,15 +1,14 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Question about vt82c596 SMBus driver (Via I2c Bus driver)
-Date: Tue, 30 Sep 2008 09:24:58 +0200
-Message-ID: <20080930092458.1c40edce@hyperion.delvare>
-References: <6601CF63C167F44A9A9E97E41EE4B16C902D37@CLUSTEREX.corporate.local>
-	<20080926092846.63ac885a@hyperion.delvare>
-	<6601CF63C167F44A9A9E97E41EE4B16C90304B@CLUSTEREX.corporate.local>
+Subject: Re: [patch 2.6.27-rc7] i2c: guard against oopses from bad
+ init sequences
+Date: Tue, 30 Sep 2008 11:29:20 +0200
+Message-ID: <20080930112920.11d0326c@hyperion.delvare>
+References: <200809231138.19583.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <6601CF63C167F44A9A9E97E41EE4B16C90304B-5t2rvgrEeX4DiO1sSoDvakTPyXqlV3SlZkel5v8DVj8@public.gmane.org>
+In-Reply-To: <200809231138.19583.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,70 +18,105 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Mortha, Prakash" <pmortha-UATguYvZg3tBDgjK7y7TUQ@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Prakash,
+Hi David,
 
-On Mon, 29 Sep 2008 11:49:30 -0400, Mortha, Prakash wrote:
-> I found the reason why drivers/i2c/busses/i2c-viapro.c is not supporting
-> I2C_SMBUS_PROC_CALL. The reason I found is as per the data sheet of Via
-> Chip set the "SMBus Command Protocol field" should be set as bits 4-2 in
-> "SMBus Host Control" register. But in the function 
+On Tue, 23 Sep 2008 11:38:19 -0700, David Brownell wrote:
+> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 > 
->       static int vt596_transaction(u8 size)
+> Guard I2C against oopsing because of init sequence problems, by
+> verifying that i2c_init() has been called before calling any
+> routines that rely on that initialization.  This specific test
+> just requires that bus_register(&i2c_bus_type) was called.
 > 
-> we are setting the "SMBus Command Protocol field" as bits 2-0:
+> Examples of this kind of oopsing come from subystems and drivers
+> which register I2C drivers in their subsys_initcall code but
+> which are statically linked before I2C by drivers/Makefile.
 > 
-> outb_p(0x40 | size, SMBHSTCNT); (Line 134 in
-> drivers/i2c/busses/i2c-viapro.c)
-
-"size" is supposed to be already shifted at this point. If you look at
-the constants:
-
-#define VT596_QUICK		0x00
-#define VT596_BYTE		0x04
-#define VT596_BYTE_DATA		0x08
-#define VT596_WORD_DATA		0x0C
-#define VT596_BLOCK_DATA	0x14
-#define VT596_I2C_BLOCK_DATA	0x34
-
-They really are (0x0 << 2), (0x1 << 2), (0x2 <<2) etc. Maybe we should
-write them that way to make it clearer.
-
-> When I changed the statement to shift the Protocol field by 2 bits
-> I2C_SMBUS_PROC_CALL worked and REPEATED START is being generated as per
-> SMBus Process call specification.
+> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> ---
+> Alternatively have postcore_initcall(i2c_init), which may
+> be better ... the initcall levels are pretty limited, and
+> in these cases the "subsystem" of interest builds on I2C
+> and needs to work before device_initcall.  Having I2C use
+> subsys_initcall kind of forces things into fs_initcall.
 > 
-> outb_p(0x40 | (size<<2), SMBHSTCNT);
+> I'd encourage the anti-oopsing paranoia in any case, even
+> if i2c switches to postcore_initcall (or earlier).
 > 
+>  drivers/i2c/i2c-core.c |   10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -443,6 +443,12 @@ static int i2c_register_adapter(struct i
 >  
-> 
-> Could you please confirm whether the reason I found is valid or not?
+>  	mutex_lock(&core_lock);
+>  
+> +	/* can't register until after driver model init */
+> +	if (WARN_ON(!i2c_bus_type.p)) {
+> +		res = -ENOENT;
+> +		goto out_list;
+> +	}
+> +
 
-No, it's not. Your change just happens to work by accident in your
-specific case. But the original code is correct as it is. Please
-remember that this driver has been used by thousands of people for many
-years now, so it's rather unlikely that the common code paths have such
-a huge bug.
+Why don't you test before acquiring core_lock? Or even, before doing
+anything else, as you do in i2c_register_driver. That's more consistent
+and makes the error path lighter.
 
-> Please find attached the patch I wrote. The Via Motherboard I am using
-> is EPIA Ex 1500G.  
+>  	/* Add the adapter to the driver core.
+>  	 * If the parent pointer is not set up,
+>  	 * we add this adapter to the host bus.
+> @@ -696,6 +702,10 @@ int i2c_register_driver(struct module *o
+>  {
+>  	int res;
+>  
+> +	/* can't register until after driver model init */
+> +	if (WARN_ON(!i2c_bus_type.p))
+> +		return -ENOENT;
+> +
+>  	/* new style driver methods can't mix with legacy ones */
+>  	if (is_newstyle_driver(driver)) {
+>  		if (driver->attach_adapter || driver->detach_adapter
 
-Please use "diff -u" to generate the patch, otherwise it's rather
-difficult to read. But your current patch doesn't look correct anyway.
-The first thing to do is to introduce a new constant for process call
-transactions:
+Also, I see that you still have some love for unique error codes even
+where they don't match the actual error. There's hardly a file or
+directory involved here... I think -EAGAIN would make more sense, as
+the i2c bus type will become available at some later point in time.
 
-#define VT596_PROC_CALL		0x10
+So, I would apply the following patch if that's OK with you:
 
-Then in vt596_access() you must set size = VT596_PROC_CALL for the
-I2C_SMBUS_PROC_CALL case. This is currently missing in your code (you
-do not set "size" at all!) and that's the reason why it didn't work.
+ drivers/i2c/i2c-core.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Also, you must add I2C_SMBUS_PROC_CALL to vt596_func(), otherwise users
-do not know that this protocol is supported.
+--- linux-2.6.27-rc8.orig/drivers/i2c/i2c-core.c	2008-09-30 10:14:21.000000000 +0200
++++ linux-2.6.27-rc8/drivers/i2c/i2c-core.c	2008-09-30 11:19:30.000000000 +0200
+@@ -437,6 +437,10 @@ static int i2c_register_adapter(struct i
+ {
+ 	int res = 0, dummy;
+ 
++	/* Can't register until after driver model init */
++	if (WARN_ON(!i2c_bus_type.p))
++		return -EAGAIN;
++
+ 	mutex_init(&adap->bus_lock);
+ 	mutex_init(&adap->clist_lock);
+ 	INIT_LIST_HEAD(&adap->clients);
+@@ -696,6 +700,10 @@ int i2c_register_driver(struct module *o
+ {
+ 	int res;
+ 
++	/* Can't register until after driver model init */
++	if (WARN_ON(!i2c_bus_type.p))
++		return -EAGAIN;
++
+ 	/* new style driver methods can't mix with legacy ones */
+ 	if (is_newstyle_driver(driver)) {
+ 		if (driver->attach_adapter || driver->detach_adapter
+
 
 -- 
 Jean Delvare
