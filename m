@@ -1,12 +1,16 @@
-From: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
-Subject: [PATCH] i2c: Floppy controller bus driver (V0.6.1)
-Date: Wed, 1 Oct 2008 19:08:27 +0200
-Message-ID: <20081001170827.GB1173@MAIL.13thfloor.at>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: PCA9665 support added to i2c-algo-pca and i2c-pca-isa.c
+Date: Wed, 1 Oct 2008 19:39:09 +0200
+Message-ID: <20081001173909.GG17953@pengutronix.de>
+References: <48D3B5B7.1060402@gamic.com> <20080919145500.GH4307@pengutronix.de>
+	<48D3C74E.1050801@gamic.com>
+	<20080920072131.GB12497@pengutronix.de>
+	<c76dcaf00809200409r7e0420c9rcb83a654d40e217a@mail.gmail.com>
+	<c76dcaf00809200510k7e6b4648v630dc33bf6401cca@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2164862613532693029=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <c76dcaf00809200510k7e6b4648v630dc33bf6401cca-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,858 +20,493 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: I2C ML <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-here is the latest version of the I2C floppy 
-controller bus driver, which is now completely
-configurable and can handle 'single floppy' type
-controllers (where the second motor control is
-missing).
+--===============2164862613532693029==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2E/hm+v6kSLEYT3h"
+Content-Disposition: inline
 
-please consider for (mainline) inclusion!
 
-TIA,
-Herbert
+--2E/hm+v6kSLEYT3h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
+Hi Marco,
 
-diff -NurpP --minimal linux-2.6.27-rc8/Documentation/i2c/busses/i2c-floppy linux-2.6.27-rc8-fi2c-v0.6.1/Documentation/i2c/busses/i2c-floppy
---- linux-2.6.27-rc8/Documentation/i2c/busses/i2c-floppy	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.27-rc8-fi2c-v0.6.1/Documentation/i2c/busses/i2c-floppy	2008-09-30 22:56:14.000000000 +0200
-@@ -0,0 +1,151 @@
-+Kernel driver i2c-floppy
-+
-+Author: Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
-+
-+This driver is for a simple do-it-yourself floppy controller
-+to I2C adapter which uses direct I/O access and the sense
-+command to control the output lines and query the input lines.
-+
-+Potential output lines are (for now):
-+
-+ Motor Enable A  [/MOTEA,  10]
-+ Drive Select B  [/DRVSB,  12]
-+ Drive Select A  [/DRVSA,  14]
-+ Motor Enable B  [/MOTEB,  16]
-+ Head Select     [/SIDE1,  32]
-+
-+Potential input lines are (for now):
-+
-+ Track 0         [/TRK00,  26]
-+ Write Protect   [/WPT,    28]
-+ Disk Change     [/DSKCHG, 34]
-+
-+Not all possible combinations are useable, as for example
-+the Drive Select lines depend on the respective Motor Enable
-+line. Nevertheless, the possible combinations can be selected
-+from the following table:
-+
-+ Mode             ENA             SDA          SCL
-+-------------------------------------------------------
-+   1               -          /MOTEA [10]  /MOTEB [16]
-+   2          /SIDE1 [32]     /MOTEA [10]  /MOTEB [16]
-+  -----------------------------------------------------
-+   3               -          /MOTEA [10]  /DRVSB [12]
-+   4          /MOTEB [16]     /MOTEA [10]  /DRVSB [12]
-+   5          /SIDE1 [32]     /MOTEA [10]  /DRVSB [12]
-+  -----------------------------------------------------
-+   6               -          /MOTEA [10]  /SIDE1 [32]
-+   7          /MOTEB [16]     /MOTEA [10]  /SIDE1 [32]
-+   8          /DRVSB [12]     /MOTEA [10]  /SIDE1 [32]
-+  -----------------------------------------------------
-+   9               -          /MOTEB [16]  /DRVSA [14]
-+  10 [0a]     /MOTEA [10]     /MOTEB [16]  /DRVSA [14]
-+  11 [0b]     /SIDE1 [32]     /MOTEB [16]  /DRVSA [14]
-+  -----------------------------------------------------
-+  12 [0c]          -          /MOTEB [16]  /SIDE1 [32]
-+  13 [0d]     /MOTEA [10]     /MOTEB [16]  /SIDE1 [32]
-+  14 [0e]     /DRVSA [14]     /MOTEB [16]  /SIDE1 [32]
-+  -----------------------------------------------------
-+  15 [0f]          -          /SIDE1 [32]  /DRVSA [14]
-+  16 [10]     /MOTEA [10]     /SIDE1 [32]  /DRVSA [14]
-+  17 [11]     /MOTEB [16]     /SIDE1 [32]  /DRVSA [14]
-+  18 [12]     /DRVSB [12]     /SIDE1 [32]  /DRVSA [14]
-+  -----------------------------------------------------
-+  19 [13]          -          /SIDE1 [32]  /DRVSB [12]
-+  20 [14]     /MOTEA [10]     /SIDE1 [32]  /DRVSB [12]
-+  21 [15]     /MOTEB [16]     /SIDE1 [32]  /DRVSB [12]
-+  22 [16]     /DRVSA [14]     /SIDE1 [32]  /DRVSB [12]
-+-------------------------------------------------------
-+
-+The following modifiers can be added to the selection:
-+
-+  32 0x0020      Swap SCL and SDA
-+  64 0x0040      Invert SDA Output
-+ 128 0x0080      Invert SCL Output
-+ 256 0x0100      Invert ENA Output
-+
-+
-+The input can be selected in a similar way, although it is
-+probably easier to use the autodetect feature there.
-+Nevertheless here is the table:
-+
-+ Mode            ENA            SDA           SCL
-+-------------------------------------------------------
-+   0         auto detect    auto detect   auto detect
-+  -----------------------------------------------------
-+   1              -         /DSKCHG [34]       -
-+   2              -         /TRK00  [26]       -
-+   3              -         /WPT    [28]       -
-+  -----------------------------------------------------
-+   4              -         /DSKCHG [34]  /TRK00  [26]
-+   5              -         /TRK00  [26]  /WPT    [28]
-+   6              -         /WPT    [28]  /DSKCHG [34]
-+  -----------------------------------------------------
-+   7         /DSKCHG [34]   /TRK00  [26]       -
-+   8         /DSKCHG [34]   /WPT    [28]       -
-+   9         /DSKCHG [34]   /TRK00  [26]  /WPT    [28]
-+  -----------------------------------------------------
-+  10 [0a]    /TRK00  [26]   /DSKCHG [34]       -
-+  11 [0b]    /TRK00  [26]   /WPT    [28]       -
-+  12 [0c]    /TRK00  [26]   /WPT    [28]  /DSKCHG [34]
-+  -----------------------------------------------------
-+  13 [0d]    /WPT    [28]   /DSKCHG [34]       -
-+  14 [0e]    /WPT    [28]   /TRK00  [26]       -
-+  15 [0f]    /WPT    [28]   /DSKCHG [34]  /TRK00  [26]
-+-------------------------------------------------------
-+
-+In addition, the same modifiers can be applied as for the
-+output.
-+
-+
-+The following (minimal) circuit is not suited to be used
-+together with a Floppy drive (which would need some logic
-+to work properly) but as replacement.
-+
-+ +---+
-+ | F |  Motor Enable A [/MOTEA,10] -------------- SCL
-+ | L |
-+ | O |  Motor Enable B [/MOTEB,16] ------+------- SDA
-+ | P |                                   |
-+ | P |                                   |
-+ | Y |  Disk Change   [/DSKCHG,34] ------+    +-- GND
-+ +-+-+                                        |
-+   |                                          |
-+  GND	                                     GND
-+
-+The Motor Enable output of floppy disk controllers is an open
-+drain output (48mA), usually pulled up to +5V via 1k or higher,
-+and the Disk Change is a Schmitt Trigger (0.8V/2.2V) input with
-+max 150uA input current (data taken from the WD/FDC 37C6xx
-+Floppy Disk Subsystem Controller datasheets, which basically
-+combine all the necessary parts of the PC floppy circuit).
-+
-+So it should be fine to connect it to all 5V I2C devices, and
-+most 3.3V devices (which are usually capable of handling 5V
-+I2C bus voltages).
-+
-+Power for those devices can be drawn from either the Floppy
-+power connector (+5V/+12V) or from the SATA 3.3V lines
-+(or if you prefer from some external source).
-+
-+
-+Here is a slightly more advanced circuit, which works on
-+controllers with reduced functionality (i.e. without control
-+lines for a second drive), while allowing for SCL readback
-+(and thus clock stretching):
-+
-+
-+ +---+
-+ |   |  Motor Enable A [/MOTEA,10] -------------- ENA
-+ | F |
-+ | L |  Drive Select A [/DRVSA,14] ------+------- SDA
-+ | O |                                   |
-+ | P |  Write Protect  [/WPT,28] --------+
-+ | P |
-+ | Y |  Head Select    [/SIDE1,32] ------+------- SCL
-+ |   |                                   |
-+ |   |  Disk Change    [/DSKCHG,34] -----+    +-- GND
-+ +-+-+                                        |
-+   |                                          |
-+  GND	                                     GND
-+
-diff -NurpP --minimal linux-2.6.27-rc8/drivers/i2c/busses/i2c-floppy.c linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/i2c-floppy.c
---- linux-2.6.27-rc8/drivers/i2c/busses/i2c-floppy.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/i2c-floppy.c	2008-10-01 18:34:32.000000000 +0200
-@@ -0,0 +1,626 @@
-+/* ------------------------------------------------------------------------ *
-+ * i2c-floppy.c I2C bus over floppy controller                              *
-+ * ------------------------------------------------------------------------ *
-+   Copyright (C) 2008 Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>
-+
-+   Somewhat based on i2c-parport-light.c driver
-+   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-+
-+   This program is free software; you can redistribute it and/or modify
-+   it under the terms of the GNU General Public License as published by
-+   the Free Software Foundation; either version 2 of the License, or
-+   (at your option) any later version.
-+
-+   This program is distributed in the hope that it will be useful,
-+   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+   GNU General Public License for more details.
-+
-+   You should have received a copy of the GNU General Public License
-+   along with this program; if not, write to the Free Software
-+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ * ------------------------------------------------------------------------ */
-+
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/ioport.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-algo-bit.h>
-+#include <linux/delay.h>
-+#include <linux/io.h>
-+
-+static struct platform_device *pdev;
-+static unsigned char dor;
-+
-+static u16 base;
-+module_param(base, ushort, 0);
-+MODULE_PARM_DESC(base, "Base I/O address");
-+
-+static u16 delay;
-+module_param(delay, ushort, 0);
-+MODULE_PARM_DESC(base, "Signal delay");
-+
-+
-+#define DEFAULT_BASE	0x3F0		/* for PC style hardware */
-+#define DRVNAME		"i2c-floppy"
-+
-+
-+#define FOFF_DOR	0x02
-+#define FOFF_MSR	0x04
-+#define FOFF_DATA	0x05
-+#define FOFF_CCR	0x07
-+#define FOFF_DIR	0x07
-+
-+
-+#define	FDOR_MOA	0x10
-+#define	FDOR_MOB	0x20
-+#define	FDOR_DS0	0x01
-+#define	FDOR_DS1	0x02
-+
-+#define	FDOR_RESET	0x04
-+
-+#define	FDIR_CHG	0x80
-+
-+#define	FMSR_RQM	0x80
-+#define	FMSR_DIO	0x40
-+#define	FMSR_CMD	0x10
-+
-+#define	FCMD_SENSE	0x04
-+#define	FCMS_HDS	0x04
-+
-+#define	FST3_T0		0x10
-+#define	FST3_WP		0x40
-+
-+
-+/* ----- Low-level floppy access ------------------------------------------ */
-+
-+static inline void port_dor_out(unsigned char d)
-+{
-+	outb(d, base + FOFF_DOR);
-+}
-+
-+static inline unsigned char port_dir_in(void)
-+{
-+	return inb(base + FOFF_DIR);
-+}
-+
-+static inline unsigned char port_msr_in(void)
-+{
-+	return inb(base + FOFF_MSR);
-+}
-+
-+static inline void port_data_out(unsigned char d)
-+{
-+	outb(d, base + FOFF_DATA);
-+}
-+
-+static inline unsigned char port_data_in(void)
-+{
-+	return inb(base + FOFF_DATA);
-+}
-+
-+
-+/* ----- Floppy controller sense ------------------------------------------ */
-+
-+
-+static inline unsigned char msr_wait(
-+	unsigned mask, unsigned val, int timeout)
-+{
-+	unsigned char st;
-+
-+	/* wait for controller */
-+	while (((st = port_msr_in()) & mask) != val)
-+		if (!--timeout)
-+			break;
-+
-+	if (timeout)
-+		return st;
-+
-+	pr_err(DRVNAME ": timeout reached ... %02x/%02x\n", dor, st);
-+	return 0;
-+}
-+
-+unsigned char cmd_sense(unsigned char head)
-+{
-+	unsigned char st;
-+
-+	/* wait for controller */
-+	msr_wait(FMSR_RQM|FMSR_CMD, FMSR_RQM, 5000);
-+
-+	port_data_out(FCMD_SENSE);
-+	st = msr_wait(FMSR_RQM, FMSR_RQM, 5000);
-+
-+	if (!(st & FMSR_CMD))
-+		return 0;
-+
-+	port_data_out(head ? FCMS_HDS : 0);
-+	st = msr_wait(FMSR_RQM, FMSR_RQM, 5000);
-+
-+	if (!(st & FMSR_CMD))
-+		return 0;
-+
-+	return port_data_in();
-+}
-+
-+
-+/* ----- Output and input lines ------------------------------------------- */
-+
-+#define	LINE_OFF	0x00
-+
-+	/* output lines */
-+
-+#define	LINE_MOA	FDOR_MOA
-+#define	LINE_MOB	FDOR_MOB
-+#define	LINE_DS0	FDOR_DS0
-+#define	LINE_DS1	FDOR_DS1
-+
-+#define	LINE_MASK_DOR	(LINE_MOA | LINE_MOB | LINE_DS0 | LINE_DS1)
-+
-+#define	LINE_HDS	0x08
-+
-+struct i2c_floppy_lines {
-+	unsigned ena:8;
-+	unsigned sda:8;
-+	unsigned scl:8;
-+};
-+
-+static struct i2c_floppy_lines i2c_floppy_lines_out[] = {
-+	{ LINE_OFF, LINE_OFF, LINE_OFF },	/*  0 */
-+
-+	{ LINE_OFF, LINE_MOA, LINE_MOB },	/*  1 */
-+	{ LINE_HDS, LINE_MOA, LINE_MOB },	/*  2 */
-+
-+	{ LINE_OFF, LINE_MOA, LINE_DS1 },	/*  3 */
-+	{ LINE_MOB, LINE_MOA, LINE_DS1 },	/*  4 */
-+	{ LINE_HDS, LINE_MOA, LINE_DS1 },	/*  5 */
-+
-+	{ LINE_OFF, LINE_MOA, LINE_HDS },	/*  6 */
-+	{ LINE_MOB, LINE_MOA, LINE_HDS },	/*  7 */
-+	{ LINE_DS1, LINE_MOA, LINE_HDS },	/*  8 */
-+
-+	{ LINE_OFF, LINE_MOB, LINE_DS0 },	/*  9 */
-+	{ LINE_MOA, LINE_MOB, LINE_DS0 },	/* 10 */
-+	{ LINE_HDS, LINE_MOB, LINE_DS0 },	/* 11 */
-+
-+	{ LINE_OFF, LINE_MOB, LINE_HDS },	/* 12 */
-+	{ LINE_MOA, LINE_MOB, LINE_HDS },	/* 13 */
-+	{ LINE_DS0, LINE_MOB, LINE_HDS },	/* 14 */
-+
-+	{ LINE_OFF, LINE_HDS, LINE_DS0 },	/* 15 */
-+	{ LINE_MOA, LINE_HDS, LINE_DS0 },	/* 16 */
-+	{ LINE_MOB, LINE_HDS, LINE_DS0 },	/* 17 */
-+	{ LINE_DS1, LINE_HDS, LINE_DS0 },	/* 18 */
-+
-+	{ LINE_OFF, LINE_HDS, LINE_DS1 },	/* 19 */
-+	{ LINE_MOA, LINE_HDS, LINE_DS1 },	/* 20 */
-+	{ LINE_MOB, LINE_HDS, LINE_DS1 },	/* 21 */
-+	{ LINE_DS0, LINE_HDS, LINE_DS1 },	/* 22 */
-+};
-+
-+	/* input lines */
-+
-+#define	LINE_T0		FST3_T0
-+#define	LINE_WP		FST3_WP
-+
-+#define	LINE_MASK_ST3	(LINE_T0 | LINE_WP)
-+
-+#define LINE_CHG	FDIR_CHG
-+
-+static struct i2c_floppy_lines i2c_floppy_lines_in[] = {
-+	{ LINE_OFF, LINE_OFF, LINE_OFF },	/*  0 - auto*/
-+
-+	{ LINE_OFF, LINE_CHG, LINE_OFF },	/*  1 */
-+	{ LINE_OFF, LINE_T0,  LINE_OFF },	/*  2 */
-+	{ LINE_OFF, LINE_WP,  LINE_OFF },	/*  3 */
-+
-+	{ LINE_OFF, LINE_CHG, LINE_T0  },	/*  4 */
-+	{ LINE_OFF, LINE_T0,  LINE_WP  },	/*  5 */
-+	{ LINE_OFF, LINE_WP,  LINE_CHG },	/*  6 */
-+
-+	{ LINE_CHG, LINE_T0,  LINE_OFF },	/*  7 */
-+	{ LINE_CHG, LINE_WP,  LINE_OFF },	/*  8 */
-+	{ LINE_CHG, LINE_T0,  LINE_WP  },	/*  9 */
-+
-+	{ LINE_T0,  LINE_CHG, LINE_OFF },	/* 10 */
-+	{ LINE_T0,  LINE_WP,  LINE_OFF },	/* 11 */
-+	{ LINE_T0,  LINE_WP,  LINE_CHG },	/* 12 */
-+
-+	{ LINE_WP,  LINE_CHG, LINE_OFF },       /* 13 */
-+	{ LINE_WP,  LINE_T0,  LINE_OFF },       /* 14 */
-+	{ LINE_WP,  LINE_CHG, LINE_T0  },       /* 15 */
-+};
-+
-+	/* parameters */
-+
-+#define	LM_SWAP		0x0020
-+#define	LM_INV_SDA	0x0040
-+#define	LM_INV_SCL	0x0080
-+#define	LM_INV_ENA	0x0100
-+
-+
-+static unsigned int line_mode = 0xe1;
-+module_param(line_mode, uint, 0);
-+MODULE_PARM_DESC(line_mode, "Output line mode");
-+
-+static unsigned int line_mode_in = 0x00;
-+module_param(line_mode_in, uint, 0);
-+MODULE_PARM_DESC(line_mode_in, "Input line mode");
-+
-+
-+	/* calculated */
-+
-+static unsigned char lo_inv;
-+static unsigned char lo_mask;
-+
-+static unsigned char li_inv;
-+static unsigned char li_mask;
-+
-+static struct i2c_floppy_lines lines;
-+static struct i2c_floppy_lines lines_in;
-+
-+
-+/* ----- Output and input helpers ----------------------------------------- */
-+
-+static unsigned char i2c_lo;
-+
-+static void update_lo(unsigned char lo)
-+{
-+	static unsigned char lo_prev;
-+	unsigned char chg = lo ^ lo_prev;
-+
-+	if (!chg)
-+		return;
-+
-+	lo_prev = lo;
-+
-+	if (chg & LINE_MASK_DOR) {
-+		dor &= ~LINE_MASK_DOR;
-+		dor |= (lo ^ lo_inv) & LINE_MASK_DOR;
-+		port_dor_out(dor);
-+	}
-+
-+	if (chg & LINE_HDS)
-+		cmd_sense((lo ^ lo_inv) & LINE_HDS);
-+}
-+
-+
-+static unsigned char i2c_li;
-+
-+static unsigned char update_li(void)
-+{
-+	unsigned char li = 0;
-+
-+	/* conditionally retrieve st3 flags */
-+	if (li_mask & LINE_MASK_ST3)
-+		li |= cmd_sense((i2c_lo ^ lo_inv) & LINE_HDS)
-+			& LINE_MASK_ST3;
-+
-+	/* conditionally map in disk change */
-+	if (li_mask & LINE_CHG)
-+		li |= port_dir_in() & FDIR_CHG;
-+
-+	i2c_li = li;
-+	return li;
-+}
-+
-+
-+/* ----- I2C algorithm call-back functions and structures ----------------- */
-+
-+static void floppy_setena(void *data, int state)
-+{
-+	if (state)
-+		i2c_lo |= lines.ena;
-+	else
-+		i2c_lo &= ~lines.ena;
-+
-+	update_lo(i2c_lo);
-+}
-+
-+static void floppy_setscl(void *data, int state)
-+{
-+	if (state)
-+		i2c_lo |= lines.scl;
-+	else
-+		i2c_lo &= ~lines.scl;
-+
-+	update_lo(i2c_lo);
-+}
-+
-+static void floppy_setsda(void *data, int state)
-+{
-+	if (state)
-+		i2c_lo |= lines.sda;
-+	else
-+		i2c_lo &= ~lines.sda;
-+
-+	update_lo(i2c_lo);
-+}
-+
-+
-+static int floppy_getena(void *data)
-+{
-+	return (update_li() ^ li_inv) & lines_in.ena;
-+}
-+
-+static int floppy_getscl(void *data)
-+{
-+	return (update_li() ^ li_inv) & lines_in.scl;
-+}
-+
-+static int floppy_getsda(void *data)
-+{
-+	return (update_li() ^ li_inv) & lines_in.sda;
-+}
-+
-+
-+static struct i2c_algo_bit_data floppy_algo_data = {
-+	.setsda		= floppy_setsda,
-+	.setscl		= floppy_setscl,
-+	.getsda		= floppy_getsda,
-+	.getscl		= floppy_getscl,
-+	.udelay		= 50,
-+	.timeout	= HZ,
-+};
-+
-+
-+/* ----- Driver setup ----------------------------------------------------- */
-+
-+static void swap_sda_scl(struct i2c_floppy_lines *lines)
-+{
-+	unsigned char tmp = lines->sda;
-+
-+	lines->sda = lines->scl;
-+	lines->scl = tmp;
-+}
-+
-+
-+static void setup_lo(void)
-+{
-+	/* avoid undefined line modes */
-+	if ((line_mode & 0x1F) > 22)
-+		line_mode &= ~0x1F;
-+
-+	lines = i2c_floppy_lines_out[line_mode & 0x1F];
-+
-+	/* swap scl and sda */
-+	if (line_mode & LM_SWAP)
-+		swap_sda_scl(&lines);
-+
-+	if (line_mode & LM_INV_SDA)
-+		lo_inv ^= lines.sda;
-+	if (line_mode & LM_INV_SCL)
-+		lo_inv ^= lines.scl;
-+	if (line_mode & LM_INV_ENA)
-+		lo_inv ^= lines.ena;
-+
-+	/* calculate line mask */
-+	lo_mask = lines.ena | lines.sda | lines.scl;
-+
-+	pr_info(DRVNAME ": line output config: "
-+		"%02x/%02x/%02x [%02x/%02x]\n",
-+		lines.ena, lines.scl, lines.sda, lo_mask, lo_inv);
-+}
-+
-+
-+static unsigned char lo_state(int ena, int sda, int scl)
-+{
-+	floppy_setena(NULL, ena);
-+	floppy_setsda(NULL, sda);
-+	floppy_setscl(NULL, scl);
-+	return update_li();
-+}
-+
-+static void auto_setup_li(void)
-+{
-+	unsigned char a, b, m;
-+
-+	li_mask = ~0;
-+	li_inv = 0;
-+
-+	/* reset controller */
-+	dor = 0;
-+	port_dor_out(dor);
-+
-+	/* enable controller */
-+	dor |= FDOR_RESET;
-+	port_dor_out(dor);
-+
-+	udelay(100);
-+
-+	a = lo_state(0, 1, 1);
-+	b = lo_state(1, 1, 1);
-+	m = a ^ b;	/* maybe only one bit? */
-+
-+	/* calculate enable input */
-+	lines_in.ena = m;
-+	li_inv |= a & m;
-+
-+	a = b;
-+	b = lo_state(1, 1, 0);
-+	m = a ^ b;	/* maybe only one bit? */
-+
-+	/* calculate scl input */
-+	lines_in.scl = m;
-+	li_inv |= b & m;
-+
-+	a = b;
-+	b = lo_state(1, 0, 0);
-+	m = a ^ b;	/* maybe only one bit? */
-+
-+	/* calculate sda input */
-+	lines_in.sda = m;
-+	li_inv |= b & m;
-+}
-+
-+static void setup_li(void)
-+{
-+	/* automatic setup if selected */
-+	if (!line_mode_in) {
-+		auto_setup_li();
-+		goto calc_mask;
-+	}
-+
-+	lines_in = i2c_floppy_lines_in[line_mode_in & 0x0F];
-+
-+	/* swap scl and sda */
-+	if (line_mode_in & LM_SWAP)
-+		swap_sda_scl(&lines_in);
-+
-+	if (line_mode_in & LM_INV_SDA)
-+		li_inv ^= lines_in.sda;
-+	if (line_mode_in & LM_INV_SCL)
-+		li_inv ^= lines_in.scl;
-+	if (line_mode_in & LM_INV_ENA)
-+		li_inv ^= lines_in.ena;
-+
-+calc_mask:
-+	/* calculate line mask */
-+	li_mask = lines_in.ena | lines_in.sda | lines_in.scl;
-+
-+	pr_info(DRVNAME ": line input config:  "
-+		"%02x/%02x/%02x [%02x/%02x]\n",
-+		lines_in.ena, lines_in.scl, lines_in.sda,
-+		li_mask, li_inv);
-+}
-+
-+
-+/* ----- Driver registration ---------------------------------------------- */
-+
-+static struct i2c_adapter floppy_adapter = {
-+	.owner		= THIS_MODULE,
-+	.class		= I2C_CLASS_HWMON,
-+	.algo_data	= &floppy_algo_data,
-+	.name		= "Floppy controller adapter",
-+};
-+
-+static int __devinit i2c_floppy_probe(struct platform_device *pdev)
-+{
-+	int err;
-+
-+	floppy_adapter.dev.parent = &pdev->dev;
-+	err = i2c_bit_add_bus(&floppy_adapter);
-+	if (err)
-+		dev_err(&pdev->dev, "Unable to register with I2C\n");
-+	return err;
-+}
-+
-+static int __devexit i2c_floppy_remove(struct platform_device *pdev)
-+{
-+	i2c_del_adapter(&floppy_adapter);
-+	return 0;
-+}
-+
-+static struct platform_driver i2c_floppy_driver = {
-+	.driver = {
-+		.owner	= THIS_MODULE,
-+		.name	= DRVNAME,
-+	},
-+	.probe		= i2c_floppy_probe,
-+	.remove		= __devexit_p(i2c_floppy_remove),
-+};
-+
-+static int __init i2c_floppy_device_add(u16 address)
-+{
-+	int err;
-+
-+	pdev = platform_device_alloc(DRVNAME, -1);
-+	if (!pdev) {
-+		err = -ENOMEM;
-+		pr_err(DRVNAME ": Device allocation failed\n");
-+		goto exit;
-+	}
-+
-+	err = platform_device_add(pdev);
-+	if (err) {
-+		pr_err(DRVNAME ": Device addition failed (%d)\n",
-+		       err);
-+		goto exit_device_put;
-+	}
-+
-+	return 0;
-+
-+exit_device_put:
-+	platform_device_put(pdev);
-+exit:
-+	return err;
-+}
-+
-+static int __init i2c_floppy_init(void)
-+{
-+	int err;
-+
-+	if (base == 0) {
-+		pr_info(DRVNAME ": using default base 0x%x\n",
-+			DEFAULT_BASE);
-+		base = DEFAULT_BASE;
-+	}
-+
-+	err = -EBUSY;
-+	if (!request_region(base, 5, DRVNAME))
-+		goto exit;
-+
-+	if (!request_region(base + 7, 1, DRVNAME))
-+		goto exit_rel0;
-+
-+	/* Sets global pdev as a side effect */
-+	err = i2c_floppy_device_add(base);
-+	if (err)
-+		goto exit_rel7;
-+
-+	err = platform_driver_register(&i2c_floppy_driver);
-+	if (err)
-+		goto exit_device;
-+
-+	setup_lo();
-+	setup_li();
-+
-+	dor &= ~FDOR_RESET;
-+	/* do we need the controller active? */
-+	if ((li_mask & LINE_MASK_ST3) ||
-+		(lo_mask & LINE_HDS))
-+		dor |= FDOR_RESET;
-+	port_dor_out(dor);
-+
-+	lo_state(1, 1, 1);
-+	pr_info(DRVNAME ": input line check %02x/%02x/%02x\n",
-+		floppy_getena(NULL),
-+		floppy_getscl(NULL),
-+		floppy_getsda(NULL));
-+
-+	/* disable getscl if no mapping */
-+	if (!lines_in.scl)
-+		floppy_algo_data.getscl = NULL;
-+
-+	/* update udelay with param */
-+	floppy_algo_data.udelay = delay;
-+
-+	return 0;
-+
-+exit_device:
-+	platform_device_unregister(pdev);
-+exit_rel7:
-+	release_region(base + 7, 1);
-+exit_rel0:
-+	release_region(base, 5);
-+exit:
-+	return err;
-+}
-+
-+static void __exit i2c_floppy_exit(void)
-+{
-+	platform_driver_unregister(&i2c_floppy_driver);
-+	platform_device_unregister(pdev);
-+	release_region(base + 7, 1);
-+	release_region(base, 5);
-+}
-+
-+
-+MODULE_AUTHOR("Herbert Poetzl <herbert-dBHVzrDq9nF4Lj/PQRBjDg@public.gmane.org>");
-+MODULE_DESCRIPTION("I2C bus over floppy controller");
-+MODULE_LICENSE("GPL");
-+
-+module_init(i2c_floppy_init);
-+module_exit(i2c_floppy_exit);
-diff -NurpP --minimal linux-2.6.27-rc8/drivers/i2c/busses/Kconfig linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/Kconfig
---- linux-2.6.27-rc8/drivers/i2c/busses/Kconfig	2008-09-30 22:53:59.000000000 +0200
-+++ linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/Kconfig	2008-09-30 22:57:12.000000000 +0200
-@@ -490,6 +490,21 @@ config I2C_VERSATILE
- 
- comment "External I2C/SMBus adapter drivers"
- 
-+config I2C_FLOPPY
-+	tristate "Floppy controller adapter"
-+	select I2C_ALGOBIT
-+	help
-+	  This supports a simple do-it-yourself floppy controller to
-+	  I2C adapters using the motor control lines for SDA and SCL,
-+	  and the drive change input for SDA readback.
-+
-+	  This support is also available as a module.  If so, the module
-+	  will be called i2c-floppy.
-+
-+	  If you do not have such a device, and do not plan to build one,
-+	  it's safe to say N here. Do not say Y here and to the floppy
-+	  driver unless you know exactly what you are doing.
-+
- config I2C_PARPORT
- 	tristate "Parallel port adapter"
- 	depends on PARPORT
-diff -NurpP --minimal linux-2.6.27-rc8/drivers/i2c/busses/Makefile linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/Makefile
---- linux-2.6.27-rc8/drivers/i2c/busses/Makefile	2008-09-30 22:53:59.000000000 +0200
-+++ linux-2.6.27-rc8-fi2c-v0.6.1/drivers/i2c/busses/Makefile	2008-09-30 22:56:14.000000000 +0200
-@@ -48,6 +48,7 @@ obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- 
- # External I2C/SMBus adapter drivers
-+obj-$(CONFIG_I2C_FLOPPY)	+= i2c-floppy.o
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
- obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
- obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
-diff -NurpP --minimal linux-2.6.27-rc8/Makefile linux-2.6.27-rc8-fi2c-v0.6.1/Makefile
---- linux-2.6.27-rc8/Makefile	2008-09-30 22:53:29.000000000 +0200
-+++ linux-2.6.27-rc8-fi2c-v0.6.1/Makefile	2008-10-01 18:43:54.000000000 +0200
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 27
--EXTRAVERSION = -rc8
-+EXTRAVERSION = -rc8linux-2.6.27-rc8-fi2c-v0.6.1
- NAME = Rotary Wombat
- 
- # *DOCUMENTATION*
+finally I came around to setup my board with the PCA9564. Here are my
+results: The algo detected the PCA9564 and moaned about the old style of
+supplying the frequency. I could easily change it to newstyle. In every
+case, I could still correctly read out the eeprom. So, everything worked
+flawlessly with a PCA9564. So, if the PCA9665 works for you and you just
+apply these minor suggestions below, I think the patch is ready for
+submission. For that, you should follow the canocical patch format
+(Documentation/SubmittingPatches, Chapter 15) when you post that
+version.
+
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+On Sat, Sep 20, 2008 at 09:10:12AM -0300, Marco Aurelio da Costa wrote:
+> Hi Wolfram.
+>=20
+> On Sat, Sep 20, 2008 at 8:09 AM, Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>=
+ wrote:
+> > I will send you the corrected patch after your comment on the
+> > auto-detection issue.
+> >
+> Actually, I changed my mind and implemented the auto-detection code.
+> Here is the new patch.
+>=20
+> Regards,
+>=20
+> Marco
+
+> diff -ur linux-2.6.26.5/drivers/i2c/algos/i2c-algo-pca.c linux-2.6.26.5-n=
+ew/drivers/i2c/algos/i2c-algo-pca.c
+> --- linux-2.6.26.5/drivers/i2c/algos/i2c-algo-pca.c	2008-09-08 14:40:20.0=
+00000000 -0300
+> +++ linux-2.6.26.5-new/drivers/i2c/algos/i2c-algo-pca.c	2008-09-20 09:07:=
+35.000000000 -0300
+> @@ -43,6 +43,14 @@
+>  #define pca_wait(adap) adap->wait_for_completion(adap->data)
+>  #define pca_reset(adap) adap->reset_chip(adap->data)
+> =20
+> +static void pca9665_reset(void *pd)
+> +{
+> +	struct i2c_algo_pca_data *adap =3D pd;
+> +	pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
+> +	pca_outw(adap, I2C_PCA_IND, 0xA5);
+> +	pca_outw(adap, I2C_PCA_IND, 0x5A);
+> +}
+> +
+>  /*
+>   * Generate a start condition on the i2c bus.
+>   *
+> @@ -330,26 +338,176 @@
+>  	.functionality	=3D pca_func,
+>  };
+> =20
+> -static int pca_init(struct i2c_adapter *adap)
+> +static unsigned int pca_probe_chip(struct i2c_adapter *adap)
+>  {
+> -	static int freqs[] =3D {330,288,217,146,88,59,44,36};
+> -	int clock;
+>  	struct i2c_algo_pca_data *pca_data =3D adap->algo_data;
+> -
+> -	if (pca_data->i2c_clock > 7) {
+> -		printk(KERN_WARNING "%s: Invalid I2C clock speed selected. Trying defa=
+ult.\n",
+> +	/* The trick here is to check if there is an indirect register
+> +	 * available. If there is one, we will read the value we first
+> +	 * wrote on I2C_PCA_IADR. Otherwise, we will read the last value
+> +	 * we wrote on I2C_PCA_ADR
+> +	 */
+> +	pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IADR);
+> +	pca_outw(pca_data, I2C_PCA_IND, 0xAA);
+> +	pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ITO);
+> +	pca_outw(pca_data, I2C_PCA_IND, 0x00);
+> +	pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IADR);
+> +	if (pca_inw(pca_data, I2C_PCA_IND) =3D=3D 0xAA) {
+> +		printk(KERN_INFO
+> +			"%s: PCA9665 detected.",
+
+"\n" is missing. Also, the whole printk should fit into one line.
+
+>  			adap->name);
+> -		pca_data->i2c_clock =3D I2C_PCA_CON_59kHz;
+> +		 return I2C_PCA_CHIP_9665;
+> +	} else {
+> +		printk(KERN_INFO
+> +			"%s: PCA9564 detected.",
+
+Here, too.
+
+> +			adap->name);
+> +		return I2C_PCA_CHIP_9564;
+>  	}
+> +}
+> +
+> +static int pca_init(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_algo_pca_data *pca_data =3D adap->algo_data;
+> =20
+>  	adap->algo =3D &pca_algo;
+> =20
+> -	pca_reset(pca_data);
+> +	if (pca_probe_chip(adap) =3D=3D I2C_PCA_CHIP_9564) {
+> +		static int freqs[] =3D {330, 288, 217, 146, 88, 59, 44, 36};
+> +		int clock;
+> +
+> +		if (pca_data->i2c_clock > 7) {
+> +			switch (pca_data->i2c_clock) {
+> +			case 330000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_330kHz;
+> +				break;
+> +			case 288000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_288kHz;
+> +				break;
+> +			case 217000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_217kHz;
+> +				break;
+> +			case 146000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_146kHz;
+> +				break;
+> +			case 88000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_88kHz;
+> +				break;
+> +			case 59000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_59kHz;
+> +				break;
+> +			case 44000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_44kHz;
+> +				break;
+> +			case 36000:
+> +				pca_data->i2c_clock =3D I2C_PCA_CON_36kHz;
+> +				break;
+> +			default:
+> +				printk(KERN_WARNING
+> +					"%s: Invalid I2C clock speed selected."
+> +					"Using default 59kHz.\n", adap->name);
+
+Space before "Using".
+
+> +			pca_data->i2c_clock =3D I2C_PCA_CON_59kHz;
+> +			}
+> +		} else {
+> +			printk(KERN_WARNING "%s: "
+> +				"Choosing the clock frequency based on "
+> +				"index is deprecated."
+> +				" Use the nominal frequency.\n", adap->name);
+> +		}
+> +
+> +		pca_reset(pca_data);
+> +
+> +		clock =3D pca_clock(pca_data);
+> +		DEB1(KERN_INFO "%s: Clock frequency is %dkHz\n",
+> +		     adap->name, freqs[clock]);
+> +
+> +		pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
+> +	} else {
+> +		int clock;
+> +		int mode;
+> +		int tlow, thi;
+> +		/* Values can be found on PCA9665 datasheet section 7.3.2.6 */
+> +		int min_tlow, min_thi;
+> +		/* These values are the maximum raise and fall values allowed
+> +		 * by the I2C operation mode (Standard, Fast or Fast+)
+> +		 * They are used (added) below to calculate the clock dividers
+> +		 * of PCA9665. Note that they are slightly different of the
+> +		 * real maximum, to allow the change on mode exactly on the
+> +		 * maximum clock rate for each mode
+> +		 */
+> +		int raise_fall_time;
+> +
+> +		struct i2c_algo_pca_data *pca_data =3D adap->algo_data;
+> +
+> +		/* Ignore the reset function from the module,
+> +		 * we can use the parallel bus reset
+> +		 */
+> +		pca_data->reset_chip =3D pca9665_reset;
+> +
+> +		if (pca_data->i2c_clock > 1265800) {
+> +			printk(KERN_WARNING "%s: I2C clock speed too high."
+> +				" Using 1265.8kHz.\n", adap->name);
+> +			pca_data->i2c_clock =3D 1265800;
+> +		}
+> +
+> +		if (pca_data->i2c_clock < 60300) {
+> +			printk(KERN_WARNING "%s: I2C clock speed too low."
+> +				" Using 60.3kHz.\n", adap->name);
+> +			pca_data->i2c_clock =3D 60300;
+> +		}
+> +
+> +		/* To avoid integer overflow, use clock/100 for calculations */
+> +		clock =3D pca_clock(pca_data)/100;
+
+Spaces around operators.
+
+> =20
+> -	clock =3D pca_clock(pca_data);
+> -	DEB1(KERN_INFO "%s: Clock frequency is %dkHz\n", adap->name, freqs[cloc=
+k]);
+> =20
+> -	pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
+> +		if (pca_data->i2c_clock > 10000) {
+> +			mode =3D I2C_PCA_MODE_TURBO;
+> +			min_tlow =3D 14;
+> +			min_thi  =3D 5;
+> +			raise_fall_time =3D 22; /* Raise 11e-8s, Fall 11e-8s */
+> +		} else if (pca_data->i2c_clock > 4000) {
+> +			mode =3D I2C_PCA_MODE_FASTP;
+> +			min_tlow =3D 17;
+> +			min_thi  =3D 9;
+> +			raise_fall_time =3D 22; /* Raise 11e-8s, Fall 11e-8s */
+> +		} else if (pca_data->i2c_clock > 1000) {
+> +			mode =3D I2C_PCA_MODE_FAST;
+> +			min_tlow =3D 44;
+> +			min_thi  =3D 20;
+> +			raise_fall_time =3D 58; /* Raise 29e-8s, Fall 29e-8s */
+> +		} else {
+> +			mode =3D I2C_PCA_MODE_STD;
+> +			min_tlow =3D 157;
+> +			min_thi  =3D 134;
+> +			raise_fall_time =3D 127; /* Raise 29e-8s, Fall 98e-8s */
+> +		}
+> +
+> +		/* The minimum clock that respects the thi/tlow =3D 134/157 is
+> +		 * 64800 Hz. Below that, we have to fix the tlow to 255 and
+> +		 * calculate the thi factor.
+> +		 */
+> +		if (clock < 648) {
+> +			tlow =3D 255;
+> +			thi =3D 1000000 - clock * raise_fall_time;
+> +			thi /=3D (I2C_PCA_OSC_PER * clock) - tlow;
+> +		} else {
+> +			tlow =3D (1000000 - clock * raise_fall_time) * min_tlow;
+> +			tlow /=3D I2C_PCA_OSC_PER * clock * (min_thi + min_tlow);
+> +			thi =3D tlow * min_thi / min_tlow;
+> +		}
+> +
+> +		pca_reset(pca_data);
+> +
+> +		DEB1(KERN_INFO
+> +		     "%s: Clock frequency is %dHz\n", adap->name, clock * 100);
+> +
+> +		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IMODE);
+> +		pca_outw(pca_data, I2C_PCA_IND, mode);
+> +		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
+> +		pca_outw(pca_data, I2C_PCA_IND, tlow);
+> +		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
+> +		pca_outw(pca_data, I2C_PCA_IND, thi);
+> +
+> +		pca_set_con(pca_data, I2C_PCA_CON_ENSIO);
+> +	}
+>  	udelay(500); /* 500 us for oscilator to stabilise */
+> =20
+>  	return 0;
+> @@ -384,7 +542,7 @@
+> =20
+>  MODULE_AUTHOR("Ian Campbell <icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org>, "
+>  	"Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+> -MODULE_DESCRIPTION("I2C-Bus PCA9564 algorithm");
+> +MODULE_DESCRIPTION("I2C-Bus PCA9564/PCA9665 algorithm");
+>  MODULE_LICENSE("GPL");
+> =20
+>  module_param(i2c_debug, int, 0);
+> diff -ur linux-2.6.26.5/drivers/i2c/busses/i2c-pca-isa.c linux-2.6.26.5-n=
+ew/drivers/i2c/busses/i2c-pca-isa.c
+> --- linux-2.6.26.5/drivers/i2c/busses/i2c-pca-isa.c	2008-09-08 14:40:20.0=
+00000000 -0300
+> +++ linux-2.6.26.5-new/drivers/i2c/busses/i2c-pca-isa.c	2008-09-20 08:53:=
+59.000000000 -0300
+> @@ -41,7 +41,7 @@
+> =20
+>  /* Data sheet recommends 59kHz for 100kHz operation due to variation
+>   * in the actual clock rate */
+> -static int clock  =3D I2C_PCA_CON_59kHz;
+> +static int clock  =3D 59000;
+> =20
+>  static wait_queue_head_t pca_wait;
+> =20
+> @@ -103,7 +103,7 @@
+>  	.owner          =3D THIS_MODULE,
+>  	.id		=3D I2C_HW_A_ISA,
+>  	.algo_data	=3D &pca_isa_data,
+> -	.name		=3D "PCA9564 ISA Adapter",
+> +	.name		=3D "PCA9564/PCA9665 ISA Adapter",
+>  	.timeout	=3D 100,
+>  };
+> =20
+> @@ -182,7 +182,7 @@
+>  }
+> =20
+>  MODULE_AUTHOR("Ian Campbell <icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org>");
+> -MODULE_DESCRIPTION("ISA base PCA9564 driver");
+> +MODULE_DESCRIPTION("ISA base PCA9564/PCA9665 driver");
+>  MODULE_LICENSE("GPL");
+> =20
+>  module_param(base, ulong, 0);
+> @@ -191,7 +191,13 @@
+>  module_param(irq, int, 0);
+>  MODULE_PARM_DESC(irq, "IRQ");
+>  module_param(clock, int, 0);
+> -MODULE_PARM_DESC(clock, "Clock rate as described in table 1 of PCA9564 d=
+atasheet");
+> +MODULE_PARM_DESC(clock, "Clock rate in hertz.\n\t\t"
+> +		"For PCA9564: 330000,288000,217000,146000,"
+> +		"88000,59000,44000,36000\n"
+> +		"\t\tFor PCA9665:\tStandard: 60300 - 100099\n"
+> +		"\t\t\t\tFast: 100100 - 400099\n"
+> +		"\t\t\t\tFast+: 400100 - 10000099\n"
+> +		"\t\t\t\tTurbo: Up to 1265800");
+> =20
+>  module_init(pca_isa_init);
+>  module_exit(pca_isa_exit);
+> diff -ur linux-2.6.26.5/drivers/i2c/busses/i2c-pca-platform.c linux-2.6.2=
+6.5-new/drivers/i2c/busses/i2c-pca-platform.c
+> --- linux-2.6.26.5/drivers/i2c/busses/i2c-pca-platform.c	2008-09-08 14:40=
+:20.000000000 -0300
+> +++ linux-2.6.26.5-new/drivers/i2c/busses/i2c-pca-platform.c	2008-09-20 0=
+8:25:37.000000000 -0300
+> @@ -172,8 +172,9 @@
+> =20
+>  	i2c->adap.nr =3D pdev->id >=3D 0 ? pdev->id : 0;
+>  	i2c->adap.owner =3D THIS_MODULE;
+> -	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "PCA9564 at 0x%08lx",
+> -		(unsigned long) res->start);
+> +	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+> +		 "PCA9564/PCA9665 at 0x%08lx",
+> +		 (unsigned long) res->start);
+>  	i2c->adap.algo_data =3D &i2c->algo_data;
+>  	i2c->adap.dev.parent =3D &pdev->dev;
+>  	i2c->adap.timeout =3D platform_data->timeout;
+> @@ -246,7 +247,7 @@
+>  e_alloc:
+>  	release_mem_region(res->start, res_len(res));
+>  e_print:
+> -	printk(KERN_ERR "Registering PCA9564 FAILED! (%d)\n", ret);
+> +	printk(KERN_ERR "Registering PCA9564/PCA9665 FAILED! (%d)\n", ret);
+>  	return ret;
+>  }
+> =20
+> @@ -290,7 +291,7 @@
+>  }
+> =20
+>  MODULE_AUTHOR("Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+> -MODULE_DESCRIPTION("I2C-PCA9564 platform driver");
+> +MODULE_DESCRIPTION("I2C-PCA9564/PCA9665 platform driver");
+>  MODULE_LICENSE("GPL");
+> =20
+>  module_init(i2c_pca_pf_init);
+> diff -ur linux-2.6.26.5/drivers/i2c/busses/Kconfig linux-2.6.26.5-new/dri=
+vers/i2c/busses/Kconfig
+> --- linux-2.6.26.5/drivers/i2c/busses/Kconfig	2008-09-08 14:40:20.0000000=
+00 -0300
+> +++ linux-2.6.26.5-new/drivers/i2c/busses/Kconfig	2008-09-19 10:33:35.000=
+000000 -0300
+> @@ -630,7 +630,7 @@
+>  	  will be called i2c-voodoo3.
+> =20
+>  config I2C_PCA_ISA
+> -	tristate "PCA9564 on an ISA bus"
+> +	tristate "PCA9564/PCA9665 on an ISA bus"
+>  	depends on ISA
+>  	select I2C_ALGOPCA
+>  	default n
+> @@ -647,7 +647,7 @@
+>  	  time).  If unsure, say N.
+> =20
+>  config I2C_PCA_PLATFORM
+> -	tristate "PCA9564 as platform device"
+> +	tristate "PCA9564/PCA9665 as platform device"
+>  	select I2C_ALGOPCA
+>  	default n
+>  	help
+> diff -ur linux-2.6.26.5/include/linux/i2c-algo-pca.h linux-2.6.26.5-new/i=
+nclude/linux/i2c-algo-pca.h
+> --- linux-2.6.26.5/include/linux/i2c-algo-pca.h	2008-09-08 14:40:20.00000=
+0000 -0300
+> +++ linux-2.6.26.5-new/include/linux/i2c-algo-pca.h	2008-09-20 08:56:11.0=
+00000000 -0300
+> @@ -1,7 +1,14 @@
+>  #ifndef _LINUX_I2C_ALGO_PCA_H
+>  #define _LINUX_I2C_ALGO_PCA_H
+> =20
+> -/* Clock speeds for the bus */
+> +/* Chips known to the pca algo */
+> +#define I2C_PCA_CHIP_9564	0x00
+> +#define I2C_PCA_CHIP_9665	0x01
+> +
+> +/* Internal period for PCA9665 oscilator */
+> +#define I2C_PCA_OSC_PER		3 /* e10-8s */
+> +
+> +/* Clock speeds for the bus for PCA9564*/
+>  #define I2C_PCA_CON_330kHz	0x00
+>  #define I2C_PCA_CON_288kHz	0x01
+>  #define I2C_PCA_CON_217kHz	0x02
+> @@ -18,6 +25,26 @@
+>  #define I2C_PCA_ADR		0x02 /* OWN ADR Read/Write */
+>  #define I2C_PCA_CON		0x03 /* CONTROL Read/Write */
+> =20
+> +/* PCA9665 registers */
+> +#define I2C_PCA_INDPTR          0x00 /* INDIRECT Pointer Write Only */
+> +#define I2C_PCA_IND             0x02 /* INDIRECT Read/Write */
+> +
+> +/* PCA9665 indirect registers */
+> +#define I2C_PCA_ICOUNT          0x00 /* Byte Count for buffered mode */
+> +#define I2C_PCA_IADR            0x01 /* OWN ADR */
+> +#define I2C_PCA_ISCLL           0x02 /* SCL LOW period */
+> +#define I2C_PCA_ISCLH           0x03 /* SCL HIGH period */
+> +#define I2C_PCA_ITO             0x04 /* TIMEOUT */
+> +#define I2C_PCA_IPRESET         0x05 /* Parallel bus reset */
+> +#define I2C_PCA_IMODE           0x06 /* I2C Bus mode */
+> +
+> +/* PCA9665 I2C bus mode */
+> +#define I2C_PCA_MODE_STD        0x00 /* Standard mode */
+> +#define I2C_PCA_MODE_FAST       0x01 /* Fast mode */
+> +#define I2C_PCA_MODE_FASTP      0x02 /* Fast Plus mode */
+> +#define I2C_PCA_MODE_TURBO      0x03 /* Turbo mode */
+> +
+> +
+>  #define I2C_PCA_CON_AA		0x80 /* Assert Acknowledge */
+>  #define I2C_PCA_CON_ENSIO	0x40 /* Enable */
+>  #define I2C_PCA_CON_STA		0x20 /* Start */
+> @@ -31,7 +58,9 @@
+>  	int  (*read_byte)		(void *data, int reg);
+>  	int  (*wait_for_completion)	(void *data);
+>  	void (*reset_chip)		(void *data);
+> -	/* i2c_clock values are defined in linux/i2c-algo-pca.h */
+> +	/* For PCA9964, use one of the predefined frequencies:
+
+Typo: Not 9964, but 9564
+
+> +	 * 330000, 288000, 217000, 146000, 88000, 59000, 44000, 36000
+> +	 * For PCA9665, use the frequency you want here. */
+>  	unsigned int			i2c_clock;
+>  };
+> =20
+
+> _______________________________________________
+> i2c mailing list
+> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+> http://lists.lm-sensors.org/mailman/listinfo/i2c
+
+All the best and thanks for the patch!
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--2E/hm+v6kSLEYT3h
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkjjtb0ACgkQD27XaX1/VRuahgCgwlv8cC2p4Q5UaWpvF3mjBiGW
+mQcAn130Uz/psnQs/LFNLU+eg6qGnYs0
+=T+z/
+-----END PGP SIGNATURE-----
+
+--2E/hm+v6kSLEYT3h--
+
+
+--===============2164862613532693029==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============2164862613532693029==--
