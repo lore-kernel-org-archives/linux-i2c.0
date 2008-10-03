@@ -1,17 +1,13 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Question about vt82c596 SMBus driver (Via I2c Bus driver)
-Date: Fri, 3 Oct 2008 15:21:23 +0200
-Message-ID: <20081003152123.489cd10c@hyperion.delvare>
-References: <6601CF63C167F44A9A9E97E41EE4B16C902D37@CLUSTEREX.corporate.local>
-	<20080926092846.63ac885a@hyperion.delvare>
-	<6601CF63C167F44A9A9E97E41EE4B16C90304B@CLUSTEREX.corporate.local>
-	<20080930092458.1c40edce@hyperion.delvare>
-	<6601CF63C167F44A9A9E97E41EE4B16C903402@CLUSTEREX.corporate.local>
+From: "naitik amin" <greatamin1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c-stub
+Date: Fri, 3 Oct 2008 13:07:00 -0400
+Message-ID: <aea25fc40810031007i6a6fe090w64d0e4d8ecacb285@mail.gmail.com>
+References: <aea25fc40810021503i13ea57cal183a7bf9bc88e351@mail.gmail.com>
+	<20081003095647.5fb7f0de@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0377727273067599202=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <6601CF63C167F44A9A9E97E41EE4B16C903402-5t2rvgrEeX4DiO1sSoDvakTPyXqlV3SlZkel5v8DVj8@public.gmane.org>
+In-Reply-To: <20081003095647.5fb7f0de-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,159 +17,313 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "Mortha, Prakash" <pmortha-UATguYvZg3tBDgjK7y7TUQ@public.gmane.org>
-Cc: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Prakash,
+--===============0377727273067599202==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_10842_10381419.1223053620776"
 
-On Wed, 1 Oct 2008 20:09:15 -0400, Mortha, Prakash wrote:
-> Hi Jean,
-> 
-> Thank you very much for your corrections/advice.
-> 
-> Please find attached the patch files for i2c-viapro.c and i2c-core.c
-> files for supporting I2C_SMBUS_PROC_CALL. 
+------=_Part_10842_10381419.1223053620776
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-For future patches, please make sure that I can apply them with patch
--p1. The header should look like:
+Hi Jean,
 
---- linux-2.6.24.3/drivers/i2c/i2c-core.c.orig  2008-02-25 19:20:20.000000000 -0500
-+++ linux-2.6.24.3/drivers/i2c/i2c-core.c       2008-10-01 19:48:25.771245369 -0400
-
-If you're working with many patches, I can only recommend using
-"quilt", so you always get the patch format right.
-
-> 
-> Please provide your comments.
-
-Comments on the i2c-core patch:
-
-> --- i2c-core.c	2008-02-25 19:20:20.000000000 -0500
-> +++ ./../../../buildroot/build_i686/linux-2.6.24.3/drivers/i2c/i2c-core.c	2008-10-01 19:48:25.771245369 -0400
-> @@ -1274,6 +1274,18 @@
->  }
->  EXPORT_SYMBOL(i2c_smbus_read_word_data);
->  
-> +s32 i2c_smbus_process_call(struct i2c_client *client, u8 command, u16 value)
-> +{
-> +	union i2c_smbus_data data;
-> +	data.word = value;
-> +	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,I2C_SMBUS_WRITE,command, I2C_SMBUS_PROC_CALL, &data))
-
-Line too long, you'll have to fold it, and there must be a space after
-each comma. I recommend that you run scripts/checkpatch.pl on every
-patch before you post them, this will catch formatting errors.
-
-> +		return -1;
-
-All these helper functions have been updated recently to transmit the
-error code form i2c_smbus_xfer() instead of -1. Please do the same.
-Please look at a recent kernel tree to use the same variable names so
-that all the helper functions look the same.
-
-> +	else
-> +		return data.word;
-> +}
-> +EXPORT_SYMBOL(i2c_smbus_process_call);
-> +
-
-And please insert the new function _after_ i2c_smbus_write_word_data()
-so that the two word functions stay next to each other.
-
-> +
->  s32 i2c_smbus_write_word_data(struct i2c_client *client, u8 command, u16 value)
->  {
->  	union i2c_smbus_data data;
-
-Documentation/i2c/smbus-protocol will also have to be updated to
-mention this new function.
-
-Comments on the i2c-viapro patch:
-
-> --- i2c-viapro.c	2008-10-01 12:19:39.578169020 -0400
-> +++ ./../../../../buildroot/build_i686/linux-2.6.24.3/drivers/i2c/busses/i2c-viapro.c	2008-10-01 19:49:02.460538263 -0400
-> @@ -82,6 +82,7 @@
->  #define VT596_BYTE		0x04
->  #define VT596_BYTE_DATA		0x08
->  #define VT596_WORD_DATA		0x0C
-> +#define VT596_PROC_CALL         0x10
-
-Please use a tabulation instead of spaces.
-
->  #define VT596_BLOCK_DATA	0x14
->  #define VT596_I2C_BLOCK_DATA	0x34
->  
-> @@ -231,6 +232,12 @@
->  		}
->  		size = VT596_WORD_DATA;
->  		break;
-> +	case I2C_SMBUS_PROC_CALL:
-> +		outb_p(command, SMBHSTCMD);
-> +		outb_p((data->word & 0xff00) >> 8, SMBHSTDAT0);
-> +		outb_p(data->word & 0xff, SMBHSTDAT1);
-
-As already discussed, the bytes are in the wrong order. The SMBus
-specification says that the LSB is always first.
-
-> +		size = VT596_PROC_CALL;
-
-I would add:
-
-		read_write = I2C_SMBUS_READ;
-
-This way...
-
-> +		break;
->  	case I2C_SMBUS_I2C_BLOCK_DATA:
->  		if (!(vt596_features & FEATURE_I2CBLOCK))
->  			goto exit_unsupported;
-> @@ -260,7 +267,7 @@
->  	if (vt596_transaction(size)) /* Error in transaction */
->  		return -1;
->  
-> -	if ((read_write == I2C_SMBUS_WRITE) || (size == VT596_QUICK))
-> +	if (((size != VT596_PROC_CALL) && (read_write == I2C_SMBUS_WRITE)) || (size == VT596_QUICK))
-
-... you no longer have to change this. This is what i2c-core does for
-the software emulation of SMBus over I2C, and some i2c bus drivers as
-well.
-
->  		return 0;
->  
->  	switch (size) {
-> @@ -269,6 +276,7 @@
->  		data->byte = inb_p(SMBHSTDAT0);
->  		break;
->  	case VT596_WORD_DATA:
-> +	case VT596_PROC_CALL:
->  		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
->  		break;
->  	case VT596_I2C_BLOCK_DATA:
-> @@ -293,7 +301,7 @@
->  {
->  	u32 func = I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
->  	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-> -	    I2C_FUNC_SMBUS_BLOCK_DATA;
-> +	    I2C_FUNC_SMBUS_BLOCK_DATA | I2C_SMBUS_PROC_CALL;
-
-Nitpicking: I'd add I2C_SMBUS_PROC_CALL before
-I2C_FUNC_SMBUS_BLOCK_DATA, because this is where readers will expect it.
-
->  
->  	if (vt596_features & FEATURE_I2CBLOCK)
->  		func |= I2C_FUNC_SMBUS_I2C_BLOCK;
-
-Also note that, in order to apply your patches upstream, I will need
-a proper summary, a description of what the patch is doing and why it
-is needed, and your Signed-off-by line. See section 12 (Sign your work)
-of Documentation/SubmittingPatches for details.
+Please see my responses below (in bold).
 
 Thanks,
--- 
+
+On Fri, Oct 3, 2008 at 3:56 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+
+> On Thu, 2 Oct 2008 18:03:35 -0400, naitik amin wrote:
+> > I was trying to use the i2c-stub driver.
+> >
+> > What I did was I hardcoded the address to 0x23 and inserted the
+> i2c-stub.ko
+>
+> Hard-coded? How, and why? The address is supposed to be passed as a
+> module parameter:
+>
+> modprobe i2c-stub chip_addr=0x23
+>
+
+
+> *>>> I did it this way because doing insmod with argument gave me an
+> error.*
+>
+ *insmod i2c-stub.ko chip_addr=0x23
+ insmod: init_module 'i2c-stub.ko' failed (No such device)
+This is may be because I am using Android Goldfish environment. So just to
+go around I hardcoded it.
+ *
+
+> I then inserted ds1682.ko also part of the 2.6 kernel.
+
+Which kernel version exactly?
+> *>>> 2.6.25*
+>
+
+
+>
+> > I was hoping to see that the probe function for ds1682.ko to be called
+> but
+> > it didn't.  Can someone comment on what I maybe missing.
+>
+> The ds1682 driver is a new-style driver, it doesn't scan the adapters
+> for devices. Instead, kernel code must explicitly instantiate the
+> devices. Alternatively, we could add a mechanism to instantiate devices
+> from user-space, but it's not there yet.
+>
+> I don't think you will get it to work anyway, because the ds1682 driver
+> makes use of I2C block transactions, which i2c-stub doesn't support
+> yet. So you would have to add support for I2C block transactions first.
+>
+
+*   >>> Please see the insert below*
+
+>
+> > Oh and BTW I did change the i2c_board_info by calling
+> > i2c_register_board_info in machine level init. The parameters that I had
+> > here were "ds1362" for driver name and 0x23 for address.
+>
+> "ds1362"? The only device supported by the ds1682 driver is "ds1682".
+> But the way I2C devices are matched changed recently, so it really
+> depends on what exact kernel version you are using.
+>
+> Anyway, what are you trying to achieve in the first place?
+> *>>>* *What I am trying to achieve is to automatically instantiate a i2c
+> device from the board level init (something that you mentioned is not there
+> yet). So thats what I was trying to do, correct me if I am wrong here, I am
+> new to this architecture, but what my understanding is, *
+
+
+
+>
+>    - *under new style drivers, you have to populate i2c_board_info struct
+>    and when i2c_new_device gets called creates it the i2c_client stance.*
+>    - *so in order to add "ds1682" to i2c_board_info I did*
+>
+>          struct i2c_board_info __initdata goldfish_i2c_devices[] =
+        {
+            {
+                I2C_BOARD_INFO("ds1682", 0x23),
+            }
+        };
+
+        static void __init goldfish_init(void)
+        {
+             platform_device_register(&goldfish_pdev_bus_device);
+             platform_device_register(&goldfish_vms_device);
+             /* I2C */
+             //goldfish_add_device_i2c(goldfish_i2c_devices,
+ARRAY_SIZE(goldfish_i2c_devices));
+             *i2c_register_board_info(0, goldfish_i2c_devices,
+ARRAY_SIZE(goldfish_i2c_devices));*
+         }
+
+*         goldfish_init is called as a part of the board level init
+(init_machine)*
+
+>
+>    - *So now with my i2c_board_info populated with ds1682, i modified
+>    i2c-stub.c to hardcode it to 0x23 and inserted i2c-stub.ko*
+>
+>
+>    - *looking at the code for i2c-stub.c, its init fn calls
+>    i2c_add_adapter, it goes then goes through the i2c_board_info list and
+>    should find "ds1682" and should go through source below
+>    *
+>
+>
+>    - *
+>    i2c_add_adapter-->i2c_register_adapter-->i2c_scan_static_board_info-->i2c_new_device-->
+>    i2c_attach_client*
+>
+>
+>    - *So it should create a new i2c_client and attach to it.*
+>
+>
+Is is a right way to do things ? Please let me know.
+
+
+
+--
 Jean Delvare
+
+On Fri, Oct 3, 2008 at 3:56 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+
+> On Thu, 2 Oct 2008 18:03:35 -0400, naitik amin wrote:
+> > I was trying to use the i2c-stub driver.
+> >
+> > What I did was I hardcoded the address to 0x23 and inserted the
+> i2c-stub.ko
+>
+> Hard-coded? How, and why? The address is supposed to be passed as a
+> module parameter:
+>
+> modprobe i2c-stub chip_addr=0x23
+>
+> > I then inserted ds1682.ko also part of the 2.6 kernel.
+>
+> Which kernel version exactly?
+>
+> > I was hoping to see that the probe function for ds1682.ko to be called
+> but
+> > it didn't.  Can someone comment on what I maybe missing.
+>
+> The ds1682 driver is a new-style driver, it doesn't scan the adapters
+> for devices. Instead, kernel code must explicitly instantiate the
+> devices. Alternatively, we could add a mechanism to instantiate devices
+> from user-space, but it's not there yet.
+>
+> I don't think you will get it to work anyway, because the ds1682 driver
+> makes use of I2C block transactions, which i2c-stub doesn't support
+> yet. So you would have to add support for I2C block transactions first.
+>
+> > Oh and BTW I did change the i2c_board_info by calling
+> > i2c_register_board_info in machine level init. The parameters that I had
+> > here were "ds1362" for driver name and 0x23 for address.
+>
+> "ds1362"? The only device supported by the ds1682 driver is "ds1682".
+> But the way I2C devices are matched changed recently, so it really
+> depends on what exact kernel version you are using.
+>
+> Anyway, what are you trying to achieve in the first place?
+>
+> --
+> Jean Delvare
+>
+
+------=_Part_10842_10381419.1223053620776
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr">Hi Jean,<br><br>Please see my responses below (in bold).<br><br>Thanks,<br><br><div class="Ih2E3d">On Fri, Oct 3, 2008 at 3:56 AM, Jean Delvare <span dir="ltr">&lt;<a href="mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" target="_blank">khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org</a>&gt;</span> wrote:<br>
+
+<blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div>On Thu, 2 Oct 2008 18:03:35 -0400, naitik amin wrote:<br>
+&gt; I was trying to use the i2c-stub driver.<br>
+&gt;<br>
+&gt; What I did was I hardcoded the address to 0x23 and inserted the i2c-stub.ko<br>
+<br>
+</div>Hard-coded? How, and why? The address is supposed to be passed as a<br>
+module parameter:<br>
+<br>
+modprobe i2c-stub chip_addr=0x23<br>
+</blockquote><div>&nbsp;</div></div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div><b>&gt;&gt;&gt; I did it this way because doing insmod with argument gave me an error.</b></div>
+
+</blockquote><div>&nbsp;<b>insmod i2c-stub.ko chip_addr=0x23<br>&nbsp;insmod: init_module &#39;i2c-stub.ko&#39; failed (No such device)<br>This is may be because I am using Android Goldfish environment. So just to go around I hardcoded it.<br>
+
+&nbsp;</b></div><div class="Ih2E3d"><div><br>
+&gt; I then inserted ds1682.ko also part of the 2.6 kernel.<br>
+<br>
+</div></div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">Which kernel version exactly?<br>
+<div><b>&gt;&gt;&gt; 2.6.25</b></div></blockquote><div class="Ih2E3d"><div>&nbsp;</div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div>
+<br>
+&gt; I was hoping to see that the probe function for ds1682.ko to be called but<br>
+&gt; it didn&#39;t. &nbsp;Can someone comment on what I maybe missing.<br>
+<br>
+</div>The ds1682 driver is a new-style driver, it doesn&#39;t scan the adapters<br>
+for devices. Instead, kernel code must explicitly instantiate the<br>
+devices. Alternatively, we could add a mechanism to instantiate devices<br>
+from user-space, but it&#39;s not there yet.<br>
+<br>
+I don&#39;t think you will get it to work anyway, because the ds1682 driver<br>
+makes use of I2C block transactions, which i2c-stub doesn&#39;t support<br>
+yet. So you would have to add support for I2C block transactions first.<br>
+</blockquote></div><div>&nbsp; <br><b>&nbsp;&nbsp; &gt;&gt;&gt; Please see the insert below</b> <br></div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<div class="Ih2E3d">
+<div><br>
+&gt; Oh and BTW I did change the i2c_board_info by calling<br>
+&gt; i2c_register_board_info in machine level init. The parameters that I had<br>
+&gt; here were &quot;ds1362&quot; for driver name and 0x23 for address.<br>
+<br>
+</div>&quot;ds1362&quot;? The only device supported by the ds1682 driver is &quot;ds1682&quot;.<br>
+But the way I2C devices are matched changed recently, so it really<br>
+depends on what exact kernel version you are using.<br>
+<br>
+Anyway, what are you trying to achieve in the first place?<br>
+</div><b>&gt;&gt;&gt;</b> <b>What I am trying to achieve is to
+automatically instantiate a i2c device from the board level init
+(something that you mentioned is not there yet). So thats what I was
+trying to do, correct me if I am wrong here, I am new to this
+architecture, but what my understanding is, </b></blockquote>
+<div>&nbsp;</div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><ul><li><b>under
+new style drivers, you have to populate i2c_board_info struct and when
+i2c_new_device gets called creates it the i2c_client stance.</b></li><li><b>so in order to add &quot;ds1682&quot; to i2c_board_info I did</b></li></ul></blockquote><div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; struct i2c_board_info __initdata goldfish_i2c_devices[] = <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I2C_BOARD_INFO(&quot;ds1682&quot;, 0x23),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; };<br>&nbsp; &nbsp; &nbsp; &nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; static void __init goldfish_init(void)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; platform_device_register(&amp;goldfish_pdev_bus_device);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; platform_device_register(&amp;goldfish_vms_device);<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* I2C */<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; //goldfish_add_device_i2c(goldfish_i2c_devices, ARRAY_SIZE(goldfish_i2c_devices));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>i2c_register_board_info(0, goldfish_i2c_devices, ARRAY_SIZE(goldfish_i2c_devices));</b><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; goldfish_init is called as a part of the board level init (init_machine)</b><br></div><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+
+<ul><li><b>So now with my i2c_board_info populated with ds1682, i modified i2c-stub.c to hardcode it to 0x23 and inserted i2c-stub.ko</b>&nbsp;</li></ul></blockquote><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+
+<ul><li><b>looking at the code for i2c-stub.c, its init fn calls
+i2c_add_adapter, it goes then goes through the i2c_board_info list and
+should find &quot;ds1682&quot; and should go through source below<br></b></li></ul></blockquote>
+<blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><ul><li><b>i2c_add_adapter--&gt;i2c_register_adapter--&gt;i2c_scan_static_board_info--&gt;i2c_new_device--&gt;<br>
+
+i2c_attach_client</b></li></ul></blockquote><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><ul><li><b>So it should create a new i2c_client and attach to it.</b></li>
+</ul></blockquote><div>&nbsp; <br>Is is a right way to do things ? Please let me know.<br></div><div><br>&nbsp;&nbsp; <br></div>
+<br>
+--<br>
+<font color="#888888">Jean Delvare</font><br><br><div class="gmail_quote">On Fri, Oct 3, 2008 at 3:56 AM, Jean Delvare <span dir="ltr">&lt;<a href="mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org">khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<div class="Ih2E3d">On Thu, 2 Oct 2008 18:03:35 -0400, naitik amin wrote:<br>
+&gt; I was trying to use the i2c-stub driver.<br>
+&gt;<br>
+&gt; What I did was I hardcoded the address to 0x23 and inserted the i2c-stub.ko<br>
+<br>
+</div>Hard-coded? How, and why? The address is supposed to be passed as a<br>
+module parameter:<br>
+<br>
+modprobe i2c-stub chip_addr=0x23<br>
+<div class="Ih2E3d"><br>
+&gt; I then inserted ds1682.ko also part of the 2.6 kernel.<br>
+<br>
+</div>Which kernel version exactly?<br>
+<div class="Ih2E3d"><br>
+&gt; I was hoping to see that the probe function for ds1682.ko to be called but<br>
+&gt; it didn&#39;t. &nbsp;Can someone comment on what I maybe missing.<br>
+<br>
+</div>The ds1682 driver is a new-style driver, it doesn&#39;t scan the adapters<br>
+for devices. Instead, kernel code must explicitly instantiate the<br>
+devices. Alternatively, we could add a mechanism to instantiate devices<br>
+from user-space, but it&#39;s not there yet.<br>
+<br>
+I don&#39;t think you will get it to work anyway, because the ds1682 driver<br>
+makes use of I2C block transactions, which i2c-stub doesn&#39;t support<br>
+yet. So you would have to add support for I2C block transactions first.<br>
+<div class="Ih2E3d"><br>
+&gt; Oh and BTW I did change the i2c_board_info by calling<br>
+&gt; i2c_register_board_info in machine level init. The parameters that I had<br>
+&gt; here were &quot;ds1362&quot; for driver name and 0x23 for address.<br>
+<br>
+</div>&quot;ds1362&quot;? The only device supported by the ds1682 driver is &quot;ds1682&quot;.<br>
+But the way I2C devices are matched changed recently, so it really<br>
+depends on what exact kernel version you are using.<br>
+<br>
+Anyway, what are you trying to achieve in the first place?<br>
+<br>
+--<br>
+<font color="#888888">Jean Delvare<br>
+</font></blockquote></div><br></div>
+
+------=_Part_10842_10381419.1223053620776--
+
+
+--===============0377727273067599202==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============0377727273067599202==--
