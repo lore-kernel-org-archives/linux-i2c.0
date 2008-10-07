@@ -1,65 +1,162 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: Re: [PATCH 1/2] OF: add fsl,mcu-mpc8349emitx to the exception list
-Date: Mon, 6 Oct 2008 22:44:02 +0400
-Message-ID: <20081006184402.GA13392@oksana.dev.rtsoft.ru>
-References: <20080923141219.GA31262@oksana.dev.rtsoft.ru>
-	<20080930124424.GA6878@oksana.dev.rtsoft.ru>
-	<20081001132248.191e92b3@hyperion.delvare>
-	<20081001113948.GA20115@oksana.dev.rtsoft.ru>
-	<20081006172831.GA27233@oksana.dev.rtsoft.ru>
-	<20081006173158.GA11208@secretlab.ca>
-Reply-To: avorontsov@ru.mvista.com
+From: <srinivas.ramana-uxC5H9eHYlcAvxtiuMwx3w@public.gmane.org>
+Subject: Regd. i2c-dev and SMBALERT#
+Date: Tue, 7 Oct 2008 17:00:58 +0530
+Message-ID: <34BAE4FA891DCA498C6D46840F4F896F485754@BLR-SJP-MBX01.wipro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <20081006173158.GA11208@secretlab.ca>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Jean Delvare <khali@linux-fr.org>, linuxppc-dev@ozlabs.org, Ben Dooks <ben-linux@fluff.org>, i2c@lm-sensors.org
+Content-Type: multipart/mixed; boundary="===============1840484092839526117=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-class: urn:content-classes:message
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 06, 2008 at 11:31:58AM -0600, Grant Likely wrote:
-> On Mon, Oct 06, 2008 at 09:28:31PM +0400, Anton Vorontsov wrote:
-> > On Wed, Oct 01, 2008 at 03:39:48PM +0400, Anton Vorontsov wrote:
-> > [...]
-> > > > > Any issues with this or the second patch? Can we merge them?
-> > > > 
-> > > > I do not have the time to review these patches (and, honestly, have no
-> > > > interest in them.) So I will not merge them but I have no objection to
-> > > > them being merged by somebody else.
-> > > 
-> > > Ok, thanks for the sincerity.. ;-)
-> > > 
-> > > Kumar, could you pick up the two patches via the patchworks?
-> > > 
-> > > [1/2] OF: add fsl,mcu-mpc8349emitx to the exception list
-> > > http://patchwork.ozlabs.org/patch/1105/
-> > > 
-> 
-> Since I've been involved with the i2c of bindings, I can pick this one up.
+This is a multi-part message in MIME format.
 
-Much appreciated, thanks!
+--===============1840484092839526117==
+Content-class: urn:content-classes:message
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C92870.2B875489"
 
-> > > [2/2] i2c: MPC8349E-mITX Power Management and GPIO expander driver
-> > > http://patchwork.ozlabs.org/patch/1106/
-> 
-> But I'm not involved enough with this one, so it should go through
-> kumar.
+This is a multi-part message in MIME format.
 
-That's fine, the first and second patches could go separate trees
-since it won't break the build.
+------_=_NextPart_001_01C92870.2B875489
+Content-Type: text/plain;
+	charset="us-ascii"
+content-transfer-encoding: quoted-printable
 
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+Hi All,
+ 
+1. I would like to know the advantages and disadvantages of user space
+driver for I2C using i2c-dev, compared to the kernel mode drivers.
+ 
+2. What happens if a driver is already bind to the device and
+application tries to open/use it using i2c-dev?
+ 
+3. My understanding on SMBALERT# is that it provides the I2C/SMBus
+device to interrupt the host.
+        a. The driver for SMBALERT# is different from the adapter
+driver?
+        b. What kind of support is provided for SMBALERT# in current
+kernels?
+ 
+Request your help in understanding the above.
+ 
+ 
+Thanks & Regards,
+-- Srinivas R
+
+Please do not print this email unless it is absolutely necessary. =0A=
+=0A=
+The information contained in this electronic message and any attachments to=
+ this message are intended for the exclusive use of the addressee(s) and may=
+ contain proprietary, confidential or privileged information. If you are not=
+ the intended recipient, you should not disseminate, distribute or copy this=
+ e-mail. Please notify the sender immediately and destroy all copies of this=
+ message and any attachments. =0A=
+=0A=
+WARNING: Computer viruses can be transmitted via email. The recipient should=
+ check this email and any attachments for the presence of viruses. The compa=
+ny accepts no liability for any damage caused by any virus transmitted by th=
+is email. =0A=
+=0A=
+www.wipro.com
+
+------_=_NextPart_001_01C92870.2B875489
+Content-Type: text/html;
+	charset="us-ascii"
+content-transfer-encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.3395" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>Hi 
+All,</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>1. I would=
+ like to 
+know the advantages and disadvantages of user space driver for I2C using 
+i2c-dev, compared to the kernel mode drivers.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>2. What ha=
+ppens if a 
+driver is already bind to the device and application tries to open/use it us=
+ing 
+i2c-dev?</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>3. My unde=
+rstanding 
+on SMBALERT# is that it provides the I2C/SMBus device to interrupt the 
+host.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a. The=
+ 
+driver for SMBALERT# is different from the adapter driver?</SPAN></FONT></DI=
+V>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b. Wha=
+t kind 
+of support is provided for SMBALERT# in current kernels?</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>Request yo=
+ur help in 
+understanding the&nbsp;above.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN 
+class=3D656001811-07102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>Thanks &am=
+p; 
+Regards,</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D656001811-07102008>-- Sriniva=
+s 
+R</SPAN></FONT></DIV><P><strong><span style=3D'font-size:10.0pt;font-family:=
+=0A=
+"Palatino Linotype","serif";color:green'> Please do not print this email unl=
+ess it is absolutely necessary. </span></strong><span style=3D'font-family:"=
+Arial","sans-serif"'><o:p></o:p></span></p>=0A=
+=0A=
+=0A=
+<p> The information contained in this electronic message and any attachments=
+ to this message are intended for the exclusive use of the addressee(s) and=
+ may contain proprietary, confidential or privileged information. If you are=
+ not the intended recipient, you should not disseminate, distribute or copy=
+ this e-mail. Please notify the sender immediately and destroy all copies of=
+ this message and any attachments. </p>=0A=
+=0A=
+<p>WARNING: Computer viruses can be transmitted via email. The recipient sho=
+uld check this email and any attachments for the presence of viruses. The co=
+mpany accepts no liability for any damage caused by any virus transmitted by=
+ this email. </p>=0A=
+<p>=0A=
+www.wipro.com=0A=
+</p>
+</BODY></HTML>
+
+------_=_NextPart_001_01C92870.2B875489--
+
+
+--===============1840484092839526117==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1840484092839526117==--
