@@ -1,10 +1,12 @@
-From: "Wen Wang" <sickdoctor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Question about i2c new style modle
-Date: Sun, 12 Oct 2008 14:35:49 +0800
-Message-ID: <56458e0810112335r529622dei4c6891465c6fdf88@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: Question about i2c new style modle
+Date: Sun, 12 Oct 2008 09:57:15 +0200
+Message-ID: <20081012075715.GA26683@pengutronix.de>
+References: <56458e0810112335r529622dei4c6891465c6fdf88@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8353617792840431614=="
+Content-Type: multipart/mixed; boundary="===============0000216754919668348=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <56458e0810112335r529622dei4c6891465c6fdf88-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -14,55 +16,68 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Wen Wang <sickdoctor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============8353617792840431614==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_24747_270856.1223793349812"
 
-------=_Part_24747_270856.1223793349812
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--===============0000216754919668348==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Content-Disposition: inline
 
-Hi all,
 
- Currently I'm writing an i2c adapter driver and a client driver under
-2.6.25 kernel, and I need to update those drivers into 2.6.27 kernel.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can anyone please help to tell me if I have to upgrade my I2C client driver
-from legacy binding model to new style binding model in 2.6.27 kernel or
-not? If I have to :(, I don't know which part of code will update the board
-info about I2C devices or this should be done by the client driver?
+Hello Wen,
 
-Can anyone please help to answer that?
+On Sun, Oct 12, 2008 at 02:35:49PM +0800, Wen Wang wrote:
 
-Thanks
-Wen
+>    Can anyone please help to tell me if I have to upgrade my I2C client
+>    driver from legacy binding model to new style binding model in 2.6.27
+>    kernel or not?
 
-------=_Part_24747_270856.1223793349812
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+It is not required yet, but it is always a good idea to move to the new
+binding (which will be required somewhen, nevertheless).
+
+>    If I have to :(, I don't know which part of code will
+>    update the board info about I2C devices or this should be done by the
+>    client driver?
+
+I am not sure if I understood what you meant with "updating the board
+info". You supply i2c_board_info in your board init code and when the
+i2c adapter is initialized, it will call the client drivers
+probe-function. Maybe the guide in Documentation/i2c/upgrading-clients
+will further help you?
+
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
-<div dir="ltr"><div>Hi all,</div>
-<div>&nbsp;</div>
-<div>
-<div>Currently I&#39;m writing an i2c adapter driver and a client driver under 2.6.25 kernel, and I need to update those drivers into 2.6.27 kernel. </div>
-<div>&nbsp;</div>
-<div>Can anyone&nbsp;please help to&nbsp;tell me if&nbsp;I have to upgrade my I2C client driver from legacy binding&nbsp;model to new style binding model in 2.6.27 kernel or not? If I have to :(,&nbsp;I don&#39;t know&nbsp;which part of&nbsp;code will update the board info about I2C devices or this should be done by the client driver?</div>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-<div>&nbsp;</div>
-<div>Can anyone please help to answer that?</div>
-<div>&nbsp;</div>
-<div>Thanks</div>
-<div>Wen</div></div></div>
+iEYEARECAAYFAkjxrdsACgkQD27XaX1/VRsfawCffWGPa+gyEiYHd6AgVIfrPB6Q
+iS8Anjdqk1NHE3HdPUOtHCbnD+hhYWRX
+=0EXD
+-----END PGP SIGNATURE-----
 
-------=_Part_24747_270856.1223793349812--
+--2fHTh5uZTiUOsy+g--
 
 
---===============8353617792840431614==
+--===============0000216754919668348==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -72,4 +87,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============8353617792840431614==--
+--===============0000216754919668348==--
