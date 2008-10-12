@@ -1,14 +1,15 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: MPC8349E-mITX Power Management and GPIO
-	expander driver
-Date: Fri, 10 Oct 2008 13:46:19 -0500
-Message-ID: <7669DEAF-DD9D-42CD-8701-289165E78BBD@kernel.crashing.org>
-References: <20080923141300.GB31262@oksana.dev.rtsoft.ru>
-Mime-Version: 1.0 (Apple Message framework v929.2)
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
+Date: Sat, 11 Oct 2008 21:50:20 -0700
+Message-ID: <200810112150.21370.david-b@pacbell.net>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081010133344.653431af@hyperion.delvare>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080923141300.GB31262-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
+In-Reply-To: <20081010133344.653431af-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,30 +19,34 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+Cc: frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Friday 10 October 2008, Jean Delvare wrote:
+> Unfortunately your e-mail client replaced all tabs with spaces in the
+> patch, so I can't apply it, which makes reviewing it much harder.
+> Here's a first pass anyway, but please fix that and resend the patch in
+> such a format that I (and other developers) can apply it.
 
-On Sep 23, 2008, at 9:13 AM, Anton Vorontsov wrote:
+... and test it.
 
-> On MPC8349E-mITX, MPC8315E-RDB and MPC837x-RDB boards there is a
-> Freescale MC9S08QG8 (MCU) chip with the custom firmware
-> pre-programmed. The chip is used to power-off the board by the
-> software, and to control some GPIO pins.
->
-> Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-> ---
-> drivers/i2c/chips/Kconfig            |   11 ++
-> drivers/i2c/chips/Makefile           |    1 +
-> drivers/i2c/chips/mcu_mpc8349emitx.c |  209 +++++++++++++++++++++++++ 
-> +++++++++
-> 3 files changed, 221 insertions(+), 0 deletions(-)
-> create mode 100644 drivers/i2c/chips/mcu_mpc8349emitx.c
+At a quick glance, this looks like a sane conversion ... unlike the last
+one proposed, which I had to NAK since it broke driver functionality by
+trying to replace block transfers with non-equivalent byte-at-a-time ones.
+(Clock updates between bytes, boom!)
 
-applied
 
-- k
+> Note that while this patch deals with I2C, it affects an RTC driver so
+> you should send it to the RTC subsystem maintainer (Alessandro, Cc'd)
+> and mailing list. You might also want to get the last developers who
+> touched the rtc-ds1307 driver to test your patch. I've Cc'd them as
+> well.
+
+Right.  As a rule, use GIT history to see who's maintaining code
+when there's no MAINTAINERS entry.
+
+- Dave
 
 _______________________________________________
 i2c mailing list
