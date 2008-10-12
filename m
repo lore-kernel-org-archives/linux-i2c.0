@@ -1,15 +1,10 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
-Date: Sat, 11 Oct 2008 21:50:20 -0700
-Message-ID: <200810112150.21370.david-b@pacbell.net>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081010133344.653431af@hyperion.delvare>
+From: "Wen Wang" <sickdoctor-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Question about i2c new style modle
+Date: Sun, 12 Oct 2008 14:35:49 +0800
+Message-ID: <56458e0810112335r529622dei4c6891465c6fdf88@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8353617792840431614=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081010133344.653431af-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,36 +14,62 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Cc: frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 10 October 2008, Jean Delvare wrote:
-> Unfortunately your e-mail client replaced all tabs with spaces in the
-> patch, so I can't apply it, which makes reviewing it much harder.
-> Here's a first pass anyway, but please fix that and resend the patch in
-> such a format that I (and other developers) can apply it.
+--===============8353617792840431614==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_24747_270856.1223793349812"
 
-... and test it.
+------=_Part_24747_270856.1223793349812
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-At a quick glance, this looks like a sane conversion ... unlike the last
-one proposed, which I had to NAK since it broke driver functionality by
-trying to replace block transfers with non-equivalent byte-at-a-time ones.
-(Clock updates between bytes, boom!)
+Hi all,
+
+ Currently I'm writing an i2c adapter driver and a client driver under
+2.6.25 kernel, and I need to update those drivers into 2.6.27 kernel.
+
+Can anyone please help to tell me if I have to upgrade my I2C client driver
+from legacy binding model to new style binding model in 2.6.27 kernel or
+not? If I have to :(, I don't know which part of code will update the board
+info about I2C devices or this should be done by the client driver?
+
+Can anyone please help to answer that?
+
+Thanks
+Wen
+
+------=_Part_24747_270856.1223793349812
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr"><div>Hi all,</div>
+<div>&nbsp;</div>
+<div>
+<div>Currently I&#39;m writing an i2c adapter driver and a client driver under 2.6.25 kernel, and I need to update those drivers into 2.6.27 kernel. </div>
+<div>&nbsp;</div>
+<div>Can anyone&nbsp;please help to&nbsp;tell me if&nbsp;I have to upgrade my I2C client driver from legacy binding&nbsp;model to new style binding model in 2.6.27 kernel or not? If I have to :(,&nbsp;I don&#39;t know&nbsp;which part of&nbsp;code will update the board info about I2C devices or this should be done by the client driver?</div>
+
+<div>&nbsp;</div>
+<div>Can anyone please help to answer that?</div>
+<div>&nbsp;</div>
+<div>Thanks</div>
+<div>Wen</div></div></div>
+
+------=_Part_24747_270856.1223793349812--
 
 
-> Note that while this patch deals with I2C, it affects an RTC driver so
-> you should send it to the RTC subsystem maintainer (Alessandro, Cc'd)
-> and mailing list. You might also want to get the last developers who
-> touched the rtc-ds1307 driver to test your patch. I've Cc'd them as
-> well.
-
-Right.  As a rule, use GIT history to see who's maintaining code
-when there's no MAINTAINERS entry.
-
-- Dave
+--===============8353617792840431614==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============8353617792840431614==--
