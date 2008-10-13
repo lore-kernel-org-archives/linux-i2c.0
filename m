@@ -1,13 +1,10 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: MAX1236 with smbus (CS5536 ACB0)
-Date: Mon, 13 Oct 2008 09:25:48 +0200
-Message-ID: <20081013092548.3d58a320@hyperion.delvare>
-References: <48F2A270.8060307@leipzig.freifunk.net>
+From: taibian10-bMIU7o8fFFFWk0Htik3J/w@public.gmane.org
+Subject: [SPAM:24.9] 地元のオバサンを抱きたいですか？レベ  ルは低いですが確実に抱けますよ!!
+Date: Mon, 13 Oct 2008 16:17:38 +0900
+Message-ID: <26d3ac9cf08231310cbf699399f5b15c@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1172480849144979841=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48F2A270.8060307-bXdiauyh1GQ7K2kJdssfr+TW4wlIGRCZ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,71 +14,71 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Andreas Seidler <tetzlav-bXdiauyh1GQ7K2kJdssfr+TW4wlIGRCZ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andreas,
+--===============1172480849144979841==
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-2022-jp"
 
-On Mon, 13 Oct 2008 03:20:48 +0200, Andreas Seidler wrote:
-> I want to connect a MAX1236 (ADC) [1] to a I2C/SMBus in a
-> PC-Engines/ALIX board to monitor some voltages.
-> This board have a AMD geode CPU with an an I2C companion (scx200_acb.c).
-> 
-> >   Installed I2C busses:
-> >     i2c-0       smbus           CS5536 ACB0
-> > root@OpenWrt:/# i2cdetect -F 0
-> > Functionalities implemented by /dev/i2c-0:
-> > I2C                              no
-> > SMBus Quick Command              yes
-> > SMBus Send Byte                  yes
-> > SMBus Receive Byte               yes
-> > SMBus Write Byte                 yes
-> > SMBus Read Byte                  yes
-> > SMBus Write Word                 yes
-> > SMBus Read Word                  yes
-> > SMBus Process Call               no
-> > SMBus Block Write                no
-> > SMBus Block Read                 no
-> > SMBus Block Process Call         no
-> > SMBus PEC                        no
-> > I2C Block Write                  yes
-> > I2C Block Read                   yes
-> > root@OpenWrt:/# i2cdetect -y 0
-> >      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> > 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 40: -- -- -- -- -- -- -- -- -- -- -- -- 4c -- -- --
-> > 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> > 70: -- -- -- -- -- -- -- --    
-> 
-> but i cant access the MAX1236 on slave address 0x34.
-> (0x4c is the onbard LM90)
+$B!&!&!&!E!E!D!D(,(,(,(,(,(,(,(,(,(,(,(,(,(,(,!D!D!E!E!&!&!&(B
+$BFyBN4X78@lLg%3%_%e%K%F%#!<(B!$B:#$9$0CO85$N%[%F%k$XD>9T3N<B(B!!
+$B!&!&!&!E!E!D!D(,(,(,(,(,(,(,(,(,(,(,(,(,(,(,!D!D!E!E!&!&!&(B
+$B!!!!!!!!!!!!!!!!!!"-"-"-"-"-"-"-"-"-(B
+$B!!(B                ..______________..
+                $B!?A49qHG(B40$B:P0J>e@lMQ!@!!(B
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+$BEv%5%$%H$O(B40$BBe!A(B50$BBe$NFyBN4X78$r5a$a$F$$$k?M:J!&=O=w(B
+$B$,=8$^$kF|K\:GBg$NFyBN4X78%3%_%e%K%F%#!<%5%$%H$G$9!#(B
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+             $B!T$4MxMQ$K4X$7$F$N$4Cm0U!U(B
 
-Maybe it's not wired properly?
+$B-!!!$4MxMQ$OCK=w6&$K(B40$B:P0J>e$NJ}$N$_$H$5$;$FD:$-$^$9!#(B
 
-If it is wired properly, then another possibility is that the MAX1236
-is doing clock stretching beyond what the CS5536 supports...
+$B-"!!CK=w6&$K$*Aj<j$KMW5a$9$k;v$OFyBN4X78$N$_$G$9!#(B
 
-> Does "I2C no" means the CS5536 is a plain smbus without i2c support?
+$B-#!!%[%F%kBe$K4X$7$F$O$*8_$$$G7h$a$F2<$5$$!#(B
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+              $B!T$4MxMQJ}K!$K$D$$$F!U(B
 
-Yes and no. It means that the scx200_acb driver runs the CS5536 in
-SMBus mode without plain I2C support. But there is also the scx200_i2c
-driver (which I would love to see go away in favor of i2c-gpio but
-that's another story) which can use the same pins as GPIO to do plain
-I2C. If I read the MAX1236 datasheet properly, it uses transactions
-which aren't part of the SMBus set, so you may need to use the
-scx200_i2c driver, depending on what exactly you need to do with the
-MAX1236. There are still a few SMBus transactions which should work
-though, and that may be enough.
+$B-!!!$44uK>$NCO0h!&%a!<%k%"%I%l%9!&%Q%9%o!<%I$r(B
+    $B@_Dj$7$FD:$-$^$9!#(B
 
--- 
-Jean Delvare
+$B-"!!<!$K4JC1$J<+8J(BPR$B$r@_Dj$7$FD:$-$^$9!#(B
+
+$B-#!!FyBN4X78$r4uK>$9$k$*Aj<j$r8!:w$7$FD:$-$^$9!#(B
+
+$B-$!!$4MxMQ$5$l$F$$$k?M:J!&=O=w$5$s$OA4$F<+8J(BPR$BFb$K(B
+    $B7HBSHV9fKt$OD>%"%I%l%9$,I=<($5$l$F$*$j$^$9$N$G(B
+    $B$=$N;~E@$GD>@\$4O"Mm$r$7$FD:$$$F$b7k9=$G$9$7!"(B
+    $B%5%$%HFb$+$i%a!<%k$K$FO"Mm$r<h$k;v$b2DG=$G$9$N(B
+    $B$G$*9%$-$JO"MmJ}K!$G8r>D$7$F2<$5$$!#(B
+
+$B!ZCm0U![<+8J(BPR$BFb$KO"Mm@h$NI=<($,L5$$?M:J!&=O=w$5$s$O(B
+$B!!!!!!!!8r>D$,@.N)$7FyBN4X78Cf$G$9$N$GO"Mm@h$NI=<($,(B
+$B!!!!!!!!I|3h8e!":FEY8r>D$r$*4j$$CW$7$^$9!#(B
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+$B!|K\F|!"CO85$N%*%P%5%s$HFyBN4X78$r4uK>$5$l$kCK@-$O(B
+  http://wewste.com/118/1447
+
+$B!|K\F|!"2P>H$C$?BN$rK~$?$7$FM_$7$$%*%P%5%s$O(B
+$B!!(Bhttp://wewste.com/118/1447
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+$B!zBT9g$o$;$N>l=j$r%j%"%k%?%$%`$G$d$j<h$j3NG'$5$l$?$$(B
+$B!!J}$O%b%P%$%k!J7HBSEEOC!K$G$N@_Dj$r%*%9%9%aCW$7$^$9!#(B
+$B(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(,(!(B
+
+
+
+
+--===============1172480849144979841==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============1172480849144979841==--
