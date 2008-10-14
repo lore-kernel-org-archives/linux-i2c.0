@@ -1,38 +1,37 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [GIT PULL] i2c updates for 2.6.28, round 1
-Date: Tue, 14 Oct 2008 21:51:37 +0200
-Message-ID: <20081014215137.2d039afb@hyperion.delvare>
-References: <20081014180333.55d9004a@hyperion.delvare>
-	<20081014.114609.74110219.davem@davemloft.net>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
+Date: Tue, 14 Oct 2008 08:47:18 -0700
+Message-ID: <200810140847.18839.david-b@pacbell.net>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A2DA@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081014152928.6d91eefd@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754485AbYJNTwN@vger.kernel.org>
-In-Reply-To: <20081014.114609.74110219.davem@davemloft.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: torvalds@linux-foundation.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20081014152928.6d91eefd-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dave,
+On Tuesday 14 October 2008, Jean Delvare wrote:
+> On Tue, 14 Oct 2008 15:15:10 +0200, BARRE Sebastien wrote:
+> > New version is attached for tests and comments
 
-On Tue, 14 Oct 2008 11:46:09 -0700 (PDT), David Miller wrote:
-> From: Jean Delvare <khali@linux-fr.org>
-> Date: Tue, 14 Oct 2008 18:03:33 +0200
-> 
-> > Please pull the first round of i2c subsystem updates for Linux 2.6.28
-> > from:
-> > 
-> > git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
-> 
-> Jean, do you have my bus addressing and sparc I2C driver bits
-> in your queue that I submitted months ago?
+Could I see it too?
 
-Except for one i2c-i801 patch which depends on a pci_ids update, all I
-have in my queue was part of this pull request. So, no, I don't have
-your bus addressing nor sparc I2C driver bits. Honestly, I can't even
-remember getting such patches from you. Do you have some reference I
-can search for? If not, please send the patches to the i2c list again.
 
--- 
-Jean Delvare
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
