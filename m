@@ -1,79 +1,55 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PULL] i2c updates for 2.6.28, round 1
-Date: Tue, 14 Oct 2008 18:03:33 +0200
-Message-ID: <20081014180333.55d9004a@hyperion.delvare>
+From: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
+Date: Tue, 14 Oct 2008 18:40:38 +0200
+Message-ID: <20081014184038.6f1b5c59@i1501.lan.towertech.it>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081010133344.653431af@hyperion.delvare>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A032@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081013173206.6b7a5e1e@hyperion.delvare>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A2DA@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081014152202.4a88920a@i1501.lan.towertech.it>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317@PRI-MBX-101.dom1.vinci-energies.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753864AbYJNQEc@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317-iGzfJtNnmHkUlixSki3fykIJAyBIbWHDnAJcWxkt5PDR7s880joybQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, David-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Tue, 14 Oct 2008 17:57:29 +0200
+BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org> wrote:
 
-Please pull the first round of i2c subsystem updates for Linux 2.6.28
-from:
+> >  seems almost ok. please send your latest version to me and cc to
+> >  the rtc-list for the final review. if it passed Jean's tests
+> >  I'm confident it's quite ready for inclusion :)
+> 
+> Patch is attached to preserve tabs.
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+ bzzzt. wrong! patches must be submitted inline
 
-There is one new i2c bus driver (i2c-highlander), support for new VIA
-chips (VX800/VX820), documentation updates and many random fixes.
 
- Documentation/i2c/busses/i2c-viapro    |    8 +-
- Documentation/i2c/dev-interface        |  110 ++++++--
- Documentation/i2c/smbus-protocol       |    4 +-
- Documentation/i2c/writing-clients      |    4 +-
- arch/arm/mach-omap1/board-h3.c         |    4 +
- arch/arm/mach-omap2/board-h4.c         |   11 +
- drivers/hwmon/dme1737.c                |  320 ++++++++++-----------
- drivers/i2c/busses/Kconfig             |   20 +-
- drivers/i2c/busses/Makefile            |    1 +
- drivers/i2c/busses/i2c-highlander.c    |  498 ++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-parport-light.c |   39 +--
- drivers/i2c/busses/i2c-pca-isa.c       |   20 +-
- drivers/i2c/busses/i2c-viapro.c        |   17 +-
- drivers/i2c/chips/isp1301_omap.c       |  141 ++++------
- drivers/i2c/chips/tps65010.c           |   12 +-
- drivers/i2c/i2c-core.c                 |   35 +++-
- 16 files changed, 918 insertions(+), 326 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-highlander.c
-
----------------
-
-David Brownell (2):
-      i2c: Guard against oopses from bad init sequences
-      i2c: Do earlier driver model init
-
-Felipe Balbi (1):
-      i2c/isp1301_omap: Convert to a new-style i2c driver, part 1
-
-Jean Delvare (7):
-      i2c/isp1301_omap: Convert to a new-style i2c driver, part 2
-      hwmon: (dme1737) Be less i2c-centric
-      hwmon: (dme1737) Convert to a new-style i2c driver
-      i2c-parport-light: Don't register a platform device resource
-      i2c: Improve dev-interface documentation
-      i2c: Document the implementation details of the /dev interface
-      i2c: Only build Tyan SMBus mux drivers on x86
-
-Marek Vasut (1):
-      i2c/tps65010: Vibrator hookup to gpiolib
-
-Paul Mundt (1):
-      i2c: Renesas Highlander FPGA SMBus support
-
-Prakash Mortha (2):
-      i2c: Restore i2c_smbus_process_call function
-      i2c-viapro: Add support for SMBus Process Call transactions
-
-Rene Herman (1):
-      i2c-pca-isa: Don't grab arbitrary resources
-
-Rudolf Marek (1):
-      i2c-viapro: Add VX800/VX820 support
-
-Thanks,
 -- 
-Jean Delvare
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
