@@ -1,12 +1,18 @@
-From: "ecologie" <RET-XTC-DS5R-NKAJQ-DD-L8AIF@R.Ems7.net>
-Subject: =?iso-8859-1?q?R=E9ductions_de_votre_facture_d=27=E9nergie?=
-	=?iso-8859-1?q?=2E?=
-Date: Tue, 14 Oct 2008 11:16:30 +0200
-Message-ID: <fc8c73699bd1446094e594f6a7fa9690@R.Ems7.net>
-Reply-To: RET-XTC-DS5R-NKAJQ-DD-L8AIF@R.Ems7.net
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: PCA9665 support added to i2c-algo-pca and i2c-pca-isa.c
+Date: Tue, 14 Oct 2008 15:08:08 +0200
+Message-ID: <20081014130808.GD23594@pengutronix.de>
+References: <48D3B5B7.1060402@gamic.com> <20080919145500.GH4307@pengutronix.de>
+	<48D3C74E.1050801@gamic.com>
+	<20080920072131.GB12497@pengutronix.de>
+	<c76dcaf00809200409r7e0420c9rcb83a654d40e217a@mail.gmail.com>
+	<c76dcaf00809200510k7e6b4648v630dc33bf6401cca@mail.gmail.com>
+	<20081001173909.GG17953@pengutronix.de>
+	<c76dcaf00810021627y561e8dbdv5e85b1bc503d1f0b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6977424338502005951=="
+Content-Type: multipart/mixed; boundary="===============7352370019193823524=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <c76dcaf00810021627y561e8dbdv5e85b1bc503d1f0b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,47 +22,56 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============6977424338502005951==
-Content-type: text/html; charset=iso-8859-1
+
+--===============7352370019193823524==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="g7w8+K/95kPelPD2"
+Content-Disposition: inline
+
+
+--g7w8+K/95kPelPD2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-<div align=3D"center"><font face=3D"arial" size=3D"1">Si ce message ne =
-s'affiche pas correctement, <a href=3D"http://ems6=2Enet/a/?E=3DXTC-DS5=
-R-NKAJQ-DD-L8AIF" target=3D"_blank">cliquez ici</a></font></div>
+Hi Marco,
 
-<p>
-Madame, Monsieur,
-</p>
-<p>
-Les Prix de l'=E9nergie flambent ! Vos factures sont de plus en plus lo=
-urdes !<br />
-<br />
-Il y a des solutions pour r=E9duire vos factures d'=E9nergie,=A0 am=E9l=
-iorer votre confort,<br />
-<br />
-prot=E9ger l'environnement, tout en b=E9n=E9ficiant de cr=E9dits d'imp=F4=
-ts=2E
-</p>
-<p>
-<a href=3D"http://www=2Eecovy=2Efr/index=2Ephp?rub=3Dcontact&M=3DAV"><i=
-mg src=3D"http://www=2Eecovy=2Efr/mailing/ecovy=2Egif" width=3D"442" he=
-ight=3D"700" border=3D"0" /></a>
-</p>
-<div align=3D"center"><font face=3D"arial" size=3D"1">Message envoy=E9 =
-avec<br><a href=3D"http://ems6=2Enet/r/?E=3DXTC-DS5R-NKAJQ-DD-L8AIF-EE"=
- target=3D"_blank"><img src=3D"http://web=2Eemailingsolution=2Ecom/ems/=
-signature/ems=2Egif" border=3D"0"></a><br><A href=3D"http://ems6=2Enet/=
-u/?E=3DRET-XTC-DS5R-NKAJQ-DD-L8AIF&EMail=3Di2c@lm-sensors=2Eorg" target=
-=3D"_blank">Cliquez ici</A> pour vous d=E9sabonner ( i2c@lm-sensors=2Eo=
-rg )<BR><IMG SRC=3D"http://ems6=2Enet/r/?E=3DXTC-DS5R-NKAJQ-DD-L8AIF-2"=
- width=3D"1" height=3D"1">
+On Thu, Oct 02, 2008 at 08:27:05PM -0300, Marco Aurelio da Costa wrote:
+
+> Glad to hear! I will make the changes as you sugests and submit the
+> patch as soon as possible. I am out of office for some time.
+
+Any news on your patch?
+
+All the best,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--g7w8+K/95kPelPD2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkj0mbgACgkQD27XaX1/VRs6nACfeZPydwSbfm7uIZRbYS4QVIlg
+VGYAn12lb4Dtj4dcV5CsCa2ItcO3WfCo
+=pEtR
+-----END PGP SIGNATURE-----
+
+--g7w8+K/95kPelPD2--
 
 
-
---===============6977424338502005951==
+--===============7352370019193823524==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -66,4 +81,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============6977424338502005951==--
+--===============7352370019193823524==--
