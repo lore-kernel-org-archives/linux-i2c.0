@@ -1,172 +1,79 @@
-From: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
-Date: Tue, 14 Oct 2008 17:57:29 +0200
-Message-ID: <C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317@PRI-MBX-101.dom1.vinci-energies.net>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081010133344.653431af@hyperion.delvare>
-	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A032@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081013173206.6b7a5e1e@hyperion.delvare>
-	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A2DA@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081014152202.4a88920a@i1501.lan.towertech.it>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c updates for 2.6.28, round 1
+Date: Tue, 14 Oct 2008 18:03:33 +0200
+Message-ID: <20081014180333.55d9004a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317PRIMBX101dom1_"
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081014152202.4a88920a-1Z+4F8PJzVxlecnr3/Sf3RLwuzhV/fVh@public.gmane.org>
-Content-Language: fr-FR
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
-Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, David-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org, Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753864AbYJNQEc@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317PRIMBX101dom1_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Hi Linus,
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGVzc2FuZHJvIFp1bW1vIFtt
-YWlsdG86YWxlc3NhbmRyby56dW1tb0B0b3dlcnRlY2guaXRdDQo+IFNlbnQ6IFR1ZXNkYXksIE9j
-dG9iZXIgMTQsIDIwMDggMzoyMiBQTQ0KPiBUbzogQkFSUkUgU2ViYXN0aWVuDQo+IENjOiBKZWFu
-IERlbHZhcmU7IGkyY0BsbS1zZW5zb3JzLm9yZzsgZnJlZGVyaWMgUm9kbzsgRGF2aWQgQnJvd25l
-bGw7DQo+IFJvZG9sZm8gR2lvbWV0dGkNCj4gU3ViamVjdDogUmU6IFtpMmNdIFtQQVRDSCAyLjYu
-MjYuNV0gcnRjLWRzMTMwNyA6IFNNQnVzIGNvbXBhdGliaWxpdHkNCj4NCj4gT24gVHVlLCAxNCBP
-Y3QgMjAwOCAxNToxNToxMCArMDIwMA0KPiBCQVJSRSBTZWJhc3RpZW4gPHNiYXJyZUBzZGVsY2Mu
-Y29tPiB3cm90ZToNCj4NCj4gPiAgTm90ZTogeW91IG5lZWQgdG8gaW5jbHVkZSBhIGNvbW1lbnQg
-ZGVzY3JpYmluZyB3aGF0IHlvdXIgcGF0Y2ggZG9lcywNCj4gPiA+IGFzIHdlbGwgYXMgeW91ciBT
-aWduZWQtb2ZmLWJ5IGxpbmUuIEhlcmUncyBhIHNlY29uZCByZXZpZXcgZnJvbSBtZS4NCj4gPiA+
-IEFmdGVyIHRoYXQgaXQgd2lsbCBiZSB1cCB0byBBbGVzc2FuZHJvIGFuZCB0aGUgUlRDIGZvbGtz
-Lg0KPiA+ID4NCj4gPg0KPiA+IFNvIEknbSB3YWl0aW5nIGZvciB0aGVpciBjb21tZW50cy4NCj4N
-Cj4gIHNlZW1zIGFsbW9zdCBvay4gcGxlYXNlIHNlbmQgeW91ciBsYXRlc3QgdmVyc2lvbiB0byBt
-ZSBhbmQgY2MgdG8NCj4gIHRoZSBydGMtbGlzdCBmb3IgdGhlIGZpbmFsIHJldmlldy4gaWYgaXQg
-cGFzc2VkIEplYW4ncyB0ZXN0cw0KPiAgSSdtIGNvbmZpZGVudCBpdCdzIHF1aXRlIHJlYWR5IGZv
-ciBpbmNsdXNpb24gOikNCg0KUGF0Y2ggaXMgYXR0YWNoZWQgdG8gcHJlc2VydmUgdGFicy4NCg0K
-LS0NClPDqWJhc3RpZW4gQmFycsOpDQpCdXJlYXUgZCfDqXR1ZGUgLSBEw6l2ZWxvcHBlbWVudA0K
-U0RFTCBDb250csO0bGUgQ29tbWFuZGUNCkQyQSAtIFJ1ZSBOdW5nZXNzZXIgZXQgQ29saQ0KNDQ4
-NjAgU2FpbnQgQWlnbmFuIGRlIEdyYW5kIExpZXUNCkZSQU5DRQ0KVMOpbCA6ICszMygwKTIgNDAg
-ODQgNTAgODgNCkZheCA6ICszMygwKTIgNDAgODQgNTEgMTANCg==
+Please pull the first round of i2c subsystem updates for Linux 2.6.28
+from:
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317PRIMBX101dom1_
-Content-Type: application/octet-stream; name="patch-rtc-ds1307"
-Content-Description: patch-rtc-ds1307
-Content-Disposition: attachment; filename="patch-rtc-ds1307"; size=0;
-	creation-date="Tue, 14 Oct 2008 15:54:45 GMT";
-	modification-date="Tue, 14 Oct 2008 15:53:31 GMT"
-Content-Transfer-Encoding: base64
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
-VGhpcyBwYXRjaCBjaGFuZ2UgaTJjIGFjY2VzcyBmdW5jdGlvbnMgdG8gU01CdXMgYWNjZXNzIGZ1
-bmN0aW9ucwppbiBvcmRlciB0byB1c2UgdGhlIGRzMTMwNyB3aXRoIFNNQnVzIGFkYXB0ZXIuCgpT
-aWduZWQtb2ZmLWJ5OiBTZWJhc3RpZW4gQmFycmUgPHNiYXJyZUBzZGVsY2MuY29tPgpBY2tlZC1i
-eTogSmVhbiBEZWx2YXJlIDxraGFsaUBsaW51eC1mci5vcmc+Ci0tLSBhL2RyaXZlcnMvcnRjL3J0
-Yy1kczEzMDcuYwkyMDA4LTA5LTA4IDE5OjQwOjIwLjAwMDAwMDAwMCArMDIwMAorKysgYi9kcml2
-ZXJzL3J0Yy9ydGMtZHMxMzA3LmMJMjAwOC0xMC0xNCAxNDoyMjoxMi4wMDAwMDAwMDAgKzAyMDAK
-QEAgLTg4LDExICs4OCw5IEBAIGVudW0gZHNfdHlwZSB7CiAKIAogc3RydWN0IGRzMTMwNyB7Ci0J
-dTgJCQlyZWdfYWRkcjsKIAlib29sCQkJaGFzX252cmFtOwogCXU4CQkJcmVnc1s4XTsKIAllbnVt
-IGRzX3R5cGUJCXR5cGU7Ci0Jc3RydWN0IGkyY19tc2cJCW1zZ1syXTsKIAlzdHJ1Y3QgaTJjX2Ns
-aWVudAkqY2xpZW50OwogCXN0cnVjdCBpMmNfY2xpZW50CWRldjsKIAlzdHJ1Y3QgcnRjX2Rldmlj
-ZQkqcnRjOwpAQCAtMTM4LDEyICsxMzYsOSBAQCBzdGF0aWMgaW50IGRzMTMwN19nZXRfdGltZShz
-dHJ1Y3QgZGV2aWNlCiAJaW50CQl0bXA7CiAKIAkvKiByZWFkIHRoZSBSVEMgZGF0ZSBhbmQgdGlt
-ZSByZWdpc3RlcnMgYWxsIGF0IG9uY2UgKi8KLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IEkyQ19N
-X1JEOwotCWRzMTMwNy0+bXNnWzFdLmxlbiA9IDc7Ci0KLQl0bXAgPSBpMmNfdHJhbnNmZXIodG9f
-aTJjX2FkYXB0ZXIoZHMxMzA3LT5jbGllbnQtPmRldi5wYXJlbnQpLAotCQkJZHMxMzA3LT5tc2cs
-IDIpOwotCWlmICh0bXAgIT0gMikgeworCXRtcCA9IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19k
-YXRhKGRzMTMwNy0+Y2xpZW50LAorCQkJRFMxMzA3X1JFR19TRUNTLCA3LCBkczEzMDctPnJlZ3Mp
-OworCWlmICh0bXAgIT0gNykgewogCQlkZXZfZXJyKGRldiwgIiVzIGVycm9yICVkXG4iLCAicmVh
-ZCIsIHRtcCk7CiAJCXJldHVybiAtRUlPOwogCX0KQEAgLTE5MCw3ICsxODUsNiBAQCBzdGF0aWMg
-aW50IGRzMTMwN19zZXRfdGltZShzdHJ1Y3QgZGV2aWNlCiAJCXQtPnRtX2hvdXIsIHQtPnRtX21k
-YXksCiAJCXQtPnRtX21vbiwgdC0+dG1feWVhciwgdC0+dG1fd2RheSk7CiAKLQkqYnVmKysgPSAw
-OwkJLyogZmlyc3QgcmVnaXN0ZXIgYWRkciAqLwogCWJ1ZltEUzEzMDdfUkVHX1NFQ1NdID0gQklO
-MkJDRCh0LT50bV9zZWMpOwogCWJ1ZltEUzEzMDdfUkVHX01JTl0gPSBCSU4yQkNEKHQtPnRtX21p
-bik7CiAJYnVmW0RTMTMwN19SRUdfSE9VUl0gPSBCSU4yQkNEKHQtPnRtX2hvdXIpOwpAQCAtMjE1
-LDE4ICsyMDksMTQgQEAgc3RhdGljIGludCBkczEzMDdfc2V0X3RpbWUoc3RydWN0IGRldmljZQog
-CQlicmVhazsKIAl9CiAKLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IDA7Ci0JZHMxMzA3LT5tc2db
-MV0ubGVuID0gODsKLQogCWRldl9kYmcoZGV2LCAiJXM6ICUwMnggJTAyeCAlMDJ4ICUwMnggJTAy
-eCAlMDJ4ICUwMnhcbiIsCiAJCSJ3cml0ZSIsIGJ1ZlswXSwgYnVmWzFdLCBidWZbMl0sIGJ1Zlsz
-XSwKIAkJYnVmWzRdLCBidWZbNV0sIGJ1Zls2XSk7CiAKLQlyZXN1bHQgPSBpMmNfdHJhbnNmZXIo
-dG9faTJjX2FkYXB0ZXIoZHMxMzA3LT5jbGllbnQtPmRldi5wYXJlbnQpLAotCQkJJmRzMTMwNy0+
-bXNnWzFdLCAxKTsKLQlpZiAocmVzdWx0ICE9IDEpIHsKLQkJZGV2X2VycihkZXYsICIlcyBlcnJv
-ciAlZFxuIiwgIndyaXRlIiwgdG1wKTsKLQkJcmV0dXJuIC1FSU87CisJcmVzdWx0ID0gaTJjX3Nt
-YnVzX3dyaXRlX2kyY19ibG9ja19kYXRhKGRzMTMwNy0+Y2xpZW50LCAwLCA3LCBidWYpOworCWlm
-IChyZXN1bHQgPCAwKSB7CisJCWRldl9lcnIoZGV2LCAiJXMgZXJyb3IgJWRcbiIsICJ3cml0ZSIs
-IHJlc3VsdCk7CisJCXJldHVybiByZXN1bHQ7CiAJfQogCXJldHVybiAwOwogfQpAQCAtMjQ2LDcg
-KzIzNiw2IEBAIGRzMTMwN19udnJhbV9yZWFkKHN0cnVjdCBrb2JqZWN0ICprb2JqLCAKIHsKIAlz
-dHJ1Y3QgaTJjX2NsaWVudAkqY2xpZW50OwogCXN0cnVjdCBkczEzMDcJCSpkczEzMDc7Ci0Jc3Ry
-dWN0IGkyY19tc2cJCW1zZ1syXTsKIAlpbnQJCQlyZXN1bHQ7CiAKIAljbGllbnQgPSBrb2JqX3Rv
-X2kyY19jbGllbnQoa29iaik7CkBAIC0yNTksMjQgKzI0OCwxMCBAQCBkczEzMDdfbnZyYW1fcmVh
-ZChzdHJ1Y3Qga29iamVjdCAqa29iaiwgCiAJaWYgKHVubGlrZWx5KCFjb3VudCkpCiAJCXJldHVy
-biBjb3VudDsKIAotCW1zZ1swXS5hZGRyID0gY2xpZW50LT5hZGRyOwotCW1zZ1swXS5mbGFncyA9
-IDA7Ci0JbXNnWzBdLmxlbiA9IDE7Ci0JbXNnWzBdLmJ1ZiA9IGJ1ZjsKLQotCWJ1ZlswXSA9IDgg
-KyBvZmY7Ci0KLQltc2dbMV0uYWRkciA9IGNsaWVudC0+YWRkcjsKLQltc2dbMV0uZmxhZ3MgPSBJ
-MkNfTV9SRDsKLQltc2dbMV0ubGVuID0gY291bnQ7Ci0JbXNnWzFdLmJ1ZiA9IGJ1ZjsKLQotCXJl
-c3VsdCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJlbnQpLCBt
-c2csIDIpOwotCWlmIChyZXN1bHQgIT0gMikgeworCXJlc3VsdCA9IGkyY19zbWJ1c19yZWFkX2ky
-Y19ibG9ja19kYXRhKGNsaWVudCwgOCArIG9mZiwgY291bnQsIGJ1Zik7CisJaWYgKHJlc3VsdCA8
-IDApCiAJCWRldl9lcnIoJmNsaWVudC0+ZGV2LCAiJXMgZXJyb3IgJWRcbiIsICJudnJhbSByZWFk
-IiwgcmVzdWx0KTsKLQkJcmV0dXJuIC1FSU87Ci0JfQotCXJldHVybiBjb3VudDsKKwlyZXR1cm4g
-cmVzdWx0OwogfQogCiBzdGF0aWMgc3NpemVfdApAQCAtMjg0LDggKzI1OSw3IEBAIGRzMTMwN19u
-dnJhbV93cml0ZShzdHJ1Y3Qga29iamVjdCAqa29iaiwKIAkJY2hhciAqYnVmLCBsb2ZmX3Qgb2Zm
-LCBzaXplX3QgY291bnQpCiB7CiAJc3RydWN0IGkyY19jbGllbnQJKmNsaWVudDsKLQl1OAkJCWJ1
-ZmZlcltOVlJBTV9TSVpFICsgMV07Ci0JaW50CQkJcmV0OworCWludAkJCXJlc3VsdDsKIAogCWNs
-aWVudCA9IGtvYmpfdG9faTJjX2NsaWVudChrb2JqKTsKIApAQCAtMjk2LDExICsyNzAsMTIgQEAg
-ZHMxMzA3X252cmFtX3dyaXRlKHN0cnVjdCBrb2JqZWN0ICprb2JqLAogCWlmICh1bmxpa2VseSgh
-Y291bnQpKQogCQlyZXR1cm4gY291bnQ7CiAKLQlidWZmZXJbMF0gPSA4ICsgb2ZmOwotCW1lbWNw
-eShidWZmZXIgKyAxLCBidWYsIGNvdW50KTsKLQotCXJldCA9IGkyY19tYXN0ZXJfc2VuZChjbGll
-bnQsIGJ1ZmZlciwgY291bnQgKyAxKTsKLQlyZXR1cm4gKHJldCA8IDApID8gcmV0IDogKHJldCAt
-IDEpOworCXJlc3VsdCA9IGkyY19zbWJ1c193cml0ZV9pMmNfYmxvY2tfZGF0YShjbGllbnQsIDgg
-KyBvZmYsIGNvdW50LCBidWYpOworCWlmIChyZXN1bHQgPCAwKSB7CisJCWRldl9lcnIoJmNsaWVu
-dC0+ZGV2LCAiJXMgZXJyb3IgJWRcbiIsICJudnJhbSB3cml0ZSIsIHJlc3VsdCk7CisJCXJldHVy
-biByZXN1bHQ7CisJfQorCXJldHVybiBjb3VudDsKIH0KIAogc3RhdGljIHN0cnVjdCBiaW5fYXR0
-cmlidXRlIG52cmFtID0gewpAQCAtMzI1LDExICszMDAsMTMgQEAgc3RhdGljIGludCBfX2Rldmlu
-aXQgZHMxMzA3X3Byb2JlKHN0cnVjdAogCXN0cnVjdCBkczEzMDcJCSpkczEzMDc7CiAJaW50CQkJ
-ZXJyID0gLUVOT0RFVjsKIAlpbnQJCQl0bXA7CisJdTgJCQkqYnVmOwogCWNvbnN0IHN0cnVjdCBj
-aGlwX2Rlc2MJKmNoaXAgPSAmY2hpcHNbaWQtPmRyaXZlcl9kYXRhXTsKIAlzdHJ1Y3QgaTJjX2Fk
-YXB0ZXIJKmFkYXB0ZXIgPSB0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJlbnQpOwogCiAJ
-aWYgKCFpMmNfY2hlY2tfZnVuY3Rpb25hbGl0eShhZGFwdGVyLAotCQkJSTJDX0ZVTkNfSTJDIHwg
-STJDX0ZVTkNfU01CVVNfV1JJVEVfQllURV9EQVRBKSkKKwkJCUkyQ19GVU5DX1NNQlVTX1dSSVRF
-X0JZVEVfREFUQSB8CisJCQlJMkNfRlVOQ19TTUJVU19JMkNfQkxPQ0spKQogCQlyZXR1cm4gLUVJ
-TzsKIAogCWlmICghKGRzMTMwNyA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBkczEzMDcpLCBHRlBf
-S0VSTkVMKSkpCkBAIC0zMzgsMzUgKzMxNSwyMSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCBkczEz
-MDdfcHJvYmUoc3RydWN0CiAJZHMxMzA3LT5jbGllbnQgPSBjbGllbnQ7CiAJaTJjX3NldF9jbGll
-bnRkYXRhKGNsaWVudCwgZHMxMzA3KTsKIAotCWRzMTMwNy0+bXNnWzBdLmFkZHIgPSBjbGllbnQt
-PmFkZHI7Ci0JZHMxMzA3LT5tc2dbMF0uZmxhZ3MgPSAwOwotCWRzMTMwNy0+bXNnWzBdLmxlbiA9
-IDE7Ci0JZHMxMzA3LT5tc2dbMF0uYnVmID0gJmRzMTMwNy0+cmVnX2FkZHI7Ci0KLQlkczEzMDct
-Pm1zZ1sxXS5hZGRyID0gY2xpZW50LT5hZGRyOwotCWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gSTJD
-X01fUkQ7Ci0JZHMxMzA3LT5tc2dbMV0ubGVuID0gc2l6ZW9mKGRzMTMwNy0+cmVncyk7Ci0JZHMx
-MzA3LT5tc2dbMV0uYnVmID0gZHMxMzA3LT5yZWdzOwotCiAJZHMxMzA3LT50eXBlID0gaWQtPmRy
-aXZlcl9kYXRhOwogCiAJc3dpdGNoIChkczEzMDctPnR5cGUpIHsKIAljYXNlIGRzXzEzMzc6CiAJ
-Y2FzZSBkc18xMzM5OgotCQlkczEzMDctPnJlZ19hZGRyID0gRFMxMzM3X1JFR19DT05UUk9MOwot
-CQlkczEzMDctPm1zZ1sxXS5sZW4gPSAyOwotCisJCWJ1ZiA9ICZkczEzMDctPnJlZ3NbRFMxMzM3
-X1JFR19DT05UUk9MXTsKIAkJLyogZ2V0IHJlZ2lzdGVycyB0aGF0IHRoZSAicnRjIiByZWFkIGJl
-bG93IHdvbid0IHJlYWQuLi4gKi8KLQkJdG1wID0gaTJjX3RyYW5zZmVyKGFkYXB0ZXIsIGRzMTMw
-Ny0+bXNnLCAyKTsKKwkJdG1wID0gaTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoZHMxMzA3
-LT5jbGllbnQsCisJCQkJRFMxMzM3X1JFR19DT05UUk9MLCAyLCBidWYpOwogCQlpZiAodG1wICE9
-IDIpIHsKIAkJCXByX2RlYnVnKCJyZWFkIGVycm9yICVkXG4iLCB0bXApOwogCQkJZXJyID0gLUVJ
-TzsKIAkJCWdvdG8gZXhpdF9mcmVlOwogCQl9CiAKLQkJZHMxMzA3LT5yZWdfYWRkciA9IDA7Ci0J
-CWRzMTMwNy0+bXNnWzFdLmxlbiA9IHNpemVvZihkczEzMDctPnJlZ3MpOwotCiAJCS8qIG9zY2ls
-bGF0b3Igb2ZmPyAgdHVybiBpdCBvbiwgc28gY2xvY2sgY2FuIHRpY2suICovCiAJCWlmIChkczEz
-MDctPnJlZ3NbMF0gJiBEUzEzMzdfQklUX25FT1NDKQogCQkJaTJjX3NtYnVzX3dyaXRlX2J5dGVf
-ZGF0YShjbGllbnQsIERTMTMzN19SRUdfQ09OVFJPTCwKQEAgLTM4NSw5ICszNDgsOSBAQCBzdGF0
-aWMgaW50IF9fZGV2aW5pdCBkczEzMDdfcHJvYmUoc3RydWN0CiAKIHJlYWRfcnRjOgogCS8qIHJl
-YWQgUlRDIHJlZ2lzdGVycyAqLwotCi0JdG1wID0gaTJjX3RyYW5zZmVyKGFkYXB0ZXIsIGRzMTMw
-Ny0+bXNnLCAyKTsKLQlpZiAodG1wICE9IDIpIHsKKwlidWYgPSBkczEzMDctPnJlZ3M7CisJdG1w
-ID0gaTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoZHMxMzA3LT5jbGllbnQsIDAsIDgsIGJ1
-Zik7CisJaWYgKHRtcCAhPSA4KSB7CiAJCXByX2RlYnVnKCJyZWFkIGVycm9yICVkXG4iLCB0bXAp
-OwogCQllcnIgPSAtRUlPOwogCQlnb3RvIGV4aXRfZnJlZTsK
+There is one new i2c bus driver (i2c-highlander), support for new VIA
+chips (VX800/VX820), documentation updates and many random fixes.
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317PRIMBX101dom1_
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ Documentation/i2c/busses/i2c-viapro    |    8 +-
+ Documentation/i2c/dev-interface        |  110 ++++++--
+ Documentation/i2c/smbus-protocol       |    4 +-
+ Documentation/i2c/writing-clients      |    4 +-
+ arch/arm/mach-omap1/board-h3.c         |    4 +
+ arch/arm/mach-omap2/board-h4.c         |   11 +
+ drivers/hwmon/dme1737.c                |  320 ++++++++++-----------
+ drivers/i2c/busses/Kconfig             |   20 +-
+ drivers/i2c/busses/Makefile            |    1 +
+ drivers/i2c/busses/i2c-highlander.c    |  498 ++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-parport-light.c |   39 +--
+ drivers/i2c/busses/i2c-pca-isa.c       |   20 +-
+ drivers/i2c/busses/i2c-viapro.c        |   17 +-
+ drivers/i2c/chips/isp1301_omap.c       |  141 ++++------
+ drivers/i2c/chips/tps65010.c           |   12 +-
+ drivers/i2c/i2c-core.c                 |   35 +++-
+ 16 files changed, 918 insertions(+), 326 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-highlander.c
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317PRIMBX101dom1_--
+---------------
+
+David Brownell (2):
+      i2c: Guard against oopses from bad init sequences
+      i2c: Do earlier driver model init
+
+Felipe Balbi (1):
+      i2c/isp1301_omap: Convert to a new-style i2c driver, part 1
+
+Jean Delvare (7):
+      i2c/isp1301_omap: Convert to a new-style i2c driver, part 2
+      hwmon: (dme1737) Be less i2c-centric
+      hwmon: (dme1737) Convert to a new-style i2c driver
+      i2c-parport-light: Don't register a platform device resource
+      i2c: Improve dev-interface documentation
+      i2c: Document the implementation details of the /dev interface
+      i2c: Only build Tyan SMBus mux drivers on x86
+
+Marek Vasut (1):
+      i2c/tps65010: Vibrator hookup to gpiolib
+
+Paul Mundt (1):
+      i2c: Renesas Highlander FPGA SMBus support
+
+Prakash Mortha (2):
+      i2c: Restore i2c_smbus_process_call function
+      i2c-viapro: Add support for SMBus Process Call transactions
+
+Rene Herman (1):
+      i2c-pca-isa: Don't grab arbitrary resources
+
+Rudolf Marek (1):
+      i2c-viapro: Add VX800/VX820 support
+
+Thanks,
+-- 
+Jean Delvare
