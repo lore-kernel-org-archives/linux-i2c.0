@@ -1,56 +1,27 @@
-From: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
-Date: Tue, 14 Oct 2008 18:24:27 +0200
-Message-ID: <C1C62166118DFA4A8BBA01A2411F0D170E9BE5A323@PRI-MBX-101.dom1.vinci-energies.net>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
-	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A2DA@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081014152928.6d91eefd@hyperion.delvare>
-	<200810140847.18839.david-b@pacbell.net>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [GIT PULL] i2c updates for 2.6.28, round 1
+Date: Tue, 14 Oct 2008 11:46:09 -0700 (PDT)
+Message-ID: <20081014.114609.74110219.davem@davemloft.net>
+References: <20081014180333.55d9004a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200810140847.18839.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Content-Language: fr-FR
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753432AbYJNSqn@vger.kernel.org>
+In-Reply-To: <20081014180333.55d9004a@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org
+Cc: torvalds@linux-foundation.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBEYXZpZCBCcm93bmVsbCBbbWFp
-bHRvOmRhdmlkLWJAcGFjYmVsbC5uZXRdDQo+IFNlbnQ6IFR1ZXNkYXksIE9jdG9iZXIgMTQsIDIw
-MDggNTo0NyBQTQ0KPiBUbzogSmVhbiBEZWx2YXJlDQo+IENjOiBCQVJSRSBTZWJhc3RpZW47IGky
-Y0BsbS1zZW5zb3JzLm9yZzsgQWxlc3NhbmRybyBadW1tbzsgZnJlZGVyaWMgUm9kbzsNCj4gUm9k
-b2xmbyBHaW9tZXR0aQ0KPiBTdWJqZWN0OiBSZTogW2kyY10gW1BBVENIIDIuNi4yNi41XSBydGMt
-ZHMxMzA3IDogU01CdXMgY29tcGF0aWJpbGl0eQ0KPg0KPiBPbiBUdWVzZGF5IDE0IE9jdG9iZXIg
-MjAwOCwgSmVhbiBEZWx2YXJlIHdyb3RlOg0KPiA+IE9uIFR1ZSwgMTQgT2N0IDIwMDggMTU6MTU6
-MTAgKzAyMDAsIEJBUlJFIFNlYmFzdGllbiB3cm90ZToNCj4gPiA+IE5ldyB2ZXJzaW9uIGlzIGF0
-dGFjaGVkIGZvciB0ZXN0cyBhbmQgY29tbWVudHMNCj4NCj4gQ291bGQgSSBzZWUgaXQgdG9vPw0K
-DQpTb3JyeSBEYXZpZCwgeW91IHdlcmUgaW4gQ0Mgb2YgdGhpcyBtZXNzYWdlIGJ1dCBJIHJlY2Vp
-dmVkIGFuIGVycm9yIGZvciB5b3VyIG1haWwgYWRyZXNzIDoNCg0KPls8MDA+XSBYTWFpbCBib3Vu
-Y2U6IFJjcHQ9W2RhdmlkLWJAcGFjYmVsbC5uZXRdO0Vycm9yPVs1NTMgNS4zLjAgZmxwaTExNyAt
-IG05RUZ4Nk9TMDE0NDU1LCBETlNCTDo1MjE8IDgxLjI1Mi44Ni44NyA+Pl9pc19ibG9ja2VkLl9f
-Rm9yX2luZm9ybWF0aW9uX3NlZV9odHRwOi8vYXR0Lm5ldC9ibG9ja3NdDQo+DQo+DQo+WzwwMT5d
-IEVycm9yIHNlbmRpbmcgbWVzc2FnZSBbMTIyMzk5OTk0NTM4MC4zMDk3NTA0Njg4LjJhMzgxZS5z
-bXRwNF0gZnJvbSBbdmluY2ktZW5lcmdpZXMuY29tXS4NCj4NCj5JRDogICAgICAgIDxTQ0RDQkM1
-Pg0KPk1haWwgRnJvbTogPHNiYXJyZUBzZGVsY2MuY29tPg0KPlJjcHQgVG86ICAgPGRhdmlkLWJA
-cGFjYmVsbC5uZXQ+DQo+U2VydmVyOiAgICA8ZmYtbXgtdmlwNGIucHJvZGlneS5uZXQ+IFsyMDcu
-MTE1LjIxLjIzXQ0KPg0KPg0KPls8MDI+XSBUaGUgcmVhc29uIG9mIHRoZSBkZWxpdmVyeSBmYWls
-dXJlIHdhczoNCj4NCj41NTMgNS4zLjAgZmxwaTExNyAtIG05RUZ4Nk9TMDE0NDU1LCBETlNCTDo1
-MjE8IDgxLjI1Mi44Ni44NyA+X2lzX2Jsb2NrZWQuX19Gb3JfaW5mb3JtYXRpb25fc2VlX2h0dHA6
-Ly9hdHQubmV0L2Jsb2Nrcw0KDQpNeSBtYWlscyBhcmUgYmxvY2tlZCBieSBhIHNlcnZlci4NCg0K
-SmVhbiwgQ291bGQgeW91IGZvcndhcmQgdGhpcyBtZXNzYWdlIHRvIERhdmlkLg0KVGhhbmtzLg0K
-DQotLQ0KU8OpYmFzdGllbiBCYXJyw6kNCkJ1cmVhdSBkJ8OpdHVkZSAtIETDqXZlbG9wcGVtZW50
-DQpTREVMIENvbnRyw7RsZSBDb21tYW5kZQ0KRDJBIC0gUnVlIE51bmdlc3NlciBldCBDb2xpDQo0
-NDg2MCBTYWludCBBaWduYW4gZGUgR3JhbmQgTGlldQ0KRlJBTkNFDQpUw6lsIDogKzMzKDApMiA0
-MCA4NCA1MCA4OA0KRmF4IDogKzMzKDApMiA0MCA4NCA1MSAxMA0KX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaTJjIG1haWxpbmcgbGlzdAppMmNAbG0tc2Vu
-c29ycy5vcmcKaHR0cDovL2xpc3RzLmxtLXNlbnNvcnMub3JnL21haWxtYW4vbGlzdGluZm8vaTJj
+From: Jean Delvare <khali@linux-fr.org>
+Date: Tue, 14 Oct 2008 18:03:33 +0200
+
+> Please pull the first round of i2c subsystem updates for Linux 2.6.28
+> from:
+> 
+> git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+
+Jean, do you have my bus addressing and sparc I2C driver bits
+in your queue that I submitted months ago?
+
+Thanks.
