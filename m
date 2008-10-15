@@ -1,14 +1,15 @@
-From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Subject: Re: [PATCH 5/6]: i2c: Add bus addressing support.
-Date: Wed, 15 Oct 2008 14:37:22 -0700 (PDT)
-Message-ID: <20081015.143722.260594637.davem@davemloft.net>
-References: <20080821.024330.51639001.davem@davemloft.net>
-	<20081015145228.14b1ae77@hyperion.delvare>
+From: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
+Subject: Re: [PATCH 2/6]: i2c-pcf: Add adapter hooks around xfer begin
+ and end.
+Date: Wed, 15 Oct 2008 17:37:41 -0400
+Message-ID: <48F662A5.4050303@linuxtv.org>
+References: <20080821.024322.35962617.davem@davemloft.net>
+	<20081015141914.7d6c3dd5@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081015145228.14b1ae77-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20081015141914.7d6c3dd5-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,57 +19,50 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Date: Wed, 15 Oct 2008 14:52:28 +0200
-
+Jean Delvare wrote:
 > Hi David,
-> 
-> On Thu, 21 Aug 2008 02:43:30 -0700 (PDT), David Miller wrote:
-> > 
-> > i2c: Add bus addressing support.
-> > 
-> > Some I2C bus controllers support the driving of multiple I2C bus
-> > segments (think PCI domains).
-> > 
-> > For example, the pcf8584 variants on some sparc64 boxes can do this.
-> > They have an auxiliary 8-bit register that specifies the I2C bus each
-> > I2C operation acts upon.  In the openfirmware device tree, the I2C
-> > client devices are described using an 8-bit bus address and a 10-bit
-> > I2C device address.
-> 
-> Can you please point me to the part of the PCF8454 datasheet which
-> explains this? I can't find it. As I read the datasheet, the PCF8454
-> supports a single I2C bus.
+>
+> On Thu, 21 Aug 2008 02:43:22 -0700 (PDT), David Miller wrote:
+>   
+>> i2c-pcf: Add adapter hooks around xfer begin and end.
+>>
+>> Some I2C bus implementations need to synchronize with external
+>> entities, such as system firmware, which might also be programming the
+>> same I2C bus.
+>>
+>> In order to facilitate this add ->xfer_begin() and ->xfer_end() hooks
+>> which are invoked around pcf_xfer().
+>>     
+>
+> I get the idea, but I'm not sure about the implementation. I had a
+> request several months ago for something similar for the i2c-algo-bit
+> driver. I don't think we want to duplicate this mechanism in every
+> i2c-algo driver, so it would probably make sense to implement it
+> at the i2c-core level?
+>
+> Michael, do you still need this for i2c-algo-bit? We did not discuss
+> this again recently, so I admit I don't know what is the status of this
+> request.
 
-It's a feature Sun added to their PCF chips.  The register address
-is forwarded to an internal MUX they implemented which implements
-the register selecting the I2C bus.
+Jean,
 
-> Oh my, holy crap! I can't believe you dared to propose this.
+Yes, the problem still exists, and I still need a way to lock the i2c 
+adapter during certain volitile operations at driver start-up.
 
-Propose an alternative solution that actually works and preserves
-compatability, as mine does.
+Right now I have an artificial delay in place as a workaround, but 
+that's only because there currently is no other choice.
 
-> I don't like this at all. This really looks like a custom hack to solve
-> the problem at hand without paying too much attention to compatibility
-> issues which I am certain will arise. Just to mention the first one
-> that comes to mind: access from user-space through i2c-dev, and
-> specifically i2c-tools.
+Basically, I have a single piece of silicon that is capable of bringing 
+down the entire i2c bus if somebody attempts to communicate with any 
+other IC during initialization of this silicon.
 
-I got that working, read the patch my patch works, I was careful
-to keep things working.
+Regards,
 
-> What makes your setup fundamentally different from a motherboard with
-> more than one I2C bus (which is a rather common case)? Why don't you
-> simply register one i2c_adapter for each i2c bus segment?
-
-It doesn't work like that.  All the bit banging goes through the
-one I2C controller, the bus it is accessing is simply changed behind
-it's back by that special register.
+Mike
 
 _______________________________________________
 i2c mailing list
