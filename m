@@ -1,14 +1,14 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: MAX1236 with smbus (CS5536 ACB0)
-Date: Wed, 15 Oct 2008 12:10:00 +0100
-Message-ID: <48F5CF88.2030500@cam.ac.uk>
-References: <48F2A270.8060307@leipzig.freifunk.net>	<20081013092548.3d58a320@hyperion.delvare>	<48F32CE9.8000109@cam.ac.uk>
-	<gd3g3j$29i$1@ger.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/6]: i2c-pcf: Pass adapter data into
+ ->waitforpin() method.
+Date: Wed, 15 Oct 2008 13:29:53 +0200
+Message-ID: <20081015132953.0f774808@hyperion.delvare>
+References: <20080821.024319.22788780.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <gd3g3j$29i$1@ger.gmane.org>
+In-Reply-To: <20080821.024319.22788780.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,111 +18,62 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Andreas Seidler <tetzlav-bXdiauyh1GQ7K2kJdssfr+TW4wlIGRCZ@public.gmane.org>
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Andreas Seidler wrote:
-> Jonathan Cameron schrieb:
->> A driver that should work with this chip is part of the
->> iio subsystem, so I have a fair bit of familiarity (though
->> only via 1238 rather than this exact model)
-> 
-> I found this subsystem too and its promising, but it depends on RTC with
-> periodic Interupts - and most of embedded hardware lacks of such RTCs.
-In current code periodic interrupts are only required if you want to use
-a polled ring buffer.  This is now a Kconfig option and if you turn it off
-you'll still have sysfs type interfaces for reading directly from the
-device.  A direct chrdev access to 'scan' the device is on the todo list,
-but isn't there yet.
+Hi David,
 
-Hopefully (after fighting with git this afternoon) I should shortly have
-a repository up so its easier for people to get the current code and to
-send patches against it.
+On Thu, 21 Aug 2008 02:43:19 -0700 (PDT), David Miller wrote:
+> 
+> i2c-pcf: Pass adapter data into ->waitforpin() method.
+> 
+> Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+> 
+> diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+> index 1e328d1..a8a5b6d 100644
+> --- a/drivers/i2c/algos/i2c-algo-pcf.c
+> +++ b/drivers/i2c/algos/i2c-algo-pcf.c
+> @@ -135,7 +135,7 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status) {
+>  	*status = get_pcf(adap, 1);
+>  #ifndef STUB_I2C
+>  	while (timeout-- && (*status & I2C_PCF_PIN)) {
+> -		adap->waitforpin();
+> +		adap->waitforpin(adap->data);
+>  		*status = get_pcf(adap, 1);
+>  	}
+>  	if (*status & I2C_PCF_LAB) {
+> diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
+> index 7f38c01..05f7d09 100644
+> --- a/drivers/i2c/busses/i2c-elektor.c
+> +++ b/drivers/i2c/busses/i2c-elektor.c
+> @@ -104,7 +104,7 @@ static int pcf_isa_getclock(void *data)
+>  	return (clock);
+>  }
+>  
+> -static void pcf_isa_waitforpin(void) {
+> +static void pcf_isa_waitforpin(void *data) {
+>  	DEFINE_WAIT(wait);
+>  	int timeout = 2;
+>  	unsigned long flags;
+> diff --git a/include/linux/i2c-algo-pcf.h b/include/linux/i2c-algo-pcf.h
+> index 0177d28..5de8a31 100644
+> --- a/include/linux/i2c-algo-pcf.h
+> +++ b/include/linux/i2c-algo-pcf.h
+> @@ -31,7 +31,7 @@ struct i2c_algo_pcf_data {
+>  	int  (*getpcf) (void *data, int ctl);
+>  	int  (*getown) (void *data);
+>  	int  (*getclock) (void *data);
+> -	void (*waitforpin) (void);
+> +	void (*waitforpin) (void *data);
+>  
+>  	/* Multi-master lost arbitration back-off delay (msecs)
+>  	 * This should be set by the bus adapter or knowledgable client
 
-Jonathan
-> 
-> is it possible to attach a ds1307 for this reason?
-You could, but I'd imagine this is unnecessary. 
-The reason for using periodic interrupts from an rtc as an initial means
-of performing periodic sampling was that I had one to hand (pxa27x)
-and was being lazy.  There are lots of other ways of achieving a similar
-result not requiring specialist hardware and at least one other option
-will need to be available before the code is ready to go into mainline.
+Applied (with one checkpatch fix), thanks.
 
-Jonathan
- 
-> 
->> Done a bit of digging around and my original test code was
->>
->> #include <fcntl.h>
->>
->> #include "i2c-dev.h"
->>
->> int main(int argc, char* argv[])
->> {
->>   
->>   struct i2c_smbus_ioctl_data arg;
->>   union i2c_smbus_data data;
->>   int adaptor_nr=atoi(argv[1]); //check this
->>   char filename[20];
->>   sprintf(filename,"/dev/i2c-%d",adaptor_nr);
->>
->>   int file;
->>   if((file = open(filename, O_RDWR))<0)
->>     {
->>       printf("could not open /dev/i2c-%u\n", adaptor_nr);
->>       exit(-1);
->>     }
->>   if(ioctl(file,I2C_SLAVE, 0x34) < 0)
->>     {
->>       printf("could not set slave address \n");
->>       return -1;
->>     }
->>   
->>   arg.size = I2C_SMBUS_BYTE;
->>   arg.read_write = I2C_SMBUS_WRITE;
->>   arg.command = I2C_SMBUS_BYTE;
->>   
->>   data.byte = 8;
->>   arg.data = &data;
->>   
->>   char buf[2] = {0x79, 0x92};
->>   write(file,  buf,2);
->>   int i;
->>   for(i = 0; i < 20; i++)
->>     {
->>       read(file,buf,2);
->>       
->>       unsigned int a =0;
->>       a = (buf[0] & 0xF) << 8 | buf[1] ;
->>       printf("reading %u\n",a);
->>
->>         sleep(1);
->>     }
->>
->> }
->>
->> No idea why I did it without using the smbus_write commands
->> though. The iio driver is i2c_transfers I'm afraid.
->>
->> as for i2c detect, I've just blugeoned it into building for
->> the pxa271 board I'm using and it picks up a max1239 just fine.
-> 
-> can i access the ringbuffer of this driver via sysfs or how userspace side
-> should work?
-> 
-> 
-> Regards
-> Andreas
-> 
-> 
-> _______________________________________________
-> i2c mailing list
-> i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-> http://lists.lm-sensors.org/mailman/listinfo/i2c
-> 
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
