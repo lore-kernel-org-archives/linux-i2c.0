@@ -1,14 +1,13 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/6]: i2c-pcf: Pass adapter data into
- ->waitforpin() method.
-Date: Wed, 15 Oct 2008 13:29:53 +0200
-Message-ID: <20081015132953.0f774808@hyperion.delvare>
-References: <20080821.024319.22788780.davem@davemloft.net>
+Subject: Re: [PATCH 3/6]: i2c-pcf: Fix typo in debugging log message.
+Date: Wed, 15 Oct 2008 13:38:04 +0200
+Message-ID: <20081015133804.3d5aeb12@hyperion.delvare>
+References: <20080821.024325.109887684.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20080821.024319.22788780.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+In-Reply-To: <20080821.024325.109887684.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -22,55 +21,29 @@ To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
-
-On Thu, 21 Aug 2008 02:43:19 -0700 (PDT), David Miller wrote:
+On Thu, 21 Aug 2008 02:43:25 -0700 (PDT), David Miller wrote:
 > 
-> i2c-pcf: Pass adapter data into ->waitforpin() method.
+> i2c-pcf: Fix typo in debugging log message.
+> 
+> deteted --> detected
 > 
 > Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 > 
 > diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
-> index 1e328d1..a8a5b6d 100644
+> index b57bc9a..c171ee6 100644
 > --- a/drivers/i2c/algos/i2c-algo-pcf.c
 > +++ b/drivers/i2c/algos/i2c-algo-pcf.c
-> @@ -135,7 +135,7 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status) {
->  	*status = get_pcf(adap, 1);
->  #ifndef STUB_I2C
->  	while (timeout-- && (*status & I2C_PCF_PIN)) {
-> -		adap->waitforpin();
-> +		adap->waitforpin(adap->data);
->  		*status = get_pcf(adap, 1);
+> @@ -208,7 +208,7 @@ static int pcf_init_8584 (struct i2c_algo_pcf_data *adap)
+>  		return -ENXIO;
 >  	}
->  	if (*status & I2C_PCF_LAB) {
-> diff --git a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
-> index 7f38c01..05f7d09 100644
-> --- a/drivers/i2c/busses/i2c-elektor.c
-> +++ b/drivers/i2c/busses/i2c-elektor.c
-> @@ -104,7 +104,7 @@ static int pcf_isa_getclock(void *data)
->  	return (clock);
+>  	
+> -	printk(KERN_DEBUG "i2c-algo-pcf.o: deteted and initialized PCF8584.\n");
+> +	printk(KERN_DEBUG "i2c-algo-pcf.o: detected and initialized PCF8584.\n");
+>  
+>  	return 0;
 >  }
->  
-> -static void pcf_isa_waitforpin(void) {
-> +static void pcf_isa_waitforpin(void *data) {
->  	DEFINE_WAIT(wait);
->  	int timeout = 2;
->  	unsigned long flags;
-> diff --git a/include/linux/i2c-algo-pcf.h b/include/linux/i2c-algo-pcf.h
-> index 0177d28..5de8a31 100644
-> --- a/include/linux/i2c-algo-pcf.h
-> +++ b/include/linux/i2c-algo-pcf.h
-> @@ -31,7 +31,7 @@ struct i2c_algo_pcf_data {
->  	int  (*getpcf) (void *data, int ctl);
->  	int  (*getown) (void *data);
->  	int  (*getclock) (void *data);
-> -	void (*waitforpin) (void);
-> +	void (*waitforpin) (void *data);
->  
->  	/* Multi-master lost arbitration back-off delay (msecs)
->  	 * This should be set by the bus adapter or knowledgable client
 
-Applied (with one checkpatch fix), thanks.
+Applied, thanks.
 
 -- 
 Jean Delvare
