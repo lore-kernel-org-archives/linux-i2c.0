@@ -1,137 +1,62 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: [PATCH 7/7] i2c/mcu_mpc8349emitx: convert to the new I2C/OF/GPIO
-	infrastructure
-Date: Thu, 16 Oct 2008 21:13:09 +0400
-Message-ID: <20081016171309.GG5515@oksana.dev.rtsoft.ru>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
+Date: Thu, 16 Oct 2008 11:06:01 -0700
+Message-ID: <200810161106.02871.david-b@pacbell.net>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081014184038.6f1b5c59@i1501.lan.towertech.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752859AbYJPRPn@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <20081014184038.6f1b5c59-1Z+4F8PJzVxlecnr3/Sf3RLwuzhV/fVh@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Grant Likely <grant.likely@secretlab.ca>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+Cc: frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-With the new subsystem it's much easier to handle I2C GPIO controllers.
-Now drivers don't need to deal with the OF-specific bits.
+On Tuesday 14 October 2008, Alessandro Zummo wrote:
+> On Tue, 14 Oct 2008 17:57:29 +0200
+> BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org> wrote:
+> 
+> > >  seems almost ok. please send your latest version to me and cc to
+> > >  the rtc-list for the final review. if it passed Jean's tests
+> > >  I'm confident it's quite ready for inclusion :)
+> > 
+> > Patch is attached to preserve tabs.
+> 
+>  bzzzt. wrong! patches must be submitted inline
 
-Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
----
- drivers/i2c/chips/mcu_mpc8349emitx.c |   65 ++++++---------------------------
- 1 files changed, 12 insertions(+), 53 deletions(-)
+Though that's not a hard-and-fast policy; when
+the submitter can't get relevant mailers to avoid
+mangling the patches, it's better to attach them
+than otherwise.  However, see
 
-diff --git a/drivers/i2c/chips/mcu_mpc8349emitx.c b/drivers/i2c/chips/mcu_mpc8349emitx.c
-index 82a9bcb..985a1a4 100644
---- a/drivers/i2c/chips/mcu_mpc8349emitx.c
-+++ b/drivers/i2c/chips/mcu_mpc8349emitx.c
-@@ -18,8 +18,6 @@
- #include <linux/mutex.h>
- #include <linux/i2c.h>
- #include <linux/gpio.h>
--#include <linux/of.h>
--#include <linux/of_gpio.h>
- #include <asm/prom.h>
- #include <asm/machdep.h>
- 
-@@ -36,7 +34,7 @@ struct mcu {
- 	struct mutex lock;
- 	struct device_node *np;
- 	struct i2c_client *client;
--	struct of_gpio_chip of_gc;
-+	struct gpio_chip gc;
- 	u8 reg_ctrl;
- };
- 
-@@ -55,8 +53,7 @@ static void mcu_power_off(void)
- 
- static void mcu_gpio_set(struct gpio_chip *gc, unsigned int gpio, int val)
- {
--	struct of_gpio_chip *of_gc = to_of_gpio_chip(gc);
--	struct mcu *mcu = container_of(of_gc, struct mcu, of_gc);
-+	struct mcu *mcu = container_of(gc, struct mcu, gc);
- 	u8 bit = 1 << (4 + gpio);
- 
- 	mutex_lock(&mcu->lock);
-@@ -75,52 +72,6 @@ static int mcu_gpio_dir_out(struct gpio_chip *gc, unsigned int gpio, int val)
- 	return 0;
- }
- 
--static int mcu_gpiochip_add(struct mcu *mcu)
--{
--	struct device_node *np;
--	struct of_gpio_chip *of_gc = &mcu->of_gc;
--	struct gpio_chip *gc = &of_gc->gc;
--	int ret;
--
--	np = of_find_compatible_node(NULL, NULL, "fsl,mcu-mpc8349emitx");
--	if (!np)
--		return -ENODEV;
--
--	gc->owner = THIS_MODULE;
--	gc->label = np->full_name;
--	gc->can_sleep = 1;
--	gc->ngpio = MCU_NUM_GPIO;
--	gc->base = -1;
--	gc->set = mcu_gpio_set;
--	gc->direction_output = mcu_gpio_dir_out;
--	of_gc->gpio_cells = 2;
--	of_gc->xlate = of_gpio_simple_xlate;
--
--	np->data = of_gc;
--	mcu->np = np;
--
--	/*
--	 * We don't want to lose the node, its ->data and ->full_name...
--	 * So, if succeeded, we don't put the node here.
--	 */
--	ret = gpiochip_add(gc);
--	if (ret)
--		of_node_put(np);
--	return ret;
--}
--
--static int mcu_gpiochip_remove(struct mcu *mcu)
--{
--	int ret;
--
--	ret = gpiochip_remove(&mcu->of_gc.gc);
--	if (ret)
--		return ret;
--	of_node_put(mcu->np);
--
--	return 0;
--}
--
- static int __devinit mcu_probe(struct i2c_client *client,
- 			       const struct i2c_device_id *id)
- {
-@@ -140,7 +91,15 @@ static int __devinit mcu_probe(struct i2c_client *client,
- 		goto err;
- 	mcu->reg_ctrl = ret;
- 
--	ret = mcu_gpiochip_add(mcu);
-+	mcu->gc.owner = THIS_MODULE;
-+	mcu->gc.label = client->dev.bus_id;
-+	mcu->gc.can_sleep = 1;
-+	mcu->gc.ngpio = MCU_NUM_GPIO;
-+	mcu->gc.base = -1;
-+	mcu->gc.set = mcu_gpio_set;
-+	mcu->gc.direction_output = mcu_gpio_dir_out;
-+
-+	ret = dev_gpiochip_add(&client->dev, &mcu->gc);
- 	if (ret)
- 		goto err;
- 
-@@ -167,7 +126,7 @@ static int __devexit mcu_remove(struct i2c_client *client)
- 		glob_mcu = NULL;
- 	}
- 
--	ret = mcu_gpiochip_remove(mcu);
-+	ret = dev_gpiochip_remove(&client->dev, &mcu->gc);
- 	if (ret)
- 		return ret;
- 	i2c_set_clientdata(client, NULL);
--- 
-1.5.6.3
+  Documentation/email-clients.txt
+
+More generally, this patch isn't much good since
+it doesn't even *apply* ... on top of a pending
+patch to the same driver, which has been in the
+MM tree since late July or so.
+
+My suggestion:  since that patch was recently
+(last night) sent to Linus for merging, wait
+until it's in mainline GIT.  Then refresh and
+re-send the patch.
+
+- Dave
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
