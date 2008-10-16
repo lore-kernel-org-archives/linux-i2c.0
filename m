@@ -1,88 +1,79 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/6]: i2c-pcf: Add adapter hooks around xfer begin
- and end.
-Date: Thu, 16 Oct 2008 18:17:07 +0200
-Message-ID: <20081016181707.4878bf31@hyperion.delvare>
-References: <20080821.024322.35962617.davem@davemloft.net>
-	<20081015141914.7d6c3dd5@hyperion.delvare>
-	<48F662A5.4050303@linuxtv.org>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: [PATCH 0/7 RFC] Handle I2C GPIO controllers with the OF (was:
+	pca9539 I2C gpio expander)
+Date: Thu, 16 Oct 2008 21:12:22 +0400
+Message-ID: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <48F662A5.4050303-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
-Cc: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset=windows-1251
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754695AbYJPRMe@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Grant Likely <grant.likely@secretlab.ca>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
+Hi all,
 
-On Wed, 15 Oct 2008 17:37:41 -0400, Michael Krufky wrote:
-> Jean Delvare wrote:
-> > Hi David,
-> >
-> > On Thu, 21 Aug 2008 02:43:22 -0700 (PDT), David Miller wrote:
-> >   
-> >> i2c-pcf: Add adapter hooks around xfer begin and end.
-> >>
-> >> Some I2C bus implementations need to synchronize with external
-> >> entities, such as system firmware, which might also be programming the
-> >> same I2C bus.
-> >>
-> >> In order to facilitate this add ->xfer_begin() and ->xfer_end() hooks
-> >> which are invoked around pcf_xfer().
-> >>     
-> >
-> > I get the idea, but I'm not sure about the implementation. I had a
-> > request several months ago for something similar for the i2c-algo-bit
-> > driver. I don't think we want to duplicate this mechanism in every
-> > i2c-algo driver, so it would probably make sense to implement it
-> > at the i2c-core level?
-> >
-> > Michael, do you still need this for i2c-algo-bit? We did not discuss
-> > this again recently, so I admit I don't know what is the status of this
-> > request.
-> 
-> Jean,
-> 
-> Yes, the problem still exists, and I still need a way to lock the i2c 
-> adapter during certain volitile operations at driver start-up.
-> 
-> Right now I have an artificial delay in place as a workaround, but 
-> that's only because there currently is no other choice.
+Recently there was a question about I2C GPIO controllers and how should
+we handle them with the OpenFirmware and such.
 
-I'm really sorry. As you didn't come back to me about this issue, I
-wrongly assumed that you had solved it in another way and you were no
-longer interested in adding these hooks to i2c-algo-bit. If you still
-need it then let's get this sorted out.
+Here is the attempt to "connect" I2C GPIO controllers to the
+"OpenFirmware" device tree, without writing an OF-specific bindings
+for each driver.
 
-> Basically, I have a single piece of silicon that is capable of bringing 
-> down the entire i2c bus if somebody attempts to communicate with any 
-> other IC during initialization of this silicon.
+The salt is in these two patches:
 
-Can you clarify your requirements? I'm not sure I understand exactly
-what you need. Do you need exclusive access to the I2C bus for a number
-of transactions? Or do you need exclusive access to the I2C bus for an
-arbitrary period of time? Or do you need to block access to the I2C bus
-entirely? How do you know when to start the blackout period, and when
-to end it?
+[PATCH 3/7] of: fill the archdata for I2C devices
+^ Here we're storing the device tree node into the I2C device.
 
-We have to design a new mechanism so I would like to make sure that
-whatever I come up with, fits at least your needs and those of David.
+[PATCH 5/7] of/gpio: implement of_dev_gpiochip_{add,remove} calls
+^ And here we extracting the the stored node to put the registered
+  of_gpio_chip into that node.
 
--- 
-Jean Delvare
 
+How does it look?
+
+p.s. The original question:
+
+----- Forwarded message from "Steven A. Falco" <sfalco@harris.com> -----
+
+Date: Tue, 14 Oct 2008 14:10:25 -0400
+From: "Steven A. Falco" <sfalco@harris.com>
+To: "linuxppc-dev@ozlabs.org" <linuxppc-dev@ozlabs.org>
+Subject: pca9539 I2C gpio expander
+List-Id: Linux on PowerPC Developers Mail List <linuxppc-dev.ozlabs.org>
+
+I am attempting to use a pca9539 I2C gpio driver on a PPC440EPx board.  The
+driver is "drivers/gpio/pca953x.c".  I've added an entry to the .dts file:
+
+IIC0: i2c@ef600700 {
+	compatible = "ibm,iic-440epx", "ibm,iic";
+	...
+	pca9539@76 {
+		compatible = "ti,pca9539";
+		reg = <76>;
+	};
+};
+
+of_register_i2c_devices sees this entry and calls i2c_new_device.
+i2c_new_device copies info->platform_data to client->dev.platform_data, but
+I think that this structure is empty (at least I don't see where
+of_register_i2c_devices would set it).
+
+pca953x_probe is eventually called, but it expects to find its "lowest gpio
+number" in client->dev.platform_data->gpio_base, which has not been set.  So
+pca953x_probe returns -ENODEV.
+
+I don't understand where the disconnect is.  Should I be able to use the
+pca953x.c driver, or is it somehow incompatible?
+
+If it is incompatible, is there a strategy for making it compatible?
+
+	Steve
 _______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Linuxppc-dev mailing list
+Linuxppc-dev@ozlabs.org
+https://ozlabs.org/mailman/listinfo/linuxppc-dev
+
+----- End forwarded message -----
