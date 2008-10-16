@@ -1,16 +1,14 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 2.6.26.5] rtc-ds1307 : SMBus compatibility
-Date: Thu, 16 Oct 2008 11:06:01 -0700
-Message-ID: <200810161106.02871.david-b@pacbell.net>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59E27@PRI-MBX-101.dom1.vinci-energies.net>
-	<C1C62166118DFA4A8BBA01A2411F0D170E9BE5A317@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081014184038.6f1b5c59@i1501.lan.towertech.it>
+From: Andreas Seidler <tetzlav-bXdiauyh1GQ7K2kJdssfr+TW4wlIGRCZ@public.gmane.org>
+Subject: Re: MAX1236 with smbus (CS5536 ACB0)
+Date: Thu, 16 Oct 2008 20:12:48 +0200
+Message-ID: <gd8070$f4e$1@ger.gmane.org>
+References: <48F2A270.8060307@leipzig.freifunk.net>	<20081013092548.3d58a320@hyperion.delvare>	<gd3fe5$11e$1@ger.gmane.org>
+	<20081015101736.34e1c11e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081014184038.6f1b5c59-1Z+4F8PJzVxlecnr3/Sf3RLwuzhV/fVh@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20081015101736.34e1c11e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -20,40 +18,58 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Alessandro Zummo <alessandro.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Cc: frederic Rodo <f.rodo-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 14 October 2008, Alessandro Zummo wrote:
-> On Tue, 14 Oct 2008 17:57:29 +0200
-> BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org> wrote:
+Jean Delvare schrieb:
+> On Wed, 15 Oct 2008 03:01:56 +0200, Andreas Seidler wrote:
+>> I can access this ADC wired to a i2c-ibm_iic (build-in IBM PPC_P405)
 > 
-> > >  seems almost ok. please send your latest version to me and cc to
-> > >  the rtc-list for the final review. if it passed Jean's tests
-> > >  I'm confident it's quite ready for inclusion :)
-> > 
-> > Patch is attached to preserve tabs.
+> That's not the question. Maybe the chip was wired properly on that
+> system and not on the CS5563 system.
 > 
->  bzzzt. wrong! patches must be submitted inline
+> You can also try i2cdetect -r and see if it makes a difference.
 
-Though that's not a hard-and-fast policy; when
-the submitter can't get relevant mailers to avoid
-mangling the patches, it's better to attach them
-than otherwise.  However, see
+I'm afraid not.
 
-  Documentation/email-clients.txt
 
-More generally, this patch isn't much good since
-it doesn't even *apply* ... on top of a pending
-patch to the same driver, which has been in the
-MM tree since late July or so.
+>>> If it is wired properly, then another possibility is that the MAX1236
+>>> is doing clock stretching beyond what the CS5536 supports...
+>> and this is my second problem: i cant read the A/D-converted values from
+>> userspace (eg. with i2cget) without spezial code or kernel module?
+> 
+> I'm not sure if i2cget can work with this device. The transactions used
+> by the MAX1236 are raw reads and writes which aren't too
+> SMBus-friendly, but it you don't care too much about performance,
+> i2cget may still work depending on how you read the datasheet. I
+> suggest that you give it a try on the IBM PPC system where you know the
+> chip is properly wired.
+> 
+> i2cget 0 0x34 0x81 w
+> 
+> should give you the raw value of the 1st ADC channel. You'll have to
+> byte-swap it because SMBus specifies that words go on the wire LSB
+> first.
 
-My suggestion:  since that patch was recently
-(last night) sent to Linus for merging, wait
-until it's in mainline GIT.  Then refresh and
-re-send the patch.
+good to know about the byte-swap with smbus!
 
-- Dave
+
+btw:I played around with this ADC on my i2c-ibm_iic:
+
+root@OpenWrt:/# i2cget -y 0 0x34 0x21 w
+
+i get this values of channel 0:
+
+OV:	0x00f0 (11110000)
+1,6V:	0xaef5 (1010111011110101)
+3,2V:	0x5efb (101110111111011)
+
+but how to get the converted 12 bit value?
+
+
+
+Regards
+Andreas
 
 
 _______________________________________________
