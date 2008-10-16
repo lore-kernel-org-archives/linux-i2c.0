@@ -1,8 +1,8 @@
-From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH 4/6]: i2c-pcf: Add a way for bus driver to ask for
  no smbus quick mode support.
-Date: Wed, 15 Oct 2008 15:57:13 -0700 (PDT)
-Message-ID: <20081015.155713.44275434.davem@davemloft.net>
+Date: Thu, 16 Oct 2008 12:13:15 +0200
+Message-ID: <20081016121315.2adb5de1@hyperion.delvare>
 References: <20080821.024327.144744678.davem@davemloft.net>
 	<20081015143321.7df02b35@hyperion.delvare>
 	<20081015.143452.114860633.davem@davemloft.net>
@@ -20,13 +20,13 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Date: Wed, 15 Oct 2008 14:34:52 -0700 (PDT)
+Hi David,
 
+On Wed, 15 Oct 2008 14:34:52 -0700 (PDT), David Miller wrote:
 > From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 > Date: Wed, 15 Oct 2008 14:33:21 +0200
 > 
@@ -40,49 +40,47 @@ Date: Wed, 15 Oct 2008 14:34:52 -0700 (PDT)
 > The pcf driver sets the class bit used by FAN and temperature sensors,
 > so the I2C layer goes poking around all of the standard address
 > locations each of those drivers list.
-> 
+
+By setting this class flag in your driver, you ask for these probes.
+
 > I don't want that to happen, ever.  I know exactly what address each
 > and every I2C device sits at, so I don't want auto probing at all even
 > even if the class bits match.
 
-BTW, the powerpc folks want things the same exact way.
+Then just don't set any class flag in your i2c bus driver and you're
+done. Easy as that, just as was done by the powerpc folks for the
+i2c-mpc driver (as you just found out yourself.)
 
-Look at the following change below which went into Linus's tree today.
+> Again where the heck were you two months ago when I submitted these
+> changes originally?  I could have been working on changes meanwhile,
+> but instead you're reviewing this stuff _NOW_ in the middle of the
+> merge window when I have to be on top of things for networking and
+> sparc stuff going into the tree.
 
-Arguing against this is pointless.  With openfirmware device trees
-describing exactly where every I2C device is, we want none of the
-class based auto-probing stuff, we never ever want it.
+Two months ago, I was processing all the patches and other requests
+that had been sent to me while I was on vacation. I was also taking
+care of my family. The fact that I didn't review your patches when you
+sent them is unfortunate, but it happened, and similar events will
+happen again in the future because there's only so many hours in a day
+and only so much work I can do for free on my spare time. Whatever my
+wife and baby daughter need from me has higher priority than kernel
+patches. You can understand that, can't you?
 
-Openfirmware platforms automatically trigger the device discovery
-based upon the openfirmware device tree nodes.  None of the I2C
-layer class based probing infrastructure is necessary nor wanted.
+You're complaining because I'm reviewing your patches during the merge
+window. But you did you not bother reminding me about these patches
+earlier, while it was pretty obvious that I had missed them? My i2c
+patch set is public [1] and if a patch isn't there then it won't go to
+Linus. You're blaming it on me, but you could as well blame it on
+yourself.
 
-commit 618b26d52843c0f85b8eb143cf2695d7f6fd072d
-Author: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Date:   Wed Oct 8 11:36:42 2008 -0600
+I'm not quite sure why you are complaining anyway. I finally reviewed
+your patches. And as far as this one is concerned, I just gave you a
+much simpler way to achieve what you wanted to achieve.
 
-    i2c-mpc: suppress I2C device probing
-    
-    This patch suppresses I2C device probing by clearing the class field
-    of the "struct i2c_adapter" for the MPC I2C bus adapters. Some board
-    configurations which rely on probing must be fixed up by adding a
-    proper I2C device node to the DTS file, like the TQM85xx modules.
-    
-    Signed-off-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-    Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+[1] http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 27443f0..a9a45fc 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -312,7 +312,6 @@ static struct i2c_adapter mpc_ops = {
- 	.name = "MPC adapter",
- 	.id = I2C_HW_MPC107,
- 	.algo = &mpc_algo,
--	.class = I2C_CLASS_HWMON | I2C_CLASS_SPD,
- 	.timeout = 1,
- };
- 
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
