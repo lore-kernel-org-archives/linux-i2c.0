@@ -1,17 +1,15 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/6]: i2c-pcf: Add adapter hooks around xfer begin
- and end.
-Date: Fri, 17 Oct 2008 13:43:53 +0200
-Message-ID: <20081017134353.013ce033@hyperion.delvare>
-References: <20080821.024322.35962617.davem@davemloft.net>
-	<20081015141914.7d6c3dd5@hyperion.delvare>
-	<20081015.143212.196108134.davem@davemloft.net>
-	<20081016145741.1d94f482@hyperion.delvare>
+From: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] rtc-ds1307 : SMBus compatibility
+Date: Fri, 17 Oct 2008 17:11:27 +0200
+Message-ID: <C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59C2F@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081016121843.2e0c3792.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_"
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081016145741.1d94f482-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20081016121843.2e0c3792.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Content-Language: fr-FR
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -21,145 +19,174 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Cc: mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+--_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-On Thu, 16 Oct 2008 14:57:41 +0200, Jean Delvare wrote:
-> On Wed, 15 Oct 2008 14:32:12 -0700 (PDT), David Miller wrote:
-> > I think it's more elegant to remove as many conditionals from
-> > generic code as possible.
-> 
-> I see many good reasons to prefer having conditionals in a central
-> place over empty callback functions in virtually every i2c bus driver.
-> 
-> First reason: I don't expect many drivers to make use of the pre/post
-> transaction hooks. Given that a test is cheaper than a function call,
-> overall performance with conditionals should be better. I suspect this
-> will also make the builds faster and the binary code smaller (although
-> I'm not going to benchmark it.)
-> 
-> Second reason: with empty callback functions, it's not immediately
-> obvious which i2c bus drivers use these hooks and which do not. This
-> case is specific enough that I think there is value in being able to
-> trace it.
-> 
-> Third reason: changing things in a central place is easier. You may
-> not think it's important because there is a rather small number of
-> PCF8454-based bus drivers are the moment, but if we do the same for
-> i2c-algo-bit, it has no less than 27 users and I don't feel like
-> changing them all. If the prototype of the hooks ever changes, having
-> to go through several dozen drivers to update otherwise useless
-> callback functions sounds plain wrong. Same if we implement the hooks in
-> i2c-algo-pcf and i2c-algo-bit today and later decide to move them to
-> i2c-core: having 2 i2c algo drivers to update is fairly easy, having 30
-> i2c bus drivers to update is much more work.
-> 
-> I'm not sure what are your reasons for preferring empty callback
-> functions? I can't remember seeing this approach used in any part of
-> the kernel I touched. And for what it's worth, i2c-core is full of
-> tests for callback functions, and I can't remember anyone objecting.
+VGhpcyBwYXRjaCBjaGFuZ2UgaTJjIGFjY2VzcyBmdW5jdGlvbnMgdG8gU01CdXMgYWNjZXNzIGZ1
+bmN0aW9ucw0KaW4gb3JkZXIgdG8gdXNlIHRoZSBkczEzMDcgd2l0aCBTTUJ1cyBhZGFwdGVyLg0K
+DQpTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpZW4gQmFycmUgPHNiYXJyZUBzZGVsY2MuY29tPg0KDQot
+LQ0KDQpUaGUgaW5pdGlhbCBwYXRjaCB3YXMgYmFzZWQgb24gMi42LjI2LjUsIEkndmUgcmVkb25l
+IGl0IGFnYWluc3QgTGludXMncyBjdXJyZW50IGdpdCB0cmVlLg0KU29ycnksIHRoZSBwYXRjaCBp
+cyBhdHRhY2hlZCBiZWNhdXNlIG15IGVtYWlsIGNsaWVudCByZXBsYWNlIGFsbCB0aGUgdGFicyB3
+aXRoIHNwYWNlcy4NCg0KSSd2ZSB0ZXN0ZWQgaXQgd2l0aCBkczEzMDcgY2hpcC4NCklzIHNvbWVi
+b2R5IGNhbiB0ZXN0IGl0IG9uIGRzMTMzNy9kczEzMzggPw0KDQotLQ0KU8OpYmFzdGllbiBCYXJy
+w6kNCkJ1cmVhdSBkJ8OpdHVkZSAtIETDqXZlbG9wcGVtZW50DQpTREVMIENvbnRyw7RsZSBDb21t
+YW5kZQ0KRDJBIC0gUnVlIE51bmdlc3NlciBldCBDb2xpDQo0NDg2MCBTYWludCBBaWduYW4gZGUg
+R3JhbmQgTGlldQ0KRlJBTkNFDQpUw6lsIDogKzMzKDApMiA0MCA4NCA1MCA4OA0KRmF4IDogKzMz
+KDApMiA0MCA4NCA1MSAxMA0KDQo=
 
-I've applied the modified patch below:
+--_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
+Content-Type: application/octet-stream; name="patch-rtc-ds1307"
+Content-Description: patch-rtc-ds1307
+Content-Disposition: attachment; filename="patch-rtc-ds1307"; size=0;
+	creation-date="Fri, 17 Oct 2008 15:05:57 GMT";
+	modification-date="Fri, 17 Oct 2008 13:38:23 GMT"
+Content-Transfer-Encoding: base64
 
-From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Subject: i2c-algo-pcf: Add adapter hooks around xfer begin and end
+LS0tIGEvZHJpdmVycy9ydGMvcnRjLWRzMTMwNy5jCTIwMDgtMTAtMTcgMTQ6NDM6NDMuMDAwMDAw
+MDAwICswMjAwCisrKyBiL2RyaXZlcnMvcnRjL3J0Yy1kczEzMDcuYwkyMDA4LTEwLTE3IDE1OjM4
+OjEyLjAwMDAwMDAwMCArMDIwMApAQCAtODYsMTMgKzg2LDExIEBAIGVudW0gZHNfdHlwZSB7CiAK
+IAogc3RydWN0IGRzMTMwNyB7Ci0JdTgJCQlyZWdfYWRkcjsKIAl1OAkJCXJlZ3NbMTFdOwogCWVu
+dW0gZHNfdHlwZQkJdHlwZTsKIAl1bnNpZ25lZCBsb25nCQlmbGFnczsKICNkZWZpbmUgSEFTX05W
+UkFNCTAJCS8qIGJpdCAwID09IHN5c2ZzIGZpbGUgYWN0aXZlICovCiAjZGVmaW5lIEhBU19BTEFS
+TQkxCQkvKiBiaXQgMSA9PSBpcnEgY2xhaW1lZCAqLwotCXN0cnVjdCBpMmNfbXNnCQltc2dbMl07
+CiAJc3RydWN0IGkyY19jbGllbnQJKmNsaWVudDsKIAlzdHJ1Y3QgcnRjX2RldmljZQkqcnRjOwog
+CXN0cnVjdCB3b3JrX3N0cnVjdAl3b3JrOwpAQCAtMjA0LDEzICsyMDIsOSBAQCBzdGF0aWMgaW50
+IGRzMTMwN19nZXRfdGltZShzdHJ1Y3QgZGV2aWNlCiAJaW50CQl0bXA7CiAKIAkvKiByZWFkIHRo
+ZSBSVEMgZGF0ZSBhbmQgdGltZSByZWdpc3RlcnMgYWxsIGF0IG9uY2UgKi8KLQlkczEzMDctPnJl
+Z19hZGRyID0gMDsKLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCWRzMTMwNy0+
+bXNnWzFdLmxlbiA9IDc7Ci0KLQl0bXAgPSBpMmNfdHJhbnNmZXIodG9faTJjX2FkYXB0ZXIoZHMx
+MzA3LT5jbGllbnQtPmRldi5wYXJlbnQpLAotCQkJZHMxMzA3LT5tc2csIDIpOwotCWlmICh0bXAg
+IT0gMikgeworCXRtcCA9IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19kYXRhKGRzMTMwNy0+Y2xp
+ZW50LAorCQlEUzEzMDdfUkVHX1NFQ1MsIDcsIGRzMTMwNy0+cmVncyk7CisJaWYgKHRtcCAhPSA3
+KSB7CiAJCWRldl9lcnIoZGV2LCAiJXMgZXJyb3IgJWRcbiIsICJyZWFkIiwgdG1wKTsKIAkJcmV0
+dXJuIC1FSU87CiAJfQpAQCAtMjU3LDcgKzI1MSw2IEBAIHN0YXRpYyBpbnQgZHMxMzA3X3NldF90
+aW1lKHN0cnVjdCBkZXZpY2UKIAkJdC0+dG1faG91ciwgdC0+dG1fbWRheSwKIAkJdC0+dG1fbW9u
+LCB0LT50bV95ZWFyLCB0LT50bV93ZGF5KTsKIAotCSpidWYrKyA9IDA7CQkvKiBmaXJzdCByZWdp
+c3RlciBhZGRyICovCiAJYnVmW0RTMTMwN19SRUdfU0VDU10gPSBCSU4yQkNEKHQtPnRtX3NlYyk7
+CiAJYnVmW0RTMTMwN19SRUdfTUlOXSA9IEJJTjJCQ0QodC0+dG1fbWluKTsKIAlidWZbRFMxMzA3
+X1JFR19IT1VSXSA9IEJJTjJCQ0QodC0+dG1faG91cik7CkBAIC0yODIsMTggKzI3NSwxNCBAQCBz
+dGF0aWMgaW50IGRzMTMwN19zZXRfdGltZShzdHJ1Y3QgZGV2aWNlCiAJCWJyZWFrOwogCX0KIAot
+CWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gMDsKLQlkczEzMDctPm1zZ1sxXS5sZW4gPSA4OwotCiAJ
+ZGV2X2RiZyhkZXYsICIlczogJTAyeCAlMDJ4ICUwMnggJTAyeCAlMDJ4ICUwMnggJTAyeFxuIiwK
+IAkJIndyaXRlIiwgYnVmWzBdLCBidWZbMV0sIGJ1ZlsyXSwgYnVmWzNdLAogCQlidWZbNF0sIGJ1
+Zls1XSwgYnVmWzZdKTsKIAotCXJlc3VsdCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihk
+czEzMDctPmNsaWVudC0+ZGV2LnBhcmVudCksCi0JCQkmZHMxMzA3LT5tc2dbMV0sIDEpOwotCWlm
+IChyZXN1bHQgIT0gMSkgewotCQlkZXZfZXJyKGRldiwgIiVzIGVycm9yICVkXG4iLCAid3JpdGUi
+LCB0bXApOwotCQlyZXR1cm4gLUVJTzsKKwlyZXN1bHQgPSBpMmNfc21idXNfd3JpdGVfaTJjX2Js
+b2NrX2RhdGEoZHMxMzA3LT5jbGllbnQsIDAsIDcsIGJ1Zik7CisJaWYgKHJlc3VsdCA8IDApIHsK
+KwkJZGV2X2VycihkZXYsICIlcyBlcnJvciAlZFxuIiwgIndyaXRlIiwgcmVzdWx0KTsKKwkJcmV0
+dXJuIHJlc3VsdDsKIAl9CiAJcmV0dXJuIDA7CiB9CkBAIC0zMDgsMTMgKzI5Nyw5IEBAIHN0YXRp
+YyBpbnQgZHMxMzA3X3JlYWRfYWxhcm0oc3RydWN0IGRldmkKIAkJcmV0dXJuIC1FSU5WQUw7CiAK
+IAkvKiByZWFkIGFsbCBBTEFSTTEsIEFMQVJNMiwgYW5kIHN0YXR1cyByZWdpc3RlcnMgYXQgb25j
+ZSAqLwotCWRzMTMwNy0+cmVnX2FkZHIgPSBEUzEzMzlfUkVHX0FMQVJNMV9TRUNTOwotCWRzMTMw
+Ny0+bXNnWzFdLmZsYWdzID0gSTJDX01fUkQ7Ci0JZHMxMzA3LT5tc2dbMV0ubGVuID0gOTsKLQot
+CXJldCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJlbnQpLAot
+CQkJZHMxMzA3LT5tc2csIDIpOwotCWlmIChyZXQgIT0gMikgeworCXJldCA9IGkyY19zbWJ1c19y
+ZWFkX2kyY19ibG9ja19kYXRhKGNsaWVudCwKKwkJCURTMTMzOV9SRUdfQUxBUk0xX1NFQ1MsIDks
+IGRzMTMwNy0+cmVncyk7CisJaWYgKHJldCAhPSA5KSB7CiAJCWRldl9lcnIoZGV2LCAiJXMgZXJy
+b3IgJWRcbiIsICJhbGFybSByZWFkIiwgcmV0KTsKIAkJcmV0dXJuIC1FSU87CiAJfQpAQCAtMzcx
+LDEzICszNTYsOSBAQCBzdGF0aWMgaW50IGRzMTMwN19zZXRfYWxhcm0oc3RydWN0IGRldmljCiAJ
+CXQtPmVuYWJsZWQsIHQtPnBlbmRpbmcpOwogCiAJLyogcmVhZCBjdXJyZW50IHN0YXR1cyBvZiBi
+b3RoIGFsYXJtcyBhbmQgdGhlIGNoaXAgKi8KLQlkczEzMDctPnJlZ19hZGRyID0gRFMxMzM5X1JF
+R19BTEFSTTFfU0VDUzsKLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCWRzMTMw
+Ny0+bXNnWzFdLmxlbiA9IDk7Ci0KLQlyZXQgPSBpMmNfdHJhbnNmZXIodG9faTJjX2FkYXB0ZXIo
+Y2xpZW50LT5kZXYucGFyZW50KSwKLQkJCWRzMTMwNy0+bXNnLCAyKTsKLQlpZiAocmV0ICE9IDIp
+IHsKKwlyZXQgPSBpMmNfc21idXNfcmVhZF9pMmNfYmxvY2tfZGF0YShjbGllbnQsCisJCQlEUzEz
+MzlfUkVHX0FMQVJNMV9TRUNTLCA5LCBidWYpOworCWlmIChyZXQgIT0gOSkgewogCQlkZXZfZXJy
+KGRldiwgIiVzIGVycm9yICVkXG4iLCAiYWxhcm0gd3JpdGUiLCByZXQpOwogCQlyZXR1cm4gLUVJ
+TzsKIAl9CkBAIC0zOTIsNyArMzczLDYgQEAgc3RhdGljIGludCBkczEzMDdfc2V0X2FsYXJtKHN0
+cnVjdCBkZXZpYwogCQkJZHMxMzA3LT5yZWdzWzZdLCBjb250cm9sLCBzdGF0dXMpOwogCiAJLyog
+c2V0IEFMQVJNMSwgdXNpbmcgMjQgaG91ciBhbmQgZGF5LW9mLW1vbnRoIG1vZGVzICovCi0JKmJ1
+ZisrID0gRFMxMzM5X1JFR19BTEFSTTFfU0VDUzsJLyogZmlyc3QgcmVnaXN0ZXIgYWRkciAqLwog
+CWJ1ZlswXSA9IGJpbjJiY2QodC0+dGltZS50bV9zZWMpOwogCWJ1ZlsxXSA9IGJpbjJiY2QodC0+
+dGltZS50bV9taW4pOwogCWJ1ZlsyXSA9IGJpbjJiY2QodC0+dGltZS50bV9ob3VyKTsKQEAgLTQx
+MSwxNCArMzkxLDExIEBAIHN0YXRpYyBpbnQgZHMxMzA3X3NldF9hbGFybShzdHJ1Y3QgZGV2aWMK
+IAl9CiAJYnVmWzhdID0gc3RhdHVzICYgfihEUzEzMzdfQklUX0ExSSB8IERTMTMzN19CSVRfQTJJ
+KTsKIAotCWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gMDsKLQlkczEzMDctPm1zZ1sxXS5sZW4gPSAx
+MDsKLQotCXJldCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJl
+bnQpLAotCQkJJmRzMTMwNy0+bXNnWzFdLCAxKTsKLQlpZiAocmV0ICE9IDEpIHsKKwlyZXQgPSBp
+MmNfc21idXNfd3JpdGVfaTJjX2Jsb2NrX2RhdGEoY2xpZW50LAorCQkJRFMxMzM5X1JFR19BTEFS
+TTFfU0VDUywgOSwgYnVmKTsKKwlpZiAocmV0IDwgMCkgewogCQlkZXZfZXJyKGRldiwgImNhbid0
+IHNldCBhbGFybSB0aW1lXG4iKTsKLQkJcmV0dXJuIC1FSU87CisJCXJldHVybiByZXQ7CiAJfQog
+CiAJcmV0dXJuIDA7CkBAIC00OTAsNyArNDY3LDYgQEAgZHMxMzA3X252cmFtX3JlYWQoc3RydWN0
+IGtvYmplY3QgKmtvYmosIAogewogCXN0cnVjdCBpMmNfY2xpZW50CSpjbGllbnQ7CiAJc3RydWN0
+IGRzMTMwNwkJKmRzMTMwNzsKLQlzdHJ1Y3QgaTJjX21zZwkJbXNnWzJdOwogCWludAkJCXJlc3Vs
+dDsKIAogCWNsaWVudCA9IGtvYmpfdG9faTJjX2NsaWVudChrb2JqKTsKQEAgLTUwMywyNCArNDc5
+LDEwIEBAIGRzMTMwN19udnJhbV9yZWFkKHN0cnVjdCBrb2JqZWN0ICprb2JqLCAKIAlpZiAodW5s
+aWtlbHkoIWNvdW50KSkKIAkJcmV0dXJuIGNvdW50OwogCi0JbXNnWzBdLmFkZHIgPSBjbGllbnQt
+PmFkZHI7Ci0JbXNnWzBdLmZsYWdzID0gMDsKLQltc2dbMF0ubGVuID0gMTsKLQltc2dbMF0uYnVm
+ID0gYnVmOwotCi0JYnVmWzBdID0gOCArIG9mZjsKLQotCW1zZ1sxXS5hZGRyID0gY2xpZW50LT5h
+ZGRyOwotCW1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCW1zZ1sxXS5sZW4gPSBjb3VudDsKLQlt
+c2dbMV0uYnVmID0gYnVmOwotCi0JcmVzdWx0ID0gaTJjX3RyYW5zZmVyKHRvX2kyY19hZGFwdGVy
+KGNsaWVudC0+ZGV2LnBhcmVudCksIG1zZywgMik7Ci0JaWYgKHJlc3VsdCAhPSAyKSB7CisJcmVz
+dWx0ID0gaTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoY2xpZW50LCA4ICsgb2ZmLCBjb3Vu
+dCwgYnVmKTsKKwlpZiAocmVzdWx0IDwgMCkKIAkJZGV2X2VycigmY2xpZW50LT5kZXYsICIlcyBl
+cnJvciAlZFxuIiwgIm52cmFtIHJlYWQiLCByZXN1bHQpOwotCQlyZXR1cm4gLUVJTzsKLQl9Ci0J
+cmV0dXJuIGNvdW50OworCXJldHVybiByZXN1bHQ7CiB9CiAKIHN0YXRpYyBzc2l6ZV90CkBAIC01
+MjgsOCArNDkwLDcgQEAgZHMxMzA3X252cmFtX3dyaXRlKHN0cnVjdCBrb2JqZWN0ICprb2JqLAog
+CQljaGFyICpidWYsIGxvZmZfdCBvZmYsIHNpemVfdCBjb3VudCkKIHsKIAlzdHJ1Y3QgaTJjX2Ns
+aWVudAkqY2xpZW50OwotCXU4CQkJYnVmZmVyW05WUkFNX1NJWkUgKyAxXTsKLQlpbnQJCQlyZXQ7
+CisJaW50CQkJcmVzdWx0OwogCiAJY2xpZW50ID0ga29ial90b19pMmNfY2xpZW50KGtvYmopOwog
+CkBAIC01NDAsMTEgKzUwMSwxMiBAQCBkczEzMDdfbnZyYW1fd3JpdGUoc3RydWN0IGtvYmplY3Qg
+KmtvYmosCiAJaWYgKHVubGlrZWx5KCFjb3VudCkpCiAJCXJldHVybiBjb3VudDsKIAotCWJ1ZmZl
+clswXSA9IDggKyBvZmY7Ci0JbWVtY3B5KGJ1ZmZlciArIDEsIGJ1ZiwgY291bnQpOwotCi0JcmV0
+ID0gaTJjX21hc3Rlcl9zZW5kKGNsaWVudCwgYnVmZmVyLCBjb3VudCArIDEpOwotCXJldHVybiAo
+cmV0IDwgMCkgPyByZXQgOiAocmV0IC0gMSk7CisJcmVzdWx0ID0gaTJjX3NtYnVzX3dyaXRlX2ky
+Y19ibG9ja19kYXRhKGNsaWVudCwgOCArIG9mZiwgY291bnQsIGJ1Zik7CisJaWYgKHJlc3VsdCA8
+IDApIHsKKwkJZGV2X2VycigmY2xpZW50LT5kZXYsICIlcyBlcnJvciAlZFxuIiwgIm52cmFtIHdy
+aXRlIiwgcmVzdWx0KTsKKwkJcmV0dXJuIHJlc3VsdDsKKwl9CisJcmV0dXJuIGNvdW50OwogfQog
+CiBzdGF0aWMgc3RydWN0IGJpbl9hdHRyaWJ1dGUgbnZyYW0gPSB7CkBAIC01NzIsOSArNTM0LDEx
+IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGRzMTMwN19wcm9iZShzdHJ1Y3QKIAljb25zdCBzdHJ1
+Y3QgY2hpcF9kZXNjCSpjaGlwID0gJmNoaXBzW2lkLT5kcml2ZXJfZGF0YV07CiAJc3RydWN0IGky
+Y19hZGFwdGVyCSphZGFwdGVyID0gdG9faTJjX2FkYXB0ZXIoY2xpZW50LT5kZXYucGFyZW50KTsK
+IAlpbnQJCQl3YW50X2lycSA9IGZhbHNlOworCXVuc2lnbmVkIGNoYXIJCSpidWY7CiAKIAlpZiAo
+IWkyY19jaGVja19mdW5jdGlvbmFsaXR5KGFkYXB0ZXIsCi0JCQlJMkNfRlVOQ19JMkMgfCBJMkNf
+RlVOQ19TTUJVU19XUklURV9CWVRFX0RBVEEpKQorCQkJSTJDX0ZVTkNfU01CVVNfV1JJVEVfQllU
+RV9EQVRBIHwKKwkJCUkyQ19GVU5DX1NNQlVTX0kyQ19CTE9DSykpCiAJCXJldHVybiAtRUlPOwog
+CiAJaWYgKCEoZHMxMzA3ID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGRzMTMwNyksIEdGUF9LRVJO
+RUwpKSkKQEAgLTU4MiwxOCArNTQ2LDggQEAgc3RhdGljIGludCBfX2RldmluaXQgZHMxMzA3X3By
+b2JlKHN0cnVjdAogCiAJZHMxMzA3LT5jbGllbnQgPSBjbGllbnQ7CiAJaTJjX3NldF9jbGllbnRk
+YXRhKGNsaWVudCwgZHMxMzA3KTsKLQotCWRzMTMwNy0+bXNnWzBdLmFkZHIgPSBjbGllbnQtPmFk
+ZHI7Ci0JZHMxMzA3LT5tc2dbMF0uZmxhZ3MgPSAwOwotCWRzMTMwNy0+bXNnWzBdLmxlbiA9IDE7
+Ci0JZHMxMzA3LT5tc2dbMF0uYnVmID0gJmRzMTMwNy0+cmVnX2FkZHI7Ci0KLQlkczEzMDctPm1z
+Z1sxXS5hZGRyID0gY2xpZW50LT5hZGRyOwotCWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gSTJDX01f
+UkQ7Ci0JZHMxMzA3LT5tc2dbMV0ubGVuID0gc2l6ZW9mKGRzMTMwNy0+cmVncyk7Ci0JZHMxMzA3
+LT5tc2dbMV0uYnVmID0gZHMxMzA3LT5yZWdzOwotCiAJZHMxMzA3LT50eXBlID0gaWQtPmRyaXZl
+cl9kYXRhOworCWJ1ZiA9IGRzMTMwNy0+cmVnczsKIAogCXN3aXRjaCAoZHMxMzA3LT50eXBlKSB7
+CiAJY2FzZSBkc18xMzM3OgpAQCAtNjAzLDIxICs1NTcsMTUgQEAgc3RhdGljIGludCBfX2Rldmlu
+aXQgZHMxMzA3X3Byb2JlKHN0cnVjdAogCQkJSU5JVF9XT1JLKCZkczEzMDctPndvcmssIGRzMTMw
+N193b3JrKTsKIAkJCXdhbnRfaXJxID0gdHJ1ZTsKIAkJfQotCi0JCWRzMTMwNy0+cmVnX2FkZHIg
+PSBEUzEzMzdfUkVHX0NPTlRST0w7Ci0JCWRzMTMwNy0+bXNnWzFdLmxlbiA9IDI7Ci0KIAkJLyog
+Z2V0IHJlZ2lzdGVycyB0aGF0IHRoZSAicnRjIiByZWFkIGJlbG93IHdvbid0IHJlYWQuLi4gKi8K
+LQkJdG1wID0gaTJjX3RyYW5zZmVyKGFkYXB0ZXIsIGRzMTMwNy0+bXNnLCAyKTsKKwkJdG1wID0g
+aTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoZHMxMzA3LT5jbGllbnQsCisJCQkJRFMxMzM3
+X1JFR19DT05UUk9MLCAyLCBidWYpOwogCQlpZiAodG1wICE9IDIpIHsKIAkJCXByX2RlYnVnKCJy
+ZWFkIGVycm9yICVkXG4iLCB0bXApOwogCQkJZXJyID0gLUVJTzsKIAkJCWdvdG8gZXhpdF9mcmVl
+OwogCQl9CiAKLQkJZHMxMzA3LT5yZWdfYWRkciA9IDA7Ci0JCWRzMTMwNy0+bXNnWzFdLmxlbiA9
+IHNpemVvZihkczEzMDctPnJlZ3MpOwotCiAJCS8qIG9zY2lsbGF0b3Igb2ZmPyAgdHVybiBpdCBv
+biwgc28gY2xvY2sgY2FuIHRpY2suICovCiAJCWlmIChkczEzMDctPnJlZ3NbMF0gJiBEUzEzMzdf
+QklUX25FT1NDKQogCQkJZHMxMzA3LT5yZWdzWzBdICY9IH5EUzEzMzdfQklUX25FT1NDOwpAQCAt
+NjQ4LDkgKzU5Niw4IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGRzMTMwN19wcm9iZShzdHJ1Y3QK
+IAogcmVhZF9ydGM6CiAJLyogcmVhZCBSVEMgcmVnaXN0ZXJzICovCi0KLQl0bXAgPSBpMmNfdHJh
+bnNmZXIoYWRhcHRlciwgZHMxMzA3LT5tc2csIDIpOwotCWlmICh0bXAgIT0gMikgeworCXRtcCA9
+IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19kYXRhKGRzMTMwNy0+Y2xpZW50LCAwLCA4LCBidWYp
+OworCWlmICh0bXAgIT0gOCkgewogCQlwcl9kZWJ1ZygicmVhZCBlcnJvciAlZFxuIiwgdG1wKTsK
+IAkJZXJyID0gLUVJTzsKIAkJZ290byBleGl0X2ZyZWU7Cg==
 
-Some I2C bus implementations need to synchronize with external
-entities, such as system firmware, which might also be programming the
-same I2C bus.
-
-In order to facilitate this add ->xfer_begin() and ->xfer_end() hooks
-which are invoked around pcf_xfer().
-
-[JD: Make these hooks optional.]
-
-Signed-off-by: David S. Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/algos/i2c-algo-pcf.c |   17 +++++++++++++----
- include/linux/i2c-algo-pcf.h     |    3 +++
- 2 files changed, 16 insertions(+), 4 deletions(-)
-
---- linux-2.6.28-rc0.orig/drivers/i2c/algos/i2c-algo-pcf.c	2008-10-17 13:21:29.000000000 +0200
-+++ linux-2.6.28-rc0/drivers/i2c/algos/i2c-algo-pcf.c	2008-10-17 13:22:59.000000000 +0200
-@@ -331,13 +331,16 @@ static int pcf_xfer(struct i2c_adapter *
- 	int i;
- 	int ret=0, timeout, status;
-     
-+	if (adap->xfer_begin)
-+		adap->xfer_begin(adap->data);
- 
- 	/* Check for bus busy */
- 	timeout = wait_for_bb(adap);
- 	if (timeout) {
- 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: "
- 		            "Timeout waiting for BB in pcf_xfer\n");)
--		return -EIO;
-+		i = -EIO;
-+		goto out;
- 	}
- 	
- 	for (i = 0;ret >= 0 && i < num; i++) {
-@@ -359,12 +362,14 @@ static int pcf_xfer(struct i2c_adapter *
- 		if (timeout) {
- 			if (timeout == -EINTR) {
- 				/* arbitration lost */
--				return (-EINTR);
-+				i = -EINTR;
-+				goto out;
- 			}
- 			i2c_stop(adap);
- 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: Timeout waiting "
- 				    "for PIN(1) in pcf_xfer\n");)
--			return (-EREMOTEIO);
-+			i = -EREMOTEIO;
-+			goto out;
- 		}
-     
- #ifndef STUB_I2C
-@@ -372,7 +377,8 @@ static int pcf_xfer(struct i2c_adapter *
- 		if (status & I2C_PCF_LRB) {
- 			i2c_stop(adap);
- 			DEB2(printk(KERN_ERR "i2c-algo-pcf.o: No LRB(1) in pcf_xfer\n");)
--			return (-EREMOTEIO);
-+			i = -EREMOTEIO;
-+			goto out;
- 		}
- #endif
-     
-@@ -404,6 +410,9 @@ static int pcf_xfer(struct i2c_adapter *
- 		}
- 	}
- 
-+out:
-+	if (adap->xfer_end)
-+		adap->xfer_end(adap->data);
- 	return (i);
- }
- 
---- linux-2.6.28-rc0.orig/include/linux/i2c-algo-pcf.h	2008-10-17 13:21:29.000000000 +0200
-+++ linux-2.6.28-rc0/include/linux/i2c-algo-pcf.h	2008-10-17 13:22:05.000000000 +0200
-@@ -33,6 +33,9 @@ struct i2c_algo_pcf_data {
- 	int  (*getclock) (void *data);
- 	void (*waitforpin) (void *data);
- 
-+	void (*xfer_begin) (void *data);
-+	void (*xfer_end) (void *data);
-+
- 	/* Multi-master lost arbitration back-off delay (msecs)
- 	 * This should be set by the bus adapter or knowledgable client
- 	 * if bus is multi-mastered, else zero
-
-This will go to Linus as part of my second i2c pull request (which is
-still blocked by a missing pci_ids patch at the moment.)
-
--- 
-Jean Delvare
+--_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
+--_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_--
