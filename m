@@ -1,61 +1,43 @@
-From: Trent Piepho <xyzzy-zY4eFNvK5D+xbKUeIHjxjQ@public.gmane.org>
-Subject: Re: [lm-sensors] [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Fri, 17 Oct 2008 13:43:34 -0700 (PDT)
-Message-ID: <Pine.LNX.4.58.0810171341370.23885@shell4.speakeasy.net>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200809251902.00201.david-b@pacbell.net>
-	<Pine.LNX.4.64.0809261652040.7680@t2.domain.actdsltmp>
-	<200810171204.54448.david-b@pacbell.net>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 5/7] of/gpio: implement of_dev_gpiochip_{add,remove} calls
+Date: Sat, 18 Oct 2008 01:13:14 +0400
+Message-ID: <20081017211314.GA30061@oksana.dev.rtsoft.ru>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+	<20081016171303.GE5515@oksana.dev.rtsoft.ru>
+	<200810171325.01729.david-b@pacbell.net>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4081461398886312990=="
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <200810171204.54448.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Content-Type: text/plain; charset="windows-1251"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <200810171325.01729.david-b@pacbell.net>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: David Brownell <david-b@pacbell.net>
+Cc: David Brownell <dbrownell@users.sourceforge.net>, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
---===============4081461398886312990==
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-
-On Fri, 17 Oct 2008, David Brownell wrote:
-> ... just to recap this before I scrub old mail from my mbox:
->
-> On Friday 26 September 2008, Trent Piepho wrote:
-> > > It's not a question of the I2C adapter supporting it. =A0It's a
-> > > question of whether there's an SMBALERT# signal on your board,
-> > > which can generate an interrupt. =A0If it can, this patch has an
-> > > IRQ handler which implements the SMBus alert protocol. =A0Think
-> > > of it as sideband signaling ... unknown to that adapter.
-> >
-> > If nothing is alerting, then the read from the ARA address won't get an=
- ack.
->
-> Absolutely nothing you've said makes a real argument against
-> providing support for SMBALERT#.
-
-Which isn't surprising, since I wasn't trying to make an argument against
-providing support for SMBALERT#.  I was making an argument for why it might
-be necessary to do something else.
-
-
---===============4081461398886312990==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============4081461398886312990==--
+T24gRnJpLCBPY3QgMTcsIDIwMDggYXQgMDE6MjU6MDFQTSAtMDcwMCwgRGF2aWQgQnJvd25lbGwg
+d3JvdGU6Cj4gT24gVGh1cnNkYXkgMTYgT2N0b2JlciAyMDA4LCBBbnRvbiBWb3JvbnRzb3Ygd3Jv
+dGU6Cj4gPiAroKCgoKCgoGlmIChvZl9nYy0+Y2hpcCkKPiA+ICugoKCgoKCgoKCgoKCgoKByZXR1
+cm4gb2ZfZ2MtPmNoaXA7Cj4gPiAroKCgoKCgoHJldHVybiAmb2ZfZ2MtPmdjOwo+IAo+IHByZXN1
+bWFibHkgdGhlcmUncyBhIHJlYXNvbiBub3QgdG8KPiAKPiAJb2ZfZ2MtPmNoaXAgPSAmb2ZfZ2Mt
+PmdjOwoKWWVzLCB0aGVyZSBhcmUgdHdvIHJlYXNvbnM6CgoxLiBJIG5lZWQgc29tZSBwbGFjZSB0
+byBpbnNlcnQgdGhlIGh1Z2UgY29tbWVudCwgd2hpY2ggeW91IHNuaXBwZWQuIDstKQoKMi4gSSBk
+aWRuJ3Qgd2FudCB0byBicmVhayBjdXJyZW50IHVzZXJzLiBUaGF0IGlzLCB0aGUgbGluZSB5b3Ug
+cHVycG9zZQogICAoIm9mX2djLT5jaGlwID0gJm9mX2djLT5nYzsiKSBzaG91bGQgYmUgaW5zZXJ0
+ZWQgdG8gZXZlcnkgb2ZfZ3BpbwogICBjb250cm9sbGVyLiBNb3N0IG9mIHRoZW0gdXNlIG9mX21t
+X2dwaW9jaGlwX2FkZCgpLCBzbyB0aGVzZSBhcmUgZWFzeS4KICAgQnV0IHNvbWUgKG1jdV9tcGM4
+MzQ5ZW1pdHguYykgYXJlIGRvaW5nIHRoaW5ncyBieSB0aGVtc2VsdmVzLgoKVGhhbmtzLAoKLS0g
+CkFudG9uIFZvcm9udHNvdgplbWFpbDogY2JvdWF0bWFpbHJ1QGdtYWlsLmNvbQppcmM6Ly9pcmMu
+ZnJlZW5vZGUubmV0L2JkMgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpMaW51eHBwYy1kZXYgbWFpbGluZyBsaXN0CkxpbnV4cHBjLWRldkBvemxhYnMub3Jn
+Cmh0dHBzOi8vb3psYWJzLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4cHBjLWRldg==
