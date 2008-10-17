@@ -1,63 +1,71 @@
 From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] [RESEND] i2c-cpm: Suppress autoprobing for devices
-Date: Fri, 17 Oct 2008 10:55:07 +0200
-Message-ID: <20081017105507.5579267b@hyperion.delvare>
-References: <20081016111300.GC3432@pengutronix.de>
-	<20081016191200.GB13629@pengutronix.de>
+Subject: Re: [PATCH 2/7] i2c: add info->archdata field
+Date: Fri, 17 Oct 2008 11:21:25 +0200
+Message-ID: <20081017112125.1f2c9d94@hyperion.delvare>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+	<20081016171253.GB5515@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20081016191200.GB13629@pengutronix.de>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753166AbYJQJVx@vger.kernel.org>
+In-Reply-To: <20081016171253.GB5515@oksana.dev.rtsoft.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Grant Likely <grant.likely@secretlab.ca>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Anton,
 
-On Thu, 16 Oct 2008 21:12:00 +0200, Wolfram Sang wrote:
-> Similar to commit 618b26d52843c0f85b8eb143cf2695d7f6fd072d, also remove
-> automatic probing for this i2c controller. Might need updates to dts files
-> using it.
+On Thu, 16 Oct 2008 21:12:53 +0400, Anton Vorontsov wrote:
+> If present the info->archdata is copied into the dev->archdata.
+> Some (OpenFirmware) platforms need it.
 > 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> Acked-by: Jochen Friedrich <jochen@scram.de>
+> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
 > ---
-> Resend with cc to i2c.
+>  drivers/i2c/i2c-core.c |    3 +++
+>  include/linux/i2c.h    |    2 ++
+>  2 files changed, 5 insertions(+), 0 deletions(-)
 > 
->  drivers/i2c/busses/i2c-cpm.c |    1 -
->  1 file changed, 1 deletion(-)
-> 
-> Index: linux-2.6/drivers/i2c/busses/i2c-cpm.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/i2c/busses/i2c-cpm.c
-> +++ linux-2.6/drivers/i2c/busses/i2c-cpm.c
-> @@ -423,7 +423,6 @@ static const struct i2c_adapter cpm_ops 
->  	.owner		= THIS_MODULE,
->  	.name		= "i2c-cpm",
->  	.algo		= &cpm_i2c_algo,
-> -	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 42e852d..5a485c2 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -266,6 +266,9 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+>  
+>  	client->dev.platform_data = info->platform_data;
+>  
+> +	if (info->archdata)
+> +		client->dev.archdata = *info->archdata;
+> +
+>  	client->flags = info->flags;
+>  	client->addr = info->addr;
+>  	client->irq = info->irq;
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 0611512..3e358d3 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -240,6 +240,7 @@ static inline void i2c_set_clientdata (struct i2c_client *dev, void *data)
+>   * @flags: to initialize i2c_client.flags
+>   * @addr: stored in i2c_client.addr
+>   * @platform_data: stored in i2c_client.dev.platform_data
+> + * @archdata: copied into i2c_client.dev.archdata
+>   * @irq: stored in i2c_client.irq
+>   *
+>   * I2C doesn't actually support hardware probing, although controllers and
+> @@ -259,6 +260,7 @@ struct i2c_board_info {
+>  	unsigned short	flags;
+>  	unsigned short	addr;
+>  	void		*platform_data;
+> +	struct dev_archdata	*archdata;
+>  	int		irq;
 >  };
 >  
->  static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
+
+No objection from me:
 
 Acked-by: Jean Delvare <khali@linux-fr.org>
 
-I guess you do _not_ want me to push this patch upstream now and it
-better goes through the powerpc tree to allow a synchronization with
-dts file changes?
-
-If I'm wrong and you want me to take this patch in my tree then please
-tell me.
+Let me know if I should push this patch upstream myself.
 
 -- 
 Jean Delvare
