@@ -1,141 +1,111 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 9/8] i2c-omap: fix I2C timeouts due to
-	recursive	omap_i2c_{un, }idle()
-Date: Fri, 17 Oct 2008 08:47:08 -0700
-Message-ID: <20081017154708.GO15820@atomide.com>
-References: <1222329234-31473-1-git-send-email-tony@atomide.com>
-	<1222329234-31473-2-git-send-email-tony@atomide.com>
-	<1222329234-31473-3-git-send-email-tony@atomide.com>
-	<1222329234-31473-4-git-send-email-tony@atomide.com>
-	<1222329234-31473-5-git-send-email-tony@atomide.com>
-	<1222329234-31473-6-git-send-email-tony@atomide.com>
-	<1222329234-31473-7-git-send-email-tony@atomide.com>
-	<1222329234-31473-8-git-send-email-tony@atomide.com>
-	<1222329234-31473-9-git-send-email-tony@atomide.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: git-pull request for i2c-omap changes (Re: [i2c] [PATCH 0/8]
+	Updates for i2c-omap from linux-omap tree for review, v2)
+Date: Fri, 17 Oct 2008 09:04:36 -0700
+Message-ID: <20081017160436.GQ15820@atomide.com>
+References: <1222329234-31473-1-git-send-email-tony@atomide.com> <20080929222310.GP2716@fluff.org.uk> <20080930053533.GB2779@atomide.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6TC23+W66xmFESAX"
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: multipart/mixed; boundary="VB1oQhYtJt8uuzk+"
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1222329234-31473-9-git-send-email-tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+In-Reply-To: <20080930053533.GB2779@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: i2c@lm-sensors.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6TC23+W66xmFESAX
+--VB1oQhYtJt8uuzk+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi,
+* Tony Lindgren <tony@atomide.com> [080929 22:33]:
+> * Ben Dooks <ben-linux@fluff.org> [080930 01:23]:
+> > On Thu, Sep 25, 2008 at 10:53:46AM +0300, Tony Lindgren wrote:
+> > > Hi all,
+> > > 
+> > > Here's a repost of the whole series, the first series had a compile
+> > > error starting with one of the patches. Sorry for the extra noise.
+> > > 
+> > > This series contains pending i2c-omap patches from linux-omap tree
+> > > for review.
+> > > 
+> > > Looks like we've managed to pile up stuff in the omap tree for this
+> > > driver again... Anyways, future patches will be coming straight via
+> > > the i2c list.
+> > > 
+> > > The first two patches could be pushed as fixes to current -rc series,
+> > > but I'm fine with them going in later too.
+> > 
+> > It is too late in the -rc series, and it will be easier to push the
+> > lot in one go.
+> 
+> OK
+> 
+> > > I've left out some clean-up from the last patch so it won't conflict with
+> > > omap ioremp changes that are currently in Russell King's devel
+> > > branch.
+> > 
+> > If you can provide an url to a git tree to pull, that'd be great,
+> > otherwise I'll apply from the series unless anyone else decides
+> > there are problems with it.
+> 
+> Thanks for looking, I'll fix the issues you commented on and will
+> repost. It may take a few days before I can get back on this again
+> though.
 
-Here's one more new patch to fix a nasty I2C timeout bug that
-showed up at least on omap34xx.
+Sorry for the delay in fixing these issues. Hopefully there's still
+some time to get these in..
+
+The minimal omap34xx support hit mainline yesterday, so if these
+still can get integrated, people will be able to work on a bunch of
+related drivers against the mainline.
+
+This would enable at least drivers/mfd/twl4030*, and all the twl4030
+related drivers. And also USB OTG for MUSB can be worked on. The twl4030
+core code should be queued for integration, and MUSB stuff is already
+integrated.
+
+Regards,
 
 Tony
 
---6TC23+W66xmFESAX
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: inline;
-	filename="0009-i2c-omap-fix-I2C-timeouts-due-to-recursive-omap_i2c.patch"
 
->From b3016ed8b0105a3c4447cc93434d988fd0ad29d6 Mon Sep 17 00:00:00 2001
-From: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Date: Fri, 17 Oct 2008 08:42:54 -0700
-Subject: [PATCH] i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
+--VB1oQhYtJt8uuzk+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=pull
 
-omap_i2c_unidle() and omap_i2c_idle() are called recursively during
-omap_i2c_probe().  This is evidently unexpected and will wipe
-out the I2C interrupt enable register the second time that
-omap_i2c_idle() is called consecutively.  Any I2C transactions
-following a probe of a bus with at least one device on it will then
-time out.
+The following changes since commit 2e532d68a2b3e2aa6b19731501222069735c741c:
+  Linus Torvalds (1):
+        {pci,pnp} quirks.c: don't use deprecated print_fn_descriptor_symbol()
 
-Fix by moving omap_i2c_idle() further up in omap_i2c_probe().  Ensure
-the I2C controller is marked as idle before the probe starts.  Also
-attempt to catch future reappearances of this bug early in development
-by warning in omap_i2c_{un,}idle() when they are called recursively.
+are available in the git repository at:
 
-Problem reported by David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>.
+  git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap-2.6.git i2c-for-ben
 
-Tested on 3430SDP and 2430SDP.
+Chandra shekhar (1):
+      i2c-omap: Add support for omap34xx
 
-Signed-off-by: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Richard Woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
-Acked-by; Steve Sakoman <steve-4Uf0gMDude1BDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+Jarkko Nikula (1):
+      i2c-omap: Do not use interruptible wait call in omap_i2c_xfer_msg
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 17166a2..363335e 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -191,6 +191,8 @@ static void omap_i2c_put_clocks(struct omap_i2c_dev *dev)
- 
- static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- {
-+	WARN_ON(!dev->idle);
-+
- 	if (dev->iclk != NULL)
- 		clk_enable(dev->iclk);
- 	clk_enable(dev->fclk);
-@@ -203,6 +205,8 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- {
- 	u16 iv;
- 
-+	WARN_ON(dev->idle);
-+
- 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
- 	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
- 	if (dev->rev1)
-@@ -743,6 +747,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 		*speed = 100; /* Defualt speed */
- 
- 	dev->speed = *speed;
-+	dev->idle = 1;
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq->start;
- 	dev->base = ioremap(mem->start, mem->end - mem->start + 1);
-@@ -791,6 +796,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz\n",
- 		 pdev->id, r >> 4, r & 0xf, dev->speed);
- 
-+	omap_i2c_idle(dev);
-+
- 	adap = &dev->adapter;
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
-@@ -807,8 +814,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 		goto err_free_irq;
- 	}
- 
--	omap_i2c_idle(dev);
--
- 	return 0;
- 
- err_free_irq:
--- 
-1.5.6.rc3.21.g8c6b5
+Nishanth Menon (1):
+      i2c-omap: FIFO handling support and broken hw workaround for i2c-omap
 
+Paul Walmsley (4):
+      i2c-omap: Close suspected race between omap_i2c_idle() and omap_i2c_isr()
+      i2c-omap: Mark init-only functions as __init
+      i2c-omap: Don't compile in OMAP15xx I2C ISR for non-OMAP15xx builds
+      i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
 
---6TC23+W66xmFESAX
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Syed Mohammed Khasim (1):
+      i2c-omap: Add high-speed support to omap-i2c
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
---6TC23+W66xmFESAX--
+Tony Lindgren (1):
+      i2c-omap: Clean-up i2c-omap
+
+ arch/arm/mach-omap2/clock24xx.h |    4 +-
+ drivers/i2c/busses/i2c-omap.c   |  335 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 258 insertions(+), 81 deletions(-)
+
+--VB1oQhYtJt8uuzk+--
