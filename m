@@ -1,143 +1,141 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [i2c] [PATCH 8/8] i2c-omap: Clean-up i2c-omap
-Date: Fri, 17 Oct 2008 08:41:41 -0700
-Message-ID: <20081017154140.GN15820@atomide.com>
-References: <1222329234-31473-1-git-send-email-tony@atomide.com> <1222329234-31473-2-git-send-email-tony@atomide.com> <1222329234-31473-3-git-send-email-tony@atomide.com> <1222329234-31473-4-git-send-email-tony@atomide.com> <1222329234-31473-5-git-send-email-tony@atomide.com> <1222329234-31473-6-git-send-email-tony@atomide.com> <1222329234-31473-7-git-send-email-tony@atomide.com> <1222329234-31473-8-git-send-email-tony@atomide.com> <1222329234-31473-9-git-send-email-tony@atomide.com> <20080929223125.GV2716@fluff.org.uk>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 9/8] i2c-omap: fix I2C timeouts due to
+	recursive	omap_i2c_{un, }idle()
+Date: Fri, 17 Oct 2008 08:47:08 -0700
+Message-ID: <20081017154708.GO15820@atomide.com>
+References: <1222329234-31473-1-git-send-email-tony@atomide.com>
+	<1222329234-31473-2-git-send-email-tony@atomide.com>
+	<1222329234-31473-3-git-send-email-tony@atomide.com>
+	<1222329234-31473-4-git-send-email-tony@atomide.com>
+	<1222329234-31473-5-git-send-email-tony@atomide.com>
+	<1222329234-31473-6-git-send-email-tony@atomide.com>
+	<1222329234-31473-7-git-send-email-tony@atomide.com>
+	<1222329234-31473-8-git-send-email-tony@atomide.com>
+	<1222329234-31473-9-git-send-email-tony@atomide.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="wjoFZxbW4tu+iR6v"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="6TC23+W66xmFESAX"
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080929223125.GV2716@fluff.org.uk>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: i2c@lm-sensors.org, linux-omap@vger.kernel.org
+In-Reply-To: <1222329234-31473-9-git-send-email-tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---wjoFZxbW4tu+iR6v
+--6TC23+W66xmFESAX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-* Ben Dooks <ben-linux@fluff.org> [080929 15:31]:
-> On Thu, Sep 25, 2008 at 10:53:54AM +0300, Tony Lindgren wrote:
-> > Minor checkpatch and formatting clean-up. Also update copyrights.
-> 
-> looks ok, assuming it doesn't get broken by any changes
-> from the review comments i've made earlier in the series.
+Hi,
 
-Here's this one updated with one sparse fix to change the
-#define omap_i2c_rev1_isr NULL instead of 0.
+Here's one more new patch to fix a nasty I2C timeout bug that
+showed up at least on omap34xx.
 
 Tony
 
---wjoFZxbW4tu+iR6v
-Content-Type: text/x-diff; charset=iso-8859-1
-Content-Disposition: inline; filename="0008-i2c-omap-Clean-up-i2c-omap.patch"
-Content-Transfer-Encoding: 8bit
+--6TC23+W66xmFESAX
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: inline;
+	filename="0009-i2c-omap-fix-I2C-timeouts-due-to-recursive-omap_i2c.patch"
 
->From 8537c8bb8753f3e3c5dd23ec15ba59c3562812a1 Mon Sep 17 00:00:00 2001
-From: Tony Lindgren <tony@atomide.com>
-Date: Fri, 17 Oct 2008 07:49:27 -0700
-Subject: [PATCH] i2c-omap: Clean-up i2c-omap
+>From b3016ed8b0105a3c4447cc93434d988fd0ad29d6 Mon Sep 17 00:00:00 2001
+From: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+Date: Fri, 17 Oct 2008 08:42:54 -0700
+Subject: [PATCH] i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
 
-Minor sparse, checkpatch and formatting clean-up. Also update copyrights.
+omap_i2c_unidle() and omap_i2c_idle() are called recursively during
+omap_i2c_probe().  This is evidently unexpected and will wipe
+out the I2C interrupt enable register the second time that
+omap_i2c_idle() is called consecutively.  Any I2C transactions
+following a probe of a bus with at least one device on it will then
+time out.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fix by moving omap_i2c_idle() further up in omap_i2c_probe().  Ensure
+the I2C controller is marked as idle before the probe starts.  Also
+attempt to catch future reappearances of this bug early in development
+by warning in omap_i2c_{un,}idle() when they are called recursively.
+
+Problem reported by David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>.
+
+Tested on 3430SDP and 2430SDP.
+
+Signed-off-by: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Richard Woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
+Acked-by; Steve Sakoman <steve-4Uf0gMDude1BDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |   31 ++++++++++++++++++-------------
- 1 files changed, 18 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 5560064..17166a2 100644
+index 17166a2..363335e 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -2,13 +2,16 @@
-  * TI OMAP I2C master mode driver
-  *
-  * Copyright (C) 2003 MontaVista Software, Inc.
-- * Copyright (C) 2004 Texas Instruments.
-- *
-- * Updated to work with multiple I2C interfaces on 24xx by
-- * Tony Lindgren <tony@atomide.com> and Imre Deak <imre.deak@nokia.com>
-  * Copyright (C) 2005 Nokia Corporation
-+ * Copyright (C) 2004 - 2007 Texas Instruments.
-  *
-- * Cleaned up by Juha Yrjölä <juha.yrjola@nokia.com>
-+ * Originally written by MontaVista Software, Inc.
-+ * Additional contributions by:
-+ *	Tony Lindgren <tony@atomide.com>
-+ *	Imre Deak <imre.deak@nokia.com>
-+ *	Juha Yrjölä <juha.yrjola@solidboot.com>
-+ *	Syed Khasim <x0khasim@ti.com>
-+ *	Nishant Menon <nm@ti.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -33,8 +36,7 @@
- #include <linux/completion.h>
- #include <linux/platform_device.h>
- #include <linux/clk.h>
--
--#include <asm/io.h>
-+#include <linux/io.h>
+@@ -191,6 +191,8 @@ static void omap_i2c_put_clocks(struct omap_i2c_dev *dev)
  
- /* timeout waiting for the controller to respond */
- #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
-@@ -204,7 +206,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+ {
++	WARN_ON(!dev->idle);
++
+ 	if (dev->iclk != NULL)
+ 		clk_enable(dev->iclk);
+ 	clk_enable(dev->fclk);
+@@ -203,6 +205,8 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ {
+ 	u16 iv;
+ 
++	WARN_ON(dev->idle);
++
  	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
  	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
  	if (dev->rev1)
--		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG);	/* Read clears */
-+		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG); /* Read clears */
- 	else
- 		omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, dev->iestate);
- 	/*
-@@ -323,9 +325,9 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+@@ -743,6 +747,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		*speed = 100; /* Defualt speed */
  
- 	/* Enable interrupts */
- 	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
--			   (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
--			    OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
--			    OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
-+			(OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
-+			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
-+			OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
- 				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0));
+ 	dev->speed = *speed;
++	dev->idle = 1;
+ 	dev->dev = &pdev->dev;
+ 	dev->irq = irq->start;
+ 	dev->base = ioremap(mem->start, mem->end - mem->start + 1);
+@@ -791,6 +796,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz\n",
+ 		 pdev->id, r >> 4, r & 0xf, dev->speed);
+ 
++	omap_i2c_idle(dev);
++
+ 	adap = &dev->adapter;
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+@@ -807,8 +814,6 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_free_irq;
+ 	}
+ 
+-	omap_i2c_idle(dev);
+-
  	return 0;
- }
-@@ -391,8 +393,10 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 		w |= OMAP_I2C_CON_XA;
- 	if (!(msg->flags & I2C_M_RD))
- 		w |= OMAP_I2C_CON_TRX;
-+
- 	if (!dev->b_hw && stop)
- 		w |= OMAP_I2C_CON_STP;
-+
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, w);
  
- 	/*
-@@ -471,7 +475,8 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	omap_i2c_unidle(dev);
- 
--	if ((r = omap_i2c_wait_for_bb(dev)) < 0)
-+	r = omap_i2c_wait_for_bb(dev);
-+	if (r < 0)
- 		goto out;
- 
- 	for (i = 0; i < num; i++) {
-@@ -564,7 +569,7 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- #else
--#define omap_i2c_rev1_isr		0
-+#define omap_i2c_rev1_isr		NULL
- #endif
- 
- static irqreturn_t
+ err_free_irq:
 -- 
 1.5.6.rc3.21.g8c6b5
 
 
---wjoFZxbW4tu+iR6v--
+--6TC23+W66xmFESAX
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--6TC23+W66xmFESAX--
