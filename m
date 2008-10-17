@@ -1,15 +1,15 @@
-From: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] rtc-ds1307 : SMBus compatibility
-Date: Fri, 17 Oct 2008 17:11:27 +0200
-Message-ID: <C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59C2F@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081016121843.2e0c3792.akpm@linux-foundation.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 5/6]: i2c: Add bus addressing support.
+Date: Fri, 17 Oct 2008 17:24:59 +0200
+Message-ID: <20081017172459.550dda6c@hyperion.delvare>
+References: <20080821.024330.51639001.davem@davemloft.net>
+	<20081015145228.14b1ae77@hyperion.delvare>
+	<20081015.143722.260594637.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081016121843.2e0c3792.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Content-Language: fr-FR
+In-Reply-To: <20081015.143722.260594637.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,174 +19,137 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org" <rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Hi David,
 
-VGhpcyBwYXRjaCBjaGFuZ2UgaTJjIGFjY2VzcyBmdW5jdGlvbnMgdG8gU01CdXMgYWNjZXNzIGZ1
-bmN0aW9ucw0KaW4gb3JkZXIgdG8gdXNlIHRoZSBkczEzMDcgd2l0aCBTTUJ1cyBhZGFwdGVyLg0K
-DQpTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpZW4gQmFycmUgPHNiYXJyZUBzZGVsY2MuY29tPg0KDQot
-LQ0KDQpUaGUgaW5pdGlhbCBwYXRjaCB3YXMgYmFzZWQgb24gMi42LjI2LjUsIEkndmUgcmVkb25l
-IGl0IGFnYWluc3QgTGludXMncyBjdXJyZW50IGdpdCB0cmVlLg0KU29ycnksIHRoZSBwYXRjaCBp
-cyBhdHRhY2hlZCBiZWNhdXNlIG15IGVtYWlsIGNsaWVudCByZXBsYWNlIGFsbCB0aGUgdGFicyB3
-aXRoIHNwYWNlcy4NCg0KSSd2ZSB0ZXN0ZWQgaXQgd2l0aCBkczEzMDcgY2hpcC4NCklzIHNvbWVi
-b2R5IGNhbiB0ZXN0IGl0IG9uIGRzMTMzNy9kczEzMzggPw0KDQotLQ0KU8OpYmFzdGllbiBCYXJy
-w6kNCkJ1cmVhdSBkJ8OpdHVkZSAtIETDqXZlbG9wcGVtZW50DQpTREVMIENvbnRyw7RsZSBDb21t
-YW5kZQ0KRDJBIC0gUnVlIE51bmdlc3NlciBldCBDb2xpDQo0NDg2MCBTYWludCBBaWduYW4gZGUg
-R3JhbmQgTGlldQ0KRlJBTkNFDQpUw6lsIDogKzMzKDApMiA0MCA4NCA1MCA4OA0KRmF4IDogKzMz
-KDApMiA0MCA4NCA1MSAxMA0KDQo=
+On Wed, 15 Oct 2008 14:37:22 -0700 (PDT), David Miller wrote:
+> From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Date: Wed, 15 Oct 2008 14:52:28 +0200
+> 
+> > Hi David,
+> > 
+> > On Thu, 21 Aug 2008 02:43:30 -0700 (PDT), David Miller wrote:
+> > > 
+> > > i2c: Add bus addressing support.
+> > > 
+> > > Some I2C bus controllers support the driving of multiple I2C bus
+> > > segments (think PCI domains).
+> > > 
+> > > For example, the pcf8584 variants on some sparc64 boxes can do this.
+> > > They have an auxiliary 8-bit register that specifies the I2C bus each
+> > > I2C operation acts upon.  In the openfirmware device tree, the I2C
+> > > client devices are described using an 8-bit bus address and a 10-bit
+> > > I2C device address.
+> > 
+> > Can you please point me to the part of the PCF8454 datasheet which
+> > explains this? I can't find it. As I read the datasheet, the PCF8454
+> > supports a single I2C bus.
+> 
+> It's a feature Sun added to their PCF chips.  The register address
+> is forwarded to an internal MUX they implemented which implements
+> the register selecting the I2C bus.
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
-Content-Type: application/octet-stream; name="patch-rtc-ds1307"
-Content-Description: patch-rtc-ds1307
-Content-Disposition: attachment; filename="patch-rtc-ds1307"; size=0;
-	creation-date="Fri, 17 Oct 2008 15:05:57 GMT";
-	modification-date="Fri, 17 Oct 2008 13:38:23 GMT"
-Content-Transfer-Encoding: base64
+I don't really follow you here. The PCF8584 is a chip manufactured by
+Philips. I don't quite see how Sun could have added registers to a chip
+after the fact. Or do they produce compatible chips for their own
+systems, with extra features?
 
-LS0tIGEvZHJpdmVycy9ydGMvcnRjLWRzMTMwNy5jCTIwMDgtMTAtMTcgMTQ6NDM6NDMuMDAwMDAw
-MDAwICswMjAwCisrKyBiL2RyaXZlcnMvcnRjL3J0Yy1kczEzMDcuYwkyMDA4LTEwLTE3IDE1OjM4
-OjEyLjAwMDAwMDAwMCArMDIwMApAQCAtODYsMTMgKzg2LDExIEBAIGVudW0gZHNfdHlwZSB7CiAK
-IAogc3RydWN0IGRzMTMwNyB7Ci0JdTgJCQlyZWdfYWRkcjsKIAl1OAkJCXJlZ3NbMTFdOwogCWVu
-dW0gZHNfdHlwZQkJdHlwZTsKIAl1bnNpZ25lZCBsb25nCQlmbGFnczsKICNkZWZpbmUgSEFTX05W
-UkFNCTAJCS8qIGJpdCAwID09IHN5c2ZzIGZpbGUgYWN0aXZlICovCiAjZGVmaW5lIEhBU19BTEFS
-TQkxCQkvKiBiaXQgMSA9PSBpcnEgY2xhaW1lZCAqLwotCXN0cnVjdCBpMmNfbXNnCQltc2dbMl07
-CiAJc3RydWN0IGkyY19jbGllbnQJKmNsaWVudDsKIAlzdHJ1Y3QgcnRjX2RldmljZQkqcnRjOwog
-CXN0cnVjdCB3b3JrX3N0cnVjdAl3b3JrOwpAQCAtMjA0LDEzICsyMDIsOSBAQCBzdGF0aWMgaW50
-IGRzMTMwN19nZXRfdGltZShzdHJ1Y3QgZGV2aWNlCiAJaW50CQl0bXA7CiAKIAkvKiByZWFkIHRo
-ZSBSVEMgZGF0ZSBhbmQgdGltZSByZWdpc3RlcnMgYWxsIGF0IG9uY2UgKi8KLQlkczEzMDctPnJl
-Z19hZGRyID0gMDsKLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCWRzMTMwNy0+
-bXNnWzFdLmxlbiA9IDc7Ci0KLQl0bXAgPSBpMmNfdHJhbnNmZXIodG9faTJjX2FkYXB0ZXIoZHMx
-MzA3LT5jbGllbnQtPmRldi5wYXJlbnQpLAotCQkJZHMxMzA3LT5tc2csIDIpOwotCWlmICh0bXAg
-IT0gMikgeworCXRtcCA9IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19kYXRhKGRzMTMwNy0+Y2xp
-ZW50LAorCQlEUzEzMDdfUkVHX1NFQ1MsIDcsIGRzMTMwNy0+cmVncyk7CisJaWYgKHRtcCAhPSA3
-KSB7CiAJCWRldl9lcnIoZGV2LCAiJXMgZXJyb3IgJWRcbiIsICJyZWFkIiwgdG1wKTsKIAkJcmV0
-dXJuIC1FSU87CiAJfQpAQCAtMjU3LDcgKzI1MSw2IEBAIHN0YXRpYyBpbnQgZHMxMzA3X3NldF90
-aW1lKHN0cnVjdCBkZXZpY2UKIAkJdC0+dG1faG91ciwgdC0+dG1fbWRheSwKIAkJdC0+dG1fbW9u
-LCB0LT50bV95ZWFyLCB0LT50bV93ZGF5KTsKIAotCSpidWYrKyA9IDA7CQkvKiBmaXJzdCByZWdp
-c3RlciBhZGRyICovCiAJYnVmW0RTMTMwN19SRUdfU0VDU10gPSBCSU4yQkNEKHQtPnRtX3NlYyk7
-CiAJYnVmW0RTMTMwN19SRUdfTUlOXSA9IEJJTjJCQ0QodC0+dG1fbWluKTsKIAlidWZbRFMxMzA3
-X1JFR19IT1VSXSA9IEJJTjJCQ0QodC0+dG1faG91cik7CkBAIC0yODIsMTggKzI3NSwxNCBAQCBz
-dGF0aWMgaW50IGRzMTMwN19zZXRfdGltZShzdHJ1Y3QgZGV2aWNlCiAJCWJyZWFrOwogCX0KIAot
-CWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gMDsKLQlkczEzMDctPm1zZ1sxXS5sZW4gPSA4OwotCiAJ
-ZGV2X2RiZyhkZXYsICIlczogJTAyeCAlMDJ4ICUwMnggJTAyeCAlMDJ4ICUwMnggJTAyeFxuIiwK
-IAkJIndyaXRlIiwgYnVmWzBdLCBidWZbMV0sIGJ1ZlsyXSwgYnVmWzNdLAogCQlidWZbNF0sIGJ1
-Zls1XSwgYnVmWzZdKTsKIAotCXJlc3VsdCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihk
-czEzMDctPmNsaWVudC0+ZGV2LnBhcmVudCksCi0JCQkmZHMxMzA3LT5tc2dbMV0sIDEpOwotCWlm
-IChyZXN1bHQgIT0gMSkgewotCQlkZXZfZXJyKGRldiwgIiVzIGVycm9yICVkXG4iLCAid3JpdGUi
-LCB0bXApOwotCQlyZXR1cm4gLUVJTzsKKwlyZXN1bHQgPSBpMmNfc21idXNfd3JpdGVfaTJjX2Js
-b2NrX2RhdGEoZHMxMzA3LT5jbGllbnQsIDAsIDcsIGJ1Zik7CisJaWYgKHJlc3VsdCA8IDApIHsK
-KwkJZGV2X2VycihkZXYsICIlcyBlcnJvciAlZFxuIiwgIndyaXRlIiwgcmVzdWx0KTsKKwkJcmV0
-dXJuIHJlc3VsdDsKIAl9CiAJcmV0dXJuIDA7CiB9CkBAIC0zMDgsMTMgKzI5Nyw5IEBAIHN0YXRp
-YyBpbnQgZHMxMzA3X3JlYWRfYWxhcm0oc3RydWN0IGRldmkKIAkJcmV0dXJuIC1FSU5WQUw7CiAK
-IAkvKiByZWFkIGFsbCBBTEFSTTEsIEFMQVJNMiwgYW5kIHN0YXR1cyByZWdpc3RlcnMgYXQgb25j
-ZSAqLwotCWRzMTMwNy0+cmVnX2FkZHIgPSBEUzEzMzlfUkVHX0FMQVJNMV9TRUNTOwotCWRzMTMw
-Ny0+bXNnWzFdLmZsYWdzID0gSTJDX01fUkQ7Ci0JZHMxMzA3LT5tc2dbMV0ubGVuID0gOTsKLQot
-CXJldCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJlbnQpLAot
-CQkJZHMxMzA3LT5tc2csIDIpOwotCWlmIChyZXQgIT0gMikgeworCXJldCA9IGkyY19zbWJ1c19y
-ZWFkX2kyY19ibG9ja19kYXRhKGNsaWVudCwKKwkJCURTMTMzOV9SRUdfQUxBUk0xX1NFQ1MsIDks
-IGRzMTMwNy0+cmVncyk7CisJaWYgKHJldCAhPSA5KSB7CiAJCWRldl9lcnIoZGV2LCAiJXMgZXJy
-b3IgJWRcbiIsICJhbGFybSByZWFkIiwgcmV0KTsKIAkJcmV0dXJuIC1FSU87CiAJfQpAQCAtMzcx
-LDEzICszNTYsOSBAQCBzdGF0aWMgaW50IGRzMTMwN19zZXRfYWxhcm0oc3RydWN0IGRldmljCiAJ
-CXQtPmVuYWJsZWQsIHQtPnBlbmRpbmcpOwogCiAJLyogcmVhZCBjdXJyZW50IHN0YXR1cyBvZiBi
-b3RoIGFsYXJtcyBhbmQgdGhlIGNoaXAgKi8KLQlkczEzMDctPnJlZ19hZGRyID0gRFMxMzM5X1JF
-R19BTEFSTTFfU0VDUzsKLQlkczEzMDctPm1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCWRzMTMw
-Ny0+bXNnWzFdLmxlbiA9IDk7Ci0KLQlyZXQgPSBpMmNfdHJhbnNmZXIodG9faTJjX2FkYXB0ZXIo
-Y2xpZW50LT5kZXYucGFyZW50KSwKLQkJCWRzMTMwNy0+bXNnLCAyKTsKLQlpZiAocmV0ICE9IDIp
-IHsKKwlyZXQgPSBpMmNfc21idXNfcmVhZF9pMmNfYmxvY2tfZGF0YShjbGllbnQsCisJCQlEUzEz
-MzlfUkVHX0FMQVJNMV9TRUNTLCA5LCBidWYpOworCWlmIChyZXQgIT0gOSkgewogCQlkZXZfZXJy
-KGRldiwgIiVzIGVycm9yICVkXG4iLCAiYWxhcm0gd3JpdGUiLCByZXQpOwogCQlyZXR1cm4gLUVJ
-TzsKIAl9CkBAIC0zOTIsNyArMzczLDYgQEAgc3RhdGljIGludCBkczEzMDdfc2V0X2FsYXJtKHN0
-cnVjdCBkZXZpYwogCQkJZHMxMzA3LT5yZWdzWzZdLCBjb250cm9sLCBzdGF0dXMpOwogCiAJLyog
-c2V0IEFMQVJNMSwgdXNpbmcgMjQgaG91ciBhbmQgZGF5LW9mLW1vbnRoIG1vZGVzICovCi0JKmJ1
-ZisrID0gRFMxMzM5X1JFR19BTEFSTTFfU0VDUzsJLyogZmlyc3QgcmVnaXN0ZXIgYWRkciAqLwog
-CWJ1ZlswXSA9IGJpbjJiY2QodC0+dGltZS50bV9zZWMpOwogCWJ1ZlsxXSA9IGJpbjJiY2QodC0+
-dGltZS50bV9taW4pOwogCWJ1ZlsyXSA9IGJpbjJiY2QodC0+dGltZS50bV9ob3VyKTsKQEAgLTQx
-MSwxNCArMzkxLDExIEBAIHN0YXRpYyBpbnQgZHMxMzA3X3NldF9hbGFybShzdHJ1Y3QgZGV2aWMK
-IAl9CiAJYnVmWzhdID0gc3RhdHVzICYgfihEUzEzMzdfQklUX0ExSSB8IERTMTMzN19CSVRfQTJJ
-KTsKIAotCWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gMDsKLQlkczEzMDctPm1zZ1sxXS5sZW4gPSAx
-MDsKLQotCXJldCA9IGkyY190cmFuc2Zlcih0b19pMmNfYWRhcHRlcihjbGllbnQtPmRldi5wYXJl
-bnQpLAotCQkJJmRzMTMwNy0+bXNnWzFdLCAxKTsKLQlpZiAocmV0ICE9IDEpIHsKKwlyZXQgPSBp
-MmNfc21idXNfd3JpdGVfaTJjX2Jsb2NrX2RhdGEoY2xpZW50LAorCQkJRFMxMzM5X1JFR19BTEFS
-TTFfU0VDUywgOSwgYnVmKTsKKwlpZiAocmV0IDwgMCkgewogCQlkZXZfZXJyKGRldiwgImNhbid0
-IHNldCBhbGFybSB0aW1lXG4iKTsKLQkJcmV0dXJuIC1FSU87CisJCXJldHVybiByZXQ7CiAJfQog
-CiAJcmV0dXJuIDA7CkBAIC00OTAsNyArNDY3LDYgQEAgZHMxMzA3X252cmFtX3JlYWQoc3RydWN0
-IGtvYmplY3QgKmtvYmosIAogewogCXN0cnVjdCBpMmNfY2xpZW50CSpjbGllbnQ7CiAJc3RydWN0
-IGRzMTMwNwkJKmRzMTMwNzsKLQlzdHJ1Y3QgaTJjX21zZwkJbXNnWzJdOwogCWludAkJCXJlc3Vs
-dDsKIAogCWNsaWVudCA9IGtvYmpfdG9faTJjX2NsaWVudChrb2JqKTsKQEAgLTUwMywyNCArNDc5
-LDEwIEBAIGRzMTMwN19udnJhbV9yZWFkKHN0cnVjdCBrb2JqZWN0ICprb2JqLCAKIAlpZiAodW5s
-aWtlbHkoIWNvdW50KSkKIAkJcmV0dXJuIGNvdW50OwogCi0JbXNnWzBdLmFkZHIgPSBjbGllbnQt
-PmFkZHI7Ci0JbXNnWzBdLmZsYWdzID0gMDsKLQltc2dbMF0ubGVuID0gMTsKLQltc2dbMF0uYnVm
-ID0gYnVmOwotCi0JYnVmWzBdID0gOCArIG9mZjsKLQotCW1zZ1sxXS5hZGRyID0gY2xpZW50LT5h
-ZGRyOwotCW1zZ1sxXS5mbGFncyA9IEkyQ19NX1JEOwotCW1zZ1sxXS5sZW4gPSBjb3VudDsKLQlt
-c2dbMV0uYnVmID0gYnVmOwotCi0JcmVzdWx0ID0gaTJjX3RyYW5zZmVyKHRvX2kyY19hZGFwdGVy
-KGNsaWVudC0+ZGV2LnBhcmVudCksIG1zZywgMik7Ci0JaWYgKHJlc3VsdCAhPSAyKSB7CisJcmVz
-dWx0ID0gaTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoY2xpZW50LCA4ICsgb2ZmLCBjb3Vu
-dCwgYnVmKTsKKwlpZiAocmVzdWx0IDwgMCkKIAkJZGV2X2VycigmY2xpZW50LT5kZXYsICIlcyBl
-cnJvciAlZFxuIiwgIm52cmFtIHJlYWQiLCByZXN1bHQpOwotCQlyZXR1cm4gLUVJTzsKLQl9Ci0J
-cmV0dXJuIGNvdW50OworCXJldHVybiByZXN1bHQ7CiB9CiAKIHN0YXRpYyBzc2l6ZV90CkBAIC01
-MjgsOCArNDkwLDcgQEAgZHMxMzA3X252cmFtX3dyaXRlKHN0cnVjdCBrb2JqZWN0ICprb2JqLAog
-CQljaGFyICpidWYsIGxvZmZfdCBvZmYsIHNpemVfdCBjb3VudCkKIHsKIAlzdHJ1Y3QgaTJjX2Ns
-aWVudAkqY2xpZW50OwotCXU4CQkJYnVmZmVyW05WUkFNX1NJWkUgKyAxXTsKLQlpbnQJCQlyZXQ7
-CisJaW50CQkJcmVzdWx0OwogCiAJY2xpZW50ID0ga29ial90b19pMmNfY2xpZW50KGtvYmopOwog
-CkBAIC01NDAsMTEgKzUwMSwxMiBAQCBkczEzMDdfbnZyYW1fd3JpdGUoc3RydWN0IGtvYmplY3Qg
-KmtvYmosCiAJaWYgKHVubGlrZWx5KCFjb3VudCkpCiAJCXJldHVybiBjb3VudDsKIAotCWJ1ZmZl
-clswXSA9IDggKyBvZmY7Ci0JbWVtY3B5KGJ1ZmZlciArIDEsIGJ1ZiwgY291bnQpOwotCi0JcmV0
-ID0gaTJjX21hc3Rlcl9zZW5kKGNsaWVudCwgYnVmZmVyLCBjb3VudCArIDEpOwotCXJldHVybiAo
-cmV0IDwgMCkgPyByZXQgOiAocmV0IC0gMSk7CisJcmVzdWx0ID0gaTJjX3NtYnVzX3dyaXRlX2ky
-Y19ibG9ja19kYXRhKGNsaWVudCwgOCArIG9mZiwgY291bnQsIGJ1Zik7CisJaWYgKHJlc3VsdCA8
-IDApIHsKKwkJZGV2X2VycigmY2xpZW50LT5kZXYsICIlcyBlcnJvciAlZFxuIiwgIm52cmFtIHdy
-aXRlIiwgcmVzdWx0KTsKKwkJcmV0dXJuIHJlc3VsdDsKKwl9CisJcmV0dXJuIGNvdW50OwogfQog
-CiBzdGF0aWMgc3RydWN0IGJpbl9hdHRyaWJ1dGUgbnZyYW0gPSB7CkBAIC01NzIsOSArNTM0LDEx
-IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGRzMTMwN19wcm9iZShzdHJ1Y3QKIAljb25zdCBzdHJ1
-Y3QgY2hpcF9kZXNjCSpjaGlwID0gJmNoaXBzW2lkLT5kcml2ZXJfZGF0YV07CiAJc3RydWN0IGky
-Y19hZGFwdGVyCSphZGFwdGVyID0gdG9faTJjX2FkYXB0ZXIoY2xpZW50LT5kZXYucGFyZW50KTsK
-IAlpbnQJCQl3YW50X2lycSA9IGZhbHNlOworCXVuc2lnbmVkIGNoYXIJCSpidWY7CiAKIAlpZiAo
-IWkyY19jaGVja19mdW5jdGlvbmFsaXR5KGFkYXB0ZXIsCi0JCQlJMkNfRlVOQ19JMkMgfCBJMkNf
-RlVOQ19TTUJVU19XUklURV9CWVRFX0RBVEEpKQorCQkJSTJDX0ZVTkNfU01CVVNfV1JJVEVfQllU
-RV9EQVRBIHwKKwkJCUkyQ19GVU5DX1NNQlVTX0kyQ19CTE9DSykpCiAJCXJldHVybiAtRUlPOwog
-CiAJaWYgKCEoZHMxMzA3ID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGRzMTMwNyksIEdGUF9LRVJO
-RUwpKSkKQEAgLTU4MiwxOCArNTQ2LDggQEAgc3RhdGljIGludCBfX2RldmluaXQgZHMxMzA3X3By
-b2JlKHN0cnVjdAogCiAJZHMxMzA3LT5jbGllbnQgPSBjbGllbnQ7CiAJaTJjX3NldF9jbGllbnRk
-YXRhKGNsaWVudCwgZHMxMzA3KTsKLQotCWRzMTMwNy0+bXNnWzBdLmFkZHIgPSBjbGllbnQtPmFk
-ZHI7Ci0JZHMxMzA3LT5tc2dbMF0uZmxhZ3MgPSAwOwotCWRzMTMwNy0+bXNnWzBdLmxlbiA9IDE7
-Ci0JZHMxMzA3LT5tc2dbMF0uYnVmID0gJmRzMTMwNy0+cmVnX2FkZHI7Ci0KLQlkczEzMDctPm1z
-Z1sxXS5hZGRyID0gY2xpZW50LT5hZGRyOwotCWRzMTMwNy0+bXNnWzFdLmZsYWdzID0gSTJDX01f
-UkQ7Ci0JZHMxMzA3LT5tc2dbMV0ubGVuID0gc2l6ZW9mKGRzMTMwNy0+cmVncyk7Ci0JZHMxMzA3
-LT5tc2dbMV0uYnVmID0gZHMxMzA3LT5yZWdzOwotCiAJZHMxMzA3LT50eXBlID0gaWQtPmRyaXZl
-cl9kYXRhOworCWJ1ZiA9IGRzMTMwNy0+cmVnczsKIAogCXN3aXRjaCAoZHMxMzA3LT50eXBlKSB7
-CiAJY2FzZSBkc18xMzM3OgpAQCAtNjAzLDIxICs1NTcsMTUgQEAgc3RhdGljIGludCBfX2Rldmlu
-aXQgZHMxMzA3X3Byb2JlKHN0cnVjdAogCQkJSU5JVF9XT1JLKCZkczEzMDctPndvcmssIGRzMTMw
-N193b3JrKTsKIAkJCXdhbnRfaXJxID0gdHJ1ZTsKIAkJfQotCi0JCWRzMTMwNy0+cmVnX2FkZHIg
-PSBEUzEzMzdfUkVHX0NPTlRST0w7Ci0JCWRzMTMwNy0+bXNnWzFdLmxlbiA9IDI7Ci0KIAkJLyog
-Z2V0IHJlZ2lzdGVycyB0aGF0IHRoZSAicnRjIiByZWFkIGJlbG93IHdvbid0IHJlYWQuLi4gKi8K
-LQkJdG1wID0gaTJjX3RyYW5zZmVyKGFkYXB0ZXIsIGRzMTMwNy0+bXNnLCAyKTsKKwkJdG1wID0g
-aTJjX3NtYnVzX3JlYWRfaTJjX2Jsb2NrX2RhdGEoZHMxMzA3LT5jbGllbnQsCisJCQkJRFMxMzM3
-X1JFR19DT05UUk9MLCAyLCBidWYpOwogCQlpZiAodG1wICE9IDIpIHsKIAkJCXByX2RlYnVnKCJy
-ZWFkIGVycm9yICVkXG4iLCB0bXApOwogCQkJZXJyID0gLUVJTzsKIAkJCWdvdG8gZXhpdF9mcmVl
-OwogCQl9CiAKLQkJZHMxMzA3LT5yZWdfYWRkciA9IDA7Ci0JCWRzMTMwNy0+bXNnWzFdLmxlbiA9
-IHNpemVvZihkczEzMDctPnJlZ3MpOwotCiAJCS8qIG9zY2lsbGF0b3Igb2ZmPyAgdHVybiBpdCBv
-biwgc28gY2xvY2sgY2FuIHRpY2suICovCiAJCWlmIChkczEzMDctPnJlZ3NbMF0gJiBEUzEzMzdf
-QklUX25FT1NDKQogCQkJZHMxMzA3LT5yZWdzWzBdICY9IH5EUzEzMzdfQklUX25FT1NDOwpAQCAt
-NjQ4LDkgKzU5Niw4IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0IGRzMTMwN19wcm9iZShzdHJ1Y3QK
-IAogcmVhZF9ydGM6CiAJLyogcmVhZCBSVEMgcmVnaXN0ZXJzICovCi0KLQl0bXAgPSBpMmNfdHJh
-bnNmZXIoYWRhcHRlciwgZHMxMzA3LT5tc2csIDIpOwotCWlmICh0bXAgIT0gMikgeworCXRtcCA9
-IGkyY19zbWJ1c19yZWFkX2kyY19ibG9ja19kYXRhKGRzMTMwNy0+Y2xpZW50LCAwLCA4LCBidWYp
-OworCWlmICh0bXAgIT0gOCkgewogCQlwcl9kZWJ1ZygicmVhZCBlcnJvciAlZFxuIiwgdG1wKTsK
-IAkJZXJyID0gLUVJTzsKIAkJZ290byBleGl0X2ZyZWU7Cg==
+More likely, they combined the PCF8584 with another chip which is
+multiplexing the I2C bus. Philips has many such chips, for example the
+PCA9540 series. It probably doesn't really matter for the problem at
+hand anyway, but I'm curious.
 
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > Oh my, holy crap! I can't believe you dared to propose this.
+> 
+> Propose an alternative solution that actually works and preserves
+> compatability, as mine does.
+
+What you need is i2c bus multiplexing support. What you call "bus
+addressing" is only the most simple form of multiplexing, i.e. a single
+level of multiplexing and no trunk.
+
+A generic form of i2c bus multiplexing is not upstream yet but a number
+of people have been working on this in the last few years, in
+particular Rodolfo Giometti (Cc'd.) I admit I did not pay too much
+attention to the patches myself, due to a lack of time and personal
+interest, as well as the feeling that it was preferable to first
+cleanup i2c-core from its legacy binding model and redundant lists and
+locks before adding something as complex as bus multiplexing support.
+Multiplexing will require clever locking and it did not seem sane to
+attempt to do that as long as legacy and new-style i2c devices coexist.
+But the cleanup phase of i2c-core is hopefully coming to an end so it
+will soon be time to look into i2c bus multiplexing support.
+
+In the meantime, it is always possible to write hardware-specific
+multiplexing drivers. See for example i2c-amd756-s4882 and
+i2c-nforce2-s4985, two drivers that handle the multiplexing of SMBus on
+Tyan motherboards. While these drivers aren't exactly elegant and we do
+not want such drivers to proliferate, they at least fill the gap until
+we have a good generic solution. And these two drivers did not require
+any change to i2c-core as I recall, except maybe bug fixes which the
+new use case revealed.
+
+> > I don't like this at all. This really looks like a custom hack to solve
+> > the problem at hand without paying too much attention to compatibility
+> > issues which I am certain will arise. Just to mention the first one
+> > that comes to mind: access from user-space through i2c-dev, and
+> > specifically i2c-tools.
+> 
+> I got that working, read the patch my patch works, I was careful
+> to keep things working.
+
+How do you access your "addressed buses" through i2c-dev? It will
+reject any address larger than 0x3ff. And even if you did update
+i2c-dev to no longer check for "wrong" addresses, i2c-tools would not
+support them. So you'd also need to update i2c-tools.
+
+Now maybe you don't plan to use i2c-dev and i2c-tools on your I2C
+buses, but that's hardly the point. The point is that your proposal
+requires changes to other drivers and user-space tools, while the
+alternative doesn't require such changes.
+
+Even i2c-core has checks on invalid addresses, in
+i2c_new_probed_device(), i2c_detect_address() and i2c_probe_address().
+While we don't care much about the latter (it's going away soon) the
+former 2 would need to be updated. Then again you may say that you do
+not plan to use these functions on your I2C buses, but this illustrates
+how your proposal would require more changes to be universally usable.
+
+> > What makes your setup fundamentally different from a motherboard with
+> > more than one I2C bus (which is a rather common case)? Why don't you
+> > simply register one i2c_adapter for each i2c bus segment?
+> 
+> It doesn't work like that.  All the bit banging goes through the
+> one I2C controller, the bus it is accessing is simply changed behind
+> it's back by that special register.
+
+That's the definition of bus multiplexing. You apparently think that
+struct i2c_adapter represents one I2C controller (and admittedly that's
+what the name suggests for historical reasons) while what it really
+represents is an I2C bus segment. In your case you have one controller
+for several I2C bus segments. So you simply need as many i2c_adapter
+structures registered, and then it's up to your driver to handle the
+multiplexing in a way that is transparent for the users.
+
+If you want to see generic i2c bus multiplexing support available soon,
+then please help Rodolfo by reviewing and testing his patches, and help
+me finish the conversion of all i2c chip drivers to the standard device
+driver binding model. 87 drivers have been converted or deleted
+already, most by myself, 27 are remaining. An up-to-date list is at:
+http://jdelvare.pck.nerim.net/linux/legacy_i2c_driver.list
+As you can see, most remaining drivers are in drivers/macintosh and
+drivers/media/video. I can probably handle media/video myself with the
+help of Hans Verkuil but I have no idea what to do with the macintosh
+drivers.
+
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---_002_C1C62166118DFA4A8BBA01A2411F0D170E9BEC880EPRIMBX101dom1_--
