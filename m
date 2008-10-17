@@ -1,17 +1,14 @@
-From: "Grant Likely" <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 1/7] powerpc and sparc: introduce dev_archdata node
-	accessors
-Date: Thu, 16 Oct 2008 17:02:54 -0600
-Message-ID: <fa686aa40810161602v16232d96g2eb9af5c063f24f0@mail.gmail.com>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
-	<20081016171251.GA5515@oksana.dev.rtsoft.ru>
-	<20081016.153641.32547403.davem@davemloft.net>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] [RESEND] i2c-cpm: Suppress autoprobing for devices
+Date: Fri, 17 Oct 2008 10:55:07 +0200
+Message-ID: <20081017105507.5579267b@hyperion.delvare>
+References: <20081016111300.GC3432@pengutronix.de>
+	<20081016191200.GB13629@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <20081016.153641.32547403.davem@davemloft.net>
-Content-Disposition: inline
+In-Reply-To: <20081016191200.GB13629@pengutronix.de>
 List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
 List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
@@ -21,35 +18,46 @@ List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: David Miller <davem@davemloft.net>
-Cc: dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, khali@linux-fr.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 16, 2008 at 4:36 PM, David Miller <davem@davemloft.net> wrote:
-> From: Anton Vorontsov <avorontsov@ru.mvista.com>
-> Date: Thu, 16 Oct 2008 21:12:51 +0400
->
->> The name of the device_node field differ across the platforms, so we
->> have to implement inlined accessors. This is needed to avoid ugly
->> #ifdef in the generic code.
->>
->> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
->
-> I'm happy to just change this member name on sparc to match
-> powerpc's choice.
->
-> That being said, this abstraction still has value and I'd
-> like to let you merge this now and make forward progress
-> so:
->
-> Acked-by: David S. Miller <davem@davemloft.net>
+Hi Wolfram,
 
-I agree;
+On Thu, 16 Oct 2008 21:12:00 +0200, Wolfram Sang wrote:
+> Similar to commit 618b26d52843c0f85b8eb143cf2695d7f6fd072d, also remove
+> automatic probing for this i2c controller. Might need updates to dts files
+> using it.
+> 
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Acked-by: Jochen Friedrich <jochen@scram.de>
+> ---
+> Resend with cc to i2c.
+> 
+>  drivers/i2c/busses/i2c-cpm.c |    1 -
+>  1 file changed, 1 deletion(-)
+> 
+> Index: linux-2.6/drivers/i2c/busses/i2c-cpm.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/i2c/busses/i2c-cpm.c
+> +++ linux-2.6/drivers/i2c/busses/i2c-cpm.c
+> @@ -423,7 +423,6 @@ static const struct i2c_adapter cpm_ops 
+>  	.owner		= THIS_MODULE,
+>  	.name		= "i2c-cpm",
+>  	.algo		= &cpm_i2c_algo,
+> -	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+>  };
+>  
+>  static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
 
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
+I guess you do _not_ want me to push this patch upstream now and it
+better goes through the powerpc tree to allow a synchronization with
+dts file changes?
 
+If I'm wrong and you want me to take this patch in my tree then please
+tell me.
 
 -- 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Jean Delvare
