@@ -1,73 +1,49 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [lm-sensors] [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Fri, 17 Oct 2008 12:04:54 -0700
-Message-ID: <200810171204.54448.david-b@pacbell.net>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200809251902.00201.david-b@pacbell.net>
-	<Pine.LNX.4.64.0809261652040.7680@t2.domain.actdsltmp>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
+Date: Fri, 17 Oct 2008 13:24:42 -0700
+Message-ID: <200810171324.42650.david-b@pacbell.net>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081016171259.GD5515@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0809261652040.7680-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756513AbYJQUb7@vger.kernel.org>
+In-Reply-To: <20081016171259.GD5515@oksana.dev.rtsoft.ru>
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Grant Likely <grant.likely@secretlab.ca>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-... just to recap this before I scrub old mail from my mbox:
+On Thursday 16 October 2008, Anton Vorontsov wrote:
+> +/*
+> + * Platforms can define their own __dev_ versions to glue gpio_chips=
+ with the
+> + * architecture-specific code.
+> + */
+> +#ifndef __dev_gpiochip_add
+> +#define __dev_gpiochip_add __dev_gpiochip_add
+> +static inline int __dev_gpiochip_add(struct device *dev,
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0 =A0 =A0 struct gpio_chip *chip)
+> +{
+> +=A0=A0=A0=A0=A0=A0=A0chip->dev =3D dev;
+> +=A0=A0=A0=A0=A0=A0=A0return gpiochip_add(chip);
+> +}
+> +#endif /* __dev_gpiochip_add */
 
-On Friday 26 September 2008, Trent Piepho wrote:
-> > It's not a question of the I2C adapter supporting it. =A0It's a
-> > question of whether there's an SMBALERT# signal on your board,
-> > which can generate an interrupt. =A0If it can, this patch has an
-> > IRQ handler which implements the SMBus alert protocol. =A0Think
-> > of it as sideband signaling ... unknown to that adapter.
-> =
+This is pretty ugly, especially the implication that *EVERY* gpio_chip
+provider needs modification to use these calls.
 
-> If nothing is alerting, then the read from the ARA address won't get an a=
-ck. =
-
-
-This is indeed how the SMBALERT# protocol handling code must
-detect that all pending alerts have been handled:  each read
-of ARA clears one pending alert, until none responds any more.
-(And the active-low open drain SMBALERT# signal went high.)
-
-
-> Some i2c adapters don't handle this so well.
-
-If your system can't implement the SMBALERT# protocol, then
-there's no problem at all.  Just handle the IRQ using whatever
-non-standard hackery is necessary to cope with that hardware,
-and DO NOT tell Linux that it's really SMBALERT#.  Simple.
+Surely it would be a lot simpler to just add platform-specific hooks
+to gpiochip_{add,remove}(), so that no providers need to be changed??
 
 
-The SMBALERT# protocol is very specific about how it acts and
-what it does.  It's also very specific to SMBus.  The $SUBJECT
-patch never claimed to be an attempt to work with arbitrary
-collections of I2C device interrupts that weren't designed to
-cooperate at all, much less to follow the SMBALERT# rules.
-
-Absolutely nothing you've said makes a real argument against
-providing support for SMBALERT#.
-
-At best, you've made an argument that some drivers may need
-to support less-efficient IRQ dispatching schemes as well as
-SMBALERT#, in order to handle board-specific design quirks.
-
-- Dave
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+> +#ifndef __dev_gpiochip_remove
+> +#define __dev_gpiochip_remove __dev_gpiochip_remove
+> +static inline int __dev_gpiochip_remove(struct device *dev,
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0struct gpio_chip *chip)
+> +{
+> +=A0=A0=A0=A0=A0=A0=A0return gpiochip_remove(chip);
+> +}
+> +#endif /* __dev_gpiochip_remove */
