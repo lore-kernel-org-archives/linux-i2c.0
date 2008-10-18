@@ -1,8 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] Schedule removal of the legacy i2c device driver
- binding model
-Date: Sat, 18 Oct 2008 14:35:03 +0200
-Message-ID: <20081018143503.01af9fce@hyperion.delvare>
+Subject: [PATCH] i2c: Constify i2c_get_clientdata's parameter
+Date: Sat, 18 Oct 2008 14:27:46 +0200
+Message-ID: <20081018142746.1b5321da@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,29 +18,37 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The legacy i2c device driver binding model is superseded by the
-standard model, so it's time to deprecate it and schedule it for
-removal.
+i2c_get_clientdata doesn't change the i2c_client it is passed as a
+parameter, so it can be constified.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- Documentation/feature-removal-schedule.txt |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/device.h |    2 +-
+ include/linux/i2c.h    |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.28-rc0.orig/Documentation/feature-removal-schedule.txt	2008-10-18 09:53:36.000000000 +0200
-+++ linux-2.6.28-rc0/Documentation/feature-removal-schedule.txt	2008-10-18 13:13:38.000000000 +0200
-@@ -359,3 +359,11 @@ Why:  The 2.6 kernel supports direct wri
-       eliminates the need for ide-scsi. The new method is more
-       efficient in every way.
- Who:  FUJITA Tomonori <fujita.tomonori-Zyj7fXuS5i5L9jVzuh4AOg@public.gmane.org>
-+
-+---------------------------
-+
-+What:	i2c_attach_client(), i2c_detach_client(), i2c_driver->detach_client()
-+When:	2.6.29 (ideally) or 2.6.30 (more likely)
-+Why:	Deprecated by the new (standard) device driver binding model. Use
-+	i2c_driver->probe() and ->remove() instead.
-+Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+--- linux-2.6.28-rc0.orig/include/linux/i2c.h	2008-10-18 11:47:53.000000000 +0200
++++ linux-2.6.28-rc0/include/linux/i2c.h	2008-10-18 13:32:30.000000000 +0200
+@@ -224,7 +224,7 @@ static inline struct i2c_client *kobj_to
+ 	return to_i2c_client(dev);
+ }
+ 
+-static inline void *i2c_get_clientdata (struct i2c_client *dev)
++static inline void *i2c_get_clientdata(const struct i2c_client *dev)
+ {
+ 	return dev_get_drvdata (&dev->dev);
+ }
+--- linux-2.6.28-rc0.orig/include/linux/device.h	2008-10-18 13:54:02.000000000 +0200
++++ linux-2.6.28-rc0/include/linux/device.h	2008-10-18 13:54:11.000000000 +0200
+@@ -450,7 +450,7 @@ static inline void set_dev_node(struct d
+ }
+ #endif
+ 
+-static inline void *dev_get_drvdata(struct device *dev)
++static inline void *dev_get_drvdata(const struct device *dev)
+ {
+ 	return dev->driver_data;
+ }
 
 
 -- 
