@@ -1,7 +1,8 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Delete outdated client porting guide
-Date: Sat, 18 Oct 2008 11:05:34 +0200
-Message-ID: <20081018110534.2b33b315@hyperion.delvare>
+Subject: [PATCH] Schedule removal of the legacy i2c device driver
+ binding model
+Date: Sat, 18 Oct 2008 14:35:03 +0200
+Message-ID: <20081018143503.01af9fce@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,179 +19,29 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The document describing how to port i2c chip drivers from Linux 2.4 to
-Linux 2.6 is outdated. As I suspect that most drivers that had to be
-ported have already been by now, I do not want to spend time updating
-it. Let's just delete it instead.
+The legacy i2c device driver binding model is superseded by the
+standard model, so it's time to deprecate it and schedule it for
+removal.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- Documentation/i2c/porting-clients |  160 -------------------------------------
- 1 file changed, 160 deletions(-)
+ Documentation/feature-removal-schedule.txt |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- linux-2.6.28-rc0.orig/Documentation/i2c/porting-clients	2008-04-17 04:49:44.000000000 +0200
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,160 +0,0 @@
--Revision 7, 2007-04-19
--Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
--
--This is a guide on how to convert I2C chip drivers from Linux 2.4 to
--Linux 2.6. I have been using existing drivers (lm75, lm78) as examples.
--Then I converted a driver myself (lm83) and updated this document.
--Note that this guide is strongly oriented towards hardware monitoring
--drivers. Many points are still valid for other type of drivers, but
--others may be irrelevant.
--
--There are two sets of points below. The first set concerns technical
--changes. The second set concerns coding policy. Both are mandatory.
--
--Although reading this guide will help you porting drivers, I suggest
--you keep an eye on an already ported driver while porting your own
--driver. This will help you a lot understanding what this guide
--exactly means. Choose the chip driver that is the more similar to
--yours for best results.
--
--Technical changes:
--
--* [Driver type] Any driver that was relying on i2c-isa has to be
--  converted to a proper isa, platform or pci driver. This is not
--  covered by this guide.
--
--* [Includes] Get rid of "version.h" and <linux/i2c-proc.h>.
--  Includes typically look like that:
--  #include <linux/module.h>
--  #include <linux/init.h>
--  #include <linux/slab.h>
--  #include <linux/jiffies.h>
--  #include <linux/i2c.h>
--  #include <linux/hwmon.h>	/* for hardware monitoring drivers */
--  #include <linux/hwmon-sysfs.h>
--  #include <linux/hwmon-vid.h>	/* if you need VRM support */
--  #include <linux/err.h>	/* for class registration */
--  Please respect this inclusion order. Some extra headers may be
--  required for a given driver (e.g. "lm75.h").
--
--* [Addresses] SENSORS_I2C_END becomes I2C_CLIENT_END, ISA addresses
--  are no more handled by the i2c core. Address ranges are no more
--  supported either, define each individual address separately.
--  SENSORS_INSMOD_<n> becomes I2C_CLIENT_INSMOD_<n>.
--
--* [Client data] Get rid of sysctl_id. Try using standard names for
--  register values (for example, temp_os becomes temp_max). You're
--  still relatively free here, but you *have* to follow the standard
--  names for sysfs files (see the Sysctl section below).
--
--* [Function prototypes] The detect functions loses its flags
--  parameter. Sysctl (e.g. lm75_temp) and miscellaneous functions
--  are off the list of prototypes. This usually leaves five
--  prototypes:
--  static int lm75_attach_adapter(struct i2c_adapter *adapter);
--  static int lm75_detect(struct i2c_adapter *adapter, int address,
--      int kind);
--  static void lm75_init_client(struct i2c_client *client);
--  static int lm75_detach_client(struct i2c_client *client);
--  static struct lm75_data lm75_update_device(struct device *dev);
--
--* [Sysctl] All sysctl stuff is of course gone (defines, ctl_table
--  and functions). Instead, you have to define show and set functions for
--  each sysfs file. Only define set for writable values. Take a look at an
--  existing 2.6 driver for details (it87 for example). Don't forget
--  to define the attributes for each file (this is that step that
--  links callback functions). Use the file names specified in
--  Documentation/hwmon/sysfs-interface for the individual files. Also
--  convert the units these files read and write to the specified ones.
--  If you need to add a new type of file, please discuss it on the
--  sensors mailing list <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org> by providing a
--  patch to the Documentation/hwmon/sysfs-interface file.
--
--* [Attach] The attach function should make sure that the adapter's
--  class has I2C_CLASS_HWMON (or whatever class is suitable for your
--  driver), using the following construct:
--  if (!(adapter->class & I2C_CLASS_HWMON))
--          return 0;
--  Call i2c_probe() instead of i2c_detect().
--
--* [Detect] As mentioned earlier, the flags parameter is gone.
--  The type_name and client_name strings are replaced by a single
--  name string, which will be filled with a lowercase, short string.
--  The labels used for error paths are reduced to the number needed.
--  It is advised that the labels are given descriptive names such as
--  exit and exit_free. Don't forget to properly set err before
--  jumping to error labels. By the way, labels should be left-aligned.
--  Use kzalloc instead of kmalloc.
--  Use i2c_set_clientdata to set the client data (as opposed to
--  a direct access to client->data).
--  Use strlcpy instead of strcpy or snprintf to copy the client name.
--  Replace the sysctl directory registration by calls to
--  device_create_file. Move the driver initialization before any
--  sysfs file creation.
--  Register the client with the hwmon class (using hwmon_device_register)
--  if applicable.
--  Drop client->id.
--  Drop any 24RF08 corruption prevention you find, as this is now done
--  at the i2c-core level, and doing it twice voids it.
--  Don't add I2C_CLIENT_ALLOW_USE to client->flags, it's the default now.
--
--* [Init] Limits must not be set by the driver (can be done later in
--  user-space). Chip should not be reset default (although a module
--  parameter may be used to force it), and initialization should be
--  limited to the strictly necessary steps.
--
--* [Detach] Remove the call to i2c_deregister_entry. Do not log an
--  error message if i2c_detach_client fails, as i2c-core will now do
--  it for you.
--  Unregister from the hwmon class if applicable.
--
--* [Update] The function prototype changed, it is now
--  passed a device structure, which you have to convert to a client
--  using to_i2c_client(dev). The update function should return a
--  pointer to the client data.
--  Don't access client->data directly, use i2c_get_clientdata(client)
--  instead.
--  Use time_after() instead of direct jiffies comparison.
--
--* [Interface] Make sure there is a MODULE_LICENSE() line, at the bottom
--  of the file (after MODULE_AUTHOR() and MODULE_DESCRIPTION(), in this
--  order).
--
--* [Driver] The flags field of the i2c_driver structure is gone.
--  I2C_DF_NOTIFY is now the default behavior.
--  The i2c_driver structure has a driver member, which is itself a
--  structure, those name member should be initialized to a driver name
--  string. i2c_driver itself has no name member anymore.
--
--* [Driver model] Instead of shutdown or reboot notifiers, provide a
--  shutdown() method in your driver.
--
--* [Power management] Use the driver model suspend() and resume()
--  callbacks instead of the obsolete pm_register() calls.
--
--Coding policy:
--
--* [Copyright] Use (C), not (c), for copyright.
--
--* [Debug/log] Get rid of #ifdef DEBUG/#endif constructs whenever you
--  can. Calls to printk for debugging purposes are replaced by calls to
--  dev_dbg where possible, else to pr_debug. Here is an example of how
--  to call it (taken from lm75_detect):
--  dev_dbg(&client->dev, "Starting lm75 update\n");
--  Replace other printk calls with the dev_info, dev_err or dev_warn
--  function, as appropriate.
--
--* [Constants] Constants defines (registers, conversions) should be
--  aligned. This greatly improves readability.
--  Alignments are achieved by the means of tabs, not spaces. Remember
--  that tabs are set to 8 in the Linux kernel code.
--
--* [Layout] Avoid extra empty lines between comments and what they
--  comment. Respect the coding style (see Documentation/CodingStyle),
--  in particular when it comes to placing curly braces.
--
--* [Comments] Make sure that no comment refers to a file that isn't
--  part of the Linux source tree (typically doc/chips/<chip name>),
--  and that remaining comments still match the code. Merging comment
--  lines when possible is encouraged.
+--- linux-2.6.28-rc0.orig/Documentation/feature-removal-schedule.txt	2008-10-18 09:53:36.000000000 +0200
++++ linux-2.6.28-rc0/Documentation/feature-removal-schedule.txt	2008-10-18 13:13:38.000000000 +0200
+@@ -359,3 +359,11 @@ Why:  The 2.6 kernel supports direct wri
+       eliminates the need for ide-scsi. The new method is more
+       efficient in every way.
+ Who:  FUJITA Tomonori <fujita.tomonori-Zyj7fXuS5i5L9jVzuh4AOg@public.gmane.org>
++
++---------------------------
++
++What:	i2c_attach_client(), i2c_detach_client(), i2c_driver->detach_client()
++When:	2.6.29 (ideally) or 2.6.30 (more likely)
++Why:	Deprecated by the new (standard) device driver binding model. Use
++	i2c_driver->probe() and ->remove() instead.
++Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
 
 -- 
