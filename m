@@ -1,7 +1,7 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Drop 2-byte address block transfer defines
-Date: Sun, 19 Oct 2008 11:43:20 +0200
-Message-ID: <20081019114320.11c473ef@hyperion.delvare>
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] Add the of_find_i2c_device_by_node function
+Date: Sun, 19 Oct 2008 10:00:40 -0400
+Message-ID: <20081019140040.32281.65209.stgit@terra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,41 +15,87 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-We have no users and no implementers for these transfer types so it
-makes little sense to define functionality bits for them.
+Add the of_find_i2c_device_by_node function. This allows you to follow
+a reference in the device tree to an i2c device node and then locate
+the linux device instantiated by the device tree. Example use, an i2s
+codec controlled by i2c. Depends on patch exporting i2c root bus symbol.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- include/linux/i2c.h |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/of/of_i2c.c |   28 ++++++++++++++++++++++++----
+ 1 files changed, 24 insertions(+), 4 deletions(-)
 
---- linux-2.6.28-rc0.orig/include/linux/i2c.h	2008-10-19 11:21:25.000000000 +0200
-+++ linux-2.6.28-rc0/include/linux/i2c.h	2008-10-19 11:21:58.000000000 +0200
-@@ -541,8 +541,6 @@ struct i2c_msg {
- #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
- #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
- #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
--#define I2C_FUNC_SMBUS_READ_I2C_BLOCK_2	 0x10000000 /* I2C-like block xfer  */
--#define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK_2 0x20000000 /* w/ 2-byte reg. addr. */
+diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+index 6a98dc8..ba7b394 100644
+--- a/drivers/of/of_i2c.c
++++ b/drivers/of/of_i2c.c
+@@ -19,7 +19,7 @@
+ void of_register_i2c_devices(struct i2c_adapter *adap,
+ 			     struct device_node *adap_node)
+ {
+-	void *result;
++	struct i2c_client *i2c_dev;
+ 	struct device_node *node;
  
- #define I2C_FUNC_SMBUS_BYTE (I2C_FUNC_SMBUS_READ_BYTE | \
-                              I2C_FUNC_SMBUS_WRITE_BYTE)
-@@ -554,8 +552,6 @@ struct i2c_msg {
-                                    I2C_FUNC_SMBUS_WRITE_BLOCK_DATA)
- #define I2C_FUNC_SMBUS_I2C_BLOCK (I2C_FUNC_SMBUS_READ_I2C_BLOCK | \
-                                   I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)
--#define I2C_FUNC_SMBUS_I2C_BLOCK_2 (I2C_FUNC_SMBUS_READ_I2C_BLOCK_2 | \
--                                    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK_2)
+ 	for_each_child_of_node(adap_node, node) {
+@@ -41,18 +41,38 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
  
- #define I2C_FUNC_SMBUS_EMUL (I2C_FUNC_SMBUS_QUICK | \
-                              I2C_FUNC_SMBUS_BYTE | \
+ 		info.addr = *addr;
+ 
+-		request_module(info.type);
++		request_module("%s", info.type);
+ 
+-		result = i2c_new_device(adap, &info);
+-		if (result == NULL) {
++		i2c_dev = i2c_new_device(adap, &info);
++		if (i2c_dev == NULL) {
+ 			printk(KERN_ERR
+ 			       "of-i2c: Failed to load driver for %s\n",
+ 			       info.type);
+ 			irq_dispose_mapping(info.irq);
+ 			continue;
+ 		}
++		
++		i2c_dev->dev.archdata.of_node = of_node_get(node);
+ 	}
+ }
+ EXPORT_SYMBOL(of_register_i2c_devices);
+ 
++static int of_dev_node_match(struct device *dev, void *data)
++{
++        return dev->archdata.of_node == data;
++}
++
++struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
++{
++	struct device *dev;
++	
++	dev = bus_find_device(&i2c_bus_type, NULL, node, 
++					 of_dev_node_match);
++	if (!dev)
++		return NULL;
++		
++	return to_i2c_client(dev);
++}
++EXPORT_SYMBOL(of_find_i2c_device_by_node);
++
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/of_i2c.h b/include/linux/of_i2c.h
+index bd2a870..17d5897 100644
+--- a/include/linux/of_i2c.h
++++ b/include/linux/of_i2c.h
+@@ -16,5 +16,7 @@
+ 
+ void of_register_i2c_devices(struct i2c_adapter *adap,
+ 			     struct device_node *adap_node);
++struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
++			     
+ 
+ #endif /* __LINUX_OF_I2C_H */
 
-
--- 
-Jean Delvare
 
 _______________________________________________
 i2c mailing list
