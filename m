@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Constify i2c_get_clientdata's parameter
-Date: Sat, 18 Oct 2008 14:27:46 +0200
-Message-ID: <20081018142746.1b5321da@hyperion.delvare>
+Subject: [PATCH] i2c: Drop 2-byte address block transfer defines
+Date: Sun, 19 Oct 2008 11:43:20 +0200
+Message-ID: <20081019114320.11c473ef@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -18,37 +18,34 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_get_clientdata doesn't change the i2c_client it is passed as a
-parameter, so it can be constified.
+We have no users and no implementers for these transfer types so it
+makes little sense to define functionality bits for them.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- include/linux/device.h |    2 +-
- include/linux/i2c.h    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/i2c.h |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- linux-2.6.28-rc0.orig/include/linux/i2c.h	2008-10-18 11:47:53.000000000 +0200
-+++ linux-2.6.28-rc0/include/linux/i2c.h	2008-10-18 13:32:30.000000000 +0200
-@@ -224,7 +224,7 @@ static inline struct i2c_client *kobj_to
- 	return to_i2c_client(dev);
- }
+--- linux-2.6.28-rc0.orig/include/linux/i2c.h	2008-10-19 11:21:25.000000000 +0200
++++ linux-2.6.28-rc0/include/linux/i2c.h	2008-10-19 11:21:58.000000000 +0200
+@@ -541,8 +541,6 @@ struct i2c_msg {
+ #define I2C_FUNC_SMBUS_WRITE_BLOCK_DATA 0x02000000
+ #define I2C_FUNC_SMBUS_READ_I2C_BLOCK	0x04000000 /* I2C-like block xfer  */
+ #define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK	0x08000000 /* w/ 1-byte reg. addr. */
+-#define I2C_FUNC_SMBUS_READ_I2C_BLOCK_2	 0x10000000 /* I2C-like block xfer  */
+-#define I2C_FUNC_SMBUS_WRITE_I2C_BLOCK_2 0x20000000 /* w/ 2-byte reg. addr. */
  
--static inline void *i2c_get_clientdata (struct i2c_client *dev)
-+static inline void *i2c_get_clientdata(const struct i2c_client *dev)
- {
- 	return dev_get_drvdata (&dev->dev);
- }
---- linux-2.6.28-rc0.orig/include/linux/device.h	2008-10-18 13:54:02.000000000 +0200
-+++ linux-2.6.28-rc0/include/linux/device.h	2008-10-18 13:54:11.000000000 +0200
-@@ -450,7 +450,7 @@ static inline void set_dev_node(struct d
- }
- #endif
+ #define I2C_FUNC_SMBUS_BYTE (I2C_FUNC_SMBUS_READ_BYTE | \
+                              I2C_FUNC_SMBUS_WRITE_BYTE)
+@@ -554,8 +552,6 @@ struct i2c_msg {
+                                    I2C_FUNC_SMBUS_WRITE_BLOCK_DATA)
+ #define I2C_FUNC_SMBUS_I2C_BLOCK (I2C_FUNC_SMBUS_READ_I2C_BLOCK | \
+                                   I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)
+-#define I2C_FUNC_SMBUS_I2C_BLOCK_2 (I2C_FUNC_SMBUS_READ_I2C_BLOCK_2 | \
+-                                    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK_2)
  
--static inline void *dev_get_drvdata(struct device *dev)
-+static inline void *dev_get_drvdata(const struct device *dev)
- {
- 	return dev->driver_data;
- }
+ #define I2C_FUNC_SMBUS_EMUL (I2C_FUNC_SMBUS_QUICK | \
+                              I2C_FUNC_SMBUS_BYTE | \
 
 
 -- 
