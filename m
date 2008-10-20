@@ -1,49 +1,76 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH] [RESEND] i2c-cpm: Suppress autoprobing for devices
-Date: Mon, 20 Oct 2008 09:46:07 -0500
-Message-ID: <00F15E59-07B4-436E-9CEA-B445826E5534@kernel.crashing.org>
-References: <20081016111300.GC3432@pengutronix.de>
-	<20081016191200.GB13629@pengutronix.de>
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081016191200.GB13629-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
+Date: Mon, 20 Oct 2008 19:48:35 +0400
+Message-ID: <20081020154835.GA3234@oksana.dev.rtsoft.ru>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <200810171324.42650.david-b@pacbell.net> <20081017212942.GA1919@oksana.dev.rtsoft.ru> <200810200029.58312.david-b@pacbell.net>
+Reply-To: avorontsov@ru.mvista.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1251
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752557AbYJTPss@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <200810200029.58312.david-b@pacbell.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Grant Likely <grant.likely@secretlab.ca>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Oct 20, 2008 at 12:29:57AM -0700, David Brownell wrote:
+[...]
+> > Anyway most of them need some modifications to work with OF...
+> 
+> The changes I saw were just to cope with not having
+> the system-specific platform_data provided:  don't
+> fail if that pointer is NULL, and arrange for dynamic
+> allocation of some GPIO numbers.
+> 
+> With OpenFirmware, presumably the implication is that
+> the relevant data is in the OF device tree...
 
-On Oct 16, 2008, at 2:12 PM, Wolfram Sang wrote:
+Yes. Some data is in the device tree.
 
-> Similar to commit 618b26d52843c0f85b8eb143cf2695d7f6fd072d, also  
-> remove
-> automatic probing for this i2c controller. Might need updates to dts  
-> files
-> using it.
->
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-> ---
-> Resend with cc to i2c.
->
-> drivers/i2c/busses/i2c-cpm.c |    1 -
-> 1 file changed, 1 deletion(-)
+> I think that it *barely* makes sense to allow the chips
+> to bind to drivers without platform data when there's
+> not even OF in the environment. ONLY in the case where
+> the GPIOs are exported through sysfs, in fact, since
+> otherwise there's no way for other system components
+> to know those GPIOs even exist!!  And even that seems
+> pretty marginal to me...
 
-applied
+Platform data is a completely different story. And yes, we can't
+handle it properly with the device tree. By "properly" I mean without
+adding an explicit OF stuff to the drivers, i.e. we should handle the
+pdata transparently to the existing drivers.
 
-- k
+I quite like the bus notifiers approach:
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+http://lkml.org/lkml/2008/6/5/209  (mmc_spi example)
+
+But it doesn't work as a module (i.e. OF-specific bits should be
+always in-kernel).
+
+[...]
+> > If you don't like it, I can readily implement hooks for
+> > gpiochip_{add,remove}().
+> 
+> It seems a better way to a clean solution, IMO.
+
+Ok. I will do it.
+
+[...]
+> Did you look at providing chip-aware OF glue drivers
+> for this stuff?  Doing stuff like just turn the OF
+> device properties into the right platform_data, and
+> maybe runing FORTH bytecodes to do other configuration
+> magic needed...
+
+Yes. Few times already. To make the glue, every driver needs
+some modifications, and it is always triggers huge discussions
+about how to exactly refactor the driver to make it work with
+the OF.
+
+http://lkml.org/lkml/2008/5/23/297 (again mmc_spi example).
+
+-- 
+Anton Vorontsov
+email: cbouatmailru@gmail.com
+irc://irc.freenode.net/bd2
