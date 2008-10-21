@@ -1,13 +1,11 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: How the lm-sensors communicate with the device driver
-Date: Tue, 21 Oct 2008 13:14:49 +0200
-Message-ID: <20081021131449.32d4b429@hyperion.delvare>
-References: <CF6163088BDE8747873ADAA4AF922BF258D527@zmy16exm21.fsl.freescale.net>
+From: =?ISO-8859-1?Q?J=FCrgen_Mader?= <juergen.mader-cS+GSrcTcfTzs492ZWNkEA@public.gmane.org>
+Subject: i2c eeprom at cs5536
+Date: Tue, 21 Oct 2008 14:29:40 +0200
+Message-ID: <OF5BDD534C.94317C0C-ONC12574E9.0043F179-C12574E9.00448C0C@haenel.biz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <CF6163088BDE8747873ADAA4AF922BF258D527-6lxYB4K41cniD3AT8lUqWFjVikpgYyvb5NbjCUgZEJk@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,58 +15,84 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Hu Mingkai-B21284 <B21284-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vincent,
 
-On Tue, 21 Oct 2008 18:31:07 +0800, Hu Mingkai-B21284 wrote:
-> I wrote a MCP3021's driver using the new I2C device model under Linux
-> 2.6.26.
-> The chip MCP3021 is connected to Freescale's I2C controller.
-> Now it works well, the following is the log info:
->  
-> -sh-2.05b# ls /sys/bus/i2c/drivers/mcp3021/
-> 0-004d  1-004d  bind  module  uevent  unbind
-> -sh-2.05b#
->  
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/name
-> mcp3021
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_input
-> 213
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_max
-> 213
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_min
-> 192 
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_input
-> 960
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_max
-> 1065
-> -sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_min
-> 945
->  
-> -sh-2.05b# sensors
-> mcp3021-i2c-0-4d
-> 
-> Adapter: MPC adapter
-> in0:         +0.21 V  (min =  +0.19 V, max =  +0.22 V)
->  
-> mcp3021-i2c-1-4d
-> Adapter: MPC adapter
-> in0:         +0.41 V  (min =  +0.41 V, max =  +0.41 V)
-> 
-> Q:
-> 1. How the lm-sensors communicate with the device driver? 
-> 2. How the lm-sensors get the attribute info?
-> 2. Why the current info, i.e. curr1_x, doesn't list ?
+Hi all,
 
-Wrong mailing list. Questions about lm-sensors go to the lm-sensors
-mailing list:
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+I use an etx-board with a Geode LX800 and a CS5536. I want to connect a
+eeprom with i2c. My board has pins for i2c and smbus.
+Because there are several smbus-devices on board, I want to use the
+i2c-pins for connecting my eeprom (24c64).
 
--- 
-Jean Delvare
+How can I tell the linux kernel (2.6.21) which pins should be used for the
+eeprom. He always uses the pins f=FCr the smbus.
+
+This is my configuration for the i2c.
+>>>
+#
+# I2C support
+#
+CONFIG_I2C=3Dy
+CONFIG_I2C_CHARDEV=3Dy
+
+#
+# I2C Algorithms
+#
+# CONFIG_I2C_ALGOBIT is not set
+# CONFIG_I2C_ALGOPCF is not set
+# CONFIG_I2C_ALGOPCA is not set
+
+#
+# I2C Hardware Bus support
+#
+# CONFIG_I2C_ALI1535 is not set
+# CONFIG_I2C_ALI1563 is not set
+# CONFIG_I2C_ALI15X3 is not set
+# CONFIG_I2C_AMD756 is not set
+# CONFIG_I2C_AMD8111 is not set
+# CONFIG_I2C_ELEKTOR is not set
+# CONFIG_I2C_I801 is not set
+# CONFIG_I2C_I810 is not set
+# CONFIG_I2C_PIIX4 is not set
+# CONFIG_I2C_NFORCE2 is not set
+# CONFIG_I2C_OCORES is not set
+# CONFIG_I2C_PARPORT is not set
+# CONFIG_I2C_PARPORT_LIGHT is not set
+# CONFIG_I2C_PROSAVAGE is not set
+# CONFIG_I2C_SAVAGE4 is not set
+CONFIG_SCx200_ACB=3Dy
+# CONFIG_I2C_SIS5595 is not set
+# CONFIG_I2C_SIS630 is not set
+# CONFIG_I2C_SIS96X is not set
+# CONFIG_I2C_STUB is not set
+# CONFIG_I2C_VIA is not set
+# CONFIG_I2C_VIAPRO is not set
+# CONFIG_I2C_VOODOO3 is not set
+# CONFIG_I2C_PCA_ISA is not set
+
+#
+# Miscellaneous I2C Chip support
+#
+# CONFIG_SENSORS_DS1337 is not set
+# CONFIG_SENSORS_DS1374 is not set
+# CONFIG_SENSORS_EEPROM is not set
+# CONFIG_SENSORS_PCF8574 is not set
+# CONFIG_SENSORS_PCA9539 is not set
+# CONFIG_SENSORS_PCF8591 is not set
+# CONFIG_SENSORS_MAX6875 is not set
+CONFIG_I2C_DEBUG_CORE=3Dy
+CONFIG_I2C_DEBUG_ALGO=3Dy
+CONFIG_I2C_DEBUG_BUS=3Dy
+CONFIG_I2C_DEBUG_CHIP=3Dy
+<<<
+
+
+
+Thanks for all answers
+Juergen
+
 
 _______________________________________________
 i2c mailing list
