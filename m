@@ -1,11 +1,13 @@
-From: =?ISO-8859-1?Q?J=FCrgen_Mader?= <juergen.mader-cS+GSrcTcfTzs492ZWNkEA@public.gmane.org>
-Subject: i2c eeprom at cs5536
-Date: Tue, 21 Oct 2008 14:29:40 +0200
-Message-ID: <OF5BDD534C.94317C0C-ONC12574E9.0043F179-C12574E9.00448C0C@haenel.biz>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Simple read byte data compilation problem
+Date: Tue, 21 Oct 2008 14:59:56 +0200
+Message-ID: <20081021145956.4a65467e@hyperion.delvare>
+References: <ce62e9d00810210244p3194a50fj3b6b19209465ac7e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <ce62e9d00810210244p3194a50fj3b6b19209465ac7e-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -15,84 +17,42 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Fabien Marteau <fabien.marteau-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Salut Fabien,
 
-Hi all,
+On Tue, 21 Oct 2008 11:44:28 +0200, Fabien Marteau wrote:
+> I wrote a simple user program to test an i2c bus driver. I found in
+> Documentation/i2c/dev-interface their is macro function to read data
+> (i2c_smbus_read_byte_data). I used it but I have link error when I compile :
+> $ arm-linux-gcc -O i2cread.c -o i2cread
+> /tmp/ccfa90st.o: In function `read_byte':
+> i2cread.c:(.text+0x3c): undefined reference to `i2c_smbus_read_byte_data'
+> collect2: ld returned 1 exit status
+> 
+> Is someone know what is the problem ?
 
-I use an etx-board with a Geode LX800 and a CS5536. I want to connect a
-eeprom with i2c. My board has pins for i2c and smbus.
-Because there are several smbus-devices on board, I want to use the
-i2c-pins for connecting my eeprom (24c64).
+Documentation/i2c/dev-interface says:
 
-How can I tell the linux kernel (2.6.21) which pins should be used for the
-eeprom. He always uses the pins f=FCr the smbus.
+So let's say you want to access an i2c adapter from a C program. The
+first thing to do is "#include <linux/i2c-dev.h>". Please note that
+there are two files named "i2c-dev.h" out there, one is distributed
+with the Linux kernel and is meant to be included from kernel
+driver code, the other one is distributed with i2c-tools and is
+meant to be included from user-space programs. You obviously want
+the second one here.
 
-This is my configuration for the i2c.
->>>
-#
-# I2C support
-#
-CONFIG_I2C=3Dy
-CONFIG_I2C_CHARDEV=3Dy
+Apparently you missed this paragraph.
 
-#
-# I2C Algorithms
-#
-# CONFIG_I2C_ALGOBIT is not set
-# CONFIG_I2C_ALGOPCF is not set
-# CONFIG_I2C_ALGOPCA is not set
+As a side note, if you only need to test your bus driver, the
+i2cdetect, i2cget, i2cset and i2cdump utilities from the i2c-tools
+package should be a good start, maybe you don't need to write your own
+utility.
 
-#
-# I2C Hardware Bus support
-#
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI1563 is not set
-# CONFIG_I2C_ALI15X3 is not set
-# CONFIG_I2C_AMD756 is not set
-# CONFIG_I2C_AMD8111 is not set
-# CONFIG_I2C_ELEKTOR is not set
-# CONFIG_I2C_I801 is not set
-# CONFIG_I2C_I810 is not set
-# CONFIG_I2C_PIIX4 is not set
-# CONFIG_I2C_NFORCE2 is not set
-# CONFIG_I2C_OCORES is not set
-# CONFIG_I2C_PARPORT is not set
-# CONFIG_I2C_PARPORT_LIGHT is not set
-# CONFIG_I2C_PROSAVAGE is not set
-# CONFIG_I2C_SAVAGE4 is not set
-CONFIG_SCx200_ACB=3Dy
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SIS630 is not set
-# CONFIG_I2C_SIS96X is not set
-# CONFIG_I2C_STUB is not set
-# CONFIG_I2C_VIA is not set
-# CONFIG_I2C_VIAPRO is not set
-# CONFIG_I2C_VOODOO3 is not set
-# CONFIG_I2C_PCA_ISA is not set
-
-#
-# Miscellaneous I2C Chip support
-#
-# CONFIG_SENSORS_DS1337 is not set
-# CONFIG_SENSORS_DS1374 is not set
-# CONFIG_SENSORS_EEPROM is not set
-# CONFIG_SENSORS_PCF8574 is not set
-# CONFIG_SENSORS_PCA9539 is not set
-# CONFIG_SENSORS_PCF8591 is not set
-# CONFIG_SENSORS_MAX6875 is not set
-CONFIG_I2C_DEBUG_CORE=3Dy
-CONFIG_I2C_DEBUG_ALGO=3Dy
-CONFIG_I2C_DEBUG_BUS=3Dy
-CONFIG_I2C_DEBUG_CHIP=3Dy
-<<<
-
-
-
-Thanks for all answers
-Juergen
-
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
