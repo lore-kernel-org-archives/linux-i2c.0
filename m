@@ -1,15 +1,13 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c driver for Maxim max9485 audio
-	clock	generator chip
-Date: Tue, 21 Oct 2008 09:45:16 +0100
-Message-ID: <20081021084516.GA764@fluff.org.uk>
-References: <20081021030205.2494.55081.stgit@terra>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] pci: use pci_ioremap_bar() in drivers/i2c
+Date: Tue, 21 Oct 2008 10:49:00 +0200
+Message-ID: <20081021104900.5e338301@hyperion.delvare>
+References: <20081020215751.17cdfe46@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20081021030205.2494.55081.stgit@terra>
+In-Reply-To: <20081020215751.17cdfe46-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,74 +17,47 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Arjan van de Ven <arjan-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 20, 2008 at 11:02:05PM -0400, Jon Smirl wrote:
-> Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/chips/Kconfig   |    9 ++++
->  drivers/i2c/chips/Makefile  |    1 
->  drivers/i2c/chips/max9485.c |  106 +++++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/max9485.h |   38 +++++++++++++++
->  4 files changed, 154 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/chips/max9485.c
->  create mode 100644 include/linux/i2c/max9485.h
-> 
-> diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
-> index 1735682..bc2a6d3 100644
-> --- a/drivers/i2c/chips/Kconfig
-> +++ b/drivers/i2c/chips/Kconfig
-> @@ -40,6 +40,15 @@ config AT24
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called at24.
->  
-> +config MAX9485
-> +	tristate "Maxim MAX9485 Programmable Audio Clock Generator"
-> +	help
-> +	  If you say yes here you get support for Maxim MAX9485 
-> +	  Programmable Audio Clock Generator.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called max9485.
-> +
->  config SENSORS_EEPROM
->  	tristate "EEPROM reader"
->  	depends on EXPERIMENTAL
-> diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
-> index ca520fa..1560baf 100644
-> --- a/drivers/i2c/chips/Makefile
-> +++ b/drivers/i2c/chips/Makefile
-> @@ -11,6 +11,7 @@
->  
->  obj-$(CONFIG_DS1682)		+= ds1682.o
->  obj-$(CONFIG_AT24)		+= at24.o
-> +obj-$(CONFIG_MAX9485)		+= max9485.o
->  obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
->  obj-$(CONFIG_SENSORS_MAX6875)	+= max6875.o
->  obj-$(CONFIG_SENSORS_PCA9539)	+= pca9539.o
-> diff --git a/drivers/i2c/chips/max9485.c b/drivers/i2c/chips/max9485.c
-> new file mode 100644
-> index 0000000..65058b4
-> --- /dev/null
-> +++ b/drivers/i2c/chips/max9485.c
-> @@ -0,0 +1,106 @@
-> +/*
-> + * Maxim max9485 Programmable Audio Clock Generator driver
-> + *
-> + * Written by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> + *
-> + * Copyright (C) Digispeaker.com
+Hi Arjen,
 
-you need a date at which you are claiming the copyright. I'd also
-check that (C) in a big symbol is a legally recognised substitute
-for an small c in an circle.
+On Mon, 20 Oct 2008 21:57:51 -0700, Arjan van de Ven wrote:
+> From 2642176b21b402e7f1ea7697ad2659d0e7e59f6e Mon Sep 17 00:00:00 2001
+> From: Arjan van de Ven <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Date: Sun, 28 Sep 2008 16:13:48 -0700
+> Subject: [PATCH] pci: use pci_ioremap_bar() in drivers/i2c
+> 
+> Use the newly introduced pci_ioremap_bar() function in drivers/i2c.
+> pci_ioremap_bar() just takes a pci device and a bar number, with the goal
+> of making it really hard to get wrong, while also having a central place
+> to stick sanity checks.
+> 
+> CC: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+> Signed-off-by: Arjan van de Ven <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-hydra.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-hydra.c b/drivers/i2c/busses/i2c-hydra.c
+> index 1098f21..648aa7b 100644
+> --- a/drivers/i2c/busses/i2c-hydra.c
+> +++ b/drivers/i2c/busses/i2c-hydra.c
+> @@ -123,7 +123,7 @@ static int __devinit hydra_probe(struct pci_dev *dev,
+>  				hydra_adap.name))
+>  		return -EBUSY;
+>  
+> -	hydra_bit_data.data = ioremap(base, pci_resource_len(dev, 0));
+> +	hydra_bit_data.data = pci_ioremap_bar(dev, 0);
+>  	if (hydra_bit_data.data == NULL) {
+>  		release_mem_region(base+offsetof(struct Hydra, CachePD), 4);
+>  		return -ENODEV;
+
+Applied, thanks.
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
