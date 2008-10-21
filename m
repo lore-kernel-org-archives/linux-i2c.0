@@ -1,11 +1,11 @@
-From: "Fabien Marteau" <fabien.marteau-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Subject: Simple read byte data compilation problem
-Date: Tue, 21 Oct 2008 11:44:28 +0200
-Message-ID: <ce62e9d00810210244p3194a50fj3b6b19209465ac7e@mail.gmail.com>
+From: "Hu Mingkai-B21284" <B21284-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: How the lm-sensors communicate with the device driver
+Date: Tue, 21 Oct 2008 18:31:07 +0800
+Message-ID: <CF6163088BDE8747873ADAA4AF922BF258D527@zmy16exm21.fsl.freescale.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_4836_16197450.1224582268544"
+Content-Type: multipart/mixed; boundary="===============4466257201883629879=="
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-class: urn:content-classes:message
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,95 +18,172 @@ Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-------=_Part_4836_16197450.1224582268544
+This is a multi-part message in MIME format.
+
+--===============4466257201883629879==
+Content-class: urn:content-classes:message
 Content-Type: multipart/alternative;
-	boundary="----=_Part_4837_22763661.1224582268544"
+	boundary="----_=_NextPart_001_01C93368.259BC092"
 
-------=_Part_4837_22763661.1224582268544
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is a multi-part message in MIME format.
 
-Hy,
+------_=_NextPart_001_01C93368.259BC092
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-I wrote a simple user program to test an i2c bus driver. I found in
-Documentation/i2c/dev-interface their is macro function to read data
-(i2c_smbus_read_byte_data). I used it but I have link error when I compile :
-$ arm-linux-gcc -O i2cread.c -o i2cread
-/tmp/ccfa90st.o: In function `read_byte':
-i2cread.c:(.text+0x3c): undefined reference to `i2c_smbus_read_byte_data'
-collect2: ld returned 1 exit status
+Hi All,
+=20
+I wrote a MCP3021's driver using the new I2C device model under Linux
+2.6.26.
+The chip MCP3021 is connected to Freescale's I2C controller.
+Now it works well, the following is the log info:
+=20
+-sh-2.05b# ls /sys/bus/i2c/drivers/mcp3021/
+0-004d  1-004d  bind  module  uevent  unbind
+-sh-2.05b#
+=20
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/name
+mcp3021
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_input
+213
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_max
+213
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_min
+192=20
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_input
+960
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_max
+1065
+-sh-2.05b# cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_min
+945
+=20
+-sh-2.05b# sensors
+mcp3021-i2c-0-4d
 
-Is someone know what is the problem ?
+Adapter: MPC adapter
+in0:         +0.21 V  (min =3D  +0.19 V, max =3D  +0.22 V)
+=20
+mcp3021-i2c-1-4d
+Adapter: MPC adapter
+in0:         +0.41 V  (min =3D  +0.41 V, max =3D  +0.41 V)
 
-Thanks in advance
-FabM
+Q:
+1. How the lm-sensors communicate with the device driver?=20
+2. How the lm-sensors get the attribute info?
+2. Why the current info, i.e. curr1_x, doesn't list ?
+=20
+Thanks,
+Vincent
 
-------=_Part_4837_22763661.1224582268544
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+------_=_NextPart_001_01C93368.259BC092
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Hy,<br><br>I wrote a simple user program to test an i2c bus driver. I found in Documentation/i2c/dev-interface their is macro function to read data (i2c_smbus_read_byte_data). I used it but I have link error when I compile :<br>
-$ arm-linux-gcc -O i2cread.c -o i2cread<br>/tmp/ccfa90st.o: In function `read_byte&#39;:<br>i2cread.c:(.text+0x3c): undefined reference to `i2c_smbus_read_byte_data&#39;<br>collect2: ld returned 1 exit status<br><br>Is someone know what is the problem ?<br>
-<br>Thanks in advance<br>FabM<br><br>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.3395" name=3DGENERATOR></HEAD>
+<BODY>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D217551310-21102008>Hi=20
+All,</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>I&nbsp;wrote a=20
+MCP3021's driver using the new I2C device model under Linux=20
+2.6.26.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>The&nbsp;chip=20
+MCP3021 is&nbsp;</SPAN></FONT><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008>connected to Freescale's I2C=20
+controller.</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN class=3D217551310-21102008>Now it =
+works well,=20
+the following is the log info:</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>-sh-2.05b# ls=20
+/sys/bus/i2c/drivers/mcp3021/<BR>0-004d&nbsp; 1-004d&nbsp; bind&nbsp;=20
+module&nbsp; uevent&nbsp; unbind<BR>-sh-2.05b#</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>-sh-2.05b# cat=20
+/sys/bus/i2c/drivers/mcp3021/0-004d/name<BR>mcp3021<BR>-sh-2.05b# cat=20
+/sys/bus/i2c/drivers/mcp3021/0-004d/in0_input</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>213<BR>-sh-2.05b#=20
+cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_max</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>213<BR>-sh-2.05b#=20
+cat /sys/bus/i2c/drivers/mcp3021/0-004d/in0_min</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008>192</SPAN></FONT><FONT face=3DArial =
+size=3D2><SPAN=20
+class=3D217551310-21102008>&nbsp;</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>-sh-2.05b# cat=20
+/sys/bus/i2c/drivers/mcp3021/0-004d/curr1_input</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>960<BR>-sh-2.05b#=20
+cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_max</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>1065<BR>-sh-2.05b#=20
+cat /sys/bus/i2c/drivers/mcp3021/0-004d/curr1_min</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008>945</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008></SPAN></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>-sh-2.05b#=20
+sensors<BR>mcp3021-i2c-0-4d<BR></SPAN></FONT><FONT face=3DArial=20
+size=3D2></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN =
+class=3D217551310-21102008>Adapter: MPC=20
+adapter</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008>in0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;=20
++0.21 V&nbsp; (min =3D&nbsp; +0.19 V, max =3D&nbsp; +0.22 =
+V)</SPAN></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2><SPAN=20
+class=3D217551310-21102008>mcp3021-i2c-1-4d<BR>Adapter: MPC=20
+adapter<BR>in0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +0.41 =
+V&nbsp;=20
+(min =3D&nbsp; +0.41 V, max =3D&nbsp; +0.41 V)</SPAN></FONT></DIV><SPAN=20
+class=3D217551310-21102008>
+<DIV><FONT face=3DArial size=3D2></FONT><FONT face=3DArial =
+size=3D2></FONT><FONT=20
+face=3DArial size=3D2></FONT><FONT face=3DArial size=3D2></FONT><FONT =
+face=3DArial=20
+size=3D2></FONT><FONT face=3DArial size=3D2></FONT><FONT face=3DArial=20
+size=3D2></FONT><BR><SPAN class=3D217551310-21102008><FONT face=3DArial=20
+size=3D2>Q:</FONT></SPAN></DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial size=3D2>1. How =
+the=20
+lm-sensors communicate with the device driver? </FONT></SPAN></DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial size=3D2>2. How =
+the=20
+lm-sensors get the attribute info?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial size=3D2>2. Why =
+the current=20
+info, i.e. curr1_x, doesn't list ?</FONT></SPAN></DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial=20
+size=3D2></FONT></SPAN>&nbsp;</DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial=20
+size=3D2>Thanks,</FONT></SPAN></DIV>
+<DIV><SPAN class=3D217551310-21102008><FONT face=3DArial=20
+size=3D2>Vincent</FONT></SPAN></DIV></SPAN></BODY></HTML>
 
-------=_Part_4837_22763661.1224582268544--
+------_=_NextPart_001_01C93368.259BC092--
 
-------=_Part_4836_16197450.1224582268544
-Content-Type: text/x-csrc; name=i2cread.c
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fmkckdra0
-Content-Disposition: attachment; filename=i2cread.c
 
-LyogYSBzaW1wbGUgcHJvZ3JhbSB0byByZWFkIG9uIGkyYyBidXMKICogRmFiaWVuIE1hcnRlYXUg
-PGZhYmllbi5tYXJ0ZWF1QGFybWFkZXVzLmNvbT4KICoKICogaW5zcGlyZWQgZnJvbSA6IAogKiAg
-IGNoNzAyNDogbWFuYWdlIHRoZSBTdmlkZW8gY29udHJvbGxlciBDSDcwMjQKICogIGF1dGhvcjog
-dGhvbTI1QHVzZXJzLnNvdXJjZWZvcmdlLm5ldAogKgogKgogKiogIFRIRSBBUk1BREVVUyBQUk9K
-RUNUCiAqKgogKiogIENvcHlyaWdodCAoQykgeWVhciAgVGhlIHNvdXJjZSBmb3JnZSBhcm1hZGV1
-cyBwcm9qZWN0IHRlYW0KICoqCiAqKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91
-IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeQogKiogaXQgdW5kZXIgdGhlIHRlcm1z
-IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQgYnkKICoqIHRo
-ZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vu
-c2UsIG9yCiAqKiAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgogKiogCiAqKiBU
-aGlzIHByb2dyYW0gaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVz
-ZWZ1bCwKICoqIGJ1dCBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBs
-aWVkIHdhcnJhbnR5IG9mCiAqKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJU
-SUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlCiAqKiBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBm
-b3IgbW9yZSBkZXRhaWxzLgogKiogCiAqKiBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5
-IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQogKiogYWxvbmcgd2l0aCB0aGlzIHBy
-b2dyYW07IGlmIG5vdCwgd3JpdGUgdG8gdGhlIEZyZWUgU29mdHdhcmUgCiAqKiBGb3VuZGF0aW9u
-LCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UgLSBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEgMDIxMTEtMTMw
-NywgVVNBLgogKioKICovCiNpbmNsdWRlIDxzdGRpby5oPgojaW5jbHVkZSA8ZmNudGwuaD4KI2lu
-Y2x1ZGUgPGVycm5vLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN0ZGxpYi5oPgoj
-aW5jbHVkZSA8c3RyaW5nLmg+CiAKI2luY2x1ZGUgPGxpbnV4L2kyYy5oPiAKI2luY2x1ZGUgPGxp
-bnV4L2kyYy1kZXYuaD4KIAojaW5jbHVkZSA8c3lzL2lvY3RsLmg+CiAKaW50IGZkOwogCi8qIFJl
-YWQgYSBieXRlIG9uIHRoZSBJMkMgYnVzCiAgIFRoaXMgaXMgZG9uZSBieSB3cml0aW5nIHRoZSBy
-ZWdpc3RlciBhZGRyZXNzIAogICB3ZSB3YW50IHRvIGFjY2VzcyBhbmQgdGhlbiBieSByZWFkaW5n
-IHRoaXMgcmVnaXN0ZXIKICAgICBAcGFyYW0gZmQ6IGZpbGUgZGVzY3JpcHRvciBvZiB0aGUgZGV2
-aWNlCiAgICAgQHBhcmFtIHJlZzogcmVnaXN0ZXIgdG8gYWNjZXNzCiAgICAgQHBhcmFtIGJ1Zjog
-YnVmZmVyIHVzZWQgdG8gc3RvcmUgdGhlIHJlc3VsdAogICAgIEByZXR1cm4gOiAtMSBpbiBjYXNl
-IG9mIGVycm9yIG90aGVyd2lzZSAwCiAqLwpfX3MzMiByZWFkX2J5dGUoIGludCBmZCx1bnNpZ25l
-ZCBjaGFyIGFkZHIsIHVuc2lnbmVkIGNoYXIgcmVnKQp7IAoJaW50IGVycjsKCV9fczMyIHJlczsK
-CS8qIHNlbGVjdCBhZGRyZXNzICovCglpZihlcnI9aW9jdGwoZmQsSTJDX1NMQVZFLGFkZHIpIDwg
-MCl7CgkJcGVycm9yKCJjYW4ndCBzZWxlY3QgdGhpcyBhZGRyZXNzXG4iKTsKCQlyZXR1cm4gZXJy
-OwoJfQoJcmVzID0gaTJjX3NtYnVzX3JlYWRfYnl0ZV9kYXRhKGZkLChfX3U4KXJlZyk7CglpZihy
-ZXM8MCkKCQlwZXJyb3IoInJlYWQgYnl0ZSBkYXRhIGVycm9yXG4iKTsKCXJldHVybiByZXM7Cn0K
-IAovKiBpMmNyZWFkIGkyYy1kZXZmaWxlIGFkZHIqLwppbnQgbWFpbihpbnQgYXJnYywgY2hhciAq
-KmFyZ3YpewogIHVuc2lnbmVkIGNoYXIgYnVmOwogIHVuc2lnbmVkIGNoYXIgYWRkcjsKICB1bnNp
-Z25lZCBjaGFyIHN1YmFkZHI7CiAgdW5zaWduZWQgY2hhciB2YWx1ZTsKIAogIGlmKGFyZ2MgIT0g
-NCl7CiAgICBwcmludGYoIndyb25nIGFyZ3MgbnVtYmVyc1xuc3ludGF4ZSAoaGV4YSkgOlxuIik7
-CglwcmludGYoImkyY3JlYWQgaTJjLWRldmZpbGUgYWRkciBzdWJhZGRyXG4iKTsKICAgIHJldHVy
-biAtMTsKICB9CiAKICBmZCA9IG9wZW4oYXJndlsxXSxPX1JEV1IpOwogIGlmKGZkIDwgMCl7CiAg
-ICBwcmludGYoIiVkIDogY2FuJ3Qgb3BlbiAlc1xuIixmZCxhcmd2WzFdKTsKICAgIHJldHVybiAt
-MTsKICB9CiAgLyogc2VsZWN0IGFkZHJlc3MgKi8KICBhZGRyID0gICAgKHVuc2lnbmVkIGNoYXIg
-KXN0cnRvbChhcmd2WzJdLCAoY2hhciAqKilOVUxMLCAxNik7CiAgLyogc2VsZWN0IHN1YmFkZHJl
-c3MgKi8KICBzdWJhZGRyID0gICAgKHVuc2lnbmVkIGNoYXIgKXN0cnRvbChhcmd2WzNdLCAoY2hh
-ciAqKilOVUxMLCAxNik7CiAKICBidWYgPSAodW5zaWduZWQgY2hhcilyZWFkX2J5dGUoZmQsYWRk
-ciwgc3ViYWRkcik7IAogCiAgcHJpbnRmKCJSZWFkIGNvbXBvbmVudCAlMDJ4IGF0IHN1YmFkZHJl
-c3MgJTAyeC0+JTAyeFxuIixhZGRyLHN1YmFkZHIsYnVmKTsKIAogIHJldHVybiB2YWx1ZTsKfQo=
-
-------=_Part_4836_16197450.1224582268544
+--===============4466257201883629879==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -116,4 +193,4 @@ _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
-------=_Part_4836_16197450.1224582268544--
+--===============4466257201883629879==--
