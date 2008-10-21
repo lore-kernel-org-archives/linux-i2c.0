@@ -1,75 +1,34 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: inform about deprecated chips-directory
-Date: Tue, 21 Oct 2008 18:56:17 +0200
-Message-ID: <20081021185617.35254bc5@hyperion.delvare>
-References: <1224604651-17321-1-git-send-email-w.sang@pengutronix.de>
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [rtc-linux] [i2c] [PATCH] rtc-ds1307 : SMBus compatibility
+Date: Tue, 21 Oct 2008 20:29:38 +0200
+Message-ID: <20081021202938.2eca3ac1@i1501.lan.towertech.it>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59C2F@PRI-MBX-101.dom1.vinci-energies.net>
+	<20081016121843.2e0c3792.akpm@linux-foundation.org>
+	<C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <1224604651-17321-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754974AbYJUS3w@vger.kernel.org>
+In-Reply-To: <C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: rtc-linux@googlegroups.com
+Cc: sbarre@sdelcc.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "i2c@lm-sensors.org" <i2c@lm-sensors.org>, David Brownell <david-b@pacbell.net>, Jean Delvare <khali@linux-fr.org>, Rodolfo Giometti <giometti@enneenne.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Fri, 17 Oct 2008 17:11:27 +0200
+BARRE Sebastien <sbarre@sdelcc.com> wrote:
 
-On Tue, 21 Oct 2008 17:57:31 +0200, Wolfram Sang wrote:
-> The chips directory under drivers/i2c is deprecated. Spread the word!
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> 
-> Maybe this makes Jean's life a bit easier ;)
-> 
->  drivers/i2c/chips/Kconfig  |    3 +++
->  drivers/i2c/chips/Makefile |    3 ++-
->  2 files changed, 5 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
-> index 1735682..44a6e4c 100644
-> --- a/drivers/i2c/chips/Kconfig
-> +++ b/drivers/i2c/chips/Kconfig
-> @@ -1,6 +1,9 @@
->  #
->  # Miscellaneous I2C chip drivers configuration
->  #
-> +#
-> +# *** DEPRECATED! Do not add new entries! See Makefile ***
-> +#
->  
->  menu "Miscellaneous I2C Chip support"
->  
-> diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
-> index ca520fa..23d2a31 100644
-> --- a/drivers/i2c/chips/Makefile
-> +++ b/drivers/i2c/chips/Makefile
-> @@ -1,7 +1,8 @@
->  #
->  # Makefile for miscellaneous I2C chip drivers.
->  #
-> -# Think twice before you add a new driver to this directory.
-> +# Do not add new drivers to this directory! It is DEPRECATED.
-> +#
->  # Device drivers are better grouped according to the functionality they
->  # implement rather than to the bus they are connected to. In particular:
->  # * Hardware monitoring chip drivers go to drivers/hwmon
+> I've tested it with ds1307 chip.
+> Is somebody can test it on ds1337/ds1338 ?
 
-Good idea, it's more obvious that way. Applied, thanks!
+ Given the amount of changes I need some Tested-bys
+ for the patch to go thru.
 
 -- 
-Jean Delvare
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Torino, Italy
+
+  http://www.towertech.it
