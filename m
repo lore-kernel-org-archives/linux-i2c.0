@@ -1,34 +1,54 @@
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [rtc-linux] [i2c] [PATCH] rtc-ds1307 : SMBus compatibility
-Date: Tue, 21 Oct 2008 20:29:38 +0200
-Message-ID: <20081021202938.2eca3ac1@i1501.lan.towertech.it>
-References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59C2F@PRI-MBX-101.dom1.vinci-energies.net>
-	<20081016121843.2e0c3792.akpm@linux-foundation.org>
-	<C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
+From: Mark Jackson <mpfj@mimc.co.uk>
+Subject: Re: [i2c] [PATCH v2] Add support for Dallas DS28CM00 Unique ID chip
+Date: Tue, 21 Oct 2008 19:42:42 +0100
+Message-ID: <48FE22A2.7030604@mimc.co.uk>
+References: <48FDED5E.5080605@mimc.co.uk> <20081021173505.2f7673e2@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754974AbYJUS3w@vger.kernel.org>
-In-Reply-To: <C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755383AbYJUSns@vger.kernel.org>
+In-Reply-To: <20081021173505.2f7673e2@hyperion.delvare>
 Sender: linux-kernel-owner@vger.kernel.org
-To: rtc-linux@googlegroups.com
-Cc: sbarre@sdelcc.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "i2c@lm-sensors.org" <i2c@lm-sensors.org>, David Brownell <david-b@pacbell.net>, Jean Delvare <khali@linux-fr.org>, Rodolfo Giometti <giometti@enneenne.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: ben-linux@fluff.org, akpm@linux-foundation.org, i2c@lm-sensors.org, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 17 Oct 2008 17:11:27 +0200
-BARRE Sebastien <sbarre@sdelcc.com> wrote:
+Jean Delvare wrote:
+> On Tue, 21 Oct 2008 15:55:26 +0100, Mark Jackson wrote:
+>> This patch adds support for the (I2C based) DS28CM00 ID chip.
+>> (v2 after running through checkpatch)
+>>
+>> Signed-off-by: M.Jackson <mpfj@mimc.co.uk> 
+>> ---
+>>  drivers/i2c/chips/Kconfig    |    7 ++
+>>  drivers/i2c/chips/Makefile   |    1 +
+>>  drivers/i2c/chips/ds28cm00.c |  166 ++++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 174 insertions(+), 0 deletions(-)
+> 
+> Nack. No new drivers under drivers/i2c/chips please, it's going away
+> soon.
 
-> I've tested it with ds1307 chip.
-> Is somebody can test it on ds1337/ds1338 ?
+Okay ... where should any new drivers be located ?
 
- Given the amount of changes I need some Tested-bys
- for the patch to go thru.
+<...snip...>
 
--- 
+>> +static int ds28cm00_attach_adapter(struct i2c_adapter *adapter);
+>> +static int ds28cm00_detect(struct i2c_adapter *adapter, int address, int kind);
+>> +static int ds28cm00_detach_client(struct i2c_client *client);
+>> +
+>> +/* This is the driver that will be inserted */
+>> +static struct i2c_driver ds28cm00_driver = {
+>> +	.driver = {
+>> +		.name	= "ds28cm00",
+>> +	},
+>> +	.attach_adapter	= ds28cm00_attach_adapter,
+>> +	.detach_client	= ds28cm00_detach_client,
+>> +};
+> 
+> attach_adapter and detach_client are deprecated. Please use probe and
+> remove instead.
 
- Best regards,
+Are there any existing chip drivers that use this new method ?
 
- Alessandro Zummo,
-  Tower Technologies - Torino, Italy
-
-  http://www.towertech.it
+Thanks
+Mark
