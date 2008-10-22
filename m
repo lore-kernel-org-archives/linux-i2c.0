@@ -1,53 +1,67 @@
-From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,
-	remove} calls
-Date: Wed, 22 Oct 2008 13:28:17 +1100
-Message-ID: <1224642497.7654.319.camel@pasglop>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
-	<200810171324.42650.david-b@pacbell.net>
-	<20081017212942.GA1919@oksana.dev.rtsoft.ru>
-	<200810200029.58312.david-b@pacbell.net>
-	<20081020154835.GA3234@oksana.dev.rtsoft.ru>
-	<1224635360.7654.294.camel@pasglop>
-	<20081022010347.GA7377@oksana.dev.rtsoft.ru>
-	<20081022014243.GA19362@oksana.dev.rtsoft.ru>
-Reply-To: benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 3/7] of: fill the archdata for I2C devices
+Date: Tue, 21 Oct 2008 22:14:46 -0600
+Message-ID: <20081022041446.GA7176@secretlab.ca>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081016171256.GC5515@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081022014243.GA19362-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
-Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752794AbYJVEPA@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20081016171256.GC5515@oksana.dev.rtsoft.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Anton Vorontsov <avorontsov@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, David Brownell <dbrownell@users.sourceforge.net>, "Steven A. Falco" <sfalco@harris.com>, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>, i2c@lm-sensors.org, linuxppc-dev@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2008-10-22 at 05:42 +0400, Anton Vorontsov wrote:
+On Thu, Oct 16, 2008 at 09:12:56PM +0400, Anton Vorontsov wrote:
+> For I2C devices we just setting the the node pointer in the archdata.
+> This is needed so that the other code would know device's node.
 > 
-> Thinking about it more, I started recalling other issues. The bus
-> notifier chain doesn't replay previous events, so we also have to
-> register the notifier before the _devices_ are registered. And this
-> ruins the whole approach. :-/ Yeah, that's why I abandoned the bus
-> notifier idea.
+> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
 
-The notifier can be registered before the devices, though it's a little
-bit fishy and fragile.
+Looks okay to me.
 
-Easier I suppose to just have OF specific hooks in the bus code.
-
-Ben.
-
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
+> ---
+>  drivers/of/of_i2c.c |   11 +++++++++++
+>  1 files changed, 11 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
+> index 6a98dc8..f9e18ed 100644
+> --- a/drivers/of/of_i2c.c
+> +++ b/drivers/of/of_i2c.c
+> @@ -24,6 +24,7 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  
+>  	for_each_child_of_node(adap_node, node) {
+>  		struct i2c_board_info info = {};
+> +		struct dev_archdata dev_ad = {};
+>  		const u32 *addr;
+>  		int len;
+>  
+> @@ -41,6 +42,9 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  
+>  		info.addr = *addr;
+>  
+> +		dev_archdata_set_node(&dev_ad, node);
+> +		info.archdata = &dev_ad;
+> +
+>  		request_module(info.type);
+>  
+>  		result = i2c_new_device(adap, &info);
+> @@ -51,6 +55,13 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+>  			irq_dispose_mapping(info.irq);
+>  			continue;
+>  		}
+> +
+> +		/*
+> +		 * Get the node to not lose the dev_archdata->of_node.
+> +		 * Currently there is no way to put it back, as well as no
+> +		 * of_unregister_i2c_devices() call.
+> +		 */
+> +		of_node_get(node);
+>  	}
+>  }
+>  EXPORT_SYMBOL(of_register_i2c_devices);
+> -- 
+> 1.5.6.3
+> 
