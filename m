@@ -1,73 +1,178 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PULL] i2c updates for 2.6.28, round 2
-Date: Wed, 22 Oct 2008 20:27:02 +0200
-Message-ID: <20081022202702.77ee9e44@hyperion.delvare>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
+Date: Wed, 22 Oct 2008 22:32:18 +0400
+Message-ID: <20081022183218.GA19025@oksana.dev.rtsoft.ru>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022014243.GA19362@oksana.dev.rtsoft.ru> <1224642497.7654.319.camel@pasglop> <200810212122.49121.david-b@pacbell.net> <20081022103641.GB24757@oksana.dev.rtsoft.ru> <20081022104606.GA510@oksana.dev.rtsoft.ru>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757388AbYJVS1f@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1251
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757777AbYJVSce@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20081022104606.GA510@oksana.dev.rtsoft.ru>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Wed, Oct 22, 2008 at 02:46:06PM +0400, Anton Vorontsov wrote:
+> On Wed, Oct 22, 2008 at 02:36:41PM +0400, Anton Vorontsov wrote:
+> > On Tue, Oct 21, 2008 at 09:22:48PM -0700, David Brownell wrote:
+> > > On Tuesday 21 October 2008, Benjamin Herrenschmidt wrote:
+> > > > The notifier can be registered before the devices, though it's a little
+> > > > bit fishy and fragile.
+> > > > 
+> > > > Easier I suppose to just have OF specific hooks in the bus code.
+> > > 
+> > > Like what I suggested:  "chip-aware OF glue drivers".  The relevant
+> > > bus code being the "of_platform_bus_type" infrastructure.
+> > > 
+> > > Example:  instead of Anton's patch #6 modifying the existing pca953x
+> > > driver, an of_pca953x driver that knows how to poke around in the OF
+> > > device attributes to (a) create the pca953x_platform_data, (b) call
+> > > i2c_register_board_info() to make that available later, and then
+> > > finally (c) vanish, since it's not needed any longer.
+> > 
+> > Heh. You tell me my first approach:
+> > 
+> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056730.html (mmc_spi)
+> > 
+> > The OF people didn't like the patch which was used to support this
+> > approach:
+> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056728.html
+> 
+> Though, I think I'll able to persuade Grant that two registration paths
+> are inevitable (i.e. for simple devices we should use
+> drivers/of/of_{i2c,spi}.c and for complex cases we'll have to have
+> another method of registration).
+> 
+> > The board info has another problem though. We can't remove it, thus
+> > we can't implement module_exit() for the 'OF glue'.
+> 
+> And try to solve this problem... maybe then things will begin to
+> move forward.
 
-Please pull the second round of i2c subsystem updates for Linux 2.6.28
-from:
+There is another problem: board infos are scanned at the controller
+registration time only. So if we register the board infos after
+the controller registered, then nobody will probe the board infos.
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+This is all solvable by hacking the i2c core code though. I started
+it, but it turned out to be ugly. I'll finish it though, just to show
+it someday.
 
-There are fixes to the i2c-algo-pcf driver, support for a new Intel
-chip (Ibex Peak), documentation updates and a few other fixes.
+But now I'm not sure if it worth the efforts. Maybe we could just
+modify the drivers to do something like this?
 
- Documentation/feature-removal-schedule.txt |    8 +
- Documentation/i2c/busses/i2c-i801          |    7 +-
- Documentation/i2c/porting-clients          |  160 ---------
- Documentation/i2c/writing-clients          |  495 +++++++---------------------
- drivers/i2c/algos/i2c-algo-pcf.c           |   21 +-
- drivers/i2c/busses/Kconfig                 |    1 +
- drivers/i2c/busses/i2c-elektor.c           |    3 +-
- drivers/i2c/busses/i2c-hydra.c             |    2 +-
- drivers/i2c/busses/i2c-i801.c              |    3 +
- drivers/i2c/chips/Kconfig                  |    2 +
- drivers/i2c/chips/Makefile                 |    3 +-
- drivers/i2c/i2c-core.c                     |    3 +
- include/linux/device.h                     |    2 +-
- include/linux/i2c-algo-pcf.h               |    5 +-
- include/linux/i2c.h                        |  163 +++++-----
- 15 files changed, 245 insertions(+), 633 deletions(-)
- delete mode 100644 Documentation/i2c/porting-clients
+This is not exactly "transparently" to the drivers, but well..
 
----------------
-
-Anton Vorontsov (1):
-      i2c: Add info->archdata field
-
-Arjan van de Ven (1):
-      i2c: Use pci_ioremap_bar()
-
-David Miller (3):
-      i2c-algo-pcf: Pass adapter data into ->waitforpin() method
-      i2c-algo-pcf: Add adapter hooks around xfer begin and end
-      i2c-algo-pcf: Fix typo in debugging log message
-
-Jean Delvare (7):
-      i2c: Delete outdated client porting guide
-      i2c: Constify i2c_get_clientdata's parameter
-      i2c: Delete legacy model documentation
-      i2c: Drop 2-byte address block transfer defines
-      i2c: Update and clean up writing-clients document
-      i2c: Clean up <linux/i2c.h>
-      Schedule removal of the legacy i2c device driver binding model
-
-Seth Heasley (1):
-      i2c-i801: Add support for Intel Ibex Peak
-
-Wolfram Sang (2):
-      i2c: Make clear what the class field of i2c_adapter is good for
-      i2c: Inform about deprecated chips directory
-
-Thanks,
--- 
-Jean Delvare
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 01b4bbd..b1dfa7b 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -9,4 +9,7 @@ obj-$(CONFIG_GPIO_MAX732X)	+= max732x.o
+ obj-$(CONFIG_GPIO_MCP23S08)	+= mcp23s08.o
+ obj-$(CONFIG_GPIO_PCA953X)	+= pca953x.o
+ obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x.o
++ifeq ($(CONFIG_OF),y)
++obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x_of.o
++endif
+ obj-$(CONFIG_GPIO_BT8XX)	+= bt8xxgpio.o
+diff --git a/drivers/gpio/pcf857x.c b/drivers/gpio/pcf857x.c
+index 4bc2070..f8057d2 100644
+--- a/drivers/gpio/pcf857x.c
++++ b/drivers/gpio/pcf857x.c
+@@ -187,7 +187,7 @@ static int pcf857x_probe(struct i2c_client *client,
+ 	struct pcf857x			*gpio;
+ 	int				status;
+ 
+-	pdata = client->dev.platform_data;
++	pdata = pcf857x_get_pdata(client);
+ 	if (!pdata)
+ 		return -ENODEV;
+ 
+@@ -314,7 +314,7 @@ fail:
+ 
+ static int pcf857x_remove(struct i2c_client *client)
+ {
+-	struct pcf857x_platform_data	*pdata = client->dev.platform_data;
++	struct pcf857x_platform_data	*pdata = pcf857x_get_pdata(client);
+ 	struct pcf857x			*gpio = i2c_get_clientdata(client);
+ 	int				status = 0;
+ 
+@@ -334,6 +334,8 @@ static int pcf857x_remove(struct i2c_client *client)
+ 		kfree(gpio);
+ 	else
+ 		dev_err(&client->dev, "%s --> %d\n", "remove", status);
++
++	pcf857x_put_pdata(client);
+ 	return status;
+ }
+ 
+diff --git a/drivers/gpio/pcf857x_of.c b/drivers/gpio/pcf857x_of.c
+new file mode 100644
+index 0000000..414943b
+--- /dev/null
++++ b/drivers/gpio/pcf857x_of.c
+@@ -0,0 +1,36 @@
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c/pcf857x.h>
++#include <linux/gpio.h>
++#include <linux/of.h>
++#include <linux/of_gpio.h>
++
++struct pcf857x_platform_data *pcf857x_get_pdata(struct i2c_client *client)
++{
++	struct pcf857x_platform_data *pdata = client->dev.platform_data;
++
++	if (pdata)
++		return pdata;
++
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return NULL;
++
++	/*
++	 * Do the OF-specific setup here.
++	 */
++
++	client->dev.platform_data = pdata;
++}
++
++void pcf857x_put_pdata(struct i2c_client *client)
++{
++	struct pcf857x_platform_data *pdata = client->dev.platform_data;
++
++	/*
++	 * Do the OF-specific cleanup here.
++	 */
++
++	kfree(pdata);
++}
+diff --git a/include/linux/i2c/pcf857x.h b/include/linux/i2c/pcf857x.h
+index 0767a2a..bdc1aba 100644
+--- a/include/linux/i2c/pcf857x.h
++++ b/include/linux/i2c/pcf857x.h
+@@ -1,6 +1,8 @@
+ #ifndef __LINUX_PCF857X_H
+ #define __LINUX_PCF857X_H
+ 
++struct i2c_client;
++
+ /**
+  * struct pcf857x_platform_data - data to set up pcf857x driver
+  * @gpio_base: number of the chip's first GPIO
+@@ -41,4 +43,13 @@ struct pcf857x_platform_data {
+ 	void		*context;
+ };
+ 
++#ifdef CONFIG_OF
++extern struct pcf857x_platform_data *
++	pcf857x_get_pdata(struct i2c_client *client);
++extern void pcf857x_put_pdata(struct i2c_client *client);
++#else
++#define pcf857x_get_pdata(client) ((client)->dev.platform_data)
++#define pcf857x_put_pdata(client)
++#endif
++
+ #endif /* __LINUX_PCF857X_H */
