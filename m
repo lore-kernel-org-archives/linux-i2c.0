@@ -1,66 +1,73 @@
-From: "Jon Smirl" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c driver for Maxim max9485 audio clock
-	generator chip
-Date: Wed, 22 Oct 2008 12:38:10 -0400
-Message-ID: <9e4733910810220938l5530cbb2y310c31e4cd3658e9@mail.gmail.com>
-References: <20081021030205.2494.55081.stgit@terra>
-	<20081021103607.78ffb4da@hyperion.delvare>
-	<9e4733910810211657s5e25e391p5ca6e6f672d115c5@mail.gmail.com>
-	<20081022083847.5216472c@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c updates for 2.6.28, round 2
+Date: Wed, 22 Oct 2008 20:27:02 +0200
+Message-ID: <20081022202702.77ee9e44@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081022083847.5216472c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757388AbYJVS1f@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <i2c@lm-sensors.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-What you want me to do? Put in a bare .h file for the part? Bare .h
-files are much harder to find and reuse. It is also going to force
-anyone reusing this part into reading the datasheet and determining
-how the part works.
+Hi Linus,
 
+Please pull the second round of i2c subsystem updates for Linux 2.6.28
+from:
 
-On Wed, Oct 22, 2008 at 2:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Tue, 21 Oct 2008 19:57:09 -0400, Jon Smirl wrote:
->> On Tue, Oct 21, 2008 at 4:36 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> > Honestly I don't see any value in this driver. There's nothing you can
->> > do with it that you couldn't already do without it.
->>
->> I need a driver so that my device tree will bind and tell me the i2c
->> address of the device.
->
-> This is rubbish. It's perfectly fine to let the I2C device be
-> instantiated from the device tree without having a driver that binds to
-> it. The device tree and the instantiated device, not the driver, tell
-> you the I2C address of the device.
->
->> We may also build a device in the future with two of these chips.
->
-> I fail to see how it matters.
->
-> --
-> Jean Delvare
->
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
+There are fixes to the i2c-algo-pcf driver, support for a new Intel
+chip (Ibex Peak), documentation updates and a few other fixes.
 
+ Documentation/feature-removal-schedule.txt |    8 +
+ Documentation/i2c/busses/i2c-i801          |    7 +-
+ Documentation/i2c/porting-clients          |  160 ---------
+ Documentation/i2c/writing-clients          |  495 +++++++---------------------
+ drivers/i2c/algos/i2c-algo-pcf.c           |   21 +-
+ drivers/i2c/busses/Kconfig                 |    1 +
+ drivers/i2c/busses/i2c-elektor.c           |    3 +-
+ drivers/i2c/busses/i2c-hydra.c             |    2 +-
+ drivers/i2c/busses/i2c-i801.c              |    3 +
+ drivers/i2c/chips/Kconfig                  |    2 +
+ drivers/i2c/chips/Makefile                 |    3 +-
+ drivers/i2c/i2c-core.c                     |    3 +
+ include/linux/device.h                     |    2 +-
+ include/linux/i2c-algo-pcf.h               |    5 +-
+ include/linux/i2c.h                        |  163 +++++-----
+ 15 files changed, 245 insertions(+), 633 deletions(-)
+ delete mode 100644 Documentation/i2c/porting-clients
 
+---------------
+
+Anton Vorontsov (1):
+      i2c: Add info->archdata field
+
+Arjan van de Ven (1):
+      i2c: Use pci_ioremap_bar()
+
+David Miller (3):
+      i2c-algo-pcf: Pass adapter data into ->waitforpin() method
+      i2c-algo-pcf: Add adapter hooks around xfer begin and end
+      i2c-algo-pcf: Fix typo in debugging log message
+
+Jean Delvare (7):
+      i2c: Delete outdated client porting guide
+      i2c: Constify i2c_get_clientdata's parameter
+      i2c: Delete legacy model documentation
+      i2c: Drop 2-byte address block transfer defines
+      i2c: Update and clean up writing-clients document
+      i2c: Clean up <linux/i2c.h>
+      Schedule removal of the legacy i2c device driver binding model
+
+Seth Heasley (1):
+      i2c-i801: Add support for Intel Ibex Peak
+
+Wolfram Sang (2):
+      i2c: Make clear what the class field of i2c_adapter is good for
+      i2c: Inform about deprecated chips directory
+
+Thanks,
 -- 
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+Jean Delvare
