@@ -1,66 +1,52 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Thu, 23 Oct 2008 01:22:17 +0400
-Message-ID: <20081022212217.GA32378@oksana.dev.rtsoft.ru>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022104606.GA510@oksana.dev.rtsoft.ru> <20081022183218.GA19025@oksana.dev.rtsoft.ru> <200810221404.52798.david-b@pacbell.net>
-Reply-To: avorontsov@ru.mvista.com
+Date: Wed, 22 Oct 2008 14:52:46 -0700
+Message-ID: <200810221452.46786.david-b@pacbell.net>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <200810221404.52798.david-b@pacbell.net> <20081022212217.GA32378@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758988AbYJVVWa@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754448AbYJVVxB@vger.kernel.org>
+In-Reply-To: <20081022212217.GA32378@oksana.dev.rtsoft.ru>
 Content-Disposition: inline
-In-Reply-To: <200810221404.52798.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
+To: avorontsov@ru.mvista.com
 Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 22, 2008 at 02:04:52PM -0700, David Brownell wrote:
-> On Wednesday 22 October 2008, Anton Vorontsov wrote:
-> > 
-> > > > The board info has another problem though. We can't remove it, thus
-> > > > we can't implement module_exit() for the 'OF glue'.
-> 
-> That's not a problem.  Why would you want to remove it?
-> 
-> 
-> > > And try to solve this problem... maybe then things will begin to
-> > > move forward.
-> > 
-> > There is another problem: board infos are scanned at the controller
-> > registration time only.
-> 
-> Right.  Such board description data should be made available
-> early in boot.  As a rule:  before arch_initcall() finishes,
-> so that subsys_initcall() code can use the associated GPIOs.
-> 
-> (It's fairly well acknowledged that init dependency handling
-> has a lot of problems.  Until that's fixed ... for GPIOs, the
-> general advice is to make sure everything is available by
-> subsys_initcall time,  so the subsystems which rely on GPIOs
-> to initialize -- power switches, resets, etc -- can initialize.
-> That can require i2c adapter drivers to use subsys_initcall,
-> for example.)
-> 
-> 
-> > So if we register the board infos after 
-> > the controller registered, then nobody will probe the board infos.
-> 
-> See above.  If you're doing it right, there's no problem.
-> That is, scan the OF tables early.  Just like PNP tables
-> get scanned early, for example.
+On Wednesday 22 October 2008, Anton Vorontsov wrote:
+> >=20
+> > > So if we register the board infos after=20
+> > > the controller registered, then nobody will probe the board infos=
+=2E
+> >=20
+> > See above. =A0If you're doing it right, there's no problem.
+> > That is, scan the OF tables early. =A0Just like PNP tables
+> > get scanned early, for example.
+>=20
+> Heh. If we don't want to be able to make the OF-parsing code
+> be a module then there is no problem at all. I can use the bus
+> notifiers. And it is most straightforward solution then.
+>=20
+> But I quite dislike to bloat the kernel image with
+> maybe-never-used-on-this-board code.
 
-Heh. If we don't want to be able to make the OF-parsing code
-be a module then there is no problem at all. I can use the bus
-notifiers. And it is most straightforward solution then.
+So have it live in the __init text section.  If you're
+building a kernel with support for several boards, you
+know it's necessarily going to be larger than it would
+be if only one board were supported.  But you can shrink
+kernel size by judicious use of __init sections..
 
-But I quite dislike to bloat the kernel image with
-maybe-never-used-on-this-board code. My aim was to make the
-OF-parsing part be a module too. Because in the long run we
-need the OF-parsing stuff for _every_ driver that needs
-platform data. It's quite expensive to have it always built-in,
-don't you think?
 
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+
+> My aim was to make the=20
+> OF-parsing part be a module too. Because in the long run we
+> need the OF-parsing stuff for _every_ driver that needs
+> platform data. It's quite expensive to have it always built-in,
+> don't you think?
+
+If it's discarded early, after translating the data from
+OF format into what the drivers need, there will be no
+RAM footprint.
+
+- Dave
