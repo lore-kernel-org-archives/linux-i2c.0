@@ -1,49 +1,50 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Tue, 21 Oct 2008 21:22:48 -0700
-Message-ID: <200810212122.49121.david-b@pacbell.net>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022014243.GA19362@oksana.dev.rtsoft.ru> <1224642497.7654.319.camel@pasglop>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c driver for Maxim max9485 audio clock
+ generator chip
+Date: Wed, 22 Oct 2008 08:38:47 +0200
+Message-ID: <20081022083847.5216472c@hyperion.delvare>
+References: <20081021030205.2494.55081.stgit@terra>
+	<20081021103607.78ffb4da@hyperion.delvare>
+	<9e4733910810211657s5e25e391p5ca6e6f672d115c5@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752709AbYJVEXE@vger.kernel.org>
-In-Reply-To: <1224642497.7654.319.camel@pasglop>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: benh@kernel.crashing.org, avorontsov@ru.mvista.com
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <9e4733910810211657s5e25e391p5ca6e6f672d115c5-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 21 October 2008, Benjamin Herrenschmidt wrote:
-> The notifier can be registered before the devices, though it's a little
-> bit fishy and fragile.
+On Tue, 21 Oct 2008 19:57:09 -0400, Jon Smirl wrote:
+> On Tue, Oct 21, 2008 at 4:36 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > Honestly I don't see any value in this driver. There's nothing you can
+> > do with it that you couldn't already do without it.
 > 
-> Easier I suppose to just have OF specific hooks in the bus code.
+> I need a driver so that my device tree will bind and tell me the i2c
+> address of the device.
 
-Like what I suggested:  "chip-aware OF glue drivers".  The relevant
-bus code being the "of_platform_bus_type" infrastructure.
+This is rubbish. It's perfectly fine to let the I2C device be
+instantiated from the device tree without having a driver that binds to
+it. The device tree and the instantiated device, not the driver, tell
+you the I2C address of the device.
 
-Example:  instead of Anton's patch #6 modifying the existing pca953x
-driver, an of_pca953x driver that knows how to poke around in the OF
-device attributes to (a) create the pca953x_platform_data, (b) call
-i2c_register_board_info() to make that available later, and then
-finally (c) vanish, since it's not needed any longer.
+> We may also build a device in the future with two of these chips.
 
-Better that than either the $SUBJECT patch, or modifying gpiolib to
-grow OF-specific hooks ... hooks that can at best solve *one* of the
-problems:  which GPIO numbers to use with this chip.  The platform
-data does solve other problems(*) like:  (i) how to initialize the
-polarity inversion register, (ii) arranging to set up other devices
-only after their GPIOs are ready, (iii) initializing things that
-device drivers won't always know about, or which may need to be
-set up before such drivers are available.
+I fail to see how it matters.
 
-- Dave
+-- 
+Jean Delvare
 
-(*) A trivial example of (ii) would be LEDs driven by those GPIOs.
-
-    A less trivial example:  see arch/arm/mach-davinci/board-evm.c
-    in current GIT.  There are three pcf8574 I2C expanders used for
-    various things ... LEDs, audio PLL, device power supplies, reset
-    lines for external devices, more.
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
