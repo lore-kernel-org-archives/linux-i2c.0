@@ -1,43 +1,56 @@
-From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,
-	remove} calls
-Date: Wed, 22 Oct 2008 11:29:20 +1100
-Message-ID: <1224635360.7654.294.camel@pasglop>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
+Date: Wed, 22 Oct 2008 05:03:47 +0400
+Message-ID: <20081022010347.GA7377@oksana.dev.rtsoft.ru>
 References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
 	<200810171324.42650.david-b@pacbell.net>
 	<20081017212942.GA1919@oksana.dev.rtsoft.ru>
 	<200810200029.58312.david-b@pacbell.net>
 	<20081020154835.GA3234@oksana.dev.rtsoft.ru>
-Reply-To: benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+	<1224635360.7654.294.camel@pasglop>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081020154835.GA3234-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
-Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Disposition: inline
+In-Reply-To: <1224635360.7654.294.camel@pasglop>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <dbrownell@users.sourceforge.net>, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Oct 22, 2008 at 11:29:20AM +1100, Benjamin Herrenschmidt wrote:
+> 
+> > But it doesn't work as a module (i.e. OF-specific bits should be
+> > always in-kernel).
+> 
+> Why not ?
 
-> But it doesn't work as a module (i.e. OF-specific bits should be
-> always in-kernel).
+If say "X" driver loads prior to bus-notifier module (where we fill
+the platform data), then X.0 device will try to probe w/o platform
+data and will fail. The only way to re-probe things is to rmmod X &&
+insmod of_pdata_filler_X && insmod X. So things depend on the module
+load order.
 
-Why not ?
+The obvious solution is to link the OF stuff into the module, but
+this also won't work, since modules have only one entry (and exit)
+point. So there is no way* to hook our OF helpers into the module.
 
-Ben.
+* Well, there is one solution to this problem. We can implement
+arch-specific init_module and cleanup_module entry/exit points,
+where we can load/unload the OF hooks. This is quite easy, but
+may look ugly. I could show the drafts.
 
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Anton Vorontsov
+email: cbouatmailru@gmail.com
+irc://irc.freenode.net/bd2
