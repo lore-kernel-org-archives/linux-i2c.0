@@ -1,178 +1,61 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Wed, 22 Oct 2008 22:32:18 +0400
-Message-ID: <20081022183218.GA19025@oksana.dev.rtsoft.ru>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022014243.GA19362@oksana.dev.rtsoft.ru> <1224642497.7654.319.camel@pasglop> <200810212122.49121.david-b@pacbell.net> <20081022103641.GB24757@oksana.dev.rtsoft.ru> <20081022104606.GA510@oksana.dev.rtsoft.ru>
-Reply-To: avorontsov@ru.mvista.com
+Date: Wed, 22 Oct 2008 14:04:52 -0700
+Message-ID: <200810221404.52798.david-b@pacbell.net>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+	<20081022104606.GA510@oksana.dev.rtsoft.ru>
+	<20081022183218.GA19025@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757777AbYJVSce@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20081022183218.GA19025@oksana.dev.rtsoft.ru>
 Content-Disposition: inline
-In-Reply-To: <20081022104606.GA510@oksana.dev.rtsoft.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: avorontsov@ru.mvista.com
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 22, 2008 at 02:46:06PM +0400, Anton Vorontsov wrote:
-> On Wed, Oct 22, 2008 at 02:36:41PM +0400, Anton Vorontsov wrote:
-> > On Tue, Oct 21, 2008 at 09:22:48PM -0700, David Brownell wrote:
-> > > On Tuesday 21 October 2008, Benjamin Herrenschmidt wrote:
-> > > > The notifier can be registered before the devices, though it's a little
-> > > > bit fishy and fragile.
-> > > > 
-> > > > Easier I suppose to just have OF specific hooks in the bus code.
-> > > 
-> > > Like what I suggested:  "chip-aware OF glue drivers".  The relevant
-> > > bus code being the "of_platform_bus_type" infrastructure.
-> > > 
-> > > Example:  instead of Anton's patch #6 modifying the existing pca953x
-> > > driver, an of_pca953x driver that knows how to poke around in the OF
-> > > device attributes to (a) create the pca953x_platform_data, (b) call
-> > > i2c_register_board_info() to make that available later, and then
-> > > finally (c) vanish, since it's not needed any longer.
-> > 
-> > Heh. You tell me my first approach:
-> > 
-> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056730.html (mmc_spi)
-> > 
-> > The OF people didn't like the patch which was used to support this
-> > approach:
-> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056728.html
+On Wednesday 22 October 2008, Anton Vorontsov wrote:
 > 
-> Though, I think I'll able to persuade Grant that two registration paths
-> are inevitable (i.e. for simple devices we should use
-> drivers/of/of_{i2c,spi}.c and for complex cases we'll have to have
-> another method of registration).
+> > > The board info has another problem though. We can't remove it, thus
+> > > we can't implement module_exit() for the 'OF glue'.
+
+That's not a problem.  Why would you want to remove it?
+
+
+> > And try to solve this problem... maybe then things will begin to
+> > move forward.
 > 
-> > The board info has another problem though. We can't remove it, thus
-> > we can't implement module_exit() for the 'OF glue'.
-> 
-> And try to solve this problem... maybe then things will begin to
-> move forward.
+> There is another problem: board infos are scanned at the controller
+> registration time only.
 
-There is another problem: board infos are scanned at the controller
-registration time only. So if we register the board infos after
-the controller registered, then nobody will probe the board infos.
+Right.  Such board description data should be made available
+early in boot.  As a rule:  before arch_initcall() finishes,
+so that subsys_initcall() code can use the associated GPIOs.
 
-This is all solvable by hacking the i2c core code though. I started
-it, but it turned out to be ugly. I'll finish it though, just to show
-it someday.
+(It's fairly well acknowledged that init dependency handling
+has a lot of problems.  Until that's fixed ... for GPIOs, the
+general advice is to make sure everything is available by
+subsys_initcall time,  so the subsystems which rely on GPIOs
+to initialize -- power switches, resets, etc -- can initialize.
+That can require i2c adapter drivers to use subsys_initcall,
+for example.)
 
-But now I'm not sure if it worth the efforts. Maybe we could just
-modify the drivers to do something like this?
 
-This is not exactly "transparently" to the drivers, but well..
+> So if we register the board infos after 
+> the controller registered, then nobody will probe the board infos.
 
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 01b4bbd..b1dfa7b 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -9,4 +9,7 @@ obj-$(CONFIG_GPIO_MAX732X)	+= max732x.o
- obj-$(CONFIG_GPIO_MCP23S08)	+= mcp23s08.o
- obj-$(CONFIG_GPIO_PCA953X)	+= pca953x.o
- obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x.o
-+ifeq ($(CONFIG_OF),y)
-+obj-$(CONFIG_GPIO_PCF857X)	+= pcf857x_of.o
-+endif
- obj-$(CONFIG_GPIO_BT8XX)	+= bt8xxgpio.o
-diff --git a/drivers/gpio/pcf857x.c b/drivers/gpio/pcf857x.c
-index 4bc2070..f8057d2 100644
---- a/drivers/gpio/pcf857x.c
-+++ b/drivers/gpio/pcf857x.c
-@@ -187,7 +187,7 @@ static int pcf857x_probe(struct i2c_client *client,
- 	struct pcf857x			*gpio;
- 	int				status;
- 
--	pdata = client->dev.platform_data;
-+	pdata = pcf857x_get_pdata(client);
- 	if (!pdata)
- 		return -ENODEV;
- 
-@@ -314,7 +314,7 @@ fail:
- 
- static int pcf857x_remove(struct i2c_client *client)
- {
--	struct pcf857x_platform_data	*pdata = client->dev.platform_data;
-+	struct pcf857x_platform_data	*pdata = pcf857x_get_pdata(client);
- 	struct pcf857x			*gpio = i2c_get_clientdata(client);
- 	int				status = 0;
- 
-@@ -334,6 +334,8 @@ static int pcf857x_remove(struct i2c_client *client)
- 		kfree(gpio);
- 	else
- 		dev_err(&client->dev, "%s --> %d\n", "remove", status);
-+
-+	pcf857x_put_pdata(client);
- 	return status;
- }
- 
-diff --git a/drivers/gpio/pcf857x_of.c b/drivers/gpio/pcf857x_of.c
-new file mode 100644
-index 0000000..414943b
---- /dev/null
-+++ b/drivers/gpio/pcf857x_of.c
-@@ -0,0 +1,36 @@
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c/pcf857x.h>
-+#include <linux/gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+
-+struct pcf857x_platform_data *pcf857x_get_pdata(struct i2c_client *client)
-+{
-+	struct pcf857x_platform_data *pdata = client->dev.platform_data;
-+
-+	if (pdata)
-+		return pdata;
-+
-+	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return NULL;
-+
-+	/*
-+	 * Do the OF-specific setup here.
-+	 */
-+
-+	client->dev.platform_data = pdata;
-+}
-+
-+void pcf857x_put_pdata(struct i2c_client *client)
-+{
-+	struct pcf857x_platform_data *pdata = client->dev.platform_data;
-+
-+	/*
-+	 * Do the OF-specific cleanup here.
-+	 */
-+
-+	kfree(pdata);
-+}
-diff --git a/include/linux/i2c/pcf857x.h b/include/linux/i2c/pcf857x.h
-index 0767a2a..bdc1aba 100644
---- a/include/linux/i2c/pcf857x.h
-+++ b/include/linux/i2c/pcf857x.h
-@@ -1,6 +1,8 @@
- #ifndef __LINUX_PCF857X_H
- #define __LINUX_PCF857X_H
- 
-+struct i2c_client;
-+
- /**
-  * struct pcf857x_platform_data - data to set up pcf857x driver
-  * @gpio_base: number of the chip's first GPIO
-@@ -41,4 +43,13 @@ struct pcf857x_platform_data {
- 	void		*context;
- };
- 
-+#ifdef CONFIG_OF
-+extern struct pcf857x_platform_data *
-+	pcf857x_get_pdata(struct i2c_client *client);
-+extern void pcf857x_put_pdata(struct i2c_client *client);
-+#else
-+#define pcf857x_get_pdata(client) ((client)->dev.platform_data)
-+#define pcf857x_put_pdata(client)
-+#endif
-+
- #endif /* __LINUX_PCF857X_H */
+See above.  If you're doing it right, there's no problem.
+That is, scan the OF tables early.  Just like PNP tables
+get scanned early, for example.
+
+- Dave
