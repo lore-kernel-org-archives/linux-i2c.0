@@ -1,56 +1,225 @@
-From: Anton Vorontsov <avorontsov@ru.mvista.com>
-Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Wed, 22 Oct 2008 05:03:47 +0400
-Message-ID: <20081022010347.GA7377@oksana.dev.rtsoft.ru>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
-	<200810171324.42650.david-b@pacbell.net>
-	<20081017212942.GA1919@oksana.dev.rtsoft.ru>
-	<200810200029.58312.david-b@pacbell.net>
-	<20081020154835.GA3234@oksana.dev.rtsoft.ru>
-	<1224635360.7654.294.camel@pasglop>
-Reply-To: avorontsov@ru.mvista.com
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [V2 PATCH] i2c driver for Maxim max9485 audio clock generator
+	chip
+Date: Tue, 21 Oct 2008 21:22:48 -0400
+Message-ID: <20081022012248.1676.71897.stgit@terra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <1224635360.7654.294.camel@pasglop>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <dbrownell@users.sourceforge.net>, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 22, 2008 at 11:29:20AM +1100, Benjamin Herrenschmidt wrote:
-> 
-> > But it doesn't work as a module (i.e. OF-specific bits should be
-> > always in-kernel).
-> 
-> Why not ?
+Signed-off-by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/misc/Kconfig        |    9 ++++
+ drivers/misc/Makefile       |    1 
+ drivers/misc/max9485.c      |  105 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/max9485.h |   39 ++++++++++++++++
+ 4 files changed, 154 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/max9485.c
+ create mode 100644 include/linux/i2c/max9485.h
 
-If say "X" driver loads prior to bus-notifier module (where we fill
-the platform data), then X.0 device will try to probe w/o platform
-data and will fail. The only way to re-probe things is to rmmod X &&
-insmod of_pdata_filler_X && insmod X. So things depend on the module
-load order.
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index efd3aa0..010baa6 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -391,6 +391,15 @@ config ATMEL_SSC
+ 
+ 	  If unsure, say N.
+ 
++config MAX9485
++	tristate "Maxim MAX9485 Programmable Audio Clock Generator"
++	help
++	  If you say yes here you get support for Maxim MAX9485 
++	  Programmable Audio Clock Generator.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called max9485.
++
+ config INTEL_MENLOW
+ 	tristate "Thermal Management driver for Intel menlow platform"
+ 	depends on ACPI_THERMAL
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index c6c13f6..6133434 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -24,6 +24,7 @@ obj-$(CONFIG_SONY_LAPTOP)	+= sony-laptop.o
+ obj-$(CONFIG_THINKPAD_ACPI)	+= thinkpad_acpi.o
+ obj-$(CONFIG_FUJITSU_LAPTOP)	+= fujitsu-laptop.o
+ obj-$(CONFIG_EEPROM_93CX6)	+= eeprom_93cx6.o
++obj-$(CONFIG_MAX9485)		+= max9485.o
+ obj-$(CONFIG_INTEL_MENLOW)	+= intel_menlow.o
+ obj-$(CONFIG_ENCLOSURE_SERVICES) += enclosure.o
+ obj-$(CONFIG_KGDB_TESTS)	+= kgdbts.o
+diff --git a/drivers/misc/max9485.c b/drivers/misc/max9485.c
+new file mode 100644
+index 0000000..c1316f2
+--- /dev/null
++++ b/drivers/misc/max9485.c
+@@ -0,0 +1,105 @@
++/*
++ * Maxim max9485 Programmable Audio Clock Generator driver
++ *
++ * Written by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *
++ * Copyright (C) 2008 Digispeaker.com
++ * Copyright (C) 2008 Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++/*
++ * This device is usually under the control of ALSA and should not be changed
++ * from userspace. The main purpose of this driver is to locate the i2c address
++ * of where the chip is located.
++ */
++
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/sysfs.h>
++#include <linux/i2c/max9485.h>
++
++int max9485_set(struct i2c_client *max9485, u8 value)
++{
++	return i2c_smbus_write_byte(max9485, value);
++}
++EXPORT_SYMBOL_GPL(max9485_set);
++
++/*
++ * Display the only register
++ */
++static ssize_t max9485_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int rc;
++
++	rc = i2c_smbus_read_byte(client);
++	if (rc < 0)
++		return rc;
++
++	return sprintf(buf, "%s%s%s%s%s%s",
++			(rc & MAX9485_MCLK ? "MCLK+" : ""),
++			(rc & MAX9485_CLK_OUT_2 ? "CLK2+" : ""),
++			(rc & MAX9485_CLK_OUT_2 ? "CLK1+" : ""),
++			(rc & MAX9485_DOUBLED ? "DOUBLED+" : ""),
++			(rc & MAX9485_SCALE_768 ? "768x+" : (rc & MAX9485_SCALE_384 ? "384x+" : "256x+")),
++			((rc & 3) == MAX9485_FREQUENCY_48 ? "48Khz" :
++			((rc & 3) == MAX9485_FREQUENCY_441 ? "44.1Khz" :
++			((rc & 3) == MAX9485_FREQUENCY_32 ? "32Khz" : "12Khz"))));
++}
++static DEVICE_ATTR(max9485, S_IRUGO, max9485_show, NULL);
++
++/*
++ * Called when a max9485 device is matched with this driver
++ */
++static int max9485_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE)) {
++		dev_err(&client->dev, "i2c bus does not support the max9485\n");
++		return -ENODEV;
++	}
++	return sysfs_create_file(&client->dev.kobj, &dev_attr_max9485.attr);
++}
++
++static int max9485_remove(struct i2c_client *client)
++{
++	sysfs_remove_file(&client->dev.kobj, &dev_attr_max9485.attr);
++	return 0;
++}
++
++static const struct i2c_device_id max9485_id[] = {
++	{ "max9485", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, max9485_id);
++
++static struct i2c_driver max9485_driver = {
++	.driver = {
++		.name = "max9485",
++	},
++	.probe = max9485_probe,
++	.remove = max9485_remove,
++	.id_table = max9485_id,
++};
++
++static int __init max9485_init(void)
++{
++	return i2c_add_driver(&max9485_driver);
++}
++
++static void __exit max9485_exit(void)
++{
++	i2c_del_driver(&max9485_driver);
++}
++
++MODULE_AUTHOR("Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org");
++MODULE_DESCRIPTION("Maxim MAX9485 Programmable Audio Clock Generator driver");
++MODULE_LICENSE("GPL");
++
++module_init(max9485_init);
++module_exit(max9485_exit);
+diff --git a/include/linux/i2c/max9485.h b/include/linux/i2c/max9485.h
+new file mode 100644
+index 0000000..81543bb
+--- /dev/null
++++ b/include/linux/i2c/max9485.h
+@@ -0,0 +1,39 @@
++/*
++ * Maxim max9485 Programmable Audio Clock Generator driver
++ *
++ * Written by: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *
++ * Copyright (C) 2008 Digispeaker.com
++ * Copyright (C) 2008 Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef __LINUX_I2C_MAX9485_H
++#define __LINUX_I2C_MAX9485_H
++
++struct i2c_client;
++
++/* Defines for Maxim MAX9485 Audio Clock Generator */
++
++#define MAX9485_MCLK         (1 << 7)
++#define MAX9485_CLK_OUT_2    (1 << 6)
++#define MAX9485_CLK_OUT_1    (1 << 5)
++#define MAX9485_DOUBLED      (1 << 4)
++#define MAX9485_SCALE_256    (0 << 2)
++#define MAX9485_SCALE_384    (1 << 2)
++#define MAX9485_SCALE_768    (2 << 2)
++#define MAX9485_FREQUENCY_12  0
++#define MAX9485_FREQUENCY_32  1
++#define MAX9485_FREQUENCY_441 2
++#define MAX9485_FREQUENCY_48  3
++
++/* Combinations that minimize jitter */
++#define MAX9485_245760 (MAX9485_SCALE_256 | MAX9485_FREQUENCY_48 | MAX9485_DOUBLED)
++#define MAX9485_225792 (MAX9485_SCALE_256 | MAX9485_FREQUENCY_441 | MAX9485_DOUBLED)
++
++int max9485_set(struct i2c_client *max9485, u8 value);
++
++#endif /*  __LINUX_I2C_MAX9485_H */
 
-The obvious solution is to link the OF stuff into the module, but
-this also won't work, since modules have only one entry (and exit)
-point. So there is no way* to hook our OF helpers into the module.
 
-* Well, there is one solution to this problem. We can implement
-arch-specific init_module and cleanup_module entry/exit points,
-where we can load/unload the OF hooks. This is quite easy, but
-may look ugly. I could show the drafts.
-
--- 
-Anton Vorontsov
-email: cbouatmailru@gmail.com
-irc://irc.freenode.net/bd2
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
