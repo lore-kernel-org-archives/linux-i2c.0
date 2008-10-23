@@ -1,42 +1,51 @@
-From: "Magnus Damm" <magnus.damm@gmail.com>
-Subject: Re: [i2c] [PATCH v7] Add ov772x driver
-Date: Thu, 23 Oct 2008 12:26:13 +0900
-Message-ID: <aec7e5c30810222026g4622aafcrf70cde31bcb0c602@mail.gmail.com>
-References: <uhc77mucm.wl%morimoto.kuninori@renesas.com>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,
+	remove} calls
+Date: Thu, 23 Oct 2008 15:45:45 +1100
+Message-ID: <1224737145.7654.387.camel@pasglop>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
+	<20081022104606.GA510@oksana.dev.rtsoft.ru>
+	<20081022183218.GA19025@oksana.dev.rtsoft.ru>
+	<200810221404.52798.david-b@pacbell.net>
+Reply-To: benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <video4linux-list-bounces@redhat.com>
-In-Reply-To: <uhc77mucm.wl%morimoto.kuninori@renesas.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
-	<mailto:video4linux-list-request@redhat.com?subject=unsubscribe>
-List-Archive: <https://www.redhat.com/mailman/private/video4linux-list>
-List-Post: <mailto:video4linux-list@redhat.com>
-List-Help: <mailto:video4linux-list-request@redhat.com?subject=help>
-List-Subscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
-	<mailto:video4linux-list-request@redhat.com?subject=subscribe>
-Sender: video4linux-list-bounces@redhat.com
-Errors-To: video4linux-list-bounces@redhat.com
-To: Kuninori Morimoto <morimoto.kuninori@renesas.com>
-Cc: khali@linux-fr.org, V4L <video4linux-list@redhat.com>, i2c@lm-sensors.org, mchehab@infradead.org
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <200810221404.52798.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org, David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 20, 2008 at 7:09 PM, Kuninori Morimoto
-<morimoto.kuninori@renesas.com> wrote:
-> This patch adds ov772x driver that use soc_camera framework.
-> It was tested on SH Migo-r board.
->
-> Signed-off-by: Kuninori Morimoto <morimoto.kuninori@renesas.com>
-> ---
-> PATCH v6 -> v7
+On Wed, 2008-10-22 at 14:04 -0700, David Brownell wrote:
+> > So if we register the board infos after 
+> > the controller registered, then nobody will probe the board infos.
+> 
+> See above.  If you're doing it right, there's no problem.
+> That is, scan the OF tables early.  Just like PNP tables
+> get scanned early, for example.
 
-This works just fine on my Migo-R board as well. Much better than my
-old soc_camera_platform hack.
+It's still pretty yucky in that case to scan the device-tree to convert
+it into some kind of fugly board info ... I'd rather have the end
+drivers that actually use those GPIOs scan the device-tree directly.
 
-Acked-by: Magnus Damm <damm@igel.co.jp>
+But then, I'm not a believer in generic drivers for things like GPIOs,
+i2c devices, etc.. :-)
 
---
-video4linux-list mailing list
-Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
-https://www.redhat.com/mailman/listinfo/video4linux-list
+Ben.
+
+
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
