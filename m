@@ -1,58 +1,73 @@
 From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Wed, 22 Oct 2008 22:19:03 -0700
-Message-ID: <200810222219.04768.david-b@pacbell.net>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <200810221452.46786.david-b@pacbell.net> <20081022222940.GA14636@oksana.dev.rtsoft.ru>
+Date: Wed, 22 Oct 2008 23:06:01 -0700
+Message-ID: <200810222306.01661.david-b@pacbell.net>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <200810221404.52798.david-b@pacbell.net> <1224737145.7654.387.camel@pasglop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754576AbYJWFTU@vger.kernel.org>
-In-Reply-To: <20081022222940.GA14636@oksana.dev.rtsoft.ru>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754672AbYJWGGW@vger.kernel.org>
+In-Reply-To: <1224737145.7654.387.camel@pasglop>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: avorontsov@ru.mvista.com
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
+To: benh@kernel.crashing.org
+Cc: avorontsov@ru.mvista.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 22 October 2008, Anton Vorontsov wrote:
-> >=20
-> > So have it live in the __init text section...
->=20
-> Won't work, unfortunately. I2C devices are created by the
-> i2c controllers, via drivers/of_i2c.c =A0of_register_i2c_devices().
+On Wednesday 22 October 2008, Benjamin Herrenschmidt wrote:
+> On Wed, 2008-10-22 at 14:04 -0700, David Brownell wrote:
+> > > So if we register the board infos after 
+> > > the controller registered, then nobody will probe the board infos.
+> > 
+> > See above.  If you're doing it right, there's no problem.
+> > That is, scan the OF tables early.  Just like PNP tables
+> > get scanned early, for example.
+> 
+> It's still pretty yucky in that case to scan the device-tree to convert
+> it into some kind of fugly board info ... I'd rather have the end
+> drivers that actually use those GPIOs scan the device-tree directly.
 
-And I'm pointing out a way to have the normal I2C core code
-flow do that creation.  OF shouldn't need to be so much of a
-special case.
+Keep in mind that these problems are not specific to GPIOs.
+
+And, very important!!, most of the drivers run without OF...
+
+Pretty much any little device that needs board-specific
+customization has the same class of problems:  drivers
+will need a variety of parameters that may are often not
+sharable with other devices, with idiosyncratic usage.
+And they hook up to other drivers in arbitrary ways.
+
+When PCs have such issues, ACPI hides them from Linux.
+
+If those parameters -- potentially including callbacks
+that escape to FORTH -- are stored in the OF device tree,
+so be it.  But "fugly" sounds like part of that problem
+domain, so it's no surprise that it maps onto the solution
+space too...
 
 
-> There is a good reason to do so, the code needs to know
-> controller's OF node to walk down and register the child nodes
-> (devices). See drivers/i2c/busses/i2c-mpc.c -- it calls
-> of_register_i2c_devices() at the end of the probe().
+Specifically with respect to GPIOs ... what do you mean
+by "end driver" though?  I previously pointed at one
+example (Davinci EVM) where one bank of GPIOs is used
+by about six different drivers ... none of which have
+any reason to know they're using a pcf8574a vs any other
+kind of GPIO.  Is the "end driver" the IDE/CF driver?
+The USB OTG driver?  The driver sitting the next layer
+above of one of those?  *Some* of the drivers need to
+touch the GPIOs.  Others don't.
 
-I don't get it.  (But then, so much of the OF support seems
-needlessly convoluted to me ... on top of seeming to be
-insufficient for configuring board-specific details.)
+ 
+> But then, I'm not a believer in generic drivers for things
+> like GPIOs, i2c devices, etc.. :-)
 
-There's an OF device tree, distinct from the Linux driver
-model tree.  Why should there be any obstacle to accessing
-records from that tree before the relevant driver model nodes
-have been created?  Remember that the various board_info
-structs get registered before the driver model nodes for
-which they are templates.  Just translate the OF tree data
-to those templates(*), then register them.
+I kind of like being able to re-use code myself.  ;)
 
-I understand that it's currently structured differetnly
-than that ... consulting the OF tree "late" not early.
-But that's still newish, and from what I've heard so far
-it doesn't seem like the best structure either... nothing
-seems to plug in smoothly.
+It's a win to have *one* pcf8574/5 driver that can be
+reused -- with a bit of care configuring it into the
+system -- instead of having every board contribute yet
+another board-specific hack in drivers/i2c/chips ...
+
+And I think such stuff can be done even with OF.
 
 - Dave
-
-(*) The role of the board_info structs is very similar
-    to the role of OF device attributes.  As is the role
-    of the platform_data ... except that's more specific
-    to the chip involved (and its driver), and expects
-    any callbacks to be in C code not FORTH.
