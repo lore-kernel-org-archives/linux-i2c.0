@@ -1,73 +1,36 @@
 From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Wed, 22 Oct 2008 23:06:01 -0700
-Message-ID: <200810222306.01661.david-b@pacbell.net>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <200810221404.52798.david-b@pacbell.net> <1224737145.7654.387.camel@pasglop>
+Date: Wed, 22 Oct 2008 23:15:26 -0700
+Message-ID: <200810222315.26576.david-b@pacbell.net>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022104606.GA510@oksana.dev.rtsoft.ru> <20081022183218.GA19025@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754672AbYJWGGW@vger.kernel.org>
-In-Reply-To: <1224737145.7654.387.camel@pasglop>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754755AbYJWGPk@vger.kernel.org>
+In-Reply-To: <20081022183218.GA19025@oksana.dev.rtsoft.ru>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: benh@kernel.crashing.org
-Cc: avorontsov@ru.mvista.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
+To: avorontsov@ru.mvista.com
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, Jean Delvare <khali@linux-fr.org>, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 22 October 2008, Benjamin Herrenschmidt wrote:
-> On Wed, 2008-10-22 at 14:04 -0700, David Brownell wrote:
-> > > So if we register the board infos after 
-> > > the controller registered, then nobody will probe the board infos.
-> > 
-> > See above.  If you're doing it right, there's no problem.
-> > That is, scan the OF tables early.  Just like PNP tables
-> > get scanned early, for example.
-> 
-> It's still pretty yucky in that case to scan the device-tree to convert
-> it into some kind of fugly board info ... I'd rather have the end
-> drivers that actually use those GPIOs scan the device-tree directly.
+On Wednesday 22 October 2008, Anton Vorontsov wrote:
+> --- a/drivers/gpio/pcf857x.c
+> +++ b/drivers/gpio/pcf857x.c
+> @@ -187,7 +187,7 @@ static int pcf857x_probe(struct i2c_client *clien=
+t,
+> =A0=A0=A0=A0=A0=A0=A0=A0struct pcf857x=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0*gpio;
+> =A0=A0=A0=A0=A0=A0=A0=A0int=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0status;
+> =A0
+> -=A0=A0=A0=A0=A0=A0=A0pdata =3D client->dev.platform_data;
+> +=A0=A0=A0=A0=A0=A0=A0pdata =3D pcf857x_get_pdata(client);
+> =A0=A0=A0=A0=A0=A0=A0=A0if (!pdata)
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -ENODEV;
+> =A0
 
-Keep in mind that these problems are not specific to GPIOs.
-
-And, very important!!, most of the drivers run without OF...
-
-Pretty much any little device that needs board-specific
-customization has the same class of problems:  drivers
-will need a variety of parameters that may are often not
-sharable with other devices, with idiosyncratic usage.
-And they hook up to other drivers in arbitrary ways.
-
-When PCs have such issues, ACPI hides them from Linux.
-
-If those parameters -- potentially including callbacks
-that escape to FORTH -- are stored in the OF device tree,
-so be it.  But "fugly" sounds like part of that problem
-domain, so it's no surprise that it maps onto the solution
-space too...
-
-
-Specifically with respect to GPIOs ... what do you mean
-by "end driver" though?  I previously pointed at one
-example (Davinci EVM) where one bank of GPIOs is used
-by about six different drivers ... none of which have
-any reason to know they're using a pcf8574a vs any other
-kind of GPIO.  Is the "end driver" the IDE/CF driver?
-The USB OTG driver?  The driver sitting the next layer
-above of one of those?  *Some* of the drivers need to
-touch the GPIOs.  Others don't.
-
- 
-> But then, I'm not a believer in generic drivers for things
-> like GPIOs, i2c devices, etc.. :-)
-
-I kind of like being able to re-use code myself.  ;)
-
-It's a win to have *one* pcf8574/5 driver that can be
-reused -- with a bit of care configuring it into the
-system -- instead of having every board contribute yet
-another board-specific hack in drivers/i2c/chips ...
-
-And I think such stuff can be done even with OF.
-
-- Dave
+I suppose that can work.  Regardless, some OF-specific code will
+need to map device tree state into a generic format that's fully
+decoupled from OF.  (And there's something to be said to having
+that mapping sit in the same directory as the driver needing it.)
