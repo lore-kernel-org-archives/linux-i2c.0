@@ -1,55 +1,42 @@
-From: "Damon J Sears" <Clements_Inez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: **SPAM**  Healthcare Industry List
-Date: Wed, 22 Oct 2008 23:47:18 +0000 (UTC)
-Message-ID: <10827.4293401793$1224719305@news.gmane.org>
+From: "Magnus Damm" <magnus.damm@gmail.com>
+Subject: Re: [i2c] [PATCH v7] Add ov772x driver
+Date: Thu, 23 Oct 2008 12:26:13 +0900
+Message-ID: <aec7e5c30810222026g4622aafcrf70cde31bcb0c602@mail.gmail.com>
+References: <uhc77mucm.wl%morimoto.kuninori@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Date: Thu, 23 Oct 2008 23:13:33 -0400
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: carson-7EQnofHUTaynZeqm9WxtItBPR1lH4CV8@public.gmane.org
-Cc: bmarotta-TB3ml1XHoZ4@public.gmane.org, sthornton-nVp0dtKpvPgpAS55Wn97og@public.gmane.org, umbsustainability-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, design-g50OjCAGnT8y35t6iAlSjmD2FQJk+8+b@public.gmane.org, joseph.kasule-9HrzDfOYYl9ysi6YZRPHpg@public.gmane.org, forbes_finley-BGzk/sLlT9hBDgjK7y7TUQ@public.gmane.org
+Return-path: <video4linux-list-bounces@redhat.com>
+In-Reply-To: <uhc77mucm.wl%morimoto.kuninori@renesas.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
+	<mailto:video4linux-list-request@redhat.com?subject=unsubscribe>
+List-Archive: <https://www.redhat.com/mailman/private/video4linux-list>
+List-Post: <mailto:video4linux-list@redhat.com>
+List-Help: <mailto:video4linux-list-request@redhat.com?subject=help>
+List-Subscribe: <https://www.redhat.com/mailman/listinfo/video4linux-list>,
+	<mailto:video4linux-list-request@redhat.com?subject=subscribe>
+Sender: video4linux-list-bounces@redhat.com
+Errors-To: video4linux-list-bounces@redhat.com
+To: Kuninori Morimoto <morimoto.kuninori@renesas.com>
+Cc: khali@linux-fr.org, V4L <video4linux-list@redhat.com>, i2c@lm-sensors.org, mchehab@infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Oct 20, 2008 at 7:09 PM, Kuninori Morimoto
+<morimoto.kuninori@renesas.com> wrote:
+> This patch adds ov772x driver that use soc_camera framework.
+> It was tested on SH Migo-r board.
+>
+> Signed-off-by: Kuninori Morimoto <morimoto.kuninori@renesas.com>
+> ---
+> PATCH v6 -> v7
 
+This works just fine on my Migo-R board as well. Much better than my
+old soc_camera_platform hack.
 
+Acked-by: Magnus Damm <damm@igel.co.jp>
 
-Fully Licensed Medical Doctors in America 
-
-Most medical specialties covered
-
-many fields which can easily be sorted in excel
-
-This week's special price =  $395
-
-
-()()() You will also get these at no additional charge: ()()()
-
->> Hospitals
-
->> Nursing Homes
-
->> Visiting Nurses & RN's
-
->> Chiropractors
-
-please send replies to - : RichieThompson-RtnZensX+SnvNhTXdWHAddBPR1lH4CV8@public.gmane.org 
-  
-good until Oct 24 =======================================   to terminate please send a blank message to statusdel-RtnZensX+SnvNhTXdWHAddBPR1lH4CV8@public.gmane.org
-
-
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+--
+video4linux-list mailing list
+Unsubscribe mailto:video4linux-list-request@redhat.com?subject=unsubscribe
+https://www.redhat.com/mailman/listinfo/video4linux-list
