@@ -1,14 +1,11 @@
-From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v7] Add ov772x driver
-Date: Fri, 24 Oct 2008 20:40:47 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0810242035130.7996@axis700.grange>
-References: <uhc77mucm.wl%morimoto.kuninori@renesas.com>
-	<aec7e5c30810222026g4622aafcrf70cde31bcb0c602@mail.gmail.com>
+From: Felix Radensky <felix-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support
+Date: Sun, 26 Oct 2008 23:53:55 +0200
+Message-ID: <4904E6F3.50609@embedded-sol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <aec7e5c30810222026g4622aafcrf70cde31bcb0c602-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -18,48 +15,86 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: V4L <video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: giometti-k2GhghHVRtY@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Magnus,
+Hi, Rodolfo
 
-thanks for the Acked-by, but, unfortunately, as the contents of the driver 
-has changed in -v8 (0x38 instead of 0x40), I cannot use this for the new 
-version. If you want, you can re-test and re-send for -v8. You might also 
-consider using Tested-by instead-of Acked-by (see 
-Documentation/SubmittingPatches) - decide for yourself whichever you 
-prefer. I'll push it now, but if you're fast enough, maybe Mauro will pick 
-up your *-by on the way to Linus.
+I've tried your patches with linux-2.6.27 kernel running
+on custom board with 460EX PowerPC. This board has
+two i2c buses and pca9548 switch on bus 0.
 
-Thanks
-Guennadi
+The 954x driver (compiled into the kernel) creates 8
+virtual buses just fine.  However devices behind the
+mux are not detected if I use the "recommended" way
+of doing things.
 
-On Thu, 23 Oct 2008, Magnus Damm wrote:
+I have RTC (ds1338) and temp sensor (ds1625) on mux
+channel 4 (i.e virtual bus 6). What I did initially to add
+the following code to board init code:
 
-> On Mon, Oct 20, 2008 at 7:09 PM, Kuninori Morimoto
-> <morimoto.kuninori-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org> wrote:
-> > This patch adds ov772x driver that use soc_camera framework.
-> > It was tested on SH Migo-r board.
-> >
-> > Signed-off-by: Kuninori Morimoto <morimoto.kuninori-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-> > ---
-> > PATCH v6 -> v7
-> 
-> This works just fine on my Migo-R board as well. Much better than my
-> old soc_camera_platform hack.
-> 
-> Acked-by: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
-> 
-> --
-> video4linux-list mailing list
-> Unsubscribe mailto:video4linux-list-request-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org?subject=unsubscribe
-> https://www.redhat.com/mailman/listinfo/video4linux-list
-> 
+struct board_i2c_info {
+    int bus;
+    int addr;
+    char *id;
+};
 
----
-Guennadi Liakhovetski, Ph.D.
-Freelance Open-Source Software Developer
+static struct board_i2c_info board_i2c_devices[] = {
+    /* Bus  Addr       ID  */
+    {6,     0x68,    "ds1338"},
+    {6,     0x49,    "ds1625"},
+};
+
+static int board_i2c_init(void)
+{
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(board_i2c_devices); i++) {
+        struct i2c_board_info info = {};
+
+        info.irq = -1;
+        info.addr = board_i2c_devices[i].addr;
+        if (strlcpy(info.type, board_i2c_devices[i].id,
+                I2C_NAME_SIZE) >= I2C_NAME_SIZE)
+            return -ENOMEM;
+
+        i2c_register_board_info(board_i2c_devices[i].bus, &info, 1);
+    }
+}
+arch_initcall(board_i2c_init);
+
+This code is invoked by kernel before i2c bus and mux detection,
+but, as I said, RTC and sensor are not identified.
+
+If I invoke the following code  after creation of virtual
+adapters, things start working, but I don't like this solution
+
+static int board_i2c_init(void)
+{
+    int i;
+   
+    for (i = 0; i < ARRAY_SIZE(board_i2c_devices); i++) {
+        struct i2c_board_info info = {};
+        struct i2c_adapter *adap;
+ 
+       info.irq = -1;
+        info.addr = board_i2c_devices[i].addr;
+        if (strlcpy(info.type, board_i2c_devices[i].id,
+                I2C_NAME_SIZE) >= I2C_NAME_SIZE)
+            return -ENOMEM;
+
+        adap = i2c_get_adapter(board_i2c_devices[i].bus);
+        i2c_new_device(adap, &info);
+    }
+}
+
+My question is: how can I register board i2c devices behind
+the mux in board init code, and make them properly identified
+when relevant drivers are loaded.
+
+Thanks a lot.
+
+Felix.
 
 _______________________________________________
 i2c mailing list
