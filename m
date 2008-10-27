@@ -1,15 +1,13 @@
-From: "Hu Mingkai-B21284" <B21284-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: How to pass board specific info to I2C driver module
-Date: Mon, 27 Oct 2008 16:49:15 +0800
-Message-ID: <CF6163088BDE8747873ADAA4AF922BF258D76D@zmy16exm21.fsl.freescale.net>
-References: <CF6163088BDE8747873ADAA4AF922BF258D734@zmy16exm21.fsl.freescale.net>
-	<20081027092125.0192b81c@hyperion.delvare>
+From: Felix Radensky <felix-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support
+Date: Mon, 27 Oct 2008 13:31:11 +0200
+Message-ID: <4905A67F.7060503@embedded-sol.com>
+References: <4904E6F3.50609@embedded-sol.com> <20081027082025.GC11339@tekkaman>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20081027092125.0192b81c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20081027082025.GC11339@tekkaman>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -19,45 +17,83 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I feel so sorry for the inconvenience this mail brought to you all.
-Sorry again.
+Hi, Rodolfo
 
-Br,
-Vincent
+Rodolfo Giometti wrote:
+> On Sun, Oct 26, 2008 at 11:53:55PM +0200, Felix Radensky wrote:
+>   
+>> Hi, Rodolfo
+>>
+>> I've tried your patches with linux-2.6.27 kernel running
+>> on custom board with 460EX PowerPC. This board has
+>> two i2c buses and pca9548 switch on bus 0.
+>>     
+>
+> Please, consider thay my patch has been *not* accepted into main line
+> due a mutex problem... :'(
+>
+>   
+I didn't find any discussion on the mailing list. What mutex problem 
+exactly ?
 
------Original Message-----
-From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org] 
-Sent: Monday, October 27, 2008 4:21 PM
-To: Hu Mingkai-B21284
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Subject: Re: [i2c] How to pass board specific info to I2C driver module
+I find your patches very useful, and the concept of virtual buses very 
+elegant.
+Hopefully you can rework your patches and get them into mainline. I'm 
+willing
+to test new patch versions.
+>> My question is: how can I register board i2c devices behind
+>> the mux in board init code, and make them properly identified
+>> when relevant drivers are loaded.
+>>     
+>
+> I have just defined the i2c devices behind the mux as connected to the
+> new virtual adapters:
+>
+> static int wr1100_adap_ids[] = {
+>         2, 3,
+> };
+>
+> static struct pca954x_platform_data wr1100_i2cmux_adap_ids = {
+>         .adap_ids       = wr1100_adap_ids,
+>         .len            = ARRAY_SIZE(wr1100_adap_ids),
+> };
+>
+> static struct i2c_board_info __initdata wr1100_i2c_devices[] = {
+>         {
+>                 I2C_BOARD_INFO("pca9540", 0x70),
+>                 .platform_data = &wr1100_i2cmux_adap_ids,
+>         },
+> };
+>
+> static struct i2c_board_info __initdata wr1100_i2c_mux_devices[] = {
+>         {
+>                 I2C_BOARD_INFO("bq27200", 0x55),
+>         },
+> };
+>
+> Then into machine startup code:
+>
+>         i2c_register_board_info(0, wr1100_i2c_devices,
+>                                         ARRAY_SIZE(wr1100_i2c_devices));
+>         i2c_register_board_info(2, wr1100_i2c_mux_devices,
+>                                         ARRAY_SIZE(wr1100_i2c_mux_devices));
+>         i2c_register_board_info(3, wr1100_i2c_mux_devices,
+>                                         ARRAY_SIZE(wr1100_i2c_mux_devices));
+>
+>   
+That works fine in my setup too. Thanks a lot for your help !!!
+> Ciao,
+>
+> Rodolfo
+>
+>   
+Felix.
 
-Hi Vincent,
-
-On Mon, 27 Oct 2008 10:00:44 +0800, Hu Mingkai-B21284 wrote:
-> I'm working on an ADC chip (MCP3021) driver under Linux 2.6.27.
-> We used these two chips to monitor the CPU core current and platform 
-> current individually, which is converted to voltage as the ADC chip's 
-> input.
-> As you know, the driver shouldn't contain the board specific info, 
-> such as, the chip's work voltage, the ratio of voltage and current.
-> So how to pass these info to the driver module?
->  
-> Here is the way I can think of:
-> 1. to use dts file to pass the info to the module.
->     This way make the driver is bound to OF implement.
->  
-> 2. to use the module parameter.
->     For different chips, the work voltage and the ratio may be 
-> different,
->     but the chip uses the same driver.
->  
-> Any other idea? Please give me some advice. Thanks a lot.
-
-Once again this question has nothing to do with I2C, so this is the
-wrong mailing list. So, once again, please ask on the lm-sensors list
-instead.
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
