@@ -1,7 +1,7 @@
 From: Felix Radensky <felix-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
 Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support
-Date: Mon, 27 Oct 2008 13:31:11 +0200
-Message-ID: <4905A67F.7060503@embedded-sol.com>
+Date: Mon, 27 Oct 2008 13:31:25 +0200
+Message-ID: <4905A68D.7040708@embedded-sol.com>
 References: <4904E6F3.50609@embedded-sol.com> <20081027082025.GC11339@tekkaman>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
