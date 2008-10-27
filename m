@@ -1,13 +1,11 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support
-Date: Mon, 27 Oct 2008 12:52:10 +0100
-Message-ID: <20081027115210.GL11339@tekkaman>
-References: <4904E6F3.50609@embedded-sol.com> <20081027082025.GC11339@tekkaman>
-	<4905A68D.7040708@embedded-sol.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Mailing list is moving
+Date: Mon, 27 Oct 2008 13:39:58 +0100
+Message-ID: <20081027133958.0792c143@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3968296016561810243=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4905A68D.7040708-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -17,75 +15,52 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Felix Radensky <felix-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
-Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Cc: Axel Thimm <Axel.Thimm-cy1Wll9GaHOsTnJN9+BGXg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi folks,
 
---===============3968296016561810243==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zqjkMoGlbUJ91oFe"
-Content-Disposition: inline
+The i2c mailing list will be moving to another host this week. There
+are two reasons that motivated this decision:
 
+* The address "i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" is error-prone. It makes developers
+  believe that i2c and lm-sensors are still strongly related, while
+  this is no longer the case. There are many subsystems using i2c (rtc,
+  video, media...) and hwmon is only one of these. We keep receiving
+  posts on the i2c list that should go to the lm-sensors list and posts
+  on the lm-sensors list which should go to the i2c list due to this
+  confusion. By moving the i2c list away from lm-sensors.org, I hope to
+  put an end to this confusion.
 
---zqjkMoGlbUJ91oFe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* There have been many technical problems with the i2c mailing list
+  over the past few months: recipients stripped off the Cc list, names
+  split in the To or Cc list, bad interaction with other mailing lists,
+  temporary unavailability... By moving the list to another host, I
+  hope that all these problems will be solved as well.
 
-On Mon, Oct 27, 2008 at 01:31:25PM +0200, Felix Radensky wrote:
->>  =20
-> I didn't find any discussion on the mailing list. What mutex problem =20
-> exactly ?
+The new mailing list will be named linux-i2c (to make it clearer what
+exactly the list is about) and will be hosted on vger.kernel.org (which
+already hosts the linux-pci and linux-usb mailing lists amongst many
+others.) I invite all subscribers to the i2c list to subscribe to the
+new list now. For this, all you have to do is send a mail to
+majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org with the following line in the mail body:
 
-See this thread:
+subscribe linux-i2c
 
-   http://www.mail-archive.com/i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org/msg01535.html
+And then follow the instructions.
 
-> I find your patches very useful, and the concept of virtual buses very =
-=20
-> elegant.
-> Hopefully you can rework your patches and get them into mainline. I'm =20
-> willing
-> to test new patch versions.
+In 48 hours (that is, on October, Wednesday 29th, at 13:00 UTC), the old
+i2c mailing list will be closed. All attempts to post to it will
+redirect the poster to the new linux-i2c mailing list. I'll see what
+facility mailman implements to make this as user-friendly and automatic
+as possible.
 
-No time to dedicate to... :'( maybe you can try to solve the issue! :P
-
-Ciao,
-
-Rodolfo
-
---=20
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-
---zqjkMoGlbUJ91oFe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFJBatqQaTCYNJaVjMRAo/kAJ4oQdgxUlyl2eeraD7mkNEEDW+VaACfU6PB
-wmWvI7C3InxdjJRwXeZztJE=
-=PcNq
------END PGP SIGNATURE-----
-
---zqjkMoGlbUJ91oFe--
-
-
---===============3968296016561810243==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks,
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============3968296016561810243==--
