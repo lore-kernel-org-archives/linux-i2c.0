@@ -1,12 +1,13 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: virtual i2c adapter support
-Date: Mon, 27 Oct 2008 09:20:25 +0100
-Message-ID: <20081027082025.GC11339@tekkaman>
-References: <4904E6F3.50609@embedded-sol.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: How to pass board specific info to I2C driver module
+Date: Mon, 27 Oct 2008 09:21:25 +0100
+Message-ID: <20081027092125.0192b81c@hyperion.delvare>
+References: <CF6163088BDE8747873ADAA4AF922BF258D734@zmy16exm21.fsl.freescale.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3081598306543837060=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <4904E6F3.50609-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
+In-Reply-To: <CF6163088BDE8747873ADAA4AF922BF258D734-6lxYB4K41cniD3AT8lUqWFjVikpgYyvb5NbjCUgZEJk@public.gmane.org>
 List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
@@ -16,105 +17,40 @@ List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
 	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
 Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Felix Radensky <felix-L1vi/lXTdtvUXIAPrk8Z/A@public.gmane.org>
+To: Hu Mingkai-B21284 <B21284-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Cc: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Vincent,
 
---===============3081598306543837060==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
-Content-Disposition: inline
+On Mon, 27 Oct 2008 10:00:44 +0800, Hu Mingkai-B21284 wrote:
+> I'm working on an ADC chip (MCP3021) driver under Linux 2.6.27.
+> We used these two chips to monitor the CPU core current and 
+> platform current individually, which is converted to voltage as 
+> the ADC chip's input.
+> As you know, the driver shouldn't contain the board specific info,
+> such as, the chip's work voltage, the ratio of voltage and current.
+> So how to pass these info to the driver module?
+>  
+> Here is the way I can think of:
+> 1. to use dts file to pass the info to the module.
+>     This way make the driver is bound to OF implement.
+>  
+> 2. to use the module parameter.
+>     For different chips, the work voltage and the ratio may be
+> different,
+>     but the chip uses the same driver.
+>  
+> Any other idea? Please give me some advice. Thanks a lot.
 
+Once again this question has nothing to do with I2C, so this is the
+wrong mailing list. So, once again, please ask on the lm-sensors list
+instead.
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Oct 26, 2008 at 11:53:55PM +0200, Felix Radensky wrote:
-> Hi, Rodolfo
->
-> I've tried your patches with linux-2.6.27 kernel running
-> on custom board with 460EX PowerPC. This board has
-> two i2c buses and pca9548 switch on bus 0.
-
-Please, consider thay my patch has been *not* accepted into main line
-due a mutex problem... :'(
-
-> My question is: how can I register board i2c devices behind
-> the mux in board init code, and make them properly identified
-> when relevant drivers are loaded.
-
-I have just defined the i2c devices behind the mux as connected to the
-new virtual adapters:
-
-static int wr1100_adap_ids[] =3D {
-        2, 3,
-};
-
-static struct pca954x_platform_data wr1100_i2cmux_adap_ids =3D {
-        .adap_ids       =3D wr1100_adap_ids,
-        .len            =3D ARRAY_SIZE(wr1100_adap_ids),
-};
-
-static struct i2c_board_info __initdata wr1100_i2c_devices[] =3D {
-        {
-                I2C_BOARD_INFO("pca9540", 0x70),
-                .platform_data =3D &wr1100_i2cmux_adap_ids,
-        },
-};
-
-static struct i2c_board_info __initdata wr1100_i2c_mux_devices[] =3D {
-        {
-                I2C_BOARD_INFO("bq27200", 0x55),
-        },
-};
-
-Then into machine startup code:
-
-        i2c_register_board_info(0, wr1100_i2c_devices,
-                                        ARRAY_SIZE(wr1100_i2c_devices));
-        i2c_register_board_info(2, wr1100_i2c_mux_devices,
-                                        ARRAY_SIZE(wr1100_i2c_mux_devices));
-        i2c_register_board_info(3, wr1100_i2c_mux_devices,
-                                        ARRAY_SIZE(wr1100_i2c_mux_devices));
-
-Ciao,
-
-Rodolfo
-
---=20
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFJBXnJQaTCYNJaVjMRAkKqAJ9UF7PcH22nmqVJe4Ff+ANGyjTAQgCfT3XC
-n4r6vNe96CKa5eXKYTtJ4yk=
-=UKYe
------END PGP SIGNATURE-----
-
---8GpibOaaTibBMecb--
-
-
---===============3081598306543837060==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Jean Delvare
 
 _______________________________________________
 i2c mailing list
 i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 http://lists.lm-sensors.org/mailman/listinfo/i2c
---===============3081598306543837060==--
