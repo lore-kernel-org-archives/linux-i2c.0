@@ -1,139 +1,35 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: The i2c mailing list is moving
-Date: Mon, 27 Oct 2008 18:48:22 +0100
-Message-ID: <20081027184822.23a4577a@hyperion.delvare>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [rtc-linux] [i2c] [PATCH] rtc-ds1307 : SMBus compatibility
+Date: Mon, 27 Oct 2008 14:29:24 -0700
+Message-ID: <200810271429.25490.david-b@pacbell.net>
+References: <C1C62166118DFA4A8BBA01A2411F0D170E9BE59C2F@PRI-MBX-101.dom1.vinci-energies.net> <C1C62166118DFA4A8BBA01A2411F0D170E9BEC880E@PRI-MBX-101.dom1.vinci-energies.net> <20081021202938.2eca3ac1@i1501.lan.towertech.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754480AbYJ0VkG@vger.kernel.org>
+In-Reply-To: <20081021202938.2eca3ac1@i1501.lan.towertech.it>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Cc: rtc-linux@googlegroups.com, sbarre@sdelcc.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "i2c@lm-sensors.org" <i2c@lm-sensors.org>, Jean Delvare <khali@linux-fr.org>, Rodolfo Giometti <giometti@enneenne.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Replace all references to the old i2c mailing list.
+On Tuesday 21 October 2008, Alessandro Zummo wrote:
+> > I've tested it with ds1307 chip.
+> > Is somebody can test it on ds1337/ds1338 ?
+>=20
+> =A0Given the amount of changes I need some Tested-bys
+> =A0for the patch to go thru.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- Documentation/i2c/busses/i2c-sis96x |    2 +-
- MAINTAINERS                         |   20 ++++++++++----------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+I tested these changes on my trusty ds1307 system using i2c-gpio
+(vs a "real SMBus controller") and it works just fine.
 
---- linux-2.6.28-rc2.orig/Documentation/i2c/busses/i2c-sis96x	2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.28-rc2/Documentation/i2c/busses/i2c-sis96x	2008-10-27 18:42:21.000000000 +0100
-@@ -42,7 +42,7 @@ I suspect that this driver could be made
- chipsets as well: 635, and 635T. If anyone owns a board with those chips
- AND is willing to risk crashing & burning an otherwise well-behaved kernel
- in the name of progress... please contact me at <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org> or
--via the project's mailing list: <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>.  Please send bug
-+via the linux-i2c mailing list: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>.  Please send bug
- reports and/or success stories as well.
- 
- 
---- linux-2.6.28-rc2.orig/MAINTAINERS	2008-10-24 09:27:31.000000000 +0200
-+++ linux-2.6.28-rc2/MAINTAINERS	2008-10-27 18:41:53.000000000 +0100
-@@ -347,7 +347,7 @@ S:	Maintained
- ALI1563 I2C DRIVER
- P:	Rudolf Marek
- M:	r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- ALPHA PORT
-@@ -1749,7 +1749,7 @@ FREESCALE I2C CPM DRIVER
- P:	Jochen Friedrich
- M:	jochen-NIgtFMG+Po8@public.gmane.org
- L:	linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- FREESCALE SOC FS_ENET DRIVER
-@@ -2022,7 +2022,7 @@ S:	Maintained
- I2C/SMBUS STUB DRIVER
- P:	Mark M. Hoffman
- M:	mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- I2C SUBSYSTEM
-@@ -2030,14 +2030,14 @@ P:	Jean Delvare (PC drivers, core)
- M:	khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
- P:	Ben Dooks (embedded platforms)
- M:	ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- T:	quilt http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
- S:	Maintained
- 
- I2C-TINY-USB DRIVER
- P:	Till Harbaum
- M:	till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- T:	http://www.harbaum.org/till/i2c_tiny_usb
- S:	Maintained
- 
-@@ -3143,7 +3143,7 @@ S:	Maintained
- OPENCORES I2C BUS DRIVER
- P:	Peter Korsgaard
- M:	jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- OPROFILE
-@@ -3190,7 +3190,7 @@ S:	Maintained
- PA SEMI SMBUS DRIVER
- P:	Olof Johansson
- M:	olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- PANASONIC LAPTOP ACPI EXTRAS DRIVER
-@@ -3335,7 +3335,7 @@ S:	Maintained
- PNXxxxx I2C DRIVER
- P:	Vitaly Wool
- M:	vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- PPP PROTOCOL DRIVERS AND COMPRESSORS
-@@ -3799,7 +3799,7 @@ S:	Maintained
- SIS 96X I2C/SMBUS DRIVER
- P:	Mark M. Hoffman
- M:	mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- SIS FRAMEBUFFER DRIVER
-@@ -4546,7 +4546,7 @@ S:	Maintained
- VIAPRO SMBUS DRIVER
- P:	Jean Delvare
- M:	khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
--L:	i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-+L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- 
- VIA UNICHROME(PRO)/CHROME9 FRAMEBUFFER DRIVER
+Of the nine changed I/O calls, testing with the ds1307 covers
+all but the three supporting the new alarm calls.  Given that
+those alarm changes are "obvious", I actually don't have any
+qualms signing off on these changes ... though it would of
+course be good to have Rodolfo re-test his alarm code.  (It's
+freshly merged in any case, so it merits testing just in case
+a problem snuck in!)
 
-
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+- Dave
