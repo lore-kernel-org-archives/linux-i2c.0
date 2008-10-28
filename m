@@ -1,49 +1,62 @@
-From: "officemate Helms" <vrqvksiurtjr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [SPAM:4.6] General Dentists Listing in the USA
-Date: Tue, 28 Oct 2008 01:24:03 +0000 (UTC)
-Message-ID: <18423.3222193599$1225157110@news.gmane.org>
+From: Anton Vorontsov <avorontsov@ru.mvista.com>
+Subject: [PATCH 0/6 RFC] OF-glue devices for I2C/SPI   (was: Re: [PATCH
+	4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
+Date: Tue, 28 Oct 2008 20:45:32 +0300
+Message-ID: <20081028174532.GA23834@oksana.dev.rtsoft.ru>
+References: <20081016171222.GA24812@oksana.dev.rtsoft.ru> <20081022014243.GA19362@oksana.dev.rtsoft.ru> <1224642497.7654.319.camel@pasglop> <200810212122.49121.david-b@pacbell.net> <20081022103641.GB24757@oksana.dev.rtsoft.ru> <20081022104606.GA510@oksana.dev.rtsoft.ru>
+Reply-To: avorontsov@ru.mvista.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Date: Wed, 29 Oct 2008 09:19:37 +0600
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: ambien-448-h+fDcNgcWapiK979QBapAg@public.gmane.org
-Cc: sales-wLGIYTYec6Qkmd1gNKJLUyp2UmYkHbXO@public.gmane.org, nytezgrami-YDxpq3io04c@public.gmane.org, cour6695-Bdlq13kUjeyLZ21kGMrzwg@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, labelexperts-alfgVMPJfwTQT0dZR+AlfA@public.gmane.org, cjnorth-uZQf8E4m5dU@public.gmane.org, creek-ORrQn50dTNM3uPMLIKxrzw@public.gmane.org
+Content-Type: text/plain; charset=windows-1251
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753845AbYJ1Rpp@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20081022104606.GA510@oksana.dev.rtsoft.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>, David Brownell <david-b@pacbell.net>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, David Miller <davem@davemloft.net>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Oct 22, 2008 at 02:46:06PM +0400, Anton Vorontsov wrote:
+[...]
+> > > Like what I suggested:  "chip-aware OF glue drivers".  The relevant
+> > > bus code being the "of_platform_bus_type" infrastructure.
+> > > 
+> > > Example:  instead of Anton's patch #6 modifying the existing pca953x
+> > > driver, an of_pca953x driver that knows how to poke around in the OF
+> > > device attributes to (a) create the pca953x_platform_data, (b) call
+> > > i2c_register_board_info() to make that available later, and then
+> > > finally (c) vanish, since it's not needed any longer.
+> > 
+> > Heh. You tell me my first approach:
+> > 
+> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056730.html (mmc_spi)
+> > 
+> > The OF people didn't like the patch which was used to support this
+> > approach:
+> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056728.html
+> 
+> Though, I think I'll able to persuade Grant that two registration paths
+> are inevitable (i.e. for simple devices we should use
+> drivers/of/of_{i2c,spi}.c and for complex cases we'll have to have
+> another method of registration).
 
+Ok, here it is.
 
+I don't like this approach because:
 
+1. It feels like an overhead to create an of_device for each i2c
+   device that needs platform data.
 
+2. We have to do ugly of_should_create_pdev() in the i2c code,
+   and duplicate lists of supported devices.
 
-2008 Edition Directory
+Could anybody convince me that this isn't a big deal? ;-)
 
-++ 164,328 D.entists 
-++ 158,743 Mailing Addresses
-++ 163,392 Phone Numbers
-++ 77,389 Fax Numbers
-++ 45,276 Contact emails
+Otherwise I'll stick with this approach:
+http://lkml.org/lkml/2008/10/22/471
 
-This week only the special introductory price is $297 (reduced from $597)
+Thanks,
 
-Send an email to Rose-Ynu+NT5FEZ0VEfcm43lNrsw+mqVzDg+0AL8bYrjMMd8@public.gmane.org to inquire about this and other Database we have
-
-
-
-
-email nolist-hc6tQMOgVlUsHaTaTsnYiQ@public.gmane.org for delisting
-
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+-- 
+Anton Vorontsov
+email: cbouatmailru@gmail.com
+irc://irc.freenode.net/bd2
