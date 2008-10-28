@@ -1,81 +1,103 @@
-From: "Grant Likely" <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 0/6 RFC] OF-glue devices for I2C/SPI (was: Re: [PATCH 4/7] gpiolib: implement dev_gpiochip_{add,remove} calls
-Date: Tue, 28 Oct 2008 11:53:54 -0600
-Message-ID: <fa686aa40810281053u4673dd60sc4e33a1f90f65981@mail.gmail.com>
-References: <20081016171222.GA24812@oksana.dev.rtsoft.ru>
-	 <20081022014243.GA19362@oksana.dev.rtsoft.ru>
-	 <1224642497.7654.319.camel@pasglop>
-	 <200810212122.49121.david-b@pacbell.net>
-	 <20081022103641.GB24757@oksana.dev.rtsoft.ru>
-	 <20081022104606.GA510@oksana.dev.rtsoft.ru>
-	 <20081028174532.GA23834@oksana.dev.rtsoft.ru>
+From: Michelle Konzack <linux4michelle-qCYv2r+mE47ltxMxsNcu6w@public.gmane.org>
+Subject: Re: MAX1236 with smbus (CS5536 ACB0)
+Date: Tue, 28 Oct 2008 21:27:31 +0100
+Message-ID: <20081028202731.GC4653@tamay-dogan.net>
+References: <48F2A270.8060307@leipzig.freifunk.net>
+	<20081013092548.3d58a320@hyperion.delvare>
+	<gd3fe5$11e$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753926AbYJ1RyM@vger.kernel.org>
-In-Reply-To: <20081028174532.GA23834@oksana.dev.rtsoft.ru>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: avorontsov@ru.mvista.com
-Cc: David Brownell <david-b@pacbell.net>, benh@kernel.crashing.org, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, David Miller <davem@davemloft.net>
+Content-Type: multipart/mixed; boundary="===============2604858685782415745=="
+Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+In-Reply-To: <gd3fe5$11e$1@ger.gmane.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
+List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
+	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
+Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 28, 2008 at 11:45 AM, Anton Vorontsov
-<avorontsov@ru.mvista.com> wrote:
-> On Wed, Oct 22, 2008 at 02:46:06PM +0400, Anton Vorontsov wrote:
-> [...]
->> > > Like what I suggested:  "chip-aware OF glue drivers".  The relevant
->> > > bus code being the "of_platform_bus_type" infrastructure.
->> > >
->> > > Example:  instead of Anton's patch #6 modifying the existing pca953x
->> > > driver, an of_pca953x driver that knows how to poke around in the OF
->> > > device attributes to (a) create the pca953x_platform_data, (b) call
->> > > i2c_register_board_info() to make that available later, and then
->> > > finally (c) vanish, since it's not needed any longer.
->> >
->> > Heh. You tell me my first approach:
->> >
->> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056730.html (mmc_spi)
->> >
->> > The OF people didn't like the patch which was used to support this
->> > approach:
->> > http://ozlabs.org/pipermail/linuxppc-dev/2008-May/056728.html
->>
->> Though, I think I'll able to persuade Grant that two registration paths
->> are inevitable (i.e. for simple devices we should use
->> drivers/of/of_{i2c,spi}.c and for complex cases we'll have to have
->> another method of registration).
->
-> Ok, here it is.
->
-> I don't like this approach because:
->
-> 1. It feels like an overhead to create an of_device for each i2c
->   device that needs platform data.
->
-> 2. We have to do ugly of_should_create_pdev() in the i2c code,
->   and duplicate lists of supported devices.
->
-> Could anybody convince me that this isn't a big deal? ;-)
 
-I really don't like this approach either.  I think it is a big deal.
-It greatly increases the complexity of the probe path for the device.
-Adapting the OF data to pdata is entirely driver specific and it
-doesn't make sense to break it out into a separate of_device or use
-the board_info mechanism to disassociate the adapter code from the
-driver.  Each instance of adapter code will never be associated with a
-different driver and I think it is entirely reasonable to have a
-driver specific hook in the drivers probe path to build pdata from the
-device tree.
+--===============2604858685782415745==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="B4IIlcmfBL/1gGOG"
+Content-Disposition: inline
 
->
-> Otherwise I'll stick with this approach:
-> http://lkml.org/lkml/2008/10/22/471
 
-I like this approach.
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-g.
+Hallo Andreas und Hello *,
 
--- 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Am 2008-10-15 03:01:56, schrieb Andreas Seidler:
+> I only want to monitor some voltages in my wind-/solarpower system and dr=
+aw some
+> nice charts - nothing spezial.
+
+Why not use a much more cheaper
+
+    Dallas 1-Wire chip DS2450
+        Quad A/D Converter
+        with user programmable input range (2.56V/5.12V)
+        resolution  (1 to 16 bits) and alarm
+
+I use it on my Solar-Power-Plant in Morocco with 1300 modules of  130 Wp
+too...
+
+And of course you can use the Kernel Bitbanging-Interface if your Micro-
+controller does not have a 1-Wire port.
+
+Note: I was ongoing to use only I=B2C but now I am using  a  mix  between
+      SPI, I=B2C and 1-Wire since I have realized that it is definitively
+      impossibel to get the needed =B5Chips form one system  and  in  the
+      same time cheap...
+
+Thanks, Greetings and nice Day/Evening
+    Michelle Konzack
+    Systemadministrator
+    24V Electronic Engineer
+    Tamay Dogan Network
+    Debian GNU/Linux Consultant
+
+
+--=20
+Linux-User #280138 with the Linux Counter, http://counter.li.org/
+##################### Debian GNU/Linux Consultant #####################
+Michelle Konzack   Apt. 917                  ICQ #328449886
++49/177/9351947    50, rue de Soultz         MSN LinuxMichi
++33/6/61925193     67100 Strasbourg/France   IRC #Debian (irc.icq.com)
+
+--B4IIlcmfBL/1gGOG
+Content-Type: application/pgp-signature; name="signature.pgp"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFJB3WzC0FPBMSS+BIRAntiAKCVYyFYA0JUOccHSCdgromrWAL1AQCeOp9w
+TPAtfnfSpogEYU1diHatQso=
+=E6mE
+-----END PGP SIGNATURE-----
+
+--B4IIlcmfBL/1gGOG--
+
+
+
+--===============2604858685782415745==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+i2c mailing list
+i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+http://lists.lm-sensors.org/mailman/listinfo/i2c
+--===============2604858685782415745==--
