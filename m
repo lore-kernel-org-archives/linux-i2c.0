@@ -1,51 +1,217 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Mailing list is moving
-Date: Wed, 29 Oct 2008 13:45:47 +0100
-Message-ID: <20081029134547.27859832@hyperion.delvare>
-References: <20081027133958.0792c143@hyperion.delvare>
+From: David Brownell <david-b@pacbell.net>
+Subject: [patch 2.6.28-rc2] isp1301_omap build fixes
+Date: Thu, 30 Oct 2008 11:20:51 -0700
+Message-ID: <200810301120.51529.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <20081027133958.0792c143-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Linux I2C <i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-omap-owner@vger.kernel.org
+To: i2c@lm-sensors.org
+Cc: linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 27 Oct 2008 13:39:58 +0100, Jean Delvare wrote:
-> In 48 hours (that is, on October, Wednesday 29th, at 13:00 UTC), the old
-> i2c mailing list will be closed. All attempts to post to it will
-> redirect the poster to the new linux-i2c mailing list. I'll see what
-> facility mailman implements to make this as user-friendly and automatic
-> as possible.
+From: David Brownell <dbrownell@users.sourceforge.net>
 
-Here we go. Hopefully I've configured mailman properly and everyone now
-attempting to post to this (old) i2c list should receive the following
-auto-reply:
+Build fixes for isp1301_omap; no behavior changes:
 
-*****
-The i2c mailing list has moved to kernel.org. Please resend your message to:
-linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+  - fix incorrect probe() signature (it changed many months ago)
+  - provide missing functions on H3 and H4 boards
+  - "sparse" fixes (static, NULL-vs-0)
 
-Subscription information can be found at:
-http://vger.kernel.org/vger-lists.html#linux-i2c
-*****
+The H3 build bits subset some of the stuff that was previously in
+the OMAP tree but never went to mainline.
 
-I will now try to get gmane and marc.info to archive the new linux-i2c
-list instead of the old i2c list.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+---
+ drivers/i2c/chips/isp1301_omap.c |   65 ++++++++++++++++++++++++++-----------
+ 1 file changed, 47 insertions(+), 18 deletions(-)
 
--- 
-Jean Delvare
-
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+--- a/drivers/i2c/chips/isp1301_omap.c
++++ b/drivers/i2c/chips/isp1301_omap.c
+@@ -25,6 +25,7 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/gpio.h>
+ #include <linux/usb/ch9.h>
+ #include <linux/usb/gadget.h>
+ #include <linux/usb.h>
+@@ -34,7 +35,10 @@
+ #include <linux/io.h>
+ 
+ #include <asm/irq.h>
++#include <asm/mach-types.h>
++
+ #include <mach/usb.h>
++#include <mach/mux.h>
+ 
+ 
+ #ifndef	DEBUG
+@@ -89,14 +93,9 @@ struct isp1301 {
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-#ifdef	CONFIG_MACH_OMAP_H2
+-
+ /* board-specific PM hooks */
+ 
+-#include <asm/gpio.h>
+-#include <mach/mux.h>
+-#include <asm/mach-types.h>
+-
++#if defined(CONFIG_MACH_OMAP_H2) || defined(CONFIG_MACH_OMAP_H3)
+ 
+ #if	defined(CONFIG_TPS65010) || defined(CONFIG_TPS65010_MODULE)
+ 
+@@ -136,6 +135,33 @@ static inline void notresponding(struct 
+ 
+ #endif
+ 
++#if defined(CONFIG_MACH_OMAP_H4)
++
++static void enable_vbus_draw(struct isp1301 *isp, unsigned mA)
++{
++	/* H4 controls this by DIP switch S2.4; no soft control.
++	 * ON means the charger is always enabled.  Leave it OFF
++	 * unless the OTG port is used only in B-peripheral mode.
++	 */
++}
++
++static void enable_vbus_source(struct isp1301 *isp)
++{
++	/* this board won't supply more than 8mA vbus power.
++	 * some boards can switch a 100ma "unit load" (or more).
++	 */
++}
++
++
++/* products will deliver OTG messages with LEDs, GUI, etc */
++static inline void notresponding(struct isp1301 *isp)
++{
++	printk(KERN_NOTICE "OTG device not responding.\n");
++}
++
++
++#endif
++
+ /*-------------------------------------------------------------------------*/
+ 
+ static struct i2c_driver isp1301_driver;
+@@ -335,8 +361,7 @@ static int gadget_suspend(struct isp1301
+  * NOTE: guaranteeing certain response times might mean we shouldn't
+  * share keventd's work queue; a realtime task might be safest.
+  */
+-void
+-isp1301_defer_work(struct isp1301 *isp, int work)
++static void isp1301_defer_work(struct isp1301 *isp, int work)
+ {
+ 	int status;
+ 
+@@ -513,7 +538,6 @@ static void update_otg1(struct isp1301 *
+ 	otg_ctrl &= ~OTG_XCEIV_INPUTS;
+ 	otg_ctrl &= ~(OTG_ID|OTG_ASESSVLD|OTG_VBUSVLD);
+ 
+-
+ 	if (int_src & INTR_SESS_VLD)
+ 		otg_ctrl |= OTG_ASESSVLD;
+ 	else if (isp->otg.state == OTG_STATE_A_WAIT_VFALL) {
+@@ -887,11 +911,11 @@ static int otg_probe(struct platform_dev
+ 
+ static int otg_remove(struct platform_device *dev)
+ {
+-	otg_dev = 0;
++	otg_dev = NULL;
+ 	return 0;
+ }
+ 
+-struct platform_driver omap_otg_driver = {
++static struct platform_driver omap_otg_driver = {
+ 	.probe		= otg_probe,
+ 	.remove		= otg_remove,
+ 	.driver		= {
+@@ -1213,6 +1237,8 @@ static void isp1301_release(struct devic
+ 
+ 	isp = dev_get_drvdata(dev);
+ 
++	/* FIXME -- not with a "new style" driver, it doesn't!! */
++
+ 	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
+ 	if (isp->i2c_release)
+ 		isp->i2c_release(dev);
+@@ -1234,7 +1260,7 @@ static int __exit isp1301_remove(struct 
+ 	otg_unbind(isp);
+ #endif
+ 	if (machine_is_omap_h2())
+-		omap_free_gpio(2);
++		gpio_free(2);
+ 
+ 	isp->timer.data = 0;
+ 	set_bit(WORK_STOP, &isp->todo);
+@@ -1242,7 +1268,7 @@ static int __exit isp1301_remove(struct 
+ 	flush_scheduled_work();
+ 
+ 	put_device(&i2c->dev);
+-	the_transceiver = 0;
++	the_transceiver = NULL;
+ 
+ 	return 0;
+ }
+@@ -1296,7 +1322,7 @@ isp1301_set_host(struct otg_transceiver 
+ 	if (!host) {
+ 		omap_writew(0, OTG_IRQ_EN);
+ 		power_down(isp);
+-		isp->otg.host = 0;
++		isp->otg.host = NULL;
+ 		return 0;
+ 	}
+ 
+@@ -1345,7 +1371,9 @@ static int
+ isp1301_set_peripheral(struct otg_transceiver *otg, struct usb_gadget *gadget)
+ {
+ 	struct isp1301	*isp = container_of(otg, struct isp1301, otg);
++#ifndef	CONFIG_USB_OTG
+ 	u32 l;
++#endif
+ 
+ 	if (!otg || isp != the_transceiver)
+ 		return -ENODEV;
+@@ -1355,7 +1383,7 @@ isp1301_set_peripheral(struct otg_transc
+ 		if (!isp->otg.default_a)
+ 			enable_vbus_draw(isp, 0);
+ 		usb_gadget_vbus_disconnect(isp->otg.gadget);
+-		isp->otg.gadget = 0;
++		isp->otg.gadget = NULL;
+ 		power_down(isp);
+ 		return 0;
+ 	}
+@@ -1380,7 +1408,7 @@ isp1301_set_peripheral(struct otg_transc
+ 	power_up(isp);
+ 	isp->otg.state = OTG_STATE_B_IDLE;
+ 
+-	if (machine_is_omap_h2())
++	if (machine_is_omap_h2() || machine_is_omap_h3())
+ 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1, MC1_DAT_SE0);
+ 
+ 	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
+@@ -1500,7 +1528,8 @@ isp1301_start_hnp(struct otg_transceiver
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-static int __init isp1301_probe(struct i2c_client *i2c)
++static int __init
++isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ {
+ 	int			status;
+ 	struct isp1301		*isp;
+@@ -1648,7 +1677,7 @@ module_init(isp_init);
+ static void __exit isp_exit(void)
+ {
+ 	if (the_transceiver)
+-		otg_set_transceiver(0);
++		otg_set_transceiver(NULL);
+ 	i2c_del_driver(&isp1301_driver);
+ }
+ module_exit(isp_exit);
