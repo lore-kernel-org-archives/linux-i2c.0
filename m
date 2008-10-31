@@ -1,217 +1,171 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.28-rc2] isp1301_omap build fixes
-Date: Thu, 30 Oct 2008 11:20:51 -0700
-Message-ID: <200810301120.51529.david-b@pacbell.net>
+From: Mike Ditto <mditto@consentry.com>
+Subject: [PATCH] i2c-cpm: Add flexibility for I2C clock frequency and filter.
+Date: Thu, 30 Oct 2008 21:09:28 -0700
+Message-ID: <490A84F8.20403@consentry.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-omap-owner@vger.kernel.org
-To: i2c@lm-sensors.org
-Cc: linux-omap@vger.kernel.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: linuxppc-dev@ozlabs.org, i2c@lm-sensors.org, jochen@scram.de
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+This patch adds the ability to enable the digital filter in the device
+tree (with the "clock-filter" boolean property) and automates the
+predivider selection according to the clock-frequency and clock-filter
+properties.
 
-Build fixes for isp1301_omap; no behavior changes:
-
-  - fix incorrect probe() signature (it changed many months ago)
-  - provide missing functions on H3 and H4 boards
-  - "sparse" fixes (static, NULL-vs-0)
-
-The H3 build bits subset some of the stuff that was previously in
-the OMAP tree but never went to mainline.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by:  Mike Ditto <mditto@consentry.com>
 ---
- drivers/i2c/chips/isp1301_omap.c |   65 ++++++++++++++++++++++++++-----------
- 1 file changed, 47 insertions(+), 18 deletions(-)
+This patch is against 2.6.27.
 
---- a/drivers/i2c/chips/isp1301_omap.c
-+++ b/drivers/i2c/chips/isp1301_omap.c
-@@ -25,6 +25,7 @@
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
-+#include <linux/gpio.h>
- #include <linux/usb/ch9.h>
- #include <linux/usb/gadget.h>
- #include <linux/usb.h>
-@@ -34,7 +35,10 @@
- #include <linux/io.h>
- 
- #include <asm/irq.h>
-+#include <asm/mach-types.h>
+To use the full range of I2C clock frequencies supported by the
+Freescale CPM I2C controller, it is necessary to choose an appropriate
+predivider value.  The choice is affected by whether the SCL signal
+digital filter is enabled.
+
+The existing code computes the final divider (i2brg) but always uses
+a predivider of 32.  This can set illegal values in i2brg - for example
+on a machine with 25 MHz BRG_CLK, when selecting I2C clock-frequency
+97656 Hz, the code was loading i2brg with the value 1, which does not
+work (the CPM requires a minimum value of 3 when the digital filter is
+not enabled).  Additionally, the calculation did not work when the
+filter is enabled (and the driver did not provide a way to enable it).
+
+And by the way, thanks to Jochen Friedrich for integrating this driver
+on the very day that I went looking for it.  :-)
+
+Index: linux/drivers/i2c/busses/i2c-cpm.c
+===================================================================
+RCS file: /n/home2/mditto/ws/myrepo/kernel/linux/drivers/i2c/busses/i2c-cpm.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 i2c-cpm.c
+--- linux/drivers/i2c/busses/i2c-cpm.c	11 Oct 2008 02:53:07 -0000	1.1.1.1
++++ linux/drivers/i2c/busses/i2c-cpm.c	31 Oct 2008 04:05:41 -0000
+@@ -87,6 +87,11 @@ struct i2c_ram {
+ #define I2CER_TXB	0x02
+ #define I2CER_RXB	0x01
+ #define I2MOD_EN	0x01
++#define I2MOD_PDIV_32	0x00	/* BRGCLK/32 */
++#define I2MOD_PDIV_16	0x02	/* BRGCLK/16 */
++#define I2MOD_PDIV_8	0x04	/* BRGCLK/8 */
++#define I2MOD_PDIV_4	0x06	/* BRGCLK/4 */
++#define I2MOD_FLT	0x08
+
+ /* I2C Registers */
+ struct i2c_reg {
+@@ -111,7 +116,6 @@ struct cpm_i2c {
+ 	int version; /* CPM1=1, CPM2=2 */
+ 	int irq;
+ 	int cp_command;
+-	int freq;
+ 	struct i2c_reg __iomem *i2c_reg;
+ 	struct i2c_ram __iomem *i2c_ram;
+ 	u16 i2c_addr;
+@@ -434,7 +438,8 @@ static int __devinit cpm_i2c_setup(struc
+ 	void __iomem *i2c_base;
+ 	cbd_t __iomem *tbdf;
+ 	cbd_t __iomem *rbdf;
+-	unsigned char brg;
++	uint freq, maxfreq, prediv;
++	unsigned char mod, brg;
+
+ 	dev_dbg(&cpm->ofdev->dev, "cpm_i2c_setup()\n");
+
+@@ -508,9 +513,15 @@ static int __devinit cpm_i2c_setup(struc
+
+ 	data = of_get_property(ofdev->node, "clock-frequency", &len);
+ 	if (data && len == 4)
+-		cpm->freq = *data;
++		freq = *data;
+ 	else
+-		cpm->freq = 60000; /* use 60kHz i2c clock by default */
++		freq = 60000;	/* use 60kHz I2C clock by default */
 +
- #include <mach/usb.h>
-+#include <mach/mux.h>
- 
- 
- #ifndef	DEBUG
-@@ -89,14 +93,9 @@ struct isp1301 {
- 
- /*-------------------------------------------------------------------------*/
- 
--#ifdef	CONFIG_MACH_OMAP_H2
--
- /* board-specific PM hooks */
- 
--#include <asm/gpio.h>
--#include <mach/mux.h>
--#include <asm/mach-types.h>
--
-+#if defined(CONFIG_MACH_OMAP_H2) || defined(CONFIG_MACH_OMAP_H3)
- 
- #if	defined(CONFIG_TPS65010) || defined(CONFIG_TPS65010_MODULE)
- 
-@@ -136,6 +135,33 @@ static inline void notresponding(struct 
- 
- #endif
- 
-+#if defined(CONFIG_MACH_OMAP_H4)
-+
-+static void enable_vbus_draw(struct isp1301 *isp, unsigned mA)
-+{
-+	/* H4 controls this by DIP switch S2.4; no soft control.
-+	 * ON means the charger is always enabled.  Leave it OFF
-+	 * unless the OTG port is used only in B-peripheral mode.
-+	 */
-+}
-+
-+static void enable_vbus_source(struct isp1301 *isp)
-+{
-+	/* this board won't supply more than 8mA vbus power.
-+	 * some boards can switch a 100ma "unit load" (or more).
-+	 */
-+}
-+
-+
-+/* products will deliver OTG messages with LEDs, GUI, etc */
-+static inline void notresponding(struct isp1301 *isp)
-+{
-+	printk(KERN_NOTICE "OTG device not responding.\n");
-+}
-+
-+
-+#endif
-+
- /*-------------------------------------------------------------------------*/
- 
- static struct i2c_driver isp1301_driver;
-@@ -335,8 +361,7 @@ static int gadget_suspend(struct isp1301
-  * NOTE: guaranteeing certain response times might mean we shouldn't
-  * share keventd's work queue; a realtime task might be safest.
-  */
--void
--isp1301_defer_work(struct isp1301 *isp, int work)
-+static void isp1301_defer_work(struct isp1301 *isp, int work)
- {
- 	int status;
- 
-@@ -513,7 +538,6 @@ static void update_otg1(struct isp1301 *
- 	otg_ctrl &= ~OTG_XCEIV_INPUTS;
- 	otg_ctrl &= ~(OTG_ID|OTG_ASESSVLD|OTG_VBUSVLD);
- 
--
- 	if (int_src & INTR_SESS_VLD)
- 		otg_ctrl |= OTG_ASESSVLD;
- 	else if (isp->otg.state == OTG_STATE_A_WAIT_VFALL) {
-@@ -887,11 +911,11 @@ static int otg_probe(struct platform_dev
- 
- static int otg_remove(struct platform_device *dev)
- {
--	otg_dev = 0;
-+	otg_dev = NULL;
++	data = of_get_property(ofdev->node, "clock-filter", &len);
++	if (data && len == 0)
++		mod = I2MOD_FLT;
++	else
++		mod = 0;
+
+ 	/*
+ 	 * Allocate space for CPM_MAXBD transmit and receive buffer
+@@ -552,8 +563,8 @@ static int __devinit cpm_i2c_setup(struc
+
+ 	cpm_reset_i2c_params(cpm);
+
+-	dev_dbg(&cpm->ofdev->dev, "i2c_ram 0x%p, i2c_addr 0x%04x, freq %d\n",
+-		cpm->i2c_ram, cpm->i2c_addr, cpm->freq);
++	dev_dbg(&cpm->ofdev->dev, "i2c_ram 0x%p, i2c_addr 0x%04x, freq %u\n",
++		cpm->i2c_ram, cpm->i2c_addr, freq);
+ 	dev_dbg(&cpm->ofdev->dev, "tbase 0x%04x, rbase 0x%04x\n",
+ 		(u8 __iomem *)cpm->tbase - DPRAM_BASE,
+ 		(u8 __iomem *)cpm->rbase - DPRAM_BASE);
+@@ -566,20 +577,53 @@ static int __devinit cpm_i2c_setup(struc
+ 	out_8(&cpm->i2c_reg->i2add, 0x7f << 1);
+
+ 	/*
+-	 * PDIV is set to 00 in i2mod, so brgclk/32 is used as input to the
+-	 * i2c baud rate generator. This is divided by 2 x (DIV + 3) to get
+-	 * the actual i2c bus frequency.
++	 * Compute the clock predivider and final divider to generate something
++	 * close to the desired I2C clock frequency.  Use the largest predivider
++	 * possible.  i2brg must be >= 6 when using I2MOD_FLT, otherwise >= 3.
++	 * So compute the highest frequency that will work with I2MOD_PDIV_32;
++	 * if that isn't high enough, see if we can use I2MOD_PDIV_16, etc.
++	 * Then choose a final divider that will generate at least the desired
++	 * clock frequency.  Note the "at least" -- this rounds upward, not
++	 * toward the nearest available frequency.
++	 *
++	 * I2C frequency for a given predivider and i2brg value is:
++	 *   i2cfreq = brgfreq / prediv / 2 / (i2brg + 3 + 2 * flt)
++	 * i2brg value for a given predivider and I2C frequency is:
++	 *   i2brg = (brgfreq / prediv / 2 / i2cfreq) - 3 - 2 * flt
++	 * minimum allowed i2brg is (3 + 3 * flt).
++	 * maximum freq possible for a given predivider is:
++	 *   maxfreq = brgfreq / prediv / 2 / (3 + 3 + 5 * flt)
+ 	 */
+-	brg = get_brgfreq() / (32 * 2 * cpm->freq) - 3;
+-	out_8(&cpm->i2c_reg->i2brg, brg);
++	maxfreq = get_brgfreq() / 64 / ((mod & I2MOD_FLT) ? 11 : 6);
++	if (freq <= maxfreq) {		/* Works with predivider 32? */
++		mod |= I2MOD_PDIV_32;
++		prediv = 32;
++	} else if (freq <= maxfreq*2) {	/* How about 16? */
++		mod |= I2MOD_PDIV_16;
++		prediv = 16;
++	} else if (freq <= maxfreq*4) {	/* How about 8? */
++		mod |= I2MOD_PDIV_8;
++		prediv = 8;
++	} else {			/* 4 is last resort. */
++		if (freq > maxfreq*8)
++			/* Impossibly high clock-frequency requested. */
++			freq = maxfreq*8;
++		mod |= I2MOD_PDIV_4;
++		prediv = 4;
++	}
++	brg = get_brgfreq() / prediv / 2 / freq - ((mod & I2MOD_FLT) ? 5 : 3);
+
+-	out_8(&cpm->i2c_reg->i2mod, 0x00);
++	out_8(&cpm->i2c_reg->i2brg, brg);
++	out_8(&cpm->i2c_reg->i2mod, mod);
+ 	out_8(&cpm->i2c_reg->i2com, I2COM_MASTER);	/* Master mode */
+
+ 	/* Disable interrupts. */
+ 	out_8(&cpm->i2c_reg->i2cmr, 0);
+ 	out_8(&cpm->i2c_reg->i2cer, 0xff);
+
++	freq = get_brgfreq() / prediv / 2 / (brg + ((mod & I2MOD_FLT) ? 5 : 3));
++	dev_dbg(&cpm->ofdev->dev, "i2mod 0x%02x, i2brg %u, actual freq %u\n",
++		mod, brg, freq);
  	return 0;
- }
- 
--struct platform_driver omap_otg_driver = {
-+static struct platform_driver omap_otg_driver = {
- 	.probe		= otg_probe,
- 	.remove		= otg_remove,
- 	.driver		= {
-@@ -1213,6 +1237,8 @@ static void isp1301_release(struct devic
- 
- 	isp = dev_get_drvdata(dev);
- 
-+	/* FIXME -- not with a "new style" driver, it doesn't!! */
-+
- 	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
- 	if (isp->i2c_release)
- 		isp->i2c_release(dev);
-@@ -1234,7 +1260,7 @@ static int __exit isp1301_remove(struct 
- 	otg_unbind(isp);
- #endif
- 	if (machine_is_omap_h2())
--		omap_free_gpio(2);
-+		gpio_free(2);
- 
- 	isp->timer.data = 0;
- 	set_bit(WORK_STOP, &isp->todo);
-@@ -1242,7 +1268,7 @@ static int __exit isp1301_remove(struct 
- 	flush_scheduled_work();
- 
- 	put_device(&i2c->dev);
--	the_transceiver = 0;
-+	the_transceiver = NULL;
- 
- 	return 0;
- }
-@@ -1296,7 +1322,7 @@ isp1301_set_host(struct otg_transceiver 
- 	if (!host) {
- 		omap_writew(0, OTG_IRQ_EN);
- 		power_down(isp);
--		isp->otg.host = 0;
-+		isp->otg.host = NULL;
- 		return 0;
- 	}
- 
-@@ -1345,7 +1371,9 @@ static int
- isp1301_set_peripheral(struct otg_transceiver *otg, struct usb_gadget *gadget)
- {
- 	struct isp1301	*isp = container_of(otg, struct isp1301, otg);
-+#ifndef	CONFIG_USB_OTG
- 	u32 l;
-+#endif
- 
- 	if (!otg || isp != the_transceiver)
- 		return -ENODEV;
-@@ -1355,7 +1383,7 @@ isp1301_set_peripheral(struct otg_transc
- 		if (!isp->otg.default_a)
- 			enable_vbus_draw(isp, 0);
- 		usb_gadget_vbus_disconnect(isp->otg.gadget);
--		isp->otg.gadget = 0;
-+		isp->otg.gadget = NULL;
- 		power_down(isp);
- 		return 0;
- 	}
-@@ -1380,7 +1408,7 @@ isp1301_set_peripheral(struct otg_transc
- 	power_up(isp);
- 	isp->otg.state = OTG_STATE_B_IDLE;
- 
--	if (machine_is_omap_h2())
-+	if (machine_is_omap_h2() || machine_is_omap_h3())
- 		isp1301_set_bits(isp, ISP1301_MODE_CONTROL_1, MC1_DAT_SE0);
- 
- 	isp1301_set_bits(isp, ISP1301_INTERRUPT_RISING,
-@@ -1500,7 +1528,8 @@ isp1301_start_hnp(struct otg_transceiver
- 
- /*-------------------------------------------------------------------------*/
- 
--static int __init isp1301_probe(struct i2c_client *i2c)
-+static int __init
-+isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
- {
- 	int			status;
- 	struct isp1301		*isp;
-@@ -1648,7 +1677,7 @@ module_init(isp_init);
- static void __exit isp_exit(void)
- {
- 	if (the_transceiver)
--		otg_set_transceiver(0);
-+		otg_set_transceiver(NULL);
- 	i2c_del_driver(&isp1301_driver);
- }
- module_exit(isp_exit);
+
+ out_muram:
