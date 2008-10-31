@@ -1,217 +1,109 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: [patch 8/9] S3C: Add i2c1 device definition
-Date: Fri, 31 Oct 2008 16:04:28 +0000
-Message-ID: <20081031160438.182603988@fluff.org.uk>
+Subject: [patch 6/9] i2c-s3c2410: remove default platform data.
+Date: Fri, 31 Oct 2008 16:04:26 +0000
+Message-ID: <20081031160437.750524660@fluff.org.uk>
 References: <20081031160420.164160051@fluff.org.uk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline; filename=simtec/s3c64xx/i2c-add-second-i2c-bus.patch
+Content-Disposition: inline; filename=simtec/s3c64xx/i2c-remove-default-platdata.patch
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add device definition and support functions for the
-second i2c device (i2c1). If this is selected, the first
-i2c bus will become index 0 instead of index -1.
+The platform data should now always be present when the device
+is initialised, so we can remove the default platform data in
+the driver.
+
+All the device initialisation points in the board specific code
+should already have been changed to initialise this as necessary.
 
 Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-Index: linux.git/arch/arm/plat-s3c/dev-i2c1.c
+Index: linux.git/drivers/i2c/busses/i2c-s3c2410.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/dev-i2c1.c	2008-10-31 00:06:44.000000000 +0000
-@@ -0,0 +1,68 @@
-+/* linux/arch/arm/plat-s3c/dev-i2c1.c
-+ *
-+ * Copyright 2008 Simtec Electronics
-+ *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
-+ *	http://armlinux.simtec.co.uk/
-+ *
-+ * S3C series device definition for i2c device 1
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+*/
-+
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <linux/platform_device.h>
-+
-+#include <mach/map.h>
-+
-+#include <plat/regs-iic.h>
-+#include <plat/iic.h>
-+#include <plat/devs.h>
-+#include <plat/cpu.h>
-+
-+static struct resource s3c_i2c_resource[] = {
-+	[0] = {
-+		.start = S3C_PA_IIC1,
-+		.end   = S3C_PA_IIC1 + SZ_4K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	[1] = {
-+		.start = IRQ_IIC1,
-+		.end   = IRQ_IIC1,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
-+struct platform_device s3c_device_i2c1 = {
-+	.name		  = "s3c2410-i2c",
-+	.id		  = 1,
-+	.num_resources	  = ARRAY_SIZE(s3c_i2c_resource),
-+	.resource	  = s3c_i2c_resource,
-+};
-+
-+static struct s3c2410_platform_i2c default_i2c_data1 __initdata = {
-+	.flags		= 0,
-+	.bus_num	= 1,
-+	.slave_addr	= 0x10,
-+	.bus_freq	= 100*1000,
-+	.max_freq	= 400*1000,
-+	.sda_delay	= S3C2410_IICLC_SDA_DELAY5 | S3C2410_IICLC_FILTER_ON,
-+};
-+
-+void __init s3c_i2c1_set_platdata(struct s3c2410_platform_i2c *pd)
-+{
-+	struct s3c2410_platform_i2c *npd;
-+
-+	if (!pd)
-+		pd = &default_i2c_data1;
-+
-+	npd = kmemdup(pd, sizeof(struct s3c2410_platform_i2c), GFP_KERNEL);
-+	if (!npd)
-+		printk(KERN_ERR "%s: no memory for platform data\n", __func__);
-+	else if (!npd->cfg_gpio)
-+		npd->cfg_gpio = s3c_i2c1_cfg_gpio;
-+
-+	s3c_device_i2c1.dev.platform_data = npd;
-+}
-Index: linux.git/arch/arm/mach-s3c6400/include/mach/map.h
-===================================================================
---- linux.git.orig/arch/arm/mach-s3c6400/include/mach/map.h	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/mach-s3c6400/include/mach/map.h	2008-10-31 00:00:36.000000000 +0000
-@@ -41,6 +41,7 @@
- #define S3C64XX_PA_SYSCON	(0x7E00F000)
- #define S3C64XX_PA_TIMER	(0x7F006000)
- #define S3C64XX_PA_IIC0		(0x7F004000)
-+#define S3C64XX_PA_IIC1		(0x7F00F000)
- 
- #define S3C64XX_PA_GPIO		(0x7F008000)
- #define S3C64XX_VA_GPIO		S3C_ADDR(0x00500000)
-@@ -60,5 +61,6 @@
- #define S3C_PA_HSMMC1		S3C64XX_PA_HSMMC1
- #define S3C_PA_HSMMC2		S3C64XX_PA_HSMMC2
- #define S3C_PA_IIC		S3C64XX_PA_IIC0
-+#define S3C_PA_IIC1		S3C64XX_PA_IIC1
- 
- #endif /* __ASM_ARCH_6400_MAP_H */
-Index: linux.git/arch/arm/plat-s3c/Kconfig
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c/Kconfig	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/Kconfig	2008-10-31 00:00:36.000000000 +0000
-@@ -160,3 +160,9 @@ config S3C_DEV_HSMMC1
- 	depends on PLAT_S3C
- 	help
- 	  Compile in platform device definitions for HSMMC channel 1
-+
-+config S3C_DEV_I2C1
-+	bool
-+	depends on PLAT_S3C
-+	help
-+	  Compile in platform device definitions for I2C channel 1
-Index: linux.git/arch/arm/plat-s3c/Makefile
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c/Makefile	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/Makefile	2008-10-31 00:00:36.000000000 +0000
-@@ -23,3 +23,4 @@ obj-y				+= gpio-config.o
- obj-$(CONFIG_S3C_DEV_HSMMC)	+= dev-hsmmc.o
- obj-$(CONFIG_S3C_DEV_HSMMC1)	+= dev-hsmmc1.o
- obj-y				+= dev-i2c0.o
-+obj-$(CONFIG_S3C_DEV_I2C1)	+= dev-i2c1.o
-Index: linux.git/arch/arm/plat-s3c/dev-i2c0.c
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c/dev-i2c0.c	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/dev-i2c0.c	2008-10-31 00:07:05.000000000 +0000
-@@ -37,12 +37,16 @@ static struct resource s3c_i2c_resource[
- 
- struct platform_device s3c_device_i2c0 = {
- 	.name		  = "s3c2410-i2c",
-+#ifdef CONFIG_S3C_DEV_I2C1
-+	.id		  = 0,
-+#else
- 	.id		  = -1,
-+#endif
- 	.num_resources	  = ARRAY_SIZE(s3c_i2c_resource),
- 	.resource	  = s3c_i2c_resource,
+--- linux.git.orig/drivers/i2c/busses/i2c-s3c2410.c	2008-10-31 11:55:54.000000000 +0000
++++ linux.git/drivers/i2c/busses/i2c-s3c2410.c	2008-10-31 11:56:08.000000000 +0000
+@@ -78,16 +78,7 @@ struct s3c24xx_i2c {
+ #endif
  };
  
--struct s3c2410_platform_i2c default_i2c_data __initdata = {
-+static struct s3c2410_platform_i2c default_i2c_data0 __initdata = {
- 	.flags		= 0,
- 	.slave_addr	= 0x10,
- 	.bus_freq	= 100*1000,
-@@ -55,7 +59,7 @@ void __init s3c_i2c0_set_platdata(struct
- 	struct s3c2410_platform_i2c *npd;
+-/* default platform data to use if not supplied in the platform_device
+-*/
+-
+-static struct s3c2410_platform_i2c s3c24xx_i2c_default_platform = {
+-	.flags		= 0,
+-	.slave_addr	= 0x10,
+-	.bus_freq	= 100*1000,
+-	.max_freq	= 400*1000,
+-	.sda_delay	= S3C2410_IICLC_SDA_DELAY5 | S3C2410_IICLC_FILTER_ON,
+-};
++/* default platform data removed, dev should always carry data. */
  
- 	if (!pd)
--		pd = &default_i2c_data;
-+		pd = &default_i2c_data0;
+ /* s3c24xx_i2c_is2440()
+  *
+@@ -101,22 +92,6 @@ static inline int s3c24xx_i2c_is2440(str
+ 	return !strcmp(pdev->name, "s3c2440-i2c");
+ }
  
- 	npd = kmemdup(pd, sizeof(struct s3c2410_platform_i2c), GFP_KERNEL);
- 	if (!npd)
-Index: linux.git/arch/arm/plat-s3c/include/plat/iic.h
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c/include/plat/iic.h	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/include/plat/iic.h	2008-10-31 00:00:36.000000000 +0000
-@@ -48,8 +48,10 @@ struct s3c2410_platform_i2c {
-  * as the driver will no longer carry defaults.
-  */
- extern void s3c_i2c0_set_platdata(struct s3c2410_platform_i2c *i2c);
-+extern void s3c_i2c1_set_platdata(struct s3c2410_platform_i2c *i2c);
+-
+-/* s3c24xx_i2c_get_platformdata
+- *
+- * get the platform data associated with the given device, or return
+- * the default if there is none
+-*/
+-
+-static inline struct s3c2410_platform_i2c *
+-s3c24xx_i2c_get_platformdata(struct device *dev)
+-{
+-	if (dev->platform_data != NULL)
+-		return (struct s3c2410_platform_i2c *)dev->platform_data;
+-
+-	return &s3c24xx_i2c_default_platform;
+-}
+-
+ /* s3c24xx_i2c_master_complete
+  *
+  * complete the message and wake up the caller, using the given return code,
+@@ -649,7 +624,7 @@ static inline int freq_acceptable(unsign
  
- /* defined by architecture to configure gpio */
- extern void s3c_i2c0_cfg_gpio(struct platform_device *dev);
-+extern void s3c_i2c1_cfg_gpio(struct platform_device *dev);
+ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
+ {
+-	struct s3c2410_platform_i2c *pdata;
++	struct s3c2410_platform_i2c *pdata = i2c->dev->platform_data;
+ 	unsigned long clkin = clk_get_rate(i2c->clk);
+ 	unsigned int divs, div1;
+ 	u32 iiccon;
+@@ -657,8 +632,6 @@ static int s3c24xx_i2c_clockrate(struct 
+ 	int start, end;
  
- #endif /* __ASM_ARCH_IIC_H */
-Index: linux.git/arch/arm/plat-s3c/include/plat/devs.h
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c/include/plat/devs.h	2008-10-31 00:00:24.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c/include/plat/devs.h	2008-10-31 00:00:36.000000000 +0000
-@@ -28,6 +28,7 @@ extern struct platform_device s3c_device
- extern struct platform_device s3c_device_lcd;
- extern struct platform_device s3c_device_wdt;
- extern struct platform_device s3c_device_i2c0;
-+extern struct platform_device s3c_device_i2c1;
- extern struct platform_device s3c_device_iis;
- extern struct platform_device s3c_device_rtc;
- extern struct platform_device s3c_device_adc;
-Index: linux.git/arch/arm/plat-s3c64xx/include/plat/irqs.h
-===================================================================
---- linux.git.orig/arch/arm/plat-s3c64xx/include/plat/irqs.h	2008-10-31 00:03:34.000000000 +0000
-+++ linux.git/arch/arm/plat-s3c64xx/include/plat/irqs.h	2008-10-31 00:13:33.000000000 +0000
-@@ -70,6 +70,7 @@
- #define IRQ_CAMIF_C		S3C64XX_IRQ_VIC0(3)
- #define IRQ_CAMIF_P		S3C64XX_IRQ_VIC0(4)
- #define IRQ_CAMIF_MC		S3C64XX_IRQ_VIC0(5)
-+#define IRQ_S3C6410_IIC1	S3C64XX_IRQ_VIC0(5)
- #define IRQ_S3C6410_IIS		S3C64XX_IRQ_VIC0(6)
- #define IRQ_S3C6400_CAMIF_MP	S3C64XX_IRQ_VIC0(6)
- #define IRQ_CAMIF_WE_C		S3C64XX_IRQ_VIC0(7)
-@@ -144,6 +145,10 @@
- #define IRQ_TIMER3		S3C64XX_TIMER_IRQ(3)
- #define IRQ_TIMER4		S3C64XX_TIMER_IRQ(4)
+ 	i2c->clkrate = clkin;
+-
+-	pdata = s3c24xx_i2c_get_platformdata(i2c->adap.dev.parent);
+ 	clkin /= 1000;		/* clkin now in KHz */
  
-+/* compatibility for device defines */
-+
-+#define IRQ_IIC1		IRQ_S3C6410_IIC1
-+
- /* Since the IRQ_EINT(x) are a linear mapping on current s3c64xx series
-  * we just defined them as an IRQ_EINT(x) macro from S3C_IRQ_EINT_BASE
-  * which we place after the pair of VICs. */
+ 	dev_dbg(i2c->dev, "pdata %p, freq %lu %lu..%lu\n",
+@@ -779,7 +752,7 @@ static int s3c24xx_i2c_init(struct s3c24
+ 
+ 	/* get the plafrom data */
+ 
+-	pdata = s3c24xx_i2c_get_platformdata(i2c->dev);
++	pdata = i2c->dev->platform_data;
+ 
+ 	/* inititalise the gpio */
+ 
+@@ -830,7 +803,11 @@ static int s3c24xx_i2c_probe(struct plat
+ 	struct resource *res;
+ 	int ret;
+ 
+-	pdata = s3c24xx_i2c_get_platformdata(&pdev->dev);
++	pdata = pdev->dev.platform_data;
++	if (!pdata) {
++		dev_err(&pdev->dev, "no platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	/* find the clock and enable it */
+ 
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
