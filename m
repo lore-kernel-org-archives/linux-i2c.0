@@ -1,25 +1,28 @@
-From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Subject: Re: [PATCH] i2c-cpm: Add flexibility for I2C clock frequency and
- filter.
-Date: Thu, 06 Nov 2008 12:27:45 +0100
-Message-ID: <4912D4B1.7020503@scram.de>
-References: <49124EAD.8090508@consentry.com>
+From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Subject: Re: I2C from interrupt context?
+Date: Thu, 06 Nov 2008 15:47:54 -0800 (PST)
+Message-ID: <20081106.154754.02648408.davem@davemloft.net>
+References: <m3bpws8ln3.fsf@maximus.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49124EAD.8090508-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>
+In-Reply-To: <m3bpws8ln3.fsf-fiqtE+24Nu0B9AHHLWeGtNQXobZC6xk2@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khc-9GfyWEdoJtJmR6Xm/wNWPw@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Mike Ditto schrieb:
-> This patch adds the ability to enable the digital filter in the device
-> tree (with the "clock-filter" boolean property) and automates the
-> predivider selection according to the clock-frequency and clock-filter
-> properties.  This allows use of a wider range of I2C bus frequencies.
-> 
-> Signed-off-by:  Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>
+From: Krzysztof Halasa <khc-9GfyWEdoJtJmR6Xm/wNWPw@public.gmane.org>
+Date: Fri, 07 Nov 2008 00:44:48 +0100
 
-Acked-by: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+[ Fixed i2c list address, it's now hosted at vger ]
+
+> I'm updating my EEPROM console logger and have encountered a problem
+> - the logger (as any console) can be called with hardware interrupts
+> disabled and/or from interrupt context. It needs to write to I^2C
+> (using ARM (Xscale) GPIO) and possibly SMBUS-only EEPROM chip. Is it
+> at all supposed to be possible?
+
+Not really.  The I2C operations need to be able to sleep and that's
+not allowed in interrupt context.
