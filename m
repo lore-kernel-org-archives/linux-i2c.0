@@ -1,51 +1,40 @@
-From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: add i2c adapter driver for i.MX3x SoCs
-Date: Tue, 11 Nov 2008 09:47:36 +0200
-Message-ID: <49193898.9000000@gmail.com>
-References: <Pine.LNX.4.64.0811071857460.4513@axis700.grange> <gf9iln$n8b$1@ger.gmane.org> <Pine.LNX.4.64.0811102012380.8315@axis700.grange>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: I2C from interrupt context?
+Date: Mon, 10 Nov 2008 23:57:34 -0800
+Message-ID: <20081110235734.f7666725.akpm@linux-foundation.org>
+References: <m3bpws8ln3.fsf@maximus.localdomain>
+	<20081106.154754.02648408.davem@davemloft.net>
+	<20081107101118.286f3713@hyperion.delvare>
+	<m3bpwrbjxs.fsf@maximus.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0811102012380.8315-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
+In-Reply-To: <m3bpwrbjxs.fsf-fiqtE+24Nu0B9AHHLWeGtNQXobZC6xk2@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <public-g.liakhovetski-Mmb7MZpHnFY-z5DuStaUktnZ+VzJOa5vwg@public.gmane.org>
-Cc: public-linux-i2c-u79uwXL29TY76Z2rM5mHXA-z5DuStaUktnZ+VzJOa5vwg@public.gmane.org
+To: Krzysztof Halasa <khc-9GfyWEdoJtJmR6Xm/wNWPw@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, 07 Nov 2008 17:05:35 +0100 Krzysztof Halasa <khc-9GfyWEdoJtJmR6Xm/wNWPw@public.gmane.org> wrote:
 
+> Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
+> 
+> > The situation is far from perfect though. For one thing, I seem to
+> > recall that Andrew Morton didn't like the approach taken in
+> > i2c_transfer(). For another, i2c_smbus_xfer() was not yet modified so
+> > at this point only I2C-level transactions can be non-sleeping,
+> > SMBus-level transactions can't. But all this could be fixed by anyone
+> > who cares about these specific issues.
+> 
+> Thanks, I'll look at it.
 
-Guennadi Liakhovetski wrote:
-> (please, use reply-to-all, thanks)
-> 
-> On Mon, 10 Nov 2008, Darius wrote:
-> 
->> Guennadi Liakhovetski wrote:
->>> This is an updated and cleaned up i2c driver for i.MX3x from Freescale.
->>>
->>> Signed-off-by: Guennadi Liakhovetski <lg-ynQEQJNshbs-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
->>>
->>> ---
->>>
->>> Please comment, I'll also have to obtain ARM Acks for the arch/arm part, or,
->>> maybe, split it into two parts.
->>>
->> Hi, I have ready driver for MX1. Is it reason to make two separate drivers for
->> MX2/MX3 and MX1?
->> btw, pending patches for MX1 is main reason why I2C for imx driver is not in
->> kernel.
-> 
-> If it works with mx3 - great! I did see it, but I didn't realise it would 
-> work with mx3. Please, confirm.
+The problem (well: bug) is that in_atomic() returns false inside a
+spinlock when CONFIG_PREEMPT=n.  The code as it stands can sleep
+inside a spinlock, which is deadlockable if a scheduled-to task
+tries to take the same spinlock.
 
-It is tested only with i.MXL.
-We can see in mx1 and in mx3 user manuals, that both they has the same controller.
-mx3 differs only in register width (16bit instead 32bit in mx1) and has 3 I2C devices (mx1 only one).
-I don't have possibility to test it on mx3. Maybe you have?
-
-> 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski, Ph.D.
-> Freelance Open-Source Software Developer
+There is no means like this by which a piece of code can determine
+whether it can call schedule().  The pattern which we use in many many
+places (most especially GFP_KERNEL/GFP_ATOMIC) is to pass a flag down
+to callees telling them in some manner which context they were called from.
