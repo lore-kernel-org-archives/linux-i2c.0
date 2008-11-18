@@ -1,65 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Tue, 18 Nov 2008 09:15:46 +0100
-Message-ID: <20081118091546.421d6b78@hyperion.delvare>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200805020410.44723.david-b@pacbell.net>
-	<200805042256.49252.david-b@pacbell.net>
-	<200809231532.40083.david-b@pacbell.net>
+From: Robert Delahunt <twinreverb@puresimplicity.net>
+Subject: Re: [lm-sensors] #2361: i2c and lm_sensors do not work on Slackware 12.1 with kernel 2.6.27.6
+Date: Tue, 18 Nov 2008 20:17:42 +0900
+Message-ID: <200811182017.43109.twinreverb@puresimplicity.net>
+References: <040.878a61a6a191c2ece367aefb3b3bc643@lm-sensors.org> <049.52c5d9ff015802332972920378e356e9@lm-sensors.org>
+Reply-To: twinreverb@puresimplicity.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200809231532.40083.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <049.52c5d9ff015802332972920378e356e9@lm-sensors.org>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dave,
+How is it fixed?  ACPI and sensors should be able to live together.  If I 
+can't have one without the other, in my opinion, this is a blind spot for 
+both projects.  Has anyone brought this up to the kernel ACPI developers to 
+see if they can "unhide" or "expose" the hardware monitoring?
 
-On Tue, 23 Sep 2008 15:32:39 -0700, David Brownell wrote:
-> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> 
-> Infrastructure supporting SMBALERT# interrupts and the related SMBus
-> protocols.  These are defined as "optional" by the SMBus spec.
-> 
->  - The i2c_adapter now includes a work_struct doing the work of talking
->    to the Alert Response Address until nobody responds any more (and
->    hence the IRQ is no longer asserted).  Follows SMBus 2.0 not 1.1;
->    there seems to be no point in trying to handle ten-bit addresses.
-> 
->  - Some of the ways that work_struct could be driven:
-> 
->      * Adapter driver provides an IRQ, which is bound to a handler
->        which schedules that work_struct (using keventd for now).
->        NOTE:  it's nicest if this is edge triggered, but the code
->        should handle level triggered IRQs too.
-> 
->      * Adapter driver schedules that work struct itself, maybe even
->        on a workqueue of its own.  It asks the core to set it up by
->        setting i2c_adapter.do_setup_alert ... SMBALERT# could be a
->        subcase of the adapter's normal interrupt handler.  (Or, some
->        boards may want to use polling.)
-> 
->  - The "i2c-gpio" driver now handles an optional named resource for
->    that SMBus alert signal.  Named since, when this is substituted
->    for a misbehaving "native" driver, positional ids should be left
->    alone.  (It might be better to put this logic into i2c core, to
->    apply whenever the i2c_adapter.dev.parent is a platform device.)
-> 
->  - There's a new driver method used to report that a given device has
->    issued an alert. Its parameter includes the one bit of information
->    provided by the device in its alert response message.
-> 
-> The IRQ driven code path is always enabled, if it's available.
-> 
-> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+As for this laptop, thermal regulating is actually controlled in the hardware: 
+neither ACPI nor sensors/i2c is needed to regulate temperature in the OS 
+level.  I just find it odd that i2c/lm_sensors claims to support this chipset 
+yet the answer I get is that the kernel ACPI "hides" them.
 
-I guess it's about time that I review this patch and merge it. Is this
-still the latest version of your code, or do you have anything more
-recent?
+I'll bring this up to the kernel ACPI developers, but I would like to see this 
+issue resolved.  Again, I am willing to test out whatever code necessary to 
+help this process.
 
-Thanks,
+On Tuesday 18 November 2008 06:20:48 pm lm-sensors wrote:
+> #2361: i2c and lm_sensors do not work on Slackware 12.1 with kernel
+> 2.6.27.6
+> ----------------------+----------------------------------------------------
+>- Reporter:  ticket   |       Owner:  somebody
+>       Type:  defect   |      Status:  closed
+>   Priority:  major    |   Milestone:
+>  Component:  sensors  |     Version:  3.0.3
+> Resolution:  fixed    |    Keywords:
+> ----------------------+----------------------------------------------------
+>- Changes (by khali):
+>
+>  * cc: twinreverb@puresimplicity.net. (added)
+>   * status:  new => closed
+>   * resolution:  => fixed
+>   * milestone:  3.0.4 =>
+>
+> Comment:
+>
+>  I don't see anything wrong here. Most laptops do not have (exposed)
+>  hardware monitoring chips. Thermal regulation is handled by ACPI.
+
+
+
 -- 
-Jean Delvare
+Very respectfully,
+Robert Delahunt
+-------------------------------------------------------------------
+Ezekiel 11:19 New King James Version
+Then I will give them one heart, and I will put a new spirit within
+them, and take the stony heart out of their flesh, and give them a
+heart of flesh....
