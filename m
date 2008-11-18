@@ -1,60 +1,43 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: wrong driver remove order
-Date: Mon, 17 Nov 2008 22:04:17 +0100
-Message-ID: <20081117220417.0d83443c@hyperion.delvare>
-References: <Pine.LNX.4.64.0810301509380.5463@axis700.grange>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [RESEND patch 2.6.28-rc4] isp1301_omap build fixes
+Date: Mon, 17 Nov 2008 20:07:11 -0800
+Message-ID: <200811172007.11217.david-b@pacbell.net>
+References: <200811141228.35262.david-b@pacbell.net> <20081117213615.57c3d494@hyperion.delvare>
+Reply-To: dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0810301509380.5463-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
+In-Reply-To: <20081117213615.57c3d494-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guennadi,
+On Monday 17 November 2008, Jean Delvare wrote:
+> Sorry about that, I thought this patch would go through the omap tree.
+> But I've picked it and applied it now and will send it to Linus in the
+> next i2c batch.
 
-On Thu, 30 Oct 2008 15:13:14 +0100 (CET), Guennadi Liakhovetski wrote:
-> Hi,
-> 
-> I have two i2c modules, one of which uses the other one: a camera and a 
-> GPIO-extender, and the camera uses a GPIO from that extender. I first load 
-> the GPIO-extender driver (pca953x.c), then the camera (mt9m001.c), then as 
-> I tried to remove the bus driver (i2c-mxc, not yet in the mainline), first 
-> the GPIO-extender's .remove() method has been called, which, of course, 
-> failed, because mt9m001 was still holding its GPIO... AFAIU, the remove 
-> order should be reverse from probe, right?
-
-It would indeed make sense for the removal order to be the reverse of
-the bind order. Can you please try the following patch and report if it
-solves your problem?
-
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: i2c: Remove i2c clients in reverse order
-
-i2c clients should be removed in reverse order compared to the probe
-(actually: bind) order. This matters when several clients depend on
-each other.
-
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
----
- drivers/i2c/i2c-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.28-rc5.orig/drivers/i2c/i2c-core.c	2008-11-17 21:29:59.000000000 +0100
-+++ linux-2.6.28-rc5/drivers/i2c/i2c-core.c	2008-11-17 21:44:06.000000000 +0100
-@@ -631,7 +631,7 @@ int i2c_del_adapter(struct i2c_adapter *
- 
- 	/* detach any active clients. This must be done first, because
- 	 * it can fail; in which case we give up. */
--	list_for_each_entry_safe(client, _n, &adap->clients, list) {
-+	list_for_each_entry_safe_reverse(client, _n, &adap->clients, list) {
- 		struct i2c_driver	*driver;
- 
- 		driver = client->driver;
+Thanks ... it wouldn't go through the OMAP tree unless it were in
+the arch/arm/*omap* directories, as a rule.  And that's for low
+level board support; drivers belong somewhere in drivers/* code.
 
 
--- 
-Jean Delvare
+> I think that this kind of issue would probably be avoided if the
+> isp1301_omap driver lived somewhere under arch/arm/plat-omap. Where it
+> lives now (drivers/i2c/chips) it doesn't get the attention it deserves,
+> or when it does, that's not from the right persons. Could you please
+> work on this? Directory drivers/i2c/chips will be deleted "soon"
+> anyway, so all the drivers it contains will need a new home.
+
+I expect drivers/usb/otg will be a better place for this.  There's
+some other code which looks like it'll need to land there "soon".
+
+Once you merge these build fixes I'll probably cons up a patch which
+moves this over there.  Unless you'd rather handle it, I'll probably
+push that through Greg.
+
+- Dave
