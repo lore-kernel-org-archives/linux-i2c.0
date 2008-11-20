@@ -1,102 +1,51 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: [patch 2.6.28-rc5] i2c:  remove i2c_adapter.clist_lock
-Date: Thu, 20 Nov 2008 14:38:08 -0800
-Message-ID: <200811201438.08788.david-b@pacbell.net>
+Subject: Re: [lm-sensors] [patch 2.6.27-rc7] i2c: smbalert# support
+Date: Thu, 20 Nov 2008 14:56:36 -0800
+Message-ID: <200811201456.36551.david-b@pacbell.net>
+References: <200804161434.54335.laurentp@cse-semaphore.com> <20081119161632.2d0bde9e@hyperion.delvare> <Pine.LNX.4.64.0811201354310.11673@t2.domain.actdsltmp>
+Reply-To: dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.0811201354310.11673-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
 Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+On Thursday 20 November 2008, Trent Piepho wrote:
+> >
+> > Did you actually check the size increase? struct i2c_driver is adde=
+d
+> > one pointer, so 4 or 8 bytes, hardly worth mentioning. struct
+> > i2c_adapter is added 72 bytes on x86-64, to 1360 bytes initially so=
+ an
+> > increase of less than 6%. Is this really such a big issue? I doubt =
+it.
+> > You don't have that many i2c_adapters registered on any given syste=
+m
+> > for it to really matter, methinks.
+>=20
+> Except every other subsystem in the kernel does the same thing. =A0Ea=
+ch release
+> of 2.6 is significantly more bloated than the last and this is how it=
+ happens.=20
+> One "it's not that much wasted" change at a time.
 
-Move list add/remove operations now protected by i2c_adapter.clist_lock
-into the driver model probe() and remove() calls, where driver model
-locking protects them.  This is a minor code and data shrink.
+I do recall the "4 MByte performance problem" morphing into the "8 MByt=
+e"
+problem, and then into the "16 MByte" version then "32 MByte" -- for UN=
+IX
+workstations, including GUI.  Today's handhelds are more powerful than
+those!  And the embedded boards I get lately have 128 MB of RAM.
 
-Note that the adapter "child list" is still protected inconsistently;
-this patch just simplifies locking, and makes this list more directly
-mirror the one maintained by the driver model.  Removing this list may
-need to wait until the legacy I2C driver binding model is removed.
+The real counter-argument is that memory isn't *that* tight, especially
+since the hardware capacity is growing.
 
-Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
----
- drivers/i2c/i2c-core.c |   17 ++++-------------
- include/linux/i2c.h    |    1 -
- 2 files changed, 4 insertions(+), 14 deletions(-)
 
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -116,6 +116,8 @@ static int i2c_device_probe(struct devic
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status)
- 		client->driver = NULL;
-+	else
-+		list_add_tail(&client->list, &client->adapter->clients);
- 	return status;
- }
- 
-@@ -125,6 +127,8 @@ static int i2c_device_remove(struct devi
- 	struct i2c_driver	*driver;
- 	int			status;
- 
-+	list_del(&client->list);
-+
- 	if (!dev->driver)
- 		return 0;
- 
-@@ -315,10 +319,6 @@ void i2c_unregister_device(struct i2c_cl
- 		}
- 	}
- 
--	mutex_lock(&adapter->clist_lock);
--	list_del(&client->list);
--	mutex_unlock(&adapter->clist_lock);
--
- 	device_unregister(&client->dev);
- }
- EXPORT_SYMBOL_GPL(i2c_unregister_device);
-@@ -445,7 +445,6 @@ static int i2c_register_adapter(struct i
- 		return -EAGAIN;
- 
- 	mutex_init(&adap->bus_lock);
--	mutex_init(&adap->clist_lock);
- 	INIT_LIST_HEAD(&adap->clients);
- 
- 	mutex_lock(&core_lock);
-@@ -851,10 +850,6 @@ int i2c_attach_client(struct i2c_client 
- 	if (res)
- 		goto out_err;
- 
--	mutex_lock(&adapter->clist_lock);
--	list_add_tail(&client->list, &adapter->clients);
--	mutex_unlock(&adapter->clist_lock);
--
- 	dev_dbg(&adapter->dev, "client [%s] registered with bus id %s\n",
- 		client->name, client->dev.bus_id);
- 
-@@ -890,10 +885,6 @@ int i2c_detach_client(struct i2c_client 
- 		}
- 	}
- 
--	mutex_lock(&adapter->clist_lock);
--	list_del(&client->list);
--	mutex_unlock(&adapter->clist_lock);
--
- 	init_completion(&client->released);
- 	device_unregister(&client->dev);
- 	wait_for_completion(&client->released);
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -359,7 +359,6 @@ struct i2c_adapter {
- 	/* data fields that are valid for all devices	*/
- 	u8 level; 			/* nesting level for lockdep */
- 	struct mutex bus_lock;
--	struct mutex clist_lock;
- 
- 	int timeout;
- 	int retries;
+That said, maybe you have a patch to propose which would address the
+problem of how to *cleanly* make this infrastructure optional?
+
+- Dave
