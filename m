@@ -1,120 +1,150 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Fri, 21 Nov 2008 09:42:18 +0100
-Message-ID: <20081121094218.34ecd82a@hyperion.delvare>
+Date: Fri, 21 Nov 2008 15:18:08 +0100
+Message-ID: <20081121151808.324ca78c@hyperion.delvare>
 References: <200804161434.54335.laurentp@cse-semaphore.com>
 	<200809231532.40083.david-b@pacbell.net>
 	<20081118091546.421d6b78@hyperion.delvare>
 	<200811181401.34809.david-b@pacbell.net>
-	<Pine.LNX.4.64.0811190140510.11673@t2.domain.actdsltmp>
-	<20081119161632.2d0bde9e@hyperion.delvare>
-	<Pine.LNX.4.64.0811201354310.11673@t2.domain.actdsltmp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0811201354310.11673-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
+In-Reply-To: <200811181401.34809.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trent.
+Hi David,
 
-On Thu, 20 Nov 2008 14:00:21 -0800 (PST), Trent Piepho wrote:
-> On Wed, 19 Nov 2008, Jean Delvare wrote:
-> > On Wed, 19 Nov 2008 01:51:08 -0800 (PST), Trent Piepho wrote:
-> >> On Tue, 18 Nov 2008, David Brownell wrote:
-> >>> ---
-> >>> drivers/i2c/busses/i2c-gpio.c |   10 ++
-> >>> drivers/i2c/i2c-core.c        |  155 ++++++++++++++++++++++++++++++++++++++++
-> >>> include/linux/i2c.h           |   14 +++
-> >>> 3 files changed, 179 insertions(+)
-> >>
-> >> Can this be made optional?  Seeing as nothing uses it yet and it increases a
-> >> brunch of core structs' sizes.
-> >
-> > Did you actually check the size increase? struct i2c_driver is added
-> > one pointer, so 4 or 8 bytes, hardly worth mentioning. struct
-> > i2c_adapter is added 72 bytes on x86-64, to 1360 bytes initially so an
-> > increase of less than 6%. Is this really such a big issue? I doubt it.
-> > You don't have that many i2c_adapters registered on any given system
-> > for it to really matter, methinks.
-> 
-> Except every other subsystem in the kernel does the same thing.  Each release
-> of 2.6 is significantly more bloated than the last and this is how it happens. 
-> One "it's not that much wasted" change at a time.
+On Tue, 18 Nov 2008 14:01:34 -0800, David Brownell wrote:
+> +struct alert_data {
+> +	unsigned short	addr;
+> +	bool		flag;
+> +};
+> +
+> +/* If this is the alerting device, notify its driver. */
+> +static int i2c_do_alert(struct device *dev, void *addrp)
+> +{
+> +	struct i2c_client	*client = i2c_verify_client(dev);
+> +	struct alert_data	*data = addrp;
+> +
+> +	if (!client || client->addr != data->addr)
+> +		return 0;
+> +	if (client->flags & I2C_CLIENT_TEN)
+> +		return 0;
+> +
+> +	/* Drivers should either disable alerts, or provide at least
+> +	 * a minimal handler.  Lock so client->driver won't change.
+> +	 */
+> +	down(&dev->sem);
+> +	if (client->driver) {
+> +		if (client->driver->alert)
+> +			client->driver->alert(client, data->flag);
+> +		else
+> +			dev_warn(&client->dev, "no driver alert()!\n");
+> +	} else
+> +		dev_dbg(&client->dev, "alert with no driver\n");
+> +	up(&dev->sem);
+> +
+> +	/* Stop iterating after we find the device. */
+> +	return -EBUSY;
+> +}
+> +
+> +/*
+> + * The alert IRQ handler needs to hand work off to a task which can issue
+> + * SMBus calls, because those sleeping calls can't be made in IRQ context.
+> + */
+> +static void smbus_alert(struct work_struct *work)
+> +{
+> +	struct i2c_adapter	*bus;
+> +
+> +	bus = container_of(work, struct i2c_adapter, alert);
+> +	for (;;) {
+> +		s32			status;
+> +		struct alert_data	data;
+> +
+> +		/* Devices with pending alerts reply in address order, low
+> +		 * to high, because of slave transmit arbitration.  After
+> +		 * responding, an SMBus device stops asserting SMBALERT#.
+> +		 *
+> +		 * NOTE that SMBus 2.0 reserves 10-bit addresess for future
+> +		 * use.  We neither handle them, nor try to use PEC here.
+> +		 */
+> +		status = i2c_smbus_read_byte(bus->ara);
+> +		if (status < 0)
+> +			break;
+> +
+> +		data.flag = (status & 1) != 0;
+> +		data.addr = status >> 1;
+> +		dev_dbg(&bus->dev, "SMBALERT# %s from dev 0x%02x\n",
+> +				data.flag ? "true" : "false", data.addr);
+> +
+> +		/* Notify driver for the device which issued the alert. */
+> +		device_for_each_child(&bus->dev, &data, i2c_do_alert);
+> +	}
+> +
+> +	/* We handled all alerts; reenable level-triggered IRQs. */
+> +	if (!bus->alert_edge_triggered)
+> +		enable_irq(bus->irq);
+> +}
 
-You are unfair. We have been continuously cleaning up the i2c subsystem
-over the past few years, shrinking the main structures regularly,
-killing unused code, etc. And this clean-up process is going on.
+I got this function stuck in an endless loop while I was experimenting
+with my parallel port evaluation board. You might argue that this is
+because my code was bogus or incomplete and that would be correct, but
+nevertheless, I don't think we should give driver authors the
+possibility to bring their system down that way. Not to mention the
+possibility of broken hardware answering to the ARA when it shouldn't.
+So, I propose the following addition to make sure that we can't get
+stuck in such an endless loop:
 
-> > Making it optional would have its problems as well. Either the drivers
-> > which implement or make use of SMBus alert would have to depend on said
-> > option being enabled, or you'd have to put #ifdefs in all these drivers
-> 
-> What's so hard about having them depend on smbus alert support?  They already
-> depend on I2C and so on.  If any drivers ever get code for this, how hard is
-> it to add one dependency or select to their Kconfig section?
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c: Dismiss unhandled SMBus alerts
 
-While you are complaining about ever-growing memory footprints, other
-users of the Linux kernel complain about ever-growing kernel config
-option list. There are so many kernel configuration options these days
-that it has become very hard for newcomers to configure their kernel on
-their own. Even distribution kernel maintainers start complaining that
-they don't know which options to select. So, adding new kernel options
-for something else than hardware drivers should be considered with
-great care.
+If a given I2C driver doesn't handle SMBus alerts properly, then there
+is a risk that smbus_alert() will loop forever. We really do not want
+this to happen, so add a detection mechanism which will interrupt the
+loop in such a case.
 
-In practice, this means that I am opposed to an option that would
-appear in the configuration menu. If anything, that would be an hidden
-option that would have to be selected by drivers which need it (much as
-the "i2c algorithm" helper modules.) However, this approach has its
-shares of problems as well. For one, driver authors might forget to
-select the option in question, and this may lead to build failures
-later on. Even if they do not forget, that's still one more thing for
-them to think of (and for us to check when a driver is submitted for
-review.) For another, if anyone needs the option for an out-of-tree
-driver, they will ask for a manual way to select it anyway.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-On top of that, your proposal isn't even optimal: if you have just one
-driver that needs SMBus alert support, all adapters have their size
-increased. Taking a concrete example, on my system, there are normally
-3 I2C adapters (the mainboard's SMBus and 2 multimedia adapters) and
-they don't make use of SMBus alert (not yet.) But I also have an
-evaluation board for a thermal sensor which connects to the parallel
-port. That one needs SMBus alert support. With your proposal, in order
-to be able to make use of my evaluation board once in a while, every
-other I2C adapter in my system would need to have the extra structure
-fields. I fear that, in practice, this means that the SMBus alert
-option will end up being selected in almost every kernel out there.
-Once the support for this functionality is added to the kernel, you
-will see drivers implementing support for it (David has not been the
-only person asking for it.)
+--- linux-2.6.28-rc6.orig/drivers/i2c/i2c-core.c	2008-11-21 11:01:53.000000000 +0100
++++ linux-2.6.28-rc6/drivers/i2c/i2c-core.c	2008-11-21 14:55:29.000000000 +0100
+@@ -446,6 +446,7 @@ static int i2c_do_alert(struct device *d
+ static void smbus_alert(struct work_struct *work)
+ {
+ 	struct i2c_adapter	*bus;
++	unsigned short		prev_addr = 0;
+ 
+ 	bus = container_of(work, struct i2c_adapter, alert);
+ 	for (;;) {
+@@ -465,11 +466,18 @@ static void smbus_alert(struct work_stru
+ 
+ 		data.flag = (status & 1) != 0;
+ 		data.addr = status >> 1;
++
++		if (data.addr == prev_addr) {
++			dev_warn(&bus->dev, "Duplicate SMBALERT# from dev "
++				"0x%02x, skipping\n", data.addr);
++			break;
++		}
+ 		dev_dbg(&bus->dev, "SMBALERT# %s from dev 0x%02x\n",
+ 				data.flag ? "true" : "false", data.addr);
+ 
+ 		/* Notify driver for the device which issued the alert. */
+ 		device_for_each_child(&bus->dev, &data, i2c_do_alert);
++		prev_addr = data.addr;
+ 	}
+ 
+ 	/* We handled all alerts; reenable level-triggered IRQs. */
 
-On the other hand, trying to optimize the memory usage isn't trivial.
-Moving the extra structure fields to a separate, dynamically allocated
-structure might increase the memory fragmentation and in practice use
-_more_ memory. This would also make the code more complex, so what you
-win on data structures, you lose on code.
+What do you think?
 
-The alternative, as mentioned in my initial answer, would be to let
-each driver be built with or without support for SMBus alert, depending
-on a central configuration option (which unfortunately would no longer
-be possibly hidden.) After all, just because the hardware can do it and
-the driver has support for it doesn't mean that your system makes use
-of it! But then, not only you bloat the code with ifdefs, but you also
-introduce one more thing for every driver author to test: he/she will
-have to test his/her code with and without the option in question. If
-we later add a couple similar options, this can quickly become
-impossible to test all combinations in practice. And this will make bug
-reproduction more difficult too.
-
-All in all I am simply not convinced that it it worth optimizing. There
-appears to be more drawbacks than benefits. There are many different
-areas where cleanups would save a lot more memory than what you can
-hope for here. For example, completing the removal of the legacy i2c
-binding model. Want to help?
-
+Thanks,
 -- 
 Jean Delvare
