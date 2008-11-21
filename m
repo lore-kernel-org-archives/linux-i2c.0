@@ -1,100 +1,216 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Fri, 21 Nov 2008 20:22:23 +0100
-Message-ID: <20081121202223.0261fb9c@hyperion.delvare>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200811181401.34809.david-b@pacbell.net>
-	<20081121151808.324ca78c@hyperion.delvare>
-	<200811210824.55601.david-b@pacbell.net>
+Subject: [RFC] i2c-parport: Add SMBus alert support for ADM1032EB
+Date: Fri, 21 Nov 2008 21:29:45 +0100
+Message-ID: <20081121212945.14e14217@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200811210824.55601.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+To: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi David,
 
-On Fri, 21 Nov 2008 08:24:55 -0800, David Brownell wrote:
-> On Friday 21 November 2008, Jean Delvare wrote:
-> > --- linux-2.6.28-rc6.orig/drivers/i2c/i2c-core.c=A0=A0=A0=A0=A0=A0=A0=
-=A02008-11-21 11:01:53.000000000 +0100
-> > +++ linux-2.6.28-rc6/drivers/i2c/i2c-core.c=A0=A0=A0=A0=A02008-11-2=
-1 14:55:29.000000000 +0100
-> > @@ -446,6 +446,7 @@ static int i2c_do_alert(struct device *d
-> > =A0static void smbus_alert(struct work_struct *work)
-> > =A0{
-> > =A0=A0=A0=A0=A0=A0=A0=A0struct i2c_adapter=A0=A0=A0=A0=A0=A0*bus;
-> > +=A0=A0=A0=A0=A0=A0=A0unsigned short=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0p=
-rev_addr =3D 0;
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0bus =3D container_of(work, struct i2c_adapt=
-er, alert);
-> > =A0=A0=A0=A0=A0=A0=A0=A0for (;;) {
-> > @@ -465,11 +466,18 @@ static void smbus_alert(struct work_stru
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data.flag =3D (stat=
-us & 1) !=3D 0;
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0data.addr =3D statu=
-s >> 1;
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (data.addr =3D=3D =
-prev_addr) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0dev_warn(&bus->dev, "Duplicate SMBALERT# from dev "
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0"0x%02x, skipping\n", data.addr);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0break;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0dev_dbg(&bus->dev, =
-"SMBALERT# %s from dev 0x%02x\n",
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0data.flag ? "true" : "false", data.addr);
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* Notify driver fo=
-r the device which issued the alert. */
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0device_for_each_chi=
-ld(&bus->dev, &data, i2c_do_alert);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0prev_addr =3D data.ad=
-dr;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0/* We handled all alerts; reenable level-tr=
-iggered IRQs. */
-> >=20
-> > What do you think?
->=20
-> It's a start.  If this is a level-triggered IRQ and the device is
-> still raising the IRQ ... we'd need something more drastic, since
-> the IRQ itself would be stuck on; wouldn't want to re-enable it.
-> Edge triggered IRQs would be easier to cope with.
+Here is my attempt to add support for the SMBus alert mechanism to my
+ADM1032 evaluation board (ADM1032 thermal sensor over parallel port.)
+I'm not totally sure about the order in which things should be done in
+i2c_parport_attach() and i2c_parport_detach() (in particular whether
+irq should be enabled/disabled before/after registering/unregistering
+the i2c adapter) but all in all it seems to work fine for me. Can you
+please take a look and tell me if you see any mistake? Thanks.
 
-In my case it was an edge-triggered interrupt:
+* * * * *
 
-  7:          8   IO-APIC-edge      parport0
+Add support for the SMBus alert mechanism on the ADM1032 evaluation
+board. At this point this is more of a proof-of-concept, we don't do
+anything terribly useful on SMBus alert: we simply log the event. But
+this could later evolve into libsensors signaling so that user-space
+applications can take an appropriate action.
 
-=46or a level-triggering interrupt, I'd say it is up to the bus driver =
-to
-disable it before calling smbus_alert(), as you did in smbus_irq()?
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+---
+ drivers/hwmon/lm90.c             |   28 ++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-parport.c |   26 ++++++++++++++++++++++----
+ drivers/i2c/busses/i2c-parport.h |    4 +++-
+ 3 files changed, 53 insertions(+), 5 deletions(-)
 
-> Do you have a handle on why the device was malfunctioning?
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.c	2008-11-21 14:49:40.000000000 +0100
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.c	2008-11-21 15:23:38.000000000 +0100
+@@ -1,7 +1,7 @@
+ /* ------------------------------------------------------------------------ *
+  * i2c-parport.c I2C bus over parallel port                                 *
+  * ------------------------------------------------------------------------ *
+-   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+    
+    Based on older i2c-philips-par.c driver
+    Copyright (C) 1995-2000 Simon G. Vogl
+@@ -143,6 +143,14 @@ static struct i2c_algo_bit_data parport_
+ 
+ /* ----- I2c and parallel port call-back functions and structures --------- */
+ 
++void i2c_parport_irq(void *data)
++{
++	struct i2c_par *adapter = data;
++
++	dev_dbg(&adapter->adapter.dev, "SMBus alert received\n");
++	schedule_work(&adapter->adapter.alert);
++}
++
+ static void i2c_parport_attach (struct parport *port)
+ {
+ 	struct i2c_par *adapter;
+@@ -155,7 +163,7 @@ static void i2c_parport_attach (struct p
+ 
+ 	pr_debug("i2c-parport: attaching to %s\n", port->name);
+ 	adapter->pdev = parport_register_device(port, "i2c-parport",
+-		NULL, NULL, NULL, PARPORT_FLAG_EXCL, NULL);
++		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
+ 	if (!adapter->pdev) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
+ 		goto ERROR0;
+@@ -177,7 +185,7 @@ static void i2c_parport_attach (struct p
+ 	adapter->adapter.algo_data = &adapter->algo_data;
+ 	adapter->adapter.dev.parent = port->physport->dev;
+ 
+-	if (parport_claim_or_block(adapter->pdev) < 0) {
++	if (parport_claim(adapter->pdev) < 0) {
+ 		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
+ 		goto ERROR1;
+ 	}
+@@ -189,12 +197,18 @@ static void i2c_parport_attach (struct p
+ 	if (adapter_parm[type].init.val)
+ 		line_set(port, 1, &adapter_parm[type].init);
+ 
+-	parport_release(adapter->pdev);
++	/* Setup SMBus alert if supported */
++	if (adapter_parm[type].smbus_alert) {
++		adapter->adapter.do_setup_alert = 1;
++		adapter->adapter.alert_edge_triggered = 1;
++	}
+ 
+ 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
+ 		goto ERROR1;
+ 	}
++	if (adapter->adapter.do_setup_alert)
++		parport_enable_irq(port);
+ 
+ 	/* Add the new adapter to the list */
+ 	adapter->next = adapter_list;
+@@ -202,6 +216,7 @@ static void i2c_parport_attach (struct p
+         return;
+ 
+ ERROR1:
++	parport_release(adapter->pdev);
+ 	parport_unregister_device(adapter->pdev);
+ ERROR0:
+ 	kfree(adapter);
+@@ -215,12 +230,15 @@ static void i2c_parport_detach (struct p
+ 	for (prev = NULL, adapter = adapter_list; adapter;
+ 	     prev = adapter, adapter = adapter->next) {
+ 		if (adapter->pdev->port == port) {
++			if (adapter->adapter.do_setup_alert)
++				parport_disable_irq(port);
+ 			i2c_del_adapter(&adapter->adapter);
+ 
+ 			/* Un-init if needed (power off...) */
+ 			if (adapter_parm[type].init.val)
+ 				line_set(port, 0, &adapter_parm[type].init);
+ 				
++			parport_release(adapter->pdev);
+ 			parport_unregister_device(adapter->pdev);
+ 			if (prev)
+ 				prev->next = adapter->next;
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.h	2008-11-21 14:49:40.000000000 +0100
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.h	2008-11-21 15:18:46.000000000 +0100
+@@ -1,7 +1,7 @@
+ /* ------------------------------------------------------------------------ *
+  * i2c-parport.h I2C bus over parallel port                                 *
+  * ------------------------------------------------------------------------ *
+-   Copyright (C) 2003-2004 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+@@ -38,6 +38,7 @@ struct adapter_parm {
+ 	struct lineop getsda;
+ 	struct lineop getscl;
+ 	struct lineop init;
++	int smbus_alert;
+ };
+ 
+ static struct adapter_parm adapter_parm[] = {
+@@ -73,6 +74,7 @@ static struct adapter_parm adapter_parm[
+ 		.setscl	= { 0x01, DATA, 1 },
+ 		.getsda	= { 0x10, STAT, 1 },
+ 		.init	= { 0xf0, DATA, 0 },
++		.smbus_alert = 1,
+ 	},
+ 	/* type 5: ADM1025, ADM1030 and ADM1031 evaluation boards */
+ 	{
+--- linux-2.6.28-rc6.orig/drivers/hwmon/lm90.c	2008-10-27 08:46:47.000000000 +0100
++++ linux-2.6.28-rc6/drivers/hwmon/lm90.c	2008-11-21 17:34:36.000000000 +0100
+@@ -157,6 +157,7 @@ static int lm90_detect(struct i2c_client
+ static int lm90_probe(struct i2c_client *client,
+ 		      const struct i2c_device_id *id);
+ static void lm90_init_client(struct i2c_client *client);
++static void lm90_alert(struct i2c_client *client, bool flag);
+ static int lm90_remove(struct i2c_client *client);
+ static struct lm90_data *lm90_update_device(struct device *dev);
+ 
+@@ -190,6 +191,7 @@ static struct i2c_driver lm90_driver = {
+ 	},
+ 	.probe		= lm90_probe,
+ 	.remove		= lm90_remove,
++	.alert		= lm90_alert,
+ 	.id_table	= lm90_id,
+ 	.detect		= lm90_detect,
+ 	.address_data	= &addr_data,
+@@ -921,6 +923,18 @@ static int lm90_remove(struct i2c_client
+ 	return 0;
+ }
+ 
++static void lm90_alert(struct i2c_client *client, bool flag)
++{
++	u8 config;
++
++	/* Disable ALERT# output */
++	lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
++	config |= 0x80;
++	i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1, config);
++
++	dev_warn(&client->dev, "Temperature out of range, please check!\n");
++}
++
+ static int lm90_read16(struct i2c_client *client, u8 regh, u8 regl, u16 *value)
+ {
+ 	int err;
+@@ -1008,6 +1022,20 @@ static struct lm90_data *lm90_update_dev
+ 		}
+ 		lm90_read_reg(client, LM90_REG_R_STATUS, &data->alarms);
+ 
++		/* Re-enable ALERT# output if alarms are all clear */
++		if ((data->alarms & 0x7c) == 0) {
++			u8 config;
++
++			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
++			if (config & 0x80) {
++				dev_dbg(&client->dev, "Re-enabling ALERT#\n");
++				config &= ~0x80;
++				i2c_smbus_write_byte_data(client,
++							  LM90_REG_W_CONFIG1,
++							  config);
++			}
++		}
++
+ 		data->last_updated = jiffies;
+ 		data->valid = 1;
+ 	}
 
-The device was behaving as intended, the problem was that I had not yet
-implemented the alert() callback in the device driver. The device
-(ADM1032) keeps the ALERT# line low as long as the alarm condition
-exists, so smbus_alert() would receive the same address over and over
-again.
 
-I have now updated the device driver to mask out the ALERT# signal once
-it has triggered, until the alarm has worn off, at which point I unmask
-the ALERT# signal again. So it works OK now (I'll post the patch in a
-minute), but this is a condition that could easily happen for other
-devices / developers out there, so I think it's better to make the
-i2c-core code robust enough to handle it.
-
---=20
+-- 
 Jean Delvare
