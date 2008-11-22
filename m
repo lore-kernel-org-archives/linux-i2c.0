@@ -1,84 +1,296 @@
-From: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Sat, 22 Nov 2008 12:28:56 -0800 (PST)
-Message-ID: <Pine.LNX.4.64.0811221055470.18022@t2.domain.actdsltmp>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
- <200809231532.40083.david-b@pacbell.net> <20081118091546.421d6b78@hyperion.delvare>
- <200811181401.34809.david-b@pacbell.net> <Pine.LNX.4.64.0811190140510.11673@t2.domain.actdsltmp>
- <20081119161632.2d0bde9e@hyperion.delvare> <Pine.LNX.4.64.0811201354310.11673@t2.domain.actdsltmp>
- <20081121094218.34ecd82a@hyperion.delvare> <Pine.LNX.4.64.0811212122370.18022@t2.domain.actdsltmp>
- <20081122111340.0bfc2c05@hyperion.delvare>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: [RFC] i2c-parport: Add SMBus alert support for ADM1032EB
+Date: Sat, 22 Nov 2008 13:18:44 -0800
+Message-ID: <200811221318.44271.david-b@pacbell.net>
+References: <20081121212945.14e14217@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081122111340.0bfc2c05-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20081121212945.14e14217-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 22 Nov 2008, Jean Delvare wrote:
-> On Fri, 21 Nov 2008 22:04:26 -0800 (PST), Trent Piepho wrote:
->> On Fri, 21 Nov 2008, Jean Delvare wrote:
->>> You are unfair. We have been continuously cleaning up the i2c subsystem
->>> over the past few years, shrinking the main structures regularly,
->>> killing unused code, etc. And this clean-up process is going on.
->>
->> The size of i2c-core, struct i2c_client and struct i2c_adapter:
->> v2.6.28 9718 392 500	w/ smbalert patch
->> v2.6.28 8878 392 472
->> v2.6.27 8732 368 448
->> v2.6.26 7877 352 440
->> v2.6.25 7854 376 444
->> v2.6.24 9060 372 444
->> v2.6.23 9359 404 476
->> v2.6.22 9330 448 520
->> v2.6.21 7814 464 692
->> v2.6.20 7896 444 672
->> v2.6.19 7871 444 668
->> v2.6.18 6857 436 660
->
-> Thanks for providing these numbers, these are really useful! I'm
-> curious if you would be able to compute the same numbers down to, say,
-> kernel 2.6.5 or even 2.6.0? I'm curious where we started from.
->
-> I am also interested in the script / method you used to come up with
-> these numbers, so that maybe I can get the numbers myself if you do not
-> have the time.
+On Friday 21 November 2008, Jean Delvare wrote:
+> Hi David,
+> 
+> Here is my attempt to add support for the SMBus alert mechanism to my
+> ADM1032 evaluation board (ADM1032 thermal sensor over parallel port.)
+> I'm not totally sure about the order in which things should be done in
+> i2c_parport_attach() and i2c_parport_detach() (in particular whether
+> irq should be enabled/disabled before/after registering/unregistering
+> the i2c adapter) but all in all it seems to work fine for me.
 
-It's not entirely automatic since you have to deal with configuring the
-kernel.  It helps to start at the newest kernel and work backwards, since
-kconfig options are added more often than removed.
+General policy is not to enable IRQs until you're ready to
+handle them ... so "after", like you do it, is good here.
 
-I put this in my .bashrc to make getting object sizes easier:
-function objsize { ${CROSS_COMPILE}objdump -h $1 | awk '/text|data|bss/{x=strtonum("0x"$3);printf "%-16s%d\t%d\n",$2,x,s+=x;}' ;}
 
-Then to get structure sizes:
-cat > lib/size.c
-#include <linux/i2c.h>
-#define S(t) cpu_to_be32(sizeof(struct t))
-uint32_t a=S(i2c_adapter), b=S(i2c_client);  // reverse order in obj
+> Can you 
+> please take a look and tell me if you see any mistake? Thanks.
 
-On older kernels you have to replace cpu_to_be32() with ___constant_swab32()
-on little-endian systems and remove it on big-endian.
+You're going the "bus adapter handles IRQ" route, and in this
+case you can rely on the parport framework and the fact that
+this seems to be edge-triggered to cover up an interface glitch.
 
-Then do this for each version:
+It'd be simpler to use the parport-light code, and delegate all
+that handling to i2c-core.  After all, you're not likely to
+have a collection of such i2c adapter dongles sharing a single
+parallel port ... 
 
-ver=v2.6.17
-git checkout -f $ver
-echo 'obj-y += size.o' >> lib/Makefile
-mkdir $ver
-cp last.config $ver/.config
-make O=$ver
-# answer make questions, try not to turn on anything that adds debug/trace
-# code or extra fields to data structures.  Or turns off extra fields that
-# used to be mandatory.  Or changes compiler flags, e.g. inlining or regparm. 
-# Wait...
-ssize=`objdump -s -j .data $ver/lib/size.o |
- 	awk '/^ 0/{print strtonum("0x"$2),strtonum("0x"$3);}'`
-csize=`objsize $ver/drivers/i2c/i2c-core.o | awk 'END{print $3}'`
-echo `git describe` $csize $ssize >> i2csize
-cp $ver/.config last.config
+Alternatively, maybe *both* parport adapter drivers should be
+updated.
 
-v2.6.17 6934 416 640
-v2.6.16 7320 404 620
+- Dave
+
+
+
+> * * * * *
+> 
+> Add support for the SMBus alert mechanism on the ADM1032 evaluation
+> board. At this point this is more of a proof-of-concept, we don't do
+> anything terribly useful on SMBus alert: we simply log the event. But
+> this could later evolve into libsensors signaling so that user-space
+> applications can take an appropriate action.
+
+And there are non-alert changes too...
+
+
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> ---
+>  drivers/hwmon/lm90.c             |   28 ++++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-parport.c |   26 ++++++++++++++++++++++----
+>  drivers/i2c/busses/i2c-parport.h |    4 +++-
+>  3 files changed, 53 insertions(+), 5 deletions(-)
+> 
+> --- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.c	2008-11-21 14:49:40.000000000 +0100
+> +++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.c	2008-11-21 15:23:38.000000000 +0100
+> @@ -1,7 +1,7 @@
+>  /* ------------------------------------------------------------------------ *
+>   * i2c-parport.c I2C bus over parallel port                                 *
+>   * ------------------------------------------------------------------------ *
+> -   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> +   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>     
+>     Based on older i2c-philips-par.c driver
+>     Copyright (C) 1995-2000 Simon G. Vogl
+> @@ -143,6 +143,14 @@ static struct i2c_algo_bit_data parport_
+>  
+>  /* ----- I2c and parallel port call-back functions and structures --------- */
+>  
+> +void i2c_parport_irq(void *data)
+> +{
+> +	struct i2c_par *adapter = data;
+> +
+> +	dev_dbg(&adapter->adapter.dev, "SMBus alert received\n");
+> +	schedule_work(&adapter->adapter.alert);
+> +}
+
+It'd be nice if this weren't needed, but the parport stack
+seems to force indirection like this.
+
+
+> +
+>  static void i2c_parport_attach (struct parport *port)
+>  {
+>  	struct i2c_par *adapter;
+> @@ -155,7 +163,7 @@ static void i2c_parport_attach (struct p
+>  
+>  	pr_debug("i2c-parport: attaching to %s\n", port->name);
+>  	adapter->pdev = parport_register_device(port, "i2c-parport",
+> -		NULL, NULL, NULL, PARPORT_FLAG_EXCL, NULL);
+> +		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
+>  	if (!adapter->pdev) {
+>  		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
+>  		goto ERROR0;
+> @@ -177,7 +185,7 @@ static void i2c_parport_attach (struct p
+>  	adapter->adapter.algo_data = &adapter->algo_data;
+>  	adapter->adapter.dev.parent = port->physport->dev;
+>  
+> -	if (parport_claim_or_block(adapter->pdev) < 0) {
+> +	if (parport_claim(adapter->pdev) < 0) {
+
+... unrelated change ...
+
+>  		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
+>  		goto ERROR1;
+>  	}
+> @@ -189,12 +197,18 @@ static void i2c_parport_attach (struct p
+>  	if (adapter_parm[type].init.val)
+>  		line_set(port, 1, &adapter_parm[type].init);
+>  
+> -	parport_release(adapter->pdev);
+> +	/* Setup SMBus alert if supported */
+> +	if (adapter_parm[type].smbus_alert) {
+> +		adapter->adapter.do_setup_alert = 1;
+> +		adapter->adapter.alert_edge_triggered = 1;
+
+The fact that you need to set this trigger flag reflects a bug
+in the SMBALERT# patch.  Since "you" are handling the IRQ, it
+has no business caring about that.  It should suffice to set
+the do_setup_alert flag.
+
+
+> +	}
+>  
+>  	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+>  		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
+>  		goto ERROR1;
+>  	}
+> +	if (adapter->adapter.do_setup_alert)
+> +		parport_enable_irq(port);
+>  
+>  	/* Add the new adapter to the list */
+>  	adapter->next = adapter_list;
+> @@ -202,6 +216,7 @@ static void i2c_parport_attach (struct p
+>          return;
+>  
+>  ERROR1:
+> +	parport_release(adapter->pdev);
+
+This presumably goes with the unrelated change above,
+dropping the "_or_block" ...
+
+
+>  	parport_unregister_device(adapter->pdev);
+>  ERROR0:
+>  	kfree(adapter);
+> @@ -215,12 +230,15 @@ static void i2c_parport_detach (struct p
+>  	for (prev = NULL, adapter = adapter_list; adapter;
+>  	     prev = adapter, adapter = adapter->next) {
+>  		if (adapter->pdev->port == port) {
+> +			if (adapter->adapter.do_setup_alert)
+> +				parport_disable_irq(port);
+>  			i2c_del_adapter(&adapter->adapter);
+>  
+>  			/* Un-init if needed (power off...) */
+>  			if (adapter_parm[type].init.val)
+>  				line_set(port, 0, &adapter_parm[type].init);
+>  				
+> +			parport_release(adapter->pdev);
+
+... ditto ...
+
+>  			parport_unregister_device(adapter->pdev);
+>  			if (prev)
+>  				prev->next = adapter->next;
+> --- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.h	2008-11-21 14:49:40.000000000 +0100
+> +++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.h	2008-11-21 15:18:46.000000000 +0100
+
+This change would seem to be shared between the two parport
+drivers ... maybe it should be a separate patch, paired
+with patches for the individual parport drivers.
+
+
+> @@ -1,7 +1,7 @@
+>  /* ------------------------------------------------------------------------ *
+>   * i2c-parport.h I2C bus over parallel port                                 *
+>   * ------------------------------------------------------------------------ *
+> -   Copyright (C) 2003-2004 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> +   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>     
+>     This program is free software; you can redistribute it and/or modify
+>     it under the terms of the GNU General Public License as published by
+> @@ -38,6 +38,7 @@ struct adapter_parm {
+>  	struct lineop getsda;
+>  	struct lineop getscl;
+>  	struct lineop init;
+> +	int smbus_alert;
+>  };
+>  
+>  static struct adapter_parm adapter_parm[] = {
+> @@ -73,6 +74,7 @@ static struct adapter_parm adapter_parm[
+>  		.setscl	= { 0x01, DATA, 1 },
+>  		.getsda	= { 0x10, STAT, 1 },
+>  		.init	= { 0xf0, DATA, 0 },
+> +		.smbus_alert = 1,
+>  	},
+>  	/* type 5: ADM1025, ADM1030 and ADM1031 evaluation boards */
+>  	{
+> --- linux-2.6.28-rc6.orig/drivers/hwmon/lm90.c	2008-10-27 08:46:47.000000000 +0100
+> +++ linux-2.6.28-rc6/drivers/hwmon/lm90.c	2008-11-21 17:34:36.000000000 +0100
+
+Separate patch?
+
+
+> @@ -157,6 +157,7 @@ static int lm90_detect(struct i2c_client
+>  static int lm90_probe(struct i2c_client *client,
+>  		      const struct i2c_device_id *id);
+>  static void lm90_init_client(struct i2c_client *client);
+> +static void lm90_alert(struct i2c_client *client, bool flag);
+
+Forward declarations.  We hates them ... we hates them forever!!
+
+
+>  static int lm90_remove(struct i2c_client *client);
+>  static struct lm90_data *lm90_update_device(struct device *dev);
+>  
+> @@ -190,6 +191,7 @@ static struct i2c_driver lm90_driver = {
+>  	},
+>  	.probe		= lm90_probe,
+>  	.remove		= lm90_remove,
+> +	.alert		= lm90_alert,
+>  	.id_table	= lm90_id,
+>  	.detect		= lm90_detect,
+>  	.address_data	= &addr_data,
+
+... move this after all the functions, and the forward decls
+can vanish; as a nice cleanup, someday.
+
+
+> @@ -921,6 +923,18 @@ static int lm90_remove(struct i2c_client
+>  	return 0;
+>  }
+>  
+> +static void lm90_alert(struct i2c_client *client, bool flag)
+> +{
+> +	u8 config;
+> +
+> +	/* Disable ALERT# output */
+
+... "because this chip doesn't implement SMBALERT# correctly;
+it should only holding the alert line low briefly."
+
+
+> +	lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
+> +	config |= 0x80;
+> +	i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1, config);
+> +
+> +	dev_warn(&client->dev, "Temperature out of range, please check!\n");
+> +}
+> +
+>  static int lm90_read16(struct i2c_client *client, u8 regh, u8 regl, u16 *value)
+>  {
+>  	int err;
+> @@ -1008,6 +1022,20 @@ static struct lm90_data *lm90_update_dev
+>  		}
+>  		lm90_read_reg(client, LM90_REG_R_STATUS, &data->alarms);
+>  
+> +		/* Re-enable ALERT# output if alarms are all clear */
+> +		if ((data->alarms & 0x7c) == 0) {
+> +			u8 config;
+> +
+> +			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
+> +			if (config & 0x80) {
+> +				dev_dbg(&client->dev, "Re-enabling ALERT#\n");
+> +				config &= ~0x80;
+> +				i2c_smbus_write_byte_data(client,
+> +							  LM90_REG_W_CONFIG1,
+> +							  config);
+> +			}
+> +		}
+> +
+>  		data->last_updated = jiffies;
+>  		data->valid = 1;
+>  	}
+> 
+> 
+> -- 
+> Jean Delvare
+> 
+> 
