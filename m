@@ -1,239 +1,103 @@
-From: Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>
-Subject: Preliminary support for DDR3 in decode-dimms (fwd)
-Date: Sun, 23 Nov 2008 07:04:41 -0800 (PST)
-Message-ID: <Pine.NEB.4.64.0811230659540.29668@quicky.whooppee.com>
-Reply-To: paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
+Date: Sun, 23 Nov 2008 22:45:02 +0100
+Message-ID: <20081123224502.37500e60@hyperion.delvare>
+References: <200804161434.54335.laurentp@cse-semaphore.com>
+	<200809231532.40083.david-b@pacbell.net>
+	<20081118091546.421d6b78@hyperion.delvare>
+	<200811181401.34809.david-b@pacbell.net>
+	<Pine.LNX.4.64.0811190140510.11673@t2.domain.actdsltmp>
+	<20081119161632.2d0bde9e@hyperion.delvare>
+	<Pine.LNX.4.64.0811201354310.11673@t2.domain.actdsltmp>
+	<20081121094218.34ecd82a@hyperion.delvare>
+	<Pine.LNX.4.64.0811212122370.18022@t2.domain.actdsltmp>
+	<20081122111340.0bfc2c05@hyperion.delvare>
+	<Pine.LNX.4.64.0811221055470.18022@t2.domain.actdsltmp>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1155602470-1227389808=:8571"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-ID: <Pine.NEB.4.64.0811230659541.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.0811221055470.18022-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Trent,
 
---0-1155602470-1227389808=:8571
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.NEB.4.64.0811230659542.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
+On Sat, 22 Nov 2008 12:28:56 -0800 (PST), Trent Piepho wrote:
+> On Sat, 22 Nov 2008, Jean Delvare wrote:
+> > On Fri, 21 Nov 2008 22:04:26 -0800 (PST), Trent Piepho wrote:
+> >> The size of i2c-core, struct i2c_client and struct i2c_adapter:
+> >> v2.6.28 9718 392 500	w/ smbalert patch
+> >> v2.6.28 8878 392 472
+> >> v2.6.27 8732 368 448
+> >> v2.6.26 7877 352 440
+> >> v2.6.25 7854 376 444
+> >> v2.6.24 9060 372 444
+> >> v2.6.23 9359 404 476
+> >> v2.6.22 9330 448 520
+> >> v2.6.21 7814 464 692
+> >> v2.6.20 7896 444 672
+> >> v2.6.19 7871 444 668
+> >> v2.6.18 6857 436 660
+> >
+> > Thanks for providing these numbers, these are really useful! I'm
+> > curious if you would be able to compute the same numbers down to, say,
+> > kernel 2.6.5 or even 2.6.0? I'm curious where we started from.
+> >
+> > I am also interested in the script / method you used to come up with
+> > these numbers, so that maybe I can get the numbers myself if you do not
+> > have the time.
+> 
+> It's not entirely automatic since you have to deal with configuring the
+> kernel.  It helps to start at the newest kernel and work backwards, since
+> kconfig options are added more often than removed.
+> 
+> I put this in my .bashrc to make getting object sizes easier:
+> function objsize { ${CROSS_COMPILE}objdump -h $1 | awk '/text|data|bss/{x=strtonum("0x"$3);printf "%-16s%d\t%d\n",$2,x,s+=x;}' ;}
 
-The attached diffs provide some preliminary decode of the DDR3 SPD... 
-This work is based on the recently-published Appendix K to JESD21-C
-(see http://www.jedec.org/download/search/4_01_02_11R18.pdf).
+Not sure why you don't just use "size" for this?
 
-Warning:  I'm no perl expert.  The code I've written is probably ugly to
-most of the readers of this list.  But it does work!
+> Then to get structure sizes:
+> cat > lib/size.c
+> #include <linux/i2c.h>
+> #define S(t) cpu_to_be32(sizeof(struct t))
+> uint32_t a=S(i2c_adapter), b=S(i2c_client);  // reverse order in obj
+> 
+> On older kernels you have to replace cpu_to_be32() with ___constant_swab32()
+> on little-endian systems and remove it on big-endian.
+> 
+> Then do this for each version:
+> 
+> ver=v2.6.17
+> git checkout -f $ver
+> echo 'obj-y += size.o' >> lib/Makefile
+> mkdir $ver
+> cp last.config $ver/.config
+> make O=$ver
+> # answer make questions, try not to turn on anything that adds debug/trace
+> # code or extra fields to data structures.  Or turns off extra fields that
+> # used to be mandatory.  Or changes compiler flags, e.g. inlining or regparm. 
+> # Wait...
+> ssize=`objdump -s -j .data $ver/lib/size.o |
+>  	awk '/^ 0/{print strtonum("0x"$2),strtonum("0x"$3);}'`
+> csize=`objsize $ver/drivers/i2c/i2c-core.o | awk 'END{print $3}'`
+> echo `git describe` $csize $ssize >> i2csize
+> cp $ver/.config last.config
+> 
+> v2.6.17 6934 416 640
+> v2.6.16 7320 404 620
 
-There's no attempt made here to decode the Intel XMP extension data 
-(located beyond byte 176).  I still haven't been able to find a spec.
+Hmm, OK, that's not exactly trivial... I don't think I'll have the time
+to setup this.
 
-----------------------------------------------------------------------
-|   Paul Goyette   | PGP DSS Key fingerprint: |  E-mail addresses:   |
-| Customer Service | FA29 0E3B 35AF E8AE 6651 |  paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org   |
-| Network Engineer | 0786 F758 55DE 53BA 7731 | pgoyette-3r7Miqu9kMnR7s880joybQ@public.gmane.org |
-----------------------------------------------------------------------
---0-1155602470-1227389808=:8571
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=DECODE
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.NEB.4.64.0811230700140.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=DECODE
+Given that you already have everything in place, would you please
+provide the additional numbers I am interested in? No need to do all
+kernel versions down to 2.6.0, you certainly have more interesting
+things to do with your time. All I am really interested in are 2.6.5
+and 2.6.0. This should give us a good idea of where we started from.
 
-ODcyYTg3MywxMDM1DQo+ICMgUGFyYW1ldGVyOiBieXRlcyAwLTEyNw0KPiBz
-dWIgZGVjb2RlX2RkcjNfc2RyYW0oJCkNCj4gew0KPiAJbXkgJGJ5dGVzID0g
-c2hpZnQ7DQo+IAlteSAkbDsNCj4gCW15ICR0ZW1wOw0KPiAJbXkgJGN0aW1l
-Ow0KPiANCj4gIyBTUEQgcmV2aXNpb24NCj4gCWlmICgkYnl0ZXMtPls2Ml0g
-IT0gMHhmZikgew0KPiAJCXByaW50bCAiU1BEIFJldmlzaW9uIiwgKCRieXRl
-cy0+WzYyXSA+PiA0KSAuICIuIiAuDQo+IAkJCQkgICAgICAgKCRieXRlcy0+
-WzYyXSAmIDB4Zik7DQo+IAl9DQo+IA0KPiAjIHNwZWVkDQo+IAlwcmludHMg
-Ik1lbW9yeSBDaGFyYWN0ZXJpc3RpY3MiOw0KPiANCj4gCSRsID0gIkZpbmUg
-dGltZSBiYXNlIjsNCj4gCW15ICRkaXZpZGVuZCA9ICgkYnl0ZXMtPls5XSA+
-PiA0KSAmIDE1Ow0KPiAJbXkgJGRpdmlzb3IgID0gJGJ5dGVzLT5bOV0gJiAx
-NTsNCj4gCXByaW50bCAkbCwgc3ByaW50ZigiJS4zZiIsICRkaXZpZGVuZCAv
-ICRkaXZpc29yKSAuICIgcHMiOw0KPiANCj4gCSRsID0gIk1lZGl1bSB0aW1l
-IGJhc2UiOw0KPiAJJGRpdmlkZW5kID0gJGJ5dGVzLT5bMTBdOw0KPiAJJGRp
-dmlzb3IgID0gJGJ5dGVzLT5bMTFdOw0KPiAJbXkgJG10YiA9ICRkaXZpZGVu
-ZCAvICRkaXZpc29yOw0KPiAJcHJpbnRsICRsLCB0bnMoJG10Yik7DQo+IA0K
-PiAJJGwgPSAiTWF4aW11bSBtb2R1bGUgc3BlZWQiOw0KPiAJJGN0aW1lID0g
-JGJ5dGVzLT5bMTJdICogJG10YjsNCj4gCW15ICRkZHJjbGsgPSAyICogKDEw
-MDAgLyAkY3RpbWUpOw0KPiAJbXkgJHRiaXRzID0gMSA8PCAoKCRieXRlcy0+
-WzhdICYgNykgKyAzKTsNCj4gCW15ICRwY2NsayA9IGludCAoJGRkcmNsayAq
-ICR0Yml0cyAvIDgpOw0KPiAJJGRkcmNsayA9IGludCAoJGRkcmNsayk7DQo+
-IAlwcmludGwgJGwsICIke2RkcmNsa31NSHogKFBDMy0ke3BjY2xrfSkiOw0K
-PiANCj4gIyBTaXplIGNvbXB1dGF0aW9uDQo+IA0KPiAJbXkgJGNhcCA9ICAo
-JGJ5dGVzLT5bNF0gICAgICAgJiAxNSkgKyAyODsNCj4gCSRjYXAgICArPSAg
-KCRieXRlcy0+WzhdICAgICAgICYgNykgICsgMzsNCj4gCSRjYXAgICAtPSAg
-KCRieXRlcy0+WzddICAgICAgICYgNykgICsgMjsNCj4gCSRjYXAgICAtPSAy
-MCArIDM7DQo+IAlteSAkayAgID0gKCgkYnl0ZXMtPls3XSA+PiAzKSAmIDMx
-KSArIDE7DQo+IAlwcmludGwgIlNpemUiLCAoKDEgPDwgJGNhcCkgKiAkaykg
-LiAiIE1CIjsNCj4gDQo+IAlwcmludGwgIkJhbmtzIHggUm93cyB4IENvbHVt
-bnMgeCBCaXRzIiwNCj4gCSAgICAgICBqb2luKCcgeCAnLCAxIDw8ICgoKCRi
-eXRlcy0+WzRdID4+IDQpICYgIDcpICsgIDMpLA0KPiAJCQkgICAoKCgkYnl0
-ZXMtPls1XSA+PiAzKSAmIDMxKSArIDEyKSwNCj4gCQkJICAgKCAoJGJ5dGVz
-LT5bNV0gICAgICAgJiAgNykgKyAgOSksDQo+IAkJCSAgICggMSA8PCAoKCRi
-eXRlcy0+WzZdICYgIDcpICsgMykpICk7DQo+IAlwcmludGwgIlJhbmtzIiwg
-JGs7DQo+IA0KPiAJcHJpbnRsICJTRFJBTSBEZXZpY2UgV2lkdGgiLCAkYnl0
-ZXMtPlsxM10uIiBiaXRzIjsNCj4gDQo+IAlteSAkdGFhOw0KPiAJbXkgJHRy
-Y2Q7DQo+IAlteSAkdHJwOw0KPiAJbXkgJHRyYXM7DQo+IA0KPiAJJHRhYSAg
-PSBpbnQoJGJ5dGVzLT5bMTZdIC8gJGJ5dGVzLT5bMTJdKTsNCj4gCSR0cmNk
-ID0gaW50KCRieXRlcy0+WzE4XSAvICRieXRlcy0+WzEyXSk7DQo+IAkkdHJw
-ICA9IGludCgkYnl0ZXMtPlsyMF0gLyAkYnl0ZXMtPlsxMl0pOw0KPiAJJHRy
-YXMgPSBpbnQoKCgkYnl0ZXMtPlsyMV0gPj4gNCkgKiAyNTYgKyAkYnl0ZXMt
-PlsyMl0pIC8gJGJ5dGVzLT5bMTJdKTsNCj4gDQo+IAlwcmludGwgInRDTC10
-UkNELXRSUC10UkFTIiwgam9pbigiLSIsICR0YWEsICR0cmNkLCAkdHJwLCAk
-dHJhcyk7DQo+IA0KPiAjIGxhdGVuY2llcw0KPiAJbXkgJGhpZ2hlc3RDQVMg
-PSAwOw0KPiAJbXkgJWNhczsNCj4gCW15ICRpaTsNCj4gCW15ICRjYXNfc3Vw
-ID0gJGJ5dGVzLT5bMTVdIDw8IDggKyAkYnl0ZXMtPlsxNF07DQo+IAlmb3Ig
-KCRpaSA9IDA7ICRpaSA8IDE1OyAkaWkrKykgew0KPiAJCWlmICgkY2FzX3N1
-cCAmICgxIDw8ICRpaSkpIHsNCj4gCQkJJGhpZ2hlc3RDQVMgPSAkaWkgKyA0
-Ow0KPiAJCQkkY2FzeyRoaWdoZXN0Q0FTfSsrOw0KPiAJCX0NCj4gCX0NCj4g
-CXByaW50bCAiU3VwcG9ydGVkIENBUyBMYXRlbmNpZXMgKHRDTCkiLCBjYXNf
-bGF0ZW5jaWVzKGtleXMgJWNhcyk7DQo+IA0KPiAjIG1vcmUgdGltaW5nIGlu
-Zm9ybWF0aW9uDQo+IAlwcmludHMgIlRpbWluZyBQYXJhbWV0ZXJzIiA7DQo+
-IA0KPiAJcHJpbnRsICJNaW5pbXVtIFdyaXRlIFJlY292ZXJ5IHRpbWUgKHRX
-Um1pbikiLCB0bnMoJGJ5dGVzLT5bMTddICogJG10Yik7DQo+IAlwcmludGwg
-Ik1pbmltdW0gUm93IEFjdGl2ZS10by1Sb3cgQWN0aXZlIERlbGF5ICh0UlJE
-bWluKSIsDQo+IAkJdG5zKCRieXRlcy0+WzE5XSAqICRtdGIpOw0KPiAJcHJp
-bnRsICJNaW5pbXVtIEFjdGl2ZS10by1BY3RpdmUgUmVmcmVzaCBEZWxheSAo
-dFJDbWluKSIsDQo+IAkJdG5zKCgoKCgkYnl0ZXMtPlsyMV0gPj4gNCkgJiAx
-NSkgPDwgOCkgKyAkYnl0ZXMtPlsyM10pICogJG10Yik7DQo+IAlwcmludGwg
-Ik1pbmltdW0gUmVmcmVzaCBSZWNvdmVyeSBEZWxheSAodFJGQ21pbikiLCAN
-Cj4gCQl0bnMoKCgkYnl0ZXMtPlsyNV0gPDwgOCkgKyAkYnl0ZXMtPlsyNF0p
-ICogJG10Yik7DQo+IAlwcmludGwgIk1pbmltdW0gV3JpdGUtdG8tUmVhZCBD
-bWQgRGVsYXkgKHRXVFJtaW4pIiwNCj4gCQl0bnMoJGJ5dGVzLT5bMjZdICog
-JG10Yik7DQo+IAlwcmludGwgIk1pbmltdW0gUmVhZC10by1QcmVjaGFyZ2Ug
-Q21kIERlbGF5ICh0UlRQbWluKSIsDQo+IAkJdG5zKCRieXRlcy0+WzI3XSAq
-ICRtdGIpOw0KPiAJcHJpbnRsICJNaW5pbXVtIEZvdXIgQWN0aXZhdGUgV2lu
-ZG93IERlbGF5ICh0RkFXbWluKSIsDQo+IAkJdG5zKCgoJGJ5dGVzLT5bMjhd
-ICYgMTUpIDw8IDggKyAkYnl0ZXMtPlsyOV0pICogJG10Yik7DQo+IA0KPiAj
-IG1pc2NlbGxhbmVvdXMgc3R1ZmYNCj4gCXByaW50cyAiT3B0aW9uYWwgRmVh
-dHVyZXMiOw0KPiANCj4gCXByaW50bCAiUlpRLzYgc3VwcG9ydGVkPyIsICgk
-Ynl0ZXMtPlszMF0gJiAxKSA/ICJZZXMiIDogIk5vIjsNCj4gCXByaW50bCAi
-UlpRLzcgc3VwcG9ydGVkPyIsICgkYnl0ZXMtPlszMF0gJiAyKSA/ICJZZXMi
-IDogIk5vIjsNCj4gCXByaW50bCAiRExMLU9mZiBNb2RlIHN1cHBvcnRlZD8i
-LCAoJGJ5dGVzLT5bMzBdICYgMTI4KSA/ICJZZXMiIDogIk5vIjsNCj4gCXBy
-aW50bCAiRXh0ZW5kZWQgKDkwLTk1Qykgb3BlcmF0aW5nIHJhbmdlPyIsDQo+
-IAkJKCRieXRlcy0+WzMxXSAmIDEpID8gIlllcyIgOiAiTm8iOw0KPiAJcHJp
-bnRsICJSZWZyZXNoIFJhdGUgaW4gZXh0ZW5kZWQgcmFuZ2UiLA0KPiAJCSgk
-Ynl0ZXMtPlszMV0gJiAyKSA/ICIyWCIgOiAiMVgiOw0KPiAJcHJpbnRsICJB
-dXRvIFNlbGYtUmVmcmVzaD8iLCAoJGJ5dGVzLT5bMzFdICYgNCkgPyAiWWVz
-IiA6ICJObyI7DQo+IAlwcmludGwgIk9uLURpZSBUaGVybWFsIFNlbnNvciBy
-ZWFkb3V0PyIsDQo+IAkJKCRieXRlcy0+WzMxXSAmIDgpID8gIlllcyIgOiAi
-Tm8iOw0KPiAJcHJpbnRsICJQYXJ0aWFsIEFycmF5IFNlbGYtUmVmcmVzaD8i
-LA0KPiAJCSgkYnl0ZXMtPlszMV0gJiAxMjgpID8gIlllcyIgOiAiTm8iOw0K
-PiAJcHJpbnRsICJUaGVybWFsIFNlbnNvciBBY2N1cmFjeSIsDQo+IAkJKCRi
-eXRlcy0+WzMyXSAmIDEyOCkgPyBzcHJpbnRmKCRieXRlcy0+WzMyXSAmIDEy
-NykgOg0KPiAJCQkJCSJOb3QgaW1wbGVtZW50ZWQiOw0KPiAJcHJpbnRsICJT
-RFJBTSBEZXZpY2UgVHlwZSIsDQo+IAkJKCRieXRlcy0+WzMzXSAmIDEyOCkg
-PyBzcHJpbnRmKCRieXRlcy0+WzMzXSAmIDEyNykgOg0KPiAJCQkJCSJTdGFu
-ZGFyZCBNb25vbGl0aGljIjsNCj4gDQo+IAlwcmludHMgIk1hbnVmYWN0dXJl
-ciBEYXRhIjsNCj4gDQo+IAkkbCA9ICJNb2R1bGUgTWFudWZhY3R1cmVyIENv
-ZGUiOw0KPiAJcHJpbnRsICRsLCBzcHJpbnRmKCIweCUuMlglLjJYIiwgJGJ5
-dGVzLT5bMTE4XSwgJGJ5dGVzLT5bMTE3XSk7DQo+IA0KPiAJJGwgPSAiRFJB
-TSBNYW51ZmFjdHVyZXIgQ29kZSI7DQo+IAlwcmludGwgJGwsIHNwcmludGYo
-IjB4JS4yWCUuMlgiLCAkYnl0ZXMtPlsxNDhdLCAkYnl0ZXMtPlsxNDldKTsN
-Cj4gDQo+IAkkbCA9ICJNYW51ZmFjdHVyaW5nIExvY2F0aW9uIjsNCj4gCSR0
-ZW1wID0gKGNocigkYnl0ZXMtPls4XSkgPX4gbS9eW1x3XGRdJC8pID8gY2hy
-KCRieXRlcy0+WzhdKQ0KPiAJICAgICAgOiBzcHJpbnRmKCIweCUuMlgiLCAk
-Ynl0ZXMtPls4XSk7DQo+IAlwcmludGwgJGwsICR0ZW1wOw0KPiANCj4gCSRs
-ID0gIlBhcnQgTnVtYmVyIjsNCj4gCSR0ZW1wID0gIiI7DQo+IAlmb3IgKG15
-ICRpID0gMTI4OyAkaSA8PSAxNDU7ICRpKyspIHsNCj4gCQkkdGVtcCAuPSBj
-aHIoJGJ5dGVzLT5bJGldKTsNCj4gCX07DQo+IAlwcmludGwgJGwsICR0ZW1w
-Ow0KPiANCj4gCSRsID0gIlJldmlzaW9uIjsNCj4gCSR0ZW1wID0gc3ByaW50
-ZigiMHglMDJYJTAyWFxuIiwgJGJ5dGVzLT5bMTQ2XSwgJGJ5dGVzLT5bMTQ3
-XSk7DQo+IAlwcmludGwgJGwsICR0ZW1wOw0KPiANCj4gCSRsID0gIk1hbnVm
-YWN0dXJpbmcgRGF0ZSI7DQo+IAkjIEluIHRoZW9yeSB0aGUgeWVhciBhbmQg
-d2VlayBhcmUgaW4gQkNEIGZvcm1hdCwgYnV0DQo+IAkjIHRoaXMgaXMgbm90
-IGFsd2F5cyB0cnVlIGluIHByYWN0aWNlIDooDQo+IAlpZiAoKCRieXRlcy0+
-WzEyMF0gJiAweGYwKSA8PSAweDkwDQo+IAkgJiYgKCRieXRlcy0+WzEyMF0g
-JiAweDBmKSA8PSAweDA5DQo+IAkgJiYgKCRieXRlcy0+WzEyMV0gJiAweGYw
-KSA8PSAweDkwDQo+IAkgJiYgKCRieXRlcy0+WzEyMV0gJiAweDBmKSA8PSAw
-eDA5KSB7DQo+IAkJIyBOb3RlIHRoYXQgdGhpcyBoZXVyaXN0aWMgd2lsbCBi
-cmVhayBpbiB5ZWFyIDIwODANCj4gCQkkdGVtcCA9IHNwcmludGYoIiVkJTAy
-WC1XJTAyWFxuIiwNCj4gCQkJCSRieXRlcy0+WzEyMF0gPj0gMHg4MCA/IDE5
-IDogMjAsDQo+IAkJCQkkYnl0ZXMtPlsxMjBdLCAkYnl0ZXMtPlsxMjFdKTsN
-Cj4gCX0gZWxzZSB7DQo+IAkJJHRlbXAgPSBzcHJpbnRmKCIweCUwMlglMDJY
-XG4iLCAkYnl0ZXMtPlsxMjBdLCAkYnl0ZXMtPlsxMjFdKTsNCj4gCX0NCj4g
-CXByaW50bCAkbCwgJHRlbXA7DQo+IA0KPiAJJGwgPSAiQXNzZW1ibHkgU2Vy
-aWFsIE51bWJlciI7DQo+IAkkdGVtcCA9IHNwcmludGYoIjB4JTAyWCUwMlgl
-MDJYJTAyWFxuIiwgJGJ5dGVzLT5bMTIyXSwgJGJ5dGVzLT5bMTIzXSk7DQo+
-IAlwcmludGwgJGwsICR0ZW1wOw0KPiB9DQo+IA0KMTA2M2ExMjI3DQo+IAki
-RERSMyBTRFJBTSIJPT4gXCZkZWNvZGVfZGRyM19zZHJhbSwNCjExODFhMTM0
-NiwxMzcxDQo+IHN1YiByZWFkZnVsbHNwZCgkJCkgIyByZWFkcyBhbGwgYnl0
-ZXMgZnJvbSBTUEQtRUVQUk9NDQo+IHsNCj4gCW15ICgkc2l6ZSwgJGRpbW1f
-aSkgPSBAXzsNCj4gCW15IEBieXRlczsNCj4gCWlmICgkdXNlX2hleGR1bXAp
-IHsNCj4gCQlAYnl0ZXMgPSByZWFkX2hleGR1bXAoJGRpbW1faSk7DQo+IAkJ
-cmV0dXJuIEBieXRlc1swLi4kc2l6ZV07DQo+IAl9IGVsc2lmICgkdXNlX3N5
-c2ZzKSB7DQo+IAkJIyBLZXJuZWwgMi42IHdpdGggc3lzZnMNCj4gCQlzeXNv
-cGVuKEhBTkRMRSwgIi9zeXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGlt
-bV9pL2VlcHJvbSIsIE9fUkRPTkxZKQ0KPiAJCQlvciBkaWUgIkNhbm5vdCBv
-cGVuIC9zeXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGltbV9pL2VlcHJv
-bSI7DQo+IAkJYmlubW9kZSBIQU5ETEU7DQo+IAkJc3lzc2VlayhIQU5ETEUs
-IDAsIFNFRUtfU0VUKTsNCj4gCQlzeXNyZWFkKEhBTkRMRSwgbXkgJGVlcHJv
-bSwgJHNpemUpOw0KPiAJCWNsb3NlIEhBTkRMRTsNCj4gCQlAYnl0ZXMgPSB1
-bnBhY2soc3ByaW50ZigiQyVkIiwgJHNpemUpLCAkZWVwcm9tKTsNCj4gCX0g
-ZWxzZSB7DQo+IAkJIyBLZXJuZWwgMi40IHdpdGggcHJvY2ZzDQo+IAkJZm9y
-IG15ICRpICgwIC4uICRzaXplLzE2KSB7DQo+IAkJCW15ICRoZXhvZmYgPSBz
-cHJpbnRmKCclMDJ4JywgJGkgKiAxNik7DQo+IAkJCXB1c2ggQGJ5dGVzLCBz
-cGxpdCgiICIsIGBjYXQgL3Byb2Mvc3lzL2Rldi9zZW5zb3JzLyRkaW1tX2kv
-JGhleG9mZmApOw0KPiAJCX0NCj4gCX0NCj4gCXJldHVybiBAYnl0ZXM7DQo+
-IH0NCj4gDQoxMjc0LDEyNzZkMTQ2Mw0KPCAJCW5leHQgdW5sZXNzICRieXRl
-c1s2M10gPT0gJGRpbW1fY2hlY2tzdW0gfHwgJG9wdF9pZ25jaGVjazsNCjwg
-CQkkZGltbV9jb3VudCsrOw0KPCANCjEyOTUsMTMwMGQxNDgxDQo8IAkJbXkg
-JGwgPSAiRUVQUk9NIENoZWNrc3VtIG9mIGJ5dGVzIDAtNjIiOw0KPCAJCXBy
-aW50bCAkbCwgKCRieXRlc1s2M10gPT0gJGRpbW1fY2hlY2tzdW0gPw0KPCAJ
-CQlzcHJpbnRmKCJPSyAoMHglLjJYKSIsICRieXRlc1s2M10pOg0KPCAJCQlz
-cHJpbnRmKCJCYWRcbihmb3VuZCAweCUuMlgsIGNhbGN1bGF0ZWQgMHglLjJY
-KVxuIiwNCjwgCQkJCSRieXRlc1s2M10sICRkaW1tX2NoZWNrc3VtKSk7DQo8
-IA0KMTMwMmMxNDgzLDE1MjgNCjwgCQlteSAkaXNfcmFtYnVzID0gJGJ5dGVz
-WzBdIDwgNDsNCi0tLQ0KPiAJCW15ICRpc19yYW1idXMgPSAoJGJ5dGVzWzBd
-IDwgNCAmJiAkYnl0ZXNbMF0gPj0gMCk7DQo+IA0KPiAJCWlmICgkaXNfcmFt
-YnVzIHx8ICRieXRlc1syXSA8PSA4KSB7DQo+IAkJCW15ICRsID0gIkVFUFJP
-TSBDaGVja3N1bSBvZiBieXRlcyAwLTYyIjsNCj4gCQkJcHJpbnRsICRsLCAo
-JGJ5dGVzWzYzXSA9PSAkZGltbV9jaGVja3N1bSA/DQo+IAkJCQlzcHJpbnRm
-KCJPSyAoMHglLjJYKSIsICRieXRlc1s2M10pOg0KPiAJCQkJc3ByaW50Zigi
-QmFkXG4oZm91bmQgMHglLjJYLCBjYWxjdWxhdGVkIDB4JS4yWClcbiIsDQo+
-IAkJCQkJJGJ5dGVzWzYzXSwgJGRpbW1fY2hlY2tzdW0pKTsNCj4gCQkJbmV4
-dCB1bmxlc3MgJGJ5dGVzWzYzXSA9PSAkZGltbV9jaGVja3N1bSB8fA0KPiAJ
-CQkJICAgICRvcHRfaWduY2hlY2s7DQo+IAkJCSRkaW1tX2NvdW50Kys7DQo+
-IA0KPiAJCX0gZWxzZSB7DQo+IAkJCW15IEBzaXplcyA9ICggMTI4LCAxNzYs
-IDI1NiwgMCwgMCwgMCwgMCwgMCk7DQo+IAkJCW15ICRzcGRzaXplID0gJHNp
-emVzWygkYnl0ZXNbMF0gPj4gNCkgJiA3XTsNCj4gDQo+IAkJCUBieXRlcyA9
-IHJlYWRmdWxsc3BkKCRzcGRzaXplLCAkZGltbV9saXN0WyRpXSk7DQo+IAkJ
-CW15ICRkaW1tX2NyYyA9IDA7DQo+IAkJCW15ICRjcmNfY292ZXIgPSAkYnl0
-ZXNbMF0gJiAweDgwID8gMTE2IDogMTI1Ow0KPiAJCQlteSAkY3JjX3B0ciA9
-IDA7DQo+IAkJCW15ICRjcmNfYml0Ow0KPiAJCQl3aGlsZSAoJGNyY19wdHIg
-PD0gJGNyY19jb3Zlcikgew0KPiAJCQkJJGRpbW1fY3JjID0gJGRpbW1fY3Jj
-IF4gKCRieXRlc1skY3JjX3B0cl0gPDwgOCk7DQo+IAkJCQlmb3IgKCRjcmNf
-Yml0ID0gMDsgJGNyY19iaXQgPCA4OyAkY3JjX2JpdCsrKSB7DQo+IAkJCQkJ
-aWYgKCRkaW1tX2NyYyAmIDB4ODAwMCkgew0KPiAJCQkJCQkkZGltbV9jcmMg
-PSAoJGRpbW1fY3JjIDw8IDEpIF4NCj4gCQkJCQkJCTB4MTAyMTsNCj4gCQkJ
-CQl9IGVsc2Ugew0KPiAJCQkJCQkkZGltbV9jcmMgPSAkZGltbV9jcmMgPDwg
-MQ0KPiAJCQkJCX0NCj4gCQkJCX0NCj4gCQkJCSRjcmNfcHRyKys7DQo+IAkJ
-CX0NCj4gCQkJJGRpbW1fY3JjID0gJGRpbW1fY3JjICYgMHhmZmZmOw0KPiAN
-Cj4gCQkJbXkgJGwgPSAiRUVQUk9NIENSQyBvZiBieXRlcyAwLSIgLg0KPiAJ
-CQkJc3ByaW50ZigiJWQiLCAkY3JjX2NvdmVyKTsNCj4gCQkJbXkgJGNyY19j
-YWxjID0gJGJ5dGVzWzEyN10gPDwgOCB8ICRieXRlc1sxMjZdOw0KPiAJCQlw
-cmludGwgJGwsICgkZGltbV9jcmMgPT0gJGNyY19jYWxjKT8NCj4gCQkJCXNw
-cmludGYoIk9LICgweCUuNFgpIiwgJGRpbW1fY3JjKToNCj4gCQkJCXNwcmlu
-dGYoIkJhZFxuKGZvdW5kIDB4JS40WCwgY2FsY3VsYXRlZCAweCUuNFgpXG4i
-LA0KPiAJCQkJCSRjcmNfY2FsYywgJGRpbW1fY3JjKTsNCj4gCQkJbmV4dCB1
-bmxlc3MgJGNyY19jYWxjID09ICRkaW1tX2NyYyB8fCAkb3B0X2lnbmNoZWNr
-Ow0KPiAJCQkkZGltbV9jb3VudCsrOw0KPiAJCX0NCj4gDQoxMzE1YzE1NDEN
-CjwgCQkkbCA9ICJUb3RhbCBudW1iZXIgb2YgYnl0ZXMgaW4gRUVQUk9NIjsN
-Ci0tLQ0KPiAJCW15ICRsID0gIlRvdGFsIG51bWJlciBvZiBieXRlcyBpbiBF
-RVBST00iOw0KMTMzNWExNTYyLDE1NjQNCj4gCQkJZWxzaWYgKCRieXRlc1sy
-XSA9PSA5KSB7ICR0eXBlID0gIkZCLURJTU0iOyB9DQo+IAkJCWVsc2lmICgk
-Ynl0ZXNbMl0gPT0gMTApIHsgJHR5cGUgPSAiRkItRElNTSBQUk9CRSI7IH0N
-Cj4gCQkJZWxzaWYgKCRieXRlc1syXSA9PSAxMSkgeyAkdHlwZSA9ICJERFIz
-IFNEUkFNIjsgfQ0KMTM0MmExNTcyLDE1NzYNCj4gCQkjIEREUjMgTWFudWZh
-Y3R1cmVyIGluZm8gaXMgYWxyZWFkeSBkZWNvZGVkDQo+IAkJIyAoSXQncyBO
-T1QgY29tbW9uISkNCj4gDQo+IAkJbmV4dCBpZiAoJHR5cGUgZXEgIkREUjMg
-U0RSQU0iKTsNCj4gDQoxMzQ2YzE1ODAsMTU4NA0KPCAJCUBieXRlcyA9IHJl
-YWRzcGQ2NCg2NCwgJGRpbW1fbGlzdFskaV0pOw0KLS0tDQo+IAkJaWYgKCQj
-Ynl0ZXMgPT0gNjMpIHsNCj4gCQkJQGJ5dGVzID0gcmVhZHNwZDY0KDY0LCAk
-ZGltbV9saXN0WyRpXSk7DQo+IAkJfSBlbHNlIHsNCj4gCQkJQGJ5dGVzID0g
-QGJ5dGVzWzY0Li4kI2J5dGVzXTsNCj4gCQl9DQo=
-
---0-1155602470-1227389808=:8571--
+Thanks,
+-- 
+Jean Delvare
