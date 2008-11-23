@@ -1,296 +1,239 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [RFC] i2c-parport: Add SMBus alert support for ADM1032EB
-Date: Sat, 22 Nov 2008 13:18:44 -0800
-Message-ID: <200811221318.44271.david-b@pacbell.net>
-References: <20081121212945.14e14217@hyperion.delvare>
+From: Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>
+Subject: Preliminary support for DDR3 in decode-dimms (fwd)
+Date: Sun, 23 Nov 2008 07:04:41 -0800 (PST)
+Message-ID: <Pine.NEB.4.64.0811230659540.29668@quicky.whooppee.com>
+Reply-To: paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1155602470-1227389808=:8571"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081121212945.14e14217-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+Content-ID: <Pine.NEB.4.64.0811230659541.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 21 November 2008, Jean Delvare wrote:
-> Hi David,
-> 
-> Here is my attempt to add support for the SMBus alert mechanism to my
-> ADM1032 evaluation board (ADM1032 thermal sensor over parallel port.)
-> I'm not totally sure about the order in which things should be done in
-> i2c_parport_attach() and i2c_parport_detach() (in particular whether
-> irq should be enabled/disabled before/after registering/unregistering
-> the i2c adapter) but all in all it seems to work fine for me.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-General policy is not to enable IRQs until you're ready to
-handle them ... so "after", like you do it, is good here.
+--0-1155602470-1227389808=:8571
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.NEB.4.64.0811230659542.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
 
+The attached diffs provide some preliminary decode of the DDR3 SPD... 
+This work is based on the recently-published Appendix K to JESD21-C
+(see http://www.jedec.org/download/search/4_01_02_11R18.pdf).
 
-> Can you 
-> please take a look and tell me if you see any mistake? Thanks.
+Warning:  I'm no perl expert.  The code I've written is probably ugly to
+most of the readers of this list.  But it does work!
 
-You're going the "bus adapter handles IRQ" route, and in this
-case you can rely on the parport framework and the fact that
-this seems to be edge-triggered to cover up an interface glitch.
+There's no attempt made here to decode the Intel XMP extension data 
+(located beyond byte 176).  I still haven't been able to find a spec.
 
-It'd be simpler to use the parport-light code, and delegate all
-that handling to i2c-core.  After all, you're not likely to
-have a collection of such i2c adapter dongles sharing a single
-parallel port ... 
+----------------------------------------------------------------------
+|   Paul Goyette   | PGP DSS Key fingerprint: |  E-mail addresses:   |
+| Customer Service | FA29 0E3B 35AF E8AE 6651 |  paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org   |
+| Network Engineer | 0786 F758 55DE 53BA 7731 | pgoyette-3r7Miqu9kMnR7s880joybQ@public.gmane.org |
+----------------------------------------------------------------------
+--0-1155602470-1227389808=:8571
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=DECODE
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.NEB.4.64.0811230700140.29668-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=DECODE
 
-Alternatively, maybe *both* parport adapter drivers should be
-updated.
+ODcyYTg3MywxMDM1DQo+ICMgUGFyYW1ldGVyOiBieXRlcyAwLTEyNw0KPiBz
+dWIgZGVjb2RlX2RkcjNfc2RyYW0oJCkNCj4gew0KPiAJbXkgJGJ5dGVzID0g
+c2hpZnQ7DQo+IAlteSAkbDsNCj4gCW15ICR0ZW1wOw0KPiAJbXkgJGN0aW1l
+Ow0KPiANCj4gIyBTUEQgcmV2aXNpb24NCj4gCWlmICgkYnl0ZXMtPls2Ml0g
+IT0gMHhmZikgew0KPiAJCXByaW50bCAiU1BEIFJldmlzaW9uIiwgKCRieXRl
+cy0+WzYyXSA+PiA0KSAuICIuIiAuDQo+IAkJCQkgICAgICAgKCRieXRlcy0+
+WzYyXSAmIDB4Zik7DQo+IAl9DQo+IA0KPiAjIHNwZWVkDQo+IAlwcmludHMg
+Ik1lbW9yeSBDaGFyYWN0ZXJpc3RpY3MiOw0KPiANCj4gCSRsID0gIkZpbmUg
+dGltZSBiYXNlIjsNCj4gCW15ICRkaXZpZGVuZCA9ICgkYnl0ZXMtPls5XSA+
+PiA0KSAmIDE1Ow0KPiAJbXkgJGRpdmlzb3IgID0gJGJ5dGVzLT5bOV0gJiAx
+NTsNCj4gCXByaW50bCAkbCwgc3ByaW50ZigiJS4zZiIsICRkaXZpZGVuZCAv
+ICRkaXZpc29yKSAuICIgcHMiOw0KPiANCj4gCSRsID0gIk1lZGl1bSB0aW1l
+IGJhc2UiOw0KPiAJJGRpdmlkZW5kID0gJGJ5dGVzLT5bMTBdOw0KPiAJJGRp
+dmlzb3IgID0gJGJ5dGVzLT5bMTFdOw0KPiAJbXkgJG10YiA9ICRkaXZpZGVu
+ZCAvICRkaXZpc29yOw0KPiAJcHJpbnRsICRsLCB0bnMoJG10Yik7DQo+IA0K
+PiAJJGwgPSAiTWF4aW11bSBtb2R1bGUgc3BlZWQiOw0KPiAJJGN0aW1lID0g
+JGJ5dGVzLT5bMTJdICogJG10YjsNCj4gCW15ICRkZHJjbGsgPSAyICogKDEw
+MDAgLyAkY3RpbWUpOw0KPiAJbXkgJHRiaXRzID0gMSA8PCAoKCRieXRlcy0+
+WzhdICYgNykgKyAzKTsNCj4gCW15ICRwY2NsayA9IGludCAoJGRkcmNsayAq
+ICR0Yml0cyAvIDgpOw0KPiAJJGRkcmNsayA9IGludCAoJGRkcmNsayk7DQo+
+IAlwcmludGwgJGwsICIke2RkcmNsa31NSHogKFBDMy0ke3BjY2xrfSkiOw0K
+PiANCj4gIyBTaXplIGNvbXB1dGF0aW9uDQo+IA0KPiAJbXkgJGNhcCA9ICAo
+JGJ5dGVzLT5bNF0gICAgICAgJiAxNSkgKyAyODsNCj4gCSRjYXAgICArPSAg
+KCRieXRlcy0+WzhdICAgICAgICYgNykgICsgMzsNCj4gCSRjYXAgICAtPSAg
+KCRieXRlcy0+WzddICAgICAgICYgNykgICsgMjsNCj4gCSRjYXAgICAtPSAy
+MCArIDM7DQo+IAlteSAkayAgID0gKCgkYnl0ZXMtPls3XSA+PiAzKSAmIDMx
+KSArIDE7DQo+IAlwcmludGwgIlNpemUiLCAoKDEgPDwgJGNhcCkgKiAkaykg
+LiAiIE1CIjsNCj4gDQo+IAlwcmludGwgIkJhbmtzIHggUm93cyB4IENvbHVt
+bnMgeCBCaXRzIiwNCj4gCSAgICAgICBqb2luKCcgeCAnLCAxIDw8ICgoKCRi
+eXRlcy0+WzRdID4+IDQpICYgIDcpICsgIDMpLA0KPiAJCQkgICAoKCgkYnl0
+ZXMtPls1XSA+PiAzKSAmIDMxKSArIDEyKSwNCj4gCQkJICAgKCAoJGJ5dGVz
+LT5bNV0gICAgICAgJiAgNykgKyAgOSksDQo+IAkJCSAgICggMSA8PCAoKCRi
+eXRlcy0+WzZdICYgIDcpICsgMykpICk7DQo+IAlwcmludGwgIlJhbmtzIiwg
+JGs7DQo+IA0KPiAJcHJpbnRsICJTRFJBTSBEZXZpY2UgV2lkdGgiLCAkYnl0
+ZXMtPlsxM10uIiBiaXRzIjsNCj4gDQo+IAlteSAkdGFhOw0KPiAJbXkgJHRy
+Y2Q7DQo+IAlteSAkdHJwOw0KPiAJbXkgJHRyYXM7DQo+IA0KPiAJJHRhYSAg
+PSBpbnQoJGJ5dGVzLT5bMTZdIC8gJGJ5dGVzLT5bMTJdKTsNCj4gCSR0cmNk
+ID0gaW50KCRieXRlcy0+WzE4XSAvICRieXRlcy0+WzEyXSk7DQo+IAkkdHJw
+ICA9IGludCgkYnl0ZXMtPlsyMF0gLyAkYnl0ZXMtPlsxMl0pOw0KPiAJJHRy
+YXMgPSBpbnQoKCgkYnl0ZXMtPlsyMV0gPj4gNCkgKiAyNTYgKyAkYnl0ZXMt
+PlsyMl0pIC8gJGJ5dGVzLT5bMTJdKTsNCj4gDQo+IAlwcmludGwgInRDTC10
+UkNELXRSUC10UkFTIiwgam9pbigiLSIsICR0YWEsICR0cmNkLCAkdHJwLCAk
+dHJhcyk7DQo+IA0KPiAjIGxhdGVuY2llcw0KPiAJbXkgJGhpZ2hlc3RDQVMg
+PSAwOw0KPiAJbXkgJWNhczsNCj4gCW15ICRpaTsNCj4gCW15ICRjYXNfc3Vw
+ID0gJGJ5dGVzLT5bMTVdIDw8IDggKyAkYnl0ZXMtPlsxNF07DQo+IAlmb3Ig
+KCRpaSA9IDA7ICRpaSA8IDE1OyAkaWkrKykgew0KPiAJCWlmICgkY2FzX3N1
+cCAmICgxIDw8ICRpaSkpIHsNCj4gCQkJJGhpZ2hlc3RDQVMgPSAkaWkgKyA0
+Ow0KPiAJCQkkY2FzeyRoaWdoZXN0Q0FTfSsrOw0KPiAJCX0NCj4gCX0NCj4g
+CXByaW50bCAiU3VwcG9ydGVkIENBUyBMYXRlbmNpZXMgKHRDTCkiLCBjYXNf
+bGF0ZW5jaWVzKGtleXMgJWNhcyk7DQo+IA0KPiAjIG1vcmUgdGltaW5nIGlu
+Zm9ybWF0aW9uDQo+IAlwcmludHMgIlRpbWluZyBQYXJhbWV0ZXJzIiA7DQo+
+IA0KPiAJcHJpbnRsICJNaW5pbXVtIFdyaXRlIFJlY292ZXJ5IHRpbWUgKHRX
+Um1pbikiLCB0bnMoJGJ5dGVzLT5bMTddICogJG10Yik7DQo+IAlwcmludGwg
+Ik1pbmltdW0gUm93IEFjdGl2ZS10by1Sb3cgQWN0aXZlIERlbGF5ICh0UlJE
+bWluKSIsDQo+IAkJdG5zKCRieXRlcy0+WzE5XSAqICRtdGIpOw0KPiAJcHJp
+bnRsICJNaW5pbXVtIEFjdGl2ZS10by1BY3RpdmUgUmVmcmVzaCBEZWxheSAo
+dFJDbWluKSIsDQo+IAkJdG5zKCgoKCgkYnl0ZXMtPlsyMV0gPj4gNCkgJiAx
+NSkgPDwgOCkgKyAkYnl0ZXMtPlsyM10pICogJG10Yik7DQo+IAlwcmludGwg
+Ik1pbmltdW0gUmVmcmVzaCBSZWNvdmVyeSBEZWxheSAodFJGQ21pbikiLCAN
+Cj4gCQl0bnMoKCgkYnl0ZXMtPlsyNV0gPDwgOCkgKyAkYnl0ZXMtPlsyNF0p
+ICogJG10Yik7DQo+IAlwcmludGwgIk1pbmltdW0gV3JpdGUtdG8tUmVhZCBD
+bWQgRGVsYXkgKHRXVFJtaW4pIiwNCj4gCQl0bnMoJGJ5dGVzLT5bMjZdICog
+JG10Yik7DQo+IAlwcmludGwgIk1pbmltdW0gUmVhZC10by1QcmVjaGFyZ2Ug
+Q21kIERlbGF5ICh0UlRQbWluKSIsDQo+IAkJdG5zKCRieXRlcy0+WzI3XSAq
+ICRtdGIpOw0KPiAJcHJpbnRsICJNaW5pbXVtIEZvdXIgQWN0aXZhdGUgV2lu
+ZG93IERlbGF5ICh0RkFXbWluKSIsDQo+IAkJdG5zKCgoJGJ5dGVzLT5bMjhd
+ICYgMTUpIDw8IDggKyAkYnl0ZXMtPlsyOV0pICogJG10Yik7DQo+IA0KPiAj
+IG1pc2NlbGxhbmVvdXMgc3R1ZmYNCj4gCXByaW50cyAiT3B0aW9uYWwgRmVh
+dHVyZXMiOw0KPiANCj4gCXByaW50bCAiUlpRLzYgc3VwcG9ydGVkPyIsICgk
+Ynl0ZXMtPlszMF0gJiAxKSA/ICJZZXMiIDogIk5vIjsNCj4gCXByaW50bCAi
+UlpRLzcgc3VwcG9ydGVkPyIsICgkYnl0ZXMtPlszMF0gJiAyKSA/ICJZZXMi
+IDogIk5vIjsNCj4gCXByaW50bCAiRExMLU9mZiBNb2RlIHN1cHBvcnRlZD8i
+LCAoJGJ5dGVzLT5bMzBdICYgMTI4KSA/ICJZZXMiIDogIk5vIjsNCj4gCXBy
+aW50bCAiRXh0ZW5kZWQgKDkwLTk1Qykgb3BlcmF0aW5nIHJhbmdlPyIsDQo+
+IAkJKCRieXRlcy0+WzMxXSAmIDEpID8gIlllcyIgOiAiTm8iOw0KPiAJcHJp
+bnRsICJSZWZyZXNoIFJhdGUgaW4gZXh0ZW5kZWQgcmFuZ2UiLA0KPiAJCSgk
+Ynl0ZXMtPlszMV0gJiAyKSA/ICIyWCIgOiAiMVgiOw0KPiAJcHJpbnRsICJB
+dXRvIFNlbGYtUmVmcmVzaD8iLCAoJGJ5dGVzLT5bMzFdICYgNCkgPyAiWWVz
+IiA6ICJObyI7DQo+IAlwcmludGwgIk9uLURpZSBUaGVybWFsIFNlbnNvciBy
+ZWFkb3V0PyIsDQo+IAkJKCRieXRlcy0+WzMxXSAmIDgpID8gIlllcyIgOiAi
+Tm8iOw0KPiAJcHJpbnRsICJQYXJ0aWFsIEFycmF5IFNlbGYtUmVmcmVzaD8i
+LA0KPiAJCSgkYnl0ZXMtPlszMV0gJiAxMjgpID8gIlllcyIgOiAiTm8iOw0K
+PiAJcHJpbnRsICJUaGVybWFsIFNlbnNvciBBY2N1cmFjeSIsDQo+IAkJKCRi
+eXRlcy0+WzMyXSAmIDEyOCkgPyBzcHJpbnRmKCRieXRlcy0+WzMyXSAmIDEy
+NykgOg0KPiAJCQkJCSJOb3QgaW1wbGVtZW50ZWQiOw0KPiAJcHJpbnRsICJT
+RFJBTSBEZXZpY2UgVHlwZSIsDQo+IAkJKCRieXRlcy0+WzMzXSAmIDEyOCkg
+PyBzcHJpbnRmKCRieXRlcy0+WzMzXSAmIDEyNykgOg0KPiAJCQkJCSJTdGFu
+ZGFyZCBNb25vbGl0aGljIjsNCj4gDQo+IAlwcmludHMgIk1hbnVmYWN0dXJl
+ciBEYXRhIjsNCj4gDQo+IAkkbCA9ICJNb2R1bGUgTWFudWZhY3R1cmVyIENv
+ZGUiOw0KPiAJcHJpbnRsICRsLCBzcHJpbnRmKCIweCUuMlglLjJYIiwgJGJ5
+dGVzLT5bMTE4XSwgJGJ5dGVzLT5bMTE3XSk7DQo+IA0KPiAJJGwgPSAiRFJB
+TSBNYW51ZmFjdHVyZXIgQ29kZSI7DQo+IAlwcmludGwgJGwsIHNwcmludGYo
+IjB4JS4yWCUuMlgiLCAkYnl0ZXMtPlsxNDhdLCAkYnl0ZXMtPlsxNDldKTsN
+Cj4gDQo+IAkkbCA9ICJNYW51ZmFjdHVyaW5nIExvY2F0aW9uIjsNCj4gCSR0
+ZW1wID0gKGNocigkYnl0ZXMtPls4XSkgPX4gbS9eW1x3XGRdJC8pID8gY2hy
+KCRieXRlcy0+WzhdKQ0KPiAJICAgICAgOiBzcHJpbnRmKCIweCUuMlgiLCAk
+Ynl0ZXMtPls4XSk7DQo+IAlwcmludGwgJGwsICR0ZW1wOw0KPiANCj4gCSRs
+ID0gIlBhcnQgTnVtYmVyIjsNCj4gCSR0ZW1wID0gIiI7DQo+IAlmb3IgKG15
+ICRpID0gMTI4OyAkaSA8PSAxNDU7ICRpKyspIHsNCj4gCQkkdGVtcCAuPSBj
+aHIoJGJ5dGVzLT5bJGldKTsNCj4gCX07DQo+IAlwcmludGwgJGwsICR0ZW1w
+Ow0KPiANCj4gCSRsID0gIlJldmlzaW9uIjsNCj4gCSR0ZW1wID0gc3ByaW50
+ZigiMHglMDJYJTAyWFxuIiwgJGJ5dGVzLT5bMTQ2XSwgJGJ5dGVzLT5bMTQ3
+XSk7DQo+IAlwcmludGwgJGwsICR0ZW1wOw0KPiANCj4gCSRsID0gIk1hbnVm
+YWN0dXJpbmcgRGF0ZSI7DQo+IAkjIEluIHRoZW9yeSB0aGUgeWVhciBhbmQg
+d2VlayBhcmUgaW4gQkNEIGZvcm1hdCwgYnV0DQo+IAkjIHRoaXMgaXMgbm90
+IGFsd2F5cyB0cnVlIGluIHByYWN0aWNlIDooDQo+IAlpZiAoKCRieXRlcy0+
+WzEyMF0gJiAweGYwKSA8PSAweDkwDQo+IAkgJiYgKCRieXRlcy0+WzEyMF0g
+JiAweDBmKSA8PSAweDA5DQo+IAkgJiYgKCRieXRlcy0+WzEyMV0gJiAweGYw
+KSA8PSAweDkwDQo+IAkgJiYgKCRieXRlcy0+WzEyMV0gJiAweDBmKSA8PSAw
+eDA5KSB7DQo+IAkJIyBOb3RlIHRoYXQgdGhpcyBoZXVyaXN0aWMgd2lsbCBi
+cmVhayBpbiB5ZWFyIDIwODANCj4gCQkkdGVtcCA9IHNwcmludGYoIiVkJTAy
+WC1XJTAyWFxuIiwNCj4gCQkJCSRieXRlcy0+WzEyMF0gPj0gMHg4MCA/IDE5
+IDogMjAsDQo+IAkJCQkkYnl0ZXMtPlsxMjBdLCAkYnl0ZXMtPlsxMjFdKTsN
+Cj4gCX0gZWxzZSB7DQo+IAkJJHRlbXAgPSBzcHJpbnRmKCIweCUwMlglMDJY
+XG4iLCAkYnl0ZXMtPlsxMjBdLCAkYnl0ZXMtPlsxMjFdKTsNCj4gCX0NCj4g
+CXByaW50bCAkbCwgJHRlbXA7DQo+IA0KPiAJJGwgPSAiQXNzZW1ibHkgU2Vy
+aWFsIE51bWJlciI7DQo+IAkkdGVtcCA9IHNwcmludGYoIjB4JTAyWCUwMlgl
+MDJYJTAyWFxuIiwgJGJ5dGVzLT5bMTIyXSwgJGJ5dGVzLT5bMTIzXSk7DQo+
+IAlwcmludGwgJGwsICR0ZW1wOw0KPiB9DQo+IA0KMTA2M2ExMjI3DQo+IAki
+RERSMyBTRFJBTSIJPT4gXCZkZWNvZGVfZGRyM19zZHJhbSwNCjExODFhMTM0
+NiwxMzcxDQo+IHN1YiByZWFkZnVsbHNwZCgkJCkgIyByZWFkcyBhbGwgYnl0
+ZXMgZnJvbSBTUEQtRUVQUk9NDQo+IHsNCj4gCW15ICgkc2l6ZSwgJGRpbW1f
+aSkgPSBAXzsNCj4gCW15IEBieXRlczsNCj4gCWlmICgkdXNlX2hleGR1bXAp
+IHsNCj4gCQlAYnl0ZXMgPSByZWFkX2hleGR1bXAoJGRpbW1faSk7DQo+IAkJ
+cmV0dXJuIEBieXRlc1swLi4kc2l6ZV07DQo+IAl9IGVsc2lmICgkdXNlX3N5
+c2ZzKSB7DQo+IAkJIyBLZXJuZWwgMi42IHdpdGggc3lzZnMNCj4gCQlzeXNv
+cGVuKEhBTkRMRSwgIi9zeXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGlt
+bV9pL2VlcHJvbSIsIE9fUkRPTkxZKQ0KPiAJCQlvciBkaWUgIkNhbm5vdCBv
+cGVuIC9zeXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGltbV9pL2VlcHJv
+bSI7DQo+IAkJYmlubW9kZSBIQU5ETEU7DQo+IAkJc3lzc2VlayhIQU5ETEUs
+IDAsIFNFRUtfU0VUKTsNCj4gCQlzeXNyZWFkKEhBTkRMRSwgbXkgJGVlcHJv
+bSwgJHNpemUpOw0KPiAJCWNsb3NlIEhBTkRMRTsNCj4gCQlAYnl0ZXMgPSB1
+bnBhY2soc3ByaW50ZigiQyVkIiwgJHNpemUpLCAkZWVwcm9tKTsNCj4gCX0g
+ZWxzZSB7DQo+IAkJIyBLZXJuZWwgMi40IHdpdGggcHJvY2ZzDQo+IAkJZm9y
+IG15ICRpICgwIC4uICRzaXplLzE2KSB7DQo+IAkJCW15ICRoZXhvZmYgPSBz
+cHJpbnRmKCclMDJ4JywgJGkgKiAxNik7DQo+IAkJCXB1c2ggQGJ5dGVzLCBz
+cGxpdCgiICIsIGBjYXQgL3Byb2Mvc3lzL2Rldi9zZW5zb3JzLyRkaW1tX2kv
+JGhleG9mZmApOw0KPiAJCX0NCj4gCX0NCj4gCXJldHVybiBAYnl0ZXM7DQo+
+IH0NCj4gDQoxMjc0LDEyNzZkMTQ2Mw0KPCAJCW5leHQgdW5sZXNzICRieXRl
+c1s2M10gPT0gJGRpbW1fY2hlY2tzdW0gfHwgJG9wdF9pZ25jaGVjazsNCjwg
+CQkkZGltbV9jb3VudCsrOw0KPCANCjEyOTUsMTMwMGQxNDgxDQo8IAkJbXkg
+JGwgPSAiRUVQUk9NIENoZWNrc3VtIG9mIGJ5dGVzIDAtNjIiOw0KPCAJCXBy
+aW50bCAkbCwgKCRieXRlc1s2M10gPT0gJGRpbW1fY2hlY2tzdW0gPw0KPCAJ
+CQlzcHJpbnRmKCJPSyAoMHglLjJYKSIsICRieXRlc1s2M10pOg0KPCAJCQlz
+cHJpbnRmKCJCYWRcbihmb3VuZCAweCUuMlgsIGNhbGN1bGF0ZWQgMHglLjJY
+KVxuIiwNCjwgCQkJCSRieXRlc1s2M10sICRkaW1tX2NoZWNrc3VtKSk7DQo8
+IA0KMTMwMmMxNDgzLDE1MjgNCjwgCQlteSAkaXNfcmFtYnVzID0gJGJ5dGVz
+WzBdIDwgNDsNCi0tLQ0KPiAJCW15ICRpc19yYW1idXMgPSAoJGJ5dGVzWzBd
+IDwgNCAmJiAkYnl0ZXNbMF0gPj0gMCk7DQo+IA0KPiAJCWlmICgkaXNfcmFt
+YnVzIHx8ICRieXRlc1syXSA8PSA4KSB7DQo+IAkJCW15ICRsID0gIkVFUFJP
+TSBDaGVja3N1bSBvZiBieXRlcyAwLTYyIjsNCj4gCQkJcHJpbnRsICRsLCAo
+JGJ5dGVzWzYzXSA9PSAkZGltbV9jaGVja3N1bSA/DQo+IAkJCQlzcHJpbnRm
+KCJPSyAoMHglLjJYKSIsICRieXRlc1s2M10pOg0KPiAJCQkJc3ByaW50Zigi
+QmFkXG4oZm91bmQgMHglLjJYLCBjYWxjdWxhdGVkIDB4JS4yWClcbiIsDQo+
+IAkJCQkJJGJ5dGVzWzYzXSwgJGRpbW1fY2hlY2tzdW0pKTsNCj4gCQkJbmV4
+dCB1bmxlc3MgJGJ5dGVzWzYzXSA9PSAkZGltbV9jaGVja3N1bSB8fA0KPiAJ
+CQkJICAgICRvcHRfaWduY2hlY2s7DQo+IAkJCSRkaW1tX2NvdW50Kys7DQo+
+IA0KPiAJCX0gZWxzZSB7DQo+IAkJCW15IEBzaXplcyA9ICggMTI4LCAxNzYs
+IDI1NiwgMCwgMCwgMCwgMCwgMCk7DQo+IAkJCW15ICRzcGRzaXplID0gJHNp
+emVzWygkYnl0ZXNbMF0gPj4gNCkgJiA3XTsNCj4gDQo+IAkJCUBieXRlcyA9
+IHJlYWRmdWxsc3BkKCRzcGRzaXplLCAkZGltbV9saXN0WyRpXSk7DQo+IAkJ
+CW15ICRkaW1tX2NyYyA9IDA7DQo+IAkJCW15ICRjcmNfY292ZXIgPSAkYnl0
+ZXNbMF0gJiAweDgwID8gMTE2IDogMTI1Ow0KPiAJCQlteSAkY3JjX3B0ciA9
+IDA7DQo+IAkJCW15ICRjcmNfYml0Ow0KPiAJCQl3aGlsZSAoJGNyY19wdHIg
+PD0gJGNyY19jb3Zlcikgew0KPiAJCQkJJGRpbW1fY3JjID0gJGRpbW1fY3Jj
+IF4gKCRieXRlc1skY3JjX3B0cl0gPDwgOCk7DQo+IAkJCQlmb3IgKCRjcmNf
+Yml0ID0gMDsgJGNyY19iaXQgPCA4OyAkY3JjX2JpdCsrKSB7DQo+IAkJCQkJ
+aWYgKCRkaW1tX2NyYyAmIDB4ODAwMCkgew0KPiAJCQkJCQkkZGltbV9jcmMg
+PSAoJGRpbW1fY3JjIDw8IDEpIF4NCj4gCQkJCQkJCTB4MTAyMTsNCj4gCQkJ
+CQl9IGVsc2Ugew0KPiAJCQkJCQkkZGltbV9jcmMgPSAkZGltbV9jcmMgPDwg
+MQ0KPiAJCQkJCX0NCj4gCQkJCX0NCj4gCQkJCSRjcmNfcHRyKys7DQo+IAkJ
+CX0NCj4gCQkJJGRpbW1fY3JjID0gJGRpbW1fY3JjICYgMHhmZmZmOw0KPiAN
+Cj4gCQkJbXkgJGwgPSAiRUVQUk9NIENSQyBvZiBieXRlcyAwLSIgLg0KPiAJ
+CQkJc3ByaW50ZigiJWQiLCAkY3JjX2NvdmVyKTsNCj4gCQkJbXkgJGNyY19j
+YWxjID0gJGJ5dGVzWzEyN10gPDwgOCB8ICRieXRlc1sxMjZdOw0KPiAJCQlw
+cmludGwgJGwsICgkZGltbV9jcmMgPT0gJGNyY19jYWxjKT8NCj4gCQkJCXNw
+cmludGYoIk9LICgweCUuNFgpIiwgJGRpbW1fY3JjKToNCj4gCQkJCXNwcmlu
+dGYoIkJhZFxuKGZvdW5kIDB4JS40WCwgY2FsY3VsYXRlZCAweCUuNFgpXG4i
+LA0KPiAJCQkJCSRjcmNfY2FsYywgJGRpbW1fY3JjKTsNCj4gCQkJbmV4dCB1
+bmxlc3MgJGNyY19jYWxjID09ICRkaW1tX2NyYyB8fCAkb3B0X2lnbmNoZWNr
+Ow0KPiAJCQkkZGltbV9jb3VudCsrOw0KPiAJCX0NCj4gDQoxMzE1YzE1NDEN
+CjwgCQkkbCA9ICJUb3RhbCBudW1iZXIgb2YgYnl0ZXMgaW4gRUVQUk9NIjsN
+Ci0tLQ0KPiAJCW15ICRsID0gIlRvdGFsIG51bWJlciBvZiBieXRlcyBpbiBF
+RVBST00iOw0KMTMzNWExNTYyLDE1NjQNCj4gCQkJZWxzaWYgKCRieXRlc1sy
+XSA9PSA5KSB7ICR0eXBlID0gIkZCLURJTU0iOyB9DQo+IAkJCWVsc2lmICgk
+Ynl0ZXNbMl0gPT0gMTApIHsgJHR5cGUgPSAiRkItRElNTSBQUk9CRSI7IH0N
+Cj4gCQkJZWxzaWYgKCRieXRlc1syXSA9PSAxMSkgeyAkdHlwZSA9ICJERFIz
+IFNEUkFNIjsgfQ0KMTM0MmExNTcyLDE1NzYNCj4gCQkjIEREUjMgTWFudWZh
+Y3R1cmVyIGluZm8gaXMgYWxyZWFkeSBkZWNvZGVkDQo+IAkJIyAoSXQncyBO
+T1QgY29tbW9uISkNCj4gDQo+IAkJbmV4dCBpZiAoJHR5cGUgZXEgIkREUjMg
+U0RSQU0iKTsNCj4gDQoxMzQ2YzE1ODAsMTU4NA0KPCAJCUBieXRlcyA9IHJl
+YWRzcGQ2NCg2NCwgJGRpbW1fbGlzdFskaV0pOw0KLS0tDQo+IAkJaWYgKCQj
+Ynl0ZXMgPT0gNjMpIHsNCj4gCQkJQGJ5dGVzID0gcmVhZHNwZDY0KDY0LCAk
+ZGltbV9saXN0WyRpXSk7DQo+IAkJfSBlbHNlIHsNCj4gCQkJQGJ5dGVzID0g
+QGJ5dGVzWzY0Li4kI2J5dGVzXTsNCj4gCQl9DQo=
 
-- Dave
-
-
-
-> * * * * *
-> 
-> Add support for the SMBus alert mechanism on the ADM1032 evaluation
-> board. At this point this is more of a proof-of-concept, we don't do
-> anything terribly useful on SMBus alert: we simply log the event. But
-> this could later evolve into libsensors signaling so that user-space
-> applications can take an appropriate action.
-
-And there are non-alert changes too...
-
-
-> 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> ---
->  drivers/hwmon/lm90.c             |   28 ++++++++++++++++++++++++++++
->  drivers/i2c/busses/i2c-parport.c |   26 ++++++++++++++++++++++----
->  drivers/i2c/busses/i2c-parport.h |    4 +++-
->  3 files changed, 53 insertions(+), 5 deletions(-)
-> 
-> --- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.c	2008-11-21 14:49:40.000000000 +0100
-> +++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.c	2008-11-21 15:23:38.000000000 +0100
-> @@ -1,7 +1,7 @@
->  /* ------------------------------------------------------------------------ *
->   * i2c-parport.c I2C bus over parallel port                                 *
->   * ------------------------------------------------------------------------ *
-> -   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> +   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->     
->     Based on older i2c-philips-par.c driver
->     Copyright (C) 1995-2000 Simon G. Vogl
-> @@ -143,6 +143,14 @@ static struct i2c_algo_bit_data parport_
->  
->  /* ----- I2c and parallel port call-back functions and structures --------- */
->  
-> +void i2c_parport_irq(void *data)
-> +{
-> +	struct i2c_par *adapter = data;
-> +
-> +	dev_dbg(&adapter->adapter.dev, "SMBus alert received\n");
-> +	schedule_work(&adapter->adapter.alert);
-> +}
-
-It'd be nice if this weren't needed, but the parport stack
-seems to force indirection like this.
-
-
-> +
->  static void i2c_parport_attach (struct parport *port)
->  {
->  	struct i2c_par *adapter;
-> @@ -155,7 +163,7 @@ static void i2c_parport_attach (struct p
->  
->  	pr_debug("i2c-parport: attaching to %s\n", port->name);
->  	adapter->pdev = parport_register_device(port, "i2c-parport",
-> -		NULL, NULL, NULL, PARPORT_FLAG_EXCL, NULL);
-> +		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
->  	if (!adapter->pdev) {
->  		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
->  		goto ERROR0;
-> @@ -177,7 +185,7 @@ static void i2c_parport_attach (struct p
->  	adapter->adapter.algo_data = &adapter->algo_data;
->  	adapter->adapter.dev.parent = port->physport->dev;
->  
-> -	if (parport_claim_or_block(adapter->pdev) < 0) {
-> +	if (parport_claim(adapter->pdev) < 0) {
-
-... unrelated change ...
-
->  		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
->  		goto ERROR1;
->  	}
-> @@ -189,12 +197,18 @@ static void i2c_parport_attach (struct p
->  	if (adapter_parm[type].init.val)
->  		line_set(port, 1, &adapter_parm[type].init);
->  
-> -	parport_release(adapter->pdev);
-> +	/* Setup SMBus alert if supported */
-> +	if (adapter_parm[type].smbus_alert) {
-> +		adapter->adapter.do_setup_alert = 1;
-> +		adapter->adapter.alert_edge_triggered = 1;
-
-The fact that you need to set this trigger flag reflects a bug
-in the SMBALERT# patch.  Since "you" are handling the IRQ, it
-has no business caring about that.  It should suffice to set
-the do_setup_alert flag.
-
-
-> +	}
->  
->  	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
->  		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
->  		goto ERROR1;
->  	}
-> +	if (adapter->adapter.do_setup_alert)
-> +		parport_enable_irq(port);
->  
->  	/* Add the new adapter to the list */
->  	adapter->next = adapter_list;
-> @@ -202,6 +216,7 @@ static void i2c_parport_attach (struct p
->          return;
->  
->  ERROR1:
-> +	parport_release(adapter->pdev);
-
-This presumably goes with the unrelated change above,
-dropping the "_or_block" ...
-
-
->  	parport_unregister_device(adapter->pdev);
->  ERROR0:
->  	kfree(adapter);
-> @@ -215,12 +230,15 @@ static void i2c_parport_detach (struct p
->  	for (prev = NULL, adapter = adapter_list; adapter;
->  	     prev = adapter, adapter = adapter->next) {
->  		if (adapter->pdev->port == port) {
-> +			if (adapter->adapter.do_setup_alert)
-> +				parport_disable_irq(port);
->  			i2c_del_adapter(&adapter->adapter);
->  
->  			/* Un-init if needed (power off...) */
->  			if (adapter_parm[type].init.val)
->  				line_set(port, 0, &adapter_parm[type].init);
->  				
-> +			parport_release(adapter->pdev);
-
-... ditto ...
-
->  			parport_unregister_device(adapter->pdev);
->  			if (prev)
->  				prev->next = adapter->next;
-> --- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-parport.h	2008-11-21 14:49:40.000000000 +0100
-> +++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-parport.h	2008-11-21 15:18:46.000000000 +0100
-
-This change would seem to be shared between the two parport
-drivers ... maybe it should be a separate patch, paired
-with patches for the individual parport drivers.
-
-
-> @@ -1,7 +1,7 @@
->  /* ------------------------------------------------------------------------ *
->   * i2c-parport.h I2C bus over parallel port                                 *
->   * ------------------------------------------------------------------------ *
-> -   Copyright (C) 2003-2004 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> +   Copyright (C) 2003-2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->     
->     This program is free software; you can redistribute it and/or modify
->     it under the terms of the GNU General Public License as published by
-> @@ -38,6 +38,7 @@ struct adapter_parm {
->  	struct lineop getsda;
->  	struct lineop getscl;
->  	struct lineop init;
-> +	int smbus_alert;
->  };
->  
->  static struct adapter_parm adapter_parm[] = {
-> @@ -73,6 +74,7 @@ static struct adapter_parm adapter_parm[
->  		.setscl	= { 0x01, DATA, 1 },
->  		.getsda	= { 0x10, STAT, 1 },
->  		.init	= { 0xf0, DATA, 0 },
-> +		.smbus_alert = 1,
->  	},
->  	/* type 5: ADM1025, ADM1030 and ADM1031 evaluation boards */
->  	{
-> --- linux-2.6.28-rc6.orig/drivers/hwmon/lm90.c	2008-10-27 08:46:47.000000000 +0100
-> +++ linux-2.6.28-rc6/drivers/hwmon/lm90.c	2008-11-21 17:34:36.000000000 +0100
-
-Separate patch?
-
-
-> @@ -157,6 +157,7 @@ static int lm90_detect(struct i2c_client
->  static int lm90_probe(struct i2c_client *client,
->  		      const struct i2c_device_id *id);
->  static void lm90_init_client(struct i2c_client *client);
-> +static void lm90_alert(struct i2c_client *client, bool flag);
-
-Forward declarations.  We hates them ... we hates them forever!!
-
-
->  static int lm90_remove(struct i2c_client *client);
->  static struct lm90_data *lm90_update_device(struct device *dev);
->  
-> @@ -190,6 +191,7 @@ static struct i2c_driver lm90_driver = {
->  	},
->  	.probe		= lm90_probe,
->  	.remove		= lm90_remove,
-> +	.alert		= lm90_alert,
->  	.id_table	= lm90_id,
->  	.detect		= lm90_detect,
->  	.address_data	= &addr_data,
-
-... move this after all the functions, and the forward decls
-can vanish; as a nice cleanup, someday.
-
-
-> @@ -921,6 +923,18 @@ static int lm90_remove(struct i2c_client
->  	return 0;
->  }
->  
-> +static void lm90_alert(struct i2c_client *client, bool flag)
-> +{
-> +	u8 config;
-> +
-> +	/* Disable ALERT# output */
-
-... "because this chip doesn't implement SMBALERT# correctly;
-it should only holding the alert line low briefly."
-
-
-> +	lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
-> +	config |= 0x80;
-> +	i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1, config);
-> +
-> +	dev_warn(&client->dev, "Temperature out of range, please check!\n");
-> +}
-> +
->  static int lm90_read16(struct i2c_client *client, u8 regh, u8 regl, u16 *value)
->  {
->  	int err;
-> @@ -1008,6 +1022,20 @@ static struct lm90_data *lm90_update_dev
->  		}
->  		lm90_read_reg(client, LM90_REG_R_STATUS, &data->alarms);
->  
-> +		/* Re-enable ALERT# output if alarms are all clear */
-> +		if ((data->alarms & 0x7c) == 0) {
-> +			u8 config;
-> +
-> +			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
-> +			if (config & 0x80) {
-> +				dev_dbg(&client->dev, "Re-enabling ALERT#\n");
-> +				config &= ~0x80;
-> +				i2c_smbus_write_byte_data(client,
-> +							  LM90_REG_W_CONFIG1,
-> +							  config);
-> +			}
-> +		}
-> +
->  		data->last_updated = jiffies;
->  		data->valid = 1;
->  	}
-> 
-> 
-> -- 
-> Jean Delvare
-> 
-> 
+--0-1155602470-1227389808=:8571--
