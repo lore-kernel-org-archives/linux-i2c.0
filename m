@@ -1,103 +1,105 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2.6.27-rc7] i2c: smbalert# support
-Date: Sun, 23 Nov 2008 22:45:02 +0100
-Message-ID: <20081123224502.37500e60@hyperion.delvare>
-References: <200804161434.54335.laurentp@cse-semaphore.com>
-	<200809231532.40083.david-b@pacbell.net>
-	<20081118091546.421d6b78@hyperion.delvare>
-	<200811181401.34809.david-b@pacbell.net>
-	<Pine.LNX.4.64.0811190140510.11673@t2.domain.actdsltmp>
-	<20081119161632.2d0bde9e@hyperion.delvare>
-	<Pine.LNX.4.64.0811201354310.11673@t2.domain.actdsltmp>
-	<20081121094218.34ecd82a@hyperion.delvare>
-	<Pine.LNX.4.64.0811212122370.18022@t2.domain.actdsltmp>
-	<20081122111340.0bfc2c05@hyperion.delvare>
-	<Pine.LNX.4.64.0811221055470.18022@t2.domain.actdsltmp>
+Subject: [PATCH] i2c: Use snprintf to set adapter names
+Date: Mon, 24 Nov 2008 18:58:22 +0100
+Message-ID: <20081124185822.0e4302fc@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0811221055470.18022-3bmvVOk6DZ+DGx/iekXGtrjh7zpefjiS@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trent,
+Use snprintf instead of sprintf to set adapter names, it's safer.
 
-On Sat, 22 Nov 2008 12:28:56 -0800 (PST), Trent Piepho wrote:
-> On Sat, 22 Nov 2008, Jean Delvare wrote:
-> > On Fri, 21 Nov 2008 22:04:26 -0800 (PST), Trent Piepho wrote:
-> >> The size of i2c-core, struct i2c_client and struct i2c_adapter:
-> >> v2.6.28 9718 392 500	w/ smbalert patch
-> >> v2.6.28 8878 392 472
-> >> v2.6.27 8732 368 448
-> >> v2.6.26 7877 352 440
-> >> v2.6.25 7854 376 444
-> >> v2.6.24 9060 372 444
-> >> v2.6.23 9359 404 476
-> >> v2.6.22 9330 448 520
-> >> v2.6.21 7814 464 692
-> >> v2.6.20 7896 444 672
-> >> v2.6.19 7871 444 668
-> >> v2.6.18 6857 436 660
-> >
-> > Thanks for providing these numbers, these are really useful! I'm
-> > curious if you would be able to compute the same numbers down to, say,
-> > kernel 2.6.5 or even 2.6.0? I'm curious where we started from.
-> >
-> > I am also interested in the script / method you used to come up with
-> > these numbers, so that maybe I can get the numbers myself if you do not
-> > have the time.
-> 
-> It's not entirely automatic since you have to deal with configuring the
-> kernel.  It helps to start at the newest kernel and work backwards, since
-> kconfig options are added more often than removed.
-> 
-> I put this in my .bashrc to make getting object sizes easier:
-> function objsize { ${CROSS_COMPILE}objdump -h $1 | awk '/text|data|bss/{x=strtonum("0x"$3);printf "%-16s%d\t%d\n",$2,x,s+=x;}' ;}
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ali1563.c      |    4 ++--
+ drivers/i2c/busses/i2c-amd756-s4882.c |    4 ++--
+ drivers/i2c/busses/i2c-amd756.c       |    5 +++--
+ drivers/i2c/busses/i2c-at91.c         |    2 +-
+ drivers/i2c/busses/i2c-sis5595.c      |    4 ++--
+ drivers/i2c/busses/i2c-sis630.c       |    4 ++--
+ 6 files changed, 12 insertions(+), 11 deletions(-)
 
-Not sure why you don't just use "size" for this?
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-ali1563.c	2008-10-10 09:27:55.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-ali1563.c	2008-11-24 18:46:28.000000000 +0100
+@@ -399,8 +399,8 @@ static int __devinit ali1563_probe(struc
+ 	if ((error = ali1563_setup(dev)))
+ 		goto exit;
+ 	ali1563_adapter.dev.parent = &dev->dev;
+-	sprintf(ali1563_adapter.name,"SMBus ALi 1563 Adapter @ %04x",
+-		ali1563_smba);
++	snprintf(ali1563_adapter.name, sizeof(ali1563_adapter.name),
++		 "SMBus ALi 1563 Adapter @ %04x", ali1563_smba);
+ 	if ((error = i2c_add_adapter(&ali1563_adapter)))
+ 		goto exit_shutdown;
+ 	return 0;
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-amd756-s4882.c	2008-10-10 09:27:55.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-amd756-s4882.c	2008-11-24 18:46:09.000000000 +0100
+@@ -197,8 +197,8 @@ static int __init amd756_s4882_init(void
+ 	for (i = 1; i < 5; i++) {
+ 		s4882_algo[i] = *(amd756_smbus.algo);
+ 		s4882_adapter[i] = amd756_smbus;
+-		sprintf(s4882_adapter[i].name,
+-			"SMBus 8111 adapter (CPU%d)", i-1);
++		snprintf(s4882_adapter[i].name, sizeof(s4882_adapter[i].name),
++			 "SMBus 8111 adapter (CPU%d)", i-1);
+ 		s4882_adapter[i].algo = s4882_algo+i;
+ 		s4882_adapter[i].dev.parent = amd756_smbus.dev.parent;
+ 	}
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-amd756.c	2008-10-24 09:27:57.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-amd756.c	2008-11-24 18:45:43.000000000 +0100
+@@ -380,8 +380,9 @@ static int __devinit amd756_probe(struct
+ 	/* set up the sysfs linkage to our parent device */
+ 	amd756_smbus.dev.parent = &pdev->dev;
+ 
+-	sprintf(amd756_smbus.name, "SMBus %s adapter at %04x",
+-		chipname[id->driver_data], amd756_ioport);
++	snprintf(amd756_smbus.name, sizeof(amd756_smbus.name),
++		 "SMBus %s adapter at %04x", chipname[id->driver_data],
++		 amd756_ioport);
+ 
+ 	error = i2c_add_adapter(&amd756_smbus);
+ 	if (error) {
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-at91.c	2008-10-10 09:27:55.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-at91.c	2008-11-24 18:45:08.000000000 +0100
+@@ -222,7 +222,7 @@ static int __devinit at91_i2c_probe(stru
+ 		rc = -ENOMEM;
+ 		goto fail2;
+ 	}
+-	sprintf(adapter->name, "AT91");
++	snprintf(adapter->name, sizeof(adapter->name), "AT91");
+ 	adapter->algo = &at91_algorithm;
+ 	adapter->class = I2C_CLASS_HWMON;
+ 	adapter->dev.parent = &pdev->dev;
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-sis5595.c	2008-10-10 09:27:55.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-sis5595.c	2008-11-24 18:44:46.000000000 +0100
+@@ -389,8 +389,8 @@ static int __devinit sis5595_probe(struc
+ 	/* set up the sysfs linkage to our parent device */
+ 	sis5595_adapter.dev.parent = &dev->dev;
+ 
+-	sprintf(sis5595_adapter.name, "SMBus SIS5595 adapter at %04x",
+-		sis5595_base + SMB_INDEX);
++	snprintf(sis5595_adapter.name, sizeof(sis5595_adapter.name),
++		 "SMBus SIS5595 adapter at %04x", sis5595_base + SMB_INDEX);
+ 	err = i2c_add_adapter(&sis5595_adapter);
+ 	if (err) {
+ 		release_region(sis5595_base + SMB_INDEX, 2);
+--- linux-2.6.28-rc6.orig/drivers/i2c/busses/i2c-sis630.c	2008-10-10 09:27:55.000000000 +0200
++++ linux-2.6.28-rc6/drivers/i2c/busses/i2c-sis630.c	2008-11-24 18:51:03.000000000 +0100
+@@ -487,8 +487,8 @@ static int __devinit sis630_probe(struct
+ 	/* set up the sysfs linkage to our parent device */
+ 	sis630_adapter.dev.parent = &dev->dev;
+ 
+-	sprintf(sis630_adapter.name, "SMBus SIS630 adapter at %04x",
+-		acpi_base + SMB_STS);
++	snprintf(sis630_adapter.name, sizeof(sis630_adapter.name),
++		 "SMBus SIS630 adapter at %04x", acpi_base + SMB_STS);
+ 
+ 	return i2c_add_adapter(&sis630_adapter);
+ }
 
-> Then to get structure sizes:
-> cat > lib/size.c
-> #include <linux/i2c.h>
-> #define S(t) cpu_to_be32(sizeof(struct t))
-> uint32_t a=S(i2c_adapter), b=S(i2c_client);  // reverse order in obj
-> 
-> On older kernels you have to replace cpu_to_be32() with ___constant_swab32()
-> on little-endian systems and remove it on big-endian.
-> 
-> Then do this for each version:
-> 
-> ver=v2.6.17
-> git checkout -f $ver
-> echo 'obj-y += size.o' >> lib/Makefile
-> mkdir $ver
-> cp last.config $ver/.config
-> make O=$ver
-> # answer make questions, try not to turn on anything that adds debug/trace
-> # code or extra fields to data structures.  Or turns off extra fields that
-> # used to be mandatory.  Or changes compiler flags, e.g. inlining or regparm. 
-> # Wait...
-> ssize=`objdump -s -j .data $ver/lib/size.o |
->  	awk '/^ 0/{print strtonum("0x"$2),strtonum("0x"$3);}'`
-> csize=`objsize $ver/drivers/i2c/i2c-core.o | awk 'END{print $3}'`
-> echo `git describe` $csize $ssize >> i2csize
-> cp $ver/.config last.config
-> 
-> v2.6.17 6934 416 640
-> v2.6.16 7320 404 620
 
-Hmm, OK, that's not exactly trivial... I don't think I'll have the time
-to setup this.
-
-Given that you already have everything in place, would you please
-provide the additional numbers I am interested in? No need to do all
-kernel versions down to 2.6.0, you certainly have more interesting
-things to do with your time. All I am really interested in are 2.6.5
-and 2.6.0. This should give us a good idea of where we started from.
-
-Thanks,
 -- 
 Jean Delvare
