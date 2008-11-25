@@ -1,64 +1,51 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: wrong driver remove order
-Date: Tue, 25 Nov 2008 10:02:56 +0100
-Message-ID: <20081125100256.7742e367@hyperion.delvare>
-References: <Pine.LNX.4.64.0810301509380.5463@axis700.grange>
-	<20081117220417.0d83443c@hyperion.delvare>
+Subject: Re: [patch 2.6.28-rc5] i2c:  remove i2c_adapter.clist_lock
+Date: Tue, 25 Nov 2008 10:12:03 +0100
+Message-ID: <20081125101203.58e3f032@hyperion.delvare>
+References: <200811201438.08788.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081117220417.0d83443c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <200811201438.08788.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 17 Nov 2008 22:04:17 +0100, Jean Delvare wrote:
-> Hi Guennadi,
-> 
-> On Thu, 30 Oct 2008 15:13:14 +0100 (CET), Guennadi Liakhovetski wrote:
-> > Hi,
-> > 
-> > I have two i2c modules, one of which uses the other one: a camera and a 
-> > GPIO-extender, and the camera uses a GPIO from that extender. I first load 
-> > the GPIO-extender driver (pca953x.c), then the camera (mt9m001.c), then as 
-> > I tried to remove the bus driver (i2c-mxc, not yet in the mainline), first 
-> > the GPIO-extender's .remove() method has been called, which, of course, 
-> > failed, because mt9m001 was still holding its GPIO... AFAIU, the remove 
-> > order should be reverse from probe, right?
-> 
-> It would indeed make sense for the removal order to be the reverse of
-> the bind order. Can you please try the following patch and report if it
-> solves your problem?
+Hi David,
 
-Any news from this? I'd like to push this change to Linus this week if
-it actually solves your problem.
-
-> From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Subject: i2c: Remove i2c clients in reverse order
+On Thu, 20 Nov 2008 14:38:08 -0800, David Brownell wrote:
+> From: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 > 
-> i2c clients should be removed in reverse order compared to the probe
-> (actually: bind) order. This matters when several clients depend on
-> each other.
+> Move list add/remove operations now protected by i2c_adapter.clist_lock
+> into the driver model probe() and remove() calls, where driver model
+> locking protects them.  This is a minor code and data shrink.
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+> Note that the adapter "child list" is still protected inconsistently;
+> this patch just simplifies locking, and makes this list more directly
+> mirror the one maintained by the driver model.  Removing this list may
+> need to wait until the legacy I2C driver binding model is removed.
+> 
+> Signed-off-by: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 > ---
->  drivers/i2c/i2c-core.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2.6.28-rc5.orig/drivers/i2c/i2c-core.c	2008-11-17 21:29:59.000000000 +0100
-> +++ linux-2.6.28-rc5/drivers/i2c/i2c-core.c	2008-11-17 21:44:06.000000000 +0100
-> @@ -631,7 +631,7 @@ int i2c_del_adapter(struct i2c_adapter *
->  
->  	/* detach any active clients. This must be done first, because
->  	 * it can fail; in which case we give up. */
-> -	list_for_each_entry_safe(client, _n, &adap->clients, list) {
-> +	list_for_each_entry_safe_reverse(client, _n, &adap->clients, list) {
->  		struct i2c_driver	*driver;
->  
->  		driver = client->driver;
+>  drivers/i2c/i2c-core.c |   17 ++++-------------
+>  include/linux/i2c.h    |    1 -
+>  2 files changed, 4 insertions(+), 14 deletions(-)
 
+I'm not sure I want to take this change at this point. Call me chicken,
+but I seem to recall problems with legacy i2c clients last time we
+tried to clean up this area. So I'd rather work on killing the legacy
+binding model now, and once this is done, we can look into i2c-core
+cleanups again.
+
+The list of i2c drivers that still need to be converted can be found
+here:
+http://jdelvare.pck.nerim.net/linux/legacy_i2c_driver.list
+
+Drivers that are neither marked "*" (done) nor "-" (deleted) are left
+to convert.
+
+Thanks,
 -- 
 Jean Delvare
