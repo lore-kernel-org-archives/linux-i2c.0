@@ -1,72 +1,30 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: git-pull request for i2c-omap updates (Re: [PATCH 00/12] Updates
-	for i2c-omap for 2.6.29 merge window, v5)
-Date: Fri, 28 Nov 2008 17:56:12 -0800
-Message-ID: <20081129015611.GK6640@atomide.com>
-References: <20081129013318.13428.88465.stgit@localhost>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c-tools 3.0.2 has been released
+Date: Sat, 29 Nov 2008 15:30:08 +0100
+Message-ID: <20081129153008.17b74824@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="envbJBWh7q8WU6mo"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20081129013318.13428.88465.stgit@localhost>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi all,
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I just released i2c-tools version 3.0.2. The most important changes
+since version 3.0.1 are:
 
-Ben,
+* Improved error handling (all tools)
+* Support for i2c bus passed by name (all tools)
+* Compatibility fix for perl 5.10.0 (decode-dimms)
 
-Here's the pull request for you.
+For a more detailed listing of changes, see the CHANGES document in the
+i2c-tools package.
 
-Regards,
+You can download i2c-tools 3.0.2 at:
+http://dl.lm-sensors.org/i2c-tools/releases/i2c-tools-3.0.2.tar.bz2
+http://dl.lm-sensors.org/i2c-tools/releases/i2c-tools-3.0.2.tar.bz2.sig
 
-Tony
-
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="pull.txt"
-
-The following changes since commit 13d428afc007fcfcd6deeb215618f54cf9c0cae6:
-  Linus Torvalds (1):
-        Linux 2.6.28-rc6
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap-2.6.git i2c-for-ben
-
-Chandra shekhar (1):
-      i2c-omap: Add support for omap34xx
-
-Jarkko Nikula (1):
-      i2c-omap: Do not use interruptible wait call in omap_i2c_xfer_msg
-
-Kalle Jokiniemi (1):
-      i2c-omap: Enable I2C wakeups for 34xx
-
-Nishanth Menon (1):
-      i2c-omap: FIFO handling support and broken hw workaround for i2c-omap
-
-Paul Walmsley (6):
-      i2c-omap: Close suspected race between omap_i2c_idle() and omap_i2c_isr()
-      i2c-omap: Mark init-only functions as __init
-      i2c-omap: Don't compile in OMAP15xx I2C ISR for non-OMAP15xx builds
-      i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
-      i2c-omap: convert 'rev1' flag to generic 'rev' u8
-      i2c-omap: reprogram OCP_SYSCONFIG register after reset
-
-Syed Mohammed Khasim (1):
-      i2c-omap: Add high-speed support to omap-i2c
-
-Tony Lindgren (1):
-      i2c-omap: Clean-up i2c-omap
-
- arch/arm/mach-omap2/clock24xx.h |    4 +-
- drivers/i2c/busses/i2c-omap.c   |  420 ++++++++++++++++++++++++++++++---------
- 2 files changed, 330 insertions(+), 94 deletions(-)
-
---envbJBWh7q8WU6mo--
+-- 
+Jean Delvare
