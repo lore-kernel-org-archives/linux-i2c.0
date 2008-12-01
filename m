@@ -1,41 +1,65 @@
-From: Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
+From: Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>
 Subject: Re: Erratic MPC8248 CPM2 I2C behaviour
-Date: Mon, 1 Dec 2008 10:56:49 +0100
-Message-ID: <200812011056.49303.laurentp@cse-semaphore.com>
-References: <200811281724.49620.laurentp@cse-semaphore.com> <20081129054153.GA22692@pengutronix.de>
+Date: Mon, 01 Dec 2008 15:28:23 -0800
+Message-ID: <49347317.5080600@consentry.com>
+References: <mailman.569.1227903153.29923.linuxppc-dev@ozlabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081129054153.GA22692-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <mailman.569.1227903153.29923.linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jochen-NIgtFMG+Po8@public.gmane.org
+To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 29 November 2008 06:41:53 Wolfram Sang wrote:
-> Hello Laurent,
->
-> > After switching to the powerpc architecture and Jochen Friedrich's
-> > driver, I've experienced erratic transfer timeouts. Quite frequent at
-> > first (2.6.26), the problems disappeared on the road to 2.6.27 and have
-> > now resurfaced.
->
-> Now == current linus.git?
+Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org> wrote:
+> Transmission timeout after one second. The first TX buffer descriptor status 
+> hasn't been modified by the CPM. The CPM state dump shows that processing of 
+...
 
-Now = both 2.6.27 and 2.6.28-rc8.
+This sounds very similar to a problem I have seen on MPC8247 and
+MPC8248.
 
-Best regards,
+It could be a variation of the CPM bug documented by Freescale as
+erratum CPM98.  But the key difference is that we see a persistent
+failure, while the erratum only mentions a problem with "the next
+transaction".  What we see is that once the I2C engine gets confused
+by some anomaly on the SCL signal, it stops processing buffer
+descriptors entirely until it is turned off and back on.  You can
+observe this bug by momentarily grounding the SCL line (it's an
+open-collector bus) with a jumper while you attempt an I/O.
 
--- 
-Laurent Pinchart
-CSE Semaphore Belgium
+Our production equipment is using Linux 2.6 with the out-of-tree
+i2c-algo-8260.c by Dan Malek and Brad Parker.  I modified this
+driver to shut off the I2C controller and turn it back on when it
+hits this problem, and now it can recover from this condition.
 
-Chaussee de Bruxelles, 732A
-B-1410 Waterloo
-Belgium
+However, this does not explain how the controller gets into the
+frozen state in the first place.  We see it very rarely in production
+units and have not been able to identify the cause.  If it is
+similar to erratum CPM98 then it could be noise on the SCL signal or
+perhaps an I2C device that doesn't conform to the protocol perfectly.
+Also beware, if you are using some kind of multiplexer, that you don't
+direct the multiplexer to switch to a different bus (segment) while a
+transaction is in progress.
 
-T +32 (2) 387 42 59
-F +32 (2) 387 42 75
+In testing with the current (2.6.27) i2c-cpm.c driver, I found that
+it is sufficient to #define I2C_CHIP_ERRATA to allow it to recover
+from the CPM I2C freeze.  However, I don't know if I like this
+approach because it turns off the I2C engine after every transfer,
+even successful ones, and I don't know if this will affect reliability
+or performance.  And I don't know if this will actually prevent the
+freeze from happening, although I presume that it would protect the
+I2C engine from getting confused by a glitch that happens while no
+transfer is in progress.
+
+I am not aware of any documentation for what exactly the I2C_CHIP_ERRATA
+conditional code in i2c-cpm.c is meant to work around.  The comment
+mentions "earlier than rev D4" but I'm not aware of any such rev for
+8260 or 8272 chip families, and if it is related to erratum CPM98,
+Freescale seems to say that this erratum is in all revs of these chips
+and has no plan to fix it, so it seems that the workaround should be
+enabled by default.
+
+					-=] Mike [=-
