@@ -1,38 +1,30 @@
 From: Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>
 Subject: Re: Erratic MPC8248 CPM2 I2C behaviour
-Date: Tue, 02 Dec 2008 17:44:51 -0800
-Message-ID: <4935E493.9050402@consentry.com>
-References: <mailman.569.1227903153.29923.linuxppc-dev@ozlabs.org> <49347317.5080600@consentry.com> <200812021207.06140.laurentp@cse-semaphore.com>
+Date: Tue, 02 Dec 2008 18:27:23 -0800
+Message-ID: <4935EE8B.80708@consentry.com>
+References: <mailman.569.1227903153.29923.linuxppc-dev@ozlabs.org>	 <49347317.5080600@consentry.com> <1228207199.9867.69.camel@gentoo-jocke.transmode.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200812021207.06140.laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <1228207199.9867.69.camel-/EMGr9iCeazgSi9v3i4K4Pmbkio/vSLMs0AfqQuZ5sE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Laurent Pinchart <laurentp-BSmb2szPELAwsLKNixborgC/G2K4zDHf@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Laurent,
+Jocke,
 
-> While the problem seems to be similar to CPM98, I don't understand how it 
-> could happen on the first character of the first I2C transfer.
+> The I2C_CHIP_ERRATA is mine and refers to mpc8xx, mpc860 in my case. The
+> driver was adapted by me some years ago in 2.4 and now someone has
+> ported it to 2.6 it seems.
 
-I agree, that is hard to explain given that i2c-cpm keeps the controller
-shut off until the very moment of the first transfer.  Can you check that
-the bus is really idle (SCL is high) when the timeout happens?  If one of
-the slave devices is in a bad state and pulling SCL low, I think the
-behavior you see is expected (CPM will wait forever for the bus to be
-idle).  The same is probably true if a GPIO pin is mis-configured.
+Thanks for the background info.  Any idea which particular errata it
+was meant to fix?  I took a quick look at MPC860 errata document and it
+seems that CPM5 and CPM6 both suggest this workaround.
 
-> As explained in my previous mail to Joakim, I spent some more time last Friday 
-> investigating the problem, and it seems the baud rate generator configuration 
-> plays an important role. The default configuration (60kHz nominal => 65.104kHz 
-> using a 25MHz brg clock and a /32 predivider) leads to timeouts, while I 
-> haven't been able to reproduce the problem with the i2c-mpc8260.c 
-> configuration (100kHz nominal => 104.167kHz using a 25MHz brg clock and a /8 
-> predivider).
-
-It would be interesting to try each driver with the other's clock settings.
+I don't think any of the 8xx CPM errata are present on 82xx, but it
+would be good to enable the same or similar workaround on CPM2 for
+82xx erratum CPM98, probably even when I2C_CHIP_ERRATA is not defined.
 
 					-=] Mike [=-
