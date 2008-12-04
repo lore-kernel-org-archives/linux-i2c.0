@@ -1,128 +1,75 @@
-From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH][resend] iMX/MXC support for I2C
-Date: Thu, 04 Dec 2008 09:47:38 +0200
-Message-ID: <49378B1A.7030909@gmail.com>
-References: <gh3f1h$fto$1@ger.gmane.org> <Pine.LNX.4.64.0812030917440.4717@axis700.grange> <gh5vf4$e02$1@ger.gmane.org> <Pine.LNX.4.64.0812032158150.7961@axis700.grange>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Strange data corruption when read from
+ /sys/class/i2c-adapter/.../eeprom
+Date: Thu, 4 Dec 2008 09:48:00 +0100
+Message-ID: <20081204094800.3f80d7f6@hyperion.delvare>
+References: <Pine.LNX.4.64.0812031327440.4717@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0812032158150.7961-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.0812031327440.4717-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
-> On Wed, 3 Dec 2008, Darius wrote:
->
->   
->> Guennadi Liakhovetski wrote:
->>     
->>>> +
->>>> +static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
->>>> +{
->>>> +	int result;
->>>> +
->>>> +	result = wait_event_interruptible_timeout(i2c_imx->queue,
->>>> +		i2c_imx->i2csr & I2SR_IIF, I2C_IMX_TIME_TRX * HZ);
->>>>         
->>> 5s is much too long!
->>>       
->> how much? 600us?
->>     
->
-> mxc uses 1 jiffie.
->
->   
->>>> +	/* write slave address */
->>>> +	writeb(msgs->addr, i2c_imx->base + IMX_I2C_I2DR);
->>>>         
->>> This is wrong! You have to double the address before writing to the
->>> register.
->>>       
->> strange! there are I2c board data in my MXLADS code:
->>
->> struct i2c_board_info __initdata mx1ads_i2c_devices[] = {
->> 	{
->> 		I2C_BOARD_INFO("ov7xxx", 0x42),
->> 		.platform_data = &iclink[0],
->> 	}, {
->> 		I2C_BOARD_INFO("mt9v111", 0x90),
->> 		.platform_data = &iclink[0],
->> 	}
->> }
->>
->> slave addresses are exactly 0x42 and 0x90 (from datasheets).
->> my driver works with these devices with address not doubled.
->> I saw this in other I2C drivers, but If I double address in my driver, it
->> works wrong.
->> I tested this with oscilloscope - now it works ok, with all devices I have
->> tryed.
->>     
->
-> As Mark explained - Linux uses i2c addresses without the read/write bit, 
-> i.e., shifted one bit right.
->   
+Hi Guennadi,
 
-This means I should use shifted address in platform data?
-For example: OV7670 image sensor has slave address 0x42 for write, and 
-0x43 for read operations.
-This is hardware slave address, to which device responds.
-But I should use 0x21 in platform data, because it must be doubled in 
-adapter driver?
-If I use original 0x42 address, after doubling it will be 0x108, to 
-which device does not respond...
+On Wed, 3 Dec 2008 13:37:13 +0100 (CET), Guennadi Liakhovetski wrote:
+> on an i.MX31-based system I observe a strange effect:
+> 
+> cat /sys/class/i2c-adapter/.../eeprom > /tmp/e1
+> rmmod <adapter-driver>
+> modprobe <adapter-driver>
+> cat /sys/class/i2c-adapter/.../eeprom > /tmp/e2
+> 
+> after which the first 0x40 bytes in e2 are zero. The rest is correct - as 
+> in e1. To recover I have to
+> 
+> rmmod eeprom
+> i2cdetect ... # incluging eeprom addresses
+> modprobe eeprom
 
->   
->>>> +module_param(clkfreq, uint, S_IRUGO);
->>>> +MODULE_PARM_DESC(clkfreq, "desired IMX I2C Clock Rate in Hz");
->>>>         
->>> Making clkfreq a module parameter you force the same frequency on all i2c
->>> busses. On my i.MX31 system 2 busses are internal and one goes to a
->>> connector, to which a camera is connected. This third bus can only handle a
->>> lower frequency, which, however, doesn't mean we also have to throttle the
->>> other two busses. Can we put this into platform data?
->>>       
->> We can do that, but now there is possibility to change bitrate when re-loading
->> module.
->> What is better?
->>     
->
-> But is it really necessary to be able to override this at load-time? At 
-> least not as one single parameter. If you absolutely need this 
-> possibility, maybe an array of frequencies? But then you don't know how 
-> many busses you are going to have. Having an array of 8 ints will probably 
-> be enough for a while:-)
->   
+How repeatable is this? I do not observe this behavior with i2c-I801 +
+eeprom here.
 
-No it's not necessary. I will leave this setting only in platform data 
-and default value if platform data is not provided.
+Anything in the kernel logs?
 
->   
->>>> +struct imxi2c_platform_data {
->>>> +	int (*init)(struct device *dev);
->>>> +	int (*exit)(struct device *dev);
->>>>         
->>> What are you going to use .exit() for? Is it really needed? Even if it is,
->>> it can easily return void I guess?
->>>       
->> .init is used to request and setup gpio pins, .exit used to free gpio.
->> yes, .exit can return void - I will fix it.
->>     
->
-> You mean in your .init() you not only configure iomux pins for i2c, you 
-> also gpio_request(pin_to_gpio(), "i2c")? Now that I think about this, 
-> maybe this is indeed correct, and then you gpio_free() in .exit()... Is 
-> this what you mean?
->   
+To recover, isn't it enough to wait for 5 minutes (giving the eeprom
+driver's cache the time to expire)? If so, I would suspect an
+initialization error in your adapter driver (maybe it takes some time
+to the hardware to fully initialize, or there's an initialization step
+missing in the driver.)
 
-yes, you're right.
+Note that the eeprom driver can use both I2C block read transactions
+and SMBus word read transactions. The former is used if available
+because it is faster. You may force the eeprom driver to switch to
+SMBus word reads by removing I2C_FUNC_SMBUS_READ_I2C_BLOCK from the bus
+driver's functionality bitfield. It might help you pinpoint the exact
+problem.
 
-> Thanks
-> Guennadi
-> ---
-> Guennadi Liakhovetski, Ph.D.
-> Freelance Open-Source Software Developer
->
->   
+Maybe an even easier way would be to use i2c-dev + i2cdump instead of
+the eeprom driver. With i2cdump you will have full control on the
+transaction type that is used to read the EEPROM data.
+
+> I would suspect a software bug, but I get this with two alternative 
+> adapter drivers (mxc and imx - see my recent post to the list), and on a 
+> laptop with 2.6.26 I don't get this. The kernel on i.MX31 is a pretty 
+> fresh linux-next. Does this look like a hardware "feature"? Or do we have 
+> a regression?
+
+Does this happen as root, or as a regular user, or both? FWIW, the
+eeprom driver handles EEPROMs by blocks of 32 bytes, and for some
+EEPROM types, some fields are zeroed for non-root users, for privacy
+purposes. I doubt this is related to your problem, but let's still keep
+it in mind.
+
+Do you use both the at24 and eeprom drivers on your system?
+
+If you think this is a regression then please figure out the last
+kernel which behaved properly and the first kernel which started
+failing.
+
+-- 
+Jean Delvare
