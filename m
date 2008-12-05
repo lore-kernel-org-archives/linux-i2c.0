@@ -1,45 +1,60 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 1/2] i2c: misannotation in i2c-pmcmsp.c
-Date: Fri, 5 Dec 2008 14:44:08 +0100
-Message-ID: <20081205144408.74de2806@hyperion.delvare>
-References: <200812012217.mB1MHccm011065@imap1.linux-foundation.org>
+Subject: Re: [patch 2/2] i2c: trivial endian casting fixes in
+ i2c-highlander.c
+Date: Fri, 5 Dec 2008 14:46:05 +0100
+Message-ID: <20081205144605.755f2445@hyperion.delvare>
+References: <200812012217.mB1MHeUA011076@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200812012217.mB1MHccm011065-AB4EexQrvXRQetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <200812012217.mB1MHeUA011076-AB4EexQrvXRQetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Marc St-Jean <Marc_St-Jean-4W7cOCfLBmzY0TyS/+Ba5Q@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
 Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, harvey.harrison-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 01 Dec 2008 14:17:38 -0800, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
+On Mon, 01 Dec 2008 14:17:40 -0800, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org wrote:
 > From: Harvey Harrison <harvey.harrison-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
-> tmp is used as host-endian and is loaded from a be64, fix the cast and the
-> endian accessor used.
+> Fixes sparse warnings:
+> drivers/i2c/busses/i2c-highlander.c:95:26: warning: incorrect type in argument 1 (different base types)
+> drivers/i2c/busses/i2c-highlander.c:95:26:    expected restricted __be16 const [usertype] *p
+> drivers/i2c/busses/i2c-highlander.c:95:26:    got unsigned short [usertype] *<noident>
+> drivers/i2c/busses/i2c-highlander.c:106:15: warning: incorrect type in assignment (different base types)
+> drivers/i2c/busses/i2c-highlander.c:106:15:    expected unsigned short [unsigned] [short] [usertype] <noident>
+> drivers/i2c/busses/i2c-highlander.c:106:15:    got restricted __be16
 > 
 > Signed-off-by: Harvey Harrison <harvey.harrison-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 > ---
 > 
->  drivers/i2c/busses/i2c-pmcmsp.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-highlander.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff -puN drivers/i2c/busses/i2c-pmcmsp.c~i2c-misannotation-in-i2c-pmcmspc drivers/i2c/busses/i2c-pmcmsp.c
-> --- a/drivers/i2c/busses/i2c-pmcmsp.c~i2c-misannotation-in-i2c-pmcmspc
-> +++ a/drivers/i2c/busses/i2c-pmcmsp.c
-> @@ -486,7 +486,7 @@ static enum pmcmsptwi_xfer_result pmcmsp
+> diff -puN drivers/i2c/busses/i2c-highlander.c~i2c-trivial-endian-casting-fixes-in-i2c-highlanderc drivers/i2c/busses/i2c-highlander.c
+> --- a/drivers/i2c/busses/i2c-highlander.c~i2c-trivial-endian-casting-fixes-in-i2c-highlanderc
+> +++ a/drivers/i2c/busses/i2c-highlander.c
+> @@ -92,7 +92,7 @@ static void highlander_i2c_setup(struct 
+>  static void smbus_write_data(u8 *src, u16 *dst, int len)
+>  {
+>  	for (; len > 1; len -= 2) {
+> -		*dst++ = be16_to_cpup((u16 *)src);
+> +		*dst++ = be16_to_cpup((__be16 *)src);
+>  		src += 2;
+>  	}
 >  
->  	if (cmd->type == MSP_TWI_CMD_WRITE ||
->  	    cmd->type == MSP_TWI_CMD_WRITE_READ) {
-> -		__be64 tmp = cpu_to_be64p((u64 *)cmd->write_data);
-> +		u64 tmp = be64_to_cpup((__be64 *)cmd->write_data);
->  		tmp >>= (MSP_MAX_BYTES_PER_RW - cmd->write_len) * 8;
->  		dev_dbg(&pmcmsptwi_adapter.dev, "Writing 0x%016llx\n", tmp);
->  		pmcmsptwi_writel(tmp & 0x00000000ffffffffLL,
+> @@ -103,7 +103,7 @@ static void smbus_write_data(u8 *src, u1
+>  static void smbus_read_data(u16 *src, u8 *dst, int len)
+>  {
+>  	for (; len > 1; len -= 2) {
+> -		*(u16 *)dst = cpu_to_be16p(src++);
+> +		*(__be16 *)dst = cpu_to_be16p(src++);
+>  		dst += 2;
+>  	}
+>  
 
-Ben, Marc, any comment on this?
+Ben, Paul, any comment on this?
 
 -- 
 Jean Delvare
