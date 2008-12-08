@@ -1,650 +1,68 @@
 From: Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>
 Subject: Re: Preliminary support for DDR3 in decode-dimms (fwd)
-Date: Mon, 8 Dec 2008 06:24:32 -0800 (PST)
-Message-ID: <Pine.NEB.4.64.0812080602060.14436@quicky.whooppee.com>
+Date: Mon, 8 Dec 2008 10:05:45 -0800 (PST)
+Message-ID: <Pine.NEB.4.64.0812080951180.2734@quicky.whooppee.com>
 References: <Pine.NEB.4.64.0811230659540.29668@quicky.whooppee.com>
  <20081125103039.2f14bac7@hyperion.delvare> <Pine.NEB.4.64.0811250408050.29070@quicky.whooppee.com>
- <20081208145902.5962408c@hyperion.delvare>
+ <20081208145902.5962408c@hyperion.delvare> <Pine.NEB.4.64.0812080602060.14436@quicky.whooppee.com>
 Reply-To: paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-2028037063-1228759545=:2734"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081208145902.5962408c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <Pine.NEB.4.64.0812080602060.14436-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 8 Dec 2008, Jean Delvare wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> Hi Paul,
->
-> Sorry for the delay, I wanted to get i2c-tools 3.0.2 released before
-> making significant changes to decode-dimms.
->
-> On Tue, 25 Nov 2008 04:10:02 -0800 (PST), Paul Goyette wrote:
->> The attached diffs provide some preliminary decode of the DDR3 SPD...
->> This work is based on the recently-published Appendix K to JESD21-C
->> (see http://www.jedec.org/download/search/4_01_02_11R18.pdf).
->>
->> Warning:  I'm no perl expert.  The code I've written is probably ugly to
->> most of the readers of this list.  But it does work!
->> (...)
->> This version includes some additional decoding of bytes 60-76 for both
->> unregistered and registered DIMMs, and module physical dimensions.
->
-> This patch is relatively large and I admit I have a hard time reviewing
-> it, especially due to the lack of a detailed checklist of what you had
-> to change and why, and lack of comments in your code. I don't care
-> about the ddr3-specific functions (ddr3_manufacturer and
-> decode_ddr3_sdram), this is brand new code so it can't cause a
-> regression. What worries me are the changes to the common code.
->
-> Apparently you had to make some changes because assumptions which were
-> correct up to DDR2 are no longer correct for DDR3. Some of these
-> changes look like hacks to me (for example, the readfullspd function
-> and the conditionals it adds to the common code). I really would prefer
-> that we first clean up the script to get rid of improper assumptions,
-> and only after this is done, add support for DDR3. That way I will have
-> two medium patches to review rather than a single large one, and the
-> second patch should be pretty straightforward. This will be way easier
-> for me.
+--0-2028037063-1228759545=:2734
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-For FB-DIMMs (which are previously supported) and DDR3, the old checksum 
-over bytes 0-62 no longer exists;  instead, there is a CRC in bytes 126 
-and 127 that covers a variable section of the SPD data.  readfullspd was 
-used to read the entire data, rather than just 0-63.  It would not be 
-too difficult to replace the old (multiple) call to read64.
+Jean et al,
 
-> For example, if the manufacturing information is no longer common to
-> all memory types, then let's move it to a separate function. If
-> checksum handling is type-specific, then let's move it to a separate
-> function as well. I really don't want the main loop to grow
-> indefinitely.
+Attached please find a new set of diffs for decode-dimms.  This is a 
+beginning at addressing the earlier comments.
 
-There are really only two types of validation:
+This set of diffs implements the following changes:
 
- 	checksum for everything with type < FB-DIMM
- 	CRC for everything >= FB-DIMM
+1. Instead of reading the spd data 64 bytes at a time, we calculate
+    the actual sizes (total and written) of the spd and read the entire
+    thing, all at once.
 
-I'm not sure it makes sense to add a specific call to each memory type's 
-specific processing, especially since it would mean that checksum would 
-not get checked for types that don't have a specific processing routine 
-(ie, the ROMs).
+1a.This also involved changing all the offsets at the end of the main
+    loop which were pointing to Manufacturing data, etc.
 
-Manufacturing information is indeed no longer completely common.
+1b.Also, the main loop is modified to use the returned, calulated sizes
+    rather than making its own calculations.
 
-> Random comments and questions on your code:
->
->> --- decode-dimms.orig	2008-05-23 07:18:37.000000000 -0700
->> +++ decode-dimms	2008-11-25 04:02:44.000000000 -0800
->> @@ -408,7 +408,7 @@
->>
->>  sub tns($) # print a time in ns
->>  {
->> -	return sprintf("%3.2f ns", $_[0]);
->> +	return sprintf("%.3f ns", $_[0]);
->>  }
->>
->>  # Parameter: bytes 0-63
->> @@ -870,6 +870,251 @@
->>  	       ($byte & 0x80 ? " - Self Refresh" : "");
->>  }
->>
->> +sub ddr3_manufacturer(@)
->> +{
->> +	my @info = @_;
->> +	my @mfg_bytes = (0, 0, 0, 0, 0, 0, 0, 0);
->> +	my $i;
->> +	my $count = $info[0] & 127;
->> +	# We'll just ignore the high-order odd-parity bit in the count byte
->> +	for ($i = 0; $i < $count; $i++) {
->> +		$mfg_bytes[$i] = 0x7f;
->> +	}
->> +	$mfg_bytes[$count] = $info[1];
->> +	(my $mfg, my $extra) = manufacturer(@mfg_bytes);
->> +	return $mfg;
->> +}
->
-> Here you reformat the manufacturer code from the new (compact) to the
-> old (stupid) format. A comment explaining this would have been welcome.
-> But actually, this looks a bit artificial to me. Don't you think it
-> would be easier and more efficient to decode the new format directly?
+2. Remove the checksum calculation from the main loop into a separate
+    function which returns the actual and calculated checksums as well
+    as a True/False match status.
 
-I did not truly understand the formats here, so I simply built code that 
-constructed the expected input for the existing routine.
+3. Create a CRC routine with the same arguments and returns as for
+    the checksum routine.
 
->
->> +
->> +# Parameter: bytes 0-127
->> +sub decode_ddr3_sdram($)
->> +{
->> +	my $bytes = shift;
->> +	my $l;
->> +	my $temp;
->> +	my $ctime;
->> +
->> +	my @module_types = ("Undefined", "RDIMM", "UDIMM", "SO-DIMM",
->> +			    "Micro-DIMM", "Mini-RDIMM", "Mini-UDIMM");
->> +
->> +	printl "Module Type", ($bytes->[3] <= $#module_types) ?
->> +					$module_types[$bytes->[3]] :
->> +					sprint("Reserved (0x%.2X)", $bytes->[3]);
->> +
->> +# speed
->> +	prints "Memory Characteristics";
->> +
->> +	$l = "Fine time base";
->> +	my $dividend = ($bytes->[9] >> 4) & 15;
->> +	my $divisor  = $bytes->[9] & 15;
->> +	printl $l, sprintf("%.3f", $dividend / $divisor) . " ps";
->> +
->> +	$l = "Medium time base";
->> +	$dividend = $bytes->[10];
->> +	$divisor  = $bytes->[11];
->> +	my $mtb = $dividend / $divisor;
->> +	printl $l, tns($mtb);
->> +
->> +	$l = "Maximum module speed";
->> +	$ctime = $bytes->[12] * $mtb;
->> +	my $ddrclk = 2 * (1000 / $ctime);
->> +	my $tbits = 1 << (($bytes->[8] & 7) + 3);
->> +	my $pcclk = int ($ddrclk * $tbits / 8);
->> +	$ddrclk = int ($ddrclk);
->> +	printl $l, "${ddrclk}MHz (PC3-${pcclk})";
->> +
->> +# Size computation
->> +
->> +	my $cap =  ($bytes->[4]       & 15) + 28;
->> +	$cap   +=  ($bytes->[8]       & 7)  + 3;
->> +	$cap   -=  ($bytes->[7]       & 7)  + 2;
->> +	$cap   -= 20 + 3;
->> +	my $k   = (($bytes->[7] >> 3) & 31) + 1;
->> +	printl "Size", ((1 << $cap) * $k) . " MB";
->> +
->> +	printl "Banks x Rows x Columns x Bits",
->> +	       join(' x ', 1 << ((($bytes->[4] >> 4) &  7) +  3),
->> +			   ((($bytes->[5] >> 3) & 31) + 12),
->> +			   ( ($bytes->[5]       &  7) +  9),
->> +			   ( 1 << (($bytes->[8] &  7) + 3)) );
->> +	printl "Ranks", $k;
->> +
->> +	printl "SDRAM Device Width", (1 << (($bytes->[7] & 7) + 2))." bits";
->> +
->> +	my $taa;
->> +	my $trcd;
->> +	my $trp;
->> +	my $tras;
->> +
->> +	$taa  = int($bytes->[16] / $bytes->[12]);
->> +	$trcd = int($bytes->[18] / $bytes->[12]);
->> +	$trp  = int($bytes->[20] / $bytes->[12]);
->> +	$tras = int((($bytes->[21] >> 4) * 256 + $bytes->[22]) / $bytes->[12]);
->> +
->> +	printl "tCL-tRCD-tRP-tRAS", join("-", $taa, $trcd, $trp, $tras);
->> +
->> +# latencies
->> +	my $highestCAS = 0;
->> +	my %cas;
->> +	my $ii;
->> +	my $cas_sup = ($bytes->[15] << 8) + $bytes->[14];
->> +	for ($ii = 0; $ii < 15; $ii++) {
->> +		if ($cas_sup & (1 << $ii)) {
->> +			$highestCAS = $ii + 4;
->> +			$cas{$highestCAS}++;
->> +		}
->> +	}
->> +	printl "Supported CAS Latencies (tCL)", cas_latencies(keys %cas);
->> +
->> +# more timing information
->> +	prints "Timing Parameters" ;
->> +
->> +	printl "Minimum Write Recovery time (tWR)", tns($bytes->[17] * $mtb);
->> +	printl "Minimum Row Active to Row Active Delay (tRRD)",
->> +		tns($bytes->[19] * $mtb);
->> +	printl "Minimum Active to Auto-Refresh Delay (tRC)",
->> +		tns((((($bytes->[21] >> 4) & 15) << 8) + $bytes->[23]) * $mtb);
->> +	printl "Minimum Recovery Delay (tRFC)",
->> +		tns((($bytes->[25] << 8) + $bytes->[24]) * $mtb);
->> +	printl "Minimum Write to Read CMD Delay (tWTR)",
->> +		tns($bytes->[26] * $mtb);
->> +	printl "Minimum Read to Pre-charge CMD Delay (tRTP)",
->> +		tns($bytes->[27] * $mtb);
->> +	printl "Minimum Four Activate Window Delay (tFAW)",
->> +		tns(((($bytes->[28] & 15) << 8) + $bytes->[29]) * $mtb);
->> +
->> +# miscellaneous stuff
->> +	prints "Optional Features";
->> +
->> +	my $volts = "1.5V";
->> +	if ($bytes->[6] & 1) {
->> +		$volts .= " tolerant";
->> +	}
->> +	if ($bytes->[6] & 2) {
->> +		$volts .= ", 1.35V ";
->> +	}
->> +	if ($bytes->[6] & 4) {
->> +		$volts .= ", 1.2X V";
->> +	}
->> +	printl "Operable voltages", $volts;
->> +	printl "RZQ/6 supported?", ($bytes->[30] & 1) ? "Yes" : "No";
->> +	printl "RZQ/7 supported?", ($bytes->[30] & 2) ? "Yes" : "No";
->> +	printl "DLL-Off Mode supported?", ($bytes->[30] & 128) ? "Yes" : "No";
->> +	printl "Operating temperature range", sprintf "0-%dC",
->> +		($bytes->[31] & 1) ? 95 : 85;
->> +	printl "Refresh Rate in extended temp range",
->> +		($bytes->[31] & 2) ? "2X" : "1X";
->> +	printl "Auto Self-Refresh?", ($bytes->[31] & 4) ? "Yes" : "No";
->> +	printl "On-Die Thermal Sensor readout?",
->> +		($bytes->[31] & 8) ? "Yes" : "No";
->> +	printl "Partial Array Self-Refresh?",
->> +		($bytes->[31] & 128) ? "Yes" : "No";
->> +	printl "Thermal Sensor Accuracy",
->> +		($bytes->[32] & 128) ? sprintf($bytes->[32] & 127) :
->> +					"Not implemented";
->> +	printl "SDRAM Device Type",
->> +		($bytes->[33] & 128) ? sprintf($bytes->[33] & 127) :
->> +					"Standard Monolithic";
->> +	if ($bytes->[3] >= 1 && $bytes->[3] <= 6) {
->> +
->> +		prints "Physical Characteristics";
->> +		printl "Module Height (mm)", ($bytes->[60] & 31) + 15;
->> +		printl "Module Thickness (mm)", sprintf("%d front, %d back",
->> +						($bytes->[61] & 15) + 1,
->> +						(($bytes->[61] >> 4) & 15) +1);
->> +		printl "Module Width (mm)", ($bytes->[3] <= 2) ? 133.5 :
->> +					($bytes->[3] == 3) ? 67.6 : "TBD";
->> +
->> +		my @alphabet = ("A", "B", "C", "D", "E", "F", "G", "H", "J",
->> +				"K", "L", "M", "N", "P", "R", "T", "U", "V",
->> +				"W", "Y" );
->> +
->> +		my $ref = $bytes->[62] & 31;
->> +		my $ref_card;
->> +		if ($ref == 31) {
->> +			$ref_card = "ZZ";
->> +		} else {
->> +			if ($bytes->[62] & 128) {
->> +				$ref += 31;
->> +			}
->> +			if ($ref < $#alphabet) {
->> +				$ref_card = $alphabet[$ref];
->> +			} else {
->> +				my $ref1 = int($ref / $#alphabet);
->> +				$ref -= $#alphabet * $ref1;
->> +				$ref_card = $alphabet[$ref1] . $alphabet[$ref];
->> +			}
->> +		}
->> +		printl "Module Reference Card", $ref_card;
->> +	}
->> +	if ($bytes->[3] == 1 || $bytes->[3] == 5) {
->> +		prints "Registered DIMM";
->> +
->> +		my @rows = ("Undefined", 1, 2, 4);
->> +		printl "# DRAM Rows", $rows[($bytes->[63] >> 2) & 3];
->> +		printl "# Registers", $rows[$bytes->[63] & 3];
->> +		my @m_data = ($bytes->[65], $bytes->[66]);
->> +		printl "Register manufacturer", ddr3_manufacturer(@m_data[0..1]);
->> +		printl "Register device type",
->> +				(($bytes->[68] & 7) == 0) ? "SSTE32882" :
->> +					"Undefined";
->> +		printl "Register revision", sprintf("0x%.2X", $bytes->[67]);
->> +		printl "Heat spreader characteristics",
->> +				($bytes->[64] < 128) ? "Not incorporated" :
->> +					sprintf("%.2X", ($bytes->[64] & 127));
->> +		my $regs;
->> +		for (my $i = 0; $i < 8; $i++) {
->> +			$regs = sprintf("SSTE32882 RC%d/RC%d",
->> +					$i * 2, $i * 2 + 1);
->> +			printl $regs, sprintf("%.2X", $bytes->[$i + 69]);
->> +		}
->> +	}
->> +
->> +	prints "Manufacturer Data";
->> +
->> +	my @m_data = ($bytes->[117], $bytes->[118]);
->> +	printl "Module Manufacturer", ddr3_manufacturer(@m_data[0..1]);
->> +
->> +	@m_data = ($bytes->[148], $bytes->[149]);
->> +	printl "DRAM Manufacturer Code", ddr3_manufacturer(@m_data[0..1]);
->> +
->> +	$l = "Manufacturing Location";
->> +	$temp = (chr($bytes->[8]) =~ m/^[\w\d]$/) ? chr($bytes->[8])
->> +	      : sprintf("0x%.2X", $bytes->[8]);
->> +	printl $l, $temp;
->> +
->> +	$l = "Part Number";
->> +	$temp = "";
->> +	for (my $i = 128; $i <= 145; $i++) {
->> +		$temp .= chr($bytes->[$i]);
->> +	};
->> +	printl $l, $temp;
->> +
->> +	$l = "Revision";
->> +	$temp = sprintf("0x%02X%02X\n", $bytes->[146], $bytes->[147]);
->> +	printl $l, $temp;
->> +
->> +	$l = "Manufacturing Date";
->> +	# In theory the year and week are in BCD format, but
->> +	# this is not always true in practice :(
->> +	if (($bytes->[120] & 0xf0) <= 0x90
->> +	 && ($bytes->[120] & 0x0f) <= 0x09
->> +	 && ($bytes->[121] & 0xf0) <= 0x90
->> +	 && ($bytes->[121] & 0x0f) <= 0x09) {
->> +		# Note that this heuristic will break in year 2080
->> +		$temp = sprintf("%d%02X-W%02X\n",
->> +				$bytes->[120] >= 0x80 ? 19 : 20,
->> +				$bytes->[120], $bytes->[121]);
->> +	} else {
->> +		$temp = sprintf("0x%02X%02X\n", $bytes->[120], $bytes->[121]);
->> +	}
->> +	printl $l, $temp;
->> +
->> +	$l = "Assembly Serial Number";
->> +	$temp = sprintf("0x%02X%02X%02X%02X\n", $bytes->[122], $bytes->[123],
->> +		$bytes->[124], $bytes->[125]);
->> +	printl $l, $temp;
->> +}
->
-> I won't comment on this function, as it is new it can't break anything,
-> and it can be improved / fixed over time. Just one thing though:
-> placing this function in the middle of ddr2-specific functions is quite
-> confusing, it you have been much clearer to put it afterwards.
+4. In the mainline, call the checksum() or CRC() routine as appropriate
+    for the specific memory type.
 
-Placement is an error on mu part - I can certainly move it.
-
->
->> +
->>  # Parameter: bytes 0-63
->>  sub decode_ddr2_sdram($)
->>  {
->> @@ -1061,6 +1306,7 @@
->>  	"DDR2 SDRAM"	=> \&decode_ddr2_sdram,
->>  	"Direct Rambus"	=> \&decode_direct_rambus,
->>  	"Rambus"	=> \&decode_rambus,
->> +	"DDR3 SDRAM"	=> \&decode_ddr3_sdram,
->>  );
->>
->>  # Parameter: bytes 64-127
->> @@ -1179,6 +1425,32 @@
->>  	return @bytes;
->>  }
->>
->> +sub readfullspd($$) # reads all bytes from SPD-EEPROM
->> +{
->> +	my ($size, $dimm_i) = @_;
->> +	my @bytes;
->> +	if ($use_hexdump) {
->> +		@bytes = read_hexdump($dimm_i);
->> +		return @bytes[0..$size];
->> +	} elsif ($use_sysfs) {
->> +		# Kernel 2.6 with sysfs
->> +		sysopen(HANDLE, "/sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom", O_RDONLY)
->> +			or die "Cannot open /sys/bus/i2c/drivers/eeprom/$dimm_i/eeprom";
->> +		binmode HANDLE;
->> +		sysseek(HANDLE, 0, SEEK_SET);
->> +		sysread(HANDLE, my $eeprom, $size);
->> +		close HANDLE;
->> +		@bytes = unpack(sprintf("C%d", $size), $eeprom);
->> +	} else {
->> +		# Kernel 2.4 with procfs
->> +		for my $i (0 .. $size/16) {
->> +			my $hexoff = sprintf('%02x', $i * 16);
->> +			push @bytes, split(" ", `cat /proc/sys/dev/sensors/$dimm_i/$hexoff`);
->> +		}
->> +	}
->> +	return @bytes;
->> +}
->
-> As written above, I don't like this hack. This is fundamentally
-> duplicating the code of readspd64. If you can handle the DDR3 with
-> readspd64, please just do that. If not, then let's have a more generic
-> function which can handle all cases. But please do not duplicate the
-> code.
-
-Sure.  I can do a readfull routine that works for everything.
-
->> +
->>  # Parse command-line
->>  foreach (@ARGV) {
->>  	if ($_ eq '-h' || $_ eq '--help') {
->> @@ -1271,9 +1543,6 @@
->>  		$dimm_checksum += $bytes[$_] foreach (0 .. 62);
->>  		$dimm_checksum &= 0xff;
->>
->> -		next unless $bytes[63] == $dimm_checksum || $opt_igncheck;
->> -		$dimm_count++;
->> -
->
-> That's not OK. You let the script print things when the checksum is
-> invalid, while it did not before. Your patch should not change the
-> behavior of the script!
-
-I can fix this.  This was a remnant of the readfull vs read64 ...  I 
-didn't want to readfull until after determining the memory type, since 
-the type itself needs to be knonw before we know how much "full" is!
-
->
->>  		print "<b><u>" if $opt_html;
->>  		printl2 "\n\nDecoding EEPROM",
->>  		        $use_hexdump ? $dimm_list[$i] : ($use_sysfs ?
->> @@ -1292,32 +1561,87 @@
->>  # Decode first 3 bytes (0-2)
->>  		prints "SPD EEPROM Information";
->>
->> -		my $l = "EEPROM Checksum of bytes 0-62";
->> -		printl $l, ($bytes[63] == $dimm_checksum ?
->> -			sprintf("OK (0x%.2X)", $bytes[63]):
->> -			sprintf("Bad\n(found 0x%.2X, calculated 0x%.2X)\n",
->> -				$bytes[63], $dimm_checksum));
->> -
->>  		# Simple heuristic to detect Rambus
->
-> This comment...
->
->> -		my $is_rambus = $bytes[0] < 4;
->> +		my $spdsize;
->> +		my $written;
->> +		my @used = ( 0, 128, 176, 256);
->> +		my @sizes = ( "Undefined", 256);
->> +		my $is_rambus = ($bytes[0] < 4 && $bytes[0] >= 0);
->
-> ... if now far away from the code it applied to; confusing. I also do
-> not understand why you added this second condition... $bytes[0] is a
-> value between 0 and 255, how could it NOT be >= 0?
-
-Shows my perl-ignorance.  :)  I am not a perl programmer, and couldn't 
-tell if perl used signed or unsigned bytes!  :)
-
->> +
->> +		if ($is_rambus || $bytes[2] <= 8) {
->
-> The second condition needs clarification.
-
-Sure...
-
->> +			my $l = "EEPROM Checksum of bytes 0-62";
->> +			printl $l, ($bytes[63] == $dimm_checksum ?
->> +				sprintf("OK (0x%.2X)", $bytes[63]):
->> +				sprintf("Bad\n(found 0x%.2X, calculated 0x%.2X)\n",
->> +					$bytes[63], $dimm_checksum));
->> +			next unless $bytes[63] == $dimm_checksum ||
->> +				    $opt_igncheck;
->> +			$dimm_count++;
->> +			if ($is_rambus) {
->> +				$spdsize = 0;
->> +				$written = 0;
->> +			} else {
->> +				$written = $bytes[0];
->> +				if ($bytes[1] <= 14) {
->> +					$spdsize = 1 << $bytes[1];
->> +				} else { $spdsize = "ERROR!"; }
->> +			}
->> +		} else {
->> +			if ((($bytes[0] >> 4) & 7) <= $#sizes) {
->> +				$spdsize = $sizes[($bytes[0] >> 4) & 7];
->> +			} else { $spdsize = sprintf("Reserved (0x%X)",
->> +					($bytes[0] >> 4) & 7); }
->> +
->> +			if (($bytes[0] & 15) <= $#used) {
->> +				$written = $used[$bytes[0] & 15];
->> +			} else { $written = sprintf("Reserved (0x%X)",
->> +					$bytes[0] & 15); }
->> +
->> +			@bytes = readfullspd($written, $dimm_list[$i]);
->> +			my $dimm_crc = 0;
->> +			my $crc_cover = $bytes[0] & 0x80 ? 116 : 125;
->> +			my $crc_ptr = 0;
->> +			my $crc_bit;
->> +			while ($crc_ptr <= $crc_cover) {
->> +				$dimm_crc = $dimm_crc ^ ($bytes[$crc_ptr] << 8);
->> +				for ($crc_bit = 0; $crc_bit < 8; $crc_bit++) {
->> +					if ($dimm_crc & 0x8000) {
->> +						$dimm_crc = ($dimm_crc << 1) ^
->> +							0x1021;
->> +					} else {
->> +						$dimm_crc = $dimm_crc << 1
->> +					}
->> +				}
->> +				$crc_ptr++;
->> +			}
->> +			$dimm_crc = $dimm_crc & 0xffff;
->> +
->> +			my $l = "EEPROM CRC of bytes 0-" .
->> +				sprintf("%d", $crc_cover);
->> +			my $crc_calc = $bytes[127] << 8 | $bytes[126];
->> +			printl $l, ($dimm_crc == $crc_calc)?
->> +				sprintf("OK (0x%.4X)", $dimm_crc):
->> +				sprintf("Bad\n(found 0x%.4X, calculated 0x%.4X)\n",
->> +					$crc_calc, $dimm_crc);
->> +			next unless $crc_calc == $dimm_crc || $opt_igncheck;
->> +			$dimm_count++;
->> +		}
->
-> As said before, this all should go to a separate function. With
-> comments explaining what you do.
-
-OK
-
->> +
->>  		my $temp;
->>  		if ($is_rambus) {
->>  			if ($bytes[0] == 1) { $temp = "0.7"; }
->>  			elsif ($bytes[0] == 2) { $temp = "1.0"; }
->> -			elsif ($bytes[0] == 0 || $bytes[0] == 255) { $temp = "Invalid"; }
->> -			else { $temp = "Reserved"; }
->> +			elsif ($bytes[0] == 0 || $bytes[0] == 255) {
->> +				$temp = "Invalid";
->> +			} else { $temp = "Reserved"; }
->
-> Hum, gratuitous coding-style change? Please don't do this, this only
-> slows down reviews.
-
-Just trying to avoid wrapping of long lines.  Certainly not critical to 
-making it work.
-
->>  			printl "SPD Revision", $temp;
->> -		} else {
->> -			printl "# of bytes written to SDRAM EEPROM",
->> -			       $bytes[0];
->> +		}
->> +		if ($spdsize != 0) {
->> +			printl "# of bytes written to SDRAM EEPROM", $written;
->>  		}
->>
->> -		$l = "Total number of bytes in EEPROM";
->> -		if ($bytes[1] <= 14) {
->> -			printl $l, 2**$bytes[1];
->> -		} elsif ($bytes[1] == 0) {
->> -			printl $l, "RFU";
->> -		} else { printl $l, "ERROR!"; }
->> +		my $l = "Total number of bytes in EEPROM";
->> +		printl $l, $spdsize;
->>
->>  		$l = "Fundamental Memory type";
->>  		my $type = "Unknown";
->> @@ -1325,14 +1649,14 @@
->>  			if ($bytes[2] == 1) { $type = "Direct Rambus"; }
->>  			elsif ($bytes[2] == 17) { $type = "Rambus"; }
->>  		} else {
->> -			if ($bytes[2] == 1) { $type = "FPM DRAM"; }
->> -			elsif ($bytes[2] == 2) { $type = "EDO"; }
->> -			elsif ($bytes[2] == 3) { $type = "Pipelined Nibble"; }
->> -			elsif ($bytes[2] == 4) { $type = "SDR SDRAM"; }
->> -			elsif ($bytes[2] == 5) { $type = "Multiplexed ROM"; }
->> -			elsif ($bytes[2] == 6) { $type = "DDR SGRAM"; }
->> -			elsif ($bytes[2] == 7) { $type = "DDR SDRAM"; }
->> -			elsif ($bytes[2] == 8) { $type = "DDR2 SDRAM"; }
->> +			my @types = ("Reserved", "FPM DRAM", "EDO",
->> +				"Pipelined Nibble", "SDR DRAM",
->> +				"Multiplexed ROM", "DDR SGRAM", "DDR SDRAM",
->> +				"DDR2 SDRAM", "FB_DIMM", "FB-DIMM PROBE",
->> +				"DDR3 SDRAM");
->> +			if ($bytes[2] <= $#types) {
->> +				$type = $types[$bytes[2]];
->> +			} else { $type = $types[0]; }
->
-> While I agree this change is a good idea, it should not be part of this
-> DDR3 patch. Especially when it breaks the SDRAM case! You changed the
-> "SDR SDRAM" string to SDR DRAM", while we do use these strings as hash
-> keys later in the script.
-
-Typo on my part.  Will fix.  It just seemed to me a good idea to make 
-this type of change now rather than to perptuate the cascading elif's.
-
->>  		}
->>  		printl $l, $type;
->>
->> @@ -1340,10 +1664,19 @@
->>  		$decode_callback{$type}->(\@bytes)
->>  			if exists $decode_callback{$type};
->>
->> +		# DDR3 Manufacturer info is already decoded
->> +		# (It's NOT common!)
->> +
->> +		next if ($type eq "DDR3 SDRAM");
->> +
->
-> This hack breaks the html output mode.
-
-Ooops - did not pay attention to that.
-
->
->>  # Decode next 35 bytes (64-98, common to all memory types)
->>  		prints "Manufacturing Information";
->>
->> -		@bytes = readspd64(64, $dimm_list[$i]);
->> +		if ($#bytes == 63) {
->> +			@bytes = readspd64(64, $dimm_list[$i]);
->> +		} else {
->> +			@bytes = @bytes[64..$#bytes];
->> +		}
->
-> And this shouldn't be needed: if you reach this part of the code, it
-> means you're not in the DDR3 case, so you can't have bytes 64-127 in
-> the @bytes array yet.
-
-Not true, at least not intended to be true.  Since FB-DIMM also uses CRC 
-instad of checksum, it should already have loaded the entire array.  But 
-FB-DIMM still uses the common manufacturing info code, so this was 
-needed.
-
->>
->>  		$l = "Manufacturer";
->>  		# $extra is a reference to an array containing up to
->
-> So, as I wrote before, let's clear up the script from its improper
-> assumptions first. I can help with this if you don't have the time, but
-> you must tell me what needs to be done and why.
-
-Hopefully I've addressed your comments here.  I'll be happy to make one 
-more pass at this, and submit two separate patches.  But I've already 
-spent a lot more time than I expected (OK, most of that time was spent 
-trying to understand perl!) so if the next submission isn't adequate, 
-I'll have to leave it for someone else to properly integrate.
+5. The cascading if .. elsif .. for fundamental memory types has been
+    replaced with an indexable list.  The list has been updated to
+    include FB-DIMM, FB-DIMM Probe, and DDR3 SDRAM types.
 
 
+The following is not yet done;  I'll leave these for the next round, 
+assuming this set of changes comes closer to meeting your approval.
 
+6. Add the routine to actually decode DDR3 data
+
+7. Move the now not-so-common manufacturing data into a separate
+    function.
+
+
+Thanks!
 
 
 ----------------------------------------------------------------------
@@ -652,3 +70,224 @@ I'll have to leave it for someone else to properly integrate.
 | Customer Service | FA29 0E3B 35AF E8AE 6651 |  paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org   |
 | Network Engineer | 0786 F758 55DE 53BA 7731 | pgoyette-3r7Miqu9kMnR7s880joybQ@public.gmane.org |
 ----------------------------------------------------------------------
+--0-2028037063-1228759545=:2734
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=decode-dimms.diff1
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.NEB.4.64.0812081005450.2734-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
+Content-Description: 
+Content-Disposition: attachment; filename=decode-dimms.diff1
+
+LS0tIGRlY29kZS1kaW1tcy5vcmlnCTIwMDgtMTEtMTggMDk6MTU6MDkuMDAw
+MDAwMDAwIC0wODAwDQorKysgZGVjb2RlLWRpbW1zLmNsZWFudXAJMjAwOC0x
+Mi0wOCAwOTo0NDo1My4wMDAwMDAwMDAgLTA4MDANCkBAIC0xLDQgKzEsNCBA
+QA0KLSMhL3Vzci9iaW4vcGVybCAtdw0KKyMhL3Vzci9wa2cvYmluL3Blcmwg
+LXcNCiAjDQogIyBFRVBST00gZGF0YSBkZWNvZGVyIGZvciBTRFJBTSBESU1N
+IG1vZHVsZXMNCiAjDQpAQCAtMTE1NiwzMCArMTE1Niw3MCBAQCBzdWIgcmVh
+ZF9oZXhkdW1wKCQpDQogCXJldHVybiBAYnl0ZXM7DQogfQ0KIA0KLXN1YiBy
+ZWFkc3BkNjQoJCQpICMgcmVhZHMgNjQgYnl0ZXMgZnJvbSBTUEQtRUVQUk9N
+DQorc3ViIHNwZF9zaXplcyhAKSB7DQorCW15IEBieXRlcyA9IEBfOw0KKw0K
+KwlpZiAoJGJ5dGVzWzJdID49IDkpIHsNCisJCSMgRm9yIEZCLURJTU0gYW5k
+IG5ld2VyLCBkZWNvZGUgbnVtYmVyIG9mIGJ5dGVzIHdyaXR0ZW4NCisJCW15
+ICRzcGRfbGVuID0gKCRieXRlc1swXSA+PiA0KSAmIDc7DQorCQlteSAkc2l6
+ZSA9IDY0IDw8ICgkYnl0ZXNbMF0gJiAxNSk7DQorCQlpZiAoJHNwZF9sZW4g
+PT0gMCkgew0KKwkJCXJldHVybiAoJHNpemUsIDEyOCk7DQorCQl9IGVsc2lm
+ICgkc3BkX2xlbiA9PSAxKSB7DQorCQkJcmV0dXJuICgkc2l6ZSwgMTc2KTsN
+CisJCX0gZWxzaWYgKCRzcGRfbGVuID09IDIpIHsNCisJCQlyZXR1cm4gKCRz
+aXplLCAyNTYpOw0KKwkJfSBlbHNlIHsNCisJCQlyZXR1cm4gKDY0LCA2NCk7
+DQorCQl9DQorICAgICAgICB9IGVsc2Ugew0KKwkJbXkgJHNpemU7DQorCQlp
+ZiAoJGJ5dGVzWzFdIDw9IDE0KSB7DQorCQkJJHNpemUgPSAxIDw8ICRieXRl
+c1sxXTsNCisJCX0gZWxzaWYgKCRieXRlc1sxXSA9PSAwKSB7DQorCQkJJHNp
+emUgPSAiUkZVIjsNCisJCX0gZWxzZSB7ICRzaXplID0gIkVSUk9SISIgfQ0K
+Kw0KKwkJcmV0dXJuICgkc2l6ZSwgKCRieXRlc1swXSA8IDY0KSA/IDY0IDog
+JGJ5dGVzWzBdKTsNCisgICAgICAgIH0NCit9DQorDQorc3ViIHJlYWRzcGQo
+JCkgIyByZWFkcyBlbnRpcmUgU1BELUVFUFJPTQ0KIHsNCi0JbXkgKCRvZmZz
+ZXQsICRkaW1tX2kpID0gQF87DQorCW15ICRkaW1tX2kgPSAkXzsNCiAJbXkg
+QGJ5dGVzOw0KKwlteSAkd3JpdHRlbjsNCisJbXkgJHNpemU7DQogCWlmICgk
+dXNlX2hleGR1bXApIHsNCiAJCUBieXRlcyA9IHJlYWRfaGV4ZHVtcCgkZGlt
+bV9pKTsNCi0JCXJldHVybiBAYnl0ZXNbJG9mZnNldC4uKCRvZmZzZXQrNjMp
+XTsNCisJCSgkc2l6ZSwgJHdyaXR0ZW4pID0gc3BkX3NpemVzKEBieXRlcyk7
+DQorCQlyZXR1cm4gKCRzaXplLCAkd3JpdHRlbiwgQGJ5dGVzWzAuLigkd3Jp
+dHRlbiAtIDEpXSk7DQogCX0gZWxzaWYgKCR1c2Vfc3lzZnMpIHsNCiAJCSMg
+S2VybmVsIDIuNiB3aXRoIHN5c2ZzDQogCQlzeXNvcGVuKEhBTkRMRSwgIi9z
+eXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGltbV9pL2VlcHJvbSIsIE9f
+UkRPTkxZKQ0KIAkJCW9yIGRpZSAiQ2Fubm90IG9wZW4gL3N5cy9idXMvaTJj
+L2RyaXZlcnMvZWVwcm9tLyRkaW1tX2kvZWVwcm9tIjsNCiAJCWJpbm1vZGUg
+SEFORExFOw0KLQkJc3lzc2VlayhIQU5ETEUsICRvZmZzZXQsIFNFRUtfU0VU
+KTsNCi0JCXN5c3JlYWQoSEFORExFLCBteSAkZWVwcm9tLCA2NCk7DQorDQor
+CQkjIFJlYWQgaGVhZGVyIGJ5dGVzIHRvIGRldGVybWluZSBzcGQgc2l6ZQ0K
+KwkJc3lzcmVhZChIQU5ETEUsIG15ICRlZXByb20sIDMpOw0KKwkJQGJ5dGVz
+ID0gdW5wYWNrKCJDNjQiLCAkZWVwcm9tKTsNCisJCSgkc2l6ZSwgJHdyaXR0
+ZW4pID0gc3BkX3NpemVzKEBieXRlcyk7DQorDQorCQkjIE5vdyAocmUpcmVh
+ZCB0aGUgZW50aXJlIHNwZA0KKwkJc3lzc2VlayhIQU5ETEUsIDAsIFNFRUtf
+U0VUKTsNCisJCXN5c3JlYWQoSEFORExFLCAkZWVwcm9tLCAkd3JpdHRlbik7
+DQogCQljbG9zZSBIQU5ETEU7DQogCQlAYnl0ZXMgPSB1bnBhY2soIkM2NCIs
+ICRlZXByb20pOw0KIAl9IGVsc2Ugew0KIAkJIyBLZXJuZWwgMi40IHdpdGgg
+cHJvY2ZzDQotCQlmb3IgbXkgJGkgKDAgLi4gMykgew0KLQkJCW15ICRoZXhv
+ZmYgPSBzcHJpbnRmKCclMDJ4JywgJG9mZnNldCArICRpICogMTYpOw0KKwkJ
+QGJ5dGVzID0gc3BsaXQoIiAiLCBgY2F0IC9wcm9jL3N5cy9kZXYvc2Vuc29y
+cy8kZGltbV9pLzAwYCk7DQorCQkoJHNpemUsICR3cml0dGVuKSA9IHNwZF9z
+aXplcyhAYnl0ZXMpOw0KKwkJZm9yIG15ICRpICgxIC4uICgoJHdyaXR0ZW4g
+KyAxNSkgLyAxNikpIHsNCisJCQlteSAkaGV4b2ZmID0gc3ByaW50ZignJTAy
+eCcsICRpICogMTYpOw0KIAkJCXB1c2ggQGJ5dGVzLCBzcGxpdCgiICIsIGBj
+YXQgL3Byb2Mvc3lzL2Rldi9zZW5zb3JzLyRkaW1tX2kvJGhleG9mZmApOw0K
+IAkJfQ0KIAl9DQotCXJldHVybiBAYnl0ZXM7DQorCXJldHVybiAoJHNpemUs
+ICR3cml0dGVuLCBAYnl0ZXMpOw0KIH0NCiANCiAjIFBhcnNlIGNvbW1hbmQt
+bGluZQ0KQEAgLTEyNDMsNiArMTI4Myw0OCBAQCBpZiAoJG9wdF9odG1sICYm
+ICEkb3B0X2JvZHlvbmx5KSB7DQogCQkgICI8L2hlYWQ+PGJvZHk+XG4iOw0K
+IH0NCiANCisjIENhbGN1bGF0ZSBhbmQgdmVyaWZ5IGNoZWNrc3VtIG9mIGZp
+cnN0IDYzIGJ5dGVzDQorDQorc3ViIGNoZWNrc3VtKEApIHsNCisJbXkgQGJ5
+dGVzID0gQF87DQorCW15ICRkaW1tX2NoZWNrc3VtID0gMDsNCisJJGRpbW1f
+Y2hlY2tzdW0gKz0gJGJ5dGVzWyRfXSBmb3JlYWNoICgwIC4uIDYyKTsNCisJ
+JGRpbW1fY2hlY2tzdW0gJj0gMHhmZjsNCisNCisJcmV0dXJuICgiRUVQUk9N
+IENoZWNrc3VtIG9mIGJ5dGVzIDAtNjIiLA0KKwkJKCRieXRlc1s2M10gPT0g
+JGRpbW1fY2hlY2tzdW0pID8gMSA6IDAsDQorCQlzcHJpbnRmKCcweCUwMngn
+LCAkYnl0ZXNbNjNdKSwNCisJCXNwcmludGYoJzB4JTAyeCcsICRkaW1tX2No
+ZWNrc3VtKSk7DQorfQ0KKw0KKyMgQ2FsY3VsYXRlIGFuZCB2ZXJpZnkgQ1JD
+DQorDQorc3ViIGNoZWNrX2NyYyhAKSB7DQorCW15IEBieXRlcyA9IEBfOw0K
+KwlteSAkY3JjID0gMDsNCisJbXkgJGNyY19jb3ZlciA9ICRieXRlc1swXSAm
+IDB4ODAgPyAxMTYgOiAxMjU7DQorCW15ICRjcmNfcHRyID0gMDsNCisJbXkg
+JGNyY19iaXQ7DQorCXdoaWxlICgkY3JjX3B0ciA8PSAkY3JjX2NvdmVyKSB7
+DQorCQkkY3JjID0gJGNyYyBeICgkYnl0ZXNbJGNyY19wdHJdIDw8IDgpOw0K
+KwkJZm9yICgkY3JjX2JpdCA9IDA7ICRjcmNfYml0IDwgODsgJGNyY19iaXQr
+Kykgew0KKwkJCWlmICgkY3JjICYgMHg4MDAwKSB7DQorCQkJCSRjcmMgPSAo
+JGNyYyA8PCAxKSBeIDB4MTAyMTsNCisJCQl9IGVsc2Ugew0KKwkJCQkkY3Jj
+ID0gJGNyYyA8PCAxDQorCQkJfQ0KKwkJfQ0KKwkJJGNyY19wdHIrKzsNCisJ
+fQ0KKwkkY3JjID0gJGNyYyAmIDB4ZmZmZjsNCisNCisJbXkgJGRpbW1fY3Jj
+ID0gKCRieXRlc1sxMjddIDw8IDgpIHwgJGJ5dGVzWzEyNl07DQorCXJldHVy
+biAoIkVFUFJPTSBDUkMgb2YgYnl0ZXMgMC0iIC4gc3ByaW50ZigiJWQiLCAk
+Y3JjX2NvdmVyKSwNCisJCSgkZGltbV9jcmMgPT0gJGNyYykgPyAxIDogMCwN
+CisJCXNwcmludGYoIjB4JTA0eCIsICRkaW1tX2NyYyksDQorCQlzcHJpbnRm
+KCIweCUwNHgiLCAkY3JjKSk7DQorfQ0KKw0KIHByaW50YyAiZGVjb2RlLWRp
+bW1zIHZlcnNpb24gJHJldmlzaW9uIjsNCiBwcmludGggJ01lbW9yeSBTZXJp
+YWwgUHJlc2VuY2UgRGV0ZWN0IERlY29kZXInLA0KICdCeSBQaGlsaXAgRWRl
+bGJyb2NrLCBDaHJpc3RpYW4gWnVja3NjaHdlcmR0LCBCdXJrYXJ0IExpbmdu
+ZXIsDQpAQCAtMTI2NywxMiArMTM0OSwxOSBAQCBmb3IgbXkgJGkgKCAwIC4u
+ICQjZGltbV9saXN0ICkgew0KIAlpZiAoKCR1c2Vfc3lzZnMgJiYgL15cZCst
+XGQrJC8pDQogCSB8fCAoISR1c2Vfc3lzZnMgJiYgL15lZXByb20tLykNCiAJ
+IHx8ICR1c2VfaGV4ZHVtcCkgew0KLQkJbXkgQGJ5dGVzID0gcmVhZHNwZDY0
+KDAsICRkaW1tX2xpc3RbJGldKTsNCi0JCW15ICRkaW1tX2NoZWNrc3VtID0g
+MDsNCi0JCSRkaW1tX2NoZWNrc3VtICs9ICRieXRlc1skX10gZm9yZWFjaCAo
+MCAuLiA2Mik7DQotCQkkZGltbV9jaGVja3N1bSAmPSAweGZmOw0KKwkJbXkg
+QGJ5dGVzID0gcmVhZHNwZCgkZGltbV9saXN0WyRpXSk7DQorCQlteSAkc3Bk
+X3NpemUgPSBzaGlmdChAYnl0ZXMpOw0KKwkJbXkgJHNwZF91c2VkID0gc2hp
+ZnQoQGJ5dGVzKTsNCisJCW15ICgkY2hrX3R5cGUsICRjaGtfdmFsaWQsICRj
+aGtfc3BkLCAkY2hrX2NhbGMpOw0KKwkJaWYgKCRieXRlc1syXSA8IDkpIHsN
+CisJCQkoJGNoa190eXBlLCAkY2hrX3ZhbGlkLCAkY2hrX3NwZCwgJGNoa19j
+YWxjKSA9DQorCQkJCWNoZWNrc3VtKEBieXRlcyk7DQorCQl9IGVsc2Ugew0K
+KwkJCSgkY2hrX3R5cGUsICRjaGtfdmFsaWQsICRjaGtfc3BkLCAkY2hrX2Nh
+bGMpID0NCisJCQkJY2hlY2tfY3JjKEBieXRlcyk7DQorCQl9DQogDQotCQlu
+ZXh0IHVubGVzcyAkYnl0ZXNbNjNdID09ICRkaW1tX2NoZWNrc3VtIHx8ICRv
+cHRfaWduY2hlY2s7DQorCQluZXh0IHVubGVzcyAkY2hrX3ZhbGlkIHx8ICRv
+cHRfaWduY2hlY2s7DQogCQkkZGltbV9jb3VudCsrOw0KIA0KIAkJcHJpbnQg
+IjxiPjx1PiIgaWYgJG9wdF9odG1sOw0KQEAgLTEyOTMsMTEgKzEzODIsMTAg
+QEAgZm9yIG15ICRpICggMCAuLiAkI2RpbW1fbGlzdCApIHsNCiAjIERlY29k
+ZSBmaXJzdCAzIGJ5dGVzICgwLTIpDQogCQlwcmludHMgIlNQRCBFRVBST00g
+SW5mb3JtYXRpb24iOw0KIA0KLQkJbXkgJGwgPSAiRUVQUk9NIENoZWNrc3Vt
+IG9mIGJ5dGVzIDAtNjIiOw0KLQkJcHJpbnRsICRsLCAoJGJ5dGVzWzYzXSA9
+PSAkZGltbV9jaGVja3N1bSA/DQotCQkJc3ByaW50ZigiT0sgKDB4JS4yWCki
+LCAkYnl0ZXNbNjNdKToNCi0JCQlzcHJpbnRmKCJCYWRcbihmb3VuZCAweCUu
+MlgsIGNhbGN1bGF0ZWQgMHglLjJYKVxuIiwNCi0JCQkJJGJ5dGVzWzYzXSwg
+JGRpbW1fY2hlY2tzdW0pKTsNCisJCXByaW50bCAkY2hrX3R5cGUsICgkY2hr
+X3ZhbGlkID8NCisJCQlzcHJpbnRmKCJPSyAoJXMpIiwgJGNoa19jYWxjKSA6
+DQorCQkJc3ByaW50ZigiQmFkXG4oZm91bmQgJXMsIGNhbGN1bGF0ZWQgJXMp
+XG4iLA0KKwkJCQkkY2hrX3NwZCwgJGNoa19jYWxjKSk7DQogDQogCQkjIFNp
+bXBsZSBoZXVyaXN0aWMgdG8gZGV0ZWN0IFJhbWJ1cw0KIAkJbXkgJGlzX3Jh
+bWJ1cyA9ICRieXRlc1swXSA8IDQ7DQpAQCAtMTMwOSwzMSArMTM5NywyOSBA
+QCBmb3IgbXkgJGkgKCAwIC4uICQjZGltbV9saXN0ICkgew0KIAkJCWVsc2Ug
+eyAkdGVtcCA9ICJSZXNlcnZlZCI7IH0NCiAJCQlwcmludGwgIlNQRCBSZXZp
+c2lvbiIsICR0ZW1wOw0KIAkJfSBlbHNlIHsNCi0JCQlwcmludGwgIiMgb2Yg
+Ynl0ZXMgd3JpdHRlbiB0byBTRFJBTSBFRVBST00iLA0KLQkJCSAgICAgICAk
+Ynl0ZXNbMF07DQorCQkJcHJpbnRsICIjIG9mIGJ5dGVzIHdyaXR0ZW4gdG8g
+U0RSQU0gRUVQUk9NIiwgJHNwZF91c2VkOw0KIAkJfQ0KIA0KLQkJJGwgPSAi
+VG90YWwgbnVtYmVyIG9mIGJ5dGVzIGluIEVFUFJPTSI7DQotCQlpZiAoJGJ5
+dGVzWzFdIDw9IDE0KSB7DQotCQkJcHJpbnRsICRsLCAyKiokYnl0ZXNbMV07
+DQotCQl9IGVsc2lmICgkYnl0ZXNbMV0gPT0gMCkgew0KLQkJCXByaW50bCAk
+bCwgIlJGVSI7DQotCQl9IGVsc2UgeyBwcmludGwgJGwsICJFUlJPUiEiOyB9
+DQorCQlteSAkbCA9ICJUb3RhbCBudW1iZXIgb2YgYnl0ZXMgaW4gRUVQUk9N
+IjsNCisJCXByaW50bCAkbCwgJHNwZF9zaXplOw0KIA0KIAkJJGwgPSAiRnVu
+ZGFtZW50YWwgTWVtb3J5IHR5cGUiOw0KLQkJbXkgJHR5cGUgPSAiVW5rbm93
+biI7DQorCQlteSAkdHlwZTsNCiAJCWlmICgkaXNfcmFtYnVzKSB7DQogCQkJ
+aWYgKCRieXRlc1syXSA9PSAxKSB7ICR0eXBlID0gIkRpcmVjdCBSYW1idXMi
+OyB9DQogCQkJZWxzaWYgKCRieXRlc1syXSA9PSAxNykgeyAkdHlwZSA9ICJS
+YW1idXMiOyB9DQorCQkJZWxzZSB7ICR0eXBlID0gIlVua25vd24iOyB9DQog
+CQl9IGVsc2Ugew0KLQkJCWlmICgkYnl0ZXNbMl0gPT0gMSkgeyAkdHlwZSA9
+ICJGUE0gRFJBTSI7IH0NCi0JCQllbHNpZiAoJGJ5dGVzWzJdID09IDIpIHsg
+JHR5cGUgPSAiRURPIjsgfQ0KLQkJCWVsc2lmICgkYnl0ZXNbMl0gPT0gMykg
+eyAkdHlwZSA9ICJQaXBlbGluZWQgTmliYmxlIjsgfQ0KLQkJCWVsc2lmICgk
+Ynl0ZXNbMl0gPT0gNCkgeyAkdHlwZSA9ICJTRFIgU0RSQU0iOyB9DQotCQkJ
+ZWxzaWYgKCRieXRlc1syXSA9PSA1KSB7ICR0eXBlID0gIk11bHRpcGxleGVk
+IFJPTSI7IH0NCi0JCQllbHNpZiAoJGJ5dGVzWzJdID09IDYpIHsgJHR5cGUg
+PSAiRERSIFNHUkFNIjsgfQ0KLQkJCWVsc2lmICgkYnl0ZXNbMl0gPT0gNykg
+eyAkdHlwZSA9ICJERFIgU0RSQU0iOyB9DQotCQkJZWxzaWYgKCRieXRlc1sy
+XSA9PSA4KSB7ICR0eXBlID0gIkREUjIgU0RSQU0iOyB9DQorCQkJbXkgQHR5
+cGVfbGlzdCA9ICgiUmVzZXJ2ZWQiLCAiRlBNIERSQU0iLCAiRURPIiwNCisJ
+CQkJIlBpcGVsaW5lZCBOaWJibGUiLCAiU0RSIFNEUkFNIiwNCisJCQkJIk11
+bHRpcGxleGVkIFJPTSIsICJERFIgU0dSQU0iLCAiRERSIFNEUkFNIiwNCisJ
+CQkJIkREUjIgU0RSQU0iLCAiRkItRElNTSIsICJGQi1ESU1NIFByb2JlIiwN
+CisJCQkJIkREUjMgU0RSQU0iKTsNCisJCQlpZiAoJGJ5dGVzWzJdIDw9ICQj
+dHlwZV9saXN0KSB7DQorCQkJCSR0eXBlID0gJHR5cGVfbGlzdFskYnl0ZXNb
+Ml1dOw0KKwkJCX0gZWxzZSB7DQorCQkJCSR0eXBlID0gc3ByaW50ZigiVW5r
+bm93biAoMHglMDJ4KSIsICRieXRlc1syXSk7DQorCQkJfQ0KIAkJfQ0KIAkJ
+cHJpbnRsICRsLCAkdHlwZTsNCiANCkBAIC0xMzQ0LDYxICsxNDMwLDU5IEBA
+IGZvciBteSAkaSAoIDAgLi4gJCNkaW1tX2xpc3QgKSB7DQogIyBEZWNvZGUg
+bmV4dCAzNSBieXRlcyAoNjQtOTgsIGNvbW1vbiB0byBhbGwgbWVtb3J5IHR5
+cGVzKQ0KIAkJcHJpbnRzICJNYW51ZmFjdHVyaW5nIEluZm9ybWF0aW9uIjsN
+CiANCi0JCUBieXRlcyA9IHJlYWRzcGQ2NCg2NCwgJGRpbW1fbGlzdFskaV0p
+Ow0KLQ0KIAkJJGwgPSAiTWFudWZhY3R1cmVyIjsNCiAJCSMgJGV4dHJhIGlz
+IGEgcmVmZXJlbmNlIHRvIGFuIGFycmF5IGNvbnRhaW5pbmcgdXAgdG8NCiAJ
+CSMgNyBleHRyYSBieXRlcyBmcm9tIHRoZSBNYW51ZmFjdHVyZXIgZmllbGQu
+IFNvbWV0aW1lcw0KIAkJIyB0aGVzZSBieXRlcyBhcmUgZmlsbGVkIHdpdGgg
+aW50ZXJlc3RpbmcgZGF0YS4NCi0JCSgkdGVtcCwgbXkgJGV4dHJhKSA9IG1h
+bnVmYWN0dXJlcihAYnl0ZXNbMC4uN10pOw0KKwkJKCR0ZW1wLCBteSAkZXh0
+cmEpID0gbWFudWZhY3R1cmVyKEBieXRlc1s2NC4uNzFdKTsNCiAJCXByaW50
+bCAkbCwgJHRlbXA7DQogCQkkbCA9ICJDdXN0b20gTWFudWZhY3R1cmVyIERh
+dGEiOw0KIAkJJHRlbXAgPSBtYW51ZmFjdHVyZXJfZGF0YShAeyRleHRyYX0p
+Ow0KIAkJcHJpbnRsICRsLCAkdGVtcCBpZiBkZWZpbmVkICR0ZW1wOw0KIA0K
+LQkJaWYgKHNwZF93cml0dGVuKCRieXRlc1s4XSkpIHsNCisJCWlmIChzcGRf
+d3JpdHRlbigkYnl0ZXNbNzJdKSkgew0KIAkJCSMgVHJ5IHRoZSBsb2NhdGlv
+biBjb2RlIGFzIEFTQ0lJIGZpcnN0LCBhcyBlYXJsaWVyIHNwZWNpZmljYXRp
+b25zDQogCQkJIyBzdWdnZXN0ZWQgdGhpcy4gQXMgbmV3ZXIgc3BlY2lmaWNh
+dGlvbnMgZG9uJ3QgbWVudGlvbiBpdCBhbnltb3JlLA0KIAkJCSMgd2Ugc3Rp
+bGwgZmFsbCBiYWNrIHRvIGJpbmFyeS4NCiAJCQkkbCA9ICJNYW51ZmFjdHVy
+aW5nIExvY2F0aW9uIENvZGUiOw0KLQkJCSR0ZW1wID0gKGNocigkYnl0ZXNb
+OF0pID1+IG0vXltcd1xkXSQvKSA/IGNocigkYnl0ZXNbOF0pDQotCQkJICAg
+ICAgOiBzcHJpbnRmKCIweCUuMlgiLCAkYnl0ZXNbOF0pOw0KKwkJCSR0ZW1w
+ID0gKGNocigkYnl0ZXNbNzJdKSA9fiBtL15bXHdcZF0kLykgPyBjaHIoJGJ5
+dGVzWzcyXSkNCisJCQkgICAgICA6IHNwcmludGYoIjB4JS4yWCIsICRieXRl
+c1s3Ml0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7DQogCQl9DQogDQogCQkk
+bCA9ICJQYXJ0IE51bWJlciI7DQotCQkkdGVtcCA9IHBhcnRfbnVtYmVyKEBi
+eXRlc1s5Li4yNl0pOw0KKwkJJHRlbXAgPSBwYXJ0X251bWJlcihAYnl0ZXNb
+NzMuLjkwXSk7DQogCQlwcmludGwgJGwsICR0ZW1wOw0KIA0KLQkJaWYgKHNw
+ZF93cml0dGVuKEBieXRlc1syNy4uMjhdKSkgew0KKwkJaWYgKHNwZF93cml0
+dGVuKEBieXRlc1s5MS4uOTJdKSkgew0KIAkJCSRsID0gIlJldmlzaW9uIENv
+ZGUiOw0KLQkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAyWFxuIiwgQGJ5
+dGVzWzI3Li4yOF0pOw0KKwkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAy
+WFxuIiwgQGJ5dGVzWzkxLi45Ml0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7
+DQogCQl9DQogDQotCQlpZiAoc3BkX3dyaXR0ZW4oQGJ5dGVzWzI5Li4zMF0p
+KSB7DQorCQlpZiAoc3BkX3dyaXR0ZW4oQGJ5dGVzWzkzLi45NF0pKSB7DQog
+CQkJJGwgPSAiTWFudWZhY3R1cmluZyBEYXRlIjsNCiAJCQkjIEluIHRoZW9y
+eSB0aGUgeWVhciBhbmQgd2VlayBhcmUgaW4gQkNEIGZvcm1hdCwgYnV0DQog
+CQkJIyB0aGlzIGlzIG5vdCBhbHdheXMgdHJ1ZSBpbiBwcmFjdGljZSA6KA0K
+LQkJCWlmICgoJGJ5dGVzWzI5XSAmIDB4ZjApIDw9IDB4OTANCi0JCQkgJiYg
+KCRieXRlc1syOV0gJiAweDBmKSA8PSAweDA5DQotCQkJICYmICgkYnl0ZXNb
+MzBdICYgMHhmMCkgPD0gMHg5MA0KLQkJCSAmJiAoJGJ5dGVzWzMwXSAmIDB4
+MGYpIDw9IDB4MDkpIHsNCisJCQlpZiAoKCRieXRlc1s5M10gJiAweGYwKSA8
+PSAweDkwDQorCQkJICYmICgkYnl0ZXNbOTNdICYgMHgwZikgPD0gMHgwOQ0K
+KwkJCSAmJiAoJGJ5dGVzWzk0XSAmIDB4ZjApIDw9IDB4OTANCisJCQkgJiYg
+KCRieXRlc1s5NF0gJiAweDBmKSA8PSAweDA5KSB7DQogCQkJCSMgTm90ZSB0
+aGF0IHRoaXMgaGV1cmlzdGljIHdpbGwgYnJlYWsgaW4geWVhciAyMDgwDQog
+CQkJCSR0ZW1wID0gc3ByaW50ZigiJWQlMDJYLVclMDJYXG4iLA0KLQkJCQkJ
+CSRieXRlc1syOV0gPj0gMHg4MCA/IDE5IDogMjAsDQotCQkJCQkJQGJ5dGVz
+WzI5Li4zMF0pOw0KKwkJCQkJCSRieXRlc1s5M10gPj0gMHg4MCA/IDE5IDog
+MjAsDQorCQkJCQkJQGJ5dGVzWzkzLi45NF0pOw0KIAkJCX0gZWxzZSB7DQog
+CQkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAyWFxuIiwNCi0JCQkJCQlA
+Ynl0ZXNbMjkuLjMwXSk7DQorCQkJCQkJQGJ5dGVzWzkzLi45NF0pOw0KIAkJ
+CX0NCiAJCQlwcmludGwgJGwsICR0ZW1wOw0KIAkJfQ0KIA0KLQkJaWYgKHNw
+ZF93cml0dGVuKEBieXRlc1szMS4uMzRdKSkgew0KKwkJaWYgKHNwZF93cml0
+dGVuKEBieXRlc1s5NS4uOThdKSkgew0KIAkJCSRsID0gIkFzc2VtYmx5IFNl
+cmlhbCBOdW1iZXIiOw0KIAkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAy
+WCUwMlglMDJYXG4iLA0KLQkJCQkJQGJ5dGVzWzMxLi4zNF0pOw0KKwkJCQkJ
+QGJ5dGVzWzk1Li45OF0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7DQogCQl9
+DQogDQo=
+
+--0-2028037063-1228759545=:2734--
