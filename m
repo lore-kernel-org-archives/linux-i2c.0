@@ -1,29 +1,36 @@
-From: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [patch 2/2] i2c: trivial endian casting fixes in i2c-highlander.c
-Date: Mon, 8 Dec 2008 17:26:56 +0900
-Message-ID: <20081208082656.GC14767@linux-sh.org>
-References: <200812012217.mB1MHeUA011076@imap1.linux-foundation.org> <20081205144605.755f2445@hyperion.delvare> <20081208030757.GC8860@linux-sh.org> <20081208092115.15e15131@hyperion.delvare>
+From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH][resend] iMX/MXC support for I2C
+Date: Mon, 08 Dec 2008 11:18:59 +0200
+Message-ID: <ghiopt$ce3$1@ger.gmane.org>
+References: <gh3f1h$fto$1@ger.gmane.org> <Pine.LNX.4.64.0812030917440.4717@axis700.grange> <20081203234317.GA4256@fluff.org.uk> <4937AA1C.8050004@gmail.com> <Pine.LNX.4.64.0812051612500.5840@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20081208092115.15e15131-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.0812051612500.5840-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, harvey.harrison-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 08, 2008 at 09:21:15AM +0100, Jean Delvare wrote:
-> On Mon, 8 Dec 2008 12:07:58 +0900, Paul Mundt wrote:
-> > On Fri, Dec 05, 2008 at 02:46:05PM +0100, Jean Delvare wrote:
-> > > Ben, Paul, any comment on this?
-> > > 
-> > It's fine with me, do you want to take this, or should I fold it in to my
-> > tree?
-> > 
-> > Acked-by: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+Guennadi Liakhovetski wrote:
+> On Thu, 4 Dec 2008, Darius wrote:
 > 
-> This patch is in my tree and will go to Linus at the end of the week,
-> unless you prefer to pick it.
+>> I tested on MX1. There delay is not needed at all.
 > 
-Through your tree is fine, thanks.
+> Darius, how exactly you tested on MX1? I just found out, that also 
+> i2c_smbus_{read,write}_word_data() doesn't work with imx driver on i.MX31, 
+> whereas the mxc driver does.
+
+Hi Guennadi,
+
+I tested with OV7720, OV7670 and MT9V111 drivers. Last one uses smbus data transfers - all works 100% ok.
+Today I will post new patch version with most of your and Ben comments fixed.
+
+Darius.
+
+> 
+> Thanks
+> Guennadi
+> ---
+> Guennadi Liakhovetski, Ph.D.
+> Freelance Open-Source Software Developer
