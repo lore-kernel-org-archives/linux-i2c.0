@@ -1,293 +1,89 @@
-From: Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: Preliminary support for DDR3 in decode-dimms (fwd)
-Date: Mon, 8 Dec 2008 10:05:45 -0800 (PST)
-Message-ID: <Pine.NEB.4.64.0812080951180.2734@quicky.whooppee.com>
+Date: Tue, 9 Dec 2008 10:12:25 +0100
+Message-ID: <20081209101225.2ea39aae@hyperion.delvare>
 References: <Pine.NEB.4.64.0811230659540.29668@quicky.whooppee.com>
- <20081125103039.2f14bac7@hyperion.delvare> <Pine.NEB.4.64.0811250408050.29070@quicky.whooppee.com>
- <20081208145902.5962408c@hyperion.delvare> <Pine.NEB.4.64.0812080602060.14436@quicky.whooppee.com>
-Reply-To: paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org
+	<20081125103039.2f14bac7@hyperion.delvare>
+	<Pine.NEB.4.64.0811250408050.29070@quicky.whooppee.com>
+	<20081208145902.5962408c@hyperion.delvare>
+	<Pine.NEB.4.64.0812080602060.14436@quicky.whooppee.com>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-2028037063-1228759545=:2734"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <Pine.NEB.4.64.0812080602060.14436-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Paul,
 
---0-2028037063-1228759545=:2734
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+On Mon, 8 Dec 2008 06:24:32 -0800 (PST), Paul Goyette wrote:
+> On Mon, 8 Dec 2008, Jean Delvare wrote:
+> > Apparently you had to make some changes because assumptions which were
+> > correct up to DDR2 are no longer correct for DDR3. Some of these
+> > changes look like hacks to me (for example, the readfullspd function
+> > and the conditionals it adds to the common code). I really would prefer
+> > that we first clean up the script to get rid of improper assumptions,
+> > and only after this is done, add support for DDR3. That way I will have
+> > two medium patches to review rather than a single large one, and the
+> > second patch should be pretty straightforward. This will be way easier
+> > for me.
+> 
+> For FB-DIMMs (which are previously supported) and DDR3, the old checksum 
+> over bytes 0-62 no longer exists;  instead, there is a CRC in bytes 126 
+> and 127 that covers a variable section of the SPD data.  readfullspd was 
+> used to read the entire data, rather than just 0-63.  It would not be 
+> too difficult to replace the old (multiple) call to read64.
 
-Jean et al,
+OK. The reason for not reading all 128 bytes initially is that the
+first 64 bytes were enough to verify the checksum, and as reading from
+EEPROMs can be slow, it was saving some time for invalid or non-SPD
+EEPROMs. But optimizing the code for the failure case doesn't really
+make sense, I'd rather have more simple code even if it is slower in a
+few corner cases.
 
-Attached please find a new set of diffs for decode-dimms.  This is a 
-beginning at addressing the earlier comments.
+> > For example, if the manufacturing information is no longer common to
+> > all memory types, then let's move it to a separate function. If
+> > checksum handling is type-specific, then let's move it to a separate
+> > function as well. I really don't want the main loop to grow
+> > indefinitely.
+> 
+> There are really only two types of validation:
+> 
+>  	checksum for everything with type < FB-DIMM
+>  	CRC for everything >= FB-DIMM
+> 
+> I'm not sure it makes sense to add a specific call to each memory type's 
+> specific processing, especially since it would mean that checksum would 
+> not get checked for types that don't have a specific processing routine 
+> (ie, the ROMs).
 
-This set of diffs implements the following changes:
+We could always add callbacks for these types. But I don't care too
+much about the actual implementation as long as it is clean and works.
 
-1. Instead of reading the spd data 64 bytes at a time, we calculate
-    the actual sizes (total and written) of the spd and read the entire
-    thing, all at once.
+> Manufacturing information is indeed no longer completely common.
 
-1a.This also involved changing all the offsets at the end of the main
-    loop which were pointing to Manufacturing data, etc.
+I moved it to a separate function, it will make it easier to implement
+DDR3 support cleanly.
 
-1b.Also, the main loop is modified to use the returned, calulated sizes
-    rather than making its own calculations.
+> (...)
+> Hopefully I've addressed your comments here.  I'll be happy to make one 
+> more pass at this, and submit two separate patches.  But I've already 
+> spent a lot more time than I expected (OK, most of that time was spent 
+> trying to understand perl!) so if the next submission isn't adequate, 
+> I'll have to leave it for someone else to properly integrate.
 
-2. Remove the checksum calculation from the main loop into a separate
-    function which returns the actual and calculated checksums as well
-    as a True/False match status.
+Thank you. I really don't mean to waste your time here, I just want to
+make sure that the code quality is maintained at a proper level, that
+we do not introduce any regression, and that maintaining the code in
+the future won't be too difficult. Do what you can and I'll do the rest.
 
-3. Create a CRC routine with the same arguments and returns as for
-    the checksum routine.
+In fact I had already started committing some clean-ups. I'll now adjust
+your latest patch to apply on top of that. I'll let you know what I am
+done and we can pursue with DDR3 support.
 
-4. In the mainline, call the checksum() or CRC() routine as appropriate
-    for the specific memory type.
-
-5. The cascading if .. elsif .. for fundamental memory types has been
-    replaced with an indexable list.  The list has been updated to
-    include FB-DIMM, FB-DIMM Probe, and DDR3 SDRAM types.
-
-
-The following is not yet done;  I'll leave these for the next round, 
-assuming this set of changes comes closer to meeting your approval.
-
-6. Add the routine to actually decode DDR3 data
-
-7. Move the now not-so-common manufacturing data into a separate
-    function.
-
-
-Thanks!
-
-
-----------------------------------------------------------------------
-|   Paul Goyette   | PGP DSS Key fingerprint: |  E-mail addresses:   |
-| Customer Service | FA29 0E3B 35AF E8AE 6651 |  paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org   |
-| Network Engineer | 0786 F758 55DE 53BA 7731 | pgoyette-3r7Miqu9kMnR7s880joybQ@public.gmane.org |
-----------------------------------------------------------------------
---0-2028037063-1228759545=:2734
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=decode-dimms.diff1
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.NEB.4.64.0812081005450.2734-j58mV80z1I3O+KjX/08HYEEOCMrvLtNR@public.gmane.org>
-Content-Description: 
-Content-Disposition: attachment; filename=decode-dimms.diff1
-
-LS0tIGRlY29kZS1kaW1tcy5vcmlnCTIwMDgtMTEtMTggMDk6MTU6MDkuMDAw
-MDAwMDAwIC0wODAwDQorKysgZGVjb2RlLWRpbW1zLmNsZWFudXAJMjAwOC0x
-Mi0wOCAwOTo0NDo1My4wMDAwMDAwMDAgLTA4MDANCkBAIC0xLDQgKzEsNCBA
-QA0KLSMhL3Vzci9iaW4vcGVybCAtdw0KKyMhL3Vzci9wa2cvYmluL3Blcmwg
-LXcNCiAjDQogIyBFRVBST00gZGF0YSBkZWNvZGVyIGZvciBTRFJBTSBESU1N
-IG1vZHVsZXMNCiAjDQpAQCAtMTE1NiwzMCArMTE1Niw3MCBAQCBzdWIgcmVh
-ZF9oZXhkdW1wKCQpDQogCXJldHVybiBAYnl0ZXM7DQogfQ0KIA0KLXN1YiBy
-ZWFkc3BkNjQoJCQpICMgcmVhZHMgNjQgYnl0ZXMgZnJvbSBTUEQtRUVQUk9N
-DQorc3ViIHNwZF9zaXplcyhAKSB7DQorCW15IEBieXRlcyA9IEBfOw0KKw0K
-KwlpZiAoJGJ5dGVzWzJdID49IDkpIHsNCisJCSMgRm9yIEZCLURJTU0gYW5k
-IG5ld2VyLCBkZWNvZGUgbnVtYmVyIG9mIGJ5dGVzIHdyaXR0ZW4NCisJCW15
-ICRzcGRfbGVuID0gKCRieXRlc1swXSA+PiA0KSAmIDc7DQorCQlteSAkc2l6
-ZSA9IDY0IDw8ICgkYnl0ZXNbMF0gJiAxNSk7DQorCQlpZiAoJHNwZF9sZW4g
-PT0gMCkgew0KKwkJCXJldHVybiAoJHNpemUsIDEyOCk7DQorCQl9IGVsc2lm
-ICgkc3BkX2xlbiA9PSAxKSB7DQorCQkJcmV0dXJuICgkc2l6ZSwgMTc2KTsN
-CisJCX0gZWxzaWYgKCRzcGRfbGVuID09IDIpIHsNCisJCQlyZXR1cm4gKCRz
-aXplLCAyNTYpOw0KKwkJfSBlbHNlIHsNCisJCQlyZXR1cm4gKDY0LCA2NCk7
-DQorCQl9DQorICAgICAgICB9IGVsc2Ugew0KKwkJbXkgJHNpemU7DQorCQlp
-ZiAoJGJ5dGVzWzFdIDw9IDE0KSB7DQorCQkJJHNpemUgPSAxIDw8ICRieXRl
-c1sxXTsNCisJCX0gZWxzaWYgKCRieXRlc1sxXSA9PSAwKSB7DQorCQkJJHNp
-emUgPSAiUkZVIjsNCisJCX0gZWxzZSB7ICRzaXplID0gIkVSUk9SISIgfQ0K
-Kw0KKwkJcmV0dXJuICgkc2l6ZSwgKCRieXRlc1swXSA8IDY0KSA/IDY0IDog
-JGJ5dGVzWzBdKTsNCisgICAgICAgIH0NCit9DQorDQorc3ViIHJlYWRzcGQo
-JCkgIyByZWFkcyBlbnRpcmUgU1BELUVFUFJPTQ0KIHsNCi0JbXkgKCRvZmZz
-ZXQsICRkaW1tX2kpID0gQF87DQorCW15ICRkaW1tX2kgPSAkXzsNCiAJbXkg
-QGJ5dGVzOw0KKwlteSAkd3JpdHRlbjsNCisJbXkgJHNpemU7DQogCWlmICgk
-dXNlX2hleGR1bXApIHsNCiAJCUBieXRlcyA9IHJlYWRfaGV4ZHVtcCgkZGlt
-bV9pKTsNCi0JCXJldHVybiBAYnl0ZXNbJG9mZnNldC4uKCRvZmZzZXQrNjMp
-XTsNCisJCSgkc2l6ZSwgJHdyaXR0ZW4pID0gc3BkX3NpemVzKEBieXRlcyk7
-DQorCQlyZXR1cm4gKCRzaXplLCAkd3JpdHRlbiwgQGJ5dGVzWzAuLigkd3Jp
-dHRlbiAtIDEpXSk7DQogCX0gZWxzaWYgKCR1c2Vfc3lzZnMpIHsNCiAJCSMg
-S2VybmVsIDIuNiB3aXRoIHN5c2ZzDQogCQlzeXNvcGVuKEhBTkRMRSwgIi9z
-eXMvYnVzL2kyYy9kcml2ZXJzL2VlcHJvbS8kZGltbV9pL2VlcHJvbSIsIE9f
-UkRPTkxZKQ0KIAkJCW9yIGRpZSAiQ2Fubm90IG9wZW4gL3N5cy9idXMvaTJj
-L2RyaXZlcnMvZWVwcm9tLyRkaW1tX2kvZWVwcm9tIjsNCiAJCWJpbm1vZGUg
-SEFORExFOw0KLQkJc3lzc2VlayhIQU5ETEUsICRvZmZzZXQsIFNFRUtfU0VU
-KTsNCi0JCXN5c3JlYWQoSEFORExFLCBteSAkZWVwcm9tLCA2NCk7DQorDQor
-CQkjIFJlYWQgaGVhZGVyIGJ5dGVzIHRvIGRldGVybWluZSBzcGQgc2l6ZQ0K
-KwkJc3lzcmVhZChIQU5ETEUsIG15ICRlZXByb20sIDMpOw0KKwkJQGJ5dGVz
-ID0gdW5wYWNrKCJDNjQiLCAkZWVwcm9tKTsNCisJCSgkc2l6ZSwgJHdyaXR0
-ZW4pID0gc3BkX3NpemVzKEBieXRlcyk7DQorDQorCQkjIE5vdyAocmUpcmVh
-ZCB0aGUgZW50aXJlIHNwZA0KKwkJc3lzc2VlayhIQU5ETEUsIDAsIFNFRUtf
-U0VUKTsNCisJCXN5c3JlYWQoSEFORExFLCAkZWVwcm9tLCAkd3JpdHRlbik7
-DQogCQljbG9zZSBIQU5ETEU7DQogCQlAYnl0ZXMgPSB1bnBhY2soIkM2NCIs
-ICRlZXByb20pOw0KIAl9IGVsc2Ugew0KIAkJIyBLZXJuZWwgMi40IHdpdGgg
-cHJvY2ZzDQotCQlmb3IgbXkgJGkgKDAgLi4gMykgew0KLQkJCW15ICRoZXhv
-ZmYgPSBzcHJpbnRmKCclMDJ4JywgJG9mZnNldCArICRpICogMTYpOw0KKwkJ
-QGJ5dGVzID0gc3BsaXQoIiAiLCBgY2F0IC9wcm9jL3N5cy9kZXYvc2Vuc29y
-cy8kZGltbV9pLzAwYCk7DQorCQkoJHNpemUsICR3cml0dGVuKSA9IHNwZF9z
-aXplcyhAYnl0ZXMpOw0KKwkJZm9yIG15ICRpICgxIC4uICgoJHdyaXR0ZW4g
-KyAxNSkgLyAxNikpIHsNCisJCQlteSAkaGV4b2ZmID0gc3ByaW50ZignJTAy
-eCcsICRpICogMTYpOw0KIAkJCXB1c2ggQGJ5dGVzLCBzcGxpdCgiICIsIGBj
-YXQgL3Byb2Mvc3lzL2Rldi9zZW5zb3JzLyRkaW1tX2kvJGhleG9mZmApOw0K
-IAkJfQ0KIAl9DQotCXJldHVybiBAYnl0ZXM7DQorCXJldHVybiAoJHNpemUs
-ICR3cml0dGVuLCBAYnl0ZXMpOw0KIH0NCiANCiAjIFBhcnNlIGNvbW1hbmQt
-bGluZQ0KQEAgLTEyNDMsNiArMTI4Myw0OCBAQCBpZiAoJG9wdF9odG1sICYm
-ICEkb3B0X2JvZHlvbmx5KSB7DQogCQkgICI8L2hlYWQ+PGJvZHk+XG4iOw0K
-IH0NCiANCisjIENhbGN1bGF0ZSBhbmQgdmVyaWZ5IGNoZWNrc3VtIG9mIGZp
-cnN0IDYzIGJ5dGVzDQorDQorc3ViIGNoZWNrc3VtKEApIHsNCisJbXkgQGJ5
-dGVzID0gQF87DQorCW15ICRkaW1tX2NoZWNrc3VtID0gMDsNCisJJGRpbW1f
-Y2hlY2tzdW0gKz0gJGJ5dGVzWyRfXSBmb3JlYWNoICgwIC4uIDYyKTsNCisJ
-JGRpbW1fY2hlY2tzdW0gJj0gMHhmZjsNCisNCisJcmV0dXJuICgiRUVQUk9N
-IENoZWNrc3VtIG9mIGJ5dGVzIDAtNjIiLA0KKwkJKCRieXRlc1s2M10gPT0g
-JGRpbW1fY2hlY2tzdW0pID8gMSA6IDAsDQorCQlzcHJpbnRmKCcweCUwMngn
-LCAkYnl0ZXNbNjNdKSwNCisJCXNwcmludGYoJzB4JTAyeCcsICRkaW1tX2No
-ZWNrc3VtKSk7DQorfQ0KKw0KKyMgQ2FsY3VsYXRlIGFuZCB2ZXJpZnkgQ1JD
-DQorDQorc3ViIGNoZWNrX2NyYyhAKSB7DQorCW15IEBieXRlcyA9IEBfOw0K
-KwlteSAkY3JjID0gMDsNCisJbXkgJGNyY19jb3ZlciA9ICRieXRlc1swXSAm
-IDB4ODAgPyAxMTYgOiAxMjU7DQorCW15ICRjcmNfcHRyID0gMDsNCisJbXkg
-JGNyY19iaXQ7DQorCXdoaWxlICgkY3JjX3B0ciA8PSAkY3JjX2NvdmVyKSB7
-DQorCQkkY3JjID0gJGNyYyBeICgkYnl0ZXNbJGNyY19wdHJdIDw8IDgpOw0K
-KwkJZm9yICgkY3JjX2JpdCA9IDA7ICRjcmNfYml0IDwgODsgJGNyY19iaXQr
-Kykgew0KKwkJCWlmICgkY3JjICYgMHg4MDAwKSB7DQorCQkJCSRjcmMgPSAo
-JGNyYyA8PCAxKSBeIDB4MTAyMTsNCisJCQl9IGVsc2Ugew0KKwkJCQkkY3Jj
-ID0gJGNyYyA8PCAxDQorCQkJfQ0KKwkJfQ0KKwkJJGNyY19wdHIrKzsNCisJ
-fQ0KKwkkY3JjID0gJGNyYyAmIDB4ZmZmZjsNCisNCisJbXkgJGRpbW1fY3Jj
-ID0gKCRieXRlc1sxMjddIDw8IDgpIHwgJGJ5dGVzWzEyNl07DQorCXJldHVy
-biAoIkVFUFJPTSBDUkMgb2YgYnl0ZXMgMC0iIC4gc3ByaW50ZigiJWQiLCAk
-Y3JjX2NvdmVyKSwNCisJCSgkZGltbV9jcmMgPT0gJGNyYykgPyAxIDogMCwN
-CisJCXNwcmludGYoIjB4JTA0eCIsICRkaW1tX2NyYyksDQorCQlzcHJpbnRm
-KCIweCUwNHgiLCAkY3JjKSk7DQorfQ0KKw0KIHByaW50YyAiZGVjb2RlLWRp
-bW1zIHZlcnNpb24gJHJldmlzaW9uIjsNCiBwcmludGggJ01lbW9yeSBTZXJp
-YWwgUHJlc2VuY2UgRGV0ZWN0IERlY29kZXInLA0KICdCeSBQaGlsaXAgRWRl
-bGJyb2NrLCBDaHJpc3RpYW4gWnVja3NjaHdlcmR0LCBCdXJrYXJ0IExpbmdu
-ZXIsDQpAQCAtMTI2NywxMiArMTM0OSwxOSBAQCBmb3IgbXkgJGkgKCAwIC4u
-ICQjZGltbV9saXN0ICkgew0KIAlpZiAoKCR1c2Vfc3lzZnMgJiYgL15cZCst
-XGQrJC8pDQogCSB8fCAoISR1c2Vfc3lzZnMgJiYgL15lZXByb20tLykNCiAJ
-IHx8ICR1c2VfaGV4ZHVtcCkgew0KLQkJbXkgQGJ5dGVzID0gcmVhZHNwZDY0
-KDAsICRkaW1tX2xpc3RbJGldKTsNCi0JCW15ICRkaW1tX2NoZWNrc3VtID0g
-MDsNCi0JCSRkaW1tX2NoZWNrc3VtICs9ICRieXRlc1skX10gZm9yZWFjaCAo
-MCAuLiA2Mik7DQotCQkkZGltbV9jaGVja3N1bSAmPSAweGZmOw0KKwkJbXkg
-QGJ5dGVzID0gcmVhZHNwZCgkZGltbV9saXN0WyRpXSk7DQorCQlteSAkc3Bk
-X3NpemUgPSBzaGlmdChAYnl0ZXMpOw0KKwkJbXkgJHNwZF91c2VkID0gc2hp
-ZnQoQGJ5dGVzKTsNCisJCW15ICgkY2hrX3R5cGUsICRjaGtfdmFsaWQsICRj
-aGtfc3BkLCAkY2hrX2NhbGMpOw0KKwkJaWYgKCRieXRlc1syXSA8IDkpIHsN
-CisJCQkoJGNoa190eXBlLCAkY2hrX3ZhbGlkLCAkY2hrX3NwZCwgJGNoa19j
-YWxjKSA9DQorCQkJCWNoZWNrc3VtKEBieXRlcyk7DQorCQl9IGVsc2Ugew0K
-KwkJCSgkY2hrX3R5cGUsICRjaGtfdmFsaWQsICRjaGtfc3BkLCAkY2hrX2Nh
-bGMpID0NCisJCQkJY2hlY2tfY3JjKEBieXRlcyk7DQorCQl9DQogDQotCQlu
-ZXh0IHVubGVzcyAkYnl0ZXNbNjNdID09ICRkaW1tX2NoZWNrc3VtIHx8ICRv
-cHRfaWduY2hlY2s7DQorCQluZXh0IHVubGVzcyAkY2hrX3ZhbGlkIHx8ICRv
-cHRfaWduY2hlY2s7DQogCQkkZGltbV9jb3VudCsrOw0KIA0KIAkJcHJpbnQg
-IjxiPjx1PiIgaWYgJG9wdF9odG1sOw0KQEAgLTEyOTMsMTEgKzEzODIsMTAg
-QEAgZm9yIG15ICRpICggMCAuLiAkI2RpbW1fbGlzdCApIHsNCiAjIERlY29k
-ZSBmaXJzdCAzIGJ5dGVzICgwLTIpDQogCQlwcmludHMgIlNQRCBFRVBST00g
-SW5mb3JtYXRpb24iOw0KIA0KLQkJbXkgJGwgPSAiRUVQUk9NIENoZWNrc3Vt
-IG9mIGJ5dGVzIDAtNjIiOw0KLQkJcHJpbnRsICRsLCAoJGJ5dGVzWzYzXSA9
-PSAkZGltbV9jaGVja3N1bSA/DQotCQkJc3ByaW50ZigiT0sgKDB4JS4yWCki
-LCAkYnl0ZXNbNjNdKToNCi0JCQlzcHJpbnRmKCJCYWRcbihmb3VuZCAweCUu
-MlgsIGNhbGN1bGF0ZWQgMHglLjJYKVxuIiwNCi0JCQkJJGJ5dGVzWzYzXSwg
-JGRpbW1fY2hlY2tzdW0pKTsNCisJCXByaW50bCAkY2hrX3R5cGUsICgkY2hr
-X3ZhbGlkID8NCisJCQlzcHJpbnRmKCJPSyAoJXMpIiwgJGNoa19jYWxjKSA6
-DQorCQkJc3ByaW50ZigiQmFkXG4oZm91bmQgJXMsIGNhbGN1bGF0ZWQgJXMp
-XG4iLA0KKwkJCQkkY2hrX3NwZCwgJGNoa19jYWxjKSk7DQogDQogCQkjIFNp
-bXBsZSBoZXVyaXN0aWMgdG8gZGV0ZWN0IFJhbWJ1cw0KIAkJbXkgJGlzX3Jh
-bWJ1cyA9ICRieXRlc1swXSA8IDQ7DQpAQCAtMTMwOSwzMSArMTM5NywyOSBA
-QCBmb3IgbXkgJGkgKCAwIC4uICQjZGltbV9saXN0ICkgew0KIAkJCWVsc2Ug
-eyAkdGVtcCA9ICJSZXNlcnZlZCI7IH0NCiAJCQlwcmludGwgIlNQRCBSZXZp
-c2lvbiIsICR0ZW1wOw0KIAkJfSBlbHNlIHsNCi0JCQlwcmludGwgIiMgb2Yg
-Ynl0ZXMgd3JpdHRlbiB0byBTRFJBTSBFRVBST00iLA0KLQkJCSAgICAgICAk
-Ynl0ZXNbMF07DQorCQkJcHJpbnRsICIjIG9mIGJ5dGVzIHdyaXR0ZW4gdG8g
-U0RSQU0gRUVQUk9NIiwgJHNwZF91c2VkOw0KIAkJfQ0KIA0KLQkJJGwgPSAi
-VG90YWwgbnVtYmVyIG9mIGJ5dGVzIGluIEVFUFJPTSI7DQotCQlpZiAoJGJ5
-dGVzWzFdIDw9IDE0KSB7DQotCQkJcHJpbnRsICRsLCAyKiokYnl0ZXNbMV07
-DQotCQl9IGVsc2lmICgkYnl0ZXNbMV0gPT0gMCkgew0KLQkJCXByaW50bCAk
-bCwgIlJGVSI7DQotCQl9IGVsc2UgeyBwcmludGwgJGwsICJFUlJPUiEiOyB9
-DQorCQlteSAkbCA9ICJUb3RhbCBudW1iZXIgb2YgYnl0ZXMgaW4gRUVQUk9N
-IjsNCisJCXByaW50bCAkbCwgJHNwZF9zaXplOw0KIA0KIAkJJGwgPSAiRnVu
-ZGFtZW50YWwgTWVtb3J5IHR5cGUiOw0KLQkJbXkgJHR5cGUgPSAiVW5rbm93
-biI7DQorCQlteSAkdHlwZTsNCiAJCWlmICgkaXNfcmFtYnVzKSB7DQogCQkJ
-aWYgKCRieXRlc1syXSA9PSAxKSB7ICR0eXBlID0gIkRpcmVjdCBSYW1idXMi
-OyB9DQogCQkJZWxzaWYgKCRieXRlc1syXSA9PSAxNykgeyAkdHlwZSA9ICJS
-YW1idXMiOyB9DQorCQkJZWxzZSB7ICR0eXBlID0gIlVua25vd24iOyB9DQog
-CQl9IGVsc2Ugew0KLQkJCWlmICgkYnl0ZXNbMl0gPT0gMSkgeyAkdHlwZSA9
-ICJGUE0gRFJBTSI7IH0NCi0JCQllbHNpZiAoJGJ5dGVzWzJdID09IDIpIHsg
-JHR5cGUgPSAiRURPIjsgfQ0KLQkJCWVsc2lmICgkYnl0ZXNbMl0gPT0gMykg
-eyAkdHlwZSA9ICJQaXBlbGluZWQgTmliYmxlIjsgfQ0KLQkJCWVsc2lmICgk
-Ynl0ZXNbMl0gPT0gNCkgeyAkdHlwZSA9ICJTRFIgU0RSQU0iOyB9DQotCQkJ
-ZWxzaWYgKCRieXRlc1syXSA9PSA1KSB7ICR0eXBlID0gIk11bHRpcGxleGVk
-IFJPTSI7IH0NCi0JCQllbHNpZiAoJGJ5dGVzWzJdID09IDYpIHsgJHR5cGUg
-PSAiRERSIFNHUkFNIjsgfQ0KLQkJCWVsc2lmICgkYnl0ZXNbMl0gPT0gNykg
-eyAkdHlwZSA9ICJERFIgU0RSQU0iOyB9DQotCQkJZWxzaWYgKCRieXRlc1sy
-XSA9PSA4KSB7ICR0eXBlID0gIkREUjIgU0RSQU0iOyB9DQorCQkJbXkgQHR5
-cGVfbGlzdCA9ICgiUmVzZXJ2ZWQiLCAiRlBNIERSQU0iLCAiRURPIiwNCisJ
-CQkJIlBpcGVsaW5lZCBOaWJibGUiLCAiU0RSIFNEUkFNIiwNCisJCQkJIk11
-bHRpcGxleGVkIFJPTSIsICJERFIgU0dSQU0iLCAiRERSIFNEUkFNIiwNCisJ
-CQkJIkREUjIgU0RSQU0iLCAiRkItRElNTSIsICJGQi1ESU1NIFByb2JlIiwN
-CisJCQkJIkREUjMgU0RSQU0iKTsNCisJCQlpZiAoJGJ5dGVzWzJdIDw9ICQj
-dHlwZV9saXN0KSB7DQorCQkJCSR0eXBlID0gJHR5cGVfbGlzdFskYnl0ZXNb
-Ml1dOw0KKwkJCX0gZWxzZSB7DQorCQkJCSR0eXBlID0gc3ByaW50ZigiVW5r
-bm93biAoMHglMDJ4KSIsICRieXRlc1syXSk7DQorCQkJfQ0KIAkJfQ0KIAkJ
-cHJpbnRsICRsLCAkdHlwZTsNCiANCkBAIC0xMzQ0LDYxICsxNDMwLDU5IEBA
-IGZvciBteSAkaSAoIDAgLi4gJCNkaW1tX2xpc3QgKSB7DQogIyBEZWNvZGUg
-bmV4dCAzNSBieXRlcyAoNjQtOTgsIGNvbW1vbiB0byBhbGwgbWVtb3J5IHR5
-cGVzKQ0KIAkJcHJpbnRzICJNYW51ZmFjdHVyaW5nIEluZm9ybWF0aW9uIjsN
-CiANCi0JCUBieXRlcyA9IHJlYWRzcGQ2NCg2NCwgJGRpbW1fbGlzdFskaV0p
-Ow0KLQ0KIAkJJGwgPSAiTWFudWZhY3R1cmVyIjsNCiAJCSMgJGV4dHJhIGlz
-IGEgcmVmZXJlbmNlIHRvIGFuIGFycmF5IGNvbnRhaW5pbmcgdXAgdG8NCiAJ
-CSMgNyBleHRyYSBieXRlcyBmcm9tIHRoZSBNYW51ZmFjdHVyZXIgZmllbGQu
-IFNvbWV0aW1lcw0KIAkJIyB0aGVzZSBieXRlcyBhcmUgZmlsbGVkIHdpdGgg
-aW50ZXJlc3RpbmcgZGF0YS4NCi0JCSgkdGVtcCwgbXkgJGV4dHJhKSA9IG1h
-bnVmYWN0dXJlcihAYnl0ZXNbMC4uN10pOw0KKwkJKCR0ZW1wLCBteSAkZXh0
-cmEpID0gbWFudWZhY3R1cmVyKEBieXRlc1s2NC4uNzFdKTsNCiAJCXByaW50
-bCAkbCwgJHRlbXA7DQogCQkkbCA9ICJDdXN0b20gTWFudWZhY3R1cmVyIERh
-dGEiOw0KIAkJJHRlbXAgPSBtYW51ZmFjdHVyZXJfZGF0YShAeyRleHRyYX0p
-Ow0KIAkJcHJpbnRsICRsLCAkdGVtcCBpZiBkZWZpbmVkICR0ZW1wOw0KIA0K
-LQkJaWYgKHNwZF93cml0dGVuKCRieXRlc1s4XSkpIHsNCisJCWlmIChzcGRf
-d3JpdHRlbigkYnl0ZXNbNzJdKSkgew0KIAkJCSMgVHJ5IHRoZSBsb2NhdGlv
-biBjb2RlIGFzIEFTQ0lJIGZpcnN0LCBhcyBlYXJsaWVyIHNwZWNpZmljYXRp
-b25zDQogCQkJIyBzdWdnZXN0ZWQgdGhpcy4gQXMgbmV3ZXIgc3BlY2lmaWNh
-dGlvbnMgZG9uJ3QgbWVudGlvbiBpdCBhbnltb3JlLA0KIAkJCSMgd2Ugc3Rp
-bGwgZmFsbCBiYWNrIHRvIGJpbmFyeS4NCiAJCQkkbCA9ICJNYW51ZmFjdHVy
-aW5nIExvY2F0aW9uIENvZGUiOw0KLQkJCSR0ZW1wID0gKGNocigkYnl0ZXNb
-OF0pID1+IG0vXltcd1xkXSQvKSA/IGNocigkYnl0ZXNbOF0pDQotCQkJICAg
-ICAgOiBzcHJpbnRmKCIweCUuMlgiLCAkYnl0ZXNbOF0pOw0KKwkJCSR0ZW1w
-ID0gKGNocigkYnl0ZXNbNzJdKSA9fiBtL15bXHdcZF0kLykgPyBjaHIoJGJ5
-dGVzWzcyXSkNCisJCQkgICAgICA6IHNwcmludGYoIjB4JS4yWCIsICRieXRl
-c1s3Ml0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7DQogCQl9DQogDQogCQkk
-bCA9ICJQYXJ0IE51bWJlciI7DQotCQkkdGVtcCA9IHBhcnRfbnVtYmVyKEBi
-eXRlc1s5Li4yNl0pOw0KKwkJJHRlbXAgPSBwYXJ0X251bWJlcihAYnl0ZXNb
-NzMuLjkwXSk7DQogCQlwcmludGwgJGwsICR0ZW1wOw0KIA0KLQkJaWYgKHNw
-ZF93cml0dGVuKEBieXRlc1syNy4uMjhdKSkgew0KKwkJaWYgKHNwZF93cml0
-dGVuKEBieXRlc1s5MS4uOTJdKSkgew0KIAkJCSRsID0gIlJldmlzaW9uIENv
-ZGUiOw0KLQkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAyWFxuIiwgQGJ5
-dGVzWzI3Li4yOF0pOw0KKwkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAy
-WFxuIiwgQGJ5dGVzWzkxLi45Ml0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7
-DQogCQl9DQogDQotCQlpZiAoc3BkX3dyaXR0ZW4oQGJ5dGVzWzI5Li4zMF0p
-KSB7DQorCQlpZiAoc3BkX3dyaXR0ZW4oQGJ5dGVzWzkzLi45NF0pKSB7DQog
-CQkJJGwgPSAiTWFudWZhY3R1cmluZyBEYXRlIjsNCiAJCQkjIEluIHRoZW9y
-eSB0aGUgeWVhciBhbmQgd2VlayBhcmUgaW4gQkNEIGZvcm1hdCwgYnV0DQog
-CQkJIyB0aGlzIGlzIG5vdCBhbHdheXMgdHJ1ZSBpbiBwcmFjdGljZSA6KA0K
-LQkJCWlmICgoJGJ5dGVzWzI5XSAmIDB4ZjApIDw9IDB4OTANCi0JCQkgJiYg
-KCRieXRlc1syOV0gJiAweDBmKSA8PSAweDA5DQotCQkJICYmICgkYnl0ZXNb
-MzBdICYgMHhmMCkgPD0gMHg5MA0KLQkJCSAmJiAoJGJ5dGVzWzMwXSAmIDB4
-MGYpIDw9IDB4MDkpIHsNCisJCQlpZiAoKCRieXRlc1s5M10gJiAweGYwKSA8
-PSAweDkwDQorCQkJICYmICgkYnl0ZXNbOTNdICYgMHgwZikgPD0gMHgwOQ0K
-KwkJCSAmJiAoJGJ5dGVzWzk0XSAmIDB4ZjApIDw9IDB4OTANCisJCQkgJiYg
-KCRieXRlc1s5NF0gJiAweDBmKSA8PSAweDA5KSB7DQogCQkJCSMgTm90ZSB0
-aGF0IHRoaXMgaGV1cmlzdGljIHdpbGwgYnJlYWsgaW4geWVhciAyMDgwDQog
-CQkJCSR0ZW1wID0gc3ByaW50ZigiJWQlMDJYLVclMDJYXG4iLA0KLQkJCQkJ
-CSRieXRlc1syOV0gPj0gMHg4MCA/IDE5IDogMjAsDQotCQkJCQkJQGJ5dGVz
-WzI5Li4zMF0pOw0KKwkJCQkJCSRieXRlc1s5M10gPj0gMHg4MCA/IDE5IDog
-MjAsDQorCQkJCQkJQGJ5dGVzWzkzLi45NF0pOw0KIAkJCX0gZWxzZSB7DQog
-CQkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAyWFxuIiwNCi0JCQkJCQlA
-Ynl0ZXNbMjkuLjMwXSk7DQorCQkJCQkJQGJ5dGVzWzkzLi45NF0pOw0KIAkJ
-CX0NCiAJCQlwcmludGwgJGwsICR0ZW1wOw0KIAkJfQ0KIA0KLQkJaWYgKHNw
-ZF93cml0dGVuKEBieXRlc1szMS4uMzRdKSkgew0KKwkJaWYgKHNwZF93cml0
-dGVuKEBieXRlc1s5NS4uOThdKSkgew0KIAkJCSRsID0gIkFzc2VtYmx5IFNl
-cmlhbCBOdW1iZXIiOw0KIAkJCSR0ZW1wID0gc3ByaW50ZigiMHglMDJYJTAy
-WCUwMlglMDJYXG4iLA0KLQkJCQkJQGJ5dGVzWzMxLi4zNF0pOw0KKwkJCQkJ
-QGJ5dGVzWzk1Li45OF0pOw0KIAkJCXByaW50bCAkbCwgJHRlbXA7DQogCQl9
-DQogDQo=
-
---0-2028037063-1228759545=:2734--
+Thanks,
+-- 
+Jean Delvare
