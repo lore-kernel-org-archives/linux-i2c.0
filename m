@@ -1,32 +1,26 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c fixes for 2.6.28
-Date: Thu, 11 Dec 2008 12:13:49 +0100
-Message-ID: <20081211121349.70acb47b@hyperion.delvare>
+From: "Aguirre Rodriguez, Sergio Alberto" <saaguirre-l0cyMroinI0@public.gmane.org>
+Subject: Calling an I2C camera sensor with SMBUS API?
+Date: Thu, 11 Dec 2008 17:55:26 -0600
+Message-ID: <A24693684029E5489D1D202277BE894415E6E424@dlee02.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "Hiremath, Vaibhav" <hvaibhav-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Hi,
 
-Please pull the i2c subsystem fixes for Linux 2.6.28 from:
+Some days back, Vaibhav Hiremath submitted patches to linux-omap and video4linux trees for an I2C video codec chip, and he was suggested to use SMBUS API instead of manually constructing i2c messages and sending using i2c_transfer API.
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+So I attempted to do the same for a camera sensor I've been working on.
 
- drivers/i2c/busses/i2c-highlander.c |    4 ++--
- drivers/i2c/busses/i2c-pmcmsp.c     |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+But one thing I noticed is that my sensor needs to access 16-bit register addresses in the device, and I saw in SMBUS spec 2.0 that the equivalent thing (SMBUS commands) are only 8-bit length.
 
----------------
+So, should this automatically discard using SMBUS api for my case, or am I missing something else? (like a SMBUS 16-bit expansion or so)
 
-Harvey Harrison (2):
-      i2c-pmcmsp: Fix endianness misannotation
-      i2c-highlander: Trivial endian casting fixes
-
-Thanks,
--- 
-Jean Delvare
+Regards,
+Sergio
