@@ -1,26 +1,101 @@
-From: "Aguirre Rodriguez, Sergio Alberto" <saaguirre-l0cyMroinI0@public.gmane.org>
-Subject: Calling an I2C camera sensor with SMBUS API?
-Date: Thu, 11 Dec 2008 17:55:26 -0600
-Message-ID: <A24693684029E5489D1D202277BE894415E6E424@dlee02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: GPIO: Fix probe() error return in gpio driver probes
+Date: Fri, 12 Dec 2008 15:24:27 +0000
+Message-ID: <20081212152426.745254309@fluff.org.uk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline; filename=simtec/check-gpio-driver-return-codes.patch
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "Hiremath, Vaibhav" <hvaibhav-l0cyMroinI0@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+A number of drivers in drivers/gpio return -ENODEV when confronted
+with missing setup parameters such as the platform data. However,
+returning -ENODEV causes the driver layer to silently ignore the
+driver as it assumes the probe did not find anything and was only
+speculative.
 
-Some days back, Vaibhav Hiremath submitted patches to linux-omap and video4linux trees for an I2C video codec chip, and he was suggested to use SMBUS API instead of manually constructing i2c messages and sending using i2c_transfer API.
+To make life easier to discern why a driver is not being attached,
+change to returning -EINVAL, which is a better description of the
+fact that the driver data was not valid.
 
-So I attempted to do the same for a camera sensor I've been working on.
+Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Index: linux.git7/drivers/gpio/max7301.c
+===================================================================
+--- linux.git7.orig/drivers/gpio/max7301.c	2008-12-12 13:35:42.000000000 +0000
++++ linux.git7/drivers/gpio/max7301.c	2008-12-12 13:36:12.000000000 +0000
+@@ -218,7 +218,7 @@ static int __devinit max7301_probe(struc
+ 
+ 	pdata = spi->dev.platform_data;
+ 	if (!pdata || !pdata->base)
+-		return -ENODEV;
++		return -EINVAL;
+ 
+ 	/*
+ 	 * bits_per_word cannot be configured in platform data
+Index: linux.git7/drivers/gpio/max732x.c
+===================================================================
+--- linux.git7.orig/drivers/gpio/max732x.c	2008-12-12 13:36:22.000000000 +0000
++++ linux.git7/drivers/gpio/max732x.c	2008-12-12 13:36:28.000000000 +0000
+@@ -268,7 +268,7 @@ static int __devinit max732x_probe(struc
+ 
+ 	pdata = client->dev.platform_data;
+ 	if (pdata == NULL)
+-		return -ENODEV;
++		return -EINVAL;
+ 
+ 	chip = kzalloc(sizeof(struct max732x_chip), GFP_KERNEL);
+ 	if (chip == NULL)
+Index: linux.git7/drivers/gpio/mcp23s08.c
+===================================================================
+--- linux.git7.orig/drivers/gpio/mcp23s08.c	2008-12-12 14:10:01.000000000 +0000
++++ linux.git7/drivers/gpio/mcp23s08.c	2008-12-12 14:11:19.000000000 +0000
+@@ -311,7 +311,7 @@ static int mcp23s08_probe(struct spi_dev
+ 
+ 	pdata = spi->dev.platform_data;
+ 	if (!pdata || !gpio_is_valid(pdata->base))
+-		return -ENODEV;
++		return -EINVAL;
+ 
+ 	for (addr = 0; addr < 4; addr++) {
+ 		if (!pdata->chip[addr].is_present)
+Index: linux.git7/drivers/gpio/pca953x.c
+===================================================================
+--- linux.git7.orig/drivers/gpio/pca953x.c	2008-12-12 13:33:47.000000000 +0000
++++ linux.git7/drivers/gpio/pca953x.c	2008-12-12 13:33:55.000000000 +0000
+@@ -201,7 +201,7 @@ static int __devinit pca953x_probe(struc
+ 
+ 	pdata = client->dev.platform_data;
+ 	if (pdata == NULL)
+-		return -ENODEV;
++		return -EINVAL;
+ 
+ 	chip = kzalloc(sizeof(struct pca953x_chip), GFP_KERNEL);
+ 	if (chip == NULL)
+Index: linux.git7/drivers/gpio/pcf857x.c
+===================================================================
+--- linux.git7.orig/drivers/gpio/pcf857x.c	2008-12-12 13:34:33.000000000 +0000
++++ linux.git7/drivers/gpio/pcf857x.c	2008-12-12 13:34:54.000000000 +0000
+@@ -189,7 +189,7 @@ static int pcf857x_probe(struct i2c_clie
+ 
+ 	pdata = client->dev.platform_data;
+ 	if (!pdata)
+-		return -ENODEV;
++		return -EINVAL;
+ 
+ 	/* Allocate, initialize, and register this gpio_chip. */
+ 	gpio = kzalloc(sizeof *gpio, GFP_KERNEL);
+@@ -249,7 +249,7 @@ static int pcf857x_probe(struct i2c_clie
+ 			status = i2c_read_le16(client);
+ 
+ 	} else
+-		status = -ENODEV;
++		status = -EINVAL;
+ 
+ 	if (status < 0)
+ 		goto fail;
 
-But one thing I noticed is that my sensor needs to access 16-bit register addresses in the device, and I saw in SMBUS spec 2.0 that the equivalent thing (SMBUS commands) are only 8-bit length.
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-So, should this automatically discard using SMBUS api for my case, or am I missing something else? (like a SMBUS 16-bit expansion or so)
-
-Regards,
-Sergio
+  'a smiley only costs 4 bytes'
