@@ -1,50 +1,40 @@
-From: Ben Dooks <ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
-Subject: what is in bjdooks' i2c-next tree
-Date: Tue, 16 Dec 2008 22:10:24 +0000
-Message-ID: <E1LCi7U-0000YA-U3@teyla.home.fluff.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: Any more i2c driver fixes or new drivers to check?
+Date: Tue, 16 Dec 2008 22:11:58 +0000
+Message-ID: <20081216221158.GG8032@fluff.org.uk>
+References: <20081216215628.GD8032@fluff.org.uk> <20081216210907.GA2601@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20081216210907.GA2601-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit 1bda71282ded6a2e09a2db7c8884542fb46bfd4f:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../ieee1394/linux1394-2.6
+On Tue, Dec 16, 2008 at 01:09:09PM -0800, Tony Lindgren wrote:
+> * Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> [081216 13:58]:
+> > Are there any more fixes that anyone would like considering
+> > for the current kernel, or new drivers to look at before the
+> > next merge window.
+> > 
+> > Any drivers or updates not on this list by 2008-12-19 will be too late
+> > for the next merge.
+> 
+> Well there's the i2c-omap.c series for the next merge window,
+> but I guess that's already on your merge list?
 
-are available in the git repository at:
+done.
+ 
+> Maybe post a list of what your're planning to merge so people will
+> know if it's going in or not. Or do you have a link to your git-branch
+> of the stuff going upstream?
 
-  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-next
+Already done, my dev machine now has a replacement CPU and memory and
+seems to be stable now.
 
-Ben Dooks (2):
-      Merge branch 'i2c-for-ben' of git://git.kernel.org/.../tmlind/linux-omap-2.6 into i2c-next
-      i2c-omap: fix type of irq handler function
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-Chandra shekhar (1):
-      i2c-omap: Add support for omap34xx
-
-Jarkko Nikula (1):
-      i2c-omap: Do not use interruptible wait call in omap_i2c_xfer_msg
-
-Kalle Jokiniemi (1):
-      i2c-omap: Enable I2C wakeups for 34xx
-
-Nishanth Menon (1):
-      i2c-omap: FIFO handling support and broken hw workaround for i2c-omap
-
-Paul Walmsley (6):
-      i2c-omap: Close suspected race between omap_i2c_idle() and omap_i2c_isr()
-      i2c-omap: Mark init-only functions as __init
-      i2c-omap: Don't compile in OMAP15xx I2C ISR for non-OMAP15xx builds
-      i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
-      i2c-omap: convert 'rev1' flag to generic 'rev' u8
-      i2c-omap: reprogram OCP_SYSCONFIG register after reset
-
-Syed Mohammed Khasim (1):
-      i2c-omap: Add high-speed support to omap-i2c
-
-Tony Lindgren (1):
-      i2c-omap: Clean-up i2c-omap
-
- arch/arm/mach-omap2/clock24xx.h |    4 +-
- drivers/i2c/busses/i2c-omap.c   |  420 ++++++++++++++++++++++++++++++---------
- 2 files changed, 330 insertions(+), 94 deletions(-)
+  'a smiley only costs 4 bytes'
