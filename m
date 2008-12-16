@@ -1,98 +1,100 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: [next] i2c-s3c2410: Allow more than one i2c-s3c2410 adapter
-Date: Tue, 16 Dec 2008 21:04:42 +0000
-Message-ID: <1229461483-1747-5-git-send-email-ben-linux@fluff.org>
+Subject: [next] i2c-s3c2410: Change IRQ to be plain integer.
+Date: Tue, 16 Dec 2008 21:04:43 +0000
+Message-ID: <1229461483-1747-6-git-send-email-ben-linux@fluff.org>
 References: <1229461483-1747-1-git-send-email-ben-linux@fluff.org>
  <1229461483-1747-2-git-send-email-ben-linux@fluff.org>
  <1229461483-1747-3-git-send-email-ben-linux@fluff.org>
  <1229461483-1747-4-git-send-email-ben-linux@fluff.org>
+ <1229461483-1747-5-git-send-email-ben-linux@fluff.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1229461483-1747-4-git-send-email-ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+In-Reply-To: <1229461483-1747-5-git-send-email-ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Newer SoCs such as the S3C6410 have 2 instances of this i2c
-controller block in and thus require the ability to create
-two seperate busses from this.
+Change the code to use a plain integer as the holder
+for the IRQ for the device and use platform_get_irq()
+to find it.
+
+This makes the code slightly neater, and easier to get
+the IRQ number.
 
 Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c |   33 +++++++++++++++++++--------------
- 1 files changed, 19 insertions(+), 14 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c |   22 ++++++++--------------
+ 1 files changed, 8 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index d6343e2..f14007f 100644
+index f14007f..2a0de64 100644
 --- a/drivers/i2c/busses/i2c-s3c2410.c
 +++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -559,19 +559,6 @@ static const struct i2c_algorithm s3c24xx_i2c_algorithm = {
- 	.functionality		= s3c24xx_i2c_func,
- };
+@@ -61,6 +61,7 @@ struct s3c24xx_i2c {
+ 	unsigned int		msg_ptr;
  
--static struct s3c24xx_i2c s3c24xx_i2c = {
--	.lock		= __SPIN_LOCK_UNLOCKED(s3c24xx_i2c.lock),
--	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER(s3c24xx_i2c.wait),
--	.tx_setup	= 50,
--	.adap		= {
--		.name			= "s3c2410-i2c",
--		.owner			= THIS_MODULE,
--		.algo			= &s3c24xx_i2c_algorithm,
--		.retries		= 2,
--		.class			= I2C_CLASS_HWMON | I2C_CLASS_SPD,
--	},
--};
--
- /* s3c24xx_i2c_calcdivisor
-  *
-  * return the divisor settings for a given frequency
-@@ -797,7 +784,7 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+ 	unsigned int		tx_setup;
++	unsigned int		irq;
  
- static int s3c24xx_i2c_probe(struct platform_device *pdev)
- {
--	struct s3c24xx_i2c *i2c = &s3c24xx_i2c;
-+	struct s3c24xx_i2c *i2c;
- 	struct s3c2410_platform_i2c *pdata;
- 	struct resource *res;
- 	int ret;
-@@ -808,6 +795,22 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
+ 	enum s3c24xx_i2c_state	state;
+ 	unsigned long		clkrate;
+@@ -68,7 +69,6 @@ struct s3c24xx_i2c {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+ 	struct device		*dev;
+-	struct resource		*irq;
+ 	struct resource		*ioarea;
+ 	struct i2c_adapter	adap;
+ 
+@@ -869,26 +869,20 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 * ensure no current IRQs pending
+ 	 */
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (res == NULL) {
++	i2c->irq = ret = platform_get_irq(pdev, 0);
++	if (ret <= 0) {
+ 		dev_err(&pdev->dev, "cannot find IRQ\n");
+-		ret = -ENOENT;
+ 		goto err_iomap;
  	}
  
-+	i2c = kzalloc(sizeof(struct s3c24xx_i2c), GFP_KERNEL);
-+	if (!i2c) {
-+		dev_err(&pdev->dev, "no memory for state\n");
-+		return -ENOMEM;
-+	}
-+
-+	strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
-+	i2c->adap.owner   = THIS_MODULE;
-+	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
-+	i2c->adap.retries = 2;
-+	i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-+	i2c->tx_setup     = 50;
-+
-+	spin_lock_init(&i2c->lock);
-+	init_waitqueue_head(&i2c->wait);
-+
- 	/* find the clock and enable it */
+-	ret = request_irq(res->start, s3c24xx_i2c_irq, IRQF_DISABLED,
+-			  pdev->name, i2c);
++	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, IRQF_DISABLED,
++			  dev_name(&pdev->dev), i2c);
  
- 	i2c->dev = &pdev->dev;
-@@ -929,6 +932,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	if (ret != 0) {
+-		dev_err(&pdev->dev, "cannot claim IRQ\n");
++		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+ 		goto err_iomap;
+ 	}
+ 
+-	i2c->irq = res;
+-
+-	dev_dbg(&pdev->dev, "irq resource %p (%lu)\n", res,
+-		(unsigned long)res->start);
+-
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
+@@ -918,7 +912,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	s3c24xx_i2c_deregister_cpufreq(i2c);
+ 
+  err_irq:
+-	free_irq(i2c->irq->start, i2c);
++	free_irq(i2c->irq, i2c);
+ 
+  err_iomap:
+ 	iounmap(i2c->regs);
+@@ -948,7 +942,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 	s3c24xx_i2c_deregister_cpufreq(i2c);
+ 
+ 	i2c_del_adapter(&i2c->adap);
+-	free_irq(i2c->irq->start, i2c);
++	free_irq(i2c->irq, i2c);
+ 
+ 	clk_disable(i2c->clk);
  	clk_put(i2c->clk);
- 
-  err_noclk:
-+	kfree(i2c);
- 	return ret;
- }
- 
-@@ -953,6 +957,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- 
- 	release_resource(i2c->ioarea);
- 	kfree(i2c->ioarea);
-+	kfree(i2c);
- 
- 	return 0;
- }
 -- 
 1.5.6.5
