@@ -1,97 +1,56 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 10/12] i2c-omap: convert 'rev1' flag to generic 'rev' u8
-Date: Tue, 16 Dec 2008 13:34:46 -0800
-Message-ID: <20081216213443.GA6746@atomide.com>
-References: <20081129013318.13428.88465.stgit@localhost> <20081129013457.13428.65279.stgit@localhost> <20081216215959.GE8032@fluff.org.uk> <20081216220700.GF8032@fluff.org.uk>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [i2c] PCA9665 support added to i2c-algo-pca and i2c-pca-isa.c
+Date: Wed, 17 Dec 2008 12:39:40 +0100
+Message-ID: <20081217113940.GE3382@pengutronix.de>
+References: <48D3B5B7.1060402@gamic.com> <20080919145500.GH4307@pengutronix.de> <48D3C74E.1050801@gamic.com> <20080920072131.GB12497@pengutronix.de> <c76dcaf00809200409r7e0420c9rcb83a654d40e217a@mail.gmail.com> <c76dcaf00809200510k7e6b4648v630dc33bf6401cca@mail.gmail.com> <20081001173909.GG17953@pengutronix.de> <c76dcaf00810021627y561e8dbdv5e85b1bc503d1f0b@mail.gmail.com> <20081014130808.GD23594@pengutronix.de> <c76dcaf00810140614i28e49f27xb9d4c503144606b0@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X3gaHHMYHkYqP6yf"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20081216220700.GF8032@fluff.org.uk>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, Paul Walmsley <paul@pwsan.com>, linux-omap@vger.kernel.org
+In-Reply-To: <c76dcaf00810140614i28e49f27xb9d4c503144606b0-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marco Aurelio da Costa <costa-nrw9SyMmU14AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Ben Dooks <ben-linux@fluff.org> [081216 14:07]:
-> On Tue, Dec 16, 2008 at 09:59:59PM +0000, Ben Dooks wrote:
-> > On Fri, Nov 28, 2008 at 05:34:57PM -0800, Tony Lindgren wrote:
-> > > From: Paul Walmsley <paul@pwsan.com>
-> > > 
-> > > i2c-omap discriminates only between "revision 1" or "greater than
-> > > revision 1."  A following patch introduces code that must also
-> > > discriminate between rev2.x, rev3.6, and rev3.12 controllers.  Support
-> > > this by storing the full revision data from the I2C_REV register, rather
-> > > than just a single bit.
-> > > 
-> > > The revision definitions may need to be extended for other ES levels
-> > > that aren't currently available here.  rev3.6 is what's present on the
-> > > 2430SDP here (unknown ES revision); rev3.12 is used on the 3430ES2
-> > > here.
-> > > 
-> > > Signed-off-by: Paul Walmsley <paul@pwsan.com>
-> > > Signed-off-by: Tony Lindgren <tony@atomide.com>
-> > > ---
-> > >  drivers/i2c/busses/i2c-omap.c |   25 ++++++++++++++++---------
-> > >  1 files changed, 16 insertions(+), 9 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> > > index 40a1e4b..3ac510d 100644
-> > > --- a/drivers/i2c/busses/i2c-omap.c
-> > > +++ b/drivers/i2c/busses/i2c-omap.c
-> > > @@ -38,6 +38,13 @@
-> > >  #include <linux/clk.h>
-> > >  #include <linux/io.h>
-> > >  
-> > > +/* I2C controller revisions */
-> > > +#define OMAP_I2C_REV_2			0x20
-> > > +
-> > > +/* I2C controller revisions present on specific hardware */
-> > > +#define OMAP_I2C_REV_ON_2430		0x36
-> > > +#define OMAP_I2C_REV_ON_3430		0x3C
-> > > +
-> > >  /* timeout waiting for the controller to respond */
-> > >  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
-> > >  
-> > > @@ -139,7 +146,7 @@ struct omap_i2c_dev {
-> > >  						 * fifo_size==0 implies no fifo
-> > >  						 * if set, should be trsh+1
-> > >  						 */
-> > > -	unsigned		rev1:1;
-> > > +	u8			rev;
-> > >  	unsigned		b_hw:1;		/* bad h/w fixes */
-> > >  	unsigned		idle:1;
-> > >  	u16			iestate;	/* Saved interrupt register */
-> > > @@ -209,7 +216,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
-> > >  
-> > >  	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
-> > >  	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
-> > > -	if (dev->rev1) {
-> > > +	if (dev->rev < OMAP_I2C_REV_2) {
-> > >  		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG); /* Read clears */
-> > >  	} else {
-> > >  		omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, dev->iestate);
-> > > @@ -231,7 +238,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
-> > >  	unsigned long timeout;
-> > >  	unsigned long internal_clk = 0;
-> > >  
-> > > -	if (!dev->rev1) {
-> > > +	if (dev->rev >= OMAP_I2C_REV_2) {
-> > >  		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, OMAP_I2C_SYSC_SRST);
-> > >  		/* For some reason we need to set the EN bit before the
-> > >  		 * reset done bit gets set. */
-> > > @@ -710,6 +717,7 @@ omap_i2c_probe(struct platform_device *pdev)
-> > >  	struct omap_i2c_dev	*dev;
-> > >  	struct i2c_adapter	*adap;
-> > >  	struct resource		*mem, *irq, *ioarea;
-> > > +	void *isr;
-> > 
-> > There is a proper definition for the function type in
-> > <linux/interrupt.h>
-> 
-> I'm feeling a bit of Christmas spirit finally, will pull these and
-> add a fix myself for this.
 
-Thanks, I'll owe you a holiday ale for that :)
+--X3gaHHMYHkYqP6yf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tony
+Hi Marco,
+
+On Tue, Oct 14, 2008 at 10:14:03AM -0300, Marco Aurelio da Costa wrote:
+
+> > Any news on your patch?
+>=20
+> Actually I am in Brazil. I will not be able to really test it until
+> the end of November, when I go back to Germany.
+> I am sorry for the delay.
+
+Bump ;)
+
+Regards,
+
+   Wolfram
+
+--=20
+  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+
+--X3gaHHMYHkYqP6yf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAklI5PwACgkQD27XaX1/VRtJ8QCeLQgGJXYR2QZGMQFt61lx+vkH
+DmIAn2ulCpeMJyBkDerw8xhSLK8zK+PS
+=NemZ
+-----END PGP SIGNATURE-----
+
+--X3gaHHMYHkYqP6yf--
