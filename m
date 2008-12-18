@@ -1,24 +1,55 @@
-From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Subject: Re: Please pull bjdoo ks' i2c-fixes
-Date: Thu, 18 Dec 2008 12:12:53 +0100
-Message-ID: <494A3035.30107@scram.de>
-References: <E1LChEf-0000Ts-53@teyla.home.fluff.org> <4948E89A.7080703@scram.de> <20081218100635.GH8032@fluff.org.uk>
+From: Dmitri Vorobiev <dmitri.vorobiev-WgUW+8SLYMv1KXRcyAk9cg@public.gmane.org>
+Subject: Re: [PATCH 4/28] drivers/ide: Drop return value from	platform_driver
+ remove functions
+Date: Thu, 18 Dec 2008 16:30:07 +0200
+Message-ID: <494A5E6F.70505@movial.fi>
+References: <Pine.LNX.4.64.0812101727230.21998@ask.diku.dk> <20081216195734.GA8032@fluff.org.uk> <4948F56A.7020501@movial.fi> <20081217213226.GA26832@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20081218100635.GH8032-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20081217213226.GA26832-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linuxppc-dev list <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks schrieb:
+Greg KH wrote:
+> On Wed, Dec 17, 2008 at 02:49:46PM +0200, Dmitri Vorobiev wrote:
+>> Ben Dooks wrote:
+>>> On Wed, Dec 10, 2008 at 05:27:56PM +0100, Julia Lawall wrote:
+>>>> From: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+>>>>
+>>>> The return value of the remove function of a driver structure, and thus of
+>>>> a platform_driver structure, is ultimately ignored, and is thus
+>>>> unnecessary.  This patch removes the return value for the remove function
+>>>> stored in a platform_driver structure.
+>>>>
+>>>> For the files drivers/i2c/busses/i2c-at91.c and
+>>>> drivers/i2c/busses/i2c-mv64xxx.c, the original return value was the value
+>>>> of a variable storing the result of calling i2c_del_adapter.  I have thus
+>>>> also deleted the declaration and initialization of this variable.  For the
+>>>> other files, the return values were always 0.
+>>>>
+>>>> A simplified version of the semantic patch that makes this change is as
+>>>> follows: (http://www.emn.fr/x-info/coccinelle/)
+>>> I take it remove_new will eventually be renamed to remove once all
+>>> the changes have been made?
+>>>
+>>> Unless there are any objections I'll add this to the merge list for
+>>> the next window.
+>> Please be careful since the drivers/base/ part has not been applied
+>> yet, so I'm Cc:ing Greg now for his opinion.
+> 
+> The more I think about it, the more I think it should not be changed,
+> sorry.  We should leave the return value and do something based on the
+> value of it if we can.
 
-> Ok, but this isn't really a fix, so I'll look at putting it into my
-> i2c-next tree, not i2c-fixes.
+Thanks for the reply, it's justifying the changes in the SGI SCSI controller driver :)
 
-That's OK for me.
+Dmitri
 
-Thanks,
-Jochen
+> 
+> thanks,
+> 
+> greg k-h
