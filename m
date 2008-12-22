@@ -1,40 +1,59 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [i2c] New style I2C driver for KXSD9 accelerometer
-Date: Sat, 20 Dec 2008 20:33:48 +0000
-Message-ID: <494D56AC.3050108@cam.ac.uk>
-References: <20125.80062.qm@web7902.mail.in.yahoo.com>	<5d5443650809221038u7bece6fco2a123c7c85014318@mail.gmail.com>	<20080922224345.GL2716@fluff.org.uk> <48D8C2CB.30505@cam.ac.uk>
+From: "pramod gurav" <pramodforum-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: I2C1 controller timed out issue
+Date: Mon, 22 Dec 2008 10:44:22 +0530
+Message-ID: <f502236f0812212114p4b20e81br52d9031c4673f886@mail.gmail.com>
+References: <f502236f0812200204h1ef1df01sf79243e6e276074d@mail.gmail.com>
+	 <20081220131321.GB10866@frodo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <48D8C2CB.30505-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+In-Reply-To: <20081220131321.GB10866@frodo>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, invincible_6-/E1597aS9LQxFYw1CcD5bw@public.gmane.org
+To: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jonathan Cameron wrote:
-> Hi Ben,
->>>>
->>>>
->>>> I m implementing a driver for accelerometer KXSD9 in linux kernel 2.6.24.7
->>>> for OMAP-3430. KXSD9 sensor will be connected to the i2c bus so it will be
->>>> an i2c client.
+Hi,
+I am using current linux-omap git sources. Can you please post the patch to fix
+this timeout issue.
 
-Hi again Varun, 
-
-I was wondering if you have made any progress with a driver for the KXSD9?
-
-I now have an spi based driver for this under Industrial I/O which does the
-basics. Obviously I'm not terribly keen in replicating work you have already
-done!  At the moment it doesn't handle the motion detector interrupt but
-that should be straight forward.
-
->From your previous emails I believe you were working on i2c support?
-
-Whilst the differences look fairly trivial, I'll need to make up a suitable
-cable to work on that option.
-
-Thanks,
-
-Jonathan
+On Sat, Dec 20, 2008 at 7:39 PM, Felipe Balbi <me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org> wrote:
+> On Sat, Dec 20, 2008 at 03:34:00PM +0530, pramod gurav wrote:
+>> Hi,
+>> I am working on OMAP3430 board. The kernel is linux-omap-2.6.
+>> The twl5030 module is sitting on i2c1.
+>> I often come across a error saying
+>>
+>> i2c_omap i2c_omap.1: controller timed out
+>> i2c_omap i2c_omap.1: controller timed out
+>>
+>> This is all what appears in logs when i2c1 times out and all the
+>> other slave devices on i2c1 stop responding. Other i2c busses(2)
+>> work properly. if try to reboot the I2C fails to respnd in u-boot also
+>> saying
+>>
+>> timed out in wait_for_pin: I2C_STAT=0
+>> I2C read failed
+>> timed out in wait_for_pin: I2C_STAT=0
+>> I2C read failed
+>> timed out in wait_for_pin: I2C_STAT=0
+>> I2C read failed
+>>
+>> I have to to do hard reset to progress with the boot.
+>>
+>> I gone through the changes happened to i2-omap driver in between
+>> and tried applying the patches manually.
+>> The problem still persists.
+>> May be I am missing some more changes.
+>>
+>> The i2-omap.c source is attached herewith this mail.
+>> Somebody please suggest me on this issue if this has been seen as
+>> a issue and if fixed.
+>
+> Are you using current linux-omap from git ? This problem is long gone.
+>
+> --
+> balbi
+>
