@@ -1,28 +1,52 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+From: Felipe Balbi <me@felipebalbi.com>
 Subject: Re: I2C1 controller timed out issue
-Date: Sun, 21 Dec 2008 23:26:31 -0800
-Message-ID: <200812212326.31913.david-b@pacbell.net>
-References: <f502236f0812200204h1ef1df01sf79243e6e276074d@mail.gmail.com> <f502236f0812212114p4b20e81br52d9031c4673f886@mail.gmail.com> <f502236f0812212122x3cb45444ld30c5e56d3546726@mail.gmail.com>
+Date: Mon, 22 Dec 2008 18:03:02 +0200
+Message-ID: <20081222160302.GC17843@frodo>
+References: <f502236f0812200204h1ef1df01sf79243e6e276074d@mail.gmail.com> <20081220131321.GB10866@frodo> <c236f0530812200935y1397d03bm54fe7f3714776b0@mail.gmail.com>
+Reply-To: me@felipebalbi.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <f502236f0812212122x3cb45444ld30c5e56d3546726-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: pramod gurav <pramodforum-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: me-uiRdBs8odbtmTBlB0Cgj/Q@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <c236f0530812200935y1397d03bm54fe7f3714776b0@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Kainan Cha <thezha@gmail.com>
+Cc: me@felipebalbi.com, pramod gurav <pramodforum@gmail.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday 21 December 2008, pramod gurav wrote:
-> The kernel is from the tag "v2.6.26-omap2".
+On Sat, Dec 20, 2008 at 11:35:51AM -0600, Kainan Cha wrote:
+> Balbi,
+> 
+> I have also seen this issue once in a while but I am using 2.6.24 kernel. Do
+> you know which commits in the linux-omap git fixes this issue so I can
+> backport?
 
-Yet the current kernel is 2.6.28-rc9-omap1 ... do
-try the *current* GIT when someone suggests that,
-not something seven months old.
+Hmm, I suppose it's this one:
 
-I happen to know that RC8 didn't have this issue
-in my use, for what it's worth.
+commit 663715fc55ea5d292171c6934a2b91d8f4874171
+Author: Paul Walmsley <paul@pwsan.com>
+Date:   Fri Oct 10 10:58:30 2008 -0600
 
-- Dave
+    i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
+    
+    omap_i2c_unidle() and omap_i2c_idle() are called recursively during
+    omap_i2c_probe().  This is evidently unexpected and will wipe
+    out the I2C interrupt enable register the second time that
+    omap_i2c_idle() is called consecutively.  Any I2C transactions
+    following a probe of a bus with at least one device on it will then
+    time out.
+    
+    Fix by moving omap_i2c_idle() further up in omap_i2c_probe().  Ensure
+    the I2C controller is marked as idle before the probe starts.  Also
+    attempt to catch future reappearances of this bug early in development
+    by warning in omap_i2c_{un,}idle() when they are called recursively.
+    
+    Problem reported by David Brownell <david-b@pacbell.net>.
+    
+    Tested on 3430SDP and 2430SDP.
+
+But I'd say the changes to twl4030-core.c also helped and those will be
+nasty to backport :-p
+
+-- 
+balbi
