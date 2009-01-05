@@ -1,55 +1,57 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 4/4 v2] soc-camera: add support for MT9T031 CMOS camera sensor  from Micron
-Date: Mon, 22 Dec 2008 17:37:42 +0100
-Message-ID: <200812221737.42194.khali@linux-fr.org>
-References: <Pine.LNX.4.64.0812171939420.8733@axis700.grange> <Pine.LNX.4.64.0812180938380.3963@axis700.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Ben Dooks <ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Subject: i2c-next pull request
+Date: Mon, 05 Jan 2009 10:57:39 +0000
+Message-ID: <E1LJn9P-00013j-2W@teyla.home.fluff.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0812180938380.3963-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: video4linux-list-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guennadi,
+The following changes since commit 4a6908a3a050aacc9c3a2f36b276b46c0629ad91:
+  Linus Torvalds (1):
+        Linux 2.6.28
 
-Le Jeudi 18 D=E9cembre 2008 09:40, Guennadi Liakhovetski a =E9crit=A0:
-> From: Guennadi Liakhovetski <lg-ynQEQJNshbs@public.gmane.org>
->=20
-> This camera is rather similar to MT9M001, but also has a couple of
-> enhanced features, like pixel binning.
+are available in the git repository at:
 
-I didn't look at the datasheets, but just to make sure you didn't
-overlook this possibility: wouldn't it make sense to have a single
-driver for both devices? The i2c subsystem architecture makes this
-easy.
+  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-next
 
->=20
-> Signed-off-by: Guennadi Liakhovetski <lg-ynQEQJNshbs@public.gmane.org>
-> ---
->=20
-> Changes since v1: added
->=20
->  i2c_set_clientdata(client, NULL);
->=20
-> in error path and in remove.
->=20
->  drivers/media/video/Kconfig     |    6 +
->  drivers/media/video/Makefile    |    1 +
->  drivers/media/video/mt9t031.c   |  733 +++++++++++++++++++++++++++++=
-++++++++++
->  include/media/v4l2-chip-ident.h |    1 +
->  4 files changed, 741 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/media/video/mt9t031.c
-> (...)
+Ben Dooks (8):
+      i2c-s3c2410: Fixup style problems from checkpatch.pl
+      i2c-s3c2410: Use platform data for gpio configuration
+      i2c-s3c2410: Remove default platform data.
+      i2c-s3c2410: Allow more than one i2c-s3c2410 adapter
+      i2c-s3c2410: Change IRQ to be plain integer.
+      Merge branch 'i2c-for-ben' of git://git.kernel.org/.../tmlind/linux-omap-2.6 into i2c-next
+      i2c-omap: fix type of irq handler function
+      Merge branch 'i2c-next-s3c' into i2c-next
 
-I took a quick look at the code and it looks fine to me, for the
-parts I can comment on. So this is:
+Chandra shekhar (1):
+      i2c-omap: Add support for omap34xx
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Jarkko Nikula (1):
+      i2c-omap: Do not use interruptible wait call in omap_i2c_xfer_msg
 
---=20
-Jean Delvare
+Kalle Jokiniemi (1):
+      i2c-omap: Enable I2C wakeups for 34xx
+
+Nishanth Menon (1):
+      i2c-omap: FIFO handling support and broken hw workaround for i2c-omap
+
+Paul Walmsley (6):
+      i2c-omap: Close suspected race between omap_i2c_idle() and omap_i2c_isr()
+      i2c-omap: Mark init-only functions as __init
+      i2c-omap: Don't compile in OMAP15xx I2C ISR for non-OMAP15xx builds
+      i2c-omap: fix I2C timeouts due to recursive omap_i2c_{un,}idle()
+      i2c-omap: convert 'rev1' flag to generic 'rev' u8
+      i2c-omap: reprogram OCP_SYSCONFIG register after reset
+
+Syed Mohammed Khasim (1):
+      i2c-omap: Add high-speed support to omap-i2c
+
+Tony Lindgren (1):
+      i2c-omap: Clean-up i2c-omap
+
+ arch/arm/mach-omap2/clock24xx.h  |    4 +-
+ drivers/i2c/busses/i2c-omap.c    |  420 +++++++++++++++++++++++++++++---------
+ drivers/i2c/busses/i2c-s3c2410.c |  185 +++++++----------
+ 3 files changed, 408 insertions(+), 201 deletions(-)
