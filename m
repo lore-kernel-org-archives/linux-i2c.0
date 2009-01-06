@@ -1,203 +1,29 @@
-From: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
-Date: Tue, 06 Jan 2009 14:13:44 -0800
-Message-ID: <1231280024.12030.2.camel@localhost.localdomain>
-References: <1231176979.13443.19.camel@localhost.localdomain>
-	 <C1C62166118DFA4A8BBA01A2411F0D171224AECDC1@PRI-MBX-101.dom1.vinci-energies.net>
+Date: Tue, 6 Jan 2009 14:48:55 -0800
+Message-ID: <200901061448.56500.david-b@pacbell.net>
+References: <1231177261.13443.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-HKD5X0y6qWXtY0G5eVk8"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <C1C62166118DFA4A8BBA01A2411F0D171224AECDC1-iGzfJtNnmHkUlixSki3fykIJAyBIbWHDnAJcWxkt5PDR7s880joybQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756968AbZAFWt0@vger.kernel.org>
+In-Reply-To: <1231177261.13443.20.camel@localhost.localdomain>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ed Swierk <eswierk@aristanetworks.com>
+Cc: linux-i2c@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, BARRE Sebastien <sbarre@sdelcc.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Monday 05 January 2009, Ed Swierk wrote:
+> Reading or writing registers repeatedly until they stick is rather
+> nauseating but I'm aiming for correctness if not elegance.  I would
+> appreciate any suggestions for improvement.
 
---=-HKD5X0y6qWXtY0G5eVk8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Can i2c_smbus_read_i2c_block_data()/i2c_ smbus_write_i2c_block_data()
+work better -- without nauseating anyone?
 
-On Tue, Jan 6, 2009 at 5:35 AM, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org> wrote:
-> I've read your patch quicly, I will test it on my board as soon as possible.
+Faking atomic writes doesn't seem "correct" to me.  Minimally there
+is the case of an alarm misfiring.
 
-Thanks.
-
-> You can delete the next 3 lines, they are not useful:
->
->> +     ret = ds1307_read_block_data_once(client, command, length, currvalues);
->> +     if (ret < 0)
->> +             return ret;
-
-Oops! Here is an updated patch with these lines removed, and a minor formatting fix.
-
-Signed-off-by: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-
---Ed
-
-
---=-HKD5X0y6qWXtY0G5eVk8
-Content-Disposition: attachment; filename="rtc-ds1307-pure-smbus-compatibility.patch"
-Content-Type: text/x-patch; name="rtc-ds1307-pure-smbus-compatibility.patch"; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Index: linux-2.6.27.4/drivers/rtc/rtc-ds1307.c
-===================================================================
---- linux-2.6.27.4.orig/drivers/rtc/rtc-ds1307.c
-+++ linux-2.6.27.4/drivers/rtc/rtc-ds1307.c
-@@ -132,6 +132,62 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
- 
- /*----------------------------------------------------------------------*/
- 
-+static s32 ds1307_read_block_data_once(struct i2c_client *client, u8 command,
-+				  u8 length, u8 *values)
-+{
-+	s32 i, data;
-+	for (i = 0; i < length; i++) {
-+		data = i2c_smbus_read_byte_data(client, command + i);
-+		if (data < 0)
-+			return data;
-+		*(values + i) = data;
-+	}
-+	return i;
-+}
-+
-+static s32 ds1307_read_block_data(struct i2c_client *client, u8 command,
-+				  u8 length, u8 *values)
-+{
-+	u8 oldvalues[I2C_SMBUS_BLOCK_MAX];
-+	s32 ret;
-+	pr_debug("ds1307_read_block_data (length=%d)\n", length);
-+	ret = ds1307_read_block_data_once(client, command, length, values);
-+	if (ret < 0)
-+		return ret;
-+	do {
-+		s32 ret;
-+		memcpy(oldvalues, values, length);
-+		ret = ds1307_read_block_data_once(client, command, length, values);
-+		if (ret < 0)
-+			return ret;
-+	} while (memcmp(oldvalues, values, length));
-+	return length;
-+}
-+
-+static s32 ds1307_write_block_data(struct i2c_client *client, u8 command,
-+				   u8 length, const u8 *values)
-+{
-+	u8 currvalues[I2C_SMBUS_BLOCK_MAX];
-+	s32 ret;
-+	pr_debug("ds1307_write_block_data (length=%d)\n", length);
-+	do {
-+		s32 i, ret;
-+		for (i = 0; i < length; i++) {
-+			ret = i2c_smbus_write_byte_data(client, command + i,
-+							*(values + i));
-+			if (ret < 0)
-+				return ret;
-+		}
-+		ret = ds1307_read_block_data_once(client, command, length,
-+						  currvalues);
-+		if (ret < 0)
-+			return ret;
-+	} while (memcmp(currvalues, values, length));
-+	return length;
-+}
-+
-+/*----------------------------------------------------------------------*/
-+
- /*
-  * The IRQ logic includes a "real" handler running in IRQ context just
-  * long enough to schedule this workqueue entry.   We need a task context
-@@ -202,7 +258,7 @@ static int ds1307_get_time(struct device
- 	int		tmp;
- 
- 	/* read the RTC date and time registers all at once */
--	tmp = i2c_smbus_read_i2c_block_data(ds1307->client,
-+	tmp = ds1307_read_block_data(ds1307->client,
- 		DS1307_REG_SECS, 7, ds1307->regs);
- 	if (tmp != 7) {
- 		dev_err(dev, "%s error %d\n", "read", tmp);
-@@ -279,7 +335,7 @@ static int ds1307_set_time(struct device
- 		"write", buf[0], buf[1], buf[2], buf[3],
- 		buf[4], buf[5], buf[6]);
- 
--	result = i2c_smbus_write_i2c_block_data(ds1307->client, 0, 7, buf);
-+	result = ds1307_write_block_data(ds1307->client, 0, 7, buf);
- 	if (result < 0) {
- 		dev_err(dev, "%s error %d\n", "write", result);
- 		return result;
-@@ -297,7 +353,7 @@ static int ds1307_read_alarm(struct devi
- 		return -EINVAL;
- 
- 	/* read all ALARM1, ALARM2, and status registers at once */
--	ret = i2c_smbus_read_i2c_block_data(client,
-+	ret = ds1307_read_block_data(client,
- 			DS1339_REG_ALARM1_SECS, 9, ds1307->regs);
- 	if (ret != 9) {
- 		dev_err(dev, "%s error %d\n", "alarm read", ret);
-@@ -356,7 +412,7 @@ static int ds1307_set_alarm(struct devic
- 		t->enabled, t->pending);
- 
- 	/* read current status of both alarms and the chip */
--	ret = i2c_smbus_read_i2c_block_data(client,
-+	ret = ds1307_read_block_data(client,
- 			DS1339_REG_ALARM1_SECS, 9, buf);
- 	if (ret != 9) {
- 		dev_err(dev, "%s error %d\n", "alarm write", ret);
-@@ -391,7 +447,7 @@ static int ds1307_set_alarm(struct devic
- 	}
- 	buf[8] = status & ~(DS1337_BIT_A1I | DS1337_BIT_A2I);
- 
--	ret = i2c_smbus_write_i2c_block_data(client,
-+	ret = ds1307_write_block_data(client,
- 			DS1339_REG_ALARM1_SECS, 9, buf);
- 	if (ret < 0) {
- 		dev_err(dev, "can't set alarm time\n");
-@@ -479,7 +535,7 @@ ds1307_nvram_read(struct kobject *kobj, 
- 	if (unlikely(!count))
- 		return count;
- 
--	result = i2c_smbus_read_i2c_block_data(client, 8 + off, count, buf);
-+	result = ds1307_read_block_data(client, 8 + off, count, buf);
- 	if (result < 0)
- 		dev_err(&client->dev, "%s error %d\n", "nvram read", result);
- 	return result;
-@@ -501,7 +557,7 @@ ds1307_nvram_write(struct kobject *kobj,
- 	if (unlikely(!count))
- 		return count;
- 
--	result = i2c_smbus_write_i2c_block_data(client, 8 + off, count, buf);
-+	result = ds1307_write_block_data(client, 8 + off, count, buf);
- 	if (result < 0) {
- 		dev_err(&client->dev, "%s error %d\n", "nvram write", result);
- 		return result;
-@@ -537,8 +593,7 @@ static int __devinit ds1307_probe(struct
- 	unsigned char		*buf;
- 
- 	if (!i2c_check_functionality(adapter,
--			I2C_FUNC_SMBUS_WRITE_BYTE_DATA |
--			I2C_FUNC_SMBUS_I2C_BLOCK))
-+			I2C_FUNC_SMBUS_BYTE_DATA))
- 		return -EIO;
- 
- 	if (!(ds1307 = kzalloc(sizeof(struct ds1307), GFP_KERNEL)))
-@@ -558,7 +613,7 @@ static int __devinit ds1307_probe(struct
- 			want_irq = true;
- 		}
- 		/* get registers that the "rtc" read below won't read... */
--		tmp = i2c_smbus_read_i2c_block_data(ds1307->client,
-+		tmp = ds1307_read_block_data(ds1307->client,
- 				DS1337_REG_CONTROL, 2, buf);
- 		if (tmp != 2) {
- 			pr_debug("read error %d\n", tmp);
-@@ -596,7 +651,7 @@ static int __devinit ds1307_probe(struct
- 
- read_rtc:
- 	/* read RTC registers */
--	tmp = i2c_smbus_read_i2c_block_data(ds1307->client, 0, 8, buf);
-+	tmp = ds1307_read_block_data(ds1307->client, 0, 8, buf);
- 	if (tmp != 8) {
- 		pr_debug("read error %d\n", tmp);
- 		err = -EIO;
-
---=-HKD5X0y6qWXtY0G5eVk8--
+- Dave
