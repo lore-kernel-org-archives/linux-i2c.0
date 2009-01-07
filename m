@@ -1,42 +1,38 @@
-From: BARRE Sebastien <sbarre@sdelcc.com>
-Subject: RE: [PATCH] rtc-ds1307: True SMBus compatibility
-Date: Wed, 7 Jan 2009 15:22:19 +0100
-Message-ID: <C1C62166118DFA4A8BBA01A2411F0D171224AED05D@PRI-MBX-101.dom1.vinci-energies.net>
-References: <1231176979.13443.19.camel@localhost.localdomain>
-	 <C1C62166118DFA4A8BBA01A2411F0D171224AECDC1@PRI-MBX-101.dom1.vinci-energies.net>
- <1231280024.12030.2.camel@localhost.localdomain>
+From: "Ed Swierk" <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
+Date: Wed, 7 Jan 2009 07:22:12 -0800
+Message-ID: <9ae48b020901070722l77bebc6boc8fa2fd0bcc8da28@mail.gmail.com>
+References: <1231177261.13443.20.camel@localhost.localdomain>
+	 <20090107142426.4be04d4d@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756207AbZAGOXj@vger.kernel.org>
-In-Reply-To: <1231280024.12030.2.camel@localhost.localdomain>
-Content-Language: fr-FR
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ed Swierk <eswierk@aristanetworks.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, David Brownell <david-b@pacbell.net>, Alessandro Zummo <a.zummo@towertech.it>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jean Delvare <khali@linux-fr.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090107142426.4be04d4d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBFZCBTd2llcmsgW21haWx0bzpl
-c3dpZXJrQGFyaXN0YW5ldHdvcmtzLmNvbV0NCj4gU2VudDogVHVlc2RheSwgSmFudWFyeSAwNiwg
-MjAwOSAxMToxNCBQTQ0KPiBUbzogQkFSUkUgU2ViYXN0aWVuDQo+IENjOiBsaW51eC1pMmNAdmdl
-ci5rZXJuZWwub3JnOyBEYXZpZCBCcm93bmVsbDsgQWxlc3NhbmRybyBadW1tbzsgbGludXgtDQo+
-IGtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEFuZHJldyBNb3J0b24NCj4gU3ViamVjdDogUmU6IFtQ
-QVRDSF0gcnRjLWRzMTMwNzogVHJ1ZSBTTUJ1cyBjb21wYXRpYmlsaXR5DQo+DQo+IE9uIFR1ZSwg
-SmFuIDYsIDIwMDkgYXQgNTozNSBBTSwgQkFSUkUgU2ViYXN0aWVuIDxzYmFycmVAc2RlbGNjLmNv
-bT4gd3JvdGU6DQo+ID4gSSd2ZSByZWFkIHlvdXIgcGF0Y2ggcXVpY2x5LCBJIHdpbGwgdGVzdCBp
-dCBvbiBteSBib2FyZCBhcyBzb29uIGFzDQo+IHBvc3NpYmxlLg0KPg0KPiBUaGFua3MuDQo+DQo+
-ID4gWW91IGNhbiBkZWxldGUgdGhlIG5leHQgMyBsaW5lcywgdGhleSBhcmUgbm90IHVzZWZ1bDoN
-Cj4gPg0KPiA+PiArICAgICByZXQgPSBkczEzMDdfcmVhZF9ibG9ja19kYXRhX29uY2UoY2xpZW50
-LCBjb21tYW5kLCBsZW5ndGgsDQo+IGN1cnJ2YWx1ZXMpOw0KPiA+PiArICAgICBpZiAocmV0IDwg
-MCkNCj4gPj4gKyAgICAgICAgICAgICByZXR1cm4gcmV0Ow0KPg0KPiBPb3BzISBIZXJlIGlzIGFu
-IHVwZGF0ZWQgcGF0Y2ggd2l0aCB0aGVzZSBsaW5lcyByZW1vdmVkLCBhbmQgYSBtaW5vcg0KPiBm
-b3JtYXR0aW5nIGZpeC4NCj4NCj4gU2lnbmVkLW9mZi1ieTogRWQgU3dpZXJrIDxlc3dpZXJrQGFy
-aXN0YW5ldHdvcmtzLmNvbT4NCj4NCj4gLS1FZA0KDQpJJ3ZlIHRlc3RlZCB0aGUgcGF0Y2ggb24g
-bXkgZ2VvZGUgTFggYm9hcmQgd2l0aCBhIERTMTMwNyBkZXZpY2UuDQpJdCB3b3JrcyB3ZWxsIGZv
-ciBtZS4NCg0KSG93ZXZlciBJIHRoaW5rIHdyaXRpbmcgdGhlIGNsb2NrIG9uZSBieXRlIGF0IGEg
-dGltZSBjb3VsZCBjYXVzZSBzdHJhbmdlIGJlaGF2aW9yIHdoZW4gdXNpbmcgYWxhcm1zIG9uIGRl
-dmljZSBsaWtlIGRzMTMzNy4NCg0KVGVzdGVkLWJ5OiBTw6liYXN0aWVuIEJhcnLDqSA8c2JhcnJl
-QHNkZWxjYy5jb20+DQoNCi0tDQpTw6liYXN0aWVuIEJhcnLDqQ0KQnVyZWF1IGQnw6l0dWRlIC0g
-RMOpdmVsb3BwZW1lbnQNClNERUwgQ29udHLDtGxlIENvbW1hbmRlDQpEMkEgLSBSdWUgTnVuZ2Vz
-c2VyIGV0IENvbGkNCjQ0ODYwIFNhaW50IEFpZ25hbiBkZSBHcmFuZCBMaWV1DQpGUkFOQ0UNClTD
-qWwgOiArMzMoMCkyIDQwIDg0IDUwIDg4DQpGYXggOiArMzMoMCkyIDQwIDg0IDUxIDEwDQoNCg0K
+On Wed, Jan 7, 2009 at 5:24 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Are you certain the nForce2 controllers can't do it? The i2c-nforce2
+> driver doesn't implement it, but this doesn't mean the hardware can't
+> do it. I don't have any datasheet for these chips, but I know their
+> SMBus implementation is very similar to those of the AMD 8111, and
+> i2c-amd8111 has support for I2C block reads and writes. I think it
+> would be worth giving it a try, by copying the i2c-amd8111
+> implementation into the i2c-nforce2 driver and seeing if it happens to
+> just work. If it works, that would be more elegant than your proposed
+> hack to the rtc-ds1307 driver.
+
+I checked the datasheet and also tried every possible SMBus command
+value to try to discover any supported commands that the i2c-nforce2
+driver happens not to use, to no avail. The nVidia SMBus is pure
+SMBus.
+
+I could change the ds1307 driver to check whether the controller
+supports i2c block commands and fall back to emulation only if they
+are not available. Would that address your concerns?
+
+--Ed
