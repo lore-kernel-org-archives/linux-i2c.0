@@ -1,49 +1,59 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
-Date: Wed, 7 Jan 2009 14:24:26 +0100
-Message-ID: <20090107142426.4be04d4d@hyperion.delvare>
-References: <1231177261.13443.20.camel@localhost.localdomain>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c updates for 2.6.29
+Date: Wed, 7 Jan 2009 14:33:30 +0100
+Message-ID: <20090107143330.4b324026@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1231177261.13443.20.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758345AbZAGNdz@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ed,
+Hi Linus,
 
-On Mon, 05 Jan 2009 09:41:01 -0800, Ed Swierk wrote:
-> [Resent to correct linux-i2c address]
-> 
-> Following up to Sebastien Barre's recent patch, here I go one step
-> further, replacing i2c block transfers with SMBus byte transfers.
+Please pull the i2c subsystem updates for Linux 2.6.29 from:
 
-Please, no. Adding a compatibility quirk may be acceptable, but forcing
-everyone to use it instead of the more efficient original code is not
-fair.
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
-> Sticking to pure SMBus makes the driver work on our board, which has an
-> nVidia SMBus controller driving a DS1339; nforce2 controllers
-> unfortunately don't support any flavor of i2c block transfer.
+Only small changes this time, with the exception of the conversion of
+the apanel driver to the standard i2c device driver binding model.
 
-Are you certain the nForce2 controllers can't do it? The i2c-nforce2
-driver doesn't implement it, but this doesn't mean the hardware can't
-do it. I don't have any datasheet for these chips, but I know their
-SMBus implementation is very similar to those of the AMD 8111, and
-i2c-amd8111 has support for I2C block reads and writes. I think it
-would be worth giving it a try, by copying the i2c-amd8111
-implementation into the i2c-nforce2 driver and seeing if it happens to
-just work. If it works, that would be more elegant than your proposed
-hack to the rtc-ds1307 driver.
+ drivers/i2c/busses/i2c-ali1563.c               |    4 +-
+ drivers/i2c/busses/i2c-amd756-s4882.c          |    4 +-
+ drivers/i2c/busses/i2c-amd756.c                |    5 +-
+ drivers/i2c/busses/i2c-at91.c                  |    2 +-
+ drivers/i2c/busses/i2c-bfin-twi.c              |    2 +-
+ drivers/i2c/busses/i2c-i801.c                  |   50 ++++++++++++++-
+ drivers/i2c/busses/i2c-pxa.c                   |    4 +-
+ drivers/i2c/busses/i2c-s3c2410.c               |    2 +-
+ drivers/i2c/busses/i2c-sh7760.c                |    2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c             |    2 +-
+ drivers/i2c/busses/i2c-sis5595.c               |    4 +-
+ drivers/i2c/busses/i2c-sis630.c                |    4 +-
+ drivers/i2c/i2c-core.c                         |    8 +-
+ drivers/input/misc/apanel.c                    |   81 ++++++++----------------
+ drivers/media/video/cafe_ccic.c                |    1 -
+ drivers/media/video/ov7670.c                   |    1 -
+ drivers/media/video/ovcamchip/ovcamchip_core.c |    1 -
+ drivers/media/video/w9968cf.c                  |    1 -
+ include/linux/i2c.h                            |    4 -
+ 19 files changed, 98 insertions(+), 84 deletions(-)
 
-> Reading or writing registers repeatedly until they stick is rather
-> nauseating but I'm aiming for correctness if not elegance.  I would
-> appreciate any suggestions for improvement.
+---------------
 
-See above.
+Jean Delvare (6):
+      i2c: Get rid of remaining bus_id access
+      i2c: Drop I2C_CLASS_ALL
+      i2c: Drop I2C_CLASS_CAM_ANALOG and I2C_CLASS_SOUND
+      i2c: Drop I2C_CLASS_CAM_DIGITAL
+      Input: apanel - convert to new i2c binding
+      i2c: Use snprintf to set adapter names
 
+Kay Sievers (1):
+      i2c: Replace bus_id with dev_name(), dev_set_name()
+
+Thanks,
 -- 
 Jean Delvare
