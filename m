@@ -1,29 +1,129 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
-Date: Tue, 6 Jan 2009 14:48:55 -0800
-Message-ID: <200901061448.56500.david-b@pacbell.net>
-References: <1231177261.13443.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756968AbZAFWt0@vger.kernel.org>
-In-Reply-To: <1231177261.13443.20.camel@localhost.localdomain>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ed Swierk <eswierk@aristanetworks.com>
-Cc: linux-i2c@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, BARRE Sebastien <sbarre@sdelcc.com>
+From: ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org
+Subject: GPIO: Fix probe() error return in gpio driver probes
+Date: Wed, 07 Jan 2009 12:56:19 +0000
+Message-ID: <20090107125619.052023040@fluff.org.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline; filename=simtec/check-gpio-driver-return-codes.patch
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 05 January 2009, Ed Swierk wrote:
-> Reading or writing registers repeatedly until they stick is rather
-> nauseating but I'm aiming for correctness if not elegance.  I would
-> appreciate any suggestions for improvement.
+A number of drivers in drivers/gpio return -ENODEV when confronted
+with missing setup parameters such as the platform data. However,
+returning -ENODEV causes the driver layer to silently ignore the
+driver as it assumes the probe did not find anything and was only
+speculative.
 
-Can i2c_smbus_read_i2c_block_data()/i2c_ smbus_write_i2c_block_data()
-work better -- without nauseating anyone?
+To make life easier to discern why a driver is not being attached,
+change to returning -EINVAL, which is a better description of the
+fact that the driver data was not valid.
 
-Faking atomic writes doesn't seem "correct" to me.  Minimally there
-is the case of an alarm misfiring.
+Also add a set of dev_dbg() statements to the error paths to provide
+an better explanation of the error as there may be more that one point
+in the driver.
 
-- Dave
+Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Index: linux.git3/drivers/gpio/max7301.c
+===================================================================
+--- linux.git3.orig/drivers/gpio/max7301.c	2008-10-22 09:50:45.000000000 +0100
++++ linux.git3/drivers/gpio/max7301.c	2009-01-07 12:37:46.000000000 +0000
+@@ -217,8 +217,10 @@ static int __devinit max7301_probe(struc
+ 	int i, ret;
+ 
+ 	pdata = spi->dev.platform_data;
+-	if (!pdata || !pdata->base)
+-		return -ENODEV;
++	if (!pdata || !pdata->base) {
++		dev_dbg(&spi->dev, "incorrect or missing platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	/*
+ 	 * bits_per_word cannot be configured in platform data
+Index: linux.git3/drivers/gpio/max732x.c
+===================================================================
+--- linux.git3.orig/drivers/gpio/max732x.c	2008-10-22 09:50:45.000000000 +0100
++++ linux.git3/drivers/gpio/max732x.c	2009-01-07 12:22:10.000000000 +0000
+@@ -267,8 +267,10 @@ static int __devinit max732x_probe(struc
+ 	int ret, nr_port;
+ 
+ 	pdata = client->dev.platform_data;
+-	if (pdata == NULL)
+-		return -ENODEV;
++	if (pdata == NULL) {
++		dev_dbg(&client->dev, "no platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	chip = kzalloc(sizeof(struct max732x_chip), GFP_KERNEL);
+ 	if (chip == NULL)
+Index: linux.git3/drivers/gpio/mcp23s08.c
+===================================================================
+--- linux.git3.orig/drivers/gpio/mcp23s08.c	2008-10-22 09:50:45.000000000 +0100
++++ linux.git3/drivers/gpio/mcp23s08.c	2009-01-07 12:23:24.000000000 +0000
+@@ -310,8 +310,10 @@ static int mcp23s08_probe(struct spi_dev
+ 	unsigned			base;
+ 
+ 	pdata = spi->dev.platform_data;
+-	if (!pdata || !gpio_is_valid(pdata->base))
+-		return -ENODEV;
++	if (!pdata || !gpio_is_valid(pdata->base)) {
++		dev_dbg(&spi->dev, "invalid or missing platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	for (addr = 0; addr < 4; addr++) {
+ 		if (!pdata->chip[addr].is_present)
+Index: linux.git3/drivers/gpio/pca953x.c
+===================================================================
+--- linux.git3.orig/drivers/gpio/pca953x.c	2008-10-22 09:50:45.000000000 +0100
++++ linux.git3/drivers/gpio/pca953x.c	2009-01-07 12:36:00.000000000 +0000
+@@ -200,8 +200,10 @@ static int __devinit pca953x_probe(struc
+ 	int ret;
+ 
+ 	pdata = client->dev.platform_data;
+-	if (pdata == NULL)
+-		return -ENODEV;
++	if (pdata == NULL) {
++		dev_dbg(&client->dev, "no platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	chip = kzalloc(sizeof(struct pca953x_chip), GFP_KERNEL);
+ 	if (chip == NULL)
+Index: linux.git3/drivers/gpio/pcf857x.c
+===================================================================
+--- linux.git3.orig/drivers/gpio/pcf857x.c	2008-10-22 09:50:45.000000000 +0100
++++ linux.git3/drivers/gpio/pcf857x.c	2009-01-07 12:27:00.000000000 +0000
+@@ -188,8 +188,10 @@ static int pcf857x_probe(struct i2c_clie
+ 	int				status;
+ 
+ 	pdata = client->dev.platform_data;
+-	if (!pdata)
+-		return -ENODEV;
++	if (!pdata) {
++		dev_dbg(&client->dev, "no platform data\n");
++		return -EINVAL;
++	}
+ 
+ 	/* Allocate, initialize, and register this gpio_chip. */
+ 	gpio = kzalloc(sizeof *gpio, GFP_KERNEL);
+@@ -248,8 +250,10 @@ static int pcf857x_probe(struct i2c_clie
+ 		else
+ 			status = i2c_read_le16(client);
+ 
+-	} else
+-		status = -ENODEV;
++	} else {
++		dev_dbg(&client->dev, "unsupported number of gpios\n");
++		status = -EINVAL;
++	}
+ 
+ 	if (status < 0)
+ 		goto fail;
+
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
