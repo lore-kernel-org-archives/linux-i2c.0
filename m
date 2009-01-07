@@ -1,129 +1,49 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: GPIO: Fix probe() error return in gpio driver probes
-Date: Wed, 07 Jan 2009 13:03:23 +0000
-Message-ID: <20090107130322.830591356@fluff.org.uk>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754882AbZAGNDw@vger.kernel.org>
-Content-Disposition: inline; filename=simtec/check-gpio-driver-return-codes.patch
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: david-b@pacbell.net, linux-i2c@vger.kernel.org, spi-devel-general@lists.sourceforge.net, Ben Dooks <ben-linux@fluff.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
+Date: Wed, 7 Jan 2009 14:24:26 +0100
+Message-ID: <20090107142426.4be04d4d@hyperion.delvare>
+References: <1231177261.13443.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1231177261.13443.20.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-A number of drivers in drivers/gpio return -ENODEV when confronted
-with missing setup parameters such as the platform data. However,
-returning -ENODEV causes the driver layer to silently ignore the
-driver as it assumes the probe did not find anything and was only
-speculative.
+Hi Ed,
 
-To make life easier to discern why a driver is not being attached,
-change to returning -EINVAL, which is a better description of the
-fact that the driver data was not valid.
+On Mon, 05 Jan 2009 09:41:01 -0800, Ed Swierk wrote:
+> [Resent to correct linux-i2c address]
+> 
+> Following up to Sebastien Barre's recent patch, here I go one step
+> further, replacing i2c block transfers with SMBus byte transfers.
 
-Also add a set of dev_dbg() statements to the error paths to provide
-an better explanation of the error as there may be more that one point
-in the driver.
+Please, no. Adding a compatibility quirk may be acceptable, but forcing
+everyone to use it instead of the more efficient original code is not
+fair.
 
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-Index: linux.git3/drivers/gpio/max7301.c
-===================================================================
---- linux.git3.orig/drivers/gpio/max7301.c	2008-10-22 09:50:45.000000000 +0100
-+++ linux.git3/drivers/gpio/max7301.c	2009-01-07 12:37:46.000000000 +0000
-@@ -217,8 +217,10 @@ static int __devinit max7301_probe(struc
- 	int i, ret;
- 
- 	pdata = spi->dev.platform_data;
--	if (!pdata || !pdata->base)
--		return -ENODEV;
-+	if (!pdata || !pdata->base) {
-+		dev_dbg(&spi->dev, "incorrect or missing platform data\n");
-+		return -EINVAL;
-+	}
- 
- 	/*
- 	 * bits_per_word cannot be configured in platform data
-Index: linux.git3/drivers/gpio/max732x.c
-===================================================================
---- linux.git3.orig/drivers/gpio/max732x.c	2008-10-22 09:50:45.000000000 +0100
-+++ linux.git3/drivers/gpio/max732x.c	2009-01-07 12:22:10.000000000 +0000
-@@ -267,8 +267,10 @@ static int __devinit max732x_probe(struc
- 	int ret, nr_port;
- 
- 	pdata = client->dev.platform_data;
--	if (pdata == NULL)
--		return -ENODEV;
-+	if (pdata == NULL) {
-+		dev_dbg(&client->dev, "no platform data\n");
-+		return -EINVAL;
-+	}
- 
- 	chip = kzalloc(sizeof(struct max732x_chip), GFP_KERNEL);
- 	if (chip == NULL)
-Index: linux.git3/drivers/gpio/mcp23s08.c
-===================================================================
---- linux.git3.orig/drivers/gpio/mcp23s08.c	2008-10-22 09:50:45.000000000 +0100
-+++ linux.git3/drivers/gpio/mcp23s08.c	2009-01-07 12:23:24.000000000 +0000
-@@ -310,8 +310,10 @@ static int mcp23s08_probe(struct spi_dev
- 	unsigned			base;
- 
- 	pdata = spi->dev.platform_data;
--	if (!pdata || !gpio_is_valid(pdata->base))
--		return -ENODEV;
-+	if (!pdata || !gpio_is_valid(pdata->base)) {
-+		dev_dbg(&spi->dev, "invalid or missing platform data\n");
-+		return -EINVAL;
-+	}
- 
- 	for (addr = 0; addr < 4; addr++) {
- 		if (!pdata->chip[addr].is_present)
-Index: linux.git3/drivers/gpio/pca953x.c
-===================================================================
---- linux.git3.orig/drivers/gpio/pca953x.c	2008-10-22 09:50:45.000000000 +0100
-+++ linux.git3/drivers/gpio/pca953x.c	2009-01-07 12:36:00.000000000 +0000
-@@ -200,8 +200,10 @@ static int __devinit pca953x_probe(struc
- 	int ret;
- 
- 	pdata = client->dev.platform_data;
--	if (pdata == NULL)
--		return -ENODEV;
-+	if (pdata == NULL) {
-+		dev_dbg(&client->dev, "no platform data\n");
-+		return -EINVAL;
-+	}
- 
- 	chip = kzalloc(sizeof(struct pca953x_chip), GFP_KERNEL);
- 	if (chip == NULL)
-Index: linux.git3/drivers/gpio/pcf857x.c
-===================================================================
---- linux.git3.orig/drivers/gpio/pcf857x.c	2008-10-22 09:50:45.000000000 +0100
-+++ linux.git3/drivers/gpio/pcf857x.c	2009-01-07 12:27:00.000000000 +0000
-@@ -188,8 +188,10 @@ static int pcf857x_probe(struct i2c_clie
- 	int				status;
- 
- 	pdata = client->dev.platform_data;
--	if (!pdata)
--		return -ENODEV;
-+	if (!pdata) {
-+		dev_dbg(&client->dev, "no platform data\n");
-+		return -EINVAL;
-+	}
- 
- 	/* Allocate, initialize, and register this gpio_chip. */
- 	gpio = kzalloc(sizeof *gpio, GFP_KERNEL);
-@@ -248,8 +250,10 @@ static int pcf857x_probe(struct i2c_clie
- 		else
- 			status = i2c_read_le16(client);
- 
--	} else
--		status = -ENODEV;
-+	} else {
-+		dev_dbg(&client->dev, "unsupported number of gpios\n");
-+		status = -EINVAL;
-+	}
- 
- 	if (status < 0)
- 		goto fail;
+> Sticking to pure SMBus makes the driver work on our board, which has an
+> nVidia SMBus controller driving a DS1339; nforce2 controllers
+> unfortunately don't support any flavor of i2c block transfer.
+
+Are you certain the nForce2 controllers can't do it? The i2c-nforce2
+driver doesn't implement it, but this doesn't mean the hardware can't
+do it. I don't have any datasheet for these chips, but I know their
+SMBus implementation is very similar to those of the AMD 8111, and
+i2c-amd8111 has support for I2C block reads and writes. I think it
+would be worth giving it a try, by copying the i2c-amd8111
+implementation into the i2c-nforce2 driver and seeing if it happens to
+just work. If it works, that would be more elegant than your proposed
+hack to the rtc-ds1307 driver.
+
+> Reading or writing registers repeatedly until they stick is rather
+> nauseating but I'm aiming for correctness if not elegance.  I would
+> appreciate any suggestions for improvement.
+
+See above.
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Jean Delvare
