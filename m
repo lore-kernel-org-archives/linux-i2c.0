@@ -1,59 +1,42 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PULL] i2c updates for 2.6.29
-Date: Wed, 7 Jan 2009 14:33:30 +0100
-Message-ID: <20090107143330.4b324026@hyperion.delvare>
+From: BARRE Sebastien <sbarre@sdelcc.com>
+Subject: RE: [PATCH] rtc-ds1307: True SMBus compatibility
+Date: Wed, 7 Jan 2009 15:22:19 +0100
+Message-ID: <C1C62166118DFA4A8BBA01A2411F0D171224AED05D@PRI-MBX-101.dom1.vinci-energies.net>
+References: <1231176979.13443.19.camel@localhost.localdomain>
+	 <C1C62166118DFA4A8BBA01A2411F0D171224AECDC1@PRI-MBX-101.dom1.vinci-energies.net>
+ <1231280024.12030.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758345AbZAGNdz@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756207AbZAGOXj@vger.kernel.org>
+In-Reply-To: <1231280024.12030.2.camel@localhost.localdomain>
+Content-Language: fr-FR
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+To: Ed Swierk <eswierk@aristanetworks.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, David Brownell <david-b@pacbell.net>, Alessandro Zummo <a.zummo@towertech.it>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
-
-Please pull the i2c subsystem updates for Linux 2.6.29 from:
-
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
-
-Only small changes this time, with the exception of the conversion of
-the apanel driver to the standard i2c device driver binding model.
-
- drivers/i2c/busses/i2c-ali1563.c               |    4 +-
- drivers/i2c/busses/i2c-amd756-s4882.c          |    4 +-
- drivers/i2c/busses/i2c-amd756.c                |    5 +-
- drivers/i2c/busses/i2c-at91.c                  |    2 +-
- drivers/i2c/busses/i2c-bfin-twi.c              |    2 +-
- drivers/i2c/busses/i2c-i801.c                  |   50 ++++++++++++++-
- drivers/i2c/busses/i2c-pxa.c                   |    4 +-
- drivers/i2c/busses/i2c-s3c2410.c               |    2 +-
- drivers/i2c/busses/i2c-sh7760.c                |    2 +-
- drivers/i2c/busses/i2c-sh_mobile.c             |    2 +-
- drivers/i2c/busses/i2c-sis5595.c               |    4 +-
- drivers/i2c/busses/i2c-sis630.c                |    4 +-
- drivers/i2c/i2c-core.c                         |    8 +-
- drivers/input/misc/apanel.c                    |   81 ++++++++----------------
- drivers/media/video/cafe_ccic.c                |    1 -
- drivers/media/video/ov7670.c                   |    1 -
- drivers/media/video/ovcamchip/ovcamchip_core.c |    1 -
- drivers/media/video/w9968cf.c                  |    1 -
- include/linux/i2c.h                            |    4 -
- 19 files changed, 98 insertions(+), 84 deletions(-)
-
----------------
-
-Jean Delvare (6):
-      i2c: Get rid of remaining bus_id access
-      i2c: Drop I2C_CLASS_ALL
-      i2c: Drop I2C_CLASS_CAM_ANALOG and I2C_CLASS_SOUND
-      i2c: Drop I2C_CLASS_CAM_DIGITAL
-      Input: apanel - convert to new i2c binding
-      i2c: Use snprintf to set adapter names
-
-Kay Sievers (1):
-      i2c: Replace bus_id with dev_name(), dev_set_name()
-
-Thanks,
--- 
-Jean Delvare
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBFZCBTd2llcmsgW21haWx0bzpl
+c3dpZXJrQGFyaXN0YW5ldHdvcmtzLmNvbV0NCj4gU2VudDogVHVlc2RheSwgSmFudWFyeSAwNiwg
+MjAwOSAxMToxNCBQTQ0KPiBUbzogQkFSUkUgU2ViYXN0aWVuDQo+IENjOiBsaW51eC1pMmNAdmdl
+ci5rZXJuZWwub3JnOyBEYXZpZCBCcm93bmVsbDsgQWxlc3NhbmRybyBadW1tbzsgbGludXgtDQo+
+IGtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEFuZHJldyBNb3J0b24NCj4gU3ViamVjdDogUmU6IFtQ
+QVRDSF0gcnRjLWRzMTMwNzogVHJ1ZSBTTUJ1cyBjb21wYXRpYmlsaXR5DQo+DQo+IE9uIFR1ZSwg
+SmFuIDYsIDIwMDkgYXQgNTozNSBBTSwgQkFSUkUgU2ViYXN0aWVuIDxzYmFycmVAc2RlbGNjLmNv
+bT4gd3JvdGU6DQo+ID4gSSd2ZSByZWFkIHlvdXIgcGF0Y2ggcXVpY2x5LCBJIHdpbGwgdGVzdCBp
+dCBvbiBteSBib2FyZCBhcyBzb29uIGFzDQo+IHBvc3NpYmxlLg0KPg0KPiBUaGFua3MuDQo+DQo+
+ID4gWW91IGNhbiBkZWxldGUgdGhlIG5leHQgMyBsaW5lcywgdGhleSBhcmUgbm90IHVzZWZ1bDoN
+Cj4gPg0KPiA+PiArICAgICByZXQgPSBkczEzMDdfcmVhZF9ibG9ja19kYXRhX29uY2UoY2xpZW50
+LCBjb21tYW5kLCBsZW5ndGgsDQo+IGN1cnJ2YWx1ZXMpOw0KPiA+PiArICAgICBpZiAocmV0IDwg
+MCkNCj4gPj4gKyAgICAgICAgICAgICByZXR1cm4gcmV0Ow0KPg0KPiBPb3BzISBIZXJlIGlzIGFu
+IHVwZGF0ZWQgcGF0Y2ggd2l0aCB0aGVzZSBsaW5lcyByZW1vdmVkLCBhbmQgYSBtaW5vcg0KPiBm
+b3JtYXR0aW5nIGZpeC4NCj4NCj4gU2lnbmVkLW9mZi1ieTogRWQgU3dpZXJrIDxlc3dpZXJrQGFy
+aXN0YW5ldHdvcmtzLmNvbT4NCj4NCj4gLS1FZA0KDQpJJ3ZlIHRlc3RlZCB0aGUgcGF0Y2ggb24g
+bXkgZ2VvZGUgTFggYm9hcmQgd2l0aCBhIERTMTMwNyBkZXZpY2UuDQpJdCB3b3JrcyB3ZWxsIGZv
+ciBtZS4NCg0KSG93ZXZlciBJIHRoaW5rIHdyaXRpbmcgdGhlIGNsb2NrIG9uZSBieXRlIGF0IGEg
+dGltZSBjb3VsZCBjYXVzZSBzdHJhbmdlIGJlaGF2aW9yIHdoZW4gdXNpbmcgYWxhcm1zIG9uIGRl
+dmljZSBsaWtlIGRzMTMzNy4NCg0KVGVzdGVkLWJ5OiBTw6liYXN0aWVuIEJhcnLDqSA8c2JhcnJl
+QHNkZWxjYy5jb20+DQoNCi0tDQpTw6liYXN0aWVuIEJhcnLDqQ0KQnVyZWF1IGQnw6l0dWRlIC0g
+RMOpdmVsb3BwZW1lbnQNClNERUwgQ29udHLDtGxlIENvbW1hbmRlDQpEMkEgLSBSdWUgTnVuZ2Vz
+c2VyIGV0IENvbGkNCjQ0ODYwIFNhaW50IEFpZ25hbiBkZSBHcmFuZCBMaWV1DQpGUkFOQ0UNClTD
+qWwgOiArMzMoMCkyIDQwIDg0IDUwIDg4DQpGYXggOiArMzMoMCkyIDQwIDg0IDUxIDEwDQoNCg0K
