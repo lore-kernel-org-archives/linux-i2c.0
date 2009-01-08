@@ -1,24 +1,39 @@
-From: "Fabien Marteau" <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: SMBus quick command problem
-Date: Thu, 8 Jan 2009 10:01:01 +0100
-Message-ID: <ce62e9d00901080101ocfa0388g91698776eb9704cb@mail.gmail.com>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: [PATCH] i2c-davinci: issue timeout warning only once
+Date: Thu, 8 Jan 2009 11:48:30 +0200
+Message-ID: <20090108094829.GB3824@diamond.tkos.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SHksCgpJJ20gd3JpdGluZyBhIGRyaXZlciBmb3IgaTJjIGNvbnRyb2xsZXIuIFRvIGRvIGl0LCBJ
-J20gZm9sbG93aW5nIHRoZQpTTUJ1cyBwcm90b2NvbCBkZXNjcmlwdGlvbiBpbiBsaW51eC9Eb2N1
-bWVudGF0aW9uL2kyYy9TTUJ1cy0KcHJvdG9jb2wuIFRoaXMgZG9jdW1lbnRhdGlvbiBzYXkgdGhh
-dCB3ZSBjYW4gd3JpdGUgYSBzaW5nbGUgYml0IHdpdGgKwqtTTUJ1cyBRdWljayBDb21tYW5kwrsu
-IFRoaXMgY29tbWFuZCBpcyB1c2VkIGluIGkyY2RldGVjdCBwcm9ncmFtIHRvCmZpbmQgc2xhdmUg
-b24gdGhlIGJ1cy4KCkkgdXNlZCB0aGlzIGNvbW1hbmQgdG8gd3JpdGUgYml0IDAgYW5kIHRoYXQg
-d29yayB3aGVsbCB3aXRoIG15IHNsYXZlcywKYnV0IGlmIEkgdHJ5IHRvIHdyaXRlIGJpdCAxIHRo
-ZSBzbGF2ZXMgYWRkcmVzc2VkIGFyZSBibG9ja2luZyB0aGUgYnVzCihtYWludGFpbiBTREEgdG8g
-MCkuIEkgdHJpZWQgaXQgd2l0aCB0d28gc2xhdmVzIGNvbXBvbmVudHMgOgpMSVMzTFYwMkRMIChh
-Y2NlbGVyb21ldGVyKSBhbmQgRFMyOENaMDQgKEVFUFJPTSkuCgpJcyBpdCBhIGtub3duIHByb2Js
-ZW0gPwoKVGhhbmtzCkZhYk0K
+When timeout occurs the i2c_davinci_wait_bus_not_busy() issues a warning. No 
+need to do this twice.
+
+Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+---
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 5d77898..fbddc50 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -349,10 +349,8 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+ 
+ 	ret = i2c_davinci_wait_bus_not_busy(dev, 1);
+-	if (ret < 0) {
+-		dev_warn(dev->dev, "timeout waiting for bus ready\n");
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	for (i = 0; i < num; i++) {
+ 		ret = i2c_davinci_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+
+-- 
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
