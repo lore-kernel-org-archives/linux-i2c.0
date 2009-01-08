@@ -1,26 +1,35 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: LM95241 Driver proposal
-Date: Thu, 8 Jan 2009 11:50:22 +0100
-Message-ID: <20090108115022.2b8148b3@hyperion.delvare>
-References: <8447d6730901080223p1bc98668s28a64d04cdd871ea@mail.gmail.com>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: GPIO: Fix probe() error return in gpio driver probes
+Date: Thu, 8 Jan 2009 12:20:22 +0000
+Message-ID: <20090108122022.GO12431@fluff.org.uk>
+References: <20090107125619.052023040@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8447d6730901080223p1bc98668s28a64d04cdd871ea-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090107125619.052023040-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Davide Rizzo <elpa.rizzo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Davide,
+On Wed, Jan 07, 2009 at 12:56:19PM +0000, ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org wrote:
+> A number of drivers in drivers/gpio return -ENODEV when confronted
+> with missing setup parameters such as the platform data. However,
+> returning -ENODEV causes the driver layer to silently ignore the
+> driver as it assumes the probe did not find anything and was only
+> speculative.
+> 
+> To make life easier to discern why a driver is not being attached,
+> change to returning -EINVAL, which is a better description of the
+> fact that the driver data was not valid.
+> 
+> Also add a set of dev_dbg() statements to the error paths to provide
+> an better explanation of the error as there may be more that one point
+> in the driver.
 
-On Thu, 8 Jan 2009 11:23:17 +0100, Davide Rizzo wrote:
-> This patch implements the hwmon driver for the National Semiconductor LM95241
->  triple temperature sensors chip
-
-Wrong mailing list... Please send to the lm-sensors mailing list
-instead.
-
+sorry, sent from the wrong email address please ignore.
 -- 
-Jean Delvare
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
