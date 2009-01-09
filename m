@@ -1,58 +1,59 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: "Fabien Marteau" <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: SMBus quick command problem
-Date: Fri, 9 Jan 2009 15:27:52 +0100
-Message-ID: <20090109152752.29b3c5de@hyperion.delvare>
+Date: Fri, 9 Jan 2009 16:03:11 +0100
+Message-ID: <ce62e9d00901090703y5af1ba4diedf37d30da5d158a@mail.gmail.com>
 References: <ce62e9d00901080101ocfa0388g91698776eb9704cb@mail.gmail.com>
+	 <20090109152752.29b3c5de@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <ce62e9d00901080101ocfa0388g91698776eb9704cb-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20090109152752.29b3c5de-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabien Marteau <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Salut Fabien,
-
-On Thu, 8 Jan 2009 10:01:01 +0100, Fabien Marteau wrote:
-> I'm writing a driver for i2c controller. To do it, I'm following the
-> SMBus protocol description in linux/Documentation/i2c/SMBus-
-> protocol. This documentation say that we can write a single bit with
-> =ABSMBus Quick Command=BB. This command is used in i2cdetect program =
-to
-> find slave on the bus.
->=20
-> I used this command to write bit 0 and that work whell with my slaves=
-,
-> but if I try to write bit 1 the slaves addressed are blocking the bus
-> (maintain SDA to 0). I tried it with two slaves components :
-> LIS3LV02DL (accelerometer) and DS28CZ04 (EEPROM).
->=20
-> Is it a known problem ?
-
-The SMBus specification describes a number of standardized
-transactions. Each chip on the bus can support each given transaction
-type or not. In practice, each slave chip only supports a subset of the
-SMBus specification. I can't remember working on a chip saying it was
-supporting the SMBus quick command. The Linux i2c subsystem abuses this
-transaction type for device detection purposes, because it is known to
-give good results in practice, but ideally it shouldn't do that.
-
-There have been some devices known to lock up the SMBus on Quick
-command with data bit =3D 1 (as you are experiencing.) In most cases
-these were write-only devices, which didn't expect a transaction
-starting like a read (the SMBus specification says that a Quick command
-with data bit =3D 1 is writing 1 bit to the slave, but the I2C
-specification says this is a _read_ transaction of length 0.)
-
-This SMBus Quick command thing keeps causing trouble and confusing
-people. Not much we can do though. If your slaves don't like the quick
-command, just don't send that command to them.
-
-> [Erreur de d=E9codage BASE64]
-
-Gni?
-
---=20
-Jean Delvare
+VGhhbmtzIEplYW4sCgpJbiBmYWN0IEknbSB1c2luZyB0aGUgaTJjLW9jb3JlIChvcGVuY29yZSkg
+Y29udHJvbGxlciwgYW5kIHRoZSDCq1NNQnVzClF1aWNrIENvbW1hbmTCuyBibG9jayB0aGUgYnVz
+IHdpdGggdGhlIExpbnV4IHN0YW5kYXJkIGRyaXZlcgooZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1v
+Y29yZXMuYyk6Cmh0dHA6Ly93d3cub3BlbmNvcmVzLm9yZy9mb3J1bXMuY2dpL2NvcmVzLzIwMDgv
+MTAvMDAzMzkxCgpUaGVuIHRvIHNvbHZlIHRoaXMgcHJvYmxlbSBJJ20gcmUtd3JpdGluZyB0aGUg
+ZHJpdmVyIHRvIHN1cHBvcnQgZWFjaApTTUJ1cyBjb21tYW5kcyBzZXBhcmF0ZWx5LCBmb2xsb3dp
+bmcgdGhlIGxpbnV4IGRvY3VtZW50YXRpb24uCklmIHdyaXRpbmcgJzEnIG9uIHF1aWNrIGNvbW1h
+bmQgYmxvY2sgdGhlIGJ1cywgSSB3aWxsIHNraXAgdGhpcyB0ZXN0LgoKRmFiTQoKCk9uIEZyaSwg
+SmFuIDksIDIwMDkgYXQgMzoyNyBQTSwgSmVhbiBEZWx2YXJlIDxraGFsaUBsaW51eC1mci5vcmc+
+IHdyb3RlOgo+IFNhbHV0IEZhYmllbiwKPgo+IE9uIFRodSwgOCBKYW4gMjAwOSAxMDowMTowMSAr
+MDEwMCwgRmFiaWVuIE1hcnRlYXUgd3JvdGU6Cj4+IEknbSB3cml0aW5nIGEgZHJpdmVyIGZvciBp
+MmMgY29udHJvbGxlci4gVG8gZG8gaXQsIEknbSBmb2xsb3dpbmcgdGhlCj4+IFNNQnVzIHByb3Rv
+Y29sIGRlc2NyaXB0aW9uIGluIGxpbnV4L0RvY3VtZW50YXRpb24vaTJjL1NNQnVzLQo+PiBwcm90
+b2NvbC4gVGhpcyBkb2N1bWVudGF0aW9uIHNheSB0aGF0IHdlIGNhbiB3cml0ZSBhIHNpbmdsZSBi
+aXQgd2l0aAo+PiDCq1NNQnVzIFF1aWNrIENvbW1hbmTCuy4gVGhpcyBjb21tYW5kIGlzIHVzZWQg
+aW4gaTJjZGV0ZWN0IHByb2dyYW0gdG8KPj4gZmluZCBzbGF2ZSBvbiB0aGUgYnVzLgo+Pgo+PiBJ
+IHVzZWQgdGhpcyBjb21tYW5kIHRvIHdyaXRlIGJpdCAwIGFuZCB0aGF0IHdvcmsgd2hlbGwgd2l0
+aCBteSBzbGF2ZXMsCj4+IGJ1dCBpZiBJIHRyeSB0byB3cml0ZSBiaXQgMSB0aGUgc2xhdmVzIGFk
+ZHJlc3NlZCBhcmUgYmxvY2tpbmcgdGhlIGJ1cwo+PiAobWFpbnRhaW4gU0RBIHRvIDApLiBJIHRy
+aWVkIGl0IHdpdGggdHdvIHNsYXZlcyBjb21wb25lbnRzIDoKPj4gTElTM0xWMDJETCAoYWNjZWxl
+cm9tZXRlcikgYW5kIERTMjhDWjA0IChFRVBST00pLgo+Pgo+PiBJcyBpdCBhIGtub3duIHByb2Js
+ZW0gPwo+Cj4gVGhlIFNNQnVzIHNwZWNpZmljYXRpb24gZGVzY3JpYmVzIGEgbnVtYmVyIG9mIHN0
+YW5kYXJkaXplZAo+IHRyYW5zYWN0aW9ucy4gRWFjaCBjaGlwIG9uIHRoZSBidXMgY2FuIHN1cHBv
+cnQgZWFjaCBnaXZlbiB0cmFuc2FjdGlvbgo+IHR5cGUgb3Igbm90LiBJbiBwcmFjdGljZSwgZWFj
+aCBzbGF2ZSBjaGlwIG9ubHkgc3VwcG9ydHMgYSBzdWJzZXQgb2YgdGhlCj4gU01CdXMgc3BlY2lm
+aWNhdGlvbi4gSSBjYW4ndCByZW1lbWJlciB3b3JraW5nIG9uIGEgY2hpcCBzYXlpbmcgaXQgd2Fz
+Cj4gc3VwcG9ydGluZyB0aGUgU01CdXMgcXVpY2sgY29tbWFuZC4gVGhlIExpbnV4IGkyYyBzdWJz
+eXN0ZW0gYWJ1c2VzIHRoaXMKPiB0cmFuc2FjdGlvbiB0eXBlIGZvciBkZXZpY2UgZGV0ZWN0aW9u
+IHB1cnBvc2VzLCBiZWNhdXNlIGl0IGlzIGtub3duIHRvCj4gZ2l2ZSBnb29kIHJlc3VsdHMgaW4g
+cHJhY3RpY2UsIGJ1dCBpZGVhbGx5IGl0IHNob3VsZG4ndCBkbyB0aGF0Lgo+Cj4gVGhlcmUgaGF2
+ZSBiZWVuIHNvbWUgZGV2aWNlcyBrbm93biB0byBsb2NrIHVwIHRoZSBTTUJ1cyBvbiBRdWljawo+
+IGNvbW1hbmQgd2l0aCBkYXRhIGJpdCA9IDEgKGFzIHlvdSBhcmUgZXhwZXJpZW5jaW5nLikgSW4g
+bW9zdCBjYXNlcwo+IHRoZXNlIHdlcmUgd3JpdGUtb25seSBkZXZpY2VzLCB3aGljaCBkaWRuJ3Qg
+ZXhwZWN0IGEgdHJhbnNhY3Rpb24KPiBzdGFydGluZyBsaWtlIGEgcmVhZCAodGhlIFNNQnVzIHNw
+ZWNpZmljYXRpb24gc2F5cyB0aGF0IGEgUXVpY2sgY29tbWFuZAo+IHdpdGggZGF0YSBiaXQgPSAx
+IGlzIHdyaXRpbmcgMSBiaXQgdG8gdGhlIHNsYXZlLCBidXQgdGhlIEkyQwo+IHNwZWNpZmljYXRp
+b24gc2F5cyB0aGlzIGlzIGEgX3JlYWRfIHRyYW5zYWN0aW9uIG9mIGxlbmd0aCAwLikKPgo+IFRo
+aXMgU01CdXMgUXVpY2sgY29tbWFuZCB0aGluZyBrZWVwcyBjYXVzaW5nIHRyb3VibGUgYW5kIGNv
+bmZ1c2luZwo+IHBlb3BsZS4gTm90IG11Y2ggd2UgY2FuIGRvIHRob3VnaC4gSWYgeW91ciBzbGF2
+ZXMgZG9uJ3QgbGlrZSB0aGUgcXVpY2sKPiBjb21tYW5kLCBqdXN0IGRvbid0IHNlbmQgdGhhdCBj
+b21tYW5kIHRvIHRoZW0uCj4KPj4gW0VycmV1ciBkZSBkw6ljb2RhZ2UgQkFTRTY0XQo+Cj4gR25p
+Pwo+Cj4gLS0KPiBKZWFuIERlbHZhcmUKPgo=
