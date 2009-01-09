@@ -1,59 +1,42 @@
-From: "Fabien Marteau" <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: SMBus quick command problem
-Date: Fri, 9 Jan 2009 16:03:11 +0100
-Message-ID: <ce62e9d00901090703y5af1ba4diedf37d30da5d158a@mail.gmail.com>
+Date: Fri, 9 Jan 2009 16:12:22 +0100
+Message-ID: <20090109161222.4c75ffda@hyperion.delvare>
 References: <ce62e9d00901080101ocfa0388g91698776eb9704cb@mail.gmail.com>
-	 <20090109152752.29b3c5de@hyperion.delvare>
+	<20090109152752.29b3c5de@hyperion.delvare>
+	<ce62e9d00901090703y5af1ba4diedf37d30da5d158a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090109152752.29b3c5de-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <ce62e9d00901090703y5af1ba4diedf37d30da5d158a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Fabien Marteau <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhhbmtzIEplYW4sCgpJbiBmYWN0IEknbSB1c2luZyB0aGUgaTJjLW9jb3JlIChvcGVuY29yZSkg
-Y29udHJvbGxlciwgYW5kIHRoZSDCq1NNQnVzClF1aWNrIENvbW1hbmTCuyBibG9jayB0aGUgYnVz
-IHdpdGggdGhlIExpbnV4IHN0YW5kYXJkIGRyaXZlcgooZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1v
-Y29yZXMuYyk6Cmh0dHA6Ly93d3cub3BlbmNvcmVzLm9yZy9mb3J1bXMuY2dpL2NvcmVzLzIwMDgv
-MTAvMDAzMzkxCgpUaGVuIHRvIHNvbHZlIHRoaXMgcHJvYmxlbSBJJ20gcmUtd3JpdGluZyB0aGUg
-ZHJpdmVyIHRvIHN1cHBvcnQgZWFjaApTTUJ1cyBjb21tYW5kcyBzZXBhcmF0ZWx5LCBmb2xsb3dp
-bmcgdGhlIGxpbnV4IGRvY3VtZW50YXRpb24uCklmIHdyaXRpbmcgJzEnIG9uIHF1aWNrIGNvbW1h
-bmQgYmxvY2sgdGhlIGJ1cywgSSB3aWxsIHNraXAgdGhpcyB0ZXN0LgoKRmFiTQoKCk9uIEZyaSwg
-SmFuIDksIDIwMDkgYXQgMzoyNyBQTSwgSmVhbiBEZWx2YXJlIDxraGFsaUBsaW51eC1mci5vcmc+
-IHdyb3RlOgo+IFNhbHV0IEZhYmllbiwKPgo+IE9uIFRodSwgOCBKYW4gMjAwOSAxMDowMTowMSAr
-MDEwMCwgRmFiaWVuIE1hcnRlYXUgd3JvdGU6Cj4+IEknbSB3cml0aW5nIGEgZHJpdmVyIGZvciBp
-MmMgY29udHJvbGxlci4gVG8gZG8gaXQsIEknbSBmb2xsb3dpbmcgdGhlCj4+IFNNQnVzIHByb3Rv
-Y29sIGRlc2NyaXB0aW9uIGluIGxpbnV4L0RvY3VtZW50YXRpb24vaTJjL1NNQnVzLQo+PiBwcm90
-b2NvbC4gVGhpcyBkb2N1bWVudGF0aW9uIHNheSB0aGF0IHdlIGNhbiB3cml0ZSBhIHNpbmdsZSBi
-aXQgd2l0aAo+PiDCq1NNQnVzIFF1aWNrIENvbW1hbmTCuy4gVGhpcyBjb21tYW5kIGlzIHVzZWQg
-aW4gaTJjZGV0ZWN0IHByb2dyYW0gdG8KPj4gZmluZCBzbGF2ZSBvbiB0aGUgYnVzLgo+Pgo+PiBJ
-IHVzZWQgdGhpcyBjb21tYW5kIHRvIHdyaXRlIGJpdCAwIGFuZCB0aGF0IHdvcmsgd2hlbGwgd2l0
-aCBteSBzbGF2ZXMsCj4+IGJ1dCBpZiBJIHRyeSB0byB3cml0ZSBiaXQgMSB0aGUgc2xhdmVzIGFk
-ZHJlc3NlZCBhcmUgYmxvY2tpbmcgdGhlIGJ1cwo+PiAobWFpbnRhaW4gU0RBIHRvIDApLiBJIHRy
-aWVkIGl0IHdpdGggdHdvIHNsYXZlcyBjb21wb25lbnRzIDoKPj4gTElTM0xWMDJETCAoYWNjZWxl
-cm9tZXRlcikgYW5kIERTMjhDWjA0IChFRVBST00pLgo+Pgo+PiBJcyBpdCBhIGtub3duIHByb2Js
-ZW0gPwo+Cj4gVGhlIFNNQnVzIHNwZWNpZmljYXRpb24gZGVzY3JpYmVzIGEgbnVtYmVyIG9mIHN0
-YW5kYXJkaXplZAo+IHRyYW5zYWN0aW9ucy4gRWFjaCBjaGlwIG9uIHRoZSBidXMgY2FuIHN1cHBv
-cnQgZWFjaCBnaXZlbiB0cmFuc2FjdGlvbgo+IHR5cGUgb3Igbm90LiBJbiBwcmFjdGljZSwgZWFj
-aCBzbGF2ZSBjaGlwIG9ubHkgc3VwcG9ydHMgYSBzdWJzZXQgb2YgdGhlCj4gU01CdXMgc3BlY2lm
-aWNhdGlvbi4gSSBjYW4ndCByZW1lbWJlciB3b3JraW5nIG9uIGEgY2hpcCBzYXlpbmcgaXQgd2Fz
-Cj4gc3VwcG9ydGluZyB0aGUgU01CdXMgcXVpY2sgY29tbWFuZC4gVGhlIExpbnV4IGkyYyBzdWJz
-eXN0ZW0gYWJ1c2VzIHRoaXMKPiB0cmFuc2FjdGlvbiB0eXBlIGZvciBkZXZpY2UgZGV0ZWN0aW9u
-IHB1cnBvc2VzLCBiZWNhdXNlIGl0IGlzIGtub3duIHRvCj4gZ2l2ZSBnb29kIHJlc3VsdHMgaW4g
-cHJhY3RpY2UsIGJ1dCBpZGVhbGx5IGl0IHNob3VsZG4ndCBkbyB0aGF0Lgo+Cj4gVGhlcmUgaGF2
-ZSBiZWVuIHNvbWUgZGV2aWNlcyBrbm93biB0byBsb2NrIHVwIHRoZSBTTUJ1cyBvbiBRdWljawo+
-IGNvbW1hbmQgd2l0aCBkYXRhIGJpdCA9IDEgKGFzIHlvdSBhcmUgZXhwZXJpZW5jaW5nLikgSW4g
-bW9zdCBjYXNlcwo+IHRoZXNlIHdlcmUgd3JpdGUtb25seSBkZXZpY2VzLCB3aGljaCBkaWRuJ3Qg
-ZXhwZWN0IGEgdHJhbnNhY3Rpb24KPiBzdGFydGluZyBsaWtlIGEgcmVhZCAodGhlIFNNQnVzIHNw
-ZWNpZmljYXRpb24gc2F5cyB0aGF0IGEgUXVpY2sgY29tbWFuZAo+IHdpdGggZGF0YSBiaXQgPSAx
-IGlzIHdyaXRpbmcgMSBiaXQgdG8gdGhlIHNsYXZlLCBidXQgdGhlIEkyQwo+IHNwZWNpZmljYXRp
-b24gc2F5cyB0aGlzIGlzIGEgX3JlYWRfIHRyYW5zYWN0aW9uIG9mIGxlbmd0aCAwLikKPgo+IFRo
-aXMgU01CdXMgUXVpY2sgY29tbWFuZCB0aGluZyBrZWVwcyBjYXVzaW5nIHRyb3VibGUgYW5kIGNv
-bmZ1c2luZwo+IHBlb3BsZS4gTm90IG11Y2ggd2UgY2FuIGRvIHRob3VnaC4gSWYgeW91ciBzbGF2
-ZXMgZG9uJ3QgbGlrZSB0aGUgcXVpY2sKPiBjb21tYW5kLCBqdXN0IGRvbid0IHNlbmQgdGhhdCBj
-b21tYW5kIHRvIHRoZW0uCj4KPj4gW0VycmV1ciBkZSBkw6ljb2RhZ2UgQkFTRTY0XQo+Cj4gR25p
-Pwo+Cj4gLS0KPiBKZWFuIERlbHZhcmUKPgo=
+On Fri, 9 Jan 2009 16:03:11 +0100, Fabien Marteau wrote:
+> Thanks Jean,
+>=20
+> In fact I'm using the i2c-ocore (opencore) controller, and the =ABSMB=
+us
+> Quick Command=BB block the bus with the Linux standard driver
+> (drivers/i2c/busses/i2c-ocores.c):
+> http://www.opencores.org/forums.cgi/cores/2008/10/003391
+>=20
+> Then to solve this problem I'm re-writing the driver to support each
+> SMBus commands separately, following the linux documentation.
+> If writing '1' on quick command block the bus, I will skip this test.
+
+I don't get where you're going with rewriting the driver. You'll end up
+with a larger driver doing exactly the same, without taking benefit of
+the SMBus emulation layer from i2c-core. If the hardware has a problem
+with Quick commands, rewriting the driver won't solve that. Better
+intercept that case in the current driver and return an error.
+
+Not that it really matters though, as I have yet to see any real-world
+use case for the Quick command with data bit =3D 1. So what problem are
+you trying to solve exactly?
+
+--=20
+Jean Delvare
