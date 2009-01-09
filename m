@@ -1,35 +1,58 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: GPIO: Fix probe() error return in gpio driver probes
-Date: Thu, 8 Jan 2009 12:20:22 +0000
-Message-ID: <20090108122022.GO12431@fluff.org.uk>
-References: <20090107125619.052023040@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: SMBus quick command problem
+Date: Fri, 9 Jan 2009 15:27:52 +0100
+Message-ID: <20090109152752.29b3c5de@hyperion.delvare>
+References: <ce62e9d00901080101ocfa0388g91698776eb9704cb@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090107125619.052023040-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <ce62e9d00901080101ocfa0388g91698776eb9704cb-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Fabien Marteau <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 07, 2009 at 12:56:19PM +0000, ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org wrote:
-> A number of drivers in drivers/gpio return -ENODEV when confronted
-> with missing setup parameters such as the platform data. However,
-> returning -ENODEV causes the driver layer to silently ignore the
-> driver as it assumes the probe did not find anything and was only
-> speculative.
-> 
-> To make life easier to discern why a driver is not being attached,
-> change to returning -EINVAL, which is a better description of the
-> fact that the driver data was not valid.
-> 
-> Also add a set of dev_dbg() statements to the error paths to provide
-> an better explanation of the error as there may be more that one point
-> in the driver.
+Salut Fabien,
 
-sorry, sent from the wrong email address please ignore.
--- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+On Thu, 8 Jan 2009 10:01:01 +0100, Fabien Marteau wrote:
+> I'm writing a driver for i2c controller. To do it, I'm following the
+> SMBus protocol description in linux/Documentation/i2c/SMBus-
+> protocol. This documentation say that we can write a single bit with
+> =ABSMBus Quick Command=BB. This command is used in i2cdetect program =
+to
+> find slave on the bus.
+>=20
+> I used this command to write bit 0 and that work whell with my slaves=
+,
+> but if I try to write bit 1 the slaves addressed are blocking the bus
+> (maintain SDA to 0). I tried it with two slaves components :
+> LIS3LV02DL (accelerometer) and DS28CZ04 (EEPROM).
+>=20
+> Is it a known problem ?
 
-  'a smiley only costs 4 bytes'
+The SMBus specification describes a number of standardized
+transactions. Each chip on the bus can support each given transaction
+type or not. In practice, each slave chip only supports a subset of the
+SMBus specification. I can't remember working on a chip saying it was
+supporting the SMBus quick command. The Linux i2c subsystem abuses this
+transaction type for device detection purposes, because it is known to
+give good results in practice, but ideally it shouldn't do that.
+
+There have been some devices known to lock up the SMBus on Quick
+command with data bit =3D 1 (as you are experiencing.) In most cases
+these were write-only devices, which didn't expect a transaction
+starting like a read (the SMBus specification says that a Quick command
+with data bit =3D 1 is writing 1 bit to the slave, but the I2C
+specification says this is a _read_ transaction of length 0.)
+
+This SMBus Quick command thing keeps causing trouble and confusing
+people. Not much we can do though. If your slaves don't like the quick
+command, just don't send that command to them.
+
+> [Erreur de d=E9codage BASE64]
+
+Gni?
+
+--=20
+Jean Delvare
