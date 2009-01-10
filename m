@@ -1,97 +1,58 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: SMBus quick command problem
-Date: Fri, 9 Jan 2009 18:38:10 +0100
-Message-ID: <20090109183810.4d7444ba@hyperion.delvare>
-References: <ce62e9d00901080101ocfa0388g91698776eb9704cb@mail.gmail.com>
-	<20090109152752.29b3c5de@hyperion.delvare>
-	<ce62e9d00901090703y5af1ba4diedf37d30da5d158a@mail.gmail.com>
-	<20090109161222.4c75ffda@hyperion.delvare>
-	<ce62e9d00901090911r7454ae5fr61c69a22704ed86b@mail.gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@gmail.com>
+Subject: Regulator consumer and i2c device interaction.
+Date: Sat, 10 Jan 2009 16:01:22 +0000
+Message-ID: <4968C652.2050300@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <ce62e9d00901090911r7454ae5fr61c69a22704ed86b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabien Marteau <lepingouin.tux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754392AbZAJQBc@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 9 Jan 2009 18:11:21 +0100, Fabien Marteau wrote:
-> > I don't get where you're going with rewriting the driver. You'll end up
-> > with a larger driver doing exactly the same, without taking benefit of
-> > the SMBus emulation layer from i2c-core. If the hardware has a problem
-> > with Quick commands, rewriting the driver won't solve that. Better
-> > intercept that case in the current driver and return an error.
-> 
-> Hmm, maybe you are right. I'm a beginner in kernel hacking and I tried to
-> rewrite this driver mainly to learn linux-driver programming.
-> 
-> > So what problem are
-> > you trying to solve exactly?
-> 
-> Well, when I modprobe the original ocore driver, an i2c slave driver already
-> present under the kernel probe the bus with write-quick command. This command
-> block the controller :
-> http://dl.free.fr/qS2l40o9p
-> (yellow:SDA, green:SCL, pink: interrupt)
+Dear All,
 
-I'm confused. In your original report you said that Quick commands with
-data bit 0 (which is what i2c-core uses for probing) were OK and only
-those with data bit 1 (which i2c-core doesn't use) were a problem. Was
-this statement incorrect?
+Currently regulator consumers are registered and identified via a pointer to the relevant
+device:
 
-I admit I am a little surprised that the probes done by i2c-core would
-unconditionally bring the opencores I2C adapter down and nobody ever
-reported this, while the driver is over 2 years old!
+e.g. via a regulator consumer supply structure:
+static struct regulator_consumer_supply imote2_sensor_3_con[] = {
+	{
+		.dev = &sht15.dev,
+		.supply = "vcc",
+	},
+};
 
-> This problem is normal if I read the
-> datasheet(http://www.opencores.org/cvsweb.shtml/i2c/doc/i2c_specs.pdf), because
-> to send only one byte (address byte) the stop command must be send at the same
-> time that start command.
+static struct regulator_init_data imote2_ldo_init_data[] = {{
+	{
+	 	.constraints = {
+		.name = "vcc_sensor_3",
+		.min_uV = 2800000,
+		.max_uV = 3000000,
+		.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
+	},
+	.num_consumer_supplies = ARRAY_SIZE(imote2_sensor_3_con),
+	.consumer_supplies = imote2_sensor_3_con,
+},
+};
 
-This sounds reasonable. Can't you change the driver to do that?
+and relevant association with a regulator driver.
 
-> The driver is marked as SMBus emulation compatible :
-> static u32 ocores_func(struct i2c_adapter *adap)
-> {
-> 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> }
+Now in the case of i2c devices, the struct device  pointer is created
+somewhat later and isn't readily available.
 
-If Quick commands really aren't supported then you could easily change
-that to:
+I think the struct device pointer is only used as device instance specific
+token in the regulator framework.  If so is there any reason it can't be
+relaxed to a void * thus allowing something else to be used in i2c drivers?
 
-	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+If so what could actually be used?  Unfortunately all the data elements
+of i2c_board_info are coppied out (rather than a pointer to the original
+structure being used) so that's not currently available.  I guess it could
+be made so at the cost of a single pointer in each i2c_client structure.
 
-Several bus drivers do this. 
+So the question is how would people prefer to do this?
 
-> 
-> But apparently it does not support all SMBus commands, and I can't use
-> i2cdetect to scan the bus.
-> 
-> With my new version of the driver, really bigger than original, SMBus commands
-> are supported one by one and I can use i2cdetect to scan the bus:
-> static u32 ocores_func(struct i2c_adapter *adap)
-> {
-> 	return  I2C_FUNC_SMBUS_BYTE_DATA|
-> 		I2C_FUNC_SMBUS_WORD_DATA|
-> 		I2C_FUNC_SMBUS_BYTE|
-> 		I2C_FUNC_SMBUS_QUICK|
-> 		I2C_FUNC_SMBUS_WRITE_I2C_BLOCK|
-> 		I2C_FUNC_SMBUS_READ_I2C_BLOCK;
-> }
-> 
-> But maybe it's a bad idea to re-write the driver, I will investigate
-> to find another solution.
+Thanks,
 
-The best solution IMHO is to intercept the special case (Quick command)
-at the beginning of ocores_xfer (num == 1 && msgs->len == 0). So you
-can let i2c-core handle the emulation and you only have to implement
-the Quick command (which you presumably already have).
-
-Or maybe you can even handle the exception in ocores_xfer() directly,
-if it's only a matter of issuing OCI2C_CMD_STOP at the right time.
-Whatever works best for you.
-
--- 
-Jean Delvare
+--
+Jonathan Cameron
