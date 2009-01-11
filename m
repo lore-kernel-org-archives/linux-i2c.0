@@ -1,66 +1,101 @@
-From: Jonathan Cameron <Jonathan.Cameron-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Regulator consumer and i2c device interaction.
-Date: Sat, 10 Jan 2009 18:46:37 +0000
-Message-ID: <4968ED0D.9040103@gmail.com>
-References: <4968C652.2050300@gmail.com>
+From: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Subject: [PATCH] powerpc/83xx: Move mcu_mpc8349emitx driver out of
+	drivers/i2c/chips/
+Date: Sun, 11 Jan 2009 19:51:36 +0300
+Message-ID: <20090111165136.GA26096@oksana.dev.rtsoft.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4968C652.2050300-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+To: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jonathan Cameron wrote:
-> Dear All,
->
-> Currently regulator consumers are registered and identified via a pointer to the relevant
-> device:
->
-> e.g. via a regulator consumer supply structure:
-> static struct regulator_consumer_supply imote2_sensor_3_con[] = {
-> 	{
-> 		.dev = &sht15.dev,
-> 		.supply = "vcc",
-> 	},
-> };
->
-> static struct regulator_init_data imote2_ldo_init_data[] = {{
-> 	{
-> 	 	.constraints = {
-> 		.name = "vcc_sensor_3",
-> 		.min_uV = 2800000,
-> 		.max_uV = 3000000,
-> 		.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-> 	},
-> 	.num_consumer_supplies = ARRAY_SIZE(imote2_sensor_3_con),
-> 	.consumer_supplies = imote2_sensor_3_con,
-> },
-> };
->
-> and relevant association with a regulator driver.
->
-> Now in the case of i2c devices, the struct device  pointer is created
-> somewhat later and isn't readily available.
->
-> I think the struct device pointer is only used as device instance specific
-> token in the regulator framework.  If so is there any reason it can't be
-> relaxed to a void * thus allowing something else to be used in i2c drivers?
->
-> If so what could actually be used?  Unfortunately all the data elements
-> of i2c_board_info are coppied out (rather than a pointer to the original
-> structure being used) so that's not currently available.  I guess it could
-> be made so at the cost of a single pointer in each i2c_client structure.
->   
-Oops, that won't work as typically these are specified __initdata .
-Any suggestions for alternatives?
-> So the question is how would people prefer to do this?
->
-> Thanks,
->
-> --
-> Jonathan Cameron
->
->   
+This patch is used to help Jean Delvare to get rid of drivers/i2c/chips/
+directory. The new location suggested by Kumar Gala: as the driver is
+83xx specific it's placed into arch/powerpc/platforms/83xx/.
+
+Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+---
+
+This is git patch.
+
+ arch/powerpc/platforms/83xx/Makefile               |    1 +
+ .../powerpc/platforms/83xx}/mcu_mpc8349emitx.c     |    0 
+ arch/powerpc/platforms/Kconfig                     |   11 +++++++++++
+ drivers/i2c/chips/Kconfig                          |   11 -----------
+ drivers/i2c/chips/Makefile                         |    1 -
+ 5 files changed, 12 insertions(+), 12 deletions(-)
+ rename {drivers/i2c/chips => arch/powerpc/platforms/83xx}/mcu_mpc8349emitx.c (100%)
+
+diff --git a/arch/powerpc/platforms/83xx/Makefile b/arch/powerpc/platforms/83xx/Makefile
+index ba5028e..051777c 100644
+--- a/arch/powerpc/platforms/83xx/Makefile
++++ b/arch/powerpc/platforms/83xx/Makefile
+@@ -3,6 +3,7 @@
+ #
+ obj-y				:= misc.o usb.o
+ obj-$(CONFIG_SUSPEND)		+= suspend.o suspend-asm.o
++obj-$(CONFIG_MCU_MPC8349EMITX)	+= mcu_mpc8349emitx.o
+ obj-$(CONFIG_MPC831x_RDB)	+= mpc831x_rdb.o
+ obj-$(CONFIG_MPC832x_RDB)	+= mpc832x_rdb.o
+ obj-$(CONFIG_MPC834x_MDS)	+= mpc834x_mds.o
+diff --git a/drivers/i2c/chips/mcu_mpc8349emitx.c b/arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
+similarity index 100%
+rename from drivers/i2c/chips/mcu_mpc8349emitx.c
+rename to arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
+diff --git a/arch/powerpc/platforms/Kconfig b/arch/powerpc/platforms/Kconfig
+index 47fe2be..200b9cb 100644
+--- a/arch/powerpc/platforms/Kconfig
++++ b/arch/powerpc/platforms/Kconfig
+@@ -323,4 +323,15 @@ config SIMPLE_GPIO
+ 	  chip-selects, Ethernet/USB PHY's power and various other small
+ 	  on-board peripherals.
+ 
++config MCU_MPC8349EMITX
++	tristate "MPC8349E-mITX MCU driver"
++	depends on I2C && PPC_83xx
++	select GENERIC_GPIO
++	select ARCH_REQUIRE_GPIOLIB
++	help
++	  Say Y here to enable soft power-off functionality on the Freescale
++	  boards with the MPC8349E-mITX-compatible MCU chips. This driver will
++	  also register MCU GPIOs with the generic GPIO API, so you'll able
++	  to use MCU pins as GPIOs.
++
+ endmenu
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index 4c35702..d383e81 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -174,15 +174,4 @@ config MENELAUS
+ 	  and other features that are often used in portable devices like
+ 	  cell phones and PDAs.
+ 
+-config MCU_MPC8349EMITX
+-	tristate "MPC8349E-mITX MCU driver"
+-	depends on I2C && PPC_83xx
+-	select GENERIC_GPIO
+-	select ARCH_REQUIRE_GPIOLIB
+-	help
+-	  Say Y here to enable soft power-off functionality on the Freescale
+-	  boards with the MPC8349E-mITX-compatible MCU chips. This driver will
+-	  also register MCU GPIOs with the generic GPIO API, so you'll able
+-	  to use MCU pins as GPIOs.
+-
+ endmenu
+diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+index 23d2a31..7e769b0 100644
+--- a/drivers/i2c/chips/Makefile
++++ b/drivers/i2c/chips/Makefile
+@@ -22,7 +22,6 @@ obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_omap.o
+ obj-$(CONFIG_TPS65010)		+= tps65010.o
+ obj-$(CONFIG_MENELAUS)		+= menelaus.o
+ obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
+-obj-$(CONFIG_MCU_MPC8349EMITX)	+= mcu_mpc8349emitx.o
+ 
+ ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
+ EXTRA_CFLAGS += -DDEBUG
+-- 
+1.5.6.5
