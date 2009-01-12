@@ -1,72 +1,44 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH] i2c: Platform data is optional for i2c-imx
-Date: Mon, 12 Jan 2009 14:45:21 +0000
-Message-ID: <1231771521-3772-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <493CF201.8030406@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <493CF201.8030406-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] powerpc/83xx: Move mcu_mpc8349emitx driver out of
+	drivers/i2c/chips/
+Date: Mon, 12 Jan 2009 09:10:02 -0600
+Message-ID: <27159C32-9F05-4E21-98CE-0F157934D14B__18467.2330775813$1231773225$gmane$org@kernel.crashing.org>
+References: <20090111165136.GA26096@oksana.dev.rtsoft.ru>
+	<20090111181055.31611474@hyperion.delvare>
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"; DelSp="yes"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <20090111181055.31611474@hyperion.delvare>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i.MX i2c driver insists on platform data but all the fields may be
-omitted individually so remove the requirement for platform data.
 
-Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
+On Jan 11, 2009, at 11:10 AM, Jean Delvare wrote:
 
-This is an incremental patch against the (still out of tree) i.MX
-driver.  Is there anything that can be done to help with getting that
-mainlined?
+> Hi Anton,
+>
+> On Sun, 11 Jan 2009 19:51:36 +0300, Anton Vorontsov wrote:
+>> This patch is used to help Jean Delvare to get rid of drivers/i2c/ 
+>> chips/
+>> directory. The new location suggested by Kumar Gala: as the driver is
+>> 83xx specific it's placed into arch/powerpc/platforms/83xx/.
+>>
+>> Signed-off-by: Anton Vorontsov <avorontsov@ru.mvista.com>
+>
+> Thanks for doing this. Do you expect me to take this patch in my i2c
+> tree, or will it go in some powerpc tree?
 
- drivers/i2c/busses/i2c-imx.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
+I'll pick this up.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 3296380..2028ab8 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -457,12 +457,8 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	}
- 
- 	pdata = pdev->dev.platform_data;
--	if (!pdata) {
--		dev_err(&pdev->dev, "I2C driver needs platform data\n");
--		return -ENODEV;
--	}
- 
--	if (pdata->init) {
-+	if (pdata && pdata->init) {
- 		ret = pdata->init(&pdev->dev);
- 		if (ret)
- 			return ret;
-@@ -516,7 +512,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
- 
- 	/* Set up clock divider */
--	if (pdata->bitrate)
-+	if (pdata && pdata->bitrate)
- 		i2c_imx_set_clk(i2c_imx, pdata->bitrate);
- 	else
- 		i2c_imx_set_clk(i2c_imx, IMX_I2C_BIT_RATE);
-@@ -556,7 +552,7 @@ fail2:
- fail1:
- 	iounmap(base);
- fail0:
--	if (pdata->exit)
-+	if (pdata && pdata->exit)
- 		pdata->exit(&pdev->dev);
- 	return ret; /* Return error number */
- }
-@@ -581,7 +577,7 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
- 	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
- 
- 	/* Shut down hardware */
--	if (pdata->exit)
-+	if (pdata && pdata->exit)
- 		pdata->exit(&pdev->dev);
- 
- 	/* Disable I2C clock */
--- 
-1.5.6.5
+- k
