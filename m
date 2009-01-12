@@ -1,34 +1,40 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH] powerpc/83xx: Move mcu_mpc8349emitx driver out of  drivers/i2c/chips/
-Date: Mon, 12 Jan 2009 09:10:02 -0600
-Message-ID: <27159C32-9F05-4E21-98CE-0F157934D14B__28020.6373580315$1231773427$gmane$org@kernel.crashing.org>
-References: <20090111165136.GA26096@oksana.dev.rtsoft.ru> <20090111181055.31611474@hyperion.delvare>
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] iMX/MXC support for I2C
+Date: Mon, 12 Jan 2009 16:29:00 +0200
+Message-ID: <gkfnji$uo4$2@ger.gmane.org>
+References: <493CF201.8030406@gmail.com> <20081216213455.GC8032@fluff.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090111181055.31611474-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20081216213455.GC8032-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Ben Dooks wrote:
 
-On Jan 11, 2009, at 11:10 AM, Jean Delvare wrote:
+>> +static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+>> +							unsigned int rate)
+>> +{
+>> +	unsigned int i2c_clk_rate;
+>> +	unsigned int div;
+>> +	int i;
+>> +
+>> +	/* Divider value calculation */
+>> +	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+>> +	div = (i2c_clk_rate + rate - 1) / rate;
+>> +	if (div < i2c_clk_div[0][0])
+>> +		i = 0;
+>> +	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
+>> +		i = ARRAY_SIZE(i2c_clk_div) - 1;
+>> +	else
+>> +		for (i = 0; i2c_clk_div[i][0] < div; i++);
+> 
+> I'm not sure if I really like the use of
+> 'i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1]; a lot, I'll see if I
+> can think of anything better.
+> 
 
-> Hi Anton,
->
-> On Sun, 11 Jan 2009 19:51:36 +0300, Anton Vorontsov wrote:
->> This patch is used to help Jean Delvare to get rid of drivers/i2c/ 
->> chips/
->> directory. The new location suggested by Kumar Gala: as the driver is
->> 83xx specific it's placed into arch/powerpc/platforms/83xx/.
->>
->> Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
->
-> Thanks for doing this. Do you expect me to take this patch in my i2c
-> tree, or will it go in some powerpc tree?
-
-I'll pick this up.
-
-- k
+How about this? I think it's ok?
+I'd like to prepare ready version for adding to mainline.
