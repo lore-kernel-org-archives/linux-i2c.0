@@ -1,53 +1,43 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Warn on deprecated binding model use
-Date: Tue, 13 Jan 2009 14:40:44 +0100
-Message-ID: <20090113144044.5b6fb53a@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] powerpc/83xx: Move mcu_mpc8349emitx driver out of drivers/i2c/chips/
+Date: Tue, 13 Jan 2009 08:39:37 -0600
+Message-ID: <D5E479F3-2208-4803-BE83-F22F50247F21@kernel.crashing.org>
+References: <20090111165136.GA26096@oksana.dev.rtsoft.ru> <20090111165539.GA27223@oksana.dev.rtsoft.ru>
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090111165539.GA27223-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Let the kernel developers know that i2c_attach_client() and
-i2c_detach_client() are deprecated and should no longer be used.
-Drivers using these should be converted to the standard device
-driver binding model (probe and remove methods.)
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-This is only for linux-next for now, in the hope that it will speed up
-the conversion of the remaining legacy i2c drivers.
+On Jan 11, 2009, at 10:55 AM, Anton Vorontsov wrote:
 
- include/linux/i2c.h |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+> This patch is used to help Jean Delvare to get rid of drivers/i2c/ 
+> chips/
+> directory. The new location suggested by Kumar Gala: as the driver is
+> 83xx specific it's placed into arch/powerpc/platforms/83xx/.
+>
+> Signed-off-by: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+> ---
+>
+> The same patch but suitable for patch(1).
+>
+> arch/powerpc/platforms/83xx/Makefile           |    1 +
+> arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c |  209 +++++++++++++++ 
+> +++++++++
+> arch/powerpc/platforms/Kconfig                 |   11 ++
+> drivers/i2c/chips/Kconfig                      |   11 --
+> drivers/i2c/chips/Makefile                     |    1 -
+> drivers/i2c/chips/mcu_mpc8349emitx.c           |  209  
+> ------------------------
+> 6 files changed, 221 insertions(+), 221 deletions(-)
+> create mode 100644 arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
+> delete mode 100644 drivers/i2c/chips/mcu_mpc8349emitx.c
 
---- linux-2.6.29-rc1.orig/include/linux/i2c.h	2009-01-12 18:43:41.000000000 +0100
-+++ linux-2.6.29-rc1/include/linux/i2c.h	2009-01-13 14:37:27.000000000 +0100
-@@ -151,7 +151,7 @@ struct i2c_driver {
- 	 * has been dynamically allocated by the driver in the function above,
- 	 * it must be freed here.  (LEGACY I2C DRIVERS ONLY)
- 	 */
--	int (*detach_client)(struct i2c_client *);
-+	int (*detach_client)(struct i2c_client *) __deprecated;
- 
- 	/* Standard driver model interfaces, for "new style" i2c drivers.
- 	 * With the driver model, device enumeration is NEVER done by drivers;
-@@ -429,8 +429,10 @@ static inline int i2c_add_driver(struct
- 	return i2c_register_driver(THIS_MODULE, driver);
- }
- 
--extern int i2c_attach_client(struct i2c_client *);
--extern int i2c_detach_client(struct i2c_client *);
-+/* These are deprecated, your driver should use the standard .probe()
-+ * and .remove() methods instead. */
-+extern int __deprecated i2c_attach_client(struct i2c_client *);
-+extern int __deprecated i2c_detach_client(struct i2c_client *);
- 
- extern struct i2c_client *i2c_use_client(struct i2c_client *client);
- extern void i2c_release_client(struct i2c_client *client);
+applied
 
-
--- 
-Jean Delvare
+- k
