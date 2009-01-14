@@ -1,69 +1,105 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Moving at24 out of i2c/chips?
-Date: Thu, 15 Jan 2009 11:03:22 +0100
-Message-ID: <20090115100322.GA3148@pengutronix.de>
-References: <20090114193521.GB15315@pengutronix.de> <200901141211.20681.david-b@pacbell.net> <20090114214038.3d7fbf57@hyperion.delvare>
+From: Peter Korsgaard <peter.korsgaard@barco.com>
+Subject: Re: I2c-ocore linux driver debug
+Date: Wed, 14 Jan 2009 16:51:05 +0100
+Message-ID: <87zlhtrimu.fsf@thor.barco.com>
+References: <ce62e9d00901130200v19a57684u69ed8cfbd1085085@mail.gmail.com>
+Reply-To: Discussion list about free open source IP cores <cores@opencores.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090114214038.3d7fbf57-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <cores-bounces@opencores.org>
+In-Reply-To: <ce62e9d00901130200v19a57684u69ed8cfbd1085085@mail.gmail.com>
+	(Fabien Marteau's message of "Tue\, 13 Jan 2009 11\:00\:10 +0100")
+List-Unsubscribe: <http://www.opencores.org/mailman/listinfo/cores>,
+	<mailto:cores-request@opencores.org?subject=unsubscribe>
+List-Archive: <http://www.opencores.org/forums.cgi/cores>
+List-Post: <mailto:cores@opencores.org>
+List-Help: <mailto:cores-request@opencores.org?subject=help>
+List-Subscribe: <http://www.opencores.org/mailman/listinfo/cores>,
+	<mailto:cores-request@opencores.org?subject=subscribe>
+Sender: cores-bounces@opencores.org
+Errors-To: cores-bounces@opencores.org
+To: Discussion list about free open source IP cores <cores@opencores.org>, linux-i2c@vger.kernel.org, lepingouin.tux@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
+>>>>> "FM" == Fabien Marteau <lepingouin.tux@gmail.com> writes:
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Wed, Jan 14, 2009 at 09:40:38PM +0100, Jean Delvare wrote:
-> On Wed, 14 Jan 2009 12:11:20 -0800, David Brownell wrote:
-> > On Wednesday 14 January 2009, Wolfram Sang wrote:
-> > > as drivers/i2c/chips/ is going to go away, I wondered if Jean would be
-> > > interested in a patch moving it to drivers/misc/ (best location I cou=
-ld
-> > > come up with)? David, are you okay with that?
-> >=20
-> > That seems a reasonable place for it, if that directory is going
-> > away.  Might even be worth moving the at25 (SPI eeprom) driver
-> > there to keep it company, and adding an EEPROM section to Kconfig
-> > for that directory.  (There's some 93x6 support too.  Those are a
-> > flavor of SPI eeprom, but that driver doesn't use the SPI stack.)
->=20
-> Yes, makes sense to me. The old eeprom driver could go along as well.
-> Thanks for taking care of this!
+Discussions about the Linux i2c drivers belongs on the
+linux-i2c@vger.kernel.org list, let's move discussion there.
 
-Okay, sounds good. I am just a bit unsure how to proceed. I assume these
-changes have to go via gkh's tree. Can I just make a patch series which
-moves those drivers, post it to LKML (plus the other needed mailing
-lists) and wait for acked-bys to come in? Or is it better to post the
-series as [RFC] and collect acked-bys beforehand? Or shall I just move
-at24 to the new location and wait for the other eeprom-driver-authors to
-follow on their own?
+FM> I integrated the IP i2c ocore for my platform ARMadeus apf9328
+FM> (http://www.armadeus.com/wiki).  ARMadeus platform is an embedded
+FM> system with a processor i.MXL and a FPGA Spartan3.
 
-Kind regards,
+FM> The interface between the processor and FPGA is a 16bits data bus,
+FM> and it's wired to do only 16bits read/write. Thus, I had to write
+FM> a wrapper to convert 8bits ocore interface in 16bits
+FM> interface. This wrapper mutiplex data bus to keep data in low part
+FM> of the 16bits bus (see attachement) and add an ID register to
+FM> unsure driver that the component is configured correctly.
 
-   Wolfram
+FM> I had two problems with the driver:
+FM> * Registers addresses.
+FM> * To send stop command, driver have to set stop bit *before*
+FM> sending the last byte. In the driver, this stop bit is set at the
+FM> end of command, and that doesn't work.
 
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
+FM> I was really surprised of this bugs, because this IP is old and I
+FM> feel I am the only one that have these problems. Maybe the problem
+FM> come from wrapper but I don't know why.
 
---17pEHd4RhPHOinZp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+FM> I modified the driver to fix these bugs (see diff in attachment), and that
+FM> work well with two components (LIS3LV02DL accelerometer and DS28CZ04 EEPROM)
+FM> and testbench provided in attachment.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+FM> Addresses registers problem
+FM> ===========================
 
-iEYEARECAAYFAklvCeoACgkQD27XaX1/VRvzIgCfVfK6VTAukB9EGg4oxWNkUXd+
-kQ4Anj4J/48JqhV8OK0YUurd+dlHmp/R
-=Z2kM
------END PGP SIGNATURE-----
+FM> The original driver give these addresses:
+FM> /* registers */
+FM> #define OCI2C_PRELOW		0
+FM> #define OCI2C_PREHIGH		1
+FM> #define OCI2C_CONTROL		2
+FM> #define OCI2C_DATA		3
+FM> #define OCI2C_CMD		4 /* write only */
+FM> #define OCI2C_STATUS		4 /* read only, same address as OCI2C_CMD */
 
---17pEHd4RhPHOinZp--
+That fits the specs (i2c_specs.pdf, by Richard Herveille)
+
+FM> After lot of tests, I found that this addresses work better:
+FM> /* registers */
+FM> #define OCI2C_PRELOW		0
+FM> #define OCI2C_PREHIGH		1
+FM> #define OCI2C_CONTROL		2
+FM> #define OCI2C_CMD			4
+FM> #define OCI2C_DATA_TXR		5
+FM> #define OCI2C_STATUS		6
+FM> #define OCI2C_DATA_RXR		7
+
+Strange, seems like something went wrong in your wrapper.
+
+FM> Stop command
+FM> ============
+
+FM> The most important problem I had was the stop command. To send a command like
+FM> write quick SMBus (see Documentation/i2c/smbus-protocol) :
+
+FM> S Addr [Rd/Wr] P
+
+FM> The stop bit must be set at the same time that start bit. To do
+FM> that I modified
+FM> the xfer function:
+FM> 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+FM> by:
+FM> 	if(i2c->msg->len == 0)
+FM> 		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START|OCI2C_CMD_STOP);
+FM> 	else
+FM> 		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+
+It could be that we have a problem with zero length transfers (don't
+have access to any smbus devices) - Could you please send a proper
+patch in diff -urpN format?
+
+-- 
+Bye, Peter Korsgaard
