@@ -1,71 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Moving at24 out of i2c/chips?
-Date: Mon, 19 Jan 2009 17:18:05 +0100
-Message-ID: <20090119171805.21791f72@hyperion.delvare>
-References: <20090114193521.GB15315@pengutronix.de>
-	<200901141211.20681.david-b@pacbell.net>
-	<20090114214038.3d7fbf57@hyperion.delvare>
-	<20090115100322.GA3148@pengutronix.de>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: RFC: Working around dynamic device allocation in i2c.  Interaction
+ with other subystems.
+Date: Mon, 19 Jan 2009 19:18:39 +0000
+Message-ID: <4974D20F.20209@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090115100322.GA3148-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752703AbZASTSo@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Cc: eric miao <eric.y.miao@gmail.com>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Dear All,
 
-On Thu, 15 Jan 2009 11:03:22 +0100, Wolfram Sang wrote:
-> On Wed, Jan 14, 2009 at 09:40:38PM +0100, Jean Delvare wrote:
-> > On Wed, 14 Jan 2009 12:11:20 -0800, David Brownell wrote:
-> > > On Wednesday 14 January 2009, Wolfram Sang wrote:
-> > > > as drivers/i2c/chips/ is going to go away, I wondered if Jean would be
-> > > > interested in a patch moving it to drivers/misc/ (best location I could
-> > > > come up with)? David, are you okay with that?
-> > > 
-> > > That seems a reasonable place for it, if that directory is going
-> > > away.  Might even be worth moving the at25 (SPI eeprom) driver
-> > > there to keep it company, and adding an EEPROM section to Kconfig
-> > > for that directory.  (There's some 93x6 support too.  Those are a
-> > > flavor of SPI eeprom, but that driver doesn't use the SPI stack.)
-> > 
-> > Yes, makes sense to me. The old eeprom driver could go along as well.
-> > Thanks for taking care of this!
-> 
-> Okay, sounds good. I am just a bit unsure how to proceed. I assume these
-> changes have to go via gkh's tree.
+Within board configuration files, i2c devices are currently allocated using
+i2c_board_info structures.  The only element of these that retains it's
+memory address once the struct device elements are allocated (upon adapter
+initialization) is the platform data pointer.
 
-I don't think they have to. As far as I know there is no dedicated
-maintainer for the drivers/misc directory, so basically anyone can
-commit patches touching it. Patches moving drivers from
-drivers/i2c/chips to drivers/misc could as well go through my i2c tree.
+Several subsystems (regulator and clock for example) use an association
+method based upon a device specific string associated with a pointer to
+a device structure.  Unfortunately as things currently stand there is no
+means of obtaining a suitable device for i2c devices at the point when
+it is required (in the board config).
 
-> Can I just make a patch series which
-> moves those drivers, post it to LKML (plus the other needed mailing
-> lists) and wait for acked-bys to come in? Or is it better to post the
-> series as [RFC] and collect acked-bys beforehand? Or shall I just move
-> at24 to the new location and wait for the other eeprom-driver-authors to
-> follow on their own?
+So the question is, how to overcome this problem?
 
-I don't think we need any kind of acks for the at24 and eeprom drivers.
-Their case has already been discussed and apparently we all agree. You
-can post your patch moving these to LKML if you want, but that's really
-only to let people know what it happening, if they care. Or give them a
-chance to complain, but I really don't explain anyone to do that.
+Options that I can come up with are:
 
-So I think the most straightforward thing to do is for you to send a
-patch moving eeprom and at24 to drivers/misc to the linux-i2c list,
-where I will pick it and push it to Linus through my i2c tree. Probably
-too late for 2.6.29... or not, after all driver moves are better done
-outside of merge windows.
+1) Relax the constraints that the token used for device identification
+   in subsystems using the regulators approach to a void * and use
+   the platform data pointer of an i2c device.  Note this requires
+   every device which may need a regulator to have platform data.
+   Whilst this would work, it is far from ideal.
 
-Alternatively, if there are more eeprom drivers, having a
-drivers/misc/eeprom directory for them might make sense, or maybe even
-drivers/eeprom. Honestly, I don't really care, as long as
-drivers/i2c/chips gets smaller ;)
+2) Allow more static allocation of struct i2c_client.  The way of doing
+   this with minimal disruption would be to add a pointer to i2c_board_info
+   to a preallocated i2c_client structure and if this is supplied do not
+   allocate another.  A flag can then be used to indicated whether the
+   structure has been statically allocated or not (thus preventing it
+   being inadvertently freed.
 
--- 
-Jean Delvare
+3) Allow static allocation of i2c_client structures as a direct alternative
+   to having any i2c_board_info structures at all.  As the majority if not
+   all of i2c_board_info's elements are simply copied into the i2c_client
+   structure anyway, there is considerable overhead in option 2.  Clearly
+   it would not be simple or necessarily advisable to remove i2c_board_info
+   structures so I would propose providing an alternative set of registration
+   functions which would only be used when people cared about the problem
+   we are addressing here.
+
+What do people think? In particular can anyone come up with any other /
+better way round this issue. (or am I missing something?)
+In particular, are there any similar cases already in kernel that would
+suggest a particular approach to solving this issue?
+
+I have an implementation of option 2 that works fine and is relatively simple.
+
+Thanks,
+
+---
+Jonathan Cameron
