@@ -1,880 +1,127 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 3/4] Move at25-driver (for SPI eeproms) to the new directory /drivers/misc/eeprom
-Date: Tue, 20 Jan 2009 11:23:01 +0100
-Message-ID: <1232446982-7842-4-git-send-email-w.sang@pengutronix.de>
-References: <1232446982-7842-1-git-send-email-w.sang@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
+Date: Tue, 20 Jan 2009 11:43:04 +0100
+Message-ID: <20090120114304.3b956189@hyperion.delvare>
+References: <1231177261.13443.20.camel@localhost.localdomain>
+	<20090107142426.4be04d4d@hyperion.delvare>
+	<9ae48b020901070722l77bebc6boc8fa2fd0bcc8da28@mail.gmail.com>
+	<20090107162709.755982c0@hyperion.delvare>
+	<1232409577.25123.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1232446982-7842-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1232409577.25123.11.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, rt2400-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/misc/eeprom/Kconfig  |   11 ++
- drivers/misc/eeprom/Makefile |    1 +
- drivers/misc/eeprom/at25.c   |  389 ++++++++++++++++++++++++++++++++++++++++++
- drivers/spi/Kconfig          |   11 --
- drivers/spi/Makefile         |    1 -
- drivers/spi/at25.c           |  389 ------------------------------------------
- 6 files changed, 401 insertions(+), 401 deletions(-)
- create mode 100644 drivers/misc/eeprom/at25.c
- delete mode 100644 drivers/spi/at25.c
+Hi Ed,
 
-diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
-index 5a69ac8..0853a8b 100644
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -26,6 +26,17 @@ config AT24
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called at24.
- 
-+config SPI_AT25
-+	tristate "SPI EEPROMs from most vendors"
-+	depends on SYSFS
-+	help
-+	  Enable this driver to get read/write support to most SPI EEPROMs,
-+	  after you configure the board init code to know about each eeprom
-+	  on your target board.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called at25.
-+
- config SENSORS_EEPROM
- 	tristate "Old I2C EEPROM reader"
- 	depends on EXPERIMENTAL
-diff --git a/drivers/misc/eeprom/Makefile b/drivers/misc/eeprom/Makefile
-index a3dad28..a4fb5cf 100644
---- a/drivers/misc/eeprom/Makefile
-+++ b/drivers/misc/eeprom/Makefile
-@@ -1,2 +1,3 @@
- obj-$(CONFIG_AT24)		+= at24.o
-+obj-$(CONFIG_SPI_AT25)		+= at25.o
- obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
-diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-new file mode 100644
-index 0000000..290dbe9
---- /dev/null
-+++ b/drivers/misc/eeprom/at25.c
-@@ -0,0 +1,389 @@
-+/*
-+ * at25.c -- support most SPI EEPROMs, such as Atmel AT25 models
-+ *
-+ * Copyright (C) 2006 David Brownell
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/sched.h>
-+
-+#include <linux/spi/spi.h>
-+#include <linux/spi/eeprom.h>
-+
-+
-+/*
-+ * NOTE: this is an *EEPROM* driver.  The vagaries of product naming
-+ * mean that some AT25 products are EEPROMs, and others are FLASH.
-+ * Handle FLASH chips with the drivers/mtd/devices/m25p80.c driver,
-+ * not this one!
-+ */
-+
-+struct at25_data {
-+	struct spi_device	*spi;
-+	struct mutex		lock;
-+	struct spi_eeprom	chip;
-+	struct bin_attribute	bin;
-+	unsigned		addrlen;
-+};
-+
-+#define	AT25_WREN	0x06		/* latch the write enable */
-+#define	AT25_WRDI	0x04		/* reset the write enable */
-+#define	AT25_RDSR	0x05		/* read status register */
-+#define	AT25_WRSR	0x01		/* write status register */
-+#define	AT25_READ	0x03		/* read byte(s) */
-+#define	AT25_WRITE	0x02		/* write byte(s)/sector */
-+
-+#define	AT25_SR_nRDY	0x01		/* nRDY = write-in-progress */
-+#define	AT25_SR_WEN	0x02		/* write enable (latched) */
-+#define	AT25_SR_BP0	0x04		/* BP for software writeprotect */
-+#define	AT25_SR_BP1	0x08
-+#define	AT25_SR_WPEN	0x80		/* writeprotect enable */
-+
-+
-+#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
-+
-+/* Specs often allow 5 msec for a page write, sometimes 20 msec;
-+ * it's important to recover from write timeouts.
-+ */
-+#define	EE_TIMEOUT	25
-+
-+/*-------------------------------------------------------------------------*/
-+
-+#define	io_limit	PAGE_SIZE	/* bytes */
-+
-+static ssize_t
-+at25_ee_read(
-+	struct at25_data	*at25,
-+	char			*buf,
-+	unsigned		offset,
-+	size_t			count
-+)
-+{
-+	u8			command[EE_MAXADDRLEN + 1];
-+	u8			*cp;
-+	ssize_t			status;
-+	struct spi_transfer	t[2];
-+	struct spi_message	m;
-+
-+	cp = command;
-+	*cp++ = AT25_READ;
-+
-+	/* 8/16/24-bit address is written MSB first */
-+	switch (at25->addrlen) {
-+	default:	/* case 3 */
-+		*cp++ = offset >> 16;
-+	case 2:
-+		*cp++ = offset >> 8;
-+	case 1:
-+	case 0:	/* can't happen: for better codegen */
-+		*cp++ = offset >> 0;
-+	}
-+
-+	spi_message_init(&m);
-+	memset(t, 0, sizeof t);
-+
-+	t[0].tx_buf = command;
-+	t[0].len = at25->addrlen + 1;
-+	spi_message_add_tail(&t[0], &m);
-+
-+	t[1].rx_buf = buf;
-+	t[1].len = count;
-+	spi_message_add_tail(&t[1], &m);
-+
-+	mutex_lock(&at25->lock);
-+
-+	/* Read it all at once.
-+	 *
-+	 * REVISIT that's potentially a problem with large chips, if
-+	 * other devices on the bus need to be accessed regularly or
-+	 * this chip is clocked very slowly
-+	 */
-+	status = spi_sync(at25->spi, &m);
-+	dev_dbg(&at25->spi->dev,
-+		"read %Zd bytes at %d --> %d\n",
-+		count, offset, (int) status);
-+
-+	mutex_unlock(&at25->lock);
-+	return status ? status : count;
-+}
-+
-+static ssize_t
-+at25_bin_read(struct kobject *kobj, struct bin_attribute *bin_attr,
-+	      char *buf, loff_t off, size_t count)
-+{
-+	struct device		*dev;
-+	struct at25_data	*at25;
-+
-+	dev = container_of(kobj, struct device, kobj);
-+	at25 = dev_get_drvdata(dev);
-+
-+	if (unlikely(off >= at25->bin.size))
-+		return 0;
-+	if ((off + count) > at25->bin.size)
-+		count = at25->bin.size - off;
-+	if (unlikely(!count))
-+		return count;
-+
-+	return at25_ee_read(at25, buf, off, count);
-+}
-+
-+
-+static ssize_t
-+at25_ee_write(struct at25_data *at25, char *buf, loff_t off, size_t count)
-+{
-+	ssize_t			status = 0;
-+	unsigned		written = 0;
-+	unsigned		buf_size;
-+	u8			*bounce;
-+
-+	/* Temp buffer starts with command and address */
-+	buf_size = at25->chip.page_size;
-+	if (buf_size > io_limit)
-+		buf_size = io_limit;
-+	bounce = kmalloc(buf_size + at25->addrlen + 1, GFP_KERNEL);
-+	if (!bounce)
-+		return -ENOMEM;
-+
-+	/* For write, rollover is within the page ... so we write at
-+	 * most one page, then manually roll over to the next page.
-+	 */
-+	bounce[0] = AT25_WRITE;
-+	mutex_lock(&at25->lock);
-+	do {
-+		unsigned long	timeout, retries;
-+		unsigned	segment;
-+		unsigned	offset = (unsigned) off;
-+		u8		*cp = bounce + 1;
-+
-+		*cp = AT25_WREN;
-+		status = spi_write(at25->spi, cp, 1);
-+		if (status < 0) {
-+			dev_dbg(&at25->spi->dev, "WREN --> %d\n",
-+					(int) status);
-+			break;
-+		}
-+
-+		/* 8/16/24-bit address is written MSB first */
-+		switch (at25->addrlen) {
-+		default:	/* case 3 */
-+			*cp++ = offset >> 16;
-+		case 2:
-+			*cp++ = offset >> 8;
-+		case 1:
-+		case 0:	/* can't happen: for better codegen */
-+			*cp++ = offset >> 0;
-+		}
-+
-+		/* Write as much of a page as we can */
-+		segment = buf_size - (offset % buf_size);
-+		if (segment > count)
-+			segment = count;
-+		memcpy(cp, buf, segment);
-+		status = spi_write(at25->spi, bounce,
-+				segment + at25->addrlen + 1);
-+		dev_dbg(&at25->spi->dev,
-+				"write %u bytes at %u --> %d\n",
-+				segment, offset, (int) status);
-+		if (status < 0)
-+			break;
-+
-+		/* REVISIT this should detect (or prevent) failed writes
-+		 * to readonly sections of the EEPROM...
-+		 */
-+
-+		/* Wait for non-busy status */
-+		timeout = jiffies + msecs_to_jiffies(EE_TIMEOUT);
-+		retries = 0;
-+		do {
-+			int	sr;
-+
-+			sr = spi_w8r8(at25->spi, AT25_RDSR);
-+			if (sr < 0 || (sr & AT25_SR_nRDY)) {
-+				dev_dbg(&at25->spi->dev,
-+					"rdsr --> %d (%02x)\n", sr, sr);
-+				/* at HZ=100, this is sloooow */
-+				msleep(1);
-+				continue;
-+			}
-+			if (!(sr & AT25_SR_nRDY))
-+				break;
-+		} while (retries++ < 3 || time_before_eq(jiffies, timeout));
-+
-+		if (time_after(jiffies, timeout)) {
-+			dev_err(&at25->spi->dev,
-+				"write %d bytes offset %d, "
-+				"timeout after %u msecs\n",
-+				segment, offset,
-+				jiffies_to_msecs(jiffies -
-+					(timeout - EE_TIMEOUT)));
-+			status = -ETIMEDOUT;
-+			break;
-+		}
-+
-+		off += segment;
-+		buf += segment;
-+		count -= segment;
-+		written += segment;
-+
-+	} while (count > 0);
-+
-+	mutex_unlock(&at25->lock);
-+
-+	kfree(bounce);
-+	return written ? written : status;
-+}
-+
-+static ssize_t
-+at25_bin_write(struct kobject *kobj, struct bin_attribute *bin_attr,
-+	       char *buf, loff_t off, size_t count)
-+{
-+	struct device		*dev;
-+	struct at25_data	*at25;
-+
-+	dev = container_of(kobj, struct device, kobj);
-+	at25 = dev_get_drvdata(dev);
-+
-+	if (unlikely(off >= at25->bin.size))
-+		return -EFBIG;
-+	if ((off + count) > at25->bin.size)
-+		count = at25->bin.size - off;
-+	if (unlikely(!count))
-+		return count;
-+
-+	return at25_ee_write(at25, buf, off, count);
-+}
-+
-+/*-------------------------------------------------------------------------*/
-+
-+static int at25_probe(struct spi_device *spi)
-+{
-+	struct at25_data	*at25 = NULL;
-+	const struct spi_eeprom *chip;
-+	int			err;
-+	int			sr;
-+	int			addrlen;
-+
-+	/* Chip description */
-+	chip = spi->dev.platform_data;
-+	if (!chip) {
-+		dev_dbg(&spi->dev, "no chip description\n");
-+		err = -ENODEV;
-+		goto fail;
-+	}
-+
-+	/* For now we only support 8/16/24 bit addressing */
-+	if (chip->flags & EE_ADDR1)
-+		addrlen = 1;
-+	else if (chip->flags & EE_ADDR2)
-+		addrlen = 2;
-+	else if (chip->flags & EE_ADDR3)
-+		addrlen = 3;
-+	else {
-+		dev_dbg(&spi->dev, "unsupported address type\n");
-+		err = -EINVAL;
-+		goto fail;
-+	}
-+
-+	/* Ping the chip ... the status register is pretty portable,
-+	 * unlike probing manufacturer IDs.  We do expect that system
-+	 * firmware didn't write it in the past few milliseconds!
-+	 */
-+	sr = spi_w8r8(spi, AT25_RDSR);
-+	if (sr < 0 || sr & AT25_SR_nRDY) {
-+		dev_dbg(&spi->dev, "rdsr --> %d (%02x)\n", sr, sr);
-+		err = -ENXIO;
-+		goto fail;
-+	}
-+
-+	if (!(at25 = kzalloc(sizeof *at25, GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto fail;
-+	}
-+
-+	mutex_init(&at25->lock);
-+	at25->chip = *chip;
-+	at25->spi = spi_dev_get(spi);
-+	dev_set_drvdata(&spi->dev, at25);
-+	at25->addrlen = addrlen;
-+
-+	/* Export the EEPROM bytes through sysfs, since that's convenient.
-+	 * Default to root-only access to the data; EEPROMs often hold data
-+	 * that's sensitive for read and/or write, like ethernet addresses,
-+	 * security codes, board-specific manufacturing calibrations, etc.
-+	 */
-+	at25->bin.attr.name = "eeprom";
-+	at25->bin.attr.mode = S_IRUSR;
-+	at25->bin.read = at25_bin_read;
-+
-+	at25->bin.size = at25->chip.byte_len;
-+	if (!(chip->flags & EE_READONLY)) {
-+		at25->bin.write = at25_bin_write;
-+		at25->bin.attr.mode |= S_IWUSR;
-+	}
-+
-+	err = sysfs_create_bin_file(&spi->dev.kobj, &at25->bin);
-+	if (err)
-+		goto fail;
-+
-+	dev_info(&spi->dev, "%Zd %s %s eeprom%s, pagesize %u\n",
-+		(at25->bin.size < 1024)
-+			? at25->bin.size
-+			: (at25->bin.size / 1024),
-+		(at25->bin.size < 1024) ? "Byte" : "KByte",
-+		at25->chip.name,
-+		(chip->flags & EE_READONLY) ? " (readonly)" : "",
-+		at25->chip.page_size);
-+	return 0;
-+fail:
-+	dev_dbg(&spi->dev, "probe err %d\n", err);
-+	kfree(at25);
-+	return err;
-+}
-+
-+static int __devexit at25_remove(struct spi_device *spi)
-+{
-+	struct at25_data	*at25;
-+
-+	at25 = dev_get_drvdata(&spi->dev);
-+	sysfs_remove_bin_file(&spi->dev.kobj, &at25->bin);
-+	kfree(at25);
-+	return 0;
-+}
-+
-+/*-------------------------------------------------------------------------*/
-+
-+static struct spi_driver at25_driver = {
-+	.driver = {
-+		.name		= "at25",
-+		.owner		= THIS_MODULE,
-+	},
-+	.probe		= at25_probe,
-+	.remove		= __devexit_p(at25_remove),
-+};
-+
-+static int __init at25_init(void)
-+{
-+	return spi_register_driver(&at25_driver);
-+}
-+module_init(at25_init);
-+
-+static void __exit at25_exit(void)
-+{
-+	spi_unregister_driver(&at25_driver);
-+}
-+module_exit(at25_exit);
-+
-+MODULE_DESCRIPTION("Driver for most SPI EEPROMs");
-+MODULE_AUTHOR("David Brownell");
-+MODULE_LICENSE("GPL");
-+
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index 4a6fe01..83a185d 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -230,17 +230,6 @@ config SPI_XILINX
- #
- comment "SPI Protocol Masters"
- 
--config SPI_AT25
--	tristate "SPI EEPROMs from most vendors"
--	depends on SYSFS
--	help
--	  Enable this driver to get read/write support to most SPI EEPROMs,
--	  after you configure the board init code to know about each eeprom
--	  on your target board.
--
--	  This driver can also be built as a module.  If so, the module
--	  will be called at25.
--
- config SPI_SPIDEV
- 	tristate "User mode SPI device driver support"
- 	depends on EXPERIMENTAL
-diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
-index 5e9f521..5d04519 100644
---- a/drivers/spi/Makefile
-+++ b/drivers/spi/Makefile
-@@ -33,7 +33,6 @@ obj-$(CONFIG_SPI_SH_SCI)		+= spi_sh_sci.o
- # 	... add above this line ...
- 
- # SPI protocol drivers (device/link on bus)
--obj-$(CONFIG_SPI_AT25)		+= at25.o
- obj-$(CONFIG_SPI_SPIDEV)	+= spidev.o
- obj-$(CONFIG_SPI_TLE62X0)	+= tle62x0.o
- # 	... add above this line ...
-diff --git a/drivers/spi/at25.c b/drivers/spi/at25.c
-deleted file mode 100644
-index 290dbe9..0000000
---- a/drivers/spi/at25.c
-+++ /dev/null
-@@ -1,389 +0,0 @@
--/*
-- * at25.c -- support most SPI EEPROMs, such as Atmel AT25 models
-- *
-- * Copyright (C) 2006 David Brownell
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
--
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/delay.h>
--#include <linux/device.h>
--#include <linux/sched.h>
--
--#include <linux/spi/spi.h>
--#include <linux/spi/eeprom.h>
--
--
--/*
-- * NOTE: this is an *EEPROM* driver.  The vagaries of product naming
-- * mean that some AT25 products are EEPROMs, and others are FLASH.
-- * Handle FLASH chips with the drivers/mtd/devices/m25p80.c driver,
-- * not this one!
-- */
--
--struct at25_data {
--	struct spi_device	*spi;
--	struct mutex		lock;
--	struct spi_eeprom	chip;
--	struct bin_attribute	bin;
--	unsigned		addrlen;
--};
--
--#define	AT25_WREN	0x06		/* latch the write enable */
--#define	AT25_WRDI	0x04		/* reset the write enable */
--#define	AT25_RDSR	0x05		/* read status register */
--#define	AT25_WRSR	0x01		/* write status register */
--#define	AT25_READ	0x03		/* read byte(s) */
--#define	AT25_WRITE	0x02		/* write byte(s)/sector */
--
--#define	AT25_SR_nRDY	0x01		/* nRDY = write-in-progress */
--#define	AT25_SR_WEN	0x02		/* write enable (latched) */
--#define	AT25_SR_BP0	0x04		/* BP for software writeprotect */
--#define	AT25_SR_BP1	0x08
--#define	AT25_SR_WPEN	0x80		/* writeprotect enable */
--
--
--#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
--
--/* Specs often allow 5 msec for a page write, sometimes 20 msec;
-- * it's important to recover from write timeouts.
-- */
--#define	EE_TIMEOUT	25
--
--/*-------------------------------------------------------------------------*/
--
--#define	io_limit	PAGE_SIZE	/* bytes */
--
--static ssize_t
--at25_ee_read(
--	struct at25_data	*at25,
--	char			*buf,
--	unsigned		offset,
--	size_t			count
--)
--{
--	u8			command[EE_MAXADDRLEN + 1];
--	u8			*cp;
--	ssize_t			status;
--	struct spi_transfer	t[2];
--	struct spi_message	m;
--
--	cp = command;
--	*cp++ = AT25_READ;
--
--	/* 8/16/24-bit address is written MSB first */
--	switch (at25->addrlen) {
--	default:	/* case 3 */
--		*cp++ = offset >> 16;
--	case 2:
--		*cp++ = offset >> 8;
--	case 1:
--	case 0:	/* can't happen: for better codegen */
--		*cp++ = offset >> 0;
--	}
--
--	spi_message_init(&m);
--	memset(t, 0, sizeof t);
--
--	t[0].tx_buf = command;
--	t[0].len = at25->addrlen + 1;
--	spi_message_add_tail(&t[0], &m);
--
--	t[1].rx_buf = buf;
--	t[1].len = count;
--	spi_message_add_tail(&t[1], &m);
--
--	mutex_lock(&at25->lock);
--
--	/* Read it all at once.
--	 *
--	 * REVISIT that's potentially a problem with large chips, if
--	 * other devices on the bus need to be accessed regularly or
--	 * this chip is clocked very slowly
--	 */
--	status = spi_sync(at25->spi, &m);
--	dev_dbg(&at25->spi->dev,
--		"read %Zd bytes at %d --> %d\n",
--		count, offset, (int) status);
--
--	mutex_unlock(&at25->lock);
--	return status ? status : count;
--}
--
--static ssize_t
--at25_bin_read(struct kobject *kobj, struct bin_attribute *bin_attr,
--	      char *buf, loff_t off, size_t count)
--{
--	struct device		*dev;
--	struct at25_data	*at25;
--
--	dev = container_of(kobj, struct device, kobj);
--	at25 = dev_get_drvdata(dev);
--
--	if (unlikely(off >= at25->bin.size))
--		return 0;
--	if ((off + count) > at25->bin.size)
--		count = at25->bin.size - off;
--	if (unlikely(!count))
--		return count;
--
--	return at25_ee_read(at25, buf, off, count);
--}
--
--
--static ssize_t
--at25_ee_write(struct at25_data *at25, char *buf, loff_t off, size_t count)
--{
--	ssize_t			status = 0;
--	unsigned		written = 0;
--	unsigned		buf_size;
--	u8			*bounce;
--
--	/* Temp buffer starts with command and address */
--	buf_size = at25->chip.page_size;
--	if (buf_size > io_limit)
--		buf_size = io_limit;
--	bounce = kmalloc(buf_size + at25->addrlen + 1, GFP_KERNEL);
--	if (!bounce)
--		return -ENOMEM;
--
--	/* For write, rollover is within the page ... so we write at
--	 * most one page, then manually roll over to the next page.
--	 */
--	bounce[0] = AT25_WRITE;
--	mutex_lock(&at25->lock);
--	do {
--		unsigned long	timeout, retries;
--		unsigned	segment;
--		unsigned	offset = (unsigned) off;
--		u8		*cp = bounce + 1;
--
--		*cp = AT25_WREN;
--		status = spi_write(at25->spi, cp, 1);
--		if (status < 0) {
--			dev_dbg(&at25->spi->dev, "WREN --> %d\n",
--					(int) status);
--			break;
--		}
--
--		/* 8/16/24-bit address is written MSB first */
--		switch (at25->addrlen) {
--		default:	/* case 3 */
--			*cp++ = offset >> 16;
--		case 2:
--			*cp++ = offset >> 8;
--		case 1:
--		case 0:	/* can't happen: for better codegen */
--			*cp++ = offset >> 0;
--		}
--
--		/* Write as much of a page as we can */
--		segment = buf_size - (offset % buf_size);
--		if (segment > count)
--			segment = count;
--		memcpy(cp, buf, segment);
--		status = spi_write(at25->spi, bounce,
--				segment + at25->addrlen + 1);
--		dev_dbg(&at25->spi->dev,
--				"write %u bytes at %u --> %d\n",
--				segment, offset, (int) status);
--		if (status < 0)
--			break;
--
--		/* REVISIT this should detect (or prevent) failed writes
--		 * to readonly sections of the EEPROM...
--		 */
--
--		/* Wait for non-busy status */
--		timeout = jiffies + msecs_to_jiffies(EE_TIMEOUT);
--		retries = 0;
--		do {
--			int	sr;
--
--			sr = spi_w8r8(at25->spi, AT25_RDSR);
--			if (sr < 0 || (sr & AT25_SR_nRDY)) {
--				dev_dbg(&at25->spi->dev,
--					"rdsr --> %d (%02x)\n", sr, sr);
--				/* at HZ=100, this is sloooow */
--				msleep(1);
--				continue;
--			}
--			if (!(sr & AT25_SR_nRDY))
--				break;
--		} while (retries++ < 3 || time_before_eq(jiffies, timeout));
--
--		if (time_after(jiffies, timeout)) {
--			dev_err(&at25->spi->dev,
--				"write %d bytes offset %d, "
--				"timeout after %u msecs\n",
--				segment, offset,
--				jiffies_to_msecs(jiffies -
--					(timeout - EE_TIMEOUT)));
--			status = -ETIMEDOUT;
--			break;
--		}
--
--		off += segment;
--		buf += segment;
--		count -= segment;
--		written += segment;
--
--	} while (count > 0);
--
--	mutex_unlock(&at25->lock);
--
--	kfree(bounce);
--	return written ? written : status;
--}
--
--static ssize_t
--at25_bin_write(struct kobject *kobj, struct bin_attribute *bin_attr,
--	       char *buf, loff_t off, size_t count)
--{
--	struct device		*dev;
--	struct at25_data	*at25;
--
--	dev = container_of(kobj, struct device, kobj);
--	at25 = dev_get_drvdata(dev);
--
--	if (unlikely(off >= at25->bin.size))
--		return -EFBIG;
--	if ((off + count) > at25->bin.size)
--		count = at25->bin.size - off;
--	if (unlikely(!count))
--		return count;
--
--	return at25_ee_write(at25, buf, off, count);
--}
--
--/*-------------------------------------------------------------------------*/
--
--static int at25_probe(struct spi_device *spi)
--{
--	struct at25_data	*at25 = NULL;
--	const struct spi_eeprom *chip;
--	int			err;
--	int			sr;
--	int			addrlen;
--
--	/* Chip description */
--	chip = spi->dev.platform_data;
--	if (!chip) {
--		dev_dbg(&spi->dev, "no chip description\n");
--		err = -ENODEV;
--		goto fail;
--	}
--
--	/* For now we only support 8/16/24 bit addressing */
--	if (chip->flags & EE_ADDR1)
--		addrlen = 1;
--	else if (chip->flags & EE_ADDR2)
--		addrlen = 2;
--	else if (chip->flags & EE_ADDR3)
--		addrlen = 3;
--	else {
--		dev_dbg(&spi->dev, "unsupported address type\n");
--		err = -EINVAL;
--		goto fail;
--	}
--
--	/* Ping the chip ... the status register is pretty portable,
--	 * unlike probing manufacturer IDs.  We do expect that system
--	 * firmware didn't write it in the past few milliseconds!
--	 */
--	sr = spi_w8r8(spi, AT25_RDSR);
--	if (sr < 0 || sr & AT25_SR_nRDY) {
--		dev_dbg(&spi->dev, "rdsr --> %d (%02x)\n", sr, sr);
--		err = -ENXIO;
--		goto fail;
--	}
--
--	if (!(at25 = kzalloc(sizeof *at25, GFP_KERNEL))) {
--		err = -ENOMEM;
--		goto fail;
--	}
--
--	mutex_init(&at25->lock);
--	at25->chip = *chip;
--	at25->spi = spi_dev_get(spi);
--	dev_set_drvdata(&spi->dev, at25);
--	at25->addrlen = addrlen;
--
--	/* Export the EEPROM bytes through sysfs, since that's convenient.
--	 * Default to root-only access to the data; EEPROMs often hold data
--	 * that's sensitive for read and/or write, like ethernet addresses,
--	 * security codes, board-specific manufacturing calibrations, etc.
--	 */
--	at25->bin.attr.name = "eeprom";
--	at25->bin.attr.mode = S_IRUSR;
--	at25->bin.read = at25_bin_read;
--
--	at25->bin.size = at25->chip.byte_len;
--	if (!(chip->flags & EE_READONLY)) {
--		at25->bin.write = at25_bin_write;
--		at25->bin.attr.mode |= S_IWUSR;
--	}
--
--	err = sysfs_create_bin_file(&spi->dev.kobj, &at25->bin);
--	if (err)
--		goto fail;
--
--	dev_info(&spi->dev, "%Zd %s %s eeprom%s, pagesize %u\n",
--		(at25->bin.size < 1024)
--			? at25->bin.size
--			: (at25->bin.size / 1024),
--		(at25->bin.size < 1024) ? "Byte" : "KByte",
--		at25->chip.name,
--		(chip->flags & EE_READONLY) ? " (readonly)" : "",
--		at25->chip.page_size);
--	return 0;
--fail:
--	dev_dbg(&spi->dev, "probe err %d\n", err);
--	kfree(at25);
--	return err;
--}
--
--static int __devexit at25_remove(struct spi_device *spi)
--{
--	struct at25_data	*at25;
--
--	at25 = dev_get_drvdata(&spi->dev);
--	sysfs_remove_bin_file(&spi->dev.kobj, &at25->bin);
--	kfree(at25);
--	return 0;
--}
--
--/*-------------------------------------------------------------------------*/
--
--static struct spi_driver at25_driver = {
--	.driver = {
--		.name		= "at25",
--		.owner		= THIS_MODULE,
--	},
--	.probe		= at25_probe,
--	.remove		= __devexit_p(at25_remove),
--};
--
--static int __init at25_init(void)
--{
--	return spi_register_driver(&at25_driver);
--}
--module_init(at25_init);
--
--static void __exit at25_exit(void)
--{
--	spi_unregister_driver(&at25_driver);
--}
--module_exit(at25_exit);
--
--MODULE_DESCRIPTION("Driver for most SPI EEPROMs");
--MODULE_AUTHOR("David Brownell");
--MODULE_LICENSE("GPL");
--
+On Mon, 19 Jan 2009 15:59:37 -0800, Ed Swierk wrote:
+> Here is an updated patch for rtc-ds1307 that allows the driver to work
+> with SMBus controllers like nforce2 that do not support i2c block
+> transfers.  The driver now checks the capabilities of the controller and
+> emulates the block transfers with SMBus byte transfers only if
+> necessary.
+> 
+> Signed-off-by: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+
+Patch looks reasonable, with just minor objections:
+
+> Index: linux-2.6.27.4/drivers/rtc/rtc-ds1307.c
+> ===================================================================
+> --- linux-2.6.27.4.orig/drivers/rtc/rtc-ds1307.c
+> +++ linux-2.6.27.4/drivers/rtc/rtc-ds1307.c
+> @@ -94,6 +94,10 @@ struct ds1307 {
+>  	struct i2c_client	*client;
+>  	struct rtc_device	*rtc;
+>  	struct work_struct	work;
+> +	s32 (*read_block_data)(struct i2c_client *client, u8 command,
+> +			       u8 length, u8 *values);
+> +	s32 (*write_block_data)(struct i2c_client *client, u8 command,
+> +				u8 length, const u8 *values);
+>  };
+>  
+>  struct chip_desc {
+> @@ -132,6 +136,61 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+>  
+>  /*----------------------------------------------------------------------*/
+>  
+> +static s32 ds1307_read_block_data_once(struct i2c_client *client, u8 command,
+> +				  u8 length, u8 *values)
+> +{
+> +	s32 i, data;
+> +	for (i = 0; i < length; i++) {
+> +		data = i2c_smbus_read_byte_data(client, command + i);
+> +		if (data < 0)
+> +			return data;
+> +		*(values + i) = data;
+> +	}
+> +	return i;
+> +}
+> +
+> +static s32 ds1307_read_block_data(struct i2c_client *client, u8 command,
+> +				  u8 length, u8 *values)
+> +{
+> +	u8 oldvalues[I2C_SMBUS_BLOCK_MAX];
+> +	s32 ret;
+> +	pr_debug("ds1307_read_block_data (length=%d)\n", length);
+
+Please use dev_dbg(&client->dev, ...).
+
+> +	ret = ds1307_read_block_data_once(client, command, length, values);
+> +	if (ret < 0)
+> +		return ret;
+> +	do {
+> +		s32 ret;
+
+Redeclaring a variable that already exists?
+
+> +		memcpy(oldvalues, values, length);
+> +		ret = ds1307_read_block_data_once(client, command, length, values);
+> +		if (ret < 0)
+> +			return ret;
+> +	} while (memcmp(oldvalues, values, length));
+
+What guarantee do you have that you'll ever leave this loop?
+
+> +	return length;
+> +}
+> +
+> +static s32 ds1307_write_block_data(struct i2c_client *client, u8 command,
+> +				   u8 length, const u8 *values)
+> +{
+> +	u8 currvalues[I2C_SMBUS_BLOCK_MAX];
+> +	pr_debug("ds1307_write_block_data (length=%d)\n", length);
+
+dev_dbg
+
+> +	do {
+> +		s32 i, ret;
+> +		for (i = 0; i < length; i++) {
+> +			ret = i2c_smbus_write_byte_data(client, command + i,
+> +							*(values + i));
+> +			if (ret < 0)
+> +				return ret;
+> +		}
+> +		ret = ds1307_read_block_data_once(client, command, length,
+> +						  currvalues);
+> +		if (ret < 0)
+> +			return ret;
+> +	} while (memcmp(currvalues, values, length));
+
+Same question as above, what if you get stuck in the loop?
+
+> +	return length;
+> +}
+> +
+> +/*----------------------------------------------------------------------*/
+> +
+>  /*
+
+All the rest is fine.
+
 -- 
-1.5.6.5
+Jean Delvare
