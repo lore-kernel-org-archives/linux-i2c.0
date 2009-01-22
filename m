@@ -1,99 +1,78 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-nforce2: Add support for MCP67, MCP73 and MCP79
-Date: Thu, 22 Jan 2009 10:19:01 +0100
-Message-ID: <20090122101901.1348a734@hyperion.delvare>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: RFC: Working around dynamic device allocation in i2c.  Interaction
+ with other subystems.
+Date: Thu, 22 Jan 2009 12:55:02 +0000
+Message-ID: <49786CA6.8010303@cam.ac.uk>
+References: <4974D20F.20209@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4974D20F.20209-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Oleg Ryjkov <olegr-9In5xhLTQnA@public.gmane.org>, Malcolm Lalkaka <mlalkaka-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The MCP79 appears to be compatible with the previous nForce chips as
-far as the SMBus controller is concerned. The MCP67 and MCP73 were not
-tested yet but I'd be very surprised if they weren't compatible too.
+Added spi mailing list (+ likely interested people) as the same approach
+is used for device registration as with i2c. 
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Oleg Ryjkov <olegr-9In5xhLTQnA@public.gmane.org>
-Cc: Malcolm Lalkaka <mlalkaka-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-Testers welcome, of course.
-
- Documentation/i2c/busses/i2c-nforce2 |   11 +++++++----
- drivers/i2c/busses/i2c-nforce2.c     |   10 ++++++++--
- include/linux/pci_ids.h              |    3 +++
- 3 files changed, 18 insertions(+), 6 deletions(-)
-
---- linux-2.6.29-rc2.orig/Documentation/i2c/busses/i2c-nforce2	2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.29-rc2/Documentation/i2c/busses/i2c-nforce2	2009-01-22 09:47:20.000000000 +0100
-@@ -7,10 +7,13 @@ Supported adapters:
-   * nForce3 250Gb MCP          10de:00E4 
-   * nForce4 MCP                10de:0052
-   * nForce4 MCP-04             10de:0034
--  * nForce4 MCP51              10de:0264
--  * nForce4 MCP55              10de:0368
--  * nForce4 MCP61              10de:03EB
--  * nForce4 MCP65              10de:0446
-+  * nForce MCP51               10de:0264
-+  * nForce MCP55               10de:0368
-+  * nForce MCP61               10de:03EB
-+  * nForce MCP65               10de:0446
-+  * nForce MCP67               10de:0542
-+  * nForce MCP73               10de:07D8
-+  * nForce MCP79               10de:0AA2
- 
- Datasheet: not publicly available, but seems to be similar to the
-            AMD-8111 SMBus 2.0 adapter.
---- linux-2.6.29-rc2.orig/drivers/i2c/busses/i2c-nforce2.c	2009-01-21 11:29:51.000000000 +0100
-+++ linux-2.6.29-rc2/drivers/i2c/busses/i2c-nforce2.c	2009-01-22 09:53:54.000000000 +0100
-@@ -31,10 +31,13 @@
-     nForce3 250Gb MCP		00E4
-     nForce4 MCP			0052
-     nForce4 MCP-04		0034
--    nForce4 MCP51		0264
--    nForce4 MCP55		0368
-+    nForce MCP51		0264
-+    nForce MCP55		0368
-     nForce MCP61		03EB
-     nForce MCP65		0446
-+    nForce MCP67		0542
-+    nForce MCP73		07D8
-+    nForce MCP79		0AA2
- 
-     This driver supports the 2 SMBuses that are included in the MCP of the
-     nForce2/3/4/5xx chipsets.
-@@ -315,6 +318,9 @@ static struct pci_device_id nforce2_ids[
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP65_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP73_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP79_SMBUS) },
- 	{ 0 }
- };
- 
---- linux-2.6.29-rc2.orig/include/linux/pci_ids.h	2009-01-17 09:06:21.000000000 +0100
-+++ linux-2.6.29-rc2/include/linux/pci_ids.h	2009-01-22 09:52:15.000000000 +0100
-@@ -1235,6 +1235,7 @@
- #define PCI_DEVICE_ID_NVIDIA_NVENET_21              0x0451
- #define PCI_DEVICE_ID_NVIDIA_NVENET_22              0x0452
- #define PCI_DEVICE_ID_NVIDIA_NVENET_23              0x0453
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP67_SMBUS     0x0542
- #define PCI_DEVICE_ID_NVIDIA_NVENET_24              0x054C
- #define PCI_DEVICE_ID_NVIDIA_NVENET_25              0x054D
- #define PCI_DEVICE_ID_NVIDIA_NVENET_26              0x054E
-@@ -1250,6 +1251,8 @@
- #define PCI_DEVICE_ID_NVIDIA_NVENET_33              0x0761
- #define PCI_DEVICE_ID_NVIDIA_NVENET_34              0x0762
- #define PCI_DEVICE_ID_NVIDIA_NVENET_35              0x0763
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP73_SMBUS     0x07D8
-+#define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP79_SMBUS     0x0AA2
- #define PCI_DEVICE_ID_NVIDIA_NVENET_36              0x0AB0
- #define PCI_DEVICE_ID_NVIDIA_NVENET_37              0x0AB1
- #define PCI_DEVICE_ID_NVIDIA_NVENET_38              0x0AB2
-
-
--- 
-Jean Delvare
+> Dear All,
+> 
+> Within board configuration files, i2c devices are currently allocated using
+> i2c_board_info structures.  The only element of these that retains it's
+> memory address once the struct device elements are allocated (upon adapter
+> initialization) is the platform data pointer.
+> 
+> Several subsystems (regulator and clock for example) use an association
+> method based upon a device specific string associated with a pointer to
+> a device structure.  Unfortunately as things currently stand there is no
+> means of obtaining a suitable device for i2c devices at the point when
+> it is required (in the board config).
+> 
+> So the question is, how to overcome this problem?
+> 
+> Options that I can come up with are:
+> 
+> 1) Relax the constraints that the token used for device identification
+>    in subsystems using the regulators approach to a void * and use
+>    the platform data pointer of an i2c device.  Note this requires
+>    every device which may need a regulator to have platform data.
+>    Whilst this would work, it is far from ideal.
+As Mark Brown pointed out:
+This would also remove the ability of the APIs using this to use the
+struct device for other things like showing what they're doing in sysfs
+or use dev_printk.
+> 
+> 2) Allow more static allocation of struct i2c_client.  The way of doing
+>    this with minimal disruption would be to add a pointer to i2c_board_info
+>    to a preallocated i2c_client structure and if this is supplied do not
+>    allocate another.  A flag can then be used to indicated whether the
+>    structure has been statically allocated or not (thus preventing it
+>    being inadvertently freed.
+> 
+> 3) Allow static allocation of i2c_client structures as a direct alternative
+>    to having any i2c_board_info structures at all.  As the majority if not
+>    all of i2c_board_info's elements are simply copied into the i2c_client
+>    structure anyway, there is considerable overhead in option 2.  Clearly
+>    it would not be simple or necessarily advisable to remove i2c_board_info
+>    structures so I would propose providing an alternative set of registration
+>    functions which would only be used when people cared about the problem
+>    we are addressing here.
+> 
+> What do people think? In particular can anyone come up with any other /
+> better way round this issue. (or am I missing something?)
+> In particular, are there any similar cases already in kernel that would
+> suggest a particular approach to solving this issue?
+> 
+> I have an implementation of option 2 that works fine and is relatively simple.
+> 
+> Thanks,
+> 
+> ---
+> Jonathan Cameron
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
