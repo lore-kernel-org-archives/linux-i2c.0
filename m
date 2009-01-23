@@ -1,23 +1,42 @@
-From: "Pakaravoor, Jagadeesh" <j-pakaravoor@ti.com>
-Subject: [PATCH] I2C: OMAP: Include OMAP_I2C_SYSC_REG in save and restore
-Date: Fri, 23 Jan 2009 12:24:45 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF069@dbde02.ent.ti.com>
+From: "Pakaravoor, Jagadeesh" <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH] I2C: OMAP: Include OMAP_I2C_SYSC_REG in save and restore
+Date: Fri, 23 Jan 2009 12:51:23 +0530
+Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF0A6@dbde02.ent.ti.com>
+References: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF069@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF069-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: Jean Delvare <khali@linux-fr.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+Sorry. I forgot to mention that this patch does not apply on mainline. It is meant for Linux Omap tree only.
+
+Please review/ACK the patch, if you have time.
+
+Thank you.
+
+--
+Jagadeesh
+
+
+-----Original Message-----
+From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Pakaravoor, Jagadeesh
+Sent: Friday, January 23, 2009 12:25 PM
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare
+Subject: [PATCH] I2C: OMAP: Include OMAP_I2C_SYSC_REG in save and restore
+
+From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
 
 Save and restore should include OMAP_I2C_SYSC_REG.
 
-Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
-CC: Jouni Hogander <jouni.hogander@nokia.com>
+Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+CC: Jouni Hogander <jouni.hogander-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
 Index: linux-omap-2.6/drivers/i2c/busses/i2c-omap.c
 ===================================================================
@@ -70,3 +89,7 @@ Some men see things as they are and say why - I dream things that never were and
 - George Bernard Shaw
 ----------------------------
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
