@@ -1,56 +1,66 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Implementing a new driver
-Date: Fri, 23 Jan 2009 21:25:06 +0100
-Message-ID: <20090123212506.7997e4ee@hyperion.delvare>
-References: <49798DAD.1070100@manoweb.com>
-	<20090123103909.281770dd@hyperion.delvare>
-	<4979FEF2.1090006@manoweb.com>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Dynamically-allocated i2c_device_id vs MODULE_DEVICE_TABLE
+Date: Fri, 23 Jan 2009 15:03:19 -0600
+Message-ID: <497A3097.1030808@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4979FEF2.1090006-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alessio Sangalli <alesan-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alessio,
+I currently have this in my code:
 
-On Fri, 23 Jan 2009 09:31:30 -0800, Alessio Sangalli wrote:
-> Jean Delvare wrote:
-> 
-> > As a quick starting point I recommend this FAQ item:
-> > http://i2c.wiki.kernel.org/index.php/Linux_2.6_I2C_development_FAQ#New_I2C_bus_drivers
-> 
-> Thanks, this will be useful to get started; anyway, it implies a
-> knowledge of what is a "bus driver" or a "chip driver". I've read other
-> articles but I'm still a bit confused. Could you give me a very very
-> quick description of all kind of i2c-related drivers?
+static const struct i2c_device_id cs4270_id[] = {
+	{"cs4270", 0},
+	{}
+};
+MODULE_DEVICE_TABLE(i2c, cs4270_id);
 
-Basically, the bus drivers give you access to the I2C bus, while the
-chip drivers are specific to devices which are connected to the bus.
-This is essentially similar to USB, where you need a driver for the
-host controller, and then a driver for devices connected to the USB
-ports.
+static struct i2c_driver cs4270_i2c_driver = {
+	.driver = {
+		.name = "cs4270",
+		.owner = THIS_MODULE,
+	},
+	.id_table = cs4270_id,
+	.probe = cs4270_i2c_probe,
+	.remove = cs4270_i2c_remove,
+};
 
-You may want to read this page on the wiki:
-http://i2c.wiki.kernel.org/index.php/Driver_Architecture
-and the document linked at the bottom of the page.
+ret = i2c_add_driver(&cs4270_i2c_driver);
 
-Examples of I2C bus drivers can be found under drivers/i2c/busses.
-Examples of I2C chip drivers can be found under drivers/rtc (for RTC
-chips), drivers/hwmon (for hardware monitoring chips) or drivers/gpio
-(for I/O expanders.)
+I would like to use the i2c_device_id.driver_data variable to pass private data
+to my cs4270_i2c_probe() function.  So it will look like this:
 
-> What is the preferred way to actually test the driver, I am quite
-> comfortable with a solder iron if I have to connect a simple device to
-> try a connection
+	socdev = kmalloc(...);
+	c24270_id.driver_data = socdev;
+	i2c_add_driver(&cs4270_i2c_driver);
 
-If you have an AT24C02 EEPROM at hand or similar, you'll be able to
-test most of the transaction types. But actually, any I2C or SMBus chip
-you can connect to the bus should be good enough to test the basics of
-your i2c bus driver.
+And then in my cs4270_i2c_probe(), I would do this:
+
+static int cs4270_i2c_probe(struct i2c_client *i2c_client,
+	const struct i2c_device_id *id)
+{
+	struct X *socdev = (struct X *) id->driver_data.
+
+The problem I'm having is the MODULE_DEVICE_TABLE.  What I really should be
+doing is this:
+
+	socdev = kmalloc(...);
+	struct i2c_driver *cs4270_i2c_driver = kmalloc(...);
+	struct i2c_device_id *cs4270_id = kmalloc(...);
+	cs4270_i2c_driver->id_table = cs4270_id;
+	c24270_id->driver_data = socdev;
+	i2c_add_driver(cs4270_i2c_driver);
+
+But if I do this, then I can't use MODULE_DEVICE_TABLE.  So I have two questions:
+
+1) What happens if I don't use MODULE_DEVICE_TABLE to identify my I2C ID table?
+
+2) Is there a way to mimic the behavior of MODULE_DEVICE_TABLE on a
+dynamically-created ID table?
 
 -- 
-Jean Delvare
+Timur Tabi
+Linux kernel developer at Freescale
