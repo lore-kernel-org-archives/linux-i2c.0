@@ -1,36 +1,56 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Subject: Re: Again on virtual i2c adapter support.
-Date: Fri, 23 Jan 2009 19:52:57 +0100
-Message-ID: <87iqo5kg6u.fsf@macbook.be.48ers.dk>
-References: <20090122150230.GA10952@enneenne.com>
-	<20090123095110.7b0c7b82@hyperion.delvare>
-	<878wp2ml52.fsf@macbook.be.48ers.dk>
-	<20090123134833.GH12256@enneenne.com>
-	<20090123172747.GB24751@tamay-dogan.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Implementing a new driver
+Date: Fri, 23 Jan 2009 21:25:06 +0100
+Message-ID: <20090123212506.7997e4ee@hyperion.delvare>
+References: <49798DAD.1070100@manoweb.com>
+	<20090123103909.281770dd@hyperion.delvare>
+	<4979FEF2.1090006@manoweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090123172747.GB24751-qCYv2r+mE47ltxMxsNcu6w@public.gmane.org> (Michelle Konzack's message of "Fri\, 23 Jan 2009 18\:27\:47 +0100")
+In-Reply-To: <4979FEF2.1090006-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michelle Konzack <linux4michelle-qCYv2r+mE47ltxMxsNcu6w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+To: Alessio Sangalli <alesan-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Michelle" == Michelle Konzack <linux4michelle-qCYv2r+mE47ltxMxsNcu6w@public.gmane.org> writes:
+Hi Alessio,
 
-Hi,
+On Fri, 23 Jan 2009 09:31:30 -0800, Alessio Sangalli wrote:
+> Jean Delvare wrote:
+> 
+> > As a quick starting point I recommend this FAQ item:
+> > http://i2c.wiki.kernel.org/index.php/Linux_2.6_I2C_development_FAQ#New_I2C_bus_drivers
+> 
+> Thanks, this will be useful to get started; anyway, it implies a
+> knowledge of what is a "bus driver" or a "chip driver". I've read other
+> articles but I'm still a bit confused. Could you give me a very very
+> quick description of all kind of i2c-related drivers?
 
- >> > I have been doing i2c multiplexers where the multiplexers themselves
- >> > are not controlled through i2c for years without problems.
+Basically, the bus drivers give you access to the I2C bus, while the
+chip drivers are specific to devices which are connected to the bus.
+This is essentially similar to USB, where you need a driver for the
+host controller, and then a driver for devices connected to the USB
+ports.
 
- Michelle> So you use those Multiplexer only for level switching where
- Michelle> even on different ports the Address is unique?  This is
- Michelle> working with the Maxim chips too.
+You may want to read this page on the wiki:
+http://i2c.wiki.kernel.org/index.php/Driver_Architecture
+and the document linked at the bottom of the page.
 
-No, there can (and there are) multiple chips with the same
-address. What I mean is simply that the mux is't controlled by writing
-I2C commands to it, but through something else (in this case a
-sram-like bus on a fpga).
+Examples of I2C bus drivers can be found under drivers/i2c/busses.
+Examples of I2C chip drivers can be found under drivers/rtc (for RTC
+chips), drivers/hwmon (for hardware monitoring chips) or drivers/gpio
+(for I/O expanders.)
+
+> What is the preferred way to actually test the driver, I am quite
+> comfortable with a solder iron if I have to connect a simple device to
+> try a connection
+
+If you have an AT24C02 EEPROM at hand or similar, you'll be able to
+test most of the transaction types. But actually, any I2C or SMBus chip
+you can connect to the bus should be good enough to test the basics of
+your i2c bus driver.
 
 -- 
-Bye, Peter Korsgaard
+Jean Delvare
