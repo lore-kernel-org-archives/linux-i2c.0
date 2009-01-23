@@ -1,54 +1,90 @@
-From: "Pakaravoor, Jagadeesh" <j-pakaravoor-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] I2C: OMAP: Add missing wakeup events
-Date: Fri, 23 Jan 2009 14:19:24 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF17B@dbde02.ent.ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Again on virtual i2c adapter support.
+Date: Fri, 23 Jan 2009 09:51:10 +0100
+Message-ID: <20090123095110.7b0c7b82@hyperion.delvare>
+References: <20090122150230.GA10952@enneenne.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20090122150230.GA10952-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+Hi Rodolfo,
 
-Include wake up events for receiver overflow and transmitter
-underflow in OMAP_I2C_WE_REG configuration. Also fix a small
-typo.
+On Thu, 22 Jan 2009 16:02:30 +0100, Rodolfo Giometti wrote:
+> Hello Jean,
+> 
+> I'm working again on virtual i2c adapter support :) since I received
+> several letters asking for this support. That's why I'd like to have
+> from you some advice in order to propose a working code.
 
-Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
----
-Index: kernel_org/drivers/i2c/busses/i2c-omap.c
-===================================================================
---- kernel_org.orig/drivers/i2c/busses/i2c-omap.c	2009-01-23 12:46:58.000000000 +0530
-+++ kernel_org/drivers/i2c/busses/i2c-omap.c	2009-01-23 14:15:52.187150630 +0530
-@@ -92,8 +92,10 @@
- #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
- 
- /* I2C WE wakeup enable register */
--#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
-+#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
- #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
-+#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
-+#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
- #define OMAP_I2C_WE_AAS_WE	(1 << 9)	/* Address as slave wakeup*/
- #define OMAP_I2C_WE_BF_WE	(1 << 8)	/* Bus free wakeup */
- #define OMAP_I2C_WE_STC_WE	(1 << 6)	/* Start condition wakeup */
-@@ -104,6 +106,7 @@
- #define OMAP_I2C_WE_AL_WE	(1 << 0)	/* Arbitration lost wakeup */
- 
- #define OMAP_I2C_WE_ALL		(OMAP_I2C_WE_XDR_WE | OMAP_I2C_WE_RDR_WE | \
-+				OMAP_I2C_WE_ROVR_WE | OMAP_I2C_WE_XUDF_WE | \
- 				OMAP_I2C_WE_AAS_WE | OMAP_I2C_WE_BF_WE | \
- 				OMAP_I2C_WE_STC_WE | OMAP_I2C_WE_GC_WE | \
- 				OMAP_I2C_WE_DRDY_WE | OMAP_I2C_WE_ARDY_WE | \
---
-With Regards,
-Jagadeesh Bhaskar P
- 
-----------------------------
-Some men see things as they are and say why - I dream things that never were and say why not.
-- George Bernard Shaw
-----------------------------
+Thanks for keeping up with this despite my lack of support. I really
+hope that we can get this done this year.
+
+Did you speak with Dave Miller already? Some months ago he proposed an
+horrible hack to implement support for I2C bus multiplexing, which I
+nacked and I pointed him to you.
+
+Last year I have been working with David Brownell of cleaning up
+i2c-core so that adding things like multiplexing support is easier, in
+particular when it comes to the locking model. It's not completely done
+yet but I think we're on the right track. My hope was that we could
+finish the cleanups first and add multiplexing support only then, but
+maybe I was too optimistic, the cleanups take longer than I expected.
+
+> Looking at latest i2c code I suppose we can modify the
+> i2c_del_driver() function as follow:
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index b1c9abe..3454878 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -799,10 +799,10 @@ void i2c_del_driver(struct i2c_driver *driver)
+>         class_for_each_device(&i2c_adapter_class, NULL, driver,
+>                               __detach_adapter);
+> 
+> +       mutex_unlock(&core_lock);
+> +
+>         driver_unregister(&driver->driver);
+>         pr_debug("i2c-core: driver [%s] unregistered\n",
+>         driver->driver.name);
+> -
+> -       mutex_unlock(&core_lock);
+>  }
+>  EXPORT_SYMBOL(i2c_del_driver);
+> 
+> Unluckely I'm not an i2c guru so I'd like to ask to you. If such
+> modification is correct I can provide a simple support with no
+> modifications to the i2c core! Apart this one, of course... :)
+
+Honestly, I am not sure either. The locking model isn't completely
+cleared yet, we still need to get rid of the 3 dozen remaining legacy
+i2c chip drivers before we can finish it. I _think_ the above it
+correct, after all we do not hold the lock when calling
+driver_register() so I can't see why we would need to hold it when
+calling driver_unregister()... unless either i2c_client_release() or
+i2c_client_dev_release() needs this.
+
+David should know better, as he designed the thing in the first place.
+David, can you please comment on the proposed change?
+
+> If you agree I can send a patchset, but everything is based on the
+> above change...
+
+I would like to propose that you create yourself an account on
+i2c.wiki.kernel.org. I've just added a "Work in progress" section on
+the main page so that other interested developers can keep track of
+what is happening. You could create a page describing your progress and
+things that need to be done. And I should do the same for my part.
+
+Oh, and please stop calling the thing "virtual i2c adapter support".
+These adapters are very real. What you are working on is better
+described as "i2c bus multiplexing support".
+
+Thanks,
+-- 
+Jean Delvare
