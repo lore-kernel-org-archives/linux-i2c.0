@@ -1,57 +1,92 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Again on virtual i2c adapter support.
-Date: Thu, 22 Jan 2009 16:02:30 +0100
-Message-ID: <20090122150230.GA10952@enneenne.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: RFC: Working around dynamic device
+	allocation in i2c. Interaction with other subystems.
+Date: Thu, 22 Jan 2009 22:14:22 -0800
+Message-ID: <200901222214.22806.david-b@pacbell.net>
+References: <4974D20F.20209@cam.ac.uk> <49786CA6.8010303@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <49786CA6.8010303-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: eric miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Jean,
+On Thursday 22 January 2009, Jonathan Cameron wrote:
+> > Within board configuration files, i2c devices are currently allocated
+> > using i2c_board_info structures. =A0The only element of these that reta=
+ins
+> > it's memory address once the struct device elements are allocated (upon
+> > adapter initialization) is the platform data pointer.
+> >
+> > Several subsystems (regulator and clock for example) use an association
+> > method based upon a device specific string associated with a pointer to
+> > a device structure. =A0Unfortunately as things currently stand there is=
+ no
+> > means of obtaining a suitable device for i2c devices at the point when
+> > it is required (in the board config).
 
-I'm working again on virtual i2c adapter support :) since I received
-several letters asking for this support. That's why I'd like to have
-from you some advice in order to propose a working code.
+Yeah, kind of awkward.  Multi-Function Device (MFD) drivers have
+this kind of problem a lot.  A given I2C device might have a few
+dozen child devices -- including regulators and clock generators,
+RTCs, GPIOs, input devices, etc -- that can't be set up until the
+parent I2C device is probed.
 
-Looking at latest i2c code I suppose we can modify the
-i2c_del_driver() function as follow:
+It's solved easily enough by making sure the associations and their
+devices get set up after the core of the MFD comes up ... in the
+probe() routine.  And by making sure the MFD and its subsystem
+initializes early enough that those other devices don't fail too
+many hidden assumptions.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index b1c9abe..3454878 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -799,10 +799,10 @@ void i2c_del_driver(struct i2c_driver *driver)
-        class_for_each_device(&i2c_adapter_class, NULL, driver,
-                              __detach_adapter);
 
-+       mutex_unlock(&core_lock);
-+
-        driver_unregister(&driver->driver);
-        pr_debug("i2c-core: driver [%s] unregistered\n",
-        driver->driver.name);
--
--       mutex_unlock(&core_lock);
- }
- EXPORT_SYMBOL(i2c_del_driver);
+> > What do people think? In particular can anyone come up with any other /
+> > better way round this issue. (or am I missing something?)
+> > In particular, are there any similar cases already in kernel that would
+> > suggest a particular approach to solving this issue?
 
-Unluckely I'm not an i2c guru so I'd like to ask to you. If such
-modification is correct I can provide a simple support with no
-modifications to the i2c core! Apart this one, of course... :)
+This is a special case of a general problem:  init sequencing.
+The initcall levels don't provide sufficient control, so you
+need to work around them.
 
-If you agree I can send a patchset, but everything is based on the
-above change...
+Static device allocation is a bit problematic, and some folk
+really dislike it ... I'm not that averse to it, but since
+the cost of a device keeps growing I'd rather avoid that in
+most cases.  A couple dozen bytes of board_info, especially
+if it's __initdata, versus several hundred bytes of "struct
+foo_device", multiplied by even just a dozen devices that
+won't always be present, adds up.
 
-Thanks for your suggestions,
+That leaves a dynamic solution for setting up linkage between
+various devices.  In the past I've done that using callbacks
+to board-specific code that knows what linkages to establish.
 
-Rodolfo
+You can see that with the GPIO controllers that use I2C or SPI
+communications:  they have setup callbacks that receive the
+device and GPIO information, which can continue to set the
+stage for the main event ... and teardown callbacks to break
+it all down after the show is done.
 
--- 
+So for example those callbacks can be used to configure and
+then register the devices which rely on those GPIOs ... like
+LED banks, MMC/SD card sense switches, voltage regulator
+enables, and so on.
 
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
+- Dave
+
+
+---------------------------------------------------------------------------=
+---
+This SF.net email is sponsored by:
+SourcForge Community
+SourceForge wants to tell your story.
+http://p.sf.net/sfu/sf-spreadtheword
