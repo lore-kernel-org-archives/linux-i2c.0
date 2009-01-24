@@ -1,41 +1,37 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Implementing a new driver
-Date: Sat, 24 Jan 2009 09:58:21 +0100
-Message-ID: <20090124095821.316b05ff@hyperion.delvare>
-References: <49798DAD.1070100@manoweb.com>
-	<20090123103909.281770dd@hyperion.delvare>
-	<4979FEF2.1090006@manoweb.com>
-	<20090123212506.7997e4ee@hyperion.delvare>
-	<497A3820.2060405@manoweb.com>
+From: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Subject: Re: Dynamically-allocated i2c_device_id vs MODULE_DEVICE_TABLE
+Date: Sat, 24 Jan 2009 11:39:49 +0000
+Message-ID: <20090124113948.GA7132@sirena.org.uk>
+References: <497A3097.1030808@freescale.com> <20090124012817.GA31775@sirena.org.uk> <497A7BA4.2080908@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <497A3820.2060405-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <497A7BA4.2080908-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alessio Sangalli <alesan-+h0hele9I7BBDgjK7y7TUQ@public.gmane.org>
+To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alessio,
+On Fri, Jan 23, 2009 at 08:23:32PM -0600, Timur Tabi wrote:
 
-On Fri, 23 Jan 2009 13:35:28 -0800, Alessio Sangalli wrote:
-> Jean Delvare wrote:
-> 
-> > Examples of I2C chip drivers can be found under drivers/rtc (for RTC
-> 
-> 
-> Thanks. I guess there is already a driver for DDC/EDID monitor
-> parameters right? Should be a fairly common feature for graphic cards
+> I think I see your point, though.  I'm calling i2c_add_driver, which  
+> technically could result in my i2c_probe function being called multiple 
+> times, if there are multiple matches in the device tree.  I'll have to 
+> check that out on Monday.
 
-See drivers/video/fb_ddc.c and drivers/video/edid.h, presumably this is
-what you want for a framebuffer driver. For an X driver, the code
-handling DDC is in X itself.
+Yes, it will - any device specific data must be registered when the
+device is registered.  You may want to look at how the wm8900 handles
+this, it makes use of the DAI registration functions to make this a
+little nicer.  It does still have the same problem but is much closer to
+the end result and means you can start registering the driver normally
+now.
 
-Or, for testing purpose, you can use the legacy "eeprom" driver
-together with the ddcmon and decode-edid scripts from i2c-tools [1].
+>> For now an idiomatic solution for ASoC drivers is to have a single
+>> static variable that you use to get the socdev through.
 
-[1] http://www.lm-sensors.org/wiki/I2CTools
+> Well, that's what I do today.  I was hoping to avoid that, but if I'm 
+> right about i2c_add_driver, then this trick doesn't really work either.
 
--- 
-Jean Delvare
+This really isn't something that can be worked around well in the
+individual drivers.
