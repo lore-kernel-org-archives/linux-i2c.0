@@ -1,37 +1,55 @@
-From: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: Dynamically-allocated i2c_device_id vs MODULE_DEVICE_TABLE
-Date: Sat, 24 Jan 2009 11:39:49 +0000
-Message-ID: <20090124113948.GA7132@sirena.org.uk>
-References: <497A3097.1030808@freescale.com> <20090124012817.GA31775@sirena.org.uk> <497A7BA4.2080908@freescale.com>
+Date: Sat, 24 Jan 2009 16:50:40 +0000
+Message-ID: <20090124165040.GL8032@fluff.org.uk>
+References: <497A3097.1030808@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <497A7BA4.2080908-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <497A3097.1030808-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 23, 2009 at 08:23:32PM -0600, Timur Tabi wrote:
+On Fri, Jan 23, 2009 at 03:03:19PM -0600, Timur Tabi wrote:
+> I currently have this in my code:
+> 
+> static const struct i2c_device_id cs4270_id[] = {
+> 	{"cs4270", 0},
+> 	{}
+> };
+> MODULE_DEVICE_TABLE(i2c, cs4270_id);
+> 
+> static struct i2c_driver cs4270_i2c_driver = {
+> 	.driver = {
+> 		.name = "cs4270",
+> 		.owner = THIS_MODULE,
+> 	},
+> 	.id_table = cs4270_id,
+> 	.probe = cs4270_i2c_probe,
+> 	.remove = cs4270_i2c_remove,
+> };
+> 
+> ret = i2c_add_driver(&cs4270_i2c_driver);
+> 
+> I would like to use the i2c_device_id.driver_data variable to pass private data
+> to my cs4270_i2c_probe() function.  So it will look like this:
+> 
+> 	socdev = kmalloc(...);
+> 	c24270_id.driver_data = socdev;
+> 	i2c_add_driver(&cs4270_i2c_driver);
 
-> I think I see your point, though.  I'm calling i2c_add_driver, which  
-> technically could result in my i2c_probe function being called multiple 
-> times, if there are multiple matches in the device tree.  I'll have to 
-> check that out on Monday.
+you seem to have managed to short-circuit part of the device
+creation process. You do not need to pass the data via the device
+driver, you should pass it when creating the device. 
 
-Yes, it will - any device specific data must be registered when the
-device is registered.  You may want to look at how the wm8900 handles
-this, it makes use of the DAI registration functions to make this a
-little nicer.  It does still have the same problem but is much closer to
-the end result and means you can start registering the driver normally
-now.
+If you look at i2c_board_info which can be passed into i2c_new_device
+or similar functions, there is a platform_data field you can fill out
+and this is passed in to your probe routine in the i2c device.
 
->> For now an idiomatic solution for ASoC drivers is to have a single
->> static variable that you use to get the socdev through.
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-> Well, that's what I do today.  I was hoping to avoid that, but if I'm 
-> right about i2c_add_driver, then this trick doesn't really work either.
-
-This really isn't something that can be worked around well in the
-individual drivers.
+  'a smiley only costs 4 bytes'
