@@ -1,39 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH v2] i2c: Quilt tree has moved
-Date: Mon, 26 Jan 2009 11:51:32 +0100
-Message-ID: <20090126115132.019d4457@hyperion.delvare>
-References: <20090114162849.66bc21d2@hyperion.delvare>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: Dynamically-allocated i2c_device_id vs MODULE_DEVICE_TABLE
+Date: Mon, 26 Jan 2009 12:06:01 -0600
+Message-ID: <ed82fe3e0901261006u2223ccb3n5d7b3be9a85df7c7@mail.gmail.com>
+References: <497A3097.1030808@freescale.com>
+	 <20090124165040.GL8032@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090114162849.66bc21d2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090124165040.GL8032-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-My i2c quilt tree will now be hosted on kernel.org, because I can
-conveniently use rsync there.
+On Sat, Jan 24, 2009 at 10:50 AM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> you seem to have managed to short-circuit part of the device
+> creation process. You do not need to pass the data via the device
+> driver, you should pass it when creating the device.
 
-Also list the new i2c wiki.
+Yes, I think my code is broken.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- MAINTAINERS |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> If you look at i2c_board_info which can be passed into i2c_new_device
+> or similar functions, there is a platform_data field you can fill out
+> and this is passed in to your probe routine in the i2c device.
 
---- linux-2.6.29-rc2.orig/MAINTAINERS	2009-01-26 10:41:07.000000000 +0100
-+++ linux-2.6.29-rc2/MAINTAINERS	2009-01-26 11:48:03.000000000 +0100
-@@ -2102,7 +2102,8 @@ M:	khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
- P:	Ben Dooks (embedded platforms)
- M:	ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
- L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
--T:	quilt http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
-+W:	http://i2c.wiki.kernel.org/
-+T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
- S:	Maintained
- 
- I2C-TINY-USB DRIVER
+I don't think this will work for me.  I'm running this on a PowerPC
+system, and we use a device tree to represent the I2C devices on the
+various I2C buses.  My driver does not call i2c_new_device.  This is
+done for me in of_register_i2c_devices().  As soon as my driver calls
+i2c_add_driver(), my I2C probe function will be called, once for each
+I2C device defined in the device tree.  So I don't think I can update
+the i2c_board_info structure.
+
+>
+> --
+> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>
+>  'a smiley only costs 4 bytes'
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
+
 
 -- 
-Jean Delvare
+Timur Tabi
+Linux kernel developer at Freescale
