@@ -1,36 +1,39 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] rtc-ds1307: True SMBus compatibility
-Date: Mon, 26 Jan 2009 10:37:38 +0100
-Message-ID: <20090126103738.1e48471a@hyperion.delvare>
-References: <1231177261.13443.20.camel@localhost.localdomain>
-	<20090107142426.4be04d4d@hyperion.delvare>
-	<9ae48b020901070722l77bebc6boc8fa2fd0bcc8da28@mail.gmail.com>
-	<20090107162709.755982c0@hyperion.delvare>
-	<1232409577.25123.11.camel@localhost.localdomain>
-	<20090120114304.3b956189@hyperion.delvare>
-	<1232951630.1329.4.camel@localhost.localdomain>
+Subject: [PATCH v2] i2c: Quilt tree has moved
+Date: Mon, 26 Jan 2009 11:51:32 +0100
+Message-ID: <20090126115132.019d4457@hyperion.delvare>
+References: <20090114162849.66bc21d2@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1232951630.1329.4.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+In-Reply-To: <20090114162849.66bc21d2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, BARRE Sebastien <sbarre-6lXSvc0s5hDQT0dZR+AlfA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 25 Jan 2009 22:33:50 -0800, Ed Swierk wrote:
-> Here's another attempt at a patch for rtc-ds1307 that allows the driver
-> to work with SMBus controllers like nforce2 that do not support i2c
-> block transfers.  The byte-oriented compatibility routines now give up
-> after 10 unsuccessful attempts to read or write a block of registers
-> without conflict.
-> 
-> Signed-off-by: Ed Swierk <eswierk-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+My i2c quilt tree will now be hosted on kernel.org, because I can
+conveniently use rsync there.
 
-Looks alright to me this time.
+Also list the new i2c wiki.
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ MAINTAINERS |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2.6.29-rc2.orig/MAINTAINERS	2009-01-26 10:41:07.000000000 +0100
++++ linux-2.6.29-rc2/MAINTAINERS	2009-01-26 11:48:03.000000000 +0100
+@@ -2102,7 +2102,8 @@ M:	khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+ P:	Ben Dooks (embedded platforms)
+ M:	ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+ L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+-T:	quilt http://khali.linux-fr.org/devel/linux-2.6/jdelvare-i2c/
++W:	http://i2c.wiki.kernel.org/
++T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
+ S:	Maintained
+ 
+ I2C-TINY-USB DRIVER
 
 -- 
 Jean Delvare
