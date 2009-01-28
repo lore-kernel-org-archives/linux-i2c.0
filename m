@@ -1,785 +1,407 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v3] iMX/MXC support for I2C
-Date: Wed, 28 Jan 2009 17:17:54 +0100
-Message-ID: <20090128161754.GM18152@pengutronix.de>
-References: <gl1dn5$nnv$1@ger.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LJm8egi4vkexsie5"
+From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Subject: [PATCH 3/3] i2c: driver for PCA954x I2C multiplexer series.
+Date: Wed, 28 Jan 2009 22:14:35 +0100
+Message-ID: <1233177275-21700-4-git-send-email-giometti@linux.it>
+References: <1233177275-21700-1-git-send-email-giometti@linux.it>
+ <1233177275-21700-2-git-send-email-giometti@linux.it>
+ <1233177275-21700-3-git-send-email-giometti@linux.it>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <gl1dn5$nnv$1@ger.gmane.org>
+In-Reply-To: <1233177275-21700-3-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+---
+ drivers/i2c/muxes/Kconfig   |    9 ++
+ drivers/i2c/muxes/Makefile  |    2 +
+ drivers/i2c/muxes/pca954x.c |  325 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/pca954x.h |   13 ++
+ 4 files changed, 349 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/muxes/pca954x.c
+ create mode 100644 include/linux/i2c/pca954x.h
 
---LJm8egi4vkexsie5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jan 19, 2009 at 10:28:09AM +0200, Darius wrote:
-
-> From: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->=20
-> Implementation of I2C Adapter/Algorithm Driver for I2C Bus integrated
-> in Freescale's i.MX/MXC processors.
->=20
-> Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Good news is that we successfully tested the driver today on
-
-- MX1DAS (MX1)
-- phyCORE-i.MX27 (MX2)
-- phyCORE-i.MX31 (MX3)
-
-We could read EEPROMs and play with GPIO-expanders. So, after applying
-the minor things below, you may add
-
-Tested-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
-I really think it should go mainline in the next merge-window. Sascha
-also offered to pick it up, if his imx-tree seems more appropriate. Just
-let me know.
-
-Regards,
-
-  Wolfram
-
->=20
-> Index: linux-2.6.29-rc1/drivers/i2c/busses/i2c-imx.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- /dev/null
-> +++ linux-2.6.29-rc1/drivers/i2c/busses/i2c-imx.c
-> @@ -0,0 +1,620 @@
-> +/*
-> + *	Copyright (C) 2002 Motorola GSG-China
-> + *
-> + *	This program is free software; you can redistribute it and/or
-> + *	modify it under the terms of the GNU General Public License
-> + *	as published by the Free Software Foundation; either version 2
-> + *	of the License, or (at your option) any later version.
-> + *
-> + *	This program is distributed in the hope that it will be useful,
-> + *	but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + *	GNU General Public License for more details.
-> + *
-> + *	You should have received a copy of the GNU General Public License
-> + *	along with this program; if not, write to the Free Software
-> + *	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
-> + *	USA.
-> + *
-> + * Author:
-> + *	Darius Augulis, Teltonika Inc.
-> + *
-> + * Desc.:
-> + *	Implementation of I2C Adapter/Algorithm Driver
-> + *	for I2C Bus integrated in Freescale i.MX/MXC processors
-> + *
-> + *	Derived from Motorola GSG China I2C example driver
-> + *
-> + *	Copyright (C) 2005 Torsten Koschorrek <koschorrek at synertronixx.de
-> + *	Copyright (C) 2005 Matthias Blaschke <blaschke at synertronixx.de
-> + *	Copyright (C) 2007 RightHand Technologies, Inc.
-> + *	Copyright (C) 2008 Darius Augulis <darius.augulis at teltonika.lt>
-> + *
-> + */
-> +
-> +/** Includes ***********************************************************=
-********
-> +************************************************************************=
-*******/
-> +
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/errno.h>
-> +#include <linux/err.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
-> +#include <linux/i2c.h>
-> +#include <linux/io.h>
-> +#include <linux/sched.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/clk.h>
-> +
-> +#include <mach/irqs.h>
-> +#include <mach/hardware.h>
-> +#include <mach/i2c.h>
-> +
-> +/** Defines ************************************************************=
-********
-> +************************************************************************=
-*******/
-> +
-> +/* This will be the driver name the kernel reports */
-> +#define DRIVER_NAME "imx-i2c"
-> +
-> +/* Default value */
-> +#define IMX_I2C_BIT_RATE	100000	/* 100kHz */
-> +
-> +/* IMX I2C registers */
-> +#define IMX_I2C_IADR	0x00	/* i2c slave address */
-> +#define IMX_I2C_IFDR	0x04	/* i2c frequency divider */
-> +#define IMX_I2C_I2CR	0x08	/* i2c control */
-> +#define IMX_I2C_I2SR	0x0C	/* i2c status */
-> +#define IMX_I2C_I2DR	0x10	/* i2c transfer data */
-> +
-> +/* Bits of IMX I2C registers */
-> +#define I2SR_RXAK	0x01
-> +#define I2SR_IIF	0x02
-> +#define I2SR_SRW	0x04
-> +#define I2SR_IAL	0x10
-> +#define I2SR_IBB	0x20
-> +#define I2SR_IAAS	0x40
-> +#define I2SR_ICF	0x80
-> +#define I2CR_RSTA	0x04
-> +#define I2CR_TXAK	0x08
-> +#define I2CR_MTX	0x10
-> +#define I2CR_MSTA	0x20
-> +#define I2CR_IIEN	0x40
-> +#define I2CR_IEN	0x80
-> +
-> +/** Variables **********************************************************=
-********
-> +************************************************************************=
-*******/
-> +
-> +static unsigned int disable_delay;	/* Dummy delay */
-> +
-> +/*
-> + * sorted list of clock divider, register value pairs
-> + * taken from table 26-5, p.26-9, Freescale i.MX
-> + * Integrated Portable System Processor Reference Manual
-> + * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
-> + *
-> + * Duplicated divider values removed from list
-> + */
-> +
-> +static u16 __initdata i2c_clk_div[50][2] =3D {
-> +	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
-> +	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
-> +	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
-> +	{ 56,	0x29 }, { 60,	0x06 }, { 64,	0x2A },	{ 72,	0x2B },
-> +	{ 80,	0x2C }, { 88,	0x09 }, { 96,	0x2D }, { 104,	0x0A },
-> +	{ 112,	0x2E }, { 128,	0x2F }, { 144,	0x0C }, { 160,	0x30 },
-> +	{ 192,	0x31 },	{ 224,	0x32 }, { 240,	0x0F }, { 256,	0x33 },
-> +	{ 288,	0x10 }, { 320,	0x34 },	{ 384,	0x35 }, { 448,	0x36 },
-> +	{ 480,	0x13 }, { 512,	0x37 }, { 576,	0x14 },	{ 640,	0x38 },
-> +	{ 768,	0x39 }, { 896,	0x3A }, { 960,	0x17 }, { 1024,	0x3B },
-> +	{ 1152,	0x18 }, { 1280,	0x3C }, { 1536,	0x3D }, { 1792,	0x3E },
-> +	{ 1920,	0x1B },	{ 2048,	0x3F }, { 2304,	0x1C }, { 2560,	0x1D },
-> +	{ 3072,	0x1E }, { 3840,	0x1F }
-> +};
-> +
-> +struct imx_i2c_struct {
-> +	struct i2c_adapter	adapter;
-> +	struct resource		*res;
-> +	struct clk		*clk;
-> +	void __iomem		*base;
-> +	int			irq;
-> +	wait_queue_head_t	queue;
-> +	unsigned long		i2csr;
-> +};
-> +
-> +/** Functions for IMX I2C adapter driver *******************************=
-********
-> +************************************************************************=
-*******/
-> +
-> +static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned long orig_jiffies =3D jiffies;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> +
-> +	/* wait for bus not busy */
-> +	while (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_IBB) {
-> +		if (signal_pending(current)) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> I2C Interrupted\n", __func__);
-> +			return -EINTR;
-> +		}
-> +		if (time_after(jiffies, orig_jiffies + HZ / 1000)) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> I2C bus is busy\n", __func__);
-> +			return -EIO;
-> +		}
-> +		schedule();
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	int result;
-> +
-> +	result =3D wait_event_interruptible_timeout(i2c_imx->queue,
-> +		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
-> +
-> +	if (unlikely(result < 0)) {
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
-> +		return result;
-> +	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
-> +		return -ETIMEDOUT;
-> +	}
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
-> +	i2c_imx->i2csr =3D 0;
-> +	return 0;
-> +}
-> +
-> +static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	if (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_RXAK) {
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
-> +		return -EIO;  /* No ACK */
-> +	}
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
-> +	return 0;
-> +}
-> +
-> +static void i2c_imx_start(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int temp =3D 0;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> +
-> +	/* Enable I2C controller */
-> +	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
-> +	/* Start I2C transaction */
-> +	temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +	temp |=3D I2CR_MSTA;
-> +	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +	temp |=3D I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
-> +	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +}
-> +
-> +static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int temp =3D 0;
-> +
-> +	/* Stop I2C transaction */
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> +	temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +	temp &=3D ~I2CR_MSTA;
-> +	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +	/* setup chip registers to defaults */
-> +	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
-> +	/*
-> +	 * This delay caused by an i.MXL hardware bug.
-> +	 * If no (or too short) delay, no "STOP" bit will be generated.
-> +	 */
-> +	udelay(disable_delay);
-> +	/* Disable I2C controller */
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-> +}
-> +
-> +static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
-> +							unsigned int rate)
-> +{
-> +	unsigned int i2c_clk_rate;
-> +	unsigned int div;
-> +	int i;
-> +
-> +	/* Divider value calculation */
-> +	i2c_clk_rate =3D clk_get_rate(i2c_imx->clk);
-> +	div =3D (i2c_clk_rate + rate - 1) / rate;
-> +	if (div < i2c_clk_div[0][0])
-> +		i =3D 0;
-> +	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
-> +		i =3D ARRAY_SIZE(i2c_clk_div) - 1;
-> +	else
-> +		for (i =3D 0; i2c_clk_div[i][0] < div; i++);
-> +
-> +	/* Write divider value to register */
-> +	writeb(i2c_clk_div[i][1], i2c_imx->base + IMX_I2C_IFDR);
-> +
-> +	/*
-> +	 * There dummy delay is calculated.
-> +	 * It should be about one I2C clock period long.
-> +	 * This delay is used in I2C bus disable function
-> +	 * to fix chip hardware bug.
-> +	 */
-> +	disable_delay =3D (500000U * i2c_clk_div[i][0]
-> +		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
-> +
-> +	/* dev_dbg() can't be used, because adapter is not yet registered */
-> +#ifdef CONFIG_I2C_DEBUG_BUS
-> +	printk(KERN_DEBUG "I2C: <%s> I2C_CLK=3D%d, REQ DIV=3D%d\n",
-> +		__func__, i2c_clk_rate, div);
-> +	printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=3D0x%x, REAL DIV=3D%d\n",
-> +		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
-> +#endif
-> +}
-> +
-> +static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
-> +{
-> +	struct imx_i2c_struct *i2c_imx =3D dev_id;
-> +	unsigned int temp;
-> +
-> +	temp =3D readb(i2c_imx->base + IMX_I2C_I2SR);
-> +	if (temp & I2SR_IIF) {
-> +		/* save status register */
-> +		i2c_imx->i2csr =3D temp;
-> +		temp &=3D ~I2SR_IIF;
-> +		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
-> +		wake_up_interruptible(&i2c_imx->queue);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	return IRQ_NONE;
-> +}
-> +
-> +static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg =
-*msgs)
-> +{
-> +	int i, result;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=3D0x%x\n=
-",
-> +		__func__, msgs->addr << 1);
-> +
-> +	/* write slave address */
-> +	writeb(msgs->addr << 1, i2c_imx->base + IMX_I2C_I2DR);
-> +	result =3D i2c_imx_trx_complete(i2c_imx);
-> +	if (result)
-> +		return result;
-> +	result =3D i2c_imx_acked(i2c_imx);
-> +	if (result)
-> +		return result;
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
-> +
-> +	/* write data */
-> +	for (i =3D 0; i < msgs->len; i++) {
-> +		dev_dbg(&i2c_imx->adapter.dev,
-> +			"<%s> write byte: B%d=3D0x%X\n",
-> +			__func__, i, msgs->buf[i]);
-> +		writeb(msgs->buf[i], i2c_imx->base + IMX_I2C_I2DR);
-> +		result =3D i2c_imx_trx_complete(i2c_imx);
-> +		if (result)
-> +			return result;
-> +		result =3D i2c_imx_acked(i2c_imx);
-> +		if (result)
-> +			return result;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *=
-msgs)
-> +{
-> +	int i, result;
-> +	unsigned int temp;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev,
-> +		"<%s> write slave address: addr=3D0x%x\n",
-> +		__func__, (msgs->addr << 1) | 0x01);
-> +
-> +	/* write slave address */
-> +	writeb((msgs->addr << 1) | 0x01, i2c_imx->base + IMX_I2C_I2DR);
-> +	result =3D i2c_imx_trx_complete(i2c_imx);
-> +	if (result)
-> +		return result;
-> +	result =3D i2c_imx_acked(i2c_imx);
-> +	if (result)
-> +		return result;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> setup bus\n", __func__);
-> +
-> +	/* setup bus to read data */
-> +	temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +	temp &=3D ~I2CR_MTX;
-> +	if (msgs->len - 1)
-> +		temp &=3D ~I2CR_TXAK;
-> +	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +	readb(i2c_imx->base + IMX_I2C_I2DR); /* dummy read */
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> read data\n", __func__);
-> +
-> +	/* read data */
-> +	for (i =3D 0; i < msgs->len; i++) {
-> +		result =3D i2c_imx_trx_complete(i2c_imx);
-> +		if (result)
-> +			return result;
-> +		if (i =3D=3D (msgs->len - 1)) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> clear MSTA\n", __func__);
-> +			temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +			temp &=3D ~I2CR_MSTA;
-> +			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +		} else if (i =3D=3D (msgs->len - 2)) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> set TXAK\n", __func__);
-> +			temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +			temp |=3D I2CR_TXAK;
-> +			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +		}
-> +		msgs->buf[i] =3D readb(i2c_imx->base + IMX_I2C_I2DR);
-> +		dev_dbg(&i2c_imx->adapter.dev,
-> +			"<%s> read byte: B%d=3D0x%X\n",
-> +			__func__, i, msgs->buf[i]);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int i2c_imx_xfer(struct i2c_adapter *adapter,
-> +						struct i2c_msg *msgs, int num)
-> +{
-> +	unsigned int i, temp;
-> +	int result;
-> +	struct imx_i2c_struct *i2c_imx =3D i2c_get_adapdata(adapter);
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> +
-> +	/* Check or i2c bus is not busy */
-
-"or"? "if"?
-
-> +	result =3D i2c_imx_bus_busy(i2c_imx);
-> +	if (result)
-> +		goto fail0;
-> +
-> +	/* Start I2C transfer */
-> +	i2c_imx_start(i2c_imx);
-> +
-> +	/* read/write data */
-> +	for (i =3D 0; i < num; i++) {
-> +		if (i) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> repeated start\n", __func__);
-> +			temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +			temp |=3D I2CR_RSTA;
-> +			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> +		}
-> +		dev_dbg(&i2c_imx->adapter.dev,
-> +			"<%s> transfer message: %d\n", __func__, i);
-> +		/* write/read data */
-> +#ifdef CONFIG_I2C_DEBUG_BUS
-> +		temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> CONTROL: IEN=3D%d, IIEN=3D%d, "
-> +			"MSTA=3D%d, MTX=3D%d, TXAK=3D%d, RSTA=3D%d\n", __func__,
-> +			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
-> +			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
-> +			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
-> +		temp =3D readb(i2c_imx->base + IMX_I2C_I2SR);
-> +		dev_dbg(&i2c_imx->adapter.dev,
-> +			"<%s> STATUS: ICF=3D%d, IAAS=3D%d, IBB=3D%d, "
-> +			"IAL=3D%d, SRW=3D%d, IIF=3D%d, RXAK=3D%d\n", __func__,
-> +			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
-> +			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
-> +			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
-> +			(temp & I2SR_RXAK ? 1 : 0));
-> +#endif
-> +		if (msgs[i].flags & I2C_M_RD)
-> +			result =3D i2c_imx_read(i2c_imx, &msgs[i]);
-> +		else
-> +			result =3D i2c_imx_write(i2c_imx, &msgs[i]);
-> +	}
-> +
-> +fail0:
-> +	/* Stop I2C transfer */
-> +	i2c_imx_stop(i2c_imx);
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
-> +		(result < 0) ? "error" : "success msg",
-> +			(result < 0) ? result : num);
-> +	return (result < 0) ? result : num;
-> +}
-> +
-> +static u32 i2c_imx_func(struct i2c_adapter *adapter)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +}
-> +
-> +static struct i2c_algorithm i2c_imx_algo =3D {
-> +	.master_xfer	=3D i2c_imx_xfer,
-> +	.functionality	=3D i2c_imx_func,
-> +};
-> +
-> +static int __init i2c_imx_probe(struct platform_device *pdev)
-> +{
-> +	struct imx_i2c_struct *i2c_imx;
-> +	struct resource *res;
-> +	struct imxi2c_platform_data *pdata;
-> +	void __iomem *base;
-> +	resource_size_t res_size;
-> +	int irq;
-> +	int ret;
-> +
-> +	dev_dbg(&pdev->dev, "<%s>\n", __func__);
-> +
-> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "can't get device resources\n");
-> +		return -ENOENT;
-> +	}
-> +	irq =3D platform_get_irq(pdev, 0);
-> +	if (irq < 0) {
-> +		dev_err(&pdev->dev, "can't get irq number\n");
-> +		return -ENOENT;
-> +	}
-> +
-> +	pdata =3D pdev->dev.platform_data;
-> +
-> +	if (pdata && pdata->init) {
-> +		ret =3D pdata->init(&pdev->dev);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	res_size =3D resource_size(res);
-> +	base =3D ioremap(res->start, res_size);
-> +	if (!base) {
-> +		dev_err(&pdev->dev, "ioremap failed\n");
-> +		ret =3D -EIO;
-> +		goto fail0;
-> +	}
-> +
-> +	i2c_imx =3D kzalloc(sizeof(struct imx_i2c_struct), GFP_KERNEL);
-> +	if (!i2c_imx) {
-> +		dev_err(&pdev->dev, "can't allocate interface\n");
-> +		ret =3D -ENOMEM;
-> +		goto fail1;
-> +	}
-> +
-> +	/* Setup i2c_imx driver structure */
-> +	strcpy(i2c_imx->adapter.name, pdev->name);
-> +	i2c_imx->adapter.owner		=3D THIS_MODULE;
-> +	i2c_imx->adapter.algo		=3D &i2c_imx_algo;
-> +	i2c_imx->adapter.dev.parent	=3D &pdev->dev;
-> +	i2c_imx->adapter.nr 		=3D pdev->id;
-> +	i2c_imx->irq			=3D irq;
-> +	i2c_imx->base			=3D base;
-> +	i2c_imx->res			=3D res;
-> +
-> +	/* Get I2C clock */
-> +	i2c_imx->clk =3D clk_get(&pdev->dev, "i2c_clk");
-> +	if (IS_ERR(i2c_imx->clk)) {
-> +		ret =3D PTR_ERR(i2c_imx->clk);
-> +		dev_err(&pdev->dev, "can't get I2C clock\n");
-> +		goto fail2;
-> +	}
-> +	clk_enable(i2c_imx->clk);
-> +
-> +	/* Request IRQ */
-> +	ret =3D request_irq(i2c_imx->irq, i2c_imx_isr, 0, pdev->name, i2c_imx);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "can't claim irq %d\n", i2c_imx->irq);
-> +		goto fail3;
-> +	}
-> +
-> +	/* Init queue */
-> +	init_waitqueue_head(&i2c_imx->queue);
-> +
-> +	/* Set up adapter data */
-> +	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-> +
-> +	/* Set up clock divider */
-> +	if (pdata && pdata->bitrate)
-> +		i2c_imx_set_clk(i2c_imx, pdata->bitrate);
-> +	else
-> +		i2c_imx_set_clk(i2c_imx, IMX_I2C_BIT_RATE);
-> +
-> +	/* Set up chip registers to defaults */
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
-> +
-> +	/* Add I2C adapter */
-> +	ret =3D i2c_add_numbered_adapter(&i2c_imx->adapter);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "registration failed\n");
-> +		goto fail4;
-> +	}
-> +
-> +	/* Set up platform driver data */
-> +	platform_set_drvdata(pdev, i2c_imx);
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", i2c_imx->irq);
-> +	dev_dbg(&i2c_imx->adapter.dev, "device resources from 0x%x to 0x%x\n",
-> +		i2c_imx->res->start, i2c_imx->res->end);
-> +	dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x \n",
-> +		res_size, i2c_imx->res->start);
-> +	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
-> +		i2c_imx->adapter.name);
-> +	dev_dbg(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
-> +
-> +	return 0;   /* Return OK */
-> +
-> +fail4:
-> +	free_irq(i2c_imx->irq, i2c_imx);
-> +fail3:
-> +	clk_disable(i2c_imx->clk);
-> +	clk_put(i2c_imx->clk);
-> +fail2:
-> +	kfree(i2c_imx);
-> +fail1:
-> +	iounmap(base);
-> +fail0:
-> +	if (pdata && pdata->exit)
-> +		pdata->exit(&pdev->dev);
-> +	return ret; /* Return error number */
-> +}
-> +
-> +static int __exit i2c_imx_remove(struct platform_device *pdev)
-> +{
-> +	struct imx_i2c_struct *i2c_imx =3D platform_get_drvdata(pdev);
-> +	struct imxi2c_platform_data *pdata =3D pdev->dev.platform_data;
-> +
-> +	/* remove adapter */
-> +	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
-> +	i2c_del_adapter(&i2c_imx->adapter);
-> +	platform_set_drvdata(pdev, NULL);
-> +
-> +	/* free interrupt */
-> +	free_irq(i2c_imx->irq, i2c_imx);
-> +
-> +	/* setup chip registers to defaults */
-> +	writeb(0, i2c_imx->base + IMX_I2C_IADR);
-> +	writeb(0, i2c_imx->base + IMX_I2C_IFDR);
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-> +	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
-> +
-> +	/* Shut down hardware */
-> +	if (pdata && pdata->exit)
-> +		pdata->exit(&pdev->dev);
-> +
-> +	/* Disable I2C clock */
-> +	clk_disable(i2c_imx->clk);
-> +	clk_put(i2c_imx->clk);
-> +
-> +	/* Release memory */
-> +	release_mem_region(i2c_imx->res->start,
-> +		i2c_imx->res->end - i2c_imx->res->start + 1);
-
-As you dropped the request_mem_region, you should also drop this one.
-
-> +	iounmap(i2c_imx->base);
-> +	kfree(i2c_imx);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver i2c_imx_driver =3D {
-> +	.probe		=3D i2c_imx_probe,
-> +	.remove		=3D __exit_p(i2c_imx_remove),
-> +	.driver	=3D {
-> +		.name	=3D DRIVER_NAME,
-> +		.owner	=3D THIS_MODULE,
-> +	}
-> +};
-> +
-> +static int __init i2c_adap_imx_init(void)
-> +{
-> +	return platform_driver_probe(&i2c_imx_driver, i2c_imx_probe);
-> +}
-> +
-> +static void __exit i2c_adap_imx_exit(void)
-> +{
-> +	platform_driver_unregister(&i2c_imx_driver);
-> +}
-> +
-> +module_init(i2c_adap_imx_init);
-> +module_exit(i2c_adap_imx_exit);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Darius Augulis");
-> +MODULE_DESCRIPTION("I2C adapter driver for IMX I2C bus");
-> +MODULE_ALIAS("platform:" DRIVER_NAME);
-> Index: linux-2.6.29-rc1/drivers/i2c/busses/Kconfig
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.29-rc1.orig/drivers/i2c/busses/Kconfig
-> +++ linux-2.6.29-rc1/drivers/i2c/busses/Kconfig
-> @@ -355,6 +355,16 @@ config I2C_IBM_IIC
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-ibm_iic.
-> =20
-> +config I2C_IMX
-> +	tristate "IMX I2C interface"
-> +	depends on ARCH_MXC
-> +	help
-> +	  Say Y here if you want to use the IIC bus controller on
-> +	  the Freescale i.MX/MXC processors.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-imx.
-> +
->  config I2C_IOP3XX
->  	tristate "Intel IOPx3xx and IXP4xx on-chip I2C interface"
->  	depends on ARCH_IOP32X || ARCH_IOP33X || ARCH_IXP4XX || ARCH_IOP13XX
-> Index: linux-2.6.29-rc1/drivers/i2c/busses/Makefile
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.29-rc1.orig/drivers/i2c/busses/Makefile
-> +++ linux-2.6.29-rc1/drivers/i2c/busses/Makefile
-> @@ -33,6 +33,7 @@ obj-$(CONFIG_I2C_DAVINCI)	+=3D i2c-davinci
->  obj-$(CONFIG_I2C_GPIO)		+=3D i2c-gpio.o
->  obj-$(CONFIG_I2C_HIGHLANDER)	+=3D i2c-highlander.o
->  obj-$(CONFIG_I2C_IBM_IIC)	+=3D i2c-ibm_iic.o
-> +obj-$(CONFIG_I2C_IMX)		+=3D i2c-imx.o
->  obj-$(CONFIG_I2C_IOP3XX)	+=3D i2c-iop3xx.o
->  obj-$(CONFIG_I2C_IXP2000)	+=3D i2c-ixp2000.o
->  obj-$(CONFIG_I2C_MPC)		+=3D i2c-mpc.o
-> Index: linux-2.6.29-rc1/arch/arm/plat-mxc/include/mach/i2c.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- /dev/null
-> +++ linux-2.6.29-rc1/arch/arm/plat-mxc/include/mach/i2c.h
-> @@ -0,0 +1,24 @@
-> +/*
-> + * i2c.h - i.MX I2C driver header file
-> + *
-> + * Copyright (c) 2008, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> + *
-> + * This file is released under the GPLv2
-> + */
-> +
-> +#ifndef __ASM_ARCH_I2C_H_
-> +#define __ASM_ARCH_I2C_H_
-> +
-> +/**
-> + * struct imxi2c_platform_data - structure of platform data for MXC I2C =
-driver
-> + * @init:	Initialise gpio's and other board specific things
-> + * @exit:	Free everything initialised by @init
-> + *
-> + **/
-> +struct imxi2c_platform_data {
-> +	int (*init)(struct device *dev);
-> +	void (*exit)(struct device *dev);
-> +	int bitrate;
-> +};
-> +
-> +#endif /* __ASM_ARCH_I2C_H_ */
-
-
---=20
-  Dipl.-Ing. Wolfram Sang | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-
---LJm8egi4vkexsie5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmAhTIACgkQD27XaX1/VRtREwCglNO/SYX5qPBsIax9dVKwaLcc
-AeAAoJDFSl0VokrfnQQCtkrofgXlU+ZM
-=nvVV
------END PGP SIGNATURE-----
-
---LJm8egi4vkexsie5--
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 95b9bde..72c7055 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -5,4 +5,13 @@
+ menu "Multiplexer I2C Chip support"
+ 	depends on I2C && I2C_MUX && EXPERIMENTAL
+ 
++config I2CMUX_PCA954x
++	tristate "Philips PCA953x I2C Mux/switches"
++	help
++	  If you say yes here you get support for the Philips PCA954x
++	  I2C mux/switch devices.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called pca954x.
++
+ endmenu
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 5e70bde..f752576 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -1,6 +1,8 @@
+ #
+ # Makefile for multiplexer I2C chip drivers.
+ 
++obj-$(CONFIG_I2CMUX_PCA954x)	+= pca954x.o
++
+ ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
+ EXTRA_CFLAGS += -DDEBUG
+ endif
+diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
+new file mode 100644
+index 0000000..5643563
+--- /dev/null
++++ b/drivers/i2c/muxes/pca954x.c
+@@ -0,0 +1,325 @@
++/*
++ * I2C multiplexer
++ *
++ * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
++ * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
++ *
++ * This module supports the PCA954x series of I2C multiplexer/switch chips
++ * made by Philips Semiconductors.
++ * This includes the:
++ *     PCA9540, PCA9542, PCA9543, PCA9544, PCA9545, PCA9546, PCA9547
++ *     and PCA9548.
++ *
++ * These chips are all controlled via the I2C bus itself, and all have a
++ * single 8-bit register (normally at 0x70).  The upstream "parent" bus fans
++ * out to two, four, or eight downstream busses or channels; which of these
++ * are selected is determined by the chip type and register contents.  A
++ * mux can select only one sub-bus at a time; a switch can select any
++ * combination simultaneously.
++ *
++ * Based on:
++ *    pca954x.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++ * Copyright (C) 2006
++ *
++ * Based on:
++ *    pca954x.c from Ken Harrenstien
++ * Copyright (C) 2004 Google, Inc. (Ken Harrenstien)
++ *
++ * Based on:
++ *    i2c-virtual_cb.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
++ * and
++ *    pca9540.c from Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, which was
++ *    based on pcf8574.c from the same project by Frodo Looijaard,
++ *    Philip Edelbrock, Dan Eaton and Aurelien Jarno.
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++
++#include <linux/i2c/pca954x.h>
++
++#define PCA954X_MAX_NCHANS 8
++
++enum pca_type {
++	pca_9540,
++	pca_9542,
++	pca_9543,
++	pca_9544,
++	pca_9545,
++	pca_9546,
++	pca_9547,
++	pca_9548,
++};
++
++struct pca954x {
++	struct i2c_client *client;
++	struct i2c_client dev;
++	unsigned int type;
++	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
++
++	u8 last_chan;
++	unsigned int deselect_on_exit:1;
++	int (*is_chan_connected)(struct i2c_adapter *adap,
++			struct i2c_client *client, u32 chan);
++};
++
++struct chip_desc {
++	u8 nchans;
++	u8 enable;		/* used for muxes only */
++	enum muxtype {
++		pca954x_ismux = 0,
++		pca954x_isswi
++	} muxtype;
++};
++
++/* Provide specs for the PCA954x types we know about */
++static struct chip_desc chips[] = {
++	[pca_9540] = {
++		.nchans = 2,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9542] = {
++		.nchans = 2,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9543] = {
++		.nchans = 2,
++		.enable = 0x0,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9544] = {
++		.nchans = 4,
++		.enable = 0x4,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9542] = {
++		.nchans = 4,
++		.enable = 0x0,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9542] = {
++		.nchans = 4,
++		.enable = 0x0,
++		.muxtype = pca954x_isswi,
++	},
++	[pca_9542] = {
++		.nchans = 8,
++		.enable = 0x8,
++		.muxtype = pca954x_ismux,
++	},
++	[pca_9542] = {
++		.nchans = 8,
++		.enable = 0x0,
++		.muxtype = pca954x_isswi,
++	},
++};
++
++static const struct i2c_device_id pca954x_id[] = {
++	{ "pca9540", pca_9540 },
++	{ "pca9542", pca_9542 },
++	{ "pca9543", pca_9543 },
++	{ "pca9544", pca_9544 },
++	{ "pca9545", pca_9545 },
++	{ "pca9546", pca_9546 },
++	{ "pca9547", pca_9547 },
++	{ "pca9548", pca_9548 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, pca954x_id);
++
++static int pca954x_xfer(struct i2c_adapter *adap,
++			struct i2c_client *client, int read_write, u8 *val)
++{
++	int ret = -ENODEV;
++
++	if (adap->algo->master_xfer) {
++		struct i2c_msg msg;
++		char buf[1];
++
++		msg.addr = client->addr;
++		msg.flags = (read_write == I2C_SMBUS_READ ? I2C_M_RD : 0);
++		msg.len = 1;
++		buf[0] = *val;
++		msg.buf = buf;
++		ret = adap->algo->master_xfer(adap, &msg, 1);
++	} else if (adap->algo->smbus_xfer) {
++		union i2c_smbus_data data;
++		ret = adap->algo->smbus_xfer(adap, client->addr,
++						client->flags & I2C_M_TEN,
++						read_write,
++						*val, I2C_SMBUS_BYTE, &data);
++	}
++
++	return ret;
++}
++
++static int pca954x_select_chan(struct i2c_adapter *adap,
++				void *client, u32 chan)
++{
++	struct pca954x *data = i2c_get_clientdata((struct i2c_client *) client);
++	struct chip_desc *chip = &chips[data->type];
++	u8 regval = 0;
++	int ret = 0;
++
++	/* Callback to check for bus connection */
++	if (data->is_chan_connected) {
++		ret = data->is_chan_connected(adap, client, chan);
++		if (!ret)
++			return -EBUSY;
++	}
++
++	/* we make switches look like muxes, not sure how to be smarter */
++	if (chip->muxtype == pca954x_ismux)
++		regval = chan | chip->enable;
++	else
++		regval = 1 << chan;
++
++	/* Only select the channel if its different from the last channel */
++	if (data->last_chan != chan) {
++		ret = pca954x_xfer(adap, client, I2C_SMBUS_WRITE, &regval);
++		data->last_chan = chan;
++	}
++
++	return ret;
++}
++
++static int pca954x_deselect_mux(struct i2c_adapter *adap,
++				void *client, u32 chan)
++{
++	struct pca954x *data = i2c_get_clientdata((struct i2c_client *) client);
++	struct chip_desc *chip = &chips[data->type];
++	u8 regval = 0;
++
++	/* Check if we have to stay on the last channel we selected */
++	if (!data->deselect_on_exit && (chip->muxtype == pca954x_ismux))
++		return 0;
++
++	/* Signal we are deselecting active channel */
++	data->last_chan = -1;
++
++	regval = chan | ~chip->enable;
++	return pca954x_xfer(adap, client, I2C_SMBUS_WRITE, &regval);
++}
++
++/*
++ * I2C init/probing/exit functions
++ */
++
++static int pca954x_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
++	struct pca954x_platform_data *pdata = client->dev.platform_data;
++	int i, n, f;
++	struct pca954x *data;
++	int ret = -ENODEV;
++
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
++		goto err;
++
++	data = kzalloc(sizeof(struct pca954x), GFP_KERNEL);
++	if (!data) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	i2c_set_clientdata(client, data);
++
++	/* Read the mux register at addr.  This does two things: it verifies
++	 * that the mux is in fact present, and fetches its current
++	 * contents for possible use with a future deselect algorithm.
++	 */
++	i = i2c_smbus_read_byte(client);
++	if (i < 0) {
++		dev_warn(&client->dev, "probe failed\n");
++		goto exit_free;
++	}
++
++	data->type = id->driver_data;
++	data->last_chan = -1;			/* force the first selection */
++
++	/* Now create virtual busses and adapters for them */
++	for (i = 0; i < chips[data->type].nchans; i++) {
++		f = 0;				/* dynamic adap number */
++		if (pdata && (i < pdata->num_modes))
++			f = pdata->modes[i].adap_id; /* force static number */
++
++		data->virt_adaps[i] = i2c_add_mux_adapter(adap, client, f, i,
++						&pca954x_select_chan,
++						&pca954x_deselect_mux);
++		if (data->virt_adaps[i] == NULL) {
++			ret = -ENODEV;
++			goto virt_reg_failed;
++		}
++
++		data->deselect_on_exit = pdata->modes[i].deselect_on_exit;
++		data->is_chan_connected = pdata->modes[i].is_chan_connected;
++	}
++
++	dev_info(&client->dev, "registered %d virtual busses for I2C %s %s\n",
++			i, chips[data->type].muxtype == pca954x_ismux ?
++					"mux" : "switch", client->name);
++
++	return 0;
++
++virt_reg_failed:
++	for (n = 0; n < i; n++)
++		i2c_del_mux_adapter(data->virt_adaps[n]);
++	i2c_detach_client(client);
++exit_free:
++	kfree(data);
++err:
++	return ret;
++}
++
++static int __devexit pca954x_remove(struct i2c_client *client)
++{
++	struct pca954x *data = i2c_get_clientdata(client);
++	struct chip_desc *chip = &chips[data->type];
++	int i, err;
++
++	for (i = 0; i < chip->nchans; ++i)
++		if (data->virt_adaps[i]) {
++			err = i2c_del_mux_adapter(data->virt_adaps[i]);
++			if (err)
++				return err;
++			data->virt_adaps[i] = NULL;
++		}
++
++	kfree(data);
++	return 0;
++}
++
++static struct i2c_driver pca954x_driver = {
++	.driver = {
++		.name	= "pca954x",
++		.owner	= THIS_MODULE,
++	},
++	.probe	= pca954x_probe,
++	.remove	= __devexit_p(pca954x_remove),
++	.id_table = pca954x_id,
++};
++
++static int __init pca954x_init(void)
++{
++	return i2c_add_driver(&pca954x_driver);
++}
++
++static void __exit pca954x_exit(void)
++{
++	i2c_del_driver(&pca954x_driver);
++}
++
++module_init(pca954x_init);
++module_exit(pca954x_exit);
++
++MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
++MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c/pca954x.h b/include/linux/i2c/pca954x.h
+new file mode 100644
+index 0000000..18d5e79
+--- /dev/null
++++ b/include/linux/i2c/pca954x.h
+@@ -0,0 +1,13 @@
++/* Platform data for the PCA954x I2C multiplexers */
++
++struct pca954x_platform_mode {
++	int		adap_id;
++	unsigned int	deselect_on_exit:1;
++	int		(*is_chan_connected)(struct i2c_adapter *adap,
++					struct i2c_client *client, u32 chan);
++};
++
++struct pca954x_platform_data {
++	struct pca954x_platform_mode *modes;
++	int num_modes;
++};
+-- 
+1.5.6.3
