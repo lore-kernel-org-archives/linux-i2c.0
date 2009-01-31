@@ -1,19 +1,57 @@
-From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5] iMX/MXC support for I2C
-Date: Fri, 30 Jan 2009 10:36:44 +0200
-Message-ID: <4982BC1C.30801@gmail.com>
-References: <4982BB1C.2040508@gmail.com>
+From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: timeouts reach -1
+Date: Sat, 31 Jan 2009 11:22:58 +0100
+Message-ID: <49842682.2020903@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-13; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4982BB1C.2040508-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: public-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ-8ByrlEUxsivZ+VzJOa5vwg@public.gmane.org, Ben Dooks <public-ben-linux-elnMNo+KYs3YtjvyW6yDsg-8ByrlEUxsivZ+VzJOa5vwg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Changes since v4:
+With a postfix decrement these timeouts reach -1 rather than 0,
+but after the loop it is tested whether they have become 0.
 
-- Typo fixed
-- Added Tested-by: Sascha Hauer and Reviewed-by: Wolfram Sang
+Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-amd8111.c |    4 ++--
+ drivers/i2c/busses/i2c-pxa.c     |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+index edab519..3b9f768 100644
+--- a/drivers/i2c/busses/i2c-amd8111.c
++++ b/drivers/i2c/busses/i2c-amd8111.c
+@@ -72,7 +72,7 @@ static unsigned int amd_ec_wait_write(struct amd_smbus *smbus)
+ {
+ 	int timeout = 500;
+ 
+-	while (timeout-- && (inb(smbus->base + AMD_EC_SC) & AMD_EC_SC_IBF))
++	while (--timeout && (inb(smbus->base + AMD_EC_SC) & AMD_EC_SC_IBF))
+ 		udelay(1);
+ 
+ 	if (!timeout) {
+@@ -88,7 +88,7 @@ static unsigned int amd_ec_wait_read(struct amd_smbus *smbus)
+ {
+ 	int timeout = 500;
+ 
+-	while (timeout-- && (~inb(smbus->base + AMD_EC_SC) & AMD_EC_SC_OBF))
++	while (--timeout && (~inb(smbus->base + AMD_EC_SC) & AMD_EC_SC_OBF))
+ 		udelay(1);
+ 
+ 	if (!timeout) {
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 6af6814..6379ec1 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -644,7 +644,7 @@ static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+ 
+ 	i2c_pxa_start_message(i2c);
+ 
+-	while (timeout-- && i2c->msg_num > 0) {
++	while (--timeout && i2c->msg_num > 0) {
+ 		i2c_pxa_handler(0, i2c);
+ 		udelay(10);
+ 	}
