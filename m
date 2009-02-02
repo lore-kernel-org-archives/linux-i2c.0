@@ -1,74 +1,74 @@
-From: "Pakaravoor, Jagadeesh" <j-pakaravoor-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH] I2C: OMAP: Add missing wakeup events
-Date: Mon, 2 Feb 2009 12:47:05 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02A3D44D79@dbde02.ent.ti.com>
-References: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF17B@dbde02.ent.ti.com>
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Subject: Re: [PATCH] I2C: OMAP: Include OMAP_I2C_SYSC_REG in save and restore
+Date: Mon, 02 Feb 2009 15:08:07 +0200
+Message-ID: <4986F037.3090604@nokia.com>
+References: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF069@dbde02.ent.ti.com> <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF0A6@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF17B-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF0A6@dbde02.ent.ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "ext Pakaravoor, Jagadeesh" <j-pakaravoor@ti.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ben,
+Hello,
 
-  Did you get a chance to look at this patch?
+ext Pakaravoor, Jagadeesh wrote:
+> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+> 
+> Save and restore should include OMAP_I2C_SYSC_REG.
+> 
+> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+> CC: Jouni Hogander <jouni.hogander@nokia.com>
+> ---
+> Index: linux-omap-2.6/drivers/i2c/busses/i2c-omap.c
+> ===================================================================
+> --- linux-omap-2.6.orig/drivers/i2c/busses/i2c-omap.c   2009-01-22 12:11:12.000000000 +0530
+> +++ linux-omap-2.6/drivers/i2c/busses/i2c-omap.c        2009-01-22 12:44:12.202367296 +0530
+> @@ -182,6 +182,7 @@ struct omap_i2c_dev {
+>         u16                     scllstate;
+>         u16                     sclhstate;
+>         u16                     bufstate;
+> +       u16                     syscstate;
+>  };
+> 
+>  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+> @@ -240,6 +241,7 @@ static void omap_i2c_unidle(struct omap_
+>                 omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
+> +               omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
+>         }
+>         dev->idle = 0;
+>         omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+> @@ -300,14 +302,15 @@ static int omap_i2c_init(struct omap_i2c
+>                 } else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
+>                         u32 v;
 
+This local variable is left unused, so you will get a compiler warning.
 
+> -                       v = SYSC_AUTOIDLE_MASK;
+> -                       v |= SYSC_ENAWAKEUP_MASK;
+> -                       v |= (SYSC_IDLEMODE_SMART <<
+> +                       dev->syscstate = SYSC_AUTOIDLE_MASK;
+> +                       dev->syscstate |= SYSC_ENAWAKEUP_MASK;
+> +                       dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+>                               __ffs(SYSC_SIDLEMODE_MASK));
+> -                       v |= (SYSC_CLOCKACTIVITY_FCLK <<
+> +                       dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK <<
+>                               __ffs(SYSC_CLOCKACTIVITY_MASK));
+> 
+> -                       omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, v);
+> +                       omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
+> +                                                       dev->syscstate);
+>                         /*
+>                          * Enabling all wakup sources to stop I2C freezing on
+>                          * WFI instruction.
+> 
+> --
+> With Regards,
+> Jagadeesh Bhaskar P
 
------Original Message-----
-From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Pakaravoor, Jagadeesh
-Sent: Friday, January 23, 2009 2:19 PM
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Ben Dooks
-Subject: [PATCH] I2C: OMAP: Add missing wakeup events
-
-From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
-
-Include wake up events for receiver overflow and transmitter
-underflow in OMAP_I2C_WE_REG configuration. Also fix a small
-typo.
-
-Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
----
-Index: kernel_org/drivers/i2c/busses/i2c-omap.c
-===================================================================
---- kernel_org.orig/drivers/i2c/busses/i2c-omap.c	2009-01-23 12:46:58.000000000 +0530
-+++ kernel_org/drivers/i2c/busses/i2c-omap.c	2009-01-23 14:15:52.187150630 +0530
-@@ -92,8 +92,10 @@
- #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
- 
- /* I2C WE wakeup enable register */
--#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
-+#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
- #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
-+#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
-+#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
- #define OMAP_I2C_WE_AAS_WE	(1 << 9)	/* Address as slave wakeup*/
- #define OMAP_I2C_WE_BF_WE	(1 << 8)	/* Bus free wakeup */
- #define OMAP_I2C_WE_STC_WE	(1 << 6)	/* Start condition wakeup */
-@@ -104,6 +106,7 @@
- #define OMAP_I2C_WE_AL_WE	(1 << 0)	/* Arbitration lost wakeup */
- 
- #define OMAP_I2C_WE_ALL		(OMAP_I2C_WE_XDR_WE | OMAP_I2C_WE_RDR_WE | \
-+				OMAP_I2C_WE_ROVR_WE | OMAP_I2C_WE_XUDF_WE | \
- 				OMAP_I2C_WE_AAS_WE | OMAP_I2C_WE_BF_WE | \
- 				OMAP_I2C_WE_STC_WE | OMAP_I2C_WE_GC_WE | \
- 				OMAP_I2C_WE_DRDY_WE | OMAP_I2C_WE_ARDY_WE | \
---
-With Regards,
-Jagadeesh Bhaskar P
- 
-----------------------------
-Some men see things as they are and say why - I dream things that never were and say why not.
-- George Bernard Shaw
-----------------------------
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+A.
