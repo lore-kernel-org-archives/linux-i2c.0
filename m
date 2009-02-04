@@ -1,59 +1,608 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5] iMX/MXC support for I2C
-Date: Wed, 4 Feb 2009 11:00:22 +0100
-Message-ID: <20090204100022.GC3084@pengutronix.de>
-References: <4982BB1C.2040508@gmail.com>
+From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/2 v2] i2c,algo: cleanup i2c-algo-pcf.c
+Date: Wed, 04 Feb 2009 17:07:16 +0100
+Message-ID: <4989BD34.9050406@gmail.com>
+References: <4984688B.2090805@gmail.com>	<20090201114121.6448a3c9@hyperion.delvare>	<498760F7.6020005@gmail.com>	<20090202225309.359e77d6@hyperion.delvare>	<49883938.9010104@gmail.com> <20090204093402.08ddb2e8@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4982BB1C.2040508-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20090204093402.08ddb2e8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---yVhtmJPUSI46BTXb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Jan 30, 2009 at 10:32:28AM +0200, Darius wrote:
-
-> From: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Jean Delvare wrote:
+> It seems you have been a bit overzealous. I now get the following
+> warning when building the i2c-algo-pcf driver:
 >=20
-> Implementation of I2C Adapter/Algorithm Driver for I2C Bus integrated
-> in Freescale's i.MX/MXC processors.
+> drivers/i2c/algos/i2c-algo-pcf.c: In function =E2=80=98pcf_xfer=E2=80=
+=99:
+> drivers/i2c/algos/i2c-algo-pcf.c:377: warning: suggest explicit brace=
+s to avoid ambiguous =E2=80=98else=E2=80=99
+> drivers/i2c/algos/i2c-algo-pcf.c:387: warning: suggest explicit brace=
+s to avoid ambiguous =E2=80=98else=E2=80=99
+
+should be fixed now.
+
+>> @@ -313,24 +299,26 @@ static int pcf_doAddress(struct i2c_algo_pcf_d=
+ata *adap,
+>>  	unsigned char addr;
+>> =20
+>>  	addr =3D msg->addr << 1;
+>> +
+>>  	if (flags & I2C_M_RD)
+>>  		addr |=3D 1;
+>>  	if (flags & I2C_M_REV_DIR_ADDR)
+>>  		addr ^=3D 1;
+>> +
+>>  	i2c_outb(adap, addr);
+>> =20
+>>  	return 0;
+>>  }
 >=20
-> Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Tested-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Not sure why you want to add blank lines there.
 
-Ben, do you pick it up, or should it go via Sascha's iMX-Tree?
+Ok, removed.
 
-Regards,
+------------------>8-----------------8<-------------------------
+cleanup whitespace, fix comments and remove the unused STUB_I2C.
 
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-5064 |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
-
---yVhtmJPUSI46BTXb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmJZzYACgkQD27XaX1/VRtaQQCbBkcQMEM4N1U5v8waJ+U5VCtS
-4b4AoJn1fEY1b7jPoeox9f91T6hT4D11
-=G+rq
------END PGP SIGNATURE-----
-
---yVhtmJPUSI46BTXb--
+Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-a=
+lgo-pcf.c
+index 3e01992..ce916d7 100644
+--- a/drivers/i2c/algos/i2c-algo-pcf.c
++++ b/drivers/i2c/algos/i2c-algo-pcf.c
+@@ -1,31 +1,30 @@
+-/* -------------------------------------------------------------------=
+------ */
+-/* i2c-algo-pcf.c i2c driver algorithms for PCF8584 adapters		     */
+-/* -------------------------------------------------------------------=
+------ */
+-/*   Copyright (C) 1995-1997 Simon G. Vogl
+-                   1998-2000 Hans Berglund
+-
+-    This program is free software; you can redistribute it and/or modi=
+fy
+-    it under the terms of the GNU General Public License as published =
+by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.		     */
+-/* -------------------------------------------------------------------=
+------ */
+-
+-/* With some changes from Ky=C3=B6sti M=C3=A4lkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org> =
+and
+-   Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org> ,and also from Martin Bailey
+-   <mbailey-0IcqLCOdkweesDZOCDqTHtBPR1lH4CV8@public.gmane.org> */
+-
+-/* Partially rewriten by Oleg I. Vdovikin <vdovikin-EllQnLNTEGo@public.gmane.org> to handle=
+ multiple
+-   messages, proper stop/repstart signaling during receive,
+-   added detect code */
++/*
++ * i2c-algo-pcf.c i2c driver algorithms for PCF8584 adapters
++ *
++ *   Copyright (C) 1995-1997 Simon G. Vogl
++ *		   1998-2000 Hans Berglund
++ *
++ *  This program is free software; you can redistribute it and/or modi=
+fy
++ *  it under the terms of the GNU General Public License as published =
+by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * With some changes from Ky=C3=B6sti M=C3=A4lkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org> =
+and
++ * Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>, and also from Martin Bailey
++ * <mbailey-0IcqLCOdkweesDZOCDqTHtBPR1lH4CV8@public.gmane.org>
++ *
++ * Partially rewriten by Oleg I. Vdovikin <vdovikin-EllQnLNTEGo@public.gmane.org> to handle=
+ multiple
++ * messages, proper stop/repstart signaling during receive, added dete=
+ct code
++ */
+=20
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -38,17 +37,18 @@
+ #include "i2c-algo-pcf.h"
+=20
+=20
+-#define DEB2(x) if (i2c_debug>=3D2) x
+-#define DEB3(x) if (i2c_debug>=3D3) x /* print several statistical val=
+ues*/
+-#define DEBPROTO(x) if (i2c_debug>=3D9) x;
+- 	/* debug the protocol by showing transferred bits */
++#define DEB2(x) if (i2c_debug >=3D 2) x
++#define DEB3(x) if (i2c_debug >=3D 3) x /* print several statistical v=
+alues */
++#define DEBPROTO(x) if (i2c_debug >=3D 9) x;
++	/* debug the protocol by showing transferred bits */
+ #define DEF_TIMEOUT 16
+=20
+-/* module parameters:
++/*
++ * module parameters:
+  */
+ static int i2c_debug;
+=20
+-/* --- setting states on the bus with the right timing: --------------=
+-	*/
++/* setting states on the bus with the right timing: */
+=20
+ #define set_pcf(adap, ctl, val) adap->setpcf(adap->data, ctl, val)
+ #define get_pcf(adap, ctl) adap->getpcf(adap->data, ctl)
+@@ -57,22 +57,21 @@ static int i2c_debug;
+ #define i2c_outb(adap, val) adap->setpcf(adap->data, 0, val)
+ #define i2c_inb(adap) adap->getpcf(adap->data, 0)
+=20
+-/* --- other auxiliary functions -------------------------------------=
+-	*/
++/* other auxiliary functions */
+=20
+-static void i2c_start(struct i2c_algo_pcf_data *adap)=20
++static void i2c_start(struct i2c_algo_pcf_data *adap)
+ {
+ 	DEBPROTO(printk("S "));
+ 	set_pcf(adap, 1, I2C_PCF_START);
+ }
+=20
+-static void i2c_repstart(struct i2c_algo_pcf_data *adap)=20
++static void i2c_repstart(struct i2c_algo_pcf_data *adap)
+ {
+ 	DEBPROTO(printk(" Sr "));
+ 	set_pcf(adap, 1, I2C_PCF_REPSTART);
+ }
+=20
+-
+-static void i2c_stop(struct i2c_algo_pcf_data *adap)=20
++static void i2c_stop(struct i2c_algo_pcf_data *adap)
+ {
+ 	DEBPROTO(printk("P\n"));
+ 	set_pcf(adap, 1, I2C_PCF_STOP);
+@@ -82,17 +81,17 @@ static void handle_lab(struct i2c_algo_pcf_data *ad=
+ap, const int *status)
+ {
+ 	DEB2(printk(KERN_INFO
+ 		"i2c-algo-pcf.o: lost arbitration (CSR 0x%02x)\n",
+-		 *status));
+-
+-	/* Cleanup from LAB -- reset and enable ESO.
++		*status));
++	/*
++	 * Cleanup from LAB -- reset and enable ESO.
+ 	 * This resets the PCF8584; since we've lost the bus, no
+ 	 * further attempts should be made by callers to clean up
+ 	 * (no i2c_stop() etc.)
+ 	 */
+ 	set_pcf(adap, 1, I2C_PCF_PIN);
+ 	set_pcf(adap, 1, I2C_PCF_ESO);
+-
+-	/* We pause for a time period sufficient for any running
++	/*
++	 * We pause for a time period sufficient for any running
+ 	 * I2C transaction to complete -- the arbitration logic won't
+ 	 * work properly until the next START is seen.
+ 	 * It is assumed the bus driver or client has set a proper value.
+@@ -108,48 +107,48 @@ static void handle_lab(struct i2c_algo_pcf_data *=
+adap, const int *status)
+ 		get_pcf(adap, 1)));
+ }
+=20
+-static int wait_for_bb(struct i2c_algo_pcf_data *adap) {
++static int wait_for_bb(struct i2c_algo_pcf_data *adap)
++{
+=20
+ 	int timeout =3D DEF_TIMEOUT;
+ 	int status;
+=20
+ 	status =3D get_pcf(adap, 1);
+-#ifndef STUB_I2C
++
+ 	while (timeout-- && !(status & I2C_PCF_BB)) {
+ 		udelay(100); /* wait for 100 us */
+ 		status =3D get_pcf(adap, 1);
+ 	}
+-#endif
+-	if (timeout <=3D 0) {
++
++	if (timeout <=3D 0)
+ 		printk(KERN_ERR "Timeout waiting for Bus Busy\n");
+-	}
+-=09
+-	return (timeout<=3D0);
+-}
+=20
++	return timeout <=3D 0;
++}
+=20
+-static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status) {
++static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
++{
+=20
+ 	int timeout =3D DEF_TIMEOUT;
+=20
+ 	*status =3D get_pcf(adap, 1);
+-#ifndef STUB_I2C
++
+ 	while (timeout-- && (*status & I2C_PCF_PIN)) {
+ 		adap->waitforpin(adap->data);
+ 		*status =3D get_pcf(adap, 1);
+ 	}
+ 	if (*status & I2C_PCF_LAB) {
+ 		handle_lab(adap, status);
+-		return(-EINTR);
++		return -EINTR;
+ 	}
+-#endif
++
+ 	if (timeout <=3D 0)
+-		return(-1);
++		return -1;
+ 	else
+-		return(0);
++		return 0;
+ }
+=20
+-/*=20
++/*
+  * This should perform the 'PCF8584 initialization sequence' as descri=
+bed
+  * in the Philips IC12 data book (1995, Aug 29).
+  * There should be a 30 clock cycle wait after reset, I assume this
+@@ -164,18 +163,21 @@ static int pcf_init_8584 (struct i2c_algo_pcf_dat=
+a *adap)
+ {
+ 	unsigned char temp;
+=20
+-	DEB3(printk(KERN_DEBUG "i2c-algo-pcf.o: PCF state 0x%02x\n", get_pcf(=
+adap, 1)));
++	DEB3(printk(KERN_DEBUG "i2c-algo-pcf.o: PCF state 0x%02x\n",
++				get_pcf(adap, 1)));
+=20
+ 	/* S1=3D0x80: S0 selected, serial interface off */
+ 	set_pcf(adap, 1, I2C_PCF_PIN);
+-	/* check to see S1 now used as R/W ctrl -
+-	   PCF8584 does that when ESO is zero */
++	/*
++	 * check to see S1 now used as R/W ctrl -
++	 * PCF8584 does that when ESO is zero
++	 */
+ 	if (((temp =3D get_pcf(adap, 1)) & 0x7f) !=3D (0)) {
+ 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: PCF detection failed -- can't =
+select S0 (0x%02x).\n", temp));
+ 		return -ENXIO; /* definetly not PCF8584 */
+ 	}
+=20
+-	/* load own address in S0, effective address is (own << 1)	*/
++	/* load own address in S0, effective address is (own << 1) */
+ 	i2c_outb(adap, get_own(adap));
+ 	/* check it's really written */
+ 	if ((temp =3D i2c_inb(adap)) !=3D get_own(adap)) {
+@@ -183,7 +185,7 @@ static int pcf_init_8584 (struct i2c_algo_pcf_data =
+*adap)
+ 		return -ENXIO;
+ 	}
+=20
+-	/* S1=3D0xA0, next byte in S2					*/
++	/* S1=3D0xA0, next byte in S2 */
+ 	set_pcf(adap, 1, I2C_PCF_PIN | I2C_PCF_ES1);
+ 	/* check to see S2 now selected */
+ 	if (((temp =3D get_pcf(adap, 1)) & 0x7f) !=3D I2C_PCF_ES1) {
+@@ -191,7 +193,7 @@ static int pcf_init_8584 (struct i2c_algo_pcf_data =
+*adap)
+ 		return -ENXIO;
+ 	}
+=20
+-	/* load clock register S2					*/
++	/* load clock register S2 */
+ 	i2c_outb(adap, get_clock(adap));
+ 	/* check it's really written, the only 5 lowest bits does matter */
+ 	if (((temp =3D i2c_inb(adap)) & 0x1f) !=3D get_clock(adap)) {
+@@ -199,7 +201,7 @@ static int pcf_init_8584 (struct i2c_algo_pcf_data =
+*adap)
+ 		return -ENXIO;
+ 	}
+=20
+-	/* Enable serial interface, idle, S0 selected			*/
++	/* Enable serial interface, idle, S0 selected */
+ 	set_pcf(adap, 1, I2C_PCF_IDLE);
+=20
+ 	/* check to see PCF is really idled and we can access status register=
+ */
+@@ -207,57 +209,47 @@ static int pcf_init_8584 (struct i2c_algo_pcf_dat=
+a *adap)
+ 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: PCF detection failed -- can't =
+select S1` (0x%02x).\n", temp));
+ 		return -ENXIO;
+ 	}
+-=09
++
+ 	printk(KERN_DEBUG "i2c-algo-pcf.o: detected and initialized PCF8584.\=
+n");
+=20
+ 	return 0;
+ }
+=20
+-
+-/* ----- Utility functions
+- */
+-
+ static int pcf_sendbytes(struct i2c_adapter *i2c_adap, const char *buf=
+,
+-                         int count, int last)
++			 int count, int last)
+ {
+ 	struct i2c_algo_pcf_data *adap =3D i2c_adap->algo_data;
+ 	int wrcount, status, timeout;
+-   =20
++
+ 	for (wrcount=3D0; wrcount<count; ++wrcount) {
+ 		DEB2(dev_dbg(&i2c_adap->dev, "i2c_write: writing %2.2X\n",
+-				buf[wrcount]&0xff));
++				buf[wrcount] & 0xff));
+ 		i2c_outb(adap, buf[wrcount]);
+ 		timeout =3D wait_for_pin(adap, &status);
+ 		if (timeout) {
+-			if (timeout =3D=3D -EINTR) {
+-				/* arbitration lost */
+-				return -EINTR;
+-			}
++			if (timeout =3D=3D -EINTR)
++				return -EINTR; /* arbitration lost */
++
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "i2c_write: error - timeout.\n");
+ 			return -EREMOTEIO; /* got a better one ?? */
+ 		}
+-#ifndef STUB_I2C
+ 		if (status & I2C_PCF_LRB) {
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "i2c_write: error - no ack.\n");
+ 			return -EREMOTEIO; /* got a better one ?? */
+ 		}
+-#endif
+ 	}
+-	if (last) {
++	if (last)
+ 		i2c_stop(adap);
+-	}
+-	else {
++	else
+ 		i2c_repstart(adap);
+-	}
+=20
+-	return (wrcount);
++	return wrcount;
+ }
+=20
+-
+ static int pcf_readbytes(struct i2c_adapter *i2c_adap, char *buf,
+-                         int count, int last)
++			 int count, int last)
+ {
+ 	int i, status;
+ 	struct i2c_algo_pcf_data *adap =3D i2c_adap->algo_data;
+@@ -267,42 +259,36 @@ static int pcf_readbytes(struct i2c_adapter *i2c_=
+adap, char *buf,
+ 	for (i =3D 0; i <=3D count; i++) {
+=20
+ 		if ((wfp =3D wait_for_pin(adap, &status))) {
+-			if (wfp =3D=3D -EINTR) {
+-				/* arbitration lost */
+-				return -EINTR;
+-			}
++			if (wfp =3D=3D -EINTR)
++				return -EINTR; /* arbitration lost */
++
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "pcf_readbytes timed out.\n");
+-			return (-1);
++			return -1;
+ 		}
+=20
+-#ifndef STUB_I2C
+ 		if ((status & I2C_PCF_LRB) && (i !=3D count)) {
+ 			i2c_stop(adap);
+ 			dev_err(&i2c_adap->dev, "i2c_read: i2c_inb, No ack.\n");
+-			return (-1);
++			return -1;
+ 		}
+-#endif
+-	=09
++
+ 		if (i =3D=3D count - 1) {
+ 			set_pcf(adap, 1, I2C_PCF_ESO);
+-		} else=20
+-		if (i =3D=3D count) {
+-			if (last) {
++		} else if (i =3D=3D count) {
++			if (last)
+ 				i2c_stop(adap);
+-			} else {
++			else
+ 				i2c_repstart(adap);
+-			}
+-		};
++		}
+=20
+-		if (i) {
++		if (i)
+ 			buf[i - 1] =3D i2c_inb(adap);
+-		} else {
++		else
+ 			i2c_inb(adap); /* dummy read */
+-		}
+ 	}
+=20
+-	return (i - 1);
++	return i - 1;
+ }
+=20
+=20
+@@ -323,14 +309,14 @@ static int pcf_doAddress(struct i2c_algo_pcf_data=
+ *adap,
+ }
+=20
+ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+-		    struct i2c_msg *msgs,=20
++		    struct i2c_msg *msgs,
+ 		    int num)
+ {
+ 	struct i2c_algo_pcf_data *adap =3D i2c_adap->algo_data;
+ 	struct i2c_msg *pmsg;
+ 	int i;
+ 	int ret=3D0, timeout, status;
+-   =20
++
+ 	if (adap->xfer_begin)
+ 		adap->xfer_begin(adap->data);
+=20
+@@ -338,25 +324,24 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 	timeout =3D wait_for_bb(adap);
+ 	if (timeout) {
+ 		DEB2(printk(KERN_ERR "i2c-algo-pcf.o: "
+-		            "Timeout waiting for BB in pcf_xfer\n");)
++			    "Timeout waiting for BB in pcf_xfer\n");)
+ 		i =3D -EIO;
+ 		goto out;
+ 	}
+-=09
++
+ 	for (i =3D 0;ret >=3D 0 && i < num; i++) {
+ 		pmsg =3D &msgs[i];
+=20
+ 		DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: Doing %s %d bytes to 0x%02x =
+- %d of %d messages\n",
+ 		     pmsg->flags & I2C_M_RD ? "read" : "write",
+-                     pmsg->len, pmsg->addr, i + 1, num);)
+-   =20
++		     pmsg->len, pmsg->addr, i + 1, num);)
++
+ 		ret =3D pcf_doAddress(adap, pmsg);
+=20
+ 		/* Send START */
+-		if (i =3D=3D 0) {
+-			i2c_start(adap);=20
+-		}
+-   =20
++		if (i =3D=3D 0)
++			i2c_start(adap);
++
+ 		/* Wait for PIN (pending interrupt NOT) */
+ 		timeout =3D wait_for_pin(adap, &status);
+ 		if (timeout) {
+@@ -371,8 +356,7 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 			i =3D -EREMOTEIO;
+ 			goto out;
+ 		}
+-   =20
+-#ifndef STUB_I2C
++
+ 		/* Check LRB (last rcvd bit - slave ack) */
+ 		if (status & I2C_PCF_LRB) {
+ 			i2c_stop(adap);
+@@ -380,57 +364,55 @@ static int pcf_xfer(struct i2c_adapter *i2c_adap,
+ 			i =3D -EREMOTEIO;
+ 			goto out;
+ 		}
+-#endif
+-   =20
++
+ 		DEB3(printk(KERN_DEBUG "i2c-algo-pcf.o: Msg %d, addr=3D0x%x, flags=3D=
+0x%x, len=3D%d\n",
+ 			    i, msgs[i].addr, msgs[i].flags, msgs[i].len);)
+-   =20
+-		/* Read */
++
+ 		if (pmsg->flags & I2C_M_RD) {
+-			/* read bytes into buffer*/
+ 			ret =3D pcf_readbytes(i2c_adap, pmsg->buf, pmsg->len,
+-                                            (i + 1 =3D=3D num));
+-       =20
++					    (i + 1 =3D=3D num));
++
+ 			if (ret !=3D pmsg->len) {
+ 				DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: fail: "
+ 					    "only read %d bytes.\n",ret));
+ 			} else {
+ 				DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: read %d bytes.\n",ret));
+ 			}
+-		} else { /* Write */
++
++		} else {
+ 			ret =3D pcf_sendbytes(i2c_adap, pmsg->buf, pmsg->len,
+-                                            (i + 1 =3D=3D num));
+-       =20
++					    (i + 1 =3D=3D num));
++
+ 			if (ret !=3D pmsg->len) {
+ 				DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: fail: "
+ 					    "only wrote %d bytes.\n",ret));
+ 			} else {
+ 				DEB2(printk(KERN_DEBUG "i2c-algo-pcf.o: wrote %d bytes.\n",ret));
+ 			}
++
+ 		}
+ 	}
+=20
+ out:
+ 	if (adap->xfer_end)
+ 		adap->xfer_end(adap->data);
+-	return (i);
++	return i;
+ }
+=20
+ static u32 pcf_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |=20
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+ 	       I2C_FUNC_PROTOCOL_MANGLING;
+ }
+=20
+-/* -----exported algorithm data: -------------------------------------=
+	*/
+-
++/* exported algorithm data: */
+ static const struct i2c_algorithm pcf_algo =3D {
+ 	.master_xfer	=3D pcf_xfer,
+ 	.functionality	=3D pcf_func,
+ };
+=20
+-/*=20
+- * registering functions to load algorithms at runtime=20
++/*
++ * registering functions to load algorithms at runtime
+  */
+ int i2c_pcf_add_bus(struct i2c_adapter *adap)
+ {
+@@ -458,4 +440,4 @@ MODULE_LICENSE("GPL");
+=20
+ module_param(i2c_debug, int, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(i2c_debug,
+-        "debug level - 0 off; 1 normal; 2,3 more verbose; 9 pcf-protoc=
+ol");
++	"debug level - 0 off; 1 normal; 2,3 more verbose; 9 pcf-protocol");
