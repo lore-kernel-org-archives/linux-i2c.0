@@ -1,59 +1,29 @@
-From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Subject: i2c bus multiplexing (Version 2).
-Date: Thu,  5 Feb 2009 14:36:07 +0100
-Message-ID: <1233840973-13268-1-git-send-email-giometti@linux.it>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: Calling wait_event_interruptible_timeout() in I2C wait functions
+Date: Thu, 5 Feb 2009 09:18:04 -0600
+Message-ID: <ed82fe3e0902050718w1c7bfff3r883eea185b66299@mail.gmail.com>
+References: <49889CFA.7070308@freescale.com> <4989F3F4.7070207@consentry.com>
+	 <20090205115100.GD422@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090205115100.GD422-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+To: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Cc: Mike Ditto <mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch set adds to the I2C core the ability to handle multiplexed
-I2C bus topologies by presenting each multiplexed segment as a I2C
-adapter.
+On Thu, Feb 5, 2009 at 5:51 AM, Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org> wrote:
 
-As you can see from the changelog I had to update i2c-core since when
-a real adapter (not multiplexer) driver is inserted into the kernel
-_after_ an i2c multiplxer one, function i2c_add_adapter() is called
-recursively (and the same for i2c_del_adapter() during module removal)
-causing a kernel hang due the i2c's "core_lock" mutex.
+> This is exactly the problem for users that caused Timur to run into this
+> - further up the stack we're trying to do cleanup that involves writing
+> via I2C but the I2C writes error out due to the signal.
 
-Changelog
-=========
+Well, there's not much discussion on this issue, so I'm going to make
+the change to an uninterruptible wait and see if it fixes my problem.
+If so, I'll post a patch for i2c-mpc.c and see how far I get.
 
-Version 1 -> 2:
----------------
-
-* Fixes a bug related to recursive calls of i2c_(add|del)_adapter()
-  functions when main adapter is inserted or removed _after_ slave
-  adapetrs (i2c multiplexers).
-
-  This goal has been achieved by:
-
-  a) using rwsem instead of mutex for accessing board info data struct,
-
-  b) ignoring any active client detaching faults (see relative patch for
-     further info),
-
-  c) removing "core_lock" mutex into adapters (de)registration code.
-
-Rodolfo
-
---
-
- b/drivers/i2c/Kconfig         |   10 +
- b/drivers/i2c/Makefile        |    3 
- b/drivers/i2c/i2c-boardinfo.c |    6 
- b/drivers/i2c/i2c-core.c      |    4 
- b/drivers/i2c/i2c-core.h      |    2 
- b/drivers/i2c/i2c-mux.c       |  180 +++++++++++++++++++++++
- b/drivers/i2c/muxes/Kconfig   |    8 +
- b/drivers/i2c/muxes/Makefile  |    6
- b/drivers/i2c/muxes/pca954x.c |  325 ++++++++++++++++++++++++++++++++++++++++++
- b/include/linux/i2c-id.h      |    3
- b/include/linux/i2c.h         |   14 +
- b/include/linux/i2c/pca954x.h |   13 +
- drivers/i2c/i2c-core.c        |   78 ++++------
- drivers/i2c/muxes/Kconfig     |    9 +
- drivers/i2c/muxes/Makefile    |    2
- 15 files changed, 615 insertions(+), 48 deletions(-)
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
