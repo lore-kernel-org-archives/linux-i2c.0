@@ -1,45 +1,43 @@
-From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Subject: [PATCH 2/2] i2c pxa: add the force reset method.
-Date: Fri,  6 Feb 2009 16:23:18 +0100
-Message-ID: <1233933798-17673-2-git-send-email-giometti@linux.it>
-References: <1233933798-17673-1-git-send-email-giometti@linux.it>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek-HFFVJYpyMKqzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: add missing KERN_* constants to printks
+Date: Fri, 6 Feb 2009 19:35:42 +0100
+Message-ID: <20090206183542.GB6361@strlen.de>
+References: <498C3EEA.5060508@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1233933798-17673-1-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <498C3EEA.5060508-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+To: Frank Seidel <fseidel-l3A5Bk7waGM@public.gmane.org>
+Cc: linux kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Frans Pop <elendil-EIBgga6/0yRmR6Xm/wNWPw@public.gmane.org>, Geert Uytterhoeven <Geert.Uytterhoeven-osDt5Q4Chk1BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+Hello,
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 6af6814..ccbc9ba 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -963,6 +963,13 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
- 	return ret;
- }
- 
-+static void i2c_pxa_force_reset(struct i2c_adapter *adap)
-+{
-+	struct pxa_i2c *i2c = adap->algo_data;
-+
-+	i2c_pxa_reset(i2c);
-+}
-+
- static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-@@ -1065,6 +1072,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 
- 	i2c->adap.algo_data = i2c;
- 	i2c->adap.dev.parent = &dev->dev;
-+	i2c->adap.reset	  = i2c_pxa_force_reset;
- 
- 	ret = i2c_add_numbered_adapter(&i2c->adap);
- 	if (ret < 0) {
--- 
-1.5.6.3
+On Fri, Feb 06, 2009 at 02:45:14PM +0100, Frank Seidel wrote:
+> From: Frank Seidel <frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org>
+> 
+> According to kerneljanitors todo list all printk calls (beginning
+> a new line) should have an according KERN_* constant.
+> Those are the missing pieces here for the i2c subsystem.
+OK in principle.  Still *I* prefer the pr_debug, pr_emerg etc. macros.
+Looks a bit nicer ...
+
+> --- a/drivers/i2c/algos/i2c-algo-pca.c
+> +++ b/drivers/i2c/algos/i2c-algo-pca.c
+> @@ -51,7 +51,7 @@ static int i2c_debug;
+>  static void pca_start(struct i2c_algo_pca_data *adap)
+>  {
+>  	int sta = pca_get_con(adap);
+> -	DEB2("=== START\n");
+> +	DEB2(KERN_WARNING "=== START\n");
+Are you sure about KERN_WARNING?  I havn't looked deeper, but DEB2
+suggests KERN_DEBUG?  What about fixing DEB[1-3] directly instead of
+each "call".  e.g.
+
+-#define DEB2(fmt, args...) do { if (i2c_debug>=2) printk(fmt, ## args); } while(0)
++#define DEB2(fmt, args...) do { if (i2c_debug>=2) pr_warning(fmt, ## args); } while(0)
+
+Best regards,
+Uwe
