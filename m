@@ -1,60 +1,70 @@
-From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH] i2c-mpc: do not allow interruptions when waiting for I2C to complete
-Date: Fri,  6 Feb 2009 08:00:37 -0600
-Message-ID: <1233928837-3401-1-git-send-email-timur@freescale.com>
+From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Subject: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
+Date: Fri,  6 Feb 2009 16:23:17 +0100
+Message-ID: <1233933798-17673-1-git-send-email-giometti@linux.it>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c_wait() function is using wait_event_interruptible_timeout() to wait for
-the I2C controller to signal that it has completed an I2C bus operation.  If
-the process that causes the I2C operation terminated abruptly, the wait will
-be interrupted, returning an error.  It is better to let the I2C operation
-finished before the process exits.
+It could happen that an i2c adapter may lock the bus due due
+electrical problems, so the user may recover this stale state by using:
 
-It is safe to use wait_event_timeout() instead, because the timeout will allow
-the process to exit if the I2C bus hangs.  It's also better to allow the
-I2C operation to finish, because unacknowledged I2C operations can cause the
-I2C bus to hang.
+	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
 
-Signed-off-by: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 ---
+ drivers/i2c/i2c-core.c |   21 +++++++++++++++++++++
+ include/linux/i2c.h    |    2 ++
+ 2 files changed, 23 insertions(+), 0 deletions(-)
 
-A similar change should probably be done to i2c-cpm.c, and maybe all other
-I2C drivers.  Not many use wait_event_interruptible_timeout().
-
- drivers/i2c/busses/i2c-mpc.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index a9a45fc..c0ace48 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -70,7 +70,7 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
- 		/* Read again to allow register to stabilise */
- 		i2c->interrupt = readb(i2c->base + MPC_I2C_SR);
- 		writeb(0, i2c->base + MPC_I2C_SR);
--		wake_up_interruptible(&i2c->queue);
-+		wake_up(&i2c->queue);
- 	}
- 	return IRQ_HANDLED;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index b1c9abe..b0c4053 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -393,8 +393,29 @@ show_adapter_name(struct device *dev, struct device_attribute *attr, char *buf)
+ 	return sprintf(buf, "%s\n", adap->name);
  }
-@@ -115,13 +115,10 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- 		writeb(0, i2c->base + MPC_I2C_SR);
- 	} else {
- 		/* Interrupt mode */
--		result = wait_event_interruptible_timeout(i2c->queue,
-+		result = wait_event_timeout(i2c->queue,
- 			(i2c->interrupt & CSR_MIF), timeout * HZ);
  
--		if (unlikely(result < 0)) {
--			pr_debug("I2C: wait interrupted\n");
--			writeccr(i2c, 0);
--		} else if (unlikely(!(i2c->interrupt & CSR_MIF))) {
-+		if (unlikely(!(i2c->interrupt & CSR_MIF))) {
- 			pr_debug("I2C: wait timeout\n");
- 			writeccr(i2c, 0);
- 			result = -ETIMEDOUT;
++static ssize_t
++write_adapter_reset(struct device *dev, struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	struct i2c_adapter *adap = to_i2c_adapter(dev);
++	unsigned long val;
++	int ret;
++
++	if (!adap->reset)
++		return -EINVAL;
++
++	ret = strict_strtoul(buf, 10, &val);
++	if (ret || val != 1)
++		return -EINVAL;
++
++	adap->reset(adap);
++
++	return count;
++}
++
+ static struct device_attribute i2c_adapter_attrs[] = {
+ 	__ATTR(name, S_IRUGO, show_adapter_name, NULL),
++	__ATTR(reset, S_IWUSR, NULL, write_adapter_reset),
+ 	{ },
+ };
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fcfbfea..0f84345 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -369,6 +369,8 @@ struct i2c_adapter {
+ 	struct list_head clients;	/* DEPRECATED */
+ 	char name[48];
+ 	struct completion dev_released;
++
++	void (*reset)(struct i2c_adapter *);	/* user request adap reset */
+ };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 
 -- 
-1.5.5
+1.5.6.3
