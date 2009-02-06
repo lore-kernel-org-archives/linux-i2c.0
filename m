@@ -1,98 +1,34 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2 v2] i2c,algo: handle timeout correctly
-Date: Fri, 6 Feb 2009 21:51:11 +0100
-Message-ID: <20090206215111.60c83bd0@hyperion.delvare>
-References: <4984688B.2090805@gmail.com>
-	<20090201114121.6448a3c9@hyperion.delvare>
-	<498760F7.6020005@gmail.com>
-	<20090202225309.359e77d6@hyperion.delvare>
-	<49883938.9010104@gmail.com>
-	<20090204093402.08ddb2e8@hyperion.delvare>
-	<4989BD34.9050406@gmail.com>
-	<498C3712.2000904@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek-HFFVJYpyMKqzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: add missing KERN_* constants to printks
+Date: Fri, 6 Feb 2009 21:53:54 +0100
+Message-ID: <20090206205354.GA7400@strlen.de>
+References: <498C3EEA.5060508@suse.de> <20090206183542.GB6361@strlen.de> <498C96B0.7050408@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <498C3712.2000904-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <498C96B0.7050408-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Frank Seidel <fseidel-l3A5Bk7waGM@public.gmane.org>
+Cc: linux kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Frans Pop <elendil-EIBgga6/0yRmR6Xm/wNWPw@public.gmane.org>, Geert Uytterhoeven <Geert.Uytterhoeven-osDt5Q4Chk1BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 06 Feb 2009 14:11:46 +0100, Roel Kluin wrote:
-> Let's first adress the other issues at hand.
-> This patch should be applied on top of my previous cleanup patch
+Hallo Frank,
 
-Agreed.
+On Fri, Feb 06, 2009 at 08:59:44PM +0100, Frank Seidel wrote:
+> Uwe Kleine-K=F6nig schrieb:
+> > Are you sure about KERN_WARNING?  I havn't looked deeper, but DEB2
+> > suggests KERN_DEBUG?  What about fixing DEB[1-3] directly instead o=
+f
+> > each "call".  e.g.
+>=20
+> No, in this case the DEB* macro was already in many places used
+> with KERN_* constants just like direct printk. I didn't wanna
+> change that.
+> KERN_WARNING is just the standard/default loglevel so that this
+> change doesn't introduce different behaviour.
+Ah, OK.  Then you have my Acked-by.
 
-> 
-> --------------------------->8---------------------8<---------------------------
-> With a postfix decrement these timeouts reach -1 rather than 0, but after the
-> loop it is tested whether they have become 0.
-> 
-> As pointed out by Jean Delvare, the msg_num should be tested before the timeout.
-> With the current order, you could exit with a timeout error while all the
-> messages were successfully transferred.
-> 
-> Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
-> index ce916d7..2862f11 100644
-> --- a/drivers/i2c/algos/i2c-algo-pcf.c
-> +++ b/drivers/i2c/algos/i2c-algo-pcf.c
-> @@ -115,15 +115,17 @@ static int wait_for_bb(struct i2c_algo_pcf_data *adap)
->  
->  	status = get_pcf(adap, 1);
->  
-> -	while (timeout-- && !(status & I2C_PCF_BB)) {
-> +	while (!(status & I2C_PCF_BB) && --timeout) {
->  		udelay(100); /* wait for 100 us */
->  		status = get_pcf(adap, 1);
->  	}
->  
-> -	if (timeout <= 0)
-> +	if (timeout == 0) {
->  		printk(KERN_ERR "Timeout waiting for Bus Busy\n");
-> +		return -ETIMEDOUT;
-> +	}
->  
-> -	return timeout <= 0;
-> +	return 0;
->  }
->  
->  static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
-> @@ -133,7 +135,7 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
->  
->  	*status = get_pcf(adap, 1);
->  
-> -	while (timeout-- && (*status & I2C_PCF_PIN)) {
-> +	while ((*status & I2C_PCF_PIN) && --timeout) {
->  		adap->waitforpin(adap->data);
->  		*status = get_pcf(adap, 1);
->  	}
-> @@ -142,10 +144,10 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
->  		return -EINTR;
->  	}
->  
-> -	if (timeout <= 0)
-> -		return -1;
-> -	else
-> -		return 0;
-> +	if (timeout == 0)
-> +		return -ETIMEDOUT;
-> +
-> +	return 0;
->  }
->  
->  /*
-
-Applied, thanks. It would be great if Eric (or anyone with a
-PCF8584-based adapter) could test the two patches, just to make sure we
-didn't accidentally break anything:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-algo-pcf-01-style-cleanups.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-algo-pcf-02-handle-timeout-correctly.patch
-
--- 
-Jean Delvare
+Best regards
+Uwe
