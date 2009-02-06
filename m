@@ -1,70 +1,45 @@
 From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Subject: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
-Date: Fri,  6 Feb 2009 16:23:17 +0100
-Message-ID: <1233933798-17673-1-git-send-email-giometti@linux.it>
+Subject: [PATCH 2/2] i2c pxa: add the force reset method.
+Date: Fri,  6 Feb 2009 16:23:18 +0100
+Message-ID: <1233933798-17673-2-git-send-email-giometti@linux.it>
+References: <1233933798-17673-1-git-send-email-giometti@linux.it>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1233933798-17673-1-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It could happen that an i2c adapter may lock the bus due due
-electrical problems, so the user may recover this stale state by using:
-
-	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
-
 Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   21 +++++++++++++++++++++
- include/linux/i2c.h    |    2 ++
- 2 files changed, 23 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index b1c9abe..b0c4053 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -393,8 +393,29 @@ show_adapter_name(struct device *dev, struct device_attribute *attr, char *buf)
- 	return sprintf(buf, "%s\n", adap->name);
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 6af6814..ccbc9ba 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -963,6 +963,13 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
+ 	return ret;
  }
  
-+static ssize_t
-+write_adapter_reset(struct device *dev, struct device_attribute *attr,
-+				const char *buf, size_t count)
++static void i2c_pxa_force_reset(struct i2c_adapter *adap)
 +{
-+	struct i2c_adapter *adap = to_i2c_adapter(dev);
-+	unsigned long val;
-+	int ret;
++	struct pxa_i2c *i2c = adap->algo_data;
 +
-+	if (!adap->reset)
-+		return -EINVAL;
-+
-+	ret = strict_strtoul(buf, 10, &val);
-+	if (ret || val != 1)
-+		return -EINVAL;
-+
-+	adap->reset(adap);
-+
-+	return count;
++	i2c_pxa_reset(i2c);
 +}
 +
- static struct device_attribute i2c_adapter_attrs[] = {
- 	__ATTR(name, S_IRUGO, show_adapter_name, NULL),
-+	__ATTR(reset, S_IWUSR, NULL, write_adapter_reset),
- 	{ },
- };
+ static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+@@ -1065,6 +1072,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
  
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index fcfbfea..0f84345 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -369,6 +369,8 @@ struct i2c_adapter {
- 	struct list_head clients;	/* DEPRECATED */
- 	char name[48];
- 	struct completion dev_released;
-+
-+	void (*reset)(struct i2c_adapter *);	/* user request adap reset */
- };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 	i2c->adap.algo_data = i2c;
+ 	i2c->adap.dev.parent = &dev->dev;
++	i2c->adap.reset	  = i2c_pxa_force_reset;
  
+ 	ret = i2c_add_numbered_adapter(&i2c->adap);
+ 	if (ret < 0) {
 -- 
 1.5.6.3
