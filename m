@@ -1,58 +1,77 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c: ignore active clients detaching during
-	adapter removal.
-Date: Fri, 6 Feb 2009 13:59:07 +0100
-Message-ID: <20090206125907.GA8581@enneenne.com>
-References: <1233840973-13268-1-git-send-email-giometti@linux.it> <1233840973-13268-3-git-send-email-giometti@linux.it> <1233840973-13268-4-git-send-email-giometti@linux.it> <200902051602.44036.david-b@pacbell.net> <20090206102220.GF28554@enneenne.com> <20090206131520.232b53c3@hyperion.delvare>
+From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 2/2 v2] i2c,algo: handle timeout correctly
+Date: Fri, 06 Feb 2009 14:11:46 +0100
+Message-ID: <498C3712.2000904@gmail.com>
+References: <4984688B.2090805@gmail.com>	<20090201114121.6448a3c9@hyperion.delvare>	<498760F7.6020005@gmail.com>	<20090202225309.359e77d6@hyperion.delvare>	<49883938.9010104@gmail.com> <20090204093402.08ddb2e8@hyperion.delvare> <4989BD34.9050406@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090206131520.232b53c3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4989BD34.9050406-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ebrower-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 06, 2009 at 01:15:20PM +0100, Jean Delvare wrote:
-> 
-> Taking the old, deprecated, notoriously broken i2c model as an example
-> doesn't necessarily serve your cause ;)
+Let's first adress the other issues at hand.
+This patch should be applied on top of my previous cleanup patch
 
-I see, but till this part is in we should consider it, shouldn't we?
-Eheheh :D
+--------------------------->8---------------------8<---------------------------
+With a postfix decrement these timeouts reach -1 rather than 0, but after the
+loop it is tested whether they have become 0.
 
-> The big difference, I presume, is that USB is never a system bus. But
-> even for USB, devices can't exist without the host. If you kill the
-> host and resurrect it later, you also kill the devices and resurrect
-> them later.
+As pointed out by Jean Delvare, the msg_num should be tested before the timeout.
+With the current order, you could exit with a timeout error while all the
+messages were successfully transferred.
 
-But this can be done with i2c devices too! Let's think about leds
-drivers with uses an i2c GPIOs expander, they can exist without any
-adapter, even if they are not functional of course. :)
-
-> The debate about drivers failing device removal is an old one, not
-> specific to i2c. My opinion is that .remove() should succeed as much as
-> possible. It should really only fail if the problem is so serious that
-> the system's state would otherwise become a problem (e.g. freeing
-> memory which is still referenced.) This should be a rare case.
-
-I think that i2c clients devices should be really separated by adapter
-ones, that is we should be free to add and remove any adapter without
-considering the clients state. Then each clients device drivers should
-free each allocated resource they use and the adapters shouldn't know
-about it.
-
-Doing like this will semply the code a lot and it allows i2c core to
-be more flexible.
-
-Ciao,
-
-Rodolfo
-
--- 
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
+Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+index ce916d7..2862f11 100644
+--- a/drivers/i2c/algos/i2c-algo-pcf.c
++++ b/drivers/i2c/algos/i2c-algo-pcf.c
+@@ -115,15 +115,17 @@ static int wait_for_bb(struct i2c_algo_pcf_data *adap)
+ 
+ 	status = get_pcf(adap, 1);
+ 
+-	while (timeout-- && !(status & I2C_PCF_BB)) {
++	while (!(status & I2C_PCF_BB) && --timeout) {
+ 		udelay(100); /* wait for 100 us */
+ 		status = get_pcf(adap, 1);
+ 	}
+ 
+-	if (timeout <= 0)
++	if (timeout == 0) {
+ 		printk(KERN_ERR "Timeout waiting for Bus Busy\n");
++		return -ETIMEDOUT;
++	}
+ 
+-	return timeout <= 0;
++	return 0;
+ }
+ 
+ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
+@@ -133,7 +135,7 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
+ 
+ 	*status = get_pcf(adap, 1);
+ 
+-	while (timeout-- && (*status & I2C_PCF_PIN)) {
++	while ((*status & I2C_PCF_PIN) && --timeout) {
+ 		adap->waitforpin(adap->data);
+ 		*status = get_pcf(adap, 1);
+ 	}
+@@ -142,10 +144,10 @@ static int wait_for_pin(struct i2c_algo_pcf_data *adap, int *status)
+ 		return -EINTR;
+ 	}
+ 
+-	if (timeout <= 0)
+-		return -1;
+-	else
+-		return 0;
++	if (timeout == 0)
++		return -ETIMEDOUT;
++
++	return 0;
+ }
+ 
+ /*
