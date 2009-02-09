@@ -1,44 +1,39 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
-Date: Mon, 9 Feb 2009 16:02:55 +0100
-Message-ID: <20090209150255.GA7975@enneenne.com>
-References: <1233933798-17673-1-git-send-email-giometti@linux.it> <20090209145546.GO8032@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCHv2 2/2] i2c: adapt debug macros for KERN_* constants
+Date: Mon, 9 Feb 2009 16:16:44 +0100
+Message-ID: <20090209161644.35e3154d@hyperion.delvare>
+References: <498C3EEA.5060508@suse.de>
+	<498EE9C9.4080002@suse.de>
+	<498EEA2F.5050601@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090209145546.GO8032-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <498EEA2F.5050601-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, ukleinek-jNDFPZUTrfROceuj71AUlABBhMqQ4zRThC4ANOJQIlc@public.gmane.org, Frans Pop <elendil-EIBgga6/0yRmR6Xm/wNWPw@public.gmane.org>, Geert Uytterhoeven <Geert.Uytterhoeven-osDt5Q4Chk1BDgjK7y7TUQ@public.gmane.org>, Frank Seidel <fseidel-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 09, 2009 at 02:55:46PM +0000, Ben Dooks wrote:
-> On Fri, Feb 06, 2009 at 04:23:17PM +0100, Rodolfo Giometti wrote:
-> > It could happen that an i2c adapter may lock the bus due due
-> > electrical problems, so the user may recover this stale state by using:
-> > 
-> > 	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
-> > 
-> > Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+On Sun, 08 Feb 2009 15:20:31 +0100, Frank Seidel wrote:
+> From: Frank Seidel <frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org>
 > 
-> There doesn't seem to be any locking to stop issuing a reset during
-> an extant transaction... should the controller driver deal with
-> cancelling any outstanding transactions?
+> According to kerneljanitors todo list all printk calls (beginning
+> a new line) should have an according KERN_* constant.
+> Those are the changes to the debug macros in the i2c subsystem
+> to meet this requirement. Also changing no-debug statements
+> to raw printks again.
+> 
+> Signed-off-by: Frank Seidel <frank-aMRDT+nbkrEb1SvskN2V4Q@public.gmane.org>
+> ---
+>  drivers/i2c/algos/i2c-algo-pca.c |   14 +++++++++-----
+>  1 file changed, 9 insertions(+), 5 deletions(-)
 
-I think this should be done inside each adapter driver since it's
-an adapter specific issue.
+Applied, thanks.
 
-If you see next patch of this patchset you can see that the adapter
-i2c-pxa aborts any transfer currently under way during reset.
+Wolfram, I would appreciate if you could test the patch and confirm it
+doesn't break anything:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-algo-pca-adapt-debug-macros-for-KERN-constants.patch
 
-Ciao,
-
-Rodolfo
-
+Thanks,
 -- 
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
+Jean Delvare
