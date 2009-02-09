@@ -1,56 +1,90 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
-Date: Mon, 9 Feb 2009 16:37:05 +0100
-Message-ID: <20090209153705.GE7975@enneenne.com>
-References: <1233933798-17673-1-git-send-email-giometti@linux.it> <20090209145546.GO8032@fluff.org.uk> <20090209150255.GA7975@enneenne.com> <20090209162838.7cfeee94@hyperion.delvare>
+Date: Mon, 9 Feb 2009 17:17:20 +0100
+Message-ID: <20090209171720.76efd2c8@hyperion.delvare>
+References: <1233933798-17673-1-git-send-email-giometti@linux.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090209162838.7cfeee94-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1233933798-17673-1-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 09, 2009 at 04:28:38PM +0100, Jean Delvare wrote:
-> On Mon, 9 Feb 2009 16:02:55 +0100, Rodolfo Giometti wrote:
-> > On Mon, Feb 09, 2009 at 02:55:46PM +0000, Ben Dooks wrote:
-> > > On Fri, Feb 06, 2009 at 04:23:17PM +0100, Rodolfo Giometti wrote:
-> > > > It could happen that an i2c adapter may lock the bus due due
-> > > > electrical problems, so the user may recover this stale state by using:
-> > > > 
-> > > > 	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
-> > > > 
-> > > > Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-> > > 
-> > > There doesn't seem to be any locking to stop issuing a reset during
-> > > an extant transaction... should the controller driver deal with
-> > > cancelling any outstanding transactions?
-> > 
-> > I think this should be done inside each adapter driver since it's
-> > an adapter specific issue.
-> > 
-> > If you see next patch of this patchset you can see that the adapter
-> > i2c-pxa aborts any transfer currently under way during reset.
+On Fri,  6 Feb 2009 16:23:17 +0100, Rodolfo Giometti wrote:
+> It could happen that an i2c adapter may lock the bus due due
+
+Typo: "due due" -> "due to".
+
+> electrical problems, so the user may recover this stale state by using:
 > 
-> I disagree. An i2c bus driver should never get stuck in the middle of a
-> transaction (that is, with i2c_adapter->bus_lock held.) If a
-> transaction fails, the driver should timeout and return. Thus I think
-> Ben is right and it would make a lot of sense to have function
-> write_adapter_reset take i2c_adapter->bus_lock. This guarantees that
-> all bus drivers will get locking right and won't allow resetting in the
-> middle of a (non-stuck) transaction.
+> 	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
 
-Ok, I'll modify the code as you suggested ASAP.
+What is the intended purpose, debugging? I would certainly hope that
+drivers know by themselves when they need a reset. Requiring users to
+reset themselves doesn't sound terribly friendly :(
 
-Ciao,
+> Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c |   21 +++++++++++++++++++++
+>  include/linux/i2c.h    |    2 ++
+>  2 files changed, 23 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index b1c9abe..b0c4053 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -393,8 +393,29 @@ show_adapter_name(struct device *dev, struct device_attribute *attr, char *buf)
+>  	return sprintf(buf, "%s\n", adap->name);
+>  }
+>  
+> +static ssize_t
+> +write_adapter_reset(struct device *dev, struct device_attribute *attr,
+> +				const char *buf, size_t count)
+> +{
+> +	struct i2c_adapter *adap = to_i2c_adapter(dev);
+> +	unsigned long val;
+> +	int ret;
+> +
+> +	if (!adap->reset)
+> +		return -EINVAL;
+> +
+> +	ret = strict_strtoul(buf, 10, &val);
+> +	if (ret || val != 1)
+> +		return -EINVAL;
+> +
+> +	adap->reset(adap);
 
-Rodolfo
+I consider it good practice to always test for function pointers
+_right_ before dereferencing them. Makes it harder to accidentally
+break things later.
+
+> +
+> +	return count;
+> +}
+> +
+>  static struct device_attribute i2c_adapter_attrs[] = {
+>  	__ATTR(name, S_IRUGO, show_adapter_name, NULL),
+> +	__ATTR(reset, S_IWUSR, NULL, write_adapter_reset),
+>  	{ },
+>  };
+>  
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index fcfbfea..0f84345 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -369,6 +369,8 @@ struct i2c_adapter {
+>  	struct list_head clients;	/* DEPRECATED */
+>  	char name[48];
+>  	struct completion dev_released;
+> +
+> +	void (*reset)(struct i2c_adapter *);	/* user request adap reset */
+>  };
+>  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+>  
+
 
 -- 
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
+Jean Delvare
