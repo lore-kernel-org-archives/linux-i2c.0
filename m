@@ -1,52 +1,38 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: do not allow interruptions when waiting for
-	I2C to complete
-Date: Tue, 10 Feb 2009 16:11:56 +0100
-Message-ID: <20090210151156.GA15678@pengutronix.de>
-References: <1233928837-3401-1-git-send-email-timur@freescale.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCHv2 2/2] i2c: adapt debug macros for KERN_* constants
+Date: Tue, 10 Feb 2009 16:16:39 +0100
+Message-ID: <20090210151639.GB15678@pengutronix.de>
+References: <498C3EEA.5060508@suse.de> <498EE9C9.4080002@suse.de> <498EEA2F.5050601@suse.de> <20090209161644.35e3154d@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754934AbZBJPQz@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1233928837-3401-1-git-send-email-timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org
+In-Reply-To: <20090209161644.35e3154d@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Frank Seidel <fseidel@suse.de>, linux kernel <linux-kernel@vger.kernel.org>, akpm@linux-foundation.org, ben-linux@fluff.org, linux-i2c@vger.kernel.org, frank@f-seidel.de, "David S. Miller" <davem@davemloft.net>, ukleinek@informatik.uni-freiburg.de, Frans Pop <elendil@planet.nl>, Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---TB36FDmn/VVEgNH/
+--oC1+HKm2/end4ao3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 06, 2009 at 08:00:37AM -0600, Timur Tabi wrote:
-> The i2c_wait() function is using wait_event_interruptible_timeout() to wa=
-it for
-> the I2C controller to signal that it has completed an I2C bus operation. =
- If
-> the process that causes the I2C operation terminated abruptly, the wait w=
-ill
-> be interrupted, returning an error.  It is better to let the I2C operation
-> finished before the process exits.
->=20
-> It is safe to use wait_event_timeout() instead, because the timeout will =
-allow
-> the process to exit if the I2C bus hangs.  It's also better to allow the
-> I2C operation to finish, because unacknowledged I2C operations can cause =
-the
-> I2C bus to hang.
->=20
-> Signed-off-by: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Wolfram, I would appreciate if you could test the patch and confirm it
+> doesn't break anything:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-=
+i2c/i2c-algo-pca-adapt-debug-macros-for-KERN-constants.patch
 
-Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Will do, but may take until the end of the week. Patch looks good,
+though.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---TB36FDmn/VVEgNH/
+--oC1+HKm2/end4ao3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -54,9 +40,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEARECAAYFAkmRmTwACgkQD27XaX1/VRvD6gCghacTrahXacggGU1+ZWtk9yeJ
-+BwAn0IpNXSVXfUM2XAVzdnomK4yOowT
-=vZgE
+iEYEARECAAYFAkmRmlcACgkQD27XaX1/VRtDIQCeKN51QfbmMMM2NDEKSj9/+jZJ
+CqcAnAo0Uw+mrxq/JtTYiJLdGjHa77Ca
+=4zoK
 -----END PGP SIGNATURE-----
 
---TB36FDmn/VVEgNH/--
+--oC1+HKm2/end4ao3--
