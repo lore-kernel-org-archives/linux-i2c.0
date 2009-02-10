@@ -1,48 +1,40 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv2 2/2] i2c: adapt debug macros for KERN_* constants
-Date: Tue, 10 Feb 2009 16:16:39 +0100
-Message-ID: <20090210151639.GB15678@pengutronix.de>
-References: <498C3EEA.5060508@suse.de> <498EE9C9.4080002@suse.de> <498EEA2F.5050601@suse.de> <20090209161644.35e3154d@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: do not allow interruptions when waiting for
+ I2C   to complete
+Date: Tue, 10 Feb 2009 16:55:54 +0100
+Message-ID: <20090210165554.0da8bf7c@hyperion.delvare>
+References: <1233928837-3401-1-git-send-email-timur@freescale.com>
+	<ed82fe3e0902100659p2eec9de6j61f9ffb504d60a89@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754934AbZBJPQz@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090209161644.35e3154d@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Frank Seidel <fseidel@suse.de>, linux kernel <linux-kernel@vger.kernel.org>, akpm@linux-foundation.org, ben-linux@fluff.org, linux-i2c@vger.kernel.org, frank@f-seidel.de, "David S. Miller" <davem@davemloft.net>, ukleinek@informatik.uni-freiburg.de, Frans Pop <elendil@planet.nl>, Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <ed82fe3e0902100659p2eec9de6j61f9ffb504d60a89-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, 10 Feb 2009 08:59:57 -0600, Timur Tabi wrote:
+> On Fri, Feb 6, 2009 at 8:00 AM, Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
+> > The i2c_wait() function is using wait_event_interruptible_timeout() to wait for
+> > the I2C controller to signal that it has completed an I2C bus operation.  If
+> > the process that causes the I2C operation terminated abruptly, the wait will
+> > be interrupted, returning an error.  It is better to let the I2C operation
+> > finished before the process exits.
+> >
+> > It is safe to use wait_event_timeout() instead, because the timeout will allow
+> > the process to exit if the I2C bus hangs.  It's also better to allow the
+> > I2C operation to finish, because unacknowledged I2C operations can cause the
+> > I2C bus to hang.
+> >
+> > Signed-off-by: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> 
+> Jean,
+> 
+> Could you pick up this patch for 2.6.30?
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No, that's something for either Ben Dooks (Cc'd) or the powerpc tree.
 
-> Wolfram, I would appreciate if you could test the patch and confirm it
-> doesn't break anything:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-=
-i2c/i2c-algo-pca-adapt-debug-macros-for-KERN-constants.patch
-
-Will do, but may take until the end of the week. Patch looks good,
-though.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---oC1+HKm2/end4ao3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmRmlcACgkQD27XaX1/VRtDIQCeKN51QfbmMMM2NDEKSj9/+jZJ
-CqcAnAo0Uw+mrxq/JtTYiJLdGjHa77Ca
-=4zoK
------END PGP SIGNATURE-----
-
---oC1+HKm2/end4ao3--
+-- 
+Jean Delvare
