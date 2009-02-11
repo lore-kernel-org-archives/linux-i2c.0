@@ -1,79 +1,73 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: do not allow interruptions when waiting for
-	I2C to complete
-Date: Wed, 11 Feb 2009 00:17:14 +0000
-Message-ID: <20090211001714.GB19758@fluff.org.uk>
-References: <1233928837-3401-1-git-send-email-timur@freescale.com>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
+Date: Wed, 11 Feb 2009 14:00:29 +0100
+Message-ID: <20090211130028.GM8639@enneenne.com>
+References: <1233933798-17673-1-git-send-email-giometti@linux.it> <20090209171720.76efd2c8@hyperion.delvare> <20090209204108.GH7975@enneenne.com> <20090210114438.67bfb5fb@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1233928837-3401-1-git-send-email-timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <20090210114438.67bfb5fb-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, mditto-Vjf7OWgA3BLqlBn2x/YWAg@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 06, 2009 at 08:00:37AM -0600, Timur Tabi wrote:
-> The i2c_wait() function is using wait_event_interruptible_timeout() to wait for
-> the I2C controller to signal that it has completed an I2C bus operation.  If
-> the process that causes the I2C operation terminated abruptly, the wait will
-> be interrupted, returning an error.  It is better to let the I2C operation
-> finished before the process exits.
+On Tue, Feb 10, 2009 at 11:44:38AM +0100, Jean Delvare wrote:
+> On Mon, 9 Feb 2009 21:41:08 +0100, Rodolfo Giometti wrote:
+> > On Mon, Feb 09, 2009 at 05:17:20PM +0100, Jean Delvare wrote:
+> > > On Fri,  6 Feb 2009 16:23:17 +0100, Rodolfo Giometti wrote:
+> > > > It could happen that an i2c adapter may lock the bus due due
+> > > 
+> > > Typo: "due due" -> "due to".
+> > 
+> > Ok.
+> > 
+> > > > electrical problems, so the user may recover this stale state by using:
+> > > > 
+> > > > 	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
+> > > 
+> > > What is the intended purpose, debugging? I would certainly hope that
+> > > drivers know by themselves when they need a reset. Requiring users to
+> > > reset themselves doesn't sound terribly friendly :(
+> > 
+> > Unluckely not all adapter does it by themselfes! At least not PXA
+> > one. I'm currently work on adding this new feature.
 > 
-> It is safe to use wait_event_timeout() instead, because the timeout will allow
-> the process to exit if the I2C bus hangs.  It's also better to allow the
-> I2C operation to finish, because unacknowledged I2C operations can cause the
-> I2C bus to hang.
+> Well, if you are going to fix the i2c-pxa driver, and it's the only
+> driver using the manual reset feature, then do we really need to add
+> this feature?
+
+I don't know about other controllers, I know about PXA one because I'm
+currently working on it. :)
+
 > 
-> Signed-off-by: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> ---
+> Don't get me wrong, if this feature is still useful then I am fine
+> adding it. But OTOH we still have to think twice when doing such core
+> changes, because they increase the memory footprint for all systems.
+
+I agree. Maybe I can add such entry with a conditional #ifdef DEBUG
+and setting it off by default?
+
 > 
-> A similar change should probably be done to i2c-cpm.c, and maybe all other
-> I2C drivers.  Not many use wait_event_interruptible_timeout().
+> I am curious what other developers think. Me, I never felt the need for
+> a manual reset feature. Usually when I have managed to break an I2C
+> controller, cycling the driver would fix it, or if not, it was so
+> broken that I had to power-cycle the box anyway.
 > 
->  drivers/i2c/busses/i2c-mpc.c |    9 +++------
->  1 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> index a9a45fc..c0ace48 100644
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -70,7 +70,7 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
->  		/* Read again to allow register to stabilise */
->  		i2c->interrupt = readb(i2c->base + MPC_I2C_SR);
->  		writeb(0, i2c->base + MPC_I2C_SR);
-> -		wake_up_interruptible(&i2c->queue);
-> +		wake_up(&i2c->queue);
->  	}
->  	return IRQ_HANDLED;
->  }
-> @@ -115,13 +115,10 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
->  		writeb(0, i2c->base + MPC_I2C_SR);
->  	} else {
->  		/* Interrupt mode */
-> -		result = wait_event_interruptible_timeout(i2c->queue,
-> +		result = wait_event_timeout(i2c->queue,
->  			(i2c->interrupt & CSR_MIF), timeout * HZ);
->  
-> -		if (unlikely(result < 0)) {
-> -			pr_debug("I2C: wait interrupted\n");
-> -			writeccr(i2c, 0);
-> -		} else if (unlikely(!(i2c->interrupt & CSR_MIF))) {
-> +		if (unlikely(!(i2c->interrupt & CSR_MIF))) {
->  			pr_debug("I2C: wait timeout\n");
->  			writeccr(i2c, 0);
->  			result = -ETIMEDOUT;
-> -- 
-> 1.5.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Are there other developers out there who consider the proposed manual
+> reset feature a good thing to have? Please speak up.
+
+However, regarding PXA controller I found a way to automagically reset
+it when it locks. I'll send a patchset ASAP.
+
+Ciao,
+
+Rodolfo
 
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-  'a smiley only costs 4 bytes'
+GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
