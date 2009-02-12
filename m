@@ -1,77 +1,123 @@
-From: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Subject: [patch 1/2] i2c: incremental i2c-mpc driver fix for multi-master i2c busses
-Date: Wed, 11 Feb 2009 13:21:36 -0800
-Message-ID: <200902112121.n1BLLa1q023498@imap1.linux-foundation.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+From: Shane Huang <shane.huang@amd.com>
+Subject: [PATCH] Add support to SB800 SMBus changes
+Date: Thu, 12 Feb 2009 17:22:27 +0800
+Message-ID: <1234430547.5588.8.camel@chunhao-desktop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: linux-i2c@vger.kernel.org, khali@linux-fr.orgkhali
+Cc: shane.huang@amd.com, lm-sensors@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
+This version of driver adds support for the AMD SB800 Family series of products.
+Major changes include the changes to addressing the SMBUS registers at different
+location from the locations in the previous compatible parts from AMD such as
+SB400/SB600/SB700. For SB800, the main features and register definitions of
+SMBUS and other interfaces are still compatible with the previous products with
+the only change being in how to access the internal registers for these blocks
+may differ.
 
-Retry on arbitration lost until xfer is successful, a non-arbitration-lost
-error is triggered or the 1s timeout is hit.
+Signed-off-by: Shane Huang <shane.huang@amd.com>
 
-Tested with a freescale MPC8349E host cpu.
-
-Signed-off-by: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
----
-
- drivers/i2c/busses/i2c-mpc.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff -puN drivers/i2c/busses/i2c-mpc.c~i2c-incremental-i2c-mpc-driver-fix-for-multi-master-i2c-busses drivers/i2c/busses/i2c-mpc.c
---- a/drivers/i2c/busses/i2c-mpc.c~i2c-incremental-i2c-mpc-driver-fix-for-multi-master-i2c-busses
-+++ a/drivers/i2c/busses/i2c-mpc.c
-@@ -106,7 +106,7 @@ static int i2c_wait(struct mpc_i2c *i2c,
- 			schedule();
- 			if (time_after(jiffies, orig_jiffies + timeout)) {
- 				pr_debug("I2C: timeout\n");
--				writeccr(i2c, 0);
-+				writeccr(i2c, CCR_MEN);
- 				result = -EIO;
- 				break;
- 			}
-@@ -120,10 +120,10 @@ static int i2c_wait(struct mpc_i2c *i2c,
+diff -ruN a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	2009-02-07 00:58:32.000000000 +0800
++++ b/drivers/i2c/busses/i2c-piix4.c	2009-02-11 14:28:37.000000000 +0800
+@@ -130,11 +130,20 @@
+ 				const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
++	int sbx00_quirk = 0;
++	u8 sbx00_a = 0, sbx00_b = 0, sbx00_i2ccfg = 0;
  
- 		if (unlikely(result < 0)) {
- 			pr_debug("I2C: wait interrupted\n");
--			writeccr(i2c, 0);
-+			writeccr(i2c, CCR_MEN);
- 		} else if (unlikely(!(i2c->interrupt & CSR_MIF))) {
- 			pr_debug("I2C: wait timeout\n");
--			writeccr(i2c, 0);
-+			writeccr(i2c, CCR_MEN);
- 			result = -ETIMEDOUT;
- 		}
+ 	if ((PIIX4_dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
+ 	    (PIIX4_dev->device == PCI_DEVICE_ID_SERVERWORKS_CSB5))
+ 		srvrworks_csb5_delay = 1;
  
-@@ -268,7 +268,7 @@ static int mpc_xfer(struct i2c_adapter *
- 	while (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
- 		if (signal_pending(current)) {
- 			pr_debug("I2C: Interrupted\n");
--			writeccr(i2c, 0);
-+			writeccr(i2c, CCR_MEN);
- 			return -EINTR;
- 		}
- 		if (time_after(jiffies, orig_jiffies + HZ)) {
-@@ -364,6 +364,15 @@ static int __devinit fsl_i2c_probe(struc
- 	}
- 	of_register_i2c_devices(&i2c->adap, op->node);
- 
-+	/* Make sure the adapter is already in master mode some time before
-+	 * the first xfer to make sure arbitration control had enough time
-+	 * to monitor the bus. The CCR_MEN flag should never be cleared without
-+	 * makeing sure there is some delay between setting it again and
-+	 * starting the first transfer..
-+	 */
-+	writeccr(i2c, CCR_MEN);
-+	udelay(100);
++	if ((PIIX4_dev->vendor == PCI_VENDOR_ID_ATI) &&
++	    (PIIX4_dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
++	    (PIIX4_dev->revision >= 0x40)) {
++		dev_info(&PIIX4_dev->dev, "Apply SBX00 SMBus quirk.\n");
++		sbx00_quirk = 1;
++	}
 +
- 	return result;
+ 	/* On some motherboards, it was reported that accessing the SMBus
+ 	   caused severe hardware problems */
+ 	if (dmi_check_system(piix4_dmi_blacklist)) {
+@@ -157,13 +166,24 @@
+ 		piix4_smba = force_addr & 0xfff0;
+ 		force = 0;
+ 	} else {
+-		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
+-		piix4_smba &= 0xfff0;
+-		if(piix4_smba == 0) {
+-			dev_err(&PIIX4_dev->dev, "SMBus base address "
+-				"uninitialized - upgrade BIOS or use "
+-				"force_addr=0xaddr\n");
+-			return -ENODEV;
++		if (sbx00_quirk) {
++			/* SBX00 base address location changed in some revs */
++			dev_dbg(&PIIX4_dev->dev, "SBX00 SMBus base address "
++				"location changed in some revisions!\n");
++			outb_p(0x2c, 0xcd6);
++			sbx00_a = inb_p(0xcd7);
++			outb_p(0x2d, 0xcd6);
++			sbx00_b = inb_p(0xcd7);
++			piix4_smba = ((sbx00_b << 8) | sbx00_a) & 0xffe0;
++		} else {
++			pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
++			piix4_smba &= 0xfff0;
++			if (piix4_smba == 0) {
++				dev_err(&PIIX4_dev->dev, "SMBus base address "
++					"uninitialized - upgrade BIOS or use "
++					"force_addr=0xaddr\n");
++				return -ENODEV;
++			}
+ 		}
+ 	}
  
-  fail_add:
-_
+@@ -176,7 +196,13 @@
+ 		return -EBUSY;
+ 	}
+ 
+-	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
++	if (sbx00_quirk) {
++		/* Assemble the compatible value for some SBX00 revisions */
++		sbx00_i2ccfg = inb_p(piix4_smba + 0x10);
++		temp = ((sbx00_i2ccfg << 1) & 0x2) | (sbx00_a & 0x1);
++	} else {
++		pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
++	}
+ 
+ 	/* If force_addr is set, we program the new address here. Just to make
+ 	   sure, we disable the PIIX4 first. */
+@@ -218,7 +244,12 @@
+ 		dev_err(&PIIX4_dev->dev, "Illegal Interrupt configuration "
+ 			"(or code out of date)!\n");
+ 
+-	pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
++	if (sbx00_quirk)
++		/* Assemble the compatible value for some SBX00 revisions */
++		temp = (sbx00_i2ccfg >> 4) & 0x0f;
++	else
++		pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
++
+ 	dev_info(&PIIX4_dev->dev,
+ 		 "SMBus Host Controller at 0x%x, revision %d\n",
+ 		 piix4_smba, temp);
+
+
+
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
