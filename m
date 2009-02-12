@@ -1,123 +1,267 @@
-From: Shane Huang <shane.huang@amd.com>
-Subject: [PATCH] Add support to SB800 SMBus changes
-Date: Thu, 12 Feb 2009 17:22:27 +0800
-Message-ID: <1234430547.5588.8.camel@chunhao-desktop>
+From: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+Subject: [PATCH] Bugfix for i2c-s3c2410
+Date: Thu, 12 Feb 2009 13:46:41 +0000
+Message-ID: <1234446401.9457.25.camel@petitemort>
+Reply-To: dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: linux-i2c@vger.kernel.org, khali@linux-fr.orgkhali
-Cc: shane.huang@amd.com, lm-sensors@lm-sensors.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This version of driver adds support for the AMD SB800 Family series of products.
-Major changes include the changes to addressing the SMBUS registers at different
-location from the locations in the previous compatible parts from AMD such as
-SB400/SB600/SB700. For SB800, the main features and register definitions of
-SMBUS and other interfaces are still compatible with the previous products with
-the only change being in how to access the internal registers for these blocks
-may differ.
+I2C: Rework i2c-s3c2410 frequency calculator to be much simpler.
 
-Signed-off-by: Shane Huang <shane.huang@amd.com>
+The platform data for the i2c-s3c2410 driver used to allow a min,
+max and desired frequency for the I2C bus. This patch reduces it
+to simply a desired frequency ceiling and corrects all the uses
+of the platform data appropriately.
 
-diff -ruN a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	2009-02-07 00:58:32.000000000 +0800
-+++ b/drivers/i2c/busses/i2c-piix4.c	2009-02-11 14:28:37.000000000 +0800
-@@ -130,11 +130,20 @@
- 				const struct pci_device_id *id)
- {
- 	unsigned char temp;
-+	int sbx00_quirk = 0;
-+	u8 sbx00_a = 0, sbx00_b = 0, sbx00_i2ccfg = 0;
+This means, for example, that on a system with a 66MHz fclk, a
+request for 100KHz will achieve 65KHz which is safe and
+acceptable, rather than 378KHz which it would have achieved
+without this change.
+
+Signed-off-by: Simtec Linux Team <linux-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+Signed-off-by: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+
+---
+ arch/arm/mach-s3c2410/mach-bast.c    |    3 --
+ arch/arm/mach-s3c2410/mach-n30.c     |    3 --
+ arch/arm/mach-s3c2412/mach-jive.c    |    3 --
+ arch/arm/plat-s3c/dev-i2c0.c         |    5 +--
+ arch/arm/plat-s3c/dev-i2c1.c         |    5 +--
+ arch/arm/plat-s3c/include/plat/iic.h |   33 +++++++++++++----------
+ drivers/i2c/busses/i2c-s3c2410.c     |   50 +++++++----------------------------
+ 7 files changed, 36 insertions(+), 66 deletions(-)
+
+Index: b/drivers/i2c/busses/i2c-s3c2410.c
+===================================================================
+--- a/drivers/i2c/busses/i2c-s3c2410.c	2009-02-12 09:58:30.866611025 +0000
++++ b/drivers/i2c/busses/i2c-s3c2410.c	2009-02-12 10:24:29.530615073 +0000
+@@ -1,6 +1,6 @@
+ /* linux/drivers/i2c/busses/i2c-s3c2410.c
+  *
+- * Copyright (C) 2004,2005 Simtec Electronics
++ * Copyright (C) 2004,2005,2009 Simtec Electronics
+  *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+  *
+  * S3C2410 I2C Controller
+@@ -590,18 +590,6 @@ static int s3c24xx_i2c_calcdivisor(unsig
+ 	return clkin / (calc_divs * calc_div1);
+ }
  
- 	if ((PIIX4_dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
- 	    (PIIX4_dev->device == PCI_DEVICE_ID_SERVERWORKS_CSB5))
- 		srvrworks_csb5_delay = 1;
+-/* freq_acceptable
+- *
+- * test wether a frequency is within the acceptable range of error
+-*/
+-
+-static inline int freq_acceptable(unsigned int freq, unsigned int wanted)
+-{
+-	int diff = freq - wanted;
+-
+-	return diff >= -2 && diff <= 2;
+-}
+-
+ /* s3c24xx_i2c_clockrate
+  *
+  * work out a divisor for the user requested frequency setting,
+@@ -614,44 +602,26 @@ static int s3c24xx_i2c_clockrate(struct 
+ 	struct s3c2410_platform_i2c *pdata = i2c->dev->platform_data;
+ 	unsigned long clkin = clk_get_rate(i2c->clk);
+ 	unsigned int divs, div1;
++	unsigned long target_frequency;
+ 	u32 iiccon;
+ 	int freq;
+-	int start, end;
  
-+	if ((PIIX4_dev->vendor == PCI_VENDOR_ID_ATI) &&
-+	    (PIIX4_dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
-+	    (PIIX4_dev->revision >= 0x40)) {
-+		dev_info(&PIIX4_dev->dev, "Apply SBX00 SMBus quirk.\n");
-+		sbx00_quirk = 1;
-+	}
-+
- 	/* On some motherboards, it was reported that accessing the SMBus
- 	   caused severe hardware problems */
- 	if (dmi_check_system(piix4_dmi_blacklist)) {
-@@ -157,13 +166,24 @@
- 		piix4_smba = force_addr & 0xfff0;
- 		force = 0;
- 	} else {
--		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
--		piix4_smba &= 0xfff0;
--		if(piix4_smba == 0) {
--			dev_err(&PIIX4_dev->dev, "SMBus base address "
--				"uninitialized - upgrade BIOS or use "
--				"force_addr=0xaddr\n");
--			return -ENODEV;
-+		if (sbx00_quirk) {
-+			/* SBX00 base address location changed in some revs */
-+			dev_dbg(&PIIX4_dev->dev, "SBX00 SMBus base address "
-+				"location changed in some revisions!\n");
-+			outb_p(0x2c, 0xcd6);
-+			sbx00_a = inb_p(0xcd7);
-+			outb_p(0x2d, 0xcd6);
-+			sbx00_b = inb_p(0xcd7);
-+			piix4_smba = ((sbx00_b << 8) | sbx00_a) & 0xffe0;
-+		} else {
-+			pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
-+			piix4_smba &= 0xfff0;
-+			if (piix4_smba == 0) {
-+				dev_err(&PIIX4_dev->dev, "SMBus base address "
-+					"uninitialized - upgrade BIOS or use "
-+					"force_addr=0xaddr\n");
-+				return -ENODEV;
-+			}
- 		}
+ 	i2c->clkrate = clkin;
+ 	clkin /= 1000;		/* clkin now in KHz */
+ 
+-	dev_dbg(i2c->dev, "pdata %p, freq %lu %lu..%lu\n",
+-		 pdata, pdata->bus_freq, pdata->min_freq, pdata->max_freq);
++	dev_dbg(i2c->dev, "pdata desired frequency %lu\n", pdata->frequency);
+ 
+-	if (pdata->bus_freq != 0) {
+-		freq = s3c24xx_i2c_calcdivisor(clkin, pdata->bus_freq/1000,
+-					       &div1, &divs);
+-		if (freq_acceptable(freq, pdata->bus_freq/1000))
+-			goto found;
+-	}
+-
+-	/* ok, we may have to search for something suitable... */
+-
+-	start = (pdata->max_freq == 0) ? pdata->bus_freq : pdata->max_freq;
+-	end = pdata->min_freq;
+-
+-	start /= 1000;
+-	end /= 1000;
++	target_frequency = pdata->frequency ? pdata->frequency : 100000;
+ 
+-	/* search loop... */
++	freq = s3c24xx_i2c_calcdivisor(clkin, target_frequency, &div1, &divs);
+ 
+-	for (; start > end; start--) {
+-		freq = s3c24xx_i2c_calcdivisor(clkin, start, &div1, &divs);
+-		if (freq_acceptable(freq, start))
+-			goto found;
++	if (freq > target_frequency) {
++		dev_err(i2c->dev,
++			"Unable to achieve desired frequency %luKHz."	\
++			" Lowest achievable %dKHz\n", target_frequency, freq);
++		return -EINVAL;
  	}
  
-@@ -176,7 +196,13 @@
- 		return -EBUSY;
- 	}
+-	/* cannot find frequency spec */
+-
+-	return -EINVAL;
+-
+- found:
+ 	*got = freq;
  
--	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
-+	if (sbx00_quirk) {
-+		/* Assemble the compatible value for some SBX00 revisions */
-+		sbx00_i2ccfg = inb_p(piix4_smba + 0x10);
-+		temp = ((sbx00_i2ccfg << 1) & 0x2) | (sbx00_a & 0x1);
-+	} else {
-+		pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
-+	}
+ 	iiccon = readl(i2c->regs + S3C2410_IICCON);
+Index: b/arch/arm/plat-s3c/include/plat/iic.h
+===================================================================
+--- a/arch/arm/plat-s3c/include/plat/iic.h	2009-02-12 09:43:10.599030214 +0000
++++ b/arch/arm/plat-s3c/include/plat/iic.h	2009-02-12 10:24:29.502615860 +0000
+@@ -1,9 +1,9 @@
+-/* arch/arm/mach-s3c2410/include/mach/iic.h
++/* arch/arm/plat-s3c/include/plat/iic.h
+  *
+- * Copyright (c) 2004 Simtec Electronics
++ * Copyright 2004,2009 Simtec Electronics
+  *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+  *
+- * S3C2410 - I2C Controller platfrom_device info
++ * S3C - I2C Controller platform_device info
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -15,19 +15,24 @@
  
- 	/* If force_addr is set, we program the new address here. Just to make
- 	   sure, we disable the PIIX4 first. */
-@@ -218,7 +244,12 @@
- 		dev_err(&PIIX4_dev->dev, "Illegal Interrupt configuration "
- 			"(or code out of date)!\n");
+ #define S3C_IICFLG_FILTER	(1<<0)	/* enable s3c2440 filter */
  
--	pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
-+	if (sbx00_quirk)
-+		/* Assemble the compatible value for some SBX00 revisions */
-+		temp = (sbx00_i2ccfg >> 4) & 0x0f;
-+	else
-+		pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
-+
- 	dev_info(&PIIX4_dev->dev,
- 		 "SMBus Host Controller at 0x%x, revision %d\n",
- 		 piix4_smba, temp);
+-/* Notes:
+- *	1) All frequencies are expressed in Hz
+- *	2) A value of zero is `do not care`
+-*/
+-
++/**
++ *	struct s3c2410_platform_i2c - Platform data for s3c I2C.
++ *	@bus_num: The bus number to use (if possible).
++ *	@flags: Any flags for the I2C bus (E.g. S3C_IICFLK_FILTER).
++ *	@slave_addr: The I2C address for the slave device (if enabled).
++ *	@frequency: The desired frequency in Hz of the bus.  This is
++ *                  guaranteed to not be exceeded.  If the caller does
++ *                  not care, use zero and the driver will select a
++ *                  useful default.
++ *	@sda_delay: The delay (in ns) applied to SDA edges.
++ *	@cfg_gpio: A callback to configure the pins for I2C operation.
++ */
+ struct s3c2410_platform_i2c {
+-	int		bus_num;	/* bus number to use */
++	int		bus_num;
+ 	unsigned int	flags;
+-	unsigned int	slave_addr;	/* slave address for controller */
+-	unsigned long	bus_freq;	/* standard bus frequency */
+-	unsigned long	max_freq;	/* max frequency for the bus */
+-	unsigned long	min_freq;	/* min frequency for the bus */
+-	unsigned int	sda_delay;	/* pclks (s3c2440 only) */
++	unsigned int	slave_addr;
++	unsigned long	frequency;
++	unsigned int	sda_delay;
+ 
+ 	void	(*cfg_gpio)(struct platform_device *dev);
+ };
+Index: b/arch/arm/plat-s3c/dev-i2c0.c
+===================================================================
+--- a/arch/arm/plat-s3c/dev-i2c0.c	2009-02-12 09:58:30.866611025 +0000
++++ b/arch/arm/plat-s3c/dev-i2c0.c	2009-02-12 10:24:29.450615087 +0000
+@@ -1,6 +1,6 @@
+ /* linux/arch/arm/plat-s3c/dev-i2c0.c
+  *
+- * Copyright 2008 Simtec Electronics
++ * Copyright 2008,2009 Simtec Electronics
+  *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+  *	http://armlinux.simtec.co.uk/
+  *
+@@ -50,8 +50,7 @@ struct platform_device s3c_device_i2c0 =
+ static struct s3c2410_platform_i2c default_i2c_data0 __initdata = {
+ 	.flags		= 0,
+ 	.slave_addr	= 0x10,
+-	.bus_freq	= 100*1000,
+-	.max_freq	= 400*1000,
++	.frequency	= 100*1000,
+ 	.sda_delay	= 100,
+ };
+ 
+Index: b/arch/arm/plat-s3c/dev-i2c1.c
+===================================================================
+--- a/arch/arm/plat-s3c/dev-i2c1.c	2009-02-12 09:58:30.910131374 +0000
++++ b/arch/arm/plat-s3c/dev-i2c1.c	2009-02-12 10:24:29.466616700 +0000
+@@ -1,6 +1,6 @@
+ /* linux/arch/arm/plat-s3c/dev-i2c1.c
+  *
+- * Copyright 2008 Simtec Electronics
++ * Copyright 2008,2009 Simtec Electronics
+  *	Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+  *	http://armlinux.simtec.co.uk/
+  *
+@@ -47,8 +47,7 @@ static struct s3c2410_platform_i2c defau
+ 	.flags		= 0,
+ 	.bus_num	= 1,
+ 	.slave_addr	= 0x10,
+-	.bus_freq	= 100*1000,
+-	.max_freq	= 400*1000,
++	.frequency	= 100*1000,
+ 	.sda_delay	= 100,
+ };
+ 
+Index: b/arch/arm/mach-s3c2410/mach-bast.c
+===================================================================
+--- a/arch/arm/mach-s3c2410/mach-bast.c	2009-02-12 09:42:49.254613471 +0000
++++ b/arch/arm/mach-s3c2410/mach-bast.c	2009-02-12 10:24:29.394616021 +0000
+@@ -409,8 +409,7 @@ static struct platform_device bast_sio =
+ static struct s3c2410_platform_i2c __initdata bast_i2c_info = {
+ 	.flags		= 0,
+ 	.slave_addr	= 0x10,
+-	.bus_freq	= 100*1000,
+-	.max_freq	= 130*1000,
++	.frequency	= 100*1000,
+ };
+ 
+ /* Asix AX88796 10/100 ethernet controller */
+Index: b/arch/arm/mach-s3c2410/mach-n30.c
+===================================================================
+--- a/arch/arm/mach-s3c2410/mach-n30.c	2009-02-12 09:42:49.842111069 +0000
++++ b/arch/arm/mach-s3c2410/mach-n30.c	2009-02-12 10:24:29.410614435 +0000
+@@ -340,8 +340,7 @@ static struct platform_device *n35_devic
+ static struct s3c2410_platform_i2c n30_i2ccfg = {
+ 	.flags		= 0,
+ 	.slave_addr	= 0x10,
+-	.bus_freq	= 10*1000,
+-	.max_freq	= 10*1000,
++	.frequency	= 10*1000,
+ };
+ 
+ /* Lots of hardcoded stuff, but it sets up the hardware in a useful
+Index: b/arch/arm/mach-s3c2412/mach-jive.c
+===================================================================
+--- a/arch/arm/mach-s3c2412/mach-jive.c	2009-02-12 09:42:50.430341907 +0000
++++ b/arch/arm/mach-s3c2412/mach-jive.c	2009-02-12 10:24:29.430615021 +0000
+@@ -453,8 +453,7 @@ static struct spi_board_info __initdata 
+ /* I2C bus and device configuration. */
+ 
+ static struct s3c2410_platform_i2c jive_i2c_cfg __initdata = {
+-	.max_freq	= 80 * 1000,
+-	.bus_freq	= 50 * 1000,
++	.frequency	= 80 * 1000,
+ 	.flags		= S3C_IICFLG_FILTER,
+ 	.sda_delay	= 2,
+ };
 
-
-
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+-- 
+Daniel Silverstone                              http://www.simtec.co.uk/
+PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
