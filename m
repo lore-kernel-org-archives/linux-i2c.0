@@ -1,47 +1,75 @@
-From: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
-Subject: Re: [PATCH] I2C: Rename struct s3c2410_platform_i2c to
- s3c_platform_i2c
-Date: Thu, 12 Feb 2009 14:24:40 +0000
-Message-ID: <1234448680.9457.38.camel@petitemort>
-References: <1234446570.9457.28.camel@petitemort>
-	 <20090212150527.2d8031ad@hyperion.delvare>
-Reply-To: dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: add "reset" sysfs entry for adapters.
+Date: Fri, 13 Feb 2009 18:39:09 +0100
+Message-ID: <20090213183909.7cfc9066@hyperion.delvare>
+References: <1233933798-17673-1-git-send-email-giometti@linux.it>
+	<20090209171720.76efd2c8@hyperion.delvare>
+	<20090209204108.GH7975@enneenne.com>
+	<20090210114438.67bfb5fb@hyperion.delvare>
+	<20090211130028.GM8639@enneenne.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090212150527.2d8031ad-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090211130028.GM8639-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2009-02-12 at 15:05 +0100, Jean Delvare wrote:
-> > The I2C driver currently known as i2c-s3c2410 is now used by
-> > several different s3cXXXX SoCs. As such, this patch renames the
-> > platform data to be SoC agnostic.
-> This is Ben's call, not mine, but I tend to discourage that kind of
-> changes. For one thing, they cost more than then bring. And for
-> another, they may need to be reverted if incompatible hardware appears
-> in the future.
+On Wed, 11 Feb 2009 14:00:29 +0100, Rodolfo Giometti wrote:
+> On Tue, Feb 10, 2009 at 11:44:38AM +0100, Jean Delvare wrote:
+> > On Mon, 9 Feb 2009 21:41:08 +0100, Rodolfo Giometti wrote:
+> > > On Mon, Feb 09, 2009 at 05:17:20PM +0100, Jean Delvare wrote:
+> > > > On Fri,  6 Feb 2009 16:23:17 +0100, Rodolfo Giometti wrote:
+> > > > > It could happen that an i2c adapter may lock the bus due due
+> > > > 
+> > > > Typo: "due due" -> "due to".
+> > > 
+> > > Ok.
+> > > 
+> > > > > electrical problems, so the user may recover this stale state by using:
+> > > > > 
+> > > > > 	$ echo 1 > /sys/class/i2c-adapter/i2c-0/reset
+> > > > 
+> > > > What is the intended purpose, debugging? I would certainly hope that
+> > > > drivers know by themselves when they need a reset. Requiring users to
+> > > > reset themselves doesn't sound terribly friendly :(
+> > > 
+> > > Unluckely not all adapter does it by themselfes! At least not PXA
+> > > one. I'm currently work on adding this new feature.
+> > 
+> > Well, if you are going to fix the i2c-pxa driver, and it's the only
+> > driver using the manual reset feature, then do we really need to add
+> > this feature?
+> 
+> I don't know about other controllers, I know about PXA one because I'm
+> currently working on it. :)
+> 
+> > 
+> > Don't get me wrong, if this feature is still useful then I am fine
+> > adding it. But OTOH we still have to think twice when doing such core
+> > changes, because they increase the memory footprint for all systems.
+> 
+> I agree. Maybe I can add such entry with a conditional #ifdef DEBUG
+> and setting it off by default?
 
-The same I2C controller is found throughout Samsung's s3c24xx and 64xx
-range. I doubt they'll introduce wildly incompatible peripherals in the
-same range.
+Yes, I would make it conditional upon CONFIG_I2C_DEBUG_BUS, and
+possibly make it a private attribute of i2c-pxa if no other developers
+are interested.
 
-> Personally, I read "s3c2410" in these structure names as "S3C 2410 and
-> compatible", so it looks perfectly right to me, I don't see this as
-> something which needs to be changed.
+> > I am curious what other developers think. Me, I never felt the need for
+> > a manual reset feature. Usually when I have managed to break an I2C
+> > controller, cycling the driver would fix it, or if not, it was so
+> > broken that I had to power-cycle the box anyway.
+> > 
+> > Are there other developers out there who consider the proposed manual
+> > reset feature a good thing to have? Please speak up.
+> 
+> However, regarding PXA controller I found a way to automagically reset
+> it when it locks. I'll send a patchset ASAP.
 
-Whereas I see it as "s3c2410" or at most liberal, "s3c241x". Given
-there's a family of 10 or more chips which all use this i2c controller,
-only 4 of which could plausibly be thought of as a 2410 (2410, 2412,
-2413, 2416) it seems disingenuously named as-is. The confusion which
-could ensue (and indeed *does* ensue with some of our customers) seems
-worth trying to avoid.
-
-D.
+Well, then I'm not sure if we still care about this debugging patch...
 
 -- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+Jean Delvare
