@@ -1,54 +1,38 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: misplaced parentheses?
-Date: Mon, 16 Feb 2009 10:24:19 +0100
-Message-ID: <20090216102419.18e41eb5@hyperion.delvare>
-References: <49983FF4.1000102@gmail.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Subject: Re: + i2c-fix-i2c-mpc-driver-for-multi-master-i2c-busses.patch  added to -mm tree
+Date: Mon, 16 Feb 2009 03:58:47 -0800
+Message-ID: <200902160358.48176.david-b@pacbell.net>
+References: <200812222101.mBML1kn7021201@imap1.linux-foundation.org> <200902151653.36860.david-b@pacbell.net> <20090216092000.13af2d74@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49983FF4.1000102-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20090216092000.13af2d74-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Roel,
+On Monday 16 February 2009, Jean Delvare wrote:
+> > There's no guarantee of idempotency in messages; only
+> > callers can know if retrying a given partially completed
+> > message is safe. =A0And since fault reporting is still goofy,
+> > we can't know just where arbitration was lost... in the
+> > first master transmit, second (after repeated START),
+> > third, etc.
+>=20
+> As already explained by Clifford, arbitration loss is about messages
+> which have not been transmitted at all. So retrying is always OK.
 
-On Sun, 15 Feb 2009 17:16:52 +0100, Roel Kluin wrote:
-> I think below is what was intended? otherwise we could as well have written:
-> 
-> msg[0].flags = flags || (read_write == I2C_SMBUS_READ) ? I2C_M_RD : 0;
+I must have missed that.  It's not correct, in any case.
+Messages can easily have been *partially* transmitted.
 
-Which would clearly be wrong, as flags is a bit field.
+Loss of arbitration appears at the first transmitted bit
+where one master sends '0' and overrides another, which
+is sending '1' instead.  Ideally it's while addressing a
+device, but it could be after some data bytes have been
+sent ... and, depending on the slave, acted upon.  Even
+after one or more repeated starts.
 
-> 
-> please review.
-> -------------------------->8------------------8<---------------------------
-> Fix misplaced parentheses
-> 
-> Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index b1c9abe..2d34a7a 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1831,7 +1831,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
->  	case I2C_SMBUS_QUICK:
->  		msg[0].len = 0;
->  		/* Special case: The read/write field is used as data */
-> -		msg[0].flags = flags | (read_write==I2C_SMBUS_READ)?I2C_M_RD:0;
-> +		msg[0].flags = flags | (read_write == I2C_SMBUS_READ ?
-> +				I2C_M_RD : 0);
->  		num = 1;
->  		break;
->  	case I2C_SMBUS_BYTE:
-
-You are perfectly right. We are probably just lucky that in most cases
-flags is 0 so both expressions are equivalent. Otherwise we'd have
-noticed the bug earlier I guess.
-
-Patch applied, thanks.
-
--- 
-Jean Delvare
+- Dave
