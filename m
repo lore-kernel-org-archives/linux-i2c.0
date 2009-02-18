@@ -1,53 +1,44 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5] iMX/MXC support for I2C
-Date: Wed, 18 Feb 2009 12:52:52 +0100
-Message-ID: <20090218115252.GB3049@pengutronix.de>
-References: <4982BB1C.2040508@gmail.com> <20090204100022.GC3084@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
+From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Subject: [PATCH 1/1] i2c pxa: try to reset controller if the bus is busy for too long.
+Date: Wed, 18 Feb 2009 15:11:07 +0100
+Message-ID: <1234966267-12458-1-git-send-email-giometti@linux.it>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090204100022.GC3084-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
---JYK4vJDZwFMowpUq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> > Implementation of I2C Adapter/Algorithm Driver for I2C Bus integrated
-> > in Freescale's i.MX/MXC processors.
-> >=20
-> > Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Tested-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->=20
-> Ben, do you pick it up, or should it go via Sascha's iMX-Tree?
-
-Ben, do you intend to pick it up?
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---JYK4vJDZwFMowpUq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmb9pQACgkQD27XaX1/VRvYhQCeLwxnsnMhHcYFpzzLtgNyStLr
-MY8AoLUfaJDRIBotdA00OoNBHqcjbmSv
-=rXr/
------END PGP SIGNATURE-----
-
---JYK4vJDZwFMowpUq--
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index e29bde1..7dbe4dd 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -669,14 +669,22 @@ out:
+ static int i2c_pxa_do_xfer(struct pxa_i2c *i2c, struct i2c_msg *msg, int num)
+ {
+ 	long timeout;
++	int try_reset = 1;
+ 	int ret;
+ 
+ 	/*
+ 	 * Wait for the bus to become free.
+ 	 */
++retry:
+ 	ret = i2c_pxa_wait_bus_not_busy(i2c);
+ 	if (ret) {
+ 		dev_err(&i2c->adap.dev, "i2c_pxa: timeout waiting for bus free\n");
++		if (try_reset--) {
++			dev_info(&i2c->adap.dev, "i2c_pxa: controller reset\n");
++			i2c_pxa_reset(i2c);
++			goto retry;
++		}
++
+ 		goto out;
+ 	}
+ 
+-- 
+1.5.6.3
