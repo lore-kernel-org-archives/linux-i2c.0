@@ -1,50 +1,52 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
 Subject: Re: Request for Clarification: old - legacy - new driver model
-Date: Wed, 18 Feb 2009 18:36:45 +0100
-Message-ID: <20090218173645.GD3049@pengutronix.de>
-References: <gngvea$eqj$1@ger.gmane.org>
+Date: Thu, 19 Feb 2009 15:17:13 +0100
+Message-ID: <gnjplc$hqd$1@ger.gmane.org>
+References: <gngvea$eqj$1@ger.gmane.org> <20090218173645.GD3049@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="g7w8+K/95kPelPD2"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <gngvea$eqj$1@ger.gmane.org>
+In-Reply-To: <20090218173645.GD3049-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Wolfram Sang said the following:
+> Hi Michael,
+> 
+>> Can someone give me explanations/links/msg ids?
+> 
+> Documentation/i2c/upgrading-clients
+> 
+After re-reading it, I have to state that this document doesn't answer
+the questions behind my original ones (which I wanted to answer myself
+by following helpful links):
+>From which kernel version on should the 'new-binding' model work?
+How is attaching of a hot plugged i2c device achieved a) from kernel b)
+from user space.
+For kernel space init I assume its a call to i2c_new_device(). Here I'm
+wondering where I should get the adapter info from.
+For user space I'm completely lost (ioctl on /dev/i2cx?).
 
---g7w8+K/95kPelPD2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Our situation: main board is up and running, all drivers loaded.
+Now an extension board will be plugged in. It is detected by
+periodically polling via I2C for MUX. After detection the drivers e.g.
+for temperature an MUX on the secondary board need to be attached to I2C
+subsystem. Instances of both drivers are already running for local
+devices, re-loading is only a bad option.
+Do I really have to read and understand i2c-core.c and i2c-dev.c to find
+out?
+-- 
 
-Hi Michael,
+Michael Lawnick
+Software Design Engineer
 
-> Can someone give me explanations/links/msg ids?
+Lise-Meitner-Str. 7/1
+89081 Ulm
+Tel: +49 731 9533 2066
 
-Documentation/i2c/upgrading-clients
+Michael.Lawnick.ext-OYasijW0DpE@public.gmane.org
+http://www.nokiasiemensnetworks.com/global/
 
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---g7w8+K/95kPelPD2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmcRy0ACgkQD27XaX1/VRt8sACfdl6SEoUvNzQAxYJtT1E974B9
-d+QAn2Y2yTHz5+/zZArQmkncm4ZNWlko
-=akGN
------END PGP SIGNATURE-----
-
---g7w8+K/95kPelPD2--
+Think before you print
