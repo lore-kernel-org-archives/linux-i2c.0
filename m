@@ -1,82 +1,126 @@
-From: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
-Subject: Re: Handling of i2c arbitration loss
-Date: Thu, 19 Feb 2009 22:23:25 +0100
-Message-ID: <20090219212325.GC16107@clifford.at>
-References: <200812222101.mBML1kn7021201@imap1.linux-foundation.org> <20090108154604.2cade06e@hyperion.delvare> <200901081155.27866.david-b@pacbell.net> <20090109100145.GA12376@clifford.at> <20090214121745.39dfddf9@hyperion.delvare> <20090214180014.GA19352@clifford.at> <20090215113122.5bcc3f3d@hyperion.delvare> <20090216131026.GA17437@clifford.at> <20090219172605.7e70a797@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Handling of i2c arbitration loss (Was:
+ i2c-fix-i2c-mpc-driver-for-multi-master-i2c-busses.patch  added to -mm
+ tree)
+Date: Thu, 19 Feb 2009 22:31:59 +0100
+Message-ID: <20090219223159.32abaf27@hyperion.delvare>
+References: <200812222101.mBML1kn7021201@imap1.linux-foundation.org>
+	<200902160358.48176.david-b@pacbell.net>
+	<20090216140809.01acaea1@hyperion.delvare>
+	<200902191115.07289.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090219172605.7e70a797-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <200902191115.07289.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi David,
 
-On Thu, Feb 19, 2009 at 05:26:05PM +0100, Jean Delvare wrote:
-> > @@ -1000,7 +1000,8 @@ module_exit(i2c_exit);
-> >   */
-> >  int i2c_transfer(struct i2c_adapter * adap, struct i2c_msg *msgs, int num)
-> >  {
-> > -	int ret;
-> > +	unsigned long orig_jiffies = jiffies;
+On Thu, 19 Feb 2009 11:15:07 -0800, David Brownell wrote:
+> On Monday 16 February 2009, Jean Delvare wrote:
+> > On Mon, 16 Feb 2009 03:58:47 -0800, David Brownell wrote:
+> > > I must have missed that.  It's not correct, in any case.
+> > > Messages can easily have been *partially* transmitted.
+> > 
+> > Sorry, but no, really. On bus error or device error, yes, but not on
+> > arbitration loss, by definition of arbitration on I2C buses.
 > 
-> I think you should initialize orig_jiffies *after* you get the bus
-> lock. Otherwise the behavior depends on how long you had to wait to get
-> control of the bus. Or was is intended?
-
-phew! this is a good question...
-
-to be honest: I haven't thought about that one yet.
-
-I think both approaches (including the wait for the lock in the timeout on
-the one hand and just counting the time spent after getting the lock on the
-other hand) would be valid..
-
-But I think it would be better to not include the wait-for-lock time and
-move the initialization of orig_jiffies to after locking the mutex.
-
-In the case of including the wait-for-lock time there should be a timeout
-handling added to the lock code so it only tries to get the lock for not
-longer than the timeout... So my code is broken eighter way... ;-)
-
-> > +		/* Retry automatically on arbitration loss */
-> > +		for (ret = 0, try = 0; try <= adap->retries; try++) {
-> > +			ret = adap->algo->master_xfer(adap, msgs, num);
-> > +			if (ret != -EAGAIN)
-> > +				break;
-> > +			if (time_after(jiffies, orig_jiffies + adap->timeout))
+> One "struct i2c_msg" can be, for example:
 > 
-> This assumes that adap->timeout is expressed in jiffies. Which
-> according to a comment in include/linux/i2c-dev.h, is the case, but
-> this must be for historical reasons. This never made sense to me, as it
-> means that the actual timeout value depends on the value of HZ.
+> 	- Transfer #1: write bytes to some address
+> 	- Transfer #2: write bytes to some address
+> 	- STOP always signifies message end
+
+Actually, no, one struct i2c_msg can't be that. An array of 2 struct
+i2c_msg, yes.
+
+> Now, arbitration happens only during TX, of address or
+> data.  (A "read" message includes two transfers.)  In
+
+The other way around...
+
+> that example, there are two transfers which can trigger
+> arbitration loss faults.
 > 
-> The key problem here is that the timeout value is exported to
-> user-space and can be changed by user-space. And user-space normally
-> doesn't know the value of HZ... So the timeout value should be
-> expressed in a constant time unit.
+> So:  if two masters are using the bus at the same time,
+> it's possible they both have the same Transfer #1 but
+> don't do the same thing afterwards.  QED:  one master
+> observes a partial message transfer, losing arbitration
+> part way through the message.  The other observes no
+> fault at all.
 
-I haven't had a look at the code but would it be so hard to convert the
-timeout value to ms or something alike when exporting the value to
-user-space and convert in the other direction on reading from user-space?
+No. I am sorry I have to insist. There is no such thing as a partial
+message transfer followed by an arbitration loss. If a master ever
+loses arbitration, then _everything_ it sent over the wire since the
+previous start (_not_ repeated start) condition has simply never
+existed for anybody else on the bus (masters and slave alike). Whether
+this happens while sending the slave address of the first message, or
+the last data byte of the last message, doesn't make any difference.
 
-imo jiffies is the best unit for time within the kernel and I would prefer
-having one place for the convertion instead of duplicating it in every
-single driver and multiple places in i2c-core..
+> > > Loss of arbitration appears at the first transmitted bit
+> > > where one master sends '0' and overrides another, which
+> > > is sending '1' instead.  Ideally it's while addressing a
+> > > device, but it could be after some data bytes have been
+> > > sent ... and, depending on the slave, acted upon.  Even
+> > > after one or more repeated starts.
+> > 
+> > Please think about it all again. If two masters talk at the same time,
+> > as long as they send the same bits, none loses arbitration. The
+> > addressed slave OTOH has no clue that there are two masters talking, it
+> > sees the exact same data as if only one master was talking. At the
+> > moment one of the master loses arbitration it'll stop talking, and from
+> > the slave's point of view everything is as if it had never talked in
+> > the first place.
+> 
+> That's within the scope of a *single* transfer.  A message
+> can include any number of such transfers, each of which will
+> be individually arbitrated ... and it's clearly possible that
+> one such transfer can succeed, but a later one doesn't (due
+> to arbitration loss).
 
-> This problem isn't directly related to your patch, however so far
-> drivers were handling the timeout internally so I didn't really care.
-> Now that your patch will make use of the timeout value in i2c-core, I'd
-> like to clarify the situation first.
+Arbitration is per transfer (from start condition to stop condition)
+not per individual message (from start condition to repeated start
+condition or repeated start condition to stop condition.)
 
+> > The funny case being if both masters actually send the exact same
+> > message,
+> 
+> Same "transfer", not message ...
 
-yours,
- - clifford
+Funny that you dare correcting me on this when you are the one being
+confused here ;) As far as Linux' i2c implementation is concerned, an
+I2C transfer can made of one or more messages (i2c_transfer takes an
+array of struct i2c_msg as a parameter). The I2C specification doesn't
+seem to really make a difference, as far as I can see it uses "message"
+for everything.
+
+> > 	because neither will lose arbitration, both think they 
+> > succeeded, but the slave has really only received the message once, not
+> > twice. Which may or may not be a problem depending on what the slave is
+> > supposed to do out of the message in question - but this is a hardware
+> > limitation and up to the designers to think of and deal with.
+> 
+> Yes, but don't equate "transfer" with "message".  And the
+> point I'm making about partial failures is relevant very
+> specifically because it constrains what designers can do.
+> 
+> Consider the example above where both transfers have side
+> effects, and are non-idempotent.  It would be wrong to have
+> the i2c core assume it's safe to reissue Transfer #1 on the
+> assumption that it's safe to do so.
+
+We don't care if the message has side effects, because it never existed
+in the first place.
+
+As far as non-idempotent messages are concerned, the problem is
+inherent to multi-master I2C buses. If two masters send the exact same
+message at the exact same time, arbitration doesn't even trigger, and
+the message only goes once on the bus. There is nothing the OS can do
+about this.
 
 -- 
-"Perfection [in design] is achieved not when there is nothing left to
-add, but rather when there is nothing left to take away."
- - Antoine de Saint-Exupery
+Jean Delvare
