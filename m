@@ -1,46 +1,29 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5] iMX/MXC support for I2C
-Date: Fri, 20 Feb 2009 16:09:05 +0100
-Message-ID: <20090220150905.GC9203@pengutronix.de>
-References: <4982BB1C.2040508@gmail.com> <20090204100022.GC3084@pengutronix.de> <20090218115252.GB3049@pengutronix.de>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] I2C: OMAP: Add missing wakeup events
+Date: Fri, 20 Feb 2009 10:42:44 -0800
+Message-ID: <20090220184243.GU7414@atomide.com>
+References: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF17B@dbde02.ent.ti.com> <EAF47CD23C76F840A9E7FCE10091EFAB02A3D44D79@dbde02.ent.ti.com> <20090202140606.GN8032@fluff.org.uk> <EAF47CD23C76F840A9E7FCE10091EFAB02A3D4524D@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DSayHWYpDlRfCAAQ"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20090218115252.GB3049-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02A3D4524D-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: "Pakaravoor, Jagadeesh" <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+Cc: Ben Dooks <ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+* Pakaravoor, Jagadeesh <j-pakaravoor-l0cyMroinI0@public.gmane.org> [090202 07:28]:
+> Hi,
+> > Is it a necesary bugfix, or should it wait for the next merge window?
+> 
+> You can line it up for the next merge window.
 
---DSayHWYpDlRfCAAQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just for references, I'm assuming that Ben has picked up this for his
+queue, so not adding it to any of my ustream queues.
 
-> > Ben, do you pick it up, or should it go via Sascha's iMX-Tree?
->=20
-> Ben, do you intend to pick it up?
->=20
-Ben? :)
+Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Regards,
 
---DSayHWYpDlRfCAAQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkmex5EACgkQD27XaX1/VRvihQCeMPDcdIOqXWfAxC75hZkf6lU9
-n3kAoKxRUV3zf+5ETDtsduq8zO5QyiCv
-=DK16
------END PGP SIGNATURE-----
-
---DSayHWYpDlRfCAAQ--
+Tony
