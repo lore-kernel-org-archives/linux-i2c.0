@@ -1,29 +1,71 @@
 From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] I2C: OMAP: Add missing wakeup events
-Date: Fri, 20 Feb 2009 10:42:44 -0800
-Message-ID: <20090220184243.GU7414@atomide.com>
-References: <EAF47CD23C76F840A9E7FCE10091EFAB02A39CF17B@dbde02.ent.ti.com> <EAF47CD23C76F840A9E7FCE10091EFAB02A3D44D79@dbde02.ent.ti.com> <20090202140606.GN8032@fluff.org.uk> <EAF47CD23C76F840A9E7FCE10091EFAB02A3D4524D@dbde02.ent.ti.com>
+Subject: Re: [PATCH] i2c: i2c-omap: Fix BUFSTAT_REG reading
+Date: Fri, 20 Feb 2009 11:05:42 -0800
+Message-ID: <20090220190541.GX7414@atomide.com>
+References: <20090220185329.GV7414@atomide.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02A3D4524D-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+In-Reply-To: <20090220185329.GV7414-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Pakaravoor, Jagadeesh" <j-pakaravoor-l0cyMroinI0@public.gmane.org>
-Cc: Ben Dooks <ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Pakaravoor, Jagadeesh <j-pakaravoor-l0cyMroinI0@public.gmane.org> [090202 07:28]:
-> Hi,
-> > Is it a necesary bugfix, or should it wait for the next merge window?
+* Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> [090220 10:53]:
+> Hi Ben,
 > 
-> You can line it up for the next merge window.
+> Here's a fix for i2c-omap fix from Eero Nurkkala that would be nice
+> to get queued up for mainline.
 
-Just for references, I'm assuming that Ben has picked up this for his
-queue, so not adding it to any of my ustream queues.
+Resent, I still had the old i2c list in my aliases..
 
-Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> Regards,
+> 
+> Tony
 
-Regards,
-
-Tony
+> From b3849f3074fe50f176e2e4d89be56854f7b02d3b Mon Sep 17 00:00:00 2001
+> From: Eero Nurkkala <ext-eero.nurkkala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Date: Fri, 20 Feb 2009 10:46:17 -0800
+> Subject: [PATCH] i2c: i2c-omap: Fix BUFSTAT_REG reading
+> 
+> The number of bytes to be received is read from wrong
+> place with all OMAPs with highspeed I2C support,
+> which involves a FIFO and BUFSTAT_REG. It is the 6
+> bits starting from the bit 8 in the BUFSTAT_REG
+> that indicate this amount of bytes to be read.
+> Moreover, only the 6 LSB:s are relevant for the
+> TXSTAT field.
+> 
+> Signed-off-by: Eero Nurkkala <ext-eero.nurkkala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index be8ee2c..0c3ed41 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -675,8 +675,9 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>  				if (stat & OMAP_I2C_STAT_RRDY)
+>  					num_bytes = dev->fifo_size;
+>  				else
+> -					num_bytes = omap_i2c_read_reg(dev,
+> -							OMAP_I2C_BUFSTAT_REG);
+> +					num_bytes = (omap_i2c_read_reg(dev,
+> +							OMAP_I2C_BUFSTAT_REG)
+> +							>> 8) & 0x3F;
+>  			}
+>  			while (num_bytes) {
+>  				num_bytes--;
+> @@ -714,8 +715,9 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>  				if (stat & OMAP_I2C_STAT_XRDY)
+>  					num_bytes = dev->fifo_size;
+>  				else
+> -					num_bytes = omap_i2c_read_reg(dev,
+> -							OMAP_I2C_BUFSTAT_REG);
+> +					num_bytes = (omap_i2c_read_reg(dev,
+> +							OMAP_I2C_BUFSTAT_REG))
+> +							& 0x3F;
+>  			}
+>  			while (num_bytes) {
+>  				num_bytes--;
