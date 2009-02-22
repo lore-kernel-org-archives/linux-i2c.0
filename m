@@ -1,78 +1,52 @@
-From: Russell King <rmk-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Make sure i2c_algo_bit_data.timeout is HZ-independent
-Date: Sun, 22 Feb 2009 12:03:56 +0000
-Message-ID: <20090222120356.GA20820@flint.arm.linux.org.uk>
-References: <20090222125005.75b2d661@hyperion.delvare>
+From: Lennert Buytenhek <buytenh-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Adapter timeout is in jiffies
+Date: Sun, 22 Feb 2009 16:20:59 +0100
+Message-ID: <20090222152059.GI17040@xi.wantstofly.org>
+References: <20090222160705.63563a14@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20090222125005.75b2d661-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090222160705.63563a14-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>, Len Sorensen <lsorense-1wCw9BSqJbv44Nm34jS7GywD8/FfD2ys@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>, Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "Mark A. Greer" <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Feb 22, 2009 at 12:50:05PM +0100, Jean Delvare wrote:
-> i2c_algo_bit_data.timeout is supposed to be in jiffies, so drivers
-> should use set this value in terms of HZ.
+On Sun, Feb 22, 2009 at 04:07:05PM +0100, Jean Delvare wrote:
+
+> From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Subject: i2c: Adapter timeout is in jiffies
 > 
-> Ultimately I think this field should be discarded in favor of
-> i2c_adapter.timeout, but that's left for a future patch.
+> i2c_adapter.timeout is in jiffies. Fix all drivers which thought
+> otherwise. It didn't really matter as long as the value was only used
+> inside the driver, but soon i2c-core will use it too so it must have
+> the proper unit.
+> 
+> Note: for the i2c-mpc driver, this fixes a bug in polling mode.
+> Timeout would trigger after 1 jiffy, which is most probably not what
+> the author wanted.
 > 
 > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Thanks.
-
-Acked-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-
+> Cc: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
+> Cc: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+> Cc: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
 > Cc: Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
-> Cc: Len Sorensen <lsorense-1wCw9BSqJbv44Nm34jS7GywD8/FfD2ys@public.gmane.org>
+> Cc: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: Mark A. Greer <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-acorn.c   |    2 +-
->  drivers/i2c/busses/i2c-ixp2000.c |    2 +-
->  drivers/i2c/busses/scx200_i2c.c  |    2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> --- linux-2.6.29-rc5.orig/drivers/i2c/busses/scx200_i2c.c	2009-02-22 12:32:33.000000000 +0100
-> +++ linux-2.6.29-rc5/drivers/i2c/busses/scx200_i2c.c	2009-02-22 12:32:45.000000000 +0100
-> @@ -76,7 +76,7 @@ static struct i2c_algo_bit_data scx200_i
->  	.getsda		= scx200_i2c_getsda,
->  	.getscl		= scx200_i2c_getscl,
->  	.udelay		= 10,
-> -	.timeout	= 100,
-> +	.timeout	= HZ,
->  };
->  
->  static struct i2c_adapter scx200_i2c_ops = {
-> --- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-acorn.c	2009-02-22 12:32:33.000000000 +0100
-> +++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-acorn.c	2009-02-22 12:32:45.000000000 +0100
-> @@ -79,7 +79,7 @@ static struct i2c_algo_bit_data ioc_data
->  	.getsda		= ioc_getsda,
->  	.getscl		= ioc_getscl,
->  	.udelay		= 80,
-> -	.timeout	= 100
-> +	.timeout	= HZ,
->  };
->  
->  static struct i2c_adapter ioc_ops = {
-> --- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-ixp2000.c	2009-02-22 12:32:33.000000000 +0100
-> +++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-ixp2000.c	2009-02-22 12:32:45.000000000 +0100
-> @@ -114,7 +114,7 @@ static int ixp2000_i2c_probe(struct plat
->  	drv_data->algo_data.getsda = ixp2000_bit_getsda;
->  	drv_data->algo_data.getscl = ixp2000_bit_getscl;
->  	drv_data->algo_data.udelay = 6;
-> -	drv_data->algo_data.timeout = 100;
-> +	drv_data->algo_data.timeout = HZ;
->  
->  	strlcpy(drv_data->adapter.name, plat_dev->dev.driver->name,
->  		sizeof(drv_data->adapter.name));
-> 
-> 
-> -- 
-> Jean Delvare
+>  drivers/i2c/busses/i2c-ibm_iic.c |    6 +++---
+>  drivers/i2c/busses/i2c-iop3xx.c  |    2 +-
+>  drivers/i2c/busses/i2c-mpc.c     |    4 ++--
+>  drivers/i2c/busses/i2c-mv64xxx.c |    7 +++----
+>  drivers/i2c/busses/i2c-pca-isa.c |    2 +-
+>  5 files changed, 10 insertions(+), 11 deletions(-)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+The i2c-mv64xxx part:
+
+Acked-by: Lennert Buytenhek <buytenh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+
+Although I wonder if we shouldn't move away from expressing time
+intervals in jiffies.
