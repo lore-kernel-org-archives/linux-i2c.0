@@ -1,58 +1,48 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Make sure i2c_algo_bit_data.timeout is
- HZ-independent
-Date: Mon, 23 Feb 2009 16:20:23 +0100
-Message-ID: <20090223162023.62b6463c@hyperion.delvare>
-References: <20090222125005.75b2d661@hyperion.delvare>
-	<20090223150012.GD23244@csclub.uwaterloo.ca>
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Finding 'orphaned' i2c drivers
+Date: Mon, 23 Feb 2009 10:24:52 -0500
+Message-ID: <9e4733910902230724hcaa2b9by7b324db88eaf186c@mail.gmail.com>
+References: <20090223110052.GE15722@buzzloop.caiaq.de>
+	 <9e4733910902230638w262cd027pba4b65509e2e8a41@mail.gmail.com>
+	 <20090223144300.GA18378@buzzloop.caiaq.de>
+	 <9e4733910902230716t39994927i454bceb641c650ed@mail.gmail.com>
+	 <9e4733910902230718p1f896e77u9292708b71ab36a6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090223150012.GD23244-1wCw9BSqJbv44Nm34jS7GywD8/FfD2ys@public.gmane.org>
+In-Reply-To: <9e4733910902230718p1f896e77u9292708b71ab36a6-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lennart Sorensen <lsorense-1wCw9BSqJbv44Nm34jS7GywD8/FfD2ys@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
+To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 23 Feb 2009 10:00:12 -0500, Lennart Sorensen wrote:
-> On Sun, Feb 22, 2009 at 12:50:05PM +0100, Jean Delvare wrote:
-> > i2c_algo_bit_data.timeout is supposed to be in jiffies, so drivers
-> > should use set this value in terms of HZ.
-> > 
-> > Ultimately I think this field should be discarded in favor of
-> > i2c_adapter.timeout, but that's left for a future patch.
-> > 
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Cc: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-> > Cc: Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
-> > Cc: Len Sorensen <lsorense-1wCw9BSqJbv44Nm34jS7GywD8/FfD2ys@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-acorn.c   |    2 +-
-> >  drivers/i2c/busses/i2c-ixp2000.c |    2 +-
-> >  drivers/i2c/busses/scx200_i2c.c  |    2 +-
-> >  3 files changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > --- linux-2.6.29-rc5.orig/drivers/i2c/busses/scx200_i2c.c	2009-02-22 12:32:33.000000000 +0100
-> > +++ linux-2.6.29-rc5/drivers/i2c/busses/scx200_i2c.c	2009-02-22 12:32:45.000000000 +0100
-> > @@ -76,7 +76,7 @@ static struct i2c_algo_bit_data scx200_i
-> >  	.getsda		= scx200_i2c_getsda,
-> >  	.getscl		= scx200_i2c_getscl,
-> >  	.udelay		= 10,
-> > -	.timeout	= 100,
-> > +	.timeout	= HZ,
-> >  };
-> 
-> OK.  Well I know the driver has worked for me with both HZ=100 and now
-> HZ=1000, so making it consistent sounds good to me.  I think a lot of
-> people thought it was in microseconds or miliseconds.
+This is the last piece....
 
-It was clarified in i2c-algo-bit.h in kernel version 2.5.54, that's
-quite a while ago. The problem is that i2c-algo-bit.c itself had it
-wrong.
+static int __devinit dspeak01_fabric_probe(struct of_device *op,
+				      const struct of_device_id *match)
+{
+	const phandle *handle;
+	struct device_node *clock_node;
+	unsigned int len;
 
-At HZ=1000, 100 jiffies is 100 ms, that's already a reasonably long
-timeout. And not that many slaves actually stretch the I2C clock.
+	handle = of_get_property(op->node, "clock-handle", &len);
+	if (!handle || len < sizeof(handle))
+		return -ENODEV;
+
+	clock_node = of_find_node_by_phandle(*handle);
+	if (!clock_node)
+		return -ENODEV;
+
+	fabric.clock = of_find_i2c_device_by_node(clock_node);
+	if (!fabric.clock)
+		return -ENODEV;
+
+	of_snd_soc_register_machine("DSPEAK01", &dspeak01_fabric_ops);
+	return 0;
+}
+
 
 -- 
-Jean Delvare
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
