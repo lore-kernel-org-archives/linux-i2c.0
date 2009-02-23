@@ -1,60 +1,206 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-davinci: Fix timeout handling
-Date: Mon, 23 Feb 2009 15:05:54 +0100
-Message-ID: <20090223150554.203437b3@hyperion.delvare>
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Finding 'orphaned' i2c drivers
+Date: Mon, 23 Feb 2009 09:38:45 -0500
+Message-ID: <9e4733910902230638w262cd027pba4b65509e2e8a41@mail.gmail.com>
+References: <20090223110052.GE15722@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=0016e647ecfcb550ba046396f513
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090223110052.GE15722-ahpEBR4enfnCULTFXS99ULNAH6kLmebB@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Properly set the adapter timeout value in jiffies, and then use that
-value in the driver, rather than a hard-coded constant.
+--0016e647ecfcb550ba046396f513
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
----
-Troy, Kevin, can either of you please review, build test and run test
-this patch? Thanks.
+On Mon, Feb 23, 2009 at 6:00 AM, Daniel Mack <daniel-rDUAYElUppE@public.gmane.org> wrote:
+> Hi,
+>
+> what's the suggested way of implementing an i2c drver which does not
+> have any other interfaces to the outside world than just the i2c device
+> it is communicating with? More specifically, I implemented a driver for a
+> Maxim clock generator and would like to use a proprietary interface with
+> it from a alsa-soc module. I just can't find a sane way to access the
+> driver's instance from there. It does exist somewhere in the linux
+> device tree, but is there a simple function that iterates over it and
+> returns it to me by name? Reading include/linux/device.h didn't point me
+> to anything that could fit.
 
- drivers/i2c/busses/i2c-davinci.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+The max9485? Which codec are you using it with? I tried submitting the
+attached driver for the chip but Jean said it was too simple of a
+driver.
 
---- linux-2.6.29-rc6.orig/drivers/i2c/busses/i2c-davinci.c	2009-02-23 08:50:47.000000000 +0100
-+++ linux-2.6.29-rc6/drivers/i2c/busses/i2c-davinci.c	2009-02-23 14:56:17.000000000 +0100
-@@ -216,7 +216,7 @@ static int i2c_davinci_wait_bus_not_busy
- {
- 	unsigned long timeout;
- 
--	timeout = jiffies + DAVINCI_I2C_TIMEOUT;
-+	timeout = jiffies + dev->adapter.timeout;
- 	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
- 	       & DAVINCI_I2C_STR_BB) {
- 		if (time_after(jiffies, timeout)) {
-@@ -289,7 +289,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
- 
- 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
--						      DAVINCI_I2C_TIMEOUT);
-+						      dev->adapter.timeout);
- 	if (r == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		i2c_davinci_init(dev);
-@@ -546,9 +546,7 @@ static int davinci_i2c_probe(struct plat
- 	strlcpy(adap->name, "DaVinci I2C adapter", sizeof(adap->name));
- 	adap->algo = &i2c_davinci_algo;
- 	adap->dev.parent = &pdev->dev;
--
--	/* FIXME */
--	adap->timeout = 1;
-+	adap->timeout = DAVINCI_I2C_TIMEOUT;
- 
- 	adap->nr = pdev->id;
- 	r = i2c_add_numbered_adapter(adap);
+I use it like this:
+
+static int dspeak01_fabric_hw_params(struct snd_pcm_substream
+*substream, struct snd_pcm_hw_params *params)
+{
+	uint rate, select;
+	int ret;
+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+    struct snd_soc_dai *cpu_dai = rtd->dai->cpu_dai;
+
+	printk("dspeak01_fabric_hw_params\n");
+
+	switch (params_rate(params)) {
+	case 11025:
+	case 22050:
+	case 44100:
+	case 88200:
+	case 176400:
+		rate = 22579200;
+		select = MAX9485_225792;
+		break;
+	default:
+		rate = 24576000;
+		select = MAX9485_245760;
+		break;
+	}
+	max9485_set(fabric.clock, select | MAX9485_CLK_OUT_2);
+
+	ret = cpu_dai->ops.set_sysclk(cpu_dai, MPC52xx_CLK_CELLSLAVE, rate,
+SND_SOC_CLOCK_OUT);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+
+>
+> Excuse me this is a stupid question, but I can't find any useful
+> information about that anywhere.
+>
+> Thanks,
+> Daniel
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+
+
 
 -- 
-Jean Delvare
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+
+--0016e647ecfcb550ba046396f513
+Content-Type: application/octet-stream; name=max9485
+Content-Disposition: attachment; filename=max9485
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_frj8zp7l0
+
+aTJjIGRyaXZlciBmb3IgTWF4aW0gbWF4OTQ4NSBhdWRpbyBjbG9jayBnZW5lcmF0b3IgY2hpcAoK
+RnJvbTogSm9uIFNtaXJsIDxqb25zbWlybEBnbWFpbC5jb20+CgppMmMgZHJpdmVyIGZvciBNYXhp
+bSBtYXg5NDg1IGF1ZGlvIGNsb2NrIGdlbmVyYXRvciBjaGlwCgpTaWduZWQtb2ZmLWJ5OiBKb24g
+U21pcmwgPGpvbnNtaXJsQGdtYWlsLmNvbT4KLS0tCiBkcml2ZXJzL21pc2MvS2NvbmZpZyAgICAg
+ICAgfCAgICA5ICsrKysKIGRyaXZlcnMvbWlzYy9NYWtlZmlsZSAgICAgICB8ICAgIDIgKwogZHJp
+dmVycy9taXNjL21heDk0ODUuYyAgICAgIHwgIDEwNSArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrCiBpbmNsdWRlL2xpbnV4L2kyYy9tYXg5NDg1LmggfCAgIDM5ICsr
+KysrKysrKysrKysrKysKIDQgZmlsZXMgY2hhbmdlZCwgMTU1IGluc2VydGlvbnMoKyksIDAgZGVs
+ZXRpb25zKC0pCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9taXNjL21heDk0ODUuYwogY3Jl
+YXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvbGludXgvaTJjL21heDk0ODUuaAoKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvbWlzYy9LY29uZmlnIGIvZHJpdmVycy9taXNjL0tjb25maWcKaW5kZXggYzY0ZTY3
+OS4uMzIwZjM1OSAxMDA2NDQKLS0tIGEvZHJpdmVycy9taXNjL0tjb25maWcKKysrIGIvZHJpdmVy
+cy9taXNjL0tjb25maWcKQEAgLTE1MCw2ICsxNTAsMTUgQEAgY29uZmlnIEFUTUVMX1NTQwogCiAJ
+ICBJZiB1bnN1cmUsIHNheSBOLgogCitjb25maWcgTUFYOTQ4NQorCXRyaXN0YXRlICJNYXhpbSBN
+QVg5NDg1IFByb2dyYW1tYWJsZSBBdWRpbyBDbG9jayBHZW5lcmF0b3IiCisJaGVscAorCSAgSWYg
+eW91IHNheSB5ZXMgaGVyZSB5b3UgZ2V0IHN1cHBvcnQgZm9yIE1heGltIE1BWDk0ODUgCisJICBQ
+cm9ncmFtbWFibGUgQXVkaW8gQ2xvY2sgR2VuZXJhdG9yLgorCisJICBUaGlzIGRyaXZlciBjYW4g
+YWxzbyBiZSBidWlsdCBhcyBhIG1vZHVsZS4gIElmIHNvLCB0aGUgbW9kdWxlCisJICB3aWxsIGJl
+IGNhbGxlZCBtYXg5NDg1LgorCiBjb25maWcgRU5DTE9TVVJFX1NFUlZJQ0VTCiAJdHJpc3RhdGUg
+IkVuY2xvc3VyZSBTZXJ2aWNlcyIKIAlkZWZhdWx0IG4KZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWlz
+Yy9NYWtlZmlsZSBiL2RyaXZlcnMvbWlzYy9NYWtlZmlsZQppbmRleCBiYzExOTk4Li43MTYxNzA5
+IDEwMDY0NAotLS0gYS9kcml2ZXJzL21pc2MvTWFrZWZpbGUKKysrIGIvZHJpdmVycy9taXNjL01h
+a2VmaWxlCkBAIC0xMyw2ICsxMyw4IEBAIG9iai0kKENPTkZJR19USUZNX0NPUkUpICAgICAgIAkr
+PSB0aWZtX2NvcmUubwogb2JqLSQoQ09ORklHX1RJRk1fN1hYMSkgICAgICAgCSs9IHRpZm1fN3h4
+MS5vCiBvYmotJChDT05GSUdfUEhBTlRPTSkJCSs9IHBoYW50b20ubwogb2JqLSQoQ09ORklHX1NH
+SV9JT0M0KQkJKz0gaW9jNC5vCitvYmotJChDT05GSUdfRUVQUk9NXzkzQ1g2KQkrPSBlZXByb21f
+OTNjeDYubworb2JqLSQoQ09ORklHX01BWDk0ODUpCQkrPSBtYXg5NDg1Lm8KIG9iai0kKENPTkZJ
+R19FTkNMT1NVUkVfU0VSVklDRVMpICs9IGVuY2xvc3VyZS5vCiBvYmotJChDT05GSUdfS0dEQl9U
+RVNUUykJKz0ga2dkYnRzLm8KIG9iai0kKENPTkZJR19TR0lfWFApCQkrPSBzZ2kteHAvCmRpZmYg
+LS1naXQgYS9kcml2ZXJzL21pc2MvbWF4OTQ4NS5jIGIvZHJpdmVycy9taXNjL21heDk0ODUuYwpu
+ZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi5jMTMxNmYyCi0tLSAvZGV2L251bGwK
+KysrIGIvZHJpdmVycy9taXNjL21heDk0ODUuYwpAQCAtMCwwICsxLDEwNSBAQAorLyoKKyAqIE1h
+eGltIG1heDk0ODUgUHJvZ3JhbW1hYmxlIEF1ZGlvIENsb2NrIEdlbmVyYXRvciBkcml2ZXIKKyAq
+CisgKiBXcml0dGVuIGJ5OiBKb24gU21pcmwgPGpvbnNtaXJsQGdtYWlsLmNvbT4KKyAqCisgKiBD
+b3B5cmlnaHQgKEMpIDIwMDggRGlnaXNwZWFrZXIuY29tCisgKiBDb3B5cmlnaHQgKEMpIDIwMDgg
+Sm9uIFNtaXJsIDxqb25zbWlybEBnbWFpbC5jb20+CisgKgorICogVGhpcyBwcm9ncmFtIGlzIGZy
+ZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqIGl0
+IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgdmVyc2lv
+biAyIGFzCisgKiBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KKyAq
+LworCisvKgorICogVGhpcyBkZXZpY2UgaXMgdXN1YWxseSB1bmRlciB0aGUgY29udHJvbCBvZiBB
+TFNBIGFuZCBzaG91bGQgbm90IGJlIGNoYW5nZWQKKyAqIGZyb20gdXNlcnNwYWNlLiBUaGUgbWFp
+biBwdXJwb3NlIG9mIHRoaXMgZHJpdmVyIGlzIHRvIGxvY2F0ZSB0aGUgaTJjIGFkZHJlc3MKKyAq
+IG9mIHdoZXJlIHRoZSBjaGlwIGlzIGxvY2F0ZWQuCisgKi8KKworI2luY2x1ZGUgPGxpbnV4L21v
+ZHVsZS5oPgorI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgorI2luY2x1ZGUgPGxpbnV4L3N5c2ZzLmg+
+CisjaW5jbHVkZSA8bGludXgvaTJjL21heDk0ODUuaD4KKworaW50IG1heDk0ODVfc2V0KHN0cnVj
+dCBpMmNfY2xpZW50ICptYXg5NDg1LCB1OCB2YWx1ZSkKK3sKKwlyZXR1cm4gaTJjX3NtYnVzX3dy
+aXRlX2J5dGUobWF4OTQ4NSwgdmFsdWUpOworfQorRVhQT1JUX1NZTUJPTF9HUEwobWF4OTQ4NV9z
+ZXQpOworCisvKgorICogRGlzcGxheSB0aGUgb25seSByZWdpc3RlcgorICovCitzdGF0aWMgc3Np
+emVfdCBtYXg5NDg1X3Nob3coc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgZGV2aWNlX2F0dHJp
+YnV0ZSAqYXR0ciwKKwkJCSAgIGNoYXIgKmJ1ZikKK3sKKwlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xp
+ZW50ID0gdG9faTJjX2NsaWVudChkZXYpOworCWludCByYzsKKworCXJjID0gaTJjX3NtYnVzX3Jl
+YWRfYnl0ZShjbGllbnQpOworCWlmIChyYyA8IDApCisJCXJldHVybiByYzsKKworCXJldHVybiBz
+cHJpbnRmKGJ1ZiwgIiVzJXMlcyVzJXMlcyIsCisJCQkocmMgJiBNQVg5NDg1X01DTEsgPyAiTUNM
+SysiIDogIiIpLAorCQkJKHJjICYgTUFYOTQ4NV9DTEtfT1VUXzIgPyAiQ0xLMisiIDogIiIpLAor
+CQkJKHJjICYgTUFYOTQ4NV9DTEtfT1VUXzIgPyAiQ0xLMSsiIDogIiIpLAorCQkJKHJjICYgTUFY
+OTQ4NV9ET1VCTEVEID8gIkRPVUJMRUQrIiA6ICIiKSwKKwkJCShyYyAmIE1BWDk0ODVfU0NBTEVf
+NzY4ID8gIjc2OHgrIiA6IChyYyAmIE1BWDk0ODVfU0NBTEVfMzg0ID8gIjM4NHgrIiA6ICIyNTZ4
+KyIpKSwKKwkJCSgocmMgJiAzKSA9PSBNQVg5NDg1X0ZSRVFVRU5DWV80OCA/ICI0OEtoeiIgOgor
+CQkJKChyYyAmIDMpID09IE1BWDk0ODVfRlJFUVVFTkNZXzQ0MSA/ICI0NC4xS2h6IiA6CisJCQko
+KHJjICYgMykgPT0gTUFYOTQ4NV9GUkVRVUVOQ1lfMzIgPyAiMzJLaHoiIDogIjEyS2h6IikpKSk7
+Cit9CitzdGF0aWMgREVWSUNFX0FUVFIobWF4OTQ4NSwgU19JUlVHTywgbWF4OTQ4NV9zaG93LCBO
+VUxMKTsKKworLyoKKyAqIENhbGxlZCB3aGVuIGEgbWF4OTQ4NSBkZXZpY2UgaXMgbWF0Y2hlZCB3
+aXRoIHRoaXMgZHJpdmVyCisgKi8KK3N0YXRpYyBpbnQgbWF4OTQ4NV9wcm9iZShzdHJ1Y3QgaTJj
+X2NsaWVudCAqY2xpZW50LAorCQkJY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKmlkKQorewor
+CWlmICghaTJjX2NoZWNrX2Z1bmN0aW9uYWxpdHkoY2xpZW50LT5hZGFwdGVyLCBJMkNfRlVOQ19T
+TUJVU19CWVRFKSkgeworCQlkZXZfZXJyKCZjbGllbnQtPmRldiwgImkyYyBidXMgZG9lcyBub3Qg
+c3VwcG9ydCB0aGUgbWF4OTQ4NVxuIik7CisJCXJldHVybiAtRU5PREVWOworCX0KKwlyZXR1cm4g
+c3lzZnNfY3JlYXRlX2ZpbGUoJmNsaWVudC0+ZGV2LmtvYmosICZkZXZfYXR0cl9tYXg5NDg1LmF0
+dHIpOworfQorCitzdGF0aWMgaW50IG1heDk0ODVfcmVtb3ZlKHN0cnVjdCBpMmNfY2xpZW50ICpj
+bGllbnQpCit7CisJc3lzZnNfcmVtb3ZlX2ZpbGUoJmNsaWVudC0+ZGV2LmtvYmosICZkZXZfYXR0
+cl9tYXg5NDg1LmF0dHIpOworCXJldHVybiAwOworfQorCitzdGF0aWMgY29uc3Qgc3RydWN0IGky
+Y19kZXZpY2VfaWQgbWF4OTQ4NV9pZFtdID0geworCXsgIm1heDk0ODUiLCAwIH0sCisJeyB9Cit9
+OworTU9EVUxFX0RFVklDRV9UQUJMRShpMmMsIG1heDk0ODVfaWQpOworCitzdGF0aWMgc3RydWN0
+IGkyY19kcml2ZXIgbWF4OTQ4NV9kcml2ZXIgPSB7CisJLmRyaXZlciA9IHsKKwkJLm5hbWUgPSAi
+bWF4OTQ4NSIsCisJfSwKKwkucHJvYmUgPSBtYXg5NDg1X3Byb2JlLAorCS5yZW1vdmUgPSBtYXg5
+NDg1X3JlbW92ZSwKKwkuaWRfdGFibGUgPSBtYXg5NDg1X2lkLAorfTsKKworc3RhdGljIGludCBf
+X2luaXQgbWF4OTQ4NV9pbml0KHZvaWQpCit7CisJcmV0dXJuIGkyY19hZGRfZHJpdmVyKCZtYXg5
+NDg1X2RyaXZlcik7Cit9CisKK3N0YXRpYyB2b2lkIF9fZXhpdCBtYXg5NDg1X2V4aXQodm9pZCkK
+K3sKKwlpMmNfZGVsX2RyaXZlcigmbWF4OTQ4NV9kcml2ZXIpOworfQorCitNT0RVTEVfQVVUSE9S
+KCJKb24gU21pcmwgPGpvbnNtaXJsQGdtYWlsLmNvbSIpOworTU9EVUxFX0RFU0NSSVBUSU9OKCJN
+YXhpbSBNQVg5NDg1IFByb2dyYW1tYWJsZSBBdWRpbyBDbG9jayBHZW5lcmF0b3IgZHJpdmVyIik7
+CitNT0RVTEVfTElDRU5TRSgiR1BMIik7CisKK21vZHVsZV9pbml0KG1heDk0ODVfaW5pdCk7Citt
+b2R1bGVfZXhpdChtYXg5NDg1X2V4aXQpOwpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9pMmMv
+bWF4OTQ4NS5oIGIvaW5jbHVkZS9saW51eC9pMmMvbWF4OTQ4NS5oCm5ldyBmaWxlIG1vZGUgMTAw
+NjQ0CmluZGV4IDAwMDAwMDAuLjgxNTQzYmIKLS0tIC9kZXYvbnVsbAorKysgYi9pbmNsdWRlL2xp
+bnV4L2kyYy9tYXg5NDg1LmgKQEAgLTAsMCArMSwzOSBAQAorLyoKKyAqIE1heGltIG1heDk0ODUg
+UHJvZ3JhbW1hYmxlIEF1ZGlvIENsb2NrIEdlbmVyYXRvciBkcml2ZXIKKyAqCisgKiBXcml0dGVu
+IGJ5OiBKb24gU21pcmwgPGpvbnNtaXJsQGdtYWlsLmNvbT4KKyAqCisgKiBDb3B5cmlnaHQgKEMp
+IDIwMDggRGlnaXNwZWFrZXIuY29tCisgKiBDb3B5cmlnaHQgKEMpIDIwMDggSm9uIFNtaXJsIDxq
+b25zbWlybEBnbWFpbC5jb20+CisgKgorICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7
+IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqIGl0IHVuZGVyIHRoZSB0
+ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgdmVyc2lvbiAyIGFzCisgKiBw
+dWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4KKyAqLworCisjaWZuZGVm
+IF9fTElOVVhfSTJDX01BWDk0ODVfSAorI2RlZmluZSBfX0xJTlVYX0kyQ19NQVg5NDg1X0gKKwor
+c3RydWN0IGkyY19jbGllbnQ7CisKKy8qIERlZmluZXMgZm9yIE1heGltIE1BWDk0ODUgQXVkaW8g
+Q2xvY2sgR2VuZXJhdG9yICovCisKKyNkZWZpbmUgTUFYOTQ4NV9NQ0xLICAgICAgICAgKDEgPDwg
+NykKKyNkZWZpbmUgTUFYOTQ4NV9DTEtfT1VUXzIgICAgKDEgPDwgNikKKyNkZWZpbmUgTUFYOTQ4
+NV9DTEtfT1VUXzEgICAgKDEgPDwgNSkKKyNkZWZpbmUgTUFYOTQ4NV9ET1VCTEVEICAgICAgKDEg
+PDwgNCkKKyNkZWZpbmUgTUFYOTQ4NV9TQ0FMRV8yNTYgICAgKDAgPDwgMikKKyNkZWZpbmUgTUFY
+OTQ4NV9TQ0FMRV8zODQgICAgKDEgPDwgMikKKyNkZWZpbmUgTUFYOTQ4NV9TQ0FMRV83NjggICAg
+KDIgPDwgMikKKyNkZWZpbmUgTUFYOTQ4NV9GUkVRVUVOQ1lfMTIgIDAKKyNkZWZpbmUgTUFYOTQ4
+NV9GUkVRVUVOQ1lfMzIgIDEKKyNkZWZpbmUgTUFYOTQ4NV9GUkVRVUVOQ1lfNDQxIDIKKyNkZWZp
+bmUgTUFYOTQ4NV9GUkVRVUVOQ1lfNDggIDMKKworLyogQ29tYmluYXRpb25zIHRoYXQgbWluaW1p
+emUgaml0dGVyICovCisjZGVmaW5lIE1BWDk0ODVfMjQ1NzYwIChNQVg5NDg1X1NDQUxFXzI1NiB8
+IE1BWDk0ODVfRlJFUVVFTkNZXzQ4IHwgTUFYOTQ4NV9ET1VCTEVEKQorI2RlZmluZSBNQVg5NDg1
+XzIyNTc5MiAoTUFYOTQ4NV9TQ0FMRV8yNTYgfCBNQVg5NDg1X0ZSRVFVRU5DWV80NDEgfCBNQVg5
+NDg1X0RPVUJMRUQpCisKK2ludCBtYXg5NDg1X3NldChzdHJ1Y3QgaTJjX2NsaWVudCAqbWF4OTQ4
+NSwgdTggdmFsdWUpOworCisjZW5kaWYgLyogIF9fTElOVVhfSTJDX01BWDk0ODVfSCAqLwo=
+--0016e647ecfcb550ba046396f513--
