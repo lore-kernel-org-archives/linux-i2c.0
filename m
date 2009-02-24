@@ -1,47 +1,65 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c fixes for 2.6.29
-Date: Tue, 24 Feb 2009 19:26:03 +0100
-Message-ID: <20090224192603.687d506c@hyperion.delvare>
+From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH] i2c-davinci: Fix timeout handling
+Date: Tue, 24 Feb 2009 11:49:40 -0700
+Message-ID: <49A44144.8000803@boundarydevices.com>
+References: <20090223150554.203437b3@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090223150554.203437b3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Jean Delvare wrote:
+> Properly set the adapter timeout value in jiffies, and then use that
+> value in the driver, rather than a hard-coded constant.
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> Cc: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> ---
+> Troy, Kevin, can either of you please review, build test and run test
+> this patch? Thanks.
+> 
+>  drivers/i2c/busses/i2c-davinci.c |    8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> --- linux-2.6.29-rc6.orig/drivers/i2c/busses/i2c-davinci.c	2009-02-23 08:50:47.000000000 +0100
+> +++ linux-2.6.29-rc6/drivers/i2c/busses/i2c-davinci.c	2009-02-23 14:56:17.000000000 +0100
+> @@ -216,7 +216,7 @@ static int i2c_davinci_wait_bus_not_busy
+>  {
+>  	unsigned long timeout;
+>  
+> -	timeout = jiffies + DAVINCI_I2C_TIMEOUT;
+> +	timeout = jiffies + dev->adapter.timeout;
+>  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+>  	       & DAVINCI_I2C_STR_BB) {
+>  		if (time_after(jiffies, timeout)) {
+> @@ -289,7 +289,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+>  
+>  	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+> -						      DAVINCI_I2C_TIMEOUT);
+> +						      dev->adapter.timeout);
+>  	if (r == 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+>  		i2c_davinci_init(dev);
+> @@ -546,9 +546,7 @@ static int davinci_i2c_probe(struct plat
+>  	strlcpy(adap->name, "DaVinci I2C adapter", sizeof(adap->name));
+>  	adap->algo = &i2c_davinci_algo;
+>  	adap->dev.parent = &pdev->dev;
+> -
+> -	/* FIXME */
+> -	adap->timeout = 1;
+> +	adap->timeout = DAVINCI_I2C_TIMEOUT;
+>  
+>  	adap->nr = pdev->id;
+>  	r = i2c_add_numbered_adapter(adap);
+> 
+I tested this without issues.
 
-Please pull the i2c subsystem fixes for Linux 2.6.29 from:
-
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
-
- arch/arm/mach-rpc/riscpc.c       |    6 ++++++
- drivers/i2c/busses/i2c-acorn.c   |    5 +++--
- drivers/i2c/busses/i2c-amd8111.c |    4 ++--
- drivers/i2c/busses/i2c-ixp2000.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c     |    2 +-
- drivers/i2c/busses/scx200_i2c.c  |    2 +-
- drivers/i2c/i2c-core.c           |    3 ++-
- drivers/i2c/i2c-dev.c            |    6 +++++-
- include/linux/i2c-dev.h          |    2 +-
- include/linux/i2c.h              |    2 +-
- 10 files changed, 23 insertions(+), 11 deletions(-)
-
----------------
-
-Jean Delvare (2):
-      i2c-dev: Clarify the unit of ioctl I2C_TIMEOUT
-      i2c: Make sure i2c_algo_bit_data.timeout is HZ-independent
-
-Roel Kluin (2):
-      i2c: Fix misplaced parentheses
-      i2c: Timeouts reach -1
-
-Russell King (1):
-      [ARM] Add i2c_board_info for RiscPC PCF8583
-
-Thanks,
--- 
-Jean Delvare
+Thanks
+Troy
