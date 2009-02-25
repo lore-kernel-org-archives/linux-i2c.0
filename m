@@ -1,8 +1,10 @@
 From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
 Subject: [PATCH] Added driver for ISL29003 ambient light sensor
-Date: Wed, 25 Feb 2009 21:10:18 +0100
-Message-ID: <1235592618-10880-1-git-send-email-daniel@caiaq.de>
+Date: Wed, 25 Feb 2009 21:19:17 +0100
+Message-ID: <1235593157-10960-1-git-send-email-daniel@caiaq.de>
+References: <1235592618-10880-1-git-send-email-daniel@caiaq.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1235592618-10880-1-git-send-email-daniel-rDUAYElUppE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
@@ -14,6 +16,8 @@ similar device.
 
 Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
 ---
+ Fixed some typos in the documentation.
+
  Documentation/i2c/chips/isl29003 |   62 +++++
  drivers/i2c/chips/Kconfig        |   10 +
  drivers/i2c/chips/Makefile       |    1 +
@@ -36,14 +40,14 @@ index 0000000..f808141
 +Prefix: 'isl29003'
 +Addresses scanned: none
 +Datasheet:
-+http://www.intersil.com&data/fn/fn7464.pdf
++http://www.intersil.com/data/fn/fn7464.pdf
 +
 +Author: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
 +
 +
 +Description
 +-----------
-+The ISL29003 is an integrated light sensors with a 16-bit integrating type
++The ISL29003 is an integrated light sensor with a 16-bit integrating type
 +ADC, I2C user programmable lux range select for optimized counts/lux, and
 +I2C multi-function control and monitoring capabilities. The internal ADC
 +provides 16-bit resolution while rejecting 50Hz and 60Hz flicker caused by
@@ -87,8 +91,8 @@ index 0000000..f808141
 +	0: device is disabled (default)
 +	1: device is enabled
 +
-+value (read only):
-+	returns the value from the last sensor reading
++lux (read only):
++	returns the value from the last sensor reading in lux
 +
 diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
 index c80312c..d10f515 100644
@@ -128,7 +132,7 @@ index 0000000..757a74f
 +++ b/drivers/i2c/chips/isl29003.c
 @@ -0,0 +1,517 @@
 +/*
-+ *  isl29003.c - Linux kernel modules for
++ *  isl29003.c - Linux kernel module for
 + * 	Intersil ISL29003 ambient light sensor
 + *
 + *  See file://Documentation/i2c/chips/isl29003
