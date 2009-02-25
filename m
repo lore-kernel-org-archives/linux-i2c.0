@@ -1,53 +1,113 @@
-From: Sean MacLennan <seanm-nPOcM8PqUlU@public.gmane.org>
-Subject: Re: [PATCH] i2c: Adapter timeout is in jiffies
-Date: Tue, 24 Feb 2009 20:12:08 -0500
-Message-ID: <20090224201208.32c419ad@lappy.seanm.ca>
-References: <20090222160705.63563a14@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Request for Clarification: old - legacy - new driver model
+Date: Wed, 25 Feb 2009 09:00:02 +0100
+Message-ID: <20090225090002.2c31dbf1@hyperion.delvare>
+References: <gngvea$eqj$1@ger.gmane.org>
+	<20090218173645.GD3049@pengutronix.de>
+	<gnjplc$hqd$1@ger.gmane.org>
+	<20090220135300.353cd53a@hyperion.delvare>
+	<go12jd$ec4$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090222160705.63563a14-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <go12jd$ec4$1@ger.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>, Sean MacLennan <sean.maclennan-PfkvCD7/krF7brkF8I8T/Pd9D2ou9A/h@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "Mark A. Greer" <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 22 Feb 2009 16:07:05 +0100
-"Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+Hi Michael,
 
-> From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Subject: i2c: Adapter timeout is in jiffies
+On Tue, 24 Feb 2009 16:09:33 +0100, Michael Lawnick wrote:
+> Jean Delvare said the following:
+> > On Thu, 19 Feb 2009 15:17:13 +0100, Michael Lawnick wrote:
+> <snip>
+> >> Our situation: main board is up and running, all drivers loaded.
+> >> Now an extension board will be plugged in. It is detected by
+> >> periodically polling via I2C for MUX. After detection the drivers e.g.
+> > 
+> > This is totally unsupported. I2C isn't an hot-pluggable bus.
+> > 
+> <snip>
+> > 
+> > What you are missing, as far as I can see, is proper mux support.
+> > Rodolfo Giometti (Cc'd) is working on this, if you want to test his
+> > patches (which I still didn't have the time to look at, sadly.)
+> > 
+> I have seen the patches, I am planning based on them.
 > 
-> i2c_adapter.timeout is in jiffies. Fix all drivers which thought
-> otherwise. It didn't really matter as long as the value was only used
-> inside the driver, but soon i2c-core will use it too so it must have
-> the proper unit.
+> Well, thinking about it, I hope to have a solution.
+> Here is what a H/W might look like:
+>                           +-------+   +--------+
+>                           |  LM75 |   | EEPROM |
+>                           +-------+   +--------+
+>  Mainboard                    |           |
+> +------------+                |           |
+> | controller |----------------+-----+-----+---....
+> +------------+                      |
+>                                     |
+>                                     |
+>                                  +------+
+>                                  |      |
+>    ...>--------------------------| MUX1 |----------------------<...
+>                +-----------------|      |---------------+
+>                |                 +------+               |
+>                |                                        |
+>                |                                        |
+>                ^                                        ^
+> Plugin1        |                          Plugin2       |
+>             +------+                                +------+
+>             |      |   +-------+                    |      |   +-------+
+>         +---| MUX2 |---|  LM75 |                +---| MUX3 |---|  LM75 |
+>         |   |      |   +-------+                |   |      |   +-------+
+>         |   +------+                            |   +------+
+>         |                                       |
+>         |   +-------+                           |   +-------+
+>         +---|  LM75 |                           +---|  LM75 |
+>         |   +-------+                           |   +-------+
+>         |                                       |
+>         |   +--------+                          |   +--------+
+>         +---| EEPROM |                          +---| EEPROM |
+>         |   +--------+                          |   +--------+
+>         |                                       |
 > 
-> Note: for the i2c-mpc driver, this fixes a bug in polling mode.
-> Timeout would trigger after 1 jiffy, which is most probably not what
-> the author wanted.
+
+I don't quite get the point of MUX2 and MUX3.
+
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
-> Cc: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-> Cc: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-> Cc: Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
-> Cc: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Mark A. Greer <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-ibm_iic.c |    6 +++---
->  drivers/i2c/busses/i2c-iop3xx.c  |    2 +-
->  drivers/i2c/busses/i2c-mpc.c     |    4 ++--
->  drivers/i2c/busses/i2c-mv64xxx.c |    7 +++----
->  drivers/i2c/busses/i2c-pca-isa.c |    2 +-
->  5 files changed, 10 insertions(+), 11 deletions(-)
+> The idea: when deferring the instantiation of the adapters of MUX1,
+> there should be something like a hot-plug event.
+> AFAIK, after adding an adapter via i2c_add_numbered_adapter(), the I2C
+> subsystem will probe for all currently known clients on this new bus.
+> Correct?
+> If so, this should cascade through the newly plugged in board.
 
-i2c-ibm_iic.c:
+For I2C chip drivers which do device autodetection (lm75 and eeprom are
+amongst them but for example at24 is not) yes. For other drivers (say
+at24) there should be a board definition for the new i2c bus segment.
+This might be a little difficult to implement with the traditional
+i2c_register_board_info() due to the hotplug nature is not all plugins
+have the same set of I2C chips. But some custom code using
+i2c_new_device() should do.
 
-Acked-by: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+> This defer could be implemented by removing auto instantiation (module
+> parameter)
 
-Cheers,
-   Sean
+Auto instantiation only happens if the bus driver asks for it (through
+an I2C_CLASS_* flag). If you don't want it, no need for a module
+parameter, simply don't set any class flag.
+
+> but adding a sysFs entry on MUX that does it on demand:
+> #start controller 5
+> echo 5 > /sys/bus/i2c/devices/1-0020/startAdapter
+> #stop controller 5
+> echo 5 > /sys/bus/i2c/devices/1-0020/stopAdapter
+> 
+> Any contradictions?
+
+What are you trying to achieve? What is wrong with auto instantiation
+as it is implemented today?
+
+-- 
+Jean Delvare
