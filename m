@@ -1,194 +1,146 @@
-From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: timeouts off by 1
-Date: Wed, 25 Feb 2009 12:00:52 +0100
-Message-ID: <49A524E4.5050108@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Adapter timeout is in jiffies [TEST RESEND]
+Date: Wed, 25 Feb 2009 14:48:50 +0100
+Message-ID: <20090225144850.6d1249bf@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-with while (timeout++ < MAX_TIMEOUT); timeout reaches MAX_TIMEOUT + 1 after the
-loop, so the tests below are off by one.
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c: Adapter timeout is in jiffies
 
-Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+i2c_adapter.timeout is in jiffies. Fix all drivers which thought
+otherwise. It didn't really matter as long as the value was only used
+inside the driver, but soon i2c-core will use it too so it must have
+the proper unit.
+
+Note: for the i2c-mpc driver, this fixes a bug in polling mode.
+Timeout would trigger after 1 jiffy, which is most probably not what
+the author wanted.
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
+Cc: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
+Cc: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Cc: Lennert Buytenhek <kernel-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>
+Cc: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Mark A. Greer <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-ali1535.c |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c |    2 +-
- drivers/i2c/busses/i2c-amd756.c  |    4 ++--
- drivers/i2c/busses/i2c-i801.c    |    8 ++++----
- drivers/i2c/busses/i2c-isch.c    |    2 +-
- drivers/i2c/busses/i2c-nforce2.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c     |    4 ++--
- drivers/i2c/busses/i2c-sis5595.c |    2 +-
- drivers/i2c/busses/i2c-sis630.c  |    2 +-
- drivers/i2c/busses/i2c-sis96x.c  |    2 +-
- 10 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/i2c/busses/i2c-ibm_iic.c |    6 +++---
+ drivers/i2c/busses/i2c-iop3xx.c  |    2 +-
+ drivers/i2c/busses/i2c-mpc.c     |    4 ++--
+ drivers/i2c/busses/i2c-mv64xxx.c |    7 +++----
+ drivers/i2c/busses/i2c-pca-isa.c |    2 +-
+ 5 files changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
-index 981e080..d108450 100644
---- a/drivers/i2c/busses/i2c-ali1535.c
-+++ b/drivers/i2c/busses/i2c-ali1535.c
-@@ -284,7 +284,7 @@ static int ali1535_transaction(struct i2c_adapter *adap)
- 		 && (timeout++ < MAX_TIMEOUT));
+--- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-mpc.c	2009-02-22 14:29:17.000000000 +0100
++++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-mpc.c	2009-02-22 14:34:56.000000000 +0100
+@@ -116,7 +116,7 @@ static int i2c_wait(struct mpc_i2c *i2c,
+ 	} else {
+ 		/* Interrupt mode */
+ 		result = wait_event_interruptible_timeout(i2c->queue,
+-			(i2c->interrupt & CSR_MIF), timeout * HZ);
++			(i2c->interrupt & CSR_MIF), timeout);
  
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		result = -ETIMEDOUT;
- 		dev_err(&adap->dev, "SMBus Timeout!\n");
+ 		if (unlikely(result < 0)) {
+ 			pr_debug("I2C: wait interrupted\n");
+@@ -311,7 +311,7 @@ static struct i2c_adapter mpc_ops = {
+ 	.owner = THIS_MODULE,
+ 	.name = "MPC adapter",
+ 	.algo = &mpc_algo,
+-	.timeout = 1,
++	.timeout = HZ,
+ };
+ 
+ static int __devinit fsl_i2c_probe(struct of_device *op, const struct of_device_id *match)
+--- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-mv64xxx.c	2009-02-22 14:29:17.000000000 +0100
++++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-mv64xxx.c	2009-02-22 14:29:56.000000000 +0100
+@@ -358,7 +358,7 @@ mv64xxx_i2c_wait_for_completion(struct m
+ 	char		abort = 0;
+ 
+ 	time_left = wait_event_interruptible_timeout(drv_data->waitq,
+-		!drv_data->block, msecs_to_jiffies(drv_data->adapter.timeout));
++		!drv_data->block, drv_data->adapter.timeout);
+ 
+ 	spin_lock_irqsave(&drv_data->lock, flags);
+ 	if (!time_left) { /* Timed out */
+@@ -374,8 +374,7 @@ mv64xxx_i2c_wait_for_completion(struct m
+ 		spin_unlock_irqrestore(&drv_data->lock, flags);
+ 
+ 		time_left = wait_event_timeout(drv_data->waitq,
+-			!drv_data->block,
+-			msecs_to_jiffies(drv_data->adapter.timeout));
++			!drv_data->block, drv_data->adapter.timeout);
+ 
+ 		if ((time_left <= 0) && drv_data->block) {
+ 			drv_data->state = MV64XXX_I2C_STATE_IDLE;
+@@ -530,7 +529,7 @@ mv64xxx_i2c_probe(struct platform_device
+ 	drv_data->adapter.algo = &mv64xxx_i2c_algo;
+ 	drv_data->adapter.owner = THIS_MODULE;
+ 	drv_data->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+-	drv_data->adapter.timeout = pdata->timeout;
++	drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
+ 	drv_data->adapter.nr = pd->id;
+ 	platform_set_drvdata(pd, drv_data);
+ 	i2c_set_adapdata(&drv_data->adapter, drv_data);
+--- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-ibm_iic.c	2009-02-22 14:29:17.000000000 +0100
++++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-ibm_iic.c	2009-02-22 14:43:31.000000000 +0100
+@@ -415,7 +415,7 @@ static int iic_wait_for_tc(struct ibm_ii
+ 	if (dev->irq >= 0){
+ 		/* Interrupt mode */
+ 		ret = wait_event_interruptible_timeout(dev->wq,
+-			!(in_8(&iic->sts) & STS_PT), dev->adap.timeout * HZ);
++			!(in_8(&iic->sts) & STS_PT), dev->adap.timeout);
+ 
+ 		if (unlikely(ret < 0))
+ 			DBG("%d: wait interrupted\n", dev->idx);
+@@ -426,7 +426,7 @@ static int iic_wait_for_tc(struct ibm_ii
  	}
-diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
-index 39066de..d627fce 100644
---- a/drivers/i2c/busses/i2c-ali15x3.c
-+++ b/drivers/i2c/busses/i2c-ali15x3.c
-@@ -306,7 +306,7 @@ static int ali15x3_transaction(struct i2c_adapter *adap)
- 		 && (timeout++ < MAX_TIMEOUT));
+ 	else {
+ 		/* Polling mode */
+-		unsigned long x = jiffies + dev->adap.timeout * HZ;
++		unsigned long x = jiffies + dev->adap.timeout;
  
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		result = -ETIMEDOUT;
- 		dev_err(&adap->dev, "SMBus Timeout!\n");
- 	}
-diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
-index 220f4a1..f7d6fe9 100644
---- a/drivers/i2c/busses/i2c-amd756.c
-+++ b/drivers/i2c/busses/i2c-amd756.c
-@@ -126,7 +126,7 @@ static int amd756_transaction(struct i2c_adapter *adap)
- 		} while ((temp & (GS_HST_STS | GS_SMB_STS)) &&
- 		         (timeout++ < MAX_TIMEOUT));
- 		/* If the SMBus is still busy, we give up */
--		if (timeout >= MAX_TIMEOUT) {
-+		if (timeout > MAX_TIMEOUT) {
- 			dev_dbg(&adap->dev, "Busy wait timeout (%04x)\n", temp);
- 			goto abort;
- 		}
-@@ -143,7 +143,7 @@ static int amd756_transaction(struct i2c_adapter *adap)
- 	} while ((temp & GS_HST_STS) && (timeout++ < MAX_TIMEOUT));
+ 		while (in_8(&iic->sts) & STS_PT){
+ 			if (unlikely(time_after(jiffies, x))){
+@@ -748,7 +748,7 @@ static int __devinit iic_probe(struct of
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo = &iic_algo;
+-	adap->timeout = 1;
++	adap->timeout = HZ;
  
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_dbg(&adap->dev, "Completion timeout!\n");
- 		goto abort;
- 	}
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 230238d..79cacd3 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -236,7 +236,7 @@ static int i801_transaction(int xact)
- 		status = inb_p(SMBHSTSTS);
- 	} while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_TIMEOUT));
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret  < 0) {
+--- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-iop3xx.c	2009-02-22 14:29:17.000000000 +0100
++++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-iop3xx.c	2009-02-22 14:47:58.000000000 +0100
+@@ -488,7 +488,7 @@ iop3xx_i2c_probe(struct platform_device
+ 	/*
+ 	 * Default values...should these come in from board code?
+ 	 */
+-	new_adapter->timeout = 100;	
++	new_adapter->timeout = HZ;
+ 	new_adapter->algo = &iop3xx_i2c_algo;
  
--	result = i801_check_post(status, timeout >= MAX_TIMEOUT);
-+	result = i801_check_post(status, timeout > MAX_TIMEOUT);
- 	if (result < 0)
- 		return result;
+ 	init_waitqueue_head(&adapter_data->waitq);
+--- linux-2.6.29-rc5.orig/drivers/i2c/busses/i2c-pca-isa.c	2009-02-22 14:29:17.000000000 +0100
++++ linux-2.6.29-rc5/drivers/i2c/busses/i2c-pca-isa.c	2009-02-22 14:48:34.000000000 +0100
+@@ -103,7 +103,7 @@ static struct i2c_adapter pca_isa_ops =
+ 	.owner          = THIS_MODULE,
+ 	.algo_data	= &pca_isa_data,
+ 	.name		= "PCA9564 ISA Adapter",
+-	.timeout	= 100,
++	.timeout	= HZ,
+ };
  
-@@ -256,9 +256,9 @@ static void i801_wait_hwpec(void)
- 	} while ((!(status & SMBHSTSTS_INTR))
- 		 && (timeout++ < MAX_TIMEOUT));
- 
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT)
- 		dev_dbg(&I801_dev->dev, "PEC Timeout!\n");
--	}
-+
- 	outb_p(status, SMBHSTSTS);
- }
- 
-@@ -343,7 +343,7 @@ static int i801_block_transaction_byte_by_byte(union i2c_smbus_data *data,
- 		while ((!(status & SMBHSTSTS_BYTE_DONE))
- 		       && (timeout++ < MAX_TIMEOUT));
- 
--		result = i801_check_post(status, timeout >= MAX_TIMEOUT);
-+		result = i801_check_post(status, timeout > MAX_TIMEOUT);
- 		if (result < 0)
- 			return result;
- 
-diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-index b9c01aa..9f6b8e0 100644
---- a/drivers/i2c/busses/i2c-isch.c
-+++ b/drivers/i2c/busses/i2c-isch.c
-@@ -112,7 +112,7 @@ static int sch_transaction(void)
- 	} while ((temp & 0x08) && (timeout++ < MAX_TIMEOUT));
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_err(&sch_adapter.dev, "SMBus Timeout!\n");
- 		result = -ETIMEDOUT;
- 	}
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-index 05af6cd..d3da45c 100644
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -169,7 +169,7 @@ static int nforce2_check_status(struct i2c_adapter *adap)
- 		temp = inb_p(NVIDIA_SMB_STS);
- 	} while ((!temp) && (timeout++ < MAX_TIMEOUT));
- 
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_dbg(&adap->dev, "SMBus Timeout!\n");
- 		if (smbus->can_abort)
- 			nforce2_abort(adap);
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index bdb1f75..8a95642 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -264,10 +264,10 @@ static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *i2c)
- 		show_state(i2c);
- 	}
- 
--	if (timeout <= 0)
-+	if (timeout < 0)
- 		show_state(i2c);
- 
--	return timeout <= 0 ? I2C_RETRY : 0;
-+	return timeout < 0 ? I2C_RETRY : 0;
- }
- 
- static int i2c_pxa_wait_master(struct pxa_i2c *i2c)
-diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
-index f320ab2..139f0c7 100644
---- a/drivers/i2c/busses/i2c-sis5595.c
-+++ b/drivers/i2c/busses/i2c-sis5595.c
-@@ -256,7 +256,7 @@ static int sis5595_transaction(struct i2c_adapter *adap)
- 	} while (!(temp & 0x40) && (timeout++ < MAX_TIMEOUT));
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_dbg(&adap->dev, "SMBus Timeout!\n");
- 		result = -ETIMEDOUT;
- 	}
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
-index 50c3610..70ca41e 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -173,7 +173,7 @@ static int sis630_transaction_wait(struct i2c_adapter *adap, int size)
- 	} while (!(temp & 0x0e) && (timeout++ < MAX_TIMEOUT));
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_dbg(&adap->dev, "SMBus Timeout!\n");
- 		result = -ETIMEDOUT;
- 	}
-diff --git a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
-index 7e1594b..8295885 100644
---- a/drivers/i2c/busses/i2c-sis96x.c
-+++ b/drivers/i2c/busses/i2c-sis96x.c
-@@ -132,7 +132,7 @@ static int sis96x_transaction(int size)
- 	} while (!(temp & 0x0e) && (timeout++ < MAX_TIMEOUT));
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout > MAX_TIMEOUT) {
- 		dev_dbg(&sis96x_adapter.dev, "SMBus Timeout! (0x%02x)\n", temp);
- 		result = -ETIMEDOUT;
- 	}
+ static int __devinit pca_isa_match(struct device *dev, unsigned int id)
+
+
+-- 
+Jean Delvare
