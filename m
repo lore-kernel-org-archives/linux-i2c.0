@@ -1,35 +1,40 @@
-From: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Request for Clarification: old - legacy - new driver model
-Date: Thu, 26 Feb 2009 16:16:46 +0100
-Message-ID: <go6bp4$i9k$1@ger.gmane.org>
-References: <gngvea$eqj$1@ger.gmane.org>	<20090218173645.GD3049@pengutronix.de>	<gnjplc$hqd$1@ger.gmane.org>	<20090220135300.353cd53a@hyperion.delvare>	<go12jd$ec4$1@ger.gmane.org>	<20090225090002.2c31dbf1@hyperion.delvare>	<go5ta2$rtu$1@ger.gmane.org> <20090226142854.2b6f72e4@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] i2c: Initialise Samsung I2C controller early
+Date: Thu, 26 Feb 2009 16:29:22 +0000
+Message-ID: <1235665762-20400-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090226142854.2b6f72e4-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> Hi Michael,
-> 
-> On Thu, 26 Feb 2009 12:09:52 +0100, Michael Lawnick wrote:
->> Therefore I asked for links in the OP so I can understand the idea of
->> the so called 'new I2C model'. The kernel documentation seems not to be
->> sufficient to achieve my goals.
->> Currently I'm waiting for 2 MUXes and an LM75, so I can connect them to
->> our current MUX-less board and start to play.
-> 
-> The documentation might not be perfect, right. It should become clearer
-> once we get completely rid of the legacy model. Contributions to
-> enhance the documentation are welcome, too.
-> 
-Just in short:
-Don't feel criticized here. The documentation feels excellent for making
-new devices. But what I'm searching for are 'inner' documents, which
-AFAICS LINUX lacks almost completely.
+This is required in order to ensure that core system devices such as
+voltage regulators attached via I2C are avaiable early in boot.
 
-Kind Regards,
-Michael
+Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5b7f956..91f6a1e 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1018,14 +1018,13 @@ static int __init i2c_adap_s3c_init(void)
+ 
+ 	return ret;
+ }
++subsys_initcall(i2c_adap_s3c_init);
+ 
+ static void __exit i2c_adap_s3c_exit(void)
+ {
+ 	platform_driver_unregister(&s3c2410_i2c_driver);
+ 	platform_driver_unregister(&s3c2440_i2c_driver);
+ }
+-
+-module_init(i2c_adap_s3c_init);
+ module_exit(i2c_adap_s3c_exit);
+ 
+ MODULE_DESCRIPTION("S3C24XX I2C Bus driver");
+-- 
+1.6.1.3
