@@ -1,66 +1,138 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c/pca-platform: use defaults if no platform_data
- given
-Date: Thu, 26 Feb 2009 22:30:17 +0100
-Message-ID: <20090226223017.13f26884@hyperion.delvare>
-References: <1235492536-31695-1-git-send-email-w.sang@pengutronix.de>
-	<1235492536-31695-4-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH V2 1/3] i2c/algo-pca: rework waiting for a free bus
+Date: Fri, 27 Feb 2009 09:44:12 +0100
+Message-ID: <20090227084412.GA3481@pengutronix.de>
+References: <1235492536-31695-1-git-send-email-w.sang@pengutronix.de> <1235492536-31695-2-git-send-email-w.sang@pengutronix.de> <20090226181447.35775a21@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1235492536-31695-4-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090226181447.35775a21-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 24 Feb 2009 17:22:16 +0100, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-pca-platform.c |   19 ++++++++++++-------
->  1 files changed, 12 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-> index df5e593..7b23891 100644
-> --- a/drivers/i2c/busses/i2c-pca-platform.c
-> +++ b/drivers/i2c/busses/i2c-pca-platform.c
-> @@ -177,10 +177,20 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
->  		 (unsigned long) res->start);
->  	i2c->adap.algo_data = &i2c->algo_data;
->  	i2c->adap.dev.parent = &pdev->dev;
-> -	i2c->adap.timeout = platform_data->timeout;
->  
-> -	i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
-> +	if (platform_data) {
-> +		i2c->adap.timeout = platform_data->timeout;
-> +		i2c->algo_data.i2c_clock = platform_data->i2c_clock_speed;
-> +		i2c->gpio = platform_data->gpio;
-> +	} else {
-> +		i2c->adap.timeout = HZ;
-> +		i2c->algo_data.i2c_clock = 59000;
-> +		i2c->gpio = -1;
-> +	}
-> +
->  	i2c->algo_data.data = i2c;
-> +	i2c->algo_data.wait_for_completion = i2c_pca_pf_waitforcompletion;
-> +	i2c->algo_data.reset_chip = i2c_pca_pf_dummyreset;
->  
->  	switch (res->flags & IORESOURCE_MEM_TYPE_MASK) {
->  	case IORESOURCE_MEM_32BIT:
-> @@ -198,11 +208,6 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
->  		break;
->  	}
->  
-> -	i2c->algo_data.wait_for_completion = i2c_pca_pf_waitforcompletion;
-> -
-> -	i2c->gpio = platform_data->gpio;
-> -	i2c->algo_data.reset_chip = i2c_pca_pf_dummyreset;
-> -
->  	/* Use gpio_is_valid() when in mainline */
->  	if (i2c->gpio > -1) {
->  		ret = gpio_request(i2c->gpio, i2c->adap.name);
 
-Applied, thanks.
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jean Delvare
+
+Waiting for a free bus now accepts the timeout value in jiffies and does
+proper checking using time_before.
+
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+
+changes since V1:
+
+* fix user sh7785lcr
+* break >80 chars
+
+ arch/sh/boards/board-sh7785lcr.c |    2 +-
+ drivers/i2c/algos/i2c-algo-pca.c |   19 +++++++++++--------
+ drivers/i2c/busses/i2c-pca-isa.c |    2 +-
+ include/linux/i2c-pca-platform.h |    2 +-
+ 4 files changed, 14 insertions(+), 11 deletions(-)
+
+diff --git a/arch/sh/boards/board-sh7785lcr.c b/arch/sh/boards/board-sh7785=
+lcr.c
+index 38a6496..6258c79 100644
+--- a/arch/sh/boards/board-sh7785lcr.c
++++ b/arch/sh/boards/board-sh7785lcr.c
+@@ -229,7 +229,7 @@ static struct resource i2c_resources[] =3D {
+ static struct i2c_pca9564_pf_platform_data i2c_platform_data =3D {
+ 	.gpio			=3D 0,
+ 	.i2c_clock_speed	=3D I2C_PCA_CON_330kHz,
+-	.timeout		=3D 100,
++	.timeout		=3D HZ,
+ };
+=20
+ static struct platform_device i2c_device =3D {
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-=
+pca.c
+index a8e51bd..9e134fa 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -22,6 +22,7 @@
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+@@ -186,14 +187,16 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+ 	int numbytes =3D 0;
+ 	int state;
+ 	int ret;
+-	int timeout =3D i2c_adap->timeout;
++	unsigned long timeout =3D jiffies + i2c_adap->timeout;
+=20
+-	while ((state =3D pca_status(adap)) !=3D 0xf8 && timeout--) {
+-		msleep(10);
+-	}
+-	if (state !=3D 0xf8) {
+-		dev_dbg(&i2c_adap->dev, "bus is not idle. status is %#04x\n", state);
+-		return -EAGAIN;
++	while (pca_status(adap) !=3D 0xf8) {
++		if (time_before(jiffies, timeout)) {
++			msleep(10);
++		} else {
++			dev_dbg(&i2c_adap->dev, "bus is not idle. status is "
++				"%#04x\n", state);
++			return -EAGAIN;
++		}
+ 	}
+=20
+ 	DEB1("{{{ XFER %d messages\n", num);
+diff --git a/drivers/i2c/busses/i2c-pca-isa.c b/drivers/i2c/busses/i2c-pca-=
+isa.c
+index 8835de2..84d035c 100644
+--- a/drivers/i2c/busses/i2c-pca-isa.c
++++ b/drivers/i2c/busses/i2c-pca-isa.c
+@@ -103,7 +103,7 @@ static struct i2c_adapter pca_isa_ops =3D {
+ 	.owner          =3D THIS_MODULE,
+ 	.algo_data	=3D &pca_isa_data,
+ 	.name		=3D "PCA9564/PCA9665 ISA Adapter",
+-	.timeout	=3D 100,
++	.timeout	=3D HZ,
+ };
+=20
+ static int __devinit pca_isa_match(struct device *dev, unsigned int id)
+diff --git a/include/linux/i2c-pca-platform.h b/include/linux/i2c-pca-platf=
+orm.h
+index 3d19187..aba3375 100644
+--- a/include/linux/i2c-pca-platform.h
++++ b/include/linux/i2c-pca-platform.h
+@@ -6,7 +6,7 @@ struct i2c_pca9564_pf_platform_data {
+ 				 * not supplied (negative value), but it
+ 				 * cannot exit some error conditions then */
+ 	int i2c_clock_speed;	/* values are defined in linux/i2c-algo-pca.h */
+-	int timeout;		/* timeout =3D this value * 10us */
++	int timeout;		/* timeout in jiffies */
+ };
+=20
+ #endif /* I2C_PCA9564_PLATFORM_H */
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkmnp9wACgkQD27XaX1/VRsTWACeM0PBAnq78GdTub2N2RIihQR7
+NuQAn2BgCL9J0amTAL7aVnkPGOAejiTJ
+=lOZ+
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--
