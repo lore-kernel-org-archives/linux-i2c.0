@@ -1,137 +1,122 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH UPDATED] Add support to SB800 SMBus changes
-Date: Fri, 27 Feb 2009 17:50:58 +0100
-Message-ID: <20090227175058.585d2506@hyperion.delvare>
-References: <1235123028.5504.6.camel@chunhao-desktop>
+From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Subject: Re: [PATCH 1/3] Added empty directories for hardware sensors
+Date: Sat, 28 Feb 2009 13:40:48 +0100
+Message-ID: <20090228124048.GB18336@buzzloop.caiaq.de>
+References: <20090226095718.GA24575@buzzloop.caiaq.de> <1235654648-3450-1-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1235123028.5504.6.camel@chunhao-desktop>
+Content-Disposition: inline
+In-Reply-To: <1235654648-3450-1-git-send-email-daniel-rDUAYElUppE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: shane.huang-5C7GfCeVMHo@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shane,
+On Thu, Feb 26, 2009 at 02:24:06PM +0100, Daniel Mack wrote:
+> This adds empty directories and the neccessary entries to Makefiles and
+> Kconfigs in order to provide a place for hardware sensors which are not
+> meant to be based in drivers/hwmon.
+> 
+> Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+> ---
+>  How about this approach? Take it as RFC ...
 
-On Fri, 20 Feb 2009 17:43:47 +0800, Shane Huang wrote:
-> The original patch is updated with Jean's nice suggestions,
-> please check it.
-> 
-> Thanks.
-> Shane
-> 
-> === CUT HERE ===
-> This version of driver adds support for the AMD SB800 Family series of products.
-> Major changes include the changes to addressing the SMBUS registers at different
-> location from the locations in the previous compatible parts from AMD such as
-> SB400/SB600/SB700. For SB800, the main features and register definitions of
-> SMBUS and other interfaces are still compatible with the previous products with
-> the only change being in how to access the internal registers for these blocks
-> may differ.
-> 
-> Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+Any oppinion on this, anyone? I'm currently writing a driver for an
+accelerometer and will have the same uncertainty of where to put it in
+the end.
 
-This new version of the patch looks acceptable to me. Even though I
-find it unfortunate that ATI/AMD changed the hardware implementation to
-something which is more complex to handle with no good reason that I
-can see :(
+Daniel
+
+
 
 > 
-> diff -ruN a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> --- a/drivers/i2c/busses/i2c-piix4.c	2009-02-20 01:08:40.000000000 +0800
-> +++ b/drivers/i2c/busses/i2c-piix4.c	2009-02-20 01:34:45.000000000 +0800
-> @@ -226,6 +226,68 @@
->  	return 0;
->  }
+>  arch/arm/Kconfig         |    2 ++
+>  drivers/Kconfig          |    2 ++
+>  drivers/Makefile         |    1 +
+>  drivers/sensors/Kconfig  |   20 ++++++++++++++++++++
+>  drivers/sensors/Makefile |    4 ++++
+>  5 files changed, 29 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/sensors/Kconfig
+>  create mode 100644 drivers/sensors/Makefile
+> 
+> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+> index dbfdf87..91a6c55 100644
+> --- a/arch/arm/Kconfig
+> +++ b/arch/arm/Kconfig
+> @@ -1283,6 +1283,8 @@ source "drivers/power/Kconfig"
 >  
-> +static int __devinit piix4_setup_sb800(struct pci_dev *PIIX4_dev,
-> +				const struct pci_device_id *id)
-> +{
-> +	unsigned short smba_idx = 0xcd6;
-> +	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en = 0x2c;
-> +
-> +	/* SB800 SMBus does not support forcing address */
-> +	if (force || force_addr)
-> +		dev_info(&PIIX4_dev->dev, "SB800 SMBus does not support "
-> +			"forcing address!\n");
-
-I would promote this to dev_warn(), or even dev_err() and fail.
-
-> +
-> +	/* Determine the address of the SMBus areas */
-> +	if (!request_region(smba_idx, 2, "smba_idx")) {
-> +		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
-> +			"0x%x already in use!\n", smba_idx);
-> +		return -EBUSY;
-> +	}
-> +	outb_p(smb_en, smba_idx);
-> +	smba_en_lo = inb_p(smba_idx + 1);
-> +	outb_p(smb_en + 1, smba_idx);
-> +	smba_en_hi = inb_p(smba_idx + 1);
-> +	release_region(smba_idx, 2);
-> +
-> +	if ((smba_en_lo & 1) == 0) {
-> +		dev_err(&PIIX4_dev->dev,
-> +			"Host SMBus controller not enabled!\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
-> +	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
-> +		return -EBUSY;
-> +
-> +	if (!request_region(piix4_smba, SMBIOSIZE, piix4_driver.name)) {
-> +		dev_err(&PIIX4_dev->dev, "SMBus region 0x%x already in use!\n",
-> +			piix4_smba);
-> +		return -EBUSY;
-> +	}
-> +
-> +	/* Request the SMBus I2C bus config region */
-> +	if (!request_region(piix4_smba + i2ccfg_offset, 1, "i2ccfg")) {
-> +		dev_err(&PIIX4_dev->dev, "SMBus I2C bus config region "
-> +			"0x%x already in use!\n", piix4_smba + i2ccfg_offset);
-> +		release_region(piix4_smba, SMBIOSIZE);
-> +		piix4_smba = 0;
-> +		return -EBUSY;
-> +	}
-> +	i2ccfg = inb_p(piix4_smba + i2ccfg_offset);
-> +	release_region(piix4_smba + i2ccfg_offset, 1);
-> +
-> +	if (i2ccfg & 1)
-> +		dev_dbg(&PIIX4_dev->dev, "Using IRQ for SMBus.\n");
-> +	else
-> +		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
-> +
-> +	dev_info(&PIIX4_dev->dev,
-> +		 "SMBus Host Controller at 0x%x, revision %d\n",
-> +		 piix4_smba, i2ccfg >> 4);
-> +
-> +	return 0;
-> +}
-> +
->  static int piix4_transaction(void)
->  {
->  	int temp;
-> @@ -434,7 +496,14 @@
->  {
->  	int retval;
+>  source "drivers/hwmon/Kconfig"
 >  
-> -	retval = piix4_setup(dev, id);
-> +	if ((dev->vendor == PCI_VENDOR_ID_ATI) &&
-> +	    (dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
-> +	    (dev->revision >= 0x40))
-> +		/* base address location etc changed in SB800 */
-> +		retval = piix4_setup_sb800(dev, id);
-> +	else
-> +		retval = piix4_setup(dev, id);
+> +source "drivers/sensors/Kconfig"
 > +
->  	if (retval)
->  		return retval;
+>  source "drivers/thermal/Kconfig"
 >  
-
-All the rest looks good, I'll apply your patch now.
-
--- 
-Jean Delvare
+>  source "drivers/watchdog/Kconfig"
+> diff --git a/drivers/Kconfig b/drivers/Kconfig
+> index 00cf955..57a9578 100644
+> --- a/drivers/Kconfig
+> +++ b/drivers/Kconfig
+> @@ -60,6 +60,8 @@ source "drivers/power/Kconfig"
+>  
+>  source "drivers/hwmon/Kconfig"
+>  
+> +source "drivers/sensors/Kconfig"
+> +
+>  source "drivers/thermal/Kconfig"
+>  
+>  source "drivers/watchdog/Kconfig"
+> diff --git a/drivers/Makefile b/drivers/Makefile
+> index c1bf417..207a0d5 100644
+> --- a/drivers/Makefile
+> +++ b/drivers/Makefile
+> @@ -74,6 +74,7 @@ obj-y				+= i2c/
+>  obj-$(CONFIG_W1)		+= w1/
+>  obj-$(CONFIG_POWER_SUPPLY)	+= power/
+>  obj-$(CONFIG_HWMON)		+= hwmon/
+> +obj-$(CONFIG_SENSORS)		+= sensors/
+>  obj-$(CONFIG_THERMAL)		+= thermal/
+>  obj-$(CONFIG_WATCHDOG)		+= watchdog/
+>  obj-$(CONFIG_PHONE)		+= telephony/
+> diff --git a/drivers/sensors/Kconfig b/drivers/sensors/Kconfig
+> new file mode 100644
+> index 0000000..bc85c90
+> --- /dev/null
+> +++ b/drivers/sensors/Kconfig
+> @@ -0,0 +1,20 @@
+> +#
+> +# Sensor drivers
+> +#
+> +
+> +menuconfig SENSORS
+> +	tristate "Sensor drivers"
+> +	depends on HAS_IOMEM
+> +	default n
+> +	help
+> +	  Sensor drivers are for special purpose devices that can monitor
+> +	  ambient light, motion, temperature and the like.
+> +
+> +	  Check file:Documentation/sensors to see which devices are
+> +	  currently supported.
+> +
+> +
+> +if SENSORS
+> +
+> +endif # SENSORS
+> +
+> diff --git a/drivers/sensors/Makefile b/drivers/sensors/Makefile
+> new file mode 100644
+> index 0000000..4c629c2
+> --- /dev/null
+> +++ b/drivers/sensors/Makefile
+> @@ -0,0 +1,4 @@
+> +#
+> +# Makefile for sensor chip drivers.
+> +#
+> +
+> -- 
+> 1.6.1.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
