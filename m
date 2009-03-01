@@ -1,29 +1,49 @@
-From: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Subject: Re: Finding 'orphaned' i2c drivers
-Date: Mon, 23 Feb 2009 15:04:24 +0000
-Message-ID: <20090223150423.GD2078@sirena.org.uk>
-References: <20090223110052.GE15722@buzzloop.caiaq.de> <20090223144343.GC2078@sirena.org.uk> <20090223145142.GB18378@buzzloop.caiaq.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: legacy drivers in staging?
+Date: Sun, 1 Mar 2009 11:13:06 +0100
+Message-ID: <20090301101306.GB23093@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20090223145142.GB18378-ahpEBR4enfnCULTFXS99ULNAH6kLmebB@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 23, 2009 at 03:51:42PM +0100, Daniel Mack wrote:
 
-> The question is: how do I access this instance at a later point? Without
-> messing around with static pointers, of course.
+--0ntfKIWw70PvrIHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You're going to need to do something which is specific to your
-application - it's not a problem for the I2C layer, all it's doing is
-providing the lower level bus access for the device.  The upper level
-API offered by your driver is something that depends on what services
-your driver is implementing.
+Hi Jean,
 
-As I said in my previous e-mail you should probably either register with
-ASoC core and get at the device that way or do something like what the
-neo1973 driver is doing in your machine driver.
+when having another look at the status page of legacy drivers in the i2c-wi=
+ki,
+I stumbled over the drivers from 'staging'. Do they really need to appear
+there? I hope the removal of the legacy binding will not depend on those
+drivers ;)
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--0ntfKIWw70PvrIHh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkmqX7IACgkQD27XaX1/VRtnqACgh1pssvNbCClchekJIe9Do3dQ
+iWwAnAq7FrnZJCB7onNvgmztL0oRjls3
+=OoAh
+-----END PGP SIGNATURE-----
+
+--0ntfKIWw70PvrIHh--
