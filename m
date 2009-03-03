@@ -1,52 +1,26 @@
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Subject: Re: [PATCH 1/3] Added empty directories for hardware sensors
-Date: Mon, 2 Mar 2009 11:12:35 +0100
-Message-ID: <20090302101235.GD3223@buzzloop.caiaq.de>
-References: <20090226095718.GA24575@buzzloop.caiaq.de> <1235654648-3450-1-git-send-email-daniel@caiaq.de> <20090228124048.GB18336@buzzloop.caiaq.de> <5d5443650903012122p795d51cdr18c1a79c606cd496@mail.gmail.com>
+From: Darius <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5] iMX/MXC support for I2C
+Date: Tue, 03 Mar 2009 09:16:54 +0200
+Message-ID: <49ACD966.9050109@gmail.com>
+References: <4982BB1C.2040508@gmail.com> <20090204100022.GC3084@pengutronix.de> <20090218115252.GB3049@pengutronix.de> <20090220150905.GC9203@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-13; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5d5443650903012122p795d51cdr18c1a79c606cd496-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20090220150905.GC9203-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <public-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ-8ByrlEUxsivZ+VzJOa5vwg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trilok,
+Wolfram Sang wrote:
+>>> Ben, do you pick it up, or should it go via Sascha's iMX-Tree?
+>> Ben, do you intend to pick it up?
+>>
+> Ben? :)
+> 
 
-On Mon, Mar 02, 2009 at 10:52:38AM +0530, Trilok Soni wrote:
-> >> This adds empty directories and the neccessary entries to Makefile=
-s and
-> >> Kconfigs in order to provide a place for hardware sensors which ar=
-e not
-> >> meant to be based in drivers/hwmon.
-> >>
-> >> Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-> >> ---
-> >> =A0How about this approach? Take it as RFC ...
-> >
-> > Any oppinion on this, anyone? I'm currently writing a driver for an
-> > accelerometer and will have the same uncertainty of where to put it=
- in
-> > the end.
->=20
-> Better to submit this patch to LKML too, as it adds new directory. Fo=
-r
+Ben, we have 2.6.29-rc6 today, would be nice to have i2c-imx in 2.6.29 main line.
+Could you merge this, please?
 
-Did that yesterday :)
-
-> accelerometer, few patches were submitted as "Industrial IO" framewor=
-k
-> from Jonathan Cameron. If you grep in LKML archive you will get the
-> idea, also another place for accelerometer could be drivers/hwmon
-> directory too if it fits in your driver requirements.
-
-I realized that there is a driver for this accellerometer device
-already, it's just not usable with i2c/spi accessors. I'll discuss that
-now on the lkml, the question that started the thread is hence only
-left open for the ambient light sensors (my own one and the tps2550 in
-drivers/i2c/chips).
-
-Daniel
+Darius.
