@@ -1,30 +1,55 @@
-From: Brian Dominy <brian.dominy-4y/IbmOpLWVBDgjK7y7TUQ@public.gmane.org>
-Subject: LTC4307 automatic stuck bus recovery
-Date: Thu, 5 Mar 2009 14:55:17 +0000 (UTC)
-Message-ID: <loom.20090305T144259-929@post.gmane.org>
+From: Felipe Balbi <me@felipebalbi.com>
+Subject: Re: [PATCH] I2C: Call request_irq with IRQF_DISABLED
+Date: Thu, 5 Mar 2009 21:35:06 +0200
+Message-ID: <20090305193505.GA32746@frodo>
+References: <1236261264-16053-1-git-send-email-Ext-Ari.Kauppi@nokia.com>
+Reply-To: me@felipebalbi.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1236261264-16053-1-git-send-email-Ext-Ari.Kauppi@nokia.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I am working with a board which has an LTC4307 I2C bus isolator chip,
-connected to an MPC8548 processor.  Occasionally under high CPU load,
-we see mysterious I2C errors (bad data, ACK errors).
+On Thu, Mar 05, 2009 at 03:54:24PM +0200, Ari Kauppi wrote:
+> I have observed some Spurious IRQ's for I2C1 when all kernel hacking options
+> (and thus LOCKDEP) are disabled.
+> 
+> Applying Richard Woodruff's 'I2C bug fixes for L-O and L-Z' seems to help
+> but IRQF_DISABLED is needed for proper behaviour.
+> 
+> Signed-off-by: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
 
-Our theory is that calls to i2c_wait() inside mpc_write() are blocking
-for so long that the LTC4307 thinks the bus is locked up, and resets it.
-This chip takes action after only 30ms.  There are several workloads where
-we see the process doing the I2C writes is not getting rescheduled in time
-to write the next byte.
+This driver should be in sync with mainline, the only missing commit is
 
-So my question is this: is this something the I2C code should deal with,
-or is this something better pushed up to userspace?  Raising the priority
-of the process has shown improvements.  It seems like the kernel code could
-at least detect the problem and return an error if the hardware imposes
-realtime constraints.
+commit 3487568e15df6e133f5f55779dec614dbeb68a99
+Author: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
+Date:   Tue Nov 25 13:03:46 2008 +0200
 
-Thanks,
-Brian Dominy
+    i2c: i2c-omap: Fix BUFSTAT_REG reading
+    
+    The number of bytes to be received is read from wrong
+    place with all OMAPs with highspeed I2C support,
+    which involves a FIFO and BUFSTAT_REG. It is the 6
+    bits starting from the bit 8 in the BUFSTAT_REG
+    that indicate this amount of bytes to be read.
+    Moreover, only the 6 LSB:s are relevant for the
+    TXSTAT field.
+    
+    Signed-off-by: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
+    Signed-off-by: Tony Lindgren <tony@atomide.com>
+
+That and this one should be going via linux-i2c mainling list. Could you
+send Eero's patch and yours to Jean Delvare (i2c maintainer) ? Please
+keep linux-omap in the loop.
+
+That said, this makes sense and avoids that we get interrupts while
+handling a previous interrupt.
+
+Acked-by: Felipe Balbi <felipe.balbi@nokia.com>
+
+-- 
+balbi
