@@ -1,40 +1,37 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: howto to suppor new i2c algo
-Date: Tue, 3 Mar 2009 14:50:51 +0100
-Message-ID: <20090303145051.676ab361@hyperion.delvare>
-References: <49A276BF.6030102@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49A276BF.6030102-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: zaphod001-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+Subject: [PATCH] I2C: Call request_irq with IRQF_DISABLED
+Date: Thu,  5 Mar 2009 15:54:24 +0200
+Message-ID: <1236261264-16053-1-git-send-email-Ext-Ari.Kauppi@nokia.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 23 Feb 2009 12:13:19 +0200, Zaphod wrote:
-> Hi
-> 
-> 1st of all, i am using Linux and currently implementing interface to the DVB 
-> demodulator using i2c.
-> The read (from it's datasheet ecc3100 SkyPhy) demands the algo with repeat of 
-> start option:
-> 
-> S Add+w A AddByte1 A AddByte2 A S Arr+r A ...
-> 
-> So, which option i have to use in order to force such behavior.
-> I am using user space application with ioctl I2C_RDWR
+I have observed some Spurious IRQ's for I2C1 when all kernel hacking options
+(and thus LOCKDEP) are disabled.
 
-Well, I2C_RDWR is exactly what you need. Given that you already found
-it, I am not sure what you are asking exactly? You need to provide an
-array of 2 struct i2c_msg, one with the 2 address bytes to write, and
-one for the bytes to read from the target slave chip.
+Applying Richard Woodruff's 'I2C bug fixes for L-O and L-Z' seems to help
+but IRQF_DISABLED is needed for proper behaviour.
 
-Note that the user-space part of the code is the user of the I2C
-implementation. You also need to implement the hardware I2C support on
-the kernel side. That is, you need to write a kernel I2C bus driver
-that implements the low-level access to the I2C bus on your DVB adapter.
+Signed-off-by: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+---
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 0c3ed41..18af43f 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -847,7 +847,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	omap_i2c_init(dev);
+ 
+ 	isr = (dev->rev < OMAP_I2C_REV_2) ? omap_i2c_rev1_isr : omap_i2c_isr;
+-	r = request_irq(dev->irq, isr, 0, pdev->name, dev);
++	r = request_irq(dev->irq, isr, IRQF_DISABLED, pdev->name, dev);
+ 
+ 	if (r) {
+ 		dev_err(dev->dev, "failure requesting irq %i\n", dev->irq);
 -- 
-Jean Delvare
+1.5.6.5
+
