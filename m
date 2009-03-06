@@ -1,40 +1,31 @@
-From: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
-Subject: [PATCH 2/2] i2c: i2c-omap: Call request_irq with IRQF_DISABLED
-Date: Fri,  6 Mar 2009 15:34:54 +0200
-Message-ID: <7d7e7dd1a4c64c732a21bdfcf2bd42556be708c3.1236345858.git.Ext-Ari.Kauppi@nokia.com>
+From: "Woodruff, Richard" <r-woodruff2-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 2/2] i2c: i2c-omap: Call request_irq with IRQF_DISABLED
+Date: Fri, 6 Mar 2009 08:54:57 -0600
+Message-ID: <13B9B4C6EF24D648824FF11BE8967162037B646058@dlee02.ent.ti.com>
 References: <cover.1236345858.git.Ext-Ari.Kauppi@nokia.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <cover.1236345858.git.Ext-Ari.Kauppi@nokia.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: ben-linux@fluff.org
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+ <7d7e7dd1a4c64c732a21bdfcf2bd42556be708c3.1236345858.git.Ext-Ari.Kauppi@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7d7e7dd1a4c64c732a21bdfcf2bd42556be708c3.1236345858.git.Ext-Ari.Kauppi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ari Kauppi <Ext-Ari.Kauppi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I have observed some Spurious IRQ's for I2C1 when all kernel hacking options
-(and thus LOCKDEP) are disabled.
+> I have observed some Spurious IRQ's for I2C1 when all kernel hacking options
+> (and thus LOCKDEP) are disabled.
+>
+> Applying Richard Woodruff's 'I2C bug fixes for L-O and L-Z' seems to help
+> but IRQF_DISABLED is needed for proper behaviour.
 
-Applying Richard Woodruff's 'I2C bug fixes for L-O and L-Z' seems to help
-but IRQF_DISABLED is needed for proper behaviour.
+I only submitted on l-o list for information and comment.
 
-Signed-off-by: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
-Acked-by: Felipe Balbi <felipe.balbi@nokia.com>
----
- drivers/i2c/busses/i2c-omap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+They need to be submitted on i2c list and to Ben to get added.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 0c3ed41..18af43f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -847,7 +847,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	omap_i2c_init(dev);
- 
- 	isr = (dev->rev < OMAP_I2C_REV_2) ? omap_i2c_rev1_isr : omap_i2c_isr;
--	r = request_irq(dev->irq, isr, 0, pdev->name, dev);
-+	r = request_irq(dev->irq, isr, IRQF_DISABLED, pdev->name, dev);
- 
- 	if (r) {
- 		dev_err(dev->dev, "failure requesting irq %i\n", dev->irq);
--- 
-1.5.6.5
+Thanks for the additional positive feed back and fix.
 
+Regards,
+Richard W.
