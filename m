@@ -1,41 +1,53 @@
-From: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>
-Subject: RE: Need help on selecting one (and only one) i2c bus
-Date: Mon, 9 Mar 2009 15:52:56 +0100
-Message-ID: <000001c9a0c6$bf92af80$b23e81a4@par.st.com>
+From: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Document the different ways to instantiate i2c devices
+Date: Mon, 9 Mar 2009 17:13:31 +0100
+Message-ID: <200903091713.32045.hverkuil@xs4all.nl>
+References: <20090309114520.4e520246@hyperion.delvare> <gp38cs$a2i$2@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <gp38cs$a2i$2@ger.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
- 
-Do I have to use the ignore_range array ?
-Once filed, I have nothing to do ?
+On Monday 09 March 2009 15:17:00 Michael Lawnick wrote:
+> Jean Delvare said the following:
+> > On popular demand, here comes some documentation about how to
+> > instantiate i2c devices in the new (standard) i2c device driver
+> > binding model.
+> >
+> > I have also clarified how the class bitfield lets driver authors
+> > control which buses are probed in the auto-detect case, and warned
+> > more loudly against the abuse of this method.
+> >
+> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > Cc: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
+> > Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+>
+> Reads fine,
+>
+> Acked-by: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
 
-The device I want to probe/send data to is located on bus i2c-0 and at the adresses 0x00 to 0x15
+Ditto,
 
-I guess I have to do:
-static unsigned short ignore_range[] = { 0x00, 0x16, 0xff, 0x01, 0x00, 0xff, 0x02, 0x00, 0xff, I2C_CLIENT_END };
+Acked-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 
-Am I right ?
+Thanks!
 
+	Hans
 
-
------Original Message-----
-From: khamouma [mailto:ayman.khamouma-qxv4g6HH51o@public.gmane.org] 
-Sent: Monday, March 09, 2009 11:59 AM
-To: 'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'
-Subject: Need help on selecting one (and only one) i2c bus
-
-Hello everybody,
-
-I'm new on I2C device drivers programming and I'm facing a little problem, I can't find how to select my i2c-0 bus (I have 3 of them: i2c-0, i2c-1 and i2c-2) I'd like my probe function to probe only this bus and ignore the others.
-I guess I can find the solution with the i2c_address_data structure, but I don't really understand how to use it...
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
-Thanks in advance,
 
-Ayman KHAMOUMA
+-- 
+Hans Verkuil - video4linux developer - sponsored by TANDBERG
