@@ -1,7 +1,7 @@
 From: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>
 Subject: RE: Need help on selecting one (and only one) i2c bus
-Date: Tue, 10 Mar 2009 16:58:10 +0100
-Message-ID: <000001c9a199$072cbb10$b23e81a4@par.st.com>
+Date: Tue, 10 Mar 2009 17:03:49 +0100
+Message-ID: <000101c9a199$cce4e170$b23e81a4@par.st.com>
 References: <20090310163044.571e4aff@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain;
@@ -14,14 +14,7 @@ To: 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
-I'm using a 2.6.23.17 kernel for sh4 architecture.
-I have to write a driver for an i2c controled audio chip.
-You are totally right...I was mixing  register adresses with device
-adresses...the only adress I have to use is 0x71 on i2c-0
- 
-
-
+I forgot to say that I'm using STLinux 2.3 
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
