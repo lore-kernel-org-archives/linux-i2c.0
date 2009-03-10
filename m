@@ -1,59 +1,41 @@
-From: "Michael Lawnick" <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Request for Clarification: old - legacy - new driver model
-Date: Tue, 10 Mar 2009 12:47:28 +0100
-Message-ID: <20090310114728.179560@gmx.net>
-References: <gngvea$eqj$1@ger.gmane.org>	<20090218173645.GD3049@pengutronix.de>
-	<gnjplc$hqd$1@ger.gmane.org>	<20090220135300.353cd53a@hyperion.delvare>
-	<go12jd$ec4$1@ger.gmane.org>	<20090225090002.2c31dbf1@hyperion.delvare>
-	<go5ta2$rtu$1@ger.gmane.org>	<20090226142854.2b6f72e4@hyperion.delvare>
-	<go8c65$o7g$1@ger.gmane.org>	<20090305155713.46ac1968@hyperion.delvare>
-	<gp385s$a2i$1@ger.gmane.org>	<20090309153851.6d92729e@hyperion.delvare>
-	<gp52a3$l6u$1@ger.gmane.org> <20090310103609.0d756775@hyperion.delvare>
- <20090310114215.181300@gmx.net>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [PATCH] Added driver for ISL29003 ambient light sensor
+Date: Tue, 10 Mar 2009 12:11:16 +0000
+Message-ID: <49B658E4.6000405@cam.ac.uk>
+References: <20090306160042.GA17800@buzzloop.caiaq.de>	 <20090307115449.32f0ab26@hyperion.delvare>	 <20090307120631.GA25276@buzzloop.caiaq.de>	 <20090307130818.367bcaad@hyperion.delvare>	 <20090309210901.GC31367@buzzloop.caiaq.de>	 <20090310095655.3850f0d5@hyperion.delvare>	 <20090310090007.GB3263@buzzloop.caiaq.de>	 <20090310111014.523df33e@hyperion.delvare>	 <20090310102534.GC9564@buzzloop.caiaq.de>	 <20090310114011.012d3fcc@hyperion.delvare> <5d5443650903100401j35f13459kcc03adb7dc7e9297@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090310114215.181300-hi6Y0CQ0nG0@public.gmane.org>
+In-Reply-To: <5d5443650903100401j35f13459kcc03adb7dc7e9297-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sh** mailer GUI ...
+Trilok Soni wrote:
+> Hi Daniel,
+> 
+>> I did not have the time to review it and will not have the time in a
+>> near future, sorry.
+>>
+>> There is a reason why I am trying to move these misc drivers outside of
+>> my maintenance area... Which basically means that you are totally free,
+>> and actually encouraged, to try to get your driver merged by another
+>> maintainer if I am too slow for you.
+>>
+> 
+> My suggestion would be get this driver in mainline through -mm tree
+> (cc akpm and linux-kernel) or Ben does the review and merge it from
+> his tree. It is better not to wait for IIO to get merged.
 
-Hi Jean,
+Much as I'd like to argue IIO might go in soon, I suspect we'll still
+have a bit of an uphill struggle.  As I've said I'll do the conversion
+to IIO, I'll be reading your code thoroughly anyway, so I'm happy to
+do a review of latest version you've posted.
 
-Hmm, this one did not reach me via gmane ... something seems to be scre=
-wed up.
-> Von: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-(...)
-> > Incorporating such methods into subsystem would be much better of
-> > course. Probably as a sysFs entry automatically added to every adap=
-ter
-> > in /sys/class/i2c-adapter/i2c-x
->=20
-> Yes, this is exactly what I had in mind.
->=20
-So we finally meet ;-)
-As this was my goal from the very beginning, I see that I will have to =
-express myself more clearly.
+Jonathan
 
-(...)
-
-> Contributing code today doesn't bind you to maintaining said code in
-> the future. You really shouldn't have to worry about this. Once your
-> code is upstream, the subsystem maintainer (i.e. me for i2c) will tak=
-e
-> care of maintaining it. Of course if you _do_ have time in the future
-> to help with maintenance or contribute more code, this will be very
-> welcome, but this is in no way mandatory.
->=20
-Based on this I don't see a problem.
-
---=20
-Regards,
-Michael
---=20
-Psssst! Schon vom neuen GMX MultiMessenger geh=F6rt? Der kann`s mit all=
-en: http://www.gmx.net/de/go/multimessenger01
+> Please re-submit your patch to linux-kenel with creating
+> Documentation/misc directory.
+> 
