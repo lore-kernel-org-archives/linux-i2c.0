@@ -1,38 +1,49 @@
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Subject: Re: [PATCH] Added driver for ISL29003 ambient light sensor
-Date: Wed, 11 Mar 2009 09:32:52 +0100
-Message-ID: <20090311083252.GB25824@buzzloop.caiaq.de>
-References: <20090306181409.GA20135@buzzloop.caiaq.de> <20090307115449.32f0ab26@hyperion.delvare> <20090307120631.GA25276@buzzloop.caiaq.de> <20090307130818.367bcaad@hyperion.delvare> <20090309210901.GC31367@buzzloop.caiaq.de> <49B666F9.50209@cam.ac.uk> <20090310151542.GE9564@buzzloop.caiaq.de> <49B6A843.3090902@cam.ac.uk> <20090311003155.GB21160@buzzloop.caiaq.de> <20090310212826.7d8b3d4e.akpm@linux-foundation.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Need help on selecting one (and only one) i2c bus
+Date: Wed, 11 Mar 2009 10:15:13 +0100
+Message-ID: <20090311101513.271f5464@hyperion.delvare>
+References: <000001c9a0c6$bf92af80$b23e81a4@par.st.com>
+	<20090310163044.571e4aff@hyperion.delvare>
+	<fd6b62c10903102327u426a4262meeabe2c581d7107b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090310212826.7d8b3d4e.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <fd6b62c10903102327u426a4262meeabe2c581d7107b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?UTF-8?B?5LyK5rO9?= <wxc200-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pramod gurav <pramodforum-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 10, 2009 at 09:28:26PM -0700, Andrew Morton wrote:
-> On Wed, 11 Mar 2009 01:31:55 +0100 Daniel Mack <daniel-rDUAYElUppE@public.gmane.org> wrote:
-> > > All looks fine to me.
-> > > 
-> > > Acked-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-> 
-> I cannot find this review which Jonathan performed.  Fumbled
-> reply-to-all, or did vger break?
+On Wed, 11 Mar 2009 14:27:33 +0800, =E4=BC=8A=E6=B3=BD wrote:
+> hi Jean,
+>=20
+> As you said,i2c address 0x00 is not allowed for common i2c slave devi=
+ce,it
+> is reserved as broadcast address.Unfortunately,our project has a sens=
+or
+> cy8c201a0 on i2c-bus,it use 0x00 address.
+>=20
+> We met much phone hang problem with i2c,errors such as "waiting for b=
+us
+> free" or "exhausted retries" are all with this sensor.
+>=20
+> I guess when master would try to address this senosr,it infact send a
+> broadcast address,that may cause problem easily,every slave device wo=
+uld
+> have a chance to pull down the bus line.
+>=20
+> Now, as the signal show,the ACk signal is too too long in hard-ware,t=
+hat
+> cause the the i2c-bus unit busy,which block the other i2c operation.
+>=20
+> I am trying to re-configure i2c-unit as gpio-mode,and set high/low le=
+vel
+> manually as a workround.
+>=20
+> Any good suggestion to solve this issue?
 
-Jonathan replied to the posting on linux-i2c and linux-kernel wasn't in
-the loop, sorry. Find his posting here:
+Yeah, switch to hardware which respects the I2C standard.
 
-	http://marc.info/?l=linux-i2c&m=123669064909549&w=2
-
-> I can take care of it.
-> 
-> Was any thought given to the CONFIG_SYSFS=n situation?
-
-You're right, it should depend on that. You want me so send a patch on
-top of the other or one that replaces it?
-
-Thanks,
-Daniel
+--=20
+Jean Delvare
