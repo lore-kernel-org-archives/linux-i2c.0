@@ -1,62 +1,113 @@
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Subject: Re: [PATCH] Added driver for ISL29003 ambient light sensor
-Date: Wed, 11 Mar 2009 17:43:11 +0100
-Message-ID: <20090311164311.GC29871@buzzloop.caiaq.de>
-References: <20090307120631.GA25276@buzzloop.caiaq.de> <20090307130818.367bcaad@hyperion.delvare> <20090309210901.GC31367@buzzloop.caiaq.de> <49B666F9.50209@cam.ac.uk> <20090310151542.GE9564@buzzloop.caiaq.de> <49B6A843.3090902@cam.ac.uk> <20090311003155.GB21160@buzzloop.caiaq.de> <20090310212826.7d8b3d4e.akpm@linux-foundation.org> <20090311083252.GB25824@buzzloop.caiaq.de> <20090311093234.7e8e5416.akpm@linux-foundation.org>
+From: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>
+Subject: RE: Need help on selecting one (and only one) i2c bus
+Date: Wed, 11 Mar 2009 17:51:48 +0100
+Message-ID: <001301c9a269$ab95d940$b23e81a4@par.st.com>
+References: <20090311122257.7c7805f0@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090311093234.7e8e5416.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20090311122257.7c7805f0-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 11, 2009 at 09:32:34AM -0700, Andrew Morton wrote:
-> > Jonathan replied to the posting on linux-i2c and linux-kernel wasn't in
-> > the loop, sorry. Find his posting here:
-> > 
-> > 	http://marc.info/?l=linux-i2c&m=123669064909549&w=2
+It's me again...
+
+In I2c.h I found: 
+
+/* Mainboard arch_initcall() code should register all its I2C devices.
+ * This is done at arch_initcall time, before declaring any i2c adapters.
+ * Modules for add-on boards must use other calls.
+ */
+
+extern int
+i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+unsigned n);
+
+I guess I have to call this function near the arch_initcall().
+I greped my folder for arch_initcall() but couldn't figure out witch file to
+use...
+Any idea ?
+
+Another thing, what would be the equivalent of
+MODULE_DEVICE_TABLE(i2c, example_idtable);
+As you said, the i2c_device_id structure doesn't exist in this kernel...
+
+-----Original Message-----
+From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+[mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Jean Delvare
+Sent: Wednesday, March 11, 2009 12:23 PM
+To: Ayman KHAMOUMA
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Subject: Re: Need help on selecting one (and only one) i2c bus
+
+Hi Ayman,
+
+On Wed, 11 Mar 2009 11:55:22 +0100, Ayman KHAMOUMA wrote:
+> After some researches I guess I have to use the normal_i2c and ignore
+> arrays:
 > 
-> OK.  Please always use reply-to-all, guys.
-
-The thread moved from linux-i2c to linux-kernel, hence the trouble.
-
-> > You're right, it should depend on that. You want me so send a patch on
-> > top of the other or one that replaces it?
+> static unsigned short normal_i2c[] = { 0x71, I2C_CLIENT_END}; static 
+> unsigned short ignore[] = { 0x01, 0x71, 0x02, 0x71, I2C_CLIENT_END};
 > 
-> Either way is OK by me at this time.
+> static struct i2c_client_address_data addr_data = {
+>     .normal_i2c = normal_i2c,
+>     .ignore     = ignore,
+> };
+> 
+> Int the init function I have to allocate a major to the driver, and 
+> than add the I2c driver:
+> i2c_add_driver(&i2c_my_drv);
+> 
+> After doing that, i2c_my_drv.attach_adapter is called.
+> 
+> Which will call (among others) my probe function, in which I call 
+> i2c_attach_client.
+> 
+> 
+> Am I in the right way ?
 
-Ok, I chose the shorter variant :) See the patch below.
+No. You're using the old, deprecated way to instantiate devices, and you are
+abusing it (the ignore array wasn't meant to be used the way you do.)
 
-Thanks,
-Daniel
+You said you're using kernel 2.6.23.17, it's not brand new, but it's not too
+old either. At any rate, it already includes the new-style device binding.
+So, instead of using the old binding model and then fight to get your driver
+to _not_ attach to improper devices/addresses, you should use the new model
+and explicitly instantiate your device, so that your driver won't even try
+to bind to the wrong devices.
 
+I have posted an explanation about how to do this recently:
+http://marc.info/?l=linux-i2c&m=123659553713018&w=2
 
->From 9143c849682280ca3b0544e580bc90241c385927 Mon Sep 17 00:00:00 2001
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Date: Wed, 11 Mar 2009 17:39:13 +0100
-Subject: [PATCH] make isl29003 depend on sysfs
+You should convert your driver to a new-style one and use either method
+1 or method 2, whichever is easier for you. See the following document for a
+guide on how to update your code:
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plai
+n;f=Documentation/i2c/upgrading-clients;hb=HEAD
 
+It's for kernel 2.6.26 and later but it should mostly apply to 2.6.23 too.
+The only big difference I can think of is that 2.6.23 doesn't have struct
+i2c_device_id, instead the device driver binding is based on the i2c driver
+name. I can help you with this if you can't figure it out.
 
-Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
----
- drivers/misc/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+As a side note, the fact that you needed to add buses 1 and 2 to the ignore
+list suggests that something is wrong with your I2C bus driver.
+It is rather unlikely that all 3 I2C buses on your system have a device at
+address 0x71, so your old-style driver shouldn't have instantiated 3
+devices. If it did, it strongly suggests that the quick write i2c-core is
+using to check for the presence of a device at a given address improperly
+reported success in all cases. You really should check your I2C bus driver
+and in particular the implementation of 0-byte messages before going further
+with the device driver.
 
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index b883b19..16e1815 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -225,7 +225,7 @@ config DELL_LAPTOP
- 
- config ISL29003
- 	tristate "Intersil ISL29003 ambient light sensor"
--	depends on I2C
-+	depends on I2C && SYSFS
- 	help
- 	  If you say yes here you get support for the Intersil ISL29003
- 	  ambient light sensor.
--- 
-1.6.2
+--
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the
+body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at
+http://vger.kernel.org/majordomo-info.html
