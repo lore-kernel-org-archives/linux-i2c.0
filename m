@@ -1,20 +1,21 @@
-From: Felipe Balbi <me@felipebalbi.com>
+From: Paul Walmsley <paul@pwsan.com>
 Subject: Re: [PATCH 2/2] i2c: i2c-omap: Call request_irq with IRQF_DISABLED
-Date: Wed, 11 Mar 2009 21:16:20 +0200
-Message-ID: <20090311185439.GB19730@gandalf>
+Date: Wed, 11 Mar 2009 17:55:50 -0600 (MDT)
+Message-ID: <alpine.DEB.2.00.0903111741270.26959@utopia.booyaka.com>
 References: <cover.1236345858.git.Ext-Ari.Kauppi@nokia.com> <7d7e7dd1a4c64c732a21bdfcf2bd42556be708c3.1236345858.git.Ext-Ari.Kauppi@nokia.com> <20090310005222.GE19758@fluff.org.uk>
-Reply-To: me@felipebalbi.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <20090310005222.GE19758@fluff.org.uk>
 Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben@fluff.org.uk>
-Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+Cc: Ben Dooks <ben@fluff.org.uk>, ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 10, 2009 at 12:52:22AM +0000, Ben Dooks wrote:
+Hello Ari et al.,
+
+On Tue, 10 Mar 2009, Ben Dooks wrote:
+
 > On Fri, Mar 06, 2009 at 03:34:54PM +0200, Ari Kauppi wrote:
 > > I have observed some Spurious IRQ's for I2C1 when all kernel hacking options
 > > (and thus LOCKDEP) are disabled.
@@ -41,7 +42,23 @@ On Tue, Mar 10, 2009 at 12:52:22AM +0000, Ben Dooks wrote:
 > 
 > Is disabling all IRQs on the system the right thing to do?
 
-if not we could fall into stack overflow, right ?
+Ben's right, there shouldn't be any need for this.  This patch could cause 
+some unnecessary interrupt service latency.
 
--- 
-balbi
+Ari, are you seeing "Spurious irq XX: XXXXXXXX, please flush posted write 
+for irq" messages?  If so, the correct fix for this is to read from the 
+device interrupt status register immediately after writing to it.  This 
+forces the ARM to wait until the write to the device is complete.  Ari, 
+could you make this change to i2c-omap.c:omap_i2c_isr() instead, and test 
+whether this fixes the problem?
+
++ u32 tmp;
+
+...
+
+  omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, stat);
++ tmp = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG); /* OCP barrier */
+
+
+
+- Paul
