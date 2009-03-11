@@ -1,26 +1,51 @@
-From: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: RFD: Illegal code in lm75.c (and other drivers?)
-Date: Wed, 11 Mar 2009 13:00:14 +0100
-Message-ID: <gp894e$4uu$1@ger.gmane.org>
-References: <gp87cn$vj6$1@ger.gmane.org> <20090311113603.GD3053@pengutronix.de>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: [PATCH] Added driver for ISL29003 ambient light sensor
+Date: Wed, 11 Mar 2009 09:32:34 -0700
+Message-ID: <20090311093234.7e8e5416.akpm@linux-foundation.org>
+References: <20090306181409.GA20135@buzzloop.caiaq.de>
+	<20090307115449.32f0ab26@hyperion.delvare>
+	<20090307120631.GA25276@buzzloop.caiaq.de>
+	<20090307130818.367bcaad@hyperion.delvare>
+	<20090309210901.GC31367@buzzloop.caiaq.de>
+	<49B666F9.50209@cam.ac.uk>
+	<20090310151542.GE9564@buzzloop.caiaq.de>
+	<49B6A843.3090902@cam.ac.uk>
+	<20090311003155.GB21160@buzzloop.caiaq.de>
+	<20090310212826.7d8b3d4e.akpm@linux-foundation.org>
+	<20090311083252.GB25824@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090311113603.GD3053-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20090311083252.GB25824-ahpEBR4enfnCULTFXS99ULNAH6kLmebB@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang said the following:
-> On Wed, Mar 11, 2009 at 12:30:31PM +0100, Michael Lawnick wrote:
->> Any comments before patch?
-> 
-> Yep, try using the hwmon-ML instead of I2C ;)
-> 
-:-P
+On Wed, 11 Mar 2009 09:32:52 +0100 Daniel Mack <daniel-rDUAYElUppE@public.gmane.org> wrote:
 
-Ok.
--- 
-Regards,
-Michael
+> On Tue, Mar 10, 2009 at 09:28:26PM -0700, Andrew Morton wrote:
+> > On Wed, 11 Mar 2009 01:31:55 +0100 Daniel Mack <daniel-rDUAYElUppE@public.gmane.org> wrote:
+> > > > All looks fine to me.
+> > > > 
+> > > > Acked-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+> > 
+> > I cannot find this review which Jonathan performed.  Fumbled
+> > reply-to-all, or did vger break?
+> 
+> Jonathan replied to the posting on linux-i2c and linux-kernel wasn't in
+> the loop, sorry. Find his posting here:
+> 
+> 	http://marc.info/?l=linux-i2c&m=123669064909549&w=2
+
+OK.  Please always use reply-to-all, guys.
+
+> > I can take care of it.
+> > 
+> > Was any thought given to the CONFIG_SYSFS=n situation?
+> 
+> You're right, it should depend on that. You want me so send a patch on
+> top of the other or one that replaces it?
+
+Either way is OK by me at this time.
