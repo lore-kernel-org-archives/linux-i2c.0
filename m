@@ -1,79 +1,108 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Need help on selecting one (and only one) i2c bus
-Date: Wed, 11 Mar 2009 12:22:57 +0100
-Message-ID: <20090311122257.7c7805f0@hyperion.delvare>
-References: <20090310163044.571e4aff@hyperion.delvare>
-	<000301c9a237$e6d3c8f0$b23e81a4@par.st.com>
+From: Michael Lawnick <nospam_lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: RFD: Illegal code in lm75.c (and other drivers?)
+Date: Wed, 11 Mar 2009 12:30:31 +0100
+Message-ID: <gp87cn$vj6$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <000301c9a237$e6d3c8f0$b23e81a4-J7BnVcvkGbbQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ayman,
+Hi all,
 
-On Wed, 11 Mar 2009 11:55:22 +0100, Ayman KHAMOUMA wrote:
-> After some researches I guess I have to use the normal_i2c and ignore
-> arrays:
-> 
-> static unsigned short normal_i2c[] = { 0x71, I2C_CLIENT_END};
-> static unsigned short ignore[] = { 0x01, 0x71, 0x02, 0x71, I2C_CLIENT_END};
-> 
-> static struct i2c_client_address_data addr_data = {
->     .normal_i2c = normal_i2c,
->     .ignore     = ignore,
-> };
-> 
-> Int the init function I have to allocate a major to the driver, and than add
-> the I2c driver:
-> i2c_add_driver(&i2c_my_drv);
-> 
-> After doing that, i2c_my_drv.attach_adapter is called.
-> 
-> Which will call (among others) my probe function, in which I call
-> i2c_attach_client.
-> 
-> 
-> Am I in the right way ?
+Request For Discussion
 
-No. You're using the old, deprecated way to instantiate devices, and
-you are abusing it (the ignore array wasn't meant to be used the way
-you do.)
+I've already patched lm75.c for me in kernel 2.6.26.6, now I find the
+same code again in 2.6.28.7:
 
-You said you're using kernel 2.6.23.17, it's not brand new, but it's
-not too old either. At any rate, it already includes the new-style
-device binding. So, instead of using the old binding model and then
-fight to get your driver to _not_ attach to improper devices/addresses,
-you should use the new model and explicitly instantiate your device, so
-that your driver won't even try to bind to the wrong devices.
+> 	/* Now, we do the remaining detection. There is no identification-
+> 	   dedicated register so we have to rely on several tricks:
+> 	   unused bits, registers cycling over 8-address boundaries,
+> 	   addresses 0x04-0x07 returning the last read value.
+> 	   The cycling+unused addresses combination is not tested,
+> 	   since it would significantly slow the detection down and would
+> 	   hardly add any value. */
+> 	if (kind < 0) {
+> 		int cur, conf, hyst, os;
+>=20
+> 		/* Unused addresses */
+> 		cur =3D i2c_smbus_read_word_data(new_client, 0);
+> 		conf =3D i2c_smbus_read_byte_data(new_client, 1);
+> 		hyst =3D i2c_smbus_read_word_data(new_client, 2);
+> 		if (i2c_smbus_read_word_data(new_client, 4) !=3D hyst
+> 		 || i2c_smbus_read_word_data(new_client, 5) !=3D hyst
+> 		 || i2c_smbus_read_word_data(new_client, 6) !=3D hyst
+> 		 || i2c_smbus_read_word_data(new_client, 7) !=3D hyst)
+> 			return -ENODEV;
+>
+> 		os =3D i2c_smbus_read_word_data(new_client, 3);
+> 		if (i2c_smbus_read_word_data(new_client, 4) !=3D os
+> 		 || i2c_smbus_read_word_data(new_client, 5) !=3D os
+> 		 || i2c_smbus_read_word_data(new_client, 6) !=3D os
+> 		 || i2c_smbus_read_word_data(new_client, 7) !=3D os)
+> 			return -ENODEV;
+>=20
+> 		/* Unused bits */
+> 		if (conf & 0xe0)
+> 			return -ENODEV;
+>=20
+> 		/* Addresses cycling */
+> 		for (i =3D 8; i < 0xff; i +=3D 8)
+> 			if (i2c_smbus_read_byte_data(new_client, i + 1) !=3D conf
+> 			 || i2c_smbus_read_word_data(new_client, i + 2) !=3D hyst
+> 			 || i2c_smbus_read_word_data(new_client, i + 3) !=3D os)
+> 				return -ENODEV;
+> 	}
+>=20
 
-I have posted an explanation about how to do this recently:
-http://marc.info/?l=linux-i2c&m=123659553713018&w=2
+LM75 Manual (National Semiconductors, April 2001) states on page 10:
+> 1.11 POINTER REGISTER
+> (Selects which registers will be read from or written to):
+>           +--+--+--+--+--+--+----+----+
+> |P7|P6|P5|P4|P3|P2| P1 | P0 |
+> +--+--+--+--+--+--+----+----+
+> | 0| 0| 0| 0| 0| 0|Register |
+> |  |  |  |  |  |  | Select  |
+> +--+--+--+--+--+--+----+----+
+>=20
+> P0-P1: Register Select:
+>           +--+--+------------------------------------------+
+>           |P1|P0|Register                                  |
+>           +--+--+------------------------------------------+
+>           | 0| 0|Temperature (Read only) (Power-up default)|
+>           +--+--+------------------------------------------+
+>           | 0| 1|Configuration (Read/Write)                |
+>           +--+--+------------------------------------------+
+>           | 1| 0|THYST (Read/Write)                        |
+>           +--+--+------------------------------------------+
+>           | 1| 1|TOS (Read/Write)                          |
+>           +--+--+------------------------------------------+
+>=20
+> P2=E2=80=93P7: Must be kept zero.
 
-You should convert your driver to a new-style one and use either method
-1 or method 2, whichever is easier for you. See the following document
-for a guide on how to update your code:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plain;f=Documentation/i2c/upgrading-clients;hb=HEAD
+Therefore the above code does illegal actions. It tries to access
+offsets, that are not allowed.
+The code may work on system with SMBUS controllers, but it does not (on
+all) systems with IIC:
+Already the offset-write phase fails (NACK from LM75) and so
+i2c_smbus_read_byte_data() returns with an error code.
 
-It's for kernel 2.6.26 and later but it should mostly apply to 2.6.23
-too. The only big difference I can think of is that 2.6.23 doesn't have
-struct i2c_device_id, instead the device driver binding is based on the
-i2c driver name. I can help you with this if you can't figure it out.
+My proposal:
+reduce LM75 code (and of all other devices that do same illegal things)
+to test what is testable:
 
-As a side note, the fact that you needed to add buses 1 and 2 to the
-ignore list suggests that something is wrong with your I2C bus driver.
-It is rather unlikely that all 3 I2C buses on your system have a device
-at address 0x71, so your old-style driver shouldn't have instantiated 3
-devices. If it did, it strongly suggests that the quick write i2c-core
-is using to check for the presence of a device at a given address
-improperly reported success in all cases. You really should check your
-I2C bus driver and in particular the implementation of 0-byte messages
-before going further with the device driver.
+> 	if (kind < 0) {
+> 		/* Check config register for the unused bits to be 0 */
+> 		if (i2c_smbus_read_byte_data(new_client, 1) & 0xe0)
+> 			return -ENODEV;
+>
+> 	}
+>
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+Any comments before patch?
+
+--=20
+Kind regards,
+Michael
