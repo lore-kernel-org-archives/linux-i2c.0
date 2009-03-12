@@ -1,26 +1,29 @@
-From: Felipe Balbi <me@felipebalbi.com>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: [PATCH 2/2] i2c: i2c-omap: Call request_irq with IRQF_DISABLED
-Date: Thu, 12 Mar 2009 02:25:46 +0200
-Message-ID: <20090312002545.GE19038@gandalf>
-References: <cover.1236345858.git.Ext-Ari.Kauppi@nokia.com> <7d7e7dd1a4c64c732a21bdfcf2bd42556be708c3.1236345858.git.Ext-Ari.Kauppi@nokia.com> <20090310005222.GE19758@fluff.org.uk> <alpine.DEB.2.00.0903111741270.26959@utopia.booyaka.com> <20090311235908.GC19038@gandalf> <94a0d4530903111711r7728aeabo8aad5ccd51a33d38@mail.gmail.com>
-Reply-To: me@felipebalbi.com
+Date: Wed, 11 Mar 2009 17:28:03 -0800
+Message-ID: <200903111828.04188.david-b@pacbell.net>
+References: <cover.1236345858.git.Ext-Ari.Kauppi@nokia.com> <alpine.DEB.2.00.0903111741270.26959@utopia.booyaka.com> <20090311235908.GC19038@gandalf>
+Reply-To: dbrownell@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20090311235908.GC19038@gandalf>
 Content-Disposition: inline
-In-Reply-To: <94a0d4530903111711r7728aeabo8aad5ccd51a33d38@mail.gmail.com>
 Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Contreras <felipe.contreras@gmail.com>
-Cc: me@felipebalbi.com, Paul Walmsley <paul@pwsan.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Ben Dooks <ben@fluff.org.uk>, ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+To: me@felipebalbi.com
+Cc: Paul Walmsley <paul@pwsan.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Ben Dooks <ben@fluff.org.uk>, ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 12, 2009 at 02:11:17AM +0200, Felipe Contreras wrote:
-> That's my understanding too, but I think it has always been true:
-> http://marc.info/?l=linux-kernel&m=123607685804562&w=2
+On Wednesday 11 March 2009, Felipe Balbi wrote:
+> According to Thomas (and Ingo, I'd say) all drivers should call
+> request_irq() with IRQF_DISABLED and that's gonna be true as soon as the
+> threaded irq handler support gets merged, if I'm not wrong.
 
-sure, not merged yet though. And still the threaded irq support can't
-handle twl4030 where the irq demuxing logic has to run in a thread due
-to the need of communicating via i2c.
+Well, they're wrong.
 
--- 
-balbi
+Folk like Dave Miller, Andrew Morton, Benjamin Herrenschmdit,
+and Alan Cox have come out on the saner side of that.
+
+
