@@ -1,84 +1,342 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [Q] i2c_new_device vs i2c_del_driver
-Date: Fri, 20 Mar 2009 18:48:30 +0100
-Message-ID: <20090320184830.2ee7a6f8@hyperion.delvare>
-References: <Pine.LNX.4.64.0903171710350.5318@axis700.grange>
-	<20090317183809.55320908@hyperion.delvare>
-	<Pine.LNX.4.64.0903171849060.5318@axis700.grange>
-	<20090317191724.7ace956f@hyperion.delvare>
-	<Pine.LNX.4.64.0903171923230.5318@axis700.grange>
+From: Krzysztof Helt <krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] tdfxfb: move I2C functionality into the tdfxfb
+Date: Sat, 21 Mar 2009 20:29:54 +0100
+Message-ID: <20090321202954.2558a62b.krzysztof.h1@poczta.fm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.0903171923230.5318-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+To: Linux-fbdev-devel <linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guennadi,
+From: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
 
-On Tue, 17 Mar 2009 19:29:07 +0100 (CET), Guennadi Liakhovetski wrote:
-> On Tue, 17 Mar 2009, Jean Delvare wrote:
-> 
-> > On Tue, 17 Mar 2009 18:50:50 +0100 (CET), Guennadi Liakhovetski wrote:
-> > > 
-> > > Aha, so, the driver->clients list will not contain my device, and it won't 
-> > > get unregistered. Ic.
-> > 
-> > Correct. Maybe I should have found a better name, like
-> > driver->detected_clients, to make it clearer. Want me to change it
-> > know? It should be straightforward.
-> 
-> Well, now I know the difference already, but I am not sure this would have 
-> helped me before you've explained it:-) So, don't bother because of me. 
-> Maybe adding a couple of words to Documentation/i2c/writing-clients 
-> explaining the different function i2c_del_driver() performs on different 
-> devices.
+The I2C functionality provided by the
+i2c-voodoo3 driver is moved into the
+tdfxfb (frame buffer driver for Voodoo3
+cards). This way there is no conflict
+between i2c driver and the fb driver.
 
-Well, writing-clients is really only about writing driver code, I don't
-think it is the right document to describe the i2c-core internals nor
-the device lifetime.
+The tdfxfb does not make use from the
+DDC functionality yet. It just provides 
+two I2C buses like the i2c-voodoo3 driver
+(DDC and I2C).
 
-I have recently written a new document explaining how devices can be
-instantiated:
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-how-to-instantiate-devices.patch
-This document explains the conditions of destruction of the devices
-depending on how they were created. I hope this answers your question.
-If not, the document can of course be clarified.
-
-> Or a comment in the source - even better.
-
-For the piece of code which confused you, yes, I agree a short comment
-would help. What about:
-
+Signed-off-by: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- linux-2.6.29-rc8.orig/drivers/i2c/i2c-core.c	2009-03-20 09:45:43.000000000 +0100
-+++ linux-2.6.29-rc8/drivers/i2c/i2c-core.c	2009-03-20 17:21:29.000000000 +0100
-@@ -581,7 +581,8 @@ static int i2c_do_del_adapter(struct dev
- 	struct i2c_client *client, *_n;
- 	int res;
+This open way to remove the i2c-voodoo3 driver.
+
+
+ drivers/video/Kconfig  |    9 ++
+ drivers/video/tdfxfb.c |  191 +++++++++++++++++++++++++++++++++++++++++++++++-
+ include/video/tdfx.h   |   24 ++++++
+ 3 files changed, 223 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+index 6ff3364..837479b 100644
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -1550,6 +1550,7 @@ config FB_3DFX
+ 	select FB_CFB_IMAGEBLIT
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
++	select FB_MODE_HELPERS
+ 	help
+ 	  This driver supports graphics boards with the 3Dfx Banshee,
+ 	  Voodoo3 or VSA-100 (aka Voodoo4/5) chips. Say Y if you have
+@@ -1565,6 +1566,14 @@ config FB_3DFX_ACCEL
+ 	This will compile the 3Dfx Banshee/Voodoo3/VSA-100 frame buffer
+ 	device driver with acceleration functions.
  
--	/* Remove the devices we created ourselves */
-+	/* Remove the devices we created ourselves as the result of hardware
-+	 * probing (using a driver's detect method) */
- 	list_for_each_entry_safe(client, _n, &driver->clients, detected) {
- 		if (client->adapter == adapter) {
- 			dev_dbg(&adapter->dev, "Removing %s at 0x%x\n",
-@@ -749,6 +750,8 @@ static int __detach_adapter(struct devic
- 	struct i2c_driver *driver = data;
- 	struct i2c_client *client, *_n;
++config FB_3DFX_I2C
++	bool "DDC/I2C for 3dfx Voodoo3 support"
++	depends on FB_3DFX && EXPERIMENTAL
++	select FB_DDC
++	default y
++	help
++	  Say Y here if you want DDC/I2C support for your 3dfx Voodoo3.
++
+ config FB_VOODOO1
+ 	tristate "3Dfx Voodoo Graphics (sst1) support"
+ 	depends on FB && PCI
+diff --git a/drivers/video/tdfxfb.c b/drivers/video/tdfxfb.c
+index 14bd3f3..c4152a5 100644
+--- a/drivers/video/tdfxfb.c
++++ b/drivers/video/tdfxfb.c
+@@ -1167,6 +1167,190 @@ static struct fb_ops tdfxfb_ops = {
+ #endif
+ };
  
-+	/* Remove the devices we created ourselves as the result of hardware
-+	 * probing (using a driver's detect method) */
- 	list_for_each_entry_safe(client, _n, &driver->clients, detected) {
- 		dev_dbg(&adapter->dev, "Removing %s at 0x%x\n",
- 			client->name, client->addr);
-
-
++#ifdef CONFIG_FB_3DFX_I2C
++/* The voo GPIO registers don't have individual masks for each bit
++   so we always have to read before writing. */
++
++static void tdfxfb_i2c_setscl(void *data, int val)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++	unsigned int r;
++
++	r = tdfx_inl(par, VIDSERPARPORT);
++	if (val)
++		r |= I2C_SCL_OUT;
++	else
++		r &= ~I2C_SCL_OUT;
++	tdfx_outl(par, VIDSERPARPORT, r);
++	tdfx_inl(par, VIDSERPARPORT);	/* flush posted write */
++}
++
++static void tdfxfb_i2c_setsda(void *data, int val)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++	unsigned int r;
++
++	r = tdfx_inl(par, VIDSERPARPORT);
++	if (val)
++		r |= I2C_SDA_OUT;
++	else
++		r &= ~I2C_SDA_OUT;
++	tdfx_outl(par, VIDSERPARPORT, r);
++	tdfx_inl(par, VIDSERPARPORT);	/* flush posted write */
++}
++
++/* The GPIO pins are open drain, so the pins always remain outputs.
++   We rely on the i2c-algo-bit routines to set the pins high before
++   reading the input from other chips. */
++
++static int tdfxfb_i2c_getscl(void *data)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++
++	return (0 != (tdfx_inl(par, VIDSERPARPORT) & I2C_SCL_IN));
++}
++
++static int tdfxfb_i2c_getsda(void *data)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++
++	return (0 != (tdfx_inl(par, VIDSERPARPORT) & I2C_SDA_IN));
++}
++
++static void tdfxfb_ddc_setscl(void *data, int val)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++	unsigned int r;
++
++	r = tdfx_inl(par, VIDSERPARPORT);
++	if (val)
++		r |= DDC_SCL_OUT;
++	else
++		r &= ~DDC_SCL_OUT;
++	tdfx_outl(par, VIDSERPARPORT, r);
++	tdfx_inl(par, VIDSERPARPORT);	/* flush posted write */
++}
++
++static void tdfxfb_ddc_setsda(void *data, int val)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++	unsigned int r;
++
++	r = tdfx_inl(par, VIDSERPARPORT);
++	if (val)
++		r |= DDC_SDA_OUT;
++	else
++		r &= ~DDC_SDA_OUT;
++	tdfx_outl(par, VIDSERPARPORT, r);
++	tdfx_inl(par, VIDSERPARPORT);	/* flush posted write */
++}
++
++static int tdfxfb_ddc_getscl(void *data)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++
++	return (0 != (tdfx_inl(par, VIDSERPARPORT) & DDC_SCL_IN));
++}
++
++static int tdfxfb_ddc_getsda(void *data)
++{
++	struct tdfxfb_i2c_chan 	*chan = data;
++	struct tdfx_par 	*par = chan->par;
++
++	return (0 != (tdfx_inl(par, VIDSERPARPORT) & DDC_SDA_IN));
++}
++
++static int __devinit tdfxfb_setup_ddc_bus(struct tdfxfb_i2c_chan *chan,
++					  const char *name, struct device *dev)
++{
++	int rc;
++
++	strcpy(chan->adapter.name, name);
++	chan->adapter.owner		= THIS_MODULE;
++	chan->adapter.class		= I2C_CLASS_DDC;
++	chan->adapter.algo_data		= &chan->algo;
++	chan->adapter.dev.parent	= dev;
++	chan->algo.setsda		= tdfxfb_ddc_setsda;
++	chan->algo.setscl		= tdfxfb_ddc_setscl;
++	chan->algo.getsda		= tdfxfb_ddc_getsda;
++	chan->algo.getscl		= tdfxfb_ddc_getscl;
++	chan->algo.udelay		= 10;
++	chan->algo.timeout		= msecs_to_jiffies(500);
++	chan->algo.data 		= chan;
++
++	i2c_set_adapdata(&chan->adapter, chan);
++
++	rc = i2c_bit_add_bus(&chan->adapter);
++	if (rc == 0)
++		DPRINTK("I2C bus %s registered.\n", name);
++	else
++		chan->par = NULL;
++
++	return rc;
++}
++
++static int __devinit tdfxfb_setup_i2c_bus(struct tdfxfb_i2c_chan *chan,
++					  const char *name, struct device *dev)
++{
++	int rc;
++
++	strcpy(chan->adapter.name, name);
++	chan->adapter.owner		= THIS_MODULE;
++	chan->adapter.class		= I2C_CLASS_TV_ANALOG;
++	chan->adapter.algo_data		= &chan->algo;
++	chan->adapter.dev.parent	= dev;
++	chan->algo.setsda		= tdfxfb_i2c_setsda;
++	chan->algo.setscl		= tdfxfb_i2c_setscl;
++	chan->algo.getsda		= tdfxfb_i2c_getsda;
++	chan->algo.getscl		= tdfxfb_i2c_getscl;
++	chan->algo.udelay		= 10;
++	chan->algo.timeout		= msecs_to_jiffies(500);
++	chan->algo.data 		= chan;
++
++	i2c_set_adapdata(&chan->adapter, chan);
++
++	rc = i2c_bit_add_bus(&chan->adapter);
++	if (rc == 0)
++		DPRINTK("I2C bus %s registered.\n", name);
++	else
++		chan->par = NULL;
++
++	return rc;
++}
++
++static void __devinit tdfxfb_create_i2c_busses(struct fb_info *info)
++{
++	struct tdfx_par *par = info->par;
++
++	tdfx_outl(par, VIDINFORMAT, 0x8160);
++	tdfx_outl(par, VIDSERPARPORT, 0xcffc0020);
++
++	par->chan[0].par = par;
++	par->chan[1].par = par;
++
++	tdfxfb_setup_ddc_bus(&par->chan[0], "VOODOO3-DDC", info->dev);
++	tdfxfb_setup_i2c_bus(&par->chan[1], "VOODOO3-I2C", info->dev);
++}
++
++static void tdfxfb_delete_i2c_busses(struct tdfx_par *par)
++{
++	if (par->chan[0].par)
++		i2c_del_adapter(&par->chan[0].adapter);
++	par->chan[0].par = NULL;
++
++	if (par->chan[1].par)
++		i2c_del_adapter(&par->chan[1].adapter);
++	par->chan[1].par = NULL;
++}
++#endif /* CONFIG_FB_3DFX_I2C */
++
+ /**
+  *      tdfxfb_probe - Device Initializiation
+  *
+@@ -1284,7 +1468,9 @@ static int __devinit tdfxfb_probe(struct pci_dev *pdev,
+ 	if (hwcursor)
+ 		info->fix.smem_len = (info->fix.smem_len - 1024) &
+ 					(PAGE_MASK << 1);
+-
++#ifdef CONFIG_FB_3DFX_I2C
++	tdfxfb_create_i2c_busses(info);
++#endif
+ 	if (!mode_option)
+ 		mode_option = "640x480@60";
+ 
+@@ -1379,6 +1565,9 @@ static void __devexit tdfxfb_remove(struct pci_dev *pdev)
+ 	struct tdfx_par *par = info->par;
+ 
+ 	unregister_framebuffer(info);
++#ifdef CONFIG_FB_3DFX_I2C
++	tdfxfb_delete_i2c_busses(par);
++#endif
+ 	if (par->mtrr_handle >= 0)
+ 		mtrr_del(par->mtrr_handle, info->fix.smem_start,
+ 			 info->fix.smem_len);
+diff --git a/include/video/tdfx.h b/include/video/tdfx.h
+index 7431d96..bc37022 100644
+--- a/include/video/tdfx.h
++++ b/include/video/tdfx.h
+@@ -1,6 +1,9 @@
+ #ifndef _TDFX_H
+ #define _TDFX_H
+ 
++#include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
++
+ /* membase0 register offsets */
+ #define STATUS		0x00
+ #define PCIINIT0	0x04
+@@ -123,6 +126,18 @@
+ #define VIDCFG_PIXFMT_SHIFT             18
+ #define DACMODE_2X			BIT(0)
+ 
++/* I2C bit locations in the VIDSERPARPORT register */
++#define DDC_ENAB	0x00040000
++#define DDC_SCL_OUT	0x00080000
++#define DDC_SDA_OUT	0x00100000
++#define DDC_SCL_IN	0x00200000
++#define DDC_SDA_IN	0x00400000
++#define I2C_ENAB	0x00800000
++#define I2C_SCL_OUT	0x01000000
++#define I2C_SDA_OUT	0x02000000
++#define I2C_SCL_IN	0x04000000
++#define I2C_SDA_IN	0x08000000
++
+ /* VGA rubbish, need to change this for multihead support */
+ #define MISC_W		0x3c2
+ #define MISC_R		0x3cc
+@@ -168,12 +183,21 @@ struct banshee_reg {
+ 	unsigned long miscinit0;
+ };
+ 
++struct tdfx_par;
++
++struct tdfxfb_i2c_chan {
++	struct tdfx_par *par;
++	struct i2c_adapter adapter;
++	struct i2c_algo_bit_data algo;
++};
++
+ struct tdfx_par {
+ 	u32 max_pixclock;
+ 	u32 palette[16];
+ 	void __iomem *regbase_virt;
+ 	unsigned long iobase;
+ 	int mtrr_handle;
++	struct tdfxfb_i2c_chan chan[2];
+ };
+ 
+ #endif	/* __KERNEL__ */
 -- 
-Jean Delvare
+1.5.2.2
+
+
+
+----------------------------------------------------------------------
+Udar sloneczny prezesa Kaczynskiego... >>> http://link.interia.pl/f2083
