@@ -1,40 +1,46 @@
-From: =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>
-Subject: [patch 3/5] xtensa: add at24hc02b to s6105 platform
-Date: Mon, 23 Mar 2009 16:05:16 +0100
-Message-ID: <1237820718-30607-3-git-send-email-dg@emlix.com>
+From: =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+Subject: [patch 5/5] xtensa: enable at24 driver in s6105_defconfig
+Date: Mon, 23 Mar 2009 16:05:18 +0100
+Message-ID: <1237820718-30607-5-git-send-email-dg@emlix.com>
 References: <1237820718-30607-1-git-send-email-dg@emlix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758033AbZCWPEg@vger.kernel.org>
-In-Reply-To: <1237820718-30607-1-git-send-email-dg@emlix.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Zankel <chris@zankel.net>, Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1237820718-30607-1-git-send-email-dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is particularly used to read the MAC address of the ethernet
-controller from an EEPROM.
-
-Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
+Signed-off-by: Daniel Gl=C3=B6ckner <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
 ---
- arch/xtensa/platforms/s6105/device.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ arch/xtensa/configs/s6105_defconfig |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
 
-diff --git a/arch/xtensa/platforms/s6105/device.c b/arch/xtensa/platfor=
-ms/s6105/device.c
-index 00f52ee..9394e6f 100644
---- a/arch/xtensa/platforms/s6105/device.c
-+++ b/arch/xtensa/platforms/s6105/device.c
-@@ -168,6 +168,9 @@ static struct resource s6_i2c_resource[] =3D {
- #define S6I2C_ADDR_PCA9543	0x73
+diff --git a/arch/xtensa/configs/s6105_defconfig b/arch/xtensa/configs/=
+s6105_defconfig
+index a9a0de9..e398710 100644
+--- a/arch/xtensa/configs/s6105_defconfig
++++ b/arch/xtensa/configs/s6105_defconfig
+@@ -251,7 +251,17 @@ CONFIG_BLK_DEV_RAM_SIZE=3D4096
+ # CONFIG_CDROM_PKTCDVD is not set
+ # CONFIG_ATA_OVER_ETH is not set
+ # CONFIG_BLK_DEV_HD is not set
+-# CONFIG_MISC_DEVICES is not set
++CONFIG_MISC_DEVICES=3Dy
++# CONFIG_ICS932S401 is not set
++# CONFIG_ENCLOSURE_SERVICES is not set
++# CONFIG_C2PORT is not set
++
++#
++# EEPROM support
++#
++CONFIG_EEPROM_AT24=3Dy
++# CONFIG_EEPROM_LEGACY is not set
++# CONFIG_EEPROM_93CX6 is not set
+ CONFIG_HAVE_IDE=3Dy
+ # CONFIG_IDE is not set
 =20
- static struct i2c_board_info __initdata s6_i2c_devices[] =3D {
-+	{
-+		I2C_BOARD_INFO("24c02", S6I2C_ADDR_AT24HC02B),
-+	},
- };
-=20
- static struct platform_device platform_devices[] =3D {
 --=20
 1.6.2.107.ge47ee
