@@ -1,138 +1,57 @@
-From: Krzysztof Helt <krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] tdfxfb: make use of DDC information about connected
- monitor
-Date: Mon, 23 Mar 2009 19:26:46 +0100
-Message-ID: <20090323192646.da98a636.krzysztof.h1@poczta.fm>
+From: Flavio Leitner <fbl-ljGZA5MgXf9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-piix4: Add support for the Broadcom HT1100 chipset
+Date: Mon, 23 Mar 2009 23:43:26 -0300
+Message-ID: <20090324024326.GA22272@sysclose.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux-fbdev-devel <linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+Add support for the Broadcom HT1100 LD chipset
 
-Read DDC information from a connected monitor
-and use it to select initial mode (if the mode
-is not specified).
-Also, use the information to protect against
-modes outside the monitor specs.
-
-Signed-off-by: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+Signed-off-by: Flavio Leitner <fbl-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/video/tdfxfb.c |   67 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 63 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c |    4 +++-
+ include/linux/pci_ids.h        |    1 +
+ 2 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/video/tdfxfb.c b/drivers/video/tdfxfb.c
-index be40506..d48bcab 100644
---- a/drivers/video/tdfxfb.c
-+++ b/drivers/video/tdfxfb.c
-@@ -487,6 +487,12 @@ static int tdfxfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 		return -EINVAL;
- 	}
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 761f9dd..64145b3 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -20,7 +20,7 @@
+ /*
+    Supports:
+ 	Intel PIIX4, 440MX
+-	Serverworks OSB4, CSB5, CSB6, HT-1000
++	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
+ 	ATI IXP200, IXP300, IXP400, SB600, SB700, SB800
+ 	SMSC Victory66
  
-+	if (info->monspecs.hfmax && info->monspecs.vfmax &&
-+	    info->monspecs.dclkmax && fb_validate_mode(var, info) < 0) {
-+		DPRINTK("mode outside monitor's specs\n");
-+		return -EINVAL;
-+	}
-+
- 	var->xres = (var->xres + 15) & ~15; /* could sometimes be 8 */
- 	lpitch = var->xres * ((var->bits_per_pixel + 7) >> 3);
+@@ -423,6 +423,8 @@ static struct pci_device_id piix4_ids[] = {
+ 		     PCI_DEVICE_ID_SERVERWORKS_CSB6) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_HT1000SB) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
++		     PCI_DEVICE_ID_SERVERWORKS_HT1100LD) },
+ 	{ 0, }
+ };
  
-@@ -1355,6 +1361,23 @@ static void tdfxfb_delete_i2c_busses(struct tdfx_par *par)
- 		i2c_del_adapter(&par->chan[1].adapter);
- 	par->chan[1].par = NULL;
- }
-+
-+static int tdfxfb_probe_i2c_connector(struct tdfx_par *par,
-+				      struct fb_monspecs *specs)
-+{
-+	u8 *edid = NULL;
-+
-+	DPRINTK("Probe DDC Bus\n");
-+	if (par->chan[0].par)
-+		edid = fb_ddc_read(&par->chan[0].adapter);
-+
-+	if (edid) {
-+		fb_edid_to_monspecs(edid, specs);
-+		kfree(edid);
-+		return 0;
-+	}
-+	return 1;
-+}
- #endif /* CONFIG_FB_3DFX_I2C */
- 
- /**
-@@ -1372,6 +1395,8 @@ static int __devinit tdfxfb_probe(struct pci_dev *pdev,
- 	struct tdfx_par *default_par;
- 	struct fb_info *info;
- 	int err, lpitch;
-+	struct fb_monspecs *specs;
-+	bool found;
- 
- 	err = pci_enable_device(pdev);
- 	if (err) {
-@@ -1474,15 +1499,49 @@ static int __devinit tdfxfb_probe(struct pci_dev *pdev,
- 	if (hwcursor)
- 		info->fix.smem_len = (info->fix.smem_len - 1024) &
- 					(PAGE_MASK << 1);
-+	specs = &info->monspecs;
-+	found = false;
-+	info->var.bits_per_pixel = 8;
- #ifdef CONFIG_FB_3DFX_I2C
- 	tdfxfb_create_i2c_busses(info);
-+	err = tdfxfb_probe_i2c_connector(default_par, specs);
-+
-+	if (!err) {
-+		if (specs->modedb == NULL)
-+			DPRINTK("Unable to get Mode Database\n");
-+		else {
-+			const struct fb_videomode *m;
-+
-+			fb_videomode_to_modelist(specs->modedb,
-+						 specs->modedb_len,
-+						 &info->modelist);
-+			m = fb_find_best_display(specs, &info->modelist);
-+			if (m) {
-+				fb_videomode_to_var(&info->var, m);
-+				/* fill all other info->var's fields */
-+				if (tdfxfb_check_var(&info->var, info) < 0)
-+					info->var = tdfx_var;
-+				else
-+					found = true;
-+			}
-+		}
-+	}
- #endif
--	if (!mode_option)
-+	if (!mode_option && !found)
- 		mode_option = "640x480@60";
- 
--	err = fb_find_mode(&info->var, info, mode_option, NULL, 0, NULL, 8);
--	if (!err || err == 4)
--		info->var = tdfx_var;
-+	if (mode_option) {
-+		err = fb_find_mode(&info->var, info, mode_option,
-+				   specs->modedb, specs->modedb_len,
-+				   NULL, info->var.bits_per_pixel);
-+		if (!err || err == 4)
-+			info->var = tdfx_var;
-+	}
-+
-+	if (found) {
-+		fb_destroy_modedb(specs->modedb);
-+		specs->modedb = NULL;
-+	}
- 
- 	/* maximize virtual vertical length */
- 	lpitch = info->var.xres_virtual * ((info->var.bits_per_pixel + 7) >> 3);
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index aca8c45..531e628 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -1467,6 +1467,7 @@
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB5	  0x0201
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB6    0x0203
+ #define PCI_DEVICE_ID_SERVERWORKS_HT1000SB 0x0205
++#define PCI_DEVICE_ID_SERVERWORKS_HT1100LD 0x0408
+ #define PCI_DEVICE_ID_SERVERWORKS_OSB4IDE 0x0211
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB5IDE 0x0212
+ #define PCI_DEVICE_ID_SERVERWORKS_CSB6IDE 0x0213
 -- 
-1.5.2.2
-
-
-----------------------------------------------------------------------
-10% zysku na lokacie bankowej z gwarancja BFG. Sprawdz!
-http://clk.tradedoubler.com/click?p=74281&a=1586724&g=17879004
+1.6.0.6
