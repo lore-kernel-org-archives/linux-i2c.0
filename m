@@ -1,26 +1,48 @@
-From: Flavio Leitner <fbl-ljGZA5MgXf9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-piix4: Add support for the Broadcom HT1100 chipset
-Date: Tue, 24 Mar 2009 16:53:48 -0300
-Message-ID: <20090324195348.GB22272@sysclose.org>
-References: <20090324024326.GA22272@sysclose.org> <20090324175751.24c8b267@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/2] tdfxfb: make use of DDC information about connected
+  monitor
+Date: Tue, 24 Mar 2009 22:35:28 +0100
+Message-ID: <20090324223528.22de9551@hyperion.delvare>
+References: <20090323192646.da98a636.krzysztof.h1@poczta.fm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090324175751.24c8b267-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090323192646.da98a636.krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Krzysztof Helt <krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org>
+Cc: Linux-fbdev-devel <linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 24, 2009 at 05:57:51PM +0100, Jean Delvare wrote:
-> Applied, with minor improvements:
-> * Keep the PCI IDs sorted numerically.
-> * Update Kconfig and driver documentation file.
-> 
-> Resulting patch is at:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-piix4-add-support-for-broadcom-ht1100.patch
-> and will be merged in 2.6.30.
+Hi Krzysztof,
 
-Alright, thanks!
-Flavio
+On Mon, 23 Mar 2009 19:26:46 +0100, Krzysztof Helt wrote:
+> From: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+> 
+> Read DDC information from a connected monitor
+> and use it to select initial mode (if the mode
+> is not specified).
+> Also, use the information to protect against
+> modes outside the monitor specs.
+> 
+> Signed-off-by: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+> ---
+>  drivers/video/tdfxfb.c |   67 +++++++++++++++++++++++++++++++++++++++++++++---
+>  1 files changed, 63 insertions(+), 4 deletions(-)
+
+Patch tested successfully. Without the patch:
+
+fb: 3Dfx Voodoo3 memory = 16384K
+Console: switching to colour frame buffer device 80x30
+
+With the patch:
+
+fb: 3Dfx Voodoo3 memory = 16384K
+Console: switching to colour frame buffer device 128x48
+
+Much better! :) This is on a Voodoo3. If you want me to test something
+in particular, just let me know.
+
+Thanks,
+-- 
+Jean Delvare
