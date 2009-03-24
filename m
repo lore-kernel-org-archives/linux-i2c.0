@@ -1,26 +1,33 @@
 From: Ayman KHAMOUMA <ayman.khamouma-qxv4g6HH51o@public.gmane.org>
-Subject: I2c message at init time
-Date: Tue, 24 Mar 2009 11:27:59 +0100
-Message-ID: <000201c9ac6b$34a95300$2d3f81a4@par.st.com>
-References: <20090311122257.7c7805f0@hyperion.delvare>
+Subject: RE: I2c message at init time
+Date: Tue, 24 Mar 2009 11:29:30 +0100
+Message-ID: <000301c9ac6b$6a6b39e0$2d3f81a4@par.st.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090311122257.7c7805f0-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+ 
+PS:
+The i2c_smbus_write is called at the device's probe.
+
+-----Original Message-----
+From: khamouma [mailto:ayman.khamouma-qxv4g6HH51o@public.gmane.org] 
+Sent: Tuesday, March 24, 2009 11:28 AM
+To: 'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'
+Subject: I2c message at init time
+
 Hi everybody,
 
 I'm coming back here for a new problem...
-I can't find out how to send i2c messages at init time (setup.c)
-I need to send some commands via i2c in order to make my hdd work
-I tried to write it as an i2c driver at init time, but it doesn't seem to
-work (smbus_write_byte_data returns -1... But it works in my "normal"
-modules)
+I can't find out how to send i2c messages at init time (setup.c) I need to
+send some commands via i2c in order to make my hdd work I tried to write it
+as an i2c driver at init time, but it doesn't seem to work
+(smbus_write_byte_data returns -1... But it works in my "normal" modules)
 
 Any idea ?
 Here is what I'm doing:
