@@ -1,41 +1,46 @@
-From: Krzysztof Helt <krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] tdfxfb: make use of DDC information about connected
- monitor
-Date: Wed, 25 Mar 2009 20:25:04 +0100
-Message-ID: <20090325202504.1a4690a4.krzysztof.h1@poczta.fm>
-References: <20090325063616.16A371D789D@f39.poczta.interia.pl>
-	<20090325090655.19fe3af2@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/4] imxmmc: add MX1 support
+Date: Wed, 25 Mar 2009 20:35:46 +0100
+Message-ID: <20090325193545.GA32595@pengutronix.de>
+References: <20090324134655.GL25436@pengutronix.de> <49C8EFB3.803@teltonika.lt> <20090324155908.GO25436@pengutronix.de> <49C90DFD.1040107@teltonika.lt> <20090324170134.GP25436@pengutronix.de> <20090325085223.GG4697@n2100.arm.linux.org.uk> <gqcv9q$q04$1@ger.gmane.org> <20090325113108.GC31464@n2100.arm.linux.org.uk> <20090325115929.GD3029@pengutronix.de> <20090325133820.GF19758@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090325090655.19fe3af2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090325133820.GF19758-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux-fbdev-devel <linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 25 Mar 2009 09:06:55 +0100
-Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
 
-> On 25 Mar 2009 07:36:15 +0100, krzysztof.h1-IjDXvh/HVVUAvxtiuMwx3w@public.gmane.org wrote:
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > If you can test the BT869 driver for a Voodoo3 card (mentioned
-> > in the i2c-voodoo3 doc) it would be great.
-> 
-> The bt869 driver was never ported to Linux 2.6, so no, I can't test it.
-> Not that I believe that the driver as it existed made much sense
-> anyway. It was more of an afternoon hack than anything else.
-> Controlling the video output using the BT869 should really be up to the
-> video driver (framebuffer or X) and not to the user.
-> 
+> If that is really the patch you want, i'll add it to my tree and push
+> it.
 
-I see. I found that there is something like bt869 driver in the lm-sensors
-package but I didn't know details.
+\o/ Yes, please push this one. It still applies to 2.6.29 flawlessly here.
+Thanks!
 
-Thanks for answer,
-Krzysztof
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-----------------------------------------------------------------------
-Udar sloneczny prezesa Kaczynskiego... >>> http://link.interia.pl/f2083
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAknKh5EACgkQD27XaX1/VRvmbACfVP5KAIlH98LMHiFjOFLBZEc1
+zoYAn3Cig/rHTHzzJ/1/4ZI0ryZ+M/il
+=ZFZv
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--
