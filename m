@@ -1,123 +1,242 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: [PATCH]i2c-dev: add ioctls PROBE and REMOVE
-Date: Thu, 26 Mar 2009 09:59:12 +0100
-Message-ID: <49CB43E0.2050503@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+From: Oskar Schirmer <os-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+Subject: [patch] add pca9543 driver
+Date: Thu, 26 Mar 2009 15:46:58 +0100
+Message-ID: <1238078818-25977-1-git-send-email-os@emlix.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oskar Schirmer <os-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+support pca9543 i2c bus switch chip
 
-After system startup currently there is no way to add an i2c client to
-subsystem. This may occur if the client sits on a subsystem that was
-powerless at the beginning or is plugged in at runtime.
-This patch adds ioctl to /dev/i2c-X to initiate a probe of an client and
-to remove a client that may have gone.
-Example:
-fd=open("/dev/i2c-1",O_RDWR);
-ioctl(fd,I2C_PROBE,"lm75,0x49");
-close(fd);
-will start probing of an lm75 compatible sensor at bus 1, id 0x49
-ioctl(fd,I2C_REMOVE,0x49)
-removes it again.
-
-Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Signed-off-by: Oskar Schirmer <os-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
 ---
-Add ioctls I2C_PROBE and I2C_REMOVE to /dev/i2c-x
+ drivers/i2c/chips/Kconfig   |    3 +
+ drivers/i2c/chips/Makefile  |    1 +
+ drivers/i2c/chips/pca9543.c |  188 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 192 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/chips/pca9543.c
 
- drivers/i2c/i2c-dev.c   |   50
-++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/i2c-dev.h |    2 +
- 2 files changed, 51 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index c171988..82cbe7f
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -367,9 +367,22 @@ static noinline int i2cdev_ioctl_smbus(struct
-i2c_client *client,
- 	return res;
- }
-
-+static int i2c_check_addr(struct device *dev, void *addrp)
-+{
-+	struct i2c_client	*client = i2c_verify_client(dev);
-+	int			addr = *(int *)addrp;
+diff --git a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+index c80312c..acfc46f 100644
+--- a/drivers/i2c/chips/Kconfig
++++ b/drivers/i2c/chips/Kconfig
+@@ -64,6 +64,9 @@ config SENSORS_PCA9539
+ 	  This driver is deprecated and will be dropped soon. Use
+ 	  drivers/gpio/pca953x.c instead.
+ 
++config PCA9543
++	tristate "Philips PCA9543 i2c bus switch"
 +
-+	if (client && client->addr == addr)
-+		return -EBUSY;
+ config SENSORS_PCF8591
+ 	tristate "Philips PCF8591"
+ 	depends on EXPERIMENTAL
+diff --git a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+index d142f23..c7a7fe2 100644
+--- a/drivers/i2c/chips/Makefile
++++ b/drivers/i2c/chips/Makefile
+@@ -13,6 +13,7 @@
+ obj-$(CONFIG_DS1682)		+= ds1682.o
+ obj-$(CONFIG_SENSORS_MAX6875)	+= max6875.o
+ obj-$(CONFIG_SENSORS_PCA9539)	+= pca9539.o
++obj-$(CONFIG_PCA9543)		+= pca9543.o
+ obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
+ obj-$(CONFIG_PCF8575)		+= pcf8575.o
+ obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
+diff --git a/drivers/i2c/chips/pca9543.c b/drivers/i2c/chips/pca9543.c
+new file mode 100644
+index 0000000..ee59497
+--- /dev/null
++++ b/drivers/i2c/chips/pca9543.c
+@@ -0,0 +1,188 @@
++/*
++ *  pca9543.c - i2c channel switch
++ *
++ *  Copyright (C) 2008 Emlix GmbH <info-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
++ *  Authors:	Fabian Godehardt <fg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
++ *		Oskar Schirmer <os-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/mutex.h>
++#include <linux/sysfs.h>
++
++struct pca9543_data {
++	struct mutex lock;
++	struct i2c_client *client;
++};
++
++static ssize_t pca9543_read(struct pca9543_data *data, char *buf, size_t count)
++{
++	int stat;
++	struct i2c_msg msg;
++	mutex_lock(&data->lock);
++	msg.addr = data->client->addr;
++	msg.flags = I2C_M_RD;
++	msg.buf = buf;
++	msg.len = 1;
++	stat = i2c_transfer(data->client->adapter, &msg, 1);
++	mutex_unlock(&data->lock);
++	if ((stat >= 0) && (stat != 1))
++		stat = -EIO;
++	return stat;
++}
++
++static ssize_t pca9543_bin_read(struct kobject *kobj,
++		struct bin_attribute *attr, char *buf, loff_t off, size_t count)
++{
++	struct pca9543_data *data;
++	data = dev_get_drvdata(container_of(kobj, struct device, kobj));
++	if (unlikely(!count))
++		return count;
++	if (off)
++		return -EINVAL;
++	return pca9543_read(data, buf, count);
++}
++
++static ssize_t pca9543_write(struct pca9543_data *data, char *buf, size_t count)
++{
++	int stat;
++	struct i2c_msg msg;
++	mutex_lock(&data->lock);
++	msg.addr = data->client->addr;
++	msg.flags = 0;
++	msg.buf = buf;
++	msg.len = 1;
++	stat = i2c_transfer(data->client->adapter, &msg, 1);
++	mutex_unlock(&data->lock);
++	if ((stat >= 0) && (stat != 1))
++		stat = -EIO;
++	return stat;
++}
++
++static ssize_t pca9543_bin_write(struct kobject *kobj,
++		struct bin_attribute *attr, char *buf, loff_t off, size_t count)
++{
++	struct pca9543_data *data;
++	data = dev_get_drvdata(container_of(kobj, struct device, kobj));
++	if (unlikely(!count))
++		return count;
++	if (off)
++		return -EINVAL;
++	return pca9543_write(data, buf, count);
++}
++
++static struct bin_attribute pca9543_attr = {
++	.attr = {
++		.name = "switch",
++		.mode = S_IRUGO | S_IWUSR,
++	},
++	.size = 1,
++	.read = pca9543_bin_read,
++	.write = pca9543_bin_write,
++};
++
++int pca9543_set_switch(struct i2c_client *client, unsigned value)
++{
++	struct pca9543_data *data;
++	u8 buf;
++	int ret;
++	data = i2c_get_clientdata(client);
++	buf = value;
++	ret = pca9543_write(data, &buf, 1);
++	if (ret > 0)
++		ret = 0;
++	return ret;
++}
++EXPORT_SYMBOL(pca9543_set_switch);
++
++static int pca9543_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	int err;
++	struct pca9543_data *data;
++	void (*cbf)(struct i2c_client *, int(*)(struct i2c_client *, unsigned));
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		printk(KERN_ERR "pca9543 probe failure\n");
++		err = -EPFNOSUPPORT;
++		goto err;
++	}
++	data = kzalloc(sizeof(struct pca9543_data), GFP_KERNEL);
++	if (!data) {
++		err = -ENOMEM;
++		goto err;
++	}
++	mutex_init(&data->lock);
++	data->client = client;
++	err = sysfs_create_bin_file(&client->dev.kobj, &pca9543_attr);
++	if (err)
++		goto errmem;
++	i2c_set_clientdata(client, data);
++	dev_info(&client->dev,
++		"pca9543 i2c switch @ x%02x\n", client->addr);
++	cbf = client->dev.platform_data;
++	if (cbf)
++		cbf(client, &pca9543_set_switch);
++	return 0;
++errmem:
++	kfree(data);
++err:
++	return err;
++}
++
++static int pca9543_remove(struct i2c_client *client)
++{
++	struct pca9543_data *data;
++	data = i2c_get_clientdata(client);
++	sysfs_remove_bin_file(&client->dev.kobj, &pca9543_attr);
++	i2c_set_clientdata(client, NULL);
++	kfree(data);
 +	return 0;
 +}
 +
- static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned
-long arg)
- {
--	struct i2c_client *client = (struct i2c_client *)file->private_data;
-+	struct i2c_client *bus_client, *client = (struct i2c_client
-*)file->private_data;
-+	struct i2c_board_info bInfo;
-+	struct device *dev;
-+	char   *colon, request[I2C_NAME_SIZE + 5];
- 	unsigned long funcs;
-
- 	dev_dbg(&client->adapter->dev, "ioctl, cmd=0x%02x, arg=0x%02lx\n",
-@@ -424,6 +437,41 @@ static long i2cdev_ioctl(struct file *file,
-unsigned int cmd, unsigned long arg)
- 	case I2C_TIMEOUT:
- 		client->adapter->timeout = arg;
- 		break;
-+	case I2C_PROBE:
-+		memset(&bInfo, 0, sizeof(bInfo));
-+		copy_from_user(request, (char *)arg, sizeof(request));
++static const struct i2c_device_id pca9543_id[] = {
++	{ "pca9543", 0 },
++	{ }
++};
 +
-+		colon = strchr(request, ',');
-+		if((!colon) || (colon - request > I2C_NAME_SIZE - 1))
-+			return -EINVAL;
++static struct i2c_driver pca9543_driver = {
++	.driver = {
++		.name = "pca9543",
++		.owner = THIS_MODULE,
++	},
++	.probe = pca9543_probe,
++	.remove = pca9543_remove,
++	.id_table = pca9543_id,
++};
 +
-+		strncpy(bInfo.type, request, colon - request);
-+		bInfo.type[I2C_NAME_SIZE - 1] = '\0';
-+		bInfo.addr = simple_strtoul(colon + 1, NULL, 0);
++static int __init pca9543_init(void)
++{
++	return i2c_add_driver(&pca9543_driver);
++}
 +
-+		bus_client = i2c_new_device(client->adapter, &bInfo);
++static void __exit pca9543_exit(void)
++{
++	i2c_del_driver(&pca9543_driver);
++}
 +
-+		if(!bus_client)
-+			return -EIO;
-+			
-+		if(!bus_client->driver)
-+		{
-+			/* probe failed -> cleanup */
-+			i2c_unregister_device(bus_client);
-+			return -ENODEV;
-+		}
-+		break;
-+	case I2C_REMOVE:
-+		dev = device_find_child(&client->adapter->dev, &arg, i2c_check_addr);
-+		if (!dev)
-+			return -ENODEV;
++MODULE_AUTHOR("emlix GmbH <info-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>");
++MODULE_DESCRIPTION("pca9543 switch driver");
++MODULE_LICENSE("GPL");
 +
-+		bus_client = i2c_verify_client(dev);
-+		if(!bus_client)
-+			return -EIO;
-+
-+		i2c_unregister_device(bus_client);
-+		break;
- 	default:
- 		/* NOTE:  returning a fault code here could cause trouble
- 		 * in buggy userspace code.  Some old kernel bugs returned
-diff --git a/include/linux/i2c-dev.h b/include/linux/i2c-dev.h
-index 311315b..8b66638
---- a/include/linux/i2c-dev.h
-+++ b/include/linux/i2c-dev.h
-@@ -50,6 +50,8 @@
- #define I2C_PEC		0x0708	/* != 0 to use PEC with SMBus */
- #define I2C_SMBUS	0x0720	/* SMBus transfer */
-
-+#define I2C_PROBE   0x0730  /* Probe for client "<name>,<addr>" */
-+#define I2C_REMOVE  0x0731  /* Remove client <addr> */
-
- /* This is the structure as used in the I2C_SMBUS ioctl call */
- struct i2c_smbus_ioctl_data {
++module_init(pca9543_init);
++module_exit(pca9543_exit);
+-- 
+1.6.2.107.ge47ee
