@@ -1,33 +1,33 @@
-From: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
-Subject: Re: what is in bjdooks' i2c-for-2630 tree
-Date: Fri, 27 Mar 2009 11:48:45 +0000
-Message-ID: <1238154525.25634.11.camel@petitemort>
-References: <E1Ln9pC-00037e-Qn@teyla.home.fluff.org>
-	 <20090327110634.GJ19758@fluff.org.uk>
-Reply-To: dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH]i2c-dev: add ioctls PROBE and REMOVE
+Date: Fri, 27 Mar 2009 13:40:34 +0100
+Message-ID: <20090327134034.754908b5@hyperion.delvare>
+References: <49CB43E0.2050503@gmx.de>
+	<49CCA82F.90106@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090327110634.GJ19758-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <49CCA82F.90106-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2009-03-27 at 11:06 +0000, Ben Dooks wrote:
-> If anyone thinks there's more stuff that should be in here,
-> let me know ASAP, will be pushing this to linus in the next
-> day or so.
+Hi Michael,
 
-I take it there still hasn't been a decision about the renaming of the
-platform_i2c structure? Or is it too late to get that kind of patch in
-for 2.6.30 ?
+On Fri, 27 Mar 2009 11:19:27 +0100, Michael Lawnick wrote:
+> could you give it a look?
+> If you at least ACK the interface, I could do the patch for the
+> documentation.
+
+Come on, which part of "this should be implemented in sysfs" did you
+not understand? I'm a little tired of you trying to implement it using
+_all_ other possible ways except the one we agreed on. If you need this
+feature faster than I can implement it, please stick to the plan and
+implement it using sysfs. If not, then just stay quiet and wait for it
+to happen.
 
 Thanks,
-
-Daniel.
-
 -- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+Jean Delvare
