@@ -1,102 +1,125 @@
-From: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Add missing request_mem_region in probe()
-Date: Tue, 31 Mar 2009 14:57:12 +0300
-Message-ID: <49D20518.5060702@gmail.com>
-References: <20090331115253.16399.53728.stgit@localhost.localdomain>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] powerpc: i2c-mpc: preserve I2C clocking
+Date: Tue, 31 Mar 2009 15:39:53 +0200
+Message-ID: <20090331133953.GB3044@pengutronix.de>
+References: <20090331125028.066613801@denx.de> <20090331125451.600446749@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090331115253.16399.53728.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090331125451.600446749-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: public-ben-linux-elnMNo+KYs3YtjvyW6yDsg-z5DuStaUktnZ+VzJOa5vwg@public.gmane.org
-Cc: public-linux-i2c-u79uwXL29TY76Z2rM5mHXA-z5DuStaUktnZ+VzJOa5vwg@public.gmane.org
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ben,
-
-please merge this one too, if possible.
-
-Darius.
-
-
-Darius Augulis wrote:
-> Signed-off-by: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
+On Tue, Mar 31, 2009 at 02:50:29PM +0200, Wolfgang Grandegger wrote:
+> The I2c node property "fsl,preserve-clocking" allows to overtake the
+> clock settings from the boot loader and avoids the hard-coded setting.
+>=20
+> Signed-off-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 > ---
-> 
->  drivers/i2c/busses/i2c-imx.c |   20 +++++++++++++-------
->  1 files changed, 13 insertions(+), 7 deletions(-)
-> 
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 3296380..515bbed 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -483,6 +483,11 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  		goto fail1;
->  	}
->  
-> +	if (!request_mem_region(res->start, res_size, DRIVER_NAME)) {
-> +		ret = -EBUSY;
-> +		goto fail2;
-> +	}
+>  drivers/i2c/busses/i2c-mpc.c |   24 ++++++++++++++++--------
+>  1 file changed, 16 insertions(+), 8 deletions(-)
+>=20
+> Index: linux-2.6/drivers/i2c/busses/i2c-mpc.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linux-2.6.orig/drivers/i2c/busses/i2c-mpc.c	2009-03-31 13:25:08.00000=
+0000 +0200
+> +++ linux-2.6/drivers/i2c/busses/i2c-mpc.c	2009-03-31 13:28:03.000000000 =
++0200
+> @@ -318,17 +318,24 @@
+>  {
+>  	int result =3D 0;
+>  	struct mpc_i2c *i2c;
+> +	int set_clock;
+> =20
+>  	i2c =3D kzalloc(sizeof(*i2c), GFP_KERNEL);
+>  	if (!i2c)
+>  		return -ENOMEM;
+> =20
+> -	if (of_get_property(op->node, "dfsrr", NULL))
+> -		i2c->flags |=3D FSL_I2C_DEV_SEPARATE_DFSRR;
+> -
+> -	if (of_device_is_compatible(op->node, "fsl,mpc5200-i2c") ||
+> -			of_device_is_compatible(op->node, "mpc5200-i2c"))
+> -		i2c->flags |=3D FSL_I2C_DEV_CLOCK_5200;
+> +	if (of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
+> +		set_clock =3D 0;
+> +	} else {
+> +		set_clock =3D 1;
 > +
->  	/* Setup i2c_imx driver structure */
->  	strcpy(i2c_imx->adapter.name, pdev->name);
->  	i2c_imx->adapter.owner		= THIS_MODULE;
-> @@ -498,7 +503,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	if (IS_ERR(i2c_imx->clk)) {
->  		ret = PTR_ERR(i2c_imx->clk);
->  		dev_err(&pdev->dev, "can't get I2C clock\n");
-> -		goto fail2;
-> +		goto fail3;
+> +		if (of_get_property(op->node, "dfsrr", NULL))
+> +			i2c->flags |=3D FSL_I2C_DEV_SEPARATE_DFSRR;
+> +
+> +		if (of_device_is_compatible(op->node, "fsl,mpc5200-i2c") ||
+> +		    of_device_is_compatible(op->node, "mpc5200-i2c"))
+> +			i2c->flags |=3D FSL_I2C_DEV_CLOCK_5200;
+> +	}
+> =20
+>  	init_waitqueue_head(&i2c->queue);
+> =20
+> @@ -348,8 +355,9 @@
+>  			goto fail_request;
+>  		}
 >  	}
->  	clk_enable(i2c_imx->clk);
->  
-> @@ -506,7 +511,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	ret = request_irq(i2c_imx->irq, i2c_imx_isr, 0, pdev->name, i2c_imx);
->  	if (ret) {
->  		dev_err(&pdev->dev, "can't claim irq %d\n", i2c_imx->irq);
-> -		goto fail3;
-> +		goto fail4;
->  	}
->  
->  	/* Init queue */
-> @@ -529,7 +534,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
->  	if (ret < 0) {
->  		dev_err(&pdev->dev, "registration failed\n");
-> -		goto fail4;
-> +		goto fail5;
->  	}
->  
->  	/* Set up platform driver data */
-> @@ -546,11 +551,13 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  
->  	return 0;   /* Return OK */
->  
-> -fail4:
-> +fail5:
->  	free_irq(i2c_imx->irq, i2c_imx);
-> -fail3:
-> +fail4:
->  	clk_disable(i2c_imx->clk);
->  	clk_put(i2c_imx->clk);
-> +fail3:
-> +	release_mem_region(i2c_imx->res->start, resource_size(res));
->  fail2:
->  	kfree(i2c_imx);
->  fail1:
-> @@ -589,8 +596,7 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
->  	clk_put(i2c_imx->clk);
->  
->  	/* Release memory */
-> -	release_mem_region(i2c_imx->res->start,
-> -		i2c_imx->res->end - i2c_imx->res->start + 1);
-> +	release_mem_region(i2c_imx->res->start, resource_size(i2c_imx->res));
->  	iounmap(i2c_imx->base);
->  	kfree(i2c_imx);
->  	return 0;
-> 
+> -=09
+> -	mpc_i2c_setclock(i2c);
+> +
+> +	if (set_clock)
+> +		mpc_i2c_setclock(i2c);
+
+Can't we drop 'set_clock' with something like this here?
+
++	if (!of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
++
++		if (of_get_property(op->node, "dfsrr", NULL))
++			i2c->flags |=3D FSL_I2C_DEV_SEPARATE_DFSRR;
++
++		if (of_device_is_compatible(op->node, "fsl,mpc5200-i2c") ||
++		    of_device_is_compatible(op->node, "mpc5200-i2c"))
++			i2c->flags |=3D FSL_I2C_DEV_CLOCK_5200;
++
++		mpc_i2c_setclock(i2c);
++	}
+
+> =20
+>  	dev_set_drvdata(&op->dev, i2c);
+> =20
+>=20
+> _______________________________________________
+> devicetree-discuss mailing list
+> devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+> https://ozlabs.org/mailman/listinfo/devicetree-discuss
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--jho1yZJdad60DJr+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAknSHSkACgkQD27XaX1/VRvC5ACeIzP/QV6thai/6dLX/sUm0o7m
+S2AAnidTamYhtjXqgOeDF+Lvdcokgx/s
+=/G0m
+-----END PGP SIGNATURE-----
+
+--jho1yZJdad60DJr+--
