@@ -1,70 +1,117 @@
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
-Subject: Re: [PATCH 1/5] I2C driver for MXC
-Date: Wed, 1 Apr 2009 13:58:21 +0200
-Message-ID: <200904011358.21191.hs4233@mail.mn-solutions.de>
-References: <49C89E13.7040801@gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v2] powerpc: i2c-mpc: make I2C bus speed configurable
+Date: Wed, 1 Apr 2009 07:47:21 -0600
+Message-ID: <fa686aa40904010647o57b59845p54a9c1e1535e4453@mail.gmail.com>
+References: <49D36885.9070806@grandegger.com>
+	<fa686aa40904010644t1c111c05ka7349869eb155429@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <49C89E13.7040801@gmail.com>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Darius <augulis.darius@gmail.com>, linux-i2c@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <fa686aa40904010644t1c111c05ka7349869eb155429@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: Wolfgang Grandegger <wg@grandegger.com>
+Cc: linuxppc-dev <Linuxppc-dev@ozlabs.org>, devicetree-discuss <devicetree-discuss@ozlabs.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-[PATCH] imx21: activate i2c
+On Wed, Apr 1, 2009 at 7:44 AM, Grant Likely <grant.likely@secretlab.ca> wr=
+ote:
+> On Wed, Apr 1, 2009 at 7:13 AM, Wolfgang Grandegger <wg@grandegger.com> w=
+rote:
+>> This patch makes the I2C bus speed configurable by using the I2C node
+>> property "clock-frequency". If the property is not defined, the old
+>> fixed clock settings will be used for backward compatibility.
+>
+> I mostly like this patch. =A0However, as I mentioned in my other reply,
+> I'm going to NAK it because the divisor tables are not common code and
+> do not belong in common code files.
+>
+> Other than that, I like this version of the patch and I think it is
+> almost finished. =A0More comments below.
 
-Set the correct clkdev-name for the i2c clock.
+Oh, and you should look in MAINTAINERS and cc this patch to Ben Dooks
+and the linux-i2c@vger.kernel.org mailing list.
 
-It also get's rid of the ARCH_NR_GPIOS define on the rationale
-that isn't an ARCH-wide setting anyway. If a device has two
-pca953x devices, the reserved number will be wrong.
+g.
 
-Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
+>
+>> -static void mpc_i2c_setclock(struct mpc_i2c *i2c)
+>> -{
+>> - =A0 =A0 =A0 /* Set clock and filters */
+>> - =A0 =A0 =A0 if (i2c->flags & FSL_I2C_DEV_SEPARATE_DFSRR) {
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x31, i2c->base + MPC_I2C_FDR);
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x10, i2c->base + MPC_I2C_DFSRR);
+>> - =A0 =A0 =A0 } else if (i2c->flags & FSL_I2C_DEV_CLOCK_5200)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x3f, i2c->base + MPC_I2C_FDR);
+>> - =A0 =A0 =A0 else
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writel(0x1031, i2c->base + MPC_I2C_FDR);
+>> +static void mpc_i2c_setclock_52xx(struct device_node *node,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct=
+ mpc_i2c *i2c,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 cl=
+ock, u32 prescaler)
+>> +{
+>> + =A0 =A0 =A0 int fdr =3D mpc52xx_i2c_get_fdr(node, clock, prescaler);
+>> +
+>> + =A0 =A0 =A0 if (fdr < 0)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 fdr =3D 0x3f; /* backward compatibility */
+>> + =A0 =A0 =A0 writeb(fdr & 0xff, i2c->base + MPC_I2C_FDR);
+>> + =A0 =A0 =A0 dev_info(i2c->dev, "clock %d Hz (fdr=3D%d)\n", clock, fdr);
+>> +}
+>> +
+>> +static void mpc_i2c_setclock_8xxx(struct device_node *node,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct=
+ mpc_i2c *i2c,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 cl=
+ock, u32 prescaler)
+>> +{
+>> + =A0 =A0 =A0 int fdr =3D fsl_i2c_get_fdr(node, clock, prescaler);
+>> +
+>> + =A0 =A0 =A0 if (fdr < 0)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 fdr =3D 0x1031; /* backward compatibility =
+*/
+>> + =A0 =A0 =A0 writeb(fdr & 0xff, i2c->base + MPC_I2C_FDR);
+>> + =A0 =A0 =A0 writeb((fdr >> 8) & 0xff, i2c->base + MPC_I2C_DFSRR);
+>> + =A0 =A0 =A0 dev_info(i2c->dev, "clock %d Hz (dfsrr=3D%d fdr=3D%d)\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0clock, fdr >> 8, fdr & 0xff);
+>> =A0}
+>
+> Very neat and tidy indeed. =A0I like this.
+>
+>> Index: linux-2.6/arch/powerpc/sysdev/fsl_soc.c
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> --- linux-2.6.orig/arch/powerpc/sysdev/fsl_soc.c =A0 =A0 =A0 =A02009-03-=
+31 21:27:52.000000000 +0200
+>> +++ linux-2.6/arch/powerpc/sysdev/fsl_soc.c =A0 =A0 2009-04-01 12:09:18.=
+796719327 +0200
+>> @@ -39,7 +39,7 @@
+>> =A0#include <sysdev/fsl_soc.h>
+>> =A0#include <mm/mmu_decl.h>
+>> =A0#include <asm/cpm2.h>
+>> -
+>> +#define DEBUG
+> =A0^^^^^^^^^^^^^^^^^^^^^^^ =A0oops?
+>
+> g.
+>
+> --
+> Grant Likely, B.Sc., P.Eng.
+> Secret Lab Technologies Ltd.
+>
 
----
-
-This patch applies on top Darius' patch "[PATCH 1/5] I2C driver for MXC" from
-24th march.
-
---- linux.orig/arch/arm/plat-mxc/include/mach/mx21.h
-+++ linux/arch/arm/plat-mxc/include/mach/mx21.h
-@@ -54,9 +54,6 @@
- 
- #define IRAM_BASE_ADDR          0xFFFFE800	/* internal ram */
- 
--/* this CPU supports up to 192 GPIOs (don't forget the baseboard!) */
--#define ARCH_NR_GPIOS		(6*32 + 16)
--
- /* fixed interrupt numbers */
- #define MXC_INT_USBCTRL         58
- #define MXC_INT_USBCTRL         58
---- linux.orig/arch/arm/mach-mx2/clock_imx21.c
-+++ linux/arch/arm/mach-mx2/clock_imx21.c
-@@ -931,7 +931,7 @@
- 	_REGISTER_CLOCK(NULL, "slcdc", slcdc_clk[0])
- 	_REGISTER_CLOCK("imx-wdt.0", NULL, wdog_clk)
- 	_REGISTER_CLOCK(NULL, "gpio", gpio_clk)
--	_REGISTER_CLOCK(NULL, "i2c", i2c_clk)
-+	_REGISTER_CLOCK("imx-i2c.0", NULL, i2c_clk)
- 	_REGISTER_CLOCK("mxc-keypad", NULL, kpp_clk)
- 	_REGISTER_CLOCK(NULL, "owire", owire_clk)
- 	_REGISTER_CLOCK(NULL, "rtc", rtc_clk)
 
 
+-- =
 
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
