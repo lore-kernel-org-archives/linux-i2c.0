@@ -1,59 +1,98 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Please pull bjdooks' i2c tree
-Date: Thu, 2 Apr 2009 10:19:59 +0200
-Message-ID: <20090402081959.GA3152@pengutronix.de>
-References: <E1Lomn2-0002o8-Vo@teyla.home.fluff.org> <Pine.LNX.4.64.0904020056550.5389@axis700.grange>
+From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH] imx/i2c: Make disable_delay a per-device variable
+Date: Thu, 2 Apr 2009 10:40:56 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0904021040300.5263@axis700.grange>
+References: <20090325092625.GA3029@pengutronix.de> <49CA017D.20005@gmail.com>
+ <20090325104357.GB3029@pengutronix.de> <Pine.LNX.4.64.0903282207480.9903@axis700.grange>
+ <d7f267fd0903300048p7caee6e0ne63916b986b132b@mail.gmail.com>
+ <Pine.LNX.4.64.0903301124040.4455@axis700.grange> <20090330095147.GP7861@pengutronix.de>
+ <Pine.LNX.4.64.0903301156060.4455@axis700.grange> <49D08AE4.1090102@gmail.com>
+ <Pine.LNX.4.64.0903301548570.4455@axis700.grange> <20090330145409.GD3058@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0904020056550.5389-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
+In-Reply-To: <20090330145409.GD3058-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, 30 Mar 2009, Wolfram Sang wrote:
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, Mar 30, 2009 at 03:50:28PM +0200, Guennadi Liakhovetski wrote:
+> 
+> > Ok, I just was informed, that there is a hardware bug on the board I am 
+> > using. So, please ignore my objections. Sorry for the wasted time.
+> 
+> Well, not completely wasted: We found a bug :) Patch follows, Ben can
+> you add it?
+> 
+> Regards,
+> 
+>    Wolfram
+> 
+> ===
+> 
+> 'disable_delay' was static which is wrong as it is calculated using the per-device
+> bus speed. This patch turns 'disable_delay' into a per-device variable.
+> 
+> Reported-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-On Thu, Apr 02, 2009 at 12:57:19AM +0200, Guennadi Liakhovetski wrote:
-> Hi Ben
->=20
-> On Tue, 31 Mar 2009, Ben Dooks wrote:
->=20
-> > The following changes since commit 8e0ee43bc2c3e19db56a4adaa9a9b04ce885=
-cd84:
-> >   Linus Torvalds (1):
-> >         Linux 2.6.29
->=20
-> Are you also intending to push this one:
->=20
-> http://www.mail-archive.com/linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg00729.html
+Acked-by: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
 
-Adding Darius as CC. His ACK might help (yours wouldn't hurt either ;))
-Darius: Can you ACK my original patch?
+Thanks
+Guennadi
 
-   Wolfram
+> ---
+>  drivers/i2c/busses/i2c-imx.c |    7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> Index: .kernel/drivers/i2c/busses/i2c-imx.c
+> ===================================================================
+> --- .kernel.orig/drivers/i2c/busses/i2c-imx.c
+> +++ .kernel/drivers/i2c/busses/i2c-imx.c
+> @@ -86,8 +86,6 @@
+>  /** Variables ******************************************************************
+>  *******************************************************************************/
+>  
+> -static unsigned int disable_delay;	/* Dummy delay */
+> -
+>  /*
+>   * sorted list of clock divider, register value pairs
+>   * taken from table 26-5, p.26-9, Freescale i.MX
+> @@ -121,6 +119,7 @@ struct imx_i2c_struct {
+>  	int			irq;
+>  	wait_queue_head_t	queue;
+>  	unsigned long		i2csr;
+> +	unsigned int 		disable_delay;
+>  };
+>  
+>  /** Functions for IMX I2C adapter driver ***************************************
+> @@ -212,7 +211,7 @@ static void i2c_imx_stop(struct imx_i2c_
+>  	 * This delay caused by an i.MXL hardware bug.
+>  	 * If no (or too short) delay, no "STOP" bit will be generated.
+>  	 */
+> -	udelay(disable_delay);
+> +	udelay(i2c_imx->disable_delay);
+>  	/* Disable I2C controller */
+>  	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
+>  }
+> @@ -243,7 +242,7 @@ static void __init i2c_imx_set_clk(struc
+>  	 * This delay is used in I2C bus disable function
+>  	 * to fix chip hardware bug.
+>  	 */
+> -	disable_delay = (500000U * i2c_clk_div[i][0]
+> +	i2c_imx->disable_delay = (500000U * i2c_clk_div[i][0]
+>  		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
+>  
+>  	/* dev_dbg() can't be used, because adapter is not yet registered */
+> 
+> -- 
+> Pengutronix e.K.                           | Wolfram Sang                |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> 
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAknUdS8ACgkQD27XaX1/VRtkWQCcDQO4fgSVAJcV2hOo205LB+rT
-arAAnj/oUCXfgNlikFwhkcBvQFOzPuXS
-=f7ZO
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+---
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
