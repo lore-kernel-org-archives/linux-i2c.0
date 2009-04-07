@@ -1,51 +1,73 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: [PATCH v3 5/5] powerpc/85xx: i2c-mpc: use new I2C bindings for the Socates board
-Date: Tue, 07 Apr 2009 10:20:57 +0200
-Message-ID: <20090407082231.803193635@denx.de>
-References: <20090407082052.477328750@denx.de>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: pull request for bjdooks' i2c tree
+Date: Tue, 7 Apr 2009 11:00:13 +0100
+Message-ID: <20090407100012.GA13800@fluff.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline; filename=i2c-mpc-socrates-dts.patch
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+To: torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Preserve I2C clock settings for the Socrates MPC8544 board.
+Hi, Linus.
 
-Signed-off-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
----
- arch/powerpc/boot/dts/socrates.dts |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+It seems my previous request for 'i2c-for-2630' has been lost, please
+consider this new pull request 'i2c-for-2630-v2' which has additional
+driver and cleanup patches.
 
-Index: linux-2.6-galak/arch/powerpc/boot/dts/socrates.dts
-===================================================================
---- linux-2.6-galak.orig/arch/powerpc/boot/dts/socrates.dts	2009-04-07 10:09:07.161718915 +0200
-+++ linux-2.6-galak/arch/powerpc/boot/dts/socrates.dts	2009-04-07 10:09:16.207719258 +0200
-@@ -79,11 +79,11 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <0>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl,mpc8544-i2c", "fsl-i2c";
- 			reg = <0x3000 0x100>;
- 			interrupts = <43 2>;
- 			interrupt-parent = <&mpic>;
--			dfsrr;
-+			fsl,preserve-clocking;
- 
- 			dtt@28 {
- 				compatible = "winbond,w83782d";
-@@ -111,11 +111,11 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			cell-index = <1>;
--			compatible = "fsl-i2c";
-+			compatible = "fsl,mpc8544-i2c", "fsl-i2c";
- 			reg = <0x3100 0x100>;
- 			interrupts = <43 2>;
- 			interrupt-parent = <&mpic>;
--			dfsrr;
-+			fsl,preserve-clocking;
- 		};
- 
- 		enet0: ethernet@24000 {
+The following changes since commit d508afb437daee7cf07da085b635c44a4ebf9b38:
+  Trond Myklebust (1):
+        NFS: Fix a double free in nfs_parse_mount_options()
+
+are available in the git repository at:
+
+  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-2630-v2
+
+Ben Dooks (1):
+      i2c-s3c2410: sda_delay should be in ns, not clock ticks
+
+Daniel Silverstone (1):
+      i2c-s3c2410: Simplify bus frequency calculation
+
+Darius Augulis (2):
+      i2c: iMX/MXC support
+      i2c: imx: Add missing request_mem_region in probe()
+
+Mark Brown (1):
+      i2c: i2c-s3c2410: Initialise Samsung I2C controller early
+
+Oskar Schirmer (1):
+      i2c: xtensa s6000 i2c driver
+
+Wolfgang Grandegger (4):
+      i2c: i2c-mpc: various coding style fixes
+      i2c: i2c-mpc: use dev based printout function
+      i2c: i2c-mpc: make I2C bus speed configurable
+      powerpc/85xx: i2c-mpc: use new I2C bindings for the Socates board
+
+Wolfram Sang (1):
+      i2c: imx: Make disable_delay a per-device variable
+
+ arch/arm/mach-s3c2410/mach-bast.c    |    3 +-
+ arch/arm/mach-s3c2410/mach-n30.c     |    3 +-
+ arch/arm/mach-s3c2412/mach-jive.c    |    3 +-
+ arch/arm/plat-mxc/include/mach/i2c.h |   25 ++
+ arch/arm/plat-s3c/dev-i2c0.c         |    7 +-
+ arch/arm/plat-s3c/dev-i2c1.c         |    7 +-
+ arch/arm/plat-s3c/include/plat/iic.h |   33 +-
+ arch/powerpc/boot/dts/socrates.dts   |    8 +-
+ drivers/i2c/busses/Kconfig           |   20 ++
+ drivers/i2c/busses/Makefile          |    2 +
+ drivers/i2c/busses/i2c-imx.c         |  624 ++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-mpc.c         |  322 +++++++++++++++---
+ drivers/i2c/busses/i2c-s3c2410.c     |   77 ++---
+ drivers/i2c/busses/i2c-s6000.c       |  407 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-s6000.h       |   79 +++++
+ include/linux/i2c/s6000.h            |   10 +
+ 16 files changed, 1504 insertions(+), 126 deletions(-)
+ create mode 100644 arch/arm/plat-mxc/include/mach/i2c.h
+ create mode 100644 drivers/i2c/busses/i2c-imx.c
+ create mode 100644 drivers/i2c/busses/i2c-s6000.c
+ create mode 100644 drivers/i2c/busses/i2c-s6000.h
+ create mode 100644 include/linux/i2c/s6000.h
