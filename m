@@ -1,47 +1,70 @@
-From: Enrik Berkhan <Enrik.Berkhan-JJi787mZWgc@public.gmane.org>
-Subject: [PATCH] Let PCA9564 recover from unacked data byte (state 0x30)
-Date: Tue, 7 Apr 2009 12:38:56 +0200
-Message-ID: <20090407103847.GA13586@ngeserver2.localdomain>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH]i2c-dev: add ioctls PROBE and REMOVE
+Date: Tue, 07 Apr 2009 14:17:46 +0200
+Message-ID: <49DB446A.2000705@gmx.de>
+References: <49CB43E0.2050503@gmx.de>	<49CCA82F.90106@gmx.de>	<20090327134034.754908b5@hyperion.delvare>	<49CCD0FC.9030500@gmx.de>	<20090327145726.13c99aed@hyperion.delvare>	<20090327150716.094666d1@hyperion.delvare>	<49D4B14B.50405@gmx.de> <20090407121550.7d15bfae@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20090407121550.7d15bfae-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ian Campbell <icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, the i2c-algo-pca driver does nothing if the chip enters state
-0x30 (Data byte in I2CDAT has been transmitted; NOT ACK has been
-received).  Thus, the i2c bus connected to the controller gets stuck
-afterwards.
+Hi Jean,
 
-I have seen this kind of error on a custom board in certain load
-situations most probably caused by interference or noise.
+although you are very busy, I hope you can spend a little more time.
 
-A possible reaction is to let the controller generate a STOP condition.
-This is documented in the controller data sheet and the same is done for
-other NACK states as well.
+Jean Delvare said the following:
+> Hi Michael,
+> 
+> Sorry for the late answer, I am pretty busy with the 2.6.30 merge
+> window.
+> 
+> ... The whole point of the sysfs entries you are adding is to let the
+> user instantiate I2C devices (at the device driver model level) for
+> physical devices which can _not_ be detected. 
 
-Signed-off-by: Enrik Berkhan <Enrik.Berkhan-JJi787mZWgc@public.gmane.org>
----
- drivers/i2c/algos/i2c-algo-pca.c |    2 ++
- 1 file changed, 2 insertions(+)
+I see, that's _your_ motivation. You want a user 'force' method.
 
-Index: drivers/i2c/algos/i2c-algo-pca.c
-===================================================================
---- drivers/i2c/algos/i2c-algo-pca.c.orig	2009-04-07 11:23:08.000000000 +0200
-+++ drivers/i2c/algos/i2c-algo-pca.c	2009-04-07 11:24:56.000000000 +0200
-@@ -270,10 +270,12 @@ static int pca_xfer(struct i2c_adapter *
- 
- 		case 0x30: /* Data byte in I2CDAT has been transmitted; NOT ACK has been received */
- 			DEB2("NOT ACK received after data byte\n");
-+			pca_stop(adap);
- 			goto out;
- 
- 		case 0x38: /* Arbitration lost during SLA+W, SLA+R or data bytes */
- 			DEB2("Arbitration lost\n");
-+			// XXX pca_start()? pca_reset()?
- 			goto out;
- 
- 		case 0x58: /* Data byte has been received; NOT ACK has been returned */
+...
+> I hear you, "what about hot-plugged devices, they won't be detected"?
+> For one thing, these need to be behind a mux or gate, which we don't
+> support at the moment, so discussing this now doesn't make much sense.
+
+No, sorry, here your are mistaken.
+IMHO you recognize only a part of the problem: Even if separation is
+done by a mux (what is not strictly necessary), it will be powered by
+main system and its driver (i.e. adapters) loaded on boot. Still clients
+may come up when system is already initialized and auto detection on the
+sub buses has already completed.
+
+> But at any rate I don't think that the files you are adding in sysfs
+> are meant to address this particular issue.
+
+Sorry, then you misunderstood me - it *is* this particular issue I need
+to solve.
+Please forget the thread about lm75a (vs. lm75), this was just a stone
+on my way to a new running kernel. It took it, made a remark and threw
+it aside. Nothing more. It is not related to the detect problem.
+
+> If we want to be able to
+> re-trigger detection on a given I2C segment (which currently only
+> happens at I2C adapter creation time and when a new driver is
+> registered) this would be done by a separate sysfs entry (say "detect",
+> write 1 to re-trigger all detections on a given segment).
+
+This solution will cause much useless traffic while the system is
+already running and doing other hard work :-(
+
+> But really
+> I'd rather wait for Rodoflo's work to be merged first, depending on the
+> implementation there may or may not be a practical need for this.
+
+AFAICS has Rodolfo's work nothing to do with the problem above, as on
+adapter creation an auto detection will (should) be triggered.
+
+-- 
+Michael Lawnick
