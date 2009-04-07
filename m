@@ -1,40 +1,40 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c cleanups for 2.6.30
-Date: Mon, 6 Apr 2009 18:15:08 +0200
-Message-ID: <20090406181508.4a372d74@hyperion.delvare>
+From: Wolfgang Grandegger <wg@grandegger.com>
+Subject: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
+Date: Tue, 07 Apr 2009 10:20:52 +0200
+Message-ID: <20090407082052.477328750@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: linux-i2c@vger.kernel.org
+Cc: linuxppc-dev@ozlabs.org, devicetree-discuss@ozlabs.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+This patch series makes the I2C bus speed configurable by using the
+I2C node property "clock-frequency". If the property is not defined,
+the old fixed clock settings will be used for backward compatibility.
+The property "fsl,preserve-clocking" allows to inherit the settings
+from the bootloader. Furthermore, it does some cleanup and uses the
+new bindings for the Socrates board:
 
-Please pull the i2c subsystem cleanups for Linux 2.6.30 from:
+  i2c: i2c-mpc: various coding style fixes
+  i2c: i2c-mpc: use dev based printout function
+  i2c: i2c-mpc: make I2C bus speed configurable
+  powerpc: i2c-mpc: document new FSL I2C bindings and cleanup
+  powerpc/85xx: i2c-mpc: use new I2C bindings for the Socates board
 
-git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
+Ben, could you please consider this patch series for inclusion into
+2.6.30.
 
- Documentation/feature-removal-schedule.txt |    3 +-
- drivers/i2c/algos/Kconfig                  |    4 -
- drivers/i2c/algos/Makefile                 |    1 -
- drivers/i2c/algos/i2c-algo-sgi.c           |  179 ----------------------------
- include/linux/i2c-algo-sgi.h               |   26 ----
- include/linux/i2c-id.h                     |   37 ------
- include/linux/i2c.h                        |    4 +-
- 7 files changed, 4 insertions(+), 250 deletions(-)
- delete mode 100644 drivers/i2c/algos/i2c-algo-sgi.c
- delete mode 100644 include/linux/i2c-algo-sgi.h
+TIA,
 
----------------
-
-Jean Delvare (3):
-      i2c: Deprecate client_register and client_unregister methods
-      i2c: Delete many unused driver IDs
-      i2c: Delete unused i2c-algo-sgi helper module
-
-Thanks,
--- 
-Jean Delvare
+Wolfgang.
