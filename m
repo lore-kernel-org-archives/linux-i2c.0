@@ -1,130 +1,458 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH]i2c-dev: add ioctls PROBE and REMOVE
-Date: Tue, 7 Apr 2009 15:11:26 +0200
-Message-ID: <20090407151126.276fec81@hyperion.delvare>
-References: <49CB43E0.2050503@gmx.de>
-	<49CCA82F.90106@gmx.de>
-	<20090327134034.754908b5@hyperion.delvare>
-	<49CCD0FC.9030500@gmx.de>
-	<20090327145726.13c99aed@hyperion.delvare>
-	<20090327150716.094666d1@hyperion.delvare>
-	<49D4B14B.50405@gmx.de>
-	<20090407121550.7d15bfae@hyperion.delvare>
-	<49DB446A.2000705@gmx.de>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH v3 3/5] i2c: i2c-mpc: make I2C bus speed configurable
+Date: Tue, 7 Apr 2009 08:36:05 -0700
+Message-ID: <fa686aa40904070836g9e803c8o83b6799ed289c8d5@mail.gmail.com>
+References: <20090407082052.477328750@denx.de> <20090407082231.500525932@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49DB446A.2000705-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <20090407082231.500525932-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
+On Tue, Apr 7, 2009 at 1:20 AM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>=
+ wrote:
+> This patch makes the I2C bus speed configurable by using the I2C node
+> property "clock-frequency". If the property is not defined, the old
+> fixed clock settings will be used for backward comptibility.
+>
+> The generic I2C clock properties, especially the CPU-specific source
+> clock pre-scaler are defined via the OF match table:
+>
+> =A0static const struct of_device_id mpc_i2c_of_match[] =3D {
+> =A0 =A0 =A0 =A0...
+> =A0 =A0 =A0 =A0{.compatible =3D "fsl,mpc8543-i2c",
+> =A0 =A0 =A0 =A0 .data =3D &(struct fsl_i2c_match_data) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.setclock =3D mpc_i2c_=
+setclock_8xxx,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.prescaler =3D 2,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0},
+> =A0 =A0 =A0 =A0},
+>
+> The "data" field defines the relevant I2C setclock function and the
+> relevant pre-scaler for the I2C source clock frequency.
+>
+> It uses arch-specific tables and functions to determine resonable
+> Freqency Divider Register (fdr) values for MPC83xx, MPC85xx, MPC86xx,
+> MPC5200 and MPC5200B.
+>
+> The i2c->flags field and the corresponding FSL_I2C_DEV_* definitions
+> have been removed as they are obsolete.
+>
+> Signed-off-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 
-On Tue, 07 Apr 2009 14:17:46 +0200, Michael Lawnick wrote:
-> Hi Jean,
-> 
-> although you are very busy, I hope you can spend a little more time.
-> 
-> Jean Delvare said the following:
-> > Hi Michael,
-> > 
-> > Sorry for the late answer, I am pretty busy with the 2.6.30 merge
-> > window.
-> > 
-> > ... The whole point of the sysfs entries you are adding is to let the
-> > user instantiate I2C devices (at the device driver model level) for
-> > physical devices which can _not_ be detected. 
-> 
-> I see, that's _your_ motivation.
+I haven't tested it, but it looks good and I trust Wolfgang.
 
-Yes it is. Admittedly, the feature you are asking for is not one I
-think a lot of people will be interested in, it seems pretty borderline
-as far as the I2C standard is concerned, therefore I am trying to see
-what other widely needed feature could be implemented, which would
-incidentally cover your uncommon need.
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-> You want a user 'force' method.
+> ---
+> =A0drivers/i2c/busses/i2c-mpc.c | =A0262 ++++++++++++++++++++++++++++=
++++++++++++----
+> =A01 file changed, 242 insertions(+), 20 deletions(-)
+>
+> Index: linux-2.6-galak/drivers/i2c/busses/i2c-mpc.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linux-2.6-galak.orig/drivers/i2c/busses/i2c-mpc.c =A0 2009-04-07 =
+10:09:14.012720756 +0200
+> +++ linux-2.6-galak/drivers/i2c/busses/i2c-mpc.c =A0 =A0 =A0 =A02009-=
+04-07 10:09:14.581719146 +0200
+> @@ -26,6 +26,9 @@
+> =A0#include <linux/interrupt.h>
+> =A0#include <linux/delay.h>
+>
+> +#include <asm/mpc52xx.h>
+> +#include <sysdev/fsl_soc.h>
+> +
+> =A0#define DRV_NAME "mpc-i2c"
+>
+> =A0#define MPC_I2C_FDR =A0 0x04
+> @@ -56,7 +59,18 @@
+> =A0 =A0 =A0 =A0wait_queue_head_t queue;
+> =A0 =A0 =A0 =A0struct i2c_adapter adap;
+> =A0 =A0 =A0 =A0int irq;
+> - =A0 =A0 =A0 u32 flags;
+> +};
+> +
+> +struct mpc_i2c_divider {
+> + =A0 =A0 =A0 u16 divider;
+> + =A0 =A0 =A0 u16 fdr; =A0 =A0 =A0 =A0/* including dfsrr */
+> +};
+> +
+> +struct mpc_i2c_match_data {
+> + =A0 =A0 =A0 void (*setclock)(struct device_node *node,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct mpc_i2c *i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0u32 clock, u32 presc=
+aler);
+> + =A0 =A0 =A0 u32 prescaler;
+> =A0};
+>
+> =A0static inline void writeccr(struct mpc_i2c *i2c, u32 x)
+> @@ -150,17 +164,180 @@
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+>
+> -static void mpc_i2c_setclock(struct mpc_i2c *i2c)
+> +#ifdef CONFIG_PPC_52xx
+> +static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] =3D {
+> + =A0 =A0 =A0 {20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
+> + =A0 =A0 =A0 {28, 0x24}, {30, 0x01}, {32, 0x25}, {34, 0x02},
+> + =A0 =A0 =A0 {36, 0x26}, {40, 0x27}, {44, 0x04}, {48, 0x28},
+> + =A0 =A0 =A0 {52, 0x63}, {56, 0x29}, {60, 0x41}, {64, 0x2a},
+> + =A0 =A0 =A0 {68, 0x07}, {72, 0x2b}, {80, 0x2c}, {88, 0x09},
+> + =A0 =A0 =A0 {96, 0x2d}, {104, 0x0a}, {112, 0x2e}, {120, 0x81},
+> + =A0 =A0 =A0 {128, 0x2f}, {136, 0x47}, {144, 0x0c}, {160, 0x30},
+> + =A0 =A0 =A0 {176, 0x49}, {192, 0x31}, {208, 0x4a}, {224, 0x32},
+> + =A0 =A0 =A0 {240, 0x0f}, {256, 0x33}, {272, 0x87}, {288, 0x10},
+> + =A0 =A0 =A0 {320, 0x34}, {352, 0x89}, {384, 0x35}, {416, 0x8a},
+> + =A0 =A0 =A0 {448, 0x36}, {480, 0x13}, {512, 0x37}, {576, 0x14},
+> + =A0 =A0 =A0 {640, 0x38}, {768, 0x39}, {896, 0x3a}, {960, 0x17},
+> + =A0 =A0 =A0 {1024, 0x3b}, {1152, 0x18}, {1280, 0x3c}, {1536, 0x3d},
+> + =A0 =A0 =A0 {1792, 0x3e}, {1920, 0x1b}, {2048, 0x3f}, {2304, 0x1c},
+> + =A0 =A0 =A0 {2560, 0x1d}, {3072, 0x1e}, {3584, 0x7e}, {3840, 0x1f},
+> + =A0 =A0 =A0 {4096, 0x7f}, {4608, 0x5c}, {5120, 0x5d}, {6144, 0x5e},
+> + =A0 =A0 =A0 {7168, 0xbe}, {7680, 0x5f}, {8192, 0xbf}, {9216, 0x9c},
+> + =A0 =A0 =A0 {10240, 0x9d}, {12288, 0x9e}, {15360, 0x9f}
+> +};
+> +
+> +int mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock, int pr=
+escaler)
+> +{
+> + =A0 =A0 =A0 const struct mpc52xx_i2c_divider *div =3D NULL;
+> + =A0 =A0 =A0 unsigned int pvr =3D mfspr(SPRN_PVR);
+> + =A0 =A0 =A0 u32 divider;
+> + =A0 =A0 =A0 int i;
+> +
+> + =A0 =A0 =A0 if (!clock)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> +
+> + =A0 =A0 =A0 /* Determine divider value */
+> + =A0 =A0 =A0 divider =3D mpc52xx_find_ipb_freq(node) / clock;
+> +
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* We want to choose an FDR/DFSR that generates an I2=
+C bus speed that
+> + =A0 =A0 =A0 =A0* is equal to or lower than the requested speed.
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 for (i =3D 0; i < ARRAY_SIZE(mpc52xx_i2c_dividers); i++=
+) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 div =3D &mpc_i2c_dividers_52xx[i];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Old MPC5200 rev A CPUs do not suppor=
+t the high bits */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (div->fdr & 0xc0 && pvr =3D=3D 0x808=
+22011)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (div->divider >=3D divider)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 return div ? (int)div->fdr : -EINVAL;
+> +}
+> +
+> +static void mpc_i2c_setclock_52xx(struct device_node *node,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 str=
+uct mpc_i2c *i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32=
+ clock, u32 prescaler)
+> +{
+> + =A0 =A0 =A0 int fdr =3D mpc52xx_i2c_get_fdr(node, clock, prescaler)=
+;
+> +
+> + =A0 =A0 =A0 if (fdr < 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 fdr =3D 0x3f; /* backward compatibility=
+ */
+> + =A0 =A0 =A0 writeb(fdr & 0xff, i2c->base + MPC_I2C_FDR);
+> + =A0 =A0 =A0 dev_info(i2c->dev, "clock %d Hz (fdr=3D%d)\n", clock, f=
+dr);
+> +}
+> +#else /* !CONFIG_PPC_52xx */
+> +static void mpc_i2c_setclock_52xx(struct device_node *node,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 str=
+uct mpc_i2c *i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32=
+ clock, u32 prescaler)
+> +{
+> +}
+> +#endif /* CONFIG_PPC_52xx*/
+> +
+> +#ifdef CONFIG_FSL_SOC
+> +static const struct mpc_i2c_divider mpc_i2c_dividers_8xxx[] =3D {
+> + =A0 =A0 =A0 {160, 0x0120}, {192, 0x0121}, {224, 0x0122}, {256, 0x01=
+23},
+> + =A0 =A0 =A0 {288, 0x0100}, {320, 0x0101}, {352, 0x0601}, {384, 0x01=
+02},
+> + =A0 =A0 =A0 {416, 0x0602}, {448, 0x0126}, {480, 0x0103}, {512, 0x01=
+27},
+> + =A0 =A0 =A0 {544, 0x0b03}, {576, 0x0104}, {608, 0x1603}, {640, 0x01=
+05},
+> + =A0 =A0 =A0 {672, 0x2003}, {704, 0x0b05}, {736, 0x2b03}, {768, 0x01=
+06},
+> + =A0 =A0 =A0 {800, 0x3603}, {832, 0x0b06}, {896, 0x012a}, {960, 0x01=
+07},
+> + =A0 =A0 =A0 {1024, 0x012b}, {1088, 0x1607}, {1152, 0x0108}, {1216, =
+0x2b07},
+> + =A0 =A0 =A0 {1280, 0x0109}, {1408, 0x1609}, {1536, 0x010a}, {1664, =
+0x160a},
+> + =A0 =A0 =A0 {1792, 0x012e}, {1920, 0x010b}, {2048, 0x012f}, {2176, =
+0x2b0b},
+> + =A0 =A0 =A0 {2304, 0x010c}, {2560, 0x010d}, {2816, 0x2b0d}, {3072, =
+0x010e},
+> + =A0 =A0 =A0 {3328, 0x2b0e}, {3584, 0x0132}, {3840, 0x010f}, {4096, =
+0x0133},
+> + =A0 =A0 =A0 {4608, 0x0110}, {5120, 0x0111}, {6144, 0x0112}, {7168, =
+0x0136},
+> + =A0 =A0 =A0 {7680, 0x0113}, {8192, 0x0137}, {9216, 0x0114}, {10240,=
+ 0x0115},
+> + =A0 =A0 =A0 {12288, 0x0116}, {14336, 0x013a}, {15360, 0x0117}, {163=
+84, 0x013b},
+> + =A0 =A0 =A0 {18432, 0x0118}, {20480, 0x0119}, {24576, 0x011a}, {286=
+72, 0x013e},
+> + =A0 =A0 =A0 {30720, 0x011b}, {32768, 0x013f}, {36864, 0x011c}, {409=
+60, 0x011d},
+> + =A0 =A0 =A0 {49152, 0x011e}, {61440, 0x011f}
+> +};
+> +
+> +u32 mpc_i2c_get_sec_cfg_8xxx(void)
+> +{
+> + =A0 =A0 =A0 struct device_node *node =3D NULL;
+> + =A0 =A0 =A0 u32 __iomem *reg;
+> + =A0 =A0 =A0 u32 val =3D 0;
+> +
+> + =A0 =A0 =A0 node =3D of_find_node_by_name(NULL, "global-utilities")=
+;
+> + =A0 =A0 =A0 if (node) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 const u32 *prop =3D of_get_property(nod=
+e, "reg", NULL);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (prop) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* Map and check POR =
+Device Status Register 2
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* (PORDEVSR2) at 0xE=
+0014
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 reg =3D ioremap(get_imm=
+rbase() + *prop + 0x14, 0x4);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!reg)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(=
+KERN_ERR
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0"Error: couldn't map PORDEVSR2\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 val =3D=
+ in_be32(reg) & 0x00000080; /* sec-cfg */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 iounmap(reg);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+> + =A0 =A0 =A0 if (node)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_node_put(node);
+> +
+> + =A0 =A0 =A0 return val;
+> +}
+> +
+> +int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock, u32 pr=
+escaler)
+> +{
+> + =A0 =A0 =A0 const struct mpc_i2c_divider *div =3D NULL;
+> + =A0 =A0 =A0 u32 divider;
+> + =A0 =A0 =A0 int i;
+> +
+> + =A0 =A0 =A0 if (!clock)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> +
+> + =A0 =A0 =A0 /* Determine proper divider value */
+> + =A0 =A0 =A0 if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 prescaler =3D mpc_i2c_get_sec_cfg_8xxx(=
+) ? 3 : 2;
+> + =A0 =A0 =A0 if (!prescaler)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 prescaler =3D 1;
+> +
+> + =A0 =A0 =A0 divider =3D fsl_get_sys_freq() / clock / prescaler;
+> +
+> + =A0 =A0 =A0 pr_debug("I2C: src_clock=3D%d clock=3D%d divider=3D%d\n=
+",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0fsl_get_sys_freq(), clock, divider);
+> +
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* We want to choose an FDR/DFSR that generates an I2=
+C bus speed that
+> + =A0 =A0 =A0 =A0* is equal to or lower than the requested speed.
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 for (i =3D 0; i < ARRAY_SIZE(mpc_i2c_dividers_8xxx); i+=
++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 div =3D &mpc_i2c_dividers_8xxx[i];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (div->divider >=3D divider)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 return div ? (int)div->fdr : -EINVAL;
+> +}
+> +
+> +static void mpc_i2c_setclock_8xxx(struct device_node *node,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 str=
+uct mpc_i2c *i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32=
+ clock, u32 prescaler)
+> +{
+> + =A0 =A0 =A0 int fdr =3D mpc_i2c_get_fdr_8xxx(node, clock, prescaler=
+);
+> +
+> + =A0 =A0 =A0 if (fdr < 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 fdr =3D 0x1031; /* backward compatibili=
+ty */
+> + =A0 =A0 =A0 writeb(fdr & 0xff, i2c->base + MPC_I2C_FDR);
+> + =A0 =A0 =A0 writeb((fdr >> 8) & 0xff, i2c->base + MPC_I2C_DFSRR);
+> + =A0 =A0 =A0 dev_info(i2c->dev, "clock %d Hz (dfsrr=3D%d fdr=3D%d)\n=
+",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0clock, fdr >> 8, fdr & 0xff);
+> +}
+> +
+> +#else /* !CONFIG_FSL_SOC */
+> +static void mpc_i2c_setclock_8xxx(struct device_node *node,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 str=
+uct mpc_i2c *i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32=
+ clock, u32 prescaler)
+> =A0{
+> - =A0 =A0 =A0 /* Set clock and filters */
+> - =A0 =A0 =A0 if (i2c->flags & FSL_I2C_DEV_SEPARATE_DFSRR) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x31, i2c->base + MPC_I2C_FDR);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x10, i2c->base + MPC_I2C_DFSRR)=
+;
+> - =A0 =A0 =A0 } else if (i2c->flags & FSL_I2C_DEV_CLOCK_5200)
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(0x3f, i2c->base + MPC_I2C_FDR);
+> - =A0 =A0 =A0 else
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 writel(0x1031, i2c->base + MPC_I2C_FDR)=
+;
+> =A0}
+> +#endif /* CONFIG_FSL_SOC */
+>
+> =A0static void mpc_i2c_start(struct mpc_i2c *i2c)
+> =A0{
+> @@ -315,8 +492,11 @@
+> =A0static int __devinit fsl_i2c_probe(struct of_device *op,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 c=
+onst struct of_device_id *match)
+> =A0{
+> - =A0 =A0 =A0 int result =3D 0;
+> =A0 =A0 =A0 =A0struct mpc_i2c *i2c;
+> + =A0 =A0 =A0 const u32 *prop;
+> + =A0 =A0 =A0 u32 clock =3D 0;
+> + =A0 =A0 =A0 int result =3D 0;
+> + =A0 =A0 =A0 int plen;
+>
+> =A0 =A0 =A0 =A0i2c =3D kzalloc(sizeof(*i2c), GFP_KERNEL);
+> =A0 =A0 =A0 =A0if (!i2c)
+> @@ -324,13 +504,6 @@
+>
+> =A0 =A0 =A0 =A0i2c->dev =3D &op->dev; /* for debug and error output *=
+/
+>
+> - =A0 =A0 =A0 if (of_get_property(op->node, "dfsrr", NULL))
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c->flags |=3D FSL_I2C_DEV_SEPARATE_DF=
+SRR;
+> -
+> - =A0 =A0 =A0 if (of_device_is_compatible(op->node, "fsl,mpc5200-i2c"=
+) ||
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_device_is_compatible=
+(op->node, "mpc5200-i2c"))
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c->flags |=3D FSL_I2C_DEV_CLOCK_5200;
+> -
+> =A0 =A0 =A0 =A0init_waitqueue_head(&i2c->queue);
+>
+> =A0 =A0 =A0 =A0i2c->base =3D of_iomap(op->node, 0);
+> @@ -350,7 +523,22 @@
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 mpc_i2c_setclock(i2c);
+> + =A0 =A0 =A0 if (!of_get_property(op->node, "fsl,preserve-clocking",=
+ NULL)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 prop =3D of_get_property(op->node, "clo=
+ck-frequency", &plen);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (prop && plen =3D=3D sizeof(u32))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clock =3D *prop;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (match->data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct mpc_i2c_match_da=
+ta *data =3D
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (struct=
+ mpc_i2c_match_data *)match->data;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 data->setclock(op->node=
+, i2c, clock, data->prescaler);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Backwards compatibil=
+ity */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (of_get_property(op-=
+>node, "dfsrr", NULL))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 mpc_i2c=
+_setclock_8xxx(op->node, i2c,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clock, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+>
+> =A0 =A0 =A0 =A0dev_set_drvdata(&op->dev, i2c);
+>
+> @@ -395,9 +583,43 @@
+> =A0};
+>
+> =A0static const struct of_device_id mpc_i2c_of_match[] =3D {
+> - =A0 =A0 =A0 {.compatible =3D "fsl-i2c",},
+> + =A0 =A0 =A0 {.compatible =3D "mpc5200-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_52xx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl,mpc5200b-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_52xx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl,mpc5200-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_52xx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl,mpc8313-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_8xxx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl,mpc8543-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_8xxx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .prescaler =3D 2,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl,mpc8544-i2c",
+> + =A0 =A0 =A0 =A0.data =3D &(struct mpc_i2c_match_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .setclock =3D mpc_i2c_s=
+etclock_8xxx,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 .prescaler =3D 3,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 },
+> + =A0 =A0 =A0 /* Backward compatibility */
+> + =A0 =A0 =A0 },
+> + =A0 =A0 =A0 {.compatible =3D "fsl-i2c", },
+> =A0 =A0 =A0 =A0{},
+> =A0};
+> +
+> =A0MODULE_DEVICE_TABLE(of, mpc_i2c_of_match);
+>
+>
+>
+>
 
-[Nitpicking mode] Instantiate, not force. You're really only creating
-a device, and then letting any interested driver bind to it if it feels
-like it. Just like platform data can do on embedded platforms, except
-that it comes from user-space.
 
-But yes, there is no verification (or detection) step involved. The i2c
-subsystem takes your word, assumes you know what you're doing, and
-simply does what you asked for.
 
-> > I hear you, "what about hot-plugged devices, they won't be detected"?
-> > For one thing, these need to be behind a mux or gate, which we don't
-> > support at the moment, so discussing this now doesn't make much sense.
-> 
-> No, sorry, here your are mistaken.
-> IMHO you recognize only a part of the problem: Even if separation is
-> done by a mux (what is not strictly necessary),
-
-It is necessary. "Simple" hot-plug is a violation of the I2C standard.
-You need a way to guarantee that no I2C traffic will be on-going when
-the new device is connected, and for this you need at least an I2C gate
-to isolate the bus segment in question from all masters on the bus.
-
->                                                 it will be powered by
-> main system and its driver (i.e. adapters) loaded on boot. Still clients
-> may come up when system is already initialized and auto detection on the
-> sub buses has already completed.
-
-This is where I am unclear. It might make sense to remove (in the
-device driver model sense of the term) i2c segments which are being
-modified, and restore them afterwards. That is, I2C segments hanging
-off a mux would have 3 possible states, active, inactive and disabled.
-The change from disabled to active or inactive would trigger device
-detection, just as the mere addition of an i2c adapter currently does.
-
-I don't think this is what Rodoflo did, but this would address your
-problem as far as I can see.
-
-> > But at any rate I don't think that the files you are adding in sysfs
-> > are meant to address this particular issue.
-> 
-> Sorry, then you misunderstood me - it *is* this particular issue I need
-> to solve.
-> Please forget the thread about lm75a (vs. lm75), this was just a stone
-> on my way to a new running kernel. It took it, made a remark and threw
-> it aside. Nothing more. It is not related to the detect problem.
-> 
-> > If we want to be able to
-> > re-trigger detection on a given I2C segment (which currently only
-> > happens at I2C adapter creation time and when a new driver is
-> > registered) this would be done by a separate sysfs entry (say "detect",
-> > write 1 to re-trigger all detections on a given segment).
-> 
-> This solution will cause much useless traffic while the system is
-> already running and doing other hard work :-(
-
-Much useless traffic? It will cause way less traffic than when adding a
-new i2c adapter (or bus segment) in the first place. All devices which
-are already bound will be excluded from this detection round. This
-should be most of them as I understand it. Most probably, only the
-newly added device will receive I2C traffic.
-
-Sure, we could extend the syntax so that you can ask for just one
-address on one bus segment to be probed (maybe even by just one
-driver). But what's the point? If you already know all this, then the
-add_device sysfs interface is doing the job. And remember that the
-device you just connected might not even be reliably detectable at all!
-
-> > But really
-> > I'd rather wait for Rodoflo's work to be merged first, depending on the
-> > implementation there may or may not be a practical need for this.
-> 
-> AFAICS has Rodolfo's work nothing to do with the problem above, as on
-> adapter creation an auto detection will (should) be triggered.
-
-See my point above... The detection could happen at creation time _or_
-at activation time. In the latter case Rodoflo's work becomes totally
-relevant.
-
--- 
-Jean Delvare
+--=20
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
