@@ -1,62 +1,58 @@
-From: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
-Subject: PCA953x: Support GPIOLIB GPIO naming
-Date: Wed, 08 Apr 2009 15:48:12 +0100
-Message-ID: <1239202092.21238.20.camel@petitemort>
-Reply-To: dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v3 5/5] powerpc/85xx: i2c-mpc: use new I2C bindings for
+	the Socates board
+Date: Wed, 8 Apr 2009 07:53:22 -0700
+Message-ID: <fa686aa40904080753p2b282338r9ba463c47f897fb@mail.gmail.com>
+References: <20090407082052.477328750@denx.de>
+	<20090407082231.803193635@denx.de>
+	<fa686aa40904070843q248f3ae1l9c8ca0d5a65c8cc3@mail.gmail.com>
+	<49DC4F4D.10803@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Gardner <bgardner-ohtLXRgXiI/QT0dZR+AlfA@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <49DC4F4D.10803@grandegger.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: Wolfgang Grandegger <wg@grandegger.com>
+Cc: linuxppc-dev@ozlabs.org, devicetree-discuss@ozlabs.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds support to the PCA953x driver to use the GPIOLIB
-naming facility for GPIOs.
+On Wed, Apr 8, 2009 at 12:16 AM, Wolfgang Grandegger <wg@grandegger.com> wr=
+ote:
+> Grant Likely wrote:
+>> On Tue, Apr 7, 2009 at 1:20 AM, Wolfgang Grandegger <wg@grandegger.com> =
+wrote:
+>>> Preserve I2C clock settings for the Socrates MPC8544 board.
+>>
+>> I had thought that the preserve-clocking property was intended for
+>> older boards that don't currently have any method of getting the clock
+>> setting out of u-boot. =A0Since Socrates is a new board, U-Boot should
+>> probably be made to fill in the real clock rate setting.
+>
+> I'm not sure if I understand what you mean. If an old version of U-Boot
+> on an old board sets the I2C clock, it can be used (inherited) by Linux
+> using the property "preserve-clocking".
+>
+> It is actually the customers choice to set the I2C clock in U-Boot and
+> re-use it by Linux.
 
-Signed-off-by: Daniel Silverstone <dsilvers-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+Setting it in the register !=3D recording the value in the device tree.
+I'm saying that since Socrates is a new board it should not use the
+preserve-clocking dirty trick (and it is a dirty trick) because the
+correct clocking data can be passed via the device tree.
 
-Index: linux-2.6.27/drivers/gpio/pca953x.c
-===================================================================
---- linux-2.6.27.orig/drivers/gpio/pca953x.c	2008-12-11 13:09:44.287305039 +0000
-+++ linux-2.6.27/drivers/gpio/pca953x.c	2008-12-11 13:53:54.283301612 +0000
-@@ -45,6 +45,7 @@
- 
- 	struct i2c_client *client;
- 	struct gpio_chip gpio_chip;
-+	char **names;
- };
- 
- /* NOTE:  we can't currently rely on fault codes to come from SMBus
-@@ -190,6 +191,7 @@
- 	gc->label = chip->client->name;
- 	gc->dev = &chip->client->dev;
- 	gc->owner = THIS_MODULE;
-+	gc->names = chip->names;
- }
- 
- static int __devinit pca953x_probe(struct i2c_client *client,
-@@ -211,6 +213,8 @@
- 
- 	chip->gpio_start = pdata->gpio_base;
- 
-+	chip->names = pdata->names;
-+
- 	/* initialize cached registers from their original values.
- 	 * we can't share this chip with another i2c master.
- 	 */
-Index: linux-2.6.27/include/linux/i2c/pca953x.h
-===================================================================
---- linux-2.6.27.orig/include/linux/i2c/pca953x.h	2008-12-11 13:09:55.307306141 +0000
-+++ linux-2.6.27/include/linux/i2c/pca953x.h	2008-12-11 13:55:53.139301080 +0000
-@@ -15,4 +15,5 @@
- 	int		(*teardown)(struct i2c_client *client,
- 				unsigned gpio, unsigned ngpio,
- 				void *context);
-+	char		**names;
- };
+g.
 
--- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+
+-- =
+
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
