@@ -1,33 +1,49 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
-Date: Wed, 8 Apr 2009 10:21:12 -0500
-Message-ID: <E9E24C93-F147-49F0-9FBE-FCE4883D11BF@kernel.crashing.org>
-References: <20090407082052.477328750@denx.de> <53B42D49-C040-442E-8448-7BC3190220A5@kernel.crashing.org> <F4E3E1FF-C544-460A-AC27-DB9501C13ED3@kernel.crashing.org> <49DC515F.3040100@grandegger.com>
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
+From: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+Subject: [PATCH] Fix sparse warnings for I2C_BOARD_INFO()
+Date: Wed, 08 Apr 2009 17:57:33 +0100
+Message-ID: <1239209853.3202.15.camel@achroite>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49DC515F.3040100-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Cc: Linux/PPC Development <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, devicetree-discuss <devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+=EF=BB=BFSince the first argument to I2C_BOARD_INFO() must be a string =
+constant,
+there is no need to parenthesise it, and adding parentheses results in
+an invalid initialiser for char[].  gcc obviously accepts this syntax a=
+s
+an extension, but sparse complains, e.g.:
 
-On Apr 8, 2009, at 2:25 AM, Wolfgang Grandegger wrote:
+drivers/net/sfc/boards.c:173:2: warning: array initialized from parenth=
+esized string constant
 
->> So I'm a bit concerned with the output we now get:
->>
->> mpc-i2c fffe03000.i2c: clock 0 Hz (dfsrr=16 fdr=49)
->>
->> why 0? is that right?
->
-> This is the backward compatibility mode using hard-coded FDR values.  
-> The
-> output is missleading, I agree.
->
-> Wolfgang.
+Therefore, remove the parentheses.
 
-Can the output be fixed.  0 Hz seemed bad to me.
+Signed-off-by: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+---
+ i2c.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+---
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index c86c3b0..f352a0a 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -274,7 +274,7 @@ struct i2c_board_info {
+  * are provided using conventional syntax.
+  */
+ #define I2C_BOARD_INFO(dev_type, dev_addr) \
+-	.type =3D (dev_type), .addr =3D (dev_addr)
++	.type =3D dev_type, .addr =3D (dev_addr)
+=20
+=20
+ /* Add-on boards should register/unregister their devices; e.g. a boar=
+d
 
-- k
+--=20
+Ben Hutchings, Senior Software Engineer, Solarflare Communications
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
