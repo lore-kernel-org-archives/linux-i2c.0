@@ -1,46 +1,56 @@
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
-Date: Wed, 8 Apr 2009 12:49:31 -0500
-Message-ID: <893E128E-46D6-4E8A-9F0C-5EF67F3818D8@kernel.crashing.org>
-References: <20090407082052.477328750@denx.de>
-	<53B42D49-C040-442E-8448-7BC3190220A5@kernel.crashing.org>
-	<fa686aa40904072216m64b4fd83q9b52c89ae40cae11@mail.gmail.com>
-	<5FDB097C-7D71-41DF-A4F4-2DE34FD710C5@kernel.crashing.org>
-	<20090408170348.GA27578@ld0162-tx32.am.freescale.net>
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"; DelSp="yes"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
-In-Reply-To: <20090408170348.GA27578@ld0162-tx32.am.freescale.net>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-To: Scott Wood <scottwood@freescale.com>
-Cc: linuxppc-dev@ozlabs.org, devicetree-discuss@ozlabs.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] Fix sparse warnings for I2C_BOARD_INFO()
+Date: Wed, 8 Apr 2009 20:12:12 +0200
+Message-ID: <20090408201212.084db80a@hyperion.delvare>
+References: <1239209853.3202.15.camel@achroite>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1239209853.3202.15.camel@achroite>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
 
-On Apr 8, 2009, at 12:03 PM, Scott Wood wrote:
+On Wed, 08 Apr 2009 17:57:33 +0100, Ben Hutchings wrote:
+> =EF=BB=BFSince the first argument to I2C_BOARD_INFO() must be a strin=
+g constant,
+> there is no need to parenthesise it, and adding parentheses results i=
+n
+> an invalid initialiser for char[].  gcc obviously accepts this syntax=
+ as
+> an extension, but sparse complains, e.g.:
+>=20
+> drivers/net/sfc/boards.c:173:2: warning: array initialized from paren=
+thesized string constant
+>=20
+> Therefore, remove the parentheses.
+>=20
+> Signed-off-by: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>
+> ---
+>  i2c.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> ---
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index c86c3b0..f352a0a 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -274,7 +274,7 @@ struct i2c_board_info {
+>   * are provided using conventional syntax.
+>   */
+>  #define I2C_BOARD_INFO(dev_type, dev_addr) \
+> -	.type =3D (dev_type), .addr =3D (dev_addr)
+> +	.type =3D dev_type, .addr =3D (dev_addr)
+> =20
+> =20
+>  /* Add-on boards should register/unregister their devices; e.g. a bo=
+ard
+>=20
 
-> On Wed, Apr 08, 2009 at 12:22:29AM -0500, Kumar Gala wrote:
->>> hrummm.  As I mentioned in my reply, I'm not convinced that the  
->>> board
->>> one is the right thing in this case.  I would have preferred it to  
->>> be
->>> deferred.
->>
->> which part?  I missed this whole thread as I had it forwarding to my
->> devicetree-discuss folder which I don't normally look at.
->
-> Can you reorder your filters to check for more frequently read lists
-> first?
+Good catch! Applied, thanks.
 
-Yeah I did.
-
-- k
+--=20
+Jean Delvare
