@@ -1,58 +1,33 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH v3 5/5] powerpc/85xx: i2c-mpc: use new I2C bindings for
-	the Socates board
-Date: Wed, 8 Apr 2009 07:53:22 -0700
-Message-ID: <fa686aa40904080753p2b282338r9ba463c47f897fb@mail.gmail.com>
-References: <20090407082052.477328750@denx.de>
-	<20090407082231.803193635@denx.de>
-	<fa686aa40904070843q248f3ae1l9c8ca0d5a65c8cc3@mail.gmail.com>
-	<49DC4F4D.10803@grandegger.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
-In-Reply-To: <49DC4F4D.10803@grandegger.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-To: Wolfgang Grandegger <wg@grandegger.com>
-Cc: linuxppc-dev@ozlabs.org, devicetree-discuss@ozlabs.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
+Date: Wed, 8 Apr 2009 10:21:12 -0500
+Message-ID: <E9E24C93-F147-49F0-9FBE-FCE4883D11BF@kernel.crashing.org>
+References: <20090407082052.477328750@denx.de> <53B42D49-C040-442E-8448-7BC3190220A5@kernel.crashing.org> <F4E3E1FF-C544-460A-AC27-DB9501C13ED3@kernel.crashing.org> <49DC515F.3040100@grandegger.com>
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <49DC515F.3040100-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: Linux/PPC Development <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, devicetree-discuss <devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 8, 2009 at 12:16 AM, Wolfgang Grandegger <wg@grandegger.com> wr=
-ote:
-> Grant Likely wrote:
->> On Tue, Apr 7, 2009 at 1:20 AM, Wolfgang Grandegger <wg@grandegger.com> =
-wrote:
->>> Preserve I2C clock settings for the Socrates MPC8544 board.
+
+On Apr 8, 2009, at 2:25 AM, Wolfgang Grandegger wrote:
+
+>> So I'm a bit concerned with the output we now get:
 >>
->> I had thought that the preserve-clocking property was intended for
->> older boards that don't currently have any method of getting the clock
->> setting out of u-boot. =A0Since Socrates is a new board, U-Boot should
->> probably be made to fill in the real clock rate setting.
+>> mpc-i2c fffe03000.i2c: clock 0 Hz (dfsrr=16 fdr=49)
+>>
+>> why 0? is that right?
 >
-> I'm not sure if I understand what you mean. If an old version of U-Boot
-> on an old board sets the I2C clock, it can be used (inherited) by Linux
-> using the property "preserve-clocking".
+> This is the backward compatibility mode using hard-coded FDR values.  
+> The
+> output is missleading, I agree.
 >
-> It is actually the customers choice to set the I2C clock in U-Boot and
-> re-use it by Linux.
+> Wolfgang.
 
-Setting it in the register !=3D recording the value in the device tree.
-I'm saying that since Socrates is a new board it should not use the
-preserve-clocking dirty trick (and it is a dirty trick) because the
-correct clocking data can be passed via the device tree.
+Can the output be fixed.  0 Hz seemed bad to me.
 
-g.
-
-
--- =
-
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+- k
