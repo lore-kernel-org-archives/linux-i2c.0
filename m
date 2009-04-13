@@ -1,42 +1,39 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Let new-style drivers implement attach_adapter
-Date: Fri, 10 Apr 2009 15:51:03 +0200
-Message-ID: <20090410155103.3cbdaf1e@hyperion.delvare>
+Subject: [GIT PULL] i2c fixes for 2.6.30
+Date: Mon, 13 Apr 2009 17:12:30 +0200
+Message-ID: <20090413171230.73078c3e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Johannes Berg <johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org>
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-While it isn't the way the standard device binding model works, it is
-OK for new-style drivers to implement attach_adapter. It may help
-convert the renaming legacy drivers to new style drivers faster.
+Hi Linus,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
----
-Johannes, you'll need to apply this patch before you can test the
-onyx/tas conversion patch I sent to you yesterday.
+Please pull the i2c subsystem fixes for Linux 2.6.30 from:
 
- drivers/i2c/i2c-core.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+git://jdelvare.pck.nerim.net/jdelvare-2.6 i2c-for-linus
 
---- linux-2.6.30-rc1.orig/drivers/i2c/i2c-core.c	2009-04-10 15:22:22.000000000 +0200
-+++ linux-2.6.30-rc1/drivers/i2c/i2c-core.c	2009-04-10 15:31:19.000000000 +0200
-@@ -716,8 +716,7 @@ int i2c_register_driver(struct module *o
- 
- 	/* new style driver methods can't mix with legacy ones */
- 	if (is_newstyle_driver(driver)) {
--		if (driver->attach_adapter || driver->detach_adapter
--				|| driver->detach_client) {
-+		if (driver->detach_adapter || driver->detach_client) {
- 			printk(KERN_WARNING
- 					"i2c-core: driver [%s] is confused\n",
- 					driver->driver.name);
+ Documentation/feature-removal-schedule.txt |    9 +++++++++
+ drivers/i2c/algos/i2c-algo-pca.c           |    2 +-
+ drivers/i2c/busses/Kconfig                 |    6 ++++--
+ drivers/i2c/i2c-core.c                     |    3 +--
+ include/linux/i2c.h                        |    2 +-
+ 5 files changed, 16 insertions(+), 6 deletions(-)
 
+---------------
 
+Ben Hutchings (1):
+      i2c: Fix sparse warnings for I2C_BOARD_INFO()
+
+Jean Delvare (3):
+      i2c-algo-pca: Fix use of uninitialized variable in debug message
+      i2c-voodoo3: Deprecate in favor of tdfxfb
+      i2c: Let new-style drivers implement attach_adapter
+
+Thanks,
 -- 
 Jean Delvare
