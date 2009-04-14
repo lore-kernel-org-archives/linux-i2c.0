@@ -1,55 +1,57 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Q: Where to initialize class attribute of adapter
-Date: Tue, 14 Apr 2009 11:30:42 +0200
-Message-ID: <49E457C2.1010706@gmx.de>
-References: <49E43E3E.1020200@gmx.de> <20090414102820.07b930b3@hyperion.delvare>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c: Enable i2c-s3c2410 for S3C64XX too
+Date: Tue, 14 Apr 2009 15:15:52 +0100
+Message-ID: <20090414141552.GA31044@fluff.org.uk>
+References: <1239293004-26406-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090414102820.07b930b3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1239293004-26406-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> Hallo Michael,
+On Thu, Apr 09, 2009 at 05:03:24PM +0100, Mark Brown wrote:
+> This controller is also present on the S3C64xx series processors so
+> enable the driver in Kconfig for those platforms.
+
+If no-one objects, i'll add this for -rc.
+ 
+> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> ---
 > 
-> On Tue, 14 Apr 2009 09:41:50 +0200, Michael Lawnick wrote:
->> on update to kernel to 2.6.29 I've run into the issue that I2C
->> adapter's class attribute in struct i2c_adapter wasn't set and so
->> no client driver could be loaded. Currently I initialize .class in
->> the struct declaration part, but this is main code for all boards
->> that use this adapter :-( I'm now searching for a place where to do
->> it in a board specific way like device tree. Any suggestions?
+> I've no idea if this is the best way to handle this but it fixes the
+> problem so...
+
+yeah, it is the right way.
+
+>  drivers/i2c/busses/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> Which architecture is this, which bus driver?
-
-We are based on PowerPC MPC8548, adapter code is i2c-mpc.c
-We use the adapter compiled-in.
-
-> I think I would pass the class value as platform data to the i2c bus
-> driver, and in this driver copy the value from platform data to
-> struct i2c_adapter.
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 94eae5c..fc2f039 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -467,7 +467,7 @@ config I2C_PXA_SLAVE
+>  
+>  config I2C_S3C2410
+>  	tristate "S3C2410 I2C Driver"
+> -	depends on ARCH_S3C2410
+> +	depends on ARCH_S3C2410 || ARCH_S3C64XX
+>  	help
+>  	  Say Y here to include support for I2C controller in the
+>  	  Samsung S3C2410 based System-on-Chip devices.
+> -- 
+> 1.6.2.2
 > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Hmm, I'm not sure whether I really understand you.
-You propose modification of C-code that is part of board unspecific
-source tree, correct?
-IMHO, as this is a board specific parameter, there should be a way to do
-it in something like a config file. Probably in Kconfig (if this is
-possible at all) or device tree or ...? An alternative could be a
-writable sysFs-entry for dynamic reconfiguration.
-
-For more understanding of my view:
-I get a preconfigured/patched kernel tree from another co-worker in our
-project. I don't know what he has done in detail to the original source
-code. I just verified that there is no modification below drivers/i2c.
-So if there is a board specific initialization file I've overseen, just
-tell me, perhaps this is the solution.
-
-BTW: Why has I2C_CLASS_ALL been dropped?
 -- 
-Kind Regards,
-Michael
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
