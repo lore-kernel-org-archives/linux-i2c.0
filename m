@@ -1,7 +1,7 @@
 From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 Subject: Re: [PATCH] assign a default class to MPC adapter
-Date: Thu, 16 Apr 2009 12:55:46 +0200
-Message-ID: <49E70EB2.60106@gmx.de>
+Date: Thu, 16 Apr 2009 13:01:50 +0200
+Message-ID: <49E7101E.6070806@gmx.de>
 References: <49E6F4F9.3060705@gmx.de> <20090416092012.GB3052@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
@@ -22,15 +22,11 @@ Wolfram Sang said the following:
 > Please have a loot at 618b26d52843c0f85b8eb143cf2695d7f6fd072d
 > Therefore, NACK.
 
-AFAICS, this patch related to 2.6.26 and i2c code has changed since.
-In i2c-core.c@i2c_detect there is now a check whether the driver is
-legacy, if it is the function is left and driver initialization handled
-in another way. This was not the case when the patch of Wolfgang
-Grandegger was applied.
+Beside my first answer, in your commit
+0a346dacee18ff69f6162d9860d723a058f47321 you say:
+> Might need updates to dts files using it.
 
-I still don't think it makes much sense to include code (i2c-mpc.c) that
-has no function by default - what in fact is the case since last change
-of i2c-core.c
+Could you please elaborate?
 
 -- 
 Kind Regards,
