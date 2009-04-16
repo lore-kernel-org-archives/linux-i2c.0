@@ -1,26 +1,37 @@
-From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Questions for submitting driver to I2C subsystem
-Date: Wed, 15 Apr 2009 22:23:39 +0800
-Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: [PATCH] assign a default class to MPC adapter
+Date: Thu, 16 Apr 2009 11:06:01 +0200
+Message-ID: <49E6F4F9.3060705@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+For MPC adapter there is no class assigned as it is done in other
+adapters. This way no new-style client will ever be instantiated. There
+should be at least a default class assignment.
 
-I'm Wen working on Linux driver for Intel MID platform. I have a couple of questions on submitting drivers into I2C tree. Can you please help on that?
+Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I'm writing Linux I2C controller driver for Intel low power platform of MID. It has been accepted by Moblin and I'm planning to submit this driver to upstream.
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -310,6 +310,7 @@ static const struct i2c_algorithm mpc_algo = {
+ static struct i2c_adapter mpc_ops = {
+ 	.owner = THIS_MODULE,
+ 	.name = "MPC adapter",
++	.class = I2C_CLASS_HWMON,
+ 	.algo = &mpc_algo,
+ 	.timeout = 1,
+ };
 
-1. Is it ok if I submit this I2C driver with specific platform codes in driver?
-2. How should I submit this I2C driver if it is dependent on another device driver which is also out of kernel tree?
-
-I can send the driver patch for your preview if it is ok.
-
-Thanks
-Wen
+-- 
+Michael Lawnick
