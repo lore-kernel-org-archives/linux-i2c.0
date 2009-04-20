@@ -1,34 +1,94 @@
-From: Mark Brown <broonie-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Subject: Re: [PATCH 1/5] [ARM] pxa: lx: add PCON i2c driver
-Date: Mon, 20 Apr 2009 13:25:19 +0100
-Message-ID: <20090420122519.GC8776@sirena.org.uk>
-References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-1-git-send-email-linux@arm.linux.org.uk> <20090418162900.0dc16531@hyperion.delvare> <20090418144234.GB1236@n2100.arm.linux.org.uk> <20090418173406.GA16195@sirena.org.uk> <20090418181030.GC1236@n2100.arm.linux.org.uk> <20090419111114.GA8569@sirena.org.uk> <20090420121805.GE3653@n2100.arm.linux.org.uk>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
+Date: Mon, 20 Apr 2009 07:26:14 -0600
+Message-ID: <fa686aa40904200626s71e2891u6148471c6682d08e@mail.gmail.com>
+References: <20090407082052.477328750@denx.de>
+	<53B42D49-C040-442E-8448-7BC3190220A5@kernel.crashing.org>
+	<F4E3E1FF-C544-460A-AC27-DB9501C13ED3@kernel.crashing.org>
+	<49DC515F.3040100@grandegger.com>
+	<E9E24C93-F147-49F0-9FBE-FCE4883D11BF@kernel.crashing.org>
+	<49DD0144.7050902@grandegger.com> <49DDC718.8000706@grandegger.com>
+	<49EC39D6.8020404@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090420121805.GE3653-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <49EC39D6.8020404@grandegger.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Linux/PPC Development <linuxppc-dev@ozlabs.org>, devicetree-discuss <devicetree-discuss@ozlabs.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 20, 2009 at 01:18:05PM +0100, Russell King - ARM Linux wrote:
-> On Sun, Apr 19, 2009 at 12:11:14PM +0100, Mark Brown wrote:
+On Mon, Apr 20, 2009 at 3:01 AM, Wolfgang Grandegger <wg@grandegger.com> wr=
+ote:
+> Hi Ben,
+>
+> Wolfgang Grandegger wrote:
+>> Wolfgang Grandegger wrote:
+>>> Kumar Gala wrote:
+>>>> On Apr 8, 2009, at 2:25 AM, Wolfgang Grandegger wrote:
+>>>>
+>>>>>> So I'm a bit concerned with the output we now get:
+>>>>>>
+>>>>>> mpc-i2c fffe03000.i2c: clock 0 Hz (dfsrr=3D16 fdr=3D49)
+>>>>>>
+>>>>>> why 0? is that right?
+>>>>> This is the backward compatibility mode using hard-coded FDR values. =
+The
+>>>>> output is missleading, I agree.
+>>>>>
+>>>>> Wolfgang.
+>>>> Can the output be fixed. =A00 Hz seemed bad to me.
+>>> Of course. No info message will be printed for the legacy case
+>>> like it was with the old driver version. I just realized a bug in the
+>>> MPC52xx part. Will send patches tomorrow, after some more thorough test=
+ing.
+>>
+>> The patch below fixes both issues. Ben, could you please apply it. Sorry=
+ for
+>> the inconvenience caused.
+>>
+>> Thanks,
+>>
+>> Wolfgang.
+>>
+>>
+>>
+>> [PATCH] i2c: i2c-mpc: bug fix for MPC52xx clock setting and printout
+>>
+>> The clock setting did not work for the MPC52xx due to a stupid bug.
+>> Furthermore, the dev info output "clock=3D0" for old device trees was
+>> misleading. This patch fixes both issues.
+>>
+>> Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
+>
+> Could you please apply this bug-fix for the MPC driver for 2.6.30.
 
-> > Surely that's just an implementation detail?  As I understand your
-> > description the microcontroller is hiding the control interfaces of the
-> > other things it controls so the function is pretty similar.
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
 
-> No, it's a question of whether drivers/mfd is right.  The "shovel
-> everything that doesn't fit elsewhere into drivers/mfd" approach
-> is just creating yet another problem, just like drivers/i2c/chips
-> is percieved to be.  The only difference is that it becomes someone
-> elses problem.
+>
+> =A0http://marc.info/?l=3Dlinux-i2c&m=3D123927120910293&w=3D2
+>
+> Thanks,
+>
+> Wolfgang.
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev
+>
 
-Well, my thinking was that it looks like you've got a bunch of
-subsystem-specific drivers for this chip with a core driver managing
-shared resources like I/O with the device.  To my mind that's pretty
-much the use case for MFD.
 
-As far as general dumping grounds goes we already have drivers/misc.
+
+-- =
+
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
