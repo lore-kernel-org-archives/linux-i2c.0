@@ -1,94 +1,71 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH v3 0/5] i2c: i2c-mpc: make I2C bus speed configurable
-Date: Mon, 20 Apr 2009 07:26:14 -0600
-Message-ID: <fa686aa40904200626s71e2891u6148471c6682d08e@mail.gmail.com>
-References: <20090407082052.477328750@denx.de>
-	<53B42D49-C040-442E-8448-7BC3190220A5@kernel.crashing.org>
-	<F4E3E1FF-C544-460A-AC27-DB9501C13ED3@kernel.crashing.org>
-	<49DC515F.3040100@grandegger.com>
-	<E9E24C93-F147-49F0-9FBE-FCE4883D11BF@kernel.crashing.org>
-	<49DD0144.7050902@grandegger.com> <49DDC718.8000706@grandegger.com>
-	<49EC39D6.8020404@grandegger.com>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: v4l2-subdev Re: [PATCH 0/5] soc-camera: convert to platform device
+Date: Mon, 20 Apr 2009 15:50:44 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0904201525320.4403@axis700.grange>
+References: <Pine.LNX.4.64.0904151356480.4729@axis700.grange>
+ <aec7e5c30904170040p6ec1721aj6885ef16573cd484@mail.gmail.com>
+ <Pine.LNX.4.64.0904170950320.5119@axis700.grange>
+ <aec7e5c30904170331n6da85695gdd6da8d6a42eacf1@mail.gmail.com>
+ <Pine.LNX.4.64.0904171235010.5119@axis700.grange>
+ <aec7e5c30904200014n2d8cdcfeud23f2b6b221f9fad@mail.gmail.com>
+ <Pine.LNX.4.64.0904200921090.4403@axis700.grange>
+ <aec7e5c30904200100wb117328sb97ea0262d163547@mail.gmail.com>
+ <Pine.LNX.4.64.0904201010130.4403@axis700.grange>
+ <aec7e5c30904200154w758e4ecl8174a4cb0bce11f9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
-In-Reply-To: <49EC39D6.8020404@grandegger.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-To: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Linux/PPC Development <linuxppc-dev@ozlabs.org>, devicetree-discuss <devicetree-discuss@ozlabs.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <aec7e5c30904200154w758e4ecl8174a4cb0bce11f9@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Kuninori Morimoto <morimoto.kuninori@renesas.com>, linux-i2c@vger.kernel.org, Greg KH <greg@kroah.com>, Mauro Carvalho Chehab <mchehab@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 20, 2009 at 3:01 AM, Wolfgang Grandegger <wg@grandegger.com> wr=
-ote:
-> Hi Ben,
->
-> Wolfgang Grandegger wrote:
->> Wolfgang Grandegger wrote:
->>> Kumar Gala wrote:
->>>> On Apr 8, 2009, at 2:25 AM, Wolfgang Grandegger wrote:
->>>>
->>>>>> So I'm a bit concerned with the output we now get:
->>>>>>
->>>>>> mpc-i2c fffe03000.i2c: clock 0 Hz (dfsrr=3D16 fdr=3D49)
->>>>>>
->>>>>> why 0? is that right?
->>>>> This is the backward compatibility mode using hard-coded FDR values. =
-The
->>>>> output is missleading, I agree.
->>>>>
->>>>> Wolfgang.
->>>> Can the output be fixed. =A00 Hz seemed bad to me.
->>> Of course. No info message will be printed for the legacy case
->>> like it was with the old driver version. I just realized a bug in the
->>> MPC52xx part. Will send patches tomorrow, after some more thorough test=
-ing.
->>
->> The patch below fixes both issues. Ben, could you please apply it. Sorry=
- for
->> the inconvenience caused.
->>
->> Thanks,
->>
->> Wolfgang.
->>
->>
->>
->> [PATCH] i2c: i2c-mpc: bug fix for MPC52xx clock setting and printout
->>
->> The clock setting did not work for the MPC52xx due to a stupid bug.
->> Furthermore, the dev info output "clock=3D0" for old device trees was
->> misleading. This patch fixes both issues.
->>
->> Signed-off-by: Wolfgang Grandegger <wg@grandegger.com>
->
-> Could you please apply this bug-fix for the MPC driver for 2.6.30.
+On Mon, 20 Apr 2009, Magnus Damm wrote:
 
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
+> On Mon, Apr 20, 2009 at 5:14 PM, Guennadi Liakhovetski
+> <g.liakhovetski@gmx.de> wrote:
+> > On Mon, 20 Apr 2009, Magnus Damm wrote:
+> >> Can you please test on your Migo-R board? I'd be happy to assist you
+> >> in setting up your environment.
+> >
+> > I did test it and it worked - exactly as you say - with the entire patch
+> > stack + v2 of "soc-camera: convert to platform device," the only
+> > difference that I can see so far, is that I used modules. So, you can
+> > either look in dmesg for driver initialisation whether ov772x and tw9910
+> > have found theit i2c chips, or just wait until I test a monolitic build
+> > myself. It can be problematic if the i2c-host driver initialises too
+> > late... If you want to test a modular build it would be enough to just
+> > have sh_mobile_ceu_camera.ko as a module, the rest can stay built in.
+> 
+> I prefer to wait then. Please consider the built-in case broken.
+> 
+> Usually I get some output similar to this during boot:
+> 
+> camera 0-0: SuperH Mobile CEU driver attached to camera 0
+> camera 0-0: ov7725 Product ID 77:21 Manufacturer ID 7f:a2
+> camera 0-0: SuperH Mobile CEU driver detached from camera 0
+> 
+> But with the "convert to platform device" patch appied I see nothing like that.
+> 
+> The migor_defconfig should give you the static non-module
+> configuration that is broken.
 
->
-> =A0http://marc.info/?l=3Dlinux-i2c&m=3D123927120910293&w=3D2
->
-> Thanks,
->
-> Wolfgang.
-> _______________________________________________
-> Linuxppc-dev mailing list
-> Linuxppc-dev@ozlabs.org
-> https://ozlabs.org/mailman/listinfo/linuxppc-dev
->
+Ok, static build is indeed broken. The reason is the wrong initialisation 
+order. First, internally we have to link camera host drivers after camera 
+device drivers, that's easy. But unfortunately that alone doesn't help. 
+The second problem is that i2c is linked after media, or, maybe rather 
+media is linked before i2c. Currently in drivers/Makefile "media" is on 
+the same line as "base" and "block", way before IDE, ATA, SCSI, firewire, 
+mtd, spi, usb, input... Is there a reason for that? Mauro, would anything 
+break if we move it down right after i2c? Another hackish interim solution 
+would be to replace module_init with subsys_init in i2c-sh_mobile.c like 
+some other i2c adapters do (including MXC, PXA). That's certainly easier, 
+but then we'd also have to modify i2c-imx, later maybe i2c-at91.c...
 
-
-
--- =
-
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
+http://www.open-technology.de/
