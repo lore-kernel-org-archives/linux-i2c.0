@@ -1,39 +1,50 @@
-From: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH] i2c-cpm: Pass dev ptr to dma_*_coherent rather than NULL
-Date: Tue, 21 Apr 2009 10:11:51 -0500
-Message-ID: <E2205842-8019-4CE4-812B-64ABD76F36F4@kernel.crashing.org>
-References: <49EDC0BE.7040505@elphinstone.net>
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+From: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
+Date: Tue, 21 Apr 2009 12:00:02 -0400
+Message-ID: <9e4733910904210900r4c5d1a8en178ad106134b7e6d@mail.gmail.com>
+References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com>
+	 <49ED9132.9050806@gmx.de> <20090421115936.28656d09@hyperion.delvare>
+	 <49EDD423.3050302@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49EDC0BE.7040505-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
+In-Reply-To: <49EDD423.3050302-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Linuxppc-dev Development <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-On Apr 21, 2009, at 7:49 AM, Mark Ware wrote:
-
-> Recent DMA changes result in a BUG() when NULL is passed to
-> dma_alloc_coherent in place of a device.
+On Tue, Apr 21, 2009 at 10:11 AM, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org> wrote:
+> Jean Delvare said the following:
+>> You apparently still have a hard time differentiating between devices
+>> and drivers. Loading modules at runtime != instantiating devices at
+>> runtime.
+>>
+> Well, till now I assumed that you can't instantiate a device who's
+> driver isn't loaded. But I am eager to learn.
 >
-> Signed-off-by: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
-> ---
+>> (And both can be done, but if you can't define your needs, we won't go
+>> very far.)
 >
-> This patch fixes the BUG() during boot that has appeared during the
-> 2.6.30 window. It has been tested and appears correct on my 8280 based
-> board.
-> Sent to both linuxppc-dev and linux-i2c, since I'm not sure where it  
-> belongs.
->
->
-> drivers/i2c/busses/i2c-cpm.c |   14 ++++++++------
-> 1 files changed, 8 insertions(+), 6 deletions(-)
+> I thought I had explained very often. I'll do it once again:
+> We load drivers at runtime directly after boot which does automatic
+> instantiation. There will occur further devices on bus after some time
+> (hotplug) and therefore we need later on instantiation without reloading
+> drivers. We cannot define which devices will exactly be plugged in, it
+> might even be possible that on same bus address there occur different
+> devices (as an possible option and not at same time of course). So
+> device detection is highly appreciated.
+> Do you need more info?
 
-Acked-by: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Jean, haven't you told me multiple times that hotplug doesn't work for
+i2c? How can you tell when a new device has been added to an i2c bus?
 
-Ben, I'm expecting you to pick this up unless you tell me otherwise.
+There is already code in the kernel that will dynamically load the
+correct i2c device drivers based on the device tree. The i2c drivers
+don't need to be build into the kernel. Just put drivers for all of
+your devices onto the initrd.
 
-- k
+-- 
+Jon Smirl
+jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
