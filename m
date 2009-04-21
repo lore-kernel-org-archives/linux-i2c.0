@@ -1,73 +1,54 @@
 From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Tue, 21 Apr 2009 09:00:19 +0200
-Message-ID: <49ED6F03.5050107@grandegger.com>
-References: <49ED6AD3.2060808@gmx.de>
+Subject: Re: [PATCH] assign a default class to MPC adapter
+Date: Tue, 21 Apr 2009 09:13:37 +0200
+Message-ID: <49ED7221.2030205@grandegger.com>
+References: <49E6F4F9.3060705@gmx.de> <20090416092012.GB3052@pengutronix.de> <49E7101E.6070806@gmx.de> <20090416114701.GD3052@pengutronix.de> <49ED6C0D.2060607@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49ED6AD3.2060808-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <49ED6C0D.2060607-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-sorry for jumping in late. I just recently subscribed to this list.
-
 Michael Lawnick wrote:
-> For MPC adapter there is no class assigned as it is done in other
-> adapters. This way no new-style client will ever be instantiated. With
-> this patch class assignment is read from device tree.
-> Necessary entry:
-> class = <1>; /* I2C_CLASS_HWMON (iic.h) */
-
-Do we really need that? Probing is dangerous and not necessary. Does it
-not work with a proper DTS entry? But maybe I have missed something?
-
-> Based on 2.6.29
+> Wolfram Sang said the following:
+>>> Could you please elaborate?
+>> Instead of probing you specify the devices on the i2c-bus in the dts. Example
+>> for the pcm032 looks like this (from the kernel-tree):
+>>
+>> i2c@3d40 {
+>> 	#address-cells = <1>;
+>> 	#size-cells = <0>;
+>> 	compatible = "fsl,mpc5200b-i2c","fsl,mpc5200-i2c","fsl-i2c";
+>> 	reg = <0x3d40 0x40>;
+>> 	interrupts = <2 16 0>;
+>> 	fsl5200-clocking;
+>>
+>> 	rtc@51 {
+>> 		compatible = "nxp,pcf8563";
+>> 		reg = <0x51>;
+>> 	};
+>> 	eeprom@52 {
+>> 		compatible = "at24,24c32";
+>> 		reg = <0x52>;
+>> 	};
+>> };
+>>
+>> Boards which relied on probing need to have such child nodes added.
 > 
-> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Sang, Wolfram <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-mpc.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -318,6 +318,7 @@ static int __devinit fsl_i2c_probe(struct of_device
-> *op, const struct of_device_
->  {
->  	int result = 0;
->  	struct mpc_i2c *i2c;
-> +	int *of_val;
-> 
->  	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
->  	if (!i2c)
-> @@ -354,6 +355,10 @@ static int __devinit fsl_i2c_probe(struct of_device
-> *op, const struct of_device_
->  	dev_set_drvdata(&op->dev, i2c);
-> 
->  	i2c->adap = mpc_ops;
-> +	of_val = of_get_property(op->node, "class", NULL);
-> +	if(of_val)
-> +		i2c->adap.class = *of_val;
-> +
->  	i2c_set_adapdata(&i2c->adap, i2c);
->  	i2c->adap.dev.parent = &op->dev;
+> This entry forces the sysFs basic entries, but instantiation of
+> _new-style_ drivers still fails, at least on my system.
 
-The CPM I2C bus driver uses "linux,i2c-class" for that purpose. See:
+Could you switch I2C debugging on and check the transfers to the device?
+Is the address correct? What DTS node do you use? You could compare it
+with a kernel with your patch applied and using probing.
 
-http://lxr.linux.no/linux+v2.6.29/Documentation/powerpc/dts-bindings/fsl/cpm_qe/cpm/i2c.txt
+> I now proposed a patch for loading the class parameter of the adapter
+> from device tree.(--><49ED6AD3.2060808-Mmb7MZpHnFY@public.gmane.org>) and hope to get an ACK.
 
-A consistent binding would be nice and the default should be "0", if we
-really need legacy probing.
-
-Furthermore, the new binding needs to be documented and published on the
-Devicetree-discuss ML.
+What kernel version do you use?
 
 Wolfgang.
