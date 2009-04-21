@@ -1,54 +1,59 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Tue, 21 Apr 2009 12:35:49 +0200
-Message-ID: <49EDA185.7040206@grandegger.com>
-References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com> <49ED9132.9050806@gmx.de>
+Date: Tue, 21 Apr 2009 13:01:34 +0200
+Message-ID: <20090421130134.1e82a078@hyperion.delvare>
+References: <49ED6AD3.2060808@gmx.de>
+	<49ED6F03.5050107@grandegger.com>
+	<49ED9132.9050806@gmx.de>
+	<49EDA185.7040206@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49ED9132.9050806-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <49EDA185.7040206-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Michael Lawnick wrote:
-> Wolfgang Grandegger said the following:
->> Hello,
->>
->> sorry for jumping in late. I just recently subscribed to this list.
->>
->> Michael Lawnick wrote:
->>> For MPC adapter there is no class assigned as it is done in other
->>> adapters. This way no new-style client will ever be instantiated. With
->>> this patch class assignment is read from device tree.
->>> Necessary entry:
->>> class = <1>; /* I2C_CLASS_HWMON (iic.h) */
->> Do we really need that? Probing is dangerous and not necessary. Does it
->> not work with a proper DTS entry? But maybe I have missed something?
+On Tue, 21 Apr 2009 12:35:49 +0200, Wolfgang Grandegger wrote:
+> Michael Lawnick wrote:
+> > Wolfgang Grandegger said the following:
+> >> Do we really need that? Probing is dangerous and not necessary. Does it
+> >> not work with a proper DTS entry? But maybe I have missed something?
+> > 
+> > Our current and our next system consists of two flavors of the same
+> > board with different devices. To minimize maintenance and testing we use
+> > a reduced kernel and load the needed modules at runtime. Furthermore we
+> > will have to handle hot-plugged I2C-devices. Whether this strategy is
+> > best could be discussed in another thread but is rather OT in this
+> > mailing list. Nevertheless loading modules at runtime is legal and
+> > generally supported by LINUX.
+> > 
+> > Defining all possible (I2C-)devices in DTS would give a mess. E.g. on
+> > one board there will be ~30 temperature sensors, on the other none.
 > 
-> Our current and our next system consists of two flavors of the same
-> board with different devices. To minimize maintenance and testing we use
-> a reduced kernel and load the needed modules at runtime. Furthermore we
-> will have to handle hot-plugged I2C-devices. Whether this strategy is
-> best could be discussed in another thread but is rather OT in this
-> mailing list. Nevertheless loading modules at runtime is legal and
-> generally supported by LINUX.
+> The legacy device probing has it's limitations and I doubt that it will
+> be able to find 30 DTT devices properly. E.g. the legacy probing
+> algorithm is not able to distinguish between a LM75 and DS75. Let's
+> first try to find out why it does not work as expected with the DTS entry.
 > 
-> Defining all possible (I2C-)devices in DTS would give a mess. E.g. on
-> one board there will be ~30 temperature sensors, on the other none.
+> > As every DTS entry will force a sysFs subdirectory there would be a
+> > bunch of functionless directories - rather ugly.
+> 
+> Hopefully not. They will be created when the probing was successful, I
+> assume.
 
-The legacy device probing has it's limitations and I doubt that it will
-be able to find 30 DTT devices properly. E.g. the legacy probing
-algorithm is not able to distinguish between a LM75 and DS75. Let's
-first try to find out why it does not work as expected with the DTS entry.
+No, device creation is unconditional. It is assumed that the DTS file
+author knew what he/she was doing.
 
-> As every DTS entry will force a sysFs subdirectory there would be a
-> bunch of functionless directories - rather ugly.
+There was a discussion about adding a flag to state the "may not be
+present" nature of devices, which would result in a probe before
+instantiating the device (on success), but it wasn't implemented yet. I
+have no objection is this mechanism is deemed useful.
 
-Hopefully not. They will be created when the probing was successful, I
-assume. I think it is OK to define multiple I2C nodes also for
-non-existing devices in the DTS file if the I2C address is unique.
+> I think it is OK to define multiple I2C nodes also for
+> non-existing devices in the DTS file if the I2C address is unique.
 
-Wolfgang.
+-- 
+Jean Delvare
