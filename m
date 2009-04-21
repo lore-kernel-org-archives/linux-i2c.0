@@ -1,24 +1,54 @@
-From: Mark Brown <broonie@sirena.org.uk>
-Subject: Re: v4l2-subdev Re: [PATCH 0/5] soc-camera: convert to platform
-	device
-Date: Mon, 20 Apr 2009 15:31:44 +0100
-Message-ID: <20090420143144.GF8776@sirena.org.uk>
-References: <aec7e5c30904170331n6da85695gdd6da8d6a42eacf1@mail.gmail.com> <Pine.LNX.4.64.0904171235010.5119@axis700.grange> <aec7e5c30904200014n2d8cdcfeud23f2b6b221f9fad@mail.gmail.com> <Pine.LNX.4.64.0904200921090.4403@axis700.grange> <aec7e5c30904200100wb117328sb97ea0262d163547@mail.gmail.com> <Pine.LNX.4.64.0904201010130.4403@axis700.grange> <aec7e5c30904200154w758e4ecl8174a4cb0bce11f9@mail.gmail.com> <Pine.LNX.4.64.0904201525320.4403@axis700.grange> <20090420140411.GE8776@sirena.org.uk> <Pine.LNX.4.64.0904201617130.4403@axis700.grange>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: [Patch] MPC Adapter: read class attribute from device tree
+Date: Tue, 21 Apr 2009 08:42:27 +0200
+Message-ID: <49ED6AD3.2060808@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0904201617130.4403@axis700.grange>
-Sender: linux-media-owner@vger.kernel.org
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Kuninori Morimoto <morimoto.kuninori@renesas.com>, linux-i2c@vger.kernel.org, Greg KH <greg@kroah.com>, Mauro Carvalho Chehab <mchehab@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 20, 2009 at 04:18:41PM +0200, Guennadi Liakhovetski wrote:
+For MPC adapter there is no class assigned as it is done in other
+adapters. This way no new-style client will ever be instantiated. With
+this patch class assignment is read from device tree.
+Necessary entry:
+class = <1>; /* I2C_CLASS_HWMON (iic.h) */
 
-> If there are other requirements to have i2c initialise early we can well 
-> move it up the chain. I think it would be preferable to modifying each i2c 
-> host adapter driver to use subsys_init().
+Based on 2.6.29
 
-IIRC there are other ordering constraints on I2C in general that cause
-problems there in non-embedded cases but I might be misremembering.
+Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Sang, Wolfram <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -318,6 +318,7 @@ static int __devinit fsl_i2c_probe(struct of_device
+*op, const struct of_device_
+ {
+ 	int result = 0;
+ 	struct mpc_i2c *i2c;
++	int *of_val;
+
+ 	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+@@ -354,6 +355,10 @@ static int __devinit fsl_i2c_probe(struct of_device
+*op, const struct of_device_
+ 	dev_set_drvdata(&op->dev, i2c);
+
+ 	i2c->adap = mpc_ops;
++	of_val = of_get_property(op->node, "class", NULL);
++	if(of_val)
++		i2c->adap.class = *of_val;
++
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &op->dev;
+
+-- 
+Michael Lawnick
