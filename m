@@ -1,54 +1,52 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH] assign a default class to MPC adapter
-Date: Tue, 21 Apr 2009 09:13:37 +0200
-Message-ID: <49ED7221.2030205@grandegger.com>
-References: <49E6F4F9.3060705@gmx.de> <20090416092012.GB3052@pengutronix.de> <49E7101E.6070806@gmx.de> <20090416114701.GD3052@pengutronix.de> <49ED6C0D.2060607@gmx.de>
+From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Subject: [PATCH] drivers: move media after i2c
+Date: Tue, 21 Apr 2009 09:22:38 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0904210908360.6551@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49ED6C0D.2060607-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Michael Lawnick wrote:
-> Wolfram Sang said the following:
->>> Could you please elaborate?
->> Instead of probing you specify the devices on the i2c-bus in the dts. Example
->> for the pcm032 looks like this (from the kernel-tree):
->>
->> i2c@3d40 {
->> 	#address-cells = <1>;
->> 	#size-cells = <0>;
->> 	compatible = "fsl,mpc5200b-i2c","fsl,mpc5200-i2c","fsl-i2c";
->> 	reg = <0x3d40 0x40>;
->> 	interrupts = <2 16 0>;
->> 	fsl5200-clocking;
->>
->> 	rtc@51 {
->> 		compatible = "nxp,pcf8563";
->> 		reg = <0x51>;
->> 	};
->> 	eeprom@52 {
->> 		compatible = "at24,24c32";
->> 		reg = <0x52>;
->> 	};
->> };
->>
->> Boards which relied on probing need to have such child nodes added.
-> 
-> This entry forces the sysFs basic entries, but instantiation of
-> _new-style_ drivers still fails, at least on my system.
+Currently drivers/media drivers are linked very early - directly after 
+base, block, misc, and mfd and before ata, scsi, ide, input, firewire, 
+usb, and i2c. This breaks static build of video4linux drivers, that use 
+generic CPU i2c adapter drivers and the v4l2-subdev subsystem, because 
+during video4linux probing the v4l2-subdev core requires a struct 
+i2c_adapter context, which cannot be satisfied before the i2c subsystem is 
+initialised. Moving drivers/media after drivers/i2c fixes this problem.
 
-Could you switch I2C debugging on and check the transfers to the device?
-Is the address correct? What DTS node do you use? You could compare it
-with a kernel with your patch applied and using probing.
+Signed-off-by: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+---
 
-> I now proposed a patch for loading the class parameter of the adapter
-> from device tree.(--><49ED6AD3.2060808-Mmb7MZpHnFY@public.gmane.org>) and hope to get an ACK.
+The best way to trigger action is by submitting a patch:-) So, let's see 
+what comes out of it - on the one hand I don't see any reason why media 
+has to be linked this early, and nobody was able to give me one yesterday 
+as this problem has been discussed on linux-media, OTOH, maybe indeed it 
+would be better to move i2c the whole way up above media, but that'd be 
+much bigger of a change, I think.
 
-What kernel version do you use?
-
-Wolfgang.
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 2618a61..1266ead 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -36,7 +36,7 @@ obj-$(CONFIG_FB_INTEL)          += video/intelfb/
+ 
+ obj-y				+= serial/
+ obj-$(CONFIG_PARPORT)		+= parport/
+-obj-y				+= base/ block/ misc/ mfd/ media/
++obj-y				+= base/ block/ misc/ mfd/
+ obj-$(CONFIG_NUBUS)		+= nubus/
+ obj-y				+= macintosh/
+ obj-$(CONFIG_IDE)		+= ide/
+@@ -71,7 +71,7 @@ obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+ obj-$(CONFIG_INPUT)		+= input/
+ obj-$(CONFIG_I2O)		+= message/
+ obj-$(CONFIG_RTC_LIB)		+= rtc/
+-obj-y				+= i2c/
++obj-y				+= i2c/ media/
+ obj-$(CONFIG_W1)		+= w1/
+ obj-$(CONFIG_POWER_SUPPLY)	+= power/
+ obj-$(CONFIG_HWMON)		+= hwmon/
