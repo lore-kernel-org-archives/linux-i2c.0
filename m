@@ -1,78 +1,105 @@
-From: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
-Subject: [PATCH] i2c-cpm: Pass dev ptr to dma_*_coherent rather than NULL
-Date: Tue, 21 Apr 2009 22:49:02 +1000
-Message-ID: <49EDC0BE.7040505@elphinstone.net>
+From: "Hans Verkuil" <hverkuil@xs4all.nl>
+Subject: Re: [PATCH] v4l2-subdev: add a v4l2_i2c_new_dev_subdev() function
+Date: Tue, 21 Apr 2009 14:57:45 +0200 (CEST)
+Message-ID: <43394.62.70.2.252.1240318665.squirrel@webmail.xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: gatoguan-os@yahoo.com
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Recent DMA changes result in a BUG() when NULL is passed to
-dma_alloc_coherent in place of a device.
 
-Signed-off-by: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
----
+>
+> On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+>> On Tue, 21 Apr 2009, Agustin wrote:
+>> >
+>> > Hi,
+>> >
+>> > On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+>> > > Video (sub)devices, connecting to SoCs over generic i2c busses
+>> cannot
+>> > > provide a pointer to struct v4l2_device in i2c-adapter driver_data,
+>> and
+>> > > provide their own i2c_board_info data, including a platform_data
+>> field.
+>> > > Add a v4l2_i2c_new_dev_subdev() API function that does exactly the
+>> same
+>> > > as v4l2_i2c_new_subdev() but uses different parameters, and make
+>> > > v4l2_i2c_new_subdev() a wrapper around it.
+>> >
+>> > [snip]
+>> >
+>> > I am wondering about this ongoing effort and its pursued goal: is it
+>> > to hierarchize the v4l architecture, adding new abstraction levels?
+>> > If so, what for?
+>
+>> Driver-reuse. soc-camera framework will be able to use all available and
+>> new v4l2-subdev drivers, and vice versa.
+>
+> Well, "Driver reuse." sounds more as a mantra than a reason for me. Then I
+> can't find any "available" v4l2-subdev driver in 2.6.29.
 
-This patch fixes the BUG() during boot that has appeared during the
-2.6.30 window. It has been tested and appears correct on my 8280 based
-board.
-Sent to both linuxppc-dev and linux-i2c, since I'm not sure where it belongs.
+Look in 2.6.30. Also look in Documentation/video4linux/v4l2-framework.txt
+which documents the new framework.
 
+> I assume this subdev stuff plays a mayor role in current V4L2 architecture
+> refactorization. Then we probably should take this opportunity to relieve
+> V4L APIs from all its explicit I2C mangling, because...
 
-  drivers/i2c/busses/i2c-cpm.c |   14 ++++++++------
-  1 files changed, 8 insertions(+), 6 deletions(-)
+That is the case if you use v4l2_subdev. That's completely bus independent.
 
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index 3fcf78e..83276d2 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -532,7 +532,8 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
+>> > To me, as an eventual driver developer, this makes it harder to
+>> > integrate my own drivers, as I use I2C and V4L in my system but I
+>> > don't want them to be tightly coupled.
+>
+>> This conversion shouldn't make the coupling any tighter.
+>
+> But still I think V4L system should not be aware of I2C at all.
+>
+> To me, V4L is a kernel subsystem in charge of moving multimedia data
+> from/to userspace/hardware, and the APIs should reflect just that.
+>
+> If one V4L driver uses I2C for device control, what does V4L have to say
+> about that, really? Or why V4L would never care about usb or SPI links?
+>
+> I2C and V4L should stay cleanly and clearly apart.
 
-  	for (i = 0; i < CPM_MAXBD; i++) {
-  		cpm->rxbuf[i] = dma_alloc_coherent(
--			NULL, CPM_MAX_READ + 1, &cpm->rxdma[i], GFP_KERNEL);
-+			&cpm->ofdev->dev, CPM_MAX_READ + 1, &cpm->rxdma[i],
-+			GFP_KERNEL);
-  		if (!cpm->rxbuf[i]) {
-  			ret = -ENOMEM;
-  			goto out_muram;
-@@ -540,7 +541,8 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
-  		out_be32(&rbdf[i].cbd_bufaddr, ((cpm->rxdma[i] + 1) & ~1));
+Again, that's what v4l2_subdev does. And in fact it is used like that
+already in the ivtv and cx18 drivers.
 
-  		cpm->txbuf[i] = (unsigned char *)dma_alloc_coherent(
--			NULL, CPM_MAX_READ + 1, &cpm->txdma[i], GFP_KERNEL);
-+			&cpm->ofdev->dev, CPM_MAX_READ + 1, &cpm->txdma[i],
-+			GFP_KERNEL);
-  		if (!cpm->txbuf[i]) {
-  			ret = -ENOMEM;
-  			goto out_muram;
-@@ -585,10 +587,10 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
-  out_muram:
-  	for (i = 0; i < CPM_MAXBD; i++) {
-  		if (cpm->rxbuf[i])
--			dma_free_coherent(NULL, CPM_MAX_READ + 1,
-+			dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
-  				cpm->rxbuf[i], cpm->rxdma[i]);
-  		if (cpm->txbuf[i])
--			dma_free_coherent(NULL, CPM_MAX_READ + 1,
-+			dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
-  				cpm->txbuf[i], cpm->txdma[i]);
-  	}
-  	cpm_muram_free(cpm->dp_addr);
-@@ -619,9 +621,9 @@ static void cpm_i2c_shutdown(struct cpm_i2c *cpm)
+>> > Of course I can ignore this "subdev" stuff and just link against
+>> > soc-camera which is what I need, and manage I2C without V4L knowing
+>> > about it. Which is what I do.
+>
+>> You won't be able to. The only link to woc-camera will be the
+>> v4l2-subdev link. Already now with this patch many essential
+>> soc-camera API operations are gone.
+>
+> I guess you mean that I will have to use v4l2-subdev interface to connect
+> to soc-camera, and not to surrender my I2C management to an I2C-extraneous
+> subsystem. Is that right?
+>
+> (Sorry for arriving this late to the discussion just to critizise your
+> good efforts.)
 
-  	/* Free all memory */
-  	for (i = 0; i < CPM_MAXBD; i++) {
--		dma_free_coherent(NULL, CPM_MAX_READ + 1,
-+		dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
-  			cpm->rxbuf[i], cpm->rxdma[i]);
--		dma_free_coherent(NULL, CPM_MAX_READ + 1,
-+		dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
-  			cpm->txbuf[i], cpm->txdma[i]);
-  	}
+All i2c v4l drivers should use v4l2_subdev so that they can be reused in
+other PCI/USB/platform/whatever drivers. Currently sensor drivers such as
+mt9m111 are tied to soc-camera and are impossible to reuse in e.g. a USB
+webcam driver. In 2.6.30 all i2c v4l drivers used by PCI and USB drivers
+are converted to v4l2_subdev. By 2.6.31 I hope that the soc-camera i2c
+drivers and the i2c drivers based on v4l2-int-device.h are also converted,
+thus making the i2c v4l drivers completely reusable.
+
+In addition, the flexibility of v4l2_subdev allows it to be used for other
+non-i2c devices as well.
+
+Regards,
+
+        Hans
 
 -- 
-1.5.6.5
+Hans Verkuil - video4linux developer - sponsored by TANDBERG
+
