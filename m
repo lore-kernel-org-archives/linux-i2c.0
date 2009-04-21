@@ -1,56 +1,90 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Tue, 21 Apr 2009 13:26:02 +0200
-Message-ID: <49EDAD4A.4070200@grandegger.com>
-References: <49ED6AD3.2060808@gmx.de>	<49ED6F03.5050107@grandegger.com>	<49ED9132.9050806@gmx.de>	<49EDA185.7040206@grandegger.com> <20090421130134.1e82a078@hyperion.delvare>
+From: Agustin <gatoguan-os@yahoo.com>
+Subject: Re: [PATCH] v4l2-subdev: add a v4l2_i2c_new_dev_subdev() function
+Date: Tue, 21 Apr 2009 05:46:06 -0700 (PDT)
+Message-ID: <86952.30815.qm@web32103.mail.mud.yahoo.com>
+Reply-To: gatoguan-os@yahoo.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090421130134.1e82a078-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-discuss <devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> On Tue, 21 Apr 2009 12:35:49 +0200, Wolfgang Grandegger wrote:
->> Michael Lawnick wrote:
->>> Wolfgang Grandegger said the following:
->>>> Do we really need that? Probing is dangerous and not necessary. Does it
->>>> not work with a proper DTS entry? But maybe I have missed something?
->>> Our current and our next system consists of two flavors of the same
->>> board with different devices. To minimize maintenance and testing we use
->>> a reduced kernel and load the needed modules at runtime. Furthermore we
->>> will have to handle hot-plugged I2C-devices. Whether this strategy is
->>> best could be discussed in another thread but is rather OT in this
->>> mailing list. Nevertheless loading modules at runtime is legal and
->>> generally supported by LINUX.
->>>
->>> Defining all possible (I2C-)devices in DTS would give a mess. E.g. on
->>> one board there will be ~30 temperature sensors, on the other none.
->> The legacy device probing has it's limitations and I doubt that it will
->> be able to find 30 DTT devices properly. E.g. the legacy probing
->> algorithm is not able to distinguish between a LM75 and DS75. Let's
->> first try to find out why it does not work as expected with the DTS entry.
->>
->>> As every DTS entry will force a sysFs subdirectory there would be a
->>> bunch of functionless directories - rather ugly.
->> Hopefully not. They will be created when the probing was successful, I
->> assume.
-> 
-> No, device creation is unconditional. It is assumed that the DTS file
-> author knew what he/she was doing.
-> 
-> There was a discussion about adding a flag to state the "may not be
-> present" nature of devices, which would result in a probe before
-> instantiating the device (on success), but it wasn't implemented yet. I
-> have no objection is this mechanism is deemed useful.
 
-Ah, I see. If the software can reliably find out if a device exists it
-should probe for it. It would be useful to limit the amount of required
-DTS files for the hardware variants. Often the RTC or other I2C devices
-are optional. I added the Deviceterr-disccuss ML to the CC to reach the
-the device-tree gurus.
+On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+> On Tue, 21 Apr 2009, Agustin wrote:
+> >=20
+> > Hi,
+> >=20
+> > On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+> > > Video (sub)devices, connecting to SoCs over generic i2c busses ca=
+nnot=20
+> > > provide a pointer to struct v4l2_device in i2c-adapter driver_dat=
+a, and=20
+> > > provide their own i2c_board_info data, including a platform_data =
+field.=20
+> > > Add a v4l2_i2c_new_dev_subdev() API function that does exactly th=
+e same
+> > > as v4l2_i2c_new_subdev() but uses different parameters, and make=20
+> > > v4l2_i2c_new_subdev() a wrapper around it.
+> >=20
+> > [snip]
+> >=20
+> > I am wondering about this ongoing effort and its pursued goal: is i=
+t
+> > to hierarchize the v4l architecture, adding new abstraction levels?
+> > If so, what for?
 
-Wolfgang.
+> Driver-reuse. soc-camera framework will be able to use all available =
+and=20
+> new v4l2-subdev drivers, and vice versa.
+
+Well, "Driver reuse." sounds more as a mantra than a reason for me. The=
+n I can't find any "available" v4l2-subdev driver in 2.6.29.
+
+I assume this subdev stuff plays a mayor role in current V4L2 architect=
+ure refactorization. Then we probably should take this opportunity to r=
+elieve V4L APIs from all its explicit I2C mangling, because...
+
+> > To me, as an eventual driver developer, this makes it harder to=20
+> > integrate my own drivers, as I use I2C and V4L in my system but I
+> > don't want them to be tightly coupled.
+
+> This conversion shouldn't make the coupling any tighter.
+
+But still I think V4L system should not be aware of I2C at all.
+
+To me, V4L is a kernel subsystem in charge of moving multimedia data fr=
+om/to userspace/hardware, and the APIs should reflect just that.
+
+If one V4L driver uses I2C for device control, what does V4L have to sa=
+y about that, really? Or why V4L would never care about usb or SPI link=
+s?
+
+I2C and V4L should stay cleanly and clearly apart.
+
+> > Of course I can ignore this "subdev" stuff and just link against=20
+> > soc-camera which is what I need, and manage I2C without V4L knowing=
+=20
+> > about it. Which is what I do.
+
+> You won't be able to. The only link to woc-camera will be the
+> v4l2-subdev link. Already now with this patch many essential
+> soc-camera API operations are gone.
+
+I guess you mean that I will have to use v4l2-subdev interface to conne=
+ct to soc-camera, and not to surrender my I2C management to an I2C-extr=
+aneous subsystem. Is that right?
+
+(Sorry for arriving this late to the discussion just to critizise your =
+good efforts.)
+
+Regards,
+--Agust=EDn.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-media" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
