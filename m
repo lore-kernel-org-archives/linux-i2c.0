@@ -1,77 +1,76 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Tue, 21 Apr 2009 10:37:54 +0200
-Message-ID: <20090421083754.GA3100@pengutronix.de>
+Date: Tue, 21 Apr 2009 10:39:07 +0200
+Message-ID: <20090421103907.0831978e@hyperion.delvare>
 References: <49ED6AD3.2060808@gmx.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 In-Reply-To: <49ED6AD3.2060808-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
+On Tue, 21 Apr 2009 08:42:27 +0200, Michael Lawnick wrote:
 > For MPC adapter there is no class assigned as it is done in other
-> adapters.
+> adapters. This way no new-style client will ever be instantiated.
 
-Still, the trend is to use the class field less, not more often. Probing
-causes more pain than gain. Most of us have been through that, try to
-believe us.
+This statement is incorrect. How many times will I have to repeat
+myself?
 
-> This way no new-style client will ever be instantiated.
-
-Sorry, this seems wrong to me:
-
-1) The client _instance_ does come from the dts, as Jean explained
-before. Did you get the difference? You said yourself that you could see
-the entries in sysfs. It seems just that it does not get connected to
-the driver. This should be the place to fix the error.
-
-2) When I showed you the output of modprobing the rtc-ds1307 driver, I
-was using exactly this i2c-master driver (the board uses an MPC5200B).
-Plus, I often use at24 as a module. Doesn't look like a problem in the
-infrastructure to me.
-
+> With
 > this patch class assignment is read from device tree.
 > Necessary entry:
-> class =3D <1>; /* I2C_CLASS_HWMON (iic.h) */
+> class = <1>; /* I2C_CLASS_HWMON (iic.h) */
 
-The device tree is OS independent. You are encoding something
-linux-specific into it. This is regularly rejected. I am quite surprised
-to see that there is such a thing in i2c-cpm. Lucky punch, I guess ;)
-Should be removed IMHO.
+Hard-coding the value of Linux-specific flags in the openfirmware
+device tree doesn't look too good to me.
 
-Have you already posted the DTS snipplet for your I2C setup?
+> 
+> Based on 2.6.29
+> 
+> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Sang, Wolfram <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-mpc.c |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -318,6 +318,7 @@ static int __devinit fsl_i2c_probe(struct of_device
+> *op, const struct of_device_
+>  {
+>  	int result = 0;
+>  	struct mpc_i2c *i2c;
+> +	int *of_val;
+> 
+>  	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+>  	if (!i2c)
+> @@ -354,6 +355,10 @@ static int __devinit fsl_i2c_probe(struct of_device
+> *op, const struct of_device_
+>  	dev_set_drvdata(&op->dev, i2c);
+> 
+>  	i2c->adap = mpc_ops;
+> +	of_val = of_get_property(op->node, "class", NULL);
+> +	if(of_val)
 
-Regards,
+Incorrect coding style. Didn't you run scripts/checkpatch.pl on your
+patch before submitting it?
 
-   Wolfram
+> +		i2c->adap.class = *of_val;
+> +
+>  	i2c_set_adapdata(&i2c->adap, i2c);
+>  	i2c->adap.dev.parent = &op->dev;
+> 
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Anyway: Wolfram and Wolfgang have explained to you how to do it right
+and the above isn't that. Declaring the I2C devices in the device tree
+works for everybody else, it has to work for you as well, if you do it
+right.
 
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkntheIACgkQD27XaX1/VRseTwCfThl98tP0nY4y09j/UttV+5w7
-WucAoKZhuRvSLVgC/zYXnMfn4TmRAINX
-=qQiv
------END PGP SIGNATURE-----
-
---tKW2IUtsqtDRztdT--
+-- 
+Jean Delvare
