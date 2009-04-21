@@ -1,105 +1,71 @@
-From: "Hans Verkuil" <hverkuil@xs4all.nl>
-Subject: Re: [PATCH] v4l2-subdev: add a v4l2_i2c_new_dev_subdev() function
-Date: Tue, 21 Apr 2009 14:57:45 +0200 (CEST)
-Message-ID: <43394.62.70.2.252.1240318665.squirrel@webmail.xs4all.nl>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
+Date: Tue, 21 Apr 2009 15:05:11 +0200
+Message-ID: <49EDC487.8010201@gmx.de>
+References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com> <49ED9132.9050806@gmx.de> <20090421095112.GB3100@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: gatoguan-os@yahoo.com
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090421095112.GB3100-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Wolfram Sang said the following:
+>> mailing list. Nevertheless loading modules at runtime is legal and
+>> generally supported by LINUX.
+> 
+> Ack. And it does so...
+> 
+>> Defining all possible (I2C-)devices in DTS would give a mess. E.g. on
+>> one board there will be ~30 temperature sensors, on the other none.
+>> As every DTS entry will force a sysFs subdirectory there would be a
+>> bunch of functionless directories - rather ugly.
+> 
+> Well, you should have a DTS for every flavour; that is what DTS are
+> about. You do know that, do you?
 
->
-> On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
->> On Tue, 21 Apr 2009, Agustin wrote:
->> >
->> > Hi,
->> >
->> > On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
->> > > Video (sub)devices, connecting to SoCs over generic i2c busses
->> cannot
->> > > provide a pointer to struct v4l2_device in i2c-adapter driver_data,
->> and
->> > > provide their own i2c_board_info data, including a platform_data
->> field.
->> > > Add a v4l2_i2c_new_dev_subdev() API function that does exactly the
->> same
->> > > as v4l2_i2c_new_subdev() but uses different parameters, and make
->> > > v4l2_i2c_new_subdev() a wrapper around it.
->> >
->> > [snip]
->> >
->> > I am wondering about this ongoing effort and its pursued goal: is it
->> > to hierarchize the v4l architecture, adding new abstraction levels?
->> > If so, what for?
->
->> Driver-reuse. soc-camera framework will be able to use all available and
->> new v4l2-subdev drivers, and vice versa.
->
-> Well, "Driver reuse." sounds more as a mantra than a reason for me. Then I
-> can't find any "available" v4l2-subdev driver in 2.6.29.
+You like it more complicated? Ok, here it is:
+As Jean indicated in his reply, we will have to support hotplug. Most of
+the above sensors won't exist a life time on some systems, on others all
+could exist. I tried to keep out this issue to avoid a drift to the
+discussion that hotplug is not _yet_ supported. I will^Wmust support
+hotplug, either by using tree's code or by doing my own modifications.
+> 
+> Even if not, there would be a slighty messed directory on one specific
+> device with how many units? Let's take the latest example of extending
+> the DTS file with OS-specific information - this one is ugly, too, but
+> has impact _for everyone using dts_ files. Think about the number of
+> affected systems and you will hopefully understand why such patches are
+> handled with extreme caution.
 
-Look in 2.6.30. Also look in Documentation/video4linux/v4l2-framework.txt
-which documents the new framework.
-
-> I assume this subdev stuff plays a mayor role in current V4L2 architecture
-> refactorization. Then we probably should take this opportunity to relieve
-> V4L APIs from all its explicit I2C mangling, because...
-
-That is the case if you use v4l2_subdev. That's completely bus independent.
-
->> > To me, as an eventual driver developer, this makes it harder to
->> > integrate my own drivers, as I use I2C and V4L in my system but I
->> > don't want them to be tightly coupled.
->
->> This conversion shouldn't make the coupling any tighter.
->
-> But still I think V4L system should not be aware of I2C at all.
->
-> To me, V4L is a kernel subsystem in charge of moving multimedia data
-> from/to userspace/hardware, and the APIs should reflect just that.
->
-> If one V4L driver uses I2C for device control, what does V4L have to say
-> about that, really? Or why V4L would never care about usb or SPI links?
->
-> I2C and V4L should stay cleanly and clearly apart.
-
-Again, that's what v4l2_subdev does. And in fact it is used like that
-already in the ivtv and cx18 drivers.
-
->> > Of course I can ignore this "subdev" stuff and just link against
->> > soc-camera which is what I need, and manage I2C without V4L knowing
->> > about it. Which is what I do.
->
->> You won't be able to. The only link to woc-camera will be the
->> v4l2-subdev link. Already now with this patch many essential
->> soc-camera API operations are gone.
->
-> I guess you mean that I will have to use v4l2-subdev interface to connect
-> to soc-camera, and not to surrender my I2C management to an I2C-extraneous
-> subsystem. Is that right?
->
-> (Sorry for arriving this late to the discussion just to critizise your
-> good efforts.)
-
-All i2c v4l drivers should use v4l2_subdev so that they can be reused in
-other PCI/USB/platform/whatever drivers. Currently sensor drivers such as
-mt9m111 are tied to soc-camera and are impossible to reuse in e.g. a USB
-webcam driver. In 2.6.30 all i2c v4l drivers used by PCI and USB drivers
-are converted to v4l2_subdev. By 2.6.31 I hope that the soc-camera i2c
-drivers and the i2c drivers based on v4l2-int-device.h are also converted,
-thus making the i2c v4l drivers completely reusable.
-
-In addition, the flexibility of v4l2_subdev allows it to be used for other
-non-i2c devices as well.
-
-Regards,
-
-        Hans
-
--- 
-Hans Verkuil - video4linux developer - sponsored by TANDBERG
-
+You talk about my reading of the class entry from DTS?
+No, I don't understand how other systems are affected by this.
+They don't read this entry of _my_ .dts file.
+Seems there is a general misunderstanding...
+> 
+>> Because of the situation above I try to keep the ability of dynamic
+>> instantiation. Jean hesitates, I feel because he sees I2C solely in
+>> static manner.
+> 
+> He is taking care for every I2C communication on every Linux machine out
+> there. He can't please everyone. On the other hand, you are free to
+> modify the kernel as you please. It doesn't really have to be in
+> mainline, does it?
+If this would be a private problem, yes.
+But I see this as a more general flaw:
+Many adapters do initialization of .class in adapter code. A few do not.
+I haven't checked, but assume the PPC ones, as they have DTS. Thats Ok,
+as long DTS is really used. In at least one other adapter it is: Exactly
+Wolfgang Grandegger, who is responsible for removal of the original
+default initialization, showed me, that it is done in i2c-cpm!
+> 
+> BTW, I hope you saw that the "linux,i2c-class" property is considered
+> deprecated. Thus, expect a patch from me removing it entirely as soon
+> as the old binding model went away (there aren't even any users).
+> 
+And how do you want to implement setting the class attribute?
+Allowing only clients that are mentioned in DTS? How should it work on
+systems without DTS?
