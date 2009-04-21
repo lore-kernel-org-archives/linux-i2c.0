@@ -1,90 +1,78 @@
-From: Agustin <gatoguan-os@yahoo.com>
-Subject: Re: [PATCH] v4l2-subdev: add a v4l2_i2c_new_dev_subdev() function
-Date: Tue, 21 Apr 2009 05:46:06 -0700 (PDT)
-Message-ID: <86952.30815.qm@web32103.mail.mud.yahoo.com>
-Reply-To: gatoguan-os@yahoo.com
+From: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
+Subject: [PATCH] i2c-cpm: Pass dev ptr to dma_*_coherent rather than NULL
+Date: Tue, 21 Apr 2009 22:49:02 +1000
+Message-ID: <49EDC0BE.7040505@elphinstone.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Recent DMA changes result in a BUG() when NULL is passed to
+dma_alloc_coherent in place of a device.
 
-On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-> On Tue, 21 Apr 2009, Agustin wrote:
-> >=20
-> > Hi,
-> >=20
-> > On 21/4/09, Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-> > > Video (sub)devices, connecting to SoCs over generic i2c busses ca=
-nnot=20
-> > > provide a pointer to struct v4l2_device in i2c-adapter driver_dat=
-a, and=20
-> > > provide their own i2c_board_info data, including a platform_data =
-field.=20
-> > > Add a v4l2_i2c_new_dev_subdev() API function that does exactly th=
-e same
-> > > as v4l2_i2c_new_subdev() but uses different parameters, and make=20
-> > > v4l2_i2c_new_subdev() a wrapper around it.
-> >=20
-> > [snip]
-> >=20
-> > I am wondering about this ongoing effort and its pursued goal: is i=
-t
-> > to hierarchize the v4l architecture, adding new abstraction levels?
-> > If so, what for?
+Signed-off-by: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
+---
 
-> Driver-reuse. soc-camera framework will be able to use all available =
-and=20
-> new v4l2-subdev drivers, and vice versa.
+This patch fixes the BUG() during boot that has appeared during the
+2.6.30 window. It has been tested and appears correct on my 8280 based
+board.
+Sent to both linuxppc-dev and linux-i2c, since I'm not sure where it belongs.
 
-Well, "Driver reuse." sounds more as a mantra than a reason for me. The=
-n I can't find any "available" v4l2-subdev driver in 2.6.29.
 
-I assume this subdev stuff plays a mayor role in current V4L2 architect=
-ure refactorization. Then we probably should take this opportunity to r=
-elieve V4L APIs from all its explicit I2C mangling, because...
+  drivers/i2c/busses/i2c-cpm.c |   14 ++++++++------
+  1 files changed, 8 insertions(+), 6 deletions(-)
 
-> > To me, as an eventual driver developer, this makes it harder to=20
-> > integrate my own drivers, as I use I2C and V4L in my system but I
-> > don't want them to be tightly coupled.
+diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+index 3fcf78e..83276d2 100644
+--- a/drivers/i2c/busses/i2c-cpm.c
++++ b/drivers/i2c/busses/i2c-cpm.c
+@@ -532,7 +532,8 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
 
-> This conversion shouldn't make the coupling any tighter.
+  	for (i = 0; i < CPM_MAXBD; i++) {
+  		cpm->rxbuf[i] = dma_alloc_coherent(
+-			NULL, CPM_MAX_READ + 1, &cpm->rxdma[i], GFP_KERNEL);
++			&cpm->ofdev->dev, CPM_MAX_READ + 1, &cpm->rxdma[i],
++			GFP_KERNEL);
+  		if (!cpm->rxbuf[i]) {
+  			ret = -ENOMEM;
+  			goto out_muram;
+@@ -540,7 +541,8 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
+  		out_be32(&rbdf[i].cbd_bufaddr, ((cpm->rxdma[i] + 1) & ~1));
 
-But still I think V4L system should not be aware of I2C at all.
+  		cpm->txbuf[i] = (unsigned char *)dma_alloc_coherent(
+-			NULL, CPM_MAX_READ + 1, &cpm->txdma[i], GFP_KERNEL);
++			&cpm->ofdev->dev, CPM_MAX_READ + 1, &cpm->txdma[i],
++			GFP_KERNEL);
+  		if (!cpm->txbuf[i]) {
+  			ret = -ENOMEM;
+  			goto out_muram;
+@@ -585,10 +587,10 @@ static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
+  out_muram:
+  	for (i = 0; i < CPM_MAXBD; i++) {
+  		if (cpm->rxbuf[i])
+-			dma_free_coherent(NULL, CPM_MAX_READ + 1,
++			dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
+  				cpm->rxbuf[i], cpm->rxdma[i]);
+  		if (cpm->txbuf[i])
+-			dma_free_coherent(NULL, CPM_MAX_READ + 1,
++			dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
+  				cpm->txbuf[i], cpm->txdma[i]);
+  	}
+  	cpm_muram_free(cpm->dp_addr);
+@@ -619,9 +621,9 @@ static void cpm_i2c_shutdown(struct cpm_i2c *cpm)
 
-To me, V4L is a kernel subsystem in charge of moving multimedia data fr=
-om/to userspace/hardware, and the APIs should reflect just that.
+  	/* Free all memory */
+  	for (i = 0; i < CPM_MAXBD; i++) {
+-		dma_free_coherent(NULL, CPM_MAX_READ + 1,
++		dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
+  			cpm->rxbuf[i], cpm->rxdma[i]);
+-		dma_free_coherent(NULL, CPM_MAX_READ + 1,
++		dma_free_coherent(&cpm->ofdev->dev, CPM_MAX_READ + 1,
+  			cpm->txbuf[i], cpm->txdma[i]);
+  	}
 
-If one V4L driver uses I2C for device control, what does V4L have to sa=
-y about that, really? Or why V4L would never care about usb or SPI link=
-s?
-
-I2C and V4L should stay cleanly and clearly apart.
-
-> > Of course I can ignore this "subdev" stuff and just link against=20
-> > soc-camera which is what I need, and manage I2C without V4L knowing=
-=20
-> > about it. Which is what I do.
-
-> You won't be able to. The only link to woc-camera will be the
-> v4l2-subdev link. Already now with this patch many essential
-> soc-camera API operations are gone.
-
-I guess you mean that I will have to use v4l2-subdev interface to conne=
-ct to soc-camera, and not to surrender my I2C management to an I2C-extr=
-aneous subsystem. Is that right?
-
-(Sorry for arriving this late to the discussion just to critizise your =
-good efforts.)
-
-Regards,
---Agust=EDn.
---
-To unsubscribe from this list: send the line "unsubscribe linux-media" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+1.5.6.5
