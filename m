@@ -1,76 +1,69 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Tue, 21 Apr 2009 10:39:07 +0200
-Message-ID: <20090421103907.0831978e@hyperion.delvare>
-References: <49ED6AD3.2060808@gmx.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] drivers: move media after i2c
+Date: Tue, 21 Apr 2009 11:01:02 +0200
+Message-ID: <20090421110102.78886dee@hyperion.delvare>
+References: <Pine.LNX.4.64.0904210908360.6551@axis700.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49ED6AD3.2060808-Mmb7MZpHnFY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Sang, Wolfram" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0904210908360.6551@axis700.grange>
+Sender: linux-media-owner@vger.kernel.org
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, Greg KH <greg@kroah.com>, Hans Verkuil <hverkuil@xs4all.nl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 21 Apr 2009 08:42:27 +0200, Michael Lawnick wrote:
-> For MPC adapter there is no class assigned as it is done in other
-> adapters. This way no new-style client will ever be instantiated.
-
-This statement is incorrect. How many times will I have to repeat
-myself?
-
-> With
-> this patch class assignment is read from device tree.
-> Necessary entry:
-> class = <1>; /* I2C_CLASS_HWMON (iic.h) */
-
-Hard-coding the value of Linux-specific flags in the openfirmware
-device tree doesn't look too good to me.
-
+On Tue, 21 Apr 2009 09:22:38 +0200 (CEST), Guennadi Liakhovetski wrote:
+> Currently drivers/media drivers are linked very early - directly after 
+> base, block, misc, and mfd and before ata, scsi, ide, input, firewire, 
+> usb, and i2c. This breaks static build of video4linux drivers, that use 
+> generic CPU i2c adapter drivers and the v4l2-subdev subsystem, because 
+> during video4linux probing the v4l2-subdev core requires a struct 
+> i2c_adapter context, which cannot be satisfied before the i2c subsystem is 
+> initialised. Moving drivers/media after drivers/i2c fixes this problem.
 > 
-> Based on 2.6.29
-> 
-> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Sang, Wolfram <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+Looks good to me.
+
+Acked-by: Jean Delvare <khali@linux-fr.org>
+
 > ---
->  drivers/i2c/busses/i2c-mpc.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -318,6 +318,7 @@ static int __devinit fsl_i2c_probe(struct of_device
-> *op, const struct of_device_
->  {
->  	int result = 0;
->  	struct mpc_i2c *i2c;
-> +	int *of_val;
+> The best way to trigger action is by submitting a patch:-) So, let's see 
+> what comes out of it - on the one hand I don't see any reason why media 
+> has to be linked this early, and nobody was able to give me one yesterday 
+> as this problem has been discussed on linux-media, OTOH, maybe indeed it 
+> would be better to move i2c the whole way up above media, but that'd be 
+> much bigger of a change, I think.
 > 
->  	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
->  	if (!i2c)
-> @@ -354,6 +355,10 @@ static int __devinit fsl_i2c_probe(struct of_device
-> *op, const struct of_device_
->  	dev_set_drvdata(&op->dev, i2c);
-> 
->  	i2c->adap = mpc_ops;
-> +	of_val = of_get_property(op->node, "class", NULL);
-> +	if(of_val)
+> diff --git a/drivers/Makefile b/drivers/Makefile
+> index 2618a61..1266ead 100644
+> --- a/drivers/Makefile
+> +++ b/drivers/Makefile
+> @@ -36,7 +36,7 @@ obj-$(CONFIG_FB_INTEL)          += video/intelfb/
+>  
+>  obj-y				+= serial/
+>  obj-$(CONFIG_PARPORT)		+= parport/
+> -obj-y				+= base/ block/ misc/ mfd/ media/
+> +obj-y				+= base/ block/ misc/ mfd/
+>  obj-$(CONFIG_NUBUS)		+= nubus/
+>  obj-y				+= macintosh/
+>  obj-$(CONFIG_IDE)		+= ide/
+> @@ -71,7 +71,7 @@ obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+>  obj-$(CONFIG_INPUT)		+= input/
+>  obj-$(CONFIG_I2O)		+= message/
+>  obj-$(CONFIG_RTC_LIB)		+= rtc/
+> -obj-y				+= i2c/
+> +obj-y				+= i2c/ media/
+>  obj-$(CONFIG_W1)		+= w1/
+>  obj-$(CONFIG_POWER_SUPPLY)	+= power/
+>  obj-$(CONFIG_HWMON)		+= hwmon/
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Incorrect coding style. Didn't you run scripts/checkpatch.pl on your
-patch before submitting it?
-
-> +		i2c->adap.class = *of_val;
-> +
->  	i2c_set_adapdata(&i2c->adap, i2c);
->  	i2c->adap.dev.parent = &op->dev;
-> 
-
-Anyway: Wolfram and Wolfgang have explained to you how to do it right
-and the above isn't that. Declaring the I2C devices in the device tree
-works for everybody else, it has to work for you as well, if you do it
-right.
 
 -- 
 Jean Delvare
