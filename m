@@ -1,51 +1,29 @@
 From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown
- platform
-Date: Thu, 23 Apr 2009 17:55:42 +0800
-Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD613677A5B@pdsmsx502.ccr.corp.intel.com>
+Subject: [PATCH 0/2] I2C: I2C controller driver for Intel Moorestown platform
+Date: Thu, 23 Apr 2009 18:19:33 +0800
+Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
 References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
-	<20090416111436.296cdd12@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD6136779F1@pdsmsx502.ccr.corp.intel.com>
- <20090423112935.306ba11a@hyperion.delvare>
+ <20090416111436.296cdd12@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090423112935.306ba11a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgSmVhbiwNCg0KPi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+RnJvbTogSmVhbiBEZWx2
-YXJlIFttYWlsdG86a2hhbGlAbGludXgtZnIub3JnXQ0KPlNlbnQ6IDIwMDnE6jTUwjIzyNUgMTc6
-MzANCj5UbzogV2FuZywgV2VuIFcNCj5DYzogbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0KPlN1
-YmplY3Q6IFJlOiBbUEFUQ0ggMC8xXSBJMkM6IEkyQyBjb250cm9sbGVyIGRyaXZlciBmb3IgSW50
-ZWwgTW9vcmVzdG93biBwbGF0Zm9ybQ0KPg0KPkhpIFdlbiwNCj4NCj5PbiBUaHUsIDIzIEFwciAy
-MDA5IDE3OjAwOjU2ICswODAwLCBXYW5nLCBXZW4gVyB3cm90ZToNCj4+IEhpIEplYW4sDQo+Pg0K
-Pj4gVGhpcyBpcyBhIGRlc2NyaXB0aW9uIGZvciB0aGUgcGF0Y2g6DQo+PiAxLiBQYXRjaCBmb3Ig
-STJDIGNvbnRyb2xsZXIgZHJpdmVyIGZvciBJbnRlbCBsb3cgcG93ZXIgcGxhdGZvcm0gIk1vb3Jl
-c3Rvd24iLg0KPj4gMi4gVGhlIGRyaXZlciBkZXBlbmRzIG9uIGEgR1BJTyBkcml2ZXIgZm9yIElu
-dGVsIE1vb3Jlc3Rvd24gcGxhdGZvcm0uDQo+PiAzLiBUaGUgcGF0Y2ggd2lsbDoNCj4+IAlhLiBB
-ZGQgaTJjX21yc3QuYyBhbmQgaTJjX21yc3QuaCB0byBrZXJuZWwgZGlyZWN0b3J5ICJkcml2ZXJz
-L2kyYy9idXNzZXMiDQo+DQo+V2h5IHN1Y2ggYSBjcnlwdGljIG5hbWU/IFlvdSBrbm93LCB0aGlz
-IGlzbid0IE1TLURPUywgbmFtZXMgY2FuIGJlDQo+bG9uZ2VyIHRoYW4gOCBjaGFyYWN0ZXJzIDsp
-DQoNCjotKSBJIGNhbiBjaGFuZ2UgdGhlIG5hbWUgdG8gaTJjX21vb3Jlc3Rvd24uYw0KDQo+PiAJ
-Yi4gQWRkIGl0ZW1zIGludG8ga2VybmVsIGZpbGVzICJkcml2ZXJzL2kyYy9idXNzZXMvS2NvbmZp
-ZyIgYW5kDQo+ImRyaXZlcnMvaTJjL01ha2VmaWxlIi4NCj4+IAljLiBNb2RpZnkgaTJjLWJvYXJk
-aW5mby5jIHRvIGV4cG9ydCBpMmNfcmVnaXN0ZXJfYm9hcmRfaW5mbygpIGZ1bmN0aW9uIGFuZCBh
-ZGQNCj5jb2RlIHRvIGRldGVjdCBpZiBhIGRldmljZSBpcyBhbHJlYWR5IGluIGkyY19ib2FyZF9s
-aXN0Lg0KPg0KPlRoaXMgbGFzdCBpdGVtIHNob3VsZCBnbyB0byBhIHNlcGFyYXRlIHBhdGNoLCBz
-byB0aGF0IGl0IGNhbiBiZQ0KDQpJIHdpbGwgc2VwYXJhdGUgdGhlIHBhdGNoIGludG8gdHdvLg0K
-DQo+ZGlzY3Vzc2VkLiBJdCBpcyBub3QgY2xlYXIgdG8gbWUgd2h5IHlvdSB3b3VsZCBuZWVkIHRv
-IGV4cG9ydCBmdW5jdGlvbnMNCj5ub2JvZHkgZWxzZSBuZWVkZWQgdG8gZXhwb3J0LiBJdCB3aWxs
-IGJlIGVhc2llciB0byByZXZpZXcgYW5kIG1lcmdlDQo+eW91ciBjb2RlIGlmIHRoZSBidXMgZHJp
-dmVyIGl0c2VsZiBpcyBpbiBvbmUgcGF0Y2ggYW5kIGFueSByZXF1aXJlZA0KPmludGVncmF0aW9u
-IGNoYW5nZXMgYXJlIGluIGFub3RoZXIuDQoNClRoaXMgaXMgYmVjYXVzZToNCjEuIFRoZSBJMkMg
-ZHJpdmVyIG5lZWQgdG8gY2FsbCBpMmNfcmVnaXN0ZXJfYm9hcmRfaW5mbygpIHRvIHJlZ2lzdGVy
-IEkyQyBkZXZpY2UgaW5mbyB0YWJsZSB3aGVuIGxvYWRlZC4NCjIuIFRvIHN1cHBvcnQgbG9hZGFi
-bGUgbW9kdWxlLCBJIG1hZGUgc3VjaCBjaGFuZ2UgdG8gaTJjX3JlZ2lzdGVyX2JvYXJkX2luZm8o
-KS4NCg0KSSBrbm93IGl0oa9zIHF1aXRlIHVnbHkgdGhlcmUsIGJ1dCBJIHJlYWxseSBjYW4ndCBm
-aW5kIGEgd2F5IHRvIGRvIHNvLiBQbGVhc2UgZmVlbCBmcmVlIHRvIHRlYWNoIG1lLiANCg0KPlRo
-YW5rcywNCj4tLQ0KPkplYW4gRGVsdmFyZQ0KDQpCUnMNCldlbg0K
+Hi Jean,
+
+This is a description for the patches:
+1. Patches for I2C controller driver for Intel low power platform "Moorestown".
+2. The driver depends on a GPIO driver for Intel Moorestown platform.
+3. Patch 1 will:
+	a. Add "i2c_moorestown.c" and "i2c_moorestown.h" to kernel directory drivers/i2c/busses"
+	b. Add items into kernel files "drivers/i2c/busses/Kconfig" and "drivers/i2c/Makefile".
+4. Patch 2 will:
+	a. Modify i2c-boardinfo.c to export i2c_register_board_info() function and add code to detect if a device is already in i2c_board_list.
+
+Thanks
+Wen
