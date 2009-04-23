@@ -1,59 +1,40 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-pxa.c: timeouts off by 1
-Date: Thu, 23 Apr 2009 17:02:18 +0200
-Message-ID: <20090423170218.66dda625@hyperion.delvare>
-References: <49A524E4.5050108@gmail.com>
-	<20090423143654.7fc2327e@hyperion.delvare>
-	<49F07ADB.1030300@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Dave Airlie <airlied-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: fix bit algorithm timeout for low values.
+Date: Fri, 24 Apr 2009 09:09:13 +1000
+Message-ID: <1240528153-5370-1-git-send-email-airlied@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49F07ADB.1030300-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 23 Apr 2009 16:27:39 +0200, Roel Kluin wrote:
-> Ok, here's for drivers/i2c/busses/i2c-pxa.c. Note that I found another,
-> the last hunk.
-> --------------------------->8-------------8<------------------------------
-> With `while (timeout--)' timeout reaches -1 after the loop, so the tests
-> below are off by one.
-> 
-> Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
+From: Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-Ben, Wolfram, I'll let you handle this one as it's an arm driver.
+When fetching DDC using i2c algo bit, we were often seeing timeouts
+before getting valid EDID on a retry. The VESA spec states 2ms is the
+DDC timeout, so when this translates into 1 jiffie and we are close
+to the end of the time period, it could return with a timeout less than
+2ms.
 
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index c1405c8..acc7143 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -265,10 +265,10 @@ static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *i2c)
->  		show_state(i2c);
->  	}
->  
-> -	if (timeout <= 0)
-> +	if (timeout < 0)
->  		show_state(i2c);
->  
-> -	return timeout <= 0 ? I2C_RETRY : 0;
-> +	return timeout < 0 ? I2C_RETRY : 0;
->  }
->  
->  static int i2c_pxa_wait_master(struct pxa_i2c *i2c)
-> @@ -612,7 +612,7 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
->  		show_state(i2c);
->  	}
->  
-> -	if (timeout <= 0) {
-> +	if (timeout < 0) {
->  		show_state(i2c);
->  		dev_err(&i2c->adap.dev,
->  			"i2c_pxa: timeout waiting for bus free\n");
-> 
+Change this code to use time_after instead of time_after_eq.
 
+Signed-off-by: Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-bit.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index d420cc5..e25e139 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -104,7 +104,7 @@ static int sclhi(struct i2c_algo_bit_data *adap)
+ 		 * chips may hold it low ("clock stretching") while they
+ 		 * are processing data internally.
+ 		 */
+-		if (time_after_eq(jiffies, start + adap->timeout))
++		if (time_after(jiffies, start + adap->timeout))
+ 			return -ETIMEDOUT;
+ 		cond_resched();
+ 	}
 -- 
-Jean Delvare
+1.6.0.6
