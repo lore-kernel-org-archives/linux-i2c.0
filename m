@@ -1,108 +1,71 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown
- platform
-Date: Thu, 23 Apr 2009 13:22:24 +0200
-Message-ID: <20090423132224.25553a5b@hyperion.delvare>
-References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
-	<20090416111436.296cdd12@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD6136779F1@pdsmsx502.ccr.corp.intel.com>
-	<20090423112935.306ba11a@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD613677A5B@pdsmsx502.ccr.corp.intel.com>
+Subject: Re: Handling of i2c arbitration loss
+Date: Thu, 23 Apr 2009 14:24:21 +0200
+Message-ID: <20090423142421.049a8bc7@hyperion.delvare>
+References: <200901081155.27866.david-b@pacbell.net>
+	<20090109100145.GA12376@clifford.at>
+	<20090214121745.39dfddf9@hyperion.delvare>
+	<20090214180014.GA19352@clifford.at>
+	<20090215113122.5bcc3f3d@hyperion.delvare>
+	<20090216131026.GA17437@clifford.at>
+	<20090219172605.7e70a797@hyperion.delvare>
+	<20090219212325.GC16107@clifford.at>
+	<20090220124546.193e49f2@hyperion.delvare>
+	<20090409084726.3f2bd193@hyperion.delvare>
+	<20090409083553.GA20058@clifford.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <0A882F4D99BBF6449D58E61AAFD7EDD613677A5B-Uz4Je35TzWuiAffOGbnezLfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+In-Reply-To: <20090409083553.GA20058-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 23 Apr 2009 17:55:42 +0800, Wang, Wen W wrote:
+On Thu, 9 Apr 2009 10:35:53 +0200, Clifford Wolf wrote:
 > Hi Jean,
->=20
-> >-----Original Message-----
-> >From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
-> >Sent: 2009=E5=B9=B44=E6=9C=8823=E6=97=A5 17:30
-> >To: Wang, Wen W
-> >Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >Subject: Re: [PATCH 0/1] I2C: I2C controller driver for Intel Moores=
-town platform
-> >
-> >Hi Wen,
-> >
-> >On Thu, 23 Apr 2009 17:00:56 +0800, Wang, Wen W wrote:
-> >> Hi Jean,
-> >>
-> >> This is a description for the patch:
-> >> 1. Patch for I2C controller driver for Intel low power platform "M=
-oorestown".
-> >> 2. The driver depends on a GPIO driver for Intel Moorestown platfo=
-rm.
-> >> 3. The patch will:
-> >> 	a. Add i2c_mrst.c and i2c_mrst.h to kernel directory "drivers/i2c=
-/busses"
-> >
-> >Why such a cryptic name? You know, this isn't MS-DOS, names can be
-> >longer than 8 characters ;)
->=20
-> :-) I can change the name to i2c_moorestown.c
+> 
+> On Thu, Apr 09, 2009 at 08:47:26AM +0200, Jean Delvare wrote:
+> > Clifford, any news? I didn't get any update for this patch. If I don't
+> > get one soon, I'll have to just discard it.
+> 
+> oops. has been pretty busy the last weeks...
 
-Yes, please.
+Same here, as you can see :(
 
-> >> 	b. Add items into kernel files "drivers/i2c/busses/Kconfig" and
-> >"drivers/i2c/Makefile".
-> >> 	c. Modify i2c-boardinfo.c to export i2c_register_board_info() fun=
-ction and add
-> >code to detect if a device is already in i2c_board_list.
-> >
-> >This last item should go to a separate patch, so that it can be
->=20
-> I will separate the patch into two.
+> 
+> here is an updated version of the patch (based on the current linus git
+> tree). The only change is that I have moved the initialization of the
+> orig_jiffies variables. Afair we agreed on having adapter->timeout in
+> jiffies and I remeber that you also have made already a patch to unify this
+> for the entire i2c subsystem..
+> 
+> I can't test it until next week, but the changes are trivial. I also have
+> on my todo list for next week to cleanup my i2c-mpc patches and send those
+> parts which are still required after the changes in i2c-core again (I think
+> they have all been removed from the -mm tree already)..
+> 
+> yours,
+>  - clifford
+> 
+> --snip--
+> 
+> i2c: Retry automatically on arbitration loss
+> 
+> some small changes in i2c core to retry i2c xfers until eighter the
+> maximum number of retries or the timeout is hit.
+> 
+> Signed-of-by: Clifford Wolf <clifford-cPpHkPqGOEfk7+2FdBfRIA@public.gmane.org>
 
-Thanks.
+It's "off" not "of" ;)
 
-> >discussed. It is not clear to me why you would need to export functi=
-ons
-> >nobody else needed to export. It will be easier to review and merge
-> >your code if the bus driver itself is in one patch and any required
-> >integration changes are in another.
->=20
-> This is because:
-> 1. The I2C driver need to call i2c_register_board_info() to register =
-I2C device info table when loaded.
-> 2. To support loadable module, I made such change to i2c_register_boa=
-rd_info().
->=20
-> I know it=E2=80=99s quite ugly there, but I really can't find a way t=
-o do so. Please feel free to teach me.
+> ---
+>  drivers/i2c/i2c-core.c |   29 +++++++++++++++++++++++++----
+>  1 files changed, 25 insertions(+), 4 deletions(-)
 
-Which I2C devices are present on the bus, depends on the platform /
-system. This really shouldn't go in the bus driver itself, but rather
-somewhere in arch/. This is what all other platforms are doing. Just
-grep the kernel source tree for "i2c_register_board_info" and you'll
-see.
+Patch applied, thanks. It's in linux-next for now, will go in 2.6.31 if
+no problem is reported.
 
-Now I would need to know more about the Moorestown platform.
-Traditionally, PC platforms never registered I2C devices at the
-platform level because it all depended on the vendor and specific
-mainboard model and there were simply too many out there to list them
-all. There are a few exceptions to this rule but generally we have been
-relying on detection for most I2C devices (EEPROM and hardware
-monitoring chips, mainly) on PC SMBus. This approach has its problems
-(I2C doesn't have any official detection/identification mechanism) but
-overall it works fine.
-
-I would like to understand what makes you believe that the Moorestown
-platform is so different from other Intel-based PC systems, that we
-should list the I2C devices on all of them and add this knowledge to
-the I2C bus driver (or somewhere else in the kernel).
-
-Would Intel be willing to send me one of these Moorestown systems, so
-that I can help more with the reviewing/testing of the i2c-moorestown
-driver and the implementation of any infrastructure change possibly
-required for this platform? This would speed up things a lot, I believe=
-=2E
-
---=20
+-- 
 Jean Delvare
