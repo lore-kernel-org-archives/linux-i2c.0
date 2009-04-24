@@ -1,51 +1,93 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Fri, 24 Apr 2009 12:53:05 +0200
-Message-ID: <49F19A11.3090700@gmx.de>
-References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com> <49ED9132.9050806@gmx.de> <20090421095112.GB3100@pengutronix.de> <49EDC487.8010201@gmx.de> <20090424085256.GA26169@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH, v3] Let PCA9564 recover from unacked data byte (state
+ 0x30)
+Date: Fri, 24 Apr 2009 13:33:53 +0200
+Message-ID: <20090424133353.7925e34b@hyperion.delvare>
+References: <20090407103847.GA13586@ngeserver2.localdomain>
+	<20090409093855.GB539@ngeserver2.localdomain>
+	<20090414170107.GA4260@pengutronix.de>
+	<20090415074500.GA629@ngeserver2.localdomain>
+	<20090424103218.GE26169@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090424085256.GA26169-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20090424103218.GE26169-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Enrik Berkhan <Enrik.Berkhan-JJi787mZWgc@public.gmane.org>, Ian Campbell <icampbell-2sJRl1BP9u0AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang said the following:
-...
->> Allowing only clients that are mentioned in DTS?
-> 
-> For now, yes. This is still the common case (=avoid probing). Until a
-> mainline solution comes up (which is needed, I agree on that), not so
-> common cases could simply patch the driver to add a .class field.
-> 
-Especially it is ugly that devices which are mentioned in DTS but are
-not present (because the component isn't plugged in or powered) get an
-directory entry in /sys/bus/i2c/devices with bind, unbind, ...
-This is my 'problem': I search for a clean way to instantiate on demand
-with no zombies in case of missing H/W. I know there are problems in
-identification of devices, but to remove all possibilities to try it
-seems not a good way for me.
+Hi Wolfram,
 
->> How should it work on systems without DTS?
+On Fri, 24 Apr 2009 12:32:18 +0200, Wolfram Sang wrote:
+> Hi Jean,
 > 
-> i2c_board_info? (no offence, sometimes it is hard to tell if you know
-> all details and still see a valid problem or if you are just missing
-> details. If the first one is the case, please be a bit more elaborative
-> on the problem.)
+> can you pick this one up? I think it qualifies as a bugfix.
 
-I am new in the sense that I jumped in at 2.4 making some non
-i2c-drivers, rejoind at 2.6.24 for i2c-drivers and a non i2c-driver.
-Currently I try to catch up to current state to prepare management of
-all i2c-devices on our next project.
+Sure! Sorry I had missed your review. It's queued up for 2.6.30 now.
 
-Even i2c_board_info needs to be filled in and passed to subsystem via a
-function call. Which part of kernel is supposed to do that without
-changing code beside board specific configuration files?
-(I do really mean this as a question.)
+> 
+> Regards,
+> 
+>    Wolfram
+> 
+> On Wed, Apr 15, 2009 at 09:45:00AM +0200, Enrik Berkhan wrote:
+> > Currently, the i2c-algo-pca driver does nothing if the chip enters state
+> > 0x30 (Data byte in I2CDAT has been transmitted; NOT ACK has been
+> > received).  Thus, the i2c bus connected to the controller gets stuck
+> > afterwards.
+> > 
+> > I have seen this kind of error on a custom board in certain load
+> > situations most probably caused by interference or noise.
+> > 
+> > A possible reaction is to let the controller generate a STOP condition.
+> > This is documented in the PCA9564 data sheet (2006-09-01) and the same
+> > is done for other NACK states as well.
+> > 
+> > Further, state 0x38 isn't handled completely, either. Try to do another
+> > START in this case like the data sheet says. As this couldn't be tested,
+> > I've added a comment to try to reset the chip if the START doesn't help
+> > as suggested by Wolfram Sang.
+> > 
+> > Signed-off-by: Enrik Berkhan <Enrik.Berkhan-JJi787mZWgc@public.gmane.org>
+> > Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/algos/i2c-algo-pca.c |   11 +++++++++++
+> >  1 file changed, 11 insertions(+)
+> > 
+> > Index: drivers/i2c/algos/i2c-algo-pca.c
+> > ===================================================================
+> > --- drivers/i2c/algos/i2c-algo-pca.c.orig	2008-12-25 00:26:37.000000000 +0100
+> > +++ drivers/i2c/algos/i2c-algo-pca.c	2009-04-15 09:37:22.000000000 +0200
+> > @@ -270,10 +270,21 @@ static int pca_xfer(struct i2c_adapter *
+> >  
+> >  		case 0x30: /* Data byte in I2CDAT has been transmitted; NOT ACK has been received */
+> >  			DEB2("NOT ACK received after data byte\n");
+> > +			pca_stop(adap);
+> >  			goto out;
+> >  
+> >  		case 0x38: /* Arbitration lost during SLA+W, SLA+R or data bytes */
+> >  			DEB2("Arbitration lost\n");
+> > +			/*
+> > +			 * The PCA9564 data sheet (2006-09-01) says "A
+> > +			 * START condition will be transmitted when the
+> > +			 * bus becomes free (STOP or SCL and SDA high)"
+> > +			 * when the STA bit is set (p. 11).
+> > +			 *
+> > +			 * In case this won't work, try pca_reset()
+> > +			 * instead.
+> > +			 */
+> > +			pca_start(adap);
+> >  			goto out;
+> >  
+> >  		case 0x58: /* Data byte has been received; NOT ACK has been returned */
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+
 
 -- 
-Kind regards,
-Michael
+Jean Delvare
