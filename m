@@ -1,57 +1,52 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
-Date: Fri, 24 Apr 2009 11:09:11 +0200
-Message-ID: <20090424090911.GB26169@pengutronix.de>
-References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com> <49ED9132.9050806@gmx.de> <20090421115936.28656d09@hyperion.delvare> <49EDD423.3050302@gmx.de> <9e4733910904210900r4c5d1a8en178ad106134b7e6d@mail.gmail.com> <20090421183310.50ff7e0c@hyperion.delvare> <9e4733910904211218l8428128k1f8dd021c50c7846@mail.gmail.com>
+Date: Fri, 24 Apr 2009 11:35:27 +0200
+Message-ID: <20090424113527.4fb94f38@hyperion.delvare>
+References: <49ED6AD3.2060808@gmx.de>
+	<49ED6F03.5050107@grandegger.com>
+	<49ED9132.9050806@gmx.de>
+	<20090421095112.GB3100@pengutronix.de>
+	<49EDC487.8010201@gmx.de>
+	<20090424085256.GA26169@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <9e4733910904211218l8428128k1f8dd021c50c7846-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20090424085256.GA26169-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 24 Apr 2009 10:52:56 +0200, Wolfram Sang wrote:
+> > And how do you want to implement setting the class attribute?
+> 
+> Not at all. I see ".class" as a reminiscent to overcome some flaws of
+> the old binding model.
 
+Not really. The old binding model didn't have this concept of class
+originally, it was added later but never enforced and only sparsely
+used.
 
-> Something has to trigger an interrupt (or the user types a command)
-> indicating that new hardware has been added. The driver of that device
-> can modify the device tree. The rescan of the device tree will cause
-> the i2c modules to automatically load. This shouldn't require any
-> changes to the current i2c sub-system.
+Nowadays classes are an extension of the new binding model, used to
+restrict the field of application of .detect() callbacks (because we
+definitely do not want probing to be enabled by default.)
 
-As I understood it so far, the purpose of the devicetree is done as soon
-it is presented to the linux-kernel and once parsed during boot.
-Changing it at runtime and reacting to that looks like a bigger step to
-me. Hints for that are that most fdt-functions are __init and I couldn't
-quickly find an add_node-function...
+> If we finally got rid of that we can surely think
+> of a more elegant way to enforce instanciation of clients run-time. And
+> with that, probably get rid of .class altogether. D'accord, Jean?
 
-Shouldn't really matter anyhow, should it? As soon as we are run-time,
-there shouldn't be any difference between DTS and platform_devices. It
-is just driver-model then...
+In an ideal world, yes. In the real world, no. There are several
+thousand PC mainboards out there with devices on the SMBus and we don't
+have a list, and in most cases no way to ask the system about them.
+Probing is the only realistic way there, so at least I2C_CLASS_HWMON,
+I2C_CLASS_DDC and I2C_CLASS_SPD are there to stay. We should be able to
+get rid of I2C_CLASS_TV_ANALOG and I2C_CLASS_TV_DIGITAL though.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+While classes will stay for PC mainboards, it should be possible (and
+desirable) to stop using them completely on embedded systems.
 
---rS8CxjVDS/+yyDmU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAknxgbcACgkQD27XaX1/VRvDOACgnUbFM1DyY1BtzgEaAcscb0TM
-ogAAn27eTr6+CmAcLigNmlffVqKDNBbv
-=FR/P
------END PGP SIGNATURE-----
-
---rS8CxjVDS/+yyDmU--
+-- 
+Jean Delvare
