@@ -1,80 +1,52 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: 2.6.30-rc3 i2c build warnings
-Date: Sat, 25 Apr 2009 08:43:44 +0200
-Message-ID: <20090425084344.2c8c62da@hyperion.delvare>
-References: <alpine.LFD.2.00.0904241243270.10096@localhost.localdomain>
+Subject: [PATCH] i2c: Do not probe for TV chips on Voodoo3 adapters
+Date: Sat, 25 Apr 2009 17:27:08 +0200
+Message-ID: <20090425172708.0622f5b3@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.0904241243270.10096-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Len,
+There's no point in giving the I2C bus of Voodoo3 adapters a class
+value, there's no video chip driver checking for it anymore. If
+support is ever needed, the video device should be instantiated
+explicitly rather than probed.
 
-On Fri, 24 Apr 2009 12:45:53 -0400 (EDT), Len Brown wrote:
-> drivers/i2c/i2c-core.c:312: warning: =E2=80=98client_unregister=E2=80=
-=99 is deprecated=20
-> (declared at include/linux/i2c.h:357)
-> drivers/i2c/i2c-core.c:313: warning: =E2=80=98client_unregister=E2=80=
-=99 is deprecated=20
-> (declared at include/linux/i2c.h:357)
-> drivers/i2c/i2c-core.c:653: warning: =E2=80=98detach_client=E2=80=99 =
-is deprecated=20
-> (declared at include/linux/i2c.h:154)
-> drivers/i2c/i2c-core.c:719: warning: =E2=80=98detach_client=E2=80=99 =
-is deprecated=20
-> (declared at include/linux/i2c.h:154)
-> drivers/i2c/i2c-core.c:788: warning: =E2=80=98detach_client=E2=80=99 =
-is deprecated=20
-> (declared at include/linux/i2c.h:154)
-> drivers/i2c/i2c-core.c:869: warning: =E2=80=98client_register=E2=80=99=
- is deprecated=20
-> (declared at include/linux/i2c.h:356)
-> drivers/i2c/i2c-core.c:870: warning: =E2=80=98client_register=E2=80=99=
- is deprecated=20
-> (declared at include/linux/i2c.h:356)
-> drivers/i2c/i2c-core.c:884: warning: =E2=80=98i2c_attach_client=E2=80=
-=99 is deprecated=20
-> (declared at drivers/i2c/i2c-core.c:835)
-> drivers/i2c/i2c-core.c:884: warning: =E2=80=98i2c_attach_client=E2=80=
-=99 is deprecated=20
-> (declared at drivers/i2c/i2c-core.c:835)
-> drivers/i2c/i2c-core.c:891: warning: =E2=80=98client_unregister=E2=80=
-=99 is deprecated=20
-> (declared at include/linux/i2c.h:357)
-> drivers/i2c/i2c-core.c:892: warning: =E2=80=98client_unregister=E2=80=
-=99 is deprecated=20
-> (declared at include/linux/i2c.h:357)
-> drivers/i2c/i2c-core.c:912: warning: =E2=80=98i2c_detach_client=E2=80=
-=99 is deprecated=20
-> (declared at drivers/i2c/i2c-core.c:887)
-> drivers/i2c/i2c-core.c:912: warning: =E2=80=98i2c_detach_client=E2=80=
-=99 is deprecated=20
-> (declared at drivers/i2c/i2c-core.c:887)
+To the best of my knowledge the only video chip that can be found on
+these boards is a BT869 video encoder, for which no support exists
+currently.
 
-I am aware of these. The problem is that these functions are exported
-and are both used externally (which is deprecated, thus the warnings)
-and internally (which is OK, but I don't know how to disable the
-deprecation warnings locally.)
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Krzysztof Helt <krzysztof.h1-5tc4TXWwyLM@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-voodoo3.c |    1 -
+ drivers/video/tdfxfb.c           |    1 -
+ 2 files changed, 2 deletions(-)
 
-When the last few remaining legacy drivers have been converted, we can
-stop exporting these functions, and the warnings will go away.
-Unfortunately it will not happen in 2.6.30 because the remaining
-drivers were converted a little late in the 2.6.30 release cycle [1].
-I'm sorry about this, I did my best but I can't forcibly push patches
-to maintainers if they don't want them.
+--- linux-2.6.30-rc3.orig/drivers/i2c/busses/i2c-voodoo3.c	2009-03-24 13:43:33.000000000 +0100
++++ linux-2.6.30-rc3/drivers/i2c/busses/i2c-voodoo3.c	2009-04-25 12:14:08.000000000 +0200
+@@ -163,7 +163,6 @@ static struct i2c_algo_bit_data voo_i2c_
+ 
+ static struct i2c_adapter voodoo3_i2c_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.class		= I2C_CLASS_TV_ANALOG, 
+ 	.name		= "I2C Voodoo3/Banshee adapter",
+ 	.algo_data	= &voo_i2c_bit_data,
+ };
+--- linux-2.6.30-rc3.orig/drivers/video/tdfxfb.c	2009-04-08 08:53:35.000000000 +0200
++++ linux-2.6.30-rc3/drivers/video/tdfxfb.c	2009-04-25 12:13:59.000000000 +0200
+@@ -1315,7 +1315,6 @@ static int __devinit tdfxfb_setup_i2c_bu
+ 
+ 	strlcpy(chan->adapter.name, name, sizeof(chan->adapter.name));
+ 	chan->adapter.owner		= THIS_MODULE;
+-	chan->adapter.class		= I2C_CLASS_TV_ANALOG;
+ 	chan->adapter.algo_data		= &chan->algo;
+ 	chan->adapter.dev.parent	= dev;
+ 	chan->algo.setsda		= tdfxfb_i2c_setsda;
 
-[1] http://ozlabs.org/pipermail/linuxppc-dev/2009-April/071008.html
-
-If you know of a simple way to silent the deprecation warnings in
-i2c-core meanwhile, I'm all ears. I can think of one method (converting
-all these functions to wrappers to internal versions) but this seems a
-lot of work for something that will go away in 2.6.31 anyway.
-
-Thanks,
---=20
+-- 
 Jean Delvare
