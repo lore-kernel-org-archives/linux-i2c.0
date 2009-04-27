@@ -1,39 +1,83 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Warn when adapters have no parent
-Date: Sun, 26 Apr 2009 10:30:25 +0200
-Message-ID: <20090426103025.4525edd3@hyperion.delvare>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [Patch] MPC Adapter: read class attribute from device tree
+Date: Mon, 27 Apr 2009 07:54:37 +0200
+Message-ID: <49F5489D.8070902@gmx.de>
+References: <49ED6AD3.2060808@gmx.de> <49ED6F03.5050107@grandegger.com>	 <49ED9132.9050806@gmx.de> <20090421095112.GB3100@pengutronix.de>	 <49EDC487.8010201@gmx.de> <20090424085256.GA26169@pengutronix.de>	 <49F19A11.3090700@gmx.de> <9e4733910904240838k5f425d7m849cd6b7fad19f27@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <9e4733910904240838k5f425d7m849cd6b7fad19f27-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Delvare, Jean" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Warn more loudly when an i2c-adapter is registered without a parent.
-There should be almost no driver left in this case, and it's about
-time to fix these.
+Jon Smirl said the following:
+> On Fri, Apr 24, 2009 at 6:53 AM, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org> wrote:
+>> Wolfram Sang said the following:
+>> ...
+>>>> Allowing only clients that are mentioned in DTS?
+>>>
+>>> For now, yes. This is still the common case (=avoid probing). Until a
+>>> mainline solution comes up (which is needed, I agree on that), not so
+>>> common cases could simply patch the driver to add a .class field.
+>>>
+>> Especially it is ugly that devices which are mentioned in DTS but are
+>> not present (because the component isn't plugged in or powered) get an
+>> directory entry in /sys/bus/i2c/devices with bind, unbind, ...
+>> This is my 'problem': I search for a clean way to instantiate on demand
+>> with no zombies in case of missing H/W. I know there are problems in
+>> identification of devices, but to remove all possibilities to try it
+>> seems not a good way for me.
+> 
+> You might want to ask about this on the linux-ppc mailing list.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/i2c-core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+I can't see how they should be able to help me more than this list.
+> 
+> You're stuck because i2c hardware does not support hotplug. Since the
+> hardware doesn't support hotplug there's no software support for it in
+> the kernel. So you want to fall back to polled probing.
 
---- linux-2.6.30-rc3.orig/drivers/i2c/i2c-core.c	2009-04-25 08:46:12.000000000 +0200
-+++ linux-2.6.30-rc3/drivers/i2c/i2c-core.c	2009-04-26 10:10:40.000000000 +0200
-@@ -457,8 +457,9 @@ static int i2c_register_adapter(struct i
- 	 */
- 	if (adap->dev.parent == NULL) {
- 		adap->dev.parent = &platform_bus;
--		pr_debug("I2C adapter driver [%s] forgot to specify "
--			 "physical device\n", adap->name);
-+		pr_warning("I2C adapter driver [%s] forgot to specify "
-+			   "physical device\n", adap->name);
-+		pr_warning("Fix it now, it will soon break!\n");
- 	}
- 
- 	/* Set default timeout to 1 second if not already set */
+That's what I do. But being able to detect a new device via /dev/i2c is
+only halve of the job. The device needs to be identified and a client
+instantiated. Doing this job in the user space polling program would
+double the code, as detection is already done in the drivers.
+> 
+> But probing is bad because it isn't standardized and coordinated, one
+> device's probe can cause another device to destroy things (like set a
+> voltage too high on a motherboard). Because of this probing can't be
+> turned on in general.
 
+That's not the problem. The problem is, that in current code state it is
+not possible at all to do proper probing on MPC85xx architecture, even
+if the possible I2C devices / bus layout would allow it. You must force
+instantiation, so if the driver detects an error on .probe and stops,
+you have dead entries in sysFs. This would not be the case if there
+would be a way to go via .detect
+> 
+> It's possible to get to the i2c bus from user space. You could write a
+> user space app that polls in your controlled environment.
 
--- 
-Jean Delvare
+As said above, this is already done in this way.
+
+> When you
+> detect the new devices you can load the appropriate modules. Now you
+> need to instantiate these new devices.
+
+The modules are already loaded, there is missing a proper way to start
+instantiation of *new* clients.
+> 
+> Jean, is it still possible to instantiate i2c devices from the module
+> command line?
+
+This question is missing the point. The module is already up and
+running. The situation to handle is that there is powered-on a device
+after module load. Now a client for this device needs instantiation. As
+code for detection of client-type should IMHO not be part of user space
+(as it *is* already part of drivers) I am currently fighting for a way
+to trigger a driver's detect function.
+
+--
+Kind regards,
+Michael
