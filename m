@@ -1,112 +1,94 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-pxa.c: timeouts off by 1
-Date: Wed, 29 Apr 2009 22:06:58 +0200
-Message-ID: <20090429200658.GA12251@pengutronix.de>
-References: <49A524E4.5050108@gmail.com> <20090423143654.7fc2327e@hyperion.delvare> <49F07ADB.1030300@gmail.com> <20090423170218.66dda625@hyperion.delvare> <20090423163507.9588a73d.akpm@linux-foundation.org>
+From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown
+  platform
+Date: Thu, 30 Apr 2009 15:15:56 +0800
+Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD613793892@pdsmsx502.ccr.corp.intel.com>
+References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
+	<20090416111436.296cdd12@hyperion.delvare>
+	<0A882F4D99BBF6449D58E61AAFD7EDD6136779F1@pdsmsx502.ccr.corp.intel.com>
+	<20090423112935.306ba11a@hyperion.delvare>
+	<0A882F4D99BBF6449D58E61AAFD7EDD613677A5B@pdsmsx502.ccr.corp.intel.com>
+ <20090423132224.25553a5b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090423163507.9588a73d.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20090423132224.25553a5b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Apr 23, 2009 at 04:35:07PM -0700, Andrew Morton wrote:
-> On Thu, 23 Apr 2009 17:02:18 +0200
-> Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->=20
-> > On Thu, 23 Apr 2009 16:27:39 +0200, Roel Kluin wrote:
-> > > Ok, here's for drivers/i2c/busses/i2c-pxa.c. Note that I found anothe=
-r,
-> > > the last hunk.
-> > > --------------------------->8-------------8<-------------------------=
------
-> > > With `while (timeout--)' timeout reaches -1 after the loop, so the te=
-sts
-> > > below are off by one.
-> > >=20
-> > > Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > ---
-> >=20
-> > Ben, Wolfram, I'll let you handle this one as it's an arm driver.
-> >=20
->=20
-> The patch looks OK,=20
-
-Yup.
-
-Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
->=20
-> : static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *i2c)
-> : {
-> : 	int timeout =3D DEF_TIMEOUT;
-> :=20
-> : 	while (timeout-- && readl(_ISR(i2c)) & (ISR_IBB | ISR_UB)) {
-> : 		if ((readl(_ISR(i2c)) & ISR_SAD) !=3D 0)
-> : 			timeout +=3D 4;
-> :=20
-> : 		msleep(2);
-> : 		show_state(i2c);
-> : 	}
-> :=20
-> : 	if (timeout < 0)
-> : 		show_state(i2c);
-> :=20
-> : 	return timeout < 0 ? I2C_RETRY : 0;
-> : }
->=20
-> The timeout+=3D4 inside the loop makes my brain hurt.  It makes the loop
-> potentially almost-infinite.  By effectively doing timeout+=3D3 each time
-> we'll break out of the loop after we've wrapped through 0x100000000
-> three times.  Or something.  Help!
-
-Well, it only adds 4 if there was its own I2C-slave address detected. Witho=
-ut
-knowing the details, I assume there is a reason; I wouldn't dare changing i=
-t.
-
-> Also, i2c_pxa_pio_set_master() does
->=20
-> 	long timeout =3D 2 * DEF_TIMEOUT;
->=20
-> whereas i2c_pxa_wait_bus_not_bus() does
->=20
-> 	int timeout =3D DEF_TIMEOUT;
->=20
->=20
-> `int' seems an appropriate choice.
-
-This driver seems to have quite some more potential for cleaning up :)
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkn4s2IACgkQD27XaX1/VRt2QgCgutgT4jlamJvweGgdZhb6Hncp
-KiQAoMNGe8LOhpzNB5rxP4f/T7KJK7EK
-=DQ/g
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--
+SGkgSmVhbiwNCg0KU29ycnkgZm9yIG15IHNsb3cgcmVzcG9uc2UuIEp1c3QgYmVlbiBvZmYgbGFz
+dCB3ZWVrLg0KDQpJbnRlbCBNb29yZXN0b3duIHBsYXRmb3JtIGlzIGRlc2lnbmVkIGZvciBNSUQg
+d2hpY2ggaXMgcXVpdGUgZGlmZmVyZW50IGZyb20gdHJhZGl0aW9uYWwgUEMuIFNvIEkyQyBkZXZp
+Y2VzIGFyZSBwcmVzZW50IG9uIHRoZSBidXMgZGVwZW5kZWQgb24gdGhlIHBsYXRmb3JtL3N5c3Rl
+bS4NCg0KSSB3aWxsIGRpc2N1c3Mgd2l0aCBvdXIgdGVhbSB0byBzZWUgaWYgd2UgY2FuIG1vdmUg
+dGhpcyBwYXJ0IHRvIGFyY2gvLiBUaGVuIHdpbGwgZ2V0IGJhY2sgdG8geW91Lg0KDQpGb3IgdGhl
+IGRldmljZSwgZHVlIHRvIHRoZSBwbGF0Zm9ybSBoYXMgbm90IHJlbGVhc2VkLCBzbyBJIGhhdmUg
+dG8gYXNrIGxlZ2FsIGZpcnN0Lg0KDQpUaGFua3MNCldlbg0KDQo+LS0tLS1PcmlnaW5hbCBNZXNz
+YWdlLS0tLS0NCj5Gcm9tOiBKZWFuIERlbHZhcmUgW21haWx0bzpraGFsaUBsaW51eC1mci5vcmdd
+DQo+U2VudDogMjAwOcTqNNTCMjPI1SAxOToyMg0KPlRvOiBXYW5nLCBXZW4gVw0KPkNjOiBsaW51
+eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+U3ViamVjdDogUmU6IFtQQVRDSCAwLzFdIEkyQzogSTJD
+IGNvbnRyb2xsZXIgZHJpdmVyIGZvciBJbnRlbCBNb29yZXN0b3duIHBsYXRmb3JtDQo+DQo+T24g
+VGh1LCAyMyBBcHIgMjAwOSAxNzo1NTo0MiArMDgwMCwgV2FuZywgV2VuIFcgd3JvdGU6DQo+PiBI
+aSBKZWFuLA0KPj4NCj4+ID4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPj4gPkZyb206IEpl
+YW4gRGVsdmFyZSBbbWFpbHRvOmtoYWxpQGxpbnV4LWZyLm9yZ10NCj4+ID5TZW50OiAyMDA5xOo0
+1MIyM8jVIDE3OjMwDQo+PiA+VG86IFdhbmcsIFdlbiBXDQo+PiA+Q2M6IGxpbnV4LWkyY0B2Z2Vy
+Lmtlcm5lbC5vcmcNCj4+ID5TdWJqZWN0OiBSZTogW1BBVENIIDAvMV0gSTJDOiBJMkMgY29udHJv
+bGxlciBkcml2ZXIgZm9yIEludGVsIE1vb3Jlc3Rvd24gcGxhdGZvcm0NCj4+ID4NCj4+ID5IaSBX
+ZW4sDQo+PiA+DQo+PiA+T24gVGh1LCAyMyBBcHIgMjAwOSAxNzowMDo1NiArMDgwMCwgV2FuZywg
+V2VuIFcgd3JvdGU6DQo+PiA+PiBIaSBKZWFuLA0KPj4gPj4NCj4+ID4+IFRoaXMgaXMgYSBkZXNj
+cmlwdGlvbiBmb3IgdGhlIHBhdGNoOg0KPj4gPj4gMS4gUGF0Y2ggZm9yIEkyQyBjb250cm9sbGVy
+IGRyaXZlciBmb3IgSW50ZWwgbG93IHBvd2VyIHBsYXRmb3JtICJNb29yZXN0b3duIi4NCj4+ID4+
+IDIuIFRoZSBkcml2ZXIgZGVwZW5kcyBvbiBhIEdQSU8gZHJpdmVyIGZvciBJbnRlbCBNb29yZXN0
+b3duIHBsYXRmb3JtLg0KPj4gPj4gMy4gVGhlIHBhdGNoIHdpbGw6DQo+PiA+PiAJYS4gQWRkIGky
+Y19tcnN0LmMgYW5kIGkyY19tcnN0LmggdG8ga2VybmVsIGRpcmVjdG9yeSAiZHJpdmVycy9pMmMv
+YnVzc2VzIg0KPj4gPg0KPj4gPldoeSBzdWNoIGEgY3J5cHRpYyBuYW1lPyBZb3Uga25vdywgdGhp
+cyBpc24ndCBNUy1ET1MsIG5hbWVzIGNhbiBiZQ0KPj4gPmxvbmdlciB0aGFuIDggY2hhcmFjdGVy
+cyA7KQ0KPj4NCj4+IDotKSBJIGNhbiBjaGFuZ2UgdGhlIG5hbWUgdG8gaTJjX21vb3Jlc3Rvd24u
+Yw0KPg0KPlllcywgcGxlYXNlLg0KPg0KPj4gPj4gCWIuIEFkZCBpdGVtcyBpbnRvIGtlcm5lbCBm
+aWxlcyAiZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWciIGFuZA0KPj4gPiJkcml2ZXJzL2kyYy9N
+YWtlZmlsZSIuDQo+PiA+PiAJYy4gTW9kaWZ5IGkyYy1ib2FyZGluZm8uYyB0byBleHBvcnQgaTJj
+X3JlZ2lzdGVyX2JvYXJkX2luZm8oKSBmdW5jdGlvbiBhbmQNCj5hZGQNCj4+ID5jb2RlIHRvIGRl
+dGVjdCBpZiBhIGRldmljZSBpcyBhbHJlYWR5IGluIGkyY19ib2FyZF9saXN0Lg0KPj4gPg0KPj4g
+PlRoaXMgbGFzdCBpdGVtIHNob3VsZCBnbyB0byBhIHNlcGFyYXRlIHBhdGNoLCBzbyB0aGF0IGl0
+IGNhbiBiZQ0KPj4NCj4+IEkgd2lsbCBzZXBhcmF0ZSB0aGUgcGF0Y2ggaW50byB0d28uDQo+DQo+
+VGhhbmtzLg0KPg0KPj4gPmRpc2N1c3NlZC4gSXQgaXMgbm90IGNsZWFyIHRvIG1lIHdoeSB5b3Ug
+d291bGQgbmVlZCB0byBleHBvcnQgZnVuY3Rpb25zDQo+PiA+bm9ib2R5IGVsc2UgbmVlZGVkIHRv
+IGV4cG9ydC4gSXQgd2lsbCBiZSBlYXNpZXIgdG8gcmV2aWV3IGFuZCBtZXJnZQ0KPj4gPnlvdXIg
+Y29kZSBpZiB0aGUgYnVzIGRyaXZlciBpdHNlbGYgaXMgaW4gb25lIHBhdGNoIGFuZCBhbnkgcmVx
+dWlyZWQNCj4+ID5pbnRlZ3JhdGlvbiBjaGFuZ2VzIGFyZSBpbiBhbm90aGVyLg0KPj4NCj4+IFRo
+aXMgaXMgYmVjYXVzZToNCj4+IDEuIFRoZSBJMkMgZHJpdmVyIG5lZWQgdG8gY2FsbCBpMmNfcmVn
+aXN0ZXJfYm9hcmRfaW5mbygpIHRvIHJlZ2lzdGVyIEkyQyBkZXZpY2UgaW5mbw0KPnRhYmxlIHdo
+ZW4gbG9hZGVkLg0KPj4gMi4gVG8gc3VwcG9ydCBsb2FkYWJsZSBtb2R1bGUsIEkgbWFkZSBzdWNo
+IGNoYW5nZSB0byBpMmNfcmVnaXN0ZXJfYm9hcmRfaW5mbygpLg0KPj4NCj4+IEkga25vdyBpdKGv
+cyBxdWl0ZSB1Z2x5IHRoZXJlLCBidXQgSSByZWFsbHkgY2FuJ3QgZmluZCBhIHdheSB0byBkbyBz
+by4gUGxlYXNlIGZlZWwgZnJlZSB0bw0KPnRlYWNoIG1lLg0KPg0KPldoaWNoIEkyQyBkZXZpY2Vz
+IGFyZSBwcmVzZW50IG9uIHRoZSBidXMsIGRlcGVuZHMgb24gdGhlIHBsYXRmb3JtIC8NCj5zeXN0
+ZW0uIFRoaXMgcmVhbGx5IHNob3VsZG4ndCBnbyBpbiB0aGUgYnVzIGRyaXZlciBpdHNlbGYsIGJ1
+dCByYXRoZXINCj5zb21ld2hlcmUgaW4gYXJjaC8uIFRoaXMgaXMgd2hhdCBhbGwgb3RoZXIgcGxh
+dGZvcm1zIGFyZSBkb2luZy4gSnVzdA0KPmdyZXAgdGhlIGtlcm5lbCBzb3VyY2UgdHJlZSBmb3Ig
+ImkyY19yZWdpc3Rlcl9ib2FyZF9pbmZvIiBhbmQgeW91J2xsDQo+c2VlLg0KPg0KPk5vdyBJIHdv
+dWxkIG5lZWQgdG8ga25vdyBtb3JlIGFib3V0IHRoZSBNb29yZXN0b3duIHBsYXRmb3JtLg0KPlRy
+YWRpdGlvbmFsbHksIFBDIHBsYXRmb3JtcyBuZXZlciByZWdpc3RlcmVkIEkyQyBkZXZpY2VzIGF0
+IHRoZQ0KPnBsYXRmb3JtIGxldmVsIGJlY2F1c2UgaXQgYWxsIGRlcGVuZGVkIG9uIHRoZSB2ZW5k
+b3IgYW5kIHNwZWNpZmljDQo+bWFpbmJvYXJkIG1vZGVsIGFuZCB0aGVyZSB3ZXJlIHNpbXBseSB0
+b28gbWFueSBvdXQgdGhlcmUgdG8gbGlzdCB0aGVtDQo+YWxsLiBUaGVyZSBhcmUgYSBmZXcgZXhj
+ZXB0aW9ucyB0byB0aGlzIHJ1bGUgYnV0IGdlbmVyYWxseSB3ZSBoYXZlIGJlZW4NCj5yZWx5aW5n
+IG9uIGRldGVjdGlvbiBmb3IgbW9zdCBJMkMgZGV2aWNlcyAoRUVQUk9NIGFuZCBoYXJkd2FyZQ0K
+Pm1vbml0b3JpbmcgY2hpcHMsIG1haW5seSkgb24gUEMgU01CdXMuIFRoaXMgYXBwcm9hY2ggaGFz
+IGl0cyBwcm9ibGVtcw0KPihJMkMgZG9lc24ndCBoYXZlIGFueSBvZmZpY2lhbCBkZXRlY3Rpb24v
+aWRlbnRpZmljYXRpb24gbWVjaGFuaXNtKSBidXQNCj5vdmVyYWxsIGl0IHdvcmtzIGZpbmUuDQo+
+DQo+SSB3b3VsZCBsaWtlIHRvIHVuZGVyc3RhbmQgd2hhdCBtYWtlcyB5b3UgYmVsaWV2ZSB0aGF0
+IHRoZSBNb29yZXN0b3duDQo+cGxhdGZvcm0gaXMgc28gZGlmZmVyZW50IGZyb20gb3RoZXIgSW50
+ZWwtYmFzZWQgUEMgc3lzdGVtcywgdGhhdCB3ZQ0KPnNob3VsZCBsaXN0IHRoZSBJMkMgZGV2aWNl
+cyBvbiBhbGwgb2YgdGhlbSBhbmQgYWRkIHRoaXMga25vd2xlZGdlIHRvDQo+dGhlIEkyQyBidXMg
+ZHJpdmVyIChvciBzb21ld2hlcmUgZWxzZSBpbiB0aGUga2VybmVsKS4NCj4NCj5Xb3VsZCBJbnRl
+bCBiZSB3aWxsaW5nIHRvIHNlbmQgbWUgb25lIG9mIHRoZXNlIE1vb3Jlc3Rvd24gc3lzdGVtcywg
+c28NCj50aGF0IEkgY2FuIGhlbHAgbW9yZSB3aXRoIHRoZSByZXZpZXdpbmcvdGVzdGluZyBvZiB0
+aGUgaTJjLW1vb3Jlc3Rvd24NCj5kcml2ZXIgYW5kIHRoZSBpbXBsZW1lbnRhdGlvbiBvZiBhbnkg
+aW5mcmFzdHJ1Y3R1cmUgY2hhbmdlIHBvc3NpYmx5DQo+cmVxdWlyZWQgZm9yIHRoaXMgcGxhdGZv
+cm0/IFRoaXMgd291bGQgc3BlZWQgdXAgdGhpbmdzIGEgbG90LCBJIGJlbGlldmUuDQo+DQo+LS0N
+Cj5KZWFuIERlbHZhcmUNCg==
