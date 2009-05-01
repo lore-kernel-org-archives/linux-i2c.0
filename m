@@ -1,94 +1,30 @@
-From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown
-  platform
-Date: Thu, 30 Apr 2009 15:15:56 +0800
-Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD613793892@pdsmsx502.ccr.corp.intel.com>
-References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
-	<20090416111436.296cdd12@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD6136779F1@pdsmsx502.ccr.corp.intel.com>
-	<20090423112935.306ba11a@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD613677A5B@pdsmsx502.ccr.corp.intel.com>
- <20090423132224.25553a5b@hyperion.delvare>
+From: Gary Thomas <gary-kIKI1E8EpGZWk0Htik3J/w@public.gmane.org>
+Subject: OF support for tsc2007
+Date: Fri, 01 May 2009 09:05:18 -0600
+Message-ID: <49FB0FAE.3080609@mlbassoc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090423132224.25553a5b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgSmVhbiwNCg0KU29ycnkgZm9yIG15IHNsb3cgcmVzcG9uc2UuIEp1c3QgYmVlbiBvZmYgbGFz
-dCB3ZWVrLg0KDQpJbnRlbCBNb29yZXN0b3duIHBsYXRmb3JtIGlzIGRlc2lnbmVkIGZvciBNSUQg
-d2hpY2ggaXMgcXVpdGUgZGlmZmVyZW50IGZyb20gdHJhZGl0aW9uYWwgUEMuIFNvIEkyQyBkZXZp
-Y2VzIGFyZSBwcmVzZW50IG9uIHRoZSBidXMgZGVwZW5kZWQgb24gdGhlIHBsYXRmb3JtL3N5c3Rl
-bS4NCg0KSSB3aWxsIGRpc2N1c3Mgd2l0aCBvdXIgdGVhbSB0byBzZWUgaWYgd2UgY2FuIG1vdmUg
-dGhpcyBwYXJ0IHRvIGFyY2gvLiBUaGVuIHdpbGwgZ2V0IGJhY2sgdG8geW91Lg0KDQpGb3IgdGhl
-IGRldmljZSwgZHVlIHRvIHRoZSBwbGF0Zm9ybSBoYXMgbm90IHJlbGVhc2VkLCBzbyBJIGhhdmUg
-dG8gYXNrIGxlZ2FsIGZpcnN0Lg0KDQpUaGFua3MNCldlbg0KDQo+LS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0NCj5Gcm9tOiBKZWFuIERlbHZhcmUgW21haWx0bzpraGFsaUBsaW51eC1mci5vcmdd
-DQo+U2VudDogMjAwOcTqNNTCMjPI1SAxOToyMg0KPlRvOiBXYW5nLCBXZW4gVw0KPkNjOiBsaW51
-eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+U3ViamVjdDogUmU6IFtQQVRDSCAwLzFdIEkyQzogSTJD
-IGNvbnRyb2xsZXIgZHJpdmVyIGZvciBJbnRlbCBNb29yZXN0b3duIHBsYXRmb3JtDQo+DQo+T24g
-VGh1LCAyMyBBcHIgMjAwOSAxNzo1NTo0MiArMDgwMCwgV2FuZywgV2VuIFcgd3JvdGU6DQo+PiBI
-aSBKZWFuLA0KPj4NCj4+ID4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPj4gPkZyb206IEpl
-YW4gRGVsdmFyZSBbbWFpbHRvOmtoYWxpQGxpbnV4LWZyLm9yZ10NCj4+ID5TZW50OiAyMDA5xOo0
-1MIyM8jVIDE3OjMwDQo+PiA+VG86IFdhbmcsIFdlbiBXDQo+PiA+Q2M6IGxpbnV4LWkyY0B2Z2Vy
-Lmtlcm5lbC5vcmcNCj4+ID5TdWJqZWN0OiBSZTogW1BBVENIIDAvMV0gSTJDOiBJMkMgY29udHJv
-bGxlciBkcml2ZXIgZm9yIEludGVsIE1vb3Jlc3Rvd24gcGxhdGZvcm0NCj4+ID4NCj4+ID5IaSBX
-ZW4sDQo+PiA+DQo+PiA+T24gVGh1LCAyMyBBcHIgMjAwOSAxNzowMDo1NiArMDgwMCwgV2FuZywg
-V2VuIFcgd3JvdGU6DQo+PiA+PiBIaSBKZWFuLA0KPj4gPj4NCj4+ID4+IFRoaXMgaXMgYSBkZXNj
-cmlwdGlvbiBmb3IgdGhlIHBhdGNoOg0KPj4gPj4gMS4gUGF0Y2ggZm9yIEkyQyBjb250cm9sbGVy
-IGRyaXZlciBmb3IgSW50ZWwgbG93IHBvd2VyIHBsYXRmb3JtICJNb29yZXN0b3duIi4NCj4+ID4+
-IDIuIFRoZSBkcml2ZXIgZGVwZW5kcyBvbiBhIEdQSU8gZHJpdmVyIGZvciBJbnRlbCBNb29yZXN0
-b3duIHBsYXRmb3JtLg0KPj4gPj4gMy4gVGhlIHBhdGNoIHdpbGw6DQo+PiA+PiAJYS4gQWRkIGky
-Y19tcnN0LmMgYW5kIGkyY19tcnN0LmggdG8ga2VybmVsIGRpcmVjdG9yeSAiZHJpdmVycy9pMmMv
-YnVzc2VzIg0KPj4gPg0KPj4gPldoeSBzdWNoIGEgY3J5cHRpYyBuYW1lPyBZb3Uga25vdywgdGhp
-cyBpc24ndCBNUy1ET1MsIG5hbWVzIGNhbiBiZQ0KPj4gPmxvbmdlciB0aGFuIDggY2hhcmFjdGVy
-cyA7KQ0KPj4NCj4+IDotKSBJIGNhbiBjaGFuZ2UgdGhlIG5hbWUgdG8gaTJjX21vb3Jlc3Rvd24u
-Yw0KPg0KPlllcywgcGxlYXNlLg0KPg0KPj4gPj4gCWIuIEFkZCBpdGVtcyBpbnRvIGtlcm5lbCBm
-aWxlcyAiZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWciIGFuZA0KPj4gPiJkcml2ZXJzL2kyYy9N
-YWtlZmlsZSIuDQo+PiA+PiAJYy4gTW9kaWZ5IGkyYy1ib2FyZGluZm8uYyB0byBleHBvcnQgaTJj
-X3JlZ2lzdGVyX2JvYXJkX2luZm8oKSBmdW5jdGlvbiBhbmQNCj5hZGQNCj4+ID5jb2RlIHRvIGRl
-dGVjdCBpZiBhIGRldmljZSBpcyBhbHJlYWR5IGluIGkyY19ib2FyZF9saXN0Lg0KPj4gPg0KPj4g
-PlRoaXMgbGFzdCBpdGVtIHNob3VsZCBnbyB0byBhIHNlcGFyYXRlIHBhdGNoLCBzbyB0aGF0IGl0
-IGNhbiBiZQ0KPj4NCj4+IEkgd2lsbCBzZXBhcmF0ZSB0aGUgcGF0Y2ggaW50byB0d28uDQo+DQo+
-VGhhbmtzLg0KPg0KPj4gPmRpc2N1c3NlZC4gSXQgaXMgbm90IGNsZWFyIHRvIG1lIHdoeSB5b3Ug
-d291bGQgbmVlZCB0byBleHBvcnQgZnVuY3Rpb25zDQo+PiA+bm9ib2R5IGVsc2UgbmVlZGVkIHRv
-IGV4cG9ydC4gSXQgd2lsbCBiZSBlYXNpZXIgdG8gcmV2aWV3IGFuZCBtZXJnZQ0KPj4gPnlvdXIg
-Y29kZSBpZiB0aGUgYnVzIGRyaXZlciBpdHNlbGYgaXMgaW4gb25lIHBhdGNoIGFuZCBhbnkgcmVx
-dWlyZWQNCj4+ID5pbnRlZ3JhdGlvbiBjaGFuZ2VzIGFyZSBpbiBhbm90aGVyLg0KPj4NCj4+IFRo
-aXMgaXMgYmVjYXVzZToNCj4+IDEuIFRoZSBJMkMgZHJpdmVyIG5lZWQgdG8gY2FsbCBpMmNfcmVn
-aXN0ZXJfYm9hcmRfaW5mbygpIHRvIHJlZ2lzdGVyIEkyQyBkZXZpY2UgaW5mbw0KPnRhYmxlIHdo
-ZW4gbG9hZGVkLg0KPj4gMi4gVG8gc3VwcG9ydCBsb2FkYWJsZSBtb2R1bGUsIEkgbWFkZSBzdWNo
-IGNoYW5nZSB0byBpMmNfcmVnaXN0ZXJfYm9hcmRfaW5mbygpLg0KPj4NCj4+IEkga25vdyBpdKGv
-cyBxdWl0ZSB1Z2x5IHRoZXJlLCBidXQgSSByZWFsbHkgY2FuJ3QgZmluZCBhIHdheSB0byBkbyBz
-by4gUGxlYXNlIGZlZWwgZnJlZSB0bw0KPnRlYWNoIG1lLg0KPg0KPldoaWNoIEkyQyBkZXZpY2Vz
-IGFyZSBwcmVzZW50IG9uIHRoZSBidXMsIGRlcGVuZHMgb24gdGhlIHBsYXRmb3JtIC8NCj5zeXN0
-ZW0uIFRoaXMgcmVhbGx5IHNob3VsZG4ndCBnbyBpbiB0aGUgYnVzIGRyaXZlciBpdHNlbGYsIGJ1
-dCByYXRoZXINCj5zb21ld2hlcmUgaW4gYXJjaC8uIFRoaXMgaXMgd2hhdCBhbGwgb3RoZXIgcGxh
-dGZvcm1zIGFyZSBkb2luZy4gSnVzdA0KPmdyZXAgdGhlIGtlcm5lbCBzb3VyY2UgdHJlZSBmb3Ig
-ImkyY19yZWdpc3Rlcl9ib2FyZF9pbmZvIiBhbmQgeW91J2xsDQo+c2VlLg0KPg0KPk5vdyBJIHdv
-dWxkIG5lZWQgdG8ga25vdyBtb3JlIGFib3V0IHRoZSBNb29yZXN0b3duIHBsYXRmb3JtLg0KPlRy
-YWRpdGlvbmFsbHksIFBDIHBsYXRmb3JtcyBuZXZlciByZWdpc3RlcmVkIEkyQyBkZXZpY2VzIGF0
-IHRoZQ0KPnBsYXRmb3JtIGxldmVsIGJlY2F1c2UgaXQgYWxsIGRlcGVuZGVkIG9uIHRoZSB2ZW5k
-b3IgYW5kIHNwZWNpZmljDQo+bWFpbmJvYXJkIG1vZGVsIGFuZCB0aGVyZSB3ZXJlIHNpbXBseSB0
-b28gbWFueSBvdXQgdGhlcmUgdG8gbGlzdCB0aGVtDQo+YWxsLiBUaGVyZSBhcmUgYSBmZXcgZXhj
-ZXB0aW9ucyB0byB0aGlzIHJ1bGUgYnV0IGdlbmVyYWxseSB3ZSBoYXZlIGJlZW4NCj5yZWx5aW5n
-IG9uIGRldGVjdGlvbiBmb3IgbW9zdCBJMkMgZGV2aWNlcyAoRUVQUk9NIGFuZCBoYXJkd2FyZQ0K
-Pm1vbml0b3JpbmcgY2hpcHMsIG1haW5seSkgb24gUEMgU01CdXMuIFRoaXMgYXBwcm9hY2ggaGFz
-IGl0cyBwcm9ibGVtcw0KPihJMkMgZG9lc24ndCBoYXZlIGFueSBvZmZpY2lhbCBkZXRlY3Rpb24v
-aWRlbnRpZmljYXRpb24gbWVjaGFuaXNtKSBidXQNCj5vdmVyYWxsIGl0IHdvcmtzIGZpbmUuDQo+
-DQo+SSB3b3VsZCBsaWtlIHRvIHVuZGVyc3RhbmQgd2hhdCBtYWtlcyB5b3UgYmVsaWV2ZSB0aGF0
-IHRoZSBNb29yZXN0b3duDQo+cGxhdGZvcm0gaXMgc28gZGlmZmVyZW50IGZyb20gb3RoZXIgSW50
-ZWwtYmFzZWQgUEMgc3lzdGVtcywgdGhhdCB3ZQ0KPnNob3VsZCBsaXN0IHRoZSBJMkMgZGV2aWNl
-cyBvbiBhbGwgb2YgdGhlbSBhbmQgYWRkIHRoaXMga25vd2xlZGdlIHRvDQo+dGhlIEkyQyBidXMg
-ZHJpdmVyIChvciBzb21ld2hlcmUgZWxzZSBpbiB0aGUga2VybmVsKS4NCj4NCj5Xb3VsZCBJbnRl
-bCBiZSB3aWxsaW5nIHRvIHNlbmQgbWUgb25lIG9mIHRoZXNlIE1vb3Jlc3Rvd24gc3lzdGVtcywg
-c28NCj50aGF0IEkgY2FuIGhlbHAgbW9yZSB3aXRoIHRoZSByZXZpZXdpbmcvdGVzdGluZyBvZiB0
-aGUgaTJjLW1vb3Jlc3Rvd24NCj5kcml2ZXIgYW5kIHRoZSBpbXBsZW1lbnRhdGlvbiBvZiBhbnkg
-aW5mcmFzdHJ1Y3R1cmUgY2hhbmdlIHBvc3NpYmx5DQo+cmVxdWlyZWQgZm9yIHRoaXMgcGxhdGZv
-cm0/IFRoaXMgd291bGQgc3BlZWQgdXAgdGhpbmdzIGEgbG90LCBJIGJlbGlldmUuDQo+DQo+LS0N
-Cj5KZWFuIERlbHZhcmUNCg==
+I'm trying to use the TSC2007 (actually TSC2003) on a PowerPC
+based platform.  Sadly, the current driver (as of .30-rc4)
+does not seem to be OF aware.
+
+Jon Smirl on the PPC list suggested I ask here.
+
+Any help or ideas?
+
+n.b. at the moment, I'm not subscribed to this list, so please
+CC me on any replies.
+
+Thanks
+
+-- 
+------------------------------------------------------------
+Gary Thomas                 |  Consulting for the
+MLB Associates              |    Embedded world
+------------------------------------------------------------
