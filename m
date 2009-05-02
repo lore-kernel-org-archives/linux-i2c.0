@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 4/6] i2c: Merge i2c_attach_client into i2c_new_device
-Date: Sat, 2 May 2009 11:42:31 +0200
-Message-ID: <20090502114231.6f5cdf47@hyperion.delvare>
+Subject: [PATCH 5/6] i2c: Kill is_newstyle_driver
+Date: Sat, 2 May 2009 11:43:34 +0200
+Message-ID: <20090502114334.155ecb51@hyperion.delvare>
 References: <20090502113856.39940f1e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,150 +13,110 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now that i2c_attach_client is no longer exported, it doesn't need to
-be a separate function. Merge it into its only user, i2c_new_device.
+Legacy i2c drivers are gone, all drivers are new-style now, so there
+is no point to check.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |  100 +++++++++++++++++++-----------------------------
- 1 file changed, 41 insertions(+), 59 deletions(-)
+ drivers/i2c/i2c-core.c |   32 +-------------------------------
+ include/linux/i2c.h    |    2 --
+ 2 files changed, 1 insertion(+), 33 deletions(-)
 
---- linux-2.6.30-rc4.orig/drivers/i2c/i2c-core.c	2009-04-30 18:02:02.000000000 +0200
-+++ linux-2.6.30-rc4/drivers/i2c/i2c-core.c	2009-04-30 18:02:04.000000000 +0200
-@@ -44,7 +44,7 @@ static DEFINE_IDR(i2c_adapter_idr);
+--- linux-2.6.30-rc4.orig/drivers/i2c/i2c-core.c	2009-04-30 18:02:04.000000000 +0200
++++ linux-2.6.30-rc4/drivers/i2c/i2c-core.c	2009-04-30 18:02:07.000000000 +0200
+@@ -42,8 +42,6 @@
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
  
- #define is_newstyle_driver(d) ((d)->probe || (d)->remove || (d)->detect)
- 
--static int i2c_attach_client(struct i2c_client *client);
-+static int i2c_check_addr(struct i2c_adapter *adapter, int addr);
+-#define is_newstyle_driver(d) ((d)->probe || (d)->remove || (d)->detect)
+-
+ static int i2c_check_addr(struct i2c_adapter *adapter, int addr);
  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
  
- /* ------------------------------------------------------------------------- */
-@@ -242,15 +242,17 @@ EXPORT_SYMBOL(i2c_verify_client);
+@@ -65,12 +63,6 @@ static int i2c_device_match(struct devic
+ 	struct i2c_client	*client = to_i2c_client(dev);
+ 	struct i2c_driver	*driver = to_i2c_driver(drv);
  
- 
- /**
-- * i2c_new_device - instantiate an i2c device for use with a new style driver
-+ * i2c_new_device - instantiate an i2c device
-  * @adap: the adapter managing the device
-  * @info: describes one I2C device; bus_num is ignored
-  * Context: can sleep
-  *
-- * Create a device to work with a new style i2c driver, where binding is
-- * handled through driver model probe()/remove() methods.  This call is not
-- * appropriate for use by mainboad initialization logic, which usually runs
-- * during an arch_initcall() long before any i2c_adapter could exist.
-+ * Create an i2c device. Binding is handled through driver model
-+ * probe()/remove() methods.  A driver may be bound to this device when we
-+ * return from this function, or any later moment (e.g. maybe hotplugging will
-+ * load the driver module).  This call is not appropriate for use by mainboard
-+ * initialization logic, which usually runs during an arch_initcall() long
-+ * before any i2c_adapter could exist.
-  *
-  * This returns the new i2c client, which may be saved for later use with
-  * i2c_unregister_device(); or NULL to indicate an error.
-@@ -278,17 +280,40 @@ i2c_new_device(struct i2c_adapter *adap,
- 
- 	strlcpy(client->name, info->type, sizeof(client->name));
- 
--	/* a new style driver may be bound to this device when we
--	 * return from this function, or any later moment (e.g. maybe
--	 * hotplugging will load the driver module).  and the device
--	 * refcount model is the standard driver model one.
+-	/* make legacy i2c drivers bypass driver model probing entirely;
+-	 * such drivers scan each i2c adapter/bus themselves.
 -	 */
--	status = i2c_attach_client(client);
--	if (status < 0) {
--		kfree(client);
--		client = NULL;
--	}
-+	/* Check for address business */
-+	status = i2c_check_addr(adap, client->addr);
-+	if (status)
-+		goto out_err;
-+
-+	client->dev.parent = &client->adapter->dev;
-+	client->dev.bus = &i2c_bus_type;
-+
-+	if (client->driver && !is_newstyle_driver(client->driver)) {
-+		client->dev.release = i2c_client_release;
-+		dev_set_uevent_suppress(&client->dev, 1);
-+	} else
-+		client->dev.release = i2c_client_dev_release;
-+
-+	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
-+		     client->addr);
-+	status = device_register(&client->dev);
-+	if (status)
-+		goto out_err;
-+
-+	mutex_lock(&adap->clist_lock);
-+	list_add_tail(&client->list, &adap->clients);
-+	mutex_unlock(&adap->clist_lock);
-+
-+	dev_dbg(&adap->dev, "client [%s] registered with bus id %s\n",
-+		client->name, dev_name(&client->dev));
-+
- 	return client;
-+
-+out_err:
-+	dev_err(&adap->dev, "Failed to register i2c client %s at 0x%02x "
-+		"(%d)\n", client->name, client->addr, status);
-+	kfree(client);
-+	return NULL;
- }
- EXPORT_SYMBOL_GPL(i2c_new_device);
- 
-@@ -770,49 +795,6 @@ static int i2c_check_addr(struct i2c_ada
- 	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr);
+-	if (!is_newstyle_driver(driver))
+-		return 0;
+-
+ 	/* match on an id table if there is one */
+ 	if (driver->id_table)
+ 		return i2c_match_id(driver->id_table, client) != NULL;
+@@ -177,12 +169,6 @@ static int i2c_device_resume(struct devi
+ 	return driver->resume(to_i2c_client(dev));
  }
  
--static int i2c_attach_client(struct i2c_client *client)
+-static void i2c_client_release(struct device *dev)
 -{
--	struct i2c_adapter *adapter = client->adapter;
--	int res;
+-	struct i2c_client *client = to_i2c_client(dev);
+-	complete(&client->released);
+-}
 -
--	/* Check for address business */
--	res = i2c_check_addr(adapter, client->addr);
--	if (res)
--		return res;
--
--	client->dev.parent = &client->adapter->dev;
--	client->dev.bus = &i2c_bus_type;
--
--	if (client->driver)
--		client->dev.driver = &client->driver->driver;
+ static void i2c_client_dev_release(struct device *dev)
+ {
+ 	kfree(to_i2c_client(dev));
+@@ -287,12 +273,7 @@ i2c_new_device(struct i2c_adapter *adap,
+ 
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
 -
 -	if (client->driver && !is_newstyle_driver(client->driver)) {
 -		client->dev.release = i2c_client_release;
 -		dev_set_uevent_suppress(&client->dev, 1);
 -	} else
 -		client->dev.release = i2c_client_dev_release;
++	client->dev.release = i2c_client_dev_release;
+ 
+ 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+ 		     client->addr);
+@@ -326,14 +307,6 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
+ void i2c_unregister_device(struct i2c_client *client)
+ {
+ 	struct i2c_adapter	*adapter = client->adapter;
+-	struct i2c_driver	*driver = client->driver;
 -
--	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adapter),
--		     client->addr);
--	res = device_register(&client->dev);
--	if (res)
--		goto out_err;
+-	if (driver && !is_newstyle_driver(driver)) {
+-		dev_err(&client->dev, "can't unregister devices "
+-			"with legacy drivers\n");
+-		WARN_ON(1);
+-		return;
+-	}
+ 
+ 	mutex_lock(&adapter->clist_lock);
+ 	list_del(&client->list);
+@@ -746,9 +719,6 @@ static int __detach_adapter(struct devic
+ 		i2c_unregister_device(client);
+ 	}
+ 
+-	if (is_newstyle_driver(driver))
+-		return 0;
 -
--	mutex_lock(&adapter->clist_lock);
--	list_add_tail(&client->list, &adapter->clients);
--	mutex_unlock(&adapter->clist_lock);
--
--	dev_dbg(&adapter->dev, "client [%s] registered with bus id %s\n",
--		client->name, dev_name(&client->dev));
--
--	return 0;
--
--out_err:
--	dev_err(&adapter->dev, "Failed to attach i2c client %s at 0x%02x "
--		"(%d)\n", client->name, client->addr, res);
--	return res;
--}
--
- /**
-  * i2c_use_client - increments the reference count of the i2c client structure
-  * @client: the client being referenced
+ 	if (driver->detach_adapter) {
+ 		if (driver->detach_adapter(adapter))
+ 			dev_err(&adapter->dev,
+--- linux-2.6.30-rc4.orig/include/linux/i2c.h	2009-04-30 18:02:02.000000000 +0200
++++ linux-2.6.30-rc4/include/linux/i2c.h	2009-04-30 18:02:12.000000000 +0200
+@@ -180,7 +180,6 @@ struct i2c_driver {
+  * @irq: indicates the IRQ generated by this device (if any)
+  * @list: list of active/busy clients (DEPRECATED)
+  * @detected: member of an i2c_driver.clients list
+- * @released: used to synchronize client releases & detaches and references
+  *
+  * An i2c_client identifies a single device (i.e. chip) connected to an
+  * i2c bus. The behaviour exposed to Linux is defined by the driver
+@@ -198,7 +197,6 @@ struct i2c_client {
+ 	int irq;			/* irq issued by device		*/
+ 	struct list_head list;		/* DEPRECATED */
+ 	struct list_head detected;
+-	struct completion released;
+ };
+ #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+ 
 
 -- 
 Jean Delvare
