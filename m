@@ -1,59 +1,60 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c/chips: move max6875 to drivers/misc/eeprom
-Date: Sat, 2 May 2009 09:25:43 +0200
-Message-ID: <20090502092543.1ba62972@hyperion.delvare>
-References: <1241209409-29378-1-git-send-email-w.sang@pengutronix.de>
+Subject: [PATCH 0/6] i2c: Get rid of the legacy binding model
+Date: Sat, 2 May 2009 11:38:56 +0200
+Message-ID: <20090502113856.39940f1e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1241209409-29378-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+As the last few remaining legacy i2c drivers are being converted, we
+can finally get rid of the legacy binding model supporting code in
+i2c-core. Here come 6 patches which do exactly that:
 
-On Fri,  1 May 2009 22:23:29 +0200, Wolfram Sang wrote:
-> This driver only reads the user EEPROM of that chip, so we can move it
-> to the eeprom-directory in order to further clean up (and later remove)
-> drivers/i2c/chips.
+[1/6] i2c: Kill client_register and client_unregister methods
+[2/6] i2c: Get rid of the legacy binding model
+[3/6] i2c: Drop i2c_probe function
+[4/6] i2c: Merge i2c_attach_client into i2c_new_device
+[5/6] i2c: Kill is_newstyle_driver
+[6/6] i2c: Kill the redundant client list
 
-I'm all for it :)
+As one would expect, the size reduction is very significant:
 
-> The Kconfig text was updated to match the current functionality,
-> dropping the meanwhile obsoleted parts.
-> 
-> Defconfigs have been adapted.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
-> 
-> This is against linus-git of today. Jean, do you think such a patch 
-> can make it at this point of the release cycle? It is a bit
-> annoying because of all the defconfigs.
+ Documentation/feature-removal-schedule.txt |   10 -
+ Documentation/i2c/writing-clients          |   16 -
+ drivers/i2c/i2c-core.c                     |  366 +++--------------------------
+ include/linux/i2c.h                        |   57 +----
+ 4 files changed, 48 insertions(+), 401 deletions(-)
 
-Well, not being a bug fix, I believe it will have to wait until the
-next merge window. And yes we will have to check all the defconfigs
-again right before merging it.
+>From a binary perspective, "size" announces an 18% shrink.
 
-One minor comment:
+There are two things which should still be investigated.
 
-> --- /dev/null
-> +++ b/drivers/misc/eeprom/max6875.c
-> @@ -0,0 +1,246 @@
-> +/*
-> +    max6875.c - driver for MAX6874/MAX6875
-> +
-> +    Copyright (C) 2005 Ben Gardner <bgardner-ohtLXRgXiI/QT0dZR+AlfA@public.gmane.org>
-> +
-> +    Based on i2c/chips/eeprom.c
+1* In i2c_device_uevent() there is the following piece of code:
 
-Maybe drop the soon-to-be-removed path from this reference?
+	/* by definition, legacy drivers can't hotplug */
+	if (dev->driver)
+		return 0;
 
-Thanks,
+David, I presume this can go away?
+
+2* Core locking should be checked. I am not completely sure what
+core_lock was supposed to protect, nor what it should protect now. I
+think it should protect at least i2c_adapter_idr, driver->detect()
+calls (which may add a device to the driver->clients list) and
+driver->attach_adapter() calls (for the same reason), although for the
+latter two, a per-driver lock may be more appropriate.
+
+At the moment, we also hold the lock for all of i2c_register_adapter(),
+i2c_del_adapter() and i2c_del_driver(), but not i2c_register_driver(),
+which seems a little inconsistent. David, do you know if we need to
+serialize the calls to device_register() and device_unregister(), or if
+the driver core takes care of this for us?
+
+Anything else needs to be protected?
+
 -- 
 Jean Delvare
