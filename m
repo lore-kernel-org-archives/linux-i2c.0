@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 5/6] i2c: Kill is_newstyle_driver
-Date: Sat, 2 May 2009 11:43:34 +0200
-Message-ID: <20090502114334.155ecb51@hyperion.delvare>
+Subject: [PATCH 6/6] i2c: Kill the redundant client list
+Date: Sat, 2 May 2009 11:45:11 +0200
+Message-ID: <20090502114511.3d331eda@hyperion.delvare>
 References: <20090502113856.39940f1e@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,110 +13,85 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Legacy i2c drivers are gone, all drivers are new-style now, so there
-is no point to check.
+We used to maintain our own per-adapter list of i2c clients, but this
+is redundant with what the driver core does, and no longer needed.
+Just drop the redundant list.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   32 +-------------------------------
- include/linux/i2c.h    |    2 --
- 2 files changed, 1 insertion(+), 33 deletions(-)
+ drivers/i2c/i2c-core.c |   12 ------------
+ include/linux/i2c.h    |    4 ----
+ 2 files changed, 16 deletions(-)
 
---- linux-2.6.30-rc4.orig/drivers/i2c/i2c-core.c	2009-04-30 18:02:04.000000000 +0200
-+++ linux-2.6.30-rc4/drivers/i2c/i2c-core.c	2009-04-30 18:02:07.000000000 +0200
-@@ -42,8 +42,6 @@
- static DEFINE_MUTEX(core_lock);
- static DEFINE_IDR(i2c_adapter_idr);
+--- linux-2.6.30-rc4.orig/drivers/i2c/i2c-core.c	2009-04-30 14:33:14.000000000 +0200
++++ linux-2.6.30-rc4/drivers/i2c/i2c-core.c	2009-04-30 15:35:30.000000000 +0200
+@@ -281,10 +281,6 @@ i2c_new_device(struct i2c_adapter *adap,
+ 	if (status)
+ 		goto out_err;
  
--#define is_newstyle_driver(d) ((d)->probe || (d)->remove || (d)->detect)
+-	mutex_lock(&adap->clist_lock);
+-	list_add_tail(&client->list, &adap->clients);
+-	mutex_unlock(&adap->clist_lock);
 -
- static int i2c_check_addr(struct i2c_adapter *adapter, int addr);
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+ 	dev_dbg(&adap->dev, "client [%s] registered with bus id %s\n",
+ 		client->name, dev_name(&client->dev));
  
-@@ -65,12 +63,6 @@ static int i2c_device_match(struct devic
- 	struct i2c_client	*client = to_i2c_client(dev);
- 	struct i2c_driver	*driver = to_i2c_driver(drv);
- 
--	/* make legacy i2c drivers bypass driver model probing entirely;
--	 * such drivers scan each i2c adapter/bus themselves.
--	 */
--	if (!is_newstyle_driver(driver))
--		return 0;
--
- 	/* match on an id table if there is one */
- 	if (driver->id_table)
- 		return i2c_match_id(driver->id_table, client) != NULL;
-@@ -177,12 +169,6 @@ static int i2c_device_resume(struct devi
- 	return driver->resume(to_i2c_client(dev));
- }
- 
--static void i2c_client_release(struct device *dev)
--{
--	struct i2c_client *client = to_i2c_client(dev);
--	complete(&client->released);
--}
--
- static void i2c_client_dev_release(struct device *dev)
- {
- 	kfree(to_i2c_client(dev));
-@@ -287,12 +273,7 @@ i2c_new_device(struct i2c_adapter *adap,
- 
- 	client->dev.parent = &client->adapter->dev;
- 	client->dev.bus = &i2c_bus_type;
--
--	if (client->driver && !is_newstyle_driver(client->driver)) {
--		client->dev.release = i2c_client_release;
--		dev_set_uevent_suppress(&client->dev, 1);
--	} else
--		client->dev.release = i2c_client_dev_release;
-+	client->dev.release = i2c_client_dev_release;
- 
- 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
- 		     client->addr);
-@@ -326,14 +307,6 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
+@@ -306,12 +302,6 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
+  */
  void i2c_unregister_device(struct i2c_client *client)
  {
- 	struct i2c_adapter	*adapter = client->adapter;
--	struct i2c_driver	*driver = client->driver;
+-	struct i2c_adapter	*adapter = client->adapter;
 -
--	if (driver && !is_newstyle_driver(driver)) {
--		dev_err(&client->dev, "can't unregister devices "
--			"with legacy drivers\n");
--		WARN_ON(1);
--		return;
--	}
- 
- 	mutex_lock(&adapter->clist_lock);
- 	list_del(&client->list);
-@@ -746,9 +719,6 @@ static int __detach_adapter(struct devic
- 		i2c_unregister_device(client);
- 	}
- 
--	if (is_newstyle_driver(driver))
--		return 0;
+-	mutex_lock(&adapter->clist_lock);
+-	list_del(&client->list);
+-	mutex_unlock(&adapter->clist_lock);
 -
- 	if (driver->detach_adapter) {
- 		if (driver->detach_adapter(adapter))
- 			dev_err(&adapter->dev,
---- linux-2.6.30-rc4.orig/include/linux/i2c.h	2009-04-30 18:02:02.000000000 +0200
-+++ linux-2.6.30-rc4/include/linux/i2c.h	2009-04-30 18:02:12.000000000 +0200
-@@ -180,7 +180,6 @@ struct i2c_driver {
+ 	device_unregister(&client->dev);
+ }
+ EXPORT_SYMBOL_GPL(i2c_unregister_device);
+@@ -437,8 +427,6 @@ static int i2c_register_adapter(struct i
+ 		return -EAGAIN;
+ 
+ 	mutex_init(&adap->bus_lock);
+-	mutex_init(&adap->clist_lock);
+-	INIT_LIST_HEAD(&adap->clients);
+ 
+ 	mutex_lock(&core_lock);
+ 
+--- linux-2.6.30-rc4.orig/include/linux/i2c.h	2009-04-30 14:34:30.000000000 +0200
++++ linux-2.6.30-rc4/include/linux/i2c.h	2009-04-30 15:34:44.000000000 +0200
+@@ -178,7 +178,6 @@ struct i2c_driver {
+  * @driver: device's driver, hence pointer to access routines
+  * @dev: Driver model device node for the slave.
   * @irq: indicates the IRQ generated by this device (if any)
-  * @list: list of active/busy clients (DEPRECATED)
+- * @list: list of active/busy clients (DEPRECATED)
   * @detected: member of an i2c_driver.clients list
-- * @released: used to synchronize client releases & detaches and references
   *
   * An i2c_client identifies a single device (i.e. chip) connected to an
-  * i2c bus. The behaviour exposed to Linux is defined by the driver
-@@ -198,7 +197,6 @@ struct i2c_client {
+@@ -195,7 +194,6 @@ struct i2c_client {
+ 	struct i2c_driver *driver;	/* and our access routines	*/
+ 	struct device dev;		/* the device structure		*/
  	int irq;			/* irq issued by device		*/
- 	struct list_head list;		/* DEPRECATED */
+-	struct list_head list;		/* DEPRECATED */
  	struct list_head detected;
--	struct completion released;
  };
  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+@@ -339,14 +337,12 @@ struct i2c_adapter {
+ 	/* data fields that are valid for all devices	*/
+ 	u8 level; 			/* nesting level for lockdep */
+ 	struct mutex bus_lock;
+-	struct mutex clist_lock;
  
+ 	int timeout;			/* in jiffies */
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
+ 
+ 	int nr;
+-	struct list_head clients;	/* DEPRECATED */
+ 	char name[48];
+ 	struct completion dev_released;
+ };
 
 -- 
 Jean Delvare
