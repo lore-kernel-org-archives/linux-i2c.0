@@ -1,59 +1,120 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-cpm: Pass dev ptr to dma_*_coherent rather than
-	NULL
-Date: Sun, 3 May 2009 23:23:52 +0100
-Message-ID: <20090503222352.GB5750@fluff.org.uk>
-References: <49EDC0BE.7040505@elphinstone.net> <E2205842-8019-4CE4-812B-64ABD76F36F4@kernel.crashing.org> <20090422215646.GA19997@trinity.fluff.org> <AAD6564F-9D99-492B-8364-10A652F990DF@kernel.crashing.org>
+Subject: Re: pxa i2c unit busy caused unrecoverable phone hang problem
+Date: Sun, 3 May 2009 23:33:51 +0100
+Message-ID: <20090503223351.GC5750@fluff.org.uk>
+References: <fd6b62c10904270057w610239dflfd228f949c0649b2@mail.gmail.com> <20090427120810.20af38b8@hyperion.delvare> <49F58A01.6060401@compulab.co.il> <fd6b62c10904270641p1dc6d86awc271dcc10a1f6b0@mail.gmail.com> <fd6b62c10904270832w54c77fb3kdff9981d949ff54b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <AAD6564F-9D99-492B-8364-10A652F990DF-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <fd6b62c10904270832w54c77fb3kdff9981d949ff54b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linuxppc-dev Development <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
+To: ?????? <wxc200-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, yi.ru-SckdOjWYlhYAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 29, 2009 at 08:43:14AM -0500, Kumar Gala wrote:
->
-> On Apr 22, 2009, at 4:56 PM, Ben Dooks wrote:
->
->> On Tue, Apr 21, 2009 at 10:11:51AM -0500, Kumar Gala wrote:
->>>
->>> On Apr 21, 2009, at 7:49 AM, Mark Ware wrote:
->>>
->>>> Recent DMA changes result in a BUG() when NULL is passed to
->>>> dma_alloc_coherent in place of a device.
->>>>
->>>> Signed-off-by: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
->>>> ---
->>>>
->>>> This patch fixes the BUG() during boot that has appeared during the
->>>> 2.6.30 window. It has been tested and appears correct on my 8280  
->>>> based
->>>> board.
->>>> Sent to both linuxppc-dev and linux-i2c, since I'm not sure where it
->>>> belongs.
->>>>
->>>>
->>>> drivers/i2c/busses/i2c-cpm.c |   14 ++++++++------
->>>> 1 files changed, 8 insertions(+), 6 deletions(-)
->>>
->>> Acked-by: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
->>>
->>> Ben, I'm expecting you to pick this up unless you tell me otherwise.
->>
->> Yes.
->
-> This go in yet?
+On Mon, Apr 27, 2009 at 11:32:26PM +0800, ?????? wrote:
+> Hi,
+> 
+> As a compromise,we hope make the phone system free to run even the i2c
+> subsystem become busy already.Then there maybe time to choose some
+> useful way to solve that. The console can not input when phone hang
+> now.
+> 
+> So we try to make the sleep time in i2c layer long enough,but the
+> result not well,because there are many threads waiting for i2c bus
+> operation.The key threads such as serial console could not get chance
+> to run,or cannot interact with user timely.
+> 
+> Anyone could give a hand about this?
 
-I've had to do a manual apply due to some changes in the
-driver, so can someone please do a build of my git tree
-at:
+Generally, if you're increasing sleep times, then you've either got
+an electrical issue with the bus, or there is a device on there which
+is causing the bus to be slowed down.
 
-git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-2630-rc5
+Firstly, electrical issues:
 
-or tell me which arch and defconfig to build.
+1) Verify by measuring the clock pulses on the bus that it is
+   running at the rate you expcet it to be. It can be very
+   embarasing stating that your bus is 100KHz, when your hardware
+   engineer's scope is saying 100Hz.
+
+2) Are the rise times on either of SCL or SCA excessive? The bus
+   relies on something pulling these lines inactive, and if there
+   is either insufficient pull-up resitance (4.7 - 10K for 100KHz
+   is iirc recommend) or too much capacitance then the bus can be
+   held up waiting for these signals to reach inactive after they
+   have been asserted
+
+3) Are all the chips soldered on correctly and in the correct
+   orientation?
+
+4) Has the board been tested and known to work?
+
+5) Get a logic analyser and watch the traffic, look for how long
+   it takes to complete a transaction and how often they are being
+   issued.
+
+
+Another issue is are there any 'soft' devices on the bus, such as
+a power management microcontroller. If there are any devices that
+have (or have to) have firmware to work, do they have the correct
+firmware and has this firmware been verified to work?
+
+My last real PXA work was ~2.6.9, but it was working fine then. I
+currently don't have any PXA devices with working kernels to do
+any testing of a current kernel.
+ 
+> Thanks in advance again.
+> 
+> --Yize
+> 
+> 2009/4/27 ?????? <wxc200-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >
+> > thanks your reply ,Jean and Mike
+> >
+> > Winston Churchill ??- "The best argument against democracy is a five-minute conversation with the average voter."
+> >
+> > 2009/4/27 Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> >>
+> >>
+> >> Jean Delvare wrote:
+> >> > On Mon, 27 Apr 2009 15:57:45 +0800, ?????? wrote:
+> >> >> We use Marvell's pxaXXX chip,and the i2c unit often become BUSY status .As
+> >> >> normal operation,the Unit-Busy will become free quickly,but sometimes
+> >> >> UNIT-BUSY forever.For there are very frequent i2c operations,the cell-phone
+> >> >> become hang soon,nothing could be done but remove the battery and reboot.
+> >> >>
+> >> >> So could you give a suggestion? ??Is there any useful way to protect from
+> >> >> entering this abnormal UNIT-BUSY i2c status or recover from that?
+> >>
+> >> PXA I2C controller often reports BUSY when one of the I2C lines are held low.
+> >> Verify you have proper pull-ups and that devices connected to I2C bus behave in
+> >> a sane way.
+> >
+> > Yes,we do.The unrecoverable problem is UNIT-BUSY,we still be confused by the root cause.Now we guess there are two types of answers:
+> >
+> > 1) Another master left I2C busy in abnormal status after operation
+> > 2) Protocol conflict violation caused by messages transfer,such as the?? too large?? message or wrong operation.Most of the time,I2C works fine.
+> >
+> > We thought there would be some reset mechasim in that bad situation,but not.
+> > There are many threads waiting for the mutex lock while the current operating one is trying,trying,and trying,,,but I2C Unit Busy block all.
+> >
+> > -- Yize
+> >>
+> >> > I don't know anything about PXA platforms, there's nothing I can do for
+> >> > you, sorry.
+> >> >
+> >>
+> >> --
+> >> Sincerely yours,
+> >> Mike.
+> >>
+> >
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
