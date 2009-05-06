@@ -1,7 +1,7 @@
-From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: [PATCH] Use resource_size macro
-Date: Wed,  6 May 2009 22:28:38 +0200
-Message-ID: <1241641718-14585-1-git-send-email-linus.walleij@stericsson.com>
+Date: Wed,  6 May 2009 22:39:27 +0200
+Message-ID: <1241642367-14639-1-git-send-email-linus.ml.walleij@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
