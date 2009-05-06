@@ -1,45 +1,113 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: Input: add MAX7359 key switch controller driver
-Date: Wed, 6 May 2009 13:57:05 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE19090172C682@mi8nycmail19.Mi8.com>
-References: <4A012C64.1020101@samsung.com> <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>, Kim Kyuwon <q1.kim@samsung.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+From: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH 08/12] mpc5121: Added I2C support.
+Date: Wed,  6 May 2009 22:15:15 +0200
+Message-ID: <1241640919-4650-9-git-send-email-wd@denx.de>
+References: <1241640919-4650-1-git-send-email-wd@denx.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1241640919-4650-1-git-send-email-wd-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+Cc: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, May 06, 2009 6:38 AM, Trilok Soni wrote:
->> +
->> +#define KEY(row, col, val) =A0 =A0 (((row) << 28) | ((col) << 24) |=
- (val))
->
-> Looks like this macro is highly used by many input drivers, anyone
-> looking at it to place it at common location?
+From: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 
-Hello,
+- Enabled I2C interrupts on MPC5121.
+- Updated Kconfig for i2c-mpc driver.
 
-I submitted a patch series around early Feb that did just that. The onl=
-y
-archive for linux-input that I can find to reference the original submi=
-t
-is at http://markmail.org/browse/org.kernel.vger.linux-input/2009-01.
-The first message in the series is $SUBJECT
-"[PATCH 0/5] input: Common macro for keypad drivers".
+Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+Signed-off-by: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ arch/powerpc/platforms/512x/mpc5121_ads.c    |    2 ++
+ arch/powerpc/platforms/512x/mpc512x.h        |    1 +
+ arch/powerpc/platforms/512x/mpc512x_shared.c |   24 ++++++++++++++++++++++++
+ drivers/i2c/busses/Kconfig                   |    9 +++++----
+ 4 files changed, 32 insertions(+), 4 deletions(-)
 
-At this point the series would probably need to be updated.  If wanted =
-I
-will create a new one.
-
-Regards,
-Hartley
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/powerpc/platforms/512x/mpc5121_ads.c b/arch/powerpc/platforms/512x/mpc5121_ads.c
+index 441abc4..a8976b4 100644
+--- a/arch/powerpc/platforms/512x/mpc5121_ads.c
++++ b/arch/powerpc/platforms/512x/mpc5121_ads.c
+@@ -42,6 +42,8 @@ static void __init mpc5121_ads_setup_arch(void)
+ 	for_each_compatible_node(np, "pci", "fsl,mpc5121-pci")
+ 		mpc83xx_add_bridge(np);
+ #endif
++
++	mpc512x_init_i2c();
+ }
+ 
+ static void __init mpc5121_ads_init_IRQ(void)
+diff --git a/arch/powerpc/platforms/512x/mpc512x.h b/arch/powerpc/platforms/512x/mpc512x.h
+index 9c03693..f4db8a7 100644
+--- a/arch/powerpc/platforms/512x/mpc512x.h
++++ b/arch/powerpc/platforms/512x/mpc512x.h
+@@ -13,5 +13,6 @@
+ #define __MPC512X_H__
+ extern unsigned long mpc512x_find_ips_freq(struct device_node *node);
+ extern void __init mpc512x_init_IRQ(void);
++extern void __init mpc512x_init_i2c(void);
+ void __init mpc512x_declare_of_platform_devices(void);
+ #endif				/* __MPC512X_H__ */
+diff --git a/arch/powerpc/platforms/512x/mpc512x_shared.c b/arch/powerpc/platforms/512x/mpc512x_shared.c
+index 7135d89..b776e45 100644
+--- a/arch/powerpc/platforms/512x/mpc512x_shared.c
++++ b/arch/powerpc/platforms/512x/mpc512x_shared.c
+@@ -65,6 +65,30 @@ void __init mpc512x_init_IRQ(void)
+ 	ipic_set_default_priority();
+ }
+ 
++void __init mpc512x_init_i2c(void)
++{
++	struct device_node *np;
++	void __iomem *i2cctl;
++
++	/* Enable I2C interrupts */
++	np = of_find_compatible_node(NULL, NULL, "fsl,mpc5121-i2c-ctrl");
++	if (np) {
++		i2cctl = of_iomap(np, 0);
++		if (i2cctl) {
++			/*
++			 * Set interrupt enable bits:
++			 *  - I2C-0: bit 24,
++			 *  - I2C-1: bit 26,
++			 *  - I2C-2: bit 28.
++			 */
++			out_be32(i2cctl, 0x15000000);
++			iounmap(i2cctl);
++		}
++
++		of_node_put(np);
++	}
++}
++
+ /*
+  * Nodes to do bus probe on, soc and localbus
+  */
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a48c8ae..57ed637 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -391,13 +391,14 @@ config I2C_IXP2000
+ 	  instead.
+ 
+ config I2C_MPC
+-	tristate "MPC107/824x/85xx/52xx/86xx"
++	tristate "MPC107/824x/85xx/512x/52xx/86xx"
+ 	depends on PPC32
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
+-	  MPC85xx/MPC8641 family processors. The driver may also work on 52xx
+-	  family processors, though interrupts are known not to work.
++	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245,
++	  MPC85xx/MPC8641 and MPC512x family processors. The driver may
++	  also work on 52xx family processors, though interrupts are known
++	  not to work.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mpc.
+-- 
+1.6.0.6
