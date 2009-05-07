@@ -1,40 +1,119 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Use resource_size macro
-Date: Thu, 7 May 2009 09:20:09 +0200
-Message-ID: <20090507092009.1a2882cc@hyperion.delvare>
-References: <1241641718-14585-1-git-send-email-linus.walleij@stericsson.com>
-	<20090506213523.GB17311@pengutronix.de>
-	<63386a3d0905061450t23b74998r68fd12198aab103b@mail.gmail.com>
+From: Kim Kyuwon <chammoru@gmail.com>
+Subject: Re: Input: add MAX7359 key switch controller driver
+Date: Thu, 7 May 2009 19:03:11 +0900
+Message-ID: <4d34a0a70905070303r55c2c681yf58680de2f3d4a9f@mail.gmail.com>
+References: <4A012C64.1020101@samsung.com> <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <63386a3d0905061450t23b74998r68fd12198aab103b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Kim Kyuwon <q1.kim@samsung.com>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 6 May 2009 23:50:55 +0200, Linus Walleij wrote:
-> 2009/5/6 Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
-> 
-> > On Wed, May 06, 2009 at 10:28:38PM +0200, Linus Walleij wrote:
-> >> From: root <root@fecusia.(none)>
-> >
-> > Hello root :)
-> 
-> Hehe, I am experimenting with using the new git-send-email script that come
-> with newer git versions. It's great because it safely avoids whitespace
-> mangling and give you control over the send lines, but then it adds this in
-> instead and now I need to figure out how to get rid of that :-P
+Hi Trilok,
 
-In ~/.gitconfig:
+Thank you for reviewing this driver and I have something to make sure
+for the next better patch :)
 
-[user]
-	name = Linus Walleij
-	email = linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
+On Wed, May 6, 2009 at 10:38 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+> Hi Kim,
+>
+> On Wed, May 6, 2009 at 11:51 AM, Kim Kyuwon <q1.kim@samsung.com> wrote:
+>> The Maxim MAX7359 is a I2C interfaced key switch controller which provides microprocessors with management of up to 64 key switches.
+>> This patch adds support for the MAX7359 key switch controller.
+>>
+>
+> Could you please restrict the commit text line to 80/72 columns? It
+> will look good.
 
-Should do.
+Is this restriction for commit text mandatory? It seems like I got an
+email from Andrew Morton that my patch was wordwraped even commit
+text.
 
--- 
-Jean Delvare
+>> +static irqreturn_t max7359_interrupt(int irq, void *dev_id)
+>> +{
+>> +       struct max7359_keypad *keypad = (struct max7359_keypad *) dev_id;
+>
+> No need of casting. Please remove.
+
+Ok, Thanks I'll remove it.
+
+>> +
+>> +       if (!work_pending(&keypad->work)) {
+>> +               disable_irq_nosync(keypad->irq);
+>> +               schedule_work(&keypad->work);
+>> +       } else {
+>> +               dev_err(&keypad->client->dev,
+>> +                               "Another job is currently pending \n");
+>> +       }
+>> +
+>> +       return IRQ_HANDLED;
+>> +}
+>> +
+>
+>> +
+>> +static int __devinit max7359_probe(struct i2c_client *client,
+>> +                                       const struct i2c_device_id *id)
+>
+> You may want to remove __devinit as it is i2c client driver . I have
+> added linux-i2c for i2c specific review.
+
+Actually I don't want to remove it :), Is there any reason why you think so?
+
+>> +static int max7359_suspend(struct i2c_client *client, pm_message_t mesg)
+>> +{
+>> +       /* If no keys are pressed, enter sleep mode for 8192 ms */
+>> +       max7359_write_reg(client, MAX7359_REG_SLEEP, 0x01);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int max7359_resume(struct i2c_client *client)
+>> +{
+>> +       /* Restore the default setting (autosleep for 256 ms) */
+>> +       max7359_write_reg(client, MAX7359_REG_SLEEP, 0x07);
+>> +
+>> +       return 0;
+>> +}
+>
+> Protect these two function with #ifdef CONFIG_PM please.
+
+This is what I really wanted to ask. I'm trying not to use '#ifdef'.
+By the way, why most of drivers use protect suspend/resume functions
+with #ifdef? Just for saving code size?
+
+>> +
+>
+>> +
+>> +static struct i2c_driver max7359_i2c_driver = {
+>> +       .driver = {
+>> +               .name = "max7359",
+>> +       },
+>> +       .probe          = max7359_probe,
+>> +       .remove         = __exit_p(max7359_remove),
+>
+>
+>> +};
+>> +
+>> +
+>> +MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>");
+>> +MODULE_DESCRIPTION("MAX7359 Key Switch Controller Driver");
+>> +MODULE_LICENSE("GPL v2");
+>
+> MODULE_ALIAS ??
+
+In 'include/linux/module.h'
+
+ 96 /* For userspace: you can also call me... */
+ 97 #define MODULE_ALIAS(_alias) MODULE_INFO(alias, _alias)
+
+>From comment above, I think MODULE_ALIAS is optional. Do you still
+think MODULE_ALIAS needs?
+
+And when I send new version of patch, I will add [PATCH] in front of subject.
+Thank you for reviewing and letting me ask.
+
+Regards,
