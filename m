@@ -1,101 +1,44 @@
-From: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Input: add MAX7359 key switch controller driver
-Date: Thu, 7 May 2009 15:47:24 +0530
-Message-ID: <5d5443650905070317pa962440kf6d416f0272decc5@mail.gmail.com>
-References: <4A012C64.1020101@samsung.com>
-	 <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
-	 <4d34a0a70905070303r55c2c681yf58680de2f3d4a9f@mail.gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 08/12] mpc5121: Added I2C support.
+Date: Thu, 7 May 2009 21:01:21 -0600
+Message-ID: <fa686aa40905072001y1424feb8x2fb3149a0c84fc9a@mail.gmail.com>
+References: <1241640919-4650-1-git-send-email-wd@denx.de>
+	<1241640919-4650-9-git-send-email-wd@denx.de>
+	<fa686aa40905061401k319313c5q89fd3e245c30808f@mail.gmail.com>
+	<20090506221908.3927583420E8@gemini.denx.de>
+	<fa686aa40905061551l8cf5940sf4d4cbf34331cf9a@mail.gmail.com>
+	<fa686aa40905061941p6fd4b03dt1097cf4d16bdd665@mail.gmail.com>
+	<4b73d43f0905071912k4bcc8821nabfa27aa5b1f587b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4d34a0a70905070303r55c2c681yf58680de2f3d4a9f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kim Kyuwon <chammoru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kim Kyuwon <q1.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <4b73d43f0905071912k4bcc8821nabfa27aa5b1f587b@mail.gmail.com>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: John Rigby <jcrigby@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linuxppc-dev@ozlabs.org, Wolfgang Denk <wd@denx.de>, Detlev Zundel <dzu@denx.de>, Piotr Ziecik <kosmo@semihalf.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kim,
+On Thu, May 7, 2009 at 8:12 PM, John Rigby <jcrigby@gmail.com> wrote:
+> Ok, the interrupt enabling should happen in the driver.=A0 Should it key =
+off
+> compatible or should a new property be added like the existing 5200 clock=
+ing
+> property?
 
->>
->> Could you please restrict the commit text line to 80/72 columns? It
->> will look good.
->
-> Is this restriction for commit text mandatory? It seems like I got an
-> email from Andrew Morton that my patch was wordwraped even commit
-> text.
+key off compatible.  And the 5200 clocking property has been depreciated.
 
-This helps reader of the commit text to not give much stretch on his ey=
-es :)
+g.
 
->>
->>> +
->>> +static int __devinit max7359_probe(struct i2c_client *client,
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 const struct i2c_device_id *id)
->>
->> You may want to remove __devinit as it is i2c client driver . I have
->> added linux-i2c for i2c specific review.
->
-> Actually I don't want to remove it :), Is there any reason why you th=
-ink so?
+-- =
 
-Sorry I have mistaken it as __init. This is fine.
-
->
->>> +static int max7359_suspend(struct i2c_client *client, pm_message_t=
- mesg)
->>> +{
->>> + =A0 =A0 =A0 /* If no keys are pressed, enter sleep mode for 8192 =
-ms */
->>> + =A0 =A0 =A0 max7359_write_reg(client, MAX7359_REG_SLEEP, 0x01);
->>> +
->>> + =A0 =A0 =A0 return 0;
->>> +}
->>> +
->>> +static int max7359_resume(struct i2c_client *client)
->>> +{
->>> + =A0 =A0 =A0 /* Restore the default setting (autosleep for 256 ms)=
- */
->>> + =A0 =A0 =A0 max7359_write_reg(client, MAX7359_REG_SLEEP, 0x07);
->>> +
->>> + =A0 =A0 =A0 return 0;
->>> +}
->>
->> Protect these two function with #ifdef CONFIG_PM please.
->
-> This is what I really wanted to ask. I'm trying not to use '#ifdef'.
-> By the way, why most of drivers use protect suspend/resume functions
-> with #ifdef? Just for saving code size?
-
-suspend and resume is only important if the user of this driver has
-CONFIG_PM enabled in it's
-defconfig, right? So, if CONFIG_PM is not defined suspend/resume
-should equal to NULL.
-
->>
->>
->>> +};
->>> +
->>> +
->>> +MODULE_AUTHOR("Kim Kyuwon <q1.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
->>> +MODULE_DESCRIPTION("MAX7359 Key Switch Controller Driver");
->>> +MODULE_LICENSE("GPL v2");
->>
->> MODULE_ALIAS ??
->
-> In 'include/linux/module.h'
->
-> =A096 /* For userspace: you can also call me... */
-> =A097 #define MODULE_ALIAS(_alias) MODULE_INFO(alias, _alias)
->
-> From comment above, I think MODULE_ALIAS is optional. Do you still
-> think MODULE_ALIAS needs?
->
-
-Yes, it is not __must__.
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
