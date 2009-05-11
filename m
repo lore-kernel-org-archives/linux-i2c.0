@@ -1,56 +1,64 @@
-From: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
-Subject: Re: [PATCH] i2c-cpm: Pass dev ptr to dma_*_coherent rather than	NULL
-Date: Mon, 11 May 2009 14:28:50 +1000
-Message-ID: <4A07A982.40504@elphinstone.net>
-References: <49EDC0BE.7040505@elphinstone.net> <E2205842-8019-4CE4-812B-64ABD76F36F4@kernel.crashing.org> <20090422215646.GA19997@trinity.fluff.org> <AAD6564F-9D99-492B-8364-10A652F990DF@kernel.crashing.org> <20090503222352.GB5750@fluff.org.uk>
+From: Michael Abbott <michael-W/Bzo8D1sxa8qtKVGud/9w@public.gmane.org>
+Subject: Re: [PATCH 2.6.29.2] PXA I2C: Define log level for i2c PXA error
+ report
+Date: Mon, 11 May 2009 07:38:59 +0100 (BST)
+Message-ID: <Pine.LNX.4.64.0905081102060.14384@venus.araneidae.co.uk>
+References: <Pine.LNX.4.64.0905060829580.24668@venus.araneidae.co.uk>
+ <20090506102202.73d6045d@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090503222352.GB5750-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20090506102202.73d6045d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Linuxppc-dev Development <linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks wrote:
-> On Wed, Apr 29, 2009 at 08:43:14AM -0500, Kumar Gala wrote:
->> On Apr 22, 2009, at 4:56 PM, Ben Dooks wrote:
->>
->>> On Tue, Apr 21, 2009 at 10:11:51AM -0500, Kumar Gala wrote:
->>>> On Apr 21, 2009, at 7:49 AM, Mark Ware wrote:
->>>>
->>>>> Recent DMA changes result in a BUG() when NULL is passed to
->>>>> dma_alloc_coherent in place of a device.
->>>>>
->>>>> Signed-off-by: Mark Ware <mware-kb99s61Wg94xnpGSZB1jBA@public.gmane.org>
->>>>> ---
->>>>>
->>>>> This patch fixes the BUG() during boot that has appeared during the
->>>>> 2.6.30 window. It has been tested and appears correct on my 8280  
->>>>> based
->>>>> board.
->>>>> Sent to both linuxppc-dev and linux-i2c, since I'm not sure where it
->>>>> belongs.
->>>>>
->>>>>
->>>>> drivers/i2c/busses/i2c-cpm.c |   14 ++++++++------
->>>>> 1 files changed, 8 insertions(+), 6 deletions(-)
->>>> Acked-by: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
->>>>
->>>> Ben, I'm expecting you to pick this up unless you tell me otherwise.
->>> Yes.
->> This go in yet?
+On Wed, 6 May 2009, Jean Delvare wrote:
+> On Wed, 6 May 2009 08:32:09 +0100 (BST), Michael Abbott wrote:
+> > All the i2c pxa error messages should probably be KERN_DEBUG
+> > 
+> > At least, all the printk messages should have a log level specfied,
+> > and KERN_DEBUG seems appropriate.
+> > 
+> > Signed-off-by: Michael Abbott <michael.abbott-l+PWtdWbHAs2EctHIo1CcQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-pxa.c |    8 ++++----
+> >  1 files changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> > index bdb1f75..8cb9160 100644
+> > --- a/drivers/i2c/busses/i2c-pxa.c
+> > +++ b/drivers/i2c/busses/i2c-pxa.c
+> > @@ -210,11 +210,11 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
+> >  static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+> >  {
+> >  	unsigned int i;
+> > -	printk("i2c: error: %s\n", why);
+> > -	printk("i2c: msg_num: %d msg_idx: %d msg_ptr: %d\n",
+> > +	printk(KERN_DEBUG "i2c: error: %s\n", why);
+> > +	printk(KERN_DEBUG "i2c: msg_num: %d msg_idx: %d msg_ptr: %d\n",
+> >  		i2c->msg_num, i2c->msg_idx, i2c->msg_ptr);
+> > -	printk("i2c: ICR: %08x ISR: %08x\n"
+> > -	       "i2c: log: ", readl(_ICR(i2c)), readl(_ISR(i2c)));
+> > +	printk(KERN_DEBUG "i2c: ICR: %08x ISR: %08x\n"
+> > +	       KERN_DEBUG "i2c: log: ", readl(_ICR(i2c)), readl(_ISR(i2c)));
+> >  	for (i = 0; i < i2c->irqlogidx; i++)
+> >  		printk("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
+> >  	printk("\n");
 > 
-> I've had to do a manual apply due to some changes in the
-> driver, so can someone please do a build of my git tree
-> at:
-> 
-> git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-2630-rc5
-> 
-> or tell me which arch and defconfig to build.
-> 
+> Already fixed in Linus' tree:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=154d22b04ae1741c5fcfd5d747b813a9a279abff#patch4
 
-Ping.  Is there anything still blocking this?
+Now this is very odd.  I'd assumed the error messages I was getting were 
+just noise, but the commit you point me to uses KERN_ERR instead -- and so 
+I get a brief storm of these messages on boot on my target:
 
-Mark Ware
+[   20.667923] i2c: error: exhausted retries
+[   20.671962] i2c: msg_num: 0 msg_idx: -2000 msg_ptr: 0
+[   20.677113] i2c: ICR: 000007e0 ISR: 00000002
+[   20.677128] i2c: log: [00000446:000007e0]
+
+This is repeated nine times in total with exactly the same numbers.  Any 
+thoughts as to what this means?  Other than these messages on startup my 
+I2C sensors seem to work perfectly well.
