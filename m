@@ -1,34 +1,31 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' i2c-fixes
-Date: Tue, 12 May 2009 00:42:18 +0100
-Message-ID: <E1M3f8U-0007Px-7I@kira.home.fluff.org>
+From: Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C:Moving Register Defines to Header File
+Date: Tue, 12 May 2009 16:13:05 +0300
+Message-ID: <20090512130857.GL18349@scadufax.research.nokia.com>
+References: <52671.192.168.10.89.1242133785.squirrel@dbdmail.itg.ti.com>
+Reply-To: felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52671.192.168.10.89.1242133785.squirrel-pJFUjGLopx31T2qfsofKZtBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: ext Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>
+Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit 091438dd5668396328a3419abcbc6591159eb8d1:
-  Linus Torvalds (1):
-        Linux 2.6.30-rc4
+On Tue, May 12, 2009 at 03:09:45PM +0200, ext Syed Rafiuddin wrote:
+> This patch creates i2c-omap.h header and moves register and bit definition
+> macros to it from i2c-omap.c
+> 
+> Signed-off-by: Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>
+> Acked-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
 
-are available in the git repository at:
+Any special need for that ? will those registers be accessed outside
+i2c-omap.c ?? If not, I'd rather keep them in the c file.
 
-  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-2630-rc5
+BTW, this should go straight to Ben Dooks and i2c@vger. Adding them to
+cc.
 
-Mark Brown (1):
-      i2c: Enable i2c-s3c2410 for S3C64XX too
-
-Mark Ware (1):
-      i2c-cpm: Pass dev ptr to dma_*_coherent rather than NULL
-
-Roel Kluin (1):
-      i2c-pxa.c: timeouts off by 1
-
-Wolfgang Grandegger (1):
-      i2c-mpc: bug fix for MPC52xx clock setting and printout
-
- drivers/i2c/busses/Kconfig   |    2 +-
- drivers/i2c/busses/i2c-cpm.c |   16 ++++++++--------
- drivers/i2c/busses/i2c-mpc.c |   34 ++++++++++++++++++++--------------
- drivers/i2c/busses/i2c-pxa.c |    6 +++---
- 4 files changed, 32 insertions(+), 26 deletions(-)
+-- 
+balbi
