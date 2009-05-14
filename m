@@ -1,117 +1,29 @@
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
-Subject: Re: [PATCH] i2c-mpc: generate START condition after STOP caused
-	by	read i2c_msg
-Date: Thu, 14 May 2009 11:58:29 +0200
-Message-ID: <OF9EE5E055.DDB954D2-ONC12575B6.003636EC-C12575B6.0036CB06@transmode.se>
-References: <4A0BD1DB.4090305@doredevelopment.dk>	<20090514083453.GB3043@pengutronix.de>
-	<4A0BDAD6.5020005@doredevelopment.dk>
+From: Jagadeesh Bhaskar Pakaravoor <jagadeeshbp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C:Moving Register Defines to Header File
+Date: Thu, 14 May 2009 16:04:18 +0530
+Message-ID: <561678670905140334x3a5588f3i540ee692890e50e@mail.gmail.com>
+References: <52671.192.168.10.89.1242133785.squirrel@dbdmail.itg.ti.com>
+	 <87hbzqe55y.fsf@deeprootsystems.com>
+	 <57428.192.168.10.89.1242203177.squirrel@dbdmail.itg.ti.com>
+	 <87octx9lxn.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
-In-Reply-To: <4A0BDAD6.5020005@doredevelopment.dk>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-To: Esben Haabendal <eha@doredevelopment.dk>
-Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87octx9lxn.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+> IMO, The regs do not need to move to a separate header unless they will
+> be used outside of i2c-omap.c.
 >
-> Wolfram Sang wrote:
-> > On Thu, May 14, 2009 at 10:10:03AM +0200, Esben Haabendal wrote:
-> >
-> >> This fixes MAL (arbitration lost) bug caused by illegal use of
-> >> RSTA (repeated START) after STOP condition generated after last byte
-> >> of reads.
-> >>
-> >>
-> >
-> > Could you elaborate a bit, please? Like an example when the original bug
-> > occured (so I could reproduce easily) and how this patch actually solves
-> > the problem.
-> >
-> Sure. I used the following code to initialize a CS4265 chip:
-> (simplified here for the example)
->
-> static int
-> i2c_init_chip(void)
-> {
->     int err=0;
->     char write_dac_control_1[] = { 0x03, chip->regs.dac_control_1 };
->     char seek_chip_id[] = { 0x01 };
->     char write_power_control[] = { 0x02, chip->regs.power_control };
->     struct i2c_msg cs4265_init_cmds[] = {
->         { chip->i2c_addr, 0, 2, write_dac_control_1 },
->         { chip->i2c_addr, 0, 1, seek_chip_id },
->         { chip->i2c_addr, I2C_M_RD, 1, &regs.chip_id },
->         { chip->i2c_addr, 0, 2, write_power_control },
->     };
->
->     err = i2c_transfer(i2c, cs4265_init_cmds,
->                sizeof(cs4265_init_cmds)/sizeof(*cs4265_init_cmds));
->     if (err < 0) {
->         printk(KERN_ERR "i2c_transfer failed: %d\n", err);
->         return err;
->     }
->
->     return 0;
-> }
->
-> I have added some additional debug output and traces something like this:
->
-> [   36.114297] writeccr 80 [MEN]
-> [   36.114324] mpc_xfer: 2 bytes to 4f:W - 1 of 5 messages
-> [   36.120176] next 1 bytes to 4f:W
-> [   36.124159] mpc_write addr=4f len=2
-> [   36.128044] writeccr 80 [MEN]
-> [   36.128062] writeccr f0 [MEN MIEN MSTA MTX] -> START
-> [   36.128219] I2C: SR=a2
-> [   36.131528] I2C: SR=a6
-> [   36.134406] I2C: SR=a2
->
-> [   36.137165] mpc_xfer: 1 bytes to 4f:W - 2 of 5 messages
-> [   36.142802] next 1 bytes to 4f:R
-> [   36.146699] mpc_write addr=4f len=1
-> [   36.150583] writeccr f4 [MEN MIEN MSTA MTX RSTA] -> repeated START
-> [   36.150758] I2C: SR=a2
-> [   36.153851] I2C: SR=a6
->
-> [   36.156236] mpc_xfer: 1 bytes to 4f:R - 3 of 5 messages
-> [   36.162081] next 2 bytes to 4f:W
-> [   36.166062] mpc_read addr=4f len=1
-> [   36.169858] writeccr f4 [MEN MIEN MSTA MTX RSTA] -> repeated START
-> [   36.170031] I2C: SR=a6
-> [   36.172993] writeccr e8 [MEN MIEN MSTA TXAK] -> receive & no ACK
-> [   36.173143] I2C: SR=a7
-> [   36.175511] writeccr c8 [MEN MIEN TXAK] -> STOP
->
-> [   36.175529] mpc_xfer: 2 bytes to 4f:W - 4 of 5 messages
-> [   36.181804] next 2 bytes to 4f:W
-> [   36.185788] mpc_write addr=4f len=2
-> [   36.189672] writeccr f4 [MEN MIEN MSTA MTX RSTA] -> repeated START
-> [   36.189704] I2C: SR=b7
-> [   36.192072] I2C: MAL
-> [   36.195075] i2c_wait(address) error: -5
-> [   36.199311] writeccr 80
->
-> The problem is that after the STOP condition, the following i2c_msg will be
-> attempted with a repeated START, which according to specification will
-> cause a MAL, which also happens.  My MPC8360ERM reads:
->
-> "Attempting a repeated START at the wrong time (or if the bus is owned
-> by another master), results in loss of arbitration."
->
-> Which I know read as it that we must own the I2C bus when using RSTA.
+Would it not be cleaner to move them to a separate header file,
+especially considering the fact that we have some 19 registers for
+OMAP3 I2C and when we redefine them for OMAP4, there would be 38
+(infact 40, including the two new registers) lines of just register
+definitions at the top of the file?
 
-I agree with the theory, but isn't the problem here that STOP is performed in
-the middle of this transaction?
-Remove the STOP and RSTA will work I think.
-
- Jocke
+--
+Jagadeesh
