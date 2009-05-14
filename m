@@ -1,211 +1,159 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] MFD: Add U300 AB3100 core support v1
-Date: Thu, 14 May 2009 13:37:50 +0200
-Message-ID: <20090514113748.GA1324@sortiz.org>
-References: <63386a3d0905140129s5fd0f32cxde1114489678f012@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Limit core locking to the necessary sections
+Date: Thu, 14 May 2009 21:04:36 +0200
+Message-ID: <20090514210436.45171424@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <63386a3d0905140129s5fd0f32cxde1114489678f012-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+The i2c-core code tends to hold the core lock for longer than it
+should. Limit locking to the necessary sections for both performance
+and clarity. This is also a requirement to support I2C multiplexers in
+the future.
 
-Some code comments here:
+Testing was successful on my system but I would love to hear from other
+testers. This kind of thing is easy to get wrong.
 
-On Thu, May 14, 2009 at 10:29:02AM +0200, Linus Walleij wrote:
-> +/*
-> + * I2C communication
-> + *
-> + * The AB3100 is assigned address 0x48 (7-bit)
-> + * Since the driver does not require SMBus support, we
-> + * cannot be sure to probe for the device address here,
-> + * so the boot loader or modprobe may need to pass in a parameter
-> + * like ab3100-core.force=0,0x48.
-> + *
-> + */
-> +static unsigned short normal_i2c[] = { 0x48, I2C_CLIENT_END };
-> +I2C_CLIENT_INSMOD_1(ab3100);
-> +
-> +/* Whether the chip has been initialized */
-> +static bool ab3100_initialized;
-> +/* Lock out concurrent accesses to the AB3100 registers */
-> +static DEFINE_MUTEX(ab3100_access_mutex);
-> +/* Self describing stuff */
-> +static struct i2c_client *ab3100_i2c_client;
-> +static char ab3100_chip_name[32];
-> +static u8 ab3100_chip_id;
-All those static definitions dont look good to me.
-Typically, one would define a struct ab3100 structure containing all of those.
-Then, at device probe time you dynamically allocate one of those structure,
-and linke your i2c client to it through i2c_set_clientdata().
-This would make your driver look much better.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+---
+Rodolfo, this should solve the deadlocks you had been encountering
+while working on I2C multiplexing support. I would like you to give a
+try to my current stack of i2c patches:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c.tar.gz
 
-> +/* Event handling */
-> +struct event {
-> +	struct list_head node;
-> +	struct device *dev;
-> +	struct ab3100_event_mask event_mask;
-> +	void *client_data;
-> +	void (*cb_handler)(struct ab3100_event_mask, void *client_data);
-> +};
-> +/* The event list */
-> +static DEFINE_MUTEX(event_list_mutex);
-> +static LIST_HEAD(subscribers);
-> +/* Save the first reading of the event registers */
-> +static struct ab3100_event_mask startup_event_mask;
-> +static bool startup_events_read;
-> +
-> +u8 ab3100_get_chip_type()
-> +{
-> +	u8 chip = ABUNKNOWN;
-> +
-> +	switch (ab3100_chip_id & 0xf0) {
-> +	case  0xa0:
-> +		chip = AB3000;
-> +		break;
-> +	case  0xc0:
-> +		chip = AB3100;
-> +		break;
-> +	}
-> +	return chip;
-> +}
-> +EXPORT_SYMBOL(ab3100_get_chip_type);
-> +
-> +int ab3100_set_register(u8 reg, u8 regval)
-> +{
-> +	u8 regandval[2] = {reg, regval};
-> +	struct i2c_msg msgs[1];
-> +	int err = 0;
-> +
-> +	if (!ab3100_initialized)
-> +		return -ENODEV;
-> +
-> +	msgs[0].addr = ab3100_i2c_client->addr;
-> +	msgs[0].flags = 0;
-> +	msgs[0].len = 2;
-> +	msgs[0].buf = regandval;
-> +	err = mutex_lock_interruptible(&ab3100_access_mutex);
-> +	if (err)
-> +		return err;
-> +
-> +	/*
-> +	 * A two-byte write message with the first byte containing the register
-> +	 * number and the second byte containing the value to be written
-> +	 * effectively sets a register in the AB3100.
-> +	 */
-> +	if ((i2c_transfer(ab3100_i2c_client->adapter,
-> +					&msgs[0], 1)) != 1) {
-> +		dev_err(&ab3100_i2c_client->dev,
-> +				"%s: write error (write register)\n",
-> +				__func__);
-> +		err = -EIO;
-> +	}
-> +	mutex_unlock(&ab3100_access_mutex);
-> +	return err;
-> +}
-> +EXPORT_SYMBOL(ab3100_set_register);
-All those register access routines are accessible from anywhere. By
-dynamically allocating your driver structure and registering its subdevices as
-platform devices, you could restrict the usage of those routines to the
-subdevices only. 
+If it works OK, please rebase your multiplexing patches on top of it.
+Then I'll review them. I'd like to have initial multiplexing support in
+kernel 2.6.31, which doesn't leave us too much time.
 
+ drivers/i2c/i2c-core.c |   35 ++++++++++++++++-------------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
 
-> +static struct file_operations ab3100_registers_fops = {
-> +	.open = ab3100_registers_open,
-> +	.read = seq_read,
-> +	.llseek = seq_lseek,
-> +	.release = single_release,
-> +	.owner = THIS_MODULE,
-> +};
-This one should be const.
+--- linux-2.6.30-rc5.orig/drivers/i2c/i2c-core.c	2009-05-14 14:52:24.000000000 +0200
++++ linux-2.6.30-rc5/drivers/i2c/i2c-core.c	2009-05-14 16:41:32.000000000 +0200
+@@ -38,7 +38,8 @@
+ #include "i2c-core.h"
+ 
+ 
+-/* core_lock protects i2c_adapter_idr and userspace_devices, amongst others */
++/* core_lock protects i2c_adapter_idr, userspace_devices, and guarantees
++   that device detection and attach_adapter calls are serialized */
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+ static LIST_HEAD(userspace_devices);
+@@ -545,8 +546,6 @@ static int i2c_register_adapter(struct i
+ 
+ 	mutex_init(&adap->bus_lock);
+ 
+-	mutex_lock(&core_lock);
+-
+ 	/* Set default timeout to 1 second if not already set */
+ 	if (adap->timeout == 0)
+ 		adap->timeout = HZ;
+@@ -565,16 +564,16 @@ static int i2c_register_adapter(struct i
+ 		i2c_scan_static_board_info(adap);
+ 
+ 	/* Notify drivers */
++	mutex_lock(&core_lock);
+ 	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+ 				 i2c_do_add_adapter);
+-
+-out_unlock:
+ 	mutex_unlock(&core_lock);
+-	return res;
++
++	return 0;
+ 
+ out_list:
+ 	idr_remove(&i2c_adapter_idr, adap->nr);
+-	goto out_unlock;
++	return res;
+ }
+ 
+ /**
+@@ -711,15 +710,16 @@ int i2c_del_adapter(struct i2c_adapter *
+ 	if (idr_find(&i2c_adapter_idr, adap->nr) != adap) {
+ 		pr_debug("i2c-core: attempting to delete unregistered "
+ 			 "adapter [%s]\n", adap->name);
+-		res = -EINVAL;
+-		goto out_unlock;
++		mutex_unlock(&core_lock);
++		return -EINVAL;
+ 	}
+ 
+ 	/* Tell drivers about this removal */
+ 	res = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+ 			       i2c_do_del_adapter);
++	mutex_unlock(&core_lock);
+ 	if (res)
+-		goto out_unlock;
++		return res;
+ 
+ 	/* clean up the sysfs representation */
+ 	init_completion(&adap->dev_released);
+@@ -729,7 +729,9 @@ int i2c_del_adapter(struct i2c_adapter *
+ 	wait_for_completion(&adap->dev_released);
+ 
+ 	/* free bus id */
++	mutex_lock(&core_lock);
+ 	idr_remove(&i2c_adapter_idr, adap->nr);
++	mutex_unlock(&core_lock);
+ 
+ 	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
+ 
+@@ -737,9 +739,7 @@ int i2c_del_adapter(struct i2c_adapter *
+ 	   added again */
+ 	memset(&adap->dev, 0, sizeof(adap->dev));
+ 
+- out_unlock:
+-	mutex_unlock(&core_lock);
+-	return res;
++	return 0;
+ }
+ EXPORT_SYMBOL(i2c_del_adapter);
+ 
+@@ -784,16 +784,15 @@ int i2c_register_driver(struct module *o
+ 	if (res)
+ 		return res;
+ 
+-	mutex_lock(&core_lock);
+-
+ 	pr_debug("i2c-core: driver [%s] registered\n", driver->driver.name);
+ 
+ 	INIT_LIST_HEAD(&driver->clients);
+ 	/* Walk the adapters that are already present */
++	mutex_lock(&core_lock);
+ 	class_for_each_device(&i2c_adapter_class, NULL, driver,
+ 			      __attach_adapter);
+-
+ 	mutex_unlock(&core_lock);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(i2c_register_driver);
+@@ -831,14 +830,12 @@ static int __detach_adapter(struct devic
+ void i2c_del_driver(struct i2c_driver *driver)
+ {
+ 	mutex_lock(&core_lock);
+-
+ 	class_for_each_device(&i2c_adapter_class, NULL, driver,
+ 			      __detach_adapter);
++	mutex_unlock(&core_lock);
+ 
+ 	driver_unregister(&driver->driver);
+ 	pr_debug("i2c-core: driver [%s] unregistered\n", driver->driver.name);
+-
+-	mutex_unlock(&core_lock);
+ }
+ EXPORT_SYMBOL(i2c_del_driver);
+ 
 
-
-> +static int __init ab3100_probe(struct i2c_client *client,
-> +			const struct i2c_device_id *id)
-> +{
-> +	int err;
-> +	int i;
-> +
-> +	ab3100_i2c_client = client;
-> +	ab3100_initialized = true;
-> +
-> +	/* Read chip ID register */
-> +	err = ab3100_get_register(AB3100_CID, &ab3100_chip_id);
-> +	if (err) {
-> +		dev_err(&client->dev,
-> +			"could not detect i2c bus for AB3100 analog"
-> +			"baseband chip\n");
-> +		goto exit_no_detect;
-> +	}
-> +
-> +	for (i = 0; ids[i].id != 0x0; i++) {
-> +		if (ids[i].id == ab3100_chip_id) {
-> +			if (ids[i].name != NULL) {
-> +				snprintf(&ab3100_chip_name[0], 31, "AB3100 %s",
-> +					 ids[i].name);
-> +				break;
-> +			} else {
-> +				dev_err(&client->dev,
-> +					"AB3000 is no longer supported\n");
-> +				goto exit_no_detect;
-> +			}
-> +		}
-> +	}
-> +
-> +	if (ids[i].id == 0x0) {
-> +		dev_err(&client->dev, "Unknown chip id: 0x%x\n",
-> +			ab3100_chip_id);
-> +		goto exit_no_detect;
-> +	}
-> +
-> +	dev_info(&client->dev, "Detected chip: %s\n",
-> +		 &ab3100_chip_name[0]);
-> +
-> +	err = ab3100_setup();
-> +	if (err)
-> +		goto exit_no_detect;
-> +
-> +	/* This real unpredictable IRQ is of course sampled for entropy */
-> +	err = request_irq(client->irq, ab3100_irq_handler,
-> +			  IRQF_DISABLED | IRQF_SAMPLE_RANDOM,
-> +			  "AB3100 IRQ", NULL);
-> +	if (err)
-> +		goto exit_no_detect;
-> +
-> +	ab3100_setup_debugfs();
-> +
-> +	return 0;
-> +
-> + exit_no_detect:
-> +	return err;
-> +}
-> +
-> +static int __exit ab3100_remove(struct i2c_client *client)
-> +{
-> +	struct event *e;
-> +
-> +	ab3100_remove_debugfs();
-> +	/* Free the list of event subscribers here */
-> +	mutex_lock(&event_list_mutex);
-> +	list_for_each_entry(e, &subscribers, node) {
-> +
-> +		/* Found a client subscription => remove it */
-> +		list_del(&e->node);
-> +		kfree(e);
-> +	}
-> +	mutex_unlock(&event_list_mutex);
-> +	return 0;
-> +}
-As Mike pointed out, you're probably missing a free_irq() here.
-
-Cheers,
-Samuel.
 
 -- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Jean Delvare
