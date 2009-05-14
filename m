@@ -1,44 +1,55 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown
- platform
-Date: Thu, 14 May 2009 09:52:01 +0200
-Message-ID: <20090514095201.577b17c4@hyperion.delvare>
-References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
-	<20090416111436.296cdd12@hyperion.delvare>
-	<0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
-	<0A882F4D99BBF6449D58E61AAFD7EDD62876816C@pdsmsx502.ccr.corp.intel.com>
+From: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+Subject: [PATCH] i2c-mpc: generate START condition after STOP caused by read
+ i2c_msg
+Date: Thu, 14 May 2009 10:10:03 +0200
+Message-ID: <4A0BD1DB.4090305@doredevelopment.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <0A882F4D99BBF6449D58E61AAFD7EDD62876816C-Uz4Je35TzWuiAffOGbnezLfspsVTdybXVpNB7YpNyf8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wen,
+This fixes MAL (arbitration lost) bug caused by illegal use of
+RSTA (repeated START) after STOP condition generated after last byte
+of reads.
 
-On Thu, 14 May 2009 15:35:37 +0800, Wang, Wen W wrote:
-> Hi Jean,
-> 
-> After a long discussion with other engineers, we finally got parsing I2C device info table code out of the I2C controller driver. Here is a description for the patch:
-> 
-> 1. Patch for I2C controller driver for Intel low power platform "Moorestown".
-> 2. The driver depends on a GPIO driver for Intel Moorestown platform.
-> 3. Patch is based on Linux 2.6.30-rc5.
-> 4. Patch 1 will:
-> 	a. Add "i2c_moorestown.c" and "i2c_moorestown.h" to kernel directory
-> "drivers/i2c/busses"
-> 	b. Add items into kernel files "drivers/i2c/busses/Kconfig" and
-> "drivers/i2c/Makefile".
-> 
-> Code for parsing I2C device info table and register the table into I2C core are moved into a separate platform driver under arch/ directory per your comments.
+Signed-off-by: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+---
+  drivers/i2c/busses/i2c-mpc.c |    9 +++++++--
+  1 files changed, 7 insertions(+), 2 deletions(-)
 
-Very good, thank you.
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 4af5c09..9fe05d9 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -456,17 +456,22 @@ static int mpc_xfer(struct i2c_adapter *adap, 
+struct i2c_msg *msgs, int num)
+  	}
 
-Any news on the possibility to get me a piece of hardware to test the
-code?
-
+  	for (i = 0; ret >= 0 && i < num; i++) {
++		int restart = i;
+  		pmsg = &msgs[i];
+  		dev_dbg(i2c->dev,
+  			"Doing %s %d bytes to 0x%02x - %d of %d messages\n",
+  			pmsg->flags & I2C_M_RD ? "read" : "write",
+  			pmsg->len, pmsg->addr, i + 1, num);
++		if (i > 0 && ((pmsg-1)->flags & I2C_M_RD))
++			restart = 0;
+  		if (pmsg->flags & I2C_M_RD)
+  			ret =
+-			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
++			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len,
++				     restart);
+  		else
+  			ret =
+-			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
++			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len,
++				      restart);
+  	}
+  	mpc_i2c_stop(i2c);
+  	return (ret < 0) ? ret : num;
 -- 
-Jean Delvare
+1.6.0.4
