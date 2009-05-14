@@ -1,37 +1,35 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH] I2C:Moving Register Defines to Header File
-Date: Wed, 13 May 2009 06:23:00 -0700
-Message-ID: <87octx9lxn.fsf@deeprootsystems.com>
-References: <52671.192.168.10.89.1242133785.squirrel@dbdmail.itg.ti.com>
-	<87hbzqe55y.fsf@deeprootsystems.com>
-	<57428.192.168.10.89.1242203177.squirrel@dbdmail.itg.ti.com>
+From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/1] I2C: I2C controller driver for Intel Moorestown platform
+Date: Thu, 14 May 2009 15:35:37 +0800
+Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD62876816C@pdsmsx502.ccr.corp.intel.com>
+References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
+ <20090416111436.296cdd12@hyperion.delvare>
+  <0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <57428.192.168.10.89.1242203177.squirrel-pJFUjGLopx31T2qfsofKZtBPR1lH4CV8@public.gmane.org> (Syed Rafiuddin's message of "Wed\, 13 May 2009 13\:56\:17 +0530 \(IST\)")
+In-Reply-To: <0A882F4D99BBF6449D58E61AAFD7EDD613677A65-Uz4Je35TzWuiAffOGbnezLfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-"Syed Rafiuddin" <rafiuddin.syed-l0cyMroinI0@public.gmane.org> writes:
+Hi Jean,
 
->> "Syed Rafiuddin" <rafiuddin.syed-l0cyMroinI0@public.gmane.org> writes:
->>
->>> This patch creates i2c-omap.h header and moves register and bit definition
->>> macros to it from i2c-omap.c
->>
->> Please use the description to describe the motivation for the changes
->> and the problems it is addressing/fixing.
->>
->> In other words, you described what your patch does but not why.
->
-> The intention of the patch is to have a separate header which will have omap3
-> and omap4 related register definitions. As omap4 has different offset addresses
-> with respect to omap3,adding omap4 related stuff in the same file will leave
-> the file look ugly.
+After a long discussion with other engineers, we finally got parsing I2C device info table code out of the I2C controller driver. Here is a description for the patch:
 
-IMO, The regs do not need to move to a separate header unless they will
-be used outside of i2c-omap.c.
+1. Patch for I2C controller driver for Intel low power platform "Moorestown".
+2. The driver depends on a GPIO driver for Intel Moorestown platform.
+3. Patch is based on Linux 2.6.30-rc5.
+4. Patch 1 will:
+	a. Add "i2c_moorestown.c" and "i2c_moorestown.h" to kernel directory
+"drivers/i2c/busses"
+	b. Add items into kernel files "drivers/i2c/busses/Kconfig" and
+"drivers/i2c/Makefile".
 
-Kevin
+Code for parsing I2C device info table and register the table into I2C core are moved into a separate platform driver under arch/ directory per your comments.
+
+Thanks
+Wen
