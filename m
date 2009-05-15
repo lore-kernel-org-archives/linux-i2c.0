@@ -1,106 +1,48 @@
-From: Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: generate START condition after STOP caused by 	read
- i2c_msg
-Date: Fri, 15 May 2009 13:05:56 +0200
-Message-ID: <OFCADC684E.A2599121-ONC12575B7.003B8AB5-C12575B7.003CF795@transmode.se>
-References: <4A0BD1DB.4090305@doredevelopment.dk>	 <20090514083453.GB3043@pengutronix.de>
-	 <4A0BDAD6.5020005@doredevelopment.dk>	 <OF9EE5E055.DDB954D2-ONC12575B6.003636EC-C12575B6.0036CB06@transmode.se>
-	 <d2b9ea600905140317u7a4b9a70s574568d79a1ce7cc@mail.gmail.com>	 <OF3CD158BA.04CCFBB5-ONC12575B6.005911D5-C12575B6.005CAFC2@transmode.se> <d2b9ea600905150318s69b86b5ct3816b274bf343a79@mail.gmail.com>
+From: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: generate START condition after STOP caused by
+	read i2c_msg
+Date: Fri, 15 May 2009 14:52:28 +0200
+Message-ID: <d2b9ea600905150552u6951a92es5dd119dcc37e641d@mail.gmail.com>
+References: <4A0BD1DB.4090305@doredevelopment.dk>
+	 <20090514083453.GB3043@pengutronix.de>
+	 <4A0BDAD6.5020005@doredevelopment.dk>
+	 <OF9EE5E055.DDB954D2-ONC12575B6.003636EC-C12575B6.0036CB06@transmode.se>
+	 <d2b9ea600905140317u7a4b9a70s574568d79a1ce7cc@mail.gmail.com>
+	 <OF3CD158BA.04CCFBB5-ONC12575B6.005911D5-C12575B6.005CAFC2@transmode.se>
+	 <d2b9ea600905150318s69b86b5ct3816b274bf343a79@mail.gmail.com>
+	 <OFCADC684E.A2599121-ONC12575B7.003B8AB5-C12575B7.003CF795@transmode.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <d2b9ea600905150318s69b86b5ct3816b274bf343a79-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <OFCADC684E.A2599121-ONC12575B7.003B8AB5-C12575B7.003CF795-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote on 15/05/2009 12:18:39:
+Your new patch also does not work.
 
->
-> I have now spent a few hours trying a lot of different paths to fix
-> this approach, but I simply cannot find a way to get i2c read to work
-> without a trailing STOP condition with this controller.
+Have you tested it?
 
-I found a bug which lets me remove the "fix" and seems related to your
-problem. Updated patch last in mail
+I already tried something very much what you sent here, I believe the
+only difference was that I named the "last" variable "stop". I also
+tried several other aproaches, and none of them worked.  I would
+appreciate not to have to test all of them seperately again through
+this mailing list ;-)
 
->
-> Is there a problem in applying my patch, as it should be "clean"
-> improvement over the current implementation, which uses STOP
-> condition, but does not work.
->
-> Until Isomeone finds a way to get it to work without STOP, we will
-> have a working driver, which I assume is what we want.
+Anyway, your patch also is in conflict with the MPC8360ERM. The spec
+specifies that a repeated start must follow an ACK, and not a "NO
+ACK".
 
-Your patch appears OK too. I just wanted to see if a better fix was
-possible. Your patch is less risky and it is the safe bet so soon before
-release.
+When doing a repeated start after a NO ACK, the slave does not ACK the
+address (I get an RXAK).  When doing as specified, ACK'ing the last
+byte read and then doing a repeated START, i2c_wait() fails due to
+CSR_MCF bit missing.  I thought it would be possible to find somewhere
+to do a dummy read to get around this, but failed to do so without
+breaking something else.
 
- Jocke
+Could we go forward with my initial patch, and then continue the work
+on this repeated START approach for future releases?
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 6c1cddd..04eff40 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -189,9 +189,6 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
- 	unsigned timeout = i2c->adap.timeout;
- 	u32 flags = restart ? CCR_RSTA : 0;
-
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Start as master */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target byte */
-@@ -214,15 +211,12 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
- }
-
- static int mpc_read(struct mpc_i2c *i2c, int target,
--		    u8 * data, int length, int restart)
-+		    u8 * data, int length, int restart, int last)
- {
- 	unsigned timeout = i2c->adap.timeout;
- 	int i, result;
- 	u32 flags = restart ? CCR_RSTA : 0;
-
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Switch to read - restart */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target address byte - this time with the read flag set */
-@@ -241,18 +235,18 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 		readb(i2c->base + MPC_I2C_DR);
- 	}
-
--	for (i = 0; i < length; i++) {
-+	for (i = length; i ; --i) {
- 		result = i2c_wait(i2c, timeout, 0);
- 		if (result < 0)
- 			return result;
-
- 		/* Generate txack on next to last byte */
--		if (i == length - 2)
-+		if (i == 2)
- 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
--		/* Generate stop on last byte */
--		if (i == length - 1)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_TXAK);
--		data[i] = readb(i2c->base + MPC_I2C_DR);
-+		/* Generate stop on last byte, iff last transaction */
-+		if (i == 1 && last)
-+			writeccr(i2c, CCR_MIEN | CCR_MEN);
-+		data[length-i] = readb(i2c->base + MPC_I2C_DR);
- 	}
-
- 	return length;
-@@ -294,7 +288,7 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		tm_i2c_select_mux(pmsg->addr);
- 		if (pmsg->flags & I2C_M_RD)
- 			ret =
--			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
-+			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i, i == num-1);
- 		else
- 			ret =
- 			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
+/Esben
