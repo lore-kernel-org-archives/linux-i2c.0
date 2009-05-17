@@ -1,32 +1,112 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] [I2C] i2c-viapro: Add new PCI device ID For VX855
-Date: Sun, 17 May 2009 16:03:57 +0200
-Message-ID: <20090517160357.49fb0be4@hyperion.delvare>
-References: <20090517060439.GE4909@prithivi.gnumonks.org>
-	<20090517101952.533373c1@hyperion.delvare>
-	<20090517125940.GA19746@prithivi.gnumonks.org>
+From: Michael Klein <michael.klein-m4xtk+dBUWCZFsvuydyz1KhivhuVJJ3m@public.gmane.org>
+Subject: Patch: Darwin (Mac OS X) support for decode-dimms (now with
+ attachment)
+Date: Sun, 17 May 2009 21:15:57 +0200 (CEST)
+Message-ID: <alpine.OSX.1.00.0905172109580.22705@fjelljo.puffin.lb.shuttle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/Mixed; BOUNDARY="0-974072874-1242335708=:24797"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090517125940.GA19746-jI4mzJ+yNOMOwssVsN95jSCwEArCW2h5@public.gmane.org>
+Content-ID: <alpine.OSX.1.00.0905172109590.22705-j5vrdnS1lu2bjG2T50FRYJkWy+7J3LPUqGK+G5UkneY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harald Welte <HaraldWelte-yS34VQbMlVtBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 17 May 2009 20:59:40 +0800, Harald Welte wrote:
-> On Sun, May 17, 2009 at 10:19:52AM +0200, Jean Delvare wrote:
-> 
-> > Thanks for your contribution. You did not include
-> > PCI_DEVICE_ID_VIA_VX855 to the list of devices which support I2C block
-> > transactions (in function vt596_probe), is this on purpose or an
-> > overlook?
-> 
-> it was an overlook on my side, sorry.  Can you just add that yourself or
-> do you wnat me to send another patch?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I'll add it myself, no problem.
+--0-974072874-1242335708=:24797
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Content-ID: <alpine.OSX.1.00.0905172109591.22705-j5vrdnS1lu2bjG2T50FRYJkWy+7J3LPUqGK+G5UkneY@public.gmane.org>
+
+Hi,
+
+Here's a small patch for the decode-dimms script to make it work on OS X. 
+Instead of device nodes, the EEPROM content can be read with the ioreg(8) 
+command there.
+
+Tested on a G5 iMac and a G4 PowerBook, both running OS X 10.4.11.
+
+Regards,
+Michael
 
 -- 
-Jean Delvare
+Message composed with
+VIM - Vi IMproved 7.2 (2008 Aug 9, compiled Jan 10 2009 20:59:41)
+--0-974072874-1242335708=:24797
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=decode-dimms+darwin-support.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <alpine.OSX.1.00.0905172115570.22705-j5vrdnS1lu2bjG2T50FRYJkWy+7J3LPUqGK+G5UkneY@public.gmane.org>
+Content-Description: 
+Content-Disposition: attachment; filename=decode-dimms+darwin-support.diff
+
+LS0tIGRlY29kZS1kaW1tcy5vcmlnCTIwMDktMDUtMTMgMTI6MTY6NDQuMDAw
+MDAwMDAwICswMjAwDQorKysgZGVjb2RlLWRpbW1zCTIwMDktMDUtMTQgMjE6
+MzY6NTcuMDAwMDAwMDAwICswMjAwDQpAQCAtNDcsNiArNDcsOCBAQA0KIHVz
+ZSBjb25zdGFudCBMSVRUTEVFTkRJQU4JPT4gImxpdHRsZS1lbmRpYW4iOw0K
+IHVzZSBjb25zdGFudCBCSUdFTkRJQU4JCT0+ICJiaWctZW5kaWFuIjsNCiAN
+Cit1c2UgY29uc3RhbnQgREFSV0lOCQkJPT4gJF5PIGVxICJkYXJ3aW4iOw0K
+Kw0KICRyZXZpc2lvbiA9ICckUmV2aXNpb24kICgkRGF0ZSQpJzsNCiAkcmV2
+aXNpb24gPX4gcy9cJFx3KzogKC4qPykgXCQvJDEvZzsNCiAkcmV2aXNpb24g
+PX4gcy8gXChbXigpXSpcKS8vOw0KQEAgLTE1NDksMjUgKzE1NTEsMjggQEAN
+CiB7DQogCW15ICgkb2Zmc2V0LCAkc2l6ZSwgJGRpbW1faSkgPSBAXzsNCiAJ
+bXkgQGJ5dGVzOw0KKwlteSAkZGltbV9maWxlID0gJGRpbW1faS0+e2ZpbGV9
+Ow0KIAlpZiAoJHVzZV9oZXhkdW1wKSB7DQotCQlAYnl0ZXMgPSByZWFkX2hl
+eGR1bXAoJGRpbW1faSk7DQorCQlAYnl0ZXMgPSByZWFkX2hleGR1bXAoJGRp
+bW1fZmlsZSk7DQogCQlyZXR1cm4gQGJ5dGVzWyRvZmZzZXQuLigkb2Zmc2V0
+ICsgJHNpemUgLSAxKV07DQorCX0gZWxzaWYgKERBUldJTikgew0KKwkJcmV0
+dXJuIEB7JGRpbW1faS0+e2J5dGVzfX1bJG9mZnNldC4uKCRvZmZzZXQgKyAk
+c2l6ZSAtIDEpXTsNCiAJfSBlbHNpZiAoJHVzZV9zeXNmcykgew0KIAkJIyBL
+ZXJuZWwgMi42IHdpdGggc3lzZnMNCi0JCXN5c29wZW4oSEFORExFLCAiJGRp
+bW1faS9lZXByb20iLCBPX1JET05MWSkNCi0JCQlvciBkaWUgIkNhbm5vdCBv
+cGVuICRkaW1tX2kvZWVwcm9tIjsNCisJCXN5c29wZW4oSEFORExFLCAiJGRp
+bW1fZmlsZS9lZXByb20iLCBPX1JET05MWSkNCisJCQlvciBkaWUgIkNhbm5v
+dCBvcGVuICRkaW1tX2ZpbGUvZWVwcm9tIjsNCiAJCWJpbm1vZGUgSEFORExF
+Ow0KIAkJc3lzc2VlayhIQU5ETEUsICRvZmZzZXQsIFNFRUtfU0VUKQ0KLQkJ
+CW9yIGRpZSAiQ2Fubm90IHNlZWsgJGRpbW1faS9lZXByb20iOw0KKwkJCW9y
+IGRpZSAiQ2Fubm90IHNlZWsgJGRpbW1fZmlsZS9lZXByb20iOw0KIAkJc3lz
+cmVhZChIQU5ETEUsIG15ICRlZXByb20sICRzaXplKQ0KLQkJCW9yIGRpZSAi
+Q2Fubm90IHJlYWQgJGRpbW1faS9lZXByb20iOw0KKwkJCW9yIGRpZSAiQ2Fu
+bm90IHJlYWQgJGRpbW1fZmlsZS9lZXByb20iOw0KIAkJY2xvc2UgSEFORExF
+Ow0KIAkJQGJ5dGVzID0gdW5wYWNrKCJDKiIsICRlZXByb20pOw0KIAl9IGVs
+c2Ugew0KIAkJIyBLZXJuZWwgMi40IHdpdGggcHJvY2ZzDQogCQlmb3IgbXkg
+JGkgKDAgLi4gKCRzaXplLTEpLzE2KSB7DQogCQkJbXkgJGhleG9mZiA9IHNw
+cmludGYoJyUwMngnLCAkb2Zmc2V0ICsgJGkgKiAxNik7DQotCQkJcHVzaCBA
+Ynl0ZXMsIHNwbGl0KCIgIiwgYGNhdCAkZGltbV9pLyRoZXhvZmZgKTsNCisJ
+CQlwdXNoIEBieXRlcywgc3BsaXQoIiAiLCBgY2F0ICRkaW1tX2ZpbGUvJGhl
+eG9mZmApOw0KIAkJfQ0KIAl9DQogCXJldHVybiBAYnl0ZXM7DQpAQCAtMTcw
+MCw3ICsxNzA1LDI5IEBADQogew0KIAlteSAoJGRpciwgJGZpbGUsIEBmaWxl
+cyk7DQogDQotCWlmICgkdXNlX3N5c2ZzKSB7DQorCWlmIChEQVJXSU4pIHsN
+CisJCSMgT24gT1MgWCB3ZSBxdWVyeSB0aGUgSS9PIHJlZ2lzdHJ5IHRvIGdl
+dCB0aGUgRUVQUk9NIGRhdGENCisJCW15IChAZGltbV9pbmZvLCBAc2xvdF9u
+YW1lcyk7DQorDQorCQlvcGVuIElPUkVHLCAiaW9yZWcgLW4gbWVtb3J5IC13
+IDAgLXAgSU9EZXZpY2VUcmVlIHwiDQorCQkJb3IgZGllICJDYW5ub3QgcmVh
+ZCBkZXZpY2UgdHJlZTogJCEiOw0KKwkJd2hpbGUoPElPUkVHPikgew0KKwkJ
+CWlmKG0vImRpbW0taW5mbyJccyo9XHMqPCguKik+Lykgew0KKwkJCQlAZGlt
+bV9pbmZvID0gdW5wYWNrICIoYTI1NikqIiwgJDE7DQorCQkJfSBlbHNpZiht
+LyJzbG90LW5hbWVzIlxzKj1ccyo8W1xkYS1mQS1GXXs4fSguKik+Lykgew0K
+KwkJCQlAc2xvdF9uYW1lcyA9IHNwbGl0KC9cMC8sIHBhY2soIkgqIiwgJDEp
+KTsNCisJCQl9DQorCQl9DQorCQljbG9zZSBJT1JFRzsNCisJCWZvcmVhY2gg
+bXkgJGkgKDAuLiQjZGltbV9pbmZvKSB7DQorCQkJbXkgQGJ5dGVzID0gdW5w
+YWNrKCJDKiIsIHBhY2soIkgqIiwgJGRpbW1faW5mb1skaV0pKTsNCisJCQlw
+dXNoIEBmaWxlcywgew0KKwkJCQlmaWxlID0+ICRzbG90X25hbWVzWyRpXSwN
+CisJCQkJZWVwcm9tID0+ICRzbG90X25hbWVzWyRpXSwNCisJCQkJYnl0ZXMg
+PT4gXEBieXRlcyB9DQorCQl9DQorCQlyZXR1cm4gQGZpbGVzOw0KKwl9IGVs
+c2lmICgkdXNlX3N5c2ZzKSB7DQogCQkkZGlyID0gJy9zeXMvYnVzL2kyYy9k
+cml2ZXJzL2VlcHJvbSc7DQogCX0gZWxzZSB7DQogCQkkZGlyID0gJy9wcm9j
+L3N5cy9kZXYvc2Vuc29ycyc7DQpAQCAtMTczNSw3ICsxNzYyLDcgQEANCiBA
+ZGltbSA9IGdldF9kaW1tX2xpc3QoKSB1bmxlc3MgJHVzZV9oZXhkdW1wOw0K
+IA0KIGZvciBteSAkaSAoMCAuLiAkI2RpbW0pIHsNCi0JbXkgQGJ5dGVzID0g
+cmVhZHNwZCgwLCAxMjgsICRkaW1tWyRpXS0+e2ZpbGV9KTsNCisJbXkgQGJ5
+dGVzID0gcmVhZHNwZCgwLCAxMjgsICRkaW1tWyRpXSk7DQogCSRkaW1tWyRp
+XS0+e2J5dGVzfSA9IFxAYnl0ZXM7DQogCSRkaW1tWyRpXS0+e2lzX3JhbWJ1
+c30gPSAkYnl0ZXNbMF0gPCA0OwkJIyBTaW1wbGUgaGV1cmlzdGljDQogCWlm
+ICgkZGltbVskaV0tPntpc19yYW1idXN9IHx8ICRieXRlc1syXSA8IDkpIHsN
+CkBAIC0xODAxLDggKzE4MjgsNyBAQA0KIAkJIyByZWFkIGl0IG5vdy4gIERE
+UjMgd2lsbCBuZWVkIHRoaXMgZGF0YS4NCiAJCWlmICgkc3BkX3VzZWQgPiBA
+Ynl0ZXMpIHsNCiAJCQlwdXNoIChAYnl0ZXMsDQotCQkJICAgICAgcmVhZHNw
+ZChAYnl0ZXMsICRzcGRfdXNlZCAtIEBieXRlcywNCi0JCQkJICAgICAgJGRp
+bW1bJGN1cnJlbnRdLT57ZmlsZX0pKTsNCisgCQkJICAgICAgcmVhZHNwZChA
+Ynl0ZXMsICRzcGRfdXNlZCAtIEBieXRlcywgJGRpbW1bJGN1cnJlbnRdKSk7
+DQogCQl9DQogCX0NCiANCg==
+
+--0-974072874-1242335708=:24797--
