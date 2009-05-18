@@ -1,105 +1,40 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] MFD: Add U300 AB3100 core support v1
-Date: Mon, 18 May 2009 16:22:36 +0200
-Message-ID: <63386a3d0905180722u282f0dd3ua62b119a1a6a97e8@mail.gmail.com>
-References: <63386a3d0905140129s5fd0f32cxde1114489678f012@mail.gmail.com>
-	 <4A0BF776.9030301@compulab.co.il>
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: Re: [PATCH 08/12] mpc5121: Added I2C support.
+Date: Mon, 18 May 2009 16:29:04 +0200
+Message-ID: <4A1170B0.5080203@grandegger.com>
+References: <1241640919-4650-1-git-send-email-wd@denx.de> <fa686aa40905061941p6fd4b03dt1097cf4d16bdd665@mail.gmail.com> <4A028182.3040107@grandegger.com> <200905181557.11766.kosmo@semihalf.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A0BF776.9030301-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+In-Reply-To: <200905181557.11766.kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: =?ISO-8859-2?Q?Piotr_Zi=EAcik?= <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2009/5/14 Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>:
+Piotr Zi=EAcik wrote:
+>> Right. Furthermore, the i2c-mpc.c should be extened to support bus s=
+peed
+>> setting for the MPC512x, which has been merged recently (see commit =
+id
+>> f2bd5efe).
+>=20
+> I have simple question about bus speed setting support. Existing=20
+> implementation uses default safe speed if there is no 'clock-frequenc=
+y'=20
+> property in i2c node. Comments in code suggest that this behaviour is=
+ left=20
+> for backward compatibility only. Should I make the 'clock-frequency'
+> property mandatory for a new type of I2C controller (MPC5121) ?
 
-> A few comments.
+I don't think so, for the same backward compatibility reason as for the
+other boards. But the DTS file might be changed to use clock-frequency.
+BTW, when I wrote the code I already had the MPC512x in mind. IIRC, the
+=46DR table and the function scanning it for the MPC52xx should work fo=
+r
+the MPC512x as well. It's mainly a matter of using the proper function
+to get the source clock frequency and fiddling with multiple-arch suppo=
+rt.
 
-First a BIG THANKS. I worked the last few days according to your and
-Samuel's comments, great input!
-
-I'll send a v2 soonish with all issues fixed as far as possible. Below
-I just discuss things I haven't yet figured out how to fix properly.
-(Most stuff is simply just fixed.)
-
->> +     /*
->> +      * A two-byte write message with the first byte containing the register
->> +      * number and the second byte containing the value to be written
->> +      * effectively sets a register in the AB3100.
->> +      */
->> +     if ((i2c_transfer(ab3100_i2c_client->adapter,
->> +                                     &msgs[0], 1)) != 1) {
->
-> Is it necessary to use i2c_transfer here? Maybe i2c_master_send or even
-> i2c_smbus_write_word_data would do the job?
-
-Yep it works nicely here but...
-
->> +/*
->> + * The test registers exist at an I2C bus address up one
->> + * from the ordinary base. They are not supposed to be used
->> + * in production code, but sometimes you have to do that
->> + * anyway. It's currently only used from this file so declare
->> + * it static and do not export.
->> + */
->> +static int ab3100_set_test_register(u8 reg, u8 regval)
->> +{
->> +     u8 regandval[2] = {reg, regval};
->> +     struct i2c_msg msgs[1];
->> +     int err = 0;
->> +
->> +     if (!ab3100_initialized)
->> +             return -ENODEV;
->> +
->> +     msgs[0].addr = ab3100_i2c_client->addr + 1;
->> +     msgs[0].flags = 0;
->> +     msgs[0].len = 2;
->> +     msgs[0].buf = regandval;
->> +     err = mutex_lock_interruptible(&ab3100_access_mutex);
->> +     if (err)
->> +             return err;
->> +
->> +     /*
->> +      * A two-byte write message with the first byte containing the register
->> +      * number and the second byte containing the value to be written
->> +      * effectively sets a register in the AB3100.
->> +      */
->> +     if ((i2c_transfer(ab3100_i2c_client->adapter,
->> +                       &msgs[0], 1)) != 1) {
->
-> i2c_master_send?
-
-Here we have a problem. See above:
-msgs[0].addr = ab3100_i2c_client->addr + 1;
-
-So this chip actually has two addresses. A "special" address
-to deal with test registers, one address up. The I2C framework
-assume all devices have one and one address only (which is
-of course mostly true).
-
-Here is a special case. When the first device has registered,
-you know that the other address is available as well.
-
-You could think of several ugly solutions:
-
-* Keep using i2c_transfer() directly as we do now.
-
-* Make a raw copy of the i2c_device with something like
-  memcpy(mock_client, i2c_client, sizeof(i2c_client);
-  mock_client->addr++;
-  then use i2c_master_send()
-
-* Register a new i2c_device in board_info for the other
-  address while strictly speaking it is the same device, and
-  this will yield a lot of probing and synchronization code,
-  because writing the test registers is used when probing the
-  first device, so we have to wait for that device to be probed
-  before we can probe the other one etc.
-
-Right now I lean toward the first alternative.
-
-Yours,
-Linus Walleij
+Wolfgang.
