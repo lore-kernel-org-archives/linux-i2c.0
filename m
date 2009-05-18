@@ -1,54 +1,43 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: generate START condition after STOP caused by
-	read i2c_msg
-Date: Mon, 18 May 2009 13:04:49 +0200
-Message-ID: <20090518110449.GB812@pengutronix.de>
-References: <4A0BD1DB.4090305@doredevelopment.dk> <20090514083453.GB3043@pengutronix.de> <4A0BDAD6.5020005@doredevelopment.dk> <OF9EE5E055.DDB954D2-ONC12575B6.003636EC-C12575B6.0036CB06@transmode.se> <d2b9ea600905140317u7a4b9a70s574568d79a1ce7cc@mail.gmail.com> <OF3CD158BA.04CCFBB5-ONC12575B6.005911D5-C12575B6.005CAFC2@transmode.se> <d2b9ea600905150318s69b86b5ct3816b274bf343a79@mail.gmail.com> <OFCADC684E.A2599121-ONC12575B7.003B8AB5-C12575B7.003CF795@transmode.se> <d2b9ea600905150552u6951a92es5dd119dcc37e641d@mail.gmail.com>
+From: Piotr =?iso-8859-2?q?Zi=EAcik?= <kosmo@semihalf.com>
+Subject: Re: [PATCH 08/12] mpc5121: Added I2C support.
+Date: Mon, 18 May 2009 15:57:11 +0200
+Message-ID: <200905181557.11766.kosmo@semihalf.com>
+References: <1241640919-4650-1-git-send-email-wd@denx.de>
+	<fa686aa40905061941p6fd4b03dt1097cf4d16bdd665@mail.gmail.com>
+	<4A028182.3040107@grandegger.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <4A028182.3040107@grandegger.com>
 Content-Disposition: inline
-In-Reply-To: <d2b9ea600905150552u6951a92es5dd119dcc37e641d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: Wolfgang Grandegger <wg@grandegger.com>
+Cc: linuxppc-dev@ozlabs.org, Wolfgang Denk <wd@denx.de>, Detlev Zundel <dzu@denx.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+> Right. Furthermore, the i2c-mpc.c should be extened to support bus speed
+> setting for the MPC512x, which has been merged recently (see commit id
+> f2bd5efe).
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have simple question about bus speed setting support. Existing =
 
-> Could we go forward with my initial patch, and then continue the work
-> on this repeated START approach for future releases?
+implementation uses default safe speed if there is no 'clock-frequency' =
 
-Then could you please send another version of your patch with the CodingSty=
-le
-issue removed and an updated description what this patch fixes and what sti=
-ll
-needs to be resolved?
+property in i2c node. Comments in code suggest that this behaviour is left =
 
-Regards,
+for backward compatibility only. Should I make the 'clock-frequency'
+property mandatory for a new type of I2C controller (MPC5121) ?
 
-   Wolfram
+-- =
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkoRQNEACgkQD27XaX1/VRs2mwCfb+jtW2eqxoukpI/2Ic9PiaSy
-r5MAniPKpdOqvYfoZ+inYXbUvI68QtGl
-=PdJ5
------END PGP SIGNATURE-----
-
---KFztAG8eRSV9hGtP--
+Best Regards.
+Piotr Zi=EAcik
