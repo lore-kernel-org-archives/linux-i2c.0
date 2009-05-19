@@ -1,1125 +1,1215 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/1] ST DDC I2C U300 bus driver v2
-Date: Wed, 20 May 2009 00:00:50 +0100
-Message-ID: <20090519230050.GE23114@fluff.org.uk>
-References: <63386a3d0905060618u16ffc613p3ff7e4cf8ab22ad2@mail.gmail.com>
+Subject: Re: [PATCH 1/1] MFD: Add U300 AB3100 core support v3
+Date: Wed, 20 May 2009 00:06:01 +0100
+Message-ID: <20090519230601.GF23114@fluff.org.uk>
+References: <63386a3d0905190736q574d0379hb529aaa105aa36f3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <63386a3d0905060618u16ffc613p3ff7e4cf8ab22ad2-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <63386a3d0905190736q574d0379hb529aaa105aa36f3-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 06, 2009 at 03:18:07PM +0200, Linus Walleij wrote:
-> This adds support for the ST Microelectronics DDC I2C bus
-> driver. This bus is used in the U300 architecture recently
-> added to RMK:s ARM tree.
+On Tue, May 19, 2009 at 04:36:50PM +0200, Linus Walleij wrote:
+> This adds a core driver for the AB3100 mixed-signal circuit
+> found in the ST-Ericsson U300 series platforms. This driver
+> is a singleton proxy for all accesses to the AB3100
+> sub-drivers which will be merged on top of this one, RTC,
+> regulators, battery and system power control, vibrator,
+> LEDs, and an ALSA codec.
 > 
 > Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> Reviewed-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> Reviewed-by: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > Reviewed-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 > ---
->  drivers/i2c/busses/Kconfig      |   12 +
->  drivers/i2c/busses/Makefile     |    1 +
->  drivers/i2c/busses/i2c-stu300.c | 1022 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 1035 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-stu300.c
+>  drivers/mfd/Kconfig        |   14 +
+>  drivers/mfd/Makefile       |    3 +-
+>  drivers/mfd/ab3100-core.c  | 1007 ++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/ab3100.h |  103 +++++
+>  4 files changed, 1126 insertions(+), 1 deletions(-)
+>  create mode 100755 drivers/mfd/ab3100-core.c
+>  create mode 100644 include/linux/mfd/ab3100.h
 > 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index a48c8ae..8c5d568 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -513,6 +513,18 @@ config I2C_SIMTEC
->  	  This driver can also be built as a module. If so, the module
->  	  will be called i2c-simtec.
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index ee3927a..61f0346 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -241,6 +241,20 @@ config PCF50633_GPIO
+>  	 Say yes here if you want to include support GPIO for pins on
+>  	 the PCF50633 chip.
 > 
-> +config I2C_STU300
-> +	tristate "ST Microelectronics DDC I2C interface"
-> +	default y if MACH_U300
+> +config AB3100_CORE
+> +	tristate "ST-Ericsson AB3100 Mixed Signal Circuit core functions"
+> +	depends on I2C
+> +	default y if ARCH_U300
 > +	help
-> +	  If you say yes to this option, support will be included for the
-> +	  I2C interface from ST Microelectronics simply called "DDC I2C"
-> +	  supporting both I2C and DDC, used in e.g. the U300 series
-> +	  mobile platforms.
+> +	  Select this to enable the AB3100 Mixed Signal IC core
+> +	  functionality. This connects to a AB3100 on the I2C bus
+> +	  and expose a number of symbols needed for dependent devices
+> +	  to read and write registers and subscribe to events from
+> +	  this multi-functional IC. This is needed to use other features
+> +	  of the AB3100 such as battery-backed RTC, charging control,
+> +	  LEDs, vibrator, system power and temperature, power management
+> +	  and ALSA sound.
 > +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called i2c-stu300.
-> +
->  config I2C_VERSATILE
->  	tristate "ARM Versatile/Realview I2C bus support"
->  	depends on ARCH_VERSATILE || ARCH_REALVIEW
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 776acb6..edeabf0 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -48,6 +48,7 @@ obj-$(CONFIG_I2C_S6000)		+= i2c-s6000.o
->  obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
->  obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
->  obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
-> +obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
->  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+>  endmenu
 > 
->  # External I2C/SMBus adapter drivers
-> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-> new file mode 100644
-> index 0000000..2a2e569
+>  menu "Multimedia Capabilities Port drivers"
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 3afb519..f5f3371 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -40,4 +40,5 @@ obj-$(CONFIG_PMIC_DA903X)	+= da903x.o
+> 
+>  obj-$(CONFIG_MFD_PCF50633)	+= pcf50633-core.o
+>  obj-$(CONFIG_PCF50633_ADC)	+= pcf50633-adc.o
+> -obj-$(CONFIG_PCF50633_GPIO)	+= pcf50633-gpio.o
+> \ No newline at end of file
+> +obj-$(CONFIG_PCF50633_GPIO)	+= pcf50633-gpio.o
+> +obj-$(CONFIG_AB3100_CORE)	+= ab3100-core.o
+> diff --git a/drivers/mfd/ab3100-core.c b/drivers/mfd/ab3100-core.c
+> new file mode 100755
+> index 0000000..1b37e2c
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-stu300.c
-> @@ -0,0 +1,1022 @@
+> +++ b/drivers/mfd/ab3100-core.c
+> @@ -0,0 +1,1007 @@
 > +/*
-> + * Copyright (C) 2007-2009 ST-Ericsson AB
+> + * Copyright (C) 2007-2009 ST-Ericsson
 > + * License terms: GNU General Public License (GPL) version 2
-> + * ST DDC I2C master mode driver, used in e.g. U300 series platforms.
+> + * Low-level core for exclusive access to the AB3100 IC on the I2C bus
+> + * and some basic chip-configuration.
 > + * Author: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> + * Author: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 > + */
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/delay.h>
+> +
 > +#include <linux/i2c.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/completion.h>
+> +#include <linux/mutex.h>
+> +#include <linux/list.h>
+> +#include <linux/notifier.h>
 > +#include <linux/err.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/device.h>
 > +#include <linux/interrupt.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/debugfs.h>
+> +#include <linux/seq_file.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/mfd/ab3100.h>
 > +
-> +/* the name of this kernel module */
-> +#define NAME "stu300"
+> +/* These are the only registers inside AB3100 used in this main file */
 > +
-> +/* CR (Control Register) 8bit (R/W) */
-> +#define I2C_CR					(0x00000000)
-> +#define I2C_CR_RESET_VALUE			(0x00)
-> +#define I2C_CR_RESET_UMASK			(0x00)
-> +#define I2C_CR_DDC1_ENABLE			(0x80)
-> +#define I2C_CR_TRANS_ENABLE			(0x40)
-> +#define I2C_CR_PERIPHERAL_ENABLE		(0x20)
-> +#define I2C_CR_DDC2B_ENABLE			(0x10)
-> +#define I2C_CR_START_ENABLE			(0x08)
-> +#define I2C_CR_ACK_ENABLE			(0x04)
-> +#define I2C_CR_STOP_ENABLE			(0x02)
-> +#define I2C_CR_INTERRUPT_ENABLE			(0x01)
-> +/* SR1 (Status Register 1) 8bit (R/-) */
-> +#define I2C_SR1					(0x00000004)
-> +#define I2C_SR1_RESET_VALUE			(0x00)
-> +#define I2C_SR1_RESET_UMASK			(0x00)
-> +#define I2C_SR1_EVF_IND				(0x80)
-> +#define I2C_SR1_ADD10_IND			(0x40)
-> +#define I2C_SR1_TRA_IND				(0x20)
-> +#define I2C_SR1_BUSY_IND			(0x10)
-> +#define I2C_SR1_BTF_IND				(0x08)
-> +#define I2C_SR1_ADSL_IND			(0x04)
-> +#define I2C_SR1_MSL_IND				(0x02)
-> +#define I2C_SR1_SB_IND				(0x01)
-> +/* SR2 (Status Register 2) 8bit (R/-) */
-> +#define I2C_SR2					(0x00000008)
-> +#define I2C_SR2_RESET_VALUE			(0x00)
-> +#define I2C_SR2_RESET_UMASK			(0x40)
-> +#define I2C_SR2_MASK				(0xBF)
-> +#define I2C_SR2_SCLFAL_IND			(0x80)
-> +#define I2C_SR2_ENDAD_IND			(0x20)
-> +#define I2C_SR2_AF_IND				(0x10)
-> +#define I2C_SR2_STOPF_IND			(0x08)
-> +#define I2C_SR2_ARLO_IND			(0x04)
-> +#define I2C_SR2_BERR_IND			(0x02)
-> +#define I2C_SR2_DDC2BF_IND			(0x01)
-> +/* CCR (Clock Control Register) 8bit (R/W) */
-> +#define I2C_CCR					(0x0000000C)
-> +#define I2C_CCR_RESET_VALUE			(0x00)
-> +#define I2C_CCR_RESET_UMASK			(0x00)
-> +#define I2C_CCR_MASK				(0xFF)
-> +#define I2C_CCR_FMSM				(0x80)
-> +#define I2C_CCR_CC_MASK				(0x7F)
-> +/* OAR1 (Own Address Register 1) 8bit (R/W) */
-> +#define I2C_OAR1				(0x00000010)
-> +#define I2C_OAR1_RESET_VALUE			(0x00)
-> +#define I2C_OAR1_RESET_UMASK			(0x00)
-> +#define I2C_OAR1_ADD_MASK			(0xFF)
-> +/* OAR2 (Own Address Register 2) 8bit (R/W) */
-> +#define I2C_OAR2				(0x00000014)
-> +#define I2C_OAR2_RESET_VALUE			(0x40)
-> +#define I2C_OAR2_RESET_UMASK			(0x19)
-> +#define I2C_OAR2_MASK				(0xE6)
-> +#define I2C_OAR2_FR_25_10MHZ			(0x00)
-> +#define I2C_OAR2_FR_10_1667MHZ			(0x20)
-> +#define I2C_OAR2_FR_1667_2667MHZ		(0x40)
-> +#define I2C_OAR2_FR_2667_40MHZ			(0x60)
-> +#define I2C_OAR2_FR_40_5333MHZ			(0x80)
-> +#define I2C_OAR2_FR_5333_66MHZ			(0xA0)
-> +#define I2C_OAR2_FR_66_80MHZ			(0xC0)
-> +#define I2C_OAR2_FR_80_100MHZ			(0xE0)
-> +#define I2C_OAR2_FR_MASK			(0xE0)
-> +#define I2C_OAR2_ADD_MASK			(0x06)
-> +/* DR (Data Register) 8bit (R/W) */
-> +#define I2C_DR					(0x00000018)
-> +#define I2C_DR_RESET_VALUE			(0x00)
-> +#define I2C_DR_RESET_UMASK			(0xFF)
-> +#define I2C_DR_D_MASK				(0xFF)
-> +/* ECCR (Extended Clock Control Register) 8bit (R/W) */
-> +#define I2C_ECCR				(0x0000001C)
-> +#define I2C_ECCR_RESET_VALUE			(0x00)
-> +#define I2C_ECCR_RESET_UMASK			(0xE0)
-> +#define I2C_ECCR_MASK				(0x1F)
-> +#define I2C_ECCR_CC_MASK			(0x1F)
+> +/* Interrupt event registers */
+> +#define AB3100_EVENTA1		0x21
+> +#define AB3100_EVENTA2		0x22
+> +#define AB3100_EVENTA3		0x23
+> +
+> +/* AB3100 DAC converter registers */
+> +#define AB3100_DIS		0x00
+> +#define AB3100_D0C		0x01
+> +#define AB3100_D1C		0x02
+> +#define AB3100_D2C		0x03
+> +#define AB3100_D3C		0x04
+> +
+> +/* Chip ID register */
+> +#define AB3100_CID		0x20
+> +
+> +/* AB3100 interrupt registers */
+> +#define AB3100_IMRA1		0x24
+> +#define AB3100_IMRA2		0x25
+> +#define AB3100_IMRA3		0x26
+> +#define AB3100_IMRB1		0x2B
+> +#define AB3100_IMRB2		0x2C
+> +#define AB3100_IMRB3		0x2D
+> +
+> +/* System Power Monitoring and control registers */
+> +#define AB3100_MCA		0x2E
+> +#define AB3100_MCB		0x2F
+> +
+> +/* SIM power up */
+> +#define AB3100_SUP		0x50
 > +
 > +/*
-> + * These events are more or less responses to commands
-> + * sent into the hardware, presumably reflecting the state
-> + * of an internal state machine.
-> + */
-> +enum stu300_event {
-> +	STU300_EVENT_NONE = 0,
-> +	STU300_EVENT_1,
-> +	STU300_EVENT_2,
-> +	STU300_EVENT_3,
-> +	STU300_EVENT_4,
-> +	STU300_EVENT_5,
-> +	STU300_EVENT_6,
-> +	STU300_EVENT_7,
-> +	STU300_EVENT_8,
-> +	STU300_EVENT_9
-> +};
-> +
-> +enum stu300_error {
-> +	STU300_ERROR_NONE = 0,
-> +	STU300_ERROR_ACKNOWLEDGE_FAILURE,
-> +	STU300_ERROR_BUS_ERROR,
-> +	STU300_ERROR_ARBITRATION_LOST
-> +};
-> +
-> +/* timeout waiting for the controller to respond */
-> +#define STU300_TIMEOUT (msecs_to_jiffies(1000))
-> +
-> +/*
-> + * The number of address send athemps tried before giving up.
-> + * If the first one failes it seems like 5 to 8 attempts are required.
-> + */
-> +#define NUM_ADDR_RESEND_ATTEMPTS 10
-> +
-> +/* I2C clock speed, in Hz 0-400kHz*/
-> +static unsigned int scl_frequency = 100000;
-> +module_param(scl_frequency, uint,  0644);
-> +
-> +struct stu300_dev {
-> +	/* Parent platform device */
-> +	struct platform_device	*pdev;
-> +	/* Corresponding I2C adapter */
-> +	struct i2c_adapter	adapter;
-> +	/* Location of I/O area in memory, and size */
-> +	u32			phybase;
-> +	u32			physize;
-
-if you're using resource_size, then I belive this should
-really be a resource_size_t otherwise you'll be casting
-down from u64 if you've got 64bit resources enabled.
-
-> +	void __iomem		*virtbase;
-> +	/* Hardware block clock */
-> +	struct clk		*clk;
-> +	/* Assigned interrupt line */
-> +	int			irq;
-> +	/* This locks the following cmd_ variables */
-> +	spinlock_t		cmd_issue_lock;
-> +	/* Acknowledge completion for I2C command */
-> +	struct completion	cmd_complete;
-> +	/* Event coming in as a response to a command */
-> +	enum stu300_event	cmd_event;
-> +	/* Error code as response to a command */
-> +	enum stu300_error	cmd_err;
-> +	/* Current bus speed, in Hz */
-> +	unsigned int		speed;
-> +	/* Index and length of current message */
-> +	int			msg_index;
-> +	int			msg_len;
-> +};
-
-kerneldoc please.
-
-> +
-> +/* Local forward function declarations */
-> +static int stu300_init_hw(struct stu300_dev *dev);
-> +
-> +/*
-> + * The block needs writes in both MSW and LSW in order
-> + * for all data lines to reach their destination.
-> + */
-> +static inline void stu300_wr8(u32 value, void __iomem *address)
-> +{
-> +	writel((value << 16) | value, address);
-> +}
-> +
-> +/*
-> + * This merely masks off the duplicates which appear
-> + * in bytes 1-3.
-> + */
-> +static inline u32 stu300_r8(void __iomem *address)
-> +{
-> +	return readl(address) & 0x000000FFU;
-> +}
-
-did readb not work for you? if so, please comment in here
-otherwise other people might make the same mistake.
-
-> +/*
-> + * Tells whether a certain event or events occurred in
-> + * response to a command. The events represent states in
-> + * the internal state machine of the hardware. The events
-> + * are not very well described in the hardware
-> + * documentation and can only be treated as abstract state
-> + * machine states.
+> + * I2C communication
 > + *
-> + * @ret 0 = event has not occurred, any other value means
-> + * the event occurred.
+> + * The AB3100 is usually assigned address 0x48 (7-bit)
+> + * The chip is defined in the platform i2c_board_data section.
 > + */
-> +static int stu300_event_occurred(struct stu300_dev *dev,
-> +				   enum stu300_event mr_event) {
-> +	u32 status1;
-> +	u32 status2;
+> +static unsigned short normal_i2c[] = { 0x48, I2C_CLIENT_END };
+> +I2C_CLIENT_INSMOD_1(ab3100);
 > +
-> +	/* What event happened? */
-> +	status1 = stu300_r8(dev->virtbase + I2C_SR1);
-> +	if (!(status1 & I2C_SR1_EVF_IND))
-> +		/* No event at all */
-> +		return 0;
-> +	status2 = stu300_r8(dev->virtbase + I2C_SR2);
+> +/* A local all-containing singleton */
+> +static struct ab3100 *ab3100_local;
 > +
-> +	switch (mr_event) {
-> +	case STU300_EVENT_1:
-> +		if (status1 & I2C_SR1_ADSL_IND)
-> +			return 1;
+> +u8 ab3100_get_chip_type(struct ab3100 *ab3100_data)
+> +{
+> +	u8 chip = ABUNKNOWN;
+> +
+> +	switch (ab3100_data->chip_id & 0xf0) {
+> +	case  0xa0:
+> +		chip = AB3000;
 > +		break;
-> +	case STU300_EVENT_2:
-> +	case STU300_EVENT_3:
-> +	case STU300_EVENT_7:
-> +	case STU300_EVENT_8:
-> +		if (status1 & I2C_SR1_BTF_IND) {
-> +			if (status2 & I2C_SR2_AF_IND)
-> +				dev->cmd_err = STU300_ERROR_ACKNOWLEDGE_FAILURE;
-> +			else if (status2 & I2C_SR2_BERR_IND)
-> +				dev->cmd_err = STU300_ERROR_BUS_ERROR;
-> +			return 1;
-> +		}
-> +		break;
-> +	case STU300_EVENT_4:
-> +		if (status2 & I2C_SR2_STOPF_IND)
-> +			return 1;
-> +		break;
-> +	case STU300_EVENT_5:
-> +		if (status1 & I2C_SR1_SB_IND)
-> +			/* Clear start bit */
-> +			return 1;
-> +		break;
-> +	case STU300_EVENT_6:
-> +		if (status2 & I2C_SR2_ENDAD_IND) {
-> +			/* First check for any errors */
-> +			if (status2 & I2C_SR2_AF_IND)
-> +				dev->cmd_err = STU300_ERROR_ACKNOWLEDGE_FAILURE;
-> +			return 1;
-> +		}
-> +		break;
-> +	case STU300_EVENT_9:
-> +		if (status1 & I2C_SR1_ADD10_IND)
-> +			return 1;
-> +		break;
-> +	default:
+> +	case  0xc0:
+> +		chip = AB3100;
 > +		break;
 > +	}
-> +	if (status2 & I2C_SR2_ARLO_IND)
-> +		dev->cmd_err = STU300_ERROR_ARBITRATION_LOST;
+> +	return chip;
+> +}
+> +EXPORT_SYMBOL(ab3100_get_chip_type);
+> +
+> +int ab3100_set_register(struct ab3100 *ab3100_data, u8 reg, u8 regval)
+> +{
+> +	u8 regandval[2] = {reg, regval};
+> +	int err;
+> +
+> +	err = mutex_lock_interruptible(&ab3100_data->access_mutex);
+> +	if (err)
+> +		return err;
+> +
+> +	/*
+> +	 * A two-byte write message with the first byte containing the register
+> +	 * number and the second byte containing the value to be written
+> +	 * effectively sets a register in the AB3100.
+> +	 */
+> +	err = i2c_master_send(ab3100_data->i2c_client, regandval, 2);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (write register): %d\n",
+> +			err);
+> +	} else if (err != 2) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (write register) "
+> +			"%d bytes transferred (expected 2)\n",
+> +			err);
+> +		err = -EIO;
+> +	} else {
+> +		/* All is well */
+> +		err = 0;
+> +	}
+> +	mutex_unlock(&ab3100_data->access_mutex);
 > +	return 0;
 > +}
+> +EXPORT_SYMBOL(ab3100_set_register);
 > +
-> +static irqreturn_t stu300_irh(int irq, void *data)
+> +/*
+> + * The test registers exist at an I2C bus address up one
+> + * from the ordinary base. They are not supposed to be used
+> + * in production code, but sometimes you have to do that
+> + * anyway. It's currently only used from this file so declare
+> + * it static and do not export.
+> + */
+> +static int ab3100_set_test_register(u8 reg, u8 regval)
 > +{
-> +	struct stu300_dev *dev = data;
-> +	int res;
+> +	u8 regandval[2] = {reg, regval};
+> +	int err;
 > +
-> +	/* See if this was what we were waiting for */
-> +	spin_lock(&dev->cmd_issue_lock);
-> +	if (dev->cmd_event != STU300_EVENT_NONE) {
-> +		res = stu300_event_occurred(dev, dev->cmd_event);
-> +		if (res || dev->cmd_err != STU300_ERROR_NONE) {
-> +			u32 val;
+> +	err = mutex_lock_interruptible(&ab3100_local->access_mutex);
+> +	if (err)
+> +		return err;
 > +
-> +			complete(&dev->cmd_complete);
-> +			/* Block any multiple interrupts */
-> +			val = stu300_r8(dev->virtbase + I2C_CR);
-> +			val &= ~I2C_CR_INTERRUPT_ENABLE;
-> +			stu300_wr8(val, dev->virtbase + I2C_CR);
-> +		}
+> +	err = i2c_master_send(ab3100_local->testreg_client, regandval, 2);
+> +	if (err < 0) {
+> +		dev_err(ab3100_local->dev,
+> +			"write error (write test register): %d\n",
+> +			err);
+> +	} else if (err != 2) {
+> +		dev_err(ab3100_local->dev,
+> +			"write error (write test register) "
+> +			"%d bytes transferred (expected 2)\n",
+> +			err);
+> +		err = -EIO;
+> +	} else {
+> +		/* All is well */
+> +		err = 0;
 > +	}
-> +	spin_unlock(&dev->cmd_issue_lock);
+> +	mutex_unlock(&ab3100_local->access_mutex);
+> +
+> +	return err;
+> +}
+> +
+> +int ab3100_get_register(struct ab3100 *ab3100_data, u8 reg, u8 *regval)
+> +{
+> +	int err;
+> +
+> +	err = mutex_lock_interruptible(&ab3100_data->access_mutex);
+> +	if (err)
+> +		return err;
+> +
+> +	/*
+> +	 * AB3100 require an I2C "stop" command between each message, else
+> +	 * it will not work. The only way of achieveing this with the
+> +	 * message transport layer is to send the read and write messages
+> +	 * separately.
+> +	 */
+> +	err = i2c_master_send(ab3100_data->i2c_client, &reg, 1);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (send register address): %d\n",
+> +			err);
+> +		goto get_reg_out_unlock;
+> +	} else if (err != 1) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (send register address) "
+> +			"%d bytes transferred (expected 1)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_reg_out_unlock;
+> +	} else {
+> +		/* All is well */
+> +		err = 0;
+> +	}
+> +
+> +	err = i2c_master_recv(ab3100_data->i2c_client, regval, 1);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (read register): %d\n",
+> +			err);
+> +		goto get_reg_out_unlock;
+> +	} else if (err != 1) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (read register) "
+> +			"%d bytes transferred (expected 1)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_reg_out_unlock;
+> +	} else {
+> +		/* All is well */
+> +		err = 0;
+> +	}
+> +
+> + get_reg_out_unlock:
+> +	mutex_unlock(&ab3100_data->access_mutex);
+> +	return err;
+> +}
+> +EXPORT_SYMBOL(ab3100_get_register);
+> +
+> +int ab3100_get_register_page(struct ab3100 *ab3100_data,
+> +			     u8 first_reg, u8 *regvals, u8 numregs)
+> +{
+> +	int err;
+> +
+> +	if (ab3100_data->chip_id == 0xa0 ||
+> +	    ab3100_data->chip_id == 0xa1)
+> +		/* These don't support paged reads */
+> +		return -EIO;
+> +
+> +	err = mutex_lock_interruptible(&ab3100_data->access_mutex);
+> +	if (err)
+> +		return err;
+> +
+> +	/*
+> +	 * Paged read also require an I2C "stop" command.
+> +	 */
+> +	err = i2c_master_send(ab3100_data->i2c_client, &first_reg, 1);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (send first register address): %d\n",
+> +			err);
+> +		goto get_reg_page_out_unlock;
+> +	} else if (err != 1) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (send first register address) "
+> +			"%d bytes transferred (expected 1)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_reg_page_out_unlock;
+> +	}
+> +
+> +	err = i2c_master_recv(ab3100_data->i2c_client, regvals, numregs);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (read register page): %d\n",
+> +			err);
+> +		goto get_reg_page_out_unlock;
+> +	} else if (err != numregs) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (read register page) "
+> +			"%d bytes transferred (expected %d)\n",
+> +			err, numregs);
+> +		err = -EIO;
+> +		goto get_reg_page_out_unlock;
+> +	}
+> +
+> +	/* All is well */
+> +	err = 0;
+> +
+> + get_reg_page_out_unlock:
+> +	mutex_unlock(&ab3100_data->access_mutex);
+> +	return err;
+> +}
+> +EXPORT_SYMBOL(ab3100_get_register_page);
+> +
+> +int ab3100_mask_and_set_register(struct ab3100 *ab3100_data,
+> +				 u8 reg, u8 andmask, u8 ormask)
+> +{
+> +	u8 regandval[2] = {reg, 0};
+> +	int err;
+> +
+> +	err = mutex_lock_interruptible(&ab3100_data->access_mutex);
+> +	if (err)
+> +		return err;
+> +
+> +	/* First read out the target register */
+> +	err = i2c_master_send(ab3100_data->i2c_client, &reg, 1);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (maskset send address): %d\n",
+> +			err);
+> +		goto get_maskset_unlock;
+> +	} else if (err != 1) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (maskset send address) "
+> +			"%d bytes transferred (expected 1)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_maskset_unlock;
+> +	}
+> +
+> +	err = i2c_master_recv(ab3100_data->i2c_client, &regandval[1], 1);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (maskset read register): %d\n",
+> +			err);
+> +		goto get_maskset_unlock;
+> +	} else if (err != 1) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (maskset read register) "
+> +			"%d bytes transferred (expected 1)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_maskset_unlock;
+> +	}
+> +
+> +	/* Modify the register */
+> +	regandval[1] &= andmask;
+> +	regandval[1] |= ormask;
+> +
+> +	/* Write the register */
+> +	err = i2c_master_send(ab3100_data->i2c_client, regandval, 2);
+> +	if (err < 0) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (write register): %d\n",
+> +			err);
+> +		goto get_maskset_unlock;
+> +	} else if (err != 2) {
+> +		dev_err(ab3100_data->dev,
+> +			"write error (write register) "
+> +			"%d bytes transferred (expected 2)\n",
+> +			err);
+> +		err = -EIO;
+> +		goto get_maskset_unlock;
+> +	}
+> +
+> +	/* All is well */
+> +	err = 0;
+> +
+> + get_maskset_unlock:
+> +	mutex_unlock(&ab3100_data->access_mutex);
+> +	return err;
+> +}
+> +EXPORT_SYMBOL(ab3100_mask_and_set_register);
+> +
+> +/*
+> + * Register a simple callback for handling any AB3100 events.
+> + */
+> +int ab3100_event_register(struct ab3100 *ab3100_data,
+> +			  struct notifier_block *nb)
+> +{
+> +	return blocking_notifier_chain_register(&ab3100_data->event_subscribers,
+> +					       nb);
+> +}
+> +EXPORT_SYMBOL(ab3100_event_register);
+> +
+> +/*
+> + * Remove a previously registered callback.
+> + */
+> +int ab3100_event_unregister(struct ab3100 *ab3100_data,
+> +			    struct notifier_block *nb)
+> +{
+> +  return blocking_notifier_chain_unregister(&ab3100_data->event_subscribers,
+> +					    nb);
+> +}
+> +EXPORT_SYMBOL(ab3100_event_unregister);
+> +
+> +
+> +int ab3100_event_registers_startup_state_get(struct ab3100 *ab3100_data,
+> +					     u32 *fatevent)
+> +{
+> +	if (!ab3100_data->startup_events_read)
+> +		return -EAGAIN; /* Try again later */
+> +	*fatevent = ab3100_data->startup_events;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(ab3100_event_registers_startup_state_get);
+> +
+> +/* Interrupt handling worker */
+> +static void ab3100_work(struct work_struct *work)
+> +{
+> +	u8 event_regs[3];
+> +	u32 fatevent;
+> +	int err;
+> +
+> +	err = ab3100_get_register_page(ab3100_local, AB3100_EVENTA1,
+> +				       event_regs, 3);
+> +	if (err)
+> +		goto err_event_wq;
+> +
+> +	fatevent = (event_regs[0] << 16) |
+> +		(event_regs[1] << 8) |
+> +		event_regs[2];
+> +
+> +	if (!ab3100_local->startup_events_read) {
+> +		ab3100_local->startup_events = fatevent;
+> +		ab3100_local->startup_events_read = true;
+> +	}
+> +	/*
+> +	 * The notified parties will have to mask out the events
+> +	 * they're interested in and react to them. They will be
+> +	 * notified on all events, then they use the fatevent value
+> +	 * to determine if they're interested.
+> +	 */
+> +	blocking_notifier_call_chain(&ab3100_local->event_subscribers,
+> +				     fatevent, NULL);
+> +
+> +	dev_dbg(ab3100_local->dev,
+> +		"IRQ Event: 0x%08x\n", fatevent);
+> +
+> +	/* By now the IRQ should be acked and deasserted so enable it again */
+> +	enable_irq(ab3100_local->i2c_client->irq);
+> +	return;
+> +
+> + err_event_wq:
+> +	dev_dbg(ab3100_local->dev,
+> +		"error in event workqueue\n");
+> +	/* Enable the IRQ anyway, what choice do we have? */
+> +	enable_irq(ab3100_local->i2c_client->irq);
+> +	return;
+> +}
+> +
+> +static irqreturn_t ab3100_irq_handler(int irq, void *data)
+> +{
+> +	/*
+> +	 * Disable the IRQ and dispatch a worker to handle the
+> +	 * event. Since the chip resides on I2C this is slow
+> +	 * stuff and we will re-enable the interrupts once th
+> +	 * worker has finished.
+> +	 */
+> +	disable_irq(ab3100_local->i2c_client->irq);
+> +	schedule_work(&ab3100_local->work);
 > +	return IRQ_HANDLED;
 > +}
 > +
+> +#if defined(CONFIG_U300_DEBUG) && defined(CONFIG_DEBUG_FS)
 > +/*
-> + * Sends a command and then waits for the bits masked by *flagmask*
-> + * to go high or low by IRQ awaiting.
+> + * Some debugfs entries only exposed if we're using debug
 > + */
-> +static int stu300_start_and_await_event(struct stu300_dev *dev,
-> +					  u8 cr_value,
-> +					  enum stu300_event mr_event)
+> +static int ab3100_registers_print(struct seq_file *s, void *p)
 > +{
-> +	int ret;
+> +	u8 value;
+> +	u8 reg;
 > +
-> +	if (unlikely(irqs_disabled())) {
-> +		/* TODO: implement polling for this case if need be. */
-> +		dev_err(&dev->pdev->dev, "irqs are disabled on this "
-> +			"system!\n");
-> +		return -EIO;
+> +	seq_printf(s, "AB3100 registers:\n");
+> +
+> +	for (reg = 0; reg < 0xff; reg++) {
+> +		ab3100_get_register(ab3100_local, reg, &value);
+> +		seq_printf(s, "[0x%x]:  0x%x\n", reg, value);
 > +	}
-
-how about saying "irqs disabled, cannot poll for event", makes a bit
-more sense... do you want to add a WARN_ON(1) to give the user a
-backtrace (or WARN_ON_ONCE(1)) ?
-
-> +	/* Lock command issue, fill in an event we wait for */
-> +	spin_lock_irq(&dev->cmd_issue_lock);
-> +	init_completion(&dev->cmd_complete);
-> +	dev->cmd_err = STU300_ERROR_NONE;
-> +	dev->cmd_event = mr_event;
-> +	spin_unlock_irq(&dev->cmd_issue_lock);
-> +
-> +	/* Turn on interrupt, send command and wait. */
-> +	cr_value |= I2C_CR_INTERRUPT_ENABLE;
-> +	stu300_wr8(cr_value, dev->virtbase + I2C_CR);
-> +	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
-> +							STU300_TIMEOUT);
-> +
-> +	if (ret < 0) {
-> +		dev_err(&dev->pdev->dev,
-> +		       "wait_for_completion_interruptible_timeout() "
-> +		       "returned %d waiting for event %04x\n", ret, mr_event);
-> +		return ret;
-> +	}
-> +
-> +	if (ret == 0) {
-> +		dev_err(&dev->pdev->dev, "controller timed out "
-> +		       "waiting for event %d, reinit hardware\n", mr_event);
-> +		(void) stu300_init_hw(dev);
-> +		return -ETIMEDOUT;
-> +	}
-> +
-> +	if (dev->cmd_err != STU300_ERROR_NONE) {
-> +		dev_err(&dev->pdev->dev, "controller (start) "
-> +		       "error %d waiting for event %d, reinit hardware\n",
-> +		       dev->cmd_err, mr_event);
-> +		(void) stu300_init_hw(dev);
-> +		return -EIO;
-> +	}
-> +
 > +	return 0;
 > +}
 > +
-> +/*
-> + * This waits for a flag to be set, if it is not set on entry, an interrupt is
-> + * configured to wait for the flag using a completion.
-> + */
-> +static int stu300_await_event(struct stu300_dev *dev,
-> +				enum stu300_event mr_event)
+> +static int ab3100_registers_open(struct inode *inode, struct file *file)
 > +{
-> +	int ret;
-> +	u32 val;
+> +	return single_open(file, ab3100_registers_print, inode->i_private);
+> +}
 > +
-> +	if (unlikely(irqs_disabled())) {
-> +		/* TODO: implement polling for this case if need be. */
-> +		dev_err(&dev->pdev->dev, "irqs are disabled on this "
-> +			"system!\n");
-> +		return -EIO;
-> +	}
+> +static const struct file_operations ab3100_registers_fops = {
+> +	.open = ab3100_registers_open,
+> +	.read = seq_read,
+> +	.llseek = seq_lseek,
+> +	.release = single_release,
+> +	.owner = THIS_MODULE,
+> +};
 > +
-> +	/* Is it already here? */
-> +	spin_lock_irq(&dev->cmd_issue_lock);
-> +	dev->cmd_err = STU300_ERROR_NONE;
-> +	if (stu300_event_occurred(dev, mr_event)) {
-> +		spin_unlock_irq(&dev->cmd_issue_lock);
-> +		goto exit_await_check_err;
-> +	}
-> +	init_completion(&dev->cmd_complete);
-> +	dev->cmd_err = STU300_ERROR_NONE;
-> +	dev->cmd_event = mr_event;
-> +
-> +	/* Turn on the I2C interrupt for current operation */
-> +	val = stu300_r8(dev->virtbase + I2C_CR);
-> +	val |= I2C_CR_INTERRUPT_ENABLE;
-> +	stu300_wr8(val, dev->virtbase + I2C_CR);
-> +
-> +	/* Twice paranoia (possible HW glitch) */
-> +	stu300_wr8(val, dev->virtbase + I2C_CR);
-> +
-> +	/* Check again: is it already here? */
-> +	if (unlikely(stu300_event_occurred(dev, mr_event))) {
-> +		/* Disable IRQ again. */
-> +		val &= ~I2C_CR_INTERRUPT_ENABLE;
-> +		stu300_wr8(val, dev->virtbase + I2C_CR);
-> +		spin_unlock_irq(&dev->cmd_issue_lock);
-> +		goto exit_await_check_err;
-> +	}
-> +
-> +	/* Unlock the command block and wait for the event to occur */
-> +	spin_unlock_irq(&dev->cmd_issue_lock);
-> +	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
-> +							STU300_TIMEOUT);
-> +
-> +	if (ret < 0) {
-> +		dev_err(&dev->pdev->dev,
-> +		       "wait_for_completion_interruptible_timeout()"
-> +		       "returned %d waiting for event %04x\n", ret, mr_event);
-> +		return ret;
-> +	}
-> +
-> +	if (ret == 0) {
-> +		if (mr_event != STU300_EVENT_6) {
-> +			dev_err(&dev->pdev->dev, "controller "
-> +				"timed out waiting for event %d, reinit "
-> +				"hardware\n", mr_event);
-> +			(void) stu300_init_hw(dev);
-> +		}
-> +		return -ETIMEDOUT;
-> +	}
-> +
-> + exit_await_check_err:
-> +	if (dev->cmd_err != STU300_ERROR_NONE) {
-> +		if (mr_event != STU300_EVENT_6) {
-> +			dev_err(&dev->pdev->dev, "controller "
-> +				"error (await_event) %d waiting for event %d, "
-> +			       "reinit hardware\n", dev->cmd_err, mr_event);
-> +			(void) stu300_init_hw(dev);
-> +		}
-> +		return -EIO;
-> +	}
-> +
+> +static int ab3100_get_set_reg_open_file(struct inode *inode, struct file *file)
+> +{
+> +	file->private_data = inode->i_private;
 > +	return 0;
 > +}
 > +
-> +/*
-> + * Waits for the busy bit to go low by repeated polling.
-> + */
-> +#define BUSY_RELEASE_ATTEMPTS 10
-> +static int stu300_wait_while_busy(struct stu300_dev *dev)
+> +static int ab3100_get_set_reg(struct file *file,
+> +			      const char __user *user_buf,
+> +			      size_t count, loff_t *ppos)
 > +{
-> +	unsigned long timeout;
-> +	int i;
-> +
-> +	for (i = 0; i < BUSY_RELEASE_ATTEMPTS; i++) {
-> +		timeout = jiffies + STU300_TIMEOUT;
-> +
-> +		while (!time_after(jiffies, timeout)) {
-> +			/* Is not busy? */
-> +			if ((stu300_r8(dev->virtbase + I2C_SR1) &
-> +			     I2C_SR1_BUSY_IND) == 0)
-> +				return 0;
-> +			msleep(1);
-> +		}
-> +
-> +		dev_err(&dev->pdev->dev, "transaction timed out "
-> +			"waiting for device to be free (not busy). "
-> +		       "Attempt: %d\n", i+1);
-> +
-> +		dev_err(&dev->pdev->dev, "base address = "
-> +			"0x%08x, reinit hardware\n", (u32) dev->virtbase);
-> +
-> +		(void) stu300_init_hw(dev);
-> +	}
-> +
-> +	dev_err(&dev->pdev->dev, "giving up after %d attempts "
-> +		"to reset the bus.\n",  BUSY_RELEASE_ATTEMPTS);
-> +
-> +	return -ETIMEDOUT;
-> +}
-> +
-> +struct stu300_clkset {
-> +	unsigned long rate;
-> +	u32 setting;
-> +};
-> +
-> +static const struct stu300_clkset stu300_clktable[] = {
-> +	{ 0, 0xFFU },
-> +	{ 2500000, I2C_OAR2_FR_25_10MHZ },
-> +	{ 10000000, I2C_OAR2_FR_10_1667MHZ },
-> +	{ 16670000, I2C_OAR2_FR_1667_2667MHZ },
-> +	{ 26670000, I2C_OAR2_FR_2667_40MHZ },
-> +	{ 40000000, I2C_OAR2_FR_40_5333MHZ },
-> +	{ 53330000, I2C_OAR2_FR_5333_66MHZ },
-> +	{ 66000000, I2C_OAR2_FR_66_80MHZ },
-> +	{ 80000000, I2C_OAR2_FR_80_100MHZ },
-> +	{ 100000000, 0xFFU },
-> +};
-> +
-> +static int stu300_set_clk(struct stu300_dev *dev, unsigned long clkrate)
-> +{
-> +
-> +	u32 val;
+> +	int mode = (int) file->private_data;
+> +	char buf[32];
+> +	int buf_size;
+> +	int regp;
+> +	unsigned long user_reg;
+> +	int err;
 > +	int i = 0;
 > +
-> +	/* Locate the apropriate clock setting */
-> +	while (i < ARRAY_SIZE(stu300_clktable) &&
-> +	       stu300_clktable[i].rate < clkrate)
+> +	/* Get userspace string and assure termination */
+> +	buf_size = min(count, (sizeof(buf)-1));
+> +	if (copy_from_user(buf, user_buf, buf_size))
+> +		return -EFAULT;
+> +	buf[buf_size] = 0;
+> +
+> +	/*
+> +	 * The idea is here to parse a string which is either
+> +	 * "0xnn" for reading a register, or "0xaa 0xbb" for
+> +	 * writing 0xbb to the register 0xaa. First move past
+> +	 * whitespace and then begin to parse the register.
+> +	 */
+> +	while ((i < buf_size) && (buf[i] == ' '))
 > +		i++;
+> +	regp = i;
 > +
-> +	if (stu300_clktable[i].setting == 0xFFU) {
-> +		dev_err(&dev->pdev->dev, "too %s clock rate requested "
-> +			"(%lu Hz).\n", i ? "high" : "low", clkrate);
+> +	/*
+> +	 * Advance pointer to end of string then terminate
+> +	 * the register string. This is needed to satisfy
+> +	 * the strict_strtoul() function.
+> +	 */
+> +	while ((i < buf_size) && (buf[i] != ' '))
+> +		i++;
+> +	buf[i] = '\0';
+> +
+> +	err = strict_strtoul(&buf[regp], 16, &user_reg);
+> +	if (err)
+> +		return err;
+> +	if (user_reg > 0xff)
 > +		return -EINVAL;
-> +	}
 > +
-> +	stu300_wr8(stu300_clktable[i].setting,
-> +		   dev->virtbase + I2C_OAR2);
+> +	/* Either we read or we write a register here */
+> +	if (!mode) {
+> +		/* Reading */
+> +		u8 reg = (u8) user_reg;
+> +		u8 regvalue;
 > +
-> +	dev_dbg(&dev->pdev->dev, "Clock rate %lu Hz, I2C bus speed %d Hz "
-> +		"virtbase %p\n", clkrate, dev->speed, dev->virtbase);
+> +		ab3100_get_register(ab3100_local, reg, &regvalue);
 > +
-> +	if (dev->speed > 100000)
-> +		/* Fast Mode I2C */
-> +		val = ((clkrate/dev->speed)-9)/3;
-> +	else
-> +		/* Standard Mode I2C */
-> +		val = ((clkrate/dev->speed)-7)/2;
-> +
-> +	/* According to spec the divider must be > 2 */
-> +	if (val < 0x002) {
-> +		dev_err(&dev->pdev->dev, "too low clock rate (%lu Hz).\n",
-> +		       clkrate);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* We have 12 bits clock divider only! */
-> +	if (val & 0xFFFFF000U) {
-> +		dev_err(&dev->pdev->dev, "too high clock rate (%lu Hz).\n",
-> +		       clkrate);
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (dev->speed > 100000) {
-> +		/* CC6..CC0 */
-> +		stu300_wr8((val & I2C_CCR_CC_MASK) | I2C_CCR_FMSM,
-> +					  dev->virtbase + I2C_CCR);
->
-alignmnt of second arg?
-
- +		dev_dbg(&dev->pdev->dev, "set clock divider to 0x%08x, "
-> +			 "Fast Mode I2C\n", val);
+> +		dev_info(ab3100_local->dev,
+> +			 "debug read AB3100 reg[0x%02x]: 0x%02x\n",
+> +			 reg, regvalue);
 > +	} else {
-> +		/* CC6..CC0 */
-> +		stu300_wr8((val & I2C_CCR_CC_MASK),
-> +					  dev->virtbase + I2C_CCR);
-> +		dev_dbg(&dev->pdev->dev, "set clock divider to "
-> +		       "0x%08x, Standard Mode I2C\n", val);
-> +	}
+> +		int valp;
+> +		unsigned long user_value;
+> +		u8 reg = (u8) user_reg;
+> +		u8 value;
+> +		u8 regvalue;
 > +
-> +	/* CC11..CC7 */
-> +	stu300_wr8(((val >> 7) & 0x1F),
-> +		   dev->virtbase + I2C_ECCR);
-> +
-> +	return 0;
-> +}
-> +
-> +
-> +static int stu300_init_hw(struct stu300_dev *dev)
-> +{
-> +	u32 dummy;
-> +	unsigned long clkrate;
-> +	int ret;
-> +
-> +	/* Disable controller */
-> +	stu300_wr8(0x00, dev->virtbase + I2C_CR);
-> +	/*
-> +	 * Set own address to some default value (0x00).
-> +	 * We do not support slave mode anyway.
-> +	 */
-> +	stu300_wr8(0x00, dev->virtbase + I2C_OAR1);
-> +	/*
-> +	 * The I2C controller only operates properly in 26 MHz but we
-> +	 * program this driver as if we didn't know. This will also set the two
-> +	 * high bits of the own address to zero as well.
-> +	 * There is no known hardware issue with running in 13 MHz
-> +	 * However, speeds over 200 kHz are not used.
-> +	 */
-> +	clkrate = clk_get_rate(dev->clk);
-> +	ret = stu300_set_clk(dev, clkrate);
-> +	if (ret)
-> +		return ret;
-> +	/*
-> +	 * Enable block, do it TWICE (hardware glitch)
-> +	 * Setting bit 7 can enable DDC mode. (Not used currently.)
-> +	 */
-> +	stu300_wr8(I2C_CR_PERIPHERAL_ENABLE,
-> +				  dev->virtbase + I2C_CR);
-> +	stu300_wr8(I2C_CR_PERIPHERAL_ENABLE,
-> +				  dev->virtbase + I2C_CR);
-> +	/* Make a dummy read of the status register SR1 & SR2 */
-> +	dummy = stu300_r8(dev->virtbase + I2C_SR2);
-> +	dummy = stu300_r8(dev->virtbase + I2C_SR1);
-> +
-> +	return 0;
-> +}
-> +
-> +
-> +
-> +/* Send slave address. */
-> +static int stu300_send_address(struct stu300_dev *dev,
-> +				 struct i2c_msg *msg, int resend)
-> +{
-> +	u32 val;
-> +	int ret;
-> +
-> +	if (msg->flags & I2C_M_TEN)
-> +		/* This is probably how 10 bit addresses look */
-> +		val = (0xf0 | (((u32) msg->addr & 0x300) >> 7)) &
-> +			I2C_DR_D_MASK;
-> +	else
-> +		val = ((msg->addr << 1) & I2C_DR_D_MASK);
-> +
-> +	if (msg->flags & I2C_M_RD) {
-> +		/* This is the direction bit */
-> +		val |= 0x01;
-> +		if (resend)
-> +			dev_dbg(&dev->pdev->dev, "read resend\n");
-> +	} else if (resend)
-> +		dev_dbg(&dev->pdev->dev, "write resend\n");
-> +	stu300_wr8(val, dev->virtbase + I2C_DR);
-> +
-> +	/* For 10bit addressing, await 10bit request (EVENT 9) */
-> +	if (msg->flags & I2C_M_TEN) {
-> +		ret = stu300_await_event(dev, STU300_EVENT_9);
 > +		/*
-> +		 * The slave device wants a 10bit address, send the rest
-> +		 * of the bits (the LSBits)
+> +		 * Writing, we need some value to write to
+> +		 * the register so keep parsing the string
+> +		 * from userspace.
 > +		 */
-> +		val = msg->addr & I2C_DR_D_MASK;
-> +		/* This clears "event 9" */
-> +		stu300_wr8(val, dev->virtbase + I2C_DR);
-> +		if (ret != 0)
-> +			return ret;
+> +		i++;
+> +		while ((i < buf_size) && (buf[i] == ' '))
+> +			i++;
+> +		valp = i;
+> +		while ((i < buf_size) && (buf[i] != ' '))
+> +			i++;
+> +		buf[i] = '\0';
+> +
+> +		err = strict_strtoul(&buf[valp], 16, &user_value);
+> +		if (err)
+> +			return err;
+> +		if (user_reg > 0xff)
+> +			return -EINVAL;
+> +
+> +		value = (u8) user_value;
+> +		ab3100_set_register(ab3100_local, reg, value);
+> +		ab3100_get_register(ab3100_local, reg, &regvalue);
+> +
+> +		dev_info(ab3100_local->dev,
+> +			 "debug write reg[0x%02x] with 0x%02x, "
+> +			 "after readback: 0x%02x\n",
+> +			 reg, value, regvalue);
 > +	}
-> +	/* FIXME: Why no else here? two events for 10bit?
-> +	 * Await event 6 (normal) or event 9 (10bit)
-> +	 */
-> +
-> +	if (resend)
-> +		dev_dbg(&dev->pdev->dev, "await event 6\n");
-> +	ret = stu300_await_event(dev, STU300_EVENT_6);
-> +
-> +	/*
-> +	 * Clear any pending EVENT 6 no matter what happend during
-> +	 * await_event.
-> +	 */
-> +	val = stu300_r8(dev->virtbase + I2C_CR);
-> +	val |= I2C_CR_PERIPHERAL_ENABLE;
-> +	stu300_wr8(val, dev->virtbase + I2C_CR);
-> +
-> +	return ret;
+> +	return buf_size;
 > +}
 > +
-> +static int stu300_xfer_msg(struct i2c_adapter *adap,
-> +			     struct i2c_msg *msg, int stop)
-> +{
-> +	u32 cr;
-> +	u32 val;
-> +	u32 i;
-> +	int ret;
-> +	int attempts = 0;
-> +	struct stu300_dev *dev = i2c_get_adapdata(adap);
-> +
-> +
-> +	clk_enable(dev->clk);
-> +
-> +	/* Remove this if (0) to trace each and every message. */
-> +	if (0) {
-> +		dev_dbg(&dev->pdev->dev, "I2C message to: 0x%04x, len: %d, "
-> +			"flags: 0x%04x, stop: %d\n",
-> +			msg->addr, msg->len, msg->flags, stop);
-> +	}
-> +
-> +	/* Zero-length messages are not supported by this hardware */
-> +	if (msg->len == 0) {
-> +		ret = -EINVAL;
-> +		goto exit_disable;
-> +	}
-> +
-> +	/*
-> +	 * For some reason, sending the address sometimes fails when running
-> +	 * on  the 13 MHz clock. No interrupt arrives. This is a work around,
-> +	 * which tries to restart and send the address up to 10 times before
-> +	 * really giving up. Usually 5 to 8 attempts are enough.
-> +	 */
-> +	do {
-> +		if (attempts)
-> +			dev_dbg(&dev->pdev->dev, "wait while busy\n");
-> +		/* Check that the bus is free, or wait until some timeout */
-> +		ret = stu300_wait_while_busy(dev);
-> +		if (ret != 0)
-> +			goto exit_disable;
-> +
-> +		if (attempts)
-> +			dev_dbg(&dev->pdev->dev, "re-int hw\n");
-> +		/*
-> +		 * According to ST, there is no problem if the clock is
-> +		 * changed between 13 and 26 MHz during a transfer.
-> +		 */
-> +		ret = stu300_init_hw(dev);
-> +		if (ret)
-> +			goto exit_disable;
-> +
-> +		/* Send a start condition */
-> +		cr = I2C_CR_PERIPHERAL_ENABLE;
-> +		/* Setting the START bit puts the block in master mode */
-> +		if (!(msg->flags & I2C_M_NOSTART))
-> +			cr |= I2C_CR_START_ENABLE;
-> +		if ((msg->flags & I2C_M_RD) && (msg->len > 1))
-> +			/* On read more than 1 byte, we need ack. */
-> +			cr |= I2C_CR_ACK_ENABLE;
-> +		/* Check that it gets through */
-> +		if (!(msg->flags & I2C_M_NOSTART)) {
-> +			if (attempts)
-> +				dev_dbg(&dev->pdev->dev, "send start event\n");
-> +			ret = stu300_start_and_await_event(dev, cr,
-> +							     STU300_EVENT_5);
-> +		}
-> +
-> +		if (attempts)
-> +			dev_dbg(&dev->pdev->dev, "send address\n");
-> +
-> +		if (ret == 0)
-> +			/* Send address */
-> +			ret = stu300_send_address(dev, msg, attempts != 0);
-> +
-> +		if (ret != 0) {
-> +			attempts++;
-> +			dev_dbg(&dev->pdev->dev, "failed sending address, "
-> +				"retrying. Attempt: %d msg_index: %d/%d\n",
-> +			       attempts, dev->msg_index, dev->msg_len);
-> +		}
-> +
-> +	} while (ret != 0 && attempts < NUM_ADDR_RESEND_ATTEMPTS);
-> +
-> +	if (attempts < NUM_ADDR_RESEND_ATTEMPTS && attempts > 0) {
-> +		dev_dbg(&dev->pdev->dev, "managed to get address "
-> +		       "through after %d attempts\n", attempts);
-> +	} else if (attempts == NUM_ADDR_RESEND_ATTEMPTS) {
-> +		dev_dbg(&dev->pdev->dev, "I give up, tried %d times "
-> +		       "to resend address.\n",
-> +		       NUM_ADDR_RESEND_ATTEMPTS);
-> +		goto exit_disable;
-> +	}
-> +
-> +	if (msg->flags & I2C_M_RD) {
-> +		/* READ: we read the actual bytes one at a time */
-> +		for (i = 0; i < msg->len; i++) {
-> +			if (i == msg->len-1) {
-> +				/*
-> +				 * Disable ACK and set STOP condition before
-> +				 * reading last byte
-> +				 */
-> +				val = I2C_CR_PERIPHERAL_ENABLE;
-> +
-> +				if (stop)
-> +					val |= I2C_CR_STOP_ENABLE;
-> +
-> +				stu300_wr8(val,
-> +							  dev->virtbase + I2C_CR);
-> +			}
-> +			/* Wait for this byte... */
-> +			ret = stu300_await_event(dev, STU300_EVENT_7);
-> +			if (ret != 0)
-> +				goto exit_disable;
-> +			/* This clears event 7 */
-> +			msg->buf[i] = (u8) stu300_r8(dev->virtbase + I2C_DR);
-> +		}
-> +	} else {
-> +		/* WRITE: we send the actual bytes one at a time */
-> +		for (i = 0; i < msg->len; i++) {
-> +			/* Write the byte */
-> +			stu300_wr8(msg->buf[i],
-> +						  dev->virtbase + I2C_DR);
-> +			/* Check status */
-> +			ret = stu300_await_event(dev, STU300_EVENT_8);
-> +			/* Next write to DR will clear event 8 */
-> +			if (ret != 0) {
-> +				dev_err(&dev->pdev->dev, "error awaiting "
-> +				       "event 8 (%d)\n", ret);
-> +				goto exit_disable;
-> +			}
-> +		}
-> +		/* Check NAK */
-> +		if (!(msg->flags & I2C_M_IGNORE_NAK)) {
-> +			if (stu300_r8(dev->virtbase + I2C_SR2) &
-> +			    I2C_SR2_AF_IND) {
-> +				dev_err(&dev->pdev->dev, "I2C payload "
-> +				       "send returned NAK!\n");
-> +				ret = -EIO;
-> +				goto exit_disable;
-> +			}
-> +		}
-> +		if (stop) {
-> +			/* Send stop condition */
-> +			val = I2C_CR_PERIPHERAL_ENABLE;
-> +			val |= I2C_CR_STOP_ENABLE;
-> +			stu300_wr8(val, dev->virtbase + I2C_CR);
-> +		}
-> +	}
-> +
-> +	/* Check that the bus is free, or wait until some timeout occurs */
-> +	ret = stu300_wait_while_busy(dev);
-> +	if (ret != 0) {
-> +		dev_err(&dev->pdev->dev, "timout waiting for transfer "
-> +		       "to commence.\n");
-> +		goto exit_disable;
-> +	}
-> +
-> +	/* Dummy read status registers */
-> +	val = stu300_r8(dev->virtbase + I2C_SR2);
-> +	val = stu300_r8(dev->virtbase + I2C_SR1);
-> +	ret = 0;
-> +
-> + exit_disable:
-> +	/* Disable controller */
-> +	stu300_wr8(0x00, dev->virtbase + I2C_CR);
-> +	clk_disable(dev->clk);
-> +	return ret;
-> +}
-> +
-> +static int stu300_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> +			 int num)
-> +{
-> +	int ret = -1;
-> +	int i;
-> +	struct stu300_dev *dev = i2c_get_adapdata(adap);
-> +	dev->msg_len = num;
-> +	for (i = 0; i < num; i++) {
-> +		/*
-> +		 * Another driver appears to send stop for each message,
-> +		 * here we only do that for the last message. Possibly some
-> +		 * peripherals require this behaviour, then their drivers
-> +		 * have to send single messages in order to get "stop" for
-> +		 * each message.
-> +		 */
-
-I think that is right, although i'd have to check to be sure.
-
-> +		dev->msg_index = i;
-> +
-> +		ret = stu300_xfer_msg(adap, &msgs[i], (i == (num - 1)));
-> +		if (ret != 0) {
-> +			num = ret;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return num;
-> +}
-> +
-> +static u32 stu300_func(struct i2c_adapter *adap)
-> +{
-> +	/* This is the simplest thing you can think of... */
-> +	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;
-> +}
-> +
-> +static const struct i2c_algorithm stu300_algo = {
-> +	.master_xfer	= stu300_xfer,
-> +	.functionality	= stu300_func,
+> +static const struct file_operations ab3100_get_set_reg_fops = {
+> +	.open = ab3100_get_set_reg_open_file,
+> +	.write = ab3100_get_set_reg,
 > +};
 > +
-> +static int __init
-> +stu300_probe(struct platform_device *pdev)
+> +static struct dentry *ab3100_dir;
+> +static struct dentry *ab3100_reg_file;
+> +static struct dentry *ab3100_get_reg_file;
+> +static struct dentry *ab3100_set_reg_file;
+> +
+> +static void ab3100_setup_debugfs(void)
 > +{
-> +	struct stu300_dev *dev;
-> +	struct i2c_adapter *adap;
-> +	struct resource *res;
-> +	int bus_nr;
-> +	int ret = 0;
+> +	int err;
 > +
-> +	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
-> +	if (!dev) {
-> +		ret = -ENOMEM;
-> +		goto err_no_devmem;
-> +	}
-
-no handy little error message here?
-
-> +	bus_nr = pdev->id;
-> +	dev->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(dev->clk)) {
-> +		ret = PTR_ERR(dev->clk);
-> +		dev_err(&pdev->dev, "could not retrieve i2c bus clock\n");
-> +		goto err_no_clk;
+> +	ab3100_dir = debugfs_create_dir("ab3100", NULL);
+> +	if (!ab3100_dir)
+> +		goto exit_no_debugfs;
+> +
+> +	ab3100_reg_file = debugfs_create_file("registers",
+> +				S_IRUGO, ab3100_dir, NULL,
+> +				&ab3100_registers_fops);
+> +	if (!ab3100_reg_file) {
+> +		err = -ENOMEM;
+> +		goto exit_destroy_dir;
 > +	}
 > +
-> +	dev->pdev = pdev;
-> +	platform_set_drvdata(pdev, dev);
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		ret = -ENOENT;
-> +		goto err_no_resource;
+> +	ab3100_get_reg_file = debugfs_create_file("get_reg",
+> +				S_IRUGO, ab3100_dir, (void *) 0,
+> +				&ab3100_get_set_reg_fops);
+> +	if (!ab3100_get_reg_file) {
+> +		err = -ENOMEM;
+> +		goto exit_destroy_reg;
 > +	}
 > +
-> +	dev->phybase = res->start;
-> +	dev->physize = resource_size(res);
-> +
-> +	if (request_mem_region(dev->phybase, dev->physize,
-> +			       NAME " I/O Area") == NULL) {
-> +		ret = -EBUSY;
-> +		goto err_no_ioregion;
+> +	ab3100_set_reg_file = debugfs_create_file("set_reg",
+> +				S_IRUGO, ab3100_dir, (void *) 1,
+> +				&ab3100_get_set_reg_fops);
+> +	if (!ab3100_set_reg_file) {
+> +		err = -ENOMEM;
+> +		goto exit_destroy_get_reg;
 > +	}
+> +	return;
 > +
-> +	dev->virtbase = ioremap(dev->phybase, dev->physize);
-> +	dev_dbg(&pdev->dev, "initialize bus device I2C%d on virtual "
-> +		"base 0x%08x\n", bus_nr, (u32) dev->virtbase);
-
-hmm, wouldn't %p work better than cast to (u32) ?
-
-> +	if (!dev->virtbase) {
-> +		ret = -ENOMEM;
-> +		goto err_no_ioremap;
-> +	}
-> +
-> +	dev->irq = platform_get_irq(pdev, 0);
-> +	if (request_irq(dev->irq, stu300_irh, IRQF_DISABLED,
-> +			NAME, dev)) {
-> +		ret = -EIO;
-> +		goto err_no_irq;
-> +	}
-> +
-> +	dev->speed = scl_frequency;
-> +
-> +	clk_enable(dev->clk);
-> +	ret = stu300_init_hw(dev);
-> +	clk_disable(dev->clk);
-> +
-> +	if (ret != 0) {
-> +		dev_err(&dev->pdev->dev, "error initializing hardware.\n");
-> +		goto err_init_hw;
-> +	}
-> +
-> +	/* IRQ event handling initialization */
-> +	spin_lock_init(&dev->cmd_issue_lock);
-> +	dev->cmd_event = STU300_EVENT_NONE;
-> +	dev->cmd_err = STU300_ERROR_NONE;
-> +
-> +	adap = &dev->adapter;
-> +	adap->owner = THIS_MODULE;
-> +	/* DDC class but actually often used for more generic I2C */
-> +	adap->class = I2C_CLASS_DDC;
-> +	strncpy(adap->name, "ST Microelectronics DDC I2C adapter",
-> +		sizeof(adap->name));
-> +	adap->nr = bus_nr;
-> +	adap->algo = &stu300_algo;
-> +	adap->dev.parent = &pdev->dev;
-> +	i2c_set_adapdata(adap, dev);
-> +
-> +	/* i2c device drivers may be active on return from add_adapter() */
-> +	ret = i2c_add_numbered_adapter(adap);
-> +	if (ret) {
-> +		dev_err(&dev->pdev->dev, "failure adding ST Micro DDC "
-> +		       "I2C adapter\n");
-> +		goto err_add_adapter;
-> +	}
-> +	return 0;
-> +
-> + err_add_adapter:
-> + err_init_hw:
-> +	free_irq(dev->irq, dev);
-> + err_no_irq:
-> +	iounmap(dev->virtbase);
-> + err_no_ioremap:
-> +	release_mem_region(dev->phybase, dev->physize);
-> + err_no_ioregion:
-> +	platform_set_drvdata(pdev, NULL);
-> + err_no_resource:
-> +	clk_put(dev->clk);
-> + err_no_clk:
-> +	kfree(dev);
-> + err_no_devmem:
-> +	dev_err(&pdev->dev, "failed to add " NAME " adapter: %d\n",
-> +		pdev->id);
-> +	return ret;
+> + exit_destroy_get_reg:
+> +	debugfs_remove(ab3100_get_reg_file);
+> + exit_destroy_reg:
+> +	debugfs_remove(ab3100_reg_file);
+> + exit_destroy_dir:
+> +	debugfs_remove(ab3100_dir);
+> + exit_no_debugfs:
+> +	return;
 > +}
-> +
-> +#ifdef CONFIG_PM
-> +static int stu300_suspend(struct platform_device *pdev, pm_message_t state)
+> +static inline void ab3100_remove_debugfs(void)
 > +{
-> +	struct stu300_dev *dev = platform_get_drvdata(pdev);
-> +
-> +	/* Turn off everything */
-> +	stu300_wr8(0x00, dev->virtbase + I2C_CR);
-> +	return 0;
-> +}
-> +
-> +static int stu300_resume(struct platform_device *pdev)
-> +{
-> +	int ret = 0;
-> +	struct stu300_dev *dev = platform_get_drvdata(pdev);
-> +
-> +	clk_enable(dev->clk);
-> +	ret = stu300_init_hw(dev);
-> +	clk_disable(dev->clk);
-> +
-> +	if (ret != 0)
-> +		dev_err(&pdev->dev, "error re-initializing hardware.\n");
-> +	return ret;
+> +	debugfs_remove(ab3100_set_reg_file);
+> +	debugfs_remove(ab3100_get_reg_file);
+> +	debugfs_remove(ab3100_reg_file);
+> +	debugfs_remove(ab3100_dir);
 > +}
 > +#else
-> +#define stu300_suspend NULL
-> +#define stu300_resume NULL
+> +static inline void ab3100_setup_debugfs(void)
+> +{
+> +}
+> +static inline void ab3100_remove_debugfs(void)
+> +{
+> +}
 > +#endif
 > +
-> +static int __exit
-> +stu300_remove(struct platform_device *pdev)
-> +{
-> +	struct stu300_dev *dev = platform_get_drvdata(pdev);
+> +/*
+> + * Basic set-up, datastructure creation/destruction and I2C interface.
+> + * This sets up a default config in the AB3100 chip so that it
+> + * will work as expected.
+> + */
 > +
-> +	i2c_del_adapter(&dev->adapter);
-> +	/* Turn off everything */
-> +	stu300_wr8(0x00, dev->virtbase + I2C_CR);
-> +	free_irq(dev->irq, dev);
-> +	iounmap(dev->virtbase);
-> +	release_mem_region(dev->phybase, dev->physize);
-> +	clk_put(dev->clk);
-> +	platform_set_drvdata(pdev, NULL);
-> +	kfree(dev);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver stu300_i2c_driver = {
-> +	.driver = {
-> +		.name	= NAME,
-> +		.owner	= THIS_MODULE,
-> +	},
-> +	.remove		= __exit_p(stu300_remove),
-> +	.suspend        = stu300_suspend,
-> +	.resume         = stu300_resume,
-> +
+> +struct ab3100_init_setting {
+> +	u8 abreg;
+> +	u8 setting;
 > +};
 > +
-> +static int __init stu300_init(void)
-> +{
-> +	return platform_driver_probe(&stu300_i2c_driver, stu300_probe);
-> +}
+> +static const struct ab3100_init_setting __initdata
+> +ab3100_init_settings[] = {
+> +	{
+> +		.abreg = AB3100_MCA,
+> +		.setting = 0x01
+> +	},
+> +	{
+> +		.abreg = AB3100_MCB,
+> +		.setting = 0x30
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRA1,
+> +		.setting = 0x00
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRA2,
+> +		.setting = 0xFF
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRA3,
+> +		.setting = 0x01
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRB1,
+> +		.setting = 0xFF
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRB2,
+> +		.setting = 0xFF
+> +	},
+> +	{
+> +		.abreg = AB3100_IMRB3,
+> +		.setting = 0xFF
+> +	},
+> +	{
+> +		.abreg = AB3100_SUP,
+> +		.setting = 0x00
+> +	},
+> +	{
+> +		.abreg = AB3100_DIS,
+> +		.setting = 0xF0
+> +	},
+> +	{
+> +		.abreg = AB3100_D0C,
+> +		.setting = 0x00
+> +	},
+> +	{
+> +		.abreg = AB3100_D1C,
+> +		.setting = 0x00
+> +	},
+> +	{
+> +		.abreg = AB3100_D2C,
+> +		.setting = 0x00
+> +	},
+> +	{
+> +		.abreg = AB3100_D3C,
+> +		.setting = 0x00
+> +	},
+> +};
 > +
-> +static void __exit stu300_exit(void)
+> +static int __init ab3100_setup(void)
 > +{
-> +	platform_driver_unregister(&stu300_i2c_driver);
+> +	int err = 0;
+> +	int i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(ab3100_init_settings); i++) {
+> +		err = ab3100_set_register(ab3100_local,
+> +					  ab3100_init_settings[i].abreg,
+> +					  ab3100_init_settings[i].setting);
+> +		if (err)
+> +			goto exit_no_setup;
+> +	}
+> +
+> +	/*
+> +	 * Special trick to make the AB3100 use the 32kHz clock (RTC)
+> +	 * bit 3 in test registe 0x02 is a special, undocumented test
+> +	 * register bit that only exist in AB3100 P1E
+> +	 */
+> +	if (ab3100_local->chip_id == 0xc4) {
+> +		dev_warn(ab3100_local->dev,
+> +			 "AB3100 P1E variant detected, "
+> +			 "forcing chip to 32KHz\n");
+> +		err = ab3100_set_test_register(0x02, 0x08);
+> +	}
+> +
+> + exit_no_setup:
+> +	return err;
 > +}
 > +
 > +/*
-> + * The systems using this bus often have very basic devices such
-> + * as regulators on the I2C bus, so this needs to be loaded early.
-> + * Therefore it is registered in the subsys_initcall().
+> + * Here we define all the platform devices that appear
+> + * as children of the AB3100. These are regular platform
+> + * devices with the IORESOURCE_IO .start and .end set
+> + * to correspond to the internal AB3100 register range
+> + * mapping to the corresponding subdevice.
 > + */
-> +subsys_initcall(stu300_init);
-> +module_exit(stu300_exit);
+> +
+> +#define AB3100_DEVICE(devname, devid, regstart, regend)		\
+> +static struct resource ab3100_##devname##_resource[] = {	\
+> +	{							\
+> +		.start	= regstart,				\
+> +		.end	= regend,				\
+> +		.flags	= IORESOURCE_IO,			\
+> +	}							\
+
+is IORESOURCE_IO a good idea here, we may need to add some form of
+flag to say 'generic data' and for the driver core to not try and
+register it with any of the ioport or iomem structures.
+
+> +};								\
+> +static struct platform_device ab3100_##devname##_device = {	\
+> +	.name		= devid,				\
+> +	.id		= -1,					\
+> +	.resource	= ab3100_##devname##_resource,		\
+> +	.num_resources	= 1,					\
+> +}
+> +
+> +/*
+> + * This lists all the subdevices and corresponding register
+> + * ranges.
+> + */
+> +AB3100_DEVICE(dac, "ab3100-dac", 0x00, 0x0c);
+> +/* LEDs actually 0x11-0x1f and 0x31-0x3f */
+> +AB3100_DEVICE(leds, "ab3100-leds", 0x11, 0x3f);
+> +AB3100_DEVICE(power, "ab3100-power", 0x20, 0x2f);
+> +AB3100_DEVICE(regulators, "ab3100-regulators", 0x40, 0x4b);
+> +AB3100_DEVICE(sim, "ab3100-sim", 0x50, 0x50);
+> +AB3100_DEVICE(uart, "ab3100-uart", 0x51, 0x52);
+> +AB3100_DEVICE(rtc, "ab3100-rtc", 0x53, 0x5f);
+> +AB3100_DEVICE(charger, "ab3100-charger", 0x60, 0x64);
+> +AB3100_DEVICE(boost, "ab3100-boost", 0x6a, 0x6b);
+> +AB3100_DEVICE(adc, "ab3100-adc", 0x73, 0x95);
+> +AB3100_DEVICE(fuelgauge, "ab3100-fuelgauge", 0x9a, 0x9f);
+> +AB3100_DEVICE(vibrator, "ab3100-vibrator", 0xa0, 0xa2);
+> +AB3100_DEVICE(otp, "ab3100-otp", 0xb0, 0xbf);
+> +AB3100_DEVICE(codec, "ab3100-codec", 0xc0, 0xee);
+> +
+> +static struct platform_device *
+> +ab3100_platform_devs[] = {
+> +	&ab3100_dac_device,
+> +	&ab3100_leds_device,
+> +	&ab3100_power_device,
+> +	&ab3100_regulators_device,
+> +	&ab3100_sim_device,
+> +	&ab3100_uart_device,
+> +	&ab3100_rtc_device,
+> +	&ab3100_charger_device,
+> +	&ab3100_boost_device,
+> +	&ab3100_adc_device,
+> +	&ab3100_fuelgauge_device,
+> +	&ab3100_vibrator_device,
+> +	&ab3100_otp_device,
+> +	&ab3100_codec_device,
+> +};
+> +
+> +struct ab_family_id {
+> +	u8	id;
+> +	char	*name;
+> +};
+> +
+> +static const struct ab_family_id ids[] __initdata = {
+> +	/* AB3100 */
+> +	{
+> +		.id = 0xc0,
+> +		.name = "P1A"
+> +	},
+> +	{
+> +		.id = 0xc1,
+> +		.name = "P1B"
+> +	},
+> +	{
+> +		.id = 0xc2,
+> +		.name = "P1C"
+> +	},
+> +	{
+> +		.id = 0xc3,
+> +		.name = "P1D"
+> +	},
+> +	{
+> +		.id = 0xc4,
+> +		.name = "P1E"
+> +	},
+> +	{
+> +		.id = 0xc5,
+> +		.name = "P1F/R1A"
+> +	},
+> +	{
+> +		.id = 0xc6,
+> +		.name = "P1G/R1A"
+> +	},
+> +	{
+> +		.id = 0xc7,
+> +		.name = "P2A/R2A"
+> +	},
+> +	{
+> +		.id = 0xc8,
+> +		.name = "P2B/R2B"
+> +	},
+
+doing }, { would makes these shorter still.
+
+> +	/* AB3000 variants, not supported */
+> +	{
+> +		.id = 0xa0
+> +	},
+> +	{
+> +		.id = 0xa1
+> +	},
+> +	{
+> +		.id = 0xa2
+> +	},
+> +	{
+> +		.id = 0xa3
+> +	},
+> +	{
+> +		.id = 0xa4
+> +	},
+> +	{
+> +		.id = 0xa5
+> +	},
+> +	{
+> +		.id = 0xa6
+> +	},
+> +	{
+> +		.id = 0xa7
+> +	},
+> +	/* Terminator */
+> +	{
+> +		.id = 0x00,
+> +	},
+> +};
+> +
+> +static int __init ab3100_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id)
+> +{
+> +	int err;
+> +	int i;
+> +
+> +	ab3100_local = kzalloc(sizeof(struct ab3100), GFP_KERNEL);
+> +	if (!ab3100_local)
+> +		return -ENOMEM;
+
+no error print here?
+
+> +
+> +	/* Initialize data structure */
+> +	mutex_init(&ab3100_local->access_mutex);
+> +	BLOCKING_INIT_NOTIFIER_HEAD(&ab3100_local->event_subscribers);
+> +
+> +	ab3100_local->i2c_client = client;
+> +	ab3100_local->dev = &ab3100_local->i2c_client->dev;
+> +
+> +	/* Read chip ID register */
+> +	err = ab3100_get_register(ab3100_local, AB3100_CID,
+> +				  &ab3100_local->chip_id);
+> +	if (err) {
+> +		dev_err(&client->dev,
+> +			"could not communicate with the AB3100 analog "
+> +			"baseband chip\n");
+> +		goto exit_no_detect;
+> +	}
+> +
+> +	for (i = 0; ids[i].id != 0x0; i++) {
+> +		if (ids[i].id == ab3100_local->chip_id) {
+> +			if (ids[i].name != NULL) {
+> +				snprintf(&ab3100_local->chip_name[0],
+> +					 sizeof(ab3100_local->chip_name) - 1,
+> +					 "AB3100 %s",
+> +					 ids[i].name);
+> +				break;
+> +			} else {
+> +				dev_err(&client->dev,
+> +					"AB3000 is not supported\n");
+> +				goto exit_no_detect;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (ids[i].id == 0x0) {
+> +		dev_err(&client->dev, "unknown analog baseband chip id: 0x%x\n",
+> +			ab3100_local->chip_id);
+> +		dev_err(&client->dev, "accepting it anyway. Please update "
+> +			"the driver.\n");
+> +		goto exit_no_detect;
+> +	}
+> +
+> +	dev_info(&client->dev, "Detected chip: %s\n",
+> +		 &ab3100_local->chip_name[0]);
+> +
+> +	/* Attach a second dummy i2c_client to the test register address */
+> +	ab3100_local->testreg_client = i2c_new_dummy(client->adapter,
+> +						     client->addr + 1);
+> +	if (!ab3100_local->testreg_client) {
+> +		err = -ENOMEM;
+> +		goto exit_no_testreg_client;
+> +	}
+> +
+> +	strlcpy(ab3100_local->testreg_client->name, id->name,
+> +		sizeof(ab3100_local->testreg_client->name));
+> +
+> +	err = ab3100_setup();
+> +	if (err)
+> +		goto exit_no_setup;
+> +
+> +	INIT_WORK(&ab3100_local->work, ab3100_work);
+> +
+> +	/* This real unpredictable IRQ is of course sampled for entropy */
+> +	err = request_irq(client->irq, ab3100_irq_handler,
+> +			  IRQF_DISABLED | IRQF_SAMPLE_RANDOM,
+> +			  "AB3100 IRQ", ab3100_local);
+> +	if (err)
+> +		goto exit_no_irq;
+> +
+> +	/* Set a pointer back to the container in device data */
+> +	for (i = 0; i < ARRAY_SIZE(ab3100_platform_devs); i++)
+> +		platform_set_drvdata(ab3100_platform_devs[i], ab3100_local);
+> +
+> +	/* Register the platform devices */
+> +	platform_add_devices(ab3100_platform_devs,
+> +			     ARRAY_SIZE(ab3100_platform_devs));
+> +
+> +	ab3100_setup_debugfs();
+> +
+> +	return 0;
+> +
+> + exit_no_irq:
+> + exit_no_setup:
+> +	i2c_unregister_device(ab3100_local->testreg_client);
+> + exit_no_testreg_client:
+> + exit_no_detect:
+> +	kfree(ab3100_local);
+> +	return err;
+> +}
+> +
+> +static int __exit ab3100_remove(struct i2c_client *client)
+> +{
+> +	int i;
+> +
+> +	/* Unregister subdevices */
+> +	for (i = 0; i < ARRAY_SIZE(ab3100_platform_devs); i++)
+> +		platform_device_unregister(ab3100_platform_devs[i]);
+> +
+> +	ab3100_remove_debugfs();
+> +	i2c_unregister_device(ab3100_local->testreg_client);
+> +
+> +	/*
+> +	 * At this point, all subscribers should have unregistered
+> +	 * their notifiers so deactivate IRQ
+> +	 */
+> +	free_irq(client->irq, ab3100_local);
+> +	kfree(ab3100_local);
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id ab3100_id[] = {
+> +	{ "ab3100", ab3100 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, ab3100_id);
+> +
+> +static struct i2c_driver ab3100_driver = {
+> +	.driver = {
+> +		.name	= "ab3100",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +	.id_table	= ab3100_id,
+> +	.probe		= ab3100_probe,
+> +	.remove		= __exit_p(ab3100_remove),
+> +};
+> +
+> +static int __init ab3100_i2c_init(void)
+> +{
+> +	return i2c_add_driver(&ab3100_driver);
+> +}
+> +
+> +static void __exit ab3100_i2c_exit(void)
+> +{
+> +	i2c_del_driver(&ab3100_driver);
+> +}
+> +
+> +subsys_initcall(ab3100_i2c_init);
+> +module_exit(ab3100_i2c_exit);
 > +
 > +MODULE_AUTHOR("Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>");
-> +MODULE_DESCRIPTION("ST Micro DDC I2C adapter (stu300)");
+> +MODULE_DESCRIPTION("AB3100 core driver");
 > +MODULE_LICENSE("GPL");
-
-I think you missed the platform device MODULE_ALIAS() as well, so
-no udev autoloading for you!
+> diff --git a/include/linux/mfd/ab3100.h b/include/linux/mfd/ab3100.h
+> new file mode 100644
+> index 0000000..6b930d6
+> --- /dev/null
+> +++ b/include/linux/mfd/ab3100.h
+> @@ -0,0 +1,103 @@
+> +/*
+> + * Copyright (C) 2007-2009 ST-Ericsson AB
+> + * License terms: GNU General Public License (GPL) version 2
+> + * AB3100 core access functions
+> + * Author: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> + */
+> +
+> +#include <linux/device.h>
+> +
+> +#ifndef MFD_AB3100_H
+> +#define MFD_AB3100_H
+> +
+> +#define ABUNKNOWN	0
+> +#define	AB3000		1
+> +#define	AB3100		2
+> +
+> +/*
+> + * AB3100, EVENTA1, A2 and A3 event register flags
+> + * these are catenated into a single 32-bit flag in the code
+> + * for event notification broadcasts.
+> + */
+> +#define AB3100_EVENTA1_ONSWA				(0x01<<16)
+> +#define AB3100_EVENTA1_ONSWB				(0x02<<16)
+> +#define AB3100_EVENTA1_ONSWC				(0x04<<16)
+> +#define AB3100_EVENTA1_DCIO				(0x08<<16)
+> +#define AB3100_EVENTA1_OVER_TEMP			(0x10<<16)
+> +#define AB3100_EVENTA1_SIM_OFF				(0x20<<16)
+> +#define AB3100_EVENTA1_VBUS				(0x40<<16)
+> +#define AB3100_EVENTA1_VSET_USB				(0x80<<16)
+> +
+> +#define AB3100_EVENTA2_READY_TX				(0x01<<8)
+> +#define AB3100_EVENTA2_READY_RX				(0x02<<8)
+> +#define AB3100_EVENTA2_OVERRUN_ERROR			(0x04<<8)
+> +#define AB3100_EVENTA2_FRAMING_ERROR			(0x08<<8)
+> +#define AB3100_EVENTA2_CHARG_OVERCURRENT		(0x10<<8)
+> +#define AB3100_EVENTA2_MIDR				(0x20<<8)
+> +#define AB3100_EVENTA2_BATTERY_REM			(0x40<<8)
+> +#define AB3100_EVENTA2_ALARM				(0x80<<8)
+> +
+> +#define AB3100_EVENTA3_ADC_TRIG5			(0x01)
+> +#define AB3100_EVENTA3_ADC_TRIG4			(0x02)
+> +#define AB3100_EVENTA3_ADC_TRIG3			(0x04)
+> +#define AB3100_EVENTA3_ADC_TRIG2			(0x08)
+> +#define AB3100_EVENTA3_ADC_TRIGVBAT			(0x10)
+> +#define AB3100_EVENTA3_ADC_TRIGVTX			(0x20)
+> +#define AB3100_EVENTA3_ADC_TRIG1			(0x40)
+> +#define AB3100_EVENTA3_ADC_TRIG0			(0x80)
+> +
+> +/* AB3100, STR register flags */
+> +#define AB3100_STR_ONSWA				(0x01)
+> +#define AB3100_STR_ONSWB				(0x02)
+> +#define AB3100_STR_ONSWC				(0x04)
+> +#define AB3100_STR_DCIO					(0x08)
+> +#define AB3100_STR_BOOT_MODE				(0x10)
+> +#define AB3100_STR_SIM_OFF				(0x20)
+> +#define AB3100_STR_BATT_REMOVAL				(0x40)
+> +#define AB3100_STR_VBUS					(0x80)
+> +
+> +/**
+> + * struct ab3100
+> + * @access_mutex: lock out concurrent accesses to the AB3100 registers
+> + * @dev: pointer to the containing device
+> + * @i2c_client: I2C client for this chip
+> + * @testreg_client: secondary client for test registers
+> + * @chip_name: name of this chip variant
+> + * @chip_id: 8 bit chip ID for this chip variant
+> + * @work: an event handling worker
+> + * @event_subscribers: event subscribers are listed here
+> + * @startup_events: a copy of the first reading of the event registers
+> + * @startup_events_read: whether the first events have been read
+> + *
+> + * This struct is PRIVATE and devices using it should NOT
+> + * access ANY fields. It is used as a token for calling the
+> + * AB3100 functions.
+> + */
+> +struct ab3100 {
+> +	struct mutex access_mutex;
+> +	struct device *dev;
+> +	struct i2c_client *i2c_client;
+> +	struct i2c_client *testreg_client;
+> +	char chip_name[32];
+> +	u8 chip_id;
+> +	struct work_struct work;
+> +	struct blocking_notifier_head event_subscribers;
+> +	u32 startup_events;
+> +	bool startup_events_read;
+> +};
+> +
+> +int ab3100_set_register(struct ab3100 *ab3100_data, u8 reg, u8 regval);
+> +int ab3100_get_register(struct ab3100 *ab3100_data, u8 reg, u8 *regval);
+> +int ab3100_get_register_page(struct ab3100 *ab3100_data,
+> +			     u8 first_reg, u8 *regvals, u8 numregs);
+> +int ab3100_mask_and_set_register(struct ab3100 *ab3100_data,
+> +				 u8 reg, u8 andmask, u8 ormask);
+> +u8 ab3100_get_chip_type(struct ab3100 *ab3100_data);
+> +int ab3100_event_register(struct ab3100 *ab3100_data,
+> +			  struct notifier_block *nb);
+> +int ab3100_event_unregister(struct ab3100 *ab3100_data,
+> +			    struct notifier_block *nb);
+> +int ab3100_event_registers_startup_state_get(struct ab3100 *ab3100_data,
+> +					     u32 *fatevent);
+> +
+> +#endif
+> -- 
+> 1.6.2.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
