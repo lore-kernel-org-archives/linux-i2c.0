@@ -1,27 +1,42 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/1] MFD: Add U300 AB3100 core support v5
-Date: Mon, 25 May 2009 10:28:48 +0200
-Message-ID: <63386a3d0905250128u1f956bfdg2c92c1d21f9b915b@mail.gmail.com>
-References: <63386a3d0905211417h625853bdkb733a0827753c9bc@mail.gmail.com>
-	 <20090525082550.GA6240@sortiz.org>
+From: Esben Haabendal <esbenhaabendal@gmail.com>
+Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused by
+	read i2c_msg
+Date: Tue, 26 May 2009 13:30:21 +0200
+Message-ID: <d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>
+References: <4A124202.4010201@doredevelopment.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090525082550.GA6240-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+In-Reply-To: <4A124202.4010201@doredevelopment.dk>
+List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
+To: Esben Haabendal <eha@doredevelopment.dk>
+Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2009/5/25 Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>:
+On Tue, May 19, 2009 at 7:22 AM, Esben Haabendal <eha@doredevelopment.dk> w=
+rote:
+> This fixes MAL (arbitration lost) bug caused by illegal use of
+> RSTA (repeated START) after STOP condition generated after last byte
+> of reads. With this patch, it is possible to do an i2c_transfer() with
+> additional i2c_msg's following the I2C_M_RD messages.
+>
+> It still needs to be resolved if it is possible to fix this issue
+> by removing the STOP condition after reads in a robust way.
+>
+> Signed-off-by: Esben Haabendal <eha@doredevelopment.dk>
+> ---
+> =A0drivers/i2c/busses/i2c-mpc.c | =A0 =A09 +++++++--
+> =A01 files changed, 7 insertions(+), 2 deletions(-)
 
-> I'm happy with this one, thanks a lot.
-> Applied to my for-next branch.
+Any blockers to get this accepted?
 
-Thanks a lot Sam, and also thanks again and again to everyone who helped
-out reviewing this driver, especially Mike Rapoport who took the time to teach
-me some important lessons on MFD driver style.
-
-Yours,
-Linus Walleij
+/Esben
