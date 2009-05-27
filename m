@@ -1,70 +1,67 @@
 From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/3] Blackfin I2C/TWI Driver: make sure we don't end up with a CLKDIV=0
-Date: Wed, 27 May 2009 02:20:08 -0400
-Message-ID: <1243405210-26227-2-git-send-email-vapier@gentoo.org>
+Subject: [PATCH 2/3] Blackfin I2C TWI Driver: fix bug - REPEAT START mode doesn't repeat
+Date: Wed, 27 May 2009 02:20:09 -0400
+Message-ID: <1243405210-26227-3-git-send-email-vapier@gentoo.org>
 References: <1243405210-26227-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1243405210-26227-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Make sure we don't end up with an invalid CLKDIV=0 in case someone
-specifies 20kHz SCL or less (5 * 1024 / 20 = 0x100).
+Avoid rewrite TWI MASTER_CTL reg when issue next message
+In i2c repeat transfer mode, byte count of next message should be filled
+into part of the TWI MASTER_CTL reg when interrupt MCOMP of last
+message transfer is triggered. But, other bits in this reg should
+not be touched.
 
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig        |    2 +-
- drivers/i2c/busses/i2c-bfin-twi.c |   11 ++++++++---
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   15 +++++++--------
+ 1 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f1c6ca7..c8460fa 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -298,7 +298,7 @@ config I2C_BLACKFIN_TWI
- config I2C_BLACKFIN_TWI_CLK_KHZ
- 	int "Blackfin TWI I2C clock (kHz)"
- 	depends on I2C_BLACKFIN_TWI
--	range 10 400
-+	range 21 400
- 	default 50
- 	help
- 	  The unit of the TWI clock is kHz.
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index fc548b3..3ab1f66 100644
+index 3ab1f66..fcdb460 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -614,6 +614,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	struct i2c_adapter *p_adap;
- 	struct resource *res;
- 	int rc;
-+	unsigned int clkhilow;
+@@ -196,8 +196,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			/* remove restart bit and enable master receive */
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) & ~RSTART);
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | MEN | MDIR);
+ 			SSYNC();
+ 		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+ 				iface->cur_msg+1 < iface->msg_num) {
+@@ -222,18 +220,19 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			}
  
- 	iface = kzalloc(sizeof(struct bfin_twi_iface), GFP_KERNEL);
- 	if (!iface) {
-@@ -675,10 +676,14 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	/* Set TWI internal clock as 10MHz */
- 	write_CONTROL(iface, ((get_sclk() / 1024 / 1024 + 5) / 10) & 0x7F);
- 
-+	/*
-+	 * We will not end up with a CLKDIV=0 cause no one will specifies
-+	 * 20kHz SCL or less in Kconfig now. (5 * 1024 / 20 = 0x100)
-+	 */
-+	clkhilow = 5 * 1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ;
-+
- 	/* Set Twi interface clock as specified */
--	write_CLKDIV(iface, ((5*1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ)
--			<< 8) | ((5*1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ)
--			& 0xFF));
-+	write_CLKDIV(iface, (clkhilow << 8) | clkhilow);
- 
- 	/* Enable TWI */
- 	write_CONTROL(iface, read_CONTROL(iface) | TWI_ENA);
+ 			if (iface->pmsg[iface->cur_msg].len <= 255)
+-				write_MASTER_CTL(iface,
+-				iface->pmsg[iface->cur_msg].len << 6);
++					write_MASTER_CTL(iface,
++					(read_MASTER_CTL(iface) &
++					(~(0xff << 6))) |
++				(iface->pmsg[iface->cur_msg].len << 6));
+ 			else {
+-				write_MASTER_CTL(iface, 0xff << 6);
++				write_MASTER_CTL(iface,
++					(read_MASTER_CTL(iface) |
++					(0xff << 6)));
+ 				iface->manual_stop = 1;
+ 			}
+ 			/* remove restart bit and enable master receive */
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) & ~RSTART);
+-			write_MASTER_CTL(iface, read_MASTER_CTL(iface) |
+-				MEN | ((iface->read_write == I2C_SMBUS_READ) ?
+-				MDIR : 0));
+ 			SSYNC();
+ 		} else {
+ 			iface->result = 1;
 -- 
 1.6.3.1
