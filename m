@@ -1,112 +1,180 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/3] Blackfin I2C/TWI Driver: make sure we don't end up
-	with a CLKDIV=0
-Date: Wed, 27 May 2009 09:05:42 +0200
-Message-ID: <20090527070542.GA3085@pengutronix.de>
-References: <1243405210-26227-1-git-send-email-vapier@gentoo.org> <1243405210-26227-2-git-send-email-vapier@gentoo.org>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: [PATCH] i2c: Simplified CONFIG_I2C=n interface.
+Date: Wed, 27 May 2009 16:08:50 +0900
+Message-ID: <20090527070850.GA11221@linux-sh.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1243405210-26227-2-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: linux-next-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-next@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Another day, another module-related failure due to the i2c interface
+being used in code that optionally uses it:
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ERROR: "i2c_new_device" [drivers/media/video/soc_camera.ko] undefined!
+ERROR: "i2c_get_adapter" [drivers/media/video/soc_camera.ko] undefined!
+ERROR: "i2c_put_adapter" [drivers/media/video/soc_camera.ko] undefined!
+ERROR: "i2c_unregister_device" [drivers/media/video/soc_camera.ko] undefined!
+make[2]: *** [__modpost] Error 1
+make[1]: *** [modules] Error 2
+make: *** [sub-make] Error 2
 
-On Wed, May 27, 2009 at 02:20:08AM -0400, Mike Frysinger wrote:
-> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->=20
-> Make sure we don't end up with an invalid CLKDIV=3D0 in case someone
-> specifies 20kHz SCL or less (5 * 1024 / 20 =3D 0x100).
->=20
-> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-> Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig        |    2 +-
->  drivers/i2c/busses/i2c-bfin-twi.c |   11 ++++++++---
->  2 files changed, 9 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index f1c6ca7..c8460fa 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -298,7 +298,7 @@ config I2C_BLACKFIN_TWI
->  config I2C_BLACKFIN_TWI_CLK_KHZ
->  	int "Blackfin TWI I2C clock (kHz)"
->  	depends on I2C_BLACKFIN_TWI
-> -	range 10 400
-> +	range 21 400
->  	default 50
->  	help
->  	  The unit of the TWI clock is kHz.
-> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-b=
-fin-twi.c
-> index fc548b3..3ab1f66 100644
-> --- a/drivers/i2c/busses/i2c-bfin-twi.c
-> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-> @@ -614,6 +614,7 @@ static int i2c_bfin_twi_probe(struct platform_device =
-*pdev)
->  	struct i2c_adapter *p_adap;
->  	struct resource *res;
->  	int rc;
-> +	unsigned int clkhilow;
-> =20
->  	iface =3D kzalloc(sizeof(struct bfin_twi_iface), GFP_KERNEL);
->  	if (!iface) {
-> @@ -675,10 +676,14 @@ static int i2c_bfin_twi_probe(struct platform_devic=
-e *pdev)
->  	/* Set TWI internal clock as 10MHz */
->  	write_CONTROL(iface, ((get_sclk() / 1024 / 1024 + 5) / 10) & 0x7F);
-> =20
-> +	/*
-> +	 * We will not end up with a CLKDIV=3D0 cause no one will specifies
+In the interest of not continually inserting i2c ifdefs in to every
+driver that supports an optional i2c interface, this provides a stubbed
+set of interfaces for the CONFIG_I2C=n case.
 
-specify
+I've covered the obvious ones that cause the majority of the build
+failures, anything more involved really ought to have its dependencies
+fixed instead.
 
-> +	 * 20kHz SCL or less in Kconfig now. (5 * 1024 / 20 =3D 0x100)
-> +	 */
-> +	clkhilow =3D 5 * 1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ;
-> +
->  	/* Set Twi interface clock as specified */
-> -	write_CLKDIV(iface, ((5*1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ)
-> -			<< 8) | ((5*1024 / CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ)
-> -			& 0xFF));
-> +	write_CLKDIV(iface, (clkhilow << 8) | clkhilow);
-> =20
->  	/* Enable TWI */
->  	write_CONTROL(iface, read_CONTROL(iface) | TWI_ENA);
-> --=20
-> 1.6.3.1
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+---
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+ include/linux/i2c.h |  109 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 109 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkoc5kYACgkQD27XaX1/VRtM9wCfeRJbp+N31tB+KgfMM4f42Oxv
-j+IAoI3Fimbu3wLLE3KU+UlBEz8cB+lf
-=kN1j
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index ad25805..ba73cd0 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -277,6 +277,8 @@ struct i2c_board_info {
+ 	.type = dev_type, .addr = (dev_addr)
+ 
+ 
++#ifdef CONFIG_I2C
++
+ /* Add-on boards should register/unregister their devices; e.g. a board
+  * with integrated I2C, a config eeprom, sensors, and a codec that's
+  * used in conjunction with the primary hardware.
+@@ -301,6 +303,33 @@ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+ 
+ extern void i2c_unregister_device(struct i2c_client *);
+ 
++#else
++
++static inline struct i2c_client *
++i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
++{
++	return NULL;
++}
++
++static inline struct i2c_client *
++i2c_new_probed_device(struct i2c_adapter *adap,
++		      struct i2c_board_info *info,
++		      unsigned short const *addr_list)
++{
++	return NULL;
++}
++
++static inline struct i2c_client *
++i2c_new_dummy(struct i2c_adapter *adap, u16 address)
++{
++	return NULL;
++}
++
++static inline void i2c_unregister_device(struct i2c_client *client)
++{
++}
++#endif /* CONFIG_I2C */
++
+ /* Mainboard arch_initcall() code should register all its I2C devices.
+  * This is done at arch_initcall time, before declaring any i2c adapters.
+  * Modules for add-on boards must use other calls.
+@@ -415,6 +444,7 @@ struct i2c_client_address_data {
+ 
+ /* ----- functions exported by i2c.o */
+ 
++#ifdef CONFIG_I2C
+ /* administration...
+  */
+ extern int i2c_add_adapter(struct i2c_adapter *);
+@@ -460,6 +490,85 @@ static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
+ 	return adap->algo->functionality(adap);
+ }
+ 
++#else
++
++static inline int i2c_add_adapter(struct i2c_adapter *adap)
++{
++	return -ENODEV;
++}
++
++static inline int i2c_del_adapter(struct i2c_adapter *adap)
++{
++	return -ENODEV;
++}
++
++static inline int i2c_add_numbered_adapter(struct i2c_adapter *adap)
++{
++	return -ENODEV;
++}
++
++static inline int i2c_register_driver(struct module *module,
++				      struct i2c_driver *driver)
++{
++	return -ENODEV;
++}
++
++static inline void i2c_del_driver(struct i2c_driver *driver)
++{
++}
++
++static inline int i2c_add_driver(struct i2c_driver *driver)
++{
++	return -ENODEV;
++}
++
++static inline int __deprecated i2c_attach_client(struct i2c_client *client)
++{
++	return -EINVAL;
++}
++
++static inline int __deprecated i2c_detach_client(struct i2c_client *client)
++{
++	return -EINVAL;
++}
++
++static inline struct i2c_client *i2c_use_client(struct i2c_client *client)
++{
++	return NULL;
++}
++
++static inline void i2c_release_client(struct i2c_client *client)
++{
++}
++
++static inline void i2c_clients_command(struct i2c_adapter *adap,
++				       unsigned int cmd, void *arg)
++{
++}
++
++static inline int i2c_probe(struct i2c_adapter *adapter,
++		const struct i2c_client_address_data *address_data,
++		int (*found_proc) (struct i2c_adapter *, int, int))
++{
++	return -ENODEV;
++}
++
++static inline struct i2c_adapter *i2c_get_adapter(int id)
++{
++	return NULL;
++}
++
++static inline void i2c_put_adapter(struct i2c_adapter *adap)
++{
++}
++
++/* Return the functionality mask */
++static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
++{
++	return 0;
++}
++#endif /* CONFIG_I2C */
++
+ /* Return 1 if adapter supports everything we need, 0 if not. */
+ static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
+ {
