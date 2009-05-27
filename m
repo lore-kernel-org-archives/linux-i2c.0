@@ -1,44 +1,87 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c: Simplified CONFIG_I2C=n interface.
-Date: Wed, 27 May 2009 13:01:40 +0100
-Message-ID: <20090527120140.GC1970@sirena.org.uk>
-References: <20090527070850.GA11221@linux-sh.org> <20090527091831.26b60d6d@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090527091831.26b60d6d@hyperion.delvare>
-Sender: linux-media-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Paul Mundt <lethal@linux-sh.org>, linux-next@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Subject: [PATCH 1/2] I2C: OMAP2/3: Fix scll/sclh calculations
+Date: Wed, 27 May 2009 17:54:45 +0300
+Message-ID: <1243436086-3623-1-git-send-email-aaro.koskinen@nokia.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <>
+References: <>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 27, 2009 at 09:18:31AM +0200, Jean Delvare wrote:
+Fix scll/sclh calculations for HS and fast modes. Currently the driver
+uses equal (roughly) low/high times which will result in too short
+low time.
 
-> Violent nack. Drivers which optionally use I2C are a minority.
+OMAP3430 TRM gives the following equations:
 
-It's extremely common for devices like the CODECs and PMICs used in
-embedded systems to have both I2C and SPI interfaces, selectable via a
-pin strap at power on.  It's less common to have the SPI option for
-things like hardware monitoring chips found in PCs but for anything that
-might be I/O bound the high speed interface is a very common option.
+	F/S: tLow  = (scll + 7) * internal_clk
+	     tHigh = (sclh + 5) * internal_clk
+	HS:  tLow  = (scll + 7) * fclk
+	     tHigh = (sclh + 5) * fclk
 
-> Designing them in such a way that a single #ifdef CONFIG_I2C will make
-> them work can't be that hard, really. Not to mention that having a
-> dozen stubs in i2c.h in the CONFIG_I2C=n case won't save you much work
-> at the driver level anyway, because you certainly need to run different
-> code paths depending on how the device is connected, and you also have
-> to differentiate between the "I2C support is missing" case and the "I2C
-> device registration failed" case, etc.
+Furthermore, the I2C specification sets the following minimum values
+for HS tLow/tHigh for capacitive bus loads 100 pF (maximum speed 3400)
+and 400 pF (maximum speed 1700):
 
-For the devices I've dealt with there's very little work at the driver
-level - the various interfaces that can be used each probe using the
-normal device model, set some register read/write operations and
-possibly some other things and then call into the bulk of the driver
-which has all the I/O abstracted away from it.
+	speed	tLow		tHigh
+	3400	160 ns		60 ns
+	1700	320 ns		120 ns
 
-The error handling is already an issue with the current situation since
-people are just silently building out the I2C support when I2C is not
-enabled.  At the minute the main problem is with people not remembering
-to do the #ifdef (a lot of platforms really need I2C enabled to be
-useful so people never think to do the build without).
+and for F/S:
+
+	speed	tLow		tHigh
+	400	1300 ns		600 ns
+	100	4700 ns		4000 ns
+
+By using duty cycles 33/66 (HS, F) and 50/50 (S) we stay above these
+minimum values.
+
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+---
+ drivers/i2c/busses/i2c-omap.c |   25 ++++++++++++++++++-------
+ 1 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 9919c08..5d9880c 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -343,17 +343,28 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 
+ 		/* If configured for High Speed */
+ 		if (dev->speed > 400) {
++			unsigned long scl;
++
+ 			/* For first phase of HS mode */
+-			fsscll = internal_clk / (400 * 2) - 6;
+-			fssclh = internal_clk / (400 * 2) - 6;
++			scl = internal_clk / 400;
++			fsscll = scl - (scl / 3) - 7;
++			fssclh = (scl / 3) - 5;
+ 
+ 			/* For second phase of HS mode */
+-			hsscll = fclk_rate / (dev->speed * 2) - 6;
+-			hssclh = fclk_rate / (dev->speed * 2) - 6;
++			scl = fclk_rate / dev->speed;
++			hsscll = scl - (scl / 3) - 7;
++			hssclh = (scl / 3) - 5;
++		} else if (dev->speed > 100) {
++			unsigned long scl;
++
++			/* Fast mode */
++			scl = internal_clk / dev->speed;
++			fsscll = scl - (scl / 3) - 7;
++			fssclh = (scl / 3) - 5;
+ 		} else {
+-			/* To handle F/S modes */
+-			fsscll = internal_clk / (dev->speed * 2) - 6;
+-			fssclh = internal_clk / (dev->speed * 2) - 6;
++			/* Standard mode */
++			fsscll = internal_clk / (dev->speed * 2) - 7;
++			fssclh = internal_clk / (dev->speed * 2) - 5;
+ 		}
+ 		scll = (hsscll << OMAP_I2C_SCLL_HSSCLL) | fsscll;
+ 		sclh = (hssclh << OMAP_I2C_SCLH_HSSCLH) | fssclh;
+-- 
+1.5.4.3
+
