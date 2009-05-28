@@ -1,101 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/6] i2c: use rwsem instead of mutex.
-Date: Thu, 28 May 2009 13:50:16 +0200
-Message-ID: <20090528135016.54a3ea9f@hyperion.delvare>
-References: <1233840973-13268-1-git-send-email-giometti@linux.it>
-	<1233840973-13268-2-git-send-email-giometti@linux.it>
-	<1233840973-13268-3-git-send-email-giometti@linux.it>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused
+	by read i2c_msg
+Date: Thu, 28 May 2009 19:17:26 +0200
+Message-ID: <20090528171726.GE3112@pengutronix.de>
+References: <4A124202.4010201@doredevelopment.dk> <d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com> <20090526213351.GG23114@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="phCU5ROyZO6kBE05"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1233840973-13268-3-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090526213351.GG23114-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>, Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rodolfo,
 
-On Thu,  5 Feb 2009 14:36:09 +0100, Rodolfo Giometti wrote:
-> By using rwsem we can easily manage recursive calls of
-> i2c_scan_static_board_info() function without breaking the locking.
-> 
-> Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-> ---
->  drivers/i2c/i2c-boardinfo.c |    6 +++---
->  drivers/i2c/i2c-core.c      |    4 ++--
->  drivers/i2c/i2c-core.h      |    2 +-
->  3 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
-> index ffb35f0..981cdd8 100644
-> --- a/drivers/i2c/i2c-boardinfo.c
-> +++ b/drivers/i2c/i2c-boardinfo.c
-> @@ -25,7 +25,7 @@
->  /* These symbols are exported ONLY FOR the i2c core.
->   * No other users will be supported.
->   */
-> -DEFINE_MUTEX(__i2c_board_lock);
-> +DECLARE_RWSEM(__i2c_board_lock);
->  EXPORT_SYMBOL_GPL(__i2c_board_lock);
->  
->  LIST_HEAD(__i2c_board_list);
-> @@ -63,7 +63,7 @@ i2c_register_board_info(int busnum,
->  {
->  	int status;
->  
-> -	mutex_lock(&__i2c_board_lock);
-> +	down_write(&__i2c_board_lock);
->  
->  	/* dynamic bus numbers will be assigned after the last static one */
->  	if (busnum >= __i2c_first_dynamic_bus_num)
-> @@ -84,7 +84,7 @@ i2c_register_board_info(int busnum,
->  		list_add_tail(&devinfo->list, &__i2c_board_list);
->  	}
->  
-> -	mutex_unlock(&__i2c_board_lock);
-> +	up_write(&__i2c_board_lock);
->  
->  	return status;
->  }
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 3454878..74b89a9 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -408,7 +408,7 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
->  {
->  	struct i2c_devinfo	*devinfo;
->  
-> -	mutex_lock(&__i2c_board_lock);
-> +	down_read(&__i2c_board_lock);
->  	list_for_each_entry(devinfo, &__i2c_board_list, list) {
->  		if (devinfo->busnum == adapter->nr
->  				&& !i2c_new_device(adapter,
-> @@ -417,7 +417,7 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
->  				i2c_adapter_id(adapter),
->  				devinfo->board_info.addr);
->  	}
-> -	mutex_unlock(&__i2c_board_lock);
-> +	up_read(&__i2c_board_lock);
->  }
->  
->  static int i2c_do_add_adapter(struct device_driver *d, void *data)
-> diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-> index cd5bff8..e6af064 100644
-> --- a/drivers/i2c/i2c-core.h
-> +++ b/drivers/i2c/i2c-core.h
-> @@ -25,7 +25,7 @@ struct i2c_devinfo {
->  /* board_lock protects board_list and first_dynamic_bus_num.
->   * only i2c core components are allowed to use these symbols.
->   */
-> -extern struct mutex	__i2c_board_lock;
-> +extern struct rw_semaphore	__i2c_board_lock;
->  extern struct list_head	__i2c_board_list;
->  extern int		__i2c_first_dynamic_bus_num;
->  
+--phCU5ROyZO6kBE05
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Patch applied, thank you. I've add missing includes of <linux/rwsem.h>
-in all 3 files.
+> > Any blockers to get this accepted?
+>=20
+> It would be nice to get an ack from someone who can actually test
+> the driver before getting this merged.
 
--- 
-Jean Delvare
+I wanted to test it, but it does not apply due to line breaks (check
+@@-line). Also, I don't really have the time to dig into the topic, so I
+would only test it and give a tested-by-tag if it doesn't break anything
+here. I think Joakim would be a good candidate for an acked-by .
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--phCU5ROyZO6kBE05
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkoexyYACgkQD27XaX1/VRu+mACdFGtX1DCt/RqzCoYSloa0zGw3
+f0IAoKyRUlePitsTyVsWjV42yZ/Iob4I
+=oC0v
+-----END PGP SIGNATURE-----
+
+--phCU5ROyZO6kBE05--
