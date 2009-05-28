@@ -1,46 +1,101 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c: ignore active clients detaching during
- adapter removal.
-Date: Thu, 28 May 2009 10:22:21 +0200
-Message-ID: <20090528102221.2e9b4cf5@hyperion.delvare>
-References: <1233840973-13268-4-git-send-email-giometti@linux.it>
-	<200902051602.44036.david-b@pacbell.net>
-	<20090206102220.GF28554@enneenne.com>
-	<20090206131520.232b53c3@hyperion.delvare>
-	<20090206125907.GA8581@enneenne.com>
-	<20090206221519.5fc3d2b9@hyperion.delvare>
-	<20090209130642.GV7975@enneenne.com>
-	<20090210120839.23592e38@hyperion.delvare>
-	<20090218164812.GA11217@enneenne.com>
-	<20090528095054.03fc2df3@hyperion.delvare>
-	<20090528075835.GH20243@enneenne.com>
+Subject: Re: [PATCH 2/6] i2c: use rwsem instead of mutex.
+Date: Thu, 28 May 2009 13:50:16 +0200
+Message-ID: <20090528135016.54a3ea9f@hyperion.delvare>
+References: <1233840973-13268-1-git-send-email-giometti@linux.it>
+	<1233840973-13268-2-git-send-email-giometti@linux.it>
+	<1233840973-13268-3-git-send-email-giometti@linux.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090528075835.GH20243-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1233840973-13268-3-git-send-email-giometti-k2GhghHVRtY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 28 May 2009 09:58:36 +0200, Rodolfo Giometti wrote:
-> On Thu, May 28, 2009 at 09:50:54AM +0200, Jean Delvare wrote:
-> > * I really would like to get rid of the "virtual" term that has been
-> >   repeatedly abused. Bus segments behind multiplexers are very real.
+Hi Rodolfo,
+
+On Thu,  5 Feb 2009 14:36:09 +0100, Rodolfo Giometti wrote:
+> By using rwsem we can easily manage recursive calls of
+> i2c_scan_static_board_info() function without breaking the locking.
 > 
-> Actually I use the term "virtual" regarding to the adapters not to the
-> bus segments. In fact the new devices created are not "real" adapters
-> but "virtual" ones.
+> Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-boardinfo.c |    6 +++---
+>  drivers/i2c/i2c-core.c      |    4 ++--
+>  drivers/i2c/i2c-core.h      |    2 +-
+>  3 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
+> index ffb35f0..981cdd8 100644
+> --- a/drivers/i2c/i2c-boardinfo.c
+> +++ b/drivers/i2c/i2c-boardinfo.c
+> @@ -25,7 +25,7 @@
+>  /* These symbols are exported ONLY FOR the i2c core.
+>   * No other users will be supported.
+>   */
+> -DEFINE_MUTEX(__i2c_board_lock);
+> +DECLARE_RWSEM(__i2c_board_lock);
+>  EXPORT_SYMBOL_GPL(__i2c_board_lock);
+>  
+>  LIST_HEAD(__i2c_board_list);
+> @@ -63,7 +63,7 @@ i2c_register_board_info(int busnum,
+>  {
+>  	int status;
+>  
+> -	mutex_lock(&__i2c_board_lock);
+> +	down_write(&__i2c_board_lock);
+>  
+>  	/* dynamic bus numbers will be assigned after the last static one */
+>  	if (busnum >= __i2c_first_dynamic_bus_num)
+> @@ -84,7 +84,7 @@ i2c_register_board_info(int busnum,
+>  		list_add_tail(&devinfo->list, &__i2c_board_list);
+>  	}
+>  
+> -	mutex_unlock(&__i2c_board_lock);
+> +	up_write(&__i2c_board_lock);
+>  
+>  	return status;
+>  }
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 3454878..74b89a9 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -408,7 +408,7 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
+>  {
+>  	struct i2c_devinfo	*devinfo;
+>  
+> -	mutex_lock(&__i2c_board_lock);
+> +	down_read(&__i2c_board_lock);
+>  	list_for_each_entry(devinfo, &__i2c_board_list, list) {
+>  		if (devinfo->busnum == adapter->nr
+>  				&& !i2c_new_device(adapter,
+> @@ -417,7 +417,7 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
+>  				i2c_adapter_id(adapter),
+>  				devinfo->board_info.addr);
+>  	}
+> -	mutex_unlock(&__i2c_board_lock);
+> +	up_read(&__i2c_board_lock);
+>  }
+>  
+>  static int i2c_do_add_adapter(struct device_driver *d, void *data)
+> diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+> index cd5bff8..e6af064 100644
+> --- a/drivers/i2c/i2c-core.h
+> +++ b/drivers/i2c/i2c-core.h
+> @@ -25,7 +25,7 @@ struct i2c_devinfo {
+>  /* board_lock protects board_list and first_dynamic_bus_num.
+>   * only i2c core components are allowed to use these symbols.
+>   */
+> -extern struct mutex	__i2c_board_lock;
+> +extern struct rw_semaphore	__i2c_board_lock;
+>  extern struct list_head	__i2c_board_list;
+>  extern int		__i2c_first_dynamic_bus_num;
+>  
 
-The confusion comes from the fact that struct i2c_adapter should have
-been named struct i2c_segment, as this is what it really represents.
-But back when it was decided, multiplexing wasn't considered so the
-developers thought "controller", "adapter" and "segment" were the same
-thing.
-
-Ideally we should rename i2c_adapter to i2c_segment, but this seems a
-little intrusive for a rather thin benefit.
+Patch applied, thank you. I've add missing includes of <linux/rwsem.h>
+in all 3 files.
 
 -- 
 Jean Delvare
