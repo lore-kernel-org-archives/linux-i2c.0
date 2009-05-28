@@ -1,50 +1,40 @@
-From: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused by
-	read i2c_msg
-Date: Thu, 28 May 2009 22:15:22 +0200
-Message-ID: <d2b9ea600905281315x435cdb05ia7b016b3d60c4a65@mail.gmail.com>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused by  read i2c_msg
+Date: Thu, 28 May 2009 22:34:18 +0200
+Message-ID: <87ws8155md.fsf@macbook.be.48ers.dk>
 References: <4A124202.4010201@doredevelopment.dk>
-	 <d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>
-	 <fa686aa40905281231o26c74a13v250bcedbd066e77b@mail.gmail.com>
+	<d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>
+	<20090526213351.GG23114@fluff.org.uk>
+	<20090528171726.GE3112@pengutronix.de>
+	<d2b9ea600905281310p16f47ed0i454e25bf256d3010@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <fa686aa40905281231o26c74a13v250bcedbd066e77b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <d2b9ea600905281310p16f47ed0i454e25bf256d3010-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org> (Esben Haabendal's message of "Thu\, 28 May 2009 22\:10\:56 +0200")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kumar Gala <galak-JorI+TVEvZrY24RiXHRV3ti2O/JbrIOy@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+To: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>, Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 28, 2009 at 9:31 PM, Grant Likely <grant.likely@secretlab.c=
-a> wrote:
-> On Tue, May 26, 2009 at 5:30 AM, Esben Haabendal wrote:
->> On Tue, May 19, 2009 at 7:22 AM, Esben Haabendal wrote:
->>> This fixes MAL (arbitration lost) bug caused by illegal use of
->>> RSTA (repeated START) after STOP condition generated after last byt=
-e
->>> of reads. With this patch, it is possible to do an i2c_transfer() w=
-ith
->>> additional i2c_msg's following the I2C_M_RD messages.
->>>
->>> It still needs to be resolved if it is possible to fix this issue
->>> by removing the STOP condition after reads in a robust way.
->>>
->>> Signed-off-by: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
->>> ---
->>> =A0drivers/i2c/busses/i2c-mpc.c | =A0 =A09 +++++++--
->>> =A01 files changed, 7 insertions(+), 2 deletions(-)
->>
->> Any blockers to get this accepted?
->
-> It helps if you cc: developers/maintainers of the device. =A0ie. Kuma=
-r
-> for mpc8xxx, me for 52xx.
->
-> This is the first time I noticed your posting. =A0It will take me a f=
-ew
-> days before I get a chance to review it.
+>>>>> "Esben" == Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
 
-Kumar, will you take a look at this patch?
+Hi,
 
-/Esben
+ >> I wanted to test it, but it does not apply due to line breaks (check
+ >> @@-line). Also, I don't really have the time to dig into the topic, so I
+ >> would only test it and give a tested-by-tag if it doesn't break anything
+ >> here. I think Joakim would be a good candidate for an acked-by .
+
+ Esben> I've checked both my copy in my "Sent" folder and the copy
+ Esben> received from the list, and I cannot see any "line break"
+ Esben> breakage of the patch.
+
+I guess Wolfram referred to the context line which was clearly word wrapped:
+
+@@ -456,17 +456,22 @@ static int mpc_xfer(struct i2c_adapter *adap,
+struct i2c_msg *msgs, int num)
+
+The other lines look fine.
+
+-- 
+Bye, Peter Korsgaard
