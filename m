@@ -1,42 +1,59 @@
-From: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused
- by  read i2c_msg
-Date: Thu, 28 May 2009 23:22:52 +0200
-Message-ID: <4A1F00AC.3060403@doredevelopment.dk>
-References: <4A124202.4010201@doredevelopment.dk>	<d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>	<20090526213351.GG23114@fluff.org.uk>	<20090528171726.GE3112@pengutronix.de>	<d2b9ea600905281310p16f47ed0i454e25bf256d3010@mail.gmail.com>	<87ws8155md.fsf@macbook.be.48ers.dk>	<d2b9ea600905281341s24efa4e3l6277a8aa5dec5bd@mail.gmail.com> <87octd5415.fsf@macbook.be.48ers.dk>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 3/6] i2c: ignore active clients detaching during
+	adapter removal.
+Date: Fri, 29 May 2009 09:28:35 +0200
+Message-ID: <20090529072835.GA4575@enneenne.com>
+References: <1233840973-13268-4-git-send-email-giometti@linux.it> <200902051602.44036.david-b@pacbell.net> <20090206102220.GF28554@enneenne.com> <20090206131520.232b53c3@hyperion.delvare> <20090206125907.GA8581@enneenne.com> <20090206221519.5fc3d2b9@hyperion.delvare> <20090209130642.GV7975@enneenne.com> <20090210120839.23592e38@hyperion.delvare> <20090218164812.GA11217@enneenne.com> <20090528095054.03fc2df3@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87octd5415.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090528095054.03fc2df3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Peter Korsgaard wrote:
->>>>>> "Esben" == Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
->>>>>>             
->
-> Hi,
->
->  Esben> It's strange, that line looks perfectly fine when I check the
->  Esben> mail in my GMail inbox and the outbox from the account I sent
->  Esben> it from.
->
-> Well, it is here and in the archive:
-> http://ozlabs.org/pipermail/linuxppc-dev/2009-May/072274.html
->   
-If you look at
-http://www.mail-archive.com/linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg01050.html
-instead, the patch is not broken.  I find it more likely that the ozlabs.org
-archive is breaking my lines, than mail-archive.com putting broken lines
-together again.
-> Please consider using git send-email for patches.
->   
-I used git imap-send and thunderbird to do it.
+On Thu, May 28, 2009 at 09:50:54AM +0200, Jean Delvare wrote:
+> Hi Rodolfo,
+> 
+> Sorry for the late answer, I missed this post in the middle of the
+> thread.
+> 
+> On Wed, 18 Feb 2009 17:48:13 +0100, Rodolfo Giometti wrote:
+> > On Tue, Feb 10, 2009 at 12:08:39PM +0100, Jean Delvare wrote:
+> > > Well, you can always do that if you want, but please first clearly
+> > > define the practical problem you are trying to solve. We are not going
+> > > to change the i2c core without a good reason.
+> > 
+> > I created a new page here:
+> > 
+> >    http://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
+> 
+> Thanks for doing this!
+> 
+> > Please, take a look and report everything should be fixed. :)
+> 
+> Random comments:
+> 
+> * I really would like to get rid of the "virtual" term that has been
+>   repeatedly abused. Bus segments behind multiplexers are very real.
+> 
+> * I am surprised that you use the term "trunk" for all segments, be
+>   they in front of or behind multiplexers. When I think of a
+>   multiplexer, I designate the segment between the controller and the
+>   multiplexer as the trunk, and the segments behind the multiplexer as
+>   branches.
 
-I will consider git send-email in the future, although I don't think
-my original e-mail were broken ;-)
+Both fixed. Please review the page again. :)
 
-But
+Ciao,
+
+Rodolfo
+
+-- 
+
+GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
