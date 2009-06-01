@@ -1,41 +1,43 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: I2C patch merging for embedded systems
-Date: Mon, 1 Jun 2009 18:49:47 -0400
-Message-ID: <8bd0f97a0906011549k305aeaa8u8c5fe6563862335e@mail.gmail.com>
-References: <8bd0f97a0905312242k451f5492g1a9b3e6d7f7899a3@mail.gmail.com>
-	 <20090601224702.GJ14476@trinity.fluff.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 0/3] Blackfin I2C updates for 2.6.31
+Date: Mon, 1 Jun 2009 23:49:49 +0100
+Message-ID: <20090601224949.GA18453@fluff.org.uk>
+References: <1243405210-26227-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090601224702.GJ14476-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1243405210-26227-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 1, 2009 at 18:47, Ben Dooks wrote:
-> On Mon, Jun 01, 2009 at 01:42:27AM -0400, Mike Frysinger wrote:
->> going by MAINTAINERS, Ben Dooks watches over embedded platforms. =C2=
-=A0does
->> that mean you'll merge patches posted (e.g. the Blackfin I2C driver)=
-,
->> or should i merge them through the Blackfin tree ? =C2=A0or will Jea=
-n still
->> do this via his quilt ?
->
-> Even if they are going via the blackfin tree, they need to have been
-> reviewed on ther i2c list by at-least myself and anyone else interest=
-ed
-> in these.
+On Wed, May 27, 2009 at 02:20:07AM -0400, Mike Frysinger wrote:
+> Fixes for bugs in the Blackfin on-chip I2C controller.
 
-i wasnt proposing not sending them out (in fact, ive already posted
-them all).  reviewing is fine, but that doesnt help actually getting a
-patch merged.
+do you have somewhere I can pull this from (with the corrections
+from review)?
+ 
+> Frank Shew (1):
+>   Blackfin I2C/TWI Drivers: fix bug - not work well on BF537
+> 
+> Michael Hennerich (1):
+>   Blackfin I2C/TWI Driver: make sure we don't end up with a CLKDIV=0
+> 
+> Sonic Zhang (1):
+>   Blackfin I2C TWI Driver: fix bug - REPEAT START mode doesn't repeat
+> 
+>  drivers/i2c/busses/Kconfig        |    2 +-
+>  drivers/i2c/busses/i2c-bfin-twi.c |   47 +++++++++++++++++++++++-------------
+>  2 files changed, 31 insertions(+), 18 deletions(-)
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-> For driver additions, I would prefer if they went via me so that we
-> don't end up with merge fun in the Kconfig of Makefiles.
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-ok, i'll expect you to merge them then and wont try through my tree.
-in the future, i'll tweak the to/cc to include you.  thanks!
--mike
+  'a smiley only costs 4 bytes'
