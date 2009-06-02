@@ -1,26 +1,33 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH 0/3] Blackfin I2C updates for 2.6.31
-Date: Mon, 1 Jun 2009 19:37:30 -0400
-Message-ID: <8bd0f97a0906011637q3f309c05w9222cc7779207fa1@mail.gmail.com>
-References: <1243405210-26227-1-git-send-email-vapier@gentoo.org>
-	 <20090601224949.GA18453@fluff.org.uk>
+From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: driver for the Synopsys DesignWare I2C controller
+Date: Tue, 2 Jun 2009 08:57:32 +0200
+Message-ID: <63386a3d0906012357u398748efo925bfd801ad5ca50@mail.gmail.com>
+References: <1242725005-6431-1-git-send-email-baruch@tkos.co.il>
+	 <63386a3d0905271223k470bb89elbbb566b68c0d7cd7@mail.gmail.com>
+	 <20090528041051.GB4855@tarshish>
+	 <63386a3d0905280032x7f427213t2b9b027d5be2a472@mail.gmail.com>
+	 <20090531052345.GB14148@tarshish>
+	 <20090601225354.GB18453@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090601224949.GA18453-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20090601225354.GB18453-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 1, 2009 at 18:49, Ben Dooks wrote:
-> On Wed, May 27, 2009 at 02:20:07AM -0400, Mike Frysinger wrote:
->> Fixes for bugs in the Blackfin on-chip I2C controller.
->
-> do you have somewhere I can pull this from (with the corrections
-> from review)?
+2009/6/2 Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
 
-ive set up this branch with the patches:
-git://git.kernel.org/pub/scm/linux/kernel/git/vapier/blackfin.git for-i2c
--mike
+>> > I don't think any platform_device tagged with __devinit is
+>> > correct really, platform_device:s cannot  be hotplugged that's
+>> > against the definition of a platform_device.
+>
+> I disagree, just beucase they aren't in general doesn't mean they
+> cannot be. I have been looking at an implementation which uses
+> hotplug to generate devices from a board description file.
+
+OK I stand corrected!
+
+Linus Walleij
