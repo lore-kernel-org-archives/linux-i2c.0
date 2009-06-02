@@ -1,61 +1,43 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused
-	by read i2c_msg
-Date: Tue, 2 Jun 2009 23:25:11 +0100
-Message-ID: <20090602222511.GC18453@fluff.org.uk>
-References: <4A124202.4010201@doredevelopment.dk>
-	<d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>
-	<fa686aa40905281231o26c74a13v250bcedbd066e77b@mail.gmail.com>
-	<d2b9ea600905281315x435cdb05ia7b016b3d60c4a65@mail.gmail.com>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [Uclinux-dist-devel] [PATCH 0/3] Blackfin I2C updates for
+	2.6.31
+Date: Tue, 2 Jun 2009 23:41:59 +0100
+Message-ID: <20090602224159.GD18453@fluff.org.uk>
+References: <1243405210-26227-1-git-send-email-vapier@gentoo.org> <20090601224949.GA18453@fluff.org.uk> <8bd0f97a0906011637q3f309c05w9222cc7779207fa1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <d2b9ea600905281315x435cdb05ia7b016b3d60c4a65@mail.gmail.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@ozlabs.org
-To: Esben Haabendal <esbenhaabendal@gmail.com>
-Cc: Kumar Gala <galak@gate.crashing.org>, linux-i2c@vger.kernel.org, linuxppc-dev@ozlabs.org
+In-Reply-To: <8bd0f97a0906011637q3f309c05w9222cc7779207fa1-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 28, 2009 at 10:15:22PM +0200, Esben Haabendal wrote:
-> On Thu, May 28, 2009 at 9:31 PM, Grant Likely <grant.likely@secretlab.ca> wrote:
-> > On Tue, May 26, 2009 at 5:30 AM, Esben Haabendal wrote:
-> >> On Tue, May 19, 2009 at 7:22 AM, Esben Haabendal wrote:
-> >>> This fixes MAL (arbitration lost) bug caused by illegal use of
-> >>> RSTA (repeated START) after STOP condition generated after last byte
-> >>> of reads. With this patch, it is possible to do an i2c_transfer() with
-> >>> additional i2c_msg's following the I2C_M_RD messages.
-> >>>
-> >>> It still needs to be resolved if it is possible to fix this issue
-> >>> by removing the STOP condition after reads in a robust way.
-> >>>
-> >>> Signed-off-by: Esben Haabendal <eha@doredevelopment.dk>
-> >>> ---
-> >>> ?drivers/i2c/busses/i2c-mpc.c | ? ?9 +++++++--
-> >>> ?1 files changed, 7 insertions(+), 2 deletions(-)
-> >>
-> >> Any blockers to get this accepted?
+On Mon, Jun 01, 2009 at 07:37:30PM -0400, Mike Frysinger wrote:
+> On Mon, Jun 1, 2009 at 18:49, Ben Dooks wrote:
+> > On Wed, May 27, 2009 at 02:20:07AM -0400, Mike Frysinger wrote:
+> >> Fixes for bugs in the Blackfin on-chip I2C controller.
 > >
-> > It helps if you cc: developers/maintainers of the device. ?ie. Kumar
-> > for mpc8xxx, me for 52xx.
-> >
-> > This is the first time I noticed your posting. ?It will take me a few
-> > days before I get a chance to review it.
+> > do you have somewhere I can pull this from (with the corrections
+> > from review)?
 > 
-> Kumar, will you take a look at this patch?
+> ive set up this branch with the patches:
+> git://git.kernel.org/pub/scm/linux/kernel/git/vapier/blackfin.git for-i2c
+> -mike
 
-is anyone else likely to review it, or should I merge?
+hi, in future, shorter titles, prefixed with i2c would be nice.
+
+changed them all to be
+
+i2c: Blackfin TWI:
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
   'a smiley only costs 4 bytes'
