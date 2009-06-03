@@ -1,23 +1,21 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: =?ISO-8859-1?Q?Richard_R=3F=F6jfors?=
+	<richard.rojfors.ext-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
 Subject: Re: [PATCH] I2C: ocores can add I2C devices to the bus
-Date: Wed, 3 Jun 2009 10:49:49 +0200
-Message-ID: <20090603104949.55967834@hyperion.delvare>
-References: <4A2566E8.7080404@mocean-labs.com>
-	<20090602224822.GE18453@fluff.org.uk>
-	<20090603101533.599d41db@hyperion.delvare>
-	<87oct53ewh.fsf@macbook.be.48ers.dk>
+Date: Wed, 03 Jun 2009 10:53:10 +0200
+Message-ID: <4A2639F6.2010505@mocean-labs.com>
+References: <4A2566E8.7080404@mocean-labs.com>	<20090602224822.GE18453@fluff.org.uk>	<20090603101533.599d41db@hyperion.delvare> <87oct53ewh.fsf@macbook.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <87oct53ewh.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Richard Rojfors <richard.rojfors.ext-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 03 Jun 2009 10:22:38 +0200, Peter Korsgaard wrote:
-> >>>>> "Jean" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
+Peter Korsgaard wrote:
+>>>>>> "Jean" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
 > 
 > Hi,
 > 
@@ -32,29 +30,22 @@ On Wed, 03 Jun 2009 10:22:38 +0200, Peter Korsgaard wrote:
 > 
 > Indeed. Isn't it just a matter of using i2c_add_numbered_adapter -
 > E.G.:
-> 
-> --- linux-2.6/drivers/i2c/busses/i2c-ocores.c	2008-11-26 11:16:27.000000000 +0100
-> +++ linux-2.6-new/drivers/i2c/busses/i2c-ocores.c	2008-12-13 19:59:12.000000000 +0100
-> @@ -261,11 +261,12 @@
->  	/* hook up driver to tree */
->  	platform_set_drvdata(pdev, i2c);
->  	i2c->adap = ocores_adapter;
-> +	i2c->adap.nr = pdev->id;
->  	i2c_set_adapdata(&i2c->adap, i2c);
->  	i2c->adap.dev.parent = &pdev->dev;
->  
->  	/* add i2c adapter to i2c tree */
-> -	ret = i2c_add_adapter(&i2c->adap);
-> +	ret = i2c_add_numbered_adapter(&i2c->adap);
->  	if (ret) {
->  		dev_err(&pdev->dev, "Failed to add adapter\n");
->  		goto add_adapter_failed;
-> 
-> Or am I misunderstanding the issue?
 
-Richard explicitly said that his I2C bus is on an add-on board and thus
-the I2C bus number can't be decided in advance. So the above is not
-usable in his case.
+Let say there are several PCI boards which have I2C busses, connected in let say
+a standard PC. The PCI drivers could be MFD:s which exposes some platform
+devices for the I2C busses.
+How should those drivers know which bus numbers that are free?
+Let say there are 2 boards of one type and two of an other.
 
--- 
-Jean Delvare
+The MFD:s might register there platform devices before there are I2C bus drivers available.
+So a call to i2c_get_adapter, won't return any adapter, so AFAIK there is no
+way to check if a bus number is "free" for use(?) Should those drivers talk to each other
+and try to coordinate the bus number usage?
+
+
+But even if it was possible to figure out bus numbers to use, the bus drivers might
+not be available when the MFD registers the platform device, so when should it call
+i2c_new_device? Start a timer and call i2c_get_adapter until it returns something?
+
+
+--Richard
