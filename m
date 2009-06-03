@@ -1,20 +1,49 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/1] ST DDC I2C U300 bus driver v3
-Date: Wed, 3 Jun 2009 16:24:07 +0200
-Message-ID: <63386a3d0906030724y31d9df58h6bfbd78feebf1a95@mail.gmail.com>
-References: <63386a3d0905200630v187187d5j84ec4bafadf69539@mail.gmail.com>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c: Limit core locking to the necessary sections
+Date: Wed, 3 Jun 2009 18:42:10 +0200
+Message-ID: <20090603164210.GS23109@enneenne.com>
+References: <20090514210436.45171424@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <63386a3d0905200630v187187d5j84ec4bafadf69539-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090514210436.45171424-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-With the merge window coming up and all it would be great to know if
-this one need any major rewrite or if it's ripe for merge now...
+On Thu, May 14, 2009 at 09:04:36PM +0200, Jean Delvare wrote:
+> The i2c-core code tends to hold the core lock for longer than it
+> should. Limit locking to the necessary sections for both performance
+> and clarity. This is also a requirement to support I2C multiplexers in
+> the future.
+> 
+> Testing was successful on my system but I would love to hear from other
+> testers. This kind of thing is easy to get wrong.
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+> ---
+> Rodolfo, this should solve the deadlocks you had been encountering
+> while working on I2C multiplexing support. I would like you to give a
+> try to my current stack of i2c patches:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c.tar.gz
+> 
+> If it works OK, please rebase your multiplexing patches on top of it.
+> Then I'll review them. I'd like to have initial multiplexing support in
+> kernel 2.6.31, which doesn't leave us too much time.
 
-Yours,
-Linus Walleij
+Sorry for the (very) long delay... however it works. :)
+
+Ciao,
+
+Rodolfo
+
+-- 
+
+GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
