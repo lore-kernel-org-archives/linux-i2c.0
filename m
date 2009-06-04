@@ -1,53 +1,68 @@
-From: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] add MAX17040 Fuel Gauge driver
-Date: Thu, 4 Jun 2009 19:55:13 +0900
-Message-ID: <1f3430fb0906040355y21d5c8d1u4133dd8f7f4e9d70@mail.gmail.com>
-References: <4A278C08.5000206@samsung.com>
-	 <5d5443650906040216h2314b7bbt1ae2e89c709b566e@mail.gmail.com>
-	 <20090604113504.5370775b@hyperion.delvare>
+From: =?UTF-8?B?UmljaGFyZCBSwprDtmpmb3Jz?=
+	<richard.rojfors.ext-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
+Subject: Re: [PATCH] I2C: ocores can add I2C devices to the bus
+Date: Thu, 04 Jun 2009 14:11:51 +0200
+Message-ID: <4A27BA07.6080504@mocean-labs.com>
+References: <4A2566E8.7080404@mocean-labs.com>	<20090602224822.GE18453@fluff.org.uk>	<20090603101533.599d41db@hyperion.delvare> <87oct53ewh.fsf@macbook.be.48ers.dk> <4A2639F6.2010505@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090604113504.5370775b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4A2639F6.2010505-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Anton Vorontsov <cbou-JGs/UdohzUI@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear, Jean Delvare
+Hi,
 
->
-> In case of error, this will wrap the error code into a u8 and the
-> caller won't notice. So you'll return a random value, depending on th=
-e
-> actual error which happened. No good.
->
-> You should either return an int there, and have the caller check for
-> errors, or if you don't want to care about errors, return an arbitrar=
-y
-> value on error (e.g. 0.)
->
+Any ideas of how to progress on this "issue"?
 
-Yes, I missed it.
+Richard R=C3=B6jfors wrote:
+> Peter Korsgaard wrote:
+>>>>>>> "Jean" =3D=3D Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
+>> Hi,
+>>
+>>  Jean> I don't like the idea much either, nor the implementation.
+>>
+>>  Jean> Firstly, I don't understand why this would be needed. I can u=
+nderstand
+>>  Jean> that in some cases you don't know the I2C bus number in advan=
+ce, but
+>>  Jean> then some code must still instantiate the I2C bus, and the sa=
+me code
+>>  Jean> should be able to call i2c_new_device() directly to instantia=
+te the
+>>  Jean> devices on that bus. Richard, did you try to just do this? If=
+ it
+>>  Jean> doesn't work, please explain why.
+>>
+>> Indeed. Isn't it just a matter of using i2c_add_numbered_adapter -
+>> E.G.:
+>=20
+> Let say there are several PCI boards which have I2C busses, connected=
+ in let say
+> a standard PC. The PCI drivers could be MFD:s which exposes some plat=
+form
+> devices for the I2C busses.
+> How should those drivers know which bus numbers that are free?
+> Let say there are 2 boards of one type and two of an other.
+>=20
+> The MFD:s might register there platform devices before there are I2C =
+bus drivers available.
+> So a call to i2c_get_adapter, won't return any adapter, so AFAIK ther=
+e is no
+> way to check if a bus number is "free" for use(?) Should those driver=
+s talk to each other
+> and try to coordinate the bus number usage?
+>=20
+>=20
+> But even if it was possible to figure out bus numbers to use, the bus=
+ drivers might
+> not be available when the MFD registers the platform device, so when =
+should it call
+> i2c_new_device? Start a timer and call i2c_get_adapter until it retur=
+ns something?
 
->> > + =A0 =A0 =A0 ret =3D power_supply_register(&client->dev, &bat_ps)=
-;
->> > + =A0 =A0 =A0 if (ret) {
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&max17040->client->dev,
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "fai=
-led: power supply register\n");
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 cancel_delayed_work(&chip->work);
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_set_clientdata(client, NULL);
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(chip);
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 max17040 =3D NULL;
->> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
->
-> Please come up with a better error code.
->
 
-Ok, many thanks :)
-
---=20
-from. prom.
-promsoft.net
+--Richard
