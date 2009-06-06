@@ -1,69 +1,52 @@
-From: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add MAX17040 Fuel Gauge driver
-Date: Sat, 6 Jun 2009 22:29:03 +0530
-Message-ID: <5d5443650906060959w678a29acn8200239d35869dca@mail.gmail.com>
-References: <4A28BC20.3010307@samsung.com>
+From: Trent Piepho <xyzzy@speakeasy.org>
+Subject: Re: RFC: proposal for new i2c.h macro to initialize i2c address
+ lists on the fly
+Date: Sat, 6 Jun 2009 10:32:59 -0700 (PDT)
+Message-ID: <Pine.LNX.4.58.0906061015421.32713@shell2.speakeasy.net>
+References: <200906061500.49338.hverkuil@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A28BC20.3010307-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anton Vorontsov <cbou-JGs/UdohzUI@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <200906061500.49338.hverkuil@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: linux-i2c@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Minkyu Kang,
-
-On Fri, Jun 5, 2009 at 12:03 PM, Minkyu Kang<mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrot=
-e:
-> The MAX17040 is a I2C interfaced Fuel Gauge systems for lithium-ion b=
-atteries
-> This patch adds support the MAX17040 Fuel Gauge
+On Sat, 6 Jun 2009, Hans Verkuil wrote:
+> For video4linux we sometimes need to probe for a single i2c address.
+> Normally you would do it like this:
 >
+> static const unsigned short addrs[] = {
+> 	addr, I2C_CLIENT_END
+> };
+>
+> client = i2c_new_probed_device(adapter, &info, addrs);
+>
+> This is a bit awkward and I came up with this macro:
+>
+> #define V4L2_I2C_ADDRS(addr, addrs...) \
+>         ((const unsigned short []){ addr, ## addrs, I2C_CLIENT_END })
+>
+> This can construct a list of one or more i2c addresses on the fly. But this
+> is something that really belongs in i2c.h, renamed to I2C_ADDRS.
+>
+> With this macro we can just do:
+>
+> client = i2c_new_probed_device(adapter, &info, I2C_ADDRS(addr));
+>
+> Comments?
 
-Thanks for making change. Some more comments.
+I agree it's better placed with i2c.h.  It's also possible to come up with
+a more syntax more variadic function like, which can be called like this:
 
-> =A0endif # POWER_SUPPLY
-> diff --git a/drivers/power/Makefile b/drivers/power/Makefile
-> index 2fcf41d..9c48995 100644
-> --- a/drivers/power/Makefile
-> +++ b/drivers/power/Makefile
-> @@ -25,4 +25,5 @@ obj-$(CONFIG_BATTERY_TOSA) =A0 =A0+=3D tosa_battery=
-=2Eo
-> =A0obj-$(CONFIG_BATTERY_WM97XX) =A0 +=3D wm97xx_battery.o
-> =A0obj-$(CONFIG_BATTERY_BQ27x00) =A0+=3D bq27x00_battery.o
-> =A0obj-$(CONFIG_BATTERY_DA9030) =A0 +=3D da9030_battery.o
-> -obj-$(CONFIG_CHARGER_PCF50633) +=3D pcf50633-charger.o
-> \ No newline at end of file
-> +obj-$(CONFIG_BATTERY_MAX17040)) =A0 =A0 =A0 =A0+=3D max17040_battery=
-=2Eo
+i2c_new_probed_device(adapter, &info, addr1);
 
-Are we following any alphabetical order in this Makefile?
+i2c_new_probed_device(adapter, &info, addr1, addr2);
 
-> +static int max17040_suspend(struct i2c_client *client,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pm_message_t state)
-> +{
-> + =A0 =A0 =A0 struct max17040_chip *chip =3D i2c_get_clientdata(clien=
-t);
-> +
-> + =A0 =A0 =A0 cancel_delayed_work(&chip->work);
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
-> +static int max17040_resume(struct i2c_client *client)
-> +{
-> + =A0 =A0 =A0 struct max17040_chip *chip =3D i2c_get_clientdata(clien=
-t);
-> +
-> + =A0 =A0 =A0 schedule_delayed_work(&chip->work, MAX17040_DELAY);
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
 
-Please add #ifdef CONFIG_PM around suspend resume functions.
+Using a macro like this...
 
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+#define i2c_new_probed_device(adap,info,addr,addrs...) ({ \
+	const unsigned short _addrs[] = {addr, ## addrs, I2C_CLIENT_END }; \
+	_i2c_new_probed_device(adap, info, _addrs); })
