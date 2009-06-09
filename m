@@ -1,105 +1,32 @@
-From: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add MAX17040 Fuel Gauge driver
-Date: Tue, 9 Jun 2009 10:12:58 +0900
-Message-ID: <1f3430fb0906081812j69f35b18tde3d4ab5d80b504@mail.gmail.com>
-References: <4A28BC20.3010307@samsung.com>
-	 <5d5443650906060959w678a29acn8200239d35869dca@mail.gmail.com>
-	 <4A2C7911.80407@samsung.com>
-	 <20090608210007.GA29332@oksana.dev.rtsoft.ru>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH, RFC] Freescale STMP: i2c driver
+Date: Tue, 9 Jun 2009 09:46:06 +0200
+Message-ID: <20090609094606.18f04523@hyperion.delvare>
+References: <1244059155.4074.19.camel@hp.diimka.lan>
+	<20090608225034.GA20446@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090608210007.GA29332-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
+In-Reply-To: <20090608225034.GA20446-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
-Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anton Vorontsov <cbou-JGs/UdohzUI@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+To: dmitry pervushin <dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear, Anton Vorontsov
+On Mon, 8 Jun 2009 23:50:34 +0100, Ben Dooks wrote:
+> On Wed, Jun 03, 2009 at 11:59:15PM +0400, dmitry pervushin wrote:
+> > +static const u32 I2C_READ = 1,
+> > +		 I2C_WRITE = 0;
+> 
+> do you really want to be defining things with a prefix of I2C, that
+> might end up clashing with the i2c core?
 
-2009/6/9 Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>:
-> On Mon, Jun 08, 2009 at 11:36:01AM +0900, Minkyu Kang wrote:
->> Dear Trilok Soni,
->>
->> Thanks for review
->>
->> > Hi Minkyu Kang,
->> >
->> > On Fri, Jun 5, 2009 at 12:03 PM, Minkyu Kang<mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>=
- wrote:
->> >> The MAX17040 is a I2C interfaced Fuel Gauge systems for lithium-i=
-on batteries
->> >> This patch adds support the MAX17040 Fuel Gauge
->> >>
->> >
->> > Thanks for making change. Some more comments.
->> >
->> >> =A0endif # POWER_SUPPLY
->> >> diff --git a/drivers/power/Makefile b/drivers/power/Makefile
->> >> index 2fcf41d..9c48995 100644
->> >> --- a/drivers/power/Makefile
->> >> +++ b/drivers/power/Makefile
->> >> @@ -25,4 +25,5 @@ obj-$(CONFIG_BATTERY_TOSA) =A0 =A0+=3D tosa_bat=
-tery.o
->> >> =A0obj-$(CONFIG_BATTERY_WM97XX) =A0 +=3D wm97xx_battery.o
->> >> =A0obj-$(CONFIG_BATTERY_BQ27x00) =A0+=3D bq27x00_battery.o
->> >> =A0obj-$(CONFIG_BATTERY_DA9030) =A0 +=3D da9030_battery.o
->> >> -obj-$(CONFIG_CHARGER_PCF50633) +=3D pcf50633-charger.o
->> >> \ No newline at end of file
->> >> +obj-$(CONFIG_BATTERY_MAX17040)) =A0 =A0 =A0 =A0+=3D max17040_bat=
-tery.o
->
-> There is a typo: "))" should be just ")". I fixed this.
->
-> I also fixed "=91max17040_set_rcomp=92 defined but not used" warning
-> (just removed this function).
+Definitely not. Please just use I2C_SMBUS_READ and I2C_SMBUS_WRITE
+which are already defined by <linux/i2c.h>.
 
-I missed it. thanks.
+(One might argue these are unfortunate names, but that's what we have
+at the moment so let's just use it.)
 
->> > Are we following any alphabetical order in this Makefile?
->> >
->>
->> I'm not sure either. :(
->> I just grouping with batteries.
->
-> It's fine as is. I always wonder when somebody try to sort things
-> alphabetically. Humans should not bother with sorting, that's what
-> computers are for! ;-)
->
->> >> +static int max17040_suspend(struct i2c_client *client,
->> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pm_message_t state)
->> >> +{
->> >> + =A0 =A0 =A0 struct max17040_chip *chip =3D i2c_get_clientdata(c=
-lient);
->> >> +
->> >> + =A0 =A0 =A0 cancel_delayed_work(&chip->work);
->> >> + =A0 =A0 =A0 return 0;
->> >> +}
->> >> +
->> >> +static int max17040_resume(struct i2c_client *client)
->> >> +{
->> >> + =A0 =A0 =A0 struct max17040_chip *chip =3D i2c_get_clientdata(c=
-lient);
->> >> +
->> >> + =A0 =A0 =A0 schedule_delayed_work(&chip->work, MAX17040_DELAY);
->> >> + =A0 =A0 =A0 return 0;
->> >> +}
->> >> +
->> >
->> > Please add #ifdef CONFIG_PM around suspend resume functions.
->> >
->>
->> Ok, I will.
->
-> Just did it myself, and queued this patch for 2.6.31.
->
-> Thanks!
->
-
-Ok, I appreciate your help.
-Many Thanks :)
-
---=20
-from. prom.
-promsoft.net
+-- 
+Jean Delvare
