@@ -1,19 +1,20 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-bfin-twi: pull in io.h for ioremap()
-Date: Sun, 14 Jun 2009 14:06:25 +0100
-Message-ID: <20090614130625.GJ20446@fluff.org.uk>
-References: <1244958937-11106-1-git-send-email-vapier@gentoo.org>
+Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused
+	by read i2c_msg
+Date: Sun, 14 Jun 2009 14:16:05 +0100
+Message-ID: <20090614131605.GK20446@fluff.org.uk>
+References: <4A124202.4010201@doredevelopment.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1244958937-11106-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <4A124202.4010201-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-applied, will push out in the next day or so.
+is there a new version of this patch available?
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
