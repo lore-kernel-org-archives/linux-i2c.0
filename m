@@ -1,37 +1,23 @@
-From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] i2c-bfin-twi: pull in io.h for ioremap()
-Date: Sun, 14 Jun 2009 01:55:37 -0400
-Message-ID: <1244958937-11106-1-git-send-email-vapier@gentoo.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 1/1] ST DDC I2C U300 bus driver v3
+Date: Sun, 14 Jun 2009 14:05:44 +0100
+Message-ID: <20090614130544.GH20446@fluff.org.uk>
+References: <1244922694-22026-1-git-send-email-linus.walleij@stericsson.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1244922694-22026-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
+Cc: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Rather than relying on some of the headers implicitly pulling in io.h,
-pull it in explicitly our self for ioremap() and friends.
+I've applied this, however one minor point is that it is turning
+up in Kconfig entries where it probably shouldn't be. Please send
+a patch to add a 'depends on' line to the Kconfig.
 
-Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
----
-Ben: can you push this for 2.6.31 ?  it blocks Blackfin header conversion
-to asm-generic as this driver relies on implicit includes.  or i can just
-push it through my tree to keep things from breaking (since it's a simple
-change).
-
- drivers/i2c/busses/i2c-bfin-twi.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 26d8987..9fb114c 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
-+#include <linux/io.h>
- #include <linux/mm.h>
- #include <linux/timer.h>
- #include <linux/spinlock.h>
 -- 
-1.6.3.1
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
