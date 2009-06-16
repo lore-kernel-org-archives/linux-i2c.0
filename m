@@ -1,323 +1,145 @@
-From: Ryan Mallon <ryan@bluewatersys.com>
-Subject: [PATCH] ds2782 battery gas gauge driver
-Date: Tue, 16 Jun 2009 16:17:35 +1200
-Message-ID: <4A371CDF.3070407@bluewatersys.com>
+From: dmitry pervushin <dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+Subject: Re: [PATCH, RFC] Freescale STMP: i2c driver
+Date: Tue, 16 Jun 2009 20:25:39 +0400
+Message-ID: <1245169539.32549.12.camel@hp.diimka.lan>
+References: <1244059155.4074.19.camel@hp.diimka.lan>
+	 <20090608225034.GA20446@fluff.org.uk>
+Reply-To: dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752115AbZFPEQT@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090608225034.GA20446-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for the the ds2782 standalone I2C gas-gauge.
+Hello Ben,
 
-Signed-off-by: Ryan Mallon <ryan@bluewatersys.com>
+I am sending the updated patch in next message, and this message is just
+to answer your questions/concerns.\
 
----
+[...]
+> > +#include <mach/regs-apbx.h>
+> > +
+> > +static const u32 I2C_READ = 1,
+> > +		 I2C_WRITE = 0;
+> 
+> do you really want to be defining things with a prefix of I2C, thatB
+> might end up clashing with the i2c core?
+Fixed, changed to I2C_SMBUS_READ/WRITE as Jean Delvare proposed.
+> 
+> > +static const struct stmp3xxx_dma_command cmd_i2c_select = {
+> > +	.cmd =	BF(1, APBX_CHn_CMD_XFER_COUNT)	|
+> > +		BF(1, APBX_CHn_CMD_CMDWORDS)	|
+> > +		BM_APBX_CHn_CMD_WAIT4ENDCMD	|
+> > +		BM_APBX_CHn_CMD_CHAIN		|
+> > +		BF(BV_APBX_CHn_CMD_COMMAND__DMA_READ, APBX_CHn_CMD_COMMAND),
+> 
+> what is BF() ?
+it is the macro from arch/arm/plat-stmp3xxx/include/mach/platform.h,
+abbreviated "bitfield" :) For example, BF(1, APBX_CHn_CMD_CMDWORDS) is
+expanded like 
+((1 << BP_APBX_CHn_CMD_CMDWORDS) & BM_APBX_CHn_CMD_CMDWORDS).
+BP_xxx stuff means bitfield position, BM_xxx - bitfield mask. 
 
-diff --git a/drivers/power/Kconfig b/drivers/power/Kconfig
-index 33da112..b9c818f 100644
---- a/drivers/power/Kconfig
-+++ b/drivers/power/Kconfig
-@@ -43,6 +43,13 @@ config BATTERY_DS2760
- 	help
- 	  Say Y here to enable support for batteries with ds2760 chip.
- 
-+config BATTERY_DS2782
-+	tristate "DS2782 standalone gas-gauge"
-+	depends on I2C
-+	help
-+	  Say Y here to enable support for the DS2782 standalone battery
-+	  gas-gauge.
-+
- config BATTERY_PMU
- 	tristate "Apple PMU battery"
- 	depends on PPC32 && ADB_PMU
-diff --git a/drivers/power/Makefile b/drivers/power/Makefile
-index 2fcf41d..ad1ac61 100644
---- a/drivers/power/Makefile
-+++ b/drivers/power/Makefile
-@@ -19,6 +19,7 @@ obj-$(CONFIG_APM_POWER)		+= apm_power.o
- obj-$(CONFIG_WM8350_POWER)	+= wm8350_power.o
- 
- obj-$(CONFIG_BATTERY_DS2760)	+= ds2760_battery.o
-+obj-$(CONFIG_BATTERY_DS2782)	+= ds2782_battery.o
- obj-$(CONFIG_BATTERY_PMU)	+= pmu_battery.o
- obj-$(CONFIG_BATTERY_OLPC)	+= olpc_battery.o
- obj-$(CONFIG_BATTERY_TOSA)	+= tosa_battery.o
-diff --git a/drivers/power/ds2782_battery.c b/drivers/power/ds2782_battery.c
-new file mode 100644
-index 0000000..8697891
---- /dev/null
-+++ b/drivers/power/ds2782_battery.c
-@@ -0,0 +1,269 @@
-+/*
-+ * drivers/power/ds2782_battery.c
-+ *
-+ * I2C client/driver for the Maxim/Dallas DS2782 Stand-Alone Fuel Gauge IC
-+ *
-+ * Copyright (C) 2009 Bluewater Systems Ltd
-+ * Author: Ryan Mallon <ryan@bluewatersys.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/idr.h>
-+#include <linux/power_supply.h>
-+
-+#define DS2782_REG_RARC		0x06	/* Remaining active relative capacity */
-+
-+#define DS2782_REG_VOLT_MSB	0x0c
-+#define DS2782_REG_TEMP_MSB	0x0a
-+#define DS2782_REG_CURRENT_MSB	0x0e
-+
-+/* EEPROM Block */
-+#define DS2782_REG_RSNSP	0x69	/* Sense resistor value */
-+
-+/* Current unit measurement in uA for a 1 milli-ohm sense resistor */
-+#define DS2782_CURRENT_UNITS	1563
-+
-+#define to_ds2782_info(x) container_of(x, struct ds2782_info, battery)
-+
-+struct ds2782_info {
-+	struct i2c_client	*client;
-+	struct power_supply	battery;
-+	int			id;
-+};
-+
-+static DEFINE_IDR(battery_id);
-+static DEFINE_MUTEX(battery_lock);
-+
-+static inline u8 ds2782_read_reg(struct ds2782_info *info, int reg)
-+{
-+	return i2c_smbus_read_byte_data(info->client, reg);
-+}
-+
-+static inline u16 ds2782_read_reg16(struct ds2782_info *info, int reg_msb)
-+{
-+	u8 msb, lsb;
-+
-+	msb = ds2782_read_reg(info, reg_msb);
-+	lsb = ds2782_read_reg(info, reg_msb + 1);
-+
-+	return (msb << 8) | lsb;
-+}
-+
-+static int ds2782_get_temp(struct ds2782_info *info)
-+{
-+	u16 raw;
-+	s16 temp;
-+
-+	/* Temperature is measured in units of 0.125 degrees celcius */
-+	raw = ds2782_read_reg16(info, DS2782_REG_TEMP_MSB);
-+	temp = (raw >> 5) & 0x7ff;
-+	if (raw & (1 << 15))
-+		temp |= 0xf800;
-+	return (temp * 125) / 100;
-+}
-+
-+static int ds2782_get_current(struct ds2782_info *info)
-+{
-+	s16 current_uA;
-+	int sense_res;
-+
-+	/*
-+	 * The units of measurement for current are dependent on the value of
-+	 * the sense resistor.
-+	 */
-+	sense_res = 1000 / ds2782_read_reg(info, DS2782_REG_RSNSP);
-+	dev_dbg(&info->client->dev, "sense resistor = %d milli-ohms\n",
-+		sense_res);
-+	current_uA = ds2782_read_reg16(info, DS2782_REG_CURRENT_MSB);
-+	return current_uA * (DS2782_CURRENT_UNITS / sense_res);
-+}
-+
-+static int ds2782_get_voltage(struct ds2782_info *info)
-+{
-+	u16 raw;
-+	s16 voltage_uA;
-+
-+	/* Voltage is measured in units of 4.88mV */
-+	raw = ds2782_read_reg16(info, DS2782_REG_VOLT_MSB);
-+	voltage_uA = (raw >> 5) & 0x7ff;
-+	if (raw & (1 << 15))
-+		voltage_uA |= 0xf800;
-+	return voltage_uA * 4880;
-+}
-+
-+static int ds2782_get_status(struct ds2782_info *info)
-+{
-+	int current_uA, capacity;
-+
-+	current_uA = ds2782_get_current(info);
-+	capacity = ds2782_read_reg(info, DS2782_REG_RARC);
-+
-+	if (capacity == 100)
-+		return POWER_SUPPLY_STATUS_FULL;
-+	else if (current_uA == 0)
-+		return POWER_SUPPLY_STATUS_NOT_CHARGING;
-+	else if (current_uA < 0)
-+		return POWER_SUPPLY_STATUS_DISCHARGING;
-+	else
-+		return POWER_SUPPLY_STATUS_CHARGING;
-+}
-+
-+static int ds2782_battery_get_property(struct power_supply *psy,
-+				       enum power_supply_property prop,
-+				       union power_supply_propval *val)
-+{
-+	struct ds2782_info *info = to_ds2782_info(psy);
-+
-+	switch (prop) {
-+	case POWER_SUPPLY_PROP_STATUS:
-+		val->intval = ds2782_get_status(info);
-+		break;
-+
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = ds2782_read_reg(info, DS2782_REG_RARC);
-+		break;
-+
-+	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+		val->intval = ds2782_get_voltage(info);
-+		break;
-+
-+	case POWER_SUPPLY_PROP_CURRENT_NOW:
-+		val->intval = ds2782_get_current(info);
-+		break;
-+
-+	case POWER_SUPPLY_PROP_TEMP:
-+		val->intval = ds2782_get_temp(info);
-+		break;
-+
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static enum power_supply_property ds2782_battery_props[] = {
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_VOLTAGE_NOW,
-+	POWER_SUPPLY_PROP_CURRENT_NOW,
-+	POWER_SUPPLY_PROP_TEMP,
-+};
-+
-+static void ds2782_power_supply_init(struct power_supply *battery)
-+{
-+	battery->type			= POWER_SUPPLY_TYPE_BATTERY;
-+	battery->properties		= ds2782_battery_props;
-+	battery->num_properties		= ARRAY_SIZE(ds2782_battery_props);
-+	battery->get_property		= ds2782_battery_get_property;
-+	battery->external_power_changed	= NULL;
-+}
-+
-+static int ds2782_battery_remove(struct i2c_client *client)
-+{
-+	struct ds2782_info *info = i2c_get_clientdata(client);
-+
-+	power_supply_unregister(&info->battery);
-+	kfree(info->battery.name);
-+
-+	mutex_lock(&battery_lock);
-+	idr_remove(&battery_id, info->id);
-+	mutex_unlock(&battery_lock);
-+
-+	kfree(info);
-+	return 0;
-+}
-+
-+static int ds2782_battery_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	struct ds2782_info *info;
-+	int ret, num;
-+
-+	/* Get an ID for this battery */
-+	ret = idr_pre_get(&battery_id, GFP_KERNEL);
-+	if (ret == 0) {
-+		ret = -ENOMEM;
-+		goto fail_id;
-+	}
-+
-+	mutex_lock(&battery_lock);
-+	ret = idr_get_new(&battery_id, client, &num);
-+	mutex_unlock(&battery_lock);
-+	if (ret < 0)
-+		return ret;
-+
-+	info = kzalloc(sizeof(struct ds2782_info), GFP_KERNEL);
-+	if (!info) {
-+		ret = -ENOMEM;
-+		goto fail_info;
-+	}
-+
-+	info->battery.name = kasprintf(GFP_KERNEL, "ds2782-%d", num);
-+	if (!info->battery.name) {
-+		ret = -ENOMEM;
-+		goto fail_name;
-+	}
-+
-+	i2c_set_clientdata(client, info);
-+	info->client = client;
-+	ds2782_power_supply_init(&info->battery);
-+
-+	ret = power_supply_register(&client->dev, &info->battery);
-+	if (ret) {
-+		dev_err(&client->dev, "failed to register battery\n");
-+		goto fail_register;
-+	}
-+
-+	return 0;
-+
-+fail_register:
-+	kfree(info->battery.name);
-+fail_name:
-+	kfree(info);
-+fail_info:
-+	mutex_lock(&battery_lock);
-+	idr_remove(&battery_id, num);
-+	mutex_unlock(&battery_lock);
-+fail_id:
-+	return ret;
-+}
-+
-+static const struct i2c_device_id ds2782_id[] = {
-+	{"ds2782", 0},
-+	{},
-+};
-+
-+static struct i2c_driver ds2782_battery_driver = {
-+	.driver 	= {
-+		.name	= "ds2782-battery",
-+	},
-+	.probe		= ds2782_battery_probe,
-+	.remove		= ds2782_battery_remove,
-+	.id_table	= ds2782_id,
-+};
-+
-+static int __init ds2782_init(void)
-+{
-+	return i2c_add_driver(&ds2782_battery_driver);
-+}
-+
-+static void __exit ds2782_exit(void)
-+{
-+	i2c_del_driver(&ds2782_battery_driver);
-+}
-+
-+module_init(ds2782_init);
-+module_exit(ds2782_exit);
-+
-+MODULE_AUTHOR("Ryan Mallon <ryan@bluewatersys.com>");
-+MODULE_DESCRIPTION("Maxim/Dallas DS2782 Stand-Alone Fuel Gauage IC driver");
-+MODULE_LICENSE("GPL");
-+
+>> +     dev->bufv = dma_alloc_coherent(dev->dev, PAGE_SIZE,
+>> +                                    &dev->bufp, GFP_KERNEL);>
+>> +     if (dma_mapping_error(dev->dev, dev->bufp))
+>> +             goto out_dma;
+> hmm, doesn't dma_alloc_coherent() fail with an NULL buffer return?
+Fixed; but using dma_mapping_error seems to be more accurate method to
+me. 0 might be valid dma address on some architecture. Again, for the
+time being there is no difference to check dma_mapping_error or plain
+compare with NULL...
+
+[skipped]
+> > +	adap = &dev->adapter;
+> > +	i2c_set_adapdata(adap, dev);
+> > +	adap->owner = THIS_MODULE;
+> > +	adap->class = I2C_CLASS_HWMON;
+> 
+> is this the correct class?
+Mmm.. I changed this to I2C_CLASS_TV_DIGITAL since the only I2C user is
+digital radio daughterboard. Any objections?
+> 
+> > +	strncpy(adap->name, "378x I2C adapter", sizeof(adap->name));
+> > +	adap->algo = &stmp378x_i2c_algo;
+> > +	adap->dev.parent = &pdev->dev;
+> > +
+> > +	adap->nr = pdev->id;
+> > +	err = i2c_add_numbered_adapter(adap);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "Failed to add adapter\n");
+> > +		goto no_i2c_adapter;
+> > +
+> > +	}
+> > +
+> > +	return 0;
+> > +
+> > +no_i2c_adapter:
+> > +	stmp378x_i2c_release(dev);
+> > +init_failed:
+> > +	free_irq(dev->irq, dev);
+> > +no_err_irq:
+> > +	iounmap(dev->io);
+> > +nores:
+> > +	kfree(dev);
+> > +	return err;
+> > +}
+> > +
+> > +static int __devexit
+> > +stmp378x_i2c_remove(struct platform_device *pdev)
+> > +{
+> > +	struct stmp378x_i2c_dev	*dev = platform_get_drvdata(pdev);
+> > +	int res;
+> > +
+> > +	res = i2c_del_adapter(&dev->adapter);
+> > +	if (res)
+> > +		return -EBUSY;
+> > +
+> > +	stmp378x_i2c_release(dev);
+> > +
+> > +	platform_set_drvdata(pdev, NULL);
+> > +
+> > +	free_irq(dev->irq, dev);
+> > +	iounmap(dev->io);
+> > +
+> > +	kfree(dev);
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver stmp378x_i2c_driver = {
+> > +	.probe		= stmp378x_i2c_probe,
+> > +	.remove		= __devexit_p(stmp378x_i2c_remove),
+> > +	.driver		= {
+> > +		.name	= "i2c_stmp",
+> > +		.owner	= THIS_MODULE,
+> > +	},
+> > +};
+> > +
+> > +static int __init stmp378x_i2c_init_driver(void)
+> > +{
+> > +	return platform_driver_register(&stmp378x_i2c_driver);
+> > +}
+> > +module_init(stmp378x_i2c_init_driver);
+> > +
+> > +static void __exit stmp378x_i2c_exit_driver(void)
+> > +{
+> > +	platform_driver_unregister(&stmp378x_i2c_driver);
+> > +}
+> > +module_exit(stmp378x_i2c_exit_driver);
+> > +
+> > +MODULE_AUTHOR("d.frasenyak-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org");
+> > +MODULE_DESCRIPTION("I2C for Freescale STMP378x");
+> > +MODULE_LICENSE("GPL");
+> 
+> no module alias for autoloading?
+Added.
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	
