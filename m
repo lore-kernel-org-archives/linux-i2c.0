@@ -1,72 +1,53 @@
-From: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
-Subject: [RFC] Fix stuck on cpm-i2c driver
-Date: Fri, 19 Jun 2009 14:50:02 +0200
-Message-ID: <20090619125002.GA17067@gandalf.sssup.it>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for 2.6.31, part 2
+Date: Fri, 19 Jun 2009 17:56:55 +0200
+Message-ID: <20090619175655.4723aef2@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jochen-NIgtFMG+Po8@public.gmane.org
-Cc: bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trimarchi-f9ZlEuEWxVeACYmtYXMKmw@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When a process tries to read/write a disconnected i2c device, it receives a signal (e.g. ctrl-c) and the kernel gets stuck.
+Hi Linus,
 
-BUG: soft lockup - CPU#0 stuck for 61s! [I2CEEpromTest:392]
-NIP: c01628f8 LR: c01628f0 CTR: c00177cc
-REGS: c39abd70 TRAP: 0901   Not tainted  (2.6.25.7-alcore)
-MSR: 00009032 <EE,ME,IR,DR>  CR: 42042048  XER: 20000000
-TASK = c3889bd0[392] 'I2CEEpromTest' THREAD: c39aa000
-GPR00: 00009000 c39abe20 c3889bd0 c39075c8 c39abe28 00000001 00000000 00000001
-GPR08: c3889bd0 c39075c8 00009032 c39abe34 00002437
-NIP [c01628f8] cpm_i2c_xfer+0x5fc/0x6d0
-LR [c01628f0] cpm_i2c_xfer+0x5f4/0x6d0
-Call Trace:
-[c39abe20] [c0162924] cpm_i2c_xfer+0x628/0x6d0 (unreliable)
-[c39abe90] [c015f6a0] i2c_transfer+0x88/0xb4
-[c39abeb0] [c0160164] i2c_master_recv+0x48/0x6c
-[c39abed0] [c01618dc] i2cdev_read+0x50/0xe4
-[c39abef0] [c0068b24] vfs_read+0xc4/0x108
-[c39abf10] [c0068f4c] sys_read+0x4c/0x90
-[c39abf40] [c000d348] ret_from_syscall+0x0/0x38
-Instruction dump:
-3bc00064 92610010 3bf201c8 92810014 3b61
+Please pull a second set of i2c subsystem updates for Linux 2.6.31 from:
 
-This happen because though the wait_event_interruptible_timeout takes the
-signals into account, the driver does not handle them.
-We propose to change the wait_event_interruptible_timeout with
-wait_event_timeout, leaving the signals to be handled in other points
-on the upper layers.
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
 
-Signed-off-by: Bruno Morelli <bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
-Signed-off-by: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
----
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index b5db8b8..9c2e100 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -140,7 +140,7 @@ static irqreturn_t cpm_i2c_interrupt(int irq, void *dev_id)
+The most important part is the removal of the legacy i2c binding model
+support, together with all the cleanups it allowed.
 
- 	dev_dbg(&adap->dev, "Interrupt: %x\n", i);
+ Documentation/feature-removal-schedule.txt |   10 -
+ Documentation/i2c/instantiating-devices    |   44 +++
+ Documentation/i2c/writing-clients          |   16 +-
+ drivers/i2c/i2c-boardinfo.c                |    7 +-
+ drivers/i2c/i2c-core.c                     |  557 ++++++++++------------------
+ drivers/i2c/i2c-core.h                     |    4 +-
+ include/linux/i2c.h                        |   72 ++---
+ 7 files changed, 275 insertions(+), 435 deletions(-)
 
--	wake_up_interruptible(&cpm->i2c_wait);
-+	wake_up(&cpm->i2c_wait);
+---------------
 
- 	return i ? IRQ_HANDLED : IRQ_NONE;
- }
-@@ -364,12 +364,12 @@ static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		dev_dbg(&adap->dev, "test ready.\n");
- 		pmsg = &msgs[tptr];
- 		if (pmsg->flags & I2C_M_RD)
--			ret = wait_event_interruptible_timeout(cpm->i2c_wait,
-+			ret = wait_event_timeout(cpm->i2c_wait,
- 				(in_be16(&tbdf[tptr].cbd_sc) & BD_SC_NAK) ||
- 				!(in_be16(&rbdf[rptr].cbd_sc) & BD_SC_EMPTY),
- 				1 * HZ);
- 		else
--			ret = wait_event_interruptible_timeout(cpm->i2c_wait,
-+			ret = wait_event_timeout(cpm->i2c_wait,
- 				!(in_be16(&tbdf[tptr].cbd_sc) & BD_SC_READY),
- 				1 * HZ);
- 		if (ret == 0) {
+Hans Verkuil (1):
+      i2c: New macro to initialize i2c address lists on the fly
+
+Jean Delvare (9):
+      i2c: Kill client_register and client_unregister methods
+      i2c: Get rid of the legacy binding model
+      i2c: Drop i2c_probe function
+      i2c: Merge i2c_attach_client into i2c_new_device
+      i2c: Kill is_newstyle_driver
+      i2c: Kill the redundant client list
+      i2c: Limit core locking to the necessary sections
+      i2c: Add a sysfs interface to instantiate devices
+      i2c: Don't advertise i2c functions when not available
+
+Rodolfo Giometti (1):
+      i2c: Use rwsem instead of mutex for board info
+
+Thanks,
+-- 
+Jean Delvare
