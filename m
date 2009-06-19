@@ -1,78 +1,72 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/1] MFD: Add U300 AB3100 core support v3
-Date: Fri, 19 Jun 2009 10:42:22 +0200
-Message-ID: <63386a3d0906190142k1cfa608agfe1a81f05058cc6e@mail.gmail.com>
-References: <63386a3d0905190736q574d0379hb529aaa105aa36f3@mail.gmail.com>
-	 <20090519230601.GF23114@fluff.org.uk>
+From: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
+Subject: [RFC] Fix stuck on cpm-i2c driver
+Date: Fri, 19 Jun 2009 14:50:02 +0200
+Message-ID: <20090619125002.GA17067@gandalf.sssup.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090519230601.GF23114-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: jochen-NIgtFMG+Po8@public.gmane.org
+Cc: bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trimarchi-f9ZlEuEWxVeACYmtYXMKmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I was revisiting this in my mind:
+When a process tries to read/write a disconnected i2c device, it receives a signal (e.g. ctrl-c) and the kernel gets stuck.
 
-2009/5/20 Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
-> On Tue, May 19, 2009 at 04:36:50PM +0200, Linus Walleij wrote:
-(...)
->> +/*
->> + * Here we define all the platform devices that appear
->> + * as children of the AB3100. These are regular platform
->> + * devices with the IORESOURCE_IO .start and .end set
->> + * to correspond to the internal AB3100 register range
->> + * mapping to the corresponding subdevice.
->> + */
->> +
->> +#define AB3100_DEVICE(devname, devid, regstart, regend) =A0 =A0 =A0=
- =A0 =A0 =A0 =A0\
->> +static struct resource ab3100_##devname##_resource[] =3D { =A0 =A0 =
-\
->> + =A0 =A0 { =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 \
->> + =A0 =A0 =A0 =A0 =A0 =A0 .start =A0=3D regstart, =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 \
->> + =A0 =A0 =A0 =A0 =A0 =A0 .end =A0 =A0=3D regend, =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 \
->> + =A0 =A0 =A0 =A0 =A0 =A0 .flags =A0=3D IORESOURCE_IO, =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0\
->> + =A0 =A0 } =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 \
->
-> is IORESOURCE_IO a good idea here, we may need to add some form of
-> flag to say 'generic data' and for the driver core to not try and
-> register it with any of the ioport or iomem structures.
+BUG: soft lockup - CPU#0 stuck for 61s! [I2CEEpromTest:392]
+NIP: c01628f8 LR: c01628f0 CTR: c00177cc
+REGS: c39abd70 TRAP: 0901   Not tainted  (2.6.25.7-alcore)
+MSR: 00009032 <EE,ME,IR,DR>  CR: 42042048  XER: 20000000
+TASK = c3889bd0[392] 'I2CEEpromTest' THREAD: c39aa000
+GPR00: 00009000 c39abe20 c3889bd0 c39075c8 c39abe28 00000001 00000000 00000001
+GPR08: c3889bd0 c39075c8 00009032 c39abe34 00002437
+NIP [c01628f8] cpm_i2c_xfer+0x5fc/0x6d0
+LR [c01628f0] cpm_i2c_xfer+0x5f4/0x6d0
+Call Trace:
+[c39abe20] [c0162924] cpm_i2c_xfer+0x628/0x6d0 (unreliable)
+[c39abe90] [c015f6a0] i2c_transfer+0x88/0xb4
+[c39abeb0] [c0160164] i2c_master_recv+0x48/0x6c
+[c39abed0] [c01618dc] i2cdev_read+0x50/0xe4
+[c39abef0] [c0068b24] vfs_read+0xc4/0x108
+[c39abf10] [c0068f4c] sys_read+0x4c/0x90
+[c39abf40] [c000d348] ret_from_syscall+0x0/0x38
+Instruction dump:
+3bc00064 92610010 3bf201c8 92810014 3b61
 
-I face the issue of adding sub-drivers to the AB3100 which will likely
-be the same for other chips in the same series, so that say
-drivers/rtc-ab3100.c will be used for all AB3xxx chips.
-Register X thru X+size-1 (maps to .start and .end) will be
-used for a certain subdevice.
+This happen because though the wait_event_interruptible_timeout takes the
+signals into account, the driver does not handle them.
+We propose to change the wait_event_interruptible_timeout with
+wait_event_timeout, leaving the signals to be handled in other points
+on the upper layers.
 
-So naturally I want these drivers to be relative to some base I2C
-register adress and this needs to be passed down as a resource.
-(Each I2C device has max 256 registers only for natural resons,
-but may still contain several functions.)
+Signed-off-by: Bruno Morelli <bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
+Signed-off-by: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
+---
+diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+index b5db8b8..9c2e100 100644
+--- a/drivers/i2c/busses/i2c-cpm.c
++++ b/drivers/i2c/busses/i2c-cpm.c
+@@ -140,7 +140,7 @@ static irqreturn_t cpm_i2c_interrupt(int irq, void *dev_id)
 
-Type, as defined in ioport.h is only four unique bits and all four
-are taken:
+ 	dev_dbg(&adap->dev, "Interrupt: %x\n", i);
 
-#define IORESOURCE_TYPE_BITS    0x00000f00      /* Resource type */
-#define IORESOURCE_IO           0x00000100
-#define IORESOURCE_MEM          0x00000200
-#define IORESOURCE_IRQ          0x00000400
-#define IORESOURCE_DMA          0x00000800
+-	wake_up_interruptible(&cpm->i2c_wait);
++	wake_up(&cpm->i2c_wait);
 
-(Pretty generic.)
-
-There is no space for any IORESOURCE_GENERIC or so.
-
-So putting in a resource of type IORESOURCE_IO is still the
-best thing I can think of here, any other suggestions?
-(I can think of kludgy things like using the bus-specific bits 7-0.)
-
-Yours,
-Linus Walleij
+ 	return i ? IRQ_HANDLED : IRQ_NONE;
+ }
+@@ -364,12 +364,12 @@ static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		dev_dbg(&adap->dev, "test ready.\n");
+ 		pmsg = &msgs[tptr];
+ 		if (pmsg->flags & I2C_M_RD)
+-			ret = wait_event_interruptible_timeout(cpm->i2c_wait,
++			ret = wait_event_timeout(cpm->i2c_wait,
+ 				(in_be16(&tbdf[tptr].cbd_sc) & BD_SC_NAK) ||
+ 				!(in_be16(&rbdf[rptr].cbd_sc) & BD_SC_EMPTY),
+ 				1 * HZ);
+ 		else
+-			ret = wait_event_interruptible_timeout(cpm->i2c_wait,
++			ret = wait_event_timeout(cpm->i2c_wait,
+ 				!(in_be16(&tbdf[tptr].cbd_sc) & BD_SC_READY),
+ 				1 * HZ);
+ 		if (ret == 0) {
