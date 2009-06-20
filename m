@@ -1,62 +1,33 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Drop unused i2c_driver.id field
-Date: Fri, 19 Jun 2009 19:44:05 +0200
-Message-ID: <20090619194405.315dfb37@hyperion.delvare>
+From: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+Subject: Re: [RFC] Fix stuck on cpm-i2c driver
+Date: Sat, 20 Jun 2009 16:40:51 +0200
+Message-ID: <4A3CF4F3.4030002@scram.de>
+References: <20090619125002.GA17067@gandalf.sssup.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090619125002.GA17067-f9ZlEuEWxVeACYmtYXMKmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
+Cc: bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trimarchi-f9ZlEuEWxVeACYmtYXMKmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Nobody is using i2c_driver.id any longer, so we can drop that field.
+Hi Michael,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- include/linux/i2c-id.h |   11 -----------
- include/linux/i2c.h    |    2 --
- 2 files changed, 13 deletions(-)
+> This happen because though the wait_event_interruptible_timeout takes the
+> signals into account, the driver does not handle them.
+> We propose to change the wait_event_interruptible_timeout with
+> wait_event_timeout, leaving the signals to be handled in other points
+> on the upper layers.
 
---- linux-2.6.31-pre.orig/include/linux/i2c-id.h	2009-06-10 05:05:27.000000000 +0200
-+++ linux-2.6.31-pre/include/linux/i2c-id.h	2009-06-19 19:18:39.000000000 +0200
-@@ -28,17 +28,6 @@
-    identify a legacy client. If you don't need them, just don't set them. */
- 
- /*
-- * ---- Driver types -----------------------------------------------------
-- */
--
--#define I2C_DRIVERID_MSP3400	 1
--#define I2C_DRIVERID_TUNER	 2
--#define I2C_DRIVERID_TDA7432	27	/* Stereo sound processor	*/
--#define I2C_DRIVERID_TVAUDIO    29      /* Generic TV sound driver      */
--#define I2C_DRIVERID_SAA711X	73	/* saa711x video encoders	*/
--#define I2C_DRIVERID_INFRARED	75	/* I2C InfraRed on Video boards */
--
--/*
-  * ---- Adapter types ----------------------------------------------------
-  */
- 
---- linux-2.6.31-pre.orig/include/linux/i2c.h	2009-06-19 08:57:56.000000000 +0200
-+++ linux-2.6.31-pre/include/linux/i2c.h	2009-06-19 19:18:29.000000000 +0200
-@@ -98,7 +98,6 @@ extern s32 i2c_smbus_write_i2c_block_dat
- 
- /**
-  * struct i2c_driver - represent an I2C device driver
-- * @id: Unique driver ID (optional)
-  * @class: What kind of i2c device we instantiate (for detect)
-  * @attach_adapter: Callback for bus addition (for legacy drivers)
-  * @detach_adapter: Callback for bus removal (for legacy drivers)
-@@ -135,7 +134,6 @@ extern s32 i2c_smbus_write_i2c_block_dat
-  * not allowed.
-  */
- struct i2c_driver {
--	int id;
- 	unsigned int class;
- 
- 	/* Notifies the driver that a new bus has appeared or is about to be
+Makes sense. I2C transactions better shouldn't be interrupted or
+data loss might happen.
 
+> Signed-off-by: Bruno Morelli <bruno-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
+> Signed-off-by: Michael Trimarchi <michael-YOzL5CV4y4YG1A2ADO40+w@public.gmane.org>
 
--- 
-Jean Delvare
+Acked-by: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+
+Thanks,
+Jochen
