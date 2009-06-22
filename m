@@ -1,703 +1,532 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: [PATCH v3] i2c: driver for the Synopsys DesignWare I2C controller
-Date: Mon, 22 Jun 2009 16:36:29 +0300
-Message-ID: <1245677789-21025-1-git-send-email-baruch@tkos.co.il>
-References: <20090618225702.GA9006@fluff.org.uk>
+From: dmitry pervushin <dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+Subject: Re: [PATCH, RFC] Freescale STMP: i2c driver
+Date: Mon, 22 Jun 2009 17:39:11 +0400
+Message-ID: <1245677951.4813.13.camel@hp.diimka.lan>
+References: <1244059155.4074.19.camel@hp.diimka.lan>
+	 <20090615081938.GA19878@fluff.org.uk>
+	 <1245169913.32549.19.camel@hp.diimka.lan>
+	 <20090622004741.GB9006@fluff.org.uk>
+Reply-To: dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090618225702.GA9006-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20090622004741.GB9006-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c Linux driver for the DesignWare i2c block of Synopsys, which is meant
-for AMBA Peripheral Bus. This i2c block is used on SoC chips like the ARM9
-based PVG610.
+On Mon, 2009-06-22 at 01:47 +0100, Ben Dooks wrote:
+> On Tue, Jun 16, 2009 at 08:31:53PM +0400, dmitry pervushin wrote:
+> > On Mon, 2009-06-15 at 09:19 +0100, Ben Dooks wrote:
+> > > any chance of an reply or update driver for inclusion?
+> > Here it is:
+> >
+> > From: Dmitrij Frasenyak <d.frasenyak-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+> > Signed-off-by: dmitry pervushin <dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+> > 
+> > Add I2C driver for Freescale STMP boards
 
-Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
----
-Changes in v3:
-	- Address the comments of Ben Dooks
-	  * Add kerneldoc
-	  * Fix RX limit calculation
-	  * Remove function local static variables
-	  * -ENODEV -> -EINVAL
-	  * Remove clock name
-	  * Simplify FIFOs size calculation
-	- i2c_dw_init() returns void
-Changes in v2:
-	- Address the comments of Linus Walleij
-	  * User resource_size()
-	  * Add __devinit and __devexit
-	- Add a comment to explain the use of static variables in loops
+From: Dmitrij Frasenyak <d.frasenyak-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+Signed-off-by: Dmitrij Frasenyak <d.frasenyak-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+Signed-off-by: dmitry pervushin <dpervushin-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
 
- drivers/i2c/busses/Kconfig          |    9 +
- drivers/i2c/busses/Makefile         |    1 +
- drivers/i2c/busses/i2c-designware.c |  624 +++++++++++++++++++++++++++++++++++
- 3 files changed, 634 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-designware.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f1c6ca7..cef1567 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -326,6 +326,15 @@ config I2C_DAVINCI
- 	  devices such as DaVinci NIC.
- 	  For details please see http://www.ti.com/davinci
- 
-+config I2C_DESIGNWARE
-+	tristate "Synopsys DesignWare"
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  Synopsys DesignWare I2C adapter. Only master mode is supported.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-designware.
-+
- config I2C_GPIO
- 	tristate "GPIO-based bitbanging I2C"
- 	depends on GENERIC_GPIO
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 776acb6..c2be11e 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -30,6 +30,7 @@ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
- obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
- obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
- obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
-+obj-$(CONFIG_I2C_DESIGNWARE)	+= i2c-designware.o
- obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
- obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
- obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-new file mode 100644
-index 0000000..b444762
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -0,0 +1,624 @@
-+/*
-+ * Synopsys Designware I2C adapter driver (master only).
-+ *
-+ * Based on the TI DAVINCI I2C adapter driver.
-+ *
-+ * Copyright (C) 2006 Texas Instruments.
-+ * Copyright (C) 2007 MontaVista Software Inc.
-+ * Copyright (C) 2009 Provigent Ltd.
-+ *
-+ * ----------------------------------------------------------------------------
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ * ----------------------------------------------------------------------------
-+ *
-+ */
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/clk.h>
-+#include <linux/errno.h>
-+#include <linux/sched.h>
-+#include <linux/err.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+
-+/*
-+ * Registers offset
-+ */
-+#define DW_IC_CON		0x0
-+#define DW_IC_TAR		0x4
-+#define DW_IC_DATA_CMD		0x10
-+#define DW_IC_SS_SCL_HCNT	0x14
-+#define DW_IC_SS_SCL_LCNT	0x18
-+#define DW_IC_FS_SCL_HCNT	0x1c
-+#define DW_IC_FS_SCL_LCNT	0x20
-+#define DW_IC_INTR_STAT		0x2c
-+#define DW_IC_INTR_MASK		0x30
-+#define DW_IC_CLR_INTR		0x40
-+#define DW_IC_ENABLE		0x6c
-+#define DW_IC_STATUS		0x70
-+#define DW_IC_TXFLR		0x74
-+#define DW_IC_RXFLR		0x78
-+#define DW_IC_COMP_PARAM_1	0xf4
-+#define DW_IC_TX_ABRT_SOURCE	0x80
-+
-+#define DW_IC_CON_MASTER		0x1
-+#define DW_IC_CON_SPEED_STD		0x2
-+#define DW_IC_CON_SPEED_FAST		0x4
-+#define DW_IC_CON_10BITADDR_MASTER	0x10
-+#define DW_IC_CON_RESTART_EN		0x20
-+#define DW_IC_CON_SLAVE_DISABLE		0x40
-+
-+#define DW_IC_INTR_TX_EMPTY	0x10
-+#define DW_IC_INTR_TX_ABRT	0x40
-+#define DW_IC_INTR_STOP_DET	0x200
-+
-+#define DW_IC_STATUS_ACTIVITY	0x1
-+
-+#define DW_IC_ERR_TX_ABRT	0x1
-+
-+/*
-+ * status codes
-+ */
-+#define STATUS_IDLE			0x0
-+#define STATUS_WRITE_IN_PROGRESS	0x1
-+#define STATUS_READ_IN_PROGRESS		0x2
-+
-+#define TIMEOUT			20 /* ms */
-+
-+/*
-+ * hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
-+ *
-+ * only expected abort codes are listed here
-+ * refer to the datasheet for the full list
-+ */
-+#define ABRT_7B_ADDR_NOACK	0
-+#define ABRT_10ADDR1_NOACK	1
-+#define ABRT_10ADDR2_NOACK	2
-+#define ABRT_TXDATA_NOACK	3
-+#define ABRT_GCALL_NOACK	4
-+#define ABRT_GCALL_READ		5
-+#define ABRT_SBYTE_ACKDET	7
-+#define ABRT_SBYTE_NORSTRT	9
-+#define ABRT_10B_RD_NORSTRT	10
-+#define ARB_MASTER_DIS		11
-+#define ARB_LOST		12
-+
-+static char *abort_sources[] = {
-+	[ABRT_7B_ADDR_NOACK]	=
-+		"slave address not acknowledged (7bit mode)",
-+	[ABRT_10ADDR1_NOACK]	=
-+		"first address byte not acknowledged (10bit mode)",
-+	[ABRT_10ADDR2_NOACK]	=
-+		"second address byte not acknowledged (10bit mode)",
-+	[ABRT_TXDATA_NOACK]		=
-+		"data not acknowledged",
-+	[ABRT_GCALL_NOACK]		=
-+		"no acknowledgement for a general call",
-+	[ABRT_GCALL_READ]		=
-+		"read after general call",
-+	[ABRT_SBYTE_ACKDET]		=
-+		"start byte acknowledged",
-+	[ABRT_SBYTE_NORSTRT]	=
-+		"trying to send start byte when restart is disabled",
-+	[ABRT_10B_RD_NORSTRT]	=
-+		"trying to read when restart is disabled (10bit mode)",
-+	[ARB_MASTER_DIS]		=
-+		"trying to use disabled adapter",
-+	[ARB_LOST]			=
-+		"lost arbitration",
-+};
-+
-+/**
-+ * struct dw_i2c_dev - private i2c-designware data
-+ * @dev: driver model device node
-+ * @base: IO registers pointer
-+ * @cmd_complete: tx completion indicator
-+ * @pump_msg: continue in progress transfers
-+ * @lock: protect this struct and IO registers
-+ * @clk: input reference clock
-+ * @cmd_err: run time hadware error code
-+ * @msgs: points to an array of messages currently being transfered
-+ * @msgs_num: the number of elements in msgs
-+ * @msg_write_idx: the element index of the current tx message in the msgs
-+ *	array
-+ * @tx_buf_len: the length of the current tx buffer
-+ * @tx_buf: the current tx buffer
-+ * @msg_read_idx: the element index of the current rx message in the msgs
-+ *	array
-+ * @rx_buf_len: the length of the current rx buffer
-+ * @rx_buf: the current rx buffer
-+ * @msg_err: error status of the current transfer
-+ * @status: i2c master status, one of STATUS_*
-+ * @abort_source: copy of the TX_ABRT_SOURCE register
-+ * @irq: interrupt number for the i2c master
-+ * @adapter: i2c subsystem adapter node
-+ * @tx_fifo_depth: depth of the hardware tx fifo
-+ * @rx_fifo_depth: depth of the hardware rx fifo
-+ */
-+struct dw_i2c_dev {
-+	struct device		*dev;
-+	void __iomem		*base;
-+	struct completion	cmd_complete;
-+	struct tasklet_struct	pump_msg;
-+	struct mutex		lock;
-+	struct clk		*clk;
-+	int			cmd_err;
-+	struct i2c_msg		*msgs;
-+	int			msgs_num;
-+	int			msg_write_idx;
-+	u16			tx_buf_len;
-+	u8			*tx_buf;
-+	int			msg_read_idx;
-+	u16			rx_buf_len;
-+	u8			*rx_buf;
-+	int			msg_err;
-+	unsigned int		status;
-+	u16			abort_source;
-+	int			irq;
-+	struct i2c_adapter	adapter;
-+	unsigned int		tx_fifo_depth;
-+	unsigned int		rx_fifo_depth;
-+};
-+
-+/**
-+ * i2c_dw_init() - initialize the designware i2c master hardware
-+ * @dev: device private data
-+ *
-+ * This functions configures and enables the I2C master.
-+ * This function is called during I2C init function, and in case of timeout at
-+ * run time.
-+ */
-+static void i2c_dw_init(struct dw_i2c_dev *dev)
-+{
-+	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
-+	u16 ic_con;
-+
-+	/* Disable the adapter */
-+	writeb(0, dev->base + DW_IC_ENABLE);
-+
-+	/* set standard and fast speed deviders for high/low periods */
-+	writew((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
-+			dev->base + DW_IC_SS_SCL_HCNT);
-+	writew((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
-+			dev->base + DW_IC_SS_SCL_LCNT);
-+	writew((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
-+			dev->base + DW_IC_FS_SCL_HCNT);
-+	writew((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
-+			dev->base + DW_IC_FS_SCL_LCNT);
-+
-+	/* configure the i2c master */
-+	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-+		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-+	writew(ic_con, dev->base + DW_IC_CON);
-+}
-+
-+/*
-+ * Waiting for bus not busy
-+ */
-+static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
-+{
-+	int timeout = TIMEOUT;
-+
-+	while (readb(dev->base + DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
-+		if (timeout <= 0) {
-+			dev_warn(dev->dev, "timeout waiting for bus ready\n");
-+			return -ETIMEDOUT;
-+		}
-+		timeout--;
-+		mdelay(1);
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Initiate low level master read/write transaction.
-+ * This function is called from i2c_dw_xfer when starting a transfer.
-+ * This function is also called from dw_i2c_pump_msg to continue a transfer
-+ * that is longer than the size of the TX FIFO.
-+ */
-+static void
-+i2c_dw_xfer_msg(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	struct i2c_msg *msgs = dev->msgs;
-+	int num = dev->msgs_num;
-+	u16 ic_con, intr_mask;
-+	int tx_limit = dev->tx_fifo_depth - readb(dev->base + DW_IC_TXFLR);
-+	int rx_limit = dev->rx_fifo_depth - readb(dev->base + DW_IC_RXFLR);
-+	u16 addr = msgs[dev->msg_write_idx].addr;
-+	u16 buf_len = dev->tx_buf_len;
-+
-+	if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
-+		/* Disable the adapter */
-+		writeb(0, dev->base + DW_IC_ENABLE);
-+
-+		/* set the slave (target) address */
-+		writew(msgs[dev->msg_write_idx].addr, dev->base + DW_IC_TAR);
-+
-+		/* if the slave address is ten bit address, enable 10BITADDR */
-+		ic_con = readw(dev->base + DW_IC_CON);
-+		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
-+			ic_con |= DW_IC_CON_10BITADDR_MASTER;
-+		else
-+			ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
-+		writew(ic_con, dev->base + DW_IC_CON);
-+
-+		/* Enable the adapter */
-+		writeb(1, dev->base + DW_IC_ENABLE);
-+	}
-+
-+	for (; dev->msg_write_idx < num; dev->msg_write_idx++) {
-+		/* if target address has changed, we need to
-+		 * reprogram the target address in the i2c
-+		 * adapter when we are done with this transfer
-+		 */
-+		if (msgs[dev->msg_write_idx].addr != addr)
-+			return;
-+
-+		if (msgs[dev->msg_write_idx].len == 0) {
-+			dev_err(dev->dev,
-+				"%s: invalid message length\n", __func__);
-+			dev->msg_err = -EINVAL;
-+			return;
-+		}
-+
-+		if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
-+			/* new i2c_msg */
-+			dev->tx_buf = msgs[dev->msg_write_idx].buf;
-+			buf_len = msgs[dev->msg_write_idx].len;
-+		}
-+
-+		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
-+			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
-+				writew(0x100, dev->base + DW_IC_DATA_CMD);
-+				rx_limit--;
-+			} else
-+				writew(*(dev->tx_buf++),
-+						dev->base + DW_IC_DATA_CMD);
-+			tx_limit--; buf_len--;
-+		}
-+	}
-+
-+	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
-+	if (buf_len > 0) { /* more bytes to be written */
-+		intr_mask |= DW_IC_INTR_TX_EMPTY;
-+		dev->status |= STATUS_WRITE_IN_PROGRESS;
-+	} else
-+		dev->status &= ~STATUS_WRITE_IN_PROGRESS;
-+	writew(intr_mask, dev->base + DW_IC_INTR_MASK);
-+
-+	dev->tx_buf_len = buf_len;
-+}
-+
-+static void
-+i2c_dw_read(struct i2c_adapter *adap)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	struct i2c_msg *msgs = dev->msgs;
-+	int num = dev->msgs_num;
-+	u16 addr = msgs[dev->msg_read_idx].addr;
-+	int rx_valid = readw(dev->base + DW_IC_RXFLR);
-+
-+	for (; dev->msg_read_idx < num; dev->msg_read_idx++) {
-+		u16 len;
-+		u8 *buf;
-+
-+		if (!(msgs[dev->msg_read_idx].flags & I2C_M_RD))
-+			continue;
-+
-+		/* different i2c client, reprogram the i2c adapter */
-+		if (msgs[dev->msg_read_idx].addr != addr)
-+			return;
-+
-+		if (!(dev->status & STATUS_READ_IN_PROGRESS)) {
-+			len = msgs[dev->msg_read_idx].len;
-+			buf = msgs[dev->msg_read_idx].buf;
-+		} else {
-+			len = dev->rx_buf_len;
-+			buf = dev->rx_buf;
-+		}
-+
-+		for (; len > 0 && rx_valid > 0; len--, rx_valid--)
-+			*buf++ = readb(dev->base + DW_IC_DATA_CMD);
-+
-+		if (len > 0) {
-+			dev->status |= STATUS_READ_IN_PROGRESS;
-+			dev->rx_buf_len = len;
-+			dev->rx_buf = buf;
-+			return;
-+		} else
-+			dev->status &= ~STATUS_READ_IN_PROGRESS;
-+	}
-+}
-+
-+/*
-+ * Prepare controller for a transaction and call i2c_dw_xfer_msg
-+ */
-+static int
-+i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-+{
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	int ret;
-+
-+	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
-+
-+	mutex_lock(&dev->lock);
-+
-+	INIT_COMPLETION(dev->cmd_complete);
-+	dev->msgs = msgs;
-+	dev->msgs_num = num;
-+	dev->cmd_err = 0;
-+	dev->msg_write_idx = 0;
-+	dev->msg_read_idx = 0;
-+	dev->msg_err = 0;
-+	dev->status = STATUS_IDLE;
-+
-+	ret = i2c_dw_wait_bus_not_busy(dev);
-+	if (ret < 0)
-+		goto done;
-+
-+	/* start the transfers */
-+	i2c_dw_xfer_msg(adap);
-+
-+	/* wait for tx to complete */
-+	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
-+	if (ret == 0) {
-+		dev_err(dev->dev, "controller timed out\n");
-+		i2c_dw_init(dev);
-+		ret = -ETIMEDOUT;
-+		goto done;
-+	} else if (ret < 0)
-+		goto done;
-+
-+	if (dev->msg_err) {
-+		ret = dev->msg_err;
-+		goto done;
-+	}
-+
-+	/* no error */
-+	if (likely(!dev->cmd_err)) {
-+		/* read rx fifo, and disable the adapter */
-+		do {
-+			i2c_dw_read(adap);
-+		} while (dev->status & STATUS_READ_IN_PROGRESS);
-+		writeb(0, dev->base + DW_IC_ENABLE);
-+		ret = num;
-+		goto done;
-+	}
-+
-+	/* We have an error */
-+	if (dev->cmd_err == DW_IC_ERR_TX_ABRT) {
-+		unsigned long abort_source = dev->abort_source;
-+		int i;
-+
-+		for_each_bit(i, &abort_source, ARRAY_SIZE(abort_sources)) {
-+		    dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
-+		}
-+	}
-+	ret = -EIO;
-+
-+done:
-+	mutex_unlock(&dev->lock);
-+
-+	return ret;
-+}
-+
-+static u32 i2c_dw_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;
-+}
-+
-+static void dw_i2c_pump_msg(unsigned long data)
-+{
-+	struct dw_i2c_dev *dev = (struct dw_i2c_dev *) data;
-+	u16 intr_mask;
-+
-+	i2c_dw_read(&dev->adapter);
-+	i2c_dw_xfer_msg(&dev->adapter);
-+
-+	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
-+	if (dev->status & STATUS_WRITE_IN_PROGRESS)
-+		intr_mask |= DW_IC_INTR_TX_EMPTY;
-+	writew(intr_mask, dev->base + DW_IC_INTR_MASK);
-+}
-+
-+/*
-+ * Interrupt service routine. This gets called whenever an I2C interrupt
-+ * occurs.
-+ */
-+static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
-+{
-+	struct dw_i2c_dev *dev = dev_id;
-+	u16 stat;
-+
-+	stat = readw(dev->base + DW_IC_INTR_STAT);
-+	dev_dbg(dev->dev, "%s: stat=0x%x\n", __func__, stat);
-+	if (stat & DW_IC_INTR_TX_ABRT) {
-+		dev->abort_source = readw(dev->base + DW_IC_TX_ABRT_SOURCE);
-+		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
-+		dev->status = STATUS_IDLE;
-+	} else if (stat & DW_IC_INTR_TX_EMPTY)
-+		tasklet_schedule(&dev->pump_msg);
-+
-+	readb(dev->base + DW_IC_CLR_INTR);	/* clear interrupts */
-+	writew(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
-+	if (stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET))
-+		complete(&dev->cmd_complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static struct i2c_algorithm i2c_dw_algo = {
-+	.master_xfer	= i2c_dw_xfer,
-+	.functionality	= i2c_dw_func,
-+};
-+
-+static int __devinit dw_i2c_probe(struct platform_device *pdev)
-+{
-+	struct dw_i2c_dev *dev;
-+	struct i2c_adapter *adap;
-+	struct resource *mem, *irq, *ioarea;
-+	int r;
-+
-+	/* NOTE: driver uses the static register mapping */
-+	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!mem) {
-+		dev_err(&pdev->dev, "no mem resource?\n");
-+		return -EINVAL;
-+	}
-+
-+	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+	if (!irq) {
-+		dev_err(&pdev->dev, "no irq resource?\n");
-+		return -EINVAL;
-+	}
-+
-+	ioarea = request_mem_region(mem->start, resource_size(mem),
-+			pdev->name);
-+	if (!ioarea) {
-+		dev_err(&pdev->dev, "I2C region already claimed\n");
-+		return -EBUSY;
-+	}
-+
-+	dev = kzalloc(sizeof(struct dw_i2c_dev), GFP_KERNEL);
-+	if (!dev) {
-+		r = -ENOMEM;
-+		goto err_release_region;
-+	}
-+
-+	init_completion(&dev->cmd_complete);
-+	tasklet_init(&dev->pump_msg, dw_i2c_pump_msg, (unsigned long) dev);
-+	mutex_init(&dev->lock);
-+	dev->dev = get_device(&pdev->dev);
-+	dev->irq = irq->start;
-+	platform_set_drvdata(pdev, dev);
-+
-+	dev->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(dev->clk)) {
-+		r = -ENODEV;
-+		goto err_free_mem;
-+	}
-+	clk_enable(dev->clk);
-+
-+	dev->base = ioremap(mem->start, resource_size(mem));
-+	if (dev->base == NULL) {
-+		dev_err(&pdev->dev, "failure mapping io resources\n");
-+		r = -EBUSY;
-+		goto err_unuse_clocks;
-+	}
-+	{
-+		u32 param1 = readl(dev->base + DW_IC_COMP_PARAM_1);
-+
-+		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-+		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-+	}
-+	i2c_dw_init(dev);
-+
-+	writew(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
-+	r = request_irq(dev->irq, i2c_dw_isr, 0, pdev->name, dev);
-+	if (r) {
-+		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
-+		goto err_iounmap;
-+	}
-+
-+	adap = &dev->adapter;
-+	i2c_set_adapdata(adap, dev);
-+	adap->owner = THIS_MODULE;
-+	adap->class = I2C_CLASS_HWMON;
-+	strlcpy(adap->name, "Synopsys DesignWare I2C adapter",
-+			sizeof(adap->name));
-+	adap->algo = &i2c_dw_algo;
-+	adap->dev.parent = &pdev->dev;
-+
-+	adap->nr = pdev->id;
-+	r = i2c_add_numbered_adapter(adap);
-+	if (r) {
-+		dev_err(&pdev->dev, "failure adding adapter\n");
-+		goto err_free_irq;
-+	}
-+
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(dev->irq, dev);
-+err_iounmap:
-+	iounmap(dev->base);
-+err_unuse_clocks:
-+	clk_disable(dev->clk);
-+	clk_put(dev->clk);
-+	dev->clk = NULL;
-+err_free_mem:
-+	platform_set_drvdata(pdev, NULL);
-+	put_device(&pdev->dev);
-+	kfree(dev);
-+err_release_region:
-+	release_mem_region(mem->start, resource_size(mem));
-+
-+	return r;
-+}
-+
-+static int __devexit dw_i2c_remove(struct platform_device *pdev)
-+{
-+	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-+	struct resource *mem;
-+
-+	platform_set_drvdata(pdev, NULL);
-+	i2c_del_adapter(&dev->adapter);
-+	put_device(&pdev->dev);
-+
-+	clk_disable(dev->clk);
-+	clk_put(dev->clk);
-+	dev->clk = NULL;
-+
-+	writeb(0, dev->base + DW_IC_ENABLE);
-+	free_irq(dev->irq, dev);
-+	kfree(dev);
-+
-+	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	release_mem_region(mem->start, resource_size(mem));
-+	return 0;
-+}
-+
-+/* work with hotplug and coldplug */
-+MODULE_ALIAS("platform:i2c_designware");
-+
-+static struct platform_driver dw_i2c_driver = {
-+	.remove		= __devexit_p(dw_i2c_remove),
-+	.driver		= {
-+		.name	= "i2c_designware",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __init dw_i2c_init_driver(void)
-+{
-+	return platform_driver_probe(&dw_i2c_driver, dw_i2c_probe);
-+}
-+module_init(dw_i2c_init_driver);
-+
-+static void __exit dw_i2c_exit_driver(void)
-+{
-+	platform_driver_unregister(&dw_i2c_driver);
-+}
-+module_exit(dw_i2c_exit_driver);
-+
-+MODULE_AUTHOR("Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>");
-+MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter");
-+MODULE_LICENSE("GPL");
--- 
-1.6.3.1
+>  
+> > ---
+> >  drivers/i2c/busses/Kconfig        |    7 
+> >  drivers/i2c/busses/Makefile       |    1 
+> >  drivers/i2c/busses/i2c-stmp378x.c |  448 ++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 456 insertions(+)
+> > 
+> > Index: linux-2.6-arm/drivers/i2c/busses/Kconfig
+> > ===================================================================
+> > --- linux-2.6-arm.orig/drivers/i2c/busses/Kconfig
+> > +++ linux-2.6-arm/drivers/i2c/busses/Kconfig
+> > @@ -513,6 +513,13 @@ config I2C_SIMTEC
+> >  	  This driver can also be built as a module. If so, the module
+> >  	  will be called i2c-simtec.
+> >  
+> > +config I2C_STMP378X
+> > +	tristate "STMP378x I2C adapter"
+> > +	depends on ARCH_STMP378X
+> > +	help
+> > +	  Include support of I2C adapter on Freescale STMP378x board; to build
+> > +	  the driver as a module, say M here - module will be called i2c-stmp378x.
+> > +
+> >  config I2C_VERSATILE
+> >  	tristate "ARM Versatile/Realview I2C bus support"
+> >  	depends on ARCH_VERSATILE || ARCH_REALVIEW
+> > Index: linux-2.6-arm/drivers/i2c/busses/Makefile
+> > ===================================================================
+> > --- linux-2.6-arm.orig/drivers/i2c/busses/Makefile
+> > +++ linux-2.6-arm/drivers/i2c/busses/Makefile
+> > @@ -48,6 +48,7 @@ obj-$(CONFIG_I2C_S6000)		+= i2c-s6000.o
+> >  obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
+> >  obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
+> >  obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+> > +obj-$(CONFIG_I2C_STMP378X)	+= i2c-stmp378x.o
+> >  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+> >  
+> >  # External I2C/SMBus adapter drivers
+> > Index: linux-2.6-arm/drivers/i2c/busses/i2c-stmp378x.c
+> > ===================================================================
+> > --- /dev/null
+> > +++ linux-2.6-arm/drivers/i2c/busses/i2c-stmp378x.c
+> > @@ -0,0 +1,448 @@
+> > +/*
+> > + * Freescale STMP378X I2C bus driver
+> > + *
+> > + * Author: Dmitrij Frasenyak <sed-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org>
+> > + *
+> > + * Copyright 2008 Freescale Semiconductor, Inc. All Rights Reserved.
+> > + * Copyright 2008 Embedded Alley Solutions, Inc All Rights Reserved.
+> > + */
+> > +
+> > +/*
+> > + * The code contained herein is licensed under the GNU General Public
+> > + * License. You may obtain a copy of the GNU General Public License
+> > + * Version 2 or later at the following locations:
+> > + *
+> > + * http://www.opensource.org/licenses/gpl-license.html
+> > + * http://www.gnu.org/copyleft/gpl.html
+> > + */
+> > +#include <linux/module.h>
+> > +#include <linux/delay.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/err.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/completion.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/clk.h>
+> > +#include <linux/io.h>
+> > +#include <linux/dma-mapping.h>
+> > +
+> > +#include <mach/platform.h>
+> > +#include <mach/stmp3xxx.h>
+> > +#include <mach/dma.h>
+> > +#include <mach/regs-i2c.h>
+> > +#include <mach/regs-apbx.h>
+> > +
+> > +static const struct stmp3xxx_dma_command cmd_i2c_select = {
+> > +	.cmd =	BF(1, APBX_CHn_CMD_XFER_COUNT)	|
+> > +		BF(1, APBX_CHn_CMD_CMDWORDS)	|
+> > +		BM_APBX_CHn_CMD_WAIT4ENDCMD	|
+> > +		BM_APBX_CHn_CMD_CHAIN		|
+> > +		BF(BV_APBX_CHn_CMD_COMMAND__DMA_READ, APBX_CHn_CMD_COMMAND),
+> > +	.pio_words = {
+> > +		[0] = 	BM_I2C_CTRL0_RETAIN_CLOCK   |
+> > +			BM_I2C_CTRL0_PRE_SEND_START |
+> > +			BM_I2C_CTRL0_MASTER_MODE    |
+> > +			BM_I2C_CTRL0_DIRECTION      |
+> > +			BF(1, I2C_CTRL0_XFER_COUNT),
+> > +	},
+> > +};
+> > +
+> > +static const struct stmp3xxx_dma_command cmd_i2c_write = {
+> > +	.cmd =	BM_APBX_CHn_CMD_SEMAPHORE	|
+> > +		BF(1, APBX_CHn_CMD_CMDWORDS)	|
+> > +		BM_APBX_CHn_CMD_WAIT4ENDCMD	|
+> > +		BM_APBX_CHn_CMD_IRQONCMPLT	|
+> > +		BF(BV_APBX_CHn_CMD_COMMAND__DMA_READ, APBX_CHn_CMD_COMMAND),
+> > +	.pio_words = {
+> > +		[0] =	BM_I2C_CTRL0_PRE_SEND_START |
+> > +			BM_I2C_CTRL0_MASTER_MODE    |
+> > +			BM_I2C_CTRL0_DIRECTION,
+> > +	},
+> > +};
+> > +
+> > +static const struct stmp3xxx_dma_command cmd_i2c_read = {
+> > +	.cmd =	BM_APBX_CHn_CMD_SEMAPHORE	|
+> > +		BF(1, APBX_CHn_CMD_CMDWORDS)	|
+> > +		BM_APBX_CHn_CMD_WAIT4ENDCMD	|
+> > +		BM_APBX_CHn_CMD_IRQONCMPLT	|
+> > +		BF(BV_APBX_CHn_CMD_COMMAND__DMA_WRITE, APBX_CHn_CMD_COMMAND),
+> > +	.pio_words = {
+> > +		[0] =	BM_I2C_CTRL0_SEND_NAK_ON_LAST	|
+> > +			BM_I2C_CTRL0_MASTER_MODE,
+> > +	},
+> > +};
+> > +
+> > +/**
+> > + * struct stmp378x_i2c_dev - STMP3xxx I2C adapter data
+> > + * @dev: the associated platform_device
+> > + * @cmd_complete: the completion structure indicating that message has been
+> > + * 	transferred
+> > + * @cmd_err: current error code
+> > + * @adapter: the adapter we implement
+> > + * @io: io address
+> > + * @irq: irq number
+> > + * @dma: dma channel
+> > + * @bufv: pointer to the dma buffer
+> > + * @bufp: physical address of the dma buffer
+> > + * @i2c_dma_read: "read" dma chain (read request and then write)
+> > + * @i2c_dma_write: "write" dma chain (the single combined write request)
+> > + */
+> > +struct stmp378x_i2c_dev {
+> > +	struct device		*dev;
+> > +	int			irq;
+> > +	struct completion	cmd_complete;
+> > +	u32			cmd_err;
+> > +	struct i2c_adapter	adapter;
+> > +	void __iomem 		*io;
+> > +	unsigned		dma;
+> > +
+> > +	dma_addr_t		bufp;
+> > +	unsigned char		*bufv;
+> > +
+> > +	struct stmp3xxx_dma_descriptor i2c_dma_read[2],
+> > +				       i2c_dma_write;
+> > +};
+> > +
+> > +static int stmp378x_i2c_init(struct stmp378x_i2c_dev *dev)
+> > +{
+> > +	int err;
+> > +
+> > +	err = stmp3xxx_dma_request(dev->dma, dev->dev, dev_name(dev->dev));
+> > +	if (err)
+> > +		goto out;
+> > +	stmp3xxx_reset_block(dev->io, true);
+> > +
+> > +	dev->bufv = dma_alloc_coherent(dev->dev, PAGE_SIZE,
+> > +				       &dev->bufp, GFP_KERNEL);
+> > +	if (!dev->bufv)
+> > +		goto out_dma;
+> > +
+> > +	err = stmp3xxx_request_pin_group(dev->dev->platform_data,
+> > +			dev_name(dev->dev));
+> > +	if (err)
+> > +		goto out_free;
+> > +
+> > +	err = stmp3xxx_dma_allocate_command(dev->dma, &dev->i2c_dma_read[0]);
+> > +	if (err)
+> > +		goto out_rd0;
+> > +	err = stmp3xxx_dma_allocate_command(dev->dma, &dev->i2c_dma_read[1]);
+> > +	if (err)
+> > +		goto out_rd1;
+> > +	err = stmp3xxx_dma_allocate_command(dev->dma, &dev->i2c_dma_write);
+> > +	if (err)
+> > +		goto out_wr;
+> > +
+> > +	stmp3xxx_dma_reset_channel(dev->dma);
+> > +	stmp3xxx_dma_clear_interrupt(dev->dma);
+> > +	stmp3xxx_dma_enable_interrupt(dev->dma);
+> > +
+> > +	return 0;
+> > +/*
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_write);
+> > +*/
+> > +out_wr:
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_read[1]);
+> > +out_rd1:
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_read[0]);
+> > +out_rd0:
+> > +	stmp3xxx_release_pin_group(dev->dev->platform_data, dev_name(dev->dev));
+> > +out_free:
+> > +	dma_free_coherent(dev->dev, PAGE_SIZE, dev->bufv, dev->bufp);
+> > +out_dma:
+> > +	stmp3xxx_dma_release(dev->dma);
+> > +out:
+> > +	return err;
+> > +}
+> > +
+> > +static void stmp378x_i2c_release(struct stmp378x_i2c_dev *dev)
+> > +{
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_write);
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_read[1]);
+> > +	stmp3xxx_dma_free_command(dev->dma, &dev->i2c_dma_read[0]);
+> > +	dma_free_coherent(dev->dev, PAGE_SIZE, dev->bufv, dev->bufp);
+> > +	stmp3xxx_release_pin_group(dev->dev->platform_data, dev_name(dev->dev));
+> > +	stmp3xxx_dma_release(dev->dma);
+> > +}
+> > +/*
+> > + * Low level master read/write transaction.
+> > + */
+> > +static int stmp378x_i2c_xfer_msg(struct i2c_adapter *adap,
+> > +				 struct i2c_msg *msg, int stop)
+> > +{
+> > +	struct stmp378x_i2c_dev *dev = i2c_get_adapdata(adap);
+> > +	int err;
+> > +	struct stmp3xxx_dma_descriptor *c, *r;
+> > +
+> > +	init_completion(&dev->cmd_complete);
+> > +	dev->cmd_err = 0;
+> > +
+> > +	if ((msg->len == 0) || (msg->len > (PAGE_SIZE - 1)))
+> > +		return -EINVAL;
+> > +
+> > +	if (msg->flags & I2C_M_RD) {
+> > +
+> > +		c = &dev->i2c_dma_read[0];
+> > +		r = &dev->i2c_dma_read[1];
+> > +
+> > +		/* first, setup the SELECT command */
+> > +		memcpy(c->command, &cmd_i2c_select, sizeof(cmd_i2c_select));
+> > +		c->command->buf_ptr = dev->bufp;
+> > +		dev->bufv[0] = msg->addr | I2C_SMBUS_READ;
+> > +
+> > +		/* then, setup the READ command */
+> > +		memcpy(r->command, &cmd_i2c_read, sizeof(cmd_i2c_read));
+> > +		r->command->cmd |= BF(msg->len, APBX_CHn_CMD_XFER_COUNT);
+> > +		r->command->pio_words[0] |= BF(msg->len, I2C_CTRL0_XFER_COUNT);
+> > +		if (stop)
+> > +			r->command->pio_words[0] |= BM_I2C_CTRL0_POST_SEND_STOP;
+> > +		/*
+> > +		 * yes, STMP controller can DMA transfer the data from any
+> > +		 * byte boundary
+> > +		 */
+> > +		r->command->buf_ptr = dev->bufp + 1;
+> > +
+> > +		/* and chain them together */
+> > +		c->command->next = r->handle;
+> > +
+> > +	} else {
+> > +
+> > +		c = &dev->i2c_dma_write;
+> > +		memcpy(c->command, &cmd_i2c_write, sizeof(cmd_i2c_write));
+> > +		c->command->cmd |= BF(msg->len + 1, APBX_CHn_CMD_XFER_COUNT);
+> > +		c->command->pio_words[0] |=
+> > +				   BF(msg->len + 1, I2C_CTRL0_XFER_COUNT);
+> > +		if (stop)
+> > +			c->command->pio_words[0] |=
+> > +				   BM_I2C_CTRL0_POST_SEND_STOP;
+> > +		dev->bufv[0] = msg->addr | I2C_SMBUS_WRITE;
+> > +		memcpy(dev->bufv + 1, msg->buf, msg->len);
+> > +	}
+> > +
+> > +	stmp3xxx_dma_go(dev->dma, c, 1);
+> > +
+> > +	err = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+> > +							msecs_to_jiffies(1000));
+> > +
+> > +	if (err < 0) {
+> > +		dev_dbg(dev->dev, "controler is timed out\n");
+> > +		return -ETIMEDOUT;
+> > +	}
+> > +	if (!dev->cmd_err && (msg->flags & I2C_M_RD))
+> > +		memcpy(msg->buf, dev->bufv + 1, msg->len);
+> > +
+> > +	dev_dbg(dev->dev, "done with err=%d\n", dev->cmd_err);
+> > +
+> > +	return dev->cmd_err;
+> > +}
+> > +
+> > +
+> > +static int
+> > +stmp378x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+> > +{
+> > +	int i;
+> > +	int err;
+> > +
+> > +	if (!msgs->len)
+> > +		return -EINVAL;
+> > +
+> > +	for (i = 0; i < num; i++) {
+> > +		err = stmp378x_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+> > +		if (err)
+> > +			return err;
+> > +	}
+> > +	return num;
+> > +}
+> > +
+> > +static u32
+> > +stmp378x_i2c_func(struct i2c_adapter *adap)
+> > +{
+> > +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+> > +}
+> > +
+> > +#define I2C_IRQ_MASK 0x000000FF
+> > +static irqreturn_t
+> > +stmp378x_i2c_isr(int this_irq, void *dev_id)
+> > +{
+> > +	struct stmp378x_i2c_dev *dev = dev_id;
+> > +	u32 stat;
+> > +	u32 done_mask = BM_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ |
+> > +			BM_I2C_CTRL1_BUS_FREE_IRQ ;
+> > +
+> > +	stat = readl(HW_I2C_CTRL1 + dev->io) & I2C_IRQ_MASK;
+> > +	if (!stat)
+> > +		return IRQ_NONE;
+> > +
+> > +	if (stat & BM_I2C_CTRL1_NO_SLAVE_ACK_IRQ) {
+> > +		dev->cmd_err = -EREMOTEIO;
+> > +
+> > +		/*
+> > +		 * Stop DMA
+> > +		 * Clear NAK
+> > +		 */
+> > +		stmp3xxx_setl(BM_I2C_CTRL1_CLR_GOT_A_NAK,
+> > +			      HW_I2C_CTRL1 + dev->io);
+> > +		stmp3xxx_dma_reset_channel(dev->dma);
+> > +		stmp3xxx_dma_clear_interrupt(dev->dma);
+> > +
+> > +		complete(&dev->cmd_complete);
+> > +
+> > +		goto done;
+> > +	}
+> > +
+> > +	/* Don't care about  BM_I2C_CTRL1_OVERSIZE_XFER_TERM_IRQ */
+> > +	if (stat & (BM_I2C_CTRL1_EARLY_TERM_IRQ |
+> > +		    BM_I2C_CTRL1_MASTER_LOSS_IRQ |
+> > +		    BM_I2C_CTRL1_SLAVE_STOP_IRQ |
+> > +		    BM_I2C_CTRL1_SLAVE_IRQ)) {
+> > +		dev->cmd_err = -EIO;
+> > +		complete(&dev->cmd_complete);
+> > +		goto done;
+> > +	}
+> > +
+> > +	if ((stat & done_mask) == done_mask)
+> > +		complete(&dev->cmd_complete);
+> > +
+> > +done:
+> > +	stmp3xxx_clearl(stat, dev->io + HW_I2C_CTRL1);
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static const struct i2c_algorithm stmp378x_i2c_algo = {
+> > +	.master_xfer	= stmp378x_i2c_xfer,
+> > +	.functionality	= stmp378x_i2c_func,
+> > +};
+> > +
+> > +
+> > +static int __devinit
+> > +stmp378x_i2c_probe(struct platform_device *pdev)
+> > +{
+> > +	struct stmp378x_i2c_dev	*dev;
+> > +	struct i2c_adapter	*adap;
+> > +	struct resource		*mem, *dma;
+> > +	int err = 0;
+> > +
+> > +	dev = kzalloc(sizeof(struct stmp378x_i2c_dev), GFP_KERNEL);
+> > +	if (!dev) {
+> > +		dev_err(&pdev->dev, "no mem \n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	dev->irq = platform_get_irq(pdev, 0); /* Error */
+> > +	if (dev->irq < 0) {
+> > +		dev_err(&pdev->dev, "no err_irq resource\n");
+> > +		err = dev->irq;
+> > +		goto nores;
+> > +	}
+> > +
+> > +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!mem) {
+> > +		dev_err(&pdev->dev, "no memory window\n");
+> > +		err = -ENODEV;
+> > +		goto nores;
+> > +	}
+> > +
+> > +	dma = platform_get_resource(pdev, IORESOURCE_DMA, 0);
+> > +	if (!dma) {
+> > +		dev_err(&pdev->dev, "no dma channel\n");
+> > +		err = -ENODEV;
+> > +		goto nores;
+> > +	}
+> > +	dev->dma = dma->start;
+> > +
+> > +	dev->dev = &pdev->dev;
+> > +	dev->io = ioremap(mem->start, resource_size(mem));
+> > +	if (!dev->io) {
+> > +		dev_err(&pdev->dev, "cannot ioremap\n");
+> > +		err = -ENXIO;
+> > +		goto nores;
+> > +	}
+> > +
+> > +	err = request_irq(dev->irq, stmp378x_i2c_isr, 0, pdev->name, dev);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "Can't get IRQ\n");
+> > +		goto no_err_irq;
+> > +	}
+> > +
+> > +	err = stmp378x_i2c_init(dev);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "HW Init failed\n");
+> > +		goto init_failed;
+> > +	}
+> > +
+> > +	stmp3xxx_setl(0xFF00, dev->io + HW_I2C_CTRL1);
+> > +
+> > +	adap = &dev->adapter;
+> > +	i2c_set_adapdata(adap, dev);
+> > +	adap->owner = THIS_MODULE;
+> > +	adap->class = I2C_CLASS_TV_DIGITAL;
+> > +	strncpy(adap->name, "378x I2C adapter", sizeof(adap->name));
+> > +	adap->algo = &stmp378x_i2c_algo;
+> > +	adap->dev.parent = &pdev->dev;
+> > +
+> > +	adap->nr = pdev->id;
+> > +	err = i2c_add_numbered_adapter(adap);
+> > +	if (err) {
+> > +		dev_err(&pdev->dev, "Failed to add adapter\n");
+> > +		goto no_i2c_adapter;
+> > +
+> > +	}
+> > +
+> > +	return 0;
+> > +
+> > +no_i2c_adapter:
+> > +	stmp378x_i2c_release(dev);
+> > +init_failed:
+> > +	free_irq(dev->irq, dev);
+> > +no_err_irq:
+> > +	iounmap(dev->io);
+> > +nores:
+> > +	kfree(dev);
+> > +	return err;
+> > +}
+> > +
+> > +static int __devexit
+> > +stmp378x_i2c_remove(struct platform_device *pdev)
+> > +{
+> > +	struct stmp378x_i2c_dev	*dev = platform_get_drvdata(pdev);
+> > +	int res;
+> > +
+> > +	res = i2c_del_adapter(&dev->adapter);
+> > +	if (res)
+> > +		return -EBUSY;
+> > +
+> > +	stmp378x_i2c_release(dev);
+> > +
+> > +	platform_set_drvdata(pdev, NULL);
+> > +
+> > +	free_irq(dev->irq, dev);
+> > +	iounmap(dev->io);
+> > +
+> > +	kfree(dev);
+> > +	return 0;
+> > +}
+> > +
+> > +static struct platform_driver stmp378x_i2c_driver = {
+> > +	.probe		= stmp378x_i2c_probe,
+> > +	.remove		= __devexit_p(stmp378x_i2c_remove),
+> > +	.driver		= {
+> > +		.name	= "i2c_stmp3xxx",
+> > +		.owner	= THIS_MODULE,
+> > +	},
+> > +};
+> > +
+> > +static int __init stmp378x_i2c_init_driver(void)
+> > +{
+> > +	return platform_driver_register(&stmp378x_i2c_driver);
+> > +}
+> > +module_init(stmp378x_i2c_init_driver);
+> > +
+> > +static void __exit stmp378x_i2c_exit_driver(void)
+> > +{
+> > +	platform_driver_unregister(&stmp378x_i2c_driver);
+> > +}
+> > +module_exit(stmp378x_i2c_exit_driver);
+> > +
+> > +MODULE_AUTHOR("d.frasenyak-L1vi/lXTdtvkgf6YlCu6wwC/G2K4zDHf@public.gmane.org");
+> > +MODULE_DESCRIPTION("I2C for Freescale STMP378x");
+> > +MODULE_LICENSE("GPL");
+> > +MODULE_ALIAS("platform:i2c_stmp3xxx");
+> > 
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
