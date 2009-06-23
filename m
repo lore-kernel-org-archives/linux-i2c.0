@@ -1,38 +1,32 @@
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Subject: Re: How to use kernel driver from API
-Date: Tue, 23 Jun 2009 17:56:29 +0200
-Message-ID: <20090623155629.GK29236@buzzloop.caiaq.de>
-References: <B58E802D256349F0869077707DC18A22@ISKRAMEDICAL.SI>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Please pull bjdooks' i2c-next tree
+Date: Wed, 24 Jun 2009 00:22:05 +0100
+Message-ID: <20090623232205.GA2866@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <B58E802D256349F0869077707DC18A22-WSjMtQqgRZmL4CcANOAtMQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Klemen Omejc <klemen10-K/Me5RvSL+peoWH0uzbU5w@public.gmane.org>
-Cc: linux-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, apkm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-(cc linux-i2c)
+If possible, is there an oportunity to get this last pull before
+the end of the merge window done to add the Synopsys Designware
+controller driver?
 
-On Tue, Jun 23, 2009 at 08:51:16AM +0200, Klemen Omejc wrote:
-> I using trizepsIV module with PXA27x and ConXs board, kernel 2.6.20.
-> 
-> I would like to have access to driver for RTC PCF8593 (PCF8583) on I2C bus
-> from my FLTK application. What is the easy way to do that.
+The following changes since commit d888a4c76c51092993643f8992bf55b3c28da483:
+  Linus Torvalds (1):
+        Merge branch 'for-linus' of git://git.kernel.org/.../vapier/blackfin
 
-You need to have an i2c_board_info struct to instanciate the driver from
-your board support code. Pass in the driver's names and the addresses,
-then call i2c_register_board_info(). You can also have a look at how
-others do that in arch/arm/mach-pxa/*.
+are available in the git repository at:
 
-However, I'm not quite sure whether that mechanism is also valid for
-kernel 2.6.20. If it isn't, you should consider updating to something
-more recent.
+  git://aeryn.fluff.org.uk/bjdooks/linux.git next-i2c
 
-> Probably than I could also connect to EEPROM and temperature sensors on
-> the same way.
+Baruch Siach (1):
+      i2c: driver for the Synopsys DesignWare I2C controller
 
-Yes, that works for all devices connected to I2C.
-
-Daniel
+ drivers/i2c/busses/Kconfig          |    9 +
+ drivers/i2c/busses/Makefile         |    1 +
+ drivers/i2c/busses/i2c-designware.c |  624 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 634 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware.c
