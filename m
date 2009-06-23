@@ -1,53 +1,38 @@
-From: "Brian Tompson" <brian.tompson-4c4C/Gi1/tVWk0Htik3J/w@public.gmane.org>
-Subject: Looking for help writing an i2c client for i2c-core
-Date: Mon, 22 Jun 2009 21:02:40 -0700
-Message-ID: <7BD054A954B148E7B69442B1AC498484@footfall>
+From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Subject: Re: How to use kernel driver from API
+Date: Tue, 23 Jun 2009 17:56:29 +0200
+Message-ID: <20090623155629.GK29236@buzzloop.caiaq.de>
+References: <B58E802D256349F0869077707DC18A22@ISKRAMEDICAL.SI>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <B58E802D256349F0869077707DC18A22-WSjMtQqgRZmL4CcANOAtMQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Klemen Omejc <klemen10-K/Me5RvSL+peoWH0uzbU5w@public.gmane.org>
+Cc: linux-kernel <linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+(cc linux-i2c)
 
-In my i2c searches I stumbled upon this list.=A0 I hope this message is
-appropriate here.
+On Tue, Jun 23, 2009 at 08:51:16AM +0200, Klemen Omejc wrote:
+> I using trizepsIV module with PXA27x and ConXs board, kernel 2.6.20.
+> 
+> I would like to have access to driver for RTC PCF8593 (PCF8583) on I2C bus
+> from my FLTK application. What is the easy way to do that.
 
-I am trying to write an i2c client driver for the i2c core, using the L=
-inux
-Driver Model (new style driver).
-I am looking for a list of steps I need to take to accomplish this.
+You need to have an i2c_board_info struct to instanciate the driver from
+your board support code. Pass in the driver's names and the addresses,
+then call i2c_register_board_info(). You can also have a look at how
+others do that in arch/arm/mach-pxa/*.
 
-I have been looking for a list something like this:
+However, I'm not quite sure whether that mechanism is also valid for
+kernel 2.6.20. If it isn't, you should consider updating to something
+more recent.
 
-Load this i2c-core structure with this information.
-Call this i2c-core function to register your driver.
-Call this i2c-core function to connect to the adapter or bus or algorit=
-hm
-(don=92t know which)
-Write a probe function that does this.
-Write a remove function that does this.
-Call this i2c-core function to write raw i2c data (not SMBus) to your d=
-evice
-Call this i2c-core function to read raw i2c data from your device.
-Call this i2c-core function to disconnect from the adapter or bus or
-algorithm
+> Probably than I could also connect to EEPROM and temperature sensors on
+> the same way.
 
-Or whatever the actual steps should be.
+Yes, that works for all devices connected to I2C.
 
-I have started writing a driver and have used i2c_add_driver() to regis=
-ter
-my driver with i2c_core.
-Now what?=A0 Probe, attach, send, remove, =85?=A0 Is there a resource a=
-vailable
-that simply lays out these facts?=A0 I think a resource like that would=
- be
-very useful to someone trying to develop a client driver for the i2c-co=
-re
-using the Linux Driver Model.
-
-
-Thank you for your time,
-Brian Tompson
+Daniel
