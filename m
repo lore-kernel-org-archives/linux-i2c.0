@@ -1,63 +1,38 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] ds2782 battery gas gauge driver
-Date: Wed, 24 Jun 2009 21:45:10 +0200
-Message-ID: <20090624214510.27233eb1@hyperion.delvare>
-References: <4A371CDF.3070407@bluewatersys.com>
-	<20090617110908.17b47a18@hyperion.delvare>
-	<20090624141834.GA9035@oksana.dev.rtsoft.ru>
+Subject: [PATCH] i2c-designware: Depend on HAVE_CLK
+Date: Thu, 25 Jun 2009 12:04:49 +0200
+Message-ID: <20090625120449.5cc636a6@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090624141834.GA9035-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
-Cc: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>, linux kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anton Vorontsov <cbou-JGs/UdohzUI@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 24 Jun 2009 18:18:34 +0400, Anton Vorontsov wrote:
-> On Wed, Jun 17, 2009 at 11:09:08AM +0200, Jean Delvare wrote:
-> > Hi Ryan,
-> > 
-> > On Tue, 16 Jun 2009 16:17:35 +1200, Ryan Mallon wrote:
-> > > Add support for the the ds2782 standalone I2C gas-gauge.
-> > > 
-> > > Signed-off-by: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-> > 
-> > I suggest you send this patch to the maintainers of the power supply
-> > subsystem for review: Anton Vorontsov and David Woodhouse (Cc'd.)
-> 
-> Thanks for Cc'ing and for the review, Jean.
+Not all platforms implement the clk_*() function set, and the
+i2c-designware driver can only be built when these functions are
+available.
 
-You're welcome.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-> [...]
-> > > +static int ds2782_get_temp(struct ds2782_info *info)
-> > > +{
-> > > +	u16 raw;
-> > > +	s16 temp;
-> > > +
-> > > +	/* Temperature is measured in units of 0.125 degrees celcius */
-> > > +	raw = ds2782_read_reg16(info, DS2782_REG_TEMP_MSB);
-> > > +	temp = (raw >> 5) & 0x7ff;
-> > > +	if (raw & (1 << 15))
-> > > +		temp |= 0xf800;
-> > > +	return (temp * 125) / 100;
-> > > +}
-> > 
-> > I don't know if the power supply class has a standard to reporting
-> > temperature values, but the hwmon class does, and it says that
-> > temperatures should be reported in millidegrees C. That's not what you
-> > do here AFAICS. It might be convenient to register a hwmon class device
-> > and export the temperature there, so that libsensors picks it.
-> 
-> Hwmon feels like a good idea. But no, drivers should not bother
-> with registering hwmon classes. Instead, some day we might want to
-> create power_supply_hwmon.c interface (like _sysfs.c that we have
-> already), the interface would register all needed stuff. And all
-> drivers will benefit right away without any modifications.
+--- linux-2.6.31-rc1.orig/drivers/i2c/busses/Kconfig	2009-06-25 09:32:17.000000000 +0200
++++ linux-2.6.31-rc1/drivers/i2c/busses/Kconfig	2009-06-25 11:46:56.000000000 +0200
+@@ -328,6 +328,7 @@ config I2C_DAVINCI
+ 
+ config I2C_DESIGNWARE
+ 	tristate "Synopsys DesignWare"
++	depends on HAVE_CLK
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  Synopsys DesignWare I2C adapter. Only master mode is supported.
 
-Sounds like a very good plan indeed.
 
 -- 
 Jean Delvare
