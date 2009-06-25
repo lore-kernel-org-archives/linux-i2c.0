@@ -1,77 +1,89 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: build issue #15 for v2.6.31-rc1 : build failure of
- i2c-designware.c
-Date: Thu, 25 Jun 2009 15:02:13 +0200
-Message-ID: <20090625150213.19164ea0@hyperion.delvare>
-References: <200906251457.06527.toralf.foerster@gmx.de>
+From: "Brian Tompson" <brian.tompson-4c4C/Gi1/tVWk0Htik3J/w@public.gmane.org>
+Subject: RE: Looking for help writing an i2c client for i2c-core
+Date: Thu, 25 Jun 2009 08:48:21 -0700
+Message-ID: <061243056589422B81DCA99818292EA3@footfall>
+References: <7BD054A954B148E7B69442B1AC498484@footfall> <20090624105411.64a22474@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200906251457.06527.toralf.foerster-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <20090624105411.64a22474-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Toralf =?ISO-8859-15?B?RvZyc3Rlcg==?= <toralf.foerster-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Toralf,
+Thank you both for your responses.  The link to the kernel wiki was als=
+o
+worthwhile.
 
-On Thu, 25 Jun 2009 14:57:06 +0200, Toralf F=F6rster wrote:
-> Hello,
->=20
-> the build (.config attached) failed, make ends with :
-> ...
->   CC      drivers/w1/slaves/w1_ds2433.o
->   CC      drivers/w1/slaves/w1_ds2760.o
-> drivers/video/s1d13xxxfb.c:421: warning: 'bltbit_wait_bitset' defined=
- but not used
-> drivers/video/s1d13xxxfb.c:464: warning: 'bltbit_fifo_status' defined=
- but not used
->   CC      drivers/video/carminefb.o
->   CC      drivers/w1/slaves/w1_bq27000.o
->   LD      drivers/w1/slaves/built-in.o
->   LD      drivers/w1/wire.o
->   LD      drivers/w1/built-in.o
->   CC      drivers/video/vfb.o
->   CC      drivers/video/output.o
->   LD      drivers/video/fb.o
->   LD      drivers/video/built-in.o
->   LD      drivers/built-in.o
->   LD      vmlinux.o
->   MODPOST vmlinux.o
-> WARNING: modpost: Found 8 section mismatch(es).
-> To see full details build your kernel with:
-> 'make CONFIG_DEBUG_SECTION_MISMATCH=3Dy'
->   GEN     .version
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `i2c_dw_init':
-> i2c-designware.c:(.text+0x4ddcc2): undefined reference to `clk_get_ra=
-te'
-> drivers/built-in.o: In function `dw_i2c_probe':
-> i2c-designware.c:(.devinit.text+0x50200): undefined reference to `clk=
-_get'
-> i2c-designware.c:(.devinit.text+0x5021d): undefined reference to `clk=
-_enable'
-> i2c-designware.c:(.devinit.text+0x50349): undefined reference to `clk=
-_disable'
-> i2c-designware.c:(.devinit.text+0x50354): undefined reference to `clk=
-_put'
-> drivers/built-in.o: In function `dw_i2c_remove':
-> i2c-designware.c:(.devexit.text+0x5cba): undefined reference to `clk_=
-disable'
-> i2c-designware.c:(.devexit.text+0x5cc5): undefined reference to `clk_=
-put'
-> make: *** [.tmp_vmlinux1] Error 1
->=20
-> The build was made with :
-> $>make randconfig; make clean; make
+In my all too quick research into writing a Linux Driver Model driver,
+somehow I missed the step of calling i2c_register_board_info() in the k=
+ernel
+startup code.  I could register my driver with the i2c_core, but since =
+there
+was not i2c_board_info entry nothing else happened in my driver.  No th=
+at I
+have added the i2c_register_board_info call, my driver callbacks are ca=
+lled
+and I can get back to writing device driver code again.
 
-Thanks for reporting. Already fixed, please see:
-http://marc.info/?l=3Dlinux-i2c&m=3D124592430920676&w=3D2
+When my schedule frees up some, I hope I can write up description of th=
+e
+steps I took to get a new Linux Driver Model I2C device driver written.
+
+Thank you for your help,
+Brian
+
+
+
+-----Original Message-----
+=46rom: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]=20
+Sent: Wednesday, June 24, 2009 1:54 AM
+To: Brian Tompson
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Subject: Re: Looking for help writing an i2c client for i2c-core
+
+On Mon, 22 Jun 2009 21:02:40 -0700, Brian Tompson wrote:
+> In my i2c searches I stumbled upon this list.=A0 I hope this message =
+is
+> appropriate here.
+>=20
+> I am trying to write an i2c client driver for the i2c core, using the
+Linux
+> Driver Model (new style driver).
+> I am looking for a list of steps I need to take to accomplish this.
+>=20
+> I have been looking for a list something like this:
+>=20
+> Load this i2c-core structure with this information.
+> Call this i2c-core function to register your driver.
+> Call this i2c-core function to connect to the adapter or bus or algor=
+ithm
+> (don't know which)
+> Write a probe function that does this.
+> Write a remove function that does this.
+> Call this i2c-core function to write raw i2c data (not SMBus) to your
+device
+> Call this i2c-core function to read raw i2c data from your device.
+> Call this i2c-core function to disconnect from the adapter or bus or
+> algorithm
+>=20
+> Or whatever the actual steps should be.
+>=20
+> I have started writing a driver and have used i2c_add_driver() to reg=
+ister
+> my driver with i2c_core.
+> Now what?=A0 Probe, attach, send, remove, ...?=A0 Is there a resource
+available
+> that simply lays out these facts?=A0 I think a resource like that wou=
+ld be
+> very useful to someone trying to develop a client driver for the i2c-=
+core
+> using the Linux Driver Model.
+
+Have you read Documentation/i2c/writing-clients already? That would be
+a very good start. Or more generally, the developer's documentation
+section on http://i2c.wiki.kernel.org/
 
 --=20
 Jean Delvare
