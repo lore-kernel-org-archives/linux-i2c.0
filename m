@@ -1,89 +1,38 @@
-From: "Brian Tompson" <brian.tompson-4c4C/Gi1/tVWk0Htik3J/w@public.gmane.org>
-Subject: RE: Looking for help writing an i2c client for i2c-core
-Date: Thu, 25 Jun 2009 08:48:21 -0700
-Message-ID: <061243056589422B81DCA99818292EA3@footfall>
-References: <7BD054A954B148E7B69442B1AC498484@footfall> <20090624105411.64a22474@hyperion.delvare>
+From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/1] I2C: I2C controller driver for Intel Moorestown
+ platform
+Date: Fri, 26 Jun 2009 10:41:07 +0800
+Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD62F26B15F@pdsmsx502.ccr.corp.intel.com>
+References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
+ <20090416111436.296cdd12@hyperion.delvare>
+ <0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
+ <0A882F4D99BBF6449D58E61AAFD7EDD62876816C@pdsmsx502.ccr.corp.intel.com>
+ <0A882F4D99BBF6449D58E61AAFD7EDD628768177@pdsmsx502.ccr.corp.intel.com>
+ <20090615135058.1bf40a75@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090624105411.64a22474-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090615135058.1bf40a75-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Thank you both for your responses.  The link to the kernel wiki was als=
-o
-worthwhile.
-
-In my all too quick research into writing a Linux Driver Model driver,
-somehow I missed the step of calling i2c_register_board_info() in the k=
-ernel
-startup code.  I could register my driver with the i2c_core, but since =
-there
-was not i2c_board_info entry nothing else happened in my driver.  No th=
-at I
-have added the i2c_register_board_info call, my driver callbacks are ca=
-lled
-and I can get back to writing device driver code again.
-
-When my schedule frees up some, I hope I can write up description of th=
-e
-steps I took to get a new Linux Driver Model I2C device driver written.
-
-Thank you for your help,
-Brian
-
-
-
------Original Message-----
-=46rom: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]=20
-Sent: Wednesday, June 24, 2009 1:54 AM
-To: Brian Tompson
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Subject: Re: Looking for help writing an i2c client for i2c-core
-
-On Mon, 22 Jun 2009 21:02:40 -0700, Brian Tompson wrote:
-> In my i2c searches I stumbled upon this list.=A0 I hope this message =
-is
-> appropriate here.
->=20
-> I am trying to write an i2c client driver for the i2c core, using the
-Linux
-> Driver Model (new style driver).
-> I am looking for a list of steps I need to take to accomplish this.
->=20
-> I have been looking for a list something like this:
->=20
-> Load this i2c-core structure with this information.
-> Call this i2c-core function to register your driver.
-> Call this i2c-core function to connect to the adapter or bus or algor=
-ithm
-> (don't know which)
-> Write a probe function that does this.
-> Write a remove function that does this.
-> Call this i2c-core function to write raw i2c data (not SMBus) to your
-device
-> Call this i2c-core function to read raw i2c data from your device.
-> Call this i2c-core function to disconnect from the adapter or bus or
-> algorithm
->=20
-> Or whatever the actual steps should be.
->=20
-> I have started writing a driver and have used i2c_add_driver() to reg=
-ister
-> my driver with i2c_core.
-> Now what?=A0 Probe, attach, send, remove, ...?=A0 Is there a resource
-available
-> that simply lays out these facts?=A0 I think a resource like that wou=
-ld be
-> very useful to someone trying to develop a client driver for the i2c-=
-core
-> using the Linux Driver Model.
-
-Have you read Documentation/i2c/writing-clients already? That would be
-a very good start. Or more generally, the developer's documentation
-section on http://i2c.wiki.kernel.org/
-
---=20
-Jean Delvare
+SGkgSmVhbiwNCg0KUmVhbGx5IGFwcHJlY2lhdGUgeW91ciBraW5kbHkgY29tbWVudHMgb24gTW9v
+cmVzdG93biBJMkMgZHJpdmVyISBJJ20gcmVhbGx5IGxlYXJuaW5nIGEgbG90IGZyb20geW91ciBj
+b21tZW50cy4gOikNCg0KQ3VycmVudGx5IEknbSB3b3JraW5nIG9uIHRob3NlIGNvbW1lbnRzLCBi
+dXQgZHVlIHRvIG90aGVyIHBsZW50eSBvZiB3b3JrLCBwbGVhc2UgZXhwZWN0IGEgc2xvdyByZXNw
+b25zZSBvbiB0aGF0LiA6KA0KDQpBbm90aGVyIHRoaW5nIG5lZWRzIHlvdXIgaGVscCBpcywgY2Fu
+IEkgcmVwbGFjZSB0aGUgbW9kdWxlX2luaXQoKSBmdW5jdGlvbiB3aXRoIHN1YnN5c19pbml0Y2Fs
+bCgpIGluIE1vb3Jlc3Rvd24gSTJDIGRyaXZlcj8gSXMgaXQgYWNjZXB0YWJsZSBmb3IgSTJDIHN1
+YnN5c3RlbT8gDQpUaGVyZSBpcyBhIHJlcXVpcmVtZW50IGluIE1vb3Jlc3Rvd24gdGhhdCBjZXJ0
+YWluIGRyaXZlcnMgbmVlZCBJMkMgZHJpdmVyIGxvYWRlZCBiZWZvcmUgdGhvc2UgZHJpdmVycy4g
+VG8gYWNoaWV2ZSB0aGlzLCBpcyBzdWJzeXNfaW5pdGNhbGwoKSB0aGUgb25seSB3YXk/DQoNClRo
+YW5rcw0KV2VuDQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IEplYW4gRGVs
+dmFyZSBbbWFpbHRvOmtoYWxpQGxpbnV4LWZyLm9yZ10NCj5TZW50OiAyMDA5xOo21MIxNcjVIDE5
+OjUxDQo+VG86IFdhbmcsIFdlbiBXDQo+Q2M6IExpbnV4IEkyQw0KPlN1YmplY3Q6IFJlOiBbUEFU
+Q0ggMS8xXSBJMkM6IEkyQyBjb250cm9sbGVyIGRyaXZlciBmb3IgSW50ZWwgTW9vcmVzdG93biBw
+bGF0Zm9ybQ0KPg0KPkhpIFdlbiwNCj4NCj5Tb3JyeSBmb3IgdGhlIGxhdGUgcmVwbHkuIEhlcmUg
+Y29tZXMgYSBmdWxsIHJldmlldyBvZiB5b3VyIGRyaXZlci4NCj4NCg==
