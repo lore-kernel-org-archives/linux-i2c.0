@@ -1,8 +1,8 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/1] I2C: I2C controller driver for Intel Moorestown
- platform
-Date: Fri, 26 Jun 2009 09:50:26 +0200
-Message-ID: <20090626095026.22c5d6c1@hyperion.delvare>
+From: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/1] I2C: I2C controller driver for Intel Moorestown
+  platform
+Date: Fri, 26 Jun 2009 15:54:31 +0800
+Message-ID: <0A882F4D99BBF6449D58E61AAFD7EDD62F26B3F4@pdsmsx502.ccr.corp.intel.com>
 References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
 	<20090416111436.296cdd12@hyperion.delvare>
 	<0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
@@ -10,35 +10,38 @@ References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.c
 	<0A882F4D99BBF6449D58E61AAFD7EDD628768177@pdsmsx502.ccr.corp.intel.com>
 	<20090615135058.1bf40a75@hyperion.delvare>
 	<0A882F4D99BBF6449D58E61AAFD7EDD62F26B15F@pdsmsx502.ccr.corp.intel.com>
+ <20090626095026.22c5d6c1@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <0A882F4D99BBF6449D58E61AAFD7EDD62F26B15F-Uz4Je35TzWuiAffOGbnezLfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+In-Reply-To: <20090626095026.22c5d6c1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wen,
-
-On Fri, 26 Jun 2009 10:41:07 +0800, Wang, Wen W wrote:
-> Hi Jean,
-> 
-> Really appreciate your kindly comments on Moorestown I2C driver! I'm really learning a lot from your comments. :)
-> 
-> Currently I'm working on those comments, but due to other plenty of work, please expect a slow response on that. :(
-> 
-> Another thing needs your help is, can I replace the module_init() function with subsys_initcall() in Moorestown I2C driver? Is it acceptable for I2C subsystem? 
-
-Yes, using subsys_initcall() is acceptable, a number of i2c bus drivers
-for embedded platforms do that already (i2c-pxa and i2c-omap.c for
-example.)
-
-> There is a requirement in Moorestown that certain drivers need I2C driver loaded before those drivers. To achieve this, is subsys_initcall() the only way?
-
-I can't say whether this is the only way given than you mentioned no
-detail about the requirements, but this is one possible way for sure.
-
--- 
-Jean Delvare
+SGkgSmVhbiwNCg0KVGhhbmsgeW91IGZvciB5b3VyIGNvbmZpcm1hdGlvbiENCg0KV2VuDQoNCj4t
+LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IEplYW4gRGVsdmFyZSBbbWFpbHRvOmto
+YWxpQGxpbnV4LWZyLm9yZ10NCj5TZW50OiAyMDA5xOo21MIyNsjVIDE1OjUwDQo+VG86IFdhbmcs
+IFdlbiBXDQo+Q2M6IExpbnV4IEkyQw0KPlN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8xXSBJMkM6IEky
+QyBjb250cm9sbGVyIGRyaXZlciBmb3IgSW50ZWwgTW9vcmVzdG93biBwbGF0Zm9ybQ0KPg0KPkhp
+IFdlbiwNCj4NCj5PbiBGcmksIDI2IEp1biAyMDA5IDEwOjQxOjA3ICswODAwLCBXYW5nLCBXZW4g
+VyB3cm90ZToNCj4+IEhpIEplYW4sDQo+Pg0KPj4gUmVhbGx5IGFwcHJlY2lhdGUgeW91ciBraW5k
+bHkgY29tbWVudHMgb24gTW9vcmVzdG93biBJMkMgZHJpdmVyISBJJ20gcmVhbGx5DQo+bGVhcm5p
+bmcgYSBsb3QgZnJvbSB5b3VyIGNvbW1lbnRzLiA6KQ0KPj4NCj4+IEN1cnJlbnRseSBJJ20gd29y
+a2luZyBvbiB0aG9zZSBjb21tZW50cywgYnV0IGR1ZSB0byBvdGhlciBwbGVudHkgb2Ygd29yaywg
+cGxlYXNlDQo+ZXhwZWN0IGEgc2xvdyByZXNwb25zZSBvbiB0aGF0LiA6KA0KPj4NCj4+IEFub3Ro
+ZXIgdGhpbmcgbmVlZHMgeW91ciBoZWxwIGlzLCBjYW4gSSByZXBsYWNlIHRoZSBtb2R1bGVfaW5p
+dCgpIGZ1bmN0aW9uIHdpdGgNCj5zdWJzeXNfaW5pdGNhbGwoKSBpbiBNb29yZXN0b3duIEkyQyBk
+cml2ZXI/IElzIGl0IGFjY2VwdGFibGUgZm9yIEkyQyBzdWJzeXN0ZW0/DQo+DQo+WWVzLCB1c2lu
+ZyBzdWJzeXNfaW5pdGNhbGwoKSBpcyBhY2NlcHRhYmxlLCBhIG51bWJlciBvZiBpMmMgYnVzIGRy
+aXZlcnMNCj5mb3IgZW1iZWRkZWQgcGxhdGZvcm1zIGRvIHRoYXQgYWxyZWFkeSAoaTJjLXB4YSBh
+bmQgaTJjLW9tYXAuYyBmb3INCj5leGFtcGxlLikNCj4NCj4+IFRoZXJlIGlzIGEgcmVxdWlyZW1l
+bnQgaW4gTW9vcmVzdG93biB0aGF0IGNlcnRhaW4gZHJpdmVycyBuZWVkIEkyQyBkcml2ZXIgbG9h
+ZGVkDQo+YmVmb3JlIHRob3NlIGRyaXZlcnMuIFRvIGFjaGlldmUgdGhpcywgaXMgc3Vic3lzX2lu
+aXRjYWxsKCkgdGhlIG9ubHkgd2F5Pw0KPg0KPkkgY2FuJ3Qgc2F5IHdoZXRoZXIgdGhpcyBpcyB0
+aGUgb25seSB3YXkgZ2l2ZW4gdGhhbiB5b3UgbWVudGlvbmVkIG5vDQo+ZGV0YWlsIGFib3V0IHRo
+ZSByZXF1aXJlbWVudHMsIGJ1dCB0aGlzIGlzIG9uZSBwb3NzaWJsZSB3YXkgZm9yIHN1cmUuDQo+
+DQo+LS0NCj5KZWFuIERlbHZhcmUNCg==
