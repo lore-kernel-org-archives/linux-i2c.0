@@ -1,33 +1,28 @@
-From: Minkyu Kang <promsoft@gmail.com>
+From: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] hwmon: add GP2A002 proximity/ambient sensor
-Date: Mon, 29 Jun 2009 08:49:10 +0900
-Message-ID: <1f3430fb0906281649i1e4accdbh26efadc3f565a4e4@mail.gmail.com>
+Date: Mon, 29 Jun 2009 19:47:26 +0900
+Message-ID: <1f3430fb0906290347r92201acpb35087c55049d8c5@mail.gmail.com>
 References: <4A448926.1030701@samsung.com>
-	 <5d5443650906260322n3c4f5f79r3290ebce2e331234@mail.gmail.com>
+	 <20090626113059.4c0c2fb3@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <5d5443650906260322n3c4f5f79r3290ebce2e331234@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Minkyu Kang <mk7.kang@samsung.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lm-sensors@lm-sensors.org, suchang.woo@samsung.com, kyungmin.park@samsung.com, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090626113059.4c0c2fb3-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, suchang.woo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trilok,
+Hi Jean,
 
-2009/6/26 Trilok Soni <soni.trilok@gmail.com>:
-> Hi Minkyu,
->
-> Adding linux-input ML, as driver is using linux input subsystem.
->
-> On Fri, Jun 26, 2009 at 2:09 PM, Minkyu Kang<mk7.kang@samsung.com> wr=
-ote:
+2009/6/26 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>:
+> On Fri, 26 Jun 2009 17:39:02 +0900, Minkyu Kang wrote:
 >> The GP2A002 is a I2C interfaced Sensor for Proximity/Ambient
 >> This patch adds support the GP2A002 sensor
 >>
->> Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
->> Signed-off-by: Suchang Woo <suchang.woo@samsung.com>
+>> Signed-off-by: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>> Signed-off-by: Suchang Woo <suchang.woo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 >> ---
 >> =A0drivers/hwmon/Kconfig =A0 =A0| =A0 =A07 +
 >> =A0drivers/hwmon/Makefile =A0 | =A0 =A01 +
@@ -38,14 +33,32 @@ ote:
 >> =A0create mode 100644 drivers/hwmon/gp2ap002.c
 >> =A0create mode 100644 include/linux/gp2ap002.h
 >>
+>> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+>> index 2d50166..cc4e200 100644
+>> --- a/drivers/hwmon/Kconfig
+>> +++ b/drivers/hwmon/Kconfig
+>> @@ -1017,6 +1017,13 @@ config SENSORS_APPLESMC
+>> =A0 =A0 =A0 =A0 Say Y here if you have an applicable laptop and want=
+ to experience
+>> =A0 =A0 =A0 =A0 the awesome power of applesmc.
+>>
+>> +config SENSORS_GP2AP002
+>> + =A0 =A0 tristate "GP2AP002 series Proximity/Ambient Sensor"
+>> + =A0 =A0 depends on HWMON && I2C
+>> + =A0 =A0 help
+>> + =A0 =A0 =A0 This driver provides support for Proximity/Ambient Sen=
+sor.
+>> +
+>
+> This doesn't have anything to do with hardware monitoring, so this
+> doesn't belong to drivers/hwmon.
+>
 
-Thanks for review and I'll make new version as you said : )
+Can you please explain about belong to hardware monitoring?
+did i missing something?
+
+many thanks :)
 
 --=20
 from. prom.
 www.promsoft.net
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
