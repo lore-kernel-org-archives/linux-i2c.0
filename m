@@ -1,41 +1,43 @@
-From: "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
-Subject: [PATCH] TSL2550 driver bugfix
-Date: Tue, 30 Jun 2009 17:31:08 +0200
-Message-ID: <4A4A2FBC.1060804@valueteam.com>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [PATCH] TSL2550 driver bugfix
+Date: Tue, 30 Jun 2009 16:41:26 +0000
+Message-ID: <4A4A4036.3000408@cam.ac.uk>
+References: <4A4A2FBC.1060804@valueteam.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000109070601090503020902"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4A4A2FBC.1060804-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: giometti-k2GhghHVRtY@public.gmane.org
+To: "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, giometti-k2GhghHVRtY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000109070601090503020902
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hi all,
-
-I've tested TSL2550 driver and I've found a bug: when light is off, 
-returned value from tsl2550_calculate_lux function is -1 when it should 
-be 0 (sensor correctly read that light was off).
-
-I think the bug is that a zero c0 value (approximated value of ch0) is 
-misinterpreted as an error. 
-
-I'm attaching you a patch that fixes the bug.
-
-Regards,
-Michele Jr De Candia
-
---------------000109070601090503020902
-Content-Type: text/x-patch;
- name="tsl2550_nolight_bugfix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="tsl2550_nolight_bugfix.patch"
+Michele De Candia (VT) wrote:
+> Hi all,
+> 
+> I've tested TSL2550 driver and I've found a bug: when light is off,
+> returned value from tsl2550_calculate_lux function is -1 when it should
+> be 0 (sensor correctly read that light was off).
+> 
+> I think the bug is that a zero c0 value (approximated value of ch0) is
+> misinterpreted as an error.
+> I'm attaching you a patch that fixes the bug.
+> 
+> Regards,
+> Michele Jr De Candia
+Sounds reasonable, but I think a stray line got away in your patch (see below)
+Not to mention, if the c1 <= c0 check is still valid, should you not also
+confirm that c1 == 0 as well? Perhaps reverse the ordering?
+if (c1 <= c0)
+	if(c0) {
+		r = c1* 128 / c0;
+		lux = ((c0 - c1) * ratio_lut[r]) / 256;
+	} else
+		lux = 0;
+else
+	return -1;
+	
 
 Signed-off-by: Michele Jr De Candia <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
 
@@ -62,7 +64,10 @@ index 1a9cc13..6bad072 100644
 +	}
 +	else lux = 0;
  
- 	/* Calculate LUX */
- 	lux = ((c0 - c1) * ratio_lut[r]) / 256;
 
---------------000109070601090503020902--
+This last line should have been removed I think?
+ 	/* Calculate LUX */
+	lux = ((c0 - c1) * ratio_lut[r]) / 256;
+
+---
+Jonathan Cameron
