@@ -1,24 +1,63 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 0/2] davinci i2c fixes for 2.6.31
-Date: Mon,  6 Jul 2009 15:48:34 -0700
-Message-ID: <1246920516-31462-1-git-send-email-khilman@deeprootsystems.com>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [lm-sensors] HMC6343
+Date: Tue, 07 Jul 2009 11:38:46 +0000
+Message-ID: <4A5333C6.3080802@cam.ac.uk>
+References: <23114.97301.qm@web28307.mail.ukl.yahoo.com> <20090707095934.7b86524f@hyperion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090707095934.7b86524f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Cc: Hugo Meric <hugo.meric-Qt13gs6zZMY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Here are a couple fixes for the i2c driver on the TI DaVinci family
-of SoCs.  These have been tested for awhile in the DaVinci git
-repo are needed for 2.6.31.
+Moved to linux-i2c, as per Jean's suggestion.
 
-These apply on v2.6.31-rc2.
+> On Tue, 7 Jul 2009 01:04:30 +0000 (GMT), Hugo Meric wrote:
+>> Hello,
+>>
+>> I'm currently working with the HMC6343. I don't succeed to
+>> communicate using the i2c interface and unfortunately the company
+>> does not have any experience with Linux... 
+Just to simplify things (specifically people looking for data sheets
+to try and answer your question) please put more details / links
+in for the chips you are talking about.
+I already use your file
+>> i2c-dev.h to communicate with four DS1050
+Googling suggests that's a pulse-width modulator
+http://www.maxim-ic.com/getds.cfm?qv_pk=2614
+ and one SRF02, 
+Ultrasonic range finder?
+http://www.robot-electronics.co.uk/htm/srf02techSer.htm
+and I'd
+>> like to know if it is possible to use it for the HMC6343 because
+>> the communication protocol seems to be different.
+http://www.magneticsensors.com/datasheets/HMC6343.pdf
 
-David Brownell (1):
-  i2c-davinci: behave with i2cdetect
+Basically it's protocol is a standard smbus type write byte command
+(address 0x19) followed by a delay (command specific) and then
+a read of multiple bytes (number is command dependant.)
 
-Kevin Hilman (1):
-  i2c-davinci: convert clock usage after clkdev conversion
+Unfortunately the device doesn't seem do anything helpful like notify
+you of how many bytes it is sending (as per smbus block read).
 
- drivers/i2c/busses/i2c-davinci.c |   20 +++++++++++++++-----
- 1 files changed, 15 insertions(+), 5 deletions(-)
+I fear to make this work you'll need to write a kernel space driver.
+The first step is a conventional smbus send byte command. Follow this
+with a suitable delay. The second will need to make use of
+i2c_transfer with a msg looking something like
+
+char bob[6];
+struct i2c_msg read_msg = {
+       .addr = 0x19,
+       .flags = I2C_M_RD,
+       .len = 6, // as appropriate to the command
+       .buf = bob,
+};
+
+then i2c_transfer(adap, &read_msg, 1);
+
+should do the job.
+
+---
+Jonathan Cameron
