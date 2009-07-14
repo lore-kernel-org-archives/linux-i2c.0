@@ -1,53 +1,120 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: Use the Linux I2C subsystem for a two wire interface protocol
-Date: Tue, 14 Jul 2009 16:57:44 +0000
-Message-ID: <4A5CB908.4060404@cam.ac.uk>
-References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-taos-evm: Switch echo off to improve performance
+Date: Tue, 14 Jul 2009 20:34:39 +0200
+Message-ID: <20090714203439.3a753f4a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <528f13590907140925h7aa36452o60da32d3bf941241-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-alfred steele wrote:
-> Hi,
-> I was looking at  the implementation of the i2 dev interface and the
-> bitbanging interface supplied by kernel v 2.6.24.  What i intend to do
-> is use the i2c kernel subsystem to write a userspace driver(using the
-> dev - ioctl interface) for a sensor SHT11 which uses a two wire
-> interface and a protocol with a packet structure which is different
-> from traditional I2C.
-Worth noting at this point that there is already a driver for this chip
-in mainline (sht15 under hwmon - I've copied this to the lm-sensors where
-that driver has previously been discussed).
-I can't recall exactly when it was merged, but it's not there in 2.6.29
-and is in 2.6.30.
+When echo is on, we waste time reading back our orders. Switching echo
+off makes performance much better: SMBus byte data transactions are 47%
+faster and byte transactions are 24% faster.
 
-
-> 
->>From the header files and the API's therein, it looks like the
-> bitbanging interface should allow any  protocol header to be passed
-> as a "payload"(void *data) to the linux kernel i2c bitbanging driver
-> using gpio api.  Please let me know if this is a correct approach if
-> we intend to write a sensore driver with a proprietary 2 wire
-> interface protocol.
-> 
-> This would allow us to write  a user-space driver which is more
-> generic for the sensor and that can be changed to a I2C driver if the
-> GPIOs are later or tied in hardware to a  dedicated I2C controller. We
-> are using the mx31 pdk
- 
-First thing to note is that this device is in no way using an i2c type
-comms protocol. I'd be somewhat surprised if any i2c controllers are
-generic enough to talk to it.  The start condition is non standard,
-it uses a 3 bit address (with only 000) supported, and it also has a
-fairly hideous means of indicating that the sampling process
-has finished.  Basically you'd have more luck using the gpio's directly
-than through anything to do with i2c.
-
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
-Jonathan Cameron
+If anyone else is using a TAOS EVM on serial port, please let me know
+if this patch cause any trouble for you.
+
+ drivers/i2c/busses/i2c-taos-evm.c |   45 +++++++++++++++++++------------------
+ 1 file changed, 24 insertions(+), 21 deletions(-)
+
+--- linux-2.6.31-rc3.orig/drivers/i2c/busses/i2c-taos-evm.c	2009-07-14 09:40:38.000000000 +0200
++++ linux-2.6.31-rc3/drivers/i2c/busses/i2c-taos-evm.c	2009-07-14 10:27:48.000000000 +0200
+@@ -32,10 +32,12 @@
+ 
+ #define TAOS_STATE_INIT		0
+ #define TAOS_STATE_IDLE		1
+-#define TAOS_STATE_SEND		2
++#define TAOS_STATE_EOFF		2
+ #define TAOS_STATE_RECV		3
+ 
+ #define TAOS_CMD_RESET		0x12
++#define TAOS_CMD_ECHO_ON	'+'
++#define TAOS_CMD_ECHO_OFF	'-'
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(wq);
+ 
+@@ -102,17 +104,9 @@ static int taos_smbus_xfer(struct i2c_ad
+ 
+ 	/* Send the transaction to the TAOS EVM */
+ 	dev_dbg(&adapter->dev, "Command buffer: %s\n", taos->buffer);
+-	taos->pos = 0;
+-	taos->state = TAOS_STATE_SEND;
+-	serio_write(serio, taos->buffer[0]);
+-	wait_event_interruptible_timeout(wq, taos->state == TAOS_STATE_IDLE,
+-					 msecs_to_jiffies(250));
+-	if (taos->state != TAOS_STATE_IDLE) {
+-		dev_err(&adapter->dev, "Transaction failed "
+-			"(state=%d, pos=%d)\n", taos->state, taos->pos);
+-		taos->addr = 0;
+-		return -EIO;
+-	}
++	for (p = taos->buffer; *p; p++)
++		serio_write(serio, *p);
++
+ 	taos->addr = addr;
+ 
+ 	/* Start the transaction and read the answer */
+@@ -122,7 +116,7 @@ static int taos_smbus_xfer(struct i2c_ad
+ 	wait_event_interruptible_timeout(wq, taos->state == TAOS_STATE_IDLE,
+ 					 msecs_to_jiffies(150));
+ 	if (taos->state != TAOS_STATE_IDLE
+-	 || taos->pos != 6) {
++	 || taos->pos != 5) {
+ 		dev_err(&adapter->dev, "Transaction timeout (pos=%d)\n",
+ 			taos->pos);
+ 		return -EIO;
+@@ -130,7 +124,7 @@ static int taos_smbus_xfer(struct i2c_ad
+ 	dev_dbg(&adapter->dev, "Answer buffer: %s\n", taos->buffer);
+ 
+ 	/* Interpret the returned string */
+-	p = taos->buffer + 2;
++	p = taos->buffer + 1;
+ 	p[3] = '\0';
+ 	if (!strcmp(p, "NAK"))
+ 		return -ENODEV;
+@@ -173,13 +167,9 @@ static irqreturn_t taos_interrupt(struct
+ 			wake_up_interruptible(&wq);
+ 		}
+ 		break;
+-	case TAOS_STATE_SEND:
+-		if (taos->buffer[++taos->pos])
+-			serio_write(serio, taos->buffer[taos->pos]);
+-		else {
+-			taos->state = TAOS_STATE_IDLE;
+-			wake_up_interruptible(&wq);
+-		}
++	case TAOS_STATE_EOFF:
++		taos->state = TAOS_STATE_IDLE;
++		wake_up_interruptible(&wq);
+ 		break;
+ 	case TAOS_STATE_RECV:
+ 		taos->buffer[taos->pos++] = data;
+@@ -257,6 +247,19 @@ static int taos_connect(struct serio *se
+ 	}
+ 	strlcpy(adapter->name, name, sizeof(adapter->name));
+ 
++	/* Turn echo off for better performance */
++	taos->state = TAOS_STATE_EOFF;
++	serio_write(serio, TAOS_CMD_ECHO_OFF);
++
++	wait_event_interruptible_timeout(wq, taos->state == TAOS_STATE_IDLE,
++					 msecs_to_jiffies(250));
++	if (taos->state != TAOS_STATE_IDLE) {
++		err = -ENODEV;
++		dev_err(&adapter->dev, "Echo off failed "
++			"(state=%d)\n", taos->state);
++		goto exit_close;
++	}
++
+ 	err = i2c_add_adapter(adapter);
+ 	if (err)
+ 		goto exit_close;
+
+
+-- 
+Jean Delvare
