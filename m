@@ -1,34 +1,53 @@
-From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Use the Linux I2C subsystem for a two wire interface protocol
-Date: Tue, 14 Jul 2009 11:25:56 -0500
-Message-ID: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: Use the Linux I2C subsystem for a two wire interface protocol
+Date: Tue, 14 Jul 2009 16:57:44 +0000
+Message-ID: <4A5CB908.4060404@cam.ac.uk>
+References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <528f13590907140925h7aa36452o60da32d3bf941241-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-I was looking at  the implementation of the i2 dev interface and the
-bitbanging interface supplied by kernel v 2.6.24.  What i intend to do
-is use the i2c kernel subsystem to write a userspace driver(using the
-dev - ioctl interface) for a sensor SHT11 which uses a two wire
-interface and a protocol with a packet structure which is different
-from traditional I2C.
+alfred steele wrote:
+> Hi,
+> I was looking at  the implementation of the i2 dev interface and the
+> bitbanging interface supplied by kernel v 2.6.24.  What i intend to do
+> is use the i2c kernel subsystem to write a userspace driver(using the
+> dev - ioctl interface) for a sensor SHT11 which uses a two wire
+> interface and a protocol with a packet structure which is different
+> from traditional I2C.
+Worth noting at this point that there is already a driver for this chip
+in mainline (sht15 under hwmon - I've copied this to the lm-sensors where
+that driver has previously been discussed).
+I can't recall exactly when it was merged, but it's not there in 2.6.29
+and is in 2.6.30.
 
->From the header files and the API's therein, it looks like the
-bitbanging interface should allow any  protocol header to be passed
-as a "payload"(void *data) to the linux kernel i2c bitbanging driver
-using gpio api.  Please let me know if this is a correct approach if
-we intend to write a sensore driver with a proprietary 2 wire
-interface protocol.
 
-This would allow us to write  a user-space driver which is more
-generic for the sensor and that can be changed to a I2C driver if the
-GPIOs are later or tied in hardware to a  dedicated I2C controller. We
-are using the mx31 pdk
+> 
+>>From the header files and the API's therein, it looks like the
+> bitbanging interface should allow any  protocol header to be passed
+> as a "payload"(void *data) to the linux kernel i2c bitbanging driver
+> using gpio api.  Please let me know if this is a correct approach if
+> we intend to write a sensore driver with a proprietary 2 wire
+> interface protocol.
+> 
+> This would allow us to write  a user-space driver which is more
+> generic for the sensor and that can be changed to a I2C driver if the
+> GPIOs are later or tied in hardware to a  dedicated I2C controller. We
+> are using the mx31 pdk
+ 
+First thing to note is that this device is in no way using an i2c type
+comms protocol. I'd be somewhat surprised if any i2c controllers are
+generic enough to talk to it.  The start condition is non standard,
+it uses a 3 bit address (with only 000) supported, and it also has a
+fairly hideous means of indicating that the sampling process
+has finished.  Basically you'd have more luck using the gpio's directly
+than through anything to do with i2c.
 
-Please let me know.
--Alfred.
+---
+Jonathan Cameron
