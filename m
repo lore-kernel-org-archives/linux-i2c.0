@@ -1,52 +1,42 @@
-From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Use the Linux I2C subsystem for a two wire interface protocol
-Date: Tue, 14 Jul 2009 15:58:03 -0500
-Message-ID: <528f13590907141358w17869b6fq450bf223e4f54687@mail.gmail.com>
-References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
-	 <4A5CB908.4060404@cam.ac.uk>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 5/5] drivers/i2c: Use resource_size
+Date: Tue, 14 Jul 2009 23:53:20 +0100
+Message-ID: <20090714225320.GA10277@fluff.org.uk>
+References: <Pine.LNX.4.64.0907050837160.27464@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A5CB908.4060404-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0907050837160.27464-QfmoRoYWmW9knbxzx/v8hQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jonathan,
-Thanks!
-> Worth noting at this point that there is already a driver for this ch=
-ip
-> in mainline (sht15 under hwmon - I've copied this to the lm-sensors w=
-here
-> that driver has previously been discussed).
-Oh ok, so its only in 2.6.30.So i believe i just need to adapt it to
-the GPIOs used on my platform. Would it be sufficient to just populate
-the GPIO no.s in the platform dev structure as the probe and remove
-routine would  still remain the same for SHT1x devices
+On Sun, Jul 05, 2009 at 08:37:50AM +0200, Julia Lawall wrote:
+> From: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+> 
+> Use the function resource_size, which reduces the chance of introducing
+> off-by-one errors in calculating the resource size.
+> 
+> The semantic patch that makes this change is as follows:
+> (http://www.emn.fr/x-info/coccinelle/)
+> 
+> // <smpl>
+> @@
+> struct resource *res;
+> @@
+> 
+> - (res->end - res->start) + 1
+> + resource_size(res)
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
 
-> First thing to note is that this device is in no way using an i2c typ=
-e
-> comms protocol. I'd be somewhat surprised if any i2c controllers are
-> generic enough to talk to it. =A0The start condition is non standard,
-I understand that. I meant the gpio bitbanging interface.
+I'll class these as fixes and have applied them to my
+tree for linus.
 
-> it uses a 3 bit address (with only 000) supported, and it also has a
-> fairly hideous means of indicating that the sampling process
-> has finished. =A0Basically you'd have more luck using the gpio's dire=
-ctly
-> than through anything to do with i2c.
-But i am just pondering over the fact that if they have a bitbanging
-gpio interface in the i2c subsystem, why should i not be able to just
-pass the protocol header as a payload(void *data) to the interface and
-design the user space driver which implements SHT11 specific
-start/stop transmission sequence. Please correct me if i am wrong. I
-am not sure about the "end of sampling"  indication though. I am still
-going through the data sheet. To sum it up, the intention is code
-reusablity in the sense that if we move to a different part which sits
-on the I2c bus, we need not have to modify the kernel driver, just
-keep the complexity  in the userspace.
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-Thanks,
-Alfred.
+  'a smiley only costs 4 bytes'
