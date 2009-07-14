@@ -1,134 +1,60 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 5/5] drivers/i2c: Use resource_size
-Date: Tue, 14 Jul 2009 09:50:18 +0200
-Message-ID: <20090714095018.16e009c8@hyperion.delvare>
-References: <Pine.LNX.4.64.0907050837160.27464@ask.diku.dk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Sample DTS entries and sample user space code
+Date: Tue, 14 Jul 2009 09:57:01 +0200
+Message-ID: <20090714095701.0aec363e@hyperion.delvare>
+References: <50A8E1F8D9122546A7F67134915EDB7AB91AB4@xmb-rtp-21a.amer.cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754124AbZGNHuj@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0907050837160.27464@ask.diku.dk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <julia@diku.dk>, Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, linus.walleij@stericsson.com, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50A8E1F8D9122546A7F67134915EDB7AB91AB4-1urkduz2x36J+CMdqUBC+pT4Y6eR2OpR0E9HWUfgJXw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Lindsey Ings -X (ingsl - Yoh Services LLC at Cisco)" <ingsl-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Julia,
+On Fri, 10 Jul 2009 17:09:47 -0400, Lindsey Ings -X (ingsl - Yoh Services LLC at Cisco) wrote:
+> 
+> 
+> Resend of message in plain text form.
+> 
+> 
+> I understand the concepts involved in this project but that doesn't help me actually make use of it.
 
-On Sun, 5 Jul 2009 08:37:50 +0200 (CEST), Julia Lawall wrote:
-> From: Julia Lawall <julia@diku.dk>
-> 
-> Use the function resource_size, which reduces the chance of introducing
-> off-by-one errors in calculating the resource size.
-> 
-> The semantic patch that makes this change is as follows:
-> (http://www.emn.fr/x-info/coccinelle/)
-> 
-> // <smpl>
-> @@
-> struct resource *res;
-> @@
-> 
-> - (res->end - res->start) + 1
-> + resource_size(res)
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-> 
-> ---
->  drivers/i2c/busses/i2c-davinci.c   |    6 +++---
->  drivers/i2c/busses/i2c-omap.c      |    6 +++---
->  drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
->  drivers/i2c/busses/i2c-simtec.c    |    2 +-
->  4 files changed, 8 insertions(+), 8 deletions(-)
-> 
-> diff -u -p a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> --- a/drivers/i2c/busses/i2c-davinci.c 2009-03-28 23:34:54.000000000 +0100
-> +++ b/drivers/i2c/busses/i2c-davinci.c 2009-07-04 21:38:17.000000000 +0200
-> @@ -505,7 +505,7 @@ static int davinci_i2c_probe(struct plat
->  		return -ENODEV;
->  	}
->  
-> -	ioarea = request_mem_region(mem->start, (mem->end - mem->start) + 1,
-> +	ioarea = request_mem_region(mem->start, resource_size(mem),
->  				    pdev->name);
->  	if (!ioarea) {
->  		dev_err(&pdev->dev, "I2C region already claimed\n");
-> @@ -568,7 +568,7 @@ err_free_mem:
->  	put_device(&pdev->dev);
->  	kfree(dev);
->  err_release_region:
-> -	release_mem_region(mem->start, (mem->end - mem->start) + 1);
-> +	release_mem_region(mem->start, resource_size(mem));
->  
->  	return r;
->  }
-> @@ -591,7 +591,7 @@ static int davinci_i2c_remove(struct pla
->  	kfree(dev);
->  
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	release_mem_region(mem->start, (mem->end - mem->start) + 1);
-> +	release_mem_region(mem->start, resource_size(mem));
->  	return 0;
->  }
->  
-> diff -u -p a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> --- a/drivers/i2c/busses/i2c-omap.c 2009-06-24 21:18:49.000000000 +0200
-> +++ b/drivers/i2c/busses/i2c-omap.c 2009-07-04 21:38:17.000000000 +0200
-> @@ -806,7 +806,7 @@ omap_i2c_probe(struct platform_device *p
->  		return -ENODEV;
->  	}
->  
-> -	ioarea = request_mem_region(mem->start, (mem->end - mem->start) + 1,
-> +	ioarea = request_mem_region(mem->start, resource_size(mem),
->  			pdev->name);
->  	if (!ioarea) {
->  		dev_err(&pdev->dev, "I2C region already claimed\n");
-> @@ -905,7 +905,7 @@ err_free_mem:
->  	platform_set_drvdata(pdev, NULL);
->  	kfree(dev);
->  err_release_region:
-> -	release_mem_region(mem->start, (mem->end - mem->start) + 1);
-> +	release_mem_region(mem->start, resource_size(mem));
->  
->  	return r;
->  }
-> @@ -925,7 +925,7 @@ omap_i2c_remove(struct platform_device *
->  	iounmap(dev->base);
->  	kfree(dev);
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	release_mem_region(mem->start, (mem->end - mem->start) + 1);
-> +	release_mem_region(mem->start, resource_size(mem));
->  	return 0;
->  }
->  
-> diff -u -p a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c 2009-01-09 22:41:01.000000000 +0100
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c 2009-07-04 21:38:18.000000000 +0200
-> @@ -563,7 +563,7 @@ static int sh_mobile_i2c_probe(struct pl
->  		goto err_irq;
->  	}
->  
-> -	size = (res->end - res->start) + 1;
-> +	size = resource_size(res);
->  
->  	pd->reg = ioremap(res->start, size);
->  	if (pd->reg == NULL) {
-> diff -u -p a/drivers/i2c/busses/i2c-simtec.c b/drivers/i2c/busses/i2c-simtec.c
-> --- a/drivers/i2c/busses/i2c-simtec.c 2008-12-07 19:29:06.000000000 +0100
-> +++ b/drivers/i2c/busses/i2c-simtec.c 2009-07-04 21:38:16.000000000 +0200
-> @@ -92,7 +92,7 @@ static int simtec_i2c_probe(struct platf
->  		goto err;
->  	}
->  
-> -	size = (res->end-res->start)+1;
-> +	size = resource_size(res);
->  
->  	pd->ioarea = request_mem_region(res->start, size, dev->name);
->  	if (pd->ioarea == NULL) {
+For reference for other readers who have no clue what you're talking
+about: Lindsey is referring to Rodolfo's I2C multiplexing support
+project, described at:
+http://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
 
-Thanks for the patch. Ben, as all affected drivers are for embedded
-platforms, I suggest that you pick this patch.
+> Is there a sample of how to put the mux and (if feasible) I2C clients in a DTS?
+
+Not yet. Rodolfo's code is not even in mainline. But once
+implementation is complete, then yes it should be possible to declare
+I2C multiplexers and other I2C devices in a DTS.
+
+> Also is there a user application sample of how to access the devices downstream from the mux?
+
+This wouldn't make sense. Multiplexing is handled in the kernel and
+user-space does not even know it is happening.
+
+> Are the mux's created as a device so that the devices downstream are accessed as non-mux'd devices? i.e. is dev D in segment 2 (from the diagram on the wiki) accessed as so:
+> 
+> int fd;
+> fd = open( "/dev/i2c-2", O_RDWR );
+> 
+> #define ADDRESS 0x38 // address of dev D
+> ioctl( fd, I2C_SLAVE, ADDRESS )
+> 
+> // Now r/w dev D
+> 
+> // Write 0xAA to dev D
+> i2c_smbus_write_byte( fd, 0xAA );
+> // etc.
+
+Yes, this is how the code would look like.
+
+Note that I am still waiting for Rodolfo to update his patch set so
+that it applies again on top of Linus' latest kernel.
 
 -- 
 Jean Delvare
