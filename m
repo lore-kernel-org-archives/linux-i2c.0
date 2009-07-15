@@ -1,49 +1,131 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [lm-sensors] Use the Linux I2C subsystem for a two wire interface
- 	protocol
-Date: Wed, 15 Jul 2009 14:43:30 +0000
-Message-ID: <4A5DEB12.3020602@cam.ac.uk>
-References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>	 <4A5CB908.4060404@cam.ac.uk>	 <528f13590907141358w17869b6fq450bf223e4f54687@mail.gmail.com>	 <4A5D6C0A.7030903@gmx.de> <528f13590907150722q2a91139bve72d65cbd555b8e9@mail.gmail.com>
+From: "Karicheri, Muralidharan" <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
+Date: Wed, 15 Jul 2009 10:35:40 -0500
+Message-ID: <A69FA2915331DC488A831521EAE36FE40144E4C09D@dlee06.ent.ti.com>
+References: <1246920516-31462-1-git-send-email-khilman@deeprootsystems.com>
+	<20090707231938.GA9907@fluff.org.uk>
+	<87skh79uai.fsf@deeprootsystems.com>
+	<A69FA2915331DC488A831521EAE36FE40144D8117B@dlee06.ent.ti.com>
+	<1247642943.5981.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <528f13590907150722q2a91139bve72d65cbd555b8e9-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1247642943.5981.76.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-alfred steele wrote:
-> Hi Jonathan/Michael,
->> I'd say this is just the wrong way round:
->> Design goal should be to keep application as is and just load another
->> driver on H/W change + changing access path in some config file.
-> I get that.
-> I am assuming that in order to get the sht15 driver working on my
-> platform, all i need to do is populate the correct GPIO's in the
-> platform device structure. 
-Yes and register it with the kernel
-> Any idea as to how to do that , i mean
-> where(which file in the source) does the actual platform device
-> strucutre's pdata get populated.
-On an embedded board this would typically be in the board config
-file.  For example, see arch/arm/mach-pxa/imote2.c which has an sht15
-attached.  The exact method of registration may be a bit architecture
-specific but will look something like the relevant parts of that file.
+Philby,
 
-> What would be the optimal method to
-> tie it to the userspace. Can i add an ioctl to the sht15 driver and
-> export it for the userspace driver to use.
-No. Preferred way to access this sort of slow low bandwidth device
-is via sysfs.
+That will be great! I will look for it.
 
-It'll create files for reading the various values under
+Murali Karicheri
+Software Design Engineer
+Texas Instruments Inc.
+Germantown, MD 20874
+Phone : 301-515-3736
+email: m-karicheri2-l0cyMroinI0@public.gmane.org
 
-/sys/class/hwmon/hwmon?/device/
-
-from memory they are called
-
-temp0 and humidity0 
-
-Jonathan
+>-----Original Message-----
+>From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
+>Sent: Wednesday, July 15, 2009 3:29 AM
+>To: Karicheri, Muralidharan
+>Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
+>source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
+>
+>Hello Murali,
+>
+>	I will send a patch out to address this problem.
+>
+>Regards,
+>Philby
+>
+>
+>On Wed, 2009-07-08 at 10:25 -0500, Karicheri, Muralidharan wrote:
+>> Hi Kevin,
+>>
+>> When we do a video loopback with MT9T031, we get i2c timeouts when
+>application is killed using Cntrl C. Is it being addressed in any of the
+>patches?  We had the same issue with TI LSP releases (1.20, 2.00, 2.1o etc=
+).
+>> The board has to be rebooted to recover from this.
+>>
+>> Murali Karicheri
+>> Software Design Engineer
+>> Texas Instruments Inc.
+>> Germantown, MD 20874
+>> Phone : 301-515-3736
+>> email: m-karicheri2-l0cyMroinI0@public.gmane.org
+>>
+>> >-----Original Message-----
+>> >From: davinci-linux-open-source-bounces+m-
+>> >karicheri2=3Dti.com-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org [mailto:davinci-linux-open-
+>source-
+>> >bounces+m-karicheri2=3Dti.com-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org] On Behalf Of Kevin
+>Hilman
+>> >Sent: Wednesday, July 08, 2009 9:30 AM
+>> >To: Ben Dooks
+>> >Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-
+>> >i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> >Subject: Re: [PATCH 0/2] davinci i2c fixes for 2.6.31
+>> >
+>> >Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
+>> >
+>> >> On Mon, Jul 06, 2009 at 03:48:34PM -0700, Kevin Hilman wrote:
+>> >>> Here are a couple fixes for the i2c driver on the TI DaVinci family
+>> >>> of SoCs.  These have been tested for awhile in the DaVinci git
+>> >>> repo are needed for 2.6.31.
+>> >>>
+>> >>> These apply on v2.6.31-rc2.
+>> >>
+>> >> ok, do you have a git branch to pull, or should I apply
+>> >> them from the mailing list>
+>> >
+>> >You can take from the list.  My git branch has a bunch of other
+>> >non-i2c changes in it as well.
+>> >
+>> >Thanks,
+>> >
+>> >Kevin
+>> >
+>> >>> David Brownell (1):
+>> >>>   i2c-davinci: behave with i2cdetect
+>> >>>
+>> >>> Kevin Hilman (1):
+>> >>>   i2c-davinci: convert clock usage after clkdev conversion
+>> >>>
+>> >>>  drivers/i2c/busses/i2c-davinci.c |   20 +++++++++++++++-----
+>> >>>  1 files changed, 15 insertions(+), 5 deletions(-)
+>> >>>
+>> >>> --
+>> >>> To unsubscribe from this list: send the line "unsubscribe linux-i2c"
+>in
+>> >>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> >>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> >>
+>> >> --
+>> >> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>> >>
+>> >>   'a smiley only costs 4 bytes'
+>> >
+>> >_______________________________________________
+>> >Davinci-linux-open-source mailing list
+>> >Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+>> >http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source
+>> _______________________________________________
+>> Davinci-linux-open-source mailing list
+>> Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+>> http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source
+>
