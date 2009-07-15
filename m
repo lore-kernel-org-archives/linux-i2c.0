@@ -1,46 +1,121 @@
-From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [lm-sensors] Use the Linux I2C subsystem for a two wire interface
-	protocol
-Date: Wed, 15 Jul 2009 12:32:20 -0500
-Message-ID: <528f13590907151032y30ae62beo486d4e1056219983@mail.gmail.com>
-References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
-	 <4A5CB908.4060404@cam.ac.uk>
-	 <528f13590907141358w17869b6fq450bf223e4f54687@mail.gmail.com>
-	 <4A5D6C0A.7030903@gmx.de>
-	 <528f13590907150722q2a91139bve72d65cbd555b8e9@mail.gmail.com>
-	 <4A5DEB12.3020602@cam.ac.uk>
+From: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Support for synaptic touchscreen in HTC dream
+Date: Wed, 15 Jul 2009 23:03:02 +0530
+Message-ID: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
+References: <20090714100634.GA4054@elf.ucw.cz>
+	 <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
+	 <20090715133627.GA2538@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A5DEB12.3020602-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+In-Reply-To: <20090715133627.GA2538-I/5MKhXcvmPrBKCeMvbIDA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+Hi Pavel,
 
-> On an embedded board this would typically be in the board config
-> file. =A0For example, see arch/arm/mach-pxa/imote2.c which has an sht=
-15
-> attached. =A0The exact method of registration may be a bit architectu=
-re
-> specific but will look something like the relevant parts of that file=
-=2E
-Was trying to look through the imote2.c but i did not get any exact
-match, i am not sure if you are talking about the traditional method
-of declaring the platform data/device and use sort of
-platform_register(). Are you talking about the following chunk?
+On Wed, Jul 15, 2009 at 7:06 PM, Pavel Machek<pavel-+ZI9xUNit7I@public.gmane.org> wrote:
+> Hi!
+>
+>> > +static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
+>> > +{
+>>
+>> some documentation about this logic would be great.
+>
+> Arve, can you help here?
+>
+>
+>> > + =A0 =A0 =A0 int pos[2][2];
+>> > + =A0 =A0 =A0 int f, a;
+>> > + =A0 =A0 =A0 int base =3D 2;
+>> > + =A0 =A0 =A0 int z =3D buf[1];
+>> > + =A0 =A0 =A0 int w =3D buf[0] >> 4;
+>> > + =A0 =A0 =A0 int finger =3D buf[0] & 7;
+>> > + =A0 =A0 =A0 int finger2_pressed;
+>> > +
+>> > + =A0 =A0 =A0 for (f =3D 0; f < 2; f++) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 flip_flag =3D SYNAPTICS_FLIP_X;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (a =3D 0; a < 2; a++) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D buf[base +=
+ 1];
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p |=3D (u16)(buf[bas=
+e] & 0x1f) << 8;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & flip=
+_flag)
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p =3D=
+ ts->max[a] - p;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & SYNA=
+PTICS_SNAP_TO_INACTIVE_EDGE) {
+>
+>
+>> > +static irqreturn_t synaptics_ts_irq_handler(int irq, void *dev_id=
+)
+>> > +{
+>> > + =A0 =A0 =A0 struct synaptics_ts_data *ts =3D dev_id;
+>> > +
+>> > + =A0 =A0 =A0 disable_irq(ts->client->irq);
+>>
+>> disable_irq_nosync or convert this to request_threaded_irq(...).
+>> Please see recent discussion on linux-input for MAX key switch
+>> controller.
+>
+> Do you have a link? (I replaced it with disable_irq_nosync, if that i=
+s
+> enough...)
+>
 
-[vcc_sensor_1_8] =3D {
-248                 .constraints =3D { /* default 1.8V */
-249                         .name =3D "vcc_sensor_1_8",
-250                         .min_uV =3D 1800000,
-251                         .max_uV =3D 1800000,
-252                 },
-253         },
+link: http://patchwork.kernel.org/patch/35515/
 
-How does the structure in  sht15_platform_data in the sht15 code
-relate to this?  I am a bit confused.
--Alfred.
+>> > +static int synaptics_ts_probe(
+>> > + =A0 =A0 =A0 struct i2c_client *client, const struct i2c_device_i=
+d *id)
+>> > +{
+>>
+>> __devinit ?
+>
+> Ok.
+>
+>> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_FU=
+NC_I2C)) {
+>>
+>> check for SMBUS? I have added linux-i2c as this driver has i2c bits,
+>> so not removing any code.
+>
+> I guess this driver is only probed on mach-pxa... on machines that
+> have the neccessary hardware.
+
+Because this driver is using smbus i2c apis, it will be good to add
+that check too.
+
+>
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "synaptics_ts_probe:=
+ need I2C_FUNC_I2C\n");
+>>
+>> dev_xxx/pr_xxx friends?
+>
+> Fixed all occurences.
+>
+>
+>> > + =A0 =A0 =A0 ts->input_dev =3D input_allocate_device();
+>> > + =A0 =A0 =A0 if (ts->input_dev =3D=3D NULL) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("synaptics: Failed to allocat=
+e input device\n");
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_input_dev_alloc_failed;
+>> > + =A0 =A0 =A0 }
+>> > + =A0 =A0 =A0 ts->input_dev->name =3D "synaptics-rmi-touchscreen";
+>>
+>> other parameters of input_dev, like vendor, bus etc.,
+>
+> Ok, what are those for? I can probably invent some dummy values, but.=
+=2E.
+
+May be vendor, product, version would be good to add.
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
