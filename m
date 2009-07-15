@@ -1,31 +1,29 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' i2c-fixes
-Date: Wed, 15 Jul 2009 00:06:39 +0100
-Message-ID: <E1MQr55-00035T-Q2@kira.home.fluff.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [lm-sensors] Use the Linux I2C subsystem for a two wire	interface
+ protocol
+Date: Wed, 15 Jul 2009 07:41:30 +0200
+Message-ID: <4A5D6C0A.7030903@gmx.de>
+References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>	<4A5CB908.4060404@cam.ac.uk> <528f13590907141358w17869b6fq450bf223e4f54687@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <528f13590907141358w17869b6fq450bf223e4f54687-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit 6847e154e3cd74fca6084124c097980a7634285a:
-  Linus Torvalds (1):
-        Linux 2.6.31-rc3
+alfred steele said the following:
+> To sum it up, the intention is code
+> reusablity in the sense that if we move to a different part which sits
+> on the I2c bus, we need not have to modify the kernel driver, just
+> keep the complexity  in the userspace.
 
-are available in the git repository at:
+I'd say this is just the wrong way round:
+Design goal should be to keep application as is and just load another
+driver on H/W change + changing access path in some config file.
 
-  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-for-2631-rc3
+Just my 2 cents
 
-David Brownell (1):
-      i2c-davinci: behave with i2cdetect
-
-Julia Lawall (1):
-      i2c: Use resource_size
-
-Kevin Hilman (1):
-      i2c-davinci: convert clock usage after clkdev conversion
-
- drivers/i2c/busses/i2c-davinci.c   |   26 ++++++++++++++++++--------
- drivers/i2c/busses/i2c-omap.c      |    6 +++---
- drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
- drivers/i2c/busses/i2c-simtec.c    |    2 +-
- 4 files changed, 23 insertions(+), 13 deletions(-)
+Michael
