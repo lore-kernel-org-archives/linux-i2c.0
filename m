@@ -1,140 +1,35 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: Support for synaptic touchscreen in HTC dream
-Date: Wed, 15 Jul 2009 15:36:27 +0200
-Message-ID: <20090715133627.GA2538@elf.ucw.cz>
-References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
+From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [lm-sensors] Use the Linux I2C subsystem for a two wire interface
+	protocol
+Date: Wed, 15 Jul 2009 09:22:56 -0500
+Message-ID: <528f13590907150722q2a91139bve72d65cbd555b8e9@mail.gmail.com>
+References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
+	 <4A5CB908.4060404@cam.ac.uk>
+	 <528f13590907141358w17869b6fq450bf223e4f54687@mail.gmail.com>
+	 <4A5D6C0A.7030903@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5d5443650907140320w334864f4uc1ee13ed32fdb874-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4A5D6C0A.7030903-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Hi Jonathan/Michael,
+> I'd say this is just the wrong way round:
+> Design goal should be to keep application as is and just load another
+> driver on H/W change + changing access path in some config file.
+I get that.
+I am assuming that in order to get the sht15 driver working on my
+platform, all i need to do is populate the correct GPIO's in the
+platform device structure. Any idea as to how to do that , i mean
+where(which file in the source) does the actual platform device
+strucutre's pdata get populated. What would be the optimal method to
+tie it to the userspace. Can i add an ioctl to the sht15 driver and
+export it for the userspace driver to use.
 
-> > +static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
-> > +{
->=20
-> some documentation about this logic would be great.
-
-Arve, can you help here?
-
-
-> > + =A0 =A0 =A0 int pos[2][2];
-> > + =A0 =A0 =A0 int f, a;
-> > + =A0 =A0 =A0 int base =3D 2;
-> > + =A0 =A0 =A0 int z =3D buf[1];
-> > + =A0 =A0 =A0 int w =3D buf[0] >> 4;
-> > + =A0 =A0 =A0 int finger =3D buf[0] & 7;
-> > + =A0 =A0 =A0 int finger2_pressed;
-> > +
-> > + =A0 =A0 =A0 for (f =3D 0; f < 2; f++) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 flip_flag =3D SYNAPTICS_FLIP_X;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (a =3D 0; a < 2; a++) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D buf[base + =
-1];
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p |=3D (u16)(buf[base=
-] & 0x1f) << 8;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & flip_=
-flag)
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p =3D=
- ts->max[a] - p;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & SYNAP=
-TICS_SNAP_TO_INACTIVE_EDGE) {
-
-
-> > +static irqreturn_t synaptics_ts_irq_handler(int irq, void *dev_id)
-> > +{
-> > + =A0 =A0 =A0 struct synaptics_ts_data *ts =3D dev_id;
-> > +
-> > + =A0 =A0 =A0 disable_irq(ts->client->irq);
->=20
-> disable_irq_nosync or convert this to request_threaded_irq(...).
-> Please see recent discussion on linux-input for MAX key switch
-> controller.
-
-Do you have a link? (I replaced it with disable_irq_nosync, if that is
-enough...)
-
-> > +static int synaptics_ts_probe(
-> > + =A0 =A0 =A0 struct i2c_client *client, const struct i2c_device_id=
- *id)
-> > +{
->=20
-> __devinit ?
-
-Ok.
-
-> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_FUN=
-C_I2C)) {
->=20
-> check for SMBUS? I have added linux-i2c as this driver has i2c bits,
-> so not removing any code.
-
-I guess this driver is only probed on mach-pxa... on machines that
-have the neccessary hardware.
-
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "synaptics_ts_probe: =
-need I2C_FUNC_I2C\n");
->=20
-> dev_xxx/pr_xxx friends?
-
-=46ixed all occurences.
-
-
-> > + =A0 =A0 =A0 ts->input_dev =3D input_allocate_device();
-> > + =A0 =A0 =A0 if (ts->input_dev =3D=3D NULL) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("synaptics: Failed to allocate=
- input device\n");
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_input_dev_alloc_failed;
-> > + =A0 =A0 =A0 }
-> > + =A0 =A0 =A0 ts->input_dev->name =3D "synaptics-rmi-touchscreen";
->=20
-> other parameters of input_dev, like vendor, bus etc.,
-
-Ok, what are those for? I can probably invent some dummy values, but...
-
-> > + =A0 =A0 =A0 set_bit(EV_SYN, ts->input_dev->evbit);
-> > + =A0 =A0 =A0 set_bit(EV_KEY, ts->input_dev->evbit);
-> > + =A0 =A0 =A0 set_bit(BTN_TOUCH, ts->input_dev->keybit);
-> > + =A0 =A0 =A0 set_bit(BTN_2, ts->input_dev->keybit);
-> > + =A0 =A0 =A0 set_bit(EV_ABS, ts->input_dev->evbit);
-> > +
->=20
-> __set_bit or input_set_capability please.
-
-__set_bit is easier, done.
-
-> > +static int synaptics_ts_remove(struct i2c_client *client)
-> > +{
->=20
-> __devexit
-
-Applied.
-
-
-> > +static int synaptics_ts_suspend(struct i2c_client *client, pm_mess=
-age_t mesg)
-> > +{
->=20
-> #ifdef CONFIG_PM ?
-
-Yep.
-
-> > +MODULE_DESCRIPTION("Synaptics Touchscreen Driver");
-> > +MODULE_LICENSE("GPL");
->=20
-> MODULE_ALIAS?
-
-Umm, why? This is loaded from board-*.c files, and I don't think i2c
-has enumeration capabilities.
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
-/blog.html
+Appreciate your comments.
+Thanks,
+Alfred.
