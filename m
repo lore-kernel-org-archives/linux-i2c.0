@@ -1,196 +1,140 @@
-From: Sergei Shtylyov <sshtylyov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
-Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
-Date: Wed, 15 Jul 2009 16:34:05 +0400
-Message-ID: <4A5DCCBD.909@ru.mvista.com>
-References: <1247643267.5981.82.camel@localhost.localdomain>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: Support for synaptic touchscreen in HTC dream
+Date: Wed, 15 Jul 2009 15:36:27 +0200
+Message-ID: <20090715133627.GA2538@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1247643267.5981.82.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5d5443650907140320w334864f4uc1ee13ed32fdb874-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+Hi!
 
-Philby John wrote:
+> > +static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
+> > +{
+>=20
+> some documentation about this logic would be great.
 
->>From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17 00:00:00 2001
-> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> Date: Tue, 14 Jul 2009 21:46:47 +0530
-> Subject: [PATCH] Reset i2c bus to come out of time out conditions
+Arve, can you help here?
 
-> Get out of i2c time out condition by resetting
-> the i2c bus. The kernel must be robust enough to
-> gracefully recover from i2c bus failure without having
-> to reset the machine. This is done by first NACKing the slave
-> and then resetting the i2c bus after a certain timeout.
 
-> Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> > + =A0 =A0 =A0 int pos[2][2];
+> > + =A0 =A0 =A0 int f, a;
+> > + =A0 =A0 =A0 int base =3D 2;
+> > + =A0 =A0 =A0 int z =3D buf[1];
+> > + =A0 =A0 =A0 int w =3D buf[0] >> 4;
+> > + =A0 =A0 =A0 int finger =3D buf[0] & 7;
+> > + =A0 =A0 =A0 int finger2_pressed;
+> > +
+> > + =A0 =A0 =A0 for (f =3D 0; f < 2; f++) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 flip_flag =3D SYNAPTICS_FLIP_X;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (a =3D 0; a < 2; a++) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D buf[base + =
+1];
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p |=3D (u16)(buf[base=
+] & 0x1f) << 8;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & flip_=
+flag)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p =3D=
+ ts->max[a] - p;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & SYNAP=
+TICS_SNAP_TO_INACTIVE_EDGE) {
 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 17f2ee7..4ed1a4c 100755
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -35,14 +35,18 @@
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
->  #include <linux/io.h>
-> +#include <linux/gpio.h>
->  
->  #include <mach/hardware.h>
->  
->  #include <mach/i2c.h>
-> +#include <mach/mux.h>
-> +#include <mach/cputype.h>
->  
->  /* ----- global defines ----------------------------------------------- */
->  
->  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
-> +#define DAVINCI_I2C_MAX_TRIES	2
->  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
->  				 DAVINCI_I2C_IMR_SCD | \
->  				 DAVINCI_I2C_IMR_ARDY | \
-> @@ -135,6 +139,50 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
->  }
->  
->  /*
-> + * Configure the i2c data pin as a GPIO input and the i2c clock pin as a
-> + * high GPIO output.
-> + */
-> +static void disable_i2c_pins(void)
-> +{
-> +	unsigned long flags;
-> +
-> +	local_irq_save(flags);
-> +	if (cpu_is_davinci_dm355()) {
-> +		gpio_direction_input(15);
-> +		gpio_direction_output(14, 0);
-> +		gpio_set_value(14, 1);
 
-    Why not just:
+> > +static irqreturn_t synaptics_ts_irq_handler(int irq, void *dev_id)
+> > +{
+> > + =A0 =A0 =A0 struct synaptics_ts_data *ts =3D dev_id;
+> > +
+> > + =A0 =A0 =A0 disable_irq(ts->client->irq);
+>=20
+> disable_irq_nosync or convert this to request_threaded_irq(...).
+> Please see recent discussion on linux-input for MAX key switch
+> controller.
 
-		gpio_direction_output(14, 1);
+Do you have a link? (I replaced it with disable_irq_nosync, if that is
+enough...)
 
-> +		davinci_cfg_reg(DM355_I2C_SDA);
-> +		davinci_cfg_reg(DM355_I2C_SCL);
+> > +static int synaptics_ts_probe(
+> > + =A0 =A0 =A0 struct i2c_client *client, const struct i2c_device_id=
+ *id)
+> > +{
+>=20
+> __devinit ?
 
-    Why enable the pins here?
+Ok.
 
-> +	}
-> +	local_irq_restore(flags);
-> +}
-> +
-> +/* Connect the i2c pins to the i2c controller. */
-> +static void enable_i2c_pins(void)
-> +{
-> +	unsigned long flags;
-> +
-> +	local_irq_save(flags);
-> +	if (cpu_is_davinci_dm355()) {
-> +		davinci_cfg_reg(DM355_I2C_SDA);
-> +		davinci_cfg_reg(DM355_I2C_SCL);
-> +	}
-> +	local_irq_restore(flags);
-> +}
-> +
-> +
-> +/* Generate a pulse on the i2c clock pin. */
-> +static void pulse_i2c_clock(void)
-> +{
-> +	if (cpu_is_davinci_dm355()) {
-> +		gpio_set_value(14, 0);
-> +		udelay(20);
-> +		gpio_set_value(14, 1);
-> +		udelay(20);
-> +	}
-> +}
-> +
-> +/*
->   * This functions configures I2C and brings I2C out of reset.
->   * This function is called during I2C init function. This function
->   * also gets called if I2C encounters any errors.
-> @@ -221,14 +269,36 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
->  					 char allow_sleep)
->  {
->  	unsigned long timeout;
-> +	u16 i;
-> +	static u16 to_cnt = 0;
-> +	u32 flag = 0;
->  
->  	timeout = jiffies + dev->adapter.timeout;
->  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
-> -	       & DAVINCI_I2C_STR_BB) {
-> -		if (time_after(jiffies, timeout)) {
-> -			dev_warn(dev->dev,
-> -				 "timeout waiting for bus ready\n");
-> -			return -ETIMEDOUT;
-> +			& DAVINCI_I2C_STR_BB) {
-> +
-> +		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
-> +			if (time_after(jiffies, timeout)) {
-> +				dev_warn(dev->dev,
-> +					"timeout waiting for bus ready\n");
-> +				to_cnt++;
-> +				return -ETIMEDOUT;
-> +			}
-> +		} else if (cpu_is_davinci_dm644x() || cpu_is_davinci_dm355()) {
-> +			to_cnt = 0;
-> +			dev_err(dev->dev, "initiating i2c bus recovery\n");
-> +			/* Send the NACK to the slave */
-> +			flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-> +			flag |=  DAVINCI_I2C_MDR_NACK;
+> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_FUN=
+C_I2C)) {
+>=20
+> check for SMBUS? I have added linux-i2c as this driver has i2c bits,
+> so not removing any code.
 
-    Superflous space here...
+I guess this driver is only probed on mach-pxa... on machines that
+have the neccessary hardware.
 
-> +			/* write the data into mode register */
-> +			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "synaptics_ts_probe: =
+need I2C_FUNC_I2C\n");
+>=20
+> dev_xxx/pr_xxx friends?
 
-    How come you're reading from the interrupt mask register but writing 
-into the mode register which has different layout? :-O
+=46ixed all occurences.
 
-> +			/* Disable i2c */
-> +			disable_i2c_pins();
-> +			for (i = 0; i < 10; i++)
-> +				pulse_i2c_clock();
-> +			/* Re-enable i2c */
-> +			enable_i2c_pins();
-> +			i2c_davinci_init(dev);
->  		}
->  		if (allow_sleep)
->  			schedule_timeout(1);
-> @@ -309,7 +379,23 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
->  						      dev->adapter.timeout);
->  	if (r == 0) {
-> -		dev_err(dev->dev, "controller timed out\n");
-> +		u16 i;
-> +		u32 flag = 0;
-> +		if (cpu_is_davinci_dm644x() || cpu_is_davinci_dm355()) {
-> +			dev_err(dev->dev, "initiating i2c bus recovery\n");
-> +			/* Send the NACK to the slave */
-> +			flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-> +			flag |=  DAVINCI_I2C_MDR_NACK;
 
-    ... and here.
+> > + =A0 =A0 =A0 ts->input_dev =3D input_allocate_device();
+> > + =A0 =A0 =A0 if (ts->input_dev =3D=3D NULL) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("synaptics: Failed to allocate=
+ input device\n");
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_input_dev_alloc_failed;
+> > + =A0 =A0 =A0 }
+> > + =A0 =A0 =A0 ts->input_dev->name =3D "synaptics-rmi-touchscreen";
+>=20
+> other parameters of input_dev, like vendor, bus etc.,
 
-> +			/* write the data into mode register */
-> +			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-> +			/* Disable i2c */
-> +			disable_i2c_pins();
-> +			/* Send high and low on the SCL line */
-> +			for (i = 0; i < 10; i++)
-> +				pulse_i2c_clock();
-> +			/* Re-enable i2c */
-> +			enable_i2c_pins();
+Ok, what are those for? I can probably invent some dummy values, but...
 
-    Please factor out the completely identical recovery procedures into the
+> > + =A0 =A0 =A0 set_bit(EV_SYN, ts->input_dev->evbit);
+> > + =A0 =A0 =A0 set_bit(EV_KEY, ts->input_dev->evbit);
+> > + =A0 =A0 =A0 set_bit(BTN_TOUCH, ts->input_dev->keybit);
+> > + =A0 =A0 =A0 set_bit(BTN_2, ts->input_dev->keybit);
+> > + =A0 =A0 =A0 set_bit(EV_ABS, ts->input_dev->evbit);
+> > +
+>=20
+> __set_bit or input_set_capability please.
 
-> +		}
->  		i2c_davinci_init(dev);
->  		dev->buf_len = 0;
->  		return -ETIMEDOUT;
+__set_bit is easier, done.
 
-WBR, Sergei
+> > +static int synaptics_ts_remove(struct i2c_client *client)
+> > +{
+>=20
+> __devexit
+
+Applied.
+
+
+> > +static int synaptics_ts_suspend(struct i2c_client *client, pm_mess=
+age_t mesg)
+> > +{
+>=20
+> #ifdef CONFIG_PM ?
+
+Yep.
+
+> > +MODULE_DESCRIPTION("Synaptics Touchscreen Driver");
+> > +MODULE_LICENSE("GPL");
+>=20
+> MODULE_ALIAS?
+
+Umm, why? This is loaded from board-*.c files, and I don't think i2c
+has enumeration capabilities.
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html
