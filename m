@@ -1,31 +1,37 @@
-From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: strncpy does not null terminate string
-Date: Fri, 17 Jul 2009 15:24:00 +0200
-Message-ID: <4A607B70.8080901@gmail.com>
-References: <4A60769C.9010707@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: [PATCH] i2c-s3c2410: s3c24xx_i2c_init: don't clobber IICLC value
+Date: Fri, 17 Jul 2009 22:33:37 +0200
+Message-ID: <1247862817-17106-1-git-send-email-jacmet@sunsite.dk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A60769C.9010707-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-strlcpy() will always null terminate the string.
+s3c24xx_i2c_init() was overwriting the IICLC value set just above in
+s3c24xx_i2c_clockrate() with zero, effectively disabling the platform
+line control setting.
 
-Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
 ---
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index fdd8327..f2b82ee 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -879,7 +879,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_HWMON;
--	strncpy(adap->name, "OMAP I2C adapter", sizeof(adap->name));
-+	strlcpy(adap->name, "OMAP I2C adapter", sizeof(adap->name));
- 	adap->algo = &omap_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
+ drivers/i2c/busses/i2c-s3c2410.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 8f42a45..20bb0ce 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -763,11 +763,6 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+ 	dev_info(i2c->dev, "bus frequency set to %d KHz\n", freq);
+ 	dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02lx\n", iicon);
  
+-	/* check for s3c2440 i2c controller  */
+-
+-	if (s3c24xx_i2c_is2440(i2c))
+-		writel(0x0, i2c->regs + S3C2440_IICLC);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.6.3.3
