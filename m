@@ -1,173 +1,74 @@
-From: balajitk@ti.com
-Subject: [RFC][PATCH 4/4] OMAP4: PMIC: Update TWL mfd driver to create twl6030 regulators
-Date: Mon, 20 Jul 2009 19:07:53 +0530
-Message-ID: <1248097073-14838-1-git-send-email-balajitk@ti.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753919AbZGTNiZ@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: tony@atomide.com, khilman@deeprootsystems.com, david-b@pacbell.net, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, sameo@openedhand.com, wim@iguana.be, timo.t.kokkonen@nokia.com, ben-linux@fluff.org, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com, Rajendra Nayak <rnayak@ti.com>
+From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: [PATCH] i2c-au1550: dev_pm_ops conversion.
+Date: Mon, 20 Jul 2009 20:47:41 +0200
+Message-ID: <1248115661-20189-1-git-send-email-manuel.lauss@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Manuel Lauss <manuel.lauss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@ti.com>
-
-This patch adds initial support for creating twl6030 PMIC
-specific voltage regulators in the twl mfd driver.
-
-Board specific regulator configurations will have to be passed from
-respective board files.
-
-Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Manuel Lauss <manuel.lauss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/mfd/twl-core.c  |   64 +++++++++++++++++++++++++++++++++++++++++-----
- include/linux/i2c/twl.h |   18 +++++++++---
- 2 files changed, 70 insertions(+), 12 deletions(-)
+Run-tested on Au1200.
 
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index cf4fec4..2ad01dd 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -76,11 +76,18 @@
- #define twl_has_gpio()	false
- #endif
- 
--#if defined(CONFIG_REGULATOR_TWL4030) \
--	|| defined(CONFIG_REGULATOR_TWL4030_MODULE)
--#define twl_has_regulator()	true
-+#if defined(CONFIG_REGULATOR_TWL) \
-+	|| defined(CONFIG_REGULATOR_TWL_MODULE)
-+#ifdef CONFIG_TWL4030_CORE
-+#define twl_has_4030regulator()	true
-+#define twl_has_6030regulator() false
-+#elif CONFIG_TWL6030_CORE
-+#define twl_has_6030regulator() true
-+#define twl_has_4030regulator()	false
-+#endif
- #else
--#define twl_has_regulator()	false
-+#define twl_has_4030regulator()	false
-+#define twl_has_6030regulator()	false
- #endif
- 
- #if defined(CONFIG_TWL4030_MADC) || defined(CONFIG_TWL4030_MADC_MODULE)
-@@ -630,7 +637,7 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
--	if (twl_has_regulator()) {
-+	if (twl_has_4030regulator()) {
- 		/*
- 		child = add_regulator(TWL4030_REG_VPLL1, pdata->vpll1);
- 		if (IS_ERR(child))
-@@ -653,7 +660,7 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
--	if (twl_has_regulator() && usb_transceiver) {
-+	if (twl_has_4030regulator() && usb_transceiver) {
- 		static struct regulator_consumer_supply usb1v5 = {
- 			.supply =	"usb1v5",
- 		};
-@@ -695,7 +702,7 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 	}
- 
- 	/* maybe add LDOs that are omitted on cost-reduced parts */
--	if (twl_has_regulator() && !(features & TPS_SUBSET)) {
-+	if (twl_has_4030regulator() && !(features & TPS_SUBSET)) {
- 		child = add_regulator(TWL4030_REG_VPLL2, pdata->vpll2);
- 		if (IS_ERR(child))
- 			return PTR_ERR(child);
-@@ -721,6 +728,49 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
-+	/* twl6030 regulators */
-+	if (twl_has_6030regulator()) {
-+		child = add_regulator(TWL6030_REG_VMMC, pdata->vmmc);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VPP, pdata->vpp);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VUSIM, pdata->vusim);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VANA, pdata->vana);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VCXIO, pdata->vcxio);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VDAC, pdata->vdac);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VUSB, pdata->vusb);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX1_6030, pdata->vaux1);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX2_6030, pdata->vaux2);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX3_6030, pdata->vaux3);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+	}
-+
+ drivers/i2c/busses/i2c-au1550.c |   23 ++++++++++-------------
+ 1 files changed, 10 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index 532828b..6565012 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -440,40 +440,37 @@ i2c_au1550_remove(struct platform_device *pdev)
  	return 0;
  }
  
-diff --git a/include/linux/i2c/twl.h b/include/linux/i2c/twl.h
-index b128831..16dc692 100644
---- a/include/linux/i2c/twl.h
-+++ b/include/linux/i2c/twl.h
-@@ -360,6 +360,7 @@ int twl_i2c_read(u8 mod_no, u8 *value, u8 reg, unsigned num_bytes);
- #define TWL4030_INT_PWR_EDR2		0x6
- #define TWL4030_INT_PWR_SIH_CTRL	0x7
+-#ifdef CONFIG_PM
+-static int
+-i2c_au1550_suspend(struct platform_device *pdev, pm_message_t state)
++static int i2c_au1550_suspend(struct device *dev)
+ {
+-	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
++	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
  
+ 	i2c_au1550_disable(priv);
+ 
+ 	return 0;
+ }
+ 
+-static int
+-i2c_au1550_resume(struct platform_device *pdev)
++static int i2c_au1550_resume(struct device *dev)
+ {
+-	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
++	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
+ 
+ 	i2c_au1550_setup(priv);
+ 
+ 	return 0;
+ }
+-#else
+-#define i2c_au1550_suspend	NULL
+-#define i2c_au1550_resume	NULL
+-#endif
 +
- /*----------------------------------------------------------------------*/
++static struct dev_pm_ops au1xpsc_smbus_pmops = {
++	.resume		= i2c_au1550_resume,
++	.suspend	= i2c_au1550_suspend,
++};
  
- /* Power bus message definitions */
-@@ -478,18 +479,25 @@ struct twl_platform_data {
- 	struct twl_keypad_data		*keypad;
- 	struct twl_usb_data			*usb;
- 
--	/* LDO regulators */
-+	/* LDO regulators common to TWL4030/TWL6030 */
- 	struct regulator_init_data		*vdac;
-+	struct regulator_init_data		*vaux1;
-+	struct regulator_init_data		*vaux2;
-+	struct regulator_init_data		*vaux3;
-+	/* TWL4030 LDO regulators */
- 	struct regulator_init_data		*vpll1;
- 	struct regulator_init_data		*vpll2;
- 	struct regulator_init_data		*vmmc1;
- 	struct regulator_init_data		*vmmc2;
- 	struct regulator_init_data		*vsim;
--	struct regulator_init_data		*vaux1;
--	struct regulator_init_data		*vaux2;
--	struct regulator_init_data		*vaux3;
- 	struct regulator_init_data		*vaux4;
--
-+	/* TWL6030 LDO regulators */
-+	struct regulator_init_data              *vmmc;
-+	struct regulator_init_data              *vpp;
-+	struct regulator_init_data              *vusim;
-+	struct regulator_init_data              *vana;
-+	struct regulator_init_data              *vcxio;
-+	struct regulator_init_data              *vusb;
- 	/* REVISIT more to come ... _nothing_ should be hard-wired */
+ static struct platform_driver au1xpsc_smbus_driver = {
+ 	.driver = {
+ 		.name	= "au1xpsc_smbus",
+ 		.owner	= THIS_MODULE,
++		.pm	= &au1xpsc_smbus_pmops,
+ 	},
+ 	.probe		= i2c_au1550_probe,
+ 	.remove		= __devexit_p(i2c_au1550_remove),
+-	.suspend	= i2c_au1550_suspend,
+-	.resume		= i2c_au1550_resume,
  };
  
+ static int __init
 -- 
-1.5.4.7
+1.6.3.3
