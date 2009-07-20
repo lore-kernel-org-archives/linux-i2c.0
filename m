@@ -1,33 +1,50 @@
-From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [lm-sensors] Use the Linux I2C subsystem for a two wire interface
-	protocol
-Date: Mon, 20 Jul 2009 01:25:29 -0500
-Message-ID: <528f13590907192325m7d53ed38g42aaef9cba9d6f9e@mail.gmail.com>
-References: <528f13590907140925h7aa36452o60da32d3bf941241@mail.gmail.com>
-	 <4A5D6C0A.7030903@gmx.de>
-	 <528f13590907150722q2a91139bve72d65cbd555b8e9@mail.gmail.com>
-	 <4A5DEB12.3020602@cam.ac.uk>
-	 <528f13590907151032y30ae62beo486d4e1056219983@mail.gmail.com>
-	 <4A5E206F.8000001@cam.ac.uk>
-	 <528f13590907160913n73dcb4fcuf09f4946d7578793@mail.gmail.com>
-	 <528f13590907160929r1385c99el6c1ed16ca1b592d2@mail.gmail.com>
-	 <4A5F76A8.8080001@cam.ac.uk>
-	 <528f13590907171421m26bc67ecg8d0334d20365406f@mail.gmail.com>
+From: Crane Cai <crane.cai@amd.com>
+Subject: [PATCH] I2C: Add support for new AMD SMBus devices
+Date: Mon, 20 Jul 2009 15:31:12 +0800
+Message-ID: <20090720073112.GA18219@crane-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <528f13590907171421m26bc67ecg8d0334d20365406f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LM Sensors <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752773AbZGTHbj@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> A very naive question at this point. Wouldnt it be possible to "not"
-> use =A0a GPIO irq and bottom half and instead to simplify the driver =
-to
-> start with, use a synchronous read routine.? I know this may violate
-> the kernel framework
-I  stuck a scope, i could see the lines wiggling, but no "AC" was sent
-from the sensor.
--Alfred.
+Use driver to detect SMBus devices with Vendor ID AMD and class code is SMBus.
+
+Signed-off-by: Crane Cai <crane.cai@amd.com>
+---
+ drivers/i2c/busses/i2c-piix4.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 0249a7d..034f388 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -479,6 +479,10 @@ static struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
++	/* AMD Generic, PCI class code and Vendor ID for SMBus */
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_ANY_ID),
++	  .class = PCI_CLASS_SERIAL_SMBUS << 8,
++	  .class_mask = 0xffffff },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+@@ -499,9 +503,10 @@ static int __devinit piix4_probe(struct pci_dev *dev,
+ {
+ 	int retval;
+ 
+-	if ((dev->vendor == PCI_VENDOR_ID_ATI) &&
++	if (((dev->vendor == PCI_VENDOR_ID_ATI) &&
+ 	    (dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
+-	    (dev->revision >= 0x40))
++	    (dev->revision >= 0x40)) ||
++	    dev->vendor == PCI_VENDOR_ID_AMD)
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id);
+ 	else
+-- 
+1.6.0.4
