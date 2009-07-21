@@ -1,134 +1,59 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [RESUBMIT][PATCH][RFC] OMAP4: I2C Support for OMAP4430
-Date: Tue, 21 Jul 2009 16:46:01 +0100
-Message-ID: <20090721154601.GC7547@n2100.arm.linux.org.uk>
-References: <53314.192.168.10.89.1248189586.squirrel@dbdmail.itg.ti.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Tue, 21 Jul 2009 09:04:37 -0700
+Message-ID: <20090721160436.GD4352@dtor-d630.eng.vmware.com>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk> <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com> <20090721124933.GA5668@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <53314.192.168.10.89.1248189586.squirrel-pJFUjGLopx31T2qfsofKZtBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20090721124933.GA5668-HF5t3jzXg/6ND3a5+9QAFujbO/Zr0HzV@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 21, 2009 at 08:49:46PM +0530, Syed Rafiuddin wrote:
-> This patch adds OMAP4 support to the I2C driver. All I2C register addresses
-> are different between OMAP1/2/3 and OMAP4. In order to not have #ifdef's at
-> various places in code, as well as to support multi-OMAP build, Array's are
-> created to hold the register addresses.
-
-Hmm, some comments follow.
-
-> @@ -156,6 +162,12 @@
->  #define SYSC_IDLEMODE_SMART		0x2
->  #define SYSC_CLOCKACTIVITY_FCLK		0x2
+On Tue, Jul 21, 2009 at 01:49:33PM +0100, Mark Brown wrote:
+> On Tue, Jul 21, 2009 at 06:00:07PM +0530, Trilok Soni wrote:
 > 
-> +#define maxvalue(x, y)	(x > y ? x : y)
-
-We have a max() and max_t() functions in the kernel which are both
-typesafe.  Please don't reintroduce the above buggy construct.
-
-> +
-> +struct reg_type {
-> +	u32 reg;
-> +	u32 offset;
-> +};
-
-I'm not sure what use 'reg' is here - since it's always identical to
-the index into the array.  Just make this an array.
-
+> > Hopefully, this thread can give all details about threaded irq discussion.
 > 
->  struct omap_i2c_dev {
->  	struct device		*dev;
-> @@ -165,6 +177,7 @@ struct omap_i2c_dev {
->  	struct clk		*fclk;		/* Functional clock */
->  	struct completion	cmd_complete;
->  	struct resource		*ioarea;
-> +	struct reg_type		*regs;
-
-This could be const...
-
->  	u32			speed;		/* Speed of bus in Khz */
->  	u16			cmd_err;
->  	u8			*buf;
-> @@ -180,15 +193,61 @@ struct omap_i2c_dev {
->  	u16			iestate;	/* Saved interrupt register */
->  };
+> > http://lkml.org/lkml/2009/2/27/255
 > 
-> +static struct  __initdata reg_type reg_map[] = {
-> +	{OMAP_I2C_REV_REG, 0x00},
-> +	{OMAP_I2C_IE_REG, 0x04},
-> +	{OMAP_I2C_STAT_REG, 0x08},
-> +	{OMAP_I2C_IV_REG, 0x0c},
-> +	{OMAP_I2C_WE_REG, 0x0c},
-> +	{OMAP_I2C_SYSS_REG, 0x10},
-> +	{OMAP_I2C_BUF_REG, 0x14},
-> +	{OMAP_I2C_CNT_REG, 0x18},
-> +	{OMAP_I2C_DATA_REG, 0x1c},
-> +	{OMAP_I2C_SYSC_REG, 0x20},
-> +	{OMAP_I2C_CON_REG, 0x24},
-> +	{OMAP_I2C_OA_REG, 0x28},
-> +	{OMAP_I2C_SA_REG, 0x2c},
-> +	{OMAP_I2C_PSC_REG, 0x30},
-> +	{OMAP_I2C_SCLL_REG, 0x34},
-> +	{OMAP_I2C_SCLH_REG, 0x38},
-> +	{OMAP_I2C_SYSTEST_REG, 0x3C},
-> +	{OMAP_I2C_BUFSTAT_REG, 0x40},
-> +};
-> +
-> +static struct  __initdata reg_type omap4_reg_map[] = {
-> +	{OMAP_I2C_REV_REG, 0x04},
-> +	{OMAP_I2C_IE_REG, 0x2c},
-> +	{OMAP_I2C_STAT_REG, 0x28},
-> +	{OMAP_I2C_IV_REG, 0x34},
-> +	{OMAP_I2C_WE_REG, 0x34},
-> +	{OMAP_I2C_SYSS_REG, 0x90},
-> +	{OMAP_I2C_BUF_REG, 0x94},
-> +	{OMAP_I2C_CNT_REG, 0x98},
-> +	{OMAP_I2C_DATA_REG, 0x9c},
-> +	{OMAP_I2C_SYSC_REG, 0x20},
-> +	{OMAP_I2C_CON_REG, 0xa4},
-> +	{OMAP_I2C_OA_REG, 0xa8},
-> +	{OMAP_I2C_SA_REG, 0xac},
-> +	{OMAP_I2C_PSC_REG, 0xb0},
-> +	{OMAP_I2C_SCLL_REG, 0xb4},
-> +	{OMAP_I2C_SCLH_REG, 0xb8},
-> +	{OMAP_I2C_SYSTEST_REG, 0xbC},
-> +	{OMAP_I2C_BUFSTAT_REG, 0xc0},
-> +	{OMAP_I2C_REVNB_LO, 0x00},
-> +	{OMAP_I2C_IRQSTATUS_RAW, 0x24},
-> +	{OMAP_I2C_IRQENABLE_SET, 0x2c},
-> +	{OMAP_I2C_IRQENABLE_CLR, 0x30},
-> +};
+> Yes, I'm aware of that - I read it at the time.  It seemed to peter out
+> without any satisfactory solution, unfortunately.  There's two separate
+> issues here:
+> 
+>  - Ordinary devices on interrupt driven or slow buses like I2C.  These
+>    need something along the lines of request_threaded_irq() that's allows
+>    them to schedule the main IRQ handler outside hardirq context so
+>    that they can interact with the device.  They need to do something in
+>    hardirq context to disable the interrupt if it's level triggered but
+>    most of the time the only option they've got is to disable the IRQ
+>    and reenable it when the worker thread is done.  This is the issue
+>    here.
+> 
+>    My immediate thought when I noticed this was that we should probably
+>    fix request_threaded_irq() so that it's useful for them; I'd been
+>    intending to do some digging and try to understand why it is
+>    currently implemented as it is.
+> 
+>  - Multi-function devices like the twl4030 which have an interrupt
+>    controller on them and would like to expose that interrupt controller
+>    via the generic IRQ subsystem.  This was a large part of the
+>    discussion in the thread above is a much trickier problem.
+> 
+> I've added the folks from Samsung posting the MELFAS MCS-5000 driver to
+> the thread since they're running into the same issue.
+> 
 
-These arrays could be of a well defined size (enough to hold all enum
-values).  They're not going to be huge, and I suspect that the cost of
-this code:
+Let's also add Thomas and David since I believe they worked on the
+feature.
 
-> +	if (dev->regs == NULL) {
-> +		dev->regs = kmalloc(maxvalue(sizeof(omap4_reg_map),
-> +				sizeof(reg_map)), GFP_KERNEL);
-> +		if (dev->regs == NULL) {
-> +			r = -ENOMEM;
-> +			goto err_free_mem;
-> +		}
-> +	}
-> +
-> +	if (cpu_is_omap44xx())
-> +		memcpy(dev->regs, omap4_reg_map, sizeof(omap4_reg_map));
-> +	else
-> +		memcpy(dev->regs, reg_map, sizeof(reg_map));
-> +
+>From my part I would like to have the threaded IRQ available to all
+drivers since it seens to be hanlding driver shutdown cleanly and
+without races which is a big plus for me since very few drivers get it
+right.
 
-is higher than just having the above be const arrays of 'u8' or maybe
-'u16'.
-
-Note that you can explicitly initialize array entries as follows:
-
-static u8 omap4_reg_map[OMAP_I2C_MAX_REG] = {
-	[OMAP_I2C_REV_REG] = 0x04,
-	[OMAP_I2C_IE_REG]  = 0x2c,
-...
-};
+-- 
+Dmitry
