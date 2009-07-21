@@ -1,78 +1,164 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Tue, 21 Jul 2009 23:25:48 +0100
-Message-ID: <20090721222547.GA1948@opensource.wolfsonmicro.com>
-References: <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk> <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com> <20090721124933.GA5668@rakim.wolfsonmicro.main> <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH] I2C: OMAP3: PM: (re)init for every transfer to support off-mode
+Date: Tue, 21 Jul 2009 16:09:03 -0700
+Message-ID: <1248217743-24330-1-git-send-email-khilman@deeprootsystems.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0907212225030.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 21, 2009 at 10:30:26PM +0200, Thomas Gleixner wrote:
-> On Tue, 21 Jul 2009, Dmitry Torokhov wrote:
-> > On Tue, Jul 21, 2009 at 01:49:33PM +0100, Mark Brown wrote:
+From: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
 
-> > >  - Ordinary devices on interrupt driven or slow buses like I2C.  These
-> > >    need something along the lines of request_threaded_irq() that's allows
-> > >    them to schedule the main IRQ handler outside hardirq context so
-> > >    that they can interact with the device.  They need to do something in
+Because of OMAP off-mode, powerdomain can go off when I2C is idle.
+Save enough state, and do a re-init for each transfer.
 
-> There is already a sane solution to the problem:
+Additional save/restore state added by Jagadeesh Bhaskar Pakaravoor
+(SYSC_REG) and Aaro Koskinen (wakeup sources.)
 
->       See http://lkml.org/lkml/2009/7/17/174 
+Also, The OMAP3430 TRM states:
 
-I'll need to have a more detailed look at that but it's not immediately
-clear to me how a driver (or even machine) should use that code - it
-looks more like it's intended to be called from within the IRQ
-infrastructure than from random driver code.
+"During active mode (I2Ci.I2C_CON[15] I2C_EN bit is set to 1), make no
+changes to the I2Ci.I2C_SCLL and I2Ci.I2C_SCLH registers.  Changes may
+result in unpredictable behavior."
 
-> > >    My immediate thought when I noticed this was that we should probably
-> > >    fix request_threaded_irq() so that it's useful for them; I'd been
-> > >    intending to do some digging and try to understand why it is
-> > >    currently implemented as it is.
+Hence, the I2C_EN bit should be clearer when modifying these
+registers. Please note that clearing the entire I2C_CON register to
+disable the I2C module is safe, because the I2C_CON register is
+re-configured for each transfer.
 
-> What's to fix there ? 
+Signed-off-by: Jouni Hogander <jouni.hogander-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
+Cc: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+Cc: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+Cc: Hu Tao <taohu-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Cc: Xiaolong Chen <A21785-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+---
+This patch has been tested extensively as part of the OMAP 'PM branch'
 
-Nothing if the above works, though I guess more documentation wouldn't
-hurt (and possibly a more friendly wrapper).  From the name and
-documentation request_threaded_irq() looks like it should be exactly
-what's needed.
+ drivers/i2c/busses/i2c-omap.c |   64 ++++++++++++++++++++++++++--------------
+ 1 files changed, 41 insertions(+), 23 deletions(-)
 
-> > >  - Multi-function devices like the twl4030 which have an interrupt
-> > >    controller on them and would like to expose that interrupt controller
-> > >    via the generic IRQ subsystem.  This was a large part of the
-> > >    discussion in the thread above is a much trickier problem.
-
-> Why ?
-
-Partly just because it's idiomatic for the devices - these things are
-from a software point of view essentially a small stack of devices glued
-together and one of the devices on them is an interrupt controller so
-the natural thing is to want to represent that interrupt controller in
-the way Linux normally represents interrupt controllers and be able to
-reuse all the core code rather than having to implement a clone of it.
-
-The other part of it is that it gets you all the interfaces for
-interrupts that the rest of the kernel expects which is needed when the
-device interacts with others.  The biggest issue here is that these
-devices often have GPIOs on them (especially PMICs and audio CODECs).
-These have all the facilities one expects of GPIOs, including being used
-as interrupt sources.  If we need to use chip-specific APIs to interact
-with the interrupts they raise then the drivers for anything using them
-need to know about those APIs and have special cases to work with them
-which obviously doesn't scale.
-
-> > >From my part I would like to have the threaded IRQ available to all
-> > drivers since it seens to be hanlding driver shutdown cleanly and
-> > without races which is a big plus for me since very few drivers get it
-> > right.
-
-> :)
-
-It's also wasteful having to write the code in every single driver that
-needs to handle interrupts on interrupt driven buses.
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index ad8d201..bb8ae50 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -178,6 +178,12 @@ struct omap_i2c_dev {
+ 	unsigned		b_hw:1;		/* bad h/w fixes */
+ 	unsigned		idle:1;
+ 	u16			iestate;	/* Saved interrupt register */
++	u16			pscstate;
++	u16			scllstate;
++	u16			sclhstate;
++	u16			bufstate;
++	u16			syscstate;
++	u16			westate;
+ };
+ 
+ static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+@@ -230,9 +236,18 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+ 
+ 	clk_enable(dev->iclk);
+ 	clk_enable(dev->fclk);
++	if (cpu_is_omap34xx()) {
++		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
++		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++	}
+ 	dev->idle = 0;
+-	if (dev->iestate)
+-		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+ }
+ 
+ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+@@ -258,7 +273,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 
+ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ {
+-	u16 psc = 0, scll = 0, sclh = 0;
++	u16 psc = 0, scll = 0, sclh = 0, buf = 0;
+ 	u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
+ 	unsigned long fclk_rate = 12000000;
+ 	unsigned long timeout;
+@@ -287,24 +302,22 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 					   SYSC_AUTOIDLE_MASK);
+ 
+ 		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
+-			u32 v;
+-
+-			v = SYSC_AUTOIDLE_MASK;
+-			v |= SYSC_ENAWAKEUP_MASK;
+-			v |= (SYSC_IDLEMODE_SMART <<
++			dev->syscstate = SYSC_AUTOIDLE_MASK;
++			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
++			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+ 			      __ffs(SYSC_SIDLEMODE_MASK));
+-			v |= (SYSC_CLOCKACTIVITY_FCLK <<
++			dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK <<
+ 			      __ffs(SYSC_CLOCKACTIVITY_MASK));
+ 
+-			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, v);
++			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
++							dev->syscstate);
+ 			/*
+ 			 * Enabling all wakup sources to stop I2C freezing on
+ 			 * WFI instruction.
+ 			 * REVISIT: Some wkup sources might not be needed.
+ 			 */
+-			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+-							OMAP_I2C_WE_ALL);
+-
++			dev->westate = OMAP_I2C_WE_ALL;
++			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+ 		}
+ 	}
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+@@ -394,23 +407,28 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, scll);
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, sclh);
+ 
+-	if (dev->fifo_size)
+-		/* Note: setup required fifo size - 1 */
+-		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG,
+-					(dev->fifo_size - 1) << 8 | /* RTRSH */
+-					OMAP_I2C_BUF_RXFIF_CLR |
+-					(dev->fifo_size - 1) | /* XTRSH */
+-					OMAP_I2C_BUF_TXFIF_CLR);
++	if (dev->fifo_size) {
++		/* Note: setup required fifo size - 1. RTRSH and XTRSH */
++		buf = (dev->fifo_size - 1) << 8 | OMAP_I2C_BUF_RXFIF_CLR |
++			(dev->fifo_size - 1) | OMAP_I2C_BUF_TXFIF_CLR;
++		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, buf);
++	}
+ 
+ 	/* Take the I2C module out of reset: */
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+ 
+ 	/* Enable interrupts */
+-	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
+-			(OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
++	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+ 			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+ 			OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
+-				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0));
++				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0);
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	if (cpu_is_omap34xx()) {
++		dev->pscstate = psc;
++		dev->scllstate = scll;
++		dev->sclhstate = sclh;
++		dev->bufstate = buf;
++	}
+ 	return 0;
+ }
+ 
+-- 
+1.6.3.3
