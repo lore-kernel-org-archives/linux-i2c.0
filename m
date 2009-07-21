@@ -1,67 +1,57 @@
-From: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
-Subject: RE: [PATCH 1/4] ARM: OMAP: Rename twl4030* driver files to enable
- re-use
-Date: Tue, 21 Jul 2009 11:03:53 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02B59503D1@dbde02.ent.ti.com>
-References: <1248096671-13828-1-git-send-email-balajitk@ti.com>
- <20090720185253.GA7984@gandalf>
- <EAF47CD23C76F840A9E7FCE10091EFAB02B59502D7@dbde02.ent.ti.com>
- <20090721052447.GA13013@gandalf>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: Support for synaptic touchscreen in HTC dream
+Date: Tue, 21 Jul 2009 12:21:53 +0200
+Message-ID: <20090721102153.GE4133@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20090721052447.GA13013@gandalf>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: "me@felipebalbi.com" <me@felipebalbi.com>
-Cc: "Krishnamoorthy, Balaji T" <balajitk@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "tony@atomide.com" <tony@atomide.com>, "khilman@deeprootsystems.com" <khilman@deeprootsystems.com>, "david-b@pacbell.net" <david-b@pacbell.net>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "sameo@openedhand.com" <sameo@openedhand.com>, "wim@iguana.be" <wim@iguana.be>, "timo.t.kokkonen@nokia.com" <timo.t.kokkonen@nokia.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "lrg@slimlogic.co.uk" <lrg@slimlogic.co.uk>, "broonie@opensource.wolfsonmicro.com" <broonie@opensource.wolfsonmicro.com>, "Nayak, Rajendra" <rnayak@ti.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5d5443650907151033w36008b71pe4b32bcea9489b75-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Felipe Balbi [mailto:me@felipebalbi.com] 
-> Sent: Tuesday, July 21, 2009 10:55 AM
-> To: Shilimkar, Santosh
-> Cc: me@felipebalbi.com; Krishnamoorthy, Balaji T; 
-> linux-kernel@vger.kernel.org; tony@atomide.com; 
-> khilman@deeprootsystems.com; david-b@pacbell.net; 
-> linux-omap@vger.kernel.org; linux-i2c@vger.kernel.org; 
-> sameo@openedhand.com; wim@iguana.be; 
-> timo.t.kokkonen@nokia.com; ben-linux@fluff.org; 
-> lrg@slimlogic.co.uk; broonie@opensource.wolfsonmicro.com; 
-> Nayak, Rajendra
-> Subject: Re: [PATCH 1/4] ARM: OMAP: Rename twl4030* driver 
-> files to enable re-use
-> 
-> hi,
-> 
-> On Tue, Jul 21, 2009 at 10:01:06AM +0530, Shilimkar, Santosh wrote:
-> > > So IMO, renaming the files is unnecessary.
-> > Well tps* are just catalog names of the twl4* family. So 
-> you can keep adding whatever names there as long it's a same IC.
-> > 
-> > Perhaps you look in hurry to comment about this. Please 
-> look at the intention of these patches. TWL6030 has PM IC 
-> similar to TWL4030 with bit different interrupt management. 
-> Audio IC is a separate one as compared to combined in case of TWL4030.
-> > 
-> > If it allows code re-use by renaming files, it should be 
-> good. Isn't it ? 
-> 
-> What I'm trying to say is you can re-use the code even 
-> without renaming
-> those files, just add twl6030-irq and use some sort of 
-> runtime check to
-> use one or other irq mechanism.
+Hi!
 
-We initially tried this but code is becoming ugly and not at all
-readable. In fact this was a short cut and would have saved 
-us some time :)
+> >> disable_irq_nosync or convert this to request_threaded_irq(...).
+> >> Please see recent discussion on linux-input for MAX key switch
+> >> controller.
+> >
+> > Do you have a link? (I replaced it with disable_irq_nosync, if that=
+ is
+> > enough...)
+> >
+>=20
+> link: http://patchwork.kernel.org/patch/35515/
 
-By renaming, we thought it can become a generic for further versions
-of TWL IC's and adding support to those would be cleaner.
+Thanks!
 
-Let's get feedback from more people on the list
+> >> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_=
+=46UNC_I2C)) {
+> >>
+> >> check for SMBUS? I have added linux-i2c as this driver has i2c bit=
+s,
+> >> so not removing any code.
+> >
+> > I guess this driver is only probed on mach-pxa... on machines that
+> > have the neccessary hardware.
+>=20
+> Because this driver is using smbus i2c apis, it will be good to add
+> that check too.
 
-Regards,
-Santosh
+So I should do something like
+
+if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA)=
+)
+	...
+
+in addition?
+									Pavel
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html
