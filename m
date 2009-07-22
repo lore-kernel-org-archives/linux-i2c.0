@@ -1,52 +1,42 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: About a suspicious msleep during doxfer in s3c2410 i2c bus
- driver
-Date: Wed, 22 Jul 2009 17:06:40 +0100
-Message-ID: <20090722160639.GB14026@rakim.wolfsonmicro.main>
-References: <5e9665e10907220112m1dbf4975icf1511bc4ac3a1bf@mail.gmail.com>
- <20090722124333.GC7622@sirena.org.uk>
- <E724615E-9F06-4406-9852-041261C5DAA6@gmail.com>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 09:39:32 -0700
+Message-ID: <200907220939.33399.david-b@pacbell.net>
+References: <20090714100634.GA4054@elf.ucw.cz> <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
 Content-Disposition: inline
-In-Reply-To: <E724615E-9F06-4406-9852-041261C5DAA6-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dongsoo Kim <dongsoo.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org, ????????? <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, ????????? <bhmin-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dongsoo Kim <dongsoo45.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, =?utf-8?B?7KeE7ISxIOyWkQ==?= <jsgood.yang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Peter Zijlstra <peterz@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 23, 2009 at 12:58:52AM +0900, Dongsoo Kim wrote:
-> 2009. 07. 22, =EC=98=A4=ED=9B=84 9:43, Mark Brown =EC=9E=91=EC=84=B1:
+On Tuesday 21 July 2009, Thomas Gleixner wrote:
+> =A0 =A0 =A0 See http://lkml.org/lkml/2009/7/17/174=20
 
-> >My *recollection* is that this is mostly there for multi-master
-> >configurations.
+Interesting.  The model is then to switch over to __set_irq_handler(),
+or maybe set_irq_chip_and_handler(), to replace the toplevel dispatch
+code for will-be-threaded IRQs which happen to be hooked up to inputs
+that don't sense edges.  (Agree, that seems like a goof.  But hardware
+designers sometimes have any choices there.)
 
-> I  wish I could answer clearly about this but not having much
-> experience over various I2C bus devices so I can't say with a strict
-> "yes". But in my experience, I've never seen any i2c bus driver
-> serving platform data to be configured with delay support. Tho if it
-> is really necessary for some specified class of i2c devices, we
-> should make one.
+The normal model is that boards don't get involved with that level of
+logic ... all IRQs get set up once on generic code, and flow handlers
+don't change.  Or if they do change, it's done when changing the IRQ's
+trigger mode from edge to level, or vice versa.
 
-It wasn't for the client devices, it was for issues with synchronisatio=
-n
-with the controller hardware.  I'm just going on the basis of
-recollections of previous conversations with Ben here; I'm not sure to
-what extent this might be an issue with the way the hardware works
-requiring the driver to jump through hoops.
+Can that be cleaned up a bit, so that the handle_level_oneshot_irq()
+and unmask_oneshot_irq() stuff kicks in automatically when needed,
+instead of requiring board-specific (or driver-specific) code to get
+that stuff right?
 
-> I'm wondering why anybody has been issued this topic yet. the driver
-> for s3c2410 i2c bus has been the way it is for ages I guess. It
-> obviously seems to be taking long time to write down registers
-> through the s3c2410 i2c bus driver than any other processor's i2c
-> driver. maybe not so many people using enormous i2c register
-> programming on Samsung processors could be the reason I suppose.
-> anyway, let's figure it out the best way we can.
-> Cheers,
+- Dave
 
-I expect most people would, like you, much rather just remove the sleep
-from the driver since in practice that seems to work well.  For various
-reasons the S3C community isn't all that active upstream which doesn't
-help with issues like this.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
