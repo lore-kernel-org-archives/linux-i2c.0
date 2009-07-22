@@ -1,43 +1,119 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: About a suspicious msleep during doxfer in s3c2410 i2c bus
-	driver
-Date: Wed, 22 Jul 2009 13:43:34 +0100
-Message-ID: <20090722124333.GC7622@sirena.org.uk>
-References: <5e9665e10907220112m1dbf4975icf1511bc4ac3a1bf@mail.gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 14:58:24 +0200 (CEST)
+Message-ID: <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk> <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com>
+ <20090721124933.GA5668@rakim.wolfsonmicro.main> <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain> <20090721222547.GA1948@opensource.wolfsonmicro.com> <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
+ <20090722121800.GD21171@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5e9665e10907220112m1dbf4975icf1511bc4ac3a1bf-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Dongsoo, Nathaniel Kim" <dongsoo.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org, ????????? <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, ????????? <bhmin-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dongsoo Kim <dongsoo45.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, jsgood.yang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20090722121800.GD21171@rakim.wolfsonmicro.main>
+Sender: linux-input-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, David Brownell <david-b@pacbell.net>, Peter Zijlstra <peterz@infradead.org>, Daniel Ribeiro <drwyrm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 22, 2009 at 05:12:17PM +0900, Dongsoo, Nathaniel Kim wrote:
+Mark,
 
-> Since I was working on S3C64XX and C1XX, I found something weird on
-> I2C bus device.
-> The thing is that when I try to write multiple registers through I2C
-> bus, it takes much more time for multiple registers to be written than
-> any other processor's i2c bus device.
+On Wed, 22 Jul 2009, Mark Brown wrote:
 
-Yes, this is extremely painful for a lot of devices - audio CODECs tend
-to be noticably affected, especially at resume.  Depending on your
-device and what you're doing you *may* be able to speed things up by
-accessing many registers in a single I/O in the chip driver but
-obviously that's not ideal.
+> On Wed, Jul 22, 2009 at 12:44:01PM +0200, Thomas Gleixner wrote:
+> > On Tue, 21 Jul 2009, Mark Brown wrote:
+> 
+> > > I'll need to have a more detailed look at that but it's not immediately
+> > > clear to me how a driver (or even machine) should use that code - it
+> > > looks more like it's intended to be called from within the IRQ
+> > > infrastructure than from random driver code.
+> 
+> > All it needs is to set handle_level_oneshot_irq for the interrupt line
+> > of your I2C or whatever devices. 
+> 
+> >    set_irq_handler(irq, handle_level_oneshot_irq);
+> 
+> Yeah, I know - the issue I was having was that the use of set_irq_handler()
+> seemed rather rude for driver code.  Grepping around I see that there
+> are actually a small number of drivers using it already but at first
+> glance most of them appear to be implementing interrupt controllers.  It
+> was setting off alarm bells about abstraction layer violation like
+> set_irq_type() does.
 
-> With several different target boards using s3c64xx and s5pc1xx, it
-> went good without that msleep(). And of course it is working great
-> with multiple i2c device attached as well.
-> So, I want to ask Ben and anyone else using I2C device about removing
-> that msleep might be ok or not. In my case, it went ok. Please let me
-> know your opinion.
+I don't think it belongs into the driver code. It belongs into the
+platform code which sets up the system and knows what's on which
+interrupt line.
+ 
+> > > Nothing if the above works, though I guess more documentation wouldn't
+> > > hurt (and possibly a more friendly wrapper).  From the name and
+> 
+> > Wrapper for what ? 
+> 
+> Something to package up the set_irq_handler() and request_threaded_irq()
+> (possibly a flag for request_threaded_irq()).  This is such a common
+> thing and request_threaded_irq() looks so much like it should Just Work
+> that I'd expect it'll help usability a lot to have a single function
+> which says "this is the idiomatic way to implement this".
 
-My *recollection* is that this is mostly there for multi-master
-configurations.
+Yeah, we might do with a flag, but I'd prefer that the platform code
+aka arch/xxx/yourmachine/setup.c does this. That's the canonical place.
 
-I'm wondering if even if we can't remove the delay completely yet we
-could add platform data to allow it to be configured on a per-board
-basis?
+> > After that bus_sync_unlock() is called outside the atomic context. Now
+> > the chip implementation issues the bus commands, waits for completion
+> > and unlocks the interrupt controller bus.
+> 
+> I'll try to find time to implement some use of it and give it a spin -
+> it looks good at first glance but I'll need to convert one of my drivers
+> to genirq in order to test.  Someone working on a chip that already uses
+> genirq might get there first.
+
+That'd be great to get some feedback. Both patches need some more
+thought, but I think they are a good start to do some testing. One
+thing which I definitely want to change is the thread_eoi function. We
+probably want to have it customizable for the following reason:
+
+main interrupt
+     hardirq handler wakes main thread handler
+
+main thread handler
+    bus magic
+   	subdevice1 "hardirq" handler wakes subdevice1 irq thread
+   	subdevice2 "hardirq" handler wakes subdevice2 irq thread
+    main thread handler waits for subdevice1/2 handlers to complete
+
+subdevice1 thread handler
+    bus magic
+    ....
+    thread_fn returns
+    signal main thread handler via completion
+
+subdevice2 thread handler
+    bus magic
+    ....
+    thread_fn returns
+    signal main thread handler via completion
+
+main thread handler resumes
+    bus magic
+    main thread handler returns from thread_fn
+    unmask main interrupt
+
+So the thread_eoi function is useful for both the main and the
+subdevice handlers. The main handler probably just issues the unmask
+while the subdevice handlers probably want to call a completion to
+notify the main thread handler that they are done. That would be a
+fairly proper design I think and would encourage driver writers to
+follow the common scheme instead of doing their own black magic.
+
+Thinking further we should even provide some infrastructure for that
+in the common code which would handle the completion and attach it to
+the interrupts in question, so the driver authors would not have to
+deal with that at all. They just would return from thread_fn and let
+the generic code deal with the notification. The notification has to
+be set up by the interrupt controller code. That way you can use the
+same device driver code w/o knowledge of the interrupt controller
+implementation it is attached to.
+
+Thoughts ?
+
+Thanks,
+
+	tglx
