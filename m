@@ -1,42 +1,35 @@
-From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: change i2c-sh_mobile.c module_init() to subsys_initcall()
-Date: Wed, 22 Jul 2009 23:58:39 +0900
-Message-ID: <20090722145839.17871.94267.sendpatchset@rx1.opensource.se>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 17:15:59 +0200 (CEST)
+Message-ID: <alpine.LFD.2.00.0907221715260.2813@localhost.localdomain>
+References: <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain> <20090721222547.GA1948@opensource.wolfsonmicro.com> <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain> <20090722121800.GD21171@rakim.wolfsonmicro.main>
+ <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins> <alpine.LFD.2.00.0907221615480.2813@localhost.localdomain> <20090722143211.GB29404@rakim.wolfsonmicro.main> <alpine.LFD.2.00.0907221645240.2813@localhost.localdomain>
+ <20090722145654.GA4987@rakim.wolfsonmicro.main>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20090722145654.GA4987@rakim.wolfsonmicro.main>
+Sender: linux-input-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, David Brownell <david-b@pacbell.net>, Daniel Ribeiro <drwyrm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
+On Wed, 22 Jul 2009, Mark Brown wrote:
 
-Convert the i2c-sh_mobile i2c bus driver to use
-subsys_initcall() instead of module_init().
+> On Wed, Jul 22, 2009 at 04:52:21PM +0200, Thomas Gleixner wrote:
+> > On Wed, 22 Jul 2009, Mark Brown wrote:
+> 
+> > > The chips I'm deling with can certainly support doing that but I'm not
+> > > sure there'd be enormous advantages - a lot of the interrupt handlers
+> > > will either be trivial (eg, RTC ticks or alarms) or be serialised by a
+> > > need to interact with the chip anyway.  I'd expect this to be generally
+> > > true, though ICBW.
+> 
+> > So in your case it would be possible to run the various subdevice
+> > thread_fn handlers from your main interrupt thread one after each
+> > other ?
+> 
+> That's what they're all doing at present outside of genirq.
 
-This change makes the driver register a bit earlier which
-together with earlier platform data moves the time for probe().
-The earlier probe() makes it possible to use i2c_get_adapter()
-and i2c_transfer() from device_initcall().
-
-The same strategy is used by other i2c bus drivers such as
-i2c-pxa.c and i2c-s3c2410.c.
-
-Signed-off-by: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
----
-
- Paul, can you merge this in your tree?
-
- drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- 0001/drivers/i2c/busses/i2c-sh_mobile.c
-+++ work/drivers/i2c/busses/i2c-sh_mobile.c	2009-07-22 21:54:29.000000000 +0900
-@@ -637,7 +637,7 @@ static void __exit sh_mobile_i2c_adap_ex
- 	platform_driver_unregister(&sh_mobile_i2c_driver);
- }
+They just are racy against disable/enable/request/free I guess :)
  
--module_init(sh_mobile_i2c_adap_init);
-+subsys_initcall(sh_mobile_i2c_adap_init);
- module_exit(sh_mobile_i2c_adap_exit);
- 
- MODULE_DESCRIPTION("SuperH Mobile I2C Bus Controller driver");
