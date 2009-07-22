@@ -1,35 +1,78 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 17:15:59 +0200 (CEST)
-Message-ID: <alpine.LFD.2.00.0907221715260.2813@localhost.localdomain>
-References: <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain> <20090721222547.GA1948@opensource.wolfsonmicro.com> <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain> <20090722121800.GD21171@rakim.wolfsonmicro.main>
- <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins> <alpine.LFD.2.00.0907221615480.2813@localhost.localdomain> <20090722143211.GB29404@rakim.wolfsonmicro.main> <alpine.LFD.2.00.0907221645240.2813@localhost.localdomain>
- <20090722145654.GA4987@rakim.wolfsonmicro.main>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20090722145654.GA4987@rakim.wolfsonmicro.main>
-Sender: linux-input-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, David Brownell <david-b@pacbell.net>, Daniel Ribeiro <drwyrm@gmail.com>
+From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: [PATCH V2] i2c-au1550: dev_pm_ops conversion.
+Date: Wed, 22 Jul 2009 17:17:48 +0200
+Message-ID: <1248275868-3245-1-git-send-email-manuel.lauss@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Manuel Lauss <manuel.lauss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 22 Jul 2009, Mark Brown wrote:
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Signed-off-by: Manuel Lauss <manuel.lauss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+V1->V2: don't remove CONFIG_PM
 
-> On Wed, Jul 22, 2009 at 04:52:21PM +0200, Thomas Gleixner wrote:
-> > On Wed, 22 Jul 2009, Mark Brown wrote:
-> 
-> > > The chips I'm deling with can certainly support doing that but I'm not
-> > > sure there'd be enormous advantages - a lot of the interrupt handlers
-> > > will either be trivial (eg, RTC ticks or alarms) or be serialised by a
-> > > need to interact with the chip anyway.  I'd expect this to be generally
-> > > true, though ICBW.
-> 
-> > So in your case it would be possible to run the various subdevice
-> > thread_fn handlers from your main interrupt thread one after each
-> > other ?
-> 
-> That's what they're all doing at present outside of genirq.
+ drivers/i2c/busses/i2c-au1550.c |   24 ++++++++++++++----------
+ 1 files changed, 14 insertions(+), 10 deletions(-)
 
-They just are racy against disable/enable/request/free I guess :)
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index 532828b..1ae82db 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -441,39 +441,43 @@ i2c_au1550_remove(struct platform_device *pdev)
+ }
  
+ #ifdef CONFIG_PM
+-static int
+-i2c_au1550_suspend(struct platform_device *pdev, pm_message_t state)
++static int i2c_au1550_suspend(struct device *dev)
+ {
+-	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
++	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
+ 
+ 	i2c_au1550_disable(priv);
+ 
+ 	return 0;
+ }
+ 
+-static int
+-i2c_au1550_resume(struct platform_device *pdev)
++static int i2c_au1550_resume(struct device *dev)
+ {
+-	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
++	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
+ 
+ 	i2c_au1550_setup(priv);
+ 
+ 	return 0;
+ }
++
++static struct dev_pm_ops au1xpsc_smbus_pmops = {
++	.resume		= i2c_au1550_resume,
++	.suspend	= i2c_au1550_suspend,
++};
++
++#define AU1XPSC_SMBUS_PMOPS &au1xpsc_smbus_pmops
++
+ #else
+-#define i2c_au1550_suspend	NULL
+-#define i2c_au1550_resume	NULL
++#define AU1XPSC_SMBUS_PMOPS NULL
+ #endif
+ 
+ static struct platform_driver au1xpsc_smbus_driver = {
+ 	.driver = {
+ 		.name	= "au1xpsc_smbus",
+ 		.owner	= THIS_MODULE,
++		.pm	= AU1XPSC_SMBUS_PMOPS,
+ 	},
+ 	.probe		= i2c_au1550_probe,
+ 	.remove		= __devexit_p(i2c_au1550_remove),
+-	.suspend	= i2c_au1550_suspend,
+-	.resume		= i2c_au1550_resume,
+ };
+ 
+ static int __init
+-- 
+1.6.3.3
