@@ -1,31 +1,62 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 15:15:06 -0700
-Message-ID: <200907221515.07835.david-b@pacbell.net>
-References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain> <d6200be20907221457r4e2f6d29g57146586fd13776a@mail.gmail.com>
+Date: Wed, 22 Jul 2009 16:30:15 -0700
+Message-ID: <d6200be20907221630j67677654tbec5f27824ab3a96@mail.gmail.com>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
+	 <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
+	 <d6200be20907221457r4e2f6d29g57146586fd13776a@mail.gmail.com>
+	 <200907221515.07835.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <d6200be20907221457r4e2f6d29g57146586fd13776a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arve =?iso-8859-1?q?Hj=F8nnev=E5g?= <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <200907221515.07835.david-b@pacbell.net>
+Sender: linux-input-owner@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Daniel Ribeiro <drwyrm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 22 July 2009, Arve Hj=F8nnev=E5g wrote:
-> It would also be useful to mask an edge triggered interrupt until the
-> thread handler has finished. The touchscreen on the G1 is connected t=
-o
-> an edge triggered interrupt, and the touchscreen may toggle the
-> interrupt line while reading its registers.
+2009/7/22 David Brownell <david-b@pacbell.net>:
+> On Wednesday 22 July 2009, Arve Hj=F8nnev=E5g wrote:
+>> It would also be useful to mask an edge triggered interrupt until th=
+e
+>> thread handler has finished. The touchscreen on the G1 is connected =
+to
+>> an edge triggered interrupt, and the touchscreen may toggle the
+>> interrupt line while reading its registers.
+>
+> To clarify: =A0if it does toggle, do you want that event to be
+> queued up so the IRQ is re-issued -- or not? =A0That "oneshot"
+> mechanism does some of that, though it's for level triggers.
 
-To clarify:  if it does toggle, do you want that event to be
-queued up so the IRQ is re-issued -- or not?  That "oneshot"
-mechanism does some of that, though it's for level triggers.
+=46or this driver yes the event should normally be queued up. If there
+is an error detected though, there is no need to queue up interrupts
+that are generated during the reinit.
 
-Parts of that might be appropriate to handle in the threaded
-IRQ handler itself.  It seems a bit device-specific.
+Also, if you implement a keypad matrix driver using a threaded
+interrupt handler, you will not want the interrupt to be re-issues
+unless it occured after the last key was released since the scan
+itself always generated more interrupts. This is not specific to
+threaded interrupt handlers though, and could be handled by adding a
+clear-interrupt function.
 
-- Dave
+>
+> Parts of that might be appropriate to handle in the threaded
+> IRQ handler itself. =A0It seems a bit device-specific.
+
+Yes, the driver could request a threaded one-shot interrupt so that it
+will work when it is connected to a level triggered interrupt, and
+also call disable_interrupt/enable_interrrupt in the handler to avoid
+extra interrupts when it is connected to an edge triggered source.
+But, it would be nicer if requesting a one-shot interrupt always
+works. Also, waiting until the threaded handler runs before masking
+the interrupt would not work well if the interrupt line needs software
+debouncing.
+
+--=20
+Arve Hj=F8nnev=E5g
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
