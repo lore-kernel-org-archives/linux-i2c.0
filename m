@@ -1,323 +1,132 @@
-From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 12:44:01 +0200 (CEST)
-Message-ID: <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
-References: <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk>
- <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com> <20090721124933.GA5668@rakim.wolfsonmicro.main> <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
- <20090721222547.GA1948@opensource.wolfsonmicro.com>
+From: Nitin Mahajan <nitinm76-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
+Date: Wed, 22 Jul 2009 04:03:38 -0700 (PDT)
+Message-ID: <218571.29671.qm@web50101.mail.re2.yahoo.com>
+References: <1247643267.5981.82.camel@localhost.localdomain>
+Reply-To: Nitin Mahajan <nitinm76-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090721222547.GA1948-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1247643267.5981.82.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 21 Jul 2009, Mark Brown wrote:
-
-> On Tue, Jul 21, 2009 at 10:30:26PM +0200, Thomas Gleixner wrote:
-> > On Tue, 21 Jul 2009, Dmitry Torokhov wrote:
-> > > On Tue, Jul 21, 2009 at 01:49:33PM +0100, Mark Brown wrote:
-> 
-> > > >  - Ordinary devices on interrupt driven or slow buses like I2C.  These
-> > > >    need something along the lines of request_threaded_irq() that's allows
-> > > >    them to schedule the main IRQ handler outside hardirq context so
-> > > >    that they can interact with the device.  They need to do something in
-> 
-> > There is already a sane solution to the problem:
-> 
-> >       See http://lkml.org/lkml/2009/7/17/174 
-> 
-> I'll need to have a more detailed look at that but it's not immediately
-> clear to me how a driver (or even machine) should use that code - it
-> looks more like it's intended to be called from within the IRQ
-> infrastructure than from random driver code.
-
-All it needs is to set handle_level_oneshot_irq for the interrupt line
-of your I2C or whatever devices. 
-
-   set_irq_handler(irq, handle_level_oneshot_irq);
-
-The core code masks the interrupt in the hard irq path and runs the
-primary handler. It's expected that the primary handler returns
-IRQ_WAKE_THREAD, which will wake up the thread handler. Now the
-handle_level_oneshot_irq() flow control does _NOT_ unmask the
-interrupt line, so no interrupt storm can happen.
-
-Now the thread handler runs handles its bus magic. When it returns to
-the core code then desc->thread_eoi is called which unmasks the
-interrupt line again.
- 
-> > > >    My immediate thought when I noticed this was that we should probably
-> > > >    fix request_threaded_irq() so that it's useful for them; I'd been
-> > > >    intending to do some digging and try to understand why it is
-> > > >    currently implemented as it is.
-> 
-> > What's to fix there ? 
-> 
-> Nothing if the above works, though I guess more documentation wouldn't
-> hurt (and possibly a more friendly wrapper).  From the name and
-
-Wrapper for what ? 
-
-> documentation request_threaded_irq() looks like it should be exactly
-> what's needed.
-> 
-> > > >  - Multi-function devices like the twl4030 which have an interrupt
-> > > >    controller on them and would like to expose that interrupt controller
-> > > >    via the generic IRQ subsystem.  This was a large part of the
-> > > >    discussion in the thread above is a much trickier problem.
-> 
-> > Why ?
-> 
-> Partly just because it's idiomatic for the devices - these things are
-> from a software point of view essentially a small stack of devices glued
-> together and one of the devices on them is an interrupt controller so
-> the natural thing is to want to represent that interrupt controller in
-> the way Linux normally represents interrupt controllers and be able to
-> reuse all the core code rather than having to implement a clone of it.
-
-Sure.
- 
-> The other part of it is that it gets you all the interfaces for
-> interrupts that the rest of the kernel expects which is needed when the
-> device interacts with others.  The biggest issue here is that these
-> devices often have GPIOs on them (especially PMICs and audio CODECs).
-> These have all the facilities one expects of GPIOs, including being used
-> as interrupt sources.  If we need to use chip-specific APIs to interact
-> with the interrupts they raise then the drivers for anything using them
-> need to know about those APIs and have special cases to work with them
-> which obviously doesn't scale.
-
-Ok, you have a main interrupt line which is triggered when any of the
-interrupts in the device is raised. Now you cannot decide which of the
-interrupt sources in the device triggered the interrupt because you
-need to query the bus which can not be done in hard interrupt
-context. Fine, use the oneshot handler for the main interrupt and do
-the query in the irq thread.
-
-The irq thread finds out which interrupt(s) are active in the
-device. So it raises the interrupt handlers for those from the thread
-which will wake up the relevant interrupt threads for those
-devices. Once all the thread handlers have finished you return from
-the main thread and the interrupt line gets unmasked again.
-
-That's the easy part. Now some other details:
-
-The driver which controls the interrupt device has to expose the
-demultiplexed interrupts via its own irq_chip implementation. Of
-course the chip functions like mask/ack/unmask cannot run in atomic
-context as they require bus access again.
-
-Here in deed we need to put some thought into common infrastructure
-as it seems that such excellent hardware designs are becoming more
-popular :(
-
-The most interesting functions are request_irq, free_irq, enable_irq
-and disable_irq. The main challange is to get the sychronization
-straight. As Dmitry said the synchronization seems to be the most
-common problem which driver writers get wrong. I can only agree with
-that. 
-
-While writing this I looked into the code and came up with the
-following completely untested patch.
-
-The idea is to serialize the bus access for those operations in the
-core code so that drivers which are behind that bus operated interrupt
-controller do not have to worry about it and just can use the normal
-interfaces. To achieve this we add two function pointers to the
-irq_chip: bus_lock and bus_sync_unlock.
-
-bus_lock() is called to serialize access to the interrupt controller
-bus.
-
-Now the core code can issue chip->mask/unmask ... commands without
-changing the fast path code at all. The chip implementation merily
-stores that information in a chip private data structure and
-returns. No bus interaction as these functions are called from atomic
-context.
-
-After that bus_sync_unlock() is called outside the atomic context. Now
-the chip implementation issues the bus commands, waits for completion
-and unlocks the interrupt controller bus.
-
-So for the interrupt controller this would look like:
-
-struct irq_chip_data {
-       struct mutex   mutex;
-       unsigned int   irq_offset;
-       unsigned long  mask;
-       unsigned long  mask_status;
-}
-
-static void bus_lock(unsigned int irq)
-{
-	struct irq_chip_data *data = get_irq_desc_chip_data(irq);
-
-	mutex_lock(&data->mutex);
-}
-
-static void mask(unsigned int irq)
-{
-	struct irq_chip_data *data = get_irq_desc_chip_data(irq);
-
-	irq -= data->irq_offset;
-	data->mask |= (1 << irq);
-}
-
-static void unmask(unsigned int irq)
-{
-	struct irq_chip_data *data = get_irq_desc_chip_data(irq);
-
-	irq -= data->irq_offset;
-	data->mask &= ~(1 << irq);
-}
-
-static void bus_sync_unlock(unsigned int irq)
-{
-	struct irq_chip_data *data = get_irq_desc_chip_data(irq);
-
-	if (data->mask != data->mask_status) {
-		do_bus_magic_to_set_mask(data->mask);
-		data->mask_status = data->mask;
-	}
-	mutex_unlock(&data->mutex);
-}
-
-The device drivers can use request_threaded_irq, free_irq, disable_irq
-and enable_irq as usual with the only restriction that the calls need
-to come from non atomic context.
-
-So in combination with the handle_onshot_level_irq patch this should
-solve most of these problems.
-
-Thanks,
-
-	tglx
-----
-Subject: genirq-sync-slow-bus-controlled-chips.patch
-From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Date: Wed, 22 Jul 2009 11:14:54 +0200
-
-Signed-off-by: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
----
- include/linux/irq.h |    6 ++++++
- kernel/irq/manage.c |   34 +++++++++++++++++++++++++++++++++-
- 2 files changed, 39 insertions(+), 1 deletion(-)
-
-Index: linux-2.6-tip/include/linux/irq.h
-===================================================================
---- linux-2.6-tip.orig/include/linux/irq.h
-+++ linux-2.6-tip/include/linux/irq.h
-@@ -100,6 +100,9 @@ struct msi_desc;
-  * @set_type:		set the flow type (IRQ_TYPE_LEVEL/etc.) of an IRQ
-  * @set_wake:		enable/disable power-management wake-on of an IRQ
-  *
-+ * @bus_lock:		function to lock access to slow bus (i2c) chips
-+ * @bus_sync_unlock:	function to sync and unlock slow bus (i2c) chips
-+ *
-  * @release:		release function solely used by UML
-  * @typename:		obsoleted by name, kept as migration helper
-  */
-@@ -123,6 +126,9 @@ struct irq_chip {
- 	int		(*set_type)(unsigned int irq, unsigned int flow_type);
- 	int		(*set_wake)(unsigned int irq, unsigned int on);
- 
-+	void		(*bus_lock)(unsigned int irq);
-+	void		(*bus_sync_unlock)(unsigned int irq);
-+
- 	/* Currently used only by UML, might disappear one day.*/
- #ifdef CONFIG_IRQ_RELEASE_METHOD
- 	void		(*release)(unsigned int irq, void *dev_id);
-Index: linux-2.6-tip/kernel/irq/manage.c
-===================================================================
---- linux-2.6-tip.orig/kernel/irq/manage.c
-+++ linux-2.6-tip/kernel/irq/manage.c
-@@ -17,6 +17,22 @@
- 
- #include "internals.h"
- 
-+static inline void chip_bus_lock(unsigned int irq, struct irq_desc *desc)
-+{
-+	if (unlikely(desc->chip->bus_lock)) {
-+		might_sleep();
-+		desc->chip->bus_lock(irq);
-+	}
-+}
-+
-+static inline void chip_bus_sync_unlock(unsigned int irq, struct irq_desc *desc)
-+{
-+	if (unlikely(desc->chip->bus_sync_unlock)) {
-+		might_sleep();
-+		desc->chip->bus_sync_unlock(irq);
-+	}
-+}
-+
- /**
-  *	synchronize_irq - wait for pending IRQ handlers (on other CPUs)
-  *	@irq: interrupt number to wait for
-@@ -222,9 +238,11 @@ void disable_irq_nosync(unsigned int irq
- 	if (!desc)
- 		return;
- 
-+	chip_bus_lock(irq, desc);
- 	spin_lock_irqsave(&desc->lock, flags);
- 	__disable_irq(desc, irq, false);
- 	spin_unlock_irqrestore(&desc->lock, flags);
-+	chip_bus_sync_unlock(irq, desc);
- }
- EXPORT_SYMBOL(disable_irq_nosync);
- 
-@@ -286,7 +304,8 @@ void __enable_irq(struct irq_desc *desc,
-  *	matches the last disable, processing of interrupts on this
-  *	IRQ line is re-enabled.
-  *
-- *	This function may be called from IRQ context.
-+ *	This function may be called from IRQ context only when
-+ *	desc->chip->bus_lock and desc->chip->bus_sync_unlock are NULL !
-  */
- void enable_irq(unsigned int irq)
- {
-@@ -296,9 +315,11 @@ void enable_irq(unsigned int irq)
- 	if (!desc)
- 		return;
- 
-+	chip_bus_lock(irq, desc);
- 	spin_lock_irqsave(&desc->lock, flags);
- 	__enable_irq(desc, irq, false);
- 	spin_unlock_irqrestore(&desc->lock, flags);
-+	chip_bus_sync_unlock(irq, desc);
- }
- EXPORT_SYMBOL(enable_irq);
- 
-@@ -831,7 +852,14 @@ EXPORT_SYMBOL_GPL(remove_irq);
-  */
- void free_irq(unsigned int irq, void *dev_id)
- {
-+	struct irq_desc *desc = irq_to_desc(irq);
-+
-+	if (!desc)
-+		return;
-+
-+	chip_bus_sync_lock(irq, desc);
- 	kfree(__free_irq(irq, dev_id));
-+	chip_bus_sync_unlock(irq, desc);
- }
- EXPORT_SYMBOL(free_irq);
- 
-@@ -932,10 +960,14 @@ int request_threaded_irq(unsigned int ir
- 	action->name = devname;
- 	action->dev_id = dev_id;
- 
-+	chip_bus_lock(irq, desc);
-+
- 	retval = __setup_irq(irq, desc, action);
- 	if (retval)
- 		kfree(action);
- 
-+	chip_bus_sync_unlock(irq, desc);
-+
- #ifdef CONFIG_DEBUG_SHIRQ
- 	if (irqflags & IRQF_SHARED) {
- 		/*
+Hello,=0A=0A=0A=0A----- Original Message ----=0A> From: Philby John <pjohn@=
+in.mvista.com>=0A> To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org=0A> Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org=
+; davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org=0A> Sent: Wednesday, July =
+15, 2009 13:04:27=0A> Subject: [PATCH/RFC 1/1] recover from davinci i2c tim=
+e out conditions=0A> =0A> >From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mo=
+n Sep 17 00:00:00 2001=0A> From: Philby John =0A> Date: Tue, 14 Jul 2009 21=
+:46:47 +0530=0A> Subject: [PATCH] Reset i2c bus to come out of time out con=
+ditions=0A> =0A> Get out of i2c time out condition by resetting=0A> the i2c=
+ bus. The kernel must be robust enough to=0A> gracefully recover from i2c b=
+us failure without having=0A> to reset the machine. This is done by first N=
+ACKing the slave=0A> and then resetting the i2c bus after a certain timeout=
+.=0A> =0A> Signed-off-by: Philby John =0A=0AI tried this on DM6443 based bo=
+ard with 2.6.18 kernel. The result I am posting below. It gives controller =
+time out again and again.=0A=0Adhcppc9 login: i2c_davinci i2c_davinci.1: co=
+ntroller timed out=0Ai2c_davinci i2c_davinci.1: initiating i2c bus recovery=
+=0Ai2c_davinci i2c_davinci.1: controller timed out=0Ai2c_davinci i2c_davinc=
+i.1: initiating i2c bus recovery=0Ai2c_davinci i2c_davinci.1: controller ti=
+med out=0Ai2c_davinci i2c_davinci.1: initiating i2c bus recovery=0Ai2c_davi=
+nci i2c_davinci.1: controller timed out=0Ai2c_davinci i2c_davinci.1: initia=
+ting i2c bus recovery=0Ai2c_davinci i2c_davinci.1: controller timed out=0Ai=
+2c_davinci i2c_davinci.1: initiating i2c bus recovery=0Ai2c_davinci i2c_dav=
+inci.1: controller timed out=0Ai2c_davinci i2c_davinci.1: initiating i2c bu=
+s recovery=0Ai2c_davinci i2c_davinci.1: controller timed out=0Ai2c_davinci =
+i2c_davinci.1: initiating i2c bus recovery=0Ai2c_davinci i2c_davinci.1: con=
+troller timed out=0Ai2c_davinci i2c_davinci.1: initiating i2c bus recovery=
+=0Ai2c_davinci i2c_davinci.1: controller timed out=0Ai2c_davinci i2c_davinc=
+i.1: initiating i2c bus recovery=0Ai2c_davinci i2c_davinci.1: controller ti=
+med out=0Ai2c_davinci i2c_davinci.1: initiating i2c bus recovery=0Ai2c_davi=
+nci i2c_davinci.1: controller timed out=0Ai2c_davinci i2c_davinci.1: initia=
+ting i2c bus recovery=0A=0Aregards=0A=0A-Nitin=0A> ---=0A> drivers/i2c/buss=
+es/i2c-davinci.c |   98 +++++++++++++++++++++++++++++++++++--=0A> 1 files c=
+hanged, 92 insertions(+), 6 deletions(-)=0A> =0A> diff --git a/drivers/i2c/=
+busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c=0A> index 17f2ee7..=
+4ed1a4c 100755=0A> --- a/drivers/i2c/busses/i2c-davinci.c=0A> +++ b/drivers=
+/i2c/busses/i2c-davinci.c=0A> @@ -35,14 +35,18 @@=0A> #include =0A> #includ=
+e =0A> #include =0A> +#include =0A> =0A> #include =0A> =0A> #include =0A> +=
+#include =0A> +#include =0A> =0A> /* ----- global defines -----------------=
+------------------------------ */=0A> =0A> #define DAVINCI_I2C_TIMEOUT    (=
+1*HZ)=0A> +#define DAVINCI_I2C_MAX_TRIES    2=0A> #define I2C_DAVINCI_INTR_=
+ALL    (DAVINCI_I2C_IMR_AAS | \=0A>                  DAVINCI_I2C_IMR_SCD | =
+\=0A>                  DAVINCI_I2C_IMR_ARDY | \=0A> @@ -135,6 +139,50 @@ st=
+atic inline u16 davinci_i2c_read_reg(struct =0A> davinci_i2c_dev *i2c_dev, =
+int reg)=0A> }=0A> =0A> /*=0A> + * Configure the i2c data pin as a GPIO inp=
+ut and the i2c clock pin as a=0A> + * high GPIO output.=0A> + */=0A> +stati=
+c void disable_i2c_pins(void)=0A> +{=0A> +    unsigned long flags;=0A> +=0A=
+> +    local_irq_save(flags);=0A> +    if (cpu_is_davinci_dm355()) {=0A> + =
+       gpio_direction_input(15);=0A> +        gpio_direction_output(14, 0);=
+=0A> +        gpio_set_value(14, 1);=0A> +        davinci_cfg_reg(DM355_I2C=
+_SDA);=0A> +        davinci_cfg_reg(DM355_I2C_SCL);=0A> +    }=0A> +    loc=
+al_irq_restore(flags);=0A> +}=0A> +=0A> +/* Connect the i2c pins to the i2c=
+ controller. */=0A> +static void enable_i2c_pins(void)=0A> +{=0A> +    unsi=
+gned long flags;=0A> +=0A> +    local_irq_save(flags);=0A> +    if (cpu_is_=
+davinci_dm355()) {=0A> +        davinci_cfg_reg(DM355_I2C_SDA);=0A> +      =
+  davinci_cfg_reg(DM355_I2C_SCL);=0A> +    }=0A> +    local_irq_restore(fla=
+gs);=0A> +}=0A> +=0A> +=0A> +/* Generate a pulse on the i2c clock pin. */=
+=0A> +static void pulse_i2c_clock(void)=0A> +{=0A> +    if (cpu_is_davinci_=
+dm355()) {=0A> +        gpio_set_value(14, 0);=0A> +        udelay(20);=0A>=
+ +        gpio_set_value(14, 1);=0A> +        udelay(20);=0A> +    }=0A> +}=
+=0A> +=0A> +/*=0A>   * This functions configures I2C and brings I2C out of =
+reset.=0A>   * This function is called during I2C init function. This funct=
+ion=0A>   * also gets called if I2C encounters any errors.=0A> @@ -221,14 +=
+269,36 @@ static int i2c_davinci_wait_bus_not_busy(struct =0A> davinci_i2c_=
+dev *dev,=0A>                      char allow_sleep)=0A> {=0A>     unsigned=
+ long timeout;=0A> +    u16 i;=0A> +    static u16 to_cnt =3D 0;=0A> +    u=
+32 flag =3D 0;=0A> =0A>     timeout =3D jiffies + dev->adapter.timeout;=0A>=
+     while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)=0A> -           =
+& DAVINCI_I2C_STR_BB) {=0A> -        if (time_after(jiffies, timeout)) {=0A=
+> -            dev_warn(dev->dev,=0A> -                 "timeout waiting fo=
+r bus ready\n");=0A> -            return -ETIMEDOUT;=0A> +            & DAV=
+INCI_I2C_STR_BB) {=0A> +=0A> +        if (to_cnt <=3D DAVINCI_I2C_MAX_TRIES=
+) {=0A> +            if (time_after(jiffies, timeout)) {=0A> +             =
+   dev_warn(dev->dev,=0A> +                    "timeout waiting for bus rea=
+dy\n");=0A> +                to_cnt++;=0A> +                return -ETIMEDO=
+UT;=0A> +            }=0A> +        } else if (cpu_is_davinci_dm644x() || c=
+pu_is_davinci_dm355()) {=0A> +            to_cnt =3D 0;=0A> +            de=
+v_err(dev->dev, "initiating i2c bus recovery\n");=0A> +            /* Send =
+the NACK to the slave */=0A> +            flag =3D davinci_i2c_read_reg(dev=
+, DAVINCI_I2C_IMR_REG);=0A> +            flag |=3D  DAVINCI_I2C_MDR_NACK;=
+=0A> +            /* write the data into mode register */=0A> +            =
+davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);=0A> +            /* =
+Disable i2c */=0A> +            disable_i2c_pins();=0A> +            for (i=
+ =3D 0; i < 10; i++)=0A> +                pulse_i2c_clock();=0A> +         =
+   /* Re-enable i2c */=0A> +            enable_i2c_pins();=0A> +           =
+ i2c_davinci_init(dev);=0A>         }=0A>         if (allow_sleep)=0A>     =
+        schedule_timeout(1);=0A> @@ -309,7 +379,23 @@ i2c_davinci_xfer_msg(=
+struct i2c_adapter *adap, struct =0A> i2c_msg *msg, int stop)=0A>     r =3D=
+ wait_for_completion_interruptible_timeout(&dev->cmd_complete,=0A>         =
+                      dev->adapter.timeout);=0A>     if (r =3D=3D 0) {=0A> =
+-        dev_err(dev->dev, "controller timed out\n");=0A> +        u16 i;=
+=0A> +        u32 flag =3D 0;=0A> +        if (cpu_is_davinci_dm644x() || c=
+pu_is_davinci_dm355()) {=0A> +            dev_err(dev->dev, "initiating i2c=
+ bus recovery\n");=0A> +            /* Send the NACK to the slave */=0A> + =
+           flag =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);=0A> +  =
+          flag |=3D  DAVINCI_I2C_MDR_NACK;=0A> +            /* write the da=
+ta into mode register */=0A> +            davinci_i2c_write_reg(dev, DAVINC=
+I_I2C_MDR_REG, flag);=0A> +            /* Disable i2c */=0A> +            d=
+isable_i2c_pins();=0A> +            /* Send high and low on the SCL line */=
+=0A> +            for (i =3D 0; i < 10; i++)=0A> +                pulse_i2c=
+_clock();=0A> +            /* Re-enable i2c */=0A> +            enable_i2c_=
+pins();=0A> +        }=0A>         i2c_davinci_init(dev);=0A>         dev->=
+buf_len =3D 0;=0A>         return -ETIMEDOUT;=0A> -- =0A> 1.6.3.3.MVISTA=0A=
+> =0A> =0A> _______________________________________________=0A> Davinci-lin=
+ux-open-source mailing list=0A> Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi+G/Ez6ZCGd0@public.gmane.org=
+com=0A> http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-sou=
+rce=0A=0A=0A=0A      New Email addresses available on Yahoo!=0AGet the Emai=
+l name you&#39;ve always wanted on the new @ymail and @rocketmail. =0AHurry=
+ before someone else does!=0Ahttp://mail.promotions.yahoo.com/newdomains/aa=
+/
