@@ -1,38 +1,42 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 15:56:55 +0100
-Message-ID: <20090722145654.GA4987@rakim.wolfsonmicro.main>
-References: <20090721160436.GD4352@dtor-d630.eng.vmware.com>
- <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
- <20090721222547.GA1948@opensource.wolfsonmicro.com>
- <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
- <20090722121800.GD21171@rakim.wolfsonmicro.main>
- <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
- <1248269443.27058.1449.camel@twins>
- <alpine.LFD.2.00.0907221615480.2813@localhost.localdomain>
- <20090722143211.GB29404@rakim.wolfsonmicro.main>
- <alpine.LFD.2.00.0907221645240.2813@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: change i2c-sh_mobile.c module_init() to subsys_initcall()
+Date: Wed, 22 Jul 2009 23:58:39 +0900
+Message-ID: <20090722145839.17871.94267.sendpatchset@rx1.opensource.se>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0907221645240.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 22, 2009 at 04:52:21PM +0200, Thomas Gleixner wrote:
-> On Wed, 22 Jul 2009, Mark Brown wrote:
+From: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
 
-> > The chips I'm deling with can certainly support doing that but I'm not
-> > sure there'd be enormous advantages - a lot of the interrupt handlers
-> > will either be trivial (eg, RTC ticks or alarms) or be serialised by a
-> > need to interact with the chip anyway.  I'd expect this to be generally
-> > true, though ICBW.
+Convert the i2c-sh_mobile i2c bus driver to use
+subsys_initcall() instead of module_init().
 
-> So in your case it would be possible to run the various subdevice
-> thread_fn handlers from your main interrupt thread one after each
-> other ?
+This change makes the driver register a bit earlier which
+together with earlier platform data moves the time for probe().
+The earlier probe() makes it possible to use i2c_get_adapter()
+and i2c_transfer() from device_initcall().
 
-That's what they're all doing at present outside of genirq.
+The same strategy is used by other i2c bus drivers such as
+i2c-pxa.c and i2c-s3c2410.c.
+
+Signed-off-by: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
+---
+
+ Paul, can you merge this in your tree?
+
+ drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- 0001/drivers/i2c/busses/i2c-sh_mobile.c
++++ work/drivers/i2c/busses/i2c-sh_mobile.c	2009-07-22 21:54:29.000000000 +0900
+@@ -637,7 +637,7 @@ static void __exit sh_mobile_i2c_adap_ex
+ 	platform_driver_unregister(&sh_mobile_i2c_driver);
+ }
+ 
+-module_init(sh_mobile_i2c_adap_init);
++subsys_initcall(sh_mobile_i2c_adap_init);
+ module_exit(sh_mobile_i2c_adap_exit);
+ 
+ MODULE_DESCRIPTION("SuperH Mobile I2C Bus Controller driver");
