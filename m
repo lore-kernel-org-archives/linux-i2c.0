@@ -1,94 +1,142 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 21:43:22 -0700
-Message-ID: <20090723044321.GA2782@dtor-d630.eng.vmware.com>
-References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins> <200907220957.16499.david-b@pacbell.net> <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Do not give adapters a default parent
+Date: Thu, 23 Jul 2009 16:02:59 +0200
+Message-ID: <20090723160259.78a10e37@hyperion.delvare>
+References: <20090426103025.4525edd3@hyperion.delvare>
+	<20090504124341.42405e79@hyperion.delvare>
+	<ac3eb2510905040540k65afe3f8k7e6c696d11bf7e1d@mail.gmail.com>
+	<20090704191431.3d352d0b@hyperion.delvare>
+	<ac3eb2510907051319i414a5e78r74d623ebb0508d0@mail.gmail.com>
+	<20090705225616.1d4817e7@hyperion.delvare>
+	<ac3eb2510907051434i4ee351cbk3db17b50c7e7618b@mail.gmail.com>
+	<20090722210753.35802816@hyperion.delvare>
+	<1248296688.2065.4.camel@yio.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
-Sender: linux-input-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: David Brownell <david-b@pacbell.net>, Peter Zijlstra <peterz@infradead.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Daniel Ribeiro <drwyrm@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1248296688.2065.4.camel-2/CBIq5w30c@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 22, 2009 at 11:04:33PM +0200, Thomas Gleixner wrote:
-> 
-> Any more ?
-> 
+Hi Kay,
 
-Can we also have something like below by any chance?
+On Wed, 22 Jul 2009 23:04:48 +0200, Kay Sievers wrote:
+> On Wed, 2009-07-22 at 21:07 +0200, Jean Delvare wrote:
+> > Any progress on this? I have just committed the patches to
+> > sensors-detect and libsensors, and the kernel patch is ready to go, but
+> > without the compatibility links it doesn't make any sense to push it
+> > upstream
+> 
+> Something like this? Please change it as you need. I did only a very
+> quick test.
+> 
+> The only important part is that the kobject of the class directly is not
+> exposed, so nobody else can do weird things with it.
+> (...)
+> --- a/drivers/base/class.c
+> +++ b/drivers/base/class.c
+> @@ -488,6 +488,45 @@ void class_interface_unregister(struct c
+>  	class_put(parent);
+>  }
+>  
+> +struct class_compat {
+> +	struct kobject *kobj;
+> +};
+> +
+> +struct class_compat *class_compat_register(const char *name)
+> +{
+> +	struct class_compat *cls;
+> +
+> +	cls = kmalloc(sizeof(struct class_compat), GFP_KERNEL);
+> +	if (!cls)
+> +		return NULL;
+> +	cls->kobj = kobject_create_and_add(name, &class_kset->kobj);
+> +	if (!cls->kobj) {
+> +		kfree(cls);
+> +		return NULL;
+> +	}
+> +	return cls;
+> +}
+> +EXPORT_SYMBOL_GPL(class_compat_register);
+> +
+> +void class_compat_unregister(struct class_compat *cls)
+> +{
+> +	kobject_put(cls->kobj);
+> +	kfree(cls);
+> +}
+> +EXPORT_SYMBOL_GPL(class_compat_unregister);
+> +
+> +int class_compat_create_link(struct class_compat *cls, struct device *dev)
+> +{
+> +	return sysfs_create_link(cls->kobj, &dev->kobj, dev_name(dev));
+> +}
+> +EXPORT_SYMBOL_GPL(class_compat_create_link);
+> +
+> +void class_compat_remove_link(struct class_compat *cls, struct device *dev)
+> +{
+> +	return sysfs_remove_link(cls->kobj, dev_name(dev));
 
+I don't think you need the "return" here, as sysfs_remove_link returns
+void.
+
+> +}
+> +EXPORT_SYMBOL_GPL(class_compat_remove_link);
+> +
+>  int __init classes_init(void)
+>  {
+>  	class_kset = kset_create_and_add("class", NULL, NULL);
+> 
+> --- a/include/linux/device.h
+> +++ b/include/linux/device.h
+> @@ -223,6 +223,12 @@ extern void class_unregister(struct clas
+>  	__class_register(class, &__key);	\
+>  })
+>  
+> +struct class_compat;
+> +struct class_compat *class_compat_register(const char *name);
+> +void class_compat_unregister(struct class_compat *cls);
+> +int class_compat_create_link(struct class_compat *cls, struct device *dev);
+> +void class_compat_remove_link(struct class_compat *cls, struct device *dev);
+> +
+>  extern void class_dev_iter_init(struct class_dev_iter *iter,
+>  				struct class *class,
+>  				struct device *start,
+
+Other than that (and in practice even with that) your patch works just
+fine for me. Thanks! Unfortunately it doesn't provide perfect
+compatibility, because sensors-detect likes to query attributes of the
+i2c-adapter's parent device (when it is a PCI device) and the lack of
+device link (now that i2c adapters are bus devices) prevent it from
+doing so. I will have to check how bad it is for older versions of the
+script (when I am done moving to my new place, that is.) For the
+current version, it prevents sensors-detect from being smart on default
+answers, but that's about it, so it isn't a blocker IMHO. And I'm
+not really sure if/how this could be addressed anyway. Would it be OK
+to add this device link (pointing to "..") temporarily or would that be
+too confusing?
+
+libsensors only needs the adapter's name so the compatibility layer
+works perfectly there.
+
+Another thing we have to discuss is the compatibility option. For now
+I've made it i2c-specific and enabled by default:
+
+config I2C_COMPAT
+	boolean "Enable compatibility bits for old user-space"
+	default y
+	help
+	  Say Y here if you intend to run lm-sensors 3.1.1 or older.
+
+But this means a lot of ifdefs in my code (6). With a system-wide
+option, we could provide empty stubs I could get rid of them. OTOH, It
+is easier to control the lifetime, and change the default value, of a
+subsystem specific option. So I'm not too sure what do to. Maybe it
+depends on how many subsystems will need the compatibility layer... Do
+you have an opinion?
+
+Thanks,
 -- 
-Dmitry
-
-genirq: provide dummy hard irq handler for threaded interrupts
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Quite often drivers using threaded interrupts don't do anything
-in the hard IRQ portion of their interrupt handler; everything
-is offloaded to the threaded half. Instead of having every driver
-implement a stub have one ready in the IRQ core.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- kernel/irq/manage.c |   22 ++++++++++++++++++----
- 1 files changed, 18 insertions(+), 4 deletions(-)
-
-
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index 50da676..cdc52f6 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -695,6 +695,15 @@ out_thread:
- 	return ret;
- }
- 
-+/*
-+ * Default hardirq handler for threaded irqs that is used when
-+ * driver did not provide its own implementation.
-+ */
-+static irqreturn_t dummy_hardirq_handler(int irq, void *dev_id)
-+{
-+	return IRQ_WAKE_THREAD;
-+}
-+
- /**
-  *	setup_irq - setup an interrupt
-  *	@irq: Interrupt line to setup
-@@ -837,8 +846,11 @@ EXPORT_SYMBOL(free_irq);
-  *	request_threaded_irq - allocate an interrupt line
-  *	@irq: Interrupt line to allocate
-  *	@handler: Function to be called when the IRQ occurs.
-- *		  Primary handler for threaded interrupts
-- *	@thread_fn: Function called from the irq handler thread
-+ *		  Primary handler for threaded interrupts.
-+ *		  May be NULL, in which case a dummy interrupt
-+ *		  handler is used that simply returns
-+ *		  IRQ_WAKE_THREAD
-+ *	@thread_fn: Function called from the irq handler thread.
-  *		    If NULL, no irq thread is created
-  *	@irqflags: Interrupt type flags
-  *	@devname: An ascii name for the claiming device
-@@ -917,14 +929,16 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
- 
- 	if (desc->status & IRQ_NOREQUEST)
- 		return -EINVAL;
--	if (!handler)
-+
-+	if (!handler && !thread_fn) {
- 		return -EINVAL;
-+	}
- 
- 	action = kzalloc(sizeof(struct irqaction), GFP_KERNEL);
- 	if (!action)
- 		return -ENOMEM;
- 
--	action->handler = handler;
-+	action->handler = handler ?: dummy_hardirq_handler;
- 	action->thread_fn = thread_fn;
- 	action->flags = irqflags;
- 	action->name = devname;
+Jean Delvare
