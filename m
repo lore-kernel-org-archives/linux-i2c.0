@@ -1,41 +1,84 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] PCI: Unhide the SMBus on the Compaq Evo D510 USDT
-Date: Tue, 28 Jul 2009 11:49:19 +0200
-Message-ID: <20090728114919.211f48a3@hyperion.delvare>
+Subject: Re: [PATCH] i2c: Do not give adapters a default parent
+Date: Tue, 28 Jul 2009 14:47:55 +0200
+Message-ID: <20090728144755.69d328d4@hyperion.delvare>
+References: <20090426103025.4525edd3@hyperion.delvare>
+ <20090504124341.42405e79@hyperion.delvare>
+ <ac3eb2510905040540k65afe3f8k7e6c696d11bf7e1d@mail.gmail.com>
+ <20090704191431.3d352d0b@hyperion.delvare>
+ <ac3eb2510907051319i414a5e78r74d623ebb0508d0@mail.gmail.com>
+ <20090705225616.1d4817e7@hyperion.delvare>
+ <ac3eb2510907051434i4ee351cbk3db17b50c7e7618b@mail.gmail.com>
+ <20090722210753.35802816@hyperion.delvare>
+ <1248296688.2065.4.camel@yio.site>
+ <20090723160259.78a10e37@hyperion.delvare>
+ <ac3eb2510907230819g1b8edf63g42ffc4c87dbc0cb5@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <ac3eb2510907230819g1b8edf63g42ffc4c87dbc0cb5-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jesse Barnes <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>
-Cc: linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Nuzhna Pomoshch <nuzhna_pomoshch-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+To: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Subject: PCI: Unhide the SMBus on the Compaq Evo D510 USDT
+Hi Kay,
 
-One more form factor for Compaq Evo D510, which needs the same quirk
-as the other form factors. Apparently there's no hardware monitoring
-chip on that one, but SPD EEPROMs, so it's still worth unhiding the
-SMBus.
+On Thu, 23 Jul 2009 17:19:22 +0200, Kay Sievers wrote:
+> On Thu, Jul 23, 2009 at 16:02, Jean Delvare<khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote=
+:
+> > I don't think you need the "return" here, as sysfs_remove_link retu=
+rns
+> > void.
+>=20
+> Fixed. Thanks.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Jesse Barnes <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>
-Tested-by: Nuzhna Pomoshch <nuzhna_pomoshch-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
----
- drivers/pci/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+What's the merge timeline for this patch?
 
---- linux-2.6.31-rc4.orig/drivers/pci/quirks.c	2009-07-14 10:26:41.000000000 +0200
-+++ linux-2.6.31-rc4/drivers/pci/quirks.c	2009-07-27 14:47:15.000000000 +0200
-@@ -1201,6 +1201,7 @@ static void __init asus_hides_smbus_host
- 			switch(dev->subsystem_device) {
- 			case 0x00b8: /* Compaq Evo D510 CMT */
- 			case 0x00b9: /* Compaq Evo D510 SFF */
-+			case 0x00ba: /* Compaq Evo D510 USDT */
- 				/* Motherboard doesn't have Host bridge
- 				 * subvendor/subdevice IDs and on-board VGA
- 				 * controller is disabled if an AGP card is
+> > Other than that (and in practice even with that) your patch works j=
+ust
+> > fine for me. Thanks! Unfortunately it doesn't provide perfect
+> > compatibility, [...] to add this device link (pointing to "..") tem=
+porarily
+> > or would that be too confusing?
+>=20
+> I think that's ok, if it solves a real problem. The entire idea of _a=
+_
+> "device" link is pretty flawed, and the reason we ripped all the
+> "struct class_device" devices out.
 
+OK, I've added the "device" link and now compatibility works perfectly.
+I'll post the updated patch series soon, if you want to take a look.
 
--- 
+Would it make sense to move the "device" link creation into
+class_compat_create_link()? I suspect other users of a compatibility
+class may need it as well.
+
+> > Another thing we have to discuss is the compatibility option. For n=
+ow
+> > I've made it i2c-specific and enabled by default:
+> >
+> > config I2C_COMPAT
+> > =A0 =A0 =A0 =A0boolean "Enable compatibility bits for old user-spac=
+e"
+> > =A0 =A0 =A0 =A0default y
+> > =A0 =A0 =A0 =A0help
+> > =A0 =A0 =A0 =A0 =A0Say Y here if you intend to run lm-sensors 3.1.1=
+ or older.
+> >
+> > But this means a lot of ifdefs in my code (6). With a system-wide
+> > option, we could provide empty stubs I could get rid of them. OTOH,=
+ It
+> > is easier to control the lifetime, and change the default value, of=
+ a
+> > subsystem specific option. So I'm not too sure what do to.
+>=20
+> I'm not sure too. I think it's fine to have it per-subsytem, as only
+> the subsystem knows for how long it is needed, and it can probably be
+> dropped some day.
+
+OK, fine with me.
+
+--=20
 Jean Delvare
