@@ -1,167 +1,183 @@
-From: balajitk@ti.com
-Subject: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd driver to create twl6030 regulators
-Date: Wed, 29 Jul 2009 10:06:13 +0530
-Message-ID: <1248842173-21821-1-git-send-email-balajitk@ti.com>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [PATCH] I2C: OMAP3: PM: (re)init for every transfer to support
+	off-mode
+Date: Thu, 30 Jul 2009 00:43:08 +0100
+Message-ID: <20090729234308.GA8850@fluff.org.uk>
+References: <1248217743-24330-1-git-send-email-khilman@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1248217743-24330-1-git-send-email-khilman@deeprootsystems.com>
 Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: tony@atomide.com, khilman@deeprootsystems.com, david-b@pacbell.net, linux-i2c@vger.kernel.org, sameo@openedhand.com, wim@iguana.be, timo.t.kokkonen@nokia.com, ben-linux@fluff.org, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com, Rajendra Nayak <rnayak@ti.com>
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@ti.com>
+On Tue, Jul 21, 2009 at 04:09:03PM -0700, Kevin Hilman wrote:
+> From: Rajendra Nayak <rnayak@ti.com>
+> 
+> Because of OMAP off-mode, powerdomain can go off when I2C is idle.
+> Save enough state, and do a re-init for each transfer.
+> 
+> Additional save/restore state added by Jagadeesh Bhaskar Pakaravoor
+> (SYSC_REG) and Aaro Koskinen (wakeup sources.)
+> 
+> Also, The OMAP3430 TRM states:
+> 
+> "During active mode (I2Ci.I2C_CON[15] I2C_EN bit is set to 1), make no
+> changes to the I2Ci.I2C_SCLL and I2Ci.I2C_SCLH registers.  Changes may
+> result in unpredictable behavior."
+> 
+> Hence, the I2C_EN bit should be clearer when modifying these
+> registers. Please note that clearing the entire I2C_CON register to
+> disable the I2C module is safe, because the I2C_CON register is
+> re-configured for each transfer.
 
-This version of patch series enables RUN TIME selection of TWL4030 or TWL6030.
+should this be applied as a bugfix, or kept for next merge window?
+ 
+> Signed-off-by: Jouni Hogander <jouni.hogander@nokia.com>
+> Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+> Cc: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+> Cc: Aaro Koskinen <aaro.koskinen@nokia.com>
+> Cc: Jon Hunter <jon-hunter@ti.com>
+> Cc: Hu Tao <taohu@motorola.com>
+> Cc: Xiaolong Chen <A21785@motorola.com>
+> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+> ---
+> This patch has been tested extensively as part of the OMAP 'PM branch'
+> 
+>  drivers/i2c/busses/i2c-omap.c |   64 ++++++++++++++++++++++++++--------------
+>  1 files changed, 41 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index ad8d201..bb8ae50 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -178,6 +178,12 @@ struct omap_i2c_dev {
+>  	unsigned		b_hw:1;		/* bad h/w fixes */
+>  	unsigned		idle:1;
+>  	u16			iestate;	/* Saved interrupt register */
+> +	u16			pscstate;
+> +	u16			scllstate;
+> +	u16			sclhstate;
+> +	u16			bufstate;
+> +	u16			syscstate;
+> +	u16			westate;
+>  };
+>  
+>  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+> @@ -230,9 +236,18 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+>  
+>  	clk_enable(dev->iclk);
+>  	clk_enable(dev->fclk);
+> +	if (cpu_is_omap34xx()) {
+> +		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+> +		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+> +	}
+>  	dev->idle = 0;
+> -	if (dev->iestate)
+> -		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+> +	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+>  }
+>  
+>  static void omap_i2c_idle(struct omap_i2c_dev *dev)
+> @@ -258,7 +273,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+>  
+>  static int omap_i2c_init(struct omap_i2c_dev *dev)
+>  {
+> -	u16 psc = 0, scll = 0, sclh = 0;
+> +	u16 psc = 0, scll = 0, sclh = 0, buf = 0;
+>  	u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
+>  	unsigned long fclk_rate = 12000000;
+>  	unsigned long timeout;
+> @@ -287,24 +302,22 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+>  					   SYSC_AUTOIDLE_MASK);
+>  
+>  		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
+> -			u32 v;
+> -
+> -			v = SYSC_AUTOIDLE_MASK;
+> -			v |= SYSC_ENAWAKEUP_MASK;
+> -			v |= (SYSC_IDLEMODE_SMART <<
+> +			dev->syscstate = SYSC_AUTOIDLE_MASK;
+> +			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
+> +			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+>  			      __ffs(SYSC_SIDLEMODE_MASK));
+> -			v |= (SYSC_CLOCKACTIVITY_FCLK <<
+> +			dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK <<
+>  			      __ffs(SYSC_CLOCKACTIVITY_MASK));
+>  
+> -			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, v);
+> +			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
+> +							dev->syscstate);
+>  			/*
+>  			 * Enabling all wakup sources to stop I2C freezing on
+>  			 * WFI instruction.
+>  			 * REVISIT: Some wkup sources might not be needed.
+>  			 */
+> -			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+> -							OMAP_I2C_WE_ALL);
+> -
+> +			dev->westate = OMAP_I2C_WE_ALL;
+> +			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+>  		}
+>  	}
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> @@ -394,23 +407,28 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+>  	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, scll);
+>  	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, sclh);
+>  
+> -	if (dev->fifo_size)
+> -		/* Note: setup required fifo size - 1 */
+> -		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG,
+> -					(dev->fifo_size - 1) << 8 | /* RTRSH */
+> -					OMAP_I2C_BUF_RXFIF_CLR |
+> -					(dev->fifo_size - 1) | /* XTRSH */
+> -					OMAP_I2C_BUF_TXFIF_CLR);
+> +	if (dev->fifo_size) {
+> +		/* Note: setup required fifo size - 1. RTRSH and XTRSH */
+> +		buf = (dev->fifo_size - 1) << 8 | OMAP_I2C_BUF_RXFIF_CLR |
+> +			(dev->fifo_size - 1) | OMAP_I2C_BUF_TXFIF_CLR;
+> +		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, buf);
+> +	}
+>  
+>  	/* Take the I2C module out of reset: */
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+>  
+>  	/* Enable interrupts */
+> -	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
+> -			(OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+> +	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+>  			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+>  			OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
+> -				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0));
+> +				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0);
+> +	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+> +	if (cpu_is_omap34xx()) {
+> +		dev->pscstate = psc;
+> +		dev->scllstate = scll;
+> +		dev->sclhstate = sclh;
+> +		dev->bufstate = buf;
+> +	}
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.6.3.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-This patch adds initial support for creating twl6030 PMIC
-specific voltage regulators in the twl mfd driver.
-
-Board specific regulator configurations will have to be passed from
-respective board files.
-
-Signed-off-by: Rajendra Nayak <rnayak@ti.com>
----
- drivers/mfd/twl-core.c  |   56 +++++++++++++++++++++++++++++++++++++++++-----
- include/linux/i2c/twl.h |   18 +++++++++++----
- 2 files changed, 63 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index f505537..747289c 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -76,9 +76,9 @@
- #define twl_has_gpio()	false
- #endif
- 
--#if defined(CONFIG_REGULATOR_TWL4030) \
--	|| defined(CONFIG_REGULATOR_TWL4030_MODULE)
--#define twl_has_regulator()	true
-+#if defined(CONFIG_REGULATOR_TWL) \
-+	|| defined(CONFIG_REGULATOR_TWL_MODULE)
-+#define twl_has_regulator() true
- #else
- #define twl_has_regulator()	false
- #endif
-@@ -636,7 +636,7 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
--	if (twl_has_regulator()) {
-+	if (twl_has_regulator() && is_class_twl4030()) {
- 		/*
- 		child = add_regulator(TWL4030_REG_VPLL1, pdata->vpll1);
- 		if (IS_ERR(child))
-@@ -659,7 +659,7 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
--	if (twl_has_regulator() && usb_transceiver) {
-+	if (twl_has_regulator() && is_class_twl4030() && usb_transceiver) {
- 		static struct regulator_consumer_supply usb1v5 = {
- 			.supply =	"usb1v5",
- 		};
-@@ -701,7 +701,8 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 	}
- 
- 	/* maybe add LDOs that are omitted on cost-reduced parts */
--	if (twl_has_regulator() && !(features & TPS_SUBSET)) {
-+	if (twl_has_regulator() && is_class_twl4030()
-+	  && !(features & TPS_SUBSET)) {
- 		child = add_regulator(TWL4030_REG_VPLL2, pdata->vpll2);
- 		if (IS_ERR(child))
- 			return PTR_ERR(child);
-@@ -727,6 +728,49 @@ add_children(struct twl_platform_data *pdata, unsigned long features)
- 			return PTR_ERR(child);
- 	}
- 
-+	/* twl6030 regulators */
-+	if (twl_has_regulator() && is_class_twl4030()) {
-+		child = add_regulator(TWL6030_REG_VMMC, pdata->vmmc);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VPP, pdata->vpp);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VUSIM, pdata->vusim);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VANA, pdata->vana);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VCXIO, pdata->vcxio);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VDAC, pdata->vdac);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VUSB, pdata->vusb);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX1_6030, pdata->vaux1);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX2_6030, pdata->vaux2);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+
-+		child = add_regulator(TWL6030_REG_VAUX3_6030, pdata->vaux3);
-+		if (IS_ERR(child))
-+			return PTR_ERR(child);
-+	}
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/i2c/twl.h b/include/linux/i2c/twl.h
-index 53d9360..1f678ed 100644
---- a/include/linux/i2c/twl.h
-+++ b/include/linux/i2c/twl.h
-@@ -306,6 +306,7 @@ int twl_i2c_read(u8 mod_no, u8 *value, u8 reg, unsigned num_bytes);
- #define TWL4030_INT_PWR_EDR2		0x6
- #define TWL4030_INT_PWR_SIH_CTRL	0x7
- 
-+
- /*----------------------------------------------------------------------*/
- 
- /* Power bus message definitions */
-@@ -424,18 +425,25 @@ struct twl_platform_data {
- 	struct twl_keypad_data		*keypad;
- 	struct twl_usb_data			*usb;
- 
--	/* LDO regulators */
-+	/* LDO regulators common to TWL4030/TWL6030 */
- 	struct regulator_init_data		*vdac;
-+	struct regulator_init_data		*vaux1;
-+	struct regulator_init_data		*vaux2;
-+	struct regulator_init_data		*vaux3;
-+	/* TWL4030 LDO regulators */
- 	struct regulator_init_data		*vpll1;
- 	struct regulator_init_data		*vpll2;
- 	struct regulator_init_data		*vmmc1;
- 	struct regulator_init_data		*vmmc2;
- 	struct regulator_init_data		*vsim;
--	struct regulator_init_data		*vaux1;
--	struct regulator_init_data		*vaux2;
--	struct regulator_init_data		*vaux3;
- 	struct regulator_init_data		*vaux4;
--
-+	/* TWL6030 LDO regulators */
-+	struct regulator_init_data              *vmmc;
-+	struct regulator_init_data              *vpp;
-+	struct regulator_init_data              *vusim;
-+	struct regulator_init_data              *vana;
-+	struct regulator_init_data              *vcxio;
-+	struct regulator_init_data              *vusb;
- 	/* REVISIT more to come ... _nothing_ should be hard-wired */
- };
- 
 -- 
-1.5.4.7
+Ben (ben@fluff.org, http://www.fluff.org/)
 
+  'a smiley only costs 4 bytes'
