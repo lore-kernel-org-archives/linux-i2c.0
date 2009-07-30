@@ -1,35 +1,80 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' i2c-fixes
-Date: Thu, 30 Jul 2009 01:06:48 +0100
-Message-ID: <E1MWJAW-0002kW-Ul@kira.home.fluff.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [PATCH 1/3] [OMAP:I2C]Bug in reading the RXSTAT/TXSTAT values
+	from the I2C_BUFFSTAT register
+Date: Thu, 30 Jul 2009 01:07:51 +0100
+Message-ID: <20090730000751.GF8850@fluff.org.uk>
+References: <CD8CC2B65FEE304DA95744A5472698F202958D2F87@dlee06.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CD8CC2B65FEE304DA95744A5472698F202958D2F87@dlee06.ent.ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Sonasath, Moiz" <m-sonasath@ti.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit f5886c7f96f2542382d3a983c5f13e03d7fc5259:
-  Catalin Marinas (1):
-        kmemleak: Protect the seq start/next/stop sequence by rcu_read_lock()
+On Tue, Jul 21, 2009 at 10:14:06AM -0500, Sonasath, Moiz wrote:
+> Fix bug in reading the I2C_BUFFSTAT register for getting byte count on RX/TX interrupt.
+> 
+> On Interrupt: I2C_STAT[RDR],
+> 	read 'RXSTAT' from I2C_BUFFSTAT[8-13]
+> On Interrupt: I2C_STAT[XDR]
+> 	read 'TXSTAT' from I2C_BUFFSTAT[0-5]
+> 
+> Signed-off-by: Jagadeesh Pakaravoor<j-pakaravoor@ti.com>
+> Signed-off-by: Moiz Sonasath<m-sonasath@ti.com>
+> Signed-off-by: Vikram pandita<vikram.pandita@ti.com>
 
-are available in the git repository at:
+IIRC, email addresses should have a space between the real name
+and the address part. I've fixed this when applying as well as
+changing all subjects to start i2c-omap:
 
-  git://aeryn.fluff.org.uk/bjdooks/linux.git i2c-fixes-rc4
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   14 ++++++++------
+>  1 files changed, 8 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index ad8d201..d280acf 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -692,9 +692,10 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>  			if (dev->fifo_size) {
+>  				if (stat & OMAP_I2C_STAT_RRDY)
+>  					num_bytes = dev->fifo_size;
+> -				else
+> -					num_bytes = omap_i2c_read_reg(dev,
+> -							OMAP_I2C_BUFSTAT_REG);
+> +				else    /* read RXSTAT on RDR interrupt */
+> +					num_bytes = (omap_i2c_read_reg(dev,
+> +							OMAP_I2C_BUFSTAT_REG)
+> +							>> 8) & 0x3F;
+>  			}
+>  			while (num_bytes) {
+>  				num_bytes--;
+> @@ -731,9 +732,10 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>  			if (dev->fifo_size) {
+>  				if (stat & OMAP_I2C_STAT_XRDY)
+>  					num_bytes = dev->fifo_size;
+> -				else
+> -					num_bytes = omap_i2c_read_reg(dev,
+> -							OMAP_I2C_BUFSTAT_REG);
+> +				else    /* read TXSTAT on XDR interrupt */
+> +					num_bytes = omap_i2c_read_reg(dev,
+> +							OMAP_I2C_BUFSTAT_REG)
+> +							& 0x3F;
+>  			}
+>  			while (num_bytes) {
+>  				num_bytes--;
+> -- 
+> 1.5.6.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Magnus Damm (1):
-      i2c-sh_mobile: change module_init() to subsys_initcall()
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
 
-Peter Korsgaard (1):
-      i2c-s3c2410: s3c24xx_i2c_init: don't clobber IICLC value
-
-Roel Kluin (1):
-      i2c: strncpy does not null terminate string
-
-Sonasath, Moiz (3):
-      i2c-omap: Bug in reading the RXSTAT/TXSTAT values from the I2C_BUFFSTAT register
-      i2c-omap: In case of a NACK|ARDY|AL return from the ISR
-      i2c-omap: OMAP3430 Silicon Errata 1.153
-
- drivers/i2c/busses/i2c-omap.c      |   42 +++++++++++++++++++++++++++++------
- drivers/i2c/busses/i2c-s3c2410.c   |    5 ----
- drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
- 3 files changed, 35 insertions(+), 14 deletions(-)
+  'a smiley only costs 4 bytes'
