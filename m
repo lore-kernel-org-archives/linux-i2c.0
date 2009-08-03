@@ -1,42 +1,34 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: About a suspicious msleep during doxfer in s3c2410 i2c bus driver
-Date: Mon, 3 Aug 2009 09:04:14 +0100
-Message-ID: <20090803080414.GF16303@trinity.fluff.org>
-References: <5e9665e10907220112m1dbf4975icf1511bc4ac3a1bf@mail.gmail.com> <20090722124333.GC7622@sirena.org.uk> <E724615E-9F06-4406-9852-041261C5DAA6@gmail.com> <20090722160639.GB14026@rakim.wolfsonmicro.main> <20090730221841.GG8850@fluff.org.uk> <878wi5wa4z.fsf@macbook.be.48ers.dk>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd driver to
+ create twl6030 regulators
+Date: Mon, 3 Aug 2009 15:23:56 +0100
+Message-ID: <20090803142356.GA4265@rakim.wolfsonmicro.main>
+References: <1248842173-21821-1-git-send-email-balajitk@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <878wi5wa4z.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
+In-Reply-To: <1248842173-21821-1-git-send-email-balajitk-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dongsoo Kim <dongsoo.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org, ????????? <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, ????????? <bhmin-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Dongsoo Kim <dongsoo45.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, ?????? ??? <jsgood.yang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: balajitk-l0cyMroinI0@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 31, 2009 at 10:05:00AM +0200, Peter Korsgaard wrote:
-> >>>>> "Ben" == Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
-> 
-> Hi,
-> 
->  >> It wasn't for the client devices, it was for issues with
->  >> synchronisation with the controller hardware.  I'm just going on
->  >> the basis of recollections of previous conversations with Ben
->  >> here; I'm not sure to what extent this might be an issue with the
->  >> way the hardware works requiring the driver to jump through hoops.
-> 
->  Ben> I think this has been in here for a while, and may well not be
->  Ben> necessary any more. If anyone else has tested this without the
->  Ben> msleep() here, then I'd be interested to know.
-> 
-> I'll test on my 6410 board over the weekend. Notice that I've been
-> hacking on the uboot drivers/i2c/s3c24x0_i2c.c file to add s3c64xx
-> support, and I there had to add a udelay before setting the start
-> condition to get it to work stable.
+On Wed, Jul 29, 2009 at 10:06:13AM +0530, balajitk-l0cyMroinI0@public.gmane.org wrote:
 
-does it check for bus busy before starting?
+> -	if (twl_has_regulator()) {
+> +	if (twl_has_regulator() && is_class_twl4030()) {
 
--- 
-Ben
+is_class_twl4030() feels like it should have better namespacing, though
+having the part name in there means it's not actually an issue.
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+> @@ -306,6 +306,7 @@ int twl_i2c_read(u8 mod_no, u8 *value, u8 reg, unsigned num_bytes);
+>  #define TWL4030_INT_PWR_EDR2		0x6
+>  #define TWL4030_INT_PWR_SIH_CTRL	0x7
+>  
+> +
+>  /*----------------------------------------------------------------------*/
+>  
+>  /* Power bus message definitions */
+
+Random unrelated indentation change?
