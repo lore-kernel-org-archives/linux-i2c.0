@@ -1,55 +1,22 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] TSL2550: extended mode bugfix
-Date: Wed, 5 Aug 2009 18:00:06 +0200
-Message-ID: <20090805160006.GC3148@pengutronix.de>
-References: <4A79A055.1010602@valueteam.com> <20090805171452.592a2bbd@hyperion.delvare> <4A79AAF5.9000702@valueteam.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd driver to
+	create twl6030 regulators
+Date: Wed, 5 Aug 2009 22:39:32 +0100
+Message-ID: <20090805213932.GD20853@opensource.wolfsonmicro.com>
+References: <1248842173-21821-1-git-send-email-balajitk@ti.com> <20090803142356.GA4265@rakim.wolfsonmicro.main> <20090804074544.GG24334@atomide.com> <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8884@dbde02.ent.ti.com> <B85A65D85D7EB246BE421B3FB0FBB59301D8BD1708@dbde02.ent.ti.com> <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8BFF@dbde02.ent.ti.com> <20090804134247.GA32353@rakim.wolfsonmicro.main> <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8C25@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4A79AAF5.9000702-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8C25@dbde02.ent.ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
+Cc: "Premi, Sanjeev" <premi@ti.com>, Tony Lindgren <tony@atomide.com>, "Krishnamoorthy, Balaji T" <balajitk@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "khilman@deeprootsystems.com" <khilman@deeprootsystems.com>, "david-b@pacbell.net" <david-b@pacbell.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "sameo@openedhand.com" <sameo@openedhand.com>, "wim@iguana.be" <wim@iguana.be>, "timo.t.kokkonen@nokia.com" <timo.t.kokkonen@nokia.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "lrg@slimlogic.co.uk" <lrg@slimlogic.co.uk>, "Nayak, Rajendra" <rnayak@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Aug 04, 2009 at 07:28:22PM +0530, Shilimkar, Santosh wrote:
 
---xesSdrSSBC0PokLI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Do you have boards / use cases where more than one PM IC would be used _and_ it will use the same driver ?
 
-> About the name of 'operating_mode' field, I think it can be changed in =
-=20
-> 'extended_mode' as Wolfram Sang has suggested.
-> What do you think about it?
-
-Nope, because it is exported to userspace via sysfs, this is not possible.
-There may be already software depending on this name. And to have internally
-one name and externally another won't help reducing the confusion :) Having=
- an
-extra comment as Jean suggested is the way to go.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---xesSdrSSBC0PokLI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkp5rIYACgkQD27XaX1/VRuaNgCePgosN7O/yYPooO2Q/JCFuHQu
-BU8AoLA7g0FNHsmcuWcC6833HTDSmfq6
-=Kp0T
------END PGP SIGNATURE-----
-
---xesSdrSSBC0PokLI--
+I don't personally but it's certainly something that I would consider
+realistic (if not mainstream).
