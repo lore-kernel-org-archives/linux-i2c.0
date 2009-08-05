@@ -1,67 +1,53 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] I2C: Add support for new AMD SMBus devices
-Date: Wed, 5 Aug 2009 15:38:14 +0200
-Message-ID: <20090805153814.70283b5a@hyperion.delvare>
-References: <20090720073112.GA18219@crane-desktop>
+From: "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
+Subject: [PATCH] TSL2550: extended mode bugfix
+Date: Wed, 05 Aug 2009 17:08:05 +0200
+Message-ID: <4A79A055.1010602@valueteam.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090720073112.GA18219@crane-desktop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Crane,
+Hi all,
+according to the TAOS Application Note 'Controlling a Backlight with the
+TSL2550 Ambient Light Sensor' (page 14), the actual lux value in
+extended mode should be obtained multiplying the calculated lux value by 5.
+The following patch should fix the lux calculation in this case.
 
-On Mon, 20 Jul 2009 15:31:12 +0800, Crane Cai wrote:
-> Use driver to detect SMBus devices with Vendor ID AMD and class code is SMBus.
-> 
-> Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-piix4.c |    9 +++++++--
->  1 files changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 0249a7d..034f388 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -479,6 +479,10 @@ static struct pci_device_id piix4_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
-> +	/* AMD Generic, PCI class code and Vendor ID for SMBus */
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_ANY_ID),
-> +	  .class = PCI_CLASS_SERIAL_SMBUS << 8,
-> +	  .class_mask = 0xffffff },
+Regards,
+Michele De Candia
+--
 
-Hmm, this seems a little too broad. In particular the AMD 8111 SMBus
-2.0 device [1022:746a] would match, while we know it isn't compatible
-with the Intel PIIX4 (it has its own driver: i2c-amd8111).
+Signed-off-by: Michele Jr De Candia <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
 
-As much as I would like not having to add PCI IDs to the driver with
-every new chipset released by AMD, this doesn't sound realistic in
-practice, I fear. I suspect you will have to list devices individually,
-just as we do for all other vendors.
+drivers/i2c/chips/tsl2550.c |    7 +++++--
+1 files changed, 5 insertions(+), 2 deletions(-)
 
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
->  		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
-> @@ -499,9 +503,10 @@ static int __devinit piix4_probe(struct pci_dev *dev,
->  {
->  	int retval;
->  
-> -	if ((dev->vendor == PCI_VENDOR_ID_ATI) &&
-> +	if (((dev->vendor == PCI_VENDOR_ID_ATI) &&
->  	    (dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
-> -	    (dev->revision >= 0x40))
-> +	    (dev->revision >= 0x40)) ||
-> +	    dev->vendor == PCI_VENDOR_ID_AMD)
->  		/* base address location etc changed in SB800 */
->  		retval = piix4_setup_sb800(dev, id);
->  	else
+diff --git a/drivers/i2c/chips/tsl2550.c b/drivers/i2c/chips/tsl2550.c
+index b96f302..04b87e0 100644
+--- a/drivers/i2c/chips/tsl2550.c
++++ b/drivers/i2c/chips/tsl2550.c
+@@ -279,7 +279,7 @@ static ssize_t __tsl2550_show_lux(struct i2c_client
+*client, char *buf)
+{
+     u8 ch0, ch1;
+     int ret;
+-
++    struct tsl2550_data *data = i2c_get_clientdata(client);
+     ret = tsl2550_get_adc_value(client, TSL2550_READ_ADC0);
+     if (ret < 0)
+         return ret;
+@@ -293,7 +293,10 @@ static ssize_t __tsl2550_show_lux(struct i2c_client
+*client, char *buf)
+     ch1 = ret;
 
-
--- 
-Jean Delvare
+     /* Do the job */
+-    ret = tsl2550_calculate_lux(ch0, ch1);
++    if (!data->operating_mode)
++        ret = tsl2550_calculate_lux(ch0, ch1);
++    else
++        ret = tsl2550_calculate_lux(ch0, ch1) * 5;
+     if (ret < 0)
+         return ret;
