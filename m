@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/4] Add support for compatibility classes
-Date: Wed, 5 Aug 2009 11:11:50 +0200
-Message-ID: <20090805111150.6541f6f6@hyperion.delvare>
+Subject: [PATCH 2/4] i2c: Convert i2c clients to a device type
+Date: Wed, 5 Aug 2009 11:12:25 +0200
+Message-ID: <20090805111225.0030b14e@hyperion.delvare>
 References: <20090805110537.73735169@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,143 +13,176 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+This is required for upcoming changes.
 
-When turning class devices into bus devices, we may need to
-temporarily add links in sysfs so that user-space applications
-are not confused. This is done by adding the following API:
-
-* Functions to register and unregister compatibility classes.
-  These appear in sysfs at the same location as regular classes, but
-  instead of class devices, they contain links to bus devices.
-* Functions to create and delete such links. Additionally, the caller
-  can optionally pass a target device to which a "device" link should
-  point (typically that would be the device's parent), to fully
-  emulate the original class device.
-
-The i2c subsystem will be the first user of this API, as i2c adapters
-are being converted from class devices to bus devices.
-
-Signed-off-by: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 ---
- drivers/base/class.c   |   87 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/device.h |    8 ++++
- 2 files changed, 95 insertions(+)
+ drivers/i2c/i2c-core.c |   67 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 47 insertions(+), 20 deletions(-)
 
---- linux-2.6.31-rc5.orig/drivers/base/class.c	2009-08-03 22:10:23.000000000 +0200
-+++ linux-2.6.31-rc5/drivers/base/class.c	2009-08-04 12:47:09.000000000 +0200
-@@ -488,6 +488,93 @@ void class_interface_unregister(struct c
- 	class_put(parent);
+--- linux-2.6.31-rc1.orig/drivers/i2c/i2c-core.c	2009-06-30 08:48:46.000000000 +0200
++++ linux-2.6.31-rc1/drivers/i2c/i2c-core.c	2009-06-30 15:31:33.000000000 +0200
+@@ -64,9 +64,13 @@ static const struct i2c_device_id *i2c_m
+ 
+ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ {
+-	struct i2c_client	*client = to_i2c_client(dev);
+-	struct i2c_driver	*driver = to_i2c_driver(drv);
++	struct i2c_client	*client = i2c_verify_client(dev);
++	struct i2c_driver	*driver;
++
++	if (!client)
++		return 0;
+ 
++	driver = to_i2c_driver(drv);
+ 	/* match on an id table if there is one */
+ 	if (driver->id_table)
+ 		return i2c_match_id(driver->id_table, client) != NULL;
+@@ -94,10 +98,14 @@ static int i2c_device_uevent(struct devi
+ 
+ static int i2c_device_probe(struct device *dev)
+ {
+-	struct i2c_client	*client = to_i2c_client(dev);
+-	struct i2c_driver	*driver = to_i2c_driver(dev->driver);
++	struct i2c_client	*client = i2c_verify_client(dev);
++	struct i2c_driver	*driver;
+ 	int status;
+ 
++	if (!client)
++		return 0;
++
++	driver = to_i2c_driver(dev->driver);
+ 	if (!driver->probe || !driver->id_table)
+ 		return -ENODEV;
+ 	client->driver = driver;
+@@ -114,11 +122,11 @@ static int i2c_device_probe(struct devic
+ 
+ static int i2c_device_remove(struct device *dev)
+ {
+-	struct i2c_client	*client = to_i2c_client(dev);
++	struct i2c_client	*client = i2c_verify_client(dev);
+ 	struct i2c_driver	*driver;
+ 	int			status;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return 0;
+ 
+ 	driver = to_i2c_driver(dev->driver);
+@@ -136,37 +144,40 @@ static int i2c_device_remove(struct devi
+ 
+ static void i2c_device_shutdown(struct device *dev)
+ {
++	struct i2c_client *client = i2c_verify_client(dev);
+ 	struct i2c_driver *driver;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return;
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (driver->shutdown)
+-		driver->shutdown(to_i2c_client(dev));
++		driver->shutdown(client);
  }
  
-+struct class_compat {
-+	struct kobject *kobj;
+ static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
+ {
++	struct i2c_client *client = i2c_verify_client(dev);
+ 	struct i2c_driver *driver;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return 0;
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (!driver->suspend)
+ 		return 0;
+-	return driver->suspend(to_i2c_client(dev), mesg);
++	return driver->suspend(client, mesg);
+ }
+ 
+ static int i2c_device_resume(struct device *dev)
+ {
++	struct i2c_client *client = i2c_verify_client(dev);
+ 	struct i2c_driver *driver;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return 0;
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (!driver->resume)
+ 		return 0;
+-	return driver->resume(to_i2c_client(dev));
++	return driver->resume(client);
+ }
+ 
+ static void i2c_client_dev_release(struct device *dev)
+@@ -188,18 +199,28 @@ show_modalias(struct device *dev, struct
+ 	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
+ }
+ 
+-static struct device_attribute i2c_dev_attrs[] = {
+-	__ATTR(name, S_IRUGO, show_client_name, NULL),
++static DEVICE_ATTR(name, S_IRUGO, show_client_name, NULL);
++static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
++
++static struct attribute *i2c_dev_attrs[] = {
++	&dev_attr_name.attr,
+ 	/* modalias helps coldplug:  modprobe $(cat .../modalias) */
+-	__ATTR(modalias, S_IRUGO, show_modalias, NULL),
+-	{ },
++	&dev_attr_modalias.attr,
++	NULL
 +};
 +
-+/**
-+ * class_compat_register - register a compatibility class
-+ * @name: the name of the class
-+ *
-+ * Compatibility classes are meant as a temporary user-space compatibility
-+ * workaround when converting a family of class devices to bus devices.
-+ */
-+struct class_compat *class_compat_register(const char *name)
-+{
-+	struct class_compat *cls;
++static struct attribute_group i2c_dev_attr_group = {
++	.attrs		= i2c_dev_attrs,
++};
 +
-+	cls = kmalloc(sizeof(struct class_compat), GFP_KERNEL);
-+	if (!cls)
-+		return NULL;
-+	cls->kobj = kobject_create_and_add(name, &class_kset->kobj);
-+	if (!cls->kobj) {
-+		kfree(cls);
-+		return NULL;
-+	}
-+	return cls;
-+}
-+EXPORT_SYMBOL_GPL(class_compat_register);
-+
-+/**
-+ * class_compat_unregister - unregister a compatibility class
-+ * @cls: the class to unregister
-+ */
-+void class_compat_unregister(struct class_compat *cls)
-+{
-+	kobject_put(cls->kobj);
-+	kfree(cls);
-+}
-+EXPORT_SYMBOL_GPL(class_compat_unregister);
-+
-+/**
-+ * class_compat_create_link - create a compatibility class device link to
-+ *			      a bus device
-+ * @cls: the compatibility class
-+ * @dev: the target bus device
-+ * @device_link: an optional device to which a "device" link should be created
-+ */
-+int class_compat_create_link(struct class_compat *cls, struct device *dev,
-+			     struct device *device_link)
-+{
-+	int error;
-+
-+	error = sysfs_create_link(cls->kobj, &dev->kobj, dev_name(dev));
-+	if (error)
-+		return error;
-+
-+	/*
-+	 * Optionally add a "device" link (typically to the parent), as a
-+	 * class device would have one and we want to provide as much
-+	 * backwards compatibility as possible.
-+	 */
-+	if (device_link) {
-+		error = sysfs_create_link(&dev->kobj, &device_link->kobj,
-+					  "device");
-+		if (error)
-+			sysfs_remove_link(cls->kobj, dev_name(dev));
-+	}
-+
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(class_compat_create_link);
-+
-+/**
-+ * class_compat_remove_link - remove a compatibility class device link to
-+ *			      a bus device
-+ * @cls: the compatibility class
-+ * @dev: the target bus device
-+ * @device_link: an optional device to which a "device" link was previously
-+ * 		 created
-+ */
-+void class_compat_remove_link(struct class_compat *cls, struct device *dev,
-+			      struct device *device_link)
-+{
-+	if (device_link)
-+		sysfs_remove_link(&dev->kobj, "device");
-+	sysfs_remove_link(cls->kobj, dev_name(dev));
-+}
-+EXPORT_SYMBOL_GPL(class_compat_remove_link);
-+
- int __init classes_init(void)
- {
- 	class_kset = kset_create_and_add("class", NULL, NULL);
---- linux-2.6.31-rc5.orig/include/linux/device.h	2009-08-03 22:10:23.000000000 +0200
-+++ linux-2.6.31-rc5/include/linux/device.h	2009-08-04 11:58:07.000000000 +0200
-@@ -223,6 +223,14 @@ extern void class_unregister(struct clas
- 	__class_register(class, &__key);	\
- })
++static struct attribute_group *i2c_dev_attr_groups[] = {
++	&i2c_dev_attr_group,
++	NULL
+ };
  
-+struct class_compat;
-+struct class_compat *class_compat_register(const char *name);
-+void class_compat_unregister(struct class_compat *cls);
-+int class_compat_create_link(struct class_compat *cls, struct device *dev,
-+			     struct device *device_link);
-+void class_compat_remove_link(struct class_compat *cls, struct device *dev,
-+			      struct device *device_link);
+ struct bus_type i2c_bus_type = {
+ 	.name		= "i2c",
+-	.dev_attrs	= i2c_dev_attrs,
+ 	.match		= i2c_device_match,
+-	.uevent		= i2c_device_uevent,
+ 	.probe		= i2c_device_probe,
+ 	.remove		= i2c_device_remove,
+ 	.shutdown	= i2c_device_shutdown,
+@@ -208,6 +229,12 @@ struct bus_type i2c_bus_type = {
+ };
+ EXPORT_SYMBOL_GPL(i2c_bus_type);
+ 
++static struct device_type i2c_client_type = {
++	.groups		= i2c_dev_attr_groups,
++	.uevent		= i2c_device_uevent,
++	.release	= i2c_client_dev_release,
++};
 +
- extern void class_dev_iter_init(struct class_dev_iter *iter,
- 				struct class *class,
- 				struct device *start,
+ 
+ /**
+  * i2c_verify_client - return parameter as i2c_client, or NULL
+@@ -220,7 +247,7 @@ EXPORT_SYMBOL_GPL(i2c_bus_type);
+  */
+ struct i2c_client *i2c_verify_client(struct device *dev)
+ {
+-	return (dev->bus == &i2c_bus_type)
++	return (dev->type == &i2c_client_type)
+ 			? to_i2c_client(dev)
+ 			: NULL;
+ }
+@@ -273,7 +300,7 @@ i2c_new_device(struct i2c_adapter *adap,
+ 
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
+-	client->dev.release = i2c_client_dev_release;
++	client->dev.type = &i2c_client_type;
+ 
+ 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
+ 		     client->addr);
 
 -- 
 Jean Delvare
