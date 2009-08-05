@@ -1,32 +1,38 @@
-From: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
-Subject: Re: [PATCH] i2c: Do not give adapters a default parent
-Date: Wed, 5 Aug 2009 04:20:28 +0200
-Message-ID: <ac3eb2510908041920k38692ec4ue806e3a33c242f13@mail.gmail.com>
-References: <20090426103025.4525edd3@hyperion.delvare> <20090705225616.1d4817e7@hyperion.delvare>
-	<ac3eb2510907051434i4ee351cbk3db17b50c7e7618b@mail.gmail.com>
-	<20090722210753.35802816@hyperion.delvare> <1248296688.2065.4.camel@yio.site>
-	<20090723160259.78a10e37@hyperion.delvare> <ac3eb2510907230819g1b8edf63g42ffc4c87dbc0cb5@mail.gmail.com>
-	<20090728144755.69d328d4@hyperion.delvare> <ac3eb2510907300812q2d848108ofe1d25801f7b990f@mail.gmail.com>
-	<20090804125534.6a555cc2@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 0/4] Convert i2c adapters from class devices to bus devices
+Date: Wed, 5 Aug 2009 11:05:37 +0200
+Message-ID: <20090805110537.73735169@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090804125534.6a555cc2-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hey Jean,
+As Kay Sievers explained that i2c adapters should be bus devices rather
+than class devices, convert them.
 
-On Tue, Aug 4, 2009 at 12:55, Jean Delvare<khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> I have come up with the following
-> implementation, would that be OK with you? If it is, please add your
-> Signed-off-by.
+[PATCH 1/4] Add support for compatibility classes
+[PATCH 2/4] i2c: Convert i2c clients to a device type
+[PATCH 3/4] i2c: Convert i2c adapters to bus devices
+[PATCH 4/4] i2c: Provide compatibility links for i2c adapters
 
-Looks all good to me. Feel free to add:
-  Signed-off-by: Kay Sievers <kay.sievers-tD+1rO4QERM@public.gmane.org>
+ drivers/base/class.c   |   87 +++++++++++++++++++++++++
+ drivers/i2c/Kconfig    |    8 ++
+ drivers/i2c/i2c-core.c |  165 +++++++++++++++++++++++++++++++++----------------
+ include/linux/device.h |    8 ++
+ 4 files changed, 217 insertions(+), 51 deletions(-)
 
-Thanks,
-Kay
+Care has been taken to not break user-space compatibility. I have also
+updated libsensors and sensors-detect already to look for i2c adapters
+in /sys/bus/i2c/devices rather than /sys/class/i2c-adapter. I am not
+aware of other user-space applications or libraries using
+/sys/class/i2c-adapter, but if you do please tell me.
+
+Improvements are possible on the power management side, but I did not
+have the time to deal with this now, so this is left for later.
+
+-- 
+Jean Delvare
