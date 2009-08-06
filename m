@@ -1,32 +1,50 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd driver to
- create twl6030 regulators
-Date: Thu, 6 Aug 2009 09:11:34 +0100
-Message-ID: <20090806081133.GA6438@rakim.wolfsonmicro.main>
-References: <1248842173-21821-1-git-send-email-balajitk@ti.com>
- <20090803142356.GA4265@rakim.wolfsonmicro.main>
- <20090804074544.GG24334@atomide.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8884@dbde02.ent.ti.com>
- <B85A65D85D7EB246BE421B3FB0FBB59301D8BD1708@dbde02.ent.ti.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8BFF@dbde02.ent.ti.com>
- <20090804134247.GA32353@rakim.wolfsonmicro.main>
- <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8C25@dbde02.ent.ti.com>
- <20090805213932.GD20853@opensource.wolfsonmicro.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02B5D8155B@dbde02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Subject: [patch 1/1] i2c: add support for new AMD SMBus devices
+Date: Thu, 06 Aug 2009 16:02:00 -0700
+Message-ID: <200908062302.n76N21kf031351@imap1.linux-foundation.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02B5D8155B-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Cc: "Premi, Sanjeev" <premi-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "Krishnamoorthy, Balaji T" <balajitk-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org" <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org" <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org" <sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org>, "wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org" <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, "timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org" <timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org" <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, "Nayak, Rajendra" <rnayak-l0cyMroinI0@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, crane.cai-5C7GfCeVMHo@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 06, 2009 at 12:57:26PM +0530, Shilimkar, Santosh wrote:
+From: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
 
-> So what you suggest here. 
+Use driver to detect SMBus devices with Vendor ID AMD and class code is
+SMBus.
 
-Some of the earlier names like twl_is_*() seemed OK; given that the
-driver is called twl everywhere I don't see much problem with the tps
-variants using that scheme too.
+Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+Signed-off-by: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+---
+
+ drivers/i2c/busses/i2c-piix4.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff -puN drivers/i2c/busses/i2c-piix4.c~i2c-add-support-for-new-amd-smbus-devices drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c~i2c-add-support-for-new-amd-smbus-devices
++++ a/drivers/i2c/busses/i2c-piix4.c
+@@ -479,6 +479,10 @@ static struct pci_device_id piix4_ids[] 
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
++	/* AMD Generic, PCI class code and Vendor ID for SMBus */
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_ANY_ID),
++	  .class = PCI_CLASS_SERIAL_SMBUS << 8,
++	  .class_mask = 0xffffff },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+@@ -499,9 +503,10 @@ static int __devinit piix4_probe(struct 
+ {
+ 	int retval;
+ 
+-	if ((dev->vendor == PCI_VENDOR_ID_ATI) &&
++	if (((dev->vendor == PCI_VENDOR_ID_ATI) &&
+ 	    (dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
+-	    (dev->revision >= 0x40))
++	    (dev->revision >= 0x40)) ||
++	    dev->vendor == PCI_VENDOR_ID_AMD)
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id);
+ 	else
+_
