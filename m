@@ -1,69 +1,54 @@
-From: "Cai, Crane" <crane.cai-5C7GfCeVMHo@public.gmane.org>
-Subject: Re: [PATCH] I2C: Add support for new AMD SMBus devices
-Date: Thu, 6 Aug 2009 08:59:03 +0800
-Message-ID: <20090806005903.GA7026@crane-desktop>
-References: <20090720073112.GA18219@crane-desktop> <20090805153814.70283b5a@hyperion.delvare>
+From: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd driver to
+	create twl6030 regulators
+Date: Thu, 6 Aug 2009 12:57:26 +0530
+Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02B5D8155B@dbde02.ent.ti.com>
+References: <1248842173-21821-1-git-send-email-balajitk@ti.com>
+ <20090803142356.GA4265@rakim.wolfsonmicro.main>
+ <20090804074544.GG24334@atomide.com>
+ <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8884@dbde02.ent.ti.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301D8BD1708@dbde02.ent.ti.com>
+ <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8BFF@dbde02.ent.ti.com>
+ <20090804134247.GA32353@rakim.wolfsonmicro.main>
+ <EAF47CD23C76F840A9E7FCE10091EFAB02B5CD8C25@dbde02.ent.ti.com>
+ <20090805213932.GD20853@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20090805153814.70283b5a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20090805213932.GD20853-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: "Premi, Sanjeev" <premi-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "Krishnamoorthy, Balaji T" <balajitk-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org" <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org" <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org" <sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org>, "wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org" <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, "timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org" <timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org" <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, "Nayak, Rajendra" <rnayak-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
-
-On Wed, Aug 05, 2009 at 03:38:14PM +0200, Jean Delvare wrote:
-> Hi Crane,
+> -----Original Message-----
+> From: Mark Brown [mailto:broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org] 
+> Sent: Thursday, August 06, 2009 3:10 AM
+> To: Shilimkar, Santosh
+> Cc: Premi, Sanjeev; Tony Lindgren; Krishnamoorthy, Balaji T; 
+> linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org; 
+> david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 
+> sameo-RWuK6r/cQWRpLGFMi4vTTA@public.gmane.org; wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org; 
+> timo.t.kokkonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; 
+> lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org; Nayak, Rajendra
+> Subject: Re: [RFC][PATCH v2 4/4] OMAP4: PMIC: Update TWL mfd 
+> driver to create twl6030 regulators
 > 
-> On Mon, 20 Jul 2009 15:31:12 +0800, Crane Cai wrote:
-> > Use driver to detect SMBus devices with Vendor ID AMD and class code is SMBus.
-> > 
-> > Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-piix4.c |    9 +++++++--
-> >  1 files changed, 7 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> > index 0249a7d..034f388 100644
-> > --- a/drivers/i2c/busses/i2c-piix4.c
-> > +++ b/drivers/i2c/busses/i2c-piix4.c
-> > @@ -479,6 +479,10 @@ static struct pci_device_id piix4_ids[] = {
-> >  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SMBUS) },
-> >  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
-> >  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
-> > +	/* AMD Generic, PCI class code and Vendor ID for SMBus */
-> > +	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_ANY_ID),
-> > +	  .class = PCI_CLASS_SERIAL_SMBUS << 8,
-> > +	  .class_mask = 0xffffff },
+> On Tue, Aug 04, 2009 at 07:28:22PM +0530, Shilimkar, Santosh wrote:
 > 
-> Hmm, this seems a little too broad. In particular the AMD 8111 SMBus
-> 2.0 device [1022:746a] would match, while we know it isn't compatible
-> with the Intel PIIX4 (it has its own driver: i2c-amd8111).
+> > Do you have boards / use cases where more than one PM IC 
+> would be used _and_ it will use the same driver ?
 > 
-> As much as I would like not having to add PCI IDs to the driver with
-> every new chipset released by AMD, this doesn't sound realistic in
-> practice, I fear. I suspect you will have to list devices individually,
-> just as we do for all other vendors.
+> I don't personally but it's certainly something that I would consider
+> realistic (if not mainstream).
+So what you suggest here. 
 
-Thank you for your useful comments. I think in serveral years SMBus controller
-hardware core will not change its interface. That's why we try to avoid
-frequently add device ID in driver. But we forget outdate chips you mentioned.
-Here is the solution for it: As we know device ID number is increaseed by its
-manufacture year, we can filter out outdate chips by the feature. If in future
-hardware interface changed (almost zero in factor), we also can use this method
-to filter new chips out. code clips as this:
-	pci_dev->device > PCI_DEVICE_ID_AMD_8111_SMBUS2 && 
-	pci_dev->device < PCI_DEVICE_ID_AMD_FEATURE_ONE
-
-All this code clips will be in piix4_setup_sb800 branch, and if filtered out, it
-return with NODEV. It will not affect your driver main function, and will not
-avoid other driver's PCI probing.
-
-Do you approve this solution? If you approve, I will resend a new patch for it.
-
--- 
-Best Regards,
-- Crane
+Regards,
+Santosh
+ 
+ --
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
