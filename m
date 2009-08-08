@@ -1,138 +1,62 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [PATCH 4/8] Regulator: Adding header file for TI TPS6507x
- regulator driver
-Date: Fri, 7 Aug 2009 23:27:51 +0300
-Message-ID: <20090807202751.GF9780@nokia.com>
-References: <1249658954-10977-1-git-send-email-anuj.aggarwal@ti.com>
-Reply-To: felipe.balbi@nokia.com
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Synaptics touchscreen for HTC Dream: check that smbus is available
+Date: Sat, 8 Aug 2009 15:40:50 +0200
+Message-ID: <20090808134049.GA13083@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721102153.GE4133@elf.ucw.cz> <5d5443650907210334k3f562cebsc665511a161c8639@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1249658954-10977-1-git-send-email-anuj.aggarwal@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: ext Anuj Aggarwal <anuj.aggarwal@ti.com>
-Cc: "broonie@sirena.org.uk" <broonie@sirena.org.uk>, "lrg@slimlogic.co.uk" <lrg@slimlogic.co.uk>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <5d5443650907210334k3f562cebsc665511a161c8639-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-move this to the driver, unless any other piece of code will use it,
-which seems unlikely.
+> >> Because this driver is using smbus i2c apis, it will be good to ad=
+d
+> >> that check too.
+> >
+> > So I should do something like
+> >
+> > if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_D=
+ATA))
+> > =A0 =A0 =A0 =A0...
+> >
+> > in addition?
+>=20
+> Yes.
 
-On Fri, Aug 07, 2009 at 05:29:14PM +0200, ext Anuj Aggarwal wrote:
-> 
-> Signed-off-by: Anuj Aggarwal <anuj.aggarwal@ti.com>
-> ---
->  include/linux/mfd/tps6507x.h |   93 ++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 93 insertions(+), 0 deletions(-)
->  create mode 100644 include/linux/mfd/tps6507x.h
-> 
-> diff --git a/include/linux/mfd/tps6507x.h b/include/linux/mfd/tps6507x.h
-> new file mode 100644
-> index 0000000..069b02a
-> --- /dev/null
-> +++ b/include/linux/mfd/tps6507x.h
-> @@ -0,0 +1,93 @@
-> +/*
-> + * tps6507x.h
-> + *
-> + * Header file for TI TPS6507x Regulators
-> + *
-> + * Copyright (C) 2009 Texas Instrument Incorporated - http://www.ti.com/
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation version 2.
-> + *
-> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any kind,
-> + * whether express or implied; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * General Public License for more details.
-> + */
-> +
-> +/* Register definitions */
-> +#define	TPS6507X_REG_PPATH1				0X01
-> +#define	TPS6507X_REG_INT				0X02
-> +#define	TPS6507X_REG_CHGCONFIG0				0X03
-> +#define	TPS6507X_REG_CHGCONFIG1				0X04
-> +#define	TPS6507X_REG_CHGCONFIG2				0X05
-> +#define	TPS6507X_REG_CHGCONFIG3				0X06
-> +#define	TPS6507X_REG_REG_ADCONFIG			0X07
-> +#define	TPS6507X_REG_TSCMODE				0X08
-> +#define	TPS6507X_REG_ADRESULT_1				0X09
-> +#define	TPS6507X_REG_ADRESULT_2				0X0A
-> +#define	TPS6507X_REG_PGOOD				0X0B
-> +#define	TPS6507X_REG_PGOODMASK				0X0C
-> +#define	TPS6507X_REG_CON_CTRL1				0X0D
-> +#define	TPS6507X_REG_CON_CTRL2				0X0E
-> +#define	TPS6507X_REG_CON_CTRL3				0X0F
-> +#define	TPS6507X_REG_DEFDCDC1				0X10
-> +#define	TPS6507X_REG_DEFDCDC2_LOW			0X11
-> +#define	TPS6507X_REG_DEFDCDC2_HIGH			0X12
-> +#define	TPS6507X_REG_DEFDCDC3_LOW			0X13
-> +#define	TPS6507X_REG_DEFDCDC3_HIGH			0X14
-> +#define	TPS6507X_REG_DEFSLEW				0X15
-> +#define	TPS6507X_REG_LDO_CTRL1				0X16
-> +#define	TPS6507X_REG_DEFLDO2				0X17
-> +#define	TPS6507X_REG_WLED_CTRL1				0X18
-> +#define	TPS6507X_REG_WLED_CTRL2				0X19
-> +
-> +/* CON_CTRL1 bitfields */
-> +#define	TPS6507X_CON_CTRL1_DCDC1_ENABLE		BIT(4)
-> +#define	TPS6507X_CON_CTRL1_DCDC2_ENABLE		BIT(3)
-> +#define	TPS6507X_CON_CTRL1_DCDC3_ENABLE		BIT(2)
-> +#define	TPS6507X_CON_CTRL1_LDO1_ENABLE		BIT(1)
-> +#define	TPS6507X_CON_CTRL1_LDO2_ENABLE		BIT(0)
-> +
-> +/* DEFDCDC1 bitfields */
-> +#define TPS6507X_DEFDCDC1_DCDC1_EXT_ADJ_EN	BIT(7)
-> +#define TPS6507X_DEFDCDC1_DCDC1_MASK		0X3F
-> +
-> +/* DEFDCDC2_LOW bitfields */
-> +#define TPS6507X_DEFDCDC2_LOW_DCDC2_MASK	0X3F
-> +
-> +/* DEFDCDC2_HIGH bitfields */
-> +#define TPS6507X_DEFDCDC2_HIGH_DCDC2_MASK	0X3F
-> +
-> +/* DEFDCDC3_LOW bitfields */
-> +#define TPS6507X_DEFDCDC3_LOW_DCDC3_MASK	0X3F
-> +
-> +/* DEFDCDC3_HIGH bitfields */
-> +#define TPS6507X_DEFDCDC3_HIGH_DCDC3_MASK	0X3F
-> +
-> +/* TPS6507X_REG_LDO_CTRL1 bitfields */
-> +#define TPS6507X_REG_LDO_CTRL1_LDO1_MASK	0X0F
-> +
-> +/* TPS6507X_REG_DEFLDO2 bitfields */
-> +#define TPS6507X_REG_DEFLDO2_LDO2_MASK		0X3F
-> +
-> +/* VDCDC MASK */
-> +#define TPS6507X_DEFDCDCX_DCDC_MASK		0X3F
-> +
-> +/* DCDC's */
-> +#define TPS6507X_DCDC_1				0
-> +#define TPS6507X_DCDC_2				1
-> +#define TPS6507X_DCDC_3				2
-> +/* LDOs */
-> +#define TPS6507X_LDO_1				3
-> +#define TPS6507X_LDO_2				4
-> +
-> +#define TPS6507X_MAX_REG_ID			TPS6507X_LDO_2
-> +
-> +/* Number of step-down converters available */
-> +#define TPS6507X_NUM_DCDC			3
-> +/* Number of LDO voltage regulators  available */
-> +#define TPS6507X_NUM_LDO			2
-> +/* Number of total regulators available */
-> +#define TPS6507X_NUM_REGULATOR		(TPS6507X_NUM_DCDC + TPS6507X_NUM_LDO)
-> +
-> -- 
-> 1.6.2.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Ok, here it is.
 
--- 
-balbi
+---=20
+
+Check that SMBUS APIs are available in touchscreen driver.
+   =20
+Signed-off-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+
+diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/stagin=
+g/dream/synaptics_i2c_rmi.c
+index dc1e3c7..6e23276 100644
+--- a/drivers/staging/dream/synaptics_i2c_rmi.c
++++ b/drivers/staging/dream/synaptics_i2c_rmi.c
+@@ -373,6 +373,12 @@ static int __devinit synaptics_ts_probe(
+ 		goto err_check_functionality_failed;
+ 	}
+=20
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DAT=
+A)) {
++		pr_err("synaptics_ts_probe: need I2C_FUNC_SMBUS_WORD_DATA\n");
++		ret =3D -ENODEV;
++		goto err_check_functionality_failed;
++	}
++
+ 	ts =3D kzalloc(sizeof(*ts), GFP_KERNEL);
+ 	if (ts =3D=3D NULL) {
+ 		ret =3D -ENOMEM;
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html
