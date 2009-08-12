@@ -1,664 +1,157 @@
-From: Anuj Aggarwal <anuj.aggarwal-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv2 1/8] Regulator: Add TPS65023 regulator driver
-Date: Wed, 12 Aug 2009 10:17:56 +0530
-Message-ID: <1250052476-28763-1-git-send-email-anuj.aggarwal@ti.com>
+From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] U300 I2C board setup
+Date: Wed, 12 Aug 2009 11:06:10 +0200
+Message-ID: <1250067970-17639-1-git-send-email-linus.walleij@stericsson.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org, felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Anuj Aggarwal <anuj.aggarwal-l0cyMroinI0@public.gmane.org>
+To: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Adding support for TI TPS65023 regulator driver
+This sets up the U300 I2C subdevices so that the AB3100
+analog baseband ASIC is properly detected and also the
+camera devices in the U335 reference design get properly
+registered.
 
-Signed-off-by: Anuj Aggarwal <anuj.aggarwal-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+----
+This is meant to be applied on top of the previous SPI board
+info patch but can probably be applied cleanly by itself as
+well.
 ---
- drivers/regulator/tps65023-regulator.c |  638 ++++++++++++++++++++++++++++++++
- 1 files changed, 638 insertions(+), 0 deletions(-)
- create mode 100644 drivers/regulator/tps65023-regulator.c
+ arch/arm/mach-u300/Makefile |    1 +
+ arch/arm/mach-u300/core.c   |    8 ++++++--
+ arch/arm/mach-u300/i2c.c    |   43 +++++++++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-u300/i2c.h    |   23 +++++++++++++++++++++++
+ 4 files changed, 73 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm/mach-u300/i2c.c
+ create mode 100644 arch/arm/mach-u300/i2c.h
 
-diff --git a/drivers/regulator/tps65023-regulator.c b/drivers/regulator/tps65023-regulator.c
+diff --git a/arch/arm/mach-u300/Makefile b/arch/arm/mach-u300/Makefile
+index 4941f89..885b5c0 100644
+--- a/arch/arm/mach-u300/Makefile
++++ b/arch/arm/mach-u300/Makefile
+@@ -11,3 +11,4 @@ obj-$(CONFIG_ARCH_U300)	          += u300.o
+ obj-$(CONFIG_MMC)                 += mmc.o
+ obj-$(CONFIG_SPI_PL022)           += spi.o
+ obj-$(CONFIG_MACH_U300_SPIDUMMY)  += dummyspichip.o
++obj-$(CONFIG_I2C_STU300)          += i2c.o
+diff --git a/arch/arm/mach-u300/core.c b/arch/arm/mach-u300/core.c
+index 905b120..d4cca25 100644
+--- a/arch/arm/mach-u300/core.c
++++ b/arch/arm/mach-u300/core.c
+@@ -33,6 +33,7 @@
+ #include "clock.h"
+ #include "mmc.h"
+ #include "spi.h"
++#include "i2c.h"
+ 
+ /*
+  * Static I/O mappings that are needed for booting the U300 platforms. The
+@@ -379,14 +380,14 @@ static struct platform_device wdog_device = {
+ };
+ 
+ static struct platform_device i2c0_device = {
+-	.name = "stddci2c",
++	.name = "stu300",
+ 	.id = 0,
+ 	.num_resources = ARRAY_SIZE(i2c0_resources),
+ 	.resource = i2c0_resources,
+ };
+ 
+ static struct platform_device i2c1_device = {
+-	.name = "stddci2c",
++	.name = "stu300",
+ 	.id = 1,
+ 	.num_resources = ARRAY_SIZE(i2c1_resources),
+ 	.resource = i2c1_resources,
+@@ -625,6 +626,9 @@ void __init u300_init_devices(void)
+ 
+ 	u300_assign_physmem();
+ 
++	/* Register subdevices on the I2C buses */
++	u300_i2c_register_board_devices();
++
+ 	/* Register subdevices on the SPI bus */
+ 	u300_spi_register_board_devices();
+ 
+diff --git a/arch/arm/mach-u300/i2c.c b/arch/arm/mach-u300/i2c.c
 new file mode 100644
-index 0000000..dbaf295
+index 0000000..d866443
 --- /dev/null
-+++ b/drivers/regulator/tps65023-regulator.c
-@@ -0,0 +1,638 @@
++++ b/arch/arm/mach-u300/i2c.c
+@@ -0,0 +1,43 @@
 +/*
-+ * tps65023-regulator.c
++ * arch/arm/mach-u300/i2c.c
 + *
-+ * Supports TPS65023 Regulator
++ * Copyright (C) 2009 ST-Ericsson AB
++ * License terms: GNU General Public License (GPL) version 2
 + *
-+ * Copyright (C) 2009 Texas Instrument Incorporated - http://www.ti.com/
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation version 2.
-+ *
-+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any kind,
-+ * whether express or implied; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
++ * Register board i2c devices
++ * Author: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 + */
-+
 +#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/err.h>
-+#include <linux/platform_device.h>
-+#include <linux/regulator/driver.h>
-+#include <linux/regulator/machine.h>
 +#include <linux/i2c.h>
-+#include <linux/delay.h>
++#include <mach/irqs.h>
 +
-+/* Register definitions */
-+#define	TPS65023_REG_VERSION		0
-+#define	TPS65023_REG_PGOODZ		1
-+#define	TPS65023_REG_MASK		2
-+#define	TPS65023_REG_REG_CTRL		3
-+#define	TPS65023_REG_CON_CTRL		4
-+#define	TPS65023_REG_CON_CTRL2		5
-+#define	TPS65023_REG_DEF_CORE		6
-+#define	TPS65023_REG_DEFSLEW		7
-+#define	TPS65023_REG_LDO_CTRL		8
-+
-+/* PGOODZ bitfields */
-+#define	TPS65023_PGOODZ_PWRFAILZ	BIT(7)
-+#define	TPS65023_PGOODZ_LOWBATTZ	BIT(6)
-+#define	TPS65023_PGOODZ_VDCDC1		BIT(5)
-+#define	TPS65023_PGOODZ_VDCDC2		BIT(4)
-+#define	TPS65023_PGOODZ_VDCDC3		BIT(3)
-+#define	TPS65023_PGOODZ_LDO2		BIT(2)
-+#define	TPS65023_PGOODZ_LDO1		BIT(1)
-+
-+/* MASK bitfields */
-+#define	TPS65023_MASK_PWRFAILZ		BIT(7)
-+#define	TPS65023_MASK_LOWBATTZ		BIT(6)
-+#define	TPS65023_MASK_VDCDC1		BIT(5)
-+#define	TPS65023_MASK_VDCDC2		BIT(4)
-+#define	TPS65023_MASK_VDCDC3		BIT(3)
-+#define	TPS65023_MASK_LDO2		BIT(2)
-+#define	TPS65023_MASK_LDO1		BIT(1)
-+
-+/* REG_CTRL bitfields */
-+#define TPS65023_REG_CTRL_VDCDC1_EN	BIT(5)
-+#define TPS65023_REG_CTRL_VDCDC2_EN	BIT(4)
-+#define TPS65023_REG_CTRL_VDCDC3_EN	BIT(3)
-+#define TPS65023_REG_CTRL_LDO2_EN	BIT(2)
-+#define TPS65023_REG_CTRL_LDO1_EN	BIT(1)
-+
-+/* LDO_CTRL bitfields */
-+#define TPS65023_LDO_CTRL_LDOx_SHIFT(ldo_id)	((ldo_id)*4)
-+#define TPS65023_LDO_CTRL_LDOx_MASK(ldo_id)	(0xF0 >> ((ldo_id)*4))
-+
-+/* Number of step-down converters available */
-+#define TPS65023_NUM_DCDC		3
-+/* Number of LDO voltage regulators  available */
-+#define TPS65023_NUM_LDO		2
-+/* Number of total regulators available */
-+#define TPS65023_NUM_REGULATOR	(TPS65023_NUM_DCDC + TPS65023_NUM_LDO)
-+
-+/* DCDCs */
-+#define TPS65023_DCDC_1			0
-+#define TPS65023_DCDC_2			1
-+#define TPS65023_DCDC_3			2
-+/* LDOs */
-+#define TPS65023_LDO_1			3
-+#define TPS65023_LDO_2			4
-+
-+#define TPS65023_MAX_REG_ID		TPS65023_LDO_2
-+
-+/* Supported voltage values for regulators */
-+static const u16 VDCDC1_VSEL_table[] = {
-+	800, 825, 850, 875,
-+	900, 925, 950, 975,
-+	1000, 1025, 1050, 1075,
-+	1100, 1125, 1150, 1175,
-+	1200, 1225, 1250, 1275,
-+	1300, 1325, 1350, 1375,
-+	1400, 1425, 1450, 1475,
-+	1500, 1525, 1550, 1600,
++static struct i2c_board_info __initdata bus0_i2c_board_info[] = {
++	{
++		.type = "ab3100",
++		.addr = 0x48,
++		.irq = IRQ_U300_IRQ0_EXT,
++	},
 +};
 +
-+static const u16 LDO1_VSEL_table[] = {
-+	1000, 1100, 1300, 1800,
-+	2200, 2600, 2800, 3150,
++static struct i2c_board_info __initdata bus1_i2c_board_info[] = {
++#ifdef CONFIG_MACH_U300_BS335
++	{
++		.type = "fwcam",
++		.addr = 0x10,
++	},
++	{
++		.type = "fwcam",
++		.addr = 0x5d,
++	},
++#else
++	{ },
++#endif
 +};
 +
-+static const u16 LDO2_VSEL_table[] = {
-+	1050, 1200, 1300, 1800,
-+	2500, 2800, 3000, 3300,
-+};
-+
-+static unsigned int num_voltages[] = {ARRAY_SIZE(VDCDC1_VSEL_table),
-+				0, 0, ARRAY_SIZE(LDO1_VSEL_table),
-+				ARRAY_SIZE(LDO2_VSEL_table)};
-+
-+/* Regulator specific details */
-+struct tps_info {
-+	const char *name;
-+	unsigned min_uV;
-+	unsigned max_uV;
-+	bool fixed;
-+	u8 table_len;
-+	const u16 *table;
-+};
-+
-+/* PMIC details */
-+struct tps_pmic {
-+	struct regulator_desc desc[TPS65023_NUM_REGULATOR];
-+	struct i2c_client *client;
-+	struct regulator_dev *rdev[TPS65023_NUM_REGULATOR];
-+	const struct tps_info *info[TPS65023_NUM_REGULATOR];
-+	struct mutex io_lock;
-+};
-+
-+static inline int tps_65023_read(struct tps_pmic *tps, u8 reg)
++void u300_i2c_register_board_devices(void)
 +{
-+	return i2c_smbus_read_byte_data(tps->client, reg);
++	i2c_register_board_info(0, bus0_i2c_board_info,
++				ARRAY_SIZE(bus0_i2c_board_info));
++	i2c_register_board_info(1, bus1_i2c_board_info,
++				ARRAY_SIZE(bus1_i2c_board_info));
 +}
-+
-+static inline int tps_65023_write(struct tps_pmic *tps, u8 reg, u8 val)
-+{
-+	return i2c_smbus_write_byte_data(tps->client, reg, val);
-+}
-+
-+static int tps_65023_set_bits(struct tps_pmic *tps, u8 reg, u8 mask)
-+{
-+	int err;
-+	u8 data;
-+
-+	mutex_lock(&tps->io_lock);
-+
-+	data = tps_65023_read(tps, reg);
-+	if (data < 0) {
-+		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-+		err = data;
-+		goto out;
-+	}
-+
-+	data |= mask;
-+	err = tps_65023_write(tps, reg, data);
-+	if (err)
-+		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-+
-+out:
-+	mutex_unlock(&tps->io_lock);
-+	return err;
-+}
-+
-+static int tps_65023_clear_bits(struct tps_pmic *tps, u8 reg, u8 mask)
-+{
-+	int err;
-+	u8 data;
-+
-+	mutex_lock(&tps->io_lock);
-+
-+	data = tps_65023_read(tps, reg);
-+	if (data < 0) {
-+		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-+		err = data;
-+		goto out;
-+	}
-+
-+	data &= ~mask;
-+
-+	err = tps_65023_write(tps, reg, data);
-+	if (err)
-+		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-+
-+out:
-+	mutex_unlock(&tps->io_lock);
-+	return err;
-+
-+}
-+
-+static int tps_65023_reg_read(struct tps_pmic *tps, u8 reg)
-+{
-+	u8 data;
-+
-+	mutex_lock(&tps->io_lock);
-+
-+	data = tps_65023_read(tps, reg);
-+	if (data < 0)
-+		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-+
-+	mutex_unlock(&tps->io_lock);
-+	return data;
-+}
-+
-+static int tps_65023_reg_write(struct tps_pmic *tps, u8 reg, u8 val)
-+{
-+	int err;
-+
-+	mutex_lock(&tps->io_lock);
-+
-+	err = tps_65023_write(tps, reg, val);
-+	if (err < 0)
-+		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-+
-+	mutex_unlock(&tps->io_lock);
-+	return err;
-+}
-+
-+static int tps65023_dcdc_is_enabled(struct regulator_dev *dev)
-+{
-+	u8 data;
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+	u8 shift;
-+
-+	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-+		return -EINVAL;
-+
-+	shift = TPS65023_NUM_REGULATOR - dcdc;
-+	data = tps_65023_reg_read(tps, TPS65023_REG_REG_CTRL);
-+
-+	if (data >= 0) {
-+		data &= (1 << shift);
-+		return data ? 1 : 0;
-+	} else
-+		return data;
-+}
-+
-+static int tps65023_ldo_is_enabled(struct regulator_dev *dev)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+	u8 shift;
-+	u8 data;
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	shift = (ldo == TPS65023_LDO_1 ? 1 : 2);
-+	data = tps_65023_reg_read(tps, TPS65023_REG_REG_CTRL);
-+
-+	if (data >= 0) {
-+		data &= (1 << shift);
-+		return data ? 1 : 0;
-+	} else
-+		return data;
-+}
-+
-+static int tps65023_dcdc_enable(struct regulator_dev *dev)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+	u8 shift;
-+
-+	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-+		return -EINVAL;
-+
-+	shift = TPS65023_NUM_REGULATOR - dcdc;
-+	return tps_65023_set_bits(tps, TPS65023_REG_REG_CTRL, 1 << shift);
-+}
-+
-+static int tps65023_dcdc_disable(struct regulator_dev *dev)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+	u8 shift;
-+
-+	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-+		return -EINVAL;
-+
-+	shift = TPS65023_NUM_REGULATOR - dcdc;
-+	return tps_65023_clear_bits(tps, TPS65023_REG_REG_CTRL, 1 << shift);
-+}
-+
-+static int tps65023_ldo_enable(struct regulator_dev *dev)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+	u8 shift;
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	shift = (ldo == TPS65023_LDO_1 ? 1 : 2);
-+	return tps_65023_set_bits(tps, TPS65023_REG_REG_CTRL, 1 << shift);
-+}
-+
-+static int tps65023_ldo_disable(struct regulator_dev *dev)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+	u8 shift;
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	shift = (ldo == TPS65023_LDO_1 ? 1 : 2);
-+	return tps_65023_clear_bits(tps, TPS65023_REG_REG_CTRL, 1 << shift);
-+}
-+
-+static int tps65023_dcdc_get_voltage(struct regulator_dev *dev)
-+{
-+	u8 data;
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+
-+	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-+		return -EINVAL;
-+
-+	if (dcdc == TPS65023_DCDC_1) {
-+		data = tps_65023_reg_read(tps, TPS65023_REG_DEF_CORE);
-+		if (data < 0)
-+			return data;
-+		data &= (tps->info[dcdc]->table_len - 1);
-+		return tps->info[dcdc]->table[data] * 1000;
-+	} else
-+		return tps->info[dcdc]->min_uV;
-+}
-+
-+static int tps65023_dcdc_set_voltage(struct regulator_dev *dev,
-+				int min_uV, int max_uV)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+	int vsel;
-+
-+	if (dcdc != TPS65023_DCDC_1)
-+		return -EINVAL;
-+
-+	if (min_uV < tps->info[dcdc]->min_uV 
-+			|| min_uV > tps->info[dcdc]->max_uV)
-+		return -EINVAL;
-+	if (max_uV < tps->info[dcdc]->min_uV 
-+			|| max_uV > tps->info[dcdc]->max_uV)
-+		return -EINVAL;
-+
-+	for (vsel = 0; vsel < tps->info[dcdc]->table_len; vsel++) {
-+		int mV = tps->info[dcdc]->table[vsel];
-+		int uV = mV * 1000;
-+
-+		/* Break at the first in-range value */
-+		if (min_uV <= uV && uV <= max_uV)
-+			break;
-+	}
-+
-+	/* write to the register in case we found a match */
-+	if (vsel == tps->info[dcdc]->table_len)
-+		return -EINVAL;
-+	else
-+		return tps_65023_reg_write(tps, TPS65023_REG_DEF_CORE, vsel);
-+}
-+
-+static int tps65023_ldo_get_voltage(struct regulator_dev *dev)
-+{
-+	u8 data;
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	data = tps_65023_reg_read(tps, TPS65023_REG_LDO_CTRL);
-+	if (data < 0)
-+		return data;
-+
-+	data >>= (TPS65023_LDO_CTRL_LDOx_SHIFT(ldo - TPS65023_LDO_1));
-+	data &= (tps->info[ldo]->table_len - 1);
-+	return tps->info[ldo]->table[data] * 1000;
-+}
-+
-+static int tps65023_ldo_set_voltage(struct regulator_dev *dev,
-+				int min_uV, int max_uV)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+	int vsel;
-+	u8 data;
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	if (min_uV < tps->info[ldo]->min_uV || min_uV > tps->info[ldo]->max_uV)
-+		return -EINVAL;
-+	if (max_uV < tps->info[ldo]->min_uV || max_uV > tps->info[ldo]->max_uV)
-+		return -EINVAL;
-+
-+	for (vsel = 0; vsel < tps->info[ldo]->table_len; vsel++) {
-+		int mV = tps->info[ldo]->table[vsel];
-+		int uV = mV * 1000;
-+
-+		/* Break at the first in-range value */
-+		if (min_uV <= uV && uV <= max_uV)
-+			break;
-+	}
-+
-+	if (vsel == tps->info[ldo]->table_len)
-+		return -EINVAL;
-+
-+	data = tps_65023_reg_read(tps, TPS65023_REG_LDO_CTRL);
-+	if (data < 0)
-+		return data;
-+
-+	data &= TPS65023_LDO_CTRL_LDOx_MASK(ldo - TPS65023_LDO_1);
-+	data |= (vsel << (TPS65023_LDO_CTRL_LDOx_SHIFT(ldo - TPS65023_LDO_1)));
-+	return tps_65023_reg_write(tps, TPS65023_REG_LDO_CTRL, data);
-+}
-+
-+static int tps65023_dcdc_list_voltage(struct regulator_dev *dev,
-+					unsigned selector)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int dcdc = rdev_get_id(dev);
-+
-+	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-+		return -EINVAL;
-+
-+	if (dcdc == TPS65023_DCDC_1) {
-+		if (selector >= tps->info[dcdc]->table_len)
-+			return -EINVAL;
-+		else
-+			return tps->info[dcdc]->table[selector] * 1000;
-+	} else
-+		return tps->info[dcdc]->min_uV;
-+}
-+
-+static int tps65023_ldo_list_voltage(struct regulator_dev *dev,
-+					unsigned selector)
-+{
-+	struct tps_pmic *tps = rdev_get_drvdata(dev);
-+	int ldo = rdev_get_id(dev);
-+
-+	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-+		return -EINVAL;
-+
-+	if (selector >= tps->info[ldo]->table_len)
-+		return -EINVAL;
-+	else
-+		return tps->info[ldo]->table[selector] * 1000;
-+}
-+
-+/* Operations permitted on VDCDCx */
-+static struct regulator_ops tps65023_dcdc_ops = {
-+	.is_enabled = tps65023_dcdc_is_enabled,
-+	.enable = tps65023_dcdc_enable,
-+	.disable = tps65023_dcdc_disable,
-+	.get_voltage = tps65023_dcdc_get_voltage,
-+	.set_voltage = tps65023_dcdc_set_voltage,
-+	.list_voltage = tps65023_dcdc_list_voltage,
-+};
-+
-+/* Operations permitted on LDOx */
-+static struct regulator_ops tps65023_ldo_ops = {
-+	.is_enabled = tps65023_ldo_is_enabled,
-+	.enable = tps65023_ldo_enable,
-+	.disable = tps65023_ldo_disable,
-+	.get_voltage = tps65023_ldo_get_voltage,
-+	.set_voltage = tps65023_ldo_set_voltage,
-+	.list_voltage = tps65023_ldo_list_voltage,
-+};
-+
-+static
-+int tps_65023_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	static int desc_id;
-+	const struct tps_info *info = (void *)id->driver_data;
-+	struct regulator_init_data *init_data;
-+	struct regulator_dev *rdev;
-+	struct tps_pmic *tps;
-+	int i;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		return -EIO;
-+
-+	/**
-+	 * init_data points to array of regulator_init structures
-+	 * coming from the board-evm file.
-+	 */
-+	init_data = client->dev.platform_data;
-+
-+	if (!init_data)
-+		return -EIO;
-+
-+	tps = kzalloc(sizeof(*tps), GFP_KERNEL);
-+	if (!tps)
-+		return -ENOMEM;
-+
-+	tps->client = client;
-+
-+	for (i = 0; i < TPS65023_NUM_REGULATOR; i++, info++, init_data++) {
-+		/* Store regulator specific information */
-+		tps->info[i] = info;
-+
-+		tps->desc[i].name = info->name;
-+		tps->desc[i].id = desc_id++;
-+		tps->desc[i].n_voltages = num_voltages[i];
-+		tps->desc[i].ops = (i > TPS65023_DCDC_3 ?
-+					&tps65023_ldo_ops : &tps65023_dcdc_ops);
-+		tps->desc[i].type = REGULATOR_VOLTAGE;
-+		tps->desc[i].owner = THIS_MODULE;
-+
-+		/* Register the regulators */
-+		rdev = regulator_register(&tps->desc[i], &client->dev,
-+								init_data, tps);
-+		if (IS_ERR(rdev)) {
-+			dev_err(&client->dev, "failed to register %s\n",
-+				id->name);
-+
-+			/* Unregister */
-+			while (i)
-+				regulator_unregister(tps->rdev[--i]);
-+
-+			tps->client = NULL;
-+
-+			/* clear the client data in i2c */
-+			i2c_set_clientdata(client, NULL);
-+			kfree(tps);
-+			return PTR_ERR(rdev);
-+		}
-+
-+		/* Save regulator for cleanup */
-+		tps->rdev[i] = rdev;
-+	}
-+
-+	i2c_set_clientdata(client, tps);
-+
-+	return 0;
-+}
-+
-+/**
-+ * tps_65023_remove - TPS65023 driver i2c remove handler
-+ * @client: i2c driver client device structure
+diff --git a/arch/arm/mach-u300/i2c.h b/arch/arm/mach-u300/i2c.h
+new file mode 100644
+index 0000000..84f2efb
+--- /dev/null
++++ b/arch/arm/mach-u300/i2c.h
+@@ -0,0 +1,23 @@
++/*
++ * arch/arm/mach-u300/i2c.h
 + *
-+ * Unregister TPS driver as an i2c client device driver
-+ */
-+static int __devexit tps_65023_remove(struct i2c_client *client)
-+{
-+	struct tps_pmic *tps = i2c_get_clientdata(client);
-+	int i;
-+
-+	for (i = 0; i < TPS65023_NUM_REGULATOR; i++)
-+		regulator_unregister(tps->rdev[i]);
-+
-+	tps->client = NULL;
-+
-+	/* clear the client data in i2c */
-+	i2c_set_clientdata(client, NULL);
-+	kfree(tps);
-+
-+	return 0;
-+}
-+
-+static const struct tps_info tps65023_regs[] = {
-+	{
-+		.name = "VDCDC1",
-+		.min_uV =  800000,
-+		.max_uV = 1600000,
-+		.table_len = ARRAY_SIZE(VDCDC1_VSEL_table),
-+		.table = VDCDC1_VSEL_table,
-+	},
-+	{
-+		.name = "VDCDC2",
-+		.min_uV =  3300000,
-+		.max_uV = 3300000,
-+		.fixed = 1,
-+	},
-+	{
-+		.name = "VDCDC3",
-+		.min_uV =  1800000,
-+		.max_uV = 1800000,
-+		.fixed = 1,
-+	},
-+	{
-+		.name = "LDO1",
-+		.min_uV = 1000000,
-+		.max_uV = 3150000,
-+		.table_len = ARRAY_SIZE(LDO1_VSEL_table),
-+		.table = LDO1_VSEL_table,
-+	},
-+	{
-+		.name = "LDO2",
-+		.min_uV = 1050000,
-+		.max_uV = 3300000,
-+		.table_len = ARRAY_SIZE(LDO2_VSEL_table),
-+		.table = LDO2_VSEL_table,
-+	},
-+};
-+
-+static const struct i2c_device_id tps_65023_id = {
-+	.name = "tps65023",
-+	.driver_data = (unsigned long) &tps65023_regs[0],
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, tps_65023_id);
-+
-+static struct i2c_driver tps_65023_i2c_driver = {
-+	.driver = {
-+		.name = "tps65023",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = tps_65023_probe,
-+	.remove = __devexit_p(tps_65023_remove),
-+	.id_table = &tps_65023_id,
-+};
-+
-+/**
-+ * tps_65023_init
++ * Copyright (C) 2009 ST-Ericsson AB
++ * License terms: GNU General Public License (GPL) version 2
 + *
-+ * Module init function
++ * Register board i2c devices
++ * Author: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 + */
-+static int __init tps_65023_init(void)
-+{
-+	return i2c_add_driver(&tps_65023_i2c_driver);
-+}
-+subsys_initcall(tps_65023_init);
 +
-+/**
-+ * tps_65023_cleanup
-+ *
-+ * Module exit function
-+ */
-+static void __exit tps_65023_cleanup(void)
-+{
-+	i2c_del_driver(&tps_65023_i2c_driver);
-+}
-+module_exit(tps_65023_cleanup);
++#ifndef MACH_U300_I2C_H
++#define MACH_U300_I2C_H
 +
-+MODULE_AUTHOR("Texas Instruments");
-+MODULE_DESCRIPTION("TPS65023 voltage regulator driver");
-+MODULE_LICENSE("GPLv2");
++#ifdef CONFIG_I2C_STU300
++void u300_i2c_register_board_devices(void);
++#else
++/* Compile out this stuff if no I2C adapter is available */
++static inline void u300_i2c_register_board_devices(void)
++{
++}
++#endif
++
++#endif
 -- 
-1.6.2.4
+1.6.2.1
