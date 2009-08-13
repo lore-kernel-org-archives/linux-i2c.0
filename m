@@ -1,307 +1,380 @@
-From: Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>
-Subject: Re: [PATCHv2 1/8] Regulator: Add TPS65023 regulator driver
-Date: Thu, 13 Aug 2009 11:47:09 +0100
-Message-ID: <1250160429.6407.106.camel@odin>
-References: <1250052476-28763-1-git-send-email-anuj.aggarwal@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] I2C STU300 stability updates
+Date: Thu, 13 Aug 2009 22:14:23 +0200
+Message-ID: <1250194463-14415-1-git-send-email-linus.walleij@stericsson.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1250052476-28763-1-git-send-email-anuj.aggarwal-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anuj Aggarwal <anuj.aggarwal-l0cyMroinI0@public.gmane.org>
-Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2009-08-12 at 10:17 +0530, Anuj Aggarwal wrote:
-> Adding support for TI TPS65023 regulator driver
-> 
-> Signed-off-by: Anuj Aggarwal <anuj.aggarwal-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/regulator/tps65023-regulator.c |  638 ++++++++++++++++++++++++++++++++
->  1 files changed, 638 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/regulator/tps65023-regulator.c
-> 
-> diff --git a/drivers/regulator/tps65023-regulator.c b/drivers/regulator/tps65023-regulator.c
-> new file mode 100644
-> index 0000000..dbaf295
-> --- /dev/null
-> +++ b/drivers/regulator/tps65023-regulator.c
-> @@ -0,0 +1,638 @@
-> +/*
-> + * tps65023-regulator.c
-> + *
-> + * Supports TPS65023 Regulator
-> + *
-> + * Copyright (C) 2009 Texas Instrument Incorporated - http://www.ti.com/
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation version 2.
-> + *
-> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any kind,
-> + * whether express or implied; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> + * General Public License for more details.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/err.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regulator/driver.h>
-> +#include <linux/regulator/machine.h>
-> +#include <linux/i2c.h>
-> +#include <linux/delay.h>
-> +
-> +/* Register definitions */
-> +#define	TPS65023_REG_VERSION		0
-> +#define	TPS65023_REG_PGOODZ		1
-> +#define	TPS65023_REG_MASK		2
-> +#define	TPS65023_REG_REG_CTRL		3
-> +#define	TPS65023_REG_CON_CTRL		4
-> +#define	TPS65023_REG_CON_CTRL2		5
-> +#define	TPS65023_REG_DEF_CORE		6
-> +#define	TPS65023_REG_DEFSLEW		7
-> +#define	TPS65023_REG_LDO_CTRL		8
-> +
-> +/* PGOODZ bitfields */
-> +#define	TPS65023_PGOODZ_PWRFAILZ	BIT(7)
-> +#define	TPS65023_PGOODZ_LOWBATTZ	BIT(6)
-> +#define	TPS65023_PGOODZ_VDCDC1		BIT(5)
-> +#define	TPS65023_PGOODZ_VDCDC2		BIT(4)
-> +#define	TPS65023_PGOODZ_VDCDC3		BIT(3)
-> +#define	TPS65023_PGOODZ_LDO2		BIT(2)
-> +#define	TPS65023_PGOODZ_LDO1		BIT(1)
-> +
-> +/* MASK bitfields */
-> +#define	TPS65023_MASK_PWRFAILZ		BIT(7)
-> +#define	TPS65023_MASK_LOWBATTZ		BIT(6)
-> +#define	TPS65023_MASK_VDCDC1		BIT(5)
-> +#define	TPS65023_MASK_VDCDC2		BIT(4)
-> +#define	TPS65023_MASK_VDCDC3		BIT(3)
-> +#define	TPS65023_MASK_LDO2		BIT(2)
-> +#define	TPS65023_MASK_LDO1		BIT(1)
-> +
-> +/* REG_CTRL bitfields */
-> +#define TPS65023_REG_CTRL_VDCDC1_EN	BIT(5)
-> +#define TPS65023_REG_CTRL_VDCDC2_EN	BIT(4)
-> +#define TPS65023_REG_CTRL_VDCDC3_EN	BIT(3)
-> +#define TPS65023_REG_CTRL_LDO2_EN	BIT(2)
-> +#define TPS65023_REG_CTRL_LDO1_EN	BIT(1)
-> +
-> +/* LDO_CTRL bitfields */
-> +#define TPS65023_LDO_CTRL_LDOx_SHIFT(ldo_id)	((ldo_id)*4)
-> +#define TPS65023_LDO_CTRL_LDOx_MASK(ldo_id)	(0xF0 >> ((ldo_id)*4))
-> +
-> +/* Number of step-down converters available */
-> +#define TPS65023_NUM_DCDC		3
-> +/* Number of LDO voltage regulators  available */
-> +#define TPS65023_NUM_LDO		2
-> +/* Number of total regulators available */
-> +#define TPS65023_NUM_REGULATOR	(TPS65023_NUM_DCDC + TPS65023_NUM_LDO)
-> +
-> +/* DCDCs */
-> +#define TPS65023_DCDC_1			0
-> +#define TPS65023_DCDC_2			1
-> +#define TPS65023_DCDC_3			2
-> +/* LDOs */
-> +#define TPS65023_LDO_1			3
-> +#define TPS65023_LDO_2			4
-> +
-> +#define TPS65023_MAX_REG_ID		TPS65023_LDO_2
-> +
-> +/* Supported voltage values for regulators */
-> +static const u16 VDCDC1_VSEL_table[] = {
-> +	800, 825, 850, 875,
-> +	900, 925, 950, 975,
-> +	1000, 1025, 1050, 1075,
-> +	1100, 1125, 1150, 1175,
-> +	1200, 1225, 1250, 1275,
-> +	1300, 1325, 1350, 1375,
-> +	1400, 1425, 1450, 1475,
-> +	1500, 1525, 1550, 1600,
-> +};
-> +
-> +static const u16 LDO1_VSEL_table[] = {
-> +	1000, 1100, 1300, 1800,
-> +	2200, 2600, 2800, 3150,
-> +};
-> +
-> +static const u16 LDO2_VSEL_table[] = {
-> +	1050, 1200, 1300, 1800,
-> +	2500, 2800, 3000, 3300,
-> +};
-> +
-> +static unsigned int num_voltages[] = {ARRAY_SIZE(VDCDC1_VSEL_table),
-> +				0, 0, ARRAY_SIZE(LDO1_VSEL_table),
-> +				ARRAY_SIZE(LDO2_VSEL_table)};
-> +
-> +/* Regulator specific details */
-> +struct tps_info {
-> +	const char *name;
-> +	unsigned min_uV;
-> +	unsigned max_uV;
-> +	bool fixed;
-> +	u8 table_len;
-> +	const u16 *table;
-> +};
-> +
-> +/* PMIC details */
-> +struct tps_pmic {
-> +	struct regulator_desc desc[TPS65023_NUM_REGULATOR];
-> +	struct i2c_client *client;
-> +	struct regulator_dev *rdev[TPS65023_NUM_REGULATOR];
-> +	const struct tps_info *info[TPS65023_NUM_REGULATOR];
-> +	struct mutex io_lock;
-> +};
-> +
-> +static inline int tps_65023_read(struct tps_pmic *tps, u8 reg)
-> +{
-> +	return i2c_smbus_read_byte_data(tps->client, reg);
-> +}
-> +
-> +static inline int tps_65023_write(struct tps_pmic *tps, u8 reg, u8 val)
-> +{
-> +	return i2c_smbus_write_byte_data(tps->client, reg, val);
-> +}
-> +
-> +static int tps_65023_set_bits(struct tps_pmic *tps, u8 reg, u8 mask)
-> +{
-> +	int err;
-> +	u8 data;
-> +
-> +	mutex_lock(&tps->io_lock);
-> +
-> +	data = tps_65023_read(tps, reg);
-> +	if (data < 0) {
+- blk clk is enabled when an irq arrives. The clk should be enabled,
+  but just to make sure.
+- All error bits are handled no matter state machine state
+- All irq's will run complete() except for irq's that wasn't an event.
+- No more looking into status registers just in case an interrupt
+  has happend and the irq handle wasn't executed.
+- irq_disable/enable are now separete functions.
+- clk settings calculation changed to round upwards instead of
+  downwards.
+- Number of address send attempts before giving up is increased to 12
+  from 10 since it most times take 8 tries before getting through.
 
-data can never be less than 0 as it's unsigned.
+Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-stu300.c |  157 +++++++++++++++++++++++----------------
+ 1 files changed, 92 insertions(+), 65 deletions(-)
 
-> +		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-> +		err = data;
-> +		goto out;
-> +	}
-> +
-> +	data |= mask;
-> +	err = tps_65023_write(tps, reg, data);
-> +	if (err)
-> +		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-> +
-> +out:
-> +	mutex_unlock(&tps->io_lock);
-> +	return err;
-> +}
-> +
-> +static int tps_65023_clear_bits(struct tps_pmic *tps, u8 reg, u8 mask)
-> +{
-> +	int err;
-> +	u8 data;
-> +
-> +	mutex_lock(&tps->io_lock);
-> +
-> +	data = tps_65023_read(tps, reg);
-> +	if (data < 0) {
-
-ditto.
-> +		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-> +		err = data;
-> +		goto out;
-> +	}
-> +
-> +	data &= ~mask;
-> +
-> +	err = tps_65023_write(tps, reg, data);
-> +	if (err)
-> +		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-> +
-> +out:
-> +	mutex_unlock(&tps->io_lock);
-> +	return err;
-> +
-> +}
-> +
-> +static int tps_65023_reg_read(struct tps_pmic *tps, u8 reg)
-> +{
-> +	u8 data;
-> +
-> +	mutex_lock(&tps->io_lock);
-> +
-> +	data = tps_65023_read(tps, reg);
-> +	if (data < 0)
-> +		dev_err(&tps->client->dev, "Read from reg 0x%x failed\n", reg);
-> +
-
-ditto
-
-> +	mutex_unlock(&tps->io_lock);
-> +	return data;
-> +}
-> +
-> +static int tps_65023_reg_write(struct tps_pmic *tps, u8 reg, u8 val)
-> +{
-> +	int err;
-> +
-> +	mutex_lock(&tps->io_lock);
-> +
-> +	err = tps_65023_write(tps, reg, val);
-> +	if (err < 0)
-> +		dev_err(&tps->client->dev, "Write for reg 0x%x failed\n", reg);
-> +
-> +	mutex_unlock(&tps->io_lock);
-> +	return err;
-> +}
-> +
-> +static int tps65023_dcdc_is_enabled(struct regulator_dev *dev)
-> +{
-> +	u8 data;
-> +	struct tps_pmic *tps = rdev_get_drvdata(dev);
-> +	int dcdc = rdev_get_id(dev);
-> +	u8 shift;
-> +
-> +	if (dcdc < TPS65023_DCDC_1 || dcdc > TPS65023_DCDC_3)
-> +		return -EINVAL;
-> +
-> +	shift = TPS65023_NUM_REGULATOR - dcdc;
-> +	data = tps_65023_reg_read(tps, TPS65023_REG_REG_CTRL);
-> +
-> +	if (data >= 0) {
-> +		data &= (1 << shift);
-> +		return data ? 1 : 0;
-> +	} else
-> +		return data;
-
-data always >=0 here.
-
-> +}
-> +
-> +static int tps65023_ldo_is_enabled(struct regulator_dev *dev)
-> +{
-> +	struct tps_pmic *tps = rdev_get_drvdata(dev);
-> +	int ldo = rdev_get_id(dev);
-> +	u8 shift;
-> +	u8 data;
-> +
-> +	if (ldo < TPS65023_LDO_1 || ldo > TPS65023_LDO_2)
-> +		return -EINVAL;
-> +
-> +	shift = (ldo == TPS65023_LDO_1 ? 1 : 2);
-> +	data = tps_65023_reg_read(tps, TPS65023_REG_REG_CTRL);
-> +
-> +	if (data >= 0) {
-> +		data &= (1 << shift);
-> +		return data ? 1 : 0;
-> +	} else
-> +		return data;
-
-ditto.
-
-A few more unsigned data comparisons in this file. Please fix.
-
-There is also trailing white space in this patch. Please use
-scripts/cleanfile to remove trailing white space.
-
-Thanks
-
-Liam
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index 182e711..d2728a2 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -117,7 +117,8 @@ enum stu300_error {
+ 	STU300_ERROR_NONE = 0,
+ 	STU300_ERROR_ACKNOWLEDGE_FAILURE,
+ 	STU300_ERROR_BUS_ERROR,
+-	STU300_ERROR_ARBITRATION_LOST
++	STU300_ERROR_ARBITRATION_LOST,
++	STU300_ERROR_UNKNOWN
+ };
+ 
+ /* timeout waiting for the controller to respond */
+@@ -127,7 +128,7 @@ enum stu300_error {
+  * The number of address send athemps tried before giving up.
+  * If the first one failes it seems like 5 to 8 attempts are required.
+  */
+-#define NUM_ADDR_RESEND_ATTEMPTS 10
++#define NUM_ADDR_RESEND_ATTEMPTS 12
+ 
+ /* I2C clock speed, in Hz 0-400kHz*/
+ static unsigned int scl_frequency = 100000;
+@@ -149,6 +150,7 @@ module_param(scl_frequency, uint,  0644);
+  * @msg_index: index of current message
+  * @msg_len: length of current message
+  */
++
+ struct stu300_dev {
+ 	struct platform_device	*pdev;
+ 	struct i2c_adapter	adapter;
+@@ -188,6 +190,27 @@ static inline u32 stu300_r8(void __iomem *address)
+ 	return readl(address) & 0x000000FFU;
+ }
+ 
++static void stu300_irq_enable(struct stu300_dev *dev)
++{
++	u32 val;
++	val = stu300_r8(dev->virtbase + I2C_CR);
++	val |= I2C_CR_INTERRUPT_ENABLE;
++	/* Twice paranoia (possible HW glitch) */
++	stu300_wr8(val, dev->virtbase + I2C_CR);
++	stu300_wr8(val, dev->virtbase + I2C_CR);
++}
++
++static void stu300_irq_disable(struct stu300_dev *dev)
++{
++	u32 val;
++	val = stu300_r8(dev->virtbase + I2C_CR);
++	val &= ~I2C_CR_INTERRUPT_ENABLE;
++	/* Twice paranoia (possible HW glitch) */
++	stu300_wr8(val, dev->virtbase + I2C_CR);
++	stu300_wr8(val, dev->virtbase + I2C_CR);
++}
++
++
+ /*
+  * Tells whether a certain event or events occurred in
+  * response to a command. The events represent states in
+@@ -196,9 +219,10 @@ static inline u32 stu300_r8(void __iomem *address)
+  * documentation and can only be treated as abstract state
+  * machine states.
+  *
+- * @ret 0 = event has not occurred, any other value means
+- * the event occurred.
++ * @ret 0 = event has not occurred or unknown error, any
++ * other value means the correct event occurred or an error.
+  */
++
+ static int stu300_event_occurred(struct stu300_dev *dev,
+ 				   enum stu300_event mr_event) {
+ 	u32 status1;
+@@ -206,11 +230,28 @@ static int stu300_event_occurred(struct stu300_dev *dev,
+ 
+ 	/* What event happened? */
+ 	status1 = stu300_r8(dev->virtbase + I2C_SR1);
++
+ 	if (!(status1 & I2C_SR1_EVF_IND))
+ 		/* No event at all */
+ 		return 0;
++
+ 	status2 = stu300_r8(dev->virtbase + I2C_SR2);
+ 
++	/* Block any multiple interrupts */
++	stu300_irq_disable(dev);
++
++	/* Check for errors first */
++	if (status2 & I2C_SR2_AF_IND) {
++		dev->cmd_err = STU300_ERROR_ACKNOWLEDGE_FAILURE;
++		return 1;
++	} else if (status2 & I2C_SR2_BERR_IND) {
++		dev->cmd_err = STU300_ERROR_BUS_ERROR;
++		return 1;
++	} else if (status2 & I2C_SR2_ARLO_IND) {
++		dev->cmd_err = STU300_ERROR_ARBITRATION_LOST;
++		return 1;
++	}
++
+ 	switch (mr_event) {
+ 	case STU300_EVENT_1:
+ 		if (status1 & I2C_SR1_ADSL_IND)
+@@ -221,10 +262,6 @@ static int stu300_event_occurred(struct stu300_dev *dev,
+ 	case STU300_EVENT_7:
+ 	case STU300_EVENT_8:
+ 		if (status1 & I2C_SR1_BTF_IND) {
+-			if (status2 & I2C_SR2_AF_IND)
+-				dev->cmd_err = STU300_ERROR_ACKNOWLEDGE_FAILURE;
+-			else if (status2 & I2C_SR2_BERR_IND)
+-				dev->cmd_err = STU300_ERROR_BUS_ERROR;
+ 			return 1;
+ 		}
+ 		break;
+@@ -240,8 +277,6 @@ static int stu300_event_occurred(struct stu300_dev *dev,
+ 	case STU300_EVENT_6:
+ 		if (status2 & I2C_SR2_ENDAD_IND) {
+ 			/* First check for any errors */
+-			if (status2 & I2C_SR2_AF_IND)
+-				dev->cmd_err = STU300_ERROR_ACKNOWLEDGE_FAILURE;
+ 			return 1;
+ 		}
+ 		break;
+@@ -252,8 +287,15 @@ static int stu300_event_occurred(struct stu300_dev *dev,
+ 	default:
+ 		break;
+ 	}
+-	if (status2 & I2C_SR2_ARLO_IND)
+-		dev->cmd_err = STU300_ERROR_ARBITRATION_LOST;
++	/* If we get here, we're on thin ice.
++	 * Here we are in a status where we have
++	 * gotten a response that does not match
++	 * what we requested.
++	 */
++	dev->cmd_err = STU300_ERROR_UNKNOWN;
++	dev_err(&dev->pdev->dev,
++		"Unhandled interrupt! %d sr1: 0x%x sr2: 0x%x\n",
++		mr_event, status1, status2);
+ 	return 0;
+ }
+ 
+@@ -262,21 +304,20 @@ static irqreturn_t stu300_irh(int irq, void *data)
+ 	struct stu300_dev *dev = data;
+ 	int res;
+ 
++	/* Just make sure that the block is clocked */
++	clk_enable(dev->clk);
++
+ 	/* See if this was what we were waiting for */
+ 	spin_lock(&dev->cmd_issue_lock);
+-	if (dev->cmd_event != STU300_EVENT_NONE) {
+-		res = stu300_event_occurred(dev, dev->cmd_event);
+-		if (res || dev->cmd_err != STU300_ERROR_NONE) {
+-			u32 val;
+-
+-			complete(&dev->cmd_complete);
+-			/* Block any multiple interrupts */
+-			val = stu300_r8(dev->virtbase + I2C_CR);
+-			val &= ~I2C_CR_INTERRUPT_ENABLE;
+-			stu300_wr8(val, dev->virtbase + I2C_CR);
+-		}
+-	}
++
++	res = stu300_event_occurred(dev, dev->cmd_event);
++	if (res || dev->cmd_err != STU300_ERROR_NONE)
++		complete(&dev->cmd_complete);
++
+ 	spin_unlock(&dev->cmd_issue_lock);
++
++	clk_disable(dev->clk);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -308,7 +349,6 @@ static int stu300_start_and_await_event(struct stu300_dev *dev,
+ 	stu300_wr8(cr_value, dev->virtbase + I2C_CR);
+ 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 							STU300_TIMEOUT);
+-
+ 	if (ret < 0) {
+ 		dev_err(&dev->pdev->dev,
+ 		       "wait_for_completion_interruptible_timeout() "
+@@ -342,7 +382,6 @@ static int stu300_await_event(struct stu300_dev *dev,
+ 				enum stu300_event mr_event)
+ {
+ 	int ret;
+-	u32 val;
+ 
+ 	if (unlikely(irqs_disabled())) {
+ 		/* TODO: implement polling for this case if need be. */
+@@ -354,36 +393,18 @@ static int stu300_await_event(struct stu300_dev *dev,
+ 	/* Is it already here? */
+ 	spin_lock_irq(&dev->cmd_issue_lock);
+ 	dev->cmd_err = STU300_ERROR_NONE;
+-	if (stu300_event_occurred(dev, mr_event)) {
+-		spin_unlock_irq(&dev->cmd_issue_lock);
+-		goto exit_await_check_err;
+-	}
+-	init_completion(&dev->cmd_complete);
+-	dev->cmd_err = STU300_ERROR_NONE;
+ 	dev->cmd_event = mr_event;
+ 
+-	/* Turn on the I2C interrupt for current operation */
+-	val = stu300_r8(dev->virtbase + I2C_CR);
+-	val |= I2C_CR_INTERRUPT_ENABLE;
+-	stu300_wr8(val, dev->virtbase + I2C_CR);
+-
+-	/* Twice paranoia (possible HW glitch) */
+-	stu300_wr8(val, dev->virtbase + I2C_CR);
++	init_completion(&dev->cmd_complete);
+ 
+-	/* Check again: is it already here? */
+-	if (unlikely(stu300_event_occurred(dev, mr_event))) {
+-		/* Disable IRQ again. */
+-		val &= ~I2C_CR_INTERRUPT_ENABLE;
+-		stu300_wr8(val, dev->virtbase + I2C_CR);
+-		spin_unlock_irq(&dev->cmd_issue_lock);
+-		goto exit_await_check_err;
+-	}
++	/* Turn on the I2C interrupt for current operation */
++	stu300_irq_enable(dev);
+ 
+ 	/* Unlock the command block and wait for the event to occur */
+ 	spin_unlock_irq(&dev->cmd_issue_lock);
++
+ 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 							STU300_TIMEOUT);
+-
+ 	if (ret < 0) {
+ 		dev_err(&dev->pdev->dev,
+ 		       "wait_for_completion_interruptible_timeout()"
+@@ -401,7 +422,6 @@ static int stu300_await_event(struct stu300_dev *dev,
+ 		return -ETIMEDOUT;
+ 	}
+ 
+- exit_await_check_err:
+ 	if (dev->cmd_err != STU300_ERROR_NONE) {
+ 		if (mr_event != STU300_EVENT_6) {
+ 			dev_err(&dev->pdev->dev, "controller "
+@@ -457,18 +477,19 @@ struct stu300_clkset {
+ };
+ 
+ static const struct stu300_clkset stu300_clktable[] = {
+-	{ 0, 0xFFU },
+-	{ 2500000, I2C_OAR2_FR_25_10MHZ },
+-	{ 10000000, I2C_OAR2_FR_10_1667MHZ },
+-	{ 16670000, I2C_OAR2_FR_1667_2667MHZ },
+-	{ 26670000, I2C_OAR2_FR_2667_40MHZ },
+-	{ 40000000, I2C_OAR2_FR_40_5333MHZ },
+-	{ 53330000, I2C_OAR2_FR_5333_66MHZ },
+-	{ 66000000, I2C_OAR2_FR_66_80MHZ },
+-	{ 80000000, I2C_OAR2_FR_80_100MHZ },
++	{ 0,         0xFFU },
++	{ 2500000,   I2C_OAR2_FR_25_10MHZ },
++	{ 10000000,  I2C_OAR2_FR_10_1667MHZ },
++	{ 16670000,  I2C_OAR2_FR_1667_2667MHZ },
++	{ 26670000,  I2C_OAR2_FR_2667_40MHZ },
++	{ 40000000,  I2C_OAR2_FR_40_5333MHZ },
++	{ 53330000,  I2C_OAR2_FR_5333_66MHZ },
++	{ 66000000,  I2C_OAR2_FR_66_80MHZ },
++	{ 80000000,  I2C_OAR2_FR_80_100MHZ },
+ 	{ 100000000, 0xFFU },
+ };
+ 
++
+ static int stu300_set_clk(struct stu300_dev *dev, unsigned long clkrate)
+ {
+ 
+@@ -494,10 +515,10 @@ static int stu300_set_clk(struct stu300_dev *dev, unsigned long clkrate)
+ 
+ 	if (dev->speed > 100000)
+ 		/* Fast Mode I2C */
+-		val = ((clkrate/dev->speed)-9)/3;
++		val = ((clkrate/dev->speed) - 9)/3 + 1;
+ 	else
+ 		/* Standard Mode I2C */
+-		val = ((clkrate/dev->speed)-7)/2;
++		val = ((clkrate/dev->speed) - 7)/2 + 1;
+ 
+ 	/* According to spec the divider must be > 2 */
+ 	if (val < 0x002) {
+@@ -557,6 +578,7 @@ static int stu300_init_hw(struct stu300_dev *dev)
+ 	 */
+ 	clkrate = clk_get_rate(dev->clk);
+ 	ret = stu300_set_clk(dev, clkrate);
++
+ 	if (ret)
+ 		return ret;
+ 	/*
+@@ -641,7 +663,6 @@ static int stu300_xfer_msg(struct i2c_adapter *adap,
+ 	int attempts = 0;
+ 	struct stu300_dev *dev = i2c_get_adapdata(adap);
+ 
+-
+ 	clk_enable(dev->clk);
+ 
+ 	/* Remove this if (0) to trace each and every message. */
+@@ -715,14 +736,15 @@ static int stu300_xfer_msg(struct i2c_adapter *adap,
+ 
+ 	if (attempts < NUM_ADDR_RESEND_ATTEMPTS && attempts > 0) {
+ 		dev_dbg(&dev->pdev->dev, "managed to get address "
+-		       "through after %d attempts\n", attempts);
++			"through after %d attempts\n", attempts);
+ 	} else if (attempts == NUM_ADDR_RESEND_ATTEMPTS) {
+ 		dev_dbg(&dev->pdev->dev, "I give up, tried %d times "
+-		       "to resend address.\n",
+-		       NUM_ADDR_RESEND_ATTEMPTS);
++			"to resend address.\n",
++			NUM_ADDR_RESEND_ATTEMPTS);
+ 		goto exit_disable;
+ 	}
+ 
++
+ 	if (msg->flags & I2C_M_RD) {
+ 		/* READ: we read the actual bytes one at a time */
+ 		for (i = 0; i < msg->len; i++) {
+@@ -804,8 +826,10 @@ static int stu300_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ {
+ 	int ret = -1;
+ 	int i;
++
+ 	struct stu300_dev *dev = i2c_get_adapdata(adap);
+ 	dev->msg_len = num;
++
+ 	for (i = 0; i < num; i++) {
+ 		/*
+ 		 * Another driver appears to send stop for each message,
+@@ -817,6 +841,7 @@ static int stu300_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		dev->msg_index = i;
+ 
+ 		ret = stu300_xfer_msg(adap, &msgs[i], (i == (num - 1)));
++
+ 		if (ret != 0) {
+ 			num = ret;
+ 			break;
+@@ -845,6 +870,7 @@ stu300_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int bus_nr;
+ 	int ret = 0;
++	char clk_name[] = "I2C0";
+ 
+ 	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
+ 	if (!dev) {
+@@ -854,7 +880,8 @@ stu300_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	bus_nr = pdev->id;
+-	dev->clk = clk_get(&pdev->dev, NULL);
++	clk_name[3] += (char)bus_nr;
++	dev->clk = clk_get(&pdev->dev, clk_name);
+ 	if (IS_ERR(dev->clk)) {
+ 		ret = PTR_ERR(dev->clk);
+ 		dev_err(&pdev->dev, "could not retrieve i2c bus clock\n");
+-- 
+1.6.2.1
