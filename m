@@ -1,59 +1,34 @@
-From: Jonathan Cameron <Jonathan.Cameron-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: I2C -bus programming
-Date: Fri, 14 Aug 2009 12:23:34 +0100
-Message-ID: <4A854936.5060409@gmail.com>
-References: <4A8491E3.4070907@gmail.com>
+From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: "I2C_RDWR" ioctl returning EINVAL on Freescale mxc
+Date: Fri, 14 Aug 2009 16:09:21 -0500
+Message-ID: <528f13590908141409g4b2556e5m10aec0dc15429457@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A8491E3.4070907-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kari Laine <klaine8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Copied to i2c mailing list.
+Hi all,
 
-> Dear List,
->
-> this is my first post here and I am not sure if this is a suitable topic
-> here. Anyway I have a Velleman K8000 IO-card and it uses I2C over
-> parallel port to communicate.
->
-> when I modprobe i2c-parport it does not complain. I tested without card
-> connected and it complained so it seems to find the card.
->
-> modprobe pcf8591
->
-> modprobe i2c-core
->
-> modprobe i2c-dev
->
-> I am not sure I am doing it right. Should i2c-core probed first ?
->
-> anyway now I have
->
-> /dev/i2c-0  /dev/i2c-1
->
-> Now I don't know whether these i2c-devices refer to this Velleman  board
-> or some other i2c-device which happen to be in the computer...
->
-> If these devices probably refer to Velleman - then how I can refer
-> different i2c-devices on the board.
->
->
-> I am totally new to this i2c thing (reading spec at the moment but it
-> does not help much with Linux).
->
-> I would be very greatfull if some could point me the way - thanks.
->
-> Best Regards
-> Kari Laine
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->   
+In my userspace driver for a temp sensor on a i2c bus, i am using the
+/dev interface.  When i use plain read/write syscalls , they seem to
+work just fine. But when i use a combined read/write using the IOCTL
+"I2C_RDWR", i get a return of invalid argument i.e EINVAL from the
+kernel space i2c dev/bus driver.
+
+int rest  = ioctl(_fd, I2C_RDWR,  trans );
+
+So basically res gets a value<1 on execution. I am putting in the
+correct slave address. i have double checked on it. What could be the
+other obvious reasons? Could endian ness be an issue as well although
+the userspace is really invisible and if that had been the case i
+would not have got acks from the slave for a i2c scan on the bus.
+i checked the kernel bus driver code for the reason, but cannot figure
+out just by reading the code at this point  as i have a broken h/w.
+iam using the freescale  mxc i2c bus driver on the kernel side.
+
+Any clues?
+Thanks in advance.
+-Alfred.
