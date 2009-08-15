@@ -1,34 +1,39 @@
-From: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: "I2C_RDWR" ioctl returning EINVAL on Freescale mxc
-Date: Fri, 14 Aug 2009 16:09:21 -0500
-Message-ID: <528f13590908141409g4b2556e5m10aec0dc15429457@mail.gmail.com>
+From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c pca954x: support channel selection in sysfs.
+Date: Sat, 15 Aug 2009 09:37:03 +0200
+Message-ID: <20090815073703.GA24114@gundam.enneenne.com>
+References: <1250291420-15175-1-git-send-email-christian.herzig@keymile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1250291420-15175-1-git-send-email-christian.herzig-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Herzig <christian.herzig-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, chris-jmrfutXsf6TiB9QmIjCX8w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+On Sat, Aug 15, 2009 at 01:10:19AM +0200, Christian Herzig wrote:
+> I'm a newbie in kernel hacking, and also in programming. All beginnings are difficult, so let's go ;-)
+> 
+> As groundwork i'll take the patches from Rodolfo Giometti (git://git.enneenne.com/linux-i2c-mux).
+> 
+> My patch doesn't contains the last one from Rodolfo (http://gitweb.enneenne.com/?p=linux-i2c-mux;a=commit;h=c597d7a621f705e6d2a3db7a551655346872e46c). With Rodolfos patch, my kernel doesn't compile anymore. In all probability, it's a mistake by my side.
 
-In my userspace driver for a temp sensor on a i2c bus, i am using the
-/dev interface.  When i use plain read/write syscalls , they seem to
-work just fine. But when i use a combined read/write using the IOCTL
-"I2C_RDWR", i get a return of invalid argument i.e EINVAL from the
-kernel space i2c dev/bus driver.
+I have to update my patches to the latest kernel as weel. :)
 
-int rest  = ioctl(_fd, I2C_RDWR,  trans );
+> I've added a channel attribute to pca954x driver, because i'd like getting and setting the channel from userspace by the use of sysfs.
 
-So basically res gets a value<1 on execution. I am putting in the
-correct slave address. i have double checked on it. What could be the
-other obvious reasons? Could endian ness be an issue as well although
-the userspace is really invisible and if that had been the case i
-would not have got acks from the slave for a i2c scan on the bus.
-i checked the kernel bus driver code for the reason, but cannot figure
-out just by reading the code at this point  as i have a broken h/w.
-iam using the freescale  mxc i2c bus driver on the kernel side.
+Why do you need it?
 
-Any clues?
-Thanks in advance.
--Alfred.
+Ciao,
+
+Rodolfo
+
+-- 
+
+GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
+Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
+Embedded Systems                     phone:  +39 349 2432127
+UNIX programming                     skype:  rodolfo.giometti
+Freelance ICT Italia - Consulente ICT Italia - www.consulenti-ict.it
