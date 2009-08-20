@@ -1,57 +1,42 @@
-From: Anuj Aggarwal <anuj.aggarwal@ti.com>
-Subject: [PATCHv2 3/3] Regulator: Adding TPS65023 and TPS6507x in Kconfig and Makefile
-Date: Thu, 20 Aug 2009 19:21:05 +0530
-Message-ID: <1250776265-444-1-git-send-email-anuj.aggarwal@ti.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: broonie@sirena.org.uk, lrg@slimlogic.co.uk, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, tony@atomide.com, linux-i2c@vger.kernel.org
-Cc: Anuj Aggarwal <anuj.aggarwal@ti.com>
+From: Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 3/3] i2c-omap: Enable workaround for Errata 1.153 based on
+Date: Thu, 20 Aug 2009 11:21:16 -0500
+Message-ID: <1250785276-31713-4-git-send-email-m-sonasath@ti.com>
+References: <1250785276-31713-1-git-send-email-m-sonasath@ti.com>
+ <1250785276-31713-2-git-send-email-m-sonasath@ti.com>
+ <1250785276-31713-3-git-send-email-m-sonasath@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1250785276-31713-3-git-send-email-m-sonasath-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Adding TPS65023 and TPS6507x regulator driver support in
-drivers/regulator/Makefile and drivers/regulator/Kconfig
+Silicon Errata 1.153 has been fixed on OMAP 3630|4430 with the use of a later
+version of I2C IP block.
+
+The errata impacts OMAP 2420|2430|3430, enable the workaround for these based 
+on I2C IP block revision number instead of OMAP CPU type
+
+Signed-off-by: Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org
+Reviewed-by: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/regulator/Kconfig  |   16 ++++++++++++++++
- drivers/regulator/Makefile |    3 +++
- 2 files changed, 19 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index f431779..8568f3e 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -117,4 +117,20 @@ config REGULATOR_LP3971
- 	 Say Y here to support the voltage regulators and convertors
- 	 on National Semiconductors LP3971 PMIC
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 16b39f4..827da08 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -784,7 +784,7 @@ complete:
+ 				 * memory to the I2C interface.
+ 				 */
  
-+config REGULATOR_TPS65023
-+	tristate "TI TPS65023 Power regulators"
-+	depends on I2C
-+	help
-+	  This driver supports TPS65023 voltage regulator chips. TPS65023 provides
-+	  three step-down converters and two general-purpose LDO voltage regulators.
-+	  It supports TI's software based Class-2 SmartReflex implementation.
-+
-+config REGULATOR_TPS6507X
-+	tristate "TI TPS6507X Power regulators"
-+	depends on I2C
-+	help
-+	  This driver supports TPS6507X voltage regulator chips. TPS6507X provides
-+	  three step-down converters and two general-purpose LDO voltage regulators.
-+	  It supports TI's software based Class-2 SmartReflex implementation.
-+
- endif
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 4d762c4..5263913 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -17,4 +17,7 @@ obj-$(CONFIG_REGULATOR_WM8400) += wm8400-regulator.o
- obj-$(CONFIG_REGULATOR_DA903X)	+= da903x.o
- obj-$(CONFIG_REGULATOR_PCF50633) += pcf50633-regulator.o
- 
-+obj-$(CONFIG_REGULATOR_TPS65023) += tps65023-regulator.o
-+obj-$(CONFIG_REGULATOR_TPS6507X) += tps6507x-regulator.o
-+
- ccflags-$(CONFIG_REGULATOR_DEBUG) += -DDEBUG
+-				if (cpu_is_omap34xx()) {
++				if (dev->rev <= OMAP_I2C_REV_ON_3430) {
+ 						while (!(stat & OMAP_I2C_STAT_XUDF)) {
+ 							if (stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
+ 								omap_i2c_ack_stat(dev, stat & (OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
 -- 
-1.6.2.4
-
+1.5.6.3
