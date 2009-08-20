@@ -1,26 +1,40 @@
-From: Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 0/3] i2c-omap: I2C clean-up patch
-Date: Thu, 20 Aug 2009 11:21:13 -0500
-Message-ID: <1250785276-31713-1-git-send-email-m-sonasath@ti.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+From: Moiz Sonasath <m-sonasath@ti.com>
+Subject: [PATCH 2/3] i2c-omap: ACK pending [R/X]DR and [R/X]RDY interrupts
+Date: Thu, 20 Aug 2009 11:21:15 -0500
+Message-ID: <1250785276-31713-3-git-send-email-m-sonasath@ti.com>
+References: <1250785276-31713-1-git-send-email-m-sonasath@ti.com>
+ <1250785276-31713-2-git-send-email-m-sonasath@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1250785276-31713-2-git-send-email-m-sonasath@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, ben-linux@fluff.org, Moiz Sonasath <m-sonasath@ti.com>, Vikram Pandita <vikram.pandita@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch includes the following fixes:
--Fix I2C status ACK
--ACK pending [R/X]DR and [R/X]RDY interrupts in the error/completeion path
--Enable workaround for Errata 1.153 based on I2C IP block
+ACK any pending read/write interrupts before exiting the ISR either after 
+completing the operation [ARDY interrupt] or in case of an error 
+[NACK|AL interrupt]
 
-Signed-off-by: Moiz Sonasath <m-sonasath-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Moiz Sonasath <m-sonasath@ti.com>
+Signed-off-by: Vikram Pandita <vikram.pandita@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-Moiz Sonasath (3):
-  i2c-omap: Fix I2C status ACK
-  i2c-omap: ACK pending [R/X]DR and [R/X]RDY interrupts in the
-    error/completeion path
-  i2c-omap: Enable workaround for Errata 1.153 based on I2C IP block
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 94639d0..16b39f4 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -694,6 +694,9 @@ complete:
+ 		}
+ 		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
+ 					OMAP_I2C_STAT_AL)) {
++			omap_i2c_ack_stat(dev, stat &
++				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
++				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+ 			omap_i2c_complete_cmd(dev, err);
+ 			return IRQ_HANDLED;
+ 		}
+-- 
+1.5.6.3
 
- drivers/i2c/busses/i2c-omap.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
