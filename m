@@ -1,54 +1,44 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/1] I2C: i2c-core, make attr groups const
-Date: Sat, 29 Aug 2009 15:23:14 +0200
-Message-ID: <20090829152314.4731af0f@hyperion.delvare>
-References: <1250966092-28291-1-git-send-email-jirislaby@gmail.com>
+Subject: [PATCH] i2c/scx200_acb: Provide more information on bus errors
+Date: Sat, 29 Aug 2009 21:18:38 +0200
+Message-ID: <20090829211838.6b6c67fd@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1250966092-28291-1-git-send-email-jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Willy Tarreau <wtarreau-w2o5dE7VsCkiY7fawQvujQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 22 Aug 2009 20:34:52 +0200, Jiri Slaby wrote:
-> Make attribute_group structure const, to avoid a compiler warning.
-> 
-> The groups were introduces by commit:
-> i2c: Convert i2c adapters to bus devices
-> 
-> Signed-off-by: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index eeb9ae5..8d80fce 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -214,7 +214,7 @@ static struct attribute_group i2c_dev_attr_group = {
->  	.attrs		= i2c_dev_attrs,
->  };
->  
-> -static struct attribute_group *i2c_dev_attr_groups[] = {
-> +static const struct attribute_group *i2c_dev_attr_groups[] = {
->  	&i2c_dev_attr_group,
->  	NULL
->  };
-> @@ -528,7 +528,7 @@ static struct attribute_group i2c_adapter_attr_group = {
->  	.attrs		= i2c_adapter_attrs,
->  };
->  
-> -static struct attribute_group *i2c_adapter_attr_groups[] = {
-> +static const struct attribute_group *i2c_adapter_attr_groups[] = {
->  	&i2c_adapter_attr_group,
->  	NULL
->  };
+From: Willy Tarreau <wtarreau-w2o5dE7VsCkiY7fawQvujQ@public.gmane.org>
 
-Merged into the faulty patches, thanks for reporting.
+Upon a bus error, it's rather hard to guess what happened. Dumping the
+address, length and status provides a lot of value for troubleshooting
+issues.
+
+Signed-off-by: Willy Tarreau <wtarreau-w2o5dE7VsCkiY7fawQvujQ@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/scx200_acb.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- linux-2.6.31-rc8.orig/drivers/i2c/busses/scx200_acb.c	2009-06-10 05:05:27.000000000 +0200
++++ linux-2.6.31-rc8/drivers/i2c/busses/scx200_acb.c	2009-08-29 20:44:33.000000000 +0200
+@@ -217,8 +217,10 @@ static void scx200_acb_machine(struct sc
+ 	return;
+ 
+  error:
+-	dev_err(&iface->adapter.dev, "%s in state %s\n", errmsg,
+-		scx200_acb_state_name[iface->state]);
++	dev_err(&iface->adapter.dev,
++		"%s in state %s (addr=0x%02x, len=%d, status=0x%02x)\n", errmsg,
++		scx200_acb_state_name[iface->state], iface->address_byte,
++		iface->len, status);
+ 
+ 	iface->state = state_idle;
+ 	iface->result = -EIO;
+
 
 -- 
 Jean Delvare
