@@ -1,34 +1,41 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Removing duplicate drivers from chips?
-Date: Sun, 6 Sep 2009 23:23:51 +0200
-Message-ID: <20090906232351.55ff4fce@hyperion.delvare>
-References: <20090906205526.GA8434@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Mikael Pettersson <mikpe-1zs4UD6AkMk@public.gmane.org>
+Subject: [PATCH 2.6.31-rc9] i2c-mv64xxx.c: correct mv64xxx_i2c_intr() return type
+Date: Mon, 7 Sep 2009 12:00:13 +0200 (MEST)
+Message-ID: <200909071000.n87A0CBF019863@pilspetsen.it.uu.se>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090906205526.GA8434-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The mv64xxx_i2c_intr() irq handler in drivers/i2c/busses/i2c-mv64xxx.c
+is declared as returning 'int', resulting in this compile-time warning:
 
-On Sun, 6 Sep 2009 22:55:26 +0200, Wolfram Sang wrote:
-> Hi Jean,
-> 
-> I am thinking about cleaning up the 'chips'-directory further by removing the
-> duplicate pca/pcf-drivers. Those are marked as deprecated for more than a year
-> now. Remembering the defconfig-discussion when we moved out the eeprom drivers,
-> I think it is best to not touch the defconfigs but inform the arch-maintainers
-> about the removal of these drivers, so they can handle whatever is necessary.
-> Are you okay with this approach or do you think we should keep the drivers a
-> little longer?
+drivers/i2c/busses/i2c-mv64xxx.c: In function 'mv64xxx_i2c_probe':
+drivers/i2c/busses/i2c-mv64xxx.c:540: warning: passing argument 2 of 'request_irq' from incompatible pointer type
 
-I am totally fine with removing these drivers from linux-next right
-now. Then depending on the feedback, from upstream in either 2.6.32 or
-2.6.33.
+Fix: correct the return type to 'irqreturn_t'.
 
--- 
-Jean Delvare
+Signed-off-by: Mikael Pettersson <mikpe-1zs4UD6AkMk@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.31-rc9/drivers/i2c/busses/i2c-mv64xxx.c.~1~	2009-09-06 12:20:56.000000000 +0200
++++ linux-2.6.31-rc9/drivers/i2c/busses/i2c-mv64xxx.c	2009-09-07 11:31:43.000000000 +0200
+@@ -293,13 +293,13 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c
+ 	}
+ }
+ 
+-static int
++static irqreturn_t
+ mv64xxx_i2c_intr(int irq, void *dev_id)
+ {
+ 	struct mv64xxx_i2c_data	*drv_data = dev_id;
+ 	unsigned long	flags;
+ 	u32		status;
+-	int		rc = IRQ_NONE;
++	irqreturn_t	rc = IRQ_NONE;
+ 
+ 	spin_lock_irqsave(&drv_data->lock, flags);
+ 	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
