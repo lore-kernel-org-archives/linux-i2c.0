@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH v2] I2C: Add support for new AMD SMBus devices
-Date: Wed, 9 Sep 2009 10:12:03 +0200
-Message-ID: <20090909101203.28053596@hyperion.delvare>
+Date: Wed, 9 Sep 2009 11:10:26 +0200
+Message-ID: <20090909111026.21e85f54@hyperion.delvare>
 References: <20090811014921.GB29858@crane-desktop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -10,8 +10,10 @@ Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <20090811014921.GB29858@crane-desktop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-kernel-gepDB1WL6pn9qxiX1TGQuw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
+
+[Resending with fixed LKML address.]
 
 Hi Crane,
 
