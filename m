@@ -1,28 +1,70 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] Removing deprecated drivers from
-	drivers/i2c/chips
-Date: Thu, 10 Sep 2009 03:55:36 -0400
-Message-ID: <8bd0f97a0909100055n3192deeka93dc853f0139bfc@mail.gmail.com>
-References: <1252531371-14866-1-git-send-email-w.sang@pengutronix.de>
-	<8bd0f97a0909091654h290180e5ob79178583aca143f@mail.gmail.com>
-	<20090910062609.GA26454@pengutronix.de>
+From: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+Subject: [PATCH] I2C: add new AMD SMBus device ID
+Date: Thu, 10 Sep 2009 16:04:27 +0800
+Message-ID: <20090910080427.GA10945@crane-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090910062609.GA26454-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 10, 2009 at 02:26, Wolfram Sang wrote:
->> the Blackfin defconfigs refer to an input driver for the PCF8574, not
->> the I2C client driver
->
-> Yup, I am aware of that. With the exception of:
->
-> blackfin/configs/PNAV-10_defconfig:773:CONFIG_SENSORS_PCF8574=m
+Add new SMBus device ID for SB900
 
-thanks for double checking.  i'm not sure this board even has this
-device.  i'll review the hardware.
--mike
+---
+Hi Jean,
+
+We follow your point, new patch submitted, please apply.
+
+Thanks,
+- Crane
+---
+
+Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-piix4.c |    8 +++++---
+ include/linux/pci_ids.h        |    1 +
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 0249a7d..a75d216 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -479,6 +479,7 @@ static struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_SB900_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+@@ -499,9 +500,10 @@ static int __devinit piix4_probe(struct pci_dev *dev,
+ {
+ 	int retval;
+ 
+-	if ((dev->vendor == PCI_VENDOR_ID_ATI) &&
+-	    (dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) &&
+-	    (dev->revision >= 0x40))
++	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
++	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
++	     dev->revision >= 0x40) ||
++	    dev->vendor == PCI_VENDOR_ID_AMD)
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id);
+ 	else
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 73b46b6..0786ccd 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -537,6 +537,7 @@
+ #define PCI_DEVICE_ID_AMD_8131_BRIDGE	0x7450
+ #define PCI_DEVICE_ID_AMD_8131_APIC	0x7451
+ #define PCI_DEVICE_ID_AMD_8132_BRIDGE	0x7458
++#define PCI_DEVICE_ID_AMD_SB900_SMBUS	0x780b
+ #define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
+ #define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
+ #define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
+-- 
+1.6.0.4
