@@ -1,65 +1,90 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] drivers/i2c: Correct use of
- request_region/request_mem_region
-Date: Sat, 12 Sep 2009 18:04:25 +0200
-Message-ID: <20090912180425.6dbf339d@hyperion.delvare>
-References: <Pine.LNX.4.64.0908091506160.16252@ask.diku.dk>
+From: Kari Laine <klaine8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Velleman K8000
+Date: Sat, 12 Sep 2009 19:39:25 +0300
+Message-ID: <61452b690909120939kcc61779vfb7e686a40276ef7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754222AbZILQE3@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0908091506160.16252@ask.diku.dk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vitaly Wool <vitalywool@gmail.com>
-Cc: Julia Lawall <julia@diku.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 9 Aug 2009 15:06:43 +0200 (CEST), Julia Lawall wrote:
-> From: Julia Lawall <julia@diku.dk>
-> 
-> request_mem_region should be used when ioremap is used subsequently.
-> release_region is then correspondingly replaced by release_mem_region.
-> (...)
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-> 
-> ---
->  drivers/i2c/busses/i2c-pnx.c        |    7 ++++---
->  1 files changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-> index ec15cff..6ff6c20 100644
-> --- a/drivers/i2c/busses/i2c-pnx.c
-> +++ b/drivers/i2c/busses/i2c-pnx.c
-> @@ -586,7 +586,8 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
->  	alg_data->mif.timer.data = (unsigned long)i2c_pnx->adapter;
->  
->  	/* Register I/O resource */
-> -	if (!request_region(alg_data->base, I2C_PNX_REGION_SIZE, pdev->name)) {
-> +	if (!request_mem_region(alg_data->base, I2C_PNX_REGION_SIZE,
-> +				pdev->name)) {
->  		dev_err(&pdev->dev,
->  		       "I/O region 0x%08x for I2C already in use.\n",
->  		       alg_data->base);
-> @@ -650,7 +651,7 @@ out_clock:
->  out_unmap:
->  	iounmap((void *)alg_data->ioaddr);
->  out_release:
-> -	release_region(alg_data->base, I2C_PNX_REGION_SIZE);
-> +	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
->  out_drvdata:
->  	platform_set_drvdata(pdev, NULL);
->  out:
-> @@ -667,7 +668,7 @@ static int __devexit i2c_pnx_remove(struct platform_device *pdev)
->  	i2c_del_adapter(adap);
->  	i2c_pnx->set_clock_stop(pdev);
->  	iounmap((void *)alg_data->ioaddr);
-> -	release_region(alg_data->base, I2C_PNX_REGION_SIZE);
-> +	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
->  	platform_set_drvdata(pdev, NULL);
->  
->  	return 0;
+Hi Jean
 
-Vitaly, can you please ack this change?
+thank you very much for good information.
 
--- 
-Jean Delvare
+Hopefully you can answer these questions as well because I am totally l=
+ost.
+
+On Sat, Sep 12, 2009 at 12:12 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wro=
+te:
+> You didn't tell which kernel you are using, but kernel 2.6.17 and lat=
+er
+> wouldn't let you load i2c-parport without a type parameter.
+The kernel is 2.6.27
+
+> It doesn't matter. i2c-core gets loaded automatically when any other
+> module needs it.
+it indeed is.
+
+> You should install i2c-tools and use the command "i2cdetect -l". This
+> will tell you what each i2c bus on your system is.
+>
+> Then you can try "i2cdetect <n>" where <n> is a bus number, to scan t=
+he
+> bus in question. This is a good way to test whether the driver and
+> device are working properly.
+it gives this. So it seems to find all four chips on Velleman K8000 .
+
+=A0 =A0 0 =A01 =A02 =A03 =A04 =A05 =A06 =A07 =A08 =A09 =A0a =A0b =A0c =A0=
+d =A0e =A0f
+00: =A0 =A0 =A0 =A0 =A0-- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- 38 39 -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+>
+>> If these devices probably refer to Velleman - then how I can refer
+>> different i2c-devices on the board.
+>
+> Depends on the device. In the case of the Philips PCF8591, which
+> apparently you are using, sysfs attributes will be created somewhere
+> under /sys/bus/i2c/drivers/pcf8591. Each device has a name of the for=
+m
+> <bus number>-<device address>, for example "1-0048" for a PCF8591.
+When I now do
+
+modprobe pcf8591
+
+In
+
+linux-1fyv:/sys/bus/i2c/devices =A0directory
+
+comes 1-0048
+
+Now I have to figure out how to use this device. Any comments.
+
+The Velleman K8000 card has three other chips which show up in
+I2C-bus. Two PCF8574A which are I/O-chips and TDA8444-chip which is
+DA-chip. I don't find any modules for them. Does it mean that they are
+not supported as of yet or anymore?
+
+
+>
+> The sysfs attributes in question are described in
+> Documentation/hwmon/pcf8591 (or Documentation/i2c/chips/pcf8591 on
+> kernels older than 2.6.30.)
+>
+
+
+> Hope this helps,
+It helped much!
+
+All the best to you
+
+Kari
