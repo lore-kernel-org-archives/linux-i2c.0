@@ -1,61 +1,82 @@
-From: "Dimitar Penev" <dpn-ULhK8fpl5TEAvxtiuMwx3w@public.gmane.org>
-Subject: Simple i2c question
-Date: Sat, 12 Sep 2009 11:53:24 +0300
-Message-ID: <44A06E4209214E37A884D1C506B9DF74@dpnl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: I2C -bus programming
+Date: Sat, 12 Sep 2009 11:12:26 +0200
+Message-ID: <20090912111226.1bd13542@hyperion.delvare>
+References: <4A8491E3.4070907@gmail.com>
+	<4A854936.5060409@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4A854936.5060409-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kari Laine <klaine8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guys,
+Hi Kari,
 
-I hope my question is not too basic for this mailing list but I am really 
-confused by the Linux i2c framework
+Kari Laine wrote:
+> this is my first post here and I am not sure if this is a suitable topic
+> here. Anyway I have a Velleman K8000 IO-card and it uses I2C over
+> parallel port to communicate.
+>
+> when I modprobe i2c-parport it does not complain. I tested without card
+> connected and it complained so it seems to find the card.
 
-Let me describe what I want to do  and what I know so it is easier to point 
-me to the solution.
+This doesn't mean the card is handled properly. You must pass the
+proper card type parameter. The Velleman K8000 is type 2, so:
 
-I have manufactured a Blackfin CPU based board running uClinux on it.
-I have pca9539 chip on this board. I know that there is already a driver for 
-this chip.
-Originally I had kernel version 2.6.25 and during the kernel boot the 
-probe/detect functions of this driver was executed.
-Inside this driver I have added two global functions one for read and 
-another one for write of a byte in the PCA9539.
-I was using i2c_smbus_read_byte_data, i2c_smbus_write_byte_data functions to 
-do this.
-As 'client' argument for those smbus functions I was using the client 
-provided during invocation of the driver detect function.
-I exported the new functions and this way I could control my PCA9539 from 
-the kernel space.
+modprobe i2c-parport type=2
 
-However I decide to try the new Linux kernel 2.6.28.10. I noticed that the 
-i2c framework has changed
-and now my probe/detect functions are not invoked. I studied the i2c 
-framework a bit and I know about  the device instantiate using
-i2c_register_board_info function.
+Alternatively you can add:
 
-Then I realize that I have to register bus 0 driver so I get my probe 
-function invoked. Still not clear how to do it though.
+options i2c-parport type=2
 
-Meanwhile I have noticed that actually the pca9539 chip driver is creating 
-sysfs entries for access from the users space.
-So now I think that most probably I don't need pca9539 driver at all. (I 
-need i2c at the kernel space)
+to /etc/modprobe.conf or whatever modprobe configuration file your
+system uses.
 
-Now my question:
-I want to have kernel space control over my pca9539. I would prefer a simple 
-way for example to use
-i2c_smbus_read_byte_data / i2c_smbus_write_byte_data. However I don't know 
-how to define my 'i2c_client' argument in this case.
+You didn't tell which kernel you are using, but kernel 2.6.17 and later
+wouldn't let you load i2c-parport without a type parameter.
 
-Can you please give me some pointers so I clean the picture in my mind.
+> modprobe pcf8591
+>
+> modprobe i2c-core
+>
+> modprobe i2c-dev
+>
+> I am not sure I am doing it right. Should i2c-core probed first ?
 
-Best Regards
-Dimitar 
+It doesn't matter. i2c-core gets loaded automatically when any other
+module needs it.
+
+> anyway now I have
+>
+> /dev/i2c-0  /dev/i2c-1
+>
+> Now I don't know whether these i2c-devices refer to this Velleman  board
+> or some other i2c-device which happen to be in the computer...
+
+You should install i2c-tools and use the command "i2cdetect -l". This
+will tell you what each i2c bus on your system is.
+
+Then you can try "i2cdetect <n>" where <n> is a bus number, to scan the
+bus in question. This is a good way to test whether the driver and
+device are working properly.
+
+> If these devices probably refer to Velleman - then how I can refer
+> different i2c-devices on the board.
+
+Depends on the device. In the case of the Philips PCF8591, which
+apparently you are using, sysfs attributes will be created somewhere
+under /sys/bus/i2c/drivers/pcf8591. Each device has a name of the form
+<bus number>-<device address>, for example "1-0048" for a PCF8591.
+
+The sysfs attributes in question are described in
+Documentation/hwmon/pcf8591 (or Documentation/i2c/chips/pcf8591 on
+kernels older than 2.6.30.)
+
+Hope this helps,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
