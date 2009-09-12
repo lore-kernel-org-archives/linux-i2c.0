@@ -1,95 +1,136 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Velleman K8000
-Date: Sat, 12 Sep 2009 20:42:02 +0200
-Message-ID: <20090912204202.4b684722@hyperion.delvare>
-References: <61452b690909120939kcc61779vfb7e686a40276ef7@mail.gmail.com>
+Subject: Re: [linux-2.6 PATCH 1/1] i2c-i801: Re-read busy bit and wait for
+ transaction to complete
+Date: Sat, 12 Sep 2009 21:38:43 +0200
+Message-ID: <20090912213843.59e990ad@hyperion.delvare>
+References: <20090826221105.GA19712@clala-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <61452b690909120939kcc61779vfb7e686a40276ef7-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20090826221105.GA19712@clala-laptop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kari Laine <klaine8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Chaitanya Lala <clala-DUeqMYwuH4dWk0Htik3J/w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kari,
+Hi Chaitanya,
 
-On Sat, 12 Sep 2009 19:39:25 +0300, Kari Laine wrote:
-> thank you very much for good information.
->=20
-> Hopefully you can answer these questions as well because I am totally=
- lost.
->=20
-> On Sat, Sep 12, 2009 at 12:12 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> w=
-rote:
-> > You didn't tell which kernel you are using, but kernel 2.6.17 and l=
-ater
-> > wouldn't let you load i2c-parport without a type parameter.
-> The kernel is 2.6.27
->=20
-> > It doesn't matter. i2c-core gets loaded automatically when any othe=
-r
-> > module needs it.
-> it indeed is.
->=20
-> > You should install i2c-tools and use the command "i2cdetect -l". Th=
-is
-> > will tell you what each i2c bus on your system is.
-> >
-> > Then you can try "i2cdetect <n>" where <n> is a bus number, to scan=
- the
-> > bus in question. This is a good way to test whether the driver and
-> > device are working properly.
-> it gives this. So it seems to find all four chips on Velleman K8000 .
->=20
-> =A0 =A0 0 =A01 =A02 =A03 =A04 =A05 =A06 =A07 =A08 =A09 =A0a =A0b =A0c=
- =A0d =A0e =A0f
-> 00: =A0 =A0 =A0 =A0 =A0-- -- -- -- -- -- -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 20: 20 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 30: -- -- -- -- -- -- -- -- 38 39 -- -- -- -- -- --
-> 40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
-> 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 70: -- -- -- -- -- -- -- --
+On Wed, 26 Aug 2009 15:11:05 -0700, Chaitanya Lala wrote:
+> Intel ESB2 SMBus chip seems to have an issue where it momentarily
+> resets the HOST_BUSY bit in the host status register.
 
-Looks good.
+Are you certain? There is a known erratum on some of the ICH chips which
+is slightly different. The erratum is about the HOST_BUSY flag not
+being set immediately when starting a new transaction, so there is the
+chance that the first check concludes that the transaction is already
+over. This sounds somewhat similar to the problem you're seeing. One
+big difference though is that the glitch can only happen at the
+beginning of the transaction, according to the erratum.
 
-> >> If these devices probably refer to Velleman - then how I can refer
-> >> different i2c-devices on the board.
-> >
-> > Depends on the device. In the case of the Philips PCF8591, which
-> > apparently you are using, sysfs attributes will be created somewher=
-e
-> > under /sys/bus/i2c/drivers/pcf8591. Each device has a name of the f=
-orm
-> > <bus number>-<device address>, for example "1-0048" for a PCF8591.
-> When I now do
->=20
-> modprobe pcf8591
->=20
-> In
->=20
-> linux-1fyv:/sys/bus/i2c/devices =A0directory
->=20
-> comes 1-0048
->=20
-> Now I have to figure out how to use this device. Any comments.
+> This confuses
+> the driver waiting for an SMBus transaction to complete. This patch
+> adds a workaround for the same.
+> 
+> Signed-off-by: Chaitanya Lala <clala-DUeqMYwuH4dWk0Htik3J/w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |   23 +++++++++++++++++++++++
+>  1 files changed, 23 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 9d2c5ad..1a04817 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -222,6 +222,7 @@ static int i801_transaction(int xact)
+>  	int status;
+>  	int result;
+>  	int timeout = 0;
+> +	int counter = 0;
+>  
+>  	result = i801_check_pre();
+>  	if (result < 0)
+> @@ -231,12 +232,34 @@ static int i801_transaction(int xact)
+>  	 * INTREN, SMBSCMD are passed in xact */
+>  	outb_p(xact | I801_START, SMBHSTCNT);
+>  
+> +try_again:
+>  	/* We will always wait for a fraction of a second! */
+>  	do {
+>  		msleep(1);
+>  		status = inb_p(SMBHSTSTS);
+>  	} while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_TIMEOUT));
+>  
+> +	/* The i801 chip resets the HOST_BUSY bit
+> +	*  to indicate that it has completed the transaction,
+> +	*  but a moment later sets it again. Seems like a glitch.
+> +	*  Changed code to check the value more times if its not a timeout.
+> +	*/
+> +	if (timeout < MAX_TIMEOUT) {
+> +		msleep(1);
+> +		status = inb_p(SMBHSTSTS);
+> +		if (status  & SMBHSTSTS_HOST_BUSY) {
+> +			dev_warn(&I801_dev->dev, "Busy bit set again"
+> +				"(%02x)\n", status);
+> +			if (++counter < 3) {
+> +				dev_info(&I801_dev->dev, "Trying"
+> +					"again\n");
+> +				goto try_again;
+> +			}
+> +			dev_err(&I801_dev->dev, "No use"
+> +				" retrying-(%02x)\n", status);
+> +		}
+> +	}
+> +
+>  	result = i801_check_post(status, timeout > MAX_TIMEOUT);
+>  	if (result < 0)
+>  		return result;
 
-Have you read the driver's documentation?
-http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
-blob_plain;f=3DDocumentation/hwmon/pcf8591;hb=3DHEAD
+This workaround causes a huge performance penalty. You are basically
+doubling the delay for each and every transaction. I have just tested
+it. At HZ=1000 it doesn't matter too much because the transactions are
+reasonably fast, but at HZ=250 or lower, the impact is high. This is
+hardly acceptable. We need to better understand the exact conditions of
+the problem you have hit, and limit the performance hit as much as we
+can. Questions:
 
-> The Velleman K8000 card has three other chips which show up in
-> I2C-bus. Two PCF8574A which are I/O-chips and TDA8444-chip which is
-> DA-chip. I don't find any modules for them. Does it mean that they ar=
-e
-> not supported as of yet or anymore?
+With which value of HZ do you hit the problem? Does the problem go away
+for lower values of HZ?
 
-The PCF8574A is supported by the pcf8574 driver (or pcf857x on recent
-kernels.) I am not aware of a driver for the TDA8444.
+Do you hit the problem for all transaction types, or only specific ones?
 
---=20
+Do you hit the problem with specific slaves, or all of them?
+
+Did you ever hit the problem with other Intel chips than the ESB2?
+
+I'm wondering if the following fix would be enough for you. It has
+almost no performance impact at HZ=250 and less (and could be improved
+to have none at all for these values of HZ.)
+
+---
+ drivers/i2c/busses/i2c-i801.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.32-pre.orig/drivers/i2c/busses/i2c-i801.c	2009-06-10 05:05:27.000000000 +0200
++++ linux-2.6.32-pre/drivers/i2c/busses/i2c-i801.c	2009-09-12 21:16:44.000000000 +0200
+@@ -233,7 +233,7 @@ static int i801_transaction(int xact)
+ 
+ 	/* We will always wait for a fraction of a second! */
+ 	do {
+-		msleep(1);
++		msleep(2);
+ 		status = inb_p(SMBHSTSTS);
+ 	} while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_TIMEOUT));
+ 
+@@ -338,7 +338,7 @@ static int i801_block_transaction_byte_b
+ 		/* We will always wait for a fraction of a second! */
+ 		timeout = 0;
+ 		do {
+-			msleep(1);
++			msleep(2);
+ 			status = inb_p(SMBHSTSTS);
+ 		}
+ 		while ((!(status & SMBHSTSTS_BYTE_DONE))
+
+
+-- 
 Jean Delvare
-http://khali.linux-fr.org/wishlist.html
