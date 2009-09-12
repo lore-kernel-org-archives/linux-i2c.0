@@ -1,44 +1,65 @@
-From: Sebastian Andrzej Siewior <sebastian-E0PNVn5OA6ohrxcnuTQ+TQ@public.gmane.org>
-Subject: [PATCH] i2c/mv64xxx: get rid of a compiler warning
-Date: Sat, 12 Sep 2009 11:51:17 +0200
-Message-ID: <20090912095117.GA7871@Chamillionaire.breakpoint.cc>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] drivers/i2c: Correct use of
+ request_region/request_mem_region
+Date: Sat, 12 Sep 2009 18:04:25 +0200
+Message-ID: <20090912180425.6dbf339d@hyperion.delvare>
+References: <Pine.LNX.4.64.0908091506160.16252@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Mark A. Greer" <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754222AbZILQE3@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0908091506160.16252@ask.diku.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vitaly Wool <vitalywool@gmail.com>
+Cc: Julia Lawall <julia@diku.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-|CC drivers/i2c/busses/i2c-mv64xxx.o
-|drivers/i2c/busses/i2c-mv64xxx.c: In function mv64xxx_i2c_probe:
-|drivers/i2c/busses/i2c-mv64xxx.c:540: warning: passing argument 2 of request_irq from incompatible pointer type
+On Sun, 9 Aug 2009 15:06:43 +0200 (CEST), Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
+> 
+> request_mem_region should be used when ioremap is used subsequently.
+> release_region is then correspondingly replaced by release_mem_region.
+> (...)
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> 
+> ---
+>  drivers/i2c/busses/i2c-pnx.c        |    7 ++++---
+>  1 files changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+> index ec15cff..6ff6c20 100644
+> --- a/drivers/i2c/busses/i2c-pnx.c
+> +++ b/drivers/i2c/busses/i2c-pnx.c
+> @@ -586,7 +586,8 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+>  	alg_data->mif.timer.data = (unsigned long)i2c_pnx->adapter;
+>  
+>  	/* Register I/O resource */
+> -	if (!request_region(alg_data->base, I2C_PNX_REGION_SIZE, pdev->name)) {
+> +	if (!request_mem_region(alg_data->base, I2C_PNX_REGION_SIZE,
+> +				pdev->name)) {
+>  		dev_err(&pdev->dev,
+>  		       "I/O region 0x%08x for I2C already in use.\n",
+>  		       alg_data->base);
+> @@ -650,7 +651,7 @@ out_clock:
+>  out_unmap:
+>  	iounmap((void *)alg_data->ioaddr);
+>  out_release:
+> -	release_region(alg_data->base, I2C_PNX_REGION_SIZE);
+> +	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
+>  out_drvdata:
+>  	platform_set_drvdata(pdev, NULL);
+>  out:
+> @@ -667,7 +668,7 @@ static int __devexit i2c_pnx_remove(struct platform_device *pdev)
+>  	i2c_del_adapter(adap);
+>  	i2c_pnx->set_clock_stop(pdev);
+>  	iounmap((void *)alg_data->ioaddr);
+> -	release_region(alg_data->base, I2C_PNX_REGION_SIZE);
+> +	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
+>  	platform_set_drvdata(pdev, NULL);
+>  
+>  	return 0;
 
-Signed-off-by: Sebastian Andrzej Siewior <sebastian-E0PNVn5OA6ohrxcnuTQ+TQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-mv64xxx.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Vitaly, can you please ack this change?
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index c3869d9..ae4f91b 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -293,13 +293,12 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 	}
- }
- 
--static int
--mv64xxx_i2c_intr(int irq, void *dev_id)
-+static irqreturn_t mv64xxx_i2c_intr(int irq, void *dev_id)
- {
- 	struct mv64xxx_i2c_data	*drv_data = dev_id;
- 	unsigned long	flags;
- 	u32		status;
--	int		rc = IRQ_NONE;
-+	irqreturn_t	rc = IRQ_NONE;
- 
- 	spin_lock_irqsave(&drv_data->lock, flags);
- 	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
 -- 
-1.6.4.GIT
+Jean Delvare
