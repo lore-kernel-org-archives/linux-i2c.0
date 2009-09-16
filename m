@@ -1,64 +1,54 @@
-From: "Chuck Kamas" <ckamas-mizZ2TCXIxVBDgjK7y7TUQ@public.gmane.org>
-Subject: How to manually call i2c_client's probe from i2c-dev.c ioctl
-Date: Wed, 16 Sep 2009 09:56:37 -0700
-Message-ID: <C62896630644CE43BF64B0FF0AC27F0E18153F@mail.ad.skymv.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: Prevent priority inversion on top of bus lock
+Date: Wed, 16 Sep 2009 22:32:48 +0200
+Message-ID: <20090916223248.661293eb@hyperion.delvare>
+References: <1253099829-17655-1-git-send-email-mika.kuoppala@nokia.com>
+	<1253099829-17655-2-git-send-email-mika.kuoppala@nokia.com>
+	<20090916135159.0d74f178@hyperion.delvare>
+	<1253104524.22491.2.camel@adserver2>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
+In-Reply-To: <1253104524.22491.2.camel@adserver2>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+On Wed, 16 Sep 2009 15:35:24 +0300, Mika Kuoppala wrote:
+> Hi,
+> 
+> On Wed, 2009-09-16 at 13:51 +0200, ext Jean Delvare wrote:
+> 
+> > >  		if (in_atomic() || irqs_disabled()) {
+> > > -			ret = mutex_trylock(&adap->bus_lock);
+> > > +			ret = rt_mutex_trylock(&adap->bus_lock);
+> > >  			if (!ret)
+> > >  				/* I2C activity is ongoing. */
+> > >  				return -EAGAIN;
+> > >  		} else {
+> > > -			mutex_lock_nested(&adap->bus_lock, adap->level);
+> > > +			rt_mutex_lock(&adap->bus_lock);
+> > 
+> > Hmm, rt_mutex doesn't handle locking model validation as regular
+> > mutexes have? Looks like a regression to me.
+> > 
+> 
+> There seems to be no rtmutex_lock_nested in include/linux/rtmutex.h.
+> 
+> CONFIG_DEBUG_RT_MUTEXES help says this:
+>   This allows rt mutex semantics violations and rt mutex related
+>   deadlocks (lockups) to be detected and reported automatically.
+> 
+> I don't know if this includes the same stuff as lockdep does.
+> 
+> But as the context is stripped away (adap-level) it's safe to assume
+> that atleast some functionality is also stripped. Thus it is a
+> regression.
 
-I am trying to backport Michael's patch to add PROBE and REMOVE ioctls
-to 2.6.21
-http://article.gmane.org/gmane.linux.drivers.i2c/3339/match=ioctls+probe
+OK. This is the only place where the adapter's nesting level is used,
+so if we apply your patch, we might as well get rid of it.
 
-I have been able to add the IOCTLS and re-compile the kernel module, but
-am confused as to what function to call in the old device model.  I
-believe that I should use i2c_attach_client() from i2c-core.c.  Is this
-correct?
-
-This is what I have so far:
-
-I2c-dev.c:
-static int i2cdev_ioctl(struct inode *inode, struct file *file,
-		unsigned int cmd, unsigned long arg)
-{
-	char   *colon, request[I2C_NAME_SIZE + 5];
-	char   probeTemp[I2C_NAME_SIZE];
-	int    addr;
-...
-	case I2C_PROBE:
-		res = copy_from_user(request, (char *)arg,
-sizeof(request));
-		if (res)
-			return res;
-		colon = strchr(request, ',');
-		if((!colon) || (colon - request > I2C_NAME_SIZE - 1))
-			return -EINVAL;
-		memset (probeTemp,0,sizeof(probeTemp)); // set the whole
-buffer to 0 so that when the string is added it is automatically null
-terminated.
-		strncpy(probeTemp, request, colon - request);
-		addr = simple_strtoul(colon + 1, NULL, 0);
-		printk (KERN_ERR "got %s and %d\n",probeTemp,addr);
-		printk (KERN_ERR "client info name: %s\n",
-client->name);
-		printk (KERN_ERR "client's adapter's name: %s\n",
-client->adapter->name); // this is what probe wants
-		/* Check for address business */
-		if (i2c_check_addr(client->adapter, client->addr))
-			return -EBUSY;
-
-??? What call to put here to probe the actual chip ???
-
-		return 0;
-
-
-Thanks!
-Chuck
+-- 
+Jean Delvare
