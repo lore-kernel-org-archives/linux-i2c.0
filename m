@@ -1,81 +1,95 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V2] MAINTAINERS: add maintainer for AT24 and
- PCA9564/PCA9665
-Date: Wed, 16 Sep 2009 13:11:13 +0200
-Message-ID: <20090916131113.5f31b2ec@hyperion.delvare>
-References: <1253093433-6988-1-git-send-email-w.sang@pengutronix.de>
-	<1253093895-9613-1-git-send-email-w.sang@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/1] i2c: Prevent priority inversion on top of bus lock
+Date: Wed, 16 Sep 2009 14:17:09 +0300
+Message-ID: <1253099829-17655-2-git-send-email-mika.kuoppala@nokia.com>
+References: <1253099829-17655-1-git-send-email-mika.kuoppala@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1253093895-9613-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1253099829-17655-1-git-send-email-mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Low priority thread holding the i2c bus mutex could block
+more high priority threads to access the bus resulting in
+unacceptable latencies. Change the mutex type to
+rt_mutex preventing priority inversion.
 
-On Wed, 16 Sep 2009 11:38:15 +0200, Wolfram Sang wrote:
-> Add me as the maintainer for the i2c-drivers I feel responsible for as I found
-> patches going mainline I missed due to no cc.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
-> 
-> AT24 is negotiated with David before and Ian was unavailable for the
-> PCA-drivers (due to no hardware) in January 2008 already.
-> 
-> v2 fixed the mistake in sorting, based on linus-git (is that okay, Jean?)
+Tested-by: Peter Ujfalusi <peter.ujfalusi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   12 ++++++------
+ include/linux/i2c.h    |    3 +--
+ 2 files changed, 7 insertions(+), 8 deletions(-)
 
-That's perfect, and thank you for stepping in!
-
-> 
->  MAINTAINERS |   16 ++++++++++++++++
->  1 files changed, 16 insertions(+), 0 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 64b9e44..84a9aee 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -894,6 +894,13 @@ F:	drivers/dma/
->  F:	include/linux/dmaengine.h
->  F:	include/linux/async_tx.h
->  
-> +AT24 EEPROM DRIVER
-> +M:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> +L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> +S:	Maintained
-> +F:	drivers/misc/eeprom/at24.c
-> +F:	include/linux/i2c/at24.h
-> +
->  ATA OVER ETHERNET (AOE) DRIVER
->  M:	"Ed L. Cashin" <ecashin-kFqnmIA2sJXQT0dZR+AlfA@public.gmane.org>
->  W:	http://www.coraid.com/support/linux
-> @@ -3941,6 +3948,15 @@ S:	Maintained
->  F:	drivers/leds/leds-pca9532.c
->  F:	include/linux/leds-pca9532.h
->  
-> +PCA9564/PCA9665 I2C BUS DRIVER
-> +M:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> +L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> +S:	Maintained
-> +F:	drivers/i2c/algos/i2c-algo-pca.c
-> +F:	drivers/i2c/busses/i2c-pca*
-
-I'll make this i2c-pca-*
-
-> +F:	include/linux/i2c-algo-pca.h
-> +F:	include/linux/i2c-pca-platform.h
-> +
->  PCI ERROR RECOVERY
->  M:	Linas Vepstas <linas-V7BBcbaFuwjMbYB6QlFGEg@public.gmane.org>
->  L:	linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-
-Applied, thanks.
-
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 0e45c29..40f645f 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -548,7 +548,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 		goto out_list;
+ 	}
+ 
+-	mutex_init(&adap->bus_lock);
++	rt_mutex_init(&adap->bus_lock);
+ 
+ 	/* Set default timeout to 1 second if not already set */
+ 	if (adap->timeout == 0)
+@@ -1018,12 +1018,12 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ #endif
+ 
+ 		if (in_atomic() || irqs_disabled()) {
+-			ret = mutex_trylock(&adap->bus_lock);
++			ret = rt_mutex_trylock(&adap->bus_lock);
+ 			if (!ret)
+ 				/* I2C activity is ongoing. */
+ 				return -EAGAIN;
+ 		} else {
+-			mutex_lock_nested(&adap->bus_lock, adap->level);
++			rt_mutex_lock(&adap->bus_lock);
+ 		}
+ 
+ 		/* Retry automatically on arbitration loss */
+@@ -1035,7 +1035,7 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			if (time_after(jiffies, orig_jiffies + adap->timeout))
+ 				break;
+ 		}
+-		mutex_unlock(&adap->bus_lock);
++		rt_mutex_unlock(&adap->bus_lock);
+ 
+ 		return ret;
+ 	} else {
+@@ -1839,7 +1839,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 	flags &= I2C_M_TEN | I2C_CLIENT_PEC;
+ 
+ 	if (adapter->algo->smbus_xfer) {
+-		mutex_lock(&adapter->bus_lock);
++		rt_mutex_lock(&adapter->bus_lock);
+ 
+ 		/* Retry automatically on arbitration loss */
+ 		orig_jiffies = jiffies;
+@@ -1853,7 +1853,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 				       orig_jiffies + adapter->timeout))
+ 				break;
+ 		}
+-		mutex_unlock(&adapter->bus_lock);
++		rt_mutex_unlock(&adapter->bus_lock);
+ 	} else
+ 		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+ 					      command, protocol, data);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index f4784c0..ddca85d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -340,8 +340,7 @@ struct i2c_adapter {
+ 	void *algo_data;
+ 
+ 	/* data fields that are valid for all devices	*/
+-	u8 level; 			/* nesting level for lockdep */
+-	struct mutex bus_lock;
++	struct rt_mutex bus_lock;
+ 
+ 	int timeout;			/* in jiffies */
+ 	int retries;
 -- 
-Jean Delvare
+1.6.5.rc0
