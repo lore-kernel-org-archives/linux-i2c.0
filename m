@@ -1,54 +1,47 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: Prevent priority inversion on top of bus lock
-Date: Wed, 16 Sep 2009 22:32:48 +0200
-Message-ID: <20090916223248.661293eb@hyperion.delvare>
+Subject: Re: [PATCH 0/1] Better i2c access latencies in high load situations
+Date: Wed, 16 Sep 2009 22:43:28 +0200
+Message-ID: <20090916224328.47e349ab@hyperion.delvare>
 References: <1253099829-17655-1-git-send-email-mika.kuoppala@nokia.com>
-	<1253099829-17655-2-git-send-email-mika.kuoppala@nokia.com>
-	<20090916135159.0d74f178@hyperion.delvare>
-	<1253104524.22491.2.camel@adserver2>
+	<20090916134944.4a329d62@hyperion.delvare>
+	<1253102935.13914.7.camel@adserver2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1253104524.22491.2.camel@adserver2>
+In-Reply-To: <1253102935.13914.7.camel@adserver2>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 16 Sep 2009 15:35:24 +0300, Mika Kuoppala wrote:
-> Hi,
+On Wed, 16 Sep 2009 15:08:55 +0300, Mika Kuoppala wrote:
+> Hi Jean,
 > 
-> On Wed, 2009-09-16 at 13:51 +0200, ext Jean Delvare wrote:
+> On Wed, 2009-09-16 at 13:49 +0200, ext Jean Delvare wrote:
 > 
-> > >  		if (in_atomic() || irqs_disabled()) {
-> > > -			ret = mutex_trylock(&adap->bus_lock);
-> > > +			ret = rt_mutex_trylock(&adap->bus_lock);
-> > >  			if (!ret)
-> > >  				/* I2C activity is ongoing. */
-> > >  				return -EAGAIN;
-> > >  		} else {
-> > > -			mutex_lock_nested(&adap->bus_lock, adap->level);
-> > > +			rt_mutex_lock(&adap->bus_lock);
-> > 
-> > Hmm, rt_mutex doesn't handle locking model validation as regular
-> > mutexes have? Looks like a regression to me.
+> > Can you please define "get a kick"? I don't know anything about
+> > rt_mutex.
 > > 
 > 
-> There seems to be no rtmutex_lock_nested in include/linux/rtmutex.h.
+> Sorry for using a vague metaphor. Documentation/rt-mutex.txt explains it
+> as:
 > 
-> CONFIG_DEBUG_RT_MUTEXES help says this:
->   This allows rt mutex semantics violations and rt mutex related
->   deadlocks (lockups) to be detected and reported automatically.
+> "A low priority owner of a rt-mutex inherits the priority of a higher
+> priority waiter until the rt-mutex is released. If the temporarily
+> boosted owner blocks on a rt-mutex itself it propagates the priority
+> boosting to the owner of the other rt_mutex it gets blocked on. The
+> priority boosting is immediately removed once the rt_mutex has been
+> unlocked."
 > 
-> I don't know if this includes the same stuff as lockdep does.
-> 
-> But as the context is stripped away (adap-level) it's safe to assume
-> that atleast some functionality is also stripped. Thus it is a
-> regression.
+> You might want to also take a look at Documentation/rt-mutex-design.txt
 
-OK. This is the only place where the adapter's nesting level is used,
-so if we apply your patch, we might as well get rid of it.
+Thanks for the clarification. It all makes a lot of sense. I'll give
+your patch a try, although I don't use I2C for anything time-critical
+so I doubt it makes a difference for me.
+
+But now I am curious, why don't we use rt_mutex instead of regular
+mutex all around the place?
 
 -- 
 Jean Delvare
