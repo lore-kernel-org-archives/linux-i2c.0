@@ -1,26 +1,34 @@
-From: "Chuck Kamas" <ckamas-mizZ2TCXIxVBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: How to manually call i2c_client's probe from i2c-dev.c ioctl
-Date: Thu, 17 Sep 2009 09:38:13 -0700
-Message-ID: <C62896630644CE43BF64B0FF0AC27F0E181607@mail.ad.skymv.com>
-References: <C62896630644CE43BF64B0FF0AC27F0E18153F@mail.ad.skymv.com><20090916225247.2094619b@hyperion.delvare><C62896630644CE43BF64B0FF0AC27F0E1815B9@mail.ad.skymv.com><20090917092612.53327f80@hyperion.delvare><C62896630644CE43BF64B0FF0AC27F0E1815EC@mail.ad.skymv.com> <20090917180407.5460bf33@hyperion.delvare>
+From: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+Subject: Re: [PATCH v2] I2C: add driver for SMBus Control Method Interface
+Date: Fri, 18 Sep 2009 08:59:10 +0800
+Message-ID: <20090918005910.GA26873@crane-desktop>
+References: <20090916091825.GA29707@crane-desktop> <20090916154846.70413d42@hyperion.delvare> <20090917044647.GB13319@crane-desktop> <20090917114553.7abddd1e@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20090917180407.5460bf33-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090917114553.7abddd1e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean,
+Hi Jean,
 
-I am trying to have the chip drivers probe for new chips after init.  I
-would like to do this by adding to the ioctl a PROBE function. So in the
-old model how do I manually call the probe function of a chip driver and
-have it properly register with the i2c subsystem?
+On Thu, Sep 17, 2009 at 11:45:53AM +0200, Jean Delvare wrote:
+> On Thu, 17 Sep 2009 12:46:47 +0800, Crane Cai wrote:
+> > Hi Jean,
+> > 
+> > On Wed, Sep 16, 2009 at 03:48:46PM +0200, Jean Delvare wrote:
+> > > If you are fine with my latest proposals, I'll implement them myself,
+> > > no need to resend a patch. Thanks a lot for writing the driver!
+> > OK, I'm fine. Now it is the time in v2.6.32 merge window. I wish we can submit
+> > it in time.
+> 
+> Yes, we are right in time for 2.6.32 :)
+> 
+Thanks. It's my pleasure to co-work with you. I'd like to keep up.
 
-Chuck
- 
+-- 
+Best Regards,
+- Crane
