@@ -1,309 +1,966 @@
-From: Craig Matsuura <cmatsuura-/SMLdF/PHsZWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
-Date: Mon, 21 Sep 2009 07:41:21 -0600
-Message-ID: <200909210741.22154.cmatsuura@control4.com>
-References: <1247643267.5981.82.camel@localhost.localdomain>
-	<200909182312.58018.cmatsuura@control4.com>
-	<1253514660.4507.2.camel@localhost.localdomain>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
+	<richard.rojfors-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
+Subject: [PATCH] i2c: Add support for Xilinx XPS IIC Bus Interface
+Date: Mon, 21 Sep 2009 15:56:11 +0200
+Message-ID: <4AB785FB.4020806@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0861376340=="
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1253514660.4507.2.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============0861376340==
-Content-Type: multipart/alternative; boundary="Boundary-00=_CK4tK/KgUw3jbhL"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This patch adds support for the Xilinx XPS IIC Bus Interface.
 
---Boundary-00=_CK4tK/KgUw3jbhL
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+The driver uses the dynamic mode, supporting to put several
+I2C messages in the FIFO to reduce the number of interrupts.
 
-Philby,
+It has the same feature as ocores, it can be passed a list
+of devices that will be added when the bus is probed.
 
-Sorry, I forgot to mention, I did correct a problem with accessing a regs, it 
-is where yo usend a NACK.  I changed the read from DAVINCI_I2C_IMR_REG to 
-DAVINCI_I2C_MDR_REG.  
+Signed-off-by: Richard R=F6jfors <richard.rojfors-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
+---
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 8206442..6b291e8 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -433,6 +433,16 @@ config I2C_OCORES
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-ocores.
 
- +            flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
- +            flag |=  DAVINCI_I2C_MDR_NACK;
- +            /* write the data into mode register */
- +            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-
-
-Craig
-
-On Monday 21 September 2009 12:31:00 am Philby John wrote:
-> Hello Craig,
->
-> 	Good to know. With out any modifications on a DM6443?
->
-> Regards,
-> Philby
->
-> On Fri, 2009-09-18 at 23:12 -0600, Craig Matsuura wrote:
-> > The patch submitted appears specific to the dm355. The changes are
-> > very similar to the 2.6.10 kernel from mv. If the correct gpio's and
-> > pinmux are disabled/enabled it should work for the dm644x.
-> >
-> >
-> >
-> > I took the patch from Philby and tried it on our dm6443 platform (on a
-> > 2.6.28 kernel) and it appears to work for the problem we have when the
-> > i2c appears to lock up.
-> >
-> >
-> >
-> > Craig
-> >
-> > On Wednesday 22 July 2009 5:14:35 am Philby John wrote:
-> > > On Wed, 2009-07-22 at 04:03 -0700, Nitin Mahajan wrote:
-> > > > Hello,
-> > > >
-> > > > ----- Original Message ----
-> > > >
-> > > > > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> > > > > To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > > > > Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
-> >
-> > davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> >
-> > > > > Sent: Wednesday, July 15, 2009 13:04:27
-> > > > > Subject: [PATCH/RFC 1/1] recover from davinci i2c time out
-> >
-> > conditions
-> >
-> > > > > >From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17
-> >
-> > 00:00:00 2001
-> >
-> > > > > From: Philby John
-> > > > > Date: Tue, 14 Jul 2009 21:46:47 +0530
-> > > > > Subject: [PATCH] Reset i2c bus to come out of time out
-> >
-> > conditions
-> >
-> > > > > Get out of i2c time out condition by resetting
-> > > > > the i2c bus. The kernel must be robust enough to
-> > > > > gracefully recover from i2c bus failure without having
-> > > > > to reset the machine. This is done by first NACKing the slave
-> > > > > and then resetting the i2c bus after a certain timeout.
-> > > > >
-> > > > > Signed-off-by: Philby John
-> > > >
-> > > > I tried this on DM6443 based board with 2.6.18 kernel. The result
-> >
-> > I am
-> >
-> > > > posting below. It gives controller time out again and again.
-> > > >
-> > > > dhcppc9 login: i2c_davinci i2c_davinci.1: controller timed out
-> > > > i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-> > > > i2c_davinci i2c_davinci.1: controller timed out
-> > > > i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-> > >
-> > > There is something gravely wrong about this patch and I would submit
-> >
-> > a
-> >
-> > > fix shortly incorporating the review comments. But please be aware
-> >
-> > that
-> >
-> > > I do not guarantee a definitive time line for a fix cause I have
-> >
-> > much at
-> >
-> > > hand at the moment.
-> > >
-> > >
-> > > Regards,
-> > > Philby
-> > >
-> > >
-> > > _______________________________________________
-> > > Davinci-linux-open-source mailing list
-> > > Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> >
-> > http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source
-> >
-> > --
-> >
-> >
-> >
-> >
-> >
-> > ______________________________________________________________________
-> >
-> >
-> > Craig Matsuura - Principal Engineer
-> > Control4
-> > 11734 South Election Road - Suite 200
-> > Salt Lake City, UT 84020-6432
-> > PH: 801-523-3161
-> > FX: 801-523-3199
-
--- 
-
-
-
-
-Craig Matsuura - Principal Engineer
-Control4
-11734 South Election Road - Suite 200
-Salt Lake City, UT 84020-6432
-PH: 801-523-3161
-FX: 801-523-3199
-
---Boundary-00=_CK4tK/KgUw3jbhL
-Content-Type: text/html;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;">Philby,<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Sorry, I forgot to mention, I did correct a problem with accessing a regs, it is where yo usend a NACK.  I changed the read from DAVINCI_I2C_IMR_REG to DAVINCI_I2C_MDR_REG.  <br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p> +            flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);<br>
- +            flag |=  DAVINCI_I2C_MDR_NACK;<br>
- +            /* write the data into mode register */<br>
- +            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Craig<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>On Monday 21 September 2009 12:31:00 am Philby John wrote:<br>
-&gt; Hello Craig,<br>
-&gt;<br>
-&gt; 	Good to know. With out any modifications on a DM6443?<br>
-&gt;<br>
-&gt; Regards,<br>
-&gt; Philby<br>
-&gt;<br>
-&gt; On Fri, 2009-09-18 at 23:12 -0600, Craig Matsuura wrote:<br>
-&gt; &gt; The patch submitted appears specific to the dm355. The changes are<br>
-&gt; &gt; very similar to the 2.6.10 kernel from mv. If the correct gpio's and<br>
-&gt; &gt; pinmux are disabled/enabled it should work for the dm644x.<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; I took the patch from Philby and tried it on our dm6443 platform (on a<br>
-&gt; &gt; 2.6.28 kernel) and it appears to work for the problem we have when the<br>
-&gt; &gt; i2c appears to lock up.<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Craig<br>
-&gt; &gt;<br>
-&gt; &gt; On Wednesday 22 July 2009 5:14:35 am Philby John wrote:<br>
-&gt; &gt; &gt; On Wed, 2009-07-22 at 04:03 -0700, Nitin Mahajan wrote:<br>
-&gt; &gt; &gt; &gt; Hello,<br>
-&gt; &gt; &gt; &gt;<br>
-&gt; &gt; &gt; &gt; ----- Original Message ----<br>
-&gt; &gt; &gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; From: Philby John &lt;pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org&gt;<br>
-&gt; &gt; &gt; &gt; &gt; To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org<br>
-&gt; &gt; &gt; &gt; &gt; Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;<br>
-&gt; &gt;<br>
-&gt; &gt; davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; Sent: Wednesday, July 15, 2009 13:04:27<br>
-&gt; &gt; &gt; &gt; &gt; Subject: [PATCH/RFC 1/1] recover from davinci i2c time out<br>
-&gt; &gt;<br>
-&gt; &gt; conditions<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; &gt;From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17<br>
-&gt; &gt;<br>
-&gt; &gt; 00:00:00 2001<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; From: Philby John<br>
-&gt; &gt; &gt; &gt; &gt; Date: Tue, 14 Jul 2009 21:46:47 +0530<br>
-&gt; &gt; &gt; &gt; &gt; Subject: [PATCH] Reset i2c bus to come out of time out<br>
-&gt; &gt;<br>
-&gt; &gt; conditions<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; Get out of i2c time out condition by resetting<br>
-&gt; &gt; &gt; &gt; &gt; the i2c bus. The kernel must be robust enough to<br>
-&gt; &gt; &gt; &gt; &gt; gracefully recover from i2c bus failure without having<br>
-&gt; &gt; &gt; &gt; &gt; to reset the machine. This is done by first NACKing the slave<br>
-&gt; &gt; &gt; &gt; &gt; and then resetting the i2c bus after a certain timeout.<br>
-&gt; &gt; &gt; &gt; &gt;<br>
-&gt; &gt; &gt; &gt; &gt; Signed-off-by: Philby John<br>
-&gt; &gt; &gt; &gt;<br>
-&gt; &gt; &gt; &gt; I tried this on DM6443 based board with 2.6.18 kernel. The result<br>
-&gt; &gt;<br>
-&gt; &gt; I am<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; posting below. It gives controller time out again and again.<br>
-&gt; &gt; &gt; &gt;<br>
-&gt; &gt; &gt; &gt; dhcppc9 login: i2c_davinci i2c_davinci.1: controller timed out<br>
-&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: initiating i2c bus recovery<br>
-&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: controller timed out<br>
-&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: initiating i2c bus recovery<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; There is something gravely wrong about this patch and I would submit<br>
-&gt; &gt;<br>
-&gt; &gt; a<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; fix shortly incorporating the review comments. But please be aware<br>
-&gt; &gt;<br>
-&gt; &gt; that<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; I do not guarantee a definitive time line for a fix cause I have<br>
-&gt; &gt;<br>
-&gt; &gt; much at<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; hand at the moment.<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; Regards,<br>
-&gt; &gt; &gt; Philby<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; _______________________________________________<br>
-&gt; &gt; &gt; Davinci-linux-open-source mailing list<br>
-&gt; &gt; &gt; Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org<br>
-&gt; &gt;<br>
-&gt; &gt; http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source<br>
-&gt; &gt;<br>
-&gt; &gt; --<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; ______________________________________________________________________<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Craig Matsuura - Principal Engineer<br>
-&gt; &gt; Control4<br>
-&gt; &gt; 11734 South Election Road - Suite 200<br>
-&gt; &gt; Salt Lake City, UT 84020-6432<br>
-&gt; &gt; PH: 801-523-3161<br>
-&gt; &gt; FX: 801-523-3199<br>
-<br />-- <br /><br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><hr /><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><span style=" font-weight:600;">Craig Matsuura - Principal Engineer</span><br>
-Control4<br>
-11734 South Election Road - Suite 200<br>
-Salt Lake City, UT 84020-6432<br>
-PH: 801-523-3161<br>
-FX: 801-523-3199</p></body></html>
---Boundary-00=_CK4tK/KgUw3jbhL--
-
-
---===============0861376340==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
---===============0861376340==--
++config I2C_XILINX
++	tristate "Xilinx I2C Controller"
++	depends on EXPERIMENTAL && HAS_IOMEM
++	help
++	  If you say yes to this option, support will be included for the
++	  Xilinx I2C controller.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called xilinx_i2c.
++
+ config I2C_OMAP
+ 	tristate "OMAP I2C adapter"
+ 	depends on ARCH_OMAP
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index e654263..a2ce5b8 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -40,6 +40,7 @@ obj-$(CONFIG_I2C_IXP2000)	+=3D i2c-ixp2000.o
+ obj-$(CONFIG_I2C_MPC)		+=3D i2c-mpc.o
+ obj-$(CONFIG_I2C_MV64XXX)	+=3D i2c-mv64xxx.o
+ obj-$(CONFIG_I2C_OCORES)	+=3D i2c-ocores.o
++obj-$(CONFIG_I2C_XILINX)	+=3D i2c-xiic.o
+ obj-$(CONFIG_I2C_OMAP)		+=3D i2c-omap.o
+ obj-$(CONFIG_I2C_PASEMI)	+=3D i2c-pasemi.o
+ obj-$(CONFIG_I2C_PNX)		+=3D i2c-pnx.o
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xii=
+c.c
+new file mode 100644
+index 0000000..7b1e618
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -0,0 +1,800 @@
++/*
++ * i2c-xiic.c
++ * Copyright (c) 2009 Intel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++/* Supports:
++ * Xilinx IIC
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/platform_device.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/wait.h>
++#include <linux/i2c-xiic.h>
++#include <linux/io.h>
++
++#define DRIVER_NAME "xiic-i2c"
++
++struct xiic_i2c {
++	void __iomem *base;
++	wait_queue_head_t wait;
++	struct i2c_adapter adap;
++	struct i2c_msg *tx_msg;
++	spinlock_t	lock; /* mutual exclusion */
++	unsigned int tx_pos;
++	unsigned int nmsgs;
++	int state; /* see STATE_ */
++
++	struct i2c_msg *rx_msg; /* current RX message */
++	int		rx_pos;
++};
++
++#define STATE_DONE   0x00
++#define STATE_ERROR  0x01
++#define STATE_START  0x02
++
++#define XIIC_MSB_OFFSET 0
++#define XIIC_REG_OFFSET (0x100+XIIC_MSB_OFFSET)
++
++/*
++ * Register offsets in bytes from RegisterBase. Three is added to the
++ * base offset to access LSB (IBM style) of the word
++ */
++#define XIIC_CR_REG_OFFSET   (0x00+XIIC_REG_OFFSET)	/* Control Registe=
+r   */
++#define XIIC_SR_REG_OFFSET   (0x04+XIIC_REG_OFFSET)	/* Status Register=
+    */
++#define XIIC_DTR_REG_OFFSET  (0x08+XIIC_REG_OFFSET)	/* Data Tx Registe=
+r   */
++#define XIIC_DRR_REG_OFFSET  (0x0C+XIIC_REG_OFFSET)	/* Data Rx Registe=
+r   */
++#define XIIC_ADR_REG_OFFSET  (0x10+XIIC_REG_OFFSET)	/* Address Registe=
+r   */
++#define XIIC_TFO_REG_OFFSET  (0x14+XIIC_REG_OFFSET)	/* Tx FIFO Occupan=
+cy  */
++#define XIIC_RFO_REG_OFFSET  (0x18+XIIC_REG_OFFSET)	/* Rx FIFO Occupan=
+cy  */
++#define XIIC_TBA_REG_OFFSET  (0x1C+XIIC_REG_OFFSET)	/* 10 Bit Address =
+reg */
++#define XIIC_RFD_REG_OFFSET  (0x20+XIIC_REG_OFFSET)	/* Rx FIFO Depth r=
+eg  */
++#define XIIC_GPO_REG_OFFSET  (0x24+XIIC_REG_OFFSET)	/* Output Register=
+    */
++
++/* Control Register masks */
++#define XIIC_CR_ENABLE_DEVICE_MASK        0x01	/* Device enable =3D 1 =
+     */
++#define XIIC_CR_TX_FIFO_RESET_MASK        0x02	/* Transmit FIFO reset=3D=
+1  */
++#define XIIC_CR_MSMS_MASK                 0x04	/* Master starts Txing=3D=
+1  */
++#define XIIC_CR_DIR_IS_TX_MASK            0x08	/* Dir of tx. Txing=3D1=
+     */
++#define XIIC_CR_NO_ACK_MASK               0x10	/* Tx Ack. NO ack =3D 1=
+     */
++#define XIIC_CR_REPEATED_START_MASK       0x20	/* Repeated start =3D 1=
+     */
++#define XIIC_CR_GENERAL_CALL_MASK         0x40	/* Gen Call enabled =3D=
+ 1   */
++
++/* Status Register masks */
++#define XIIC_SR_GEN_CALL_MASK             0x01	/* 1=3Da mstr issued a =
+GC   */
++#define XIIC_SR_ADDR_AS_SLAVE_MASK        0x02	/* 1=3Dwhen addr as sla=
+ve   */
++#define XIIC_SR_BUS_BUSY_MASK             0x04	/* 1 =3D bus is busy   =
+     */
++#define XIIC_SR_MSTR_RDING_SLAVE_MASK     0x08	/* 1=3DDir: mstr <-- sl=
+ave  */
++#define XIIC_SR_TX_FIFO_FULL_MASK         0x10	/* 1 =3D Tx FIFO full  =
+     */
++#define XIIC_SR_RX_FIFO_FULL_MASK         0x20	/* 1 =3D Rx FIFO full  =
+     */
++#define XIIC_SR_RX_FIFO_EMPTY_MASK        0x40	/* 1 =3D Rx FIFO empty =
+     */
++#define XIIC_SR_TX_FIFO_EMPTY_MASK        0x80	/* 1 =3D Tx FIFO empty =
+     */
++
++/* Interrupt Status Register masks    Interrupt occurs when...       *=
+/
++#define XIIC_INTR_ARB_LOST_MASK           0x01	/* 1 =3D arbitration lo=
+st   */
++#define XIIC_INTR_TX_ERROR_MASK           0x02	/* 1=3DTx error/msg com=
+plete */
++#define XIIC_INTR_TX_EMPTY_MASK           0x04	/* 1 =3D Tx FIFO/reg em=
+pty  */
++#define XIIC_INTR_RX_FULL_MASK            0x08	/* 1=3DRx FIFO/reg=3DOC=
+Y level */
++#define XIIC_INTR_BNB_MASK                0x10	/* 1 =3D Bus not busy  =
+     */
++#define XIIC_INTR_AAS_MASK                0x20	/* 1 =3D when addr as s=
+lave */
++#define XIIC_INTR_NAAS_MASK               0x40	/* 1 =3D not addr as sl=
+ave  */
++#define XIIC_INTR_TX_HALF_MASK            0x80	/* 1 =3D TX FIFO half e=
+mpty */
++
++/* The following constants specify the depth of the FIFOs */
++#define IIC_RX_FIFO_DEPTH         16	/* Rx fifo capacity              =
+ */
++#define IIC_TX_FIFO_DEPTH         16	/* Tx fifo capacity              =
+ */
++
++/* The following constants specify groups of interrupts that are typic=
+ally
++ * enabled or disables at the same time
++ */
++#define XIIC_TX_INTERRUPTS                           \
++(XIIC_INTR_TX_ERROR_MASK | XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF=
+_MASK)
++
++#define XIIC_TX_RX_INTERRUPTS (XIIC_INTR_RX_FULL_MASK | XIIC_TX_INTERR=
+UPTS)
++
++/* The following constants are used with the following macros to speci=
+fy the
++ * operation, a read or write operation.
++ */
++#define XIIC_READ_OPERATION  1
++#define XIIC_WRITE_OPERATION 0
++
++/*
++ * Tx Fifo upper bit masks.
++ */
++#define XIIC_TX_DYN_START_MASK            0x0100 /* 1 =3D Set dynamic =
+start */
++#define XIIC_TX_DYN_STOP_MASK             0x0200 /* 1 =3D Set dynamic =
+stop */
++
++/*
++ * The following constants define the register offsets for the Interru=
+pt
++ * registers. There are some holes in the memory map for reserved addr=
+esses
++ * to allow other registers to be added and still match the memory map=
+ of the
++ * interrupt controller registers
++ */
++#define XIIC_DGIER_OFFSET    0x1C /* Device Global Interrupt Enable Re=
+gister */
++#define XIIC_IISR_OFFSET     0x20 /* Interrupt Status Register */
++#define XIIC_IIER_OFFSET     0x28 /* Interrupt Enable Register */
++#define XIIC_RESETR_OFFSET   0x40 /* Reset Register */
++
++#define XIIC_RESET_MASK             0xAUL
++
++/*
++ * The following constant is used for the device global interrupt enab=
+le
++ * register, to enable all interrupts for the device, this is the only=
+ bit
++ * in the register
++ */
++#define XIIC_GINTR_ENABLE_MASK      0x80000000UL
++
++
++#define xiic_irq_dis(i2c, mask)				\
++	xiic_setreg32(i2c, XIIC_IIER_OFFSET,		\
++	xiic_getreg32(i2c, XIIC_IIER_OFFSET) & ~(mask))
++
++#define xiic_irq_en(i2c, mask)				\
++	xiic_setreg32(i2c, XIIC_IIER_OFFSET, 		\
++	xiic_getreg32(i2c, XIIC_IIER_OFFSET) | (mask))
++
++#define xiic_irq_clr(i2c, mask)			\
++	xiic_setreg32(i2c, XIIC_IISR_OFFSET,	\
++		xiic_getreg32(i2c, XIIC_IISR_OFFSET) & (mask))
++
++#define xiic_irq_clr_en(i2c, mask) {	\
++	xiic_irq_clr(i2c, mask);	\
++	xiic_irq_en(i2c, mask);		\
++}
++
++#define xiic_tx_space(i2c) ((i2c)->tx_msg->len - (i2c)->tx_pos)
++#define xiic_rx_space(i2c) ((i2c)->rx_msg->len - (i2c)->rx_pos)
++
++static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 valu=
+e);
++
++static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg);
++
++static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 va=
+lue);
++
++static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int va=
+lue);
++
++static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg);
++
++static void xiic_start_xfer(struct xiic_i2c *i2c);
++static void __xiic_start_xfer(struct xiic_i2c *i2c);
++
++
++static void xiic_clear_rx_fifo(struct xiic_i2c *i2c)
++{
++	u8 sr;
++	for (sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
++		!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
++		sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OFFSET))
++		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++}
++
++static void xiic_reinit(struct xiic_i2c *i2c)
++{
++	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
++
++	/* Set receive Fifo depth to maximum (zero based). */
++	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, IIC_RX_FIFO_DEPTH - 1);
++
++	/* Reset Tx Fifo. */
++	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_TX_FIFO_RESET_MASK);
++
++	/* Enable IIC Device, remove Tx Fifo reset & disable general call. */
++	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_ENABLE_DEVICE_MASK);
++
++	/* make sure RX fifo is empty */
++	xiic_clear_rx_fifo(i2c);
++
++	/* Enable interrupts */
++	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
++
++	xiic_irq_clr_en(i2c, XIIC_INTR_AAS_MASK | XIIC_INTR_ARB_LOST_MASK);
++}
++
++static void xiic_deinit(struct xiic_i2c *i2c)
++{
++	u8 cr;
++
++	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
++
++	/* Disable IIC Device. */
++	cr =3D xiic_getreg8(i2c, XIIC_CR_REG_OFFSET);
++	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, cr & ~XIIC_CR_ENABLE_DEVICE_MAS=
+K);
++}
++
++static void xiic_read_rx(struct xiic_i2c *i2c)
++{
++	u8 bytes_in_fifo;
++	int i;
++
++	bytes_in_fifo =3D xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
++
++	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d"
++		", SR: 0x%x, CR: 0x%x\n",
++		__func__, bytes_in_fifo, xiic_rx_space(i2c),
++		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
++		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
++
++	if (bytes_in_fifo > xiic_rx_space(i2c))
++		bytes_in_fifo =3D xiic_rx_space(i2c);
++
++	for (i =3D 0; i < bytes_in_fifo; i++)
++		i2c->rx_msg->buf[i2c->rx_pos++] =3D
++			xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
++
++	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET,
++		(xiic_rx_space(i2c) > IIC_RX_FIFO_DEPTH) ?
++		IIC_RX_FIFO_DEPTH - 1 :  xiic_rx_space(i2c) - 1);
++}
++
++static int xiic_tx_fifo_space(struct xiic_i2c *i2c)
++{
++	/* return the actual space left in the FIFO */
++	return IIC_TX_FIFO_DEPTH - xiic_getreg8(i2c, XIIC_TFO_REG_OFFSET) - 1=
+;
++}
++
++static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
++{
++	u8 fifo_space =3D xiic_tx_fifo_space(i2c);
++	int len =3D xiic_tx_space(i2c);
++
++	len =3D (len > fifo_space) ? fifo_space : len;
++
++	dev_dbg(i2c->adap.dev.parent, "%s entry, len: %d, fifo space: %d\n",
++		__func__, len, fifo_space);
++
++	while (len--) {
++		u16 data =3D i2c->tx_msg->buf[i2c->tx_pos++];
++		if ((xiic_tx_space(i2c) =3D=3D 0) && (i2c->nmsgs =3D=3D 1)) {
++			/* last message in transfer -> STOP */
++			data |=3D XIIC_TX_DYN_STOP_MASK;
++			dev_dbg(i2c->adap.dev.parent, "%s TX STOP\n", __func__);
++
++			xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
++		} else
++			xiic_setreg8(i2c, XIIC_DTR_REG_OFFSET, data);
++	}
++}
++
++static void xiic_wakeup(struct xiic_i2c *i2c, int code)
++{
++	i2c->tx_msg =3D NULL;
++	i2c->rx_msg =3D NULL;
++	i2c->nmsgs =3D 0;
++	i2c->state =3D code;
++	wake_up(&i2c->wait);
++}
++
++static void xiic_process(struct xiic_i2c *i2c)
++{
++	u32 pend, isr, ier;
++	u32 clr =3D 0;
++
++	/* Get the interrupt Status from the IPIF. There is no clearing of
++	 * interrupts in the IPIF. Interrupts must be cleared at the source.
++	 * To find which interrupts are pending; AND interrupts pending with
++	 * interrupts masked.
++	 */
++	isr =3D xiic_getreg32(i2c, XIIC_IISR_OFFSET);
++	ier =3D xiic_getreg32(i2c, XIIC_IIER_OFFSET);
++	pend =3D isr & ier;
++
++	dev_dbg(i2c->adap.dev.parent, "%s entry, IER: 0x%x, ISR: 0x%x, "
++		"pend: 0x%x, SR: 0x%x, msg: %p, nmsgs: %d\n",
++		__func__, ier, isr, pend, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
++		i2c->tx_msg, i2c->nmsgs);
++
++	/* Do not processes a devices interrupts if the device has no
++	 * interrupts pending
++	 */
++	if (!pend)
++		return;
++
++	/* Service requesting interrupt */
++	if ((pend & XIIC_INTR_ARB_LOST_MASK) ||
++		((pend & XIIC_INTR_TX_ERROR_MASK) &&
++		!(pend & XIIC_INTR_RX_FULL_MASK))) {
++		/* bus arbritration lost, or...
++		 * Transmit error _OR_ RX completed
++		 * if this happens when RX_FULL is not set
++		 * this is probably a TX error
++		 */
++
++		dev_dbg(i2c->adap.dev.parent, "%s error\n", __func__);
++
++		/* dynamic mode seem to suffer from problems if we just flushes
++		 * fifos and the next message is a TX with len 0 (only addr)
++		 * reset the IP instead of just flush fifos
++		 */
++		xiic_reinit(i2c);
++
++		if (i2c->tx_msg)
++			xiic_wakeup(i2c, STATE_ERROR);
++
++	} else if (pend & XIIC_INTR_RX_FULL_MASK) {
++		/* Receive register/FIFO is full */
++
++		clr =3D XIIC_INTR_RX_FULL_MASK;
++		if (!i2c->rx_msg) {
++			dev_dbg(i2c->adap.dev.parent,
++				"%s unexpexted RX IRQ\n", __func__);
++			xiic_clear_rx_fifo(i2c);
++			goto out;
++		}
++
++		xiic_read_rx(i2c);
++		if (xiic_rx_space(i2c) =3D=3D 0) {
++			/* this is the last part of the message */
++			i2c->rx_msg =3D NULL;
++
++			/* also clear TX error if there (RX complete) */
++			clr |=3D (isr & XIIC_INTR_TX_ERROR_MASK);
++
++			dev_dbg(i2c->adap.dev.parent,
++				"%s end of message, nmsgs: %d\n",
++				__func__, i2c->nmsgs);
++
++			/* send next message if this wasn't the last,
++			 * otherwise the transfer will be finialise when
++			 * receiving the bus not busy interrupt
++			 */
++			if (i2c->nmsgs > 1) {
++				i2c->nmsgs--;
++				i2c->tx_msg++;
++				dev_dbg(i2c->adap.dev.parent,
++					"%s will start next...\n", __func__);
++
++				__xiic_start_xfer(i2c);
++			}
++		}
++	} else if (pend & XIIC_INTR_BNB_MASK) {
++		/* IIC bus has transitioned to not busy */
++		clr =3D XIIC_INTR_BNB_MASK;
++
++		/* The bus is not busy, disable BusNotBusy interrupt */
++		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
++
++		if (!i2c->tx_msg)
++			goto out;
++
++		if ((i2c->nmsgs =3D=3D 1) && !i2c->rx_msg &&
++			xiic_tx_space(i2c) =3D=3D 0)
++			xiic_wakeup(i2c, STATE_DONE);
++		else
++			xiic_wakeup(i2c, STATE_ERROR);
++
++	} else if (pend & (XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK))=
+ {
++		/* Transmit register/FIFO is empty or =BD empty */
++
++		clr =3D pend &
++			(XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK);
++
++		if (!i2c->tx_msg) {
++			dev_dbg(i2c->adap.dev.parent,
++				"%s unexpected TX IRQ\n", __func__);
++			goto out;
++		}
++
++		xiic_fill_tx_fifo(i2c);
++
++		/* current message sent and there is space in the fifo */
++		if (!xiic_tx_space(i2c) && xiic_tx_fifo_space(i2c) >=3D 2) {
++			dev_dbg(i2c->adap.dev.parent,
++				"%s end of message sent, nmsgs: %d\n",
++				__func__, i2c->nmsgs);
++			if (i2c->nmsgs > 1) {
++				i2c->nmsgs--;
++				i2c->tx_msg++;
++				__xiic_start_xfer(i2c);
++			} else {
++				xiic_irq_dis(i2c, XIIC_INTR_TX_HALF_MASK);
++
++				dev_err(i2c->adap.dev.parent,
++					"%s Got TX IRQ but no more to do...\n",
++					__func__);
++			}
++		} else if (!xiic_tx_space(i2c) && (i2c->nmsgs =3D=3D 1))
++			/* current frame is sent and is last,
++			 * make sure to disable tx half
++			 */
++			xiic_irq_dis(i2c, XIIC_INTR_TX_HALF_MASK);
++	} else {
++		/* got IRQ which is not acked */
++		dev_err(i2c->adap.dev.parent, "%s Got unexpected IRQ\n",
++			__func__);
++		clr =3D pend;
++	}
++out:
++	dev_dbg(i2c->adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
++
++	xiic_setreg32(i2c, XIIC_IISR_OFFSET, clr);
++}
++
++static int xiic_bus_busy(struct xiic_i2c *i2c)
++{
++	u8 sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
++
++	return (sr & XIIC_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
++}
++
++static int xiic_busy(struct xiic_i2c *i2c)
++{
++	int tries =3D 3;
++	int err;
++	if (i2c->tx_msg)
++		return -EBUSY;
++
++	/* for instance if previous transfer was terminated due to TX error
++	 * it might be that the bus is on it's way to become available
++	 * give it at most 3 ms to wake
++	 */
++	err =3D xiic_bus_busy(i2c);
++	while (err && tries--) {
++		mdelay(1);
++		err =3D xiic_bus_busy(i2c);
++	}
++
++	return err;
++}
++
++static void xiic_start_recv(struct xiic_i2c *i2c)
++{
++	u8 rx_watermark;
++	struct i2c_msg *msg =3D i2c->rx_msg =3D i2c->tx_msg;
++
++	/* Clear and enable Rx full interrupt. */
++	xiic_irq_clr_en(i2c, XIIC_INTR_RX_FULL_MASK | XIIC_INTR_TX_ERROR_MASK=
+);
++
++	/* we want to get all but last byte, because the TX_ERROR IRQ is used
++	 * to inidicate error ACK on the address, and negative ack on the las=
+t
++	 * received byte, so to not mix them receive all but last.
++	 * In the case where there is only one byte to receive
++	 * we can check if ERROR and RX full is set at the same time
++	 */
++	rx_watermark =3D msg->len;
++	if (rx_watermark > IIC_RX_FIFO_DEPTH)
++		rx_watermark =3D IIC_RX_FIFO_DEPTH;
++	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
++
++	if (!(msg->flags & I2C_M_NOSTART))
++		/* write the address */
++		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
++			(msg->addr << 1) | XIIC_READ_OPERATION |
++			XIIC_TX_DYN_START_MASK);
++
++	xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
++
++	xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
++		msg->len | ((i2c->nmsgs =3D=3D 1) ? XIIC_TX_DYN_STOP_MASK : 0));
++	if (i2c->nmsgs =3D=3D 1)
++		/* very last, enable bus not busy as well */
++		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
++
++	/* the message is tx:ed */
++	i2c->tx_pos =3D msg->len;
++}
++
++static void xiic_start_send(struct xiic_i2c *i2c)
++{
++	struct i2c_msg *msg =3D i2c->tx_msg;
++
++	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
++
++	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d, "
++		"ISR: 0x%x, CR: 0x%x\n",
++		__func__, msg, msg->len, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
++		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
++
++	if (!(msg->flags & I2C_M_NOSTART)) {
++		/* write the address */
++		u16 data =3D ((msg->addr << 1) & 0xfe) | XIIC_WRITE_OPERATION |
++			XIIC_TX_DYN_START_MASK;
++		if ((i2c->nmsgs =3D=3D 1) && msg->len =3D=3D 0)
++			/* no data and last message -> add STOP */
++			data |=3D XIIC_TX_DYN_STOP_MASK;
++
++		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
++	}
++
++	xiic_fill_tx_fifo(i2c);
++
++	/* Clear any pending Tx empty, Tx Error and then enable them. */
++	xiic_irq_clr_en(i2c, XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_ERROR_MAS=
+K |
++		XIIC_INTR_BNB_MASK);
++}
++
++static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 valu=
+e)
++{
++	iowrite8(value, i2c->base + reg);
++}
++
++static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
++{
++	return ioread8(i2c->base + reg);
++}
++
++static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 va=
+lue)
++{
++	iowrite16(value, i2c->base + reg);
++}
++
++static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int va=
+lue)
++{
++	iowrite32(value, i2c->base + reg);
++}
++
++static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg)
++{
++	return ioread32(i2c->base + reg);
++}
++
++static irqreturn_t xiic_isr(int irq, void *dev_id)
++{
++	struct xiic_i2c *i2c =3D dev_id;
++	spin_lock(&i2c->lock);
++	/* disable interrupts globally */
++	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
++
++	dev_dbg(i2c->adap.dev.parent, "%s entry\n", __func__);
++
++	xiic_process(i2c);
++
++	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
++	spin_unlock(&i2c->lock);
++
++	return IRQ_HANDLED;
++}
++
++static void __xiic_start_xfer(struct xiic_i2c *i2c)
++{
++	int first =3D 1;
++	int fifo_space =3D xiic_tx_fifo_space(i2c);
++	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, fifos space: %d\n",
++		__func__, i2c->tx_msg, fifo_space);
++
++	if (!i2c->tx_msg)
++		return;
++
++	i2c->rx_pos =3D 0;
++	i2c->tx_pos =3D 0;
++	i2c->state =3D STATE_START;
++	while ((fifo_space >=3D 2) && (first || (i2c->nmsgs > 1))) {
++		if (!first) {
++			i2c->nmsgs--;
++			i2c->tx_msg++;
++			i2c->tx_pos =3D 0;
++		} else
++			first =3D 0;
++
++		if (i2c->tx_msg->flags & I2C_M_RD) {
++			/* we dont date putting several reads in the FIFO */
++			xiic_start_recv(i2c);
++			return;
++		} else {
++			xiic_start_send(i2c);
++			if (xiic_tx_space(i2c) !=3D 0) {
++				/* the message could not be completely sent */
++				break;
++			}
++		}
++
++		fifo_space =3D xiic_tx_fifo_space(i2c);
++	}
++
++	/* there are more messages or the current one could not be completely
++	 * put into the FIFO, also enable the half empty interrupt
++	 */
++	if (i2c->nmsgs > 1 || xiic_tx_space(i2c))
++		xiic_irq_clr_en(i2c, XIIC_INTR_TX_HALF_MASK);
++
++}
++
++static void xiic_start_xfer(struct xiic_i2c *i2c)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&i2c->lock, flags);
++	xiic_reinit(i2c);
++	/* disable interrupts globally */
++	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
++	spin_unlock_irqrestore(&i2c->lock, flags);
++
++	__xiic_start_xfer(i2c);
++	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
++}
++
++static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, i=
+nt num)
++{
++	struct xiic_i2c *i2c =3D i2c_get_adapdata(adap);
++	int err;
++
++	dev_dbg(adap->dev.parent, "%s entry SR: 0x%x\n", __func__,
++		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET));
++
++	err =3D xiic_busy(i2c);
++	if (err)
++		return err;
++
++	i2c->tx_msg =3D msgs;
++	i2c->nmsgs =3D num;
++
++	xiic_start_xfer(i2c);
++
++	if (wait_event_timeout(i2c->wait, (i2c->state =3D=3D STATE_ERROR) ||
++		(i2c->state =3D=3D STATE_DONE), HZ))
++		return (i2c->state =3D=3D STATE_DONE) ? num : -EIO;
++	else {
++		i2c->tx_msg =3D NULL;
++		i2c->rx_msg =3D NULL;
++		i2c->nmsgs =3D 0;
++		return -ETIMEDOUT;
++	}
++}
++
++static u32 xiic_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm xiic_algorithm =3D {
++	.master_xfer	=3D xiic_xfer,
++	.functionality	=3D xiic_func,
++};
++
++static struct i2c_adapter xiic_adapter =3D {
++	.owner		=3D THIS_MODULE,
++	.name		=3D DRIVER_NAME,
++	.class		=3D I2C_CLASS_HWMON | I2C_CLASS_SPD,
++	.algo		=3D &xiic_algorithm,
++};
++
++
++static int __devinit xiic_i2c_probe(struct platform_device *pdev)
++{
++	struct xiic_i2c *i2c;
++	struct xiic_i2c_platform_data *pdata;
++	struct resource *res;
++	int ret, irq;
++	u8 i;
++
++	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENODEV;
++
++	irq =3D platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return -ENODEV;
++
++	pdata =3D (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
++	if (!pdata)
++		return -ENODEV;
++
++	i2c =3D kzalloc(sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	if (!request_mem_region(res->start, resource_size(res), pdev->name)) =
+{
++		dev_err(&pdev->dev, "Memory region busy\n");
++		ret =3D -EBUSY;
++		goto request_mem_failed;
++	}
++
++	i2c->base =3D ioremap(res->start, resource_size(res));
++	if (!i2c->base) {
++		dev_err(&pdev->dev, "Unable to map registers\n");
++		ret =3D -EIO;
++		goto map_failed;
++	}
++
++	/* hook up driver to tree */
++	platform_set_drvdata(pdev, i2c);
++	i2c->adap =3D xiic_adapter;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	i2c->adap.dev.parent =3D &pdev->dev;
++
++	xiic_reinit(i2c);
++
++	spin_lock_init(&i2c->lock);
++	init_waitqueue_head(&i2c->wait);
++	ret =3D request_irq(irq, xiic_isr, 0, pdev->name, i2c);
++	if (ret) {
++		dev_err(&pdev->dev, "Cannot claim IRQ\n");
++		goto request_irq_failed;
++	}
++
++	/* add i2c adapter to i2c tree */
++	ret =3D i2c_add_adapter(&i2c->adap);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to add adapter\n");
++		goto add_adapter_failed;
++	}
++
++	/* add in known devices to the bus */
++	for (i =3D 0; i < pdata->num_devices; i++)
++		i2c_new_device(&i2c->adap, pdata->devices + i);
++
++	return 0;
++
++add_adapter_failed:
++	free_irq(irq, i2c);
++request_irq_failed:
++	xiic_deinit(i2c);
++	iounmap(i2c->base);
++map_failed:
++	release_mem_region(res->start, resource_size(res));
++request_mem_failed:
++	kfree(i2c);
++
++	return ret;
++}
++
++static int __devexit xiic_i2c_remove(struct platform_device* pdev)
++{
++	struct xiic_i2c *i2c =3D platform_get_drvdata(pdev);
++	struct resource *res;
++
++	/* remove adapter & data */
++	i2c_del_adapter(&i2c->adap);
++
++	xiic_deinit(i2c);
++
++	platform_set_drvdata(pdev, NULL);
++
++	free_irq(platform_get_irq(pdev, 0), i2c);
++
++	iounmap(i2c->base);
++
++	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (res)
++		release_mem_region(res->start, resource_size(res));
++
++	kfree(i2c);
++
++	return 0;
++}
++
++
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:"DRIVER_NAME);
++
++static struct platform_driver xiic_i2c_driver =3D {
++	.probe   =3D xiic_i2c_probe,
++	.remove  =3D __devexit_p(xiic_i2c_remove),
++	.driver  =3D {
++		.owner =3D THIS_MODULE,
++		.name =3D DRIVER_NAME,
++	},
++};
++
++static int __init xiic_i2c_init(void)
++{
++	return platform_driver_register(&xiic_i2c_driver);
++}
++
++static void __exit xiic_i2c_exit(void)
++{
++	platform_driver_unregister(&xiic_i2c_driver);
++}
++
++module_init(xiic_i2c_init);
++module_exit(xiic_i2c_exit);
++
++MODULE_AUTHOR("info-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org");
++MODULE_DESCRIPTION("Xilinx I2C bus driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/i2c-xiic.h b/include/linux/i2c-xiic.h
+new file mode 100644
+index 0000000..6203431
+--- /dev/null
++++ b/include/linux/i2c-xiic.h
+@@ -0,0 +1,31 @@
++/*
++ * i2c-xiic.h
++ * Copyright (c) 2009 Intel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++/* Supports:
++ * Xilinx IIC
++ */
++
++#ifndef _LINUX_I2C_XIIC_H
++#define _LINUX_I2C_XIIC_H
++
++struct xiic_i2c_platform_data {
++	u8 num_devices; /* number of devices in the devices list */
++	struct i2c_board_info const *devices; /* devices connected to the bus=
+ */
++};
++
++#endif /* _LINUX_I2C_XIIC_H */
