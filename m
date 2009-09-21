@@ -1,348 +1,300 @@
-From: Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/1] Better i2c access latencies in high load situations
-Date: Mon, 21 Sep 2009 16:14:07 +0300
-Message-ID: <1253538847.3157.56.camel@adserver2>
-References: <1253099829-17655-1-git-send-email-mika.kuoppala@nokia.com>
-	 <20090916134944.4a329d62@hyperion.delvare>
-	 <1253102935.13914.7.camel@adserver2>
-	 <20090916224328.47e349ab@hyperion.delvare>
+From: Craig Matsuura <cmatsuura-/SMLdF/PHsZWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
+Date: Mon, 21 Sep 2009 07:34:51 -0600
+Message-ID: <200909210734.51547.cmatsuura@control4.com>
+References: <1247643267.5981.82.camel@localhost.localdomain>
+	<200909182312.58018.cmatsuura@control4.com>
+	<1253514660.4507.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090916224328.47e349ab-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, peter.ujfalusi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============0568045628=="
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1253514660.4507.2.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
-
-On Wed, 2009-09-16 at 22:43 +0200, ext Jean Delvare wrote:
-> On Wed, 16 Sep 2009 15:08:55 +0300, Mika Kuoppala wrote:
-> > Hi Jean,
-> > 
-> > On Wed, 2009-09-16 at 13:49 +0200, ext Jean Delvare wrote:
-> > 
-> > > Can you please define "get a kick"? I don't know anything about
-> > > rt_mutex.
-> > > 
-> > 
-> > Sorry for using a vague metaphor. Documentation/rt-mutex.txt explains it
-> > as:
-> > 
-> > "A low priority owner of a rt-mutex inherits the priority of a higher
-> > priority waiter until the rt-mutex is released. If the temporarily
-> > boosted owner blocks on a rt-mutex itself it propagates the priority
-> > boosting to the owner of the other rt_mutex it gets blocked on. The
-> > priority boosting is immediately removed once the rt_mutex has been
-> > unlocked."
-> > 
-> > You might want to also take a look at Documentation/rt-mutex-design.txt
-> 
-> Thanks for the clarification. It all makes a lot of sense. I'll give
-> your patch a try, although I don't use I2C for anything time-critical
-> so I doubt it makes a difference for me.
-> 
-
-I tried to write an application which could show the priority inversion
-in action on top of this bus mutex. This application spawns 3 different
-child processes each reading one byte of data from a specified slave
-address and register. Multiple times. Each child has different priority.
-The program to produce these results is at the end of this email.
-
-Without patch: i2c: Prevent priority inversion on top of bus lock
-~ # ./a.out
-Spawning 3 workers with different priorities
-Each worker will read one byte from /dev/i2c-2:0x4b:0x00 10000 times
-( 941)PRIO -5     rt  7973 ms lat:  579 min, 313294 max,  795 avg (us)
-( 940)PRIO 0      rt 16412 ms lat:  549 min, 796479 max, 1637 avg (us)
-( 942)SCHED_FIFO  rt 28148 ms lat:  580 min, 796509 max, 1535 avg (us)
-Total run time 28152313 usecs
-
-With patch: i2c: Prevent priority inversion on top of bus lock
-~ # ./a.out
-Spawning 3 workers with different priorities
-Each worker will read one byte from /dev/i2c-2:0x4b:0x00 10000 times
-( 960)PRIO -5     rt 13069 ms lat:  580 min,   2472 max, 1302 avg (us)
-( 959)PRIO 0      rt 20420 ms lat:  519 min,  16632 max, 2037 avg (us)
-( 961)SCHED_FIFO  rt 20420 ms lat:  580 min,   1282 max,  762 avg (us)
-Total run time 20424682 usecs
-
-PRIO -5 and PRIO 0 process are busylooping on top of i2c_read and the
-SCHED_FIFO is sleeping 1ms after each read for not to steal all cpu
-cycles.
-
-As we can see from the results without the patch, the SCHED_FIFO doesn't
-have much effect and maximum latencies grow quite large. 
-
-With patch, the maximum latencies are much better. Averages follow the
-respective priorities. rt_mutex ensures that the wait time to reaquire
-the lock is kept minimum by not letting low priority process to hold it.
-This leads to better bus utilization and we finish almost 8 seconds
-(~27%) quicker in total. And most importantly the lower priority
-processes can't keep the bus mutex for themselves and destroy the
-SCHED_FIFO access latencies.
-
-Obviously this benchmark is made to emphasize this problem. Nevertheless
-myself and Peter have witnessed this problem in real world workload.
-
-> But now I am curious, why don't we use rt_mutex instead of regular
-> mutex all around the place?
-> 
-
-What do you mean by all around the place ?
-
-In scope of i2c-core there is no point of converting the client list
-lock into rt_mutex due to lack of contention. As there is no free lunch
-the rt_mutex struct takes more space and cpu cycles. Also it could be
-that rt_mutex is more novel feature and code is converted conservatively
-and only when there is real need for it.
-
-I have attached the test program in this mail. You need to change the
-slave address and possibly the register to suit your setup. It would be
-very interesting to see the numbers from some completely different hw
-setup =)
-
-Thanks,
--- Mika
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <linux/i2c-dev.h>
-
-#define READS_PER_CHILD 10000
-
-const char * const i2c_bus_name = "/dev/i2c-2";
-const unsigned char i2c_addr = 0x4b;
-const unsigned char i2c_reg = 0x00;
-
-struct lat_stats {
-	unsigned long min;
-	unsigned long max;
-	unsigned long long total;
-	unsigned long count;
-};
-
-static struct lat_stats stats = { 0, 0, 0, 0 };
-
-static void update_lat_stats(unsigned long usecs)
-{
-	if (stats.count == 0) {
-		stats.min = usecs;
-		stats.max = usecs;
-	} else {
-		if (stats.min > usecs)
-			stats.min = usecs;
-		else if(stats.max < usecs)
-			stats.max = usecs;
-	}
-
-	stats.total += usecs;
-	stats.count++;
-}
-
-static void print_lat_stats(const char *s, struct timeval *start, struct
-timeval *end)
-{
-	unsigned long usecs;
-
-	usecs = (end->tv_sec - start->tv_sec) * 1000 * 1000;
-	usecs += (end->tv_usec - start->tv_usec);
-
-	printf("(%4d)%-11s rt %5lu ms ", getpid(), s, usecs / 1000);
-	printf("lat: %4lu min, %6lu max, %4llu avg (us)\n",
-	       stats.min, stats.max, stats.total / stats.count);
-}
-
-static int read_timed(int fd, int reg)
-{
-	int r;
-	struct timeval start, end;
-	unsigned long usecs;
-
-	gettimeofday(&start, NULL);
-	r = i2c_smbus_read_byte_data(fd, reg);
-	gettimeofday(&end, NULL);
-	if (r < 0) {
-		printf("Error reading: %s\n", strerror(errno));
-		return r;
-	}
-
-	usecs = (end.tv_sec - start.tv_sec) * 1000 * 1000;
-	usecs += (end.tv_usec - start.tv_usec);
-
-	update_lat_stats(usecs);
-
-	return r;
-}
-
-static int child1_work(int fd)
-{
-	int r;
-	struct timeval start, end;
-
-	printf("pid: %d is PRIO_PROCESS 0\n", getpid());
-	r = setpriority(PRIO_PROCESS, 0, 0);
-
-	gettimeofday(&start, NULL);
-	while (1) {
-		r = read_timed(fd, i2c_reg);
-		if (r < 0) {
-			printf("Error reading: %s\n", strerror(errno));
-			return r;
-		}
-
-		if(stats.count >= READS_PER_CHILD)
-			break;
-	}
-	gettimeofday(&end, NULL);
-
-	print_lat_stats("PRIO 0", &start, &end);
-
-	return 0;
-}
-
-static int child2_work(int fd)
-{
-	int r;
-	struct timeval start, end;
-
-	printf("pid: %d is PRIO_PROCESS -5\n", getpid());
-	r = setpriority(PRIO_PROCESS, 0, -5);
-
-	gettimeofday(&start, NULL);
-	while (1) {
-		r = read_timed(fd, i2c_reg);
-		if (r < 0) {
-			printf("Error reading: %s\n", strerror(errno));
-			return r;
-		}
-
-		if(stats.count >= READS_PER_CHILD)
-			break;
-	}
-	gettimeofday(&end, NULL);
-
-	print_lat_stats("PRIO -5", &start, &end);
-
-	return 0;
-}
-
-static int child3_work(int fd)
-{
-	int r;
-	struct timeval start, end;
-	struct sched_param sparam = { 0 };
-
-	sparam.sched_priority = 99;
-
-	printf("pid: %d is SCHED_FIFO\n", getpid());
-	r = sched_setscheduler(0, SCHED_FIFO, &sparam);
-	if (r == -1) {
-		printf("Error setting scheduler: %s\n", strerror(errno));
-		return r;
-	}
-
-	gettimeofday(&start, NULL);
-	while (1) {
-		r = read_timed(fd, i2c_reg);
-		if (r < 0) {
-			printf("Error reading: %s\n", strerror(errno));
-			return r;
-		}
-
-		if(stats.count >= READS_PER_CHILD)
-			break;
-
-		/* Give others a chance to do some work */
-		usleep(1000);
-	}
-	gettimeofday(&end, NULL);
-
-	print_lat_stats("SCHED_FIFO", &start, &end);
-
-	return 0;
-}
-
-static int fork_work(int (*f)(int fd), int fd)
-{
-	int r;
-
-	r = fork();
-	if (r == 0) {
-		r = f(fd);
-		if (r != 0)
-			printf("Child %d returned with code %d\n", getpid(), r);
-		exit(r);
-	} else if (r < 0) {
-		printf("Error in forking: %s\n", strerror(errno));
-		exit(-1);
-	}
-
-	return r;
-}
-
-
-int main(int argc, char *argv[])
-{
-	int fd = -1;
-	int r = -1;
-	int pid_work1 = 0;
-	int pid_work2 = 0;
-	int pid_work3 = 0;
-	struct timeval start, end;
-	unsigned long usecs;
-
-
-	fd = open(i2c_bus_name, O_RDWR);
-	if (fd == -1)
-		perror("error opening: ");
-
-	r = ioctl(fd, I2C_SLAVE_FORCE, i2c_addr);
-	if (r < 0) {
-		printf("Error in I2C_SLAVE_FORCE(0x%02x) ioctl failed: %s\n",
-		       i2c_addr, strerror(errno));
-		goto out;
-	}
-
-	printf("Spawning 3 workers with different priorities\n");
-	printf("Each worker will read one byte from %s:0x%02x:0x%02x %d times
-\n",
-	       i2c_bus_name, i2c_addr, i2c_reg, READS_PER_CHILD);
-
-	gettimeofday(&start, NULL);
-
-	pid_work1 = fork_work(child1_work, fd);
-	pid_work2 = fork_work(child2_work, fd);
-	pid_work3 = fork_work(child3_work, fd);
-
-	waitpid(pid_work1, NULL, 0);
-	waitpid(pid_work2, NULL, 0);
-	waitpid(pid_work3, NULL, 0);
-
-	gettimeofday(&end, NULL);
-
-	usecs = (end.tv_sec - start.tv_sec) * 1000 * 1000;
-	usecs += (end.tv_usec - start.tv_usec);
-
-	printf("Total run time %lu usecs\n", usecs);
-
-	r = 0;
-out:
-	if (fd != -1)
-		close(fd);
-
-	return r;
-}
+--===============0568045628==
+Content-Type: multipart/alternative; boundary="Boundary-00=_7D4tK7uN3BAru/u"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+--Boundary-00=_7D4tK7uN3BAru/u
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+i did modify the patch to work for the dm644x.  I believe it is correct, I 
+looked at the 2.6.10 kernel and made the changes to your the i2c-davinci.c 
+after patching it with your patch.
+
+It did nothing without the changes from the 2.6.10 kernel.
+
+Craig
+
+
+On Monday 21 September 2009 12:31:00 am Philby John wrote:
+> Hello Craig,
+>
+> 	Good to know. With out any modifications on a DM6443?
+>
+> Regards,
+> Philby
+>
+> On Fri, 2009-09-18 at 23:12 -0600, Craig Matsuura wrote:
+> > The patch submitted appears specific to the dm355. The changes are
+> > very similar to the 2.6.10 kernel from mv. If the correct gpio's and
+> > pinmux are disabled/enabled it should work for the dm644x.
+> >
+> >
+> >
+> > I took the patch from Philby and tried it on our dm6443 platform (on a
+> > 2.6.28 kernel) and it appears to work for the problem we have when the
+> > i2c appears to lock up.
+> >
+> >
+> >
+> > Craig
+> >
+> > On Wednesday 22 July 2009 5:14:35 am Philby John wrote:
+> > > On Wed, 2009-07-22 at 04:03 -0700, Nitin Mahajan wrote:
+> > > > Hello,
+> > > >
+> > > > ----- Original Message ----
+> > > >
+> > > > > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> > > > > To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > > Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
+> >
+> > davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+> >
+> > > > > Sent: Wednesday, July 15, 2009 13:04:27
+> > > > > Subject: [PATCH/RFC 1/1] recover from davinci i2c time out
+> >
+> > conditions
+> >
+> > > > > >From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17
+> >
+> > 00:00:00 2001
+> >
+> > > > > From: Philby John
+> > > > > Date: Tue, 14 Jul 2009 21:46:47 +0530
+> > > > > Subject: [PATCH] Reset i2c bus to come out of time out
+> >
+> > conditions
+> >
+> > > > > Get out of i2c time out condition by resetting
+> > > > > the i2c bus. The kernel must be robust enough to
+> > > > > gracefully recover from i2c bus failure without having
+> > > > > to reset the machine. This is done by first NACKing the slave
+> > > > > and then resetting the i2c bus after a certain timeout.
+> > > > >
+> > > > > Signed-off-by: Philby John
+> > > >
+> > > > I tried this on DM6443 based board with 2.6.18 kernel. The result
+> >
+> > I am
+> >
+> > > > posting below. It gives controller time out again and again.
+> > > >
+> > > > dhcppc9 login: i2c_davinci i2c_davinci.1: controller timed out
+> > > > i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+> > > > i2c_davinci i2c_davinci.1: controller timed out
+> > > > i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+> > >
+> > > There is something gravely wrong about this patch and I would submit
+> >
+> > a
+> >
+> > > fix shortly incorporating the review comments. But please be aware
+> >
+> > that
+> >
+> > > I do not guarantee a definitive time line for a fix cause I have
+> >
+> > much at
+> >
+> > > hand at the moment.
+> > >
+> > >
+> > > Regards,
+> > > Philby
+> > >
+> > >
+> > > _______________________________________________
+> > > Davinci-linux-open-source mailing list
+> > > Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+> >
+> > http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source
+> >
+> > --
+> >
+> >
+> >
+> >
+> >
+> > ______________________________________________________________________
+> >
+> >
+> > Craig Matsuura - Principal Engineer
+> > Control4
+> > 11734 South Election Road - Suite 200
+> > Salt Lake City, UT 84020-6432
+> > PH: 801-523-3161
+> > FX: 801-523-3199
+
+-- 
+
+
+
+
+Craig Matsuura - Principal Engineer
+Control4
+11734 South Election Road - Suite 200
+Salt Lake City, UT 84020-6432
+PH: 801-523-3161
+FX: 801-523-3199
+
+--Boundary-00=_7D4tK7uN3BAru/u
+Content-Type: text/html;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;">i did modify the patch to work for the dm644x.  I believe it is correct, I looked at the 2.6.10 kernel and made the changes to your the i2c-davinci.c after patching it with your patch.<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>It did nothing without the changes from the 2.6.10 kernel.<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Craig<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>On Monday 21 September 2009 12:31:00 am Philby John wrote:<br>
+&gt; Hello Craig,<br>
+&gt;<br>
+&gt; 	Good to know. With out any modifications on a DM6443?<br>
+&gt;<br>
+&gt; Regards,<br>
+&gt; Philby<br>
+&gt;<br>
+&gt; On Fri, 2009-09-18 at 23:12 -0600, Craig Matsuura wrote:<br>
+&gt; &gt; The patch submitted appears specific to the dm355. The changes are<br>
+&gt; &gt; very similar to the 2.6.10 kernel from mv. If the correct gpio's and<br>
+&gt; &gt; pinmux are disabled/enabled it should work for the dm644x.<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt; I took the patch from Philby and tried it on our dm6443 platform (on a<br>
+&gt; &gt; 2.6.28 kernel) and it appears to work for the problem we have when the<br>
+&gt; &gt; i2c appears to lock up.<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt; Craig<br>
+&gt; &gt;<br>
+&gt; &gt; On Wednesday 22 July 2009 5:14:35 am Philby John wrote:<br>
+&gt; &gt; &gt; On Wed, 2009-07-22 at 04:03 -0700, Nitin Mahajan wrote:<br>
+&gt; &gt; &gt; &gt; Hello,<br>
+&gt; &gt; &gt; &gt;<br>
+&gt; &gt; &gt; &gt; ----- Original Message ----<br>
+&gt; &gt; &gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; From: Philby John &lt;pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org&gt;<br>
+&gt; &gt; &gt; &gt; &gt; To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org<br>
+&gt; &gt; &gt; &gt; &gt; Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;<br>
+&gt; &gt;<br>
+&gt; &gt; davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; Sent: Wednesday, July 15, 2009 13:04:27<br>
+&gt; &gt; &gt; &gt; &gt; Subject: [PATCH/RFC 1/1] recover from davinci i2c time out<br>
+&gt; &gt;<br>
+&gt; &gt; conditions<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; &gt;From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17<br>
+&gt; &gt;<br>
+&gt; &gt; 00:00:00 2001<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; From: Philby John<br>
+&gt; &gt; &gt; &gt; &gt; Date: Tue, 14 Jul 2009 21:46:47 +0530<br>
+&gt; &gt; &gt; &gt; &gt; Subject: [PATCH] Reset i2c bus to come out of time out<br>
+&gt; &gt;<br>
+&gt; &gt; conditions<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; Get out of i2c time out condition by resetting<br>
+&gt; &gt; &gt; &gt; &gt; the i2c bus. The kernel must be robust enough to<br>
+&gt; &gt; &gt; &gt; &gt; gracefully recover from i2c bus failure without having<br>
+&gt; &gt; &gt; &gt; &gt; to reset the machine. This is done by first NACKing the slave<br>
+&gt; &gt; &gt; &gt; &gt; and then resetting the i2c bus after a certain timeout.<br>
+&gt; &gt; &gt; &gt; &gt;<br>
+&gt; &gt; &gt; &gt; &gt; Signed-off-by: Philby John<br>
+&gt; &gt; &gt; &gt;<br>
+&gt; &gt; &gt; &gt; I tried this on DM6443 based board with 2.6.18 kernel. The result<br>
+&gt; &gt;<br>
+&gt; &gt; I am<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; &gt; posting below. It gives controller time out again and again.<br>
+&gt; &gt; &gt; &gt;<br>
+&gt; &gt; &gt; &gt; dhcppc9 login: i2c_davinci i2c_davinci.1: controller timed out<br>
+&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: initiating i2c bus recovery<br>
+&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: controller timed out<br>
+&gt; &gt; &gt; &gt; i2c_davinci i2c_davinci.1: initiating i2c bus recovery<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; There is something gravely wrong about this patch and I would submit<br>
+&gt; &gt;<br>
+&gt; &gt; a<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; fix shortly incorporating the review comments. But please be aware<br>
+&gt; &gt;<br>
+&gt; &gt; that<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; I do not guarantee a definitive time line for a fix cause I have<br>
+&gt; &gt;<br>
+&gt; &gt; much at<br>
+&gt; &gt;<br>
+&gt; &gt; &gt; hand at the moment.<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; Regards,<br>
+&gt; &gt; &gt; Philby<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; _______________________________________________<br>
+&gt; &gt; &gt; Davinci-linux-open-source mailing list<br>
+&gt; &gt; &gt; Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org<br>
+&gt; &gt;<br>
+&gt; &gt; http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source<br>
+&gt; &gt;<br>
+&gt; &gt; --<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt; ______________________________________________________________________<br>
+&gt; &gt;<br>
+&gt; &gt;<br>
+&gt; &gt; Craig Matsuura - Principal Engineer<br>
+&gt; &gt; Control4<br>
+&gt; &gt; 11734 South Election Road - Suite 200<br>
+&gt; &gt; Salt Lake City, UT 84020-6432<br>
+&gt; &gt; PH: 801-523-3161<br>
+&gt; &gt; FX: 801-523-3199<br>
+<br />-- <br /><br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><hr /><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><span style=" font-weight:600;">Craig Matsuura - Principal Engineer</span><br>
+Control4<br>
+11734 South Election Road - Suite 200<br>
+Salt Lake City, UT 84020-6432<br>
+PH: 801-523-3161<br>
+FX: 801-523-3199</p></body></html>
+--Boundary-00=_7D4tK7uN3BAru/u--
+
+
+--===============0568045628==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============0568045628==--
