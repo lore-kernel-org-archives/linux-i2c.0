@@ -1,12 +1,12 @@
 From: Craig Matsuura <cmatsuura-/SMLdF/PHsZWk0Htik3J/w@public.gmane.org>
 Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
-Date: Mon, 21 Sep 2009 07:34:51 -0600
-Message-ID: <200909210734.51547.cmatsuura@control4.com>
+Date: Mon, 21 Sep 2009 07:41:21 -0600
+Message-ID: <200909210741.22154.cmatsuura@control4.com>
 References: <1247643267.5981.82.camel@localhost.localdomain>
 	<200909182312.58018.cmatsuura@control4.com>
 	<1253514660.4507.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0568045628=="
+Content-Type: multipart/mixed; boundary="===============0861376340=="
 Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
 In-Reply-To: <1253514660.4507.2.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
@@ -22,24 +22,29 @@ To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
 Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============0568045628==
-Content-Type: multipart/alternative; boundary="Boundary-00=_7D4tK7uN3BAru/u"
+--===============0861376340==
+Content-Type: multipart/alternative; boundary="Boundary-00=_CK4tK/KgUw3jbhL"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
---Boundary-00=_7D4tK7uN3BAru/u
+--Boundary-00=_CK4tK/KgUw3jbhL
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
-i did modify the patch to work for the dm644x.  I believe it is correct, I 
-looked at the 2.6.10 kernel and made the changes to your the i2c-davinci.c 
-after patching it with your patch.
+Philby,
 
-It did nothing without the changes from the 2.6.10 kernel.
+Sorry, I forgot to mention, I did correct a problem with accessing a regs, it 
+is where yo usend a NACK.  I changed the read from DAVINCI_I2C_IMR_REG to 
+DAVINCI_I2C_MDR_REG.  
+
+ +            flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+ +            flag |=  DAVINCI_I2C_MDR_NACK;
+ +            /* write the data into mode register */
+ +            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+
 
 Craig
-
 
 On Monday 21 September 2009 12:31:00 am Philby John wrote:
 > Hello Craig,
@@ -163,15 +168,19 @@ Salt Lake City, UT 84020-6432
 PH: 801-523-3161
 FX: 801-523-3199
 
---Boundary-00=_7D4tK7uN3BAru/u
+--Boundary-00=_CK4tK/KgUw3jbhL
 Content-Type: text/html;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;">i did modify the patch to work for the dm644x.  I believe it is correct, I looked at the 2.6.10 kernel and made the changes to your the i2c-davinci.c after patching it with your patch.<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>It did nothing without the changes from the 2.6.10 kernel.<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Craig<br>
-<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>On Monday 21 September 2009 12:31:00 am Philby John wrote:<br>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"><html><head><meta name="qrichtext" content="1" /><style type="text/css">p, li { white-space: pre-wrap; }</style></head><body style=" font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;">Philby,<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Sorry, I forgot to mention, I did correct a problem with accessing a regs, it is where yo usend a NACK.  I changed the read from DAVINCI_I2C_IMR_REG to DAVINCI_I2C_MDR_REG.  <br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p> +            flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);<br>
+ +            flag |=  DAVINCI_I2C_MDR_NACK;<br>
+ +            /* write the data into mode register */<br>
+ +            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p><p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>Craig<br>
+<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:0;"><br></p>On Monday 21 September 2009 12:31:00 am Philby John wrote:<br>
 &gt; Hello Craig,<br>
 &gt;<br>
 &gt; 	Good to know. With out any modifications on a DM6443?<br>
@@ -287,14 +296,14 @@ Control4<br>
 Salt Lake City, UT 84020-6432<br>
 PH: 801-523-3161<br>
 FX: 801-523-3199</p></body></html>
---Boundary-00=_7D4tK7uN3BAru/u--
+--Boundary-00=_CK4tK/KgUw3jbhL--
 
 
---===============0568045628==
+--===============0861376340==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 
---===============0568045628==--
+--===============0861376340==--
