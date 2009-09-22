@@ -1,16 +1,16 @@
-From: Jean Delvare <khali@linux-fr.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: Crash on reading the whole PCI config of PIIX4 SMBus
-Date: Tue, 22 Sep 2009 19:04:12 +0200
-Message-ID: <20090922190412.2f48dfa2@hyperion.delvare>
+Date: Tue, 22 Sep 2009 20:07:56 +0200
+Message-ID: <20090922200756.245c43b0@hyperion.delvare>
 References: <4AB8F142.9090609@nachtwindheim.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756943AbZIVRES@vger.kernel.org>
-In-Reply-To: <4AB8F142.9090609@nachtwindheim.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Kretzschmar <henne@nachtwindheim.de>
-Cc: jbarnes@virtousgeek.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4AB8F142.9090609-lmEOmhgwvqJeCmjzdEDfrw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Henrik Kretzschmar <henne-lmEOmhgwvqJeCmjzdEDfrw@public.gmane.org>
+Cc: jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On Tue, 22 Sep 2009 17:46:10 +0200, Henrik Kretzschmar wrote:
@@ -22,10 +22,6 @@ On Tue, 22 Sep 2009 17:46:10 +0200, Henrik Kretzschmar wrote:
 > # hexdump -C /proc/bus/pci/00/07.3
 > # hexdump -C /sys/bus/pci/devices/0000:00:07.3/config
 > # lspci -s 07.3 -xxx
-
-Does this crash happens even is i2c-piix4 hasn't been ever loaded since
-the last cold boot of the machine?
-
 > 
 > While initialization the i2c-piix4 driver does two reads to the config space, at 0xd2 and 0xd6,
 > in a relative short time. That sometimes triggers the crash,
@@ -40,53 +36,11 @@ the last cold boot of the machine?
 > so both time values should be more than enough, if time would have been the reason.
 > 
 > Does someone have an idea what the driver should do between those two reads, to avoid crashing?
-
-I doubt we can do anything reliable in the i2c-piix4 driver itself, as
-this seems to be a rare hardware issue.
-
 > Can somebody with the same device trigger this crash too (greped LKML 2001-2008, found nothing)?
 
-You're rather search the lm-sensors list archives. I don't remember
-anything like this, but OTOH the hardware must be so old that I doubt
-many people are still using it.
-
-> I have another box with this device and I'll test this in 4 hours.
-> Or is just my Hardware broken and I should blacklist the module?
-
-That would be my bet, yes.
-
-> 
-> I used 2.6.26-2 (deb/lenny) and 2.6.31 (vanilla) whith the same results.
-> 
-
-If there _any_ kernel that did not exhibit the problem?
-
-> Btw, I also tried:
-> 
-> $ for i in `seq 300`; do sensors; done
-> 
-> which brought the same machine down (only 2.6.31) with an:
-> 
-> do_IRQ: 0.66 No irq handler for vector (irq -1)
-> 
-> 
-> #lspci -s 07.3 -vvvn
-> 
-> 00:07.3 0680: 8086:7113 (rev 02)
-
-That's a pretty old chip... I have one in a 1997 machine. Presumably
-you can easily find a replacement machine, ten times more powerful, for
-cheap. It might be a more constructive approach that trying to keep the
-old thing running.
-
-> 	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
-> 	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
-> 	Interrupt: pin ? routed to IRQ 9
-
-This "?" looks rather suspicious. Smells like an IRQ routing issue?
-
-> 	Kernel driver in use: piix4_smbus
-> 	Kernel modules: i2c-piix4
+And to answer this question: with the same device (except that it's at
+01.3 instead of 07.3 here), none of the 3 above commands crash my
+system (kernel 2.6.29.)
 
 -- 
 Jean Delvare
