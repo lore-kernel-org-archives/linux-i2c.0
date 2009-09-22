@@ -1,75 +1,58 @@
-From: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Subject: [PATCH] i2c-mpc: Do not generate STOP after read.
-Date: Tue, 22 Sep 2009 13:50:42 +0200
-Message-ID: <1253620242-18461-1-git-send-email-Joakim.Tjernlund@transmode.se>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Cc: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Subject: Crash on reading the whole PCI config of PIIX4 SMBus
+Date: Tue, 22 Sep 2009 17:46:10 +0200
+Message-ID: <4AB8F142.9090609@nachtwindheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756726AbZIVPqV@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org, jbarnes@virtousgeek.org
+Cc: linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver always ends a read with a STOP condition which
-breaks subsequent I2C reads/writes in the same transaction as
-these expect to do a repeated START(ReSTART).
+Hi there,
 
-This will also help I2C multimaster as the bus will not be released
-after the first read, but when the whole transaction ends.
+at boot time my system (Wincor/Nixdorf Beetle D1) sometimes crashs while loading the i2c-piix4 driver.
+I found out that I can always trigger the crash as root, which one of those:  
 
-Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
----
+# hexdump -C /proc/bus/pci/00/07.3
+# hexdump -C /sys/bus/pci/devices/0000:00:07.3/config
+# lspci -s 07.3 -xxx
 
-This should also fix a problem reported by Esben Haabendal:
+While initialization the i2c-piix4 driver does two reads to the config space, at 0xd2 and 0xd6,
+in a relative short time. That sometimes triggers the crash,
+but isn't that precise like one of those commands.
 
-[PATCH v2] i2c-mpc: generate START condition after STOP caused by read i2c_msg
+While my investigations I put a printk() between those two reads and had no more crashs
+on module loading. I tested that with a script, doing insmod/rmmod 100 times in a row.
 
-This fixes MAL (arbitration lost) bug caused by illegal use of
-RSTA (repeated START) after STOP condition generated after last byte
-of reads. With this patch, it is possible to do an i2c_transfer() with
-additional i2c_msg's following the I2C_M_RD messages.
+But printk() can't be the solution, so I tried msleep(1) and udelay(250),
+but with each of these my system crashed.
+The time for the read and one printk() takes ~100 us on my machine,
+so both time values should be more than enough, if time would have been the reason.
 
-It still needs to be resolved if it is possible to fix this issue
-by removing the STOP condition after reads in a robust way.
+Does someone have an idea what the driver should do between those two reads, to avoid crashing?
+Can somebody with the same device trigger this crash too (greped LKML 2001-2008, found nothing)?
+I have another box with this device and I'll test this in 4 hours.
+Or is just my Hardware broken and I should blacklist the module?
 
-Signed-off-by: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+I used 2.6.26-2 (deb/lenny) and 2.6.31 (vanilla) whith the same results.
 
- drivers/i2c/busses/i2c-mpc.c |   10 ++--------
- 1 files changed, 2 insertions(+), 8 deletions(-)
+Btw, I also tried:
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index cdb1858..88ae582 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -369,9 +369,6 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
- 	unsigned timeout = i2c->adap.timeout;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Start as master */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target byte */
-@@ -400,9 +397,6 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 	int i, result;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Switch to read - restart */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target address byte - this time with the read flag set */
-@@ -429,9 +423,9 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 		/* Generate txack on next to last byte */
- 		if (i == length - 2)
- 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
--		/* Generate stop on last byte */
-+		/* Do not generate stop on last byte */
- 		if (i == length - 1)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_TXAK);
-+			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX);
- 		data[i] = readb(i2c->base + MPC_I2C_DR);
- 	}
- 
--- 
-1.6.4.3
+$ for i in `seq 300`; do sensors; done
+
+which brought the same machine down (only 2.6.31) with an:
+
+do_IRQ: 0.66 No irq handler for vector (irq -1)
+
+
+#lspci -s 07.3 -vvvn
+
+00:07.3 0680: 8086:7113 (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Interrupt: pin ? routed to IRQ 9
+	Kernel driver in use: piix4_smbus
+	Kernel modules: i2c-piix4
