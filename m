@@ -1,34 +1,52 @@
-From: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] ds2482: Discard obsolete detect method
-Date: Tue, 22 Sep 2009 15:08:07 -0500
-Message-ID: <808c8e9d0909221308u44798896u9a0e87d63e6feab7@mail.gmail.com>
-References: <20090920133459.1455416e@hyperion.delvare>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: Crash on reading the whole PCI config of PIIX4 SMBus
+Date: Wed, 23 Sep 2009 01:18:39 +0200
+Message-ID: <20090922231839.GA20656@pengutronix.de>
+References: <4AB8F142.9090609@nachtwindheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090920133459.1455416e-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4AB8F142.9090609@nachtwindheim.de>
+Sender: linux-pci-owner@vger.kernel.org
+To: Henrik Kretzschmar <henne@nachtwindheim.de>
+Cc: khali@linux-fr.org, jbarnes@virtousgeek.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Sep 20, 2009 at 6:34 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> There is no point in implementing a detect callback for the DS2482, as
-> this device can't be detected. It was there solely to handle "force"
-> module parameters to instantiate devices, but now we have a better sysfs
-> interface that can do the same.
->
-> So we can get rid of the ugly module parameters and the detect callback.
-> This shrinks the binary module size by 21%.
->
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Acked-by: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +$ echo ds2482 0x18 > /sys/bus/i2c/devices/i2c-0/new_device
+On Tue, Sep 22, 2009 at 05:46:10PM +0200, Henrik Kretzschmar wrote:
 
-I learned something new today. =)
+> at boot time my system (Wincor/Nixdorf Beetle D1) sometimes crashs while =
+loading the i2c-piix4 driver.
 
-Thanks,
-Ben
+Have you checked if you have the latest BIOS for this machine? Sometimes
+PCI-problems got fixed there...
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkq5W08ACgkQD27XaX1/VRtoFwCgrajXb2hYeqEhKYEl3euzitnx
+BJYAoMyzKlAC/ZIvDKCkJIJZHZdJP9fX
+=dinN
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
