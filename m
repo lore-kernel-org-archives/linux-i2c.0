@@ -1,43 +1,53 @@
-From: "Konrad Bojar" <kbojar-NlWvg49iv0c@public.gmane.org>
-Subject: Transmission over Intel SCH US15W SMBus interface
-Date: Wed, 23 Sep 2009 15:25:36 +0200 (CEST)
-Message-ID: <4055.10.1.5.69.1253712336.squirrel@ni.piap.pl>
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Subject: Re: Crash on reading the whole PCI config of PIIX4 SMBus
+Date: Wed, 23 Sep 2009 16:11:45 +0200
+Message-ID: <4ABA2CA1.8070806@nachtwindheim.de>
+References: <4AB8F142.9090609@nachtwindheim.de>	<20090922231839.GA20656@pengutronix.de>	<4ABA1B9C.9070302@nachtwindheim.de> <20090923153531.1642b77d@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- charset=utf-8;
- boundary="----75ca71c8e8632d24cb6b7838e2c08c0d----"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <20090923153531.1642b77d@hyperion.delvare>
+Sender: linux-pci-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, jbarnes@virtousgeek.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-------75ca71c8e8632d24cb6b7838e2c08c0d----
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 8bit
+Jean Delvare schrieb:
 
-Hello,
+> On Wed, 23 Sep 2009 14:59:08 +0200, Henrik Kretzschmar wrote:
+>   
+>> The commands _work_ with a coldstarted Linux and i2c-piix not loaded,
+>> so the only thing I can do is blacklisting it and renounce sensors support,
+>> having a good a argument for a new hardware aquisition. :)
+>>     
+>
+> That's really odd, considering that the i2c-piix4 driver doesn't change
+> the PCI device configuration, it only reads from it.
+>
+> If you trigger some transactions (for example by running "sensors -s"
+> at boot time?) then you also write to the I/O ports. But this hardly
+> explains how subsequently reading the PCI config space would crash.
+>
+> You might still want to check if maybe ACPI is interfering with the
+> i2c-piix4 driver. This isn't the kind of result I'd expect, but who
+> knows.
+>   
+This machine doesnt even have ACPI. :) Just APM.
 
-I am considering developing a real-time transmission of little data, but
-arriving on an irregular basis. There is a rather strict requirement for
-this to be done using SMBus and RT Linux. I already know that the chipset
-in question is well supported and that the task is feasible from that
-point of view. What I do not know is how this will impact the overall
-system performace, since I have found no information wheter the only way
-to do the SMBus transmission is to use polling at SMBus frequency
-(400kHz). Is this bus buffered internally by the chipset? Do you have any
-info on that issue? Thanks in advance, Konrad Bojar
+But reading the config space may be dangerous, refering the manpage of lspci:
+"
+      -xxx   Show  hexadecimal  dump of the whole PCI configuration space. It
+              is available only to root as several PCI devices crash when  you
+              try to read some parts of the config space (this behavior proba-
+              bly doesnt violate the PCI standard, but  its  at  least  very
+              stupid).  However,  such  devices are rare, so you neednt worry
+              much.
+"
 
-------75ca71c8e8632d24cb6b7838e2c08c0d----
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-
---
-This message has been scanned by Kaspersky Anti-Virus.
-For more information about data security please visit
-http://www.kaspersky.com and http://www.viruslist.com
-
-------75ca71c8e8632d24cb6b7838e2c08c0d------
+I seem to have stumbled over one of those stupidnesses.
+That is the reason why non-root users are only allowed to
+read the first 64 byte of the config space.
+ 
+So its imho generally a good idea to run lspci -xxx on every machine you can
+and save some time searching in the wrong places.
