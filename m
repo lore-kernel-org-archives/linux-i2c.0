@@ -1,60 +1,85 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: Crash on reading the whole PCI config of PIIX4 SMBus
-Date: Wed, 23 Sep 2009 18:30:29 +0200
-Message-ID: <20090923183029.4f0e8ac5@hyperion.delvare>
-References: <4AB8F142.9090609@nachtwindheim.de>
-	<20090922231839.GA20656@pengutronix.de>
-	<4ABA1B9C.9070302@nachtwindheim.de>
-	<20090923153531.1642b77d@hyperion.delvare>
-	<4ABA2CA1.8070806@nachtwindheim.de>
-	<20090923161518.5cb29107@hyperion.delvare>
-	<4ABA4382.1000707@nachtwindheim.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [rtc-linux] i2c/rtc init dependency problem
+Date: Thu, 24 Sep 2009 17:19:53 +0200
+Message-ID: <20090924151953.GD3154@pengutronix.de>
+References: <152584230909240758h674ffe3cw4d5e6baef5efc9b8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <4ABA4382.1000707@nachtwindheim.de>
-Sender: linux-pci-owner@vger.kernel.org
-To: Henrik Kretzschmar <henne@nachtwindheim.de>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AkbCVLjbJ9qUtAXD"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <152584230909240758h674ffe3cw4d5e6baef5efc9b8-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Alexander Bigga <ab-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 23 Sep 2009 17:49:22 +0200, Henrik Kretzschmar wrote:
-> Jean Delvare schrieb:
-> 
-> > That's right, but it doesn't explain why i2c-piix4 crashes in the first
-> > place, not why merely loading it causes further lspci -xxx to crash
-> > when they did not beforehand. I admit I am totally clueless.
-> >   
-> Sorry, I expressed myself a bit unclear.
-> 
-> With _worked_ I meant the system crashed (thats what killer commands are for).
-> 
-> lspci -xxx (and co) bring this system down in every case, module loaded or not.
-> Obvious this crash occuress when reading the config space in short periods.
 
-Ah, OK, thanks for the clarification.
+--AkbCVLjbJ9qUtAXD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> lspci (or better proc-fs and sys-fs) do that, and i2c-piix4 does it sometimes.
-> 
-> Looking at read() of drivers/pci/proc.c i had the idea of stalking the critical area with:
-> 
-> #!/bin/sh
-> for i in `seq 100`; do
->  dd if=/proc/bus/pci/00/07.3 of=/dev/null bs=1 count=n 2>/dev/null;
-> done
-> 
-> 
-> I got no crashes with n == 192, but with n == 193 theres no reaction from the system.
-> 
-> Maybe it's interesting, that (all the time after crashes) the screen
-> (in my case the console with a blinking cursor) can still be seen.
-> But no reaction on keyboard hits.
 
-I think it is typical of IRQ routing gone out to lunch.
+Does this patch work for you? I can't test but made a similar one recently.=
+=2E.
 
-> Also strange is, that the device works well IF those two read accesses have not done the crash.
-> I'll test tomorrow without the second read access, just to know if it works.
+=3D=3D=3D snip
 
--- 
-Jean Delvare
+Subject: [PATCH] i2c-iop3xx: make bus available early
+
+As I2C is used by PMICs also, make the busses available early via
+subsys_initcall().
+
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+
+ drivers/i2c/busses/i2c-iop3xx.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3x=
+x.c
+index a75c75e..922fa3f 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -535,6 +535,7 @@ i2c_iop3xx_init (void)
+ {
+ 	return platform_driver_register(&iop3xx_i2c_driver);
+ }
++subsys_initcall(i2c_iop3xx_init);
+=20
+ static void __exit=20
+ i2c_iop3xx_exit (void)
+@@ -542,9 +543,7 @@ i2c_iop3xx_exit (void)
+ 	platform_driver_unregister(&iop3xx_i2c_driver);
+ 	return;
+ }
+-
+-module_init (i2c_iop3xx_init);
+-module_exit (i2c_iop3xx_exit);
++module_exit(i2c_iop3xx_exit);
+=20
+ MODULE_AUTHOR("D-TACQ Solutions Ltd <www.d-tacq.com>");
+ MODULE_DESCRIPTION("IOP3xx iic algorithm and driver");
+--=20
+1.6.3.3
+
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--AkbCVLjbJ9qUtAXD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkq7jhkACgkQD27XaX1/VRt0FQCfbqojwELWI12lk+iqggSQ2h9B
+GN8An0nmSUPywMXL+olXBW3NfZvh1+gX
+=0thh
+-----END PGP SIGNATURE-----
+
+--AkbCVLjbJ9qUtAXD--
