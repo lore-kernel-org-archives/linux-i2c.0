@@ -1,30 +1,47 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: Do not generate STOP after read.
-Date: Fri, 25 Sep 2009 12:01:17 +0200
-Message-ID: <4ABC94ED.6070508@grandegger.com>
-References: <1253620242-18461-1-git-send-email-Joakim.Tjernlund@transmode.se>
+From: Christopher Friedt <chrisfriedt-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: new stmpe2401 driver
+Date: Fri, 25 Sep 2009 15:13:53 +0200
+Message-ID: <3ea34a000909250613v77804a63gc1b8d68b20801ce9@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1253620242-18461-1-git-send-email-Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Joakim Tjernlund wrote:
-> The driver always ends a read with a STOP condition which
-> breaks subsequent I2C reads/writes in the same transaction as
-> these expect to do a repeated START(ReSTART).
-> 
-> This will also help I2C multimaster as the bus will not be released
-> after the first read, but when the whole transaction ends.
-> 
-> Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Tested-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Hi folks,
 
-on a MPC8548 board with an up-to-date kernel. I did not realize any
-problems.
+Recently, I ported Linux to a previously unsupported device (it uses
+pxa270 processer, so most of the work was already done), and I had a
+couple of issues that I hoped you could help me with.
 
-Wolfgang.
+1) I wrote a new 'multi-function' driver for the STMPE2401 gpio
+expander, which also has a keypad controller, 3 pwm channels, and a
+rotator input, and I would appreciate it if a couple of people could
+review it for me so that it could be submitted upstream. So far, only
+the keypad function is implemented because my device doesn't use the
+others. However, I've already coded in most of the structure for the
+other device functions but they just return -ENOSYS on probe. I'm sure
+that someone with sufficient experience could probably look at my
+driver and give me a few tips on how to improve it before submission.
+Which leads me to my next question...
+
+2) The keypad is a bit tricky for my platform. There are a couple of
+different modifier keys, and I'm not really sure where to start to
+have userspace handle the scancode-keycode mapping. Right now it's
+done in kernel mode in a small callback function. When the setkeycode
+call is used, it just returns -EPERM because I haven't figured out how to
+organize the keycode remapping from userspace. Can somebody with
+some input-device experience point me in the right direction? I've already
+emailed this to the linux-input list as well, but thought that I would ask here
+too. It would be nice if the keypad worked at the console and also in X or
+other graphical environments. Currently I'm trying to get it to work in
+Android, which just uses the typical event interface for key-remapping.
+
+I suppose one way to do it would be to have the kernel dynamically
+switch based on if the event device is open (i.e. not open in the console
+but open in X) ... still it's a bit confusing. Any tips?
+
+Regards,
+
+Chris
