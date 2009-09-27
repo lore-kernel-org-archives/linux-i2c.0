@@ -1,52 +1,47 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] More i2c updates for 2.6.32
-Date: Sun, 27 Sep 2009 22:25:48 +0200
-Message-ID: <20090927222548.3afe3aab@hyperion.delvare>
+From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Subject: Re: [PATCH] i2c-mpc: Do not generate STOP after read.
+Date: Mon, 28 Sep 2009 00:26:54 +0200
+Message-ID: <OFDA26E787.32612566-ONC125763E.007AD2FD-C125763E.007B4FFC@transmode.se>
+References: <1253620242-18461-1-git-send-email-Joakim.Tjernlund@transmode.se>
+	<4ABC94ED.6070508@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <4ABC94ED.6070508@grandegger.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org, Esben Haabendal <eha@doredevelopment.dk>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Jean, I just noticed you pull request for i2c on LKML but I didn't see this
+patch nor have I got any feedback from you. What is your view?
 
-Please pull some more i2c subsystem updates for Linux 2.6.32 from:
+   Jocke
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
-
-These are mainly cleanups removing obsolete code from random i2c
-drivers, and moving documentation files where they belong.
-
- Documentation/hwmon/ltc4215                       |    7 +-
- Documentation/hwmon/ltc4245                       |    7 +-
- Documentation/{i2c/chips => misc-devices}/eeprom  |    0
- Documentation/{i2c/chips => misc-devices}/max6875 |    6 +-
- Documentation/w1/masters/ds2482                   |    6 +-
- drivers/hwmon/ltc4215.c                           |   47 +-------
- drivers/hwmon/ltc4245.c                           |  131 +--------------------
- drivers/leds/leds-pca9532.c                       |    3 -
- drivers/mfd/ab3100-core.c                         |    4 +-
- drivers/misc/eeprom/max6875.c                     |   29 +----
- drivers/staging/iio/light/tsl2561.c               |    4 -
- drivers/w1/masters/ds2482.c                       |   35 +-----
- 12 files changed, 36 insertions(+), 243 deletions(-)
- rename Documentation/{i2c/chips => misc-devices}/eeprom (100%)
- rename Documentation/{i2c/chips => misc-devices}/max6875 (94%)
-
----------------
-
-Jean Delvare (7):
-      i2c: Move misc devices documentation
-      max6875: Discard obsolete detect method
-      ds2482: Discard obsolete detect method
-      ltc4215/ltc4245: Discard obsolete detect methods
-      leds: leds-pca9532 - Drop unused module parameters
-      Staging: IIO: tsl2561: Drop unused module parameters
-      mfd: AB3100 drop unused module parameters
-
-Thanks,
--- 
-Jean Delvare
+Wolfgang Grandegger <wg@grandegger.com> wrote on 25/09/2009 12:01:17:
+>
+> Joakim Tjernlund wrote:
+> > The driver always ends a read with a STOP condition which
+> > breaks subsequent I2C reads/writes in the same transaction as
+> > these expect to do a repeated START(ReSTART).
+> >
+> > This will also help I2C multimaster as the bus will not be released
+> > after the first read, but when the whole transaction ends.
+> >
+> > Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+> Tested-by: Wolfgang Grandegger <wg@grandegger.com>
+>
+> on a MPC8548 board with an up-to-date kernel. I did not realize any
+> problems.
+>
+> Wolfgang.
+>
