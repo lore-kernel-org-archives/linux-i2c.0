@@ -1,47 +1,26 @@
-From: Joakim Tjernlund <joakim.tjernlund@transmode.se>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH] i2c-mpc: Do not generate STOP after read.
-Date: Mon, 28 Sep 2009 00:26:54 +0200
-Message-ID: <OFDA26E787.32612566-ONC125763E.007AD2FD-C125763E.007B4FFC@transmode.se>
+Date: Mon, 28 Sep 2009 09:28:09 +0200
+Message-ID: <20090928092809.7272b6e6@hyperion.delvare>
 References: <1253620242-18461-1-git-send-email-Joakim.Tjernlund@transmode.se>
 	<4ABC94ED.6070508@grandegger.com>
+	<OFDA26E787.32612566-ONC125763E.007AD2FD-C125763E.007B4FFC@transmode.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <4ABC94ED.6070508@grandegger.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org, Esben Haabendal <eha@doredevelopment.dk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <OFDA26E787.32612566-ONC125763E.007AD2FD-C125763E.007B4FFC-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
+Cc: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean, I just noticed you pull request for i2c on LKML but I didn't see this
-patch nor have I got any feedback from you. What is your view?
+On Mon, 28 Sep 2009 00:26:54 +0200, Joakim Tjernlund wrote:
+> Jean, I just noticed you pull request for i2c on LKML but I didn't see this
+> patch nor have I got any feedback from you. What is your view?
 
-   Jocke
+My view is that i2c-mpc is nor under my jurisdiction, so I did not, and
+will not, pay any attention to it.
 
-Wolfgang Grandegger <wg@grandegger.com> wrote on 25/09/2009 12:01:17:
->
-> Joakim Tjernlund wrote:
-> > The driver always ends a read with a STOP condition which
-> > breaks subsequent I2C reads/writes in the same transaction as
-> > these expect to do a repeated START(ReSTART).
-> >
-> > This will also help I2C multimaster as the bus will not be released
-> > after the first read, but when the whole transaction ends.
-> >
-> > Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
-> Tested-by: Wolfgang Grandegger <wg@grandegger.com>
->
-> on a MPC8548 board with an up-to-date kernel. I did not realize any
-> problems.
->
-> Wolfgang.
->
+-- 
+Jean Delvare
