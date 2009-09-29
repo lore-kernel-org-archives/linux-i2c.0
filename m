@@ -1,290 +1,56 @@
-From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: imx: check busy bit when START/STOP
-Date: Tue, 29 Sep 2009 19:41:44 +0800
-Message-ID: <4e090d470909290441i7016c4f4g9a929d78838f9b7@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: imx: check busy bit when START/STOP
+Date: Tue, 29 Sep 2009 15:09:06 +0200
+Message-ID: <20090929130906.GA24212@pengutronix.de>
+References: <4e090d470909290441i7016c4f4g9a929d78838f9b7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4e090d470909290441i7016c4f4g9a929d78838f9b7-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-After START, wait busy bit to be set and
-after STOP, wait busy bit to be clear.
 
-Disable clock when it's possible to save power.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |  116 ++++++++++++++++++++++++++++++++----------
- 1 files changed, 88 insertions(+), 28 deletions(-)
+Hi Richard,
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 4afba3e..59cde70 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -120,19 +120,40 @@ struct imx_i2c_struct {
- 	wait_queue_head_t	queue;
- 	unsigned long		i2csr;
- 	unsigned int 		disable_delay;
-+	unsigned int		ifdr; /* IMX_I2C_IFDR */
- };
+On Tue, Sep 29, 2009 at 07:41:44PM +0800, Richard Zhao wrote:
+> After START, wait busy bit to be set and
+> after STOP, wait busy bit to be clear.
+>=20
+> Disable clock when it's possible to save power.
 
- /** Functions for IMX I2C adapter driver
-***************************************
- *******************************************************************************/
+As those are two different issues, could you make two patches out of it? Al=
+so,
+I think it will make reviewing easier if you'd drop the debug print-outs.
 
--static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
-+#ifdef CONFIG_I2C_DEBUG_BUS
-+#define reg_dump(i2c_imx) \
-+{ \
-+	printk(KERN_DEBUG "fun %s:%d ", __func__, __LINE__); \
-+	printk(KERN_DEBUG "IADR %02x IFDR %02x I2CR %02x I2SR %02x\n", \
-+		readb(i2c_imx->base + IMX_I2C_IADR), \
-+		readb(i2c_imx->base + IMX_I2C_IFDR), \
-+		readb(i2c_imx->base + IMX_I2C_I2CR), \
-+		readb(i2c_imx->base + IMX_I2C_I2SR)); \
-+}
-+#else
-+#define reg_dump(i2c_imx)
-+#endif
-+
-+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
- {
- 	unsigned long orig_jiffies = jiffies;
-+	unsigned int temp;
+Regards,
 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+   Wolfram
 
- 	/* wait for bus not busy */
--	while (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_IBB) {
-+	temp = readb(i2c_imx->base + IMX_I2C_I2SR);
-+	while (1) {
-+		if (for_busy && (temp & I2SR_IBB))
-+			break;
-+		if (!for_busy && !(temp & I2SR_IBB))
-+			break;
- 		if (signal_pending(current)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> I2C Interrupted\n", __func__);
-@@ -141,9 +162,11 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
- 		if (time_after(jiffies, orig_jiffies + HZ / 1000)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> I2C bus is busy\n", __func__);
-+			reg_dump(i2c_imx);
- 			return -EIO;
- 		}
- 		schedule();
-+		temp = readb(i2c_imx->base + IMX_I2C_I2SR);
- 	}
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
- 	return 0;
-@@ -158,9 +181,11 @@ static int i2c_imx_trx_complete(struct
-imx_i2c_struct *i2c_imx)
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
- 	if (unlikely(result < 0)) {
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
-+		reg_dump(i2c_imx);
- 		return result;
- 	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
-+		reg_dump(i2c_imx);
- 		return -ETIMEDOUT;
- 	}
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
-@@ -172,6 +197,7 @@ static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
- {
- 	if (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_RXAK) {
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
-+		reg_dump(i2c_imx);
- 		return -EIO;  /* No ACK */
- 	}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-@@ -179,20 +205,37 @@ static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
- 	return 0;
- }
+iEYEARECAAYFAkrCBvIACgkQD27XaX1/VRvMngCfW5J2C8a2K+pDHHOzRzoCsreA
+kScAoKpd1ekC/Wha0yD85U4NaKxz4Z1D
+=FxRM
+-----END PGP SIGNATURE-----
 
--static void i2c_imx_start(struct imx_i2c_struct *i2c_imx)
-+static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
- {
- 	unsigned int temp = 0;
-+	int result;
-
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-
-+	clk_enable(i2c_imx->clk);
-+	writeb(i2c_imx->ifdr, i2c_imx->base + IMX_I2C_IFDR);
- 	/* Enable I2C controller */
-+	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
- 	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
-+
-+	result = i2c_imx_bus_busy(i2c_imx, 0);
-+	if (result) {
-+		reg_dump(i2c_imx);
-+		return result;
-+	}
-+
- 	/* Start I2C transaction */
- 	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
- 	temp |= I2CR_MSTA;
- 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+	result = i2c_imx_bus_busy(i2c_imx, 1);
-+	if (result) {
-+		reg_dump(i2c_imx);
-+		return result;
-+	}
- 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
- 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+	return result;
- }
-
- static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
-@@ -202,18 +245,21 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
- 	/* Stop I2C transaction */
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
--	temp &= ~I2CR_MSTA;
-+	temp &= ~(I2CR_MSTA | I2CR_MTX);
- 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
--	/* setup chip registers to defaults */
--	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
--	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
- 	/*
- 	 * This delay caused by an i.MXL hardware bug.
- 	 * If no (or too short) delay, no "STOP" bit will be generated.
- 	 */
- 	udelay(i2c_imx->disable_delay);
-+
-+
-+	if (i2c_imx_bus_busy(i2c_imx, 0))
-+		reg_dump(i2c_imx);
-+
- 	/* Disable I2C controller */
- 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-+	clk_disable(i2c_imx->clk);
- }
-
- static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
-@@ -233,17 +279,19 @@ static void __init i2c_imx_set_clk(struct
-imx_i2c_struct *i2c_imx,
- 	else
- 		for (i = 0; i2c_clk_div[i][0] < div; i++);
-
--	/* Write divider value to register */
--	writeb(i2c_clk_div[i][1], i2c_imx->base + IMX_I2C_IFDR);
--
--	/*
--	 * There dummy delay is calculated.
--	 * It should be about one I2C clock period long.
--	 * This delay is used in I2C bus disable function
--	 * to fix chip hardware bug.
--	 */
--	i2c_imx->disable_delay = (500000U * i2c_clk_div[i][0]
--		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
-+	/* Store divider value */
-+	i2c_imx->ifdr = i2c_clk_div[i][1];
-+
-+	if (cpu_is_mx1()) {
-+		/*
-+		 * There dummy delay is calculated.
-+		 * It should be about one I2C clock period long.
-+		 * This delay is used in I2C bus disable function
-+		 * to fix chip hardware bug.
-+		 */
-+		i2c_imx->disable_delay = (500000U * i2c_clk_div[i][0]
-+			+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
-+	}
-
- 	/* dev_dbg() can't be used, because adapter is not yet registered */
- #ifdef CONFIG_I2C_DEBUG_BUS
-@@ -344,7 +392,7 @@ static int i2c_imx_read(struct imx_i2c_struct
-*i2c_imx, struct i2c_msg *msgs)
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> clear MSTA\n", __func__);
- 			temp = readb(i2c_imx->base + IMX_I2C_I2CR);
--			temp &= ~I2CR_MSTA;
-+			temp &= ~(I2CR_MSTA | I2CR_MTX);
- 			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
- 		} else if (i == (msgs->len - 2)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
-@@ -369,14 +417,24 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- 	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
-
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
--
-+#ifdef CONFIG_I2C_DEBUG_BUS
-+	for (i = 0; i < num; i++) {
-+		printk(KERN_DEBUG "msg%d addr %02x RD %d cnt %d d:", i,
-+			msgs[i].addr, msgs[i].flags & I2C_M_RD, msgs[i].len);
-+		if (!(msgs[i].flags & I2C_M_RD)) {
-+			int j;
-+			for (j = 0; j < msgs[i].len; j++)
-+				printk("%02x ", msgs[i].buf[j]);
-+		}
-+		printk("\n");
-+	}
-+#endif
- 	/* Check if i2c bus is not busy */
--	result = i2c_imx_bus_busy(i2c_imx);
--	if (result)
--		goto fail0;
-
- 	/* Start I2C transfer */
--	i2c_imx_start(i2c_imx);
-+	result = i2c_imx_start(i2c_imx);
-+	if (result)
-+		goto fail0;
-
- 	/* read/write data */
- 	for (i = 0; i < num; i++) {
-@@ -386,6 +444,11 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- 			temp = readb(i2c_imx->base + IMX_I2C_I2CR);
- 			temp |= I2CR_RSTA;
- 			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+			result =  i2c_imx_bus_busy(i2c_imx, 1);
-+			if (result) {
-+				reg_dump(i2c_imx);
-+				goto fail0;
-+			}
- 		}
- 		dev_dbg(&i2c_imx->adapter.dev,
- 			"<%s> transfer message: %d\n", __func__, i);
-@@ -442,7 +505,7 @@ static int __init i2c_imx_probe(struct
-platform_device *pdev)
- 	int irq;
- 	int ret;
-
--	dev_dbg(&pdev->dev, "<%s>\n", __func__);
-+	dev_info(&pdev->dev, "<%s>\n", __func__);
-
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
-@@ -500,7 +563,6 @@ static int __init i2c_imx_probe(struct
-platform_device *pdev)
- 		dev_err(&pdev->dev, "can't get I2C clock\n");
- 		goto fail3;
- 	}
--	clk_enable(i2c_imx->clk);
-
- 	/* Request IRQ */
- 	ret = request_irq(i2c_imx->irq, i2c_imx_isr, 0, pdev->name, i2c_imx);
-@@ -549,7 +611,6 @@ static int __init i2c_imx_probe(struct
-platform_device *pdev)
- fail5:
- 	free_irq(i2c_imx->irq, i2c_imx);
- fail4:
--	clk_disable(i2c_imx->clk);
- 	clk_put(i2c_imx->clk);
- fail3:
- 	release_mem_region(i2c_imx->res->start, resource_size(res));
-@@ -587,7 +648,6 @@ static int __exit i2c_imx_remove(struct
-platform_device *pdev)
- 		pdata->exit(&pdev->dev);
-
- 	/* Disable I2C clock */
--	clk_disable(i2c_imx->clk);
- 	clk_put(i2c_imx->clk);
-
- 	release_mem_region(i2c_imx->res->start, resource_size(i2c_imx->res));
--- 
-1.6.0.4
+--sm4nu43k4a2Rpi4c--
