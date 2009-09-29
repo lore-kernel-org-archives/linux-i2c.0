@@ -1,42 +1,32 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [2.6.31] ir-kbd-i2c oops.
-Date: Tue, 29 Sep 2009 16:16:29 +0200
-Message-ID: <20090929161629.2a5c8d30@hyperion.delvare>
-References: <200909160300.28382.pluto@agmk.net>
-	<20090916085701.6e883600@hyperion.delvare>
-	<200909161003.33090.pluto@agmk.net>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH] i2c: imx: check busy bit when START/STOP
+Date: Tue, 29 Sep 2009 15:24:41 +0100
+Message-ID: <20090929142440.GF32420@sirena.org.uk>
+References: <4e090d470909290441i7016c4f4g9a929d78838f9b7@mail.gmail.com> <20090929132505.GM27039@pengutronix.de> <4e090d470909290654r6fb36cb4h505662c7cb84b1f8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200909161003.33090.pluto-PIIpFW8S9c0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4e090d470909290654r6fb36cb4h505662c7cb84b1f8-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?B?UGF3ZcWC?= Sikora <pluto-PIIpFW8S9c0@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 16 Sep 2009 10:03:32 +0200, Pawe=C5=82 Sikora wrote:
-> On Wednesday 16 September 2009 08:57:01 Jean Delvare wrote:
-> > Hi Pawel,
-> >=20
-> > I think this would be fixed by the following patch:
-> > http://patchwork.kernel.org/patch/45707/
->=20
-> still oopses. this time i've attached full dmesg.
+On Tue, Sep 29, 2009 at 09:54:05PM +0800, Richard Zhao wrote:
+> On Tue, Sep 29, 2009 at 9:25 PM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
 
-Any news on this? Do you have a refined list of kernels which have the
-bug and kernels which do not? Tried 2.6.32-rc1? Tried the v4l-dvb
-repository?
+> > I think it's generally a good idea to start/stop the clocks when needed
+> > as you do here. It should be an extra patch though.
 
-Anyone else seeing this bug?
+> You think I should split the patch to three: IBB, reg_dump, clk dis/en ?
+> The idea is good, more easy to revert. but sometimes, I think it make
+> small things too complex.
 
-Your kernel stack trace doesn't look terribly reliable and I am not
-able to come to any conclusion. The crash is supposed to happen in
-ir_input_init(), but the stack trace doesn't lead there. I am also
-skeptical about the +0x64/0x1a52, ir_input_init() is a rather small
-function and I fail to see how it could be 6738 bytes in binary size.
-Might be that the bug caused a stack corruption. Building a debug
-kernel may help.
-
---=20
-Jean Delvare
+Keeping small things simple is half the reason for doing this - it's not
+just bisection, it's also the fact that it's much easier to read and
+understand a small patch that does one thing than it is to do the same
+with a large patch which makes several unrelated changes.  When several
+changes are lumped in together it's harder to see the complete version
+of any one change in isolation and more effort is required to work out
+which goals are being accomplished with any given chunk of the patch.
