@@ -1,273 +1,143 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH] I2C: OMAP3: PM: (re)init for every transfer to support
-	off-mode
-Date: Wed, 30 Sep 2009 15:06:09 -0700
-Message-ID: <636c5030909301506p7da5f016m5148ce6cd279e704@mail.gmail.com>
-References: <1248217743-24330-1-git-send-email-khilman@deeprootsystems.com>
-	 <20090729234308.GA8850@fluff.org.uk>
-	 <4A7760A4.3080109@deeprootsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4A7760A4.3080109@deeprootsystems.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
+From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/4] i2c: imx: check busy bit when START/STOP
+Date: Thu,  1 Oct 2009 09:13:30 +0800
+Message-ID: <1254359613-21210-1-git-send-email-linuxzsc@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 3, 2009 at 3:11 PM, Kevin Hilman
-<khilman@deeprootsystems.com> wrote:
-> Ben Dooks wrote:
->>
->> On Tue, Jul 21, 2009 at 04:09:03PM -0700, Kevin Hilman wrote:
->>>
->>> From: Rajendra Nayak <rnayak@ti.com>
->>>
->>> Because of OMAP off-mode, powerdomain can go off when I2C is idle.
->>> Save enough state, and do a re-init for each transfer.
->>>
->>> Additional save/restore state added by Jagadeesh Bhaskar Pakaravoor
->>> (SYSC_REG) and Aaro Koskinen (wakeup sources.)
->>>
->>> Also, The OMAP3430 TRM states:
->>>
->>> "During active mode (I2Ci.I2C_CON[15] I2C_EN bit is set to 1), make=
- no
->>> changes to the I2Ci.I2C_SCLL and I2Ci.I2C_SCLH registers. =A0Change=
-s may
->>> result in unpredictable behavior."
->>>
->>> Hence, the I2C_EN bit should be clearer when modifying these
->>> registers. Please note that clearing the entire I2C_CON register to
->>> disable the I2C module is safe, because the I2C_CON register is
->>> re-configured for each transfer.
->>
->> should this be applied as a bugfix, or kept for next merge window?
->
-> next merge window is fine.
->
+After START/RESTART, wait for busy bit to be set and
+after STOP, wait for busy bit to be clear.
 
-Ben,
+Signed-off-by: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-It doesn't look like this made it in during the 2.6.32 merge window.
-Can you queue it for the -rc series?
-
-Kevin
-
->>> Signed-off-by: Jouni Hogander <jouni.hogander@nokia.com>
->>> Signed-off-by: Rajendra Nayak <rnayak@ti.com>
->>> Cc: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
->>> Cc: Aaro Koskinen <aaro.koskinen@nokia.com>
->>> Cc: Jon Hunter <jon-hunter@ti.com>
->>> Cc: Hu Tao <taohu@motorola.com>
->>> Cc: Xiaolong Chen <A21785@motorola.com>
->>> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
->>> ---
->>> This patch has been tested extensively as part of the OMAP 'PM bran=
-ch'
->>>
->>> =A0drivers/i2c/busses/i2c-omap.c | =A0 64
->>> ++++++++++++++++++++++++++--------------
->>> =A01 files changed, 41 insertions(+), 23 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-omap.c
->>> b/drivers/i2c/busses/i2c-omap.c
->>> index ad8d201..bb8ae50 100644
->>> --- a/drivers/i2c/busses/i2c-omap.c
->>> +++ b/drivers/i2c/busses/i2c-omap.c
->>> @@ -178,6 +178,12 @@ struct omap_i2c_dev {
->>> =A0 =A0 =A0 =A0unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0b_hw:1; =A0 =
-=A0 =A0 =A0 /* bad h/w fixes */
->>> =A0 =A0 =A0 =A0unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0idle:1;
->>> =A0 =A0 =A0 =A0u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 iestate;=
- =A0 =A0 =A0 =A0/* Saved interrupt
->>> register */
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pscstate;
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 scllstate=
-;
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sclhstate=
-;
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 bufstate;
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 syscstate=
-;
->>> + =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 westate;
->>> =A0};
->>> =A0=A0static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2=
-c_dev,
->>> @@ -230,9 +236,18 @@ static void omap_i2c_unidle(struct omap_i2c_de=
-v
->>> *dev)
->>> =A0 =A0 =A0 =A0 =A0clk_enable(dev->iclk);
->>> =A0 =A0 =A0 =A0clk_enable(dev->fclk);
->>> + =A0 =A0 =A0 if (cpu_is_omap34xx()) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_CON_=
-REG, 0);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_PSC_=
-REG, dev->pscstate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_SCLL=
-_REG,
->>> dev->scllstate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_SCLH=
-_REG,
->>> dev->sclhstate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_BUF_=
-REG, dev->bufstate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_SYSC=
-_REG,
->>> dev->syscstate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_WE_R=
-EG, dev->westate);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_CON_=
-REG,
->>> OMAP_I2C_CON_EN);
->>> + =A0 =A0 =A0 }
->>> =A0 =A0 =A0 =A0dev->idle =3D 0;
->>> - =A0 =A0 =A0 if (dev->iestate)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_IE_R=
-EG, dev->iestate);
->>> + =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate=
-);
->>> =A0}
->>> =A0=A0static void omap_i2c_idle(struct omap_i2c_dev *dev)
->>> @@ -258,7 +273,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *=
-dev)
->>> =A0=A0static int omap_i2c_init(struct omap_i2c_dev *dev)
->>> =A0{
->>> - =A0 =A0 =A0 u16 psc =3D 0, scll =3D 0, sclh =3D 0;
->>> + =A0 =A0 =A0 u16 psc =3D 0, scll =3D 0, sclh =3D 0, buf =3D 0;
->>> =A0 =A0 =A0 =A0u16 fsscll =3D 0, fssclh =3D 0, hsscll =3D 0, hssclh=
- =3D 0;
->>> =A0 =A0 =A0 =A0unsigned long fclk_rate =3D 12000000;
->>> =A0 =A0 =A0 =A0unsigned long timeout;
->>> @@ -287,24 +302,22 @@ static int omap_i2c_init(struct omap_i2c_dev =
-*dev)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 SYSC_AUTOIDLE_MASK);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0} else if (dev->rev >=3D OMAP_I2=
-C_REV_ON_3430) {
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 v;
->>> -
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 v =3D SYSC_AUTOIDLE_M=
-ASK;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 v |=3D SYSC_ENAWAKEUP=
-_MASK;
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 v |=3D (SYSC_IDLEMODE=
-_SMART <<
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->syscstate =3D SY=
-SC_AUTOIDLE_MASK;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->syscstate |=3D S=
-YSC_ENAWAKEUP_MASK;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->syscstate |=3D (=
-SYSC_IDLEMODE_SMART <<
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__ffs(SY=
-SC_SIDLEMODE_MASK));
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 v |=3D (SYSC_CLOCKACT=
-IVITY_FCLK <<
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->syscstate |=3D (=
-SYSC_CLOCKACTIVITY_FCLK <<
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__ffs(SY=
-SC_CLOCKACTIVITY_MASK));
->>> =A0- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg=
-(dev, OMAP_I2C_SYSC_REG, v);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(de=
-v, OMAP_I2C_SYSC_REG,
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->syscstate);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/*
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * Enabling all waku=
-p sources to stop I2C freezing
->>> on
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * WFI instruction.
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 * REVISIT: Some wku=
-p sources might not be needed.
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(de=
-v, OMAP_I2C_WE_REG,
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_WE_ALL);
->>> -
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->westate =3D OMAP=
-_I2C_WE_ALL;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(de=
-v, OMAP_I2C_WE_REG,
->>> dev->westate);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
->>> =A0 =A0 =A0 =A0}
->>> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->>> @@ -394,23 +407,28 @@ static int omap_i2c_init(struct omap_i2c_dev =
-*dev)
->>> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, scll);
->>> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, sclh);
->>> =A0- =A0 =A0 =A0 if (dev->fifo_size)
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Note: setup required fifo size - 1=
- */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_BUF_=
-REG,
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 (dev->fifo_size - 1) << 8 | /*
->>> RTRSH */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 OMAP_I2C_BUF_RXFIF_CLR |
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 (dev->fifo_size - 1) | /* XTRSH
->>> */
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 OMAP_I2C_BUF_TXFIF_CLR);
->>> + =A0 =A0 =A0 if (dev->fifo_size) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Note: setup required fifo size - 1=
-=2E RTRSH and XTRSH */
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 buf =3D (dev->fifo_size - 1) << 8 | O=
-MAP_I2C_BUF_RXFIF_CLR
->>> |
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (dev->fifo_size - 1) =
-| OMAP_I2C_BUF_TXFIF_CLR;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_BUF_=
-REG, buf);
->>> + =A0 =A0 =A0 }
->>> =A0 =A0 =A0 =A0 =A0/* Take the I2C module out of reset: */
->>> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_C=
-ON_EN);
->>> =A0 =A0 =A0 =A0 =A0/* Enable interrupts */
->>> - =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP_I2C_IE_XRDY | O=
-MAP_I2C_IE_RRDY |
->>> + =A0 =A0 =A0 dev->iestate =3D (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY=
- |
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0OMAP_I2C_IE_ARDY | O=
-MAP_I2C_IE_NACK |
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0OMAP_I2C_IE_AL) =A0|=
- ((dev->fifo_size) ?
->>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP=
-_I2C_IE_RDR | OMAP_I2C_IE_XDR) :
->>> 0));
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP=
-_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0);
->>> + =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate=
-);
->>> + =A0 =A0 =A0 if (cpu_is_omap34xx()) {
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->pscstate =3D psc;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->scllstate =3D scll;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->sclhstate =3D sclh;
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->bufstate =3D buf;
->>> + =A0 =A0 =A0 }
->>> =A0 =A0 =A0 =A0return 0;
->>> =A0}
->>>
->>> --
->>> 1.6.3.3
->>>
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-i2c=
-" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
-l
->>
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 4afba3e..156cc95 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -125,14 +125,19 @@ struct imx_i2c_struct {
+ /** Functions for IMX I2C adapter driver ***************************************
+ *******************************************************************************/
+ 
+-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ {
+ 	unsigned long orig_jiffies = jiffies;
++	unsigned int temp;
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 
+-	/* wait for bus not busy */
+-	while (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_IBB) {
++	temp = readb(i2c_imx->base + IMX_I2C_I2SR);
++	while (1) {
++		if (for_busy && (temp & I2SR_IBB))
++			break;
++		if (!for_busy && !(temp & I2SR_IBB))
++			break;
+ 		if (signal_pending(current)) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
+ 				"<%s> I2C Interrupted\n", __func__);
+@@ -144,6 +149,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
+ 			return -EIO;
+ 		}
+ 		schedule();
++		temp = readb(i2c_imx->base + IMX_I2C_I2SR);
+ 	}
+ 
+ 	return 0;
+@@ -179,20 +185,32 @@ static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+ 	return 0;
+ }
+ 
+-static void i2c_imx_start(struct imx_i2c_struct *i2c_imx)
++static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ {
+ 	unsigned int temp = 0;
++	int result;
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 
+ 	/* Enable I2C controller */
++	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
+ 	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
++
++	result = i2c_imx_bus_busy(i2c_imx, 0);
++	if (result)
++		return result;
++
+ 	/* Start I2C transaction */
+ 	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+ 	temp |= I2CR_MSTA;
+ 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
++	result = i2c_imx_bus_busy(i2c_imx, 1);
++	if (result)
++		return result;
++
+ 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+ 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
++	return result;
+ }
+ 
+ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+@@ -202,16 +220,16 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 	/* Stop I2C transaction */
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+-	temp &= ~I2CR_MSTA;
++	temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 	writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+-	/* setup chip registers to defaults */
+-	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
+-	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
+ 	/*
+ 	 * This delay caused by an i.MXL hardware bug.
+ 	 * If no (or too short) delay, no "STOP" bit will be generated.
+ 	 */
+ 	udelay(i2c_imx->disable_delay);
++
++	i2c_imx_bus_busy(i2c_imx, 0);
++
+ 	/* Disable I2C controller */
+ 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
+ }
+@@ -344,7 +362,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ 			dev_dbg(&i2c_imx->adapter.dev,
+ 				"<%s> clear MSTA\n", __func__);
+ 			temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+-			temp &= ~I2CR_MSTA;
++			temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+ 		} else if (i == (msgs->len - 2)) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
+@@ -370,14 +388,11 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 
+-	/* Check if i2c bus is not busy */
+-	result = i2c_imx_bus_busy(i2c_imx);
++	/* Start I2C transfer */
++	result = i2c_imx_start(i2c_imx);
+ 	if (result)
+ 		goto fail0;
+ 
+-	/* Start I2C transfer */
+-	i2c_imx_start(i2c_imx);
+-
+ 	/* read/write data */
+ 	for (i = 0; i < num; i++) {
+ 		if (i) {
+@@ -386,6 +401,9 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 			temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+ 			temp |= I2CR_RSTA;
+ 			writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
++			result =  i2c_imx_bus_busy(i2c_imx, 1);
++			if (result)
++				goto fail0;
+ 		}
+ 		dev_dbg(&i2c_imx->adapter.dev,
+ 			"<%s> transfer message: %d\n", __func__, i);
+-- 
+1.6.0.4
