@@ -1,90 +1,30 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c: imx: check busy bit when START/STOP
-Date: Fri, 2 Oct 2009 16:11:06 +0200
-Message-ID: <20091002141106.GG3179@pengutronix.de>
-References: <1254359613-21210-1-git-send-email-linuxzsc@gmail.com> <4e090d470910010103o611d9fb2t3acf93632216fc88@mail.gmail.com> <20091001083831.GD27039@pengutronix.de> <4e090d470910010211k4ce78763i1a5163ec6ea57fe8@mail.gmail.com> <20091001095239.GE27039@pengutronix.de> <4e090d470910010754r1ebc4455u6220ccfd803491b0@mail.gmail.com> <20091001163753.GA20103@pengutronix.de> <4e090d470910011757g261c693ehdca40ce43ebee2ec@mail.gmail.com> <20091002072643.GH27039@pengutronix.de> <4e090d470910020117w620fda4cta7b26b912d01bc24@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [GIT PULL] More i2c updates for 2.6.32
+Date: Sun, 4 Oct 2009 21:49:49 +0200
+Message-ID: <20091004214949.26ec5446@hyperion.delvare>
+References: <20090927222548.3afe3aab@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4e090d470910020117w620fda4cta7b26b912d01bc24-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757962AbZJDTua@vger.kernel.org>
+In-Reply-To: <20090927222548.3afe3aab@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, 27 Sep 2009 22:25:48 +0200, Jean Delvare wrote:
+> Hi Linus,
+> 
+> Please pull some more i2c subsystem updates for Linux 2.6.32 from:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+> 
+> These are mainly cleanups removing obsolete code from random i2c
+> drivers, and moving documentation files where they belong.
 
---BzCohdixPhurzSK4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Forget about that one, I'll send a new pull request shortly with a few
+more fixes.
 
-On Fri, Oct 02, 2009 at 04:17:09PM +0800, Richard Zhao wrote:
-> On Fri, Oct 2, 2009 at 3:26 PM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wro=
-te:
-> > On Fri, Oct 02, 2009 at 08:57:04AM +0800, Richard Zhao wrote:
-> >> On Fri, Oct 2, 2009 at 12:37 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> =
-wrote:
-> >> >> > Ah, so 'make the driver work on i.MX51' is a good statement which=
- should
-> >> >> > be part of the commit message.
-> >> >> Well, maybe I can mention it.
-> >> >> But I think the good point is to present what you modified, not the=
- side effect.
-> >> >
-> >> > It is not the side effect but the intention :) As no code is changed=
- without a
-> >> > need, the reason really should be in the patch description.
-> >> No, it's not intention. I'm just trying to make the controller work in
-> >> a right way. Without this patch, maybe some other fast cpus have
-> >> problem too. I just tested mx31 and mx51. I will add "Without this
-> >> patch, i2c on some fast SoCs (for example imx51) will not work". Is it
-> >> ok for you?
-> >
-> > Please remember that we do not have i.MX51 support in mainline, so this
-> > is irrelevant atm.
-> So I don't need to meantion mx51? "Without this patch, i2c on some
-> fast SoCs will not work" is all right?
-
-Sounds good to me!
-
-> > At the moment we have a driver which is not multi master capable.
-> > Looking at the datasheet the change you do seems not enough to change
-> > this. So we should take a patch which changes something from which you
-> > think it might be needed? And you don't even have the details at hand?
-> >
-> > No.
-> Ok, It seems I have no reason to keep the busy wait before START.
-> Wolfram, do you agree to remove the busy wait?
-
-If somebody really needs multi-master and is able to test it, then it can be
-reimplemented (but as said, this needs a lot more changes). Have to have a
-closer look though, if it may detect a stalled bus.
-
-> I saw you submmited the original driver.
-
-I helped in getting it accepted, but the commit is mainly from Darius.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---BzCohdixPhurzSK4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkrGCfoACgkQD27XaX1/VRtdtQCfQY/HExUvAyQbilCV+F83UZZ4
-/ZQAnicn78e46mlqE3Z/9xXFMW8B2QCA
-=qYV9
------END PGP SIGNATURE-----
-
---BzCohdixPhurzSK4--
+-- 
+Jean Delvare
