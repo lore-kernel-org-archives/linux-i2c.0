@@ -1,26 +1,25 @@
-From: "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 3/3] ics932s401: Clean up detect function
-Date: Tue, 6 Oct 2009 16:05:38 -0700
-Message-ID: <20091006230538.GW20514@tux1.beaverton.ibm.com>
-References: <20091006175611.46bf0dfa@hyperion.delvare> <20091006180623.4face173@hyperion.delvare>
-Reply-To: djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: New home for DS1682 driver
+Date: Wed, 7 Oct 2009 11:50:17 +0200
+Message-ID: <20091007115017.6941faa7@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20091006180623.4face173-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 06, 2009 at 06:06:23PM +0200, Jean Delvare wrote:
-> As kind is now hard-coded to -1, there is room for code clean-ups.
-> 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Hi Grant,
 
-Based on some light testing, it looks like this is ok, so
-Acked-by: "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+Driver ds1682 needs a new home, as drivers/i2c/chips will be gone soon.
+Do you have a preference for where it should go?
 
---D
+As the device includes an EEPROM, the driver could go in
+drivers/misc/eeprom, but OTOH the EEPROM in question is so small that
+this can hardly be considered the main feature of the driver. So maybe
+just drivers/misc?
+
+-- 
+Jean Delvare
