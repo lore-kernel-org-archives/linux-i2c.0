@@ -1,17 +1,17 @@
-From: Grant Likely <grant.likely@secretlab.ca>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
 	eeprom driver
-Date: Thu, 8 Oct 2009 09:48:50 -0600
-Message-ID: <fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
+Date: Thu, 8 Oct 2009 22:27:23 +0200
+Message-ID: <20091008202723.GA8116@pengutronix.de>
 References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
 	<20091008143301.GA6084@oksana.dev.rtsoft.ru>
 	<fa686aa40910080753v6f597b0h4ce835db9f7a653@mail.gmail.com>
 	<20091008151007.GA21328@oksana.dev.rtsoft.ru>
+	<fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============2888305967616439680=="
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20091008151007.GA21328@oksana.dev.rtsoft.ru>
+In-Reply-To: <fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -21,64 +21,72 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
 Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
 Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-To: avorontsov@ru.mvista.com
-Cc: linuxppc-dev@ozlabs.org, devicetree-discuss@ozlabs.org, linux-embedded@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: linux-embedded@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org, devicetree-discuss@ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 8, 2009 at 9:10 AM, Anton Vorontsov
-<avorontsov@ru.mvista.com> wrote:
-> On Thu, Oct 08, 2009 at 08:53:46AM -0600, Grant Likely wrote:
-> [...]
->> Please don't. =A0It is such a small amount of code,
->
-> It's *always* a small amound of code, at a start. Then we get
-> floppy disk drivers and the tty layer. ;-)
 
-Holy straw man argument Batman!
+--===============2888305967616439680==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
 
-But the focus is still on creating pdata.  If a translator gets too
-big, then sure, split it into a separate file.  Until then, there I
-see no good reason to do so now.
 
->
-> [...]
->> Driver writers shouldn't have to
->> write anything more than a tiny function to populate pdata from the
->> device tree. =A0Managing that pdata instance needs to be done with
->> common infrastructure (but I don't have a firm idea about how it
->> should look yet). =A0In the mean time I think Wolfram's approach has
->> lower impact.
->
-> If I wasn't a PPC/OF guy to some degree, I'd hate PPC/OF people
-> for bringing arch-specific details into a generic code... :-P
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No, this goes beyond PPC/OF.  The real issue is that it is no longer a
-safe assumption that pdata will be a static data structure in platform
-code.  The number of possible data sources is going to get larger, not
-smaller.  OF is just one.  UEFI is another.  Translating that data
-into pdata will be the problem that comes up over and over again.
-However, translation code is still driver specific, so it belongs with
-the driver that it translates code for.
+> No, this goes beyond PPC/OF.  The real issue is that it is no longer a
+> safe assumption that pdata will be a static data structure in platform
+> code.  The number of possible data sources is going to get larger, not
+> smaller.  OF is just one.  UEFI is another.  Translating that data
+> into pdata will be the problem that comes up over and over again.
+> However, translation code is still driver specific, so it belongs with
+> the driver that it translates code for.
+>=20
+> So, in my opinion, translation code must:
+> 1. be *tiny* -- should be trivial to add to a driver without impacting
+> common code
+> 2. live with the driver that it translates data for; ideally in the
+> same .c file for drivers that are small.
 
-So, in my opinion, translation code must:
-1. be *tiny* -- should be trivial to add to a driver without impacting
-common code
-2. live with the driver that it translates data for; ideally in the
-same .c file for drivers that are small.
+I am with Grant on these points. It is more than just PPC.
 
-> No matter how small the OF code is, I believe we shouldn't put it
-> into the generic code. Take a look at mmc_spi case again, it can be
-> easily extended to any arch, because there is no arch-specific stuff,
-> but a "get/put" pattern for platform data.
+> > No matter how small the OF code is, I believe we shouldn't put it
+> > into the generic code. Take a look at mmc_spi case again, it can be
+> > easily extended to any arch, because there is no arch-specific stuff,
+> > but a "get/put" pattern for platform data.
 
-I'm not disagreeing with you that the arch specific stuff should be
-logically separated from the generic code.  But I don't agree that it
-belongs in a separate file.  And I also think that the mmc_spi
-implementation uses too much code.  There must be a better way.
+Will check this tomorrow.
 
-g.
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
--- =
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkrOSysACgkQD27XaX1/VRvKzgCgmRbw4QYsnCx/oLx+FBH5JuPP
+g1gAn1uIVJgNUzvickgYUbHyqfzGFNTs
+=ZWWV
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
+
+--===============2888305967616439680==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Linuxppc-dev mailing list
+Linuxppc-dev@lists.ozlabs.org
+https://lists.ozlabs.org/listinfo/linuxppc-dev
+--===============2888305967616439680==--
