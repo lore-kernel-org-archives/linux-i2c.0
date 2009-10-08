@@ -1,20 +1,16 @@
-From: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
 	eeprom driver
-Date: Fri, 9 Oct 2009 02:20:43 +0400
-Message-ID: <20091008222042.GA10743@oksana.dev.rtsoft.ru>
+Date: Thu, 8 Oct 2009 16:59:04 -0600
+Message-ID: <fa686aa40910081559v305185b6i6103f83437529f7e@mail.gmail.com>
 References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
-	<20091008143301.GA6084@oksana.dev.rtsoft.ru>
-	<fa686aa40910080753v6f597b0h4ce835db9f7a653@mail.gmail.com>
-	<20091008151007.GA21328@oksana.dev.rtsoft.ru>
-	<fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
-Reply-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
+	<fa686aa40910080737l5b21654cw9c8f7426f9faf7c3@mail.gmail.com>
+	<20091008204808.GB8116@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <fa686aa40910080848r459c47baob73fc70a95a08604-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20091008204808.GB8116-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
 	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
@@ -24,83 +20,50 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
 	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
 Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-embedded-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 08, 2009 at 09:48:50AM -0600, Grant Likely wrote:
-> On Thu, Oct 8, 2009 at 9:10 AM, Anton Vorontsov
-[...]
-> > It's *always* a small amound of code, at a start. Then we get
-> > floppy disk drivers and the tty layer. ;-)
-> 
-> Holy straw man argument Batman!
-> 
-> But the focus is still on creating pdata.  If a translator gets too
-> big, then sure, split it into a separate file.  Until then, there I
-> see no good reason to do so now.
+On Thu, Oct 8, 2009 at 2:48 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+>
+>> I think in general, this is the right direction; but I'm not convinced
+>> that the right pattern or form has been found yet. =A0What I don't like
+>> on this particular patch is that it still hooks of-specific stuff into
+>> an arbitrary point in the probe routine.
+>>
+>> I'd like to see some pattern for retrieving or populating a
+>> platform_data structure when one isn't already provided, and
+>> regardless of the data source.
+>
+> I thought about this, too. I just wondered how many drivers would actuall=
+y need
+> a 'pdata'-preparation routine before probe, and if this would not cause t=
+oo
+> much overhead for those who don't. But as you say OF might not the only c=
+ase
+> where this is needed, then it might be a reasonable choice to have an ext=
+ra
+> call fot setting up pdata. Then again, if we have preparation routines for
+> OF,UEFI,... for each and every driver, uh, the bloat :(
 
-Luckily, I'm not at24 driver maintainer (Wolfram himself is ;-),
-but as a maintainer of driver "Foo", I would not want to see
-completely unfamiliar "Bar" in my shiny driver.
+It shouldn't be too bad.... I'm toying with the idea of a callable
+library function which is passed in a data table of the available
+translators.  Can be very simple, and the library function would take
+care of pdata allocation and management.  Then the translators can be
+kept down to the bare minimum of populating the structure.  If it is
+done right, then only the needed translators get compiled in and it
+won't add any significant size at all to the drivers.
 
-Another plus is that you can bypass (or almost bypass) subsystem
-maintainers when merging OF-specific patches (since he/she couldn't
-possibly care less about all these weird arch internals. But again,
-this doesn't work for this particular driver since Wolfram is the
-maintainer :-).
+>> will take a bit of experimentation to come up with the best form for
+>> the pdata fetching function, but it will be better contained if it is
+>> all at a single place.
+>
+> I might have a try :)
 
-> > If I wasn't a PPC/OF guy to some degree, I'd hate PPC/OF people
-> > for bringing arch-specific details into a generic code... :-P
-> 
-> No, this goes beyond PPC/OF.  The real issue is that it is no longer a
-> safe assumption that pdata will be a static data structure in platform
-> code.  The number of possible data sources is going to get larger, not
-> smaller.  OF is just one.  UEFI is another.  Translating that data
-> into pdata will be the problem that comes up over and over again.
-> However, translation code is still driver specific,
-> so it belongs with the driver that it translates code for.
+:-)
 
-Wait... The translation code depends on a platform, and on a
-platform_data structure, the same as non-OF arch-specific code
-depends on it. How is it different from a static platform data
-in the arch/ code? We don't put static platform data into the
-drivers and surround them with ugly #ifdefs+machine_is()...
 
-> So, in my opinion, translation code must:
-> 1. be *tiny*
+-- =
 
-Yeah, dream on. ;-) It's tiny when all you have is of_get_property(),
-I'd like to see the code when you'll have GPIOs, IRQs, and platform-
-specific fixups.
-
-You might say that at24 doesn't need that stuff, but it does.
-Suppose AT24's WP pin is connected to a GPIO, and without
-'read-only' property I'd like the driver to pull the pin low,
-and vice versa: with 'read-only' specifier, WP should be tied
-high. Or if WP is controlled by a switch/jumper, GPIO can be
-used to read current WP state.
-
-> -- should be trivial to add to a driver without impacting
-> common code
-
-This is doable, yes.
-
-> > No matter how small the OF code is, I believe we shouldn't put it
-> > into the generic code. Take a look at mmc_spi case again, it can be
-> > easily extended to any arch, because there is no arch-specific stuff,
-> > but a "get/put" pattern for platform data.
-> 
-> I'm not disagreeing with you that the arch specific stuff should be
-> logically separated from the generic code.  But I don't agree that it
-> belongs in a separate file.  And I also think that the mmc_spi
-> implementation uses too much code.  There must be a better way.
-
-I wonder how you'd shrink the mmc_spi bindings, can you elaborate?
-
-Thanks,
-
--- 
-Anton Vorontsov
-email: cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-irc://irc.freenode.net/bd2
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
