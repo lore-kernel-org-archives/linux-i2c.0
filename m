@@ -1,69 +1,48 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
-	eeprom driver
-Date: Thu, 8 Oct 2009 16:59:04 -0600
-Message-ID: <fa686aa40910081559v305185b6i6103f83437529f7e@mail.gmail.com>
-References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
-	<fa686aa40910080737l5b21654cw9c8f7426f9faf7c3@mail.gmail.com>
-	<20091008204808.GB8116@pengutronix.de>
+From: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: Looking for ICH SMBUS "Process call" support in i2c-i801 bus driver
+Date: Thu, 8 Oct 2009 19:09:27 -0400
+Message-ID: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20091008204808.GB8116-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 8, 2009 at 2:48 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->
->> I think in general, this is the right direction; but I'm not convinced
->> that the right pattern or form has been found yet. =A0What I don't like
->> on this particular patch is that it still hooks of-specific stuff into
->> an arbitrary point in the probe routine.
->>
->> I'd like to see some pattern for retrieving or populating a
->> platform_data structure when one isn't already provided, and
->> regardless of the data source.
->
-> I thought about this, too. I just wondered how many drivers would actuall=
-y need
-> a 'pdata'-preparation routine before probe, and if this would not cause t=
-oo
-> much overhead for those who don't. But as you say OF might not the only c=
-ase
-> where this is needed, then it might be a reasonable choice to have an ext=
-ra
-> call fot setting up pdata. Then again, if we have preparation routines for
-> OF,UEFI,... for each and every driver, uh, the bloat :(
-
-It shouldn't be too bad.... I'm toying with the idea of a callable
-library function which is passed in a data table of the available
-translators.  Can be very simple, and the library function would take
-care of pdata allocation and management.  Then the translators can be
-kept down to the bare minimum of populating the structure.  If it is
-done right, then only the needed translators get compiled in and it
-won't add any significant size at all to the drivers.
-
->> will take a bit of experimentation to come up with the best form for
->> the pdata fetching function, but it will be better contained if it is
->> all at a single place.
->
-> I might have a try :)
-
-:-)
 
 
--- =
+Hi,
 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+I have a couple of devices EEDPROM and Power Sequencer(ADM1066) that ne=
+ed "Sequential Random Read" which has 2 byte address requirements.
+Currently Process call is not implemented in code drivers/i2c/busses/i2=
+c-i801.c.=20
+Appreciate any suggestions for alternative implementations.
+
+Thanks.,
+
+/* I801 command constants */
+=A0#define I801_QUICK=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x00
+=A0#define I801_BYTE=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x04
+=A0#define I801_BYTE_DATA=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x08
+=A0#define I801_WORD_DATA=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x0C
+=A0#define I801_PROC_CALL=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x10=A0=A0=A0 /* u=
+nimplemented */<------=20
+=A0#define I801_BLOCK_DATA=A0=A0=A0=A0=A0=A0=A0=A0 0x14
+=A0#define I801_I2C_BLOCK_DATA=A0=A0=A0=A0 0x18=A0=A0=A0 /* ICH5 and la=
+ter */
+=A0#define I801_BLOCK_LAST=A0=A0=A0=A0=A0=A0=A0=A0 0x34
+=A0#define I801_I2C_BLOCK_LAST=A0=A0=A0=A0 0x38=A0=A0=A0 /* ICH5 and la=
+ter */
+=A0#define I801_START=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x40
+=A0#define I801_PEC_EN=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 0x80=A0=A0=A0=
+ /* ICH3 and later */
+
+ 		 	   		 =20
+_________________________________________________________________
+Hotmail: Free, trusted and rich email service.
+http://clk.atdmt.com/GBL/go/171222984/direct/01/--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
