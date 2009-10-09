@@ -1,8 +1,8 @@
-From: Grant Likely <grant.likely@secretlab.ca>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
 	eeprom driver
-Date: Fri, 9 Oct 2009 10:13:58 -0600
-Message-ID: <fa686aa40910090913p719ef4cdqe480ae01bd4ab6c8@mail.gmail.com>
+Date: Fri, 9 Oct 2009 18:20:20 +0200
+Message-ID: <20091009162020.GB588@pengutronix.de>
 References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
 	<20091008143301.GA6084@oksana.dev.rtsoft.ru>
 	<fa686aa40910080753v6f597b0h4ce835db9f7a653@mail.gmail.com>
@@ -10,12 +10,12 @@ References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
 	<fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
 	<20091008202723.GA8116@pengutronix.de>
 	<20091009051409.GA2361@pengutronix.de>
-	<1255095793.16018.32.camel@localhost.localdomain>
+	<fa686aa40910082240w7fb2a194tcc80e7afe182e781@mail.gmail.com>
+	<1255096871.16018.49.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============2956660571441688445=="
 Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1255095793.16018.32.camel@localhost.localdomain>
+In-Reply-To: <1255096871.16018.49.camel@localhost.localdomain>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -29,32 +29,71 @@ To: Nate Case <ncase@xes-inc.com>
 Cc: devicetree-discuss@ozlabs.org, linux-embedded@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 9, 2009 at 7:43 AM, Nate Case <ncase@xes-inc.com> wrote:
-> On Fri, 2009-10-09 at 07:14 +0200, Wolfram Sang wrote:
->> And while doing this and figuring the pro/cons of those methods, I
->> stumbled over this commit:
->>
->> =A0 =A0 =A0 =A0 gpio: pca953x: Get platform_data from OpenFirmware
->> =A0 =A0 =A0 =A0 (1965d30356c1c65660ba3330927671cfe81acdd5)
->
-> Aside from any issues you have with the properties themselves, what's
-> your take on this approach?
 
-As I mentioned in an earlier email, I don't think quite the right form
-has been found yet, but I like the direction things are moving.
+--===============2956660571441688445==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="b5gNqxB1S1yM7hjW"
+Content-Disposition: inline
 
-> Personally, I just got tired of waiting for someone else to solve the
-> pdata/OF problem. =A0So I submitted that commit as an attempt at something
-> very simple and unobtrusive to the device driver itself. =A0It seems
-> pretty clean to me, but I'm curious to see if others have any better
-> ideas.
 
-Yup, that's good.  Between Anton's, Wolfram's and your work things are
-going the right way.
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-g.
 
--- =
+> I can submit that soon,  but it probably makes sense for Wolfram to
+> voice whatever his concerns were about "questionable" properties before
+> I document what's there.
 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Please don't feel offended. The things I noticed are:
+
+a) no documentation
+
+b) 'polarity' is a direct mapping to the register which IMO is a hint to lo=
+ok
+closer. I haven't checked in detil, but maybe the active_low-flag could be =
+used
+for this?
+
+I mainly got alarmed that properties were mainlined without being reviewed;=
+ as
+the device-tree is based on convention (which is hard to change afterwards)=
+, I
+try to make sure this will not so easily happen again (thus the
+get_maintainer-patch on lkml).
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--b5gNqxB1S1yM7hjW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkrPYsQACgkQD27XaX1/VRvaWgCgvUNhJqjS+Ukr6FpnNyea2kOe
+ng8An12HR1WAnkJJd43Fyf4VDUcvM5Wl
+=YsSA
+-----END PGP SIGNATURE-----
+
+--b5gNqxB1S1yM7hjW--
+
+--===============2956660571441688445==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Linuxppc-dev mailing list
+Linuxppc-dev@lists.ozlabs.org
+https://lists.ozlabs.org/listinfo/linuxppc-dev
+--===============2956660571441688445==--
