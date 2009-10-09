@@ -1,40 +1,78 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
- driver
-Date: Fri, 9 Oct 2009 08:35:19 +0200
-Message-ID: <20091009083519.2659a79a@hyperion.delvare>
-References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
+From: Nate Case <ncase@xes-inc.com>
+Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
+	eeprom driver
+Date: Fri, 09 Oct 2009 09:01:11 -0500
+Message-ID: <1255096871.16018.49.camel@localhost.localdomain>
+References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
+	<20091008143301.GA6084@oksana.dev.rtsoft.ru>
+	<fa686aa40910080753v6f597b0h4ce835db9f7a653@mail.gmail.com>
+	<20091008151007.GA21328@oksana.dev.rtsoft.ru>
+	<fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
+	<20091008202723.GA8116@pengutronix.de>
+	<20091009051409.GA2361@pengutronix.de>
+	<fa686aa40910082240w7fb2a194tcc80e7afe182e781@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <COL117-W70326CE4BD5366E7F94C688CC0-MsuGFMq8XAE@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <fa686aa40910082240w7fb2a194tcc80e7afe182e781@mail.gmail.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: devicetree-discuss@ozlabs.org, linux-embedded@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Krishna,
+On Thu, 2009-10-08 at 23:40 -0600, Grant Likely wrote:
+> For your future reference, patches that look at the device tree should
+> also cc: devicetree-discuss@lists.ozlabs.org so that new bindings can
+> be reviewed and common mistakes can be avoided.  It is expected that
+> new device tree bindings are accompanied with documentation describing
+> what the binding is for and how it should be used (see
+> Documentation/powerpc/dts-bindings).
+> 
+> I know this change is already in mainline, but can you please post the
+> device tree fragment that you're using to describe this chip?  I want
+> to make sure we don't get stuck with things in the kernel that will be
+> hard to maintain in the long term.
 
-On Thu, 8 Oct 2009 19:09:27 -0400, Krishna Kothapalli wrote:
-> I have a couple of devices EEDPROM and Power Sequencer(ADM1066) that need "Sequential Random Read" which has 2 byte address requirements.
-> Currently Process call is not implemented in code drivers/i2c/busses/i2c-i801.c.
+Hi Grant,
 
-This is correct. Adding process call support to the i2c-i801 driver
-would be easy, I even think some developers have done it already but
-omitted to send the changes upstream.
+Sorry for neglecting to include devicetree-discuss on that one.  I was
+in fact aware of this list, and subscribe to it.  I really just forgot
+in this case.
 
-However, beware that SMBus process call is _not_ 2-byte addressing. It
-is single-byte addressing, followed by two bytes from master to slave,
-followed by two bytes from slave to master. Are you certain you need
-SMBus process call for the ADM1066? The datasheet doesn't mention it.
-All the SMBus transactions mentioned in the ADM1066 datasheet are
-already supported by the i2c-i801 driver.
+I also have a documentation patch for it that went along with it, but it
+wasn't ready in time and so it's been sitting in our local patch queue.
+I can submit that soon,  but it probably makes sense for Wolfram to
+voice whatever his concerns were about "questionable" properties before
+I document what's there.
 
-> Appreciate any suggestions for alternative implementations.
+Here's an example device tree node for this case:
 
-Please make sure you know what your needs are, first.
+               gpio1: gpio@18 {
+                        compatible = "nxp,pca9557";
+                        reg = <0x18>;
+                        #gpio-cells = <2>;
+                        gpio-controller;
+                        polarity = <0x00>;
+               };
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+In this case, the linux,gpio-base property wasn't specified.  But, the
+use case is identical to the pdata->gpio_base field.  "polarity" is used
+for specifying polarity inversion for each line, and is in the same
+format of the 'polarity inversion' register on the chip.  My reasoning
+in the property naming was as follows:
+
+    linux,gpio-base: Linux-specific as it relates to internal GPIO
+                     numbering.  So, it's prefixed with "linux,"
+    polarity: Dictated by how hardware is wired up, so it's needed
+              regardless of the OS.
+
+- Nate
