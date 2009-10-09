@@ -1,47 +1,230 @@
-From: Nate Case <ncase@xes-inc.com>
-Subject: Re: [RFC] misc/at24: add experimental OF support for the generic
-	eeprom driver
-Date: Fri, 09 Oct 2009 08:43:13 -0500
-Message-ID: <1255095793.16018.32.camel@localhost.localdomain>
-References: <1255010672-21656-1-git-send-email-w.sang@pengutronix.de>
-	<20091008143301.GA6084@oksana.dev.rtsoft.ru>
-	<fa686aa40910080753v6f597b0h4ce835db9f7a653@mail.gmail.com>
-	<20091008151007.GA21328@oksana.dev.rtsoft.ru>
-	<fa686aa40910080848r459c47baob73fc70a95a08604@mail.gmail.com>
-	<20091008202723.GA8116@pengutronix.de>
-	<20091009051409.GA2361@pengutronix.de>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: [PATCH] ALS: TSL2550 driver move from i2c/chips
+Date: Fri, 09 Oct 2009 15:37:58 +0100
+Message-ID: <4ACF4AC6.7070802@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20091009051409.GA2361@pengutronix.de>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: devicetree-discuss@ozlabs.org, linux-embedded@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2009-10-09 at 07:14 +0200, Wolfram Sang wrote:
-> And while doing this and figuring the pro/cons of those methods, I
-> stumbled over this commit:
-> 
->         gpio: pca953x: Get platform_data from OpenFirmware
->         (1965d30356c1c65660ba3330927671cfe81acdd5)
 
-Aside from any issues you have with the properties themselves, what's
-your take on this approach?
+Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 
-Personally, I just got tired of waiting for someone else to solve the
-pdata/OF problem.  So I submitted that commit as an attempt at something
-very simple and unobtrusive to the device driver itself.  It seems
-pretty clean to me, but I'm curious to see if others have any better
-ideas.
+---
+Minimal changes made. Untested due to lack of hardware.
+All comments welcome.
 
-- Nate
+illuminance is already documented as part of the class.
+operating mode and power state are both as per the original
+driver. I can't find any documentation for them, but if people
+want it I can probably figure out what they are from
+the data sheet.  
+
+Might be worth dropping the power state control and moving
+over to runtime pm but that is definitely the topic for another
+patch.
+
+Does anyone want a patch without using Git's move functionality?
+
+Have copied all the users Jean knows about, but please cc any other
+users as this does involve a change to the userspace interface.
+
+Applies on 2.6.31-rc3 with the ALS patches
+http://patchwork.kernel.org/patch/49153/
+
+ drivers/als/Kconfig                  |   14 ++++++
+ drivers/als/Makefile                 |    2 +
+ drivers/{i2c/chips => als}/tsl2550.c |   73 ++++++++++++++++++++++++++++++---
+ 3 files changed, 82 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/als/Kconfig b/drivers/als/Kconfig
+index 200c52b..0c5dbb2 100644
+--- a/drivers/als/Kconfig
++++ b/drivers/als/Kconfig
+@@ -8,3 +8,17 @@ menuconfig ALS
+ 	  This framework provides a generic sysfs I/F for Ambient Light
+ 	  Sensor devices.
+ 	  If you want this support, you should say Y or M here.
++
++if ALS
++
++config ALS_TSL2550
++	tristate "Taos TSL2550 ambient light sensor"
++	depends on EXPERIMENTAL
++	help
++	  If you say yes here you get support for the Taos TSL2550
++	  ambient light sensor.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called tsl2550.
++
++endif #ALS
+diff --git a/drivers/als/Makefile b/drivers/als/Makefile
+index a527197..7be5631 100644
+--- a/drivers/als/Makefile
++++ b/drivers/als/Makefile
+@@ -3,3 +3,5 @@
+ #
+ 
+ obj-$(CONFIG_ALS)		+= als_sys.o
++
++obj-$(CONFIG_ALS_TSL2550)	+= tsl2550.o
+\ No newline at end of file
+diff --git a/drivers/i2c/chips/tsl2550.c b/drivers/als/tsl2550.c
+similarity index 87%
+rename from drivers/i2c/chips/tsl2550.c
+rename to drivers/als/tsl2550.c
+index aa96bd2..6c11695 100644
+--- a/drivers/i2c/chips/tsl2550.c
++++ b/drivers/als/tsl2550.c
+@@ -24,9 +24,12 @@
+ #include <linux/slab.h>
+ #include <linux/i2c.h>
+ #include <linux/mutex.h>
++#include <linux/err.h>
++#include <linux/idr.h>
++#include <linux/als_sys.h>
+ 
+ #define TSL2550_DRV_NAME	"tsl2550"
+-#define DRIVER_VERSION		"1.2"
++#define DRIVER_VERSION		"2"
+ 
+ /*
+  * Defines
+@@ -44,8 +47,10 @@
+  */
+ 
+ struct tsl2550_data {
++	struct device *classdev;
+ 	struct i2c_client *client;
+ 	struct mutex update_lock;
++	unsigned int id;
+ 
+ 	unsigned int power_state : 1;
+ 	unsigned int operating_mode : 1;
+@@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
+ };
+ 
+ /*
++ * IDR to assign each registered device a unique id
++ */
++static DEFINE_IDR(tsl2550_idr);
++static DEFINE_SPINLOCK(tsl2550_idr_lock);
++#define TSL2550_DEV_MAX 9
++
++/*
+  * Management functions
+  */
+ 
++static int tsl2550_get_id(void)
++{
++	int ret, val;
++
++idr_again:
++	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
++		return -ENOMEM;
++	spin_lock(&tsl2550_idr_lock);
++	ret = idr_get_new(&tsl2550_idr, NULL, &val);
++	if (unlikely(ret == -EAGAIN))
++		goto idr_again;
++	else if (unlikely(ret))
++		return ret;
++	if (val > TSL2550_DEV_MAX)
++		return -ENOMEM;
++	return val;
++}
++
++static void tsl2550_free_id(int val)
++{
++	spin_lock(&tsl2550_idr_lock);
++	idr_remove(&tsl2550_idr, val);
++	spin_unlock(&tsl2550_idr_lock);
++}
++
+ static int tsl2550_set_operating_mode(struct i2c_client *client, int mode)
+ {
+ 	struct tsl2550_data *data = i2c_get_clientdata(client);
+@@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
+ 	return ret;
+ }
+ 
+-static DEVICE_ATTR(lux1_input, S_IRUGO,
++static DEVICE_ATTR(illuminance, S_IRUGO,
+ 		   tsl2550_show_lux1_input, NULL);
+ 
+ static struct attribute *tsl2550_attributes[] = {
+ 	&dev_attr_power_state.attr,
+ 	&dev_attr_operating_mode.attr,
+-	&dev_attr_lux1_input.attr,
++	&dev_attr_illuminance.attr,
+ 	NULL
+ };
+ 
+@@ -350,6 +387,7 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+ 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+ 	struct tsl2550_data *data;
+ 	int *opmode, err = 0;
++	char name[9];
+ 
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE
+ 					    | I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+@@ -387,15 +425,31 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+ 	if (err)
+ 		goto exit_kfree;
+ 
++	data->id = tsl2550_get_id();
++	if (data->id < 0) {
++		err = data->id;
++		goto exit_kfree;
++	}
++	sprintf(name, "tsl2550%d", data->id);
+ 	/* Register sysfs hooks */
+-	err = sysfs_create_group(&client->dev.kobj, &tsl2550_attr_group);
++	data->classdev = als_device_register(&client->dev, name);
++	if (IS_ERR(data->classdev)) {
++		err = PTR_ERR(data->classdev);
++		goto exit_free_id;
++	}
++
++	err = sysfs_create_group(&data->classdev->kobj, &tsl2550_attr_group);
+ 	if (err)
+-		goto exit_kfree;
++		goto exit_unreg;
+ 
+ 	dev_info(&client->dev, "support ver. %s enabled\n", DRIVER_VERSION);
+ 
+ 	return 0;
+ 
++exit_unreg:
++	als_device_unregister(data->classdev);
++exit_free_id:
++	tsl2550_free_id(data->id);
+ exit_kfree:
+ 	kfree(data);
+ exit:
+@@ -404,12 +458,17 @@ exit:
+ 
+ static int __devexit tsl2550_remove(struct i2c_client *client)
+ {
+-	sysfs_remove_group(&client->dev.kobj, &tsl2550_attr_group);
++	struct tsl2550_data *data = i2c_get_clientdata(client);
++
++	sysfs_remove_group(&data->classdev->kobj, &tsl2550_attr_group);
++	als_device_unregister(data->classdev);
+ 
+ 	/* Power down the device */
+ 	tsl2550_set_power_state(client, 0);
+ 
+-	kfree(i2c_get_clientdata(client));
++	tsl2550_free_id(data->id);
++
++	kfree(data);
+ 
+ 	return 0;
+ }
+-- 
+1.6.3.3
