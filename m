@@ -1,294 +1,158 @@
-From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/2 v2] i2c-bfin-twi: integrate timeout
-	timer with completion interface
-Date: Sat, 10 Oct 2009 13:44:39 -0400
-Message-ID: <1255196679-18482-1-git-send-email-vapier@gentoo.org>
-References: <1254973096-4391-1-git-send-email-vapier@gentoo.org>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-powermac: Refactor i2c_powermac_smbus_xfer
+Date: Sun, 11 Oct 2009 10:05:31 +1100
+Message-ID: <1255215931.2192.11.camel@pasglop>
+References: <20091010141908.0be884a5@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <1254973096-4391-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20091010141908.0be884a5-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Sat, 2009-10-10 at 14:19 +0200, Jean Delvare wrote:
+> I wanted to add some error logging to the i2c-powermac driver, but
+> found that it was very difficult due to the way the
+> i2c_powermac_smbus_xfer function is organized. Refactor the code in
+> this function so that each low-level function is only called once.
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> Cc: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+> ---
+> This needs testing! Thanks.
 
-There isn't much point in managing our own custom timeout timer when the
-completion interface already includes support for it.  This makes the
-resulting code much simpler and robust.
+Ok, will give it a go next week.
 
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
----
-v2
-	- define timeout in jiffies as pointed out by Wolfram
+Cheers,
+Ben.
 
- drivers/i2c/busses/i2c-bfin-twi.c |  125 +++++++++++++++++++-----------------
- 1 files changed, 66 insertions(+), 59 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index b309ac2..d35c677 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -24,8 +24,6 @@
- #include <asm/portmux.h>
- #include <asm/irq.h>
- 
--#define POLL_TIMEOUT       (2 * HZ)
--
- /* SMBus mode*/
- #define TWI_I2C_MODE_STANDARD		1
- #define TWI_I2C_MODE_STANDARDSUB	2
-@@ -43,8 +41,6 @@ struct bfin_twi_iface {
- 	int			cur_mode;
- 	int			manual_stop;
- 	int			result;
--	int			timeout_count;
--	struct timer_list	timeout_timer;
- 	struct i2c_adapter	adap;
- 	struct completion	complete;
- 	struct i2c_msg 		*pmsg;
-@@ -168,16 +164,13 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 			write_INT_MASK(iface, 0);
- 			write_MASTER_CTL(iface, 0);
- 			SSYNC();
--			/* If it is a quick transfer, only address bug no data,
-+			/* If it is a quick transfer, only address without data,
- 			 * not an err, return 1.
-+			 * If address is acknowledged return 1.
- 			 */
--			if (iface->writeNum == 0 && (mast_stat & BUFRDERR))
-+			if ((iface->writeNum == 0 && (mast_stat & BUFRDERR))
-+				|| !(mast_stat & ANAK))
- 				iface->result = 1;
--			/* If address not acknowledged return -1,
--			 * else return 0.
--			 */
--			else if (!(mast_stat & ANAK))
--				iface->result = 0;
- 		}
- 		complete(&iface->complete);
- 		return;
-@@ -249,9 +242,9 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
- 			write_INT_MASK(iface, 0);
- 			write_MASTER_CTL(iface, 0);
- 			SSYNC();
--			complete(&iface->complete);
- 		}
- 	}
-+	complete(&iface->complete);
- }
- 
- /* Interrupt handler */
-@@ -261,36 +254,15 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void *dev_id)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&iface->lock, flags);
--	del_timer(&iface->timeout_timer);
- 	bfin_twi_handle_interrupt(iface);
- 	spin_unlock_irqrestore(&iface->lock, flags);
- 	return IRQ_HANDLED;
- }
- 
--static void bfin_twi_timeout(unsigned long data)
--{
--	struct bfin_twi_iface *iface = (struct bfin_twi_iface *)data;
--	unsigned long flags;
--
--	spin_lock_irqsave(&iface->lock, flags);
--	bfin_twi_handle_interrupt(iface);
--	if (iface->result == 0) {
--		iface->timeout_count--;
--		if (iface->timeout_count > 0) {
--			iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
--			add_timer(&iface->timeout_timer);
--		} else {
--			iface->result = -1;
--			complete(&iface->complete);
--		}
--	}
--	spin_unlock_irqrestore(&iface->lock, flags);
--}
--
- /*
-- * Generic i2c master transfer entrypoint
-+ * One i2c master transfer
-  */
--static int bfin_twi_master_xfer(struct i2c_adapter *adap,
-+static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
- 				struct i2c_msg *msgs, int num)
- {
- 	struct bfin_twi_iface *iface = adap->algo_data;
-@@ -318,7 +290,6 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
- 	iface->transPtr = pmsg->buf;
- 	iface->writeNum = iface->readNum = pmsg->len;
- 	iface->result = 0;
--	iface->timeout_count = 10;
- 	init_completion(&(iface->complete));
- 	/* Set Transmit device address */
- 	write_MASTER_ADDR(iface, pmsg->addr);
-@@ -357,30 +328,49 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
- 		iface->manual_stop = 1;
- 	}
- 
--	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
--	add_timer(&iface->timeout_timer);
--
- 	/* Master enable */
- 	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
- 		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
- 		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
- 	SSYNC();
- 
--	wait_for_completion(&iface->complete);
--
--	rc = iface->result;
-+	while (!iface->result) {
-+		if (!wait_for_completion_timeout(&iface->complete,
-+			adap->timeout)) {
-+			iface->result = -1;
-+			dev_err(&adap->dev, "master transfer timeout\n");
-+		}
-+	}
- 
--	if (rc == 1)
--		return num;
-+	if (iface->result == 1)
-+		rc = iface->cur_msg + 1;
- 	else
--		return rc;
-+		rc = iface->result;
-+
-+	return rc;
- }
- 
- /*
-- * SMBus type transfer entrypoint
-+ * Generic i2c master transfer entrypoint
-  */
-+static int bfin_twi_master_xfer(struct i2c_adapter *adap,
-+				struct i2c_msg *msgs, int num)
-+{
-+	int i, ret = 0;
- 
--int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-+	for (i = 0; i < adap->retries; i++) {
-+		ret = bfin_twi_do_master_xfer(adap, msgs, num);
-+		if (ret > 0)
-+			break;
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * One I2C SMBus transfer
-+ */
-+int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 			unsigned short flags, char read_write,
- 			u8 command, int size, union i2c_smbus_data *data)
- {
-@@ -468,7 +458,6 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 	iface->manual_stop = 0;
- 	iface->read_write = read_write;
- 	iface->command = command;
--	iface->timeout_count = 10;
- 	init_completion(&(iface->complete));
- 
- 	/* FIFO Initiation. Data in FIFO should be discarded before
-@@ -485,9 +474,6 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 	write_MASTER_ADDR(iface, addr);
- 	SSYNC();
- 
--	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
--	add_timer(&iface->timeout_timer);
--
- 	switch (iface->cur_mode) {
- 	case TWI_I2C_MODE_STANDARDSUB:
- 		write_XMT_DATA8(iface, iface->command);
-@@ -549,10 +535,8 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 				else if (iface->readNum > 255) {
- 					write_MASTER_CTL(iface, 0xff << 6);
- 					iface->manual_stop = 1;
--				} else {
--					del_timer(&iface->timeout_timer);
-+				} else
- 					break;
--				}
- 			}
- 		}
- 		write_INT_MASK(iface, MCOMP | MERR |
-@@ -568,7 +552,13 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 	}
- 	SSYNC();
- 
--	wait_for_completion(&iface->complete);
-+	while (!iface->result) {
-+		if (!wait_for_completion_timeout(&iface->complete,
-+			adap->timeout)) {
-+			iface->result = -1;
-+			dev_err(&adap->dev, "smbus transfer timeout\n");
-+		}
-+	}
- 
- 	rc = (iface->result >= 0) ? 0 : -1;
- 
-@@ -576,6 +566,25 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- }
- 
- /*
-+ * Generic I2C SMBus transfer entrypoint
-+ */
-+int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-+			unsigned short flags, char read_write,
-+			u8 command, int size, union i2c_smbus_data *data)
-+{
-+	int i, ret = 0;
-+
-+	for (i = 0; i < adap->retries; i++) {
-+		ret = bfin_twi_do_smbus_xfer(adap, addr, flags,
-+			read_write, command, size, data);
-+		if (ret == 0)
-+			break;
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-  * Return what the adapter supports
-  */
- static u32 bfin_twi_functionality(struct i2c_adapter *adap)
-@@ -666,10 +675,6 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 		goto out_error_no_irq;
- 	}
- 
--	init_timer(&(iface->timeout_timer));
--	iface->timeout_timer.function = bfin_twi_timeout;
--	iface->timeout_timer.data = (unsigned long)iface;
--
- 	p_adap = &iface->adap;
- 	p_adap->nr = pdev->id;
- 	strlcpy(p_adap->name, pdev->name, sizeof(p_adap->name));
-@@ -677,6 +682,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	p_adap->algo_data = iface;
- 	p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	p_adap->dev.parent = &pdev->dev;
-+	p_adap->timeout = 5 * HZ;
-+	p_adap->retries = 3;
- 
- 	rc = peripheral_request_list(pin_req[pdev->id], "i2c-bfin-twi");
- 	if (rc) {
--- 
-1.6.5.rc2
+>  drivers/i2c/busses/i2c-powermac.c |   85 +++++++++++++++++--------------------
+>  1 file changed, 41 insertions(+), 44 deletions(-)
+> 
+> --- linux-2.6.32-rc3.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:08:39.000000000 +0200
+> +++ linux-2.6.32-rc3/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:13:04.000000000 +0200
+> @@ -49,48 +49,38 @@ static s32 i2c_powermac_smbus_xfer(	stru
+>  	int			rc = 0;
+>  	int			read = (read_write == I2C_SMBUS_READ);
+>  	int			addrdir = (addr << 1) | read;
+> +	int			mode, subsize, len;
+> +	u32			subaddr;
+> +	u8			*buf;
+>  	u8			local[2];
+>  
+> -	rc = pmac_i2c_open(bus, 0);
+> -	if (rc)
+> -		return rc;
+> +	if (size == I2C_SMBUS_QUICK || size == I2C_SMBUS_BYTE) {
+> +		mode = pmac_i2c_mode_std;
+> +		subsize = 0;
+> +		subaddr = 0;
+> +	} else {
+> +		mode = read ? pmac_i2c_mode_combined : pmac_i2c_mode_stdsub;
+> +		subsize = 1;
+> +		subaddr = command;
+> +	}
+>  
+>  	switch (size) {
+>          case I2C_SMBUS_QUICK:
+> -		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
+> -		if (rc)
+> -			goto bail;
+> -		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, NULL, 0);
+> +		buf = NULL;
+> +		len = 0;
+>  	    	break;
+>          case I2C_SMBUS_BYTE:
+> -		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
+> -		if (rc)
+> -			goto bail;
+> -		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, &data->byte, 1);
+> -	    	break;
+>          case I2C_SMBUS_BYTE_DATA:
+> -		rc = pmac_i2c_setmode(bus, read ?
+> -				      pmac_i2c_mode_combined :
+> -				      pmac_i2c_mode_stdsub);
+> -		if (rc)
+> -			goto bail;
+> -		rc = pmac_i2c_xfer(bus, addrdir, 1, command, &data->byte, 1);
+> +		buf = &data->byte;
+> +		len = 1;
+>  	    	break;
+>          case I2C_SMBUS_WORD_DATA:
+> -		rc = pmac_i2c_setmode(bus, read ?
+> -				      pmac_i2c_mode_combined :
+> -				      pmac_i2c_mode_stdsub);
+> -		if (rc)
+> -			goto bail;
+>  		if (!read) {
+>  			local[0] = data->word & 0xff;
+>  			local[1] = (data->word >> 8) & 0xff;
+>  		}
+> -		rc = pmac_i2c_xfer(bus, addrdir, 1, command, local, 2);
+> -		if (rc == 0 && read) {
+> -			data->word = ((u16)local[1]) << 8;
+> -			data->word |= local[0];
+> -		}
+> +		buf = local;
+> +		len = 2;
+>  	    	break;
+>  
+>  	/* Note that these are broken vs. the expected smbus API where
+> @@ -105,28 +95,35 @@ static s32 i2c_powermac_smbus_xfer(	stru
+>  	 * a repeat start/addr phase (but not stop in between)
+>  	 */
+>          case I2C_SMBUS_BLOCK_DATA:
+> -		rc = pmac_i2c_setmode(bus, read ?
+> -				      pmac_i2c_mode_combined :
+> -				      pmac_i2c_mode_stdsub);
+> -		if (rc)
+> -			goto bail;
+> -		rc = pmac_i2c_xfer(bus, addrdir, 1, command, data->block,
+> -				   data->block[0] + 1);
+> -
+> +		buf = data->block;
+> +		len = data->block[0] + 1;
+>  		break;
+>  	case I2C_SMBUS_I2C_BLOCK_DATA:
+> -		rc = pmac_i2c_setmode(bus, read ?
+> -				      pmac_i2c_mode_combined :
+> -				      pmac_i2c_mode_stdsub);
+> -		if (rc)
+> -			goto bail;
+> -		rc = pmac_i2c_xfer(bus, addrdir, 1, command,
+> -				   &data->block[1], data->block[0]);
+> +		buf = &data->block[1];
+> +		len = data->block[0];
+>  		break;
+>  
+>          default:
+> -	    	rc = -EINVAL;
+> +		return -EINVAL;
+> +	}
+> +
+> +	rc = pmac_i2c_open(bus, 0);
+> +	if (rc)
+> +		return rc;
+> +
+> +	rc = pmac_i2c_setmode(bus, mode);
+> +	if (rc)
+> +		goto bail;
+> +
+> +	rc = pmac_i2c_xfer(bus, addrdir, subsize, subaddr, buf, len);
+> +	if (rc)
+> +		goto bail;
+> +
+> +	if (size == I2C_SMBUS_WORD_DATA && read) {
+> +		data->word = ((u16)local[1]) << 8;
+> +		data->word |= local[0];
+>  	}
+> +
+>   bail:
+>  	pmac_i2c_close(bus);
+>  	return rc;
+> 
+> 
