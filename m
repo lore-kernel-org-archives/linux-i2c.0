@@ -1,84 +1,73 @@
-From: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
- driver
-Date: Fri, 9 Oct 2009 19:54:11 -0400
-Message-ID: <COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
-References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091009083519.2659a79a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-List-Id: linux-i2c@vger.kernel.org
-
-
- <20091009083519.2659a79a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-bfin-twi: integrate
+	timeout timer withcompletion interface
+Date: Sat, 10 Oct 2009 12:04:28 +0800
+Message-ID: <0F1B54C89D5F954D8535DB252AF412FA04D703EB@chinexm1.ad.analog.com>
+References: <1254973096-4391-1-git-send-email-vapier@gentoo.org>
+	<20091008093817.GB6112@pengutronix.de>
+	<0F1B54C89D5F954D8535DB252AF412FA04D6FC09@chinexm1.ad.analog.com>
+	<8bd0f97a0910082210x7d89ac85wf9e9d144b59bdb85@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <8bd0f97a0910082210x7d89ac85wf9e9d144b59bdb85-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+List-Id: linux-i2c@vger.kernel.org
+
+OK. The definition of adapter->timeout changed in new kernel from 10 millis=
+econd to jiffies. So, change accordingly.
+
+Sonic =
 
 
-Hi Jean=2C
+-----Original Message-----
+From: Mike Frysinger [mailto:vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] =
 
+Sent: Friday, October 09, 2009 1:10 PM
+To: Zhang, Sonic
+Cc: Wolfram Sang; uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org; linux-i2c@vger.k=
+ernel.org; Ben Dooks
+Subject: Re: [Uclinux-dist-devel] [PATCH 1/2] i2c-bfin-twi: integrate timeo=
+ut timer withcompletion interface
 
-Thanks much for your response.=20
+On Fri, Oct 9, 2009 at 00:49, Zhang, Sonic wrote:
+> From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
+>> On Wed, Oct 07, 2009 at 11:38:15PM -0400, Mike Frysinger wrote:
+>>> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>>
+>>> There isn't much point in managing our own custom timeout timer when =
 
-1) Thanks for correcting: ADM1066 as you mentioned does not require process=
- call.
+>>> the completion interface already includes support for it. =A0This =
 
-2) From eeprom AT24C64 sheets: It support  Sequential Random Read. After th=
-e micro controller receives a data word=2C it responds with an acknowledge.=
- As long as the EEPROM receives an acknowledge=2C it will continue to incre=
-ment the data word address and serially clock out sequential data words... =
-The sequential read operation is terminated when the micro controller does =
-not respond with a zero but does generate a following stop condition".
-
-The above seems to map to SMBUS Process Call Cycle with I2C_EN=3D1b.
-
-Pls suggest.
-
-
-Thanks=2C
-Krishna
-
-
-
-----------------------------------------
-> Date: Fri=2C 9 Oct 2009 08:35:19 +0200
-> From: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-> To: krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
-> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: Looking for ICH SMBUS "Process call" support in i2c-i801 bus=
- driver
+>>> makes the resulting code much simpler and robust.
+>>
+>> This sounds like a good thing to do, but keep in mind that
+>> adapter->timeout values should be in jiffies (see
+>> 8a52c6b4d55b2960d93a90a7cf6afd252357fa54).
 >
-> Hi Krishna=2C
->
-> On Thu=2C 8 Oct 2009 19:09:27 -0400=2C Krishna Kothapalli wrote:
->> I have a couple of devices EEDPROM and Power Sequencer(ADM1066) that nee=
-d "Sequential Random Read" which has 2 byte address requirements.
->> Currently Process call is not implemented in code drivers/i2c/busses/i2c=
--i801.c.
->
-> This is correct. Adding process call support to the i2c-i801 driver
-> would be easy=2C I even think some developers have done it already but
-> omitted to send the changes upstream.
->
-> However=2C beware that SMBus process call is _not_ 2-byte addressing. It
-> is single-byte addressing=2C followed by two bytes from master to slave=
-=2C
-> followed by two bytes from slave to master. Are you certain you need
-> SMBus process call for the ADM1066? The datasheet doesn't mention it.
-> All the SMBus transactions mentioned in the ADM1066 datasheet are
-> already supported by the i2c-i801 driver.
->
->> Appreciate any suggestions for alternative implementations.
->
-> Please make sure you know what your needs are=2C first.
->
-> --
-> Jean Delvare
-> http://khali.linux-fr.org/wishlist.html
- 		 	   		  =0A=
-_________________________________________________________________=0A=
-Hotmail: Powerful Free email with security by Microsoft.=0A=
-http://clk.atdmt.com/GBL/go/171222986/direct/01/=
+> Yes, jiffies is used in this patch for timeout value.
+
+no it isnt.  the commit he refers to does things like:
+-   adap->timeout =3D 1;
++   adap->timeout =3D HZ;
+        ret =3D wait_event_interruptible_timeout(dev->wq,
+-           !(in_8(&iic->sts) & STS_PT), dev->adap.timeout * HZ);
++           !(in_8(&iic->sts) & STS_PT), dev->adap.timeout);
+
+we need to make the same change as our code is currently wrong:
++               if (!wait_for_completion_timeout(&iface->complete,
++                       adap->timeout * HZ)) {
++       p_adap->timeout =3D 5;
+-mike
