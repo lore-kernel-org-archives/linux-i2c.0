@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/2] i2c-powermac: Refactor i2c_powermac_smbus_xfer
-Date: Sat, 10 Oct 2009 14:19:08 +0200
-Message-ID: <20091010141908.0be884a5@hyperion.delvare>
+Subject: [PATCH 2/2] i2c-powermac: Log errors
+Date: Sat, 10 Oct 2009 14:20:28 +0200
+Message-ID: <20091010142028.52f19518@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -11,141 +11,71 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I wanted to add some error logging to the i2c-powermac driver, but
-found that it was very difficult due to the way the
-i2c_powermac_smbus_xfer function is organized. Refactor the code in
-this function so that each low-level function is only called once.
+Log errors when they happen, otherwise we have no idea what went
+wrong.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 Cc: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
 ---
-This needs testing! Thanks.
+ drivers/i2c/busses/i2c-powermac.c |   28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
- drivers/i2c/busses/i2c-powermac.c |   85 +++++++++++++++++--------------------
- 1 file changed, 41 insertions(+), 44 deletions(-)
-
---- linux-2.6.32-rc3.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:08:39.000000000 +0200
-+++ linux-2.6.32-rc3/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:13:04.000000000 +0200
-@@ -49,48 +49,38 @@ static s32 i2c_powermac_smbus_xfer(	stru
- 	int			rc = 0;
- 	int			read = (read_write == I2C_SMBUS_READ);
- 	int			addrdir = (addr << 1) | read;
-+	int			mode, subsize, len;
-+	u32			subaddr;
-+	u8			*buf;
- 	u8			local[2];
- 
--	rc = pmac_i2c_open(bus, 0);
--	if (rc)
--		return rc;
-+	if (size == I2C_SMBUS_QUICK || size == I2C_SMBUS_BYTE) {
-+		mode = pmac_i2c_mode_std;
-+		subsize = 0;
-+		subaddr = 0;
-+	} else {
-+		mode = read ? pmac_i2c_mode_combined : pmac_i2c_mode_stdsub;
-+		subsize = 1;
-+		subaddr = command;
-+	}
- 
- 	switch (size) {
-         case I2C_SMBUS_QUICK:
--		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
--		if (rc)
--			goto bail;
--		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, NULL, 0);
-+		buf = NULL;
-+		len = 0;
- 	    	break;
-         case I2C_SMBUS_BYTE:
--		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
--		if (rc)
--			goto bail;
--		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, &data->byte, 1);
--	    	break;
-         case I2C_SMBUS_BYTE_DATA:
--		rc = pmac_i2c_setmode(bus, read ?
--				      pmac_i2c_mode_combined :
--				      pmac_i2c_mode_stdsub);
--		if (rc)
--			goto bail;
--		rc = pmac_i2c_xfer(bus, addrdir, 1, command, &data->byte, 1);
-+		buf = &data->byte;
-+		len = 1;
- 	    	break;
-         case I2C_SMBUS_WORD_DATA:
--		rc = pmac_i2c_setmode(bus, read ?
--				      pmac_i2c_mode_combined :
--				      pmac_i2c_mode_stdsub);
--		if (rc)
--			goto bail;
- 		if (!read) {
- 			local[0] = data->word & 0xff;
- 			local[1] = (data->word >> 8) & 0xff;
- 		}
--		rc = pmac_i2c_xfer(bus, addrdir, 1, command, local, 2);
--		if (rc == 0 && read) {
--			data->word = ((u16)local[1]) << 8;
--			data->word |= local[0];
--		}
-+		buf = local;
-+		len = 2;
- 	    	break;
- 
- 	/* Note that these are broken vs. the expected smbus API where
-@@ -105,28 +95,35 @@ static s32 i2c_powermac_smbus_xfer(	stru
- 	 * a repeat start/addr phase (but not stop in between)
- 	 */
-         case I2C_SMBUS_BLOCK_DATA:
--		rc = pmac_i2c_setmode(bus, read ?
--				      pmac_i2c_mode_combined :
--				      pmac_i2c_mode_stdsub);
--		if (rc)
--			goto bail;
--		rc = pmac_i2c_xfer(bus, addrdir, 1, command, data->block,
--				   data->block[0] + 1);
--
-+		buf = data->block;
-+		len = data->block[0] + 1;
- 		break;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
--		rc = pmac_i2c_setmode(bus, read ?
--				      pmac_i2c_mode_combined :
--				      pmac_i2c_mode_stdsub);
--		if (rc)
--			goto bail;
--		rc = pmac_i2c_xfer(bus, addrdir, 1, command,
--				   &data->block[1], data->block[0]);
-+		buf = &data->block[1];
-+		len = data->block[0];
- 		break;
- 
-         default:
--	    	rc = -EINVAL;
-+		return -EINVAL;
-+	}
-+
-+	rc = pmac_i2c_open(bus, 0);
-+	if (rc)
-+		return rc;
-+
-+	rc = pmac_i2c_setmode(bus, mode);
-+	if (rc)
-+		goto bail;
-+
-+	rc = pmac_i2c_xfer(bus, addrdir, subsize, subaddr, buf, len);
-+	if (rc)
-+		goto bail;
-+
-+	if (size == I2C_SMBUS_WORD_DATA && read) {
-+		data->word = ((u16)local[1]) << 8;
-+		data->word |= local[0];
+--- linux-2.6.32-rc3.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:13:04.000000000 +0200
++++ linux-2.6.32-rc3/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:13:12.000000000 +0200
+@@ -108,16 +108,25 @@ static s32 i2c_powermac_smbus_xfer(	stru
  	}
-+
+ 
+ 	rc = pmac_i2c_open(bus, 0);
+-	if (rc)
++	if (rc) {
++		dev_err(&adap->dev, "Failed to open I2C, err %d\n", rc);
+ 		return rc;
++	}
+ 
+ 	rc = pmac_i2c_setmode(bus, mode);
+-	if (rc)
++	if (rc) {
++		dev_err(&adap->dev, "Failed to set I2C mode %d, err %d\n",
++			mode, rc);
+ 		goto bail;
++	}
+ 
+ 	rc = pmac_i2c_xfer(bus, addrdir, subsize, subaddr, buf, len);
+-	if (rc)
++	if (rc) {
++		dev_err(&adap->dev,
++			"I2C transfer at 0x%02x failed, size %d, err %d\n",
++			addrdir >> 1, size, rc);
+ 		goto bail;
++	}
+ 
+ 	if (size == I2C_SMBUS_WORD_DATA && read) {
+ 		data->word = ((u16)local[1]) << 8;
+@@ -157,12 +166,21 @@ static int i2c_powermac_master_xfer(	str
+ 		addrdir ^= 1;
+ 
+ 	rc = pmac_i2c_open(bus, 0);
+-	if (rc)
++	if (rc) {
++		dev_err(&adap->dev, "Failed to open I2C, err %d\n", rc);
+ 		return rc;
++	}
+ 	rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
+-	if (rc)
++	if (rc) {
++		dev_err(&adap->dev, "Failed to set I2C mode %d, err %d\n",
++			pmac_i2c_mode_std, rc);
+ 		goto bail;
++	}
+ 	rc = pmac_i2c_xfer(bus, addrdir, 0, 0, msgs->buf, msgs->len);
++	if (rc < 0)
++		dev_err(&adap->dev, "I2C %s 0x%02x failed, err %d\n",
++			addrdir & 1 ? "read from" : "write to", addrdir >> 1,
++			rc);
   bail:
  	pmac_i2c_close(bus);
- 	return rc;
+ 	return rc < 0 ? rc : 1;
 
 
 -- 
