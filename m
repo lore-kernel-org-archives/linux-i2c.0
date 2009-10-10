@@ -1,73 +1,76 @@
-From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-bfin-twi: integrate
-	timeout timer withcompletion interface
-Date: Sat, 10 Oct 2009 12:04:28 +0800
-Message-ID: <0F1B54C89D5F954D8535DB252AF412FA04D703EB@chinexm1.ad.analog.com>
-References: <1254973096-4391-1-git-send-email-vapier@gentoo.org>
-	<20091008093817.GB6112@pengutronix.de>
-	<0F1B54C89D5F954D8535DB252AF412FA04D6FC09@chinexm1.ad.analog.com>
-	<8bd0f97a0910082210x7d89ac85wf9e9d144b59bdb85@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
+ driver
+Date: Sat, 10 Oct 2009 09:09:51 +0200
+Message-ID: <20091010090951.1fd0e1a0@hyperion.delvare>
+References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
+	<COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Content-Class: urn:content-classes:message
-In-Reply-To: <8bd0f97a0910082210x7d89ac85wf9e9d144b59bdb85-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <COL117-W52FEEADBC012C39EE0485188CB0-MsuGFMq8XAE@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-OK. The definition of adapter->timeout changed in new kernel from 10 millis=
-econd to jiffies. So, change accordingly.
+Hi Krishna,
 
-Sonic =
+On Fri, 9 Oct 2009 19:54:11 -0400, Krishna Kothapalli wrote:
+> 
+>  <20091009083519.2659a79a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+> Content-Type: text/plain; charset="iso-8859-1"
+> Content-Transfer-Encoding: quoted-printable
+> MIME-Version: 1.0
+> 
+> 
+> Hi Jean=2C
 
+Your reply is badly formatted. Please check your e-mail client and/or
+e-mail server.
 
------Original Message-----
-From: Mike Frysinger [mailto:vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] =
+> Thanks much for your response.=20
+> 
+> 1) Thanks for correcting: ADM1066 as you mentioned does not require process=
+>  call.
+> 
+> 2) From eeprom AT24C64 sheets: It support  Sequential Random Read. After th=
+> e micro controller receives a data word=2C it responds with an acknowledge.=
+>  As long as the EEPROM receives an acknowledge=2C it will continue to incre=
+> ment the data word address and serially clock out sequential data words... =
+> The sequential read operation is terminated when the micro controller does =
+> not respond with a zero but does generate a following stop condition".
+> 
+> The above seems to map to SMBUS Process Call Cycle with I2C_EN=3D1b.
 
-Sent: Friday, October 09, 2009 1:10 PM
-To: Zhang, Sonic
-Cc: Wolfram Sang; uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org; linux-i2c@vger.k=
-ernel.org; Ben Dooks
-Subject: Re: [Uclinux-dist-devel] [PATCH 1/2] i2c-bfin-twi: integrate timeo=
-ut timer withcompletion interface
+Not really. What the ICH SMBus can do (using the SMBus process call
+with the I2C_EN bit set) is write a two-byte address and read exactly
+two bytes back. For the AT24C64, this corresponds to a sequential
+random read of size exactly 2 bytes. While I admit it would be possible
+to read from the AT24C64 using this transaction, it would perform
+rather badly: 6 bytes on the wire for 2 bytes of data read. Given how
+large the AT24C64 is, I doubt you will enjoy it, especially with the
+poll-based implementation of i2c-i801: you would need over 8 seconds to
+read the full EEPROM.
 
-On Fri, Oct 9, 2009 at 00:49, Zhang, Sonic wrote:
-> From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
->> On Wed, Oct 07, 2009 at 11:38:15PM -0400, Mike Frysinger wrote:
->>> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>>
->>> There isn't much point in managing our own custom timeout timer when =
+Additionally, implementing it would be technically difficult. What the
+ICH implements doesn't match any standard SMBus transaction, and I
+don't know of any other SMBus controller implementing this. I don't
+think we want to define a new functionality bit and helper function for
+a non-standard transaction type only implemented by one controller.
+Alternatively, we could let i2c-i801 claim that it supports raw I2C
+transactions, and only accept this exact type of transaction. But this
+would then require dedicated support in the at24 driver. That's not
+particularly appealing either.
 
->>> the completion interface already includes support for it. =A0This =
+As a matter of fact, the at24 driver only accept EEPROM types up to
+24C16 on SMBus controllers. For 24C32 and larger, it requires full I2C
+support. Connecting an AT24C64 to an Intel ICH SMBus controller is
+simply bad engineering. You'd rather use one or more AT24C16 instead,
+so you can use standard SMBus transactions and (one address byte) I2C
+block reads.
 
->>> makes the resulting code much simpler and robust.
->>
->> This sounds like a good thing to do, but keep in mind that
->> adapter->timeout values should be in jiffies (see
->> 8a52c6b4d55b2960d93a90a7cf6afd252357fa54).
->
-> Yes, jiffies is used in this patch for timeout value.
-
-no it isnt.  the commit he refers to does things like:
--   adap->timeout =3D 1;
-+   adap->timeout =3D HZ;
-        ret =3D wait_event_interruptible_timeout(dev->wq,
--           !(in_8(&iic->sts) & STS_PT), dev->adap.timeout * HZ);
-+           !(in_8(&iic->sts) & STS_PT), dev->adap.timeout);
-
-we need to make the same change as our code is currently wrong:
-+               if (!wait_for_completion_timeout(&iface->complete,
-+                       adap->timeout * HZ)) {
-+       p_adap->timeout =3D 5;
--mike
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
