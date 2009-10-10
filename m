@@ -1,249 +1,294 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
-Date: Sat, 10 Oct 2009 18:52:00 +0200
-Message-ID: <20091010185200.671846c5@hyperion.delvare>
-References: <4ACF4AC6.7070802@cam.ac.uk>
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/2 v2] i2c-bfin-twi: integrate timeout
+	timer with completion interface
+Date: Sat, 10 Oct 2009 13:44:39 -0400
+Message-ID: <1255196679-18482-1-git-send-email-vapier@gentoo.org>
+References: <1254973096-4391-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4ACF4AC6.7070802-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <1254973096-4391-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 09 Oct 2009 15:37:58 +0100, Jonathan Cameron wrote:
->  drivers/als/Kconfig                  |   14 ++++++
->  drivers/als/Makefile                 |    2 +
->  drivers/{i2c/chips => als}/tsl2550.c |   73 ++++++++++++++++++++++++++++++---
->  3 files changed, 82 insertions(+), 7 deletions(-)
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Review:
+There isn't much point in managing our own custom timeout timer when the
+completion interface already includes support for it.  This makes the
+resulting code much simpler and robust.
 
-> diff --git a/drivers/als/Kconfig b/drivers/als/Kconfig
-> index 200c52b..0c5dbb2 100644
-> --- a/drivers/als/Kconfig
-> +++ b/drivers/als/Kconfig
-> @@ -8,3 +8,17 @@ menuconfig ALS
->  	  This framework provides a generic sysfs I/F for Ambient Light
->  	  Sensor devices.
->  	  If you want this support, you should say Y or M here.
-> +
-> +if ALS
-> +
-> +config ALS_TSL2550
-> +	tristate "Taos TSL2550 ambient light sensor"
-> +	depends on EXPERIMENTAL
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+---
+v2
+	- define timeout in jiffies as pointed out by Wolfram
 
-As you found out already, you need to depend on I2C as well.
+ drivers/i2c/busses/i2c-bfin-twi.c |  125 +++++++++++++++++++-----------------
+ 1 files changed, 66 insertions(+), 59 deletions(-)
 
-> +	help
-> +	  If you say yes here you get support for the Taos TSL2550
-> +	  ambient light sensor.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called tsl2550.
-> +
-> +endif #ALS
-> diff --git a/drivers/als/Makefile b/drivers/als/Makefile
-> index a527197..7be5631 100644
-> --- a/drivers/als/Makefile
-> +++ b/drivers/als/Makefile
-> @@ -3,3 +3,5 @@
->  #
->  
->  obj-$(CONFIG_ALS)		+= als_sys.o
-> +
-> +obj-$(CONFIG_ALS_TSL2550)	+= tsl2550.o
-> \ No newline at end of file
-> diff --git a/drivers/i2c/chips/tsl2550.c b/drivers/als/tsl2550.c
-> similarity index 87%
-> rename from drivers/i2c/chips/tsl2550.c
-> rename to drivers/als/tsl2550.c
-> index aa96bd2..6c11695 100644
-> --- a/drivers/i2c/chips/tsl2550.c
-> +++ b/drivers/als/tsl2550.c
-> @@ -24,9 +24,12 @@
->  #include <linux/slab.h>
->  #include <linux/i2c.h>
->  #include <linux/mutex.h>
-> +#include <linux/err.h>
-> +#include <linux/idr.h>
-> +#include <linux/als_sys.h>
->  
->  #define TSL2550_DRV_NAME	"tsl2550"
-> -#define DRIVER_VERSION		"1.2"
-> +#define DRIVER_VERSION		"2"
-
-"2.0"?
-
->  
->  /*
->   * Defines
-> @@ -44,8 +47,10 @@
->   */
->  
->  struct tsl2550_data {
-> +	struct device *classdev;
->  	struct i2c_client *client;
->  	struct mutex update_lock;
-> +	unsigned int id;
->  
->  	unsigned int power_state : 1;
->  	unsigned int operating_mode : 1;
-> @@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
->  };
->  
->  /*
-> + * IDR to assign each registered device a unique id
-> + */
-> +static DEFINE_IDR(tsl2550_idr);
-> +static DEFINE_SPINLOCK(tsl2550_idr_lock);
-> +#define TSL2550_DEV_MAX 9
-
-Such an arbitrary limit is simply not acceptable.
-
-> +
-> +/*
->   * Management functions
->   */
->  
-> +static int tsl2550_get_id(void)
-> +{
-> +	int ret, val;
-> +
-> +idr_again:
-> +	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
-> +		return -ENOMEM;
-> +	spin_lock(&tsl2550_idr_lock);
-> +	ret = idr_get_new(&tsl2550_idr, NULL, &val);
-> +	if (unlikely(ret == -EAGAIN))
-> +		goto idr_again;
-> +	else if (unlikely(ret))
-> +		return ret;
-> +	if (val > TSL2550_DEV_MAX)
-> +		return -ENOMEM;
-> +	return val;
-> +}
-> +
-> +static void tsl2550_free_id(int val)
-> +{
-> +	spin_lock(&tsl2550_idr_lock);
-> +	idr_remove(&tsl2550_idr, val);
-> +	spin_unlock(&tsl2550_idr_lock);
-> +}
-
-Having to implement this in _every_ ALS driver sounds wrong and
-painful. If uniqueness of any kind must be provided, it should be
-handled by the ALS core and not by individual drivers, otherwise you
-can be certain that at least one driver will get it wrong someday.
-
-I'd imaging that als-class devices are simply named als%u. Just like
-hwmon devices are named hwmon%u, input devices are names input%u and
-event%u, etc. I don't know of any class pushing the naming down to its
-drivers, do you? The only example I can remember are i2c drivers back
-in year 1999, when they were part of lm-sensors.I have personally put
-an end to this years ago.
-
-> +
->  static int tsl2550_set_operating_mode(struct i2c_client *client, int mode)
->  {
->  	struct tsl2550_data *data = i2c_get_clientdata(client);
-> @@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
->  	return ret;
->  }
->  
-> -static DEVICE_ATTR(lux1_input, S_IRUGO,
-> +static DEVICE_ATTR(illuminance, S_IRUGO,
->  		   tsl2550_show_lux1_input, NULL);
-
-Question: if I have a light sensing chip with two sensors, how are we
-going to handle it? Will we register 2 als class devices? The initial
-naming convention had the advantage that you could have more than one
-sensor per device, but I don't know if it is desirable in practice.
-
->  
->  static struct attribute *tsl2550_attributes[] = {
->  	&dev_attr_power_state.attr,
->  	&dev_attr_operating_mode.attr,
-> -	&dev_attr_lux1_input.attr,
-> +	&dev_attr_illuminance.attr,
->  	NULL
->  };
->  
-> @@ -350,6 +387,7 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
->  	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
->  	struct tsl2550_data *data;
->  	int *opmode, err = 0;
-> +	char name[9];
->  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE
->  					    | I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
-> @@ -387,15 +425,31 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
->  	if (err)
->  		goto exit_kfree;
->  
-> +	data->id = tsl2550_get_id();
-> +	if (data->id < 0) {
-> +		err = data->id;
-> +		goto exit_kfree;
-> +	}
-> +	sprintf(name, "tsl2550%d", data->id);
-
-Please no. For one thing you should always use snprintf and not sprintf
-when writing to such small buffers. It's way too easy to get things
-wrong otherwise. And you really want a separator between the chip name
-and the id, because "tsl25500" will be confusing as hell.
-
-Not that these comments of mine really matter, as I don't think the
-above code should stay at all.
-
->  	/* Register sysfs hooks */
-> -	err = sysfs_create_group(&client->dev.kobj, &tsl2550_attr_group);
-> +	data->classdev = als_device_register(&client->dev, name);
-> +	if (IS_ERR(data->classdev)) {
-> +		err = PTR_ERR(data->classdev);
-> +		goto exit_free_id;
-> +	}
-> +
-> +	err = sysfs_create_group(&data->classdev->kobj, &tsl2550_attr_group);
->  	if (err)
-> -		goto exit_kfree;
-> +		goto exit_unreg;
->  
->  	dev_info(&client->dev, "support ver. %s enabled\n", DRIVER_VERSION);
->  
->  	return 0;
->  
-> +exit_unreg:
-> +	als_device_unregister(data->classdev);
-> +exit_free_id:
-> +	tsl2550_free_id(data->id);
->  exit_kfree:
->  	kfree(data);
->  exit:
-> @@ -404,12 +458,17 @@ exit:
->  
->  static int __devexit tsl2550_remove(struct i2c_client *client)
->  {
-> -	sysfs_remove_group(&client->dev.kobj, &tsl2550_attr_group);
-> +	struct tsl2550_data *data = i2c_get_clientdata(client);
-> +
-> +	sysfs_remove_group(&data->classdev->kobj, &tsl2550_attr_group);
-> +	als_device_unregister(data->classdev);
->  
->  	/* Power down the device */
->  	tsl2550_set_power_state(client, 0);
->  
-> -	kfree(i2c_get_clientdata(client));
-> +	tsl2550_free_id(data->id);
-> +
-> +	kfree(data);
->  
->  	return 0;
->  }
-
-
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index b309ac2..d35c677 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -24,8 +24,6 @@
+ #include <asm/portmux.h>
+ #include <asm/irq.h>
+ 
+-#define POLL_TIMEOUT       (2 * HZ)
+-
+ /* SMBus mode*/
+ #define TWI_I2C_MODE_STANDARD		1
+ #define TWI_I2C_MODE_STANDARDSUB	2
+@@ -43,8 +41,6 @@ struct bfin_twi_iface {
+ 	int			cur_mode;
+ 	int			manual_stop;
+ 	int			result;
+-	int			timeout_count;
+-	struct timer_list	timeout_timer;
+ 	struct i2c_adapter	adap;
+ 	struct completion	complete;
+ 	struct i2c_msg 		*pmsg;
+@@ -168,16 +164,13 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			write_INT_MASK(iface, 0);
+ 			write_MASTER_CTL(iface, 0);
+ 			SSYNC();
+-			/* If it is a quick transfer, only address bug no data,
++			/* If it is a quick transfer, only address without data,
+ 			 * not an err, return 1.
++			 * If address is acknowledged return 1.
+ 			 */
+-			if (iface->writeNum == 0 && (mast_stat & BUFRDERR))
++			if ((iface->writeNum == 0 && (mast_stat & BUFRDERR))
++				|| !(mast_stat & ANAK))
+ 				iface->result = 1;
+-			/* If address not acknowledged return -1,
+-			 * else return 0.
+-			 */
+-			else if (!(mast_stat & ANAK))
+-				iface->result = 0;
+ 		}
+ 		complete(&iface->complete);
+ 		return;
+@@ -249,9 +242,9 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			write_INT_MASK(iface, 0);
+ 			write_MASTER_CTL(iface, 0);
+ 			SSYNC();
+-			complete(&iface->complete);
+ 		}
+ 	}
++	complete(&iface->complete);
+ }
+ 
+ /* Interrupt handler */
+@@ -261,36 +254,15 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void *dev_id)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&iface->lock, flags);
+-	del_timer(&iface->timeout_timer);
+ 	bfin_twi_handle_interrupt(iface);
+ 	spin_unlock_irqrestore(&iface->lock, flags);
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void bfin_twi_timeout(unsigned long data)
+-{
+-	struct bfin_twi_iface *iface = (struct bfin_twi_iface *)data;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&iface->lock, flags);
+-	bfin_twi_handle_interrupt(iface);
+-	if (iface->result == 0) {
+-		iface->timeout_count--;
+-		if (iface->timeout_count > 0) {
+-			iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-			add_timer(&iface->timeout_timer);
+-		} else {
+-			iface->result = -1;
+-			complete(&iface->complete);
+-		}
+-	}
+-	spin_unlock_irqrestore(&iface->lock, flags);
+-}
+-
+ /*
+- * Generic i2c master transfer entrypoint
++ * One i2c master transfer
+  */
+-static int bfin_twi_master_xfer(struct i2c_adapter *adap,
++static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
+ 				struct i2c_msg *msgs, int num)
+ {
+ 	struct bfin_twi_iface *iface = adap->algo_data;
+@@ -318,7 +290,6 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
+ 	iface->transPtr = pmsg->buf;
+ 	iface->writeNum = iface->readNum = pmsg->len;
+ 	iface->result = 0;
+-	iface->timeout_count = 10;
+ 	init_completion(&(iface->complete));
+ 	/* Set Transmit device address */
+ 	write_MASTER_ADDR(iface, pmsg->addr);
+@@ -357,30 +328,49 @@ static int bfin_twi_master_xfer(struct i2c_adapter *adap,
+ 		iface->manual_stop = 1;
+ 	}
+ 
+-	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-	add_timer(&iface->timeout_timer);
+-
+ 	/* Master enable */
+ 	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
+ 		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
+ 		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
+ 	SSYNC();
+ 
+-	wait_for_completion(&iface->complete);
+-
+-	rc = iface->result;
++	while (!iface->result) {
++		if (!wait_for_completion_timeout(&iface->complete,
++			adap->timeout)) {
++			iface->result = -1;
++			dev_err(&adap->dev, "master transfer timeout\n");
++		}
++	}
+ 
+-	if (rc == 1)
+-		return num;
++	if (iface->result == 1)
++		rc = iface->cur_msg + 1;
+ 	else
+-		return rc;
++		rc = iface->result;
++
++	return rc;
+ }
+ 
+ /*
+- * SMBus type transfer entrypoint
++ * Generic i2c master transfer entrypoint
+  */
++static int bfin_twi_master_xfer(struct i2c_adapter *adap,
++				struct i2c_msg *msgs, int num)
++{
++	int i, ret = 0;
+ 
+-int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
++	for (i = 0; i < adap->retries; i++) {
++		ret = bfin_twi_do_master_xfer(adap, msgs, num);
++		if (ret > 0)
++			break;
++	}
++
++	return ret;
++}
++
++/*
++ * One I2C SMBus transfer
++ */
++int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 			unsigned short flags, char read_write,
+ 			u8 command, int size, union i2c_smbus_data *data)
+ {
+@@ -468,7 +458,6 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 	iface->manual_stop = 0;
+ 	iface->read_write = read_write;
+ 	iface->command = command;
+-	iface->timeout_count = 10;
+ 	init_completion(&(iface->complete));
+ 
+ 	/* FIFO Initiation. Data in FIFO should be discarded before
+@@ -485,9 +474,6 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 	write_MASTER_ADDR(iface, addr);
+ 	SSYNC();
+ 
+-	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-	add_timer(&iface->timeout_timer);
+-
+ 	switch (iface->cur_mode) {
+ 	case TWI_I2C_MODE_STANDARDSUB:
+ 		write_XMT_DATA8(iface, iface->command);
+@@ -549,10 +535,8 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 				else if (iface->readNum > 255) {
+ 					write_MASTER_CTL(iface, 0xff << 6);
+ 					iface->manual_stop = 1;
+-				} else {
+-					del_timer(&iface->timeout_timer);
++				} else
+ 					break;
+-				}
+ 			}
+ 		}
+ 		write_INT_MASK(iface, MCOMP | MERR |
+@@ -568,7 +552,13 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 	}
+ 	SSYNC();
+ 
+-	wait_for_completion(&iface->complete);
++	while (!iface->result) {
++		if (!wait_for_completion_timeout(&iface->complete,
++			adap->timeout)) {
++			iface->result = -1;
++			dev_err(&adap->dev, "smbus transfer timeout\n");
++		}
++	}
+ 
+ 	rc = (iface->result >= 0) ? 0 : -1;
+ 
+@@ -576,6 +566,25 @@ int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ }
+ 
+ /*
++ * Generic I2C SMBus transfer entrypoint
++ */
++int bfin_twi_smbus_xfer(struct i2c_adapter *adap, u16 addr,
++			unsigned short flags, char read_write,
++			u8 command, int size, union i2c_smbus_data *data)
++{
++	int i, ret = 0;
++
++	for (i = 0; i < adap->retries; i++) {
++		ret = bfin_twi_do_smbus_xfer(adap, addr, flags,
++			read_write, command, size, data);
++		if (ret == 0)
++			break;
++	}
++
++	return ret;
++}
++
++/*
+  * Return what the adapter supports
+  */
+ static u32 bfin_twi_functionality(struct i2c_adapter *adap)
+@@ -666,10 +675,6 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 		goto out_error_no_irq;
+ 	}
+ 
+-	init_timer(&(iface->timeout_timer));
+-	iface->timeout_timer.function = bfin_twi_timeout;
+-	iface->timeout_timer.data = (unsigned long)iface;
+-
+ 	p_adap = &iface->adap;
+ 	p_adap->nr = pdev->id;
+ 	strlcpy(p_adap->name, pdev->name, sizeof(p_adap->name));
+@@ -677,6 +682,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	p_adap->algo_data = iface;
+ 	p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	p_adap->dev.parent = &pdev->dev;
++	p_adap->timeout = 5 * HZ;
++	p_adap->retries = 3;
+ 
+ 	rc = peripheral_request_list(pin_req[pdev->id], "i2c-bfin-twi");
+ 	if (rc) {
 -- 
-Jean Delvare
+1.6.5.rc2
