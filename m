@@ -1,76 +1,152 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
- driver
-Date: Sat, 10 Oct 2009 09:09:51 +0200
-Message-ID: <20091010090951.1fd0e1a0@hyperion.delvare>
-References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
-	<COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
+Subject: [PATCH 1/2] i2c-powermac: Refactor i2c_powermac_smbus_xfer
+Date: Sat, 10 Oct 2009 14:19:08 +0200
+Message-ID: <20091010141908.0be884a5@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <COL117-W52FEEADBC012C39EE0485188CB0-MsuGFMq8XAE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Krishna,
+I wanted to add some error logging to the i2c-powermac driver, but
+found that it was very difficult due to the way the
+i2c_powermac_smbus_xfer function is organized. Refactor the code in
+this function so that each low-level function is only called once.
 
-On Fri, 9 Oct 2009 19:54:11 -0400, Krishna Kothapalli wrote:
-> 
->  <20091009083519.2659a79a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-> Content-Type: text/plain; charset="iso-8859-1"
-> Content-Transfer-Encoding: quoted-printable
-> MIME-Version: 1.0
-> 
-> 
-> Hi Jean=2C
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+---
+This needs testing! Thanks.
 
-Your reply is badly formatted. Please check your e-mail client and/or
-e-mail server.
+ drivers/i2c/busses/i2c-powermac.c |   85 +++++++++++++++++--------------------
+ 1 file changed, 41 insertions(+), 44 deletions(-)
 
-> Thanks much for your response.=20
-> 
-> 1) Thanks for correcting: ADM1066 as you mentioned does not require process=
->  call.
-> 
-> 2) From eeprom AT24C64 sheets: It support  Sequential Random Read. After th=
-> e micro controller receives a data word=2C it responds with an acknowledge.=
->  As long as the EEPROM receives an acknowledge=2C it will continue to incre=
-> ment the data word address and serially clock out sequential data words... =
-> The sequential read operation is terminated when the micro controller does =
-> not respond with a zero but does generate a following stop condition".
-> 
-> The above seems to map to SMBUS Process Call Cycle with I2C_EN=3D1b.
+--- linux-2.6.32-rc3.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:08:39.000000000 +0200
++++ linux-2.6.32-rc3/drivers/i2c/busses/i2c-powermac.c	2009-10-10 14:13:04.000000000 +0200
+@@ -49,48 +49,38 @@ static s32 i2c_powermac_smbus_xfer(	stru
+ 	int			rc = 0;
+ 	int			read = (read_write == I2C_SMBUS_READ);
+ 	int			addrdir = (addr << 1) | read;
++	int			mode, subsize, len;
++	u32			subaddr;
++	u8			*buf;
+ 	u8			local[2];
+ 
+-	rc = pmac_i2c_open(bus, 0);
+-	if (rc)
+-		return rc;
++	if (size == I2C_SMBUS_QUICK || size == I2C_SMBUS_BYTE) {
++		mode = pmac_i2c_mode_std;
++		subsize = 0;
++		subaddr = 0;
++	} else {
++		mode = read ? pmac_i2c_mode_combined : pmac_i2c_mode_stdsub;
++		subsize = 1;
++		subaddr = command;
++	}
+ 
+ 	switch (size) {
+         case I2C_SMBUS_QUICK:
+-		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
+-		if (rc)
+-			goto bail;
+-		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, NULL, 0);
++		buf = NULL;
++		len = 0;
+ 	    	break;
+         case I2C_SMBUS_BYTE:
+-		rc = pmac_i2c_setmode(bus, pmac_i2c_mode_std);
+-		if (rc)
+-			goto bail;
+-		rc = pmac_i2c_xfer(bus, addrdir, 0, 0, &data->byte, 1);
+-	    	break;
+         case I2C_SMBUS_BYTE_DATA:
+-		rc = pmac_i2c_setmode(bus, read ?
+-				      pmac_i2c_mode_combined :
+-				      pmac_i2c_mode_stdsub);
+-		if (rc)
+-			goto bail;
+-		rc = pmac_i2c_xfer(bus, addrdir, 1, command, &data->byte, 1);
++		buf = &data->byte;
++		len = 1;
+ 	    	break;
+         case I2C_SMBUS_WORD_DATA:
+-		rc = pmac_i2c_setmode(bus, read ?
+-				      pmac_i2c_mode_combined :
+-				      pmac_i2c_mode_stdsub);
+-		if (rc)
+-			goto bail;
+ 		if (!read) {
+ 			local[0] = data->word & 0xff;
+ 			local[1] = (data->word >> 8) & 0xff;
+ 		}
+-		rc = pmac_i2c_xfer(bus, addrdir, 1, command, local, 2);
+-		if (rc == 0 && read) {
+-			data->word = ((u16)local[1]) << 8;
+-			data->word |= local[0];
+-		}
++		buf = local;
++		len = 2;
+ 	    	break;
+ 
+ 	/* Note that these are broken vs. the expected smbus API where
+@@ -105,28 +95,35 @@ static s32 i2c_powermac_smbus_xfer(	stru
+ 	 * a repeat start/addr phase (but not stop in between)
+ 	 */
+         case I2C_SMBUS_BLOCK_DATA:
+-		rc = pmac_i2c_setmode(bus, read ?
+-				      pmac_i2c_mode_combined :
+-				      pmac_i2c_mode_stdsub);
+-		if (rc)
+-			goto bail;
+-		rc = pmac_i2c_xfer(bus, addrdir, 1, command, data->block,
+-				   data->block[0] + 1);
+-
++		buf = data->block;
++		len = data->block[0] + 1;
+ 		break;
+ 	case I2C_SMBUS_I2C_BLOCK_DATA:
+-		rc = pmac_i2c_setmode(bus, read ?
+-				      pmac_i2c_mode_combined :
+-				      pmac_i2c_mode_stdsub);
+-		if (rc)
+-			goto bail;
+-		rc = pmac_i2c_xfer(bus, addrdir, 1, command,
+-				   &data->block[1], data->block[0]);
++		buf = &data->block[1];
++		len = data->block[0];
+ 		break;
+ 
+         default:
+-	    	rc = -EINVAL;
++		return -EINVAL;
++	}
++
++	rc = pmac_i2c_open(bus, 0);
++	if (rc)
++		return rc;
++
++	rc = pmac_i2c_setmode(bus, mode);
++	if (rc)
++		goto bail;
++
++	rc = pmac_i2c_xfer(bus, addrdir, subsize, subaddr, buf, len);
++	if (rc)
++		goto bail;
++
++	if (size == I2C_SMBUS_WORD_DATA && read) {
++		data->word = ((u16)local[1]) << 8;
++		data->word |= local[0];
+ 	}
++
+  bail:
+ 	pmac_i2c_close(bus);
+ 	return rc;
 
-Not really. What the ICH SMBus can do (using the SMBus process call
-with the I2C_EN bit set) is write a two-byte address and read exactly
-two bytes back. For the AT24C64, this corresponds to a sequential
-random read of size exactly 2 bytes. While I admit it would be possible
-to read from the AT24C64 using this transaction, it would perform
-rather badly: 6 bytes on the wire for 2 bytes of data read. Given how
-large the AT24C64 is, I doubt you will enjoy it, especially with the
-poll-based implementation of i2c-i801: you would need over 8 seconds to
-read the full EEPROM.
-
-Additionally, implementing it would be technically difficult. What the
-ICH implements doesn't match any standard SMBus transaction, and I
-don't know of any other SMBus controller implementing this. I don't
-think we want to define a new functionality bit and helper function for
-a non-standard transaction type only implemented by one controller.
-Alternatively, we could let i2c-i801 claim that it supports raw I2C
-transactions, and only accept this exact type of transaction. But this
-would then require dedicated support in the at24 driver. That's not
-particularly appealing either.
-
-As a matter of fact, the at24 driver only accept EEPROM types up to
-24C16 on SMBus controllers. For 24C32 and larger, it requires full I2C
-support. Connecting an AT24C64 to an Intel ICH SMBus controller is
-simply bad engineering. You'd rather use one or more AT24C16 instead,
-so you can use standard SMBus transactions and (one address byte) I2C
-block reads.
 
 -- 
 Jean Delvare
-http://khali.linux-fr.org/wishlist.html
