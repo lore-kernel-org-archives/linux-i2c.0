@@ -1,49 +1,41 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-Date: Mon, 12 Oct 2009 13:21:25 +0300
-Message-ID: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: ben-linux@fluff.org, linux-i2c@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, j-pakaravoor@ti.com
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] Modify code name SB900 to Hudson-2
+Date: Mon, 12 Oct 2009 12:51:51 +0200
+Message-ID: <20091012125151.2d0ef7bc@hyperion.delvare>
+References: <20091012020518.GA19626@crane-desktop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20091012020518.GA19626@crane-desktop>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+Hi Crane,
 
-Include wake up events for receiver overflow and transmitter
-underflow in OMAP_I2C_WE_REG configuration. Also fix a small
-typo.
+On Mon, 12 Oct 2009 10:05:18 +0800, Crane Cai wrote:
+> Hi Jean,
+> We have changed the name of SB900 chip, and the source needs change also.
+> Please apply.
+> Thanks,
+> - Crane
+> 
+> ---
+> Change SB900 to its formal code name Hudson-2.
+> 
+> Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
+> ---
+>  Documentation/i2c/busses/i2c-piix4 |    2 +-
+>  drivers/i2c/busses/Kconfig         |    2 +-
+>  drivers/i2c/busses/i2c-piix4.c     |    4 ++--
+>  include/linux/pci_ids.h            |    2 +-
+>  4 files changed, 5 insertions(+), 5 deletions(-)
 
-Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
----
- drivers/i2c/busses/i2c-omap.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+Applied, thanks. Will go in kernel 2.6.32.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 827da08..34ea9ed 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -92,8 +92,10 @@
- #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
- 
- /* I2C WE wakeup enable register */
--#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
-+#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
- #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
-+#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
-+#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
- #define OMAP_I2C_WE_AAS_WE	(1 << 9)	/* Address as slave wakeup*/
- #define OMAP_I2C_WE_BF_WE	(1 << 8)	/* Bus free wakeup */
- #define OMAP_I2C_WE_STC_WE	(1 << 6)	/* Start condition wakeup */
-@@ -104,6 +106,7 @@
- #define OMAP_I2C_WE_AL_WE	(1 << 0)	/* Arbitration lost wakeup */
- 
- #define OMAP_I2C_WE_ALL		(OMAP_I2C_WE_XDR_WE | OMAP_I2C_WE_RDR_WE | \
-+				OMAP_I2C_WE_ROVR_WE | OMAP_I2C_WE_XUDF_WE | \
- 				OMAP_I2C_WE_AAS_WE | OMAP_I2C_WE_BF_WE | \
- 				OMAP_I2C_WE_STC_WE | OMAP_I2C_WE_GC_WE | \
- 				OMAP_I2C_WE_DRDY_WE | OMAP_I2C_WE_ARDY_WE | \
+I have also added support to sensors-detect.
+
 -- 
-1.6.0.4
-
+Jean Delvare
