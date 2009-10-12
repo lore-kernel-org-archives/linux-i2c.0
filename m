@@ -1,41 +1,218 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Modify code name SB900 to Hudson-2
-Date: Mon, 12 Oct 2009 12:51:51 +0200
-Message-ID: <20091012125151.2d0ef7bc@hyperion.delvare>
-References: <20091012020518.GA19626@crane-desktop>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
+Date: Mon, 12 Oct 2009 15:19:07 +0100
+Message-ID: <4AD33ADB.4000500@cam.ac.uk>
+References: <4ACF4AC6.7070802@cam.ac.uk> <20091010185200.671846c5@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091012020518.GA19626@crane-desktop>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756835AbZJLOTg@vger.kernel.org>
+In-Reply-To: <20091010185200.671846c5@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, "Michele De Candia (VT)" <michele.decandia@valueteam.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Crane,
+For those not following this driver, Jean does raise the issue
+of device naming again and I think we really need to settle
+this one before progressing with ALS in general.
 
-On Mon, 12 Oct 2009 10:05:18 +0800, Crane Cai wrote:
-> Hi Jean,
-> We have changed the name of SB900 chip, and the source needs change also.
-> Please apply.
-> Thanks,
-> - Crane
 > 
-> ---
-> Change SB900 to its formal code name Hudson-2.
+> "2.0"?
+True, that would be consistent.
 > 
-> Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-> ---
->  Documentation/i2c/busses/i2c-piix4 |    2 +-
->  drivers/i2c/busses/Kconfig         |    2 +-
->  drivers/i2c/busses/i2c-piix4.c     |    4 ++--
->  include/linux/pci_ids.h            |    2 +-
->  4 files changed, 5 insertions(+), 5 deletions(-)
-
-Applied, thanks. Will go in kernel 2.6.32.
-
-I have also added support to sensors-detect.
-
--- 
-Jean Delvare
+>>  
+>>  /*
+>>   * Defines
+>> @@ -44,8 +47,10 @@
+>>   */
+>>  
+>>  struct tsl2550_data {
+>> +	struct device *classdev;
+>>  	struct i2c_client *client;
+>>  	struct mutex update_lock;
+>> +	unsigned int id;
+>>  
+>>  	unsigned int power_state : 1;
+>>  	unsigned int operating_mode : 1;
+>> @@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
+>>  };
+>>  
+>>  /*
+>> + * IDR to assign each registered device a unique id
+>> + */
+>> +static DEFINE_IDR(tsl2550_idr);
+>> +static DEFINE_SPINLOCK(tsl2550_idr_lock);
+>> +#define TSL2550_DEV_MAX 9
+> 
+> Such an arbitrary limit is simply not acceptable.
+Fair enough, but it is based on restricting the size
+of the char array needed for the name when registering
+with als.  Hence single digit decimal maximum.
+Do you suggest leaving it unrestricted (which makes code
+a little fiddly given variable size of max idr) or some other
+limit?
+ 
+>> +
+>> +/*
+>>   * Management functions
+>>   */
+>>  
+>> +static int tsl2550_get_id(void)
+>> +{
+>> +	int ret, val;
+>> +
+>> +idr_again:
+>> +	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
+>> +		return -ENOMEM;
+>> +	spin_lock(&tsl2550_idr_lock);
+>> +	ret = idr_get_new(&tsl2550_idr, NULL, &val);
+>> +	if (unlikely(ret == -EAGAIN))
+>> +		goto idr_again;
+>> +	else if (unlikely(ret))
+>> +		return ret;
+>> +	if (val > TSL2550_DEV_MAX)
+>> +		return -ENOMEM;
+>> +	return val;
+>> +}
+>> +
+>> +static void tsl2550_free_id(int val)
+>> +{
+>> +	spin_lock(&tsl2550_idr_lock);
+>> +	idr_remove(&tsl2550_idr, val);
+>> +	spin_unlock(&tsl2550_idr_lock);
+>> +}
+> 
+> Having to implement this in _every_ ALS driver sounds wrong and
+> painful. If uniqueness of any kind must be provided, it should be
+> handled by the ALS core and not by individual drivers, otherwise you
+> can be certain that at least one driver will get it wrong someday.
+I agree. The reason this originally occurred is that the acpi layer
+apparently doesn't allow for simultaneous probing of multiple drivers
+and hence can get away with a simple counter and no locking.
+> 
+> I'd imaging that als-class devices are simply named als%u. Just like
+> hwmon devices are named hwmon%u, input devices are names input%u and
+> event%u, etc. I don't know of any class pushing the naming down to its
+> drivers, do you? The only example I can remember are i2c drivers back
+> in year 1999, when they were part of lm-sensors.I have personally put
+> an end to this years ago.
+This debate started in the als thread. Personally I couldn't care less
+either way but it does need to be put to bed before that subsystem merges.
+To my mind either approach is trivially handled in a userspace library
+so it doesn't matter.  I don't suppose you can remember what the original
+reasons for squashing this naming approach were?
+> 
+>> +
+>>  static int tsl2550_set_operating_mode(struct i2c_client *client, int mode)
+>>  {
+>>  	struct tsl2550_data *data = i2c_get_clientdata(client);
+>> @@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
+>>  	return ret;
+>>  }
+>>  
+>> -static DEVICE_ATTR(lux1_input, S_IRUGO,
+>> +static DEVICE_ATTR(illuminance, S_IRUGO,
+>>  		   tsl2550_show_lux1_input, NULL);
+> 
+> Question: if I have a light sensing chip with two sensors, how are we
+> going to handle it? Will we register 2 als class devices? The initial
+> naming convention had the advantage that you could have more than one
+> sensor per device, but I don't know if it is desirable in practice.
+This only becomes and issue if we have two sensors measuring illuminance
+(or approximation of it).  The only two sensor chips I know of have one
+broadband and one in the infrared tsl2561 and I think the isl chip with
+a driver currently in misc.  The combination of these two are needed to
+calculate illuminance.  Some of the original discussion went into how
+to support separate access to the individual sensors.  Decision was to
+leave that question until it becomes relevant.  Basically we would put
+the current drivers in just supporting illuminance and see if anyone asked
+for furthers support.  One tricky aspect is what the units should be for
+particular frequency ranges. At least illuminance is cleanly defined
+(even if chips are only fairly coarsely approximating it. 
+> 
+>>  
+>>  static struct attribute *tsl2550_attributes[] = {
+>>  	&dev_attr_power_state.attr,
+>>  	&dev_attr_operating_mode.attr,
+>> -	&dev_attr_lux1_input.attr,
+>> +	&dev_attr_illuminance.attr,
+>>  	NULL
+>>  };
+>>  
+>> @@ -350,6 +387,7 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+>>  	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+>>  	struct tsl2550_data *data;
+>>  	int *opmode, err = 0;
+>> +	char name[9];
+>>  
+>>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE
+>>  					    | I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+>> @@ -387,15 +425,31 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+>>  	if (err)
+>>  		goto exit_kfree;
+>>  
+>> +	data->id = tsl2550_get_id();
+>> +	if (data->id < 0) {
+>> +		err = data->id;
+>> +		goto exit_kfree;
+>> +	}
+>> +	sprintf(name, "tsl2550%d", data->id);
+> 
+> Please no. For one thing you should always use snprintf and not sprintf
+> when writing to such small buffers. It's way too easy to get things
+> wrong otherwise. And you really want a separator between the chip name
+> and the id, because "tsl25500" will be confusing as hell.
+The length is fine with the restriction above, but I agree we need a separation
+(hadn't really thought this through!).
+> 
+> Not that these comments of mine really matter, as I don't think the
+> above code should stay at all.
+That's fair enough and I'm inclined to agree.
+> 
+>>  	/* Register sysfs hooks */
+>> -	err = sysfs_create_group(&client->dev.kobj, &tsl2550_attr_group);
+>> +	data->classdev = als_device_register(&client->dev, name);
+>> +	if (IS_ERR(data->classdev)) {
+>> +		err = PTR_ERR(data->classdev);
+>> +		goto exit_free_id;
+>> +	}
+>> +
+>> +	err = sysfs_create_group(&data->classdev->kobj, &tsl2550_attr_group);
+>>  	if (err)
+>> -		goto exit_kfree;
+>> +		goto exit_unreg;
+>>  
+>>  	dev_info(&client->dev, "support ver. %s enabled\n", DRIVER_VERSION);
+>>  
+>>  	return 0;
+>>  
+>> +exit_unreg:
+>> +	als_device_unregister(data->classdev);
+>> +exit_free_id:
+>> +	tsl2550_free_id(data->id);
+>>  exit_kfree:
+>>  	kfree(data);
+>>  exit:
+>> @@ -404,12 +458,17 @@ exit:
+>>  
+>>  static int __devexit tsl2550_remove(struct i2c_client *client)
+>>  {
+>> -	sysfs_remove_group(&client->dev.kobj, &tsl2550_attr_group);
+>> +	struct tsl2550_data *data = i2c_get_clientdata(client);
+>> +
+>> +	sysfs_remove_group(&data->classdev->kobj, &tsl2550_attr_group);
+>> +	als_device_unregister(data->classdev);
+>>  
+>>  	/* Power down the device */
+>>  	tsl2550_set_power_state(client, 0);
+>>  
+>> -	kfree(i2c_get_clientdata(client));
+>> +	tsl2550_free_id(data->id);
+>> +
+>> +	kfree(data);
+>>  
+>>  	return 0;
+>>  }
+> 
+> 
