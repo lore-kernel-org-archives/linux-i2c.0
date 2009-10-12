@@ -1,178 +1,77 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
-Date: Mon, 12 Oct 2009 17:52:16 +0200
-Message-ID: <20091012175216.6d844623@hyperion.delvare>
-References: <4ACF4AC6.7070802@cam.ac.uk>
-	<20091010185200.671846c5@hyperion.delvare>
-	<4AD33ADB.4000500@cam.ac.uk>
+From: "Sonasath, Moiz" <m-sonasath@ti.com>
+Subject: RE: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
+Date: Mon, 12 Oct 2009 11:21:47 -0500
+Message-ID: <CD8CC2B65FEE304DA95744A5472698F2029E372001@dlee06.ent.ti.com>
+References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932692AbZJLPxJ@vger.kernel.org>
-In-Reply-To: <4AD33ADB.4000500@cam.ac.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, "Michele De Candia (VT)" <michele.decandia@valueteam.com>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Aaro Koskinen <aaro.koskinen@nokia.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "j-pakaravoor@ti.com" <j-pakaravoor@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jonathan,
+Hello Aaro!
 
-On Mon, 12 Oct 2009 15:19:07 +0100, Jonathan Cameron wrote:
-> >> @@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
-> >>  };
-> >>  
-> >>  /*
-> >> + * IDR to assign each registered device a unique id
-> >> + */
-> >> +static DEFINE_IDR(tsl2550_idr);
-> >> +static DEFINE_SPINLOCK(tsl2550_idr_lock);
-> >> +#define TSL2550_DEV_MAX 9
-> > 
-> > Such an arbitrary limit is simply not acceptable.
->
-> Fair enough, but it is based on restricting the size
-> of the char array needed for the name when registering
-> with als.  Hence single digit decimal maximum.
-> Do you suggest leaving it unrestricted (which makes code
-> a little fiddly given variable size of max idr) or some other
-> limit?
+> -----Original Message-----
+> From: linux-omap-owner@vger.kernel.org [mailto:linux-omap-
+> owner@vger.kernel.org] On Behalf Of Aaro Koskinen
+> Sent: Monday, October 12, 2009 5:21 AM
+> To: ben-linux@fluff.org; linux-i2c@vger.kernel.org
+> Cc: linux-omap@vger.kernel.org; j-pakaravoor@ti.com
+> Subject: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
+> 
+> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+> 
+> Include wake up events for receiver overflow and transmitter
+> underflow in OMAP_I2C_WE_REG configuration. Also fix a small
+> typo.
+> 
+> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 827da08..34ea9ed 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -92,8 +92,10 @@
+>  #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
+> 
+>  /* I2C WE wakeup enable register */
+> -#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
+> +#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
+>  #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
+> +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
+> +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
 
-The name size really isn't an issue. You won't notice 16 bytes instead
-of 9. And it's not like we'll have millions of these devices.
+These bits are not documented in OMAP3430, they are reserved. How can we use them?
 
-> >> +static int tsl2550_get_id(void)
-> >> +{
-> >> +	int ret, val;
-> >> +
-> >> +idr_again:
-> >> +	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
-> >> +		return -ENOMEM;
-> >> +	spin_lock(&tsl2550_idr_lock);
-> >> +	ret = idr_get_new(&tsl2550_idr, NULL, &val);
-> >> +	if (unlikely(ret == -EAGAIN))
-> >> +		goto idr_again;
-> >> +	else if (unlikely(ret))
-> >> +		return ret;
-> >> +	if (val > TSL2550_DEV_MAX)
-> >> +		return -ENOMEM;
-> >> +	return val;
-> >> +}
-> >> +
-> >> +static void tsl2550_free_id(int val)
-> >> +{
-> >> +	spin_lock(&tsl2550_idr_lock);
-> >> +	idr_remove(&tsl2550_idr, val);
-> >> +	spin_unlock(&tsl2550_idr_lock);
-> >> +}
-> > 
-> > Having to implement this in _every_ ALS driver sounds wrong and
-> > painful. If uniqueness of any kind must be provided, it should be
-> > handled by the ALS core and not by individual drivers, otherwise you
-> > can be certain that at least one driver will get it wrong someday.
->
-> I agree. The reason this originally occurred is that the acpi layer
-> apparently doesn't allow for simultaneous probing of multiple drivers
-> and hence can get away with a simple counter and no locking.
->
-> > I'd imaging that als-class devices are simply named als%u. Just like
-> > hwmon devices are named hwmon%u, input devices are names input%u and
-> > event%u, etc. I don't know of any class pushing the naming down to its
-> > drivers, do you? The only example I can remember are i2c drivers back
-> > in year 1999, when they were part of lm-sensors.I have personally put
-> > an end to this years ago.
->
-> This debate started in the als thread. Personally I couldn't care less
-> either way but it does need to be put to bed before that subsystem merges.
-> To my mind either approach is trivially handled in a userspace library
-> so it doesn't matter.  I don't suppose you can remember what the original
-> reasons for squashing this naming approach were?
+>  #define OMAP_I2C_WE_AAS_WE	(1 << 9)	/* Address as slave wakeup*/
+>  #define OMAP_I2C_WE_BF_WE	(1 << 8)	/* Bus free wakeup */
+>  #define OMAP_I2C_WE_STC_WE	(1 << 6)	/* Start condition wakeup */
+> @@ -104,6 +106,7 @@
+>  #define OMAP_I2C_WE_AL_WE	(1 << 0)	/* Arbitration lost wakeup */
+> 
+>  #define OMAP_I2C_WE_ALL		(OMAP_I2C_WE_XDR_WE |
+> OMAP_I2C_WE_RDR_WE | \
+> +				OMAP_I2C_WE_ROVR_WE | OMAP_I2C_WE_XUDF_WE | \
+>  				OMAP_I2C_WE_AAS_WE | OMAP_I2C_WE_BF_WE | \
+>  				OMAP_I2C_WE_STC_WE | OMAP_I2C_WE_GC_WE | \
+>  				OMAP_I2C_WE_DRDY_WE | OMAP_I2C_WE_ARDY_WE | \
+> --
+> 1.6.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Code duplication. Having the same unique-id handling code repeated in
-50 drivers was no fun, as it did not add any value compared to a
-central handling.
+Regards
+Moiz Sonasath
 
-> >> @@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
-> >>  	return ret;
-> >>  }
-> >>  
-> >> -static DEVICE_ATTR(lux1_input, S_IRUGO,
-> >> +static DEVICE_ATTR(illuminance, S_IRUGO,
-> >>  		   tsl2550_show_lux1_input, NULL);
-> > 
-> > Question: if I have a light sensing chip with two sensors, how are we
-> > going to handle it? Will we register 2 als class devices? The initial
-> > naming convention had the advantage that you could have more than one
-> > sensor per device, but I don't know if it is desirable in practice.
->
-> This only becomes and issue if we have two sensors measuring illuminance
-> (or approximation of it).  The only two sensor chips I know of have one
-> broadband and one in the infrared tsl2561 and I think the isl chip with
-> a driver currently in misc.  The combination of these two are needed to
-> calculate illuminance.  Some of the original discussion went into how
-> to support separate access to the individual sensors.  Decision was to
-> leave that question until it becomes relevant.  Basically we would put
-> the current drivers in just supporting illuminance and see if anyone asked
-> for furthers support.  One tricky aspect is what the units should be for
-> particular frequency ranges. At least illuminance is cleanly defined
-> (even if chips are only fairly coarsely approximating it. 
-
-Hmm, this isn't the point I was raising. I was thinking of a light
-sensor chip which would sense light in different locations. Think chip
-with remote sensors. This is done frequently for thermal sensors, so I
-guess it could be done for light sensors as well. A practical
-application could be sensing the ambient light on two sides of an
-object, so that you get the correct measurement regardless of the
-position.
-
-I'm not saying such chips exist, I really don't know. I am just raising
-the question of how we'd handle them if they do. The current naming
-scheme implies that we'd need a separate als instance for each sensor,
-and I want you to be aware of this.
-
-> >>  static struct attribute *tsl2550_attributes[] = {
-> >>  	&dev_attr_power_state.attr,
-> >>  	&dev_attr_operating_mode.attr,
-> >> -	&dev_attr_lux1_input.attr,
-> >> +	&dev_attr_illuminance.attr,
-> >>  	NULL
-> >>  };
-> >>  
-> >> @@ -350,6 +387,7 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
-> >>  	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-> >>  	struct tsl2550_data *data;
-> >>  	int *opmode, err = 0;
-> >> +	char name[9];
-> >>  
-> >>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE
-> >>  					    | I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
-> >> @@ -387,15 +425,31 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
-> >>  	if (err)
-> >>  		goto exit_kfree;
-> >>  
-> >> +	data->id = tsl2550_get_id();
-> >> +	if (data->id < 0) {
-> >> +		err = data->id;
-> >> +		goto exit_kfree;
-> >> +	}
-> >> +	sprintf(name, "tsl2550%d", data->id);
-> > 
-> > Please no. For one thing you should always use snprintf and not sprintf
-> > when writing to such small buffers. It's way too easy to get things
-> > wrong otherwise. And you really want a separator between the chip name
-> > and the id, because "tsl25500" will be confusing as hell.
->
-> The length is fine with the restriction above, but I agree we need a separation
-> (hadn't really thought this through!).
-
-The length is fine until someone needs more sensors, changes
-TSL2550_DEV_MAX to 16, and then the code crashes and nobody knows why.
-You can't assume that other developers won't touch your code. Thus it
-is much better to handle a given limitation in a single place. Here you
-can simply check the value returned by snprintf() and then you know if
-your name was correctly set.
-
-Again, not that it matters, because the name buffer should simply be
-large enough that it always fits.
-
--- 
-Jean Delvare
