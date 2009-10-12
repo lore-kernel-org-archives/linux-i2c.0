@@ -1,99 +1,178 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
-Date: Mon, 12 Oct 2009 17:38:24 +0200
-Message-ID: <20091012173824.0f3ef021@hyperion.delvare>
+Date: Mon, 12 Oct 2009 17:52:16 +0200
+Message-ID: <20091012175216.6d844623@hyperion.delvare>
 References: <4ACF4AC6.7070802@cam.ac.uk>
-	<20091010183347.52b043ed@hyperion.delvare>
-	<4AD3477D.4020904@cam.ac.uk>
+	<20091010185200.671846c5@hyperion.delvare>
+	<4AD33ADB.4000500@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4AD3477D.4020904-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932692AbZJLPxJ@vger.kernel.org>
+In-Reply-To: <4AD33ADB.4000500@cam.ac.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, "Michele De Candia (VT)" <michele.decandia@valueteam.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 12 Oct 2009 16:13:01 +0100, Jonathan Cameron wrote:
-> Hi Jean,
+Hi Jonathan,
+
+On Mon, 12 Oct 2009 15:19:07 +0100, Jonathan Cameron wrote:
+> >> @@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
+> >>  };
+> >>  
+> >>  /*
+> >> + * IDR to assign each registered device a unique id
+> >> + */
+> >> +static DEFINE_IDR(tsl2550_idr);
+> >> +static DEFINE_SPINLOCK(tsl2550_idr_lock);
+> >> +#define TSL2550_DEV_MAX 9
 > > 
-> > On Fri, 09 Oct 2009 15:37:58 +0100, Jonathan Cameron wrote:
-> >> Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-> >>
-> >> ---
-> >> Minimal changes made. Untested due to lack of hardware.
-> >> All comments welcome.
-> > 
-> > Thanks for working on this. I can do any amount of testing you want, as
-> > I have received a TSL2550 evaluation module from TAOS.
-> > 
-> >> illuminance is already documented as part of the class.
-> >> operating mode and power state are both as per the original
-> >> driver. I can't find any documentation for them, but if people
-> >> want it I can probably figure out what they are from
-> >> the data sheet.
-> > 
-> > The operating mode selects the measurable range. Standard range is from
-> > 0 to 1846 lux, extended range is from 0 to 9230 lux, with a resolution
-> > divided by 5. Extended mode is also 5 times faster.
-> > 
-> > What do we want to do with this? I am open to suggestions. There are
-> > several possibilities. The operating mode could be provided as platform
-> > data and stay internal to the driver. Or we can leave is visible to
-> > user-space, in which case I'd recommend that we do so in terms of
-> > "range" rather than "mode", so that other drivers can use the same
-> > convention, whatever it becomes. For example, one would write the range
-> > of values he/she wants to be able to measure and the driver would put
-> > the device in the most appropriate mode.
+> > Such an arbitrary limit is simply not acceptable.
 >
-> That sounds like a sensible approach.  For now I guess a sysfs parameter
-> like illuminance_range_max would do the job and we can add a min for any
-> device that features an offset?
+> Fair enough, but it is based on restricting the size
+> of the char array needed for the name when registering
+> with als.  Hence single digit decimal maximum.
+> Do you suggest leaving it unrestricted (which makes code
+> a little fiddly given variable size of max idr) or some other
+> limit?
 
-Yes, this sounds sensible.
+The name size really isn't an issue. You won't notice 16 bytes instead
+of 9. And it's not like we'll have millions of these devices.
 
-> > Alternatively (or additionally), we could implement an automatic mode
-> > which would change the mode dynamically based on the previous
-> > measurement. I've done that for one hwmon driver (for fan speed
-> > measurement) and it works very well, if implemented properly.
->
-> Could do.  Maybe put it in as manual for now and leave the automatic
-> mode for a later date?
-
-Yes. Note that the automatic mode may have to be optional, too. I can
-imagine use cases where one prefers to stick to a given range and spare
-I2C bus cycles.
-
-> >> Might be worth dropping the power state control and moving
-> >> over to runtime pm but that is definitely the topic for another
-> >> patch.
+> >> +static int tsl2550_get_id(void)
+> >> +{
+> >> +	int ret, val;
+> >> +
+> >> +idr_again:
+> >> +	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
+> >> +		return -ENOMEM;
+> >> +	spin_lock(&tsl2550_idr_lock);
+> >> +	ret = idr_get_new(&tsl2550_idr, NULL, &val);
+> >> +	if (unlikely(ret == -EAGAIN))
+> >> +		goto idr_again;
+> >> +	else if (unlikely(ret))
+> >> +		return ret;
+> >> +	if (val > TSL2550_DEV_MAX)
+> >> +		return -ENOMEM;
+> >> +	return val;
+> >> +}
+> >> +
+> >> +static void tsl2550_free_id(int val)
+> >> +{
+> >> +	spin_lock(&tsl2550_idr_lock);
+> >> +	idr_remove(&tsl2550_idr, val);
+> >> +	spin_unlock(&tsl2550_idr_lock);
+> >> +}
 > > 
-> > Power state control is already integrated into the PM framework
-> > (suspend and resume, is there more?) The sysfs entry is to allow a
-> > manual control on top of it. I don't much like having a custom sysfs
-> > entry for this, but I don't know if there is a standard way to achieve
-> > the same?
+> > Having to implement this in _every_ ALS driver sounds wrong and
+> > painful. If uniqueness of any kind must be provided, it should be
+> > handled by the ALS core and not by individual drivers, otherwise you
+> > can be certain that at least one driver will get it wrong someday.
 >
-> Not directly as far as I know. The runtime pm is more about buses figuring
-> out if they can suspend (and take their children into suspend as well).
-> Personally I haven't looked at the code for those buses that implement it
-> yet to see exactly how it relates to fine grained control as here.
-> For now lets leave this as it is with a plan to fix it later.
-> 
-> I do notice that usb supports this sort of control by adding sysfs entries to
-> the existing power sysfs attribute group.
-> (curiously I think the relevant one is called level, so we would have
-> /sys/bus/i2c/devices/*/power/level
-> 
-> We could do the same...
+> I agree. The reason this originally occurred is that the acpi layer
+> apparently doesn't allow for simultaneous probing of multiple drivers
+> and hence can get away with a simple counter and no locking.
+>
+> > I'd imaging that als-class devices are simply named als%u. Just like
+> > hwmon devices are named hwmon%u, input devices are names input%u and
+> > event%u, etc. I don't know of any class pushing the naming down to its
+> > drivers, do you? The only example I can remember are i2c drivers back
+> > in year 1999, when they were part of lm-sensors.I have personally put
+> > an end to this years ago.
+>
+> This debate started in the als thread. Personally I couldn't care less
+> either way but it does need to be put to bed before that subsystem merges.
+> To my mind either approach is trivially handled in a userspace library
+> so it doesn't matter.  I don't suppose you can remember what the original
+> reasons for squashing this naming approach were?
 
-Are these levels part of the USB specification? In the case of the
-TSL2550, it has very little to do with the I2C specification. It's just
-about enabling/disabling light sensing, much like you'd disable a
-temperature sensor when you don't need it, to save power. That kind of
-power level switching is not bus-specific. You can see it as either
-device-specific, if you go into the details, or general, if you don't.
+Code duplication. Having the same unique-id handling code repeated in
+50 drivers was no fun, as it did not add any value compared to a
+central handling.
+
+> >> @@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
+> >>  	return ret;
+> >>  }
+> >>  
+> >> -static DEVICE_ATTR(lux1_input, S_IRUGO,
+> >> +static DEVICE_ATTR(illuminance, S_IRUGO,
+> >>  		   tsl2550_show_lux1_input, NULL);
+> > 
+> > Question: if I have a light sensing chip with two sensors, how are we
+> > going to handle it? Will we register 2 als class devices? The initial
+> > naming convention had the advantage that you could have more than one
+> > sensor per device, but I don't know if it is desirable in practice.
+>
+> This only becomes and issue if we have two sensors measuring illuminance
+> (or approximation of it).  The only two sensor chips I know of have one
+> broadband and one in the infrared tsl2561 and I think the isl chip with
+> a driver currently in misc.  The combination of these two are needed to
+> calculate illuminance.  Some of the original discussion went into how
+> to support separate access to the individual sensors.  Decision was to
+> leave that question until it becomes relevant.  Basically we would put
+> the current drivers in just supporting illuminance and see if anyone asked
+> for furthers support.  One tricky aspect is what the units should be for
+> particular frequency ranges. At least illuminance is cleanly defined
+> (even if chips are only fairly coarsely approximating it. 
+
+Hmm, this isn't the point I was raising. I was thinking of a light
+sensor chip which would sense light in different locations. Think chip
+with remote sensors. This is done frequently for thermal sensors, so I
+guess it could be done for light sensors as well. A practical
+application could be sensing the ambient light on two sides of an
+object, so that you get the correct measurement regardless of the
+position.
+
+I'm not saying such chips exist, I really don't know. I am just raising
+the question of how we'd handle them if they do. The current naming
+scheme implies that we'd need a separate als instance for each sensor,
+and I want you to be aware of this.
+
+> >>  static struct attribute *tsl2550_attributes[] = {
+> >>  	&dev_attr_power_state.attr,
+> >>  	&dev_attr_operating_mode.attr,
+> >> -	&dev_attr_lux1_input.attr,
+> >> +	&dev_attr_illuminance.attr,
+> >>  	NULL
+> >>  };
+> >>  
+> >> @@ -350,6 +387,7 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+> >>  	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+> >>  	struct tsl2550_data *data;
+> >>  	int *opmode, err = 0;
+> >> +	char name[9];
+> >>  
+> >>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_WRITE_BYTE
+> >>  					    | I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> >> @@ -387,15 +425,31 @@ static int __devinit tsl2550_probe(struct i2c_client *client,
+> >>  	if (err)
+> >>  		goto exit_kfree;
+> >>  
+> >> +	data->id = tsl2550_get_id();
+> >> +	if (data->id < 0) {
+> >> +		err = data->id;
+> >> +		goto exit_kfree;
+> >> +	}
+> >> +	sprintf(name, "tsl2550%d", data->id);
+> > 
+> > Please no. For one thing you should always use snprintf and not sprintf
+> > when writing to such small buffers. It's way too easy to get things
+> > wrong otherwise. And you really want a separator between the chip name
+> > and the id, because "tsl25500" will be confusing as hell.
+>
+> The length is fine with the restriction above, but I agree we need a separation
+> (hadn't really thought this through!).
+
+The length is fine until someone needs more sensors, changes
+TSL2550_DEV_MAX to 16, and then the code crashes and nobody knows why.
+You can't assume that other developers won't touch your code. Thus it
+is much better to handle a given limitation in a single place. Here you
+can simply check the value returned by snprintf() and then you know if
+your name was correctly set.
+
+Again, not that it matters, because the name buffer should simply be
+large enough that it always fits.
 
 -- 
 Jean Delvare
