@@ -1,7 +1,7 @@
 From: "Sonasath, Moiz" <m-sonasath@ti.com>
 Subject: RE: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-Date: Mon, 12 Oct 2009 11:21:47 -0500
-Message-ID: <CD8CC2B65FEE304DA95744A5472698F2029E372001@dlee06.ent.ti.com>
+Date: Mon, 12 Oct 2009 11:35:13 -0500
+Message-ID: <CD8CC2B65FEE304DA95744A5472698F2029E37200E@dlee06.ent.ti.com>
 References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -11,7 +11,7 @@ In-Reply-To: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
 Content-Language: en-US
 Sender: linux-omap-owner@vger.kernel.org
 To: Aaro Koskinen <aaro.koskinen@nokia.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "j-pakaravoor@ti.com" <j-pakaravoor@ti.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hello Aaro!
@@ -50,7 +50,7 @@ Hello Aaro!
 > +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
 > +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
 
-These bits are not documented in OMAP3430, they are reserved. How can we use them?
+These bits are not documented in OMAP3430, they are reserved. How can they be used?
 
 >  #define OMAP_I2C_WE_AAS_WE	(1 << 9)	/* Address as slave wakeup*/
 >  #define OMAP_I2C_WE_BF_WE	(1 << 8)	/* Bus free wakeup */
@@ -74,4 +74,3 @@ These bits are not documented in OMAP3430, they are reserved. How can we use the
 
 Regards
 Moiz Sonasath
-
