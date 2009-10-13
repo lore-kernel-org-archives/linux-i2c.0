@@ -1,35 +1,22 @@
 From: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: Bus drivers don't have to support
- I2C_M_REV_DIR_ADDR
-Date: Tue, 13 Oct 2009 23:50:10 +0100
-Message-ID: <20091013225010.GA15469@fluff.org.uk>
-References: <20090930222244.43b8d17d@hyperion.delvare>
+Subject: Re: [PATCH v3] i2c: Add support for Xilinx XPS IIC Bus Interface
+Date: Tue, 13 Oct 2009 23:59:40 +0100
+Message-ID: <20091013225940.GE13398@fluff.org.uk>
+References: <4ABA196D.6070206@mocean-labs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20090930222244.43b8d17d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4ABA196D.6070206-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Richard R?jfors <richard.rojfors-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 30, 2009 at 10:22:44PM +0200, Jean Delvare wrote:
-> I2C bus drivers don't have to support I2C_M_REV_DIR_ADDR. It is a
-> deviation from the I2C specification, which only makes sense to
-> implement when really needed.
+[snip]
 
-Probably the right thing to do, does anything actually use this
-support?
- 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-iop3xx.c   |    6 ------
->  drivers/i2c/busses/i2c-mv64xxx.c  |    3 ---
->  drivers/i2c/busses/i2c-powermac.c |    2 --
-
-I assume that I should merge this in my -next tree?
+This looks ok, but only had time to do a brief check. Will go
+over fully when building a -next tree next week.
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
