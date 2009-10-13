@@ -1,7 +1,7 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
-Date: Tue, 13 Oct 2009 17:06:12 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D74D6@dlee06.ent.ti.com>
+Subject: FW: [PATCH 11/16] i2c-designware: Set Tx/Rx FIFO threshold levels
+Date: Tue, 13 Oct 2009 17:05:05 -0500
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D74B1@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -15,143 +15,71 @@ List-Id: linux-i2c@vger.kernel.org
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
-Sent: Monday, October 12, 2009 9:51 PM
+Sent: Monday, October 12, 2009 9:52 PM
 To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
+Subject: [PATCH 11/16] i2c-designware: Set Tx/Rx FIFO threshold levels
 
-* Calculate with accurate conditional expressions from DW manuals.
-* Round ic_clk by adding 0.5 as it's important at high ic_clk rate.
-* Take into account "tHD;STA" issue for _HCNT calculation.
-* Take into account "tf" for _LCNT calculation.
-* Add "cond" and "offset" fot further correction requirements.
+As a hardware feature, DesignWare I2C core emits a STOP condition whenever Tx FIFO becomes empty (strictly speaking, whenever the last byte in the Tx FIFO has been sent out), even if we have more bytes to be written.
 
-For _HCNT calculation, there's one issue needs to be carefully considered; DesignWare I2C core doesn't seem to have solid strategy to meet the tHD;STA timing spec.  If you configure _HCNT based on the tHIGH timing spec, it easily results in violation of the tHD;STA spec.
+In other words, we must never make "Tx FIFO underrun" happen during a transaction, except for the last byte.  For the safety's sake, we'd make TX_EMPTY interrupt get triggered every time one byte is processed.
 
-After many trials, we came to the conclustion that the tHD;STA period is proportional to (_HCNT + 3), and this should be selected by default.
-
-As for _LCNT calculation, DW I2C core has one characteristic behavior; he starts counting the SCL CNTs for the LOW period of the SCL clock
-(tLOW) as soon as it pulls the SCL line.  At that time, he doesn't take into account the fall time of SCL signal (tf), IOW, he starts counting CNTs without confirming the SCL input voltage has dropped to below VIL.
-
-This characteristics becomes a problem on some platforms where tf is considerably long, and results in violation of the tLOW timing spec.
-
-To make the driver configurable as much as possible for various cases, we'd have separated arguments "tf" and "offset", and for safety default values should be 0.3 us and 0, respectively.
+Rx FIFO threshold needs to be set as well according to such tx policy.
+In addition, this patch also modifies the interrupt settings properly (enable RX_FULL mask, and hook it in the handler)
 
 Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware.c |   92 +++++++++++++++++++++++++++++++---
- 1 files changed, 83 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-designware.c |   15 +++++++++++----
+ 1 files changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 0f8bd4c..26efd3a 100644
+index 52a69a2..d9b5790 100644
 --- a/drivers/i2c/busses/i2c-designware.c
 +++ b/drivers/i2c/busses/i2c-designware.c
-@@ -196,6 +196,60 @@ struct dw_i2c_dev {
- 	unsigned int		rx_fifo_depth;
- };
+@@ -50,6 +50,8 @@
+ #define DW_IC_INTR_STAT		0x2c
+ #define DW_IC_INTR_MASK		0x30
+ #define DW_IC_RAW_INTR_STAT	0x34
++#define DW_IC_RX_TL		0x38
++#define DW_IC_TX_TL		0x3c
+ #define DW_IC_CLR_INTR		0x40
+ #define DW_IC_CLR_RX_UNDER	0x44
+ #define DW_IC_CLR_RX_OVER	0x48
+@@ -294,6 +296,10 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
  
-+static u32
-+i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset) 
-+{
-+	/*
-+	 * DesignWare I2C core doesn't seem to have solid strategy to meet
-+	 * the tHD;STA timing spec.  Configuring _HCNT based on tHIGH spec
-+	 * will result in violation of the tHD;STA spec.
-+	 */
-+	if (cond)
-+		/*
-+		 * Conditional expression:
-+		 *
-+		 *   IC_[FS]S_SCL_HCNT + (1+4+3) >= IC_CLK * tHIGH
-+		 *
-+		 * This is based on the DW manuals, and representing an
-+		 * ideal configuration.  The resulting I2C bus speed will
-+		 * be faster than any of the others.
-+		 *
-+		 * If your hardware is free from tHD;STA issue, try this one.
-+		 */
-+		return (ic_clk * tSYMBOL + 5000) / 10000 - 8 + offset;
-+	else
-+		/*
-+		 * Conditional expression:
-+		 *
-+		 *   IC_[FS]S_SCL_HCNT + 3 >= IC_CLK * (tHD;STA + tf)
-+		 *
-+		 * This is just experimental rule; the tHD;STA period turned
-+		 * out to be proportinal to (_HCNT + 3).  With this setting,
-+		 * we could meet both tHIGH and tHD;STA timing specs.
-+		 *
-+		 * If unsure, you'd better to take this alternative.
-+		 *
-+		 * The reason why we need to take into account "tf" here,
-+		 * is the same as described in i2c_dw_scl_lcnt().
-+		 */
-+		return (ic_clk * (tSYMBOL + tf) + 5000) / 10000 - 3 + offset; }
++	/* Configure Tx/Rx FIFO threshold levels */
++	writel(dev->tx_fifo_depth - 1, dev->base + DW_IC_TX_TL);
++	writel(0, dev->base + DW_IC_RX_TL);
 +
-+static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset) {
-+	/*
-+	 * Conditional expression:
-+	 *
-+	 *   IC_[FS]S_SCL_LCNT + 1 >= IC_CLK * (tLOW + tf)
-+	 *
-+	 * DW I2C core starts counting the SCL CNTs for the LOW period
-+	 * of the SCL clock (tLOW) as soon as it pulls the SCL line.
-+	 * We need to take into account tf to meet the tLOW timing spec.
-+	 * Default tf value should be 0.3 us, for safety.
-+	 */
-+	return ((ic_clk * (tLOW + tf) + 5000) / 10000) - 1 + offset; }
-+
- /**
-  * i2c_dw_init() - initialize the designware i2c master hardware
-  * @dev: device private data
-@@ -207,20 +261,40 @@ struct dw_i2c_dev {  static void i2c_dw_init(struct dw_i2c_dev *dev)  {
- 	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
--	u32 ic_con;
-+	u32 ic_con, hcnt, lcnt;
- 
- 	/* Disable the adapter */
- 	writel(0, dev->base + DW_IC_ENABLE);
- 
- 	/* set standard and fast speed deviders for high/low periods */
--	writel((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
--			dev->base + DW_IC_SS_SCL_HCNT);
--	writel((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
--			dev->base + DW_IC_SS_SCL_LCNT);
--	writel((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
--			dev->base + DW_IC_FS_SCL_HCNT);
--	writel((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
--			dev->base + DW_IC_FS_SCL_LCNT);
-+
-+	/* Standard-mode */
-+	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
-+				40,	/* tHD;STA = tHIGH = 4.0 us */
-+				3,	/* tf = 0.3 us */
-+				0,	/* 0: DW default, 1: Ideal */
-+				0);	/* No offset */
-+	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
-+				47,	/* tLOW = 4.7 us */
-+				3,	/* tf = 0.3 us */
-+				0);	/* No offset */
-+	writel(hcnt, dev->base + DW_IC_SS_SCL_HCNT);
-+	writel(lcnt, dev->base + DW_IC_SS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
-+
-+	/* Fast-mode */
-+	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
-+				6,	/* tHD;STA = tHIGH = 0.6 us */
-+				3,	/* tf = 0.3 us */
-+				0,	/* 0: DW default, 1: Ideal */
-+				0);	/* No offset */
-+	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
-+				13,	/* tLOW = 1.3 us */
-+				3,	/* tf = 0.3 us */
-+				0);	/* No offset */
-+	writel(hcnt, dev->base + DW_IC_FS_SCL_HCNT);
-+	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
- 
  	/* configure the i2c master */
  	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST; @@ -396,7 +402,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 		}
+ 	}
+ 
+-	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
++	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT | 
++DW_IC_INTR_RX_FULL;
+ 	if (buf_len > 0)
+ 		intr_mask |= DW_IC_INTR_TX_EMPTY;
+ 	writel(intr_mask, dev->base + DW_IC_INTR_MASK); @@ -582,11 +588,12 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 		dev->status = STATUS_IDLE;
+ 	}
+ 
+-	if (stat & DW_IC_INTR_TX_EMPTY) {
+-		/* Allocate room for data reception prior to xfer_msg() */
++	/* Allocate room for data reception prior to i2c_dw_xfer_msg(). */
++	if (stat & DW_IC_INTR_RX_FULL)
+ 		i2c_dw_read(dev);
++
++	if (stat & DW_IC_INTR_TX_EMPTY)
+ 		i2c_dw_xfer_msg(dev);
+-	}
+ 
+ 	/*
+ 	 * No need to modify or disable the interrupt mask here, as
 --
 1.6.5
 
