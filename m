@@ -1,47 +1,79 @@
-From: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
-Subject: [PATCH 16/16] i2c-designware: Add I2C_FUNC_SMBUS_* bits
-Date: Tue, 13 Oct 2009 11:54:21 +0900
-Message-ID: <4AD3EBDD.50105@necel.com>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: [RFC] i2c-designware patches
+Date: Tue, 13 Oct 2009 09:04:12 +0200
+Message-ID: <20091013070412.GA9739@jasper.tkos.co.il>
 References: <4AD3E974.8080200@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
 In-Reply-To: <4AD3E974.8080200@necel.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: baruch@tkos.co.il, linux-i2c@vger.kernel.org
-Cc: ben-linux@fluff.org, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-This will ease our testing a bit with i2c-tools.  Note that DW I2C core
-doesn't support I2C_FUNC_SMBUS_QUICK, as it's not capable of slave-
-addressing-only I2C transactions.
+Hi Shinya,
 
-Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
----
- drivers/i2c/busses/i2c-designware.c |    9 ++++++++-
- 1 files changed, 8 insertions(+), 1 deletions(-)
+On Tue, Oct 13, 2009 at 11:44:04AM +0900, Shinya Kuribayashi wrote:
+> Here're various improvements / bug-fixing patches for DW I2C driver.
+> I'm working with v2.6.27-based kernel, but they must work fine with the
+> latest mainline kernel.
+> 
+> It's stil in RFC, and I'm working with it for some time.  Any comments
+> or suggestions are highly appreciated.  Then I'll respin and give it a
+> test, thanks.
+> 
+> Baruch, I'd say the base driver is in good shape enogh, so I'm having
+> a fun with modifing the driver.  Thanks for the initial work.
 
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 6f85e28..80c8b8a 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -529,7 +529,14 @@ done:
- 
- static u32 i2c_dw_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;
-+	return	I2C_FUNC_I2C |
-+		I2C_FUNC_10BIT_ADDR |
-+		I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA |
-+		I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_BLOCK_DATA |
-+		I2C_FUNC_SMBUS_I2C_BLOCK |
-+		I2C_FUNC_SMBUS_I2C_BLOCK_2;
- }
- 
- static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+Thanks. It is good to see that my work is actually useful for someone. I'll go 
+over this series in the coming days. Unfortunately I don't have the hardware 
+for testing anymore, but I'll try at least to compile test these patches.
+
+By the way, what is the chip you work with?
+
+baruch
+
+> P.S. ARM and MIPS lists are Cc:ed as I believe there must be potential
+> users of this driver.
+> 
+> 
+> Shinya Kuribayashi (16):
+>      i2c-designware: Consolidate to use 32-bit word accesses
+>      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
+>      i2c-designware: Use platform_get_irq helper
+>      i2c-designware: i2c_dw_read: Take "struct dw_i2c_dev" pointer
+>      i2c-designware: i2c_dw_xfer_msg: Take "struct dw_i2c_dev" pointer
+>      i2c-designware: Remove an useless local variable "num"
+>      i2c-designware: Set a clock name to DesignWare I2C clock source
+>      i2c-designware: Improve _HCNT/_LCNT calculation
+>      i2c-designware: i2c_dw_xfer_msg: Fix an i2c_msg search bug
+>      i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
+>      i2c-designware: Set Tx/Rx FIFO threshold levels
+>      i2c-designware: Divide i2c_dw_xfer_msg into two functions
+>      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
+>      i2c-designware: Deferred FIFO-data-counting variables initialization
+>      i2c-designware: i2c_dw_xfer_msg: Mark as completed on an error
+>      i2c-designware: Add I2C_FUNC_SMBUS_* bits
+> 
+> drivers/i2c/busses/i2c-designware.c |  367 +++++++++++++++++++++++++----------
+> 1 files changed, 264 insertions(+), 103 deletions(-)
+> 
+> -- 
+> Shinya Kuribayashi
+> NEC Electronics
+
 -- 
-1.6.5
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
