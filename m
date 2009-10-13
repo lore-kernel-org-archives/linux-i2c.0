@@ -1,46 +1,55 @@
-From: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-Subject: Re: [PATCH] Modify code name SB900 to Hudson-2
-Date: Tue, 13 Oct 2009 10:22:26 +0800
-Message-ID: <20091013022226.GB28434@crane-desktop>
-References: <20091012020518.GA19626@crane-desktop> <20091012125151.2d0ef7bc@hyperion.delvare>
+From: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Subject: [RFC] i2c-designware patches
+Date: Tue, 13 Oct 2009 11:44:04 +0900
+Message-ID: <4AD3E974.8080200@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20091012125151.2d0ef7bc-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: baruch@tkos.co.il, linux-i2c@vger.kernel.org
+Cc: ben-linux@fluff.org, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi Baruch and lists,
 
-On Mon, Oct 12, 2009 at 12:51:51PM +0200, Jean Delvare wrote:
-> Hi Crane,
-> 
-> On Mon, 12 Oct 2009 10:05:18 +0800, Crane Cai wrote:
-> > Hi Jean,
-> > We have changed the name of SB900 chip, and the source needs change also.
-> > Please apply.
-> > Thanks,
-> > - Crane
-> > 
-> > ---
-> > Change SB900 to its formal code name Hudson-2.
-> > 
-> > Signed-off-by: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>
-> > ---
-> >  Documentation/i2c/busses/i2c-piix4 |    2 +-
-> >  drivers/i2c/busses/Kconfig         |    2 +-
-> >  drivers/i2c/busses/i2c-piix4.c     |    4 ++--
-> >  include/linux/pci_ids.h            |    2 +-
-> >  4 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> Applied, thanks. Will go in kernel 2.6.32.
-> 
-> I have also added support to sensors-detect.
-Thanks.
+Here're various improvements / bug-fixing patches for DW I2C driver.
+I'm working with v2.6.27-based kernel, but they must work fine with the
+latest mainline kernel.
+
+It's stil in RFC, and I'm working with it for some time.  Any comments
+or suggestions are highly appreciated.  Then I'll respin and give it a
+test, thanks.
+
+Baruch, I'd say the base driver is in good shape enogh, so I'm having
+a fun with modifing the driver.  Thanks for the initial work.
+
+P.S. ARM and MIPS lists are Cc:ed as I believe there must be potential
+users of this driver.
+
+
+Shinya Kuribayashi (16):
+      i2c-designware: Consolidate to use 32-bit word accesses
+      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
+      i2c-designware: Use platform_get_irq helper
+      i2c-designware: i2c_dw_read: Take "struct dw_i2c_dev" pointer
+      i2c-designware: i2c_dw_xfer_msg: Take "struct dw_i2c_dev" pointer
+      i2c-designware: Remove an useless local variable "num"
+      i2c-designware: Set a clock name to DesignWare I2C clock source
+      i2c-designware: Improve _HCNT/_LCNT calculation
+      i2c-designware: i2c_dw_xfer_msg: Fix an i2c_msg search bug
+      i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
+      i2c-designware: Set Tx/Rx FIFO threshold levels
+      i2c-designware: Divide i2c_dw_xfer_msg into two functions
+      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
+      i2c-designware: Deferred FIFO-data-counting variables initialization
+      i2c-designware: i2c_dw_xfer_msg: Mark as completed on an error
+      i2c-designware: Add I2C_FUNC_SMBUS_* bits
+
+ drivers/i2c/busses/i2c-designware.c |  367 +++++++++++++++++++++++++----------
+ 1 files changed, 264 insertions(+), 103 deletions(-)
 
 -- 
-Best Regards,
-- Crane
+Shinya Kuribayashi
+NEC Electronics
