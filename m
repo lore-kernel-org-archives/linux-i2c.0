@@ -1,67 +1,49 @@
-From: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Subject: [PATCH] i2c-mpc: Do not generate STOP after read.
-Date: Tue, 13 Oct 2009 10:12:03 +0200
-Message-ID: <1255421523-16268-1-git-send-email-Joakim.Tjernlund@transmode.se>
+From: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
+Date: Tue, 13 Oct 2009 12:52:16 +0300
+Message-ID: <4AD44DD0.7000708@nokia.com>
+References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com> <CD8CC2B65FEE304DA95744A5472698F2029E37200E@dlee06.ent.ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CD8CC2B65FEE304DA95744A5472698F2029E37200E-UmuGNrFEPrGIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
+To: "ext Sonasath, Moiz" <m-sonasath-l0cyMroinI0@public.gmane.org>
+Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The driver always ends a read with a STOP condition which
-breaks subsequent I2C reads/writes in the same transaction as
-these expect to do a repeated START(ReSTART).
+Hello,
 
-This will also help I2C multimaster as the bus will not be released
-after the first read, but when the whole transaction ends.
+Sonasath, Moiz wrote:
+>> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+>>
+>> Include wake up events for receiver overflow and transmitter
+>> underflow in OMAP_I2C_WE_REG configuration. Also fix a small
+>> typo.
+>>
+>> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+>> Signed-off-by: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-omap.c |    5 ++++-
+>>  1 files changed, 4 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>> index 827da08..34ea9ed 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -92,8 +92,10 @@
+>>  #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
+>>
+>>  /* I2C WE wakeup enable register */
+>> -#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
+>> +#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
+>>  #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
+>> +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
+>> +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
+> 
+> These bits are not documented in OMAP3430, they are reserved. How can they be used?
 
-Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
----
+Hmm, that's a valid point. I will have to check if I can find more info on the background of this patch.
 
-Andrew,
-
-Seems like nobody wants to touch this patch. Jean Delvare
-refers to Ben Dooks and he has not replied to any of my mails.
-Perhaps you can carry it in you patch queue?
-
- drivers/i2c/busses/i2c-mpc.c |   10 ++--------
- 1 files changed, 2 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index cdb1858..88ae582 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -369,9 +369,6 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
- 	unsigned timeout = i2c->adap.timeout;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Start as master */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target byte */
-@@ -400,9 +397,6 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 	int i, result;
- 	u32 flags = restart ? CCR_RSTA : 0;
- 
--	/* Start with MEN */
--	if (!restart)
--		writeccr(i2c, CCR_MEN);
- 	/* Switch to read - restart */
- 	writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX | flags);
- 	/* Write target address byte - this time with the read flag set */
-@@ -429,9 +423,9 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 		/* Generate txack on next to last byte */
- 		if (i == length - 2)
- 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
--		/* Generate stop on last byte */
-+		/* Do not generate stop on last byte */
- 		if (i == length - 1)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_TXAK);
-+			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX);
- 		data[i] = readb(i2c->base + MPC_I2C_DR);
- 	}
- 
--- 
-1.6.4.3
+A.
