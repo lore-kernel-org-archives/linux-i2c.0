@@ -1,69 +1,33 @@
-From: "Sonasath, Moiz" <m-sonasath@ti.com>
-Subject: RE: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-Date: Tue, 13 Oct 2009 17:12:31 -0500
-Message-ID: <CD8CC2B65FEE304DA95744A5472698F2029E37245F@dlee06.ent.ti.com>
-References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
- <CD8CC2B65FEE304DA95744A5472698F2029E37200E@dlee06.ent.ti.com>
- <4AD44DD0.7000708@nokia.com>
+From: Ben Dooks <ben-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Subject: Re: FW: [PATCH 10/16] i2c-designware: Do dw_i2c_pump_msg's jobs in
+ the interrutp handler
+Date: Tue, 13 Oct 2009 23:38:49 +0100
+Message-ID: <20091013223849.GA13398@fluff.org.uk>
+References: <A69FA2915331DC488A831521EAE36FE401554D74B0@dlee06.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4AD44DD0.7000708@nokia.com>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <A69FA2915331DC488A831521EAE36FE401554D74B0-UmuGNrFEPrGIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Aaro!
-
+On Tue, Oct 13, 2009 at 05:05:05PM -0500, Olivares, Ricardo Perez wrote:
+>  
+> 
 > -----Original Message-----
-> From: Aaro Koskinen [mailto:aaro.koskinen@nokia.com]
-> Sent: Tuesday, October 13, 2009 4:52 AM
-> To: Sonasath, Moiz
-> Cc: ben-linux@fluff.org; linux-i2c@vger.kernel.org; linux-
-> omap@vger.kernel.org
-> Subject: Re: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-> 
-> Hello,
-> 
-> Sonasath, Moiz wrote:
-> >> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
-> >>
-> >> Include wake up events for receiver overflow and transmitter
-> >> underflow in OMAP_I2C_WE_REG configuration. Also fix a small
-> >> typo.
-> >>
-> >> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>
-> >> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> >> ---
-> >>  drivers/i2c/busses/i2c-omap.c |    5 ++++-
-> >>  1 files changed, 4 insertions(+), 1 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-
-> omap.c
-> >> index 827da08..34ea9ed 100644
-> >> --- a/drivers/i2c/busses/i2c-omap.c
-> >> +++ b/drivers/i2c/busses/i2c-omap.c
-> >> @@ -92,8 +92,10 @@
-> >>  #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
-> >>
-> >>  /* I2C WE wakeup enable register */
-> >> -#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
-> >> +#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
-> >>  #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
-> >> +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
-> >> +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
-> >
-> > These bits are not documented in OMAP3430, they are reserved. How can
-> they be used?
-> 
-> Hmm, that's a valid point. I will have to check if I can find more info on
-> the background of this patch.
+> From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
+> Sent: Monday, October 12, 2009 9:52 PM
+> To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Subject: [PATCH 10/16] i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
 
-AFAIK, these bits have been introduced in OMAP3630 as it has a new IP block for I2C. But these bits are reserved bits for OMAP3430.
+Please don't forward patches to the list we've already got. 
 
-> 
-> A.
 
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
