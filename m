@@ -1,7 +1,8 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [RFC] i2c-designware patches
-Date: Tue, 13 Oct 2009 16:27:26 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D745D@dlee06.ent.ti.com>
+Subject: FW: [PATCH 04/16] i2c-designware: i2c_dw_read: Take "struct
+ dw_i2c_dev" pointer
+Date: Tue, 13 Oct 2009 16:27:25 -0500
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D745A@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -15,46 +16,52 @@ List-Id: linux-i2c@vger.kernel.org
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
-Sent: Monday, October 12, 2009 9:44 PM
+Sent: Monday, October 12, 2009 9:50 PM
 To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: [RFC] i2c-designware patches
+Subject: [PATCH 04/16] i2c-designware: i2c_dw_read: Take "struct dw_i2c_dev" pointer
 
-Hi Baruch and lists,
+There's no need to interface using with "struct i2c_adapter" pointer.
+Let's use a local "struct dw_i2c_dev" pointer, instead.
 
-Here're various improvements / bug-fixing patches for DW I2C driver.
-I'm working with v2.6.27-based kernel, but they must work fine with the latest mainline kernel.
+Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-It's stil in RFC, and I'm working with it for some time.  Any comments or suggestions are highly appreciated.  Then I'll respin and give it a test, thanks.
-
-Baruch, I'd say the base driver is in good shape enogh, so I'm having a fun with modifing the driver.  Thanks for the initial work.
-
-P.S. ARM and MIPS lists are Cc:ed as I believe there must be potential users of this driver.
-
-
-Shinya Kuribayashi (16):
-      i2c-designware: Consolidate to use 32-bit word accesses
-      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
-      i2c-designware: Use platform_get_irq helper
-      i2c-designware: i2c_dw_read: Take "struct dw_i2c_dev" pointer
-      i2c-designware: i2c_dw_xfer_msg: Take "struct dw_i2c_dev" pointer
-      i2c-designware: Remove an useless local variable "num"
-      i2c-designware: Set a clock name to DesignWare I2C clock source
-      i2c-designware: Improve _HCNT/_LCNT calculation
-      i2c-designware: i2c_dw_xfer_msg: Fix an i2c_msg search bug
-      i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
-      i2c-designware: Set Tx/Rx FIFO threshold levels
-      i2c-designware: Divide i2c_dw_xfer_msg into two functions
-      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
-      i2c-designware: Deferred FIFO-data-counting variables initialization
-      i2c-designware: i2c_dw_xfer_msg: Mark as completed on an error
-      i2c-designware: Add I2C_FUNC_SMBUS_* bits
-
- drivers/i2c/busses/i2c-designware.c |  367 +++++++++++++++++++++++++----------
- 1 files changed, 264 insertions(+), 103 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index 0164092..c6a35bf 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -328,9 +328,8 @@ i2c_dw_xfer_msg(struct i2c_adapter *adap)  }
+ 
+ static void
+-i2c_dw_read(struct i2c_adapter *adap)
++i2c_dw_read(struct dw_i2c_dev *dev)
+ {
+-	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ 	struct i2c_msg *msgs = dev->msgs;
+ 	int num = dev->msgs_num;
+ 	u32 addr = msgs[dev->msg_read_idx].addr; @@ -416,7 +415,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	if (likely(!dev->cmd_err)) {
+ 		/* read rx fifo, and disable the adapter */
+ 		do {
+-			i2c_dw_read(adap);
++			i2c_dw_read(dev);
+ 		} while (dev->status & STATUS_READ_IN_PROGRESS);
+ 		writel(0, dev->base + DW_IC_ENABLE);
+ 		ret = num;
+@@ -450,7 +449,7 @@ static void dw_i2c_pump_msg(unsigned long data)
+ 	struct dw_i2c_dev *dev = (struct dw_i2c_dev *) data;
+ 	u32 intr_mask;
+ 
+-	i2c_dw_read(&dev->adapter);
++	i2c_dw_read(dev);
+ 	i2c_dw_xfer_msg(&dev->adapter);
+ 
+ 	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
 --
-Shinya Kuribayashi
-NEC Electronics
+1.6.5
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
