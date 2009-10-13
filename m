@@ -1,7 +1,7 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [RFC] i2c-designware patches
-Date: Tue, 13 Oct 2009 16:27:24 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D744B@dlee06.ent.ti.com>
+Subject: FW: [PATCH 11/16] i2c-designware: Set Tx/Rx FIFO threshold levels
+Date: Tue, 13 Oct 2009 16:27:25 -0500
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D744D@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -15,36 +15,73 @@ List-Id: linux-i2c@vger.kernel.org
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
-Sent: Tuesday, October 13, 2009 3:01 AM
-To: Baruch Siach
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: Re: [RFC] i2c-designware patches
+Sent: Monday, October 12, 2009 9:52 PM
+To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Subject: [PATCH 11/16] i2c-designware: Set Tx/Rx FIFO threshold levels
 
-Baruch Siach wrote:
-> On Tue, Oct 13, 2009 at 11:44:04AM +0900, Shinya Kuribayashi wrote:
->> Here're various improvements / bug-fixing patches for DW I2C driver.
->> I'm working with v2.6.27-based kernel, but they must work fine with 
->> the latest mainline kernel.
->>
->> It's stil in RFC, and I'm working with it for some time.  Any 
->> comments or suggestions are highly appreciated.  Then I'll respin and 
->> give it a test, thanks.
->>
->> Baruch, I'd say the base driver is in good shape enogh, so I'm having 
->> a fun with modifing the driver.  Thanks for the initial work.
-> 
-> Thanks. It is good to see that my work is actually useful for someone. 
-> I'll go over this series in the coming days. Unfortunately I don't 
-> have the hardware for testing anymore, but I'll try at least to compile test these patches.
+As a hardware feature, DesignWare I2C core emits a STOP condition whenever Tx FIFO becomes empty (strictly speaking, whenever the last byte in the Tx FIFO has been sent out), even if we have more bytes to be written.
 
-No problem, I could do real tests on real hardwares, so just give me a feedback.  Grammar corrections or rewording is also appriciated.
+In other words, we must never make "Tx FIFO underrun" happen during a transaction, except for the last byte.  For the safety's sake, we'd make TX_EMPTY interrupt get triggered every time one byte is processed.
 
-> By the way, what is the chip you work with?
+Rx FIFO threshold needs to be set as well according to such tx policy.
+In addition, this patch also modifies the interrupt settings properly (enable RX_FULL mask, and hook it in the handler)
 
-I'd like to avoid specific comment on this.  I'm working with our big- endian MIPS SoCs which are not in mainline.
+Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware.c |   15 +++++++++++----
+ 1 files changed, 11 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index 52a69a2..d9b5790 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -50,6 +50,8 @@
+ #define DW_IC_INTR_STAT		0x2c
+ #define DW_IC_INTR_MASK		0x30
+ #define DW_IC_RAW_INTR_STAT	0x34
++#define DW_IC_RX_TL		0x38
++#define DW_IC_TX_TL		0x3c
+ #define DW_IC_CLR_INTR		0x40
+ #define DW_IC_CLR_RX_UNDER	0x44
+ #define DW_IC_CLR_RX_OVER	0x48
+@@ -294,6 +296,10 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+ 
++	/* Configure Tx/Rx FIFO threshold levels */
++	writel(dev->tx_fifo_depth - 1, dev->base + DW_IC_TX_TL);
++	writel(0, dev->base + DW_IC_RX_TL);
++
+ 	/* configure the i2c master */
+ 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST; @@ -396,7 +402,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 		}
+ 	}
+ 
+-	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
++	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT | 
++DW_IC_INTR_RX_FULL;
+ 	if (buf_len > 0)
+ 		intr_mask |= DW_IC_INTR_TX_EMPTY;
+ 	writel(intr_mask, dev->base + DW_IC_INTR_MASK); @@ -582,11 +588,12 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 		dev->status = STATUS_IDLE;
+ 	}
+ 
+-	if (stat & DW_IC_INTR_TX_EMPTY) {
+-		/* Allocate room for data reception prior to xfer_msg() */
++	/* Allocate room for data reception prior to i2c_dw_xfer_msg(). */
++	if (stat & DW_IC_INTR_RX_FULL)
+ 		i2c_dw_read(dev);
++
++	if (stat & DW_IC_INTR_TX_EMPTY)
+ 		i2c_dw_xfer_msg(dev);
+-	}
+ 
+ 	/*
+ 	 * No need to modify or disable the interrupt mask here, as
 --
-Shinya Kuribayashi
-NEC Electronics
+1.6.5
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
