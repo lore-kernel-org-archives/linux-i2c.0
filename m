@@ -1,49 +1,35 @@
-From: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-Date: Tue, 13 Oct 2009 12:52:16 +0300
-Message-ID: <4AD44DD0.7000708@nokia.com>
-References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com> <CD8CC2B65FEE304DA95744A5472698F2029E37200E@dlee06.ent.ti.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
+	I2C clock source
+Date: Tue, 13 Oct 2009 10:54:17 +0100
+Message-ID: <20091013095417.GB1230@sirena.org.uk>
+References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CD8CC2B65FEE304DA95744A5472698F2029E37200E-UmuGNrFEPrGIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4AD3EB09.8050304-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "ext Sonasath, Moiz" <m-sonasath-l0cyMroinI0@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Cc: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Tue, Oct 13, 2009 at 11:50:49AM +0900, Shinya Kuribayashi wrote:
+> This driver is originally prepared for the ARM kernel where rich and
+> well-maintained "clkdev" clock framework is available, and clock name
+> might not be strictly required.  ARM's clkdev does slightly fuzzy
+> matching where it basically gives preference to "struct device" mathing
+> over "clock id".  As long as used for ARM machines, there's no problem.
 
-Sonasath, Moiz wrote:
->> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
->>
->> Include wake up events for receiver overflow and transmitter
->> underflow in OMAP_I2C_WE_REG configuration. Also fix a small
->> typo.
->>
->> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-omap.c |    5 ++++-
->>  1 files changed, 4 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->> index 827da08..34ea9ed 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -92,8 +92,10 @@
->>  #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
->>
->>  /* I2C WE wakeup enable register */
->> -#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
->> +#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
->>  #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
->> +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
->> +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
-> 
-> These bits are not documented in OMAP3430, they are reserved. How can they be used?
+> However, all users of this driver necessarily don't have the same clk
+> framework with ARM's, as the clk I/F implementation varies depending on
+> ARCHs and machines.
 
-Hmm, that's a valid point. I will have to check if I can find more info on the background of this patch.
+> This patch adds a clock name so that other users with simple/minimum/
+> limited clk support could make use of the driver.
 
-A.
+This seems like something that it'd be better to fix in the relevant
+clock frameworks in order to try to keep the API consistently usable
+between platforms.  The clkdev matching library that most of the ARM
+platforms use should be generic enough to be usable elsewhere, there
+is regular discussion of moving it somewhere more generic.
