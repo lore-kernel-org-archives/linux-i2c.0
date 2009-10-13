@@ -1,7 +1,8 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
+Subject: FW: [PATCH 10/16] i2c-designware: Do dw_i2c_pump_msg's jobs in the
+ interrutp handler
 Date: Tue, 13 Oct 2009 16:27:25 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D7454@dlee06.ent.ti.com>
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D744C@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -15,143 +16,122 @@ List-Id: linux-i2c@vger.kernel.org
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
-Sent: Monday, October 12, 2009 9:51 PM
+Sent: Monday, October 12, 2009 9:52 PM
 To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
+Subject: [PATCH 10/16] i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
 
-* Calculate with accurate conditional expressions from DW manuals.
-* Round ic_clk by adding 0.5 as it's important at high ic_clk rate.
-* Take into account "tHD;STA" issue for _HCNT calculation.
-* Take into account "tf" for _LCNT calculation.
-* Add "cond" and "offset" fot further correction requirements.
+Symptom:
+--------
+When we're going to send/receive the data with bigger size than the Tx FIFO length, the I2C transaction will be divided into several separated transactions, limited by the Tx FIFO length.
 
-For _HCNT calculation, there's one issue needs to be carefully considered; DesignWare I2C core doesn't seem to have solid strategy to meet the tHD;STA timing spec.  If you configure _HCNT based on the tHIGH timing spec, it easily results in violation of the tHD;STA spec.
+Details:
+--------
+As a hardware feature, DesignWare I2C core emits a STOP condition whenever Tx FIFO becomes empty (strictly speaking, whenever the last byte in the Tx FIFO has been sent out), even if we have more bytes to be written.  Then, once a new transmit data is written to the Tx FIFO, DW I2C core will initiate a new I2C transaction, which leads to another START condition.
 
-After many trials, we came to the conclustion that the tHD;STA period is proportional to (_HCNT + 3), and this should be selected by default.
+This explains how the transaction in question goes, and implies that current tasklet-based dw_i2c_pump_msg() couldn't meet the timing constraint required for avoiding the Tx FIFO underrun.
 
-As for _LCNT calculation, DW I2C core has one characteristic behavior; he starts counting the SCL CNTs for the LOW period of the SCL clock
-(tLOW) as soon as it pulls the SCL line.  At that time, he doesn't take into account the fall time of SCL signal (tf), IOW, he starts counting CNTs without confirming the SCL input voltage has dropped to below VIL.
+To avoid this scenario, we must keep providing new transmit data out within a given time period.  In case of Fast-mode + 32-byte Tx FIFO, for instance, it takes about 22.5[us] to process one byte, and 720[us] in total.
 
-This characteristics becomes a problem on some platforms where tf is considerably long, and results in violation of the tLOW timing spec.
-
-To make the driver configurable as much as possible for various cases, we'd have separated arguments "tf" and "offset", and for safety default values should be 0.3 us and 0, respectively.
+This patch removes the existing tasklet-based "pump" system, then put its jobs into the interrupt handler.
 
 Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware.c |   92 +++++++++++++++++++++++++++++++---
- 1 files changed, 83 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-designware.c |   42 ++++++++++++++--------------------
+ 1 files changed, 17 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 0f8bd4c..26efd3a 100644
+index 6bfdc5f..52a69a2 100644
 --- a/drivers/i2c/busses/i2c-designware.c
 +++ b/drivers/i2c/busses/i2c-designware.c
-@@ -196,6 +196,60 @@ struct dw_i2c_dev {
- 	unsigned int		rx_fifo_depth;
- };
+@@ -149,7 +149,6 @@ static char *abort_sources[] = {
+  * @dev: driver model device node
+  * @base: IO registers pointer
+  * @cmd_complete: tx completion indicator
+- * @pump_msg: continue in progress transfers
+  * @lock: protect this struct and IO registers
+  * @clk: input reference clock
+  * @cmd_err: run time hadware error code @@ -175,7 +174,6 @@ struct dw_i2c_dev {
+ 	struct device		*dev;
+ 	void __iomem		*base;
+ 	struct completion	cmd_complete;
+-	struct tasklet_struct	pump_msg;
+ 	struct mutex		lock;
+ 	struct clk		*clk;
+ 	int			cmd_err;
+@@ -324,7 +322,7 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+ /*
+  * Initiate low level master read/write transaction.
+  * This function is called from i2c_dw_xfer when starting a transfer.
+- * This function is also called from dw_i2c_pump_msg to continue a transfer
++ * This function is also called from i2c_dw_isr to continue a transfer
+  * that is longer than the size of the TX FIFO.
+  */
+ static void
+@@ -489,10 +487,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
  
-+static u32
-+i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset) 
-+{
+ 	/* no error */
+ 	if (likely(!dev->cmd_err)) {
+-		/* read rx fifo, and disable the adapter */
+-		do {
+-			i2c_dw_read(dev);
+-		} while (dev->status & STATUS_READ_IN_PROGRESS);
++		/* Disable the adapter */
+ 		writel(0, dev->base + DW_IC_ENABLE);
+ 		ret = num;
+ 		goto done;
+@@ -520,20 +515,6 @@ static u32 i2c_dw_func(struct i2c_adapter *adap)
+ 	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;  }
+ 
+-static void dw_i2c_pump_msg(unsigned long data) -{
+-	struct dw_i2c_dev *dev = (struct dw_i2c_dev *) data;
+-	u32 intr_mask;
+-
+-	i2c_dw_read(dev);
+-	i2c_dw_xfer_msg(dev);
+-
+-	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
+-	if (dev->status & STATUS_WRITE_IN_PROGRESS)
+-		intr_mask |= DW_IC_INTR_TX_EMPTY;
+-	writel(intr_mask, dev->base + DW_IC_INTR_MASK);
+-}
+-
+ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)  {
+ 	u32 stat;
+@@ -599,10 +580,22 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 		dev->abort_source = readl(dev->base + DW_IC_TX_ABRT_SOURCE);
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+ 		dev->status = STATUS_IDLE;
+-	} else if (stat & DW_IC_INTR_TX_EMPTY)
+-		tasklet_schedule(&dev->pump_msg);
++	}
++
++	if (stat & DW_IC_INTR_TX_EMPTY) {
++		/* Allocate room for data reception prior to xfer_msg() */
++		i2c_dw_read(dev);
++		i2c_dw_xfer_msg(dev);
++	}
++
 +	/*
-+	 * DesignWare I2C core doesn't seem to have solid strategy to meet
-+	 * the tHD;STA timing spec.  Configuring _HCNT based on tHIGH spec
-+	 * will result in violation of the tHD;STA spec.
-+	 */
-+	if (cond)
-+		/*
-+		 * Conditional expression:
-+		 *
-+		 *   IC_[FS]S_SCL_HCNT + (1+4+3) >= IC_CLK * tHIGH
-+		 *
-+		 * This is based on the DW manuals, and representing an
-+		 * ideal configuration.  The resulting I2C bus speed will
-+		 * be faster than any of the others.
-+		 *
-+		 * If your hardware is free from tHD;STA issue, try this one.
-+		 */
-+		return (ic_clk * tSYMBOL + 5000) / 10000 - 8 + offset;
-+	else
-+		/*
-+		 * Conditional expression:
-+		 *
-+		 *   IC_[FS]S_SCL_HCNT + 3 >= IC_CLK * (tHD;STA + tf)
-+		 *
-+		 * This is just experimental rule; the tHD;STA period turned
-+		 * out to be proportinal to (_HCNT + 3).  With this setting,
-+		 * we could meet both tHIGH and tHD;STA timing specs.
-+		 *
-+		 * If unsure, you'd better to take this alternative.
-+		 *
-+		 * The reason why we need to take into account "tf" here,
-+		 * is the same as described in i2c_dw_scl_lcnt().
-+		 */
-+		return (ic_clk * (tSYMBOL + tf) + 5000) / 10000 - 3 + offset; }
-+
-+static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset) {
-+	/*
-+	 * Conditional expression:
++	 * No need to modify or disable the interrupt mask here, as
++	 * i2c_dw_xfer_msg() above will do that job according to the
++	 * state machine.
 +	 *
-+	 *   IC_[FS]S_SCL_LCNT + 1 >= IC_CLK * (tLOW + tf)
-+	 *
-+	 * DW I2C core starts counting the SCL CNTs for the LOW period
-+	 * of the SCL clock (tLOW) as soon as it pulls the SCL line.
-+	 * We need to take into account tf to meet the tLOW timing spec.
-+	 * Default tf value should be 0.3 us, for safety.
++	 * This comment can be removed once approved by I2C list.
 +	 */
-+	return ((ic_clk * (tLOW + tf) + 5000) / 10000) - 1 + offset; }
-+
- /**
-  * i2c_dw_init() - initialize the designware i2c master hardware
-  * @dev: device private data
-@@ -207,20 +261,40 @@ struct dw_i2c_dev {  static void i2c_dw_init(struct dw_i2c_dev *dev)  {
- 	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
--	u32 ic_con;
-+	u32 ic_con, hcnt, lcnt;
  
- 	/* Disable the adapter */
- 	writel(0, dev->base + DW_IC_ENABLE);
+-	writel(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
+ 	if (stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET))
+ 		complete(&dev->cmd_complete);
  
- 	/* set standard and fast speed deviders for high/low periods */
--	writel((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
--			dev->base + DW_IC_SS_SCL_HCNT);
--	writel((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
--			dev->base + DW_IC_SS_SCL_LCNT);
--	writel((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
--			dev->base + DW_IC_FS_SCL_HCNT);
--	writel((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
--			dev->base + DW_IC_FS_SCL_LCNT);
-+
-+	/* Standard-mode */
-+	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
-+				40,	/* tHD;STA = tHIGH = 4.0 us */
-+				3,	/* tf = 0.3 us */
-+				0,	/* 0: DW default, 1: Ideal */
-+				0);	/* No offset */
-+	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
-+				47,	/* tLOW = 4.7 us */
-+				3,	/* tf = 0.3 us */
-+				0);	/* No offset */
-+	writel(hcnt, dev->base + DW_IC_SS_SCL_HCNT);
-+	writel(lcnt, dev->base + DW_IC_SS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
-+
-+	/* Fast-mode */
-+	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
-+				6,	/* tHD;STA = tHIGH = 0.6 us */
-+				3,	/* tf = 0.3 us */
-+				0,	/* 0: DW default, 1: Ideal */
-+				0);	/* No offset */
-+	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
-+				13,	/* tLOW = 1.3 us */
-+				3,	/* tf = 0.3 us */
-+				0);	/* No offset */
-+	writel(hcnt, dev->base + DW_IC_FS_SCL_HCNT);
-+	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
-+	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+@@ -648,7 +641,6 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	}
  
- 	/* configure the i2c master */
- 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 	init_completion(&dev->cmd_complete);
+-	tasklet_init(&dev->pump_msg, dw_i2c_pump_msg, (unsigned long) dev);
+ 	mutex_init(&dev->lock);
+ 	dev->dev = get_device(&pdev->dev);
+ 	dev->irq = irq;
 --
 1.6.5
 
