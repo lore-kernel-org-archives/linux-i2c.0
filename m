@@ -1,8 +1,8 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [PATCH 13/16] i2c-designware: i2c_dw_xfer_msg: Introduce a
- local "buf" pointer
+Subject: FW: [PATCH 02/16] i2c-designware: Don't use the IC_CLR_INTR
+ register to clear interrupts
 Date: Tue, 13 Oct 2009 16:27:25 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D7453@dlee06.ent.ti.com>
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D7459@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -16,58 +16,145 @@ List-Id: linux-i2c@vger.kernel.org
 
 -----Original Message-----
 From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
-Sent: Monday, October 12, 2009 9:53 PM
+Sent: Monday, October 12, 2009 9:49 PM
 To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: [PATCH 13/16] i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
+Subject: [PATCH 02/16] i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
 
-While we have "buf_len" local variable for dev->tx_buf_len, we don't have such local variable for dev->tx_buf pointer.  While "buf_len" is restored at first then updated when we're going to process a new i2c_msg (in WRITE_IN_PROGRESS case), ->tx_buf is never done so.
+We're strongly discouraged from using the IC_CLR_INTR register because it clears all software-clearable interrupts asserted at the moment.
 
-Such inconsistency makes the code slightly hard to follow.
+stat = read(IC_INTR_STAT);
+  :
+  :  <=== Interrupts asserted during this period will be lost
+  :
+read(IC_CLR_INTR);
+
+Use the separately-prepared IC_CLR_* registers, instead.
+
+At the same time, this patch adds all remaining interrupt definitions available in the DesignWare I2C hardware.
 
 Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 ---
-
- Furthermore, even with this change, i2c_dw_xfer_msg() is still  inconsistent with i2c_dw_read().  I don't have preference around  here, but would like to sort out.  Any suggestions are welcome.
-
- drivers/i2c/busses/i2c-designware.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware.c |   77 +++++++++++++++++++++++++++++++++--
+ 1 files changed, 73 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index de006f0..b3152c2 100644
+index a4f928e..efddae1 100644
 --- a/drivers/i2c/busses/i2c-designware.c
 +++ b/drivers/i2c/busses/i2c-designware.c
-@@ -363,6 +363,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 	int rx_limit = dev->rx_fifo_depth - readl(dev->base + DW_IC_RXFLR);
- 	u32 addr = msgs[dev->msg_write_idx].addr;
- 	u32 buf_len = dev->tx_buf_len;
-+	u8 *buf = dev->tx_buf;;
+@@ -49,7 +49,18 @@
+ #define DW_IC_FS_SCL_LCNT	0x20
+ #define DW_IC_INTR_STAT		0x2c
+ #define DW_IC_INTR_MASK		0x30
++#define DW_IC_RAW_INTR_STAT	0x34
+ #define DW_IC_CLR_INTR		0x40
++#define DW_IC_CLR_RX_UNDER	0x44
++#define DW_IC_CLR_RX_OVER	0x48
++#define DW_IC_CLR_TX_OVER	0x4c
++#define DW_IC_CLR_RD_REQ	0x50
++#define DW_IC_CLR_TX_ABRT	0x54
++#define DW_IC_CLR_RX_DONE	0x58
++#define DW_IC_CLR_ACTIVITY	0x5c
++#define DW_IC_CLR_STOP_DET	0x60
++#define DW_IC_CLR_START_DET	0x64
++#define DW_IC_CLR_GEN_CALL	0x68
+ #define DW_IC_ENABLE		0x6c
+ #define DW_IC_STATUS		0x70
+ #define DW_IC_TXFLR		0x74
+@@ -64,9 +75,18 @@
+ #define DW_IC_CON_RESTART_EN		0x20
+ #define DW_IC_CON_SLAVE_DISABLE		0x40
  
- 	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
- 		/* if target address has changed, we need to @@ -381,7 +382,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+-#define DW_IC_INTR_TX_EMPTY	0x10
+-#define DW_IC_INTR_TX_ABRT	0x40
++#define DW_IC_INTR_RX_UNDER	0x001
++#define DW_IC_INTR_RX_OVER	0x002
++#define DW_IC_INTR_RX_FULL	0x004
++#define DW_IC_INTR_TX_OVER	0x008
++#define DW_IC_INTR_TX_EMPTY	0x010
++#define DW_IC_INTR_RD_REQ	0x020
++#define DW_IC_INTR_TX_ABRT	0x040
++#define DW_IC_INTR_RX_DONE	0x080
++#define DW_IC_INTR_ACTIVITY	0x100
+ #define DW_IC_INTR_STOP_DET	0x200
++#define DW_IC_INTR_START_DET	0x400
++#define DW_IC_INTR_GEN_CALL	0x800
  
- 		if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
- 			/* new i2c_msg */
--			dev->tx_buf = msgs[dev->msg_write_idx].buf;
-+			buf	= msgs[dev->msg_write_idx].buf;
- 			buf_len = msgs[dev->msg_write_idx].len;
- 		}
+ #define DW_IC_STATUS_ACTIVITY	0x1
  
-@@ -390,12 +391,12 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 				writel(0x100, dev->base + DW_IC_DATA_CMD);
- 				rx_limit--;
- 			} else
--				writel(*(dev->tx_buf++),
--						dev->base + DW_IC_DATA_CMD);
-+				writel(*buf++, dev->base + DW_IC_DATA_CMD);
- 			tx_limit--; buf_len--;
- 		}
+@@ -439,6 +459,55 @@ static void dw_i2c_pump_msg(unsigned long data)
+ 	writel(intr_mask, dev->base + DW_IC_INTR_MASK);  }
  
- 		dev->tx_buf_len = buf_len;
-+		dev->tx_buf = buf;
++static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev) {
++	u32 stat;
++
++	/*
++	 * The IC_INTR_STAT register just indicates "enabled" interrupts.
++	 * Ths unmasked raw version of interrupt status bits are available
++	 * in the IC_RAW_INTR_STAT register.
++	 *
++	 * That is,
++	 *   stat = readl(IC_INTR_STAT);
++	 * equals to,
++	 *   stat = readl(IC_RAW_INTR_STAT) & readl(IC_INTR_MASK);
++	 *
++	 * The raw version might be useful for debugging purposes.
++	 */
++	stat = readl(dev->base + DW_IC_INTR_STAT);
++
++	/*
++	 * Do not use the IC_CLR_INTR register to clear interrupts, or
++	 * you'll miss some interrupts, triggered during the period from
++	 * reading IC_INTR_STAT to reading IC_CLR_INTR.
++	 *
++	 * Use the separately-prepared IC_CLR_* registers instead.
++	 */
++	if (stat & DW_IC_INTR_RX_UNDER)
++		readl(dev->base + DW_IC_CLR_RX_UNDER);
++	if (stat & DW_IC_INTR_RX_OVER)
++		readl(dev->base + DW_IC_CLR_RX_OVER);
++	if (stat & DW_IC_INTR_TX_OVER)
++		readl(dev->base + DW_IC_CLR_TX_OVER);
++	if (stat & DW_IC_INTR_RD_REQ)
++		readl(dev->base + DW_IC_CLR_RD_REQ);
++	if (stat & DW_IC_INTR_TX_ABRT)
++		readl(dev->base + DW_IC_CLR_TX_ABRT);
++	if (stat & DW_IC_INTR_RX_DONE)
++		readl(dev->base + DW_IC_CLR_RX_DONE);
++	if (stat & DW_IC_INTR_ACTIVITY)
++		readl(dev->base + DW_IC_CLR_ACTIVITY);
++	if (stat & DW_IC_INTR_STOP_DET)
++		readl(dev->base + DW_IC_CLR_STOP_DET);
++	if (stat & DW_IC_INTR_START_DET)
++		readl(dev->base + DW_IC_CLR_START_DET);
++	if (stat & DW_IC_INTR_GEN_CALL)
++		readl(dev->base + DW_IC_CLR_GEN_CALL);
++
++	return stat;
++}
++
+ /*
+  * Interrupt service routine. This gets called whenever an I2C interrupt
+  * occurs.
+@@ -448,8 +517,9 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 	struct dw_i2c_dev *dev = dev_id;
+ 	u32 stat;
  
- 		/* more bytes to be written? */
- 		if (buf_len > 0) {
+-	stat = readl(dev->base + DW_IC_INTR_STAT);
++	stat = i2c_dw_read_clear_intrbits(dev);
+ 	dev_dbg(dev->dev, "%s: stat=0x%x\n", __func__, stat);
++
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		dev->abort_source = readl(dev->base + DW_IC_TX_ABRT_SOURCE);
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+@@ -457,7 +527,6 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 	} else if (stat & DW_IC_INTR_TX_EMPTY)
+ 		tasklet_schedule(&dev->pump_msg);
+ 
+-	readl(dev->base + DW_IC_CLR_INTR);	/* clear interrupts */
+ 	writel(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
+ 	if (stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET))
+ 		complete(&dev->cmd_complete);
 --
 1.6.5
 
