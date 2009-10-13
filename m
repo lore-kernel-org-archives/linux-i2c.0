@@ -1,7 +1,7 @@
 From: "Olivares, Ricardo Perez" <richo-l0cyMroinI0@public.gmane.org>
-Subject: FW: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
-Date: Tue, 13 Oct 2009 16:27:24 -0500
-Message-ID: <A69FA2915331DC488A831521EAE36FE401554D7449@dlee06.ent.ti.com>
+Subject: FW: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
+Date: Tue, 13 Oct 2009 16:27:25 -0500
+Message-ID: <A69FA2915331DC488A831521EAE36FE401554D7454@dlee06.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
@@ -14,44 +14,146 @@ List-Id: linux-i2c@vger.kernel.org
  
 
 -----Original Message-----
-From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Aaro Koskinen
-Sent: Tuesday, October 13, 2009 4:52 AM
-To: Sonasath, Moiz
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Subject: Re: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
+From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Shinya Kuribayashi
+Sent: Monday, October 12, 2009 9:51 PM
+To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Subject: [PATCH 08/16] i2c-designware: Improve _HCNT/_LCNT calculation
 
-Hello,
+* Calculate with accurate conditional expressions from DW manuals.
+* Round ic_clk by adding 0.5 as it's important at high ic_clk rate.
+* Take into account "tHD;STA" issue for _HCNT calculation.
+* Take into account "tf" for _LCNT calculation.
+* Add "cond" and "offset" fot further correction requirements.
 
-Sonasath, Moiz wrote:
->> From: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
->>
->> Include wake up events for receiver overflow and transmitter 
->> underflow in OMAP_I2C_WE_REG configuration. Also fix a small typo.
->>
->> Signed-off-by: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-omap.c |    5 ++++-
->>  1 files changed, 4 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c 
->> b/drivers/i2c/busses/i2c-omap.c index 827da08..34ea9ed 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -92,8 +92,10 @@
->>  #define OMAP_I2C_STAT_AL	(1 << 0)	/* Arbitration lost int ena */
->>
->>  /* I2C WE wakeup enable register */
->> -#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakup */
->> +#define OMAP_I2C_WE_XDR_WE	(1 << 14)	/* TX drain wakeup */
->>  #define OMAP_I2C_WE_RDR_WE	(1 << 13)	/* RX drain wakeup */
->> +#define OMAP_I2C_WE_ROVR_WE	(1 << 11)	/* RX overflow wakeup */
->> +#define OMAP_I2C_WE_XUDF_WE	(1 << 10)	/* TX underflow wakeup */
-> 
-> These bits are not documented in OMAP3430, they are reserved. How can they be used?
+For _HCNT calculation, there's one issue needs to be carefully considered; DesignWare I2C core doesn't seem to have solid strategy to meet the tHD;STA timing spec.  If you configure _HCNT based on the tHIGH timing spec, it easily results in violation of the tHD;STA spec.
 
-Hmm, that's a valid point. I will have to check if I can find more info on the background of this patch.
+After many trials, we came to the conclustion that the tHD;STA period is proportional to (_HCNT + 3), and this should be selected by default.
 
-A.
+As for _LCNT calculation, DW I2C core has one characteristic behavior; he starts counting the SCL CNTs for the LOW period of the SCL clock
+(tLOW) as soon as it pulls the SCL line.  At that time, he doesn't take into account the fall time of SCL signal (tf), IOW, he starts counting CNTs without confirming the SCL input voltage has dropped to below VIL.
+
+This characteristics becomes a problem on some platforms where tf is considerably long, and results in violation of the tLOW timing spec.
+
+To make the driver configurable as much as possible for various cases, we'd have separated arguments "tf" and "offset", and for safety default values should be 0.3 us and 0, respectively.
+
+Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware.c |   92 +++++++++++++++++++++++++++++++---
+ 1 files changed, 83 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index 0f8bd4c..26efd3a 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -196,6 +196,60 @@ struct dw_i2c_dev {
+ 	unsigned int		rx_fifo_depth;
+ };
+ 
++static u32
++i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset) 
++{
++	/*
++	 * DesignWare I2C core doesn't seem to have solid strategy to meet
++	 * the tHD;STA timing spec.  Configuring _HCNT based on tHIGH spec
++	 * will result in violation of the tHD;STA spec.
++	 */
++	if (cond)
++		/*
++		 * Conditional expression:
++		 *
++		 *   IC_[FS]S_SCL_HCNT + (1+4+3) >= IC_CLK * tHIGH
++		 *
++		 * This is based on the DW manuals, and representing an
++		 * ideal configuration.  The resulting I2C bus speed will
++		 * be faster than any of the others.
++		 *
++		 * If your hardware is free from tHD;STA issue, try this one.
++		 */
++		return (ic_clk * tSYMBOL + 5000) / 10000 - 8 + offset;
++	else
++		/*
++		 * Conditional expression:
++		 *
++		 *   IC_[FS]S_SCL_HCNT + 3 >= IC_CLK * (tHD;STA + tf)
++		 *
++		 * This is just experimental rule; the tHD;STA period turned
++		 * out to be proportinal to (_HCNT + 3).  With this setting,
++		 * we could meet both tHIGH and tHD;STA timing specs.
++		 *
++		 * If unsure, you'd better to take this alternative.
++		 *
++		 * The reason why we need to take into account "tf" here,
++		 * is the same as described in i2c_dw_scl_lcnt().
++		 */
++		return (ic_clk * (tSYMBOL + tf) + 5000) / 10000 - 3 + offset; }
++
++static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset) {
++	/*
++	 * Conditional expression:
++	 *
++	 *   IC_[FS]S_SCL_LCNT + 1 >= IC_CLK * (tLOW + tf)
++	 *
++	 * DW I2C core starts counting the SCL CNTs for the LOW period
++	 * of the SCL clock (tLOW) as soon as it pulls the SCL line.
++	 * We need to take into account tf to meet the tLOW timing spec.
++	 * Default tf value should be 0.3 us, for safety.
++	 */
++	return ((ic_clk * (tLOW + tf) + 5000) / 10000) - 1 + offset; }
++
+ /**
+  * i2c_dw_init() - initialize the designware i2c master hardware
+  * @dev: device private data
+@@ -207,20 +261,40 @@ struct dw_i2c_dev {  static void i2c_dw_init(struct dw_i2c_dev *dev)  {
+ 	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
+-	u32 ic_con;
++	u32 ic_con, hcnt, lcnt;
+ 
+ 	/* Disable the adapter */
+ 	writel(0, dev->base + DW_IC_ENABLE);
+ 
+ 	/* set standard and fast speed deviders for high/low periods */
+-	writel((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
+-			dev->base + DW_IC_SS_SCL_HCNT);
+-	writel((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
+-			dev->base + DW_IC_SS_SCL_LCNT);
+-	writel((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
+-			dev->base + DW_IC_FS_SCL_HCNT);
+-	writel((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
+-			dev->base + DW_IC_FS_SCL_LCNT);
++
++	/* Standard-mode */
++	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
++				40,	/* tHD;STA = tHIGH = 4.0 us */
++				3,	/* tf = 0.3 us */
++				0,	/* 0: DW default, 1: Ideal */
++				0);	/* No offset */
++	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
++				47,	/* tLOW = 4.7 us */
++				3,	/* tf = 0.3 us */
++				0);	/* No offset */
++	writel(hcnt, dev->base + DW_IC_SS_SCL_HCNT);
++	writel(lcnt, dev->base + DW_IC_SS_SCL_LCNT);
++	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
++
++	/* Fast-mode */
++	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
++				6,	/* tHD;STA = tHIGH = 0.6 us */
++				3,	/* tf = 0.3 us */
++				0,	/* 0: DW default, 1: Ideal */
++				0);	/* No offset */
++	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
++				13,	/* tLOW = 1.3 us */
++				3,	/* tf = 0.3 us */
++				0);	/* No offset */
++	writel(hcnt, dev->base + DW_IC_FS_SCL_HCNT);
++	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
++	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+ 
+ 	/* configure the i2c master */
+ 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+--
+1.6.5
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
