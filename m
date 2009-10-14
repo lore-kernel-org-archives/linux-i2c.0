@@ -1,160 +1,70 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/3] i2c-powermac: Include the i2c_adpater in struct
- pmac_i2c_bus
-Date: Wed, 14 Oct 2009 16:56:29 +0200
-Message-ID: <20091014165629.2e4f6737@hyperion.delvare>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: [PATCH 16/16] i2c-designware: Add I2C_FUNC_SMBUS_* bits
+Date: Wed, 14 Oct 2009 20:53:27 +0200
+Message-ID: <20091014185327.GD11789@tarshish>
+References: <4AD3E974.8080200@necel.com>
+ <4AD3EBDD.50105@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <4AD3EBDD.50105@necel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-Include the i2c_adapter in struct pmac_i2c_bus. This avoids memory
-fragmentation and allows for several code cleanups.
+Hi Shinya,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
----
-Ben, these 3 new i2c-powermac patches go on top of the 3 other patches
-I sent earlier this month. I could build-test them but not tun-test,
-please do and let me know what you think.
+On Tue, Oct 13, 2009 at 11:54:21AM +0900, Shinya Kuribayashi wrote:
+> This will ease our testing a bit with i2c-tools.  Note that DW I2C core
+> doesn't support I2C_FUNC_SMBUS_QUICK, as it's not capable of slave-
+> addressing-only I2C transactions.
 
- arch/powerpc/include/asm/pmac_low_i2c.h   |    6 +-----
- arch/powerpc/platforms/powermac/low_i2c.c |   25 +++++--------------------
- drivers/i2c/busses/i2c-powermac.c         |   15 +++------------
- 3 files changed, 9 insertions(+), 37 deletions(-)
+Is this supposed to be applied to mainline?
 
---- linux-2.6.32-rc4.orig/arch/powerpc/include/asm/pmac_low_i2c.h	2009-06-10 05:05:27.000000000 +0200
-+++ linux-2.6.32-rc4/arch/powerpc/include/asm/pmac_low_i2c.h	2009-10-14 15:56:23.000000000 +0200
-@@ -72,11 +72,7 @@ extern int pmac_i2c_get_type(struct pmac
- extern int pmac_i2c_get_flags(struct pmac_i2c_bus *bus);
- extern int pmac_i2c_get_channel(struct pmac_i2c_bus *bus);
- 
--/* i2c layer adapter attach/detach */
--extern void pmac_i2c_attach_adapter(struct pmac_i2c_bus *bus,
--				    struct i2c_adapter *adapter);
--extern void pmac_i2c_detach_adapter(struct pmac_i2c_bus *bus,
--				    struct i2c_adapter *adapter);
-+/* i2c layer adapter helpers */
- extern struct i2c_adapter *pmac_i2c_get_adapter(struct pmac_i2c_bus *bus);
- extern struct pmac_i2c_bus *pmac_i2c_adapter_to_bus(struct i2c_adapter *adapter);
- 
---- linux-2.6.32-rc4.orig/arch/powerpc/platforms/powermac/low_i2c.c	2009-06-10 05:05:27.000000000 +0200
-+++ linux-2.6.32-rc4/arch/powerpc/platforms/powermac/low_i2c.c	2009-10-14 15:56:23.000000000 +0200
-@@ -42,6 +42,7 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/mutex.h>
-+#include <linux/i2c.h>
- #include <asm/keylargo.h>
- #include <asm/uninorth.h>
- #include <asm/io.h>
-@@ -80,7 +81,7 @@ struct pmac_i2c_bus
- 	struct device_node	*busnode;
- 	int			type;
- 	int			flags;
--	struct i2c_adapter	*adapter;
-+	struct i2c_adapter	adapter;
- 	void			*hostdata;
- 	int			channel;	/* some hosts have multiple */
- 	int			mode;		/* current mode */
-@@ -1011,25 +1012,9 @@ int pmac_i2c_get_channel(struct pmac_i2c
- EXPORT_SYMBOL_GPL(pmac_i2c_get_channel);
- 
- 
--void pmac_i2c_attach_adapter(struct pmac_i2c_bus *bus,
--			     struct i2c_adapter *adapter)
--{
--	WARN_ON(bus->adapter != NULL);
--	bus->adapter = adapter;
--}
--EXPORT_SYMBOL_GPL(pmac_i2c_attach_adapter);
--
--void pmac_i2c_detach_adapter(struct pmac_i2c_bus *bus,
--			     struct i2c_adapter *adapter)
--{
--	WARN_ON(bus->adapter != adapter);
--	bus->adapter = NULL;
--}
--EXPORT_SYMBOL_GPL(pmac_i2c_detach_adapter);
--
- struct i2c_adapter *pmac_i2c_get_adapter(struct pmac_i2c_bus *bus)
- {
--	return bus->adapter;
-+	return &bus->adapter;
- }
- EXPORT_SYMBOL_GPL(pmac_i2c_get_adapter);
- 
-@@ -1038,7 +1023,7 @@ struct pmac_i2c_bus *pmac_i2c_adapter_to
- 	struct pmac_i2c_bus *bus;
- 
- 	list_for_each_entry(bus, &pmac_i2c_busses, link)
--		if (bus->adapter == adapter)
-+		if (&bus->adapter == adapter)
- 			return bus;
- 	return NULL;
- }
-@@ -1050,7 +1035,7 @@ int pmac_i2c_match_adapter(struct device
- 
- 	if (bus == NULL)
- 		return 0;
--	return (bus->adapter == adapter);
-+	return (&bus->adapter == adapter);
- }
- EXPORT_SYMBOL_GPL(pmac_i2c_match_adapter);
- 
---- linux-2.6.32-rc4.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-14 15:56:16.000000000 +0200
-+++ linux-2.6.32-rc4/drivers/i2c/busses/i2c-powermac.c	2009-10-14 15:56:23.000000000 +0200
-@@ -204,19 +204,16 @@ static const struct i2c_algorithm i2c_po
- static int __devexit i2c_powermac_remove(struct platform_device *dev)
- {
- 	struct i2c_adapter	*adapter = platform_get_drvdata(dev);
--	struct pmac_i2c_bus	*bus = i2c_get_adapdata(adapter);
- 	int			rc;
- 
- 	rc = i2c_del_adapter(adapter);
--	pmac_i2c_detach_adapter(bus, adapter);
--	i2c_set_adapdata(adapter, NULL);
- 	/* We aren't that prepared to deal with this... */
- 	if (rc)
- 		printk(KERN_WARNING
- 		       "i2c-powermac.c: Failed to remove bus %s !\n",
- 		       adapter->name);
- 	platform_set_drvdata(dev, NULL);
--	kfree(adapter);
-+	memset(adapter, 0, sizeof(*adapter));
- 
- 	return 0;
- }
-@@ -261,23 +258,17 @@ static int __devinit i2c_powermac_probe(
- 	snprintf(name, 32, "%s %d", basename, pmac_i2c_get_channel(bus));
- 	of_node_put(parent);
- 
--	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
--	if (adapter == NULL) {
--		printk(KERN_ERR "i2c-powermac: can't allocate inteface !\n");
--		return -ENOMEM;
--	}
-+	adapter = pmac_i2c_get_adapter(bus);
- 	platform_set_drvdata(dev, adapter);
- 	strcpy(adapter->name, name);
- 	adapter->algo = &i2c_powermac_algorithm;
- 	i2c_set_adapdata(adapter, bus);
- 	adapter->dev.parent = &dev->dev;
--	pmac_i2c_attach_adapter(bus, adapter);
- 	rc = i2c_add_adapter(adapter);
- 	if (rc) {
- 		printk(KERN_ERR "i2c-powermac: Adapter %s registration "
- 		       "failed\n", name);
--		i2c_set_adapdata(adapter, NULL);
--		pmac_i2c_detach_adapter(bus, adapter);
-+		memset(adapter, 0, sizeof(*adapter));
- 	}
- 
- 	printk(KERN_INFO "PowerMac i2c bus %s registered\n", name);
+baruch
 
+> 
+> Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+> ---
+> drivers/i2c/busses/i2c-designware.c |    9 ++++++++-
+> 1 files changed, 8 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+> index 6f85e28..80c8b8a 100644
+> --- a/drivers/i2c/busses/i2c-designware.c
+> +++ b/drivers/i2c/busses/i2c-designware.c
+> @@ -529,7 +529,14 @@ done:
+> 
+> static u32 i2c_dw_func(struct i2c_adapter *adap)
+> {
+> -	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;
+> +	return	I2C_FUNC_I2C |
+> +		I2C_FUNC_10BIT_ADDR |
+> +		I2C_FUNC_SMBUS_BYTE |
+> +		I2C_FUNC_SMBUS_BYTE_DATA |
+> +		I2C_FUNC_SMBUS_WORD_DATA |
+> +		I2C_FUNC_SMBUS_BLOCK_DATA |
+> +		I2C_FUNC_SMBUS_I2C_BLOCK |
+> +		I2C_FUNC_SMBUS_I2C_BLOCK_2;
+> }
+> 
+> static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+> -- 
+> 1.6.5
+> 
 
 -- 
-Jean Delvare
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
