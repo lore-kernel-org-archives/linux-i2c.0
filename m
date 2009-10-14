@@ -1,54 +1,43 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
-	I2C clock source
-Date: Wed, 14 Oct 2009 11:09:15 +0100
-Message-ID: <20091014100915.GA24540@sirena.org.uk>
-References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com> <20091013224123.GB13398@fluff.org.uk> <4AD5514B.4090504@necel.com>
+From: "Woodruff, Richard" <r-woodruff2@ti.com>
+Subject: RE: [PATCH RESEND] I2C: OMAP: Add missing wakeup events
+Date: Wed, 14 Oct 2009 08:25:42 -0500
+Message-ID: <13B9B4C6EF24D648824FF11BE8967162039B235CF9@dlee02.ent.ti.com>
+References: <1255342885-15786-1-git-send-email-aaro.koskinen@nokia.com>
+ <CD8CC2B65FEE304DA95744A5472698F2029E37200E@dlee06.ent.ti.com>
+ <4AD44DD0.7000708@nokia.com>
+ <CD8CC2B65FEE304DA95744A5472698F2029E37245F@dlee06.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4AD5514B.4090504-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <CD8CC2B65FEE304DA95744A5472698F2029E37245F@dlee06.ent.ti.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "Sonasath, Moiz" <m-sonasath@ti.com>, Aaro Koskinen <aaro.koskinen@nokia.com>
+Cc: "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 14, 2009 at 01:19:23PM +0900, Shinya Kuribayashi wrote:
+> > >>  /* I2C WE wakeup enable register */
+> > >> -#define OMAP_I2C_WE_XDR_WE      (1 << 14)       /* TX drain wakup */
+> > >> +#define OMAP_I2C_WE_XDR_WE      (1 << 14)       /* TX drain wakeup */
+> > >>  #define OMAP_I2C_WE_RDR_WE      (1 << 13)       /* RX drain wakeup */
+> > >> +#define OMAP_I2C_WE_ROVR_WE     (1 << 11)       /* RX overflow wakeup */
+> > >> +#define OMAP_I2C_WE_XUDF_WE     (1 << 10)       /* TX underflow wakeup */
+> > >
+> > > These bits are not documented in OMAP3430, they are reserved. How can
+> > they be used?
+> >
+> > Hmm, that's a valid point. I will have to check if I can find more info on
+> > the background of this patch.
+>
+> AFAIK, these bits have been introduced in OMAP3630 as it has a new IP block
+> for I2C. But these bits are reserved bits for OMAP3430.
 
-> * And clk_get() is expected to pick up a clock source with:
+Couple notes:
+        - IP block is updated but it is not new.  These should just be some reserved bits converted.  New bits expand wakeup capability and enhance FIFO operation with DMA.
 
-> 1) dev_id + clk_id ... strict matching condition (default)
-> 2) dev_id only ... fuzzy extension1 (clk_id can be regarded as wildcard)
-> 3) clk_id only ... fuzzy extension2 (dev_id can be regarded as wildcard)
+        - Driver for a while supported OMAP1/2420 style I2C and OMAP2430/3/4 style I2C.  Definitions between broad class drivers are different.  The interrupt handler is easiest to see this.  This is not so relevant to above bits but is good to keep in mind.
 
->  2) and 3) might be sort of ARM's clkdev extensions
->  (I think it's useful), but that's not my point.
->  I'll leave that alone for now.
+Regards,
+Richard W.
 
-Part of the reason I was querying this is that you were using the clock
-name "dw_i2c_clk" which looks like a globally namespaced name which
-would be used with option 3 above.  Several clock frameworks just
-completely ignore dev_id which creates a lot of problems down the line.
-If it had just been i2c_clk I'd have been less likely to follow up.
-
-Option 3 has never been the intended use of the clock API and is
-basically a bug in any clock implementation that requires it for most
-drivers but it does need to be used in a few limited cases where the
-relevant kernel subsystem doesn't provide a struct device (cpufreq is
-the major offender here).
-
-> * From the point of drivers, we're never interested in clk_get()
->  implementation, and which matching pattern 1) - 3) is taken.
-
->  Supplying only "dev_id" could be regarded as misuse of clk_get(),
-
-As far as I can tell from what rmk is saying it seems that the use of a
-NULL string is actually an intended usage for devices where the clocks
-aren't otherwise named.  I had the concerns when I first saw this usage
-but it does seem to be an expected and intended use.
-
-> and will increase dependence on clk framework implementation.
-
-To a certain extent this is good in that it applies pressure to improve
-the clock API implementations concerned.
