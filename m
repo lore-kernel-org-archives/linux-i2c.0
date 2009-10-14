@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/3] i2c-powermac: Simplify pmac_i2c_adapter_to_bus
-Date: Wed, 14 Oct 2009 16:57:43 +0200
-Message-ID: <20091014165743.279789a4@hyperion.delvare>
+Subject: [PATCH 3/3] i2c-powermac: Drop temporary name buffer
+Date: Wed, 14 Oct 2009 16:59:50 +0200
+Message-ID: <20091014165950.020458b4@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -10,96 +10,60 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-pmac_i2c_adapter_to_bus can be simplified. We no longer need to walk
-the list of buses, we can get the right bus directly.
-
-The only case where it makes a difference is if the provided adapter
-is _not_ a pmac_i2c_bus, but it is not supposed to happen anyway. So
-we can also drop the error checks.
+We no longer need to write the adapter name to a temporary buffer.
+We can write it directly to the i2c_adapter's name field. This is
+more efficient.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 ---
- arch/powerpc/platforms/powermac/low_i2c.c   |    7 +------
- drivers/macintosh/windfarm_lm75_sensor.c    |    2 --
- drivers/macintosh/windfarm_max6690_sensor.c |    2 --
- drivers/macintosh/windfarm_smu_sat.c        |    2 --
- sound/aoa/codecs/onyx.c                     |    2 --
- sound/aoa/codecs/tas.c                      |    2 --
- 6 files changed, 1 insertion(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-powermac.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- linux-2.6.32-rc4.orig/arch/powerpc/platforms/powermac/low_i2c.c	2009-10-14 15:56:23.000000000 +0200
-+++ linux-2.6.32-rc4/arch/powerpc/platforms/powermac/low_i2c.c	2009-10-14 15:57:42.000000000 +0200
-@@ -1020,12 +1020,7 @@ EXPORT_SYMBOL_GPL(pmac_i2c_get_adapter);
+--- linux-2.6.32-rc4.orig/drivers/i2c/busses/i2c-powermac.c	2009-10-14 15:56:23.000000000 +0200
++++ linux-2.6.32-rc4/drivers/i2c/busses/i2c-powermac.c	2009-10-14 16:02:26.000000000 +0200
+@@ -224,12 +224,12 @@ static int __devinit i2c_powermac_probe(
+ 	struct pmac_i2c_bus *bus = dev->dev.platform_data;
+ 	struct device_node *parent = NULL;
+ 	struct i2c_adapter *adapter;
+-	char name[32];
+ 	const char *basename;
+ 	int rc;
  
- struct pmac_i2c_bus *pmac_i2c_adapter_to_bus(struct i2c_adapter *adapter)
- {
--	struct pmac_i2c_bus *bus;
--
--	list_for_each_entry(bus, &pmac_i2c_busses, link)
--		if (&bus->adapter == adapter)
--			return bus;
--	return NULL;
-+	return container_of(adapter, struct pmac_i2c_bus, adapter);
- }
- EXPORT_SYMBOL_GPL(pmac_i2c_adapter_to_bus);
+ 	if (bus == NULL)
+ 		return -EINVAL;
++	adapter = pmac_i2c_get_adapter(bus);
  
---- linux-2.6.32-rc4.orig/drivers/macintosh/windfarm_lm75_sensor.c	2009-10-05 10:45:49.000000000 +0200
-+++ linux-2.6.32-rc4/drivers/macintosh/windfarm_lm75_sensor.c	2009-10-14 15:57:42.000000000 +0200
-@@ -173,8 +173,6 @@ static int wf_lm75_attach(struct i2c_ada
- 	DBG("wf_lm75: adapter %s detected\n", adapter->name);
+ 	/* Ok, now we need to make up a name for the interface that will
+ 	 * match what we used to do in the past, that is basically the
+@@ -255,23 +255,22 @@ static int __devinit i2c_powermac_probe(
+ 	default:
+ 		return -EINVAL;
+ 	}
+-	snprintf(name, 32, "%s %d", basename, pmac_i2c_get_channel(bus));
++	snprintf(adapter->name, sizeof(adapter->name), "%s %d", basename,
++		 pmac_i2c_get_channel(bus));
+ 	of_node_put(parent);
  
- 	bus = pmac_i2c_adapter_to_bus(adapter);
--	if (bus == NULL)
--		return -ENODEV;
- 	busnode = pmac_i2c_get_bus_node(bus);
+-	adapter = pmac_i2c_get_adapter(bus);
+ 	platform_set_drvdata(dev, adapter);
+-	strcpy(adapter->name, name);
+ 	adapter->algo = &i2c_powermac_algorithm;
+ 	i2c_set_adapdata(adapter, bus);
+ 	adapter->dev.parent = &dev->dev;
+ 	rc = i2c_add_adapter(adapter);
+ 	if (rc) {
+ 		printk(KERN_ERR "i2c-powermac: Adapter %s registration "
+-		       "failed\n", name);
++		       "failed\n", adapter->name);
+ 		memset(adapter, 0, sizeof(*adapter));
+ 	}
  
- 	DBG("wf_lm75: bus found, looking for device...\n");
---- linux-2.6.32-rc4.orig/drivers/macintosh/windfarm_max6690_sensor.c	2009-10-05 10:45:49.000000000 +0200
-+++ linux-2.6.32-rc4/drivers/macintosh/windfarm_max6690_sensor.c	2009-10-14 15:57:42.000000000 +0200
-@@ -135,8 +135,6 @@ static int wf_max6690_attach(struct i2c_
- 	const char *loc;
+-	printk(KERN_INFO "PowerMac i2c bus %s registered\n", name);
++	printk(KERN_INFO "PowerMac i2c bus %s registered\n", adapter->name);
  
- 	bus = pmac_i2c_adapter_to_bus(adapter);
--	if (bus == NULL)
--		return -ENODEV;
- 	busnode = pmac_i2c_get_bus_node(bus);
- 
- 	while ((dev = of_get_next_child(busnode, dev)) != NULL) {
---- linux-2.6.32-rc4.orig/drivers/macintosh/windfarm_smu_sat.c	2009-10-05 10:45:49.000000000 +0200
-+++ linux-2.6.32-rc4/drivers/macintosh/windfarm_smu_sat.c	2009-10-14 15:57:42.000000000 +0200
-@@ -359,8 +359,6 @@ static int wf_sat_attach(struct i2c_adap
- 	struct pmac_i2c_bus *bus;
- 
- 	bus = pmac_i2c_adapter_to_bus(adapter);
--	if (bus == NULL)
--		return -ENODEV;
- 	busnode = pmac_i2c_get_bus_node(bus);
- 
- 	while ((dev = of_get_next_child(busnode, dev)) != NULL)
---- linux-2.6.32-rc4.orig/sound/aoa/codecs/onyx.c	2009-10-01 09:44:36.000000000 +0200
-+++ linux-2.6.32-rc4/sound/aoa/codecs/onyx.c	2009-10-14 15:57:42.000000000 +0200
-@@ -1077,8 +1077,6 @@ static int onyx_i2c_attach(struct i2c_ad
- 	struct pmac_i2c_bus *bus;
- 
- 	bus = pmac_i2c_adapter_to_bus(adapter);
--	if (bus == NULL)
--		return -ENODEV;
- 	busnode = pmac_i2c_get_bus_node(bus);
- 
- 	while ((dev = of_get_next_child(busnode, dev)) != NULL) {
---- linux-2.6.32-rc4.orig/sound/aoa/codecs/tas.c	2009-10-05 10:45:51.000000000 +0200
-+++ linux-2.6.32-rc4/sound/aoa/codecs/tas.c	2009-10-14 15:57:42.000000000 +0200
-@@ -958,8 +958,6 @@ static int tas_i2c_attach(struct i2c_ada
- 	struct pmac_i2c_bus *bus;
- 
- 	bus = pmac_i2c_adapter_to_bus(adapter);
--	if (bus == NULL)
--		return -ENODEV;
- 	busnode = pmac_i2c_get_bus_node(bus);
- 
- 	while ((dev = of_get_next_child(busnode, dev)) != NULL) {
-
+ 	if (!strncmp(basename, "uni-n", 5)) {
+ 		struct device_node *np;
 
 -- 
 Jean Delvare
