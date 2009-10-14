@@ -1,79 +1,83 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: [RFC] i2c-designware patches
-Date: Wed, 14 Oct 2009 21:02:48 +0200
-Message-ID: <20091014190248.GE11789@tarshish>
-References: <4AD3E974.8080200@necel.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
+	I2C clock source
+Date: Wed, 14 Oct 2009 20:14:19 +0100
+Message-ID: <20091014191419.GB28948@n2100.arm.linux.org.uk>
+References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com> <20091013224123.GB13398@fluff.org.uk> <4AD5514B.4090504@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mips-bounce@linux-mips.org>
 Content-Disposition: inline
-In-Reply-To: <4AD3E974.8080200@necel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <4AD5514B.4090504@necel.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
 To: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org
+Cc: Ben Dooks <ben@fluff.org>, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, baruch@tkos.co.il, linux-i2c@vger.kernel.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shinya,
+On Wed, Oct 14, 2009 at 01:19:23PM +0900, Shinya Kuribayashi wrote:
+> # As you can imagine, my local clk implementation is based on
+>  "clk_id" name matching, which looks simple for me.
 
-On Tue, Oct 13, 2009 at 11:44:04AM +0900, Shinya Kuribayashi wrote:
-> Here're various improvements / bug-fixing patches for DW I2C driver.
-> I'm working with v2.6.27-based kernel, but they must work fine with the
-> latest mainline kernel.
-> 
-> It's stil in RFC, and I'm working with it for some time.  Any comments
-> or suggestions are highly appreciated.  Then I'll respin and give it a
-> test, thanks.
-> 
-> Baruch, I'd say the base driver is in good shape enogh, so I'm having
-> a fun with modifing the driver.  Thanks for the initial work.
-> 
-> P.S. ARM and MIPS lists are Cc:ed as I believe there must be potential
-> users of this driver.
-> 
-> 
-> Shinya Kuribayashi (16):
->      i2c-designware: Consolidate to use 32-bit word accesses
->      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
->      i2c-designware: Use platform_get_irq helper
->      i2c-designware: i2c_dw_read: Take "struct dw_i2c_dev" pointer
->      i2c-designware: i2c_dw_xfer_msg: Take "struct dw_i2c_dev" pointer
->      i2c-designware: Remove an useless local variable "num"
->      i2c-designware: Set a clock name to DesignWare I2C clock source
->      i2c-designware: Improve _HCNT/_LCNT calculation
->      i2c-designware: i2c_dw_xfer_msg: Fix an i2c_msg search bug
->      i2c-designware: Do dw_i2c_pump_msg's jobs in the interrutp handler
->      i2c-designware: Set Tx/Rx FIFO threshold levels
->      i2c-designware: Divide i2c_dw_xfer_msg into two functions
->      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
->      i2c-designware: Deferred FIFO-data-counting variables initialization
->      i2c-designware: i2c_dw_xfer_msg: Mark as completed on an error
->      i2c-designware: Add I2C_FUNC_SMBUS_* bits
+... but totally wrong, and will eventually bite you.  Please use clkdev
+and use the device names for the primary matching.  clkdev is what I see
+as the de-facto implementation that should eventually become totally
+arch independent (it is today, but lives in arch/arm for no real reason
+other than my lazyness.)
 
-Great job.
+> * And clk_get() is expected to pick up a clock source with:
+>
+> 1) dev_id + clk_id ... strict matching condition (default)
+> 2) dev_id only ... fuzzy extension1 (clk_id can be regarded as wildcard)
+> 3) clk_id only ... fuzzy extension2 (dev_id can be regarded as wildcard)
+>
+>  2) and 3) might be sort of ARM's clkdev extensions
+>  (I think it's useful), but that's not my point.
+>  I'll leave that alone for now.
+>
+>  My point is that clk framework basically requires case 1).
 
-Your contribution to the implementation of transactions that are longer than 
-the hardware buffers is very important. I wrote this code as a theoretical 
-exercise, as I never had access to an i2c slave which requires long 
-transactions. So I'm not surprised to find out that this code was broken.
+Incorrect.  There is no requirement for strict matching.  Think about
+the situation where you have multiple different devices, and the SoC
+designer has decided to tie all those clock signals to one clock source,
+and this is the only clock in the system.
 
-For all these patches except no. 7 (Set a clock name to DesignWare I2C clock 
-source) and no. 16 (Add I2C_FUNC_SMBUS_* bits) you have my
+You might decide that your clk_get() implementation can just return that
+single clock irrespective of the parameters passed.  That's a totally
+legal clk API implementation.
 
-Acked-by: Baruch Siach <baruch@tkos.co.il>
+Also, I refer you to the description of clk_get():
 
-Thanks,
-baruch
+ * clk_get - lookup and obtain a reference to a clock producer.
+ * @dev: device for clock "consumer"
+ * @id: clock comsumer ID
+ *
+ * Returns a struct clk corresponding to the clock producer, or
+ * valid IS_ERR() condition containing errno.  The implementation
+ * uses @dev and @id to determine the clock consumer, and thereby
+ * the clock producer.  (IOW, @id may be identical strings, but
+ * clk_get may return different clock producers depending on @dev.)
 
--- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+Note the comment about identical IDs returning different producers.
+
+> * Then the driver is expected to supply necessary information to
+>  clk_get(), regardless of clk_get() implementation, or should I say,
+>  the driver should always supply both "dev_id" and "clk_id" whether
+>  they are used or not.
+
+Nope.  On several devices which only consume one clock signal, we
+explicitly pass a NULL ID to absolutely prevent people going down
+the road of matching only by "clk id" - it's been shown to be the
+wrong approach, and leads people right down the path of passing
+clock strings and pointers into drivers.
+
+That's precisely what the clk API was designed to prevent - and
+becomes all together unnecessary when the clk API is implemented
+as I designed it - to match primerily by device ID.
+
+> I intended only to fix the driver in the right direction, so would
+> like to avoid discussion on clk framework implementation here.
+
+I would strongly advise you to ensure that your implementation conforms
+to the intentions of the clk API as I outline above to avoid problems
+in the future.
