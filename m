@@ -1,46 +1,57 @@
-From: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
-Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
- I2C clock source
-Date: Wed, 14 Oct 2009 13:19:59 +0900
-Message-ID: <4AD5516F.6090302@necel.com>
-References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com> <20091013095417.GB1230@sirena.org.uk>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] i2c-powermac: Reject unsupported I2C transactions
+Date: Wed, 14 Oct 2009 16:39:48 +1100
+Message-ID: <1255498788.2347.37.camel@pasglop>
+References: <20090930221435.58636363@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20091013095417.GB1230@sirena.org.uk>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: baruch@tkos.co.il, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20090930221435.58636363@hyperion.delvare>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Mark Brown wrote:
-> On Tue, Oct 13, 2009 at 11:50:49AM +0900, Shinya Kuribayashi wrote:
->> This driver is originally prepared for the ARM kernel where rich and
->> well-maintained "clkdev" clock framework is available, and clock name
->> might not be strictly required.  ARM's clkdev does slightly fuzzy
->> matching where it basically gives preference to "struct device" mathing
->> over "clock id".  As long as used for ARM machines, there's no problem.
+On Wed, 2009-09-30 at 22:14 +0200, Jean Delvare wrote:
+> The i2c-powermac driver doesn't support arbitrary multi-message I2C
+> transactions, only SMBus ones. Make it clear by returning an error if
+> a multi-message I2C transaction is attempted. This is better than only
+> processing the first message, because most callers won't recover from
+> the short transaction. Anyone wishing to issue multi-message
+> transactions should use the SMBus API instead of the raw I2C API.
 > 
->> However, all users of this driver necessarily don't have the same clk
->> framework with ARM's, as the clk I/F implementation varies depending on
->> ARCHs and machines.
-> 
->> This patch adds a clock name so that other users with simple/minimum/
->> limited clk support could make use of the driver.
-> 
-> This seems like something that it'd be better to fix in the relevant
-> clock frameworks in order to try to keep the API consistently usable
-> between platforms.  The clkdev matching library that most of the ARM
-> platforms use should be generic enough to be usable elsewhere, there
-> is regular discussion of moving it somewhere more generic.
+> Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-Before fixing the driver, I've checked various discussion archives on
-clock framework, git log histories, and source codes of almost all ARM
-common/mach/plat and SH variants, so I think I know enough backgrounds
-on this.
+Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
--- 
-Shinya Kuribayashi
-NEC Electronics
+> Cc: Paul Mackerras <paulus@samba.org>
+> ---
+>  drivers/i2c/busses/i2c-powermac.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> --- linux-2.6.32-rc1.orig/drivers/i2c/busses/i2c-powermac.c	2009-06-10 05:05:27.000000000 +0200
+> +++ linux-2.6.32-rc1/drivers/i2c/busses/i2c-powermac.c	2009-09-30 20:29:42.000000000 +0200
+> @@ -146,6 +146,12 @@ static int i2c_powermac_master_xfer(	str
+>  	int			read;
+>  	int			addrdir;
+>  
+> +	if (num != 1) {
+> +		dev_err(&adap->dev,
+> +			"Multi-message I2C transactions not supported\n");
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+>  	if (msgs->flags & I2C_M_TEN)
+>  		return -EINVAL;
+>  	read = (msgs->flags & I2C_M_RD) != 0;
+> 
+> 
