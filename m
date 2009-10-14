@@ -1,75 +1,54 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Bus drivers don't have to support
- I2C_M_REV_DIR_ADDR
-Date: Wed, 14 Oct 2009 10:35:59 +0200
-Message-ID: <20091014103559.17efa264@hyperion.delvare>
-References: <20090930222244.43b8d17d@hyperion.delvare>
-	<20091013225010.GA15469@fluff.org.uk>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
+	I2C clock source
+Date: Wed, 14 Oct 2009 11:09:15 +0100
+Message-ID: <20091014100915.GA24540@sirena.org.uk>
+References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com> <20091013224123.GB13398@fluff.org.uk> <4AD5514B.4090504@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091013225010.GA15469-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4AD5514B.4090504-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Wed, Oct 14, 2009 at 01:19:23PM +0900, Shinya Kuribayashi wrote:
 
-On Tue, 13 Oct 2009 23:50:10 +0100, Ben Dooks wrote:
-> On Wed, Sep 30, 2009 at 10:22:44PM +0200, Jean Delvare wrote:
-> > I2C bus drivers don't have to support I2C_M_REV_DIR_ADDR. It is a
-> > deviation from the I2C specification, which only makes sense to
-> > implement when really needed.
-> 
-> Probably the right thing to do, does anything actually use this
-> support?
+> * And clk_get() is expected to pick up a clock source with:
 
-As far as I know, the only chip which uses this is the "Maven" which is
-found on some Matrox G450 graphics cards to handle the second head.
+> 1) dev_id + clk_id ... strict matching condition (default)
+> 2) dev_id only ... fuzzy extension1 (clk_id can be regarded as wildcard)
+> 3) clk_id only ... fuzzy extension2 (dev_id can be regarded as wildcard)
 
-As the i2c-matroxfb driver builds on top of i2c-algo-bit, i2c-algo-bit
-is the only driver which needs to implement I2C_M_REV_DIR_ADDR.
+>  2) and 3) might be sort of ARM's clkdev extensions
+>  (I think it's useful), but that's not my point.
+>  I'll leave that alone for now.
 
-I've left it in i2c-algo-pcf and i2c-s3c2410 for now because at least
-they properly declare the I2C_FUNC_PROTOCOL_MANGLING functionality, but
-this could be reconsidered.
+Part of the reason I was querying this is that you were using the clock
+name "dw_i2c_clk" which looks like a globally namespaced name which
+would be used with option 3 above.  Several clock frameworks just
+completely ignore dev_id which creates a lot of problems down the line.
+If it had just been i2c_clk I'd have been less likely to follow up.
 
-The other protocol mangling flags are in a similar situation. For
-example I2C_M_NOSTART is only used by the Intel i915 and Matrox Maven
-chips. Both use i2c-algo-but, but no less than 9 other I2C adapter
-drivers implement it! Most of these implementations have most probably
-never been tested, and I wouldn't be surprised if some don't work.
+Option 3 has never been the intended use of the clock API and is
+basically a bug in any clock implementation that requires it for most
+drivers but it does need to be used in a few limited cases where the
+relevant kernel subsystem doesn't provide a struct device (cpufreq is
+the major offender here).
 
-I2C_M_IGNORE_NAK is only used by the msp3400 audio processing driver.
-But it is implemented by embedded I2C adapter drivers which probably
-will never see this chip: i2c-davinci, i2c-omap, i2c-s3c2410 and
-i2c-stu300.
+> * From the point of drivers, we're never interested in clk_get()
+>  implementation, and which matching pattern 1) - 3) is taken.
 
-I2C_M_NO_RD_ACK is only used by the ks0127 video driver, and only
-i2c-algo-bit implements it. That one is correct.
+>  Supplying only "dev_id" could be regarded as misuse of clk_get(),
 
+As far as I can tell from what rmk is saying it seems that the use of a
+NULL string is actually an intended usage for devices where the clocks
+aren't otherwise named.  I had the concerns when I first saw this usage
+but it does seem to be an expected and intended use.
 
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-iop3xx.c   |    6 ------
-> >  drivers/i2c/busses/i2c-mv64xxx.c  |    3 ---
-> >  drivers/i2c/busses/i2c-powermac.c |    2 --
-> 
-> I assume that I should merge this in my -next tree?
+> and will increase dependence on clk framework implementation.
 
-Probably, yes. For now I have this patch in my own -next tree, but as
-all drivers affected are embedded ones, it would fit better in yours.
-
-I leave it up to you to decide what to do with the i2c-s3c2410 driver.
-As I understand it, it doesn't need to implement I2C_M_REV_DIR_ADDR nor
-I2C_M_IGNORE_NAK nor I2C_M_NOSTART, so you could simplify the code a
-bit and stop defining I2C_FUNC_PROTOCOL_MANGLING.
-
-BTW, is your -next tree visible somewhere? It might be convenient for
-me to be able to check what it includes.
-
--- 
-Jean Delvare
+To a certain extent this is good in that it applies pressure to improve
+the clock API implementations concerned.
