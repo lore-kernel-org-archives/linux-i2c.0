@@ -1,83 +1,72 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH 07/16] i2c-designware: Set a clock name to DesignWare
-	I2C clock source
-Date: Wed, 14 Oct 2009 20:14:19 +0100
-Message-ID: <20091014191419.GB28948@n2100.arm.linux.org.uk>
-References: <4AD3E974.8080200@necel.com> <4AD3EB09.8050304@necel.com> <20091013224123.GB13398@fluff.org.uk> <4AD5514B.4090504@necel.com>
+From: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
+Subject: Re: [PATCH 16/16] i2c-designware: Add I2C_FUNC_SMBUS_* bits
+Date: Thu, 15 Oct 2009 12:22:23 +0900
+Message-ID: <4AD6956F.4050605@necel.com>
+References: <4AD3E974.8080200@necel.com> <4AD3EBDD.50105@necel.com> <20091014185327.GD11789@tarshish>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-mips-bounce@linux-mips.org>
-Content-Disposition: inline
-In-Reply-To: <4AD5514B.4090504@necel.com>
+In-Reply-To: <20091014185327.GD11789@tarshish>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
-To: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
-Cc: Ben Dooks <ben@fluff.org>, linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, baruch@tkos.co.il, linux-i2c@vger.kernel.org, ben-linux@fluff.org
+To: Baruch Siach <baruch@tkos.co.il>
+Cc: linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 14, 2009 at 01:19:23PM +0900, Shinya Kuribayashi wrote:
-> # As you can imagine, my local clk implementation is based on
->  "clk_id" name matching, which looks simple for me.
+Hi Baruch,
 
-... but totally wrong, and will eventually bite you.  Please use clkdev
-and use the device names for the primary matching.  clkdev is what I see
-as the de-facto implementation that should eventually become totally
-arch independent (it is today, but lives in arch/arm for no real reason
-other than my lazyness.)
+Baruch Siach wrote:
+> On Tue, Oct 13, 2009 at 11:54:21AM +0900, Shinya Kuribayashi wrote:
+>> This will ease our testing a bit with i2c-tools.  Note that DW I2C core
+>> doesn't support I2C_FUNC_SMBUS_QUICK, as it's not capable of slave-
+>> addressing-only I2C transactions.
+> 
+> Is this supposed to be applied to mainline?
 
-> * And clk_get() is expected to pick up a clock source with:
->
-> 1) dev_id + clk_id ... strict matching condition (default)
-> 2) dev_id only ... fuzzy extension1 (clk_id can be regarded as wildcard)
-> 3) clk_id only ... fuzzy extension2 (dev_id can be regarded as wildcard)
->
->  2) and 3) might be sort of ARM's clkdev extensions
->  (I think it's useful), but that's not my point.
->  I'll leave that alone for now.
->
->  My point is that clk framework basically requires case 1).
+Yes, I hope so.  But I have to admit I blindly added several flags for
+my testing, and should have audited them before submitting patches.
 
-Incorrect.  There is no requirement for strict matching.  Think about
-the situation where you have multiple different devices, and the SoC
-designer has decided to tie all those clock signals to one clock source,
-and this is the only clock in the system.
+>> @@ -529,7 +529,14 @@ done:
+>>
+>> static u32 i2c_dw_func(struct i2c_adapter *adap)
+>> {
+>> -	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR;
+>> +	return	I2C_FUNC_I2C |
+>> +		I2C_FUNC_10BIT_ADDR |
+>> +		I2C_FUNC_SMBUS_BYTE |
+>> +		I2C_FUNC_SMBUS_BYTE_DATA |
+>> +		I2C_FUNC_SMBUS_WORD_DATA |
+>> +		I2C_FUNC_SMBUS_BLOCK_DATA |
+>> +		I2C_FUNC_SMBUS_I2C_BLOCK |
+>> +		I2C_FUNC_SMBUS_I2C_BLOCK_2;
+>> }
 
-You might decide that your clk_get() implementation can just return that
-single clock irrespective of the parameters passed.  That's a totally
-legal clk API implementation.
+As far as I confirmed the requirements for having I2C_FUNC_SMBUS_*
+from drivers/i2c/,
 
-Also, I refer you to the description of clk_get():
+>> +		I2C_FUNC_SMBUS_BLOCK_DATA |
 
- * clk_get - lookup and obtain a reference to a clock producer.
- * @dev: device for clock "consumer"
- * @id: clock comsumer ID
- *
- * Returns a struct clk corresponding to the clock producer, or
- * valid IS_ERR() condition containing errno.  The implementation
- * uses @dev and @id to determine the clock consumer, and thereby
- * the clock producer.  (IOW, @id may be identical strings, but
- * clk_get may return different clock producers depending on @dev.)
+>> +		I2C_FUNC_SMBUS_I2C_BLOCK_2;
 
-Note the comment about identical IDs returning different producers.
+should be removed.  About the former, we have not implemented proper
+I2C_M_RECV_LEN handling yet [ I'm not sure what it's for ... ], and
+the latter doesn't seem to be used anywhere in the kernel.
+As for the rest, BYTE/WORD/I2C_BLOCK transaction works for me.
 
-> * Then the driver is expected to supply necessary information to
->  clk_get(), regardless of clk_get() implementation, or should I say,
->  the driver should always supply both "dev_id" and "clk_id" whether
->  they are used or not.
+So the resulting func() would be,
 
-Nope.  On several devices which only consume one clock signal, we
-explicitly pass a NULL ID to absolutely prevent people going down
-the road of matching only by "clk id" - it's been shown to be the
-wrong approach, and leads people right down the path of passing
-clock strings and pointers into drivers.
+static u32 i2c_dw_func(struct i2c_adapter *adap)
+{
+	return	I2C_FUNC_I2C |
+		I2C_FUNC_10BIT_ADDR |
+		I2C_FUNC_SMBUS_BYTE |
+		I2C_FUNC_SMBUS_BYTE_DATA |
+		I2C_FUNC_SMBUS_WORD_DATA |
+		I2C_FUNC_SMBUS_I2C_BLOCK;
+}
 
-That's precisely what the clk API was designed to prevent - and
-becomes all together unnecessary when the clk API is implemented
-as I designed it - to match primerily by device ID.
-
-> I intended only to fix the driver in the right direction, so would
-> like to avoid discussion on clk framework implementation here.
-
-I would strongly advise you to ensure that your implementation conforms
-to the intentions of the clk API as I outline above to avoid problems
-in the future.
+and will be fixed up in the next patchset.
+-- 
+Shinya Kuribayashi
+NEC Electronics
