@@ -1,101 +1,38 @@
-From: Shinya Kuribayashi <shinya.kuribayashi@necel.com>
-Subject: Re: [PATCH 15/16] i2c-designware: i2c_dw_xfer_msg: Mark as completed
- on an error
-Date: Thu, 15 Oct 2009 14:29:43 +0900
-Message-ID: <4AD6B347.7010906@necel.com>
-References: <4AD3E974.8080200@necel.com> <4AD3EBC4.6030705@necel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <4AD3EBC4.6030705@necel.com>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: baruch@tkos.co.il, linux-i2c@vger.kernel.org
-Cc: ben-linux@fluff.org, linux-mips@linux-mips.org, linux-arm-kernel@lists.infradead.org
+From: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
+  driver
+Date: Thu, 15 Oct 2009 16:42:07 -0400
+Message-ID: <COL117-W4849AF5757A0D75EED6B5E88C50@phx.gbl>
+References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
+	<COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20091010090951.1fd0e1a0-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Shinya Kuribayashi wrote:
-> As wait_for_completion_interruptible_timeout() will be invoked after
-> the first call to i2c_dw_xfer_msg() is made whether or not an error is
-> detected in it, we need to mark ->cmd_complete as completed to avoid a
-> needless HZ timeout.
 
-> diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-> index f7ea032..6f85e28 100644
-> --- a/drivers/i2c/busses/i2c-designware.c
-> +++ b/drivers/i2c/busses/i2c-designware.c
-> @@ -376,6 +376,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
->  			dev_err(dev->dev,
->  				"%s: invalid message length\n", __func__);
->  			dev->msg_err = -EINVAL;
-> +			complete(&dev->cmd_complete);
->  			return;
->  		}
+ <20091010090951.1fd0e1a0-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 
-It turned out to be incomplete, I confimred with I2C_FUNC_SMBUS_QUICK
-flag for testing.
 
-In [PATCH 10/16] (Do dw_i2c_pump_msg's jobs in the interrutp handler),
-I deleted the following line from the interrupt handler,
->-	writel(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
+Hi Jean:
 
-so some interrupt bits, namely RX_FULL and somtimes TX_EMPTY, are now
-kept _opened_ by default.  In error handling procedures, we need to
-disable them or shutdown DW I2C core properly, otherwise those
-interrupts continue to be asserted.
+> For 24C32 and larger=2C it requires full I2C support.
 
-In addition, I noticed that we need similar treatments in target addr
-inconsistency checking path.
+Wondering if USB-I2C module (http://www.robot-electronics.co.uk/htm/usb_i2c=
+_tech.htm) is a better compared to ICH9 SMBUS controller from full I2C cycl=
+e support and software driver point of view?
 
-Here's problematic parts.  I'll sort out these bits, later.
----
- drivers/i2c/busses/i2c-designware.c |   18 ++++++++++++++++--
- 1 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 060f2dd..70aaaec 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -370,13 +370,21 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 		 * reprogram the target address in the i2c
- 		 * adapter when we are done with this transfer
- 		 */
--		if (msgs[dev->msg_write_idx].addr != addr)
-+		if (msgs[dev->msg_write_idx].addr != addr) {
-+			dev_err(dev->dev,
-+				"%s: invalid message address\n", __func__);
-+			dev->msg_err = -EINVAL;
-+			writel(0, dev->base + DW_IC_ENABLE);
-+			complete(&dev->cmd_complete);
- 			return;
-+		}
- 
- 		if (msgs[dev->msg_write_idx].len == 0) {
- 			dev_err(dev->dev,
- 				"%s: invalid message length\n", __func__);
- 			dev->msg_err = -EINVAL;
-+			writel(0, dev->base + DW_IC_ENABLE);
-+			complete(&dev->cmd_complete);
- 			return;
- 		}
- 
-@@ -430,8 +438,14 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 			continue;
- 
- 		/* different i2c client, reprogram the i2c adapter */
--		if (msgs[dev->msg_read_idx].addr != addr)
-+		if (msgs[dev->msg_read_idx].addr != addr) {
-+			dev_err(dev->dev,
-+				"%s: invalid message address\n", __func__);
-+			dev->msg_err = -EINVAL;
-+			writel(0, dev->base + DW_IC_ENABLE);
-+			complete(&dev->cmd_complete);
- 			return;
-+		}
- 
- 		if (!(dev->status & STATUS_READ_IN_PROGRESS)) {
- 			len = msgs[dev->msg_read_idx].len;
--- 
-Shinya Kuribayashi
-NEC Electronics
+Thanks
+Krishna
+
+
+ 		 	   		  =0A=
+_________________________________________________________________=0A=
+Hotmail: Trusted email with Microsoft=92s powerful SPAM protection.=0A=
+http://clk.atdmt.com/GBL/go/177141664/direct/01/=
