@@ -1,146 +1,42 @@
-From: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
-Date: Fri, 16 Oct 2009 09:42:07 +0800
-Message-ID: <1255657327.3838.19.camel@rzhang-dt>
-References: <4ACF4AC6.7070802@cam.ac.uk>
-	 <20091010185200.671846c5@hyperion.delvare>	<4AD33ADB.4000500@cam.ac.uk>
-	 <20091012175216.6d844623@hyperion.delvare>  <4AD36114.50108@cam.ac.uk>
-	 <1255657038.3838.17.camel@rzhang-dt>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Looking for ICH SMBUS "Process call" support in i2c-i801 bus  
+ driver
+Date: Fri, 16 Oct 2009 09:02:25 +0200
+Message-ID: <20091016090225.53438bdd@hyperion.delvare>
+References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
+	<COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
+	<COL117-W4849AF5757A0D75EED6B5E88C50@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1255657038.3838.17.camel@rzhang-dt>
+In-Reply-To: <COL117-W4849AF5757A0D75EED6B5E88C50-MsuGFMq8XAE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, "corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-update Pavel's email address.
+Hi Krishna,
 
-On Fri, 2009-10-16 at 09:37 +0800, Zhang Rui wrote:
-> On Tue, 2009-10-13 at 01:02 +0800, Jonathan Cameron wrote:
-> > Jean Delvare wrote:
-> > > Hi Jonathan,
-> > > 
-> > > On Mon, 12 Oct 2009 15:19:07 +0100, Jonathan Cameron wrote:
-> > >>>> @@ -60,9 +65,41 @@ static const u8 TSL2550_MODE_RANGE[2] = {
-> > >>>>  };
-> > >>>>  
-> > >>>>  /*
-> > >>>> + * IDR to assign each registered device a unique id
-> > >>>> + */
-> > >>>> +static DEFINE_IDR(tsl2550_idr);
-> > >>>> +static DEFINE_SPINLOCK(tsl2550_idr_lock);
-> > >>>> +#define TSL2550_DEV_MAX 9
-> > >>> Such an arbitrary limit is simply not acceptable.
-> > >> Fair enough, but it is based on restricting the size
-> > >> of the char array needed for the name when registering
-> > >> with als.  Hence single digit decimal maximum.
-> > >> Do you suggest leaving it unrestricted (which makes code
-> > >> a little fiddly given variable size of max idr) or some other
-> > >> limit?
-> > > 
-> > > The name size really isn't an issue. You won't notice 16 bytes instead
-> > > of 9. And it's not like we'll have millions of these devices.
-> > I agree, it's merely a question of picking some suitable limit. IDR's
-> > on a 64 bit box will do something in the ball park of 2e18 which might
-> > be an excessive limit ;) I'll leave this be for next version on basis
-> > I'm in favour of moving this into the core and hence as you said this
-> > will be irrelevant here anyway.
-> > >>>> +static int tsl2550_get_id(void)
-> > >>>> +{
-> > >>>> +	int ret, val;
-> > >>>> +
-> > >>>> +idr_again:
-> > >>>> +	if (unlikely(idr_pre_get(&tsl2550_idr, GFP_KERNEL) == 0))
-> > >>>> +		return -ENOMEM;
-> > >>>> +	spin_lock(&tsl2550_idr_lock);
-> > >>>> +	ret = idr_get_new(&tsl2550_idr, NULL, &val);
-> > >>>> +	if (unlikely(ret == -EAGAIN))
-> > >>>> +		goto idr_again;
-> > >>>> +	else if (unlikely(ret))
-> > >>>> +		return ret;
-> > >>>> +	if (val > TSL2550_DEV_MAX)
-> > >>>> +		return -ENOMEM;
-> > >>>> +	return val;
-> > >>>> +}
-> > >>>> +
-> > >>>> +static void tsl2550_free_id(int val)
-> > >>>> +{
-> > >>>> +	spin_lock(&tsl2550_idr_lock);
-> > >>>> +	idr_remove(&tsl2550_idr, val);
-> > >>>> +	spin_unlock(&tsl2550_idr_lock);
-> > >>>> +}
-> > >>> Having to implement this in _every_ ALS driver sounds wrong and
-> > >>> painful. If uniqueness of any kind must be provided, it should be
-> > >>> handled by the ALS core and not by individual drivers, otherwise you
-> > >>> can be certain that at least one driver will get it wrong someday.
-> > >> I agree. The reason this originally occurred is that the acpi layer
-> > >> apparently doesn't allow for simultaneous probing of multiple drivers
-> > >> and hence can get away with a simple counter and no locking.
-> > >>
-> > >>> I'd imaging that als-class devices are simply named als%u. Just like
-> > >>> hwmon devices are named hwmon%u, input devices are names input%u and
-> > >>> event%u, etc. I don't know of any class pushing the naming down to its
-> > >>> drivers, do you? The only example I can remember are i2c drivers back
-> > >>> in year 1999, when they were part of lm-sensors.I have personally put
-> > >>> an end to this years ago.
-> > >> This debate started in the als thread. Personally I couldn't care less
-> > >> either way but it does need to be put to bed before that subsystem merges.
-> > >> To my mind either approach is trivially handled in a userspace library
-> > >> so it doesn't matter.  I don't suppose you can remember what the original
-> > >> reasons for squashing this naming approach were?
-> > > 
-> > > Code duplication. Having the same unique-id handling code repeated in
-> > > 50 drivers was no fun, as it did not add any value compared to a
-> > > central handling.
-> > Counter argument placed (cc'd Pavel and Corentin for this point)
-> > is that having a generic name, e.g. hwmon0 and a name field in sysfs
-> > is superfluous when we can combine the two.
-> > > 
-> > >>>> @@ -296,13 +333,13 @@ static ssize_t tsl2550_show_lux1_input(struct device *dev,
-> > >>>>  	return ret;
-> > >>>>  }
-> > >>>>  
-> > >>>> -static DEVICE_ATTR(lux1_input, S_IRUGO,
-> > >>>> +static DEVICE_ATTR(illuminance, S_IRUGO,
-> > >>>>  		   tsl2550_show_lux1_input, NULL);
-> > >>> Question: if I have a light sensing chip with two sensors, how are we
-> > >>> going to handle it? Will we register 2 als class devices? The initial
-> > >>> naming convention had the advantage that you could have more than one
-> > >>> sensor per device, but I don't know if it is desirable in practice.
-> > >> This only becomes and issue if we have two sensors measuring illuminance
-> > >> (or approximation of it).  The only two sensor chips I know of have one
-> > >> broadband and one in the infrared tsl2561 and I think the isl chip with
-> > >> a driver currently in misc.  The combination of these two are needed to
-> > >> calculate illuminance.  Some of the original discussion went into how
-> > >> to support separate access to the individual sensors.  Decision was to
-> > >> leave that question until it becomes relevant.  Basically we would put
-> > >> the current drivers in just supporting illuminance and see if anyone asked
-> > >> for furthers support.  One tricky aspect is what the units should be for
-> > >> particular frequency ranges. At least illuminance is cleanly defined
-> > >> (even if chips are only fairly coarsely approximating it. 
-> > > 
-> > > Hmm, this isn't the point I was raising. I was thinking of a light
-> > > sensor chip which would sense light in different locations. Think chip
-> > > with remote sensors. This is done frequently for thermal sensors, so I
-> > > guess it could be done for light sensors as well. A practical
-> > > application could be sensing the ambient light on two sides of an
-> > > object, so that you get the correct measurement regardless of the
-> > > position.
-> > > 
-> > > I'm not saying such chips exist, I really don't know. I am just raising
-> > > the question of how we'd handle them if they do. The current naming
-> > > scheme implies that we'd need a separate als instance for each sensor,
-> > > and I want you to be aware of this.
-> > I agree with this being a possible issue. Zhang, what do you think to changing
-> > the acpi driver to use luminance0 and documentation to match?  Seems like
-> > a cost free way of avoiding possible problems down the line.
-> > > 
-> I don't have any objections to this.
-> I think we should push the generic ALS patch upstream first and I'll
-> refresh the ACPI ALS patch later.
+On Thu, 15 Oct 2009 16:42:07 -0400, Krishna Kothapalli wrote:
+> > For 24C32 and larger=2C it requires full I2C support.
 > 
-> thanks,
-> rui
+> Wondering if USB-I2C module
+> (http://www.robot-electronics.co.uk/htm/usb_i2c_tech.htm) is a better
+> compared to ICH9 SMBUS controller from full I2C cycle support and
+> software driver point of view?
+
+I have no idea. Never heard of this USB device before. Apparently it
+requires two drivers, one for USB to serial emulation and one for the
+device itself, none of which is in the upstream kernel tree. The former
+is binary-only and is in user-space. This means you will never be able
+to use kernel I2C chip drivers on top of it. And anyway I would run
+away from binary solutions.
+
+The device in question supports the I2C transactions you need (if I
+trust their website) but I wouldn't recommend it for technical
+(software) reasons.
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
