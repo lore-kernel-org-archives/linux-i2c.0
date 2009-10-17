@@ -1,39 +1,84 @@
-From: Krishna Kothapalli <krishna_sunitha-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: Looking for ICH SMBUS "Process call" support in i2c-i801 bus
-   driver
-Date: Fri, 16 Oct 2009 16:36:30 -0400
-Message-ID: <COL117-W32B2ABE1ACB7AD47DA26A888C40@phx.gbl>
-References: <COL117-W70326CE4BD5366E7F94C688CC0@phx.gbl>
-	<COL117-W52FEEADBC012C39EE0485188CB0@phx.gbl>
+From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH V1 3/3] i2c: imx: disable clock when it's possible to save power.
+Date: Sat, 17 Oct 2009 17:46:24 +0800
+Message-ID: <1255772784-11387-3-git-send-email-linuxzsc@gmail.com>
+References: <1255772784-11387-1-git-send-email-linuxzsc@gmail.com>
+ <1255772784-11387-2-git-send-email-linuxzsc@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091016090225.53438bdd-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1255772784-11387-2-git-send-email-linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Enable clock before START, disable it after STOP.
 
- 	<COL117-W4849AF5757A0D75EED6B5E88C50-MsuGFMq8XAE@public.gmane.org>
+Signed-off-by: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 671d37c..e3654d6 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -121,6 +121,7 @@ struct imx_i2c_struct {
+ 	unsigned long		i2csr;
+ 	unsigned int 		disable_delay;
+ 	int			stopped;
++	unsigned int		ifdr; /* IMX_I2C_IFDR */
+ };
  
-
- <20091016090225.53438bdd-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-
-
-Hi Jean:
-
-> The device in question supports the I2C transactions you need (if I trust=
- their website) but I wouldn't recommend it for technical (software) reason=
-s.
-
-Thanks again. Let me spend more time on what works with ICH9 for 64k size e=
-eproms ...
-
-Regards
-Krishna
- 		 	   		 =20
-_________________________________________________________________
-Hotmail: Trusted email with Microsoft=92s powerful SPAM protection.
-http://clk.atdmt.com/GBL/go/177141664/direct/01/=
+ /** Functions for IMX I2C adapter driver ***************************************
+@@ -192,6 +193,8 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 
++	clk_enable(i2c_imx->clk);
++	writeb(i2c_imx->ifdr, i2c_imx->base + IMX_I2C_IFDR);
+ 	/* Enable I2C controller */
+ 	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
+ 	writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
+@@ -238,6 +241,7 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 
+ 	/* Disable I2C controller */
+ 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
++	clk_disable(i2c_imx->clk);
+ }
+ 
+ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+@@ -257,8 +261,8 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+ 	else
+ 		for (i = 0; i2c_clk_div[i][0] < div; i++);
+ 
+-	/* Write divider value to register */
+-	writeb(i2c_clk_div[i][1], i2c_imx->base + IMX_I2C_IFDR);
++	/* Store divider value */
++	i2c_imx->ifdr = i2c_clk_div[i][1];
+ 
+ 	/*
+ 	 * There dummy delay is calculated.
+@@ -528,7 +532,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "can't get I2C clock\n");
+ 		goto fail3;
+ 	}
+-	clk_enable(i2c_imx->clk);
+ 
+ 	/* Request IRQ */
+ 	ret = request_irq(i2c_imx->irq, i2c_imx_isr, 0, pdev->name, i2c_imx);
+@@ -577,7 +580,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ fail5:
+ 	free_irq(i2c_imx->irq, i2c_imx);
+ fail4:
+-	clk_disable(i2c_imx->clk);
+ 	clk_put(i2c_imx->clk);
+ fail3:
+ 	release_mem_region(i2c_imx->res->start, resource_size(res));
+@@ -614,8 +616,6 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
+ 	if (pdata && pdata->exit)
+ 		pdata->exit(&pdev->dev);
+ 
+-	/* Disable I2C clock */
+-	clk_disable(i2c_imx->clk);
+ 	clk_put(i2c_imx->clk);
+ 
+ 	release_mem_region(i2c_imx->res->start, resource_size(i2c_imx->res));
+-- 
+1.6.0.4
