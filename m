@@ -1,209 +1,217 @@
-From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V1 1/3] i2c: imx: check busy bit when START/STOP
-Date: Tue, 20 Oct 2009 18:03:31 +0800
-Message-ID: <4e090d470910200303x598aac39n13be631225d01057@mail.gmail.com>
-References: <1255772784-11387-1-git-send-email-linuxzsc@gmail.com>
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Subject: [PATCH] i2c-scmi: Quirk to work on IBM machines with broken BIOSes
+Date: Tue, 20 Oct 2009 16:11:49 -0700
+Message-ID: <20091020231149.GM26149@tux1.beaverton.ibm.com>
+Reply-To: djwong@us.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1255772784-11387-1-git-send-email-linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
+To: crane.cai@amd.com, lenb@kernel.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Oct 17, 2009 at 5:46 PM, Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrot=
-e:
-> The controller can't do anything else before it actually generates ST=
-ART/STOP.
-> So we check busy bit to make sure START/STOP is successfully finished=
-=2E
->
-> If we don't check busy bit, START/STOP may fail on some fast CPUs.
->
-> Signed-off-by: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
-> index 4afba3e..6055e92 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -120,19 +120,25 @@ struct imx_i2c_struct {
-> =A0 =A0 =A0 =A0wait_queue_head_t =A0 =A0 =A0 queue;
-> =A0 =A0 =A0 =A0unsigned long =A0 =A0 =A0 =A0 =A0 i2csr;
-> =A0 =A0 =A0 =A0unsigned int =A0 =A0 =A0 =A0 =A0 =A0disable_delay;
-> + =A0 =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stopped;
-> =A0};
->
-> =A0/** Functions for IMX I2C adapter driver *************************=
-**************
-> =A0******************************************************************=
-*************/
->
-> -static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx)
-> +static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_=
-busy)
-> =A0{
-> =A0 =A0 =A0 =A0unsigned long orig_jiffies =3D jiffies;
-> + =A0 =A0 =A0 unsigned int temp;
->
-> =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
->
-> - =A0 =A0 =A0 /* wait for bus not busy */
-> - =A0 =A0 =A0 while (readb(i2c_imx->base + IMX_I2C_I2SR) & I2SR_IBB) =
-{
-> + =A0 =A0 =A0 while (1) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp =3D readb(i2c_imx->base + IMX_I2C_=
-I2SR);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (for_busy && (temp & I2SR_IBB))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!for_busy && !(temp & I2SR_IBB))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (signal_pending(current)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adap=
-ter.dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"<%s> =
-I2C Interrupted\n", __func__);
-> @@ -179,39 +185,55 @@ static int i2c_imx_acked(struct imx_i2c_struct =
-*i2c_imx)
-> =A0 =A0 =A0 =A0return 0;
-> =A0}
->
-> -static void i2c_imx_start(struct imx_i2c_struct *i2c_imx)
-> +static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
-> =A0{
-> =A0 =A0 =A0 =A0unsigned int temp =3D 0;
-> + =A0 =A0 =A0 int result;
->
-> =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
->
-> =A0 =A0 =A0 =A0/* Enable I2C controller */
-> + =A0 =A0 =A0 writeb(0, i2c_imx->base + IMX_I2C_I2SR);
-> =A0 =A0 =A0 =A0writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
-> +
-> + =A0 =A0 =A0 /* Wait controller to be stable */
-> + =A0 =A0 =A0 udelay(50);
-> +
-> =A0 =A0 =A0 =A0/* Start I2C transaction */
-> =A0 =A0 =A0 =A0temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> =A0 =A0 =A0 =A0temp |=3D I2CR_MSTA;
-> =A0 =A0 =A0 =A0writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> + =A0 =A0 =A0 result =3D i2c_imx_bus_busy(i2c_imx, 1);
-> + =A0 =A0 =A0 if (result)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return result;
-> + =A0 =A0 =A0 i2c_imx->stopped =3D 0;
-> +
-> =A0 =A0 =A0 =A0temp |=3D I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
-> =A0 =A0 =A0 =A0writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> + =A0 =A0 =A0 return result;
-> =A0}
->
-> =A0static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
-> =A0{
-> =A0 =A0 =A0 =A0unsigned int temp =3D 0;
->
-> - =A0 =A0 =A0 /* Stop I2C transaction */
-> - =A0 =A0 =A0 dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> - =A0 =A0 =A0 temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
-> - =A0 =A0 =A0 temp &=3D ~I2CR_MSTA;
-> - =A0 =A0 =A0 writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-> - =A0 =A0 =A0 /* setup chip registers to defaults */
-> - =A0 =A0 =A0 writeb(I2CR_IEN, i2c_imx->base + IMX_I2C_I2CR);
-> - =A0 =A0 =A0 writeb(0, i2c_imx->base + IMX_I2C_I2SR);
-> + =A0 =A0 =A0 if (!i2c_imx->stopped) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Stop I2C transaction */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(&i2c_imx->adapter.dev, "<%s>\n"=
-, __func__);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp =3D readb(i2c_imx->base + IMX_I2C_=
-I2CR);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp &=3D ~(I2CR_MSTA | I2CR_MTX);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 writeb(temp, i2c_imx->base + IMX_I2C_I2=
-CR);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_imx->stopped =3D 1;
-> + =A0 =A0 =A0 }
-> =A0 =A0 =A0 =A0/*
-> =A0 =A0 =A0 =A0 * This delay caused by an i.MXL hardware bug.
-> =A0 =A0 =A0 =A0 * If no (or too short) delay, no "STOP" bit will be g=
-enerated.
-> =A0 =A0 =A0 =A0 */
-> =A0 =A0 =A0 =A0udelay(i2c_imx->disable_delay);
-> +
-> + =A0 =A0 =A0 if (!i2c_imx->stopped)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_imx_bus_busy(i2c_imx, 0);
-> +
-> =A0 =A0 =A0 =A0/* Disable I2C controller */
-> =A0 =A0 =A0 =A0writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-> =A0}
-> @@ -341,11 +363,15 @@ static int i2c_imx_read(struct imx_i2c_struct *=
-i2c_imx, struct i2c_msg *msgs)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (result)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return result;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (i =3D=3D (msgs->len - 1)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* It must generate STO=
-P before read I2DR to prevent
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0controller from =
-generating another clock cycle */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adap=
-ter.dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"<%s> =
-clear MSTA\n", __func__);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0temp =3D readb(i2c_imx=
-->base + IMX_I2C_I2CR);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp &=3D ~I2CR_MSTA;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp &=3D ~(I2CR_MSTA |=
- I2CR_MTX);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0writeb(temp, i2c_imx->=
-base + IMX_I2C_I2CR);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_imx_bus_busy(i2c_im=
-x, 0);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_imx->stopped =3D 1;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0} else if (i =3D=3D (msgs->len - 2)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adap=
-ter.dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"<%s> =
-set TXAK\n", __func__);
-> @@ -370,14 +396,11 @@ static int i2c_imx_xfer(struct i2c_adapter *ada=
-pter,
->
-> =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
->
-> - =A0 =A0 =A0 /* Check if i2c bus is not busy */
-> - =A0 =A0 =A0 result =3D i2c_imx_bus_busy(i2c_imx);
-> + =A0 =A0 =A0 /* Start I2C transfer */
-> + =A0 =A0 =A0 result =3D i2c_imx_start(i2c_imx);
-> =A0 =A0 =A0 =A0if (result)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto fail0;
->
-> - =A0 =A0 =A0 /* Start I2C transfer */
-> - =A0 =A0 =A0 i2c_imx_start(i2c_imx);
-> -
-> =A0 =A0 =A0 =A0/* read/write data */
-> =A0 =A0 =A0 =A0for (i =3D 0; i < num; i++) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (i) {
-> @@ -386,6 +409,9 @@ static int i2c_imx_xfer(struct i2c_adapter *adapt=
-er,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0temp =3D readb(i2c_imx=
-->base + IMX_I2C_I2CR);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0temp |=3D I2CR_RSTA;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0writeb(temp, i2c_imx->=
-base + IMX_I2C_I2CR);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 result =3D =A0i2c_imx_b=
-us_busy(i2c_imx, 1);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (result)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fa=
-il0;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&i2c_imx->adapter.dev,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"<%s> transfer message=
-: %d\n", __func__, i);
-> --
-> 1.6.0.4
->
->
-Hello Sascha,
+On some old IBM workstations and desktop computers, the BIOS presents in the
+DSDT an SMBus object that is missing the HID identifier that the i2c-scmi
+driver looks for.  It also omits the leading "_" in the method names (it should
+be _SBR, not SBR_).  Modify the ACPI device scan code to insert the missing HID
+if it finds an IBM system with such an object, and modify the i2c-scmi driver
+to handle the odd method names.
 
-Could you please review this series of patch?
+Affected machines: IntelliStation Z20/Z30.  Note that the i2c-i801 driver no
+longer works on these machines because of ACPI resource conflicts.
 
-Thanks
-Richard
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+---
+
+ drivers/acpi/scan.c           |   38 ++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-scmi.c |   49 ++++++++++++++++++++++++++++++++---------
+ include/acpi/acpi_drivers.h   |    1 +
+ 3 files changed, 77 insertions(+), 11 deletions(-)
+
+
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 14a7481..58cb324 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -8,6 +8,7 @@
+ #include <linux/acpi.h>
+ #include <linux/signal.h>
+ #include <linux/kthread.h>
++#include <linux/dmi.h>
+ 
+ #include <acpi/acpi_drivers.h>
+ 
+@@ -1014,6 +1015,41 @@ static void acpi_add_id(struct acpi_device *device, const char *dev_id)
+ 	list_add_tail(&id->list, &device->pnp.ids);
+ }
+ 
++/*
++ * Old IBM workstations have a DSDT bug wherein the SMBus object
++ * lacks the SMBUS01 HID and the methods do not have the necessary "_"
++ * prefix.  Work around this.
++ */
++static int probe_ibm_smbus_device(struct acpi_device *device)
++{
++	acpi_handle h_dummy;
++	struct acpi_buffer path = {ACPI_ALLOCATE_BUFFER, NULL};
++	int result;
++
++	if (!dmi_name_in_vendors("IBM"))
++		return -ENODEV;
++
++	/* Look for SMBS object */
++	result = acpi_get_name(device->handle, ACPI_SINGLE_NAME, &path);
++	if (result)
++		return result;
++
++	if (strcmp("SMBS", path.pointer)) {
++		result = -ENODEV;
++		goto out;
++	}
++
++	/* Does it have the necessary (but misnamed) methods? */
++	result = -ENODEV;
++	if (ACPI_SUCCESS(acpi_get_handle(device->handle, "SBI", &h_dummy)) &&
++	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBR", &h_dummy)) &&
++	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBW", &h_dummy)))
++		result = 0;
++out:
++	kfree(path.pointer);
++	return result;
++}
++
+ static void acpi_device_set_id(struct acpi_device *device)
+ {
+ 	acpi_status status;
+@@ -1064,6 +1100,8 @@ static void acpi_device_set_id(struct acpi_device *device)
+ 			acpi_add_id(device, ACPI_BAY_HID);
+ 		else if (ACPI_SUCCESS(acpi_dock_match(device)))
+ 			acpi_add_id(device, ACPI_DOCK_HID);
++		else if (!probe_ibm_smbus_device(device))
++			acpi_add_id(device, ACPI_SMBUS_HID);
+ 
+ 		break;
+ 	case ACPI_BUS_TYPE_POWER:
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index b4a55d4..f0ad03d 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -33,6 +33,7 @@ struct acpi_smbus_cmi {
+ 	u8 cap_info:1;
+ 	u8 cap_read:1;
+ 	u8 cap_write:1;
++	struct smbus_methods_t methods;
+ };
+ 
+ static const struct smbus_methods_t smbus_methods = {
+@@ -41,8 +42,15 @@ static const struct smbus_methods_t smbus_methods = {
+ 	.mt_sbw  = "_SBW",
+ };
+ 
++/* Some IBM BIOSes omit the leading underscore */
++static const struct smbus_methods_t ibm_smbus_methods = {
++	.mt_info = "SBI_",
++	.mt_sbr  = "SBR_",
++	.mt_sbw  = "SBW_",
++};
++
+ static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
+-	{"SMBUS01", 0},
++	{ACPI_SMBUS_HID, 0},
+ 	{"", 0}
+ };
+ 
+@@ -150,11 +158,11 @@ acpi_smbus_cmi_access(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ 	if (read_write == I2C_SMBUS_READ) {
+ 		protocol |= ACPI_SMBUS_PRTCL_READ;
+-		method = smbus_methods.mt_sbr;
++		method = smbus_cmi->methods.mt_sbr;
+ 		input.count = 3;
+ 	} else {
+ 		protocol |= ACPI_SMBUS_PRTCL_WRITE;
+-		method = smbus_methods.mt_sbw;
++		method = smbus_cmi->methods.mt_sbw;
+ 		input.count = 5;
+ 	}
+ 
+@@ -283,20 +291,21 @@ static const struct i2c_algorithm acpi_smbus_cmi_algorithm = {
+ };
+ 
+ 
+-static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+-				  const char *name)
++static int acpi_smbus_cmi_probe_cap(struct acpi_smbus_cmi *smbus_cmi,
++				    const char *name,
++				    const struct smbus_methods_t *methods)
+ {
+ 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+ 	union acpi_object *obj;
+ 	acpi_status status;
+ 
+-	if (!strcmp(name, smbus_methods.mt_info)) {
++	if (!strcmp(name, methods->mt_info)) {
+ 		status = acpi_evaluate_object(smbus_cmi->handle,
+-					smbus_methods.mt_info,
++					methods->mt_info,
+ 					NULL, &buffer);
+ 		if (ACPI_FAILURE(status)) {
+ 			ACPI_ERROR((AE_INFO, "Evaluating %s: %i",
+-				   smbus_methods.mt_info, status));
++				   methods->mt_info, status));
+ 			return -EIO;
+ 		}
+ 
+@@ -319,17 +328,35 @@ static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+ 
+ 		kfree(buffer.pointer);
+ 		smbus_cmi->cap_info = 1;
+-	} else if (!strcmp(name, smbus_methods.mt_sbr))
++		smbus_cmi->methods.mt_info = methods->mt_info;
++	} else if (!strcmp(name, methods->mt_sbr)) {
+ 		smbus_cmi->cap_read = 1;
+-	else if (!strcmp(name, smbus_methods.mt_sbw))
++		smbus_cmi->methods.mt_sbr = methods->mt_sbr;
++	} else if (!strcmp(name, methods->mt_sbw)) {
+ 		smbus_cmi->cap_write = 1;
+-	else
++		smbus_cmi->methods.mt_sbw = methods->mt_sbw;
++	} else {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Unsupported CMI method: %s\n",
+ 				 name));
++		return -ENODEV;
++	}
+ 
+ 	return 0;
+ }
+ 
++static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
++				  const char *name)
++{
++	int res;
++
++	res = acpi_smbus_cmi_probe_cap(smbus_cmi, name, &smbus_methods);
++	if (!res)
++		return 0;
++
++	res = acpi_smbus_cmi_probe_cap(smbus_cmi, name, &ibm_smbus_methods);
++	return res;
++}
++
+ static acpi_status acpi_smbus_cmi_query_methods(acpi_handle handle, u32 level,
+ 			void *context, void **return_value)
+ {
+diff --git a/include/acpi/acpi_drivers.h b/include/acpi/acpi_drivers.h
+index f4906f6..c724a08 100644
+--- a/include/acpi/acpi_drivers.h
++++ b/include/acpi/acpi_drivers.h
+@@ -65,6 +65,7 @@
+ #define ACPI_VIDEO_HID			"LNXVIDEO"
+ #define ACPI_BAY_HID			"LNXIOBAY"
+ #define ACPI_DOCK_HID			"LNXDOCK"
++#define ACPI_SMBUS_HID			"SMBUS01"
+ 
+ /*
+  * For fixed hardware buttons, we fabricate acpi_devices with HID
