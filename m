@@ -1,52 +1,136 @@
-From: "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+From: Crane Cai <crane.cai@amd.com>
 Subject: Re: [PATCH] i2c-scmi: Quirk to work on IBM machines with broken
 	BIOSes
-Date: Wed, 21 Oct 2009 10:37:33 -0700
-Message-ID: <20091021173733.GN26149@tux1.beaverton.ibm.com>
-References: <20091020231149.GM26149@tux1.beaverton.ibm.com> <20091021023016.GC32413@crane-desktop> <200910210857.13978.bjorn.helgaas@hp.com>
-Reply-To: djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org
+Date: Thu, 22 Oct 2009 15:17:53 +0800
+Message-ID: <20091022071748.GA17917@crane-desktop>
+References: <20091020231149.GM26149@tux1.beaverton.ibm.com> <20091021023016.GC32413@crane-desktop> <200910210857.13978.bjorn.helgaas@hp.com> <20091021173733.GN26149@tux1.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <200910210857.13978.bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>
-Cc: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20091021173733.GN26149@tux1.beaverton.ibm.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, lenb@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 21, 2009 at 08:57:13AM -0600, Bjorn Helgaas wrote:
-> On Tuesday 20 October 2009 08:30:16 pm Crane Cai wrote:
-> > Hi Darrick,
+Hi Darrick,
+
+On Wed, Oct 21, 2009 at 10:37:33AM -0700, Darrick J. Wong wrote:
+> The problem is that the BIOS does not provide an HID for the SMBus object at
+> all...
+Yes, I now indeed understand. Orignal I guess you manually change IBM SMBus HID,
+now I know you add a HID for it.
 > > 
-> > On Tue, Oct 20, 2009 at 04:11:49PM -0700, Darrick J. Wong wrote:
-> > > On some old IBM workstations and desktop computers, the BIOS presents in
-> > > the DSDT an SMBus object that is missing the HID identifier that the
-> > > i2c-scmi driver looks for.  It also omits the leading "_" in the method
-> > > names (it should be _SBR, not SBR_).  Modify the ACPI device scan code to
-> > > insert the missing HID if it finds an IBM system with such an object, and
-> > > modify the i2c-scmi driver to handle the odd method names.
-> > I have a suggestion: You can need not to add quirk in acpi part, instead
-> > you can add your ACPI device HID in i2c-scmi with your specificied methods
-> > set.
+> > Can you elaborate on your suggestion?
+> > 
+This patch below represents my meanings:
+*) add a new HID for IBM SMBus CMI devices
+*) add methods for IBM SMBus CMI devices as you did
+*) hook different HID with different control methods set
+It may be more smooth for i2c-scmi, please consider.
 
-The problem is that the BIOS does not provide an HID for the SMBus object at
-all...
+---
+ drivers/i2c/busses/i2c-scmi.c |   31 +++++++++++++++++++++++--------
+ 1 files changed, 23 insertions(+), 8 deletions(-)
 
-> Maybe Darrick understands your suggestion, but I don't.  The only way
-> i2c-scmi ever learns about a device is when acpi_smbus_cmi_add() is
-> called, and that's only called when the Linux/ACPI core has found a
-> device that matches "SMBUS01".
-> 
-> Can you elaborate on your suggestion?
-> 
-> The i2c-scmi driver *could* walk the whole namespace itself, looking
-> for devices with the SBI/SBR/SBW methods, but I like Darrick's quirk
-> approach better because it allows i2c-scmi to continue to use the
-> normal ACPI driver model.
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index b4a55d4..2c5b629 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -33,6 +33,7 @@ struct acpi_smbus_cmi {
+ 	u8 cap_info:1;
+ 	u8 cap_read:1;
+ 	u8 cap_write:1;
++	struct smbus_methods_t *methods;
+ };
+ 
+ static const struct smbus_methods_t smbus_methods = {
+@@ -41,8 +42,16 @@ static const struct smbus_methods_t smbus_methods = {
+ 	.mt_sbw  = "_SBW",
+ };
+ 
++/* Some IBM BIOSes omit the leading underscore */
++static const struct smbus_methods_t ibm_smbus_methods = {
++	.mt_info = "SBI_",
++	.mt_sbr  = "SBR_",
++	.mt_sbw  = "SBW_",
++};
++
+ static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
+-	{"SMBUS01", 0},
++	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
++	{"SMBUSIBM", (kernel_ulong_t)&ibm_smbus_methods},
+ 	{"", 0}
+ };
+ 
+@@ -150,11 +159,11 @@ acpi_smbus_cmi_access(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ 	if (read_write == I2C_SMBUS_READ) {
+ 		protocol |= ACPI_SMBUS_PRTCL_READ;
+-		method = smbus_methods.mt_sbr;
++		method = smbus_cmi->methods->mt_sbr;
+ 		input.count = 3;
+ 	} else {
+ 		protocol |= ACPI_SMBUS_PRTCL_WRITE;
+-		method = smbus_methods.mt_sbw;
++		method = smbus_cmi->methods->mt_sbw;
+ 		input.count = 5;
+ 	}
+ 
+@@ -290,13 +299,13 @@ static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+ 	union acpi_object *obj;
+ 	acpi_status status;
+ 
+-	if (!strcmp(name, smbus_methods.mt_info)) {
++	if (!strcmp(name, smbus_cmi->methods->mt_info)) {
+ 		status = acpi_evaluate_object(smbus_cmi->handle,
+-					smbus_methods.mt_info,
++					smbus_cmi->methods->mt_info,
+ 					NULL, &buffer);
+ 		if (ACPI_FAILURE(status)) {
+ 			ACPI_ERROR((AE_INFO, "Evaluating %s: %i",
+-				   smbus_methods.mt_info, status));
++				   smbus_cmi->methods->mt_info, status));
+ 			return -EIO;
+ 		}
+ 
+@@ -319,9 +328,9 @@ static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+ 
+ 		kfree(buffer.pointer);
+ 		smbus_cmi->cap_info = 1;
+-	} else if (!strcmp(name, smbus_methods.mt_sbr))
++	} else if (!strcmp(name, smbus_cmi->methods->mt_sbr))
+ 		smbus_cmi->cap_read = 1;
+-	else if (!strcmp(name, smbus_methods.mt_sbw))
++	else if (!strcmp(name, smbus_cmi->methods->mt_sbw))
+ 		smbus_cmi->cap_write = 1;
+ 	else
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Unsupported CMI method: %s\n",
+@@ -349,6 +358,7 @@ static acpi_status acpi_smbus_cmi_query_methods(acpi_handle handle, u32 level,
+ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ {
+ 	struct acpi_smbus_cmi *smbus_cmi;
++	struct acpi_device_id *id = (struct acpi_device_id *)acpi_smbus_cmi_ids;
+ 
+ 	smbus_cmi = kzalloc(sizeof(struct acpi_smbus_cmi), GFP_KERNEL);
+ 	if (!smbus_cmi)
+@@ -362,6 +372,11 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ 	smbus_cmi->cap_read = 0;
+ 	smbus_cmi->cap_write = 0;
+ 
++	for (; id->id[0]; id++)
++		if (!strcmp((char *) id->id, acpi_device_hid(device)))
++			smbus_cmi->methods =
++				(struct smbus_methods_t *) id->driver_data;
++
+ 	acpi_walk_namespace(ACPI_TYPE_METHOD, smbus_cmi->handle, 1,
+ 			    acpi_smbus_cmi_query_methods, smbus_cmi, NULL);
+---
 
-...which is why I need the quirk to stuff one in at the OS level.  Were it as
-simple as recognizing a different HID, I could have written a less intrusive
-patch. :/
 
---D
+
+-- 
+Best Regards,
+- Crane
+
