@@ -1,83 +1,136 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 3/3] i2c/ibm-iic: drop NO_IRQ
-Date: Thu, 22 Oct 2009 23:11:28 +0200
-Message-ID: <1256245888-25210-4-git-send-email-w.sang@pengutronix.de>
-References: <1256245888-25210-1-git-send-email-w.sang@pengutronix.de>
- <1256245888-25210-2-git-send-email-w.sang@pengutronix.de>
- <1256245888-25210-3-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1256245888-25210-3-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+From: Crane Cai <crane.cai@amd.com>
+Subject: Re: [PATCH] i2c-scmi: Quirk to work on IBM machines with broken
+	BIOSes
+Date: Fri, 23 Oct 2009 12:44:51 +0800
+Message-ID: <20091023044451.GB1367@crane-desktop>
+References: <20091020231149.GM26149@tux1.beaverton.ibm.com> <20091021023016.GC32413@crane-desktop> <200910210857.13978.bjorn.helgaas@hp.com> <20091021173733.GN26149@tux1.beaverton.ibm.com> <20091022071748.GA17917@crane-desktop> <20091022174304.GO26149@tux1.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091022174304.GO26149@tux1.beaverton.ibm.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, lenb@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Drop NO_IRQ as 0 is the preferred way to describe 'no irq'
-(http://lkml.org/lkml/2005/11/21/221). This change is safe, as the driver is
-only used on powerpc, where NO_IRQ is 0 anyhow.
+Hi Darrick,
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Sean MacLennan <smaclennan-Qtffpm9i2AVWk0Htik3J/w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
----
- drivers/i2c/busses/i2c-ibm_iic.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+Here is the formal one. Please apply.
+IBM SMBus CMI device HID definition depends on you.
 
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index b1bc6e2..2bef534 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -668,12 +668,12 @@ static int __devinit iic_request_irq(struct of_device *ofdev,
- 	int irq;
- 
- 	if (iic_force_poll)
--		return NO_IRQ;
-+		return 0;
- 
- 	irq = irq_of_parse_and_map(np, 0);
--	if (irq == NO_IRQ) {
-+	if (!irq) {
- 		dev_err(&ofdev->dev, "irq_of_parse_and_map failed\n");
--		return NO_IRQ;
-+		return 0;
- 	}
- 
- 	/* Disable interrupts until we finish initialization, assumes
-@@ -683,7 +683,7 @@ static int __devinit iic_request_irq(struct of_device *ofdev,
- 	if (request_irq(irq, iic_handler, 0, "IBM IIC", dev)) {
- 		dev_err(&ofdev->dev, "request_irq %d failed\n", irq);
- 		/* Fallback to the polling mode */
--		return NO_IRQ;
-+		return 0;
- 	}
- 
- 	return irq;
-@@ -719,7 +719,7 @@ static int __devinit iic_probe(struct of_device *ofdev,
- 	init_waitqueue_head(&dev->wq);
- 
- 	dev->irq = iic_request_irq(ofdev, dev);
--	if (dev->irq == NO_IRQ)
-+	if (!dev->irq)
- 		dev_warn(&ofdev->dev, "using polling mode\n");
- 
- 	/* Board specific settings */
-@@ -766,7 +766,7 @@ static int __devinit iic_probe(struct of_device *ofdev,
- 	return 0;
- 
- error_cleanup:
--	if (dev->irq != NO_IRQ) {
-+	if (dev->irq) {
- 		iic_interrupt_mode(dev, 0);
- 		free_irq(dev->irq, dev);
- 	}
-@@ -790,7 +790,7 @@ static int __devexit iic_remove(struct of_device *ofdev)
- 
- 	i2c_del_adapter(&dev->adap);
- 
--	if (dev->irq != NO_IRQ) {
-+	if (dev->irq) {
- 		iic_interrupt_mode(dev, 0);
- 		free_irq(dev->irq, dev);
- 	}
 -- 
-1.6.5
+Best Regards,
+- Crane
+
+---
+>From 7d6d23c944bb1ce29ad75347c867d323288dc2e2 Mon Sep 17 00:00:00 2001
+From: Crane Cai <crane.cai@amd.com>
+Date: Fri, 23 Oct 2009 10:13:58 +0800
+Subject: [PATCH] i2c-scmi: support IBM SMBus CMI devices
+
+*) add a new HID for IBM SMBus CMI devices
+*) add methods for IBM SMBus CMI devices
+*) hook different HID with different control methods set
+
+Signed-off-by: Crane Cai <crane.cai@amd.com>
+---
+ drivers/i2c/busses/i2c-scmi.c |   31 +++++++++++++++++++++++--------
+ 1 files changed, 23 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index b4a55d4..a15aaf4 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -33,6 +33,7 @@ struct acpi_smbus_cmi {
+ 	u8 cap_info:1;
+ 	u8 cap_read:1;
+ 	u8 cap_write:1;
++	struct smbus_methods_t *methods;
+ };
+ 
+ static const struct smbus_methods_t smbus_methods = {
+@@ -41,8 +42,16 @@ static const struct smbus_methods_t smbus_methods = {
+ 	.mt_sbw  = "_SBW",
+ };
+ 
++/* Some IBM BIOSes omit the leading underscore */
++static const struct smbus_methods_t ibm_smbus_methods = {
++	.mt_info = "SBI_",
++	.mt_sbr  = "SBR_",
++	.mt_sbw  = "SBW_",
++};
++
+ static const struct acpi_device_id acpi_smbus_cmi_ids[] = {
+-	{"SMBUS01", 0},
++	{"SMBUS01", (kernel_ulong_t)&smbus_methods},
++	{"SMBUSIBM", (kernel_ulong_t)&ibm_smbus_methods},
+ 	{"", 0}
+ };
+ 
+@@ -150,11 +159,11 @@ acpi_smbus_cmi_access(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ 	if (read_write == I2C_SMBUS_READ) {
+ 		protocol |= ACPI_SMBUS_PRTCL_READ;
+-		method = smbus_methods.mt_sbr;
++		method = smbus_cmi->methods->mt_sbr;
+ 		input.count = 3;
+ 	} else {
+ 		protocol |= ACPI_SMBUS_PRTCL_WRITE;
+-		method = smbus_methods.mt_sbw;
++		method = smbus_cmi->methods->mt_sbw;
+ 		input.count = 5;
+ 	}
+ 
+@@ -290,13 +299,13 @@ static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+ 	union acpi_object *obj;
+ 	acpi_status status;
+ 
+-	if (!strcmp(name, smbus_methods.mt_info)) {
++	if (!strcmp(name, smbus_cmi->methods->mt_info)) {
+ 		status = acpi_evaluate_object(smbus_cmi->handle,
+-					smbus_methods.mt_info,
++					smbus_cmi->methods->mt_info,
+ 					NULL, &buffer);
+ 		if (ACPI_FAILURE(status)) {
+ 			ACPI_ERROR((AE_INFO, "Evaluating %s: %i",
+-				   smbus_methods.mt_info, status));
++				   smbus_cmi->methods->mt_info, status));
+ 			return -EIO;
+ 		}
+ 
+@@ -319,9 +328,9 @@ static int acpi_smbus_cmi_add_cap(struct acpi_smbus_cmi *smbus_cmi,
+ 
+ 		kfree(buffer.pointer);
+ 		smbus_cmi->cap_info = 1;
+-	} else if (!strcmp(name, smbus_methods.mt_sbr))
++	} else if (!strcmp(name, smbus_cmi->methods->mt_sbr))
+ 		smbus_cmi->cap_read = 1;
+-	else if (!strcmp(name, smbus_methods.mt_sbw))
++	else if (!strcmp(name, smbus_cmi->methods->mt_sbw))
+ 		smbus_cmi->cap_write = 1;
+ 	else
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Unsupported CMI method: %s\n",
+@@ -349,6 +358,7 @@ static acpi_status acpi_smbus_cmi_query_methods(acpi_handle handle, u32 level,
+ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ {
+ 	struct acpi_smbus_cmi *smbus_cmi;
++	struct acpi_device_id *id;
+ 
+ 	smbus_cmi = kzalloc(sizeof(struct acpi_smbus_cmi), GFP_KERNEL);
+ 	if (!smbus_cmi)
+@@ -362,6 +372,11 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ 	smbus_cmi->cap_read = 0;
+ 	smbus_cmi->cap_write = 0;
+ 
++	for (id = (struct acpi_device_id *)acpi_smbus_cmi_ids; id->id[0]; id++)
++		if (!strcmp((char *) id->id, acpi_device_hid(device)))
++			smbus_cmi->methods =
++				(struct smbus_methods_t *) id->driver_data;
++
+ 	acpi_walk_namespace(ACPI_TYPE_METHOD, smbus_cmi->handle, 1,
+ 			    acpi_smbus_cmi_query_methods, smbus_cmi, NULL);
+ 
+-- 
+1.6.0.4
+
