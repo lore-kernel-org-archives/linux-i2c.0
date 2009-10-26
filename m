@@ -1,7 +1,7 @@
 From: "Darrick J. Wong" <djwong@us.ibm.com>
-Subject: Re: [PATCH 2/2] acpi: support IBM SMBus CMI devices
-Date: Mon, 26 Oct 2009 13:53:41 -0700
-Message-ID: <20091026205341.GQ26149@tux1.beaverton.ibm.com>
+Subject: [PATCH v2 1/2] acpi: support IBM SMBus CMI devices
+Date: Mon, 26 Oct 2009 13:58:19 -0700
+Message-ID: <20091026205819.GR26149@tux1.beaverton.ibm.com>
 References: <20091020231149.GM26149@tux1.beaverton.ibm.com> <20091021023016.GC32413@crane-desktop> <200910210857.13978.bjorn.helgaas@hp.com> <20091021173733.GN26149@tux1.beaverton.ibm.com> <20091022071748.GA17917@crane-desktop> <20091022174304.GO26149@tux1.beaverton.ibm.com> <20091023044451.GB1367@crane-desktop> <20091023170311.GC21723@tux1.beaverton.ibm.com> <20091025125353.55d3bfad@hyperion.delvare>
 Reply-To: djwong@us.ibm.com
 Mime-Version: 1.0
@@ -14,28 +14,99 @@ To: Jean Delvare <khali@linux-fr.org>
 Cc: Crane Cai <crane.cai@amd.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>, lenb@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 25, 2009 at 12:53:53PM +0100, Jean Delvare wrote:
-> > +		else if (!probe_ibm_smbus_device(device))
-> > +			acpi_add_id(device, ACPI_SMBUS_IBM_HID);
-> 
-> I am not responsible for the ACPI code, but... wouldn't it make sense
-> to rename probe_ibm_smbus_device() to acpi_ibm_smbus_match() and have
-> it follow the same convention as acpi_dock_match() and
-> acpi_bay_match()? To make the code more consistent.
+On some old IBM workstations and desktop computers, the BIOS presents in the
+DSDT an SMBus object that is missing the HID identifier that the i2c-scmi
+driver looks for.  Modify the ACPI device scan code to insert the missing HID
+if it finds an IBM system with such an object.  This patch needs Crane Cai's
+update to i2c-scmi to work around incorrectly named methods within the SMBus
+control object.
 
-Sure.
+Affected machines: IntelliStation Z20/Z30.  Note that the i2c-i801 driver no
+longer works on these machines because of ACPI resource conflicts.
 
-> > +	{ACPI_SMBUS_IBM_HID, (kernel_ulong_t)&ibm_smbus_methods},
-> 
-> As both patches depend on each other and one is useless without the
-> other, you might as well sequence them the other way around, so that
-> you touch this line only once.
+v2 contains minor tweaks suggested by Jean Delvare.
 
-Will do.
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+---
 
-> Other that these details, I like the patch. If this helps with ACPI
-> resource conflicts, even better :)
+ drivers/acpi/scan.c         |   38 ++++++++++++++++++++++++++++++++++++++
+ include/acpi/acpi_drivers.h |    2 ++
+ 2 files changed, 40 insertions(+), 0 deletions(-)
 
-It should. :)  I'll reroll the patch set shortly.
 
---D
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 14a7481..5a24429 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -8,6 +8,7 @@
+ #include <linux/acpi.h>
+ #include <linux/signal.h>
+ #include <linux/kthread.h>
++#include <linux/dmi.h>
+ 
+ #include <acpi/acpi_drivers.h>
+ 
+@@ -1014,6 +1015,41 @@ static void acpi_add_id(struct acpi_device *device, const char *dev_id)
+ 	list_add_tail(&id->list, &device->pnp.ids);
+ }
+ 
++/*
++ * Old IBM workstations have a DSDT bug wherein the SMBus object
++ * lacks the SMBUS01 HID and the methods do not have the necessary "_"
++ * prefix.  Work around this.
++ */
++static int acpi_ibm_smbus_match(struct acpi_device *device)
++{
++	acpi_handle h_dummy;
++	struct acpi_buffer path = {ACPI_ALLOCATE_BUFFER, NULL};
++	int result;
++
++	if (!dmi_name_in_vendors("IBM"))
++		return -ENODEV;
++
++	/* Look for SMBS object */
++	result = acpi_get_name(device->handle, ACPI_SINGLE_NAME, &path);
++	if (result)
++		return result;
++
++	if (strcmp("SMBS", path.pointer)) {
++		result = -ENODEV;
++		goto out;
++	}
++
++	/* Does it have the necessary (but misnamed) methods? */
++	result = -ENODEV;
++	if (ACPI_SUCCESS(acpi_get_handle(device->handle, "SBI", &h_dummy)) &&
++	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBR", &h_dummy)) &&
++	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBW", &h_dummy)))
++		result = 0;
++out:
++	kfree(path.pointer);
++	return result;
++}
++
+ static void acpi_device_set_id(struct acpi_device *device)
+ {
+ 	acpi_status status;
+@@ -1064,6 +1100,8 @@ static void acpi_device_set_id(struct acpi_device *device)
+ 			acpi_add_id(device, ACPI_BAY_HID);
+ 		else if (ACPI_SUCCESS(acpi_dock_match(device)))
+ 			acpi_add_id(device, ACPI_DOCK_HID);
++		else if (!acpi_ibm_smbus_match(device))
++			acpi_add_id(device, ACPI_SMBUS_IBM_HID);
+ 
+ 		break;
+ 	case ACPI_BUS_TYPE_POWER:
+diff --git a/include/acpi/acpi_drivers.h b/include/acpi/acpi_drivers.h
+index f4906f6..83a2960 100644
+--- a/include/acpi/acpi_drivers.h
++++ b/include/acpi/acpi_drivers.h
+@@ -65,6 +65,8 @@
+ #define ACPI_VIDEO_HID			"LNXVIDEO"
+ #define ACPI_BAY_HID			"LNXIOBAY"
+ #define ACPI_DOCK_HID			"LNXDOCK"
++/* Quirk for broken IBM BIOSes */
++#define ACPI_SMBUS_IBM_HID		"SMBUSIBM"
+ 
+ /*
+  * For fixed hardware buttons, we fabricate acpi_devices with HID
