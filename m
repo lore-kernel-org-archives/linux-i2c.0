@@ -1,58 +1,83 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] acpi: support IBM SMBus CMI devices
-Date: Tue, 27 Oct 2009 18:36:19 +0100
-Message-ID: <20091027183619.16b0b952@hyperion.delvare>
-References: <20091021023016.GC32413@crane-desktop>
-	<200910210857.13978.bjorn.helgaas@hp.com>
-	<20091021173733.GN26149@tux1.beaverton.ibm.com>
-	<20091022071748.GA17917@crane-desktop>
-	<20091022174304.GO26149@tux1.beaverton.ibm.com>
-	<20091023044451.GB1367@crane-desktop>
-	<20091023170311.GC21723@tux1.beaverton.ibm.com>
-	<20091025125353.55d3bfad@hyperion.delvare>
-	<20091026205819.GR26149@tux1.beaverton.ibm.com>
-	<20091027180332.62f2c758@hyperion.delvare>
-	<20091027173001.GT26149@tux1.beaverton.ibm.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Shared i2c adapter locking (Was: linux-next: manual merge of the
+ net tree with the i2c tree)
+Date: Thu, 29 Oct 2009 15:43:17 +0100
+Message-ID: <20091029154317.651904b9@hyperion.delvare>
+References: <20091026133757.7cf87e49.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091027173001.GT26149-bjhdApgbSaxhsM67afOH+sxtgHpCUUYS@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org
-Cc: Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Bjorn Helgaas <bjorn.helgaas-VXdhtT5mjnY@public.gmane.org>, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754850AbZJ2OnT@vger.kernel.org>
+In-Reply-To: <20091026133757.7cf87e49.sfr@canb.auug.org.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Ben Hutchings <bhutchings@solarflare.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 27 Oct 2009 10:30:01 -0700, Darrick J. Wong wrote:
-> On Tue, Oct 27, 2009 at 06:03:32PM +0100, Jean Delvare wrote:
-> 
-> > I'm only half please with this. You change the function named, but it
-> > doesn't follow the calling convention of acpi_dock_match(), which is a
-> > little confusing.
-> > 
-> > Anyway, I will need an ack from the ACPI people before I can pick this
-> > patch. Or maybe they should even push it upstream themselves.
-> 
-> I am confused.  Looking at that bunch of ifs, acpi_is_video_device returns 1
-> for a match and 0 for no match.  acpi_bay_match returns 0 for a match and
-> -ENODEV for no match, which just happens to work with the ACPI_SUCCESS macro.
-> acpi_dock_match returns ACPI error codes.  Each of the three existing tests has
-> different return value semantics, so it is not clear to me which one I should
-> use.
+Hi Stephen,
 
-Ah, sorry, I looked at one (don't remember which one) and assumed the
-other ones followed the same convention.
-
-> I didn't think it was correct for my probe function to use the ACPI_STATUS
-> macro unless it returned ACPI error codes... which it does not.  -ENODEV seemed
-> appropriate for "no device found".
+On Mon, 26 Oct 2009 13:37:57 +1100, Stephen Rothwell wrote:
+> Today's linux-next merge of the net tree got a conflict in
+> drivers/net/sfc/sfe4001.c between commit
+> 3f7c0648f727a6d5baf6117653e4001dc877b90b ("i2c: Prevent priority
+> inversion on top of bus lock") from the i2c tree and commit
+> c9597d4f89565b6562bd3026adbe6eac6c317f47 ("sfc: Merge sfe4001.c into
+> falcon_boards.c") from the net tree.
 > 
-> Is it desirable to clean them all up to follow the same convention?
+> I have applied the following merge fixup patch (after removing
+> drivers/net/sfc/sfe4001.c) and can carry it as necessary.
 
-Ideally, yes, but that would be a separate task from what you're up to
-at the moment. And anyway this is not in my realm an I am not going to
-work on it myself, so my opinion probably doesn't matter that much.
-Sorry for bothering you with this in the first place.
+Thanks for fixing it. The core problem here IMHO is that the sfc
+network driver touches i2c internals which it would rather leave alone.
+This is the only driver I know of which does this.
+
+I can think of 3 different ways to address the issue.
+
+Method #1: add a public API to grab/release an I2C segment.
+
+void i2c_adapter_lock(struct i2c_adapter *adapter)
+{
+	rt_mutex_lock(&adapter->bus_lock);
+}
+
+void i2c_adapter_unlock(struct i2c_adapter *adapter)
+{
+	rt_mutex_unlock(&adapter->bus_lock);
+}
+
+It has the advantage of simplicity. The problem is that it is not
+symmetric. Whatever shares the pins with I2C, I2C is considered the
+main user in that its mutex is used to guarantee mutual exclusion. If
+the other subsystem also has a mandatory locking mechanism, there will
+have to be a decision on who is locked first. If not all drivers agree,
+lockdep will get confused.
+
+Method #2: let the driver implement its own "main" locking, and have
+all pin users (i2c etc.) take it in addition to any subsystem-specific
+mutex. As far as the sfc network driver is concerned, that would mean
+adding pre-xfer and post-xfer hooks to i2c-algo-bit, where the "main"
+mutex in question would be taken resp. released.
+
+It has the advantage of symmetry. The problem is performance, as
+regular operation will require to take and release two mutexes instead
+of just one. But it is a fairly generic approach which could solve
+other issues too.
+
+Method #3: let individual bus drivers implement segment locking
+themselves, with custom locking/unlocking hooks. This way, a device
+sharing pins between several functions can have its own mutex
+protecting these pins globally, and all user subsystems (i2c etc.) use
+this single mutex.
+
+It has the advantage of performance and symmetry, at the price of
+fragility. If the i2c bus driver implements locking improperly... I am
+also worried by inconsistencies that may arise, if different i2c
+adapters are protected by different mutex types (mutex vs. real-time
+mutex vs. spinlock etc.) but maybe this will be seen as an advantage
+rather than a problem.
+
+I'm not really sure if I have a preference yet, so please speak up if
+you do.
 
 -- 
 Jean Delvare
