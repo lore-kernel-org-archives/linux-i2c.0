@@ -1,29 +1,37 @@
-From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V1 1/3] i2c: imx: check busy bit when START/STOP
-Date: Sat, 31 Oct 2009 10:47:58 +0800
-Message-ID: <4e090d470910301947y2cd4e95x88f500c6c008d97d@mail.gmail.com>
-References: <1255772784-11387-1-git-send-email-linuxzsc@gmail.com>
-	 <20091030004025.GG13398@fluff.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-i801: Retry on lost arbitration
+Date: Sun, 1 Nov 2009 13:25:46 +0100
+Message-ID: <20091101132546.21ee43c2@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091030004025.GG13398-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 30, 2009 at 8:40 AM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> Does anyone have any comments on these, or shall I look at merging
-> them as fixes?
->
-> --
-> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
->
-> =A0'a smiley only costs 4 bytes'
->
+The Intel 82801 is sometimes used on systems with a BMC connected. The
+BMC can access the SMBus, resulting in lost arbitration for the 82801.
+We should let i2c-core retry transactions for us in this case.
 
-Thanks, Ben! I've test these patch on imx31 pdk and imx51 pdk.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-i801.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-  Richard
+--- linux-2.6.32-rc5.orig/drivers/i2c/busses/i2c-i801.c	2009-10-05 10:45:49.000000000 +0200
++++ linux-2.6.32-rc5/drivers/i2c/busses/i2c-i801.c	2009-11-01 11:33:29.000000000 +0100
+@@ -767,6 +767,9 @@ static int __devinit i801_probe(struct p
+ 	/* set up the sysfs linkage to our parent device */
+ 	i801_adapter.dev.parent = &dev->dev;
+ 
++	/* Retry up to 3 times on arbitration loss */
++	i801_adapter.retries = 3;
++
+ 	snprintf(i801_adapter.name, sizeof(i801_adapter.name),
+ 		"SMBus I801 adapter at %04lx", i801_smba);
+ 	err = i2c_add_adapter(&i801_adapter);
+
+
+-- 
+Jean Delvare
