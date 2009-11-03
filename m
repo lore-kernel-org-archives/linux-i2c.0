@@ -1,37 +1,49 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-i801: Retry on lost arbitration
-Date: Sun, 1 Nov 2009 13:25:46 +0100
-Message-ID: <20091101132546.21ee43c2@hyperion.delvare>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH 1/2] [ARM] i2c/pxa: remove unused macro
+Date: Tue,  3 Nov 2009 20:03:19 +0100
+Message-ID: <1257275000-18866-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Intel 82801 is sometimes used on systems with a BMC connected. The
-BMC can access the SMBus, resulting in lost arbitration for the 82801.
-We should let i2c-core retry transactions for us in this case.
+Commit
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driver.)
+
+removed all uses of eedbg, so the definition can go, too.
+
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Eric Miao <eric.miao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-pxa.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
---- linux-2.6.32-rc5.orig/drivers/i2c/busses/i2c-i801.c	2009-10-05 10:45:49.000000000 +0200
-+++ linux-2.6.32-rc5/drivers/i2c/busses/i2c-i801.c	2009-11-01 11:33:29.000000000 +0100
-@@ -767,6 +767,9 @@ static int __devinit i801_probe(struct p
- 	/* set up the sysfs linkage to our parent device */
- 	i801_adapter.dev.parent = &dev->dev;
- 
-+	/* Retry up to 3 times on arbitration loss */
-+	i801_adapter.retries = 3;
-+
- 	snprintf(i801_adapter.name, sizeof(i801_adapter.name),
- 		"SMBus I801 adapter at %04lx", i801_smba);
- 	err = i2c_add_adapter(&i801_adapter);
-
-
--- 
-Jean Delvare
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.=
+c
+index 0495557..40052c0 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -216,8 +216,6 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c,=
+ int lno, const char *fname)
+ #define decode_ICR(val) do { } while (0)
+ #endif
+=20
+-#define eedbg(lvl, x...) do { if ((lvl) < 1) { printk(KERN_DEBUG "" x)=
+; } } while(0)
+-
+ static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
+ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
+=20
+--=20
+1.6.5.2
