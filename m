@@ -1,30 +1,35 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: at24 driver - a possible problem
-Date: Fri, 6 Nov 2009 13:58:51 -0700
-Message-ID: <200911061258.52179.david-b@pacbell.net>
-References: <533f29860911050810w4d939b39x2ad11c189f13c977@mail.gmail.com> <20091106124905.GA3980@pengutronix.de> <533f29860911060457m70a1adfcr2dd11f0785748014@mail.gmail.com>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-designware updates
+Date: Fri, 6 Nov 2009 22:25:06 +0000
+Message-ID: <20091106222506.GP23772@trinity.fluff.org>
+References: <4AF419B6.1000802@necel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <533f29860911060457m70a1adfcr2dd11f0785748014-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <4AF419B6.1000802-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Aleksandar Ivanov <ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Cc: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 06 November 2009, Aleksandar Ivanov wrote:
-> So I added the O_SYNC flag to the open() call. (The man says: O_SYNC
-> - The file is opened for synchronous I/O. Any write()s on the
-> resulting file descriptor will block the calling process until the
-> data has been physically written to the underlying hardware.)
-> But obviously this didn't fix the issue.
-> 
-> Correct me if I'm wrong but I would expect from a synchronous write()
-> call to NOT finish before the data has been "phisically written".
-> And in this case of course the read operation wouldn't need a waiting loop.
-> What do you think?
+On Fri, Nov 06, 2009 at 09:42:30PM +0900, Shinya Kuribayashi wrote:
+> Hi Baruch and Ben,
+>
+> here's v2 patchset of DesignWare I2C driver (i2c-designware.c).
+> I did all test I can do for now (including arbitration tests), and
+> fixed more issues left in the v1 patchset.  I think now the driver is
+> in reasonable shape for the mainline, and hope gets merged.
+>
+> The patches which already have Baruch's Acked-by: line are logically
+> same as the previous v1 patches.  For the rest are revised version of
+> v1 patches, or newly added in v2.
 
-Makes sense to me.  Another bug to fix.  :)
+thanks, the first pass seems ok, will give a thorough review by next
+week and get a branch with them on for -next submission.
+
+-- 
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
