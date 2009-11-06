@@ -1,84 +1,248 @@
 From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c-designware updates
-Date: Fri, 06 Nov 2009 21:42:30 +0900
-Message-ID: <4AF419B6.1000802@necel.com>
+Subject: [PATCH v2 01/22] i2c-designware: Consolidate to use 32-bit word accesses
+Date: Fri, 06 Nov 2009 21:43:52 +0900
+Message-ID: <4AF41A08.1010105@necel.com>
+References: <4AF419B6.1000802@necel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4AF419B6.1000802-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Baruch and Ben,
+This driver looks originally meant for armel machines where readw()/
+writew() works perfectly fine with this hardware.  But that doens't
+work for big-endian systems.
 
-here's v2 patchset of DesignWare I2C driver (i2c-designware.c).
-I did all test I can do for now (including arbitration tests), and
-fixed more issues left in the v1 patchset.  I think now the driver is
-in reasonable shape for the mainline, and hope gets merged.
+This patch converts all 8/16-bit-aware usages to 32-bit variants.
 
-The patches which already have Baruch's Acked-by: line are logically
-same as the previous v1 patches.  For the rest are revised version of
-v1 patches, or newly added in v2.
+Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Acked-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware.c |   76 +++++++++++++++++-----------------
+ 1 files changed, 38 insertions(+), 38 deletions(-)
 
-There are 22 patches in total and might be slightly annoying.  I'll
-send subsequent patches only to linux-i2c.
-
-
-Changes in v2
-==============
-
-* i2c-designware: Set a clock name to DW I2C clock source
-
-  -> dropped.
-
-* 02/22: Don't use the IC_CLR_INTR register to clear interrupts
-
-  We need to preserve IC_TX_ABRT_SOURCE value before clearing
-  interrupts, or we can't get correct abort_source.  ->Fixed
-
-* 08/22: i2c_dw_xfer_msg: Fix i2c_msg search bug
-
-  The intr_mask handling is folded into the for-loop.
-
-* 15/22: i2c_dw_func: Set I2C_FUNC_SMBUS_foo bits
-
-  Commit log is updated.
-
-* 01--15 (except for 02, 08, and 15) are logically same as the
-  previous v1 patches.
-
-* For the rest (16--22) are newly added.
-
-
-Shinya Kuribayashi (22):
-      i2c-designware: Consolidate to use 32-bit word accesses
-      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
-      i2c-designware: Use platform_get_irq helper
-      i2c-designware: i2c_dw_read: Use "struct dw_i2c_dev" pointer
-      i2c-designware: i2c_dw_xfer_msg: Use "struct dw_i2c_dev" pointer
-      i2c-designware: Remove an useless local variable "num"
-      i2c-designware: Improved _HCNT/_LCNT calculation
-      i2c-designware: i2c_dw_xfer_msg: Fix i2c_msg search bug
-      i2c-designware: Process i2c_msg messages in the interrupt handler
-      i2c-designware: Set Tx/Rx FIFO threshold levels
-      i2c-designware: Enable RX_FULL interrupt
-      i2c-designware: Divide i2c_dw_xfer_msg into two functions
-      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
-      i2c-designware: Initialize byte count variables just prior to being used
-      i2c-designware: i2c_dw_func: Set I2C_FUNC_SMBUS_foo bits
-      i2c-designware: i2c_dw_read: Remove redundant target address checker
-      i2c-designware: Process all i2c_msg messages in the interrupt handler
-      i2c-designware: Disable TX_EMPTY when all i2c_msg msgs has been processed
-      i2c-designware: i2c_dw_xfer_msg: Fix error handling procedures
-      i2c-designware: Skip RX_FULL and TX_EMPTY bits on tx abort errors
-      i2c-designware: Tx abort cleanups
-      i2c-designware: Cosmetic cleanups
-
- drivers/i2c/busses/i2c-designware.c |  483 +++++++++++++++++++++++++----------
- 1 files changed, 350 insertions(+), 133 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index b444762..a4f928e 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -162,14 +162,14 @@ struct dw_i2c_dev {
+ 	struct i2c_msg		*msgs;
+ 	int			msgs_num;
+ 	int			msg_write_idx;
+-	u16			tx_buf_len;
++	u32			tx_buf_len;
+ 	u8			*tx_buf;
+ 	int			msg_read_idx;
+-	u16			rx_buf_len;
++	u32			rx_buf_len;
+ 	u8			*rx_buf;
+ 	int			msg_err;
+ 	unsigned int		status;
+-	u16			abort_source;
++	u32			abort_source;
+ 	int			irq;
+ 	struct i2c_adapter	adapter;
+ 	unsigned int		tx_fifo_depth;
+@@ -187,25 +187,25 @@ struct dw_i2c_dev {
+ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ {
+ 	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
+-	u16 ic_con;
++	u32 ic_con;
+ 
+ 	/* Disable the adapter */
+-	writeb(0, dev->base + DW_IC_ENABLE);
++	writel(0, dev->base + DW_IC_ENABLE);
+ 
+ 	/* set standard and fast speed deviders for high/low periods */
+-	writew((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
++	writel((input_clock_khz * 40 / 10000)+1, /* std speed high, 4us */
+ 			dev->base + DW_IC_SS_SCL_HCNT);
+-	writew((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
++	writel((input_clock_khz * 47 / 10000)+1, /* std speed low, 4.7us */
+ 			dev->base + DW_IC_SS_SCL_LCNT);
+-	writew((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
++	writel((input_clock_khz *  6 / 10000)+1, /* fast speed high, 0.6us */
+ 			dev->base + DW_IC_FS_SCL_HCNT);
+-	writew((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
++	writel((input_clock_khz * 13 / 10000)+1, /* fast speed low, 1.3us */
+ 			dev->base + DW_IC_FS_SCL_LCNT);
+ 
+ 	/* configure the i2c master */
+ 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+-	writew(ic_con, dev->base + DW_IC_CON);
++	writel(ic_con, dev->base + DW_IC_CON);
+ }
+ 
+ /*
+@@ -215,7 +215,7 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+ {
+ 	int timeout = TIMEOUT;
+ 
+-	while (readb(dev->base + DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
++	while (readl(dev->base + DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
+ 		if (timeout <= 0) {
+ 			dev_warn(dev->dev, "timeout waiting for bus ready\n");
+ 			return -ETIMEDOUT;
+@@ -239,29 +239,29 @@ i2c_dw_xfer_msg(struct i2c_adapter *adap)
+ 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ 	struct i2c_msg *msgs = dev->msgs;
+ 	int num = dev->msgs_num;
+-	u16 ic_con, intr_mask;
+-	int tx_limit = dev->tx_fifo_depth - readb(dev->base + DW_IC_TXFLR);
+-	int rx_limit = dev->rx_fifo_depth - readb(dev->base + DW_IC_RXFLR);
+-	u16 addr = msgs[dev->msg_write_idx].addr;
+-	u16 buf_len = dev->tx_buf_len;
++	u32 ic_con, intr_mask;
++	int tx_limit = dev->tx_fifo_depth - readl(dev->base + DW_IC_TXFLR);
++	int rx_limit = dev->rx_fifo_depth - readl(dev->base + DW_IC_RXFLR);
++	u32 addr = msgs[dev->msg_write_idx].addr;
++	u32 buf_len = dev->tx_buf_len;
+ 
+ 	if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
+ 		/* Disable the adapter */
+-		writeb(0, dev->base + DW_IC_ENABLE);
++		writel(0, dev->base + DW_IC_ENABLE);
+ 
+ 		/* set the slave (target) address */
+-		writew(msgs[dev->msg_write_idx].addr, dev->base + DW_IC_TAR);
++		writel(msgs[dev->msg_write_idx].addr, dev->base + DW_IC_TAR);
+ 
+ 		/* if the slave address is ten bit address, enable 10BITADDR */
+-		ic_con = readw(dev->base + DW_IC_CON);
++		ic_con = readl(dev->base + DW_IC_CON);
+ 		if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
+ 			ic_con |= DW_IC_CON_10BITADDR_MASTER;
+ 		else
+ 			ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
+-		writew(ic_con, dev->base + DW_IC_CON);
++		writel(ic_con, dev->base + DW_IC_CON);
+ 
+ 		/* Enable the adapter */
+-		writeb(1, dev->base + DW_IC_ENABLE);
++		writel(1, dev->base + DW_IC_ENABLE);
+ 	}
+ 
+ 	for (; dev->msg_write_idx < num; dev->msg_write_idx++) {
+@@ -287,10 +287,10 @@ i2c_dw_xfer_msg(struct i2c_adapter *adap)
+ 
+ 		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
+ 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+-				writew(0x100, dev->base + DW_IC_DATA_CMD);
++				writel(0x100, dev->base + DW_IC_DATA_CMD);
+ 				rx_limit--;
+ 			} else
+-				writew(*(dev->tx_buf++),
++				writel(*(dev->tx_buf++),
+ 						dev->base + DW_IC_DATA_CMD);
+ 			tx_limit--; buf_len--;
+ 		}
+@@ -302,7 +302,7 @@ i2c_dw_xfer_msg(struct i2c_adapter *adap)
+ 		dev->status |= STATUS_WRITE_IN_PROGRESS;
+ 	} else
+ 		dev->status &= ~STATUS_WRITE_IN_PROGRESS;
+-	writew(intr_mask, dev->base + DW_IC_INTR_MASK);
++	writel(intr_mask, dev->base + DW_IC_INTR_MASK);
+ 
+ 	dev->tx_buf_len = buf_len;
+ }
+@@ -313,11 +313,11 @@ i2c_dw_read(struct i2c_adapter *adap)
+ 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ 	struct i2c_msg *msgs = dev->msgs;
+ 	int num = dev->msgs_num;
+-	u16 addr = msgs[dev->msg_read_idx].addr;
+-	int rx_valid = readw(dev->base + DW_IC_RXFLR);
++	u32 addr = msgs[dev->msg_read_idx].addr;
++	int rx_valid = readl(dev->base + DW_IC_RXFLR);
+ 
+ 	for (; dev->msg_read_idx < num; dev->msg_read_idx++) {
+-		u16 len;
++		u32 len;
+ 		u8 *buf;
+ 
+ 		if (!(msgs[dev->msg_read_idx].flags & I2C_M_RD))
+@@ -336,7 +336,7 @@ i2c_dw_read(struct i2c_adapter *adap)
+ 		}
+ 
+ 		for (; len > 0 && rx_valid > 0; len--, rx_valid--)
+-			*buf++ = readb(dev->base + DW_IC_DATA_CMD);
++			*buf++ = readl(dev->base + DW_IC_DATA_CMD);
+ 
+ 		if (len > 0) {
+ 			dev->status |= STATUS_READ_IN_PROGRESS;
+@@ -398,7 +398,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 		do {
+ 			i2c_dw_read(adap);
+ 		} while (dev->status & STATUS_READ_IN_PROGRESS);
+-		writeb(0, dev->base + DW_IC_ENABLE);
++		writel(0, dev->base + DW_IC_ENABLE);
+ 		ret = num;
+ 		goto done;
+ 	}
+@@ -428,7 +428,7 @@ static u32 i2c_dw_func(struct i2c_adapter *adap)
+ static void dw_i2c_pump_msg(unsigned long data)
+ {
+ 	struct dw_i2c_dev *dev = (struct dw_i2c_dev *) data;
+-	u16 intr_mask;
++	u32 intr_mask;
+ 
+ 	i2c_dw_read(&dev->adapter);
+ 	i2c_dw_xfer_msg(&dev->adapter);
+@@ -436,7 +436,7 @@ static void dw_i2c_pump_msg(unsigned long data)
+ 	intr_mask = DW_IC_INTR_STOP_DET | DW_IC_INTR_TX_ABRT;
+ 	if (dev->status & STATUS_WRITE_IN_PROGRESS)
+ 		intr_mask |= DW_IC_INTR_TX_EMPTY;
+-	writew(intr_mask, dev->base + DW_IC_INTR_MASK);
++	writel(intr_mask, dev->base + DW_IC_INTR_MASK);
+ }
+ 
+ /*
+@@ -446,19 +446,19 @@ static void dw_i2c_pump_msg(unsigned long data)
+ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ {
+ 	struct dw_i2c_dev *dev = dev_id;
+-	u16 stat;
++	u32 stat;
+ 
+-	stat = readw(dev->base + DW_IC_INTR_STAT);
++	stat = readl(dev->base + DW_IC_INTR_STAT);
+ 	dev_dbg(dev->dev, "%s: stat=0x%x\n", __func__, stat);
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+-		dev->abort_source = readw(dev->base + DW_IC_TX_ABRT_SOURCE);
++		dev->abort_source = readl(dev->base + DW_IC_TX_ABRT_SOURCE);
+ 		dev->cmd_err |= DW_IC_ERR_TX_ABRT;
+ 		dev->status = STATUS_IDLE;
+ 	} else if (stat & DW_IC_INTR_TX_EMPTY)
+ 		tasklet_schedule(&dev->pump_msg);
+ 
+-	readb(dev->base + DW_IC_CLR_INTR);	/* clear interrupts */
+-	writew(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
++	readl(dev->base + DW_IC_CLR_INTR);	/* clear interrupts */
++	writel(0, dev->base + DW_IC_INTR_MASK);	/* disable interrupts */
+ 	if (stat & (DW_IC_INTR_TX_ABRT | DW_IC_INTR_STOP_DET))
+ 		complete(&dev->cmd_complete);
+ 
+@@ -531,7 +531,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	}
+ 	i2c_dw_init(dev);
+ 
+-	writew(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
++	writel(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
+ 	r = request_irq(dev->irq, i2c_dw_isr, 0, pdev->name, dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+@@ -587,7 +587,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	clk_put(dev->clk);
+ 	dev->clk = NULL;
+ 
+-	writeb(0, dev->base + DW_IC_ENABLE);
++	writel(0, dev->base + DW_IC_ENABLE);
+ 	free_irq(dev->irq, dev);
+ 	kfree(dev);
+ 
 -- 
-Shinya Kuribayashi
-NEC Electronics
+1.6.5.2
