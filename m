@@ -1,28 +1,40 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] TSL2550: extended mode bugfix
-Date: Mon, 9 Nov 2009 17:33:25 +0100
-Message-ID: <20091109173325.04f28a35@hyperion.delvare>
-References: <4A79A055.1010602@valueteam.com>
-	<20090805171452.592a2bbd@hyperion.delvare>
-	<4A79AAF5.9000702@valueteam.com>
+From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V1 1/3] i2c: imx: check busy bit when START/STOP
+Date: Tue, 10 Nov 2009 10:55:43 +0800
+Message-ID: <4e090d470911091855s3ba15a8cp715b48df8a1c1431@mail.gmail.com>
+References: <1255772784-11387-1-git-send-email-linuxzsc@gmail.com>
+	 <20091030004025.GG13398@fluff.org.uk>
+	 <4e090d470910301947y2cd4e95x88f500c6c008d97d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A79AAF5.9000702-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
+In-Reply-To: <4e090d470910301947y2cd4e95x88f500c6c008d97d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michele,
+On Sat, Oct 31, 2009 at 10:47 AM, Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wro=
+te:
+> On Fri, Oct 30, 2009 at 8:40 AM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrot=
+e:
+>> Does anyone have any comments on these, or shall I look at merging
+>> them as fixes?
+>>
+>> --
+>> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>>
+>> =A0'a smiley only costs 4 bytes'
+>>
+>
+> Thanks, Ben! I've test these patch on imx31 pdk and imx51 pdk.
+>
+> =A0Richard
+>
+Hi Guys,
 
-On Wed, 05 Aug 2009 17:53:25 +0200, Michele De Candia (VT) wrote:
-> Hi Jean,
-> in attachment you can find the patch with your suggestions applied.
+May I know what the series of patch is pending on?
 
-It seems this fix somehow felt through the cracks. Sorry about that,
-I'm applying it now.
-
--- 
-Jean Delvare
+Thanks
+Richard
