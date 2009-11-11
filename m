@@ -1,18 +1,18 @@
 From: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Subject: RE: Welcome to linux-i2c
-Date: Wed, 11 Nov 2009 00:38:41 +0100
-Message-ID: <083DF309106F364B939360100EC290F804F53436FA@eu1rdcrdc1wx030.exi.nxp.com>
-References: <S1758607AbZKJWs3/20091110224829Z+49@vger.kernel.org>
+Subject: i2c-pnx driver issues
+Date: Wed, 11 Nov 2009 01:21:45 +0100
+Message-ID: <083DF309106F364B939360100EC290F804F5343706@eu1rdcrdc1wx030.exi.nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <S1758607AbZKJWs3/20091110224829Z+49-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: "vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
+
+Sorry - I've resent with a more meaningful subject (than 'welcome')!
 
 Hi, 
 
@@ -93,3 +93,8 @@ diff -Naur -X linux-2.6.32-rc6-ref/Documentation/dontdiff linux-2.6.32-rc6-ref/i
 thanks,
 Kevin Wells
 NXP Semiconductors
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
