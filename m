@@ -1,79 +1,31 @@
-From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 21/22] i2c-designware: Tx abort cleanups
-Date: Thu, 12 Nov 2009 13:29:46 +0900
-Message-ID: <4AFB8F3A.6060208@necel.com>
-References: <4AF419B6.1000802@necel.com> <4AF41BED.1050406@necel.com>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: i2c-pnx driver issues
+Date: Thu, 12 Nov 2009 09:34:38 +0000
+Message-ID: <20091112093438.GL13398@fluff.org.uk>
+References: <083DF309106F364B939360100EC290F804F5343706@eu1rdcrdc1wx030.exi.nxp.com>
+ <20091111212152.GK13398@fluff.org.uk>
+ <083DF309106F364B939360100EC290F804F53CC645@eu1rdcrdc1wx030.exi.nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4AF41BED.1050406-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <083DF309106F364B939360100EC290F804F53CC645-SIPbe8o7cfX8DdpCu65jn8FrZmdRls4ZQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Baruch,
-
-Shinya Kuribayashi wrote:
-> * ABRT_MASTER_DIS: Fix a typo.
+On Thu, Nov 12, 2009 at 12:37:36AM +0100, Kevin Wells wrote:
 > 
-> * i2c_dw_handle_tx_abort: Return an appropriate error number
->   depending on abort_source.
+> Thanks Ben,
 > 
-> * i2c_dw_xfer: Add a missing abort_source initialization.
-> 
-> Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+> I've submitted the changes as 4 individual patches. We also have some
+> other enhancements for this driver coming up soon, but these 4 patches
+> fix critical issues in the current pnx driver.
 
-[ ... ]
-
-> @@ -472,6 +490,24 @@ i2c_dw_read(struct dw_i2c_dev *dev)
->  	}
->  }
->  
-> +static int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
-> +{
-> +	unsigned long abort_source = dev->abort_source;
-> +	int i;
-> +
-> +	for_each_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
-> +		dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
-
-Dev_err() might be annoying when we use sort of misc utilities
-such as i2c-tools.  In case of no ACKs, we sometimes don't want
-to see error messages in the console, because such tools are
-sometimes capable of generating human-friendly console output
-like,
-
- root@localhost:/root> i2cdetect -y -r 2
-      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
- 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
- 10: -- -- -- -- -- -- -- -- ...
-
- root@localhost:/root> i2cdump -y 0 0x49 b
-      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
- 00: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
- 10: XX XX XX XX XX XX  ....
-
-Then how do I change dev_err() here?  I'm not sure dev_dbg() or
-other variants are acceptable for no ACKs or arbitration cases.
-Could someone give me a comment?  I'll prepare patches for it.
-
-Thanks in advance,
-
-> +	if (abort_source & DW_IC_TX_ARB_LOST)
-> +		return -EAGAIN;
-> +	else if (abort_source & DW_IC_TX_ABRT_NOACK)
-> +		return -EREMOTEIO;
-> +	else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
-> +		return -EINVAL; /* wrong msgs[] data */
-> +	else
-> +		return -EIO;
-> +}
-> +
->  /*
->   * Prepare controller for a transaction and call i2c_dw_xfer_msg
->   */
+ok, will look at applying them and pushing before the weekend
 
 -- 
-Shinya Kuribayashi
-NEC Electronics
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
