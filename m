@@ -1,95 +1,64 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v2 21/22] i2c-designware: Tx abort cleanups
-Date: Sat, 14 Nov 2009 22:22:49 +0000
-Message-ID: <20091114222249.GM13398@fluff.org.uk>
-References: <4AF419B6.1000802@necel.com>
- <4AF41BED.1050406@necel.com>
- <4AFB8F3A.6060208@necel.com>
+From: =?windows-1256?Q?=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA?=
+	 =?windows-1256?Q?_=C7=E1=ED=C7=E4=D5=ED=C8?=
+	<ms.claims01-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
+Subject: =?windows-1256?Q?=DA=D2=ED=D2=CA=ED_=C7=E1=DD=C7=C6=D2?=
+Date: Sun, 15 Nov 2009 17:21:21 -0300
+Message-ID: <web-21330621__25300.4545499154$1258316525$gmane$org@be1.vtr.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1256;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4AFB8F3A.6060208-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Cc: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 12, 2009 at 01:29:46PM +0900, Shinya Kuribayashi wrote:
-> Baruch,
-> 
-> Shinya Kuribayashi wrote:
-> >* ABRT_MASTER_DIS: Fix a typo.
-> >
-> >* i2c_dw_handle_tx_abort: Return an appropriate error number
-> >  depending on abort_source.
-> >
-> >* i2c_dw_xfer: Add a missing abort_source initialization.
-> >
-> >Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-> 
-> [ ... ]
-> 
-> >@@ -472,6 +490,24 @@ i2c_dw_read(struct dw_i2c_dev *dev)
-> > 	}
-> > }
-> >+static int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
-> >+{
-> >+	unsigned long abort_source = dev->abort_source;
-> >+	int i;
-> >+
-> >+	for_each_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
-> >+		dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
-> 
-> Dev_err() might be annoying when we use sort of misc utilities
-> such as i2c-tools.  In case of no ACKs, we sometimes don't want
-> to see error messages in the console, because such tools are
-> sometimes capable of generating human-friendly console output
-> like,
-> 
-> root@localhost:/root> i2cdetect -y -r 2
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- ...
-> 
-> root@localhost:/root> i2cdump -y 0 0x49 b
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-> 00: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
-> 10: XX XX XX XX XX XX  ....
-> 
-> Then how do I change dev_err() here?  I'm not sure dev_dbg() or
-> other variants are acceptable for no ACKs or arbitration cases.
-> Could someone give me a comment?  I'll prepare patches for it.
+=DA=D2=ED=D2=CA=ED =C7=E1=DD=C7=C6=D2
 
-Maybe in the case of no-ack, this could be a debug message and erro
-for the case where you have an arbitration problem or other error that
-you wouldn't normally find on an I2C bus?
- 
-> Thanks in advance,
-> 
-> >+	if (abort_source & DW_IC_TX_ARB_LOST)
-> >+		return -EAGAIN;
-> >+	else if (abort_source & DW_IC_TX_ABRT_NOACK)
-> >+		return -EREMOTEIO;
-> >+	else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
-> >+		return -EINVAL; /* wrong msgs[] data */
-> >+	else
-> >+		return -EIO;
-> >+}
-> >+
-> > /*
-> >  * Prepare controller for a transaction and call i2c_dw_xfer_msg
-> >  */
-> 
-> -- 
-> Shinya Kuribayashi
-> NEC Electronics
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+=E5=D0=C7 =E5=E6 =C3=E4 =C3=C8=E1=DB=DF=E3 =C3=E4 =C7=E1=C8=D1=ED=CF =C7=
+=E1=C5=E1=DF=CA=D1=E6=E4=ED =C7=E1=CE=C7=D5 =C8=DF =DE=CF =CD=D5=E1 =DA=
+=E1=EC =CC=C7=C6=D2=C9 =E3=E4 =E1=E3=D4=C7=E6=D1=C9
+=E6=D4=D1=DF=C9 =E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =C7=E1=C8=D1=ED=CF =C7=E1=
+=C5=E1=DF=CA=D1=E6=E4=ED =E4=E5=C7=ED=C9 =C7=E1=DA=C7=E3 =ED=E6=CC=E5 =C7=
+=E1=D8=DD=D1=C9 =C7=E1=CA=ED =DA=DE=CF=CA 10th =E3=E4=20
+=E4=E6=DD=E3=C8=D1 2009. =E3=E1=DF=DF
+=C7=E1=C8=D1=ED=CF =C7=E1=C5=E1=DF=CA=D1=E6=E4=ED =DE=CF =DD=C7=D2 =DF=E4=
+=CA =A3 500=A1000.00 (=CE=E3=D3=E3=C7=C6=C9 =C3=E1=DD =CC=E4=ED=E5 =C8=D1=
+=ED=D8=C7=E4=ED =C7=E1=DA=D9=E3=EC)
+=E1=E1=CD=D5=E6=E1 =DA=E1=EC =CC=C7=C6=D2=CA=DF =A1 =ED=D1=CC=EC =C7=E1=
+=C7=CA=D5=C7=E1 =C8=DF =E6=DF=ED=E1 =E3=DA=E5=CF =DB=E6=CF=C7=D1=CF =E3=
+=E4=D9=E6=E3=C9 =C7=E1=C7=C6=CA=E3=C7=E4=ED=C9 =C7=E1=D3=ED=CF=20
+=C8=ED=CA=D1=D3=E6=E4 =E6=C7=E1=C7=CA=D5=C7=E1
+=E3=DA=E5 =DA=C8=D1 =C7=E1=C8=D1=ED=CF =C7=E1=C5=E1=DF=CA=D1=E6=E4=ED =DA=
+=E1=EC =C7=E1=DD=E6=D1 =CF=C7=CE=E1 24hrs.
 
--- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+=E3=DA =C7=E1=E3=DA=E1=E6=E3=C7=CA =C7=E1=E6=C7=D1=CF=C9 =C3=CF=E4=C7=E5=
+=2E
 
-  'a smiley only costs 4 bytes'
+=E3=DA=E5=CF =DB=E6=CF=C7=D1=CF =E3=E4=D9=E6=E3=C9 =C7=E1=D3=ED=CF =C8=ED=
+=CA=D1=D3=E6=E4
+=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =CA=DA=D2=ED=D2 =CC=C7=C6=D2=C9 =DD=D1=ED=
+=DE
+=D1=C6=ED=D3 =DE=D3=E3 =C7=E1=E3=D8=C7=E1=C8=C7=CA =C7=E1=DD=E6=D2
+=C7=E1=C8=D1=ED=CF =C7=E1=C7=E1=DF=CA=D1=E6=E4=ED : ms.claims01@yahoo.c=
+om.hk
+
+1.Full =C7=E1=C7=D3=E3 :..............
+2.Occupation :..............
+3.Age :..............
+4.Sex :................
+5.Nationality :...........
+6.Tel :..............
+7.Amount =E6=E6=E4 :.........................
+
+=CE=C7=E1=D5 =C7=E1=D4=DF=D1 =E6=C7=E1=C7=E3=CA=E4=C7=E4 =E1=C8=ED=E1 =DB=
+=ED=CA=D3 =E6=E1=E5 associates.We
+=C3=CA=E3=E4=EC =E1=DF=E3 =C3=DD=D6=E1 =E3=E4 luck.Thank =E1=DF =E1=DF=E6=
+=E4=E5 =CC=D2=C1=C7 =E3=E4 =CD=ED=C7=CA=E4=C7 =E4=E5=C7=ED=C9 =C7=E1=DA=
+=C7=E3 =C7=E1=CA=D1=E6=ED=CC=ED=C9
+=CC=C7=C6=D2=C9 =C8=D1=E4=C7=E3=CC =E6=CA=E6=CC=E5 =C7=E1=D0=DF=D1=EC =C7=
+=E1=CA=D0=DF=C7=D1=ED=C9.
+
+=C8=D5=CF=DE =A1
+Dr.Gary =D3=CA=E6=DD=D1
+=D1=C6=ED=D3 =CF=C7=C6=D1=C9 =CE=CF=E3=C9 =C7=E1=DA=E3=E1=C7=C1
+=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =CA=DA=D2=ED=D2
