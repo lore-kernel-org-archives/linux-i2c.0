@@ -1,64 +1,321 @@
-From: =?windows-1256?Q?=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA?=
-	 =?windows-1256?Q?_=C7=E1=ED=C7=E4=D5=ED=C8?=
-	<ms.claims01-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
-Subject: =?windows-1256?Q?=DA=D2=ED=D2=CA=ED_=C7=E1=DD=C7=C6=D2?=
-Date: Sun, 15 Nov 2009 17:21:21 -0300
-Message-ID: <web-21330621__25300.4545499154$1258316525$gmane$org@be1.vtr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1256;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 07/12] i2cdev: move compat_ioctl handling into driver
+Date: Mon, 16 Nov 2009 00:27:02 +0000
+Message-ID: <1258331227-1694-8-git-send-email-arnd@arndb.de>
+References: <1258331227-1694-1-git-send-email-arnd@arndb.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753430AbZKPA2O@vger.kernel.org>
+In-Reply-To: <1258331227-1694-1-git-send-email-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-=DA=D2=ED=D2=CA=ED =C7=E1=DD=C7=C6=D2
+Doing all the compat_ioctl handling in the i2c driver itself
+removes special cases from fs/compat_ioctl.c and makes it possible
+to optimize this case better.
 
-=E5=D0=C7 =E5=E6 =C3=E4 =C3=C8=E1=DB=DF=E3 =C3=E4 =C7=E1=C8=D1=ED=CF =C7=
-=E1=C5=E1=DF=CA=D1=E6=E4=ED =C7=E1=CE=C7=D5 =C8=DF =DE=CF =CD=D5=E1 =DA=
-=E1=EC =CC=C7=C6=D2=C9 =E3=E4 =E1=E3=D4=C7=E6=D1=C9
-=E6=D4=D1=DF=C9 =E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =C7=E1=C8=D1=ED=CF =C7=E1=
-=C5=E1=DF=CA=D1=E6=E4=ED =E4=E5=C7=ED=C9 =C7=E1=DA=C7=E3 =ED=E6=CC=E5 =C7=
-=E1=D8=DD=D1=C9 =C7=E1=CA=ED =DA=DE=CF=CA 10th =E3=E4=20
-=E4=E6=DD=E3=C8=D1 2009. =E3=E1=DF=DF
-=C7=E1=C8=D1=ED=CF =C7=E1=C5=E1=DF=CA=D1=E6=E4=ED =DE=CF =DD=C7=D2 =DF=E4=
-=CA =A3 500=A1000.00 (=CE=E3=D3=E3=C7=C6=C9 =C3=E1=DD =CC=E4=ED=E5 =C8=D1=
-=ED=D8=C7=E4=ED =C7=E1=DA=D9=E3=EC)
-=E1=E1=CD=D5=E6=E1 =DA=E1=EC =CC=C7=C6=D2=CA=DF =A1 =ED=D1=CC=EC =C7=E1=
-=C7=CA=D5=C7=E1 =C8=DF =E6=DF=ED=E1 =E3=DA=E5=CF =DB=E6=CF=C7=D1=CF =E3=
-=E4=D9=E6=E3=C9 =C7=E1=C7=C6=CA=E3=C7=E4=ED=C9 =C7=E1=D3=ED=CF=20
-=C8=ED=CA=D1=D3=E6=E4 =E6=C7=E1=C7=CA=D5=C7=E1
-=E3=DA=E5 =DA=C8=D1 =C7=E1=C8=D1=ED=CF =C7=E1=C5=E1=DF=CA=D1=E6=E4=ED =DA=
-=E1=EC =C7=E1=DD=E6=D1 =CF=C7=CE=E1 24hrs.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
+Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org
+---
+ drivers/i2c/i2c-dev.c |  117 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/compat_ioctl.c     |  119 -------------------------------------------------
+ 2 files changed, 117 insertions(+), 119 deletions(-)
 
-=E3=DA =C7=E1=E3=DA=E1=E6=E3=C7=CA =C7=E1=E6=C7=D1=CF=C9 =C3=CF=E4=C7=E5=
-=2E
-
-=E3=DA=E5=CF =DB=E6=CF=C7=D1=CF =E3=E4=D9=E6=E3=C9 =C7=E1=D3=ED=CF =C8=ED=
-=CA=D1=D3=E6=E4
-=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =CA=DA=D2=ED=D2 =CC=C7=C6=D2=C9 =DD=D1=ED=
-=DE
-=D1=C6=ED=D3 =DE=D3=E3 =C7=E1=E3=D8=C7=E1=C8=C7=CA =C7=E1=DD=E6=D2
-=C7=E1=C8=D1=ED=CF =C7=E1=C7=E1=DF=CA=D1=E6=E4=ED : ms.claims01@yahoo.c=
-om.hk
-
-1.Full =C7=E1=C7=D3=E3 :..............
-2.Occupation :..............
-3.Age :..............
-4.Sex :................
-5.Nationality :...........
-6.Tel :..............
-7.Amount =E6=E6=E4 :.........................
-
-=CE=C7=E1=D5 =C7=E1=D4=DF=D1 =E6=C7=E1=C7=E3=CA=E4=C7=E4 =E1=C8=ED=E1 =DB=
-=ED=CA=D3 =E6=E1=E5 associates.We
-=C3=CA=E3=E4=EC =E1=DF=E3 =C3=DD=D6=E1 =E3=E4 luck.Thank =E1=DF =E1=DF=E6=
-=E4=E5 =CC=D2=C1=C7 =E3=E4 =CD=ED=C7=CA=E4=C7 =E4=E5=C7=ED=C9 =C7=E1=DA=
-=C7=E3 =C7=E1=CA=D1=E6=ED=CC=ED=C9
-=CC=C7=C6=D2=C9 =C8=D1=E4=C7=E3=CC =E6=CA=E6=CC=E5 =C7=E1=D0=DF=D1=EC =C7=
-=E1=CA=D0=DF=C7=D1=ED=C9.
-
-=C8=D5=CF=DE =A1
-Dr.Gary =D3=CA=E6=DD=D1
-=D1=C6=ED=D3 =CF=C7=C6=D1=C9 =CE=CF=E3=C9 =C7=E1=DA=E3=E1=C7=C1
-=E3=C7=ED=DF=D1=E6=D3=E6=DD=CA =CA=DA=D2=ED=D2
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 7e13d2d..fde0c9e 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -35,6 +35,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-dev.h>
+ #include <linux/smp_lock.h>
++#include <linux/compat.h>
+ #include <linux/jiffies.h>
+ #include <asm/uaccess.h>
+ 
+@@ -439,6 +440,119 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_COMPAT
++struct i2c_msg32 {
++	u16 addr;
++	u16 flags;
++	u16 len;
++	compat_caddr_t buf;
++};
++
++struct i2c_rdwr_ioctl_data32 {
++	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
++	u32 nmsgs;
++};
++
++struct i2c_smbus_ioctl_data32 {
++	u8 read_write;
++	u8 command;
++	u32 size;
++	compat_caddr_t data; /* union i2c_smbus_data *data */
++};
++
++struct i2c_rdwr_aligned {
++	struct i2c_rdwr_ioctl_data cmd;
++	struct i2c_msg msgs[0];
++};
++
++static int compat_i2c_rdwr_ioctl(struct file *filp, unsigned int cmd,
++			struct i2c_rdwr_ioctl_data32    __user *udata)
++{
++	struct i2c_rdwr_aligned		__user *tdata;
++	struct i2c_msg			__user *tmsgs;
++	struct i2c_msg32		__user *umsgs;
++	compat_caddr_t			datap;
++	int				nmsgs, i;
++
++	if (get_user(nmsgs, &udata->nmsgs))
++		return -EFAULT;
++	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
++		return -EINVAL;
++
++	if (get_user(datap, &udata->msgs))
++		return -EFAULT;
++	umsgs = compat_ptr(datap);
++
++	tdata = compat_alloc_user_space(sizeof(*tdata) +
++				      nmsgs * sizeof(struct i2c_msg));
++	tmsgs = &tdata->msgs[0];
++
++	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
++	    put_user(tmsgs, &tdata->cmd.msgs))
++		return -EFAULT;
++
++	for (i = 0; i < nmsgs; i++) {
++		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
++			return -EFAULT;
++		if (get_user(datap, &umsgs[i].buf) ||
++		    put_user(compat_ptr(datap), &tmsgs[i].buf))
++			return -EFAULT;
++	}
++	return i2cdev_ioctl(filp, cmd, (unsigned long)tdata);
++}
++
++static int compat_i2c_smbus_ioctl(struct file *filp, unsigned int cmd,
++			struct i2c_smbus_ioctl_data32   __user *udata)
++{
++	struct i2c_smbus_ioctl_data	__user *tdata;
++	compat_caddr_t			datap;
++
++	tdata = compat_alloc_user_space(sizeof(*tdata));
++	if (tdata == NULL)
++		return -ENOMEM;
++	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
++		return -EFAULT;
++
++	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
++		return -EFAULT;
++
++	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
++		return -EFAULT;
++	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
++		return -EFAULT;
++	if (__get_user(datap, &udata->data) ||
++	    __put_user(compat_ptr(datap), &tdata->data))
++		return -EFAULT;
++
++	return i2cdev_ioctl(filp, cmd, (unsigned long)tdata);
++}
++
++static int compat_i2c_funcs(struct file *filp, unsigned int cmd,
++			compat_ulong_t __user *argp)
++{
++	struct i2c_client *client = filp->private_data;
++	compat_ulong_t funcs;
++	funcs = i2c_get_functionality(client->adapter);
++	return put_user(funcs, argp);
++}
++
++static long i2cdev_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
++{
++	void __user *argp = compat_ptr(arg);
++
++	switch (cmd) {
++	case I2C_FUNCS:
++		return compat_i2c_funcs(filp, cmd, argp);
++	case I2C_RDWR:
++		return compat_i2c_rdwr_ioctl(filp, cmd, argp);
++	case I2C_SMBUS:
++		return compat_i2c_smbus_ioctl(filp, cmd, argp);
++	}
++
++	return i2cdev_ioctl(filp, cmd, arg);
++}
++#endif /* CONFIG_COMPAT */
++
+ static int i2cdev_open(struct inode *inode, struct file *file)
+ {
+ 	unsigned int minor = iminor(inode);
+@@ -501,6 +615,9 @@ static const struct file_operations i2cdev_fops = {
+ 	.read		= i2cdev_read,
+ 	.write		= i2cdev_write,
+ 	.unlocked_ioctl	= i2cdev_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= i2cdev_compat_ioctl,
++#endif
+ 	.open		= i2cdev_open,
+ 	.release	= i2cdev_release,
+ };
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index a762fb1..b419459 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -117,21 +117,6 @@
+ #include <asm/fbio.h>
+ #endif
+ 
+-static int w_long(unsigned int fd, unsigned int cmd,
+-		compat_ulong_t __user *argp)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	int err;
+-	unsigned long val;
+-
+-	set_fs (KERNEL_DS);
+-	err = sys_ioctl(fd, cmd, (unsigned long)&val);
+-	set_fs (old_fs);
+-	if (!err && put_user(val, argp))
+-		return -EFAULT;
+-	return err;
+-}
+-
+ struct compat_video_event {
+ 	int32_t		type;
+ 	compat_time_t	timestamp;
+@@ -691,96 +676,6 @@ static int do_usbdevfs_discsignal(unsigned int fd, unsigned int cmd,
+         return err;
+ }
+ 
+-/*
+- * I2C layer ioctls
+- */
+-
+-struct i2c_msg32 {
+-	u16 addr;
+-	u16 flags;
+-	u16 len;
+-	compat_caddr_t buf;
+-};
+-
+-struct i2c_rdwr_ioctl_data32 {
+-	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
+-	u32 nmsgs;
+-};
+-
+-struct i2c_smbus_ioctl_data32 {
+-	u8 read_write;
+-	u8 command;
+-	u32 size;
+-	compat_caddr_t data; /* union i2c_smbus_data *data */
+-};
+-
+-struct i2c_rdwr_aligned {
+-	struct i2c_rdwr_ioctl_data cmd;
+-	struct i2c_msg msgs[0];
+-};
+-
+-static int do_i2c_rdwr_ioctl(unsigned int fd, unsigned int cmd,
+-			struct i2c_rdwr_ioctl_data32    __user *udata)
+-{
+-	struct i2c_rdwr_aligned		__user *tdata;
+-	struct i2c_msg			__user *tmsgs;
+-	struct i2c_msg32		__user *umsgs;
+-	compat_caddr_t			datap;
+-	int				nmsgs, i;
+-
+-	if (get_user(nmsgs, &udata->nmsgs))
+-		return -EFAULT;
+-	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
+-		return -EINVAL;
+-
+-	if (get_user(datap, &udata->msgs))
+-		return -EFAULT;
+-	umsgs = compat_ptr(datap);
+-
+-	tdata = compat_alloc_user_space(sizeof(*tdata) +
+-				      nmsgs * sizeof(struct i2c_msg));
+-	tmsgs = &tdata->msgs[0];
+-
+-	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
+-	    put_user(tmsgs, &tdata->cmd.msgs))
+-		return -EFAULT;
+-
+-	for (i = 0; i < nmsgs; i++) {
+-		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
+-			return -EFAULT;
+-		if (get_user(datap, &umsgs[i].buf) ||
+-		    put_user(compat_ptr(datap), &tmsgs[i].buf))
+-			return -EFAULT;
+-	}
+-	return sys_ioctl(fd, cmd, (unsigned long)tdata);
+-}
+-
+-static int do_i2c_smbus_ioctl(unsigned int fd, unsigned int cmd,
+-			struct i2c_smbus_ioctl_data32   __user *udata)
+-{
+-	struct i2c_smbus_ioctl_data	__user *tdata;
+-	compat_caddr_t			datap;
+-
+-	tdata = compat_alloc_user_space(sizeof(*tdata));
+-	if (tdata == NULL)
+-		return -ENOMEM;
+-	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
+-		return -EFAULT;
+-
+-	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
+-		return -EFAULT;
+-
+-	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
+-		return -EFAULT;
+-	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
+-		return -EFAULT;
+-	if (__get_user(datap, &udata->data) ||
+-	    __put_user(compat_ptr(datap), &tdata->data))
+-		return -EFAULT;
+-
+-	return sys_ioctl(fd, cmd, (unsigned long)tdata);
+-}
+-
+ #define RTC_IRQP_READ32		_IOR('p', 0x0b, compat_ulong_t)
+ #define RTC_IRQP_SET32		_IOW('p', 0x0c, compat_ulong_t)
+ #define RTC_EPOCH_READ32	_IOR('p', 0x0d, compat_ulong_t)
+@@ -1341,13 +1236,6 @@ COMPATIBLE_IOCTL(USBDEVFS_SUBMITURB32)
+ COMPATIBLE_IOCTL(USBDEVFS_REAPURB32)
+ COMPATIBLE_IOCTL(USBDEVFS_REAPURBNDELAY32)
+ COMPATIBLE_IOCTL(USBDEVFS_CLEAR_HALT)
+-/* i2c */
+-COMPATIBLE_IOCTL(I2C_SLAVE)
+-COMPATIBLE_IOCTL(I2C_SLAVE_FORCE)
+-COMPATIBLE_IOCTL(I2C_TENBIT)
+-COMPATIBLE_IOCTL(I2C_PEC)
+-COMPATIBLE_IOCTL(I2C_RETRIES)
+-COMPATIBLE_IOCTL(I2C_TIMEOUT)
+ /* hiddev */
+ COMPATIBLE_IOCTL(HIDIOCGVERSION)
+ COMPATIBLE_IOCTL(HIDIOCAPPLICATION)
+@@ -1533,13 +1421,6 @@ static long do_ioctl_trans(int fd, unsigned int cmd,
+ 		return do_usbdevfs_bulk(fd, cmd, argp);
+ 	case USBDEVFS_DISCSIGNAL32:
+ 		return do_usbdevfs_discsignal(fd, cmd, argp);
+-	/* i2c */
+-	case I2C_FUNCS:
+-		return w_long(fd, cmd, argp);
+-	case I2C_RDWR:
+-		return do_i2c_rdwr_ioctl(fd, cmd, argp);
+-	case I2C_SMBUS:
+-		return do_i2c_smbus_ioctl(fd, cmd, argp);
+ 	/* Not implemented in the native kernel */
+ 	case RTC_IRQP_READ32:
+ 	case RTC_IRQP_SET32:
+-- 
+1.6.3.3
