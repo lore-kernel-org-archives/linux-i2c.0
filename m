@@ -1,321 +1,121 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 07/12] i2cdev: move compat_ioctl handling into driver
-Date: Mon, 16 Nov 2009 00:27:02 +0000
-Message-ID: <1258331227-1694-8-git-send-email-arnd@arndb.de>
-References: <1258331227-1694-1-git-send-email-arnd@arndb.de>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753430AbZKPA2O@vger.kernel.org>
-In-Reply-To: <1258331227-1694-1-git-send-email-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [uml-user] [PATCH 00/12] move compat_ioctl handling into drivers
+Date: Mon, 16 Nov 2009 00:26:55 +0000
+Message-ID: <1258331227-1694-1-git-send-email-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <user-mode-linux-user-bounces@lists.sourceforge.net>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/user-mode-linux-user>,
+	<mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=user-mode-linux-user>
+List-Post: <mailto:user-mode-linux-user@lists.sourceforge.net>
+List-Help: <mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/user-mode-linux-user>,
+	<mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=subscribe>
+Errors-To: user-mode-linux-user-bounces@lists.sourceforge.net
 To: linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
+Cc: linux-usb@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net, Neil Brown <neilb@suse.de>, "H. Peter Anvin" <hpa@zytor.com>, Paul Clements <Paul.Clements@steeleye.com>, Andre Noll <maan@systemlinux.org>, Pavel Machek <pavel@suse.cz>, linux-i2c@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>, Jan Blunck <jblunck@suse.de>, Ian Kent <raven@themaw.net>, Nick Piggin <npiggin@suse.de>, user-mode-linux-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, Alon Bar-Lev <alon.barlev@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Doug Gilbert <dgilbert@interlog.com>, David Vrabel <david.vrabel@csr.com>, Alexey Dobriyan <adobriyan@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Jeff Dike <jdike@addtoit.com>, Oliver Neukum <oliver@neukum.org>, linux-raid@vger.kernel.org, Tejun
 List-Id: linux-i2c@vger.kernel.org
 
-Doing all the compat_ioctl handling in the i2c driver itself
-removes special cases from fs/compat_ioctl.c and makes it possible
-to optimize this case better.
+This is the second series of patches on compat_ioctl handling,
+moving compat handlers into more drivers. Most of these
+patches consist on a part that adds a compat_ioctl method
+in one driver and another part removing the respective
+section from fs/compat_ioctl.c. The fs/compat_ioctl.c
+portion depends on other patches[1], but the driver code can
+be applied independently.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
+If some of you feel responsible for the code I patched, please
+look at my changes and if they are ok, either take them into
+your tree or give me an Acked-by for them.
+
+I have tested the patches for sg, usbdevfs and autofs, which
+was easily done in qemu, but I'm lacking test cases for
+most of the other ones.
+
+	Arnd <><
+
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Andre Noll <maan@systemlinux.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: autofs@linux.kernel.org
 Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
-Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: David Vrabel <david.vrabel@csr.com>
+Cc: Doug Gilbert <dgilbert@interlog.com>
+Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Ian Kent <raven@themaw.net>
+Cc: James E.J. Bottomley <James.Bottomley@suse.de>
+Cc: Jan Blunck <jblunck@suse.de>
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Jens Axboe <jens.axboe@oracle.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>
+Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
 Cc: linux-i2c@vger.kernel.org
----
- drivers/i2c/i2c-dev.c |  117 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/compat_ioctl.c     |  119 -------------------------------------------------
- 2 files changed, 117 insertions(+), 119 deletions(-)
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-raid@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Neil Brown <neilb@suse.de>
+Cc: Nick Piggin <npiggin@suse.de>
+Cc: Oliver Neukum <oliver@neukum.org>
+Cc: Paul Clements <Paul.Clements@steeleye.com>
+Cc: Pavel Machek <pavel@suse.cz>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: user-mode-linux-devel@lists.sourceforge.net
+Cc: user-mode-linux-user@lists.sourceforge.net
+Cc: Wolfram Sang <w.sang@pengutronix.de>
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 7e13d2d..fde0c9e 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -35,6 +35,7 @@
- #include <linux/i2c.h>
- #include <linux/i2c-dev.h>
- #include <linux/smp_lock.h>
-+#include <linux/compat.h>
- #include <linux/jiffies.h>
- #include <asm/uaccess.h>
- 
-@@ -439,6 +440,119 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	return 0;
- }
- 
-+#ifdef CONFIG_COMPAT
-+struct i2c_msg32 {
-+	u16 addr;
-+	u16 flags;
-+	u16 len;
-+	compat_caddr_t buf;
-+};
-+
-+struct i2c_rdwr_ioctl_data32 {
-+	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
-+	u32 nmsgs;
-+};
-+
-+struct i2c_smbus_ioctl_data32 {
-+	u8 read_write;
-+	u8 command;
-+	u32 size;
-+	compat_caddr_t data; /* union i2c_smbus_data *data */
-+};
-+
-+struct i2c_rdwr_aligned {
-+	struct i2c_rdwr_ioctl_data cmd;
-+	struct i2c_msg msgs[0];
-+};
-+
-+static int compat_i2c_rdwr_ioctl(struct file *filp, unsigned int cmd,
-+			struct i2c_rdwr_ioctl_data32    __user *udata)
-+{
-+	struct i2c_rdwr_aligned		__user *tdata;
-+	struct i2c_msg			__user *tmsgs;
-+	struct i2c_msg32		__user *umsgs;
-+	compat_caddr_t			datap;
-+	int				nmsgs, i;
-+
-+	if (get_user(nmsgs, &udata->nmsgs))
-+		return -EFAULT;
-+	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
-+		return -EINVAL;
-+
-+	if (get_user(datap, &udata->msgs))
-+		return -EFAULT;
-+	umsgs = compat_ptr(datap);
-+
-+	tdata = compat_alloc_user_space(sizeof(*tdata) +
-+				      nmsgs * sizeof(struct i2c_msg));
-+	tmsgs = &tdata->msgs[0];
-+
-+	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
-+	    put_user(tmsgs, &tdata->cmd.msgs))
-+		return -EFAULT;
-+
-+	for (i = 0; i < nmsgs; i++) {
-+		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
-+			return -EFAULT;
-+		if (get_user(datap, &umsgs[i].buf) ||
-+		    put_user(compat_ptr(datap), &tmsgs[i].buf))
-+			return -EFAULT;
-+	}
-+	return i2cdev_ioctl(filp, cmd, (unsigned long)tdata);
-+}
-+
-+static int compat_i2c_smbus_ioctl(struct file *filp, unsigned int cmd,
-+			struct i2c_smbus_ioctl_data32   __user *udata)
-+{
-+	struct i2c_smbus_ioctl_data	__user *tdata;
-+	compat_caddr_t			datap;
-+
-+	tdata = compat_alloc_user_space(sizeof(*tdata));
-+	if (tdata == NULL)
-+		return -ENOMEM;
-+	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
-+		return -EFAULT;
-+
-+	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
-+		return -EFAULT;
-+
-+	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
-+		return -EFAULT;
-+	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
-+		return -EFAULT;
-+	if (__get_user(datap, &udata->data) ||
-+	    __put_user(compat_ptr(datap), &tdata->data))
-+		return -EFAULT;
-+
-+	return i2cdev_ioctl(filp, cmd, (unsigned long)tdata);
-+}
-+
-+static int compat_i2c_funcs(struct file *filp, unsigned int cmd,
-+			compat_ulong_t __user *argp)
-+{
-+	struct i2c_client *client = filp->private_data;
-+	compat_ulong_t funcs;
-+	funcs = i2c_get_functionality(client->adapter);
-+	return put_user(funcs, argp);
-+}
-+
-+static long i2cdev_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
-+{
-+	void __user *argp = compat_ptr(arg);
-+
-+	switch (cmd) {
-+	case I2C_FUNCS:
-+		return compat_i2c_funcs(filp, cmd, argp);
-+	case I2C_RDWR:
-+		return compat_i2c_rdwr_ioctl(filp, cmd, argp);
-+	case I2C_SMBUS:
-+		return compat_i2c_smbus_ioctl(filp, cmd, argp);
-+	}
-+
-+	return i2cdev_ioctl(filp, cmd, arg);
-+}
-+#endif /* CONFIG_COMPAT */
-+
- static int i2cdev_open(struct inode *inode, struct file *file)
- {
- 	unsigned int minor = iminor(inode);
-@@ -501,6 +615,9 @@ static const struct file_operations i2cdev_fops = {
- 	.read		= i2cdev_read,
- 	.write		= i2cdev_write,
- 	.unlocked_ioctl	= i2cdev_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= i2cdev_compat_ioctl,
-+#endif
- 	.open		= i2cdev_open,
- 	.release	= i2cdev_release,
- };
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index a762fb1..b419459 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -117,21 +117,6 @@
- #include <asm/fbio.h>
- #endif
- 
--static int w_long(unsigned int fd, unsigned int cmd,
--		compat_ulong_t __user *argp)
--{
--	mm_segment_t old_fs = get_fs();
--	int err;
--	unsigned long val;
--
--	set_fs (KERNEL_DS);
--	err = sys_ioctl(fd, cmd, (unsigned long)&val);
--	set_fs (old_fs);
--	if (!err && put_user(val, argp))
--		return -EFAULT;
--	return err;
--}
--
- struct compat_video_event {
- 	int32_t		type;
- 	compat_time_t	timestamp;
-@@ -691,96 +676,6 @@ static int do_usbdevfs_discsignal(unsigned int fd, unsigned int cmd,
-         return err;
- }
- 
--/*
-- * I2C layer ioctls
-- */
--
--struct i2c_msg32 {
--	u16 addr;
--	u16 flags;
--	u16 len;
--	compat_caddr_t buf;
--};
--
--struct i2c_rdwr_ioctl_data32 {
--	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
--	u32 nmsgs;
--};
--
--struct i2c_smbus_ioctl_data32 {
--	u8 read_write;
--	u8 command;
--	u32 size;
--	compat_caddr_t data; /* union i2c_smbus_data *data */
--};
--
--struct i2c_rdwr_aligned {
--	struct i2c_rdwr_ioctl_data cmd;
--	struct i2c_msg msgs[0];
--};
--
--static int do_i2c_rdwr_ioctl(unsigned int fd, unsigned int cmd,
--			struct i2c_rdwr_ioctl_data32    __user *udata)
--{
--	struct i2c_rdwr_aligned		__user *tdata;
--	struct i2c_msg			__user *tmsgs;
--	struct i2c_msg32		__user *umsgs;
--	compat_caddr_t			datap;
--	int				nmsgs, i;
--
--	if (get_user(nmsgs, &udata->nmsgs))
--		return -EFAULT;
--	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
--		return -EINVAL;
--
--	if (get_user(datap, &udata->msgs))
--		return -EFAULT;
--	umsgs = compat_ptr(datap);
--
--	tdata = compat_alloc_user_space(sizeof(*tdata) +
--				      nmsgs * sizeof(struct i2c_msg));
--	tmsgs = &tdata->msgs[0];
--
--	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
--	    put_user(tmsgs, &tdata->cmd.msgs))
--		return -EFAULT;
--
--	for (i = 0; i < nmsgs; i++) {
--		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
--			return -EFAULT;
--		if (get_user(datap, &umsgs[i].buf) ||
--		    put_user(compat_ptr(datap), &tmsgs[i].buf))
--			return -EFAULT;
--	}
--	return sys_ioctl(fd, cmd, (unsigned long)tdata);
--}
--
--static int do_i2c_smbus_ioctl(unsigned int fd, unsigned int cmd,
--			struct i2c_smbus_ioctl_data32   __user *udata)
--{
--	struct i2c_smbus_ioctl_data	__user *tdata;
--	compat_caddr_t			datap;
--
--	tdata = compat_alloc_user_space(sizeof(*tdata));
--	if (tdata == NULL)
--		return -ENOMEM;
--	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
--		return -EFAULT;
--
--	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
--		return -EFAULT;
--
--	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
--		return -EFAULT;
--	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
--		return -EFAULT;
--	if (__get_user(datap, &udata->data) ||
--	    __put_user(compat_ptr(datap), &tdata->data))
--		return -EFAULT;
--
--	return sys_ioctl(fd, cmd, (unsigned long)tdata);
--}
--
- #define RTC_IRQP_READ32		_IOR('p', 0x0b, compat_ulong_t)
- #define RTC_IRQP_SET32		_IOW('p', 0x0c, compat_ulong_t)
- #define RTC_EPOCH_READ32	_IOR('p', 0x0d, compat_ulong_t)
-@@ -1341,13 +1236,6 @@ COMPATIBLE_IOCTL(USBDEVFS_SUBMITURB32)
- COMPATIBLE_IOCTL(USBDEVFS_REAPURB32)
- COMPATIBLE_IOCTL(USBDEVFS_REAPURBNDELAY32)
- COMPATIBLE_IOCTL(USBDEVFS_CLEAR_HALT)
--/* i2c */
--COMPATIBLE_IOCTL(I2C_SLAVE)
--COMPATIBLE_IOCTL(I2C_SLAVE_FORCE)
--COMPATIBLE_IOCTL(I2C_TENBIT)
--COMPATIBLE_IOCTL(I2C_PEC)
--COMPATIBLE_IOCTL(I2C_RETRIES)
--COMPATIBLE_IOCTL(I2C_TIMEOUT)
- /* hiddev */
- COMPATIBLE_IOCTL(HIDIOCGVERSION)
- COMPATIBLE_IOCTL(HIDIOCAPPLICATION)
-@@ -1533,13 +1421,6 @@ static long do_ioctl_trans(int fd, unsigned int cmd,
- 		return do_usbdevfs_bulk(fd, cmd, argp);
- 	case USBDEVFS_DISCSIGNAL32:
- 		return do_usbdevfs_discsignal(fd, cmd, argp);
--	/* i2c */
--	case I2C_FUNCS:
--		return w_long(fd, cmd, argp);
--	case I2C_RDWR:
--		return do_i2c_rdwr_ioctl(fd, cmd, argp);
--	case I2C_SMBUS:
--		return do_i2c_smbus_ioctl(fd, cmd, argp);
- 	/* Not implemented in the native kernel */
- 	case RTC_IRQP_READ32:
- 	case RTC_IRQP_SET32:
--- 
-1.6.3.3
+Arnd Bergmann (12):
+  arch/um: handle compat_ioctl in tty line driver
+  scsi/sg: move compat_ioctl handling into sg driver
+  autofs/autofs4: move compat_ioctl handling into fs
+  raw: partly fix compat_ioctl handling on non-x86
+  nbd: add compat_ioctl method
+  smbfs: do compat_ioctl handling in place
+  i2cdev: move compat_ioctl handling into driver
+  md: move compat_ioctl handling into md.c
+  lp: move compat_ioctl handling into lp.c
+  usbdevfs: move compat_ioctl handling to devio.c
+  hamradio/mkiss: fix typo in compat_ioctl
+  compat_ioctl: remove unused handlers
+
+ arch/um/drivers/line.c          |    6 +
+ arch/um/drivers/ssl.c           |    1 +
+ arch/um/drivers/stdio_console.c |    1 +
+ arch/um/include/shared/line.h   |    2 +
+ drivers/block/nbd.c             |    7 +-
+ drivers/char/lp.c               |  115 +++++++--
+ drivers/char/raw.c              |  157 ++++++++++---
+ drivers/i2c/i2c-dev.c           |  117 +++++++++
+ drivers/md/md.c                 |   23 ++
+ drivers/net/hamradio/mkiss.c    |    2 +-
+ drivers/scsi/sg.c               |  182 ++++++++++++++-
+ drivers/usb/core/devio.c        |  110 ++++++++-
+ fs/autofs/root.c                |   67 +++++-
+ fs/autofs4/root.c               |   69 +++++-
+ fs/compat_ioctl.c               |  504 +--------------------------------------
+ fs/smbfs/dir.c                  |    5 +-
+ fs/smbfs/file.c                 |    3 +-
+ fs/smbfs/ioctl.c                |   48 ++++-
+ fs/smbfs/proto.h                |    3 +-
+ include/linux/auto_fs.h         |    1 +
+ include/linux/usbdevice_fs.h    |   26 ++
+ kernel/trace/blktrace.c         |    1 +
+ 22 files changed, 856 insertions(+), 594 deletions(-)
+
+[1] http://patchwork.kernel.org/bundle/arnd/compat-ioctl-cleanup/?state=*
+
+------------------------------------------------------------------------------
+Let Crystal Reports handle the reporting - Free Crystal Reports 2008 30-Day 
+trial. Simplify your report design, integration and deployment - and focus on 
+what you do best, core application coding. Discover what's new with
+Crystal Reports now.  http://p.sf.net/sfu/bobj-july
