@@ -1,30 +1,46 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 4/4] i2c : Map I2C adapter number to platform ID number
-Date: Mon, 16 Nov 2009 10:03:46 +0000
-Message-ID: <20091116100346.GN13398@fluff.org.uk>
-References: <083DF309106F364B939360100EC290F804F5343706@eu1rdcrdc1wx030.exi.nxp.com>
- <20091111212152.GK13398@fluff.org.uk>
- <083DF309106F364B939360100EC290F804F53CC644@eu1rdcrdc1wx030.exi.nxp.com>
+From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 21/22] i2c-designware: Tx abort cleanups
+Date: Mon, 16 Nov 2009 20:27:47 +0900
+Message-ID: <4B013733.9010900@necel.com>
+References: <4AF419B6.1000802@necel.com> <4AF41BED.1050406@necel.com> <4AFB8F3A.6060208@necel.com> <20091114222249.GM13398@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <083DF309106F364B939360100EC290F804F53CC644-SIPbe8o7cfX8DdpCu65jn8FrZmdRls4ZQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <20091114222249.GM13398-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 12, 2009 at 12:34:17AM +0100, Kevin Wells wrote:
-> Map I2C adapter number to platform ID number
+Ben Dooks wrote:
+>>> +	for_each_bit(i, &abort_source, ARRAY_SIZE(abort_sources))
+>>> +		dev_err(dev->dev, "%s: %s\n", __func__, abort_sources[i]);
+>> Dev_err() might be annoying when we use sort of misc utilities
+>> such as i2c-tools.  In case of no ACKs, we sometimes don't want
+>> to see error messages in the console, because such tools are
+>> sometimes capable of generating human-friendly console output
+>> like,
+>>
+>> root@localhost:/root> i2cdetect -y -r 2
+>>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+>> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+>> 10: -- -- -- -- -- -- -- -- ...
+>>
+>> root@localhost:/root> i2cdump -y 0 0x49 b
+>>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+>> 00: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+>> 10: XX XX XX XX XX XX  ....
+>>
+>> Then how do I change dev_err() here?  I'm not sure dev_dbg() or
+>> other variants are acceptable for no ACKs or arbitration cases.
+>> Could someone give me a comment?  I'll prepare patches for it.
 > 
-> Signed-off-by: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+> Maybe in the case of no-ack, this could be a debug message and erro
+> for the case where you have an arbitration problem or other error that
+> you wouldn't normally find on an I2C bus?
 
-I've queued this onto i2c-next-misc ready for the next kernel merge
-window, as it isn't really a bugfix. The rest are on i2c-fixes-pnx
-and will pushed in a few days time.
-
+Thanks, I'll send an additional patch shortly.
 -- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+Shinya Kuribayashi
+NEC Electronics
