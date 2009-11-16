@@ -1,44 +1,30 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [uml-user] [PATCH 00/12] move compat_ioctl handling into drivers
-Date: Mon, 16 Nov 2009 02:02:36 +0100
-Message-ID: <200911160202.36577.arnd@arndb.de>
-References: <1258331227-1694-1-git-send-email-arnd@arndb.de>
-	<20091116115715.600e346f@notabene.brown>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 4/4] i2c : Map I2C adapter number to platform ID number
+Date: Mon, 16 Nov 2009 10:03:46 +0000
+Message-ID: <20091116100346.GN13398@fluff.org.uk>
+References: <083DF309106F364B939360100EC290F804F5343706@eu1rdcrdc1wx030.exi.nxp.com>
+ <20091111212152.GK13398@fluff.org.uk>
+ <083DF309106F364B939360100EC290F804F53CC644@eu1rdcrdc1wx030.exi.nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <user-mode-linux-user-bounces@lists.sourceforge.net>
-In-Reply-To: <20091116115715.600e346f@notabene.brown>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/user-mode-linux-user>,
-	<mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=user-mode-linux-user>
-List-Post: <mailto:user-mode-linux-user@lists.sourceforge.net>
-List-Help: <mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/user-mode-linux-user>,
-	<mailto:user-mode-linux-user-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: user-mode-linux-user-bounces@lists.sourceforge.net
-To: Neil Brown <neilb@suse.de>
-Cc: linux-usb@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net, "H. Peter Anvin" <hpa@zytor.com>, Paul Clements <Paul.Clements@steeleye.com>, Wolfram Sang <w.sang@pengutronix.de>, Andre Noll <maan@systemlinux.org>, Pavel Machek <pavel@suse.cz>, linux-i2c@vger.kernel.org, Jens Axboe <jens.axboe@oracle.com>, Jan Blunck <jblunck@suse.de>, Ian Kent <raven@themaw.net>, Nick Piggin <npiggin@suse.de>, linux-scsi@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>, Alon Bar-Lev <alon.barlev@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>, Doug Gilbert <dgilbert@interlog.com>, David Vrabel <david.vrabel@csr.com>, Alexey Dobriyan <adobriyan@gmail.com>, user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>, Oliver Neukum <oliver@neukum.org>, linux-raid@vger.kernel.org, Tejun Heo <tj@kernel.org>Ja
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <083DF309106F364B939360100EC290F804F53CC644-SIPbe8o7cfX8DdpCu65jn8FrZmdRls4ZQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 16 November 2009, Neil Brown wrote:
-> I would take the md ones into my tree, but I suspect that if
-> everyone did that we would end up with lots of conflicts in
-> fs/compat_ioctl.c.
+On Thu, Nov 12, 2009 at 12:34:17AM +0100, Kevin Wells wrote:
+> Map I2C adapter number to platform ID number
 > 
-> So how about I just take the changes to md.c, and give you an:
-> 
->    Acked-by: NeilBrown <neilb@suse.de>
-> 
-> for the changes to fs/compat_ioctl.c
-> ??
+> Signed-off-by: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
 
-Yes, that is exactly what I was trying to suggest. Thanks,
+I've queued this onto i2c-next-misc ready for the next kernel merge
+window, as it isn't really a bugfix. The rest are on i2c-fixes-pnx
+and will pushed in a few days time.
 
-	Arnd <><
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
-------------------------------------------------------------------------------
-Let Crystal Reports handle the reporting - Free Crystal Reports 2008 30-Day 
-trial. Simplify your report design, integration and deployment - and focus on 
-what you do best, core application coding. Discover what's new with
-Crystal Reports now.  http://p.sf.net/sfu/bobj-july
+  'a smiley only costs 4 bytes'
