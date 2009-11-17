@@ -1,47 +1,33 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: David Miller <davem@davemloft.net>
 Subject: Re: Shared i2c adapter locking
-Date: Tue, 17 Nov 2009 10:35:54 +0100
-Message-ID: <20091117103554.03971b2f@hyperion.delvare>
-References: <20091026133757.7cf87e49.sfr@canb.auug.org.au>
-	<20091029154317.651904b9@hyperion.delvare>
-	<1256828976.2827.27.camel@achroite>
-	<20091105141122.56b6b4f8@hyperion.delvare>
-	<1257429444.2793.2.camel@achroite.uk.solarflarecom.com>
-	<20091105150715.692b5200@hyperion.delvare>
+Date: Tue, 17 Nov 2009 03:51:47 -0800 (PST)
+Message-ID: <20091117.035147.80164577.davem@davemloft.net>
+References: <20091105150715.692b5200@hyperion.delvare>
 	<20091117193313.b750804e.sfr@canb.auug.org.au>
+	<20091117103554.03971b2f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091117193313.b750804e.sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
-Cc: Ben Hutchings <bhutchings-s/n/eUQHGBpZroRs9YW3xA@public.gmane.org>, David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Kuoppala <mika.kuoppala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755923AbZKQLvc@vger.kernel.org>
+In-Reply-To: <20091117103554.03971b2f@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org
+Cc: sfr@canb.auug.org.au, bhutchings@solarflare.com, netdev@vger.kernel.org, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, mika.kuoppala@nokia.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+From: Jean Delvare <khali@linux-fr.org>
+Date: Tue, 17 Nov 2009 10:35:54 +0100
 
-On Tue, 17 Nov 2009 19:33:13 +1100, Stephen Rothwell wrote:
-> Hi Jean,
-> 
-> On Thu, 5 Nov 2009 15:07:15 +0100 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> >
-> > > Presumably this is meant for net-next-2.6, and you'll implement
-> > 
-> > Actually I meant to push this to Linus immediately, through my i2c
-> > tree. This is essentially a no-op: the binary code will be the same as
-> > before the patch, so guaranteed to be safe, and this will solve
-> > conflicts in linux-next.
-> 
-> Any word on this?
+> If you did and something is still not clear, please let me know. My
+> understanding is that the action token is in David's hands now.
 
-Haven't you read this:
-http://www.spinics.net/lists/linux-next/msg07839.html
+So what exactly do I need to do?
 
-and the 3 following posts?
+All I see that needs to happen is to pull from Linus's tree into
+net-2.6
 
-If you did and something is still not clear, please let me know. My
-understanding is that the action token is in David's hands now.
+But frankly I don't see how that helps resolve anything in linux-next
+since Stephen starts with Linus's tree then pulls in everyone's work.
 
--- 
-Jean Delvare
+Or is that pull necessary so that some other patch can be applied
+to net-2.6 or similar?
