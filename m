@@ -1,39 +1,56 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] at24: use timeout also for read
-Date: Mon, 16 Nov 2009 19:56:47 +0100
-Message-ID: <20091116195647.313a1575@hyperion.delvare>
-References: <20091106131524.76ae52b9@hyperion.delvare>
-	<1257711297-19927-1-git-send-email-w.sang@pengutronix.de>
-	<20091116185030.GB21491@pengutronix.de>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: Shared i2c adapter locking
+Date: Tue, 17 Nov 2009 19:33:13 +1100
+Message-ID: <20091117193313.b750804e.sfr@canb.auug.org.au>
+References: <20091026133757.7cf87e49.sfr@canb.auug.org.au>
+	<20091029154317.651904b9@hyperion.delvare>
+	<1256828976.2827.27.camel@achroite>
+	<20091105141122.56b6b4f8@hyperion.delvare>
+	<1257429444.2793.2.camel@achroite.uk.solarflarecom.com>
+	<20091105150715.692b5200@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091116185030.GB21491-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__17_Nov_2009_19_33_13_+1100_.m=8U0Qtf1ssOISm"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754822AbZKQIdT@vger.kernel.org>
+In-Reply-To: <20091105150715.692b5200@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ben Hutchings <bhutchings@solarflare.com>, David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 16 Nov 2009 19:50:30 +0100, Wolfram Sang wrote:
-> On Sun, Nov 08, 2009 at 09:14:57PM +0100, Wolfram Sang wrote:
-> > Writes may take some time on EEPROMs, so for consecutive writes, we already
-> > have a loop waiting for the EEPROM to become ready. Use such a loop for reads,
-> > too, in case somebody wants to immediately read after a write. Detailed bug
-> > report and test case can be found here:
-> > 
-> > http://article.gmane.org/gmane.linux.drivers.i2c/4660
-> > 
-> > Reported-by: Aleksandar Ivanov <ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> 
-> Jean, you are probably busy, just a short note will do: Is this scheduled for
-> 2.6.33?
+--Signature=_Tue__17_Nov_2009_19_33_13_+1100_.m=8U0Qtf1ssOISm
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes it is, but I must find some time to review and test your change
-first. Busy...
+Hi Jean,
 
--- 
-Jean Delvare
+On Thu, 5 Nov 2009 15:07:15 +0100 Jean Delvare <khali@linux-fr.org> wrote:
+>
+> > Presumably this is meant for net-next-2.6, and you'll implement
+>=20
+> Actually I meant to push this to Linus immediately, through my i2c
+> tree. This is essentially a no-op: the binary code will be the same as
+> before the patch, so guaranteed to be safe, and this will solve
+> conflicts in linux-next.
+
+Any word on this?
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Tue__17_Nov_2009_19_33_13_+1100_.m=8U0Qtf1ssOISm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAksCX8kACgkQjjKRsyhoI8wh4wCgjjbOxLXKpfD46dgZudQt8F0G
+GTUAoJJtBZcV1xUtVw8tP9A34tgBn5dw
+=/oxd
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__17_Nov_2009_19_33_13_+1100_.m=8U0Qtf1ssOISm--
