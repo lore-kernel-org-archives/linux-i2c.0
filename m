@@ -1,60 +1,53 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] cleanup sched_yield (sys)call nesting.
-Date: Wed, 18 Nov 2009 22:34:38 +0100 (CET)
-Message-ID: <alpine.LFD.2.00.0911182233510.24119@localhost.localdomain>
-References: <c384c5ea0911071101u7415d37o2611c542e5fae309@mail.gmail.com>  <20091107210147.3e754278@hyperion.delvare>  <4AF7148C.9090706@thebigcorporation.com>  <20091112211255.09cd884a@hyperion.delvare>  <alpine.LFD.2.00.0911132139560.24119@localhost.localdomain>
-  <20091116155606.GC29479@sirena.org.uk>  <c384c5ea0911171650t1c441dc4v746d31e4154fcb30@mail.gmail.com>  <20091118010520.4cd397d4@lxorguk.ukuu.org.uk>  <c384c5ea0911180828x7c857189w3316c93bb78100ab@mail.gmail.com>  <20091118175202.490989d8@hyperion.delvare>
-  <1258577194.12429.86.camel@sven.thebigcorporation.com>  <alpine.LFD.2.00.0911182153010.24119@localhost.localdomain> <1258578290.12429.108.camel@sven.thebigcorporation.com>
+From: Anton Vorontsov <avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Subject: Re: [spi-devel-general] [PATCH] gpio: add driver for MAX7300 I2C
+ GPIO extender
+Date: Thu, 19 Nov 2009 02:10:52 +0300
+Message-ID: <20091118231052.GA23699@oksana.dev.rtsoft.ru>
+References: <1258546646-11586-1-git-send-email-w.sang@pengutronix.de>
+Reply-To: avorontsov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932230AbZKRVfA@vger.kernel.org>
-In-Reply-To: <1258578290.12429.108.camel@sven.thebigcorporation.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sven-Thorsten Dietrich <sven@thebigcorporation.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Leon Woestenberg <leon.woestenberg@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-i2c@vger.kernel.org, rt-users <linux-rt-users@vger.kernel.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1258546646-11586-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Juergen Beisert <j.beisert-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 18 Nov 2009, Sven-Thorsten Dietrich wrote:
-
-> On Wed, 2009-11-18 at 21:56 +0100, Thomas Gleixner wrote:
-> > On Wed, 18 Nov 2009, Sven-Thorsten Dietrich wrote:
-> > > On Wed, 2009-11-18 at 17:52 +0100, Jean Delvare wrote:
-> > > > On Wed, 18 Nov 2009 17:28:53 +0100, Leon Woestenberg wrote:
-> > > > > On Wed, Nov 18, 2009 at 2:05 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > > > > Our timers are very efficient and some day we will need to make jiffies a
-> > > > > > function and stop the timer ticking for best performance. At that point
-> > > > > > timers are probably the most efficient way to do much of this.
-> > > > >
-> > > > > The problem with I2C bitbanged is the stringent timing, we need a way
-> > > > > to have fine-grained sleeping
-> > > > > mixed with real-time tasks in order to make this work.
-> > > > 
-> > > > FWIW, the problem that was initially reported has nothing to do with
-> > > > this. i2c-algo-bit used mdelay() during transactions, not yield().
-> > > > yield() is used only in once place, _between_ transactions attempts.
-> > > > There are no strict timing constraints there.
-> > > > 
-> > > 
-> > > I agree that dropping out sched_yield entirely should maybe start by
-> > > deprecating / flagging as a warning in sched_rt.c.
-> > 
-> > Errm, that's unrelated to sched_rt.c. 
-> > 
-> > yield() in the kernel in general is needs to be deprecated.
-> >  
-> > > This is just a minimal cleanup I stumbled across while looking at it -
-> > > to get away from the uglyness of calling into the syscall interface from
-> > > inside the Kernel.
-> > 
-> > And why exactly is that ugly ?
+On Wed, Nov 18, 2009 at 01:17:26PM +0100, Wolfram Sang wrote:
+> Add the MAX7300-I2C variant to the MAX7301-SPI version. They share most parts
+> of the driver (i.e. the logic) and the read/write-register functions get
+> encapsulated. It is thus possible to use both variants simultaneously.
 > 
-> Calling from a function returning void into a non-void function and then
-> ignoring the return code ?
- 
-Care to read what I wrote further down ?
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index 2ad0128..a1d2608 100644
+[...]
+> +MODULE_ALIAS("spi:max7301");
+> +
+> +#define max7301_add_driver(drv) spi_register_driver(drv)
+> +#define max7301_del_driver(drv) spi_unregister_driver(drv)
+> +#else
+> +#define max7301_add_driver(drv) (0)
+> +#define max7301_del_driver(drv) do { } while(0)
+> +#endif /* CONFIG_GPIO_MAX7301_SPI */
+[...]
+>  static int __init max7301_init(void)
+>  {
+> -	return spi_register_driver(&max7301_driver);
+> +	int ret;
+> +	ret = max7300_add_driver(&max7300_driver);
+> +	if (ret)
+> +		return ret;
+> +	ret = max7301_add_driver(&max7301_driver);
 
->> Which is completely irrelevant because the return code is always 0. 
+Nowadays you can use device table matching, as an example see
+commit 8cec03eee4a771f949c70cff07775c9bb21d4642 ("hwmon: lm70:
+convert to device table matching").
 
 Thanks,
 
-	tglx
+-- 
+Anton Vorontsov
+email: cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+irc://irc.freenode.net/bd2
