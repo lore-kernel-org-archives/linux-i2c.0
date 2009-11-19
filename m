@@ -1,35 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] MAINTAINERS: Add missing i2c files
-Date: Thu, 19 Nov 2009 18:25:16 +0100
-Message-ID: <20091119182516.243fe87a@hyperion.delvare>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH 1/2 RESEND#2] i2c/pxa: remove unused macro
+Date: Thu, 19 Nov 2009 20:15:40 +0100
+Message-ID: <1258658141-30340-1-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <1257754721-17325-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1257754721-17325-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add missing header files to the i2c subsystem section.
+Commit
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driver.)
+
+removed all uses of eedbg, so the definition can go, too.
+
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Acked-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
 ---
- MAINTAINERS |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
---- linux-2.6.32-rc7.orig/MAINTAINERS	2009-11-19 17:52:32.000000000 +0100
-+++ linux-2.6.32-rc7/MAINTAINERS	2009-11-19 17:58:33.000000000 +0100
-@@ -2533,8 +2533,7 @@ S:	Maintained
- F:	Documentation/i2c/
- F:	drivers/i2c/
- F:	include/linux/i2c.h
--F:	include/linux/i2c-dev.h
--F:	include/linux/i2c-id.h
-+F:	include/linux/i2c-*.h
- 
- I2C-TINY-USB DRIVER
- M:	Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
-
-
--- 
-Jean Delvare
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.=
+c
+index 0495557..40052c0 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -216,8 +216,6 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c,=
+ int lno, const char *fname)
+ #define decode_ICR(val) do { } while (0)
+ #endif
+=20
+-#define eedbg(lvl, x...) do { if ((lvl) < 1) { printk(KERN_DEBUG "" x)=
+; } } while(0)
+-
+ static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
+ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
+=20
+--=20
+1.6.5.2
