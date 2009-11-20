@@ -1,7 +1,7 @@
 From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: [PATCH 08/10] ARM: PNX4008: move i2c clock start/stop into driver
-Date: Fri, 20 Nov 2009 11:12:26 +0000
-Message-ID: <E1NBUke-0004Pp-6c@rmk-PC.arm.linux.org.uk>
+Subject: [PATCH 10/10] ARM: PNX4008: get i2c clock rate from clk API
+Date: Fri, 20 Nov 2009 12:46:07 +0000
+Message-ID: <E1NBUkq-0004Pv-VA@rmk-PC.arm.linux.org.uk>
 References: <20091120144422.GA18223@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -15,208 +15,150 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
 ---
- arch/arm/mach-pnx4008/i2c.c  |   36 ------------------------------------
- drivers/i2c/busses/i2c-pnx.c |   39 ++++++++++++++++++++++++++++++---------
- include/linux/i2c-pnx.h      |    4 ++--
- 3 files changed, 32 insertions(+), 47 deletions(-)
+ arch/arm/mach-pnx4008/clock.c |    9 ++++++---
+ arch/arm/mach-pnx4008/i2c.c   |    9 ---------
+ drivers/i2c/busses/i2c-pnx.c  |   15 ++++-----------
+ include/linux/i2c-pnx.h       |    1 -
+ 4 files changed, 10 insertions(+), 24 deletions(-)
 
+diff --git a/arch/arm/mach-pnx4008/clock.c b/arch/arm/mach-pnx4008/clock.c
+index c60d798..a38ef66 100644
+--- a/arch/arm/mach-pnx4008/clock.c
++++ b/arch/arm/mach-pnx4008/clock.c
+@@ -638,9 +638,10 @@ static struct clk flash_ck = {
+ static struct clk i2c0_ck = {
+ 	.name = "i2c0_ck",
+ 	.parent = &per_ck,
+-	.flags = NEEDS_INITIALIZATION,
++	.flags = NEEDS_INITIALIZATION | FIXED_RATE,
+ 	.enable_shift = 0,
+ 	.enable_reg = I2CCLKCTRL_REG,
++	.rate = 13000000,
+ 	.enable = clk_reg_enable,
+ 	.disable = clk_reg_disable,
+ };
+@@ -648,9 +649,10 @@ static struct clk i2c0_ck = {
+ static struct clk i2c1_ck = {
+ 	.name = "i2c1_ck",
+ 	.parent = &per_ck,
+-	.flags = NEEDS_INITIALIZATION,
++	.flags = NEEDS_INITIALIZATION | FIXED_RATE,
+ 	.enable_shift = 1,
+ 	.enable_reg = I2CCLKCTRL_REG,
++	.rate = 13000000,
+ 	.enable = clk_reg_enable,
+ 	.disable = clk_reg_disable,
+ };
+@@ -658,9 +660,10 @@ static struct clk i2c1_ck = {
+ static struct clk i2c2_ck = {
+ 	.name = "i2c2_ck",
+ 	.parent = &per_ck,
+-	.flags = NEEDS_INITIALIZATION,
++	.flags = NEEDS_INITIALIZATION | FIXED_RATE,
+ 	.enable_shift = 2,
+ 	.enable_reg = USB_OTG_CLKCTRL_REG,
++	.rate = 13000000,
+ 	.enable = clk_reg_enable,
+ 	.disable = clk_reg_disable,
+ };
 diff --git a/arch/arm/mach-pnx4008/i2c.c b/arch/arm/mach-pnx4008/i2c.c
-index 707d819..14b4906 100644
+index 14b4906..23ec335 100644
 --- a/arch/arm/mach-pnx4008/i2c.c
 +++ b/arch/arm/mach-pnx4008/i2c.c
-@@ -18,36 +18,6 @@
+@@ -18,12 +18,6 @@
  #include <mach/irqs.h>
  #include <mach/i2c.h>
  
--static int set_clock_run(struct platform_device *pdev)
+-static u32 calculate_input_freq(struct platform_device *pdev)
 -{
--	struct clk *clk;
--	int retval = 0;
--
--	clk = clk_get(&pdev->dev, NULL);
--	if (!IS_ERR(clk)) {
--		clk_set_rate(clk, 1);
--		clk_put(clk);
--	} else
--		retval = -ENOENT;
--
--	return retval;
+-	return HCLK_MHZ;
 -}
 -
--static int set_clock_stop(struct platform_device *pdev)
--{
--	struct clk *clk;
--	int retval = 0;
 -
--	clk = clk_get(&pdev->dev, NULL);
--	if (!IS_ERR(clk)) {
--		clk_set_rate(clk, 0);
--		clk_put(clk);
--	} else
--		retval = -ENOENT;
--
--	return retval;
--}
--
- static u32 calculate_input_freq(struct platform_device *pdev)
- {
- 	return HCLK_MHZ;
-@@ -85,22 +55,16 @@ static struct i2c_adapter pnx_adapter2 = {
+ static struct i2c_pnx_algo_data pnx_algo_data0 = {
+ 	.base = PNX4008_I2C1_BASE,
+ 	.irq = I2C_1_INT,
+@@ -54,17 +48,14 @@ static struct i2c_adapter pnx_adapter2 = {
+ };
  
  static struct i2c_pnx_data i2c0_data = {
- 	.calculate_input_freq = calculate_input_freq,
--	.set_clock_run = set_clock_run,
--	.set_clock_stop = set_clock_stop,
+-	.calculate_input_freq = calculate_input_freq,
  	.adapter = &pnx_adapter0,
  };
  
  static struct i2c_pnx_data i2c1_data = {
- 	.calculate_input_freq = calculate_input_freq,
--	.set_clock_run = set_clock_run,
--	.set_clock_stop = set_clock_stop,
+-	.calculate_input_freq = calculate_input_freq,
  	.adapter = &pnx_adapter1,
  };
  
  static struct i2c_pnx_data i2c2_data = {
- 	.calculate_input_freq = calculate_input_freq,
--	.set_clock_run = set_clock_run,
--	.set_clock_stop = set_clock_stop,
+-	.calculate_input_freq = calculate_input_freq,
  	.adapter = &pnx_adapter2,
  };
  
 diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index 8fe7de8..0a0ee4a 100644
+index 34da92d..a390ef3 100644
 --- a/drivers/i2c/busses/i2c-pnx.c
 +++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -20,6 +20,9 @@
- #include <linux/platform_device.h>
- #include <linux/i2c-pnx.h>
- #include <linux/io.h>
-+#include <linux/err.h>
-+#include <linux/clk.h>
-+
- #include <mach/hardware.h>
- #include <mach/i2c.h>
- #include <asm/irq.h>
-@@ -550,13 +553,22 @@ static int i2c_pnx_controller_suspend(struct platform_device *pdev,
- 				      pm_message_t state)
+@@ -31,7 +31,6 @@
+ #define I2C_PNX_TIMEOUT		10 /* msec */
+ #define I2C_PNX_SPEED_KHZ	100
+ #define I2C_PNX_REGION_SIZE	0x100
+-#define PNX_DEFAULT_FREQ	13 /* MHz */
+ 
+ static inline int wait_timeout(long timeout, struct i2c_pnx_algo_data *data)
  {
- 	struct i2c_pnx_data *i2c_pnx = platform_get_drvdata(pdev);
--	return i2c_pnx->set_clock_run(pdev);
-+	struct i2c_pnx_algo_data *alg_data = i2c_pnx->adapter->algo_data;
-+
-+	/* FIXME: disable clock? */
-+	clk_set_rate(alg_data->clk, 1);
-+
-+	return 0;
- }
+@@ -578,7 +577,7 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+ 	unsigned long tmp;
+ 	int ret = 0;
+ 	struct i2c_pnx_algo_data *alg_data;
+-	int freq_mhz;
++	unsigned long freq;
+ 	struct i2c_pnx_data *i2c_pnx = pdev->dev.platform_data;
  
- static int i2c_pnx_controller_resume(struct platform_device *pdev)
- {
- 	struct i2c_pnx_data *i2c_pnx = platform_get_drvdata(pdev);
--	return i2c_pnx->set_clock_run(pdev);
-+	struct i2c_pnx_algo_data *alg_data = i2c_pnx->adapter->algo_data;
-+
-+	clk_set_rate(alg_data->clk, 1);
-+
-+	return 0;
- }
- #else
- #define i2c_pnx_controller_suspend	NULL
-@@ -580,6 +592,15 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, i2c_pnx);
- 
-+	i2c_pnx->adapter->algo = &pnx_algorithm;
-+	alg_data = i2c_pnx->adapter->algo_data;
-+
-+	alg_data->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(alg_data->clk)) {
-+		ret = PTR_ERR(alg_data->clk);
-+		goto out_drvdata;
-+	}
-+
- 	if (i2c_pnx->calculate_input_freq)
- 		freq_mhz = i2c_pnx->calculate_input_freq(pdev);
- 	else {
-@@ -588,9 +609,6 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
- 		       "%d MHz\n", freq_mhz);
+ 	if (!i2c_pnx || !i2c_pnx->adapter) {
+@@ -599,14 +598,6 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+ 		goto out_drvdata;
  	}
  
--	i2c_pnx->adapter->algo = &pnx_algorithm;
+-	if (i2c_pnx->calculate_input_freq)
+-		freq_mhz = i2c_pnx->calculate_input_freq(pdev);
+-	else {
+-		freq_mhz = PNX_DEFAULT_FREQ;
+-		dev_info(&pdev->dev, "Setting bus frequency to default value: "
+-		       "%d MHz\n", freq_mhz);
+-	}
 -
--	alg_data = i2c_pnx->adapter->algo_data;
  	init_timer(&alg_data->mif.timer);
  	alg_data->mif.timer.function = i2c_pnx_timeout;
  	alg_data->mif.timer.data = (unsigned long)i2c_pnx->adapter;
-@@ -602,7 +620,7 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
- 		       "I/O region 0x%08x for I2C already in use.\n",
- 		       alg_data->base);
- 		ret = -ENODEV;
--		goto out_drvdata;
-+		goto out_clkget;
- 	}
+@@ -632,6 +623,8 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out_unmap;
  
- 	if (!(alg_data->ioaddr =
-@@ -612,7 +630,7 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
- 		goto out_release;
- 	}
- 
--	i2c_pnx->set_clock_run(pdev);
-+	clk_set_rate(alg_data->clk, 1);
- 
++	freq = clk_get_rate(alg_data->clk);
++
  	/*
  	 * Clock Divisor High This value is the number of system clocks
-@@ -657,11 +675,13 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
- out_irq:
- 	free_irq(alg_data->irq, alg_data);
- out_clock:
--	i2c_pnx->set_clock_stop(pdev);
-+	clk_set_rate(alg_data->clk, 0);
- out_unmap:
- 	iounmap((void *)alg_data->ioaddr);
- out_release:
- 	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
-+out_clkget:
-+	clk_put(alg_data->clk);
- out_drvdata:
- 	platform_set_drvdata(pdev, NULL);
- out:
-@@ -676,9 +696,10 @@ static int __devexit i2c_pnx_remove(struct platform_device *pdev)
+ 	 * the serial clock (SCL) will be high.
+@@ -643,7 +636,7 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+ 	 * the deglitching filter length.
+ 	 */
  
- 	free_irq(alg_data->irq, alg_data);
- 	i2c_del_adapter(adap);
--	i2c_pnx->set_clock_stop(pdev);
-+	clk_set_rate(alg_data->clk, 0);
- 	iounmap((void *)alg_data->ioaddr);
- 	release_mem_region(alg_data->base, I2C_PNX_REGION_SIZE);
-+	clk_put(alg_data->clk);
- 	platform_set_drvdata(pdev, NULL);
+-	tmp = ((freq_mhz * 1000) / I2C_PNX_SPEED_KHZ) / 2 - 2;
++	tmp = ((freq / 1000) / I2C_PNX_SPEED_KHZ) / 2 - 2;
+ 	iowrite32(tmp, I2C_REG_CKH(alg_data));
+ 	iowrite32(tmp, I2C_REG_CKL(alg_data));
  
- 	return 0;
 diff --git a/include/linux/i2c-pnx.h b/include/linux/i2c-pnx.h
-index 71de7f9..688e292 100644
+index 688e292..9035711 100644
 --- a/include/linux/i2c-pnx.h
 +++ b/include/linux/i2c-pnx.h
-@@ -13,6 +13,7 @@
- #define __I2C_PNX_H__
- 
- struct platform_device;
-+struct clk;
- 
- struct i2c_pnx_mif {
- 	int			ret;		/* Return value */
-@@ -29,12 +30,11 @@ struct i2c_pnx_algo_data {
- 	int			irq;
- 	struct i2c_pnx_mif	mif;
- 	int			last;
-+	struct clk		*clk;
+@@ -34,7 +34,6 @@ struct i2c_pnx_algo_data {
  };
  
  struct i2c_pnx_data {
- 	u32 (*calculate_input_freq) (struct platform_device *pdev);
--	int (*set_clock_run) (struct platform_device *pdev);
--	int (*set_clock_stop) (struct platform_device *pdev);
+-	u32 (*calculate_input_freq) (struct platform_device *pdev);
  	struct i2c_adapter *adapter;
  };
  
