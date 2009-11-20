@@ -1,29 +1,70 @@
 From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: [PATCH 0/10] PNX clock API fixes
-Date: Fri, 20 Nov 2009 14:44:22 +0000
-Message-ID: <20091120144422.GA18223@n2100.arm.linux.org.uk>
+Subject: [PATCH 06/10] ARM: PNX4008: convert i2c clocks to match by device only
+Date: Fri, 20 Nov 2009 10:46:24 +0000
+Message-ID: <E1NBUkO-0004Pj-MF@rmk-PC.arm.linux.org.uk>
+References: <20091120144422.GA18223@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20091120144422.GA18223-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Following on from the previous set of patches...
+Signed-off-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+---
+ arch/arm/mach-pnx4008/clock.c |    6 +++---
+ arch/arm/mach-pnx4008/i2c.c   |    8 ++------
+ 2 files changed, 5 insertions(+), 9 deletions(-)
 
-The PNX4008 clock API usage is extremely poor.  Nothing works as it was
-intended to - clk_set_rate() is used to turn clocks on and off, or
-set dividers.  I certainly doesn't take the desired clock rate in Hz.
-clk_get_rate() doesn't report the clock rate in Hz either - it doesn't
-even report any kind of rate.
-
-clk_enable and clk_disable seem to be very weird too.
-
-This patch set fixes the I2C and watchdog drivers so that they can be
-used with clk API implementations which do actually conform with the
-clk API.
-
-As per the previous set, selective cc's.  Full set will be on
-linux-arm-kernel.
+diff --git a/arch/arm/mach-pnx4008/clock.c b/arch/arm/mach-pnx4008/clock.c
+index 270c254..26659cd 100644
+--- a/arch/arm/mach-pnx4008/clock.c
++++ b/arch/arm/mach-pnx4008/clock.c
+@@ -797,9 +797,9 @@ static struct clk_lookup onchip_clkreg[] = {
+ 	{ .clk = &jpeg_ck,	.con_id = "jpeg_ck"	},
+ 	{ .clk = &ms_ck,	.con_id = "ms_ck"	},
+ 	{ .clk = &touch_ck,	.con_id = "touch_ck"	},
+-	{ .clk = &i2c0_ck,	.con_id = "i2c0_ck"	},
+-	{ .clk = &i2c1_ck,	.con_id = "i2c1_ck"	},
+-	{ .clk = &i2c2_ck,	.con_id = "i2c2_ck"	},
++	{ .clk = &i2c0_ck,	.dev_id = "pnx-i2c.0"	},
++	{ .clk = &i2c1_ck,	.dev_id = "pnx-i2c.1"	},
++	{ .clk = &i2c2_ck,	.dev_id = "pnx-i2c.2"	},
+ 	{ .clk = &spi0_ck,	.con_id = "spi0_ck"	},
+ 	{ .clk = &spi1_ck,	.con_id = "spi1_ck"	},
+ 	{ .clk = &uart3_ck,	.con_id = "uart3_ck"	},
+diff --git a/arch/arm/mach-pnx4008/i2c.c b/arch/arm/mach-pnx4008/i2c.c
+index f3fea29..c986b3a 100644
+--- a/arch/arm/mach-pnx4008/i2c.c
++++ b/arch/arm/mach-pnx4008/i2c.c
+@@ -21,11 +21,9 @@
+ static int set_clock_run(struct platform_device *pdev)
+ {
+ 	struct clk *clk;
+-	char name[10];
+ 	int retval = 0;
+ 
+-	snprintf(name, 10, "i2c%d_ck", pdev->id);
+-	clk = clk_get(&pdev->dev, name);
++	clk = clk_get(&pdev->dev, NULL);
+ 	if (!IS_ERR(clk)) {
+ 		clk_set_rate(clk, 1);
+ 		clk_put(clk);
+@@ -38,11 +36,9 @@ static int set_clock_run(struct platform_device *pdev)
+ static int set_clock_stop(struct platform_device *pdev)
+ {
+ 	struct clk *clk;
+-	char name[10];
+ 	int retval = 0;
+ 
+-	snprintf(name, 10, "i2c%d_ck", pdev->id);
+-	clk = clk_get(&pdev->dev, name);
++	clk = clk_get(&pdev->dev, NULL);
+ 	if (!IS_ERR(clk)) {
+ 		clk_set_rate(clk, 0);
+ 		clk_put(clk);
+-- 
+1.6.2.5
