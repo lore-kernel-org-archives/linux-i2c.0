@@ -1,84 +1,34 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 2/2 RESEND#2] i2c/pxa: only define 'blue_murder'-function if DEBUG is #defined
-Date: Thu, 19 Nov 2009 20:15:41 +0100
-Message-ID: <1258658141-30340-2-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1257754721-17325-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1258658141-30340-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: [PULL] please pull bjdooks' i2c-pnx-fixes branch
+Date: Fri, 20 Nov 2009 00:29:43 +0000
+Message-ID: <20091120002943.GA19796@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1258658141-30340-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+To: torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+The following changes since commit 648f4e3e50c4793d9dbf9a09afa193631f76fa26:
+  Linus Torvalds (1):
+        Linux 2.6.32-rc8
 
-This talkative function is also called on timeouts. As timeouts can
-happen on regular writes to EEPROMs (no error case), this creates false
-positives.  Giving lots of details is interesting only for developers
-anyhow, so just use the function if DEBUG is #defined.
+are available in the git repository at:
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Acked-by: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c |   24 ++++++++++++++----------
- 1 files changed, 14 insertions(+), 10 deletions(-)
+  git://git.fluff.org/bjdooks/linux i2c-pnx-fixes
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.=
-c
-index 40052c0..009e52e 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -208,16 +208,6 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c=
-, int lno, const char *fname)
- }
-=20
- #define show_state(i2c) i2c_pxa_show_state(i2c, __LINE__, __func__)
--#else
--#define i2c_debug	0
--
--#define show_state(i2c) do { } while (0)
--#define decode_ISR(val) do { } while (0)
--#define decode_ICR(val) do { } while (0)
--#endif
--
--static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
--static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
-=20
- static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char=
- *why)
- {
-@@ -233,6 +223,20 @@ static void i2c_pxa_scream_blue_murder(struct pxa_=
-i2c *i2c, const char *why)
- 	printk("\n");
- }
-=20
-+#else /* ifdef DEBUG */
-+
-+#define i2c_debug	0
-+
-+#define show_state(i2c) do { } while (0)
-+#define decode_ISR(val) do { } while (0)
-+#define decode_ICR(val) do { } while (0)
-+#define i2c_pxa_scream_blue_murder(i2c, why) do { } while (0)
-+
-+#endif /* ifdef DEBUG / else */
-+
-+static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
-+static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
-+
- static inline int i2c_pxa_is_slavemode(struct pxa_i2c *i2c)
- {
- 	return !(readl(_ICR(i2c)) & ICR_SCLE);
---=20
-1.6.5.2
+Kevin Wells (3):
+      i2c: i2c-pnx: Limit minimum jiffie timeout to 2
+      i2c: i2c-pnx: Made buf type unsigned to prevent sign extension
+      i2c: i2c-pnx: Added missing mach/i2c.h and linux/io.h header file includes
+
+ drivers/i2c/busses/i2c-pnx.c |    5 +++++
+ include/linux/i2c-pnx.h      |    2 +-
+ 2 files changed, 6 insertions(+), 1 deletions(-)
+
+-- 
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
