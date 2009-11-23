@@ -1,57 +1,114 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] ALS: TSL2550 driver move from i2c/chips
-Date: Thu, 26 Nov 2009 15:17:16 +0100
-Message-ID: <20091126151716.303e4c7e@hyperion.delvare>
-References: <4ACF4AC6.7070802@cam.ac.uk>
-	<20091010183347.52b043ed@hyperion.delvare>
-	<4AD3477D.4020904@cam.ac.uk>
-	<20091012173824.0f3ef021@hyperion.delvare>
+From: Vitaly Wool <vitalywool@gmail.com>
+Subject: Re: [PATCH 07/10] ARM: PNX4008: move i2c suspend/resume callbacks
+	into driver
+Date: Mon, 23 Nov 2009 21:22:44 +0300
+Message-ID: <acd2a5930911231022i60eda84di12799fb4a55faab9@mail.gmail.com>
+References: <20091120144422.GA18223@n2100.arm.linux.org.uk>
+	<E1NBUkU-0004Pm-Nv@rmk-PC.arm.linux.org.uk>
+	<20091121125347.GE7998@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091012173824.0f3ef021-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Michele De Candia (VT)" <michele.decandia-EZxuzQJkuwwybS5Ee8rs3A@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/mixed; boundary="===============0751528294=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20091121125347.GE7998@n2100.arm.linux.org.uk>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Kevin Wells <kevin.wells@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 12 Oct 2009 17:38:24 +0200, Jean Delvare wrote:
-> On Mon, 12 Oct 2009 16:13:01 +0100, Jonathan Cameron wrote:
-> > > The operating mode selects the measurable range. Standard range is from
-> > > 0 to 1846 lux, extended range is from 0 to 9230 lux, with a resolution
-> > > divided by 5. Extended mode is also 5 times faster.
-> > > 
-> > > What do we want to do with this? I am open to suggestions. There are
-> > > several possibilities. The operating mode could be provided as platform
-> > > data and stay internal to the driver. Or we can leave is visible to
-> > > user-space, in which case I'd recommend that we do so in terms of
-> > > "range" rather than "mode", so that other drivers can use the same
-> > > convention, whatever it becomes. For example, one would write the range
-> > > of values he/she wants to be able to measure and the driver would put
-> > > the device in the most appropriate mode.
-> >
-> > That sounds like a sensible approach.  For now I guess a sysfs parameter
-> > like illuminance_range_max would do the job and we can add a min for any
-> > device that features an offset?
-> 
-> Yes, this sounds sensible.
+--===============0751528294==
+Content-Type: multipart/alternative; boundary=0016e6d77eac72cecb04790de966
 
-Following up publicly so that everyone interested knows what's going on.
+--0016e6d77eac72cecb04790de966
+Content-Type: text/plain; charset=ISO-8859-1
 
-Jonathan and me tested the above idea on the tsl2550 driver, and it
-turns out that it doesn't work well. The TSL2550 computes the lux of
-visible light by computing a difference between total light (infra-red +
-visible) and infra-red light. When there's a lot of infra-red light, it
-is very easy to saturate the light sensors in standard mode, even
-though the amount of visible light is low.
+On Sat, Nov 21, 2009 at 3:53 PM, Russell King - ARM Linux <
+linux@arm.linux.org.uk> wrote:
 
-The bottom line is that one may need to reduce the integration time
-(which is what the "extended mode" is really about) even if the result
-fits in the standard mode's range. In the light of this, it seems
-wrong to hide the mode behind the name "illuminance_range_max". It
-seems better to export the exposure time as is, readable and writable.
-Remains to agree on a file name and unit.
+> On Fri, Nov 20, 2009 at 10:50:34AM +0000, Russell King - ARM Linux wrote:
+> > -static int i2c_pnx_suspend(struct platform_device *pdev, pm_message_t
+> state)
+> > -{
+> > -     int retval = 0;
+> > -#ifdef CONFIG_PM
+> > -     retval = set_clock_run(pdev);
+> > -#endif
+>
+> BTW, a comment from PNX folk (Vitaly/Kevin) would be appreciated.  Why
+> does PNX enable the clock when going into suspend?  Should I assume that
+> this should actually be disabling the clock?
+>
 
--- 
-Jean Delvare
+As far as I recall, at some point there was a function that was taking the
+second boolean parameter (enable or disable the clock). So now it is, yes,
+not making much sense.
+
+
+> Also, if Vitaly doesn't have anything to do with PNX4008 anymore, it
+> would be a good idea to update the MAINTAINERS file.
+>
+
+I'd like to keep maintaining this platform, but it's also up to NXP because
+I don't have the actual working hardware now so there's not much I can do.
+
+Vitaly
+
+--0016e6d77eac72cecb04790de966
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote">On Sat, Nov 21, 2009 at 3:53 PM, Russell King - =
+ARM Linux <span dir=3D"ltr">&lt;<a href=3D"mailto:linux@arm.linux.org.uk">l=
+inux@arm.linux.org.uk</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_q=
+uote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0=
+pt 0.8ex; padding-left: 1ex;">
+<div class=3D"im">On Fri, Nov 20, 2009 at 10:50:34AM +0000, Russell King - =
+ARM Linux wrote:<br>
+&gt; -static int i2c_pnx_suspend(struct platform_device *pdev, pm_message_t=
+ state)<br>
+&gt; -{<br>
+&gt; - =A0 =A0 int retval =3D 0;<br>
+&gt; -#ifdef CONFIG_PM<br>
+&gt; - =A0 =A0 retval =3D set_clock_run(pdev);<br>
+&gt; -#endif<br>
+<br>
+</div>BTW, a comment from PNX folk (Vitaly/Kevin) would be appreciated. =A0=
+Why<br>
+does PNX enable the clock when going into suspend? =A0Should I assume that<=
+br>
+this should actually be disabling the clock?<br></blockquote><div><br>As fa=
+r as I recall, at some point there was a function that was taking the secon=
+d boolean parameter (enable or disable the clock). So now it is, yes, not m=
+aking much sense.<br>
+<br></div><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid=
+ rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+<br>
+Also, if Vitaly doesn&#39;t have anything to do with PNX4008 anymore, it<br=
+>
+would be a good idea to update the MAINTAINERS file.<br>
+</blockquote></div><br>I&#39;d like to keep maintaining this platform, but =
+it&#39;s also up to NXP because I don&#39;t have the actual working hardwar=
+e now so there&#39;s not much I can do.<br><br>Vitaly<br>
+
+--0016e6d77eac72cecb04790de966--
+
+
+--===============0751528294==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============0751528294==--
