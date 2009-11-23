@@ -1,160 +1,135 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] at24: use timeout also for read
-Date: Sun, 22 Nov 2009 21:08:46 +0100
-Message-ID: <20091122210846.14666e23@hyperion.delvare>
-References: <20091106131524.76ae52b9@hyperion.delvare>
-	<1257711297-19927-1-git-send-email-w.sang@pengutronix.de>
+From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Subject: [PATCH v1] i2c: Davinci i2c bus recovery procedure to come out of
+ time out conditions
+Date: Mon, 23 Nov 2009 20:52:36 +0530
+Message-ID: <1258989756.20007.227.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1257711297-19927-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+>From 062cfba8b86ccd932eaa498980e703295d86a6cb Mon Sep 17 00:00:00 2001
+From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Date: Mon, 23 Nov 2009 18:08:33 +0530
+Subject: [PATCH] Davinci i2c bus recovery procedure to come out of time out conditions
 
-Sorry for the late review.
+Get out of i2c time out condition by following the
+bus recovery procedure outlined in the i2c protocol v3 spec.
+The kernel must be robust enough to gracefully recover
+from i2c bus failure without having to reset the machine.
+This is done by first NACKing the slave, pulsing the SCL
+line 9 times and then sending the stop command.
 
-On Sun,  8 Nov 2009 21:14:57 +0100, Wolfram Sang wrote:
-> Writes may take some time on EEPROMs, so for consecutive writes, we already
-> have a loop waiting for the EEPROM to become ready. Use such a loop for reads,
-> too, in case somebody wants to immediately read after a write. Detailed bug
-> report and test case can be found here:
-> 
-> http://article.gmane.org/gmane.linux.drivers.i2c/4660
-> 
-> Reported-by: Aleksandar Ivanov <ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
-> 
-> I could reproduce the errornous behaviour and this patch fixes it for me.
+This patch has been tested on a DM6446 and DM355
 
-Looks overall good, with just one comment:
+Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c |   54 +++++++++++++++++++++++++++++++++----
+ 1 files changed, 48 insertions(+), 6 deletions(-)
 
-> 
->  drivers/misc/eeprom/at24.c |   78 ++++++++++++++++++++++++++-----------------
->  1 files changed, 47 insertions(+), 31 deletions(-)
-> 
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index db39f4a..78aa46c 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -158,6 +158,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
->  	struct i2c_msg msg[2];
->  	u8 msgbuf[2];
->  	struct i2c_client *client;
-> +	unsigned long timeout, read_time;
->  	int status, i;
->  
->  	memset(msg, 0, sizeof(msg));
-> @@ -183,47 +184,62 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
->  	if (count > io_limit)
->  		count = io_limit;
->  
-> -	/* Smaller eeproms can work given some SMBus extension calls */
->  	if (at24->use_smbus) {
-> +		/* Smaller eeproms can work given some SMBus extension calls */
->  		if (count > I2C_SMBUS_BLOCK_MAX)
->  			count = I2C_SMBUS_BLOCK_MAX;
-> -		status = i2c_smbus_read_i2c_block_data(client, offset,
-> -				count, buf);
-> -		dev_dbg(&client->dev, "smbus read %zu@%d --> %d\n",
-> -				count, offset, status);
-> -		return (status < 0) ? -EIO : status;
-> +	} else {
-> +		/*
-> +		 * When we have a better choice than SMBus calls, use a
-> +		 * combined I2C message. Write address; then read up to
-> +		 * io_limit data bytes. Note that read page rollover helps us
-> +		 * here (unlike writes). msgbuf is u8 and will cast to our
-> +		 * needs.
-> +		 */
-> +		i = 0;
-> +		if (at24->chip.flags & AT24_FLAG_ADDR16)
-> +			msgbuf[i++] = offset >> 8;
-> +		msgbuf[i++] = offset;
-> +
-> +		msg[0].addr = client->addr;
-> +		msg[0].buf = msgbuf;
-> +		msg[0].len = i;
-> +
-> +		msg[1].addr = client->addr;
-> +		msg[1].flags = I2C_M_RD;
-> +		msg[1].buf = buf;
-> +		msg[1].len = count;
->  	}
->  
->  	/*
-> -	 * When we have a better choice than SMBus calls, use a combined
-> -	 * I2C message. Write address; then read up to io_limit data bytes.
-> -	 * Note that read page rollover helps us here (unlike writes).
-> -	 * msgbuf is u8 and will cast to our needs.
-> +	 * Reads fail if the previous write didn't complete yet. We may
-> +	 * loop a few times until this one succeeds, waiting at least
-> +	 * long enough for one entire page write to work.
->  	 */
-> -	i = 0;
-> -	if (at24->chip.flags & AT24_FLAG_ADDR16)
-> -		msgbuf[i++] = offset >> 8;
-> -	msgbuf[i++] = offset;
-> -
-> -	msg[0].addr = client->addr;
-> -	msg[0].buf = msgbuf;
-> -	msg[0].len = i;
-> +	timeout = jiffies + msecs_to_jiffies(write_timeout);
-> +	do {
-> +		read_time = jiffies;
-> +		if (at24->use_smbus) {
-> +			status = i2c_smbus_read_i2c_block_data(client, offset,
-> +					count, buf);
-> +			if (status == 0)
-> +				status = count;
-
-I don't think this is needed. i2c_smbus_read_i2c_block_data() returns
-the number of bytes read, or a negative error code. I don't think it
-can ever return 0 (and if it did, it would not mean success.) Thus
-returning status without additional processing should be fine.
-
-> +		} else {
-> +			status = i2c_transfer(client->adapter, msg, 2);
-> +			if (status == 2)
-> +				status = count;
-> +		}
-> +		dev_dbg(&client->dev, "read %zu@%d --> %zd (%ld)\n",
-> +				count, offset, status, jiffies);
->  
-> -	msg[1].addr = client->addr;
-> -	msg[1].flags = I2C_M_RD;
-> -	msg[1].buf = buf;
-> -	msg[1].len = count;
-> +		if (status == count)
-> +			return count;
->  
-> -	status = i2c_transfer(client->adapter, msg, 2);
-> -	dev_dbg(&client->dev, "i2c read %zu@%d --> %d\n",
-> -			count, offset, status);
-> +		/* REVISIT: at HZ=100, this is sloooow */
-> +		msleep(1);
-> +	} while (time_before(read_time, timeout));
->  
-> -	if (status == 2)
-> -		return count;
-> -	else if (status >= 0)
-> -		return -EIO;
-> -	else
-> -		return status;
-> +	return -ETIMEDOUT;
->  }
->  
->  static ssize_t at24_read(struct at24_data *at24,
-
-Other than that this looks good. If the above change is OK with you
-then I can push this fix to Linus quickly.
-
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 67d88cc..6b4a550 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -35,6 +35,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
++#include <linux/gpio.h>
+ 
+ #include <mach/hardware.h>
+ 
+@@ -43,6 +44,7 @@
+ /* ----- global defines ----------------------------------------------- */
+ 
+ #define DAVINCI_I2C_TIMEOUT	(1*HZ)
++#define DAVINCI_I2C_MAX_TRIES	2
+ #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
+ 				 DAVINCI_I2C_IMR_SCD | \
+ 				 DAVINCI_I2C_IMR_ARDY | \
+@@ -134,6 +136,38 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
+ 	return __raw_readw(i2c_dev->base + reg);
+ }
+ 
++/* Generate a pulse on the i2c clock pin. */
++static void pulse_i2c_clock(void)
++{
++	gpio_set_value(14, 0);
++	udelay(20);
++	gpio_set_value(14, 1);
++	udelay(20);
++}
++
++/* This routine does i2c bus recovery as specified in the
++ * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
++ */
++static void i2c_recover_bus(struct davinci_i2c_dev *dev)
++{
++	u16 i;
++	u32 flag = 0;
++
++	dev_err(dev->dev, "initiating i2c bus recovery\n");
++	/* Send NACK to the slave */
++	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
++	flag |=  DAVINCI_I2C_MDR_NACK;
++	/* write the data into mode register */
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
++	/* Send high and low on the SCL line */
++	for (i = 0; i < 9; i++)
++		pulse_i2c_clock();
++	/* Send STOP */
++	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
++	MOD_REG_BIT(flag, DAVINCI_I2C_MDR_STP, 1);
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
++}
++
+ /*
+  * This functions configures I2C and brings I2C out of reset.
+  * This function is called during I2C init function. This function
+@@ -221,19 +255,26 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+ 					 char allow_sleep)
+ {
+ 	unsigned long timeout;
++	static u16 to_cnt = 0;
+ 
+ 	timeout = jiffies + dev->adapter.timeout;
+ 	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+-	       & DAVINCI_I2C_STR_BB) {
+-		if (time_after(jiffies, timeout)) {
+-			dev_warn(dev->dev,
+-				 "timeout waiting for bus ready\n");
+-			return -ETIMEDOUT;
++			& DAVINCI_I2C_STR_BB) {
++		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
++			if (time_after(jiffies, timeout)) {
++				dev_warn(dev->dev,
++					"timeout waiting for bus ready\n");
++				to_cnt++;
++				return -ETIMEDOUT;
++			} else {
++				to_cnt = 0;
++				i2c_recover_bus(dev);
++				i2c_davinci_init(dev);
++			}
+ 		}
+ 		if (allow_sleep)
+ 			schedule_timeout(1);
+ 	}
+-
+ 	return 0;
+ }
+ 
+@@ -310,6 +351,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 						      dev->adapter.timeout);
+ 	if (r == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
++		i2c_recover_bus(dev);
+ 		i2c_davinci_init(dev);
+ 		dev->buf_len = 0;
+ 		return -ETIMEDOUT;
 -- 
-Jean Delvare
+1.6.3.3.MVISTA
