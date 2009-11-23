@@ -1,153 +1,168 @@
-From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Subject: Re: [PATCH/RFC 1/1] recover from davinci i2c time out conditions
-Date: Mon, 23 Nov 2009 20:54:50 +0530
-Message-ID: <1258989890.20007.238.camel@localhost.localdomain>
-References: <1247643267.5981.82.camel@localhost.localdomain>
-	 <4A5E0E98.2030108@boundarydevices.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH] I2C: OMAP3: PM: (re)init for every transfer to support off-mode
+Date: Mon, 23 Nov 2009 08:59:18 -0800
+Message-ID: <1258995558-18048-1-git-send-email-khilman@deeprootsystems.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4A5E0E98.2030108-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>, Jouni Hogander <jouni.hogander-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>, Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>, Hu Tao <taohu-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>, Xiaolong Chen <A21785-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Troy,
+From: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
 
-On Wed, 2009-07-15 at 10:15 -0700, Troy Kisky wrote:
-> Philby John wrote:
-> >>From dbe7e824d576636bb15b82a20fd2557fddc9a8f7 Mon Sep 17 00:00:00 2001
-> > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> > Date: Tue, 14 Jul 2009 21:46:47 +0530
-> > Subject: [PATCH] Reset i2c bus to come out of time out conditions
-> > 
-> > Get out of i2c time out condition by resetting
-> > the i2c bus. The kernel must be robust enough to
-> > gracefully recover from i2c bus failure without having
-> > to reset the machine. This is done by first NACKing the slave
-> > and then resetting the i2c bus after a certain timeout.
-> > 
-> > Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> > ---
-> 
-> I personally like the idea behind this patch. But I have
-> heard others argue against it. But it is not related to the
-> ^C issue others have mentioned. That should not happen in
-> the GIT kernel.
-> 
-> >  drivers/i2c/busses/i2c-davinci.c |   98 +++++++++++++++++++++++++++++++++++--
-> >  1 files changed, 92 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> > index 17f2ee7..4ed1a4c 100755
-> > --- a/drivers/i2c/busses/i2c-davinci.c
-> > +++ b/drivers/i2c/busses/i2c-davinci.c
-> > @@ -35,14 +35,18 @@
-> >  #include <linux/interrupt.h>
-> >  #include <linux/platform_device.h>
-> >  #include <linux/io.h>
-> > +#include <linux/gpio.h>
-> >  
-> >  #include <mach/hardware.h>
-> >  
-> >  #include <mach/i2c.h>
-> > +#include <mach/mux.h>
-> > +#include <mach/cputype.h>
-> >  
-> >  /* ----- global defines ----------------------------------------------- */
-> >  
-> >  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
-> > +#define DAVINCI_I2C_MAX_TRIES	2
-> >  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
-> >  				 DAVINCI_I2C_IMR_SCD | \
-> >  				 DAVINCI_I2C_IMR_ARDY | \
-> > @@ -135,6 +139,50 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
-> >  }
-> >  
-> >  /*
-> > + * Configure the i2c data pin as a GPIO input and the i2c clock pin as a
-> > + * high GPIO output.
-> > + */
-> > +static void disable_i2c_pins(void)
-> > +{
-> > +	unsigned long flags;
-> > +
-> > +	local_irq_save(flags);
-> > +	if (cpu_is_davinci_dm355()) {
-> > +		gpio_direction_input(15);
-> > +		gpio_direction_output(14, 0);
-> > +		gpio_set_value(14, 1);
-> > +		davinci_cfg_reg(DM355_I2C_SDA);
-> > +		davinci_cfg_reg(DM355_I2C_SCL);
-> > +	}
-> > +	local_irq_restore(flags);
-> > +}
-> > +
-> > +/* Connect the i2c pins to the i2c controller. */
-> > +static void enable_i2c_pins(void)
-> > +{
-> > +	unsigned long flags;
-> > +
-> > +	local_irq_save(flags);
-> > +	if (cpu_is_davinci_dm355()) {
-> > +		davinci_cfg_reg(DM355_I2C_SDA);
-> > +		davinci_cfg_reg(DM355_I2C_SCL);
-> > +	}
-> > +	local_irq_restore(flags);
-> > +}
-> > +
-> > +
-> > +/* Generate a pulse on the i2c clock pin. */
-> > +static void pulse_i2c_clock(void)
-> > +{
-> > +	if (cpu_is_davinci_dm355()) {
-> > +		gpio_set_value(14, 0);
-> > +		udelay(20);
-> > +		gpio_set_value(14, 1);
-> > +		udelay(20);
-> > +	}
-> > +}
-> > +
-> > +/*
-> >   * This functions configures I2C and brings I2C out of reset.
-> >   * This function is called during I2C init function. This function
-> >   * also gets called if I2C encounters any errors.
-> > @@ -221,14 +269,36 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
-> >  					 char allow_sleep)
-> >  {
-> >  	unsigned long timeout;
-> > +	u16 i;
-> > +	static u16 to_cnt = 0;
-> > +	u32 flag = 0;
-> >  
-> >  	timeout = jiffies + dev->adapter.timeout;
-> >  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
-> > -	       & DAVINCI_I2C_STR_BB) {
-> > -		if (time_after(jiffies, timeout)) {
-> > -			dev_warn(dev->dev,
-> > -				 "timeout waiting for bus ready\n");
-> > -			return -ETIMEDOUT;
-> > +			& DAVINCI_I2C_STR_BB) {
-> > +
-> > +		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
-> > +			if (time_after(jiffies, timeout)) {
-> > +				dev_warn(dev->dev,
-> > +					"timeout waiting for bus ready\n");
-> > +				to_cnt++;
-> > +				return -ETIMEDOUT;
-> > +			}
-> > +		} else if (cpu_is_davinci_dm644x() || cpu_is_davinci_dm355()) {
-> 
-> I would not initiate recovery until a timeout occurs.
-> This can be a multi master bus, so a busy condition
-> may be valid. Then, after multiple timeouts and recovery attempts,
-> return -ETIMEDOUT
+Because of OMAP off-mode, powerdomain can go off when I2C is idle.
+Save enough state, and do a re-init for each transfer.
 
-Yes, I agree. I wait for a maximum of 2 tries when a timeout occurs
-before initiating bus recovery.
+Additional save/restore state added by Jagadeesh Bhaskar Pakaravoor
+(SYSC_REG) and Aaro Koskinen (wakeup sources.)
 
+Also, The OMAP3430 TRM states:
 
-Regards,
-Philby
+"During active mode (I2Ci.I2C_CON[15] I2C_EN bit is set to 1), make no
+changes to the I2Ci.I2C_SCLL and I2Ci.I2C_SCLH registers.  Changes may
+result in unpredictable behavior."
+
+Hence, the I2C_EN bit should be clearer when modifying these
+registers. Please note that clearing the entire I2C_CON register to
+disable the I2C module is safe, because the I2C_CON register is
+re-configured for each transfer.
+
+Signed-off-by: Jouni Hogander <jouni.hogander-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
+Cc: Jagadeesh Bhaskar Pakaravoor <j-pakaravoor-l0cyMroinI0@public.gmane.org>
+Cc: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+Cc: Hu Tao <taohu-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Cc: Xiaolong Chen <A21785-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+---
+Originally posted on 21-july-2009 for the 2.6.32 merge window:
+
+  http://marc.info/?l=linux-i2c&m=124821776627177&w=2
+
+Please queue for 2.6.32-rc if still possible, or at least for 2.6.33.
+
+ drivers/i2c/busses/i2c-omap.c |   64 ++++++++++++++++++++++++++--------------
+ 1 files changed, 41 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 827da08..75bf3ad 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -178,6 +178,12 @@ struct omap_i2c_dev {
+ 	unsigned		b_hw:1;		/* bad h/w fixes */
+ 	unsigned		idle:1;
+ 	u16			iestate;	/* Saved interrupt register */
++	u16			pscstate;
++	u16			scllstate;
++	u16			sclhstate;
++	u16			bufstate;
++	u16			syscstate;
++	u16			westate;
+ };
+ 
+ static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+@@ -230,9 +236,18 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+ 
+ 	clk_enable(dev->iclk);
+ 	clk_enable(dev->fclk);
++	if (cpu_is_omap34xx()) {
++		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
++		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
++		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++	}
+ 	dev->idle = 0;
+-	if (dev->iestate)
+-		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+ }
+ 
+ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+@@ -258,7 +273,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 
+ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ {
+-	u16 psc = 0, scll = 0, sclh = 0;
++	u16 psc = 0, scll = 0, sclh = 0, buf = 0;
+ 	u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
+ 	unsigned long fclk_rate = 12000000;
+ 	unsigned long timeout;
+@@ -287,24 +302,22 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 					   SYSC_AUTOIDLE_MASK);
+ 
+ 		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
+-			u32 v;
+-
+-			v = SYSC_AUTOIDLE_MASK;
+-			v |= SYSC_ENAWAKEUP_MASK;
+-			v |= (SYSC_IDLEMODE_SMART <<
++			dev->syscstate = SYSC_AUTOIDLE_MASK;
++			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
++			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+ 			      __ffs(SYSC_SIDLEMODE_MASK));
+-			v |= (SYSC_CLOCKACTIVITY_FCLK <<
++			dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK <<
+ 			      __ffs(SYSC_CLOCKACTIVITY_MASK));
+ 
+-			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, v);
++			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
++							dev->syscstate);
+ 			/*
+ 			 * Enabling all wakup sources to stop I2C freezing on
+ 			 * WFI instruction.
+ 			 * REVISIT: Some wkup sources might not be needed.
+ 			 */
+-			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+-							OMAP_I2C_WE_ALL);
+-
++			dev->westate = OMAP_I2C_WE_ALL;
++			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+ 		}
+ 	}
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+@@ -394,23 +407,28 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, scll);
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, sclh);
+ 
+-	if (dev->fifo_size)
+-		/* Note: setup required fifo size - 1 */
+-		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG,
+-					(dev->fifo_size - 1) << 8 | /* RTRSH */
+-					OMAP_I2C_BUF_RXFIF_CLR |
+-					(dev->fifo_size - 1) | /* XTRSH */
+-					OMAP_I2C_BUF_TXFIF_CLR);
++	if (dev->fifo_size) {
++		/* Note: setup required fifo size - 1. RTRSH and XTRSH */
++		buf = (dev->fifo_size - 1) << 8 | OMAP_I2C_BUF_RXFIF_CLR |
++			(dev->fifo_size - 1) | OMAP_I2C_BUF_TXFIF_CLR;
++		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, buf);
++	}
+ 
+ 	/* Take the I2C module out of reset: */
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+ 
+ 	/* Enable interrupts */
+-	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG,
+-			(OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
++	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+ 			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+ 			OMAP_I2C_IE_AL)  | ((dev->fifo_size) ?
+-				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0));
++				(OMAP_I2C_IE_RDR | OMAP_I2C_IE_XDR) : 0);
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	if (cpu_is_omap34xx()) {
++		dev->pscstate = psc;
++		dev->scllstate = scll;
++		dev->sclhstate = sclh;
++		dev->bufstate = buf;
++	}
+ 	return 0;
+ }
+ 
+-- 
+1.6.5.1
