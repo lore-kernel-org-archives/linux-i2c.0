@@ -1,78 +1,41 @@
-From: "Karicheri, Muralidharan" <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
-Date: Tue, 24 Nov 2009 18:00:28 -0600
-Message-ID: <A69FA2915331DC488A831521EAE36FE40155AD7588@dlee06.ent.ti.com>
-References: <1246920516-31462-1-git-send-email-khilman@deeprootsystems.com>
-	 <20090707231938.GA9907@fluff.org.uk> <87skh79uai.fsf@deeprootsystems.com>
-	 <A69FA2915331DC488A831521EAE36FE40144D8117B@dlee06.ent.ti.com>
-	 <1247642943.5981.76.camel@localhost.localdomain>
-	 <A69FA2915331DC488A831521EAE36FE40144F1E816@dlee06.ent.ti.com>
- <1258989866.20007.237.camel@localhost.localdomain>
+From: Lanttor <lanttor.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: i2c adapter scan device issue
+Date: Wed, 25 Nov 2009 12:18:05 +0800
+Message-ID: <4B0CAFFD.7030603@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1258989866.20007.237.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-John,
+Hi,
 
-Thanks for working on this. I will give it a try tomorrow and let you know.
+I have a confused problem as follows:
 
-Murali Karicheri
-Software Design Engineer
-Texas Instruments Inc.
-Germantown, MD 20874
-phone: 301-407-9583
-email: m-karicheri2-l0cyMroinI0@public.gmane.org
+I instantiate a i2c device with function i2c_register_board_info();
+This function pre-declare the I2C devices which live on this bus and the
+call of it
+is before the real i2c bus driver loaded.
 
->-----Original Message-----
->From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
->Sent: Monday, November 23, 2009 10:24 AM
->To: Karicheri, Muralidharan
->Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
->source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
->
->Hello Murali,
->
->On Thu, 2009-07-16 at 16:22 -0500, Karicheri, Muralidharan wrote:
->> Philby,
->>
->> I tried running this patch against 2.6.31.rc2 (davinci kernel tree). But
->I got a crash as I run the application which is given below....
->>
->> In my case, time out happens when I kill the capture application using
->Cntrl-C. After Cnrtl-C, the mt9t031 i2c device couldn't be contacted by the
->host (during cleanup, i2c commands fails). When the application is run
->again, I get following outputs..
->>
->> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
->> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
->>
->> Here are the complete log....
->>
->> application running and pressed Cntrl-C ====>
->>
->> time:105    frame:33
->> time:105    frame:34vpfe-capture vpfe-capture: stream off failed in
->subdev
->>
->> Running it again .....
->>
->> root-fKfTphxkbEe3Z1R/gWBstg@public.gmane.org:/opt/git# ./fbdev_loopback -i2 -d0
->
->
->I have now verified the code on a DM6446 and DM355, with
->the ./fbdev_loopback test. I had to first do a #./i2cset -y 0 0x50 0x00
->0x0000 w to kill the bus and then run the ./fbdev_loopback test to
->recreate the issue. Recovery seems to happen with the new patch. Could
->you try this out at your end, with the new patch?
->
->Thanks and regards,
->Philby
->
+In i2c_register_board_info(),
+__i2c_first_dynamic_bus_num = busnum +1;
+
+My i2c bus driver use i2c_add_adapter() to register adapter, In
+i2c_add_adapter(),
+res = idr_get_new_above(&i2c_adapter_idr, adapter,
+                                __i2c_first_dynamic_bus_num , &id);
+
+adapter->nr = id;
+
+That means if I pass busnum 0 to i2c_register_board_info(), but my i2c
+adapter will get
+busnum 1 and so it can't scan pre-declared i2c devices.
+In fact, I only have one i2c adapter.
+
+It seems I can't use i2c_add_adapter(), instead of using
+i2c_add_numbered_adapter, right?
+
+Best Regards,
+Lanttor
