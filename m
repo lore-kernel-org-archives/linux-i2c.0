@@ -1,41 +1,49 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c adapter scan device issue
-Date: Wed, 25 Nov 2009 09:53:31 +0100
-Message-ID: <20091125095331.5cbdbae6@hyperion.delvare>
-References: <4B0CAFFD.7030603@freescale.com>
-	<20091125091218.518d47af@hyperion.delvare>
-	<4B0CEDDA.2000909@freescale.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] at24: use timeout also for read
+Date: Wed, 25 Nov 2009 10:20:09 +0100
+Message-ID: <20091125092009.GA4692@pengutronix.de>
+References: <20091106131524.76ae52b9@hyperion.delvare> <1257711297-19927-1-git-send-email-w.sang@pengutronix.de> <20091122210846.14666e23@hyperion.delvare> <20091125090907.3e4e9155@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B0CEDDA.2000909-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20091125090907.3e4e9155-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lanttor <lanttor.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 25 Nov 2009 16:42:02 +0800, Lanttor wrote:
-> >
-> > Yes, you are correct. You can't predefine I2C devices with
-> > i2c_register_board_info() if you don't also set I2C adapter numbers
-> > with i2c_add_numbered_adapter(). Trying would be equivalent to sending a
-> > letter to someone when you know the city and street number but not the
-> > street name: unlikely to succeed.
-> >   
-> Thanks Jean.
-> 
-> In fact my bus driver used i2c_add_adapter() not i2c_add_numbered_adapter().
-> Now I use i2c_add_numbered_adapter() to replace 2c_add_adapter() and set
-> the bus number first.
-> 
-> In one word, you mean that i2c_add_adapter() can not work normally if
-> useing i2c_register_board_info() to pre-declare the i2c device, right?
 
-Yes, exactly.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I really need track i2c-stack in detail.
+On Wed, Nov 25, 2009 at 09:09:07AM +0100, Jean Delvare wrote:
+> On Sun, 22 Nov 2009 21:08:46 +0100, Jean Delvare wrote:
+> > Other than that this looks good. If the above change is OK with you
+> > then I can push this fix to Linus quickly.
+>=20
+> Ping Wolfram. This becomes urgent...
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+Argh, sorry, this message slipped through. Will work on it right now!
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAksM9skACgkQD27XaX1/VRtEggCgjvAfntRPMG765DV50Z1/l1o5
+uUEAoMxLHiAlq1whNvPZ9HVOgb7IZj0V
+=z+OD
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
