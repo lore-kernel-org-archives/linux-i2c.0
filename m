@@ -1,49 +1,145 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] at24: use timeout also for read
-Date: Wed, 25 Nov 2009 10:20:09 +0100
-Message-ID: <20091125092009.GA4692@pengutronix.de>
-References: <20091106131524.76ae52b9@hyperion.delvare> <1257711297-19927-1-git-send-email-w.sang@pengutronix.de> <20091122210846.14666e23@hyperion.delvare> <20091125090907.3e4e9155@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Subject: [PATCH V2] at24: use timeout also for read
+Date: Wed, 25 Nov 2009 10:37:56 +0100
+Message-ID: <1259141876-15458-1-git-send-email-w.sang@pengutronix.de>
+References: <20091122210846.14666e23@hyperion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20091125090907.3e4e9155-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20091122210846.14666e23-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Writes may take some time on EEPROMs, so for consecutive writes, we already
+have a loop waiting for the EEPROM to become ready. Use such a loop for reads,
+too, in case somebody wants to immediately read after a write. Detailed bug
+report and test case can be found here:
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://article.gmane.org/gmane.linux.drivers.i2c/4660
 
-On Wed, Nov 25, 2009 at 09:09:07AM +0100, Jean Delvare wrote:
-> On Sun, 22 Nov 2009 21:08:46 +0100, Jean Delvare wrote:
-> > Other than that this looks good. If the above change is OK with you
-> > then I can push this fix to Linus quickly.
->=20
-> Ping Wolfram. This becomes urgent...
+Reported-by: Aleksandar Ivanov <ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Tested-by: Aleksandar Ivanov <ivanov.aleks-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
 
-Argh, sorry, this message slipped through. Will work on it right now!
+I could reproduce the errornous behaviour and this patch fixes it for me.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Jean, you can use this version or modify V1 yourself. Whatever is faster/easier
+for you.
 
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Changes since V1:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+- Use return value from i2c_smbus_read_i2c_block_data() directly as it returns the
+  number of bytes transferred.
 
-iEYEARECAAYFAksM9skACgkQD27XaX1/VRtEggCgjvAfntRPMG765DV50Z1/l1o5
-uUEAoMxLHiAlq1whNvPZ9HVOgb7IZj0V
-=z+OD
------END PGP SIGNATURE-----
+ drivers/misc/eeprom/at24.c |   76 ++++++++++++++++++++++++++------------------
+ 1 files changed, 45 insertions(+), 31 deletions(-)
 
---2oS5YaxWCcQjTEyO--
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index db39f4a..cb0ff68 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -158,6 +158,7 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 	struct i2c_msg msg[2];
+ 	u8 msgbuf[2];
+ 	struct i2c_client *client;
++	unsigned long timeout, read_time;
+ 	int status, i;
+ 
+ 	memset(msg, 0, sizeof(msg));
+@@ -183,47 +184,60 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 	if (count > io_limit)
+ 		count = io_limit;
+ 
+-	/* Smaller eeproms can work given some SMBus extension calls */
+ 	if (at24->use_smbus) {
++		/* Smaller eeproms can work given some SMBus extension calls */
+ 		if (count > I2C_SMBUS_BLOCK_MAX)
+ 			count = I2C_SMBUS_BLOCK_MAX;
+-		status = i2c_smbus_read_i2c_block_data(client, offset,
+-				count, buf);
+-		dev_dbg(&client->dev, "smbus read %zu@%d --> %d\n",
+-				count, offset, status);
+-		return (status < 0) ? -EIO : status;
++	} else {
++		/*
++		 * When we have a better choice than SMBus calls, use a
++		 * combined I2C message. Write address; then read up to
++		 * io_limit data bytes. Note that read page rollover helps us
++		 * here (unlike writes). msgbuf is u8 and will cast to our
++		 * needs.
++		 */
++		i = 0;
++		if (at24->chip.flags & AT24_FLAG_ADDR16)
++			msgbuf[i++] = offset >> 8;
++		msgbuf[i++] = offset;
++
++		msg[0].addr = client->addr;
++		msg[0].buf = msgbuf;
++		msg[0].len = i;
++
++		msg[1].addr = client->addr;
++		msg[1].flags = I2C_M_RD;
++		msg[1].buf = buf;
++		msg[1].len = count;
+ 	}
+ 
+ 	/*
+-	 * When we have a better choice than SMBus calls, use a combined
+-	 * I2C message. Write address; then read up to io_limit data bytes.
+-	 * Note that read page rollover helps us here (unlike writes).
+-	 * msgbuf is u8 and will cast to our needs.
++	 * Reads fail if the previous write didn't complete yet. We may
++	 * loop a few times until this one succeeds, waiting at least
++	 * long enough for one entire page write to work.
+ 	 */
+-	i = 0;
+-	if (at24->chip.flags & AT24_FLAG_ADDR16)
+-		msgbuf[i++] = offset >> 8;
+-	msgbuf[i++] = offset;
+-
+-	msg[0].addr = client->addr;
+-	msg[0].buf = msgbuf;
+-	msg[0].len = i;
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		read_time = jiffies;
++		if (at24->use_smbus) {
++			status = i2c_smbus_read_i2c_block_data(client, offset,
++					count, buf);
++		} else {
++			status = i2c_transfer(client->adapter, msg, 2);
++			if (status == 2)
++				status = count;
++		}
++		dev_dbg(&client->dev, "read %zu@%d --> %zd (%ld)\n",
++				count, offset, status, jiffies);
+ 
+-	msg[1].addr = client->addr;
+-	msg[1].flags = I2C_M_RD;
+-	msg[1].buf = buf;
+-	msg[1].len = count;
++		if (status == count)
++			return count;
+ 
+-	status = i2c_transfer(client->adapter, msg, 2);
+-	dev_dbg(&client->dev, "i2c read %zu@%d --> %d\n",
+-			count, offset, status);
++		/* REVISIT: at HZ=100, this is sloooow */
++		msleep(1);
++	} while (time_before(read_time, timeout));
+ 
+-	if (status == 2)
+-		return count;
+-	else if (status >= 0)
+-		return -EIO;
+-	else
+-		return status;
++	return -ETIMEDOUT;
+ }
+ 
+ static ssize_t at24_read(struct at24_data *at24,
+-- 
+1.6.3.3
