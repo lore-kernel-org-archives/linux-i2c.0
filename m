@@ -1,53 +1,118 @@
-From: Joakim Tjernlund <joakim.tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused	by read
- i2c_msg
-Date: Thu, 3 Dec 2009 16:49:23 +0100
-Message-ID: <OF5BEE61B6.E2295369-ONC1257681.0056B9B3-C1257681.0056EB5C@transmode.se>
-References: <4A124202.4010201@doredevelopment.dk>	<d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com>
-	<20090526213351.GG23114@fluff.org.uk> <4B17D4C5.3070100@gmx.de> <20091203152916.GC23152@trinity.fluff.org>
+From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
+Date: Thu, 03 Dec 2009 21:42:23 +0530
+Message-ID: <1259856743.24844.13.camel@localhost.localdomain>
+References: <1246920516-31462-1-git-send-email-khilman@deeprootsystems.com>
+	 <20090707231938.GA9907@fluff.org.uk> <87skh79uai.fsf@deeprootsystems.com>
+	 <A69FA2915331DC488A831521EAE36FE40144D8117B@dlee06.ent.ti.com>
+	 <1247642943.5981.76.camel@localhost.localdomain>
+	 <A69FA2915331DC488A831521EAE36FE40144F1E816@dlee06.ent.ti.com>
+	 <1258989866.20007.237.camel@localhost.localdomain>
+	 <A69FA2915331DC488A831521EAE36FE40155B773AC@dlee06.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091203152916.GC23152-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <A69FA2915331DC488A831521EAE36FE40155B773AC-UmuGNrFEPrGIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>, Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+To: "Karicheri, Muralidharan" <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->
-> On Thu, Dec 03, 2009 at 04:09:57PM +0100, Michael Lawnick wrote:
-> > Ben Dooks said the following:
-> > > On Tue, May 26, 2009 at 01:30:21PM +0200, Esben Haabendal wrote:
-> > >> On Tue, May 19, 2009 at 7:22 AM, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org> wrote:
-> > >> > This fixes MAL (arbitration lost) bug caused by illegal use of
-> > >> > RSTA (repeated START) after STOP condition generated after last byte
-> > >> > of reads. With this patch, it is possible to do an i2c_transfer() with
-> > >> > additional i2c_msg's following the I2C_M_RD messages.
-> > >> >
-> > >> > It still needs to be resolved if it is possible to fix this issue
-> > >> > by removing the STOP condition after reads in a robust way.
-> > >> >
-> > >> > Signed-off-by: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
-> > >> > ---
-> > >> > ?drivers/i2c/busses/i2c-mpc.c | ? ?9 +++++++--
-> > >> > ?1 files changed, 7 insertions(+), 2 deletions(-)
-> > >>
-> > >> Any blockers to get this accepted?
-> > >
-> > > It would be nice to get an ack from someone who can actually test
-> > > the driver before getting this merged.
-> > >
-> > What is the state of this patch?
-> > Shouldn't we attack the problem on a more general way by inventing a
-> > Flag I2C_M_RESTART (or better I2C_M_NO_RESTART for backward compatibility)?
-> > This way the client driver is able to decide what it needs. If we do the
-> > choice within adapter, chance is about 50% to be wrong.
->
-> The documentation for 'struct i2c_msg' already says the STOP should only
-> be generated for the last message of the transfer. If STOP is being
-> generated for a message that isn't the last in the transfer than this
-> is incorrect behaviour.
->
-> Unless otherwise indicated, I'll put the patch in the series that I'll
-> send to Linus early next week.
+Murali,
 
-Don't, already fixed properly and in Linus tree already.
+	The patch works for DM6446 and DM355 only. To get it to work for DM365
+one must update the gpio pin number variables (sda_pin and scl_pin) in
+struct davinci_i2c_platform_data for each platform.
+
+I do not have the pin number information for other Davinci platforms.
+This was mentioned in the comment section of the patch v2...
+
+"TODO: Need to add SDA and SCL pin numbers to the respective
+platforms such as dm355-leopard, dm365, dm646x, da8xx etc.
+What I have info on is limited to just dm355 and dm6446."
+
+If someone can provide me with the relevant information, I could update
+for all.
+
+I used "./i2cset -y 0 0x50 0x00" cause its the only way to kill the i2c
+bus on a 2.6.18 kernel with DVSDK 2.0. FYI, I do not know how to
+generate cmem.ko for the Arago tree kernel that would get
+"fbdev_loopback" running.
+
+Regards,
+Philby
+
+
+On Thu, 2009-12-03 at 09:45 -0600, Karicheri, Muralidharan wrote:
+> Philby,
+> 
+> Is this a generic solution which works on DM365 as well?
+> 
+> Why did you do the following command?
+> 
+> #./i2cset -y 0 0x50 0x00
+> 
+> Using the Arago tree kernel I was able to reproduce the issue
+> by doing
+> 
+> ./fbdev_loopback -i2 -d0
+> 
+> and then press Control C. I am not sure why you run the command
+> ./i2cset -y 0 0x50 0x00
+> 
+> 
+> Murali Karicheri
+> Software Design Engineer
+> Texas Instruments Inc.
+> Germantown, MD 20874
+> phone: 301-407-9583
+> email: m-karicheri2-l0cyMroinI0@public.gmane.org
+> 
+> >-----Original Message-----
+> >From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
+> >Sent: Monday, November 23, 2009 10:24 AM
+> >To: Karicheri, Muralidharan
+> >Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
+> >source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> >Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
+> >
+> >Hello Murali,
+> >
+> >On Thu, 2009-07-16 at 16:22 -0500, Karicheri, Muralidharan wrote:
+> >> Philby,
+> >>
+> >> I tried running this patch against 2.6.31.rc2 (davinci kernel tree). But
+> >I got a crash as I run the application which is given below....
+> >>
+> >> In my case, time out happens when I kill the capture application using
+> >Cntrl-C. After Cnrtl-C, the mt9t031 i2c device couldn't be contacted by the
+> >host (during cleanup, i2c commands fails). When the application is run
+> >again, I get following outputs..
+> >>
+> >> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
+> >> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
+> >>
+> >> Here are the complete log....
+> >>
+> >> application running and pressed Cntrl-C ====>
+> >>
+> >> time:105    frame:33
+> >> time:105    frame:34vpfe-capture vpfe-capture: stream off failed in
+> >subdev
+> >>
+> >> Running it again .....
+> >>
+> >> root-fKfTphxkbEe3Z1R/gWBstg@public.gmane.org:/opt/git# ./fbdev_loopback -i2 -d0
+> >
+> >
+> >I have now verified the code on a DM6446 and DM355, with
+> >the ./fbdev_loopback test. I had to first do a #./i2cset -y 0 0x50 0x00
+> >0x0000 w to kill the bus and then run the ./fbdev_loopback test to
+> >recreate the issue. Recovery seems to happen with the new patch. Could
+> >you try this out at your end, with the new patch?
+> >
+> >Thanks and regards,
+> >Philby
+> >
+> 
