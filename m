@@ -1,218 +1,80 @@
-From: "Karicheri, Muralidharan" <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
-Date: Thu, 3 Dec 2009 13:20:46 -0600
-Message-ID: <A69FA2915331DC488A831521EAE36FE40155B7759E@dlee06.ent.ti.com>
-References: <1246920516-31462-1-git-send-email-khilman@deeprootsystems.com>
-	 <20090707231938.GA9907@fluff.org.uk> <87skh79uai.fsf@deeprootsystems.com>
-	 <A69FA2915331DC488A831521EAE36FE40144D8117B@dlee06.ent.ti.com>
-	 <1247642943.5981.76.camel@localhost.localdomain>
-	 <A69FA2915331DC488A831521EAE36FE40144F1E816@dlee06.ent.ti.com>
-	 <1258989866.20007.237.camel@localhost.localdomain>
-	 <A69FA2915331DC488A831521EAE36FE40155B773AC@dlee06.ent.ti.com>
-	 <1259856743.24844.13.camel@localhost.localdomain>
-	 <A69FA2915331DC488A831521EAE36FE40155B77431@dlee06.ent.ti.com>
-	 <1259859011.24844.19.camel@localhost.localdomain>
-	 <A69FA2915331DC488A831521EAE36FE40155B77522@dlee06.ent.ti.com>
- <1259863857.24844.27.camel@localhost.localdomain>
+From: Sven Anders <anders-3bOZC6EutKuELgA04lAiVw@public.gmane.org>
+Subject: Re: Need help: Watchdog-driver over smbus (i2c)
+Date: Thu, 03 Dec 2009 21:56:59 +0100
+Message-ID: <4B18261B.8070507@anduras.de>
+References: <4B14395F.4070608@anduras.de> <20091201103120.6ba0f7e0@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed;
+ boundary="------------080803030707090802090707"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1259863857.24844.27.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20091201103120.6ba0f7e0-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Philby,
+This is a multi-part message in MIME format.
+--------------080803030707090802090707
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 
-My MT9T031 sensor has some problem (i2c stopped responding). So I need to get a sensor to test your fix.  Let you know if I could test it.
+Jean Delvare schrieb:
+> Hallo Sven,
+> 
+> On Mon, 30 Nov 2009 22:30:07 +0100, Sven Anders wrote:
+>
+>> Moreover the w83793g hardware sensors driver may already
+>> accessing the same chip. What is the normal way to deal with this?
+> 
+> Do not write a separate driver for the watchdog functionality. Instead,
+> add the functionality to the existing hwmon/w83793.c driver. Otherwise
+> both features will be mutually exclusive.
+> 
+> An example of how this can be done is in hwmon/fschmd.c [1] if you want
+> to take a look. This is an I2C/SMBus device driver as well, so your code
+> should be very similar in the end.
+> 
+> [1] http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;f=drivers/hwmon/fschmd.c
+> 
+> Hope this helps,
 
-Murali Karicheri
-Software Design Engineer
-Texas Instruments Inc.
-Germantown, MD 20874
-phone: 301-407-9583
-email: m-karicheri2-l0cyMroinI0@public.gmane.org
+Yes, thanks! This was the hint I needed.
+Now I finished the watchdog driver and it's working!
 
->-----Original Message-----
->From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
->Sent: Thursday, December 03, 2009 1:11 PM
->To: Karicheri, Muralidharan
->Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
->source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
->
->Yes, it did (on DM355).
->Let me know the result and I could also use the log in case of a kernel
->dump.
->
->Thanks.
->Philby
->
->On Thu, 2009-12-03 at 12:01 -0600, Karicheri, Muralidharan wrote:
->> I can verify on DM355. But I will be running latest kernel on Arago. I
->have manually merged your patch. Did it worked on DM355?
->>
->> Murali Karicheri
->> Software Design Engineer
->> Texas Instruments Inc.
->> Germantown, MD 20874
->> phone: 301-407-9583
->> email: m-karicheri2-l0cyMroinI0@public.gmane.org
->>
->> >-----Original Message-----
->> >From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
->> >Sent: Thursday, December 03, 2009 11:50 AM
->> >To: Karicheri, Muralidharan
->> >Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
->> >source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> >Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
->> >
->> >Murali,
->> >
->> >	It would be excellent if you could verify the patch on a DM6446 first
->> >and perhaps then make changes for DM365.
->> >
->> >Regards,
->> >Philby
->> >
->> >
->> >
->> >On Thu, 2009-12-03 at 10:33 -0600, Karicheri, Muralidharan wrote:
->> >> Philby,
->> >>
->> >> So where is the patch for adding davinci_i2c_platform_data in the
->> >platform
->> >> file? Could you send it please?
->> >>
->> >> Murali Karicheri
->> >> Software Design Engineer
->> >> Texas Instruments Inc.
->> >> Germantown, MD 20874
->> >> phone: 301-407-9583
->> >> email: m-karicheri2-l0cyMroinI0@public.gmane.org
->> >>
->> >> >-----Original Message-----
->> >> >From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
->> >> >Sent: Thursday, December 03, 2009 11:12 AM
->> >> >To: Karicheri, Muralidharan
->> >> >Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
->> >> >source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> >> >Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
->> >> >
->> >> >Murali,
->> >> >
->> >> >	The patch works for DM6446 and DM355 only. To get it to work
->for
->> >> >DM365
->> >> >one must update the gpio pin number variables (sda_pin and scl_pin)
->in
->> >> >struct davinci_i2c_platform_data for each platform.
->> >> >
->> >> >I do not have the pin number information for other Davinci platforms.
->> >> >This was mentioned in the comment section of the patch v2...
->> >> >
->> >> >"TODO: Need to add SDA and SCL pin numbers to the respective
->> >> >platforms such as dm355-leopard, dm365, dm646x, da8xx etc.
->> >> >What I have info on is limited to just dm355 and dm6446."
->> >> >
->> >> >If someone can provide me with the relevant information, I could
->update
->> >> >for all.
->> >> >
->> >> >I used "./i2cset -y 0 0x50 0x00" cause its the only way to kill the
->i2c
->> >> >bus on a 2.6.18 kernel with DVSDK 2.0. FYI, I do not know how to
->> >> >generate cmem.ko for the Arago tree kernel that would get
->> >> >"fbdev_loopback" running.
->> >> >
->> >> >Regards,
->> >> >Philby
->> >> >
->> >> >
->> >> >On Thu, 2009-12-03 at 09:45 -0600, Karicheri, Muralidharan wrote:
->> >> >> Philby,
->> >> >>
->> >> >> Is this a generic solution which works on DM365 as well?
->> >> >>
->> >> >> Why did you do the following command?
->> >> >>
->> >> >> #./i2cset -y 0 0x50 0x00
->> >> >>
->> >> >> Using the Arago tree kernel I was able to reproduce the issue
->> >> >> by doing
->> >> >>
->> >> >> ./fbdev_loopback -i2 -d0
->> >> >>
->> >> >> and then press Control C. I am not sure why you run the command
->> >> >> ./i2cset -y 0 0x50 0x00
->> >> >>
->> >> >>
->> >> >> Murali Karicheri
->> >> >> Software Design Engineer
->> >> >> Texas Instruments Inc.
->> >> >> Germantown, MD 20874
->> >> >> phone: 301-407-9583
->> >> >> email: m-karicheri2-l0cyMroinI0@public.gmane.org
->> >> >>
->> >> >> >-----Original Message-----
->> >> >> >From: Philby John [mailto:pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org]
->> >> >> >Sent: Monday, November 23, 2009 10:24 AM
->> >> >> >To: Karicheri, Muralidharan
->> >> >> >Cc: Kevin Hilman; Ben Dooks; davinci-linux-open-
->> >> >> >source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> >> >> >Subject: RE: [PATCH 0/2] davinci i2c fixes for 2.6.31
->> >> >> >
->> >> >> >Hello Murali,
->> >> >> >
->> >> >> >On Thu, 2009-07-16 at 16:22 -0500, Karicheri, Muralidharan wrote:
->> >> >> >> Philby,
->> >> >> >>
->> >> >> >> I tried running this patch against 2.6.31.rc2 (davinci kernel
->tree).
->> >> >But
->> >> >> >I got a crash as I run the application which is given below....
->> >> >> >>
->> >> >> >> In my case, time out happens when I kill the capture application
->> >using
->> >> >> >Cntrl-C. After Cnrtl-C, the mt9t031 i2c device couldn't be
->contacted
->> >by
->> >> >the
->> >> >> >host (during cleanup, i2c commands fails). When the application is
->> >run
->> >> >> >again, I get following outputs..
->> >> >> >>
->> >> >> >> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
->> >> >> >> i2c_davinci i2c_davinci.1: timeout waiting for bus ready
->> >> >> >>
->> >> >> >> Here are the complete log....
->> >> >> >>
->> >> >> >> application running and pressed Cntrl-C ====>
->> >> >> >>
->> >> >> >> time:105    frame:33
->> >> >> >> time:105    frame:34vpfe-capture vpfe-capture: stream off failed
->in
->> >> >> >subdev
->> >> >> >>
->> >> >> >> Running it again .....
->> >> >> >>
->> >> >> >> root-fKfTphxkbEe3Z1R/gWBstg@public.gmane.org:/opt/git# ./fbdev_loopback -i2 -d0
->> >> >> >
->> >> >> >
->> >> >> >I have now verified the code on a DM6446 and DM355, with
->> >> >> >the ./fbdev_loopback test. I had to first do a #./i2cset -y 0 0x50
->> >0x00
->> >> >> >0x0000 w to kill the bus and then run the ./fbdev_loopback test to
->> >> >> >recreate the issue. Recovery seems to happen with the new patch.
->> >Could
->> >> >> >you try this out at your end, with the new patch?
->> >> >> >
->> >> >> >Thanks and regards,
->> >> >> >Philby
->> >> >> >
->> >> >>
->> >>
->>
+Regards
+ Sven Anders
+
+-- 
+ Sven Anders <anders-3bOZC6EutKuELgA04lAiVw@public.gmane.org>                 () Ascii Ribbon Campaign
+                                                 /\ Support plain text e-mail
+ ANDURAS service solutions AG
+ Innstrasse 71 - 94036 Passau - Germany
+ Web: www.anduras.de - Tel: +49 (0)851-4 90 50-0 - Fax: +49 (0)851-4 90 50-55
+
+Those who would give up essential Liberty, to purchase a little
+temporary Safety, deserve neither Liberty nor Safety.
+  - Benjamin Franklin
+
+--------------080803030707090802090707
+Content-Type: text/x-vcard; charset=utf-8;
+ name="anders.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="anders.vcf"
+
+begin:vcard
+fn:Sven Anders
+n:Anders;Sven
+org:ANDURAS AG;Research and Development
+adr;quoted-printable:;;Innstra=C3=9Fe 71;Passau;Bavaria;94036;Germany
+email;internet:anders-3bOZC6EutKuELgA04lAiVw@public.gmane.org
+title:Dipl. Inf.
+tel;work:++49 (0)851 / 490 50 -0
+tel;fax:++49 (0)851 / 590 50 - 55
+x-mozilla-html:FALSE
+url:http://www.anduras.de
+version:2.1
+end:vcard
+
+
+--------------080803030707090802090707--
