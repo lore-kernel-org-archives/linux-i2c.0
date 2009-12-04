@@ -1,59 +1,114 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-mpc: generate START condition after STOP caused
- by read i2c_msg
-Date: Fri, 04 Dec 2009 07:58:19 +0100
-Message-ID: <4B18B30B.1080904@gmx.de>
-References: <4A124202.4010201@doredevelopment.dk> <d2b9ea600905260430i72290901p9266de4cade049c1@mail.gmail.com> <20090526213351.GG23114@fluff.org.uk> <4B17D4C5.3070100@gmx.de> <20091203152916.GC23152@trinity.fluff.org>
+From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] driver i2c-core: i2c bus should support PM entries in
+	struct dev_pm_ops.
+Date: Fri, 4 Dec 2009 17:24:00 +0800
+Message-ID: <4e5ebad50912040124i35e8c8c7iba71737c966c26ea@mail.gmail.com>
+References: <1259744920.25505.2.camel@eight.analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091203152916.GC23152-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1259744920.25505.2.camel-x+10Id33CNwLe6dzpsQaEw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Esben Haabendal <esbenhaabendal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks said the following:
-> On Thu, Dec 03, 2009 at 04:09:57PM +0100, Michael Lawnick wrote:
->> Ben Dooks said the following:
->> > On Tue, May 26, 2009 at 01:30:21PM +0200, Esben Haabendal wrote:
->> >> On Tue, May 19, 2009 at 7:22 AM, Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org> wrote:
->> >> > This fixes MAL (arbitration lost) bug caused by illegal use of
->> >> > RSTA (repeated START) after STOP condition generated after last byte
->> >> > of reads. With this patch, it is possible to do an i2c_transfer() with
->> >> > additional i2c_msg's following the I2C_M_RD messages.
->> >> >
->> >> > It still needs to be resolved if it is possible to fix this issue
->> >> > by removing the STOP condition after reads in a robust way.
->> >> >
->> >> > Signed-off-by: Esben Haabendal <eha-SIcX2qgNSybd/EuGEV170n9LOBIZ5rWg@public.gmane.org>
->> >> > ---
->> >> > ?drivers/i2c/busses/i2c-mpc.c | ? ?9 +++++++--
->> >> > ?1 files changed, 7 insertions(+), 2 deletions(-)
->> >> 
->> >> Any blockers to get this accepted?
->> > 
->> > It would be nice to get an ack from someone who can actually test
->> > the driver before getting this merged.
->> >  
->> What is the state of this patch?
->> Shouldn't we attack the problem on a more general way by inventing a
->> Flag I2C_M_RESTART (or better I2C_M_NO_RESTART for backward compatibility)?
->> This way the client driver is able to decide what it needs. If we do the
->> choice within adapter, chance is about 50% to be wrong.
-> 
-> The documentation for 'struct i2c_msg' already says the STOP should only
-> be generated for the last message of the transfer. If STOP is being
-> generated for a message that isn't the last in the transfer than this
-> is incorrect behaviour.
+Any comments?
 
-Ah, now I see, this is a mpc-only problem of implementation
-(automatically generating stop in read function).
-I couldn't find the above mentioned specification of STOP/RESTART (seems
-I need new glasses) and was worried about whether my own implementation
-for OCTEON is correct.
+Thanks.
 
-Thank you.
--- 
-Michael
+Sonic
+
+On Wed, Dec 2, 2009 at 5:08 PM, sonic zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
+:
+> Struct dev_pm_ops is not configured in current i2c bus type. i2c driv=
+ers
+> only depends on suspend/resume entries in struct dev_pm_ops are not
+> informed of PM suspend and resume events by i2c framework.
+>
+> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> ---
+> =A0drivers/i2c/i2c-core.c | =A0 39 ++++++++++++++++++++++++++++++++++=
++++++
+> =A01 files changed, 39 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 2965043..9713c0d 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -155,6 +155,39 @@ static void i2c_device_shutdown(struct device *d=
+ev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0driver->shutdown(client);
+> =A0}
+>
+> +#ifdef CONFIG_SUSPEND
+> +static int i2c_device_pm_suspend(struct device *dev)
+> +{
+> + =A0 =A0 =A0 struct i2c_driver *driver;
+> + =A0 =A0 =A0 struct dev_pm_ops *pm;
+> +
+> + =A0 =A0 =A0 if (!dev->driver)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> + =A0 =A0 =A0 driver =3D to_i2c_driver(dev->driver);
+> + =A0 =A0 =A0 pm =3D driver->driver.pm;
+> + =A0 =A0 =A0 if (!pm || !pm->suspend)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> + =A0 =A0 =A0 return pm->suspend(dev);
+> +}
+> +
+> +static int i2c_device_pm_resume(struct device *dev)
+> +{
+> + =A0 =A0 =A0 struct i2c_driver *driver;
+> + =A0 =A0 =A0 struct dev_pm_ops *pm;
+> +
+> + =A0 =A0 =A0 if (!dev->driver)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> + =A0 =A0 =A0 driver =3D to_i2c_driver(dev->driver);
+> + =A0 =A0 =A0 pm =3D driver->driver.pm;
+> + =A0 =A0 =A0 if (!pm || !pm->resume)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+> + =A0 =A0 =A0 return pm->resume(dev);
+> +}
+> +#else
+> +# define i2c_device_pm_suspend NULL
+> +# define i2c_device_pm_resume =A0NULL
+> +#endif
+> +
+> =A0static int i2c_device_suspend(struct device *dev, pm_message_t mes=
+g)
+> =A0{
+> =A0 =A0 =A0 =A0struct i2c_client *client =3D i2c_verify_client(dev);
+> @@ -219,6 +252,11 @@ static const struct attribute_group *i2c_dev_att=
+r_groups[] =3D {
+> =A0 =A0 =A0 =A0NULL
+> =A0};
+>
+> +static struct dev_pm_ops i2c_device_pm_ops =3D {
+> + =A0 =A0 =A0 .suspend =3D i2c_device_pm_suspend,
+> + =A0 =A0 =A0 .resume =3D i2c_device_pm_resume,
+> +};
+> +
+> =A0struct bus_type i2c_bus_type =3D {
+> =A0 =A0 =A0 =A0.name =A0 =A0 =A0 =A0 =A0 =3D "i2c",
+> =A0 =A0 =A0 =A0.match =A0 =A0 =A0 =A0 =A0=3D i2c_device_match,
+> @@ -227,6 +265,7 @@ struct bus_type i2c_bus_type =3D {
+> =A0 =A0 =A0 =A0.shutdown =A0 =A0 =A0 =3D i2c_device_shutdown,
+> =A0 =A0 =A0 =A0.suspend =A0 =A0 =A0 =A0=3D i2c_device_suspend,
+> =A0 =A0 =A0 =A0.resume =A0 =A0 =A0 =A0 =3D i2c_device_resume,
+> + =A0 =A0 =A0 .pm =A0 =A0 =A0 =A0 =A0 =A0 =3D &i2c_device_pm_ops,
+> =A0};
+> =A0EXPORT_SYMBOL_GPL(i2c_bus_type);
+>
+> --
+> 1.6.0
+>
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at =A0http://www.tux.org/lkml/
+>
