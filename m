@@ -1,131 +1,97 @@
-From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: davinci: Add helper functions
-Date: Mon, 07 Dec 2009 11:24:16 -0700
-Message-ID: <4B1D4850.7010108@boundarydevices.com>
-References: <1260178136-26416-1-git-send-email-chaithrika@ti.com> <1260178136-26416-2-git-send-email-chaithrika@ti.com>
+From: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+Subject: RE: [PATCH 1/1] Remove suspend/resume functionality, add dynamic
+ clocking
+Date: Mon, 7 Dec 2009 20:21:42 +0100
+Message-ID: <083DF309106F364B939360100EC290F804F57A69FA@eu1rdcrdc1wx030.exi.nxp.com>
+References: <083DF309106F364B939360100EC290F804F55C9225@eu1rdcrdc1wx030.exi.nxp.com>
+ <20091126090252.GB12179@pengutronix.de>
+ <083DF309106F364B939360100EC290F804F5659CFF@eu1rdcrdc1wx030.exi.nxp.com>
+ <20091206084731.GE2766@ucw.cz> <20091206210225.GA20887@pengutronix.de>
+ <20091206210739.GE10184@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1260178136-26416-2-git-send-email-chaithrika-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20091206210739.GE10184-I/5MKhXcvmPrBKCeMvbIDA@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Chaithrika U S wrote:
-> Add i2c reset control and clock divider calculation functions
-> which will be useful for power management features.
+> > Hi,
+> >
+> > On Sun, Dec 06, 2009 at 09:47:31AM +0100, Pavel Machek wrote:
+> > > Hi!
+> > >
+> > > > > Subject: Re: [PATCH 1/1] Remove suspend/resume functionality, add
+> dynamic
+> > > > > clocking
+> > > > >
+> > > > > Hello,
+> > > > >
+> > > > > can you please add something like "i2c-pnx: " to the subject?
+> > > > > (Actually it's a great strategy *not* to put it into the Subject.
+> This
+> > > > > way it attracts far more attention :-)
+> > > > >
+> > > >
+> > > > Good point!
+> > > >
+> > > > > > Remove suspend/resume functionality, I2C driver gates clock on
+> > > > > > only when an I2C transaction is in progress
+> > > > > What happens when the machine suspends while a transfer is in
+> progress?
+> > > > > (This might be a problem that already existed before.)  If this is
+> > > > > really a problem the easiest "fix" is to let the suspend callback
+> return
+> > > > > -EBUSY in this case.
+> > > >
+> > > > The suspend callback is now removed. It's actually not needed with
+> this
+> > > > change. The I2C clocks will turn on prior to a transaction and then
+> turn
+> > > > off at the completion.
+> > >
+> > > Are you sure its unneeded? What if someone attempts to suspend the
+> > > system when a transaction is running?
+> > That's exactly my question.  I think the machine will suspend and the
+> > transaction fail.  So no suspend callback isn't optimal, but maybe OK?!
 > 
-> Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-davinci.c |   56 +++++++++++++++++++++++++-------------
->  1 files changed, 37 insertions(+), 19 deletions(-)
+> Having failures just because suspend happened at wrong time is
+> bad. .suspend() should just wait for end of transaction.
+
+I'm not sure what situation could actually occur that would suspend the
+system in the middle of an I2C transaction. If an I2C transaction was
+started and the CPU was suspended, this would appear to be a problem
+outside the I2C driver itself. Would other I2C drivers have this similar
+problem?
+
+Other drivers that may use the I2C driver during their own suspend
+sequence, the USB transceiver shutdown via I2C on this board is a good
+example, will pend their own suspend return sequence until the I2C
+transactions via I2C are complete. All the I2C driver does now is enable
+the clock for the transaction and disable it at completion. This seemed
+like the more logical way to go, it saves power when the I2C bus isn't
+in use. Since all the suspend/resume functions do for the i2c-pnx
+driver is disable and enable clocks, I didn't think the callbacks were
+really needed anymore.
+
+The few drivers that I've checked that use I2C in the suspend sequence
+all wait for I2C completion prior to returning from suspend. I suppose
+it's possible that applications that use i2c-dev may keep chugging away
+on I2C as the system is being suspended(?). Maybe.
+
+Would it make sense to add a flag that blocks I2C transcations if the
+suspend callback is called (and unblocks them when resume is called)?
+It wouldn't fix the root issue, but would prevent the driver from
+starting transactions once it's suspend callback is handled just
+returning an error status until resume is called?
+
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index c89687a..5f3838c 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -133,12 +133,21 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
->  	return __raw_readw(i2c_dev->base + reg);
->  }
->  
-> -/*
-> - * This functions configures I2C and brings I2C out of reset.
-> - * This function is called during I2C init function. This function
-> - * also gets called if I2C encounters any errors.
-> - */
-> -static int i2c_davinci_init(struct davinci_i2c_dev *dev)
-> +static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
-> +								int val)
-> +{
-> +	u16 w;
-> +
-> +	w = davinci_i2c_read_reg(i2c_dev, DAVINCI_I2C_MDR_REG);
-> +	if (!val)	/* put I2C into reset */
-> +		MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
-> +	else		/* take I2C out of reset */
-> +		MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
-> +
-
-
-I dislike the MOD_REG_BIT macro. Maybe if you wrote
-MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, val);
-
-it would be slightly better, but I still wouldn't like it.
-Please use w &= ~DAVINCI_I2C_MDR_IRS and
- w |= DAVINCI_I2C_MDR_IRS directly.
-
-
-I know the code you're replacing uses this obfuscating macro
-but this is a good time to remove it.
-
-
-> +	davinci_i2c_write_reg(i2c_dev, DAVINCI_I2C_MDR_REG, w);
-> +}
-> +
-> +static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
->  {
->  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
->  	u16 psc;
-> @@ -147,15 +156,6 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  	u32 clkh;
->  	u32 clkl;
->  	u32 input_clock = clk_get_rate(dev->clk);
-> -	u16 w;
-> -
-> -	if (!pdata)
-> -		pdata = &davinci_i2c_platform_data_default;
-> -
-> -	/* put I2C into reset */
-> -	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
-> -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->  
->  	/* NOTE: I2C Clock divider programming info
->  	 * As per I2C specs the following formulas provide prescaler
-> @@ -187,12 +187,32 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
->  
-> +	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
-> +}
-> +
-> +/*
-> + * This functions configures I2C and brings I2C out of reset.
-> + * This function is called during I2C init function. This function
-> + * also gets called if I2C encounters any errors.
-> + */
-> +static int i2c_davinci_init(struct davinci_i2c_dev *dev)
-> +{
-> +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +
-> +	if (!pdata)
-> +		pdata = &davinci_i2c_platform_data_default;
-> +
-> +	/* put I2C into reset */
-> +	davinci_i2c_reset_ctrl(dev, 0);
-> +
-> +	/* compute clock dividers */
-> +	i2c_davinci_calc_clk_dividers(dev);
-> +
->  	/* Respond at reserved "SMBus Host" slave address" (and zero);
->  	 * we seem to have no option to not respond...
->  	 */
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
->  
-> -	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
->  	dev_dbg(dev->dev, "PSC  = %d\n",
->  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
->  	dev_dbg(dev->dev, "CLKL = %d\n",
-> @@ -203,9 +223,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  		pdata->bus_freq, pdata->bus_delay);
->  
->  	/* Take the I2C module out of reset: */
-> -	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
-> -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-> +	davinci_i2c_reset_ctrl(dev, 1);
->  
->  	/* Enable interrupts */
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, I2C_DAVINCI_INTR_ALL);
+> 										Pavel
+> 
+> --
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures)
+> http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
