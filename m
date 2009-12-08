@@ -1,97 +1,133 @@
-From: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Subject: RE: [PATCH 1/1] Remove suspend/resume functionality, add dynamic
- clocking
-Date: Mon, 7 Dec 2009 20:21:42 +0100
-Message-ID: <083DF309106F364B939360100EC290F804F57A69FA@eu1rdcrdc1wx030.exi.nxp.com>
-References: <083DF309106F364B939360100EC290F804F55C9225@eu1rdcrdc1wx030.exi.nxp.com>
- <20091126090252.GB12179@pengutronix.de>
- <083DF309106F364B939360100EC290F804F5659CFF@eu1rdcrdc1wx030.exi.nxp.com>
- <20091206084731.GE2766@ucw.cz> <20091206210225.GA20887@pengutronix.de>
- <20091206210739.GE10184@elf.ucw.cz>
+From: "Chaithrika U S" <chaithrika-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 3/3] i2c: davinci: Add cpufreq support
+Date: Tue, 8 Dec 2009 10:08:52 +0530
+Message-ID: <004f01ca77c0$57ec98b0$07c5ca10$@com>
+References: <1260178136-26416-1-git-send-email-chaithrika@ti.com>	<1260178136-26416-2-git-send-email-chaithrika@ti.com>	<1260178136-26416-3-git-send-email-chaithrika@ti.com> <1260178136-26416-4-git-send-email-chaithrika@ti.com> <4B1CE03E.7040608@ru.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091206210739.GE10184-I/5MKhXcvmPrBKCeMvbIDA@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <4B1CE03E.7040608-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Content-Language: en-us
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: 'Sergei Shtylyov' <sshtylyov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > Hi,
+On Mon, Dec 07, 2009 at 16:30:14, Sergei Shtylyov wrote:
+> Hello.
+> 
+> Chaithrika U S wrote:
+> 
+> > Add cpufreq support for DaVinci I2C driver.
+> > Tested on DA850/OMAP-L138 EVM. For the purpose of testing, the patches
+> > which add cpufreq support [1] for this SoC are needed.
 > >
-> > On Sun, Dec 06, 2009 at 09:47:31AM +0100, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > > Subject: Re: [PATCH 1/1] Remove suspend/resume functionality, add
-> dynamic
-> > > > > clocking
-> > > > >
-> > > > > Hello,
-> > > > >
-> > > > > can you please add something like "i2c-pnx: " to the subject?
-> > > > > (Actually it's a great strategy *not* to put it into the Subject.
-> This
-> > > > > way it attracts far more attention :-)
-> > > > >
-> > > >
-> > > > Good point!
-> > > >
-> > > > > > Remove suspend/resume functionality, I2C driver gates clock on
-> > > > > > only when an I2C transaction is in progress
-> > > > > What happens when the machine suspends while a transfer is in
-> progress?
-> > > > > (This might be a problem that already existed before.)  If this is
-> > > > > really a problem the easiest "fix" is to let the suspend callback
-> return
-> > > > > -EBUSY in this case.
-> > > >
-> > > > The suspend callback is now removed. It's actually not needed with
-> this
-> > > > change. The I2C clocks will turn on prior to a transaction and then
-> turn
-> > > > off at the completion.
-> > >
-> > > Are you sure its unneeded? What if someone attempts to suspend the
-> > > system when a transaction is running?
-> > That's exactly my question.  I think the machine will suspend and the
-> > transaction fail.  So no suspend callback isn't optimal, but maybe OK?!
+> > [1]http://linux.davincidsp.com/pipermail/davinci-linux-open-source/
+> > 2009-September/016118.html
+> >
+> > Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-davinci.c |   59 +++++++++++++++++++++++++++++++++++++-
+> >  1 files changed, 58 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> > index 5f0888d..0f41da4 100644
+> > --- a/drivers/i2c/busses/i2c-davinci.c
+> > +++ b/drivers/i2c/busses/i2c-davinci.c
 > 
-> Having failures just because suspend happened at wrong time is
-> bad. .suspend() should just wait for end of transaction.
-
-I'm not sure what situation could actually occur that would suspend the
-system in the middle of an I2C transaction. If an I2C transaction was
-started and the CPU was suspended, this would appear to be a problem
-outside the I2C driver itself. Would other I2C drivers have this similar
-problem?
-
-Other drivers that may use the I2C driver during their own suspend
-sequence, the USB transceiver shutdown via I2C on this board is a good
-example, will pend their own suspend return sequence until the I2C
-transactions via I2C are complete. All the I2C driver does now is enable
-the clock for the transaction and disable it at completion. This seemed
-like the more logical way to go, it saves power when the I2C bus isn't
-in use. Since all the suspend/resume functions do for the i2c-pnx
-driver is disable and enable clocks, I didn't think the callbacks were
-really needed anymore.
-
-The few drivers that I've checked that use I2C in the suspend sequence
-all wait for I2C completion prior to returning from suspend. I suppose
-it's possible that applications that use i2c-dev may keep chugging away
-on I2C as the system is being suspended(?). Maybe.
-
-Would it make sense to add a flag that blocks I2C transcations if the
-suspend callback is called (and unblocks them when resume is called)?
-It wouldn't fix the root issue, but would prevent the driver from
-starting transactions once it's suspend callback is handled just
-returning an error status until resume is called?
-
+> [...]
 > 
-> 										Pavel
+> > @@ -508,6 +517,39 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+> >  	return count ? IRQ_HANDLED : IRQ_NONE;
+> >  }
+> >  
+> > +#ifdef CONFIG_CPU_FREQ
+> > +static int i2c_davinci_cpufreq_transition(struct notifier_block *nb,
+> > +				     unsigned long val, void *data)
+> > +{
+> > +	struct davinci_i2c_dev *dev;
+> > +
+> > +	dev = container_of(nb, struct davinci_i2c_dev, freq_transition);
+> > +	if (val == CPUFREQ_PRECHANGE) {
+> > +		wait_for_completion(&dev->xfr_complete);
+> > +		davinci_i2c_reset_ctrl(dev, 0);
+> > +	} else if (val == CPUFREQ_POSTCHANGE) {
+> > +		i2c_davinci_calc_clk_dividers(dev);
+> > +		davinci_i2c_reset_ctrl(dev, 1);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static inline int i2c_davinci_cpufreq_register(struct davinci_i2c_dev *dev)
+> > +{
+> > +	dev->freq_transition.notifier_call = i2c_davinci_cpufreq_transition;
+> > +
+> > +	return cpufreq_register_notifier(&dev->freq_transition,
+> > +					 CPUFREQ_TRANSITION_NOTIFIER);
+> > +}
+> > +
+> > +static inline void i2c_davinci_cpufreq_deregister(struct davinci_i2c_dev *dev)
+> > +{
+> > +	cpufreq_unregister_notifier(&dev->freq_transition,
+> > +				    CPUFREQ_TRANSITION_NOTIFIER);
+> > +}
+> > +#endif
+> > +
+> >  static struct i2c_algorithm i2c_davinci_algo = {
+> >  	.master_xfer	= i2c_davinci_xfer,
+> >  	.functionality	= i2c_davinci_func,
+> > @@ -547,6 +589,9 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+> >  	}
+> >  
+> >  	init_completion(&dev->cmd_complete);
+> > +#ifdef CONFIG_CPU_FREQ
+> > +	init_completion(&dev->xfr_complete);
+> > +#endif
+> >  	dev->dev = get_device(&pdev->dev);
+> >  	dev->irq = irq->start;
+> >  	platform_set_drvdata(pdev, dev);
+> > @@ -567,6 +612,14 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+> >  		goto err_unuse_clocks;
+> >  	}
+> >  
+> > +#ifdef CONFIG_CPU_FREQ
+> > +	r = i2c_davinci_cpufreq_register(dev);
+> > +	if (r) {
+> > +		dev_err(&pdev->dev, "failed to register cpufreq\n");
+> > +		goto err_free_irq;
+> > +	}
+> > +#endif
+> >   
 > 
-> --
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures)
-> http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>    You should instead define this function as just returning 0 in the 
+> #else branch above, so that #ifdef here can be avoided...
+> 
+> > +
+> >  	adap = &dev->adapter;
+> >  	i2c_set_adapdata(adap, dev);
+> >  	adap->owner = THIS_MODULE;
+> > @@ -606,6 +659,10 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+> >  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+> >  	struct resource *mem;
+> >  
+> > +#ifdef CONFIG_CPU_FREQ
+> > +	i2c_davinci_cpufreq_deregister(dev);
+> > +#endif
+> > +
+> >   
+> 
+>    Same comment here. #ifdef's in the function code are frowned upon....
+> 
+
+OK.I will post an updated version of this patch series soon.
+
+
+Thanks and Regards, 
+Chaithrika
+
+> WBR, Sergei
+> 
+> 
