@@ -1,133 +1,142 @@
 From: "Chaithrika U S" <chaithrika-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 3/3] i2c: davinci: Add cpufreq support
-Date: Tue, 8 Dec 2009 10:08:52 +0530
-Message-ID: <004f01ca77c0$57ec98b0$07c5ca10$@com>
-References: <1260178136-26416-1-git-send-email-chaithrika@ti.com>	<1260178136-26416-2-git-send-email-chaithrika@ti.com>	<1260178136-26416-3-git-send-email-chaithrika@ti.com> <1260178136-26416-4-git-send-email-chaithrika@ti.com> <4B1CE03E.7040608@ru.mvista.com>
+Subject: RE: [PATCH 1/3] i2c: davinci: Add helper functions
+Date: Tue, 8 Dec 2009 10:16:06 +0530
+Message-ID: <005001ca77c1$5a935940$0fba0bc0$@com>
+References: <1260178136-26416-1-git-send-email-chaithrika@ti.com> <1260178136-26416-2-git-send-email-chaithrika@ti.com> <4B1D4850.7010108@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B1CE03E.7040608-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+In-Reply-To: <4B1D4850.7010108-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Content-Language: en-us
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Sergei Shtylyov' <sshtylyov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+To: 'Troy Kisky' <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 07, 2009 at 16:30:14, Sergei Shtylyov wrote:
-> Hello.
-> 
+On Mon, Dec 07, 2009 at 23:54:16, Troy Kisky wrote:
 > Chaithrika U S wrote:
-> 
-> > Add cpufreq support for DaVinci I2C driver.
-> > Tested on DA850/OMAP-L138 EVM. For the purpose of testing, the patches
-> > which add cpufreq support [1] for this SoC are needed.
-> >
-> > [1]http://linux.davincidsp.com/pipermail/davinci-linux-open-source/
-> > 2009-September/016118.html
-> >
+> > Add i2c reset control and clock divider calculation functions
+> > which will be useful for power management features.
+> > 
 > > Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
 > > ---
-> >  drivers/i2c/busses/i2c-davinci.c |   59 +++++++++++++++++++++++++++++++++++++-
-> >  1 files changed, 58 insertions(+), 1 deletions(-)
-> >
+> >  drivers/i2c/busses/i2c-davinci.c |   56 +++++++++++++++++++++++++-------------
+> >  1 files changed, 37 insertions(+), 19 deletions(-)
+> > 
 > > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> > index 5f0888d..0f41da4 100644
+> > index c89687a..5f3838c 100644
 > > --- a/drivers/i2c/busses/i2c-davinci.c
 > > +++ b/drivers/i2c/busses/i2c-davinci.c
-> 
-> [...]
-> 
-> > @@ -508,6 +517,39 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
-> >  	return count ? IRQ_HANDLED : IRQ_NONE;
+> > @@ -133,12 +133,21 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
+> >  	return __raw_readw(i2c_dev->base + reg);
 > >  }
 > >  
-> > +#ifdef CONFIG_CPU_FREQ
-> > +static int i2c_davinci_cpufreq_transition(struct notifier_block *nb,
-> > +				     unsigned long val, void *data)
+> > -/*
+> > - * This functions configures I2C and brings I2C out of reset.
+> > - * This function is called during I2C init function. This function
+> > - * also gets called if I2C encounters any errors.
+> > - */
+> > -static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> > +static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
+> > +								int val)
 > > +{
-> > +	struct davinci_i2c_dev *dev;
+> > +	u16 w;
 > > +
-> > +	dev = container_of(nb, struct davinci_i2c_dev, freq_transition);
-> > +	if (val == CPUFREQ_PRECHANGE) {
-> > +		wait_for_completion(&dev->xfr_complete);
-> > +		davinci_i2c_reset_ctrl(dev, 0);
-> > +	} else if (val == CPUFREQ_POSTCHANGE) {
-> > +		i2c_davinci_calc_clk_dividers(dev);
-> > +		davinci_i2c_reset_ctrl(dev, 1);
-> > +	}
+> > +	w = davinci_i2c_read_reg(i2c_dev, DAVINCI_I2C_MDR_REG);
+> > +	if (!val)	/* put I2C into reset */
+> > +		MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
+> > +	else		/* take I2C out of reset */
+> > +		MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
 > > +
-> > +	return 0;
-> > +}
-> > +
-> > +static inline int i2c_davinci_cpufreq_register(struct davinci_i2c_dev *dev)
-> > +{
-> > +	dev->freq_transition.notifier_call = i2c_davinci_cpufreq_transition;
-> > +
-> > +	return cpufreq_register_notifier(&dev->freq_transition,
-> > +					 CPUFREQ_TRANSITION_NOTIFIER);
-> > +}
-> > +
-> > +static inline void i2c_davinci_cpufreq_deregister(struct davinci_i2c_dev *dev)
-> > +{
-> > +	cpufreq_unregister_notifier(&dev->freq_transition,
-> > +				    CPUFREQ_TRANSITION_NOTIFIER);
-> > +}
-> > +#endif
-> > +
-> >  static struct i2c_algorithm i2c_davinci_algo = {
-> >  	.master_xfer	= i2c_davinci_xfer,
-> >  	.functionality	= i2c_davinci_func,
-> > @@ -547,6 +589,9 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  	}
-> >  
-> >  	init_completion(&dev->cmd_complete);
-> > +#ifdef CONFIG_CPU_FREQ
-> > +	init_completion(&dev->xfr_complete);
-> > +#endif
-> >  	dev->dev = get_device(&pdev->dev);
-> >  	dev->irq = irq->start;
-> >  	platform_set_drvdata(pdev, dev);
-> > @@ -567,6 +612,14 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  		goto err_unuse_clocks;
-> >  	}
-> >  
-> > +#ifdef CONFIG_CPU_FREQ
-> > +	r = i2c_davinci_cpufreq_register(dev);
-> > +	if (r) {
-> > +		dev_err(&pdev->dev, "failed to register cpufreq\n");
-> > +		goto err_free_irq;
-> > +	}
-> > +#endif
-> >   
 > 
->    You should instead define this function as just returning 0 in the 
-> #else branch above, so that #ifdef here can be avoided...
 > 
-> > +
-> >  	adap = &dev->adapter;
-> >  	i2c_set_adapdata(adap, dev);
-> >  	adap->owner = THIS_MODULE;
-> > @@ -606,6 +659,10 @@ static int davinci_i2c_remove(struct platform_device *pdev)
-> >  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
-> >  	struct resource *mem;
-> >  
-> > +#ifdef CONFIG_CPU_FREQ
-> > +	i2c_davinci_cpufreq_deregister(dev);
-> > +#endif
-> > +
-> >   
+> I dislike the MOD_REG_BIT macro. Maybe if you wrote
+> MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, val);
 > 
->    Same comment here. #ifdef's in the function code are frowned upon....
+> it would be slightly better, but I still wouldn't like it.
+> Please use w &= ~DAVINCI_I2C_MDR_IRS and
+>  w |= DAVINCI_I2C_MDR_IRS directly.
+> 
+> 
+> I know the code you're replacing uses this obfuscating macro
+> but this is a good time to remove it.
+> 
 > 
 
-OK.I will post an updated version of this patch series soon.
+Agree. Will include a patch to remove this macro in the next version of this
+patch set.
 
-
-Thanks and Regards, 
+Regards, 
 Chaithrika
 
-> WBR, Sergei
-> 
+> > +	davinci_i2c_write_reg(i2c_dev, DAVINCI_I2C_MDR_REG, w);
+> > +}
+> > +
+> > +static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
+> >  {
+> >  	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> >  	u16 psc;
+> > @@ -147,15 +156,6 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> >  	u32 clkh;
+> >  	u32 clkl;
+> >  	u32 input_clock = clk_get_rate(dev->clk);
+> > -	u16 w;
+> > -
+> > -	if (!pdata)
+> > -		pdata = &davinci_i2c_platform_data_default;
+> > -
+> > -	/* put I2C into reset */
+> > -	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> > -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
+> > -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+> >  
+> >  	/* NOTE: I2C Clock divider programming info
+> >  	 * As per I2C specs the following formulas provide prescaler
+> > @@ -187,12 +187,32 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
+> >  
+> > +	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
+> > +}
+> > +
+> > +/*
+> > + * This functions configures I2C and brings I2C out of reset.
+> > + * This function is called during I2C init function. This function
+> > + * also gets called if I2C encounters any errors.
+> > + */
+> > +static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> > +{
+> > +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> > +
+> > +	if (!pdata)
+> > +		pdata = &davinci_i2c_platform_data_default;
+> > +
+> > +	/* put I2C into reset */
+> > +	davinci_i2c_reset_ctrl(dev, 0);
+> > +
+> > +	/* compute clock dividers */
+> > +	i2c_davinci_calc_clk_dividers(dev);
+> > +
+> >  	/* Respond at reserved "SMBus Host" slave address" (and zero);
+> >  	 * we seem to have no option to not respond...
+> >  	 */
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
+> >  
+> > -	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
+> >  	dev_dbg(dev->dev, "PSC  = %d\n",
+> >  		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
+> >  	dev_dbg(dev->dev, "CLKL = %d\n",
+> > @@ -203,9 +223,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> >  		pdata->bus_freq, pdata->bus_delay);
+> >  
+> >  	/* Take the I2C module out of reset: */
+> > -	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> > -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
+> > -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+> > +	davinci_i2c_reset_ctrl(dev, 1);
+> >  
+> >  	/* Enable interrupts */
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, I2C_DAVINCI_INTR_ALL);
 > 
