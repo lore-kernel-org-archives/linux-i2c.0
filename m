@@ -1,63 +1,52 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 1/2 RESEND#2] i2c/pxa: remove unused macro
-Date: Tue, 8 Dec 2009 23:07:24 +0100
-Message-ID: <20091208220724.GA14696@pengutronix.de>
-References: <1257754721-17325-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<1258658141-30340-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<20091208211810.GB13706@pengutronix.de>
-	<20091208224456.0baf422b@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20091208224456.0baf422b@hyperion.delvare>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
-Cc: Roel Kluin <roel.kluin@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Please pull bjdooks' i2c tree
+Date: Wed, 09 Dec 2009 00:21:18 +0000
+Message-ID: <E1NIAIw-0008IA-3S@teyla.home.fluff.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: apkm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+The following changes since commit 6035ccd8e9e40bb654fbfdef325902ab531679a5:
+  Linus Torvalds (1):
+        Merge branch 'for-2.6.33' of git://git.kernel.dk/linux-2.6-block
 
-On Tue, Dec 08, 2009 at 10:44:56PM +0100, Jean Delvare wrote:
-> On Tue, 8 Dec 2009 22:18:10 +0100, Uwe Kleine-K=F6nig wrote:
-> > Hi Jean,
-> > =
+are available in the git repository at:
 
-> > On Thu, Nov 19, 2009 at 08:15:40PM +0100, Uwe Kleine-K=F6nig wrote:
-> > > Commit
-> > > =
+  git://git.fluff.org/bjdooks/linux.git next-i2c
 
-> > > 	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driver.)
-> > > =
+Kevin Wells (1):
+      i2c-pnx: Map I2C adapter number to platform ID number
 
-> > > removed all uses of eedbg, so the definition can go, too.
-> > do you have comments to my patches?  I think they should go in via your
-> > tree.
-> =
+Rajendra Nayak (1):
+      i2c-omap: OMAP3: PM: (re)init for every transfer to support off-mode
 
-> I think you should read MAINTAINERS again.
-Ah, so the maintainer is Ben Dooks, but the tree seems to be your's.
+Shinya Kuribayashi (23):
+      i2c-designware: Consolidate to use 32-bit word accesses
+      i2c-designware: Don't use the IC_CLR_INTR register to clear interrupts
+      i2c-designware: Use platform_get_irq helper
+      i2c-designware: i2c_dw_read: Use "struct dw_i2c_dev" pointer
+      i2c-designware: i2c_dw_xfer_msg: Use "struct dw_i2c_dev" pointer
+      i2c-designware: Remove an useless local variable "num"
+      i2c-designware: Improved _HCNT/_LCNT calculation
+      i2c-designware: i2c_dw_xfer_msg: Fix i2c_msg search bug
+      i2c-designware: Process i2c_msg messages in the interrupt handler
+      i2c-designware: Set Tx/Rx FIFO threshold levels
+      i2c-designware: Enable RX_FULL interrupt
+      i2c-designware: Divide i2c_dw_xfer_msg into two functions
+      i2c-designware: i2c_dw_xfer_msg: Introduce a local "buf" pointer
+      i2c-designware: Initialize byte count variables just prior to being used
+      i2c-designware: i2c_dw_func: Set I2C_FUNC_SMBUS_foo bits
+      i2c-designware: i2c_dw_read: Remove redundant target address checker
+      i2c-designware: Process all i2c_msg messages in the interrupt handler
+      i2c-designware: Disable TX_EMPTY when all i2c_msg msgs has been processed
+      i2c-designware: i2c_dw_xfer_msg: Fix error handling procedures
+      i2c-designware: Skip RX_FULL and TX_EMPTY bits on tx abort errors
+      i2c-designware: Tx abort cleanups
+      i2c-designware: Cosmetic cleanups
+      i2c-designware: i2c_dw_handle_tx_abort: Use dev_dbg() for NOACK cases
 
-So I assume you take it when Ben give's his S-o-b or Ben has write
-access to the tree?
-
-Ben, what do you think about my patches?
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                              | Uwe Kleine-K=F6nig         =
-   |
-Industrial Linux Solutions                    | http://www.pengutronix.de/ =
- |
+ drivers/i2c/busses/i2c-designware.c |  488 +++++++++++++++++++++++++----------
+ drivers/i2c/busses/i2c-omap.c       |   64 +++--
+ drivers/i2c/busses/i2c-pnx.c        |    3 +-
+ 3 files changed, 398 insertions(+), 157 deletions(-)
