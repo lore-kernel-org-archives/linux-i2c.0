@@ -1,66 +1,53 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 5/5] i2c: Get rid of I2C_CLIENT_MODULE_PARM
-Date: Thu, 10 Dec 2009 18:57:17 +0100
-Message-ID: <20091210185717.75504df6@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: Drop the kind parameter from detect callbacks
+Date: Thu, 10 Dec 2009 23:12:08 +0100
+Message-ID: <20091210221208.GA18155@pengutronix.de>
+References: <20091210185221.641bbaab@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20091210185221.641bbaab-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-There is no user left of I2C_CLIENT_MODULE_PARM, so we can finally
-get rid of this ugly macro.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- include/linux/i2c.h |   35 -----------------------------------
- 1 file changed, 35 deletions(-)
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- linux-2.6.32-rc6.orig/include/linux/i2c.h	2009-11-06 10:35:38.000000000 +0100
-+++ linux-2.6.32-rc6/include/linux/i2c.h	2009-11-06 10:35:42.000000000 +0100
-@@ -568,39 +568,4 @@ union i2c_smbus_data {
- #define I2C_SMBUS_BLOCK_PROC_CALL   7		/* SMBus 2.0 */
- #define I2C_SMBUS_I2C_BLOCK_DATA    8
- 
--
--#ifdef __KERNEL__
--
--/* These defines are used for probing i2c client addresses */
--/* The length of the option lists */
--#define I2C_CLIENT_MAX_OPTS 48
--
--/* Default fill of many variables */
--#define I2C_CLIENT_DEFAULTS {I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END, \
--			     I2C_CLIENT_END, I2C_CLIENT_END, I2C_CLIENT_END}
--
--/* I2C_CLIENT_MODULE_PARM creates a module parameter, and puts it in the
--   module header */
--
--#define I2C_CLIENT_MODULE_PARM(var,desc) \
--  static unsigned short var[I2C_CLIENT_MAX_OPTS] = I2C_CLIENT_DEFAULTS; \
--  static unsigned int var##_num; \
--  module_param_array(var, short, &var##_num, 0); \
--  MODULE_PARM_DESC(var, desc)
--
--#endif /* __KERNEL__ */
- #endif /* _LINUX_I2C_H */
+On Thu, Dec 10, 2009 at 06:52:21PM +0100, Jean Delvare wrote:
+> The "kind" parameter always has value -1, and nobody is using it any
+> longer, so we can remove it.
+>=20
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
+Yay, I am all for this series! Build tested all hwmon-modules on x86. Will =
+try
+to find a non-x86 board tomorrow which is actually using one of the hwmon
+devices.
 
--- 
-Jean Delvare
+Tested-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkshcjgACgkQD27XaX1/VRvwzQCfQ6IAnOmLzFM5cKJt75lrKbfG
+lucAn0PQBGVwgo80Qki721d0RjhOOgqp
+=tPN3
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
