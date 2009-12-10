@@ -1,53 +1,77 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2 RESEND#2] i2c/pxa: remove unused macro
-Date: Wed, 9 Dec 2009 09:11:46 +0100
-Message-ID: <20091209091146.78e8d7bb@hyperion.delvare>
-References: <1257754721-17325-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<1258658141-30340-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<20091208211810.GB13706@pengutronix.de>
-	<20091208224456.0baf422b@hyperion.delvare>
-	<20091208220724.GA14696@pengutronix.de>
+From: "Chaithrika U S" <chaithrika-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v2 2/4] i2c: davinci: Add helper functions
+Date: Thu, 10 Dec 2009 16:45:48 +0530
+Message-ID: <005b01ca798a$20572430$61056c90$@com>
+References: <1260267218-19406-1-git-send-email-chaithrika@ti.com>	<1260267218-19406-2-git-send-email-chaithrika@ti.com> <1260267218-19406-3-git-send-email-chaithrika@ti.com> <4B1E376F.1030808@ru.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091208220724.GA14696-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <4B1E376F.1030808-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Content-Language: en-us
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Sergei Shtylyov' <sshtylyov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 8 Dec 2009 23:07:24 +0100, Uwe Kleine-K=C3=B6nig wrote:
-> Hi Jean,
->=20
-> On Tue, Dec 08, 2009 at 10:44:56PM +0100, Jean Delvare wrote:
-> > On Tue, 8 Dec 2009 22:18:10 +0100, Uwe Kleine-K=C3=B6nig wrote:
-> > > Hi Jean,
-> > >=20
-> > > On Thu, Nov 19, 2009 at 08:15:40PM +0100, Uwe Kleine-K=C3=B6nig w=
-rote:
-> > > > Commit
-> > > >=20
-> > > > 	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driv=
-er.)
-> > > >=20
-> > > > removed all uses of eedbg, so the definition can go, too.
-> > > do you have comments to my patches?  I think they should go in vi=
-a your
-> > > tree.
-> >=20
-> > I think you should read MAINTAINERS again.
-> Ah, so the maintainer is Ben Dooks, but the tree seems to be your's.
->
-> So I assume you take it when Ben give's his S-o-b or Ben has write
-> access to the tree?
+On Tue, Dec 08, 2009 at 16:54:31, Sergei Shtylyov wrote:
+> Hello.
+> 
+> Chaithrika U S wrote:
+> 
+> > Add i2c reset control and clock divider calculation functions
+> > which will be useful for power management features.
+> >
+> > Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+> >   
+> 
+> [...]
+> 
+> > @@ -138,15 +147,6 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> >  	u32 clkh;
+> >  	u32 clkl;
+> >  	u32 input_clock = clk_get_rate(dev->clk);
+> > -	u16 w;
+> > -
+> > -	if (!pdata)
+> > -		pdata = &davinci_i2c_platform_data_default;
+> > -
+> > -	/* put I2C into reset */
+> > -	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> > -	w &= ~DAVINCI_I2C_MDR_IRS;
+> > -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+> >  
+> >  	/* NOTE: I2C Clock divider programming info
+> >  	 * As per I2C specs the following formulas provide prescaler
+> > @@ -178,12 +178,32 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
+> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKL_REG, clkl);
+> >  
+> > +	dev_dbg(dev->dev, "input_clock = %d, CLK = %d\n", input_clock, clk);
+> > +}
+> > +
+> > +/*
+> > + * This function configures I2C and brings I2C out of reset.
+> > + * This function is called during I2C init function. This function
+> > + * also gets called if I2C encounters any errors.
+> > + */
+> > +static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+> > +{
+> > +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> > +
+> > +	if (!pdata)
+> > +		pdata = &davinci_i2c_platform_data_default;
+> >   
+> 
+>    The very idea of "default" platform data seems doubtful. Could we 
+> remove it?
+> 
 
-No. I have my tree, Ben has its own. Ben's isn't listed in MAINTAINERS,
-thus the confusion.
+This platform data is used to set the default parameters in case the 
+platform is not specifying it. I am not too sure of why it is different
+from other drivers where an error is raised if the platform data is missing.
+May be this update can be made as a separate patch out of this series.
 
-Ben, can you please add your tree to MAINTAINERS to make things clearer
-for contributors?
-
-Thanks,
---=20
-Jean Delvare
+Regards, 
+Chaithrika
