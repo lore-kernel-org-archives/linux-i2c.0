@@ -1,53 +1,57 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Drop the kind parameter from detect callbacks
-Date: Thu, 10 Dec 2009 23:12:08 +0100
-Message-ID: <20091210221208.GA18155@pengutronix.de>
-References: <20091210185221.641bbaab@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+From: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2] OMAP3 : Fix I2C lockup during timeout/error cases
+Date: Fri, 11 Dec 2009 11:09:08 +0530
+Message-ID: <1260509948-12774-1-git-send-email-manjugk@ti.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20091210185221.641bbaab-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, "Sonasath, Moiz" <m-sonasath-l0cyMroinI0@public.gmane.org>, "Krishnamoorthy, Balaji T" <balajitk-l0cyMroinI0@public.gmane.org>, "Varadarajan, Charu Latha" <charu-l0cyMroinI0@public.gmane.org>, "George, Harith" <harith-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Current OMAP3 I2C driver code does not follow the correct sequence for soft
+reset. Due to this, lock up issues are reported during timeout/error cases.
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch fixes above issue by disabling I2C controller as per OMAP3430 TRM
+for soft reset. As per TRM, I2C controller needs to be disabled as a first
+step during soft reset.
 
-On Thu, Dec 10, 2009 at 06:52:21PM +0100, Jean Delvare wrote:
-> The "kind" parameter always has value -1, and nobody is using it any
-> longer, so we can remove it.
->=20
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Here is correct soft reset sequence:
+a. Ensure that the module is disabled
+(clear the I2Ci.I2C_CON[15] I2C_EN bit to 0).
+b. Set the I2Ci.I2C_SYSC[1] SRST bit to 1.
+c. Enable the module by setting I2Ci.I2C_CON[15] I2C_EN bit to 1.
+d. Check the I2Ci.I2C_SYSS[0] RDONE bit until it is set to 1 to
+indicate the software reset is complete.
 
-Yay, I am all for this series! Build tested all hwmon-modules on x86. Will =
-try
-to find a non-x86 board tomorrow which is actually using one of the hwmon
-devices.
 
-Tested-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Tested on Zoom2, Zoom3, 3430SDP and 3630SDP
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Signed-off-by: George, Harith<harith-l0cyMroinI0@public.gmane.org>
+Acked-by: Varadarajan, Charu Latha<charu-l0cyMroinI0@public.gmane.org>
+---
+v1 : Initital version
+v2 : Removed delay since time taken for disabling I2C controller is zero
+     jiffies
 
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+ drivers/i2c/busses/i2c-omap.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkshcjgACgkQD27XaX1/VRvwzQCfQ6IAnOmLzFM5cKJt75lrKbfG
-lucAn0PQBGVwgo80Qki721d0RjhOOgqp
-=tPN3
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 827da08..74620c0 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -265,6 +265,11 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	unsigned long internal_clk = 0;
+ 
+ 	if (dev->rev >= OMAP_I2C_REV_2) {
++		/* Disable I2C controller before soft reset */
++		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG,
++			omap_i2c_read_reg(dev, OMAP_I2C_CON_REG) &
++				~(OMAP_I2C_CON_EN));
++
+ 		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, SYSC_SOFTRESET_MASK);
+ 		/* For some reason we need to set the EN bit before the
+ 		 * reset done bit gets set. */
+-- 
+1.6.0.4
