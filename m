@@ -1,39 +1,33 @@
-From: "H Hartley Sweeten" <hartleys-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>
-Subject: RE: [PATCH] i2c-iop3xx.c: fix memory resource
-Date: Fri, 11 Dec 2009 13:51:55 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901FB1072@mi8nycmail19.Mi8.com>
-References: <BD79186B4FD85F4B8E60E381CAEE190901FB1063@mi8nycmail19.Mi8.com> <1260556842.18299.34.camel@Joe-Laptop.home>
+From: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] [MISC] Add HTC PLD driver
+Date: Sat, 12 Dec 2009 13:02:18 -0800
+Message-ID: <6cb013310912121302t30a6cb4dhf3e29b7b88ce0e0b@mail.gmail.com>
+References: <1260083683-13095-1-git-send-email-darkstar6262@gmail.com>
+	<20091207141329.3dd3411c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <1260556842.18299.34.camel-AkRN8/LKpobuYGix6ZUp1Q@public.gmane.org>
+In-Reply-To: <20091207141329.3dd3411c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Lennert Buytenhek <buytenh-OLH4Qvv75CYX/NnBR394Jw@public.gmane.org>, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpZGF5LCBEZWNlbWJlciAxMSwgMjAwOSAxMTo0MSBBTSwgSm9lIFBlcmNoZXMgd3JvdGU6
-DQo+IE9uIEZyaSwgMjAwOS0xMi0xMSBhdCAxMzozMiAtMDUwMCwgSCBIYXJ0bGV5IFN3ZWV0ZW4g
-d3JvdGU6DQo+PiBUaGUgaTJjLWlvcDN4eCBkcml2ZXIgcmVxdWlyZXMgYSByZXNvdXJjZSByZWdp
-b24gb2YgMHgxOCBieXRlcyBhbmQNCj4+IGN1cnJlbnRseSB1c2VzIHRoZSBtYWdpYyBudW1iZXIg
-SU9QM1hYX0kyQ19JT19TSVpFIChkZWZpbmVkIGluDQo+PiBpMmMtaW9wM3h4LmgpIHRvIGluZGlj
-YXRlIHRoaXMuICBBbGwgb2YgdGhlIHVzZXJzIG9mIHRoaXMgZHJpdmVyDQo+PiBoYXZlIGEgcGxh
-dGZvcm0gbWVtb3J5IHJlc291cmNlIHNvIHVzZSByZXNvdXJjZV9zaXplKCkgaW5zdGVhZCBvZg0K
-Pj4gdGhlIG1hZ2ljIG51bWJlci4gIFRoaXMgcmVxdWlyZXMgZml4aW5nIGEgY291cGxlIG9mIHRo
-ZSBtZW1vcnkNCj4+IHJlc291cmNlcyBzaW5jZSB0aGV5IHdlcmUgZWl0aGVyIG9mZiBieSAxIG9y
-IGp1c3Qgd3JvbmcuDQo+W10NCj4+ICBzdGF0aWMgc3RydWN0IHJlc291cmNlIGlvcDEzeHhfaTJj
-XzBfcmVzb3VyY2VzW10gPSB7DQo+PiAgCVswXSA9IHsNCj4+ICAJCS5zdGFydCA9IElPUDEzWFhf
-STJDMF9QSFlTLA0KPj4gLQkJLmVuZCA9IElPUDEzWFhfSTJDMF9QSFlTICsgMHgxOCwNCj4+ICsJ
-CS5lbmQgPSBJT1AxM1hYX0kyQzBfUEhZUyArIDB4MTcsDQo+DQo+IGV0Yy4NCj4NCj4+IC0jZGVm
-aW5lCUlPUDNYWF9JMkNfSU9fU0laRQkweDE4DQo+DQo+IE1heWJlIGl0J3MgY2xlYXJlciB0byBr
-ZWVwIHRoZSBJT19TSVpFIGRlZmluZQ0KPiBhbmQgbGV0IHRoZSBjb21waWxlciBkbyB0aGUgYWRk
-aW5nLg0KPg0KPiAuc3RhcnQgPSBGT087DQo+IC5lbmQgPSBGT08gKyBJT1AzWFhfSTJDX0lPX1NJ
-WkUgLSAxOw0KDQpUaGUgcHJvYmxlbSB3aXRoIHRoYXQsIHJpZ2h0IG5vdywgaXMgdGhhdCBJT1Az
-WFhfSTJDX0lPX1NJWkUgaXMNCmRlZmluZWQgaW4gZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pb3Az
-eHguaC4gIEFsbCB0aGUgcGxhdGZvcm0NCnVzZXJzIHVuZGVyIGFyY2gvYXJtIHdvdWxkIGhhdmUg
-YSBwcmV0dHkgb2RkYmFsbCBpbmNsdWRlLg0KDQpBbHNvLCB0aGF0IGhlYWRlciByZWFsbHkgc2hv
-dWxkIGp1c3QgZ28gYXdheSBhbmQgYWxsIHRoZSBpbmZvcm1hdGlvbg0KaW4gaXQganVzdCBtb3Zl
-ZCBpbnRvIHRoZSBkcml2ZXIuDQoNClJlZ2FyZHMsDQpIYXJ0bGV5DQo=
+On Mon, Dec 7, 2009 at 5:13 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>
+> I'm curious why your driver wouldn't work when I2C support is modular.
+>
+> I fail to see why you need to include that one.
+>
+> This define is the sure sign that your driver is badly designed. You
+> shouldn't have to set any such arbitrary limit...
+>
+> ... because you shouldn't have to rely on a global like that in the
+> first place.
+>
+
+Thanks for the feedback.  I've taken it back and rewrote the driver
+into something which I hope will be much more acceptable.  I'll be
+posting it shortly.
+
+- Cory
