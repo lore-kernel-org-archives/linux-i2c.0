@@ -1,145 +1,50 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] driver i2c-core: i2c bus should support PM entries in
- struct dev_pm_ops.
-Date: Sun, 13 Dec 2009 22:12:22 +0100
-Message-ID: <20091213221222.724bef54@hyperion.delvare>
-References: <1259744920.25505.2.camel@eight.analog.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH v2] [MFD] i2c-htcpld: Add the HTCPLD driver
+Date: Mon, 14 Dec 2009 13:41:38 +0000
+Message-ID: <20091214134137.GC1250@sirena.org.uk>
+References: <1260653372-29299-1-git-send-email-darkstar6262@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754290AbZLMVMc@vger.kernel.org>
-In-Reply-To: <1259744920.25505.2.camel@eight.analog.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: sonic zhang <sonic.adi@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1260653372-29299-1-git-send-email-darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sonic,
+On Sat, Dec 12, 2009 at 01:29:32PM -0800, Cory Maccarrone wrote:
 
-On Wed, 2 Dec 2009 17:08:40 +0800, sonic zhang wrote:
-> Struct dev_pm_ops is not configured in current i2c bus type. i2c driv=
-ers
-> only depends on suspend/resume entries in struct dev_pm_ops are not
-> informed of PM suspend and resume events by i2c framework.
-
-Good point. I was wondering some times ago what was the status of
-pm_ops. I seem to understand this is the future of power management,
-and "direct" .suspend and .resume callbacks will stop being supported
-at some point in the future? If so, what is the migration plan? I don't
-really want to support both forever.
-
-Your patch introduces the following warnings:
-
-drivers/i2c/i2c-core.c: In function =E2=80=98i2c_device_pm_suspend=E2=80=
-=99:
-drivers/i2c/i2c-core.c:167: warning: assignment discards qualifiers fro=
-m pointer target type
-drivers/i2c/i2c-core.c: In function =E2=80=98i2c_device_pm_resume=E2=80=
-=99:
-drivers/i2c/i2c-core.c:181: warning: assignment discards qualifiers fro=
-m pointer target type
-
-You will obviously have to fix them before I can accept your patch.
-Missing const...
-
->=20
-> Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
-> ---
->  drivers/i2c/i2c-core.c |   39 ++++++++++++++++++++++++++++++++++++++=
-+
->  1 files changed, 39 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 2965043..9713c0d 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -155,6 +155,39 @@ static void i2c_device_shutdown(struct device *d=
-ev)
->  		driver->shutdown(client);
->  }
-> =20
-> +#ifdef CONFIG_SUSPEND
-> +static int i2c_device_pm_suspend(struct device *dev)
+> +static irqreturn_t htcpld_handler(int irq, void *dev)
 > +{
-> +	struct i2c_driver *driver;
-> +	struct dev_pm_ops *pm;
-> +
-> +	if (!dev->driver)
-> +		return 0;
-> +	driver =3D to_i2c_driver(dev->driver);
-> +	pm =3D driver->driver.pm;
+> +	struct htcpld_data *htcpld = dev;
 
-This makes little sense, sorry. Why go from device_driver to i2c_driver
-and then again to device_driver? The following is equivalent and more
-efficient:
+...
 
-	pm =3D dev->driver->pm;
+> +	/* To properly dispatch IRQ events, we need to read from the
+> +	 * chip.  This is an I2C action that could possibly sleep
+> +	 * (which is bad here, since we're in interrupt context).
+> +	 * As such, the rest of this is implemented in a process-context
+> +	 * workload that will take care of the actual dispatch.
+> +	 */
+> +	schedule_delayed_work(&(htcpld->interrupt_work), 0);
 
-> +	if (!pm || !pm->suspend)
-> +		return 0;
-> +	return pm->suspend(dev);
-> +}
-> +
-> +static int i2c_device_pm_resume(struct device *dev)
+request_threaded_irq() probably does what you want here and is more
+friendly to things like lockdep.  There's an example of handling this
+sort of chip with the genirq infrastructure in the WM831x driver.
+
+> +static int __devinit htcpld_core_probe(struct platform_device *pdev)
 > +{
-> +	struct i2c_driver *driver;
-> +	struct dev_pm_ops *pm;
+> +	struct htcpld_data *htcpld;
+> +	struct device *dev = &pdev->dev;
+> +	struct htcpld_core_platform_data *pdata;
+> +	struct resource *res;
+> +	int i, ret = 0;
+> +	unsigned int irq, irq_end;
 > +
-> +	if (!dev->driver)
-> +		return 0;
-> +	driver =3D to_i2c_driver(dev->driver);
-> +	pm =3D driver->driver.pm;
-
-Same here.
-
-> +	if (!pm || !pm->resume)
-> +		return 0;
-> +	return pm->resume(dev);
-> +}
-> +#else
-> +# define i2c_device_pm_suspend	NULL
-> +# define i2c_device_pm_resume	NULL
-
-No space between "#" and "define", please.
-
-> +#endif
+> +	if (!dev)
+> +		return -ENODEV;
 > +
->  static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
->  {
->  	struct i2c_client *client =3D i2c_verify_client(dev);
-> @@ -219,6 +252,11 @@ static const struct attribute_group *i2c_dev_att=
-r_groups[] =3D {
->  	NULL
->  };
-> =20
-> +static struct dev_pm_ops i2c_device_pm_ops =3D {
+> +	pdata = (struct htcpld_core_platform_data *)dev->platform_data;
 
-Could be const.
-
-> +	.suspend =3D i2c_device_pm_suspend,
-> +	.resume =3D i2c_device_pm_resume,
-> +};
-> +
->  struct bus_type i2c_bus_type =3D {
->  	.name		=3D "i2c",
->  	.match		=3D i2c_device_match,
-> @@ -227,6 +265,7 @@ struct bus_type i2c_bus_type =3D {
->  	.shutdown	=3D i2c_device_shutdown,
->  	.suspend	=3D i2c_device_suspend,
->  	.resume		=3D i2c_device_resume,
-> +	.pm		=3D &i2c_device_pm_ops,
->  };
->  EXPORT_SYMBOL_GPL(i2c_bus_type);
-> =20
-
-I've made all the changes above myself, it build OK but I can't test.
-Modified patch is here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvar=
-e-i2c/i2c-core-i2c-bus-should-support-pm-entries-in-struct-dev_pm_ops.p=
-atch
-
-Please test and report if anything's wrong.
-
-Thanks,
---=20
-Jean Delvare
+You don't need to cast awat from void.
