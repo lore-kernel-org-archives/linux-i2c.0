@@ -1,24 +1,22 @@
-From: Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
-Subject: [PATCH 0/2][RESEND] omap i2c interrupt handler fixes
-Date: Wed, 16 Dec 2009 16:02:22 +0200
-Message-ID: <1260972144-31593-1-git-send-email-virtuoso@slind.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: "Weng, Wending" <WWeng@rheinmetall.ca>
+Subject: OMAP3 I2C driver timing problem with multiple messages transfer
+Date: Wed, 16 Dec 2009 09:54:11 -0500
+Message-ID: <54B31811B83D744D90BF0289EB447D4609975E46F1@MAIL-MB1.oerlikon.ca>
+References: <1260972144-31593-1-git-send-email-virtuoso@slind.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1260972144-31593-1-git-send-email-virtuoso@slind.org>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi All,
 
-This is the second version of the patch that I've sent to linux-omap to
-address this issue. This time I've moved the whole errata workaround bit
-to a separate function to get rid of too long lines and a couple of extra
-levels of indentation.
+        Some I2C related protocols as SMBus, each command is composed of multiple I2C messages with timing constraint, the delay between two messages must be less than 10 ms, otherwise, the SMBus device will be timeout, and the command fails. As the function wait_for_completion_timeout is used to wait the end of a message, it doesn't guarante the next message will be sent out in 10 ms after the previous message is completed, so the SMBus command fails very often. I developped a patch for fixing this timing problem(2.6.32.RC5), is there anybody willing to review and to incorporate the patch into the furture release?
 
-The actual fix is the same as the first time, it adds a timeout to a busy
-loop which happens to take place in an interrupt handler and is capable
-of hanging the kernel.
-
-Regards,
---
-Alex
+Wending
+Software Engineer
+at Rheinmetall Canada
