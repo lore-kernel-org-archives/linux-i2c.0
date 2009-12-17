@@ -1,67 +1,33 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [linux-2.6 PATCH 1/1] i2c-i801: Re-read busy bit and wait for
-   transaction to complete
-Date: Thu, 17 Dec 2009 14:21:05 +0100
-Message-ID: <20091217142105.645ccf9b@hyperion.delvare>
-References: <20090826221105.GA19712@clala-laptop>
-	<20090912213843.59e990ad@hyperion.delvare>
-	<4AAFD040.6040702@riverbed.com>
-	<20090915204032.30dbfffe@hyperion.delvare>
-	<4AAFE438.60308@riverbed.com>
+Subject: Re: [PATCH 1/1] I2C: I2C controller driver for Intel Moorestown  
+ platform
+Date: Thu, 17 Dec 2009 14:28:36 +0100
+Message-ID: <20091217142836.01af265c@hyperion.delvare>
+References: <0A882F4D99BBF6449D58E61AAFD7EDD610424EB0@pdsmsx502.ccr.corp.intel.com>
+	<20090416111436.296cdd12@hyperion.delvare>
+	<0A882F4D99BBF6449D58E61AAFD7EDD613677A65@pdsmsx502.ccr.corp.intel.com>
+	<0A882F4D99BBF6449D58E61AAFD7EDD62876816C@pdsmsx502.ccr.corp.intel.com>
+	<0A882F4D99BBF6449D58E61AAFD7EDD628768177@pdsmsx502.ccr.corp.intel.com>
+	<20090615135058.1bf40a75@hyperion.delvare>
+	<0A882F4D99BBF6449D58E61AAFD7EDD62F26B15F@pdsmsx502.ccr.corp.intel.com>
+	<20090626095026.22c5d6c1@hyperion.delvare>
+	<0A882F4D99BBF6449D58E61AAFD7EDD62F26B3F4@pdsmsx502.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4AAFE438.60308-DUeqMYwuH4dWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <0A882F4D99BBF6449D58E61AAFD7EDD62F26B3F4-Uz4Je35TzWuiAffOGbnezLfspsVTdybXVpNB7YpNyf8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: clala-DUeqMYwuH4dWk0Htik3J/w@public.gmane.org
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Wang, Wen W" <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 15 Sep 2009 12:00:08 -0700, Chaitanya Lala wrote:
-> Hi Jean,
-> 
-> Jean Delvare wrote:
-> > Hi Chaitanya,
-> >
-> > On Tue, 15 Sep 2009 10:34:56 -0700, Chaitanya Lala wrote:
-> >   
-> >> I tried your patch and preliminary results look encouraging.
-> >> Will let you know about the final results in a few days.
-> >>     
-> >
-> > OK, thanks.
-> >
-> >   
-> >> One question - Are we sure that msleep(2) would fix the glitch for good ?
-> >> I am not very clear about the timings constraints of the i2c bus, hence 
-> >> the query.
-> >>     
-> >
-> > It doesn't have anything to do with I2C bus timings. The msleep() is
-> > between the beginning of the transaction and the polling for result.
-> > This is between the OS and the SMBus controller. The bus timings
-> > themselves are solely handled by the SMBus controller in hardware and
-> > we don't have to deal with it at all.
-> >
-> > The msleep(1) has been there for a long time, back when HZ was
-> > hard-coded to 100. This means we used to wait for at least 10 ms. With
-> > HZ values increasing, the same code results in shorter sleeps (down to
-> > 1 ms). So maybe 1 ms wasn't sufficient and 2 ms will be. That being
-> > said, if you didn't use HZ=1000... At HZ=250 and HZ=100, msleep(1) and
-> > msleep(2) are the same, so I would be surprised if my patch really
-> > helps for these values of HZ. I expected your problems to happen at
-> > HZ=1000.
-> >   
-> 
-> Thanks for the explanation.
-> 
-> > But please keep testing, and report what you find. If my patch doesn't
-> > help, you could try with msleep(3) or msleep(4) and see if that helps.
-> 
-> Will continue testing and let you know soon.
+Hi Wen,
 
-This was quite some times ago. Any news?
+Any news from this I2C controller driver for the Intel Moorestown
+platform? I spent quite some time reviewing your code 6 months ago and
+am rather sad to see that the code in question did not go anywhere.
 
+Thanks,
 -- 
 Jean Delvare
