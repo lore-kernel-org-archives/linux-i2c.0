@@ -1,54 +1,155 @@
-From: Alexander Shishkin <virtuoso@slind.org>
-Subject: [PATCH v2 2/2] omap i2c: add a timeout to the busy waiting
-Date: Mon, 21 Dec 2009 13:29:59 +0200
-Message-ID: <1261394999-20857-3-git-send-email-virtuoso@slind.org>
-References: <1261394999-20857-1-git-send-email-virtuoso@slind.org>
- <1261394999-20857-2-git-send-email-virtuoso@slind.org>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1261394999-20857-2-git-send-email-virtuoso@slind.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: ben-linux@fluff.org
-Cc: nm@ti.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Alexander Shishkin <virtuoso@slind.org>
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 2/4] i2c-bfin-twi: fix lost interrupts at high speeds
+Date: Mon, 21 Dec 2009 09:28:31 -0500
+Message-ID: <1261405713-7262-2-git-send-email-vapier@gentoo.org>
+References: <1261405713-7262-1-git-send-email-vapier@gentoo.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1261405713-7262-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The errata 1.153 workaround is busy waiting on XUDF bit in interrupt
-context, which may lead to kernel hangs. The problem can be reproduced
-by running the bus with wrong (too high) speed.
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Signed-off-by: Alexander Shishkin <virtuoso@slind.org>
-CC: linux-i2c@vger.kernel.org
-CC: linux-omap@vger.kernel.org
-CC: nm@ti.com
+i2c event of next read/write byte may trigger before current int state
+is cleared in the interrupt handler. So, this should be done at the
+beginning of interrupt handler to avoid losing new i2c events.
+
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   37 +++++++++++++------------------------
+ 1 files changed, 13 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2d146ac..7d56a25 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -678,6 +678,8 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
-  */
- static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index 758bb1f..3495019 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -80,14 +80,15 @@ static const u16 pin_req[2][3] = {
+ 	{P_TWI1_SCL, P_TWI1_SDA, 0},
+ };
+ 
+-static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
++static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
++					unsigned short twi_int_status)
  {
-+	unsigned long timeout = jiffies + msecs_to_jiffies(1);
-+
- 	while (!(*stat & OMAP_I2C_STAT_XUDF)) {
- 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
-@@ -685,6 +687,12 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 			*err |= OMAP_I2C_STAT_XUDF;
- 			return -ETIMEDOUT;
+-	unsigned short twi_int_status = read_INT_STAT(iface);
+ 	unsigned short mast_stat = read_MASTER_STAT(iface);
+ 
+ 	if (twi_int_status & XMTSERV) {
+ 		/* Transmit next data */
+ 		if (iface->writeNum > 0) {
++			SSYNC();
+ 			write_XMT_DATA8(iface, *(iface->transPtr++));
+ 			iface->writeNum--;
  		}
-+
-+		if (time_after(jiffies, timeout)) {
-+			dev_err(dev->dev, "timeout waiting on XUDF bit\n");
-+			return 0;
-+		}
-+
- 		cpu_relax();
- 		*stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+@@ -109,10 +110,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 				write_MASTER_CTL(iface,
+ 					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
+ 		}
+-		SSYNC();
+-		/* Clear status */
+-		write_INT_STAT(iface, XMTSERV);
+-		SSYNC();
  	}
+ 	if (twi_int_status & RCVSERV) {
+ 		if (iface->readNum > 0) {
+@@ -134,7 +131,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 		} else if (iface->manual_stop) {
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) | STOP);
+-			SSYNC();
+ 		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+ 		           iface->cur_msg + 1 < iface->msg_num) {
+ 			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+@@ -143,18 +139,12 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			else
+ 				write_MASTER_CTL(iface,
+ 					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
+-			SSYNC();
+ 		}
+-		/* Clear interrupt source */
+-		write_INT_STAT(iface, RCVSERV);
+-		SSYNC();
+ 	}
+ 	if (twi_int_status & MERR) {
+-		write_INT_STAT(iface, MERR);
+ 		write_INT_MASK(iface, 0);
+ 		write_MASTER_STAT(iface, 0x3e);
+ 		write_MASTER_CTL(iface, 0);
+-		SSYNC();
+ 		iface->result = -EIO;
+ 
+ 		if (mast_stat & LOSTARB)
+@@ -172,10 +162,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 		 * results.
+ 		 */
+ 		if (twi_int_status & MCOMP) {
+-			write_INT_STAT(iface, MCOMP);
+-			write_INT_MASK(iface, 0);
+-			write_MASTER_CTL(iface, 0);
+-			SSYNC();
+ 			/* If it is a quick transfer, only address without data,
+ 			 * not an err, return 1.
+ 			 * If address is acknowledged return 1.
+@@ -188,8 +174,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 		return;
+ 	}
+ 	if (twi_int_status & MCOMP) {
+-		write_INT_STAT(iface, MCOMP);
+-		SSYNC();
+ 		if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
+ 			if (iface->readNum == 0) {
+ 				/* set the read number to 1 and ask for manual
+@@ -211,7 +195,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			/* remove restart bit and enable master receive */
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) & ~RSTART);
+-			SSYNC();
+ 		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+ 				iface->cur_msg+1 < iface->msg_num) {
+ 			iface->cur_msg++;
+@@ -230,7 +213,6 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 					write_XMT_DATA8(iface,
+ 						*(iface->transPtr++));
+ 					iface->writeNum--;
+-					SSYNC();
+ 				}
+ 			}
+ 
+@@ -248,12 +230,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface)
+ 			/* remove restart bit and enable master receive */
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) & ~RSTART);
+-			SSYNC();
+ 		} else {
+ 			iface->result = 1;
+ 			write_INT_MASK(iface, 0);
+ 			write_MASTER_CTL(iface, 0);
+-			SSYNC();
+ 		}
+ 	}
+ 	complete(&iface->complete);
+@@ -264,9 +244,18 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void *dev_id)
+ {
+ 	struct bfin_twi_iface *iface = dev_id;
+ 	unsigned long flags;
++	unsigned short twi_int_status;
+ 
+ 	spin_lock_irqsave(&iface->lock, flags);
+-	bfin_twi_handle_interrupt(iface);
++	while (1) {
++		twi_int_status = read_INT_STAT(iface);
++		if (!twi_int_status)
++			break;
++		/* Clear interrupt status */
++		write_INT_STAT(iface, twi_int_status);
++		bfin_twi_handle_interrupt(iface, twi_int_status);
++		SSYNC();
++	}
+ 	spin_unlock_irqrestore(&iface->lock, flags);
+ 	return IRQ_HANDLED;
+ }
 -- 
-1.6.3.3
-
+1.6.5.4
