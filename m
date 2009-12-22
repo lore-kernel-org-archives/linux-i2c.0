@@ -1,12 +1,12 @@
 From: Vitaly Wool <vitalywool@gmail.com>
-Subject: Re: [PATCH 1/10] ARM: PNX4008: convert to clkdev
-Date: Tue, 22 Dec 2009 09:47:05 +0300
-Message-ID: <acd2a5930912212247j2c3c7d43s879f86da92c0f01@mail.gmail.com>
-References: <083DF309106F364B939360100EC290F804F592E901@eu1rdcrdc1wx030.exi.nxp.com>
+Subject: Re: [PATCH 2/10] ARM: PNX4008: simplify clk enable/disable paths
+Date: Tue, 22 Dec 2009 09:48:15 +0300
+Message-ID: <acd2a5930912212248p41684181yb0f9e99dfaf029c9@mail.gmail.com>
+References: <083DF309106F364B939360100EC290F804F592E902@eu1rdcrdc1wx030.exi.nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2139200472=="
+Content-Type: multipart/mixed; boundary="===============2101108011=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <083DF309106F364B939360100EC290F804F592E901@eu1rdcrdc1wx030.exi.nxp.com>
+In-Reply-To: <083DF309106F364B939360100EC290F804F592E902@eu1rdcrdc1wx030.exi.nxp.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,10 +20,10 @@ To: Kevin Wells <kevin.wells@nxp.com>
 Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============2139200472==
-Content-Type: multipart/alternative; boundary=001485f6299af5beb9047b4b9237
+--===============2101108011==
+Content-Type: multipart/alternative; boundary=001485f6ccf82215a4047b4b9716
 
---001485f6299af5beb9047b4b9237
+--001485f6ccf82215a4047b4b9716
 Content-Type: text/plain; charset=ISO-8859-1
 
 On Tue, Dec 22, 2009 at 2:21 AM, Kevin Wells <kevin.wells@nxp.com> wrote:
@@ -36,17 +36,12 @@ Acked-by: Vitaly Wool <vitalywool@gmail.com>
 
 
 > ---
->  arch/arm/Kconfig                            |    1 +
->  arch/arm/mach-pnx4008/clock.c               |   73
-> +++++++++++++++------------
->  arch/arm/mach-pnx4008/clock.h               |    2 -
->  arch/arm/mach-pnx4008/include/mach/clkdev.h |    7 +++
->  4 files changed, 48 insertions(+), 35 deletions(-)
->  create mode 100644 arch/arm/mach-pnx4008/include/mach/clkdev.h
->
+>  arch/arm/mach-pnx4008/clock.c |   56
+> +++++++++++++++++-----------------------
+>  1 files changed, 24 insertions(+), 32 deletions(-)
 >
 
---001485f6299af5beb9047b4b9237
+--001485f6ccf82215a4047b4b9716
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
@@ -63,21 +58,15 @@ br>
 </div><blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb=
 (204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
 ---<br>
-=A0arch/arm/Kconfig =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-| =A0 =A01 +<br>
-=A0arch/arm/mach-pnx4008/clock.c =A0 =A0 =A0 =A0 =A0 =A0 =A0 | =A0 73 +++++=
-++++++++++------------<br>
-=A0arch/arm/mach-pnx4008/clock.h =A0 =A0 =A0 =A0 =A0 =A0 =A0 | =A0 =A02 -<b=
-r>
-=A0arch/arm/mach-pnx4008/include/mach/clkdev.h | =A0 =A07 +++<br>
-=A04 files changed, 48 insertions(+), 35 deletions(-)<br>
-=A0create mode 100644 arch/arm/mach-pnx4008/include/mach/clkdev.h<br>
-<br></blockquote></div><br>
+=A0arch/arm/mach-pnx4008/clock.c | =A0 56 +++++++++++++++++----------------=
+-------<br>
+=A01 files changed, 24 insertions(+), 32 deletions(-)<br></blockquote><div>=
+<br></div></div><br>
 
---001485f6299af5beb9047b4b9237--
+--001485f6ccf82215a4047b4b9716--
 
 
---===============2139200472==
+--===============2101108011==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -88,4 +77,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============2139200472==--
+--===============2101108011==--
