@@ -1,28 +1,29 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH 3/4] i2c-bfin-twi: remove redundant
-	retry
-Date: Wed, 23 Dec 2009 20:39:01 -0500
-Message-ID: <8bd0f97a0912231739k7e8de6ecpa5a0c215b9942e33@mail.gmail.com>
-References: <1261405713-7262-1-git-send-email-vapier@gentoo.org>
-	<1261405713-7262-3-git-send-email-vapier@gentoo.org> <20091224012537.GA10442@fluff.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Please pull bjdooks' i2c-fixes
+Date: Thu, 24 Dec 2009 01:59:47 +0000
+Message-ID: <E1NNczT-0002xL-Tg@teyla.home.fluff.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091224012537.GA10442-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Dec 23, 2009 at 20:25, Ben Dooks wrote:
-> On Mon, Dec 21, 2009 at 09:28:32AM -0500, Mike Frysinger wrote:
->> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->
-> Failed to apply, not had a look at why.
+The following changes since commit c9f937e4a3f4ebf9924ec21d80632e5eb61d949c:
+  Linus Torvalds (1):
+        Merge branch 'upstream-linus' of git://git.kernel.org/.../jgarzik/libata-dev
 
-the presumption is that you applied the previous two patches i sent
-out some time ago
+are available in the git repository at:
 
-or just pull all our pending changes from:
-git://git.kernel.org/pub/scm/linux/kernel/git/vapier/blackfin.git for-i2c
--mike
+  git://git.fluff.org/bjdooks/linux.git i2c-fixes
+
+Cory Maccarrone (1):
+      i2c-omap: Don't write IE state in unidle if 0
+
+Manjunatha GK (1):
+      i2c-omap: OMAP3: Fix I2C lockup during timeout/error cases
+
+Sonic Zhang (1):
+      i2c-bfin-twi: fix CLKDIV calculation
+
+ drivers/i2c/busses/i2c-bfin-twi.c |    6 +++---
+ drivers/i2c/busses/i2c-omap.c     |   13 ++++++++++++-
+ 2 files changed, 15 insertions(+), 4 deletions(-)
