@@ -1,86 +1,68 @@
-From: Vitaly Wool <vitalywool@gmail.com>
-Subject: Re: [PATCH 8/10] ARM: PNX4008: move i2c suspend/resume callbacks into
-	driver[PATCH] ARM: PNX4008: move i2c clock start/stop into driver
-Date: Tue, 22 Dec 2009 09:52:50 +0300
-Message-ID: <acd2a5930912212252k719ed073pbc418d9467ca7941@mail.gmail.com>
-References: <083DF309106F364B939360100EC290F804F592E908@eu1rdcrdc1wx030.exi.nxp.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] [I2C] OMAP: Don't write IE state in unidle if 0
+Date: Mon, 28 Dec 2009 12:19:41 -0800
+Message-ID: <20091228201941.GO3512@atomide.com>
+References: <1261530373-408-1-git-send-email-darkstar6262@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1736829639=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <083DF309106F364B939360100EC290F804F592E908@eu1rdcrdc1wx030.exi.nxp.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Kevin Wells <kevin.wells@nxp.com>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1261530373-408-1-git-send-email-darkstar6262@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Cory Maccarrone <darkstar6262@gmail.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Rajendra Nayak <rnayak@ti.com>, Jouni Hogander <jouni.hogander@nokia.com>, Jagadeesh Bhaskar Pakaravoor <j-pakaravoor@ti.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, Jon Hunter <jon-hunter@ti.com>, Hu Tao <taohu@motorola.com>, Xiaolong Chen <A21785@motorola.com>
 List-Id: linux-i2c@vger.kernel.org
 
---===============1736829639==
-Content-Type: multipart/alternative; boundary=001485f5e9168f5f0e047b4ba7d2
+* Cory Maccarrone <darkstar6262@gmail.com> [091222 17:05]:
+> Commit ef871432... (i2c-omap: OMAP3: PM: (re)init for every transfer
+> to support off-mode) introduced a change which make the dev->iestate
+> contents be written to the OMAP_I2C_IE_REG every time omap_i2c_unidle
+> is called.  Previously, the state was only written if it wasn't equal
+> to zero.
+> 
+> In omap_i2c_probe, omap_i2c_unidle() is called prior to omap_i2c_init(),
+> in which case dev->iestate has not yet been initialized and will be set
+> to zero.  Having this value written to the registers causes deadlock
+> while booting.
+> 
+> As such, this change restores the original functionality.
 
---001485f5e9168f5f0e047b4ba7d2
-Content-Type: text/plain; charset=ISO-8859-1
+Looks like initializing dev->iestate to something before calling
+omap_i2c_unidle in omap_i2c_probe is not an option in this case.
+We'd want to initialize it to zero, which causes the deadlock..
 
-On Tue, Dec 22, 2009 at 2:22 AM, Kevin Wells <kevin.wells@nxp.com> wrote:
-
->
-> Signed-off-by: Kevin Wells <kevin.wells@nxp.com>
->
-
-Acked-by: Vitaly Wool <vitalywool@gmail.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
 
 
+> 
+> Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
 > ---
->  arch/arm/mach-pnx4008/i2c.c  |   36 ------------------------------------
->  drivers/i2c/busses/i2c-pnx.c |   39
-> ++++++++++++++++++++++++++++++---------
->  include/linux/i2c-pnx.h      |    4 ++--
->  3 files changed, 32 insertions(+), 47 deletions(-)
->
-
---001485f5e9168f5f0e047b4ba7d2
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<br><br><div class=3D"gmail_quote">On Tue, Dec 22, 2009 at 2:22 AM, Kevin W=
-ells <span dir=3D"ltr">&lt;<a href=3D"mailto:kevin.wells@nxp.com">kevin.wel=
-ls@nxp.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=
-=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; p=
-adding-left: 1ex;">
-<br>
-Signed-off-by: Kevin Wells &lt;<a href=3D"mailto:kevin.wells@nxp.com">kevin=
-.wells@nxp.com</a>&gt;<br>
-</blockquote><div><br>Acked-by: Vitaly Wool &lt;<a href=3D"mailto:vitalywoo=
-l@gmail.com">vitalywool@gmail.com</a>&gt;<br>=A0<br></div><blockquote class=
-=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, 204, 204); margin=
-: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
----<br>
-=A0arch/arm/mach-pnx4008/i2c.c =A0| =A0 36 --------------------------------=
-----<br>
-=A0drivers/i2c/busses/i2c-pnx.c | =A0 39 ++++++++++++++++++++++++++++++----=
------<br>
-=A0include/linux/i2c-pnx.h =A0 =A0 =A0| =A0 =A04 ++--<br>
-=A03 files changed, 32 insertions(+), 47 deletions(-)<br></blockquote></div=
-><br>
-
---001485f5e9168f5f0e047b4ba7d2--
-
-
---===============1736829639==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============1736829639==--
+>  drivers/i2c/busses/i2c-omap.c |    8 +++++++-
+>  1 files changed, 7 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 3440d88..c0bb9eb 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -248,7 +248,13 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+>  		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+>  	}
+>  	dev->idle = 0;
+> -	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+> +
+> +	/*
+> +	 * Don't write to this register if the IE state is 0 as it can
+> +	 * cause deadlock.
+> +	 */
+> +	if (dev->iestate)
+> +		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+>  }
+>  
+>  static void omap_i2c_idle(struct omap_i2c_dev *dev)
+> -- 
+> 1.6.3.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
