@@ -1,66 +1,88 @@
-From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: test off by one in {piix4,vt596}_transaction()
-Date: Tue, 05 Jan 2010 22:22:23 +0100
-Message-ID: <4B43AD8F.2030809@gmail.com>
-References: <4B3773F2.3010703@gmail.com> <20100105175511.39dc6c42@hyperion.delvare>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v2 3/4] i2c: davinci: Add suspend/resume support
+Date: Tue, 05 Jan 2010 14:56:44 -0800
+Message-ID: <87vdfgrwib.fsf@deeprootsystems.com>
+References: <1260267218-19406-1-git-send-email-chaithrika@ti.com>
+	<1260267218-19406-2-git-send-email-chaithrika@ti.com>
+	<1260267218-19406-3-git-send-email-chaithrika@ti.com>
+	<1260267218-19406-4-git-send-email-chaithrika@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100105175511.39dc6c42-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1260267218-19406-4-git-send-email-chaithrika-l0cyMroinI0@public.gmane.org> (Chaithrika U. S.'s message of "Tue\,  8 Dec 2009 15\:43\:37 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-With `while (timeout++ < MAX_TIMEOUT)' timeout reaches MAX_TIMEOUT + 1 after the loop
-This is probably unlikely to produce a problem.
+Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org> writes:
 
-Signed-off-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-> That's right... but I'd rather change the loops to use "++timeout" and
-> leave the conditions as is (or maybe change it to "=="). I think it's
-> easier to read that way. Would that be OK with you?
+> Add suspend and resume callbacks to DaVinci I2C driver.
+> This has been tested on DA850/OMAP-L138 EVM. The SoC specific
+> suspend-to-RAM support patch series [1] is needed to test this feature.
+>
+> [1] http://linux.davincidsp.com/pipermail/davinci-linux-open-source/
+> 2009-November/016958.html
+>
+> Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-davinci.c |   32 ++++++++++++++++++++++++++++++++
+>  1 files changed, 32 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 81c1049..c1c2909 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -622,6 +622,36 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_PM
+> +static int davinci_i2c_suspend(struct platform_device *pdev, pm_message_t state)
+> +{
+> +	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+> +
+> +	/* put I2C into reset */
+> +	davinci_i2c_reset_ctrl(dev, 0);
+> +
+> +	clk_disable(dev->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int davinci_i2c_resume(struct platform_device *pdev)
+> +{
+> +	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+> +
+> +	clk_enable(dev->clk);
+> +
+> +	/* take I2C out of reset */
+> +	davinci_i2c_reset_ctrl(dev, 1);
+> +
+> +	return 0;
+> +}
+> +
+> +#else
+> +#define davinci_i2c_suspend NULL
+> +#define davinci_i2c_resume NULL
+> +#endif
+> +
+>  /* work with hotplug and coldplug */
+>  MODULE_ALIAS("platform:i2c_davinci");
+>  
+> @@ -632,6 +662,8 @@ static struct platform_driver davinci_i2c_driver = {
+>  		.name	= "i2c_davinci",
+>  		.owner	= THIS_MODULE,
+>  	},
+> +	.suspend	= davinci_i2c_suspend,
+> +	.resume		= davinci_i2c_resume,
 
-Ok,
+Rather than adding these to the platform_driver, you should use dev_pm_ops.
 
- drivers/i2c/busses/i2c-piix4.c  |    4 ++--
- drivers/i2c/busses/i2c-viapro.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+Something like the patch below on top of your PATCH 3/4 should work.
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 1e245e9..e56e4b6 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -324,12 +324,12 @@ static int piix4_transaction(void)
- 	else
- 		msleep(1);
- 
--	while ((timeout++ < MAX_TIMEOUT) &&
-+	while ((++timeout < MAX_TIMEOUT) &&
- 	       ((temp = inb_p(SMBHSTSTS)) & 0x01))
- 		msleep(1);
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout == MAX_TIMEOUT) {
- 		dev_err(&piix4_adapter.dev, "SMBus Timeout!\n");
- 		result = -ETIMEDOUT;
- 	}
-diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
-index e4b1543..a84a909 100644
---- a/drivers/i2c/busses/i2c-viapro.c
-+++ b/drivers/i2c/busses/i2c-viapro.c
-@@ -165,10 +165,10 @@ static int vt596_transaction(u8 size)
- 	do {
- 		msleep(1);
- 		temp = inb_p(SMBHSTSTS);
--	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
-+	} while ((temp & 0x01) && (++timeout < MAX_TIMEOUT));
- 
- 	/* If the SMBus is still busy, we give up */
--	if (timeout >= MAX_TIMEOUT) {
-+	if (timeout == MAX_TIMEOUT) {
- 		result = -ETIMEDOUT;
- 		dev_err(&vt596_adapter.dev, "SMBus timeout!\n");
- 	}
+Other than this, I'm OK with this series, feel free to add my signoff
+and resend to linux-i2c and LKML.  linux-i2c has had very slow
+response to embedded patches lately.
+
+Kevin
