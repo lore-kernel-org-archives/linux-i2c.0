@@ -1,32 +1,35 @@
-From: Baurzhan Ismagulov <ibr-Y2X99Y6vBNTR7s880joybQ@public.gmane.org>
-Subject: status of i2c-cpm and ds2482
-Date: Fri, 8 Jan 2010 03:02:53 +0100
-Message-ID: <20100108020253.GJ3388@radix50.net>
+From: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: RE: [PATCH 1/2] i2c: Add support for Ux500/Nomadik I2C controller
+Date: Fri, 8 Jan 2010 02:39:02 +0530
+Message-ID: <1262898542.1026.6.camel@vinay-desktop>
+References: <27f8aa32bf40c690930a76ce5e1ee82cec86b248.1262870858.git.srinidhi.kasagar@stericsson.com>
+	 <A6D19A13FE030A409EC4362C172E091F0E30CDB5@eseldmw101.eemea.ericsson.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <A6D19A13FE030A409EC4362C172E091F0E30CDB5-xbI4eAY8CkZds0zI/4HV/NQnPW7fa8Gm1eXc/+PjCJA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus WALLEIJ <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, Sachin VERMA <sachin.verma-qxv4g6HH51o@public.gmane.org>, Andrea GALLO <andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, rubini-9wsNiZum9E8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Thu, 2010-01-07 at 21:37 +0100, Linus WALLEIJ wrote:
+> > +++ b/drivers/i2c/busses/i2c-nmk.c
+> (...)
+> > +	dev->irq = platform_get_irq(pdev, 0);
+> > +	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
+> > +				DRIVER_NAME, dev);
+> 
+> Since I2C IRQs can be a bit tedious, could this be converted
+> to a request_threaded_irq()? OK I know that is probably a bit
+> intrusive and can very well be done later (so no blocker) but
+> think about it.
 
-I have a 2.6.25.7 kernel working on my MPC885 board with i2c-cpm and
-ds2482. I'm currently rebasing the board changes on a newer kernel. So
-far I could get to 2.6.27.25 (with i2c-cpm and ds2482 from linux-2.6
-git). Other parts of 2.6.27.25 work better with the board, so I'd like
-to get the application (reportedly using the
-/sys/devices/w1_bus_master1/* interface) working and have a couple of
-questions.
+hmm..I tried using request_threaded_irq, but seems not to be working at
+the first step, did not debug further. So, I will post v2 patch fixing
+the rest of your comments. Once I have this driver working fully with
+threaded implementation, I will post a patch on top of it. Hope this is
+OK.
 
-What is the current state of i2c-cpm and ds2482 in 2.6 or 2.6.27 gits?
-If I correctly understand the commit messages, those are maintained.
-There are boot messages about both. Creating /dev/i2c-0 and reading from
-it result in appropriate debug messages. However,
-/sys/devices/w1_bus_master1 is not created; the path described in
-http://marc.info/?l=linux-i2c&m=125365009130579&w=2 does not exist. What
-is the fastest way to get the application running on 2.6.27.25?
-
-Thanks in advance,
-Baurzhan.
+Srinidhi 
