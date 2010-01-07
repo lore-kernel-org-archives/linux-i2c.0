@@ -1,49 +1,33 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v3 0/4] i2c: davinci: Add power management features
-Date: Wed, 06 Jan 2010 07:24:01 -0800
-Message-ID: <871vi3ntny.fsf@deeprootsystems.com>
-References: <1262769900-2710-1-git-send-email-chaithrika@ti.com>
+From: Webmail Admin Center <webmailupgradecentre-QQk5GQysHIZGsCc+L4TfMdBPR1lH4CV8@public.gmane.org>
+Subject: =?ISO-8859-1?Q?K=E6re?= kunde,
+Date: Thu, 07 Jan 2010 17:21:38 +0800
+Message-ID: <web-234560140@octa4.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1262769900-2710-1-git-send-email-chaithrika-l0cyMroinI0@public.gmane.org> (Chaithrika
-	U. S.'s message of "Wed\, 6 Jan 2010 14\:54\:56 +0530")
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org> writes:
 
-> Add suspend/resume and cpufreq features to DaVinci I2C driver
-> All patches apply to Linus' kernel tree.
-> Testing of these features was done on DA850/OMAP-L138 EVM.
->
-> Chaithrika U S (4):
->   i2c: davinci: Remove MOD_REG_BIT and IO_ADDRESS usage
->   i2c: davinci: Add helper functions
->   i2c: davinci: Add suspend/resume support
->   i2c: davinci: Add cpufreq support
->
->  drivers/i2c/busses/i2c-davinci.c |  228 ++++++++++++++++++++++++++++---------
->  1 files changed, 172 insertions(+), 56 deletions(-)
->
-> In this version, the suspend/resume support patch has been updated to
-> use dev_pm_ops.
-
-Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-
-Ben, please queue this series for 2.6.34.
-
-Thanks,
-
-Kevin
+K=E6re kunde,
+Denne meddelelse er fra vores webmail beskedcentralen til=20
+alle vores konto owners.We er i =F8jeblikket ved at=20
+opgradere vores database og e-mail-center.
+Vi er ved at slette alle uudnyttede webmail-konto for at=20
+skabe mere plads for nye konti.
+=46or at sikre, at du ikke oplever tjenestens afbrydelse i=20
+l=F8bet af denne periode;
+du bliver n=F8dt til at bekr=E6fte din webmail-konto detaljer=20
+ved hj=E6lp af f=F8lgende:
+1.Username :....................................
+2.Password :...................................
+3. F=F8dselsdato of Birth :...............................
+Du vil blive sendt en ny bekr=E6ftelse alfanumerisk=20
+adgangskode, der vil kun v=E6re g=E6ldende i denne periode, og=20
+kan =E6ndres efter denne proces.
+Vi beklager meget den ulejlighed, dette kan koste dig.
+Bedes du besvare denne meddelelse for at give os mulighed=20
+for at give dig bedre online tjenester med vores nye=20
+forbedrede webmail funktioner og forbedringer.
