@@ -1,85 +1,83 @@
-From: "Linus Walleij" <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: RE: [PATCH 1/2] i2c: Add support for Ux500/Nomadik I2C controller
-Date: Thu, 7 Jan 2010 21:37:04 +0100
-Message-ID: <A6D19A13FE030A409EC4362C172E091F0E30CDB5@eseldmw101.eemea.ericsson.se>
-References: <27f8aa32bf40c690930a76ce5e1ee82cec86b248.1262870858.git.srinidhi.kasagar@stericsson.com>
+From: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/3] MIPS: Octeon: Add I2C platform driver.
+Date: Thu, 07 Jan 2010 12:55:19 -0800
+Message-ID: <4B464A37.7020300@caviumnetworks.com>
+References: <4B463B1F.6000404@caviumnetworks.com> <1262894061-32613-1-git-send-email-ddaney@caviumnetworks.com> <4B4645A3.30401@ru.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <27f8aa32bf40c690930a76ce5e1ee82cec86b248.1262870858.git.srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+In-Reply-To: <4B4645A3.30401-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinidhi KASAGAR <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, sachin.verma-qxv4g6HH51o@public.gmane.org, andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
+To: Sergei Shtylyov <sshtylyov-hkdhdckH98+B+jHODAdFcQ@public.gmane.org>
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rade.bozic.ext-OYasijW0DpE@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Srinidhi, great work!
+Sergei Shtylyov wrote:
+> Hello.
+> 
+> David Daney wrote:
+> 
+>> Signed-off-by: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+>> CC: Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>
+>>   
+> [...]
+>> diff --git a/arch/mips/cavium-octeon/octeon-platform.c 
+>> b/arch/mips/cavium-octeon/octeon-platform.c
+>> index 20698a6..f2c0602 100644
+>> --- a/arch/mips/cavium-octeon/octeon-platform.c
+>> +++ b/arch/mips/cavium-octeon/octeon-platform.c
+>> @@ -165,6 +165,78 @@ out:
+>>  }
+>>  device_initcall(octeon_rng_device_init);
+>>  
+>> +
+>> +#define OCTEON_I2C_IO_BASE 0x1180000001000ull
+>> +#define OCTEON_I2C_IO_UNIT_OFFSET 0x200
+>> +
+>> +static struct octeon_i2c_data octeon_i2c_data[2];
+>> +
+>> +static int __init octeon_i2c_device_init(void)
+>> +{
+>> +    struct platform_device *pd;
+>> +    int ret = 0;
+>> +    int port, num_ports;
+>> +
+>> +    struct resource i2c_resources[] = {
+>> +        {
+>> +            .flags    = IORESOURCE_MEM,
+>> +        }, {
+>> +            .flags    = IORESOURCE_IRQ,
+>> +        }
+>> +    };
+>> +
+>> +    if (OCTEON_IS_MODEL(OCTEON_CN56XX) || 
+>> OCTEON_IS_MODEL(OCTEON_CN52XX))
+>> +        num_ports = 2;
+>> +    else
+>> +        num_ports = 1;
+>> +
+>> +    for (port = 0; port < num_ports; port++) {
+>> +        octeon_i2c_data[port].sys_freq = octeon_get_clock_rate();
+>> +        /*FIXME: should be examined. At the moment is set for 100Khz */
+>> +        octeon_i2c_data[port].i2c_freq = 100000;
+>> +
+>> +        pd = platform_device_alloc("i2c-octeon", port);
+>> +        if (!pd) {
+>> +            ret = -ENOMEM;
+>> +            goto out;
+>> +        }
+>> +
+>> +        pd->dev.platform_data = octeon_i2c_data + port;
+>> +
+>> +        i2c_resources[0].start =
+>> +            OCTEON_I2C_IO_BASE + (port * OCTEON_I2C_IO_UNIT_OFFSET);
+>> +        i2c_resources[0].end = i2c_resources[0].start + 0x20;
+>>   
+> 
+>   Not 0x1F?
+> 
 
-Just a few quickies, if you fix these it's
-Acked-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> 
+You are correct.  I will fix it.
 
-> diff --git a/arch/arm/plat-nomadik/include/plat/i2c.h 
-> b/arch/arm/plat-nomadik/include/plat/i2c.h
-> +enum i2c_freq_mode {
-> +	I2C_FREQ_MODE_STANDARD,		/* up to 100 Kb/s */
-> +	I2C_FREQ_MODE_FAST,		/* up to 400 Kb/s */
-> +	I2C_FREQ_MODE_FAST_PLUS,	/* up to 1 Mb/s */
-> +	I2C_FREQ_MODE_HIGH_SPEED	/* up to 3.4 Mb/s */
-> +};
-> +
-> +enum i2c_addr_mode {
-> +	I2C_7_BIT_ADDRESS = 0x1,
-> +	I2C_10_BIT_ADDRESS = 0x2
-> +};
-
-Which field in the struct will use this? Can't
-I2C_FUNC_10BIT_ADDR and I2C_M_TEN from include/linux/i2c.h (and
-siblings) be used for this instead? Leftover?
-
-You have this later:
-
-(...)
-+		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
-+			dev_err(&dev->pdev->dev, "10 bit addressing"
-+					"not supported\n");
-+			return -EINVAL;
-(...)
-
-Hmmmm?
-
-> +
-> +struct nmk_i2c_controller {
-
-Please use kerneldoc for these comments.
-(see Documentation/kernel-doc-nano-HOWTO.txt)
-
-> +	unsigned long	clk_freq;
-> +	unsigned short	slsu;	/* slave data set up time */
-
-Comment which unit this is in. (Nanosecs I think?)
-
-> +	unsigned char 	tft;	/* Tx FIFO Threshold */
-> +	unsigned char 	rft;	/* Rx FIFO Threshold */
-
-In bytes?
-
-> +	unsigned short	sm;	/* speed mode */
-
-Shouldn't this last element be 
-enum i2c_freq_mode sm
-then?
-
-> +++ b/drivers/i2c/busses/i2c-nmk.c
-(...)
-> +	dev->irq = platform_get_irq(pdev, 0);
-> +	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
-> +				DRIVER_NAME, dev);
-
-Since I2C IRQs can be a bit tedious, could this be converted
-to a request_threaded_irq()? OK I know that is probably a bit
-intrusive and can very well be done later (so no blocker) but
-think about it.
-
-Linus Walleij
+David Daney
