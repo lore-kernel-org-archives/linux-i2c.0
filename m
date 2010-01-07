@@ -1,33 +1,142 @@
-From: Webmail Admin Center <webmailupgradecentre-QQk5GQysHIZGsCc+L4TfMdBPR1lH4CV8@public.gmane.org>
-Subject: =?ISO-8859-1?Q?K=E6re?= kunde,
-Date: Thu, 07 Jan 2010 17:21:38 +0800
-Message-ID: <web-234560140@octa4.net.au>
+From: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+Subject: [PATCH 2/2] ARM U8500: add I2C platform configurations
+Date: Thu, 7 Jan 2010 19:15:58 +0530
+Message-ID: <2c332b5889f9cbfefcfa13e5af46fd72ceec47f4.1262870858.git.srinidhi.kasagar@stericsson.com>
+References: <27f8aa32bf40c690930a76ce5e1ee82cec86b248.1262870858.git.srinidhi.kasagar@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <27f8aa32bf40c690930a76ce5e1ee82cec86b248.1262870858.git.srinidhi.kasagar@stericsson.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: ben-linux@fluff.org, srinidhi kasagar <srinidhi.kasagar@stericsson.com>, sachin.verma@st.com, andrea.gallo@stericsson.com, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org, rubini@unipv.it
 List-Id: linux-i2c@vger.kernel.org
 
+This adds platform configurations to support
+founr i2c controllers found on early MOP500
+platform
 
-K=E6re kunde,
-Denne meddelelse er fra vores webmail beskedcentralen til=20
-alle vores konto owners.We er i =F8jeblikket ved at=20
-opgradere vores database og e-mail-center.
-Vi er ved at slette alle uudnyttede webmail-konto for at=20
-skabe mere plads for nye konti.
-=46or at sikre, at du ikke oplever tjenestens afbrydelse i=20
-l=F8bet af denne periode;
-du bliver n=F8dt til at bekr=E6fte din webmail-konto detaljer=20
-ved hj=E6lp af f=F8lgende:
-1.Username :....................................
-2.Password :...................................
-3. F=F8dselsdato of Birth :...............................
-Du vil blive sendt en ny bekr=E6ftelse alfanumerisk=20
-adgangskode, der vil kun v=E6re g=E6ldende i denne periode, og=20
-kan =E6ndres efter denne proces.
-Vi beklager meget den ulejlighed, dette kan koste dig.
-Bedes du besvare denne meddelelse for at give os mulighed=20
-for at give dig bedre online tjenester med vores nye=20
-forbedrede webmail funktioner og forbedringer.
+Signed-off-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+---
+ arch/arm/mach-ux500/board-mop500.c |   75 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
+index aa5afbc..e4f6dac 100644
+--- a/arch/arm/mach-ux500/board-mop500.c
++++ b/arch/arm/mach-ux500/board-mop500.c
+@@ -22,6 +22,7 @@
+ #include <asm/mach/arch.h>
+ 
+ #include <plat/mtu.h>
++#include <plat/i2c.h>
+ 
+ #include <mach/hardware.h>
+ #include <mach/setup.h>
+@@ -108,6 +109,70 @@ static struct amba_device pl022_device = {
+ 	.periphid = SSP_PER_ID,
+ };
+ 
++#define U8500_I2C_RESOURCES(id, size)		\
++static struct resource u8500_i2c_resources_##id[] = {	\
++	[0] = {					\
++		.start	= U8500_I2C##id##_BASE,	\
++		.end	= U8500_I2C##id##_BASE + size - 1, \
++		.flags	= IORESOURCE_MEM,	\
++	},					\
++	[1] = {					\
++		.start	= IRQ_I2C##id,		\
++		.end	= IRQ_I2C##id,		\
++		.flags	= IORESOURCE_IRQ	\
++	}					\
++}
++
++U8500_I2C_RESOURCES(0, SZ_4K);
++U8500_I2C_RESOURCES(1, SZ_4K);
++U8500_I2C_RESOURCES(2, SZ_4K);
++U8500_I2C_RESOURCES(3, SZ_4K);
++
++#define U8500_I2C_CONTROLLER(id, _slsu, _tft, _rft, clk, _sm) \
++static struct nmk_i2c_controller u8500_i2c_##id = { \
++	/*				\
++	 * slave data setup time, which is	\
++	 * 250 ns,100ns,10ns which is 14,6,2	\
++	 * respectively for a 48 Mhz	\
++	 * i2c clock			\
++	 */				\
++	.slsu		= _slsu,	\
++	/* Tx FIFO threshold */		\
++	.tft		= _tft,		\
++	/* Rx FIFO threshold */		\
++	.rft		= _rft,		\
++	/* std. mode operation */	\
++	.clk_freq	= clk,		\
++	.sm		= _sm,		\
++}
++
++/*
++ * The board uses 4 i2c controllers, initialize all of
++ * them with slave data setup time of 250 ns,
++ * Tx & Rx FIFO threshold values as 1 and standard
++ * mode of operation
++ */
++U8500_I2C_CONTROLLER(0, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
++U8500_I2C_CONTROLLER(1, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
++U8500_I2C_CONTROLLER(2,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
++U8500_I2C_CONTROLLER(3,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
++
++#define U8500_I2C_PDEVICE(cid)		\
++static struct platform_device i2c_controller##cid = { \
++	.name = "nmk-i2c",		\
++	.id	 = cid,			\
++	.num_resources = 2,		\
++	.resource = u8500_i2c_resources_##cid,	\
++	.dev = {			\
++		.platform_data = &u8500_i2c_##cid \
++	}				\
++}
++
++U8500_I2C_PDEVICE(0);
++U8500_I2C_PDEVICE(1);
++U8500_I2C_PDEVICE(2);
++U8500_I2C_PDEVICE(3);
++
+ static struct amba_device *amba_devs[] __initdata = {
+ 	&uart0_device,
+ 	&uart1_device,
+@@ -115,6 +180,14 @@ static struct amba_device *amba_devs[] __initdata = {
+ 	&pl022_device,
+ };
+ 
++/* add any platform devices here - TODO */
++static struct platform_device *platform_devs[] __initdata = {
++	&i2c_controller0,
++	&i2c_controller1,
++	&i2c_controller2,
++	&i2c_controller3,
++};
++
+ static void __init u8500_timer_init(void)
+ {
+ #ifdef CONFIG_LOCAL_TIMERS
+@@ -139,6 +212,8 @@ static void __init u8500_init_machine(void)
+ 	for (i = 0; i < ARRAY_SIZE(amba_devs); i++)
+ 		amba_device_register(amba_devs[i], &iomem_resource);
+ 
++	platform_add_devices(platform_devs, ARRAY_SIZE(platform_devs));
++
+ 	spi_register_board_info(u8500_spi_devices,
+ 			ARRAY_SIZE(u8500_spi_devices));
+ 
+-- 
+1.6.3.GIT
