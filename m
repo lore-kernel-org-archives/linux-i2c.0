@@ -1,69 +1,60 @@
 From: Baurzhan Ismagulov <ibr-Y2X99Y6vBNTR7s880joybQ@public.gmane.org>
 Subject: Re: status of i2c-cpm and ds2482
-Date: Fri, 8 Jan 2010 14:43:39 +0100
-Message-ID: <20100108134339.GE4004@radix50.net>
-References: <20100108020253.GJ3388@radix50.net> <4B471647.8050806@scram.de> <20100108121723.GD4004@radix50.net> <4B4726CF.9020605@scram.de>
+Date: Fri, 8 Jan 2010 15:01:11 +0100
+Message-ID: <20100108140111.GF4004@radix50.net>
+References: <20100108020253.GJ3388@radix50.net> <4B471647.8050806@scram.de> <20100108121723.GD4004@radix50.net> <20100108135222.49d7b834@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4B4726CF.9020605-NIgtFMG+Po8@public.gmane.org>
+In-Reply-To: <20100108135222.49d7b834-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 08, 2010 at 01:36:31PM +0100, Jochen Friedrich wrote:
->> How did it work in 2.6.25.7?
->
-> It was probably probed by some userspace tool.
+Hello Jean,
 
-Nope, it worked directly after booting. The initialization sequence
-looked like this:
+On Fri, Jan 08, 2010 at 01:52:22PM +0100, Jean Delvare wrote:
+> You probably want to take a look at these 2 patches of mine which were
+> applied to the ds2482 driver:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=61c91f7ded640bb2b340cc89d9ca3a3ca0229c74
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=0314b020c49c1d6cd182d2b89775bfa6686660db
 
-w1_add_master_device
-ds2482_attach_adapter
-i2c_register_driver
-sensors_ds2482_init
-kernel_init
-kernel_thread
+Yes, I studied them yesterday in detail :) . The docs in i2c are also
+useful to get the big picture, thank you. That said, I'm currently stuck
+how to make the infrastructure probe ds2482.
 
 
-> This has been turned off as probing i2c might be problematic on Soc
-> boards. See:
-> http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
-commit;h=3D0a346dacee18ff69f6162d9860d723a058f47321
->
-> You could try to add the property "linux,i2c-class=3D1" to the i2c=20
-> controller in your dts to see if this commit is the cause of differen=
-ce.
+> Before 2.6.27, the ds2482 driver was a so-called "legacy i2c driver"
+> probing buses randomly in search of supported chips. Since 2.6.27 is is
+> a so-called "new-style i2c driver" which only attaches to the devices
+> when told to. So what you observe is the expected behavior. It is much
+> safer that way.
 
-I've added "linux,i2c-class =3D <1>;" to i2c@860; this has set i2c-cpm'=
-s
-class to I2C_CLASS_HWMON. You are probably right in that the problem
-seems to be partly related to that.
-
-That said, the default class of i2c-cpm is I2C_CLASS_HWMON |
-I2C_CLASS_SPD, whereas the one of ds2482 is not set and thus zero (I'm
-using 2.6.27.25), so if (!(adapter->class & driver->class)) in
-i2c_detect goes to exit_free. So yesterday I had to set ds2482's class
-to I2C_CLASS_SPD since the classes have to match.
-
-However, it still goes to exit_free immediately after that since ds2482
-doesn't provide I2C_FUNC_SMBUS_QUICK. IIUC, drivers are not required to
-provide that, so I'm still looking why cpm_i2c_probe and ds2482_probe
-don't get called.
+Yes, this is clear from your docs.
 
 
-> You should definitely add your ds2482 to the device tree so it is aut=
-o
-> loaded by the i2c subsystem.
+> For an overview of how an I2C device can be declared, see:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;f=Documentation/i2c/instantiating-devices
 
-You mean, in dts? Do you have a template for that? I could look up the
-necessary values in the working 2.6.25.7 kernel if I knew which ones I
-need. Which routine reads it and calls probe?
+As I wrote yesterday, I did try Method 4. However,
+/sys/bus/i2c/devices/i2c-0 doesn't exist.
+
+There is also ds2482_detect in ds2482.c of 2.6.27.25 (Method 3); still
+cannot see /sys/devices/w1_bus_master1.
+
+What is the problem there? Should I update some infrastructure files
+from 2.6 git? For now, I can't use newer kernels since they either hang
+or run very slowly ("time id" taking real 32s) on my board.
 
 
-Gru=DF,
+> One method not described in this document is listing the device in a
+> dts. It should probably be added, unfortunately I don't know enough
+> about this myself to do it. Any volunteer?
+
+I would gladly contribute that as soon as I learn how to do that :) .
+
+
+Thanks in advance,
 Baurzhan.
