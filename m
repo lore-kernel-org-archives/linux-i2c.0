@@ -1,49 +1,48 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: status of i2c-cpm and ds2482
-Date: Fri, 8 Jan 2010 18:54:10 +0100
-Message-ID: <20100108185410.5f916ef3@hyperion.delvare>
-References: <20100108020253.GJ3388@radix50.net>
-	<4B471647.8050806@scram.de>
-	<20100108121723.GD4004@radix50.net>
-	<20100108135222.49d7b834@hyperion.delvare>
-	<20100108140111.GF4004@radix50.net>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH] i2c/imx: call ioremap only after request_mem_region
+Date: Fri, 8 Jan 2010 22:26:03 +0100
+Message-ID: <20100108212603.GC31747@pengutronix.de>
+References: <1262967797-2001-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100108140111.GF4004-Y2X99Y6vBNTR7s880joybQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baurzhan Ismagulov <ibr-Y2X99Y6vBNTR7s880joybQ@public.gmane.org>
-Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vOmOzSkFvhd7u8Ms"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754117Ab0AHV0M@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1262967797-2001-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Richard Zhao <linuxzsc@gmail.com>, Darius Augulis <augulis.darius@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 8 Jan 2010 15:01:11 +0100, Baurzhan Ismagulov wrote:
-> On Fri, Jan 08, 2010 at 01:52:22PM +0100, Jean Delvare wrote:
-> > For an overview of how an I2C device can be declared, see:
-> > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;f=Documentation/i2c/instantiating-devices
-> 
-> As I wrote yesterday, I did try Method 4. However,
-> /sys/bus/i2c/devices/i2c-0 doesn't exist.
 
-/sys/bus/i2c/devices/i2c-* is new in kernel 2.6.32. For older kernels,
-look in /sys/class/i2c-adapter. That being said, method 4 is new in
-kernel 2.6.31 anyway, so it isn't what you want.
+--vOmOzSkFvhd7u8Ms
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> There is also ds2482_detect in ds2482.c of 2.6.27.25 (Method 3); still
-> cannot see /sys/devices/w1_bus_master1.
+On Fri, Jan 08, 2010 at 05:23:17PM +0100, Uwe Kleine-K=F6nig wrote:
+> accordingly adapt order of release_mem_region and release_mem_region on
+> remove.
+>=20
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
 
-As I recall, this isn't a real detect function, because the list of
-addresses to probe by default is empty. For the detect function to be
-called, you must provide extra module parameters (e.g. probe or force).
+Acked-by: Wolfram Sang <w.sang@pengutronix.de>
 
-> What is the problem there? Should I update some infrastructure files
-> from 2.6 git? For now, I can't use newer kernels since they either hang
-> or run very slowly ("time id" taking real 32s) on my board.
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-You don't have to update anything, other than your dts file. Until your
-dts file lists the ds2482 device, you must load the ds2482 driver with
-the right parameter.
+--vOmOzSkFvhd7u8Ms
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAktHousACgkQD27XaX1/VRtDXgCgqhrnhREBhUAVwKx/YXn9mDth
+3/0AoKRceMzo3q9oK5P8oV7PxtIggdj6
+=X4KS
+-----END PGP SIGNATURE-----
+
+--vOmOzSkFvhd7u8Ms--
