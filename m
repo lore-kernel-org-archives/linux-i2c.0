@@ -1,64 +1,66 @@
-From: =?UTF-8?B?TsOpbWV0aCBNw6FydG9u?= <nm127@freemail.hu>
-Subject: [PATCH] i2c-ali1563: remove sparse warnings
-Date: Sun, 10 Jan 2010 15:33:23 +0100
-Message-ID: <4B49E533.8050808@freemail.hu>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: make PCI device id constant
+Date: Sun, 10 Jan 2010 16:33:31 +0100
+Message-ID: <20100110163331.0fca7abf@hyperion.delvare>
+References: <4B49E524.1090404@freemail.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <cocci-bounces@diku.dk>
-List-Unsubscribe: <http://lists.diku.dk/mailman/listinfo/cocci>,
-	<mailto:cocci-request@diku.dk?subject=unsubscribe>
-List-Archive: <http://lists.diku.dk/pipermail/cocci>
-List-Post: <mailto:cocci@diku.dk>
-List-Help: <mailto:cocci-request@diku.dk?subject=help>
-List-Subscribe: <http://lists.diku.dk/mailman/listinfo/cocci>,
-	<mailto:cocci-request@diku.dk?subject=subscribe>
-Sender: cocci-bounces@diku.dk
-Errors-To: cocci-bounces@diku.dk
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, cocci@diku.dk, LKML <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4B49E524.1090404-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?UTF-8?B?TsOpbWV0aCBNw6FydG9u?= <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>, cocci-dAYI7NvHqcQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
+Hi M=C3=A1rton,
 
-Remove the following sparse warnings (see "make C=3D1"):
- * drivers/i2c/busses/i2c-ali1563.c:91:3: warning: do-while statement is =
-not a compound statement
- * drivers/i2c/busses/i2c-ali1563.c:161:3: warning: do-while statement is=
- not a compound statement
+On Sun, 10 Jan 2010 15:33:08 +0100, N=C3=A9meth M=C3=A1rton wrote:
+> From: M=C3=A1rton N=C3=A9meth <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+>=20
+> The id_table field of the struct pci_driver is constant in <linux/pci=
+=2Eh>
+> so it is worth to make initialization data also constant.
+>=20
+> The semantic match that finds this kind of pattern is as follows:
+> (http://coccinelle.lip6.fr/)
+>=20
+> // <smpl>
+> @r@
+> disable decl_init,const_decl_init;
+> identifier I1, I2, x;
+> @@
+> 	struct I1 {
+> 	  ...
+> 	  const struct I2 *x;
+> 	  ...
+> 	};
+> @s@
+> identifier r.I1, y;
+> identifier r.x, E;
+> @@
+> 	struct I1 y =3D {
+> 	  .x =3D E,
+> 	};
+> @c@
+> identifier r.I2;
+> identifier s.E;
+> @@
+> 	const struct I2 E[] =3D ... ;
+> @depends on !c@
+> identifier r.I2;
+> identifier s.E;
+> @@
+> +	const
+> 	struct I2 E[] =3D ...;
+> // </smpl>
+>=20
+> Signed-off-by: M=C3=A1rton N=C3=A9meth <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+> Cc: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+> Cc: cocci-dAYI7NvHqcQ@public.gmane.org
+> ---
 
-Signed-off-by: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
----
---- linux/drivers/i2c/busses/i2c-ali1563.c.orig	2010-01-10 13:40:31.00000=
-0000 +0100
-+++ linux/drivers/i2c/busses/i2c-ali1563.c	2010-01-10 13:54:16.000000000 =
-+0100
-@@ -87,9 +87,9 @@
- 	outb_p(inb_p(SMB_HST_CNTL2) | HST_CNTL2_START, SMB_HST_CNTL2);
+Applied, thanks.
 
- 	timeout =3D ALI1563_MAX_TIMEOUT;
--	do
-+	do {
- 		msleep(1);
--	while (((data =3D inb_p(SMB_HST_STS)) & HST_STS_BUSY) && --timeout);
-+	} while (((data =3D inb_p(SMB_HST_STS)) & HST_STS_BUSY) && --timeout);
-
- 	dev_dbg(&a->dev, "Transaction (post): STS=3D%02x, CNTL1=3D%02x, "
- 		"CNTL2=3D%02x, CMD=3D%02x, ADD=3D%02x, DAT0=3D%02x, DAT1=3D%02x\n",
-@@ -157,9 +157,9 @@
- 	outb_p(inb_p(SMB_HST_CNTL2) | HST_CNTL2_START, SMB_HST_CNTL2);
-
- 	timeout =3D ALI1563_MAX_TIMEOUT;
--	do
-+	do {
- 		msleep(1);
--	while (!((data =3D inb_p(SMB_HST_STS)) & HST_STS_DONE) && --timeout);
-+	} while (!((data =3D inb_p(SMB_HST_STS)) & HST_STS_DONE) && --timeout);
-
- 	dev_dbg(&a->dev, "Block (post): STS=3D%02x, CNTL1=3D%02x, "
- 		"CNTL2=3D%02x, CMD=3D%02x, ADD=3D%02x, DAT0=3D%02x, DAT1=3D%02x\n",
-_______________________________________________
-Cocci mailing list
-Cocci@diku.dk
-http://lists.diku.dk/mailman/listinfo/cocci
-(Web access from inside DIKUs LAN only)
+--=20
+Jean Delvare
