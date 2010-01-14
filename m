@@ -1,61 +1,40 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 2/3] Check component type register
-Date: Thu, 14 Jan 2010 01:11:01 +0000
-Message-ID: <20100114011101.GK3738@trinity.fluff.org>
-References: <20100113193224.753273000@octasic.com> <20100113193421.139644000@octasic.com>
+Subject: Re: [PATCH 0/3] i2c-designware: Allow mixed endianness
+Date: Thu, 14 Jan 2010 06:45:01 +0000
+Message-ID: <20100114064501.GR3738@trinity.fluff.org>
+References: <20100113193224.753273000@octasic.com> <4B4E6815.9050908@necel.com> <20100114010905.GJ3738@trinity.fluff.org> <390831ED3DF58E41A3D2FB82591E2C36047AF627@MAILEXCH.octasic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100113193421.139644000-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <390831ED3DF58E41A3D2FB82591E2C36047AF627-Jh1kU4MlLDZ5rAAhGZPdxVaTQe2KTcn/@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
-Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 13, 2010 at 02:32:26PM -0500, Jean-Hugues Deschenes wrote:
-> Designware component type register is checked before attaching to the device.
+On Wed, Jan 13, 2010 at 10:06:31PM -0500, Jean-Hugues Deschenes wrote:
+> > > In the commit ed5e1dd5 (i2c-designware: Consolidate to use 32-bit
+> > > word accesses), I tried to sort out the I/O endian issue, but it
+> > > seems doesn't work for your environment, R/W data is swapped :-(
+> > 
+> > I think this one of those weird cases where you have _both_ types of
+> > endianess of peripherals where anything in readl/writel isn't going
+> > to help you out.
 > 
-> ---
->  drivers/i2c/busses/i2c-designware.c |   11 +++++++++++
->  1 file changed, 11 insertions(+)
+> Actually, the specific case I'm interested in is one where I have an
+> SOC built around an ARM core running in little-endian mode, in which
+> the Designware IP has been instantiated and hooked up (to the internal
+> data bus) in big endian format.
 > 
-> Index: linux-2.6_i2c/drivers/i2c/busses/i2c-designware.c
-> ===================================================================
-> --- linux-2.6_i2c.orig/drivers/i2c/busses/i2c-designware.c
-> +++ linux-2.6_i2c/drivers/i2c/busses/i2c-designware.c
-> @@ -68,6 +68,7 @@
->  #define DW_IC_TXFLR		0x74
->  #define DW_IC_RXFLR		0x78
->  #define DW_IC_COMP_PARAM_1	0xf4
-> +#define DW_IC_COMP_TYPE		0xfc
->  #define DW_IC_TX_ABRT_SOURCE	0x80
->  
->  #define DW_IC_CON_MASTER		0x1
-> @@ -756,6 +757,16 @@ static int __devinit dw_i2c_probe(struct
->  		goto err_unuse_clocks;
->  	}
->  	{
-> +		u32 comp_type = i2c_dw_readl(dev, DW_IC_COMP_TYPE);
-> +
-> +		if (0x44570140 != comp_type) {
-> +			dev_err(&pdev->dev, "Unknown Synopsys component type: "
-> +					"0x%08x\n",	comp_type);
-> +			r = -ENODEV;
-> +			goto err_iounmap;
-> +		}
-> +	}
-> +	{
+> This patch could also come in handy, for example, if someone were to
+> run an armeb kernel on an SOC where the DW IP has been instantiated
+> and hooked up in little endian format (as is probably the case for
+> most ARM-based SOCs out there).
 
-The general convention in linux is to do (if x = constant).
+I think this is currently an oditity, most ARM systems are still armel,
+especiailly since very few distributions do armeb
 
->  		u32 param1 = i2c_dw_readl(dev, DW_IC_COMP_PARAM_1);
->  
->  		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> 
-> -- 
-
--- 
 -- 
 Ben
 
