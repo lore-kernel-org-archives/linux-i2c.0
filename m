@@ -1,68 +1,29 @@
-From: "Artem S. Tashkinov" <t.artem-VInPYn6yXxRWk0Htik3J/w@public.gmane.org>
-Subject: lm_sensors configuration for Gigabyte M61P-S3 AM2+ motherboard
-Date: Fri, 15 Jan 2010 15:08:40 +0500
-Message-ID: <4B503EA8.7080709@mailcity.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: lm_sensors configuration for Gigabyte M61P-S3 AM2+ motherboard
+Date: Fri, 15 Jan 2010 12:42:49 +0100
+Message-ID: <20100115124249.7918e108@hyperion.delvare>
+References: <4B503EA8.7080709@mailcity.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000406050000030108050301"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4B503EA8.7080709-VInPYn6yXxRWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Artem S. Tashkinov" <t.artem-VInPYn6yXxRWk0Htik3J/w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000406050000030108050301
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 15 Jan 2010 15:08:40 +0500, Artem S. Tashkinov wrote:
+> Hi, there!
+> 
+> It seems like 
+> http://www.lm-sensors.org/wiki/Configurations/FancyManufacturer is 
+> broken, so I'm sending lm_sensors configuration for my motherboard 
+> straight to your mailing list. I hope someone will add this 
+> configuration to your TRAC/Wiki.
 
-Hi, there!
+Except that this is the completely wrong mailing list. We're doing I2C
+here, not lm-sensors.
 
-It seems like 
-http://www.lm-sensors.org/wiki/Configurations/FancyManufacturer is 
-broken, so I'm sending lm_sensors configuration for my motherboard 
-straight to your mailing list. I hope someone will add this 
-configuration to your TRAC/Wiki.
-
-Cheers!
-
-
---------------000406050000030108050301
-Content-Type: text/plain;
- name="it8716.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="it8716.txt"
-
-IyBsbV9zZW5zb3JzIGNvbmZpZ3VyYXRpb24gZm9yIEdpZ2FieXRlIE02MVAtUzMgQU0yKyBt
-b3RoZXJib2FyZAoKY2hpcCAiaXQ4NzE2LSoiCgojIFZvbHRhZ2VzCgogICAgbGFiZWwgIGlu
-MCAgIlZDb3JlIiAgICAjIENQVSBDb3JlIFZvbHRhZ2UKICAgIGxhYmVsICBpbjEgICJWRERS
-IiAgICAgIyBERFIyIDEuOFYKICAgIGxhYmVsICBpbjIgICIrMy4zViIgICAgIyBWQ0MzCiAg
-ICBsYWJlbCAgaW4zICAiKzVWIiAgICAgICMgVkNDCiAgICBsYWJlbCAgaW40ICAiKzEyViIK
-ICAgIGxhYmVsICBpbjUgICItMTJWIgogICAgbGFiZWwgIGluNiAgIi01ViIKICAgIGxhYmVs
-ICBpbjcgICI1VlNCIiAgICAgIyBWQ0NICiAgICBsYWJlbCAgaW44ICAiVkJhdCIKCiAgICBj
-b21wdXRlIGluMyAgKCg2LjgvMTApKzEpKkAgLCBALygoNi44LzEwKSsxKQogICAgY29tcHV0
-ZSBpbjQgICgoMzAvMTApKzEpKkAgICwgQC8oKDMwLzEwKSsxKQogICAgY29tcHV0ZSBpbjUg
-LSgzMC8xMCsxKSpALCAtQC8oMzAvMTArMSkKICAgIGNvbXB1dGUgaW42ICAoMSsxMjAvNTYp
-KkAgLSA0LjA5NioxMjAvNTYgLCAoQCArIDQuMDk2KjEyMC81NikvKDErMTIwLzU2KQogICAg
-Y29tcHV0ZSBpbjcgICgoNi44LzEwKSsxKSpAICwgQC8oKDYuOC8xMCkrMSkKCiMgICAgTm90
-IHNldHRpbmcgaW4wIG1pbi9tYXgsIGJlY2F1c2UgZGlmZmVyZW50IEFNRCBDUFVzIGhhdmUK
-IyAgICBkaWZmZXJlbnQgdm9sdGFnZXMsIGJlc2lkZXMgd2l0aCBDJ24nUSBlbmFibGVkIHRo
-aXMgdm9sdGFnZQojICAgIGNhbiBmbHVjdHVhdGUgYSBsb3QKIyAgICBzZXQgaW4wX21pbiAg
-dmlkICogMC45NQojICAgIHNldCBpbjBfbWF4ICB2aWQgKiAxLjA1CiAgICAgc2V0IGluMV9t
-aW4gIDEuOCAqIDAuOTUKICAgICBzZXQgaW4xX21heCAgMS44ICogMS4wNQogICAgIHNldCBp
-bjJfbWluICAzLjMgKiAwLjk1CiAgICAgc2V0IGluMl9tYXggIDMuMyAqIDEuMDUKICAgICBz
-ZXQgaW4zX21pbiAgICA1ICogMC45NQogICAgIHNldCBpbjNfbWF4ICAgIDUgKiAxLjA1CiAg
-ICAgc2V0IGluNF9taW4gICAxMiAqIDAuOTUKICAgICBzZXQgaW40X21heCAgIDEyICogMS4w
-NQogICAgIHNldCBpbjVfbWF4ICAtMTIgKiAwLjk1CiAgICAgc2V0IGluNV9taW4gIC0xMiAq
-IDEuMDUKICAgICBzZXQgaW42X21heCAgIC01ICogMC45NQogICAgIHNldCBpbjZfbWluICAg
-LTUgKiAxLjA1CiAgICAgc2V0IGluN19taW4gICAgNSAqIDAuOTUKICAgICBzZXQgaW43X21h
-eCAgICA1ICogMS4wNQojIFRoZSBjaGlwIGRvZXMgbm90IHN1cHBvcnQgaW44IG1pbi9tYXgK
-CiMgVGVtcGVyYXR1cmVzCgogICAgbGFiZWwgIHRlbXAxICAiTS9CIFRlbXAiCiAgICBsYWJl
-bCAgdGVtcDIgICJDUFUgVGVtcCIKICAgIGxhYmVsICB0ZW1wMyAgIk0vQiBUZW1wIgoKICAg
-IHNldCB0ZW1wMl9tYXggICA2MAoKIyBGYW5zCgogICAgbGFiZWwgIGZhbjEgIkNQVSBGYW4i
-CiAgICBsYWJlbCAgZmFuMiAiQ2FzZSBGYW4iCiAgICBpZ25vcmUgZmFuMyAgIyBUaGlzIG1v
-dGhlcmJvYXJkIGRvZXNuJ3QgaGF2ZSB0aGUgc2Vjb25kIHN5c3RlbSBmYW4KCiMgICBNeSBm
-YW5zIGNhbiBzdG9wIGlmIHRoZSB0ZW1wZXJhdHVyZSBpcyBPSywgYWRqdXN0IGZvciB5b3Vy
-IHNpdHVhdGlvbgojICAgc2V0IGZhbjFfbWluIDIwMDAKIyAgIHNldCBmYW4yX21pbiAyMDAw
-Cg==
---------------000406050000030108050301--
+-- 
+Jean Delvare
