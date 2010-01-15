@@ -1,126 +1,68 @@
-From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/3] Allow mixed endianness accesses
-Date: Fri, 15 Jan 2010 09:01:02 +0900
-Message-ID: <4B4FB03E.1070708@necel.com>
-References: <20100113193224.753273000@octasic.com> <20100113193421.212989000@octasic.com>
+From: "Artem S. Tashkinov" <t.artem-VInPYn6yXxRWk0Htik3J/w@public.gmane.org>
+Subject: lm_sensors configuration for Gigabyte M61P-S3 AM2+ motherboard
+Date: Fri, 15 Jan 2010 15:08:40 +0500
+Message-ID: <4B503EA8.7080709@mailcity.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------000406050000030108050301"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100113193421.212989000-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
-Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean-Hugues Deschenes wrote:
-> Allows CPUs of a given endianness to access a dw controller of a different
-> endianness. Endianncess difference is detected at run time through the dw
-> component type register.
-> 
-> ---
->  drivers/i2c/busses/i2c-designware.c |   17 +++++++++++++++--
->  1 file changed, 15 insertions(+), 2 deletions(-)
-> 
-> Index: linux-2.6_i2c/drivers/i2c/busses/i2c-designware.c
-> ===================================================================
-> --- linux-2.6_i2c.orig/drivers/i2c/busses/i2c-designware.c
-> +++ linux-2.6_i2c/drivers/i2c/busses/i2c-designware.c
-> @@ -36,6 +36,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
->  #include <linux/io.h>
-> +#include <linux/swab.h>
->  
->  /*
->   * Registers offset
+This is a multi-part message in MIME format.
+--------------000406050000030108050301
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'm working on 2.6.27 MIPS kernel, and this <linux/swab.h> brings
-the following errors.
+Hi, there!
 
-  CC      drivers/i2c/busses/i2c-designware.o
-In file included from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:39:
-/home/skuribay/git/linux/include/linux/swab.h:109:1: warning: "__swab16" redefined
-In file included from /home/skuribay/git/linux/include/linux/byteorder/big_endian.h:12,
-                 from include2/asm/byteorder.h:69,
-                 from include2/asm/bitops.h:21,
-                 from /home/skuribay/git/linux/include/linux/bitops.h:17,
-                 from /home/skuribay/git/linux/include/linux/kernel.h:15,
-                 from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:28:
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:144:1: warning: this is the location of the previous definition
-In file included from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:39:
-/home/skuribay/git/linux/include/linux/swab.h:118:1: warning: "__swab32" redefined
-In file included from /home/skuribay/git/linux/include/linux/byteorder/big_endian.h:12,
-                 from include2/asm/byteorder.h:69,
-                 from include2/asm/bitops.h:21,
-                 from /home/skuribay/git/linux/include/linux/bitops.h:17,
-                 from /home/skuribay/git/linux/include/linux/kernel.h:15,
-                 from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:28:
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:148:1: warning: this is the location of the previous definition
-In file included from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:39:
-/home/skuribay/git/linux/include/linux/swab.h:127:1: warning: "__swab64" redefined
-In file included from /home/skuribay/git/linux/include/linux/byteorder/big_endian.h:12,
-                 from include2/asm/byteorder.h:69,
-                 from include2/asm/bitops.h:21,
-                 from /home/skuribay/git/linux/include/linux/bitops.h:17,
-                 from /home/skuribay/git/linux/include/linux/kernel.h:15,
-                 from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:28:
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:152:1: warning: this is the location of the previous definition
-In file included from /home/skuribay/git/linux/drivers/i2c/busses/i2c-designware.c:40:
-/home/skuribay/git/linux/include/linux/swab.h:46: error: redefinition of '___swab16'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:65: error: previous definition of '___swab16' was here
-/home/skuribay/git/linux/include/linux/swab.h:57: error: redefinition of '___swab32'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:69: error: previous definition of '___swab32' was here
-/home/skuribay/git/linux/include/linux/swab.h:68: error: redefinition of '___swab64'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:75: error: previous definition of '___swab64' was here
-/home/skuribay/git/linux/include/linux/swab.h:158: error: redefinition of '__swab16p'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:168: error: previous definition of '__swab16p' was here
-/home/skuribay/git/linux/include/linux/swab.h:171: error: redefinition of '__swab32p'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:181: error: previous definition of '__swab32p' was here
-/home/skuribay/git/linux/include/linux/swab.h:184: error: redefinition of '__swab64p'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:201: error: previous definition of '__swab64p' was here
-/home/skuribay/git/linux/include/linux/swab.h:227: error: redefinition of '__swab16s'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:172: error: previous definition of '__swab16s' was here
-/home/skuribay/git/linux/include/linux/swab.h:239: error: redefinition of '__swab32s'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:185: error: previous definition of '__swab32s' was here
-/home/skuribay/git/linux/include/linux/swab.h:252: error: redefinition of '__swab64s'
-/home/skuribay/git/linux/include/linux/byteorder/swab.h:205: error: previous definition of '__swab64s' was here
+It seems like 
+http://www.lm-sensors.org/wiki/Configurations/FancyManufacturer is 
+broken, so I'm sending lm_sensors configuration for my motherboard 
+straight to your mailing list. I hope someone will add this 
+configuration to your TRAC/Wiki.
 
-I don't have the latest kernel which could make i2c-designware.c
-driver built-in right now, so I'm not sure it works or not there.
-I hope this works with the latest LMO tree.
+Cheers!
 
-> @@ -222,11 +225,19 @@ struct dw_i2c_dev {
->  
->  static u32 i2c_dw_readl(struct dw_i2c_dev *dev, int addr)
->  {
-> -	return readl(dev->base + addr);
-> +	u32 value = readl(dev->base + addr);
-> +
-> +	if (dev->swab)
-> +		return swab32(value);
-> +	else
-> +		return value;
->  }
->  
->  static void i2c_dw_writel(struct dw_i2c_dev *dev, u32 b, int addr)
->  {
-> +	if (dev->swab)
-> +		b = swab32(b);
-> +
->  	writel(b, dev->base + addr);
->  }
 
-Now I understand the background of the patch, so my question is,
-is this worth run-time probed?  In this case, DW IP's endian is
-different from CPU endian, and which can not be resolved via io/swab
-settings in any way, that's fine.
+--------------000406050000030108050301
+Content-Type: text/plain;
+ name="it8716.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="it8716.txt"
 
-Then I wonder is there any way to statically optimize them?
-
-Note that I'm not objecting against this patch, just would like
-to search for a better way if available!
-
--- 
-Shinya Kuribayashi
-NEC Electronics
+IyBsbV9zZW5zb3JzIGNvbmZpZ3VyYXRpb24gZm9yIEdpZ2FieXRlIE02MVAtUzMgQU0yKyBt
+b3RoZXJib2FyZAoKY2hpcCAiaXQ4NzE2LSoiCgojIFZvbHRhZ2VzCgogICAgbGFiZWwgIGlu
+MCAgIlZDb3JlIiAgICAjIENQVSBDb3JlIFZvbHRhZ2UKICAgIGxhYmVsICBpbjEgICJWRERS
+IiAgICAgIyBERFIyIDEuOFYKICAgIGxhYmVsICBpbjIgICIrMy4zViIgICAgIyBWQ0MzCiAg
+ICBsYWJlbCAgaW4zICAiKzVWIiAgICAgICMgVkNDCiAgICBsYWJlbCAgaW40ICAiKzEyViIK
+ICAgIGxhYmVsICBpbjUgICItMTJWIgogICAgbGFiZWwgIGluNiAgIi01ViIKICAgIGxhYmVs
+ICBpbjcgICI1VlNCIiAgICAgIyBWQ0NICiAgICBsYWJlbCAgaW44ICAiVkJhdCIKCiAgICBj
+b21wdXRlIGluMyAgKCg2LjgvMTApKzEpKkAgLCBALygoNi44LzEwKSsxKQogICAgY29tcHV0
+ZSBpbjQgICgoMzAvMTApKzEpKkAgICwgQC8oKDMwLzEwKSsxKQogICAgY29tcHV0ZSBpbjUg
+LSgzMC8xMCsxKSpALCAtQC8oMzAvMTArMSkKICAgIGNvbXB1dGUgaW42ICAoMSsxMjAvNTYp
+KkAgLSA0LjA5NioxMjAvNTYgLCAoQCArIDQuMDk2KjEyMC81NikvKDErMTIwLzU2KQogICAg
+Y29tcHV0ZSBpbjcgICgoNi44LzEwKSsxKSpAICwgQC8oKDYuOC8xMCkrMSkKCiMgICAgTm90
+IHNldHRpbmcgaW4wIG1pbi9tYXgsIGJlY2F1c2UgZGlmZmVyZW50IEFNRCBDUFVzIGhhdmUK
+IyAgICBkaWZmZXJlbnQgdm9sdGFnZXMsIGJlc2lkZXMgd2l0aCBDJ24nUSBlbmFibGVkIHRo
+aXMgdm9sdGFnZQojICAgIGNhbiBmbHVjdHVhdGUgYSBsb3QKIyAgICBzZXQgaW4wX21pbiAg
+dmlkICogMC45NQojICAgIHNldCBpbjBfbWF4ICB2aWQgKiAxLjA1CiAgICAgc2V0IGluMV9t
+aW4gIDEuOCAqIDAuOTUKICAgICBzZXQgaW4xX21heCAgMS44ICogMS4wNQogICAgIHNldCBp
+bjJfbWluICAzLjMgKiAwLjk1CiAgICAgc2V0IGluMl9tYXggIDMuMyAqIDEuMDUKICAgICBz
+ZXQgaW4zX21pbiAgICA1ICogMC45NQogICAgIHNldCBpbjNfbWF4ICAgIDUgKiAxLjA1CiAg
+ICAgc2V0IGluNF9taW4gICAxMiAqIDAuOTUKICAgICBzZXQgaW40X21heCAgIDEyICogMS4w
+NQogICAgIHNldCBpbjVfbWF4ICAtMTIgKiAwLjk1CiAgICAgc2V0IGluNV9taW4gIC0xMiAq
+IDEuMDUKICAgICBzZXQgaW42X21heCAgIC01ICogMC45NQogICAgIHNldCBpbjZfbWluICAg
+LTUgKiAxLjA1CiAgICAgc2V0IGluN19taW4gICAgNSAqIDAuOTUKICAgICBzZXQgaW43X21h
+eCAgICA1ICogMS4wNQojIFRoZSBjaGlwIGRvZXMgbm90IHN1cHBvcnQgaW44IG1pbi9tYXgK
+CiMgVGVtcGVyYXR1cmVzCgogICAgbGFiZWwgIHRlbXAxICAiTS9CIFRlbXAiCiAgICBsYWJl
+bCAgdGVtcDIgICJDUFUgVGVtcCIKICAgIGxhYmVsICB0ZW1wMyAgIk0vQiBUZW1wIgoKICAg
+IHNldCB0ZW1wMl9tYXggICA2MAoKIyBGYW5zCgogICAgbGFiZWwgIGZhbjEgIkNQVSBGYW4i
+CiAgICBsYWJlbCAgZmFuMiAiQ2FzZSBGYW4iCiAgICBpZ25vcmUgZmFuMyAgIyBUaGlzIG1v
+dGhlcmJvYXJkIGRvZXNuJ3QgaGF2ZSB0aGUgc2Vjb25kIHN5c3RlbSBmYW4KCiMgICBNeSBm
+YW5zIGNhbiBzdG9wIGlmIHRoZSB0ZW1wZXJhdHVyZSBpcyBPSywgYWRqdXN0IGZvciB5b3Vy
+IHNpdHVhdGlvbgojICAgc2V0IGZhbjFfbWluIDIwMDAKIyAgIHNldCBmYW4yX21pbiAyMDAw
+Cg==
+--------------000406050000030108050301--
