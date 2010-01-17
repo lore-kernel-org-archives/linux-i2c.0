@@ -1,48 +1,52 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c fixes for 2.6.33
-Date: Sat, 16 Jan 2010 21:02:18 +0100
-Message-ID: <20100116210218.35c9a21d@hyperion.delvare>
+From: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: Re: [PATCH v2 0/2] I2C driver support for Nomadik/Ux500
+Date: Mon, 18 Jan 2010 01:50:37 +0530
+Message-ID: <1263759637.29557.1.camel@vinay-desktop>
+References: <cover.1262944133.git.srinidhi.kasagar@stericsson.com>
+	 <20100110131529.GE1224@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100110131529.GE1224-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, Sachin VERMA <sachin.verma-qxv4g6HH51o@public.gmane.org>, Andrea GALLO <andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "rubini-9wsNiZum9E8@public.gmane.org" <rubini-9wsNiZum9E8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Ben,
 
-Please pull i2c subsystem fixes for Linux 2.6.33 from:
+On Sun, 2010-01-10 at 14:15 +0100, Ben Dooks wrote:
+> On Fri, Jan 08, 2010 at 04:00:24PM +0530, srinidhi kasagar wrote:
+> > This is the v2 version of the patch which adds support for the
+> > ST-Ericsson's I2C block found in U8500/Nomadik 8815 platforms.
+> > 
+> > ---
+> > Changelog v1->v2
+> > - file rename from i2c-nmk.c to i2c-nomadik.c (Jean Delvare)
+> > - remove the unnecessary return statement (Jean Delvare)
+> > - kernel doc style comment fix & other fixes (Linus Walleij)
+> > - Added support for 400 KHz.
+> > 
+> > - patch 1/2 : targets plat-nomadik folder
+> > - patch v2 2/2 : fixes the above comments.
+> > ---
+> > 
+> > srinidhi kasagar (2):
+> >   ARM nomadik: add platform specific i2c configuration structures
+> >   i2c: Add support for Ux500/Nomadik I2C controller
+> > 
+> >  arch/arm/plat-nomadik/include/plat/i2c.h |   37 ++
+> >  drivers/i2c/busses/Kconfig               |    7 +
+> >  drivers/i2c/busses/Makefile              |    1 +
+> >  drivers/i2c/busses/i2c-nomadik.c         |  980 ++++++++++++++++++++++++++++++
+> >  4 files changed, 1025 insertions(+), 0 deletions(-)
+> >  create mode 100644 arch/arm/plat-nomadik/include/plat/i2c.h
+> >  create mode 100644 drivers/i2c/busses/i2c-nomadik.c
+> 
+> I'll get round to reviewing the new patches in the next day or two.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-=
-for-linus
+Any comments on this patch set?
 
- drivers/i2c/busses/i2c-ali1563.c      |    8 ++++----
- drivers/i2c/busses/i2c-pca-isa.c      |    4 ++--
- drivers/i2c/busses/i2c-pca-platform.c |    4 ++--
- drivers/i2c/busses/i2c-piix4.c        |    4 ++--
- drivers/i2c/busses/i2c-viapro.c       |    4 ++--
- drivers/i2c/i2c-core.c                |    7 ++++---
- 6 files changed, 16 insertions(+), 15 deletions(-)
-
----------------
-
-M=C3=A1rton N=C3=A9meth (1):
-      i2c-ali1563: Remove sparse warnings
-
-Roel Kluin (1):
-      i2c: Test off by one in {piix4,vt596}_transaction()
-
-Thadeu Lima de Souza Cascardo (1):
-      i2c: Do not use device name after device_unregister
-
-Tobias Klauser (1):
-      i2c-core: Storage class should be before const qualifier
-
-Wolfram Sang (1):
-      i2c/pca: Don't use *_interruptible
-
-Thanks,
---=20
-Jean Delvare
+regards,
+Srinidhi
