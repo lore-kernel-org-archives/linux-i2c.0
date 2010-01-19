@@ -1,46 +1,77 @@
-From: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] [MFD] i2c-htcpld: Add the HTCPLD driver
-Date: Mon, 18 Jan 2010 13:23:25 -0800
-Message-ID: <6cb013311001181323q79aba15dif165ff41d79734a7@mail.gmail.com>
-References: <6cb013311001060647s3bce5e63mbae1a10036a14ae1@mail.gmail.com>
-	<1263056154-20085-1-git-send-email-darkstar6262@gmail.com>
-	<20100118124855.GB8036@sortiz.org> <20100118153624.GA13811@sortiz.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2.6.32.3] i2c-i801: SMBus patch for Intel Cougar Point
+ DeviceIDs
+Date: Tue, 19 Jan 2010 12:00:40 +0100
+Message-ID: <20100119120040.14444393@hyperion.delvare>
+References: <201001121658.54044.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100118153624.GA13811-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <201001121658.54044.seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 18, 2010 at 7:36 AM, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> w=
-rote:
-> On Mon, Jan 18, 2010 at 01:48:55PM +0100, Samuel Ortiz wrote:
->> Hi Cory,
->>
->> I applied this patch, thanks a lot.
->> In the future, I'd like to see the GPIO handling from this patch mov=
-ed to
->> drivers/gpio. Could you please look at that ?
+Hi Seth,
 
-Absolutely, thanks for applying it!  I'll send out a follow-on patch
-as soon as I've got that change.
+Please note that the i2c mailing list address has changed.
 
-> I forgot to add that I also made it build on non ARM patforms. This l=
-ine:
-> set_irq_flags(irq, IRQF_VALID | IRQF_PROBE);
-> became:
-> #ifdef CONFIG_ARM
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0set_irq_flags(=
-irq, IRQF_VALID | IRQF_PROBE);
-> #else
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0set_irq_probe(=
-irq);
-> #endif
->
+On Tue, 12 Jan 2010 16:58:53 -0800, Seth Heasley wrote:
+> This patch adds the Intel Cougar Point (PCH) SMBus Controller DeviceIDs.
 
-Ah, cool, thanks!
+This comment suggests that Cougar Point == PCH, while the comments in
+i2c-i801 suggests otherwise. Who is right?
 
-- Cory
+> 
+> Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> 
+> --- linux-2.6.32.3/drivers/i2c/busses/i2c-i801.c.orig	2010-01-06 15:07:45.000000000 -0800
+> +++ linux-2.6.32.3/drivers/i2c/busses/i2c-i801.c	2010-01-07 13:10:28.000000000 -0800
+> @@ -41,7 +41,8 @@
+>    Tolapai               0x5032     32     hard     yes     yes     yes
+>    ICH10                 0x3a30     32     hard     yes     yes     yes
+>    ICH10                 0x3a60     32     hard     yes     yes     yes
+> -  PCH                   0x3b30     32     hard     yes     yes     yes
+> +  3400/5 Series (PCH)   0x3b30     32     hard     yes     yes     yes
+> +  CPT                   0x1c22     32     hard     yes     yes     yes
+>  
+>    Features supported by this driver:
+>    Software PEC                     no
+> @@ -578,6 +579,7 @@
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CPT_SMBUS) },
+>  	{ 0, }
+>  };
+>  
+> @@ -707,6 +709,7 @@
+>  	case PCI_DEVICE_ID_INTEL_ICH10_4:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_5:
+>  	case PCI_DEVICE_ID_INTEL_PCH_SMBUS:
+> +	case PCI_DEVICE_ID_INTEL_CPT_SMBUS:
+>  		i801_features |= FEATURE_I2C_BLOCK_READ;
+>  		/* fall through */
+>  	case PCI_DEVICE_ID_INTEL_82801DB_3:
+> --- linux-2.6.32.3/drivers/i2c/busses/Kconfig.orig	2010-01-06 15:07:45.000000000 -0800
+> +++ linux-2.6.32.3/drivers/i2c/busses/Kconfig	2010-01-07 13:10:28.000000000 -0800
+> @@ -98,6 +98,7 @@
+>  	    Tolapai
+>  	    ICH10
+>  	    PCH
+> +	    CPT
+
+It might be clear for you that "CPT" means "Cougar Point", but for the
+reader it may not be. I'd rather list the full chip name. Same in
+i2c-i801.c's header comment, BTW.
+
+>  
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-i801.
+
+Documentation/i2c/busses/i2c-i801 needs to be updated as well.
+
+-- 
+Jean Delvare
