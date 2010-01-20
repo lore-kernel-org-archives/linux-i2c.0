@@ -1,87 +1,40 @@
-From: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH 04/11] i2c-mpc: Add MPC5121 I2C bus support
-Date: Tue, 19 Jan 2010 21:24:06 +0100
-Message-ID: <1263932653-3634-5-git-send-email-agust@denx.de>
-References: <1263932653-3634-1-git-send-email-agust@denx.de>
+From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Subject: Re: [PATCH v3 1/2] i2c: Add SDA and SCL pin numbers to i2c
+ platform data
+Date: Wed, 20 Jan 2010 13:34:21 +0530
+Message-ID: <1263974661.3546.103.camel@localhost.localdomain>
+References: <1263295031.3437.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1263932653-3634-1-git-send-email-agust-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1263295031.3437.16.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Cc: dzu-ynQEQJNshbs@public.gmane.org, wd-ynQEQJNshbs@public.gmane.org, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+Kevin,
 
-    - Update Kconfig for i2c-mpc driver.
-    - Enable I2C interrupts on MPC5121.
+On Tue, 2010-01-12 at 16:47 +0530, Philby John wrote:
+> >From cb3347e45449ff16a332aa164eae24ef6a2432e6 Mon Sep 17 00:00:00 2001
+> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> Date: Mon, 11 Jan 2010 15:53:31 +0530
+> Subject: [PATCH 1/2] Add SDA and SCL pin numbers to i2c platform data
+> 
+> Patch adds SDA and SCL pin numbers to the i2c platform data
+> structure for Davinci DM355 and DM6446. This at present is
+> used for i2c bus recovery.
+> TODO: Add SDA and SCL pin number information to include all
+> Davinci platforms such as dm355-leopard, dm365, dm646x, da8xx etc.
 
-Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
-Signed-off-by: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-Signed-off-by: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
-Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/Kconfig   |    9 +++++----
- drivers/i2c/busses/i2c-mpc.c |   23 +++++++++++++++++++++++
- 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 5f318ce..f481f30 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -418,13 +418,14 @@ config I2C_IXP2000
- 	  instead.
- 
- config I2C_MPC
--	tristate "MPC107/824x/85xx/52xx/86xx"
-+	tristate "MPC107/824x/85xx/512x/52xx/86xx"
- 	depends on PPC32
- 	help
- 	  If you say yes to this option, support will be included for the
--	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
--	  MPC85xx/MPC8641 family processors. The driver may also work on 52xx
--	  family processors, though interrupts are known not to work.
-+	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245,
-+	  MPC85xx/MPC8641 and MPC512x family processors. The driver may
-+	  also work on 52xx family processors, though interrupts are known
-+	  not to work.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mpc.
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index f627001..84eeb25 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -540,6 +540,29 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
- 		}
- 	}
- 
-+	if (of_device_is_compatible(op->node, "fsl,mpc5121-i2c")) {
-+		struct device_node *np;
-+		void __iomem *i2cctl;
-+
-+		/* Enable I2C interrupts */
-+		np = of_find_compatible_node(NULL, NULL,
-+					     "fsl,mpc5121-i2c-ctrl");
-+		if (np) {
-+			i2cctl = of_iomap(np, 0);
-+			if (i2cctl) {
-+				/*
-+				 * Set interrupt enable bits:
-+				 *  - I2C-0: bit 24,
-+				 *  - I2C-1: bit 26,
-+				 *  - I2C-2: bit 28.
-+				 */
-+				out_be32(i2cctl, 0x15000000);
-+				iounmap(i2cctl);
-+			}
-+			of_node_put(np);
-+		}
-+	}
-+
- 	dev_set_drvdata(&op->dev, i2c);
- 
- 	i2c->adap = mpc_ops;
--- 
-1.5.6.3
+Will this be included in your next pull? My concern was [PATCH v3 2/2]
+would fail as it depends on data structures in this patch least it be
+pulled into the i2c git repo by Jean, though chances of that happening
+are highly unlikely. Would like to follow up with Jean once you include
+this into your tree.
+
+
+Thanks,
+Philby
