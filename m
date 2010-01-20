@@ -1,40 +1,51 @@
-From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] i2c: Add SDA and SCL pin numbers to i2c
- platform data
-Date: Wed, 20 Jan 2010 13:34:21 +0530
-Message-ID: <1263974661.3546.103.camel@localhost.localdomain>
-References: <1263295031.3437.16.camel@localhost.localdomain>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 0/11] Update support for MPC512x
+Date: Wed, 20 Jan 2010 12:22:32 +0100
+Message-ID: <20100120112232.GD5041@pengutronix.de>
+References: <1263932653-3634-1-git-send-email-agust@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oj4kGyHlBMXGt3Le"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1263295031.3437.16.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1263932653-3634-1-git-send-email-agust-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
+Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, dzu-ynQEQJNshbs@public.gmane.org, wd-ynQEQJNshbs@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Kevin,
 
-On Tue, 2010-01-12 at 16:47 +0530, Philby John wrote:
-> >From cb3347e45449ff16a332aa164eae24ef6a2432e6 Mon Sep 17 00:00:00 2001
-> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> Date: Mon, 11 Jan 2010 15:53:31 +0530
-> Subject: [PATCH 1/2] Add SDA and SCL pin numbers to i2c platform data
-> 
-> Patch adds SDA and SCL pin numbers to the i2c platform data
-> structure for Davinci DM355 and DM6446. This at present is
-> used for i2c bus recovery.
-> TODO: Add SDA and SCL pin number information to include all
-> Davinci platforms such as dm355-leopard, dm365, dm646x, da8xx etc.
+--oj4kGyHlBMXGt3Le
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Will this be included in your next pull? My concern was [PATCH v3 2/2]
-would fail as it depends on data structures in this patch least it be
-pulled into the i2c git repo by Jean, though chances of that happening
-are highly unlikely. Would like to follow up with Jean once you include
-this into your tree.
+> The patches are based on v2.6.33-rc4 and cover the following
+> items:
 
+The USB-patch needs two patches from linux-next. For convenience, don't you
+have a git-tree somewhere? :)
 
-Thanks,
-Philby
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--oj4kGyHlBMXGt3Le
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAktW53gACgkQD27XaX1/VRtKbgCgnbOgy6LOmZEnpemZUuNjWW4u
+1b0AoMW4N1Hxf8Y8HLfKqzHk3Wq5fF+U
+=AFMW
+-----END PGP SIGNATURE-----
+
+--oj4kGyHlBMXGt3Le--
