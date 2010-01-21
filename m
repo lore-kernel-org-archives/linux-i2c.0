@@ -1,42 +1,52 @@
-From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/3] i2c-designware: Allow mixed endianness
-Date: Thu, 21 Jan 2010 14:46:56 +0900
-Message-ID: <4B57EA50.9050006@necel.com>
-References: <20100119140234.689304000@octasic.com> <4B57E54D.8020909@necel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Valentin Longchamp <valentin.longchamp-p8DiymsW2f8@public.gmane.org>
+Subject: [PATCH] mxc i2c: let time to generate stop bit
+Date: Thu, 21 Jan 2010 12:27:43 +0100
+Message-ID: <1264073263-16374-1-git-send-email-valentin.longchamp@epfl.ch>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B57E54D.8020909-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Cc: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+To: s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Valentin Longchamp <valentin.longchamp-p8DiymsW2f8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shinya Kuribayashi wrote:
-> Jean-Hugues Deschenes wrote:
->> This is the v2 version of the patch which adds support
->> for the i2c Designware controller when its endianness
->> differs from that of the cpu.
->>
->> ---
->> Changelog v1->v2
->> - rename i2c_dw_(read|write)l to dw_(read|write)l (Shinya Kuribayashi)
->> - rename dw_(read|write)l's addr argument to offset (Shinya Kuribayashi)
->> - replace (if constant == x) with (if x == constant) (Ben Dooks)
->> ---
->>
->>
->> Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
-> 
-> All three patches look good, and work for my BE machines.
-> 
-> Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+After generating the stop bit by changing MSTA from 1 to 0,
+the i2c_imx->stopped was immediatly set to 1. The second test
+on i2c_imx->stopped then is correct and the controller never
+waits if the bus is busy. This patch corrects this.
 
-Oops, wrong tag.
+On mx31moboard, stop bit was not generated on single write transfers.
+This was kept unnoticed other transfers are made afterwards that
+help the write recipient to resynchronize.
 
-Acked-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Thanks to Philippe and Michael for the debugging.
 
+Signed-off-by: Valentin Longchamp <valentin.longchamp-p8DiymsW2f8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index e3654d6..602b30e 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -226,7 +226,6 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+-		i2c_imx->stopped = 1;
+ 	}
+ 	if (cpu_is_mx1()) {
+ 		/*
+@@ -236,8 +235,10 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 		udelay(i2c_imx->disable_delay);
+ 	}
+ 
+-	if (!i2c_imx->stopped)
++	if (!i2c_imx->stopped) {
+ 		i2c_imx_bus_busy(i2c_imx, 0);
++		i2c_imx->stopped = 1;
++	}
+ 
+ 	/* Disable I2C controller */
+ 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
 -- 
-Shinya Kuribayashi
-NEC Electronics
+1.6.3.3
