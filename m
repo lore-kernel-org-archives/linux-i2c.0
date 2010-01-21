@@ -1,51 +1,70 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 0/11] Update support for MPC512x
-Date: Wed, 20 Jan 2010 12:22:32 +0100
-Message-ID: <20100120112232.GD5041@pengutronix.de>
-References: <1263932653-3634-1-git-send-email-agust@denx.de>
+From: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 0/3] i2c-designware: Allow mixed endianness
+Date: Thu, 21 Jan 2010 14:25:33 +0900
+Message-ID: <4B57E54D.8020909@necel.com>
+References: <20100119140234.689304000@octasic.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oj4kGyHlBMXGt3Le"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1263932653-3634-1-git-send-email-agust-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <20100119140234.689304000-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, dzu-ynQEQJNshbs@public.gmane.org, wd-ynQEQJNshbs@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Jean-Hugues Deschenes wrote:
+> This is the v2 version of the patch which adds support
+> for the i2c Designware controller when its endianness
+> differs from that of the cpu.
+> 
+> ---
+> Changelog v1->v2
+> - rename i2c_dw_(read|write)l to dw_(read|write)l (Shinya Kuribayashi)
+> - rename dw_(read|write)l's addr argument to offset (Shinya Kuribayashi)
+> - replace (if constant == x) with (if x == constant) (Ben Dooks)
+> ---
+> 
+> 
+> Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
 
---oj4kGyHlBMXGt3Le
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+All three patches look good, and work for my BE machines.
 
+Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
 
-> The patches are based on v2.6.33-rc4 and cover the following
-> items:
+---
 
-The USB-patch needs two patches from linux-next. For convenience, don't you
-have a git-tree somewhere? :)
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index 362dd9e..ce20fc8 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -778,6 +783,12 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 			r = -ENODEV;
+ 			goto err_iounmap;
+ 		}
++
++		printk("### comp_type = 0x%08x\n", comp_type);
++		printk("### ___constant_swab32(0x44570140) = 0x%08x\n",
++			___constant_swab32(0x44570140));
++		printk("### swab = %d\n", dev->swab);
++
+ 	}
+ 	{
+ 		u32 param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
 
-Regards,
+[...]
 
-   Wolfram
+i2c /dev entries driver
+### comp_type = 0x44570140
+### ___constant_swab32(0x44570140) = 0x40015744
+### swab = 0
+### comp_type = 0x44570140
+### ___constant_swab32(0x44570140) = 0x40015744
+### swab = 0
+### comp_type = 0x44570140
+### ___constant_swab32(0x44570140) = 0x40015744
+### swab = 0
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---oj4kGyHlBMXGt3Le
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAktW53gACgkQD27XaX1/VRtKbgCgnbOgy6LOmZEnpemZUuNjWW4u
-1b0AoMW4N1Hxf8Y8HLfKqzHk3Wq5fF+U
-=AFMW
------END PGP SIGNATURE-----
-
---oj4kGyHlBMXGt3Le--
+-- 
+Shinya Kuribayashi
+NEC Electronics
