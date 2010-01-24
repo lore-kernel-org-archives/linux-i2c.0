@@ -1,1087 +1,963 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: Add support for Ux500/Nomadik I2C
- controller
-Date: Sun, 24 Jan 2010 16:11:19 +0000
-Message-ID: <20100124161119.GG28675@fluff.org.uk>
-References: <cover.1262944133.git.srinidhi.kasagar@stericsson.com>
- <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar@stericsson.com>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/1] i2c: Add support for Xilinx XPS IIC Bus Interface
+Date: Sun, 24 Jan 2010 18:33:20 +0100
+Message-ID: <4B5C8460.2040309@pelagicore.com>
+References: <4B55D74C.2010806@pelagicore.com> <20100124154930.GE28675@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+In-Reply-To: <20100124154930.GE28675-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, sachin.verma-qxv4g6HH51o@public.gmane.org, rubini-9wsNiZum9E8@public.gmane.org, andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 08, 2010 at 04:02:55PM +0530, srinidhi kasagar wrote:
-> This adds support for the ST-Ericsson's I2C
-> block found in Ux500 and Nomadik 8815
-> platforms.
+Hi Ben,
 
-Please re-wrap, it could lose at-least one line.
- 
-> Signed-off-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> Acked-by: Andrea gallo <andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> Acked-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig       |    7 +
->  drivers/i2c/busses/Makefile      |    1 +
->  drivers/i2c/busses/i2c-nomadik.c |  980 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 988 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-nomadik.c
+Thanks for the feedback! Comments below...
+
+On 1/24/10 4:49 PM, Ben Dooks wrote:
+> On Tue, Jan 19, 2010 at 05:01:16PM +0100, Richard R?jfors wrote:
+>> This patch adds support for the Xilinx XPS IIC Bus Interface.
+>>
+>> The driver uses the dynamic mode, supporting to put several
+>> I2C messages in the FIFO to reduce the number of interrupts.
+>>
+>> It has the same feature as ocores, it can be passed a list
+>> of devices that will be added when the bus is probed.
+>>
+>> Signed-off-by: Richard R?jfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
+>> ---
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 5f318ce..44ff5c8 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -564,6 +564,16 @@ config I2C_VERSATILE
+>>  	  This driver can also be built as a module.  If so, the module
+>>  	  will be called i2c-versatile.
+>>
+>> +config I2C_XILINX
+>> +	tristate "Xilinx I2C Controller"
+>> +	depends on EXPERIMENTAL && HAS_IOMEM
+>> +	help
+>> +	  If you say yes to this option, support will be included for the
+>> +	  Xilinx I2C controller.
+>> +
+>> +	  This driver can also be built as a module.  If so, the module
+>> +	  will be called xilinx_i2c.
+>> +
+>>  comment "External I2C/SMBus adapter drivers"
+>>
+>>  config I2C_PARPORT
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index 302c551..168f302 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
+>>  obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+>>  obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
+>>  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+>> +obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+>>
+>>  # External I2C/SMBus adapter drivers
+>>  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+>> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+>> new file mode 100644
+>> index 0000000..561c4cf
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-xiic.c
+>> @@ -0,0 +1,802 @@
+>> +/*
+>> + * i2c-xiic.c
 > 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 5f318ce..fbde486 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -439,6 +439,13 @@ config I2C_MV64XXX
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-mv64xxx.
->  
-> +config I2C_NOMADIK
-> +	tristate "ST-Ericsson Nomadik/Ux500 I2C Controller"
-> +	depends on PLAT_NOMADIK
-> +	help
-> +	  If you say yes to this option, support will be included for the
-> +	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures.
-> +
->  config I2C_OCORES
->  	tristate "OpenCores I2C Controller"
->  	depends on EXPERIMENTAL
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 302c551..10dd8b5 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -42,6 +42,7 @@ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
->  obj-$(CONFIG_I2C_IXP2000)	+= i2c-ixp2000.o
->  obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
->  obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
-> +obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
->  obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
->  obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
->  obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-> new file mode 100644
-> index 0000000..b228dca
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
-> @@ -0,0 +1,980 @@
-> +/*
-> + * Copyright (C) 2009 ST-Ericsson
-> + * Copyright (C) 2009 STMicroelectronics
-> + *
-> + * I2C master mode controller driver, used in Nomadik 8815
-> + * and Ux500 platforms.
-> + *
-> + * Author: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> + * Author: Sachin Verma <sachin.verma-qxv4g6HH51o@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2, as
-> + * published by the Free Software Foundation.
-> + */
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/i2c.h>
-> +#include <linux/err.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +
-> +#include <plat/i2c.h>
-> +
-> +#define DRIVER_NAME "nmk-i2c"
-> +
-> +/* I2C Controller register offsets */
-> +#define I2C_CR		(0x000)
-> +#define I2C_SCR		(0x004)
-> +#define I2C_HSMCR	(0x008)
-> +#define I2C_MCR		(0x00C)
-> +#define I2C_TFR		(0x010)
-> +#define I2C_SR		(0x014)
-> +#define I2C_RFR		(0x018)
-> +#define I2C_TFTR	(0x01C)
-> +#define I2C_RFTR	(0x020)
-> +#define I2C_DMAR	(0x024)
-> +#define I2C_BRCR	(0x028)
-> +#define I2C_IMSCR	(0x02C)
-> +#define I2C_RISR	(0x030)
-> +#define I2C_MISR	(0x034)
-> +#define I2C_ICR		(0x038)
-> +
-> +/* Control register bit positions */
-> +#define I2C_CR_PE_POS		0	/* Peripheral Enable */
-> +#define I2C_CR_OM_POS		1	/* Operating mode */
-> +#define I2C_CR_SAM_POS		3	/* Slave addressing mode */
-> +#define I2C_CR_SM_POS		4	/* Speed mode */
-> +#define I2C_CR_SGCM_POS		6	/* Slave general call mode */
-> +#define I2C_CR_FTX_POS		7	/* Flush Transmit */
-> +#define I2C_CR_FRX_POS		8	/* Flush Receive */
-> +#define I2C_CR_DMA_TX_EN_POS 	9	/* DMA Tx enable */
-> +#define I2C_CR_DMA_RX_EN_POS	10	/* DMA Rx Enable */
-> +#define I2C_CR_DMA_SLE_POS	11	/* DMA sync. logic enable */
-> +#define I2C_CR_LM_POS		12	/* Loopback mode */
-> +#define I2C_CR_FON_POS		13	/* Filtering on */
-> +#define I2C_CR_FS_POS		15	/* Force stop enable */
-> +
-> +#define I2C_CR_PE		(0x1 << I2C_CR_PE_POS)
-> +#define I2C_CR_OM		(0x3 << I2C_CR_OM_POS)
-> +#define I2C_CR_SAM		(0x1 << I2C_CR_SAM_POS)
-> +#define I2C_CR_SM		(0x3 << I2C_CR_SM_POS)
-> +#define I2C_CR_SGCM		(0x1 << I2C_CR_SGCM_POS)
-> +#define I2C_CR_FTX		(0x1 << I2C_CR_FTX_POS)
-> +#define I2C_CR_FRX		(0x1 << I2C_CR_FRX_POS)
-> +#define I2C_CR_DMA_TX_EN	(0x1 << I2C_CR_DMA_TX_EN_POS)
-> +#define I2C_CR_DMA_RX_EN	(0x1 << I2C_CR_DMA_RX_EN_POS)
-> +#define I2C_CR_DMA_SLE		(0x1 << I2C_CR_DMA_SLE_POS)
-> +#define I2C_CR_LM		(0x1 << I2C_CR_LM_POS)
-> +#define I2C_CR_FON		(0x3 << I2C_CR_FON_POS)
-> +#define I2C_CR_FS		(0x3 << I2C_CR_FS_POS)
+> the directory path to the file would have been nice.
 
-do we really need the POS and the actaul register definitios, why
-not squash these down a bit?
+Will update
 
-> +/* Master controller (MCR) bit positions */
-> +#define I2C_MCR_OP_POS  	0	/* Operation */
-> +#define I2C_MCR_A7_POS		1	/* 7-bit address */
-> +#define I2C_MCR_EA10_POS	8	/* 10-bit Extended address */
-> +#define I2C_MCR_SB_POS		11	/* Extended address */
-> +#define I2C_MCR_AM_POS		12	/* Address type */
-> +#define I2C_MCR_STOP_POS 	14	/* Stop condition */
-> +#define I2C_MCR_LENGTH_POS	15	/* Transaction length */
-> +
-> +#define I2C_MCR_OP		(0x1 << I2C_MCR_OP_POS)
-> +#define I2C_MCR_A7		(0x7F << I2C_MCR_A7_POS)
-> +#define I2C_MCR_EA10		(0x7 << I2C_MCR_EA10_POS)
-> +#define I2C_MCR_SB		(0x1 << I2C_MCR_SB_POS)
-> +#define I2C_MCR_AM		(0x3 << I2C_MCR_AM_POS)
-> +#define I2C_MCR_STOP		(0x1 << I2C_MCR_STOP_POS)
-> +#define I2C_MCR_LENGTH		(0x7FF << I2C_MCR_LENGTH_POS)
-> +
-> +/* Status register (SR) */
-> +#define I2C_SR_OP		(0x3 << 0)	/* Operation */
-> +#define I2C_SR_STATUS		(0x3 << 2)	/* controller status */
-> +#define I2C_SR_CAUSE		(0x7 << 4)	/* Abort cause */
-> +#define I2C_SR_TYPE		(0x3 << 7)	/* Receive type */
-> +#define I2C_SR_LENGTH		(0x7FF << 9)	/* Transfer length */
-> +
-> +/* Interrupt mask set/clear (IMSCR) bits */
-> +#define I2C_IT_TXFE 		(0x1 << 0)
-> +#define I2C_IT_TXFNE		(0x1 << 1)
-> +#define I2C_IT_TXFF		(0x1 << 2)
-> +#define I2C_IT_TXFOVR		(0x1 << 3)
-> +#define I2C_IT_RXFE		(0x1 << 4)
-> +#define I2C_IT_RXFNF		(0x1 << 5)
-> +#define I2C_IT_RXFF		(0x1 << 6)
-> +#define I2C_IT_RFSR		(0x1 << 16)
-> +#define I2C_IT_RFSE		(0x1 << 17)
-> +#define I2C_IT_WTSR		(0x1 << 18)
-> +#define I2C_IT_MTD		(0x1 << 19)
-> +#define I2C_IT_STD		(0x1 << 20)
-> +#define I2C_IT_MAL		(0x1 << 24)
-> +#define I2C_IT_BERR		(0x1 << 25)
-> +#define I2C_IT_MTDWS		(0x1 << 28)
-> +
-> +#define GEN_MASK(val, mask, sb)  (((val) << (sb)) & (mask))
-> +
-> +/* some bits in ICR are reserved */
-> +#define I2C_CLEAR_ALL_INTS	0x131F007F
-> +
-> +/* first three msb bits are reserved */
-> +#define IRQ_MASK(mask)		(mask & 0x1fffffff)
-> +
-> +/* maximum threshold value */
-> +#define MAX_I2C_FIFO_THRESHOLD	15
-> +
-> +#define i2c_set_bit(reg, mask)	(writel(readl(reg) | mask, (reg)))
-> +#define i2c_clr_bit(reg, mask)	(writel(readl(reg) & ~(mask), (reg)))
-
-would prefer to see these as inline functions.
-
-> +enum {
-> +	I2C_NOP,
-> +	I2C_ON_GOING,
-> +	I2C_OK,
-> +	I2C_ABORT
-> +};
-
-anonymous?
-
-> +/* operation */
-> +enum i2c_operation {
-> +	I2C_NO_OPERATION = 0xff,
-> +	I2C_WRITE = 0x00,
-> +	I2C_READ = 0x01
-> +};
-> +
-> +/* controller response timeout in ms */
-> +#define I2C_TIMEOUT_MS	500
-> +
-> +/**
-> + * struct i2c_nmk_client - client specific data
-> + * @slave_adr: 7-bit slave address
-> + * @count: no. bytes to be transfered
-> + * @buffer: client data buffer
-> + * @xfer_bytes: bytes transfered till now
-> + * @operation: current I2C operation
-> + */
-> +struct i2c_nmk_client {
-> +	unsigned short		slave_adr;
-> +	unsigned long		count;
-> +	unsigned char		*buffer;
-> +	unsigned long		xfer_bytes;
-> +	enum i2c_operation	operation;
-> +};
-> +
-> +/**
-> + * struct nmk_i2c_dev - private data structure of the controller
-> + * @pdev: parent platform device
-> + * @adap: corresponding I2C adapter
-> + * @irq: interrupt line for the controller
-> + * @virtbase: virtual io memory area
-> + * @clk: hardware i2c block clock
-> + * @cfg: machine provided controller configuration
-> + * @cli: holder of client specific data
-> + * @stop: stop condition
-> + * @xfer_complete: acknowledge completion for a I2C message
-> + * @result: controller propogated result
-> + */
-> +struct nmk_i2c_dev {
-> +	struct platform_device		*pdev;
-> +	struct i2c_adapter 		adap;
-> +	int 				irq;
-> +	void __iomem			*virtbase;
-> +	struct clk			*clk;
-> +	struct nmk_i2c_controller	cfg;
-> +	struct i2c_nmk_client		cli;
-> +	int 				stop;
-> +	struct completion		xfer_complete;
-> +	int 				result;
-> +};
-> +
-> +/* controller's abort causes */
-> +static const char *abort_causes[] = {
-> +	"no ack received after address transmission",
-> +	"no ack received during data phase",
-> +	"ack received after xmission of master code",
-> +	"master lost arbitration",
-> +	"slave restarts",
-> +	"slave reset",
-> +	"overflow, maxsize is 2047 bytes",
-> +};
-> +
-> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap);
-> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
-> +		struct i2c_msg msgs[], int num_msgs);
-> +
-> +static const struct i2c_algorithm nmk_i2c_algo = {
-> +	.master_xfer	= nmk_i2c_xfer,
-> +	.functionality	= nmk_i2c_functionality
-> +};
-> +
-> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C
-> +		| I2C_FUNC_SMBUS_BYTE_DATA
-> +		| I2C_FUNC_SMBUS_WORD_DATA
-> +		| I2C_FUNC_SMBUS_I2C_BLOCK;
-> +}
-
-putting these later in the driver would avoid having to
-forward declare them, and move them close to their registration
-points. would be nice to get this fixed before merge.
-
-> +/**
-> + * flush_i2c_fifo() - This function flushes the I2C FIFO
-> + * @dev: private data of I2C Driver
-> + *
-> + * This function flushes the I2C Tx and Rx FIFOs. It returns
-> + * 0 on successful flushing of FIFO
-> + */
-> +static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
-> +{
-> +#define LOOP_ATTEMPTS 10
-> +	int i;
-> +	unsigned long timeout;
-> +
-> +	/*
-> +	 * flush the transmit and receive FIFO. The flushing
-> +	 * operation takes several cycles before to be completed.
-> +	 * On the completion, the I2C internal logic clears these
-> +	 * bits, until then no one must access Tx, Rx FIFO and
-> +	 * should poll on these bits waiting for the completion.
-> +	 */
-> +	writel((I2C_CR_FTX | I2C_CR_FRX), dev->virtbase + I2C_CR);
-> +
-> +	for (i = 0; i < LOOP_ATTEMPTS; i++) {
-> +		timeout = jiffies + msecs_to_jiffies(I2C_TIMEOUT_MS);
-> +
-> +		while (!time_after(jiffies, timeout)) {
-> +			if ((readl(dev->virtbase + I2C_CR) &
-> +				(I2C_CR_FTX | I2C_CR_FRX)) == 0)
-> +					return 0;
-> +		}
-> +	}
-> +
-> +	dev_err(&dev->pdev->dev, "flushing operation timed out "
-> +		"giving up after %d attempts", LOOP_ATTEMPTS);
-> +
-> +	return -ETIMEDOUT;
-> +}
-> +
-> +/**
-> + * disable_all_interrupts() - Disable all interrupts of this I2c Bus
-> + * @dev: private data of I2C Driver
-> + */
-> +static void disable_all_interrupts(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 mask = 0;
-> +	mask = IRQ_MASK(mask);
-
-that looks like a job for
-	u32 mask = IRQ_MASK(0);
-
-> +	writel(mask, dev->virtbase + I2C_IMSCR);
-> +}
-> +
-> +/**
-> + * clear_all_interrupts() - Clear all interrupts of I2C Controller
-> + * @dev: private data of I2C Driver
-> + */
-> +static void clear_all_interrupts(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 mask;
-> +	mask = IRQ_MASK(I2C_CLEAR_ALL_INTS);
-> +	writel(mask, dev->virtbase + I2C_ICR);
-> +}
-> +
-> +/**
-> + * init_hw() - initialize the I2C hardware
-> + * @dev: private data of I2C Driver
-> + */
-> +static int init_hw(struct nmk_i2c_dev *dev)
-> +{
-> +	int stat;
-> +
-> +	stat = flush_i2c_fifo(dev);
-> +	if (stat)
-> +		return stat;
-> +
-> +	/* disable the controller */
-> +	i2c_clr_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
-> +
-> +	disable_all_interrupts(dev);
-> +
-> +	clear_all_interrupts(dev);
-> +
-> +	dev->cli.operation = I2C_NO_OPERATION;
-> +
-> +	return 0;
-> +}
-> +
-> +/* enable peripheral, master mode operation */
-> +#define DEFAULT_I2C_REG_CR 	((1 << I2C_CR_OM_POS) | I2C_CR_PE)
-> +
-> +/**
-> + * load_i2c_mcr_reg() - load the MCR register
-> + * @dev: private data of controller
-> + */
-> +static u32 load_i2c_mcr_reg(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 mcr = 0;
-> +
-> +	/* 7-bit address transaction */
-> +	mcr |= GEN_MASK(1, I2C_MCR_AM, I2C_MCR_AM_POS);
-> +	mcr |= GEN_MASK(dev->cli.slave_adr, I2C_MCR_A7, I2C_MCR_A7_POS);
-> +
-> +	/* start byte procedure not applied */
-> +	mcr |= GEN_MASK(0, I2C_MCR_SB, I2C_MCR_SB_POS);
-> +
-> +	/* check the operation, master read/write? */
-> +	if (dev->cli.operation == I2C_WRITE)
-> +		mcr |= GEN_MASK(I2C_WRITE, I2C_MCR_OP, I2C_MCR_OP_POS);
-> +	else
-> +		mcr |= GEN_MASK(I2C_READ, I2C_MCR_OP, I2C_MCR_OP_POS);
-> +
-> +	/* stop or repeated start? */
-> +	if (dev->stop)
-> +		mcr |= GEN_MASK(1, I2C_MCR_STOP, I2C_MCR_STOP_POS);
-> +	else
-> +		mcr &= ~(GEN_MASK(1, I2C_MCR_STOP, I2C_MCR_STOP_POS));
-> +
-> +	mcr |= GEN_MASK(dev->cli.count, I2C_MCR_LENGTH,
-> +					I2C_MCR_LENGTH_POS);
-> +	return mcr;
-> +}
-> +
-> +/**
-> + * setup_i2c_controller() - setup the controller
-> + * @dev: private data of controller
-> + */
-> +static void setup_i2c_controller(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 brcr1, brcr2;
-> +	u32 i2c_clk, div;
-> +
-> +	writel(0x0, dev->virtbase + I2C_CR);
-> +	writel(0x0, dev->virtbase + I2C_HSMCR);
-> +	writel(0x0, dev->virtbase + I2C_TFTR);
-> +	writel(0x0, dev->virtbase + I2C_RFTR);
-> +	writel(0x0, dev->virtbase + I2C_DMAR);
-> +
-> +	/*
-> +	 * set the slsu:
-> +	 *
-> +	 * slsu defines the data setup time after SCL clock
-> +	 * stretching in terms of i2c clk cycles. The
-> +	 * needed setup time for the three modes are 250ns,
-> +	 * 100ns, 10ns repectively thus leading to the values
-> +	 * of 14, 6, 2 for a 48 MHz i2c clk.
-> +	 */
-> +	writel(dev->cfg.slsu << 16, dev->virtbase + I2C_SCR);
-> +
-> +	i2c_clk = clk_get_rate(dev->clk);
-> +
-> +	/* fallback to std. mode if machine has not provided it */
-> +	if (dev->cfg.clk_freq == 0)
-> +		dev->cfg.clk_freq = 100000;
-> +
-> +	/*
-> +	 * The spec says, in case of std. mode the divider is
-> +	 * 2 whereas it is 3 for fast and fastplus mode of
-> +	 * operation. TODO - high speed support.
-> +	 */
-> +	div = (dev->cfg.clk_freq > 100000) ? 3 : 2;
-> +
-> +	/*
-> +	 * generate the mask for baud rate counters. The controller
-> +	 * has two baud rate counters. One is used for High speed
-> +	 * operation, and the other is for std, fast mode, fast mode
-> +	 * plus operation. Currently we do not supprt high speed mode
-> +	 * so set brcr1 to 0.
-> +	 */
-> +	brcr1 = 0 << 16;
-> +	brcr2 = (i2c_clk/(dev->cfg.clk_freq * div)) & 0xffff;
-> +
-> +	/* set the baud rate counter register */
-> +	writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
-> +
-> +	/*
-> +	 * set the speed mode. Currently we support
-> +	 * only standard and fast mode of operation
-> +	 * TODO - support for fast mode plus (upto 1Mb/s)
-> +	 * and high speed (up to 3.4 Mb/s)
-> +	 */
-> +	if (dev->cfg.sm > I2C_FREQ_MODE_FAST) {
-> +		dev_err(&dev->pdev->dev, "do not support this mode "
-> +			"defaulting to std. mode\n");
-> +		brcr2 = i2c_clk/(100000 * 2) & 0xffff;
-> +		writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
-> +		writel(I2C_FREQ_MODE_STANDARD << I2C_CR_SM_POS,
-> +				dev->virtbase + I2C_CR);
-> +	}
-> +	writel(dev->cfg.sm << I2C_CR_SM_POS, dev->virtbase + I2C_CR);
-> +
-> +	/* set the Tx and Rx FIFO threshold */
-> +	writel(dev->cfg.tft, dev->virtbase + I2C_TFTR);
-> +	writel(dev->cfg.rft, dev->virtbase + I2C_RFTR);
-> +}
-> +
-> +/**
-> + * read_i2c() - Read from I2C client device
-> + * @dev: private data of I2C Driver
-> + *
-> + * This function reads from i2c client device when controller is in
-> + * master mode. There is a completion timeout. If there is no transfer
-> + * before timeout error is returned.
-> + */
-> +static int read_i2c(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 status = 0;
-> +	u32 mcr;
-> +	u32 irq_mask = 0;
-> +	int timeout;
-> +
-> +	mcr = load_i2c_mcr_reg(dev);
-> +	writel(mcr, dev->virtbase + I2C_MCR);
-> +
-> +	/* load the current CR value */
-> +	writel(readl(dev->virtbase + I2C_CR) | DEFAULT_I2C_REG_CR,
-> +			dev->virtbase + I2C_CR);
-> +
-> +	/* enable the controller */
-> +	i2c_set_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
-> +
-> +	init_completion(&dev->xfer_complete);
-> +
-> +	/* enable interrupts by setting the mask */
-> +	irq_mask = (I2C_IT_RXFNF | I2C_IT_RXFF |
-> +			I2C_IT_MAL | I2C_IT_BERR);
-> +
-> +	if (dev->stop)
-> +		irq_mask |= I2C_IT_MTD;
-> +	else
-> +		irq_mask |= I2C_IT_MTDWS;
-> +
-> +	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
-> +
-> +	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
-> +			dev->virtbase + I2C_IMSCR);
-> +
-> +	timeout = wait_for_completion_interruptible_timeout(
-> +		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
-> +
-> +	if (timeout < 0) {
-> +		dev_err(&dev->pdev->dev,
-> +			"wait_for_completion_interruptible_timeout"
-> +			"returned %d waiting for event\n", timeout);
-> +		status = timeout;
-> +	}
-> +
-> +	if (timeout == 0) {
-> +		/* controler has timedout, re-init the h/w */
-> +		dev_err(&dev->pdev->dev, "controller has timed out"
-> +			"waiting for event, re-init h/w\n");
-> +		(void) init_hw(dev);
-> +		status = -ETIMEDOUT;
-> +	}
-> +
-> +	return status;
-> +}
-> +
-> +/**
-> + * write_i2c() - Write data to I2C client.
-> + * @dev: private data of I2C Driver
-> + *
-> + * This function writes data to I2C client
-> + */
-> +static int write_i2c(struct nmk_i2c_dev *dev)
-> +{
-> +	u32 status = 0;
-> +	u32 mcr;
-> +	u32 irq_mask = 0;
-> +	int timeout;
-> +
-> +	mcr = load_i2c_mcr_reg(dev);
-> +
-> +	writel(mcr, dev->virtbase + I2C_MCR);
-> +
-> +	/* load the current CR value */
-> +	writel(readl(dev->virtbase + I2C_CR) | DEFAULT_I2C_REG_CR,
-> +			dev->virtbase + I2C_CR);
-> +
-> +	/* enable the controller */
-> +	i2c_set_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
-> +
-> +	init_completion(&dev->xfer_complete);
-> +
-> +	/* enable interrupts by settings the masks */
-> +	irq_mask = (I2C_IT_TXFNE | I2C_IT_TXFOVR |
-> +			I2C_IT_MAL | I2C_IT_BERR);
-> +
-> +	/*
-> +	 * check if we want to transfer a single or multiple bytes, if so
-> +	 * set the MTDWS bit (Master Transaction Done Without Stop)
-> +	 * to start repeated start operation
-> +	 */
-> +	if (dev->stop)
-> +		irq_mask |= I2C_IT_MTD;
-> +	else
-> +		irq_mask |= I2C_IT_MTDWS;
-> +
-> +	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
-> +
-> +	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
-> +			dev->virtbase + I2C_IMSCR);
-> +
-> +	timeout = wait_for_completion_interruptible_timeout(
-> +		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
-> +
-> +	if (timeout < 0) {
-> +		dev_err(&dev->pdev->dev,
-> +			"wait_for_completion_interruptible_timeout"
-> +			"returned %d waiting for event\n", timeout);
-> +		status = timeout;
-> +	}
-> +
-> +	if (timeout == 0) {
-> +		/* controler has timedout, re-init the h/w */
-> +		dev_err(&dev->pdev->dev, "controller has timed out"
-> +			"waiting for event, re-init h/w\n");
-
-would prefer to see strings kept intact.
-
-> +		(void) init_hw(dev);
-> +		status = -ETIMEDOUT;
-> +	}
-> +
-> +	return status;
-> +}
-> +
-> +/**
-> + * nmk_i2c_xfer() - I2C transfer function used by kernel framework
-> + * @i2c_adap 	- Adapter pointer to the controller
-> + * @msgs[] - Pointer to data to be written.
-> + * @num_msgs - Number of messages to be executed
-> + *
-> + * This is the function called by the generic kernel i2c_transfer()
-> + * or i2c_smbus...() API calls. Note that this code is protected by the
-> + * semaphore set in the kernel i2c_transfer() function.
-> + *
-> + * NOTE:
-> + * READ TRANSFER : We impose a restriction of the first message to be the
-> + * 		index message for any read transaction.
-> + * 		- a no index is coded as '0',
-> + * 		- 2byte big endian index is coded as '3'
-> + * 		!!! msg[0].buf holds the actual index.
-> + * 		This is compatible with generic messages of smbus emulator
-> + * 		that send a one byte index.
-> + * 		eg. a I2C transation to read 2 bytes from index 0
-> + *			idx = 0;
-> + *			msg[0].addr = client->addr;
-> + *			msg[0].flags = 0x0;
-> + *			msg[0].len = 1;
-> + *			msg[0].buf = &idx;
-> + *
-> + *			msg[1].addr = client->addr;
-> + *			msg[1].flags = I2C_M_RD;
-> + *			msg[1].len = 2;
-> + *			msg[1].buf = rd_buff
-> + *			i2c_transfer(adap, msg, 2);
-> + *
-> + * WRITE TRANSFER : The I2C standard interface interprets all data as payload.
-> + *		If you want to emulate an SMBUS write transaction put the
-> + *		index as first byte(or first and second) in the payload.
-> + *		eg. a I2C transation to write 2 bytes from index 1
-> + *			wr_buff[0] = 0x1;
-> + *			wr_buff[1] = 0x23;
-> + *			wr_buff[2] = 0x46;
-> + *			msg[0].flags = 0x0;
-> + *			msg[0].len = 3;
-> + *			msg[0].buf = wr_buff;
-> + *			i2c_transfer(adap, msg, 1);
-> + *
-> + * To read or write a block of data (multiple bytes) using SMBUS emulation
-> + * please use the i2c_smbus_read_i2c_block_data()
-> + * or i2c_smbus_write_i2c_block_data() API
-> + *
-> + * i2c_master_recv() API is not supported as single read message is not
-> + * accepted by our interface (it has to be preceded by an index message)
-> + */
-
-Any reason for the restrictions? these seem a little harsh for anyone
-
-> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
-> +		struct i2c_msg msgs[], int num_msgs)
-> +{
-> +	int status;
-> +	int i;
-> +	u32 cause;
-> +	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
-> +
-> +	status = init_hw(dev);
-> +	if (status)
-> +		return status;
-> +
-> +	/* setup the i2c controller */
-> +	setup_i2c_controller(dev);
-> +
-> +	for (i = 0; i < num_msgs; i++) {
-> +		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
-> +			dev_err(&dev->pdev->dev, "10 bit addressing"
-> +					"not supported\n");
-> +			return -EINVAL;
-> +		}
-> +		dev->cli.slave_adr	= msgs[i].addr;
-> +		dev->cli.buffer		= msgs[i].buf;
-> +		dev->cli.count		= msgs[i].len;
-> +		dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
-> +		dev->result = 0;
-> +
-> +		if (msgs[i].flags & I2C_M_RD) {
-> +			/* it is a read operation */
-> +			dev->cli.operation = I2C_READ;
-> +			status = read_i2c(dev);
-> +		} else {
-> +			/* write operation */
-> +			dev->cli.operation = I2C_WRITE;
-> +			status = write_i2c(dev);
-> +		}
-> +		if (status || (dev->result)) {
-> +			/* get the abort cause */
-> +			cause =	(readl(dev->virtbase + I2C_SR) >> 4) & 0x7;
-> +			dev_err(&dev->pdev->dev, "error during I2C"
-> +					"message xfer: %d\n", cause);
-> +			dev_err(&dev->pdev->dev, "%s\n",
-> +				cause >= ARRAY_SIZE(abort_causes)
-> +				? "unknown reason" : abort_causes[cause]);
-> +			return status;
-> +		}
-> +		mdelay(1);
-> +	}
-> +	return status;
-> +}
-> +
-> +/**
-> + * disable_interrupts() - disable the interrupts
-> + * @dev: private data of controller
-> + */
-> +static int disable_interrupts(struct nmk_i2c_dev *dev, u32 irq)
-> +{
-> +	irq = IRQ_MASK(irq);
-> +	writel(readl(dev->virtbase + I2C_IMSCR) & ~(I2C_CLEAR_ALL_INTS & irq),
-> +			dev->virtbase + I2C_IMSCR);
-> +	return 0;
-> +}
-> +
-> +/**
-> + * i2c_irq_handler() - interrupt routine
-> + * @irq: interrupt number
-> + * @arg: data passed to the handler
-> + *
-> + * This is the interrupt handler for the i2c driver. Currently
-> + * it handles the major interrupts like Rx & Tx FIFO management
-> + * interrupts, master transaction interrupts, arbitration and
-> + * bus error interrupts. The rest of the interrupts are treated as
-> + * unhandled.
-> + */
-> +static irqreturn_t i2c_irq_handler(int irq, void *arg)
-> +{
-> +	struct nmk_i2c_dev *dev = arg;
-> +	u32 tft, rft;
-> +	u32 count;
-> +	u32 misr;
-> +	u32 src = 0;
-> +
-> +	/* load Tx FIFO and Rx FIFO threshold values */
-> +	tft = readl(dev->virtbase + I2C_TFTR);
-> +	rft = readl(dev->virtbase + I2C_RFTR);
-> +
-> +	/* read interrupt status register */
-> +	misr = readl(dev->virtbase + I2C_MISR);
-> +
-> +	src = __ffs(misr);
-> +	switch ((1 << src)) {
-> +
-> +	/* Transmit FIFO nearly empty interrupt */
-> +	case I2C_IT_TXFNE:
-> +	{
-> +		if (dev->cli.operation == I2C_READ) {
-> +			/*
-> +			 * in read operation why do we care for writing?
-> +			 * so disable the Transmit FIFO interrupt
-> +			 */
-> +			disable_interrupts(dev, I2C_IT_TXFNE);
-> +		} else {
-> +			for (count = (MAX_I2C_FIFO_THRESHOLD - tft - 2);
-> +					(count > 0) &&
-> +					(dev->cli.count != 0);
-> +					count--) {
-> +				/* write to the Tx FIFO */
-> +				writeb(*dev->cli.buffer,
-> +					dev->virtbase + I2C_TFR);
-> +				dev->cli.buffer++;
-> +				dev->cli.count--;
-> +				dev->cli.xfer_bytes++;
-> +			}
-> +			/*
-> +			 * if done, close the transfer by disabling the
-> +			 * corresponding TXFNE interrupt
-> +			 */
-> +			if (dev->cli.count == 0)
-> +				disable_interrupts(dev,	I2C_IT_TXFNE);
-> +		}
-> +	}
-> +	break;
-> +
-> +	/*
-> +	 * Rx FIFO nearly full interrupt.
-> +	 * This is set when the numer of entries in Rx FIFO is
-> +	 * greater or equal than the threshold value programmed
-> +	 * in RFT
-> +	 */
-> +	case I2C_IT_RXFNF:
-> +		for (count = rft; count > 0; count--) {
-> +			/* Read the Rx FIFO */
-> +			*dev->cli.buffer = readb(dev->virtbase + I2C_RFR);
-> +			dev->cli.buffer++;
-> +		}
-> +		dev->cli.count -= rft;
-> +		dev->cli.xfer_bytes += rft;
-> +		break;
-> +
-> +	/* Rx FIFO full */
-> +	case I2C_IT_RXFF:
-> +		for (count = MAX_I2C_FIFO_THRESHOLD; count > 0; count--) {
-> +			*dev->cli.buffer = readb(dev->virtbase + I2C_RFR);
-> +			dev->cli.buffer++;
-> +		}
-> +		dev->cli.count -= MAX_I2C_FIFO_THRESHOLD;
-> +		dev->cli.xfer_bytes += MAX_I2C_FIFO_THRESHOLD;
-> +		break;
-> +
-> +	/* Master Transaction Done with/without stop */
-> +	case I2C_IT_MTD:
-> +	case I2C_IT_MTDWS:
-> +		if (dev->cli.operation == I2C_READ) {
-> +			while (!readl(dev->virtbase + I2C_RISR) & I2C_IT_RXFE) {
-> +				if (dev->cli.count == 0)
-> +					break;
-> +				*dev->cli.buffer =
-> +					readb(dev->virtbase + I2C_RFR);
-> +				dev->cli.buffer++;
-> +				dev->cli.count--;
-> +				dev->cli.xfer_bytes++;
-> +			}
-> +		}
-> +
-> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTD);
-> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTDWS);
-> +
-> +		disable_interrupts(dev,
-> +				(I2C_IT_TXFNE | I2C_IT_TXFE | I2C_IT_TXFF
-> +					| I2C_IT_TXFOVR | I2C_IT_RXFNF
-> +					| I2C_IT_RXFF | I2C_IT_RXFE));
-> +
-> +		if (dev->cli.count) {
-> +			dev->result = -1;
-> +			dev_err(&dev->pdev->dev, "%lu bytes still remain to be"
-> +					"xfered\n", dev->cli.count);
-> +			(void) init_hw(dev);
-> +		}
-> +		complete(&dev->xfer_complete);
-> +
-> +		break;
-> +
-> +	/* Master Arbitration lost interrupt */
-> +	case I2C_IT_MAL:
-> +		dev->result = -1;
-> +		(void) init_hw(dev);
-> +
-> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MAL);
-> +		complete(&dev->xfer_complete);
-> +
-> +		break;
-> +
-> +	/*
-> +	 * Bus Error interrupt.
-> +	 * This happens when an unexpected start/stop condition occurs
-> +	 * during the transaction.
-> +	 */
-> +	case I2C_IT_BERR:
-> +		dev->result = -1;
-> +		/* get the status */
-> +		if (((readl(dev->virtbase + I2C_SR) >> 2) & 0x3) == I2C_ABORT)
-> +			(void) init_hw(dev);
-> +
-> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_BERR);
-> +		complete(&dev->xfer_complete);
-> +
-> +		break;
-> +
-> +	/*
-> +	 * Tx FIFO overrun interrupt.
-> +	 * This is set when a write operation in Tx FIFO is performed and
-> +	 * the Tx FIFO is full.
-> +	 */
-> +	case I2C_IT_TXFOVR:
-> +		dev->result = -1;
-> +		(void) init_hw(dev);
-> +
-> +		dev_err(&dev->pdev->dev, "Tx Fifo Over run\n");
-> +		complete(&dev->xfer_complete);
-> +
-> +		break;
-> +
-> +	/* unhandled interrupts by this driver - TODO*/
-> +	case I2C_IT_TXFE:
-> +	case I2C_IT_TXFF:
-> +	case I2C_IT_RXFE:
-> +	case I2C_IT_RFSR:
-> +	case I2C_IT_RFSE:
-> +	case I2C_IT_WTSR:
-> +	case I2C_IT_STD:
-> +		dev_err(&dev->pdev->dev, "unhandled Interrupt\n");
-> +		break;
-> +	default:
-> +		dev_err(&dev->pdev->dev, "spurious Interrupt..\n");
-> +		break;
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int __init nmk_i2c_probe(struct platform_device *pdev)
-> +{
-> +	int ret = 0;
-> +	struct resource *res;
-> +	struct nmk_i2c_controller *pdata =
-> +			pdev->dev.platform_data;
-> +	struct nmk_i2c_dev	*dev;
-> +	struct i2c_adapter *adap;
-> +
-> +	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
-> +	if (!dev) {
-> +		dev_err(&pdev->dev, "cannot allocate memory\n");
-> +		ret = -ENOMEM;
-> +		goto err_no_mem;
-> +	}
-> +
-> +	dev->pdev = pdev;
-> +	platform_set_drvdata(pdev, dev);
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		ret = -ENOENT;
-> +		goto err_no_resource;
-> +	}
-> +
-> +	if (request_mem_region(res->start, resource_size(res),
-> +		DRIVER_NAME "I/O region") == 	NULL)	{
-> +		ret = -EBUSY;
-> +		goto err_no_region;
-> +	}
-> +
-> +	dev->virtbase = ioremap(res->start, resource_size(res));
-> +	if (!dev->virtbase) {
-> +		ret = -ENOMEM;
-> +		goto err_no_ioremap;
-> +	}
-> +
-> +	dev->irq = platform_get_irq(pdev, 0);
-> +	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
-> +				DRIVER_NAME, dev);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "cannot claim the irq %d\n", dev->irq);
-> +		goto err_irq;
-> +	}
-> +
-> +	dev->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(dev->clk)) {
-> +		dev_err(&pdev->dev, "could not get i2c clock\n");
-> +		ret = PTR_ERR(dev->clk);
-> +		goto err_no_clk;
-> +	}
-> +
-> +	clk_enable(dev->clk);
-> +
-> +	adap = &dev->adap;
-> +	adap->dev.parent = &pdev->dev;
-> +	adap->owner	= THIS_MODULE;
-> +	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
-> +	adap->algo	= &nmk_i2c_algo;
-> +
-> +	/* fetch the controller id */
-> +	adap->nr	= pdev->id;
-> +
-> +	/* fetch the controller configuration from machine */
-> +	dev->cfg.clk_freq = pdata->clk_freq;
-> +	dev->cfg.slsu	= pdata->slsu;
-> +	dev->cfg.tft	= pdata->tft;
-> +	dev->cfg.rft	= pdata->rft;
-> +	dev->cfg.sm	= pdata->sm;
-> +
-> +	i2c_set_adapdata(adap, dev);
-> +
-> +	ret = init_hw(dev);
-> +	if (ret != 0) {
-> +		dev_err(&pdev->dev, "error in initializing i2c hardware\n");
-> +		goto err_init_hw;
-> +	}
-> +
-> +	dev_dbg(&pdev->dev, "initialize I2C%d bus on virtual "
-> +		"base %p\n", pdev->id, dev->virtbase);
-> +
-> +	ret = i2c_add_numbered_adapter(adap);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to add adapter\n");
-> +		goto err_add_adap;
-> +	}
-> +
-> +	return 0;
-> +
-> + err_init_hw:
-> +	clk_disable(dev->clk);
-> + err_add_adap:
-> +	clk_put(dev->clk);
-> + err_no_clk:
-> +	free_irq(dev->irq, dev);
-> + err_irq:
-> +	iounmap(dev->virtbase);
-> + err_no_ioremap:
-> +	release_mem_region(res->start, resource_size(res));
-> + err_no_region:
-> +	platform_set_drvdata(pdev, NULL);
-> + err_no_resource:
-> +	kfree(dev);
-> + err_no_mem:
-> +
-> +	return ret;
-> +}
-> +
-> +static int __exit nmk_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&dev->adap);
-> +	flush_i2c_fifo(dev);
-> +	disable_all_interrupts(dev);
-> +	clear_all_interrupts(dev);
-> +	/* disable the controller */
-> +	i2c_clr_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
-> +	free_irq(dev->irq, dev);
-> +	iounmap(dev->virtbase);
-> +	clk_disable(dev->clk);
-> +	clk_put(dev->clk);
-> +	platform_set_drvdata(pdev, NULL);
-> +	kfree(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver nmk_i2c_driver = {
-> +	.driver = {
-> +		.owner = THIS_MODULE,
-> +		.name = DRIVER_NAME,
-> +	},
-> +
-> +	.probe = nmk_i2c_probe,
-> +	.remove = __exit_p(nmk_i2c_remove),
-__devexit_p remove should be __devexit.
-> +};
-> +
-> +static int __init nmk_i2c_init(void)
-> +{
-> +	return platform_driver_register(&nmk_i2c_driver);
-> +}
-> +
-> +static void __exit nmk_i2c_exit(void)
-> +{
-> +	platform_driver_unregister(&nmk_i2c_driver);
-> +}
-> +
-> +subsys_initcall(nmk_i2c_init);
-> +module_exit(nmk_i2c_exit);
-> +
-> +MODULE_AUTHOR("Sachin Verma, Srinidhi KASAGAR");
-> +MODULE_DESCRIPTION("Nomadik/Ux500 I2C driver");
-> +MODULE_LICENSE("GPL");
-
-could do with a module alias field for the platform device.
-
-> -- 
-> 1.6.3.GIT
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> + * Copyright (c) 2009 Intel Corporation
+> 
+> is this right, you've not got an @intel.com address?
 
--- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+It's correct.
 
-  'a smiley only costs 4 bytes'
+> 
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>> + * GNU General Public License for more details.
+>> + *
+>> + * You should have received a copy of the GNU General Public License
+>> + * along with this program; if not, write to the Free Software
+>> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+>> + */
+>> +
+>> +/* Supports:
+>> + * Xilinx IIC
+>> + */
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/init.h>
+>> +#include <linux/errno.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/wait.h>
+>> +#include <linux/i2c-xiic.h>
+>> +#include <linux/io.h>
+>> +
+>> +#define DRIVER_NAME "xiic-i2c"
+>> +
+>> +enum xilinx_i2c_state {
+>> +	STATE_DONE,
+>> +	STATE_ERROR,
+>> +	STATE_START
+>> +};
+>> +
+>> +struct xiic_i2c {
+>> +	void __iomem		*base;	/* Memory base of the HW registers */
+>> +	wait_queue_head_t	wait;	/* wait queue for callers */
+>> +	struct i2c_adapter	adap;	/* kernel adapter representation */
+>> +	struct i2c_msg		*tx_msg;/* Messages from above to send */
+>> +	spinlock_t		lock;	/* mutual exclusion */
+>> +	unsigned int 		tx_pos;	/* Current pos in TX message */
+>> +	unsigned int		nmsgs;	/* number of messages in tx_msg */
+>> +	enum xilinx_i2c_state	state;	/* see STATE_ */
+>> +	struct i2c_msg		*rx_msg;/* current RX message */
+>> +	int			rx_pos;	/* position within current RX message */
+>> +};
+> 
+> I'd much rather see this kernel-doced.
+
+Good idea, will update.
+
+> 
+>> +
+>> +#define XIIC_MSB_OFFSET 0
+>> +#define XIIC_REG_OFFSET (0x100+XIIC_MSB_OFFSET)
+> 
+> givevn you're running everything through indirect read/write calls,
+> how about doing it in there?
+
+Could do, bad thing is that it would add in an addition during runtime
+rather than having the C preprocessor doing it.
+
+I think I would like to leave it as is.
+
+What do you think?
+
+> 
+>> +/*
+>> + * Register offsets in bytes from RegisterBase. Three is added to the
+>> + * base offset to access LSB (IBM style) of the word
+>> + */
+>> +#define XIIC_CR_REG_OFFSET   (0x00+XIIC_REG_OFFSET)	/* Control Register   */
+>> +#define XIIC_SR_REG_OFFSET   (0x04+XIIC_REG_OFFSET)	/* Status Register    */
+>> +#define XIIC_DTR_REG_OFFSET  (0x08+XIIC_REG_OFFSET)	/* Data Tx Register   */
+>> +#define XIIC_DRR_REG_OFFSET  (0x0C+XIIC_REG_OFFSET)	/* Data Rx Register   */
+>> +#define XIIC_ADR_REG_OFFSET  (0x10+XIIC_REG_OFFSET)	/* Address Register   */
+>> +#define XIIC_TFO_REG_OFFSET  (0x14+XIIC_REG_OFFSET)	/* Tx FIFO Occupancy  */
+>> +#define XIIC_RFO_REG_OFFSET  (0x18+XIIC_REG_OFFSET)	/* Rx FIFO Occupancy  */
+>> +#define XIIC_TBA_REG_OFFSET  (0x1C+XIIC_REG_OFFSET)	/* 10 Bit Address reg */
+>> +#define XIIC_RFD_REG_OFFSET  (0x20+XIIC_REG_OFFSET)	/* Rx FIFO Depth reg  */
+>> +#define XIIC_GPO_REG_OFFSET  (0x24+XIIC_REG_OFFSET)	/* Output Register    */
+>> +
+>> +/* Control Register masks */
+>> +#define XIIC_CR_ENABLE_DEVICE_MASK        0x01	/* Device enable = 1      */
+>> +#define XIIC_CR_TX_FIFO_RESET_MASK        0x02	/* Transmit FIFO reset=1  */
+>> +#define XIIC_CR_MSMS_MASK                 0x04	/* Master starts Txing=1  */
+>> +#define XIIC_CR_DIR_IS_TX_MASK            0x08	/* Dir of tx. Txing=1     */
+>> +#define XIIC_CR_NO_ACK_MASK               0x10	/* Tx Ack. NO ack = 1     */
+>> +#define XIIC_CR_REPEATED_START_MASK       0x20	/* Repeated start = 1     */
+>> +#define XIIC_CR_GENERAL_CALL_MASK         0x40	/* Gen Call enabled = 1   */
+>> +
+>> +/* Status Register masks */
+>> +#define XIIC_SR_GEN_CALL_MASK             0x01	/* 1=a mstr issued a GC   */
+>> +#define XIIC_SR_ADDR_AS_SLAVE_MASK        0x02	/* 1=when addr as slave   */
+>> +#define XIIC_SR_BUS_BUSY_MASK             0x04	/* 1 = bus is busy        */
+>> +#define XIIC_SR_MSTR_RDING_SLAVE_MASK     0x08	/* 1=Dir: mstr <-- slave  */
+>> +#define XIIC_SR_TX_FIFO_FULL_MASK         0x10	/* 1 = Tx FIFO full       */
+>> +#define XIIC_SR_RX_FIFO_FULL_MASK         0x20	/* 1 = Rx FIFO full       */
+>> +#define XIIC_SR_RX_FIFO_EMPTY_MASK        0x40	/* 1 = Rx FIFO empty      */
+>> +#define XIIC_SR_TX_FIFO_EMPTY_MASK        0x80	/* 1 = Tx FIFO empty      */
+>> +
+>> +/* Interrupt Status Register masks    Interrupt occurs when...       */
+>> +#define XIIC_INTR_ARB_LOST_MASK           0x01	/* 1 = arbitration lost   */
+>> +#define XIIC_INTR_TX_ERROR_MASK           0x02	/* 1=Tx error/msg complete */
+>> +#define XIIC_INTR_TX_EMPTY_MASK           0x04	/* 1 = Tx FIFO/reg empty  */
+>> +#define XIIC_INTR_RX_FULL_MASK            0x08	/* 1=Rx FIFO/reg=OCY level */
+>> +#define XIIC_INTR_BNB_MASK                0x10	/* 1 = Bus not busy       */
+>> +#define XIIC_INTR_AAS_MASK                0x20	/* 1 = when addr as slave */
+>> +#define XIIC_INTR_NAAS_MASK               0x40	/* 1 = not addr as slave  */
+>> +#define XIIC_INTR_TX_HALF_MASK            0x80	/* 1 = TX FIFO half empty */
+>> +
+>> +/* The following constants specify the depth of the FIFOs */
+>> +#define IIC_RX_FIFO_DEPTH         16	/* Rx fifo capacity               */
+>> +#define IIC_TX_FIFO_DEPTH         16	/* Tx fifo capacity               */
+>> +
+>> +/* The following constants specify groups of interrupts that are typically
+>> + * enabled or disables at the same time
+>> + */
+>> +#define XIIC_TX_INTERRUPTS                           \
+>> +(XIIC_INTR_TX_ERROR_MASK | XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK)
+>> +
+>> +#define XIIC_TX_RX_INTERRUPTS (XIIC_INTR_RX_FULL_MASK | XIIC_TX_INTERRUPTS)
+>> +
+>> +/* The following constants are used with the following macros to specify the
+>> + * operation, a read or write operation.
+>> + */
+>> +#define XIIC_READ_OPERATION  1
+>> +#define XIIC_WRITE_OPERATION 0
+>> +
+>> +/*
+>> + * Tx Fifo upper bit masks.
+>> + */
+>> +#define XIIC_TX_DYN_START_MASK            0x0100 /* 1 = Set dynamic start */
+>> +#define XIIC_TX_DYN_STOP_MASK             0x0200 /* 1 = Set dynamic stop */
+>> +
+>> +/*
+>> + * The following constants define the register offsets for the Interrupt
+>> + * registers. There are some holes in the memory map for reserved addresses
+>> + * to allow other registers to be added and still match the memory map of the
+>> + * interrupt controller registers
+>> + */
+>> +#define XIIC_DGIER_OFFSET    0x1C /* Device Global Interrupt Enable Register */
+>> +#define XIIC_IISR_OFFSET     0x20 /* Interrupt Status Register */
+>> +#define XIIC_IIER_OFFSET     0x28 /* Interrupt Enable Register */
+>> +#define XIIC_RESETR_OFFSET   0x40 /* Reset Register */
+>> +
+>> +#define XIIC_RESET_MASK             0xAUL
+>> +
+>> +/*
+>> + * The following constant is used for the device global interrupt enable
+>> + * register, to enable all interrupts for the device, this is the only bit
+>> + * in the register
+>> + */
+>> +#define XIIC_GINTR_ENABLE_MASK      0x80000000UL
+>> +
+>> +#define xiic_tx_space(i2c) ((i2c)->tx_msg->len - (i2c)->tx_pos)
+>> +#define xiic_rx_space(i2c) ((i2c)->rx_msg->len - (i2c)->rx_pos)
+>> +
+>> +static void xiic_start_xfer(struct xiic_i2c *i2c);
+>> +static void __xiic_start_xfer(struct xiic_i2c *i2c);
+>> +
+>> +static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 value)
+>> +{
+>> +	iowrite8(value, i2c->base + reg);
+>> +}
+>> +
+>> +static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
+>> +{
+>> +	return ioread8(i2c->base + reg);
+>> +}
+>> +
+>> +static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 value)
+>> +{
+>> +	iowrite16(value, i2c->base + reg);
+>> +}
+>> +
+>> +static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int value)
+>> +{
+>> +	iowrite32(value, i2c->base + reg);
+>> +}
+>> +
+>> +static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg)
+>> +{
+>> +	return ioread32(i2c->base + reg);
+>> +}
+>> +
+>> +static inline void xiic_irq_dis(struct xiic_i2c *i2c, u32 mask)
+>> +{
+>> +	u32 ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+>> +	xiic_setreg32(i2c, XIIC_IIER_OFFSET, ier & ~mask);
+>> +}
+>> +
+>> +static inline void xiic_irq_en(struct xiic_i2c *i2c, u32 mask)
+>> +{
+>> +	u32 ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+>> +	xiic_setreg32(i2c, XIIC_IIER_OFFSET, ier | mask);
+>> +}
+>> +
+>> +static inline void xiic_irq_clr(struct xiic_i2c *i2c, u32 mask)
+>> +{
+>> +	u32 isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
+>> +	xiic_setreg32(i2c, XIIC_IISR_OFFSET, isr & mask);
+>> +}
+>> +
+>> +static inline void xiic_irq_clr_en(struct xiic_i2c *i2c, u32 mask)
+>> +{
+>> +	xiic_irq_clr(i2c, mask);
+>> +	xiic_irq_en(i2c, mask);
+>> +}
+>> +
+>> +static void xiic_clear_rx_fifo(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 sr;
+>> +	for (sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
+>> +		!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
+>> +		sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET))
+>> +		xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
+>> +}
+>> +
+>> +static void xiic_reinit(struct xiic_i2c *i2c)
+>> +{
+>> +	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
+>> +
+>> +	/* Set receive Fifo depth to maximum (zero based). */
+>> +	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, IIC_RX_FIFO_DEPTH - 1);
+>> +
+>> +	/* Reset Tx Fifo. */
+>> +	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_TX_FIFO_RESET_MASK);
+>> +
+>> +	/* Enable IIC Device, remove Tx Fifo reset & disable general call. */
+>> +	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_ENABLE_DEVICE_MASK);
+>> +
+>> +	/* make sure RX fifo is empty */
+>> +	xiic_clear_rx_fifo(i2c);
+>> +
+>> +	/* Enable interrupts */
+>> +	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+>> +
+>> +	xiic_irq_clr_en(i2c, XIIC_INTR_AAS_MASK | XIIC_INTR_ARB_LOST_MASK);
+>> +}
+>> +
+>> +static void xiic_deinit(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 cr;
+>> +
+>> +	xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK);
+>> +
+>> +	/* Disable IIC Device. */
+>> +	cr = xiic_getreg8(i2c, XIIC_CR_REG_OFFSET);
+>> +	xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
+>> +}
+>> +
+>> +static void xiic_read_rx(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 bytes_in_fifo;
+>> +	int i;
+>> +
+>> +	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
+>> +
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d"
+>> +		", SR: 0x%x, CR: 0x%x\n",
+>> +		__func__, bytes_in_fifo, xiic_rx_space(i2c),
+>> +		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+>> +		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+>> +
+>> +	if (bytes_in_fifo > xiic_rx_space(i2c))
+>> +		bytes_in_fifo = xiic_rx_space(i2c);
+>> +
+>> +	for (i = 0; i < bytes_in_fifo; i++)
+>> +		i2c->rx_msg->buf[i2c->rx_pos++] =
+>> +			xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
+>> +
+>> +	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET,
+>> +		(xiic_rx_space(i2c) > IIC_RX_FIFO_DEPTH) ?
+>> +		IIC_RX_FIFO_DEPTH - 1 :  xiic_rx_space(i2c) - 1);
+>> +}
+>> +
+>> +static int xiic_tx_fifo_space(struct xiic_i2c *i2c)
+>> +{
+>> +	/* return the actual space left in the FIFO */
+>> +	return IIC_TX_FIFO_DEPTH - xiic_getreg8(i2c, XIIC_TFO_REG_OFFSET) - 1;
+>> +}
+>> +
+>> +static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 fifo_space = xiic_tx_fifo_space(i2c);
+>> +	int len = xiic_tx_space(i2c);
+>> +
+>> +	len = (len > fifo_space) ? fifo_space : len;
+>> +
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry, len: %d, fifo space: %d\n",
+>> +		__func__, len, fifo_space);
+>> +
+>> +	while (len--) {
+>> +		u16 data = i2c->tx_msg->buf[i2c->tx_pos++];
+>> +		if ((xiic_tx_space(i2c) == 0) && (i2c->nmsgs == 1)) {
+>> +			/* last message in transfer -> STOP */
+>> +			data |= XIIC_TX_DYN_STOP_MASK;
+>> +			dev_dbg(i2c->adap.dev.parent, "%s TX STOP\n", __func__);
+>> +
+>> +			xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
+>> +		} else
+>> +			xiic_setreg8(i2c, XIIC_DTR_REG_OFFSET, data);
+>> +	}
+>> +}
+>> +
+>> +static void xiic_wakeup(struct xiic_i2c *i2c, int code)
+>> +{
+>> +	i2c->tx_msg = NULL;
+>> +	i2c->rx_msg = NULL;
+>> +	i2c->nmsgs = 0;
+>> +	i2c->state = code;
+>> +	wake_up(&i2c->wait);
+>> +}
+>> +
+>> +static void xiic_process(struct xiic_i2c *i2c)
+>> +{
+>> +	u32 pend, isr, ier;
+>> +	u32 clr = 0;
+>> +
+>> +	/* Get the interrupt Status from the IPIF. There is no clearing of
+>> +	 * interrupts in the IPIF. Interrupts must be cleared at the source.
+>> +	 * To find which interrupts are pending; AND interrupts pending with
+>> +	 * interrupts masked.
+>> +	 */
+>> +	isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
+>> +	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+>> +	pend = isr & ier;
+>> +
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry, IER: 0x%x, ISR: 0x%x, "
+>> +		"pend: 0x%x, SR: 0x%x, msg: %p, nmsgs: %d\n",
+>> +		__func__, ier, isr, pend, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+>> +		i2c->tx_msg, i2c->nmsgs);
+>> +
+>> +	/* Do not processes a devices interrupts if the device has no
+>> +	 * interrupts pending
+>> +	 */
+>> +	if (!pend)
+>> +		return;
+>> +
+>> +	/* Service requesting interrupt */
+>> +	if ((pend & XIIC_INTR_ARB_LOST_MASK) ||
+>> +		((pend & XIIC_INTR_TX_ERROR_MASK) &&
+>> +		!(pend & XIIC_INTR_RX_FULL_MASK))) {
+>> +		/* bus arbritration lost, or...
+>> +		 * Transmit error _OR_ RX completed
+>> +		 * if this happens when RX_FULL is not set
+>> +		 * this is probably a TX error
+>> +		 */
+>> +
+>> +		dev_dbg(i2c->adap.dev.parent, "%s error\n", __func__);
+>> +
+>> +		/* dynamic mode seem to suffer from problems if we just flushes
+>> +		 * fifos and the next message is a TX with len 0 (only addr)
+>> +		 * reset the IP instead of just flush fifos
+>> +		 */
+>> +		xiic_reinit(i2c);
+>> +
+>> +		if (i2c->tx_msg)
+>> +			xiic_wakeup(i2c, STATE_ERROR);
+>> +
+>> +	} else if (pend & XIIC_INTR_RX_FULL_MASK) {
+>> +		/* Receive register/FIFO is full */
+>> +
+>> +		clr = XIIC_INTR_RX_FULL_MASK;
+>> +		if (!i2c->rx_msg) {
+>> +			dev_dbg(i2c->adap.dev.parent,
+>> +				"%s unexpexted RX IRQ\n", __func__);
+>> +			xiic_clear_rx_fifo(i2c);
+>> +			goto out;
+>> +		}
+>> +
+>> +		xiic_read_rx(i2c);
+>> +		if (xiic_rx_space(i2c) == 0) {
+>> +			/* this is the last part of the message */
+>> +			i2c->rx_msg = NULL;
+>> +
+>> +			/* also clear TX error if there (RX complete) */
+>> +			clr |= (isr & XIIC_INTR_TX_ERROR_MASK);
+>> +
+>> +			dev_dbg(i2c->adap.dev.parent,
+>> +				"%s end of message, nmsgs: %d\n",
+>> +				__func__, i2c->nmsgs);
+>> +
+>> +			/* send next message if this wasn't the last,
+>> +			 * otherwise the transfer will be finialise when
+>> +			 * receiving the bus not busy interrupt
+>> +			 */
+>> +			if (i2c->nmsgs > 1) {
+>> +				i2c->nmsgs--;
+>> +				i2c->tx_msg++;
+>> +				dev_dbg(i2c->adap.dev.parent,
+>> +					"%s will start next...\n", __func__);
+>> +
+>> +				__xiic_start_xfer(i2c);
+>> +			}
+>> +		}
+>> +	} else if (pend & XIIC_INTR_BNB_MASK) {
+>> +		/* IIC bus has transitioned to not busy */
+>> +		clr = XIIC_INTR_BNB_MASK;
+>> +
+>> +		/* The bus is not busy, disable BusNotBusy interrupt */
+>> +		xiic_irq_dis(i2c, XIIC_INTR_BNB_MASK);
+>> +
+>> +		if (!i2c->tx_msg)
+>> +			goto out;
+>> +
+>> +		if ((i2c->nmsgs == 1) && !i2c->rx_msg &&
+>> +			xiic_tx_space(i2c) == 0)
+>> +			xiic_wakeup(i2c, STATE_DONE);
+>> +		else
+>> +			xiic_wakeup(i2c, STATE_ERROR);
+>> +
+>> +	} else if (pend & (XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK)) {
+>> +		/* Transmit register/FIFO is empty or ? empty */
+>> +
+>> +		clr = pend &
+>> +			(XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_HALF_MASK);
+>> +
+>> +		if (!i2c->tx_msg) {
+>> +			dev_dbg(i2c->adap.dev.parent,
+>> +				"%s unexpexted TX IRQ\n", __func__);
+>> +			goto out;
+>> +		}
+>> +
+>> +		xiic_fill_tx_fifo(i2c);
+>> +
+>> +		/* current message sent and there is space in the fifo */
+>> +		if (!xiic_tx_space(i2c) && xiic_tx_fifo_space(i2c) >= 2) {
+>> +			dev_dbg(i2c->adap.dev.parent,
+>> +				"%s end of message sent, nmsgs: %d\n",
+>> +				__func__, i2c->nmsgs);
+>> +			if (i2c->nmsgs > 1) {
+>> +				i2c->nmsgs--;
+>> +				i2c->tx_msg++;
+>> +				__xiic_start_xfer(i2c);
+>> +			} else {
+>> +				xiic_irq_dis(i2c, XIIC_INTR_TX_HALF_MASK);
+>> +
+>> +				dev_err(i2c->adap.dev.parent,
+>> +					"%s Got TX IRQ but no more to do...\n",
+>> +					__func__);
+>> +			}
+>> +		} else if (!xiic_tx_space(i2c) && (i2c->nmsgs == 1))
+>> +			/* current frame is sent and is last,
+>> +			 * make sure to disable tx half
+>> +			 */
+>> +			xiic_irq_dis(i2c, XIIC_INTR_TX_HALF_MASK);
+>> +	} else {
+>> +		/* got IRQ which is not acked */
+>> +		dev_err(i2c->adap.dev.parent, "%s Got unexpected IRQ\n",
+>> +			__func__);
+>> +		clr = pend;
+>> +	}
+>> +out:
+>> +	dev_dbg(i2c->adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
+>> +
+>> +	xiic_setreg32(i2c, XIIC_IISR_OFFSET, clr);
+>> +}
+>> +
+>> +static int xiic_bus_busy(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 sr = xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
+>> +
+>> +	return (sr & XIIC_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
+>> +}
+>> +
+>> +static int xiic_busy(struct xiic_i2c *i2c)
+>> +{
+>> +	int tries = 3;
+>> +	int err;
+>> +
+>> +	if (i2c->tx_msg)
+>> +		return -EBUSY;
+>> +
+>> +	/* for instance if previous transfer was terminated due to TX error
+>> +	 * it might be that the bus is on it's way to become available
+>> +	 * give it at most 3 ms to wake
+>> +	 */
+>> +	err = xiic_bus_busy(i2c);
+>> +	while (err && tries--) {
+>> +		mdelay(1);
+>> +		err = xiic_bus_busy(i2c);
+>> +	}
+>> +
+>> +	return err;
+>> +}
+>> +
+>> +static void xiic_start_recv(struct xiic_i2c *i2c)
+>> +{
+>> +	u8 rx_watermark;
+>> +	struct i2c_msg *msg = i2c->rx_msg = i2c->tx_msg;
+>> +
+>> +	/* Clear and enable Rx full interrupt. */
+>> +	xiic_irq_clr_en(i2c, XIIC_INTR_RX_FULL_MASK | XIIC_INTR_TX_ERROR_MASK);
+>> +
+>> +	/* we want to get all but last byte, because the TX_ERROR IRQ is used
+>> +	 * to inidicate error ACK on the address, and negative ack on the last
+>> +	 * received byte, so to not mix them receive all but last.
+>> +	 * In the case where there is only one byte to receive
+>> +	 * we can check if ERROR and RX full is set at the same time
+>> +	 */
+>> +	rx_watermark = msg->len;
+>> +	if (rx_watermark > IIC_RX_FIFO_DEPTH)
+>> +		rx_watermark = IIC_RX_FIFO_DEPTH;
+>> +	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
+>> +
+>> +	if (!(msg->flags & I2C_M_NOSTART))
+>> +		/* write the address */
+>> +		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
+>> +			(msg->addr << 1) | XIIC_READ_OPERATION |
+>> +			XIIC_TX_DYN_START_MASK);
+>> +
+>> +	xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
+>> +
+>> +	xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
+>> +		msg->len | ((i2c->nmsgs == 1) ? XIIC_TX_DYN_STOP_MASK : 0));
+>> +	if (i2c->nmsgs == 1)
+>> +		/* very last, enable bus not busy as well */
+>> +		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
+>> +
+>> +	/* the message is tx:ed */
+>> +	i2c->tx_pos = msg->len;
+>> +}
+>> +
+>> +static void xiic_start_send(struct xiic_i2c *i2c)
+>> +{
+>> +	struct i2c_msg *msg = i2c->tx_msg;
+>> +
+>> +	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
+>> +
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d, "
+>> +		"ISR: 0x%x, CR: 0x%x\n",
+>> +		__func__, msg, msg->len, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
+>> +		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+>> +
+>> +	if (!(msg->flags & I2C_M_NOSTART)) {
+>> +		/* write the address */
+>> +		u16 data = ((msg->addr << 1) & 0xfe) | XIIC_WRITE_OPERATION |
+>> +			XIIC_TX_DYN_START_MASK;
+>> +		if ((i2c->nmsgs == 1) && msg->len == 0)
+>> +			/* no data and last message -> add STOP */
+>> +			data |= XIIC_TX_DYN_STOP_MASK;
+>> +
+>> +		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
+>> +	}
+>> +
+>> +	xiic_fill_tx_fifo(i2c);
+>> +
+>> +	/* Clear any pending Tx empty, Tx Error and then enable them. */
+>> +	xiic_irq_clr_en(i2c, XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_ERROR_MASK |
+>> +		XIIC_INTR_BNB_MASK);
+>> +}
+>> +
+>> +static irqreturn_t xiic_isr(int irq, void *dev_id)
+>> +{
+>> +	struct xiic_i2c *i2c = dev_id;
+>> +
+>> +	spin_lock(&i2c->lock);
+>> +	/* disable interrupts globally */
+>> +	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
+>> +
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry\n", __func__);
+>> +
+>> +	xiic_process(i2c);
+>> +
+>> +	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+>> +	spin_unlock(&i2c->lock);
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static void __xiic_start_xfer(struct xiic_i2c *i2c)
+>> +{
+>> +	int first = 1;
+>> +	int fifo_space = xiic_tx_fifo_space(i2c);
+>> +	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, fifos space: %d\n",
+>> +		__func__, i2c->tx_msg, fifo_space);
+>> +
+>> +	if (!i2c->tx_msg)
+>> +		return;
+>> +
+>> +	i2c->rx_pos = 0;
+>> +	i2c->tx_pos = 0;
+>> +	i2c->state = STATE_START;
+>> +	while ((fifo_space >= 2) && (first || (i2c->nmsgs > 1))) {
+>> +		if (!first) {
+>> +			i2c->nmsgs--;
+>> +			i2c->tx_msg++;
+>> +			i2c->tx_pos = 0;
+>> +		} else
+>> +			first = 0;
+>> +
+>> +		if (i2c->tx_msg->flags & I2C_M_RD) {
+>> +			/* we dont date putting several reads in the FIFO */
+>> +			xiic_start_recv(i2c);
+>> +			return;
+>> +		} else {
+>> +			xiic_start_send(i2c);
+>> +			if (xiic_tx_space(i2c) != 0) {
+>> +				/* the message could not be completely sent */
+>> +				break;
+>> +			}
+>> +		}
+>> +
+>> +		fifo_space = xiic_tx_fifo_space(i2c);
+>> +	}
+>> +
+>> +	/* there are more messages or the current one could not be completely
+>> +	 * put into the FIFO, also enable the half empty interrupt
+>> +	 */
+>> +	if (i2c->nmsgs > 1 || xiic_tx_space(i2c))
+>> +		xiic_irq_clr_en(i2c, XIIC_INTR_TX_HALF_MASK);
+>> +
+>> +}
+>> +
+>> +static void xiic_start_xfer(struct xiic_i2c *i2c)
+>> +{
+>> +	unsigned long flags;
+>> +
+>> +	spin_lock_irqsave(&i2c->lock, flags);
+>> +	xiic_reinit(i2c);
+>> +	/* disable interrupts globally */
+>> +	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
+>> +	spin_unlock_irqrestore(&i2c->lock, flags);
+>> +
+>> +	__xiic_start_xfer(i2c);
+>> +	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+>> +}
+>> +
+>> +static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>> +{
+>> +	struct xiic_i2c *i2c = i2c_get_adapdata(adap);
+>> +	int err;
+>> +
+>> +	dev_dbg(adap->dev.parent, "%s entry SR: 0x%x\n", __func__,
+>> +		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET));
+>> +
+>> +	err = xiic_busy(i2c);
+>> +	if (err)
+>> +		return err;
+>> +
+>> +	i2c->tx_msg = msgs;
+>> +	i2c->nmsgs = num;
+>> +
+>> +	xiic_start_xfer(i2c);
+>> +
+>> +	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
+>> +		(i2c->state == STATE_DONE), HZ))
+>> +		return (i2c->state == STATE_DONE) ? num : -EIO;
+>> +	else {
+>> +		i2c->tx_msg = NULL;
+>> +		i2c->rx_msg = NULL;
+>> +		i2c->nmsgs = 0;
+>> +		return -ETIMEDOUT;
+>> +	}
+>> +}
+>> +
+>> +static u32 xiic_func(struct i2c_adapter *adap)
+>> +{
+>> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> +}
+>> +
+>> +static const struct i2c_algorithm xiic_algorithm = {
+>> +	.master_xfer	= xiic_xfer,
+>> +	.functionality	= xiic_func,
+>> +};
+>> +
+>> +static struct i2c_adapter xiic_adapter = {
+>> +	.owner		= THIS_MODULE,
+>> +	.name		= DRIVER_NAME,
+>> +	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+>> +	.algo		= &xiic_algorithm,
+>> +};
+>> +
+>> +
+>> +static int __devinit xiic_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +	struct xiic_i2c *i2c;
+>> +	struct xiic_i2c_platform_data *pdata;
+>> +	struct resource *res;
+>> +	int ret, irq;
+>> +	u8 i;
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	if (!res)
+>> +		goto resource_missing;
+>> +
+>> +	irq = platform_get_irq(pdev, 0);
+>> +	if (irq < 0)
+>> +		goto resource_missing;
+>> +
+>> +	pdata = (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
+>> +	if (!pdata)
+>> +		return -EINVAL;
+>> +
+>> +	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+>> +	if (!i2c)
+>> +		return -ENOMEM;
+>> +
+>> +	if (!request_mem_region(res->start, resource_size(res), pdev->name)) {
+>> +		dev_err(&pdev->dev, "Memory region busy\n");
+>> +		ret = -EBUSY;
+>> +		goto request_mem_failed;
+>> +	}
+>> +
+>> +	i2c->base = ioremap(res->start, resource_size(res));
+>> +	if (!i2c->base) {
+>> +		dev_err(&pdev->dev, "Unable to map registers\n");
+>> +		ret = -EIO;
+>> +		goto map_failed;
+>> +	}
+>> +
+>> +	/* hook up driver to tree */
+>> +	platform_set_drvdata(pdev, i2c);
+>> +	i2c->adap = xiic_adapter;
+>> +	i2c_set_adapdata(&i2c->adap, i2c);
+>> +	i2c->adap.dev.parent = &pdev->dev;
+>> +
+>> +	xiic_reinit(i2c);
+>> +
+>> +	spin_lock_init(&i2c->lock);
+>> +	init_waitqueue_head(&i2c->wait);
+>> +	ret = request_irq(irq, xiic_isr, 0, pdev->name, i2c);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "Cannot claim IRQ\n");
+>> +		goto request_irq_failed;
+>> +	}
+>> +
+>> +	/* add i2c adapter to i2c tree */
+>> +	ret = i2c_add_adapter(&i2c->adap);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "Failed to add adapter\n");
+>> +		goto add_adapter_failed;
+>> +	}
+>> +
+>> +	/* add in known devices to the bus */
+>> +	for (i = 0; i < pdata->num_devices; i++)
+>> +		i2c_new_device(&i2c->adap, pdata->devices + i);
+> 
+> wouldn't i2c_register_board_info() do the job for you too?
+
+No actually not, we had a discussion about this like 6-9 months ago,
+when I posted the similar solution as a patch to ocores. Problem is that
+we don't know the bus number in advance and in theory several boards
+containing the I2C bus could in theory show up.
+I would like to see the same solution here.
+
+> 
+>> +	return 0;
+>> +
+>> +add_adapter_failed:
+>> +	free_irq(irq, i2c);
+>> +request_irq_failed:
+>> +	xiic_deinit(i2c);
+>> +	iounmap(i2c->base);
+>> +map_failed:
+>> +	release_mem_region(res->start, resource_size(res));
+>> +request_mem_failed:
+>> +	kfree(i2c);
+>> +
+>> +	return ret;
+>> +resource_missing:
+>> +	dev_err(&pdev->dev, "IRQ or Memory resource is missing\n");
+>> +	return -ENOENT;
+>> +}
+>> +
+>> +static int __devexit xiic_i2c_remove(struct platform_device* pdev)
+>> +{
+>> +	struct xiic_i2c *i2c = platform_get_drvdata(pdev);
+>> +	struct resource *res;
+>> +
+>> +	/* remove adapter & data */
+>> +	i2c_del_adapter(&i2c->adap);
+>> +
+>> +	xiic_deinit(i2c);
+>> +
+>> +	platform_set_drvdata(pdev, NULL);
+>> +
+>> +	free_irq(platform_get_irq(pdev, 0), i2c);
+>> +
+>> +	iounmap(i2c->base);
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	if (res)
+>> +		release_mem_region(res->start, resource_size(res));
+>> +
+>> +	kfree(i2c);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +
+>> +/* work with hotplug and coldplug */
+>> +MODULE_ALIAS("platform:"DRIVER_NAME);
+>> +
+>> +static struct platform_driver xiic_i2c_driver = {
+>> +	.probe   = xiic_i2c_probe,
+>> +	.remove  = __devexit_p(xiic_i2c_remove),
+>> +	.driver  = {
+>> +		.owner = THIS_MODULE,
+>> +		.name = DRIVER_NAME,
+>> +	},
+>> +};
+>> +
+>> +static int __init xiic_i2c_init(void)
+>> +{
+>> +	return platform_driver_register(&xiic_i2c_driver);
+>> +}
+>> +
+>> +static void __exit xiic_i2c_exit(void)
+>> +{
+>> +	platform_driver_unregister(&xiic_i2c_driver);
+>> +}
+>> +
+>> +module_init(xiic_i2c_init);
+>> +module_exit(xiic_i2c_exit);
+>> +
+>> +MODULE_AUTHOR("info-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org");
+>> +MODULE_DESCRIPTION("Xilinx I2C bus driver");
+>> +MODULE_LICENSE("GPL v2");
+>> diff --git a/include/linux/i2c-xiic.h b/include/linux/i2c-xiic.h
+>> new file mode 100644
+>> index 0000000..4f9f225
+>> --- /dev/null
+>> +++ b/include/linux/i2c-xiic.h
+>> @@ -0,0 +1,43 @@
+>> +/*
+>> + * i2c-xiic.h
+>> + * Copyright (c) 2009 Intel Corporation
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+>> + * GNU General Public License for more details.
+>> + *
+>> + * You should have received a copy of the GNU General Public License
+>> + * along with this program; if not, write to the Free Software
+>> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+>> + */
+>> +
+>> +/* Supports:
+>> + * Xilinx IIC
+>> + */
+>> +
+>> +#ifndef _LINUX_I2C_XIIC_H
+>> +#define _LINUX_I2C_XIIC_H
+>> +
+>> +/**
+>> + * struct xiic_i2c_platform_data - Platform data of the Xilinx I2C driver
+>> + * @num_devices:	Number of devices that shall be added when the driver
+>> + *			is probed.
+>> + * @devices:		The actuall devices to add.
+>> + *
+>> + * This purpose of this platform data struct is to be able to provide a number
+>> + * of devices that should be added to the I2C bus. The reason is that sometimes
+>> + * the I2C board info is not enough, a new PCI board can for instance be
+>> + * plugged into a standard PC, and the bus number might be unknown at
+>> + * early init time.
+>> + */
+>> +struct xiic_i2c_platform_data {
+>> +	u8				num_devices;
+>> +	struct i2c_board_info const	*devices;
+>> +};
+>> +
+>> +#endif /* _LINUX_I2C_XIIC_H */
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
