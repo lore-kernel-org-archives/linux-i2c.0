@@ -1,679 +1,1085 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 2/3] I2C: Add driver for Cavium OCTEON I2C ports.
-Date: Sun, 24 Jan 2010 16:00:17 +0000
-Message-ID: <20100124160017.GF28675@fluff.org.uk>
-References: <4B463B1F.6000404@caviumnetworks.com>
- <1262894061-32613-2-git-send-email-ddaney@caviumnetworks.com>
+Subject: Re: [PATCH v2 2/2] i2c: Add support for Ux500/Nomadik I2C
+ controller
+Date: Sun, 24 Jan 2010 16:11:19 +0000
+Message-ID: <20100124161119.GG28675@fluff.org.uk>
+References: <cover.1262944133.git.srinidhi.kasagar@stericsson.com>
+ <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1262894061-32613-2-git-send-email-ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rade.bozic.ext-OYasijW0DpE@public.gmane.org
+To: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, sachin.verma-qxv4g6HH51o@public.gmane.org, rubini-9wsNiZum9E8@public.gmane.org, andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 07, 2010 at 11:54:20AM -0800, David Daney wrote:
-> From: Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>
-> 
-> Signed-off-by: Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>
-> Signed-off-by: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+On Fri, Jan 08, 2010 at 04:02:55PM +0530, srinidhi kasagar wrote:
+> This adds support for the ST-Ericsson's I2C
+> block found in Ux500 and Nomadik 8815
+> platforms.
+
+Please re-wrap, it could lose at-least one line.
+ 
+> Signed-off-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> Acked-by: Andrea gallo <andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> Acked-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 > ---
->  drivers/i2c/busses/Kconfig      |   10 +
->  drivers/i2c/busses/Makefile     |    1 +
->  drivers/i2c/busses/i2c-octeon.c |  579 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 590 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-octeon.c
+>  drivers/i2c/busses/Kconfig       |    7 +
+>  drivers/i2c/busses/Makefile      |    1 +
+>  drivers/i2c/busses/i2c-nomadik.c |  980 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 988 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-nomadik.c
 > 
 > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 5f318ce..737f052 100644
+> index 5f318ce..fbde486 100644
 > --- a/drivers/i2c/busses/Kconfig
 > +++ b/drivers/i2c/busses/Kconfig
-> @@ -564,6 +564,16 @@ config I2C_VERSATILE
+> @@ -439,6 +439,13 @@ config I2C_MV64XXX
 >  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-versatile.
+>  	  will be called i2c-mv64xxx.
 >  
-> +config I2C_OCTEON
-> +	tristate "Cavium OCTEON I2C bus support"
-> +	depends on CPU_CAVIUM_OCTEON
+> +config I2C_NOMADIK
+> +	tristate "ST-Ericsson Nomadik/Ux500 I2C Controller"
+> +	depends on PLAT_NOMADIK
 > +	help
-> +	  Say yes if you want to support the I2C serial bus on Cavium
-> +	  OCTEON SOC.
+> +	  If you say yes to this option, support will be included for the
+> +	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures.
 > +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-octeon.
-> +
->  comment "External I2C/SMBus adapter drivers"
->  
->  config I2C_PARPORT
+>  config I2C_OCORES
+>  	tristate "OpenCores I2C Controller"
+>  	depends on EXPERIMENTAL
 > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 302c551..c2c4ea1 100644
+> index 302c551..10dd8b5 100644
 > --- a/drivers/i2c/busses/Makefile
 > +++ b/drivers/i2c/busses/Makefile
-> @@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
->  obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
->  obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
->  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
-> +obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
->  
->  # External I2C/SMBus adapter drivers
->  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
-> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+> @@ -42,6 +42,7 @@ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+>  obj-$(CONFIG_I2C_IXP2000)	+= i2c-ixp2000.o
+>  obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
+>  obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
+> +obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
+>  obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+>  obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
+>  obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
 > new file mode 100644
-> index 0000000..57455ac
+> index 0000000..b228dca
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-octeon.c
-> @@ -0,0 +1,579 @@
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -0,0 +1,980 @@
 > +/*
-> + * (C) Copyright 2009-2010
-> + * Nokia Siemens Networks, michael.lawnick.ext-OYasijW0DpE@public.gmane.org
+> + * Copyright (C) 2009 ST-Ericsson
+> + * Copyright (C) 2009 STMicroelectronics
 > + *
-> + * This is a driver for the i2c adapter in Cavium Networks' OCTEON processors.
+> + * I2C master mode controller driver, used in Nomadik 8815
+> + * and Ux500 platforms.
 > + *
-> + * Release 0.1
+> + * Author: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> + * Author: Sachin Verma <sachin.verma-qxv4g6HH51o@public.gmane.org>
 > + *
-> + * This file is licensed under the terms of the GNU General Public
-> + * License version 2. This program is licensed "as is" without any
-> + * warranty of any kind, whether express or implied.
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2, as
+> + * published by the Free Software Foundation.
 > + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/sched.h>
 > +#include <linux/init.h>
-> +
-> +#include <linux/io.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
+> +#include <linux/module.h>
 > +#include <linux/platform_device.h>
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/i2c.h>
+> +#include <linux/err.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
 > +
-> +#include <asm/octeon/octeon.h>
+> +#include <plat/i2c.h>
 > +
-> +#define DRV_NAME "i2c-octeon"
-> +#define DRV_VERSION	"0.1"
+> +#define DRIVER_NAME "nmk-i2c"
 > +
-> +/* register offsets */
-> +#define SW_TWSI	 0x00
-> +#define TWSI_INT 0x10
+> +/* I2C Controller register offsets */
+> +#define I2C_CR		(0x000)
+> +#define I2C_SCR		(0x004)
+> +#define I2C_HSMCR	(0x008)
+> +#define I2C_MCR		(0x00C)
+> +#define I2C_TFR		(0x010)
+> +#define I2C_SR		(0x014)
+> +#define I2C_RFR		(0x018)
+> +#define I2C_TFTR	(0x01C)
+> +#define I2C_RFTR	(0x020)
+> +#define I2C_DMAR	(0x024)
+> +#define I2C_BRCR	(0x028)
+> +#define I2C_IMSCR	(0x02C)
+> +#define I2C_RISR	(0x030)
+> +#define I2C_MISR	(0x034)
+> +#define I2C_ICR		(0x038)
 > +
-> +/* Controller command patterns */
-> +#define SW_TWSI_V               0x8000000000000000ull
-> +#define SW_TWSI_EOP_TWSI_DATA   0x0C00000100000000ull
-> +#define SW_TWSI_EOP_TWSI_CTL    0x0C00000200000000ull
-> +#define SW_TWSI_EOP_TWSI_CLKCTL 0x0C00000300000000ull
-> +#define SW_TWSI_EOP_TWSI_STAT   0x0C00000300000000ull
-> +#define SW_TWSI_EOP_TWSI_RST    0x0C00000700000000ull
-> +#define SW_TWSI_OP_TWSI_CLK     0x0800000000000000ull
-> +#define SW_TWSI_R               0x0100000000000000ull
+> +/* Control register bit positions */
+> +#define I2C_CR_PE_POS		0	/* Peripheral Enable */
+> +#define I2C_CR_OM_POS		1	/* Operating mode */
+> +#define I2C_CR_SAM_POS		3	/* Slave addressing mode */
+> +#define I2C_CR_SM_POS		4	/* Speed mode */
+> +#define I2C_CR_SGCM_POS		6	/* Slave general call mode */
+> +#define I2C_CR_FTX_POS		7	/* Flush Transmit */
+> +#define I2C_CR_FRX_POS		8	/* Flush Receive */
+> +#define I2C_CR_DMA_TX_EN_POS 	9	/* DMA Tx enable */
+> +#define I2C_CR_DMA_RX_EN_POS	10	/* DMA Rx Enable */
+> +#define I2C_CR_DMA_SLE_POS	11	/* DMA sync. logic enable */
+> +#define I2C_CR_LM_POS		12	/* Loopback mode */
+> +#define I2C_CR_FON_POS		13	/* Filtering on */
+> +#define I2C_CR_FS_POS		15	/* Force stop enable */
 > +
-> +/* Controller command and status bits */
-> +#define TWSI_CTL_CE   0x80
-> +#define TWSI_CTL_ENAB 0x40
-> +#define TWSI_CTL_STA  0x20
-> +#define TWSI_CTL_STP  0x10
-> +#define TWSI_CTL_IFLG 0x08
-> +#define TWSI_CTL_AAK  0x04
-> +
-> +/* Some status values */
-> +#define STAT_START      0x08
-> +#define STAT_RSTART     0x10
-> +#define STAT_TXADDR_ACK 0x18
-> +#define STAT_TXDATA_ACK 0x28
-> +#define STAT_RXADDR_ACK 0x40
-> +#define STAT_RXDATA_ACK 0x50
-> +#define STAT_IDLE       0xF8
-> +
-> +#ifndef NO_IRQ
-> +#define NO_IRQ (-1)
-> +#endif
+> +#define I2C_CR_PE		(0x1 << I2C_CR_PE_POS)
+> +#define I2C_CR_OM		(0x3 << I2C_CR_OM_POS)
+> +#define I2C_CR_SAM		(0x1 << I2C_CR_SAM_POS)
+> +#define I2C_CR_SM		(0x3 << I2C_CR_SM_POS)
+> +#define I2C_CR_SGCM		(0x1 << I2C_CR_SGCM_POS)
+> +#define I2C_CR_FTX		(0x1 << I2C_CR_FTX_POS)
+> +#define I2C_CR_FRX		(0x1 << I2C_CR_FRX_POS)
+> +#define I2C_CR_DMA_TX_EN	(0x1 << I2C_CR_DMA_TX_EN_POS)
+> +#define I2C_CR_DMA_RX_EN	(0x1 << I2C_CR_DMA_RX_EN_POS)
+> +#define I2C_CR_DMA_SLE		(0x1 << I2C_CR_DMA_SLE_POS)
+> +#define I2C_CR_LM		(0x1 << I2C_CR_LM_POS)
+> +#define I2C_CR_FON		(0x3 << I2C_CR_FON_POS)
+> +#define I2C_CR_FS		(0x3 << I2C_CR_FS_POS)
 
-this does not fill me with a warm joyous feeling... 
+do we really need the POS and the actaul register definitios, why
+not squash these down a bit?
 
-> +struct octeon_i2c {
-> +	wait_queue_head_t queue;
-> +	struct i2c_adapter adap;
-> +	int irq;
-> +	int twsi_freq;
-> +	int sys_freq;
-> +	uint8_t twsi_ctl;
-> +	resource_size_t twsi_phys;
-> +	void __iomem *twsi_base;
-> +	resource_size_t regsize;
-> +	struct device *dev;
+> +/* Master controller (MCR) bit positions */
+> +#define I2C_MCR_OP_POS  	0	/* Operation */
+> +#define I2C_MCR_A7_POS		1	/* 7-bit address */
+> +#define I2C_MCR_EA10_POS	8	/* 10-bit Extended address */
+> +#define I2C_MCR_SB_POS		11	/* Extended address */
+> +#define I2C_MCR_AM_POS		12	/* Address type */
+> +#define I2C_MCR_STOP_POS 	14	/* Stop condition */
+> +#define I2C_MCR_LENGTH_POS	15	/* Transaction length */
+> +
+> +#define I2C_MCR_OP		(0x1 << I2C_MCR_OP_POS)
+> +#define I2C_MCR_A7		(0x7F << I2C_MCR_A7_POS)
+> +#define I2C_MCR_EA10		(0x7 << I2C_MCR_EA10_POS)
+> +#define I2C_MCR_SB		(0x1 << I2C_MCR_SB_POS)
+> +#define I2C_MCR_AM		(0x3 << I2C_MCR_AM_POS)
+> +#define I2C_MCR_STOP		(0x1 << I2C_MCR_STOP_POS)
+> +#define I2C_MCR_LENGTH		(0x7FF << I2C_MCR_LENGTH_POS)
+> +
+> +/* Status register (SR) */
+> +#define I2C_SR_OP		(0x3 << 0)	/* Operation */
+> +#define I2C_SR_STATUS		(0x3 << 2)	/* controller status */
+> +#define I2C_SR_CAUSE		(0x7 << 4)	/* Abort cause */
+> +#define I2C_SR_TYPE		(0x3 << 7)	/* Receive type */
+> +#define I2C_SR_LENGTH		(0x7FF << 9)	/* Transfer length */
+> +
+> +/* Interrupt mask set/clear (IMSCR) bits */
+> +#define I2C_IT_TXFE 		(0x1 << 0)
+> +#define I2C_IT_TXFNE		(0x1 << 1)
+> +#define I2C_IT_TXFF		(0x1 << 2)
+> +#define I2C_IT_TXFOVR		(0x1 << 3)
+> +#define I2C_IT_RXFE		(0x1 << 4)
+> +#define I2C_IT_RXFNF		(0x1 << 5)
+> +#define I2C_IT_RXFF		(0x1 << 6)
+> +#define I2C_IT_RFSR		(0x1 << 16)
+> +#define I2C_IT_RFSE		(0x1 << 17)
+> +#define I2C_IT_WTSR		(0x1 << 18)
+> +#define I2C_IT_MTD		(0x1 << 19)
+> +#define I2C_IT_STD		(0x1 << 20)
+> +#define I2C_IT_MAL		(0x1 << 24)
+> +#define I2C_IT_BERR		(0x1 << 25)
+> +#define I2C_IT_MTDWS		(0x1 << 28)
+> +
+> +#define GEN_MASK(val, mask, sb)  (((val) << (sb)) & (mask))
+> +
+> +/* some bits in ICR are reserved */
+> +#define I2C_CLEAR_ALL_INTS	0x131F007F
+> +
+> +/* first three msb bits are reserved */
+> +#define IRQ_MASK(mask)		(mask & 0x1fffffff)
+> +
+> +/* maximum threshold value */
+> +#define MAX_I2C_FIFO_THRESHOLD	15
+> +
+> +#define i2c_set_bit(reg, mask)	(writel(readl(reg) | mask, (reg)))
+> +#define i2c_clr_bit(reg, mask)	(writel(readl(reg) & ~(mask), (reg)))
+
+would prefer to see these as inline functions.
+
+> +enum {
+> +	I2C_NOP,
+> +	I2C_ON_GOING,
+> +	I2C_OK,
+> +	I2C_ABORT
 > +};
 
-kerneldoc or any documentation at-all would be nice.
+anonymous?
 
-> +/* Writes need to be flushed by a read. */
-> +static void octeon_i2c_write_sw(struct octeon_i2c *i2c,
-> +				uint64_t eop_reg,
-> +				uint8_t data)
-> +{
-> +	uint64_t tmp;
+> +/* operation */
+> +enum i2c_operation {
+> +	I2C_NO_OPERATION = 0xff,
+> +	I2C_WRITE = 0x00,
+> +	I2C_READ = 0x01
+> +};
 > +
-> +	__raw_writeq(SW_TWSI_V | eop_reg | data, i2c->twsi_base + SW_TWSI);
-> +	tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
+> +/* controller response timeout in ms */
+> +#define I2C_TIMEOUT_MS	500
+> +
+> +/**
+> + * struct i2c_nmk_client - client specific data
+> + * @slave_adr: 7-bit slave address
+> + * @count: no. bytes to be transfered
+> + * @buffer: client data buffer
+> + * @xfer_bytes: bytes transfered till now
+> + * @operation: current I2C operation
+> + */
+> +struct i2c_nmk_client {
+> +	unsigned short		slave_adr;
+> +	unsigned long		count;
+> +	unsigned char		*buffer;
+> +	unsigned long		xfer_bytes;
+> +	enum i2c_operation	operation;
+> +};
+> +
+> +/**
+> + * struct nmk_i2c_dev - private data structure of the controller
+> + * @pdev: parent platform device
+> + * @adap: corresponding I2C adapter
+> + * @irq: interrupt line for the controller
+> + * @virtbase: virtual io memory area
+> + * @clk: hardware i2c block clock
+> + * @cfg: machine provided controller configuration
+> + * @cli: holder of client specific data
+> + * @stop: stop condition
+> + * @xfer_complete: acknowledge completion for a I2C message
+> + * @result: controller propogated result
+> + */
+> +struct nmk_i2c_dev {
+> +	struct platform_device		*pdev;
+> +	struct i2c_adapter 		adap;
+> +	int 				irq;
+> +	void __iomem			*virtbase;
+> +	struct clk			*clk;
+> +	struct nmk_i2c_controller	cfg;
+> +	struct i2c_nmk_client		cli;
+> +	int 				stop;
+> +	struct completion		xfer_complete;
+> +	int 				result;
+> +};
+> +
+> +/* controller's abort causes */
+> +static const char *abort_causes[] = {
+> +	"no ack received after address transmission",
+> +	"no ack received during data phase",
+> +	"ack received after xmission of master code",
+> +	"master lost arbitration",
+> +	"slave restarts",
+> +	"slave reset",
+> +	"overflow, maxsize is 2047 bytes",
+> +};
+> +
+> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap);
+> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+> +		struct i2c_msg msgs[], int num_msgs);
+> +
+> +static const struct i2c_algorithm nmk_i2c_algo = {
+> +	.master_xfer	= nmk_i2c_xfer,
+> +	.functionality	= nmk_i2c_functionality
+> +};
+> +
+> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C
+> +		| I2C_FUNC_SMBUS_BYTE_DATA
+> +		| I2C_FUNC_SMBUS_WORD_DATA
+> +		| I2C_FUNC_SMBUS_I2C_BLOCK;
 > +}
-> +
-> +static uint8_t octeon_i2c_read_sw(struct octeon_i2c *i2c, uint64_t eop_reg)
+
+putting these later in the driver would avoid having to
+forward declare them, and move them close to their registration
+points. would be nice to get this fixed before merge.
+
+> +/**
+> + * flush_i2c_fifo() - This function flushes the I2C FIFO
+> + * @dev: private data of I2C Driver
+> + *
+> + * This function flushes the I2C Tx and Rx FIFOs. It returns
+> + * 0 on successful flushing of FIFO
+> + */
+> +static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
 > +{
-> +	uint64_t tmp;
-> +
-> +	__raw_writeq(SW_TWSI_V | eop_reg | SW_TWSI_R, i2c->twsi_base + SW_TWSI);
-> +	tmp = __raw_readq(i2c->twsi_base + SW_TWSI);
-> +
-> +	return __raw_readq(i2c->twsi_base + SW_TWSI) & 0xFF;
-> +}
-> +
-> +static void octeon_i2c_write_int(struct octeon_i2c *i2c, uint64_t data)
-> +{
-> +	uint64_t tmp;
-> +
-> +	__raw_writeq(data, i2c->twsi_base + TWSI_INT);
-> +	tmp = __raw_readq(i2c->twsi_base + TWSI_INT);
-> +}
-> +
-> +static void octeon_i2c_int_enable(struct octeon_i2c *i2c)
-> +{
-> +	octeon_i2c_write_int(i2c, 0x40);
-> +}
-> +
-> +static void octeon_i2c_int_disable(struct octeon_i2c *i2c)
-> +{
-> +	octeon_i2c_write_int(i2c, 0);
-> +}
-> +
-> +/* If there was a reset while a device was driving 0 to bus,
-> +   bus is blocked. We toggle it free manually by some clock
-> +   cycles and send a stop. */
-> +static void octeon_i2c_unblock(struct octeon_i2c *i2c)
-> +{
+> +#define LOOP_ATTEMPTS 10
 > +	int i;
+> +	unsigned long timeout;
 > +
-> +	dev_dbg(i2c->dev, "%s\n", __func__);
-> +	for (i = 0; i < 9; i++) {
-> +		octeon_i2c_write_int(i2c, 0x0);
-> +		udelay(5);
-> +		octeon_i2c_write_int(i2c, 0x200);
-> +		udelay(5);
+> +	/*
+> +	 * flush the transmit and receive FIFO. The flushing
+> +	 * operation takes several cycles before to be completed.
+> +	 * On the completion, the I2C internal logic clears these
+> +	 * bits, until then no one must access Tx, Rx FIFO and
+> +	 * should poll on these bits waiting for the completion.
+> +	 */
+> +	writel((I2C_CR_FTX | I2C_CR_FRX), dev->virtbase + I2C_CR);
+> +
+> +	for (i = 0; i < LOOP_ATTEMPTS; i++) {
+> +		timeout = jiffies + msecs_to_jiffies(I2C_TIMEOUT_MS);
+> +
+> +		while (!time_after(jiffies, timeout)) {
+> +			if ((readl(dev->virtbase + I2C_CR) &
+> +				(I2C_CR_FTX | I2C_CR_FRX)) == 0)
+> +					return 0;
+> +		}
 > +	}
-> +	octeon_i2c_write_int(i2c, 0x300);
-> +	udelay(5);
-> +	octeon_i2c_write_int(i2c, 0x100);
-> +	udelay(5);
-> +	octeon_i2c_write_int(i2c, 0x0);
+> +
+> +	dev_err(&dev->pdev->dev, "flushing operation timed out "
+> +		"giving up after %d attempts", LOOP_ATTEMPTS);
+> +
+> +	return -ETIMEDOUT;
 > +}
 > +
-> +static irqreturn_t octeon_i2c_isr(int irq, void *dev_id)
+> +/**
+> + * disable_all_interrupts() - Disable all interrupts of this I2c Bus
+> + * @dev: private data of I2C Driver
+> + */
+> +static void disable_all_interrupts(struct nmk_i2c_dev *dev)
 > +{
-> +	struct octeon_i2c *i2c = dev_id;
+> +	u32 mask = 0;
+> +	mask = IRQ_MASK(mask);
+
+that looks like a job for
+	u32 mask = IRQ_MASK(0);
+
+> +	writel(mask, dev->virtbase + I2C_IMSCR);
+> +}
 > +
-> +	octeon_i2c_int_disable(i2c);
-> +	i2c->twsi_ctl = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_CTL);
-> +	wake_up_interruptible(&i2c->queue);
+> +/**
+> + * clear_all_interrupts() - Clear all interrupts of I2C Controller
+> + * @dev: private data of I2C Driver
+> + */
+> +static void clear_all_interrupts(struct nmk_i2c_dev *dev)
+> +{
+> +	u32 mask;
+> +	mask = IRQ_MASK(I2C_CLEAR_ALL_INTS);
+> +	writel(mask, dev->virtbase + I2C_ICR);
+> +}
+> +
+> +/**
+> + * init_hw() - initialize the I2C hardware
+> + * @dev: private data of I2C Driver
+> + */
+> +static int init_hw(struct nmk_i2c_dev *dev)
+> +{
+> +	int stat;
+> +
+> +	stat = flush_i2c_fifo(dev);
+> +	if (stat)
+> +		return stat;
+> +
+> +	/* disable the controller */
+> +	i2c_clr_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
+> +
+> +	disable_all_interrupts(dev);
+> +
+> +	clear_all_interrupts(dev);
+> +
+> +	dev->cli.operation = I2C_NO_OPERATION;
+> +
+> +	return 0;
+> +}
+> +
+> +/* enable peripheral, master mode operation */
+> +#define DEFAULT_I2C_REG_CR 	((1 << I2C_CR_OM_POS) | I2C_CR_PE)
+> +
+> +/**
+> + * load_i2c_mcr_reg() - load the MCR register
+> + * @dev: private data of controller
+> + */
+> +static u32 load_i2c_mcr_reg(struct nmk_i2c_dev *dev)
+> +{
+> +	u32 mcr = 0;
+> +
+> +	/* 7-bit address transaction */
+> +	mcr |= GEN_MASK(1, I2C_MCR_AM, I2C_MCR_AM_POS);
+> +	mcr |= GEN_MASK(dev->cli.slave_adr, I2C_MCR_A7, I2C_MCR_A7_POS);
+> +
+> +	/* start byte procedure not applied */
+> +	mcr |= GEN_MASK(0, I2C_MCR_SB, I2C_MCR_SB_POS);
+> +
+> +	/* check the operation, master read/write? */
+> +	if (dev->cli.operation == I2C_WRITE)
+> +		mcr |= GEN_MASK(I2C_WRITE, I2C_MCR_OP, I2C_MCR_OP_POS);
+> +	else
+> +		mcr |= GEN_MASK(I2C_READ, I2C_MCR_OP, I2C_MCR_OP_POS);
+> +
+> +	/* stop or repeated start? */
+> +	if (dev->stop)
+> +		mcr |= GEN_MASK(1, I2C_MCR_STOP, I2C_MCR_STOP_POS);
+> +	else
+> +		mcr &= ~(GEN_MASK(1, I2C_MCR_STOP, I2C_MCR_STOP_POS));
+> +
+> +	mcr |= GEN_MASK(dev->cli.count, I2C_MCR_LENGTH,
+> +					I2C_MCR_LENGTH_POS);
+> +	return mcr;
+> +}
+> +
+> +/**
+> + * setup_i2c_controller() - setup the controller
+> + * @dev: private data of controller
+> + */
+> +static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+> +{
+> +	u32 brcr1, brcr2;
+> +	u32 i2c_clk, div;
+> +
+> +	writel(0x0, dev->virtbase + I2C_CR);
+> +	writel(0x0, dev->virtbase + I2C_HSMCR);
+> +	writel(0x0, dev->virtbase + I2C_TFTR);
+> +	writel(0x0, dev->virtbase + I2C_RFTR);
+> +	writel(0x0, dev->virtbase + I2C_DMAR);
+> +
+> +	/*
+> +	 * set the slsu:
+> +	 *
+> +	 * slsu defines the data setup time after SCL clock
+> +	 * stretching in terms of i2c clk cycles. The
+> +	 * needed setup time for the three modes are 250ns,
+> +	 * 100ns, 10ns repectively thus leading to the values
+> +	 * of 14, 6, 2 for a 48 MHz i2c clk.
+> +	 */
+> +	writel(dev->cfg.slsu << 16, dev->virtbase + I2C_SCR);
+> +
+> +	i2c_clk = clk_get_rate(dev->clk);
+> +
+> +	/* fallback to std. mode if machine has not provided it */
+> +	if (dev->cfg.clk_freq == 0)
+> +		dev->cfg.clk_freq = 100000;
+> +
+> +	/*
+> +	 * The spec says, in case of std. mode the divider is
+> +	 * 2 whereas it is 3 for fast and fastplus mode of
+> +	 * operation. TODO - high speed support.
+> +	 */
+> +	div = (dev->cfg.clk_freq > 100000) ? 3 : 2;
+> +
+> +	/*
+> +	 * generate the mask for baud rate counters. The controller
+> +	 * has two baud rate counters. One is used for High speed
+> +	 * operation, and the other is for std, fast mode, fast mode
+> +	 * plus operation. Currently we do not supprt high speed mode
+> +	 * so set brcr1 to 0.
+> +	 */
+> +	brcr1 = 0 << 16;
+> +	brcr2 = (i2c_clk/(dev->cfg.clk_freq * div)) & 0xffff;
+> +
+> +	/* set the baud rate counter register */
+> +	writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
+> +
+> +	/*
+> +	 * set the speed mode. Currently we support
+> +	 * only standard and fast mode of operation
+> +	 * TODO - support for fast mode plus (upto 1Mb/s)
+> +	 * and high speed (up to 3.4 Mb/s)
+> +	 */
+> +	if (dev->cfg.sm > I2C_FREQ_MODE_FAST) {
+> +		dev_err(&dev->pdev->dev, "do not support this mode "
+> +			"defaulting to std. mode\n");
+> +		brcr2 = i2c_clk/(100000 * 2) & 0xffff;
+> +		writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
+> +		writel(I2C_FREQ_MODE_STANDARD << I2C_CR_SM_POS,
+> +				dev->virtbase + I2C_CR);
+> +	}
+> +	writel(dev->cfg.sm << I2C_CR_SM_POS, dev->virtbase + I2C_CR);
+> +
+> +	/* set the Tx and Rx FIFO threshold */
+> +	writel(dev->cfg.tft, dev->virtbase + I2C_TFTR);
+> +	writel(dev->cfg.rft, dev->virtbase + I2C_RFTR);
+> +}
+> +
+> +/**
+> + * read_i2c() - Read from I2C client device
+> + * @dev: private data of I2C Driver
+> + *
+> + * This function reads from i2c client device when controller is in
+> + * master mode. There is a completion timeout. If there is no transfer
+> + * before timeout error is returned.
+> + */
+> +static int read_i2c(struct nmk_i2c_dev *dev)
+> +{
+> +	u32 status = 0;
+> +	u32 mcr;
+> +	u32 irq_mask = 0;
+> +	int timeout;
+> +
+> +	mcr = load_i2c_mcr_reg(dev);
+> +	writel(mcr, dev->virtbase + I2C_MCR);
+> +
+> +	/* load the current CR value */
+> +	writel(readl(dev->virtbase + I2C_CR) | DEFAULT_I2C_REG_CR,
+> +			dev->virtbase + I2C_CR);
+> +
+> +	/* enable the controller */
+> +	i2c_set_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
+> +
+> +	init_completion(&dev->xfer_complete);
+> +
+> +	/* enable interrupts by setting the mask */
+> +	irq_mask = (I2C_IT_RXFNF | I2C_IT_RXFF |
+> +			I2C_IT_MAL | I2C_IT_BERR);
+> +
+> +	if (dev->stop)
+> +		irq_mask |= I2C_IT_MTD;
+> +	else
+> +		irq_mask |= I2C_IT_MTDWS;
+> +
+> +	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
+> +
+> +	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
+> +			dev->virtbase + I2C_IMSCR);
+> +
+> +	timeout = wait_for_completion_interruptible_timeout(
+> +		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
+> +
+> +	if (timeout < 0) {
+> +		dev_err(&dev->pdev->dev,
+> +			"wait_for_completion_interruptible_timeout"
+> +			"returned %d waiting for event\n", timeout);
+> +		status = timeout;
+> +	}
+> +
+> +	if (timeout == 0) {
+> +		/* controler has timedout, re-init the h/w */
+> +		dev_err(&dev->pdev->dev, "controller has timed out"
+> +			"waiting for event, re-init h/w\n");
+> +		(void) init_hw(dev);
+> +		status = -ETIMEDOUT;
+> +	}
+> +
+> +	return status;
+> +}
+> +
+> +/**
+> + * write_i2c() - Write data to I2C client.
+> + * @dev: private data of I2C Driver
+> + *
+> + * This function writes data to I2C client
+> + */
+> +static int write_i2c(struct nmk_i2c_dev *dev)
+> +{
+> +	u32 status = 0;
+> +	u32 mcr;
+> +	u32 irq_mask = 0;
+> +	int timeout;
+> +
+> +	mcr = load_i2c_mcr_reg(dev);
+> +
+> +	writel(mcr, dev->virtbase + I2C_MCR);
+> +
+> +	/* load the current CR value */
+> +	writel(readl(dev->virtbase + I2C_CR) | DEFAULT_I2C_REG_CR,
+> +			dev->virtbase + I2C_CR);
+> +
+> +	/* enable the controller */
+> +	i2c_set_bit(dev->virtbase + I2C_CR , I2C_CR_PE);
+> +
+> +	init_completion(&dev->xfer_complete);
+> +
+> +	/* enable interrupts by settings the masks */
+> +	irq_mask = (I2C_IT_TXFNE | I2C_IT_TXFOVR |
+> +			I2C_IT_MAL | I2C_IT_BERR);
+> +
+> +	/*
+> +	 * check if we want to transfer a single or multiple bytes, if so
+> +	 * set the MTDWS bit (Master Transaction Done Without Stop)
+> +	 * to start repeated start operation
+> +	 */
+> +	if (dev->stop)
+> +		irq_mask |= I2C_IT_MTD;
+> +	else
+> +		irq_mask |= I2C_IT_MTDWS;
+> +
+> +	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
+> +
+> +	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
+> +			dev->virtbase + I2C_IMSCR);
+> +
+> +	timeout = wait_for_completion_interruptible_timeout(
+> +		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
+> +
+> +	if (timeout < 0) {
+> +		dev_err(&dev->pdev->dev,
+> +			"wait_for_completion_interruptible_timeout"
+> +			"returned %d waiting for event\n", timeout);
+> +		status = timeout;
+> +	}
+> +
+> +	if (timeout == 0) {
+> +		/* controler has timedout, re-init the h/w */
+> +		dev_err(&dev->pdev->dev, "controller has timed out"
+> +			"waiting for event, re-init h/w\n");
+
+would prefer to see strings kept intact.
+
+> +		(void) init_hw(dev);
+> +		status = -ETIMEDOUT;
+> +	}
+> +
+> +	return status;
+> +}
+> +
+> +/**
+> + * nmk_i2c_xfer() - I2C transfer function used by kernel framework
+> + * @i2c_adap 	- Adapter pointer to the controller
+> + * @msgs[] - Pointer to data to be written.
+> + * @num_msgs - Number of messages to be executed
+> + *
+> + * This is the function called by the generic kernel i2c_transfer()
+> + * or i2c_smbus...() API calls. Note that this code is protected by the
+> + * semaphore set in the kernel i2c_transfer() function.
+> + *
+> + * NOTE:
+> + * READ TRANSFER : We impose a restriction of the first message to be the
+> + * 		index message for any read transaction.
+> + * 		- a no index is coded as '0',
+> + * 		- 2byte big endian index is coded as '3'
+> + * 		!!! msg[0].buf holds the actual index.
+> + * 		This is compatible with generic messages of smbus emulator
+> + * 		that send a one byte index.
+> + * 		eg. a I2C transation to read 2 bytes from index 0
+> + *			idx = 0;
+> + *			msg[0].addr = client->addr;
+> + *			msg[0].flags = 0x0;
+> + *			msg[0].len = 1;
+> + *			msg[0].buf = &idx;
+> + *
+> + *			msg[1].addr = client->addr;
+> + *			msg[1].flags = I2C_M_RD;
+> + *			msg[1].len = 2;
+> + *			msg[1].buf = rd_buff
+> + *			i2c_transfer(adap, msg, 2);
+> + *
+> + * WRITE TRANSFER : The I2C standard interface interprets all data as payload.
+> + *		If you want to emulate an SMBUS write transaction put the
+> + *		index as first byte(or first and second) in the payload.
+> + *		eg. a I2C transation to write 2 bytes from index 1
+> + *			wr_buff[0] = 0x1;
+> + *			wr_buff[1] = 0x23;
+> + *			wr_buff[2] = 0x46;
+> + *			msg[0].flags = 0x0;
+> + *			msg[0].len = 3;
+> + *			msg[0].buf = wr_buff;
+> + *			i2c_transfer(adap, msg, 1);
+> + *
+> + * To read or write a block of data (multiple bytes) using SMBUS emulation
+> + * please use the i2c_smbus_read_i2c_block_data()
+> + * or i2c_smbus_write_i2c_block_data() API
+> + *
+> + * i2c_master_recv() API is not supported as single read message is not
+> + * accepted by our interface (it has to be preceded by an index message)
+> + */
+
+Any reason for the restrictions? these seem a little harsh for anyone
+
+> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+> +		struct i2c_msg msgs[], int num_msgs)
+> +{
+> +	int status;
+> +	int i;
+> +	u32 cause;
+> +	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
+> +
+> +	status = init_hw(dev);
+> +	if (status)
+> +		return status;
+> +
+> +	/* setup the i2c controller */
+> +	setup_i2c_controller(dev);
+> +
+> +	for (i = 0; i < num_msgs; i++) {
+> +		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
+> +			dev_err(&dev->pdev->dev, "10 bit addressing"
+> +					"not supported\n");
+> +			return -EINVAL;
+> +		}
+> +		dev->cli.slave_adr	= msgs[i].addr;
+> +		dev->cli.buffer		= msgs[i].buf;
+> +		dev->cli.count		= msgs[i].len;
+> +		dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
+> +		dev->result = 0;
+> +
+> +		if (msgs[i].flags & I2C_M_RD) {
+> +			/* it is a read operation */
+> +			dev->cli.operation = I2C_READ;
+> +			status = read_i2c(dev);
+> +		} else {
+> +			/* write operation */
+> +			dev->cli.operation = I2C_WRITE;
+> +			status = write_i2c(dev);
+> +		}
+> +		if (status || (dev->result)) {
+> +			/* get the abort cause */
+> +			cause =	(readl(dev->virtbase + I2C_SR) >> 4) & 0x7;
+> +			dev_err(&dev->pdev->dev, "error during I2C"
+> +					"message xfer: %d\n", cause);
+> +			dev_err(&dev->pdev->dev, "%s\n",
+> +				cause >= ARRAY_SIZE(abort_causes)
+> +				? "unknown reason" : abort_causes[cause]);
+> +			return status;
+> +		}
+> +		mdelay(1);
+> +	}
+> +	return status;
+> +}
+> +
+> +/**
+> + * disable_interrupts() - disable the interrupts
+> + * @dev: private data of controller
+> + */
+> +static int disable_interrupts(struct nmk_i2c_dev *dev, u32 irq)
+> +{
+> +	irq = IRQ_MASK(irq);
+> +	writel(readl(dev->virtbase + I2C_IMSCR) & ~(I2C_CLEAR_ALL_INTS & irq),
+> +			dev->virtbase + I2C_IMSCR);
+> +	return 0;
+> +}
+> +
+> +/**
+> + * i2c_irq_handler() - interrupt routine
+> + * @irq: interrupt number
+> + * @arg: data passed to the handler
+> + *
+> + * This is the interrupt handler for the i2c driver. Currently
+> + * it handles the major interrupts like Rx & Tx FIFO management
+> + * interrupts, master transaction interrupts, arbitration and
+> + * bus error interrupts. The rest of the interrupts are treated as
+> + * unhandled.
+> + */
+> +static irqreturn_t i2c_irq_handler(int irq, void *arg)
+> +{
+> +	struct nmk_i2c_dev *dev = arg;
+> +	u32 tft, rft;
+> +	u32 count;
+> +	u32 misr;
+> +	u32 src = 0;
+> +
+> +	/* load Tx FIFO and Rx FIFO threshold values */
+> +	tft = readl(dev->virtbase + I2C_TFTR);
+> +	rft = readl(dev->virtbase + I2C_RFTR);
+> +
+> +	/* read interrupt status register */
+> +	misr = readl(dev->virtbase + I2C_MISR);
+> +
+> +	src = __ffs(misr);
+> +	switch ((1 << src)) {
+> +
+> +	/* Transmit FIFO nearly empty interrupt */
+> +	case I2C_IT_TXFNE:
+> +	{
+> +		if (dev->cli.operation == I2C_READ) {
+> +			/*
+> +			 * in read operation why do we care for writing?
+> +			 * so disable the Transmit FIFO interrupt
+> +			 */
+> +			disable_interrupts(dev, I2C_IT_TXFNE);
+> +		} else {
+> +			for (count = (MAX_I2C_FIFO_THRESHOLD - tft - 2);
+> +					(count > 0) &&
+> +					(dev->cli.count != 0);
+> +					count--) {
+> +				/* write to the Tx FIFO */
+> +				writeb(*dev->cli.buffer,
+> +					dev->virtbase + I2C_TFR);
+> +				dev->cli.buffer++;
+> +				dev->cli.count--;
+> +				dev->cli.xfer_bytes++;
+> +			}
+> +			/*
+> +			 * if done, close the transfer by disabling the
+> +			 * corresponding TXFNE interrupt
+> +			 */
+> +			if (dev->cli.count == 0)
+> +				disable_interrupts(dev,	I2C_IT_TXFNE);
+> +		}
+> +	}
+> +	break;
+> +
+> +	/*
+> +	 * Rx FIFO nearly full interrupt.
+> +	 * This is set when the numer of entries in Rx FIFO is
+> +	 * greater or equal than the threshold value programmed
+> +	 * in RFT
+> +	 */
+> +	case I2C_IT_RXFNF:
+> +		for (count = rft; count > 0; count--) {
+> +			/* Read the Rx FIFO */
+> +			*dev->cli.buffer = readb(dev->virtbase + I2C_RFR);
+> +			dev->cli.buffer++;
+> +		}
+> +		dev->cli.count -= rft;
+> +		dev->cli.xfer_bytes += rft;
+> +		break;
+> +
+> +	/* Rx FIFO full */
+> +	case I2C_IT_RXFF:
+> +		for (count = MAX_I2C_FIFO_THRESHOLD; count > 0; count--) {
+> +			*dev->cli.buffer = readb(dev->virtbase + I2C_RFR);
+> +			dev->cli.buffer++;
+> +		}
+> +		dev->cli.count -= MAX_I2C_FIFO_THRESHOLD;
+> +		dev->cli.xfer_bytes += MAX_I2C_FIFO_THRESHOLD;
+> +		break;
+> +
+> +	/* Master Transaction Done with/without stop */
+> +	case I2C_IT_MTD:
+> +	case I2C_IT_MTDWS:
+> +		if (dev->cli.operation == I2C_READ) {
+> +			while (!readl(dev->virtbase + I2C_RISR) & I2C_IT_RXFE) {
+> +				if (dev->cli.count == 0)
+> +					break;
+> +				*dev->cli.buffer =
+> +					readb(dev->virtbase + I2C_RFR);
+> +				dev->cli.buffer++;
+> +				dev->cli.count--;
+> +				dev->cli.xfer_bytes++;
+> +			}
+> +		}
+> +
+> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTD);
+> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTDWS);
+> +
+> +		disable_interrupts(dev,
+> +				(I2C_IT_TXFNE | I2C_IT_TXFE | I2C_IT_TXFF
+> +					| I2C_IT_TXFOVR | I2C_IT_RXFNF
+> +					| I2C_IT_RXFF | I2C_IT_RXFE));
+> +
+> +		if (dev->cli.count) {
+> +			dev->result = -1;
+> +			dev_err(&dev->pdev->dev, "%lu bytes still remain to be"
+> +					"xfered\n", dev->cli.count);
+> +			(void) init_hw(dev);
+> +		}
+> +		complete(&dev->xfer_complete);
+> +
+> +		break;
+> +
+> +	/* Master Arbitration lost interrupt */
+> +	case I2C_IT_MAL:
+> +		dev->result = -1;
+> +		(void) init_hw(dev);
+> +
+> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MAL);
+> +		complete(&dev->xfer_complete);
+> +
+> +		break;
+> +
+> +	/*
+> +	 * Bus Error interrupt.
+> +	 * This happens when an unexpected start/stop condition occurs
+> +	 * during the transaction.
+> +	 */
+> +	case I2C_IT_BERR:
+> +		dev->result = -1;
+> +		/* get the status */
+> +		if (((readl(dev->virtbase + I2C_SR) >> 2) & 0x3) == I2C_ABORT)
+> +			(void) init_hw(dev);
+> +
+> +		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_BERR);
+> +		complete(&dev->xfer_complete);
+> +
+> +		break;
+> +
+> +	/*
+> +	 * Tx FIFO overrun interrupt.
+> +	 * This is set when a write operation in Tx FIFO is performed and
+> +	 * the Tx FIFO is full.
+> +	 */
+> +	case I2C_IT_TXFOVR:
+> +		dev->result = -1;
+> +		(void) init_hw(dev);
+> +
+> +		dev_err(&dev->pdev->dev, "Tx Fifo Over run\n");
+> +		complete(&dev->xfer_complete);
+> +
+> +		break;
+> +
+> +	/* unhandled interrupts by this driver - TODO*/
+> +	case I2C_IT_TXFE:
+> +	case I2C_IT_TXFF:
+> +	case I2C_IT_RXFE:
+> +	case I2C_IT_RFSR:
+> +	case I2C_IT_RFSE:
+> +	case I2C_IT_WTSR:
+> +	case I2C_IT_STD:
+> +		dev_err(&dev->pdev->dev, "unhandled Interrupt\n");
+> +		break;
+> +	default:
+> +		dev_err(&dev->pdev->dev, "spurious Interrupt..\n");
+> +		break;
+> +	}
 > +
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static int octeon_i2c_wait(struct octeon_i2c *i2c)
+> +static int __init nmk_i2c_probe(struct platform_device *pdev)
 > +{
-> +	unsigned long orig_jiffies = jiffies;
-> +	uint8_t ctl;
-> +	int result = 0;
-> +
-> +	if (i2c->irq == NO_IRQ) {
-> +		/* polling */
-> +		do {
-> +			ctl = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_CTL);
-> +			if (ctl & TWSI_CTL_IFLG)
-> +				break;
-> +		} while (!time_after(jiffies,
-> +					orig_jiffies + i2c->adap.timeout));
-> +
-> +		if (!(ctl & TWSI_CTL_IFLG)) {
-> +			dev_dbg(i2c->dev, "%s: timeout\n", __func__);
-> +			result = -ETIMEDOUT;
-> +		}
-> +	} else {
-> +		i2c->twsi_ctl = 0;
-> +		/* interrupt mode */
-> +		octeon_i2c_int_enable(i2c);
-> +
-> +		result = wait_event_interruptible_timeout(i2c->queue,
-> +				(i2c->twsi_ctl & TWSI_CTL_IFLG),
-> +				i2c->adap.timeout);
-> +
-> +		if (unlikely(result < 0)) {
-> +			dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
-> +		} else if (unlikely(!(i2c->twsi_ctl & TWSI_CTL_IFLG))) {
-> +			dev_dbg(i2c->dev, "%s: timeout\n", __func__);
-> +			result = -ETIMEDOUT;
-> +		}
-> +	}
-> +
-> +	return result < 0 ? result : 0;
-> +}
-> +
-> +static int octeon_i2c_start(struct octeon_i2c *i2c)
-> +{
-> +	uint8_t data;
-> +	int result;
-> +
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-> +				TWSI_CTL_ENAB | TWSI_CTL_STA);
-> +
-> +	result = octeon_i2c_wait(i2c);
-> +	if (unlikely(result < 0) &&
-> +	    octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT) == STAT_IDLE) {
-> +		/*
-> +		 * Controller refused to send start flag May be a
-> +		 * client is holding SDA low - let's try to free it.
-> +		 */
-> +		octeon_i2c_unblock(i2c);
-> +		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-> +				    TWSI_CTL_ENAB | TWSI_CTL_STA);
-> +
-> +		result = octeon_i2c_wait(i2c);
-> +		if (result < 0)
-> +			return result;
-> +	}
-> +
-> +	data = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> +	if ((data != STAT_START) && (data != STAT_RSTART)) {
-> +		dev_dbg(i2c->dev, "%s: bad status (0x%x)\n", __func__, data);
-> +		return -1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int octeon_i2c_stop(struct octeon_i2c *i2c)
-> +{
-> +	unsigned long orig_jiffies = jiffies;
-> +	uint8_t data;
-> +
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-> +				TWSI_CTL_ENAB | TWSI_CTL_STP);
-> +
-> +	/*
-> +	 * Controller will change to idle, but that does not raise an
-> +	 * interrupt, so we have to poll.
-> +	 */
-> +	do {
-> +		data = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> +		if (data == STAT_IDLE)
-> +			break;
-> +		udelay(1);
-> +	} while (!time_after(jiffies, orig_jiffies + 2));
-
-you sure you want to busy wait like this?
-
-> +	if (data != STAT_IDLE) {
-> +		dev_dbg(i2c->dev, "%s: bad status(0x%x)\n", __func__, data);
-> +		return -1;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int octeon_i2c_write(struct octeon_i2c *i2c, int target,
-> +			    const uint8_t *data, int length)
-> +{
-> +	int i, result;
-> +	uint8_t tmp;
-> +
-> +	result = octeon_i2c_start(i2c);
-> +	if (unlikely(result < 0))
-> +		return result;
-> +
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, target << 1);
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-> +
-> +	result = octeon_i2c_wait(i2c);
-> +	if (unlikely(result < 0))
-> +		return result;
-> +
-> +	for (i = 0; i < length; i++) {
-> +		tmp = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> +		if ((tmp != STAT_TXADDR_ACK) && (tmp != STAT_TXDATA_ACK)) {
-> +			dev_dbg(i2c->dev,
-> +				"%s: bad status before write (0x%x)\n",
-> +				__func__, tmp);
-> +			return -(int)tmp;
-> +		}
-> +
-> +		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, data[i]);
-> +		octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-> +
-> +		result = octeon_i2c_wait(i2c);
-> +		if (unlikely(result < 0))
-> +			return result;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int octeon_i2c_read(struct octeon_i2c *i2c, int target,
-> +			   uint8_t *data, int length)
-> +{
-> +	int i, result;
-> +	uint8_t tmp;
-> +
-> +	if (length < 1)
-> +		return -EINVAL;
-> +
-> +	result = octeon_i2c_start(i2c);
-> +	if (result)
-> +		return result;
-> +
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_DATA, (target<<1) | 1);
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-> +
-> +	result = octeon_i2c_wait(i2c);
-> +	if (unlikely(result < 0))
-> +		return result;
-> +
-> +	for (i = 0; i < length; i++) {
-> +		tmp = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> +		if ((tmp != STAT_RXDATA_ACK) && (tmp != STAT_RXADDR_ACK)) {
-> +			dev_dbg(i2c->dev,
-> +				"%s: bad status before read (0x%x)\n",
-> +				__func__, tmp);
-> +			return -(int)tmp;
-> +		}
-> +
-> +		if (i+1 < length)
-> +			octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-> +						TWSI_CTL_ENAB | TWSI_CTL_AAK);
-> +		else
-> +			octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL,
-> +						TWSI_CTL_ENAB);
-> +
-> +		result = octeon_i2c_wait(i2c);
-> +		if (unlikely(result < 0))
-> +			return result;
-> +
-> +		data[i] = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_DATA);
-> +	}
-> +	return length;
-> +}
-> +
-> +static int octeon_i2c_xfer(struct i2c_adapter *adap,
-> +			   struct i2c_msg *msgs,
-> +			   int num)
-> +{
-> +	struct i2c_msg *pmsg;
-> +	int i;
 > +	int ret = 0;
-> +	struct octeon_i2c *i2c = i2c_get_adapdata(adap);
+> +	struct resource *res;
+> +	struct nmk_i2c_controller *pdata =
+> +			pdev->dev.platform_data;
+> +	struct nmk_i2c_dev	*dev;
+> +	struct i2c_adapter *adap;
 > +
-> +	for (i = 0; ret >= 0 && i < num; i++) {
-> +		pmsg = &msgs[i];
-> +		dev_dbg(i2c->dev,
-> +			"%s: Doing %s %d byte(s) to/from 0x%02x - "
-> +			"%d of %d messages\n",
-
-i'd rather not see text lines broken over like this, it is one
-case where >80 character lines are allowed. You could always shorten
-it by removing the "to/from" and having "%d/%d msgs" at the end
-and possible removing the "Doing" as well.
-
-> +			 __func__,
-> +			 pmsg->flags & I2C_M_RD ? "read" : "write",
-> +			 pmsg->len, pmsg->addr, i + 1, num);
-> +		if (pmsg->flags & I2C_M_RD)
-> +			ret = octeon_i2c_read(i2c, pmsg->addr, pmsg->buf,
-> +						pmsg->len);
-> +		else
-> +			ret = octeon_i2c_write(i2c, pmsg->addr, pmsg->buf,
-> +						pmsg->len);
+> +	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+> +	if (!dev) {
+> +		dev_err(&pdev->dev, "cannot allocate memory\n");
+> +		ret = -ENOMEM;
+> +		goto err_no_mem;
 > +	}
-> +	octeon_i2c_stop(i2c);
 > +
-> +	return (ret < 0) ? ret : num;
+> +	dev->pdev = pdev;
+> +	platform_set_drvdata(pdev, dev);
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		ret = -ENOENT;
+> +		goto err_no_resource;
+> +	}
+> +
+> +	if (request_mem_region(res->start, resource_size(res),
+> +		DRIVER_NAME "I/O region") == 	NULL)	{
+> +		ret = -EBUSY;
+> +		goto err_no_region;
+> +	}
+> +
+> +	dev->virtbase = ioremap(res->start, resource_size(res));
+> +	if (!dev->virtbase) {
+> +		ret = -ENOMEM;
+> +		goto err_no_ioremap;
+> +	}
+> +
+> +	dev->irq = platform_get_irq(pdev, 0);
+> +	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
+> +				DRIVER_NAME, dev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "cannot claim the irq %d\n", dev->irq);
+> +		goto err_irq;
+> +	}
+> +
+> +	dev->clk = clk_get(&pdev->dev, NULL);
+> +	if (IS_ERR(dev->clk)) {
+> +		dev_err(&pdev->dev, "could not get i2c clock\n");
+> +		ret = PTR_ERR(dev->clk);
+> +		goto err_no_clk;
+> +	}
+> +
+> +	clk_enable(dev->clk);
+> +
+> +	adap = &dev->adap;
+> +	adap->dev.parent = &pdev->dev;
+> +	adap->owner	= THIS_MODULE;
+> +	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> +	adap->algo	= &nmk_i2c_algo;
+> +
+> +	/* fetch the controller id */
+> +	adap->nr	= pdev->id;
+> +
+> +	/* fetch the controller configuration from machine */
+> +	dev->cfg.clk_freq = pdata->clk_freq;
+> +	dev->cfg.slsu	= pdata->slsu;
+> +	dev->cfg.tft	= pdata->tft;
+> +	dev->cfg.rft	= pdata->rft;
+> +	dev->cfg.sm	= pdata->sm;
+> +
+> +	i2c_set_adapdata(adap, dev);
+> +
+> +	ret = init_hw(dev);
+> +	if (ret != 0) {
+> +		dev_err(&pdev->dev, "error in initializing i2c hardware\n");
+> +		goto err_init_hw;
+> +	}
+> +
+> +	dev_dbg(&pdev->dev, "initialize I2C%d bus on virtual "
+> +		"base %p\n", pdev->id, dev->virtbase);
+> +
+> +	ret = i2c_add_numbered_adapter(adap);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to add adapter\n");
+> +		goto err_add_adap;
+> +	}
+> +
+> +	return 0;
+> +
+> + err_init_hw:
+> +	clk_disable(dev->clk);
+> + err_add_adap:
+> +	clk_put(dev->clk);
+> + err_no_clk:
+> +	free_irq(dev->irq, dev);
+> + err_irq:
+> +	iounmap(dev->virtbase);
+> + err_no_ioremap:
+> +	release_mem_region(res->start, resource_size(res));
+> + err_no_region:
+> +	platform_set_drvdata(pdev, NULL);
+> + err_no_resource:
+> +	kfree(dev);
+> + err_no_mem:
+> +
+> +	return ret;
 > +}
 > +
-> +static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
+> +static int __exit nmk_i2c_remove(struct platform_device *pdev)
 > +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +}
+> +	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
 > +
-> +static const struct i2c_algorithm octeon_i2c_algo = {
-> +	.master_xfer = octeon_i2c_xfer,
-> +	.functionality = octeon_i2c_functionality,
-> +};
-> +
-> +static struct i2c_adapter octeon_i2c_ops = {
-> +	.owner = THIS_MODULE,
-> +	.name = "OCTEON adapter",
-> +	.algo = &octeon_i2c_algo,
-> +	.timeout = 2,
-> +};
-> +
-> +static int __init octeon_i2c_setclock(struct octeon_i2c *i2c)
-> +{
-> +	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
-> +	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
-> +
-> +	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
-> +		/*
-> +		 * An mdiv value of less than 2 seems to not work well
-> +		 * with ds1337 RTCs, so we constrain it to larger
-> +		 * values.
-> +		 */
-> +		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
-> +			/*
-> +			 * For given ndiv and mdiv values check the
-> +			 * two closest thp values.
-> +			 */
-> +			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
-> +			tclk *= (1 << ndiv_idx);
-> +			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
-> +			for (inc = 0; inc <= 1; inc++) {
-> +				thp_idx = thp_base + inc;
-> +				if (thp_idx < 5 || thp_idx > 0xff)
-> +					continue;
-> +
-> +				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
-> +				foscl = foscl / (1 << ndiv_idx);
-> +				foscl = foscl / (mdiv_idx + 1) / 10;
-> +				diff = abs(foscl - i2c->twsi_freq);
-> +				if (diff < delta_hz) {
-> +					delta_hz = diff;
-> +					thp = thp_idx;
-> +					mdiv = mdiv_idx;
-> +					ndiv = ndiv_idx;
-> +				}
-> +			}
-> +		}
-> +	}
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_OP_TWSI_CLK, thp);
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CLKCTL, (mdiv << 3) | ndiv);
+> +	i2c_del_adapter(&dev->adap);
+> +	flush_i2c_fifo(dev);
+> +	disable_all_interrupts(dev);
+> +	clear_all_interrupts(dev);
+> +	/* disable the controller */
+> +	i2c_clr_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
+> +	free_irq(dev->irq, dev);
+> +	iounmap(dev->virtbase);
+> +	clk_disable(dev->clk);
+> +	clk_put(dev->clk);
+> +	platform_set_drvdata(pdev, NULL);
+> +	kfree(dev);
 > +
 > +	return 0;
 > +}
 > +
-> +static int __init octeon_i2c_initlowlevel(struct octeon_i2c *i2c)
-> +{
-> +	uint8_t status;
-> +	int tries;
-> +
-> +	/* disable high level controller, enable bus access */
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_CTL, TWSI_CTL_ENAB);
-> +
-> +	/* reset controller */
-> +	octeon_i2c_write_sw(i2c, SW_TWSI_EOP_TWSI_RST, 0);
-> +
-> +	for (tries = 10; tries; tries--) {
-> +		udelay(1);
-> +		status = octeon_i2c_read_sw(i2c, SW_TWSI_EOP_TWSI_STAT);
-> +		if (status == STAT_IDLE)
-> +			return 0;
-> +	}
-> +	dev_dbg(i2c->dev, "%s: TWSI_RST failed! (0x%x)\n", __func__, status);
-> +	return -1;
-> +}
-> +
-> +static int __init octeon_i2c_probe(struct platform_device *pdev)
-> +{
-> +	int irq, result = 0;
-> +	struct octeon_i2c *i2c;
-> +	struct octeon_i2c_data *i2c_data;
-> +	struct resource *res_mem;
-> +
-> +	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
-> +	if (!i2c) {
-> +		printk(KERN_ERR "%s i2c-cavium - kzalloc failed\n", __func__);
-> +		return -ENOMEM;
-> +	}
-> +	i2c->dev = &pdev->dev;
-> +	i2c_data = pdev->dev.platform_data;
-> +
-> +	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	irq = platform_get_irq(pdev, 0);
-> +
-> +	if (res_mem == NULL) {
-> +		dev_dbg(i2c->dev, "%s: found no memory resource\n", __func__);
-> +		kfree(i2c);
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (i2c_data == NULL) {
-> +		dev_dbg(i2c->dev, "%s: no I2C frequence data\n", __func__);
-> +		kfree(i2c);
-> +		return -ENODEV;
-> +	}
-
-returning -ENODEV isn't a good idea, the device layer won't print an
-error on seeing -ENODEV as it thinks this is a probe for a device that
-was never there.
-
-> +	i2c->twsi_phys = res_mem->start;
-> +	i2c->regsize = resource_size(res_mem);
-> +	i2c->twsi_freq = i2c_data->i2c_freq;
-> +	i2c->sys_freq = i2c_data->sys_freq;
-> +
-> +	if (!request_mem_region(i2c->twsi_phys, i2c->regsize, res_mem->name)) {
-> +		dev_dbg(i2c->dev,
-> +			"%s i2c-cavium - request_mem_region failed\n",
-> +			__func__);
-> +		goto fail_region;
-> +	}
-> +	i2c->twsi_base = ioremap(i2c->twsi_phys, i2c->regsize);
-> +
-> +	init_waitqueue_head(&i2c->queue);
-> +
-> +	i2c->irq = irq;
-> +	if (i2c->irq != NO_IRQ) {
-
-platform_get_irq() returns a negative error cdoe if no irq is found,
-so you need to do (irq < 0) here otherwise it'll never trip. Should
-also mean yo ucan get rid of NO_IRQ define above.
-
-> +		/* i2c->irq = NO_IRQ implies polling */
-> +		result = request_irq(i2c->irq, octeon_i2c_isr, 0, DRV_NAME, i2c);
-> +		if (result < 0) {
-> +			dev_dbg(i2c->dev,
-> +				"%s: - failed to attach interrupt\n",
-> +				__func__);
-> +			goto fail_irq;
-> +		}
-> +	}
-> +
-> +	result = octeon_i2c_initlowlevel(i2c);
-> +	if (result) {
-> +		dev_dbg(i2c->dev, "%s: init low level failed\n", __func__);
-> +		goto  fail_add;
-> +	}
-> +
-> +	result = octeon_i2c_setclock(i2c);
-> +	if (result) {
-> +		dev_dbg(i2c->dev, "%s: clock init failed\n", __func__);
-> +		goto  fail_add;
-> +	}
-> +
-> +	i2c->adap = octeon_i2c_ops;
-> +	i2c->adap.dev.parent = &pdev->dev;
-> +	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
-> +	i2c_set_adapdata(&i2c->adap, i2c);
-> +	platform_set_drvdata(pdev, i2c);
-> +
-> +	result = i2c_add_numbered_adapter(&i2c->adap);
-> +	if (result < 0) {
-> +		dev_dbg(i2c->dev, "%s: failed to add adapter\n", __func__);
-> +		goto fail_add;
-> +	}
-> +	return result;
-> +
-> +fail_add:
-> +	platform_set_drvdata(pdev, NULL);
-> +	if (i2c->irq != NO_IRQ)
-> +		free_irq(i2c->irq, i2c);
-> +fail_irq:
-> +	iounmap(i2c->twsi_base);
-> +	release_mem_region(i2c->twsi_phys, i2c->regsize);
-> +fail_region:
-> +	kfree(i2c);
-> +	return result;
-> +};
-> +
-> +static int __exit octeon_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct octeon_i2c *i2c = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&i2c->adap);
-> +	platform_set_drvdata(pdev, NULL);
-> +	if (i2c->irq != NO_IRQ)
-> +		free_irq(i2c->irq, i2c);
-
-see above comment on NO_IRQ
-
-> +	iounmap(i2c->twsi_base);
-> +	release_mem_region(i2c->twsi_phys, i2c->regsize);
-> +	kfree(i2c);
-> +	return 0;
-> +};
-> +
-> +static struct platform_driver octeon_i2c_driver = {
-> +	.probe		= octeon_i2c_probe,
-> +	.remove		= __exit_p(octeon_i2c_remove),
-__devexit_p() here, probably should change __exit to __devexit on the
-remove function.
-> +	.driver		= {
-> +		.owner	= THIS_MODULE,
-> +		.name	= DRV_NAME,
+> +static struct platform_driver nmk_i2c_driver = {
+> +	.driver = {
+> +		.owner = THIS_MODULE,
+> +		.name = DRIVER_NAME,
 > +	},
+> +
+> +	.probe = nmk_i2c_probe,
+> +	.remove = __exit_p(nmk_i2c_remove),
+__devexit_p remove should be __devexit.
 > +};
 > +
-> +static int __init octeon_i2c_init(void)
+> +static int __init nmk_i2c_init(void)
 > +{
-> +	int rv;
+> +	return platform_driver_register(&nmk_i2c_driver);
+> +}
 > +
-> +	rv = platform_driver_register(&octeon_i2c_driver);
-> +	printk(KERN_INFO "driver %s is loaded\n", DRV_NAME);
-> +	return rv;
-> +}
-
-I'd rather not see 'driver loaded' messages if possible.
-
-
-> +static void __exit octeon_i2c_exit(void)
+> +static void __exit nmk_i2c_exit(void)
 > +{
-> +	platform_driver_unregister(&octeon_i2c_driver);
-> +	printk(KERN_INFO "driver %s unloaded\n", DRV_NAME);
+> +	platform_driver_unregister(&nmk_i2c_driver);
 > +}
-
-I'd say this is even less useful that the one in the init code.
-
-> +MODULE_AUTHOR("Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>");
-> +MODULE_DESCRIPTION("I2C-Bus adapter for Cavium OCTEON processors");
+> +
+> +subsys_initcall(nmk_i2c_init);
+> +module_exit(nmk_i2c_exit);
+> +
+> +MODULE_AUTHOR("Sachin Verma, Srinidhi KASAGAR");
+> +MODULE_DESCRIPTION("Nomadik/Ux500 I2C driver");
 > +MODULE_LICENSE("GPL");
-> +MODULE_VERSION(DRV_VERSION);
-> +MODULE_ALIAS("platform:" DRV_NAME);
-> +
-> +module_init(octeon_i2c_init);
-> +module_exit(octeon_i2c_exit);
+
+could do with a module alias field for the platform device.
+
+> -- 
+> 1.6.3.GIT
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
