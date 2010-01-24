@@ -1,153 +1,558 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: Davinci i2c bus recovery procedure to
- clear the bus
-Date: Sun, 24 Jan 2010 15:07:41 +0000
-Message-ID: <20100124150741.GA28675@fluff.org.uk>
-References: <1263295036.3437.17.camel@localhost.localdomain>
+Subject: Re: [PATCH v2] m68knommu: driver for Freescale Coldfire I2C
+ controller.
+Date: Sun, 24 Jan 2010 15:15:19 +0000
+Message-ID: <20100124151519.GB28675@fluff.org.uk>
+References: <201001101600.41932.sfking@fdwdc.com>
+ <20100111093729.63455a90@hyperion.delvare>
+ <201001111024.05506.sfking@fdwdc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1263295036.3437.17.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+In-Reply-To: <201001111024.05506.sfking-xS0NTnu2YfYAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+To: Steven King <sfking-xS0NTnu2YfYAvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, gerg-XXXsiaCtIV5Wk0Htik3J/w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dev-JBU5SbJe1FlAfugRpC6u6w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 12, 2010 at 04:47:16PM +0530, Philby John wrote:
-> >From 2565eeda807e49376298ec895a0d9a91a7668417 Mon Sep 17 00:00:00 2001
-> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> Date: Mon, 11 Jan 2010 22:39:44 +0530
-> Subject: [PATCH 2/2] Davinci i2c bus recovery procedure to clear the bus
+On Mon, Jan 11, 2010 at 10:24:05AM -0800, Steven King wrote:
+> Changes for this version:
+> 	rename drivers/i2c/busses/i2c-mcf.c to drivers/i2c/busses/i2c-coldfire.c
+> 	use I2C_COLDFIRE in drivers/i2c/busses/{Kconfig,Makefile}
 > 
-> Come out of i2c time out condition by following the
-> bus recovery procedure outlined in the i2c protocol v3 spec.
-> The kernel must be robust enough to gracefully recover
-> from i2c bus failure without having to reset the machine.
-> This is done by first NACKing the slave, pulsing the SCL
-> line 9 times and then sending the stop command.
+> ------
 > 
-> This patch has been tested on a DM6446 and DM355
+> Add support for the I2C controller used on Freescale/Motorola Coldfire MCUs.
+> 
+> Signed-off-by: Steven King <sfking-xS0NTnu2YfYAvxtiuMwx3w@public.gmane.org>
 
-Still not sure whether this can be included as a bug-fix or whether
-it comes under the new feature category. Also, since it has to get
-new data from the platform whose tree it should really go into.
+The commit messsage should go first, the changelog and other stuff
+that won't go in should go beflore the --- line.
  
-> Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> Signed-off-by: Srinivasan, Nageswari <nageswari-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-davinci.c |   57 +++++++++++++++++++++++++++++++++++--
->  1 files changed, 53 insertions(+), 4 deletions(-)
+>  drivers/i2c/busses/Kconfig        |   11 +
+>  drivers/i2c/busses/Makefile       |    1 +
+>  drivers/i2c/busses/i2c-coldfire.c |  463 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 475 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 35f9daa..5459065 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -36,6 +36,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/io.h>
->  #include <linux/cpufreq.h>
-> +#include <linux/gpio.h>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 5f318ce..83c2904 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -320,6 +320,17 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
+>  	help
+>  	  The unit of the TWI clock is kHz.
 >  
->  #include <mach/hardware.h>
->  #include <mach/i2c.h>
-> @@ -43,6 +44,7 @@
->  /* ----- global defines ----------------------------------------------- */
->  
->  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
-> +#define DAVINCI_I2C_MAX_TRIES	2
->  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
->  				 DAVINCI_I2C_IMR_SCD | \
->  				 DAVINCI_I2C_IMR_ARDY | \
-> @@ -130,6 +132,44 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
->  	return __raw_readw(i2c_dev->base + reg);
->  }
->  
-> +/* Generate a pulse on the i2c clock pin. */
-> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
-> +{
-> +	u16 i;
+> +config I2C_COLDFIRE
+> +	tristate "Freescale Coldfire I2C driver"
+> +	depends on (M5206 || M5206e || M520x || M523x || M5249 || M527x || M528x || M5307 || M532x || M5407)
+> +	help
+> +	  This driver supports the I2C interface available on some Freescale
+> +	  Coldfire processors (M520x, M523x, M5249, M5271, M5275, M528x,
+> +	  M5307, M532x, M5407).
 > +
-> +	if (scl_pin) {
-> +		/* Send high and low on the SCL line */
-> +		for (i = 0; i < 9; i++) {
-> +			gpio_set_value(scl_pin, 0);
-> +			udelay(20);
-> +			gpio_set_value(scl_pin, 1);
-> +			udelay(20);
-> +		}
+> +	  This driver can be built as a module.  If so, the module
+> +	  will be called i2c-coldfire.
+> +
+>  config I2C_CPM
+>  	tristate "Freescale CPM1 or CPM2 (MPC8xx/826x)"
+>  	depends on (CPM1 || CPM2) && OF_I2C
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 302c551..0185333 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -31,6 +31,7 @@ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
+>  obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+>  obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+>  obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+> +obj-$(CONFIG_I2C_COLDFIRE)	+= i2c-coldfire.o
+>  obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+>  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+>  obj-$(CONFIG_I2C_DESIGNWARE)	+= i2c-designware.o
+> diff --git a/drivers/i2c/busses/i2c-coldfire.c b/drivers/i2c/busses/i2c-coldfire.c
+> new file mode 100644
+> index 0000000..27f0d0b
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-coldfire.c
+> @@ -0,0 +1,463 @@
+> +/* Freescale/Motorola Coldfire I2C driver.
+> + *
+> + * Copyright 2010 Steven King <sfking-xS0NTnu2YfYAvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/errno.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/clk.h>
+> +#include <linux/err.h>
+> +#include <linux/i2c.h>
+> +
+> +#include <asm/mcfi2c.h>
+> +
+> +#define	DRIVER_NAME "mcfi2c"
+> +
+> +#define	MCFI2C_ADR			0x00
+> +#define	MCFI2C_FDR			0x04
+> +#define	MCFI2C_CR			0x08
+> +#define		MCFI2C_CR_IEN		0x80
+> +#define		MCFI2C_CR_IIEN		0x40
+> +#define		MCFI2C_CR_MSTA		0x20
+> +#define		MCFI2C_CR_MTX		0x10
+> +#define		MCFI2C_CR_TXAK		0x08
+> +#define		MCFI2C_CR_RSTA		0x04
+> +#define	MCFI2C_DR			0x10
+> +#define	MCFI2C_SR			0x0C
+> +#define		MCFI2C_SR_ICF		0x80
+> +#define		MCFI2C_SR_IAAS		0x40
+> +#define		MCFI2C_SR_IBB		0x20
+> +#define		MCFI2C_SR_IAL		0x10
+> +#define		MCFI2C_SR_SRW		0x04
+> +#define		MCFI2C_SR_IIF		0x02
+> +#define		MCFI2C_SR_RXAK		0x01
+> +
+> +#define	DEFAULT_I2C_BUS_SPEED		100000
+> +
+> +struct mcfi2c {
+> +	struct i2c_adapter	adapter;
+> +	void __iomem		*iobase;
+> +	int			irq;
+> +	struct clk		*clk;
+> +	struct completion	completion;
+> +};
+> +
+> +static u8 mcfi2c_rd_cr(struct mcfi2c *mcfi2c)
+> +{
+> +	return readb(mcfi2c->iobase + MCFI2C_CR);
+> +}
+> +
+> +static void mcfi2c_wr_cr(struct mcfi2c *mcfi2c, u8 val)
+> +{
+> +	writeb(val, mcfi2c->iobase + MCFI2C_CR);
+> +}
+> +
+> +static u8 mcfi2c_rd_sr(struct mcfi2c *mcfi2c)
+> +{
+> +	return readb(mcfi2c->iobase + MCFI2C_SR);
+> +}
+> +
+> +static void mcfi2c_wr_sr(struct mcfi2c *mcfi2c, u8 val)
+> +{
+> +	writeb(val, mcfi2c->iobase + MCFI2C_SR);
+> +}
+> +
+> +static u8 mcfi2c_rd_dr(struct mcfi2c *mcfi2c)
+> +{
+> +	return readb(mcfi2c->iobase + MCFI2C_DR);
+> +}
+> +
+> +static void mcfi2c_wr_dr(struct mcfi2c *mcfi2c, u8 val)
+> +{
+> +	writeb(val, mcfi2c->iobase + MCFI2C_DR);
+> +}
+
+not entirely sure why you bother wrapping these accesses, but I'm not
+going to block this driver just becuase I don't like it.
+
+> +static void mcfi2c_start(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN | MCFI2C_CR_IIEN | MCFI2C_CR_MSTA |
+> +		     MCFI2C_CR_MTX);
+> +}
+> +
+> +static void mcfi2c_repeat_start(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN | MCFI2C_CR_IIEN | MCFI2C_CR_MSTA |
+> +		     MCFI2C_CR_MTX | MCFI2C_CR_RSTA);
+> +}
+> +
+> +static void mcfi2c_stop(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN);
+> +}
+> +
+> +static void mcfi2c_tx_ack(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN | MCFI2C_CR_IIEN | MCFI2C_CR_MSTA);
+> +}
+> +
+> +static void mcfi2c_tx_nak(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN | MCFI2C_CR_IIEN | MCFI2C_CR_MSTA |
+> +		     MCFI2C_CR_TXAK);
+> +}
+> +
+> +static irqreturn_t mcfi2c_irq_handler(int this_irq, void *dev_id)
+> +{
+> +	struct mcfi2c *mcfi2c = dev_id;
+> +
+> +	/* clear interrupt */
+> +	mcfi2c_wr_sr(mcfi2c, 0);
+> +	complete(&mcfi2c->completion);
+> +
+> +	return IRQ_HANDLED;
+> +}
+
+I'm interested in why you don't just handle the interrupt here and
+wake the thread once all the data is handled?
+
+> +static void mcfi2c_reset(struct mcfi2c *mcfi2c)
+> +{
+> +	mcfi2c_wr_cr(mcfi2c, 0);
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN | MCFI2C_CR_MSTA);
+> +	mcfi2c_rd_dr(mcfi2c);
+> +	mcfi2c_wr_sr(mcfi2c, 0);
+> +	mcfi2c_wr_cr(mcfi2c, 0);
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN);
+> +}
+> +
+> +static void mcfi2c_wait_for_bus_idle(struct mcfi2c *mcfi2c)
+> +{
+> +	if (mcfi2c_rd_sr(mcfi2c) & MCFI2C_SR_IBB) {
+> +		unsigned long timeout = jiffies + HZ / 2;
+> +		do {
+> +			cond_resched();
+> +			if (time_after(jiffies, timeout)) {
+> +				mcfi2c_reset(mcfi2c);
+> +				break;
+> +			}
+> +		} while (mcfi2c_rd_sr(mcfi2c) & MCFI2C_SR_IBB);
 > +	}
 > +}
 > +
-> +/* This routine does i2c bus recovery as specified in the
-> + * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
-> + */
-> +static void i2c_recover_bus(struct davinci_i2c_dev *dev)
+> +static int mcfi2c_wait_for_bus_busy(struct mcfi2c *mcfi2c)
 > +{
-> +	u32 flag = 0;
-> +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +
-> +	dev_err(dev->dev, "initiating i2c bus recovery\n");
-> +	/* Send NACK to the slave */
-> +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> +	flag |=  DAVINCI_I2C_MDR_NACK;
-> +	/* write the data into mode register */
-> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-> +	if (pdata)
-> +		generic_i2c_clock_pulse(pdata->scl_pin);
-> +	/* Send STOP */
-> +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> +	flag |= DAVINCI_I2C_MDR_STP;
-> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> +	u8 sr;
+> +	while (!((sr = mcfi2c_rd_sr(mcfi2c)) & MCFI2C_SR_IBB))
+> +		if (sr & MCFI2C_SR_IAL) {
+> +			mcfi2c_reset(mcfi2c);
+> +			return -EIO;
+> +		}
+> +	return 0;
 > +}
 > +
->  static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
->  								int val)
->  {
-> @@ -235,14 +275,22 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
->  					 char allow_sleep)
->  {
->  	unsigned long timeout;
-> +	static u16 to_cnt;
->  
->  	timeout = jiffies + dev->adapter.timeout;
->  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
->  	       & DAVINCI_I2C_STR_BB) {
-> -		if (time_after(jiffies, timeout)) {
-> -			dev_warn(dev->dev,
-> -				 "timeout waiting for bus ready\n");
-> -			return -ETIMEDOUT;
-> +		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
-> +			if (time_after(jiffies, timeout)) {
-> +				dev_warn(dev->dev,
-> +				"timeout waiting for bus ready\n");
-> +				to_cnt++;
-> +				return -ETIMEDOUT;
+> +static int mcfi2c_xmit(struct mcfi2c *mcfi2c, u16 addr, u16 flags, u8 *buf,
+> +		       u16 len, int timeout, int more)
+> +{
+> +	if (!(mcfi2c_rd_cr(mcfi2c) & MCFI2C_CR_MSTA)) {
+> +		mcfi2c_wait_for_bus_idle(mcfi2c);
+> +
+> +		INIT_COMPLETION(mcfi2c->completion);
+> +		mcfi2c_start(mcfi2c);
+> +
+> +		if (mcfi2c_wait_for_bus_busy(mcfi2c))
+> +			return -EIO;
+> +	}
+> +
+> +	mcfi2c_wr_dr(mcfi2c, (addr << 1) | (flags & I2C_M_RD));
+> +	while (wait_for_completion_timeout(&mcfi2c->completion, timeout)) {
+> +		u8 sr = mcfi2c_rd_sr(mcfi2c);
+> +		if (sr & MCFI2C_SR_IAL) {
+> +			mcfi2c_wr_sr(mcfi2c, ~MCFI2C_SR_IAL);
+> +			return -EIO;
+> +		} else if (mcfi2c_rd_cr(mcfi2c) & MCFI2C_CR_MTX) {
+> +			if (sr & MCFI2C_SR_RXAK) {
+> +				mcfi2c_stop(mcfi2c);
+> +				return -EIO;
+> +			} else if (flags & I2C_M_RD) {
+> +				if (len > 1)
+> +					mcfi2c_tx_ack(mcfi2c);
+> +				else
+> +					mcfi2c_tx_nak(mcfi2c);
+> +				/* dummy read */
+> +				mcfi2c_rd_dr(mcfi2c);
+> +			} else if (len--) {
+> +				mcfi2c_wr_dr(mcfi2c, *buf++);
 > +			} else {
-> +				to_cnt = 0;
-> +				i2c_recover_bus(dev);
-> +				i2c_davinci_init(dev);
+> +				if (more)
+> +					mcfi2c_repeat_start(mcfi2c);
+> +				else
+> +					mcfi2c_stop(mcfi2c);
+> +				return 0;
 > +			}
->  		}
->  		if (allow_sleep)
->  			schedule_timeout(1);
-> @@ -324,6 +372,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  						      dev->adapter.timeout);
->  	if (r == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
-> +		i2c_recover_bus(dev);
->  		i2c_davinci_init(dev);
->  		dev->buf_len = 0;
->  		return -ETIMEDOUT;
-> -- 
-> 1.6.3.3.MVISTA
-> 
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +		} else if (--len) {
+> +			if (!(len > 1))
+> +				mcfi2c_tx_nak(mcfi2c);
+> +			*buf++ = mcfi2c_rd_dr(mcfi2c);
+> +		} else {
+> +			if (more)
+> +				mcfi2c_repeat_start(mcfi2c);
+> +			else
+> +				mcfi2c_stop(mcfi2c);
+> +			*buf++ = mcfi2c_rd_dr(mcfi2c);
+> +			return 0;
+> +		}
+> +	}
+> +	mcfi2c_stop(mcfi2c);
+> +
+> +	return -ETIMEDOUT;
+> +}
+> +
+> +static int mcfi2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
+> +		int num)
+> +{
+> +	struct mcfi2c *mcfi2c = i2c_get_adapdata(adapter);
+> +	int cnt = 0;
+> +	int status;
+> +	int retries;
+> +
+> +	while (num--) {
+> +		retries = adapter->retries;
+> +		if (msgs->flags & ~I2C_M_RD)
+> +			return -EINVAL;
+> +		do {
+> +			status = mcfi2c_xmit(mcfi2c, msgs->addr, msgs->flags,
+> +					     msgs->buf, msgs->len,
+> +					     adapter->timeout, num);
+> +		} while (status && retries--);
+> +		if (status)
+> +			return status;
+> +		++cnt;
+> +		++msgs;
+> +	}
+> +
+> +	return cnt;
+> +}
+> +
+> +static u32 mcfi2c_func(struct i2c_adapter *adapter)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static const struct i2c_algorithm mcfi2c_algo = {
+> +	.master_xfer	= mcfi2c_xfer,
+> +	.functionality	= mcfi2c_func,
+> +};
+> +
+> +static const u16 mcfi2c_fdr[] = {
+> +	  28,   30,   34,   40,   44,   48,   56,   68,
+> +	  80,   88,  104,  128,  144,  160,  192,  240,
+> +	 288,  320,  384,  480,  576,  640,  768,  960,
+> +	1152, 1280, 1536, 1920, 2304, 2560, 3072, 3840,
+> +	  20,   22,   24,   26,   28,   32,   36,   40,
+> +	  48,   56,   64,   72,   80,   96,  112,  128,
+> +	 160,  192,  224,  256,  320,  384,  448,  512,
+> +	 640,  768,  896, 1024, 1280, 1536, 1792, 2048
+> +};
+> +
+> +static u8 __devinit mcfi2c_calc_fdr(struct mcfi2c *mcfi2c,
+> +				    struct mcfi2c_platform_data *pdata)
+> +{
+> +	u32 bitrate = (pdata && pdata->bitrate) ?
+> +			pdata->bitrate : DEFAULT_I2C_BUS_SPEED;
+> +	int div = clk_get_rate(mcfi2c->clk)/bitrate;
+> +	int r = 0, i = 0;
+> +
+> +	do
+> +		if (abs(mcfi2c_fdr[i] - div) < abs(mcfi2c_fdr[r] - div))
+> +			r = i;
+> +	while (++i < ARRAY_SIZE(mcfi2c_fdr));
+> +
+> +	return r;
+> +}
+> +
+> +static int __devinit mcfi2c_probe(struct platform_device *pdev)
+> +{
+> +	struct mcfi2c *mcfi2c;
+> +	struct resource *res;
+> +	int status;
+> +
+> +	mcfi2c = kzalloc(sizeof(*mcfi2c), GFP_KERNEL);
+> +	if (!mcfi2c) {
+> +		dev_dbg(&pdev->dev, "kzalloc failed\n");
+> +
+> +		return -ENOMEM;
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_dbg(&pdev->dev, "platform_get_resource failed\n");
+> +		status = -ENXIO;
+> +		goto fail0;
+> +	}
+> +
+> +	if (!request_mem_region(res->start, resource_size(res), pdev->name)) {
+> +		dev_dbg(&pdev->dev, "request_mem_region failed\n");
+> +		status = -EBUSY;
+> +		goto fail0;
+> +	}
+> +
+> +	mcfi2c->iobase = ioremap(res->start, resource_size(res));
+> +	if (!mcfi2c->iobase) {
+> +		dev_dbg(&pdev->dev, "ioremap failed\n");
+> +		status = -ENOMEM;
+> +		goto fail1;
+> +	}
+> +
+> +	mcfi2c->irq = platform_get_irq(pdev, 0);
+> +	if (mcfi2c->irq < 0) {
+> +		dev_dbg(&pdev->dev, "platform_get_irq failed\n");
+> +		status = -ENXIO;
+> +		goto fail2;
+> +	}
+> +	status = request_irq(mcfi2c->irq, mcfi2c_irq_handler, IRQF_DISABLED,
+> +			     pdev->name, mcfi2c);
+
+do you really need IRQF_DISABLED here? your irq handler hardly does
+anything.
+
+> +	if (status) {
+> +		dev_dbg(&pdev->dev, "request_irq failed\n");
+> +		goto fail2;
+> +	}
+> +
+> +	mcfi2c->clk = clk_get(&pdev->dev, "i2c_clk");
+
+hmm, think the default device clock should be findable by clk_get(dev,
+NULL).
+
+> +	if (IS_ERR(mcfi2c->clk)) {
+> +		dev_dbg(&pdev->dev, "clk_get failed\n");
+> +		status = PTR_ERR(mcfi2c->clk);
+> +		goto fail3;
+> +	}
+> +	clk_enable(mcfi2c->clk);
+> +
+> +	platform_set_drvdata(pdev, mcfi2c);
+> +
+> +	init_completion(&mcfi2c->completion);
+> +
+> +	writeb(mcfi2c_calc_fdr(mcfi2c, pdev->dev.platform_data),
+> +	       mcfi2c->iobase + MCFI2C_FDR);
+> +
+> +	writeb(0x00, mcfi2c->iobase + MCFI2C_ADR);
+> +
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN);
+> +
+> +	/* if the bus busy (IBB) is set, reset the controller */
+> +	if (mcfi2c_rd_sr(mcfi2c) & MCFI2C_SR_IBB)
+> +		mcfi2c_reset(mcfi2c);
+> +
+> +	mcfi2c->adapter.algo		= &mcfi2c_algo;
+> +	mcfi2c->adapter.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> +	mcfi2c->adapter.dev.parent	= &pdev->dev;
+> +	mcfi2c->adapter.nr		= pdev->id;
+> +	mcfi2c->adapter.retries		= 2;
+> +	snprintf(mcfi2c->adapter.name, sizeof(mcfi2c->adapter.name),
+> +			DRIVER_NAME ".%d", pdev->id);
+> +
+> +	i2c_set_adapdata(&mcfi2c->adapter, mcfi2c);
+> +
+> +	status = i2c_add_numbered_adapter(&mcfi2c->adapter);
+> +	if (status < 0) {
+> +		dev_dbg(&pdev->dev, "i2c_add_numbered_adapter failed\n");
+> +		goto fail4;
+> +	}
+> +	dev_info(&pdev->dev, "Coldfire I2C bus driver\n");
+> +
+> +	return 0;
+> +
+> +fail4:
+> +	clk_disable(mcfi2c->clk);
+> +	clk_put(mcfi2c->clk);
+> +fail3:
+> +	free_irq(mcfi2c->irq, mcfi2c);
+> +fail2:
+> +	iounmap(mcfi2c->iobase);
+> +fail1:
+> +	release_mem_region(res->start, resource_size(res));
+> +fail0:
+> +	kfree(mcfi2c);
+> +
+> +	return status;
+> +}
+> +
+> +static int __devexit mcfi2c_remove(struct platform_device *pdev)
+> +{
+> +	struct mcfi2c *mcfi2c = platform_get_drvdata(pdev);
+> +	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> +	/* disable the hardware */
+> +	mcfi2c_wr_cr(mcfi2c, 0);
+> +
+> +	platform_set_drvdata(pdev, NULL);
+> +	i2c_del_adapter(&mcfi2c->adapter);
+> +	clk_disable(mcfi2c->clk);
+> +	clk_put(mcfi2c->clk);
+> +	free_irq(mcfi2c->irq, mcfi2c);
+> +	iounmap(mcfi2c->iobase);
+> +	release_mem_region(res->start, resource_size(res));
+> +	kfree(mcfi2c);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int mcfi2c_suspend(struct device *dev)
+> +{
+> +	struct mcfi2c *mcfi2c = platform_get_drvdata(to_platform_device(dev));
+> +
+> +	mcfi2c_wr_cr(mcfi2c, 0);
+> +	clk_disable(mcfi2c->clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mcfi2c_resume(struct device *dev)
+> +{
+> +	struct mcfi2c *mcfi2c = platform_get_drvdata(to_platform_device(dev));
+> +
+> +	clk_enable(mcfi2c->clk);
+> +	mcfi2c_wr_cr(mcfi2c, MCFI2C_CR_IEN);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct dev_pm_ops mcfi2c_dev_pm_ops = {
+> +	.suspend	= mcfi2c_suspend,
+> +	.resume		= mcfi2c_resume,
+> +};
+> +
+> +#define	MCFI2C_DEV_PM_OPS (&mcfi2c_dev_pm_ops)
+> +#else
+> +#define	MCFI2C_DEV_PM_OPS NULL
+> +#endif
+> +
+> +static struct platform_driver mcfi2c_driver = {
+> +	.driver.name	= DRIVER_NAME,
+> +	.driver.owner	= THIS_MODULE,
+> +	.driver.pm	= MCFI2C_DEV_PM_OPS,
+> +	.remove		= __devexit_p(mcfi2c_remove),
+> +};
+> +
+> +static int __init mcfi2c_init(void)
+> +{
+> +	return platform_driver_probe(&mcfi2c_driver, mcfi2c_probe);
+> +}
+> +module_init(mcfi2c_init);
+> +
+> +static void __exit mcfi2c_exit(void)
+> +{
+> +	platform_driver_unregister(&mcfi2c_driver);
+> +}
+> +module_exit(mcfi2c_exit);
+> +
+> +MODULE_AUTHOR("Steven King <sfking-xS0NTnu2YfYAvxtiuMwx3w@public.gmane.org>");
+> +MODULE_DESCRIPTION("I2C-Bus support for Freescale Coldfire processors");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:" DRIVER_NAME);
+
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
