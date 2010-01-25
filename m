@@ -1,45 +1,53 @@
-From: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 2/3] I2C: Add driver for Cavium OCTEON I2C ports.
-Date: Mon, 25 Jan 2010 10:19:14 -0800
-Message-ID: <4B5DE0A2.8070405@caviumnetworks.com>
-References: <4B463B1F.6000404@caviumnetworks.com> <1262894061-32613-2-git-send-email-ddaney@caviumnetworks.com> <20100124160017.GF28675@fluff.org.uk>
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: Re: [PATCH 2/3] i2c-mpc: add support for the MPC512x processors	from
+ Freescale
+Date: Mon, 25 Jan 2010 19:33:31 +0100
+Message-ID: <4B5DE3FB.10505@grandegger.com>
+References: <1264408029-5290-1-git-send-email-wg@grandegger.com> <1264408029-5290-2-git-send-email-wg@grandegger.com> <1264408029-5290-3-git-send-email-wg@grandegger.com> <20100125115211.GA5257@pengutronix.de> <4B5D894C.4090001@grandegger.com> <20100125151509.GD5257@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100124160017.GF28675-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20100125151509.GD5257-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rade.bozic.ext-OYasijW0DpE@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks wrote:
-> On Thu, Jan 07, 2010 at 11:54:20AM -0800, David Daney wrote:
->> From: Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>
->>
->> Signed-off-by: Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>
->> Signed-off-by: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
->> ---
->>  drivers/i2c/busses/Kconfig      |   10 +
->>  drivers/i2c/busses/Makefile     |    1 +
->>  drivers/i2c/busses/i2c-octeon.c |  579 +++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 590 insertions(+), 0 deletions(-)
->>  create mode 100644 drivers/i2c/busses/i2c-octeon.c
-[...]
->> +
->> +#ifndef NO_IRQ
->> +#define NO_IRQ (-1)
->> +#endif
+Wolfram Sang wrote:
+>>>>  
+>>>> -static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+>>>> -					    struct mpc_i2c *i2c,
+>>>> -					    u32 clock, u32 prescaler)
+>>>> +static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
+>>>> +					 struct mpc_i2c *i2c,
+>>>> +					 u32 clock, u32 prescaler)
+>>>>  {
+>>>>  	int ret, fdr;
+>>>>  
+>>>> +	if (clock == -1) {
+>>> Could we use 0 for 'no_clock'? This would make the above statement simply
+>> "0" is already used to maintain backward compatibility setting a safe
+>> divider.
 > 
-> this does not fill me with a warm joyous feeling... 
+> Ah, now I see:
 > 
+> 'clock == -1' means 'preserve clocks' (and is checked here in mpc_i2c_setup_52xx())
 
-Indeed.
+Yes, this is now necessary because "setup" does not just do clock settings.
 
-[ many other helpful comments deleted for brevity.]
+> 'clock ==  0' means 'safe divider' (and is checked in mpc_i2c_get_fdr_52xx())
 
-We will improve the driver and resubmit.
+This is for compatibility with old DTS files and last time it was tricky
+ to get that right and therefore...
 
-Thanks for looking at it.
+> This is not a beauty ;)
+> 
+> What about adding a flags variable to the setup-functions?
 
-David Daney
+.. I hesitate to make bigger changes to the code flow, which the
+introduction of a flags variable would required. Also it seems to be
+overkill to me. I will have a closer look, though. At a minimum I will
+replace "-1" with "MPC_I2C_PRESERVE_CLOCK".
+
+Wolfgang.
