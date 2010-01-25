@@ -1,172 +1,111 @@
-From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: Davinci i2c bus recovery procedure to
-	clear the bus
-Date: Mon, 25 Jan 2010 20:30:08 +0530
-Message-ID: <1264431608.3430.19.camel@localhost.localdomain>
-References: <1263295036.3437.17.camel@localhost.localdomain>
-	<20100124150741.GA28675@fluff.org.uk>
+From: "Bozic, Rade (EXT-Other - DE/Ulm)" <rade.bozic.ext@nsn.com>
+Subject: RE: [PATCH 2/3] I2C: Add driver for Cavium OCTEON I2C ports.
+Date: Mon, 25 Jan 2010 16:12:04 +0100
+Message-ID: <B9D8E77D89A5D44DBBB9A296E95DCE130BA499@DEMUEXC027.nsn-intra.net>
+References: <4B463B1F.6000404@caviumnetworks.com> <1262894061-32613-2-git-send-email-ddaney@caviumnetworks.com> <20100124160017.GF28675@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <20100124150741.GA28675-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/mixed;
+        boundary="----_=_NextPart_001_01CA9DD0.C0722236"
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <20100124160017.GF28675@fluff.org.uk>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: David Daney <ddaney@caviumnetworks.com>, ext Ben Dooks <ben-linux@fluff.org>
+Cc: linux-mips@linux-mips.org, ralf@linux-mips.org, linux-i2c@vger.kernel.org, khali@linux-fr.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 2010-01-24 at 15:07 +0000, Ben Dooks wrote:
-> On Tue, Jan 12, 2010 at 04:47:16PM +0530, Philby John wrote:
-> > >From 2565eeda807e49376298ec895a0d9a91a7668417 Mon Sep 17 00:00:00 2001
-> > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> > Date: Mon, 11 Jan 2010 22:39:44 +0530
-> > Subject: [PATCH 2/2] Davinci i2c bus recovery procedure to clear the bus
-> > 
-> > Come out of i2c time out condition by following the
-> > bus recovery procedure outlined in the i2c protocol v3 spec.
-> > The kernel must be robust enough to gracefully recover
-> > from i2c bus failure without having to reset the machine.
-> > This is done by first NACKing the slave, pulsing the SCL
-> > line 9 times and then sending the stop command.
-> > 
-> > This patch has been tested on a DM6446 and DM355
-> 
-> Still not sure whether this can be included as a bug-fix or whether
-> it comes under the new feature category. Also, since it has to get
-> new data from the platform whose tree it should really go into.
+This is a multi-part message in MIME format.
 
-This fix is for the issue that was reported here
-http://www.mail-archive.com/davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org/msg13560.html which IMHO is critical. The issue can be replicated easily and without it the user is left with no choice but to reset the target.
+------_=_NextPart_001_01CA9DD0.C0722236
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Yes, it does depend on [PATCH 1/2] for platform dependent data, would
-fail otherwise. Could you suggest what may I do in this circumstances?
+Hello David,
 
-Regards,
-Philby
+Yesterday Ben Dooks wrote a email with some new issues ( Message-ID: =
+<20100124160017.GF28675@fluff.org.uk>).
+
+New changes:
+
+1. Some return values was Changed
+2. Changed __exit_p to __devexit_p and __exit into __devexit
+3. New handling of NO_IRQ
 
 
->  
-> > Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-> > Signed-off-by: Srinivasan, Nageswari <nageswari-l0cyMroinI0@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-davinci.c |   57 +++++++++++++++++++++++++++++++++++--
-> >  1 files changed, 53 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> > index 35f9daa..5459065 100644
-> > --- a/drivers/i2c/busses/i2c-davinci.c
-> > +++ b/drivers/i2c/busses/i2c-davinci.c
-> > @@ -36,6 +36,7 @@
-> >  #include <linux/platform_device.h>
-> >  #include <linux/io.h>
-> >  #include <linux/cpufreq.h>
-> > +#include <linux/gpio.h>
-> >  
-> >  #include <mach/hardware.h>
-> >  #include <mach/i2c.h>
-> > @@ -43,6 +44,7 @@
-> >  /* ----- global defines ----------------------------------------------- */
-> >  
-> >  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
-> > +#define DAVINCI_I2C_MAX_TRIES	2
-> >  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
-> >  				 DAVINCI_I2C_IMR_SCD | \
-> >  				 DAVINCI_I2C_IMR_ARDY | \
-> > @@ -130,6 +132,44 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
-> >  	return __raw_readw(i2c_dev->base + reg);
-> >  }
-> >  
-> > +/* Generate a pulse on the i2c clock pin. */
-> > +static void generic_i2c_clock_pulse(unsigned int scl_pin)
-> > +{
-> > +	u16 i;
-> > +
-> > +	if (scl_pin) {
-> > +		/* Send high and low on the SCL line */
-> > +		for (i = 0; i < 9; i++) {
-> > +			gpio_set_value(scl_pin, 0);
-> > +			udelay(20);
-> > +			gpio_set_value(scl_pin, 1);
-> > +			udelay(20);
-> > +		}
-> > +	}
-> > +}
-> > +
-> > +/* This routine does i2c bus recovery as specified in the
-> > + * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
-> > + */
-> > +static void i2c_recover_bus(struct davinci_i2c_dev *dev)
-> > +{
-> > +	u32 flag = 0;
-> > +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> > +
-> > +	dev_err(dev->dev, "initiating i2c bus recovery\n");
-> > +	/* Send NACK to the slave */
-> > +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> > +	flag |=  DAVINCI_I2C_MDR_NACK;
-> > +	/* write the data into mode register */
-> > +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-> > +	if (pdata)
-> > +		generic_i2c_clock_pulse(pdata->scl_pin);
-> > +	/* Send STOP */
-> > +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> > +	flag |= DAVINCI_I2C_MDR_STP;
-> > +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-> > +}
-> > +
-> >  static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
-> >  								int val)
-> >  {
-> > @@ -235,14 +275,22 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
-> >  					 char allow_sleep)
-> >  {
-> >  	unsigned long timeout;
-> > +	static u16 to_cnt;
-> >  
-> >  	timeout = jiffies + dev->adapter.timeout;
-> >  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
-> >  	       & DAVINCI_I2C_STR_BB) {
-> > -		if (time_after(jiffies, timeout)) {
-> > -			dev_warn(dev->dev,
-> > -				 "timeout waiting for bus ready\n");
-> > -			return -ETIMEDOUT;
-> > +		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
-> > +			if (time_after(jiffies, timeout)) {
-> > +				dev_warn(dev->dev,
-> > +				"timeout waiting for bus ready\n");
-> > +				to_cnt++;
-> > +				return -ETIMEDOUT;
-> > +			} else {
-> > +				to_cnt = 0;
-> > +				i2c_recover_bus(dev);
-> > +				i2c_davinci_init(dev);
-> > +			}
-> >  		}
-> >  		if (allow_sleep)
-> >  			schedule_timeout(1);
-> > @@ -324,6 +372,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
-> >  						      dev->adapter.timeout);
-> >  	if (r == 0) {
-> >  		dev_err(dev->dev, "controller timed out\n");
-> > +		i2c_recover_bus(dev);
-> >  		i2c_davinci_init(dev);
-> >  		dev->buf_len = 0;
-> >  		return -ETIMEDOUT;
-> > -- 
-> > 1.6.3.3.MVISTA
-> > 
-> > 
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+In the appendix is a new I2C patch.
+Maybe we can put the patch also in the Kernel.
+
+
+
+Regards
+Rade
+
+------_=_NextPart_001_01CA9DD0.C0722236
+Content-Type: application/octet-stream;
+	name="i2c-octeon_25.12.2010.patch"
+Content-Transfer-Encoding: base64
+Content-Description: i2c-octeon_25.12.2010.patch
+Content-Disposition: attachment;
+	filename="i2c-octeon_25.12.2010.patch"
+
+U2lnbmVkLW9mZi1ieTogUmFkZSBCb3ppYyA8cmFkZS5ib3ppYy5leHRAbnNuLmNvbT4KU2lnbmVk
+LW9mZi1ieTogRGF2aWQgRGFuZXkgPGRkYW5leUBjYXZpdW1uZXR3b3Jrcy5jb20+CgotLS0+IApk
+aWZmIC1wdXJOIGxpbnV4LTIuNl9vcmcvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYyBs
+aW51eC0yLjZfaTJjL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLmMKLS0tIGxpbnV4LTIu
+Nl9vcmcvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYwkyMDEwLTAxLTIyIDE2OjMzOjIz
+LjAwMDAwMDAwMCArMDEwMAorKysgbGludXgtMi42X2kyYy9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LW9jdGVvbi5jCTIwMTAtMDEtMjUgMTU6MzM6MjMuMDAwMDAwMDAwICswMTAwCkBAIC0xMCw3ICsx
+MCw2IEBACiAgKiBMaWNlbnNlIHZlcnNpb24gMi4gVGhpcyBwcm9ncmFtIGlzIGxpY2Vuc2VkICJh
+cyBpcyIgd2l0aG91dCBhbnkKICAqIHdhcnJhbnR5IG9mIGFueSBraW5kLCB3aGV0aGVyIGV4cHJl
+c3Mgb3IgaW1wbGllZC4KICAqLwotCiAjaW5jbHVkZSA8bGludXgva2VybmVsLmg+CiAjaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+CiAjaW5jbHVkZSA8bGludXgvc2NoZWQuaD4KQEAgLTM1Miw3ICsz
+NTEsNyBAQCBzdGF0aWMgaW50IG9jdGVvbl9pMmNfeGZlcihzdHJ1Y3QgaTJjX2FkCiAJfQogCW9j
+dGVvbl9pMmNfc3RvcChpMmMpOwogCi0JcmV0dXJuIChyZXQgPCAwKSA/IHJldCA6IG51bTsKKwly
+ZXR1cm4gKHJldCA8IDApID8gRUlPIDogbnVtOwogfQogCiBzdGF0aWMgdTMyIG9jdGVvbl9pMmNf
+ZnVuY3Rpb25hbGl0eShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCkBAIC00NTcsMTMgKzQ1Niwx
+MyBAQCBzdGF0aWMgaW50IF9faW5pdCBvY3Rlb25faTJjX3Byb2JlKHN0cnVjCiAJaWYgKHJlc19t
+ZW0gPT0gTlVMTCkgewogCQlkZXZfZGJnKGkyYy0+ZGV2LCAiJXM6IGZvdW5kIG5vIG1lbW9yeSBy
+ZXNvdXJjZVxuIiwgX19mdW5jX18pOwogCQlrZnJlZShpMmMpOwotCQlyZXR1cm4gLUVOT0RFVjsK
+KwkJcmV0dXJuIC1FSU5WQUw7CiAJfQogCiAJaWYgKGkyY19kYXRhID09IE5VTEwpIHsKIAkJZGV2
+X2RiZyhpMmMtPmRldiwgIiVzOiBubyBJMkMgZnJlcXVlbmNlIGRhdGFcbiIsIF9fZnVuY19fKTsK
+IAkJa2ZyZWUoaTJjKTsKLQkJcmV0dXJuIC1FTk9ERVY7CisJCXJldHVybiAtRUlOVkFMOwogCX0K
+IAogCWkyYy0+dHdzaV9waHlzID0gcmVzX21lbS0+c3RhcnQ7CkBAIC00NzUsNiArNDc0LDcgQEAg
+c3RhdGljIGludCBfX2luaXQgb2N0ZW9uX2kyY19wcm9iZShzdHJ1YwogCQlkZXZfZGJnKGkyYy0+
+ZGV2LAogCQkJIiVzIGkyYy1jYXZpdW0gLSByZXF1ZXN0X21lbV9yZWdpb24gZmFpbGVkXG4iLAog
+CQkJX19mdW5jX18pOworCQlyZXN1bHQgPSAtRU5PTUVNOwogCQlnb3RvIGZhaWxfcmVnaW9uOwog
+CX0KIAlpMmMtPnR3c2lfYmFzZSA9IGlvcmVtYXAoaTJjLT50d3NpX3BoeXMsIGkyYy0+cmVnc2l6
+ZSk7CkBAIC00ODIsMjcgKzQ4MiwzNyBAQCBzdGF0aWMgaW50IF9faW5pdCBvY3Rlb25faTJjX3By
+b2JlKHN0cnVjCiAJaW5pdF93YWl0cXVldWVfaGVhZCgmaTJjLT5xdWV1ZSk7CiAKIAlpMmMtPmly
+cSA9IGlycTsKKworCS8qIGkyYy0+aXJxID09IE5PX0lSUSBpbXBsaWVzIHBvbGxpbmcgKi8KIAlp
+ZiAoaTJjLT5pcnEgIT0gTk9fSVJRKSB7Ci0JCS8qIGkyYy0+aXJxID0gTk9fSVJRIGltcGxpZXMg
+cG9sbGluZyAqLwotCQlyZXN1bHQgPSByZXF1ZXN0X2lycShpMmMtPmlycSwgb2N0ZW9uX2kyY19p
+c3IsIDAsIERSVl9OQU1FLCBpMmMpOwotCQlpZiAocmVzdWx0IDwgMCkgeworCQlpZiAoaTJjLT5p
+cnEgPCAwKSB7CiAJCQlkZXZfZGJnKGkyYy0+ZGV2LAotCQkJCSIlczogLSBmYWlsZWQgdG8gYXR0
+YWNoIGludGVycnVwdFxuIiwKKwkJCQkiJXM6IC0gYmFkIGludGVycnVwdCBudW1iZXJcbiIsCiAJ
+CQkJX19mdW5jX18pOworCQkJcmVzdWx0ID0gLUVJTlZBTDsKIAkJCWdvdG8gZmFpbF9pcnE7CisJ
+CX0gZWxzZSB7CisJCQlyZXN1bHQgPSByZXF1ZXN0X2lycShpMmMtPmlycSwgb2N0ZW9uX2kyY19p
+c3IsIDAsCisJCQkJCQkJCURSVl9OQU1FLCBpMmMpOworCQkJaWYgKHJlc3VsdCA8IDApIHsKKwkJ
+CQlkZXZfZGJnKGkyYy0+ZGV2LAorCQkJCQkiJXM6IC0gZmFpbGVkIHRvIGF0dGFjaCBpbnRlcnJ1
+cHRcbiIsCisJCQkJCV9fZnVuY19fKTsKKwkJCQlnb3RvIGZhaWxfaXJxOworCQkJfQogCQl9CiAJ
+fQogCiAJcmVzdWx0ID0gb2N0ZW9uX2kyY19pbml0bG93bGV2ZWwoaTJjKTsKIAlpZiAocmVzdWx0
+KSB7CiAJCWRldl9kYmcoaTJjLT5kZXYsICIlczogaW5pdCBsb3cgbGV2ZWwgZmFpbGVkXG4iLCBf
+X2Z1bmNfXyk7Ci0JCWdvdG8gIGZhaWxfYWRkOworCQlnb3RvIGZhaWxfYWRkOwogCX0KIAogCXJl
+c3VsdCA9IG9jdGVvbl9pMmNfc2V0Y2xvY2soaTJjKTsKIAlpZiAocmVzdWx0KSB7CiAJCWRldl9k
+YmcoaTJjLT5kZXYsICIlczogY2xvY2sgaW5pdCBmYWlsZWRcbiIsIF9fZnVuY19fKTsKLQkJZ290
+byAgZmFpbF9hZGQ7CisJCWdvdG8gZmFpbF9hZGQ7CiAJfQogCiAJaTJjLT5hZGFwID0gb2N0ZW9u
+X2kyY19vcHM7CkBAIC01MzAsNyArNTQwLDcgQEAgZmFpbF9yZWdpb246CiAJcmV0dXJuIHJlc3Vs
+dDsKIH07CiAKLXN0YXRpYyBpbnQgX19leGl0IG9jdGVvbl9pMmNfcmVtb3ZlKHN0cnVjdCBwbGF0
+Zm9ybV9kZXZpY2UgKnBkZXYpCitzdGF0aWMgaW50IF9fZGV2ZXhpdCBvY3Rlb25faTJjX3JlbW92
+ZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogewogCXN0cnVjdCBvY3Rlb25faTJjICpp
+MmMgPSBwbGF0Zm9ybV9nZXRfZHJ2ZGF0YShwZGV2KTsKIApAQCAtNTQ2LDcgKzU1Niw3IEBAIHN0
+YXRpYyBpbnQgX19leGl0IG9jdGVvbl9pMmNfcmVtb3ZlKHN0cnUKIAogc3RhdGljIHN0cnVjdCBw
+bGF0Zm9ybV9kcml2ZXIgb2N0ZW9uX2kyY19kcml2ZXIgPSB7CiAJLnByb2JlCQk9IG9jdGVvbl9p
+MmNfcHJvYmUsCi0JLnJlbW92ZQkJPSBfX2V4aXRfcChvY3Rlb25faTJjX3JlbW92ZSksCisJLnJl
+bW92ZQkJPSBfX2RldmV4aXRfcChvY3Rlb25faTJjX3JlbW92ZSksCiAJLmRyaXZlcgkJPSB7CiAJ
+CS5vd25lcgk9IFRISVNfTU9EVUxFLAogCQkubmFtZQk9IERSVl9OQU1FLApAQCAtNTc2LDQgKzU4
+NiwzIEBAIE1PRFVMRV9BTElBUygicGxhdGZvcm06IiBEUlZfTkFNRSk7CiAKIG1vZHVsZV9pbml0
+KG9jdGVvbl9pMmNfaW5pdCk7CiBtb2R1bGVfZXhpdChvY3Rlb25faTJjX2V4aXQpOwotCg==
+
+------_=_NextPart_001_01CA9DD0.C0722236--
