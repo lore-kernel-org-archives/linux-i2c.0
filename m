@@ -1,210 +1,172 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: Add support for Ux500/Nomadik I2C controller
-Date: Mon, 25 Jan 2010 14:07:52 +0100
-Message-ID: <63386a3d1001250507u4144107fg39759ba8c3f62e54@mail.gmail.com>
-References: <cover.1262944133.git.srinidhi.kasagar@stericsson.com>
-	 <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar@stericsson.com>
+From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: Davinci i2c bus recovery procedure to
+	clear the bus
+Date: Mon, 25 Jan 2010 20:30:08 +0530
+Message-ID: <1264431608.3430.19.camel@localhost.localdomain>
+References: <1263295036.3437.17.camel@localhost.localdomain>
+	<20100124150741.GA28675@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8abc7907a748a8a59852e46985361de1333f3c7a.1262944133.git.srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, sachin.verma-qxv4g6HH51o@public.gmane.org, rubini-9wsNiZum9E8@public.gmane.org, andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <20100124150741.GA28675-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Srinidhi, some more small comments...
+On Sun, 2010-01-24 at 15:07 +0000, Ben Dooks wrote:
+> On Tue, Jan 12, 2010 at 04:47:16PM +0530, Philby John wrote:
+> > >From 2565eeda807e49376298ec895a0d9a91a7668417 Mon Sep 17 00:00:00 2001
+> > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> > Date: Mon, 11 Jan 2010 22:39:44 +0530
+> > Subject: [PATCH 2/2] Davinci i2c bus recovery procedure to clear the bus
+> > 
+> > Come out of i2c time out condition by following the
+> > bus recovery procedure outlined in the i2c protocol v3 spec.
+> > The kernel must be robust enough to gracefully recover
+> > from i2c bus failure without having to reset the machine.
+> > This is done by first NACKing the slave, pulsing the SCL
+> > line 9 times and then sending the stop command.
+> > 
+> > This patch has been tested on a DM6446 and DM355
+> 
+> Still not sure whether this can be included as a bug-fix or whether
+> it comes under the new feature category. Also, since it has to get
+> new data from the platform whose tree it should really go into.
 
-2010/1/8 srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>:
+This fix is for the issue that was reported here
+http://www.mail-archive.com/davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org/msg13560.html which IMHO is critical. The issue can be replicated easily and without it the user is left with no choice but to reset the target.
 
-> This adds support for the ST-Ericsson's I2C
-> block found in Ux500 and Nomadik 8815
-> platforms.
->
-> Signed-off-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> Acked-by: Andrea gallo <andrea.gallo-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> Acked-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Yes, it does depend on [PATCH 1/2] for platform dependent data, would
+fail otherwise. Could you suggest what may I do in this circumstances?
 
-It's even Reviewed-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> now=
- that
-I've taken some time to do it properly.
+Regards,
+Philby
 
-> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap);
-> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
-> +               struct i2c_msg msgs[], int num_msgs);
-> +
-> +static const struct i2c_algorithm nmk_i2c_algo =3D {
-> +       .master_xfer    =3D nmk_i2c_xfer,
-> +       .functionality  =3D nmk_i2c_functionality
-> +};
-> +
-> +static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
-> +{
-> +       return I2C_FUNC_I2C
-> +               | I2C_FUNC_SMBUS_BYTE_DATA
-> +               | I2C_FUNC_SMBUS_WORD_DATA
-> +               | I2C_FUNC_SMBUS_I2C_BLOCK;
-> +}
-> +
 
-If you move nmk_i2c_functionality() before struct i2c_algorithm nmk_i2c=
-_algo
-and then move the whole shebang just before the probe() function you do=
-n't
-need to forward-declare nmk_i2c_functionality() and nmk_i2c_xfer().
-
-(...)
-> +/**
-> + * nmk_i2c_xfer() - I2C transfer function used by kernel framework
-> + * @i2c_adap =A0 - Adapter pointer to the controller
-> + * @msgs[] - Pointer to data to be written.
-> + * @num_msgs - Number of messages to be executed
-> + *
-> + * This is the function called by the generic kernel i2c_transfer()
-> + * or i2c_smbus...() API calls. Note that this code is protected by =
-the
-> + * semaphore set in the kernel i2c_transfer() function.
-> + *
-> + * NOTE:
-> + * READ TRANSFER : We impose a restriction of the first message to b=
-e the
-> + * =A0 =A0 =A0 =A0 =A0 =A0 index message for any read transaction.
-> + * =A0 =A0 =A0 =A0 =A0 =A0 - a no index is coded as '0',
-> + * =A0 =A0 =A0 =A0 =A0 =A0 - 2byte big endian index is coded as '3'
-> + * =A0 =A0 =A0 =A0 =A0 =A0 !!! msg[0].buf holds the actual index.
-> + * =A0 =A0 =A0 =A0 =A0 =A0 This is compatible with generic messages =
-of smbus emulator
-> + * =A0 =A0 =A0 =A0 =A0 =A0 that send a one byte index.
-> + * =A0 =A0 =A0 =A0 =A0 =A0 eg. a I2C transation to read 2 bytes from=
- index 0
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 idx =3D 0;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].addr =3D client->a=
-ddr;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].flags =3D 0x0;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].len =3D 1;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].buf =3D &idx;
-> + *
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[1].addr =3D client->a=
-ddr;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[1].flags =3D I2C_M_RD=
-;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[1].len =3D 2;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[1].buf =3D rd_buff
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_transfer(adap, msg, 2=
-);
-> + *
-> + * WRITE TRANSFER : The I2C standard interface interprets all data a=
-s payload.
-> + * =A0 =A0 =A0 =A0 =A0 =A0 If you want to emulate an SMBUS write tra=
-nsaction put the
-> + * =A0 =A0 =A0 =A0 =A0 =A0 index as first byte(or first and second) =
-in the payload.
-> + * =A0 =A0 =A0 =A0 =A0 =A0 eg. a I2C transation to write 2 bytes fro=
-m index 1
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wr_buff[0] =3D 0x1;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wr_buff[1] =3D 0x23;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wr_buff[2] =3D 0x46;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].flags =3D 0x0;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].len =3D 3;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msg[0].buf =3D wr_buff;
-> + * =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_transfer(adap, msg, 1=
-);
-> + *
-> + * To read or write a block of data (multiple bytes) using SMBUS emu=
-lation
-> + * please use the i2c_smbus_read_i2c_block_data()
-> + * or i2c_smbus_write_i2c_block_data() API
-> + *
-> + * i2c_master_recv() API is not supported as single read message is =
-not
-> + * accepted by our interface (it has to be preceded by an index mess=
-age)
-
-It looks like this restriction is gone, so the comment can go too?
-
-> + */
-> +static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_msg msgs[], int num_msgs)
-> +{
-> + =A0 =A0 =A0 int status;
-> + =A0 =A0 =A0 int i;
-> + =A0 =A0 =A0 u32 cause;
-> + =A0 =A0 =A0 struct nmk_i2c_dev *dev =3D i2c_get_adapdata(i2c_adap);
-> +
-> + =A0 =A0 =A0 status =3D init_hw(dev);
-> + =A0 =A0 =A0 if (status)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return status;
-> +
-> + =A0 =A0 =A0 /* setup the i2c controller */
-> + =A0 =A0 =A0 setup_i2c_controller(dev);
-> +
-> + =A0 =A0 =A0 for (i =3D 0; i < num_msgs; i++) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (unlikely(msgs[i].flags & I2C_M_TEN)=
-) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&dev->pdev->dev=
-, "10 bit addressing"
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 "not supported\n");
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->cli.slave_adr =A0 =A0 =A0=3D msgs[=
-i].addr;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->cli.buffer =A0 =A0 =A0 =A0 =3D msg=
-s[i].buf;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->cli.count =A0 =A0 =A0 =A0 =A0=3D m=
-sgs[i].len;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->stop =3D (i < (num_msgs - 1)) ? 0 =
-: 1;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->result =3D 0;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (msgs[i].flags & I2C_M_RD) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* it is a read operati=
-on */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->cli.operation =3D =
-I2C_READ;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 status =3D read_i2c(dev=
-);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* write operation */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->cli.operation =3D =
-I2C_WRITE;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 status =3D write_i2c(de=
-v);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (status || (dev->result)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* get the abort cause =
-*/
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 cause =3D (readl(dev->v=
-irtbase + I2C_SR) >> 4) & 0x7;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&dev->pdev->dev=
-, "error during I2C"
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 "message xfer: %d\n", cause);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&dev->pdev->dev=
-, "%s\n",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 cause >=
-=3D ARRAY_SIZE(abort_causes)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ? "unkn=
-own reason" : abort_causes[cause]);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return status;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mdelay(1);
-> + =A0 =A0 =A0 }
-> + =A0 =A0 =A0 return status;
-> +}
-> +
-
-This thing should return the number of messages transferred, see
-include/linux/i2c.h.
-
-Something like
-if (status)
-  return status;
-else
-  return i;
-
-should work I think?
-
-Yours,
-Linus Walleij
+>  
+> > Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> > Signed-off-by: Srinivasan, Nageswari <nageswari-l0cyMroinI0@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-davinci.c |   57 +++++++++++++++++++++++++++++++++++--
+> >  1 files changed, 53 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> > index 35f9daa..5459065 100644
+> > --- a/drivers/i2c/busses/i2c-davinci.c
+> > +++ b/drivers/i2c/busses/i2c-davinci.c
+> > @@ -36,6 +36,7 @@
+> >  #include <linux/platform_device.h>
+> >  #include <linux/io.h>
+> >  #include <linux/cpufreq.h>
+> > +#include <linux/gpio.h>
+> >  
+> >  #include <mach/hardware.h>
+> >  #include <mach/i2c.h>
+> > @@ -43,6 +44,7 @@
+> >  /* ----- global defines ----------------------------------------------- */
+> >  
+> >  #define DAVINCI_I2C_TIMEOUT	(1*HZ)
+> > +#define DAVINCI_I2C_MAX_TRIES	2
+> >  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
+> >  				 DAVINCI_I2C_IMR_SCD | \
+> >  				 DAVINCI_I2C_IMR_ARDY | \
+> > @@ -130,6 +132,44 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
+> >  	return __raw_readw(i2c_dev->base + reg);
+> >  }
+> >  
+> > +/* Generate a pulse on the i2c clock pin. */
+> > +static void generic_i2c_clock_pulse(unsigned int scl_pin)
+> > +{
+> > +	u16 i;
+> > +
+> > +	if (scl_pin) {
+> > +		/* Send high and low on the SCL line */
+> > +		for (i = 0; i < 9; i++) {
+> > +			gpio_set_value(scl_pin, 0);
+> > +			udelay(20);
+> > +			gpio_set_value(scl_pin, 1);
+> > +			udelay(20);
+> > +		}
+> > +	}
+> > +}
+> > +
+> > +/* This routine does i2c bus recovery as specified in the
+> > + * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
+> > + */
+> > +static void i2c_recover_bus(struct davinci_i2c_dev *dev)
+> > +{
+> > +	u32 flag = 0;
+> > +	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> > +
+> > +	dev_err(dev->dev, "initiating i2c bus recovery\n");
+> > +	/* Send NACK to the slave */
+> > +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> > +	flag |=  DAVINCI_I2C_MDR_NACK;
+> > +	/* write the data into mode register */
+> > +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> > +	if (pdata)
+> > +		generic_i2c_clock_pulse(pdata->scl_pin);
+> > +	/* Send STOP */
+> > +	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> > +	flag |= DAVINCI_I2C_MDR_STP;
+> > +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> > +}
+> > +
+> >  static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
+> >  								int val)
+> >  {
+> > @@ -235,14 +275,22 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+> >  					 char allow_sleep)
+> >  {
+> >  	unsigned long timeout;
+> > +	static u16 to_cnt;
+> >  
+> >  	timeout = jiffies + dev->adapter.timeout;
+> >  	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+> >  	       & DAVINCI_I2C_STR_BB) {
+> > -		if (time_after(jiffies, timeout)) {
+> > -			dev_warn(dev->dev,
+> > -				 "timeout waiting for bus ready\n");
+> > -			return -ETIMEDOUT;
+> > +		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
+> > +			if (time_after(jiffies, timeout)) {
+> > +				dev_warn(dev->dev,
+> > +				"timeout waiting for bus ready\n");
+> > +				to_cnt++;
+> > +				return -ETIMEDOUT;
+> > +			} else {
+> > +				to_cnt = 0;
+> > +				i2c_recover_bus(dev);
+> > +				i2c_davinci_init(dev);
+> > +			}
+> >  		}
+> >  		if (allow_sleep)
+> >  			schedule_timeout(1);
+> > @@ -324,6 +372,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+> >  						      dev->adapter.timeout);
+> >  	if (r == 0) {
+> >  		dev_err(dev->dev, "controller timed out\n");
+> > +		i2c_recover_bus(dev);
+> >  		i2c_davinci_init(dev);
+> >  		dev->buf_len = 0;
+> >  		return -ETIMEDOUT;
+> > -- 
+> > 1.6.3.3.MVISTA
+> > 
+> > 
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
