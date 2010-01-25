@@ -1,7 +1,7 @@
 From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: driver for PCA954x I2C multiplexer series.
-Date: Mon, 25 Jan 2010 13:15:25 +0100
-Message-ID: <4B5D8B5D.9040108@gmx.de>
+Subject: [PATCH 2/2] i2c: driver for PCA954x I2C multiplexer series.
+Date: Mon, 25 Jan 2010 14:00:23 +0100
+Message-ID: <4B5D95E7.1000804@gmx.de>
 References: <4B5D8AFC.5060209@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,7 +10,10 @@ Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <4B5D8AFC.5060209-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
+
+Sometimes you check and check and... and then sh*# happens.
 
 Subject: [PATCH 2/2] i2c: driver for PCA954x I2C multiplexer series.
 
@@ -408,5 +411,6 @@ index 0000000..18d5e79
 +	struct pca954x_platform_mode *modes;
 +	int num_modes;
 +};
--- 
-1.6.1.2
+-- 1.6.1.2 -- To unsubscribe from this list: send the line "unsubscribe
+linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More
+majordomo info at http://vger.kernel.org/majordomo-info.html
