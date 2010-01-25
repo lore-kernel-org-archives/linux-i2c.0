@@ -1,246 +1,488 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-mpc: add support for the MPC512x processors	from
- Freescale
-Date: Mon, 25 Jan 2010 13:06:36 +0100
-Message-ID: <4B5D894C.4090001@grandegger.com>
-References: <1264408029-5290-1-git-send-email-wg@grandegger.com> <1264408029-5290-2-git-send-email-wg@grandegger.com> <1264408029-5290-3-git-send-email-wg@grandegger.com> <20100125115211.GA5257@pengutronix.de>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+Date: Mon, 25 Jan 2010 13:13:48 +0100
+Message-ID: <4B5D8AFC.5060209@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100125115211.GA5257-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Subject: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
 
-Wolfram Sang wrote:
-> Hi Wolfgang,
-> 
-> On Mon, Jan 25, 2010 at 09:27:08AM +0100, Wolfgang Grandegger wrote:
->> From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
->>
->> The "setclock" initialization functions have been renamed to "setup"
->> because I2C interrupts must be enabled for the MPC512x. This requires
->> to handle "fsl,preserve-clocking" in a slighly different way. Also,
->> the old settings are now reported calling dev_dbg(). For the MPC512x
->> the clock setup function of the MPC52xx can be re-used.
->>
->> Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
->> ---
->>  drivers/i2c/busses/Kconfig   |    9 ++--
->>  drivers/i2c/busses/i2c-mpc.c |  122 ++++++++++++++++++++++++++++++------------
->>  2 files changed, 93 insertions(+), 38 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 5f318ce..f481f30 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -418,13 +418,14 @@ config I2C_IXP2000
->>  	  instead.
->>  
->>  config I2C_MPC
->> -	tristate "MPC107/824x/85xx/52xx/86xx"
->> +	tristate "MPC107/824x/85xx/512x/52xx/86xx"
->>  	depends on PPC32
->>  	help
->>  	  If you say yes to this option, support will be included for the
->> -	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
->> -	  MPC85xx/MPC8641 family processors. The driver may also work on 52xx
->> -	  family processors, though interrupts are known not to work.
->> +	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245,
->> +	  MPC85xx/MPC8641 and MPC512x family processors. The driver may
->> +	  also work on 52xx family processors, though interrupts are known
->> +	  not to work.
-> 
-> Opinion poll: Can we remove the "may work" sentence while we are here? It has
-> worked fine for years. BTW, which interrupts are meant here (from I2C slaves?
-> interrupts of the controller?)?
+Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+---
+ drivers/i2c/Kconfig        |   10 +++
+ drivers/i2c/Makefile       |    3 +-
+ drivers/i2c/i2c-core.c     |   73 +++++++++++++++++--
+ drivers/i2c/i2c-dev.c      |   32 ++++++++-
+ drivers/i2c/i2c-mux.c      |  167
+++++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/muxes/Kconfig  |    8 ++
+ drivers/i2c/muxes/Makefile |    6 ++
+ include/linux/i2c.h        |   14 ++++
+ 8 files changed, 303 insertions(+), 10 deletions(-)
+ create mode 100755 drivers/i2c/i2c-mux.c
+ create mode 100755 drivers/i2c/muxes/Kconfig
+ create mode 100755 drivers/i2c/muxes/Makefile
 
-I first wanted to remove this sentence but as I was not sure what it's
-exact meaning... Anyway, it's confusing and I would remove it.
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index d7ece13..0c2f86a 100755
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -35,6 +35,16 @@ config I2C_COMPAT
+ 	  other user-space package which expects i2c adapters to be class
+ 	  devices. If you don't know, say Y.
 
->>  	  This driver can also be built as a module.  If so, the module
->>  	  will be called i2c-mpc.
->> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
->> index 2cb864e..70c3e5d 100644
->> --- a/drivers/i2c/busses/i2c-mpc.c
->> +++ b/drivers/i2c/busses/i2c-mpc.c
->> @@ -67,9 +67,8 @@ struct mpc_i2c_divider {
->>  };
->>  
->>  struct mpc_i2c_data {
->> -	void (*setclock)(struct device_node *node,
->> -			 struct mpc_i2c *i2c,
->> -			 u32 clock, u32 prescaler);
->> +	void (*setup)(struct device_node *node, struct mpc_i2c *i2c,
->> +		      u32 clock, u32 prescaler);
->>  	u32 prescaler;
->>  };
->>  
->> @@ -164,7 +163,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
->>  	return 0;
->>  }
->>  
->> -#ifdef CONFIG_PPC_MPC52xx
->> +#if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
->>  static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
->>  	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
->>  	{28, 0x24}, {30, 0x01}, {32, 0x25}, {34, 0x02},
->> @@ -216,12 +215,18 @@ static int __devinit mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock,
->>  	return div ? (int)div->fdr : -EINVAL;
->>  }
->>  
->> -static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
->> -					    struct mpc_i2c *i2c,
->> -					    u32 clock, u32 prescaler)
->> +static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->>  {
->>  	int ret, fdr;
->>  
->> +	if (clock == -1) {
-> 
-> Could we use 0 for 'no_clock'? This would make the above statement simply
++config I2C_MUX
++	tristate "I2C bus multiplexing support"
++	depends on I2C
++	help
++	  Say Y here if you want the I2C core to support the ability to
++	  handle multiplexed I2C bus topologies, by presenting each
++	  multiplexed segment as a I2C adapter.
++
++source drivers/i2c/muxes/Kconfig
++
+ config I2C_CHARDEV
+ 	tristate "I2C device interface"
+ 	help
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index ba26e6c..281e2a7 100755
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -4,8 +4,9 @@
 
-"0" is already used to maintain backward compatibility setting a safe
-divider.
+ obj-$(CONFIG_I2C_BOARDINFO)	+=3D i2c-boardinfo.o
+ obj-$(CONFIG_I2C)		+=3D i2c-core.o
++obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+ obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
+-obj-y				+=3D busses/ chips/ algos/
++obj-y				+=3D busses/ chips/ muxes/ algos/
 
-> 	if (!clock)
-> 
-> and saves us using -1 with a u32.
-> 
->> +		dev_dbg(i2c->dev, "using fdr %d\n",
->> +			readb(i2c->base + MPC_I2C_FDR));
->> +		return;	/* preserve clocking */
->> +	}
->> +
->>  	ret = mpc_i2c_get_fdr_52xx(node, clock, prescaler);
->>  	fdr = (ret >= 0) ? ret : 0x3f; /* backward compatibility */
->>  
->> @@ -230,13 +235,50 @@ static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
->>  	if (ret >= 0)
->>  		dev_info(i2c->dev, "clock %d Hz (fdr=%d)\n", clock, fdr);
->>  }
->> -#else /* !CONFIG_PPC_MPC52xx */
->> -static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
->> -					    struct mpc_i2c *i2c,
->> -					    u32 clock, u32 prescaler)
->> +#else /* !(CONFIG_PPC_MPC52xx || CONFIG_PPC_MPC512x) */
->> +static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->> +{
->> +}
->> +#endif /* CONFIG_PPC_MPC52xx || CONFIG_PPC_MPC512x */
->> +
->> +#ifdef CONFIG_PPC_MPC512x
->> +static void __devinit mpc_i2c_setup_512x(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->> +{
->> +	struct device_node *node_ctrl;
->> +	void __iomem *ctrl;
->> +	const u32 *pval;
->> +	u32 idx;
->> +
->> +	/* Enable I2C interrupts for mpc5121 */
->> +	node_ctrl = of_find_compatible_node(NULL, NULL,
->> +					    "fsl,mpc5121-i2c-ctrl");
->> +	if (node_ctrl) {
->> +		ctrl = of_iomap(node_ctrl, 0);
->> +		if (ctrl) {
->> +
->> +			/* Interrupt enable bits for i2c-0/1/2: bit 24/26/28 */
->> +			pval = of_get_property(node, "reg", NULL);
->> +			idx = (*pval & 0xff) / 0x20;
->> +			setbits32(ctrl, 1 << (24 + idx * 2));
->> +			iounmap(ctrl);
->> +		}
->> +		of_node_put(node_ctrl);
->> +	}
->> +
->> +	/* The clock setup for the 52xx works also fine for the 512x */
->> +	mpc_i2c_setup_52xx(node, i2c, clock, prescaler);
->> +}
->> +#else /* CONFIG_PPC_MPC512x */
->> +static void __devinit mpc_i2c_setup_512x(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->>  {
->>  }
->> -#endif /* CONFIG_PPC_MPC52xx*/
->> +#endif /* CONFIG_PPC_MPC512x */
->>  
->>  #ifdef CONFIG_FSL_SOC
->>  static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
->> @@ -322,12 +364,19 @@ static int __devinit mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
->>  	return div ? (int)div->fdr : -EINVAL;
->>  }
->>  
->> -static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
->> -					    struct mpc_i2c *i2c,
->> -					    u32 clock, u32 prescaler)
->> +static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->>  {
->>  	int ret, fdr;
->>  
->> +	if (clock == -1) {
->> +		dev_dbg(i2c->dev, "using dfsrr %d, fdr %d\n",
->> +			readb(i2c->base + MPC_I2C_DFSRR),
->> +			readb(i2c->base + MPC_I2C_FDR));
->> +		return;	/* preserve clocking */
->> +	}
->> +
->>  	ret = mpc_i2c_get_fdr_8xxx(node, clock, prescaler);
->>  	fdr = (ret >= 0) ? ret : 0x1031; /* backward compatibility */
->>  
->> @@ -340,9 +389,9 @@ static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
->>  }
->>  
->>  #else /* !CONFIG_FSL_SOC */
->> -static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
->> -					    struct mpc_i2c *i2c,
->> -					    u32 clock, u32 prescaler)
->> +static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
->> +					 struct mpc_i2c *i2c,
->> +					 u32 clock, u32 prescaler)
->>  {
->>  }
->>  #endif /* CONFIG_FSL_SOC */
->> @@ -525,21 +574,21 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
->>  		}
->>  	}
->>  
->> -	if (!of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
->> +	if (of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
->> +		clock = -1;
->> +	} else {
->>  		prop = of_get_property(op->node, "clock-frequency", &plen);
->>  		if (prop && plen == sizeof(u32))
->>  			clock = *prop;
->> +	}
->>  
->> -		if (match->data) {
->> -			struct mpc_i2c_data *data =
->> -				(struct mpc_i2c_data *)match->data;
->> -			data->setclock(op->node, i2c, clock, data->prescaler);
->> -		} else {
->> -			/* Backwards compatibility */
->> -			if (of_get_property(op->node, "dfsrr", NULL))
->> -				mpc_i2c_setclock_8xxx(op->node, i2c,
->> -						      clock, 0);
->> -		}
->> +	if (match->data) {
->> +		struct mpc_i2c_data *data = (struct mpc_i2c_data *)match->data;
-> 
-> The cast should not be necessary.
+ ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+ EXTRA_CFLAGS +=3D -DDEBUG
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 2965043..83119ae 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -20,7 +20,9 @@
+ /* With some changes from Ky=C3=83=C2=B6sti M=C3=83=C2=A4lkki <kmalkki=
+@cc.hut.fi>.
+    All SMBus-related things are written by Frodo Looijaard <frodol@dds=
+=2Enl>
+    SMBus 2.0 support by Mark Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org> and
+-   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> */
++      Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++   Mux support by Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org> and
++      Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>*/
 
-Right.
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -937,9 +939,66 @@ static int __i2c_check_addr(struct device *dev,
+void *addrp)
+ 	return 0;
+ }
 
-Wolfgang.
++static int i2c_check_clients(struct i2c_adapter *adapter, int addr)
++{
++	int result =3D 0;
++
++	result =3D device_for_each_child(&adapter->dev, &addr, __i2c_check_ad=
+dr);
++
++	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
++		result =3D i2c_check_clients(to_i2c_adapter(adapter->dev.parent), ad=
+dr);
++=09
++	return result;
++}
++
+ static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
+ {
+-	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr);
++	int result =3D 0;
++
++	result =3D i2c_check_clients(adapter, addr);
++=09
++	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
++	{
++		struct i2c_client dummy;
++		char buff;
++
++		dummy.adapter =3D to_i2c_adapter(adapter->dev.parent);
++		dummy.addr =3D addr;
++		dummy.flags =3D 0;
++
++		result =3D i2c_master_recv(&dummy, &buff, 1) =3D=3D 1;
++	}
++	=09
++	return result;
++}
++
++static void i2c_mux_tree_lock(struct i2c_adapter *adap)
++{
++	mutex_lock_nested(&adap->bus_lock, SINGLE_DEPTH_NESTING);
++	if(adap->dev.parent->bus =3D=3D &i2c_bus_type)
++		i2c_mux_tree_lock(to_i2c_adapter(adap->dev.parent));
++}
++
++static int i2c_mux_tree_trylock(struct i2c_adapter *adap)
++{
++	int ret;
++=09
++	ret =3D mutex_trylock(&adap->bus_lock);
++
++	if(ret && (adap->dev.parent->bus =3D=3D &i2c_bus_type)) {
++		ret =3D i2c_mux_tree_trylock(to_i2c_adapter(adap->dev.parent));
++		if (!ret)
++			mutex_unlock(&adap->bus_lock);
++	}
++
++	return ret;
++}
++
++static void i2c_mux_tree_unlock(struct i2c_adapter *adap)
++{
++	if(adap->dev.parent->bus =3D=3D &i2c_bus_type)
++		i2c_mux_tree_unlock(to_i2c_adapter(adap->dev.parent));
++	mutex_unlock(&adap->bus_lock);
+ }
+
+ /**
+@@ -1092,12 +1151,12 @@ int i2c_transfer(struct i2c_adapter *adap,
+struct i2c_msg *msgs, int num)
+ #endif
+
+ 		if (in_atomic() || irqs_disabled()) {
+-			ret =3D mutex_trylock(&adap->bus_lock);
++			ret =3D i2c_mux_tree_trylock(adap);
+ 			if (!ret)
+ 				/* I2C activity is ongoing. */
+ 				return -EAGAIN;
+ 		} else {
+-			mutex_lock_nested(&adap->bus_lock, adap->level);
++			i2c_mux_tree_lock(adap);
+ 		}
+
+ 		/* Retry automatically on arbitration loss */
+@@ -1109,7 +1168,7 @@ int i2c_transfer(struct i2c_adapter *adap, struct
+i2c_msg *msgs, int num)
+ 			if (time_after(jiffies, orig_jiffies + adap->timeout))
+ 				break;
+ 		}
+-		mutex_unlock(&adap->bus_lock);
++		i2c_mux_tree_unlock(adap);
+
+ 		return ret;
+ 	} else {
+@@ -1913,7 +1972,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,
+u16 addr, unsigned short flags,
+ 	flags &=3D I2C_M_TEN | I2C_CLIENT_PEC;
+
+ 	if (adapter->algo->smbus_xfer) {
+-		mutex_lock(&adapter->bus_lock);
++		i2c_mux_tree_lock(adapter);
+
+ 		/* Retry automatically on arbitration loss */
+ 		orig_jiffies =3D jiffies;
+@@ -1927,7 +1986,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,
+u16 addr, unsigned short flags,
+ 				       orig_jiffies + adapter->timeout))
+ 				break;
+ 		}
+-		mutex_unlock(&adapter->bus_lock);
++		i2c_mux_tree_unlock(adapter);
+ 	} else
+ 		res =3D i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+ 					      command, protocol, data);
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 7e13d2d..ce2f1a1 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -190,16 +190,44 @@ static int i2cdev_check(struct device *dev, void
+*addrp)
+
+ 	if (!client || client->addr !=3D *(unsigned int *)addrp)
+ 		return 0;
+-
++=09
+ 	return dev->driver ? -EBUSY : 0;
+ }
+
++static int i2cdev_check_clients(struct i2c_adapter *adapter, int addr)
++{
++	int result =3D 0;
++
++	result =3D device_for_each_child(&adapter->dev, &addr, i2cdev_check);
++
++	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
++		result =3D i2cdev_check_clients(to_i2c_adapter(adapter->dev.parent),=
+ addr);
++=09
++	return result;
++}
++
+ /* This address checking function differs from the one in i2c-core
+    in that it considers an address with a registered device, but no
+    driver bound to it, as NOT busy. */
+ static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned int
+addr)
+ {
+-	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
++	int result =3D 0;
++
++	result =3D i2cdev_check_clients(adapter, addr);
++=09
++	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
++	{
++		struct i2c_client dummy;
++		char buff;
++
++		dummy.adapter =3D to_i2c_adapter(adapter->dev.parent);
++		dummy.addr =3D addr;
++		dummy.flags =3D 0;
++
++		result =3D i2c_master_recv(&dummy, &buff, 1) =3D=3D 1;
++	}
++	=09
++	return result;
+ }
+
+ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+new file mode 100755
+index 0000000..014d488
+--- /dev/null
++++ b/drivers/i2c/i2c-mux.c
+@@ -0,0 +1,167 @@
++/*
++ * Multiplexed I2C bus driver.
++ *
++ * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
++ * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
++ *
++ * Simplifies access to complex multiplexed I2C bus topologies, by
+presenting
++ * each multiplexed bus segment as a virtual I2C adapter.  Supports
+multi-level
++ * mux'ing (mux behind a mux).
++ *
++ * Based on:
++ *    i2c-virt.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++ *    i2c-virtual.c from Copyright (c) 2004 Google, Inc. (Ken Harrenst=
+ien)
++ *    i2c-virtual.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
++ * which was:
++ *    Adapted from i2c-adap-ibm_ocp.c
++ *    Original file Copyright 2000-2002 MontaVista Software Inc.
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/i2c-id.h>
++
++struct i2c_mux_priv {
++	struct i2c_adapter adap;
++	struct i2c_algorithm algo;
++
++	struct i2c_adapter *parent_adap;
++	void *client;			/* The mux chip/device */
++	u32 id;				/* the mux id */
++
++	int (*select)(struct i2c_adapter *, void *, u32);
++	int (*deselect)(struct i2c_adapter *, void *, u32);
++};
++
++#define VIRT_TIMEOUT		(HZ/2)
++#define VIRT_RETRIES		3
++
++static int i2c_mux_master_xfer(struct i2c_adapter *adap,
++				struct i2c_msg msgs[], int num)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent_adap;
++	int ret;
++
++	/* Select the right mux port and perform the transfer. */=09
++
++	ret =3D priv->select(parent, priv->client, priv->id);
++	if (ret >=3D 0)
++		ret =3D parent->algo->master_xfer(parent, msgs, num);
++	priv->deselect(parent, priv->client, priv->id);
++
++	return ret;
++}
++
++static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
++				u16 addr, unsigned short flags,
++				char read_write, u8 command,
++				int size, union i2c_smbus_data *data)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent_adap;
++	int ret;
++
++	/* Select the right mux port and perform the transfer. */=09
++
++	ret =3D priv->select(parent, priv->client, priv->id);
++	if (ret =3D=3D 0)
++		ret =3D parent->algo->smbus_xfer(parent, addr, flags,
++					   read_write, command, size, data);
++	priv->deselect(parent, priv->client, priv->id);
++
++	return ret;
++}
++
++/* Return the parent's functionality for the virtual adapter */
++static u32 i2c_mux_functionality(struct i2c_adapter *adap)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent_adap;
++
++	return parent->algo->functionality(parent);
++}
++
++struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
++				void *client, u32 force_nr, u32 mux_val,
++				int (*select_cb) (struct i2c_adapter *,
++						void *, u32),
++				int (*deselect_cb) (struct i2c_adapter *,
++						void *, u32))
++{
++	struct i2c_mux_priv *priv;
++	int ret;
++
++	priv =3D kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
++	if (!priv)
++		return NULL;
++
++	/* Set up private adapter data */
++	priv->parent_adap =3D parent;
++	priv->client =3D client;
++	priv->id =3D mux_val;
++	priv->select =3D select_cb;
++	priv->deselect =3D deselect_cb;
++
++	/* Need to do algo dynamically because we don't know ahead
++	 * of time what sort of physical adapter we'll be dealing with.
++	 */
++	if (parent->algo->master_xfer)
++		priv->algo.master_xfer =3D i2c_mux_master_xfer;
++	if (parent->algo->smbus_xfer)
++		priv->algo.smbus_xfer =3D i2c_mux_smbus_xfer;
++	priv->algo.functionality =3D i2c_mux_functionality;
++
++	/* Now fill out new adapter structure */
++	snprintf(priv->adap.name, sizeof(priv->adap.name),
++			"i2c-%d-mux (mux %02x)",
++			i2c_adapter_id(parent), mux_val);
++	priv->adap.owner =3D THIS_MODULE;
++	priv->adap.id =3D i2c_adapter_id(parent);
++	priv->adap.algo =3D &priv->algo;
++	priv->adap.algo_data =3D priv;
++	priv->adap.timeout =3D VIRT_TIMEOUT;
++	priv->adap.retries =3D VIRT_RETRIES;
++	priv->adap.dev.parent =3D &parent->dev;
++=09
++	if (force_nr) {
++		priv->adap.nr =3D force_nr;
++		ret =3D i2c_add_numbered_adapter(&priv->adap);
++	} else {
++		ret =3D i2c_add_adapter(&priv->adap);
++	}
++	if (ret < 0) {
++		kfree(priv);
++		return NULL;
++	}
++
++	dev_info(&parent->dev, "i2c-mux-%d: Virtual I2C bus - "
++		"physical bus i2c-%d, client %02x, port %d\n",
++		i2c_adapter_id(&priv->adap), i2c_adapter_id(parent), ((struct
+i2c_client*)priv->client)->addr, mux_val);
++
++	return &priv->adap;
++}
++EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
++
++int i2c_del_mux_adapter(struct i2c_adapter *adap)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	int ret;
++
++	ret =3D i2c_del_adapter(adap);
++	if (ret < 0)
++		return ret;
++	kfree(priv);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
++
++MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
++MODULE_DESCRIPTION("Virtual I2C driver for multiplexed I2C busses");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+new file mode 100755
+index 0000000..95b9bde
+--- /dev/null
++++ b/drivers/i2c/muxes/Kconfig
+@@ -0,0 +1,8 @@
++#
++# Multiplexer I2C chip drivers configuration
++#
++
++menu "Multiplexer I2C Chip support"
++	depends on I2C && I2C_MUX && EXPERIMENTAL
++
++endmenu
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+new file mode 100755
+index 0000000..0416a52
+--- /dev/null
++++ b/drivers/i2c/muxes/Makefile
+@@ -0,0 +1,6 @@
++#
++# Makefile for multiplexer I2C chip drivers.
++
++ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
++EXTRA_CFLAGS +=3D -DDEBUG -DI2C_DEBUG_CORE
++endif
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 7b40cda..24ff2e5 100755
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -580,6 +580,20 @@ union i2c_smbus_data {
+ #define I2C_SMBUS_BLOCK_PROC_CALL   7		/* SMBus 2.0 */
+ #define I2C_SMBUS_I2C_BLOCK_DATA    8
+
++/*
++ * Called to create a 'virtual' i2c bus which represents a multiplexed=
+ bus
++ * segment.  The client and mux_val are passed to the select and desel=
+ect
++ * callback functions to perform hardware-specific mux control.
++ */
++struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
++				void *client, u32 force_nr, u32 mux_val,
++				int (*select_cb) (struct i2c_adapter *,
++						void *, u32),
++				int (*deselect_cb) (struct i2c_adapter *,
++						void *, u32));
++
++int i2c_del_mux_adapter(struct i2c_adapter *adap);
++
+
+ #ifdef __KERNEL__
+
+--=20
+1.6.1.2
