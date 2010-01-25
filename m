@@ -1,48 +1,95 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-mpc: add support for the MPC512x processors
-	from Freescale
-Date: Mon, 25 Jan 2010 21:48:33 +0100
-Message-ID: <20100125204833.GB9693@pengutronix.de>
-References: <1264408029-5290-1-git-send-email-wg@grandegger.com> <1264408029-5290-2-git-send-email-wg@grandegger.com> <1264408029-5290-3-git-send-email-wg@grandegger.com> <20100125115211.GA5257@pengutronix.de> <4B5D894C.4090001@grandegger.com> <20100125151509.GD5257@pengutronix.de> <4B5DE3FB.10505@grandegger.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: [PATCH v2 3/3] powerpc: doc/dts-bindings: update doc of FSL I2C bindings
+Date: Mon, 25 Jan 2010 21:55:06 +0100
+Message-ID: <1264452906-32536-4-git-send-email-wg@grandegger.com>
+References: <1264452906-32536-1-git-send-email-wg@grandegger.com>
+ <1264452906-32536-2-git-send-email-wg@grandegger.com>
+ <1264452906-32536-3-git-send-email-wg@grandegger.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4B5DE3FB.10505-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+In-Reply-To: <1264452906-32536-3-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Cc: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 
---5I6of5zJg18YgZEa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch adds the MPC5121 to the list of supported devices,
+enhances the doc of the "clock-frequency" property and removes
+the obsolete "cell-index" property from the example nodes.
+Furthermore and example for the MPC5121 has been added.
 
-> overkill to me. I will have a closer look, though. At a minimum I will
-> replace "-1" with "MPC_I2C_PRESERVE_CLOCK".
+Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+---
+ Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++++++++++++++++++----
+ 1 files changed, 24 insertions(+), 6 deletions(-)
 
-Might be also an idea to define it with ~0 (clock is still unsigned). If
-possible, the code checking for those two cases (0 and "-1") should be close
-together. That could be a compromise until more quirks are needed ;)
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkteA6EACgkQD27XaX1/VRsl0QCdHfqhq/t2ipj5ikJre/V9RWhQ
-6hMAoImtshgFQs81jBThv8XBWDODYIAh
-=fZeb
------END PGP SIGNATURE-----
-
---5I6of5zJg18YgZEa--
+diff --git a/Documentation/powerpc/dts-bindings/fsl/i2c.txt b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
+index b6d2e21..2f62dae 100644
+--- a/Documentation/powerpc/dts-bindings/fsl/i2c.txt
++++ b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
+@@ -9,8 +9,9 @@ Recommended properties :
+ 
+  - compatible : compatibility list with 2 entries, the first should
+    be "fsl,CHIP-i2c" where CHIP is the name of a compatible processor,
+-   e.g. mpc8313, mpc8543, mpc8544, mpc5200 or mpc5200b. The second one
+-   should be "fsl-i2c".
++   e.g. mpc8313, mpc8543, mpc8544, mpc5121, mpc5200 or mpc5200b. The
++   second one should be "fsl-i2c". For the mpc5121, an additional node
++   "fsl,mpc5121-i2c-ctrl" is required as shown in the example below.
+  - interrupts : <a b> where a is the interrupt number and b is a
+    field that represents an encoding of the sense and level
+    information for the interrupt.  This should be encoded based on
+@@ -20,29 +21,46 @@ Recommended properties :
+    services interrupts for this device.
+  - fsl,preserve-clocking : boolean; if defined, the clock settings
+    from the bootloader are preserved (not touched).
+- - clock-frequency : desired I2C bus clock frequency in Hz.
++ - clock-frequency : desired I2C bus clock frequency in Hz.  If this
++   property and "fsl,preserve-clocking" is not defined, a safe fixed
++   clock divider value is used (resulting in a small clock frequency).
+ 
+ Examples :
+ 
++	/* MPC5121 based board */
++	i2c@1740 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "fsl,mpc5121-i2c", "fsl-i2c";
++		reg = <0x1740 0x20>;
++		interrupts = <11 0x8>;
++		interrupt-parent = <&ipic>;
++		clock-frequency = <100000>;
++	};
++
++	i2ccontrol@1760 {
++		compatible = "fsl,mpc5121-i2c-ctrl";
++		reg = <0x1760 0x8>;
++	};
++
++	/* MPC5200B based board */
+ 	i2c@3d00 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		compatible = "fsl,mpc5200b-i2c","fsl,mpc5200-i2c","fsl-i2c";
+-		cell-index = <0>;
+ 		reg = <0x3d00 0x40>;
+ 		interrupts = <2 15 0>;
+ 		interrupt-parent = <&mpc5200_pic>;
+ 		fsl,preserve-clocking;
+ 	};
+ 
++	/* MPC8544 base board */
+ 	i2c@3100 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-		cell-index = <1>;
+ 		compatible = "fsl,mpc8544-i2c", "fsl-i2c";
+ 		reg = <0x3100 0x100>;
+ 		interrupts = <43 2>;
+ 		interrupt-parent = <&mpic>;
+ 		clock-frequency = <400000>;
+ 	};
+-
+-- 
+1.6.2.5
