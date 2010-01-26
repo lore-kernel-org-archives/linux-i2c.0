@@ -1,39 +1,61 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH RESEND 1/1] i2c: Add support for Xilinx XPS IIC Bus
- Interface
-Date: Tue, 26 Jan 2010 14:44:22 +0000
-Message-ID: <20100126144422.GF12774@fluff.org.uk>
-References: <4B55D74C.2010806@pelagicore.com>
- <20100124154930.GE28675@fluff.org.uk>
- <4B5C8460.2040309@pelagicore.com>
- <20100124181526.GB25641@pengutronix.de>
+Subject: Re: [PATCH v3 2/2] i2c: Davinci i2c bus recovery procedure to
+ clear the bus
+Date: Tue, 26 Jan 2010 14:46:47 +0000
+Message-ID: <20100126144647.GG12774@fluff.org.uk>
+References: <1263295036.3437.17.camel@localhost.localdomain>
+ <20100124150741.GA28675@fluff.org.uk>
+ <1264431608.3430.19.camel@localhost.localdomain>
+ <87636p4v9l.fsf@deeprootsystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100124181526.GB25641-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <87636p4v9l.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Richard R?jfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jan 24, 2010 at 07:15:26PM +0100, Wolfram Sang wrote:
-> > >> + * i2c-xiic.c
-> > > 
-> > > the directory path to the file would have been nice.
-> > 
-> > Will update
+On Mon, Jan 25, 2010 at 03:31:02PM -0800, Kevin Hilman wrote:
+> Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org> writes:
 > 
-> Ben, are you sure? Those filenames (especially with directories) easily go
-> stale when reorganizing the tree.
+> > On Sun, 2010-01-24 at 15:07 +0000, Ben Dooks wrote:
+> >> On Tue, Jan 12, 2010 at 04:47:16PM +0530, Philby John wrote:
+> >> > >From 2565eeda807e49376298ec895a0d9a91a7668417 Mon Sep 17 00:00:00 2001
+> >> > From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> >> > Date: Mon, 11 Jan 2010 22:39:44 +0530
+> >> > Subject: [PATCH 2/2] Davinci i2c bus recovery procedure to clear the bus
+> >> > 
+> >> > Come out of i2c time out condition by following the
+> >> > bus recovery procedure outlined in the i2c protocol v3 spec.
+> >> > The kernel must be robust enough to gracefully recover
+> >> > from i2c bus failure without having to reset the machine.
+> >> > This is done by first NACKing the slave, pulsing the SCL
+> >> > line 9 times and then sending the stop command.
+> >> > 
+> >> > This patch has been tested on a DM6446 and DM355
+> >> 
+> >> Still not sure whether this can be included as a bug-fix or whether
+> >> it comes under the new feature category. Also, since it has to get
+> >> new data from the platform whose tree it should really go into.
+> >
+> > This fix is for the issue that was reported here
+> > http://www.mail-archive.com/davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org/msg13560.html which IMHO is critical. The issue can be replicated easily and without it the user is left with no choice but to reset the target.
+> >
+> > Yes, it does depend on [PATCH 1/2] for platform dependent data, would
+> > fail otherwise. Could you suggest what may I do in this circumstances?
+> 
+> This patch looks OK to me, and I'm happy to merge it via DaVinci git
+> for 2.6.34 since it has a compile dependency with PATCH 1/1.
+> 
+> Ben, if you're OK with that, can I have your Ack and I can merge it?
 
-I said nice, not esential.
+Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
  
-> -- 
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
-
+> Thanks,
+> 
+> Kevin
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
