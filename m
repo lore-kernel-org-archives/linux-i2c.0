@@ -1,29 +1,59 @@
-From: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [PATCH 0/11] Update support for MPC512x
-Date: Tue, 26 Jan 2010 09:06:33 +0100
-Message-ID: <20100126090633.74257b1a@wker>
-References: <1263932653-3634-1-git-send-email-agust@denx.de>
-	<20100120112232.GD5041@pengutronix.de>
+Date: Tue, 26 Jan 2010 13:16:21 +0100
+Message-ID: <20100126121621.GA4431@pengutronix.de>
+References: <1263932653-3634-1-git-send-email-agust@denx.de> <20100120112232.GD5041@pengutronix.de> <20100126090633.74257b1a@wker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100120112232.GD5041-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, dzu-ynQEQJNshbs@public.gmane.org, wd-ynQEQJNshbs@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Rigby <jcrigby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100126090633.74257b1a@wker>
+Sender: netdev-owner@vger.kernel.org
+To: Anatolij Gustschin <agust@denx.de>
+Cc: John Rigby <jcrigby@gmail.com>, dzu@denx.de, netdev@vger.kernel.org, linux-usb@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, linuxppc-dev@ozlabs.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, rtc-linux@googlegroups.com, Dan Williams <dan.j.williams@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 20 Jan 2010 12:22:32 +0100
-Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
 
-> 
-> > The patches are based on v2.6.33-rc4 and cover the following
-> > items:
-> 
-> The USB-patch needs two patches from linux-next. For convenience, don't you
-> have a git-tree somewhere? :)
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No, I don't have a git tree for this now, sorry.
+> No, I don't have a git tree for this now, sorry.
 
-Anatolij
+No problem, I set one up at:
+
+	git://git.pengutronix.de/git/wsa/linux-2.6.git
+
+It is based on 2.6.33-rc5 and contains the newest patches for FEC and I2C. =
+(I
+will pick up the patches as they show up on the lists, so this tree will be
+rebased!)
+
+This tree includes all MPC5121-patches and the two USB-patches from Anton. I
+haven't actually tested them yet, but they all applied cleanly, at least.
+Testing will come soon...
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkte3RUACgkQD27XaX1/VRueqACgzELpbWZLj3PaSUx0F9SZp7FX
+PbQAnjyi1ZRptgosw9GUBZlgJzczKcNh
+=/8WQ
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
