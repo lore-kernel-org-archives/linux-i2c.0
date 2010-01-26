@@ -1,79 +1,61 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] MAINTAINERS: add i2c tree for embedded platforms
-Date: Tue, 26 Jan 2010 16:25:15 +0100
-Message-ID: <20100126162515.230bdf36@hyperion.delvare>
-References: <1264411234-5400-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<20100125111055.05ccedf2@hyperion.delvare>
-	<20100126143830.GC12774@fluff.org.uk>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/1] i2c: Add support for Xilinx XPS IIC Bus Interface
+Date: Tue, 26 Jan 2010 16:29:06 +0100
+Message-ID: <4B5F0A42.6060401@pelagicore.com>
+References: <4B55D74C.2010806@pelagicore.com> <20100124154930.GE28675@fluff.org.uk> <4B5C8460.2040309@pelagicore.com> <20100126144402.GE12774@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754558Ab0AZPZV@vger.kernel.org>
-In-Reply-To: <20100126143830.GC12774@fluff.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100126144402.GE12774-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 26 Jan 2010 14:38:30 +0000, Ben Dooks wrote:
-> On Mon, Jan 25, 2010 at 11:10:55AM +0100, Jean Delvare wrote:
-> > On Mon, 25 Jan 2010 10:20:34 +0100, Uwe Kleine-K??nig wrote:
-> > > Signed-off-by: Uwe Kleine-K??nig <u.kleine-koenig@pengutronix.de>
-> > > Cc: Ben Dooks <ben-linux@fluff.org>
-> > > ---
-> > > Hello,
-> > > 
-> > > I wonder if it makes sence to split the "I2C SUBSYSTEM" entry into
-> > > something like:
-> > > 
-> > > 	I2C SUBSYSTEM (PC drivers, core)
-> > > 	M:	Jean Delvare <khali@linux-fr.org>
-> > > 	L:	...
-> > > 	W:	...
-> > > 	T:	quilt ...
-> > > 	S:	...
-> > > 	F:	Documentation/i2c/
-> > > 	F:	drivers/i2c/
-> > > 	F:	include/linux/i2c.h
-> > > 	F:	include/linux/i2c-*.h
-> > > 
-> > > 	I2C SUBSYSTEM (embedded platforms)
-> > > 	M:	Ben Dooks <ben-linux@fluff.org>
-> > > 	L:	...
-> > > 	W:	...
-> > > 	T:	git ...
-> > > 	S:	...
-> > > 	F:	drivers/i2c/
-> > > 	F:	include/linux/i2c-*.h
-> > > 
-> > > (I'm not entirely sure about the file patterns for the 2nd entry.)
-> > 
-> > I'm not sure what value it adds, compared to having a single entry as
-> > we have today. scripts/get_maintainer.pl will produce the same output,
-> > won't it?
-> > 
-> > This script (and our minds) being directory-driven, I suspect that the
-> > only efficient way to split the entries would be to first move all i2c bus
-> > driver for embedded platforms to a separate subdirectory. I'm leaving
-> > it to Ben and the embedded community to decide whether they want to do
-> > that or not.
+Ben Dooks wrote:
+> On Sun, Jan 24, 2010 at 06:33:20PM +0100, Richard R?jfors wrote:
+>>
+>>>> +
+>>>> +#define XIIC_MSB_OFFSET 0
+>>>> +#define XIIC_REG_OFFSET (0x100+XIIC_MSB_OFFSET)
+>>> givevn you're running everything through indirect read/write calls,
+>>> how about doing it in there?
+>> Could do, bad thing is that it would add in an addition during runtime
+>> rather than having the C preprocessor doing it.
+>>
+>> I think I would like to leave it as is.
+>>
+>> What do you think?
 > 
-> I'd much prefer to see just the one directory of i2c drivers, the
-> minor point being people silly enough to load modules by explicit path
+> Compilers aren't that stupid nowadays, they can generally sort this
+> thing out at compile time, esepcially with inline code. Try it and
+> see what happens...
 
-Never thought of that, but I wouldn't care. There is no good reason to
-do this.
+If a constant value needs to be added to the sum of two input parameters of a function, I don's see
+any option for the compiler but add it runtime.
 
-> and the second is that having all the drivers in one place makes it
-> easier to update them when changing something in the core...
+>>>> +
+>>>> +	/* add in known devices to the bus */
+>>>> +	for (i = 0; i < pdata->num_devices; i++)
+>>>> +		i2c_new_device(&i2c->adap, pdata->devices + i);
+>>> wouldn't i2c_register_board_info() do the job for you too?
+>> No actually not, we had a discussion about this like 6-9 months ago,
+>> when I posted the similar solution as a patch to ocores. Problem is that
+>> we don't know the bus number in advance and in theory several boards
+>> containing the I2C bus could in theory show up.
+>> I would like to see the same solution here.
+> 
+> Sorry, you've just registered the bus so should now know the number?
 
-This doesn't seem to be a blocker either. For one thing, i2c
-subsystem-wide changes tend to affect chip drivers more than bus
-drivers. And even then, looking for drivers in 2 directories doesn't
-seem much harder than looking into just one, especially when said 2
-directories live next to each other.
+Ahh, you mean to call i2c_register_board_info in here after the i2c_add_adapter call?
 
-So I see no objection to a mass move of all embedded/system i2c bus
-drivers to a separate sub-directory.
+The boardinfo list is only checked when adding the adapter. Adding the boardinfo afterwards has no
+effect.
+A second problem would be that every time we probe we would append the same boardinfo again... (the
+device could be removed and come back).
 
--- 
-Jean Delvare
+We can not do the register_board_info before adding the adapter because then we don't know the bus
+number.
+
+--Richard
