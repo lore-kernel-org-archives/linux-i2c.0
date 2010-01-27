@@ -1,43 +1,34 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] i2c-mpc: use __devinit[data] for initialization
- functions and data
-Date: Wed, 27 Jan 2010 16:14:18 +0100
-Message-ID: <4B60584A.5050605@grandegger.com>
-References: <1264452906-32536-1-git-send-email-wg@grandegger.com> <1264452906-32536-2-git-send-email-wg@grandegger.com> <20100126143507.GA12774@fluff.org.uk> <4B5F37FA.8060809@grandegger.com> <20100127150801.GC6090@fluff.org.uk>
+From: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Intel ICHx bus driver
+Date: Wed, 27 Jan 2010 19:56:02 +0200
+Message-ID: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100127150801.GC6090-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks wrote:
-> On Tue, Jan 26, 2010 at 07:44:10PM +0100, Wolfgang Grandegger wrote:
->> Ben Dooks wrote:
->>> On Mon, Jan 25, 2010 at 09:55:04PM +0100, Wolfgang Grandegger wrote:
-[snip]
->>> Any particular reason you decided to move this all about?
->> This was necessary to allow using __devinit[data] for the clock setup
->> functions and clock diviver arrays above which results in some notable
->> saving of memory space if the driver is statically linked into the
->> kernel. If the data is defined within "mpc_i2c_of_match", section
->> mismatches are reported.
->>
->>> Are you sure that __devinitdata is the right thing here, I've no idea
->>> if there is currently any hotplug type support for openfirmware or
->>> not.
->> I agree that __init[data] is more appropriate for this driver even if
->> many other non-hotplugable drivers use __devinit[data]. I will change that.
-> 
-> sorry, may have gotten confused by which type of __init is which, I
-> think __devinit is the correct one here.
+Running i2cdetect on ICH9 says:
+"I2C Block Write =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0yes"
 
-Why? It's not obvious to me how a i2c device might be hotpugged? Will
-require v4 to fix it.
+But having a closer look at how the whole thing is implemented proves
+that no i2c block write is supported.
+
+The proof:
+1. i801_probe turns i801_features to FEATURE_I2C_BLOCK_READ
+2. as a sequence in i801_block_transaction
+i801_block_transaction_byte_by_byte is called
+3. on the other hand i801_block_transaction_byte_by_byte does
+=A0 =A0if (read_write =3D=3D I2C_SMBUS_WRITE)
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 outb_p(len, SMBHSTDAT0);
+meaning SMBus length.
+
+But what if I want to write I2C's multi-block (without length or even
+command before)?
+I cannot understand why i801_func turns on I2C_FUNC_SMBUS_WRITE_I2C_BLO=
+CK?
 
 Thanks,
-
-Wolfgang.
+=46elix R.
