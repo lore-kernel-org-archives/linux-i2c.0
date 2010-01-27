@@ -1,198 +1,240 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 2/6] i2c: davinci: Remove MOD_REG_BIT and IO_ADDRESS
- usage
-Date: Wed, 27 Jan 2010 15:05:18 +0000
-Message-ID: <20100127150518.GB6090@fluff.org.uk>
-References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
- <1264549293-25556-3-git-send-email-khilman@deeprootsystems.com>
+Subject: Re: [PATCH v2 1/3] i2c-mpc: use __devinit[data] for initialization
+ functions and data
+Date: Wed, 27 Jan 2010 15:08:01 +0000
+Message-ID: <20100127150801.GC6090@fluff.org.uk>
+References: <1264452906-32536-1-git-send-email-wg@grandegger.com>
+ <1264452906-32536-2-git-send-email-wg@grandegger.com>
+ <20100126143507.GA12774@fluff.org.uk>
+ <4B5F37FA.8060809@grandegger.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1264549293-25556-3-git-send-email-khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <4B5F37FA.8060809-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 26, 2010 at 03:41:29PM -0800, Kevin Hilman wrote:
-> From: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+On Tue, Jan 26, 2010 at 07:44:10PM +0100, Wolfgang Grandegger wrote:
+> Ben Dooks wrote:
+> > On Mon, Jan 25, 2010 at 09:55:04PM +0100, Wolfgang Grandegger wrote:
+> >> From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+> >>
+> >> "__devinit[data]" has not yet been used for all initialization functions
+> >> and data. To avoid truncating lines, the struct mpc_i2c_match_data has
+> >> been renamed to mpc_i2c_data, which is even the better name.
+> >>
+> >> Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+> >> ---
+> >>  drivers/i2c/busses/i2c-mpc.c |   99 +++++++++++++++++++----------------------
+> >>  1 files changed, 46 insertions(+), 53 deletions(-)
+> >>
+> >> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> >> index f627001..2cb864e 100644
+> >> --- a/drivers/i2c/busses/i2c-mpc.c
+> >> +++ b/drivers/i2c/busses/i2c-mpc.c
+> >> @@ -66,7 +66,7 @@ struct mpc_i2c_divider {
+> >>  	u16 fdr;	/* including dfsrr */
+> >>  };
+> >>  
+> >> -struct mpc_i2c_match_data {
+> >> +struct mpc_i2c_data {
+> >>  	void (*setclock)(struct device_node *node,
+> >>  			 struct mpc_i2c *i2c,
+> >>  			 u32 clock, u32 prescaler);
+> >> @@ -165,7 +165,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+> >>  }
+> >>  
+> >>  #ifdef CONFIG_PPC_MPC52xx
+> >> -static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
+> >> +static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
+> >>  	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
+> >>  	{28, 0x24}, {30, 0x01}, {32, 0x25}, {34, 0x02},
+> >>  	{36, 0x26}, {40, 0x27}, {44, 0x04}, {48, 0x28},
+> >> @@ -186,7 +186,8 @@ static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
+> >>  	{10240, 0x9d}, {12288, 0x9e}, {15360, 0x9f}
+> >>  };
+> >>  
+> >> -int mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock, int prescaler)
+> >> +static int __devinit mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock,
+> >> +					  int prescaler)
+> >>  {
+> >>  	const struct mpc_i2c_divider *div = NULL;
+> >>  	unsigned int pvr = mfspr(SPRN_PVR);
+> >> @@ -215,9 +216,9 @@ int mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock, int prescaler)
+> >>  	return div ? (int)div->fdr : -EINVAL;
+> >>  }
+> >>  
+> >> -static void mpc_i2c_setclock_52xx(struct device_node *node,
+> >> -				  struct mpc_i2c *i2c,
+> >> -				  u32 clock, u32 prescaler)
+> >> +static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+> >> +					    struct mpc_i2c *i2c,
+> >> +					    u32 clock, u32 prescaler)
+> >>  {
+> >>  	int ret, fdr;
+> >>  
+> >> @@ -230,15 +231,15 @@ static void mpc_i2c_setclock_52xx(struct device_node *node,
+> >>  		dev_info(i2c->dev, "clock %d Hz (fdr=%d)\n", clock, fdr);
+> >>  }
+> >>  #else /* !CONFIG_PPC_MPC52xx */
+> >> -static void mpc_i2c_setclock_52xx(struct device_node *node,
+> >> -				  struct mpc_i2c *i2c,
+> >> -				  u32 clock, u32 prescaler)
+> >> +static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+> >> +					    struct mpc_i2c *i2c,
+> >> +					    u32 clock, u32 prescaler)
+> >>  {
+> >>  }
+> >>  #endif /* CONFIG_PPC_MPC52xx*/
+> >>  
+> >>  #ifdef CONFIG_FSL_SOC
+> >> -static const struct mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
+> >> +static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
+> >>  	{160, 0x0120}, {192, 0x0121}, {224, 0x0122}, {256, 0x0123},
+> >>  	{288, 0x0100}, {320, 0x0101}, {352, 0x0601}, {384, 0x0102},
+> >>  	{416, 0x0602}, {448, 0x0126}, {480, 0x0103}, {512, 0x0127},
+> >> @@ -258,7 +259,7 @@ static const struct mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
+> >>  	{49152, 0x011e}, {61440, 0x011f}
+> >>  };
+> >>  
+> >> -u32 mpc_i2c_get_sec_cfg_8xxx(void)
+> >> +static u32 __devinit mpc_i2c_get_sec_cfg_8xxx(void)
+> >>  {
+> >>  	struct device_node *node = NULL;
+> >>  	u32 __iomem *reg;
+> >> @@ -287,7 +288,8 @@ u32 mpc_i2c_get_sec_cfg_8xxx(void)
+> >>  	return val;
+> >>  }
+> >>  
+> >> -int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock, u32 prescaler)
+> >> +static int __devinit mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
+> >> +					  u32 prescaler)
+> >>  {
+> >>  	const struct mpc_i2c_divider *div = NULL;
+> >>  	u32 divider;
+> >> @@ -320,9 +322,9 @@ int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock, u32 prescaler)
+> >>  	return div ? (int)div->fdr : -EINVAL;
+> >>  }
+> >>  
+> >> -static void mpc_i2c_setclock_8xxx(struct device_node *node,
+> >> -				  struct mpc_i2c *i2c,
+> >> -				  u32 clock, u32 prescaler)
+> >> +static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
+> >> +					    struct mpc_i2c *i2c,
+> >> +					    u32 clock, u32 prescaler)
+> >>  {
+> >>  	int ret, fdr;
+> >>  
+> >> @@ -338,9 +340,9 @@ static void mpc_i2c_setclock_8xxx(struct device_node *node,
+> >>  }
+> >>  
+> >>  #else /* !CONFIG_FSL_SOC */
+> >> -static void mpc_i2c_setclock_8xxx(struct device_node *node,
+> >> -				  struct mpc_i2c *i2c,
+> >> -				  u32 clock, u32 prescaler)
+> >> +static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
+> >> +					    struct mpc_i2c *i2c,
+> >> +					    u32 clock, u32 prescaler)
+> >>  {
+> >>  }
+> >>  #endif /* CONFIG_FSL_SOC */
+> >> @@ -529,8 +531,8 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
+> >>  			clock = *prop;
+> >>  
+> >>  		if (match->data) {
+> >> -			struct mpc_i2c_match_data *data =
+> >> -				(struct mpc_i2c_match_data *)match->data;
+> >> +			struct mpc_i2c_data *data =
+> >> +				(struct mpc_i2c_data *)match->data;
+> >>  			data->setclock(op->node, i2c, clock, data->prescaler);
+> >>  		} else {
+> >>  			/* Backwards compatibility */
+> >> @@ -582,44 +584,35 @@ static int __devexit fsl_i2c_remove(struct of_device *op)
+> >>  	return 0;
+> >>  };
+> >>  
+> >> +static struct mpc_i2c_data __devinitdata mpc_i2c_data_52xx = {
+> >> +	.setclock = mpc_i2c_setclock_52xx,
+> >> +};
+> >> +
+> >> +static struct mpc_i2c_data __devinitdata mpc_i2c_data_8313 = {
+> >> +	.setclock = mpc_i2c_setclock_8xxx,
+> >> +};
+> >> +
+> >> +static struct mpc_i2c_data __devinitdata mpc_i2c_data_8543 = {
+> >> +	.setclock = mpc_i2c_setclock_8xxx,
+> >> +	.prescaler = 2,
+> >> +};
+> >> +
+> >> +static struct mpc_i2c_data __devinitdata mpc_i2c_data_8544 = {
+> >> +	.setclock = mpc_i2c_setclock_8xxx,
+> >> +	.prescaler = 3,
+> >> +};
+> >> +
+> >>  static const struct of_device_id mpc_i2c_of_match[] = {
+> >> -	{.compatible = "mpc5200-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_52xx,
+> >> -		},
+> >> -	},
+> >> -	{.compatible = "fsl,mpc5200b-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_52xx,
+> >> -		},
+> >> -	},
+> >> -	{.compatible = "fsl,mpc5200-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_52xx,
+> >> -		},
+> >> -	},
+> >> -	{.compatible = "fsl,mpc8313-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_8xxx,
+> >> -		},
+> >> -	},
+> >> -	{.compatible = "fsl,mpc8543-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_8xxx,
+> >> -			.prescaler = 2,
+> >> -		},
+> >> -	},
+> >> -	{.compatible = "fsl,mpc8544-i2c",
+> >> -	 .data = &(struct mpc_i2c_match_data) {
+> >> -			.setclock = mpc_i2c_setclock_8xxx,
+> >> -			.prescaler = 3,
+> >> -		},
+> >> +	{.compatible = "mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
+> >> +	{.compatible = "fsl,mpc5200b-i2c", .data = &mpc_i2c_data_52xx, },
+> >> +	{.compatible = "fsl,mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
+> >> +	{.compatible = "fsl,mpc8313-i2c", .data = &mpc_i2c_data_8313, },
+> >> +	{.compatible = "fsl,mpc8543-i2c", .data = &mpc_i2c_data_8543, },
+> >> +	{.compatible = "fsl,mpc8544-i2c", .data = &mpc_i2c_data_8544, },
+> >>  	/* Backward compatibility */
+> >> -	},
+> >>  	{.compatible = "fsl-i2c", },
+> >>  	{},
+> >>  };
+> > 
+> > Any particular reason you decided to move this all about?
 > 
-> Cleanup the DaVinci I2C driver. Remove MOD_REG_BIT macro.
-> Also use ioremap instead of IO_ADDRESS macro.
-
-would have been nicer to do each of these seperately.
- 
-> Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
-> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-davinci.c |   77 +++++++++++++++++++-------------------
->  1 files changed, 38 insertions(+), 39 deletions(-)
+> This was necessary to allow using __devinit[data] for the clock setup
+> functions and clock diviver arrays above which results in some notable
+> saving of memory space if the driver is statically linked into the
+> kernel. If the data is defined within "mpc_i2c_of_match", section
+> mismatches are reported.
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 444a9f2..34a48d0 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -37,7 +37,6 @@
->  #include <linux/io.h>
->  
->  #include <mach/hardware.h>
-> -
->  #include <mach/i2c.h>
->  
->  /* ----- global defines ----------------------------------------------- */
-> @@ -71,37 +70,29 @@
->  #define DAVINCI_I2C_IVR_NACK	0x02
->  #define DAVINCI_I2C_IVR_AL	0x01
->  
-> -#define DAVINCI_I2C_STR_BB	(1 << 12)
-> -#define DAVINCI_I2C_STR_RSFULL	(1 << 11)
-> -#define DAVINCI_I2C_STR_SCD	(1 << 5)
-> -#define DAVINCI_I2C_STR_ARDY	(1 << 2)
-> -#define DAVINCI_I2C_STR_NACK	(1 << 1)
-> -#define DAVINCI_I2C_STR_AL	(1 << 0)
-> -
-> -#define DAVINCI_I2C_MDR_NACK	(1 << 15)
-> -#define DAVINCI_I2C_MDR_STT	(1 << 13)
-> -#define DAVINCI_I2C_MDR_STP	(1 << 11)
-> -#define DAVINCI_I2C_MDR_MST	(1 << 10)
-> -#define DAVINCI_I2C_MDR_TRX	(1 << 9)
-> -#define DAVINCI_I2C_MDR_XA	(1 << 8)
-> -#define DAVINCI_I2C_MDR_RM	(1 << 7)
-> -#define DAVINCI_I2C_MDR_IRS	(1 << 5)
-> -
-> -#define DAVINCI_I2C_IMR_AAS	(1 << 6)
-> -#define DAVINCI_I2C_IMR_SCD	(1 << 5)
-> -#define DAVINCI_I2C_IMR_XRDY	(1 << 4)
-> -#define DAVINCI_I2C_IMR_RRDY	(1 << 3)
-> -#define DAVINCI_I2C_IMR_ARDY	(1 << 2)
-> -#define DAVINCI_I2C_IMR_NACK	(1 << 1)
-> -#define DAVINCI_I2C_IMR_AL	(1 << 0)
-> -
-> -#define MOD_REG_BIT(val, mask, set) do { \
-> -	if (set) { \
-> -		val |= mask; \
-> -	} else { \
-> -		val &= ~mask; \
-> -	} \
-> -} while (0)
-> +#define DAVINCI_I2C_STR_BB	BIT(12)
-> +#define DAVINCI_I2C_STR_RSFULL	BIT(11)
-> +#define DAVINCI_I2C_STR_SCD	BIT(5)
-> +#define DAVINCI_I2C_STR_ARDY	BIT(2)
-> +#define DAVINCI_I2C_STR_NACK	BIT(1)
-> +#define DAVINCI_I2C_STR_AL	BIT(0)
-> +
-> +#define DAVINCI_I2C_MDR_NACK	BIT(15)
-> +#define DAVINCI_I2C_MDR_STT	BIT(13)
-> +#define DAVINCI_I2C_MDR_STP	BIT(11)
-> +#define DAVINCI_I2C_MDR_MST	BIT(10)
-> +#define DAVINCI_I2C_MDR_TRX	BIT(9)
-> +#define DAVINCI_I2C_MDR_XA	BIT(8)
-> +#define DAVINCI_I2C_MDR_RM	BIT(7)
-> +#define DAVINCI_I2C_MDR_IRS	BIT(5)
-> +
-> +#define DAVINCI_I2C_IMR_AAS	BIT(6)
-> +#define DAVINCI_I2C_IMR_SCD	BIT(5)
-> +#define DAVINCI_I2C_IMR_XRDY	BIT(4)
-> +#define DAVINCI_I2C_IMR_RRDY	BIT(3)
-> +#define DAVINCI_I2C_IMR_ARDY	BIT(2)
-> +#define DAVINCI_I2C_IMR_NACK	BIT(1)
-> +#define DAVINCI_I2C_IMR_AL	BIT(0)
-
-surely 1 << x isn't too difficult to understand??
-  
->  struct davinci_i2c_dev {
->  	struct device           *dev;
-> @@ -155,7 +146,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  
->  	/* put I2C into reset */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
-> +	w &= ~DAVINCI_I2C_MDR_IRS;
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->  
->  	/* NOTE: I2C Clock divider programming info
-> @@ -205,7 +196,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  
->  	/* Take the I2C module out of reset: */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
-> +	w |= DAVINCI_I2C_MDR_IRS;
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->  
->  	/* Enable interrupts */
-> @@ -287,9 +278,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	/* Enable receive or transmit interrupts */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
->  	if (msg->flags & I2C_M_RD)
-> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 1);
-> +		w |= DAVINCI_I2C_IMR_RRDY;
->  	else
-> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 1);
-> +		w |= DAVINCI_I2C_IMR_XRDY;
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
->  
->  	dev->terminate = 0;
-> @@ -346,7 +337,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  			return msg->len;
->  		if (stop) {
->  			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -			MOD_REG_BIT(w, DAVINCI_I2C_MDR_STP, 1);
-> +			w |= DAVINCI_I2C_MDR_STP;
->  			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->  		}
->  		return -EREMOTEIO;
-> @@ -482,7 +473,7 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->  
->  				w = davinci_i2c_read_reg(dev,
->  							 DAVINCI_I2C_IMR_REG);
-> -				MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 0);
-> +				w &= ~DAVINCI_I2C_IMR_XRDY;
->  				davinci_i2c_write_reg(dev,
->  						      DAVINCI_I2C_IMR_REG,
->  						      w);
-> @@ -561,7 +552,12 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	}
->  	clk_enable(dev->clk);
->  
-> -	dev->base = (void __iomem *)IO_ADDRESS(mem->start);
-> +	dev->base = ioremap(mem->start, resource_size(mem));
-> +	if (!dev->base) {
-> +		r = -EBUSY;
-> +		goto err_mem_ioremap;
-> +	}
-> +
-
-this looks like you've got >1 change per patch?
-
->  	i2c_davinci_init(dev);
->  
->  	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
-> @@ -591,6 +587,8 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  err_free_irq:
->  	free_irq(dev->irq, dev);
->  err_unuse_clocks:
-> +	iounmap(dev->base);
-> +err_mem_ioremap:
->  	clk_disable(dev->clk);
->  	clk_put(dev->clk);
->  	dev->clk = NULL;
-> @@ -619,6 +617,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
->  
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
->  	free_irq(IRQ_I2C, dev);
-> +	iounmap(dev->base);
->  	kfree(dev);
->  
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -- 
-> 1.6.6
+> > Are you sure that __devinitdata is the right thing here, I've no idea
+> > if there is currently any hotplug type support for openfirmware or
+> > not.
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> I agree that __init[data] is more appropriate for this driver even if
+> many other non-hotplugable drivers use __devinit[data]. I will change that.
+
+sorry, may have gotten confused by which type of __init is which, I
+think __devinit is the correct one here.
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
