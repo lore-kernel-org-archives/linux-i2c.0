@@ -1,294 +1,70 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: [PATCH v4 2/3] i2c-mpc: add support for the MPC512x processors from Freescale
-Date: Thu, 28 Jan 2010 14:25:40 +0100
-Message-ID: <1264685141-26391-3-git-send-email-wg@grandegger.com>
-References: <1264685141-26391-1-git-send-email-wg@grandegger.com>
- <1264685141-26391-2-git-send-email-wg@grandegger.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Intel ICHx bus driver
+Date: Thu, 28 Jan 2010 14:29:41 +0100
+Message-ID: <20100128142941.4daf2dfc@hyperion.delvare>
+References: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
+	<20100128085904.4e202de1@hyperion.delvare>
+	<af0693f01001280132l4002af0fgf3137fa27ce8555e@mail.gmail.com>
+	<20100128105340.41aecf64@hyperion.delvare>
+	<af0693f01001280446u66923c70ld707d10b9fcee068@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1264685141-26391-2-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+In-Reply-To: <af0693f01001280446u66923c70ld707d10b9fcee068-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+Hi Felix,
 
-The "setclock" initialization functions have been renamed to "setup"
-because I2C interrupts must be enabled for the MPC512x. This requires
-to handle "fsl,preserve-clocking" in a slighly different way. Also,
-the old settings are now reported calling dev_dbg(). For the MPC512x
-the clock setup function of the MPC52xx can be re-used. Furthermore,
-the Kconfig help has been updated and corrected.
+On Thu, 28 Jan 2010 14:46:23 +0200, Felix Rubinstein wrote:
+> On Thu, Jan 28, 2010 at 11:53 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > No, the above piece of code doesn't imply this. The length is written
+> > to one register of the SMBus controller. It doesn't imply in any way
+> > that the controller will push that value on the wire. In the case of
+> > I2C block transactions, it does not.
+> How exactly the len is not pushed on the wire?
+> In i801_transaction, the outb_p(xact | I801_START, SMBHSTCNT);
+> where xact has I801_BLOCK_DATA (101b) turned on.
+> 
+> here is an excerpt from ICH9 datasheet:
+> 101 = Block: This command uses the transmit slave address, command, DATA0
+> registers, and the Block Data Byte register. For block write, the
+> count is stored
+> in the DATA0 register and indicates how many bytes of data will be transferred.
+> 
+> But DATA0 was assigned a value of len before that by means of the
+> above code snipet.
+> Please shed the light why SMBus controller will not push the len byte
+> on the wire if DATA0 equals to len and Block SMB_CMD (as defined in
+> the datasheet on page 761) equals to 101b (I801_BLOCK_DATA).
 
-Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
----
- drivers/i2c/busses/Kconfig   |    7 +-
- drivers/i2c/busses/i2c-mpc.c |  127 ++++++++++++++++++++++++++++++------------
- 2 files changed, 94 insertions(+), 40 deletions(-)
+You didn't finish your homework... ;)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 5f318ce..5477e41 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -418,13 +418,12 @@ config I2C_IXP2000
- 	  instead.
- 
- config I2C_MPC
--	tristate "MPC107/824x/85xx/52xx/86xx"
-+	tristate "MPC107/824x/85xx/512x/52xx/83xx/86xx"
- 	depends on PPC32
- 	help
- 	  If you say yes to this option, support will be included for the
--	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
--	  MPC85xx/MPC8641 family processors. The driver may also work on 52xx
--	  family processors, though interrupts are known not to work.
-+	  built-in I2C interface on the MPC107, Tsi107, MPC512x, MPC52xx,
-+	  MPC8240, MPC8245, MPC83xx, MPC85xx and MPC8641 family processors.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mpc.
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 275ebe6..1af0730 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -31,6 +31,9 @@
- 
- #define DRV_NAME "mpc-i2c"
- 
-+#define MPC_I2C_CLOCK_SAFE     0
-+#define MPC_I2C_CLOCK_PRESERVE (~0U)
-+
- #define MPC_I2C_FDR   0x04
- #define MPC_I2C_CR    0x08
- #define MPC_I2C_SR    0x0c
-@@ -67,9 +70,8 @@ struct mpc_i2c_divider {
- };
- 
- struct mpc_i2c_data {
--	void (*setclock)(struct device_node *node,
--			 struct mpc_i2c *i2c,
--			 u32 clock, u32 prescaler);
-+	void (*setup)(struct device_node *node, struct mpc_i2c *i2c,
-+		      u32 clock, u32 prescaler);
- 	u32 prescaler;
- };
- 
-@@ -164,7 +166,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- 	return 0;
- }
- 
--#ifdef CONFIG_PPC_MPC52xx
-+#if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
- static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
- 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
- 	{28, 0x24}, {30, 0x01}, {32, 0x25}, {34, 0x02},
-@@ -216,12 +218,18 @@ static int __devinit mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock,
- 	return div ? (int)div->fdr : -EINVAL;
- }
- 
--static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
--					    struct mpc_i2c *i2c,
--					    u32 clock, u32 prescaler)
-+static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
- {
- 	int ret, fdr;
- 
-+	if (clock == MPC_I2C_CLOCK_PRESERVE) {
-+		dev_dbg(i2c->dev, "using fdr %d\n",
-+			readb(i2c->base + MPC_I2C_FDR));
-+		return;
-+	}
-+
- 	ret = mpc_i2c_get_fdr_52xx(node, clock, prescaler);
- 	fdr = (ret >= 0) ? ret : 0x3f; /* backward compatibility */
- 
-@@ -230,13 +238,49 @@ static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
- 	if (ret >= 0)
- 		dev_info(i2c->dev, "clock %d Hz (fdr=%d)\n", clock, fdr);
- }
--#else /* !CONFIG_PPC_MPC52xx */
--static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
--					    struct mpc_i2c *i2c,
--					    u32 clock, u32 prescaler)
-+#else /* !(CONFIG_PPC_MPC52xx || CONFIG_PPC_MPC512x) */
-+static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
-+{
-+}
-+#endif /* CONFIG_PPC_MPC52xx || CONFIG_PPC_MPC512x */
-+
-+#ifdef CONFIG_PPC_MPC512x
-+static void __devinit mpc_i2c_setup_512x(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
-+{
-+	struct device_node *node_ctrl;
-+	void __iomem *ctrl;
-+	const u32 *pval;
-+	u32 idx;
-+
-+	/* Enable I2C interrupts for mpc5121 */
-+	node_ctrl = of_find_compatible_node(NULL, NULL,
-+					    "fsl,mpc5121-i2c-ctrl");
-+	if (node_ctrl) {
-+		ctrl = of_iomap(node_ctrl, 0);
-+		if (ctrl) {
-+			/* Interrupt enable bits for i2c-0/1/2: bit 24/26/28 */
-+			pval = of_get_property(node, "reg", NULL);
-+			idx = (*pval & 0xff) / 0x20;
-+			setbits32(ctrl, 1 << (24 + idx * 2));
-+			iounmap(ctrl);
-+		}
-+		of_node_put(node_ctrl);
-+	}
-+
-+	/* The clock setup for the 52xx works also fine for the 512x */
-+	mpc_i2c_setup_52xx(node, i2c, clock, prescaler);
-+}
-+#else /* CONFIG_PPC_MPC512x */
-+static void __devinit mpc_i2c_setup_512x(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
- {
- }
--#endif /* CONFIG_PPC_MPC52xx*/
-+#endif /* CONFIG_PPC_MPC512x */
- 
- #ifdef CONFIG_FSL_SOC
- static const struct __devinitdata mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
-@@ -322,12 +366,19 @@ static int __devinit mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
- 	return div ? (int)div->fdr : -EINVAL;
- }
- 
--static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
--					    struct mpc_i2c *i2c,
--					    u32 clock, u32 prescaler)
-+static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
- {
- 	int ret, fdr;
- 
-+	if (clock == MPC_I2C_CLOCK_PRESERVE) {
-+		dev_dbg(i2c->dev, "using dfsrr %d, fdr %d\n",
-+			readb(i2c->base + MPC_I2C_DFSRR),
-+			readb(i2c->base + MPC_I2C_FDR));
-+		return;
-+	}
-+
- 	ret = mpc_i2c_get_fdr_8xxx(node, clock, prescaler);
- 	fdr = (ret >= 0) ? ret : 0x1031; /* backward compatibility */
- 
-@@ -340,9 +391,9 @@ static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
- }
- 
- #else /* !CONFIG_FSL_SOC */
--static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
--					    struct mpc_i2c *i2c,
--					    u32 clock, u32 prescaler)
-+static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
-+					 struct mpc_i2c *i2c,
-+					 u32 clock, u32 prescaler)
- {
- }
- #endif /* CONFIG_FSL_SOC */
-@@ -496,7 +547,7 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
- {
- 	struct mpc_i2c *i2c;
- 	const u32 *prop;
--	u32 clock = 0;
-+	u32 clock = MPC_I2C_CLOCK_SAFE;
- 	int result = 0;
- 	int plen;
- 
-@@ -525,21 +576,21 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
- 		}
- 	}
- 
--	if (!of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
-+	if (of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
-+		clock = MPC_I2C_CLOCK_PRESERVE;
-+	} else {
- 		prop = of_get_property(op->node, "clock-frequency", &plen);
- 		if (prop && plen == sizeof(u32))
- 			clock = *prop;
-+	}
- 
--		if (match->data) {
--			struct mpc_i2c_data *data =
--				(struct mpc_i2c_data *)match->data;
--			data->setclock(op->node, i2c, clock, data->prescaler);
--		} else {
--			/* Backwards compatibility */
--			if (of_get_property(op->node, "dfsrr", NULL))
--				mpc_i2c_setclock_8xxx(op->node, i2c,
--						      clock, 0);
--		}
-+	if (match->data) {
-+		struct mpc_i2c_data *data = match->data;
-+		data->setup(op->node, i2c, clock, data->prescaler);
-+	} else {
-+		/* Backwards compatibility */
-+		if (of_get_property(op->node, "dfsrr", NULL))
-+			mpc_i2c_setup_8xxx(op->node, i2c, clock, 0);
- 	}
- 
- 	dev_set_drvdata(&op->dev, i2c);
-@@ -584,21 +635,25 @@ static int __devexit fsl_i2c_remove(struct of_device *op)
- 	return 0;
- };
- 
-+static struct mpc_i2c_data __devinitdata mpc_i2c_data_512x = {
-+	.setup = mpc_i2c_setup_512x,
-+};
-+
- static struct mpc_i2c_data __devinitdata mpc_i2c_data_52xx = {
--	.setclock = mpc_i2c_setclock_52xx,
-+	.setup = mpc_i2c_setup_52xx,
- };
- 
- static struct mpc_i2c_data __devinitdata mpc_i2c_data_8313 = {
--	.setclock = mpc_i2c_setclock_8xxx,
-+	.setup = mpc_i2c_setup_8xxx,
- };
- 
- static struct mpc_i2c_data __devinitdata mpc_i2c_data_8543 = {
--	.setclock = mpc_i2c_setclock_8xxx,
-+	.setup = mpc_i2c_setup_8xxx,
- 	.prescaler = 2,
- };
- 
- static struct mpc_i2c_data __devinitdata mpc_i2c_data_8544 = {
--	.setclock = mpc_i2c_setclock_8xxx,
-+	.setup = mpc_i2c_setup_8xxx,
- 	.prescaler = 3,
- };
- 
-@@ -606,6 +661,7 @@ static const struct of_device_id mpc_i2c_of_match[] = {
- 	{.compatible = "mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
- 	{.compatible = "fsl,mpc5200b-i2c", .data = &mpc_i2c_data_52xx, },
- 	{.compatible = "fsl,mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
-+	{.compatible = "fsl,mpc5121-i2c", .data = &mpc_i2c_data_512x, },
- 	{.compatible = "fsl,mpc8313-i2c", .data = &mpc_i2c_data_8313, },
- 	{.compatible = "fsl,mpc8543-i2c", .data = &mpc_i2c_data_8543, },
- 	{.compatible = "fsl,mpc8544-i2c", .data = &mpc_i2c_data_8544, },
-@@ -615,7 +671,6 @@ static const struct of_device_id mpc_i2c_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, mpc_i2c_of_match);
- 
--
- /* Structure for a device driver */
- static struct of_platform_driver mpc_i2c_driver = {
- 	.match_table	= mpc_i2c_of_match,
-@@ -648,5 +703,5 @@ module_exit(fsl_i2c_exit);
- 
- MODULE_AUTHOR("Adrian Cox <adrian-nKrwMtk+6Wm9FHfhHBbuYA@public.gmane.org>");
- MODULE_DESCRIPTION("I2C-Bus adapter for MPC107 bridge and "
--		   "MPC824x/85xx/52xx processors");
-+		   "MPC824x/85xx/512x/52xx processors");
- MODULE_LICENSE("GPL");
+Straight from the ICH9 datasheet:
+
+Note: For Block Write, if the I2C_EN bit is set, the format of the command changes slightly.
+      The ICH9 will still send the number of bytes (on writes) or receive the number of bytes
+      (on reads) indicated in the DATA0 register. However, it will not send the contents of the
+      DATA0 register as part of the message. Also, the Block Write protocol sequence
+      changes slightly: the Byte Count (bits 27:20 in the bit sequence) are not sent - as a
+      result, the slave will not acknowledge (bit 28 in the sequence).
+
+And we do set the I2C_EN bit in the i2c_smbus_write_i2c_block_data()
+case:
+
+	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+		if (read_write == I2C_SMBUS_WRITE) {
+			/* set I2C_EN bit in configuration register */
+			pci_read_config_byte(I801_dev, SMBHSTCFG, &hostc);
+			pci_write_config_byte(I801_dev, SMBHSTCFG,
+					      hostc | SMBHSTCFG_I2C_EN);
+		} [...]
+
+I hope this clarifies the situation.
+
 -- 
-1.6.2.5
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
