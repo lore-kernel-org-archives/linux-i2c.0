@@ -1,53 +1,83 @@
-From: Robin Getz <rgetz-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Subject: Re: 32-bit I2C slave...
-Date: Wed, 27 Jan 2010 15:44:54 -0500
-Message-ID: <201001271544.54291.rgetz@blackfin.uclinux.org>
-References: <201001271454.19876.rgetz@blackfin.uclinux.org> <20100127210544.113fb864@hyperion.delvare>
+From: "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 1/6] i2c: davinci: Fix smbus Oops with AIC33 usage
+Date: Thu, 28 Jan 2010 09:35:47 +0530
+Message-ID: <9237.59707152403$1264652093@news.gmane.org>
+References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>	<1264549293-25556-2-git-send-email-khilman@deeprootsystems.com>	<026601ca9f54$17a18110$46e48330$@raj@ti.com>
+	<87k4v3y53z.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100127210544.113fb864-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Mark D. Studebaker" <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <87k4v3y53z.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Content-Language: en-us
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: 'Kevin Hilman' <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: 'Alexander Vasiliev' <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, 'Dirk Behme' <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed 27 Jan 2010 15:05, Jean Delvare pondered:
-> Hi Robin,
+On Wed, Jan 27, 2010 at 20:20:08, Kevin Hilman wrote:
+> "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org> writes:
 > 
-> On Wed, 27 Jan 2010 14:54:19 -0500, Robin Getz wrote:
-> > Mark/Jean:
-> > 
-> > I have a new I2C slave which has 32-bit data/addresses that I'm trying to 
-> > figure out if I can connect up to the i801x chipset...
-> > 
-> > A read is:
-> > 
-> >  S Addr Wr [A] Comm(31:24) [A] Comm(23:16) [A] Comm(15:8) [A] Comm(7:0) [A]
-> >  S Addr R [A] [Data(31:24)] A [Data(23:16)] A [Data(15:8)] A [Data(7:0)] NA P
-> > 
-> > A Write is:
-> > 
-> >  S Addr Wr [A] Comm(31:24) [A] Comm(23:16) [A] Comm(15:8) [A] Comm(7:0) [A]
-> >                Data(31:24) [A] Data(23:16) [A] Data(15:8) [A] Data(7:0) [A] P
-> > 
-> > Comm the 32-bit data which selects the register on the I2C slave.
-> > 
-> > I can use I2C to do this...
-> > 
-> > The question is - it doesn't look like the ./drivers/i2c/busses/i2c-i801.c 
-> > supports enough I2C to do this - and I don't think I can abuse SMBus to talk 
-> > to the part.
-> > 
-> > Would you agree with my speculation? or am I missing some I2C_FUNC_I2C 
-> > somewhere? or some magic way to make SMBUS work?
+> > Hi,
+> >
+> > On Wed, Jan 27, 2010 at 05:11:28, Kevin Hilman wrote:
+> >> From: Dirk Behme <dirk.behme-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+> >> 
+> >> This fixes Oops at kernel startup while "scanning" for TLV320AIC23IDx
+> >> addresses.
+> >> 
+> >> Signed-off-by: Alexander Vasiliev <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Signed-off-by: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
+> >> Signed-off-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Acked-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+> >> ---
+> >>  drivers/i2c/busses/i2c-davinci.c |   29 +++++++++++++++++++++++++----
+> >>  1 files changed, 25 insertions(+), 4 deletions(-)
+> >> 
+> >> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> >> index c89687a..444a9f2 100644
+> >> --- a/drivers/i2c/busses/i2c-davinci.c
+> >> +++ b/drivers/i2c/busses/i2c-davinci.c
+> >
+> > [...]
+> >
+> >> @@ -290,6 +293,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+> >>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+> >>  
+> >>  	dev->terminate = 0;
+> >> +
+> >> +	/* First byte should be set here, not after interrupt,
+> >> +	 * because transmit-data-ready interrupt can come before
+> >> +	 * NACK-interrupt during sending of previous message and
+> >> +	 * ICDXR may have wrong data */
+> >> +	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
+> >> +		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
+> >> +		dev->buf_len--;
+> >> +	}
+> >> +
+> >
+> > I found an issue on DA850 while using this patch. 
 > 
-> Your assumption is correct, the above transactions won't work on the
-> ICH SMBus. More precisely, writes will work but reads won't. For reads,
-> you'll need a full-featured I2C master.
+> ok, I'll drop this one for 2.6.34 until we figure this out.
+> 
+> > I think the above code should come after the
+> > below lines because an I2C transaction is being carried out before configuring the I2C mode
+> > register (which has bits to configure Master, Start condition etc), which causes undefined
+> > behavior.
+> 
+> hmm, are you seeing this behavior on davinci git too?  This is the same
+> patch that has been in davinci git for some time?
+> 
 
-Thanks for the nak. :)
+Yes, I am seeing this issue on davinci git.
 
--Robin
+Regards,
+Sudhakar
