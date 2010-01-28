@@ -1,117 +1,111 @@
-From: "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 1/6] i2c: davinci: Fix smbus Oops with AIC33 usage
-Date: Thu, 28 Jan 2010 14:16:05 +0530
-Message-ID: <16260.1881464527$1264668666@news.gmane.org>
-References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>	<1264549293-25556-2-git-send-email-khilman@deeprootsystems.com>	<026601ca9f54$17a18110$46e48330$@raj@ti.com>
-	<87k4v3y53z.fsf@deeprootsystems.com>
+From: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Intel ICHx bus driver
+Date: Thu, 28 Jan 2010 11:32:28 +0200
+Message-ID: <af0693f01001280132l4002af0fgf3137fa27ce8555e@mail.gmail.com>
+References: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
+	 <20100128085904.4e202de1@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <87k4v3y53z.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Content-Language: en-us
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: 'Kevin Hilman' <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: 'Alexander Vasiliev' <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, 'Dirk Behme' <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100128085904.4e202de1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Kevin,
+Hi Jean,
+Thanks for clarifying things, but I still have got some misunderstandin=
+gs :)
+Inlined.
 
-On Wed, Jan 27, 2010 at 20:20:08, Kevin Hilman wrote:
-> "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org> writes:
-> 
-> > Hi,
-> >
-> > On Wed, Jan 27, 2010 at 05:11:28, Kevin Hilman wrote:
-> >> From: Dirk Behme <dirk.behme-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-> >> 
-> >> This fixes Oops at kernel startup while "scanning" for TLV320AIC23IDx
-> >> addresses.
-> >> 
-> >> Signed-off-by: Alexander Vasiliev <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >> Signed-off-by: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
-> >> Signed-off-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >> Acked-by: Kevin Hilman <khilman-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> >> ---
-> >>  drivers/i2c/busses/i2c-davinci.c |   29 +++++++++++++++++++++++++----
-> >>  1 files changed, 25 insertions(+), 4 deletions(-)
-> >> 
-> >> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> >> index c89687a..444a9f2 100644
-> >> --- a/drivers/i2c/busses/i2c-davinci.c
-> >> +++ b/drivers/i2c/busses/i2c-davinci.c
-> >
-> > [...]
-> >
-> >> @@ -290,6 +293,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
-> >>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
-> >>  
-> >>  	dev->terminate = 0;
-> >> +
-> >> +	/* First byte should be set here, not after interrupt,
-> >> +	 * because transmit-data-ready interrupt can come before
-> >> +	 * NACK-interrupt during sending of previous message and
-> >> +	 * ICDXR may have wrong data */
-> >> +	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
-> >> +		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
-> >> +		dev->buf_len--;
-> >> +	}
-> >> +
-> >
-> > I found an issue on DA850 while using this patch. 
-> 
-> ok, I'll drop this one for 2.6.34 until we figure this out.
-> 
-> > I think the above code should come after the
-> > below lines because an I2C transaction is being carried out before configuring the I2C mode
-> > register (which has bits to configure Master, Start condition etc), which causes undefined
-> > behavior.
-> 
-> hmm, are you seeing this behavior on davinci git too?  This is the same
-> patch that has been in davinci git for some time?
-> 
+On Thu, Jan 28, 2010 at 9:59 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrot=
+e:
+> Hi Felix,
+>
+> On Wed, 27 Jan 2010 19:56:02 +0200, Felix Rubinstein wrote:
+>> Running i2cdetect on ICH9 says:
+>> "I2C Block Write =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0yes"
+>>
+>> But having a closer look at how the whole thing is implemented prove=
+s
+>> that no i2c block write is supported.
+>>
+>> The proof:
+>> 1. i801_probe turns i801_features to FEATURE_I2C_BLOCK_READ
+>
+> Yes it does, but this is totally unrelated to I2C block _writes_.
+>
+>> 2. as a sequence in i801_block_transaction
+>> i801_block_transaction_byte_by_byte is called
+>
+> No. Read the code again, for the ICH9, i801_block_transaction_by_bloc=
+k
+> is called, not i801_block_transaction_byte_by_byte.
+Pardon, I was wrong didn't pay careful attention to the fall through
+in i801_probe when FEATURE_BLOCK_BUFFER is also turned on.
 
-The following patch fixes the issue I reported. I have tested it extensively on DA850/OMAP-L138.
-You can roll-in these changes into the current patch.
+>
+>> 3. on the other hand i801_block_transaction_byte_by_byte does
+>> =A0 =A0if (read_write =3D=3D I2C_SMBUS_WRITE)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 outb_p(len, SMBHSTDAT0);
+>> meaning SMBus length.
+>
+> This is correct, and as a matter of fact,
+> i801_block_transaction_by_block does the same. And this is the right
+> thing to do: the SMBus controller must know how many bytes it must se=
+nd
+> to the target slave.
+Please explain to me how do you interpret "I2C Block Write"?
+To my understanding it's I2C, not SMBus, transaction on the bus,
+meaning (from Documentation/i2c/i2c-protocol)
+S Addr Wr [A] Data [A] Data [A] ... [A] Data [A] P
 
-Signed-off-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-davinci.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+on the other hand SMBus transaction looks like this:
+S Addr Wr [A] Comm [A] Count [A] Data [A] Data [A] ... [A] Data [A] P
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 35f9daa..8526bce 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -308,6 +308,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 
- 	dev->terminate = 0;
- 
-+	/* write the data into mode register */
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-+
- 	/* First byte should be set here, not after interrupt,
- 	 * because transmit-data-ready interrupt can come before
- 	 * NACK-interrupt during sending of previous message and
-@@ -317,9 +320,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 		dev->buf_len--;
- 	}
- 
--	/* write the data into mode register */
--	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
--
- 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
- 						      dev->adapter.timeout);
- 	if (r == 0) {
---
+The diff is obvious, no Count (not to say Comm) bytes in I2C
+transaction (well, it's clear, ICH9 is SMBus, not I2C bus). But what
+does "I2C Block Write" then means?
 
-Regards,
-Sudhakar
+>
+>> But what if I want to write I2C's multi-block (without length or eve=
+n
+>> command before)?
+>
+> I have no idea what you mean with "I2C's multi-block". Please be
+> specific.
+S Addr Wr [A] Data [A] Data [A] ... [A] Data [A] P
+
+>
+>> I cannot understand why i801_func turns on I2C_FUNC_SMBUS_WRITE_I2C_=
+BLOCK?
+>
+> Because it supports that transaction type. Why would you want it to n=
+ot
+> advertise a transaction type it supports?
+>
+Does  i2c-i801.c  support the following kind of transactions?
+S Addr Wr [A] Comm [A] Data [A] Data [A] ... [A] Data [A] P
+(note, no count byte on the bus, taken from Documentation/i2c/smbus-pro=
+tocol)
+
+looking at i801_block_transaction_by_block:
+
+        if (read_write =3D=3D I2C_SMBUS_WRITE) {
+                len =3D data->block[0];
+                outb_p(len, SMBHSTDAT0);
+                for (i =3D 0; i < len; i++)
+                        outb_p(data->block[i+1], SMBBLKDAT);
+        }
+
+Meaning len is put on the bus.
+
+> Please refer to Documentation/i2c/smbus-protocol for what exactly eac=
+h
+> supported transaction type is doing at the wire level.
+>
+> --
+> Jean Delvare
+> http://khali.linux-fr.org/wishlist.html
+>
