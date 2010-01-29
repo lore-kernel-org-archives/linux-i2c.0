@@ -1,53 +1,206 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v4 3/3] powerpc: doc/dts-bindings: update doc of FSL
-	I2C bindings
-Date: Fri, 29 Jan 2010 17:26:33 +0100
-Message-ID: <20100129162633.GK7812@pengutronix.de>
-References: <1264685141-26391-1-git-send-email-wg@grandegger.com> <1264685141-26391-2-git-send-email-wg@grandegger.com> <1264685141-26391-3-git-send-email-wg@grandegger.com> <1264685141-26391-4-git-send-email-wg@grandegger.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH 2/6] i2c: davinci: Remove MOD_REG_BIT and IO_ADDRESS usage
+Date: Fri, 29 Jan 2010 11:46:11 -0800
+Message-ID: <87ockcpud8.fsf@deeprootsystems.com>
+References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
+	<1264549293-25556-3-git-send-email-khilman@deeprootsystems.com>
+	<20100127150518.GB6090@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yUmmepPgoWmUqRhm"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1264685141-26391-4-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+In-Reply-To: <20100127150518.GB6090-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org> (Ben Dooks's message of "Wed\, 27 Jan 2010 15\:05\:18 +0000")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Cc: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
 
---yUmmepPgoWmUqRhm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Jan 26, 2010 at 03:41:29PM -0800, Kevin Hilman wrote:
+>> From: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+>> 
+>> Cleanup the DaVinci I2C driver. Remove MOD_REG_BIT macro.
+>> Also use ioremap instead of IO_ADDRESS macro.
+>
+> would have been nicer to do each of these seperately.
 
-On Thu, Jan 28, 2010 at 02:25:41PM +0100, Wolfgang Grandegger wrote:
-> From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
->=20
-> This patch adds the MPC5121 to the list of supported devices,
-> enhances the doc of the "clock-frequency" property and removes
-> the obsolete "cell-index" property from the example nodes.
-> Furthermore and example for the MPC5121 has been added.
->=20
-> Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+ok, good to note for next time.  Can this version go through 
+through as is.
 
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Kevin
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---yUmmepPgoWmUqRhm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAktjDDkACgkQD27XaX1/VRtEBQCePpqFLJ62n5Z9dkl8/t+KN7js
-ChwAoJgMAEG/GrFg+ee+9ExCN0zu+1Z3
-=cxxG
------END PGP SIGNATURE-----
-
---yUmmepPgoWmUqRhm--
+>> Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+>> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-davinci.c |   77 +++++++++++++++++++-------------------
+>>  1 files changed, 38 insertions(+), 39 deletions(-)
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+>> index 444a9f2..34a48d0 100644
+>> --- a/drivers/i2c/busses/i2c-davinci.c
+>> +++ b/drivers/i2c/busses/i2c-davinci.c
+>> @@ -37,7 +37,6 @@
+>>  #include <linux/io.h>
+>>  
+>>  #include <mach/hardware.h>
+>> -
+>>  #include <mach/i2c.h>
+>>  
+>>  /* ----- global defines ----------------------------------------------- */
+>> @@ -71,37 +70,29 @@
+>>  #define DAVINCI_I2C_IVR_NACK	0x02
+>>  #define DAVINCI_I2C_IVR_AL	0x01
+>>  
+>> -#define DAVINCI_I2C_STR_BB	(1 << 12)
+>> -#define DAVINCI_I2C_STR_RSFULL	(1 << 11)
+>> -#define DAVINCI_I2C_STR_SCD	(1 << 5)
+>> -#define DAVINCI_I2C_STR_ARDY	(1 << 2)
+>> -#define DAVINCI_I2C_STR_NACK	(1 << 1)
+>> -#define DAVINCI_I2C_STR_AL	(1 << 0)
+>> -
+>> -#define DAVINCI_I2C_MDR_NACK	(1 << 15)
+>> -#define DAVINCI_I2C_MDR_STT	(1 << 13)
+>> -#define DAVINCI_I2C_MDR_STP	(1 << 11)
+>> -#define DAVINCI_I2C_MDR_MST	(1 << 10)
+>> -#define DAVINCI_I2C_MDR_TRX	(1 << 9)
+>> -#define DAVINCI_I2C_MDR_XA	(1 << 8)
+>> -#define DAVINCI_I2C_MDR_RM	(1 << 7)
+>> -#define DAVINCI_I2C_MDR_IRS	(1 << 5)
+>> -
+>> -#define DAVINCI_I2C_IMR_AAS	(1 << 6)
+>> -#define DAVINCI_I2C_IMR_SCD	(1 << 5)
+>> -#define DAVINCI_I2C_IMR_XRDY	(1 << 4)
+>> -#define DAVINCI_I2C_IMR_RRDY	(1 << 3)
+>> -#define DAVINCI_I2C_IMR_ARDY	(1 << 2)
+>> -#define DAVINCI_I2C_IMR_NACK	(1 << 1)
+>> -#define DAVINCI_I2C_IMR_AL	(1 << 0)
+>> -
+>> -#define MOD_REG_BIT(val, mask, set) do { \
+>> -	if (set) { \
+>> -		val |= mask; \
+>> -	} else { \
+>> -		val &= ~mask; \
+>> -	} \
+>> -} while (0)
+>> +#define DAVINCI_I2C_STR_BB	BIT(12)
+>> +#define DAVINCI_I2C_STR_RSFULL	BIT(11)
+>> +#define DAVINCI_I2C_STR_SCD	BIT(5)
+>> +#define DAVINCI_I2C_STR_ARDY	BIT(2)
+>> +#define DAVINCI_I2C_STR_NACK	BIT(1)
+>> +#define DAVINCI_I2C_STR_AL	BIT(0)
+>> +
+>> +#define DAVINCI_I2C_MDR_NACK	BIT(15)
+>> +#define DAVINCI_I2C_MDR_STT	BIT(13)
+>> +#define DAVINCI_I2C_MDR_STP	BIT(11)
+>> +#define DAVINCI_I2C_MDR_MST	BIT(10)
+>> +#define DAVINCI_I2C_MDR_TRX	BIT(9)
+>> +#define DAVINCI_I2C_MDR_XA	BIT(8)
+>> +#define DAVINCI_I2C_MDR_RM	BIT(7)
+>> +#define DAVINCI_I2C_MDR_IRS	BIT(5)
+>> +
+>> +#define DAVINCI_I2C_IMR_AAS	BIT(6)
+>> +#define DAVINCI_I2C_IMR_SCD	BIT(5)
+>> +#define DAVINCI_I2C_IMR_XRDY	BIT(4)
+>> +#define DAVINCI_I2C_IMR_RRDY	BIT(3)
+>> +#define DAVINCI_I2C_IMR_ARDY	BIT(2)
+>> +#define DAVINCI_I2C_IMR_NACK	BIT(1)
+>> +#define DAVINCI_I2C_IMR_AL	BIT(0)
+>
+> surely 1 << x isn't too difficult to understand??
+>   
+>>  struct davinci_i2c_dev {
+>>  	struct device           *dev;
+>> @@ -155,7 +146,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>>  
+>>  	/* put I2C into reset */
+>>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+>> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
+>> +	w &= ~DAVINCI_I2C_MDR_IRS;
+>>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+>>  
+>>  	/* NOTE: I2C Clock divider programming info
+>> @@ -205,7 +196,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
+>>  
+>>  	/* Take the I2C module out of reset: */
+>>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+>> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
+>> +	w |= DAVINCI_I2C_MDR_IRS;
+>>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+>>  
+>>  	/* Enable interrupts */
+>> @@ -287,9 +278,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>>  	/* Enable receive or transmit interrupts */
+>>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+>>  	if (msg->flags & I2C_M_RD)
+>> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 1);
+>> +		w |= DAVINCI_I2C_IMR_RRDY;
+>>  	else
+>> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 1);
+>> +		w |= DAVINCI_I2C_IMR_XRDY;
+>>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+>>  
+>>  	dev->terminate = 0;
+>> @@ -346,7 +337,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>>  			return msg->len;
+>>  		if (stop) {
+>>  			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+>> -			MOD_REG_BIT(w, DAVINCI_I2C_MDR_STP, 1);
+>> +			w |= DAVINCI_I2C_MDR_STP;
+>>  			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+>>  		}
+>>  		return -EREMOTEIO;
+>> @@ -482,7 +473,7 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+>>  
+>>  				w = davinci_i2c_read_reg(dev,
+>>  							 DAVINCI_I2C_IMR_REG);
+>> -				MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 0);
+>> +				w &= ~DAVINCI_I2C_IMR_XRDY;
+>>  				davinci_i2c_write_reg(dev,
+>>  						      DAVINCI_I2C_IMR_REG,
+>>  						      w);
+>> @@ -561,7 +552,12 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>  	}
+>>  	clk_enable(dev->clk);
+>>  
+>> -	dev->base = (void __iomem *)IO_ADDRESS(mem->start);
+>> +	dev->base = ioremap(mem->start, resource_size(mem));
+>> +	if (!dev->base) {
+>> +		r = -EBUSY;
+>> +		goto err_mem_ioremap;
+>> +	}
+>> +
+>
+> this looks like you've got >1 change per patch?
+>
+>>  	i2c_davinci_init(dev);
+>>  
+>>  	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
+>> @@ -591,6 +587,8 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>>  err_free_irq:
+>>  	free_irq(dev->irq, dev);
+>>  err_unuse_clocks:
+>> +	iounmap(dev->base);
+>> +err_mem_ioremap:
+>>  	clk_disable(dev->clk);
+>>  	clk_put(dev->clk);
+>>  	dev->clk = NULL;
+>> @@ -619,6 +617,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+>>  
+>>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
+>>  	free_irq(IRQ_I2C, dev);
+>> +	iounmap(dev->base);
+>>  	kfree(dev);
+>>  
+>>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> -- 
+>> 1.6.6
+>> 
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+> -- 
+> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>
+>   'a smiley only costs 4 bytes'
