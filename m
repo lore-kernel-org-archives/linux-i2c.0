@@ -1,96 +1,71 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: [PATCH v5 3/3] powerpc: doc/dts-bindings: update doc of FSL I2C bindings
-Date: Mon,  1 Feb 2010 08:37:16 +0100
-Message-ID: <1265009836-26398-4-git-send-email-wg@grandegger.com>
-References: <1265009836-26398-1-git-send-email-wg@grandegger.com>
- <1265009836-26398-2-git-send-email-wg@grandegger.com>
- <1265009836-26398-3-git-send-email-wg@grandegger.com>
+From: d binderman <dcb314-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: i2c/busses/i2c-highlander.c: using char variable in bit operation
+Date: Mon, 1 Feb 2010 09:51:42 +0000
+Message-ID: <BLU108-W10538CE8A7EF6373FB36AE9C580@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1265009836-26398-3-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 
-This patch adds the MPC5121 to the list of supported devices,
-enhances the doc of the "clock-frequency" property and removes
-the obsolete "cell-index" property from the example nodes.
-Furthermore and example for the MPC5121 has been added.
 
-Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++++++++++++++++++----
- 1 files changed, 24 insertions(+), 6 deletions(-)
+Hello there,
 
-diff --git a/Documentation/powerpc/dts-bindings/fsl/i2c.txt b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-index b6d2e21..2f62dae 100644
---- a/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-+++ b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-@@ -9,8 +9,9 @@ Recommended properties :
- 
-  - compatible : compatibility list with 2 entries, the first should
-    be "fsl,CHIP-i2c" where CHIP is the name of a compatible processor,
--   e.g. mpc8313, mpc8543, mpc8544, mpc5200 or mpc5200b. The second one
--   should be "fsl-i2c".
-+   e.g. mpc8313, mpc8543, mpc8544, mpc5121, mpc5200 or mpc5200b. The
-+   second one should be "fsl-i2c". For the mpc5121, an additional node
-+   "fsl,mpc5121-i2c-ctrl" is required as shown in the example below.
-  - interrupts : <a b> where a is the interrupt number and b is a
-    field that represents an encoding of the sense and level
-    information for the interrupt.  This should be encoded based on
-@@ -20,29 +21,46 @@ Recommended properties :
-    services interrupts for this device.
-  - fsl,preserve-clocking : boolean; if defined, the clock settings
-    from the bootloader are preserved (not touched).
-- - clock-frequency : desired I2C bus clock frequency in Hz.
-+ - clock-frequency : desired I2C bus clock frequency in Hz.  If this
-+   property and "fsl,preserve-clocking" is not defined, a safe fixed
-+   clock divider value is used (resulting in a small clock frequency).
- 
- Examples :
- 
-+	/* MPC5121 based board */
-+	i2c@1740 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,mpc5121-i2c", "fsl-i2c";
-+		reg = <0x1740 0x20>;
-+		interrupts = <11 0x8>;
-+		interrupt-parent = <&ipic>;
-+		clock-frequency = <100000>;
-+	};
-+
-+	i2ccontrol@1760 {
-+		compatible = "fsl,mpc5121-i2c-ctrl";
-+		reg = <0x1760 0x8>;
-+	};
-+
-+	/* MPC5200B based board */
- 	i2c@3d00 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		compatible = "fsl,mpc5200b-i2c","fsl,mpc5200-i2c","fsl-i2c";
--		cell-index = <0>;
- 		reg = <0x3d00 0x40>;
- 		interrupts = <2 15 0>;
- 		interrupt-parent = <&mpc5200_pic>;
- 		fsl,preserve-clocking;
- 	};
- 
-+	/* MPC8544 base board */
- 	i2c@3100 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		cell-index = <1>;
- 		compatible = "fsl,mpc8544-i2c", "fsl-i2c";
- 		reg = <0x3100 0x100>;
- 		interrupts = <43 2>;
- 		interrupt-parent = <&mpic>;
- 		clock-frequency = <400000>;
- 	};
--
--- 
-1.6.2.5
+I just ran the sourceforge tool cppcheck over the source code of the
+new Linux kernel 2.6.33-rc6
+
+It said
+
+[./i2c/busses/i2c-highlander.c:284]: (style) Warning - using char varia=
+ble in bit operation
+
+The source code is
+
+static int highlander_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr=
+,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 unsigned short flags, char read_write,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 u8 command, int size,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 union i2c_smbus_data *data)
+{
+=A0=A0=A0=A0=A0=A0=A0 struct highlander_i2c_dev *dev =3D i2c_get_adapda=
+ta(adap);
+=A0=A0=A0=A0=A0=A0=A0 int read =3D read_write & I2C_SMBUS_READ;
+
+In C, chars can be signed or unsigned, so the value written into
+local variable read by sign extension is not certain.
+
+Suggest new code
+
+static int highlander_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr=
+,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 unsigned short flags, char read_write,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 u8 command, int size,
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0 union i2c_smbus_data *data)
+{
+=A0=A0=A0=A0=A0=A0=A0 struct highlander_i2c_dev *dev =3D i2c_get_adapda=
+ta(adap);
+=A0=A0=A0=A0=A0=A0=A0 int read =3D ((unsigned char) read_write) & I2C_S=
+MBUS_READ;
+
+
+Regards
+
+David Binderman
+
+ 		 	   		 =20
+_________________________________________________________________
+Tell us your greatest, weirdest and funniest Hotmail stories
+http://clk.atdmt.com/UKM/go/195013117/direct/01/--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
