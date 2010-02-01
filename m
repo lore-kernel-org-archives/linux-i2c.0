@@ -1,206 +1,170 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 2/6] i2c: davinci: Remove MOD_REG_BIT and IO_ADDRESS usage
-Date: Fri, 29 Jan 2010 11:46:11 -0800
-Message-ID: <87ockcpud8.fsf@deeprootsystems.com>
+From: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
+ bus
+Date: Mon, 1 Feb 2010 11:27:15 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>
 References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
-	<1264549293-25556-3-git-send-email-khilman@deeprootsystems.com>
-	<20100127150518.GB6090@fluff.org.uk>
+ <1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100127150518.GB6090-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org> (Ben Dooks's message of "Wed\, 27 Jan 2010 15\:05\:18 +0000")
+In-Reply-To: <1264549293-25556-7-git-send-email-khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
+To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
+Hi Philby,
 
-> On Tue, Jan 26, 2010 at 03:41:29PM -0800, Kevin Hilman wrote:
->> From: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
->> 
->> Cleanup the DaVinci I2C driver. Remove MOD_REG_BIT macro.
->> Also use ioremap instead of IO_ADDRESS macro.
+On Wed, Jan 27, 2010 at 05:11:33, Kevin Hilman wrote:
+> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
 >
-> would have been nicer to do each of these seperately.
+> Come out of i2c time out condition by following the
+> bus recovery procedure outlined in the i2c protocol v3 spec.
+> The kernel must be robust enough to gracefully recover
+> from i2c bus failure without having to reset the machine.
+> This is done by first NACKing the slave, pulsing the SCL
+> line 9 times and then sending the stop command.
+>
+> This patch has been tested on a DM6446 and DM355
+>
+> Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+> Signed-off-by: Srinivasan, Nageswari <nageswari-l0cyMroinI0@public.gmane.org>
+> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-davinci.c |   57 +++++++++++++++++++++++++++++++++++--
+>  1 files changed, 53 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 35f9daa..5459065 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -36,6 +36,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/io.h>
+>  #include <linux/cpufreq.h>
+> +#include <linux/gpio.h>
+>
+>  #include <mach/hardware.h>
+>  #include <mach/i2c.h>
+> @@ -43,6 +44,7 @@
+>  /* ----- global defines ----------------------------------------------- */
+>
+>  #define DAVINCI_I2C_TIMEOUT  (1*HZ)
+> +#define DAVINCI_I2C_MAX_TRIES        2
+>  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
+>                                DAVINCI_I2C_IMR_SCD | \
+>                                DAVINCI_I2C_IMR_ARDY | \
+> @@ -130,6 +132,44 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
+>       return __raw_readw(i2c_dev->base + reg);
+>  }
+>
+> +/* Generate a pulse on the i2c clock pin. */
+> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
+> +{
+> +     u16 i;
+> +
+> +     if (scl_pin) {
+> +             /* Send high and low on the SCL line */
+> +             for (i = 0; i < 9; i++) {
+> +                     gpio_set_value(scl_pin, 0);
+> +                     udelay(20);
+> +                     gpio_set_value(scl_pin, 1);
+> +                     udelay(20);
+> +             }
 
-ok, good to note for next time.  Can this version go through 
-through as is.
+Before using the pins as GPIO, you would have to set the
+functionality of these pins as GPIO. You had this code in
+previous incarnations of this patch - not sure why it is
+dropped now.
 
-Kevin
+Couple of good to haves:
 
->> Signed-off-by: Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>
->> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-davinci.c |   77 +++++++++++++++++++-------------------
->>  1 files changed, 38 insertions(+), 39 deletions(-)
->> 
->> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
->> index 444a9f2..34a48d0 100644
->> --- a/drivers/i2c/busses/i2c-davinci.c
->> +++ b/drivers/i2c/busses/i2c-davinci.c
->> @@ -37,7 +37,6 @@
->>  #include <linux/io.h>
->>  
->>  #include <mach/hardware.h>
->> -
->>  #include <mach/i2c.h>
->>  
->>  /* ----- global defines ----------------------------------------------- */
->> @@ -71,37 +70,29 @@
->>  #define DAVINCI_I2C_IVR_NACK	0x02
->>  #define DAVINCI_I2C_IVR_AL	0x01
->>  
->> -#define DAVINCI_I2C_STR_BB	(1 << 12)
->> -#define DAVINCI_I2C_STR_RSFULL	(1 << 11)
->> -#define DAVINCI_I2C_STR_SCD	(1 << 5)
->> -#define DAVINCI_I2C_STR_ARDY	(1 << 2)
->> -#define DAVINCI_I2C_STR_NACK	(1 << 1)
->> -#define DAVINCI_I2C_STR_AL	(1 << 0)
->> -
->> -#define DAVINCI_I2C_MDR_NACK	(1 << 15)
->> -#define DAVINCI_I2C_MDR_STT	(1 << 13)
->> -#define DAVINCI_I2C_MDR_STP	(1 << 11)
->> -#define DAVINCI_I2C_MDR_MST	(1 << 10)
->> -#define DAVINCI_I2C_MDR_TRX	(1 << 9)
->> -#define DAVINCI_I2C_MDR_XA	(1 << 8)
->> -#define DAVINCI_I2C_MDR_RM	(1 << 7)
->> -#define DAVINCI_I2C_MDR_IRS	(1 << 5)
->> -
->> -#define DAVINCI_I2C_IMR_AAS	(1 << 6)
->> -#define DAVINCI_I2C_IMR_SCD	(1 << 5)
->> -#define DAVINCI_I2C_IMR_XRDY	(1 << 4)
->> -#define DAVINCI_I2C_IMR_RRDY	(1 << 3)
->> -#define DAVINCI_I2C_IMR_ARDY	(1 << 2)
->> -#define DAVINCI_I2C_IMR_NACK	(1 << 1)
->> -#define DAVINCI_I2C_IMR_AL	(1 << 0)
->> -
->> -#define MOD_REG_BIT(val, mask, set) do { \
->> -	if (set) { \
->> -		val |= mask; \
->> -	} else { \
->> -		val &= ~mask; \
->> -	} \
->> -} while (0)
->> +#define DAVINCI_I2C_STR_BB	BIT(12)
->> +#define DAVINCI_I2C_STR_RSFULL	BIT(11)
->> +#define DAVINCI_I2C_STR_SCD	BIT(5)
->> +#define DAVINCI_I2C_STR_ARDY	BIT(2)
->> +#define DAVINCI_I2C_STR_NACK	BIT(1)
->> +#define DAVINCI_I2C_STR_AL	BIT(0)
->> +
->> +#define DAVINCI_I2C_MDR_NACK	BIT(15)
->> +#define DAVINCI_I2C_MDR_STT	BIT(13)
->> +#define DAVINCI_I2C_MDR_STP	BIT(11)
->> +#define DAVINCI_I2C_MDR_MST	BIT(10)
->> +#define DAVINCI_I2C_MDR_TRX	BIT(9)
->> +#define DAVINCI_I2C_MDR_XA	BIT(8)
->> +#define DAVINCI_I2C_MDR_RM	BIT(7)
->> +#define DAVINCI_I2C_MDR_IRS	BIT(5)
->> +
->> +#define DAVINCI_I2C_IMR_AAS	BIT(6)
->> +#define DAVINCI_I2C_IMR_SCD	BIT(5)
->> +#define DAVINCI_I2C_IMR_XRDY	BIT(4)
->> +#define DAVINCI_I2C_IMR_RRDY	BIT(3)
->> +#define DAVINCI_I2C_IMR_ARDY	BIT(2)
->> +#define DAVINCI_I2C_IMR_NACK	BIT(1)
->> +#define DAVINCI_I2C_IMR_AL	BIT(0)
+It will be good to do a gpio_request() before using the pins
+as GPIO - though I can see it may have been deemed unnecessary
+- the pins are owned by I2C already - even so it may help catch
+system configuration errors in later platforms.
+
+The I2C peripheral on da8xx itself contains a mode where its
+pins could be used as GPIO - so no need for SoC level muxing
+and need for the platform data. This seems to be missing from
+DM355 though. Thankfully there is a revision id within the I2C
+memory map which will help you differentiate the two cases
+(revision 0x5 vs 0x6)
+
+Thanks,
+Sekhar
+
+> +     }
+> +}
+> +
+> +/* This routine does i2c bus recovery as specified in the
+> + * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
+> + */
+> +static void i2c_recover_bus(struct davinci_i2c_dev *dev)
+> +{
+> +     u32 flag = 0;
+> +     struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> +
+> +     dev_err(dev->dev, "initiating i2c bus recovery\n");
+> +     /* Send NACK to the slave */
+> +     flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> +     flag |=  DAVINCI_I2C_MDR_NACK;
+> +     /* write the data into mode register */
+> +     davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> +     if (pdata)
+> +             generic_i2c_clock_pulse(pdata->scl_pin);
+> +     /* Send STOP */
+> +     flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> +     flag |= DAVINCI_I2C_MDR_STP;
+> +     davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> +}
+> +
+>  static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
+>                                                               int val)
+>  {
+> @@ -235,14 +275,22 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+>                                        char allow_sleep)
+>  {
+>       unsigned long timeout;
+> +     static u16 to_cnt;
 >
-> surely 1 << x isn't too difficult to understand??
->   
->>  struct davinci_i2c_dev {
->>  	struct device           *dev;
->> @@ -155,7 +146,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->>  
->>  	/* put I2C into reset */
->>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
->> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 0);
->> +	w &= ~DAVINCI_I2C_MDR_IRS;
->>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->>  
->>  	/* NOTE: I2C Clock divider programming info
->> @@ -205,7 +196,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->>  
->>  	/* Take the I2C module out of reset: */
->>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
->> -	MOD_REG_BIT(w, DAVINCI_I2C_MDR_IRS, 1);
->> +	w |= DAVINCI_I2C_MDR_IRS;
->>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->>  
->>  	/* Enable interrupts */
->> @@ -287,9 +278,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->>  	/* Enable receive or transmit interrupts */
->>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
->>  	if (msg->flags & I2C_M_RD)
->> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_RRDY, 1);
->> +		w |= DAVINCI_I2C_IMR_RRDY;
->>  	else
->> -		MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 1);
->> +		w |= DAVINCI_I2C_IMR_XRDY;
->>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
->>  
->>  	dev->terminate = 0;
->> @@ -346,7 +337,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->>  			return msg->len;
->>  		if (stop) {
->>  			w = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
->> -			MOD_REG_BIT(w, DAVINCI_I2C_MDR_STP, 1);
->> +			w |= DAVINCI_I2C_MDR_STP;
->>  			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
->>  		}
->>  		return -EREMOTEIO;
->> @@ -482,7 +473,7 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->>  
->>  				w = davinci_i2c_read_reg(dev,
->>  							 DAVINCI_I2C_IMR_REG);
->> -				MOD_REG_BIT(w, DAVINCI_I2C_IMR_XRDY, 0);
->> +				w &= ~DAVINCI_I2C_IMR_XRDY;
->>  				davinci_i2c_write_reg(dev,
->>  						      DAVINCI_I2C_IMR_REG,
->>  						      w);
->> @@ -561,7 +552,12 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->>  	}
->>  	clk_enable(dev->clk);
->>  
->> -	dev->base = (void __iomem *)IO_ADDRESS(mem->start);
->> +	dev->base = ioremap(mem->start, resource_size(mem));
->> +	if (!dev->base) {
->> +		r = -EBUSY;
->> +		goto err_mem_ioremap;
->> +	}
->> +
+>       timeout = jiffies + dev->adapter.timeout;
+>       while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+>              & DAVINCI_I2C_STR_BB) {
+> -             if (time_after(jiffies, timeout)) {
+> -                     dev_warn(dev->dev,
+> -                              "timeout waiting for bus ready\n");
+> -                     return -ETIMEDOUT;
+> +             if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
+> +                     if (time_after(jiffies, timeout)) {
+> +                             dev_warn(dev->dev,
+> +                             "timeout waiting for bus ready\n");
+> +                             to_cnt++;
+> +                             return -ETIMEDOUT;
+> +                     } else {
+> +                             to_cnt = 0;
+> +                             i2c_recover_bus(dev);
+> +                             i2c_davinci_init(dev);
+> +                     }
+>               }
+>               if (allow_sleep)
+>                       schedule_timeout(1);
+> @@ -324,6 +372,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>                                                     dev->adapter.timeout);
+>       if (r == 0) {
+>               dev_err(dev->dev, "controller timed out\n");
+> +             i2c_recover_bus(dev);
+>               i2c_davinci_init(dev);
+>               dev->buf_len = 0;
+>               return -ETIMEDOUT;
+> --
+> 1.6.6
 >
-> this looks like you've got >1 change per patch?
+> _______________________________________________
+> Davinci-linux-open-source mailing list
+> Davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+> http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source
 >
->>  	i2c_davinci_init(dev);
->>  
->>  	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
->> @@ -591,6 +587,8 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->>  err_free_irq:
->>  	free_irq(dev->irq, dev);
->>  err_unuse_clocks:
->> +	iounmap(dev->base);
->> +err_mem_ioremap:
->>  	clk_disable(dev->clk);
->>  	clk_put(dev->clk);
->>  	dev->clk = NULL;
->> @@ -619,6 +617,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
->>  
->>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
->>  	free_irq(IRQ_I2C, dev);
->> +	iounmap(dev->base);
->>  	kfree(dev);
->>  
->>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> -- 
->> 1.6.6
->> 
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-> -- 
-> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
->
->   'a smiley only costs 4 bytes'
