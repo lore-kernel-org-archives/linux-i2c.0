@@ -1,113 +1,244 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the bus
-Date: Mon, 01 Feb 2010 11:40:01 -0800
-Message-ID: <87ljfchhim.fsf@deeprootsystems.com>
-References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
-	<1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v2] [I2C-OMAP] Add support for 16-bit registers
+Date: Mon, 1 Feb 2010 16:07:36 -0800
+Message-ID: <20100202000736.GM22747@atomide.com>
+References: <1260669242-29865-1-git-send-email-darkstar6262@gmail.com>
+ <6cb013311001090947m2268833cv3784f469dc8b861d@mail.gmail.com>
+ <20100109183321.GH2879@atomide.com>
+ <6cb013311001091035x54321b3aqb814f476200980af@mail.gmail.com>
+ <20100112012814.GK5055@atomide.com>
+ <6cb013311001111750m17430092p8d9bd1102152db8b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-	(Sekhar Nori's message of "Mon\, 1 Feb 2010 11\:27\:15 +0530")
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <6cb013311001111750m17430092p8d9bd1102152db8b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-"Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org> writes:
+* Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [100111 17:49]:
+> On Mon, Jan 11, 2010 at 5:28 PM, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> wrote:
+> >
+> > Applied to omap-testing with the following fix. Can you please merge
+> > it into your original patch?
+> >
+> 
+> Done, I've attached the new patch to here.  I've tested it and it
+> works perfectly.
 
-> Hi Philby,
->
-> On Wed, Jan 27, 2010 at 05:11:33, Kevin Hilman wrote:
->> From: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
->>
->> Come out of i2c time out condition by following the
->> bus recovery procedure outlined in the i2c protocol v3 spec.
->> The kernel must be robust enough to gracefully recover
->> from i2c bus failure without having to reset the machine.
->> This is done by first NACKing the slave, pulsing the SCL
->> line 9 times and then sending the stop command.
->>
->> This patch has been tested on a DM6446 and DM355
->>
->> Signed-off-by: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
->> Signed-off-by: Srinivasan, Nageswari <nageswari-l0cyMroinI0@public.gmane.org>
->> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-davinci.c |   57 +++++++++++++++++++++++++++++++++++--
->>  1 files changed, 53 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
->> index 35f9daa..5459065 100644
->> --- a/drivers/i2c/busses/i2c-davinci.c
->> +++ b/drivers/i2c/busses/i2c-davinci.c
->> @@ -36,6 +36,7 @@
->>  #include <linux/platform_device.h>
->>  #include <linux/io.h>
->>  #include <linux/cpufreq.h>
->> +#include <linux/gpio.h>
->>
->>  #include <mach/hardware.h>
->>  #include <mach/i2c.h>
->> @@ -43,6 +44,7 @@
->>  /* ----- global defines ----------------------------------------------- */
->>
->>  #define DAVINCI_I2C_TIMEOUT  (1*HZ)
->> +#define DAVINCI_I2C_MAX_TRIES        2
->>  #define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
->>                                DAVINCI_I2C_IMR_SCD | \
->>                                DAVINCI_I2C_IMR_ARDY | \
->> @@ -130,6 +132,44 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
->>       return __raw_readw(i2c_dev->base + reg);
->>  }
->>
->> +/* Generate a pulse on the i2c clock pin. */
->> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
->> +{
->> +     u16 i;
->> +
->> +     if (scl_pin) {
->> +             /* Send high and low on the SCL line */
->> +             for (i = 0; i < 9; i++) {
->> +                     gpio_set_value(scl_pin, 0);
->> +                     udelay(20);
->> +                     gpio_set_value(scl_pin, 1);
->> +                     udelay(20);
->> +             }
->
-> Before using the pins as GPIO, you would have to set the
-> functionality of these pins as GPIO. You had this code in
-> previous incarnations of this patch - not sure why it is
-> dropped now.
->
-> Couple of good to haves:
->
-> It will be good to do a gpio_request() before using the pins
-> as GPIO - though I can see it may have been deemed unnecessary
-> - the pins are owned by I2C already - even so it may help catch
-> system configuration errors in later platforms.
->
-> The I2C peripheral on da8xx itself contains a mode where its
-> pins could be used as GPIO - so no need for SoC level muxing
-> and need for the platform data. This seems to be missing from
-> DM355 though. Thankfully there is a revision id within the I2C
-> memory map which will help you differentiate the two cases
-> (revision 0x5 vs 0x6)
->
+Here's my ack for this patch:
 
-Philby,
+Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 
-Please update with comments from Sekhar soon so I can get this one queued
-for 2.6.34.
+> 
+> - Cory
+> 
+> 
+> From 7c693afce8ffa3978b4fcecc56cd7d4a9d9d3b75 Mon Sep 17 00:00:00 2001
+> From: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Date: Sat, 5 Dec 2009 22:00:25 -0800
+> Subject: [PATCH] [I2C-OMAP] Add support for 16-bit registers
+> 
+> The current i2c-omap driver is set up for 32-bit registers, which
+> corresponds to most OMAP devices.  However, OMAP730/850 based
+> devices use a 16-bit register size.
+> 
+> This change modifies the driver to perform a runtime CPU type check
+> to determine the register sizes, and uses a bit shift of either 1
+> or 2 bits to compute the proper register sizes for all registers.
+> 
+> Signed-off-by: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   45 +++++++++++++++++++++++-----------------
+>  1 files changed, 26 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 0037e31..9c3ce4d 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -49,24 +49,24 @@
+>  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+> 
+>  #define OMAP_I2C_REV_REG		0x00
+> -#define OMAP_I2C_IE_REG			0x04
+> -#define OMAP_I2C_STAT_REG		0x08
+> -#define OMAP_I2C_IV_REG			0x0c
+> +#define OMAP_I2C_IE_REG			0x01
+> +#define OMAP_I2C_STAT_REG		0x02
+> +#define OMAP_I2C_IV_REG			0x03
+>  /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
+> -#define OMAP_I2C_WE_REG			0x0c
+> -#define OMAP_I2C_SYSS_REG		0x10
+> -#define OMAP_I2C_BUF_REG		0x14
+> -#define OMAP_I2C_CNT_REG		0x18
+> -#define OMAP_I2C_DATA_REG		0x1c
+> -#define OMAP_I2C_SYSC_REG		0x20
+> -#define OMAP_I2C_CON_REG		0x24
+> -#define OMAP_I2C_OA_REG			0x28
+> -#define OMAP_I2C_SA_REG			0x2c
+> -#define OMAP_I2C_PSC_REG		0x30
+> -#define OMAP_I2C_SCLL_REG		0x34
+> -#define OMAP_I2C_SCLH_REG		0x38
+> -#define OMAP_I2C_SYSTEST_REG		0x3c
+> -#define OMAP_I2C_BUFSTAT_REG		0x40
+> +#define OMAP_I2C_WE_REG			0x03
+> +#define OMAP_I2C_SYSS_REG		0x04
+> +#define OMAP_I2C_BUF_REG		0x05
+> +#define OMAP_I2C_CNT_REG		0x06
+> +#define OMAP_I2C_DATA_REG		0x07
+> +#define OMAP_I2C_SYSC_REG		0x08
+> +#define OMAP_I2C_CON_REG		0x09
+> +#define OMAP_I2C_OA_REG			0x0a
+> +#define OMAP_I2C_SA_REG			0x0b
+> +#define OMAP_I2C_PSC_REG		0x0c
+> +#define OMAP_I2C_SCLL_REG		0x0d
+> +#define OMAP_I2C_SCLH_REG		0x0e
+> +#define OMAP_I2C_SYSTEST_REG		0x0f
+> +#define OMAP_I2C_BUFSTAT_REG		0x10
+> 
+>  /* I2C Interrupt Enable Register (OMAP_I2C_IE): */
+>  #define OMAP_I2C_IE_XDR		(1 << 14)	/* TX Buffer drain int enable */
+> @@ -161,6 +161,7 @@ struct omap_i2c_dev {
+>  	struct device		*dev;
+>  	void __iomem		*base;		/* virtual */
+>  	int			irq;
+> +	int			reg_shift;      /* bit shift for I2C register addresses */
+>  	struct clk		*iclk;		/* Interface clock */
+>  	struct clk		*fclk;		/* Functional clock */
+>  	struct completion	cmd_complete;
+> @@ -189,12 +190,12 @@ struct omap_i2c_dev {
+>  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+>  				      int reg, u16 val)
+>  {
+> -	__raw_writew(val, i2c_dev->base + reg);
+> +	__raw_writew(val, i2c_dev->base + (reg << i2c_dev->reg_shift));
+>  }
+> 
+>  static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+>  {
+> -	return __raw_readw(i2c_dev->base + reg);
+> +	return __raw_readw(i2c_dev->base + (reg << i2c_dev->reg_shift));
+>  }
+> 
+>  static int __init omap_i2c_get_clocks(struct omap_i2c_dev *dev)
+> @@ -893,6 +894,12 @@ omap_i2c_probe(struct platform_device *pdev)
+>  	dev->idle = 1;
+>  	dev->dev = &pdev->dev;
+>  	dev->irq = irq->start;
+> +
+> +	if (cpu_is_omap7xx())
+> +		dev->reg_shift = 1;
+> +	else
+> +		dev->reg_shift = 2;
+> +
+>  	dev->base = ioremap(mem->start, resource_size(mem));
+>  	if (!dev->base) {
+>  		r = -ENOMEM;
+> -- 
+> 1.6.3.3
 
-Kevin
+> From 7c693afce8ffa3978b4fcecc56cd7d4a9d9d3b75 Mon Sep 17 00:00:00 2001
+> From: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Date: Sat, 5 Dec 2009 22:00:25 -0800
+> Subject: [PATCH] [I2C-OMAP] Add support for 16-bit registers
+> 
+> The current i2c-omap driver is set up for 32-bit registers, which
+> corresponds to most OMAP devices.  However, OMAP730/850 based
+> devices use a 16-bit register size.
+> 
+> This change modifies the driver to perform a runtime CPU type check
+> to determine the register sizes, and uses a bit shift of either 1
+> or 2 bits to compute the proper register sizes for all registers.
+> 
+> Signed-off-by: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   45 +++++++++++++++++++++++-----------------
+>  1 files changed, 26 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 0037e31..9c3ce4d 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -49,24 +49,24 @@
+>  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+>  
+>  #define OMAP_I2C_REV_REG		0x00
+> -#define OMAP_I2C_IE_REG			0x04
+> -#define OMAP_I2C_STAT_REG		0x08
+> -#define OMAP_I2C_IV_REG			0x0c
+> +#define OMAP_I2C_IE_REG			0x01
+> +#define OMAP_I2C_STAT_REG		0x02
+> +#define OMAP_I2C_IV_REG			0x03
+>  /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
+> -#define OMAP_I2C_WE_REG			0x0c
+> -#define OMAP_I2C_SYSS_REG		0x10
+> -#define OMAP_I2C_BUF_REG		0x14
+> -#define OMAP_I2C_CNT_REG		0x18
+> -#define OMAP_I2C_DATA_REG		0x1c
+> -#define OMAP_I2C_SYSC_REG		0x20
+> -#define OMAP_I2C_CON_REG		0x24
+> -#define OMAP_I2C_OA_REG			0x28
+> -#define OMAP_I2C_SA_REG			0x2c
+> -#define OMAP_I2C_PSC_REG		0x30
+> -#define OMAP_I2C_SCLL_REG		0x34
+> -#define OMAP_I2C_SCLH_REG		0x38
+> -#define OMAP_I2C_SYSTEST_REG		0x3c
+> -#define OMAP_I2C_BUFSTAT_REG		0x40
+> +#define OMAP_I2C_WE_REG			0x03
+> +#define OMAP_I2C_SYSS_REG		0x04
+> +#define OMAP_I2C_BUF_REG		0x05
+> +#define OMAP_I2C_CNT_REG		0x06
+> +#define OMAP_I2C_DATA_REG		0x07
+> +#define OMAP_I2C_SYSC_REG		0x08
+> +#define OMAP_I2C_CON_REG		0x09
+> +#define OMAP_I2C_OA_REG			0x0a
+> +#define OMAP_I2C_SA_REG			0x0b
+> +#define OMAP_I2C_PSC_REG		0x0c
+> +#define OMAP_I2C_SCLL_REG		0x0d
+> +#define OMAP_I2C_SCLH_REG		0x0e
+> +#define OMAP_I2C_SYSTEST_REG		0x0f
+> +#define OMAP_I2C_BUFSTAT_REG		0x10
+>  
+>  /* I2C Interrupt Enable Register (OMAP_I2C_IE): */
+>  #define OMAP_I2C_IE_XDR		(1 << 14)	/* TX Buffer drain int enable */
+> @@ -161,6 +161,7 @@ struct omap_i2c_dev {
+>  	struct device		*dev;
+>  	void __iomem		*base;		/* virtual */
+>  	int			irq;
+> +	int			reg_shift;      /* bit shift for I2C register addresses */
+>  	struct clk		*iclk;		/* Interface clock */
+>  	struct clk		*fclk;		/* Functional clock */
+>  	struct completion	cmd_complete;
+> @@ -189,12 +190,12 @@ struct omap_i2c_dev {
+>  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+>  				      int reg, u16 val)
+>  {
+> -	__raw_writew(val, i2c_dev->base + reg);
+> +	__raw_writew(val, i2c_dev->base + (reg << i2c_dev->reg_shift));
+>  }
+>  
+>  static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+>  {
+> -	return __raw_readw(i2c_dev->base + reg);
+> +	return __raw_readw(i2c_dev->base + (reg << i2c_dev->reg_shift));
+>  }
+>  
+>  static int __init omap_i2c_get_clocks(struct omap_i2c_dev *dev)
+> @@ -893,6 +894,12 @@ omap_i2c_probe(struct platform_device *pdev)
+>  	dev->idle = 1;
+>  	dev->dev = &pdev->dev;
+>  	dev->irq = irq->start;
+> +
+> +	if (cpu_is_omap7xx())
+> +		dev->reg_shift = 1;
+> +	else
+> +		dev->reg_shift = 2;
+> +
+>  	dev->base = ioremap(mem->start, resource_size(mem));
+>  	if (!dev->base) {
+>  		r = -ENOMEM;
+> -- 
+> 1.6.3.3
+> 
