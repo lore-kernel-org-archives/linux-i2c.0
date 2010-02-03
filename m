@@ -1,52 +1,90 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: bjdooks' git - current state of i2c-next
-Date: Wed, 3 Feb 2010 11:14:30 +0100
-Message-ID: <20100203101430.GB4384@pengutronix.de>
-References: <20100203023902.GA2794@fluff.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] i2c: Hook up runtime PM support
+Date: Wed,  3 Feb 2010 13:22:47 +0000
+Message-ID: <1265203367-21344-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100203023902.GA2794-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Allow I2C drivers to make use of the runtime PM framework by adding
+bus implementations of the runtime PM operations. These simply
+immediately suspend when the device is idle. The runtime PM framework
+provides drivers with off the shelf refcounts for enables and sysfs
+control for managing runtime suspend from userspace so is useful even
+without meaningful input from the bus.
 
---nVMJ2NtxeReIH9PS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   41 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 41 insertions(+), 0 deletions(-)
 
-Hi Ben,
-
-On Wed, Feb 03, 2010 at 02:39:02AM +0000, Ben Dooks wrote:
-> Current state of next-i2c branch, which should be the start
-> of the next merge window pull as long as there are no objections
-
-What about http://article.gmane.org/gmane.linux.drivers.i2c/5260 ?
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---nVMJ2NtxeReIH9PS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAktpTIYACgkQD27XaX1/VRsh1wCgykswC3t9VmcXOXNJDFQUCZ/j
-bBEAn0vR4yOt0FfiDLZbYzcUn8/aEJ6f
-=9/tu
------END PGP SIGNATURE-----
-
---nVMJ2NtxeReIH9PS--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 10be7b5..985eaac 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -34,6 +34,7 @@
+ #include <linux/hardirq.h>
+ #include <linux/irqflags.h>
+ #include <linux/rwsem.h>
++#include <linux/pm_runtime.h>
+ #include <asm/uaccess.h>
+ 
+ #include "i2c-core.h"
+@@ -184,6 +185,43 @@ static int i2c_device_pm_resume(struct device *dev)
+ #define i2c_device_pm_resume	NULL
+ #endif
+ 
++#ifdef CONFIG_PM_RUNTIME
++static int i2c_device_runtime_suspend(struct device *dev)
++{
++	const struct dev_pm_ops *pm;
++
++	if (!dev->driver)
++		return 0;
++	pm = dev->driver->pm;
++	if (!pm || !pm->runtime_suspend)
++		return 0;
++	return pm->runtime_suspend(dev);
++}
++
++static int i2c_device_runtime_resume(struct device *dev)
++{
++	const struct dev_pm_ops *pm;
++
++	if (!dev->driver)
++		return 0;
++	pm = dev->driver->pm;
++	if (!pm || !pm->runtime_resume)
++		return 0;
++	return pm->runtime_resume(dev);
++}
++
++static int i2c_device_runtime_idle(struct device *dev)
++{
++	/* I2C devices are very independent of each other so we
++	 * suspend them immediately. */
++	return pm_runtime_suspend(dev);
++}
++#else
++#define i2c_device_runtime_suspend	NULL
++#define i2c_device_runtime_resume	NULL
++#define i2c_device_runtime_idle		NULL
++#endif
++
+ static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
+ {
+ 	struct i2c_client *client = i2c_verify_client(dev);
+@@ -251,6 +289,9 @@ static const struct attribute_group *i2c_dev_attr_groups[] = {
+ static const struct dev_pm_ops i2c_device_pm_ops = {
+ 	.suspend = i2c_device_pm_suspend,
+ 	.resume = i2c_device_pm_resume,
++	.runtime_suspend = i2c_device_runtime_suspend,
++	.runtime_resume = i2c_device_runtime_resume,
++	.runtime_idle = i2c_device_runtime_idle,
+ };
+ 
+ struct bus_type i2c_bus_type = {
+-- 
+1.6.6
