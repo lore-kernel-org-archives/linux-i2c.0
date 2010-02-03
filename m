@@ -1,43 +1,65 @@
-From: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH] I2C: Add driver for Cavium OCTEON I2C ports.
-Date: Tue, 02 Feb 2010 18:29:44 -0800
-Message-ID: <4B68DF98.4080501@caviumnetworks.com>
-References: <1264711627-24304-1-git-send-email-ddaney@caviumnetworks.com> <20100128234113.GC13143@linux-mips.org> <20100203022404.GB24325@fluff.org.uk>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: bjdooks' git - current state of i2c-next
+Date: Wed, 3 Feb 2010 02:39:02 +0000
+Message-ID: <20100203023902.GA2794@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100203022404.GB24325-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rade.bozic.ext-OYasijW0DpE@public.gmane.org, Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks wrote:
-> On Fri, Jan 29, 2010 at 12:41:13AM +0100, Ralf Baechle wrote:
->> On Thu, Jan 28, 2010 at 12:47:07PM -0800, David Daney wrote:
->>
->> Thanks, I've replaced the queue patch with this one.
-> 
-> I'd rather avoid a cross-tree merge if possible. Is there anything
-> stopping it being added to my next-i2c tree?
->  
+Current state of next-i2c branch, which should be the start
+of the next merge window pull as long as there are no objections
 
-I can't speak to the logistics, but I would note that there are two 
-related MIPS specific patches that add the platform device and register 
-some i2c_board_info.  I don't know if it would make sense to merge them 
-all via the same path.
+The following changes since commit 1a45dcfe2525e9432cb4aba461d4994fc2be=
+fe42:
+  Linus Torvalds (1):
+        Merge branch 'for-linus' of git://git.kernel.dk/linux-2.6-block
 
-I will let you and Ralf decide that.
+are available in the git repository at:
 
-In any event thanks for looking at the patches,
-David Daney
+  git://git.fluff.org/bjdooks/linux.git next-i2c
 
+Jean-Hugues Deschenes (3):
+      i2c-designware: Use local version of readl & writel
+      i2c-designware: Check component type register
+      i2c-designware: Allow mixed endianness accesses
 
+Richard R=F6jfors (1):
+      i2c: Add support for Xilinx XPS IIC Bus Interface
 
->>   Ralf
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Uwe Kleine-K=F6nig (1):
+      i2c/imx: don't add probe function to the driver struct
+
+Wolfgang Grandegger (3):
+      i2c-mpc: use __devinit[data] for initialization functions and dat=
+a
+      i2c-mpc: add support for the MPC512x processors from Freescale
+      powerpc: doc/dts-bindings: update doc of FSL I2C bindings
+
+srinidhi kasagar (1):
+      i2c: Add support for Ux500/Nomadik I2C controller
+
+ Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +-
+ drivers/i2c/busses/Kconfig                     |   24 +-
+ drivers/i2c/busses/Makefile                    |    2 +
+ drivers/i2c/busses/i2c-designware.c            |  116 ++-
+ drivers/i2c/busses/i2c-imx.c                   |    1 -
+ drivers/i2c/busses/i2c-mpc.c                   |  198 +++--
+ drivers/i2c/busses/i2c-nomadik.c               |  959 ++++++++++++++++=
+++++++++
+ drivers/i2c/busses/i2c-xiic.c                  |  823 ++++++++++++++++=
+++++
+ include/linux/i2c-xiic.h                       |   43 ++
+ 9 files changed, 2068 insertions(+), 128 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-nomadik.c
+ create mode 100644 drivers/i2c/busses/i2c-xiic.c
+ create mode 100644 include/linux/i2c-xiic.h
+
+--=20
+Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'
