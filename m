@@ -1,90 +1,89 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH] i2c: Hook up runtime PM support
-Date: Wed,  3 Feb 2010 13:22:47 +0000
-Message-ID: <1265203367-21344-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: bjdooks' git - current state of i2c-next
+Date: Wed, 3 Feb 2010 16:14:12 -0800
+Message-ID: <20100204001412.GM22747@atomide.com>
+References: <20100203023902.GA2794@fluff.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100203023902.GA2794-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Allow I2C drivers to make use of the runtime PM framework by adding
-bus implementations of the runtime PM operations. These simply
-immediately suspend when the device is idle. The runtime PM framework
-provides drivers with off the shelf refcounts for enables and sysfs
-control for managing runtime suspend from userspace so is useful even
-without meaningful input from the bus.
+* Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> [100202 18:31]:
+> Current state of next-i2c branch, which should be the start
+> of the next merge window pull as long as there are no objections
 
-Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
- drivers/i2c/i2c-core.c |   41 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 41 insertions(+), 0 deletions(-)
+Can you also please merge the 16-bit register support for i2c-omap?
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 10be7b5..985eaac 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -34,6 +34,7 @@
- #include <linux/hardirq.h>
- #include <linux/irqflags.h>
- #include <linux/rwsem.h>
-+#include <linux/pm_runtime.h>
- #include <asm/uaccess.h>
- 
- #include "i2c-core.h"
-@@ -184,6 +185,43 @@ static int i2c_device_pm_resume(struct device *dev)
- #define i2c_device_pm_resume	NULL
- #endif
- 
-+#ifdef CONFIG_PM_RUNTIME
-+static int i2c_device_runtime_suspend(struct device *dev)
-+{
-+	const struct dev_pm_ops *pm;
-+
-+	if (!dev->driver)
-+		return 0;
-+	pm = dev->driver->pm;
-+	if (!pm || !pm->runtime_suspend)
-+		return 0;
-+	return pm->runtime_suspend(dev);
-+}
-+
-+static int i2c_device_runtime_resume(struct device *dev)
-+{
-+	const struct dev_pm_ops *pm;
-+
-+	if (!dev->driver)
-+		return 0;
-+	pm = dev->driver->pm;
-+	if (!pm || !pm->runtime_resume)
-+		return 0;
-+	return pm->runtime_resume(dev);
-+}
-+
-+static int i2c_device_runtime_idle(struct device *dev)
-+{
-+	/* I2C devices are very independent of each other so we
-+	 * suspend them immediately. */
-+	return pm_runtime_suspend(dev);
-+}
-+#else
-+#define i2c_device_runtime_suspend	NULL
-+#define i2c_device_runtime_resume	NULL
-+#define i2c_device_runtime_idle		NULL
-+#endif
-+
- static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
- {
- 	struct i2c_client *client = i2c_verify_client(dev);
-@@ -251,6 +289,9 @@ static const struct attribute_group *i2c_dev_attr_groups[] = {
- static const struct dev_pm_ops i2c_device_pm_ops = {
- 	.suspend = i2c_device_pm_suspend,
- 	.resume = i2c_device_pm_resume,
-+	.runtime_suspend = i2c_device_runtime_suspend,
-+	.runtime_resume = i2c_device_runtime_resume,
-+	.runtime_idle = i2c_device_runtime_idle,
- };
- 
- struct bus_type i2c_bus_type = {
--- 
-1.6.6
+The subject is "[v2,I2C-OMAP] Add support for 16-bit registers"
+
+It's been tested in linux-omap tree for several weeks. Available
+in mbox format at:
+
+http://patchwork.kernel.org/patch/72295/
+
+Regards,
+
+Tony
+
+=20
+> The following changes since commit 1a45dcfe2525e9432cb4aba461d4994fc2=
+befe42:
+>   Linus Torvalds (1):
+>         Merge branch 'for-linus' of git://git.kernel.dk/linux-2.6-blo=
+ck
+>=20
+> are available in the git repository at:
+>=20
+>   git://git.fluff.org/bjdooks/linux.git next-i2c
+>=20
+> Jean-Hugues Deschenes (3):
+>       i2c-designware: Use local version of readl & writel
+>       i2c-designware: Check component type register
+>       i2c-designware: Allow mixed endianness accesses
+>=20
+> Richard R=C3=B6jfors (1):
+>       i2c: Add support for Xilinx XPS IIC Bus Interface
+>=20
+> Uwe Kleine-K=C3=B6nig (1):
+>       i2c/imx: don't add probe function to the driver struct
+>=20
+> Wolfgang Grandegger (3):
+>       i2c-mpc: use __devinit[data] for initialization functions and d=
+ata
+>       i2c-mpc: add support for the MPC512x processors from Freescale
+>       powerpc: doc/dts-bindings: update doc of FSL I2C bindings
+>=20
+> srinidhi kasagar (1):
+>       i2c: Add support for Ux500/Nomadik I2C controller
+>=20
+>  Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +-
+>  drivers/i2c/busses/Kconfig                     |   24 +-
+>  drivers/i2c/busses/Makefile                    |    2 +
+>  drivers/i2c/busses/i2c-designware.c            |  116 ++-
+>  drivers/i2c/busses/i2c-imx.c                   |    1 -
+>  drivers/i2c/busses/i2c-mpc.c                   |  198 +++--
+>  drivers/i2c/busses/i2c-nomadik.c               |  959 ++++++++++++++=
+++++++++++
+>  drivers/i2c/busses/i2c-xiic.c                  |  823 ++++++++++++++=
+++++++
+>  include/linux/i2c-xiic.h                       |   43 ++
+>  9 files changed, 2068 insertions(+), 128 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-nomadik.c
+>  create mode 100644 drivers/i2c/busses/i2c-xiic.c
+>  create mode 100644 include/linux/i2c-xiic.h
+>=20
+> --=20
+> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>=20
+>   'a smiley only costs 4 bytes'
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
+in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
