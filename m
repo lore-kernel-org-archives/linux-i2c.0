@@ -1,14 +1,15 @@
-From: zhangfei gao <zhangfei.gao@gmail.com>
+From: Eric Miao <eric.y.miao@gmail.com>
 Subject: Re: [PATCH 1/1] fix i2c_msg.len not aligning with i2c_master_send
-Date: Thu, 4 Feb 2010 20:38:54 +0800
-Message-ID: <309424b61002040438i2fae055dt2d3ef528eae99b48@mail.gmail.com>
+Date: Thu, 4 Feb 2010 04:47:41 -0800
+Message-ID: <f17812d71002040447y4b6f889o1137ae6149559994@mail.gmail.com>
 References: <309424b61002032204y37307236q94ab3a502b0526e0@mail.gmail.com>
 	<20100204103530.65429c04@hyperion.delvare>
+	<309424b61002040438i2fae055dt2d3ef528eae99b48@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20100204103530.65429c04@hyperion.delvare>
+In-Reply-To: <309424b61002040438i2fae055dt2d3ef528eae99b48@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,108 +19,24 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: linux-arm-kernel-bounces@lists.infradead.org
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: eric.y.miao@gmail.com, haojian.zhuang@marvell.com, linux-arm-kernel@lists.infradead.org, Linux I2C <linux-i2c@vger.kernel.org>
+To: zhangfei gao <zhangfei.gao@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, haojian.zhuang@marvell.com, linux-arm-kernel@lists.infradead.org, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 4, 2010 at 5:35 PM, Jean Delvare <khali@linux-fr.org> wrote:
-> Hi Gao,
->
-> I'm adding the linux-i2c list to Cc.
->
-> On Thu, 4 Feb 2010 14:04:03 +0800, zhangfei gao wrote:
->> We found type of i2c_msg.len is __u16, while parameter count in
->> i2c_master_send is int.
->> The mismatch will truncate count from int to u16.
->> For example we downloading firmware which is more than 64K (64K+8) via i=
-2c,
->> i2c would transfer u16 (8 bytes) in fact.
->>
->>
->> From 69ec7599bf0fa28441281be1df76a2f573bb9127 Mon Sep 17 00:00:00 2001
->> From: Zhangfei Gao <zgao6@marvell.com>
->> Date: Fri, 5 Feb 2010 05:12:19 +0800
->> Subject: [PATCH] i2c: i2c_msg.len modify to __u32 type
->>
->> =A0 =A0 int i2c_master_send(struct i2c_client *client,const char *buf ,i=
-nt
->> count)
->> =A0 =A0 {
->> =A0 =A0 =A0 =A0 ~
->> =A0 =A0 =A0 =A0 msg.len =3D count;
->> =A0 =A0 =A0 =A0 ~
->> =A0 =A0 }
->> =A0 =A0 Parameter count would truncate from int to __u16
->>
->> Signed-off-by: Zhangfei Gao <zgao6@marvell.com>
->> ---
->> =A0include/linux/i2c.h | =A0 =A02 +-
->> =A01 files changed, 1 insertions(+), 1 deletions(-)
->>
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index 57d41b0..4769ce9 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -491,7 +491,7 @@ struct i2c_msg {
->> =A0#define I2C_M_IGNORE_NAK =A0 =A00x1000 =A0 =A0/* if I2C_FUNC_PROTOCOL=
-_MANGLING */
->> =A0#define I2C_M_NO_RD_ACK =A0 =A0 =A0 =A00x0800 =A0 =A0/* if I2C_FUNC_P=
-ROTOCOL_MANGLING
->> */
->> =A0#define I2C_M_RECV_LEN =A0 =A0 =A0 =A00x0400 =A0 =A0/* length will be=
- first received
->> byte */
->> - =A0 =A0__u16 len; =A0 =A0 =A0 =A0/* msg length =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0*/
->> + =A0 =A0__u32 len; =A0 =A0 =A0 =A0/* msg length =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0*/
->> =A0 =A0 =A0__u8 *buf; =A0 =A0 =A0 =A0/* pointer to msg data =A0 =A0 =A0 =
-=A0 =A0 =A0*/
->> =A0};
->>
->
-> Unfortunately struct i2c_msg is part of the user-space ABI so you don't
-> get to modify it.
->
-> What you can do is add a check on "count" in both i2c_master_send() and
-> i2c_master_recv() so that messages which will not fit are rejected
-> rather than being silently truncated. Alternatively, the count
-> parameters could be turned into u16, so that the limitation is
-> immediately visible. This would be more efficient.
->
-> I don't think it makes a lot of sense to transfer more than 64 kB at
-> once over I2C. I don't know at which speed you operate your bus, but
-> even at 400 kHz, it takes 1.5 second to transfer 64 kB. At the regular
-> 100 kHz, it takes no less than 6 seconds. This incurs pretty high
-> latency over the bus in question... Not to mention the system in its
-> entirety if your bus is backed by the never-sleeping i2c-algo-bit or
-> similar.
->
-> So if the hardware allows it, you should simply split the firmware in
-> smaller chunks so that it fits into the current interface.
->
-> If this is really impossible, then we'd have to introduce a new
-> structure for these long messages. As we can't use these in user-space
-> for compatibility reasons, we would have to translate from one
-> structure type to the other and back for every user-space transaction.
-> Obviously there would be a performance penalty, which is why I'd like
-> to avoid it if possible.
->
-> --
-> Jean Delvare
->
+> How about return error in i2c_master_send & i2c_master_recv when count
+> is bigger than 64K, as suggested by Ben.
 
-Hi, Jean
+I think that's more preferable. Making the count parameter as u16,
+though is going to generate a warning, yet that's usually ignored
+by careless programmer, screaming out when this happens might
+be more useful sometimes.
 
-Thanks for your reply.
-
-How about return error in i2c_master_send & i2c_master_recv when count
-is bigger than 64K, as suggested by Ben.
-The device I used could receive 32K one time instead, the firmware
-download only takes place on-demand in fact.
-However, it took some time to debug, since no error info come out.
-Add error msg may notify users, though transfering more than 64K data
-one time is rarely happen.
-
-Thanks
-Zhangfei
+> The device I used could receive 32K one time instead, the firmware
+> download only takes place on-demand in fact.
+> However, it took some time to debug, since no error info come out.
+> Add error msg may notify users, though transfering more than 64K data
+> one time is rarely happen.
+>
+> Thanks
+> Zhangfei
+>
