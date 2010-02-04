@@ -1,89 +1,127 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: bjdooks' git - current state of i2c-next
-Date: Wed, 3 Feb 2010 16:14:12 -0800
-Message-ID: <20100204001412.GM22747@atomide.com>
-References: <20100203023902.GA2794@fluff.org.uk>
+From: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/1] fix i2c_msg.len not aligning with i2c_master_send
+Date: Thu, 4 Feb 2010 16:25:40 +0800
+Message-ID: <309424b61002040025n22c2b05wbaab46ca4da946f2@mail.gmail.com>
+References: <309424b61002032204y37307236q94ab3a502b0526e0@mail.gmail.com>
+	 <20100204073759.GC13267@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100203023902.GA2794-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20100204073759.GC13267-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> [100202 18:31]:
-> Current state of next-i2c branch, which should be the start
-> of the next merge window pull as long as there are no objections
+Hi, Ben
 
-Can you also please merge the 16-bit register support for i2c-omap?
+Thanks for your suggestion.
 
-The subject is "[v2,I2C-OMAP] Add support for 16-bit registers"
+On Thu, Feb 4, 2010 at 3:37 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+>
+> On Thu, Feb 04, 2010 at 02:04:03PM +0800, zhangfei gao wrote:
+> > Hi, Jean
+> >
+> >
+> > We found type of i2c_msg.len is __u16, while parameter count in
+> > i2c_master_send is int.
+> > The mismatch will truncate count from int to u16.
+> > For example we downloading firmware which is more than 64K (64K+8) =
+via i2c,
+> > i2c would transfer u16 (8 bytes) in fact.
+>
+> I would be wary of changing the i2c_msg structure as this is exported=
+ to
+> userspace.
+>
+>
+> I think a better fix would be to test the count parameter to i2c_mast=
+er_send
+> and return something like EMSGSIZE to inform the user it is too long.
+>
+> If you really want i2c transfers of 64K and above, then you might hav=
+e to
+> add a new struct i2c_msg and update all the callsites to use it. Eith=
+er that
+> or chain a set of msgs together and pass them to the i2c controller i=
+n one
+> go.
+>
+> Please discuss on the i2c list.
+>
 
-It's been tested in linux-omap tree for several weeks. Available
-in mbox format at:
+1. Both i2c_master_send and i2c_msg are exported in include/linux/i2c.h=
+=2E
+2. Both i2c_master_send and i2c_master_recv supposed to support int
+count, is it suitable to return error when count is bigger than 64K?
+3. It may impact a lot if adding new structure :)
 
-http://patchwork.kernel.org/patch/72295/
+include/linux/i2c.h
+extern int i2c_master_send(struct i2c_client *client, const char *buf,
+                           int count);
+extern int i2c_master_recv(struct i2c_client *client, char *buf, int co=
+unt);
 
-Regards,
+Thansk
+Zhangfei
 
-Tony
-
-=20
-> The following changes since commit 1a45dcfe2525e9432cb4aba461d4994fc2=
-befe42:
->   Linus Torvalds (1):
->         Merge branch 'for-linus' of git://git.kernel.dk/linux-2.6-blo=
-ck
->=20
-> are available in the git repository at:
->=20
->   git://git.fluff.org/bjdooks/linux.git next-i2c
->=20
-> Jean-Hugues Deschenes (3):
->       i2c-designware: Use local version of readl & writel
->       i2c-designware: Check component type register
->       i2c-designware: Allow mixed endianness accesses
->=20
-> Richard R=C3=B6jfors (1):
->       i2c: Add support for Xilinx XPS IIC Bus Interface
->=20
-> Uwe Kleine-K=C3=B6nig (1):
->       i2c/imx: don't add probe function to the driver struct
->=20
-> Wolfgang Grandegger (3):
->       i2c-mpc: use __devinit[data] for initialization functions and d=
-ata
->       i2c-mpc: add support for the MPC512x processors from Freescale
->       powerpc: doc/dts-bindings: update doc of FSL I2C bindings
->=20
-> srinidhi kasagar (1):
->       i2c: Add support for Ux500/Nomadik I2C controller
->=20
->  Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +-
->  drivers/i2c/busses/Kconfig                     |   24 +-
->  drivers/i2c/busses/Makefile                    |    2 +
->  drivers/i2c/busses/i2c-designware.c            |  116 ++-
->  drivers/i2c/busses/i2c-imx.c                   |    1 -
->  drivers/i2c/busses/i2c-mpc.c                   |  198 +++--
->  drivers/i2c/busses/i2c-nomadik.c               |  959 ++++++++++++++=
-++++++++++
->  drivers/i2c/busses/i2c-xiic.c                  |  823 ++++++++++++++=
-++++++
->  include/linux/i2c-xiic.h                       |   43 ++
->  9 files changed, 2068 insertions(+), 128 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-nomadik.c
->  create mode 100644 drivers/i2c/busses/i2c-xiic.c
->  create mode 100644 include/linux/i2c-xiic.h
->=20
-> --=20
-> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
->=20
->   'a smiley only costs 4 bytes'
+> > >From 69ec7599bf0fa28441281be1df76a2f573bb9127 Mon Sep 17 00:00:00 =
+2001
+> > From: Zhangfei Gao <zgao6-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > Date: Fri, 5 Feb 2010 05:12:19 +0800
+> > Subject: [PATCH] i2c: i2c_msg.len modify to __u32 type
+> >
+> > =A0 =A0 int i2c_master_send(struct i2c_client *client,const char *b=
+uf ,int
+> > count)
+> > =A0 =A0 {
+> > =A0 =A0 =A0 =A0 ~
+> > =A0 =A0 =A0 =A0 msg.len =3D count;
+> > =A0 =A0 =A0 =A0 ~
+> > =A0 =A0 }
+> > =A0 =A0 Parameter count would truncate from int to __u16
+> >
+> > Signed-off-by: Zhangfei Gao <zgao6-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> > =A0include/linux/i2c.h | =A0 =A02 +-
+> > =A01 files changed, 1 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> > index 57d41b0..4769ce9 100644
+> > --- a/include/linux/i2c.h
+> > +++ b/include/linux/i2c.h
+> > @@ -491,7 +491,7 @@ struct i2c_msg {
+> > =A0#define I2C_M_IGNORE_NAK =A0 =A00x1000 =A0 =A0/* if I2C_FUNC_PRO=
+TOCOL_MANGLING */
+> > =A0#define I2C_M_NO_RD_ACK =A0 =A0 =A0 =A00x0800 =A0 =A0/* if I2C_F=
+UNC_PROTOCOL_MANGLING
+> > */
+> > =A0#define I2C_M_RECV_LEN =A0 =A0 =A0 =A00x0400 =A0 =A0/* length wi=
+ll be first received
+> > byte */
+> > - =A0 =A0__u16 len; =A0 =A0 =A0 =A0/* msg length =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0*/
+> > + =A0 =A0__u32 len; =A0 =A0 =A0 =A0/* msg length =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0*/
+> > =A0 =A0 =A0__u8 *buf; =A0 =A0 =A0 =A0/* pointer to msg data =A0 =A0=
+ =A0 =A0 =A0 =A0*/
+> > =A0};
+> >
+> > --
+> > 1.6.0.4
+>
+>
+> > _______________________________________________
+> > linux-arm-kernel mailing list
+> > linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>
+>
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
-in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> Ben
+>
+> Q: =A0 =A0 =A0What's a light-year?
+> A: =A0 =A0 =A0One-third less calories than a regular year.
+>
