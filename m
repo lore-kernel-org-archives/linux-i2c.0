@@ -1,111 +1,94 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH] i2c: Hook up runtime PM support
-Date: Sun, 7 Feb 2010 12:45:00 +0100
-Message-ID: <201002071245.00854.rjw@sisk.pl>
-References: <1265373011-12874-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
+ bus
+Date: Mon, 8 Feb 2010 16:05:39 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301E2639AD8@dbde02.ent.ti.com>
+References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
+	 <1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>
+	 <B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>
+ <225d086e1002050553tc1a696avce827cc115f56b1c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1265373011-12874-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <225d086e1002050553tc1a696avce827cc115f56b1c-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, pm list <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: "pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org" <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 05 February 2010, Mark Brown wrote:
-> Allow I2C drivers to make use of the runtime PM framework by adding
-> bus implementations of the runtime PM operations. These simply
-> immediately suspend when the device is idle. The runtime PM framework
-> provides drivers with off the shelf refcounts for enables and sysfs
-> control for managing runtime suspend from userspace so is useful even
-> without meaningful input from the bus.
-> 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Hi Philby,
 
-Acked-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+On Fri, Feb 05, 2010 at 19:23:43, Philby John wrote:
+> Hello Sekhar,
+>
 
-> ---
-> 
-> Changed to allow drivers to use the idle callback to veto suspend.
-> 
->  drivers/i2c/i2c-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 50 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 10be7b5..4131698 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -34,6 +34,7 @@
->  #include <linux/hardirq.h>
->  #include <linux/irqflags.h>
->  #include <linux/rwsem.h>
-> +#include <linux/pm_runtime.h>
->  #include <asm/uaccess.h>
->  
->  #include "i2c-core.h"
-> @@ -184,6 +185,52 @@ static int i2c_device_pm_resume(struct device *dev)
->  #define i2c_device_pm_resume	NULL
->  #endif
->  
-> +#ifdef CONFIG_PM_RUNTIME
-> +static int i2c_device_runtime_suspend(struct device *dev)
-> +{
-> +	const struct dev_pm_ops *pm;
-> +
-> +	if (!dev->driver)
-> +		return 0;
-> +	pm = dev->driver->pm;
-> +	if (!pm || !pm->runtime_suspend)
-> +		return 0;
-> +	return pm->runtime_suspend(dev);
-> +}
-> +
-> +static int i2c_device_runtime_resume(struct device *dev)
-> +{
-> +	const struct dev_pm_ops *pm;
-> +
-> +	if (!dev->driver)
-> +		return 0;
-> +	pm = dev->driver->pm;
-> +	if (!pm || !pm->runtime_resume)
-> +		return 0;
-> +	return pm->runtime_resume(dev);
-> +}
-> +
-> +static int i2c_device_runtime_idle(struct device *dev)
-> +{
-> +	const struct dev_pm_ops *pm = NULL;
-> +	int ret;
-> +
-> +	if (dev->driver)
-> +		pm = dev->driver->pm;
-> +	if (pm && pm->runtime_idle) {
-> +		ret = pm->runtime_idle(dev);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return pm_runtime_suspend(dev);
-> +}
-> +#else
-> +#define i2c_device_runtime_suspend	NULL
-> +#define i2c_device_runtime_resume	NULL
-> +#define i2c_device_runtime_idle		NULL
-> +#endif
-> +
->  static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
->  {
->  	struct i2c_client *client = i2c_verify_client(dev);
-> @@ -251,6 +298,9 @@ static const struct attribute_group *i2c_dev_attr_groups[] = {
->  static const struct dev_pm_ops i2c_device_pm_ops = {
->  	.suspend = i2c_device_pm_suspend,
->  	.resume = i2c_device_pm_resume,
-> +	.runtime_suspend = i2c_device_runtime_suspend,
-> +	.runtime_resume = i2c_device_runtime_resume,
-> +	.runtime_idle = i2c_device_runtime_idle,
->  };
->  
->  struct bus_type i2c_bus_type = {
-> 
+[...]
+
+> >> +/* Generate a pulse on the i2c clock pin. */
+> >> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
+> >> +{
+> >> +     u16 i;
+> >> +
+> >> +     if (scl_pin) {
+> >> +             /* Send high and low on the SCL line */
+> >> +             for (i = 0; i < 9; i++) {
+> >> +                     gpio_set_value(scl_pin, 0);
+> >> +                     udelay(20);
+> >> +                     gpio_set_value(scl_pin, 1);
+> >> +                     udelay(20);
+> >> +             }
+> >
+> > Before using the pins as GPIO, you would have to set the
+> > functionality of these pins as GPIO. You had this code in
+> > previous incarnations of this patch - not sure why it is
+> > dropped now.
+> >
+>
+> Don't seem to remember having the code in the old versions at least
+> not in generic_i2c_clock_pulse(). The functions disable_i2c_pins() and
+> enable_i2c_pins() were discarded as the i2c protocol spec. did not
+> specify the need. Moreover bus recovered without it. (Tested on DM355
+> and Dm6446).
+
+Yes, I was referring to the davinci_cfg_reg() calls in
+{disable|enable}_i2c_pins() functions. Per the specification
+of the DaVinci devices, a pin needs to be muxed as 'GPIO' if
+it is to be used as GPIO controlled by GPIO module. It may
+have worked on couple of devices but cannot be guaranteed to
+work on all DaVinci devices (esp. DA8XX ones).
+
+>
+> > Couple of good to haves:
+> >
+
+[...]
+
+> >
+> > The I2C peripheral on da8xx itself contains a mode where its
+> > pins could be used as GPIO - so no need for SoC level muxing
+> > and need for the platform data. This seems to be missing from
+> > DM355 though. Thankfully there is a revision id within the I2C
+> > memory map which will help you differentiate the two cases
+> > (revision 0x5 vs 0x6)
+>
+> I did not entirely follow your above statement. Will usage of
+> gpio_request() solve the problem for da8xx and DM355 or does it
+> require a if else condition?
+
+You require special casing for I2C version 0x6.
+Have a look here: http://focus.ti.com/lit/ug/sprufl9a/sprufl9a.pdf
+I was referring to registers described in sections
+3.15-3.20
+
+> A reminder that the present code will
+> only work for DM6446 and DM355. I do not have a DA8xx to test specific
+> functionality if it were to be added.
+
+Right. It is only an enhancement (and only good
+to have at that). This should not stop the current
+patch from getting in.
+
+Thanks,
+Sekhar
