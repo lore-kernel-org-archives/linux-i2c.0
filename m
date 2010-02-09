@@ -1,84 +1,60 @@
-From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH v4 3/3] powerpc: doc/dts-bindings: update doc of FSL I2C
- bindings
-Date: Tue, 09 Feb 2010 20:23:04 +0100
-Message-ID: <4B71B618.6020807@grandegger.com>
-References: <1264685141-26391-1-git-send-email-wg@grandegger.com>	<1264685141-26391-2-git-send-email-wg@grandegger.com>	<1264685141-26391-3-git-send-email-wg@grandegger.com>	<1264685141-26391-4-git-send-email-wg@grandegger.com>	<fa686aa41002090950w2c3cd008k47784089dd3417d7@mail.gmail.com> <4B71AFFC.3010301@grandegger.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [Q] i2c-taos-evm bus driver
+Date: Tue, 9 Feb 2010 21:42:52 +0100
+Message-ID: <20100209214252.2a01f010@hyperion.delvare>
+References: <BD79186B4FD85F4B8E60E381CAEE190902152F0E@mi8nycmail19.Mi8.com>
+	<20100209091639.5b6e39a5@hyperion.delvare>
+	<BD79186B4FD85F4B8E60E381CAEE190902152FBE@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B71AFFC.3010301-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190902152FBE-KURmP/Qoe8Pmp66j18f85VaTQe2KTcn/@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+To: H Hartley Sweeten <hartleys-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfgang Grandegger wrote:
-> Hi Grant,
-> 
-> Grant Likely wrote:
->> On Thu, Jan 28, 2010 at 6:25 AM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
->>> From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
->>>
->>> This patch adds the MPC5121 to the list of supported devices,
->>> enhances the doc of the "clock-frequency" property and removes
->>> the obsolete "cell-index" property from the example nodes.
->>> Furthermore and example for the MPC5121 has been added.
->>>
->>> Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
->> Thanks Wolfgang.  Comments below.
->>
->>> ---
->>>  Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++++++++++++++++++----
->>>  1 files changed, 24 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/Documentation/powerpc/dts-bindings/fsl/i2c.txt b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
->>> index b6d2e21..2f62dae 100644
->>> --- a/Documentation/powerpc/dts-bindings/fsl/i2c.txt
->>> +++ b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
->>> @@ -9,8 +9,9 @@ Recommended properties :
->>>
->>>  - compatible : compatibility list with 2 entries, the first should
->>>    be "fsl,CHIP-i2c" where CHIP is the name of a compatible processor,
->>> -   e.g. mpc8313, mpc8543, mpc8544, mpc5200 or mpc5200b. The second one
->>> -   should be "fsl-i2c".
->>> +   e.g. mpc8313, mpc8543, mpc8544, mpc5121, mpc5200 or mpc5200b. The
->>> +   second one should be "fsl-i2c". For the mpc5121, an additional node
->>> +   "fsl,mpc5121-i2c-ctrl" is required as shown in the example below.
->> While you're editing this line; drop the requirement for the second
->> value to be 'fsl-i2c'.  We don't use it anymore, and only preserve it
->> for backwards compatibility with old trees.
-> 
-> OK.
-> 
->>>  - interrupts : <a b> where a is the interrupt number and b is a
->>>    field that represents an encoding of the sense and level
->>>    information for the interrupt.  This should be encoded based on
->>> @@ -20,29 +21,46 @@ Recommended properties :
->>>    services interrupts for this device.
->>>  - fsl,preserve-clocking : boolean; if defined, the clock settings
->>>    from the bootloader are preserved (not touched).
->>> - - clock-frequency : desired I2C bus clock frequency in Hz.
->>> + - clock-frequency : desired I2C bus clock frequency in Hz.  If this
->>> +   property and "fsl,preserve-clocking" is not defined, a safe fixed
->>> +   clock divider value is used (resulting in a small clock frequency).
->> Nah, leave this as is.  Don't make it sound like omitting both
->> properties is a valid option.  The driver may (and should!) handle the
->> situation gracefully, but that fact does not need to be documented.
-> 
-> The safe value is not a good choice, indeed. Then it will also change
-> MPC_I2C_CLOCK_SAFE to MPC_I2C_CLOCK_LEGACY in i2c-mpc.c.
-> 
-> I will also fix the other issues you commented on.
+Hi Hartley,
 
-And I will also remove the "device_type" line from:
+On Tue, 9 Feb 2010 11:38:37 -0500, H Hartley Sweeten wrote:
+> On Tuesday, February 09, 2010 1:17 AM, Jean Delvare wrote:
+> > No, it works reasonably fine. I was using it myself no later than one
+> > month ago. Out of curiosity, with which exact evaluation module do you
+> > plan to use it?
+> 
+> I'm not actually...
+> 
+> I am trying to figure out how a serio driver actually gets "hooked" to a
+> serial port.  The i2c-taos-evm driver looked simple enough to play with
+> in order to figure it out.  I was trying to follow the Documentation in
+> order to use it and ran into the issue below.
 
- -------------
- Required properties :
+OK... but please keep in mind that you won't be able to use this driver
+without supported hardware. The driver will not bind to the serial port
+if it doesn't detect a supported device.
 
- - device_type : Should be "i2c"
- - reg : Offset and length of the register set for the device
- -------------
+> (...)
+> Do you know if there is a way to make the connection in kernel?
 
-Wolfgang.
+I suppose this is possible from a pure code perspective, but I can't
+see why one would want to do that. The kernel has no idea what is
+connected to the serial ports: devices on the serial port can't be
+reliably nor safely probed. This is why we rely on user-space to
+declare which device is connected to which port, based on the
+assumption that the user knows what he or she is doing.
+
+> Also, do you know if there is any information on the serio stuff
+> available anywhere?  Other than just reading the kernel source I
+> have not been able to locate anything.
+
+I seem to remember I hit the exact same problem back when I wrote the
+i2c-taos-evm driver. I ended up reading the source code of other serial
+device drivers and used them as an example. It was enough to get things
+to work, but I won't claim I understood all of serio... just enough to
+do what I needed back then.
+
+Maybe Dmitry Torokhov (Cc'd) will be more helpful than me.
+
+-- 
+Jean Delvare
