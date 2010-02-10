@@ -1,13 +1,8 @@
 From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: [PATCH v6 4/4] powerpc: doc/dts-bindings: update doc of FSL I2C bindings
-Date: Wed, 10 Feb 2010 11:05:30 +0100
-Message-ID: <1265796330-15976-5-git-send-email-wg@grandegger.com>
-References: <1265796330-15976-1-git-send-email-wg@grandegger.com>
- <1265796330-15976-2-git-send-email-wg@grandegger.com>
- <1265796330-15976-3-git-send-email-wg@grandegger.com>
- <1265796330-15976-4-git-send-email-wg@grandegger.com>
+Subject: [PATCH v6 0/4] i2c-mpc: add support for the Freescale MPC512x and other fixes
+Date: Wed, 10 Feb 2010 11:05:26 +0100
+Message-ID: <1265796330-15976-1-git-send-email-wg@grandegger.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1265796330-15976-4-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
@@ -15,84 +10,48 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 
-This patch adds the MPC5121 to the list of supported devices,
-enhances the doc of the "clock-frequency" property and removes
-the obsolete "cell-index", "device_type" and "fsl-i2c" property.
-Furthermore an example for the MPC5121 has been added.
+This patch series adds support for the MPC512x from Freescale to the
+i2c-mpc driver. At that occasion, issues with  __devinit[data] have
+been fixed and the doc of the FSL I2C dts bindings updated. It has
+been tested on a MPC5121ADS, TQM5200 and TQM8560 board
 
-Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++++++++++++++++------
- 1 files changed, 22 insertions(+), 8 deletions(-)
+Changes since v1:
 
-diff --git a/Documentation/powerpc/dts-bindings/fsl/i2c.txt b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-index b6d2e21..50da203 100644
---- a/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-+++ b/Documentation/powerpc/dts-bindings/fsl/i2c.txt
-@@ -2,15 +2,14 @@
- 
- Required properties :
- 
-- - device_type : Should be "i2c"
-  - reg : Offset and length of the register set for the device
-+ - compatible : should be "fsl,CHIP-i2c" where CHIP is the name of a
-+   compatible processor, e.g. mpc8313, mpc8543, mpc8544, mpc5121,
-+   mpc5200 or mpc5200b. For the mpc5121, an additional node
-+   "fsl,mpc5121-i2c-ctrl" is required as shown in the example below.
- 
- Recommended properties :
- 
-- - compatible : compatibility list with 2 entries, the first should
--   be "fsl,CHIP-i2c" where CHIP is the name of a compatible processor,
--   e.g. mpc8313, mpc8543, mpc8544, mpc5200 or mpc5200b. The second one
--   should be "fsl-i2c".
-  - interrupts : <a b> where a is the interrupt number and b is a
-    field that represents an encoding of the sense and level
-    information for the interrupt.  This should be encoded based on
-@@ -24,25 +23,40 @@ Recommended properties :
- 
- Examples :
- 
-+	/* MPC5121 based board */
-+	i2c@1740 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,mpc5121-i2c", "fsl-i2c";
-+		reg = <0x1740 0x20>;
-+		interrupts = <11 0x8>;
-+		interrupt-parent = <&ipic>;
-+		clock-frequency = <100000>;
-+	};
-+
-+	i2ccontrol@1760 {
-+		compatible = "fsl,mpc5121-i2c-ctrl";
-+		reg = <0x1760 0x8>;
-+	};
-+
-+	/* MPC5200B based board */
- 	i2c@3d00 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		compatible = "fsl,mpc5200b-i2c","fsl,mpc5200-i2c","fsl-i2c";
--		cell-index = <0>;
- 		reg = <0x3d00 0x40>;
- 		interrupts = <2 15 0>;
- 		interrupt-parent = <&mpc5200_pic>;
- 		fsl,preserve-clocking;
- 	};
- 
-+	/* MPC8544 base board */
- 	i2c@3100 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		cell-index = <1>;
- 		compatible = "fsl,mpc8544-i2c", "fsl-i2c";
- 		reg = <0x3100 0x100>;
- 		interrupts = <43 2>;
- 		interrupt-parent = <&mpic>;
- 		clock-frequency = <400000>;
- 	};
--
--- 
-1.6.2.5
+- use macro MPC_I2C_CLOCK_PRESERVE/SAFE for the special clock settings.
+- document the special DTS node "fsl,mpc5121-i2c-ctrl".
+- update and correct the Kconfig help.
+- some other minor fixes as suggested by Wolfram.
+
+Changes since v2:
+
+- use __init[data] instead of __devinit[data] for this driver.
+
+Changes since v3:
+
+- switch back to __devinit[data] as pointed out by Ben.
+
+Changes since v4:
+
+- check MPC_I2C_CLOCK_SAFE instead of "!clock" as suggested by Wolfram.
+- update MODULE_DESCRIPTION().
+
+Changes since v5 (suggested by Grant Likely):
+
+- various correctings for labling initialization functions and data
+  (this is tricky because section mismatches are not always obvious).
+- add a separate patch for renaming the setclock into setup functions.
+- correct the doc of the I2C bindings, e.g. don't mention the legacy
+  clock setting and remove obsolte parts.
+
+Wolfgang
+
+Wolfgang Grandegger (4):
+  i2c-mpc: use __devinit[data] for initialization functions and data
+  i2c-mpc: rename "setclock" initialization functions to "setup"
+  i2c-mpc: add support for the MPC512x processors from Freescale
+  powerpc: doc/dts-bindings: update doc of FSL I2C bindings
+
+ Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++-
+ drivers/i2c/busses/Kconfig                     |    7 +-
+ drivers/i2c/busses/i2c-mpc.c                   |  194 +++++++++++++++---------
+ 3 files changed, 146 insertions(+), 85 deletions(-)
