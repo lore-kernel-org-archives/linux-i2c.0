@@ -1,36 +1,122 @@
 From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
-Subject: Re: [PATCH v4 1/3] i2c-mpc: use __devinit[data] for initialization
- 	functions and data
-Date: Wed, 10 Feb 2010 15:45:30 +0100
-Message-ID: <4B72C68A.8020300@grandegger.com>
-References: <1264685141-26391-1-git-send-email-wg@grandegger.com> 	<1264685141-26391-2-git-send-email-wg@grandegger.com> <fa686aa41002090941je3e4fdqbecf2616a8b90e42@mail.gmail.com> 	<4B7285D5.9060008@grandegger.com> <20100210213203.48a9105e.sfr@canb.auug.org.au> 	<4B729043.9080303@grandegger.com> <fa686aa41002100614l76bff396ved847c0b0a4c71ff@mail.gmail.com>
+Subject: [PATCH v7 2/4] i2c-mpc: rename "setclock" initialization functions to
+	"setup"
+Date: Wed, 10 Feb 2010 15:55:09 +0100
+Message-ID: <1265813711-16794-3-git-send-email-wg@grandegger.com>
+References: <1265813711-16794-1-git-send-email-wg@grandegger.com>
+	<1265813711-16794-2-git-send-email-wg@grandegger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <fa686aa41002100614l76bff396ved847c0b0a4c71ff-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1265813711-16794-2-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Grant Likely wrote:
-> On Wed, Feb 10, 2010 at 3:53 AM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
->> Stephen Rothwell wrote:
->>> Hi Wolfgang,
->>>
->>> On Wed, 10 Feb 2010 11:09:25 +0100 Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
->>>>> __devinitdata goes at the end, immediately before the '='.  Ditto
->>>>> throughout the file.
->>>> This made a difference and revealed section mismatches. "const" seems to
->>>> be incompatible with "__devinitdata".
->>> Maybe try no "const" and "__devinitconst" (I am not sure if both will
->>> work).
->> Yes, that works, even together with "const". To avoid rolling out the
->> whole patch series again, I can prepare a follow-up patch fixing this issue.
-> 
-> Nah, just resend this one patch.
+From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 
-Even if it break the following patches? Will resend v7 in a second.
+To prepare  support for the MPC512x processors from Freescale the
+"setclock" initialization functions have been renamed to "setup"
+because I2C interrupts must be enabled for the MPC512x by this
+function as well.
 
-Wolfgang.
+Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |   34 ++++++++++++++++------------------
+ 1 files changed, 16 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 9f0e203..370c342 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -67,9 +67,8 @@ struct mpc_i2c_divider {
+ };
+ 
+ struct mpc_i2c_data {
+-	void (*setclock)(struct device_node *node,
+-			 struct mpc_i2c *i2c,
+-			 u32 clock, u32 prescaler);
++	void (*setup)(struct device_node *node, struct mpc_i2c *i2c,
++		      u32 clock, u32 prescaler);
+ 	u32 prescaler;
+ };
+ 
+@@ -216,9 +215,9 @@ static int __devinit mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock,
+ 	return div ? (int)div->fdr : -EINVAL;
+ }
+ 
+-static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+-					    struct mpc_i2c *i2c,
+-					    u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
++					 struct mpc_i2c *i2c,
++					 u32 clock, u32 prescaler)
+ {
+ 	int ret, fdr;
+ 
+@@ -231,9 +230,9 @@ static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+ 		dev_info(i2c->dev, "clock %d Hz (fdr=%d)\n", clock, fdr);
+ }
+ #else /* !CONFIG_PPC_MPC52xx */
+-static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
+-					    struct mpc_i2c *i2c,
+-					    u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setup_52xx(struct device_node *node,
++					 struct mpc_i2c *i2c,
++					 u32 clock, u32 prescaler)
+ {
+ }
+ #endif /* CONFIG_PPC_MPC52xx*/
+@@ -322,9 +321,9 @@ static int __devinit mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
+ 	return div ? (int)div->fdr : -EINVAL;
+ }
+ 
+-static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
+-					    struct mpc_i2c *i2c,
+-					    u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
++					 struct mpc_i2c *i2c,
++					 u32 clock, u32 prescaler)
+ {
+ 	int ret, fdr;
+ 
+@@ -340,9 +339,9 @@ static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
+ }
+ 
+ #else /* !CONFIG_FSL_SOC */
+-static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
+-					    struct mpc_i2c *i2c,
+-					    u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setup_8xxx(struct device_node *node,
++					 struct mpc_i2c *i2c,
++					 u32 clock, u32 prescaler)
+ {
+ }
+ #endif /* CONFIG_FSL_SOC */
+@@ -533,12 +532,11 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
+ 		if (match->data) {
+ 			struct mpc_i2c_data *data =
+ 				(struct mpc_i2c_data *)match->data;
+-			data->setclock(op->node, i2c, clock, data->prescaler);
++			data->setup(op->node, i2c, clock, data->prescaler);
+ 		} else {
+ 			/* Backwards compatibility */
+ 			if (of_get_property(op->node, "dfsrr", NULL))
+-				mpc_i2c_setclock_8xxx(op->node, i2c,
+-						      clock, 0);
++				mpc_i2c_setup_8xxx(op->node, i2c, clock, 0);
+ 		}
+ 	}
+ 
+-- 
+1.6.2.5
