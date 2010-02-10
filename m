@@ -1,29 +1,216 @@
-From: VK <noreply-Zh1y03NH2Sk@public.gmane.org>
-Subject: Sergey Hnykin vi ha aggiunto tra gli amici nel sito vkontakte.ru
-Date: Wed, 10 Feb 2010 09:27:10 +0300
-Message-ID: <2a7f715c4c958153251ad9a782fc32b0@localhost.localdomain>
-Reply-To: VK <noreply-Zh1y03NH2Sk@public.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: [PATCH v6 1/4] i2c-mpc: use __devinit[data] for initialization functions and data
+Date: Wed, 10 Feb 2010 11:05:27 +0100
+Message-ID: <1265796330-15976-2-git-send-email-wg@grandegger.com>
+References: <1265796330-15976-1-git-send-email-wg@grandegger.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1265796330-15976-1-git-send-email-wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-gentile ...
+From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 
-Ora pu=C3=B2 entrare nel sito e guardare le pagine dei Suoi amici, util=
-izzando la Sua e-mail e la parola d&#39;ordine (password) generata auto=
-maticamente.
+"__devinit[data]" has not yet been used for all initialization functions
+and data. To avoid truncating lines, the struct "mpc_i2c_match_data" has
+been renamed to "mpc_i2c_data", which is even the better name.
 
-VKONTAKTE.ru =C3=A8 un sito, che quotidianamente aiuta dieci milioni di=
- persone a ritrovare vecchi amici, intrattenersi con loro in rete e con=
-dividere fotografie e avvenimenti della vita.
+Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+Tested-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |   99 +++++++++++++++++++----------------------
+ 1 files changed, 46 insertions(+), 53 deletions(-)
 
-Per entrare nel sito, clicchi sul link sottostante:
-
-ATTENZIONE: la Sua registrazione non sar=C3=A0 attiva se ignorer=C3=A0 =
-questo invito.
-
-Buon divertimento!
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index f627001..ba4e7af 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -66,7 +66,7 @@ struct mpc_i2c_divider {
+ 	u16 fdr;	/* including dfsrr */
+ };
+ 
+-struct mpc_i2c_match_data {
++struct mpc_i2c_data {
+ 	void (*setclock)(struct device_node *node,
+ 			 struct mpc_i2c *i2c,
+ 			 u32 clock, u32 prescaler);
+@@ -165,7 +165,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+ }
+ 
+ #ifdef CONFIG_PPC_MPC52xx
+-static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
++static struct mpc_i2c_divider mpc_i2c_dividers_52xx[]  __devinitdata = {
+ 	{20, 0x20}, {22, 0x21}, {24, 0x22}, {26, 0x23},
+ 	{28, 0x24}, {30, 0x01}, {32, 0x25}, {34, 0x02},
+ 	{36, 0x26}, {40, 0x27}, {44, 0x04}, {48, 0x28},
+@@ -186,7 +186,8 @@ static const struct mpc_i2c_divider mpc_i2c_dividers_52xx[] = {
+ 	{10240, 0x9d}, {12288, 0x9e}, {15360, 0x9f}
+ };
+ 
+-int mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock, int prescaler)
++static int __devinit mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock,
++					  int prescaler)
+ {
+ 	const struct mpc_i2c_divider *div = NULL;
+ 	unsigned int pvr = mfspr(SPRN_PVR);
+@@ -215,9 +216,9 @@ int mpc_i2c_get_fdr_52xx(struct device_node *node, u32 clock, int prescaler)
+ 	return div ? (int)div->fdr : -EINVAL;
+ }
+ 
+-static void mpc_i2c_setclock_52xx(struct device_node *node,
+-				  struct mpc_i2c *i2c,
+-				  u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
++					    struct mpc_i2c *i2c,
++					    u32 clock, u32 prescaler)
+ {
+ 	int ret, fdr;
+ 
+@@ -230,15 +231,15 @@ static void mpc_i2c_setclock_52xx(struct device_node *node,
+ 		dev_info(i2c->dev, "clock %d Hz (fdr=%d)\n", clock, fdr);
+ }
+ #else /* !CONFIG_PPC_MPC52xx */
+-static void mpc_i2c_setclock_52xx(struct device_node *node,
+-				  struct mpc_i2c *i2c,
+-				  u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setclock_52xx(struct device_node *node,
++					    struct mpc_i2c *i2c,
++					    u32 clock, u32 prescaler)
+ {
+ }
+ #endif /* CONFIG_PPC_MPC52xx*/
+ 
+ #ifdef CONFIG_FSL_SOC
+-static const struct mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
++static struct mpc_i2c_divider mpc_i2c_dividers_8xxx[]  __devinitdata = {
+ 	{160, 0x0120}, {192, 0x0121}, {224, 0x0122}, {256, 0x0123},
+ 	{288, 0x0100}, {320, 0x0101}, {352, 0x0601}, {384, 0x0102},
+ 	{416, 0x0602}, {448, 0x0126}, {480, 0x0103}, {512, 0x0127},
+@@ -258,7 +259,7 @@ static const struct mpc_i2c_divider mpc_i2c_dividers_8xxx[] = {
+ 	{49152, 0x011e}, {61440, 0x011f}
+ };
+ 
+-u32 mpc_i2c_get_sec_cfg_8xxx(void)
++static u32 __devinit mpc_i2c_get_sec_cfg_8xxx(void)
+ {
+ 	struct device_node *node = NULL;
+ 	u32 __iomem *reg;
+@@ -287,7 +288,8 @@ u32 mpc_i2c_get_sec_cfg_8xxx(void)
+ 	return val;
+ }
+ 
+-int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock, u32 prescaler)
++static int __devinit mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock,
++					  u32 prescaler)
+ {
+ 	const struct mpc_i2c_divider *div = NULL;
+ 	u32 divider;
+@@ -320,9 +322,9 @@ int mpc_i2c_get_fdr_8xxx(struct device_node *node, u32 clock, u32 prescaler)
+ 	return div ? (int)div->fdr : -EINVAL;
+ }
+ 
+-static void mpc_i2c_setclock_8xxx(struct device_node *node,
+-				  struct mpc_i2c *i2c,
+-				  u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
++					    struct mpc_i2c *i2c,
++					    u32 clock, u32 prescaler)
+ {
+ 	int ret, fdr;
+ 
+@@ -338,9 +340,9 @@ static void mpc_i2c_setclock_8xxx(struct device_node *node,
+ }
+ 
+ #else /* !CONFIG_FSL_SOC */
+-static void mpc_i2c_setclock_8xxx(struct device_node *node,
+-				  struct mpc_i2c *i2c,
+-				  u32 clock, u32 prescaler)
++static void __devinit mpc_i2c_setclock_8xxx(struct device_node *node,
++					    struct mpc_i2c *i2c,
++					    u32 clock, u32 prescaler)
+ {
+ }
+ #endif /* CONFIG_FSL_SOC */
+@@ -529,8 +531,8 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
+ 			clock = *prop;
+ 
+ 		if (match->data) {
+-			struct mpc_i2c_match_data *data =
+-				(struct mpc_i2c_match_data *)match->data;
++			struct mpc_i2c_data *data =
++				(struct mpc_i2c_data *)match->data;
+ 			data->setclock(op->node, i2c, clock, data->prescaler);
+ 		} else {
+ 			/* Backwards compatibility */
+@@ -582,44 +584,35 @@ static int __devexit fsl_i2c_remove(struct of_device *op)
+ 	return 0;
+ };
+ 
++static struct mpc_i2c_data mpc_i2c_data_52xx __devinitdata = {
++	.setup = mpc_i2c_setup_52xx,
++};
++
++static struct mpc_i2c_data mpc_i2c_data_8313 __devinitdata = {
++	.setup = mpc_i2c_setup_8xxx,
++};
++
++static struct mpc_i2c_data mpc_i2c_data_8543 __devinitdata = {
++	.setup = mpc_i2c_setup_8xxx,
++	.prescaler = 2,
++};
++
++static struct mpc_i2c_data mpc_i2c_data_8544 __devinitdata = {
++	.setup = mpc_i2c_setup_8xxx,
++	.prescaler = 3,
++};
++
+ static const struct of_device_id mpc_i2c_of_match[] = {
+-	{.compatible = "mpc5200-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_52xx,
+-		},
+-	},
+-	{.compatible = "fsl,mpc5200b-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_52xx,
+-		},
+-	},
+-	{.compatible = "fsl,mpc5200-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_52xx,
+-		},
+-	},
+-	{.compatible = "fsl,mpc8313-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_8xxx,
+-		},
+-	},
+-	{.compatible = "fsl,mpc8543-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_8xxx,
+-			.prescaler = 2,
+-		},
+-	},
+-	{.compatible = "fsl,mpc8544-i2c",
+-	 .data = &(struct mpc_i2c_match_data) {
+-			.setclock = mpc_i2c_setclock_8xxx,
+-			.prescaler = 3,
+-		},
++	{.compatible = "mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
++	{.compatible = "fsl,mpc5200b-i2c", .data = &mpc_i2c_data_52xx, },
++	{.compatible = "fsl,mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
++	{.compatible = "fsl,mpc8313-i2c", .data = &mpc_i2c_data_8313, },
++	{.compatible = "fsl,mpc8543-i2c", .data = &mpc_i2c_data_8543, },
++	{.compatible = "fsl,mpc8544-i2c", .data = &mpc_i2c_data_8544, },
+ 	/* Backward compatibility */
+-	},
+ 	{.compatible = "fsl-i2c", },
+ 	{},
+ };
+-
+ MODULE_DEVICE_TABLE(of, mpc_i2c_of_match);
+ 
+ 
+-- 
+1.6.2.5
