@@ -1,18 +1,19 @@
-From: =?ISO-8859-1?Q?Richard_R=F6jfors?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
-Subject: [PATCH v3 0/1] i2c: Add support for Xilinx XPS IIC Bus Interface
-Date: Thu, 11 Feb 2010 10:41:57 +0100
-Message-ID: <4B73D0E5.90502@pelagicore.com>
+From: Denis Turischev <denis@compulab.co.il>
+Subject: [PATCH 0/3] Add Intel SCH GPIO driver
+Date: Thu, 11 Feb 2010 12:24:46 +0200
+Message-ID: <4B73DAEE.5080400@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, David Brownell <dbrownell@users.sourceforge.net>, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-To follow is an updated patch to add support for the Xilinx XPS IIC Bus interface.
-
-Compared to v2 the copyright field is updated.
-
---Richard
+LPC bridge controller of Intel SCH contains several functions.
+Currently, LPC bridge controller PCI device is claimed by SMBus driver
+thus disabling ability to have an additional driver for the LPC bridge
+PCI device. This patch series introduces and MFD driver that creates
+platform_device for both SMBus and GPIO controller, converts  SMBus
+driver to platform_driver and adds the driver for GPIO controller
