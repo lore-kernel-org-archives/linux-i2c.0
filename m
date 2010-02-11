@@ -1,72 +1,81 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-parport: Give powered devices some time to settle
-Date: Thu, 11 Feb 2010 12:16:32 +0100
-Message-ID: <20100211121632.3a7d0b8a@hyperion.delvare>
+From: "H Hartley Sweeten" <hartleys-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>
+Subject: RE: [Q] i2c-taos-evm bus driver
+Date: Thu, 11 Feb 2010 12:12:51 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190902153420@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE190902152F0E@mi8nycmail19.Mi8.com><20100209091639.5b6e39a5@hyperion.delvare><BD79186B4FD85F4B8E60E381CAEE190902152FBE@mi8nycmail19.Mi8.com> <20100209214252.2a01f010@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <20100209214252.2a01f010-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When the i2c-parport adapter is reponsible for powering devices, it
-would seem reasonable to give them some time to settle before trying
-to access them.
+On Tuesday, February 09, 2010 1:43 PM, Jean Delvare wrote:
+> Hi Hartley,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/busses/i2c-parport-light.c |    6 +++++-
- drivers/i2c/busses/i2c-parport.c       |    6 +++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+Hello.
 
---- linux-2.6.33-rc7.orig/drivers/i2c/busses/i2c-parport-light.c	2009-06-10 05:05:27.000000000 +0200
-+++ linux-2.6.33-rc7/drivers/i2c/busses/i2c-parport-light.c	2010-02-11 12:11:27.000000000 +0100
-@@ -27,6 +27,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-+#include <linux/delay.h>
- #include <linux/platform_device.h>
- #include <linux/ioport.h>
- #include <linux/i2c.h>
-@@ -127,8 +128,11 @@ static int __devinit i2c_parport_probe(s
- 	parport_setsda(NULL, 1);
- 	parport_setscl(NULL, 1);
- 	/* Other init if needed (power on...) */
--	if (adapter_parm[type].init.val)
-+	if (adapter_parm[type].init.val) {
- 		line_set(1, &adapter_parm[type].init);
-+		/* Give powered devices some time to settle */
-+		msleep(100);
-+	}
- 
- 	parport_adapter.dev.parent = &pdev->dev;
- 	err = i2c_bit_add_bus(&parport_adapter);
---- linux-2.6.33-rc7.orig/drivers/i2c/busses/i2c-parport.c	2010-02-11 11:39:03.000000000 +0100
-+++ linux-2.6.33-rc7/drivers/i2c/busses/i2c-parport.c	2010-02-11 12:03:40.000000000 +0100
-@@ -27,6 +27,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-+#include <linux/delay.h>
- #include <linux/parport.h>
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
-@@ -185,8 +186,11 @@ static void i2c_parport_attach (struct p
- 	parport_setsda(port, 1);
- 	parport_setscl(port, 1);
- 	/* Other init if needed (power on...) */
--	if (adapter_parm[type].init.val)
-+	if (adapter_parm[type].init.val) {
- 		line_set(port, 1, &adapter_parm[type].init);
-+		/* Give powered devices some time to settle */
-+		msleep(100);
-+	}
- 
- 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
- 		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
+> On Tue, 9 Feb 2010 11:38:37 -0500, H Hartley Sweeten wrote:
+>> On Tuesday, February 09, 2010 1:17 AM, Jean Delvare wrote:
+>>> No, it works reasonably fine. I was using it myself no later than one
+>>> month ago. Out of curiosity, with which exact evaluation module do you
+>>> plan to use it?
+>> 
+>> I'm not actually...
+>> 
+>> I am trying to figure out how a serio driver actually gets "hooked" to a
+>> serial port.  The i2c-taos-evm driver looked simple enough to play with
+>> in order to figure it out.  I was trying to follow the Documentation in
+>> order to use it and ran into the issue below.
+>
+> OK... but please keep in mind that you won't be able to use this driver
+> without supported hardware. The driver will not bind to the serial port
+> if it doesn't detect a supported device.
 
+That's what I am trying to figure out.
 
--- 
-Jean Delvare
+Now that I know the baud rate and port setting from your patch to inputattach.c
+I was just going to dummy something up to one of my serial ports.  I really
+don't need the i2c-taos-evm driver to "work" I just want to figure out how
+the serio connection is made.
+
+It still seems strange to me that a user space application is needed to connect
+two kernel drivers together.  Actually three if you include the serio "bridge".
+I assume the actual connection between the drivers is something like this:
+
+	some_tty_driver <--> serio <--> i2c-taos-evm
+
+>> (...)
+>> Do you know if there is a way to make the connection in kernel?
+
+> I suppose this is possible from a pure code perspective, but I can't
+> see why one would want to do that. The kernel has no idea what is
+> connected to the serial ports: devices on the serial port can't be
+> reliably nor safely probed. This is why we rely on user-space to
+> declare which device is connected to which port, based on the
+> assumption that the user knows what he or she is doing.
+
+My intention is to do this in an embedded system.  The serial port
+I am using will always be connected to the target device.  I am just
+Trying to figure out a way to make the kernel driver connection.
+
+>> Also, do you know if there is any information on the serio stuff
+>> available anywhere?  Other than just reading the kernel source I
+>> have not been able to locate anything.
+>
+> I seem to remember I hit the exact same problem back when I wrote the
+> i2c-taos-evm driver. I ended up reading the source code of other serial
+> device drivers and used them as an example. It was enough to get things
+> to work, but I won't claim I understood all of serio... just enough to
+> do what I needed back then.
+>
+> Maybe Dmitry Torokhov (Cc'd) will be more helpful than me.
+
+Hopefully... There seems to be a real lack of information available.
+
+Thanks for the reply,
+Hartley
