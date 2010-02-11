@@ -1,340 +1,72 @@
-From: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Subject: [PATCH 3/3] gpio: add Intel SCH GPIO controller driver
-Date: Thu, 11 Feb 2010 12:28:57 +0200
-Message-ID: <4B73DBE9.2030307@compulab.co.il>
-References: <4B73DAEE.5080400@compulab.co.il>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-parport: Give powered devices some time to settle
+Date: Thu, 11 Feb 2010 12:16:32 +0100
+Message-ID: <20100211121632.3a7d0b8a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B73DAEE.5080400-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+When the i2c-parport adapter is reponsible for powering devices, it
+would seem reasonable to give them some time to settle before trying
+to access them.
 
-diff -Nru linux-2.6.33-rc7.orig/drivers/gpio/Kconfig linux-2.6.33-rc7/drivers/gpio/Kconfig
---- linux-2.6.33-rc7.orig/drivers/gpio/Kconfig	2010-02-07 00:17:12.000000000 +0200
-+++ linux-2.6.33-rc7/drivers/gpio/Kconfig	2010-02-10 15:15:49.000000000 +0200
-@@ -85,6 +85,22 @@
-  	help
-  	  Say yes here to support the NEC VR4100 series General-purpose I/O Uint
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-parport-light.c |    6 +++++-
+ drivers/i2c/busses/i2c-parport.c       |    6 +++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-+config GPIO_SCH
-+	tristate "Intel SCH GPIO"
-+	depends on GPIOLIB
-+	select LPC_SCH
-+	help
-+	  Say yes here to support GPIO interface on Intel Poulsbo SCH.
-+	  The Intel SCH contains a total of 14 GPIO pins. Ten GPIOs are
-+	  powered by the core power rail and are turned off during sleep
-+	  modes (S3 and higher). The remaining four GPIOs are powered by
-+	  the Intel SCH suspend power supply. These GPIOs remain
-+	  active during S3. The suspend powered GPIOs can be used to wake the
-+	  system from the Suspend-to-RAM state.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called sch-gpio.
-+
-  comment "I2C GPIO expanders:"
-
-  config GPIO_MAX732X
-diff -Nru linux-2.6.33-rc7.orig/drivers/gpio/Makefile linux-2.6.33-rc7/drivers/gpio/Makefile
---- linux-2.6.33-rc7.orig/drivers/gpio/Makefile	2010-02-07 00:17:12.000000000 +0200
-+++ linux-2.6.33-rc7/drivers/gpio/Makefile	2010-02-10 15:15:49.000000000 +0200
-@@ -22,3 +22,4 @@
-  obj-$(CONFIG_GPIO_BT8XX)	+= bt8xxgpio.o
-  obj-$(CONFIG_GPIO_VR41XX)	+= vr41xx_giu.o
-  obj-$(CONFIG_GPIO_WM831X)	+= wm831x-gpio.o
-+obj-$(CONFIG_GPIO_SCH)		+= sch_gpio.o
-diff -Nru linux-2.6.33-rc7.orig/drivers/gpio/sch_gpio.c linux-2.6.33-rc7/drivers/gpio/sch_gpio.c
---- linux-2.6.33-rc7.orig/drivers/gpio/sch_gpio.c	1970-01-01 02:00:00.000000000 +0200
-+++ linux-2.6.33-rc7/drivers/gpio/sch_gpio.c	2010-02-10 15:44:20.000000000 +0200
-@@ -0,0 +1,285 @@
-+/*
-+ *  sch_gpio.c - GPIO interface for Intel Poulsbo SCH
-+ *
-+ *  Copyright (c) 2010 CompuLab Ltd
-+ *  Author: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License 2 as published
-+ *  by the Free Software Foundation.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; see the file COPYING.  If not, write to
-+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/io.h>
-+#include <linux/errno.h>
-+#include <linux/acpi.h>
-+#include <linux/platform_device.h>
-+
-+#include <linux/gpio.h>
-+
-+static DEFINE_SPINLOCK(gpio_lock);
-+
-+#define CGEN	(0x00)
-+#define CGIO	(0x04)
-+#define CGLV	(0x08)
-+
-+#define RGEN	(0x20)
-+#define RGIO	(0x24)
-+#define RGLV	(0x28)
-+
-+static unsigned short gpio_ba;
-+
-+static int sch_gpio_core_direction_in(struct gpio_chip *gc, unsigned  gpio_num)
-+{
-+	u8 curr_dirs;
-+	unsigned short offset, bit;
-+
-+	spin_lock(&gpio_lock);
-+
-+	offset = CGIO + gpio_num / 8;
-+	bit = gpio_num % 8;
-+
-+	curr_dirs = inb(gpio_ba + offset);
-+
-+	if (!(curr_dirs & (1 << bit)))
-+		outb(curr_dirs | (1 << bit), gpio_ba + offset);
-+
-+	spin_unlock(&gpio_lock);
-+	return 0;
-+}
-+
-+static int sch_gpio_core_get(struct gpio_chip *gc, unsigned gpio_num)
-+{
-+	int res;
-+	unsigned short offset, bit;
-+
-+	offset = CGLV + gpio_num / 8;
-+	bit = gpio_num % 8;
-+
-+	res = !!(inb(gpio_ba + offset) & (1 << bit));
-+	return res;
-+}
-+
-+static void sch_gpio_core_set(struct gpio_chip *gc, unsigned gpio_num, int val)
-+{
-+	u8 curr_vals;
-+	unsigned short offset, bit;
-+
-+	spin_lock(&gpio_lock);
-+
-+	offset = CGLV + gpio_num / 8;
-+	bit = gpio_num % 8;
-+
-+	curr_vals = inb(gpio_ba + offset);
-+
-+	if (val)
-+		outb(curr_vals | (1 << bit), gpio_ba + offset);
-+	else
-+		outb((curr_vals & ~(1 << bit)), gpio_ba + offset);
-+	spin_unlock(&gpio_lock);
-+}
-+
-+static int sch_gpio_core_direction_out(struct gpio_chip *gc,
-+					unsigned gpio_num, int val)
-+{
-+	u8 curr_dirs;
-+	unsigned short offset, bit;
-+
-+	sch_gpio_core_set(gc, gpio_num, val);
-+
-+	spin_lock(&gpio_lock);
-+
-+	offset = CGIO + gpio_num / 8;
-+	bit = gpio_num % 8;
-+
-+	curr_dirs = inb(gpio_ba + offset);
-+	if (curr_dirs & (1 << bit))
-+		outb(curr_dirs & ~(1 << bit), gpio_ba + offset);
-+
-+	spin_unlock(&gpio_lock);
-+	return 0;
-+}
-+
-+static struct gpio_chip sch_gpio_core = {
-+	.label			= "sch_gpio_core",
-+	.owner			= THIS_MODULE,
-+	.direction_input	= sch_gpio_core_direction_in,
-+	.get			= sch_gpio_core_get,
-+	.direction_output	= sch_gpio_core_direction_out,
-+	.set			= sch_gpio_core_set,
-+};
-+
-+static int sch_gpio_resume_direction_in(struct gpio_chip *gc,
-+					unsigned gpio_num)
-+{
-+	u8 curr_dirs;
-+
-+	spin_lock(&gpio_lock);
-+
-+	curr_dirs = inb(gpio_ba + RGIO);
-+
-+	if (!(curr_dirs & (1 << gpio_num)))
-+		outb(curr_dirs | (1 << gpio_num) , gpio_ba + RGIO);
-+
-+	spin_unlock(&gpio_lock);
-+	return 0;
-+}
-+
-+static int sch_gpio_resume_get(struct gpio_chip *gc, unsigned gpio_num)
-+{
-+	return !!(inb(gpio_ba + RGLV) & (1 << gpio_num));
-+}
-+
-+static void sch_gpio_resume_set(struct gpio_chip *gc,
-+				unsigned gpio_num, int val)
-+{
-+	u8 curr_vals;
-+
-+	spin_lock(&gpio_lock);
-+
-+	curr_vals = inb(gpio_ba + RGLV);
-+
-+	if (val)
-+		outb(curr_vals | (1 << gpio_num), gpio_ba + RGLV);
-+	else
-+		outb((curr_vals & ~(1 << gpio_num)), gpio_ba + RGLV);
-+
-+	spin_unlock(&gpio_lock);
-+}
-+
-+static int sch_gpio_resume_direction_out(struct gpio_chip *gc,
-+					unsigned gpio_num, int val)
-+{
-+	u8 curr_dirs;
-+
-+	sch_gpio_resume_set(gc, gpio_num, val);
-+
-+	spin_lock(&gpio_lock);
-+
-+	curr_dirs = inb(gpio_ba + RGIO);
-+	if (curr_dirs & (1 << gpio_num))
-+		outb(curr_dirs & ~(1 << gpio_num), gpio_ba + RGIO);
-+
-+	spin_unlock(&gpio_lock);
-+	return 0;
-+}
-+
-+static struct gpio_chip sch_gpio_resume = {
-+	.label			= "sch_gpio_resume",
-+	.owner			= THIS_MODULE,
-+	.direction_input	= sch_gpio_resume_direction_in,
-+	.get			= sch_gpio_resume_get,
-+	.direction_output	= sch_gpio_resume_direction_out,
-+	.set			= sch_gpio_resume_set,
-+};
-+
-+static int __devinit sch_gpio_probe(struct platform_device *pdev)
-+{
-+	struct resource *res;
-+	int err;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!res)
-+		return -EBUSY;
-+
-+	if (acpi_check_region(res->start, resource_size(res), pdev->name))
-+		return -ENODEV;
-+
-+	if (!request_region(res->start, resource_size(res), pdev->name))
-+		return -EBUSY;
-+
-+	gpio_ba = res->start;
-+
-+	sch_gpio_core.base = 0;
-+	sch_gpio_core.ngpio = 10;
-+	sch_gpio_core.dev = &pdev->dev;
-+
-+	sch_gpio_resume.base = 10;
-+	sch_gpio_resume.ngpio = 4;
-+	sch_gpio_resume.dev = &pdev->dev;
-+
-+	err = gpiochip_add(&sch_gpio_core);
-+	if (err < 0)
-+		goto err_sch_gpio_core;
-+
-+	err = gpiochip_add(&sch_gpio_resume);
-+	if (err < 0)
-+		goto err_sch_gpio_resume;
-+
-+	/*
-+	 * GPIO[6:0] enabled by default
-+	 * GPIO7 is configured by the CMC as SLPIOVR
-+	 * Enable GPIO[9:8] core powered gpios explicitly
-+	 */
-+	outb(0x3, gpio_ba + CGEN + 1);
-+	/*
-+	 * SUS_GPIO[2:0] enabled by default
-+	 * Enable SUS_GPIO3 resume powered gpio explicitly
-+	 */
-+	outb(0x8, gpio_ba + RGEN);
-+
-+	return 0;
-+
-+err_sch_gpio_resume:
-+	gpiochip_remove(&sch_gpio_core);
-+
-+err_sch_gpio_core:
-+	release_region(res->start, resource_size(res));
-+	gpio_ba = 0;
-+
-+	return err;
-+}
-+
-+static int __devexit sch_gpio_remove(struct platform_device *pdev)
-+{
-+	struct resource *res;
-+	if (gpio_ba) {
-+		gpiochip_remove(&sch_gpio_core);
-+		gpiochip_remove(&sch_gpio_resume);
-+
-+		res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+
-+		release_region(res->start, resource_size(res));
-+		gpio_ba = 0;
+--- linux-2.6.33-rc7.orig/drivers/i2c/busses/i2c-parport-light.c	2009-06-10 05:05:27.000000000 +0200
++++ linux-2.6.33-rc7/drivers/i2c/busses/i2c-parport-light.c	2010-02-11 12:11:27.000000000 +0100
+@@ -27,6 +27,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
++#include <linux/delay.h>
+ #include <linux/platform_device.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+@@ -127,8 +128,11 @@ static int __devinit i2c_parport_probe(s
+ 	parport_setsda(NULL, 1);
+ 	parport_setscl(NULL, 1);
+ 	/* Other init if needed (power on...) */
+-	if (adapter_parm[type].init.val)
++	if (adapter_parm[type].init.val) {
+ 		line_set(1, &adapter_parm[type].init);
++		/* Give powered devices some time to settle */
++		msleep(100);
 +	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver sch_gpio_driver = {
-+	.driver = {
-+		.name = "sch_gpio",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe		= sch_gpio_probe,
-+	.remove		= __devexit_p(sch_gpio_remove),
-+};
-+
-+static int __init sch_gpio_init(void)
-+{
-+	return platform_driver_register(&sch_gpio_driver);
-+}
-+
-+static void __exit sch_gpio_exit(void)
-+{
-+	platform_driver_unregister(&sch_gpio_driver);
-+}
-+
-+module_init(sch_gpio_init);
-+module_exit(sch_gpio_exit);
-+
-+MODULE_AUTHOR("Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>");
-+MODULE_DESCRIPTION("GPIO interface for Intel Poulsbo SCH");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:sch_gpio");
+ 
+ 	parport_adapter.dev.parent = &pdev->dev;
+ 	err = i2c_bit_add_bus(&parport_adapter);
+--- linux-2.6.33-rc7.orig/drivers/i2c/busses/i2c-parport.c	2010-02-11 11:39:03.000000000 +0100
++++ linux-2.6.33-rc7/drivers/i2c/busses/i2c-parport.c	2010-02-11 12:03:40.000000000 +0100
+@@ -27,6 +27,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
++#include <linux/delay.h>
+ #include <linux/parport.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+@@ -185,8 +186,11 @@ static void i2c_parport_attach (struct p
+ 	parport_setsda(port, 1);
+ 	parport_setscl(port, 1);
+ 	/* Other init if needed (power on...) */
+-	if (adapter_parm[type].init.val)
++	if (adapter_parm[type].init.val) {
+ 		line_set(port, 1, &adapter_parm[type].init);
++		/* Give powered devices some time to settle */
++		msleep(100);
++	}
+ 
+ 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
+
+
+-- 
+Jean Delvare
