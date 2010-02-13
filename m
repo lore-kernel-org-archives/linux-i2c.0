@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 4/5] i2c-parport-light: Add SMBus alert support
-Date: Sat, 13 Feb 2010 23:09:17 +0100
-Message-ID: <20100213230917.78f60c16@hyperion.delvare>
+Subject: [PATCH 5/5] hwmon: (lm90) Add SMBus alert support
+Date: Sat, 13 Feb 2010 23:11:16 +0100
+Message-ID: <20100213231116.1d3ad806@hyperion.delvare>
 References: <20100213230438.31fd0fd7@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,137 +13,150 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for the SMBus alert mechanism to the i2c-parport-light
-driver. The ADM1032 evaluation board at least is properly wired for
-this.
+Tested successfully with an ADM1032 chip on its evaluation board. It
+should work fine with all other chips as well.
+
+At this point this is more of a proof-of-concept, we don't do anything
+terribly useful on SMBus alert: we simply log the event. But this could
+later evolve into libsensors signaling so that user-space applications
+can take an appropriate action.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Cc: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- Documentation/i2c/busses/i2c-parport-light |   11 +++++++
- drivers/i2c/busses/Kconfig                 |    1 
- drivers/i2c/busses/i2c-parport-light.c     |   42 ++++++++++++++++++++++++++--
- 3 files changed, 51 insertions(+), 3 deletions(-)
+ Documentation/hwmon/lm90 |   12 ++++++++
+ drivers/hwmon/lm90.c     |   63 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 75 insertions(+)
 
---- linux-2.6.33-rc8.orig/Documentation/i2c/busses/i2c-parport-light	2010-02-13 22:31:35.000000000 +0100
-+++ linux-2.6.33-rc8/Documentation/i2c/busses/i2c-parport-light	2010-02-13 22:34:52.000000000 +0100
-@@ -9,3 +9,14 @@ parport handling is not an option. The d
- and the impossibility to daisy-chain other parallel port devices.                 
-   
- Please see i2c-parport for documentation.
-+
-+Module parameters:
-+
-+* type: type of adapter (see i2c-parport or modinfo)
-+
-+* base: base I/O address
-+  Default is 0x378 which is fairly common for parallel ports, at least on PC.
-+
-+* irq: optional IRQ
-+  This must be passed if you want SMBus alert support, assuming your adapter
-+  actually supports this.
---- linux-2.6.33-rc8.orig/drivers/i2c/busses/Kconfig	2010-02-13 22:34:09.000000000 +0100
-+++ linux-2.6.33-rc8/drivers/i2c/busses/Kconfig	2010-02-13 22:34:52.000000000 +0100
-@@ -595,6 +595,7 @@ config I2C_PARPORT
- config I2C_PARPORT_LIGHT
- 	tristate "Parallel port adapter (light)"
- 	select I2C_ALGOBIT
-+	select I2C_SMBUS
- 	help
- 	  This supports parallel port I2C adapters such as the ones made by
- 	  Philips or Velleman, Analog Devices evaluation boards, and more.
---- linux-2.6.33-rc8.orig/drivers/i2c/busses/i2c-parport-light.c	2010-02-13 22:31:36.000000000 +0100
-+++ linux-2.6.33-rc8/drivers/i2c/busses/i2c-parport-light.c	2010-02-13 22:34:52.000000000 +0100
-@@ -1,7 +1,7 @@
- /* ------------------------------------------------------------------------ *
-  * i2c-parport-light.c I2C bus over parallel port                           *
-  * ------------------------------------------------------------------------ *
--   Copyright (C) 2003-2007 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-+   Copyright (C) 2003-2010 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-    
-    Based on older i2c-velleman.c driver
-    Copyright (C) 1995-2000 Simon G. Vogl
-@@ -32,6 +32,7 @@
- #include <linux/ioport.h>
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
-+#include <linux/i2c-smbus.h>
- #include <asm/io.h>
- #include "i2c-parport.h"
+--- linux-2.6.33-rc8.orig/Documentation/hwmon/lm90	2010-02-13 16:24:06.000000000 +0100
++++ linux-2.6.33-rc8/Documentation/hwmon/lm90	2010-02-13 16:24:41.000000000 +0100
+@@ -173,6 +173,18 @@ The lm90 driver will not update its valu
+ other second; reading them more often will do no harm, but will return
+ 'old' values.
  
-@@ -44,6 +45,10 @@ static u16 base;
- module_param(base, ushort, 0);
- MODULE_PARM_DESC(base, "Base I/O address");
- 
-+static int irq;
-+module_param(irq, int, 0);
-+MODULE_PARM_DESC(irq, "IRQ (optional)");
++SMBus Alert Support
++-------------------
 +
- /* ----- Low-level parallel port access ----------------------------------- */
- 
- static inline void port_write(unsigned char p, unsigned char d)
-@@ -120,6 +125,16 @@ static struct i2c_adapter parport_adapte
- 	.name		= "Parallel port adapter (light)",
- };
- 
-+/* SMBus alert support */
-+static struct i2c_smbus_alert_setup alert_data = {
-+	.alert_edge_triggered	= 1,
-+};
-+static struct i2c_client *ara;
-+static struct lineop parport_ctrl_irq = {
-+	.val		= (1 << 4),
-+	.port		= CTRL,
-+};
++This driver has basic support for SMBus alert. When an alert is received,
++the status register is read and the faulty temperature channel is logged.
 +
- static int __devinit i2c_parport_probe(struct platform_device *pdev)
- {
- 	int err;
-@@ -136,13 +151,31 @@ static int __devinit i2c_parport_probe(s
++The Analog Devices chips (ADM1032 and ADT7461) do not implement the SMBus
++alert protocol properly so additional care is needed: the ALERT output is
++disabled when an alert is received, and is re-enabled only when the alarm
++is gone. Otherwise the chip would block alerts from other chips in the bus
++as long as the alarm is active.
++
+ PEC Support
+ -----------
  
- 	parport_adapter.dev.parent = &pdev->dev;
- 	err = i2c_bit_add_bus(&parport_adapter);
--	if (err)
-+	if (err) {
- 		dev_err(&pdev->dev, "Unable to register with I2C\n");
--	return err;
-+		return err;
+--- linux-2.6.33-rc8.orig/drivers/hwmon/lm90.c	2010-02-13 16:24:17.000000000 +0100
++++ linux-2.6.33-rc8/drivers/hwmon/lm90.c	2010-02-13 15:50:53.000000000 +0100
+@@ -152,6 +152,7 @@ static int lm90_detect(struct i2c_client
+ static int lm90_probe(struct i2c_client *client,
+ 		      const struct i2c_device_id *id);
+ static void lm90_init_client(struct i2c_client *client);
++static void lm90_alert(struct i2c_client *client, unsigned int flag);
+ static int lm90_remove(struct i2c_client *client);
+ static struct lm90_data *lm90_update_device(struct device *dev);
+ 
+@@ -186,6 +187,7 @@ static struct i2c_driver lm90_driver = {
+ 	},
+ 	.probe		= lm90_probe,
+ 	.remove		= lm90_remove,
++	.alert		= lm90_alert,
+ 	.id_table	= lm90_id,
+ 	.detect		= lm90_detect,
+ 	.address_list	= normal_i2c,
+@@ -204,6 +206,7 @@ struct lm90_data {
+ 	int flags;
+ 
+ 	u8 config_orig;		/* Original configuration register value */
++	u8 alert_alarms;	/* Which alarm bits trigger ALERT# */
+ 
+ 	/* registers values */
+ 	s8 temp8[4];	/* 0: local low limit
+@@ -806,6 +809,19 @@ static int lm90_probe(struct i2c_client
+ 			new_client->flags &= ~I2C_CLIENT_PEC;
+ 	}
+ 
++	/* Different devices have different alarm bits triggering the
++	 * ALERT# output */
++	switch (data->kind) {
++	case lm90:
++	case lm99:
++	case lm86:
++		data->alert_alarms = 0x7b;
++		break;
++	default:
++		data->alert_alarms = 0x7c;
++		break;
 +	}
 +
-+	/* Setup SMBus alert if supported */
-+	if (adapter_parm[type].smbus_alert && irq) {
-+		alert_data.irq = irq;
-+		ara = i2c_setup_smbus_alert(&parport_adapter, &alert_data);
-+		if (ara)
-+			line_set(1, &parport_ctrl_irq);
-+		else
-+			dev_warn(&pdev->dev, "Failed to register ARA client\n");
-+	}
-+
-+	return 0;
+ 	/* Initialize the LM90 chip */
+ 	lm90_init_client(new_client);
+ 
+@@ -895,6 +911,38 @@ static int lm90_remove(struct i2c_client
+ 	return 0;
  }
  
- static int __devexit i2c_parport_remove(struct platform_device *pdev)
- {
-+	if (ara) {
-+		line_set(0, &parport_ctrl_irq);
-+		i2c_unregister_device(ara);
-+		ara = NULL;
-+	}
- 	i2c_del_adapter(&parport_adapter);
- 
- 	/* Un-init if needed (power off...) */
-@@ -209,6 +242,9 @@ static int __init i2c_parport_init(void)
- 	if (!request_region(base, 3, DRVNAME))
- 		return -EBUSY;
- 
-+	if (irq != 0)
-+		pr_info(DRVNAME ": using irq %d\n", irq);
++static void lm90_alert(struct i2c_client *client, unsigned int flag)
++{
++	struct lm90_data *data = i2c_get_clientdata(client);
++	u8 config, alarms;
 +
-         if (!adapter_parm[type].getscl.val)
- 		parport_algo_data.getscl = NULL;
++	lm90_read_reg(client, LM90_REG_R_STATUS, &alarms);
++	if ((alarms & 0x7f) == 0) {
++		dev_info(&client->dev, "Everything OK\n");
++	} else {
++		if (alarms & 0x61)
++			dev_warn(&client->dev,
++				 "temp%d out of range, please check!\n", 1);
++		if (alarms & 0x1a)
++			dev_warn(&client->dev,
++				 "temp%d out of range, please check!\n", 2);
++		if (alarms & 0x04)
++			dev_warn(&client->dev,
++				 "temp%d diode open, please check!\n", 2);
++
++		/* Disable ALERT# output, because these chips don't implement
++		  SMBus alert correctly; they should only hold the alert line
++		  low briefly. */
++		if ((data->kind == adm1032 || data->kind == adt7461)
++		 && (alarms & data->alert_alarms)) {
++			dev_dbg(&client->dev, "Disabling ALERT#\n");
++			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
++			i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1,
++						  config | 0x80);
++		}
++	}
++}
++
+ static int lm90_read16(struct i2c_client *client, u8 regh, u8 regl, u16 *value)
+ {
+ 	int err;
+@@ -982,6 +1030,21 @@ static struct lm90_data *lm90_update_dev
+ 		}
+ 		lm90_read_reg(client, LM90_REG_R_STATUS, &data->alarms);
  
++		/* Re-enable ALERT# output if it was originally enabled and
++		 * relevant alarms are all clear */
++		if ((data->config_orig & 0x80) == 0
++		 && (data->alarms & data->alert_alarms) == 0) {
++			u8 config;
++
++			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
++			if (config & 0x80) {
++				dev_dbg(&client->dev, "Re-enabling ALERT#\n");
++				i2c_smbus_write_byte_data(client,
++							  LM90_REG_W_CONFIG1,
++							  config & ~0x80);
++			}
++		}
++
+ 		data->last_updated = jiffies;
+ 		data->valid = 1;
+ 	}
 
 -- 
 Jean Delvare
