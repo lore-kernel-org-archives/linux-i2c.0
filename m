@@ -1,115 +1,90 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Add SMBus alert support
-Date: Sat, 13 Feb 2010 18:06:07 -0800
-Message-ID: <201002131806.07359.david-b@pacbell.net>
-References: <20100213230438.31fd0fd7@hyperion.delvare> <20100213230656.341ec091@hyperion.delvare>
+From: Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH 5/5] hwmon: (lm90) Add SMBus alert support
+Date: Sun, 14 Feb 2010 00:33:53 -0800 (PST)
+Message-ID: <Pine.LNX.4.64.1002140000220.2366@t2.domain.actdsltmp>
+References: <20100213230438.31fd0fd7@hyperion.delvare>
+ <20100213231116.1d3ad806@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100213230656.341ec091-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20100213231116.1d3ad806-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 13 February 2010, Jean Delvare wrote:
+On Sat, 13 Feb 2010, Jean Delvare wrote:
+> Tested successfully with an ADM1032 chip on its evaluation board. It
+> should work fine with all other chips as well.
+>
+> At this point this is more of a proof-of-concept, we don't do anything
+> terribly useful on SMBus alert: we simply log the event. But this could
+> later evolve into libsensors signaling so that user-space applications
+> can take an appropriate action.
 
-> The benefit of this approach is a zero cost for I2C bus segments whic=
-h
-> do not need SMBus alert support. Where David's implementation
-> increased the size of struct i2c_adapter by 7% (40 bytes on i386),
-> mine doesn't touch it. Where David's implementation added over 150
-> lines of code to i2c-core (+10%), mine doesn't touch it. The only
-> change that touches all the users of the i2c subsystem is a new
-> callback in struct i2c_driver (common to both implementations.) I see=
-m
-> to remember Trent was worried about the footprint of David'd
-> implementation, hopefully mine addresses the issue.
+When I added alert support to the lm63 driver, I had it wake up any process
+that's select()ing on the the alarm* files.  I also wrote a hw monitor
+daemon that supports this system.  It worked pretty well.  Much more
+efficient than polling once per second, and also much faster to resond to
+an alert event.
 
-I'm not sure I could justify making I2C and SMBus differ in *ONLY* this
-particular way, since otherwise they're treated identically.  I certain=
-ly
-wouldn't worry about 40 bytes in a Linux kernel ... that's noise.  (If
-this were inside a microcontroller that only had a few KB of SRAM, then
-I'd certainly worry!)
+I didn't bother to use ARA, since I know what device is generating the
+interrupt.  Does your system support devices with an alert line that don't
+use SMBus ARA?
 
-But that doesn't much matter.  If SMBALERT# support is now going to exi=
-st,
-that's enough for me.
-
-
-> + *
-> + * Copyright (C) 2010 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> + *
-> + * SMBus alert support based on earlier work by David Brownell (2008=
-).
-> + *
-
-That should be "Copyright (C) 2008 David Brownell" ... not
-just "based on", since significant chunks are the same code.
-
-
-> +=A0=A0=A0=A0=A0=A0=A0struct i2c_client=A0=A0=A0=A0=A0=A0=A0*ara;
-
-Worth spelling out what "ARA" means; it shouldn't be
-just another mysterious TLA.
-
-
-> +struct alert_data {
-> +       unsigned short          addr;
-> +       u8                      flag:1;
-> +};
-> +
-
-Better to make "flag" be "bool" ... there's no space saving
-in the struct to have it be a one bit field, and in terms of
-code generation it *costs more* than using a "bool".
-
-
-> +/* If this is the alerting device, notify its driver */
-> +static int smbus_do_alert(struct device *dev, void *addrp)
+> +static void lm90_alert(struct i2c_client *client, unsigned int flag)
 > +{
-> +=A0=A0=A0=A0=A0=A0=A0struct i2c_client *client =3D i2c_verify_client=
-(dev);
-> +=A0=A0=A0=A0=A0=A0=A0struct alert_data *data =3D addrp;
-
-Surely the callback should take a "struct alert_data *" then??
-
-
-> +static irqreturn_t smbalert_irq(int irq, void *d)
-> +{
-> +=A0=A0=A0=A0=A0=A0=A0struct i2c_smbus_alert *data =3D d;
+> +	struct lm90_data *data = i2c_get_clientdata(client);
+> +	u8 config, alarms;
 > +
-> +=A0=A0=A0=A0=A0=A0=A0/* Disable level-triggered IRQs until we handle=
- them */
-> +=A0=A0=A0=A0=A0=A0=A0if (!data->alert_edge_triggered)
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0disable_irq_nosync(irq)=
-;
+> +	lm90_read_reg(client, LM90_REG_R_STATUS, &alarms);
+
+Does lm90_read_reg() update the driver's cached copy of the alarm status
+register?  Because if it doesn't, then won't anything reading the alarm
+status via sysfs not see the alarms?
+
+What happens if a process reads one of the sysfs attributes after the
+interrupt is generated but before the driver runs this code?
+
+In the lm63, the alarm register is clear on read.  So you get the alert,
+check alarm status, and think there are no alarms.
+
+What I did for the lm63 driver was assume that if there was an alert
+generated, there must have been an alarm bit set.  If there isn't one set
+now, then the only way it may have been cleared is if the driver read the
+alarm status.  In which case the driver's cache copy of the alarm status
+should be used to see what generated the alert.
+
+Another thing I found is that after getting notified of the alert, the most
+natural thing for userspace to do is check the temperature/fan/etc
+attribute that just alarmed.  "Fan Alert, fan1 speed of 2000 RPM is below
+minimum of 300 RPM" Huh?  2000 < 300?  What's going on?  The 2000 RPM is
+one second old cached data!  The current speed should cause an alarm, but
+the 1 HZ max update rate the driver makes userspace wait for it, somewhat
+defeating the purpose of the alert irq.  I have the lm63 driver invalidate
+the cached data on alert, so that if userspace reads an attribute it gets
+fresh data.
+
+> +		/* Re-enable ALERT# output if it was originally enabled and
+> +		 * relevant alarms are all clear */
+> +		if ((data->config_orig & 0x80) == 0
+> +		 && (data->alarms & data->alert_alarms) == 0) {
+> +			u8 config;
 > +
-> +=A0=A0=A0=A0=A0=A0=A0schedule_work(&data->alert);
-> +=A0=A0=A0=A0=A0=A0=A0return IRQ_HANDLED;
-> +}
-> +
+> +			lm90_read_reg(client, LM90_REG_R_CONFIG1, &config);
+> +			if (config & 0x80) {
+> +				dev_dbg(&client->dev, "Re-enabling ALERT#\n");
+> +				i2c_smbus_write_byte_data(client,
+> +							  LM90_REG_W_CONFIG1,
+> +							  config & ~0x80);
+> +			}
+> +		}
 
-Now that genirq handles threaded IRQs, should this code be updated
-to use that infrastructure instead of a work struct?  There are
-several mechanisms to kick in here.  It'd be fair to have a way for
-IRQ threads to issue i2c_handle_smbus_alert() -- or maybe some
-sibling method -- especially if i2c_setup_smbus_alert() causes
-this code to provide the hardirq handler.
-
-By the way ... you probably know that the I2C/SMBus controller
-in most of Intel's Southbridge chips (like ICH8) supports
-the SMBALERT# mechanism.  Testing may be awkward, but it'd be
-good to verify this incarnation of SMBALERT# support can work
-with those controllers.  (Where "alert" is just another cause
-for an IRQ from i2c-i801.c or whatever, not a dedicated IRQ
-from a GPIO or from the parport.)
-
-- Dave
-
-p.s. for the record ... I'd try testing this, but the board I
-     have which needs that support doesn't have current-enough
-     Linux to do so.
+I didn't like the idea of having to have userspace poll attributes to get
+alarms re-enabled.  I have the driver start a kernel timer going that
+checks the alarm status.  It also notified processes sleeping in the alarm
+attributes when the check back to 0.  The time period the kernel polling
+can be based on the driver's knowledge of the chip's update rate.  It can
+be set to poll faster when there is an alarm.  Of course you rejected my
+patch to let the lm63 driver set and know the update rate because that
+information could never be useful to anyone...
