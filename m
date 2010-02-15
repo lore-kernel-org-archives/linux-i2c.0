@@ -1,97 +1,117 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Add SMBus alert support
-Date: Sun, 14 Feb 2010 20:18:39 +0100
-Message-ID: <20100214201839.049041eb@hyperion.delvare>
-References: <20100213230438.31fd0fd7@hyperion.delvare>
-	<201002131806.07359.david-b@pacbell.net>
-	<20100214154034.2c92a8b7@hyperion.delvare>
-	<201002141005.53934.david-b@pacbell.net>
+Subject: Re: [PATCH] i2c: Hook up runtime PM support
+Date: Mon, 15 Feb 2010 19:14:09 +0100
+Message-ID: <20100215191409.14d87257@hyperion.delvare>
+References: <1265373011-12874-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201002141005.53934.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+In-Reply-To: <1265373011-12874-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 14 Feb 2010 10:05:53 -0800, David Brownell wrote:
-> On Sunday 14 February 2010, Jean Delvare wrote:
-> > > to use that infrastructure instead of a work struct? =C2=A0There =
-are
-> > > several mechanisms to kick in here. =C2=A0It'd be fair to have a =
-way for
-> > > IRQ threads to issue i2c_handle_smbus_alert() -- or maybe some
-> > > sibling method -- especially if i2c_setup_smbus_alert() causes
-> > > this code to provide the hardirq handler.
-> >=20
-> > Honestly, this is all beyond me. I suggest that anyone needing this
-> > work on it on his/her own and submits an incremental patch when don=
-e. I
-> > have already spent more time than I wanted on this, I can't afford
-> > spending more, especially for a feature I don't need myself.
->=20
-> Then I'd suggest sticking in a REVISIT comment to that effect,
-> to help armor this patch against repeats of that feedback which
-> don't accompany such an incremental patch.  :)
+Hi Mark,
 
-I would wholeheartedly accept a patch adding such a comment ;)
-Seriously, I wouldn't know what to write.
+On Fri,  5 Feb 2010 12:30:11 +0000, Mark Brown wrote:
+> Allow I2C drivers to make use of the runtime PM framework by adding
+> bus implementations of the runtime PM operations. These simply
+> immediately suspend when the device is idle. The runtime PM framework
+> provides drivers with off the shelf refcounts for enables and sysfs
+> control for managing runtime suspend from userspace so is useful even
+> without meaningful input from the bus.
+> 
+> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> ---
+> 
+> Changed to allow drivers to use the idle callback to veto suspend.
+> 
+>  drivers/i2c/i2c-core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 50 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 10be7b5..4131698 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/hardirq.h>
+>  #include <linux/irqflags.h>
+>  #include <linux/rwsem.h>
+> +#include <linux/pm_runtime.h>
+>  #include <asm/uaccess.h>
+>  
+>  #include "i2c-core.h"
+> @@ -184,6 +185,52 @@ static int i2c_device_pm_resume(struct device *dev)
+>  #define i2c_device_pm_resume	NULL
+>  #endif
+>  
+> +#ifdef CONFIG_PM_RUNTIME
+> +static int i2c_device_runtime_suspend(struct device *dev)
+> +{
+> +	const struct dev_pm_ops *pm;
+> +
+> +	if (!dev->driver)
+> +		return 0;
+> +	pm = dev->driver->pm;
+> +	if (!pm || !pm->runtime_suspend)
+> +		return 0;
+> +	return pm->runtime_suspend(dev);
+> +}
+> +
+> +static int i2c_device_runtime_resume(struct device *dev)
+> +{
+> +	const struct dev_pm_ops *pm;
+> +
+> +	if (!dev->driver)
+> +		return 0;
+> +	pm = dev->driver->pm;
+> +	if (!pm || !pm->runtime_resume)
+> +		return 0;
+> +	return pm->runtime_resume(dev);
+> +}
+> +
+> +static int i2c_device_runtime_idle(struct device *dev)
+> +{
+> +	const struct dev_pm_ops *pm = NULL;
+> +	int ret;
+> +
+> +	if (dev->driver)
+> +		pm = dev->driver->pm;
+> +	if (pm && pm->runtime_idle) {
+> +		ret = pm->runtime_idle(dev);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return pm_runtime_suspend(dev);
+> +}
+> +#else
+> +#define i2c_device_runtime_suspend	NULL
+> +#define i2c_device_runtime_resume	NULL
+> +#define i2c_device_runtime_idle		NULL
+> +#endif
+> +
+>  static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
+>  {
+>  	struct i2c_client *client = i2c_verify_client(dev);
+> @@ -251,6 +298,9 @@ static const struct attribute_group *i2c_dev_attr_groups[] = {
+>  static const struct dev_pm_ops i2c_device_pm_ops = {
+>  	.suspend = i2c_device_pm_suspend,
+>  	.resume = i2c_device_pm_resume,
+> +	.runtime_suspend = i2c_device_runtime_suspend,
+> +	.runtime_resume = i2c_device_runtime_resume,
+> +	.runtime_idle = i2c_device_runtime_idle,
+>  };
+>  
+>  struct bus_type i2c_bus_type = {
 
-> > > By the way ... you probably know that the I2C/SMBus controller
-> > > in most of Intel's Southbridge chips (like ICH8) supports
-> > > the SMBALERT# mechanism. =C2=A0Testing may be awkward, but it'd b=
-e
-> > > good to verify this incarnation of SMBALERT# support can work
-> > > with those controllers. =C2=A0(Where "alert" is just another caus=
-e
-> > > for an IRQ from i2c-i801.c or whatever, not a dedicated IRQ
-> > > from a GPIO or from the parport.)
-> >=20
-> > I have only one system with an ICH and an SMBus device with support=
- for
-> > alerts. It is not currently available for testing... when it become=
-s
-> > available, I may take a look. That being said, the main obstacle I =
-see
-> > is that the i2c-i801 driver doesn't make use of interrupts at all a=
-t
-> > the moment. I don't know if it is possible to enable them to get th=
-e
-> > alerts but to not make use of them during regular transactions. The
-> > various attempts to make the i2c-i801 driver use interrupts never m=
-ade
-> > it to mainline, there was always an least one issue remaining
-> > preventing it. I would love if we finally managed to switch to full
-> > interrupt support.
->=20
-> Ah, I recall some of that mess, now that you mention it.  Ouch!
->=20
-> (By the way ... glad to see you did the nice thing with parport I2C
-> and SMALERT#.  I've not seen much Linux code using the parport IRQ,
-> and if nothing else it's nice to have some verification that it has
-> not bit-rotted to death!)
+Applied, thanks. I am a little surprised to see that these functions
+have nothing i2c-specific, so I am wondering why we have to duplicate
+them in every bus type... Shouldn't the functions above be part of
+drivers/base/power/runtime.c and exported so that all bus types that
+want them can reuse them?
 
-I'm not so sure. You'll notice I had to call parport_disable_irq()
-before registering my device. Without it, my IRQ handler would be
-called before being ready. This is odd given that the comments in the
-parport subsystem code say that you have to call parport_enable_irq()
-if you want to receive interrupts (which seems logical). So there's
-certainly something slightly broken down there. I don't really have the
-time to investigate though :(
-
-> > That being said, my code is based on yours, and I see to remember y=
-ou
-> > said yours was compatible with the ICH expectations, so I'd expect =
-mine
-> > to work too.
->=20
-> The compatibility was because the driver could say "I got an SMBALERT=
- IRQ"
-> to the infrastructure from its hardirq handler.  I think the comments=
- in
-> your version touched on that point.
-
---=20
+-- 
 Jean Delvare
