@@ -1,60 +1,110 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Build core and algo drivers with -Wshadow
-Date: Tue, 16 Feb 2010 21:27:15 +0100
-Message-ID: <20100216202715.GC17428@pengutronix.de>
-References: <20100216122152.29dbbeb5@hyperion.delvare>
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: Re: [PATCH v7 1/4] i2c-mpc: use __devinit[data] for initialization
+	functions and data
+Date: Tue, 16 Feb 2010 21:49:46 +0100
+Message-ID: <4B7B04EA.9010707@grandegger.com>
+References: <1265813711-16794-1-git-send-email-wg@grandegger.com>
+	<1265813711-16794-2-git-send-email-wg@grandegger.com>
+	<fa686aa41002161040kada217ds1f63d363157e08ab@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100216122152.29dbbeb5-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <fa686aa41002161040kada217ds1f63d363157e08ab-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Grant Likely wrote:
+> On Wed, Feb 10, 2010 at 7:55 AM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
+>> From: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+>>
+>> "__devinit[data]" has not yet been used for all initialization functions
+>> and data. To avoid truncating lines, the struct "mpc_i2c_match_data" has
+>> been renamed to "mpc_i2c_data", which is even the better name.
+>>
+>> Signed-off-by: Wolfgang Grandegger <wg-ynQEQJNshbs@public.gmane.org>
+>> Tested-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> 
+> Between patch 1 & 2 is not bisectable.  Functions still called
+> *_setclock in this patch, but referenced as *_setup in the structure.
+> Please respin.
 
---lCAWRPmW1mITcIfM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Argh, sorry for the mess. I will fix it tomorrow.
 
-On Tue, Feb 16, 2010 at 12:21:52PM +0100, Jean Delvare wrote:
-> I like building with -Wshadow, it helps catch bugs or at least bad
-> choices in variable names.
->=20
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> Any objection?
+> Also ...
+> 
+>> +static struct mpc_i2c_data mpc_i2c_data_52xx __devinitdata = {
+>> +       .setup = mpc_i2c_setup_52xx,
+>> +};
+>> +
+>> +static struct mpc_i2c_data mpc_i2c_data_8313 __devinitdata = {
+>> +       .setup = mpc_i2c_setup_8xxx,
+>> +};
+>> +
+>> +static struct mpc_i2c_data mpc_i2c_data_8543 __devinitdata = {
+>> +       .setup = mpc_i2c_setup_8xxx,
+>> +       .prescaler = 2,
+>> +};
+>> +
+>> +static struct mpc_i2c_data mpc_i2c_data_8544 __devinitdata = {
+>> +       .setup = mpc_i2c_setup_8xxx,
+>> +       .prescaler = 3,
+>> +};
+>> +
+>>  static const struct of_device_id mpc_i2c_of_match[] = {
+>> -       {.compatible = "mpc5200-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_52xx,
+>> -               },
+>> -       },
+>> -       {.compatible = "fsl,mpc5200b-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_52xx,
+>> -               },
+>> -       },
+>> -       {.compatible = "fsl,mpc5200-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_52xx,
+>> -               },
+>> -       },
+>> -       {.compatible = "fsl,mpc8313-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_8xxx,
+>> -               },
+>> -       },
+>> -       {.compatible = "fsl,mpc8543-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_8xxx,
+>> -                       .prescaler = 2,
+>> -               },
+>> -       },
+>> -       {.compatible = "fsl,mpc8544-i2c",
+>> -        .data = &(struct mpc_i2c_match_data) {
+>> -                       .setclock = mpc_i2c_setclock_8xxx,
+>> -                       .prescaler = 3,
+>> -               },
+>> +       {.compatible = "mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
+>> +       {.compatible = "fsl,mpc5200b-i2c", .data = &mpc_i2c_data_52xx, },
+>> +       {.compatible = "fsl,mpc5200-i2c", .data = &mpc_i2c_data_52xx, },
+>> +       {.compatible = "fsl,mpc8313-i2c", .data = &mpc_i2c_data_8313, },
+>> +       {.compatible = "fsl,mpc8543-i2c", .data = &mpc_i2c_data_8543, },
+>> +       {.compatible = "fsl,mpc8544-i2c", .data = &mpc_i2c_data_8544, },
+> 
+> ... what was wrong with the old format of declaring the .data
+> structures inline with the match table?
 
-[After some searching]
+It does not allow to use __devinitdata because the space reserved by the
+compiler does belong to another section. In other words it was necessary
+to get ride of section mismatches.
 
-Do you know if -Wshadow has improved since this thread?
-
-http://kerneltrap.org/node/7434
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---lCAWRPmW1mITcIfM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkt6/6MACgkQD27XaX1/VRuSrwCfZ+Ghh7zAgtmBe1YwbQ+pDYa+
-t0gAn2ZqTUKyb3ecSMpz1mm/BAX1nQhJ
-=LS5I
------END PGP SIGNATURE-----
-
---lCAWRPmW1mITcIfM--
+Wolfgang.
