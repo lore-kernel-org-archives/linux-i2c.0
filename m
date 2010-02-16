@@ -1,42 +1,47 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
-Date: Tue, 16 Feb 2010 11:57:46 -0800
-Message-ID: <201002161157.47196.david-b@pacbell.net>
-References: <4B73DAEE.5080400@compulab.co.il> <4B73DB4B.40501@compulab.co.il>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-algo-pca: Drop duplicate variable
+Date: Tue, 16 Feb 2010 21:16:00 +0100
+Message-ID: <20100216201600.GB17428@pengutronix.de>
+References: <20100216122228.63984b93@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B73DB4B.40501-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <20100216122228.63984b93-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 11 February 2010, Denis Turischev wrote:
-> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
-> functions. Creating and MFD driver for the LPC bridge controller allows
 
-Spelling nit: "Creating an" (not and).  Keyboard, brain, or edit fault.  ;)
+--tjCHc7DPkfUGtrlw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Feb 16, 2010 at 12:22:28PM +0100, Jean Delvare wrote:
+> Thanks to -Wshadow.
+>=20
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-> simultaneous use of SMBus and GPIO interfaces on the SCH.
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-This looks like the right way to package such southbridge level
-componentry.  Maye not just these two interfaces, either.
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-But ... how does this play with ACPI?  The last several Intel
-systems I looked at seemed to expect ACPI to manage GPIOs and the
-IRQs they may issue.  (He wrote, staring at an ICH8-system where
-ACPI uses GPIOs to manage several buttons and LEDs.)
+--tjCHc7DPkfUGtrlw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-It would seem error-prone to ignore that coupling on systems
-with ACPI.  Linux has enough trouble sorting out issues caused
-by buggy AML (ACPI bytecode) without introducing conflicts in
-who manages which hardware resource (ACPI vs. operating system).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-Of course, if ACPI weren't being used to hide such board-specific
-details from operating systems, such issues would not exist.  But
-such hiding is one of the basic goals of ACPI ... annoying.
+iEYEARECAAYFAkt6/QAACgkQD27XaX1/VRvCxgCgunyf0JG4jizoozej0DJlDiVE
+XAkAoKw4RnVj3Ho4P2Ch/dZz/i9JI85n
+=cfMf
+-----END PGP SIGNATURE-----
+
+--tjCHc7DPkfUGtrlw--
