@@ -1,64 +1,202 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Add SMBus alert support
-Date: Tue, 16 Feb 2010 10:56:06 +0100
-Message-ID: <20100216105606.003b01dd@hyperion.delvare>
-References: <20100213230438.31fd0fd7@hyperion.delvare>
-	<20100213230656.341ec091@hyperion.delvare>
-	<4B7991CC.3020904@cam.ac.uk>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
+Date: Tue, 16 Feb 2010 11:08:10 +0100
+Message-ID: <20100216100809.GA2935@sortiz.org>
+References: <4B73DAEE.5080400@compulab.co.il>
+ <4B73DB4B.40501@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B7991CC.3020904-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4B73DB4B.40501-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jacob Jun Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jonathan,
+Hi Denis,
 
-On Mon, 15 Feb 2010 18:26:20 +0000, Jonathan Cameron wrote:
-> I have a couple of parts I can test this on (connected to a pxa271)
-> but it may be a little while before I get to it (so don't let me
-> hold the patch up!)
+On Thu, Feb 11, 2010 at 12:26:19PM +0200, Denis Turischev wrote:
+> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
+> functions. Creating and MFD driver for the LPC bridge controller allows
+> simultaneous use of SMBus and GPIO interfaces on the SCH.
+That looks like an nice patch to me. Before merging it, I'd like to get
+Jacob's view on it though. Jacob, does moving the SCH SMBus driver to a
+platform one look fine to you ?
 
-That would be great. You can always get the latest version of the patch
-either in my i2c tree or in linux-next.
+Cheers,
+Samuel.
 
-> On tiny point below.  Worth changing if you are doing another roll of the patch
-> as at least in my dozy Monday evening state it confused me for a few moments!
-> ...
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-2.6.33-rc7/drivers/i2c/i2c-smbus.c	2010-02-12 16:11:34.000000000 +0100
-> ...
-> > +/*
-> > + * The alert IRQ handler needs to hand work off to a task which can issue
-> > + * SMBus calls, because those sleeping calls can't be made in IRQ context.
-> > + */
-> > +static void smbus_alert(struct work_struct *work)
-> > +{
-> > +	struct i2c_smbus_alert *data;
-> > +	struct i2c_client *ara;
-> > +	unsigned short prev_addr = 0;	/* Not a valid address */
-> > +
-> > +	data = container_of(work, struct i2c_smbus_alert, alert);
-> > +	ara = data->ara;
-> > +
-> > +	for (;;) {
-> > +		s32 status;
-> > +		struct alert_data data;
-> Can we change the name of data here.  From readability point of view it
-> would be better not to have this reliance on scope (as data used for 
-> struct i2c_smbus_alert *data above. (obviously changing it above would 
-> work as well!) 
 
-Oh, yeah, of course. Thanks for pointing this out. I wish we built the
-kernel with -Wshadow so that gcc could tell us automatically...
+> Signed-off-by: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> 
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/Kconfig linux-2.6.33-rc7/drivers/mfd/Kconfig
+> --- linux-2.6.33-rc7.orig/drivers/mfd/Kconfig	2010-02-07 00:17:12.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/Kconfig	2010-02-10 15:15:40.000000000 +0200
+> @@ -348,6 +348,14 @@
+>  	  read/write functions for the devices to get access to this chip.
+>  	  This chip embeds various other multimedia funtionalities as well.
+> 
+> +config LPC_SCH
+> +	tristate "Intel SCH LPC"
+> +	default m
+> +	depends on PCI
+> +	help
+> +	  LPC bridge function of the Intel SCH provides support for
+> +	  System Management Bus and General Purpose I/O.
+> +
+>  endmenu
+> 
+>  menu "Multimedia Capabilities Port drivers"
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/lpc_sch.c linux-2.6.33-rc7/drivers/mfd/lpc_sch.c
+> --- linux-2.6.33-rc7.orig/drivers/mfd/lpc_sch.c	1970-01-01 02:00:00.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/lpc_sch.c	2010-02-11 10:31:54.000000000 +0200
+> @@ -0,0 +1,133 @@
+> +/*
+> + *  lpc_sch.c - LPC interface for Intel Poulsbo SCH
+> + *
+> + *  LPC bridge function of the Intel SCH contains many other
+> + *  functional units, such as Interrupt controllers, Timers,
+> + *  Power Management, System Management, GPIO, RTC, and LPC
+> + *  Configuration Registers.
+> + *
+> + *  Copyright (c) 2010 CompuLab Ltd
+> + *  Author: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License 2 as published
+> + *  by the Free Software Foundation.
+> + *
+> + *  This program is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *  GNU General Public License for more details.
+> + *
+> + *  You should have received a copy of the GNU General Public License
+> + *  along with this program; see the file COPYING.  If not, write to
+> + *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+> + */
+> +
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/errno.h>
+> +#include <linux/acpi.h>
+> +#include <linux/pci.h>
+> +#include <linux/mfd/core.h>
+> +
+> +#define SMBASE		0x40
+> +#define SMBUS_IO_SIZE	64
+> +
+> +#define GPIOBASE	0x44
+> +#define GPIO_IO_SIZE	64
+> +
+> +static struct resource smbus_sch_resource = {
+> +		.flags = IORESOURCE_IO,
+> +};
+> +
+> +
+> +static struct resource gpio_sch_resource = {
+> +		.flags = IORESOURCE_IO,
+> +};
+> +
+> +static struct mfd_cell lpc_sch_cells[] = {
+> +	{
+> +		.name = "isch_smbus",
+> +		.num_resources = 1,
+> +		.resources = &smbus_sch_resource,
+> +	},
+> +	{
+> +		.name = "sch_gpio",
+> +		.num_resources = 1,
+> +		.resources = &gpio_sch_resource,
+> +	},
+> +};
+> +
+> +static struct pci_device_id lpc_sch_ids[] = {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC) },
+> +	{ 0, }
+> +};
+> +MODULE_DEVICE_TABLE(pci, lpc_sch_ids);
+> +
+> +static int __devinit lpc_sch_probe(struct pci_dev *dev,
+> +				const struct pci_device_id *id)
+> +{
+> +	unsigned int base_addr_cfg;
+> +	unsigned short base_addr;
+> +
+> +	pci_read_config_dword(dev, SMBASE, &base_addr_cfg);
+> +	if (!(base_addr_cfg & (1 << 31))) {
+> +		dev_err(&dev->dev, "Decode of the SMBus I/O range disabled\n");
+> +		return -ENODEV;
+> +	}
+> +	base_addr = (unsigned short)base_addr_cfg;
+> +	if (base_addr == 0) {
+> +		dev_err(&dev->dev, "I/O space for SMBus uninitialized\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	smbus_sch_resource.start = base_addr;
+> +	smbus_sch_resource.end = base_addr + SMBUS_IO_SIZE - 1;
+> +
+> +	pci_read_config_dword(dev, GPIOBASE, &base_addr_cfg);
+> +	if (!(base_addr_cfg & (1 << 31))) {
+> +		dev_err(&dev->dev, "Decode of the GPIO I/O range disabled\n");
+> +		return -ENODEV;
+> +	}
+> +	base_addr = (unsigned short)base_addr_cfg;
+> +	if (base_addr == 0) {
+> +		dev_err(&dev->dev, "I/O space for GPIO uninitialized\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	gpio_sch_resource.start = base_addr;
+> +	gpio_sch_resource.end = base_addr + GPIO_IO_SIZE - 1;
+> +
+> +	return mfd_add_devices(&dev->dev, -1,
+> +			lpc_sch_cells, ARRAY_SIZE(lpc_sch_cells), NULL, 0);
+> +}
+> +
+> +static void __devexit lpc_sch_remove(struct pci_dev *dev)
+> +{
+> +	mfd_remove_devices(&dev->dev);
+> +}
+> +
+> +static struct pci_driver lpc_sch_driver = {
+> +	.name		= "lpc_sch",
+> +	.id_table	= lpc_sch_ids,
+> +	.probe		= lpc_sch_probe,
+> +	.remove		= __devexit_p(lpc_sch_remove),
+> +};
+> +
+> +static int __init lpc_sch_init(void)
+> +{
+> +	return pci_register_driver(&lpc_sch_driver);
+> +}
+> +
+> +static void __exit lpc_sch_exit(void)
+> +{
+> +	pci_unregister_driver(&lpc_sch_driver);
+> +}
+> +
+> +module_init(lpc_sch_init);
+> +module_exit(lpc_sch_exit);
+> +
+> +MODULE_AUTHOR("Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>");
+> +MODULE_DESCRIPTION("LPC interface for Intel Poulsbo SCH");
+> +MODULE_LICENSE("GPL");
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/Makefile linux-2.6.33-rc7/drivers/mfd/Makefile
+> --- linux-2.6.33-rc7.orig/drivers/mfd/Makefile	2010-02-07 00:17:12.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/Makefile	2010-02-10 15:15:40.000000000 +0200
+> @@ -55,4 +55,5 @@
+>  obj-$(CONFIG_AB3100_OTP)	+= ab3100-otp.o
+>  obj-$(CONFIG_AB4500_CORE)	+= ab4500-core.o
+>  obj-$(CONFIG_MFD_88PM8607)	+= 88pm8607.o
+> -obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+> \ No newline at end of file
+> +obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+> +obj-$(CONFIG_LPC_SCH)		+= lpc_sch.o
 
-I have changed all instances of struct i2c_smbus_alert * to name
-"alert", this solves the problem and should make the code more
-consistent and readable.
-
-Thanks!
 -- 
-Jean Delvare
+Intel Open Source Technology Centre
+http://oss.intel.com/
