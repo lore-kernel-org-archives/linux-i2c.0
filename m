@@ -1,28 +1,31 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Add SMBus alert support
-Date: Tue, 16 Feb 2010 13:39:35 +0000
-Message-ID: <20100216133934.GA10586@sirena.org.uk>
-References: <20100213230438.31fd0fd7@hyperion.delvare> <20100213230656.341ec091@hyperion.delvare> <4B7991CC.3020904@cam.ac.uk> <20100216105606.003b01dd@hyperion.delvare>
+From: "Pan, Jacob jun" <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
+Date: Tue, 16 Feb 2010 05:59:34 -0800
+Message-ID: <43F901BD926A4E43B106BF17856F0755A2D58DB5@orsmsx508.amr.corp.intel.com>
+References: <4B73DAEE.5080400@compulab.co.il>
+ <4B73DB4B.40501@compulab.co.il> <20100216100809.GA2935@sortiz.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100216105606.003b01dd-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20100216100809.GA2935-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Trent Piepho <tpiepho-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 16, 2010 at 10:56:06AM +0100, Jean Delvare wrote:
-> On Mon, 15 Feb 2010 18:26:20 +0000, Jonathan Cameron wrote:
 
-> > Can we change the name of data here.  From readability point of view it
-> > would be better not to have this reliance on scope (as data used for 
-> > struct i2c_smbus_alert *data above. (obviously changing it above would 
-> > work as well!) 
-
-> Oh, yeah, of course. Thanks for pointing this out. I wish we built the
-> kernel with -Wshadow so that gcc could tell us automatically...
-
-If you build with sparse (install it then add C=1 to the command line)
-it'll pick up shadowing along with all the other stuff.
+>
+>On Thu, Feb 11, 2010 at 12:26:19PM +0200, Denis Turischev wrote:
+>> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
+>> functions. Creating and MFD driver for the LPC bridge controller allows
+>> simultaneous use of SMBus and GPIO interfaces on the SCH.
+>That looks like an nice patch to me. Before merging it, I'd like to get
+>Jacob's view on it though. Jacob, does moving the SCH SMBus driver to a
+>platform one look fine to you ?
+>
+[[JPAN]] i agree with merging gpio and smbus into lpc driver. the only question
+i had was whether impact to the user space tools has been considered. iirc,
+there are sensors detect tools probe pci bus for smbus controllers, not sure it
+does that for platform bus.
