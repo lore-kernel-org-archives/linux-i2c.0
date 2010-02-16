@@ -1,42 +1,83 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
-Date: Tue, 16 Feb 2010 16:45:23 +0100
-Message-ID: <20100216164523.5a3e13a5@hyperion.delvare>
-References: <4B73DAEE.5080400@compulab.co.il>
-	<4B73DB4B.40501@compulab.co.il>
-	<20100216100809.GA2935@sortiz.org>
-	<43F901BD926A4E43B106BF17856F0755A2D58DB5@orsmsx508.amr.corp.intel.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c/mpc: drop NO_IRQ
+Date: Tue, 16 Feb 2010 08:59:38 -0700
+Message-ID: <fa686aa41002160759k360e55bdkbb3fd67ba523b027@mail.gmail.com>
+References: <1256245888-25210-1-git-send-email-w.sang@pengutronix.de>
+	<1256245888-25210-2-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <43F901BD926A4E43B106BF17856F0755A2D58DB5@orsmsx508.amr.corp.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Pan, Jacob jun" <jacob.jun.pan@intel.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Denis Turischev <denis@compulab.co.il>, LKML <linux-kernel@vger.kernel.org>, David Brownell <dbrownell@users.sourceforge.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1256245888-25210-2-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 16 Feb 2010 05:59:34 -0800, Pan, Jacob jun wrote:
-> 
-> >
-> >On Thu, Feb 11, 2010 at 12:26:19PM +0200, Denis Turischev wrote:
-> >> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
-> >> functions. Creating and MFD driver for the LPC bridge controller allows
-> >> simultaneous use of SMBus and GPIO interfaces on the SCH.
-> >That looks like an nice patch to me. Before merging it, I'd like to get
-> >Jacob's view on it though. Jacob, does moving the SCH SMBus driver to a
-> >platform one look fine to you ?
-> >
-> [[JPAN]] i agree with merging gpio and smbus into lpc driver. the only question
-> i had was whether impact to the user space tools has been considered. iirc,
-> there are sensors detect tools probe pci bus for smbus controllers, not sure it
-> does that for platform bus.
+On Thu, Oct 22, 2009 at 2:11 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> w=
+rote:
+> Drop NO_IRQ as 0 is the preferred way to describe 'no irq'
+> (http://lkml.org/lkml/2005/11/21/221). This change is safe, as the dr=
+iver is
+> only used on powerpc, where NO_IRQ is 0 anyhow.
+>
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-That shouldn't be a problem. The PCI device is still present, so
-sensors-detect will see it. Then it will load the required driver, and
-that driver will instantiate i2c adapters. The script then probes all
-i2c adapters regardless of who created them, so the exact driver
-implementation doesn't matter.
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
--- 
-Jean Delvare
+> ---
+> =A0drivers/i2c/busses/i2c-mpc.c | =A0 =A06 +++---
+> =A01 files changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mp=
+c.c
+> index d325e86..7e58443 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -115,7 +115,7 @@ static int i2c_wait(struct mpc_i2c *i2c, unsigned=
+ timeout, int writing)
+> =A0 =A0 =A0 =A0u32 x;
+> =A0 =A0 =A0 =A0int result =3D 0;
+>
+> - =A0 =A0 =A0 if (i2c->irq =3D=3D NO_IRQ) {
+> + =A0 =A0 =A0 if (!i2c->irq) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0while (!(readb(i2c->base + MPC_I2C_SR)=
+ & CSR_MIF)) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0schedule();
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (time_after(jiffies=
+, orig_jiffies + timeout)) {
+> @@ -520,7 +520,7 @@ static int __devinit fsl_i2c_probe(struct of_devi=
+ce *op,
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0i2c->irq =3D irq_of_parse_and_map(op->node, 0);
+> - =A0 =A0 =A0 if (i2c->irq !=3D NO_IRQ) { /* i2c->irq =3D NO_IRQ impl=
+ies polling */
+> + =A0 =A0 =A0 if (i2c->irq) { /* no i2c->irq implies polling */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0result =3D request_irq(i2c->irq, mpc_i=
+2c_isr,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ IRQF_SHARED, "i2c-mpc", i2c);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (result < 0) {
+> @@ -579,7 +579,7 @@ static int __devexit fsl_i2c_remove(struct of_dev=
+ice *op)
+> =A0 =A0 =A0 =A0i2c_del_adapter(&i2c->adap);
+> =A0 =A0 =A0 =A0dev_set_drvdata(&op->dev, NULL);
+>
+> - =A0 =A0 =A0 if (i2c->irq !=3D NO_IRQ)
+> + =A0 =A0 =A0 if (i2c->irq)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0free_irq(i2c->irq, i2c);
+>
+> =A0 =A0 =A0 =A0irq_dispose_mapping(i2c->irq);
+> --
+> 1.6.5
+>
+>
+
+
+
+--=20
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
