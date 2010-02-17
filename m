@@ -1,49 +1,63 @@
-From: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Subject: Re: [PATCH 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
-Date: Wed, 17 Feb 2010 12:03:17 +0200
-Message-ID: <4B7BBEE5.3040104@compulab.co.il>
-References: <4B73DAEE.5080400@compulab.co.il>	<4B73DB4B.40501@compulab.co.il>	<201002161157.47196.david-b@pacbell.net> <20100216224947.5c46ff86@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Subject: [PATCH v8 0/4] i2c-mpc: add support for the Freescale MPC512x and other fixes
+Date: Wed, 17 Feb 2010 11:19:16 +0100
+Message-ID: <1266401960-19127-1-git-send-email-wg@grandegger.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100216224947.5c46ff86-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare wrote:
-> On Tue, 16 Feb 2010 11:57:46 -0800, David Brownell wrote:
->> On Thursday 11 February 2010, Denis Turischev wrote:
->>> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
->>> functions. Creating and MFD driver for the LPC bridge controller allows
->> Spelling nit: "Creating an" (not and).  Keyboard, brain, or edit fault.  ;)
->>
->>
->>> simultaneous use of SMBus and GPIO interfaces on the SCH.
->> This looks like the right way to package such southbridge level
->> componentry.  Maye not just these two interfaces, either.
->>
->> But ... how does this play with ACPI?  The last several Intel
->> systems I looked at seemed to expect ACPI to manage GPIOs and the
->> IRQs they may issue.  (He wrote, staring at an ICH8-system where
->> ACPI uses GPIOs to manage several buttons and LEDs.)
->>
->> It would seem error-prone to ignore that coupling on systems
->> with ACPI.  Linux has enough trouble sorting out issues caused
->> by buggy AML (ACPI bytecode) without introducing conflicts in
->> who manages which hardware resource (ACPI vs. operating system).
-> 
-> Might be a good idea to use acpi_check_resource_conflict() or similar
-> before instantiating the platform devices.
+This patch series adds support for the MPC512x from Freescale to the
+i2c-mpc driver. At that occasion, issues with  __devinit[data] have
+been fixed and the doc of the FSL I2C dts bindings updated. It has
+been tested on a MPC5121ADS, TQM5200 and TQM8560 board
 
-May be it worth to add such resource check directly to mfd_add_device function?
+Changes since v1:
 
-> 
->> Of course, if ACPI weren't being used to hide such board-specific
->> details from operating systems, such issues would not exist.  But
->> such hiding is one of the basic goals of ACPI ... annoying.
-> 
-> Don't start me on this :(
-> 
+- use macro MPC_I2C_CLOCK_PRESERVE/SAFE for the special clock settings.
+- document the special DTS node "fsl,mpc5121-i2c-ctrl".
+- update and correct the Kconfig help.
+- some other minor fixes as suggested by Wolfram.
+
+Changes since v2:
+
+- use __init[data] instead of __devinit[data] for this driver.
+
+Changes since v3:
+
+- switch back to __devinit[data] as pointed out by Ben.
+
+Changes since v4:
+
+- check MPC_I2C_CLOCK_SAFE instead of "!clock" as suggested by Wolfram.
+- update MODULE_DESCRIPTION().
+
+Changes since v5 (suggested by Grant Likely):
+
+- various correctings for labling initialization functions and data
+  (this is tricky because section mismatches are not always obvious).
+- add a separate patch for renaming the setclock into setup functions.
+- correct the doc of the I2C bindings, e.g. don't mention the legacy
+  clock setting and remove obsolte parts.
+
+Changes since v6:
+
+- use __devinitconst for const data as suggested by Stephen Rothwell.
+
+Changes since v7:
+
+- fix non-bisectable patch 1 as pointed out by Grant Likely.
+
+Wolfgang
+
+Wolfgang Grandegger (4):
+  i2c-mpc: use __devinit[data] for initialization functions and data
+  i2c-mpc: rename "setclock" initialization functions to "setup"
+  i2c-mpc: add support for the MPC512x processors from Freescale
+  powerpc: doc/dts-bindings: update doc of FSL I2C bindings
+
+ Documentation/powerpc/dts-bindings/fsl/i2c.txt |   30 +++-
+ drivers/i2c/busses/Kconfig                     |    7 +-
+ drivers/i2c/busses/i2c-mpc.c                   |  194 +++++++++++++++---------
+ 3 files changed, 146 insertions(+), 85 deletions(-)
