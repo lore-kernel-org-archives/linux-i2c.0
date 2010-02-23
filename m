@@ -1,67 +1,299 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Intel ICHx bus driver
-Date: Mon, 22 Feb 2010 22:58:05 +0100
-Message-ID: <20100222225805.00432574@hyperion.delvare>
-References: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
-	<20100128085904.4e202de1@hyperion.delvare>
-	<af0693f01001280132l4002af0fgf3137fa27ce8555e@mail.gmail.com>
-	<20100128105340.41aecf64@hyperion.delvare>
-	<af0693f01002182310i6678e4b5h80feb14b24b37742@mail.gmail.com>
-	<20100219105841.2bd8b16c@hyperion.delvare>
-	<af0693f01002220812n5a6060cejc00d1ebbd7b9424d@mail.gmail.com>
+From: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH] omap: i2c: Add i2c support on omap4 platform
+Date: Tue, 23 Feb 2010 11:31:09 +0530
+Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02C42E10AD@dbde02.ent.ti.com>
+References: <1266597180-25139-1-git-send-email-santosh.shilimkar@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <af0693f01002220812n5a6060cejc00d1ebbd7b9424d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1266597180-25139-1-git-send-email-santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Syed, Rafiuddin" <rafiuddin.syed-l0cyMroinI0@public.gmane.org>, Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Felix,
+Ben,
+Did you happen to look at this ? 
 
-On Mon, 22 Feb 2010 18:12:41 +0200, Felix Rubinstein wrote:
-> Hi Jean/i2c guys,
+> -----Original Message-----
+> From: Shilimkar, Santosh
+> Sent: Friday, February 19, 2010 10:03 PM
+> To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+> Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Shilimkar, Santosh; Syed, Rafiuddin; Cory
+> Maccarrone
+> Subject: [PATCH] omap: i2c: Add i2c support on omap4 platform
 > 
-> I'm having hard time to send straight I2C transaction of arbitrary length.
-> I use i2c_smbus_write_i2c_block_data(fd, buf[0], datac - 1, &buf[1]);
-> from user-space to send the aforementioned transaction, but I get
-> operation not permitted as a result.
-> I tried to understand what's going on in the driver and found out that
-> timeout occurs.
-
-Unlikely. If a timeout occurred, the error message would say so.
-
-What is the exact error message? Can we see your complete code?
-
-Don't forget that you must be root to use i2c-dev.
-
-> As a consequence, I'd like to get something clear to me:
-> Since ICH9 supports 32-Byte Buffer (E32B) and according to the data
-> sheet the DS bit of the HST_STS is meaningless when E32B is enabled
-> and it's (E32B) enabled by the i801 driver.
-> On the other hand, in i801_check_pre called (from
-> i801_block_transaction_by_block) the macro STATUS_FLAGS verifies the
-> DS bit (designated as SMBHSTSTS_BYTE_DONE in the code).
-> Looking at the previous version of the driver, like in 2.5.25 there
-> was a mask 0x1f but it has gone since.
-> Is this behavior correct?
-
-The change happened in this patch:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=cf898dc5e9dfd1487b28ca0176b68722f05d4d48
-
-The new behavior is believed to be correct. I agree that
-SMBHSTSTS_BYTE_DONE doesn't matter for block transactions, but checking
-this bit can't hurt.
-
-> And another question related. Have you/anyone tried to output I2C
-> write transaction of arbitrary length, i.e. DATA0 is not sent on the
-> bus, from ICH9?
-
-I don't have any device on my ICH SMBus to which I can issue an I2C
-block write, sorry. I did test block reads though, and successfully.
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+> This patch is rebased version of earlier post to add I2C
+> driver support to OMAP4 platform. On OMAP4, all
+> I2C register address offsets are changed from OMAP1/2/3 I2C.
+> In order to not have #ifdef's at various places in code,
+> as well as to support multi-OMAP build, an array is created
+> to hold the register addresses with it's offset.
+> 
+> This patch was submitted, reviewed and acked on mailing list
+> already. For more details refer below link
+> http://www.mail-archive.com/linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg02281.html
+> 
+> This updated verion has a depedancy on "Add support for 16-bit registers"
+> posted on linux-omap. Below is the patch-works link for the same
+> 
+> http://patchwork.kernel.org/patch/72295/
+> 
+> Signed-off-by: Syed Rafiuddin <rafiuddin.syed-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> Reviewed-by: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+> Reviewed-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> Cc: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |  146 ++++++++++++++++++++++++++++++++---------
+>  1 files changed, 114 insertions(+), 32 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 9c3ce4d..7c15496 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -44,29 +44,37 @@
+>  /* I2C controller revisions present on specific hardware */
+>  #define OMAP_I2C_REV_ON_2430		0x36
+>  #define OMAP_I2C_REV_ON_3430		0x3C
+> +#define OMAP_I2C_REV_ON_4430		0x40
+> 
+>  /* timeout waiting for the controller to respond */
+>  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+> 
+> -#define OMAP_I2C_REV_REG		0x00
+> -#define OMAP_I2C_IE_REG			0x01
+> -#define OMAP_I2C_STAT_REG		0x02
+> -#define OMAP_I2C_IV_REG			0x03
+>  /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
+> -#define OMAP_I2C_WE_REG			0x03
+> -#define OMAP_I2C_SYSS_REG		0x04
+> -#define OMAP_I2C_BUF_REG		0x05
+> -#define OMAP_I2C_CNT_REG		0x06
+> -#define OMAP_I2C_DATA_REG		0x07
+> -#define OMAP_I2C_SYSC_REG		0x08
+> -#define OMAP_I2C_CON_REG		0x09
+> -#define OMAP_I2C_OA_REG			0x0a
+> -#define OMAP_I2C_SA_REG			0x0b
+> -#define OMAP_I2C_PSC_REG		0x0c
+> -#define OMAP_I2C_SCLL_REG		0x0d
+> -#define OMAP_I2C_SCLH_REG		0x0e
+> -#define OMAP_I2C_SYSTEST_REG		0x0f
+> -#define OMAP_I2C_BUFSTAT_REG		0x10
+> +enum {
+> +	OMAP_I2C_REV_REG = 0,
+> +	OMAP_I2C_IE_REG,
+> +	OMAP_I2C_STAT_REG,
+> +	OMAP_I2C_IV_REG,
+> +	OMAP_I2C_WE_REG,
+> +	OMAP_I2C_SYSS_REG,
+> +	OMAP_I2C_BUF_REG,
+> +	OMAP_I2C_CNT_REG,
+> +	OMAP_I2C_DATA_REG,
+> +	OMAP_I2C_SYSC_REG,
+> +	OMAP_I2C_CON_REG,
+> +	OMAP_I2C_OA_REG,
+> +	OMAP_I2C_SA_REG,
+> +	OMAP_I2C_PSC_REG,
+> +	OMAP_I2C_SCLL_REG,
+> +	OMAP_I2C_SCLH_REG,
+> +	OMAP_I2C_SYSTEST_REG,
+> +	OMAP_I2C_BUFSTAT_REG,
+> +	OMAP_I2C_REVNB_LO,
+> +	OMAP_I2C_REVNB_HI,
+> +	OMAP_I2C_IRQSTATUS_RAW,
+> +	OMAP_I2C_IRQENABLE_SET,
+> +	OMAP_I2C_IRQENABLE_CLR,
+> +};
+> 
+>  /* I2C Interrupt Enable Register (OMAP_I2C_IE): */
+>  #define OMAP_I2C_IE_XDR		(1 << 14)	/* TX Buffer drain int enable */
+> @@ -169,6 +177,7 @@ struct omap_i2c_dev {
+>  	u32			speed;		/* Speed of bus in Khz */
+>  	u16			cmd_err;
+>  	u8			*buf;
+> +	u8			*regs;
+>  	size_t			buf_len;
+>  	struct i2c_adapter	adapter;
+>  	u8			fifo_size;	/* use as flag and value
+> @@ -187,15 +196,64 @@ struct omap_i2c_dev {
+>  	u16			westate;
+>  };
+> 
+> +const static u8 reg_map[] = {
+> +	[OMAP_I2C_REV_REG] = 0x00,
+> +	[OMAP_I2C_IE_REG] = 0x01,
+> +	[OMAP_I2C_STAT_REG] = 0x02,
+> +	[OMAP_I2C_IV_REG] = 0x03,
+> +	[OMAP_I2C_WE_REG] = 0x03,
+> +	[OMAP_I2C_SYSS_REG] = 0x04,
+> +	[OMAP_I2C_BUF_REG] = 0x05,
+> +	[OMAP_I2C_CNT_REG] = 0x06,
+> +	[OMAP_I2C_DATA_REG] = 0x07,
+> +	[OMAP_I2C_SYSC_REG] = 0x08,
+> +	[OMAP_I2C_CON_REG] = 0x09,
+> +	[OMAP_I2C_OA_REG] = 0x0a,
+> +	[OMAP_I2C_SA_REG] = 0x0b,
+> +	[OMAP_I2C_PSC_REG] = 0x0c,
+> +	[OMAP_I2C_SCLL_REG] = 0x0d,
+> +	[OMAP_I2C_SCLH_REG] = 0x0e,
+> +	[OMAP_I2C_SYSTEST_REG] = 0x0f,
+> +	[OMAP_I2C_BUFSTAT_REG] = 0x10,
+> +};
+> +
+> +const static u8 omap4_reg_map[] = {
+> +	[OMAP_I2C_REV_REG] = 0x04,
+> +	[OMAP_I2C_IE_REG] = 0x2c,
+> +	[OMAP_I2C_STAT_REG] = 0x28,
+> +	[OMAP_I2C_IV_REG] = 0x34,
+> +	[OMAP_I2C_WE_REG] = 0x34,
+> +	[OMAP_I2C_SYSS_REG] = 0x90,
+> +	[OMAP_I2C_BUF_REG] = 0x94,
+> +	[OMAP_I2C_CNT_REG] = 0x98,
+> +	[OMAP_I2C_DATA_REG] = 0x9c,
+> +	[OMAP_I2C_SYSC_REG] = 0x20,
+> +	[OMAP_I2C_CON_REG] = 0xa4,
+> +	[OMAP_I2C_OA_REG] = 0xa8,
+> +	[OMAP_I2C_SA_REG] = 0xac,
+> +	[OMAP_I2C_PSC_REG] = 0xb0,
+> +	[OMAP_I2C_SCLL_REG] = 0xb4,
+> +	[OMAP_I2C_SCLH_REG] = 0xb8,
+> +	[OMAP_I2C_SYSTEST_REG] = 0xbC,
+> +	[OMAP_I2C_BUFSTAT_REG] = 0xc0,
+> +	[OMAP_I2C_REVNB_LO] = 0x00,
+> +	[OMAP_I2C_REVNB_HI] = 0x04,
+> +	[OMAP_I2C_IRQSTATUS_RAW] = 0x24,
+> +	[OMAP_I2C_IRQENABLE_SET] = 0x2c,
+> +	[OMAP_I2C_IRQENABLE_CLR] = 0x30,
+> +};
+> +
+>  static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+>  				      int reg, u16 val)
+>  {
+> -	__raw_writew(val, i2c_dev->base + (reg << i2c_dev->reg_shift));
+> +	__raw_writew(val, i2c_dev->base +
+> +			(i2c_dev->regs[reg] << i2c_dev->reg_shift));
+>  }
+> 
+>  static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+>  {
+> -	return __raw_readw(i2c_dev->base + (reg << i2c_dev->reg_shift));
+> +	return __raw_readw(i2c_dev->base +
+> +				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
+>  }
+> 
+>  static int __init omap_i2c_get_clocks(struct omap_i2c_dev *dev)
+> @@ -264,7 +322,11 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+>  	WARN_ON(dev->idle);
+> 
+>  	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
+> -	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
+> +	if (dev->rev >= OMAP_I2C_REV_ON_4430)
+> +		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
+> +	else
+> +		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
+> +
+>  	if (dev->rev < OMAP_I2C_REV_2) {
+>  		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG); /* Read clears */
+>  	} else {
+> @@ -329,7 +391,9 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+>  			 * REVISIT: Some wkup sources might not be needed.
+>  			 */
+>  			dev->westate = OMAP_I2C_WE_ALL;
+> -			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+> +			if (dev->rev < OMAP_I2C_REV_ON_4430)
+> +				omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+> +								dev->westate);
+>  		}
+>  	}
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> @@ -356,7 +420,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+>  			psc = fclk_rate / 12000000;
+>  	}
+> 
+> -	if (cpu_is_omap2430() || cpu_is_omap34xx()) {
+> +	if (!(cpu_class_is_omap1() || cpu_is_omap2420())) {
+> 
+>  		/*
+>  		 * HSI2C controller internal clk rate should be 19.2 Mhz for
+> @@ -746,9 +810,12 @@ complete:
+>  				if (dev->buf_len) {
+>  					*dev->buf++ = w;
+>  					dev->buf_len--;
+> -					/* Data reg from 2430 is 8 bit wide */
+> -					if (!cpu_is_omap2430() &&
+> -							!cpu_is_omap34xx()) {
+> +					/*
+> +					 * Data reg in 2430, omap3 and
+> +					 * omap4 is 8 bit wide
+> +					 */
+> +					if (cpu_class_is_omap1() ||
+> +							cpu_is_omap2420()) {
+>  						if (dev->buf_len) {
+>  							*dev->buf++ = w >> 8;
+>  							dev->buf_len--;
+> @@ -786,9 +853,12 @@ complete:
+>  				if (dev->buf_len) {
+>  					w = *dev->buf++;
+>  					dev->buf_len--;
+> -					/* Data reg from  2430 is 8 bit wide */
+> -					if (!cpu_is_omap2430() &&
+> -							!cpu_is_omap34xx()) {
+> +					/*
+> +					 * Data reg in 2430, omap3 and
+> +					 * omap4 is 8 bit wide
+> +					 */
+> +					if (cpu_class_is_omap1() ||
+> +							cpu_is_omap2420()) {
+>  						if (dev->buf_len) {
+>  							w |= *dev->buf++ << 8;
+>  							dev->buf_len--;
+> @@ -897,6 +967,8 @@ omap_i2c_probe(struct platform_device *pdev)
+> 
+>  	if (cpu_is_omap7xx())
+>  		dev->reg_shift = 1;
+> +	else if (cpu_is_omap44xx())
+> +		dev->reg_shift = 0;
+>  	else
+>  		dev->reg_shift = 2;
+> 
+> @@ -911,11 +983,16 @@ omap_i2c_probe(struct platform_device *pdev)
+>  	if ((r = omap_i2c_get_clocks(dev)) != 0)
+>  		goto err_iounmap;
+> 
+> +	if (cpu_is_omap44xx())
+> +		dev->regs = (u8 *) omap4_reg_map;
+> +	else
+> +		dev->regs = (u8 *) reg_map;
+> +
+>  	omap_i2c_unidle(dev);
+> 
+>  	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
+> 
+> -	if (cpu_is_omap2430() || cpu_is_omap34xx()) {
+> +	if (!(cpu_class_is_omap1() || cpu_is_omap2420())) {
+>  		u16 s;
+> 
+>  		/* Set up the fifo size - Get total size */
+> @@ -927,8 +1004,13 @@ omap_i2c_probe(struct platform_device *pdev)
+>  		 * size. This is to ensure that we can handle the status on int
+>  		 * call back latencies.
+>  		 */
+> -		dev->fifo_size = (dev->fifo_size / 2);
+> -		dev->b_hw = 1; /* Enable hardware fixes */
+> +		if (dev->rev >= OMAP_I2C_REV_ON_4430) {
+> +			dev->fifo_size = 0;
+> +			dev->b_hw = 0; /* Disable hardware fixes */
+> +		} else {
+> +			dev->fifo_size = (dev->fifo_size / 2);
+> +			dev->b_hw = 1; /* Enable hardware fixes */
+> +		}
+>  	}
+> 
+>  	/* reset ASAP, clearing any IRQs */
+> --
+> 1.6.0.4
