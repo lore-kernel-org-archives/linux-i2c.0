@@ -1,42 +1,205 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3 2/3] i2c: convert i2c-isch to platform_device
-Date: Tue, 23 Feb 2010 09:24:31 +0100
-Message-ID: <20100223092431.0fd05b5c@hyperion.delvare>
+Subject: Re: [PATCH v3 1/3] MFD: introduce lpc_sch for Intel SCH LPC bridge
+Date: Tue, 23 Feb 2010 09:26:36 +0100
+Message-ID: <20100223092636.42b083f0@hyperion.delvare>
 References: <4B73DAEE.5080400@compulab.co.il>
-	<4B73DBB2.7020601@compulab.co.il>
-	<4B7C0E5D.3070909@compulab.co.il>
-	<4B812B42.2090405@compulab.co.il>
-	<4B837D0C.3000708@compulab.co.il>
-	<20100223091221.086ff17b@hyperion.delvare>
-	<20100223082054.GA3550@sortiz.org>
+	<4B73DB4B.40501@compulab.co.il>
+	<4B7D7C13.20703@compulab.co.il>
+	<4B7D7CD0.7080202@oracle.com>
+	<4B7D807D.9060105@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100223082054.GA3550-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <4B7D807D.9060105-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+To: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Samuel,
-
-On Tue, 23 Feb 2010 09:20:55 +0100, Samuel Ortiz wrote:
-> Hi Jean,
+On Thu, 18 Feb 2010 20:01:33 +0200, Denis Turischev wrote:
+> Intel Poulsbo (SCH) chipset LPC bridge controller contains several
+> functions. Creating and MFD driver for the LPC bridge controller allows
+> simultaneous use of SMBus and GPIO interfaces on the SCH.
 > 
-> On Tue, Feb 23, 2010 at 09:12:21AM +0100, Jean Delvare wrote:
-> > I can add my
-> > 
-> > Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > 
-> > but the patch itself would rather go through Samuel's mfd tree. The
-> > different patches depend on each other so pushing them through
-> > different trees would cause trouble.
-> Exactly. I asked Denis to rebase them against Linus' latest because I was
-> planning to merge them through my tree.
-> I'll take patches 2 and 3 from this patchset.
+> v2: added "select MFD_CORE"
+> v3: removed "default m"
+> 
+> Signed-off-by: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> 
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/Kconfig linux-2.6.33-rc7/drivers/mfd/Kconfig
+> --- linux-2.6.33-rc7.orig/drivers/mfd/Kconfig	2010-02-07 00:17:12.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/Kconfig	2010-02-18 19:56:19.000000000 +0200
+> @@ -348,6 +348,14 @@
+>   	  read/write functions for the devices to get access to this chip.
+>   	  This chip embeds various other multimedia funtionalities as well.
+> 
+> +config LPC_SCH
+> +	tristate "Intel SCH LPC"
+> +	depends on PCI
+> +	select MFD_CORE
+> +	help
+> +	  LPC bridge function of the Intel SCH provides support for
+> +	  System Management Bus and General Purpose I/O.
+> +
+>   endmenu
+> 
+>   menu "Multimedia Capabilities Port drivers"
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/lpc_sch.c linux-2.6.33-rc7/drivers/mfd/lpc_sch.c
+> --- linux-2.6.33-rc7.orig/drivers/mfd/lpc_sch.c	1970-01-01 02:00:00.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/lpc_sch.c	2010-02-11 10:31:54.000000000 +0200
+> @@ -0,0 +1,133 @@
+> +/*
+> + *  lpc_sch.c - LPC interface for Intel Poulsbo SCH
+> + *
+> + *  LPC bridge function of the Intel SCH contains many other
+> + *  functional units, such as Interrupt controllers, Timers,
+> + *  Power Management, System Management, GPIO, RTC, and LPC
+> + *  Configuration Registers.
+> + *
+> + *  Copyright (c) 2010 CompuLab Ltd
+> + *  Author: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License 2 as published
+> + *  by the Free Software Foundation.
+> + *
+> + *  This program is distributed in the hope that it will be useful,
+> + *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + *  GNU General Public License for more details.
+> + *
+> + *  You should have received a copy of the GNU General Public License
+> + *  along with this program; see the file COPYING.  If not, write to
+> + *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+> + */
+> +
+> +#include <linux/init.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/errno.h>
+> +#include <linux/acpi.h>
+> +#include <linux/pci.h>
+> +#include <linux/mfd/core.h>
+> +
+> +#define SMBASE		0x40
+> +#define SMBUS_IO_SIZE	64
+> +
+> +#define GPIOBASE	0x44
+> +#define GPIO_IO_SIZE	64
+> +
+> +static struct resource smbus_sch_resource = {
+> +		.flags = IORESOURCE_IO,
+> +};
+> +
+> +
+> +static struct resource gpio_sch_resource = {
+> +		.flags = IORESOURCE_IO,
+> +};
+> +
+> +static struct mfd_cell lpc_sch_cells[] = {
+> +	{
+> +		.name = "isch_smbus",
+> +		.num_resources = 1,
+> +		.resources = &smbus_sch_resource,
+> +	},
+> +	{
+> +		.name = "sch_gpio",
+> +		.num_resources = 1,
+> +		.resources = &gpio_sch_resource,
+> +	},
+> +};
 
-You mean patches 1 and 2?
+These names are nicely inconsistent. What about "isch_gpio"?
+
+> +
+> +static struct pci_device_id lpc_sch_ids[] = {
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC) },
+> +	{ 0, }
+> +};
+> +MODULE_DEVICE_TABLE(pci, lpc_sch_ids);
+> +
+> +static int __devinit lpc_sch_probe(struct pci_dev *dev,
+> +				const struct pci_device_id *id)
+> +{
+> +	unsigned int base_addr_cfg;
+> +	unsigned short base_addr;
+> +
+> +	pci_read_config_dword(dev, SMBASE, &base_addr_cfg);
+> +	if (!(base_addr_cfg & (1 << 31))) {
+> +		dev_err(&dev->dev, "Decode of the SMBus I/O range disabled\n");
+> +		return -ENODEV;
+> +	}
+> +	base_addr = (unsigned short)base_addr_cfg;
+> +	if (base_addr == 0) {
+> +		dev_err(&dev->dev, "I/O space for SMBus uninitialized\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	smbus_sch_resource.start = base_addr;
+> +	smbus_sch_resource.end = base_addr + SMBUS_IO_SIZE - 1;
+> +
+> +	pci_read_config_dword(dev, GPIOBASE, &base_addr_cfg);
+> +	if (!(base_addr_cfg & (1 << 31))) {
+> +		dev_err(&dev->dev, "Decode of the GPIO I/O range disabled\n");
+> +		return -ENODEV;
+> +	}
+> +	base_addr = (unsigned short)base_addr_cfg;
+> +	if (base_addr == 0) {
+> +		dev_err(&dev->dev, "I/O space for GPIO uninitialized\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	gpio_sch_resource.start = base_addr;
+> +	gpio_sch_resource.end = base_addr + GPIO_IO_SIZE - 1;
+> +
+> +	return mfd_add_devices(&dev->dev, -1,
+> +			lpc_sch_cells, ARRAY_SIZE(lpc_sch_cells), NULL, 0);
+> +}
+> +
+> +static void __devexit lpc_sch_remove(struct pci_dev *dev)
+> +{
+> +	mfd_remove_devices(&dev->dev);
+> +}
+> +
+> +static struct pci_driver lpc_sch_driver = {
+> +	.name		= "lpc_sch",
+> +	.id_table	= lpc_sch_ids,
+> +	.probe		= lpc_sch_probe,
+> +	.remove		= __devexit_p(lpc_sch_remove),
+> +};
+> +
+> +static int __init lpc_sch_init(void)
+> +{
+> +	return pci_register_driver(&lpc_sch_driver);
+> +}
+> +
+> +static void __exit lpc_sch_exit(void)
+> +{
+> +	pci_unregister_driver(&lpc_sch_driver);
+> +}
+> +
+> +module_init(lpc_sch_init);
+> +module_exit(lpc_sch_exit);
+> +
+> +MODULE_AUTHOR("Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>");
+> +MODULE_DESCRIPTION("LPC interface for Intel Poulsbo SCH");
+> +MODULE_LICENSE("GPL");
+> diff -Nru linux-2.6.33-rc7.orig/drivers/mfd/Makefile linux-2.6.33-rc7/drivers/mfd/Makefile
+> --- linux-2.6.33-rc7.orig/drivers/mfd/Makefile	2010-02-07 00:17:12.000000000 +0200
+> +++ linux-2.6.33-rc7/drivers/mfd/Makefile	2010-02-10 15:15:40.000000000 +0200
+> @@ -55,4 +55,5 @@
+>   obj-$(CONFIG_AB3100_OTP)	+= ab3100-otp.o
+>   obj-$(CONFIG_AB4500_CORE)	+= ab4500-core.o
+>   obj-$(CONFIG_MFD_88PM8607)	+= 88pm8607.o
+> -obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+> \ No newline at end of file
+> +obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+> +obj-$(CONFIG_LPC_SCH)		+= lpc_sch.o
+
+I don't like this name either. There is another vendor (SMSC) shipping
+LPC devices with "SCH" in their names, so there is room for confusion.
+"isch" makes it clearer that we are talking about the Intel ones.
 
 -- 
 Jean Delvare
