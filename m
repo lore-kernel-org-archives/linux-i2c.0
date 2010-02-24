@@ -1,57 +1,47 @@
-From: Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] tsc2007 : set irq edge
-Date: Wed, 24 Feb 2010 15:38:35 +0100
-Message-ID: <4B8539EB.4080906@parrot.com>
-References: <4B85009D.3040604@parrot.com>
+From: Steve <steve.explores-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Do you always need a client driver to access a I2C device?
+Date: Wed, 24 Feb 2010 19:11:00 +0000
+Message-ID: <4B8579C4.7080502@googlemail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="------------080802060306080305070707"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4B85009D.3040604-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---------------080802060306080305070707
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi,
 
-Matthieu CASTET a écrit :
-> Hi,
-> 
-> We need to pass a trigger flag for the interruption to work with some
-> gpio controller.
-> 
-> This patch make it work on a arm omap chip.
-> 
-> Signed-off-by: Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
-> 
+I am modifying an embedded kernel driver to use the Linux I2C sub-system 
+rather than the RTOS I2C calls it previously used. The driver just needs 
+to make a very small number of I2C read/writes to a device on the I2C 
+bus at a fixed address and does not need to expose any methods to 
+user-space via /dev or sysfs. An algorithm and adapter driver are 
+provided for the SoC that controls the board, but there are no client 
+drivers.
 
-in fact we should trigger on low level.
-The problem with falling edge is that we trigger irq when sending
-command to chip even if there are disable : there are resend on irq_enable!
+I have been reading the Documentation/i2d doc and looking at some of the 
+existing drivers. I only need to read/write a few bytes to the device 
+but from the doc, examples and i2c api it appeared I would need to write 
+a client driver for the device to obtain the i2c_client ptr I needed to 
+do that. Along with the appropriate board_info for the devices on the board.
 
+However I noticed that the DTV demodulator drivers, e.g. 
+drivers/media/dvb/frontends/au8522.c, appear to be doing it simply using 
+a i2c_adapter ptr and i2c_transfer().
 
-Signed-off-by: Matthieu CASTET <matthieu.castet-ITF29qwbsa/QT0dZR+AlfA@public.gmane.org>
+For my simple needs, access fixed embedded device, no need for user 
+space access, is the i2c_adapter ptr a simple and "appropriate" way to 
+go or am I missing something that makes it more complex than it seems? 
+This assumes its straight forward to get the adapter ptr from the SoC 
+adapter driver of course. Perhaps I should be doing a client driver 
+instead after all?
 
---------------080802060306080305070707
-Content-Type: text/x-diff; name="tsc2007_irq.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="tsc2007_irq.diff"
+I think I have spent too long looking through the sub-system 
+infrastructure source and have ended up confusing myself somewhat. I 
+just want to make sure I am on the correct path before continuing with 
+my reading and investigating. The kernel version is 2.6.27.39.
 
-diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 7ef0d14..a16b9e5 100644
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -312,7 +312,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
- 	if (pdata->init_platform_hw)
- 		pdata->init_platform_hw();
- 
--	err = request_irq(ts->irq, tsc2007_irq, 0,
-+	err = request_irq(ts->irq, tsc2007_irq, IRQF_TRIGGER_LOW,
- 			client->dev.driver->name, ts);
- 	if (err < 0) {
- 		dev_err(&client->dev, "irq %d busy?\n", ts->irq);
+Thanks
 
---------------080802060306080305070707--
+Steve
