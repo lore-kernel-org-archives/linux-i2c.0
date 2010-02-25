@@ -1,47 +1,45 @@
-From: Steve <steve.explores-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Do you always need a client driver to access a I2C device?
-Date: Wed, 24 Feb 2010 19:11:00 +0000
-Message-ID: <4B8579C4.7080502@googlemail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sriramakrishnan <srk@ti.com>
+Subject: [PATCH] PCA953x : Fix compilation warning.
+Date: Thu, 25 Feb 2010 19:02:38 +0530
+Message-ID: <1267104758-32131-1-git-send-email-srk@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Sriramakrishnan <srk@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+The platform data structure defined in pca953x header file
+includes references to i2c data structures. Unless the i2c.h
+file is included ahead of pca953x.h, compiler warning would
+be generated wherever pca953x header file is included. Added
+i2c.h to the pca953x.h itself to remove this dependency.
 
-I am modifying an embedded kernel driver to use the Linux I2C sub-system 
-rather than the RTOS I2C calls it previously used. The driver just needs 
-to make a very small number of I2C read/writes to a device on the I2C 
-bus at a fixed address and does not need to expose any methods to 
-user-space via /dev or sysfs. An algorithm and adapter driver are 
-provided for the SoC that controls the board, but there are no client 
-drivers.
+Also included conditional compile macros to guard against
+multiple inclusion.
 
-I have been reading the Documentation/i2d doc and looking at some of the 
-existing drivers. I only need to read/write a few bytes to the device 
-but from the doc, examples and i2c api it appeared I would need to write 
-a client driver for the device to obtain the i2c_client ptr I needed to 
-do that. Along with the appropriate board_info for the devices on the board.
+Signed-off-by: Sriramakrishnan <srk@ti.com>
+---
+ include/linux/i2c/pca953x.h |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
-However I noticed that the DTV demodulator drivers, e.g. 
-drivers/media/dvb/frontends/au8522.c, appear to be doing it simply using 
-a i2c_adapter ptr and i2c_transfer().
+diff --git a/include/linux/i2c/pca953x.h b/include/linux/i2c/pca953x.h
+index 81736d6..1284a2d 100644
+--- a/include/linux/i2c/pca953x.h
++++ b/include/linux/i2c/pca953x.h
+@@ -1,3 +1,8 @@
++#ifndef __LINUX_PCA953X_H
++#define __LINUX_PCA953X_H
++
++#include <linux/i2c.h>
++
+ /* platform data for the PCA9539 16-bit I/O expander driver */
+ 
+ struct pca953x_platform_data {
+@@ -17,3 +22,4 @@ struct pca953x_platform_data {
+ 				void *context);
+ 	char		**names;
+ };
++#endif
+-- 
+1.6.2.4
 
-For my simple needs, access fixed embedded device, no need for user 
-space access, is the i2c_adapter ptr a simple and "appropriate" way to 
-go or am I missing something that makes it more complex than it seems? 
-This assumes its straight forward to get the adapter ptr from the SoC 
-adapter driver of course. Perhaps I should be doing a client driver 
-instead after all?
-
-I think I have spent too long looking through the sub-system 
-infrastructure source and have ended up confusing myself somewhat. I 
-just want to make sure I am on the correct path before continuing with 
-my reading and investigating. The kernel version is 2.6.27.39.
-
-Thanks
-
-Steve
