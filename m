@@ -1,208 +1,103 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH v3 2/3] i2c: convert i2c-isch to platform_device
-Date: Sun, 28 Feb 2010 20:00:16 +0100
-Message-ID: <20100228190015.GB3589@sortiz.org>
-References: <4B73DAEE.5080400@compulab.co.il>
- <4B73DBB2.7020601@compulab.co.il>
- <4B7C0E5D.3070909@compulab.co.il>
- <4B812B42.2090405@compulab.co.il>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Intel ICHx bus driver
+Date: Sun, 28 Feb 2010 21:19:49 +0100
+Message-ID: <20100228211949.3297a0ff@hyperion.delvare>
+References: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
+	<20100128085904.4e202de1@hyperion.delvare>
+	<af0693f01001280132l4002af0fgf3137fa27ce8555e@mail.gmail.com>
+	<20100128105340.41aecf64@hyperion.delvare>
+	<af0693f01002182310i6678e4b5h80feb14b24b37742@mail.gmail.com>
+	<20100219105841.2bd8b16c@hyperion.delvare>
+	<af0693f01002220812n5a6060cejc00d1ebbd7b9424d@mail.gmail.com>
+	<20100222225805.00432574@hyperion.delvare>
+	<af0693f01002231521q4f99eb63ocd607670625fadfa@mail.gmail.com>
+	<20100228120817.275ef279@hyperion.delvare>
+	<af0693f01002280545n622b1c41v1f8c104e57fb51b6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4B812B42.2090405@compulab.co.il>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Denis Turischev <denis@compulab.co.il>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <af0693f01002280545n622b1c41v1f8c104e57fb51b6-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Denis,
+On Sun, 28 Feb 2010 15:45:38 +0200, Felix Rubinstein wrote:
+> On Sun, Feb 28, 2010 at 1:08 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wr=
+ote:
+> > On Wed, 24 Feb 2010 01:21:51 +0200, Felix Rubinstein wrote:
+> > > But hey, I think I've found an issue here.
+> > > Let's delve into the i801 driver code for a moment please.
+> > >
+> > > in i801_transaction:
+> > > ...
+> > > /* We will always wait for a fraction of a second! */
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0do {
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0msl=
+eep(1);
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sta=
+tus =3D inb_p(SMBHSTSTS);
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0} while ((status & SMBHSTSTS_HO=
+ST_BUSY) && (timeout++ < MAX_TIMEOUT));
+> > > ...
+> > >
+> > > The data sheet states for HST_STS reg for HOST_BUSY bit:
+> > > 1 =3D Indicates that the ICH9 is running a command from the host =
+interface. No SMB
+> > > registers should be accessed while this bit is set, except the BL=
+OCK DATA BYTE
+> > > Register. The BLOCK DATA BYTE Register can be accessed when this =
+bit is set only
+> > > when the SMB_CMD bits in the Host Control Register are programmed=
+ for Block
+> > > command or I2C Read command. This is necessary in order to check =
+the
+> > > DONE_STS bit.
+> > >
+> > > Remember my case? I'm issuing plain I2C multi byte (straight I2C =
+with
+> > > arbitrary length) transaction, in ICH9 words SMB_CMD is set to Bl=
+ock
+> > > command. Since E32B is enabled, DONE_STS is irrelevant for us in =
+this
+> > > case.
+> >
+> > This is correct, assuming you mean I2C block writes and not reads. =
+I2C
+> > block reads are always done in byte-by-byte mode (E32B not set).
+> What I mean was that HOST_BUSY bit is relevant during the transaction
+> in case E32B is _not_ set (since DONE_STS is irrelevant once E32B is
+> set).
+> >
+> > > As I understand, in this case we should relay on interrupts and
+> > > not on polling, as both: E32B and Block (write) command are enabl=
+ed.
+> > >
+> > > That is why in my case I'm seeing timeout > MAX_TIMEOUT.
+> >
+> > I fail to see any relation between using interrupts and transaction
+> > types. The i2c-i801 driver does not use interrupts at all at the
+> > moment, it is always polling.
+> Meaning we cannot relay on HOST_BUSY bit when we _both_ issue Block
+> transaction and E32B is set. Since we cannot relay on it, the only
+> option left is interrupts.
 
-On Sun, Feb 21, 2010 at 02:46:58PM +0200, Denis Turischev wrote:
-> v2: there is no acpi_check_region, it will be implemented in mfd-core
-> v3: patch refreshed against the latest Linus tree
+Please point me to the part of the datasheet which says this.
 
-Still failing to apply against Linus' latest tree:
+> What I'm trying to say is that we cannot relay (and in my case I get
+> transaction timeout if E32B is set) on HOST_BUSY bit when E32B is
+> enabled.
 
-patching file drivers/i2c/busses/Kconfig
-Hunk #1 FAILED at 104.
-1 out of 1 hunk FAILED -- saving rejects to file
-drivers/i2c/busses/Kconfig.rej
-patching file drivers/i2c/busses/i2c-isch.c
-Hunk #1 FAILED at 27.
-Hunk #2 FAILED at 46.
-Hunk #3 FAILED at 57.
-Hunk #4 FAILED at 249.
-Hunk #5 FAILED at 277.
-Hunk #6 FAILED at 322.
-6 out of 6 hunks FAILED -- saving rejects to file
-drivers/i2c/busses/i2c-isch.c.rej
+And I think you are wrong. The HOST_BUSY bit is perfectly valid for
+block transactions under E32B. It wears off at the end of the block
+transaction, as it does for every other transaction. I can't think of
+any reason why we couldn't use it.
 
-Cheers,
-Samuel.
+> BTW, I've posted my code in the previous email posted on the list.
 
-> Signed-off-by: Denis Turischev <denis@compulab.co.il>
-> ---
->  drivers/i2c/busses/Kconfig    |    2 +-
->  drivers/i2c/busses/i2c-isch.c |   68 ++++++++++++++++------------------------
->  2 files changed, 28 insertions(+), 42 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 5f318ce..d15b6d3 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -104,7 +104,7 @@ config I2C_I801
-> 
->  config I2C_ISCH
->  	tristate "Intel SCH SMBus 1.0"
-> -	depends on PCI
-> +	select LPC_SCH
->  	help
->  	  Say Y here if you want to use SMBus controller on the Intel SCH
->  	  based systems.
-> diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-> index dba6eb0..ddc258e 100644
-> --- a/drivers/i2c/busses/i2c-isch.c
-> +++ b/drivers/i2c/busses/i2c-isch.c
-> @@ -27,7 +27,7 @@
->  */
-> 
->  #include <linux/module.h>
-> -#include <linux/pci.h>
-> +#include <linux/platform_device.h>
->  #include <linux/kernel.h>
->  #include <linux/delay.h>
->  #include <linux/stddef.h>
-> @@ -46,12 +46,6 @@
->  #define SMBHSTDAT1	(7 + sch_smba)
->  #define SMBBLKDAT	(0x20 + sch_smba)
-> 
-> -/* count for request_region */
-> -#define SMBIOSIZE	64
-> -
-> -/* PCI Address Constants */
-> -#define SMBBA_SCH	0x40
-> -
->  /* Other settings */
->  #define MAX_TIMEOUT	500
-> 
-> @@ -63,7 +57,6 @@
->  #define SCH_BLOCK_DATA		0x05
-> 
->  static unsigned short sch_smba;
-> -static struct pci_driver sch_driver;
->  static struct i2c_adapter sch_adapter;
-> 
->  /*
-> @@ -256,37 +249,23 @@ static struct i2c_adapter sch_adapter = {
->  	.algo		= &smbus_algorithm,
->  };
-> 
-> -static struct pci_device_id sch_ids[] = {
-> -	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC) },
-> -	{ 0, }
-> -};
-> -
-> -MODULE_DEVICE_TABLE(pci, sch_ids);
-> -
-> -static int __devinit sch_probe(struct pci_dev *dev,
-> -				const struct pci_device_id *id)
-> +static int __devinit smbus_sch_probe(struct platform_device *dev)
->  {
-> +	struct resource *res;
->  	int retval;
-> -	unsigned int smba;
-> 
-> -	pci_read_config_dword(dev, SMBBA_SCH, &smba);
-> -	if (!(smba & (1 << 31))) {
-> -		dev_err(&dev->dev, "SMBus I/O space disabled!\n");
-> -		return -ENODEV;
-> -	}
-> +	res = platform_get_resource(dev, IORESOURCE_IO, 0);
-> +	if (!res)
-> +		return -EBUSY;
-> 
-> -	sch_smba = (unsigned short)smba;
-> -	if (sch_smba == 0) {
-> -		dev_err(&dev->dev, "SMBus base address uninitialized!\n");
-> -		return -ENODEV;
-> -	}
-> -	if (acpi_check_region(sch_smba, SMBIOSIZE, sch_driver.name))
-> -		return -ENODEV;
-> -	if (!request_region(sch_smba, SMBIOSIZE, sch_driver.name)) {
-> +	if (!request_region(res->start, resource_size(res), dev->name)) {
->  		dev_err(&dev->dev, "SMBus region 0x%x already in use!\n",
->  			sch_smba);
->  		return -EBUSY;
->  	}
-> +
-> +	sch_smba = res->start;
-> +
->  	dev_dbg(&dev->dev, "SMBA = 0x%X\n", sch_smba);
-> 
->  	/* set up the sysfs linkage to our parent device */
-> @@ -298,37 +277,43 @@ static int __devinit sch_probe(struct pci_dev *dev,
->  	retval = i2c_add_adapter(&sch_adapter);
->  	if (retval) {
->  		dev_err(&dev->dev, "Couldn't register adapter!\n");
-> -		release_region(sch_smba, SMBIOSIZE);
-> +		release_region(res->start, resource_size(res));
->  		sch_smba = 0;
->  	}
-> 
->  	return retval;
->  }
-> 
-> -static void __devexit sch_remove(struct pci_dev *dev)
-> +static int __devexit smbus_sch_remove(struct platform_device *pdev)
->  {
-> +	struct resource *res;
->  	if (sch_smba) {
->  		i2c_del_adapter(&sch_adapter);
-> -		release_region(sch_smba, SMBIOSIZE);
-> +		res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> +		release_region(res->start, resource_size(res));
->  		sch_smba = 0;
->  	}
-> +
-> +	return 0;
->  }
-> 
-> -static struct pci_driver sch_driver = {
-> -	.name		= "isch_smbus",
-> -	.id_table	= sch_ids,
-> -	.probe		= sch_probe,
-> -	.remove		= __devexit_p(sch_remove),
-> +static struct platform_driver smbus_sch_driver = {
-> +	.driver = {
-> +		.name = "isch_smbus",
-> +		.owner = THIS_MODULE,
-> +	},
-> +	.probe		= smbus_sch_probe,
-> +	.remove		= __devexit_p(smbus_sch_remove),
->  };
-> 
->  static int __init i2c_sch_init(void)
->  {
-> -	return pci_register_driver(&sch_driver);
-> +	return platform_driver_register(&smbus_sch_driver);
->  }
-> 
->  static void __exit i2c_sch_exit(void)
->  {
-> -	pci_unregister_driver(&sch_driver);
-> +	platform_driver_unregister(&smbus_sch_driver);
->  }
-> 
->  MODULE_AUTHOR("Jacob Pan <jacob.jun.pan@intel.com>");
-> @@ -337,3 +322,4 @@ MODULE_LICENSE("GPL");
-> 
->  module_init(i2c_sch_init);
->  module_exit(i2c_sch_exit);
-> +MODULE_ALIAS("platform:isch_smbus");
-> -- 
-> 1.6.3.3
+I've seen this and will comment on it as my time permits.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+--=20
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
