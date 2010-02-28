@@ -1,42 +1,84 @@
-From: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH] omap: i2c: Add i2c support on omap4 platform
-Date: Sun, 28 Feb 2010 11:01:23 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02C43BFCFA@dbde02.ent.ti.com>
-References: <1266597180-25139-1-git-send-email-santosh.shilimkar@ti.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C42E10AD@dbde02.ent.ti.com>
- <20100225214703.GJ28173@atomide.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C43BF6C3@dbde02.ent.ti.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C43BFC61@dbde02.ent.ti.com>
- <20100227204049.GK17041@atomide.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Intel ICHx bus driver
+Date: Sun, 28 Feb 2010 12:08:17 +0100
+Message-ID: <20100228120817.275ef279@hyperion.delvare>
+References: <af0693f01001270956h781f2832r928364574d3406aa@mail.gmail.com>
+	<20100128085904.4e202de1@hyperion.delvare>
+	<af0693f01001280132l4002af0fgf3137fa27ce8555e@mail.gmail.com>
+	<20100128105340.41aecf64@hyperion.delvare>
+	<af0693f01002182310i6678e4b5h80feb14b24b37742@mail.gmail.com>
+	<20100219105841.2bd8b16c@hyperion.delvare>
+	<af0693f01002220812n5a6060cejc00d1ebbd7b9424d@mail.gmail.com>
+	<20100222225805.00432574@hyperion.delvare>
+	<af0693f01002231521q4f99eb63ocd607670625fadfa@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100227204049.GK17041-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <af0693f01002231521q4f99eb63ocd607670625fadfa-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Syed, Rafiuddin" <rafiuddin.syed-l0cyMroinI0@public.gmane.org>, Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Tony Lindgren [mailto:tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org]
-> Sent: Sunday, February 28, 2010 2:11 AM
-> To: Shilimkar, Santosh
-> Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Syed, Rafiuddin; Cory
-> Maccarrone; akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-> Subject: Re: [PATCH] omap: i2c: Add i2c support on omap4 platform
+Hi Felix,
+
+Please keep the linux-i2c list in Cc.
+
+On Wed, 24 Feb 2010 01:21:51 +0200, Felix Rubinstein wrote:
+> On Mon, Feb 22, 2010 at 11:58 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > Unlikely. If a timeout occurred, the error message would say so.
+> >
+> > What is the exact error message? Can we see your complete code?
 > 
-> * Shilimkar, Santosh <santosh.shilimkar-l0cyMroinI0@public.gmane.org> [100226 20:05]:
-> > Tony,
-> > What we do with patch now? It's more almost 6 months that this patch is
-> > floating without merge.
+> Sure, I'm not at the office right now, but will post it asap.
 > 
-> Well first we should test it for all omaps. So let's add it into
-> omap-testing for a few days to make sure it does not break anything.
+> But hey, I think I've found an issue here.
+> Let's delve into the i801 driver code for a moment please.
 > 
-> Then let's ask Ben to queue it.
+> in i801_transaction:
+> ...
+> /* We will always wait for a fraction of a second! */
+>          do {
+>                  msleep(1);
+>                  status = inb_p(SMBHSTSTS);
+>          } while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_TIMEOUT));
+> ...
 > 
-Ok with me.
-Regards,
-Santosh
+> The data sheet states for HST_STS reg for HOST_BUSY bit:
+> 1 = Indicates that the ICH9 is running a command from the host interface. No SMB
+> registers should be accessed while this bit is set, except the BLOCK DATA BYTE
+> Register. The BLOCK DATA BYTE Register can be accessed when this bit is set only
+> when the SMB_CMD bits in the Host Control Register are programmed for Block
+> command or I2C Read command. This is necessary in order to check the
+> DONE_STS bit.
+> 
+> Remember my case? I'm issuing plain I2C multi byte (straight I2C with
+> arbitrary length) transaction, in ICH9 words SMB_CMD is set to Block
+> command. Since E32B is enabled, DONE_STS is irrelevant for us in this
+> case.
+
+This is correct, assuming you mean I2C block writes and not reads. I2C
+block reads are always done in byte-by-byte mode (E32B not set).
+
+> As I understand, in this case we should relay on interrupts and
+> not on polling, as both: E32B and Block (write) command are enabled.
+>
+> That is why in my case I'm seeing timeout > MAX_TIMEOUT.
+
+I fail to see any relation between using interrupts and transaction
+types. The i2c-i801 driver does not use interrupts at all at the
+moment, it is always polling.
+
+> As an alternative, I could try without E32B?
+> 
+> What do you think?
+
+You could try this, yes. In fact, it might be a good idea to add a
+module parameter to the i2c-i801 driver to let the user disable
+features (PEC, block buffer and I2C block read) to use alternative code
+paths in case the advanced ones don't work for some reason.
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
