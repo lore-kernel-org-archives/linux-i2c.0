@@ -1,82 +1,84 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/3] MAINTAINERS: add i2c tree for embedded platforms
-Date: Mon, 1 Mar 2010 11:38:40 +0100
-Message-ID: <20100301113840.4d6b4e7d@hyperion.delvare>
-References: <20100224110044.GB15181@pengutronix.de>
-	<1267009306-17227-3-git-send-email-u.kleine-koenig@pengutronix.de>
-	<20100228155754.GC16745@n2100.arm.linux.org.uk>
-	<20100301090714.GB29952@pengutronix.de>
+Subject: Re: Error ' I2C transfer at 0x48 failed' on 2.6.33
+Date: Mon, 1 Mar 2010 11:50:02 +0100
+Message-ID: <20100301115002.1ead2681@hyperion.delvare>
+References: <20100227004953.13369fcd@power-debian>
+	<20100227100420.1016e0c1@hyperion.delvare>
+	<20100228160002.14783f4a@power-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100301090714.GB29952-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20100228160002.14783f4a@power-debian>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+To: Andrey Gusev <ronne-cmBhpYW9OiY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 1 Mar 2010 10:07:14 +0100, Uwe Kleine-K=C3=B6nig wrote:
-> On Sun, Feb 28, 2010 at 03:57:54PM +0000, Russell King - ARM Linux wr=
-ote:
-> > On Wed, Feb 24, 2010 at 12:01:46PM +0100, Uwe Kleine-K=C3=B6nig wro=
-te:
-> > > Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix=
-=2Ede>
-> > > Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > ---
-> > >  MAINTAINERS |    1 +
-> > >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > >=20
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 2533fc4..a3c936c 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -2626,6 +2626,7 @@ M:	"Ben Dooks (embedded platforms)" <ben-li=
-nux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > >  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > >  W:	http://i2c.wiki.kernel.org/
-> > >  T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/j=
-delvare-i2c/
-> > > +T:	git git://git.fluff.org/bjdooks/linux.git
-> >=20
-> > This is wrong.  This is the same tree which I pull ARM stuff from, =
-so it
-> > needs qualifying with a branch name.
-> $(git ls-remote git://git.fluff.org/bjdooks/linux.git) suggests two
-> candidates:
->=20
-> 	for-linus/i2c
-> 	next-i2c
->=20
-> And I think for now this is only parsed by humans and everbody should=
- be
-> able to notice that e.g. "next-s3c" doesn't contain i2c patches in th=
-e
-> presence of the two above branches.
->=20
-> So unless there is a syntax to specify more than one branch I suggest=
- to
-> keep it as is.  Or should we only list next-i2c?  Ben, what do you
-> think?
+On Sun, 28 Feb 2010 16:00:02 +0300, Andrey Gusev wrote:
+> I didn't noted ant functional problem, but this looked like regression
+> and I decided to report about it. I'll try patch.
 
-I presume that for-linus/i2c is a temporary subset of next-i2c for
-Linus' consumption. So we can ignore for-linus/i2c and only list
-next-i2c.
+Great. Here comes an updated patch, there was a mistake in the first
+one that prevented it from building.
 
-> (Maybe we can just make it:
->=20
-> 	T: git git://git.fluff.org/bjdooks/linux.git for-linus/i2c
-> 	T: git git://git.fluff.org/bjdooks/linux.git next-i2c
->=20
-> but this is a bit too much IMHO.  (Who volunteers to list all branche=
-s
-> of tip in MAINTAINERS? ;-))
->=20
-> Best regards
-> Uwe
->=20
+* * * * *
+
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c-powermac: Be less verbose in the absence of real errors.
+
+Be less verbose in the absence of real errors. We don't have to report
+failed probes to the users, it's only confusing them.
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+---
+ drivers/i2c/busses/i2c-powermac.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
+
+--- linux-2.6.34-rc0.orig/drivers/i2c/busses/i2c-powermac.c	2010-03-01 11:29:48.000000000 +0100
++++ linux-2.6.34-rc0/drivers/i2c/busses/i2c-powermac.c	2010-03-01 11:41:50.000000000 +0100
+@@ -122,9 +122,14 @@ static s32 i2c_powermac_smbus_xfer(	stru
+ 
+ 	rc = pmac_i2c_xfer(bus, addrdir, subsize, subaddr, buf, len);
+ 	if (rc) {
+-		dev_err(&adap->dev,
+-			"I2C transfer at 0x%02x failed, size %d, err %d\n",
+-			addrdir >> 1, size, rc);
++		if (rc == -ENXIO)
++			dev_dbg(&adap->dev,
++				"I2C transfer at 0x%02x failed, size %d, "
++				"err %d\n", addrdir >> 1, size, rc);
++		else
++			dev_err(&adap->dev,
++				"I2C transfer at 0x%02x failed, size %d, "
++				"err %d\n", addrdir >> 1, size, rc);
+ 		goto bail;
+ 	}
+ 
+@@ -175,10 +180,16 @@ static int i2c_powermac_master_xfer(	str
+ 		goto bail;
+ 	}
+ 	rc = pmac_i2c_xfer(bus, addrdir, 0, 0, msgs->buf, msgs->len);
+-	if (rc < 0)
+-		dev_err(&adap->dev, "I2C %s 0x%02x failed, err %d\n",
+-			addrdir & 1 ? "read from" : "write to", addrdir >> 1,
+-			rc);
++	if (rc < 0) {
++		if (rc == -ENXIO)
++			dev_dbg(&adap->dev, "I2C %s 0x%02x failed, err %d\n",
++				addrdir & 1 ? "read from" : "write to",
++				addrdir >> 1, rc);
++		else
++			dev_err(&adap->dev, "I2C %s 0x%02x failed, err %d\n",
++				addrdir & 1 ? "read from" : "write to",
++				addrdir >> 1, rc);
++	}
+  bail:
+ 	pmac_i2c_close(bus);
+ 	return rc < 0 ? rc : 1;
 
 
---=20
+-- 
 Jean Delvare
