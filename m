@@ -1,44 +1,198 @@
-From: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Subject: RE: [PATCH] i2c-pnx: fix setting start/stop condition
-Date: Tue, 2 Mar 2010 02:12:05 +0100
-Message-ID: <083DF309106F364B939360100EC290F805CCF929E1@eu1rdcrdc1wx030.exi.nxp.com>
-References: <1267446264-8446-1-git-send-email-l.fu@pengutronix.de>
- <083DF309106F364B939360100EC290F805CCF9294A@eu1rdcrdc1wx030.exi.nxp.com>
- <20100301191954.GA1811@pengutronix.de>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v4 2/3] i2c: convert i2c-isch to platform_device
+Date: Tue, 2 Mar 2010 11:06:44 +0100
+Message-ID: <20100302100643.GA3195@sortiz.org>
+References: <4B73DAEE.5080400@compulab.co.il>
+ <4B73DBB2.7020601@compulab.co.il>
+ <4B7C0E5D.3070909@compulab.co.il>
+ <4B812B42.2090405@compulab.co.il>
+ <20100228190015.GB3589@sortiz.org>
+ <4B8BF28B.1060701@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100301191954.GA1811-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <4B8BF28B.1060701-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Denis,
 
-Hi Luotao,
+On Mon, Mar 01, 2010 at 06:59:55PM +0200, Denis Turischev wrote:
+> v2: there is no acpi_check_region, it will be implemented in mfd-core
+> v3: patch refreshed against the latest Linus tree
+> v4: refreshed again
+Patch applied, many thanks.
 
+Cheers,
+Samuel.
+
+
+> Signed-off-by: Denis Turischev <denis-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 > 
-> I had a closer look into this and think that you are right. I was
-> irritated by the unregular usage of start_bit and thought the stop bit is
-> asserted with the i2c_pnx_stop call, which is apparently only used for
-> zero sized transfers.
+> ---
+>  drivers/i2c/busses/Kconfig    |    2 +-
+>  drivers/i2c/busses/i2c-isch.c |   68 ++++++++++++++++------------------------
+>  2 files changed, 28 insertions(+), 42 deletions(-)
 > 
-> Fixed patch is attached with this mail.
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 5f318ce..d15b6d3 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -104,7 +104,7 @@ config I2C_I801
 > 
+>  config I2C_ISCH
+>  	tristate "Intel SCH SMBus 1.0"
+> -	depends on PCI
+> +	select LPC_SCH
+>  	help
+>  	  Say Y here if you want to use SMBus controller on the Intel SCH
+>  	  based systems.
+> diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+> index dba6eb0..ddc258e 100644
+> --- a/drivers/i2c/busses/i2c-isch.c
+> +++ b/drivers/i2c/busses/i2c-isch.c
+> @@ -27,7 +27,7 @@
+>  */
+> 
+>  #include <linux/module.h>
+> -#include <linux/pci.h>
+> +#include <linux/platform_device.h>
+>  #include <linux/kernel.h>
+>  #include <linux/delay.h>
+>  #include <linux/stddef.h>
+> @@ -46,12 +46,6 @@
+>  #define SMBHSTDAT1	(7 + sch_smba)
+>  #define SMBBLKDAT	(0x20 + sch_smba)
+> 
+> -/* count for request_region */
+> -#define SMBIOSIZE	64
+> -
+> -/* PCI Address Constants */
+> -#define SMBBA_SCH	0x40
+> -
+>  /* Other settings */
+>  #define MAX_TIMEOUT	500
+> 
+> @@ -63,7 +57,6 @@
+>  #define SCH_BLOCK_DATA		0x05
+> 
+>  static unsigned short sch_smba;
+> -static struct pci_driver sch_driver;
+>  static struct i2c_adapter sch_adapter;
+> 
+>  /*
+> @@ -256,37 +249,23 @@ static struct i2c_adapter sch_adapter = {
+>  	.algo		= &smbus_algorithm,
+>  };
+> 
+> -static struct pci_device_id sch_ids[] = {
+> -	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SCH_LPC) },
+> -	{ 0, }
+> -};
+> -
+> -MODULE_DEVICE_TABLE(pci, sch_ids);
+> -
+> -static int __devinit sch_probe(struct pci_dev *dev,
+> -				const struct pci_device_id *id)
+> +static int __devinit smbus_sch_probe(struct platform_device *dev)
+>  {
+> +	struct resource *res;
+>  	int retval;
+> -	unsigned int smba;
+> 
+> -	pci_read_config_dword(dev, SMBBA_SCH, &smba);
+> -	if (!(smba & (1 << 31))) {
+> -		dev_err(&dev->dev, "SMBus I/O space disabled!\n");
+> -		return -ENODEV;
+> -	}
+> +	res = platform_get_resource(dev, IORESOURCE_IO, 0);
+> +	if (!res)
+> +		return -EBUSY;
+> 
+> -	sch_smba = (unsigned short)smba;
+> -	if (sch_smba == 0) {
+> -		dev_err(&dev->dev, "SMBus base address uninitialized!\n");
+> -		return -ENODEV;
+> -	}
+> -	if (acpi_check_region(sch_smba, SMBIOSIZE, sch_driver.name))
+> -		return -ENODEV;
+> -	if (!request_region(sch_smba, SMBIOSIZE, sch_driver.name)) {
+> +	if (!request_region(res->start, resource_size(res), dev->name)) {
+>  		dev_err(&dev->dev, "SMBus region 0x%x already in use!\n",
+>  			sch_smba);
+>  		return -EBUSY;
+>  	}
+> +
+> +	sch_smba = res->start;
+> +
+>  	dev_dbg(&dev->dev, "SMBA = 0x%X\n", sch_smba);
+> 
+>  	/* set up the sysfs linkage to our parent device */
+> @@ -298,37 +277,43 @@ static int __devinit sch_probe(struct pci_dev *dev,
+>  	retval = i2c_add_adapter(&sch_adapter);
+>  	if (retval) {
+>  		dev_err(&dev->dev, "Couldn't register adapter!\n");
+> -		release_region(sch_smba, SMBIOSIZE);
+> +		release_region(res->start, resource_size(res));
+>  		sch_smba = 0;
+>  	}
+> 
+>  	return retval;
+>  }
+> 
+> -static void __devexit sch_remove(struct pci_dev *dev)
+> +static int __devexit smbus_sch_remove(struct platform_device *pdev)
+>  {
+> +	struct resource *res;
+>  	if (sch_smba) {
+>  		i2c_del_adapter(&sch_adapter);
+> -		release_region(sch_smba, SMBIOSIZE);
+> +		res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+> +		release_region(res->start, resource_size(res));
+>  		sch_smba = 0;
+>  	}
+> +
+> +	return 0;
+>  }
+> 
+> -static struct pci_driver sch_driver = {
+> -	.name		= "isch_smbus",
+> -	.id_table	= sch_ids,
+> -	.probe		= sch_probe,
+> -	.remove		= __devexit_p(sch_remove),
+> +static struct platform_driver smbus_sch_driver = {
+> +	.driver = {
+> +		.name = "isch_smbus",
+> +		.owner = THIS_MODULE,
+> +	},
+> +	.probe		= smbus_sch_probe,
+> +	.remove		= __devexit_p(smbus_sch_remove),
+>  };
+> 
+>  static int __init i2c_sch_init(void)
+>  {
+> -	return pci_register_driver(&sch_driver);
+> +	return platform_driver_register(&smbus_sch_driver);
+>  }
+> 
+>  static void __exit i2c_sch_exit(void)
+>  {
+> -	pci_unregister_driver(&sch_driver);
+> +	platform_driver_unregister(&smbus_sch_driver);
+>  }
+> 
+>  MODULE_AUTHOR("Jacob Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
+> @@ -337,3 +322,4 @@ MODULE_LICENSE("GPL");
+> 
+>  module_init(i2c_sch_init);
+>  module_exit(i2c_sch_exit);
+> +MODULE_ALIAS("platform:isch_smbus");
+> -- 
+> 1.6.3.3
 
-This latest patch seems to work fine and tests well with all our
-I2C devices - including the pcf8563, which didn't work right before
-this patch. I think it's good to go.
-
-thanks!
-Kevin
-
-> cheers
-> Luotao Fu
-> --
-> Pengutronix e.K.                           | Dipl.-Ing. Luotao Fu        |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
