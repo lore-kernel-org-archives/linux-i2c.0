@@ -1,48 +1,37 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] omap: i2c: Add i2c support on omap4 platform
-Date: Tue, 2 Mar 2010 14:54:46 -0800
-Message-ID: <20100302225445.GA14164@atomide.com>
-References: <1266597180-25139-1-git-send-email-santosh.shilimkar@ti.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C42E10AD@dbde02.ent.ti.com>
- <20100225214703.GJ28173@atomide.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C43BF6C3@dbde02.ent.ti.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C43BFC61@dbde02.ent.ti.com>
- <20100227204049.GK17041@atomide.com>
- <EAF47CD23C76F840A9E7FCE10091EFAB02C43BFCFA@dbde02.ent.ti.com>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+Date: Wed, 03 Mar 2010 07:41:38 +0100
+Message-ID: <4B8E04A2.4030105@gmx.de>
+References: <4B5D8AFC.5060209@gmx.de>	<4B8D2285.6020203@gmx.de> <20100302160527.7f48f49c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <EAF47CD23C76F840A9E7FCE10091EFAB02C43BFCFA@dbde02.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
-Cc: "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Syed, Rafiuddin" <rafiuddin.syed@ti.com>, Cory Maccarrone <darkstar6262@gmail.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100302160527.7f48f49c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Shilimkar, Santosh <santosh.shilimkar@ti.com> [100227 21:28]:
-> > -----Original Message-----
-> > From: Tony Lindgren [mailto:tony@atomide.com]
-> > Sent: Sunday, February 28, 2010 2:11 AM
-> > To: Shilimkar, Santosh
-> > Cc: ben-linux@fluff.org; linux-omap@vger.kernel.org; linux-i2c@vger.kernel.org; Syed, Rafiuddin; Cory
-> > Maccarrone; akpm@linux-foundation.org
-> > Subject: Re: [PATCH] omap: i2c: Add i2c support on omap4 platform
-> > 
-> > * Shilimkar, Santosh <santosh.shilimkar@ti.com> [100226 20:05]:
-> > > Tony,
-> > > What we do with patch now? It's more almost 6 months that this patch is
-> > > floating without merge.
-> > 
-> > Well first we should test it for all omaps. So let's add it into
-> > omap-testing for a few days to make sure it does not break anything.
-> > 
-> > Then let's ask Ben to queue it.
-> > 
-> Ok with me.
+Jean Delvare said the following:
+> Hi Michael,
+> 
+> On Tue, 02 Mar 2010 15:36:53 +0100, Michael Lawnick wrote:
+>> Michael Lawnick said the following:
+>> > Subject: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+>>
+>> Ping.
+>> 
+>> (I dream to see it in .34)
+> 
+> This isn't going to happen, sorry. 
+> [...]
+> 
+> I understand that you are getting impatient and I would be as well if I
+> were you, but I'm doing the best I can with the limited time I have.
+> 
+I just had a dream ...
 
-I've tried it out and seems to work just fine on 2420. I've applied
-it for testing into omap-testing (and master) branches now.
-
-Would be nice to get an ack from people using 7xx too on this.
-
-Acked-by: Tony Lindgren <tony@atomide.com>
+-- 
+KR
+Michael
