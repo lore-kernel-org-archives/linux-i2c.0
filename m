@@ -1,37 +1,40 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
-Date: Wed, 03 Mar 2010 07:41:38 +0100
-Message-ID: <4B8E04A2.4030105@gmx.de>
-References: <4B5D8AFC.5060209@gmx.de>	<4B8D2285.6020203@gmx.de> <20100302160527.7f48f49c@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c/scx200_acb: Make PCI device ids constant
+Date: Wed, 3 Mar 2010 10:46:42 +0100
+Message-ID: <20100303104642.39999e1f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100302160527.7f48f49c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: =?UTF-8?B?TcOhcnRvbiBOw6ltZXRo?= <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> Hi Michael,
-> 
-> On Tue, 02 Mar 2010 15:36:53 +0100, Michael Lawnick wrote:
->> Michael Lawnick said the following:
->> > Subject: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
->>
->> Ping.
->> 
->> (I dream to see it in .34)
-> 
-> This isn't going to happen, sorry. 
-> [...]
-> 
-> I understand that you are getting impatient and I would be as well if I
-> were you, but I'm doing the best I can with the limited time I have.
-> 
-I just had a dream ...
+Make PCI device ids constant as we just did for many other i2c bus
+drivers already.
 
--- 
-KR
-Michael
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: M=C3=A1rton N=C3=A9meth <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+---
+ drivers/i2c/busses/scx200_acb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.34-rc0.orig/drivers/i2c/busses/scx200_acb.c	2010-03-03 10=
+:34:33.000000000 +0100
++++ linux-2.6.34-rc0/drivers/i2c/busses/scx200_acb.c	2010-03-03 10:36:2=
+7.000000000 +0100
+@@ -551,7 +551,7 @@ static int __init scx200_create_isa(cons
+  * the name and the BAR where the I/O address resource is located.  IS=
+A
+  * devices are flagged with a bar value of -1 */
+=20
+-static struct pci_device_id scx200_pci[] =3D {
++static const struct pci_device_id scx200_pci[] __initconst =3D {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE),
+ 	  .driver_data =3D 0 },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE),
+
+
+--=20
+Jean Delvare
