@@ -1,35 +1,33 @@
-From: Pete Flugstad <pete.flugstad-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: exclusive access to I2C device
-Date: Thu, 4 Mar 2010 12:06:23 -0600
-Message-ID: <84d4a6d51003041006i1b619d2l942d21ce1a9a069e@mail.gmail.com>
-Reply-To: pete.flugstad-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: "Heasley, Seth" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH] i2c-i801: All newer devices have all the optional
+ features
+Date: Thu, 4 Mar 2010 13:56:40 -0800
+Message-ID: <CF9C39F99A89134C9CF9C4CCB68B8DDF254B5D623A@orsmsx501.amr.corp.intel.com>
+References: <20100304115404.092b8183@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100304115404.092b8183-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!  We're running Linux 2.6.27 with i2c tools 3.0.2.
+>Only the oldest devices lack some of the features supported by this
+>driver. List them explicitly, and default to all features enabled for
+>all other chips, including the ones added through sysfs. This will
+>make future driver maintenance easier.
+>
+>In the unlikely event of a not yet supported device not implementing
+>all the features, one can always use the disable_features module
+>parameter to prevent the driver from attempting to use them.
+>
+>Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>---
+>Seth, what do you think? Does it make sense to you?
 
-We have a number of userspace program using the raw i2c_smbus interface
-to talk to a variety of devices. Right now, it seems like every program can open
-up the device and issue commands, which interferes with an already running
-command.
+Makes perfect sense to me. 
 
-I see the code in open_i2c_bus using:
-
-    	sprintf(filename, "/dev/i2c/%d", i2cbus);
-	file = open(filename, O_RDWR);
-
-Would adding O_EXCL to this open help to make things exclusive?  Or is there a
-better way to do what I want.
-
-Right now we're going to set up a daemon to arbitrate access to the I2C bus,
-but it would be nice if we had something simpler, since now all apps have to
-talk to the daemon.  I was thinking something along the lines of just telling
-userspace to loop opening the device exclusively until that succeeds, run the
-command,  then close the device.
-
-Thanks,
-Pete
+-Seth
