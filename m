@@ -1,65 +1,84 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-i801: All newer devices have all the optional features
-Date: Thu, 4 Mar 2010 11:54:04 +0100
-Message-ID: <20100304115404.092b8183@hyperion.delvare>
+Subject: Re: Do you always need a client driver to access a I2C device?
+Date: Thu, 4 Mar 2010 16:06:39 +0100
+Message-ID: <20100304160639.3ce6c273@hyperion.delvare>
+References: <4B8579C4.7080502@googlemail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4B8579C4.7080502-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Steve <steve.explores-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Only the oldest devices lack some of the features supported by this
-driver. List them explicitly, and default to all features enabled for
-all other chips, including the ones added through sysfs. This will
-make future driver maintenance easier.
+Hi Steve,
 
-In the unlikely event of a not yet supported device not implementing
-all the features, one can always use the disable_features module
-parameter to prevent the driver from attempting to use them.
+On Wed, 24 Feb 2010 19:11:00 +0000, Steve wrote:
+> I am modifying an embedded kernel driver to use the Linux I2C sub-system 
+> rather than the RTOS I2C calls it previously used. The driver just needs 
+> to make a very small number of I2C read/writes to a device on the I2C 
+> bus at a fixed address and does not need to expose any methods to 
+> user-space via /dev or sysfs. An algorithm and adapter driver are 
+> provided for the SoC that controls the board, but there are no client 
+> drivers.
+> 
+> I have been reading the Documentation/i2d doc and looking at some of the 
+> existing drivers. I only need to read/write a few bytes to the device 
+> but from the doc, examples and i2c api it appeared I would need to write 
+> a client driver for the device to obtain the i2c_client ptr I needed to 
+> do that. Along with the appropriate board_info for the devices on the board.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
-Seth, what do you think? Does it make sense to you?
+This is the most popular way, and in most cases the most practical too,
+but is not mandatory.
 
- drivers/i2c/busses/i2c-i801.c |   18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+> However I noticed that the DTV demodulator drivers, e.g. 
+> drivers/media/dvb/frontends/au8522.c, appear to be doing it simply using 
+> a i2c_adapter ptr and i2c_transfer().
 
---- linux-2.6.34-rc0.orig/drivers/i2c/busses/i2c-i801.c	2010-03-04 11:16:56.000000000 +0100
-+++ linux-2.6.34-rc0/drivers/i2c/busses/i2c-i801.c	2010-03-04 11:27:09.000000000 +0100
-@@ -711,23 +711,17 @@ static int __devinit i801_probe(struct p
- 	I801_dev = dev;
- 	i801_features = 0;
- 	switch (dev->device) {
--	case PCI_DEVICE_ID_INTEL_82801EB_3:
--	case PCI_DEVICE_ID_INTEL_ESB_4:
--	case PCI_DEVICE_ID_INTEL_ICH6_16:
--	case PCI_DEVICE_ID_INTEL_ICH7_17:
--	case PCI_DEVICE_ID_INTEL_ESB2_17:
--	case PCI_DEVICE_ID_INTEL_ICH8_5:
--	case PCI_DEVICE_ID_INTEL_ICH9_6:
--	case PCI_DEVICE_ID_INTEL_TOLAPAI_1:
--	case PCI_DEVICE_ID_INTEL_ICH10_4:
--	case PCI_DEVICE_ID_INTEL_ICH10_5:
--	case PCI_DEVICE_ID_INTEL_PCH_SMBUS:
--	case PCI_DEVICE_ID_INTEL_CPT_SMBUS:
-+	default:
- 		i801_features |= FEATURE_I2C_BLOCK_READ;
- 		/* fall through */
- 	case PCI_DEVICE_ID_INTEL_82801DB_3:
- 		i801_features |= FEATURE_SMBUS_PEC;
- 		i801_features |= FEATURE_BLOCK_BUFFER;
-+		/* fall through */
-+	case PCI_DEVICE_ID_INTEL_82801CA_3:
-+	case PCI_DEVICE_ID_INTEL_82801BA_2:
-+	case PCI_DEVICE_ID_INTEL_82801AB_3:
-+	case PCI_DEVICE_ID_INTEL_82801AA_3:
- 		break;
- 	}
- 
+Correct. This approach in DVB predates the relatively recent rework of
+the i2c device binding model. If it had to be designed from scratch
+today, I suspect they would use i2c clients, but back then, the i2c
+binding model was too unappealing to them.
+
+> For my simple needs, access fixed embedded device, no need for user 
+> space access, is the i2c_adapter ptr a simple and "appropriate" way to 
+> go or am I missing something that makes it more complex than it seems?
+
+This is appropriate, if you keep in mind the associated limitations
+(see below.)
+
+> This assumes its straight forward to get the adapter ptr from the SoC 
+> adapter driver of course. Perhaps I should be doing a client driver 
+> instead after all?
+
+In general, SoC adapters have a fixed number (they are registered using
+i2c_add_numbered_adapter()), so you can easily get a handle using
+i2c_get_adapter(n). Don't forget to call i2c_put_adapter(adapter) when
+you're done.
+
+> I think I have spent too long looking through the sub-system 
+> infrastructure source and have ended up confusing myself somewhat. I 
+> just want to make sure I am on the correct path before continuing with 
+> my reading and investigating. The kernel version is 2.6.27.39.
+
+Accessing the device without a client is definitely an option. You only
+have to consider the following two issues which are inherent to this
+approach:
+* There is no exclusive access guaranteed if you do not instantiate and
+  use an i2c client for a specific device address. Other parts of the
+  kernel. Other parts of the kernel, as well as user-space, will be able
+  to access your device too, and you'll never know.
+* The access API without a client is fairly limited, basically you have
+  to rely on i2c_transfer() for raw I2C access or the heavy-weight
+  i2c_smbus_xfer() for SMBus access (required if the underlying
+  controller can't do raw I2C.) These functions are less convenient
+  that the i2c_master_*() and i2c_smbus_*() functions which operate on
+  i2c clients for simple transactions.
+
+Still, it can be done if such is your desire.
 
 -- 
 Jean Delvare
+http://khali.linux-fr.org/wishlist.html
