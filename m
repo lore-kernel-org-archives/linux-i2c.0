@@ -1,36 +1,44 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH] MIPS: Octeon: Register EEPROM device on the I2C bus
-Date: Fri, 05 Mar 2010 13:15:24 +0100
-Message-ID: <4B90F5DC.90600@gmx.de>
-References: <1267772895-25409-1-git-send-email-yang.shi@windriver.com>	<20100305071130.GB21925@pengutronix.de>	<4B90B341.9000601@windriver.com>	<20100305074155.GD21925@pengutronix.de>	<4B90B888.6060005@windriver.com>	<20100305095040.6ab4612c@hyperion.delvare>	<4B90D85E.6040308@gmx.de>	<4B90DF48.50005@windriver.com>	<20100305115213.4b504710@hyperion.delvare>	<4B90E83A.5020106@gmx.de> <20100305124200.6f6eccfc@hyperion.delvare>
+From: "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
+ bus
+Date: Fri, 5 Mar 2010 09:20:07 -0600
+Message-ID: <F8C55F6A02E92D48BDDFC6048552C6F14E6D9F3F@dlee03.ent.ti.com>
+References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>
+	<1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>
+	<225d086e1002050553tc1a696avce827cc115f56b1c@mail.gmail.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59301E2639AD8@dbde02.ent.ti.com>
+	<4B702A17.3070104@mvista.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59301E2639D67@dbde02.ent.ti.com>
+	<4B7135B3.9080104@mvista.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301E263A447@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100305124200.6f6eccfc-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301E263A447-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Yang Shi <yang.shi-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> Hi Michael,
+> > Right. I was also hoping to rid of cpu_is_xxx usage. The only other way
+> > I could think of is to add pinmux index into i2c platform data struct.
+> > What do you think is the best approach?
+> >
 > 
-> On Fri, 05 Mar 2010 12:17:14 +0100, Michael Lawnick wrote:
->> Jean Delvare said the following:
->> > Well, what EEPROM type do you have exactly? 24c64 is for 64 kbit (8
->> > kByte) EEPROMs using 16-bit addressing. You must use the correct type,
->> > otherwise the at24 driver will misbehave. I am a little surprised
->> > because originally you went for "eeprom" which is not compatible with
->> > "24c64" (8-bit vs. 16-bit addressing).
->>
->> Furthermore this brings up another issue:
->> 0x50 typically is SPD-eeprom (DDR initialisation). Corrupting the
->> contents might make your board unbootable - and using a 16bit driver
->> instead of an 8-bit one can corrupt your contents already on
->> (positioned) reading!
+> I think passing pinmux index through platform data is fair.
 > 
-> This is totally correct, but better said loud to the list and the
-> original poster than only privately to me ;)
-> 
-sh.., :-(
+> Thanks,
+> Sekhar
+
+I recently was told of a clever solution for this issue which I documented here:
+
+http://wiki.davincidsp.com/index.php/I2C_Tips#External_Slave_Device_Hanging_the_Bus_by_Holding_SDA_Low
+
+Basically the solution was to switch to "free data format" and perform a read.  This will cause the I2C to start toggling SCL.  I mention it here because I think the "free data format" mode is available on most processors.  (The only device I know that does NOT support "free data format" is OMAP35x.)  You might have a lot less processor-specific code with this approach and it would be applicable to more devices.
+
+I don't have any time to write the code/patch myself, but I thought I would at least toss the idea out there.
+
+Brad
