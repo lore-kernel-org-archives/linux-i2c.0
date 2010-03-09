@@ -1,120 +1,32 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH] acpi: Support IBM SMBus CMI devices
-Date: Tue, 9 Mar 2010 10:40:17 +0100
-Message-ID: <20100309104017.021cf584@hyperion.delvare>
+From: Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+Subject: Re: [PATCH 1/2] tsl2550: Move from i2c/chips to misc
+Date: Tue, 09 Mar 2010 12:16:40 +0000
+Message-ID: <4B963C28.10800@jic23.retrosnub.co.uk>
+References: <20100309113552.09368dd8@hyperion.delvare>	<20100309105614.GA4664@pengutronix.de> <20100309125628.5300ee62@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Len Brown <lenb@kernel.org>
-Cc: linux-acpi@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>, "Darrick J. Wong" <djwong@us.ibm.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100309125628.5300ee62-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Subject: acpi: Support IBM SMBus CMI devices
+On 03/09/10 11:56, Jean Delvare wrote:
+> On Tue, 9 Mar 2010 11:56:14 +0100, Wolfram Sang wrote:
+>> On Tue, Mar 09, 2010 at 11:35:52AM +0100, Jean Delvare wrote:
+>>
+>>> Move the last remaining driver from i2c/chips to misc. Good ridance!
+>>>
+>>> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>>> Cc: Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+>>
+>> Okay, so we move it twice then. Fine with me :)
+> 
+> I wanted to avoid it, but ALS (or whatever it will become) takes too
+> long to settle, longer than I was wanting to wait for.
+Indeed...
 
-On some old IBM workstations and desktop computers, the BIOS presents in the
-DSDT an SMBus object that is missing the HID identifier that the i2c-scmi
-driver looks for.  Modify the ACPI device scan code to insert the missing HID
-if it finds an IBM system with such an object.
-
-Affected machines: IntelliStation Z20/Z30.  Note that the i2c-i801 driver no
-longer works on these machines because of ACPI resource conflicts.
-
-Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
-v2 contains minor tweaks suggested by Jean Delvare.
-
-Len, I want this in kernel 2.6.34. It has been waiting for too long
-already, considering that it fixes a regression. SMBus stopped working
-on these machines in kernel 2.6.32. Driver i2c-scmi was supposed to
-take over the native i2c-i801 driver, but the non-standard IBM
-implementation came in the way, and this is why this patch is needed.
-
-So, please understand that, if this patch is not in 2.6.34-rc2, I will
-have to push it myself together with the i2c-scmi side of the fix. If
-you want some adjustments to be made, please speak up now.
-
- drivers/acpi/scan.c         |   38 ++++++++++++++++++++++++++++++++++++++
- include/acpi/acpi_drivers.h |    2 ++
- 2 files changed, 40 insertions(+)
-
-
---- linux-2.6.34-rc1.orig/drivers/acpi/scan.c	2010-03-09 08:24:53.000000000 +0100
-+++ linux-2.6.34-rc1/drivers/acpi/scan.c	2010-03-09 09:50:12.000000000 +0100
-@@ -8,6 +8,7 @@
- #include <linux/acpi.h>
- #include <linux/signal.h>
- #include <linux/kthread.h>
-+#include <linux/dmi.h>
- 
- #include <acpi/acpi_drivers.h>
- 
-@@ -1032,6 +1033,41 @@ static void acpi_add_id(struct acpi_devi
- 	list_add_tail(&id->list, &device->pnp.ids);
- }
- 
-+/*
-+ * Old IBM workstations have a DSDT bug wherein the SMBus object
-+ * lacks the SMBUS01 HID and the methods do not have the necessary "_"
-+ * prefix.  Work around this.
-+ */
-+static int acpi_ibm_smbus_match(struct acpi_device *device)
-+{
-+	acpi_handle h_dummy;
-+	struct acpi_buffer path = {ACPI_ALLOCATE_BUFFER, NULL};
-+	int result;
-+
-+	if (!dmi_name_in_vendors("IBM"))
-+		return -ENODEV;
-+
-+	/* Look for SMBS object */
-+	result = acpi_get_name(device->handle, ACPI_SINGLE_NAME, &path);
-+	if (result)
-+		return result;
-+
-+	if (strcmp("SMBS", path.pointer)) {
-+		result = -ENODEV;
-+		goto out;
-+	}
-+
-+	/* Does it have the necessary (but misnamed) methods? */
-+	result = -ENODEV;
-+	if (ACPI_SUCCESS(acpi_get_handle(device->handle, "SBI", &h_dummy)) &&
-+	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBR", &h_dummy)) &&
-+	    ACPI_SUCCESS(acpi_get_handle(device->handle, "SBW", &h_dummy)))
-+		result = 0;
-+out:
-+	kfree(path.pointer);
-+	return result;
-+}
-+
- static void acpi_device_set_id(struct acpi_device *device)
- {
- 	acpi_status status;
-@@ -1082,6 +1118,8 @@ static void acpi_device_set_id(struct ac
- 			acpi_add_id(device, ACPI_BAY_HID);
- 		else if (ACPI_SUCCESS(acpi_dock_match(device)))
- 			acpi_add_id(device, ACPI_DOCK_HID);
-+		else if (!acpi_ibm_smbus_match(device))
-+			acpi_add_id(device, ACPI_SMBUS_IBM_HID);
- 
- 		break;
- 	case ACPI_BUS_TYPE_POWER:
---- linux-2.6.34-rc1.orig/include/acpi/acpi_drivers.h	2010-03-09 08:25:29.000000000 +0100
-+++ linux-2.6.34-rc1/include/acpi/acpi_drivers.h	2010-03-09 09:50:12.000000000 +0100
-@@ -65,6 +65,8 @@
- #define ACPI_VIDEO_HID			"LNXVIDEO"
- #define ACPI_BAY_HID			"LNXIOBAY"
- #define ACPI_DOCK_HID			"LNXDOCK"
-+/* Quirk for broken IBM BIOSes */
-+#define ACPI_SMBUS_IBM_HID		"SMBUSIBM"
- 
- /*
-  * For fixed hardware buttons, we fabricate acpi_devices with HID
-
-
--- 
-Jean Delvare
+>> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
