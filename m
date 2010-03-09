@@ -1,51 +1,42 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] tsl2550: Move from i2c/chips to misc
-Date: Tue, 9 Mar 2010 11:56:14 +0100
-Message-ID: <20100309105614.GA4664@pengutronix.de>
-References: <20100309113552.09368dd8@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 2/2] i2c: Drop configure option I2C_DEBUG_CHIP
+Date: Tue, 9 Mar 2010 11:36:25 +0100
+Message-ID: <20100309113625.3c9ffd3f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100309113552.09368dd8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c: Drop configure option I2C_DEBUG_CHIP
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now that directory drivers/i2c/chips is gone, configuration option
+I2C_DEBUG_CHIP no longer has any effect, so we can drop it.
 
-On Tue, Mar 09, 2010 at 11:35:52AM +0100, Jean Delvare wrote:
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/Kconfig |    8 --------
+ 1 file changed, 8 deletions(-)
 
-> Move the last remaining driver from i2c/chips to misc. Good ridance!
->=20
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+--- linux-2.6.34-rc0.orig/drivers/i2c/Kconfig	2010-03-07 11:48:07.000000000 +0100
++++ linux-2.6.34-rc0/drivers/i2c/Kconfig	2010-03-07 11:48:10.000000000 +0100
+@@ -97,12 +97,4 @@ config I2C_DEBUG_BUS
+ 	  a problem with I2C support and want to see more of what is going
+ 	  on.
+ 
+-config I2C_DEBUG_CHIP
+-	bool "I2C Chip debugging messages"
+-	help
+-	  Say Y here if you want the I2C chip drivers to produce a bunch of
+-	  debug messages to the system log.  Select this if you are having
+-	  a problem with I2C support and want to see more of what is going
+-	  on.
+-
+ endif # I2C
 
-Okay, so we move it twice then. Fine with me :)
 
-Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkuWKU4ACgkQD27XaX1/VRv4YACgxk5j1o2dbvcensVUU14SSwwy
-8kUAn3vlQXR2C7olw4foDeapA62jIM5x
-=Q/m/
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--
+-- 
+Jean Delvare
