@@ -1,47 +1,39 @@
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: Re: CONFIG_I2C_XILINX doesn't complie
-Date: Tue, 9 Mar 2010 08:42:29 -0800
-Message-ID: <20100309084229.6aa00ce8.randy.dunlap@oracle.com>
-References: <alpine.LNX.2.00.1003091727461.17799@pobox.suse.cz>
+From: H Hartley Sweeten <hartleys-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>
+Subject: [PATCH] i2c-dev.c: remove unnecessary casts
+Date: Tue, 9 Mar 2010 17:45:57 -0600
+Message-ID: <0D753D10438DA54287A00B027084269763682CE02B@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1003091727461.17799-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Richard =?UTF-8?B?UsO2amZvcnM=?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 9 Mar 2010 17:31:04 +0100 (CET) Jiri Kosina wrote:
-
-> Hi,
->=20
-> current Linus' tree (57d54889cd00) doesn't compile when CONFIG_I2C_XI=
-LINX=20
-> is enabled:
->=20
-> drivers/i2c/busses/i2c-xiic.c:39:28: error: linux/i2c-xiic.h: No such=
- file or directory
-> drivers/i2c/busses/i2c-xiic.c: In function =E2=80=98xiic_i2c_probe=E2=
-=80=99:
-> drivers/i2c/busses/i2c-xiic.c:750: error: dereferencing pointer to in=
-complete type
-> drivers/i2c/busses/i2c-xiic.c:751: error: dereferencing pointer to in=
-complete type
->=20
-> Seems like the following commit
->=20
-> 	commit e1d5b6598cdc33257fe68302ae9db81d2f7bb883
-> 	Author: Richard R=C3=B6jfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
-> 	Date:   Thu Feb 11 10:42:00 2010 +0100
->=20
-> 	    i2c: Add support for Xilinx XPS IIC Bus Interface
->=20
-> forgot to add some header files.
-
-
-http://lkml.org/lkml/2010/3/9/50http://lkml.org/lkml/2010/3/9/50
-
----
-~Randy
+VGhlIHByaXZhdGVfZGF0YSBtZW1iZXIgb2Ygc3RydWN0IGZpbGUgaXMgYSB2b2lkICosIHRoZXJl
+IGlzIG5vIG5lZWQNCnRvIGNhc3QgaXQuDQoNClNpZ25lZC1vZmYtYnk6IEggSGFydGxleSBTd2Vl
+dGVuIDxoc3dlZXRlbkB2aXNpb25lbmdyYXZlcnMuY29tPg0KQ2M6IEplYW4gRGVsdmFyZSA8a2hh
+bGlAbGludXgtZnIub3JnPg0KQ2M6IEJlbiBEb29rcyA8YmVuLWxpbnV4QGZsdWZmLm9yZz4NCg0K
+LS0tDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9pMmMtZGV2LmMgYi9kcml2ZXJzL2kyYy9p
+MmMtZGV2LmMNCmluZGV4IGY0MTEwYWEuLmM1MDcyMDQgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2ky
+Yy9pMmMtZGV2LmMNCisrKyBiL2RyaXZlcnMvaTJjL2kyYy1kZXYuYw0KQEAgLTEzOCw3ICsxMzgs
+NyBAQCBzdGF0aWMgc3NpemVfdCBpMmNkZXZfcmVhZCAoc3RydWN0IGZpbGUgKmZpbGUsIGNoYXIg
+X191c2VyICpidWYsIHNpemVfdCBjb3VudCwNCiAJY2hhciAqdG1wOw0KIAlpbnQgcmV0Ow0KIA0K
+LQlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gKHN0cnVjdCBpMmNfY2xpZW50ICopZmlsZS0+
+cHJpdmF0ZV9kYXRhOw0KKwlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gZmlsZS0+cHJpdmF0
+ZV9kYXRhOw0KIA0KIAlpZiAoY291bnQgPiA4MTkyKQ0KIAkJY291bnQgPSA4MTkyOw0KQEAgLTE2
+Miw3ICsxNjIsNyBAQCBzdGF0aWMgc3NpemVfdCBpMmNkZXZfd3JpdGUgKHN0cnVjdCBmaWxlICpm
+aWxlLCBjb25zdCBjaGFyIF9fdXNlciAqYnVmLCBzaXplX3QgYw0KIHsNCiAJaW50IHJldDsNCiAJ
+Y2hhciAqdG1wOw0KLQlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gKHN0cnVjdCBpMmNfY2xp
+ZW50ICopZmlsZS0+cHJpdmF0ZV9kYXRhOw0KKwlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0g
+ZmlsZS0+cHJpdmF0ZV9kYXRhOw0KIA0KIAlpZiAoY291bnQgPiA4MTkyKQ0KIAkJY291bnQgPSA4
+MTkyOw0KQEAgLTM2OSw3ICszNjksNyBAQCBzdGF0aWMgbm9pbmxpbmUgaW50IGkyY2Rldl9pb2N0
+bF9zbWJ1cyhzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KIA0KIHN0YXRpYyBsb25nIGkyY2Rl
+dl9pb2N0bChzdHJ1Y3QgZmlsZSAqZmlsZSwgdW5zaWduZWQgaW50IGNtZCwgdW5zaWduZWQgbG9u
+ZyBhcmcpDQogew0KLQlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gKHN0cnVjdCBpMmNfY2xp
+ZW50ICopZmlsZS0+cHJpdmF0ZV9kYXRhOw0KKwlzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0g
+ZmlsZS0+cHJpdmF0ZV9kYXRhOw0KIAl1bnNpZ25lZCBsb25nIGZ1bmNzOw0KIA0KIAlkZXZfZGJn
+KCZjbGllbnQtPmFkYXB0ZXItPmRldiwgImlvY3RsLCBjbWQ9MHglMDJ4LCBhcmc9MHglMDJseFxu
+IiwNCg==
