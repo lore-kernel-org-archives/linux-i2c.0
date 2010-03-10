@@ -1,112 +1,79 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2] [I2C-OMAP] Add support for 16-bit registers
-Date: Wed, 10 Mar 2010 14:30:00 -0800
-Message-ID: <20100310223000.GT2900@atomide.com>
-References: <1260669242-29865-1-git-send-email-darkstar6262@gmail.com>
- <6cb013311001090947m2268833cv3784f469dc8b861d@mail.gmail.com>
- <20100109183321.GH2879@atomide.com>
- <6cb013311001091035x54321b3aqb814f476200980af@mail.gmail.com>
- <20100112012814.GK5055@atomide.com>
- <87k4tkf3ye.fsf@deeprootsystems.com>
+From: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Using algo-bit in another i2c algo
+Date: Wed, 10 Mar 2010 17:56:28 -0500
+Message-ID: <a728f9f91003101456p294eb590i98b340152cd740e6@mail.gmail.com>
+References: <a728f9f91001111413t1a733e0rbc0352ddd2d9de7c@mail.gmail.com>
+	 <20100310104401.57fc43b2@hyperion.delvare>
+	 <a728f9f91003101116l422374d2vceb1e5dddfdf44d8@mail.gmail.com>
+	 <20100310224936.0d4f8a65@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Ns7jmDPpOpCD+GE/"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <87k4tkf3ye.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <20100310224936.0d4f8a65-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Mar 10, 2010 at 4:49 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrot=
+e:
+> On Wed, 10 Mar 2010 14:16:18 -0500, Alex Deucher wrote:
+>> I tested the second patch with a trivial patch to the radeon drm:
+>>
+>> --- a/drivers/gpu/drm/radeon/radeon_i2c.c
+>> +++ b/drivers/gpu/drm/radeon/radeon_i2c.c
+>> @@ -892,9 +892,9 @@ struct radeon_i2c_chan *radeon_i2c_create(struct
+>> drm_device *dev,
+>> =A0 =A0 =A0 =A0 =A0* make this, 2 jiffies is a lot more reliable */
+>> =A0 =A0 =A0 =A0 i2c->algo.radeon.bit_data.timeout =3D 2;
+>> =A0 =A0 =A0 =A0 i2c->algo.radeon.bit_data.data =3D i2c;
+>> - =A0 =A0 =A0 ret =3D i2c_bit_add_bus(&i2c->algo.radeon.bit_adapter)=
+;
+>> + =A0 =A0 =A0 ret =3D i2c_bit_prepare_bus(&i2c->algo.radeon.bit_adap=
+ter);
+>> =A0 =A0 =A0 =A0 if (ret) {
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 DRM_ERROR("Failed to register internal=
+ bit i2c %s\n", name);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 DRM_ERROR("Failed to prepare internal =
+bit i2c %s\n", name);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out_free;
+>> =A0 =A0 =A0 =A0 }
+>> =A0 =A0 =A0 =A0 /* set the radeon i2c adapter */
+>>
+>> However, just calling i2c_bit_prepare_bus does not appear to be
+>> enough. as I get the following oops:
+>> (...)
+>
+> Hmm, sorry, I have probably not been clear about the intent of
+> i2c_bit_prepare_bus(). It does _not_ give you a usable i2c_adapter. T=
+he
+> actual initialization happens in i2c_register_adapter(), in i2c-core.
+> What it gives you is a usable i2c _algorithm_. That is, you can call
+> bit_adapter.algo->master_xfer(), presumably from within your actual
+> (registered) adapter's master_xfer() function.
+>
+> Now, I have to admit that it is pretty confusing that you call a
+> "prepare" function on an i2c_adapter and you can't use it. And lookin=
+g
+> a bit more into it... Even calling bit_adapter.algo->master_xfer()
+> assumes an initialized i2c_adapter, at least for error messages. So m=
+y
+> proposal was probably not such a good idea, at least not with the
+> current i2c-algo-bit implementation, and probably not without a big
+> rework of the i2c algorithm structure itself: at the moment, i2c
+> algorithms really assume that they have an i2c_adapter associated _an=
+d_
+> that this i2c_adapter has a device associated.
+>
+> Maybe we could move the core of i2c-algo-bit to a library so that it =
+is
+> easier to reuse. But that would be a lot more work, so we will only d=
+o
+> this there is a clear benefit. At this point, it seems cheaper to
+> pursue the first option (pre- and post-xfer hooks) if that works for
+> you.
 
---Ns7jmDPpOpCD+GE/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, the first option is working well so far.
 
-* Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> [100310 10:01]:
-> Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> writes:
-> 
-> > * Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [100109 10:34]:
-> >> On Sat, Jan 9, 2010 at 10:33 AM, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> wrote:
-> >> >
-> >> > Let's plan on adding this into omap-testing branch next week so
-> >> > we can make sure things are OK for the other platforms.
-> >> >
-> >> > Then assuming no issues, let's ask Ben can queue it.
-> >> >
-> >> 
-> >> Excellent, thank you!
-> >
-> > Applied to omap-testing with the following fix. Can you please merge
-> > it into your original patch?
-> 
-> Unfortunately, Tony's additional fix did not make it into the version
-> that was merged to mainline, which results in a crash during
-> probe when using v2.6.34-rc1.
-> 
-> Ben, can you queue the fix below from Tony for -rc2?
-
-The original patch attached again below.
-
-Oops, did I maybe send a wrong patchwork link earlier to the
-patch?
-
-Anyways, for the future, considering how critical this driver is
-for all omaps.. And considering how badly this driver needs some
-updates done..
-
-How about we pile up the i2c-omap patches for testing into linux-omap
-branch first, then ask Ben to pull it around -rc6 after we've all
-acked and tested the changes?
-
-Ben does that sound OK to you?
-
-Regards,
-
-Tony
-
---Ns7jmDPpOpCD+GE/
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: inline; filename="i2c-init-fix.patch"
-
->From 07e3b9fc5a37c3d1228ecc6fb2726211bb8d41df Mon Sep 17 00:00:00 2001
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Date: Tue, 9 Mar 2010 16:53:18 -0800
-Subject: [PATCH] i2c-omap: Fix reg_shift init
-
-Otherwise register access won't work during probe
-for omap_i2c_unidle.
-
-Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index c7c2375..3d7cf1f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -894,6 +894,12 @@ omap_i2c_probe(struct platform_device *pdev)
- 	dev->idle = 1;
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq->start;
-+
-+	if (cpu_is_omap7xx())
-+		dev->reg_shift = 1;
-+	else
-+		dev->reg_shift = 2;
-+
- 	dev->base = ioremap(mem->start, resource_size(mem));
- 	if (!dev->base) {
- 		r = -ENOMEM;
-@@ -925,11 +931,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 		dev->b_hw = 1; /* Enable hardware fixes */
- 	}
- 
--	if (cpu_is_omap7xx())
--		dev->reg_shift = 1;
--	else
--		dev->reg_shift = 2;
--
- 	/* reset ASAP, clearing any IRQs */
- 	omap_i2c_init(dev);
- 
-
---Ns7jmDPpOpCD+GE/--
+Alex
