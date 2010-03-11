@@ -1,228 +1,209 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 14/27] drivers/serial/of: don't use deprecated field in
-	of_platform_driver
-Date: Thu, 11 Mar 2010 11:23:05 -0700
-Message-ID: <20100311182305.13103.57542.stgit__8203.58964051611$1268332885$gmane$org@angua>
-References: <20100311181604.13103.30088.stgit@angua>
+Subject: [PATCH 00/27] Clean up of_platform drivers
+Date: Thu, 11 Mar 2010 11:21:48 -0700
+Message-ID: <20100311181604.13103.30088.stgit__33979.7540255406$1268332974$gmane$org@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100311181604.13103.30088.stgit@angua>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
 List-Id: linux-i2c@vger.kernel.org
 
-.name, .match_table and .owner are duplicated in both of_platform_driver
-and device_driver, so the of_platform_driver copies will be removed soon.
+struct of_platform_driver unnecessarily duplicates the .owner and
+.name fields from the encapsulated struct device_driver.  This patch
+series goes through all of_platform drivers and makes it use the
+device_driver instance so that the duplicate field can be removed.
 
-Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Since every of_platform_driver is getting touched anyway, this series
+takes the opportunity to also move the of_device_id match table out
+of struct of_platform_driver and into struct device_driver proper.
+This makes it possible for all bus types to make use of OF-style
+binding when CONFIG_OF is set.
+
+I've compile tested this on sparc, powerpc and microblaze.  It should
+all be fully bisectable, and only the last patch removes the old
+fields (ie. nothing should break without the last patch).
+
+g.
+
 ---
 
- drivers/serial/apbuart.c                |    8 ++++----
- drivers/serial/cpm_uart/cpm_uart_core.c |    7 +++++--
- drivers/serial/mpc52xx_uart.c           |    7 ++++---
- drivers/serial/of_serial.c              |    8 +++++---
- drivers/serial/sunhv.c                  |    7 +++++--
- drivers/serial/sunsab.c                 |    7 +++++--
- drivers/serial/sunsu.c                  |    7 +++++--
- drivers/serial/sunzilog.c               |    7 +++++--
- drivers/serial/uartlite.c               |    5 ++---
- drivers/serial/ucc_uart.c               |    8 +++++---
- 10 files changed, 45 insertions(+), 26 deletions(-)
+Grant Likely (27):
+      of: remove obsolete members from of_platform_driver
+      arch/sparc/of: don't use deprecated field in of_platform_driver
+      arch/powerpc/of: don't use deprecated field in of_platform_driver
+      sound/of: don't use deprecated fields in of_platform_driver
+      drivers/infiniband/of: don't use deprecated fields in of_platform_driver
+      drivers/i2c/of: don't use deprecated field in of_platform_driver
+      drivers/hwmon/of: don't use deprecated field in of_platform_driver
+      drivers/mmc/of: don't use deprecated field in of_platform_driver
+      drivers/pcmcia/of: don't use deprecated field in of_platform_driver
+      drivers/parport/of: don't use deprecated field in of_platform_driver
+      drivers/sbus/of: don't use deprecated field in of_platform_driver
+      drivers/scsi/of: don't use deprecated field in of_platform_driver
+      drivers/spi/of: don't use deprecated field in of_platform_driver
+      drivers/serial/of: don't use deprecated field in of_platform_driver
+      drivers/net/of: don't use deprecated field in of_platform_driver
+      drivers/mtd/of: don't use deprecated field in of_platform_driver
+      drivers/macintosh/of: don't use deprecated field in of_platform_driver
+      drivers/input/of: don't use deprecated field in of_platform_driver
+      drivers/atm/of: don't use deprecated field in of_platform_driver
+      drivers/crypto/of: don't use deprecated field in of_platform_driver
+      drivers/char/of: don't use deprecated field in of_platform_driver
+      drivers/block/of: don't use deprecated field in of_platform_driver
+      drivers/usb/of: don't use deprecated field in of_platform_driver
+      drivers/video/of: don't use deprecated field in of_platform_driver
+      drivers/watchdog/of: don't use deprecated .name and .owner in of_platform_driver
+      drivers/gpio/of: don't use deprecated fields in of_platform_driver
+      drivercore: Add of_match_table to the common device drivers
 
-diff --git a/drivers/serial/apbuart.c b/drivers/serial/apbuart.c
-index 52015d7..0099b86 100644
---- a/drivers/serial/apbuart.c
-+++ b/drivers/serial/apbuart.c
-@@ -584,12 +584,12 @@ static struct of_device_id __initdata apbuart_match[] = {
- };
- 
- static struct of_platform_driver grlib_apbuart_of_driver = {
--	.match_table = apbuart_match,
- 	.probe = apbuart_probe,
- 	.driver = {
--		   .owner = THIS_MODULE,
--		   .name = "grlib-apbuart",
--		   },
-+		.owner = THIS_MODULE,
-+		.name = "grlib-apbuart",
-+		.of_match_table = apbuart_match,
-+	},
- };
- 
- 
-diff --git a/drivers/serial/cpm_uart/cpm_uart_core.c b/drivers/serial/cpm_uart/cpm_uart_core.c
-index 300cea7..09962e0 100644
---- a/drivers/serial/cpm_uart/cpm_uart_core.c
-+++ b/drivers/serial/cpm_uart/cpm_uart_core.c
-@@ -1372,8 +1372,11 @@ static struct of_device_id cpm_uart_match[] = {
- };
- 
- static struct of_platform_driver cpm_uart_driver = {
--	.name = "cpm_uart",
--	.match_table = cpm_uart_match,
-+	.driver = {
-+		.name = "cpm_uart",
-+		.owner = THIS_MODULE,
-+		.of_match_table = cpm_uart_match,
-+	},
- 	.probe = cpm_uart_probe,
- 	.remove = cpm_uart_remove,
-  };
-diff --git a/drivers/serial/mpc52xx_uart.c b/drivers/serial/mpc52xx_uart.c
-index cb07938..4fb32e3 100644
---- a/drivers/serial/mpc52xx_uart.c
-+++ b/drivers/serial/mpc52xx_uart.c
-@@ -1464,15 +1464,16 @@ mpc52xx_uart_of_enumerate(void)
- MODULE_DEVICE_TABLE(of, mpc52xx_uart_of_match);
- 
- static struct of_platform_driver mpc52xx_uart_of_driver = {
--	.match_table	= mpc52xx_uart_of_match,
- 	.probe		= mpc52xx_uart_of_probe,
- 	.remove		= mpc52xx_uart_of_remove,
- #ifdef CONFIG_PM
- 	.suspend	= mpc52xx_uart_of_suspend,
- 	.resume		= mpc52xx_uart_of_resume,
- #endif
--	.driver		= {
--		.name	= "mpc52xx-psc-uart",
-+	.driver = {
-+		.name = "mpc52xx-psc-uart",
-+		.owner = THIS_MODULE,
-+		.of_match_table = mpc52xx_uart_of_match,
- 	},
- };
- 
-diff --git a/drivers/serial/of_serial.c b/drivers/serial/of_serial.c
-index 18bf39b..4166c23 100644
---- a/drivers/serial/of_serial.c
-+++ b/drivers/serial/of_serial.c
-@@ -174,11 +174,13 @@ static struct of_device_id __devinitdata of_platform_serial_table[] = {
- };
- 
- static struct of_platform_driver of_platform_serial_driver = {
--	.owner = THIS_MODULE,
--	.name = "of_serial",
-+	.driver = {
-+		.name = "of_serial",
-+		.owner = THIS_MODULE,
-+		.of_match_table = of_platform_serial_table,
-+	},
- 	.probe = of_platform_serial_probe,
- 	.remove = of_platform_serial_remove,
--	.match_table = of_platform_serial_table,
- };
- 
- static int __init of_platform_serial_init(void)
-diff --git a/drivers/serial/sunhv.c b/drivers/serial/sunhv.c
-index d1eedf1..890f917 100644
---- a/drivers/serial/sunhv.c
-+++ b/drivers/serial/sunhv.c
-@@ -630,8 +630,11 @@ static const struct of_device_id hv_match[] = {
- MODULE_DEVICE_TABLE(of, hv_match);
- 
- static struct of_platform_driver hv_driver = {
--	.name		= "hv",
--	.match_table	= hv_match,
-+	.driver = {
-+		.name = "hv",
-+		.owner = THIS_MODULE,
-+		.of_match_table = hv_match,
-+	},
- 	.probe		= hv_probe,
- 	.remove		= __devexit_p(hv_remove),
- };
-diff --git a/drivers/serial/sunsab.c b/drivers/serial/sunsab.c
-index 2b8b2c2..fdb596c 100644
---- a/drivers/serial/sunsab.c
-+++ b/drivers/serial/sunsab.c
-@@ -1093,8 +1093,11 @@ static const struct of_device_id sab_match[] = {
- MODULE_DEVICE_TABLE(of, sab_match);
- 
- static struct of_platform_driver sab_driver = {
--	.name		= "sab",
--	.match_table	= sab_match,
-+	.driver = {
-+		.name = "sab",
-+		.owner = THIS_MODULE,
-+		.of_match_table = sab_match,
-+	},
- 	.probe		= sab_probe,
- 	.remove		= __devexit_p(sab_remove),
- };
-diff --git a/drivers/serial/sunsu.c b/drivers/serial/sunsu.c
-index 2ab82ed..1f507fe 100644
---- a/drivers/serial/sunsu.c
-+++ b/drivers/serial/sunsu.c
-@@ -1536,8 +1536,11 @@ static const struct of_device_id su_match[] = {
- MODULE_DEVICE_TABLE(of, su_match);
- 
- static struct of_platform_driver su_driver = {
--	.name		= "su",
--	.match_table	= su_match,
-+	.driver = {
-+		.name = "su",
-+		.owner = THIS_MODULE,
-+		.of_match_table = su_match,
-+	},
- 	.probe		= su_probe,
- 	.remove		= __devexit_p(su_remove),
- };
-diff --git a/drivers/serial/sunzilog.c b/drivers/serial/sunzilog.c
-index 20f9be8..34fb8e8 100644
---- a/drivers/serial/sunzilog.c
-+++ b/drivers/serial/sunzilog.c
-@@ -1491,8 +1491,11 @@ static const struct of_device_id zs_match[] = {
- MODULE_DEVICE_TABLE(of, zs_match);
- 
- static struct of_platform_driver zs_driver = {
--	.name		= "zs",
--	.match_table	= zs_match,
-+	.driver = {
-+		.name = "zs",
-+		.owner = THIS_MODULE,
-+		.of_match_table = zs_match,
-+	},
- 	.probe		= zs_probe,
- 	.remove		= __devexit_p(zs_remove),
- };
-diff --git a/drivers/serial/uartlite.c b/drivers/serial/uartlite.c
-index 8fc2583..81073e3 100644
---- a/drivers/serial/uartlite.c
-+++ b/drivers/serial/uartlite.c
-@@ -610,13 +610,12 @@ static int __devexit ulite_of_remove(struct of_device *op)
- }
- 
- static struct of_platform_driver ulite_of_driver = {
--	.owner = THIS_MODULE,
--	.name = "uartlite",
--	.match_table = ulite_of_match,
- 	.probe = ulite_of_probe,
- 	.remove = __devexit_p(ulite_of_remove),
- 	.driver = {
- 		.name = "uartlite",
-+		.owner = THIS_MODULE,
-+		.of_match_table = ulite_of_match,
- 	},
- };
- 
-diff --git a/drivers/serial/ucc_uart.c b/drivers/serial/ucc_uart.c
-index 465f2fa..21182fe 100644
---- a/drivers/serial/ucc_uart.c
-+++ b/drivers/serial/ucc_uart.c
-@@ -1485,9 +1485,11 @@ static struct of_device_id ucc_uart_match[] = {
- MODULE_DEVICE_TABLE(of, ucc_uart_match);
- 
- static struct of_platform_driver ucc_uart_of_driver = {
--	.owner  	= THIS_MODULE,
--	.name   	= "ucc_uart",
--	.match_table    = ucc_uart_match,
-+	.driver = {
-+		.name = "ucc_uart",
-+		.owner = THIS_MODULE,
-+		.of_match_table    = ucc_uart_match,
-+	},
- 	.probe  	= ucc_uart_probe,
- 	.remove 	= ucc_uart_remove,
- };
+
+ arch/powerpc/kernel/ibmebus.c                 |    2 +-
+ arch/powerpc/kernel/of_platform.c             |    3 ++-
+ arch/powerpc/platforms/52xx/mpc52xx_gpio.c    |   14 ++++++++----
+ arch/powerpc/platforms/52xx/mpc52xx_gpt.c     |    7 ++++--
+ arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c |    8 ++++---
+ arch/powerpc/platforms/82xx/ep8248e.c         |    3 ++-
+ arch/powerpc/platforms/83xx/suspend.c         |    7 ++++--
+ arch/powerpc/platforms/cell/axon_msi.c        |    7 +++---
+ arch/powerpc/platforms/pasemi/gpio_mdio.c     |    7 +++---
+ arch/powerpc/sysdev/axonram.c                 |    8 +++----
+ arch/powerpc/sysdev/bestcomm/bestcomm.c       |   10 +++-----
+ arch/powerpc/sysdev/fsl_msi.c                 |    7 ++++--
+ arch/powerpc/sysdev/fsl_pmc.c                 |    7 ++++--
+ arch/powerpc/sysdev/fsl_rio.c                 |    7 ++++--
+ arch/powerpc/sysdev/pmi.c                     |    7 +++---
+ arch/powerpc/sysdev/qe_lib/qe.c               |    7 ++++--
+ arch/sparc/include/asm/parport.h              |    7 ++++--
+ arch/sparc/kernel/apc.c                       |    7 ++++--
+ arch/sparc/kernel/auxio_64.c                  |    7 +++---
+ arch/sparc/kernel/central.c                   |   14 +++++++-----
+ arch/sparc/kernel/chmc.c                      |    7 ++++--
+ arch/sparc/kernel/pci_fire.c                  |    7 ++++--
+ arch/sparc/kernel/pci_psycho.c                |    7 ++++--
+ arch/sparc/kernel/pci_sabre.c                 |    7 ++++--
+ arch/sparc/kernel/pci_schizo.c                |    7 ++++--
+ arch/sparc/kernel/pci_sun4v.c                 |    7 ++++--
+ arch/sparc/kernel/pmc.c                       |    7 ++++--
+ arch/sparc/kernel/power.c                     |    7 +++---
+ arch/sparc/kernel/time_32.c                   |    7 +++---
+ arch/sparc/kernel/time_64.c                   |   21 ++++++++++--------
+ drivers/ata/pata_of_platform.c                |    7 ++++--
+ drivers/ata/sata_fsl.c                        |    7 ++++--
+ drivers/atm/fore200e.c                        |    7 ++++--
+ drivers/block/xsysace.c                       |    5 ++--
+ drivers/char/hw_random/n2-drv.c               |    7 ++++--
+ drivers/char/hw_random/pasemi-rng.c           |    7 ++++--
+ drivers/char/ipmi/ipmi_si_intf.c              |    7 ++++--
+ drivers/char/xilinx_hwicap/xilinx_hwicap.c    |    5 ++--
+ drivers/crypto/amcc/crypto4xx_core.c          |    7 ++++--
+ drivers/crypto/talitos.c                      |    7 ++++--
+ drivers/dma/fsldma.c                          |   13 +++++++----
+ drivers/dma/ppc4xx/adma.c                     |    2 +-
+ drivers/edac/mpc85xx_edac.c                   |   30 ++++++++++---------------
+ drivers/edac/ppc4xx_edac.c                    |   10 ++++----
+ drivers/hwmon/ultra45_env.c                   |    7 ++++--
+ drivers/i2c/busses/i2c-cpm.c                  |   10 ++++----
+ drivers/i2c/busses/i2c-ibm_iic.c              |    7 ++++--
+ drivers/i2c/busses/i2c-mpc.c                  |    8 +++----
+ drivers/infiniband/hw/ehca/ehca_main.c        |    7 +++---
+ drivers/input/misc/sparcspkr.c                |   14 ++++++++----
+ drivers/input/serio/i8042-sparcio.h           |    7 ++++--
+ drivers/input/serio/xilinx_ps2.c              |    7 ++++--
+ drivers/leds/leds-gpio.c                      |    2 +-
+ drivers/macintosh/macio_asic.c                |    5 ++--
+ drivers/macintosh/smu.c                       |    7 ++++--
+ drivers/macintosh/therm_pm72.c                |    7 ++++--
+ drivers/macintosh/therm_windtunnel.c          |    7 ++++--
+ drivers/mmc/host/sdhci-of-core.c              |    7 ++++--
+ drivers/mtd/maps/physmap_of.c                 |    7 ++++--
+ drivers/mtd/maps/sun_uflash.c                 |    7 ++++--
+ drivers/mtd/nand/fsl_elbc_nand.c              |    5 +++-
+ drivers/mtd/nand/fsl_upm.c                    |    7 ++++--
+ drivers/mtd/nand/ndfc.c                       |    5 +++-
+ drivers/mtd/nand/pasemi_nand.c                |    7 ++++--
+ drivers/mtd/nand/socrates_nand.c              |    7 ++++--
+ drivers/net/can/mscan/mpc5xxx_can.c           |    8 ++++---
+ drivers/net/can/sja1000/sja1000_of_platform.c |    8 ++++---
+ drivers/net/ehea/ehea_main.c                  |    7 ++++--
+ drivers/net/fs_enet/fs_enet-main.c            |    7 ++++--
+ drivers/net/fs_enet/mii-bitbang.c             |    7 ++++--
+ drivers/net/fs_enet/mii-fec.c                 |    7 ++++--
+ drivers/net/fsl_pq_mdio.c                     |    7 ++++--
+ drivers/net/gianfar.c                         |   10 +++++---
+ drivers/net/ibm_newemac/core.c                |    8 ++++---
+ drivers/net/ibm_newemac/mal.c                 |    8 ++++---
+ drivers/net/ibm_newemac/rgmii.c               |    8 ++++---
+ drivers/net/ibm_newemac/tah.c                 |    8 ++++---
+ drivers/net/ibm_newemac/zmii.c                |    8 ++++---
+ drivers/net/ll_temac_main.c                   |    2 +-
+ drivers/net/myri_sbus.c                       |    7 ++++--
+ drivers/net/niu.c                             |    7 ++++--
+ drivers/net/phy/mdio-gpio.c                   |    7 ++++--
+ drivers/net/sunbmac.c                         |    7 ++++--
+ drivers/net/sunhme.c                          |    7 ++++--
+ drivers/net/sunlance.c                        |    7 ++++--
+ drivers/net/sunqe.c                           |    7 ++++--
+ drivers/net/ucc_geth.c                        |    7 ++++--
+ drivers/net/xilinx_emaclite.c                 |    7 ++++--
+ drivers/of/platform.c                         |   10 ++------
+ drivers/parport/parport_sunbpp.c              |    7 ++++--
+ drivers/pcmcia/electra_cf.c                   |    7 ++++--
+ drivers/pcmcia/m8xx_pcmcia.c                  |    7 ++++--
+ drivers/sbus/char/bbc_i2c.c                   |    7 ++++--
+ drivers/sbus/char/display7seg.c               |    7 ++++--
+ drivers/sbus/char/envctrl.c                   |    7 ++++--
+ drivers/sbus/char/flash.c                     |    7 ++++--
+ drivers/sbus/char/uctrl.c                     |    7 ++++--
+ drivers/scsi/qlogicpti.c                      |    7 ++++--
+ drivers/scsi/sun_esp.c                        |    7 ++++--
+ drivers/serial/apbuart.c                      |    8 +++----
+ drivers/serial/cpm_uart/cpm_uart_core.c       |    7 ++++--
+ drivers/serial/mpc52xx_uart.c                 |    7 +++---
+ drivers/serial/of_serial.c                    |    8 ++++---
+ drivers/serial/sunhv.c                        |    7 ++++--
+ drivers/serial/sunsab.c                       |    7 ++++--
+ drivers/serial/sunsu.c                        |    7 ++++--
+ drivers/serial/sunzilog.c                     |    7 ++++--
+ drivers/serial/uartlite.c                     |    5 ++--
+ drivers/serial/ucc_uart.c                     |    8 ++++---
+ drivers/spi/mpc52xx_psc_spi.c                 |    4 +--
+ drivers/spi/mpc52xx_spi.c                     |    8 ++++---
+ drivers/spi/spi_mpc8xxx.c                     |    7 ++++--
+ drivers/spi/spi_ppc4xx.c                      |    2 +-
+ drivers/spi/xilinx_spi_of.c                   |    2 +-
+ drivers/usb/gadget/fsl_qe_udc.c               |    7 ++++--
+ drivers/usb/host/ehci-ppc-of.c                |    9 +++-----
+ drivers/usb/host/ehci-xilinx-of.c             |    9 +++-----
+ drivers/usb/host/fhci-hcd.c                   |    7 ++++--
+ drivers/usb/host/isp1760-if.c                 |    7 ++++--
+ drivers/usb/host/ohci-ppc-of.c                |   13 +++--------
+ drivers/video/bw2.c                           |    7 ++++--
+ drivers/video/cg14.c                          |    7 ++++--
+ drivers/video/cg3.c                           |    7 ++++--
+ drivers/video/cg6.c                           |    7 ++++--
+ drivers/video/ffb.c                           |    7 ++++--
+ drivers/video/fsl-diu-fb.c                    |    8 ++++---
+ drivers/video/leo.c                           |    7 ++++--
+ drivers/video/mb862xx/mb862xxfb.c             |    8 ++++---
+ drivers/video/p9100.c                         |    7 ++++--
+ drivers/video/platinumfb.c                    |    7 ++++--
+ drivers/video/tcx.c                           |    7 ++++--
+ drivers/video/xilinxfb.c                      |    5 ++--
+ drivers/watchdog/cpwd.c                       |    7 ++++--
+ drivers/watchdog/gef_wdt.c                    |    8 ++++---
+ drivers/watchdog/mpc8xxx_wdt.c                |    8 +++----
+ drivers/watchdog/riowd.c                      |    7 ++++--
+ include/linux/device.h                        |    4 +++
+ include/linux/of_platform.h                   |    4 ---
+ sound/soc/fsl/mpc5200_psc_ac97.c              |    2 +-
+ sound/soc/fsl/mpc5200_psc_i2s.c               |    2 +-
+ sound/soc/fsl/mpc8610_hpcd.c                  |    8 ++++---
+ sound/sparc/amd7930.c                         |    7 ++++--
+ sound/sparc/cs4231.c                          |    7 ++++--
+ sound/sparc/dbri.c                            |    7 ++++--
+ 144 files changed, 665 insertions(+), 380 deletions(-)
+
+-- 
+Signature
