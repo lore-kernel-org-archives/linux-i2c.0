@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 30/37] drivers/cdrom: use .of_node instead of
-	.archdata.of_node in struct device
-Date: Thu, 11 Mar 2010 11:06:33 -0700
-Message-ID: <20100311180633.4824.27717.stgit__11419.42139152$1268331153$gmane$org@angua>
+Subject: [PATCH 29/37] drivers/char: use .of_node instead of .archdata.of_node
+	in struct device
+Date: Thu, 11 Mar 2010 11:06:28 -0700
+Message-ID: <20100311180627.4824.32286.stgit__24521.6192132377$1268331153$gmane$org@angua>
 References: <20100311174830.4824.19820.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,19 +18,19 @@ List-Id: linux-i2c@vger.kernel.org
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/cdrom/viocd.c |    2 +-
+ drivers/char/viotape.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/cdrom/viocd.c b/drivers/cdrom/viocd.c
-index cc435be..451cd70 100644
---- a/drivers/cdrom/viocd.c
-+++ b/drivers/cdrom/viocd.c
-@@ -567,7 +567,7 @@ static int viocd_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- 	struct disk_info *d;
- 	struct cdrom_device_info *c;
- 	struct request_queue *q;
+diff --git a/drivers/char/viotape.c b/drivers/char/viotape.c
+index 042c814..f37935c 100644
+--- a/drivers/char/viotape.c
++++ b/drivers/char/viotape.c
+@@ -865,7 +865,7 @@ static int viotape_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ {
+ 	int i = vdev->unit_address;
+ 	int j;
 -	struct device_node *node = vdev->dev.archdata.of_node;
 +	struct device_node *node = vdev->dev.of_node;
  
- 	deviceno = vdev->unit_address;
- 	if (deviceno >= VIOCD_MAX_CD)
+ 	if (i >= VIOTAPE_MAX_TAPE)
+ 		return -ENODEV;
