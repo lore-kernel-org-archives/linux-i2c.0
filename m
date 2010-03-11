@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 15/37] drivers/mmc: use .dev.of_node instead of .node in
+Subject: [PATCH 18/37] drivers/pcmcia: use .dev.of_node instead of .node in
 	struct of_device
-Date: Thu, 11 Mar 2010 11:05:10 -0700
-Message-ID: <20100311180510.4824.40934.stgit__10445.9677277648$1268331353$gmane$org@angua>
+Date: Thu, 11 Mar 2010 11:05:27 -0700
+Message-ID: <20100311180527.4824.74325.stgit__32528.4513565295$1268331354$gmane$org@angua>
 References: <20100311174830.4824.19820.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,19 +18,19 @@ List-Id: linux-i2c@vger.kernel.org
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/mmc/host/sdhci-of-core.c |    2 +-
+ drivers/pcmcia/electra_cf.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-core.c b/drivers/mmc/host/sdhci-of-core.c
-index 55e3313..dfe5cea 100644
---- a/drivers/mmc/host/sdhci-of-core.c
-+++ b/drivers/mmc/host/sdhci-of-core.c
-@@ -118,7 +118,7 @@ static bool __devinit sdhci_of_wp_inverted(struct device_node *np)
- static int __devinit sdhci_of_probe(struct of_device *ofdev,
- 				 const struct of_device_id *match)
+diff --git a/drivers/pcmcia/electra_cf.c b/drivers/pcmcia/electra_cf.c
+index 89cfddc..a4d821f 100644
+--- a/drivers/pcmcia/electra_cf.c
++++ b/drivers/pcmcia/electra_cf.c
+@@ -184,7 +184,7 @@ static int __devinit electra_cf_probe(struct of_device *ofdev,
+ 				      const struct of_device_id *match)
  {
+ 	struct device *device = &ofdev->dev;
 -	struct device_node *np = ofdev->node;
 +	struct device_node *np = ofdev->dev.of_node;
- 	struct sdhci_of_data *sdhci_of_data = match->data;
- 	struct sdhci_host *host;
- 	struct sdhci_of_host *of_host;
+ 	struct electra_cf_socket   *cf;
+ 	struct resource mem, io;
+ 	int status;
