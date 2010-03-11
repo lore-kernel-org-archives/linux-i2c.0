@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 21/27] drivers/hwmon/of: don't use deprecated field in
+Subject: [PATCH 19/27] drivers/pcmcia/of: don't use deprecated field in
 	of_platform_driver
-Date: Thu, 11 Mar 2010 11:23:44 -0700
-Message-ID: <20100311182343.13103.98096.stgit__33260.2367773235$1268332099$gmane$org@angua>
+Date: Thu, 11 Mar 2010 11:23:33 -0700
+Message-ID: <20100311182332.13103.33898.stgit__8185.18763776428$1268332101$gmane$org@angua>
 References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -19,24 +19,43 @@ and device_driver, so the of_platform_driver copies will be removed soon.
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/hwmon/ultra45_env.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/pcmcia/electra_cf.c  |    7 +++++--
+ drivers/pcmcia/m8xx_pcmcia.c |    7 +++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/ultra45_env.c b/drivers/hwmon/ultra45_env.c
-index 68e90ab..5da5942 100644
---- a/drivers/hwmon/ultra45_env.c
-+++ b/drivers/hwmon/ultra45_env.c
-@@ -300,8 +300,11 @@ static const struct of_device_id env_match[] = {
- MODULE_DEVICE_TABLE(of, env_match);
+diff --git a/drivers/pcmcia/electra_cf.c b/drivers/pcmcia/electra_cf.c
+index a4d821f..4ea8530 100644
+--- a/drivers/pcmcia/electra_cf.c
++++ b/drivers/pcmcia/electra_cf.c
+@@ -356,8 +356,11 @@ static const struct of_device_id electra_cf_match[] = {
+ MODULE_DEVICE_TABLE(of, electra_cf_match);
  
- static struct of_platform_driver env_driver = {
--	.name		= "ultra45_env",
--	.match_table	= env_match,
+ static struct of_platform_driver electra_cf_driver = {
+-	.name	   = (char *)driver_name,
+-	.match_table    = electra_cf_match,
 +	.driver = {
-+		.name = "ultra45_env",
++		.name = (char *)driver_name,
 +		.owner = THIS_MODULE,
-+		.of_match_table = env_match,
++		.of_match_table = electra_cf_match,
 +	},
- 	.probe		= env_probe,
- 	.remove		= __devexit_p(env_remove),
+ 	.probe	  = electra_cf_probe,
+ 	.remove   = electra_cf_remove,
  };
+diff --git a/drivers/pcmcia/m8xx_pcmcia.c b/drivers/pcmcia/m8xx_pcmcia.c
+index 61c2159..af60745 100644
+--- a/drivers/pcmcia/m8xx_pcmcia.c
++++ b/drivers/pcmcia/m8xx_pcmcia.c
+@@ -1314,8 +1314,11 @@ static const struct of_device_id m8xx_pcmcia_match[] = {
+ MODULE_DEVICE_TABLE(of, m8xx_pcmcia_match);
+ 
+ static struct of_platform_driver m8xx_pcmcia_driver = {
+-	.name = driver_name,
+-	.match_table = m8xx_pcmcia_match,
++	.driver = {
++		.name = driver_name,
++		.owner = THIS_MODULE,
++		.match_table = m8xx_pcmcia_match,
++	},
+ 	.probe = m8xx_probe,
+ 	.remove = m8xx_remove,
+ 	.suspend = m8xx_suspend,
