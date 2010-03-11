@@ -1,26 +1,111 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH 00/03] i2c: i2c-sh_mobile update for SH-Mobile ARM
-Date: Thu, 11 Mar 2010 19:05:26 +0900
-Message-ID: <20100311100526.15227.50813.sendpatchset@t400s>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, nishimoto.hiroki@renesas.com, morimoto.kuninori@renesas.com, lethal@linux-sh.org, khali@linux-fr.org, Magnus Damm <magnus.damm@gmail.com>
+From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 02/03] i2c: i2c-sh_mobile support for new ICIC bits
+Date: Thu, 11 Mar 2010 19:06:02 +0900
+Message-ID: <20100311100602.15227.88236.sendpatchset@t400s>
+References: <20100311100526.15227.50813.sendpatchset@t400s>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100311100526.15227.50813.sendpatchset@t400s>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nishimoto.hiroki-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, morimoto.kuninori-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c: i2c-sh_mobile update for SH-Mobile ARM
+From: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
 
-[PATCH 01/03] i2c: i2c-sh_mobile register access code break out
-[PATCH 02/03] i2c: i2c-sh_mobile support for new ICIC bits
-[PATCH 03/03] i2c: i2c-sh_mobile kconfig update for SH-Mobile ARM
+Add support for a new version of the IIC block
+found in the SH-Mobile ARM line of processors.
 
-These patches add support for a newer version of the IIC block
-to the i2c-sh_mobile and enables the driver on SH-Mobile ARM.
+Prototype patch written by Nishimoto-san.
+Tested on sh7377 and sh7372.
 
-Perhaps suitable for the SH tree?
-
+Signed-off-by: NISHIMOTO Hiroki <nishimoto.hiroki-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
 ---
 
- drivers/i2c/busses/Kconfig         |    2 
- drivers/i2c/busses/i2c-sh_mobile.c |  121 ++++++++++++++++++++++++------------
- 2 files changed, 85 insertions(+), 38 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c |   31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+--- 0026/drivers/i2c/busses/i2c-sh_mobile.c
++++ work/drivers/i2c/busses/i2c-sh_mobile.c	2010-03-11 15:33:09.000000000 +0900
+@@ -118,8 +118,10 @@ struct sh_mobile_i2c_data {
+ 	struct i2c_adapter adap;
+ 
+ 	struct clk *clk;
++	u_int8_t icic;
+ 	u_int8_t iccl;
+ 	u_int8_t icch;
++	u_int8_t flags;
+ 
+ 	spinlock_t lock;
+ 	wait_queue_head_t wait;
+@@ -128,6 +130,8 @@ struct sh_mobile_i2c_data {
+ 	int sr;
+ };
+ 
++#define IIC_FLAG_HAS_ICIC67	(1 << 0)
++
+ #define NORMAL_SPEED		100000 /* FAST_SPEED 400000 */
+ 
+ /* Register offsets */
+@@ -154,6 +158,8 @@ struct sh_mobile_i2c_data {
+ #define ICSR_WAIT		0x02
+ #define ICSR_DTE		0x01
+ 
++#define ICIC_ICCLB8		0x80
++#define ICIC_ICCHB8		0x40
+ #define ICIC_ALE		0x08
+ #define ICIC_TACKE		0x04
+ #define ICIC_WAITE		0x02
+@@ -161,6 +167,9 @@ struct sh_mobile_i2c_data {
+ 
+ static void iic_wr(struct sh_mobile_i2c_data *pd, int offs, unsigned char data)
+ {
++	if (offs == ICIC)
++		data |= pd->icic;
++
+ 	iowrite8(data, pd->reg + offs);
+ }
+ 
+@@ -202,6 +211,14 @@ static void activate_ch(struct sh_mobile
+ 	else
+ 		pd->iccl = (u_int8_t)(num/denom);
+ 
++	/* one more bit of ICCL in ICIC */
++	if (pd->flags & IIC_FLAG_HAS_ICIC67) {
++		if ((num/denom) > 0xff)
++			pd->icic |= ICIC_ICCLB8;
++		else
++			pd->icic &= ~ICIC_ICCLB8;
++	}
++
+ 	/* Calculate the value for icch. From the data sheet:
+ 	   icch = (p clock / transfer rate) * (H / (L + H)) */
+ 	num = i2c_clk * 4;
+@@ -211,6 +228,14 @@ static void activate_ch(struct sh_mobile
+ 	else
+ 		pd->icch = (u_int8_t)(num/denom);
+ 
++	/* one more bit of ICCH in ICIC */
++	if (pd->flags & IIC_FLAG_HAS_ICIC67) {
++		if ((num/denom) > 0xff)
++			pd->icic |= ICIC_ICCHB8;
++		else
++			pd->icic &= ~ICIC_ICCHB8;
++	}
++
+ 	/* Enable channel and configure rx ack */
+ 	iic_set_clr(pd, ICCR, ICCR_ICE, 0);
+ 
+@@ -591,6 +616,12 @@ static int sh_mobile_i2c_probe(struct pl
+ 		goto err_irq;
+ 	}
+ 
++	/* The IIC blocks on SH-Mobile ARM processors
++	 * come with two new bits in ICIC.
++	 */
++	if (size > 0x17)
++		pd->flags |= IIC_FLAG_HAS_ICIC67;
++
+ 	/* Enable Runtime PM for this device.
+ 	 *
+ 	 * Also tell the Runtime PM core to ignore children
