@@ -1,138 +1,42 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 24/27] sound/of: don't use deprecated fields in
-	of_platform_driver
-Date: Thu, 11 Mar 2010 11:24:00 -0700
-Message-ID: <20100311182400.13103.45617.stgit__31055.1881943413$1268331960$gmane$org@angua>
-References: <20100311181604.13103.30088.stgit@angua>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 00/37] OF: move device node pointer into struct device.
+Date: Thu, 11 Mar 2010 11:25:46 -0700
+Message-ID: <fa686aa41003111025n7f059995v9263f13fac1bd1ee@mail.gmail.com>
+References: <20100311174830.4824.19820.stgit@angua> <20100311.102043.40590962.davem@davemloft.net>
+	<20100311.102347.169562565.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100311181604.13103.30088.stgit@angua>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <20100311.102347.169562565.davem@davemloft.net>
+Sender: linux-scsi-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: monstr@monstr.eu, gregkh@suse.de, benh@kernel.crashing.org, akpm@linux-foundation.org, sfr@canb.auug.org.au, jgarzik@pobox.com, ben-linux@fluff.org, dwmw2@infradead.org, jeremy.kerr@canonical.com, James.Bottomley@suse.de, broonie@opensource.wolfsonmicro.com, microblaze-uclinux@itee.uq.edu.au, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, sparclinux@vger.kernel.org, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-scsi@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-i2c@vger.kernel.org
 
-.name, .match_table and .owner are duplicated in both of_platform_driver
-and device_driver, so the of_platform_driver copies will be removed soon.
+On Thu, Mar 11, 2010 at 11:23 AM, David Miller <davem@davemloft.net> wrote:
+> From: David Miller <davem@davemloft.net>
+> Date: Thu, 11 Mar 2010 10:20:43 -0800 (PST)
+>
+>> Three or four of the patches don't apply because only your tree
+>> has those "/* temporary */" comments, f.e. in arch/sparc/kernel/pci.c
+>>
+>> I took care of this when applying to my tree.
+>
+> It also doesn't build, what the heck is this against
+> Grant?
+>
+> drivers/of/device.c: In function 'of_match_device':
+> drivers/of/device.c:24: error: 'const struct device' has no member named 'of_node'
+> drivers/of/device.c:26: error: 'const struct device' has no member named 'of_node'
+>
+> Please make a patch set against Linus's vanilla tree so
+> I and others can test this.
 
-Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
----
+Oops, sorry David, I accidentally dropped the top patch.  Give me a
+moment and I'll send it out.
 
- sound/soc/fsl/mpc5200_psc_ac97.c |    2 +-
- sound/soc/fsl/mpc5200_psc_i2s.c  |    2 +-
- sound/soc/fsl/mpc8610_hpcd.c     |    8 +++++---
- sound/sparc/amd7930.c            |    7 +++++--
- sound/sparc/cs4231.c             |    7 +++++--
- sound/sparc/dbri.c               |    7 +++++--
- 6 files changed, 22 insertions(+), 11 deletions(-)
+g.
 
-diff --git a/sound/soc/fsl/mpc5200_psc_ac97.c b/sound/soc/fsl/mpc5200_psc_ac97.c
-index 3dbc7f7..e2ee220 100644
---- a/sound/soc/fsl/mpc5200_psc_ac97.c
-+++ b/sound/soc/fsl/mpc5200_psc_ac97.c
-@@ -317,12 +317,12 @@ static struct of_device_id psc_ac97_match[] __devinitdata = {
- MODULE_DEVICE_TABLE(of, psc_ac97_match);
- 
- static struct of_platform_driver psc_ac97_driver = {
--	.match_table = psc_ac97_match,
- 	.probe = psc_ac97_of_probe,
- 	.remove = __devexit_p(psc_ac97_of_remove),
- 	.driver = {
- 		.name = "mpc5200-psc-ac97",
- 		.owner = THIS_MODULE,
-+		.of_match_table = psc_ac97_match,
- 	},
- };
- 
-diff --git a/sound/soc/fsl/mpc5200_psc_i2s.c b/sound/soc/fsl/mpc5200_psc_i2s.c
-index ce8de90..f6c507c 100644
---- a/sound/soc/fsl/mpc5200_psc_i2s.c
-+++ b/sound/soc/fsl/mpc5200_psc_i2s.c
-@@ -220,12 +220,12 @@ static struct of_device_id psc_i2s_match[] __devinitdata = {
- MODULE_DEVICE_TABLE(of, psc_i2s_match);
- 
- static struct of_platform_driver psc_i2s_driver = {
--	.match_table = psc_i2s_match,
- 	.probe = psc_i2s_of_probe,
- 	.remove = __devexit_p(psc_i2s_of_remove),
- 	.driver = {
- 		.name = "mpc5200-psc-i2s",
- 		.owner = THIS_MODULE,
-+		.of_match_table = psc_i2s_match,
- 	},
- };
- 
-diff --git a/sound/soc/fsl/mpc8610_hpcd.c b/sound/soc/fsl/mpc8610_hpcd.c
-index d7e1b9a..511d721 100644
---- a/sound/soc/fsl/mpc8610_hpcd.c
-+++ b/sound/soc/fsl/mpc8610_hpcd.c
-@@ -579,9 +579,11 @@ static struct of_device_id mpc8610_hpcd_match[] = {
- MODULE_DEVICE_TABLE(of, mpc8610_hpcd_match);
- 
- static struct of_platform_driver mpc8610_hpcd_of_driver = {
--	.owner  	= THIS_MODULE,
--	.name   	= "mpc8610_hpcd",
--	.match_table    = mpc8610_hpcd_match,
-+	.driver = {
-+		.name = "mpc8610_hpcd",
-+		.owner = THIS_MODULE,
-+		.of_match_table = mpc8610_hpcd_match,
-+	},
- 	.probe  	= mpc8610_hpcd_probe,
- 	.remove 	= mpc8610_hpcd_remove,
- };
-diff --git a/sound/sparc/amd7930.c b/sound/sparc/amd7930.c
-index 574af56..71221fd 100644
---- a/sound/sparc/amd7930.c
-+++ b/sound/sparc/amd7930.c
-@@ -1065,8 +1065,11 @@ static const struct of_device_id amd7930_match[] = {
- };
- 
- static struct of_platform_driver amd7930_sbus_driver = {
--	.name		= "audio",
--	.match_table	= amd7930_match,
-+	.driver = {
-+		.name = "audio",
-+		.owner = THIS_MODULE,
-+		.of_match_table = amd7930_match,
-+	},
- 	.probe		= amd7930_sbus_probe,
- };
- 
-diff --git a/sound/sparc/cs4231.c b/sound/sparc/cs4231.c
-index 14cb87c..47db872 100644
---- a/sound/sparc/cs4231.c
-+++ b/sound/sparc/cs4231.c
-@@ -2110,8 +2110,11 @@ static const struct of_device_id cs4231_match[] = {
- MODULE_DEVICE_TABLE(of, cs4231_match);
- 
- static struct of_platform_driver cs4231_driver = {
--	.name		= "audio",
--	.match_table	= cs4231_match,
-+	.driver = {
-+		.name = "audio",
-+		.owner = THIS_MODULE,
-+		.of_match_table = cs4231_match,
-+	},
- 	.probe		= cs4231_probe,
- 	.remove		= __devexit_p(cs4231_remove),
- };
-diff --git a/sound/sparc/dbri.c b/sound/sparc/dbri.c
-index 2734c36..6e5d1dd 100644
---- a/sound/sparc/dbri.c
-+++ b/sound/sparc/dbri.c
-@@ -2686,8 +2686,11 @@ static const struct of_device_id dbri_match[] = {
- MODULE_DEVICE_TABLE(of, dbri_match);
- 
- static struct of_platform_driver dbri_sbus_driver = {
--	.name		= "dbri",
--	.match_table	= dbri_match,
-+	.driver = {
-+		.name = "dbri",
-+		.owner = THIS_MODULE,
-+		.of_match_table = dbri_match,
-+	},
- 	.probe		= dbri_probe,
- 	.remove		= __devexit_p(dbri_remove),
- };
+-- 
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
