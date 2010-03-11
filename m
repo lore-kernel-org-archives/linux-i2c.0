@@ -1,26 +1,42 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 00/37] OF: move device node pointer into struct device.
-Date: Thu, 11 Mar 2010 10:27:40 -0800 (PST)
-Message-ID: <20100311.102740.219949159.davem@davemloft.net>
-References: <20100311.102043.40590962.davem@davemloft.net>
-	<20100311.102347.169562565.davem@davemloft.net>
-	<fa686aa41003111025n7f059995v9263f13fac1bd1ee@mail.gmail.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: [PATCH 20/27] drivers/mmc/of: don't use deprecated field in
+	of_platform_driver
+Date: Thu, 11 Mar 2010 11:23:38 -0700
+Message-ID: <20100311182338.13103.88443.stgit__25186.4328551621$1268332095$gmane$org@angua>
+References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <fa686aa41003111025n7f059995v9263f13fac1bd1ee@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: grant.likely@secretlab.ca
-Cc: monstr@monstr.eu, gregkh@suse.de, benh@kernel.crashing.org, akpm@linux-foundation.org, sfr@canb.auug.org.au, jgarzik@pobox.com, ben-linux@fluff.org, dwmw2@infradead.org, jeremy.kerr@canonical.com, James.Bottomley@suse.de, broonie@opensource.wolfsonmicro.com, microblaze-uclinux@itee.uq.edu.au, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, sparclinux@vger.kernel.org, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-scsi@vger.kernel.org, alsa-devel@alsa-project.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100311181604.13103.30088.stgit@angua>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
 List-Id: linux-i2c@vger.kernel.org
 
-From: Grant Likely <grant.likely@secretlab.ca>
-Date: Thu, 11 Mar 2010 11:25:46 -0700
+.name, .match_table and .owner are duplicated in both of_platform_driver
+and device_driver, so the of_platform_driver copies will be removed soon.
 
-> Oops, sorry David, I accidentally dropped the top patch.  Give me a
-> moment and I'll send it out.
+Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+---
 
-Sorry, now that you've just bombed us with 27 patches to
-the same area, I've totally lost interest in testing this
-work.
+ drivers/mmc/host/sdhci-of-core.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/host/sdhci-of-core.c b/drivers/mmc/host/sdhci-of-core.c
+index dfe5cea..7802a54 100644
+--- a/drivers/mmc/host/sdhci-of-core.c
++++ b/drivers/mmc/host/sdhci-of-core.c
+@@ -205,8 +205,11 @@ static const struct of_device_id sdhci_of_match[] = {
+ MODULE_DEVICE_TABLE(of, sdhci_of_match);
+ 
+ static struct of_platform_driver sdhci_of_driver = {
+-	.driver.name = "sdhci-of",
+-	.match_table = sdhci_of_match,
++	.driver = {
++		.name = "sdhci-of",
++		.owner = THIS_MODULE,
++		.of_match_table = sdhci_of_match,
++	},
+ 	.probe = sdhci_of_probe,
+ 	.remove = __devexit_p(sdhci_of_remove),
+ 	.suspend = sdhci_of_suspend,
