@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 20/27] drivers/mmc/of: don't use deprecated field in
+Subject: [PATCH 21/27] drivers/hwmon/of: don't use deprecated field in
 	of_platform_driver
-Date: Thu, 11 Mar 2010 11:23:38 -0700
-Message-ID: <20100311182338.13103.88443.stgit__25186.4328551621$1268332095$gmane$org@angua>
+Date: Thu, 11 Mar 2010 11:23:44 -0700
+Message-ID: <20100311182343.13103.98096.stgit__33260.2367773235$1268332099$gmane$org@angua>
 References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -19,24 +19,24 @@ and device_driver, so the of_platform_driver copies will be removed soon.
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/mmc/host/sdhci-of-core.c |    7 +++++--
+ drivers/hwmon/ultra45_env.c |    7 +++++--
  1 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-core.c b/drivers/mmc/host/sdhci-of-core.c
-index dfe5cea..7802a54 100644
---- a/drivers/mmc/host/sdhci-of-core.c
-+++ b/drivers/mmc/host/sdhci-of-core.c
-@@ -205,8 +205,11 @@ static const struct of_device_id sdhci_of_match[] = {
- MODULE_DEVICE_TABLE(of, sdhci_of_match);
+diff --git a/drivers/hwmon/ultra45_env.c b/drivers/hwmon/ultra45_env.c
+index 68e90ab..5da5942 100644
+--- a/drivers/hwmon/ultra45_env.c
++++ b/drivers/hwmon/ultra45_env.c
+@@ -300,8 +300,11 @@ static const struct of_device_id env_match[] = {
+ MODULE_DEVICE_TABLE(of, env_match);
  
- static struct of_platform_driver sdhci_of_driver = {
--	.driver.name = "sdhci-of",
--	.match_table = sdhci_of_match,
+ static struct of_platform_driver env_driver = {
+-	.name		= "ultra45_env",
+-	.match_table	= env_match,
 +	.driver = {
-+		.name = "sdhci-of",
++		.name = "ultra45_env",
 +		.owner = THIS_MODULE,
-+		.of_match_table = sdhci_of_match,
++		.of_match_table = env_match,
 +	},
- 	.probe = sdhci_of_probe,
- 	.remove = __devexit_p(sdhci_of_remove),
- 	.suspend = sdhci_of_suspend,
+ 	.probe		= env_probe,
+ 	.remove		= __devexit_p(env_remove),
+ };
