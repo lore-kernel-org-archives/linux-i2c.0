@@ -1,191 +1,154 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH] driver-core: Add device node pointer to struct device
-Date: Thu, 11 Mar 2010 11:34:21 -0700
-Message-ID: <20100311182625.13540.57329.stgit__24285.6281031438$1268332527$gmane$org@angua>
+Subject: [PATCH 12/27] drivers/mtd/of: don't use deprecated field in
+	of_platform_driver
+Date: Thu, 11 Mar 2010 11:22:54 -0700
+Message-ID: <20100311182253.13103.92479.stgit__3234.36496914855$1268332657$gmane$org@angua>
+References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100311181604.13103.30088.stgit@angua>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, platforms using CONFIG_OF add a 'struct device_node *of_node'
-to dev->archdata.  However, with CONFIG_OF becoming generic for all
-architectures, it makes sense for commonality to move it out of archdata
-and into struct device proper.
-
-This patch adds a struct device_node *of_node member to struct device
-and updates all locations which currently write the device_node pointer
-into archdata to also update dev->of_node.  Subsequent patches will
-modify callers to use the archdata location and ultimately remove
-the archdata member entirely.
+.name, .match_table and .owner are duplicated in both of_platform_driver
+and device_driver, so the of_platform_driver copies will be removed soon.
 
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
 ---
 
-This should have been the first patch in my 37 patch series
-"[PATCH 00/37] OF: move device node pointer into struct device.",
-but I accidentally missed it.  Apply this patch before the rest of
-the series.
+ drivers/mtd/maps/physmap_of.c    |    7 +++++--
+ drivers/mtd/maps/sun_uflash.c    |    7 +++++--
+ drivers/mtd/nand/fsl_elbc_nand.c |    5 +++--
+ drivers/mtd/nand/fsl_upm.c       |    7 +++++--
+ drivers/mtd/nand/ndfc.c          |    5 +++--
+ drivers/mtd/nand/pasemi_nand.c   |    7 +++++--
+ drivers/mtd/nand/socrates_nand.c |    7 +++++--
+ 7 files changed, 31 insertions(+), 14 deletions(-)
 
-I've also pushed out all the patches that I've just posted to the
-'experimental-devicetree' branch of my git tree:
-
-git://git.secretlab.ca/git/linux-2.6 experimental-devicetree
-
- arch/microblaze/kernel/of_device.c      |    3 ++-
- arch/powerpc/kernel/of_device.c         |    3 ++-
- arch/powerpc/kernel/pci-common.c        |    5 +++--
- arch/powerpc/kernel/vio.c               |    3 ++-
- arch/powerpc/platforms/ps3/system-bus.c |    3 ++-
- arch/sparc/kernel/pci.c                 |    3 ++-
- drivers/of/of_mdio.c                    |    3 ++-
- drivers/of/of_spi.c                     |    3 ++-
- include/linux/device.h                  |    4 ++++
- 9 files changed, 21 insertions(+), 9 deletions(-)
-
-diff --git a/arch/microblaze/kernel/of_device.c b/arch/microblaze/kernel/of_device.c
-index 9a0f763..12371bd 100644
---- a/arch/microblaze/kernel/of_device.c
-+++ b/arch/microblaze/kernel/of_device.c
-@@ -53,7 +53,8 @@ struct of_device *of_device_alloc(struct device_node *np,
- 	dev->dev.dma_mask = &dev->dma_mask;
- 	dev->dev.parent = parent;
- 	dev->dev.release = of_release_dev;
--	dev->dev.archdata.of_node = np;
-+	dev->dev.archdata.of_node = np; /* temporary; remove after merging */
-+	dev->dev.of_node = np;
+diff --git a/drivers/mtd/maps/physmap_of.c b/drivers/mtd/maps/physmap_of.c
+index 494af8e..997ee62 100644
+--- a/drivers/mtd/maps/physmap_of.c
++++ b/drivers/mtd/maps/physmap_of.c
+@@ -374,8 +374,11 @@ static struct of_device_id of_flash_match[] = {
+ MODULE_DEVICE_TABLE(of, of_flash_match);
  
- 	if (bus_id)
- 		dev_set_name(&dev->dev, bus_id);
-diff --git a/arch/powerpc/kernel/of_device.c b/arch/powerpc/kernel/of_device.c
-index a359cb0..efbc262 100644
---- a/arch/powerpc/kernel/of_device.c
-+++ b/arch/powerpc/kernel/of_device.c
-@@ -73,7 +73,8 @@ struct of_device *of_device_alloc(struct device_node *np,
- 	dev->dev.dma_mask = &dev->dma_mask;
- 	dev->dev.parent = parent;
- 	dev->dev.release = of_release_dev;
--	dev->dev.archdata.of_node = np;
-+	dev->dev.archdata.of_node = np; /* temporary; remove after merging */
-+	dev->dev.of_node = np;
+ static struct of_platform_driver of_flash_driver = {
+-	.name		= "of-flash",
+-	.match_table	= of_flash_match,
++	.driver = {
++		.name = "of-flash",
++		.owner = THIS_MODULE,
++		.of_match_table = of_flash_match,
++	},
+ 	.probe		= of_flash_probe,
+ 	.remove		= of_flash_remove,
+ };
+diff --git a/drivers/mtd/maps/sun_uflash.c b/drivers/mtd/maps/sun_uflash.c
+index 365811d..b27be02 100644
+--- a/drivers/mtd/maps/sun_uflash.c
++++ b/drivers/mtd/maps/sun_uflash.c
+@@ -148,8 +148,11 @@ static const struct of_device_id uflash_match[] = {
+ MODULE_DEVICE_TABLE(of, uflash_match);
  
- 	if (bus_id)
- 		dev_set_name(&dev->dev, "%s", bus_id);
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index 2597f95..90501f2 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -1111,8 +1111,9 @@ void __devinit pcibios_setup_bus_devices(struct pci_bus *bus)
- 		if (dev->is_added)
- 			continue;
+ static struct of_platform_driver uflash_driver = {
+-	.name		= DRIVER_NAME,
+-	.match_table	= uflash_match,
++	.driver = {
++		.name = DRIVER_NAME,
++		.owner = THIS_MODULE,
++		.of_match_table = uflash_match,
++	},
+ 	.probe		= uflash_probe,
+ 	.remove		= __devexit_p(uflash_remove),
+ };
+diff --git a/drivers/mtd/nand/fsl_elbc_nand.c b/drivers/mtd/nand/fsl_elbc_nand.c
+index 4a60795..f45a8d0 100644
+--- a/drivers/mtd/nand/fsl_elbc_nand.c
++++ b/drivers/mtd/nand/fsl_elbc_nand.c
+@@ -1078,9 +1078,10 @@ static const struct of_device_id fsl_elbc_match[] = {
  
--		/* Setup OF node pointer in archdata */
--		sd->of_node = pci_device_to_OF_node(dev);
-+		/* Setup OF node pointer in the device */
-+		sd->of_node = pci_device_to_OF_node(dev); /* temporary */
-+		dev->dev.of_node = pci_device_to_OF_node(dev);
+ static struct of_platform_driver fsl_elbc_ctrl_driver = {
+ 	.driver = {
+-		.name	= "fsl-elbc",
++		.name = "fsl-elbc",
++		.owner = THIS_MODULE,
++		.of_match_table = fsl_elbc_match,
+ 	},
+-	.match_table = fsl_elbc_match,
+ 	.probe = fsl_elbc_ctrl_probe,
+ 	.remove = fsl_elbc_ctrl_remove,
+ };
+diff --git a/drivers/mtd/nand/fsl_upm.c b/drivers/mtd/nand/fsl_upm.c
+index 071a60c..8dcbb18 100644
+--- a/drivers/mtd/nand/fsl_upm.c
++++ b/drivers/mtd/nand/fsl_upm.c
+@@ -356,8 +356,11 @@ static struct of_device_id of_fun_match[] = {
+ MODULE_DEVICE_TABLE(of, of_fun_match);
  
- 		/* Fixup NUMA node as it may not be setup yet by the generic
- 		 * code and is needed by the DMA init
-diff --git a/arch/powerpc/kernel/vio.c b/arch/powerpc/kernel/vio.c
-index 77f6421..70b52c7 100644
---- a/arch/powerpc/kernel/vio.c
-+++ b/arch/powerpc/kernel/vio.c
-@@ -1229,7 +1229,8 @@ struct vio_dev *vio_register_device_node(struct device_node *of_node)
- 		if (unit_address != NULL)
- 			viodev->unit_address = *unit_address;
- 	}
--	viodev->dev.archdata.of_node = of_node_get(of_node);
-+	viodev->dev.of_node = of_node_get(of_node);
-+	viodev->dev.archdata.of_node = viodev->dev.of_node; /* temporary */
+ static struct of_platform_driver of_fun_driver = {
+-	.name		= "fsl,upm-nand",
+-	.match_table	= of_fun_match,
++	.driver = {
++		.name = "fsl,upm-nand",
++		.owner = THIS_MODULE,
++		.of_match_table = of_fun_match,
++	},
+ 	.probe		= fun_probe,
+ 	.remove		= __devexit_p(fun_remove),
+ };
+diff --git a/drivers/mtd/nand/ndfc.c b/drivers/mtd/nand/ndfc.c
+index 40b5658..19d94a2 100644
+--- a/drivers/mtd/nand/ndfc.c
++++ b/drivers/mtd/nand/ndfc.c
+@@ -293,9 +293,10 @@ MODULE_DEVICE_TABLE(of, ndfc_match);
  
- 	if (firmware_has_feature(FW_FEATURE_CMO))
- 		vio_cmo_set_dma_ops(viodev);
-diff --git a/arch/powerpc/platforms/ps3/system-bus.c b/arch/powerpc/platforms/ps3/system-bus.c
-index e34b305..5f162c0 100644
---- a/arch/powerpc/platforms/ps3/system-bus.c
-+++ b/arch/powerpc/platforms/ps3/system-bus.c
-@@ -765,7 +765,8 @@ int ps3_system_bus_device_register(struct ps3_system_bus_device *dev)
- 		BUG();
- 	};
+ static struct of_platform_driver ndfc_driver = {
+ 	.driver = {
+-		.name	= "ndfc",
++		.name = "ndfc",
++		.owner = THIS_MODULE,
++		.of_match_table = ndfc_match,
+ 	},
+-	.match_table = ndfc_match,
+ 	.probe = ndfc_probe,
+ 	.remove = __devexit_p(ndfc_remove),
+ };
+diff --git a/drivers/mtd/nand/pasemi_nand.c b/drivers/mtd/nand/pasemi_nand.c
+index edfc27b..a97e9c9 100644
+--- a/drivers/mtd/nand/pasemi_nand.c
++++ b/drivers/mtd/nand/pasemi_nand.c
+@@ -221,8 +221,11 @@ MODULE_DEVICE_TABLE(of, pasemi_nand_match);
  
--	dev->core.archdata.of_node = NULL;
-+	dev->core.of_node = NULL;
-+	dev->core.archdata.of_node = NULL; /* temporary */
- 	set_dev_node(&dev->core, 0);
+ static struct of_platform_driver pasemi_nand_driver =
+ {
+-	.name		= (char*)driver_name,
+-	.match_table	= pasemi_nand_match,
++	.driver = {
++		.name = (char*)driver_name,
++		.owner = THIS_MODULE,
++		.of_match_table = pasemi_nand_match,
++	},
+ 	.probe		= pasemi_nand_probe,
+ 	.remove		= pasemi_nand_remove,
+ };
+diff --git a/drivers/mtd/nand/socrates_nand.c b/drivers/mtd/nand/socrates_nand.c
+index a4519a7..edb9b13 100644
+--- a/drivers/mtd/nand/socrates_nand.c
++++ b/drivers/mtd/nand/socrates_nand.c
+@@ -301,8 +301,11 @@ static struct of_device_id socrates_nand_match[] =
+ MODULE_DEVICE_TABLE(of, socrates_nand_match);
  
- 	pr_debug("%s:%d add %s\n", __func__, __LINE__, dev_name(&dev->core));
-diff --git a/arch/sparc/kernel/pci.c b/arch/sparc/kernel/pci.c
-index 5ac539a..cf73f43 100644
---- a/arch/sparc/kernel/pci.c
-+++ b/arch/sparc/kernel/pci.c
-@@ -261,7 +261,7 @@ static struct pci_dev *of_create_pci_dev(struct pci_pbm_info *pbm,
- 	sd->iommu = pbm->iommu;
- 	sd->stc = &pbm->stc;
- 	sd->host_controller = pbm;
--	sd->prom_node = node;
-+	sd->prom_node = node; /* temporary */
- 	sd->op = op = of_find_device_by_node(node);
- 	sd->numa_node = pbm->numa_node;
- 
-@@ -285,6 +285,7 @@ static struct pci_dev *of_create_pci_dev(struct pci_pbm_info *pbm,
- 	dev->sysdata = node;
- 	dev->dev.parent = bus->bridge;
- 	dev->dev.bus = &pci_bus_type;
-+	dev->dev.of_node = node;
- 	dev->devfn = devfn;
- 	dev->multifunction = 0;		/* maybe a lie? */
- 	set_pcie_port_type(dev);
-diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
-index 18ecae4..3bf20bf 100644
---- a/drivers/of/of_mdio.c
-+++ b/drivers/of/of_mdio.c
-@@ -79,7 +79,8 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
- 		/* Associate the OF node with the device structure so it
- 		 * can be looked up later */
- 		of_node_get(child);
--		dev_archdata_set_node(&phy->dev.archdata, child);
-+		dev_archdata_set_node(&phy->dev.archdata, child); /* temp */
-+		phy->dev.of_node = child;
- 
- 		/* All data is now stored in the phy struct; register it */
- 		rc = phy_device_register(phy);
-diff --git a/drivers/of/of_spi.c b/drivers/of/of_spi.c
-index f65f48b..433d76d 100644
---- a/drivers/of/of_spi.c
-+++ b/drivers/of/of_spi.c
-@@ -79,7 +79,8 @@ void of_register_spi_devices(struct spi_master *master, struct device_node *np)
- 
- 		/* Store a pointer to the node in the device structure */
- 		of_node_get(nc);
--		spi->dev.archdata.of_node = nc;
-+		spi->dev.of_node = nc;
-+		spi->dev.archdata.of_node = nc; /* temporary */
- 
- 		/* Register the new device */
- 		request_module(spi->modalias);
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 1821928..7a968bd 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -34,6 +34,7 @@ struct class;
- struct class_private;
- struct bus_type;
- struct bus_type_private;
-+struct device_node;
- 
- struct bus_attribute {
- 	struct attribute	attr;
-@@ -433,6 +434,9 @@ struct device {
- 					     override */
- 	/* arch specific additions */
- 	struct dev_archdata	archdata;
-+#ifdef CONFIG_OF
-+	struct device_node	*of_node;
-+#endif
- 
- 	dev_t			devt;	/* dev_t, creates the sysfs "dev" */
- 
+ static struct of_platform_driver socrates_nand_driver = {
+-	.name		= "socrates_nand",
+-	.match_table	= socrates_nand_match,
++	.driver = {
++		.name = "socrates_nand",
++		.owner = THIS_MODULE,
++		.of_match_table = socrates_nand_match,
++	},
+ 	.probe		= socrates_nand_probe,
+ 	.remove		= __devexit_p(socrates_nand_remove),
+ };
