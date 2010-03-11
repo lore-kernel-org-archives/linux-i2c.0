@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 11/27] drivers/macintosh/of: don't use deprecated field in
+Subject: [PATCH 08/27] drivers/crypto/of: don't use deprecated field in
 	of_platform_driver
-Date: Thu, 11 Mar 2010 11:22:48 -0700
-Message-ID: <20100311182248.13103.6111.stgit__4748.50527612052$1268332983$gmane$org@angua>
+Date: Thu, 11 Mar 2010 11:22:32 -0700
+Message-ID: <20100311182231.13103.47091.stgit__33919.2424239174$1268332983$gmane$org@angua>
 References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -19,62 +19,43 @@ and device_driver, so the of_platform_driver copies will be removed soon.
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/macintosh/smu.c              |    7 +++++--
- drivers/macintosh/therm_pm72.c       |    7 +++++--
- drivers/macintosh/therm_windtunnel.c |    7 +++++--
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ drivers/crypto/amcc/crypto4xx_core.c |    7 +++++--
+ drivers/crypto/talitos.c             |    7 +++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/macintosh/smu.c b/drivers/macintosh/smu.c
-index f96feeb..4e912b2 100644
---- a/drivers/macintosh/smu.c
-+++ b/drivers/macintosh/smu.c
-@@ -670,8 +670,11 @@ static const struct of_device_id smu_platform_match[] =
- 
- static struct of_platform_driver smu_of_platform_driver =
- {
--	.name 		= "smu",
--	.match_table	= smu_platform_match,
-+	.driver = {
-+		.name = "smu",
-+		.owner = THIS_MODULE,
-+		.of_match_table = smu_platform_match,
-+	},
- 	.probe		= smu_platform_probe,
+diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
+index 1c3849f..36b5fb1 100644
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -1280,8 +1280,11 @@ static const struct of_device_id crypto4xx_match[] = {
  };
  
-diff --git a/drivers/macintosh/therm_pm72.c b/drivers/macintosh/therm_pm72.c
-index f5b0f9e..c99f937 100644
---- a/drivers/macintosh/therm_pm72.c
-+++ b/drivers/macintosh/therm_pm72.c
-@@ -2221,8 +2221,11 @@ static const struct of_device_id fcu_match[] =
- 
- static struct of_platform_driver fcu_of_platform_driver = 
- {
--	.name 		= "temperature",
--	.match_table	= fcu_match,
+ static struct of_platform_driver crypto4xx_driver = {
+-	.name		= "crypto4xx",
+-	.match_table	= crypto4xx_match,
 +	.driver = {
-+		.name = "temperature",
++		.name = "crypto4xx",
 +		.owner = THIS_MODULE,
-+		.of_match_table = fcu_match,
++		.of_match_table = crypto4xx_match,
 +	},
- 	.probe		= fcu_of_probe,
- 	.remove		= fcu_of_remove
+ 	.probe		= crypto4xx_probe,
+ 	.remove		= crypto4xx_remove,
  };
-diff --git a/drivers/macintosh/therm_windtunnel.c b/drivers/macintosh/therm_windtunnel.c
-index 7fb8b4d..dc6a47a 100644
---- a/drivers/macintosh/therm_windtunnel.c
-+++ b/drivers/macintosh/therm_windtunnel.c
-@@ -464,8 +464,11 @@ static const struct of_device_id therm_of_match[] = {{
- };
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index fd529d6..917faf7 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1967,8 +1967,11 @@ static const struct of_device_id talitos_match[] = {
+ MODULE_DEVICE_TABLE(of, talitos_match);
  
- static struct of_platform_driver therm_of_driver = {
--	.name		= "temperature",
--	.match_table	= therm_of_match,
+ static struct of_platform_driver talitos_driver = {
+-	.name = "talitos",
+-	.match_table = talitos_match,
 +	.driver = {
-+		.name = "temperature",
++		.name = "talitos",
 +		.owner = THIS_MODULE,
-+		.of_match_table = therm_of_match,
++		.of_match_table = talitos_match,
 +	},
- 	.probe		= therm_of_probe,
- 	.remove		= therm_of_remove,
+ 	.probe = talitos_probe,
+ 	.remove = talitos_remove,
  };
