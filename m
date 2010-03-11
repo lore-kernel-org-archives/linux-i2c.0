@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 01/37] i2c/of: Allow device node to be passed via
-	i2c_board_info
-Date: Thu, 11 Mar 2010 11:03:52 -0700
-Message-ID: <20100311180352.4824.75457.stgit__36389.7115378224$1268330662$gmane$org@angua>
+Subject: [PATCH 19/37] drivers/serial: use .dev.of_node instead of .node in
+	struct of_device
+Date: Thu, 11 Mar 2010 11:05:33 -0700
+Message-ID: <20100311180532.4824.64755.stgit@angua>
 References: <20100311174830.4824.19820.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -13,74 +13,117 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
 List-Id: linux-i2c@vger.kernel.org
 
-The struct device_node *of_node pointer is moving out of dev->archdata
-and into the struct device proper.  of_i2c.c needs to set the of_node
-pointer before the device is registered.  Since the i2c subsystem
-doesn't allow 2 stage allocation and registration of i2c devices, the
-of_node pointer needs to be passed via the i2c_board_info structure
-so that it is set prior to registration.
-
-This patch adds of_node to struct i2c_board_info (conditional on
-CONFIG_OF), sets of_node in i2c_new_device(), and modifies of_i2c.c
-to use the new parameter.  The calling of dev_archdata_set_node()
-from of_i2c will be removed in a subsequent patch when of_node is
-removed from archdata and all users are converted over.
+.node is being removed
 
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/i2c/i2c-core.c |    3 +++
- drivers/of/of_i2c.c    |    3 ++-
- include/linux/i2c.h    |    4 ++++
- 3 files changed, 9 insertions(+), 1 deletions(-)
+ drivers/serial/apbuart.c    |    2 +-
+ drivers/serial/nwpserial.c  |    2 +-
+ drivers/serial/of_serial.c  |    4 ++--
+ drivers/serial/pmac_zilog.c |    2 +-
+ drivers/serial/sunhv.c      |    2 +-
+ drivers/serial/sunsab.c     |    6 +++---
+ 6 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3202a86..4099b2b 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -387,6 +387,9 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->dev.parent = &client->adapter->dev;
- 	client->dev.bus = &i2c_bus_type;
- 	client->dev.type = &i2c_client_type;
-+#ifdef CONFIG_OF
-+	client->dev.of_node = info->of_node;
-+#endif
+diff --git a/drivers/serial/apbuart.c b/drivers/serial/apbuart.c
+index fe91319..52015d7 100644
+--- a/drivers/serial/apbuart.c
++++ b/drivers/serial/apbuart.c
+@@ -559,7 +559,7 @@ static int __devinit apbuart_probe(struct of_device *op,
  
- 	dev_set_name(&client->dev, "%d-%04x", i2c_adapter_id(adap),
- 		     client->addr);
-diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
-index a3a708e..605bc42 100644
---- a/drivers/of/of_i2c.c
-+++ b/drivers/of/of_i2c.c
-@@ -42,7 +42,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
+ 	i = 0;
+ 	for (i = 0; i < grlib_apbuart_port_nr; i++) {
+-		if (op->node == grlib_apbuart_nodes[i])
++		if (op->dev.of_node == grlib_apbuart_nodes[i])
+ 			break;
+ 	}
  
- 		info.addr = be32_to_cpup(addr);
+diff --git a/drivers/serial/nwpserial.c b/drivers/serial/nwpserial.c
+index e1ab8ec..3c02fa9 100644
+--- a/drivers/serial/nwpserial.c
++++ b/drivers/serial/nwpserial.c
+@@ -344,7 +344,7 @@ int nwpserial_register_port(struct uart_port *port)
  
--		dev_archdata_set_node(&dev_ad, node);
-+		dev_archdata_set_node(&dev_ad, node); /* temporary */
-+		info.of_node = node;
- 		info.archdata = &dev_ad;
+ 	mutex_lock(&nwpserial_mutex);
  
- 		request_module("%s", info.type);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0a5da63..4f37ff1 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -34,6 +34,7 @@
- #include <linux/device.h>	/* for struct device */
- #include <linux/sched.h>	/* for completion */
- #include <linux/mutex.h>
-+#include <linux/of.h>		/* for struct device_node */
+-	dn = to_of_device(port->dev)->node;
++	dn = to_of_device(port->dev)->dev.of_node;
+ 	if (dn == NULL)
+ 		goto out;
  
- extern struct bus_type i2c_bus_type;
+diff --git a/drivers/serial/of_serial.c b/drivers/serial/of_serial.c
+index cdf172e..18bf39b 100644
+--- a/drivers/serial/of_serial.c
++++ b/drivers/serial/of_serial.c
+@@ -30,7 +30,7 @@ static int __devinit of_platform_serial_setup(struct of_device *ofdev,
+ 					int type, struct uart_port *port)
+ {
+ 	struct resource resource;
+-	struct device_node *np = ofdev->node;
++	struct device_node *np = ofdev->dev.of_node;
+ 	const unsigned int *clk, *spd;
+ 	const u32 *prop;
+ 	int ret, prop_size;
+@@ -87,7 +87,7 @@ static int __devinit of_platform_serial_probe(struct of_device *ofdev,
+ 	int port_type;
+ 	int ret;
  
-@@ -251,6 +252,9 @@ struct i2c_board_info {
- 	unsigned short	addr;
- 	void		*platform_data;
- 	struct dev_archdata	*archdata;
-+#ifdef CONFIG_OF
-+	struct device_node *of_node;
-+#endif
- 	int		irq;
- };
+-	if (of_find_property(ofdev->node, "used-by-rtas", NULL))
++	if (of_find_property(ofdev->dev.of_node, "used-by-rtas", NULL))
+ 		return -EBUSY;
+ 
+ 	info = kmalloc(sizeof(*info), GFP_KERNEL);
+diff --git a/drivers/serial/pmac_zilog.c b/drivers/serial/pmac_zilog.c
+index f020de1..8abbbb3 100644
+--- a/drivers/serial/pmac_zilog.c
++++ b/drivers/serial/pmac_zilog.c
+@@ -1610,7 +1610,7 @@ static int pmz_attach(struct macio_dev *mdev, const struct of_device_id *match)
+ 	/* Iterate the pmz_ports array to find a matching entry
+ 	 */
+ 	for (i = 0; i < MAX_ZS_PORTS; i++)
+-		if (pmz_ports[i].node == mdev->ofdev.node) {
++		if (pmz_ports[i].node == mdev->ofdev.dev.of_node) {
+ 			struct uart_pmac_port *uap = &pmz_ports[i];
+ 
+ 			uap->dev = mdev;
+diff --git a/drivers/serial/sunhv.c b/drivers/serial/sunhv.c
+index d14cca7..d1eedf1 100644
+--- a/drivers/serial/sunhv.c
++++ b/drivers/serial/sunhv.c
+@@ -565,7 +565,7 @@ static int __devinit hv_probe(struct of_device *op, const struct of_device_id *m
+ 	if (err)
+ 		goto out_free_con_read_page;
+ 
+-	sunserial_console_match(&sunhv_console, op->node,
++	sunserial_console_match(&sunhv_console, op->dev.of_node,
+ 				&sunhv_reg, port->line, false);
+ 
+ 	err = uart_add_one_port(&sunhv_reg, port);
+diff --git a/drivers/serial/sunsab.c b/drivers/serial/sunsab.c
+index d514e28..2b8b2c2 100644
+--- a/drivers/serial/sunsab.c
++++ b/drivers/serial/sunsab.c
+@@ -883,7 +883,7 @@ static int sunsab_console_setup(struct console *con, char *options)
+ 	printk("Console: ttyS%d (SAB82532)\n",
+ 	       (sunsab_reg.minor - 64) + con->index);
+ 
+-	sunserial_console_termios(con, to_of_device(up->port.dev)->node);
++	sunserial_console_termios(con, to_of_device(up->port.dev)->dev.of_node);
+ 
+ 	switch (con->cflag & CBAUD) {
+ 	case B150: baud = 150; break;
+@@ -1026,11 +1026,11 @@ static int __devinit sab_probe(struct of_device *op, const struct of_device_id *
+ 	if (err)
+ 		goto out1;
+ 
+-	sunserial_console_match(SUNSAB_CONSOLE(), op->node,
++	sunserial_console_match(SUNSAB_CONSOLE(), op->dev.of_node,
+ 				&sunsab_reg, up[0].port.line,
+ 				false);
+ 
+-	sunserial_console_match(SUNSAB_CONSOLE(), op->node,
++	sunserial_console_match(SUNSAB_CONSOLE(), op->dev.of_node,
+ 				&sunsab_reg, up[1].port.line,
+ 				false);
  
