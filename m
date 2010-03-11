@@ -1,61 +1,85 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 19/27] drivers/pcmcia/of: don't use deprecated field in
-	of_platform_driver
-Date: Thu, 11 Mar 2010 11:23:33 -0700
-Message-ID: <20100311182332.13103.33898.stgit__8185.18763776428$1268332101$gmane$org@angua>
-References: <20100311181604.13103.30088.stgit@angua>
+From: Albrecht =?iso-8859-1?b?RHJl3w==?= <albrecht.dress-KvP5wT2u2U0@public.gmane.org>
+Subject: Re: [PATCH] misc/eeprom/at24: init dynamic bin_attribute structures
+Date: Thu, 11 Mar 2010 19:21:11 +0100
+Message-ID: <1268331680.2272.0@antares>
+References: <1268268932-23447-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+	micalg=PGP-SHA1; boundary="=-PjGAUeH+AC5Cq2NV9On/"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100311181604.13103.30088.stgit@angua>
+In-Reply-To: <1268268932-23447-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> (from
+	w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org on Thu Mar 11 01:55:32 2010)
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-.name, .match_table and .owner are duplicated in both of_platform_driver
-and device_driver, so the of_platform_driver copies will be removed soon.
+--=-PjGAUeH+AC5Cq2NV9On/
+Content-Type: text/plain; charset=ISO-8859-1; DelSp=Yes; Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
----
+Hi Wolfram:
 
- drivers/pcmcia/electra_cf.c  |    7 +++++--
- drivers/pcmcia/m8xx_pcmcia.c |    7 +++++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+your patch completely fixes the issue on my 5200B board.
 
-diff --git a/drivers/pcmcia/electra_cf.c b/drivers/pcmcia/electra_cf.c
-index a4d821f..4ea8530 100644
---- a/drivers/pcmcia/electra_cf.c
-+++ b/drivers/pcmcia/electra_cf.c
-@@ -356,8 +356,11 @@ static const struct of_device_id electra_cf_match[] = {
- MODULE_DEVICE_TABLE(of, electra_cf_match);
- 
- static struct of_platform_driver electra_cf_driver = {
--	.name	   = (char *)driver_name,
--	.match_table    = electra_cf_match,
-+	.driver = {
-+		.name = (char *)driver_name,
-+		.owner = THIS_MODULE,
-+		.of_match_table = electra_cf_match,
-+	},
- 	.probe	  = electra_cf_probe,
- 	.remove   = electra_cf_remove,
- };
-diff --git a/drivers/pcmcia/m8xx_pcmcia.c b/drivers/pcmcia/m8xx_pcmcia.c
-index 61c2159..af60745 100644
---- a/drivers/pcmcia/m8xx_pcmcia.c
-+++ b/drivers/pcmcia/m8xx_pcmcia.c
-@@ -1314,8 +1314,11 @@ static const struct of_device_id m8xx_pcmcia_match[] = {
- MODULE_DEVICE_TABLE(of, m8xx_pcmcia_match);
- 
- static struct of_platform_driver m8xx_pcmcia_driver = {
--	.name = driver_name,
--	.match_table = m8xx_pcmcia_match,
-+	.driver = {
-+		.name = driver_name,
-+		.owner = THIS_MODULE,
-+		.match_table = m8xx_pcmcia_match,
-+	},
- 	.probe = m8xx_probe,
- 	.remove = m8xx_remove,
- 	.suspend = m8xx_suspend,
+Just an other dumb question:  as I mentioned, the driver is loaded even if =
+no chip is attached to the i2c bus.  Wouldn't it make sense to check if the=
+ chip is there (e.g. by reading the first byte), and eject with ENODEV if i=
+t isn't?
+
+Thanks, Albrecht.
+
+Tested-By: Albrecht Dre=DF <albrecht.dress-KvP5wT2u2U0@public.gmane.org>
+
+Am 11.03.10 01:55 schrieb(en) Wolfram Sang:
+> Commit 6992f5334995af474c2b58d010d08bc597f0f2fe introduced this requireme=
+nt.
+>=20
+> Reported-by: Albrecht Dre=DF <albrecht.dress-KvP5wT2u2U0@public.gmane.org>
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Eric W. Biederman <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> ---
+>  drivers/misc/eeprom/at24.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+>=20
+> Depends on:
+>=20
+> http://thread.gmane.org/gmane.linux.drivers.i2c/5496
+>=20
+> ([PATCH V2] at24: Fall back to byte or word reads if needed)
+>=20
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 88c20da..d2deea4 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -541,6 +541,7 @@ static int at24_probe(struct i2c_client *client, cons=
+t struct i2c_device_id *id)
+>  	at24->bin.attr.mode =3D chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUS=
+R;
+>  	at24->bin.read =3D at24_bin_read;
+>  	at24->bin.size =3D chip.byte_len;
+> +	sysfs_bin_attr_init(&at24->bin);
+>=20
+>  	at24->macc.read =3D at24_macc_read;
+>=20
+> --
+> 1.7.0
+>=20
+>=20
+>=20
+>=20
+
+
+--=-PjGAUeH+AC5Cq2NV9On/
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.12 (GNU/Linux)
+
+iD8DBQBLmTSgn/9unNAn/9ERAvceAJ4rTGEUbbF3EcWvT94VOInfz0pImACfbnzt
+AtRKc+kERMrmhFm0oxZ4iIE=
+=SRYj
+-----END PGP SIGNATURE-----
+
+--=-PjGAUeH+AC5Cq2NV9On/--
