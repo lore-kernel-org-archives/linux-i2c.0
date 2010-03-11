@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 19/37] drivers/serial: use .dev.of_node instead of .node in
+Subject: [PATCH 23/37] drivers/i2c: use .dev.of_node instead of .node in
 	struct of_device
-Date: Thu, 11 Mar 2010 11:05:33 -0700
-Message-ID: <20100311180532.4824.64755.stgit@angua>
+Date: Thu, 11 Mar 2010 11:05:55 -0700
+Message-ID: <20100311180554.4824.52872.stgit__11392.068435862$1268330801$gmane$org@angua>
 References: <20100311174830.4824.19820.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,112 +18,64 @@ List-Id: linux-i2c@vger.kernel.org
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/serial/apbuart.c    |    2 +-
- drivers/serial/nwpserial.c  |    2 +-
- drivers/serial/of_serial.c  |    4 ++--
- drivers/serial/pmac_zilog.c |    2 +-
- drivers/serial/sunhv.c      |    2 +-
- drivers/serial/sunsab.c     |    6 +++---
- 6 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/serial/apbuart.c b/drivers/serial/apbuart.c
-index fe91319..52015d7 100644
---- a/drivers/serial/apbuart.c
-+++ b/drivers/serial/apbuart.c
-@@ -559,7 +559,7 @@ static int __devinit apbuart_probe(struct of_device *op,
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 78a15af..0123a6e 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -559,14 +559,14 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
  
- 	i = 0;
- 	for (i = 0; i < grlib_apbuart_port_nr; i++) {
--		if (op->node == grlib_apbuart_nodes[i])
-+		if (op->dev.of_node == grlib_apbuart_nodes[i])
- 			break;
+ 	init_waitqueue_head(&i2c->queue);
+ 
+-	i2c->base = of_iomap(op->node, 0);
++	i2c->base = of_iomap(op->dev.of_node, 0);
+ 	if (!i2c->base) {
+ 		dev_err(i2c->dev, "failed to map controller\n");
+ 		result = -ENOMEM;
+ 		goto fail_map;
  	}
  
-diff --git a/drivers/serial/nwpserial.c b/drivers/serial/nwpserial.c
-index e1ab8ec..3c02fa9 100644
---- a/drivers/serial/nwpserial.c
-+++ b/drivers/serial/nwpserial.c
-@@ -344,7 +344,7 @@ int nwpserial_register_port(struct uart_port *port)
+-	i2c->irq = irq_of_parse_and_map(op->node, 0);
++	i2c->irq = irq_of_parse_and_map(op->dev.of_node, 0);
+ 	if (i2c->irq != NO_IRQ) { /* i2c->irq = NO_IRQ implies polling */
+ 		result = request_irq(i2c->irq, mpc_i2c_isr,
+ 				     IRQF_SHARED, "i2c-mpc", i2c);
+@@ -576,21 +576,22 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
+ 		}
+ 	}
  
- 	mutex_lock(&nwpserial_mutex);
+-	if (of_get_property(op->node, "fsl,preserve-clocking", NULL)) {
++	if (of_get_property(op->dev.of_node, "fsl,preserve-clocking", NULL)) {
+ 		clock = MPC_I2C_CLOCK_PRESERVE;
+ 	} else {
+-		prop = of_get_property(op->node, "clock-frequency", &plen);
++		prop = of_get_property(op->dev.of_node, "clock-frequency",
++					&plen);
+ 		if (prop && plen == sizeof(u32))
+ 			clock = *prop;
+ 	}
  
--	dn = to_of_device(port->dev)->node;
-+	dn = to_of_device(port->dev)->dev.of_node;
- 	if (dn == NULL)
- 		goto out;
+ 	if (match->data) {
+ 		struct mpc_i2c_data *data = match->data;
+-		data->setup(op->node, i2c, clock, data->prescaler);
++		data->setup(op->dev.of_node, i2c, clock, data->prescaler);
+ 	} else {
+ 		/* Backwards compatibility */
+-		if (of_get_property(op->node, "dfsrr", NULL))
+-			mpc_i2c_setup_8xxx(op->node, i2c, clock, 0);
++		if (of_get_property(op->dev.of_node, "dfsrr", NULL))
++			mpc_i2c_setup_8xxx(op->dev.of_node, i2c, clock, 0);
+ 	}
  
-diff --git a/drivers/serial/of_serial.c b/drivers/serial/of_serial.c
-index cdf172e..18bf39b 100644
---- a/drivers/serial/of_serial.c
-+++ b/drivers/serial/of_serial.c
-@@ -30,7 +30,7 @@ static int __devinit of_platform_serial_setup(struct of_device *ofdev,
- 					int type, struct uart_port *port)
- {
- 	struct resource resource;
--	struct device_node *np = ofdev->node;
-+	struct device_node *np = ofdev->dev.of_node;
- 	const unsigned int *clk, *spd;
- 	const u32 *prop;
- 	int ret, prop_size;
-@@ -87,7 +87,7 @@ static int __devinit of_platform_serial_probe(struct of_device *ofdev,
- 	int port_type;
- 	int ret;
+ 	dev_set_drvdata(&op->dev, i2c);
+@@ -604,7 +605,7 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
+ 		dev_err(i2c->dev, "failed to add adapter\n");
+ 		goto fail_add;
+ 	}
+-	of_register_i2c_devices(&i2c->adap, op->node);
++	of_register_i2c_devices(&i2c->adap, op->dev.of_node);
  
--	if (of_find_property(ofdev->node, "used-by-rtas", NULL))
-+	if (of_find_property(ofdev->dev.of_node, "used-by-rtas", NULL))
- 		return -EBUSY;
- 
- 	info = kmalloc(sizeof(*info), GFP_KERNEL);
-diff --git a/drivers/serial/pmac_zilog.c b/drivers/serial/pmac_zilog.c
-index f020de1..8abbbb3 100644
---- a/drivers/serial/pmac_zilog.c
-+++ b/drivers/serial/pmac_zilog.c
-@@ -1610,7 +1610,7 @@ static int pmz_attach(struct macio_dev *mdev, const struct of_device_id *match)
- 	/* Iterate the pmz_ports array to find a matching entry
- 	 */
- 	for (i = 0; i < MAX_ZS_PORTS; i++)
--		if (pmz_ports[i].node == mdev->ofdev.node) {
-+		if (pmz_ports[i].node == mdev->ofdev.dev.of_node) {
- 			struct uart_pmac_port *uap = &pmz_ports[i];
- 
- 			uap->dev = mdev;
-diff --git a/drivers/serial/sunhv.c b/drivers/serial/sunhv.c
-index d14cca7..d1eedf1 100644
---- a/drivers/serial/sunhv.c
-+++ b/drivers/serial/sunhv.c
-@@ -565,7 +565,7 @@ static int __devinit hv_probe(struct of_device *op, const struct of_device_id *m
- 	if (err)
- 		goto out_free_con_read_page;
- 
--	sunserial_console_match(&sunhv_console, op->node,
-+	sunserial_console_match(&sunhv_console, op->dev.of_node,
- 				&sunhv_reg, port->line, false);
- 
- 	err = uart_add_one_port(&sunhv_reg, port);
-diff --git a/drivers/serial/sunsab.c b/drivers/serial/sunsab.c
-index d514e28..2b8b2c2 100644
---- a/drivers/serial/sunsab.c
-+++ b/drivers/serial/sunsab.c
-@@ -883,7 +883,7 @@ static int sunsab_console_setup(struct console *con, char *options)
- 	printk("Console: ttyS%d (SAB82532)\n",
- 	       (sunsab_reg.minor - 64) + con->index);
- 
--	sunserial_console_termios(con, to_of_device(up->port.dev)->node);
-+	sunserial_console_termios(con, to_of_device(up->port.dev)->dev.of_node);
- 
- 	switch (con->cflag & CBAUD) {
- 	case B150: baud = 150; break;
-@@ -1026,11 +1026,11 @@ static int __devinit sab_probe(struct of_device *op, const struct of_device_id *
- 	if (err)
- 		goto out1;
- 
--	sunserial_console_match(SUNSAB_CONSOLE(), op->node,
-+	sunserial_console_match(SUNSAB_CONSOLE(), op->dev.of_node,
- 				&sunsab_reg, up[0].port.line,
- 				false);
- 
--	sunserial_console_match(SUNSAB_CONSOLE(), op->node,
-+	sunserial_console_match(SUNSAB_CONSOLE(), op->dev.of_node,
- 				&sunsab_reg, up[1].port.line,
- 				false);
+ 	return result;
  
