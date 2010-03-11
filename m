@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 01/27] drivercore: Add of_match_table to the common device
-	drivers
-Date: Thu, 11 Mar 2010 11:21:53 -0700
-Message-ID: <20100311182153.13103.40899.stgit__45418.9041317024$1268332185$gmane$org@angua>
+Subject: [PATCH 03/27] drivers/watchdog/of: don't use deprecated .name and
+	.owner in of_platform_driver
+Date: Thu, 11 Mar 2010 11:22:04 -0700
+Message-ID: <20100311182204.13103.79395.stgit__15783.5791972049$1268332233$gmane$org@angua>
 References: <20100311181604.13103.30088.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -13,101 +13,91 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2@infrade
 List-Id: linux-i2c@vger.kernel.org
 
-OF-style matching can be available to any device, on any type of bus.
-This patch allows any driver to provide an OF match table when CONFIG_OF
-is enabled so that drivers can be bound against devices described in
-the device tree.
+.name, .match_table and .owner are duplicated in both of_platform_driver
+and device_driver, so the of_platform_driver copies will be removed soon.
 
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
 ---
 
- arch/powerpc/kernel/ibmebus.c  |    2 +-
- drivers/macintosh/macio_asic.c |    5 ++---
- drivers/of/platform.c          |    7 ++++---
- include/linux/device.h         |    4 ++++
- 4 files changed, 11 insertions(+), 7 deletions(-)
+ drivers/watchdog/cpwd.c        |    7 +++++--
+ drivers/watchdog/gef_wdt.c     |    8 +++++---
+ drivers/watchdog/mpc8xxx_wdt.c |    8 ++++----
+ drivers/watchdog/riowd.c       |    7 +++++--
+ 4 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/kernel/ibmebus.c b/arch/powerpc/kernel/ibmebus.c
-index 797e9ac..62ded8b 100644
---- a/arch/powerpc/kernel/ibmebus.c
-+++ b/arch/powerpc/kernel/ibmebus.c
-@@ -201,7 +201,7 @@ static int ibmebus_create_devices(const struct of_device_id *matches)
- int ibmebus_register_driver(struct of_platform_driver *drv)
- {
- 	/* If the driver uses devices that ibmebus doesn't know, add them */
--	ibmebus_create_devices(drv->match_table);
-+	ibmebus_create_devices(drv->driver.of_match_table);
+diff --git a/drivers/watchdog/cpwd.c b/drivers/watchdog/cpwd.c
+index 89da14f..4215b5d 100644
+--- a/drivers/watchdog/cpwd.c
++++ b/drivers/watchdog/cpwd.c
+@@ -676,8 +676,11 @@ static const struct of_device_id cpwd_match[] = {
+ MODULE_DEVICE_TABLE(of, cpwd_match);
  
- 	return of_register_driver(drv, &ibmebus_bus_type);
- }
-diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
-index 48a5f04..e3ba1d8 100644
---- a/drivers/macintosh/macio_asic.c
-+++ b/drivers/macintosh/macio_asic.c
-@@ -40,8 +40,7 @@ static struct macio_chip      *macio_on_hold;
- static int macio_bus_match(struct device *dev, struct device_driver *drv) 
- {
- 	struct macio_dev * macio_dev = to_macio_device(dev);
--	struct macio_driver * macio_drv = to_macio_driver(drv);
--	const struct of_device_id * matches = macio_drv->match_table;
-+	const struct of_device_id * matches = drv->of_match_table;
+ static struct of_platform_driver cpwd_driver = {
+-	.name		= DRIVER_NAME,
+-	.match_table	= cpwd_match,
++	.driver = {
++		.name = DRIVER_NAME,
++		.owner = THIS_MODULE,
++		.of_match_table = cpwd_match,
++	},
+ 	.probe		= cpwd_probe,
+ 	.remove		= __devexit_p(cpwd_remove),
+ };
+diff --git a/drivers/watchdog/gef_wdt.c b/drivers/watchdog/gef_wdt.c
+index abdbad0..ca0f4c6 100644
+--- a/drivers/watchdog/gef_wdt.c
++++ b/drivers/watchdog/gef_wdt.c
+@@ -303,9 +303,11 @@ static const struct of_device_id gef_wdt_ids[] = {
+ };
  
- 	if (!matches) 
- 		return 0;
-@@ -84,7 +83,7 @@ static int macio_device_probe(struct device *dev)
+ static struct of_platform_driver gef_wdt_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= "gef_wdt",
+-	.match_table	= gef_wdt_ids,
++	.driver = {
++		.name = "gef_wdt",
++		.owner = THIS_MODULE,
++		.of_match_table = gef_wdt_ids,
++	},
+ 	.probe		= gef_wdt_probe,
+ };
  
- 	macio_dev_get(macio_dev);
+diff --git a/drivers/watchdog/mpc8xxx_wdt.c b/drivers/watchdog/mpc8xxx_wdt.c
+index 4e3941c..7b55974 100644
+--- a/drivers/watchdog/mpc8xxx_wdt.c
++++ b/drivers/watchdog/mpc8xxx_wdt.c
+@@ -273,12 +273,12 @@ static const struct of_device_id mpc8xxx_wdt_match[] = {
+ MODULE_DEVICE_TABLE(of, mpc8xxx_wdt_match);
  
--	match = of_match_device(drv->match_table, &macio_dev->ofdev);
-+	match = of_match_device(drv->driver.of_match_table, &macio_dev->ofdev);
- 	if (match)
- 		error = drv->probe(macio_dev, match);
- 	if (error)
-diff --git a/drivers/of/platform.c b/drivers/of/platform.c
-index d58ade1..9fd7f7d 100644
---- a/drivers/of/platform.c
-+++ b/drivers/of/platform.c
-@@ -22,8 +22,7 @@ extern struct device_attribute of_platform_device_attrs[];
- static int of_platform_bus_match(struct device *dev, struct device_driver *drv)
- {
- 	struct of_device *of_dev = to_of_device(dev);
--	struct of_platform_driver *of_drv = to_of_platform_driver(drv);
--	const struct of_device_id *matches = of_drv->match_table;
-+	const struct of_device_id *matches = drv->of_match_table;
+ static struct of_platform_driver mpc8xxx_wdt_driver = {
+-	.match_table	= mpc8xxx_wdt_match,
+ 	.probe		= mpc8xxx_wdt_probe,
+ 	.remove		= __devexit_p(mpc8xxx_wdt_remove),
+-	.driver		= {
+-		.name	= "mpc8xxx_wdt",
+-		.owner	= THIS_MODULE,
++	.driver = {
++		.name = "mpc8xxx_wdt",
++		.owner = THIS_MODULE,
++		.of_match_table = mpc8xxx_wdt_match,
+ 	},
+ };
  
- 	if (!matches)
- 		return 0;
-@@ -46,7 +45,7 @@ static int of_platform_device_probe(struct device *dev)
+diff --git a/drivers/watchdog/riowd.c b/drivers/watchdog/riowd.c
+index ae57bf9..e7973bf 100644
+--- a/drivers/watchdog/riowd.c
++++ b/drivers/watchdog/riowd.c
+@@ -238,8 +238,11 @@ static const struct of_device_id riowd_match[] = {
+ MODULE_DEVICE_TABLE(of, riowd_match);
  
- 	of_dev_get(of_dev);
- 
--	match = of_match_device(drv->match_table, of_dev);
-+	match = of_match_device(drv->driver.of_match_table, of_dev);
- 	if (match)
- 		error = drv->probe(of_dev, match);
- 	if (error)
-@@ -391,6 +390,8 @@ int of_register_driver(struct of_platform_driver *drv, struct bus_type *bus)
- 		drv->driver.name = drv->name;
- 	if (!drv->driver.owner)
- 		drv->driver.owner = drv->owner;
-+	if (!drv->driver.of_match_table)
-+		drv->driver.of_match_table = drv->match_table;
- 	drv->driver.bus = bus;
- 
- 	/* register with core */
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 7a968bd..cd7534c 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -129,6 +129,10 @@ struct device_driver {
- 
- 	bool suppress_bind_attrs;	/* disables bind/unbind via sysfs */
- 
-+#if defined(CONFIG_OF)
-+	const struct of_device_id	*of_match_table;
-+#endif
-+
- 	int (*probe) (struct device *dev);
- 	int (*remove) (struct device *dev);
- 	void (*shutdown) (struct device *dev);
+ static struct of_platform_driver riowd_driver = {
+-	.name		= DRIVER_NAME,
+-	.match_table	= riowd_match,
++	.driver = {
++		.name = DRIVER_NAME,
++		.owner = THIS_MODULE,
++		.of_match_table = riowd_match,
++	},
+ 	.probe		= riowd_probe,
+ 	.remove		= __devexit_p(riowd_remove),
+ };
