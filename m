@@ -1,8 +1,8 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 28/37] drivers/scsi: use .of_node instead of .archdata.of_node
-	in struct device
-Date: Thu, 11 Mar 2010 11:06:22 -0700
-Message-ID: <20100311180622.4824.54684.stgit__31474.0052250729$1268331152$gmane$org@angua>
+Subject: [PATCH 30/37] drivers/cdrom: use .of_node instead of
+	.archdata.of_node in struct device
+Date: Thu, 11 Mar 2010 11:06:33 -0700
+Message-ID: <20100311180633.4824.27717.stgit__11419.42139152$1268331153$gmane$org@angua>
 References: <20100311174830.4824.19820.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -18,33 +18,19 @@ List-Id: linux-i2c@vger.kernel.org
 Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
 
- drivers/scsi/ibmvscsi/ibmvfc.c   |    2 +-
- drivers/scsi/ibmvscsi/ibmvscsi.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/cdrom/viocd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
-index 732f6d3..e230cd4 100644
---- a/drivers/scsi/ibmvscsi/ibmvfc.c
-+++ b/drivers/scsi/ibmvscsi/ibmvfc.c
-@@ -1155,7 +1155,7 @@ static void ibmvfc_gather_partition_info(struct ibmvfc_host *vhost)
- static void ibmvfc_set_login_info(struct ibmvfc_host *vhost)
- {
- 	struct ibmvfc_npiv_login *login_info = &vhost->login_info;
--	struct device_node *of_node = vhost->dev->archdata.of_node;
-+	struct device_node *of_node = vhost->dev->of_node;
- 	const char *location;
+diff --git a/drivers/cdrom/viocd.c b/drivers/cdrom/viocd.c
+index cc435be..451cd70 100644
+--- a/drivers/cdrom/viocd.c
++++ b/drivers/cdrom/viocd.c
+@@ -567,7 +567,7 @@ static int viocd_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 	struct disk_info *d;
+ 	struct cdrom_device_info *c;
+ 	struct request_queue *q;
+-	struct device_node *node = vdev->dev.archdata.of_node;
++	struct device_node *node = vdev->dev.of_node;
  
- 	memset(login_info, 0, sizeof(*login_info));
-diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
-index e3a18e0..c4b5af3 100644
---- a/drivers/scsi/ibmvscsi/ibmvscsi.c
-+++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
-@@ -955,7 +955,7 @@ static void send_mad_capabilities(struct ibmvscsi_host_data *hostdata)
- 	struct viosrp_capabilities *req;
- 	struct srp_event_struct *evt_struct;
- 	unsigned long flags;
--	struct device_node *of_node = hostdata->dev->archdata.of_node;
-+	struct device_node *of_node = hostdata->dev->of_node;
- 	const char *location;
- 
- 	evt_struct = get_event_struct(&hostdata->pool);
+ 	deviceno = vdev->unit_address;
+ 	if (deviceno >= VIOCD_MAX_CD)
