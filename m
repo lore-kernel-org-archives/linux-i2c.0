@@ -1,58 +1,51 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] misc/eeprom/at24: init dynamic bin_attribute structures
-Date: Fri, 12 Mar 2010 08:12:33 +0100
-Message-ID: <20100312071233.GD10684@pengutronix.de>
-References: <1268268932-23447-1-git-send-email-w.sang@pengutronix.de> <20100311085835.34c6cd51@hyperion.delvare> <20100311080347.GB16219@pengutronix.de> <20100311115426.6440837c@hyperion.delvare> <20100311112321.GA28805@pengutronix.de> <20100311155753.25fc9a5c@hyperion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 33/37] sound/soc: use .dev.of_node instead of .node in
+  struct of_device
+Date: Fri, 12 Mar 2010 09:26:19 +0100
+Message-ID: <20100312092619.6a6f5e20@hyperion.delvare>
+References: <20100311174830.4824.19820.stgit@angua>
+	<20100311180649.4824.10368.stgit@angua>
+	<20100311193458.GA13289@opensource.wolfsonmicro.com>
+	<fa686aa41003111322wc1f15b2hd3f653af060f56bf@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100311155753.25fc9a5c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Albrecht =?iso-8859-15?Q?Dre=DF?= <albrecht.dress-KvP5wT2u2U0@public.gmane.org>, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <fa686aa41003111322wc1f15b2hd3f653af060f56bf@mail.gmail.com>
+Sender: linux-ide-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, monstr@monstr.eu, gregkh@suse.de, benh@kernel.crashing.org, akpm@linux-foundation.org, davem@davemloft.net, sfr@canb.auug.org.au, jgarzik@pobox.com, ben-linux@fluff.org, dwmw2@infradead.org, jeremy.kerr@canonical.com, James.Bottomley@suse.de, microblaze-uclinux@itee.uq.edu.au, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, sparclinux@vger.kernel.org, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-scsi@vger.kernel.org, alsa-devel@alsa-project.org, timur@freescale.com, lrg@slimlogic.co.uk
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 11 Mar 2010 14:22:37 -0700, Grant Likely wrote:
+> On Thu, Mar 11, 2010 at 12:34 PM, Mark Brown
+> <broonie@opensource.wolfsonmicro.com> wrote:
+> > On Thu, Mar 11, 2010 at 11:06:50AM -0700, Grant Likely wrote:
+> >> .node is being removed
+> >>
+> >> Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+> >
+> > Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> >
+> > but please ensure that Liam and especially Timur also check this (both
+> > CCed).
+> >
+> > For enormous patch serieses like this it's really nice if you can ensure
+> > that each person is only CCed on the patches that they need to review.
+> > Much less stuff in the inbox.
+> 
+> Yeah, sorry about that (and to everyone receiving this thread, I'm
+> really sorry.  I won't do it again).  I've already been yelled at for
+> that.  What happened is that on a previous series I was yelled at for
+> not sending all patches to everyone (so that the patches could be
+> reviewed in context).  So, naturally, I made sure to include everyone
+> on the whole series this time....  doh.
+> 
+> Next time I post I'll constrain it to small chunks.
 
---3Pql8miugIZX0722
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A good compromise IMHO is to send only the pieces they really have to
+see and ack to each person, and provide a pointer to somewhere the full
+series can be seen and downloaded for the interested.
 
-> A quick grep suggests that only 3 drivers need care:
-> arch/mips/txx9/generic/setup.c
-> drivers/misc/eeprom/at24.c
-> drivers/misc/eeprom/at25.c
->=20
-> I'm curious if coccinelle will find more...
-
-See kernel-janitors:
-
-drivers/base/firmware_class.c
-drivers/rtc/rtc-ds1742.c
-
-needed a fix, too. At least those, I am not 100% sure I found all of them.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---3Pql8miugIZX0722
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkuZ6WEACgkQD27XaX1/VRs0JwCcCfaCw30uOJfu7GYrBWbEw8/M
-eLcAnjUsEV9q9066TBxe7/fcMY45rux5
-=9/Oj
------END PGP SIGNATURE-----
-
---3Pql8miugIZX0722--
+-- 
+Jean Delvare
