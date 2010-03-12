@@ -1,46 +1,58 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2] [I2C-OMAP] Add support for 16-bit registers
-Date: Thu, 11 Mar 2010 16:17:53 -0800
-Message-ID: <20100312001753.GC2900@atomide.com>
-References: <1260669242-29865-1-git-send-email-darkstar6262@gmail.com>
- <6cb013311001090947m2268833cv3784f469dc8b861d@mail.gmail.com>
- <20100109183321.GH2879@atomide.com>
- <6cb013311001091035x54321b3aqb814f476200980af@mail.gmail.com>
- <20100112012814.GK5055@atomide.com>
- <87k4tkf3ye.fsf@deeprootsystems.com>
- <20100310223000.GT2900@atomide.com>
- <878w9ydd6x.fsf@deeprootsystems.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] misc/eeprom/at24: init dynamic bin_attribute structures
+Date: Fri, 12 Mar 2010 08:12:33 +0100
+Message-ID: <20100312071233.GD10684@pengutronix.de>
+References: <1268268932-23447-1-git-send-email-w.sang@pengutronix.de> <20100311085835.34c6cd51@hyperion.delvare> <20100311080347.GB16219@pengutronix.de> <20100311115426.6440837c@hyperion.delvare> <20100311112321.GA28805@pengutronix.de> <20100311155753.25fc9a5c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <878w9ydd6x.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <20100311155753.25fc9a5c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Albrecht =?iso-8859-15?Q?Dre=DF?= <albrecht.dress-KvP5wT2u2U0@public.gmane.org>, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> [100311 08:36]:
-> Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> writes:
-> >
-> > Anyways, for the future, considering how critical this driver is
-> > for all omaps.. And considering how badly this driver needs some
-> > updates done..
-> >
-> > How about we pile up the i2c-omap patches for testing into linux-omap
-> > branch first, then ask Ben to pull it around -rc6 after we've all
-> > acked and tested the changes?
-> >
-> > Ben does that sound OK to you?
-> 
-> Here's another one to add to omap-testing then.
-> 
-> This one has been submitted to linux-i2c a couple times and been in
-> the OMAP PM branch for a while.
 
-OK, let's add that to omap-testing after we're done with the initial
-fixes. This does not currently apply on top of omap-testing, BTW.
+--3Pql8miugIZX0722
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> A quick grep suggests that only 3 drivers need care:
+> arch/mips/txx9/generic/setup.c
+> drivers/misc/eeprom/at24.c
+> drivers/misc/eeprom/at25.c
+>=20
+> I'm curious if coccinelle will find more...
+
+See kernel-janitors:
+
+drivers/base/firmware_class.c
+drivers/rtc/rtc-ds1742.c
+
+needed a fix, too. At least those, I am not 100% sure I found all of them.
 
 Regards,
 
-Tony
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--3Pql8miugIZX0722
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkuZ6WEACgkQD27XaX1/VRs0JwCcCfaCw30uOJfu7GYrBWbEw8/M
+eLcAnjUsEV9q9066TBxe7/fcMY45rux5
+=9/Oj
+-----END PGP SIGNATURE-----
+
+--3Pql8miugIZX0722--
