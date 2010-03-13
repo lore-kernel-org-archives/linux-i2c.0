@@ -1,48 +1,75 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v2] [I2C-OMAP] Add support for 16-bit registers
-Date: Fri, 12 Mar 2010 16:28:00 -0800
-Message-ID: <87eijp2hgv.fsf@deeprootsystems.com>
-References: <1260669242-29865-1-git-send-email-darkstar6262@gmail.com>
-	<6cb013311001090947m2268833cv3784f469dc8b861d@mail.gmail.com>
-	<20100109183321.GH2879@atomide.com>
-	<6cb013311001091035x54321b3aqb814f476200980af@mail.gmail.com>
-	<20100112012814.GK5055@atomide.com>
-	<87k4tkf3ye.fsf@deeprootsystems.com>
-	<20100310223000.GT2900@atomide.com>
-	<878w9ydd6x.fsf@deeprootsystems.com>
-	<20100312001753.GC2900@atomide.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-algo-bit: Add pre- and post-xfer hooks
+Date: Sat, 13 Mar 2010 17:47:57 +0100
+Message-ID: <20100313174757.4a9f40d7@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100312001753.GC2900-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> (Tony Lindgren's message of "Thu\, 11 Mar 2010 16\:17\:53 -0800")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Cory Maccarrone <darkstar6262-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> writes:
+Drivers might have to do random things before and/or after I2C
+transfers. Add hooks to the i2c-algo-bit implementation to let them do
+so.
 
-> * Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> [100311 08:36]:
->> Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> writes:
->> >
->> > Anyways, for the future, considering how critical this driver is
->> > for all omaps.. And considering how badly this driver needs some
->> > updates done..
->> >
->> > How about we pile up the i2c-omap patches for testing into linux-omap
->> > branch first, then ask Ben to pull it around -rc6 after we've all
->> > acked and tested the changes?
->> >
->> > Ben does that sound OK to you?
->> 
->> Here's another one to add to omap-testing then.
->> 
->> This one has been submitted to linux-i2c a couple times and been in
->> the OMAP PM branch for a while.
->
-> OK, let's add that to omap-testing after we're done with the initial
-> fixes. This does not currently apply on top of omap-testing, BTW.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Michael Krufky <mkrufky-dJidKbW2IEtAfugRpC6u6w@public.gmane.org>
+---
+Alex, compared to the first version I sent, I have removed the second
+parameter of the hooks. You did not use it, I'm not really sure why
+anybody would, and if one really needs the private data, it can be
+reached from the i2c_adapter struct itself. So I'd rather start simple,
+and add parameters only if a clear need appears over time. You'll have
+to update your patch to the radeon driver accordingly.
 
-The patch is against v2.6.34-rc1.
+Michael, I seem to recall you wanted something like that a couple years
+ago?
 
-Kevin
+ drivers/i2c/algos/i2c-algo-bit.c |    9 +++++++++
+ include/linux/i2c-algo-bit.h     |    2 ++
+ 2 files changed, 11 insertions(+)
+
+--- linux-2.6.34-rc1.orig/drivers/i2c/algos/i2c-algo-bit.c	2010-03-13 16:26:30.000000000 +0100
++++ linux-2.6.34-rc1/drivers/i2c/algos/i2c-algo-bit.c	2010-03-13 16:41:05.000000000 +0100
+@@ -522,6 +522,12 @@ static int bit_xfer(struct i2c_adapter *
+ 	int i, ret;
+ 	unsigned short nak_ok;
+ 
++	if (adap->pre_xfer) {
++		ret = adap->pre_xfer(i2c_adap);
++		if (ret < 0)
++			return ret;
++	}
++
+ 	bit_dbg(3, &i2c_adap->dev, "emitting start condition\n");
+ 	i2c_start(adap);
+ 	for (i = 0; i < num; i++) {
+@@ -570,6 +576,9 @@ static int bit_xfer(struct i2c_adapter *
+ bailout:
+ 	bit_dbg(3, &i2c_adap->dev, "emitting stop condition\n");
+ 	i2c_stop(adap);
++
++	if (adap->post_xfer)
++		adap->post_xfer(i2c_adap);
+ 	return ret;
+ }
+ 
+--- linux-2.6.34-rc1.orig/include/linux/i2c-algo-bit.h	2010-03-13 16:26:30.000000000 +0100
++++ linux-2.6.34-rc1/include/linux/i2c-algo-bit.h	2010-03-13 17:23:03.000000000 +0100
+@@ -36,6 +36,8 @@ struct i2c_algo_bit_data {
+ 	void (*setscl) (void *data, int state);
+ 	int  (*getsda) (void *data);
+ 	int  (*getscl) (void *data);
++	int  (*pre_xfer)  (struct i2c_adapter *);
++	void (*post_xfer) (struct i2c_adapter *);
+ 
+ 	/* local settings */
+ 	int udelay;		/* half clock cycle time in us,
+
+
+-- 
+Jean Delvare
