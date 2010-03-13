@@ -1,34 +1,55 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: [linux-pm] [PATCH] i2c: Use generic subsystem-level power
- management callbacks
-Date: Sat, 13 Mar 2010 16:34:29 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1003131627270.19476-100000@netrider.rowland.org>
-References: <201003132204.30905.rjw@sisk.pl>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c fixes for 2.6.34
+Date: Sat, 13 Mar 2010 22:51:57 +0100
+Message-ID: <20100313225157.34190a35@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201003132204.30905.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, pm list <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 13 Mar 2010, Rafael J. Wysocki wrote:
+Hi Linus,
 
-> Please note that the "legacy" callbacks removed by this patch are already
-> effectively dead, because they are not going to be called by the PM core
-> anyway.  I'm not sure if this is what we want, though, so please let me know
-> in case it's not.
+Please pull i2c subsystem fixes for Linux 2.6.34 from:
 
-You know, maybe we should allow bus types to use both the old and new
-interfaces.  It would make life easier for other subsystems in addition
-to i2c.
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
 
-This doesn't mean that the core would end up calling two sets of
-suspend routines.  If the bus type uses legacy routines then all the
-non-runtime entries in the pm_ops structure would be empty.
+ drivers/i2c/Kconfig                   |    9 ---------
+ drivers/i2c/Makefile                  |    2 +-
+ drivers/i2c/algos/i2c-algo-bit.c      |    9 +++++++++
+ drivers/i2c/busses/i2c-i801.c         |    6 ++++--
+ drivers/i2c/busses/i2c-powermac.c     |   25 ++++++++++++++++++-------
+ drivers/i2c/chips/Kconfig             |   19 -------------------
+ drivers/i2c/chips/Makefile            |   18 ------------------
+ drivers/i2c/i2c-smbus.c               |    5 ++---
+ drivers/misc/Kconfig                  |   10 ++++++++++
+ drivers/misc/Makefile                 |    1 +
+ drivers/misc/eeprom/at24.c            |    1 +
+ drivers/{i2c/chips => misc}/tsl2550.c |    4 ++--
+ include/linux/i2c-algo-bit.h          |    2 ++
+ 13 files changed, 50 insertions(+), 61 deletions(-)
+ delete mode 100644 drivers/i2c/chips/Kconfig
+ delete mode 100644 drivers/i2c/chips/Makefile
+ rename drivers/{i2c/chips => misc}/tsl2550.c (99%)
 
-The changes to the PM core necessary to do this are quite small.  Does 
-it seem like a reasonable thing to do?
+---------------
 
-Alan Stern
+Jean Delvare (5):
+      i2c-powermac: Be less verbose in the absence of real errors.
+      i2c-i801: Don't use the block buffer for I2C block writes
+      tsl2550: Move from i2c/chips to misc
+      i2c: Drop configure option I2C_DEBUG_CHIP
+      i2c-algo-bit: Add pre- and post-xfer hooks
+
+Stephen Rothwell (1):
+      i2c-smbus: Use device_lock/device_unlock
+
+Wolfram Sang (1):
+      at24: Init dynamic bin_attribute structures
+
+Thanks,
+-- 
+Jean Delvare
