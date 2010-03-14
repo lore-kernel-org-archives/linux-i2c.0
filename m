@@ -1,53 +1,51 @@
-From: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
-Subject: [PATCH, fix 2/2] Add include to i2c-xii.c to fix build error
-Date: Sun, 14 Mar 2010 23:07:47 +1100
-Message-ID: <20100314230747.1a118846.sfr@canb.auug.org.au>
-References: <4B94C951.6050703@pelagicore.com>
-	<20100308150121.GW10014@trinity.fluff.org>
-	<4B956F9E.8020304@oracle.com>
-	<4B960420.8040804@pelagicore.com>
-	<20100314230525.352410e5.sfr@canb.auug.org.au>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: Re: [linux-pm] [PATCH] i2c: Use generic subsystem-level power management callbacks
+Date: Sun, 14 Mar 2010 20:58:45 +0100
+Message-ID: <201003142058.45981.rjw@sisk.pl>
+References: <Pine.LNX.4.44L0.1003131627270.19476-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100314230525.352410e5.sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.44L0.1003131627270.19476-100000-pYrvlCTfrz9XsRXLowluHWD2FQJk+8+b@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: =?UTF-8?B?IlJpY2hhcmQgUsO2amZvcnMi?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>, Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, xtfeng-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, pm list <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Date: Thu, 04 Feb 2010 12:11:09 -0800
+On Saturday 13 March 2010, Alan Stern wrote:
+> On Sat, 13 Mar 2010, Rafael J. Wysocki wrote:
+> 
+> > Please note that the "legacy" callbacks removed by this patch are already
+> > effectively dead, because they are not going to be called by the PM core
+> > anyway.  I'm not sure if this is what we want, though, so please let me know
+> > in case it's not.
+> 
+> You know, maybe we should allow bus types to use both the old and new
+> interfaces.  It would make life easier for other subsystems in addition
+> to i2c.
+> 
+> This doesn't mean that the core would end up calling two sets of
+> suspend routines.  If the bus type uses legacy routines then all the
+> non-runtime entries in the pm_ops structure would be empty.
+> 
+> The changes to the PM core necessary to do this are quite small.
 
-drivers/i2c/busses/i2c-xiic.c:493: error: implicit declaration of funct=
-ion 'mdelay'
+Not really.  The detection that the particular callback is not present happens
+in pm_op(), while the decision which framework to use is made at the
+device_[suspend|resume]() level.
 
-Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Cc: "Richard R=C3=B6jfors" <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Signed-off-by: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
----
- drivers/i2c/busses/i2c-xiic.c |    1 +
- 1 file changed, 1 insertion(+)
+> Does it seem like a reasonable thing to do?
 
-Hi Linus,
+Well, if someone spends time on implementing new callbacks for a bus type,
+writing them in such a way that they will call the "legacy" callbacks from
+drivers if necessary is not really a big deal IMO.
 
-This patch has been in linux-next for a while as well.  Please apply.
+The problem in this particular case is that I don't know whether or not we
+_want_ the drivers' "legacy" callbacks to be invoked at all.  The $subject
+patch assumes we don't, but if we do in fact, I'll rework it to do so.
 
---- linux-next-20100204.orig/drivers/i2c/busses/i2c-xiic.c
-+++ linux-next-20100204/drivers/i2c/busses/i2c-xiic.c
-@@ -31,6 +31,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/errno.h>
-+#include <linux/delay.h>
- #include <linux/platform_device.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
+I need that piece of information, though. :-)
 
---=20
-Cheers,
-Stephen Rothwell                    sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org
-http://www.canb.auug.org.au/~sfr/
+Rafael
