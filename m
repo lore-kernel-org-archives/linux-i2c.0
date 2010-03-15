@@ -1,40 +1,33 @@
-From: Robert Schwebel <r.schwebel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: i2c driver for mxc platform
-Date: Mon, 15 Mar 2010 20:37:57 +0100
-Message-ID: <20100315193757.GC2723@pengutronix.de>
-References: <528f13591003151100q29984964n99828cccad075d41@mail.gmail.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [linux-pm] [PATCH] i2c: Use generic subsystem-level power
+ management callbacks
+Date: Mon, 15 Mar 2010 16:38:03 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1003151630370.1332-100000@iolanthe.rowland.org>
+References: <201003152034.12195.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <528f13591003151100q29984964n99828cccad075d41-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <201003152034.12195.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: alfred steele <alfred.jaquez-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sascha Hauer <sha-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, pm list <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 15, 2010 at 01:00:42PM -0500, alfred steele wrote:
-> Looks like there is some discrepancy with the mxc i2c driver.
->
-> In this portion of the mxc_i2c_stop()  routine, the MSTA bit is
-> cleared(1to 0) to generate a stop condition but there is no  state
-> check whatsoever before for the IBB bit (bus busy bit is set or not)
->
-> while (retry-- && ((sr & MXC_I2SR_IBB))) {
->         udelay(3);
->         sr = readw(dev->membase + MXC_I2SR);
->
-> I am not sure what SCL frequency has been tested with  for the
-> "udelay(3)". Is that a sufficient wait on busses set to run on the
-> traditional slow rate(bit rate upto 100 kbps?
->
-> I am curious.
+On Mon, 15 Mar 2010, Rafael J. Wysocki wrote:
 
-Setting Wolfram and Sascha to Cc: ...
+> In fact, I'd like the "legacy" callbacks to go, at least at the subsystem
+> level, so I'd prefer not to make it easier to keep them around.
+> 
+> How many bus types are there and how many of them actually implement power
+> management callbacks?  I don't really think the issue is so big.
 
-rsc
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+I have no idea.  But I'm in the middle of implementing runtime PM for
+SCSI.  SCSI already has bus-level legacy callbacks, so to add the
+runtime methods without changing the existing system sleep behavior
+requires something like this.
+
+The alternative is to write a bunch of tiny "shim" functions, sort of
+like what I ended up doing in the USB stack (see usb_dev_prepare() and
+the following routines in drivers/usb/core/usb.c).
+
+Alan Stern
