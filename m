@@ -1,7 +1,7 @@
 From: wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Subject: [PATCH 1/3] i2c-pnx: Limit maximum divider to 1023
-Date: Tue, 16 Mar 2010 15:55:36 -0700
-Message-ID: <1268780138-10019-3-git-send-email-wellsk40@gmail.com>
+Date: Tue, 16 Mar 2010 15:55:35 -0700
+Message-ID: <1268780138-10019-2-git-send-email-wellsk40@gmail.com>
 References: <1268780138-10019-1-git-send-email-wellsk40@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1268780138-10019-1-git-send-email-wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
@@ -12,7 +12,7 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Limit maximum divider to 0x3ff to divider computations. On high I2C
+Limit maximum divider to 0x3ff on divider computations. On high I2C
 parent clock rates, the divider can exceed 0x3ff. This will help
 prevent some very odd clock rates.
 
