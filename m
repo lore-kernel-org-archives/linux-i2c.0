@@ -1,29 +1,27 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] omap i2c: make errata 1.153 workaround a separate
- function
-Date: Tue, 16 Mar 2010 07:30:25 -0700
-Message-ID: <20100316143025.GR2900@atomide.com>
-References: <1260972144-31593-1-git-send-email-virtuoso@slind.org>
- <1260972144-31593-2-git-send-email-virtuoso@slind.org>
- <20100316112741.GA13389@shisha.kicks-ass.net>
+From: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Subject: Re: [PATCH V2] MIPS: Octeon: Register EEPROM device on the I2C bus
+Date: Tue, 16 Mar 2010 19:09:46 +0100
+Message-ID: <20100316180946.GC20160@linux-mips.org>
+References: <1268026190-18300-1-git-send-email-yang.shi@windriver.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100316112741.GA13389-rKUxRSusx2MF9cI+BDt40OTW4wlIGRCZ@public.gmane.org>
+In-Reply-To: <1268026190-18300-1-git-send-email-yang.shi-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yang Shi <yang.shi-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
+Cc: ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org> [100316 04:28]:
-> On Wed, Dec 16, 2009 at 04:02:23 +0200, Alexander Shishkin wrote:
-> > This is to avoid insanely long lines and levels of indentation.
-> 
-> These seem to be forgotten. Is there any problem with these I should address?
+On Mon, Mar 08, 2010 at 01:29:50PM +0800, Yang Shi wrote:
 
-Can you please repost and I'll add those too into omap-testing
-first? Or maybe point to the right patchwork.kernel.org link.
+> An SPD resides on 0x50 of the I2C bus on CN56xx/57xx board,
+> register this device.
 
-Regards,
+I wonder what the use case for this patch is?  Normally Linux doesn't care
+about SPD.
 
-Tony
+I also wonder how this will work for configurations with multiple memory
+modules thus multiple SPD EEPROMS.
+
+  Ralf
