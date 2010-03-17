@@ -1,75 +1,70 @@
-From: Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
- bus
-Date: Wed, 17 Mar 2010 16:58:44 +0530
-Message-ID: <4BA0BCEC.8040209@mvista.com>
-References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>	<1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>	<225d086e1002050553tc1a696avce827cc115f56b1c@mail.gmail.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E2639AD8@dbde02.ent.ti.com>	<4B94FD6F.7050603@mvista.com> <87d3z4xa7m.fsf@deeprootsystems.com>
+From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: PCA9564: "bus is not idle" issue
+Date: Wed, 17 Mar 2010 13:59:03 +0100
+Message-ID: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87d3z4xa7m.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/17/2010 02:20 AM, Kevin Hilman wrote:
-> Philby John<pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>  writes:
->
->> On 02/08/2010 04:05 PM, Nori, Sekhar wrote:
->>> Hi Philby,
->>>
->>> On Fri, Feb 05, 2010 at 19:23:43, Philby John wrote:
->>>> Hello Sekhar,
->>>>
->>>
->>> [...]
->>>
->>>>>> +/* Generate a pulse on the i2c clock pin. */
->>>>>> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
->>>>>> +{
->>>>>> +     u16 i;
->>>>>> +
->>>>>> +     if (scl_pin) {
->>>>>> +             /* Send high and low on the SCL line */
->>>>>> +             for (i = 0; i<   9; i++) {
->>>>>> +                     gpio_set_value(scl_pin, 0);
->>>>>> +                     udelay(20);
->>>>>> +                     gpio_set_value(scl_pin, 1);
->>>>>> +                     udelay(20);
->>>>>> +             }
->>>>>
->>>>> Before using the pins as GPIO, you would have to set the
->>>>> functionality of these pins as GPIO. You had this code in
->>>>> previous incarnations of this patch - not sure why it is
->>>>> dropped now.
->>>>>
->>
->> I now think that the previous versions were incorrect since
->> davinci_cfg_reg() does not set the scl or sda pins for gpio
->> functionality. Instead they set them as scl or sda which is not what
->> we want at the time of pulsing. The previous versions used
->> gpio_set_value() in disable_i2c_pins() and then called
->> davinci_cfg_reg(). After which it called pulse_i2c_clock().
->>
->> Please correct me if my interpretation of the code is incorrect.
->
-> Can we get some resolution here?
->
-> I have a queue of davinci i2c patches waiting to go upstream, and I'd
-> like to get them in for 2.6.35.
->
-> The current i2c series is in the 'davinci-i2c' branch of davinci git.
+Hi,
 
-To quote Sekhar, "...Right. It is only an enhancement (and only good
-to have at that). This should not stop the current patch from getting 
-in." So this patch is good to make it to 2.6.35
+I'm using PCA9564 attached to a ks8695 SoC. During my efforts to get
+2.6.33/34 running on my system I noticed sporadic problems with RTC:
 
->
-> Please submit an updated version so we can get this stuff upstream.
+rtc-ds1307 0-0068: read error -11
+RTC_RD_TIME: Input/output error
+ioctl() to /dev/rtc to read the time failed.
 
-Right, the enhancement has now been sent.
+After turning debug messages in i2c subsystem I got following info:
+
+i2c i2c-0: master_xfer[0] W, addr=0x68, len=1
+i2c i2c-0: master_xfer[1] R, addr=0x68, len=7
+i2c i2c-0: bus is not idle. status is 0x28 (sometimes it is 0x50 or 0x58)
+
+This is the way I configure RTC and I2C:
+
+/*****************************************************************************
+ * RTC DS1337 on I2C bus
+ ****************************************************************************/
+static struct i2c_board_info __initdata vsopenrisc_i2c_rtc = {
+		I2C_BOARD_INFO("ds1337", 0x68),
+};
+static struct i2c_pca9564_pf_platform_data  __initdata pca_data ={
+	    .gpio = -1,
+	    .i2c_clock_speed = 59000,
+	    .timeout = 1,
+};
+
+static struct resource pca_resources[] = {
+	[0] = {
+		 .start	= VSOPENRISC_PA_I2C_BASE,
+		 .end	= VSOPENRISC_PA_I2C_BASE + 0x400 - 1,
+		 .flags	= IORESOURCE_MEM | IORESOURCE_MEM_32BIT,
+   	},
+	[1] = {
+		.start	= 0,
+		.end	= 0,
+		.flags	= IORESOURCE_IRQ,
+	},
+};
+
+static struct platform_device vsopenrisc_pca_device = {
+	.name		= "i2c-pca-platform",
+	.id		= -1,
+	.dev		= {
+			    .platform_data	= &pca_data,
+			},
+	.resource	= pca_resources,
+	.num_resources	= ARRAY_SIZE(pca_resources),
+};
+
+With the older kernel 2.6.26 I have never encountered such problems
+before. Diffing i2c-algo-pca.c between 2.6.26 and 2.6.33 showed that
+there were some minor changes regarding waiting policy in pca_xfer().
+Could this be the reason for such behavior? Any idea?
 
 Regards,
-Philby
+Yegor
