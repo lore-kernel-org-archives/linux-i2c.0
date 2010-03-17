@@ -1,91 +1,52 @@
-From: Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
- bus
-Date: Wed, 17 Mar 2010 19:16:52 +0530
-Message-ID: <4BA0DD4C.4040806@mvista.com>
-References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>	<1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>	<225d086e1002050553tc1a696avce827cc115f56b1c@mail.gmail.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E2639AD8@dbde02.ent.ti.com>	<4B94FD6F.7050603@mvista.com> <87d3z4xa7m.fsf@deeprootsystems.com> <4BA0BCEC.8040209@mvista.com> <B85A65D85D7EB246BE421B3FB0FBB59301E6328944@dbde02.ent.ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: PCA9564: "bus is not idle" issue
+Date: Wed, 17 Mar 2010 14:52:23 +0100
+Message-ID: <20100317135223.GD4153@pengutronix.de>
+References: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="g7w8+K/95kPelPD2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB59301E6328944-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/17/2010 06:48 PM, Nori, Sekhar wrote:
-> Hi Philby,
->
-> On Wed, Mar 17, 2010 at 16:58:44, Philby John wrote:
->> On 03/17/2010 02:20 AM, Kevin Hilman wrote:
->>> Philby John<pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>   writes:
->>>
->>>> On 02/08/2010 04:05 PM, Nori, Sekhar wrote:
->>>>> Hi Philby,
->>>>>
->>>>> On Fri, Feb 05, 2010 at 19:23:43, Philby John wrote:
->>>>>> Hello Sekhar,
->>>>>>
->>>>>
->>>>> [...]
->>>>>
->>>>>>>> +/* Generate a pulse on the i2c clock pin. */
->>>>>>>> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
->>>>>>>> +{
->>>>>>>> +     u16 i;
->>>>>>>> +
->>>>>>>> +     if (scl_pin) {
->>>>>>>> +             /* Send high and low on the SCL line */
->>>>>>>> +             for (i = 0; i<    9; i++) {
->>>>>>>> +                     gpio_set_value(scl_pin, 0);
->>>>>>>> +                     udelay(20);
->>>>>>>> +                     gpio_set_value(scl_pin, 1);
->>>>>>>> +                     udelay(20);
->>>>>>>> +             }
->>>>>>>
->>>>>>> Before using the pins as GPIO, you would have to set the
->>>>>>> functionality of these pins as GPIO. You had this code in
->>>>>>> previous incarnations of this patch - not sure why it is
->>>>>>> dropped now.
->>>>>>>
->>>>
->>>> I now think that the previous versions were incorrect since
->>>> davinci_cfg_reg() does not set the scl or sda pins for gpio
->>>> functionality. Instead they set them as scl or sda which is not what
->>>> we want at the time of pulsing. The previous versions used
->>>> gpio_set_value() in disable_i2c_pins() and then called
->>>> davinci_cfg_reg(). After which it called pulse_i2c_clock().
->>>>
->>>> Please correct me if my interpretation of the code is incorrect.
->>>
->>> Can we get some resolution here?
->>>
->>> I have a queue of davinci i2c patches waiting to go upstream, and I'd
->>> like to get them in for 2.6.35.
->>>
->>> The current i2c series is in the 'davinci-i2c' branch of davinci git.
->>
->> To quote Sekhar, "...Right. It is only an enhancement (and only good
->> to have at that). This should not stop the current patch from getting
->> in." So this patch is good to make it to 2.6.35
->
-> How about the using the "free data format" method that Brad was
-> suggesting [1]? That sounds like a much simpler approach than the
-> GPIO muxing method that this patch is adopting.
->
 
-I can't seem to agree with your argument. The recovery method adopted 
-here is part of the standard i2c v3 spec.
+--g7w8+K/95kPelPD2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I think we should try that method before accepting this approach
-> as the final one.
+On Wed, Mar 17, 2010 at 01:59:03PM +0100, Yegor Yefremov wrote:
 
-It would be wiser allowing this one to go in, since a lot of 
-reviewing/testing has already been done. Later on we could try the "free 
-data format" and hope that this would work. Otherwise, we would still be 
-without a fix until "free data format" is done.
+> Could this be the reason for such behavior? Any idea?
 
+Can you set the algo-module parameter i2c_debug to 3 and post the log for t=
+he
+transfer that failed, please?
 
 Regards,
-Philby
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--g7w8+K/95kPelPD2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkug3pcACgkQD27XaX1/VRsQwACeMTaKpBvJp47oBryIyIeT5DDP
+WOIAni/hCg2YPe8ipF2dQCsEa3R8q0RP
+=nXst
+-----END PGP SIGNATURE-----
+
+--g7w8+K/95kPelPD2--
