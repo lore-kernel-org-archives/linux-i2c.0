@@ -1,118 +1,75 @@
 From: Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: Set SCL pin to gpio functionality before bus recovery
-Date: Wed, 17 Mar 2010 16:51:56 +0530
-Message-ID: <1268824916.4540.21.camel@localhost.localdomain>
-Reply-To: pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org
+Subject: Re: [PATCH 6/6] i2c: davinci: bus recovery procedure to clear the
+ bus
+Date: Wed, 17 Mar 2010 16:58:44 +0530
+Message-ID: <4BA0BCEC.8040209@mvista.com>
+References: <1264549293-25556-1-git-send-email-khilman@deeprootsystems.com>	<1264549293-25556-7-git-send-email-khilman@deeprootsystems.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E235A3C2@dbde02.ent.ti.com>	<225d086e1002050553tc1a696avce827cc115f56b1c@mail.gmail.com>	<B85A65D85D7EB246BE421B3FB0FBB59301E2639AD8@dbde02.ent.ti.com>	<4B94FD6F.7050603@mvista.com> <87d3z4xa7m.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87d3z4xa7m.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Date: Wed, 17 Mar 2010 16:20:12 +0530
-Subject: [PATCH] Set SCL pin to gpio functionality before bus recovery
+On 03/17/2010 02:20 AM, Kevin Hilman wrote:
+> Philby John<pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>  writes:
+>
+>> On 02/08/2010 04:05 PM, Nori, Sekhar wrote:
+>>> Hi Philby,
+>>>
+>>> On Fri, Feb 05, 2010 at 19:23:43, Philby John wrote:
+>>>> Hello Sekhar,
+>>>>
+>>>
+>>> [...]
+>>>
+>>>>>> +/* Generate a pulse on the i2c clock pin. */
+>>>>>> +static void generic_i2c_clock_pulse(unsigned int scl_pin)
+>>>>>> +{
+>>>>>> +     u16 i;
+>>>>>> +
+>>>>>> +     if (scl_pin) {
+>>>>>> +             /* Send high and low on the SCL line */
+>>>>>> +             for (i = 0; i<   9; i++) {
+>>>>>> +                     gpio_set_value(scl_pin, 0);
+>>>>>> +                     udelay(20);
+>>>>>> +                     gpio_set_value(scl_pin, 1);
+>>>>>> +                     udelay(20);
+>>>>>> +             }
+>>>>>
+>>>>> Before using the pins as GPIO, you would have to set the
+>>>>> functionality of these pins as GPIO. You had this code in
+>>>>> previous incarnations of this patch - not sure why it is
+>>>>> dropped now.
+>>>>>
+>>
+>> I now think that the previous versions were incorrect since
+>> davinci_cfg_reg() does not set the scl or sda pins for gpio
+>> functionality. Instead they set them as scl or sda which is not what
+>> we want at the time of pulsing. The previous versions used
+>> gpio_set_value() in disable_i2c_pins() and then called
+>> davinci_cfg_reg(). After which it called pulse_i2c_clock().
+>>
+>> Please correct me if my interpretation of the code is incorrect.
+>
+> Can we get some resolution here?
+>
+> I have a queue of davinci i2c patches waiting to go upstream, and I'd
+> like to get them in for 2.6.35.
+>
+> The current i2c series is in the 'davinci-i2c' branch of davinci git.
 
-Before using the SCL pin, set it to GPIO by conditionally
-checking the i2c revision id for peripherals that match 0x05.
-Clean up data structures along the way.
+To quote Sekhar, "...Right. It is only an enhancement (and only good
+to have at that). This should not stop the current patch from getting 
+in." So this patch is good to make it to 2.6.35
 
-Signed-off-by: Philby John <pjohn-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/mach-davinci/board-dm355-evm.c  |    1 -
- arch/arm/mach-davinci/board-dm644x-evm.c |    1 -
- arch/arm/mach-davinci/include/mach/i2c.h |    3 +--
- drivers/i2c/busses/i2c-davinci.c         |   19 ++++++++++++++++---
- 4 files changed, 17 insertions(+), 7 deletions(-)
+>
+> Please submit an updated version so we can get this stuff upstream.
 
-diff --git a/arch/arm/mach-davinci/board-dm355-evm.c b/arch/arm/mach-davinci/board-dm355-evm.c
-index aa48e3f..f4cbf54 100644
---- a/arch/arm/mach-davinci/board-dm355-evm.c
-+++ b/arch/arm/mach-davinci/board-dm355-evm.c
-@@ -111,7 +111,6 @@ static struct platform_device davinci_nand_device = {
- static struct davinci_i2c_platform_data i2c_pdata = {
- 	.bus_freq	= 400	/* kHz */,
- 	.bus_delay	= 0	/* usec */,
--	.sda_pin        = 15,
- 	.scl_pin        = 14,
- };
- 
-diff --git a/arch/arm/mach-davinci/board-dm644x-evm.c b/arch/arm/mach-davinci/board-dm644x-evm.c
-index 976e11b..19508e3 100644
---- a/arch/arm/mach-davinci/board-dm644x-evm.c
-+++ b/arch/arm/mach-davinci/board-dm644x-evm.c
-@@ -629,7 +629,6 @@ static struct i2c_board_info __initdata i2c_info[] =  {
- static struct davinci_i2c_platform_data i2c_pdata = {
- 	.bus_freq	= 20 /* kHz */,
- 	.bus_delay	= 100 /* usec */,
--	.sda_pin        = 44,
- 	.scl_pin        = 43,
- };
- 
-diff --git a/arch/arm/mach-davinci/include/mach/i2c.h b/arch/arm/mach-davinci/include/mach/i2c.h
-index 39fdcea..95894ca 100644
---- a/arch/arm/mach-davinci/include/mach/i2c.h
-+++ b/arch/arm/mach-davinci/include/mach/i2c.h
-@@ -16,8 +16,7 @@
- struct davinci_i2c_platform_data {
- 	unsigned int	bus_freq;	/* standard bus frequency (kHz) */
- 	unsigned int	bus_delay;	/* post-transaction delay (usec) */
--	unsigned int    sda_pin;        /* GPIO pin ID to use for SDA */
--	unsigned int    scl_pin;        /* GPIO pin ID to use for SCL */
-+	unsigned int	scl_pin;	/* GPIO pin ID to use for SCL */
- };
- 
- /* for board setup code */
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 7a28e60..df909e3 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -64,6 +64,7 @@
- #define DAVINCI_I2C_IVR_REG	0x28
- #define DAVINCI_I2C_EMDR_REG	0x2c
- #define DAVINCI_I2C_PSC_REG	0x30
-+#define DAVINCI_I2C_REVID2_REG	0x38
- 
- #define DAVINCI_I2C_IVR_AAS	0x07
- #define DAVINCI_I2C_IVR_SCD	0x06
-@@ -133,11 +134,21 @@ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
- }
- 
- /* Generate a pulse on the i2c clock pin. */
--static void generic_i2c_clock_pulse(unsigned int scl_pin)
-+static void generic_i2c_clock_pulse(unsigned int revid, unsigned int scl_pin)
- {
- 	u16 i;
-+	int ret;
- 
- 	if (scl_pin) {
-+		if (revid == 0x05) {
-+			ret = gpio_request(scl_pin, "SCL Pin\n");
-+			if (ret) {
-+				pr_warning("gpio request pin %d failed\n",
-+					scl_pin);
-+				return;
-+			}
-+			gpio_direction_output(scl_pin, 1);
-+		}
- 		/* Send high and low on the SCL line */
- 		for (i = 0; i < 9; i++) {
- 			gpio_set_value(scl_pin, 0);
-@@ -162,8 +173,10 @@ static void i2c_recover_bus(struct davinci_i2c_dev *dev)
- 	flag |=  DAVINCI_I2C_MDR_NACK;
- 	/* write the data into mode register */
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
--	if (pdata)
--		generic_i2c_clock_pulse(pdata->scl_pin);
-+	if (pdata) {
-+		flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_REVID2_REG);
-+		generic_i2c_clock_pulse(flag, pdata->scl_pin);
-+	}
- 	/* Send STOP */
- 	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
- 	flag |= DAVINCI_I2C_MDR_STP;
--- 
-1.6.3.3.311.g7ec7
+Right, the enhancement has now been sent.
+
+Regards,
+Philby
