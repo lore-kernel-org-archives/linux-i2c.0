@@ -1,36 +1,36 @@
-From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: PCA9564: "bus is not idle" issue
-Date: Thu, 18 Mar 2010 10:51:09 +0100
-Message-ID: <f69abfc31003180251q53c96f8chc6b96d29c2ceec6d@mail.gmail.com>
-References: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66@mail.gmail.com>
-	 <20100317135223.GD4153@pengutronix.de>
-	 <f69abfc31003170826j18fa0fddq1c46b8bcebf75c57@mail.gmail.com>
-	 <f69abfc31003180201m5c5e167enf8256c4843e0c6ba@mail.gmail.com>
-	 <20100318091917.GA27165@pengutronix.de>
+From: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH V2] MIPS: Octeon: Register EEPROM device on the I2C bus
+Date: Thu, 18 Mar 2010 18:00:30 +0100
+Message-ID: <20100318170030.GJ4554@linux-mips.org>
+References: <1268026190-18300-1-git-send-email-yang.shi@windriver.com>
+ <20100316180946.GC20160@linux-mips.org>
+ <20100316200647.3803edf1@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100318091917.GA27165-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+In-Reply-To: <20100316200647.3803edf1@hyperion.delvare>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Yang Shi <yang.shi@windriver.com>, ddaney@caviumnetworks.com, ben-linux@fluff.org, linux-mips@linux-mips.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 18, 2010 at 10:19 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->> If I don't redirect syslog to a remote host I get i2c fail. So here you are:
->
-> Thanks!
->
-> [...]
->
->> As far as I can tell the last transaction lacks "=== STOP" state.
->
-> Yes. The bus-status being 0x58 instead of 0xf8 says that, too. I wanted to
-> check if there is something flaky before. Will have a look, but will probably
-> be the weekend. You said it does not appear when you use 2.6.26, right?
+On Tue, Mar 16, 2010 at 08:06:47PM +0100, Jean Delvare wrote:
 
-Right. Either it is so seldom, that I don't notice it or it doesn't
-occur. But with 2.6.33 it is really frequent.
+> The Linux kernel doesn't care, but user-space may. As a matter of fact,
+> there is a script out there (decode-dimms, in the i2c-tools package)
+> decoding the SPD data and presenting it to the user. Some people want
+> to know the details about their memory modules.
+> 
+> > I also wonder how this will work for configurations with multiple memory
+> > modules thus multiple SPD EEPROMS.
+> 
+> The kernel code should instantiate one spd device per memory module
+> (assuming they are all reachable.) Obviously this can't be done in a
+> static way.
 
-Regards,
-Yegor
+SPD is virtually omnipresent these days so I wonder if maybe there already
+is some probing functionality already available?
+
+  Ralf
