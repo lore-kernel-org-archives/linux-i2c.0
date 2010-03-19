@@ -1,42 +1,327 @@
-From: Jarkko Nikula <jhnikula@gmail.com>
-Subject: Re: [PATCH v2] [I2C-OMAP] Add support for 16-bit registers
-Date: Fri, 19 Mar 2010 11:05:09 +0200
-Message-ID: <20100319110509.76784df2.jhnikula@gmail.com>
-References: <1260669242-29865-1-git-send-email-darkstar6262@gmail.com>
-	<6cb013311001090947m2268833cv3784f469dc8b861d@mail.gmail.com>
-	<20100109183321.GH2879@atomide.com>
-	<6cb013311001091035x54321b3aqb814f476200980af@mail.gmail.com>
-	<20100112012814.GK5055@atomide.com>
-	<87k4tkf3ye.fsf@deeprootsystems.com>
-	<20100310223000.GT2900@atomide.com>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: [PATCH] i2c: Fix bus-level power management callbacks
+Date: Fri, 19 Mar 2010 23:44:08 +0100
+Message-ID: <201003192344.09000.rjw@sisk.pl>
+References: <201003132204.30905.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100310223000.GT2900@atomide.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, Ben Dooks <ben-linux@fluff.org>, Cory Maccarrone <darkstar6262@gmail.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201003132204.30905.rjw-KKrjLPT3xs0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 10 Mar 2010 14:30:00 -0800
-Tony Lindgren <tony@atomide.com> wrote:
-
-> * Kevin Hilman <khilman@deeprootsystems.com> [100310 10:01]:
-> > Tony Lindgren <tony@atomide.com> writes:
-> > 
-...
-> > Unfortunately, Tony's additional fix did not make it into the version
-> > that was merged to mainline, which results in a crash during
-> > probe when using v2.6.34-rc1.
-> > 
-> > Ben, can you queue the fix below from Tony for -rc2?
+On Saturday 13 March 2010, Rafael J. Wysocki wrote:
+> From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
 > 
-> The original patch attached again below.
+> There are three issues with the i2c's power management callbacks at
+> the moment.  First, they don't include any hibernate callbacks,
+> although they should at least include the .restore() callback
+> (there's no guarantee that the driver will be in memory before
+> loading the image kernel and we must restore the pre-hibernation
+> state of the device).  Second, the "legacy" callbacks are not going
+> to be invoked by the PM core since the bus type's pm object is not
+> NULL.  Finally, the system power transition (ie. suspend/resume)
+> callbacks don't check if the device hasn't been already suspended
+> at run time, in which case they should skip suspending it and
+> handle it in a special way during resume.  Also, it looks like the
+> i2c bus type itself doesn't need any power management handling beyond
+> that provided by the generic subsystem-level PM callbacks.
 > 
-FWIW,
+> For these reasons, remove the power management callbacks defined by
+> the i2c bus type and make it use the generic subsystem-level power
+> management callbacks.
 
-Tony's "[PATCH] i2c-omap: Fix reg_shift init" makes the mainline
-2.6.34-rc1 booting on OMAP3.
+I assume the lack of responses except for the Alan's one means the patch
+wasn't correct, so below is one that I think is better.  It fixes all of the
+issues described above without breaking backwards compatibility.
 
-Tested-by: Jarkko Nikula <jhnikula@gmail.com>
+Thanks,
+Rafael
+
+---
+From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: i2c: Fix bus-level power management callbacks
+
+There are three issues with the i2c bus type's power management
+callbacks at the moment.  First, they don't include any hibernate
+callbacks, although they should at least include the .restore()
+callback (there's no guarantee that the driver will be present in
+memory before loading the image kernel and we must restore the
+pre-hibernation state of the device).  Second, the "legacy"
+callbacks are not going to be invoked by the PM core since the bus
+type's pm object is not NULL.  Finally, the system sleep PM
+(ie. suspend/resume) callbacks don't check if the device has been
+already suspended at run time, in which case they should skip
+suspending it.  Also, it looks like the i2c bus type can use the
+generic subsystem-level runtime PM callbacks.
+
+For these reasons, rework the system sleep PM callbacks provided by
+the i2c bus type to handle hibernation correctly and to invoke the
+"legacy" callbacks for drivers that provide them.  In addition to
+that make the i2c bus type use the generic subsystem-level runtime
+PM callbacks.
+
+Signed-off-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c     |  168 ++++++++++++++++++++++++++-------------------
+ include/linux/pm_runtime.h |    7 +
+ 2 files changed, 105 insertions(+), 70 deletions(-)
+
+Index: linux-2.6/drivers/i2c/i2c-core.c
+===================================================================
+--- linux-2.6.orig/drivers/i2c/i2c-core.c
++++ linux-2.6/drivers/i2c/i2c-core.c
+@@ -156,107 +156,131 @@ static void i2c_device_shutdown(struct d
+ 		driver->shutdown(client);
+ }
+ 
+-#ifdef CONFIG_SUSPEND
+-static int i2c_device_pm_suspend(struct device *dev)
++static int i2c_legacy_suspend(struct device *dev, pm_message_t mesg)
+ {
+-	const struct dev_pm_ops *pm;
++	struct i2c_client *client = i2c_verify_client(dev);
++	struct i2c_driver *driver;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return 0;
+-	pm = dev->driver->pm;
+-	if (!pm || !pm->suspend)
++	driver = to_i2c_driver(dev->driver);
++	if (!driver->suspend)
+ 		return 0;
+-	return pm->suspend(dev);
++	return driver->suspend(client, mesg);
+ }
+ 
+-static int i2c_device_pm_resume(struct device *dev)
++static int i2c_legacy_resume(struct device *dev)
+ {
+-	const struct dev_pm_ops *pm;
++	struct i2c_client *client = i2c_verify_client(dev);
++	struct i2c_driver *driver;
+ 
+-	if (!dev->driver)
++	if (!client || !dev->driver)
+ 		return 0;
+-	pm = dev->driver->pm;
+-	if (!pm || !pm->resume)
++	driver = to_i2c_driver(dev->driver);
++	if (!driver->resume)
+ 		return 0;
+-	return pm->resume(dev);
++	return driver->resume(client);
+ }
+-#else
+-#define i2c_device_pm_suspend	NULL
+-#define i2c_device_pm_resume	NULL
+-#endif
+ 
+-#ifdef CONFIG_PM_RUNTIME
+-static int i2c_device_runtime_suspend(struct device *dev)
++#ifdef CONFIG_PM_SLEEP
++static int i2c_device_pm_suspend(struct device *dev)
+ {
+-	const struct dev_pm_ops *pm;
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+ 
+-	if (!dev->driver)
+-		return 0;
+-	pm = dev->driver->pm;
+-	if (!pm || !pm->runtime_suspend)
++	if (pm_runtime_suspended(dev))
+ 		return 0;
+-	return pm->runtime_suspend(dev);
+-}
+ 
+-static int i2c_device_runtime_resume(struct device *dev)
+-{
+-	const struct dev_pm_ops *pm;
++	if (pm)
++		return pm->suspend ? pm->suspend(dev) : 0;
+ 
+-	if (!dev->driver)
+-		return 0;
+-	pm = dev->driver->pm;
+-	if (!pm || !pm->runtime_resume)
+-		return 0;
+-	return pm->runtime_resume(dev);
++	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+ }
+ 
+-static int i2c_device_runtime_idle(struct device *dev)
++static int i2c_device_pm_resume(struct device *dev)
+ {
+-	const struct dev_pm_ops *pm = NULL;
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+ 	int ret;
+ 
+-	if (dev->driver)
+-		pm = dev->driver->pm;
+-	if (pm && pm->runtime_idle) {
+-		ret = pm->runtime_idle(dev);
+-		if (ret)
+-			return ret;
++	if (pm)
++		ret = pm->resume ? pm->resume(dev) : 0;
++	else
++		ret = i2c_legacy_resume(dev);
++
++	if (!ret) {
++		pm_runtime_disable(dev);
++		pm_runtime_set_active(dev);
++		pm_runtime_enable(dev);
+ 	}
+ 
+-	return pm_runtime_suspend(dev);
+-}
+-#else
+-#define i2c_device_runtime_suspend	NULL
+-#define i2c_device_runtime_resume	NULL
+-#define i2c_device_runtime_idle		NULL
+-#endif
++	return ret;
++}
+ 
+-static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
++static int i2c_device_pm_freeze(struct device *dev)
+ {
+-	struct i2c_client *client = i2c_verify_client(dev);
+-	struct i2c_driver *driver;
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+ 
+-	if (!client || !dev->driver)
++	if (pm_runtime_suspended(dev))
+ 		return 0;
+-	driver = to_i2c_driver(dev->driver);
+-	if (!driver->suspend)
+-		return 0;
+-	return driver->suspend(client, mesg);
++
++	if (pm)
++		return pm->freeze ? pm->freeze(dev) : 0;
++
++	return i2c_legacy_suspend(dev, PMSG_FREEZE);
+ }
+ 
+-static int i2c_device_resume(struct device *dev)
++static int i2c_device_pm_thaw(struct device *dev)
+ {
+-	struct i2c_client *client = i2c_verify_client(dev);
+-	struct i2c_driver *driver;
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+ 
+-	if (!client || !dev->driver)
++	if (pm_runtime_suspended(dev))
+ 		return 0;
+-	driver = to_i2c_driver(dev->driver);
+-	if (!driver->resume)
++
++	if (pm)
++		return pm->thaw ? pm->thaw(dev) : 0;
++
++	return i2c_legacy_resume(dev);
++}
++
++static int i2c_device_pm_poweroff(struct device *dev)
++{
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++
++	if (pm_runtime_suspended(dev))
+ 		return 0;
+-	return driver->resume(client);
++
++	if (pm)
++		return pm->poweroff ? pm->poweroff(dev) : 0;
++
++	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
+ }
+ 
++static int i2c_device_pm_restore(struct device *dev)
++{
++	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	int ret;
++
++	if (pm)
++		ret = pm->restore ? pm->restore(dev) : 0;
++	else
++		ret = i2c_legacy_resume(dev);
++
++	if (!ret) {
++		pm_runtime_disable(dev);
++		pm_runtime_set_active(dev);
++		pm_runtime_enable(dev);
++	}
++
++	return ret;
++}
++#else /* !CONFIG_PM_SLEEP */
++#define i2c_device_pm_suspend	NULL
++#define i2c_device_pm_resume	NULL
++#define i2c_device_pm_freeze	NULL
++#define i2c_device_pm_thaw	NULL
++#define i2c_device_pm_poweroff	NULL
++#define i2c_device_pm_restore	NULL
++#endif /* !CONFIG_PM_SLEEP */
++
+ static void i2c_client_dev_release(struct device *dev)
+ {
+ 	kfree(to_i2c_client(dev));
+@@ -298,9 +322,15 @@ static const struct attribute_group *i2c
+ static const struct dev_pm_ops i2c_device_pm_ops = {
+ 	.suspend = i2c_device_pm_suspend,
+ 	.resume = i2c_device_pm_resume,
+-	.runtime_suspend = i2c_device_runtime_suspend,
+-	.runtime_resume = i2c_device_runtime_resume,
+-	.runtime_idle = i2c_device_runtime_idle,
++	.freeze = i2c_device_pm_freeze,
++	.thaw = i2c_device_pm_thaw,
++	.poweroff = i2c_device_pm_poweroff,
++	.restore = i2c_device_pm_restore,
++	SET_RUNTIME_PM_OPS(
++		pm_generic_runtime_suspend,
++		pm_generic_runtime_resume,
++		pm_generic_runtime_idle
++	)
+ };
+ 
+ struct bus_type i2c_bus_type = {
+@@ -309,8 +339,6 @@ struct bus_type i2c_bus_type = {
+ 	.probe		= i2c_device_probe,
+ 	.remove		= i2c_device_remove,
+ 	.shutdown	= i2c_device_shutdown,
+-	.suspend	= i2c_device_suspend,
+-	.resume		= i2c_device_resume,
+ 	.pm		= &i2c_device_pm_ops,
+ };
+ EXPORT_SYMBOL_GPL(i2c_bus_type);
+Index: linux-2.6/include/linux/pm_runtime.h
+===================================================================
+--- linux-2.6.orig/include/linux/pm_runtime.h
++++ linux-2.6/include/linux/pm_runtime.h
+@@ -30,6 +30,9 @@ extern void pm_runtime_enable(struct dev
+ extern void __pm_runtime_disable(struct device *dev, bool check_resume);
+ extern void pm_runtime_allow(struct device *dev);
+ extern void pm_runtime_forbid(struct device *dev);
++extern int pm_generic_runtime_idle(struct device *dev);
++extern int pm_generic_runtime_suspend(struct device *dev);
++extern int pm_generic_runtime_resume(struct device *dev);
+ 
+ static inline bool pm_children_suspended(struct device *dev)
+ {
+@@ -96,6 +99,10 @@ static inline bool device_run_wake(struc
+ static inline void device_set_run_wake(struct device *dev, bool enable) {}
+ static inline bool pm_runtime_suspended(struct device *dev) { return false; }
+ 
++static inline int pm_generic_runtime_idle(struct device *dev) { return 0; }
++static inline int pm_generic_runtime_suspend(struct device *dev) { return 0; }
++static inline int pm_generic_runtime_resume(struct device *dev) { return 0; }
++
+ #endif /* !CONFIG_PM_RUNTIME */
+ 
+ static inline int pm_runtime_get(struct device *dev)
