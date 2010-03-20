@@ -1,42 +1,126 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 11/24] media/radio/si470x: fix dangling pointers
-Date: Sat, 20 Mar 2010 15:12:52 +0100
-Message-ID: <1269094385-16114-12-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 12/24] media/video: fix dangling pointers
+Date: Sat, 20 Mar 2010 15:12:53 +0100
+Message-ID: <1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
 References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1269094385-16114-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Fix I2C-drivers which missed setting clientdata to NULL before freeing the
 structure it points to. Also fix drivers which do this _after_ the structure
 was freed already.
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
 Found using coccinelle, then reviewed. Full patchset is available via
 kernel-janitors, linux-i2c, and LKML.
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/cs5345.c     |    1 +
+ drivers/media/video/cs53l32a.c   |    1 +
+ drivers/media/video/ir-kbd-i2c.c |    2 ++
+ drivers/media/video/tda9840.c    |    1 +
+ drivers/media/video/tea6415c.c   |    1 +
+ drivers/media/video/tea6420.c    |    1 +
+ drivers/media/video/ths7303.c    |    1 +
+ 7 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index 5466015..2dabfac 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -480,8 +480,8 @@ static __devexit int si470x_i2c_remove(struct i2c_client *client)
- 	free_irq(client->irq, radio);
- 	cancel_work_sync(&radio->radio_work);
- 	video_unregister_device(radio->videodev);
--	kfree(radio);
- 	i2c_set_clientdata(client, NULL);
-+	kfree(radio);
+diff --git a/drivers/media/video/cs5345.c b/drivers/media/video/cs5345.c
+index 57dc170..cd21aa8 100644
+--- a/drivers/media/video/cs5345.c
++++ b/drivers/media/video/cs5345.c
+@@ -196,6 +196,7 @@ static int cs5345_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
  
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
  	return 0;
  }
+diff --git a/drivers/media/video/cs53l32a.c b/drivers/media/video/cs53l32a.c
+index 80bca8d..527f731 100644
+--- a/drivers/media/video/cs53l32a.c
++++ b/drivers/media/video/cs53l32a.c
+@@ -199,6 +199,7 @@ static int cs53l32a_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
+index da18d69..f29c5cd 100644
+--- a/drivers/media/video/ir-kbd-i2c.c
++++ b/drivers/media/video/ir-kbd-i2c.c
+@@ -461,6 +461,7 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	return 0;
+ 
+  err_out_free:
++	i2c_set_clientdata(client, NULL);
+ 	kfree(ir);
+ 	return err;
+ }
+@@ -476,6 +477,7 @@ static int ir_remove(struct i2c_client *client)
+ 	ir_input_unregister(ir->input);
+ 
+ 	/* free memory */
++	i2c_set_clientdata(client, NULL);
+ 	kfree(ir);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/tda9840.c b/drivers/media/video/tda9840.c
+index d381fce..b608aaf 100644
+--- a/drivers/media/video/tda9840.c
++++ b/drivers/media/video/tda9840.c
+@@ -188,6 +188,7 @@ static int tda9840_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/tea6415c.c b/drivers/media/video/tea6415c.c
+index 1585839..49a6606 100644
+--- a/drivers/media/video/tea6415c.c
++++ b/drivers/media/video/tea6415c.c
+@@ -164,6 +164,7 @@ static int tea6415c_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/tea6420.c b/drivers/media/video/tea6420.c
+index 6bf6bc7..821085d 100644
+--- a/drivers/media/video/tea6420.c
++++ b/drivers/media/video/tea6420.c
+@@ -146,6 +146,7 @@ static int tea6420_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/ths7303.c b/drivers/media/video/ths7303.c
+index 21781f8..d411a73 100644
+--- a/drivers/media/video/ths7303.c
++++ b/drivers/media/video/ths7303.c
+@@ -114,6 +114,7 @@ static int ths7303_remove(struct i2c_client *client)
+ 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+ 
+ 	v4l2_device_unregister_subdev(sd);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(sd);
+ 
+ 	return 0;
 -- 
 1.7.0
