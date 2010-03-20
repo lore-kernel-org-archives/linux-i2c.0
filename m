@@ -1,46 +1,55 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 02/24] power/ds2782: really clear i2c_clientdata on exit
-Date: Sat, 20 Mar 2010 15:12:43 +0100
-Message-ID: <1269094385-16114-3-git-send-email-w.sang@pengutronix.de>
+Subject: [PATCH 07/24] input/touchscreen: fix dangling pointers
+Date: Sat, 20 Mar 2010 15:12:48 +0100
+Message-ID: <1269094385-16114-8-git-send-email-w.sang@pengutronix.de>
 References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1269094385-16114-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>, Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Probably due to a copy & paste bug, clientdata was set again to the data
-structure (which is freed immediately afterwards) when it should be NULLed.
+Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+structure it points to. Also fix drivers which do this _after_ the structure
+was freed already.
 
 Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-Cc: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/power/ds2782_battery.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/ds2782_battery.c b/drivers/power/ds2782_battery.c
-index da14f37..6971b85 100644
---- a/drivers/power/ds2782_battery.c
-+++ b/drivers/power/ds2782_battery.c
-@@ -236,7 +236,7 @@ static int ds2782_battery_remove(struct i2c_client *client)
- 	idr_remove(&battery_id, info->id);
- 	mutex_unlock(&battery_lock);
+Found using coccinelle, then reviewed. Full patchset is available via
+kernel-janitors, linux-i2c, and LKML.
+---
+ drivers/input/touchscreen/mcs5000_ts.c |    2 +-
+ drivers/input/touchscreen/tsc2007.c    |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
+index 4c28b89..98689a7 100644
+--- a/drivers/input/touchscreen/mcs5000_ts.c
++++ b/drivers/input/touchscreen/mcs5000_ts.c
+@@ -254,8 +254,8 @@ static int __devexit mcs5000_ts_remove(struct i2c_client *client)
  
--	i2c_set_clientdata(client, info);
-+	i2c_set_clientdata(client, NULL);
+ 	free_irq(client->irq, data);
+ 	input_unregister_device(data->input_dev);
+-	kfree(data);
+ 	i2c_set_clientdata(client, NULL);
++	kfree(data);
  
- 	kfree(info);
  	return 0;
-@@ -289,7 +289,7 @@ static int ds2782_battery_probe(struct i2c_client *client,
- fail_register:
- 	kfree(info->battery.name);
- fail_name:
--	i2c_set_clientdata(client, info);
+ }
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+index be23780..4c63fda 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -353,6 +353,7 @@ static int __devexit tsc2007_remove(struct i2c_client *client)
+ 		pdata->exit_platform_hw();
+ 
+ 	input_unregister_device(ts->input);
 +	i2c_set_clientdata(client, NULL);
- 	kfree(info);
- fail_info:
- 	mutex_lock(&battery_lock);
+ 	kfree(ts);
+ 
+ 	return 0;
 -- 
 1.7.0
