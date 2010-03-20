@@ -1,52 +1,148 @@
-From: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-Subject: Re: [PATCH 02/24] power/ds2782: really clear i2c_clientdata on exit
-Date: Sun, 21 Mar 2010 10:53:53 +1300
-Message-ID: <4BA543F1.6080504@bluewatersys.com>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-3-git-send-email-w.sang@pengutronix.de>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
+Date: Sat, 20 Mar 2010 23:02:49 +0100
+Message-ID: <201003202302.49526.hverkuil@xs4all.nl>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1269094385-16114-3-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang wrote:
-> Probably due to a copy & paste bug, clientdata was set again to the data
-> structure (which is freed immediately afterwards) when it should be NULLed.
+On Saturday 20 March 2010 15:12:53 Wolfram Sang wrote:
+> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> structure it points to. Also fix drivers which do this _after_ the structure
+> was freed already.
 
-Good catch. Thanks.
+I feel I am missing something here. Why does clientdata have to be set to
+NULL when we are tearing down the device anyway?
 
-Acked-by: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
+And if there is a good reason for doing this, then it should be done in
+v4l2_device_unregister_subdev or even in the i2c core, not in each drivers.
 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-> Cc: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/power/ds2782_battery.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
+And why does coccinelle apparently find this in e.g. cs5345.c but not in
+saa7115.c, which has exactly the same construct? For that matter, I think
+almost all v4l i2c drivers do this.
+
+Regards,
+
+	Hans
+
 > 
-> diff --git a/drivers/power/ds2782_battery.c b/drivers/power/ds2782_battery.c
-> index da14f37..6971b85 100644
-> --- a/drivers/power/ds2782_battery.c
-> +++ b/drivers/power/ds2782_battery.c
-> @@ -236,7 +236,7 @@ static int ds2782_battery_remove(struct i2c_client *client)
->  	idr_remove(&battery_id, info->id);
->  	mutex_unlock(&battery_lock);
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
+> ---
+> 
+> Found using coccinelle, then reviewed. Full patchset is available via
+> kernel-janitors, linux-i2c, and LKML.
+> ---
+>  drivers/media/video/cs5345.c     |    1 +
+>  drivers/media/video/cs53l32a.c   |    1 +
+>  drivers/media/video/ir-kbd-i2c.c |    2 ++
+>  drivers/media/video/tda9840.c    |    1 +
+>  drivers/media/video/tea6415c.c   |    1 +
+>  drivers/media/video/tea6420.c    |    1 +
+>  drivers/media/video/ths7303.c    |    1 +
+>  7 files changed, 8 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/media/video/cs5345.c b/drivers/media/video/cs5345.c
+> index 57dc170..cd21aa8 100644
+> --- a/drivers/media/video/cs5345.c
+> +++ b/drivers/media/video/cs5345.c
+> @@ -196,6 +196,7 @@ static int cs5345_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
 >  
-> -	i2c_set_clientdata(client, info);
+>  	v4l2_device_unregister_subdev(sd);
 > +	i2c_set_clientdata(client, NULL);
->  
->  	kfree(info);
+>  	kfree(sd);
 >  	return 0;
-> @@ -289,7 +289,7 @@ static int ds2782_battery_probe(struct i2c_client *client,
->  fail_register:
->  	kfree(info->battery.name);
->  fail_name:
-> -	i2c_set_clientdata(client, info);
+>  }
+> diff --git a/drivers/media/video/cs53l32a.c b/drivers/media/video/cs53l32a.c
+> index 80bca8d..527f731 100644
+> --- a/drivers/media/video/cs53l32a.c
+> +++ b/drivers/media/video/cs53l32a.c
+> @@ -199,6 +199,7 @@ static int cs53l32a_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+>  
+>  	v4l2_device_unregister_subdev(sd);
 > +	i2c_set_clientdata(client, NULL);
->  	kfree(info);
->  fail_info:
->  	mutex_lock(&battery_lock);
+>  	kfree(sd);
+>  	return 0;
+>  }
+> diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
+> index da18d69..f29c5cd 100644
+> --- a/drivers/media/video/ir-kbd-i2c.c
+> +++ b/drivers/media/video/ir-kbd-i2c.c
+> @@ -461,6 +461,7 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	return 0;
+>  
+>   err_out_free:
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(ir);
+>  	return err;
+>  }
+> @@ -476,6 +477,7 @@ static int ir_remove(struct i2c_client *client)
+>  	ir_input_unregister(ir->input);
+>  
+>  	/* free memory */
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(ir);
+>  	return 0;
+>  }
+> diff --git a/drivers/media/video/tda9840.c b/drivers/media/video/tda9840.c
+> index d381fce..b608aaf 100644
+> --- a/drivers/media/video/tda9840.c
+> +++ b/drivers/media/video/tda9840.c
+> @@ -188,6 +188,7 @@ static int tda9840_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+>  
+>  	v4l2_device_unregister_subdev(sd);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(sd);
+>  	return 0;
+>  }
+> diff --git a/drivers/media/video/tea6415c.c b/drivers/media/video/tea6415c.c
+> index 1585839..49a6606 100644
+> --- a/drivers/media/video/tea6415c.c
+> +++ b/drivers/media/video/tea6415c.c
+> @@ -164,6 +164,7 @@ static int tea6415c_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+>  
+>  	v4l2_device_unregister_subdev(sd);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(sd);
+>  	return 0;
+>  }
+> diff --git a/drivers/media/video/tea6420.c b/drivers/media/video/tea6420.c
+> index 6bf6bc7..821085d 100644
+> --- a/drivers/media/video/tea6420.c
+> +++ b/drivers/media/video/tea6420.c
+> @@ -146,6 +146,7 @@ static int tea6420_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+>  
+>  	v4l2_device_unregister_subdev(sd);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(sd);
+>  	return 0;
+>  }
+> diff --git a/drivers/media/video/ths7303.c b/drivers/media/video/ths7303.c
+> index 21781f8..d411a73 100644
+> --- a/drivers/media/video/ths7303.c
+> +++ b/drivers/media/video/ths7303.c
+> @@ -114,6 +114,7 @@ static int ths7303_remove(struct i2c_client *client)
+>  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
+>  
+>  	v4l2_device_unregister_subdev(sd);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(sd);
+>  
+>  	return 0;
+> 
+
+-- 
+Hans Verkuil - video4linux developer - sponsored by TANDBERG
