@@ -1,80 +1,177 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 17/24] regulator: fix dangling pointers
-Date: Sat, 20 Mar 2010 15:12:58 +0100
-Message-ID: <1269094385-16114-18-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PATCH 18/24] rtc: fix dangling pointers
+Date: Sat, 20 Mar 2010 15:12:59 +0100
+Message-ID: <1269094385-16114-19-git-send-email-w.sang@pengutronix.de>
 References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1269094385-16114-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Paul Gortmaker <p_gortmaker@yahoo.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com
 List-Id: linux-i2c@vger.kernel.org
 
 Fix I2C-drivers which missed setting clientdata to NULL before freeing the
 structure it points to. Also fix drivers which do this _after_ the structure
 was freed already.
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
 ---
 
 Found using coccinelle, then reviewed. Full patchset is available via
 kernel-janitors, linux-i2c, and LKML.
 ---
- drivers/regulator/max1586.c |    2 +-
- drivers/regulator/max8649.c |    3 ++-
- drivers/regulator/max8660.c |    2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-ds1307.c  |    2 ++
+ drivers/rtc/rtc-fm3130.c  |    2 ++
+ drivers/rtc/rtc-m41t80.c  |    2 ++
+ drivers/rtc/rtc-pcf8563.c |    2 ++
+ drivers/rtc/rtc-pcf8583.c |    2 ++
+ drivers/rtc/rtc-rs5c372.c |    2 ++
+ drivers/rtc/rtc-s35390a.c |    4 ++--
+ 7 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/max1586.c b/drivers/regulator/max1586.c
-index a49fc95..c0b09e1 100644
---- a/drivers/regulator/max1586.c
-+++ b/drivers/regulator/max1586.c
-@@ -243,8 +243,8 @@ static int __devexit max1586_pmic_remove(struct i2c_client *client)
- 	for (i = 0; i <= MAX1586_V6; i++)
- 		if (rdev[i])
- 			regulator_unregister(rdev[i]);
--	kfree(rdev);
- 	i2c_set_clientdata(client, NULL);
-+	kfree(rdev);
- 
- 	return 0;
- }
-diff --git a/drivers/regulator/max8649.c b/drivers/regulator/max8649.c
-index 3ebdf69..833aaed 100644
---- a/drivers/regulator/max8649.c
-+++ b/drivers/regulator/max8649.c
-@@ -356,6 +356,7 @@ static int __devinit max8649_regulator_probe(struct i2c_client *client,
- 	dev_info(info->dev, "Max8649 regulator device is detected.\n");
- 	return 0;
- out:
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index c4ec5c1..eee887c 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -900,6 +900,7 @@ read_rtc:
+ exit_irq:
+ 	rtc_device_unregister(ds1307->rtc);
+ exit_free:
 +	i2c_set_clientdata(client, NULL);
- 	kfree(info);
- 	return ret;
+ 	kfree(ds1307);
+ 	return err;
  }
-@@ -367,9 +368,9 @@ static int __devexit max8649_regulator_remove(struct i2c_client *client)
- 	if (info) {
- 		if (info->regulator)
- 			regulator_unregister(info->regulator);
-+		i2c_set_clientdata(client, NULL);
- 		kfree(info);
- 	}
--	i2c_set_clientdata(client, NULL);
+@@ -917,6 +918,7 @@ static int __devexit ds1307_remove(struct i2c_client *client)
+ 		sysfs_remove_bin_file(&client->dev.kobj, &nvram);
  
+ 	rtc_device_unregister(ds1307->rtc);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(ds1307);
  	return 0;
  }
-diff --git a/drivers/regulator/max8660.c b/drivers/regulator/max8660.c
-index f12f1bb..47f90b2 100644
---- a/drivers/regulator/max8660.c
-+++ b/drivers/regulator/max8660.c
-@@ -470,8 +470,8 @@ static int __devexit max8660_remove(struct i2c_client *client)
- 	for (i = 0; i < MAX8660_V_END; i++)
- 		if (rdev[i])
- 			regulator_unregister(rdev[i]);
--	kfree(rdev);
+diff --git a/drivers/rtc/rtc-fm3130.c b/drivers/rtc/rtc-fm3130.c
+index 812c667..6c4e90f 100644
+--- a/drivers/rtc/rtc-fm3130.c
++++ b/drivers/rtc/rtc-fm3130.c
+@@ -462,6 +462,7 @@ exit_bad:
+ 	}
+ 	return 0;
+ exit_free:
++	i2c_set_clientdata(client, NULL);
+ 	kfree(fm3130);
+ 	return err;
+ }
+@@ -471,6 +472,7 @@ static int __devexit fm3130_remove(struct i2c_client *client)
+ 	struct fm3130 *fm3130 = i2c_get_clientdata(client);
+ 
+ 	rtc_device_unregister(fm3130->rtc);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(fm3130);
+ 	return 0;
+ }
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 60fe266..2fd8d7c 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -863,6 +863,7 @@ ht_err:
+ exit:
+ 	if (rtc)
+ 		rtc_device_unregister(rtc);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(clientdata);
+ 	return rc;
+ }
+@@ -880,6 +881,7 @@ static int m41t80_remove(struct i2c_client *client)
+ #endif
+ 	if (rtc)
+ 		rtc_device_unregister(rtc);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(clientdata);
+ 
+ 	return 0;
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 65f346b..4be76a4 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -225,6 +225,7 @@ static int pcf8563_probe(struct i2c_client *client,
+ 	return 0;
+ 
+ exit_kfree:
++	i2c_set_clientdata(client, NULL);
+ 	kfree(pcf8563);
+ 
+ 	return err;
+@@ -237,6 +238,7 @@ static int pcf8563_remove(struct i2c_client *client)
+ 	if (pcf8563->rtc)
+ 		rtc_device_unregister(pcf8563->rtc);
+ 
++	i2c_set_clientdata(client, NULL);
+ 	kfree(pcf8563);
+ 
+ 	return 0;
+diff --git a/drivers/rtc/rtc-pcf8583.c b/drivers/rtc/rtc-pcf8583.c
+index 2d201af..e122d9f 100644
+--- a/drivers/rtc/rtc-pcf8583.c
++++ b/drivers/rtc/rtc-pcf8583.c
+@@ -290,6 +290,7 @@ static int pcf8583_probe(struct i2c_client *client,
+ 	return 0;
+ 
+ exit_kfree:
++	i2c_set_clientdata(client, NULL);
+ 	kfree(pcf8583);
+ 	return err;
+ }
+@@ -300,6 +301,7 @@ static int __devexit pcf8583_remove(struct i2c_client *client)
+ 
+ 	if (pcf8583->rtc)
+ 		rtc_device_unregister(pcf8583->rtc);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(pcf8583);
+ 	return 0;
+ }
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 2f2c68d..75e0423 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -694,6 +694,7 @@ exit_devreg:
+ 	rtc_device_unregister(rs5c372->rtc);
+ 
+ exit_kfree:
++	i2c_set_clientdata(client, NULL);
+ 	kfree(rs5c372);
+ 
+ exit:
+@@ -706,6 +707,7 @@ static int rs5c372_remove(struct i2c_client *client)
+ 
+ 	rtc_device_unregister(rs5c372->rtc);
+ 	rs5c_sysfs_unregister(&client->dev);
++	i2c_set_clientdata(client, NULL);
+ 	kfree(rs5c372);
+ 	return 0;
+ }
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index def4d39..da39041 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -274,8 +274,8 @@ exit_dummy:
+ 	for (i = 1; i < 8; ++i)
+ 		if (s35390a->client[i])
+ 			i2c_unregister_device(s35390a->client[i]);
+-	kfree(s35390a);
  	i2c_set_clientdata(client, NULL);
-+	kfree(rdev);
++	kfree(s35390a);
+ 
+ exit:
+ 	return err;
+@@ -291,8 +291,8 @@ static int s35390a_remove(struct i2c_client *client)
+ 			i2c_unregister_device(s35390a->client[i]);
+ 
+ 	rtc_device_unregister(s35390a->rtc);
+-	kfree(s35390a);
+ 	i2c_set_clientdata(client, NULL);
++	kfree(s35390a);
  
  	return 0;
  }
