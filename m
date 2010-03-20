@@ -1,327 +1,166 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: [PATCH] i2c: Fix bus-level power management callbacks
-Date: Fri, 19 Mar 2010 23:44:08 +0100
-Message-ID: <201003192344.09000.rjw@sisk.pl>
-References: <201003132204.30905.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: i2c-drivers: Remove dangling pointers
+Date: Sat, 20 Mar 2010 15:12:41 +0100
+Message-ID: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201003132204.30905.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 13 March 2010, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-> 
-> There are three issues with the i2c's power management callbacks at
-> the moment.  First, they don't include any hibernate callbacks,
-> although they should at least include the .restore() callback
-> (there's no guarantee that the driver will be in memory before
-> loading the image kernel and we must restore the pre-hibernation
-> state of the device).  Second, the "legacy" callbacks are not going
-> to be invoked by the PM core since the bus type's pm object is not
-> NULL.  Finally, the system power transition (ie. suspend/resume)
-> callbacks don't check if the device hasn't been already suspended
-> at run time, in which case they should skip suspending it and
-> handle it in a special way during resume.  Also, it looks like the
-> i2c bus type itself doesn't need any power management handling beyond
-> that provided by the generic subsystem-level PM callbacks.
-> 
-> For these reasons, remove the power management callbacks defined by
-> the i2c bus type and make it use the generic subsystem-level power
-> management callbacks.
+Hi,
 
-I assume the lack of responses except for the Alan's one means the patch
-wasn't correct, so below is one that I think is better.  It fixes all of the
-issues described above without breaking backwards compatibility.
+here is a patch series fixing I2C drivers which free their private data
+structure and leave the clientdata pointer dangling or do the cleanup in the
+wrong order. All occurences were found using coccinelle [1] and the semantic
+patch below. The matches have been reviewed, and sometimes adapted.
 
-Thanks,
-Rafael
+The complete series goes to linux-i2c and kernel-janitors. The rest of the CCs
+is handled per patch using get_maintainers.pl (which always adds LKML, so you
+have the complete series there, too).
 
----
-From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: i2c: Fix bus-level power management callbacks
+Please review, comment, apply!
 
-There are three issues with the i2c bus type's power management
-callbacks at the moment.  First, they don't include any hibernate
-callbacks, although they should at least include the .restore()
-callback (there's no guarantee that the driver will be present in
-memory before loading the image kernel and we must restore the
-pre-hibernation state of the device).  Second, the "legacy"
-callbacks are not going to be invoked by the PM core since the bus
-type's pm object is not NULL.  Finally, the system sleep PM
-(ie. suspend/resume) callbacks don't check if the device has been
-already suspended at run time, in which case they should skip
-suspending it.  Also, it looks like the i2c bus type can use the
-generic subsystem-level runtime PM callbacks.
+Kind regards,
 
-For these reasons, rework the system sleep PM callbacks provided by
-the i2c bus type to handle hibernation correctly and to invoke the
-"legacy" callbacks for drivers that provide them.  In addition to
-that make the i2c bus type use the generic subsystem-level runtime
-PM callbacks.
+   Wolfram
 
-Signed-off-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
----
- drivers/i2c/i2c-core.c     |  168 ++++++++++++++++++++++++++-------------------
- include/linux/pm_runtime.h |    7 +
- 2 files changed, 105 insertions(+), 70 deletions(-)
+[1] http://coccinelle.lip6.fr/
 
-Index: linux-2.6/drivers/i2c/i2c-core.c
-===================================================================
---- linux-2.6.orig/drivers/i2c/i2c-core.c
-+++ linux-2.6/drivers/i2c/i2c-core.c
-@@ -156,107 +156,131 @@ static void i2c_device_shutdown(struct d
- 		driver->shutdown(client);
- }
- 
--#ifdef CONFIG_SUSPEND
--static int i2c_device_pm_suspend(struct device *dev)
-+static int i2c_legacy_suspend(struct device *dev, pm_message_t mesg)
- {
--	const struct dev_pm_ops *pm;
-+	struct i2c_client *client = i2c_verify_client(dev);
-+	struct i2c_driver *driver;
- 
--	if (!dev->driver)
-+	if (!client || !dev->driver)
- 		return 0;
--	pm = dev->driver->pm;
--	if (!pm || !pm->suspend)
-+	driver = to_i2c_driver(dev->driver);
-+	if (!driver->suspend)
- 		return 0;
--	return pm->suspend(dev);
-+	return driver->suspend(client, mesg);
- }
- 
--static int i2c_device_pm_resume(struct device *dev)
-+static int i2c_legacy_resume(struct device *dev)
- {
--	const struct dev_pm_ops *pm;
-+	struct i2c_client *client = i2c_verify_client(dev);
-+	struct i2c_driver *driver;
- 
--	if (!dev->driver)
-+	if (!client || !dev->driver)
- 		return 0;
--	pm = dev->driver->pm;
--	if (!pm || !pm->resume)
-+	driver = to_i2c_driver(dev->driver);
-+	if (!driver->resume)
- 		return 0;
--	return pm->resume(dev);
-+	return driver->resume(client);
- }
--#else
--#define i2c_device_pm_suspend	NULL
--#define i2c_device_pm_resume	NULL
--#endif
- 
--#ifdef CONFIG_PM_RUNTIME
--static int i2c_device_runtime_suspend(struct device *dev)
-+#ifdef CONFIG_PM_SLEEP
-+static int i2c_device_pm_suspend(struct device *dev)
- {
--	const struct dev_pm_ops *pm;
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (!dev->driver)
--		return 0;
--	pm = dev->driver->pm;
--	if (!pm || !pm->runtime_suspend)
-+	if (pm_runtime_suspended(dev))
- 		return 0;
--	return pm->runtime_suspend(dev);
--}
- 
--static int i2c_device_runtime_resume(struct device *dev)
--{
--	const struct dev_pm_ops *pm;
-+	if (pm)
-+		return pm->suspend ? pm->suspend(dev) : 0;
- 
--	if (!dev->driver)
--		return 0;
--	pm = dev->driver->pm;
--	if (!pm || !pm->runtime_resume)
--		return 0;
--	return pm->runtime_resume(dev);
-+	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
- }
- 
--static int i2c_device_runtime_idle(struct device *dev)
-+static int i2c_device_pm_resume(struct device *dev)
- {
--	const struct dev_pm_ops *pm = NULL;
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 	int ret;
- 
--	if (dev->driver)
--		pm = dev->driver->pm;
--	if (pm && pm->runtime_idle) {
--		ret = pm->runtime_idle(dev);
--		if (ret)
--			return ret;
-+	if (pm)
-+		ret = pm->resume ? pm->resume(dev) : 0;
-+	else
-+		ret = i2c_legacy_resume(dev);
-+
-+	if (!ret) {
-+		pm_runtime_disable(dev);
-+		pm_runtime_set_active(dev);
-+		pm_runtime_enable(dev);
- 	}
- 
--	return pm_runtime_suspend(dev);
--}
--#else
--#define i2c_device_runtime_suspend	NULL
--#define i2c_device_runtime_resume	NULL
--#define i2c_device_runtime_idle		NULL
--#endif
-+	return ret;
-+}
- 
--static int i2c_device_suspend(struct device *dev, pm_message_t mesg)
-+static int i2c_device_pm_freeze(struct device *dev)
- {
--	struct i2c_client *client = i2c_verify_client(dev);
--	struct i2c_driver *driver;
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (!client || !dev->driver)
-+	if (pm_runtime_suspended(dev))
- 		return 0;
--	driver = to_i2c_driver(dev->driver);
--	if (!driver->suspend)
--		return 0;
--	return driver->suspend(client, mesg);
-+
-+	if (pm)
-+		return pm->freeze ? pm->freeze(dev) : 0;
-+
-+	return i2c_legacy_suspend(dev, PMSG_FREEZE);
- }
- 
--static int i2c_device_resume(struct device *dev)
-+static int i2c_device_pm_thaw(struct device *dev)
- {
--	struct i2c_client *client = i2c_verify_client(dev);
--	struct i2c_driver *driver;
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (!client || !dev->driver)
-+	if (pm_runtime_suspended(dev))
- 		return 0;
--	driver = to_i2c_driver(dev->driver);
--	if (!driver->resume)
-+
-+	if (pm)
-+		return pm->thaw ? pm->thaw(dev) : 0;
-+
-+	return i2c_legacy_resume(dev);
-+}
-+
-+static int i2c_device_pm_poweroff(struct device *dev)
-+{
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+
-+	if (pm_runtime_suspended(dev))
- 		return 0;
--	return driver->resume(client);
-+
-+	if (pm)
-+		return pm->poweroff ? pm->poweroff(dev) : 0;
-+
-+	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
- }
- 
-+static int i2c_device_pm_restore(struct device *dev)
-+{
-+	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	int ret;
-+
-+	if (pm)
-+		ret = pm->restore ? pm->restore(dev) : 0;
-+	else
-+		ret = i2c_legacy_resume(dev);
-+
-+	if (!ret) {
-+		pm_runtime_disable(dev);
-+		pm_runtime_set_active(dev);
-+		pm_runtime_enable(dev);
-+	}
-+
-+	return ret;
-+}
-+#else /* !CONFIG_PM_SLEEP */
-+#define i2c_device_pm_suspend	NULL
-+#define i2c_device_pm_resume	NULL
-+#define i2c_device_pm_freeze	NULL
-+#define i2c_device_pm_thaw	NULL
-+#define i2c_device_pm_poweroff	NULL
-+#define i2c_device_pm_restore	NULL
-+#endif /* !CONFIG_PM_SLEEP */
-+
- static void i2c_client_dev_release(struct device *dev)
- {
- 	kfree(to_i2c_client(dev));
-@@ -298,9 +322,15 @@ static const struct attribute_group *i2c
- static const struct dev_pm_ops i2c_device_pm_ops = {
- 	.suspend = i2c_device_pm_suspend,
- 	.resume = i2c_device_pm_resume,
--	.runtime_suspend = i2c_device_runtime_suspend,
--	.runtime_resume = i2c_device_runtime_resume,
--	.runtime_idle = i2c_device_runtime_idle,
-+	.freeze = i2c_device_pm_freeze,
-+	.thaw = i2c_device_pm_thaw,
-+	.poweroff = i2c_device_pm_poweroff,
-+	.restore = i2c_device_pm_restore,
-+	SET_RUNTIME_PM_OPS(
-+		pm_generic_runtime_suspend,
-+		pm_generic_runtime_resume,
-+		pm_generic_runtime_idle
-+	)
- };
- 
- struct bus_type i2c_bus_type = {
-@@ -309,8 +339,6 @@ struct bus_type i2c_bus_type = {
- 	.probe		= i2c_device_probe,
- 	.remove		= i2c_device_remove,
- 	.shutdown	= i2c_device_shutdown,
--	.suspend	= i2c_device_suspend,
--	.resume		= i2c_device_resume,
- 	.pm		= &i2c_device_pm_ops,
- };
- EXPORT_SYMBOL_GPL(i2c_bus_type);
-Index: linux-2.6/include/linux/pm_runtime.h
-===================================================================
---- linux-2.6.orig/include/linux/pm_runtime.h
-+++ linux-2.6/include/linux/pm_runtime.h
-@@ -30,6 +30,9 @@ extern void pm_runtime_enable(struct dev
- extern void __pm_runtime_disable(struct device *dev, bool check_resume);
- extern void pm_runtime_allow(struct device *dev);
- extern void pm_runtime_forbid(struct device *dev);
-+extern int pm_generic_runtime_idle(struct device *dev);
-+extern int pm_generic_runtime_suspend(struct device *dev);
-+extern int pm_generic_runtime_resume(struct device *dev);
- 
- static inline bool pm_children_suspended(struct device *dev)
- {
-@@ -96,6 +99,10 @@ static inline bool device_run_wake(struc
- static inline void device_set_run_wake(struct device *dev, bool enable) {}
- static inline bool pm_runtime_suspended(struct device *dev) { return false; }
- 
-+static inline int pm_generic_runtime_idle(struct device *dev) { return 0; }
-+static inline int pm_generic_runtime_suspend(struct device *dev) { return 0; }
-+static inline int pm_generic_runtime_resume(struct device *dev) { return 0; }
-+
- #endif /* !CONFIG_PM_RUNTIME */
- 
- static inline int pm_runtime_get(struct device *dev)
+===
+
+@@
+type T;
+identifier client, data;
+@@
+
+// Check if function uses clientdata
+(
+	i2c_set_clientdata(client, data);
+|
+	data = i2c_get_clientdata(client);
+|
+	T data = i2c_get_clientdata(client);
+)
+// Anything inbetween
+	...
+// Check if clientdata gets NULLed before data is freed
+(
+	i2c_set_clientdata(client, NULL);
+	...
+ 	kfree(data);
+|
++	i2c_set_clientdata(client, NULL);
+ 	kfree(data);
+	...
+-	i2c_set_clientdata(client, NULL);
+|
++	i2c_set_clientdata(client, NULL);
+? 	kfree(data);
+)
+
+===
+
+ drivers/gpio/adp5588-gpio.c                   |    1 +
+ drivers/gpio/max732x.c                        |    1 +
+ drivers/gpio/pca953x.c                        |    1 +
+ drivers/gpio/pcf857x.c                        |    7 ++++---
+ drivers/hwmon/ad7414.c                        |    2 ++
+ drivers/hwmon/ad7418.c                        |    2 ++
+ drivers/hwmon/adm1021.c                       |    2 ++
+ drivers/hwmon/adm1025.c                       |    2 ++
+ drivers/hwmon/adm1026.c                       |    2 ++
+ drivers/hwmon/adm1029.c                       |    2 ++
+ drivers/hwmon/adm1031.c                       |    2 ++
+ drivers/hwmon/adm9240.c                       |    2 ++
+ drivers/hwmon/ads7828.c                       |    5 ++++-
+ drivers/hwmon/adt7462.c                       |    2 ++
+ drivers/hwmon/adt7470.c                       |    2 ++
+ drivers/hwmon/adt7475.c                       |    2 ++
+ drivers/hwmon/amc6821.c                       |    2 ++
+ drivers/hwmon/asb100.c                        |    2 ++
+ drivers/hwmon/atxp1.c                         |    2 ++
+ drivers/hwmon/dme1737.c                       |    2 ++
+ drivers/hwmon/ds1621.c                        |    2 ++
+ drivers/hwmon/f75375s.c                       |    4 ++--
+ drivers/hwmon/g760a.c                         |    4 ++--
+ drivers/hwmon/gl518sm.c                       |    2 ++
+ drivers/hwmon/gl520sm.c                       |    2 ++
+ drivers/hwmon/lm63.c                          |    2 ++
+ drivers/hwmon/lm77.c                          |    2 ++
+ drivers/hwmon/lm78.c                          |    2 ++
+ drivers/hwmon/lm80.c                          |    2 ++
+ drivers/hwmon/lm83.c                          |    2 ++
+ drivers/hwmon/lm85.c                          |    2 ++
+ drivers/hwmon/lm87.c                          |    2 ++
+ drivers/hwmon/lm90.c                          |    2 ++
+ drivers/hwmon/lm92.c                          |    2 ++
+ drivers/hwmon/lm93.c                          |    2 ++
+ drivers/hwmon/lm95241.c                       |    1 +
+ drivers/hwmon/ltc4215.c                       |    2 ++
+ drivers/hwmon/ltc4245.c                       |    2 ++
+ drivers/hwmon/max1619.c                       |    2 ++
+ drivers/hwmon/max6650.c                       |    2 ++
+ drivers/hwmon/pcf8591.c                       |    6 +++++-
+ drivers/hwmon/smsc47m192.c                    |    2 ++
+ drivers/hwmon/thmc50.c                        |    2 ++
+ drivers/hwmon/tmp401.c                        |    1 +
+ drivers/hwmon/w83791d.c                       |    2 ++
+ drivers/hwmon/w83792d.c                       |    2 ++
+ drivers/hwmon/w83793.c                        |    1 +
+ drivers/hwmon/w83l785ts.c                     |    2 ++
+ drivers/hwmon/w83l786ng.c                     |    2 ++
+ drivers/input/keyboard/lm8323.c               |    2 ++
+ drivers/input/keyboard/qt2160.c               |    2 +-
+ drivers/input/touchscreen/mcs5000_ts.c        |    2 +-
+ drivers/input/touchscreen/tsc2007.c           |    1 +
+ drivers/leds/leds-lp3944.c                    |    2 +-
+ drivers/leds/leds-pca9532.c                   |    4 ++--
+ drivers/leds/leds-pca955x.c                   |    4 ++--
+ drivers/macintosh/therm_adt746x.c             |    2 ++
+ drivers/media/radio/radio-tea5764.c           |    2 ++
+ drivers/media/radio/si470x/radio-si470x-i2c.c |    2 +-
+ drivers/media/video/cs5345.c                  |    1 +
+ drivers/media/video/cs53l32a.c                |    1 +
+ drivers/media/video/ir-kbd-i2c.c              |    2 ++
+ drivers/media/video/tda9840.c                 |    1 +
+ drivers/media/video/tea6415c.c                |    1 +
+ drivers/media/video/tea6420.c                 |    1 +
+ drivers/media/video/ths7303.c                 |    1 +
+ drivers/mfd/88pm860x-i2c.c                    |    1 +
+ drivers/mfd/ab3100-core.c                     |    2 ++
+ drivers/mfd/da903x.c                          |    1 +
+ drivers/mfd/menelaus.c                        |    3 ++-
+ drivers/mfd/pcf50633-core.c                   |    1 +
+ drivers/mfd/tps65010.c                        |    2 +-
+ drivers/mfd/wm8350-i2c.c                      |    2 ++
+ drivers/misc/ad525x_dpot.c                    |    2 +-
+ drivers/misc/eeprom/at24.c                    |    2 +-
+ drivers/misc/eeprom/eeprom.c                  |    6 +++++-
+ drivers/misc/eeprom/max6875.c                 |    2 ++
+ drivers/misc/ics932s401.c                     |    2 ++
+ drivers/misc/isl29003.c                       |    6 +++++-
+ drivers/misc/tsl2550.c                        |    6 +++++-
+ drivers/mtd/maps/pismo.c                      |    8 +++++++-
+ drivers/power/bq27x00_battery.c               |    2 ++
+ drivers/power/ds2782_battery.c                |    4 ++--
+ drivers/regulator/max1586.c                   |    2 +-
+ drivers/regulator/max8649.c                   |    3 ++-
+ drivers/regulator/max8660.c                   |    2 +-
+ drivers/rtc/rtc-ds1307.c                      |    2 ++
+ drivers/rtc/rtc-fm3130.c                      |    2 ++
+ drivers/rtc/rtc-m41t80.c                      |    2 ++
+ drivers/rtc/rtc-pcf8563.c                     |    2 ++
+ drivers/rtc/rtc-pcf8583.c                     |    2 ++
+ drivers/rtc/rtc-rs5c372.c                     |    2 ++
+ drivers/rtc/rtc-s35390a.c                     |    4 ++--
+ drivers/staging/dream/synaptics_i2c_rmi.c     |    2 ++
+ drivers/staging/go7007/wis-saa7113.c          |    1 +
+ drivers/staging/go7007/wis-saa7115.c          |    1 +
+ drivers/staging/go7007/wis-tw9903.c           |    1 +
+ drivers/staging/iio/adc/max1363_core.c        |    2 ++
+ drivers/staging/iio/light/tsl2563.c           |    2 ++
+ drivers/usb/otg/isp1301_omap.c                |    5 ++++-
+ drivers/video/matrox/matroxfb_maven.c         |    1 +
+ drivers/w1/masters/ds2482.c                   |    2 ++
+ 102 files changed, 198 insertions(+), 33 deletions(-)
