@@ -1,65 +1,47 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: [PATCH 06/24] input/keyboard: fix dangling pointers
-Date: Sat, 20 Mar 2010 15:12:47 +0100
-Message-ID: <1269094385-16114-7-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH 03/24] usb/otg/isp1301_omap: Fix dangling pointer
+Date: Sat, 20 Mar 2010 15:12:44 +0100
+Message-ID: <1269094385-16114-4-git-send-email-w.sang@pengutronix.de>
 References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
-Sender: linux-input-owner@vger.kernel.org
-To: kernel-janitors@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1269094385-16114-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Fix I2C-drivers which missed setting clientdata to NULL before freeing the
-structure it points to. Also fix drivers which do this _after_ the structure
-was freed already.
+Fix this i2c-driver which missed setting clientdata to NULL before freeing the
+structure it points to. Found by a semantic patch, but fixed by hand.
 
-Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
 ---
+ drivers/usb/otg/isp1301_omap.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-Found using coccinelle, then reviewed. Full patchset is available via
-kernel-janitors, linux-i2c, and LKML.
----
- drivers/input/keyboard/lm8323.c |    2 ++
- drivers/input/keyboard/qt2160.c |    2 +-
- 2 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index 574eda2..2b8bf05 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -768,6 +768,7 @@ fail2:
- 			led_classdev_unregister(&lm->pwm[i].cdev);
- fail1:
- 	input_free_device(idev);
-+	i2c_set_clientdata(client, NULL);
- 	kfree(lm);
- 	return err;
- }
-@@ -789,6 +790,7 @@ static int __devexit lm8323_remove(struct i2c_client *client)
- 		if (lm->pwm[i].enabled)
- 			led_classdev_unregister(&lm->pwm[i].cdev);
- 
-+	i2c_set_clientdata(client, NULL);
- 	kfree(lm);
- 
- 	return 0;
-diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-index 31f3008..43db5e9 100644
---- a/drivers/input/keyboard/qt2160.c
-+++ b/drivers/input/keyboard/qt2160.c
-@@ -356,9 +356,9 @@ static int __devexit qt2160_remove(struct i2c_client *client)
- 	cancel_delayed_work_sync(&qt2160->dwork);
- 
- 	input_unregister_device(qt2160->input);
-+	i2c_set_clientdata(client, NULL);
- 	kfree(qt2160);
- 
--	i2c_set_clientdata(client, NULL);
- 	return 0;
+diff --git a/drivers/usb/otg/isp1301_omap.c b/drivers/usb/otg/isp1301_omap.c
+index 78a2097..0ad16e3 100644
+--- a/drivers/usb/otg/isp1301_omap.c
++++ b/drivers/usb/otg/isp1301_omap.c
+@@ -1224,7 +1224,9 @@ static void isp1301_release(struct device *dev)
+ 	/* ugly -- i2c hijacks our memory hook to wait_for_completion() */
+ 	if (isp->i2c_release)
+ 		isp->i2c_release(dev);
+-	kfree (isp);
++
++	i2c_set_clientdata(isp->client, NULL);
++	kfree(isp);
  }
  
+ static struct isp1301 *the_transceiver;
+@@ -1629,6 +1631,7 @@ isp1301_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
+ 	return 0;
+ 
+ fail:
++	i2c_set_clientdata(i2c, NULL);
+ 	kfree(isp);
+ 	return -ENODEV;
+ }
 -- 
 1.7.0
-
