@@ -1,86 +1,69 @@
-From: matthieu castet <castet.matthieu@free.fr>
-Subject: i2c interface bugs in dvb drivers
-Date: Sun, 21 Mar 2010 15:02:50 +0100
-Message-ID: <4BA6270A.4050703@free.fr>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
+Date: Sun, 21 Mar 2010 14:14:17 +0000
+Message-ID: <20100321141417.GA19626@opensource.wolfsonmicro.com>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-13-git-send-email-w.sang@pengutronix.de> <201003202302.49526.hverkuil@xs4all.nl> <20100321144655.4747fd2a@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------070503020102010101070801"
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100321144655.4747fd2a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070503020102010101070801
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Mar 21, 2010 at 02:46:55PM +0100, Jean Delvare wrote:
+> On Sat, 20 Mar 2010 23:02:49 +0100, Hans Verkuil wrote:
 
-Hi,
+> > I feel I am missing something here. Why does clientdata have to be set to
+> > NULL when we are tearing down the device anyway?
 
-some dvb driver that export a i2c interface contains some mistakes because they mainly used by driver (frontend, tuner) wrote for them.
-But the i2c interface is exposed to everybody.
+> We're not tearing down the device, that's the point. We are only
+> unbinding it from its driver. The device itself survives the operation.
 
-One mistake is expect msg[i].addr with 8 bits address instead of 7 bits address. This make them use eeprom address at 0xa0 instead of 0x50. Also they shift tuner address (qt1010 tuner is likely to be at address 0x62, but some put it a 0xc4 (af9015, af9005, dtv5100)).
+That's the subsystem point of view, not the driver point of view.  As
+far as the driver is concerned the device appears when probe() is called
+and vanishes after remove() has completed, any management the subsystem
+does in between is up to it.
 
-Other mistakes is in xfer callback. Often the controller support a limited i2c support (n bytes write then m bytes read). The driver try to convert the linux i2c msg to this pattern, but they often miss cases :
-- msg[i].len can be null
-- msg write are not always followed by msg read
+> 1* It is good practice to have memory freed not too far from where it
+> was allocated, otherwise there is always a risk of unmatched pairs. In
+> this regard, it seems preferable to let each i2c driver kfree the
+> device memory it kalloc'd, be it in probe() or remove().
 
-And this can be dangerous if these interfaces are exported to userspace via i2c-dev :
-- some scanning program avoid eeprom by filtering 0x5x range, but now it is at 0xax range (well that should happen because scan limit should be 0x77)
-- some read only command can be interpreted as write command.
+I agree with this.  There are also some use cases where the device data
+is actually static (eg, a generic description of the device or a
+reference to some other shared resource rather than per device allocated
+data).
 
+> 2* References to allocated memory should be dropped before that memory
+> is freed. This means that we want to call i2c_set_clientdata(c, NULL)
+> before kfree(d). As a corollary, we can't do the former in i2c-core and
+> the later in device drivers.
 
-What should be done ?
-Fix the drivers.
-Have a mode where i2c interface are not exported to everybody.
-Don't care.
+This is where the mismatch between the subsystem view of the device
+lifetime and the driver view of the device lifetime comes into play.
+For the driver once the device is unregistered the device no longer
+exists - if the driver tries to work with the device it's buggy.  This
+means that to the driver returning from the remove() function is
+dropping the reference to the data and there's no reason for the driver
+to take any other action.
 
-First why does the i2c stack doesn't check that the address is on 7 bits (like the attached patch) ?
+The device may hang around after the remove() has happened, but if the
+device driver knows or cares about it then it's doing something wrong.
+Similarly on probe() we can't assme anything about the pointer since
+even if we saw the device before we can't guarantee that some other
+driver didn't do so as well.  The situation is similar to that with
+kfree() - we don't memset() data we're freeing with that, even though it
+might contain pointers to other things.
 
-Also I believe a program for testing i2c interface corner case should catch most of these bugs :
-- null msg[i].len
-- different transactions on a device :
- - one write/read transaction
- - one write transaction then one read transaction
-[...]
+> So we are in the difficult situation where we can't do both in i2c-core
+> because that violates point 1 above, we can't do half in i2c-core and
+> half in device drivers because this violates point 2 above, so we fall
+> back to doing both in device drivers, which doesn't violate any point
+> but duplicates the code all around.
 
-Does a such program exist ?
-
-
-Matthieu
-
-PS : please keep me in CC
-
-
---------------070503020102010101070801
-Content-Type: text/x-diff;
- name="i2c_check.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2c_check.diff"
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3202a86..91e63ea 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1150,6 +1150,17 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
- 		}
- #endif
-+		for (ret = 0; ret < num; ret++) {
-+			if (msgs[ret].flags & I2C_M_TEN) {
-+				/* XXX what"s I2C_M_TEN range */
-+				if (msgs[ret].addr < 0x03 || msgs[ret].addr > 0x377)
-+					return -EINVAL;
-+			}
-+			else {
-+				if (msgs[ret].addr < 0x03 || msgs[ret].addr > 0x77)
-+					return -EINVAL;
-+			}
-+		}
- 
- 		if (in_atomic() || irqs_disabled()) {
- 			ret = rt_mutex_trylock(&adap->bus_lock);
-
---------------070503020102010101070801--
+Personally I'd much rather just not bother setting the driver data in
+the removal path, it seems unneeded.  I had assumed that the subsystem
+code cared for some reason when I saw the patch series.
