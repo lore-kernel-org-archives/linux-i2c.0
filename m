@@ -1,73 +1,81 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Sun, 21 Mar 2010 12:31:14 +0100
-Message-ID: <20100321113114.GB26984@pengutronix.de>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-13-git-send-email-w.sang@pengutronix.de> <201003202302.49526.hverkuil@xs4all.nl>
+Date: Sun, 21 Mar 2010 14:46:55 +0100
+Message-ID: <20100321144655.4747fd2a@hyperion.delvare>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+	<1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
+	<201003202302.49526.hverkuil@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 In-Reply-To: <201003202302.49526.hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Hans,
 
---rS8CxjVDS/+yyDmU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello Hans,
-
-> > Fix I2C-drivers which missed setting clientdata to NULL before freeing =
-the
-> > structure it points to. Also fix drivers which do this _after_ the stru=
-cture
+On Sat, 20 Mar 2010 23:02:49 +0100, Hans Verkuil wrote:
+> On Saturday 20 March 2010 15:12:53 Wolfram Sang wrote:
+> > Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> > structure it points to. Also fix drivers which do this _after_ the structure
 > > was freed already.
->=20
+> 
 > I feel I am missing something here. Why does clientdata have to be set to
 > NULL when we are tearing down the device anyway?
->=20
-> And if there is a good reason for doing this, then it should be done in
-> v4l2_device_unregister_subdev or even in the i2c core, not in each driver=
-s.
 
-Discussion to take this into the i2c-layer has already started. Regarding V=
-4L,
-I noticed there is a v4l2_i2c_subdev_init() but no v4l2_i2c_subdev_exit(), =
-so I
-grepped what drivers are doing. There are some which set clientdata to NULL=
-, so
-I thought this was accepted in general.
+We're not tearing down the device, that's the point. We are only
+unbinding it from its driver. The device itself survives the operation.
+
+(This is different from the legacy i2c binding model where the device
+itself would indeed be removed at that point, and that would be the
+reason why so many i2c drivers have it wrong now.)
+
+> And if there is a good reason for doing this, then it should be done in
+> v4l2_device_unregister_subdev or even in the i2c core, not in each drivers.
+
+Mark Brown (Cc'd) suggested this already, but I have mixed feelings
+about this. My reasoning is:
+
+1* It is good practice to have memory freed not too far from where it
+was allocated, otherwise there is always a risk of unmatched pairs. In
+this regard, it seems preferable to let each i2c driver kfree the
+device memory it kalloc'd, be it in probe() or remove().
+
+2* References to allocated memory should be dropped before that memory
+is freed. This means that we want to call i2c_set_clientdata(c, NULL)
+before kfree(d). As a corollary, we can't do the former in i2c-core and
+the later in device drivers.
+
+So we are in the difficult situation where we can't do both in i2c-core
+because that violates point 1 above, we can't do half in i2c-core and
+half in device drivers because this violates point 2 above, so we fall
+back to doing both in device drivers, which doesn't violate any point
+but duplicates the code all around.
+
+Now, if we decide to handle this at a deeper driver model layer
+(i2c-core instead of device drivers) then I'm not sure why we would
+stop there... Wouldn't it be the driver core's job to clear the
+reference and free the allocated memory?
+
+I get the feeling that this would be a job for managed resources as
+some drivers already do for I/O ports and IRQs. Managed resources don't
+care about symmetry of allocation and freeing, by design (so it can
+violate point 1 above.) Aha! Isn't it exactly what devm_kzalloc() is
+all about?
+
+At this point, I guess that each subsystem maintainer can decide to
+either apply Wolfram's patch, or switch the drivers to managed
+resources. Very nice that we don't have to make this a subsystem-wide
+decision, so every actor can do the changes if/when they see fit.
 
 > And why does coccinelle apparently find this in e.g. cs5345.c but not in
 > saa7115.c, which has exactly the same construct? For that matter, I think
+> almost all v4l i2c drivers do this.
 
-It was the to_state()-call inside kfree() which prevented the match. I would
-need to extend my patch for V4L, it seems.
+That I can't say, sorry.
 
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---rS8CxjVDS/+yyDmU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkumA4IACgkQD27XaX1/VRuJKACfYtVBg2DgQcE85z2GznQ4PTFK
-OaMAnign0fO1MzKYEi6BQ0BQ5cvBIkoD
-=4EBn
------END PGP SIGNATURE-----
-
---rS8CxjVDS/+yyDmU--
+-- 
+Jean Delvare
