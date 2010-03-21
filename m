@@ -1,69 +1,85 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Sun, 21 Mar 2010 14:14:17 +0000
-Message-ID: <20100321141417.GA19626@opensource.wolfsonmicro.com>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-13-git-send-email-w.sang@pengutronix.de> <201003202302.49526.hverkuil@xs4all.nl> <20100321144655.4747fd2a@hyperion.delvare>
+From: matthieu castet <castet.matthieu-GANU6spQydw@public.gmane.org>
+Subject: i2c probing
+Date: Sun, 21 Mar 2010 15:22:00 +0100
+Message-ID: <4BA62B88.8080903@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100321144655.4747fd2a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 21, 2010 at 02:46:55PM +0100, Jean Delvare wrote:
-> On Sat, 20 Mar 2010 23:02:49 +0100, Hans Verkuil wrote:
+Hi,
 
-> > I feel I am missing something here. Why does clientdata have to be set to
-> > NULL when we are tearing down the device anyway?
+Do you know why there is 2 methods of probing i2c [1] and [2], with different quirks for eeprom.
+Why can't they be merged together ?
 
-> We're not tearing down the device, that's the point. We are only
-> unbinding it from its driver. The device itself survives the operation.
 
-That's the subsystem point of view, not the driver point of view.  As
-far as the driver is concerned the device appears when probe() is called
-and vanishes after remove() has completed, any management the subsystem
-does in between is up to it.
+Thanks
 
-> 1* It is good practice to have memory freed not too far from where it
-> was allocated, otherwise there is always a risk of unmatched pairs. In
-> this regard, it seems preferable to let each i2c driver kfree the
-> device memory it kalloc'd, be it in probe() or remove().
+Matthieu
 
-I agree with this.  There are also some use cases where the device data
-is actually static (eg, a generic description of the device or a
-reference to some other shared resource rather than per device allocated
-data).
+PS : please keep me in CC
 
-> 2* References to allocated memory should be dropped before that memory
-> is freed. This means that we want to call i2c_set_clientdata(c, NULL)
-> before kfree(d). As a corollary, we can't do the former in i2c-core and
-> the later in device drivers.
 
-This is where the mismatch between the subsystem view of the device
-lifetime and the driver view of the device lifetime comes into play.
-For the driver once the device is unregistered the device no longer
-exists - if the driver tries to work with the device it's buggy.  This
-means that to the driver returning from the remove() function is
-dropping the reference to the data and there's no reason for the driver
-to take any other action.
+[1]
+i2c_detect_address
 
-The device may hang around after the remove() has happened, but if the
-device driver knows or cares about it then it's doing something wrong.
-Similarly on probe() we can't assme anything about the pointer since
-even if we saw the device before we can't guarantee that some other
-driver didn't do so as well.  The situation is similar to that with
-kfree() - we don't memset() data we're freeing with that, even though it
-might contain pointers to other things.
+    /* Make sure the address is valid */
+    if (addr < 0x03 || addr > 0x77) {
+        dev_warn(&adapter->dev, "Invalid probe address 0x%02x\n",
+             addr);
+        return -EINVAL;
+    }
 
-> So we are in the difficult situation where we can't do both in i2c-core
-> because that violates point 1 above, we can't do half in i2c-core and
-> half in device drivers because this violates point 2 above, so we fall
-> back to doing both in device drivers, which doesn't violate any point
-> but duplicates the code all around.
+    /* Skip if already in use */
+    if (i2c_check_addr(adapter, addr))
+        return 0;
 
-Personally I'd much rather just not bother setting the driver data in
-the removal path, it seems unneeded.  I had assumed that the subsystem
-code cared for some reason when I saw the patch series.
+    /* Make sure there is something at this address */
+    if (i2c_smbus_xfer(adapter, addr, 0, 0, 0, I2C_SMBUS_QUICK, NULL) < 0)
+        return 0;
+
+    /* Prevent 24RF08 corruption */
+    if ((addr & ~0x0f) == 0x50)
+        i2c_smbus_xfer(adapter, addr, 0, 0, 0, I2C_SMBUS_QUICK, NULL);
+
+[2]
+i2c_new_probed_device
+        if (addr_list[i] < 0x03 || addr_list[i] > 0x77) {
+            dev_warn(&adap->dev, "Invalid 7-bit address "
+                 "0x%02x\n", addr_list[i]);
+            continue;
+        }
+
+        /* Check address availability */
+        if (i2c_check_addr(adap, addr_list[i])) {
+            dev_dbg(&adap->dev, "Address 0x%02x already in "
+                "use, not probing\n", addr_list[i]);
+            continue;
+        }
+
+        /* Test address responsiveness
+           The default probe method is a quick write, but it is known
+           to corrupt the 24RF08 EEPROMs due to a state machine bug,
+           and could also irreversibly write-protect some EEPROMs, so
+           for address ranges 0x30-0x37 and 0x50-0x5f, we use a byte
+           read instead. Also, some bus drivers don't implement
+           quick write, so we fallback to a byte read it that case
+           too. */
+        if ((addr_list[i] & ~0x07) == 0x30
+         || (addr_list[i] & ~0x0f) == 0x50
+         || !i2c_check_functionality(adap, I2C_FUNC_SMBUS_QUICK)) {
+            union i2c_smbus_data data;
+
+            if (i2c_smbus_xfer(adap, addr_list[i], 0,
+                       I2C_SMBUS_READ, 0,
+                       I2C_SMBUS_BYTE, &data) >= 0)
+                break;
+        } else {
+            if (i2c_smbus_xfer(adap, addr_list[i], 0,
+                       I2C_SMBUS_WRITE, 0,
+                       I2C_SMBUS_QUICK, NULL) >= 0)
+                break;
+        }
