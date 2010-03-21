@@ -1,148 +1,70 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Sat, 20 Mar 2010 23:02:49 +0100
-Message-ID: <201003202302.49526.hverkuil@xs4all.nl>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 06/24] input/keyboard: fix dangling pointers
+Date: Sun, 21 Mar 2010 02:59:26 +0100
+Message-ID: <20100321015925.GA26625@pengutronix.de>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-7-git-send-email-w.sang@pengutronix.de> <20100320192007.GA28402@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100320192007.GA28402-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 20 March 2010 15:12:53 Wolfram Sang wrote:
-> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
-> structure it points to. Also fix drivers which do this _after_ the structure
-> was freed already.
 
-I feel I am missing something here. Why does clientdata have to be set to
-NULL when we are tearing down the device anyway?
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And if there is a good reason for doing this, then it should be done in
-v4l2_device_unregister_subdev or even in the i2c core, not in each drivers.
+Hello Dmitry,
 
-And why does coccinelle apparently find this in e.g. cs5345.c but not in
-saa7115.c, which has exactly the same construct? For that matter, I think
-almost all v4l i2c drivers do this.
+On Sat, Mar 20, 2010 at 12:20:07PM -0700, Dmitry Torokhov wrote:
+> Hi Wolfram,
+>=20
+> On Sat, Mar 20, 2010 at 03:12:47PM +0100, Wolfram Sang wrote:
+> > Fix I2C-drivers which missed setting clientdata to NULL before freeing =
+the
+> > structure it points to. Also fix drivers which do this _after_ the stru=
+cture
+> > was freed already.
+> >=20
+>=20
+> I am not sure if setting clientdata to NULL before freeing the data is
+> that important; we really want to be sure that we don't leave clientdata
+> dangling when we finish unbinding the driver. If there are another
+> thread the change will not really help the problem of accessing
+> non-existing client data.
 
-Regards,
+I agree it won't matter in practice. Jean and I concluded it is better
+style, though (http://comments.gmane.org/gmane.linux.drivers.i2c/5392).
+Still, I will not insist and leave it up the subsystem maintainers, of
+course. I also won't check for that case again in the future.
 
-	Hans
+> I will apply lm8323 portion of the patch but leave qt2160 as is.
 
-> 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-> ---
-> 
-> Found using coccinelle, then reviewed. Full patchset is available via
-> kernel-janitors, linux-i2c, and LKML.
-> ---
->  drivers/media/video/cs5345.c     |    1 +
->  drivers/media/video/cs53l32a.c   |    1 +
->  drivers/media/video/ir-kbd-i2c.c |    2 ++
->  drivers/media/video/tda9840.c    |    1 +
->  drivers/media/video/tea6415c.c   |    1 +
->  drivers/media/video/tea6420.c    |    1 +
->  drivers/media/video/ths7303.c    |    1 +
->  7 files changed, 8 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/media/video/cs5345.c b/drivers/media/video/cs5345.c
-> index 57dc170..cd21aa8 100644
-> --- a/drivers/media/video/cs5345.c
-> +++ b/drivers/media/video/cs5345.c
-> @@ -196,6 +196,7 @@ static int cs5345_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/cs53l32a.c b/drivers/media/video/cs53l32a.c
-> index 80bca8d..527f731 100644
-> --- a/drivers/media/video/cs53l32a.c
-> +++ b/drivers/media/video/cs53l32a.c
-> @@ -199,6 +199,7 @@ static int cs53l32a_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
-> index da18d69..f29c5cd 100644
-> --- a/drivers/media/video/ir-kbd-i2c.c
-> +++ b/drivers/media/video/ir-kbd-i2c.c
-> @@ -461,6 +461,7 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	return 0;
->  
->   err_out_free:
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(ir);
->  	return err;
->  }
-> @@ -476,6 +477,7 @@ static int ir_remove(struct i2c_client *client)
->  	ir_input_unregister(ir->input);
->  
->  	/* free memory */
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(ir);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/tda9840.c b/drivers/media/video/tda9840.c
-> index d381fce..b608aaf 100644
-> --- a/drivers/media/video/tda9840.c
-> +++ b/drivers/media/video/tda9840.c
-> @@ -188,6 +188,7 @@ static int tda9840_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/tea6415c.c b/drivers/media/video/tea6415c.c
-> index 1585839..49a6606 100644
-> --- a/drivers/media/video/tea6415c.c
-> +++ b/drivers/media/video/tea6415c.c
-> @@ -164,6 +164,7 @@ static int tea6415c_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/tea6420.c b/drivers/media/video/tea6420.c
-> index 6bf6bc7..821085d 100644
-> --- a/drivers/media/video/tea6420.c
-> +++ b/drivers/media/video/tea6420.c
-> @@ -146,6 +146,7 @@ static int tea6420_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  	return 0;
->  }
-> diff --git a/drivers/media/video/ths7303.c b/drivers/media/video/ths7303.c
-> index 21781f8..d411a73 100644
-> --- a/drivers/media/video/ths7303.c
-> +++ b/drivers/media/video/ths7303.c
-> @@ -114,6 +114,7 @@ static int ths7303_remove(struct i2c_client *client)
->  	struct v4l2_subdev *sd = i2c_get_clientdata(client);
->  
->  	v4l2_device_unregister_subdev(sd);
-> +	i2c_set_clientdata(client, NULL);
->  	kfree(sd);
->  
->  	return 0;
-> 
+Thanks!
 
--- 
-Hans Verkuil - video4linux developer - sponsored by TANDBERG
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkulfX0ACgkQD27XaX1/VRtgIwCeP3ARt+wII1Xeva9Lnytebcsr
+IQcAnApsmX1e9BfUoF/0kyJ4U7XWnSgu
+=lIAk
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
