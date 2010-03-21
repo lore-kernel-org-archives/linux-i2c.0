@@ -1,81 +1,86 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Sun, 21 Mar 2010 14:46:55 +0100
-Message-ID: <20100321144655.4747fd2a@hyperion.delvare>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
-	<1269094385-16114-13-git-send-email-w.sang@pengutronix.de>
-	<201003202302.49526.hverkuil@xs4all.nl>
+From: matthieu castet <castet.matthieu@free.fr>
+Subject: i2c interface bugs in dvb drivers
+Date: Sun, 21 Mar 2010 15:02:50 +0100
+Message-ID: <4BA6270A.4050703@free.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201003202302.49526.hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Type: multipart/mixed;
+ boundary="------------070503020102010101070801"
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Hans,
+This is a multi-part message in MIME format.
+--------------070503020102010101070801
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sat, 20 Mar 2010 23:02:49 +0100, Hans Verkuil wrote:
-> On Saturday 20 March 2010 15:12:53 Wolfram Sang wrote:
-> > Fix I2C-drivers which missed setting clientdata to NULL before freeing the
-> > structure it points to. Also fix drivers which do this _after_ the structure
-> > was freed already.
-> 
-> I feel I am missing something here. Why does clientdata have to be set to
-> NULL when we are tearing down the device anyway?
+Hi,
 
-We're not tearing down the device, that's the point. We are only
-unbinding it from its driver. The device itself survives the operation.
+some dvb driver that export a i2c interface contains some mistakes because they mainly used by driver (frontend, tuner) wrote for them.
+But the i2c interface is exposed to everybody.
 
-(This is different from the legacy i2c binding model where the device
-itself would indeed be removed at that point, and that would be the
-reason why so many i2c drivers have it wrong now.)
+One mistake is expect msg[i].addr with 8 bits address instead of 7 bits address. This make them use eeprom address at 0xa0 instead of 0x50. Also they shift tuner address (qt1010 tuner is likely to be at address 0x62, but some put it a 0xc4 (af9015, af9005, dtv5100)).
 
-> And if there is a good reason for doing this, then it should be done in
-> v4l2_device_unregister_subdev or even in the i2c core, not in each drivers.
+Other mistakes is in xfer callback. Often the controller support a limited i2c support (n bytes write then m bytes read). The driver try to convert the linux i2c msg to this pattern, but they often miss cases :
+- msg[i].len can be null
+- msg write are not always followed by msg read
 
-Mark Brown (Cc'd) suggested this already, but I have mixed feelings
-about this. My reasoning is:
+And this can be dangerous if these interfaces are exported to userspace via i2c-dev :
+- some scanning program avoid eeprom by filtering 0x5x range, but now it is at 0xax range (well that should happen because scan limit should be 0x77)
+- some read only command can be interpreted as write command.
 
-1* It is good practice to have memory freed not too far from where it
-was allocated, otherwise there is always a risk of unmatched pairs. In
-this regard, it seems preferable to let each i2c driver kfree the
-device memory it kalloc'd, be it in probe() or remove().
 
-2* References to allocated memory should be dropped before that memory
-is freed. This means that we want to call i2c_set_clientdata(c, NULL)
-before kfree(d). As a corollary, we can't do the former in i2c-core and
-the later in device drivers.
+What should be done ?
+Fix the drivers.
+Have a mode where i2c interface are not exported to everybody.
+Don't care.
 
-So we are in the difficult situation where we can't do both in i2c-core
-because that violates point 1 above, we can't do half in i2c-core and
-half in device drivers because this violates point 2 above, so we fall
-back to doing both in device drivers, which doesn't violate any point
-but duplicates the code all around.
+First why does the i2c stack doesn't check that the address is on 7 bits (like the attached patch) ?
 
-Now, if we decide to handle this at a deeper driver model layer
-(i2c-core instead of device drivers) then I'm not sure why we would
-stop there... Wouldn't it be the driver core's job to clear the
-reference and free the allocated memory?
+Also I believe a program for testing i2c interface corner case should catch most of these bugs :
+- null msg[i].len
+- different transactions on a device :
+ - one write/read transaction
+ - one write transaction then one read transaction
+[...]
 
-I get the feeling that this would be a job for managed resources as
-some drivers already do for I/O ports and IRQs. Managed resources don't
-care about symmetry of allocation and freeing, by design (so it can
-violate point 1 above.) Aha! Isn't it exactly what devm_kzalloc() is
-all about?
+Does a such program exist ?
 
-At this point, I guess that each subsystem maintainer can decide to
-either apply Wolfram's patch, or switch the drivers to managed
-resources. Very nice that we don't have to make this a subsystem-wide
-decision, so every actor can do the changes if/when they see fit.
 
-> And why does coccinelle apparently find this in e.g. cs5345.c but not in
-> saa7115.c, which has exactly the same construct? For that matter, I think
-> almost all v4l i2c drivers do this.
+Matthieu
 
-That I can't say, sorry.
+PS : please keep me in CC
 
--- 
-Jean Delvare
+
+--------------070503020102010101070801
+Content-Type: text/x-diff;
+ name="i2c_check.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i2c_check.diff"
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 3202a86..91e63ea 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1150,6 +1150,17 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
+ 		}
+ #endif
++		for (ret = 0; ret < num; ret++) {
++			if (msgs[ret].flags & I2C_M_TEN) {
++				/* XXX what"s I2C_M_TEN range */
++				if (msgs[ret].addr < 0x03 || msgs[ret].addr > 0x377)
++					return -EINVAL;
++			}
++			else {
++				if (msgs[ret].addr < 0x03 || msgs[ret].addr > 0x77)
++					return -EINVAL;
++			}
++		}
+ 
+ 		if (in_atomic() || irqs_disabled()) {
+ 			ret = rt_mutex_trylock(&adap->bus_lock);
+
+--------------070503020102010101070801--
