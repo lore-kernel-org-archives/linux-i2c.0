@@ -1,33 +1,37 @@
-From: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-pnx: Improvements and fixes
-Date: Mon, 22 Mar 2010 10:09:11 -0700
-Message-ID: <a08234131003221009j1ec74009jc2eb289386455b65@mail.gmail.com>
-References: <1268780138-10019-1-git-send-email-wellsk40@gmail.com>
+From: Liam Girdwood <lrg@slimlogic.co.uk>
+Subject: Re: [PATCH 17/24] regulator: fix dangling pointers
+Date: Mon, 22 Mar 2010 19:49:10 +0000
+Message-ID: <1269287350.3754.22.camel@odin>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+	 <1269094385-16114-18-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1268780138-10019-1-git-send-email-wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vitaly.wool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1269094385-16114-18-git-send-email-w.sang@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vitaly,
+On Sat, 2010-03-20 at 15:12 +0100, Wolfram Sang wrote:
+> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> structure it points to. Also fix drivers which do this _after_ the structure
+> was freed already.
+> 
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Cc: Liam Girdwood <lrg@slimlogic.co.uk>
+> Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> ---
+> 
 
-Can you please ack these patches for the i2c-pnx driver? These are all
-important changes for the i2c-pnx.
+Applied.
 
-thanks,
-Kevin
+Thanks
 
-On Tue, Mar 16, 2010 at 3:55 PM,  <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->
-> This patch set fixes a stop condition issue with transfers, caps
-> the maximum computed divider generated from the parent clock,
-> and disables the I2C peripheral clock when the I2C bus isn't in
-> use (to save power).
->
-> Patch 3 was previously posted a few months ago, but I didn't
-> follow up on getting it into the driver.
->
-> All code is tested on the lpc3250.
->
+Liam
+
+-- 
+Freelance Developer, SlimLogic Ltd
+ASoC and Voltage Regulator Maintainer.
+http://www.slimlogic.co.uk
