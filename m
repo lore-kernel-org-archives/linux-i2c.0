@@ -1,62 +1,35 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c/pxa: remove unused macro
-Date: Mon, 22 Mar 2010 22:04:11 +0100
-Message-ID: <20100322210411.GD10157@pengutronix.de>
-References: <20100224110044.GB15181@pengutronix.de> <1267009306-17227-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
+Date: Mon, 22 Mar 2010 21:51:18 +0000
+Message-ID: <20100322215118.GC17533@sirena.org.uk>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+ <20100321144655.4747fd2a@hyperion.delvare>
+ <20100321141417.GA19626@opensource.wolfsonmicro.com>
+ <201003211709.56319.hverkuil@xs4all.nl>
+ <20100322213358.31e50b3c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1267009306-17227-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20100322213358.31e50b3c@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, Wolfram Sang <w.sang@pengutronix.de>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Mon, Mar 22, 2010 at 09:33:58PM +0100, Jean Delvare wrote:
+> On Sun, 21 Mar 2010 17:09:56 +0100, Hans Verkuil wrote:
+> > On Sunday 21 March 2010 15:14:17 Mark Brown wrote:
 
-On Wed, Feb 24, 2010 at 12:01:44PM +0100, Uwe Kleine-K=F6nig wrote:
-> Commit
->=20
-> 	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driver.)
->=20
-> removed all uses of eedbg, so the definition can go, too.
->=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-> Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-ping
+> > > I agree with this.  There are also some use cases where the device data
+> > > is actually static (eg, a generic description of the device or a
+> > > reference to some other shared resource rather than per device allocated
+> > > data).
 
-Uwe
-> ---
->  drivers/i2c/busses/i2c-pxa.c |    2 --
->  1 files changed, 0 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
-a.c
-> index 7647a20..b3c6c9d 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -216,8 +216,6 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2=
-c, int lno, const char *fname)
->  #define decode_ICR(val) do { } while (0)
->  #endif
-> =20
-> -#define eedbg(lvl, x...) do { if ((lvl) < 1) { printk(KERN_DEBUG "" =
-x); } } while(0)
-> -
->  static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
->  static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
-> =20
-> --=20
-> 1.6.6.2
+> From a technical perspective, there is little rationale to have the
+> client data pointed to static data. If you could reach it from probe(),
+> it has to be a global, and if it is a global, you can reach it again
+> directly from the rest of your code.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+The use case I can think of there is bus type specific stuff for devices
+that support multiple buses.
