@@ -1,45 +1,58 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH]I2C device - release cleanup
-Date: Tue, 23 Mar 2010 17:21:43 +0100
-Message-ID: <20100323172143.6b078b2e@hyperion.delvare>
-References: <20100323135410.47276f58@hyperion.delvare>
-	<0016e6d64c23d0770e0482776d51@google.com>
+From: Arnaud Patard <apatard-4qZELD6FgxhWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c-imx: fix error handling
+Date: Tue, 23 Mar 2010 17:28:28 +0100
+Message-ID: <m3r5nbkno3.fsf@anduin.mandriva.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <0016e6d64c23d0770e0482776d51-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 23 Mar 2010 13:02:41 +0000, jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
-> Hi Jean,
-> 
-> < snip >
-> > Did you test your patch? I am very skeptical that calling
-> 
-> > single_release() out of the blue is the right thing to do. My instinct
-> 
-> > tells me that single_release() is only meant for callers of
-> 
-> > single_open().
-> 
-> Well, using this call works fine with my hardware.
-> I would say, as before :).
-> Looking at the source code of single_release, this is very similar to what  
-> is done today.
-> 
-> But yes, it would also be interesting to use single_open in the open()  
-> syscall.
-> I think this would be nicer to use only single_*() functions.
-> 
-> Maybe is it interesting to submit a patch that does a cleanup for all the  
-> i2c-dev file ? And not only the release function ?
+--=-=-=
 
-Yes, that would be better. If you do that, please make sure to run your
-patch through scripts/checkpatch.pl before sending it.
 
--- 
-Jean Delvare
+
+- Return -ETIMEDOUT on bus busy error
+- Fix timeout test "time_after(jiffies, orig_jiffies + HZ / 1000)" :
+  By default, HZ=100 on arm. This means that this test has no chances to
+  work and may result in a dead loop. Set timeout to 500ms.
+- Don't try to send a new message if we failed to transmit
+  previous one. This was preventing to recover from error on my system
+
+Signed-off-by: Arnaud Patard <apatard-4qZELD6FgxhWk0Htik3J/w@public.gmane.org>
+---
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline; filename=fix_i2c_imx_error_handling.patch
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 32375bd..ced8a38 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -145,10 +145,10 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ 				"<%s> I2C Interrupted\n", __func__);
+ 			return -EINTR;
+ 		}
+-		if (time_after(jiffies, orig_jiffies + HZ / 1000)) {
++		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
+ 				"<%s> I2C bus is busy\n", __func__);
+-			return -EIO;
++			return -ETIMEDOUT;
+ 		}
+ 		schedule();
+ 	}
+@@ -443,6 +443,8 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 			result = i2c_imx_read(i2c_imx, &msgs[i]);
+ 		else
+ 			result = i2c_imx_write(i2c_imx, &msgs[i]);
++		if (result)
++			goto fail0;
+ 	}
+ 
+ fail0:
+
+--=-=-=--
