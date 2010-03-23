@@ -1,68 +1,57 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH]I2C device - release cleanup
-Date: Tue, 23 Mar 2010 13:54:10 +0100
-Message-ID: <20100323135410.47276f58@hyperion.delvare>
-References: <8cad0aa1003230301g44434763w13da24799f811faa@mail.gmail.com>
+Subject: Re: i2c probing
+Date: Tue, 23 Mar 2010 14:13:35 +0100
+Message-ID: <20100323141335.4def23de@hyperion.delvare>
+References: <4BA62B88.8080903@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8cad0aa1003230301g44434763w13da24799f811faa-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4BA62B88.8080903-GANU6spQydw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: matthieu castet <castet.matthieu-GANU6spQydw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean-Michel,
+Hi Matthieu,
 
-On Tue, 23 Mar 2010 11:01:28 +0100, Jean-Michel Hautbois wrote:
-> Hi there,
-> 
-> Here is a little patch which aims to cleanup the release function in i2c-dev.c.
-> This is only a call to single_release, instead of kfree and several things.
-> 
-> Signed-off-by: Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> drivers/i2c/i2c-dev.c
-> 
-> --- linux-2.6.34-rc2/drivers/i2c/i2c-dev.c.orig	2010-03-23
-> 10:19:26.000000000 +0100
-> +++ linux-2.6.34-rc2/drivers/i2c/i2c-dev.c	2010-03-23 10:55:54.000000000 +0100
-> @@ -36,6 +36,7 @@
->  #include <linux/i2c-dev.h>
->  #include <linux/jiffies.h>
->  #include <asm/uaccess.h>
-> +#include <linux/seq_file.h>
-> 
->  static struct i2c_driver i2cdev_driver;
-> 
-> @@ -477,12 +478,10 @@ static int i2cdev_open(struct inode *ino
->  static int i2cdev_release(struct inode *inode, struct file *file)
->  {
->  	struct i2c_client *client = file->private_data;
-> -
-> +	
+On Sun, 21 Mar 2010 15:22:00 +0100, matthieu castet wrote:
+> Do you know why there is 2 methods of probing i2c [1] and [2], with different quirks for eeprom.
 
-This is adding trailing white-space. Obviously you did not review your
-own patch before sending it. And you did not run it through
-scripts/checkpatch.pl either.
+Historical reasons, mainly. i2c_detect() is an old thing, it is used by
+device drivers which want to automatically probe for devices they
+support (and provide a reliable detection function to this purpose.)
+Mainly hardware monitoring drivers do this. i2c_new_probed_device() is
+more recent, it is meant for bus drivers which want to probe for
+device presence at a selected address. There is no detection function
+involved in this case.
 
->  	i2c_put_adapter(client->adapter);
-> -	kfree(client);
-> -	file->private_data = NULL;
-> -
-> -	return 0;
-> +	
-> +	return single_release(inode, file);
->  }
-> 
->  static const struct file_operations i2cdev_fops = {
+i2c_detect() is using the device presence detection method that has
+been used since 1999 or so. For i2c_new_probed_device(), we learned
+from our past mistakes and opted for a safer approach. But in practice,
+both should work equally fine.
 
-Did you test your patch? I am very skeptical that calling
-single_release() out of the blue is the right thing to do. My instinct
-tells me that single_release() is only meant for callers of
-single_open().
+> Why can't they be merged together ?
 
+I don't really remember, and in all honesty, I did not realize the
+legacy probing method was still present until I read your post. I guess
+that I didn't dare changing the legacy probing code originally. Now
+that we have good results with the new one, I agree that it would be
+nice to merge both (that is, get rid of the old one and use the new one
+everywhere.)
+
+Would you be interested in working on this? You can register yourself
+on the wiki [1] if you want, and add an action item. Or just send a
+patch right away if you think it is simple enough.
+
+Note that I have been working lately on letting callers of
+i2c_new_probed_device() pass a custom probe function. These changes
+will certainly collide with the ones you are suggesting. So if you want
+to work on this, please let me know so that we can coordinate our
+efforts.
+
+[1] https://i2c.wiki.kernel.org/index.php/Main_Page
+
+Thanks,
 -- 
 Jean Delvare
-http://khali.linux-fr.org/wishlist.html
