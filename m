@@ -1,85 +1,48 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Tue, 23 Mar 2010 01:35:25 +0100
-Message-ID: <20100323003525.GC5762@pengutronix.de>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <20100321144655.4747fd2a@hyperion.delvare> <20100321141417.GA19626@opensource.wolfsonmicro.com> <201003211709.56319.hverkuil@xs4all.nl> <20100322213358.31e50b3c@hyperion.delvare>
+From: Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH]I2C device - release cleanup
+Date: Tue, 23 Mar 2010 11:01:28 +0100
+Message-ID: <8cad0aa1003230301g44434763w13da24799f811faa@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100322213358.31e50b3c@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>, Mark Brown <broonie@opensource.wolfsonmicro.com>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi there,
 
---ALfTUftag+2gvp1h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here is a little patch which aims to cleanup the release function in i2c-dev.c.
+This is only a call to single_release, instead of kfree and several things.
 
+Signed-off-by: Jean-Michel Hautbois <jhautbois-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+drivers/i2c/i2c-dev.c
 
-> > > Personally I'd much rather just not bother setting the driver data in
-> > > the removal path, it seems unneeded.  I had assumed that the subsystem
-> > > code cared for some reason when I saw the patch series.
-> >=20
-> > Anyway, should this really be necessary, then for the media drivers this
-> > should be done in v4l2_device_unregister_subdev() and not in every driv=
-er.
-> >=20
-> > But this just feels like an i2c core thing to me. After remove() is cal=
-led
-> > the core should just set the client data to NULL. If there are drivers =
-that
-> > rely on the current behavior, then those drivers should be reviewed fir=
-st as
-> > to the reason why they need it.
->=20
-> I tend to agree, now.
->=20
-> Wolfram, how do you feel about this? I feel a little sorry that I more
-> or less encouraged you to submit this patch series, and now I get to
-> agree with the objections which were raised against it.
+--- linux-2.6.34-rc2/drivers/i2c/i2c-dev.c.orig	2010-03-23
+10:19:26.000000000 +0100
++++ linux-2.6.34-rc2/drivers/i2c/i2c-dev.c	2010-03-23 10:55:54.000000000 +0100
+@@ -36,6 +36,7 @@
+ #include <linux/i2c-dev.h>
+ #include <linux/jiffies.h>
+ #include <asm/uaccess.h>
++#include <linux/seq_file.h>
 
-Well, this is a valuable outcome in my book. Maybe seeing the actual amount=
- of
-modifications necessary for cleaning up clientdata helped the process. While
-working on it, I also got the impression that it should be handled differen=
-tly
-in the future, of course. Although I was thinking of something different
-('i2c_(allocate|free)_clientdata' as mentioned before), I prefer the above
-proposal as it is most simple.
+ static struct i2c_driver i2cdev_driver;
 
-> My key motivation was that I wanted i2c_set_clientdata() to be called
-> before kfree(). Now that everybody seems to agree that the latter
-> belongs to the drivers while the former belongs to lower layers
-> (i2c-core or even driver core), this is not going to happen. So I guess
-> we want to remove calls to i2c_set_clientdata(NULL) from all drivers
-> and have only one in i2c-core for now?
+@@ -477,12 +478,10 @@ static int i2cdev_open(struct inode *ino
+ static int i2cdev_release(struct inode *inode, struct file *file)
+ {
+ 	struct i2c_client *client = file->private_data;
+-
++	
+ 	i2c_put_adapter(client->adapter);
+-	kfree(client);
+-	file->private_data = NULL;
+-
+-	return 0;
++	
++	return single_release(inode, file);
+ }
 
-Fine with me. Let me know if I can assist you with the series.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---ALfTUftag+2gvp1h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkuoDMwACgkQD27XaX1/VRtdTQCgiT69KlXjtgYDdBqWpB7vWdkB
-66gAoKYHRTMFBlDdJhGo9zOll7xKCsDD
-=ngpT
------END PGP SIGNATURE-----
-
---ALfTUftag+2gvp1h--
+ static const struct file_operations i2cdev_fops = {
