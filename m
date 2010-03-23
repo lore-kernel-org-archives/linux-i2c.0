@@ -1,35 +1,85 @@
-From: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c/pxa: remove unused macro
-Date: Mon, 22 Mar 2010 22:54:47 +0100
-Message-ID: <4BA7E727.9000905@gmail.com>
-References: <20100224110044.GB15181@pengutronix.de> <1267009306-17227-1-git-send-email-u.kleine-koenig@pengutronix.de> <20100322210411.GD10157@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
+Date: Tue, 23 Mar 2010 01:35:25 +0100
+Message-ID: <20100323003525.GC5762@pengutronix.de>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <20100321144655.4747fd2a@hyperion.delvare> <20100321141417.GA19626@opensource.wolfsonmicro.com> <201003211709.56319.hverkuil@xs4all.nl> <20100322213358.31e50b3c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100322210411.GD10157-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100322213358.31e50b3c@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Hans Verkuil <hverkuil@xs4all.nl>, Mark Brown <broonie@opensource.wolfsonmicro.com>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Op 22-03-10 22:04, Uwe Kleine-K=F6nig schreef:
-> Hi Ben,
+
+--ALfTUftag+2gvp1h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > > Personally I'd much rather just not bother setting the driver data in
+> > > the removal path, it seems unneeded.  I had assumed that the subsystem
+> > > code cared for some reason when I saw the patch series.
+> >=20
+> > Anyway, should this really be necessary, then for the media drivers this
+> > should be done in v4l2_device_unregister_subdev() and not in every driv=
+er.
+> >=20
+> > But this just feels like an i2c core thing to me. After remove() is cal=
+led
+> > the core should just set the client data to NULL. If there are drivers =
+that
+> > rely on the current behavior, then those drivers should be reviewed fir=
+st as
+> > to the reason why they need it.
 >=20
-> On Wed, Feb 24, 2010 at 12:01:44PM +0100, Uwe Kleine-K=F6nig wrote:
->> Commit
->>
->> 	beea494 ([ARM] Remove EEPROM slave emulation from i2c-pxa driver.)
->>
->> removed all uses of eedbg, so the definition can go, too.
->>
->> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> Acked-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
->> Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Cc: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Acked-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-> ping
+> I tend to agree, now.
+>=20
+> Wolfram, how do you feel about this? I feel a little sorry that I more
+> or less encouraged you to submit this patch series, and now I get to
+> agree with the objections which were raised against it.
 
-=46WIW:
+Well, this is a valuable outcome in my book. Maybe seeing the actual amount=
+ of
+modifications necessary for cleaning up clientdata helped the process. While
+working on it, I also got the impression that it should be handled differen=
+tly
+in the future, of course. Although I was thinking of something different
+('i2c_(allocate|free)_clientdata' as mentioned before), I prefer the above
+proposal as it is most simple.
 
-Acked-by: Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> My key motivation was that I wanted i2c_set_clientdata() to be called
+> before kfree(). Now that everybody seems to agree that the latter
+> belongs to the drivers while the former belongs to lower layers
+> (i2c-core or even driver core), this is not going to happen. So I guess
+> we want to remove calls to i2c_set_clientdata(NULL) from all drivers
+> and have only one in i2c-core for now?
+
+Fine with me. Let me know if I can assist you with the series.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ALfTUftag+2gvp1h
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkuoDMwACgkQD27XaX1/VRtdTQCgiT69KlXjtgYDdBqWpB7vWdkB
+66gAoKYHRTMFBlDdJhGo9zOll7xKCsDD
+=ngpT
+-----END PGP SIGNATURE-----
+
+--ALfTUftag+2gvp1h--
