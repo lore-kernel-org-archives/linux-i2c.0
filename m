@@ -1,25 +1,164 @@
-From: Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/2] omap i2c: make errata 1.153 workaround a separate function
-Date: Thu, 25 Mar 2010 11:52:35 +0200
-Message-ID: <1269510757-8119-1-git-send-email-virtuoso@slind.org>
-References: <20100316143025.GR2900@atomide.com>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 13/24] mfd: fix dangling pointers
+Date: Thu, 25 Mar 2010 11:41:38 +0100
+Message-ID: <20100325104137.GA3720@sortiz.org>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+ <1269094385-16114-14-git-send-email-w.sang@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100316143025.GR2900-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1269094385-16114-14-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: nm-l0cyMroinI0@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
-> Can you please repost and I'll add those too into omap-testing
-> first? Or maybe point to the right patchwork.kernel.org link.
+On Sat, Mar 20, 2010 at 03:12:54PM +0100, Wolfram Sang wrote:
+> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> structure it points to. Also fix drivers which do this _after_ the structure
+> was freed already.
+Patch applied, many thanks.
 
-Resending.
+Cheers,
+Samuel.
 
-P.S. I think linux-i2c@ mailing list adds some vicious email headers that
-the email clients obey and don't include me in the to/cc in replies. I've
-only found Tony's reply in the archives because I suspected something wrong.
 
-Regards,
---
-Alex
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> ---
+> 
+> Found using coccinelle, then reviewed. Full patchset is available via
+> kernel-janitors, linux-i2c, and LKML.
+> ---
+>  drivers/mfd/88pm860x-i2c.c  |    1 +
+>  drivers/mfd/ab3100-core.c   |    2 ++
+>  drivers/mfd/da903x.c        |    1 +
+>  drivers/mfd/menelaus.c      |    3 ++-
+>  drivers/mfd/pcf50633-core.c |    1 +
+>  drivers/mfd/tps65010.c      |    2 +-
+>  drivers/mfd/wm8350-i2c.c    |    2 ++
+>  7 files changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/mfd/88pm860x-i2c.c b/drivers/mfd/88pm860x-i2c.c
+> index c37e12b..aa81448 100644
+> --- a/drivers/mfd/88pm860x-i2c.c
+> +++ b/drivers/mfd/88pm860x-i2c.c
+> @@ -201,6 +201,7 @@ static int __devexit pm860x_remove(struct i2c_client *client)
+>  	i2c_unregister_device(chip->companion);
+>  	i2c_set_clientdata(chip->companion, NULL);
+>  	i2c_set_clientdata(chip->client, NULL);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(chip);
+>  	return 0;
+>  }
+> diff --git a/drivers/mfd/ab3100-core.c b/drivers/mfd/ab3100-core.c
+> index a2ce3b6..e6fc43f 100644
+> --- a/drivers/mfd/ab3100-core.c
+> +++ b/drivers/mfd/ab3100-core.c
+> @@ -919,6 +919,7 @@ static int __init ab3100_probe(struct i2c_client *client,
+>  	i2c_unregister_device(ab3100->testreg_client);
+>   exit_no_testreg_client:
+>   exit_no_detect:
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(ab3100);
+>  	return err;
+>  }
+> @@ -940,6 +941,7 @@ static int __exit ab3100_remove(struct i2c_client *client)
+>  	 * their notifiers so deactivate IRQ
+>  	 */
+>  	free_irq(client->irq, ab3100);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(ab3100);
+>  	return 0;
+>  }
+> diff --git a/drivers/mfd/da903x.c b/drivers/mfd/da903x.c
+> index e5ffe56..ec8178c 100644
+> --- a/drivers/mfd/da903x.c
+> +++ b/drivers/mfd/da903x.c
+> @@ -543,6 +543,7 @@ static int __devexit da903x_remove(struct i2c_client *client)
+>  	struct da903x_chip *chip = i2c_get_clientdata(client);
+>  
+>  	da903x_remove_subdevs(chip);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(chip);
+>  	return 0;
+>  }
+> diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
+> index 970afa1..d9e60ba 100644
+> --- a/drivers/mfd/menelaus.c
+> +++ b/drivers/mfd/menelaus.c
+> @@ -1227,6 +1227,7 @@ fail2:
+>  	free_irq(client->irq, menelaus);
+>  	flush_scheduled_work();
+>  fail1:
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(menelaus);
+>  	return err;
+>  }
+> @@ -1236,8 +1237,8 @@ static int __exit menelaus_remove(struct i2c_client *client)
+>  	struct menelaus_chip	*menelaus = i2c_get_clientdata(client);
+>  
+>  	free_irq(client->irq, menelaus);
+> -	kfree(menelaus);
+>  	i2c_set_clientdata(client, NULL);
+> +	kfree(menelaus);
+>  	the_menelaus = NULL;
+>  	return 0;
+>  }
+> diff --git a/drivers/mfd/pcf50633-core.c b/drivers/mfd/pcf50633-core.c
+> index 03dcc92..ab7b4dd 100644
+> --- a/drivers/mfd/pcf50633-core.c
+> +++ b/drivers/mfd/pcf50633-core.c
+> @@ -675,6 +675,7 @@ static int __devexit pcf50633_remove(struct i2c_client *client)
+>  	for (i = 0; i < PCF50633_NUM_REGULATORS; i++)
+>  		platform_device_unregister(pcf->regulator_pdev[i]);
+>  
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(pcf);
+>  
+>  	return 0;
+> diff --git a/drivers/mfd/tps65010.c b/drivers/mfd/tps65010.c
+> index e595530..9b22a77 100644
+> --- a/drivers/mfd/tps65010.c
+> +++ b/drivers/mfd/tps65010.c
+> @@ -530,8 +530,8 @@ static int __exit tps65010_remove(struct i2c_client *client)
+>  	cancel_delayed_work(&tps->work);
+>  	flush_scheduled_work();
+>  	debugfs_remove(tps->file);
+> -	kfree(tps);
+>  	i2c_set_clientdata(client, NULL);
+> +	kfree(tps);
+>  	the_tps = NULL;
+>  	return 0;
+>  }
+> diff --git a/drivers/mfd/wm8350-i2c.c b/drivers/mfd/wm8350-i2c.c
+> index 8d8c932..2dd3e8a 100644
+> --- a/drivers/mfd/wm8350-i2c.c
+> +++ b/drivers/mfd/wm8350-i2c.c
+> @@ -81,6 +81,7 @@ static int wm8350_i2c_probe(struct i2c_client *i2c,
+>  	return ret;
+>  
+>  err:
+> +	i2c_set_clientdata(i2c, NULL);
+>  	kfree(wm8350);
+>  	return ret;
+>  }
+> @@ -90,6 +91,7 @@ static int wm8350_i2c_remove(struct i2c_client *i2c)
+>  	struct wm8350 *wm8350 = i2c_get_clientdata(i2c);
+>  
+>  	wm8350_device_exit(wm8350);
+> +	i2c_set_clientdata(i2c, NULL);
+>  	kfree(wm8350);
+>  
+>  	return 0;
+> -- 
+> 1.7.0
+> 
+
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
