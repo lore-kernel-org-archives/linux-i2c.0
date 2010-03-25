@@ -1,46 +1,87 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c: Fix bus-level power management callbacks
-Date: Thu, 25 Mar 2010 09:28:02 +0000
-Message-ID: <20100325092802.GA27729@rakim.wolfsonmicro.main>
-References: <201003132204.30905.rjw@sisk.pl>
- <201003192344.09000.rjw@sisk.pl>
- <20100325095720.0b115056@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100325095720.0b115056-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Alexander Shishkin <virtuoso@slind.org>
+Subject: [PATCH v2 1/2] omap i2c: make errata 1.153 workaround a separate function
+Date: Thu, 25 Mar 2010 11:52:36 +0200
+Message-ID: <1269510757-8119-2-git-send-email-virtuoso@slind.org>
+References: <20100316143025.GR2900@atomide.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100316143025.GR2900@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: nm@ti.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Alexander Shishkin <virtuoso@slind.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 25, 2010 at 09:57:20AM +0100, Jean Delvare wrote:
+This is to avoid insanely long lines and levels of indentation.
 
-> Mark, you contributed the initial runtime PM support for the i2c
-> subsystem, I thought you would have comments on Rafael's
-> reimplementation?
+Signed-off-by: Alexander Shishkin <virtuoso@slind.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+CC: linux-i2c@vger.kernel.org
+CC: linux-omap@vger.kernel.org
+CC: nm@ti.com
+---
+ drivers/i2c/busses/i2c-omap.c |   43 ++++++++++++++++++++++------------------
+ 1 files changed, 24 insertions(+), 19 deletions(-)
 
-Yeah, see below...
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 75bf3ad..2d146ac 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -671,6 +671,27 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
+ #define omap_i2c_rev1_isr		NULL
+ #endif
+ 
++/*
++ * OMAP3430 Errata 1.153: When an XRDY/XDR is hit, wait for XUDF before writing
++ * data to DATA_REG. Otherwise some data bytes can be lost while transferring
++ * them from the memory to the I2C interface.
++ */
++static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
++{
++	while (!(*stat & OMAP_I2C_STAT_XUDF)) {
++		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
++			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
++							OMAP_I2C_STAT_XDR));
++			*err |= OMAP_I2C_STAT_XUDF;
++			return -ETIMEDOUT;
++		}
++		cpu_relax();
++		*stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
++	}
++
++	return 0;
++}
++
+ static irqreturn_t
+ omap_i2c_isr(int this_irq, void *dev_id)
+ {
+@@ -794,25 +815,9 @@ complete:
+ 					break;
+ 				}
+ 
+-				/*
+-				 * OMAP3430 Errata 1.153: When an XRDY/XDR
+-				 * is hit, wait for XUDF before writing data
+-				 * to DATA_REG. Otherwise some data bytes can
+-				 * be lost while transferring them from the
+-				 * memory to the I2C interface.
+-				 */
+-
+-				if (dev->rev <= OMAP_I2C_REV_ON_3430) {
+-						while (!(stat & OMAP_I2C_STAT_XUDF)) {
+-							if (stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
+-								omap_i2c_ack_stat(dev, stat & (OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+-								err |= OMAP_I2C_STAT_XUDF;
+-								goto complete;
+-							}
+-							cpu_relax();
+-							stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+-						}
+-				}
++				if ((dev->rev <= OMAP_I2C_REV_ON_3430) &&
++				    errata_omap3_1p153(dev, &stat, &err))
++					goto complete;
+ 
+ 				omap_i2c_write_reg(dev, OMAP_I2C_DATA_REG, w);
+ 			}
+-- 
+1.6.3.3
 
-> >  drivers/i2c/i2c-core.c     |  168 ++++++++++++++++++++++++++-------------------
-> >  include/linux/pm_runtime.h |    7 +
-
-> I am a little surprised to see changes to a generic header file here,
-> how is the i2c subsystem so special that we have needs other subsystems
-> did not?
-
-Very few subsystems actually support runtime PM thus far - I think it's
-more the case that I2C is an early user than anything else.
-
-> Apart from the above, the code looks sane to me, but then again I don't
-> know a thing about power management. I'll keep this patch in my i2c
-> tree, scheduled for merge in 2.6.35. If there are any updates, please
-> send them over, either as a new patch or as incremental changes which I
-> will merge myself.
-
-I'm in a similar position - the code looks fine except I'm not 100% sure
-I follow all the possible ifdefs and I've never actually used hibernate
-(s2disk isn't supported on ARM) but for what it's worth:
-
-Acked-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
