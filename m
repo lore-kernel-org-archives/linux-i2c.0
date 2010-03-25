@@ -1,61 +1,52 @@
-From: Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] omap i2c: add a timeout to the busy waiting
-Date: Thu, 25 Mar 2010 17:02:04 +0200
-Message-ID: <20100325150204.GC30660@shisha.kicks-ass.net>
-References: <20100316143025.GR2900@atomide.com>
- <1269510757-8119-3-git-send-email-virtuoso@slind.org>
- <4BAB7551.6040203@nokia.com>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: Re: [PATCH] i2c: Fix bus-level power management callbacks
+Date: Thu, 25 Mar 2010 21:16:23 +0100
+Message-ID: <201003252116.23171.rjw@sisk.pl>
+References: <201003132204.30905.rjw@sisk.pl> <20100325095720.0b115056@hyperion.delvare> <20100325092802.GA27729@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4BAB7551.6040203-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20100325092802.GA27729-HF5t3jzXg/6ND3a5+9QAFujbO/Zr0HzV@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "nm-l0cyMroinI0@public.gmane.org" <nm-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 25, 2010 at 04:38:09 +0200, Aaro Koskinen wrote:
-> Hi,
+On Thursday 25 March 2010, Mark Brown wrote:
+> On Thu, Mar 25, 2010 at 09:57:20AM +0100, Jean Delvare wrote:
 > 
-> Alexander Shishkin wrote:
-> > The errata 1.153 workaround is busy waiting on XUDF bit in interrupt
-> > context, which may lead to kernel hangs. The problem can be reproduced
-> > by running the bus with wrong (too high) speed.
-> > 
-> > Signed-off-by: Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
-> > Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-> > CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > CC: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > CC: nm-l0cyMroinI0@public.gmane.org
-> > ---
-> >  drivers/i2c/busses/i2c-omap.c |    8 ++++++++
-> >  1 files changed, 8 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> > index 2d146ac..7d56a25 100644
-> > --- a/drivers/i2c/busses/i2c-omap.c
-> > +++ b/drivers/i2c/busses/i2c-omap.c
-> > @@ -678,6 +678,8 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
-> >   */
-> >  static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
-> >  {
-> > +	unsigned long timeout = jiffies + msecs_to_jiffies(1);
-> > +
-> >  	while (!(*stat & OMAP_I2C_STAT_XUDF)) {
-> >  		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
-> >  			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
-> > @@ -685,6 +687,12 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
-> >  			*err |= OMAP_I2C_STAT_XUDF;
-> >  			return -ETIMEDOUT;
-> >  		}
-> > +
-> > +		if (time_after(jiffies, timeout)) {
+> > Mark, you contributed the initial runtime PM support for the i2c
+> > subsystem, I thought you would have comments on Rafael's
+> > reimplementation?
 > 
-> This is called from hard interrupt context, so we cannot use jiffies.
+> Yeah, see below...
+> 
+> > >  drivers/i2c/i2c-core.c     |  168 ++++++++++++++++++++++++++-------------------
+> > >  include/linux/pm_runtime.h |    7 +
+> 
+> > I am a little surprised to see changes to a generic header file here,
+> > how is the i2c subsystem so special that we have needs other subsystems
+> > did not?
+> 
+> Very few subsystems actually support runtime PM thus far - I think it's
+> more the case that I2C is an early user than anything else.
 
-Ahh, stupid me. Then we are left with the iteration counting, I guess.
+That's the case indeed.
 
-Regards,
---
-Alex
+> > Apart from the above, the code looks sane to me, but then again I don't
+> > know a thing about power management. I'll keep this patch in my i2c
+> > tree, scheduled for merge in 2.6.35. If there are any updates, please
+> > send them over, either as a new patch or as incremental changes which I
+> > will merge myself.
+> 
+> I'm in a similar position - the code looks fine except I'm not 100% sure
+> I follow all the possible ifdefs and I've never actually used hibernate
+> (s2disk isn't supported on ARM) but for what it's worth:
+> 
+> Acked-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+
+Thanks!
+
+Rafael
