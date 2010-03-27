@@ -1,52 +1,69 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH] i2c: Fix bus-level power management callbacks
-Date: Thu, 25 Mar 2010 21:16:23 +0100
-Message-ID: <201003252116.23171.rjw@sisk.pl>
-References: <201003132204.30905.rjw@sisk.pl> <20100325095720.0b115056@hyperion.delvare> <20100325092802.GA27729@rakim.wolfsonmicro.main>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: removing set_clientdata(NULL)
+Date: Sat, 27 Mar 2010 13:15:58 +0100
+Message-ID: <20100327121558.GA5880@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100325092802.GA27729-HF5t3jzXg/6ND3a5+9QAFujbO/Zr0HzV@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 25 March 2010, Mark Brown wrote:
-> On Thu, Mar 25, 2010 at 09:57:20AM +0100, Jean Delvare wrote:
-> 
-> > Mark, you contributed the initial runtime PM support for the i2c
-> > subsystem, I thought you would have comments on Rafael's
-> > reimplementation?
-> 
-> Yeah, see below...
-> 
-> > >  drivers/i2c/i2c-core.c     |  168 ++++++++++++++++++++++++++-------------------
-> > >  include/linux/pm_runtime.h |    7 +
-> 
-> > I am a little surprised to see changes to a generic header file here,
-> > how is the i2c subsystem so special that we have needs other subsystems
-> > did not?
-> 
-> Very few subsystems actually support runtime PM thus far - I think it's
-> more the case that I2C is an early user than anything else.
 
-That's the case indeed.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Apart from the above, the code looks sane to me, but then again I don't
-> > know a thing about power management. I'll keep this patch in my i2c
-> > tree, scheduled for merge in 2.6.35. If there are any updates, please
-> > send them over, either as a new patch or as incremental changes which I
-> > will merge myself.
-> 
-> I'm in a similar position - the code looks fine except I'm not 100% sure
-> I follow all the possible ifdefs and I've never actually used hibernate
-> (s2disk isn't supported on ARM) but for what it's worth:
-> 
-> Acked-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Hi Jean,
 
-Thanks!
+do you have already something in mind how to proceed with the
+i2c_setclientdata-topic? I could offer the following:
 
-Rafael
+I modify my semantic patch to remove all set_clientdata(NULL) calls connect=
+ed
+to a kfree(). Then, we could have a look if there are still some left and
+investigate why. Once all issues are resolved (maybe there are none), we sh=
+ould
+know what to add in the core-layer, hopefully just the call to set_clientda=
+ta.
+
+Regarding this comment:
+
+> the core should just set the client data to NULL. If there are drivers th=
+at
+> rely on the current behavior, then those drivers should be reviewed first=
+ as
+> to the reason why they need it.
+
+I could check if there is any probe-function calling get_clientdata and mak=
+ing
+use of that? That is probably the most obvious thing which would need to re=
+ly
+on the current behaviour or did I miss something?
+
+Have a nice weekend,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--jRHKVT23PllUwdXP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkut9v4ACgkQD27XaX1/VRvPqgCfXEYIgNLJxSd5h1ecXBmYjSIS
+9csAn3wg1+96l53PLBOZOLzuXuL0M2ak
+=UVk/
+-----END PGP SIGNATURE-----
+
+--jRHKVT23PllUwdXP--
