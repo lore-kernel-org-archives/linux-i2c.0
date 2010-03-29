@@ -1,97 +1,87 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-i801: Fix all checkpatch warnings
-Date: Mon, 29 Mar 2010 16:43:31 +0200
-Message-ID: <20100329164331.0d4fb69d@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: removing set_clientdata(NULL)
+Date: Mon, 29 Mar 2010 17:09:56 +0200
+Message-ID: <20100329150956.GB6717@pengutronix.de>
+References: <20100327121558.GA5880@pengutronix.de> <20100329162812.548d131b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100329162812.548d131b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Fix all checkpatch warnings. No functional changes are made.
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Ivo Manca <pinkel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-I can't remember why this patch didn't make it upstream back then, but
-it's about time to get it there.
+Hi Jean,
 
- drivers/i2c/busses/i2c-i801.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+> Sorry for being a little quiet, I took a long, well-deserved week-end
+> off and didn't have the time to reply before I left. Now I'm back...
 
+No worries, no rush :)
 
---- linux-2.6.34-rc1.orig/drivers/i2c/busses/i2c-i801.c	2010-03-15 10:53:11.000000000 +0100
-+++ linux-2.6.34-rc1/drivers/i2c/busses/i2c-i801.c	2010-03-15 14:45:42.000000000 +0100
-@@ -352,9 +352,8 @@ static int i801_block_transaction_byte_b
- 		do {
- 			msleep(1);
- 			status = inb_p(SMBHSTSTS);
--		}
--		while ((!(status & SMBHSTSTS_BYTE_DONE))
--		       && (timeout++ < MAX_TIMEOUT));
-+		} while ((!(status & SMBHSTSTS_BYTE_DONE))
-+			 && (timeout++ < MAX_TIMEOUT));
- 
- 		result = i801_check_post(status, timeout > MAX_TIMEOUT);
- 		if (result < 0)
-@@ -451,9 +450,9 @@ static int i801_block_transaction(union
- }
- 
- /* Return negative errno on error. */
--static s32 i801_access(struct i2c_adapter * adap, u16 addr,
-+static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		       unsigned short flags, char read_write, u8 command,
--		       int size, union i2c_smbus_data * data)
-+		       int size, union i2c_smbus_data *data)
- {
- 	int hwpec;
- 	int block = 0;
-@@ -522,7 +521,7 @@ static s32 i801_access(struct i2c_adapte
- 	else
- 		outb_p(inb_p(SMBAUXCTL) & (~SMBAUXCTL_CRC), SMBAUXCTL);
- 
--	if(block)
-+	if (block)
- 		ret = i801_block_transaction(data, read_write, size, hwpec);
- 	else
- 		ret = i801_transaction(xact | ENABLE_INT9);
-@@ -534,9 +533,9 @@ static s32 i801_access(struct i2c_adapte
- 		outb_p(inb_p(SMBAUXCTL) & ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B),
- 		       SMBAUXCTL);
- 
--	if(block)
-+	if (block)
- 		return ret;
--	if(ret)
-+	if (ret)
- 		return ret;
- 	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
- 		return 0;
-@@ -596,7 +595,7 @@ static const struct pci_device_id i801_i
- 	{ 0, }
- };
- 
--MODULE_DEVICE_TABLE (pci, i801_ids);
-+MODULE_DEVICE_TABLE(pci, i801_ids);
- 
- #if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
- static unsigned char apanel_addr;
-@@ -700,7 +699,8 @@ static void __devinit dmi_check_onboard_
- }
- #endif
- 
--static int __devinit i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
-+static int __devinit i801_probe(struct pci_dev *dev,
-+				const struct pci_device_id *id)
- {
- 	unsigned char temp;
- 	int err, i;
+> Yes, my intent was to add a call to i2c_set_clientdata(x, NULL) in
+> i2c_device_remove(). We would do this immediately, so that drivers can
+> start removing the call on their end quickly (and new ones are not
+> added.)
+>=20
+> Can you please send the patch for i2c-core and Documentation/i2c? It's
+> not difficult but I don't want to steal your credits.
 
+Yes, can do this in a few hours (already midnight here), this is for 2.6.34
+then.
 
--- 
-Jean Delvare
+> It would also be fair to warn all the developers you already contacted
+> with your first attempt and let them know that it is being cancelled,
+> and let them know the new plan. Hopefully this will avoid useless
+> commits.
+
+Can do this, too. About the removal of the i2c_set_clientdata-calls:
+
+- shall I prepare a series for that, too?
+- also for 2.6.34?
+- also patches per subsystem?
+- shall this better go via the i2c-tree?
+
+> > I could check if there is any probe-function calling get_clientdata and=
+ making
+> > use of that? That is probably the most obvious thing which would need t=
+o rely
+> > on the current behaviour or did I miss something?
+>=20
+> You are right, but I really hope you won't catch anybody doing this.
+> This would go against the device driver model.
+
+I'd also be surprised if that would find something.
+
+Regards,
+
+   Wolfram
+
+PS: I will also have a look at the pca-issue after that.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkuwwsMACgkQD27XaX1/VRtiwgCaA1ZRMSWS94h68wBO5Y7i2TKl
+ZicAoLjfaTZxFMNif986gKwYmhqWvQ6g
+=a1kp
+-----END PGP SIGNATURE-----
+
+--0eh6TmSyL6TZE2Uz--
