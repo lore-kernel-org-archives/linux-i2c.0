@@ -1,59 +1,109 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: removing set_clientdata(NULL)
-Date: Mon, 29 Mar 2010 16:28:12 +0200
-Message-ID: <20100329162812.548d131b@hyperion.delvare>
-References: <20100327121558.GA5880@pengutronix.de>
+Subject: Re: [PATCH 05/24] hwmon: fix dangling pointers
+Date: Mon, 29 Mar 2010 16:30:07 +0200
+Message-ID: <20100329163007.0ec2f04d@hyperion.delvare>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
+	<1269094385-16114-6-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100327121558.GA5880-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1269094385-16114-6-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>, "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>, Juerg Haefliger <juergh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Riku Voipio <riku.voipio-X3B1VOXEql0@public.gmane.org>, "Hans J. Koch" <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Marc Hulsman <m.hulsman-hGVxb2UgFK3z+pZb47iToQ@public.gmane.org>, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-Sorry for being a little quiet, I took a long, well-deserved week-end
-off and didn't have the time to reply before I left. Now I'm back...
-
-On Sat, 27 Mar 2010 13:15:58 +0100, Wolfram Sang wrote:
-> Hi Jean,
+On Sat, 20 Mar 2010 15:12:46 +0100, Wolfram Sang wrote:
+> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> structure it points to. Also fix drivers which do this _after_ the structure
+> was freed already.
 > 
-> do you have already something in mind how to proceed with the
-> i2c_setclientdata-topic? I could offer the following:
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+> Cc: "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
+> Cc: Juerg Haefliger <juergh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Riku Voipio <riku.voipio-X3B1VOXEql0@public.gmane.org>
+> Cc: "Hans J. Koch" <hjk-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> Cc: Marc Hulsman <m.hulsman-hGVxb2UgFK3z+pZb47iToQ@public.gmane.org>
+> Cc: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+> ---
 > 
-> I modify my semantic patch to remove all set_clientdata(NULL) calls connected
-> to a kfree(). Then, we could have a look if there are still some left and
-> investigate why. Once all issues are resolved (maybe there are none), we should
-> know what to add in the core-layer, hopefully just the call to set_clientdata.
-
-Yes, my intent was to add a call to i2c_set_clientdata(x, NULL) in
-i2c_device_remove(). We would do this immediately, so that drivers can
-start removing the call on their end quickly (and new ones are not
-added.)
-
-Can you please send the patch for i2c-core and Documentation/i2c? It's
-not difficult but I don't want to steal your credits.
-
-It would also be fair to warn all the developers you already contacted
-with your first attempt and let them know that it is being cancelled,
-and let them know the new plan. Hopefully this will avoid useless
-commits.
-
-> Regarding this comment:
+> Found using coccinelle, then reviewed. Full patchset is available via
+> kernel-janitors, linux-i2c, and LKML.
+> ---
+>  drivers/hwmon/ad7414.c     |    2 ++
+>  drivers/hwmon/ad7418.c     |    2 ++
+>  drivers/hwmon/adm1021.c    |    2 ++
+>  drivers/hwmon/adm1025.c    |    2 ++
+>  drivers/hwmon/adm1026.c    |    2 ++
+>  drivers/hwmon/adm1029.c    |    2 ++
+>  drivers/hwmon/adm1031.c    |    2 ++
+>  drivers/hwmon/adm9240.c    |    2 ++
+>  drivers/hwmon/ads7828.c    |    5 ++++-
+>  drivers/hwmon/adt7462.c    |    2 ++
+>  drivers/hwmon/adt7470.c    |    2 ++
+>  drivers/hwmon/adt7475.c    |    2 ++
+>  drivers/hwmon/amc6821.c    |    2 ++
+>  drivers/hwmon/asb100.c     |    2 ++
+>  drivers/hwmon/atxp1.c      |    2 ++
+>  drivers/hwmon/dme1737.c    |    2 ++
+>  drivers/hwmon/ds1621.c     |    2 ++
+>  drivers/hwmon/f75375s.c    |    4 ++--
+>  drivers/hwmon/g760a.c      |    4 ++--
+>  drivers/hwmon/gl518sm.c    |    2 ++
+>  drivers/hwmon/gl520sm.c    |    2 ++
+>  drivers/hwmon/lm63.c       |    2 ++
+>  drivers/hwmon/lm77.c       |    2 ++
+>  drivers/hwmon/lm78.c       |    2 ++
+>  drivers/hwmon/lm80.c       |    2 ++
+>  drivers/hwmon/lm83.c       |    2 ++
+>  drivers/hwmon/lm85.c       |    2 ++
+>  drivers/hwmon/lm87.c       |    2 ++
+>  drivers/hwmon/lm90.c       |    2 ++
+>  drivers/hwmon/lm92.c       |    2 ++
+>  drivers/hwmon/lm93.c       |    2 ++
+>  drivers/hwmon/lm95241.c    |    1 +
+>  drivers/hwmon/ltc4215.c    |    2 ++
+>  drivers/hwmon/ltc4245.c    |    2 ++
+>  drivers/hwmon/max1619.c    |    2 ++
+>  drivers/hwmon/max6650.c    |    2 ++
+>  drivers/hwmon/pcf8591.c    |    6 +++++-
+>  drivers/hwmon/smsc47m192.c |    2 ++
+>  drivers/hwmon/thmc50.c     |    2 ++
+>  drivers/hwmon/tmp401.c     |    1 +
+>  drivers/hwmon/w83791d.c    |    2 ++
+>  drivers/hwmon/w83792d.c    |    2 ++
+>  drivers/hwmon/w83793.c     |    1 +
+>  drivers/hwmon/w83l785ts.c  |    2 ++
+>  drivers/hwmon/w83l786ng.c  |    2 ++
+>  45 files changed, 92 insertions(+), 6 deletions(-)
 > 
-> > the core should just set the client data to NULL. If there are drivers that
-> > rely on the current behavior, then those drivers should be reviewed first as
-> > to the reason why they need it.
-> 
-> I could check if there is any probe-function calling get_clientdata and making
-> use of that? That is probably the most obvious thing which would need to rely
-> on the current behaviour or did I miss something?
+> diff --git a/drivers/hwmon/ad7414.c b/drivers/hwmon/ad7414.c
+> index bfda8c8..0cfae01 100644
+> --- a/drivers/hwmon/ad7414.c
+> +++ b/drivers/hwmon/ad7414.c
+> @@ -220,6 +220,7 @@ static int ad7414_probe(struct i2c_client *client,
+>  exit_remove:
+>  	sysfs_remove_group(&client->dev.kobj, &ad7414_group);
+>  exit_free:
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(data);
+>  exit:
+>  	return err;
+> @@ -231,6 +232,7 @@ static int __devexit ad7414_remove(struct i2c_client *client)
+>  
+>  	hwmon_device_unregister(data->hwmon_dev);
+>  	sysfs_remove_group(&client->dev.kobj, &ad7414_group);
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(data);
+>  	return 0;
+>  }
+> (...)
 
-You are right, but I really hope you won't catch anybody doing this.
-This would go against the device driver model.
+As discussed on the i2c list, I won't apply this patch. Instead, we
+want i2c-core to call i2c_set_clientdata() after the remove() function
+returns. This saves a lot of code duplication.
 
 -- 
 Jean Delvare
