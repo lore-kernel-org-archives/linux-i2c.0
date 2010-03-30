@@ -1,47 +1,64 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 12/24] media/video: fix dangling pointers
-Date: Tue, 30 Mar 2010 14:39:12 +0200
-Message-ID: <20100330123912.GI29472@pengutronix.de>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <20100321144655.4747fd2a@hyperion.delvare> <20100321141417.GA19626@opensource.wolfsonmicro.com> <201003211709.56319.hverkuil@xs4all.nl>
+Subject: Re: [PATCH 13/24] mfd: fix dangling pointers
+Date: Tue, 30 Mar 2010 14:41:58 +0200
+Message-ID: <20100330124158.GJ29472@pengutronix.de>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-14-git-send-email-w.sang@pengutronix.de> <20100325104137.GA3720@sortiz.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v2/QI0iRXglpx0hK"
+	protocol="application/pgp-signature"; boundary="JsihDCElWRmQcbOr"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <201003211709.56319.hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+In-Reply-To: <20100325104137.GA3720-jcdQHdrhKHMdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---v2/QI0iRXglpx0hK
+--JsihDCElWRmQcbOr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hans,
+On Thu, Mar 25, 2010 at 11:41:38AM +0100, Samuel Ortiz wrote:
+> Hi Wolfram,
+>=20
+> On Sat, Mar 20, 2010 at 03:12:54PM +0100, Wolfram Sang wrote:
+> > Fix I2C-drivers which missed setting clientdata to NULL before freeing =
+the
+> > structure it points to. Also fix drivers which do this _after_ the stru=
+cture
+> > was freed already.
+> Patch applied, many thanks.
 
-> But this just feels like an i2c core thing to me. After remove() is called
-> the core should just set the client data to NULL. If there are drivers th=
-at
-> rely on the current behavior, then those drivers should be reviewed first=
- as
-> to the reason why they need it.
+Thanks. Sadly some fixup will be needed:
 
-It will be done this way now. As you have taken part in the discussion, I g=
-uess
-the media-subsystem never really considered picking those patches up ;)
+We reached an agreement that a) setting the clientdata-pointer to NULL shou=
+ld
+be done in the i2c-core [1] and b) how to do it. Based on that, I will do t=
+he
+modification of the i2c-core for 2.6.34 (as it fixes the dangling pointers)=
+ and
+then create one single patch removing the then superflous calls to
+i2c_set_clientdata for 2.6.35 (as it is a cleanup). As you already applied =
+the
+above patch to your branch: you don't have to revert, we will fix it for yo=
+u in
+the next round.
 
-Regards,
+Sorry for the detour!
+
+Kind regards,
 
    Wolfram
+
+[1] http://thread.gmane.org/gmane.linux.drivers.i2c/5674/focus=3D5729
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---v2/QI0iRXglpx0hK
+--JsihDCElWRmQcbOr
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -49,9 +66,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEARECAAYFAkux8PAACgkQD27XaX1/VRsNLACeMRihdtZYj1mX2Ywgi3AXwWp2
-yycAoJeFx9bZZCseZnxm8vkZ1NroWbF/
-=94gs
+iEYEARECAAYFAkux8ZYACgkQD27XaX1/VRsWPQCeKipiGJ4vmu3Xb0myM+cG3Rx4
+OYYAoL9SIRKKxnPXLO+9qOgDgedTzq54
+=mQLF
 -----END PGP SIGNATURE-----
 
---v2/QI0iRXglpx0hK--
+--JsihDCElWRmQcbOr--
