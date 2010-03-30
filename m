@@ -1,70 +1,45 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 18/24] rtc: fix dangling pointers
-Date: Tue, 30 Mar 2010 14:49:32 +0200
-Message-ID: <20100330124932.GM29472@pengutronix.de>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-19-git-send-email-w.sang@pengutronix.de>
+From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: PCA9564: "bus is not idle" issue
+Date: Tue, 30 Mar 2010 15:16:36 +0200
+Message-ID: <l2hf69abfc31003300616w7d2bda4dp911c3de0511a9ef7@mail.gmail.com>
+References: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66@mail.gmail.com>
+	 <20100317135223.GD4153@pengutronix.de>
+	 <f69abfc31003170826j18fa0fddq1c46b8bcebf75c57@mail.gmail.com>
+	 <f69abfc31003180201m5c5e167enf8256c4843e0c6ba@mail.gmail.com>
+	 <20100318091917.GA27165@pengutronix.de>
+	 <f69abfc31003180251q53c96f8chc6b96d29c2ceec6d@mail.gmail.com>
+	 <20100329163149.41df7f10@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UUMz/kfoogzZ9WLZ"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1269094385-16114-19-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20100329163149.41df7f10-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+>> >> If I don't redirect syslog to a remote host I get i2c fail. So here you are:
+>> >
+>> > Thanks!
+>> >
+>> > [...]
+>> >
+>> >> As far as I can tell the last transaction lacks "=== STOP" state.
+>> >
+>> > Yes. The bus-status being 0x58 instead of 0xf8 says that, too. I wanted to
+>> > check if there is something flaky before. Will have a look, but will probably
+>> > be the weekend. You said it does not appear when you use 2.6.26, right?
+>>
+>> Right. Either it is so seldom, that I don't notice it or it doesn't
+>> occur. But with 2.6.33 it is really frequent.
+>
+> Any progress on this? If this is a regression, we want to fix it
+> quickly.
 
---UUMz/kfoogzZ9WLZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm not really further. But I use a workaround for my system by just
+using this revision:
+http://git.kernel.org/?p=linux/kernel/git/stable/linux-2.6.33.y.git;a=commit;h=eff9ec95efaaf6b12d230f0ea7d3c295d3bc9d57.
+With revision i2c is working quite stable.
 
-On Sat, Mar 20, 2010 at 03:12:59PM +0100, Wolfram Sang wrote:
-> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
-> structure it points to. Also fix drivers which do this _after_ the struct=
-ure
-> was freed already.
->=20
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-> Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
-
-please drop this this patch. We reached an agreement that a) setting the
-clientdata-pointer to NULL should be done in the i2c-core [1] and b) how to=
- do
-it. Based on that, I will do the modification of the i2c-core for 2.6.34 (a=
-s it
-fixes the dangling pointers) and then create one single patch removing the =
-then
-superflous calls to i2c_set_clientdata for 2.6.35 (as it is a cleanup). If =
-you
-already applied the above patch to your branch, you don't have to revert; we
-will fix it for you in the next round.
-
-Sorry for the detour!
-
-Kind regards,
-
-   Wolfram
-
-[1] http://thread.gmane.org/gmane.linux.drivers.i2c/5674/focus=3D5729
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---UUMz/kfoogzZ9WLZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkux81wACgkQD27XaX1/VRtx5wCfZgJACPD30QCZN1KMxLrVxLM/
-cA8AoK1bGXV51a1vgcx8HLAsA59LAEEc
-=c4Fm
------END PGP SIGNATURE-----
-
---UUMz/kfoogzZ9WLZ--
+Regards,
+Yegor
