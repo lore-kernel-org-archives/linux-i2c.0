@@ -1,47 +1,57 @@
-From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] drivers: i2c-gpio: move initialization code subsys_initcall()
-Date: Thu, 01 Apr 2010 15:43:19 +0200
-Message-ID: <1270129399-30365-1-git-send-email-m.szyprowski@samsung.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PULL] pull request for bjdooks' for-linus/i2c tree
+Date: Thu, 1 Apr 2010 15:43:48 +0200
+Message-ID: <20100401134348.GE24265@pengutronix.de>
+References: <20100307223636.GA27170@fluff.org.uk> <20100308033906.GH8548@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FN+gV9K+162wdwwF"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100308033906.GH8548-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-GPIO driven I2C bus can be used for controlling the PMIC chip. The example
-of such configuration is Samsung Aquila board.
 
-This patch moves initialization code subsys_initcall() to ensure that the i2c
-bus is available early so the regulators can be quicly probed and available for
-other devices on their probe() call.
+--FN+gV9K+162wdwwF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Such solution has been proposed by Mark Brown to fix the problem of the
-regulators not beeing available on the peripheral device probe():
-http://lists.infradead.org/pipermail/linux-arm-kernel/2010-March/011971.html
+On Mon, Mar 08, 2010 at 04:39:06AM +0100, Wolfram Sang wrote:
+> Hi Ben,
+>=20
+> > Luotao Fu (1):
+> >       i2c-pnx: fix setting start/stop condition
+>=20
+> Oops, the patch which is now ad0194e8d624df67a970a36e8ef9e61514e25553 was=
+ the
+> older one and was superseded by
+>=20
+> http://article.gmane.org/gmane.linux.drivers.i2c/5441
 
-CC: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Reviewed-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Would you pick up an incremental patch? (Then you could maybe finally pick
+this one [1], too ;))
 
----
- drivers/i2c/busses/i2c-gpio.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+[1] http://article.gmane.org/gmane.linux.drivers.i2c/5260
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index 32104ea..bb1a1a8 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -210,7 +210,7 @@ static int __init i2c_gpio_init(void)
- 
- 	return ret;
- }
--module_init(i2c_gpio_init);
-+subsys_initcall(i2c_gpio_init);
- 
- static void __exit i2c_gpio_exit(void)
- {
--- 
-1.6.4
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--FN+gV9K+162wdwwF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAku0oxQACgkQD27XaX1/VRsu3QCeO+DKF8LdeMdODp4fdLxToBFs
+CiMAmgK7Fw1zRvmdgm+/FwlpDyb+Y38J
+=1/sw
+-----END PGP SIGNATURE-----
+
+--FN+gV9K+162wdwwF--
