@@ -1,60 +1,43 @@
-From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: PCA9564: "bus is not idle" issue
-Date: Sun, 4 Apr 2010 13:00:18 +0200
-Message-ID: <t2zf69abfc31004040400wc3330285pe5d4602d31e0a52b@mail.gmail.com>
-References: <f69abfc31003170559y3c0a5a6fi91c1ae7692700c66@mail.gmail.com>
-	 <20100403162939.GA2190@pengutronix.de>
-	 <20100403202329.3bdb407c@hyperion.delvare>
-	 <20100404032929.GA12800@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] blackfin/acvilon: Fix timeout usage for I2C
+Date: Sun,  4 Apr 2010 16:04:16 +0200
+Message-ID: <1270389856-32003-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100404032929.GA12800-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Apr 4, 2010 at 5:29 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wr=
-ote:
->> > > I'm using PCA9564 attached to a ks8695 SoC. During my efforts to=
- get
->> > > 2.6.33/34 running on my system I noticed sporadic problems with =
-RTC:
->> >
->> > [...]
->> >
->> > > static struct i2c_pca9564_pf_platform_data =C2=A0__initdata pca_=
-data =3D{
->> > > =C2=A0 =C2=A0 =C2=A0 .gpio =3D -1,
->> > > =C2=A0 =C2=A0 =C2=A0 .i2c_clock_speed =3D 59000,
->> > > =C2=A0 =C2=A0 =C2=A0 .timeout =3D 1,
->> > > };
->> >
->> > Commit 8e99ada8deaa9033600cd2c7d0a9366b0e99ab68 changed the timeou=
-t settings to
->> > jiffies. So, one jiffy as timeout will not work. Try 'HZ' here.
->>
->> So this means the bug isn't in the mainline kernel tree and I can
->> ignore it?
->
-> A confirmation from Yegor would be nice, but his logs let me believe =
-that
-> this is really the cause.
->
->> As a side note, arch/blackfin/mach-bf561/boards/acvilon.c sets timeo=
-ut
->> to 10000, so the actual timeout depends on the value of HZ, which is
->> probably not desirable. Not to mention that a timeout of over one
->> minute (worst case) doesn't seem too smart ;)
->
-> There is also an i2c-gpio-user using non-HZ value. Will prepare patch=
-es.
+The timeout value is in jiffies, so it should be using HZ, not a plain
+number. As '10000' is ambiguous, 1HZ is used as conservative default.
 
-Thank for your solution. I'll try it on Tuesday and confirm ASAP.
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ arch/blackfin/mach-bf561/boards/acvilon.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Happy Easter!
-
-Best regards,
-Yegor
+diff --git a/arch/blackfin/mach-bf561/boards/acvilon.c b/arch/blackfin/mach-bf561/boards/acvilon.c
+index 5163e2c..bfcfa86 100644
+--- a/arch/blackfin/mach-bf561/boards/acvilon.c
++++ b/arch/blackfin/mach-bf561/boards/acvilon.c
+@@ -44,6 +44,7 @@
+ #include <linux/spi/flash.h>
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
++#include <linux/jiffies.h>
+ #include <linux/i2c-pca-platform.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+@@ -112,7 +113,7 @@ static struct resource bfin_i2c_pca_resources[] = {
+ struct i2c_pca9564_pf_platform_data pca9564_platform_data = {
+ 	.gpio = -1,
+ 	.i2c_clock_speed = 330000,
+-	.timeout = 10000
++	.timeout = HZ,
+ };
+ 
+ /* PCA9564 I2C Bus driver */
+-- 
+1.7.0
