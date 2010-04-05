@@ -1,25 +1,53 @@
-From: info <web0172-rdc5FV7LBygPGFelY5Zqew@public.gmane.org>
-Subject: Irish 2010 Grant Winner
-Date: Mon, 05 Apr 2010 19:30:21 +0800 (SGT)
-Message-ID: <1270467021.4bb9c9cd84cae__49532.5680276894$1270467070$gmane$org@arrowana.singnet.com.sg>
-Reply-To: bnl3020-SrPyuzuu+o61Qrn1Bg8BZw@public.gmane.org
+From: James Simmons <jsimmons-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Subject: Re: [PATCH 23/24] video/matrox: fix dangling pointers
+Date: Mon, 5 Apr 2010 15:04:43 +0100 (BST)
+Message-ID: <alpine.LFD.2.00.1004051504200.16108@casper.infradead.org>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <1269094385-16114-24-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1269094385-16114-24-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: iri-m/X/MrrnMWw@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Petr Vandrovec <vandrove-hnqZr3NxcozrBKCeMvbIDA@public.gmane.org>, Linux Fbdev development list <linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=A31,000,000Pounds has been awarded to you in the U.KPROMO.send your de=
-tails as follows:
-Names//////////
-Tel//////////
-Age//////////
-Address//////////
-Occupation//////////
-Country//////////
-Email:redeem_prize101-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
 
-Agent Name: Mr. Mark Foster
-Tel:+44 704-571-0545
+On Sat, 20 Mar 2010, Wolfram Sang wrote:
+
+> Fix I2C-drivers which missed setting clientdata to NULL before freeing the
+> structure it points to. Also fix drivers which do this _after_ the structure
+> was freed already.
+> 
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Petr Vandrovec <vandrove-hnqZr3NxcozrBKCeMvbIDA@public.gmane.org>
+> ---
+
+Acked-by: James Simmons <jsimmons-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+ 
+> Found using coccinelle, then reviewed. Full patchset is available via
+> kernel-janitors, linux-i2c, and LKML.
+> ---
+>  drivers/video/matrox/matroxfb_maven.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
+> index 91af915..e7b0ec3 100644
+> --- a/drivers/video/matrox/matroxfb_maven.c
+> +++ b/drivers/video/matrox/matroxfb_maven.c
+> @@ -1254,6 +1254,7 @@ static int maven_probe(struct i2c_client *client,
+>  		goto ERROR4;
+>  	return 0;
+>  ERROR4:;
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(data);
+>  ERROR0:;
+>  	return err;
+> -- 
+> 1.7.0
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fbdev" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
