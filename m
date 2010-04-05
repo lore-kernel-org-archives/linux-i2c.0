@@ -1,43 +1,116 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: i2c-pnx: Improvements and fixes
-Date: Tue, 6 Apr 2010 00:00:45 +0100
-Message-ID: <20100405230045.GD32401@fluff.org.uk>
+Subject: Re: [PATCH 3/3] i2c-pnx: Disable/enable clocks only when needed to
+ reduce power
+Date: Tue, 6 Apr 2010 00:01:31 +0100
+Message-ID: <20100405230131.GE32401@fluff.org.uk>
 References: <1268780138-10019-1-git-send-email-wellsk40@gmail.com>
- <a08234131003221009j1ec74009jc2eb289386455b65@mail.gmail.com>
+ <1268780138-10019-5-git-send-email-wellsk40@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <a08234131003221009j1ec74009jc2eb289386455b65-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1268780138-10019-5-git-send-email-wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vitaly.wool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vitaly.wool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 22, 2010 at 10:09:11AM -0700, Kevin Wells wrote:
-> Hi Vitaly,
+On Tue, Mar 16, 2010 at 03:55:38PM -0700, wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> From: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
-> Can you please ack these patches for the i2c-pnx driver? These are all
-> important changes for the i2c-pnx.
+> Enable I2C peripheral clocking at the start of a transfer and
+> disable on transfer completion to reduce peripheral power use
+> when bus is not in use.
 
-I'm going to take no news as good news, and apply these unless anyone
-objects before the pull request.
+I'm going to leave this one for -next as it isn't really a bugfix.
  
-> thanks,
-> Kevin
+> Signed-off-by: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-pnx.c |   33 +++++++--------------------------
+>  1 files changed, 7 insertions(+), 26 deletions(-)
 > 
-> On Tue, Mar 16, 2010 at 3:55 PM,  <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> >
-> > This patch set fixes a stop condition issue with transfers, caps
-> > the maximum computed divider generated from the parent clock,
-> > and disables the I2C peripheral clock when the I2C bus isn't in
-> > use (to save power).
-> >
-> > Patch 3 was previously posted a few months ago, but I didn't
-> > follow up on getting it into the driver.
-> >
-> > All code is tested on the lpc3250.
-> >
+> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+> index 6bb6ff7..23bd556 100644
+> --- a/drivers/i2c/busses/i2c-pnx.c
+> +++ b/drivers/i2c/busses/i2c-pnx.c
+> @@ -448,6 +448,8 @@ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  		"%s(): entering: %d messages, stat = %04x.\n",
+>  		__func__, num, ioread32(I2C_REG_STS(alg_data)));
+>  
+> +	clk_enable(alg_data->clk);
+> +
+>  	bus_reset_if_active(alg_data);
+>  
+>  	/* Process transactions in a loop. */
+> @@ -516,6 +518,8 @@ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  
+>  	bus_reset_if_active(alg_data);
+>  
+> +	clk_disable(alg_data->clk);
+> +
+>  	/* Cleanup to be sure... */
+>  	alg_data->mif.buf = NULL;
+>  	alg_data->mif.len = 0;
+> @@ -539,29 +543,6 @@ static struct i2c_algorithm pnx_algorithm = {
+>  	.functionality = i2c_pnx_func,
+>  };
+>  
+> -#ifdef CONFIG_PM
+> -static int i2c_pnx_controller_suspend(struct platform_device *pdev,
+> -				      pm_message_t state)
+> -{
+> -	struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
+> -
+> -	/* FIXME: shouldn't this be clk_disable? */
+> -	clk_enable(alg_data->clk);
+> -
+> -	return 0;
+> -}
+> -
+> -static int i2c_pnx_controller_resume(struct platform_device *pdev)
+> -{
+> -	struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
+> -
+> -	return clk_enable(alg_data->clk);
+> -}
+> -#else
+> -#define i2c_pnx_controller_suspend	NULL
+> -#define i2c_pnx_controller_resume	NULL
+> -#endif
+> -
+>  static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+>  {
+>  	unsigned long tmp;
+> @@ -665,6 +646,9 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+>  	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
+>  	       alg_data->adapter.name, i2c_pnx->base, i2c_pnx->irq);
+>  
+> +	/* Disable clock until needed */
+> +	clk_disable(alg_data->clk);
+> +
+>  	return 0;
+>  
+>  out_irq:
+> @@ -692,7 +676,6 @@ static int __devexit i2c_pnx_remove(struct platform_device *pdev)
+>  
+>  	free_irq(i2c_pnx->irq, alg_data);
+>  	i2c_del_adapter(&alg_data->adapter);
+> -	clk_disable(alg_data->clk);
+>  	iounmap(alg_data->ioaddr);
+>  	release_mem_region(i2c_pnx->base, I2C_PNX_REGION_SIZE);
+>  	clk_put(alg_data->clk);
+> @@ -709,8 +692,6 @@ static struct platform_driver i2c_pnx_driver = {
+>  	},
+>  	.probe = i2c_pnx_probe,
+>  	.remove = __devexit_p(i2c_pnx_remove),
+> -	.suspend = i2c_pnx_controller_suspend,
+> -	.resume = i2c_pnx_controller_resume,
+>  };
+>  
+>  static int __init i2c_adap_pnx_init(void)
+> -- 
+> 1.6.6
+> 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
 > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
