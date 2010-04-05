@@ -1,77 +1,183 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] OMAP3: I2C: Errata i207: Clear wrong RDR interrupt
-Date: Mon, 5 Apr 2010 23:45:24 +0100
-Message-ID: <20100405224524.GB32401@fluff.org.uk>
-References: <1270124427-11208-1-git-send-email-manjugk@ti.com>
- <4BB4A540.9080000@ti.com>
+Subject: Re: i2c-drivers: Remove dangling pointers
+Date: Mon, 5 Apr 2010 23:59:25 +0100
+Message-ID: <20100405225925.GC32401@fluff.org.uk>
+References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4BB4A540.9080000-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1269094385-16114-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
-Cc: "G, Manjunath Kondaiah" <manjugk-l0cyMroinI0@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 01, 2010 at 08:53:04AM -0500, Nishanth Menon wrote:
-> G, Manjunath Kondaiah had written, on 04/01/2010 07:20 AM, the following:
-> >Under certain rare conditions, I2C_STAT[13].RDR bit may be set
-> >and the corresponding interrupt fire, even there is no data in
-> >the receive FIFO, or the I2C data transfer is still ongoing.
-> >These spurious RDR events must be ignored by the software.
-> >
-> >This patch handles and ignores RDR spurious interrupts.
-> >
-> >Reviewed-by: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
-> >Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
-> >Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-> >Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
-> >---
-> > drivers/i2c/busses/i2c-omap.c |   13 +++++++++++++
-> > 1 files changed, 13 insertions(+), 0 deletions(-)
-> >
-> >diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> >index f2019d2..acf4076 100644
-> >--- a/drivers/i2c/busses/i2c-omap.c
-> >+++ b/drivers/i2c/busses/i2c-omap.c
-> >@@ -796,6 +796,19 @@ complete:
-> > 		}
-> > 		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
-> > 			u8 num_bytes = 1;
-> >+
-> >+			/*
-> >+			 * OMAP3 I2C Errata ID: i207
-> >+			 * Under certain rare conditions, RDR could be set again
-> >+			 * when the bus is busy, then clear and ignore the interrupt
-> >+			 */
-> >+			if (!(stat & OMAP_I2C_STAT_RRDY) && (stat &
-> >+						OMAP_I2C_STAT_BB)) {
-> >+				/* clear RDR */
-> >+				omap_i2c_ack_stat(dev, stat & OMAP_I2C_STAT_RDR);
-> >+				dev_err(dev->dev, "I2C: RDR when bus is busy.\n");
-> >+				return IRQ_HANDLED;
-> >+			}
-> couple of comments after reading thru the errata:
-> a) the sequence in the errata doc is:
-> if (stat & OMAP_I2C_STAT_RDR) { /* This is cleaner that using an
-> obtuse check using !(stat & OMAP_I2C_STAT_RRDY) */
-> 	omap_i2c_ack_stat(dev, stat & OMAP_I2C_STAT_RDR); /* dummy read - i
-> think this needs clarification as to why */
-> 	if (omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG) & OMAP_I2C_STAT_BB)
-> /* reason for the i2c_read_reg is because errata mentions a dummy
-> stat read  which might mean something for BB -> I am not sure may
-> need to be checked with H/w team. */
-> 		continue; /* recheck - faster response compared to return and re
-> generate interrupt */
-> }
+On Sat, Mar 20, 2010 at 03:12:41PM +0100, Wolfram Sang wrote:
+> Hi,
 > 
+> here is a patch series fixing I2C drivers which free their private data
+> structure and leave the clientdata pointer dangling or do the cleanup in the
+> wrong order. All occurences were found using coccinelle [1] and the semantic
+> patch below. The matches have been reviewed, and sometimes adapted.
 > 
-> b) does this apply to  OMAP2 and OMAP4?
+> The complete series goes to linux-i2c and kernel-janitors. The rest of the CCs
+> is handled per patch using get_maintainers.pl (which always adds LKML, so you
+> have the complete series there, too).
+> 
+> Please review, comment, apply!
+> 
+> Kind regards,
+> 
+>    Wolfram
+> 
+> [1] http://coccinelle.lip6.fr/
 
-Ok, should this be held for further discussion?
+>From the list of things here, there's nothing in here that I should be
+worried about (just checking) ?
+ 
+> ===
+> 
+> @@
+> type T;
+> identifier client, data;
+> @@
+> 
+> // Check if function uses clientdata
+> (
+> 	i2c_set_clientdata(client, data);
+> |
+> 	data = i2c_get_clientdata(client);
+> |
+> 	T data = i2c_get_clientdata(client);
+> )
+> // Anything inbetween
+> 	...
+> // Check if clientdata gets NULLed before data is freed
+> (
+> 	i2c_set_clientdata(client, NULL);
+> 	...
+>  	kfree(data);
+> |
+> +	i2c_set_clientdata(client, NULL);
+>  	kfree(data);
+> 	...
+> -	i2c_set_clientdata(client, NULL);
+> |
+> +	i2c_set_clientdata(client, NULL);
+> ? 	kfree(data);
+> )
+> 
+> ===
+> 
+>  drivers/gpio/adp5588-gpio.c                   |    1 +
+>  drivers/gpio/max732x.c                        |    1 +
+>  drivers/gpio/pca953x.c                        |    1 +
+>  drivers/gpio/pcf857x.c                        |    7 ++++---
+>  drivers/hwmon/ad7414.c                        |    2 ++
+>  drivers/hwmon/ad7418.c                        |    2 ++
+>  drivers/hwmon/adm1021.c                       |    2 ++
+>  drivers/hwmon/adm1025.c                       |    2 ++
+>  drivers/hwmon/adm1026.c                       |    2 ++
+>  drivers/hwmon/adm1029.c                       |    2 ++
+>  drivers/hwmon/adm1031.c                       |    2 ++
+>  drivers/hwmon/adm9240.c                       |    2 ++
+>  drivers/hwmon/ads7828.c                       |    5 ++++-
+>  drivers/hwmon/adt7462.c                       |    2 ++
+>  drivers/hwmon/adt7470.c                       |    2 ++
+>  drivers/hwmon/adt7475.c                       |    2 ++
+>  drivers/hwmon/amc6821.c                       |    2 ++
+>  drivers/hwmon/asb100.c                        |    2 ++
+>  drivers/hwmon/atxp1.c                         |    2 ++
+>  drivers/hwmon/dme1737.c                       |    2 ++
+>  drivers/hwmon/ds1621.c                        |    2 ++
+>  drivers/hwmon/f75375s.c                       |    4 ++--
+>  drivers/hwmon/g760a.c                         |    4 ++--
+>  drivers/hwmon/gl518sm.c                       |    2 ++
+>  drivers/hwmon/gl520sm.c                       |    2 ++
+>  drivers/hwmon/lm63.c                          |    2 ++
+>  drivers/hwmon/lm77.c                          |    2 ++
+>  drivers/hwmon/lm78.c                          |    2 ++
+>  drivers/hwmon/lm80.c                          |    2 ++
+>  drivers/hwmon/lm83.c                          |    2 ++
+>  drivers/hwmon/lm85.c                          |    2 ++
+>  drivers/hwmon/lm87.c                          |    2 ++
+>  drivers/hwmon/lm90.c                          |    2 ++
+>  drivers/hwmon/lm92.c                          |    2 ++
+>  drivers/hwmon/lm93.c                          |    2 ++
+>  drivers/hwmon/lm95241.c                       |    1 +
+>  drivers/hwmon/ltc4215.c                       |    2 ++
+>  drivers/hwmon/ltc4245.c                       |    2 ++
+>  drivers/hwmon/max1619.c                       |    2 ++
+>  drivers/hwmon/max6650.c                       |    2 ++
+>  drivers/hwmon/pcf8591.c                       |    6 +++++-
+>  drivers/hwmon/smsc47m192.c                    |    2 ++
+>  drivers/hwmon/thmc50.c                        |    2 ++
+>  drivers/hwmon/tmp401.c                        |    1 +
+>  drivers/hwmon/w83791d.c                       |    2 ++
+>  drivers/hwmon/w83792d.c                       |    2 ++
+>  drivers/hwmon/w83793.c                        |    1 +
+>  drivers/hwmon/w83l785ts.c                     |    2 ++
+>  drivers/hwmon/w83l786ng.c                     |    2 ++
+>  drivers/input/keyboard/lm8323.c               |    2 ++
+>  drivers/input/keyboard/qt2160.c               |    2 +-
+>  drivers/input/touchscreen/mcs5000_ts.c        |    2 +-
+>  drivers/input/touchscreen/tsc2007.c           |    1 +
+>  drivers/leds/leds-lp3944.c                    |    2 +-
+>  drivers/leds/leds-pca9532.c                   |    4 ++--
+>  drivers/leds/leds-pca955x.c                   |    4 ++--
+>  drivers/macintosh/therm_adt746x.c             |    2 ++
+>  drivers/media/radio/radio-tea5764.c           |    2 ++
+>  drivers/media/radio/si470x/radio-si470x-i2c.c |    2 +-
+>  drivers/media/video/cs5345.c                  |    1 +
+>  drivers/media/video/cs53l32a.c                |    1 +
+>  drivers/media/video/ir-kbd-i2c.c              |    2 ++
+>  drivers/media/video/tda9840.c                 |    1 +
+>  drivers/media/video/tea6415c.c                |    1 +
+>  drivers/media/video/tea6420.c                 |    1 +
+>  drivers/media/video/ths7303.c                 |    1 +
+>  drivers/mfd/88pm860x-i2c.c                    |    1 +
+>  drivers/mfd/ab3100-core.c                     |    2 ++
+>  drivers/mfd/da903x.c                          |    1 +
+>  drivers/mfd/menelaus.c                        |    3 ++-
+>  drivers/mfd/pcf50633-core.c                   |    1 +
+>  drivers/mfd/tps65010.c                        |    2 +-
+>  drivers/mfd/wm8350-i2c.c                      |    2 ++
+>  drivers/misc/ad525x_dpot.c                    |    2 +-
+>  drivers/misc/eeprom/at24.c                    |    2 +-
+>  drivers/misc/eeprom/eeprom.c                  |    6 +++++-
+>  drivers/misc/eeprom/max6875.c                 |    2 ++
+>  drivers/misc/ics932s401.c                     |    2 ++
+>  drivers/misc/isl29003.c                       |    6 +++++-
+>  drivers/misc/tsl2550.c                        |    6 +++++-
+>  drivers/mtd/maps/pismo.c                      |    8 +++++++-
+>  drivers/power/bq27x00_battery.c               |    2 ++
+>  drivers/power/ds2782_battery.c                |    4 ++--
+>  drivers/regulator/max1586.c                   |    2 +-
+>  drivers/regulator/max8649.c                   |    3 ++-
+>  drivers/regulator/max8660.c                   |    2 +-
+>  drivers/rtc/rtc-ds1307.c                      |    2 ++
+>  drivers/rtc/rtc-fm3130.c                      |    2 ++
+>  drivers/rtc/rtc-m41t80.c                      |    2 ++
+>  drivers/rtc/rtc-pcf8563.c                     |    2 ++
+>  drivers/rtc/rtc-pcf8583.c                     |    2 ++
+>  drivers/rtc/rtc-rs5c372.c                     |    2 ++
+>  drivers/rtc/rtc-s35390a.c                     |    4 ++--
+>  drivers/staging/dream/synaptics_i2c_rmi.c     |    2 ++
+>  drivers/staging/go7007/wis-saa7113.c          |    1 +
+>  drivers/staging/go7007/wis-saa7115.c          |    1 +
+>  drivers/staging/go7007/wis-tw9903.c           |    1 +
+>  drivers/staging/iio/adc/max1363_core.c        |    2 ++
+>  drivers/staging/iio/light/tsl2563.c           |    2 ++
+>  drivers/usb/otg/isp1301_omap.c                |    5 ++++-
+>  drivers/video/matrox/matroxfb_maven.c         |    1 +
+>  drivers/w1/masters/ds2482.c                   |    2 ++
+>  102 files changed, 198 insertions(+), 33 deletions(-)
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
