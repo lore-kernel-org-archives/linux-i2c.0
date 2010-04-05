@@ -1,120 +1,46 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c-pnx: Disable/enable clocks only when needed to
- reduce power
-Date: Tue, 6 Apr 2010 00:01:31 +0100
-Message-ID: <20100405230131.GE32401@fluff.org.uk>
-References: <1268780138-10019-1-git-send-email-wellsk40@gmail.com>
- <1268780138-10019-5-git-send-email-wellsk40@gmail.com>
+Subject: Re: [PATCH 33/37] sound/soc: use .dev.of_node instead of .node in
+ struct of_device
+Date: Tue, 6 Apr 2010 00:03:01 +0100
+Message-ID: <20100405230301.GF32401@fluff.org.uk>
+References: <20100311174830.4824.19820.stgit@angua>
+ <20100311180649.4824.10368.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1268780138-10019-5-git-send-email-wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20100311180649.4824.10368.stgit@angua>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vitaly.wool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, gregkh-l3A5Bk7waGM@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org, jgarzik-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, jeremy.kerr-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org, James.Bottomley-l3A5Bk7waGM@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, microblaze-uclinux-rVRm/Wmeqae7NGdpmJTKYQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 16, 2010 at 03:55:38PM -0700, wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
-> From: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Thu, Mar 11, 2010 at 11:06:50AM -0700, Grant Likely wrote:
+> .node is being removed
 > 
-> Enable I2C peripheral clocking at the start of a transfer and
-> disable on transfer completion to reduce peripheral power use
-> when bus is not in use.
-
-I'm going to leave this one for -next as it isn't really a bugfix.
- 
-> Signed-off-by: Kevin Wells <wellsk40-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-pnx.c |   33 +++++++--------------------------
->  1 files changed, 7 insertions(+), 26 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-> index 6bb6ff7..23bd556 100644
-> --- a/drivers/i2c/busses/i2c-pnx.c
-> +++ b/drivers/i2c/busses/i2c-pnx.c
-> @@ -448,6 +448,8 @@ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->  		"%s(): entering: %d messages, stat = %04x.\n",
->  		__func__, num, ioread32(I2C_REG_STS(alg_data)));
->  
-> +	clk_enable(alg_data->clk);
-> +
->  	bus_reset_if_active(alg_data);
->  
->  	/* Process transactions in a loop. */
-> @@ -516,6 +518,8 @@ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->  
->  	bus_reset_if_active(alg_data);
->  
-> +	clk_disable(alg_data->clk);
-> +
->  	/* Cleanup to be sure... */
->  	alg_data->mif.buf = NULL;
->  	alg_data->mif.len = 0;
-> @@ -539,29 +543,6 @@ static struct i2c_algorithm pnx_algorithm = {
->  	.functionality = i2c_pnx_func,
->  };
->  
-> -#ifdef CONFIG_PM
-> -static int i2c_pnx_controller_suspend(struct platform_device *pdev,
-> -				      pm_message_t state)
-> -{
-> -	struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
-> -
-> -	/* FIXME: shouldn't this be clk_disable? */
-> -	clk_enable(alg_data->clk);
-> -
-> -	return 0;
-> -}
-> -
-> -static int i2c_pnx_controller_resume(struct platform_device *pdev)
-> -{
-> -	struct i2c_pnx_algo_data *alg_data = platform_get_drvdata(pdev);
-> -
-> -	return clk_enable(alg_data->clk);
-> -}
-> -#else
-> -#define i2c_pnx_controller_suspend	NULL
-> -#define i2c_pnx_controller_resume	NULL
-> -#endif
-> -
->  static int __devinit i2c_pnx_probe(struct platform_device *pdev)
+>  sound/soc/fsl/mpc8610_hpcd.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/sound/soc/fsl/mpc8610_hpcd.c b/sound/soc/fsl/mpc8610_hpcd.c
+> index ef67d1c..d7e1b9a 100644
+> --- a/sound/soc/fsl/mpc8610_hpcd.c
+> +++ b/sound/soc/fsl/mpc8610_hpcd.c
+> @@ -202,7 +202,7 @@ static struct snd_soc_ops mpc8610_hpcd_ops = {
+>  static int mpc8610_hpcd_probe(struct of_device *ofdev,
+>  	const struct of_device_id *match)
 >  {
->  	unsigned long tmp;
-> @@ -665,6 +646,9 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
->  	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
->  	       alg_data->adapter.name, i2c_pnx->base, i2c_pnx->irq);
->  
-> +	/* Disable clock until needed */
-> +	clk_disable(alg_data->clk);
-> +
->  	return 0;
->  
->  out_irq:
-> @@ -692,7 +676,6 @@ static int __devexit i2c_pnx_remove(struct platform_device *pdev)
->  
->  	free_irq(i2c_pnx->irq, alg_data);
->  	i2c_del_adapter(&alg_data->adapter);
-> -	clk_disable(alg_data->clk);
->  	iounmap(alg_data->ioaddr);
->  	release_mem_region(i2c_pnx->base, I2C_PNX_REGION_SIZE);
->  	clk_put(alg_data->clk);
-> @@ -709,8 +692,6 @@ static struct platform_driver i2c_pnx_driver = {
->  	},
->  	.probe = i2c_pnx_probe,
->  	.remove = __devexit_p(i2c_pnx_remove),
-> -	.suspend = i2c_pnx_controller_suspend,
-> -	.resume = i2c_pnx_controller_resume,
->  };
->  
->  static int __init i2c_adap_pnx_init(void)
-> -- 
-> 1.6.6
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> -	struct device_node *np = ofdev->node;
+> +	struct device_node *np = ofdev->dev.of_node;
+>  	struct device_node *codec_np = NULL;
+>  	struct device_node *guts_np = NULL;
+>  	struct device_node *dma_np = NULL;
+
+This looks like one case where an inline function would have been a
+help.
+
 
 -- 
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
