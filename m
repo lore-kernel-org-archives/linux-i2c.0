@@ -1,64 +1,56 @@
-From: Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] omap: Add I2C bus 1 initialisation for OMAP2430
-Date: Tue, 6 Apr 2010 09:48:11 +0300
-Message-ID: <20100406064811.GQ16297@nokia.com>
-References: <70376CA23424B34D86F1C7DE6B9973430254343A3A@VSHINMSMBX01.vshodc.lntinfotech.com>
-Reply-To: felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH] drivers: i2c-gpio: move initialization code
+ subsys_initcall()
+Date: Tue, 06 Apr 2010 08:49:36 +0200
+Message-ID: <000001cad555$556c2e50$00448af0$%szyprowski@samsung.com>
+References: <1270129399-30365-1-git-send-email-m.szyprowski@samsung.com>
+ <20100401134917.GF24265@pengutronix.de>
+ <20100401163018.5494f19b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <70376CA23424B34D86F1C7DE6B9973430254343A3A-fVvhrSDAkVjuuPCCJ6VnObSn4PsL5ZDKvpI+GvaZM4lBDgjK7y7TUQ@public.gmane.org>
+In-reply-to: <20100401163018.5494f19b-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-language: pl
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Viral Mehta <Viral.Mehta-oonXi/34qI7c+919tysfdA@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, 'Mark Brown' <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 06, 2010 at 08:23:33AM +0200, ext Viral Mehta wrote:
->Initialize isp1301 FS USB transceiver and
->add I2C bus1 initialization code for OMAP2430
->
->Signed-off-by: Viral Mehta <viral.mehta-oonXi/34qI7c+919tysfdA@public.gmane.org>
+Hello,
 
-this should go through linux-omap
+On Thursday, April 01, 2010 4:30 PM Jean Delvare wrote:
 
->---
-> arch/arm/mach-omap2/board-2430sdp.c |   10 +++++++++-
-> 1 files changed, 9 insertions(+), 1 deletions(-)
->
->diff --git a/arch/arm/mach-omap2/board-2430sdp.c b/arch/arm/mach-omap2/board-2430sdp.c
->index 01d113f..346e1d2 100644
->--- a/arch/arm/mach-omap2/board-2430sdp.c
->+++ b/arch/arm/mach-omap2/board-2430sdp.c
->@@ -174,9 +174,17 @@ static struct i2c_board_info __initdata sdp2430_i2c_boardinfo[] = {
->        },
-> };
->
->+static struct i2c_board_info __initdata sdp2430_i2c1_boardinfo[] = {
->+       {
->+               I2C_BOARD_INFO("isp1301_omap", 0x2D),
->+               .flags = I2C_CLIENT_WAKE,
->+               .irq = OMAP_GPIO_IRQ(78),
->+       },
->+}
-> static int __init omap2430_i2c_init(void)
-> {
->-       omap_register_i2c_bus(1, 400, NULL, 0);
->+       omap_register_i2c_bus(1, 100, sdp2430_i2c1_boardinfo,
->+                       ARRAY_SIZE(sdp2430_i2c1_boardinfo));
->        omap_register_i2c_bus(2, 2600, sdp2430_i2c_boardinfo,
->                        ARRAY_SIZE(sdp2430_i2c_boardinfo));
->        return 0;
->--
->1.6.6
->
->This Email may contain confidential or privileged information for the intended recipient (s) If you are not the intended recipient, please do not use or disseminate the information, notify the sender and delete it from your system.
->
->______________________________________________________________________
->--
->To unsubscribe from this list: send the line "unsubscribe linux-usb" in
->the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> On Thu, 1 Apr 2010 15:49:18 +0200, Wolfram Sang wrote:
+> > On Thu, Apr 01, 2010 at 03:43:19PM +0200, Marek Szyprowski wrote:
+> > > GPIO driven I2C bus can be used for controlling the PMIC chip. The example
+> > > of such configuration is Samsung Aquila board.
+> > >
+> > > This patch moves initialization code subsys_initcall() to ensure that the i2c
+> > > bus is available early so the regulators can be quicly probed and available for
+> >
+> > Minor: quickly
+> >
+> > > other devices on their probe() call.
+> > >
+> > > Such solution has been proposed by Mark Brown to fix the problem of the
+> > > regulators not beeing available on the peripheral device probe():
+> > > http://lists.infradead.org/pipermail/linux-arm-kernel/2010-March/011971.html
+> > >
+> > > CC: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> > > Reviewed-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> > > Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >
+> > Yup, a number of drivers do this:
+> >
+> > Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> 
+> Applied, thanks. Is it desirable to have this patch in 2.6.34, or is
+> 2.6.35 enough?
 
--- 
-balbi
+2.6.35 would be enough. Thanks :)
+
+Best regards
+--
+Marek Szyprowski
+Samsung Poland R&D Center
