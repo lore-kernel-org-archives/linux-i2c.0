@@ -1,50 +1,32 @@
-From: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] power/ds2782: fix clientdata on removal
-Date: Tue, 6 Apr 2010 20:50:07 +0400
-Message-ID: <20100406165007.GA27648@oksana.dev.rtsoft.ru>
-References: <1270117664-29099-1-git-send-email-w.sang@pengutronix.de>
- <20100401104021.GA30121@oksana.dev.rtsoft.ru>
- <20100404141336.GA10176@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH 0/6] i2c: davinci updates for 2.6.35
+Date: Tue,  6 Apr 2010 10:42:12 -0700
+Message-ID: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100404141336.GA10176-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Apr 04, 2010 at 04:13:36PM +0200, Wolfram Sang wrote:
-> On Thu, Apr 01, 2010 at 02:40:21PM +0400, Anton Vorontsov wrote:
-> > On Thu, Apr 01, 2010 at 12:27:44PM +0200, Wolfram Sang wrote:
-> > > Probably due to a copy & paste bug, clientdata was set again to the data
-> > > structure (which is freed immediately afterwards) when it should be
-> > > NULLed. Just remove the calls as the i2c-core does this automatically
-> > > now.
-> > > 
-> > > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > Cc: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-> > > Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-> > > Cc: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > ---
-> > >
-> > > Anton: If it is okay with you, I think this should go via the I2C-tree to
-> > > ensure it comes after the needed modification of the i2c-core.
-> > 
-> > Sure thing.
-> > 
-> > Acked-by: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> Sorry, I misunderstood Jean. Would be nice if you could pick it up. Sorry for
-> the noise.
+This series of davinci I2C driver updates and fixes is targetted for
+2.6.35.  It has been tested in davinci git on multiple davinci SoCs.
 
-Applied.
+Ben, since these changes are isolated to the davinci driver only, if
+you prefer I can merge them upstream along with my davinci changes for
+2.6.35.  
 
-Thanks!
+This series is based on v2.6.34-rc3
 
--- 
-Anton Vorontsov
-email: cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-irc://irc.freenode.net/bd2
+Chaithrika U S (4):
+  i2c: davinci: misc. cleanups: remove MOD_REG_BIT and IO_ADDRESS usage
+  i2c: davinci: Add helper functions for power management
+  i2c: davinci: Add suspend/resume support
+  i2c: davinci: Add cpufreq support
+
+Dirk Behme (1):
+  i2c: davinci: Fix smbus Oops with AIC33 usage
+
+Philby John (1):
+  i2c: davinci: bus recovery procedure to clear the bus
+
+ drivers/i2c/busses/i2c-davinci.c |  314 ++++++++++++++++++++++++++++++--------
+ 1 files changed, 251 insertions(+), 63 deletions(-)
