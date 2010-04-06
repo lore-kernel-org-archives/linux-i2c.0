@@ -1,58 +1,58 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: i2c-drivers: Remove dangling pointers
-Date: Tue, 6 Apr 2010 02:06:24 +0200
-Message-ID: <20100406000624.GA2893@pengutronix.de>
-References: <1269094385-16114-1-git-send-email-w.sang@pengutronix.de> <20100405225925.GC32401@fluff.org.uk>
+From: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
+Date: Tue, 06 Apr 2010 02:34:46 -0300
+Message-ID: <4BBAC7F6.5030807@redhat.com>
+References: <20100404161454.0f99cc06@hyperion.delvare>	<4BBA2B58.4000007@redhat.com> <20100405230616.443792ac@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100405225925.GC32401-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <20100405230616.443792ac-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Jean Delvare wrote:
+> Hi Mauro,
+> 
+> On Mon, 05 Apr 2010 15:26:32 -0300, Mauro Carvalho Chehab wrote:
+>> Jean Delvare wrote:
+>>> Now that i2c-core offers the possibility to provide custom probing
+>>> function for I2C devices, let's make use of it.
+>>>
+>>> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>>> ---
+>>> I wasn't too sure where to put the custom probe function: in each driver,
+>>> in the ir-common module or in the v4l2-common module. I went for the
+>>> second option as a middle ground, but am ready to discuss it if anyone
+>>> objects.
+>> Please, don't add new things at ir-common module. It basically contains the
+>> decoding functions for RC5 and pulse/distance, plus several IR keymaps. With
+>> the IR rework I'm doing, this module will go away, after having all the current 
+>> IR decoders implemented via ir-raw-input binding. 
+>>
+>> The keymaps were already removed from it, on my experimental tree 
+>> (http://git.linuxtv.org/mchehab/ir.git), and rc5 decoder is already written
+>> (but still needs a few fixes). 
+>>
+>> The new ir-core is creating an abstract way to deal with Remote Controllers,
+>> meant to be used not only by IR's, but also for other types of RC, like, 
+>> bluetooth and USB HID. It will also export a raw event interface, for use
+>> with lirc. As this is the core of the RC subsystem, a i2c-specific binding
+>> method also doesn't seem to belong there. SO, IMO, the better place is to add 
+>> it as a static inline function at ir-kbd-i2c.h.
+> 
+> Ever tried to pass the address of an inline function as another
+> function's parameter? :)
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+:) Never tried... maybe gcc would to the hard thing, de-inlining it ;)
 
-Hi Ben,
+Well, we need to put this code somewhere. Where are the other probing codes? Probably
+the better is to put them together.
 
-> > here is a patch series fixing I2C drivers which free their private data
-> > structure and leave the clientdata pointer dangling or do the cleanup i=
-n the
-> > wrong order. All occurences were found using coccinelle [1] and the sem=
-antic
-> > patch below. The matches have been reviewed, and sometimes adapted.
 
-[...]
+-- 
 
-> From the list of things here, there's nothing in here that I should be
-> worried about (just checking) ?
-
-Correct. Just ignore this series.
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAku6ewAACgkQD27XaX1/VRvttgCgin2BILMMKf22Dl1cEG/KCBi/
-UcEAn2btQWLqN9K0+4x7hl1iT22zsRlp
-=nHqp
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+Cheers,
+Mauro
