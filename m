@@ -1,141 +1,121 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: [PATCH 5/6] i2c: davinci: Add cpufreq support
-Date: Tue,  6 Apr 2010 10:42:17 -0700
-Message-ID: <1270575738-22388-6-git-send-email-khilman@deeprootsystems.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH 1/6] i2c: davinci: Fix smbus Oops with AIC33 usage
+Date: Tue,  6 Apr 2010 10:42:13 -0700
+Message-ID: <1270575738-22388-2-git-send-email-khilman@deeprootsystems.com>
 References: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Chaithrika U S <chaithrika@ti.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Kevin Hilman <khilman@deeprootsystems.com>, Philby John <pjohn@in.mvista.com>, "Srinivasan, Nageswari" <nageswari@ti.com>, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1270575738-22388-1-git-send-email-khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dirk Behme <dirk.behme-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>, Alexander Vasiliev <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Chaithrika U S <chaithrika-l0cyMroinI0@public.gmane.org>, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, "Srinivasan, Nageswari" <nageswari-l0cyMroinI0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Chaithrika U S <chaithrika@ti.com>
+From: Dirk Behme <dirk.behme-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 
-Add cpufreq support for DaVinci I2C driver.
-Tested on DA850/OMAP-L138 EVM.
+This fixes Oops at kernel startup while "scanning" for TLV320AIC23IDx
+addresses.
 
-Signed-off-by: Chaithrika U S <chaithrika@ti.com>
-Acked-by: Kevin Hilman <khilman@deeprootsystems.com>
+Additional fix from Sudhakar Rajashekhara: I think 'first byte set'
+should come after the write because an I2C transaction is being
+carried out before configuring the I2C mode register (which has bits
+to configure Master, Start condition etc), which causes undefined
+behavior.
+
+Signed-off-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Alexander Vasiliev <alexvasiljev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Brad Griffis <bgriffis-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |   63 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 63 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |   31 +++++++++++++++++++++++++++----
+ 1 files changed, 27 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index dfec296..fd7a155 100644
+index c89687a..3b9ab23 100644
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -35,6 +35,7 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/io.h>
-+#include <linux/cpufreq.h>
- 
- #include <mach/hardware.h>
- #include <mach/i2c.h>
-@@ -106,6 +107,10 @@ struct davinci_i2c_dev {
- 	int			stop;
+@@ -112,6 +112,7 @@ struct davinci_i2c_dev {
+ 	u8			*buf;
+ 	size_t			buf_len;
+ 	int			irq;
++	int			stop;
  	u8			terminate;
  	struct i2c_adapter	adapter;
-+#ifdef CONFIG_CPU_FREQ
-+	struct completion	xfr_complete;
-+	struct notifier_block	freq_transition;
-+#endif
  };
+@@ -249,9 +250,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	u16 w;
+ 	int r;
  
- /* default platform data to use if not supplied in the platform_device */
-@@ -390,6 +395,11 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 		if (ret < 0)
- 			return ret;
- 	}
-+
-+#ifdef CONFIG_CPU_FREQ
-+	complete(&dev->xfr_complete);
-+#endif
-+
- 	return num;
- }
+-	if (msg->len == 0)
+-		return -EINVAL;
+-
+ 	if (!pdata)
+ 		pdata = &davinci_i2c_platform_data_default;
+ 	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
+@@ -263,6 +261,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
  
-@@ -522,6 +532,48 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 	return count ? IRQ_HANDLED : IRQ_NONE;
- }
+ 	dev->buf = msg->buf;
+ 	dev->buf_len = msg->len;
++	dev->stop = stop;
  
-+#ifdef CONFIG_CPU_FREQ
-+static int i2c_davinci_cpufreq_transition(struct notifier_block *nb,
-+				     unsigned long val, void *data)
-+{
-+	struct davinci_i2c_dev *dev;
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+ 
+@@ -280,6 +279,10 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 		flag |= DAVINCI_I2C_MDR_TRX;
+ 	if (stop)
+ 		flag |= DAVINCI_I2C_MDR_STP;
++	if (msg->len == 0) {
++		flag |= DAVINCI_I2C_MDR_RM;
++		flag &= ~DAVINCI_I2C_MDR_STP;
++	}
+ 
+ 	/* Enable receive or transmit interrupts */
+ 	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+@@ -290,9 +293,21 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+ 
+ 	dev->terminate = 0;
 +
-+	dev = container_of(nb, struct davinci_i2c_dev, freq_transition);
-+	if (val == CPUFREQ_PRECHANGE) {
-+		wait_for_completion(&dev->xfr_complete);
-+		davinci_i2c_reset_ctrl(dev, 0);
-+	} else if (val == CPUFREQ_POSTCHANGE) {
-+		i2c_davinci_calc_clk_dividers(dev);
-+		davinci_i2c_reset_ctrl(dev, 1);
+ 	/* write the data into mode register */
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+ 
++	/*
++	 * First byte should be set here, not after interrupt,
++	 * because transmit-data-ready interrupt can come before
++	 * NACK-interrupt during sending of previous message and
++	 * ICDXR may have wrong data
++	 */
++	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
++		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
++		dev->buf_len--;
 +	}
 +
-+	return 0;
-+}
-+
-+static inline int i2c_davinci_cpufreq_register(struct davinci_i2c_dev *dev)
-+{
-+	dev->freq_transition.notifier_call = i2c_davinci_cpufreq_transition;
-+
-+	return cpufreq_register_notifier(&dev->freq_transition,
-+					 CPUFREQ_TRANSITION_NOTIFIER);
-+}
-+
-+static inline void i2c_davinci_cpufreq_deregister(struct davinci_i2c_dev *dev)
-+{
-+	cpufreq_unregister_notifier(&dev->freq_transition,
-+				    CPUFREQ_TRANSITION_NOTIFIER);
-+}
-+#else
-+static inline int i2c_davinci_cpufreq_register(struct davinci_i2c_dev *dev)
-+{
-+	return 0;
-+}
-+
-+static inline void i2c_davinci_cpufreq_deregister(struct davinci_i2c_dev *dev)
-+{
-+}
-+#endif
-+
- static struct i2c_algorithm i2c_davinci_algo = {
- 	.master_xfer	= i2c_davinci_xfer,
- 	.functionality	= i2c_davinci_func,
-@@ -561,6 +613,9 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	}
+ 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 						      dev->adapter.timeout);
+ 	if (r == 0) {
+@@ -371,7 +386,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
  
- 	init_completion(&dev->cmd_complete);
-+#ifdef CONFIG_CPU_FREQ
-+	init_completion(&dev->xfr_complete);
-+#endif
- 	dev->dev = get_device(&pdev->dev);
- 	dev->irq = irq->start;
- 	platform_set_drvdata(pdev, dev);
-@@ -586,6 +641,12 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 		goto err_unuse_clocks;
- 	}
+ static u32 i2c_davinci_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
  
-+	r = i2c_davinci_cpufreq_register(dev);
-+	if (r) {
-+		dev_err(&pdev->dev, "failed to register cpufreq\n");
-+		goto err_free_irq;
-+	}
-+
- 	adap = &dev->adapter;
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
-@@ -627,6 +688,8 @@ static int davinci_i2c_remove(struct platform_device *pdev)
- 	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
- 	struct resource *mem;
+ static void terminate_read(struct davinci_i2c_dev *dev)
+@@ -430,6 +445,14 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+ 		case DAVINCI_I2C_IVR_ARDY:
+ 			davinci_i2c_write_reg(dev,
+ 				DAVINCI_I2C_STR_REG, DAVINCI_I2C_STR_ARDY);
++			if (((dev->buf_len == 0) && (dev->stop != 0)) ||
++			    (dev->cmd_err & DAVINCI_I2C_STR_NACK)) {
++				w = davinci_i2c_read_reg(dev,
++							 DAVINCI_I2C_MDR_REG);
++				w |= DAVINCI_I2C_MDR_STP;
++				davinci_i2c_write_reg(dev,
++						      DAVINCI_I2C_MDR_REG, w);
++			}
+ 			complete(&dev->cmd_complete);
+ 			break;
  
-+	i2c_davinci_cpufreq_deregister(dev);
-+
- 	platform_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
 -- 
 1.7.0.2
