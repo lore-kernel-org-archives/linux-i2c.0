@@ -1,24 +1,22 @@
-From: Linus WALLEIJ <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: RE: [patch] i2c: off by one issue
-Date: Wed, 7 Apr 2010 14:53:14 +0200
-Message-ID: <CEE6BB42CAD6E947908279175AF8470A03A50DA2@EXDCVYMBSTM006.EQ1STM.local>
-References: <20100407092258.GD5157@bicker>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: "Guadalupe Ward" <poehfheju-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: mailing list providers
+Date: Fri,  9 Apr 2010 04:16:39 +0200 (CEST)
+Message-ID: <20100409021639.EE6CF4E171@gw.ravaglia.it>
+Reply-To: pwetrjfvje-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100407092258.GD5157@bicker>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dan Carpenter <error27-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-ReZ1+7V3V0tg9hUCZPvPmw@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Christoph Lameter <cl-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linnea.p.berglund-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org, limeykt-YDxpq3io04c@public.gmane.org, linz-UOqCwFkR36CakBO8gow8eQ@public.gmane.org, linz-X7uDw9hkcJSCf9tkxg02mOTv7YV0F9Eg@public.gmane.org, lisa.byrne-cYsaqk4b3dWWlVNXQhpWQA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> If we don't find the correct rate, we want to end the loop with "i"
-> pointing to the last element in the array.
+To get additional details, samples and counts for our USA contact data please
+email me at this address Hugo.Houser-5YPRQHlKf8JHCvwvKO8SlA@public.gmane.org
 
-Good catch!
-Acked-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+we have lots of different lists in many fields and this week is the time to buy with lowered list prices.
+  
 
-Yours,
-Linus Walleij
+
+
+
+Forward email to rembox-5YPRQHlKf8JHCvwvKO8SlA@public.gmane.org to purge you from our records
+
+using that displayed number
