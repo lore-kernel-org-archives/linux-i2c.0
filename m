@@ -1,49 +1,85 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
-Date: Fri, 9 Apr 2010 09:12:49 +0200
-Message-ID: <20100409091249.4cc5dd6e@hyperion.delvare>
-References: <20100404161454.0f99cc06@hyperion.delvare>
-	<4BBA2B58.4000007@redhat.com>
-	<20100405230616.443792ac@hyperion.delvare>
-	<4BBAC7F6.5030807@redhat.com>
-	<20100406182511.62894659@hyperion.delvare>
-	<4BBEA864.9090702@redhat.com>
+Subject: [PATCH 1/4] i2c: Share the I2C device presence detection code
+Date: Fri, 9 Apr 2010 16:51:03 +0200
+Message-ID: <20100409165103.67edd090@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4BBEA864.9090702-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Matthieu Castet <castet.matthieu-GANU6spQydw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mauro,
+Use the same I2C device presence detection code for legacy and new
+device detection functions. This is more consistent and makes the code
+smaller.
 
-On Fri, 09 Apr 2010 01:09:08 -0300, Mauro Carvalho Chehab wrote:
-> Jean Delvare wrote:
-> > There are no other probing functions yet, this is the first one. I have
-> > added the mechanism to i2c-core for these very IR chips.
-> > 
-> > Putting all probe functions together would mean moving them to
-> > i2c-core. This wasn't my original intent, but after all, it makes some
-> > sense. Would you be happy with the following?
-> 
-> It seems fine for me. As you're touching on i2c core and on other drivers
-> on this series, I think that the better is if you could apply it on your
-> tree.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Matthieu Castet <castet.matthieu-GANU6spQydw@public.gmane.org>
+---
+Matthieu, are you happier that way?
 
-Yes, this is the plan. However, before I can add them to my tree, patch
-named:
-  [PATCH] FusionHDTV: Use quick reads for I2C IR device probing
-which I posted to the linux-media mailing list some weeks ago must go
-upstream. Otherwise these 2 patches do not apply cleanly.
+ drivers/i2c/i2c-core.c |   33 ++++++++++++++-------------------
+ 1 file changed, 14 insertions(+), 19 deletions(-)
 
-> For both patches 1 and 2:
-> 
-> Acked-by: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+--- linux-2.6.34-rc3.orig/drivers/i2c/i2c-core.c	2010-04-08 09:51:04.000000000 +0200
++++ linux-2.6.34-rc3/drivers/i2c/i2c-core.c	2010-04-08 09:51:08.000000000 +0200
+@@ -1277,8 +1277,11 @@ EXPORT_SYMBOL(i2c_master_recv);
+  * probe method is a quick write, but it is known to corrupt the 24RF08
+  * EEPROMs due to a state machine bug, and could also irreversibly
+  * write-protect some EEPROMs, so for address ranges 0x30-0x37 and 0x50-0x5f,
+- * we use a byte read instead. Also, some bus drivers don't implement quick
+- * write, so we fallback to a byte read in that case too.
++ * we use a short byte read instead. Also, some bus drivers don't implement
++ * quick write, so we fallback to a byte read in that case too.
++ * There is another special case for FSC hardware monitoring chips, which
++ * want regular byte reads (address 0x73.) Fortunately, these are the only
++ * known chips using this I2C address on PC hardware.
+  * Returns 1 if probe succeeded, 0 if not.
+  */
+ static int i2c_default_probe(struct i2c_adapter *adap, unsigned short addr)
+@@ -1286,6 +1289,13 @@ static int i2c_default_probe(struct i2c_
+ 	int err;
+ 	union i2c_smbus_data dummy;
+ 
++#ifdef CONFIG_X86
++	if (addr == 0x73 && (adap->class & I2C_CLASS_HWMON)
++	 && i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_BYTE_DATA))
++		err = i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
++				     I2C_SMBUS_BYTE_DATA, &dummy);
++	else
++#endif
+ 	if ((addr & ~0x07) == 0x30 || (addr & ~0x0f) == 0x50
+ 	 || !i2c_check_functionality(adap, I2C_FUNC_SMBUS_QUICK))
+ 		err = i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
+@@ -1317,23 +1327,8 @@ static int i2c_detect_address(struct i2c
+ 		return 0;
+ 
+ 	/* Make sure there is something at this address */
+-	if (addr == 0x73 && (adapter->class & I2C_CLASS_HWMON)) {
+-		/* Special probe for FSC hwmon chips */
+-		union i2c_smbus_data dummy;
+-
+-		if (i2c_smbus_xfer(adapter, addr, 0, I2C_SMBUS_READ, 0,
+-				   I2C_SMBUS_BYTE_DATA, &dummy) < 0)
+-			return 0;
+-	} else {
+-		if (i2c_smbus_xfer(adapter, addr, 0, I2C_SMBUS_WRITE, 0,
+-				   I2C_SMBUS_QUICK, NULL) < 0)
+-			return 0;
+-
+-		/* Prevent 24RF08 corruption */
+-		if ((addr & ~0x0f) == 0x50)
+-			i2c_smbus_xfer(adapter, addr, 0, I2C_SMBUS_WRITE, 0,
+-				       I2C_SMBUS_QUICK, NULL);
+-	}
++	if (!i2c_default_probe(adapter, addr))
++		return 0;
+ 
+ 	/* Finally call the custom detection function */
+ 	memset(&info, 0, sizeof(struct i2c_board_info));
 
-Thanks.
 
 -- 
 Jean Delvare
