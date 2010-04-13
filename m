@@ -1,75 +1,80 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] mach-pxa/viper: Fix timeout usage for I2C
-Date: Tue, 13 Apr 2010 07:04:01 +0800
-Message-ID: <l2jf17812d71004121604l403639bfr321d9e46050e037a@mail.gmail.com>
-References: <20100412193943.GP3048@n2100.arm.linux.org.uk>
-	<20100412215326.GD6148@shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20100412215326.GD6148@shareable.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Wolfram Sang <w.sang@pengutronix.de>, Marc Zyngier <maz@misterjones.org>, linux-i2c@vger.kernel.org, Mike Rapoport <mike@compulab.co.il>, Jean Delvare <khali@linux-fr.org>, linux-arm-kernel@lists.infradead.org
+From: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2] OMAP3: I2C: Errata ID i207: Clear wrong RDR interrupt
+Date: Tue, 13 Apr 2010 19:31:42 +0530
+Message-ID: <1271167302-17776-1-git-send-email-manjugk@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVHVlLCBBcHIgMTMsIDIwMTAgYXQgNTo1MyBBTSwgSmFtaWUgTG9raWVyIDxqYW1pZUBzaGFy
-ZWFibGUub3JnPiB3cm90ZToKPiBSdXNzZWxsIEtpbmcgLSBBUk0gTGludXggd3JvdGU6Cj4+IE9u
-IE1vbiwgQXByIDEyLCAyMDEwIGF0IDA5OjMyOjM1UE0gKzAyMDAsIEplYW4gRGVsdmFyZSB3cm90
-ZToKPj4gPiBPbiBNb24sIDEyIEFwciAyMDEwIDIwOjIwOjEwICswMTAwLCBSdXNzZWxsIEtpbmcg
-LSBBUk0gTGludXggd3JvdGU6Cj4+ID4gPiBPbiBNb24sIEFwciAxMiwgMjAxMCBhdCAwOToxMzox
-OVBNICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6Cj4+ID4gPiA+IE9uIFR1ZSwgMTMgQXByIDIw
-MTAgMDE6NTc6NTEgKzA4MDAsIEVyaWMgTWlhbyB3cm90ZToKPj4gPiA+ID4gPiBPbmUgb3RoZXIg
-YmV0dGVyIGFuZCBjbGVhbmVyIGFwcHJvYWNoIHRvIHN1Y2ggaW5jb25zaXN0ZW5jeSBpc3N1ZSBp
-cwo+PiA+ID4gPiA+IHRvIGhhdmUgYSB0aW1lb3V0X21zIGZpZWxkLCBhbmQgaGF2aW5nIGkyYy1n
-cGlvLmMgZHJpdmVyIHRvIGNvbnZlcnQgdGhpcwo+PiA+ID4gPiA+IHRvIGppZmZpZXMgdXNpbmcg
-bXNlY190b19qaWZmaWVzKCkgYXQgcnVuLXRpbWUuCj4+ID4gPiA+Cj4+ID4gPiA+IFdpdGggd2hh
-dCBiZW5lZml0PyBFeHByZXNzaW5nIHRpbWUgdmFsdWVzIGluIHVuaXRzIG9mIEhaIGlzIHZlcnkK
-Pj4gPiA+ID4gZnJlcXVlbnQgaW4gdGhlIGtlcm5lbCBjb2RlIGFuZCBzaG91bGRuJ3QgYWN0dWFs
-bHkgc3VycHJpc2UgYW55b25lLgo+PiA+ID4KPj4gPiA+IEFjdHVhbGx5LCB0aGlzIHBhdGNoIHNo
-b3dzIHRoZXJlIGlzIGNvbmZ1c2lvbi4KPj4gPiA+Cj4+ID4gPiAiQXNzdW1lICcxMDAnIG1lYW5z
-IDEwMG1zIGhlcmUgYW5kIGFkYXB0IGFjY29yZGluZ2x5LiIKPj4gPiA+Cj4+ID4gPiBTaW5jZSB0
-aGlzIHBhdGNoIGlzIGZvciBBUk0sIHdoZXJlIEhaPTEwMCwgdGhlIGFib3ZlIHBhdGNoIGlzIG5v
-dCBhCj4+ID4gPiBzaW1wbGUgImNvbnZlcnQgaG93IHdlIGRlcml2ZSB0aGlzIGNvbnN0YW50IiBw
-YXRjaCAtIGl0J3MgYSBmdW5jdGlvbmFsCj4+ID4gPiBjaGFuZ2UsIHJlZHVjaW5nIHRoZSB0aW1l
-b3V0cyBieSBhIGZhY3RvciBvZiAxMC4KPj4gPiA+Cj4+ID4gPiBDb3VsZCB0aGF0IGJlIGJlY2F1
-c2UgdGhlIHBhdGNoIGF1dGhvciBtaXNpbnRlcnByZXRlZCB0aGUgSFotYmFzZWQKPj4gPiA+IHZh
-bHVlcz8KPj4gPgo+PiA+IEkgYWRtaXQgSSB3b3VsZCBoYXZlIGFzc3VtZWQgMTAwIC0+IEhaLCBh
-cyBoYXJkLWNvZGVkIEhaLWRlcGVuZGVudAo+PiA+IHZhbHVlIHR5cGljYWxseSBhc3N1bWUgSFo9
-MTAwLgo+PiA+Cj4+ID4gPiBJIHN1c3BlY3QgSSdtIG5vdCB0aGUgb25seSBvbmUgd2hvIHRoaW5r
-cyB0aGF0IHRoZSBsYXR0ZXIgb2YgIkhaIC8gMTAiCj4+ID4gPiAiMTAwbXMiIGlzIGVhc2llciB0
-byByZWFkIGFuZCBjb21wcmVoZW5kIHdpdGhvdXQgbWlzdGFrZS4KPj4gPgo+PiA+IE9UT0gsIGNv
-bnZlcnRpbmcgZnJvbSBtcyB0byBqaWZmaWVzIGVhY2ggdGltZSB5b3UgbmVlZCB0aGUgdmFsdWUg
-aGFzIGEKPj4gPiBjb3N0Lgo+Pgo+PiBUcnVlOyB3aGF0IEkgZGlkIGZvciBNTUMgc3R1ZmYgaXMg
-Y29udmVydGVkIGl0IGZyb20gbXMgdG8gamlmZmllcyBhdAo+PiBpbml0aWFsaXphdGlvbiB0aW1l
-IHdoZW4gY29weWluZyBpdCBpbiBmcm9tIHBsYXRmb3JtIGRhdGEgaW4gdGhlCj4+IGRyaXZlcidz
-IHByb2JlIGZ1bmN0aW9uLgo+Pgo+PiBJJ20gbm90IHNheWluZyB0aGF0IEkgY2FyZSBlaXRoZXIg
-d2F5LCBJJ20gbWVyZWx5IHNob3dpbmcgdGhhdCBkZWFsaW5nCj4+IHdpdGggSFotYmFzZWQgdmFs
-dWVzIGNhbiBiZSAobWF5YmUgdW5leHBlY3RlZGx5KSBtb3JlIGVycm9yIHByb25lLgo+Cj4gSFog
-aXMgdXNlZCBhIGxvdCBpbiBrZXJuZWwgdGltZW91dHMsIHNvIGV2ZW4gdGhvdWdoIGl0J3MgY29u
-ZnVzaW5nLCBpdAo+IGlzIHNvbWV0aGluZyBldmVyeW9uZSBvdWdodCB0byBnZXQgdXNlZCB0by4K
-CkkgZG9uJ3QgdW5kZXJzdGFuZCB3aHkgcGVvcGxlIGhhcyB0byBsaXZlIHdpdGggY29uZnVzaW9u
-cyB3aGVyZSB0aGVyZSBpcwphcHBhcmVudGx5IGEgY2xlYW5lciB3YXkgdG8gZ28uIEhaIGlzIGV2
-ZXJ5d2hlcmUsIGFuZCBhcyBsb25nIGFzIHRoZXkKbGl2ZSB3aXRoaW4gdGhlaXIgb3duIGRyaXZl
-ciBjb2RlLCB0aGF0J3MgT0suCgo+Cj4gQnV0IEkgYWdyZWUgaXQgaXMgdG9vIGNvbmZ1c2luZy4g
-wqBBbiBvYnZpb3VzIHJlbWVkeSBpczoKPgo+ICNkZWZpbmUgbWlsbGlzZWNvbmRzKG1zKSAoKCht
-cykgKiBIWiArIDk5OSkgLyAxMDAwKQo+ICNkZWZpbmUgc2Vjb25kcyhzKSDCoCDCoCDCoCAoKHMp
-ICogSFopCj4KClRoaXMgaXMgdG8gcmVpbnZlbnQgdGhlIHdoZWVsIGFzIHRoZXJlIGFyZSBhbHJl
-YWR5IG1zZWNzX3RvX2ppZmZpZXMoKQphbmQgdXNlY3NfdG9famlmZmllcygpLCBhbmQgdmljZSB2
-ZXJzYS4gVGhlIG9ubHkgYmVuZWZpdCBvZiB1c2luZyBtYWNyb3MKaW5zdGVhZCBvZiBhIGZ1bmN0
-aW9uIGlzIGZvciBjb25zdGFudHMuIFRoaXMsIGhvd2V2ZXIsIGNhbiBiZSB3b3JrZWQKYXJvdW5k
-IGFzIFJ1c3NlbGwgc3VnZ2VzdGVkLiBUaGUgYWRkaXRpb25hbCBydW4tdGltZSBjb3N0IGJ5IHRo
-aXMKZnVuY3Rpb24sIGNvbXBhcmVkIHdpdGggYSB1bml0IG9mIGppZmZpZXMsIGlzIGluc2lnbmlm
-aWNhbnQuCgo+IC0tIEphbWllCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJu
-ZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Under certain rare conditions, I2C_STAT[13].RDR bit may be set
+and the corresponding interrupt fire, even there is no data in
+the receive FIFO, or the I2C data transfer is still ongoing.
+These spurious RDR events must be ignored by the software.
+
+This patch handles and ignores RDR spurious interrupts.
+
+Patch tested on OMAP zoom3 board.
+
+Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
+Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+---
+Review comments for earlier post can be found at:
+https://patchwork.kernel.org/patch/90122/
+
+ drivers/i2c/busses/i2c-omap.c |   32 +++++++++++++++++++++++++++++++-
+ 1 files changed, 31 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index ae6f5c1..d4ec886 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -733,10 +733,40 @@ complete:
+ 		}
+ 		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
+ 			u8 num_bytes = 1;
++
++			/*
++			 * I2C Errata(Errata Nos. OMAP2: 1.67, OMAP3: 1.8)
++			 * Not applicable for OMAP4.
++			 * Under certain rare conditions, RDR could be set again
++			 * when the bus is busy, then ignore the interrupt and
++			 * clear the interrupt.
++			 */
++			if ((stat & OMAP_I2C_STAT_RDR) && !cpu_is_omap44xx()) {
++				/* Step 1: If RDR is set, clear it */
++				omap_i2c_ack_stat(dev, stat & OMAP_I2C_STAT_RDR);
++
++				/* Step 2: */
++				if(!(omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG)
++							& OMAP_I2C_STAT_BB)) {
++					/* Step 3: */
++					while(omap_i2c_read_reg(dev,
++						OMAP_I2C_STAT_REG)
++							& OMAP_I2C_STAT_RDR) {
++						omap_i2c_ack_stat(dev, stat
++							& OMAP_I2C_STAT_RDR);
++						dev_err(dev->dev,
++						"I2C : RDR when the bus is busy.\n");
++						continue;
++					}
++
++				}
++				else
++					return IRQ_HANDLED;
++			}
+ 			if (dev->fifo_size) {
+ 				if (stat & OMAP_I2C_STAT_RRDY)
+ 					num_bytes = dev->fifo_size;
+-				else    /* read RXSTAT on RDR interrupt */
++				else  /* Step4: read RXSTAT on RDR interrupt */
+ 					num_bytes = (omap_i2c_read_reg(dev,
+ 							OMAP_I2C_BUFSTAT_REG)
+ 							>> 8) & 0x3F;
+-- 
+1.6.0.4
