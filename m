@@ -1,36 +1,98 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH 1/4] hmc6352: Add driver for the HMC6352 compass
-Date: Thu, 15 Apr 2010 13:11:53 +0100
-Message-ID: <20100415131153.0e383ef3@lxorguk.ukuu.org.uk>
-References: <20100414124913.23181.75903.stgit@localhost.localdomain>
-	<20100414125136.23181.16788.stgit@localhost.localdomain>
-	<4BC5C7A8.1040807@cam.ac.uk>
-	<20100414153234.22765666@lxorguk.ukuu.org.uk>
-	<4BC5D681.20707@jic23.retrosnub.co.uk>
-	<20100414161904.713eef78@lxorguk.ukuu.org.uk>
-	<1271280993.1833.36.camel@Joe-Laptop.home>
+From: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] OMAP2/3: I2C: Errata ID i207: Clear wrong RDR interrupt
+Date: Thu, 15 Apr 2010 15:08:16 +0300
+Message-ID: <4BC701B0.6060309@nokia.com>
+References: <1271330087-26084-1-git-send-email-manjugk@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1271280993.1833.36.camel-AkRN8/LKpobuYGix6ZUp1Q@public.gmane.org>
+In-Reply-To: <1271330087-26084-1-git-send-email-manjugk-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Argument alignment
+Hi,
 
-Makes it take more space
+Manjunatha GK wrote:
+> Under certain rare conditions, I2C_STAT[13].RDR bit may be set
+> and the corresponding interrupt fire, even there is no data in
+> the receive FIFO, or the I2C data transfer is still ongoing.
+> These spurious RDR events must be ignored by the software.
+> 
+> This patch handles and ignores RDR spurious interrupts.
+> 
+> The below sequence is required in interrupt handler for
+> handling this errata:
+> 1. If RDR is set to 1, clear RDR
+> 2. Read I2C status register and check for BusBusy bit. If BusBusy
+> bit is set, skip remaining steps.
+> 3. If BusBusy bit is not set, perform read operation on I2C status
+> register.
+> 4. If RDR is set, clear the same. Check RDR again and clear if it sets
+> RDR bit again.
+> 5. Perform I2C Data Read operation N number of times(where N is value
+> read from the register BUFSTAT-RXSTAT bit fields).
+> 
+> Note : This errata is applicable for OMAP2 and OMAP3 platforms only.
+> It is not applicable for OMAP4.
+> 
+> Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+> Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
+> Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+> 
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++++++++++++++
+>  1 files changed, 28 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index ae6f5c1..d1648da 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -733,6 +733,34 @@ complete:
+>  		}
+>  		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
+>  			u8 num_bytes = 1;
+> +
+> +			/*
+> +			 * I2C Errata(Errata Nos. OMAP2: 1.67, OMAP3: 1.8)
+> +			 * Not applicable for OMAP4.
+> +			 * Under certain rare conditions, RDR could be set again
+> +			 * when the bus is busy, then ignore the interrupt and
+> +			 * clear the interrupt.
+> +			 */
+> +			if ((stat & OMAP_I2C_STAT_RDR) && !cpu_is_omap44xx()) {
+> +				/* Step 1: If RDR is set, clear it */
+> +				omap_i2c_ack_stat(dev, stat & OMAP_I2C_STAT_RDR);
 
-> Spacing
+You know the bit is set, so just: omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
 
-Mostly dropped
+> +
+> +				/* Step 2: */
+> +				if(!(omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG)
+> +							& OMAP_I2C_STAT_BB)) {
+> +					/* Step 3: */
+> +					if(omap_i2c_read_reg(dev,
+> +						OMAP_I2C_STAT_REG)
+> +							& OMAP_I2C_STAT_RDR) {
+> +						omap_i2c_ack_stat(dev, stat
+> +							& OMAP_I2C_STAT_RDR);
 
-> Make chars static
+Same here.
 
-Not sure I see the point (compiler generates good code anyway)
+> +						dev_err(dev->dev,
+> +						"I2C : RDR when the bus is busy.\n");
 
-> Remove prefixes from dev_<level> logging
+Remove the "I2C : " from the log, it's redundant.
 
-Good point.
+> +						continue;
+> +					}
+> +
+> +				}
+> +			}
+>  			if (dev->fifo_size) {
+>  				if (stat & OMAP_I2C_STAT_RRDY)
+>  					num_bytes = dev->fifo_size;
