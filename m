@@ -1,47 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: your mail
-Date: Thu, 15 Apr 2010 21:21:04 -0700
-Message-ID: <20100416042104.GA20916@core.coreip.homeip.net>
-References: <20100414125234.23507.42816.stgit@localhost.localdomain>
- <20100414231604.GA12281@core.coreip.homeip.net>
- <4BC7A422.7050601@seas.upenn.edu>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: [PATCH 3/4] liss331d1: accelerometer driver
+Date: Thu, 15 Apr 2010 21:12:27 +0200
+Message-ID: <20100415191227.GA1559@ucw.cz>
+References: <20100414124913.23181.75903.stgit@localhost.localdomain> <20100414125155.23181.56610.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4BC7A422.7050601@seas.upenn.edu>
-Sender: linux-input-owner@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20100414125155.23181.56610.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 15, 2010 at 07:41:22PM -0400, Rafi Rubin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Wed 2010-04-14 13:52:00, Alan Cox wrote:
+> From: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 > 
-> >> +	if (ts->tc.event_sended == false) {
-> > 
-> > We set "event_sended" to false immediately before calling
-> > cy8ctmg110_send_event() so I do not see the point of this flag.
+> The acceleremeter driver reads the x,y,z coordinate registers and provides
+> the information to user through the input layer
 > 
-> On that note:
-> 
-> $ git grep -n sended
-> drivers/net/eth16i.c:1295:
-> 		how many packets there is to be sended */
-> drivers/net/wan/sbni.c:638:
-> 		/* if frame was sended but not ACK'ed - resend it */
-> drivers/net/wan/sbni.c:659:
-> 		* frame sended then in prepare_to_send next frame
-> drivers/usb/serial/aircable.c:13:
-> 		* next two bytes must say how much data will be sended.
-> 
+> Conversion to input device, clean up and porting of retry fixes needed
+> for AAVA done by Alan Cox.
 
-Well, if you want to go down that path...
-
-[dtor@hammer work]$ grep -r -e "\(setted\|setuped\|split\+ed\)" . | wc -l
-54
-[dtor@hammer work]$ 
+Out of interest, what is AAVA?
+								Pavel
 
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
