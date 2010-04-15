@@ -1,1700 +1,677 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [PATCH 1/1] misc: bh1770glc: Driver for bh1770glc combined als
- and ps sensor
-Date: Thu, 15 Apr 2010 13:14:33 +0100
-Message-ID: <4BC70329.5080202@cam.ac.uk>
-References: <1271327648-13497-1-git-send-email-samu.p.onkalo@nokia.com> <1271327648-13497-2-git-send-email-samu.p.onkalo@nokia.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+Date: Thu, 15 Apr 2010 14:49:06 +0200
+Message-ID: <20100415144906.2a20588d@hyperion.delvare>
+References: <4B5D8AFC.5060209@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1271327648-13497-2-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <4B5D8AFC.5060209-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/15/10 11:34, Samu Onkalo wrote:
-> Driver for combined ambient light and proximity sensor.
-> BH1770GLC and SW compatible SFH7770 sensors are supported.
+Hi Michael,
 
-Any chance of a data sheet?  Google isn't trivially providing
-me with one!
+Sorry for the long delay. Here finally comes a review of your code.
 
-Looks pretty good and I'm afraid this is a bit of a quick and dirty
-review for now.
-
-Most of the comments below are to do with clarifying the sysfs
-interface.  Quite a lot of the files do not seem to have one
-'conceptual' value per file.  A lot of them need documentataion
-as well.
-
-Some of my points may be due to misunderstanding what the device
-is doing, but perhaps they will hint where additional documentation
-is needed.
-> 
-> Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+On Mon, 25 Jan 2010 13:13:48 +0100, Michael Lawnick wrote:
+> Subject: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+>=20
+> Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 > ---
->  drivers/misc/Kconfig          |   12 +
->  drivers/misc/Makefile         |    3 +
->  drivers/misc/bh1770glc.h      |  169 ++++++++++++
->  drivers/misc/bh1770glc_als.c  |  424 +++++++++++++++++++++++++++++
->  drivers/misc/bh1770glc_core.c |  301 +++++++++++++++++++++
->  drivers/misc/bh1770glc_ps.c   |  585 +++++++++++++++++++++++++++++++++++++++++
->  include/linux/bh1770glc.h     |   39 +++
->  7 files changed, 1533 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/misc/bh1770glc.h
->  create mode 100644 drivers/misc/bh1770glc_als.c
->  create mode 100644 drivers/misc/bh1770glc_core.c
->  create mode 100644 drivers/misc/bh1770glc_ps.c
->  create mode 100644 include/linux/bh1770glc.h
-> 
-> diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-> index 2191c8d..4594703 100644
-> --- a/drivers/misc/Kconfig
-> +++ b/drivers/misc/Kconfig
-> @@ -311,6 +311,18 @@ config TI_DAC7512
->  	  This driver can also be built as a module. If so, the module
->  	  will be calles ti_dac7512.
->  
-> +config BH1770GLC
-> +	 tristate "Rohm BH1770GLC ambient light and proximity sensor"
-> +	 depends on I2C
-> +	 default n
-> +	 ---help---
-> +	   Say Y here if you want to build a driver for BH1770GLC
-> +	   combined ambient light and proximity sensor chip.
-> +	   Driver supports also Osram SFH7770 version of the chip.
-> +
-> +	   To compile this driver as a module, choose M here: the
-> +	   module will be called bh1770glc. If unsure, say N here.
-> +
->  source "drivers/misc/c2port/Kconfig"
->  source "drivers/misc/eeprom/Kconfig"
->  source "drivers/misc/cb710/Kconfig"
-> diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-> index 27c4843..5201667 100644
-> --- a/drivers/misc/Makefile
-> +++ b/drivers/misc/Makefile
-> @@ -2,6 +2,8 @@
->  # Makefile for misc devices that really don't fit anywhere else.
->  #
->  
-> +bh1770glc-objs  := bh1770glc_core.o bh1770glc_als.o bh1770glc_ps.o
-> +
-I wonder if ideally this chip wouldn't be an mfd with two child devices?
-That would allow people using only one or other function to pick and choose
-which modules are loaded?
+>  drivers/i2c/Kconfig        |   10 +++
+>  drivers/i2c/Makefile       |    3 +-
+>  drivers/i2c/i2c-core.c     |   73 +++++++++++++++++--
+>  drivers/i2c/i2c-dev.c      |   32 ++++++++-
+>  drivers/i2c/i2c-mux.c      |  167
+> ++++++++++++++++++++++++++++++++++++++++++++
 
-I'm guessing that would be a fair bit of work and can be left for a future
-date!
->  obj-$(CONFIG_IBM_ASM)		+= ibmasm/
->  obj-$(CONFIG_HDPU_FEATURES)	+= hdpuftrs/
->  obj-$(CONFIG_AD525X_DPOT)	+= ad525x_dpot.o
-> @@ -25,6 +27,7 @@ obj-$(CONFIG_SENSORS_TSL2550)	+= tsl2550.o
->  obj-$(CONFIG_EP93XX_PWM)	+= ep93xx_pwm.o
->  obj-$(CONFIG_DS1682)		+= ds1682.o
->  obj-$(CONFIG_TI_DAC7512)	+= ti_dac7512.o
-> +obj-$(CONFIG_BH1770GLC)		+= bh1770glc.o
->  obj-$(CONFIG_C2PORT)		+= c2port/
->  obj-$(CONFIG_IWMC3200TOP)      += iwmc3200top/
->  obj-y				+= eeprom/
-> diff --git a/drivers/misc/bh1770glc.h b/drivers/misc/bh1770glc.h
-> new file mode 100644
-> index 0000000..096777e
+Your e-mail client wraps long lines, this caused your patch to not
+apply. I had to edit it manually before I was able to apply it. Please
+fix your setup so that I don't have to do it again next time.
+
+Please also make sure to run your patch through scripts/checkpatch.pl.
+I found many trailing whitespace, and even after removing them, the
+script still finds 9 style errors which should be fixed.
+
+>  drivers/i2c/muxes/Kconfig  |    8 ++
+>  drivers/i2c/muxes/Makefile |    6 ++
+>  include/linux/i2c.h        |   14 ++++
+>  8 files changed, 303 insertions(+), 10 deletions(-)
+>  create mode 100755 drivers/i2c/i2c-mux.c
+>  create mode 100755 drivers/i2c/muxes/Kconfig
+>  create mode 100755 drivers/i2c/muxes/Makefile
+>=20
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index d7ece13..0c2f86a 100755
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -35,6 +35,16 @@ config I2C_COMPAT
+>  	  other user-space package which expects i2c adapters to be class
+>  	  devices. If you don't know, say Y.
+>=20
+> +config I2C_MUX
+> +	tristate "I2C bus multiplexing support"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you want the I2C core to support the ability to
+> +	  handle multiplexed I2C bus topologies, by presenting each
+> +	  multiplexed segment as a I2C adapter.
+> +
+> +source drivers/i2c/muxes/Kconfig
+> +
+>  config I2C_CHARDEV
+>  	tristate "I2C device interface"
+>  	help
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index ba26e6c..281e2a7 100755
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -4,8 +4,9 @@
+>=20
+>  obj-$(CONFIG_I2C_BOARDINFO)	+=3D i2c-boardinfo.o
+>  obj-$(CONFIG_I2C)		+=3D i2c-core.o
+> +obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+>  obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
+> -obj-y				+=3D busses/ chips/ algos/
+> +obj-y				+=3D busses/ chips/ muxes/ algos/
+
+This doesn't work. You can't ask the build system to operate on an
+empty directory. You'll have to move the inclusion of this directory to
+the patch adding the first mux driver. I know it's not nice, but
+there's no other way I know of.
+
+>=20
+>  ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+>  EXTRA_CFLAGS +=3D -DDEBUG
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 2965043..83119ae 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -20,7 +20,9 @@
+>  /* With some changes from Ky=C3=83=C2=B6sti M=C3=83=C2=A4lkki <kmalk=
+ki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org>.
+>     All SMBus-related things are written by Frodo Looijaard <frodol@d=
+ds.nl>
+>     SMBus 2.0 support by Mark Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org> and
+> -   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> */
+> +      Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> +   Mux support by Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org> and
+> +      Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>*/
+
+Missing space before end of comment.
+
+>=20
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+> @@ -937,9 +939,66 @@ static int __i2c_check_addr(struct device *dev,
+> void *addrp)
+>  	return 0;
+>  }
+>=20
+> +static int i2c_check_clients(struct i2c_adapter *adapter, int addr)
+> +{
+> +	int result =3D 0;
+
+Useless initialization.
+
+> +
+> +	result =3D device_for_each_child(&adapter->dev, &addr, __i2c_check_=
+addr);
+> +
+> +	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
+
+All devices don't have a parent, so you should first check that
+adapter->dev.parent isn't NULL. Try your code with i2c-stub for
+example, it would crash.
+
+> +		result =3D i2c_check_clients(to_i2c_adapter(adapter->dev.parent), =
+addr);
+> +=09
+> +	return result;
+> +}
+
+> +
+>  static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
+>  {
+> -	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr=
+);
+> +	int result =3D 0;
+
+Useless initialization. There are many other cases below, I won't
+comment on each but please fix them all.
+
+> +
+> +	result =3D i2c_check_clients(adapter, addr);
+> +=09
+> +	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
+
+Here again, you have no guarantee that the adapter device has a parent.
+There are many other occurrences of this below. Maybe you want a small
+helper function.
+
+> +	{
+> +		struct i2c_client dummy;
+> +		char buff;
+> +
+
+You must zero all the struct i2c_client fields before you use it.
+
+> +		dummy.adapter =3D to_i2c_adapter(adapter->dev.parent);
+> +		dummy.addr =3D addr;
+> +		dummy.flags =3D 0;
+> +
+> +		result =3D i2c_master_recv(&dummy, &buff, 1) =3D=3D 1;
+> +	}
+
+I don't understand this part, please explain, and add a comment before
+the code if the above is really needed. I would think that the
+recursive address business check would be sufficient, is it not?
+
+We should avoid as much as possible to run arbitrary transactions on
+the I2C bus. We are already using such arbitrary transactions for
+device detections, but we are trying to move away from this now. Let's
+not add more such cases. Some devices may hang on transactions they
+don't expect!
+
+If the above is really needed, it will have to be implemented
+differently anyway, as you have no guarantee that the adapter supports
+raw I2C transactions. Most SMBus controllers don't.
+
+> +	=09
+> +	return result;
+> +}
+> +
+> +static void i2c_mux_tree_lock(struct i2c_adapter *adap)
+> +{
+> +	mutex_lock_nested(&adap->bus_lock, SINGLE_DEPTH_NESTING);
+
+i2c-core moved to rt_mutex, so your code will need to be updated
+accordingly.
+
+> +	if(adap->dev.parent->bus =3D=3D &i2c_bus_type)
+> +		i2c_mux_tree_lock(to_i2c_adapter(adap->dev.parent));
+> +}
+
+In the end, each time one wants access to a segment of the tree, they
+will have to lock the root segment to succeed. So do we really need to
+lock each segment in turn? Can't we just look for the root and lock
+only it? This would be faster.
+
+> +
+> +static int i2c_mux_tree_trylock(struct i2c_adapter *adap)
+> +{
+> +	int ret;
+> +=09
+> +	ret =3D mutex_trylock(&adap->bus_lock);
+> +
+> +	if(ret && (adap->dev.parent->bus =3D=3D &i2c_bus_type)) {
+> +		ret =3D i2c_mux_tree_trylock(to_i2c_adapter(adap->dev.parent));
+> +		if (!ret)
+> +			mutex_unlock(&adap->bus_lock);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static void i2c_mux_tree_unlock(struct i2c_adapter *adap)
+> +{
+> +	if(adap->dev.parent->bus =3D=3D &i2c_bus_type)
+> +		i2c_mux_tree_unlock(to_i2c_adapter(adap->dev.parent));
+> +	mutex_unlock(&adap->bus_lock);
+>  }
+>=20
+>  /**
+> @@ -1092,12 +1151,12 @@ int i2c_transfer(struct i2c_adapter *adap,
+> struct i2c_msg *msgs, int num)
+>  #endif
+>=20
+>  		if (in_atomic() || irqs_disabled()) {
+> -			ret =3D mutex_trylock(&adap->bus_lock);
+> +			ret =3D i2c_mux_tree_trylock(adap);
+>  			if (!ret)
+>  				/* I2C activity is ongoing. */
+>  				return -EAGAIN;
+>  		} else {
+> -			mutex_lock_nested(&adap->bus_lock, adap->level);
+> +			i2c_mux_tree_lock(adap);
+>  		}
+>=20
+>  		/* Retry automatically on arbitration loss */
+> @@ -1109,7 +1168,7 @@ int i2c_transfer(struct i2c_adapter *adap, stru=
+ct
+> i2c_msg *msgs, int num)
+>  			if (time_after(jiffies, orig_jiffies + adap->timeout))
+>  				break;
+>  		}
+> -		mutex_unlock(&adap->bus_lock);
+> +		i2c_mux_tree_unlock(adap);
+>=20
+>  		return ret;
+>  	} else {
+> @@ -1913,7 +1972,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,
+> u16 addr, unsigned short flags,
+>  	flags &=3D I2C_M_TEN | I2C_CLIENT_PEC;
+>=20
+>  	if (adapter->algo->smbus_xfer) {
+> -		mutex_lock(&adapter->bus_lock);
+> +		i2c_mux_tree_lock(adapter);
+>=20
+>  		/* Retry automatically on arbitration loss */
+>  		orig_jiffies =3D jiffies;
+> @@ -1927,7 +1986,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,
+> u16 addr, unsigned short flags,
+>  				       orig_jiffies + adapter->timeout))
+>  				break;
+>  		}
+> -		mutex_unlock(&adapter->bus_lock);
+> +		i2c_mux_tree_unlock(adapter);
+>  	} else
+>  		res =3D i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+>  					      command, protocol, data);
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index 7e13d2d..ce2f1a1 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -190,16 +190,44 @@ static int i2cdev_check(struct device *dev, voi=
+d
+> *addrp)
+>=20
+>  	if (!client || client->addr !=3D *(unsigned int *)addrp)
+>  		return 0;
+> -
+> +=09
+
+Please don't include whitespace changes in your patch.
+
+>  	return dev->driver ? -EBUSY : 0;
+>  }
+>=20
+> +static int i2cdev_check_clients(struct i2c_adapter *adapter, int add=
+r)
+> +{
+> +	int result =3D 0;
+> +
+> +	result =3D device_for_each_child(&adapter->dev, &addr, i2cdev_check=
+);
+> +
+> +	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
+> +		result =3D i2cdev_check_clients(to_i2c_adapter(adapter->dev.parent=
+), addr);
+> +=09
+> +	return result;
+> +}
+> +
+>  /* This address checking function differs from the one in i2c-core
+>     in that it considers an address with a registered device, but no
+>     driver bound to it, as NOT busy. */
+>  static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned i=
+nt
+> addr)
+>  {
+> -	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
+> +	int result =3D 0;
+> +
+> +	result =3D i2cdev_check_clients(adapter, addr);
+> +=09
+> +	if (!result && (adapter->dev.parent->bus =3D=3D &i2c_bus_type))
+> +	{
+> +		struct i2c_client dummy;
+> +		char buff;
+> +
+> +		dummy.adapter =3D to_i2c_adapter(adapter->dev.parent);
+> +		dummy.addr =3D addr;
+> +		dummy.flags =3D 0;
+> +
+> +		result =3D i2c_master_recv(&dummy, &buff, 1) =3D=3D 1;
+> +	}
+> +	=09
+> +	return result;
+>  }
+
+This duplicated code in i2c-dev starts being a problem, but I guess it
+can't be avoided as long as i2c-dev doesn't properly integrate with the
+standard device driver binding model :(
+
+>=20
+>  static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> new file mode 100755
+> index 0000000..014d488
 > --- /dev/null
-> +++ b/drivers/misc/bh1770glc.h
-> @@ -0,0 +1,169 @@
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -0,0 +1,167 @@
 > +/*
-> + * This file is part of the ROHM BH1770GLC / OSRAM SFH7770 sensor driver.
-> + * Chip is combined proximity and ambient light sensor.
+> + * Multiplexed I2C bus driver.
 > + *
-> + * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+> + * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> + * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
 > + *
-> + * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> + * 02110-1301 USA
-> + *
-> + */
-> +
-> +#ifndef __BH1770GLC_HEADER__
-> +#define __BH1770GLC_HEADER__
-> +
-> +#define BHCHIP_ALS_CONTROL	0x80 /* ALS operation mode control */
-> +#define BHCHIP_PS_CONTROL	0x81 /* PS operation mode control */
-> +#define BHCHIP_I_LED		0x82 /* active LED and LED1, LED2 current */
-> +#define BHCHIP_I_LED3		0x83 /* LED3 current setting */
-> +#define BHCHIP_ALS_PS_MEAS	0x84 /* Forced mode trigger */
-> +#define BHCHIP_PS_MEAS_RATE	0x85 /* PS meas. rate at stand alone mode */
-> +#define BHCHIP_ALS_MEAS_RATE	0x86 /* ALS meas. rate at stand alone mode */
-> +#define BHCHIP_PART_ID		0x8a /* Part number and revision ID */
-> +#define BHCHIP_MANUFACT_ID	0x8b /* Manufacturerer ID */
-> +#define BHCHIP_ALS_DATA_0	0x8c /* ALS DATA low byte */
-> +#define BHCHIP_ALS_DATA_1	0x8d /* ALS DATA high byte */
-> +#define BHCHIP_ALS_PS_STATUS	0x8e /* Measurement data and int status */
-> +#define BHCHIP_PS_DATA_LED1	0x8f /* PS data from LED1 */
-> +#define BHCHIP_PS_DATA_LED2	0x90 /* PS data from LED2 */
-> +#define BHCHIP_PS_DATA_LED3	0x91 /* PS data from LED3 */
-> +#define BHCHIP_INTERRUPT	0x92 /* Interrupt setting */
-> +#define BHCHIP_PS_TH_LED1	0x93 /* PS interrupt threshold for LED1 */
-> +#define BHCHIP_PS_TH_LED2	0x94 /* PS interrupt threshold for LED2 */
-> +#define BHCHIP_PS_TH_LED3	0x95 /* PS interrupt threshold for LED3 */
-> +#define BHCHIP_ALS_TH_UP_0	0x96 /* ALS upper threshold low byte */
-> +#define BHCHIP_ALS_TH_UP_1	0x97 /* ALS upper threshold high byte */
-> +#define BHCHIP_ALS_TH_LOW_0	0x98 /* ALS lower threshold low byte */
-> +#define BHCHIP_ALS_TH_LOW_1	0x99 /* ALS lower threshold high byte */
-> +
-> +/* MANUFACT_ID */
-> +#define BHCHIP_MANUFACT_ROHM	0x01
-> +#define BHCHIP_MANUFACT_OSRAM	0x03
-> +
-> +/* PART_ID */
-> +#define BHCHIP_PART		0x90
-> +#define BHCHIP_PART_MASK	0xf0
-> +#define BHCHIP_REV_MASK		0x0f
-> +#define BHCHIP_REV_SHIFT	0
-> +#define BHCHIP_REV_0		0x00
-> +
-> +/* Operating modes for both */
-> +#define BHCHIP_STANDBY		0x00
-> +#define BHCHIP_FORCED		0x02
-> +#define BHCHIP_STANDALONE	0x03
-> +
-> +#define BHCHIP_PS_TRIG_MEAS	(1 << 0)
-> +#define BHCHIP_ALS_TRIG_MEAS	(1 << 1)
-> +
-> +/* Interrupt control */
-> +#define BHCHIP_INT_OUTPUT_MODE	(1 << 3) /* 0 = latched */
-> +#define BHCHIP_INT_POLARITY	(1 << 2) /* 1 = active high */
-> +#define BHCHIP_INT_ALS_ENA	(1 << 1)
-> +#define BHCHIP_INT_PS_ENA	(1 << 0)
-> +
-> +/* Interrupt status */
-> +#define BHCHIP_INT_LED1_DATA	(1 << 0)
-> +#define BHCHIP_INT_LED1_INT	(1 << 1)
-> +#define BHCHIP_INT_LED2_DATA	(1 << 2)
-> +#define BHCHIP_INT_LED2_INT	(1 << 3)
-> +#define BHCHIP_INT_LED3_DATA	(1 << 4)
-> +#define BHCHIP_INT_LED3_INT	(1 << 5)
-> +#define BHCHIP_INT_LEDS_INT	((1 << 1) | (1 << 3) | (1 << 5))
-> +#define BHCHIP_INT_ALS_DATA	(1 << 6)
-> +#define BHCHIP_INT_ALS_INT	(1 << 7)
-> +
-> +#define BHCHIP_DISABLE		0
-> +#define BHCHIP_ENABLE		1
-> +
-> + /* Following are milliseconds */
-> +#define BHCHIP_ALS_DEFAULT_RATE	200
-> +#define BHCHIP_PS_DEFAULT_RATE	40
-> +#define BHCHIP_PS_DEF_RATE_THRESH 200
-> +#define BHCHIP_PS_INIT_DELAY    15
-> +#define BHCHIP_STARTUP_DELAY	50
-> +
-> +#define BHCHIP_ALS_RANGE	65535
-> +#define BHCHIP_PS_RANGE		255
-> +#define BHCHIP_CALIB_SCALER	1000
-> +#define BHCHIP_ALS_NEUTRAL_CALIB_VALUE (1 * BHCHIP_CALIB_SCALER)
-> +#define BHCHIP_PS_NEUTRAL_CALIB_VALUE  (1 * BHCHIP_CALIB_SCALER)
-> +#define BHCHIP_ALS_DEF_SENS	10
-> +#define BHCHIP_ALS_DEF_THRES	1000
-> +#define BHCHIP_PS_DEF_THRES	20
-> +
-> +#define ALS_NBR_FORMAT		512
-> +/* coef as decimal = ALS_COEF / *(ALS_NBR_FORMAT ^ 2) */
-> +#define ALS_COEF		1536
-> +/* Scaler coefficient at zero level */
-> +#define ALS_ZERO_LEVEL		(ALS_NBR_FORMAT / 4)
-> +
-> +#define PS_ABOVE_THRESHOLD	1
-> +#define PS_BELOW_THRESHOLD	0
-> +
-> +#define BHCHIP_PS_CHANNELS 3
-> +
-> +struct bh1770glc_chip {
-> +	struct i2c_client		*client;
-> +	struct bh1770glc_platform_data	*pdata;
-> +	struct mutex			mutex; /* avoid parallel access */
-> +	struct regulator_bulk_data	regs[2];
-> +
-> +	bool				int_mode_ps;
-> +	bool				int_mode_als;
-> +
-> +	wait_queue_head_t		als_misc_wait; /* WQ for ALS part */
-> +	wait_queue_head_t		ps_misc_wait; /* WQ for PS part */
-> +	struct delayed_work		ps_work; /* For ps low threshold */
-> +
-> +	char				chipname[10];
-> +	u8				revision;
-> +
-> +	u32	als_calib;
-> +	int	als_rate;
-> +	int	als_mode;
-> +	int	als_users;
-> +	u16	als_data;
-> +	u16	als_threshold_hi;
-> +	u16	als_threshold_lo;
-> +	u16	als_sens;
-> +	loff_t	als_offset;
-> +
-> +	loff_t	ps_offset;
-> +	u32	ps_calib[BHCHIP_PS_CHANNELS];
-> +	int	ps_rate;
-> +	int	ps_rate_threshold;
-> +	int	ps_mode;
-> +	int	ps_users;
-> +	u8	ps_data[BHCHIP_PS_CHANNELS];
-> +	u8	ps_thresholds[BHCHIP_PS_CHANNELS];
-> +	u8	ps_leds[BHCHIP_PS_CHANNELS];
-> +	u8	ps_channels; /* nbr of leds */
-> +};
-I'm probably half asleep, but what is the benefit in defining these
-as extern.
-> +
-> +extern struct bh1770glc_chip *bh1770glc;
-> +
-> +extern int bh1770glc_ps_mode(struct bh1770glc_chip *chip, int mode);
-> +extern int bh1770glc_ps_init(struct bh1770glc_chip *chip);
-> +extern int bh1770glc_ps_destroy(struct bh1770glc_chip *chip);
-> +extern void bh1770glc_ps_interrupt_handler(struct bh1770glc_chip *chip,
-> +					int status);
-> +
-> +extern int bh1770glc_als_mode(struct bh1770glc_chip *chip, int mode);
-> +extern int bh1770glc_als_init(struct bh1770glc_chip *chip);
-> +extern int bh1770glc_als_destroy(struct bh1770glc_chip *chip);
-> +extern void bh1770glc_als_interrupt_handler(struct bh1770glc_chip *chip,
-> +					int status);
-> +#endif
-> diff --git a/drivers/misc/bh1770glc_als.c b/drivers/misc/bh1770glc_als.c
-> new file mode 100644
-> index 0000000..81f41c6
-> --- /dev/null
-> +++ b/drivers/misc/bh1770glc_als.c
-> @@ -0,0 +1,424 @@
-> +/*
-> + * This file is part of the ROHM BH1770GLC / OSRAM SFH7770 sensor driver.
-> + * Chip is combined proximity and ambient light sensor.
-> + *
-> + * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-> + *
-> + * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> + * 02110-1301 USA
-> + *
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/i2c.h>
-> +#include <linux/mutex.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/poll.h>
-> +#include <linux/bh1770glc.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
-> +#include "bh1770glc.h"
-> +
-> +/* Supported stand alone rates in ms from chip data sheet */
-> +static s16 als_rates[] = {100, 200, 500, 1000, 2000};
-I'd like to see these rates made apparent to userspace somewhere.
-Probably via sysfs.  There are a couple of conventions for this
-in use through the kernel.  The recent LWN article touched on this.
+> + * Simplifies access to complex multiplexed I2C bus topologies, by
+> presenting
+> + * each multiplexed bus segment as a virtual I2C adapter.  Supports
 
-The same is true of modes.  If nothing else that certainly needs some
-documentation!
-> +
-> +/* chip->mutex must be locked during this function */
-> +static int bh1770glc_als_interrupt_control(struct bh1770glc_chip *chip,
-> +					   int als)
-> +{
-> +	chip->int_mode_als = als;
-> +
-> +	/* Set ALS interrupt mode, interrupt active low, latched */
-> +	return i2c_smbus_write_byte_data(chip->client,
-> +					BHCHIP_INTERRUPT,
-> +					(als << 1) | (chip->int_mode_ps << 0));
-> +}
-> +
-> +int bh1770glc_als_mode(struct bh1770glc_chip *chip, int mode)
-> +{
-> +	int r;
-> +
-> +	r = i2c_smbus_write_byte_data(chip->client, BHCHIP_ALS_CONTROL, mode);
-> +
-> +	if (r == 0)
-> +		chip->als_mode = mode;
-> +
-> +	return r;
-> +}
-> +
-> +static int bh1770glc_als_rate(struct bh1770glc_chip *chip, int rate)
-> +{
-> +	int ret = -EINVAL;
-> +	int i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(als_rates); i++)
-> +		if (als_rates[i] == rate) {
-> +			ret = i2c_smbus_write_byte_data(chip->client,
-> +							BHCHIP_ALS_MEAS_RATE,
-> +							i);
-> +			if (ret == 0)
-> +				chip->als_rate = rate;
-> +			break;
-> +		}
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_als_set_threshold(struct bh1770glc_chip *chip,
-> +				int threshold_hi,
-> +				int threshold_lo)
-> +{
-> +	u8 data[4];
-> +	int ret;
-> +
-> +	chip->als_threshold_hi = threshold_hi;
-> +	chip->als_threshold_lo = threshold_lo;
-> +
-> +	data[0] = threshold_hi;
-> +	data[1] = threshold_hi >> 8;
-> +	data[2] = threshold_lo;
-> +	data[3] = threshold_lo >> 8;
-> +
-> +	ret = i2c_smbus_write_i2c_block_data(chip->client,
-> +					BHCHIP_ALS_TH_UP_0,
-> +					ARRAY_SIZE(data),
-> +					data);
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_als_calc_thresholds(struct bh1770glc_chip *chip, u16 data)
-> +{
-> +	int scaler;
-> +	int hi_thres;
-> +	int lo_thres;
-> +	int sens;
-> +	int ret;
-> +
-> +	/*
-> +	 * Recalculate new threshold limits to simulate delta measurement
-> +	 * mode. New limits are relative to latest measurement data.
-> +	 */
-> +	scaler = ((int)data * ALS_COEF) / ALS_NBR_FORMAT + ALS_ZERO_LEVEL;
-> +	sens = chip->als_sens * scaler / ALS_NBR_FORMAT;
-> +
-> +	hi_thres = min(data + sens, BHCHIP_ALS_RANGE);
-> +	lo_thres = max(data - sens, 0);
-> +
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_als_set_threshold(chip,
-> +					hi_thres,
-> +					lo_thres);
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_als_read_result(struct bh1770glc_chip *chip)
-> +{
-> +	u16 data;
-> +	int ret;
-> +
-> +	ret = i2c_smbus_read_byte_data(chip->client, BHCHIP_ALS_DATA_0);
-> +	if (ret < 0)
-> +		goto exit;
-> +
-> +	data = ret & 0xff;
-> +	ret = i2c_smbus_read_byte_data(chip->client, BHCHIP_ALS_DATA_1);
-> +	if (ret < 0)
-> +		goto exit;
-> +
-> +	data = data | ((ret & 0xff) << 8);
-> +	chip->als_data = data;
-> +	chip->als_offset += sizeof(struct bh1770glc_als);
-> +
-> +	ret = bh1770glc_als_calc_thresholds(chip, data);
-> +exit:
-> +	return ret;
-> +}
-> +
-> +void bh1770glc_als_interrupt_handler(struct bh1770glc_chip *chip, int status)
-> +{
-> +	if (chip->int_mode_als)
-> +		if (status & BHCHIP_INT_ALS_INT) {
-> +			bh1770glc_als_read_result(chip);
-> +			wake_up_interruptible(&bh1770glc->als_misc_wait);
-> +		}
-> +}
-> +
-> +static ssize_t bh1770glc_als_read(struct file *file, char __user *buf,
-> +			size_t count, loff_t *offset)
-> +{
-> +	struct bh1770glc_als als;
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	u32 lux;
-> +
-> +	if (count < sizeof(als))
-> +		return -EINVAL;
-> +
-> +	if (*offset >= chip->als_offset) {
-> +		if (file->f_flags & O_NONBLOCK)
-> +			return -EAGAIN;
-> +		if (wait_event_interruptible(bh1770glc->als_misc_wait,
-> +						(*offset < chip->als_offset)))
-> +			return -ERESTARTSYS;
-> +	}
-> +	lux = ((u32)chip->als_data * chip->als_calib) /
-> +		BHCHIP_CALIB_SCALER;
-> +	lux = min(lux, (u32)BHCHIP_ALS_RANGE);
-> +
-> +	als.lux = lux;
+I would prefer the term "separate I2C adapter" rather than "virtual I2C
+adapter". There's nothing virtual about these bus segments. i2c-stub is
+a virtual I2C adapter.
 
-Given you are storing a copy anyway, would it be possible to make this available
-via sysfs?  That would make this als driver look a bit more like the others in tree
-and it doesn't at first glance look that tricky.  Also note that it is perfectly
-possible to use polling with sysfs files http://lwn.net/Articles/174660/
+> multi-level
+> + * mux'ing (mux behind a mux).
+> + *
+> + * Based on:
+> + *    i2c-virt.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> + *    i2c-virtual.c from Copyright (c) 2004 Google, Inc. (Ken Harren=
+stien)
 
-> +
-> +	*offset = chip->als_offset;
-> +
-> +	return copy_to_user(buf, &als, sizeof(als)) ? -EFAULT : sizeof(als);
-> +}
-> +
-> +static int bh1770glc_als_open(struct inode *inode, struct file *file)
-> +{
-> +
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	int ret = 0;
-> +
-> +	mutex_lock(&chip->mutex);
-> +	if (!chip->als_users) {
-> +		ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs),
-> +					chip->regs);
-> +		if (ret < 0)
-> +			goto release_lock;
-> +
-> +		if (!chip->ps_users)
-> +			msleep(BHCHIP_STARTUP_DELAY);
-> +
-> +		ret = bh1770glc_als_mode(chip, BHCHIP_STANDALONE);
-> +		if (ret < 0)
-> +			goto exit;
-> +
-> +		ret = bh1770glc_als_rate(chip, chip->als_rate);
-> +		if (ret < 0)
-> +			goto exit;
-> +
-> +		ret = bh1770glc_als_interrupt_control(chip, BHCHIP_ENABLE);
-> +		if (ret < 0)
-> +			goto exit;
-> +	}
-> +	/* Trig measurement and refresh the measurement result */
+"from Copyright" looks bad.
 
-This confuses me a little. My reading of this is that it sets up a threshold.
-This doesn't to me imply an measurement being taken?
-> +	bh1770glc_als_set_threshold(chip, BHCHIP_ALS_DEF_THRES,
-> +				BHCHIP_ALS_DEF_THRES);
-> +
-> +	if (ret == 0)
-> +		chip->als_users++;
+> + *    i2c-virtual.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+> + * which was:
+> + *    Adapted from i2c-adap-ibm_ocp.c
+> + *    Original file Copyright 2000-2002 MontaVista Software Inc.
 
-Perhaps these labels could be more informative.  I'd certainly expect the first
-thing release_lock does to be releasing the lock.
-> +exit:
-> +	if (ret < 0)
-> +		regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +release_lock:
-> +	file->f_pos = chip->als_offset;
-> +	/* In case of two or more user, provide newest results available */
-> +	if (chip->als_users > 1 &&
-> +	    file->f_pos >= sizeof(struct bh1770glc_als))
-> +		file->f_pos -= sizeof(struct bh1770glc_als);
-> +
-> +	mutex_unlock(&chip->mutex);
-> +	return ret;
-> +}
-> +
-> +static unsigned int bh1770glc_als_poll(struct file *file, poll_table *wait)
-> +{
-> +	poll_wait(file, &bh1770glc->als_misc_wait, wait);
-> +	if (file->f_pos < bh1770glc->als_offset)
-> +		return POLLIN | POLLRDNORM;
-> +	return 0;
-> +}
-> +
-> +static int bh1770glc_als_close(struct inode *inode, struct file *file)
-> +{
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	mutex_lock(&chip->mutex);
-> +	if (!--chip->als_users) {
-> +		bh1770glc_als_interrupt_control(chip, BHCHIP_DISABLE);
-> +		bh1770glc_als_mode(chip, BHCHIP_STANDBY);
-> +		regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +	}
-> +	mutex_unlock(&chip->mutex);
-> +	return 0;
-> +}
-> +
-> +
-> +/* SYSFS interface */
-> +static ssize_t bh1770glc_als_calib_show(struct device *dev,
-> +				 struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip = dev_get_drvdata(dev);
-> +
-> +	return snprintf(buf, PAGE_SIZE, "%u\n", chip->als_calib);
-> +}
-> +
-> +static ssize_t bh1770glc_als_calib_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t len)
-> +{
-> +	struct bh1770glc_chip *chip = dev_get_drvdata(dev);
-> +	unsigned long value;
-> +
-> +	if (strict_strtoul(buf, 0, &value))
-> +		return -EINVAL;
-> +
-> +	chip->als_calib = value;
-> +
-> +	return len;
-> +}
-> +
-> +static ssize_t bh1770glc_get_als_mode(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", chip->als_mode);
-> +}
-> +
-> +static ssize_t bh1770glc_get_als_rate(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", chip->als_rate);
-> +}
-> +
-> +static ssize_t bh1770glc_set_als_rate(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	unsigned long rate;
-> +	int ret;
-> +
-> +	if (strict_strtoul(buf, 0, &rate))
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_als_rate(chip, rate);
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return count;
-> +}
-> +
+There's probably no point in going that far in history. I doubt
+i2c-adap-ibm_ocp.c was a bus multiplexer driver.
 
-This one definitely needs documentation. It's not remotely obvious what the sensitivity
-numbers correspond to!
-> +static ssize_t bh1770glc_get_als_sens(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", chip->als_sens);
-> +}
-> +
-> +static ssize_t bh1770glc_set_als_sens(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	int ret;
-> +	unsigned long sens;
-> +
-> +	if (strict_strtoul(buf, 0, &sens))
-> +		return -EINVAL;
-> +
-> +	chip->als_sens = sens;
-> +
-> +	/* Trick measurement by setting default thresholds */
-This could do with more detail?  Is it that setting thesholds always
-triggers a measurement and hence an interrupt?
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_als_set_threshold(chip,
-> +					BHCHIP_ALS_DEF_THRES,
-> +					BHCHIP_ALS_DEF_THRES);
-> +
-> +	mutex_unlock(&chip->mutex);
-> +	if (ret < 0)
-> +		return ret;
-> +	return count;
-> +}
-> +
-> +static DEVICE_ATTR(als_calib, S_IRUGO | S_IWUSR, bh1770glc_als_calib_show,
-> +						 bh1770glc_als_calib_store);
-> +static DEVICE_ATTR(als_mode, S_IRUGO , bh1770glc_get_als_mode, NULL);
-> +static DEVICE_ATTR(als_rate, S_IRUGO | S_IWUSR, bh1770glc_get_als_rate,
-> +						bh1770glc_set_als_rate);
-> +static DEVICE_ATTR(als_sens, S_IRUGO | S_IWUSR, bh1770glc_get_als_sens,
-> +						bh1770glc_set_als_sens);
-> +
-> +static struct attribute *sysfs_attrs[] = {
-> +	&dev_attr_als_calib.attr,
-> +	&dev_attr_als_mode.attr,
-> +	&dev_attr_als_rate.attr,
-> +	&dev_attr_als_sens.attr,
-> +	NULL
-> +};
-> +
-> +static struct attribute_group bh1770glc_attribute_group = {
-> +	.attrs = sysfs_attrs
-> +};
-> +
-> +static const struct file_operations bh1770glc_als_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.llseek		= no_llseek,
-> +	.read		= bh1770glc_als_read,
-> +	.poll		= bh1770glc_als_poll,
-> +	.open		= bh1770glc_als_open,
-> +	.release	= bh1770glc_als_close,
-> +};
-> +
-> +static struct miscdevice bh1770glc_als_miscdevice = {
-> +       .minor = MISC_DYNAMIC_MINOR,
-> +       .name  = "bh1770glc_als",
-> +       .fops  = &bh1770glc_als_fops
-> +};
-> +
-> +int bh1770glc_als_init(struct bh1770glc_chip *chip)
-> +{
-> +	int err;
-> +	err = bh1770glc_als_mode(chip, BHCHIP_STANDBY);
-> +	if (err < 0)
-> +		goto fail;
-> +
-> +	err = bh1770glc_als_interrupt_control(chip, BHCHIP_DISABLE);
-> +	if (err < 0)
-> +		goto fail;
-> +
-> +	chip->als_rate = BHCHIP_ALS_DEFAULT_RATE;
-> +
-> +	bh1770glc_als_miscdevice.parent = &chip->client->dev;
-> +	err = misc_register(&bh1770glc_als_miscdevice);
-> +	if (err < 0) {
-> +		dev_err(&chip->client->dev, "Device registration failed\n");
-> +		goto fail;
-> +	}
-> +
-> +	err = sysfs_create_group(&chip->client->dev.kobj,
-> +				&bh1770glc_attribute_group);
-> +	if (err < 0) {
-> +		dev_err(&chip->client->dev, "Sysfs registration failed\n");
-> +		goto fail2;
-> +	}
-> +	return 0;
-> +fail2:
-> +	misc_deregister(&bh1770glc_als_miscdevice);
-> +fail:
-> +	return err;
-> +}
-> +
-> +int bh1770glc_als_destroy(struct bh1770glc_chip *chip)
-> +{
-> +	sysfs_remove_group(&chip->client->dev.kobj,
-> +			&bh1770glc_attribute_group);
-> +	misc_deregister(&bh1770glc_als_miscdevice);
-> +	return 0;
-> +}
-> diff --git a/drivers/misc/bh1770glc_core.c b/drivers/misc/bh1770glc_core.c
-> new file mode 100644
-> index 0000000..36d0443
-> --- /dev/null
-> +++ b/drivers/misc/bh1770glc_core.c
-> @@ -0,0 +1,301 @@
-> +/*
-> + * This file is part of the ROHM BH1770GLC / OSRAM SFH7770 sensor driver.
-> + * Chip is combined proximity and ambient light sensor.
 > + *
-> + * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-> + *
-> + * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> + * 02110-1301 USA
-> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
 > + */
 > +
 > +#include <linux/kernel.h>
 > +#include <linux/module.h>
 > +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/mutex.h>
-> +#include <linux/bh1770glc.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/slab.h>
-> +#include "bh1770glc.h"
+> +#include <linux/i2c-id.h>
+
+You don't need this one.
+
 > +
-> +struct bh1770glc_chip *bh1770glc;
+> +struct i2c_mux_priv {
+
+Would be good to document what this structure represents conceptually.
+
+> +	struct i2c_adapter adap;
+> +	struct i2c_algorithm algo;
 > +
-> +static const char reg_vcc[] = "Vcc";
-> +static const char reg_vleds[] = "Vleds";
+> +	struct i2c_adapter *parent_adap;
+
+Why not just "parent"?
+
+> +	void *client;			/* The mux chip/device */
+
+"client" is a confusing term, because it is heavily used in the i2c
+subsystem and drivers to refer to I2C devices. As the mux chip does not
+have to be an I2C device, I'd rather use a more generic term, such as
+"mux" or "mux_dev".
+
+> +	u32 id;				/* the mux id */
+
+Comment looks wrong, I think this is a channel ID for the given mux
+device and not a mux device ID?
+
 > +
-> +static int bh1770glc_detect(struct bh1770glc_chip *chip)
+> +	int (*select)(struct i2c_adapter *, void *, u32);
+> +	int (*deselect)(struct i2c_adapter *, void *, u32);
+
+Please name the arguments, otherwise it's difficult to figure out what
+each argument represents. Not sure why you don't simply pass a struct
+i2c_mux_priv, BTW. It contains all the information you need.
+
+I'm unsure why deselect would take what I presume is a mux id argument?
+I'm not even sure what this function would do... Not all chips can
+deselect all their channels. Some very simple I2C multiplexers are
+controlled by a single GPIO pin, and must always have exactly one
+channel selected. So the deselect callback should certainly be optional=
+=2E
+
+> +};
+> +
+> +#define VIRT_TIMEOUT		(HZ/2)
+> +#define VIRT_RETRIES		3
+> +
+> +static int i2c_mux_master_xfer(struct i2c_adapter *adap,
+> +				struct i2c_msg msgs[], int num)
 > +{
-> +	struct i2c_client *client = chip->client;
-> +	s32 ret;
-> +	u8 manu;
-> +	u8 part;
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent_adap;
+> +	int ret;
 > +
-> +	ret = i2c_smbus_read_byte_data(client, BHCHIP_MANUFACT_ID);
-> +	if (ret < 0)
-> +		goto error;
+> +	/* Select the right mux port and perform the transfer. */=09
 > +
-> +	manu = (u8)ret;
-> +
-> +	ret = i2c_smbus_read_byte_data(client, BHCHIP_PART_ID);
-> +	if (ret < 0)
-> +		goto error;
-> +	part = (u8)ret;
-> +	chip->revision = (part & BHCHIP_REV_MASK) >> BHCHIP_REV_SHIFT;
-> +
-> +	if ((manu == BHCHIP_MANUFACT_ROHM) &&
-> +	    ((part & BHCHIP_PART_MASK)	== BHCHIP_PART)) {
-> +		snprintf(chip->chipname, sizeof(chip->chipname), "BH1770GLC");
-> +		return 0;
-> +	}
-> +
-> +	if ((manu == BHCHIP_MANUFACT_OSRAM) &&
-> +	    ((part & BHCHIP_PART_MASK)	== BHCHIP_PART)) {
-> +		snprintf(chip->chipname, sizeof(chip->chipname), "SFH7770");
-> +		return 0;
-> +	}
-> +
-> +	ret = -ENODEV;
-> +error:
-> +	dev_dbg(&client->dev, "BH1770GLC or SFH7770 not found\n");
+> +	ret =3D priv->select(parent, priv->client, priv->id);
+> +	if (ret >=3D 0)
+
+Should be "ret =3D=3D 0" for consistency with the next function.
+
+> +		ret =3D parent->algo->master_xfer(parent, msgs, num);
+> +	priv->deselect(parent, priv->client, priv->id);
+
+As discussed earlier, I don't think that we want to always deselect the
+multiplexer channels after a transfer, for performance reasons.
+Probably the implementation of deselect() should be optional, and
+reserved to the few cases where it is really desirable (for example
+tuner chips behind gates to reduce electrical noise on TV adapters.)
+
 > +
 > +	return ret;
 > +}
 > +
-> +/* This is threaded irq handler */
-> +static irqreturn_t bh1770glc_irq(int irq, void *data)
+> +static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
+> +				u16 addr, unsigned short flags,
+> +				char read_write, u8 command,
+> +				int size, union i2c_smbus_data *data)
 > +{
-> +	struct bh1770glc_chip *chip = data;
-> +	int status;
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent_adap;
+> +	int ret;
 > +
-> +	status = i2c_smbus_read_byte_data(chip->client, BHCHIP_ALS_PS_STATUS);
+> +	/* Select the right mux port and perform the transfer. */=09
 > +
-> +	/* Acknowledge interrupt by reading this register */
-> +	i2c_smbus_read_byte_data(chip->client, BHCHIP_INTERRUPT);
+> +	ret =3D priv->select(parent, priv->client, priv->id);
+> +	if (ret =3D=3D 0)
+> +		ret =3D parent->algo->smbus_xfer(parent, addr, flags,
+> +					   read_write, command, size, data);
+> +	priv->deselect(parent, priv->client, priv->id);
 > +
-> +	bh1770glc_als_interrupt_handler(chip, status);
-> +	bh1770glc_ps_interrupt_handler(chip, status);
-> +
-> +	return IRQ_HANDLED;
+> +	return ret;
 > +}
 > +
-> +static int __devinit bh1770glc_probe(struct i2c_client *client,
-> +				const struct i2c_device_id *id)
+> +/* Return the parent's functionality for the virtual adapter */
+> +static u32 i2c_mux_functionality(struct i2c_adapter *adap)
 > +{
-> +	struct bh1770glc_chip *chip;
-> +	int err;
-> +	int i;
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent_adap;
 > +
-> +	chip = kzalloc(sizeof *chip, GFP_KERNEL);
-> +	if (!chip)
-> +		return -ENOMEM;
+> +	return parent->algo->functionality(parent);
+> +}
 > +
-> +	bh1770glc = chip;
+> +struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+> +				void *client, u32 force_nr, u32 mux_val,
+> +				int (*select_cb) (struct i2c_adapter *,
+> +						void *, u32),
+> +				int (*deselect_cb) (struct i2c_adapter *,
+> +						void *, u32))
+
+Please drop the trailing _cb, it's already pretty clear that these are
+callback functions.
+
+> +{
+> +	struct i2c_mux_priv *priv;
+> +	int ret;
 > +
-> +	init_waitqueue_head(&chip->ps_misc_wait);
-> +	init_waitqueue_head(&chip->als_misc_wait);
+> +	priv =3D kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
+
+You must include <linux/slab.h> for this.
+
+> +	if (!priv)
+> +		return NULL;
 > +
-> +	i2c_set_clientdata(client, chip);
-> +	chip->client  = client;
+> +	/* Set up private adapter data */
+> +	priv->parent_adap =3D parent;
+> +	priv->client =3D client;
+> +	priv->id =3D mux_val;
+> +	priv->select =3D select_cb;
+> +	priv->deselect =3D deselect_cb;
 > +
-> +	mutex_init(&chip->mutex);
-> +	chip->pdata	= client->dev.platform_data;
-> +	chip->als_calib = BHCHIP_ALS_NEUTRAL_CALIB_VALUE;
-> +	chip->als_sens	= BHCHIP_ALS_DEF_SENS;
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++)
-> +		chip->ps_calib[i] = BHCHIP_PS_NEUTRAL_CALIB_VALUE;
-> +
-> +	/*
-> +	 * Platform data contains led configuration and safety limits.
-> +	 * Too strong current can damage HW permanently.
-> +	 * Platform data filled with zeros causes minimum current.
+> +	/* Need to do algo dynamically because we don't know ahead
+> +	 * of time what sort of physical adapter we'll be dealing with.
 > +	 */
-> +	if (chip->pdata == NULL) {
-> +		dev_err(&client->dev, "platform data is mandatory\n");
-> +		err = -EINVAL;
-> +		goto fail1;
+> +	if (parent->algo->master_xfer)
+> +		priv->algo.master_xfer =3D i2c_mux_master_xfer;
+> +	if (parent->algo->smbus_xfer)
+> +		priv->algo.smbus_xfer =3D i2c_mux_smbus_xfer;
+> +	priv->algo.functionality =3D i2c_mux_functionality;
+> +
+> +	/* Now fill out new adapter structure */
+> +	snprintf(priv->adap.name, sizeof(priv->adap.name),
+> +			"i2c-%d-mux (mux %02x)",
+
+I don't get the use of hexadecimal to represent a channel number/id.
+Decimal would be more readable. I would also use the term "channel" or
+"port" before that ID, rather than "mux".
+
+> +			i2c_adapter_id(parent), mux_val);
+> +	priv->adap.owner =3D THIS_MODULE;
+> +	priv->adap.id =3D i2c_adapter_id(parent);
+
+No, this is incorrect. I know the name i2c_adapter_id is very
+confusing, but it's returning a bus number, not a bus ID. If you need
+the parent's ID, you must copy it manually, there's no helper function
+for that.
+
+> +	priv->adap.algo =3D &priv->algo;
+> +	priv->adap.algo_data =3D priv;
+> +	priv->adap.timeout =3D VIRT_TIMEOUT;
+> +	priv->adap.retries =3D VIRT_RETRIES;
+
+I don't think these make sense. The actual transaction will happen at
+the root level, that's where the relevant timeout and retries settings
+are. The values above will never be used, so I'd rather not set them.
+
+> +	priv->adap.dev.parent =3D &parent->dev;
+> +=09
+> +	if (force_nr) {
+> +		priv->adap.nr =3D force_nr;
+> +		ret =3D i2c_add_numbered_adapter(&priv->adap);
+> +	} else {
+> +		ret =3D i2c_add_adapter(&priv->adap);
+> +	}
+> +	if (ret < 0) {
+
+Might be worth an error message?
+
+> +		kfree(priv);
+> +		return NULL;
 > +	}
 > +
-> +	if (chip->pdata->setup_resources) {
-> +		err = chip->pdata->setup_resources();
-> +		if (err) {
-> +			err = -EINVAL;
-> +			goto fail1;
-> +		}
-> +	}
+> +	dev_info(&parent->dev, "i2c-mux-%d: Virtual I2C bus - "
+> +		"physical bus i2c-%d, client %02x, port %d\n",
+> +		i2c_adapter_id(&priv->adap), i2c_adapter_id(parent), ((struct
+> i2c_client*)priv->client)->addr, mux_val);
+
+This is wrong and will crash for non-I2C mux chips. You just can't
+assume that it is safe to cast priv->client to an i2c_client.
+
 > +
-> +	switch (chip->pdata->leds) {
-> +	case BH1770GLC_LED1:
-> +		chip->ps_channels = 1;
-> +		break;
-> +	case BH1770GLC_LED12:
-> +	case BH1770GLC_LED13:
-> +		chip->ps_channels = 2;
-> +		break;
-> +	case BH1770GLC_LED123:
-> +		chip->ps_channels = 3;
-> +		break;
-> +	default:
-> +		err = -EINVAL;
-> +		goto fail1;
-> +	}
-> +
-> +	chip->regs[0].supply = reg_vcc;
-> +	chip->regs[1].supply = reg_vleds;
-> +
-> +	err = regulator_bulk_get(&client->dev,
-> +				 ARRAY_SIZE(chip->regs), chip->regs);
-> +	if (err < 0) {
-> +		dev_err(&client->dev, "Cannot get regulators\n");
-> +		goto fail1;
-> +	}
-> +
-> +	err = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
-> +	if (err < 0) {
-> +		dev_err(&client->dev, "Cannot enable regulators\n");
-> +		goto fail2;
-> +	}
-> +
-> +	err = bh1770glc_detect(chip);
-> +	if (err < 0)
-> +		goto fail3;
-> +
-> +	err = bh1770glc_als_init(chip);
-> +	if (err < 0)
-> +		goto fail3;
-> +
-> +	err = bh1770glc_ps_init(chip);
-> +	if (err < 0)
-> +		goto fail4;
-> +
-> +	err = request_threaded_irq(client->irq, NULL,
-> +				bh1770glc_irq,
-> +				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +				"bh1770glc", chip);
-> +	if (err) {
-> +		dev_err(&client->dev, "could not get IRQ %d\n",
-> +			client->irq);
-> +		goto fail5;
-> +	}
-> +	regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +	return err;
-> +fail5:
-> +	bh1770glc_ps_destroy(chip);
-> +fail4:
-> +	bh1770glc_als_destroy(chip);
-> +fail3:
-> +	regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +fail2:
-> +	regulator_bulk_free(ARRAY_SIZE(chip->regs), chip->regs);
-> +fail1:
-> +	kfree(chip);
-> +	return err;
+> +	return &priv->adap;
 > +}
+> +EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
 > +
-> +static int __devexit bh1770glc_remove(struct i2c_client *client)
+> +int i2c_del_mux_adapter(struct i2c_adapter *adap)
 > +{
-> +	struct bh1770glc_chip *chip = i2c_get_clientdata(client);
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	int ret;
 > +
-> +	free_irq(client->irq, chip);
+> +	ret =3D i2c_del_adapter(adap);
+> +	if (ret < 0)
+> +		return ret;
+> +	kfree(priv);
 > +
-> +	if (chip->pdata && chip->pdata->release_resources)
-> +		chip->pdata->release_resources();
-> +
-> +	bh1770glc_als_destroy(chip);
-> +	bh1770glc_ps_destroy(chip);
-> +	regulator_bulk_free(ARRAY_SIZE(chip->regs), chip->regs);
-> +	kfree(chip);
 > +	return 0;
 > +}
+> +EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
 > +
-> +#ifdef CONFIG_PM
-> +static int bh1770glc_suspend(struct i2c_client *client, pm_message_t mesg)
-> +{
-> +	struct bh1770glc_chip *chip = i2c_get_clientdata(client);
-> +
-> +	mutex_lock(&chip->mutex);
-> +	if (chip->als_users)
-> +		bh1770glc_als_mode(chip, BHCHIP_STANDBY);
-> +	if (chip->ps_users)
-> +		bh1770glc_ps_mode(chip, BHCHIP_STANDBY);
-> +	mutex_unlock(&chip->mutex);
-> +	return 0;
-> +}
-> +
-> +static int bh1770glc_resume(struct i2c_client *client)
-> +{
-> +	struct bh1770glc_chip *chip = i2c_get_clientdata(client);
-> +
-> +	mutex_lock(&chip->mutex);
-> +	if (chip->als_users)
-> +		bh1770glc_als_mode(chip, BHCHIP_STANDALONE);
-> +	if (chip->ps_users)
-> +		bh1770glc_ps_mode(chip, BHCHIP_STANDALONE);
-> +	mutex_unlock(&chip->mutex);
-> +	return 0;
-> +}
-> +
-> +static void bh1770glc_shutdown(struct i2c_client *client)
-> +{
-> +	struct bh1770glc_chip *chip = i2c_get_clientdata(client);
-> +
-> +	bh1770glc_als_mode(chip, BHCHIP_STANDBY);
-> +	bh1770glc_ps_mode(chip, BHCHIP_STANDBY);
-> +}
-> +
-> +#else
-> +#define bh1770glc_suspend  NULL
-> +#define bh1770glc_shutdown NULL
-> +#define bh1770glc_resume   NULL
-> +#endif
-> +
-> +static const struct i2c_device_id bh1770glc_id[] = {
-> +	{"bh1770glc", 0 },
-I think convention would be to have these both in lower case?
-(might be wrong!)
-> +	{"SFH7770", 0 },
-> +	{}
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, bh1770glc_id);
-> +
-> +static struct i2c_driver bh1770glc_driver = {
-> +	.driver	 = {
-> +		.name	= "bh1770glc",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +	.suspend  = bh1770glc_suspend,
-> +	.shutdown = bh1770glc_shutdown,
-> +	.resume	  = bh1770glc_resume,
-> +	.probe	  = bh1770glc_probe,
-> +	.remove	  = __devexit_p(bh1770glc_remove),
-> +	.id_table = bh1770glc_id,
-> +};
-> +
-> +static int __init bh1770glc_init(void)
-> +{
-> +	return i2c_add_driver(&bh1770glc_driver);
-> +}
-> +
-> +static void __exit bh1770glc_exit(void)
-> +{
-> +	i2c_del_driver(&bh1770glc_driver);
-> +}
-> +
-> +MODULE_DESCRIPTION("BH1770GLC combined ALS and proximity sensor");
-> +MODULE_AUTHOR("Samu Onkalo, Nokia Corporation");
+> +MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
+> +MODULE_DESCRIPTION("Virtual I2C driver for multiplexed I2C busses");
 > +MODULE_LICENSE("GPL v2");
-> +
-> +module_init(bh1770glc_init);
-> +module_exit(bh1770glc_exit);
-> diff --git a/drivers/misc/bh1770glc_ps.c b/drivers/misc/bh1770glc_ps.c
-> new file mode 100644
-> index 0000000..5e68efe
+> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+> new file mode 100755
+> index 0000000..95b9bde
 > --- /dev/null
-> +++ b/drivers/misc/bh1770glc_ps.c
-> @@ -0,0 +1,585 @@
+> +++ b/drivers/i2c/muxes/Kconfig
+> @@ -0,0 +1,8 @@
+> +#
+> +# Multiplexer I2C chip drivers configuration
+> +#
+> +
+> +menu "Multiplexer I2C Chip support"
+> +	depends on I2C && I2C_MUX && EXPERIMENTAL
+
+I2C_MUX itself already depends in I2C, so I guess it's enough to depend
+on I2C_MUX.
+
+> +
+> +endmenu
+> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+> new file mode 100755
+> index 0000000..0416a52
+> --- /dev/null
+> +++ b/drivers/i2c/muxes/Makefile
+> @@ -0,0 +1,6 @@
+> +#
+> +# Makefile for multiplexer I2C chip drivers.
+> +
+> +ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
+
+CONFIG_I2C_DEBUG_CHIP is gone. I suggest you introduce a new option,
+CONFIG_I2C_DEBUG_MUX.
+
+> +EXTRA_CFLAGS +=3D -DDEBUG -DI2C_DEBUG_CORE
+
+-DDEBUG should be enough.
+
+> +endif
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 7b40cda..24ff2e5 100755
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -580,6 +580,20 @@ union i2c_smbus_data {
+>  #define I2C_SMBUS_BLOCK_PROC_CALL   7		/* SMBus 2.0 */
+>  #define I2C_SMBUS_I2C_BLOCK_DATA    8
+>=20
 > +/*
-> + * This file is part of the ROHM BH1770GLC / OSRAM SFH7770 sensor driver.
-> + * Chip is combined proximity and ambient light sensor.
-> + *
-> + * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
-> + *
-> + * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
-> + * General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-> + * 02110-1301 USA
-> + *
+> + * Called to create a 'virtual' i2c bus which represents a multiplex=
+ed bus
+> + * segment.  The client and mux_val are passed to the select and des=
+elect
+> + * callback functions to perform hardware-specific mux control.
 > + */
+> +struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+> +				void *client, u32 force_nr, u32 mux_val,
+> +				int (*select_cb) (struct i2c_adapter *,
+> +						void *, u32),
+> +				int (*deselect_cb) (struct i2c_adapter *,
+> +						void *, u32));
 > +
-> +#include <linux/kernel.h>
-> +#include <linux/i2c.h>
-> +#include <linux/mutex.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/poll.h>
-> +#include <linux/bh1770glc.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/delay.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/workqueue.h>
-> +#include <linux/jiffies.h>
-> +#include "bh1770glc.h"
+> +int i2c_del_mux_adapter(struct i2c_adapter *adap);
 > +
 
-Again, can we have these exported to userspace.
-> +/* Supported stand alone rates in ms from chip data sheet */
-> +static s16 ps_rates[] = {10, 20, 30, 40, 70, 100, 200, 500, 1000, 2000};
-> +
+These functions are not available if mux support wasn't selected, so
+their declarations shouldn't be there in that case. In fact, I would
+suggest that you move these to a separate header, <linux/i2c-mux.h>,
+which only multiplexer drivers (and i2c-mux.c) would include. This
+keeps things nicely separated.
 
-Same with these.
-> +/* Supported IR-led currents in mA */
-> +static const u8 ps_curr_ma[] = {5, 10, 20, 50, 100, 150, 200};
-> +
-> +/* chip->mutex must be locked during this function */
-> +static int bh1770glc_ps_interrupt_control(struct bh1770glc_chip *chip, int ps)
-> +{
-> +	chip->int_mode_ps = ps;
-> +
-> +	/* Set PS interrupt mode, interrupt active low, latched */
-> +	return i2c_smbus_write_byte_data(chip->client,
-> +					BHCHIP_INTERRUPT,
+>=20
+>  #ifdef __KERNEL__
+>=20
 
-This one confuses me a little... Why are we changing the int_mode_als in the ps
-driver?  Might be obvious with data sheet, but it isn't without it. I'm guessing
-the leds would make that data incorrect...
-> +					(chip->int_mode_als << 1) | (ps << 0));
-> +}
-> +
-> +/* LEDs are controlled by the chip during proximity scanning */
-> +static int bh1770glc_led_cfg(struct bh1770glc_chip *chip, u8 ledcurr[3])
-> +{
-> +	u8 ledcfg;
-> +	int ret, i;
-> +
-> +	ledcfg = chip->pdata->leds;
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++)
-> +		if (ledcurr[i] > chip->pdata->led_max_curr)
-> +			return -EINVAL;
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++)
-> +		chip->ps_leds[i] = ledcurr[i];
-> +
-> +	/* LED cfg, current for leds 1 and 2 */
-> +	ret = i2c_smbus_write_byte_data(chip->client,
-> +					BHCHIP_I_LED,
-> +					(ledcfg << 6) | (ledcurr[1] << 3) |
-> +					 ledcurr[0]);
-> +	if (ret < 0)
-> +		goto fail;
-> +
-> +	/* Current for led 3*/
-> +	ret = i2c_smbus_write_byte_data(chip->client,
-> +					BHCHIP_I_LED3,
-> +					ledcurr[2]);
-> +fail:
-> +	return ret;
-> +}
-> +
-Modes need documenting (and probably something in userspace to tell use what
-is available.
-> +int bh1770glc_ps_mode(struct bh1770glc_chip *chip, int mode)
-> +{
-> +	int ret;
-> +
-> +	ret = i2c_smbus_write_byte_data(chip->client, BHCHIP_PS_CONTROL, mode);
-> +	if (ret == 0)
-> +		chip->ps_mode = mode;
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_ps_rates(struct bh1770glc_chip *chip, int rate,
-> +			int rate_threshold)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(ps_rates); i++) {
-> +		if (ps_rates[i] == rate) {
-> +			chip->ps_rate = i;
-> +			break;
-> +		}
-> +	}
-> +	if (i == ARRAY_SIZE(ps_rates))
-> +		return -EINVAL;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(ps_rates); i++) {
-> +		if (ps_rates[i] == rate_threshold) {
-> +			chip->ps_rate_threshold = i;
-> +			return 0;
-> +		}
-> +	}
-> +	return -EINVAL;
-> +}
-> +
-> +static int bh1770glc_ps_rate(struct bh1770glc_chip *chip, int mode)
-> +{
-> +	int ret;
-> +	int rate;
-> +
-> +	rate = (mode == PS_ABOVE_THRESHOLD) ?
-> +		chip->ps_rate_threshold : chip->ps_rate;
-> +
-> +	ret = i2c_smbus_write_byte_data(chip->client,
-> +					BHCHIP_PS_MEAS_RATE,
-> +					rate);
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_ps_read_result(struct bh1770glc_chip *chip)
-> +{
-> +	int ret;
-> +	int i;
-> +
-> +	mutex_lock(&chip->mutex);
-> +	for (i = 0; i < ARRAY_SIZE(chip->ps_data); i++) {
-> +		ret = i2c_smbus_read_byte_data(chip->client,
-> +					BHCHIP_PS_DATA_LED1 + i);
-> +		if (ret < 0)
-> +			goto out;
-> +		chip->ps_data[i] = ret;
-> +	}
-> +	chip->ps_offset += sizeof(struct bh1770glc_ps);
-> +out:
-> +	mutex_unlock(&chip->mutex);
-> +	return ret;
-> +}
-> +
-> +static int bh1770glc_ps_set_thresholds(struct bh1770glc_chip *chip)
-> +{
-> +	int ret, i;
-> +	u8 data[BHCHIP_PS_CHANNELS];
-> +	u32 tmp;
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++) {
-> +		tmp = ((u32)chip->ps_thresholds[i] * BHCHIP_CALIB_SCALER) /
-> +			chip->ps_calib[i];
-> +		if (tmp > BHCHIP_PS_RANGE)
-> +			tmp = BHCHIP_PS_RANGE;
-> +		data[i] = tmp;
-> +	}
-> +
-> +	ret = i2c_smbus_write_i2c_block_data(chip->client,
-> +					 BHCHIP_PS_TH_LED1,
-> +					 BHCHIP_PS_CHANNELS,
-> +					 data);
-> +	return ret;
-> +}
-> +
-> +static ssize_t bh1770glc_ps_read(struct file *file, char __user *buf,
-> +			size_t count, loff_t *offset)
-> +{
-> +	struct bh1770glc_ps ps;
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	int i;
-> +	u16 data[BHCHIP_PS_CHANNELS];
-> +
-> +	if (count < sizeof(ps))
-> +		return -EINVAL;
-> +
-> +	if (*offset >= chip->ps_offset) {
-> +		if (file->f_flags & O_NONBLOCK)
-> +			return -EAGAIN;
-> +		if (wait_event_interruptible(bh1770glc->ps_misc_wait,
-> +						(*offset < chip->ps_offset)))
-> +			return -ERESTARTSYS;
-> +	}
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++) {
-> +		data[i] = ((u32)chip->ps_data[i] * chip->ps_calib[i]) /
-> +			BHCHIP_CALIB_SCALER;
-> +		if (data[i] > BHCHIP_PS_RANGE)
-> +			data[i] = BHCHIP_PS_RANGE;
-> +	}
-> +
-> +	ps.led1 = data[0];
-> +	ps.led2 = data[1];
-> +	ps.led3 = data[2];
-> +
-> +	*offset = chip->ps_offset;
-> +
-> +	return copy_to_user(buf, &ps, sizeof(ps)) ? -EFAULT : sizeof(ps);
-> +}
-> +
-> +static void bh1770glc_ps_work(struct work_struct *work)
-> +{
-> +	struct bh1770glc_chip *chip =
-> +		container_of(work, struct bh1770glc_chip, ps_work.work);
-> +
-> +	bh1770glc_ps_rate(chip, PS_BELOW_THRESHOLD);
-> +	bh1770glc_ps_read_result(chip);
-> +	wake_up_interruptible(&chip->ps_misc_wait);
-> +}
-> +
-> +void bh1770glc_ps_interrupt_handler(struct bh1770glc_chip *chip, int status)
-> +{
-> +	if (chip->int_mode_ps)
-> +		if (status & BHCHIP_INT_LEDS_INT) {
-> +			int rate = ps_rates[chip->ps_rate_threshold];
-> +
-> +			bh1770glc_ps_read_result(chip);
-> +			bh1770glc_ps_rate(chip, PS_ABOVE_THRESHOLD);
-> +			wake_up_interruptible(&bh1770glc->ps_misc_wait);
-> +
-> +			cancel_delayed_work_sync(&chip->ps_work);
-> +			/*
-> +			 * Let's recheck situation 50 ms after the next
-> +			 * expected threshold interrupt.
-> +			 */
-Why?  This seems unusual enough to ened  a comment explaining what might
-cause this to happen.
+I'll go on with reviewing the PCA954x mux driver.
 
-> +			schedule_delayed_work(&chip->ps_work,
-> +			  msecs_to_jiffies(rate + 50));
-> +		}
-> +}
-> +
-> +/* Proximity misc device */
-> +static unsigned int bh1770glc_ps_poll(struct file *file, poll_table *wait)
-> +{
-> +	poll_wait(file, &bh1770glc->ps_misc_wait, wait);
-> +	if (file->f_pos < bh1770glc->ps_offset)
-> +		return POLLIN | POLLRDNORM;
-> +	return 0;
-> +}
-> +
-> +static int bh1770glc_ps_open(struct inode *inode, struct file *file)
-> +{
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	int err;
-> +
-> +	mutex_lock(&chip->mutex);
-> +	err = 0;
-> +	if (!chip->ps_users) {
-> +		err = regulator_bulk_enable(ARRAY_SIZE(chip->regs),
-> +					chip->regs);
-> +		if (err < 0)
-> +			goto release_lock;
-> +
-> +		if (!chip->als_users)
-> +			msleep(BHCHIP_STARTUP_DELAY);
-> +
-> +		/* Refresh all configs in case of regulators were off */
-> +		err = bh1770glc_ps_set_thresholds(chip);
-> +		if (err < 0)
-> +			goto exit;
-> +
-> +		err = bh1770glc_led_cfg(chip, chip->ps_leds);
-> +		if (err < 0)
-> +			goto exit;
-> +
-> +		err = bh1770glc_ps_rate(chip, PS_BELOW_THRESHOLD);
-> +		if (err < 0)
-> +			goto exit;
-> +
-> +		err = bh1770glc_ps_interrupt_control(chip, BHCHIP_ENABLE);
-> +		if (err < 0)
-> +			goto exit;
-> +
-> +		err = bh1770glc_ps_mode(chip, BHCHIP_STANDALONE);
-> +	}
-> +	if (err == 0)
-> +		chip->ps_users++;
-> +exit:
-> +	if (err < 0)
-> +		regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +
-> +release_lock:
-> +	file->f_pos = chip->ps_offset;
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	if (err == 0) {
-> +		cancel_delayed_work_sync(&chip->ps_work);
-> +		schedule_delayed_work(&chip->ps_work,
-> +				msecs_to_jiffies(BHCHIP_PS_INIT_DELAY));
-> +	}
-> +
-> +	return err;
-> +}
-> +
-> +static int bh1770glc_ps_close(struct inode *inode, struct file *file)
-> +{
-> +	struct bh1770glc_chip *chip = bh1770glc;
-> +	mutex_lock(&chip->mutex);
-> +	if (!--chip->ps_users) {
-> +		bh1770glc_ps_interrupt_control(chip, BHCHIP_DISABLE);
-> +		bh1770glc_ps_mode(chip, BHCHIP_STANDBY);
-> +		regulator_bulk_disable(ARRAY_SIZE(chip->regs), chip->regs);
-> +	}
-> +	mutex_unlock(&chip->mutex);
-> +	return 0;
-> +}
-> +
-> +static ssize_t bh1770glc_get_ps_mode(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d\n", chip->ps_mode);
-> +}
-> +
-This looks like two separate values to me? (and it is far from clear what
-they are!)
-> +static ssize_t bh1770glc_get_ps_rate(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d %d\n", ps_rates[chip->ps_rate],
-> +		ps_rates[chip->ps_rate_threshold]);
-> +}
-> +
-> +static ssize_t bh1770glc_set_ps_rate(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	int rate = 0, rate_threshold = 0;
-> +	int ret;
-> +
-> +	ret = sscanf(buf, "%d %d", &rate, &rate_threshold);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (ret == 0)
-> +		return count;
-> +
-> +	/* Second value is optional */
-> +	if (ret == 1)
-> +		rate_threshold = ps_rates[chip->ps_rate_threshold];
-> +
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_ps_rates(chip, rate, rate_threshold);
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return count;
-> +}
-> +
-> +static ssize_t bh1770glc_ps_calib_show(struct device *dev,
-> +				 struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip = dev_get_drvdata(dev);
-> +
-If these are for the 3 leds then I think this should be 3 separate files.
-(one value per file)  Not to mention, should these be there if not all
-leds are in use?
-> +	return snprintf(buf, PAGE_SIZE, "%u %u %u\n", chip->ps_calib[0],
-> +			chip->ps_calib[1], chip->ps_calib[2]);
-> +}
-> +
-> +static ssize_t bh1770glc_ps_calib_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t len)
-> +{
-> +	struct bh1770glc_chip *chip = dev_get_drvdata(dev);
-> +	int calib[BHCHIP_PS_CHANNELS];
-> +	int i, ret;
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++)
-> +		calib[i] = BHCHIP_PS_NEUTRAL_CALIB_VALUE;
-> +	ret = sscanf(buf, "%d %d %d", &calib[0], &calib[1], &calib[2]);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret < chip->ps_channels)
-> +		return -EINVAL;
-> +
-> +	for (i = 0; i < chip->ps_channels; i++)
-> +		chip->ps_calib[i] = calib[i];
-> +
-> +	return len;
-> +}
-> +
-Again, one value per file.
-> +static ssize_t bh1770glc_get_ps_thres(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%d %d %d\n", chip->ps_thresholds[0],
-> +		chip->ps_thresholds[1],
-> +		chip->ps_thresholds[2]);
-> +}
-> +
-> +static ssize_t bh1770glc_set_ps_thres(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	int input[BHCHIP_PS_CHANNELS];
-> +	int ret;
-> +	int i;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(input); i++)
-> +		input[i] = BHCHIP_PS_RANGE;
-> +	ret = sscanf(buf, "%d %d %d", &input[0], &input[1], &input[2]);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret < chip->ps_channels)
-> +		return -EINVAL;
-> +
-> +	for (i = 0; i < ARRAY_SIZE(input); i++) {
-> +		if ((input[i] < 0) ||
-> +		    (input[i] > BHCHIP_PS_RANGE))
-> +			return -EINVAL;
-> +		chip->ps_thresholds[i] = input[i];
-> +	}
-> +
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_ps_set_thresholds(chip);
-> +	mutex_unlock(&chip->mutex);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return count;
-> +}
-> +
-
-This is showing led current?  Naming doesn't make this clear at the
-moment.
-> +static ssize_t bh1770glc_ps_leds_show(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	u8 led_current[BHCHIP_PS_CHANNELS];
-> +	int i;
-> +
-> +	memset(led_current, 0, sizeof(led_current));
-> +	for (i = 0; i < chip->ps_channels; i++)
-> +		led_current[i] = ps_curr_ma[chip->ps_leds[i]];
-> +
-> +	return sprintf(buf, "%d %d %d\n", led_current[0],
-> +		led_current[1],
-> +		led_current[2]);
-> +}
-> +
-> +static ssize_t bh1770glc_ps_leds_store(struct device *dev,
-> +				      struct device_attribute *attr,
-> +				      const char *buf, size_t count)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	int input[BHCHIP_PS_CHANNELS];
-> +	u8 led_curr[BHCHIP_PS_CHANNELS];
-> +	int ret;
-> +	int i, j;
-> +
-> +	ret = sscanf(buf, "%d %d %d", &input[0], &input[1], &input[2]);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (ret < chip->ps_channels)
-> +		return -EINVAL;
-> +
-> +	/* Set minimum current */
-> +	for (i = chip->ps_channels; i < BHCHIP_PS_CHANNELS; i++)
-> +		led_curr[i] = BH1770GLC_LED_5mA;
-> +
-> +	for (i = 0; i < chip->ps_channels; i++) {
-> +		for (j = 0; j < ARRAY_SIZE(ps_curr_ma); j++)
-> +			if (input[i] == ps_curr_ma[j]) {
-> +				led_curr[i] = j;
-> +				break;
-> +			}
-> +		if (j == ARRAY_SIZE(ps_curr_ma))
-> +			return -EINVAL;
-> +	}
-> +
-> +	mutex_lock(&chip->mutex);
-> +	ret = bh1770glc_led_cfg(chip, led_curr);
-> +	mutex_unlock(&chip->mutex);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return count;
-> +}
-> +
-> +static ssize_t bh1770glc_chip_id_show(struct device *dev,
-> +				   struct device_attribute *attr, char *buf)
-> +{
-> +	struct bh1770glc_chip *chip =  dev_get_drvdata(dev);
-> +	return sprintf(buf, "%s rev %d\n", chip->chipname, chip->revision);
-> +}
-> +
-> +static DEVICE_ATTR(ps_mode, S_IRUGO, bh1770glc_get_ps_mode, NULL);
-> +static DEVICE_ATTR(ps_rate, S_IRUGO | S_IWUSR, bh1770glc_get_ps_rate,
-> +						bh1770glc_set_ps_rate);
-> +static DEVICE_ATTR(ps_threshold, S_IRUGO | S_IWUSR, bh1770glc_get_ps_thres,
-> +						bh1770glc_set_ps_thres);
-> +static DEVICE_ATTR(ps_calib, S_IRUGO | S_IWUSR, bh1770glc_ps_calib_show,
-> +						 bh1770glc_ps_calib_store);
-> +static DEVICE_ATTR(ps_leds, S_IRUGO | S_IWUSR, bh1770glc_ps_leds_show,
-> +						 bh1770glc_ps_leds_store);
-> +static DEVICE_ATTR(chip_id, S_IRUGO, bh1770glc_chip_id_show, NULL);
-> +
-> +static struct attribute *sysfs_attrs[] = {
-> +	&dev_attr_ps_calib.attr,
-> +	&dev_attr_ps_mode.attr,
-> +	&dev_attr_ps_rate.attr,
-> +	&dev_attr_ps_threshold.attr,
-> +	&dev_attr_ps_leds.attr,
-> +	&dev_attr_chip_id.attr,
-> +	NULL
-> +};
-> +
-> +static struct attribute_group bh1770glc_attribute_group = {
-> +	.attrs = sysfs_attrs
-> +};
-> +
-> +static const struct file_operations bh1770glc_ps_fops = {
-> +	.owner		= THIS_MODULE,
-> +	.llseek		= no_llseek,
-> +	.read		= bh1770glc_ps_read,
-> +	.poll		= bh1770glc_ps_poll,
-> +	.open		= bh1770glc_ps_open,
-> +	.release	= bh1770glc_ps_close,
-> +};
-> +
-> +static struct miscdevice bh1770glc_ps_miscdevice = {
-> +       .minor = MISC_DYNAMIC_MINOR,
-> +       .name = "bh1770glc_ps",
-> +       .fops = &bh1770glc_ps_fops
-> +};
-> +
-> +int bh1770glc_ps_init(struct bh1770glc_chip *chip)
-> +{
-> +	int err;
-> +	int i;
-> +
-> +	for (i = 0; i < BHCHIP_PS_CHANNELS; i++) {
-> +		chip->ps_thresholds[i] = BHCHIP_PS_DEF_THRES;
-> +		chip->ps_leds[i] = chip->pdata->led_def_curr[i];
-> +	}
-> +
-> +	err = bh1770glc_ps_mode(chip, BHCHIP_STANDBY);
-> +	if (err < 0)
-> +		goto fail1;
-> +
-> +	err = bh1770glc_ps_interrupt_control(chip, BHCHIP_DISABLE);
-> +	if (err < 0)
-> +		goto fail1;
-> +
-> +	bh1770glc_ps_rates(chip, BHCHIP_PS_DEFAULT_RATE,
-> +			BHCHIP_PS_DEF_RATE_THRESH);
-> +
-> +	INIT_DELAYED_WORK(&chip->ps_work, bh1770glc_ps_work);
-> +
-> +	bh1770glc_ps_miscdevice.parent = &chip->client->dev;
-> +	err = misc_register(&bh1770glc_ps_miscdevice);
-> +	if (err < 0) {
-> +		dev_err(&chip->client->dev, "Device registration failed\n");
-> +		goto fail1;
-> +	}
-> +
-> +	err = sysfs_create_group(&chip->client->dev.kobj,
-> +				&bh1770glc_attribute_group);
-> +	if (err < 0) {
-> +		dev_err(&chip->client->dev, "Sysfs registration failed\n");
-> +		goto fail2;
-> +	}
-> +	return 0;
-> +fail2:
-> +	misc_deregister(&bh1770glc_ps_miscdevice);
-> +fail1:
-> +	return err;
-> +
-> +}
-> +
-> +int bh1770glc_ps_destroy(struct bh1770glc_chip *chip)
-> +{
-> +	cancel_delayed_work_sync(&chip->ps_work);
-> +	sysfs_remove_group(&chip->client->dev.kobj,
-> +			&bh1770glc_attribute_group);
-> +	misc_deregister(&bh1770glc_ps_miscdevice);
-> +	return 0;
-> +}
-> diff --git a/include/linux/bh1770glc.h b/include/linux/bh1770glc.h
-> new file mode 100644
-> index 0000000..27d2d7c
-> --- /dev/null
-> +++ b/include/linux/bh1770glc.h
-> @@ -0,0 +1,39 @@
-> +#ifndef __BH1770GLC_H__
-> +#define __BH1770GLC_H__
-> +
-> +struct bh1770glc_platform_data {
-> +/* IR-Led configuration for proximity sensing */
-> +#define BH1770GLC_LED1	    0x00
-> +#define BH1770GLC_LED12	    0x01
-> +#define BH1770GLC_LED13	    0x02
-> +#define BH1770GLC_LED123    0x03
-> +
-> +	__u8 leds;
-> +/* led_max_curr is a safetylimit for IR leds */
-> +#define BH1770GLC_LED_5mA   0
-> +#define BH1770GLC_LED_10mA  1
-> +#define BH1770GLC_LED_20mA  2
-> +#define BH1770GLC_LED_50mA  3
-> +#define BH1770GLC_LED_100mA 4
-> +#define BH1770GLC_LED_150mA 5
-> +#define BH1770GLC_LED_200mA 6
-> +	__u8 led_max_curr;
-> +	__u8 led_def_curr[3];
-> +
-> +	int (*setup_resources)(void);
-> +	int (*release_resources)(void);
-> +};
-> +
-What if someone wires up more than one?
-> +/* Device name: /dev/bh1770glc_ps */
-> +struct bh1770glc_ps {
-> +	__u8 led1;
-> +	__u8 led2;
-> +	__u8 led3;
-> +} __attribute__((packed));
-> +
-Likewise...
-> +/* Device name: /dev/bh1770glc_als */
-> +struct bh1770glc_als {
-> +	__u16 lux;
-> +} __attribute__((packed));
-> +
-> +#endif
+--=20
+Jean Delvare
