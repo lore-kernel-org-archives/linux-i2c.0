@@ -1,51 +1,68 @@
-From: Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Subject: Re: isl29020: ALS driver as misc device
-Date: Thu, 15 Apr 2010 11:09:19 +0100
-Message-ID: <4BC6E5CF.9070302@jic23.retrosnub.co.uk>
-References: <20100414124913.23181.75903.stgit@localhost.localdomain> <20100414125136.23181.16788.stgit@localhost.localdomain> <4BC5C7A8.1040807@cam.ac.uk> <20100414153234.22765666@lxorguk.ukuu.org.uk> <4BC5D681.20707@jic23.retrosnub.co.uk> <20100414175602.44580f3c@lxorguk.ukuu.org.uk> <20100414170153.GA7494@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/1] BH1770GLC / SFH7770 combined ambient light / proximity sensor
+Date: Thu, 15 Apr 2010 13:34:07 +0300
+Message-ID: <1271327648-13497-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100414170153.GA7494-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/14/10 18:01, Greg KH wrote:
-> On Wed, Apr 14, 2010 at 05:56:02PM +0100, Alan Cox wrote:
->> And this adds the isl29020 as a misc device per discussions
->>
->> isl29020: ambient light sensor
->>
->> From: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->>
->> The LS driver will read the latest Lux measurement based upon the
->> light brightness and will report the LUX output through sysfs interface.
-> 
-> Please document this sysfs interface with an addition to the
-> Documentatin/ABI/ directory.
-As documenting this abi (which indeed should be done) is going to set
-a precedence, perhaps this is a good time to discuss what this naming could
-be.
+This patch introduces driver for Rohm BH1770GLC and Osram SFH7770
+combined ambient light and proximity sensor.
 
-In cleaning up the IIO abi Greg suggested that we match existing similar
-abi's a closely as possible, which where possible makes a great deal of sense
-(shared userspace code is possible and it makes everything a bit more predictable
-for driver writers... particularly as I expect someone will sooner or later
-make a combined hwmon and als chip).
+Driver is divided to 3 parts. Core-part contains common functionality for
+both parts of the chips. ALS and PS specific functionalities are
+in separate files.
 
-The obvious similarity here is with hwmon.
-So perhaps going with naming as
+ALS part is fully based on threshold interrupts. Driver doesn't provide
+direct control for threshold levels. Instead, based on sensitivity setting,
+threshold levels are updated after every interrupt. This method keeps sensor
+to follow changes in the lightning.
 
-lux-> illuminance0_input  (or I guess lux0_input would also work, I can change
-the iio abi to match this as well).
+PS part uses interrupt for high threshold events and delayed work to simulate
+missing low threshold interrupts. This way driver is able to react proximity
+on / off events using only high threshold interrupt. Proximity sensing can
+utilize up to 3 IR leds for movement detection. Driver supports 1-3 leds
+configurations.
 
-It also occurs to me that we might want to associate the calibration with the
-particular channel? There's sure to be a dual ALS chip along at some point.
+Platform data is used to provide IR led configuration: number of channels and
+absolute maximum operating currents for the leds.
 
-Obviously the isl29020 would need updating as well.  Everyone was happy to do
-that when were writing the ALS subsystem, so I guess that won't have changed!
+Chip is kept running only when someone keeps device handles open.
+Otherwise chip is powered down and optionally power supplies are turned off.
 
-Jonathan
+Interfaces:
+Both parts of the driver provides results via separate misc char device.
+
+sysfs interface:
+als_calib - (RW) calibration coeffient (default is neutral value)
+als_mode  - (R)  returns current chip operational state for ALS
+als_rate  - (RW) ALS side measurement rate in ms
+als_sens  - (RW) sensitivity for changes in lightning level
+ps_calib  - (RW) calibration coeffient
+ps_leds   - (RW) IR led currents in mA
+ps_mode   - (R)  returns current chip operational state for PS
+ps_rate   - (RW) PS side measurement rates (separate rates for below /
+	         above threshold condition)
+ps_threshold - (RW) threshold levels
+chip_id   - (R)  chip version and revision information
+
+Tested in top of 2.6.32 kernel. Applies to 2.6.34-RC3.
+
+Samu Onkalo (1):
+  misc: bh1770glc: Driver for bh1770glc combined als and ps sensor
+
+ drivers/misc/Kconfig          |   12 +
+ drivers/misc/Makefile         |    3 +
+ drivers/misc/bh1770glc.h      |  169 ++++++++++++
+ drivers/misc/bh1770glc_als.c  |  424 +++++++++++++++++++++++++++++
+ drivers/misc/bh1770glc_core.c |  301 +++++++++++++++++++++
+ drivers/misc/bh1770glc_ps.c   |  585 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/bh1770glc.h     |   39 +++
+ 7 files changed, 1533 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/bh1770glc.h
+ create mode 100644 drivers/misc/bh1770glc_als.c
+ create mode 100644 drivers/misc/bh1770glc_core.c
+ create mode 100644 drivers/misc/bh1770glc_ps.c
+ create mode 100644 include/linux/bh1770glc.h
