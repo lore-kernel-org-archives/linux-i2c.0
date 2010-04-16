@@ -1,43 +1,47 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: your mail
-Date: Thu, 15 Apr 2010 19:41:22 -0400
-Message-ID: <4BC7A422.7050601@seas.upenn.edu>
-References: <20100414125234.23507.42816.stgit@localhost.localdomain> <20100414231604.GA12281@core.coreip.homeip.net>
+Date: Thu, 15 Apr 2010 21:21:04 -0700
+Message-ID: <20100416042104.GA20916@core.coreip.homeip.net>
+References: <20100414125234.23507.42816.stgit@localhost.localdomain>
+ <20100414231604.GA12281@core.coreip.homeip.net>
+ <4BC7A422.7050601@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20100414231604.GA12281@core.coreip.homeip.net>
+Content-Disposition: inline
+In-Reply-To: <4BC7A422.7050601@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Rafi Rubin <rafi@seas.upenn.edu>
 Cc: Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
->> +	if (ts->tc.event_sended == false) {
+On Thu, Apr 15, 2010 at 07:41:22PM -0400, Rafi Rubin wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> We set "event_sended" to false immediately before calling
-> cy8ctmg110_send_event() so I do not see the point of this flag.
+> >> +	if (ts->tc.event_sended == false) {
+> > 
+> > We set "event_sended" to false immediately before calling
+> > cy8ctmg110_send_event() so I do not see the point of this flag.
+> 
+> On that note:
+> 
+> $ git grep -n sended
+> drivers/net/eth16i.c:1295:
+> 		how many packets there is to be sended */
+> drivers/net/wan/sbni.c:638:
+> 		/* if frame was sended but not ACK'ed - resend it */
+> drivers/net/wan/sbni.c:659:
+> 		* frame sended then in prepare_to_send next frame
+> drivers/usb/serial/aircable.c:13:
+> 		* next two bytes must say how much data will be sended.
+> 
 
-On that note:
+Well, if you want to go down that path...
 
-$ git grep -n sended
-drivers/net/eth16i.c:1295:
-		how many packets there is to be sended */
-drivers/net/wan/sbni.c:638:
-		/* if frame was sended but not ACK'ed - resend it */
-drivers/net/wan/sbni.c:659:
-		* frame sended then in prepare_to_send next frame
-drivers/usb/serial/aircable.c:13:
-		* next two bytes must say how much data will be sended.
+[dtor@hammer work]$ grep -r -e "\(setted\|setuped\|split\+ed\)" . | wc -l
+54
+[dtor@hammer work]$ 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkvHpB4ACgkQwuRiAT9o609wAgCfbGjTP2lIN6JJyX28VzjPHxTY
-ylIAn15FZRPpBEkWaFR8oAFKCCRmNF4d
-=u4nx
------END PGP SIGNATURE-----
+-- 
+Dmitry
