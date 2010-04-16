@@ -1,56 +1,53 @@
-From: Grazvydas Ignotas <notasas@gmail.com>
-Subject: Re: [PATCH] i2c: omap: fix OOPS in omap_i2c_unidle() during probe
-Date: Fri, 16 Apr 2010 12:47:50 +0300
-Message-ID: <n2m6ed0b2681004160247o7cddd774sd199ea0eb51c9946@mail.gmail.com>
-References: <1269339176-17479-1-git-send-email-ext-mika.1.westerberg@nokia.com>
-	 <alpine.DEB.2.00.1003310427180.14436@utopia.booyaka.com>
-	 <20100331152700.17695375.jhnikula@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c bus multiplexing (Version 2).
+Date: Fri, 16 Apr 2010 13:18:00 +0200
+Message-ID: <20100416131800.44fc332b@hyperion.delvare>
+References: <1233840973-13268-1-git-send-email-giometti@linux.it>
+	<loom.20091211T234046-786@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100331152700.17695375.jhnikula@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
-Cc: Paul Walmsley <paul@pwsan.com>, Mika Westerberg <ext-mika.1.westerberg@nokia.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Cory Maccarrone <darkstar6262@gmail.com>, Jarkko Nikula <jhnikula@gmail.com>, Jean Delvare <khali@linux-fr.org>, Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <loom.20091211T234046-786-eS7Uydv5nfjZ+VzJOa5vwg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Muralidharan Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 31, 2010 at 3:27 PM, Jarkko Nikula <jhnikula@gmail.com> wro=
-te:
-> On Wed, 31 Mar 2010 04:27:41 -0600 (MDT)
-> Paul Walmsley <paul@pwsan.com> wrote:
->
->> > This patch moves register shift setting before any register access=
-es are done.
->> >
->> > Signed-off-by: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
->> > Cc: Cory Maccarrone <darkstar6262@gmail.com>
->>
->> Tested-by: Paul Walmsley <paul@pwsan.com>
->>
-> BTW, Tony had the same fix buried in an another thread:
->
-> http://marc.info/?l=3Dlinux-omap&m=3D126826012627677&w=3D2
->
-> You could add my tested by as well to which one goes in but the fix
-> should go for 2.6.34 as the mainline doesn't boot otherwise on OMAP.
+Hi Murali,
 
-Uhm why does this patch (or Tony's version) doesn't reach mainline for
-so long? It's critical for all OMAPs except the very old ones.
+On Fri, 11 Dec 2009 22:41:33 +0000 (UTC), Muralidharan Karicheri wrote:
+> 
+> > This patch set adds to the I2C core the ability to handle multiplexed
+> > I2C bus topologies by presenting each multiplexed segment as a I2C
+> > adapter.
+> 
+> Hi Rodolfo,
+> 
+> Thanks for this patch. I learned about this patch through linux-media
+> mailing list. 
+> 
+> 1)I have a sensor board header that uses pca9543a i2c switch
+> which is addressed by this patch. In my board, I have another
+> i2c chip that share the same i2c address with the sensor.
+> Currently I cannot have both these drivers co-exists due to
+> this. Please let me know if this can work once I use this patch.
 
-If it helps:
-Tested-by: Grazvydas Ignotas <notasas@gmail.com>
+Yes, this is the idea. With bus multiplexing support, we can finally
+handle bus topologies with multiple chips using the same I2C address.
 
->
-> Tested-by: Jarkko Nikula <jhnikula@gmail.com>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 2)Which kernel version you use for this patch?
+> 
+> 3) Where can I download your patch so that I can give it a
+> shot. Is there any platform data I need to setup in my arch/
+> folder to use this patch?
+> 
+> 4) When do you think this will be merged to mainline kernel?
+
+I am reviewing the patches at the moment, after Michael sends an
+updated version addressing my comments, we should be ready to go. So we
+currently aim at merging i2c multiplexing support into kernel 2.6.35.
+At least a first version... more features can be added later.
+
+-- 
+Jean Delvare
