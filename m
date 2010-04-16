@@ -1,53 +1,50 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c bus multiplexing (Version 2).
-Date: Fri, 16 Apr 2010 13:18:00 +0200
-Message-ID: <20100416131800.44fc332b@hyperion.delvare>
-References: <1233840973-13268-1-git-send-email-giometti@linux.it>
-	<loom.20091211T234046-786@post.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Multiplexed I2C bus core support.
+Date: Fri, 16 Apr 2010 13:21:44 +0200
+Message-ID: <20100416132144.5ea8b0b1@hyperion.delvare>
+References: <4B5D8AFC.5060209@gmx.de>
+	<20100415144906.2a20588d@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <loom.20091211T234046-786-eS7Uydv5nfjZ+VzJOa5vwg@public.gmane.org>
+In-Reply-To: <20100415144906.2a20588d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Muralidharan Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Murali,
+One thing I forgot:
 
-On Fri, 11 Dec 2009 22:41:33 +0000 (UTC), Muralidharan Karicheri wrote:
+On Thu, 15 Apr 2010 14:49:06 +0200, Jean Delvare wrote:
+> On Mon, 25 Jan 2010 13:13:48 +0100, Michael Lawnick wrote:
+> > +static int i2c_check_clients(struct i2c_adapter *adapter, int addr)
+> > +{
+> > +	int result = 0;
 > 
-> > This patch set adds to the I2C core the ability to handle multiplexed
-> > I2C bus topologies by presenting each multiplexed segment as a I2C
-> > adapter.
+> Useless initialization.
 > 
-> Hi Rodolfo,
+> > +
+> > +	result = device_for_each_child(&adapter->dev, &addr, __i2c_check_addr);
+> > +
+> > +	if (!result && (adapter->dev.parent->bus == &i2c_bus_type))
 > 
-> Thanks for this patch. I learned about this patch through linux-media
-> mailing list. 
+> All devices don't have a parent, so you should first check that
+> adapter->dev.parent isn't NULL. Try your code with i2c-stub for
+> example, it would crash.
 > 
-> 1)I have a sensor board header that uses pca9543a i2c switch
-> which is addressed by this patch. In my board, I have another
-> i2c chip that share the same i2c address with the sensor.
-> Currently I cannot have both these drivers co-exists due to
-> this. Please let me know if this can work once I use this patch.
+> > +		result = i2c_check_clients(to_i2c_adapter(adapter->dev.parent), addr);
+> > +	
+> > +	return result;
+> > +}
 
-Yes, this is the idea. With bus multiplexing support, we can finally
-handle bus topologies with multiple chips using the same I2C address.
+As discussed some weeks ago, this isn't actually sufficient. You don't
+only need to check the parent segments for address business, you also
+need to check all child segments, recursively. If any child segment has
+a device using the address in question, then you can't use it.
 
-> 2)Which kernel version you use for this patch?
-> 
-> 3) Where can I download your patch so that I can give it a
-> shot. Is there any platform data I need to setup in my arch/
-> folder to use this patch?
-> 
-> 4) When do you think this will be merged to mainline kernel?
-
-I am reviewing the patches at the moment, after Michael sends an
-updated version addressing my comments, we should be ready to go. So we
-currently aim at merging i2c multiplexing support into kernel 2.6.35.
-At least a first version... more features can be added later.
+This may be more difficult to implement. In particular, you'll have to
+pay attention to locking.
 
 -- 
 Jean Delvare
