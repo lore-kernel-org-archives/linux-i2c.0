@@ -1,124 +1,219 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Don't assume i2c adapters have a parent
-Date: Fri, 16 Apr 2010 18:09:03 +0200
-Message-ID: <20100416180903.412b36be@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-core: fix some coding style issues in i2c-core.c
+Date: Sun, 18 Apr 2010 10:41:07 +0200
+Message-ID: <1271580067-13619-1-git-send-email-farid.hammane@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, giometti-k2GhghHVRtY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: i2c: Don't assume i2c adapters have a parent
+This is a patch to the i2c-core.c file that fixes up coding style issues found by the checkpatch.pl tool
 
-Virtual adapters such as i2c-stub do not have a parent.
-
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
-Michael, feel free to merge this into your i2c mux patch.
+ drivers/i2c/i2c-core.c |   86 ++++++++++++++++++++++++------------------------
+ 1 files changed, 43 insertions(+), 43 deletions(-)
 
- drivers/i2c/i2c-core.c |   16 +++++++++++-----
- drivers/i2c/i2c-dev.c  |   10 ++++++++--
- 2 files changed, 19 insertions(+), 7 deletions(-)
-
---- linux-2.6.34-rc4.orig/drivers/i2c/i2c-dev.c	2010-04-16 12:57:44.000000000 +0200
-+++ linux-2.6.34-rc4/drivers/i2c/i2c-dev.c	2010-04-16 17:43:51.000000000 +0200
-@@ -193,13 +193,19 @@ static int i2cdev_check(struct device *d
- 	return dev->driver ? -EBUSY : 0;
- }
- 
-+static int i2cdev_parent_is_i2c_adapter(const struct i2c_adapter *adapter)
-+{
-+	return adapter->dev.parent != NULL
-+	    && adapter->dev.parent->bus == &i2c_bus_type;
-+}
-+
- static int i2cdev_check_clients(struct i2c_adapter *adapter, int addr)
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 3202a86..582a53c 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1187,10 +1187,10 @@ EXPORT_SYMBOL(i2c_transfer);
+  *
+  * Returns negative errno, or else the number of bytes written.
+  */
+-int i2c_master_send(struct i2c_client *client,const char *buf ,int count)
++int i2c_master_send(struct i2c_client *client, const char *buf, int count)
  {
- 	int result = 0;
- 
- 	result = device_for_each_child(&adapter->dev, &addr, i2cdev_check);
- 
--	if (!result && (adapter->dev.parent->bus == &i2c_bus_type))
-+	if (!result && i2cdev_parent_is_i2c_adapter(adapter))
- 		result = i2cdev_check_clients(to_i2c_adapter(adapter->dev.parent), addr);
- 
- 	return result;
-@@ -214,7 +220,7 @@ static int i2cdev_check_addr(struct i2c_
- 
- 	result = i2cdev_check_clients(adapter, addr);
- 
--	if (!result && (adapter->dev.parent->bus == &i2c_bus_type))
-+	if (!result && i2cdev_parent_is_i2c_adapter(adapter))
- 	{
- 		struct i2c_client dummy;
- 		char buff;
---- linux-2.6.34-rc4.orig/drivers/i2c/i2c-core.c	2010-04-16 12:57:44.000000000 +0200
-+++ linux-2.6.34-rc4/drivers/i2c/i2c-core.c	2010-04-16 17:52:37.000000000 +0200
-@@ -373,6 +373,12 @@ struct i2c_client *i2c_verify_client(str
- EXPORT_SYMBOL(i2c_verify_client);
- 
- 
-+static int i2c_parent_is_i2c_adapter(const struct i2c_adapter *adapter)
-+{
-+	return adapter->dev.parent != NULL
-+	    && adapter->dev.parent->bus == &i2c_bus_type;
-+}
-+
- /* This is a permissive address validity check, I2C address map constraints
-  * are purposedly not enforced, except for the general call address. */
- static int i2c_check_client_addr_validity(const struct i2c_client *client)
-@@ -426,7 +432,7 @@ static int i2c_check_clients(struct i2c_
- 
- 	result = device_for_each_child(&adapter->dev, &addr, __i2c_check_addr_busy);
- 
--	if (!result && (adapter->dev.parent->bus == &i2c_bus_type))
-+	if (!result && i2c_parent_is_i2c_adapter(adapter))
- 		result = i2c_check_clients(to_i2c_adapter(adapter->dev.parent), addr);
- 
- 	return result;
-@@ -438,7 +444,7 @@ static int i2c_check_addr_busy(struct i2
- 
- 	result = i2c_check_clients(adapter, addr);
- 
--	if (!result && (adapter->dev.parent->bus == &i2c_bus_type))
-+	if (!result && i2c_parent_is_i2c_adapter(adapter))
- 	{
- 		struct i2c_client dummy;
- 		char buff;
-@@ -456,7 +462,7 @@ static int i2c_check_addr_busy(struct i2
- static void i2c_mux_tree_lock(struct i2c_adapter *adap)
- {
- 	rt_mutex_lock(&adap->bus_lock);
--	if(adap->dev.parent->bus == &i2c_bus_type)
-+	if (i2c_parent_is_i2c_adapter(adap))
- 		i2c_mux_tree_lock(to_i2c_adapter(adap->dev.parent));
- }
- 
-@@ -466,7 +472,7 @@ static int i2c_mux_tree_trylock(struct i
- 
- 	ret = rt_mutex_trylock(&adap->bus_lock);
- 
--	if(ret && (adap->dev.parent->bus == &i2c_bus_type)) {
-+	if (ret && i2c_parent_is_i2c_adapter(adap)) {
- 		ret = i2c_mux_tree_trylock(to_i2c_adapter(adap->dev.parent));
- 		if (!ret)
- 			rt_mutex_unlock(&adap->bus_lock);
-@@ -477,7 +483,7 @@ static int i2c_mux_tree_trylock(struct i
- 
- static void i2c_mux_tree_unlock(struct i2c_adapter *adap)
- {
--	if(adap->dev.parent->bus == &i2c_bus_type)
-+	if (i2c_parent_is_i2c_adapter(adap))
- 		i2c_mux_tree_unlock(to_i2c_adapter(adap->dev.parent));
- 	rt_mutex_unlock(&adap->bus_lock);
- }
+ 	int ret;
+-	struct i2c_adapter *adap=client->adapter;
++	struct i2c_adapter *adap = client->adapter;
+ 	struct i2c_msg msg;
 
+ 	msg.addr = client->addr;
+@@ -1214,9 +1214,9 @@ EXPORT_SYMBOL(i2c_master_send);
+  *
+  * Returns negative errno, or else the number of bytes read.
+  */
+-int i2c_master_recv(struct i2c_client *client, char *buf ,int count)
++int i2c_master_recv(struct i2c_client *client, char *buf, int count)
+ {
+-	struct i2c_adapter *adap=client->adapter;
++	struct i2c_adapter *adap = client->adapter;
+ 	struct i2c_msg msg;
+ 	int ret;
 
--- 
-Jean Delvare
+@@ -1407,7 +1407,7 @@ i2c_new_probed_device(struct i2c_adapter *adap,
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_probed_device);
+
+-struct i2c_adapter* i2c_get_adapter(int id)
++struct i2c_adapter *i2c_get_adapter(int id)
+ {
+ 	struct i2c_adapter *adapter;
+
+@@ -1434,7 +1434,7 @@ static u8 crc8(u16 data)
+ {
+ 	int i;
+
+-	for(i = 0; i < 8; i++) {
++	for (i = 0; i < 8; i++) {
+ 		if (data & 0x8000)
+ 			data = data ^ POLY;
+ 		data = data << 1;
+@@ -1447,7 +1447,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t count)
+ {
+ 	int i;
+
+-	for(i = 0; i < count; i++)
++	for (i = 0; i < count; i++)
+ 		crc = crc8((crc ^ p[i]) << 8);
+ 	return crc;
+ }
+@@ -1517,7 +1517,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
+  */
+ s32 i2c_smbus_write_byte(struct i2c_client *client, u8 value)
+ {
+-	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+ 	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+ }
+ EXPORT_SYMBOL(i2c_smbus_write_byte);
+@@ -1555,9 +1555,9 @@ s32 i2c_smbus_write_byte_data(struct i2c_client *client, u8 command, u8 value)
+ {
+ 	union i2c_smbus_data data;
+ 	data.byte = value;
+-	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                      I2C_SMBUS_WRITE,command,
+-	                      I2C_SMBUS_BYTE_DATA,&data);
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++	                      I2C_SMBUS_WRITE, command,
++	                      I2C_SMBUS_BYTE_DATA, &data);
+ }
+ EXPORT_SYMBOL(i2c_smbus_write_byte_data);
+
+@@ -1594,9 +1594,9 @@ s32 i2c_smbus_write_word_data(struct i2c_client *client, u8 command, u16 value)
+ {
+ 	union i2c_smbus_data data;
+ 	data.word = value;
+-	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-	                      I2C_SMBUS_WRITE,command,
+-	                      I2C_SMBUS_WORD_DATA,&data);
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++	                      I2C_SMBUS_WRITE, command,
++	                      I2C_SMBUS_WORD_DATA, &data);
+ }
+ EXPORT_SYMBOL(i2c_smbus_write_word_data);
+
+@@ -1673,9 +1673,9 @@ s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
+ 		length = I2C_SMBUS_BLOCK_MAX;
+ 	data.block[0] = length;
+ 	memcpy(&data.block[1], values, length);
+-	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
+-			      I2C_SMBUS_WRITE,command,
+-			      I2C_SMBUS_BLOCK_DATA,&data);
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			      I2C_SMBUS_WRITE, command,
++			      I2C_SMBUS_BLOCK_DATA, &data);
+ }
+ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+
+@@ -1717,10 +1717,10 @@ EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
+
+ /* Simulate a SMBus command using the i2c protocol
+    No checking of parameters is done!  */
+-static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
++static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+                                    unsigned short flags,
+                                    char read_write, u8 command, int size,
+-                                   union i2c_smbus_data * data)
++                                   union i2c_smbus_data *data)
+ {
+ 	/* So we need to generate a series of msgs. In the case of writing, we
+ 	  need to use only one message; when reading, we need two. We initialize
+@@ -1728,7 +1728,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
+ 	  simpler. */
+ 	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+ 	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
+-	int num = read_write == I2C_SMBUS_READ?2:1;
++	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
+ 	struct i2c_msg msg[2] = { { addr, flags, 1, msgbuf0 },
+ 	                          { addr, flags | I2C_M_RD, 0, msgbuf1 }
+ 	                        };
+@@ -1737,7 +1737,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
+ 	int status;
+
+ 	msgbuf0[0] = command;
+-	switch(size) {
++	switch (size) {
+ 	case I2C_SMBUS_QUICK:
+ 		msg[0].len = 0;
+ 		/* Special case: The read/write field is used as data */
+@@ -1764,7 +1764,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
+ 		if (read_write == I2C_SMBUS_READ)
+ 			msg[1].len = 2;
+ 		else {
+-			msg[0].len=3;
++			msg[0].len = 3;
+ 			msgbuf0[1] = data->word & 0xff;
+ 			msgbuf0[2] = data->word >> 8;
+ 		}
+@@ -1857,26 +1857,26 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
+ 	}
+
+ 	if (read_write == I2C_SMBUS_READ)
+-		switch(size) {
+-			case I2C_SMBUS_BYTE:
+-				data->byte = msgbuf0[0];
+-				break;
+-			case I2C_SMBUS_BYTE_DATA:
+-				data->byte = msgbuf1[0];
+-				break;
+-			case I2C_SMBUS_WORD_DATA:
+-			case I2C_SMBUS_PROC_CALL:
+-				data->word = msgbuf1[0] | (msgbuf1[1] << 8);
+-				break;
+-			case I2C_SMBUS_I2C_BLOCK_DATA:
+-				for (i = 0; i < data->block[0]; i++)
+-					data->block[i+1] = msgbuf1[i];
+-				break;
+-			case I2C_SMBUS_BLOCK_DATA:
+-			case I2C_SMBUS_BLOCK_PROC_CALL:
+-				for (i = 0; i < msgbuf1[0] + 1; i++)
+-					data->block[i] = msgbuf1[i];
+-				break;
++		switch (size) {
++		case I2C_SMBUS_BYTE:
++			data->byte = msgbuf0[0];
++			break;
++		case I2C_SMBUS_BYTE_DATA:
++			data->byte = msgbuf1[0];
++			break;
++		case I2C_SMBUS_WORD_DATA:
++		case I2C_SMBUS_PROC_CALL:
++			data->word = msgbuf1[0] | (msgbuf1[1] << 8);
++			break;
++		case I2C_SMBUS_I2C_BLOCK_DATA:
++			for (i = 0; i < data->block[0]; i++)
++				data->block[i+1] = msgbuf1[i];
++			break;
++		case I2C_SMBUS_BLOCK_DATA:
++		case I2C_SMBUS_BLOCK_PROC_CALL:
++			for (i = 0; i < msgbuf1[0] + 1; i++)
++				data->block[i] = msgbuf1[i];
++			break;
+ 		}
+ 	return 0;
+ }
+@@ -1921,7 +1921,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 		}
+ 		rt_mutex_unlock(&adapter->bus_lock);
+ 	} else
+-		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
++		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
+ 					      command, protocol, data);
+
+ 	return res;
+--
+1.7.0
