@@ -1,66 +1,73 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c/pnx: Really fix start/stop issue
-Date: Sun, 18 Apr 2010 13:40:21 +0200
-Message-ID: <20100418114021.GA21364@pengutronix.de>
-References: <1271586070-12266-1-git-send-email-w.sang@pengutronix.de> <20100418130457.0341efce@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Subject: [PATCH V2] mach-pxa/viper: Fix timeout usage for I2C
+Date: Sun, 18 Apr 2010 13:48:29 +0200
+Message-ID: <1271591309-22567-1-git-send-email-w.sang@pengutronix.de>
+References: <20100412213235.1688dda8@hyperion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100418130457.0341efce-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20100412213235.1688dda8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>, Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The timeout value is in jiffies, so it should be using HZ, not a plain
+number. Assume with HZ=100 '100' means 1s here and adapt accordingly.
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>
+Cc: Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
 
-On Sun, Apr 18, 2010 at 01:04:57PM +0200, Jean Delvare wrote:
-> Hi Wolfram,
->=20
-> On Sun, 18 Apr 2010 12:21:10 +0200, Wolfram Sang wrote:
-> > The issue was truly solved by the second patch in this thread:
-> >=20
-> > http://thread.gmane.org/gmane.linux.drivers.i2c/5436
-> >=20
-> > Accidently, the first one was picked up. So, this patch adds the
-> > remaining diff (and an additional newline).
-> >=20
-> > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Cc: Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-> > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > ---
-> >=20
-> > Jean, can you pick this up, so it will be correct in 2.6.34?
->=20
-> i2c-pnx is for an embedded platform -> this is for Ben.
+Changes since V1:
 
-Would you mind picking it up if he has not done till, let's say, rc6? He did
-not comment to my pointers so far. Other stuff is pending, too (though not
-urgent). Maybe he is away/busy?
+* Don't assume 100 means 100ms
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Thanks for the comments!
 
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Admitted, the first try was a really bad guess. Maybe I got distracted from the
+previous patch for another arch where the value was 10000.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+While this may still not be the favoured solution for Eric, I think it is at
+least better than before, so it might be worth applying after all?
 
-iEYEARECAAYFAkvK76UACgkQD27XaX1/VRtORQCginzeBzUsXgI6A/s309ApY7qA
-vYAAmgL4P8OSfRwApar6Gq1N3c/loijo
-=p2jY
------END PGP SIGNATURE-----
+Janitorial fix, not tested due to no hardware.
 
---mYCpIKhGyMATD0i+--
+ arch/arm/mach-pxa/viper.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
+index 1dd1334..12cf38c 100644
+--- a/arch/arm/mach-pxa/viper.c
++++ b/arch/arm/mach-pxa/viper.c
+@@ -33,6 +33,7 @@
+ #include <linux/pm.h>
+ #include <linux/sched.h>
+ #include <linux/gpio.h>
++#include <linux/jiffies.h>
+ #include <linux/i2c-gpio.h>
+ #include <linux/serial_8250.h>
+ #include <linux/smc91x.h>
+@@ -453,7 +454,7 @@ static struct i2c_gpio_platform_data i2c_bus_data = {
+ 	.sda_pin = VIPER_RTC_I2C_SDA_GPIO,
+ 	.scl_pin = VIPER_RTC_I2C_SCL_GPIO,
+ 	.udelay  = 10,
+-	.timeout = 100,
++	.timeout = HZ,
+ };
+ 
+ static struct platform_device i2c_bus_device = {
+@@ -778,7 +779,7 @@ static void __init viper_tpm_init(void)
+ 		.sda_pin = VIPER_TPM_I2C_SDA_GPIO,
+ 		.scl_pin = VIPER_TPM_I2C_SCL_GPIO,
+ 		.udelay  = 10,
+-		.timeout = 100,
++		.timeout = HZ,
+ 	};
+ 	char *errstr;
+ 
+-- 
+1.7.0
