@@ -1,73 +1,78 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH V2] mach-pxa/viper: Fix timeout usage for I2C
-Date: Sun, 18 Apr 2010 13:48:29 +0200
-Message-ID: <1271591309-22567-1-git-send-email-w.sang@pengutronix.de>
-References: <20100412213235.1688dda8@hyperion.delvare>
+Subject: Re: [PATCH 2/3] i2c/pxa: only define 'blue_murder'-function if
+	DEBUG is #defined
+Date: Sun, 18 Apr 2010 15:22:51 +0200
+Message-ID: <20100418132251.GB21364@pengutronix.de>
+References: <20100224110044.GB15181@pengutronix.de> <1267009306-17227-2-git-send-email-u.kleine-koenig@pengutronix.de> <20100228155502.GB16745@n2100.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100412213235.1688dda8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100228155502.GB16745-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>, Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The timeout value is in jiffies, so it should be using HZ, not a plain
-number. Assume with HZ=100 '100' means 1s here and adapt accordingly.
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>
-Cc: Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
+--7ZAtKRhVyVSsbBD2
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Changes since V1:
 
-* Don't assume 100 means 100ms
+Sorry to bump this old thread, it dropped off my todo-list :(
 
-Thanks for the comments!
+On Sun, Feb 28, 2010 at 03:55:02PM +0000, Russell King - ARM Linux wrote:
+> On Wed, Feb 24, 2010 at 12:01:45PM +0100, Uwe Kleine-K=F6nig wrote:
+> > From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> >=20
+> > This talkative function is also called on timeouts. As timeouts can
+> > happen on regular writes to EEPROMs (no error case), this creates false
+> > positives.  Giving lots of details is interesting only for developers
+> > anyhow, so just use the function if DEBUG is #defined.
+>=20
+> Are you sure this is safe?  If you time out the write before it completes,
+> how do you know if the write was successful?
+>=20
+> I don't think this is "no error code" nor "false positive".  If the timeo=
+ut
+> is too short for your EEPROMs, then the timeout needs to be increased.
 
-Admitted, the first try was a really bad guess. Maybe I got distracted from the
-previous patch for another arch where the value was 10000.
+I am sure this is safe because we have retries. The eeprom driver first tri=
+es
+to write data without a delay, because EEPROMs often have buffers. Once the
+buffers are full, the chip will not answer to the next write request which =
+will
+result in a timeout for this write request. This is expected, so it will be
+retried after some delay. Something like -EBUSY. Only if another "outer"
+timeout passed after some retries, then we have a problem and this should be
+user visible. But the timeout for the write request is nothing exceptional =
+and
+the user doesn't need to be informed about it, especially not in this detai=
+l.
+This is what the patch is addressing.
 
-While this may still not be the favoured solution for Eric, I think it is at
-least better than before, so it might be worth applying after all?
+Kind regards,
 
-Janitorial fix, not tested due to no hardware.
+   Wolfram
 
- arch/arm/mach-pxa/viper.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
-index 1dd1334..12cf38c 100644
---- a/arch/arm/mach-pxa/viper.c
-+++ b/arch/arm/mach-pxa/viper.c
-@@ -33,6 +33,7 @@
- #include <linux/pm.h>
- #include <linux/sched.h>
- #include <linux/gpio.h>
-+#include <linux/jiffies.h>
- #include <linux/i2c-gpio.h>
- #include <linux/serial_8250.h>
- #include <linux/smc91x.h>
-@@ -453,7 +454,7 @@ static struct i2c_gpio_platform_data i2c_bus_data = {
- 	.sda_pin = VIPER_RTC_I2C_SDA_GPIO,
- 	.scl_pin = VIPER_RTC_I2C_SCL_GPIO,
- 	.udelay  = 10,
--	.timeout = 100,
-+	.timeout = HZ,
- };
- 
- static struct platform_device i2c_bus_device = {
-@@ -778,7 +779,7 @@ static void __init viper_tpm_init(void)
- 		.sda_pin = VIPER_TPM_I2C_SDA_GPIO,
- 		.scl_pin = VIPER_TPM_I2C_SCL_GPIO,
- 		.udelay  = 10,
--		.timeout = 100,
-+		.timeout = HZ,
- 	};
- 	char *errstr;
- 
--- 
-1.7.0
+--7ZAtKRhVyVSsbBD2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkvLB6sACgkQD27XaX1/VRtCBQCeJOtzw7shQQA99eMRDv7/fguO
+/mUAoJxN7wyGOxM0DiwNvOzPl8aUGs/i
+=qrgG
+-----END PGP SIGNATURE-----
+
+--7ZAtKRhVyVSsbBD2--
