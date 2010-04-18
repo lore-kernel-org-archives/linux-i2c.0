@@ -1,47 +1,49 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c/pxa: only define 'blue_murder'-function if
- DEBUG is #defined
-Date: Sun, 18 Apr 2010 16:11:26 +0200
-Message-ID: <20100418141126.GA15193@elf.ucw.cz>
-References: <20100224110044.GB15181@pengutronix.de>
- <1267009306-17227-2-git-send-email-u.kleine-koenig@pengutronix.de>
- <20100228155502.GB16745@n2100.arm.linux.org.uk>
- <20100418132251.GB21364@pengutronix.de>
- <20100418134502.GA15452@n2100.arm.linux.org.uk>
- <20100418140548.GC21364@pengutronix.de>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c/pnx: Really fix start/stop issue
+Date: Sun, 18 Apr 2010 17:53:06 +0100
+Message-ID: <20100418165306.GB2234@trinity.fluff.org>
+References: <1271586070-12266-1-git-send-email-w.sang@pengutronix.de> <20100418130457.0341efce@hyperion.delvare> <20100418114021.GA21364@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100418140548.GC21364-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20100418114021.GA21364-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Roel Kluin <roel.kluin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun 2010-04-18 16:05:48, Wolfram Sang wrote:
-> > > I am sure this is safe because we have retries. The eeprom driver first tries
-> > > to write data without a delay, because EEPROMs often have buffers. Once the
-> > > buffers are full, the chip will not answer to the next write request which will
-> > > result in a timeout for this write request. This is expected, so it will be
-> > > retried after some delay. Something like -EBUSY. Only if another "outer"
-> > > timeout passed after some retries, then we have a problem and this should be
-> > > user visible. But the timeout for the write request is nothing exceptional and
-> > > the user doesn't need to be informed about it, especially not in this detail.
-> > > This is what the patch is addressing.
+On Sun, Apr 18, 2010 at 01:40:21PM +0200, Wolfram Sang wrote:
+> On Sun, Apr 18, 2010 at 01:04:57PM +0200, Jean Delvare wrote:
+> > Hi Wolfram,
 > > 
-> > And what if it's not an EEPROM that you're talking to?
+> > On Sun, 18 Apr 2010 12:21:10 +0200, Wolfram Sang wrote:
+> > > The issue was truly solved by the second patch in this thread:
+> > > 
+> > > http://thread.gmane.org/gmane.linux.drivers.i2c/5436
+> > > 
+> > > Accidently, the first one was picked up. So, this patch adds the
+> > > remaining diff (and an additional newline).
+> > > 
+> > > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > Cc: Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+> > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > > ---
+> > > 
+> > > Jean, can you pick this up, so it will be correct in 2.6.34?
+> > 
+> > i2c-pnx is for an embedded platform -> this is for Ben.
 > 
-> That's up to the corresponding driver. The driver is still notified via the
-> return value how many i2c-messages could be transmitted. If this is not equal
-> to what the driver intended, then it can decide to retry or notify the user.
-> And that is the apropriate level. Doing all this printout at the bus-driver
-> level is only interesting for developers. Users are frightened by the "timeout"
-> in their logs although everything might be as expected. A bus driver can't
-> know.
+> Would you mind picking it up if he has not done till, let's say, rc6? He did
+> not comment to my pointers so far. Other stuff is pending, too (though not
+> urgent). Maybe he is away/busy?
 
-I guess expected conditions should not trigger log spam...?
-									Pavel
+Forgot to send last set of fixes after putting them into my git.
+
+Will merge and send later today.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Ben
+ 
