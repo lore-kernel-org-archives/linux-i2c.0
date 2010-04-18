@@ -1,219 +1,56 @@
-From: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-core: fix some coding style issues in i2c-core.c
-Date: Sun, 18 Apr 2010 10:41:07 +0200
-Message-ID: <1271580067-13619-1-git-send-email-farid.hammane@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c/pnx: Really fix start/stop issue
+Date: Sun, 18 Apr 2010 12:21:10 +0200
+Message-ID: <1271586070-12266-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, giometti-k2GhghHVRtY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a patch to the i2c-core.c file that fixes up coding style issues found by the checkpatch.pl tool
+The issue was truly solved by the second patch in this thread:
 
-Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+http://thread.gmane.org/gmane.linux.drivers.i2c/5436
+
+Accidently, the first one was picked up. So, this patch adds the
+remaining diff (and an additional newline).
+
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   86 ++++++++++++++++++++++++------------------------
- 1 files changed, 43 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3202a86..582a53c 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1187,10 +1187,10 @@ EXPORT_SYMBOL(i2c_transfer);
-  *
-  * Returns negative errno, or else the number of bytes written.
-  */
--int i2c_master_send(struct i2c_client *client,const char *buf ,int count)
-+int i2c_master_send(struct i2c_client *client, const char *buf, int count)
- {
- 	int ret;
--	struct i2c_adapter *adap=client->adapter;
-+	struct i2c_adapter *adap = client->adapter;
- 	struct i2c_msg msg;
+Jean, can you pick this up, so it will be correct in 2.6.34?
 
- 	msg.addr = client->addr;
-@@ -1214,9 +1214,9 @@ EXPORT_SYMBOL(i2c_master_send);
-  *
-  * Returns negative errno, or else the number of bytes read.
-  */
--int i2c_master_recv(struct i2c_client *client, char *buf ,int count)
-+int i2c_master_recv(struct i2c_client *client, char *buf, int count)
- {
--	struct i2c_adapter *adap=client->adapter;
-+	struct i2c_adapter *adap = client->adapter;
- 	struct i2c_msg msg;
- 	int ret;
+ drivers/i2c/busses/i2c-pnx.c |    7 ++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-@@ -1407,7 +1407,7 @@ i2c_new_probed_device(struct i2c_adapter *adap,
- }
- EXPORT_SYMBOL_GPL(i2c_new_probed_device);
-
--struct i2c_adapter* i2c_get_adapter(int id)
-+struct i2c_adapter *i2c_get_adapter(int id)
- {
- 	struct i2c_adapter *adapter;
-
-@@ -1434,7 +1434,7 @@ static u8 crc8(u16 data)
- {
- 	int i;
-
--	for(i = 0; i < 8; i++) {
-+	for (i = 0; i < 8; i++) {
- 		if (data & 0x8000)
- 			data = data ^ POLY;
- 		data = data << 1;
-@@ -1447,7 +1447,7 @@ static u8 i2c_smbus_pec(u8 crc, u8 *p, size_t count)
- {
- 	int i;
-
--	for(i = 0; i < count; i++)
-+	for (i = 0; i < count; i++)
- 		crc = crc8((crc ^ p[i]) << 8);
- 	return crc;
- }
-@@ -1517,7 +1517,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
-  */
- s32 i2c_smbus_write_byte(struct i2c_client *client, u8 value)
- {
--	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
- 	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte);
-@@ -1555,9 +1555,9 @@ s32 i2c_smbus_write_byte_data(struct i2c_client *client, u8 command, u8 value)
- {
- 	union i2c_smbus_data data;
- 	data.byte = value;
--	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
--	                      I2C_SMBUS_WRITE,command,
--	                      I2C_SMBUS_BYTE_DATA,&data);
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+	                      I2C_SMBUS_WRITE, command,
-+	                      I2C_SMBUS_BYTE_DATA, &data);
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte_data);
-
-@@ -1594,9 +1594,9 @@ s32 i2c_smbus_write_word_data(struct i2c_client *client, u8 command, u16 value)
- {
- 	union i2c_smbus_data data;
- 	data.word = value;
--	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
--	                      I2C_SMBUS_WRITE,command,
--	                      I2C_SMBUS_WORD_DATA,&data);
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+	                      I2C_SMBUS_WRITE, command,
-+	                      I2C_SMBUS_WORD_DATA, &data);
- }
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
-
-@@ -1673,9 +1673,9 @@ s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
- 		length = I2C_SMBUS_BLOCK_MAX;
- 	data.block[0] = length;
- 	memcpy(&data.block[1], values, length);
--	return i2c_smbus_xfer(client->adapter,client->addr,client->flags,
--			      I2C_SMBUS_WRITE,command,
--			      I2C_SMBUS_BLOCK_DATA,&data);
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+			      I2C_SMBUS_WRITE, command,
-+			      I2C_SMBUS_BLOCK_DATA, &data);
- }
- EXPORT_SYMBOL(i2c_smbus_write_block_data);
-
-@@ -1717,10 +1717,10 @@ EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
-
- /* Simulate a SMBus command using the i2c protocol
-    No checking of parameters is done!  */
--static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
-+static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
-                                    unsigned short flags,
-                                    char read_write, u8 command, int size,
--                                   union i2c_smbus_data * data)
-+                                   union i2c_smbus_data *data)
- {
- 	/* So we need to generate a series of msgs. In the case of writing, we
- 	  need to use only one message; when reading, we need two. We initialize
-@@ -1728,7 +1728,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
- 	  simpler. */
- 	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
- 	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
--	int num = read_write == I2C_SMBUS_READ?2:1;
-+	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
- 	struct i2c_msg msg[2] = { { addr, flags, 1, msgbuf0 },
- 	                          { addr, flags | I2C_M_RD, 0, msgbuf1 }
- 	                        };
-@@ -1737,7 +1737,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
- 	int status;
-
- 	msgbuf0[0] = command;
--	switch(size) {
-+	switch (size) {
- 	case I2C_SMBUS_QUICK:
- 		msg[0].len = 0;
- 		/* Special case: The read/write field is used as data */
-@@ -1764,7 +1764,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
- 		if (read_write == I2C_SMBUS_READ)
- 			msg[1].len = 2;
- 		else {
--			msg[0].len=3;
-+			msg[0].len = 3;
- 			msgbuf0[1] = data->word & 0xff;
- 			msgbuf0[2] = data->word >> 8;
- 		}
-@@ -1857,26 +1857,26 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter * adapter, u16 addr,
- 	}
-
- 	if (read_write == I2C_SMBUS_READ)
--		switch(size) {
--			case I2C_SMBUS_BYTE:
--				data->byte = msgbuf0[0];
--				break;
--			case I2C_SMBUS_BYTE_DATA:
--				data->byte = msgbuf1[0];
--				break;
--			case I2C_SMBUS_WORD_DATA:
--			case I2C_SMBUS_PROC_CALL:
--				data->word = msgbuf1[0] | (msgbuf1[1] << 8);
--				break;
--			case I2C_SMBUS_I2C_BLOCK_DATA:
--				for (i = 0; i < data->block[0]; i++)
--					data->block[i+1] = msgbuf1[i];
--				break;
--			case I2C_SMBUS_BLOCK_DATA:
--			case I2C_SMBUS_BLOCK_PROC_CALL:
--				for (i = 0; i < msgbuf1[0] + 1; i++)
--					data->block[i] = msgbuf1[i];
--				break;
-+		switch (size) {
-+		case I2C_SMBUS_BYTE:
-+			data->byte = msgbuf0[0];
-+			break;
-+		case I2C_SMBUS_BYTE_DATA:
-+			data->byte = msgbuf1[0];
-+			break;
-+		case I2C_SMBUS_WORD_DATA:
-+		case I2C_SMBUS_PROC_CALL:
-+			data->word = msgbuf1[0] | (msgbuf1[1] << 8);
-+			break;
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			for (i = 0; i < data->block[0]; i++)
-+				data->block[i+1] = msgbuf1[i];
-+			break;
-+		case I2C_SMBUS_BLOCK_DATA:
-+		case I2C_SMBUS_BLOCK_PROC_CALL:
-+			for (i = 0; i < msgbuf1[0] + 1; i++)
-+				data->block[i] = msgbuf1[i];
-+			break;
- 		}
- 	return 0;
- }
-@@ -1921,7 +1921,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 		}
- 		rt_mutex_unlock(&adapter->bus_lock);
- 	} else
--		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
-+		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
- 					      command, protocol, data);
-
- 	return res;
---
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index 2471033..0853ee1 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -173,6 +173,10 @@ static int i2c_pnx_master_xmit(struct i2c_pnx_algo_data *alg_data)
+ 		/* We still have something to talk about... */
+ 		val = *alg_data->mif.buf++;
+ 
++		/* last byte of a message */
++		if (alg_data->mif.len == 1)
++			val |= stop_bit;
++
+ 		alg_data->mif.len--;
+ 		iowrite32(val, I2C_REG_TX(alg_data));
+ 
+@@ -246,6 +250,9 @@ static int i2c_pnx_master_rcv(struct i2c_pnx_algo_data *alg_data)
+ 			__func__);
+ 
+ 		if (alg_data->mif.len == 1) {
++			/* Last byte, do not acknowledge next rcv. */
++			val |= stop_bit;
++
+ 			/*
+ 			 * Enable interrupt RFDAIE (data in Rx fifo),
+ 			 * and disable DRMIE (need data for Tx)
+-- 
 1.7.0
