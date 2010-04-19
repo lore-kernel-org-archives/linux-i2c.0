@@ -1,80 +1,111 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c/pnx: Really fix start/stop issue
-Date: Tue, 20 Apr 2010 00:52:32 +0100
-Message-ID: <20100419235232.GG32401@fluff.org.uk>
-References: <1271586070-12266-1-git-send-email-w.sang@pengutronix.de>
- <20100418130457.0341efce@hyperion.delvare>
- <20100418114021.GA21364@pengutronix.de>
- <20100418165306.GB2234@trinity.fluff.org>
- <083DF309106F364B939360100EC290F80979C8121C@eu1rdcrdc1wx030.exi.nxp.com>
+Subject: Re: [PATCH v3] OMAP2/3: I2C: Errata ID i207: Clear wrong RDR
+ interrupt
+Date: Tue, 20 Apr 2010 00:53:42 +0100
+Message-ID: <20100419235342.GH32401@fluff.org.uk>
+References: <1271330087-26084-1-git-send-email-manjugk@ti.com>
+ <4BC701B0.6060309@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <083DF309106F364B939360100EC290F80979C8121C-SIPbe8o7cfX8DdpCu65jn8FrZmdRls4ZQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <4BC701B0.6060309-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Aaro Koskinen <aaro.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: ext Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 19, 2010 at 06:59:29PM +0200, Kevin Wells wrote:
+On Thu, Apr 15, 2010 at 03:08:16PM +0300, Aaro Koskinen wrote:
+> Hi,
 > 
-> Hi Ben,
+> Manjunatha GK wrote:
+> > Under certain rare conditions, I2C_STAT[13].RDR bit may be set
+> > and the corresponding interrupt fire, even there is no data in
+> > the receive FIFO, or the I2C data transfer is still ongoing.
+> > These spurious RDR events must be ignored by the software.
+> > 
+> > This patch handles and ignores RDR spurious interrupts.
+> > 
+> > The below sequence is required in interrupt handler for
+> > handling this errata:
+> > 1. If RDR is set to 1, clear RDR
+> > 2. Read I2C status register and check for BusBusy bit. If BusBusy
+> > bit is set, skip remaining steps.
+> > 3. If BusBusy bit is not set, perform read operation on I2C status
+> > register.
+> > 4. If RDR is set, clear the same. Check RDR again and clear if it sets
+> > RDR bit again.
+> > 5. Perform I2C Data Read operation N number of times(where N is value
+> > read from the register BUFSTAT-RXSTAT bit fields).
+> > 
+> > Note : This errata is applicable for OMAP2 and OMAP3 platforms only.
+> > It is not applicable for OMAP4.
+> > 
+> > Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+> > Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
+> > Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+> > 
+> > ---
+> >  drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++++++++++++++
+> >  1 files changed, 28 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> > index ae6f5c1..d1648da 100644
+> > --- a/drivers/i2c/busses/i2c-omap.c
+> > +++ b/drivers/i2c/busses/i2c-omap.c
+> > @@ -733,6 +733,34 @@ complete:
+> >  		}
+> >  		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
+> >  			u8 num_bytes = 1;
+> > +
+> > +			/*
+> > +			 * I2C Errata(Errata Nos. OMAP2: 1.67, OMAP3: 1.8)
+> > +			 * Not applicable for OMAP4.
+> > +			 * Under certain rare conditions, RDR could be set again
+> > +			 * when the bus is busy, then ignore the interrupt and
+> > +			 * clear the interrupt.
+> > +			 */
+> > +			if ((stat & OMAP_I2C_STAT_RDR) && !cpu_is_omap44xx()) {
+> > +				/* Step 1: If RDR is set, clear it */
+> > +				omap_i2c_ack_stat(dev, stat & OMAP_I2C_STAT_RDR);
 > 
-> I'm not sure if you got the other set of 3 i2c-pnx patches
-> yet, one of those patches also fixed this issue. If you
-> haven't installed those patches yet, I'll resubmit them
-> without this fix.
+> You know the bit is set, so just: omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
+> 
+> > +
+> > +				/* Step 2: */
+> > +				if(!(omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG)
+> > +							& OMAP_I2C_STAT_BB)) {
+> > +					/* Step 3: */
+> > +					if(omap_i2c_read_reg(dev,
+> > +						OMAP_I2C_STAT_REG)
+> > +							& OMAP_I2C_STAT_RDR) {
+> > +						omap_i2c_ack_stat(dev, stat
+> > +							& OMAP_I2C_STAT_RDR);
+> 
+> Same here.
+> 
+> > +						dev_err(dev->dev,
+> > +						"I2C : RDR when the bus is busy.\n");
+> 
+> Remove the "I2C : " from the log, it's redundant.
 
-I'll check when I get around to rebasing -next, which may not be until
-later in the week.
+I'd agree, we're already prefixing this with the device name and
+driver name from the dev_err() call. No need to add any more.
+
+If it is in use elsewhere in the file, I'd prefer to see it removed
+from the other points.
  
-> thanks,
-> Kevin
+> > +						continue;
+> > +					}
+> > +
+> > +				}
+> > +			}
+> >  			if (dev->fifo_size) {
+> >  				if (stat & OMAP_I2C_STAT_RRDY)
+> >  					num_bytes = dev->fifo_size;
 > 
-> > -----Original Message-----
-> > From: Ben Dooks [mailto:ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org]
-> > Sent: Sunday, April 18, 2010 9:53 AM
-> > To: Wolfram Sang
-> > Cc: Jean Delvare; Ben Dooks; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Luotao Fu; Kevin
-> > Wells
-> > Subject: Re: [PATCH] i2c/pnx: Really fix start/stop issue
-> > 
-> > On Sun, Apr 18, 2010 at 01:40:21PM +0200, Wolfram Sang wrote:
-> > > On Sun, Apr 18, 2010 at 01:04:57PM +0200, Jean Delvare wrote:
-> > > > Hi Wolfram,
-> > > >
-> > > > On Sun, 18 Apr 2010 12:21:10 +0200, Wolfram Sang wrote:
-> > > > > The issue was truly solved by the second patch in this thread:
-> > > > >
-> > > > > http://thread.gmane.org/gmane.linux.drivers.i2c/5436
-> > > > >
-> > > > > Accidently, the first one was picked up. So, this patch adds the
-> > > > > remaining diff (and an additional newline).
-> > > > >
-> > > > > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > > > Cc: Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > > > Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
-> > > > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > > > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > > > ---
-> > > > >
-> > > > > Jean, can you pick this up, so it will be correct in 2.6.34?
-> > > >
-> > > > i2c-pnx is for an embedded platform -> this is for Ben.
-> > >
-> > > Would you mind picking it up if he has not done till, let's say, rc6? He
-> > did
-> > > not comment to my pointers so far. Other stuff is pending, too (though not
-> > > urgent). Maybe he is away/busy?
-> > 
-> > Forgot to send last set of fixes after putting them into my git.
-> > 
-> > Will merge and send later today.
-> > 
-> > --
-> > Ben
-> > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
 > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
