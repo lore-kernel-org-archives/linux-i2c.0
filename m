@@ -1,46 +1,29 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c/pnx: Really fix start/stop issue
-Date: Mon, 19 Apr 2010 00:40:08 +0200
-Message-ID: <20100418224008.GA16563@pengutronix.de>
-References: <1271586070-12266-1-git-send-email-w.sang@pengutronix.de> <20100418130457.0341efce@hyperion.delvare> <20100418114021.GA21364@pengutronix.de> <20100418165306.GB2234@trinity.fluff.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-dev: fix all coding style issues in i2c-dev.c
+Date: Mon, 19 Apr 2010 08:20:25 +0200
+Message-ID: <20100419082025.3df80ad5@hyperion.delvare>
+References: <1271615899-5894-1-git-send-email-farid.hammane@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100418165306.GB2234-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1271615899-5894-1-git-send-email-farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+To: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, vince-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Farid,
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, 18 Apr 2010 20:38:19 +0200, Farid Hammane wrote:
+> This patch fixes all coding style issues found by checkpatch.pl.
+> 
+> Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-dev.c |   30 +++++++++++++++---------------
+>  1 files changed, 15 insertions(+), 15 deletions(-)
 
-> Forgot to send last set of fixes after putting them into my git.
->=20
-> Will merge and send later today.
+Applied, thanks.
 
-Cool, thanks!
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkvLikgACgkQD27XaX1/VRsXeACgqxOsDzYahENqIb25t2QCCR1t
-liAAniiLDY0cb49fHSHhjmIebNeO9Mpi
-=JRAU
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+-- 
+Jean Delvare
