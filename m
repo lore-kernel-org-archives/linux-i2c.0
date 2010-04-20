@@ -1,105 +1,92 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v4] OMAP2/3: I2C: Errata ID i207: Clear wrong RDR
- interrupt
-Date: Tue, 20 Apr 2010 01:16:33 +0100
-Message-ID: <20100420001633.GM32401@fluff.org.uk>
-References: <1271661262-10538-1-git-send-email-manjugk@ti.com>
+From: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V2] mach-pxa/viper: Fix timeout usage for I2C
+Date: Tue, 20 Apr 2010 08:20:46 +0800
+Message-ID: <z2xf17812d71004191720o3f8660a4kdd31ef9cdb6beae9@mail.gmail.com>
+References: <20100412213235.1688dda8@hyperion.delvare> <1271591309-22567-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1271661262-10538-1-git-send-email-manjugk-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1271591309-22567-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Aaro Koskinen <Aaro.Koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>, Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 19, 2010 at 12:44:22PM +0530, Manjunatha GK wrote:
-> Under certain rare conditions, I2C_STAT[13].RDR bit may be set
-> and the corresponding interrupt fire, even there is no data in
-> the receive FIFO, or the I2C data transfer is still ongoing.
-> These spurious RDR events must be ignored by the software.
-> 
-> This patch handles and ignores RDR spurious interrupts.
-> 
-> The below sequence is required in interrupt handler for
-> handling this errata:
-> 1. If RDR is set to 1, clear RDR
-> 2. Read I2C status register and check for BusBusy bit. If BusBusy
-> bit is set, skip remaining steps.
-> 3. If BusBusy bit is not set, perform read operation on I2C status
-> register.
-> 4. If RDR is set, clear the same. Check RDR again and clear if it sets
-> RDR bit again.
-> 5. Perform I2C Data Read operation N number of times(where N is value
-> read from the register BUFSTAT-RXSTAT bit fields).
-> 
-> Note : This errata is applicable for OMAP2 and OMAP3 platforms only.
-> It is not applicable for OMAP4.
-
-If people can give me a yes/no before the end of play tomorrow (ie,
-2300GMT) then I will get this applied to for-linus/i2c and send it
-for -rc.
- 
-> Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-> Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
-> Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
-> Cc: Aaro Koskinen <Aaro.Koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> 
+On Sun, Apr 18, 2010 at 7:48 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> w=
+rote:
+> The timeout value is in jiffies, so it should be using HZ, not a plai=
+n
+> number. Assume with HZ=3D100 '100' means 1s here and adapt accordingl=
+y.
+>
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+> Cc: Marc Zyngier <maz-20xNzvSXLT6hUMvJH42dtQ@public.gmane.org>
+> Cc: Paul Shen <paul.shen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Cc: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++++++++++++++
->  1 files changed, 28 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index f2019d2..8309eac 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -796,6 +796,34 @@ complete:
->  		}
->  		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
->  			u8 num_bytes = 1;
-> +
-> +			/*
-> +			 * I2C Errata(Errata Nos. OMAP2: 1.67, OMAP3: 1.8)
-> +			 * Not applicable for OMAP4.
-> +			 * Under certain rare conditions, RDR could be set again
-> +			 * when the bus is busy, then ignore the interrupt and
-> +			 * clear the interrupt.
-> +			 */
-> +			if ((stat & OMAP_I2C_STAT_RDR) && !cpu_is_omap44xx()) {
-> +				/* Step 1: If RDR is set, clear it */
-> +				omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
-> +
-> +				/* Step 2: */
-> +				if(!(omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG)
-> +							& OMAP_I2C_STAT_BB)) {
-> +					/* Step 3: */
-> +					if(omap_i2c_read_reg(dev,
-> +						OMAP_I2C_STAT_REG)
-> +							& OMAP_I2C_STAT_RDR) {
-> +						omap_i2c_ack_stat(dev,
-> +							OMAP_I2C_STAT_RDR);
-> +						dev_err(dev->dev,
-> +						"RDR when the bus is busy.\n");
-> +						continue;
-> +					}
-> +
-> +				}
-> +			}
->  			if (dev->fifo_size) {
->  				if (stat & OMAP_I2C_STAT_RRDY)
->  					num_bytes = dev->fifo_size;
-> -- 
-> 1.6.0.4
-> 
+>
+> Changes since V1:
+>
+> * Don't assume 100 means 100ms
+>
+> Thanks for the comments!
+>
+> Admitted, the first try was a really bad guess. Maybe I got distracte=
+d from the
+> previous patch for another arch where the value was 10000.
+>
+> While this may still not be the favoured solution for Eric, I think i=
+t is at
+> least better than before, so it might be worth applying after all?
+
+Ack. The clearest fix would involve more code to be updated, which
+can be postponed. This fix, at least, makes the time quantity clearer.
+
+>
+> Janitorial fix, not tested due to no hardware.
+>
+> =C2=A0arch/arm/mach-pxa/viper.c | =C2=A0 =C2=A05 +++--
+> =C2=A01 files changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
+> index 1dd1334..12cf38c 100644
+> --- a/arch/arm/mach-pxa/viper.c
+> +++ b/arch/arm/mach-pxa/viper.c
+> @@ -33,6 +33,7 @@
+> =C2=A0#include <linux/pm.h>
+> =C2=A0#include <linux/sched.h>
+> =C2=A0#include <linux/gpio.h>
+> +#include <linux/jiffies.h>
+> =C2=A0#include <linux/i2c-gpio.h>
+> =C2=A0#include <linux/serial_8250.h>
+> =C2=A0#include <linux/smc91x.h>
+> @@ -453,7 +454,7 @@ static struct i2c_gpio_platform_data i2c_bus_data=
+ =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0.sda_pin =3D VIPER_RTC_I2C_SDA_GPIO,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0.scl_pin =3D VIPER_RTC_I2C_SCL_GPIO,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0.udelay =C2=A0=3D 10,
+> - =C2=A0 =C2=A0 =C2=A0 .timeout =3D 100,
+> + =C2=A0 =C2=A0 =C2=A0 .timeout =3D HZ,
+> =C2=A0};
+>
+> =C2=A0static struct platform_device i2c_bus_device =3D {
+> @@ -778,7 +779,7 @@ static void __init viper_tpm_init(void)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.sda_pin =3D V=
+IPER_TPM_I2C_SDA_GPIO,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.scl_pin =3D V=
+IPER_TPM_I2C_SCL_GPIO,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.udelay =C2=A0=
+=3D 10,
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .timeout =3D 100,
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 .timeout =3D HZ,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0};
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0char *errstr;
+>
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
-Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+> 1.7.0
+>
+>
