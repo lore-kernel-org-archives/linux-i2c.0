@@ -1,25 +1,23 @@
-From: info <web12109-rdc5FV7LBygPGFelY5Zqew@public.gmane.org>
-Subject: Irish 2010 Grant Winner
-Date: Wed, 21 Apr 2010 19:00:29 +0800 (SGT)
-Message-ID: <1271847629.4bcedacd9c499@discus.singnet.com.sg>
-Reply-To: redeemprize2010-SrPyuzuu+o61Qrn1Bg8BZw@public.gmane.org
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: Driver for SMM665 power controller
+Date: Wed, 21 Apr 2010 10:36:06 -0700
+Message-ID: <20100421173606.GA11725@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: iri-m/X/MrrnMWw@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-=A31,000,000Pounds has been awarded to you in the U.KPROMO.send details=
- to:
-Names,,,,,,,,,,
-Tel,,,,,,,,,,,,
-Age,,,,,,,,,,
-Address,,,,,,,,
-Occupation,,,,,,,,,
-Country,,,,,,,,,,
-Email:redeem_prize-SrPyuzuu+o61Qrn1Bg8BZw@public.gmane.org
+Hi,
 
-Agent Name: Mr. Mark Foster
-Tel:+44 704-571-0545
+does anyone know if there is a driver for the SMM665/SMM766 power controllers ? 
+
+If not, is there interest in such a driver ? I have a prototype running,
+but before cleaning it up and submitting it I would like to get an idea
+if it is worth the effort.
+
+Thanks,
+Guenter
