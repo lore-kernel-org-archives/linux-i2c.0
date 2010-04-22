@@ -1,78 +1,129 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Wolfram Sang <w.sang@pengutronix.de>
 Subject: Re: [PATCH] i2c-algo-pca: fix all coding style issues in
- i2c-algo-pca.c
-Date: Thu, 22 Apr 2010 09:25:24 +0200
-Message-ID: <20100422092524.77b7aa84@hyperion.delvare>
-References: <1271877097-10939-1-git-send-email-farid.hammane@gmail.com>
-	<20100421235738.GB24384@pengutronix.de>
+	i2c-algo-pca.c
+Date: Thu, 22 Apr 2010 09:59:37 +0200
+Message-ID: <20100422075937.GN24384@pengutronix.de>
+References: <1271877097-10939-1-git-send-email-farid.hammane@gmail.com> <20100421235738.GB24384@pengutronix.de> <20100422092524.77b7aa84@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100421235738.GB24384-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lBqJz4CGKwlWe7/k"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100422092524.77b7aa84@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Farid Hammane <farid.hammane@gmail.com>, ben-linux@fluff.org, Enrik.Berkhan@ge.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 22 Apr 2010 01:57:38 +0200, Wolfram Sang wrote:
-> Hi Farid,
-> 
-> thanks for this approach. Have you checked that the binary is the same
-> before/after your patch? If so, please mention in your patch description.
-> 
-> Also, always keep in mind that checkpatch helps to make code readable. Some of
-> your changes should keep readability in mind not just fixing the warnings.
-> 
-> On Wed, Apr 21, 2010 at 09:11:37PM +0200, Farid Hammane wrote:
-> > This patch fixes all coding style issues found by checkpatch.pl.
-> 
-> > 
-> > Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  drivers/i2c/algos/i2c-algo-pca.c |   74 ++++++++++++++++++++++---------------
-> >  1 files changed, 44 insertions(+), 30 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-> > (...)
-> > @@ -178,12 +178,12 @@ static int pca_rx_ack(struct i2c_algo_pca_data *adap,
-> >  }
-> >  
-> >  static int pca_xfer(struct i2c_adapter *i2c_adap,
-> > -                    struct i2c_msg *msgs,
-> > -                    int num)
-> > +		struct i2c_msg *msgs,
-> > +		int num)
-> 
-> One more tab maybe?
 
-Better use tab + spaces and align on the opening parenthesis. What
-checkpatch.pl complains about here isn't the alignment, it's the use of
-more than 8 consecutive spaces.
+--lBqJz4CGKwlWe7/k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > (...)
-> > @@ -241,8 +244,10 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
-> >  			completed = pca_address(adap, msg);
-> >  			break;
-> >  
-> > -		case 0x18: /* SLA+W has been transmitted; ACK has been received */
-> > -		case 0x28: /* Data byte in I2CDAT has been transmitted; ACK has been received */
-> > +		case 0x18: /* SLA+W has been transmitted;
-> > +			      ACK has been received */
-> > +		case 0x28: /* Data byte in I2CDAT has been transmitted;
-> > +			      ACK has been received */
-> 
-> First, check CodingStyle for how multiline comments should look like. For
-> readability, I'd like to keep them single line, though. I think this could
-> be done by rewording. Same for all following comments.
+On Thu, Apr 22, 2010 at 09:25:24AM +0200, Jean Delvare wrote:
+> On Thu, 22 Apr 2010 01:57:38 +0200, Wolfram Sang wrote:
+> > Hi Farid,
+> >=20
+> > thanks for this approach. Have you checked that the binary is the same
+> > before/after your patch? If so, please mention in your patch descriptio=
+n.
+> >=20
+> > Also, always keep in mind that checkpatch helps to make code readable. =
+Some of
+> > your changes should keep readability in mind not just fixing the warnin=
+gs.
+> >=20
+> > On Wed, Apr 21, 2010 at 09:11:37PM +0200, Farid Hammane wrote:
+> > > This patch fixes all coding style issues found by checkpatch.pl.
+> >=20
+> > >=20
+> > > Signed-off-by: Farid Hammane <farid.hammane@gmail.com>
+> > > ---
+> > >  drivers/i2c/algos/i2c-algo-pca.c |   74 ++++++++++++++++++++++------=
+---------
+> > >  1 files changed, 44 insertions(+), 30 deletions(-)
+> > >=20
+> > > diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c=
+-algo-pca.c
+> > > (...)
+> > > @@ -178,12 +178,12 @@ static int pca_rx_ack(struct i2c_algo_pca_data =
+*adap,
+> > >  }
+> > > =20
+> > >  static int pca_xfer(struct i2c_adapter *i2c_adap,
+> > > -                    struct i2c_msg *msgs,
+> > > -                    int num)
+> > > +		struct i2c_msg *msgs,
+> > > +		int num)
+> >=20
+> > One more tab maybe?
+>=20
+> Better use tab + spaces and align on the opening parenthesis. What
+> checkpatch.pl complains about here isn't the alignment, it's the use of
+> more than 8 consecutive spaces.
+>=20
 
-Please keep in mind that Farid doesn't know the code. He is "only"
-helping with formatting cleanups. Asking him to reword the comments
-doesn't seem wise. And there's nothing wrong with two-line comments as
-above. The "preferred comment format" in CodingStyle is often
-unrealistic IMHO, I'm not always following it in my own code.
+OK
 
-I agree with all other comments.
+> > > (...)
+> > > @@ -241,8 +244,10 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+> > >  			completed =3D pca_address(adap, msg);
+> > >  			break;
+> > > =20
+> > > -		case 0x18: /* SLA+W has been transmitted; ACK has been received */
+> > > -		case 0x28: /* Data byte in I2CDAT has been transmitted; ACK has be=
+en received */
+> > > +		case 0x18: /* SLA+W has been transmitted;
+> > > +			      ACK has been received */
+> > > +		case 0x28: /* Data byte in I2CDAT has been transmitted;
+> > > +			      ACK has been received */
+> >=20
+> > First, check CodingStyle for how multiline comments should look like. F=
+or
+> > readability, I'd like to keep them single line, though. I think this co=
+uld
+> > be done by rewording. Same for all following comments.
+>=20
+> Please keep in mind that Farid doesn't know the code. He is "only"
+> helping with formatting cleanups. Asking him to reword the comments
 
--- 
-Jean Delvare
+I think s/has been//g will help already. And getting accoustomed to the code
+you are modifying is not that bad ;)
+
+> doesn't seem wise. And there's nothing wrong with two-line comments as
+> above. The "preferred comment format" in CodingStyle is often
+> unrealistic IMHO, I'm not always following it in my own code.
+
+I disagree here. I'd rather break the 80 columns limit than having multiline
+comments not really standing out.
+
+Also, I feel a bit uneasy as changing the comments spoils the history for
+git-blame in case you want to know when/if the state-machine was changed. T=
+hen
+again, I like properly formatted code.
+
+Summa summarum, just send V2, it's not really worth fighting over it :)
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--lBqJz4CGKwlWe7/k
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkvQAekACgkQD27XaX1/VRvcOQCgm3eIvaWEoYzQcdvM6RrJ21RU
+39wAn0yL9JVFtxXHq56QO2Hg3Wi5lr61
+=AN/P
+-----END PGP SIGNATURE-----
+
+--lBqJz4CGKwlWe7/k--
