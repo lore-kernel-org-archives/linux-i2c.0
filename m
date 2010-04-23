@@ -1,81 +1,139 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V2] i2c-algo-pca: fix coding style issues in
- i2c-algo-pca.c
-Date: Fri, 23 Apr 2010 11:33:26 +0200
-Message-ID: <20100423113326.3691bdd6@hyperion.delvare>
-References: <1271973715-18331-1-git-send-email-farid.hammane@gmail.com>
+From: "G, Manjunath Kondaiah" <manjugk@ti.com>
+Subject: RE: [PATCH v2] OMAP3: I2C: Errata ID i207: Clear wrong RDR interrupt
+Date: Fri, 23 Apr 2010 16:11:33 +0530
+Message-ID: <E0D41E29EB0DAC4E9F3FF173962E9E94026F6E2897@dbde02.ent.ti.com>
+References: <1271167302-17776-1-git-send-email-manjugk@ti.com>
+ <20100421214252.GM18272@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1271973715-18331-1-git-send-email-farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100421214252.GM18272@atomide.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "Kalliguddi, Hema" <hemahk@ti.com>, "Menon, Nishanth" <nm@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Farid, Wolfram,
 
-On Fri, 23 Apr 2010 00:01:55 +0200, Farid Hammane wrote:
-> This patch fixes coding style issues found by checkpatch.pl.
-> i2c-algo-pca.c has been built successfully after applying this patch.
+Tony, 
+
+> -----Original Message-----
+> From: Tony Lindgren [mailto:tony@atomide.com] 
+> Sent: Thursday, April 22, 2010 3:13 AM
+> To: G, Manjunath Kondaiah
+> Cc: linux-i2c@vger.kernel.org; linux-omap@vger.kernel.org; 
+> ben-linux@fluff.org; Kalliguddi, Hema; Menon, Nishanth
+> Subject: Re: [PATCH v2] OMAP3: I2C: Errata ID i207: Clear 
+> wrong RDR interrupt
 > 
-> Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/algos/i2c-algo-pca.c |   36 ++++++++++++++++++------------------
->  1 files changed, 18 insertions(+), 18 deletions(-)
+> * Manjunatha GK <manjugk@ti.com> [100413 06:32]:
+> > Under certain rare conditions, I2C_STAT[13].RDR bit may be set
+> > and the corresponding interrupt fire, even there is no data in
+> > the receive FIFO, or the I2C data transfer is still ongoing.
+> > These spurious RDR events must be ignored by the software.
+> > 
+> > This patch handles and ignores RDR spurious interrupts.
+> > 
+> > Patch tested on OMAP zoom3 board.
+> > 
+> > Signed-off-by: Manjunatha GK <manjugk@ti.com>
+> > Cc: linux-omap@vger.kernel.org
+> > Cc: linux-i2c@vger.kernel.org
+> > Cc: ben-linux@fluff.org
+> > Cc: Kalliguddi, Hema <hemahk@ti.com>
+> > Cc: Nishanth Menon <nm@ti.com>
+> > ---
+> > Review comments for earlier post can be found at:
+> > https://patchwork.kernel.org/patch/90122/
+> > 
+> >  drivers/i2c/busses/i2c-omap.c |   32 
+> +++++++++++++++++++++++++++++++-
+> >  1 files changed, 31 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-omap.c 
+> b/drivers/i2c/busses/i2c-omap.c
+> > index ae6f5c1..d4ec886 100644
+> > --- a/drivers/i2c/busses/i2c-omap.c
+> > +++ b/drivers/i2c/busses/i2c-omap.c
+> > @@ -733,10 +733,40 @@ complete:
+> >  		}
+> >  		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
+> >  			u8 num_bytes = 1;
+> > +
+> > +			/*
+> > +			 * I2C Errata(Errata Nos. OMAP2: 1.67, 
+> OMAP3: 1.8)
+> > +			 * Not applicable for OMAP4.
+> > +			 * Under certain rare conditions, RDR 
+> could be set again
+> > +			 * when the bus is busy, then ignore 
+> the interrupt and
+> > +			 * clear the interrupt.
+> > +			 */
+> > +			if ((stat & OMAP_I2C_STAT_RDR) && 
+> !cpu_is_omap44xx()) {
+> > +				/* Step 1: If RDR is set, clear it */
+> > +				omap_i2c_ack_stat(dev, stat & 
+> OMAP_I2C_STAT_RDR);
+> > +
+> > +				/* Step 2: */
+> > +				if(!(omap_i2c_read_reg(dev, 
+> OMAP_I2C_STAT_REG)
+> > +							& 
+> OMAP_I2C_STAT_BB)) {
+> > +					/* Step 3: */
+> > +					while(omap_i2c_read_reg(dev,
+> > +						OMAP_I2C_STAT_REG)
+> > +							& 
+> OMAP_I2C_STAT_RDR) {
+> > +						
+> omap_i2c_ack_stat(dev, stat
+> > +							& 
+> OMAP_I2C_STAT_RDR);
+> > +						dev_err(dev->dev,
+> > +						"I2C : RDR when 
+> the bus is busy.\n");
+> > +						continue;
+> > +					}
+> > +
+> > +				}
+> > +				else
+> > +					return IRQ_HANDLED;
+> > +			}
 > 
-> diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-> index dcdaf8e..ca817f8 100644
-> --- a/drivers/i2c/algos/i2c-algo-pca.c
-> +++ b/drivers/i2c/algos/i2c-algo-pca.c
-> @@ -37,15 +37,15 @@
->  
->  static int i2c_debug;
->  
-> -#define pca_outw(adap, reg, val) adap->write_byte(adap->data, reg, val)
-> -#define pca_inw(adap, reg) adap->read_byte(adap->data, reg)
-> +#define pca_outw(adap, reg, val) (adap->write_byte(adap->data, reg, val))
-> +#define pca_inw(adap, reg) (adap->read_byte(adap->data, reg))
+> Please move these hacks into a separate inline function that 
+> you initialize
+> during the init. Then in the function you do it if 
+> OMAP_I2C_QUIRK_1234 flag
+> has been set.
+> 
+> In general, it seems that a lot of TI omap4 patches just do:
+> 
+> if (!cpu_is_omap4430()) {
+> 	indent_old_code_even_more
+> 	...
+> } else {
+> 	add_hacks_for_omap4
+> 	...
+> }
+> 
+> And sprinkle that all over the place.
+> 
+> This is not a maintainable way of doing things. Please do something
+> like this instead:
+> 
+> #ifdef CONFIG_ARCH_OMAP4
+> static inline void omap_i2c_quirk_1234(struct device *dev)
+> {
+> 	/* Do hacks here */	
+> }
+> #else
+> static inline void omap_i2c_quirk_1234(struct device *dev)
+> {
+> }
+> #endif
 
-I'm confused by these changes. For one thing, macros which are
-shortcuts for function calls normally don't need surrounding
-parentheses. If checkpatch.pl complains about that, I would call it a
-false positive, unless someone can prove me wrong with a real-world
-case where these surrounding parentheses help.
+This might create issue for multi omap build?
 
-For another, macro _parameters_ normally need parentheses for each
-non-trivial use. I would thus expect the following to be correct:
-
-#define pca_outw(adap, reg, val) (adap)->write_byte((adap)->data, reg, val)
-#define pca_inw(adap, reg) (adap)->read_byte((adap)->data, reg)
-
-Or is it just me?
-
->  
->  #define pca_status(adap) pca_inw(adap, I2C_PCA_STA)
-> -#define pca_clock(adap) adap->i2c_clock
-> +#define pca_clock(adap) (adap->i2c_clock)
->  #define pca_set_con(adap, val) pca_outw(adap, I2C_PCA_CON, val)
->  #define pca_get_con(adap) pca_inw(adap, I2C_PCA_CON)
-> -#define pca_wait(adap) adap->wait_for_completion(adap->data)
-> -#define pca_reset(adap) adap->reset_chip(adap->data)
-> +#define pca_wait(adap) (adap->wait_for_completion(adap->data))
-> +#define pca_reset(adap) (adap->reset_chip(adap->data))
-
-Same here...
-
-I'm fine with all other changes. But checkpatch.pl spouts 2 more errors
-to me, which we've discussed before. I'm curious why you didn't fix
-them? Just replace each block of 8 spaces with one tab.
-
-ERROR: code indent should use tabs where possible
-#181: FILE: i2c/algos/i2c-algo-pca.c:181:
-+                    struct i2c_msg *msgs,$
-
-ERROR: code indent should use tabs where possible
-#182: FILE: i2c/algos/i2c-algo-pca.c:182:
-+                    int num)$
-
--- 
-Jean Delvare
+-Manjunath
