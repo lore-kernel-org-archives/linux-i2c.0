@@ -1,46 +1,81 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-algo-pca: fix all coding style issues in
+Subject: Re: [PATCH V2] i2c-algo-pca: fix coding style issues in
  i2c-algo-pca.c
-Date: Fri, 23 Apr 2010 10:13:56 +0200
-Message-ID: <20100423101356.454abdd6@hyperion.delvare>
-References: <1271877097-10939-1-git-send-email-farid.hammane@gmail.com>
-	<20100422092524.77b7aa84@hyperion.delvare>
-	<20100422075937.GN24384@pengutronix.de>
-	<201004222330.34660.farid.hammane@gmail.com>
+Date: Fri, 23 Apr 2010 11:33:26 +0200
+Message-ID: <20100423113326.3691bdd6@hyperion.delvare>
+References: <1271973715-18331-1-git-send-email-farid.hammane@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201004222330.34660.farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1271973715-18331-1-git-send-email-farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Farid,
+Hi Farid, Wolfram,
 
-On Thu, 22 Apr 2010 23:30:34 +0200, Farid Hammane wrote:
-> Hi Jean and Wolfram,
+On Fri, 23 Apr 2010 00:01:55 +0200, Farid Hammane wrote:
+> This patch fixes coding style issues found by checkpatch.pl.
+> i2c-algo-pca.c has been built successfully after applying this patch.
 > 
-> On Thursday 22 April 2010 09:59:37 you wrote:
-> > On Thu, Apr 22, 2010 at 09:25:24AM +0200, Jean Delvare wrote:
-> > > On Thu, 22 Apr 2010 01:57:38 +0200, Wolfram Sang wrote:
-> > > > Hi Farid,
-> > > >
-> > > > thanks for this approach. Have you checked that the binary is the same
-> > > > before/after your patch? If so, please mention in your patch
-> > > > description.
+> Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/algos/i2c-algo-pca.c |   36 ++++++++++++++++++------------------
+>  1 files changed, 18 insertions(+), 18 deletions(-)
 > 
-> Ok, I think that nothing can be broken with this kind of patch. I just built 
-> i2c-algo-pca.c and everything was ok.
-> 
-> For further patchs I will mention that it has been tested. Thanks for the 
-> advice !
+> diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+> index dcdaf8e..ca817f8 100644
+> --- a/drivers/i2c/algos/i2c-algo-pca.c
+> +++ b/drivers/i2c/algos/i2c-algo-pca.c
+> @@ -37,15 +37,15 @@
+>  
+>  static int i2c_debug;
+>  
+> -#define pca_outw(adap, reg, val) adap->write_byte(adap->data, reg, val)
+> -#define pca_inw(adap, reg) adap->read_byte(adap->data, reg)
+> +#define pca_outw(adap, reg, val) (adap->write_byte(adap->data, reg, val))
+> +#define pca_inw(adap, reg) (adap->read_byte(adap->data, reg))
 
-It's not just a matter of building it. When you only fix coding style
-issue, the binary object before and after your patch should be exactly
-the same. It's a good idea to verify this, especially for drivers you
-aren't using yourself.
+I'm confused by these changes. For one thing, macros which are
+shortcuts for function calls normally don't need surrounding
+parentheses. If checkpatch.pl complains about that, I would call it a
+false positive, unless someone can prove me wrong with a real-world
+case where these surrounding parentheses help.
+
+For another, macro _parameters_ normally need parentheses for each
+non-trivial use. I would thus expect the following to be correct:
+
+#define pca_outw(adap, reg, val) (adap)->write_byte((adap)->data, reg, val)
+#define pca_inw(adap, reg) (adap)->read_byte((adap)->data, reg)
+
+Or is it just me?
+
+>  
+>  #define pca_status(adap) pca_inw(adap, I2C_PCA_STA)
+> -#define pca_clock(adap) adap->i2c_clock
+> +#define pca_clock(adap) (adap->i2c_clock)
+>  #define pca_set_con(adap, val) pca_outw(adap, I2C_PCA_CON, val)
+>  #define pca_get_con(adap) pca_inw(adap, I2C_PCA_CON)
+> -#define pca_wait(adap) adap->wait_for_completion(adap->data)
+> -#define pca_reset(adap) adap->reset_chip(adap->data)
+> +#define pca_wait(adap) (adap->wait_for_completion(adap->data))
+> +#define pca_reset(adap) (adap->reset_chip(adap->data))
+
+Same here...
+
+I'm fine with all other changes. But checkpatch.pl spouts 2 more errors
+to me, which we've discussed before. I'm curious why you didn't fix
+them? Just replace each block of 8 spaces with one tab.
+
+ERROR: code indent should use tabs where possible
+#181: FILE: i2c/algos/i2c-algo-pca.c:181:
++                    struct i2c_msg *msgs,$
+
+ERROR: code indent should use tabs where possible
+#182: FILE: i2c/algos/i2c-algo-pca.c:182:
++                    int num)$
 
 -- 
 Jean Delvare
