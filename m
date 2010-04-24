@@ -1,108 +1,100 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: Initcall ordering
-Date: Sat, 24 Apr 2010 03:24:27 +0200
-Message-ID: <20100424012427.GA21255@pengutronix.de>
-References: <4BD1C317.5000909@mlbassoc.com>
+From: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V2] i2c-algo-pca: fix coding style issues in i2c-algo-pca.c
+Date: Sat, 24 Apr 2010 16:07:33 +0200
+Message-ID: <201004241607.33489.farid.hammane@gmail.com>
+References: <1271973715-18331-1-git-send-email-farid.hammane@gmail.com> <20100423113326.3691bdd6@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8842549199883547116=="
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <4BD1C317.5000909@mlbassoc.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: Gary Thomas <gary@mlbassoc.com>
-Cc: "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-i2c@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100423113326.3691bdd6-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
 
---===============8842549199883547116==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
+On Friday 23 April 2010 11:33:26 you wrote:
+> Hi Farid, Wolfram,
+> 
+> On Fri, 23 Apr 2010 00:01:55 +0200, Farid Hammane wrote:
+> > This patch fixes coding style issues found by checkpatch.pl.
+> > i2c-algo-pca.c has been built successfully after applying this patch.
+> >
+> > Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/i2c/algos/i2c-algo-pca.c |   36
+> > ++++++++++++++++++------------------ 1 files changed, 18 insertions(+),
+> > 18 deletions(-)
+> >
+> > diff --git a/drivers/i2c/algos/i2c-algo-pca.c
+> > b/drivers/i2c/algos/i2c-algo-pca.c index dcdaf8e..ca817f8 100644
+> > --- a/drivers/i2c/algos/i2c-algo-pca.c
+> > +++ b/drivers/i2c/algos/i2c-algo-pca.c
+> > @@ -37,15 +37,15 @@
+> >
+> >  static int i2c_debug;
+> >
+> > -#define pca_outw(adap, reg, val) adap->write_byte(adap->data, reg, val)
+> > -#define pca_inw(adap, reg) adap->read_byte(adap->data, reg)
+> > +#define pca_outw(adap, reg, val) (adap->write_byte(adap->data, reg,
+> > val)) +#define pca_inw(adap, reg) (adap->read_byte(adap->data, reg))
+> 
+> I'm confused by these changes. For one thing, macros which are
+> shortcuts for function calls normally don't need surrounding
+> parentheses. If checkpatch.pl complains about that, I would call it a
+> false positive, unless someone can prove me wrong with a real-world
+> case where these surrounding parentheses help.
+> 
+> For another, macro _parameters_ normally need parentheses for each
+> non-trivial use. I would thus expect the following to be correct:
+> 
+> #define pca_outw(adap, reg, val) (adap)->write_byte((adap)->data, reg, val)
+> #define pca_inw(adap, reg) (adap)->read_byte((adap)->data, reg)
+> 
+> Or is it just me?
 
+You are right ! This will be deleted from the patch.
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> >  #define pca_status(adap) pca_inw(adap, I2C_PCA_STA)
+> > -#define pca_clock(adap) adap->i2c_clock
+> > +#define pca_clock(adap) (adap->i2c_clock)
+> >  #define pca_set_con(adap, val) pca_outw(adap, I2C_PCA_CON, val)
+> >  #define pca_get_con(adap) pca_inw(adap, I2C_PCA_CON)
+> > -#define pca_wait(adap) adap->wait_for_completion(adap->data)
+> > -#define pca_reset(adap) adap->reset_chip(adap->data)
+> > +#define pca_wait(adap) (adap->wait_for_completion(adap->data))
+> > +#define pca_reset(adap) (adap->reset_chip(adap->data))
+> 
+> Same here...
+> 
+> I'm fine with all other changes. But checkpatch.pl spouts 2 more errors
+> to me, which we've discussed before. I'm curious why you didn't fix
+> them? Just replace each block of 8 spaces with one tab.
 
-Hi Gary,
+I thought you expected just one tab and spaces. You said :
+"Better use tab + spaces and align on the opening parenthesis. What
+checkpatch.pl complains about here isn't the alignment, it's the use of
+more than 8 consecutive spaces."
+I understood here : "don't care about this warning !"
 
-(adding linux-i2c)
+So, I'll fix it.
 
-On Fri, Apr 23, 2010 at 09:56:07AM -0600, Gary Thomas wrote:
-> I'm having trouble with the I2C devices on my 8347 platform.
-> The problem is that I2C device probe() functions are only called
-> once, as the I2C bus is being initialized (in this case fsl_i2c_init())
-> I have 2 devices on this bus, one device gets it's initcall
-> before fsl_i2c_init, the second one does not :-(  This means
-> that the second device is never probed.
+> 
+> ERROR: code indent should use tabs where possible
+> #181: FILE: i2c/algos/i2c-algo-pca.c:181:
+> +                    struct i2c_msg *msgs,$
+> 
+> ERROR: code indent should use tabs where possible
+> #182: FILE: i2c/algos/i2c-algo-pca.c:182:
+> +                    int num)$
+> 
 
-Can you try this patch?
+Thanks for you comments and for sharing your knowledge !
 
-=46rom: Wolfram Sang <w.sang@pengutronix.de>
-Date: Sat, 24 Apr 2010 03:18:16 +0200
-Subject: [PATCH] i2c/mpc: use subsys_initcall() to allow early usage of dev=
-ices
+A patch V3 will be sent,
 
-Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
----
- drivers/i2c/busses/i2c-mpc.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index f1321f7..32a3bae 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -693,13 +693,12 @@ static int __init fsl_i2c_init(void)
- 		       " of_register_platform_driver failed (%i)\n", rv);
- 	return rv;
- }
-+subsys_initcall(fsl_i2c_init);
-=20
- static void __exit fsl_i2c_exit(void)
- {
- 	of_unregister_platform_driver(&mpc_i2c_driver);
- }
--
--module_init(fsl_i2c_init);
- module_exit(fsl_i2c_exit);
-=20
- MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkvSSEsACgkQD27XaX1/VRt4qQCdFAd3qkfs+cMiEkjejXQrodTZ
-ImQAoIXP73i5osPKvrzRxnggkVzZnt/W
-=l3JI
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
-
---===============8842549199883547116==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Linuxppc-dev mailing list
-Linuxppc-dev@lists.ozlabs.org
-https://lists.ozlabs.org/listinfo/linuxppc-dev
---===============8842549199883547116==--
+Regards,
+Farid,
