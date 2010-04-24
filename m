@@ -1,139 +1,108 @@
-From: "G, Manjunath Kondaiah" <manjugk@ti.com>
-Subject: RE: [PATCH v2] OMAP3: I2C: Errata ID i207: Clear wrong RDR interrupt
-Date: Fri, 23 Apr 2010 16:11:33 +0530
-Message-ID: <E0D41E29EB0DAC4E9F3FF173962E9E94026F6E2897@dbde02.ent.ti.com>
-References: <1271167302-17776-1-git-send-email-manjugk@ti.com>
- <20100421214252.GM18272@atomide.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: Initcall ordering
+Date: Sat, 24 Apr 2010 03:24:27 +0200
+Message-ID: <20100424012427.GA21255@pengutronix.de>
+References: <4BD1C317.5000909@mlbassoc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100421214252.GM18272@atomide.com>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "Kalliguddi, Hema" <hemahk@ti.com>, "Menon, Nishanth" <nm@ti.com>
+Content-Type: multipart/mixed; boundary="===============8842549199883547116=="
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <4BD1C317.5000909@mlbassoc.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+To: Gary Thomas <gary@mlbassoc.com>
+Cc: "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-Tony, 
+--===============8842549199883547116==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: Tony Lindgren [mailto:tony@atomide.com] 
-> Sent: Thursday, April 22, 2010 3:13 AM
-> To: G, Manjunath Kondaiah
-> Cc: linux-i2c@vger.kernel.org; linux-omap@vger.kernel.org; 
-> ben-linux@fluff.org; Kalliguddi, Hema; Menon, Nishanth
-> Subject: Re: [PATCH v2] OMAP3: I2C: Errata ID i207: Clear 
-> wrong RDR interrupt
-> 
-> * Manjunatha GK <manjugk@ti.com> [100413 06:32]:
-> > Under certain rare conditions, I2C_STAT[13].RDR bit may be set
-> > and the corresponding interrupt fire, even there is no data in
-> > the receive FIFO, or the I2C data transfer is still ongoing.
-> > These spurious RDR events must be ignored by the software.
-> > 
-> > This patch handles and ignores RDR spurious interrupts.
-> > 
-> > Patch tested on OMAP zoom3 board.
-> > 
-> > Signed-off-by: Manjunatha GK <manjugk@ti.com>
-> > Cc: linux-omap@vger.kernel.org
-> > Cc: linux-i2c@vger.kernel.org
-> > Cc: ben-linux@fluff.org
-> > Cc: Kalliguddi, Hema <hemahk@ti.com>
-> > Cc: Nishanth Menon <nm@ti.com>
-> > ---
-> > Review comments for earlier post can be found at:
-> > https://patchwork.kernel.org/patch/90122/
-> > 
-> >  drivers/i2c/busses/i2c-omap.c |   32 
-> +++++++++++++++++++++++++++++++-
-> >  1 files changed, 31 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-omap.c 
-> b/drivers/i2c/busses/i2c-omap.c
-> > index ae6f5c1..d4ec886 100644
-> > --- a/drivers/i2c/busses/i2c-omap.c
-> > +++ b/drivers/i2c/busses/i2c-omap.c
-> > @@ -733,10 +733,40 @@ complete:
-> >  		}
-> >  		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
-> >  			u8 num_bytes = 1;
-> > +
-> > +			/*
-> > +			 * I2C Errata(Errata Nos. OMAP2: 1.67, 
-> OMAP3: 1.8)
-> > +			 * Not applicable for OMAP4.
-> > +			 * Under certain rare conditions, RDR 
-> could be set again
-> > +			 * when the bus is busy, then ignore 
-> the interrupt and
-> > +			 * clear the interrupt.
-> > +			 */
-> > +			if ((stat & OMAP_I2C_STAT_RDR) && 
-> !cpu_is_omap44xx()) {
-> > +				/* Step 1: If RDR is set, clear it */
-> > +				omap_i2c_ack_stat(dev, stat & 
-> OMAP_I2C_STAT_RDR);
-> > +
-> > +				/* Step 2: */
-> > +				if(!(omap_i2c_read_reg(dev, 
-> OMAP_I2C_STAT_REG)
-> > +							& 
-> OMAP_I2C_STAT_BB)) {
-> > +					/* Step 3: */
-> > +					while(omap_i2c_read_reg(dev,
-> > +						OMAP_I2C_STAT_REG)
-> > +							& 
-> OMAP_I2C_STAT_RDR) {
-> > +						
-> omap_i2c_ack_stat(dev, stat
-> > +							& 
-> OMAP_I2C_STAT_RDR);
-> > +						dev_err(dev->dev,
-> > +						"I2C : RDR when 
-> the bus is busy.\n");
-> > +						continue;
-> > +					}
-> > +
-> > +				}
-> > +				else
-> > +					return IRQ_HANDLED;
-> > +			}
-> 
-> Please move these hacks into a separate inline function that 
-> you initialize
-> during the init. Then in the function you do it if 
-> OMAP_I2C_QUIRK_1234 flag
-> has been set.
-> 
-> In general, it seems that a lot of TI omap4 patches just do:
-> 
-> if (!cpu_is_omap4430()) {
-> 	indent_old_code_even_more
-> 	...
-> } else {
-> 	add_hacks_for_omap4
-> 	...
-> }
-> 
-> And sprinkle that all over the place.
-> 
-> This is not a maintainable way of doing things. Please do something
-> like this instead:
-> 
-> #ifdef CONFIG_ARCH_OMAP4
-> static inline void omap_i2c_quirk_1234(struct device *dev)
-> {
-> 	/* Do hacks here */	
-> }
-> #else
-> static inline void omap_i2c_quirk_1234(struct device *dev)
-> {
-> }
-> #endif
 
-This might create issue for multi omap build?
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--Manjunath
+Hi Gary,
+
+(adding linux-i2c)
+
+On Fri, Apr 23, 2010 at 09:56:07AM -0600, Gary Thomas wrote:
+> I'm having trouble with the I2C devices on my 8347 platform.
+> The problem is that I2C device probe() functions are only called
+> once, as the I2C bus is being initialized (in this case fsl_i2c_init())
+> I have 2 devices on this bus, one device gets it's initcall
+> before fsl_i2c_init, the second one does not :-(  This means
+> that the second device is never probed.
+
+Can you try this patch?
+
+=46rom: Wolfram Sang <w.sang@pengutronix.de>
+Date: Sat, 24 Apr 2010 03:18:16 +0200
+Subject: [PATCH] i2c/mpc: use subsys_initcall() to allow early usage of dev=
+ices
+
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+---
+ drivers/i2c/busses/i2c-mpc.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index f1321f7..32a3bae 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -693,13 +693,12 @@ static int __init fsl_i2c_init(void)
+ 		       " of_register_platform_driver failed (%i)\n", rv);
+ 	return rv;
+ }
++subsys_initcall(fsl_i2c_init);
+=20
+ static void __exit fsl_i2c_exit(void)
+ {
+ 	of_unregister_platform_driver(&mpc_i2c_driver);
+ }
+-
+-module_init(fsl_i2c_init);
+ module_exit(fsl_i2c_exit);
+=20
+ MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Kj7319i9nmIyA2yE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkvSSEsACgkQD27XaX1/VRt4qQCdFAd3qkfs+cMiEkjejXQrodTZ
+ImQAoIXP73i5osPKvrzRxnggkVzZnt/W
+=l3JI
+-----END PGP SIGNATURE-----
+
+--Kj7319i9nmIyA2yE--
+
+--===============8842549199883547116==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Linuxppc-dev mailing list
+Linuxppc-dev@lists.ozlabs.org
+https://lists.ozlabs.org/listinfo/linuxppc-dev
+--===============8842549199883547116==--
