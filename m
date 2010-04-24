@@ -1,132 +1,123 @@
-From: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH V3] i2c-algo-pca: fix coding style issues in i2c-algo-pca.c
-Date: Sat, 24 Apr 2010 16:34:14 +0200
-Message-ID: <1272119654-8976-1-git-send-email-farid.hammane@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-core: Use per-adapter userspace device lists
+Date: Sat, 24 Apr 2010 20:19:14 +0200
+Message-ID: <20100424201914.08b3f008@hyperion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch fixes up some coding style issues. i2c-algo-pca.c has been
-build successfully after applying this patch and the binary object is
-still exactly the same.
-Other issues found by checkpatch.pl were voluntarily not fixed, either
-to keep readability, or because of false positive errors.
+Using a single list for all userspace devices leads to a dead lock
+on multiplexed buses in some circumstances (mux chip instantiated
+from userspace). This is solved by using a separate list for each
+bus segment.
 
-Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Acked-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 ---
- drivers/i2c/algos/i2c-algo-pca.c |   36 ++++++++++++++++++------------------
- 1 files changed, 18 insertions(+), 18 deletions(-)
+ drivers/i2c/i2c-core.c |   34 ++++++++++++++++++----------------
+ include/linux/i2c.h    |    2 ++
+ 2 files changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index dcdaf8e..2b9a8f5 100644
---- a/drivers/i2c/algos/i2c-algo-pca.c
-+++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -109,13 +109,13 @@ static void pca_stop(struct i2c_algo_pca_data *adap)
-  * returns after the address has been sent
-  */
- static int pca_address(struct i2c_algo_pca_data *adap,
--			struct i2c_msg *msg)
-+		       struct i2c_msg *msg)
- {
- 	int sta = pca_get_con(adap);
- 	int addr;
+--- linux-2.6.34-rc5.orig/drivers/i2c/i2c-core.c	2010-04-23 18:45:23.000000000 +0200
++++ linux-2.6.34-rc5/drivers/i2c/i2c-core.c	2010-04-24 13:02:24.000000000 +0200
+@@ -40,12 +40,11 @@
+ #include "i2c-core.h"
  
--	addr = ( (0x7f & msg->addr) << 1 );
--	if (msg->flags & I2C_M_RD )
-+	addr = ((0x7f & msg->addr) << 1);
-+	if (msg->flags & I2C_M_RD)
- 		addr |= 1;
- 	DEB2("=== SLAVE ADDRESS %#04x+%c=%#04x\n",
- 	     msg->addr, msg->flags & I2C_M_RD ? 'R' : 'W', addr);
-@@ -134,7 +134,7 @@ static int pca_address(struct i2c_algo_pca_data *adap,
-  * Returns after the byte has been transmitted
-  */
- static int pca_tx_byte(struct i2c_algo_pca_data *adap,
--			__u8 b)
-+		       __u8 b)
- {
- 	int sta = pca_get_con(adap);
- 	DEB2("=== WRITE %#04x\n", b);
-@@ -164,13 +164,13 @@ static void pca_rx_byte(struct i2c_algo_pca_data *adap,
-  * Returns after next byte has arrived.
-  */
- static int pca_rx_ack(struct i2c_algo_pca_data *adap,
--		       int ack)
-+		      int ack)
- {
- 	int sta = pca_get_con(adap);
  
- 	sta &= ~(I2C_PCA_CON_STO|I2C_PCA_CON_STA|I2C_PCA_CON_SI|I2C_PCA_CON_AA);
+-/* core_lock protects i2c_adapter_idr, userspace_devices, and guarantees
++/* core_lock protects i2c_adapter_idr, and guarantees
+    that device detection, deletion of detected devices, and attach_adapter
+    and detach_adapter calls are serialized */
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+-static LIST_HEAD(userspace_devices);
  
--	if ( ack )
-+	if (ack)
- 		sta |= I2C_PCA_CON_AA;
+ static struct device_type i2c_client_type;
+ static int i2c_check_addr(struct i2c_adapter *adapter, int addr);
+@@ -542,9 +541,9 @@ i2c_sysfs_new_device(struct device *dev,
+ 		return -EEXIST;
  
- 	pca_set_con(adap, sta);
-@@ -178,12 +178,12 @@ static int pca_rx_ack(struct i2c_algo_pca_data *adap,
- }
+ 	/* Keep track of the added device */
+-	mutex_lock(&core_lock);
+-	list_add_tail(&client->detected, &userspace_devices);
+-	mutex_unlock(&core_lock);
++	i2c_lock_adapter(adap);
++	list_add_tail(&client->detected, &adap->userspace_clients);
++	i2c_unlock_adapter(adap);
+ 	dev_info(dev, "%s: Instantiated device %s at 0x%02hx\n", "new_device",
+ 		 info.type, info.addr);
  
- static int pca_xfer(struct i2c_adapter *i2c_adap,
--                    struct i2c_msg *msgs,
--                    int num)
-+		    struct i2c_msg *msgs,
-+		    int num)
- {
--        struct i2c_algo_pca_data *adap = i2c_adap->algo_data;
--        struct i2c_msg *msg = NULL;
--        int curmsg;
-+	struct i2c_algo_pca_data *adap = i2c_adap->algo_data;
-+	struct i2c_msg *msg = NULL;
-+	int curmsg;
- 	int numbytes = 0;
- 	int state;
- 	int ret;
-@@ -202,21 +202,21 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+@@ -583,9 +582,10 @@ i2c_sysfs_delete_device(struct device *d
  
- 	DEB1("{{{ XFER %d messages\n", num);
+ 	/* Make sure the device was added through sysfs */
+ 	res = -ENOENT;
+-	mutex_lock(&core_lock);
+-	list_for_each_entry_safe(client, next, &userspace_devices, detected) {
+-		if (client->addr == addr && client->adapter == adap) {
++	i2c_lock_adapter(adap);
++	list_for_each_entry_safe(client, next, &adap->userspace_clients,
++				 detected) {
++		if (client->addr == addr) {
+ 			dev_info(dev, "%s: Deleting device %s at 0x%02hx\n",
+ 				 "delete_device", client->name, client->addr);
  
--	if (i2c_debug>=2) {
-+	if (i2c_debug >= 2) {
- 		for (curmsg = 0; curmsg < num; curmsg++) {
- 			int addr, i;
- 			msg = &msgs[curmsg];
+@@ -595,7 +595,7 @@ i2c_sysfs_delete_device(struct device *d
+ 			break;
+ 		}
+ 	}
+-	mutex_unlock(&core_lock);
++	i2c_unlock_adapter(adap);
  
- 			addr = (0x7f & msg->addr) ;
+ 	if (res < 0)
+ 		dev_err(dev, "%s: Can't find device in list\n",
+@@ -677,6 +677,7 @@ static int i2c_register_adapter(struct i
+ 	}
  
--			if (msg->flags & I2C_M_RD )
-+			if (msg->flags & I2C_M_RD)
- 				printk(KERN_INFO "    [%02d] RD %d bytes from %#02x [%#02x, ...]\n",
--				       curmsg, msg->len, addr, (addr<<1) | 1);
-+				       curmsg, msg->len, addr, (addr << 1) | 1);
- 			else {
- 				printk(KERN_INFO "    [%02d] WR %d bytes to %#02x [%#02x%s",
--				       curmsg, msg->len, addr, addr<<1,
-+				       curmsg, msg->len, addr, addr << 1,
- 				       msg->len == 0 ? "" : ", ");
--				for(i=0; i < msg->len; i++)
-+				for (i = 0; i < msg->len; i++)
- 					printk("%#04x%s", msg->buf[i], i == msg->len - 1 ? "" : ", ");
- 				printk("]\n");
- 			}
-@@ -305,7 +305,7 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
- 			goto out;
+ 	rt_mutex_init(&adap->bus_lock);
++	INIT_LIST_HEAD(&adap->userspace_clients);
  
- 		case 0x58: /* Data byte has been received; NOT ACK has been returned */
--			if ( numbytes == msg->len - 1 ) {
-+			if (numbytes == msg->len - 1) {
- 				pca_rx_byte(adap, &msg->buf[numbytes], 0);
- 				curmsg++; numbytes = 0;
- 				if (curmsg == num)
-@@ -352,7 +352,7 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+ 	/* Set default timeout to 1 second if not already set */
+ 	if (adap->timeout == 0)
+@@ -879,14 +880,15 @@ int i2c_del_adapter(struct i2c_adapter *
+ 		return res;
  
- static u32 pca_func(struct i2c_adapter *adap)
- {
--        return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- }
+ 	/* Remove devices instantiated from sysfs */
+-	list_for_each_entry_safe(client, next, &userspace_devices, detected) {
+-		if (client->adapter == adap) {
+-			dev_dbg(&adap->dev, "Removing %s at 0x%x\n",
+-				client->name, client->addr);
+-			list_del(&client->detected);
+-			i2c_unregister_device(client);
+-		}
++	i2c_lock_adapter(adap);
++	list_for_each_entry_safe(client, next, &adap->userspace_clients,
++				 detected) {
++		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
++			client->addr);
++		list_del(&client->detected);
++		i2c_unregister_device(client);
+ 	}
++	i2c_unlock_adapter(adap);
  
- static const struct i2c_algorithm pca_algo = {
+ 	/* Detach any active clients. This can't fail, thus we do not
+ 	   checking the returned value. */
+--- linux-2.6.34-rc5.orig/include/linux/i2c.h	2010-04-23 18:45:22.000000000 +0200
++++ linux-2.6.34-rc5/include/linux/i2c.h	2010-04-24 13:02:24.000000000 +0200
+@@ -355,6 +355,8 @@ struct i2c_adapter {
+ 	int nr;
+ 	char name[48];
+ 	struct completion dev_released;
++
++	struct list_head userspace_clients;
+ };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+ 
+
+
 -- 
-1.7.0
+Jean Delvare
