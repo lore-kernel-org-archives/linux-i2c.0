@@ -1,34 +1,45 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V3] i2c-algo-pca: fix coding style issues in
- i2c-algo-pca.c
-Date: Sun, 25 Apr 2010 14:07:30 +0200
-Message-ID: <20100425140730.555f76de@hyperion.delvare>
-References: <1272119654-8976-1-git-send-email-farid.hammane@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH V2] i2c-algo-pca: fix coding style issues in
+	i2c-algo-pca.c
+Date: Mon, 26 Apr 2010 09:41:36 +0200
+Message-ID: <20100426074136.GA20663@pengutronix.de>
+References: <1271973715-18331-1-git-send-email-farid.hammane@gmail.com> <20100423113326.3691bdd6@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1272119654-8976-1-git-send-email-farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100423113326.3691bdd6-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Enrik.Berkhan-JJi787mZWgc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Farid,
 
-On Sat, 24 Apr 2010 16:34:14 +0200, Farid Hammane wrote:
-> This patch fixes up some coding style issues. i2c-algo-pca.c has been
-> build successfully after applying this patch and the binary object is
-> still exactly the same.
-> Other issues found by checkpatch.pl were voluntarily not fixed, either
-> to keep readability, or because of false positive errors.
-> 
-> Signed-off-by: Farid Hammane <farid.hammane-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/algos/i2c-algo-pca.c |   36 ++++++++++++++++++------------------
->  1 files changed, 18 insertions(+), 18 deletions(-)
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks.
 
--- 
-Jean Delvare
+Geez, that will teach me to review whitespace-fixes while working somewhere
+else :( Thanks for the catch!
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkvVQ7AACgkQD27XaX1/VRtteQCdHEhyQPc5n513HAi8Jgn83xoy
+k3cAn3mgJqy0upBPPBFgUhphYgjyh5NM
+=bPmH
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--
