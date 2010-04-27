@@ -1,37 +1,116 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH RESEND 3/3] i2c/ibm-iic: drop NO_IRQ
-Date: Tue, 27 Apr 2010 17:45:09 +1000
-Message-ID: <1272354309.24542.16.camel@pasglop>
-References: <1270167421-5205-1-git-send-email-w.sang@pengutronix.de>
-	<1270167421-5205-4-git-send-email-w.sang@pengutronix.de>
-	<1272351974.24542.9.camel@pasglop>
-	<20100427071222.GB22743@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100427071222.GB22743@pengutronix.de>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linuxppc-dev@ozlabs.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Sean MacLennan <smaclennan@pikatech.com>
+From: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v5] OMAP2/3: I2C: Errata ID i207: Clear wrong RDR interrupt
+Date: Tue, 27 Apr 2010 20:17:25 +0530
+Message-ID: <1272379645-20523-1-git-send-email-manjugk@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, "Kalliguddi, Hema" <hemahk-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Aaro Koskinen <Aaro.Koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2010-04-27 at 09:12 +0200, Wolfram Sang wrote:
-> > Oops... forgot those. Applied, will show up in -next soon.
-> 
-> Ah, thanks. I also asked Ben Dooks to pick them up, but better twice
-> than never
-> ;)
+Under certain rare conditions, I2C_STAT[13].RDR bit may be set
+and the corresponding interrupt fire, even there is no data in
+the receive FIFO, or the I2C data transfer is still ongoing.
+These spurious RDR events must be ignored by the software.
 
-Ok, Ben, are you taking them or do you want me to ?
+This patch handles and ignores RDR spurious interrupts.
 
-Cheers,
-Ben.
+The below sequence is required in interrupt handler for
+handling this errata:
+1. If RDR is set to 1, clear RDR
+2. Read I2C status register and check for BusBusy bit. If BusBusy
+bit is set, skip remaining steps.
+3. If BusBusy bit is not set, perform read operation on I2C status
+register.
+4. If RDR is set, clear the same. Check RDR again and clear if it sets
+RDR bit again.
+5. Perform I2C Data Read operation N number of times(where N is value
+read from the register BUFSTAT-RXSTAT bit fields).
+
+Note : This errata is applicable for OMAP2 and OMAP3 platforms only.
+It is not applicable for OMAP4.
+
+Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Kalliguddi, Hema <hemahk-l0cyMroinI0@public.gmane.org>
+Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Cc: Aaro Koskinen <Aaro.Koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |   39 +++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 39 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index ef73483..f232f96 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -199,6 +199,7 @@ struct omap_i2c_dev {
+ 	u16			bufstate;
+ 	u16			syscstate;
+ 	u16			westate;
++	bool			errata_i207;
+ };
+ 
+ const static u8 reg_map[] = {
+@@ -498,6 +499,12 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	/* Take the I2C module out of reset: */
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+ 
++	dev->errata_i207 = false;
++
++	if (cpu_is_omap2430() || cpu_is_omap34xx()) {
++		dev->errata_i207 = true;
++	}
++
+ 	/* Enable interrupts */
+ 	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+ 			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+@@ -695,6 +702,34 @@ omap_i2c_ack_stat(struct omap_i2c_dev *dev, u16 stat)
+ 	omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, stat);
+ }
+ 
++static inline void i2c_omap_errata_i207(struct omap_i2c_dev *dev, u16 stat)
++{
++	/*
++	 * I2C Errata(Errata Nos. OMAP2: 1.67, OMAP3: 1.8)
++	 * Not applicable for OMAP4.
++	 * Under certain rare conditions, RDR could be set again
++	 * when the bus is busy, then ignore the interrupt and
++	 * clear the interrupt.
++	 */
++	if (stat & OMAP_I2C_STAT_RDR) {
++		/* Step 1: If RDR is set, clear it */
++		omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
++
++		/* Step 2: */
++		if(!(omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG)
++						& OMAP_I2C_STAT_BB)) {
++
++			/* Step 3: */
++			if(omap_i2c_read_reg(dev,OMAP_I2C_STAT_REG)
++						& OMAP_I2C_STAT_RDR) {
++				omap_i2c_ack_stat(dev,OMAP_I2C_STAT_RDR);
++				dev_dbg(dev->dev,"RDR when the bus is busy.\n");
++			}
++
++		}
++	}
++}
++
+ /* rev1 devices are apparently only on some 15xx */
+ #ifdef CONFIG_ARCH_OMAP15XX
+ 
+@@ -826,6 +861,10 @@ complete:
+ 		}
+ 		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
+ 			u8 num_bytes = 1;
++
++			if (dev->errata_i207)
++				i2c_omap_errata_i207(dev, stat);
++
+ 			if (dev->fifo_size) {
+ 				if (stat & OMAP_I2C_STAT_RRDY)
+ 					num_bytes = dev->fifo_size;
+-- 
+1.6.0.4
