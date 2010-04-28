@@ -1,60 +1,24 @@
-From: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] OMAP3: I2C: Clean up Errata 1p153 handling
-Date: Wed, 28 Apr 2010 20:28:59 +0530
-Message-ID: <1272466739-2847-1-git-send-email-manjugk@ti.com>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Uclinux-dist-devel] [PATCH 0/5] Blackfin I2C updates
+Date: Wed, 28 Apr 2010 18:09:57 -0400
+Message-ID: <k2o8bd0f97a1004281509yb104affkeb4a0c55291101dd@mail.gmail.com>
+References: <1269242600-30147-1-git-send-email-vapier@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1269242600-30147-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>, Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Clean up existing Errata 1p153 handling to use generic
-errata handling mechanism through dev flag.
+On Mon, Mar 22, 2010 at 03:23, Mike Frysinger wrote:
+> There were posted a few months ago, but seem to have stalled.
+>
+> These can also be pulled from:
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0git://git.kernel.org/pub/scm/linux/=
+kernel/git/vapier/blackfin.git for-i2c
 
-Signed-off-by: Manjunatha GK <manjugk-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
-Cc: Alexander Shishkin <virtuoso-0lOfPCoBze7YtjvyW6yDsg@public.gmane.org>
----
- PS : This patch has dependency on the patch:
- https://patchwork.kernel.org/patch/95616/
-
- drivers/i2c/busses/i2c-omap.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 5f5207e..0caa8fe 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -168,6 +168,7 @@ enum {
- 
- /* Errata definitions */
- #define I2C_OMAP_ERRATA_I207		(1 << 0)
-+#define I2C_OMAP3_1P153			(1 << 1)
- 
- struct omap_i2c_dev {
- 	struct device		*dev;
-@@ -946,7 +947,7 @@ complete:
- 					break;
- 				}
- 
--				if ((dev->rev <= OMAP_I2C_REV_ON_3430) &&
-+				if ((dev->errata & I2C_OMAP3_1P153) &&
- 				    errata_omap3_1p153(dev, &stat, &err))
- 					goto complete;
- 
-@@ -1049,6 +1050,9 @@ omap_i2c_probe(struct platform_device *pdev)
- 
- 	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
- 
-+	if (dev->rev <= OMAP_I2C_REV_ON_3430)
-+		dev->errata |= I2C_OMAP3_1P153;
-+
- 	if (!(cpu_class_is_omap1() || cpu_is_omap2420())) {
- 		u16 s;
- 
--- 
-1.6.0.4
+ping ...
+-mike
