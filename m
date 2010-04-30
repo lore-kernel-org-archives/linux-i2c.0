@@ -1,255 +1,73 @@
-From: Sergey Senozhatsky <sergey.senozhatsky-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c-i801 retries on lost arbitration
-Date: Fri, 30 Apr 2010 11:03:51 +0300
-Message-ID: <20100430080351.GA3553@swordfish.minsk.epam.com>
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: Re: i2c-i801 retries on lost arbitration (resent: no gpg)
+Date: Fri, 30 Apr 2010 13:07:09 +0300
+Message-ID: <20100430100709.GD3553@swordfish.minsk.epam.com>
+References: <20100430094412.GC3553@swordfish.minsk.epam.com>
+ <20100430114822.1a5e0cf9@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20100430114822.1a5e0cf9@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
+--PuGuTyElPB9bOcsM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On (04/30/10 11:48), Jean Delvare wrote:
+> Hi Sergey,
+>=20
+>=20
+> > Both i2c spec and ICH7 datasheet requires to restart transaction in
+> > case of lost arbitration.
+> >=20
+> > "No information is lost during the arbitration process. A master that
+> > loses the arbitration can generate clock pulses until the end of the
+> > byte in which it loses the arbitration and must restart its transaction
+> > when the bus is idle."
+> >        =20
+> > Please see the following patch. Is it correct?
+>=20
+> No, it's not. As you wrote above, this is not specific to the Intel ICH
+> but a general I2C issue. As such it must be handled in i2c-core and not
+> by individual drivers. And as a matter of fact, it is already handled.
+> Look at functions i2c_transfer and i2c_smbus_xfer in i2c-core.c, see
+> the comments "Retry automatically on arbitration loss", the code is
+> already there. It's just a matter of bus drivers properly setting
+> adapter->retries (which i2c-i801.c does already.)
+>=20
+Thanks.
 
-Both i2c spec and ICH7 datasheet requires to restart transaction in
-case of lost arbitration.
+> So I don't know which kernel you're using, but with the latest upstream
+> kernel, things should work just fine already.
+>=20
 
-"No information is lost during the arbitration process. A master that
-loses the arbitration can generate clock pulses until the end of the
-byte in which it loses the arbitration and must restart its transaction
-when the bus is idle."
-
-Please see the following patch. Is it correct?
-
----
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 299b918..b7c21ee 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -446,100 +446,111 @@ static s32 i801_access(struct i2c_adapter * adap, u=
-16 addr,
- {
- 	int hwpec;
- 	int block =3D 0;
--	int ret, xact =3D 0;
--
-+	int ret, xact =3D 0, i =3D 0;
-+=09
- 	hwpec =3D (i801_features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size !=3D I2C_SMBUS_QUICK
- 		&& size !=3D I2C_SMBUS_I2C_BLOCK_DATA;
-=20
--	switch (size) {
--	case I2C_SMBUS_QUICK:
--		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
--		       SMBHSTADD);
--		xact =3D I801_QUICK;
--		break;
--	case I2C_SMBUS_BYTE:
--		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
--		       SMBHSTADD);
--		if (read_write =3D=3D I2C_SMBUS_WRITE)
-+	for (i =3D adap->retries; i >=3D 0; i--) {
-+		switch (size) {
-+		case I2C_SMBUS_QUICK:
-+			outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+				   SMBHSTADD);
-+			xact =3D I801_QUICK;
-+			break;
-+		case I2C_SMBUS_BYTE:
-+			outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+				   SMBHSTADD);
-+			if (read_write =3D=3D I2C_SMBUS_WRITE)
-+				outb_p(command, SMBHSTCMD);
-+			xact =3D I801_BYTE;
-+			break;
-+		case I2C_SMBUS_BYTE_DATA:
-+			outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+				   SMBHSTADD);
- 			outb_p(command, SMBHSTCMD);
--		xact =3D I801_BYTE;
--		break;
--	case I2C_SMBUS_BYTE_DATA:
--		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
--		       SMBHSTADD);
--		outb_p(command, SMBHSTCMD);
--		if (read_write =3D=3D I2C_SMBUS_WRITE)
--			outb_p(data->byte, SMBHSTDAT0);
--		xact =3D I801_BYTE_DATA;
--		break;
--	case I2C_SMBUS_WORD_DATA:
--		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
--		       SMBHSTADD);
--		outb_p(command, SMBHSTCMD);
--		if (read_write =3D=3D I2C_SMBUS_WRITE) {
--			outb_p(data->word & 0xff, SMBHSTDAT0);
--			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
--		}
--		xact =3D I801_WORD_DATA;
--		break;
--	case I2C_SMBUS_BLOCK_DATA:
--		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
--		       SMBHSTADD);
--		outb_p(command, SMBHSTCMD);
--		block =3D 1;
--		break;
--	case I2C_SMBUS_I2C_BLOCK_DATA:
--		/* NB: page 240 of ICH5 datasheet shows that the R/#W
--		 * bit should be cleared here, even when reading */
--		outb_p((addr & 0x7f) << 1, SMBHSTADD);
--		if (read_write =3D=3D I2C_SMBUS_READ) {
--			/* NB: page 240 of ICH5 datasheet also shows
--			 * that DATA1 is the cmd field when reading */
--			outb_p(command, SMBHSTDAT1);
--		} else
-+			if (read_write =3D=3D I2C_SMBUS_WRITE)
-+				outb_p(data->byte, SMBHSTDAT0);
-+			xact =3D I801_BYTE_DATA;
-+			break;
-+		case I2C_SMBUS_WORD_DATA:
-+			outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+				   SMBHSTADD);
- 			outb_p(command, SMBHSTCMD);
--		block =3D 1;
--		break;
--	default:
--		dev_err(&I801_dev->dev, "Unsupported transaction %d\n", size);
--		return -EOPNOTSUPP;
--	}
--
--	if (hwpec)	/* enable/disable hardware PEC */
--		outb_p(inb_p(SMBAUXCTL) | SMBAUXCTL_CRC, SMBAUXCTL);
--	else
--		outb_p(inb_p(SMBAUXCTL) & (~SMBAUXCTL_CRC), SMBAUXCTL);
--
--	if(block)
--		ret =3D i801_block_transaction(data, read_write, size, hwpec);
--	else
--		ret =3D i801_transaction(xact | ENABLE_INT9);
--
--	/* Some BIOSes don't like it when PEC is enabled at reboot or resume
--	   time, so we forcibly disable it after every transaction. Turn off
--	   E32B for the same reason. */
--	if (hwpec || block)
--		outb_p(inb_p(SMBAUXCTL) & ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B),
--		       SMBAUXCTL);
-+			if (read_write =3D=3D I2C_SMBUS_WRITE) {
-+				outb_p(data->word & 0xff, SMBHSTDAT0);
-+				outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
-+			}
-+			xact =3D I801_WORD_DATA;
-+			break;
-+		case I2C_SMBUS_BLOCK_DATA:
-+			outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
-+				   SMBHSTADD);
-+			outb_p(command, SMBHSTCMD);
-+			block =3D 1;
-+			break;
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			/* NB: page 240 of ICH5 datasheet shows that the R/#W
-+			 * bit should be cleared here, even when reading */
-+			outb_p((addr & 0x7f) << 1, SMBHSTADD);
-+			if (read_write =3D=3D I2C_SMBUS_READ) {
-+				/* NB: page 240 of ICH5 datasheet also shows
-+				 * that DATA1 is the cmd field when reading */
-+				outb_p(command, SMBHSTDAT1);
-+			} else
-+				outb_p(command, SMBHSTCMD);
-+			block =3D 1;
-+			break;
-+		default:
-+			dev_err(&I801_dev->dev, "Unsupported transaction %d\n", size);
-+			return -EOPNOTSUPP;
-+		}
-+	=09
-+		if (hwpec)	/* enable/disable hardware PEC */
-+			outb_p(inb_p(SMBAUXCTL) | SMBAUXCTL_CRC, SMBAUXCTL);
-+		else
-+			outb_p(inb_p(SMBAUXCTL) & (~SMBAUXCTL_CRC), SMBAUXCTL);
-+	=09
-+		if(block)
-+			ret =3D i801_block_transaction(data, read_write, size, hwpec);
-+		else
-+			ret =3D i801_transaction(xact | ENABLE_INT9);
-+	=09
-+		/* Some BIOSes don't like it when PEC is enabled at reboot or resume
-+		   time, so we forcibly disable it after every transaction. Turn off
-+		   E32B for the same reason. */
-+		if (hwpec || block)
-+			outb_p(inb_p(SMBAUXCTL) & ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B),
-+				   SMBAUXCTL);
-+
-+		if (ret =3D=3D -EAGAIN) {
-+			dev_dbg(&I801_dev->dev, "Restarting transaction (probably due to lost a=
-rbitration)");
-+			continue;
-+		}
-+	=09
-+		if(block)
-+			return ret;
-+		if(ret)
-+			return ret;
-+		if ((read_write =3D=3D I2C_SMBUS_WRITE) || (xact =3D=3D I801_QUICK))
-+			return 0;
-+
-+		switch (xact & 0x7f) {
-+		case I801_BYTE:	/* Result put in SMBHSTDAT0 */
-+		case I801_BYTE_DATA:
-+			data->byte =3D inb_p(SMBHSTDAT0);
-+			break;
-+		case I801_WORD_DATA:
-+			data->word =3D inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
-+			break;
-+		}
-=20
--	if(block)
--		return ret;
--	if(ret)
--		return ret;
--	if ((read_write =3D=3D I2C_SMBUS_WRITE) || (xact =3D=3D I801_QUICK))
- 		return 0;
--
--	switch (xact & 0x7f) {
--	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
--	case I801_BYTE_DATA:
--		data->byte =3D inb_p(SMBHSTDAT0);
--		break;
--	case I801_WORD_DATA:
--		data->word =3D inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
--		break;
- 	}
--	return 0;
-+
-+	ret =3D -EREMOTEIO;
-+	return ret;
- }
-=20
-=20
+OK. Thanks a lot.
 
 
+	Sergey
 
---BOKacYhQ+x31HxR3
+=09
+
+--PuGuTyElPB9bOcsM
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iJwEAQECAAYFAkvajucACgkQfKHnntdSXjQAlAP9GwhI+pPcJKpi1JVhYnIgFN19
-v29fg8+qnK2gHCn3WVVXuNdqBi/zo4w0V+30/rx6Cj5mjc95OVNEjRiz/+8cfT1L
-xiJxuhaYEhooAVjW7lNRlUukgJ3SXJK/HoeZzu26SJFWLBviTRFi+QEGOipH1Q9V
-pKsZ1Gr0KXZyDo+ZWIU=
-=iFs6
+iJwEAQECAAYFAkvaq80ACgkQfKHnntdSXjSDfwP+OpAlzT7Ze0a9uxTb8YQlpEno
+YKSK6agneTDAcvRp14lQ/Z7fIp8OXOjeacZ9aiCLcG8HqXSzBssDU6g6Th90B6HT
+l392L6UgKh/Ipa0sDM1dozoj7TQwOfzCEqwB8p3YhrtdG1SAknaexm0TkBpqR0BE
+p6jXt936g1C9I1RgoyE=
+=vLWa
 -----END PGP SIGNATURE-----
 
---BOKacYhQ+x31HxR3--
+--PuGuTyElPB9bOcsM--
