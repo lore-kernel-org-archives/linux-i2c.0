@@ -1,33 +1,25 @@
-From: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: Multiplexed I2C bus multiplexer driver
- pca954x
-Date: Tue, 4 May 2010 14:52:23 +0200
-Message-ID: <20100504125222.GN13314@enneenne.com>
-References: <4BE01741.1010909@gmx.de>
- <4BE01795.1090605@gmx.de>
+From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: Multiplexed I2C bus core support
+Date: Tue, 4 May 2010 17:19:09 +0200
+Message-ID: <j2tf69abfc31005040819j1fcf9117t44b7c6883b01c99@mail.gmail.com>
+References: <4BE01321.3060704@gmx.de> <4BE014ED.9070907@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4BE01795.1090605-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <4BE014ED.9070907-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Delvare, Jean " <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Delvare, Jean" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 04, 2010 at 02:48:21PM +0200, Michael Lawnick wrote:
+On Tue, May 4, 2010 at 2:37 PM, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org> wrote:
+> Seems like Thunderbird isn't usable for sending patches :-(
+> Trying again with attachment.
 
-> Add multiplexed bus core support. I2C driver for PCA954x
-> I2C multiplexer series.
-> 
-> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Have you tried External Editor with VIM:
+http://globs.org/articles.php?pg=2&lng=en
 
-Acked-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+For me it is working like a charm.
 
--- 
-
-GNU/Linux Solutions                  e-mail: giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org
-Linux Device Driver                          giometti-k2GhghHVRtY@public.gmane.org
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming                     skype:  rodolfo.giometti
-Freelance ICT Italia - Consulente ICT Italia - www.consulenti-ict.it
+Regards,
+Yegor
