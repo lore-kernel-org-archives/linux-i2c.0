@@ -1,73 +1,36 @@
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Subject: Re: i2c-i801 retries on lost arbitration (resent: no gpg)
-Date: Fri, 30 Apr 2010 13:07:09 +0300
-Message-ID: <20100430100709.GD3553@swordfish.minsk.epam.com>
-References: <20100430094412.GC3553@swordfish.minsk.epam.com>
- <20100430114822.1a5e0cf9@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c fixes for 2.6.34
+Date: Tue, 4 May 2010 11:12:30 +0200
+Message-ID: <20100504111230.04ffe803@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100430114822.1a5e0cf9@hyperion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Linus,
 
---PuGuTyElPB9bOcsM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please pull i2c subsystem fixes for Linux 2.6.34 from:
 
-On (04/30/10 11:48), Jean Delvare wrote:
-> Hi Sergey,
->=20
->=20
-> > Both i2c spec and ICH7 datasheet requires to restart transaction in
-> > case of lost arbitration.
-> >=20
-> > "No information is lost during the arbitration process. A master that
-> > loses the arbitration can generate clock pulses until the end of the
-> > byte in which it loses the arbitration and must restart its transaction
-> > when the bus is idle."
-> >        =20
-> > Please see the following patch. Is it correct?
->=20
-> No, it's not. As you wrote above, this is not specific to the Intel ICH
-> but a general I2C issue. As such it must be handled in i2c-core and not
-> by individual drivers. And as a matter of fact, it is already handled.
-> Look at functions i2c_transfer and i2c_smbus_xfer in i2c-core.c, see
-> the comments "Retry automatically on arbitration loss", the code is
-> already there. It's just a matter of bus drivers properly setting
-> adapter->retries (which i2c-i801.c does already.)
->=20
-Thanks.
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
 
-> So I don't know which kernel you're using, but with the latest upstream
-> kernel, things should work just fine already.
->=20
+ Documentation/i2c/writing-clients |    5 +++
+ drivers/i2c/i2c-core.c            |   63 +++++++++++++++++++++++-------------
+ include/linux/i2c.h               |    2 +
+ 3 files changed, 47 insertions(+), 23 deletions(-)
 
-OK. Thanks a lot.
+---------------
 
+Jean Delvare (2):
+      i2c: Fix probing of FSC hardware monitoring chips
+      i2c-core: Use per-adapter userspace device lists
 
-	Sergey
+Wolfram Sang (1):
+      i2c-core: Erase pointer to clientdata on removal
 
-=09
-
---PuGuTyElPB9bOcsM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iJwEAQECAAYFAkvaq80ACgkQfKHnntdSXjSDfwP+OpAlzT7Ze0a9uxTb8YQlpEno
-YKSK6agneTDAcvRp14lQ/Z7fIp8OXOjeacZ9aiCLcG8HqXSzBssDU6g6Th90B6HT
-l392L6UgKh/Ipa0sDM1dozoj7TQwOfzCEqwB8p3YhrtdG1SAknaexm0TkBpqR0BE
-p6jXt936g1C9I1RgoyE=
-=vLWa
------END PGP SIGNATURE-----
-
---PuGuTyElPB9bOcsM--
+Thanks,
+-- 
+Jean Delvare
