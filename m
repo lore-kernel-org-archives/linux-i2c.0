@@ -1,91 +1,70 @@
-From: "Krishnamoorthy, Balaji T" <balajitk@ti.com>
-Subject: RE: [PATCH]i2c-omap: pass scll, sclh through board file for Errata
- i585
-Date: Mon, 10 May 2010 20:32:55 +0530
-Message-ID: <19F8576C6E063C45BE387C64729E7394044E4049A4@dbde02.ent.ti.com>
-References: <1273214105-22894-1-git-send-email-balajitk@ti.com>
- <4BE3DD36.10308@nokia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4BE3DD36.10308@nokia.com>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Menon, Nishanth" <nm@ti.com>
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2] i2c-bfin-twi: handle faulty slave devices better
+Date: Mon, 10 May 2010 11:33:44 -0400
+Message-ID: <1273505624-30920-1-git-send-email-vapier@gentoo.org>
+References: <1273403087-3326-1-git-send-email-vapier@gentoo.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1273403087-3326-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-> -----Original Message-----
-> From: Aaro Koskinen [mailto:aaro.koskinen@nokia.com]
-> Subject: Re: [PATCH]i2c-omap: pass scll, sclh through board file for Errata
-> i585
-> 
-> Hi,
-> 
-> balajitk@ti.com wrote:
-> > From: Balaji T K <balajitk@ti.com>
-> >
-> > Errata ID: i535 - I2C1 to 3 SCL low period is shorter in FS mode
-> > Due to IO cell influence, I2C1 to 3 SCL low period can be shorter than
-> expected.
-> > As a result, I2C AC timing (SCL minimum low period) in FS mode may not meet
-> > the timing configured by software.
-> >
-> > I2C1 to 3, SCL low period is programmable and proper adjustments
-> > to the SCLL/HSSCLL values can avoid the issue.
-> >
-> > This patch provides flexibility to control tLOW, tHIGH for different boards.
-> > scll, sclh values are to be provide in board data
-> > for differents modes (standard, fast and high speed mode)
-> > as the scl rate (I2C bus speed) can be changed by bootargs.
-> 
-> This patch is very much needed, because these values are highly board
-> specific.
-> At the moment we are forced to patch the i2c bus driver when finetuning the
-> I2C
-> timings for a certain board, which is ugly.
-> 
-> However, I have comment one about the implementation:
-> 
+Faulty slave devices might drive SDA low after a transfer finishes.  So,
+when this scenario is detected, have the master generate up to 9 extra
+clocks until the SDA is properly released.
 
-<snip>
+Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+---
+v2
+	- fix typo in comment pointed out by Ben
+	- use 9 clocks rather than 8 to cover a possible NACK pointed out by Michael
 
-> I think it would be simpler if we move these calcuations into a function.
-> E.g. something like:
-> 
-If the custom function is also to fine the scl low and scl high values.
-How about passing the Tlow to T, Thigh to T ratio. T = 1/100Khz , 1/400Khz ,
-1/HS speed to make things simpler.
+ drivers/i2c/busses/i2c-bfin-twi.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-> 	if (dev->speed > 400) {
-> 		/* HS mode */
-> 		pdata->set_scl(internal_clk, 400, &fsscll, &fssclh);
-> 		pdata->set_scl(fclk_rate, dev->speed, &hsscll, &hssclh);
-> 	} else {
-> 		/* Fast & standard mode */
-> 		pdata->set_scl(internal_clk, dev->speed, &fsscll, &fssclh);
-> 	}
-> 
-> Then the default function would be something like:
-> 
-> static void omap_i2c_default_scl(unsigned clk, unsigned speed, u16 *scll, u16
-> *sclh)
-> {
-> 	if (speed > 100) {
-> 		/* Fast & HS modes */
-> 		unsigned scl = clk / speed;
-> 
-> 		*scll = scl - (scl / 3) - 7;
-> 		*sclh = (scl / 3) - 5;
-> 	} else {
-> 		/* Standard mode */
-> 		*scll = clk / (speed * 2) - 7;
-> 		*scll = clk / (speed * 2) - 5;
-> 	}
-> }
-> 
-> And the platform data would just provide a board-specific function if needed.
-> 
-> A.
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index fb26e5c..1ee9d5a 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -20,6 +20,7 @@
+ #include <linux/completion.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/delay.h>
+ 
+ #include <asm/blackfin.h>
+ #include <asm/portmux.h>
+@@ -159,6 +160,27 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		if (mast_stat & BUFWRERR)
+ 			dev_dbg(&iface->adap.dev, "Buffer Write Error\n");
+ 
++		/* Faulty slave devices, may drive SDA low after a transfer
++		 * finishes. To release the bus this code generates up to 9
++		 * extra clocks until SDA is released.
++		 */
++
++		if (read_MASTER_STAT(iface) & SDASEN) {
++			int cnt = 9;
++			do {
++				write_MASTER_CTL(iface, SCLOVR);
++				udelay(6);
++				write_MASTER_CTL(iface, 0);
++				udelay(6);
++			} while ((read_MASTER_STAT(iface) & SDASEN) && cnt--);
++
++			write_MASTER_CTL(iface, SDAOVR | SCLOVR);
++			udelay(6);
++			write_MASTER_CTL(iface, SDAOVR);
++			udelay(6);
++			write_MASTER_CTL(iface, 0);
++		}
++
+ 		/* If it is a quick transfer, only address without data,
+ 		 * not an err, return 1.
+ 		 */
+-- 
+1.7.1
