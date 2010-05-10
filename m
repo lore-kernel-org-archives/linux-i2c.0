@@ -1,55 +1,91 @@
-From: Alexander Shishkin <virtuoso@slind.org>
-Subject: [PATCH v3] omap i2c: add a timeout to the busy waiting
-Date: Mon, 10 May 2010 13:02:27 +0300
-Message-ID: <1273485747-31533-1-git-send-email-virtuoso@slind.org>
-References: <4BAB7551.6040203@nokia.com>
+From: "Krishnamoorthy, Balaji T" <balajitk@ti.com>
+Subject: RE: [PATCH]i2c-omap: pass scll, sclh through board file for Errata
+ i585
+Date: Mon, 10 May 2010 20:32:55 +0530
+Message-ID: <19F8576C6E063C45BE387C64729E7394044E4049A4@dbde02.ent.ti.com>
+References: <1273214105-22894-1-git-send-email-balajitk@ti.com>
+ <4BE3DD36.10308@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4BAB7551.6040203@nokia.com>
+In-Reply-To: <4BE3DD36.10308@nokia.com>
+Content-Language: en-US
 Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>, Tony Lindgren <tony@atomide.com>
-Cc: ben-linux@fluff.org, nm@ti.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Alexander Shishkin <virtuoso@slind.org>
+To: Aaro Koskinen <aaro.koskinen@nokia.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Menon, Nishanth" <nm@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The errata 1.153 workaround is busy waiting on XUDF bit in interrupt
-context, which may lead to kernel hangs. The problem can be reproduced
-by running the bus with wrong (too high) speed.
 
-Signed-off-by: Alexander Shishkin <virtuoso@slind.org>
----
- drivers/i2c/busses/i2c-omap.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletions(-)
+> -----Original Message-----
+> From: Aaro Koskinen [mailto:aaro.koskinen@nokia.com]
+> Subject: Re: [PATCH]i2c-omap: pass scll, sclh through board file for Errata
+> i585
+> 
+> Hi,
+> 
+> balajitk@ti.com wrote:
+> > From: Balaji T K <balajitk@ti.com>
+> >
+> > Errata ID: i535 - I2C1 to 3 SCL low period is shorter in FS mode
+> > Due to IO cell influence, I2C1 to 3 SCL low period can be shorter than
+> expected.
+> > As a result, I2C AC timing (SCL minimum low period) in FS mode may not meet
+> > the timing configured by software.
+> >
+> > I2C1 to 3, SCL low period is programmable and proper adjustments
+> > to the SCLL/HSSCLL values can avoid the issue.
+> >
+> > This patch provides flexibility to control tLOW, tHIGH for different boards.
+> > scll, sclh values are to be provide in board data
+> > for differents modes (standard, fast and high speed mode)
+> > as the scl rate (I2C bus speed) can be changed by bootargs.
+> 
+> This patch is very much needed, because these values are highly board
+> specific.
+> At the moment we are forced to patch the i2c bus driver when finetuning the
+> I2C
+> timings for a certain board, which is ugly.
+> 
+> However, I have comment one about the implementation:
+> 
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index ef73483..00fd02e 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -763,17 +763,25 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
-  */
- static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- {
--	while (!(*stat & OMAP_I2C_STAT_XUDF)) {
-+	unsigned long timeout = 10000;
-+
-+	while (--timeout && !(*stat & OMAP_I2C_STAT_XUDF)) {
- 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
- 							OMAP_I2C_STAT_XDR));
- 			*err |= OMAP_I2C_STAT_XUDF;
- 			return -ETIMEDOUT;
- 		}
-+
- 		cpu_relax();
- 		*stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
- 	}
- 
-+	if (!timeout) {
-+		dev_err(dev->dev, "timeout waiting on XUDF bit\n");
-+		return 0;
-+	}
-+
- 	return 0;
- }
- 
--- 
-1.7.1.1.g15764
+<snip>
 
+> I think it would be simpler if we move these calcuations into a function.
+> E.g. something like:
+> 
+If the custom function is also to fine the scl low and scl high values.
+How about passing the Tlow to T, Thigh to T ratio. T = 1/100Khz , 1/400Khz ,
+1/HS speed to make things simpler.
+
+> 	if (dev->speed > 400) {
+> 		/* HS mode */
+> 		pdata->set_scl(internal_clk, 400, &fsscll, &fssclh);
+> 		pdata->set_scl(fclk_rate, dev->speed, &hsscll, &hssclh);
+> 	} else {
+> 		/* Fast & standard mode */
+> 		pdata->set_scl(internal_clk, dev->speed, &fsscll, &fssclh);
+> 	}
+> 
+> Then the default function would be something like:
+> 
+> static void omap_i2c_default_scl(unsigned clk, unsigned speed, u16 *scll, u16
+> *sclh)
+> {
+> 	if (speed > 100) {
+> 		/* Fast & HS modes */
+> 		unsigned scl = clk / speed;
+> 
+> 		*scll = scl - (scl / 3) - 7;
+> 		*sclh = (scl / 3) - 5;
+> 	} else {
+> 		/* Standard mode */
+> 		*scll = clk / (speed * 2) - 7;
+> 		*scll = clk / (speed * 2) - 5;
+> 	}
+> }
+> 
+> And the platform data would just provide a board-specific function if needed.
+> 
+> A.
