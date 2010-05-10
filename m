@@ -1,47 +1,55 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH] blackfin/acvilon: Fix timeout
-	usage for I2C
-Date: Mon, 10 May 2010 04:44:04 +0200
-Message-ID: <20100510024404.GB25544@pengutronix.de>
-References: <1270389856-32003-1-git-send-email-w.sang@pengutronix.de> <20100510023639.GA25544@pengutronix.de> <v2o8bd0f97a1005091939nc0de1b9ckf33b402e72983de1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <v2o8bd0f97a1005091939nc0de1b9ckf33b402e72983de1-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Alexander Shishkin <virtuoso@slind.org>
+Subject: [PATCH v3] omap i2c: add a timeout to the busy waiting
+Date: Mon, 10 May 2010 13:02:27 +0300
+Message-ID: <1273485747-31533-1-git-send-email-virtuoso@slind.org>
+References: <4BAB7551.6040203@nokia.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4BAB7551.6040203@nokia.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Aaro Koskinen <aaro.koskinen@nokia.com>, Tony Lindgren <tony@atomide.com>
+Cc: ben-linux@fluff.org, nm@ti.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Alexander Shishkin <virtuoso@slind.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The errata 1.153 workaround is busy waiting on XUDF bit in interrupt
+context, which may lead to kernel hangs. The problem can be reproduced
+by running the bus with wrong (too high) speed.
 
---7ZAtKRhVyVSsbBD2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Alexander Shishkin <virtuoso@slind.org>
+---
+ drivers/i2c/busses/i2c-omap.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-On Sun, May 09, 2010 at 10:39:24PM -0400, Mike Frysinger wrote:
-> i'll pick this up for the next merge window (i.e. the one in a few
-> days) if Valentin has no feedback by then
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index ef73483..00fd02e 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -763,17 +763,25 @@ omap_i2c_rev1_isr(int this_irq, void *dev_id)
+  */
+ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
+ {
+-	while (!(*stat & OMAP_I2C_STAT_XUDF)) {
++	unsigned long timeout = 10000;
++
++	while (--timeout && !(*stat & OMAP_I2C_STAT_XUDF)) {
+ 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
+ 			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
+ 							OMAP_I2C_STAT_XDR));
+ 			*err |= OMAP_I2C_STAT_XUDF;
+ 			return -ETIMEDOUT;
+ 		}
++
+ 		cpu_relax();
+ 		*stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+ 	}
+ 
++	if (!timeout) {
++		dev_err(dev->dev, "timeout waiting on XUDF bit\n");
++		return 0;
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.1.1.g15764
 
-Thanks, this was the last board using a plain number. Case closed for now.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---7ZAtKRhVyVSsbBD2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkvncvQACgkQD27XaX1/VRtEVgCeNZdrnGykGV2FJ8oiVHbgDtLD
-oaUAoMGjSmtvhRaNNNTRDxDKHvvQbDe2
-=mvs4
------END PGP SIGNATURE-----
-
---7ZAtKRhVyVSsbBD2--
