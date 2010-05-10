@@ -1,68 +1,76 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-bfin-twi: handle faulty slave devices better
-Date: Sun, 9 May 2010 14:23:58 -0400
-Message-ID: <o2l8bd0f97a1005091123le4e59343j798a70d5db76c66e@mail.gmail.com>
-References: <1273403087-3326-1-git-send-email-vapier@gentoo.org>
-	<20100509113420.GB2589@trinity.fluff.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] blackfin/acvilon: Fix timeout usage for I2C
+Date: Mon, 10 May 2010 04:36:39 +0200
+Message-ID: <20100510023639.GA25544@pengutronix.de>
+References: <1270389856-32003-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100509113420.GB2589-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1270389856-32003-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, May 9, 2010 at 07:34, Ben Dooks wrote:
-> On Sun, May 09, 2010 at 07:04:47AM -0400, Mike Frysinger wrote:
->> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> Faulty slave devices might drive SDA low after a transfer finishes. =
-=C2=A0So,
->> when this scenario is detected, have the master generate up to 8 ext=
-ra
->> clocks until the SDA is properly released.
->>
->> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
->> ---
->> Note: this requires the existing Blackfin TWI patches already sent o=
-ut
->
-> hmm, it is late in the -rc series for anything other than critical
-> bugfixes, will update series tomorrow.
 
-this patch is fine for 2.6.35, but the rest of the series should have
-been merged for like 2.6.33 ...
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> =C2=A0drivers/i2c/busses/i2c-bfin-twi.c | =C2=A0 22 ++++++++++++++++=
-++++++
->> =C2=A01 files changed, 22 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/=
-i2c-bfin-twi.c
->> index fb26e5c..f9c05e1 100644
->> --- a/drivers/i2c/busses/i2c-bfin-twi.c
->> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
->> @@ -20,6 +20,7 @@
->> =C2=A0#include <linux/completion.h>
->> =C2=A0#include <linux/interrupt.h>
->> =C2=A0#include <linux/platform_device.h>
->> +#include <linux/delay.h>
->>
->> =C2=A0#include <asm/blackfin.h>
->> =C2=A0#include <asm/portmux.h>
->> @@ -159,6 +160,27 @@ static void bfin_twi_handle_interrupt(struct bf=
-in_twi_iface *iface,
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (mast_stat & BUF=
-WRERR)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 dev_dbg(&iface->adap.dev, "Buffer Write Error\n");
->>
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* Faulty salve devices,=
- may drive SDA low after a transfer
-> spello: slave
+On Sun, Apr 04, 2010 at 04:04:16PM +0200, Wolfram Sang wrote:
+> The timeout value is in jiffies, so it should be using HZ, not a plain
+> number. As '10000' is ambiguous, 1HZ is used as conservative default.
+>=20
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+> Cc: Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  arch/blackfin/mach-bf561/boards/acvilon.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/arch/blackfin/mach-bf561/boards/acvilon.c b/arch/blackfin/ma=
+ch-bf561/boards/acvilon.c
+> index 5163e2c..bfcfa86 100644
+> --- a/arch/blackfin/mach-bf561/boards/acvilon.c
+> +++ b/arch/blackfin/mach-bf561/boards/acvilon.c
+> @@ -44,6 +44,7 @@
+>  #include <linux/spi/flash.h>
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/jiffies.h>
+>  #include <linux/i2c-pca-platform.h>
+>  #include <linux/delay.h>
+>  #include <linux/io.h>
+> @@ -112,7 +113,7 @@ static struct resource bfin_i2c_pca_resources[] =3D {
+>  struct i2c_pca9564_pf_platform_data pca9564_platform_data =3D {
+>  	.gpio =3D -1,
+>  	.i2c_clock_speed =3D 330000,
+> -	.timeout =3D 10000
+> +	.timeout =3D HZ,
+>  };
+> =20
+>  /* PCA9564 I2C Bus driver */
 
-ok, i'll resend in a bit
--mike
+Ping.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkvncTcACgkQD27XaX1/VRupDwCggZzcz+9VT0Baj08YoTdqiykb
+2l4AnAiRh35bsceAJlQ+EhRN7Rcn7oJ1
+=UiUg
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
