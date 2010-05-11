@@ -1,82 +1,69 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-bfin-twi: handle faulty slave devices better
-Date: Wed, 12 May 2010 00:09:01 +0100
-Message-ID: <20100511230901.GA31325@fluff.org.uk>
-References: <1273403087-3326-1-git-send-email-vapier@gentoo.org>
- <1273505624-30920-1-git-send-email-vapier@gentoo.org>
+Subject: Re: [PATCH 0/6] i2c-omap patches for 2.6.35 merge window
+Date: Wed, 12 May 2010 00:10:47 +0100
+Message-ID: <20100511231047.GB31325@fluff.org.uk>
+References: <20100511182854.15596.56293.stgit@baageli.muru.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1273505624-30920-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20100511182854.15596.56293.stgit-XB442sTQ5VIxQTnqJstS8Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 10, 2010 at 11:33:44AM -0400, Mike Frysinger wrote:
-> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Tue, May 11, 2010 at 11:35:01AM -0700, Tony Lindgren wrote:
+> Hi all,
 > 
-> Faulty slave devices might drive SDA low after a transfer finishes.  So,
-> when this scenario is detected, have the master generate up to 9 extra
-> clocks until the SDA is properly released.
+> Here are the i2c-omap patches that we'd like to get in for 2.6.35.
+> 
+> I believe all of these patches have been posted earlier already
+> to the i2c list. They all have been merged into the linux-omap master
+> branch for testing. 
+> 
+> I've removed some duplicate Cc fields from the commit messages
+> for the obvious mailings lists and the people who will be merging
+> them.
+> 
+> Anyways, if no comments over the next few days, I'll reply to
+> this message with a pull request for Ben.
 
-This doesn't apply to my for-2635/i2c-bfin tree, can't find the BUFWERR
-patch. will check to see if theres's something i've missed..
+I've applied these to for-2635/i2c-omap to get them into -next
+
+please keep the start of each commit the same, I prefer i2c-omap:
+
+thanks.
  
-> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+> Regards,
+> 
+> Tony
+> 
 > ---
-> v2
-> 	- fix typo in comment pointed out by Ben
-> 	- use 9 clocks rather than 8 to cover a possible NACK pointed out by Michael
 > 
->  drivers/i2c/busses/i2c-bfin-twi.c |   22 ++++++++++++++++++++++
->  1 files changed, 22 insertions(+), 0 deletions(-)
+> Alexander Shishkin (2):
+>       omap: i2c: make errata 1.153 workaround a separate function
+>       omap: i2c: add a timeout to the busy waiting
 > 
-> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-> index fb26e5c..1ee9d5a 100644
-> --- a/drivers/i2c/busses/i2c-bfin-twi.c
-> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-> @@ -20,6 +20,7 @@
->  #include <linux/completion.h>
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
-> +#include <linux/delay.h>
->  
->  #include <asm/blackfin.h>
->  #include <asm/portmux.h>
-> @@ -159,6 +160,27 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
->  		if (mast_stat & BUFWRERR)
->  			dev_dbg(&iface->adap.dev, "Buffer Write Error\n");
->  
-> +		/* Faulty slave devices, may drive SDA low after a transfer
-> +		 * finishes. To release the bus this code generates up to 9
-> +		 * extra clocks until SDA is released.
-> +		 */
-> +
-> +		if (read_MASTER_STAT(iface) & SDASEN) {
-> +			int cnt = 9;
-> +			do {
-> +				write_MASTER_CTL(iface, SCLOVR);
-> +				udelay(6);
-> +				write_MASTER_CTL(iface, 0);
-> +				udelay(6);
-> +			} while ((read_MASTER_STAT(iface) & SDASEN) && cnt--);
-> +
-> +			write_MASTER_CTL(iface, SDAOVR | SCLOVR);
-> +			udelay(6);
-> +			write_MASTER_CTL(iface, SDAOVR);
-> +			udelay(6);
-> +			write_MASTER_CTL(iface, 0);
-> +		}
-> +
->  		/* If it is a quick transfer, only address without data,
->  		 * not an err, return 1.
->  		 */
+> Kalle Jokiniemi (1):
+>       i2c-omap: add mpu wake up latency constraint in i2c
+> 
+> Santosh Shilimkar (1):
+>       omap: i2c: Add i2c support on omap4 platform
+> 
+> manjugk manjugk (2):
+>       OMAP2/3: I2C: Errata ID i207: Clear wrong RDR interrupt
+>       OMAP3: I2C: Clean up Errata 1p153 handling
+> 
+> 
+>  arch/arm/plat-omap/i2c.c      |   39 ++++--
+>  drivers/i2c/busses/i2c-omap.c |  265 ++++++++++++++++++++++++++++++++---------
+>  include/linux/i2c-omap.h      |    9 +
+>  3 files changed, 246 insertions(+), 67 deletions(-)
+>  create mode 100644 include/linux/i2c-omap.h
+> 
 > -- 
-> 1.7.1
-> 
+> Signature
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
 > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
