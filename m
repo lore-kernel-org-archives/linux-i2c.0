@@ -1,70 +1,59 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] drivers/mfd: remove unneeded and dangerous clearing of
- clientdata
-Date: Tue, 18 May 2010 19:31:15 +0200
-Message-ID: <20100518193115.62bb6b4e@hyperion.delvare>
-References: <1274098229-13858-1-git-send-email-w.sang@pengutronix.de>
+Subject: Re: [PATCH] i2c-nforce2: Remove redundant error messages on ACPI
+ conflict
+Date: Wed, 19 May 2010 22:31:00 +0200
+Message-ID: <20100519223100.1634e789@hyperion.delvare>
+References: <1274127379-5433-1-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1274098229-13858-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1274127379-5433-1-git-send-email-chase.douglas-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Chase Douglas <chase.douglas-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 17 May 2010 14:10:29 +0200, Wolfram Sang wrote:
-> Unlike real i2c-devices which get detached from the driver, dummy-devices get
-> truly unregistered. So, there has never been a need to clear the clientdata
-> because the device will go away anyhow. For the occasions fixed here, clearing
-> clientdata was even dangerous as the structure was freed already.
+Hi Chase,
+
+On Mon, 17 May 2010 16:16:19 -0400, Chase Douglas wrote:
+> The ACPI subsystem strictly checks for resource conflicts. When there's
+> a conflict, it outputs a warning message with all the details needed to
+> properly diagnose the underlying issue. However, the i2c-nforce2 driver
+> also prints its own message. Not only is the message redundant, it is at
+> the KERN_ERR level, which overrides some bootsplash screens for no good
+> reason. This change removes the two lines that print out the error
+> messages.
 > 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
+> Signed-off-by: Chase Douglas <chase.douglas-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
 > ---
+>  drivers/i2c/busses/i2c-nforce2.c |    2 --
+>  1 files changed, 0 insertions(+), 2 deletions(-)
 > 
-> Note: While most of the other calls clearing clientdata became superfluous
-> meanwhile and will be fixed later to remove redundancy, this is a seperate
-> issue. It was wrong from the beginning and needs to be fixed as it can cause
-> crashes. Hopefully, during this release-cycle, all other clearings of
-> clientdata will be removed and we will never see the related confusion again.
-> 
->  drivers/mfd/88pm860x-i2c.c |    1 -
->  drivers/mfd/max8925-i2c.c  |    2 --
->  2 files changed, 0 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/mfd/88pm860x-i2c.c b/drivers/mfd/88pm860x-i2c.c
-> index 4a6e718..e55f3d2 100644
-> --- a/drivers/mfd/88pm860x-i2c.c
-> +++ b/drivers/mfd/88pm860x-i2c.c
-> @@ -200,7 +200,6 @@ static int __devexit pm860x_remove(struct i2c_client *client)
->  
->  	pm860x_device_exit(chip);
->  	i2c_unregister_device(chip->companion);
-> -	i2c_set_clientdata(chip->companion, NULL);
->  	i2c_set_clientdata(chip->client, NULL);
->  	kfree(chip);
->  	return 0;
-> diff --git a/drivers/mfd/max8925-i2c.c b/drivers/mfd/max8925-i2c.c
-> index d9fd878..e73f3f5 100644
-> --- a/drivers/mfd/max8925-i2c.c
-> +++ b/drivers/mfd/max8925-i2c.c
-> @@ -173,8 +173,6 @@ static int __devexit max8925_remove(struct i2c_client *client)
->  	max8925_device_exit(chip);
->  	i2c_unregister_device(chip->adc);
->  	i2c_unregister_device(chip->rtc);
-> -	i2c_set_clientdata(chip->adc, NULL);
-> -	i2c_set_clientdata(chip->rtc, NULL);
->  	i2c_set_clientdata(chip->i2c, NULL);
->  	kfree(chip);
->  	return 0;
+> diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+> index 4a48dd4..2da9a23 100644
+> --- a/drivers/i2c/busses/i2c-nforce2.c
+> +++ b/drivers/i2c/busses/i2c-nforce2.c
+> @@ -405,7 +405,6 @@ static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_
+>  	/* SMBus adapter 1 */
+>  	res1 = nforce2_probe_smb(dev, 4, NFORCE_PCI_SMB1, &smbuses[0], "SMB1");
+>  	if (res1 < 0) {
+> -		dev_err(&dev->dev, "Error probing SMB1.\n");
+>  		smbuses[0].base = 0;	/* to have a check value */
+>  	}
+>  	/* SMBus adapter 2 */
+> @@ -417,7 +416,6 @@ static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_
+>  		res2 = nforce2_probe_smb(dev, 5, NFORCE_PCI_SMB2, &smbuses[1],
+>  					 "SMB2");
+>  		if (res2 < 0) {
+> -			dev_err(&dev->dev, "Error probing SMB2.\n");
+>  			smbuses[1].base = 0;	/* to have a check value */
+>  		}
+>  	}
 
+I agree that these messages are essentially redundant, as
+nforce2_probe_smb() never fails without printing an message. Patch
+applied, thanks.
 
 -- 
 Jean Delvare
