@@ -1,337 +1,88 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-xii.c: Use OF instead of platform bus
-Date: Wed, 19 May 2010 23:58:32 +0100
-Message-ID: <20100519225832.GA4041@fluff.org.uk>
-References: <1274117574-1485-1-git-send-email-ricardo.ribalda@gmail.com>
+Subject: Please pull bjdooks' for-linus/i2c-2635 tree
+Date: Thu, 20 May 2010 00:23:27 +0100
+Message-ID: <20100519232327.GA5024@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1274117574-1485-1-git-send-email-ricardo.ribalda-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ricardo Ribalda Delgado <ricardo.ribalda-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Richard R??jfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 17, 2010 at 07:32:54PM +0200, Ricardo Ribalda Delgado wrote:
-> Xiic cores are seen on ppc and microblaze arches. Both arches are using device-trees
-> instead of platform buses to descrive its peripherals.
-> 
-> This patch ports i2c-xiic.c from platform bus to OF.
+Please pull the following tree:
 
-are you really sure that moving to platform device only is
-the right thing to do?
- 
-> ---
->  drivers/i2c/busses/i2c-xiic.c |  121 ++++++++++++++++++++++-------------------
->  1 files changed, 64 insertions(+), 57 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index a9c419e..62f0ca5 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -2,6 +2,7 @@
->   * i2c-xiic.c
->   * Copyright (c) 2002-2007 Xilinx Inc.
->   * Copyright (c) 2009-2010 Intel Corporation
-> + * Copyright (c) 2010 Qtechnology A/S
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License version 2 as
-> @@ -23,6 +24,8 @@
->   * Mocean Laboratories forked off the GNU/Linux platform work into a
->   * separate company called Pelagicore AB, which commited the code to the
->   * kernel.
-> + *
-> + * Ricardo Ribalda: Ported from platform device to device tree (OF)
->   */
->  
->  /* Supports:
-> @@ -33,13 +36,16 @@
->  #include <linux/init.h>
->  #include <linux/errno.h>
->  #include <linux/delay.h>
-> -#include <linux/platform_device.h>
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
->  #include <linux/wait.h>
->  #include <linux/i2c-xiic.h>
->  #include <linux/io.h>
-> +#include <linux/of.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/of_i2c.h>
->  #include <linux/slab.h>
-> +#include <asm/of_device.h>
->  
->  #define DRIVER_NAME "xiic-i2c"
->  
-> @@ -68,11 +74,14 @@ struct xiic_i2c {
->  	struct i2c_adapter	adap;
->  	struct i2c_msg		*tx_msg;
->  	spinlock_t		lock;
-> -	unsigned int 		tx_pos;
-> +	unsigned int		tx_pos;
-hmm, useles change.
->  	unsigned int		nmsgs;
->  	enum xilinx_i2c_state	state;
->  	struct i2c_msg		*rx_msg;
->  	int			rx_pos;
-> +	int			irq;
-> +	unsigned long		iomem;
-> +	size_t			iolen;
->  };
->  
->  
-> @@ -175,27 +184,27 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c);
->  
->  static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 value)
->  {
-> -	iowrite8(value, i2c->base + reg);
-> +	out_be32(i2c->base + reg,value);
->  }
->  
->  static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
->  {
-> -	return ioread8(i2c->base + reg);
-> +	return in_be32(i2c->base + reg);
->  }
->  
->  static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 value)
->  {
-> -	iowrite16(value, i2c->base + reg);
-> +	out_be32(i2c->base + reg,value);
->  }
->  
->  static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int value)
->  {
-> -	iowrite32(value, i2c->base + reg);
-> +	out_be32(i2c->base + reg,value);
->  }
->  
->  static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg)
->  {
-> -	return ioread32(i2c->base + reg);
-> +	return in_be32(i2c->base + reg);
->  }
->  
->  static inline void xiic_irq_dis(struct xiic_i2c *i2c, u32 mask)
-> @@ -362,7 +371,7 @@ static void xiic_process(struct xiic_i2c *i2c)
->  		 * this is probably a TX error
->  		 */
->  
-> -		dev_dbg(i2c->adap.dev.parent, "%s error\n", __func__);
-> +		dev_err(i2c->adap.dev.parent, "%s error\n", __func__);
+The following changes since commit 024a6b95181f2df6090975c8a293499d24bf=
+8b28:
+  Linus Torvalds (1):
+        Merge branch 'davinci-for-linus' of git://git.kernel.org/.../kh=
+ilman/linux-davinci
 
-no, don't change dev_ macros unless ncessary. I expect you'll
-find probling an i2c bus causes floods of htee.
-  
->  		/* dynamic mode seem to suffer from problems if we just flushes
->  		 * fifos and the next message is a TX with len 0 (only addr)
-> @@ -378,7 +387,7 @@ static void xiic_process(struct xiic_i2c *i2c)
->  
->  		clr = XIIC_INTR_RX_FULL_MASK;
->  		if (!i2c->rx_msg) {
-> -			dev_dbg(i2c->adap.dev.parent,
-> +			dev_err(i2c->adap.dev.parent,
->  				"%s unexpexted RX IRQ\n", __func__);
->  			xiic_clear_rx_fifo(i2c);
->  			goto out;
-> @@ -687,122 +696,120 @@ static struct i2c_adapter xiic_adapter = {
->  	.algo		= &xiic_algorithm,
->  };
->  
-> -
-> -static int __devinit xiic_i2c_probe(struct platform_device *pdev)
-> +static int __init
-the __devinit change was probably worthwile, but you've wrapped it up
-with a whole pile of other changes.
+are available in the git repository at:
 
-> +xiic_i2c_probe(struct of_device *op, const struct of_device_id *match)
->  {
-> -	struct xiic_i2c *i2c;
-> -	struct xiic_i2c_platform_data *pdata;
-> -	struct resource *res;
-> -	int ret, irq;
-> -	u8 i;
-> -
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	if (!res)
-> -		goto resource_missing;
-> -
-> -	irq = platform_get_irq(pdev, 0);
-> -	if (irq < 0)
-> -		goto resource_missing;
->  
-> -	pdata = (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
-> -	if (!pdata)
-> -		return -EINVAL;
-> +	struct xiic_i2c *i2c;
-> +	struct resource mem;
-> +	int ret;
->  
->  	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
->  	if (!i2c)
->  		return -ENOMEM;
->  
-> -	if (!request_mem_region(res->start, resource_size(res), pdev->name)) {
-> -		dev_err(&pdev->dev, "Memory region busy\n");
-> +	i2c->irq=irq_of_parse_and_map(op->node,0);
-> +	if (!i2c->irq)
-> +		goto resource_missing;
-> +
-> +	if (of_address_to_resource(op->node,0,&mem))
-> +		goto resource_missing;
-> +	i2c->iomem=mem.start;
-> +	i2c->iolen=mem.end-mem.start+1;
+  git://git.fluff.org/bjdooks/linux.git for-linus/i2c-2635
 
-use resource_size()
+Alexander Shishkin (2):
+      omap: i2c: make errata 1.153 workaround a separate function
+      omap: i2c: add a timeout to the busy waiting
 
-> +	if (!request_mem_region(i2c->iomem, i2c->iolen, DRIVER_NAME)) {
-> +		dev_err(&op->dev, "Memory region busy\n");
->  		ret = -EBUSY;
->  		goto request_mem_failed;
->  	}
->  
-> -	i2c->base = ioremap(res->start, resource_size(res));
-> +	i2c->base = ioremap(i2c->iomem, i2c->iolen);
->  	if (!i2c->base) {
-> -		dev_err(&pdev->dev, "Unable to map registers\n");
-> +		dev_err(&op->dev, "Unable to map registers\n");
->  		ret = -EIO;
->  		goto map_failed;
->  	}
->  
->  	/* hook up driver to tree */
-> -	platform_set_drvdata(pdev, i2c);
-> +	dev_set_drvdata(&op->dev, i2c);
->  	i2c->adap = xiic_adapter;
->  	i2c_set_adapdata(&i2c->adap, i2c);
-> -	i2c->adap.dev.parent = &pdev->dev;
-> +	i2c->adap.dev.parent = &op->dev;
->  
->  	xiic_reinit(i2c);
->  
->  	spin_lock_init(&i2c->lock);
->  	init_waitqueue_head(&i2c->wait);
-> -	ret = request_irq(irq, xiic_isr, 0, pdev->name, i2c);
-> +	ret = request_irq(i2c->irq, xiic_isr, 0, DRIVER_NAME, i2c);
->  	if (ret) {
-> -		dev_err(&pdev->dev, "Cannot claim IRQ\n");
-> +		dev_err(&op->dev, "Cannot claim IRQ\n");
->  		goto request_irq_failed;
->  	}
->  
->  	/* add i2c adapter to i2c tree */
-> +	i2c->adap.id=0;
->  	ret = i2c_add_adapter(&i2c->adap);
->  	if (ret) {
-> -		dev_err(&pdev->dev, "Failed to add adapter\n");
-> +		dev_err(&op->dev, "Failed to add adapter\n");
->  		goto add_adapter_failed;
->  	}
->  
-> -	/* add in known devices to the bus */
-> -	for (i = 0; i < pdata->num_devices; i++)
-> -		i2c_new_device(&i2c->adap, pdata->devices + i);
-> +	of_register_i2c_devices(&i2c->adap, op->node);
->  
->  	return 0;
->  
->  add_adapter_failed:
-> -	free_irq(irq, i2c);
-> +	free_irq(i2c->irq, i2c);
->  request_irq_failed:
->  	xiic_deinit(i2c);
->  	iounmap(i2c->base);
->  map_failed:
-> -	release_mem_region(res->start, resource_size(res));
-> +	release_mem_region(i2c->iomem, i2c->iolen);
->  request_mem_failed:
-> -	kfree(i2c);
->  
->  	return ret;
->  resource_missing:
-> -	dev_err(&pdev->dev, "IRQ or Memory resource is missing\n");
-> +	kfree(i2c);
-> +	dev_err(&op->dev, "IRQ or Memory resource is missing\n");
->  	return -ENOENT;
->  }
->  
-> -static int __devexit xiic_i2c_remove(struct platform_device* pdev)
-> +
-> +static int __devexit xiic_i2c_remove(struct of_device *op)
->  {
-> -	struct xiic_i2c *i2c = platform_get_drvdata(pdev);
-> -	struct resource *res;
-> +	struct xiic_i2c *i2c = dev_get_drvdata(&op->dev);
->  
->  	/* remove adapter & data */
->  	i2c_del_adapter(&i2c->adap);
->  
->  	xiic_deinit(i2c);
->  
-> -	platform_set_drvdata(pdev, NULL);
-> +	dev_set_drvdata(&op->dev, NULL);
->  
-> -	free_irq(platform_get_irq(pdev, 0), i2c);
-> +	free_irq(i2c->irq, i2c);
->  
->  	iounmap(i2c->base);
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	if (res)
-> -		release_mem_region(res->start, resource_size(res));
-> +	release_mem_region(i2c->iomem, i2c->iolen);
->  
->  	kfree(i2c);
->  
->  	return 0;
->  }
->  
-> +/* Match table for of_platform binding */
-> + static struct of_device_id __devinitdata xiic_match[] = {
-> +	{ .compatible = "xlnx,xps-iic-2.00.a", },
-> +	{},
-> + };
->  
-> -/* work with hotplug and coldplug */
-> -MODULE_ALIAS("platform:"DRIVER_NAME);
-> +MODULE_DEVICE_TABLE(of, xiic_of_match);
->  
-> -static struct platform_driver xiic_i2c_driver = {
-> +static struct of_platform_driver xiic_i2c_of_driver = {
-> +	.match_table = xiic_match,
->  	.probe   = xiic_i2c_probe,
->  	.remove  = __devexit_p(xiic_i2c_remove),
-> -	.driver  = {
-> +	.driver = {
->  		.owner = THIS_MODULE,
->  		.name = DRIVER_NAME,
->  	},
-> @@ -810,12 +817,12 @@ static struct platform_driver xiic_i2c_driver = {
->  
->  static int __init xiic_i2c_init(void)
->  {
-> -	return platform_driver_register(&xiic_i2c_driver);
-> +	return of_register_platform_driver(&xiic_i2c_of_driver);
->  }
->  
->  static void __exit xiic_i2c_exit(void)
->  {
-> -	platform_driver_unregister(&xiic_i2c_driver);
-> +	of_unregister_platform_driver(&xiic_i2c_of_driver);
->  }
->  
->  module_init(xiic_i2c_init);
-> -- 
-> 1.7.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kalle Jokiniemi (1):
+      i2c-omap: add mpu wake up latency constraint in i2c
 
--- 
+Mark Brown (1):
+      i2c-s3c2410: Remove unconditional 1ms delay on each transfer
+
+Michael Hennerich (1):
+      i2c-bfin-twi: add debug output for error status
+
+Rabin Vincent (2):
+      i2c-nomadik: release region when removed
+      i2c-nomadik: fix operator precedence warning
+
+Santosh Shilimkar (1):
+      omap: i2c: Add i2c support on omap4 platform
+
+Sonic Zhang (4):
+      i2c-bfin-twi: integrate timeout timer with completion interface
+      i2c-bfin-twi: fix lost interrupts at high speeds
+      i2c-bfin-twi: remove redundant retry
+      i2c-bfin-twi: return completion in interrupt for smbus quick tran=
+sfers
+
+Uwe Kleine-K=C3=B6nig (2):
+      i2c-pxa: remove unused macro
+      MAINTAINERS: add i2c tree for embedded platforms
+
+Wolfram Sang (5):
+      i2c-pxa: only define 'blue_murder'-function if DEBUG is #defined
+      i2c-mpc: drop NO_IRQ
+      i2c-cpm: drop NO_IRQ
+      i2c-ibm-iic: drop NO_IRQ
+      i2c-highlander: remover superflous variable
+
+manjugk manjugk (2):
+      OMAP2/3: I2C: Errata ID i207: Clear wrong RDR interrupt
+      OMAP3: I2C: Clean up Errata 1p153 handling
+
+ MAINTAINERS                         |    1 +
+ arch/arm/plat-omap/i2c.c            |   39 ++++--
+ drivers/i2c/busses/i2c-bfin-twi.c   |  168 ++++++++++------------
+ drivers/i2c/busses/i2c-cpm.c        |    2 +-
+ drivers/i2c/busses/i2c-highlander.c |    5 +-
+ drivers/i2c/busses/i2c-ibm_iic.c    |   14 +-
+ drivers/i2c/busses/i2c-mpc.c        |    6 +-
+ drivers/i2c/busses/i2c-nomadik.c    |    6 +-
+ drivers/i2c/busses/i2c-omap.c       |  265 +++++++++++++++++++++++++++=
+-------
+ drivers/i2c/busses/i2c-pxa.c        |   26 ++--
+ drivers/i2c/busses/i2c-s3c2410.c    |   19 +++-
+ include/linux/i2c-omap.h            |    9 ++
+ 12 files changed, 374 insertions(+), 186 deletions(-)
+ create mode 100644 include/linux/i2c-omap.h
+
+--=20
 Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
 
   'a smiley only costs 4 bytes'
