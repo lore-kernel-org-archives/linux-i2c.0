@@ -1,45 +1,76 @@
-From: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
-Subject: [PATCH 05/11] omap: i2c: Storage class should be before const qualifier
-Date: Thu, 20 May 2010 10:35:28 +0200
-Message-ID: <1274344528-8975-1-git-send-email-tklauser@distanz.ch>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] drivers/mfd: remove unneeded and dangerous clearing of
+ clientdata
+Date: Fri, 21 May 2010 00:52:10 +0200
+Message-ID: <20100520225209.GC3130@sortiz.org>
+References: <1274098229-13858-1-git-send-email-w.sang@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1274098229-13858-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The C99 specification states in section 6.11.5:
+Hi Wolfgang,
 
-The placement of a storage-class specifier other than at the beginning
-of the declaration specifiers in a declaration is an obsolescent
-feature.
+On Mon, May 17, 2010 at 02:10:29PM +0200, Wolfram Sang wrote:
+> Unlike real i2c-devices which get detached from the driver, dummy-devices get
+> truly unregistered. So, there has never been a need to clear the clientdata
+> because the device will go away anyhow. For the occasions fixed here, clearing
+> clientdata was even dangerous as the structure was freed already.
+Patch applied, many thanks.
 
-Signed-off-by: Tobias Klauser <tklauser-93Khv+1bN0NyDzI6CaY1VQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Cheers,
+Samuel.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 7674efb..de79286 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -205,7 +205,7 @@ struct omap_i2c_dev {
- 	u16			errata;
- };
- 
--const static u8 reg_map[] = {
-+static const u8 reg_map[] = {
- 	[OMAP_I2C_REV_REG] = 0x00,
- 	[OMAP_I2C_IE_REG] = 0x01,
- 	[OMAP_I2C_STAT_REG] = 0x02,
-@@ -226,7 +226,7 @@ const static u8 reg_map[] = {
- 	[OMAP_I2C_BUFSTAT_REG] = 0x10,
- };
- 
--const static u8 omap4_reg_map[] = {
-+static const u8 omap4_reg_map[] = {
- 	[OMAP_I2C_REV_REG] = 0x04,
- 	[OMAP_I2C_IE_REG] = 0x2c,
- 	[OMAP_I2C_STAT_REG] = 0x28,
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+> ---
+> 
+> Note: While most of the other calls clearing clientdata became superfluous
+> meanwhile and will be fixed later to remove redundancy, this is a seperate
+> issue. It was wrong from the beginning and needs to be fixed as it can cause
+> crashes. Hopefully, during this release-cycle, all other clearings of
+> clientdata will be removed and we will never see the related confusion again.
+> 
+>  drivers/mfd/88pm860x-i2c.c |    1 -
+>  drivers/mfd/max8925-i2c.c  |    2 --
+>  2 files changed, 0 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/mfd/88pm860x-i2c.c b/drivers/mfd/88pm860x-i2c.c
+> index 4a6e718..e55f3d2 100644
+> --- a/drivers/mfd/88pm860x-i2c.c
+> +++ b/drivers/mfd/88pm860x-i2c.c
+> @@ -200,7 +200,6 @@ static int __devexit pm860x_remove(struct i2c_client *client)
+>  
+>  	pm860x_device_exit(chip);
+>  	i2c_unregister_device(chip->companion);
+> -	i2c_set_clientdata(chip->companion, NULL);
+>  	i2c_set_clientdata(chip->client, NULL);
+>  	kfree(chip);
+>  	return 0;
+> diff --git a/drivers/mfd/max8925-i2c.c b/drivers/mfd/max8925-i2c.c
+> index d9fd878..e73f3f5 100644
+> --- a/drivers/mfd/max8925-i2c.c
+> +++ b/drivers/mfd/max8925-i2c.c
+> @@ -173,8 +173,6 @@ static int __devexit max8925_remove(struct i2c_client *client)
+>  	max8925_device_exit(chip);
+>  	i2c_unregister_device(chip->adc);
+>  	i2c_unregister_device(chip->rtc);
+> -	i2c_set_clientdata(chip->adc, NULL);
+> -	i2c_set_clientdata(chip->rtc, NULL);
+>  	i2c_set_clientdata(chip->i2c, NULL);
+>  	kfree(chip);
+>  	return 0;
+> -- 
+> 1.7.0
+> 
+
 -- 
-1.6.3.3
+Intel Open Source Technology Centre
+http://oss.intel.com/
