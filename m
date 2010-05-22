@@ -1,97 +1,91 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for 2.6.35, round 1
-Date: Fri, 21 May 2010 19:11:06 +0200
-Message-ID: <20100521191106.5b62529a@hyperion.delvare>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 11/27] drivers/i2c: Use memdup_user
+Date: Sat, 22 May 2010 10:21:45 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1005221021270.13021@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (em, bedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janit
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+From: Julia Lawall <julia@diku.dk>
 
-Please pull a first round of i2c subsystem updates for Linux 2.6.35
-from:
+Use memdup_user when user data is immediately copied into the allocated
+region.  Note that in the second case, the ++i is no longer necessary, as
+the last value is already freed if needed by the call to memdup_user.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
 
-Random fixes and cleanups in many drivers, with a focus on the i2c-i801
-and at24 drivers.
+// <smpl>
+@@
+expression from,to,size,flag;
+position p;
+identifier l1,l2;
+@@
 
- Documentation/i2c/busses/i2c-i801      |    8 +++-
- drivers/i2c/algos/i2c-algo-pca.c       |   36 ++++++------
- drivers/i2c/busses/i2c-ali1535.c       |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c       |    2 +-
- drivers/i2c/busses/i2c-amd756.c        |    2 +-
- drivers/i2c/busses/i2c-amd8111.c       |    2 +-
- drivers/i2c/busses/i2c-at91.c          |    3 +-
- drivers/i2c/busses/i2c-elektor.c       |    2 +-
- drivers/i2c/busses/i2c-gpio.c          |    2 +-
- drivers/i2c/busses/i2c-hydra.c         |    2 +-
- drivers/i2c/busses/i2c-i801.c          |   59 +++++++++++++--------
- drivers/i2c/busses/i2c-ibm_iic.c       |    2 +-
- drivers/i2c/busses/i2c-iop3xx.c        |    3 +-
- drivers/i2c/busses/i2c-mv64xxx.c       |    3 +-
- drivers/i2c/busses/i2c-nforce2.c       |   12 ++---
- drivers/i2c/busses/i2c-ocores.c        |    2 +-
- drivers/i2c/busses/i2c-parport-light.c |    2 +-
- drivers/i2c/busses/i2c-parport.c       |    2 +-
- drivers/i2c/busses/i2c-pasemi.c        |    2 +-
- drivers/i2c/busses/i2c-pca-isa.c       |    2 +-
- drivers/i2c/busses/i2c-pca-platform.c  |    2 +-
- drivers/i2c/busses/i2c-piix4.c         |    2 +-
- drivers/i2c/busses/i2c-pmcmsp.c        |    2 +-
- drivers/i2c/busses/i2c-pxa.c           |    2 +-
- drivers/i2c/busses/i2c-s3c2410.c       |    2 +-
- drivers/i2c/busses/i2c-s6000.c         |    2 +-
- drivers/i2c/busses/i2c-sh7760.c        |    2 +-
- drivers/i2c/busses/i2c-sibyte.c        |    2 +-
- drivers/i2c/busses/i2c-simtec.c        |    3 +-
- drivers/i2c/busses/i2c-sis5595.c       |    2 +-
- drivers/i2c/busses/i2c-sis630.c        |    2 +-
- drivers/i2c/busses/i2c-sis96x.c        |    2 +-
- drivers/i2c/busses/i2c-stub.c          |    9 ++--
- drivers/i2c/busses/i2c-versatile.c     |    3 +-
- drivers/i2c/busses/i2c-via.c           |    2 +-
- drivers/i2c/busses/i2c-viapro.c        |    2 +-
- drivers/i2c/busses/scx200_acb.c        |    4 +-
- drivers/i2c/busses/scx200_i2c.c        |    2 +-
- drivers/i2c/i2c-core.c                 |   90 ++++++++++++++++----------------
- drivers/i2c/i2c-dev.c                  |   36 ++++++------
- drivers/misc/eeprom/at24.c             |   59 +++++++++++++++++----
- 41 files changed, 216 insertions(+), 166 deletions(-)
+-  to = \(kmalloc@p\|kzalloc@p\)(size,flag);
++  to = memdup_user(from,size);
+   if (
+-      to==NULL
++      IS_ERR(to)
+                 || ...) {
+   <+... when != goto l1;
+-  -ENOMEM
++  PTR_ERR(to)
+   ...+>
+   }
+-  if (copy_from_user(to, from, size) != 0) {
+-    <+... when != goto l2;
+-    -EFAULT
+-    ...+>
+-  }
+// </smpl>
 
----------------
+Signed-off-by: Julia Lawall <julia@diku.dk>
 
-Chase Douglas (1):
-      i2c-nforce2: Remove redundant error messages on ACPI conflict
+---
+ drivers/i2c/i2c-dev.c |   22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
-Farid Hammane (3):
-      i2c-core: Fix some coding style issues
-      i2c-dev: Fix all coding style issues
-      i2c-algo-pca: Fix coding style issues
-
-H Hartley Sweeten (2):
-      i2c-dev: Remove unnecessary casts
-      i2c: Use <linux/io.h> instead of <asm/io.h>
-
-Ivo Manca (1):
-      i2c-i801: Fix all checkpatch warnings
-
-Jean Delvare (6):
-      i2c-i801: Let the user disable selected driver features
-      i2c-i801: All newer devices have all the optional features
-      i2c/scx200_acb: Make PCI device ids constant
-      i2c-stub: Expose the default functionality flags
-      at24: Fall back to byte or word reads if needed
-      i2c-parport: Make template structure const
-
-Marek Szyprowski (1):
-      i2c-gpio: Move initialization code to subsys_initcall()
-
-Thanks,
--- 
-Jean Delvare
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index e0694e4..03e9ef8 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -167,13 +167,9 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
+ 	if (count > 8192)
+ 		count = 8192;
+ 
+-	tmp = kmalloc(count, GFP_KERNEL);
+-	if (tmp == NULL)
+-		return -ENOMEM;
+-	if (copy_from_user(tmp, buf, count)) {
+-		kfree(tmp);
+-		return -EFAULT;
+-	}
++	tmp = memdup_user(buf, count);
++	if (IS_ERR(tmp))
++		return PTR_ERR(tmp);
+ 
+ 	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
+ 		iminor(file->f_path.dentry->d_inode), count);
+@@ -247,15 +243,9 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+ 			break;
+ 		}
+ 		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
+-		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
+-		if (rdwr_pa[i].buf == NULL) {
+-			res = -ENOMEM;
+-			break;
+-		}
+-		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
+-				   rdwr_pa[i].len)) {
+-				++i; /* Needs to be kfreed too */
+-				res = -EFAULT;
++		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
++		if (IS_ERR(rdwr_pa[i].buf)) {
++			res = PTR_ERR(rdwr_pa[i].buf);
+ 			break;
+ 		}
+ 	}
