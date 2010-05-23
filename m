@@ -1,67 +1,25 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH 042/199] Documentation/i2c/busses/i2c-ali1535:
- Checkpatch cleanup
-Date: Sun, 23 May 2010 14:34:27 -0700
-Message-ID: <20100523143427.3b179427.rdunlap@xenotime.net>
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Subject: Re: [PATCH 042/199] Documentation/i2c/busses/i2c-ali1535: Checkpatch
+	cleanup
+Date: Sun, 23 May 2010 23:47:08 +0200
+Message-ID: <AANLkTilaBNl_D-m6Vu0QrSVXS9Nl-G06U_8wzdDk1TWC@mail.gmail.com>
 References: <1274644605-25181-1-git-send-email-andrea.gelmini@gelma.net>
-	<1274644605-25181-14-git-send-email-andrea.gelmini@gelma.net>
-	<20100523231455.74927a98@hyperion.delvare>
+	 <1274644605-25181-14-git-send-email-andrea.gelmini@gelma.net>
+	 <20100523231455.74927a98@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <20100523231455.74927a98@hyperion.delvare>
 Sender: linux-doc-owner@vger.kernel.org
 To: Jean Delvare <khali@linux-fr.org>
-Cc: Andrea Gelmini <andrea.gelmini@gelma.net>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Randy Dunlap <rdunlap@xenotime.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 23 May 2010 23:14:55 +0200 Jean Delvare wrote:
-
-> Hi Andrea,
-> 
-> On Sun, 23 May 2010 21:56:10 +0200, Andrea Gelmini wrote:
-> > Documentation/i2c/busses/i2c-ali1535:9: ERROR: trailing whitespace
-> > Documentation/i2c/busses/i2c-ali1535:14: ERROR: trailing whitespace
-> > 
-> > Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
-> > ---
-> >  Documentation/i2c/busses/i2c-ali1535 |    4 ++--
-> >  1 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/Documentation/i2c/busses/i2c-ali1535 b/Documentation/i2c/busses/i2c-ali1535
-> > index 0db3b4c..acbc65a 100644
-> > --- a/Documentation/i2c/busses/i2c-ali1535
-> > +++ b/Documentation/i2c/busses/i2c-ali1535
-> > @@ -6,12 +6,12 @@ Supported adapters:
-> >  	http://www.ali.com.tw/eng/support/datasheet_request.php
-> >  
-> >  Authors:
-> > -	Frodo Looijaard <frodol@dds.nl>, 
-> > +	Frodo Looijaard <frodol@dds.nl>,
-> >  	Philip Edelbrock <phil@netroedge.com>,
-> >  	Mark D. Studebaker <mdsxyz123@yahoo.com>,
-> >  	Dan Eaton <dan.eaton@rocketlogix.com>,
-> >  	Stephen Rousset<stephen.rousset@rocketlogix.com>
-> > -												
-> > +
-> >  Description
-> >  -----------
-> >  
-> 
+2010/5/23 Jean Delvare <khali@linux-fr.org>:
 > For such a trivial change, I definitely prefer a single patch for all
 > files. I'll merge them all and apply the result.
 
-Thanks, Jean.
+No prob, as you prefer.
 
-Other subsystem maintainers can make their own choices about this
-and either merge them as is, merge them into one subsystem patch,
-or ask Andrea to merge them into one patch per subsystem.
-
-If they are merged into one patch per subsystem, I'll likely merge them
-if subsystem owners do not do so.  As is, I won't.  It's just too much work
-for too little gain.
-
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+Thanks a lot for your work,
+Andrea
