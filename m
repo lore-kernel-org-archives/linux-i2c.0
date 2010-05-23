@@ -1,91 +1,42 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 11/27] drivers/i2c: Use memdup_user
-Date: Sat, 22 May 2010 10:21:45 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005221021270.13021@ask.diku.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (em, bedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janit
+From: Andrea Gelmini <andrea.gelmini@gelma.net>
+Subject: [PATCH 042/199] Documentation/i2c/busses/i2c-ali1535: Checkpatch cleanup
+Date: Sun, 23 May 2010 21:56:10 +0200
+Message-ID: <1274644605-25181-14-git-send-email-andrea.gelmini@gelma.net>
+References: <1274644605-25181-1-git-send-email-andrea.gelmini@gelma.net>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1274644605-25181-1-git-send-email-andrea.gelmini@gelma.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: andrea.gelmini@gelma.net
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Randy Dunlap <rdunlap@xenotime.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+Documentation/i2c/busses/i2c-ali1535:9: ERROR: trailing whitespace
+Documentation/i2c/busses/i2c-ali1535:14: ERROR: trailing whitespace
 
-Use memdup_user when user data is immediately copied into the allocated
-region.  Note that in the second case, the ++i is no longer necessary, as
-the last value is already freed if needed by the call to memdup_user.
-
-The semantic patch that makes this change is as follows:
-(http://coccinelle.lip6.fr/)
-
-// <smpl>
-@@
-expression from,to,size,flag;
-position p;
-identifier l1,l2;
-@@
-
--  to = \(kmalloc@p\|kzalloc@p\)(size,flag);
-+  to = memdup_user(from,size);
-   if (
--      to==NULL
-+      IS_ERR(to)
-                 || ...) {
-   <+... when != goto l1;
--  -ENOMEM
-+  PTR_ERR(to)
-   ...+>
-   }
--  if (copy_from_user(to, from, size) != 0) {
--    <+... when != goto l2;
--    -EFAULT
--    ...+>
--  }
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
+Signed-off-by: Andrea Gelmini <andrea.gelmini@gelma.net>
 ---
- drivers/i2c/i2c-dev.c |   22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ Documentation/i2c/busses/i2c-ali1535 |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index e0694e4..03e9ef8 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -167,13 +167,9 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
- 	if (count > 8192)
- 		count = 8192;
+diff --git a/Documentation/i2c/busses/i2c-ali1535 b/Documentation/i2c/busses/i2c-ali1535
+index 0db3b4c..acbc65a 100644
+--- a/Documentation/i2c/busses/i2c-ali1535
++++ b/Documentation/i2c/busses/i2c-ali1535
+@@ -6,12 +6,12 @@ Supported adapters:
+ 	http://www.ali.com.tw/eng/support/datasheet_request.php
  
--	tmp = kmalloc(count, GFP_KERNEL);
--	if (tmp == NULL)
--		return -ENOMEM;
--	if (copy_from_user(tmp, buf, count)) {
--		kfree(tmp);
--		return -EFAULT;
--	}
-+	tmp = memdup_user(buf, count);
-+	if (IS_ERR(tmp))
-+		return PTR_ERR(tmp);
+ Authors:
+-	Frodo Looijaard <frodol@dds.nl>, 
++	Frodo Looijaard <frodol@dds.nl>,
+ 	Philip Edelbrock <phil@netroedge.com>,
+ 	Mark D. Studebaker <mdsxyz123@yahoo.com>,
+ 	Dan Eaton <dan.eaton@rocketlogix.com>,
+ 	Stephen Rousset<stephen.rousset@rocketlogix.com>
+-												
++
+ Description
+ -----------
  
- 	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
- 		iminor(file->f_path.dentry->d_inode), count);
-@@ -247,15 +243,9 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
- 			break;
- 		}
- 		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
--		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
--		if (rdwr_pa[i].buf == NULL) {
--			res = -ENOMEM;
--			break;
--		}
--		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
--				   rdwr_pa[i].len)) {
--				++i; /* Needs to be kfreed too */
--				res = -EFAULT;
-+		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
-+		if (IS_ERR(rdwr_pa[i].buf)) {
-+			res = PTR_ERR(rdwr_pa[i].buf);
- 			break;
- 		}
- 	}
+-- 
+1.7.1.251.gf80a2
+
