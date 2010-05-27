@@ -1,56 +1,51 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
+From: Ryan Mallon <ryan@bluewatersys.com>
 Subject: Re: Controlling Driver Load Order
-Date: Thu, 27 May 2010 23:01:12 +0200
-Message-ID: <20100527210112.GA5636@pengutronix.de>
-References: <AANLkTikzDvWakd7JW3DzTHinjS3dAlqzPx6K8V2qMDG7@mail.gmail.com> <AANLkTinkY8JYh44UOEPflBUDyQ2wat_AKShRjA3HPxrf@mail.gmail.com> <20100526235246.GA31068@pengutronix.de> <AANLkTikj8yGSK5Ovud_k8f6jWloojqDJmQ_H6pD_IFgM@mail.gmail.com> <20100527041358.GA14070@pengutronix.de> <AANLkTilKUfcYsPqr5kXlONJQAFCaE8D8U9ltQybIzCPu@mail.gmail.com>
+Date: Fri, 28 May 2010 09:09:01 +1200
+Message-ID: <4BFEDF6D.3090100@bluewatersys.com>
+References: <AANLkTikzDvWakd7JW3DzTHinjS3dAlqzPx6K8V2qMDG7@mail.gmail.com>	<AANLkTinkY8JYh44UOEPflBUDyQ2wat_AKShRjA3HPxrf@mail.gmail.com>	<20100526235246.GA31068@pengutronix.de>	<AANLkTikj8yGSK5Ovud_k8f6jWloojqDJmQ_H6pD_IFgM@mail.gmail.com>	<20100527041358.GA14070@pengutronix.de> <AANLkTilKUfcYsPqr5kXlONJQAFCaE8D8U9ltQybIzCPu@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <AANLkTilKUfcYsPqr5kXlONJQAFCaE8D8U9ltQybIzCPu@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Robert Emanuele <rob@emanuele.us>
-Cc: Linus Walleij <linus.ml.walleij@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Linus Walleij <linus.ml.walleij@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
+Robert Emanuele wrote:
+> Hi Wolfram,
+> 
+> I am using the i2c-gpio.c driver, not the i2c-at91 driver.  The Atmel
+> folks have expressed concerns over their i2c silicon and wrote a gpio
+> version.
+> 
 > Anyway, I better understand the subsys_initcall now and applied that
 > to the i2c-gpio and my i2c chip driver.  That worked perfectly for my
-
-With chip-driver you mean the PMIC? Yes, that is probably needed there, too.
-Which driver is it?
-
 > issue.  I'd be happy to return a patch of this.  Would be this the
 > sort of thing that would benefit from a config option?  Something
+> like:
+> 
+> #if defined(CONFIG_EARLY_i2C_GPIO)
+> subsys_initcall(i2c_gpio_init);
+> #else
+> module_init(i2c_gpio_init);
+> #endif
 
-Nope, there is no bigger drawback to this and probably a number of useres
-wouldn't know what to select here. Just patch the module_init() away.
+Looks like this has already been done:
+http://www.mail-archive.com/linux-i2c@vger.kernel.org/msg03056.html
 
-Kind regards,
+There was a discussion a while back to make all of the embedded i2c
+busses be subsys_initcall since i2c is often a system bus on embedded
+devices. Looks the i2c_gpio driver got missed the first time round.
 
-   Wolfram
+~Ryan
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+-- 
+Bluewater Systems Ltd - ARM Technology Solution Centre
 
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkv+3ZgACgkQD27XaX1/VRv77wCfUg+zBpv7AVSx1Qwyi/QOdv+n
-sPoAn0EB/vt5dZk8V0z4FrwRZF+m+kgm
-=2QOx
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+Ryan Mallon         		5 Amuri Park, 404 Barbadoes St
+ryan@bluewatersys.com         	PO Box 13 889, Christchurch 8013
+http://www.bluewatersys.com	New Zealand
+Phone: +64 3 3779127		Freecall: Australia 1800 148 751
+Fax:   +64 3 3779135			  USA 1800 261 2934
