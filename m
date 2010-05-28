@@ -1,23 +1,22 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: PMBus support in Linux
-Date: Fri, 28 May 2010 09:16:31 -0700
-Message-ID: <1275063391.2631.137.camel@groeck-laptop>
-Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+From: Valentin Yakovenkov <yakovenkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Uclinux-dist-devel] [PATCH] blackfin/acvilon: Fix timeout usage
+ 	for I2C
+Date: Fri, 28 May 2010 23:52:04 +0400
+Message-ID: <4C001EE4.6070700@gmail.com>
+References: <1270389856-32003-1-git-send-email-w.sang@pengutronix.de> 	<20100510023639.GA25544@pengutronix.de> <v2o8bd0f97a1005091939nc0de1b9ckf33b402e72983de1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <v2o8bd0f97a1005091939nc0de1b9ckf33b402e72983de1-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+10.05.2010 6:39, Mike Frysinger wrote:
+> i'll pick this up for the next merge window (i.e. the one in a few
+> days) if Valentin has no feedback by then
 
-does anyone know if there is an effort to add infrastructure for PMBus
-support (or support for specific PMBus devices) to Linux ?
-
-I'll have to write a driver for a couple of PMBus chips (LTC2978 and
-BMR453), and it would help to know if there is a starting point.
-
-Thanks,
-Guenter
+Sorry, it's so much business and emails, so i've just saw this messages.
+It's ok.
