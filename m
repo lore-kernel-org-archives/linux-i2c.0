@@ -1,63 +1,58 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Controlling Driver Load Order
-Date: Fri, 28 May 2010 00:09:51 +0200
-Message-ID: <20100527220951.GD5636@pengutronix.de>
-References: <AANLkTikzDvWakd7JW3DzTHinjS3dAlqzPx6K8V2qMDG7@mail.gmail.com> <AANLkTinkY8JYh44UOEPflBUDyQ2wat_AKShRjA3HPxrf@mail.gmail.com> <20100526235246.GA31068@pengutronix.de> <AANLkTikj8yGSK5Ovud_k8f6jWloojqDJmQ_H6pD_IFgM@mail.gmail.com> <20100527041358.GA14070@pengutronix.de> <AANLkTilKUfcYsPqr5kXlONJQAFCaE8D8U9ltQybIzCPu@mail.gmail.com> <4BFEDF6D.3090100@bluewatersys.com> <20100527214209.GC5636@pengutronix.de> <4BFEEA08.70401@bluewatersys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0/kgSOzhNoDC5T3a"
+Subject: [PATCH] i2c/busses/Makefile: move two drivers to the embedded section
+Date: Fri, 28 May 2010 04:18:48 +0200
+Message-ID: <1275013128-12470-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4BFEEA08.70401-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ryan Mallon <ryan-7Wk5F4Od5/oYd5yxfr4S2w@public.gmane.org>
-Cc: Robert Emanuele <rob-3bOSxtzXIkJzbRFIqnYvSA@public.gmane.org>, Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+And fix a typo while we are here.
 
---0/kgSOzhNoDC5T3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
 
-> > Always ask which kernel is used, sigh...
->=20
-> Sorry? I didn't see a kernel version mentioned. I went looking because I
-> had though that i2c-gpio was already subsys_initcall.
+I moved the drivers before I checked how many of the embedded drivers do
+subsys_initcall() and how many don't (13 vs 19 BTW); and to check if it makes
+sense to mass-convert the latter. However, I still feel that such a change
+should better be done per driver if there is somebody needing it and willing to
+test, so this patch is the only outcome of my investigation :)
 
-Sorry, I missed emphasizing that my comment was meant as a "note-to-myself".
-You were perfectly right, of course, I should have done the same.
+ drivers/i2c/busses/Makefile |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-> >> There was a discussion a while back to make all of the embedded i2c
-> >> busses be subsys_initcall since i2c is often a system bus on embedded
-> >=20
-> > Oh, where was that? Can't recall (but couldn't recall that I acked the =
-i2c-gpio
-> > patch above as well ;))
-> >=20
->=20
-> Moving the embedded i2c busses to subsys_initcall was discussed here:
-> http://lists.lm-sensors.org/pipermail/i2c/2008-June/004142.html. The
-> i2c_gpio bus got mentioned, which is why I thought it had already been
-> changed.
-
-Thanks for the pointer!
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---0/kgSOzhNoDC5T3a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkv+7a8ACgkQD27XaX1/VRuc9wCgymAtRYtaOyJW3582ZSSFSUqx
-f9cAn3yMHm8XvI1aT/fL+Gm1m/tnJwJX
-=6q1m
------END PGP SIGNATURE-----
-
---0/kgSOzhNoDC5T3a--
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 097236f..936880b 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -27,7 +27,7 @@ obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
+ obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
+ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
+ 
+-# Embebbed system I2C/SMBus host controller drivers
++# Embedded system I2C/SMBus host controller drivers
+ obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+ obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+@@ -46,6 +46,8 @@ obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
+ obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+ obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
+ obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
++obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
++obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
+ obj-$(CONFIG_I2C_PNX)		+= i2c-pnx.o
+ obj-$(CONFIG_I2C_PXA)		+= i2c-pxa.o
+ obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
+@@ -68,8 +70,6 @@ obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
+ obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
+ obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
+ obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
+-obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
+-obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
+ obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
+ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+-- 
+1.7.0
