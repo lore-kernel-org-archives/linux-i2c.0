@@ -1,29 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Richard Purdie <rpurdie@rpsys.net>
 Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
-Date: Mon, 31 May 2010 22:57:50 +0200
-Message-ID: <20100531225750.0dc18950@hyperion.delvare>
+Date: Mon, 31 May 2010 22:48:32 +0100
+Message-ID: <1275342512.24079.1559.camel@rex>
 References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
 	<20100531190911.GC30712@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100531190911.GC30712-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, George Joseph <george.joseph-H+B1fhQ+CpcEVd8bySq3Wg@public.gmane.org>, Riku Voipio <riku.voipio-X3B1VOXEql0@public.gmane.org>, Guillaume Ligneul <guillaume.ligneul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Alessandro Rubini <rubini-JCs+bAQazDroPXhRcRtihA@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Colin Leroy <colin-5s/l0yV9g/OsTnJN9+BGXg@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-media-u79uwXL29TaqPxH82wqD4g@public.gmane.org
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20100531190911.GC30712@core.coreip.homeip.net>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Sender: devel-bounces@linuxdriverproject.org
+Errors-To: devel-bounces@linuxdriverproject.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Alessandro Rubini <rubini@cvml.unipv.it>, Samuel Ortiz <sameo@linux.intel.com>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Paul Gortmaker <p_gortmaker@yahoo.com>, devel@driverdev.osuosl.org, rtc-linux@googlegroups.com, Riku Voipio <riku.voipio@iki.fi>, Mauro Carvalho Chehab <mchehab@infradead.org>, Jean Delvare <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Alessandro Zummo <a.zummo@towertech.it>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, George Joseph <george.joseph@fairview5.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, Colin Leroy <colin@co>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dmitry,
-
-On Mon, 31 May 2010 12:09:12 -0700, Dmitry Torokhov wrote:
+On Mon, 2010-05-31 at 12:09 -0700, Dmitry Torokhov wrote:
+> On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
+> > I2C-drivers can use the clientdata-pointer to point to private data. As I2C
+> > devices are not really unregistered, but merely detached from their driver, it
+> > used to be the drivers obligation to clear this pointer during remove() or a
+> > failed probe(). As a couple of drivers forgot to do this, it was agreed that it
+> > was cleaner if the i2c-core does this clearance when appropriate, as there is
+> > no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
+> > This feature was added to the core with commit
+> > e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
+> > 
+> > As there is no need anymore to clear the clientdata-pointer, remove all current
+> > occurrences in the drivers to simplify the code and prevent confusion.
+> > 
+> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> > Cc: Jean Delvare <khali@linux-fr.org>
+> > ---
+> > 
+> > Some more notes:
+> > 
+> > I waited for rc1 as I knew there were some drivers/patches coming along which
+> > needed to be processed, too.
+> > 
+> > I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
+> > once.
+> > 
+> 
 > Frankly I'd prefer taking input stuff through my tree with the goal of
 > .36 merge window just to minimize potential merge issues. This is a
 > simple cleanup patch that has no dependencies, so there is little gain
 > from doing it all in one go.
 
-If I take the patch in my i2c tree, the aim is to merge it upstream
-immediately, so merge issues won't exist.
+How about asking Linus to take this one now, then its done and we can
+all move on rather than queuing up problems for the next merge window?
 
--- 
-Jean Delvare
+Acked-by: Richard Purdie <rpurdie@linux.intel.com>
+
+Cheers,
+
+Richard
