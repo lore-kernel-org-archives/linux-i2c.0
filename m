@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 3/4] i2c: Document reserved I2C addresses
-Date: Mon, 31 May 2010 13:31:54 +0200
-Message-ID: <20100531133154.48271f0e@hyperion.delvare>
+Subject: [PATCH 4/4] i2c: Rename i2c_check_addr to i2c_check_addr_busy
+Date: Mon, 31 May 2010 13:33:29 +0200
+Message-ID: <20100531133329.0cb9771d@hyperion.delvare>
 References: <20100531132213.65f20b8f@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,67 +13,96 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Matthieu Castet <castet.matthieu-GANU6spQydw@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Move strict I2C address validity check to a single function, and
-document the reserved I2C addresses there.
+Otherwise it's not clear what it is checking.
+
+Also move the function to save a forward declaration.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/i2c/i2c-core.c |   38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
---- linux-2.6.35-rc0.orig/drivers/i2c/i2c-core.c	2010-05-30 16:17:56.000000000 +0200
-+++ linux-2.6.35-rc0/drivers/i2c/i2c-core.c	2010-05-30 16:17:58.000000000 +0200
-@@ -387,6 +387,27 @@ static int i2c_check_client_addr_validit
+--- linux-2.6.35-rc0.orig/drivers/i2c/i2c-core.c	2010-05-30 16:17:58.000000000 +0200
++++ linux-2.6.35-rc0/drivers/i2c/i2c-core.c	2010-05-30 16:18:02.000000000 +0200
+@@ -47,7 +47,6 @@ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+ 
+ static struct device_type i2c_client_type;
+-static int i2c_check_addr(struct i2c_adapter *adapter, int addr);
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+ 
+ /* ------------------------------------------------------------------------- */
+@@ -408,6 +407,22 @@ static int i2c_check_addr_validity(unsig
  	return 0;
  }
  
-+/* And this is a strict address validity check, used when probing. If a
-+ * device uses a reserved address, then it shouldn't be probed. 7-bit
-+ * addressing is assumed, 10-bit address devices are rare and should be
-+ * explicitly enumerated. */
-+static int i2c_check_addr_validity(unsigned short addr)
++static int __i2c_check_addr_busy(struct device *dev, void *addrp)
 +{
-+	/*
-+	 * Reserved addresses per I2C specification:
-+	 *  0x00       General call address / START byte
-+	 *  0x01       CBUS address
-+	 *  0x02       Reserved for different bus format
-+	 *  0x03       Reserved for future purposes
-+	 *  0x04-0x07  Hs-mode master code
-+	 *  0x78-0x7b  10-bit slave addressing
-+	 *  0x7c-0x7f  Reserved for future purposes
-+	 */
-+	if (addr < 0x08 || addr > 0x77)
-+		return -EINVAL;
++	struct i2c_client	*client = i2c_verify_client(dev);
++	int			addr = *(int *)addrp;
++
++	if (client && client->addr == addr)
++		return -EBUSY;
 +	return 0;
++}
++
++static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
++{
++	return device_for_each_child(&adapter->dev, &addr,
++				     __i2c_check_addr_busy);
 +}
 +
  /**
   * i2c_new_device - instantiate an i2c device
   * @adap: the adapter managing the device
-@@ -1340,10 +1361,11 @@ static int i2c_detect_address(struct i2c
- 	int err;
+@@ -456,7 +471,7 @@ i2c_new_device(struct i2c_adapter *adap,
+ 	}
  
- 	/* Make sure the address is valid */
--	if (addr < 0x03 || addr > 0x77) {
-+	err = i2c_check_addr_validity(addr);
-+	if (err) {
- 		dev_warn(&adapter->dev, "Invalid probe address 0x%02x\n",
- 			 addr);
--		return -EINVAL;
-+		return err;
+ 	/* Check for address business */
+-	status = i2c_check_addr(adap, client->addr);
++	status = i2c_check_addr_busy(adap, client->addr);
+ 	if (status)
+ 		goto out_err;
+ 
+@@ -1064,21 +1079,6 @@ EXPORT_SYMBOL(i2c_del_driver);
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-static int __i2c_check_addr(struct device *dev, void *addrp)
+-{
+-	struct i2c_client	*client = i2c_verify_client(dev);
+-	int			addr = *(int *)addrp;
+-
+-	if (client && client->addr == addr)
+-		return -EBUSY;
+-	return 0;
+-}
+-
+-static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
+-{
+-	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr);
+-}
+-
+ /**
+  * i2c_use_client - increments the reference count of the i2c client structure
+  * @client: the client being referenced
+@@ -1369,7 +1369,7 @@ static int i2c_detect_address(struct i2c
  	}
  
  	/* Skip if already in use */
-@@ -1446,7 +1468,7 @@ i2c_new_probed_device(struct i2c_adapter
+-	if (i2c_check_addr(adapter, addr))
++	if (i2c_check_addr_busy(adapter, addr))
+ 		return 0;
  
- 	for (i = 0; addr_list[i] != I2C_CLIENT_END; i++) {
- 		/* Check address validity */
--		if (addr_list[i] < 0x03 || addr_list[i] > 0x77) {
-+		if (i2c_check_addr_validity(addr_list[i]) < 0) {
- 			dev_warn(&adap->dev, "Invalid 7-bit address "
- 				 "0x%02x\n", addr_list[i]);
+ 	/* Make sure there is something at this address */
+@@ -1475,7 +1475,7 @@ i2c_new_probed_device(struct i2c_adapter
+ 		}
+ 
+ 		/* Check address availability */
+-		if (i2c_check_addr(adap, addr_list[i])) {
++		if (i2c_check_addr_busy(adap, addr_list[i])) {
+ 			dev_dbg(&adap->dev, "Address 0x%02x already in "
+ 				"use, not probing\n", addr_list[i]);
  			continue;
 
 -- 
