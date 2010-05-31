@@ -1,46 +1,23 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: PMBus support in Linux
-Date: Sun, 30 May 2010 08:08:34 -0700
-Message-ID: <20100530150834.GA24472@ericsson.com>
-References: <1275063391.2631.137.camel@groeck-laptop>
- <20100529023401.GB12507@pengutronix.de>
- <20100529044239.GA19155@ericsson.com>
- <20100529085301.GA14982@pengutronix.de>
- <20100529153312.GA20814@ericsson.com>
- <20100529154741.GB7572@pengutronix.de>
- <20100529171229.GA21284@ericsson.com>
- <20100530041507.GA20222@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 0/4] Clean up address probing and validity checking code
+Date: Mon, 31 May 2010 13:22:13 +0200
+Message-ID: <20100531132213.65f20b8f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100530041507.GA20222-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Matthieu Castet <castet.matthieu-GANU6spQydw@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, May 30, 2010 at 12:15:07AM -0400, Wolfram Sang wrote:
-> > > So, the approach I see (unless I miss something) would be writing an
-> > > hwmon-I2C-driver named pmbus-devices.c or so which covers the generic
-> > > functionality and provides some hooks for manufacturer extensions, if those are
-> > > necessary? (Altough I'd hope a number of devices would be covered by the
-> > > generic driver) Makes sense?
-> > > 
-> > That would be one option. It would require either a register() API call, or a table
-> > of supported chips, or a combination of both, to identify how many channels
-> > (or pages, in PMBus terminology) per chip are supported and to identify supported
-> > objects/registers.
-> 
-> I am missing the details here, i.e. what data is needed to describe a device
-> and is the data static or can it be retrieved/updated at runtime. A decision
-> between tables[] or register() or both depends probably on that.
-> 
-It _may_ be possible to detect the supported commands (ie sensors per page/phase)
-reliably using the QUERY command, but I do not feel comfortable doing the same
-to determine the number of pages and phases supported.
+Here comes an update of the patchset I posted on April 9th, 2010. Now
+applies cleanly on top of Linus' tree.
 
-I'll have to see once I get my hands on actual HW what can be detected reliably 
-and what has to be configured.
+[PATCH 1/4] i2c: Share the I2C device presence detection code
+[PATCH 2/4] i2c: Check for address validity on client registration
+[PATCH 3/4] i2c: Document reserved I2C addresses
+[PATCH 4/4] i2c: Rename i2c_check_addr to i2c_check_addr_busy
 
-Guenter
+-- 
+Jean Delvare
