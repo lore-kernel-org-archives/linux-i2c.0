@@ -1,34 +1,63 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 06/21] drivers/i2c/i2c-dev.c: Remove unnecessary kmalloc casts
-Date: Mon, 31 May 2010 20:23:08 -0700
-Message-ID: <ce6e7e3183f0756b14765076e63251e269e2c9f6.1275360951.git.joe@perches.com>
-References: <cover.1275360951.git.joe@perches.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
+Date: Mon, 31 May 2010 22:05:39 -0700
+Message-ID: <20100601050538.GA7391@core.coreip.homeip.net>
+References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
+ <20100531190911.GC30712@core.coreip.homeip.net>
+ <1275342512.24079.1559.camel@rex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1275360951.git.joe@perches.com>
+Content-Disposition: inline
+In-Reply-To: <1275342512.24079.1559.camel@rex>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, George Joseph <george.joseph@fairview5.com>, Riku Voipio <riku.voipio@iki.fi>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@cvml.unipv.it>, Colin Leroy <colin@colino.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Paul Gortmaker <p_gortmaker@yahoo.com>, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@suse.de>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/i2c/i2c-dev.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+On Mon, May 31, 2010 at 10:48:32PM +0100, Richard Purdie wrote:
+> On Mon, 2010-05-31 at 12:09 -0700, Dmitry Torokhov wrote:
+> > On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
+> > > I2C-drivers can use the clientdata-pointer to point to private data. As I2C
+> > > devices are not really unregistered, but merely detached from their driver, it
+> > > used to be the drivers obligation to clear this pointer during remove() or a
+> > > failed probe(). As a couple of drivers forgot to do this, it was agreed that it
+> > > was cleaner if the i2c-core does this clearance when appropriate, as there is
+> > > no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
+> > > This feature was added to the core with commit
+> > > e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
+> > > 
+> > > As there is no need anymore to clear the clientdata-pointer, remove all current
+> > > occurrences in the drivers to simplify the code and prevent confusion.
+> > > 
+> > > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> > > Cc: Jean Delvare <khali@linux-fr.org>
+> > > ---
+> > > 
+> > > Some more notes:
+> > > 
+> > > I waited for rc1 as I knew there were some drivers/patches coming along which
+> > > needed to be processed, too.
+> > > 
+> > > I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
+> > > once.
+> > > 
+> > 
+> > Frankly I'd prefer taking input stuff through my tree with the goal of
+> > .36 merge window just to minimize potential merge issues. This is a
+> > simple cleanup patch that has no dependencies, so there is little gain
+> > from doing it all in one go.
+> 
+> How about asking Linus to take this one now, then its done and we can
+> all move on rather than queuing up problems for the next merge window?
+> 
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index e0694e4..b3fcb59 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -219,9 +219,7 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
- 	if (rdwr_arg.nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
- 		return -EINVAL;
- 
--	rdwr_pa = (struct i2c_msg *)
--		kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg),
--		GFP_KERNEL);
-+	rdwr_pa = kmalloc(rdwr_arg.nmsgs * sizeof(struct i2c_msg), GFP_KERNEL);
- 	if (!rdwr_pa)
- 		return -ENOMEM;
- 
+That should work.
+
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
+
+> Acked-by: Richard Purdie <rpurdie@linux.intel.com>
+> 
+
 -- 
-1.7.0.3.311.g6a6955
+Dmitry
