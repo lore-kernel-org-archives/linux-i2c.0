@@ -1,123 +1,101 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V2] i2c/busses: move two drivers to embedded section
-Date: Tue, 1 Jun 2010 13:06:07 +0200
-Message-ID: <20100601130607.1851a857@hyperion.delvare>
-References: <20100601091855.42fbc9b3@hyperion.delvare>
-	<1275380819-26709-1-git-send-email-w.sang@pengutronix.de>
+Subject: Re: [PATCH 11/27] drivers/i2c: Use memdup_user
+Date: Tue, 1 Jun 2010 13:14:35 +0200
+Message-ID: <20100601131435.5904351c@hyperion.delvare>
+References: <Pine.LNX.4.64.1005221021270.13021@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1275380819-26709-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.1005221021270.13021-QfmoRoYWmW9knbxzx/v8hQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue,  1 Jun 2010 10:26:59 +0200, Wolfram Sang wrote:
-> And fix a typo while we are here
+Hi Julia,
+
+On Sat, 22 May 2010 10:21:45 +0200 (CEST), Julia Lawall wrote:
+> From: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
 > 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Use memdup_user when user data is immediately copied into the allocated
+> region.  Note that in the second case, the ++i is no longer necessary, as
+> the last value is already freed if needed by the call to memdup_user.
+> 
+> The semantic patch that makes this change is as follows:
+> (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @@
+> expression from,to,size,flag;
+> position p;
+> identifier l1,l2;
+> @@
+> 
+> -  to = \(kmalloc@p\|kzalloc@p\)(size,flag);
+> +  to = memdup_user(from,size);
+>    if (
+> -      to==NULL
+> +      IS_ERR(to)
+>                  || ...) {
+>    <+... when != goto l1;
+> -  -ENOMEM
+> +  PTR_ERR(to)
+>    ...+>
+>    }
+> -  if (copy_from_user(to, from, size) != 0) {
+> -    <+... when != goto l2;
+> -    -EFAULT
+> -    ...+>
+> -  }
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+> 
 > ---
+>  drivers/i2c/i2c-dev.c |   22 ++++++----------------
+>  1 file changed, 6 insertions(+), 16 deletions(-)
 > 
-> changes since v1:
-> 
-> also move the drivers in Kconfig
-> 
->  drivers/i2c/busses/Kconfig  |   40 ++++++++++++++++++++--------------------
->  drivers/i2c/busses/Makefile |    6 +++---
->  2 files changed, 23 insertions(+), 23 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 87ab056..bceafbf 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -475,6 +475,26 @@ config I2C_PASEMI
->  	help
->  	  Supports the PA Semi PWRficient on-chip SMBus interfaces.
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index e0694e4..03e9ef8 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -167,13 +167,9 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
+>  	if (count > 8192)
+>  		count = 8192;
 >  
-> +config I2C_PCA_PLATFORM
-> +	tristate "PCA9564/PCA9665 as platform device"
-> +	select I2C_ALGOPCA
-> +	default n
-> +	help
-> +	  This driver supports a memory mapped Philips PCA9564/PCA9665
-> +	  parallel bus to I2C bus controller.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-pca-platform.
-> +
-> +config I2C_PMCMSP
-> +	tristate "PMC MSP I2C TWI Controller"
-> +	depends on PMC_MSP
-> +	help
-> +	  This driver supports the PMC TWI controller on MSP devices.
-> +
-> +	  This driver can also be built as module. If so, the module
-> +	  will be called i2c-pmcmsp.
-> +
->  config I2C_PNX
->  	tristate "I2C bus support for Philips PNX targets"
->  	depends on ARCH_PNX4008
-> @@ -711,26 +731,6 @@ config I2C_PCA_ISA
->  	  delays when I2C/SMBus chip drivers are loaded (e.g. at boot
->  	  time).  If unsure, say N.
+> -	tmp = kmalloc(count, GFP_KERNEL);
+> -	if (tmp == NULL)
+> -		return -ENOMEM;
+> -	if (copy_from_user(tmp, buf, count)) {
+> -		kfree(tmp);
+> -		return -EFAULT;
+> -	}
+> +	tmp = memdup_user(buf, count);
+> +	if (IS_ERR(tmp))
+> +		return PTR_ERR(tmp);
 >  
-> -config I2C_PCA_PLATFORM
-> -	tristate "PCA9564/PCA9665 as platform device"
-> -	select I2C_ALGOPCA
-> -	default n
-> -	help
-> -	  This driver supports a memory mapped Philips PCA9564/PCA9665
-> -	  parallel bus to I2C bus controller.
-> -
-> -	  This driver can also be built as a module.  If so, the module
-> -	  will be called i2c-pca-platform.
-> -
-> -config I2C_PMCMSP
-> -	tristate "PMC MSP I2C TWI Controller"
-> -	depends on PMC_MSP
-> -	help
-> -	  This driver supports the PMC TWI controller on MSP devices.
-> -
-> -	  This driver can also be built as module. If so, the module
-> -	  will be called i2c-pmcmsp.
-> -
->  config I2C_SIBYTE
->  	tristate "SiByte SMBus interface"
->  	depends on SIBYTE_SB1xxx_SOC
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 097236f..936880b 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -27,7 +27,7 @@ obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
->  obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
->  obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
->  
-> -# Embebbed system I2C/SMBus host controller drivers
-> +# Embedded system I2C/SMBus host controller drivers
->  obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
->  obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
->  obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
-> @@ -46,6 +46,8 @@ obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
->  obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
->  obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
->  obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
-> +obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
-> +obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
->  obj-$(CONFIG_I2C_PNX)		+= i2c-pnx.o
->  obj-$(CONFIG_I2C_PXA)		+= i2c-pxa.o
->  obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
-> @@ -68,8 +70,6 @@ obj-$(CONFIG_I2C_TINY_USB)	+= i2c-tiny-usb.o
->  obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
->  obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
->  obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
-> -obj-$(CONFIG_I2C_PCA_PLATFORM)	+= i2c-pca-platform.o
-> -obj-$(CONFIG_I2C_PMCMSP)	+= i2c-pmcmsp.o
->  obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
->  obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
->  obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+>  	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
+>  		iminor(file->f_path.dentry->d_inode), count);
+> @@ -247,15 +243,9 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+>  			break;
+>  		}
+>  		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
+> -		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
+> -		if (rdwr_pa[i].buf == NULL) {
+> -			res = -ENOMEM;
+> -			break;
+> -		}
+> -		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
+> -				   rdwr_pa[i].len)) {
+> -				++i; /* Needs to be kfreed too */
+> -				res = -EFAULT;
+> +		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
+> +		if (IS_ERR(rdwr_pa[i].buf)) {
+> +			res = PTR_ERR(rdwr_pa[i].buf);
+>  			break;
+>  		}
+>  	}
 
 Applied, thanks.
 
