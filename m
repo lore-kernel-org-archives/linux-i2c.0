@@ -1,103 +1,36 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 11/27] drivers/i2c: Use memdup_user
-Date: Tue, 1 Jun 2010 13:14:35 +0200
-Message-ID: <20100601131435.5904351c@hyperion.delvare>
-References: <Pine.LNX.4.64.1005221021270.13021@ask.diku.dk>
+Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
+Date: Tue, 1 Jun 2010 15:53:10 +0200
+Message-ID: <20100601155310.3781fce6@hyperion.delvare>
+References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.1005221021270.13021-QfmoRoYWmW9knbxzx/v8hQ@public.gmane.org>
+In-Reply-To: <1275310552-14685-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, George Joseph <george.joseph-H+B1fhQ+CpcEVd8bySq3Wg@public.gmane.org>, Riku Voipio <riku.voipio-X3B1VOXEql0@public.gmane.org>, Guillaume Ligneul <guillaume.ligneul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Rubini <rubini-JCs+bAQazDroPXhRcRtihA@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Colin Leroy <colin-5s/l0yV9g/OsTnJN9+BGXg@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Paul Gortmaker <p_gortmaker-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-media@vger.k
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Julia,
+On Mon, 31 May 2010 14:55:48 +0200, Wolfram Sang wrote:
+> I2C-drivers can use the clientdata-pointer to point to private data. As I2C
+> devices are not really unregistered, but merely detached from their driver, it
+> used to be the drivers obligation to clear this pointer during remove() or a
+> failed probe(). As a couple of drivers forgot to do this, it was agreed that it
+> was cleaner if the i2c-core does this clearance when appropriate, as there is
+> no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
+> This feature was added to the core with commit
+> e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
+> 
+> As there is no need anymore to clear the clientdata-pointer, remove all current
+> occurrences in the drivers to simplify the code and prevent confusion.
+> 
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> (...)
 
-On Sat, 22 May 2010 10:21:45 +0200 (CEST), Julia Lawall wrote:
-> From: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
-> 
-> Use memdup_user when user data is immediately copied into the allocated
-> region.  Note that in the second case, the ++i is no longer necessary, as
-> the last value is already freed if needed by the call to memdup_user.
-> 
-> The semantic patch that makes this change is as follows:
-> (http://coccinelle.lip6.fr/)
-> 
-> // <smpl>
-> @@
-> expression from,to,size,flag;
-> position p;
-> identifier l1,l2;
-> @@
-> 
-> -  to = \(kmalloc@p\|kzalloc@p\)(size,flag);
-> +  to = memdup_user(from,size);
->    if (
-> -      to==NULL
-> +      IS_ERR(to)
->                  || ...) {
->    <+... when != goto l1;
-> -  -ENOMEM
-> +  PTR_ERR(to)
->    ...+>
->    }
-> -  if (copy_from_user(to, from, size) != 0) {
-> -    <+... when != goto l2;
-> -    -EFAULT
-> -    ...+>
-> -  }
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
-> 
-> ---
->  drivers/i2c/i2c-dev.c |   22 ++++++----------------
->  1 file changed, 6 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index e0694e4..03e9ef8 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -167,13 +167,9 @@ static ssize_t i2cdev_write(struct file *file, const char __user *buf,
->  	if (count > 8192)
->  		count = 8192;
->  
-> -	tmp = kmalloc(count, GFP_KERNEL);
-> -	if (tmp == NULL)
-> -		return -ENOMEM;
-> -	if (copy_from_user(tmp, buf, count)) {
-> -		kfree(tmp);
-> -		return -EFAULT;
-> -	}
-> +	tmp = memdup_user(buf, count);
-> +	if (IS_ERR(tmp))
-> +		return PTR_ERR(tmp);
->  
->  	pr_debug("i2c-dev: i2c-%d writing %zu bytes.\n",
->  		iminor(file->f_path.dentry->d_inode), count);
-> @@ -247,15 +243,9 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
->  			break;
->  		}
->  		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
-> -		rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
-> -		if (rdwr_pa[i].buf == NULL) {
-> -			res = -ENOMEM;
-> -			break;
-> -		}
-> -		if (copy_from_user(rdwr_pa[i].buf, data_ptrs[i],
-> -				   rdwr_pa[i].len)) {
-> -				++i; /* Needs to be kfreed too */
-> -				res = -EFAULT;
-> +		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
-> +		if (IS_ERR(rdwr_pa[i].buf)) {
-> +			res = PTR_ERR(rdwr_pa[i].buf);
->  			break;
->  		}
->  	}
-
-Applied, thanks.
+Applied, thanks. Will go to Linus in the next few days.
 
 -- 
 Jean Delvare
