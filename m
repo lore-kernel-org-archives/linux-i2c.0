@@ -1,49 +1,35 @@
-From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
-	<richard.rojfors.lists-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
-Subject: Re: Registering I2C devices on X86
-Date: Wed, 02 Jun 2010 13:29:36 +0200
-Message-ID: <4C0640A0.9070103@pelagicore.com>
-References: <4C062E70.3090409@pelagicore.com>	<20100602103650.GA4876@pengutronix.de> <20100602130408.1e732a0a@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c: Enable i2c-s3c2410 for S5P cpus
+Date: Thu, 03 Jun 2010 14:57:03 +0900
+Message-ID: <1275544623-5425-1-git-send-email-jy0922.shim@samsung.com>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100602130408.1e732a0a-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This i2c controller driver can be used on the S5P series processors too,
+so enable the driver in Konfig for those platforms.
 
-Thanks for quick feedback!
+Signed-off-by: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-On 06/02/2010 01:04 PM, Jean Delvare wrote:
-> On Wed, 2 Jun 2010 12:36:50 +0200, Wolfram Sang wrote:
->>> Any ideas or suggestions?
->>
->> Do it in userspace, or is this too late?
->
-> The user-space interface only works for simple cases: you can't pass
-> platform data or irq numbers. If someone needs to do this, we need an
-> extended interface, probably using configfs.
-
-Yeah I think it's a common case to provide platform data and interrupt numbers. At least I see the 
-need for it on our platforms.
-
->
->> Documentation/i2c/instantiating-devices lists all options you have.
->
-> Richard, look at drivers/i2c/busses/i2c-i801.c, function i801_probe():
-> you'll see an example of per-platform I2C device instantiation on x86.
-> I'm not claiming it is elegant, but it works.
-
-The "problem" I see is that the CPU and the chipset + I2C chip will be populated on several 
-different boards. It would mean that the I2C bus driver would need knowledge of all the boards where 
-it is used. And the bus driver itself can not really detect which board it's running on.
-
-That is why I kept the I2C device setup in a separate driver. So each board would have a separate 
-"setup" driver. Isn't that the most clean solution right now?
-
-Thanks
---Richard
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 87ab056..4765d62 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -503,7 +503,7 @@ config I2C_PXA_SLAVE
+ 
+ config I2C_S3C2410
+ 	tristate "S3C2410 I2C Driver"
+-	depends on ARCH_S3C2410 || ARCH_S3C64XX
++	depends on ARCH_S3C2410 || ARCH_S3C64XX || PLAT_S5P
+ 	help
+ 	  Say Y here to include support for I2C controller in the
+ 	  Samsung S3C2410 based System-on-Chip devices.
+-- 
+1.7.0.4
