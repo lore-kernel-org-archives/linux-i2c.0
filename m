@@ -1,35 +1,42 @@
-From: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: Enable i2c-s3c2410 for S5P cpus
-Date: Thu, 03 Jun 2010 14:57:03 +0900
-Message-ID: <1275544623-5425-1-git-send-email-jy0922.shim@samsung.com>
-Content-Transfer-Encoding: 7BIT
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Registering I2C devices on X86
+Date: Thu, 3 Jun 2010 08:21:03 +0200
+Message-ID: <20100603082103.4bdccd85@hyperion.delvare>
+References: <4C062E70.3090409@pelagicore.com>
+	<20100602103650.GA4876@pengutronix.de>
+	<20100602130408.1e732a0a@hyperion.delvare>
+	<4C0640A0.9070103@pelagicore.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C0640A0.9070103-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+To: Richard =?UTF-8?B?UsO2amZvcnM=?= <richard.rojfors.lists-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This i2c controller driver can be used on the S5P series processors too,
-so enable the driver in Konfig for those platforms.
+On Wed, 02 Jun 2010 13:29:36 +0200, Richard R=C3=B6jfors wrote:
+> On 06/02/2010 01:04 PM, Jean Delvare wrote:
+> > Richard, look at drivers/i2c/busses/i2c-i801.c, function i801_probe=
+():
+> > you'll see an example of per-platform I2C device instantiation on x=
+86.
+> > I'm not claiming it is elegant, but it works.
+>=20
+> The "problem" I see is that the CPU and the chipset + I2C chip will b=
+e populated on several=20
+> different boards. It would mean that the I2C bus driver would need kn=
+owledge of all the boards where=20
+> it is used. And the bus driver itself can not really detect which boa=
+rd it's running on.
+>=20
+> That is why I kept the I2C device setup in a separate driver. So each=
+ board would have a separate=20
+> "setup" driver. Isn't that the most clean solution right now?
 
-Signed-off-by: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I have to admit I don't clearly understand what you are doing. It
+should become clearer when I see your code.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 87ab056..4765d62 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -503,7 +503,7 @@ config I2C_PXA_SLAVE
- 
- config I2C_S3C2410
- 	tristate "S3C2410 I2C Driver"
--	depends on ARCH_S3C2410 || ARCH_S3C64XX
-+	depends on ARCH_S3C2410 || ARCH_S3C64XX || PLAT_S5P
- 	help
- 	  Say Y here to include support for I2C controller in the
- 	  Samsung S3C2410 based System-on-Chip devices.
--- 
-1.7.0.4
+--=20
+Jean Delvare
