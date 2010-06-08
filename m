@@ -1,217 +1,111 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH 1/2] i2c: Add support for custom probe function
-Date: Tue, 8 Jun 2010 09:59:46 +0200
-Message-ID: <20100608095946.7e8eb10a@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
+Date: Tue, 8 Jun 2010 10:01:00 +0200
+Message-ID: <20100608100100.35bdae0f@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The probe method used by i2c_new_probed_device() may not be suitable
-for all cases. Let the caller provide its own, optional probe
-function.
+Now that i2c-core offers the possibility to provide custom probing
+function for I2C devices, let's make use of it.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Acked-by: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- Documentation/i2c/instantiating-devices   |    2 +-
- drivers/i2c/i2c-core.c                    |   16 ++++++++++------
- drivers/macintosh/therm_windtunnel.c      |    4 ++--
- drivers/media/video/bt8xx/bttv-i2c.c      |    2 +-
- drivers/media/video/cx18/cx18-i2c.c       |    3 ++-
- drivers/media/video/em28xx/em28xx-cards.c |    2 +-
- drivers/media/video/ivtv/ivtv-i2c.c       |    9 +++++----
- drivers/media/video/v4l2-common.c         |    3 ++-
- drivers/usb/host/ohci-pnx4008.c           |    2 +-
- drivers/video/matrox/i2c-matroxfb.c       |    2 +-
- include/linux/i2c.h                       |    7 +++++--
- 11 files changed, 31 insertions(+), 21 deletions(-)
+ drivers/i2c/i2c-core.c                    |    7 +++++++
+ drivers/media/video/cx23885/cx23885-i2c.c |   15 ++++-----------
+ drivers/media/video/cx88/cx88-i2c.c       |   19 ++++---------------
+ include/linux/i2c.h                       |    3 +++
+ 4 files changed, 18 insertions(+), 26 deletions(-)
 
---- linux-2.6.35-rc1.orig/drivers/i2c/i2c-core.c	2010-06-02 10:22:57.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/i2c/i2c-core.c	2010-06-02 18:41:29.000000000 +0200
-@@ -1456,14 +1456,18 @@ static int i2c_detect(struct i2c_adapter
- struct i2c_client *
- i2c_new_probed_device(struct i2c_adapter *adap,
- 		      struct i2c_board_info *info,
--		      unsigned short const *addr_list)
-+		      unsigned short const *addr_list,
-+		      int (*probe)(struct i2c_adapter *, unsigned short addr))
- {
- 	int i;
- 
--	/* Stop here if the bus doesn't support probing */
--	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_BYTE)) {
--		dev_err(&adap->dev, "Probing not supported\n");
--		return NULL;
-+	if (!probe) {
-+		/* Stop here if the bus doesn't support probing */
-+		if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_BYTE)) {
-+			dev_err(&adap->dev, "Probing not supported\n");
-+			return NULL;
-+		}
-+		probe = i2c_default_probe;
- 	}
- 
- 	for (i = 0; addr_list[i] != I2C_CLIENT_END; i++) {
-@@ -1482,7 +1486,7 @@ i2c_new_probed_device(struct i2c_adapter
- 		}
- 
- 		/* Test address responsiveness */
--		if (i2c_default_probe(adap, addr_list[i]))
-+		if (probe(adap, addr_list[i]))
- 			break;
- 	}
- 
---- linux-2.6.35-rc1.orig/drivers/macintosh/therm_windtunnel.c	2010-05-31 09:59:27.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/macintosh/therm_windtunnel.c	2010-06-02 18:41:29.000000000 +0200
-@@ -322,10 +322,10 @@ do_attach( struct i2c_adapter *adapter )
- 
- 		memset(&info, 0, sizeof(struct i2c_board_info));
- 		strlcpy(info.type, "therm_ds1775", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_ds1775);
-+		i2c_new_probed_device(adapter, &info, scan_ds1775, NULL);
- 
- 		strlcpy(info.type, "therm_adm1030", I2C_NAME_SIZE);
--		i2c_new_probed_device(adapter, &info, scan_adm1030);
-+		i2c_new_probed_device(adapter, &info, scan_adm1030, NULL);
- 
- 		if( x.thermostat && x.fan ) {
- 			x.running = 1;
---- linux-2.6.35-rc1.orig/drivers/media/video/bt8xx/bttv-i2c.c	2010-05-30 15:37:17.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/media/video/bt8xx/bttv-i2c.c	2010-06-02 18:41:29.000000000 +0200
-@@ -411,7 +411,7 @@ void __devinit init_bttv_i2c_ir(struct b
+--- linux-2.6.35-rc2.orig/drivers/media/video/cx23885/cx23885-i2c.c	2010-06-07 16:12:38.000000000 +0200
++++ linux-2.6.35-rc2/drivers/media/video/cx23885/cx23885-i2c.c	2010-06-08 09:17:06.000000000 +0200
+@@ -365,17 +365,10 @@ int cx23885_i2c_register(struct cx23885_
  
  		memset(&info, 0, sizeof(struct i2c_board_info));
  		strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
--		i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list);
-+		i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list, NULL);
+-		/*
+-		 * We can't call i2c_new_probed_device() because it uses
+-		 * quick writes for probing and the IR receiver device only
+-		 * replies to reads.
+-		 */
+-		if (i2c_smbus_xfer(&bus->i2c_adap, addr_list[0], 0,
+-				   I2C_SMBUS_READ, 0, I2C_SMBUS_QUICK,
+-				   NULL) >= 0) {
+-			info.addr = addr_list[0];
+-			i2c_new_device(&bus->i2c_adap, &info);
+-		}
++		/* Use quick read command for probe, some IR chips don't
++		 * support writes */
++		i2c_new_probed_device(&bus->i2c_adap, &info, addr_list,
++				      i2c_probe_func_quick_read);
  	}
- }
  
---- linux-2.6.35-rc1.orig/drivers/media/video/cx18/cx18-i2c.c	2010-05-31 09:59:28.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/media/video/cx18/cx18-i2c.c	2010-06-02 18:41:29.000000000 +0200
-@@ -117,7 +117,8 @@ static int cx18_i2c_new_ir(struct cx18 *
- 		break;
- 	}
+ 	return bus->i2c_rc;
+--- linux-2.6.35-rc2.orig/drivers/media/video/cx88/cx88-i2c.c	2010-06-07 16:12:38.000000000 +0200
++++ linux-2.6.35-rc2/drivers/media/video/cx88/cx88-i2c.c	2010-06-08 09:17:06.000000000 +0200
+@@ -188,24 +188,13 @@ int cx88_i2c_init(struct cx88_core *core
+ 			0x18, 0x6b, 0x71,
+ 			I2C_CLIENT_END
+ 		};
+-		const unsigned short *addrp;
  
--	return i2c_new_probed_device(adap, &info, addr_list) == NULL ? -1 : 0;
-+	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
-+	       -1 : 0;
- }
- 
- int cx18_i2c_register(struct cx18 *cx, unsigned idx)
---- linux-2.6.35-rc1.orig/drivers/media/video/em28xx/em28xx-cards.c	2010-05-31 09:59:28.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/media/video/em28xx/em28xx-cards.c	2010-06-02 18:41:29.000000000 +0200
-@@ -2357,7 +2357,7 @@ void em28xx_register_i2c_ir(struct em28x
- 
- 	if (dev->init_data.name)
- 		info.platform_data = &dev->init_data;
--	i2c_new_probed_device(&dev->i2c_adap, &info, addr_list);
-+	i2c_new_probed_device(&dev->i2c_adap, &info, addr_list, NULL);
- }
- 
- void em28xx_card_setup(struct em28xx *dev)
---- linux-2.6.35-rc1.orig/drivers/media/video/ivtv/ivtv-i2c.c	2010-05-31 09:59:28.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/media/video/ivtv/ivtv-i2c.c	2010-06-02 18:41:29.000000000 +0200
-@@ -182,8 +182,8 @@ static int ivtv_i2c_new_ir(struct ivtv *
- 			return -1;
  		memset(&info, 0, sizeof(struct i2c_board_info));
- 		strlcpy(info.type, type, I2C_NAME_SIZE);
--		return i2c_new_probed_device(adap, &info, addr_list) == NULL
--								     ? -1 : 0;
-+		return i2c_new_probed_device(adap, &info, addr_list, NULL)
-+							   == NULL ? -1 : 0;
+ 		strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
+-		/*
+-		 * We can't call i2c_new_probed_device() because it uses
+-		 * quick writes for probing and at least some R receiver
+-		 * devices only reply to reads.
+-		 */
+-		for (addrp = addr_list; *addrp != I2C_CLIENT_END; addrp++) {
+-			if (i2c_smbus_xfer(&core->i2c_adap, *addrp, 0,
+-					   I2C_SMBUS_READ, 0,
+-					   I2C_SMBUS_QUICK, NULL) >= 0) {
+-				info.addr = *addrp;
+-				i2c_new_device(&core->i2c_adap, &info);
+-				break;
+-			}
+-		}
++		/* Use quick read command for probe, some IR chips don't
++		 * support writes */
++		i2c_new_probed_device(&core->i2c_adap, &info, addr_list,
++				      i2c_probe_func_quick_read);
  	}
- 
- 	/* Only allow one IR receiver to be registered per board */
-@@ -220,7 +220,8 @@ static int ivtv_i2c_new_ir(struct ivtv *
- 	info.platform_data = init_data;
- 	strlcpy(info.type, type, I2C_NAME_SIZE);
- 
--	return i2c_new_probed_device(adap, &info, addr_list) == NULL ? -1 : 0;
-+	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
-+	       -1 : 0;
+ 	return core->i2c_rc;
+ }
+--- linux-2.6.35-rc2.orig/drivers/i2c/i2c-core.c	2010-06-07 16:12:38.000000000 +0200
++++ linux-2.6.35-rc2/drivers/i2c/i2c-core.c	2010-06-08 09:17:06.000000000 +0200
+@@ -1453,6 +1453,13 @@ static int i2c_detect(struct i2c_adapter
+ 	return err;
  }
  
- /* Instantiate the IR receiver device using probing -- undesirable */
-@@ -248,7 +249,7 @@ struct i2c_client *ivtv_i2c_new_ir_legac
- 
- 	memset(&info, 0, sizeof(struct i2c_board_info));
- 	strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
--	return i2c_new_probed_device(&itv->i2c_adap, &info, addr_list);
-+	return i2c_new_probed_device(&itv->i2c_adap, &info, addr_list, NULL);
- }
- 
- int ivtv_i2c_register(struct ivtv *itv, unsigned idx)
---- linux-2.6.35-rc1.orig/drivers/media/video/v4l2-common.c	2010-05-31 09:59:29.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/media/video/v4l2-common.c	2010-06-02 18:41:29.000000000 +0200
-@@ -850,7 +850,8 @@ struct v4l2_subdev *v4l2_i2c_new_subdev_
- 
- 	/* Create the i2c client */
- 	if (info->addr == 0 && probe_addrs)
--		client = i2c_new_probed_device(adapter, info, probe_addrs);
-+		client = i2c_new_probed_device(adapter, info, probe_addrs,
-+					       NULL);
- 	else
- 		client = i2c_new_device(adapter, info);
- 
---- linux-2.6.35-rc1.orig/drivers/usb/host/ohci-pnx4008.c	2010-05-30 15:37:17.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/usb/host/ohci-pnx4008.c	2010-06-02 18:41:29.000000000 +0200
-@@ -329,7 +329,7 @@ static int __devinit usb_hcd_pnx4008_pro
- 	memset(&i2c_info, 0, sizeof(struct i2c_board_info));
- 	strlcpy(i2c_info.type, "isp1301_pnx", I2C_NAME_SIZE);
- 	isp1301_i2c_client = i2c_new_probed_device(i2c_adap, &i2c_info,
--						   normal_i2c);
-+						   normal_i2c, NULL);
- 	i2c_put_adapter(i2c_adap);
- 	if (!isp1301_i2c_client) {
- 		err("failed to connect I2C to ISP1301 USB Transceiver");
---- linux-2.6.35-rc1.orig/drivers/video/matrox/i2c-matroxfb.c	2010-05-30 15:37:17.000000000 +0200
-+++ linux-2.6.35-rc1/drivers/video/matrox/i2c-matroxfb.c	2010-06-02 18:41:29.000000000 +0200
-@@ -191,7 +191,7 @@ static void* i2c_matroxfb_probe(struct m
- 			};
- 
- 			i2c_new_probed_device(&m2info->maven.adapter,
--					      &maven_info, addr_list);
-+					      &maven_info, addr_list, NULL);
- 		}
- 	}
- 	return m2info;
---- linux-2.6.35-rc1.orig/include/linux/i2c.h	2010-06-01 09:17:00.000000000 +0200
-+++ linux-2.6.35-rc1/include/linux/i2c.h	2010-06-02 18:41:29.000000000 +0200
-@@ -282,12 +282,15 @@ i2c_new_device(struct i2c_adapter *adap,
- 
- /* If you don't know the exact address of an I2C device, use this variant
-  * instead, which can probe for device presence in a list of possible
-- * addresses.
-+ * addresses. The "probe" callback function is optional. If it is provided,
-+ * it must return 1 on successful probe, 0 otherwise. If it is not provided,
-+ * a default probing method is used.
-  */
- extern struct i2c_client *
++int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr)
++{
++	return i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
++			      I2C_SMBUS_QUICK, NULL) >= 0;
++}
++EXPORT_SYMBOL_GPL(i2c_probe_func_quick_read);
++
+ struct i2c_client *
  i2c_new_probed_device(struct i2c_adapter *adap,
  		      struct i2c_board_info *info,
--		      unsigned short const *addr_list);
-+		      unsigned short const *addr_list,
-+		      int (*probe)(struct i2c_adapter *, unsigned short addr));
+--- linux-2.6.35-rc2.orig/include/linux/i2c.h	2010-06-07 16:15:10.000000000 +0200
++++ linux-2.6.35-rc2/include/linux/i2c.h	2010-06-08 09:19:07.000000000 +0200
+@@ -292,6 +292,9 @@ i2c_new_probed_device(struct i2c_adapter
+ 		      unsigned short const *addr_list,
+ 		      int (*probe)(struct i2c_adapter *, unsigned short addr));
  
++/* Common custom probe functions */
++extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
++
  /* For devices that use several addresses, use i2c_new_dummy() to make
   * client handles for the extra addresses.
---- linux-2.6.35-rc1.orig/Documentation/i2c/instantiating-devices	2010-05-30 15:37:17.000000000 +0200
-+++ linux-2.6.35-rc1/Documentation/i2c/instantiating-devices	2010-06-02 18:41:29.000000000 +0200
-@@ -102,7 +102,7 @@ static int __devinit usb_hcd_pnx4008_pro
- 	memset(&i2c_info, 0, sizeof(struct i2c_board_info));
- 	strlcpy(i2c_info.name, "isp1301_pnx", I2C_NAME_SIZE);
- 	isp1301_i2c_client = i2c_new_probed_device(i2c_adap, &i2c_info,
--						   normal_i2c);
-+						   normal_i2c, NULL);
- 	i2c_put_adapter(i2c_adap);
- 	(...)
- }
+  */
 
 
 -- 
