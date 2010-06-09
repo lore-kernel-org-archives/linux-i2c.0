@@ -1,112 +1,55 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
-Date: Tue, 8 Jun 2010 10:01:00 +0200
-Message-ID: <20100608100100.35bdae0f@hyperion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
+Date: Wed, 9 Jun 2010 17:05:40 +0200
+Message-ID: <20100609150540.GB31319@pengutronix.de>
+References: <20100608100100.35bdae0f@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100608100100.35bdae0f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now that i2c-core offers the possibility to provide custom probing
-function for I2C devices, let's make use of it.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Acked-by: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/i2c-core.c                    |    7 +++++++
- drivers/media/video/cx23885/cx23885-i2c.c |   15 ++++-----------
- drivers/media/video/cx88/cx88-i2c.c       |   19 ++++---------------
- include/linux/i2c.h                       |    3 +++
- 4 files changed, 18 insertions(+), 26 deletions(-)
+--wq9mPyueHGvFACwf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- linux-2.6.35-rc2.orig/drivers/media/video/cx23885/cx23885-i2c.c	2010-06-07 16:12:38.000000000 +0200
-+++ linux-2.6.35-rc2/drivers/media/video/cx23885/cx23885-i2c.c	2010-06-08 09:17:06.000000000 +0200
-@@ -365,17 +365,10 @@ int cx23885_i2c_register(struct cx23885_
- 
- 		memset(&info, 0, sizeof(struct i2c_board_info));
- 		strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
--		/*
--		 * We can't call i2c_new_probed_device() because it uses
--		 * quick writes for probing and the IR receiver device only
--		 * replies to reads.
--		 */
--		if (i2c_smbus_xfer(&bus->i2c_adap, addr_list[0], 0,
--				   I2C_SMBUS_READ, 0, I2C_SMBUS_QUICK,
--				   NULL) >= 0) {
--			info.addr = addr_list[0];
--			i2c_new_device(&bus->i2c_adap, &info);
--		}
-+		/* Use quick read command for probe, some IR chips don't
-+		 * support writes */
-+		i2c_new_probed_device(&bus->i2c_adap, &info, addr_list,
-+				      i2c_probe_func_quick_read);
- 	}
- 
- 	return bus->i2c_rc;
---- linux-2.6.35-rc2.orig/drivers/media/video/cx88/cx88-i2c.c	2010-06-07 16:12:38.000000000 +0200
-+++ linux-2.6.35-rc2/drivers/media/video/cx88/cx88-i2c.c	2010-06-08 09:17:06.000000000 +0200
-@@ -188,24 +188,13 @@ int cx88_i2c_init(struct cx88_core *core
- 			0x18, 0x6b, 0x71,
- 			I2C_CLIENT_END
- 		};
--		const unsigned short *addrp;
- 
- 		memset(&info, 0, sizeof(struct i2c_board_info));
- 		strlcpy(info.type, "ir_video", I2C_NAME_SIZE);
--		/*
--		 * We can't call i2c_new_probed_device() because it uses
--		 * quick writes for probing and at least some R receiver
--		 * devices only reply to reads.
--		 */
--		for (addrp = addr_list; *addrp != I2C_CLIENT_END; addrp++) {
--			if (i2c_smbus_xfer(&core->i2c_adap, *addrp, 0,
--					   I2C_SMBUS_READ, 0,
--					   I2C_SMBUS_QUICK, NULL) >= 0) {
--				info.addr = *addrp;
--				i2c_new_device(&core->i2c_adap, &info);
--				break;
--			}
--		}
-+		/* Use quick read command for probe, some IR chips don't
-+		 * support writes */
-+		i2c_new_probed_device(&core->i2c_adap, &info, addr_list,
-+				      i2c_probe_func_quick_read);
- 	}
- 	return core->i2c_rc;
- }
---- linux-2.6.35-rc2.orig/drivers/i2c/i2c-core.c	2010-06-07 16:12:38.000000000 +0200
-+++ linux-2.6.35-rc2/drivers/i2c/i2c-core.c	2010-06-08 09:17:06.000000000 +0200
-@@ -1453,6 +1453,13 @@ static int i2c_detect(struct i2c_adapter
- 	return err;
- }
- 
-+int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr)
-+{
-+	return i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
-+			      I2C_SMBUS_QUICK, NULL) >= 0;
-+}
-+EXPORT_SYMBOL_GPL(i2c_probe_func_quick_read);
-+
- struct i2c_client *
- i2c_new_probed_device(struct i2c_adapter *adap,
- 		      struct i2c_board_info *info,
---- linux-2.6.35-rc2.orig/include/linux/i2c.h	2010-06-07 16:15:10.000000000 +0200
-+++ linux-2.6.35-rc2/include/linux/i2c.h	2010-06-08 09:19:07.000000000 +0200
-@@ -292,6 +292,9 @@ i2c_new_probed_device(struct i2c_adapter
- 		      unsigned short const *addr_list,
- 		      int (*probe)(struct i2c_adapter *, unsigned short addr));
- 
-+/* Common custom probe functions */
-+extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
-+
- /* For devices that use several addresses, use i2c_new_dummy() to make
-  * client handles for the extra addresses.
-  */
+Hi Jean,
 
+On Tue, Jun 08, 2010 at 10:01:00AM +0200, Jean Delvare wrote:
+> Now that i2c-core offers the possibility to provide custom probing
+> function for I2C devices, let's make use of it.
+>=20
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Acked-by: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
--- 
-Jean Delvare
+If this custom function is in i2c-core, maybe it should be documented?
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkwPrcQACgkQD27XaX1/VRsFPwCeO8IsKaTaYK3IX64plFZLWlHP
+cQkAoKJDh6HAmgUvjoDo53oCF43aHJEv
+=5lP5
+-----END PGP SIGNATURE-----
+
+--wq9mPyueHGvFACwf--
