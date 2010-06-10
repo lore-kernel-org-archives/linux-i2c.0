@@ -1,232 +1,101 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH 1/2] of/i2c: Generalize OF support
-Date: Wed, 09 Jun 2010 23:22:32 -0600
-Message-ID: <20100610052232.16222.942.stgit@angua>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: [PATCH 2/2] i2c: Add OF-style registration and binding
+Date: Wed, 09 Jun 2010 23:22:37 -0600
+Message-ID: <20100610052237.16222.32754.stgit@angua>
 References: <20100610052102.16222.86662.stgit@angua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20100610052102.16222.86662.stgit@angua>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, jeremy.kerr-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, jeremy.kerr@canonical.com, devicetree-discuss@lists.ozlabs.org, ben-linux@fluff.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch cleans up the i2c OF support code to make it selectable by
-all architectures and allow for automatic registration of i2c devices.
+This patch adds OF hooks to the i2c core so that devices can automatically
+be registered based on device tree data.
 
-Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
 ---
- drivers/i2c/busses/i2c-cpm.c     |    3 ++-
- drivers/i2c/busses/i2c-ibm_iic.c |    3 ++-
- drivers/i2c/busses/i2c-mpc.c     |    3 ++-
- drivers/of/Kconfig               |    2 +-
- drivers/of/of_i2c.c              |   44 ++++++++++++++++++++++++--------------
- include/linux/of_i2c.h           |   13 +++++++++--
- 6 files changed, 45 insertions(+), 23 deletions(-)
+ drivers/i2c/busses/i2c-cpm.c     |    5 -----
+ drivers/i2c/busses/i2c-ibm_iic.c |    3 ---
+ drivers/i2c/busses/i2c-mpc.c     |    1 -
+ drivers/i2c/i2c-core.c           |    9 +++++++++
+ 4 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index b02b453..03ae62e 100644
+index 03ae62e..e591de1 100644
 --- a/drivers/i2c/busses/i2c-cpm.c
 +++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -652,6 +652,7 @@ static int __devinit cpm_i2c_probe(struct of_device *ofdev,
- 	cpm->adap = cpm_ops;
- 	i2c_set_adapdata(&cpm->adap, cpm);
- 	cpm->adap.dev.parent = &ofdev->dev;
-+	cpm->adap.dev.of_node = of_node_get(ofdev->dev.of_node);
+@@ -677,11 +677,6 @@ static int __devinit cpm_i2c_probe(struct of_device *ofdev,
+ 	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
+ 		cpm->adap.name);
  
- 	result = cpm_i2c_setup(cpm);
- 	if (result) {
-@@ -679,7 +680,7 @@ static int __devinit cpm_i2c_probe(struct of_device *ofdev,
- 	/*
- 	 * register OF I2C devices
- 	 */
--	of_register_i2c_devices(&cpm->adap, ofdev->dev.of_node);
-+	of_i2c_register_devices(&cpm->adap);
- 
+-	/*
+-	 * register OF I2C devices
+-	 */
+-	of_i2c_register_devices(&cpm->adap);
+-
  	return 0;
  out_shut:
+ 	cpm_i2c_shutdown(cpm);
 diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index bf34413..d964121 100644
+index d964121..1168d61 100644
 --- a/drivers/i2c/busses/i2c-ibm_iic.c
 +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -745,6 +745,7 @@ static int __devinit iic_probe(struct of_device *ofdev,
- 	/* Register it with i2c layer */
- 	adap = &dev->adap;
- 	adap->dev.parent = &ofdev->dev;
-+	adap->dev.of_node = of_node_get(np);
- 	strlcpy(adap->name, "IBM IIC", sizeof(adap->name));
- 	i2c_set_adapdata(adap, dev);
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-@@ -761,7 +762,7 @@ static int __devinit iic_probe(struct of_device *ofdev,
+@@ -761,9 +761,6 @@ static int __devinit iic_probe(struct of_device *ofdev,
+ 	dev_info(&ofdev->dev, "using %s mode\n",
  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
  
- 	/* Now register all the child nodes */
--	of_register_i2c_devices(adap, np);
-+	of_i2c_register_devices(adap);
- 
+-	/* Now register all the child nodes */
+-	of_i2c_register_devices(adap);
+-
  	return 0;
  
+ error_cleanup:
 diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index df00eb1..d2e26d2 100644
+index d2e26d2..9f7fef8 100644
 --- a/drivers/i2c/busses/i2c-mpc.c
 +++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -600,13 +600,14 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
- 	i2c->adap = mpc_ops;
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &op->dev;
-+	i2c->adap.dev.of_node = of_node_get(op->dev.of_node);
- 
- 	result = i2c_add_adapter(&i2c->adap);
- 	if (result < 0) {
+@@ -607,7 +607,6 @@ static int __devinit fsl_i2c_probe(struct of_device *op,
  		dev_err(i2c->dev, "failed to add adapter\n");
  		goto fail_add;
  	}
--	of_register_i2c_devices(&i2c->adap, op->dev.of_node);
-+	of_i2c_register_devices(&i2c->adap);
+-	of_i2c_register_devices(&i2c->adap);
  
  	return result;
  
-diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
-index 097f42a..80dd631 100644
---- a/drivers/of/Kconfig
-+++ b/drivers/of/Kconfig
-@@ -26,7 +26,7 @@ config OF_GPIO
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 1cca263..5588ac1 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -30,6 +30,8 @@
+ #include <linux/init.h>
+ #include <linux/idr.h>
+ #include <linux/mutex.h>
++#include <linux/of_i2c.h>
++#include <linux/of_device.h>
+ #include <linux/completion.h>
+ #include <linux/hardirq.h>
+ #include <linux/irqflags.h>
+@@ -70,6 +72,10 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 	if (!client)
+ 		return 0;
  
- config OF_I2C
- 	def_tristate I2C
--	depends on (PPC_OF || MICROBLAZE) && I2C
-+	depends on OF && !SPARC && I2C
- 	help
- 	  OpenFirmware I2C accessors
- 
-diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
-index ab6522c..e05f9a1 100644
---- a/drivers/of/of_i2c.c
-+++ b/drivers/of/of_i2c.c
-@@ -14,34 +14,49 @@
- #include <linux/i2c.h>
- #include <linux/of.h>
- #include <linux/of_i2c.h>
-+#include <linux/of_irq.h>
- #include <linux/module.h>
- 
--void of_register_i2c_devices(struct i2c_adapter *adap,
--			     struct device_node *adap_node)
-+void of_i2c_register_devices(struct i2c_adapter *adap)
- {
- 	void *result;
- 	struct device_node *node;
- 
--	for_each_child_of_node(adap_node, node) {
-+	/* Only register child devices if the adapter has a node pointer set */
-+	if (!adap->dev.of_node)
-+		return;
++	/* Attempt an OF style match */
++	if (of_driver_match_device(dev, drv))
++		return 1;
 +
-+	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
+ 	driver = to_i2c_driver(drv);
+ 	/* match on an id table if there is one */
+ 	if (driver->id_table)
+@@ -790,6 +796,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
+ 
++	/* Register devices from the device tree */
++	of_i2c_register_devices(adap);
 +
-+	for_each_child_of_node(adap->dev.of_node, node) {
- 		struct i2c_board_info info = {};
- 		struct dev_archdata dev_ad = {};
- 		const __be32 *addr;
- 		int len;
- 
--		if (of_modalias_node(node, info.type, sizeof(info.type)) < 0)
-+		dev_dbg(&adap->dev, "of_i2c: register %s\n", node->full_name);
-+
-+		if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
-+			dev_err(&adap->dev, "of_i2c: modalias failure on %s\n",
-+				node->full_name);
- 			continue;
-+		}
- 
- 		addr = of_get_property(node, "reg", &len);
--		if (!addr || len < sizeof(int) || *addr > (1 << 10) - 1) {
--			printk(KERN_ERR
--			       "of-i2c: invalid i2c device entry\n");
-+		if (!addr || (len < sizeof(int))) {
-+			dev_err(&adap->dev, "of_i2c: invalid reg on %s\n",
-+				node->full_name);
- 			continue;
- 		}
- 
--		info.irq = irq_of_parse_and_map(node, 0);
--
- 		info.addr = be32_to_cpup(addr);
-+		if (info.addr > (1 << 10) - 1) {
-+			dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
-+				info.addr, node->full_name);
-+			continue;
-+		}
- 
-+		info.irq = irq_of_parse_and_map(node, 0);
- 		info.of_node = node;
- 		info.archdata = &dev_ad;
- 
-@@ -49,10 +64,8 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
- 
- 		result = i2c_new_device(adap, &info);
- 		if (result == NULL) {
--			printk(KERN_ERR
--			       "of-i2c: Failed to load driver for %s\n",
--			       info.type);
--			irq_dispose_mapping(info.irq);
-+			dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
-+			        node->full_name);
- 			continue;
- 		}
- 
-@@ -64,7 +77,7 @@ void of_register_i2c_devices(struct i2c_adapter *adap,
- 		of_node_get(node);
- 	}
- }
--EXPORT_SYMBOL(of_register_i2c_devices);
-+EXPORT_SYMBOL(of_i2c_register_devices);
- 
- static int of_dev_node_match(struct device *dev, void *data)
- {
-@@ -76,8 +89,7 @@ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
- {
- 	struct device *dev;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, node,
--					 of_dev_node_match);
-+	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
- 	if (!dev)
- 		return NULL;
- 
-diff --git a/include/linux/of_i2c.h b/include/linux/of_i2c.h
-index 34974b5..0efe8d4 100644
---- a/include/linux/of_i2c.h
-+++ b/include/linux/of_i2c.h
-@@ -12,12 +12,19 @@
- #ifndef __LINUX_OF_I2C_H
- #define __LINUX_OF_I2C_H
- 
-+#if defined(CONFIG_OF_I2C) || defined(CONFIG_OF_I2C_MODULE)
- #include <linux/i2c.h>
- 
--void of_register_i2c_devices(struct i2c_adapter *adap,
--			     struct device_node *adap_node);
-+extern void of_i2c_register_devices(struct i2c_adapter *adap);
- 
- /* must call put_device() when done with returned i2c_client device */
--struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
-+extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
-+
-+#else
-+static inline void of_i2c_register_devices(struct i2c_adapter *adap)
-+{
-+	return;
-+}
-+#endif /* CONFIG_OF_I2C */
- 
- #endif /* __LINUX_OF_I2C_H */
+ 	/* Notify drivers */
+ 	mutex_lock(&core_lock);
+ 	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
