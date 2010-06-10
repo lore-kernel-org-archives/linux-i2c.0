@@ -1,37 +1,737 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: Multiplexed I2C bus multiplexer driver pca954x
-Date: Thu, 10 Jun 2010 12:15:40 +0200
-Message-ID: <4C10BB4C.7010907@gmx.de>
-References: <4BE01741.1010909@gmx.de>	<4BE01795.1090605@gmx.de> <20100609184143.06488f2f@hyperion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: Multiplexed I2C bus core support
+Date: Thu, 10 Jun 2010 15:24:11 +0200
+Message-ID: <20100610152411.5497461c@hyperion.delvare>
+References: <4BE01741.1010909@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100609184143.06488f2f-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4BE01741.1010909-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> Hi Michael,
-> 
-> On Tue, 04 May 2010 14:48:21 +0200, Michael Lawnick wrote:
->> Add multiplexed bus core support. I2C driver for PCA954x
->> I2C multiplexer series.
->> 
->> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> 
-> 
-> Review:
-...
+Hi Michael,
 
-> I've fixed all these small issues myself; no need to resend. Thanks (to
-> you and Rodolfo as well) for your contribution!
-> 
+On Tue, 04 May 2010 14:46:57 +0200, Michael Lawnick wrote:
+> Add multiplexed bus core support. I2C multiplexer and switches
+> like pca954x get instantiated as new adapters per output.
+>=20
+> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+>=20
+> ---
+> Based on kernel 2.6.33 +
+> [PATCH] i2c-core: Use per-adapter userspace device lists
+> by Jean Delware <20100424201914.08b3f008-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+> <http://article.gmane.org/gmane.linux.drivers.i2c/5994/>
 
+=46uture patches should be based on 2.6.34 at least... 2.6.35-rc2 would
+be even better.
 
-Thank You!
--- 
-KR
-Michael
+Review follows. Need some more work I fear, but not that much... Please
+let me know if you are going to submit another iteration, or if you
+prefer to let me fix things the way I like (in which case I'll still
+ask you to test my version of the patch when I'm done.)
+
+>=20
+>  drivers/i2c/Kconfig     |    8 ++
+>  drivers/i2c/Makefile    |    1 +
+>  drivers/i2c/i2c-core.c  |   93 ++++++++++++++++++++++--
+>  drivers/i2c/i2c-dev.c   |   46 ++++++++++++-
+>  drivers/i2c/i2c-mux.c   |  184 +++++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/i2c-mux.h |   46 ++++++++++++
+>  include/linux/i2c.h     |   11 +++
+>  7 files changed, 381 insertions(+), 8 deletions(-)
+>  create mode 100755 drivers/i2c/i2c-mux.c
+>  create mode 100755 include/linux/i2c-mux.h
+>=20
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index 8d8a00e..2cd6d78 100755
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -36,6 +36,14 @@ config I2C_COMPAT
+>  	  other user-space package which expects i2c adapters to be class
+>  	  devices. If you don't know, say Y.
+> =20
+> +config I2C_MUX
+> +	tristate "I2C bus multiplexing support"
+> +	depends on I2C
+
+Dependency on I2C isn't needed: this configuration item is already
+in an "if I2C" block. A dependency on EXPERIMENTAL might be a good idea
+for the time being though.
+
+> +	help
+> +	  Say Y here if you want the I2C core to support the ability to
+> +	  handle multiplexed I2C bus topologies, by presenting each
+> +	  multiplexed segment as a I2C adapter.
+
+=46or support that can be build as a module, we usually add a sentence
+saying so and giving the name of the module.
+
+> +
+
+I would move config I2C_MUX below config I2C_CHARDEV, to make it
+consistent with Makefile, and also because users expect new options to
+be added after existing options.
+
+>  config I2C_CHARDEV
+>  	tristate "I2C device interface"
+>  	help
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index ba26e6c..a488e8b 100755
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -5,6 +5,7 @@
+>  obj-$(CONFIG_I2C_BOARDINFO)	+=3D i2c-boardinfo.o
+>  obj-$(CONFIG_I2C)		+=3D i2c-core.o
+>  obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
+> +obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+>  obj-y				+=3D busses/ chips/ algos/
+> =20
+>  ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index fc93e28..682966a 100755
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -20,7 +20,10 @@
+>  /* With some changes from Ky=C3=B6sti M=C3=A4lkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org=
+>.
+>     All SMBus-related things are written by Frodo Looijaard <frodol@d=
+ds.nl>
+>     SMBus 2.0 support by Mark Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org> and
+> -   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> */
+> +   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> +   Mux support by Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org> and
+> +   Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org> */
+> +
+
+Extra blank line.
+
+> =20
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+> @@ -288,6 +291,12 @@ struct i2c_client *i2c_verify_client(struct devi=
+ce *dev)
+>  }
+>  EXPORT_SYMBOL(i2c_verify_client);
+> =20
+> +static int i2c_parent_is_i2c_adapter(const struct i2c_adapter *adapt=
+er)
+> +{
+> +	return adapter->dev.parent !=3D NULL
+> +		&& adapter->dev.parent->bus =3D=3D &i2c_bus_type;
+> +}
+> +
+> =20
+>  /**
+>   * i2c_new_device - instantiate an i2c device
+> @@ -624,6 +633,7 @@ static int i2c_register_adapter(struct i2c_adapte=
+r *adap)
+> =20
+>  	rt_mutex_init(&adap->bus_lock);
+>  	INIT_LIST_HEAD(&adap->userspace_clients);
+> +	INIT_LIST_HEAD(&adap->mux_list_head);
+> =20
+>  	/* Set default timeout to 1 second if not already set */
+>  	if (adap->timeout =3D=3D 0)
+> @@ -949,9 +959,78 @@ static int __i2c_check_addr(struct device *dev, =
+void *addrp)
+>  	return 0;
+>  }
+> =20
+> +/* walk up mux tree */
+> +static int i2c_check_mux_parents(struct i2c_adapter *adapter, int ad=
+dr)
+> +{
+> +	int	result;
+> +
+> +	result =3D device_for_each_child(&adapter->dev, &addr, __i2c_check_=
+addr);
+> +
+> +	if (!result && i2c_parent_is_i2c_adapter(adapter))
+> +		result =3D i2c_check_mux_parents(
+> +				    to_i2c_adapter(adapter->dev.parent), addr);
+> +
+> +	return result;
+> +}
+> +
+> +/* recurse down mux tree */
+> +static int i2c_check_mux_childs(struct i2c_adapter *adapter, int add=
+r)
+
+"childs" doesn't exist in proper English, the right work is "children" =
+;)
+
+> +{
+> +	int			result =3D 0;
+> +	struct i2c_adapter	*child, *next;
+> +
+> +	list_for_each_entry_safe(child, next, &adapter->mux_list_head,
+> +							 mux_list) {
+> +		result =3D device_for_each_child(&child->dev, &addr,
+> +							     __i2c_check_addr);
+> +		if (result)
+> +			break;
+> +		result =3D i2c_check_mux_childs(child, addr);
+
+This value is ignored, except for the last child. I think you should
+break here too.
+
+> +	}
+> +	return result;
+> +}
+> +
+>  static int i2c_check_addr(struct i2c_adapter *adapter, int addr)
+>  {
+> -	return device_for_each_child(&adapter->dev, &addr, __i2c_check_addr=
+);
+> +	int	result;
+> +
+> +	result =3D i2c_check_mux_parents(adapter, addr);
+> +
+> +	if (!result)
+> +		result =3D i2c_check_mux_childs(adapter, addr);
+> +
+> +	return result;
+> +}
+
+I am worried about (the lack of) locking when the above function is
+called. The problem isn't new with your patch, but your patch makes it
+worse: beforehand, the driver core would complain if we hit a race
+here, because we would try to create two clients with the same bus_id a=
+s
+a result. But now, we may create 2 conflicting clients with different
+bus_id, so the driver core will not complain.
+
+I'll think about it some more, and add locking if needed.
+
+> +static void i2c_mux_tree_lock(struct i2c_adapter *adap)
+> +{
+> +	if (i2c_parent_is_i2c_adapter(adap))
+> +		i2c_mux_tree_lock(to_i2c_adapter(adap->dev.parent));
+> +	else
+> +		i2c_lock_adapter(adap);
+> +}
+> +
+> +static int i2c_mux_tree_trylock(struct i2c_adapter *adap)
+> +{
+> +	int			ret;
+> +	struct i2c_adapter	*parent;
+> +
+> +	if (i2c_parent_is_i2c_adapter(adap)) {
+> +		parent =3D to_i2c_adapter(adap->dev.parent);
+> +		ret =3D i2c_mux_tree_trylock(parent);
+> +	} else {
+> +		ret =3D i2c_trylock_adapter(adap);
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static void i2c_mux_tree_unlock(struct i2c_adapter *adap)
+> +{
+> +	if (i2c_parent_is_i2c_adapter(adap))
+> +		i2c_mux_tree_unlock(to_i2c_adapter(adap->dev.parent));
+> +	else
+> +		i2c_unlock_adapter(adap);
+>  }
+> =20
+>  /**
+> @@ -1104,12 +1183,12 @@ int i2c_transfer(struct i2c_adapter *adap, st=
+ruct i2c_msg *msgs, int num)
+>  #endif
+> =20
+>  		if (in_atomic() || irqs_disabled()) {
+> -			ret =3D rt_mutex_trylock(&adap->bus_lock);
+> +			ret =3D i2c_mux_tree_trylock(adap);
+>  			if (!ret)
+>  				/* I2C activity is ongoing. */
+>  				return -EAGAIN;
+>  		} else {
+> -			rt_mutex_lock(&adap->bus_lock);
+> +			i2c_mux_tree_lock(adap);
+>  		}
+> =20
+>  		/* Retry automatically on arbitration loss */
+> @@ -1121,7 +1200,7 @@ int i2c_transfer(struct i2c_adapter *adap, stru=
+ct i2c_msg *msgs, int num)
+>  			if (time_after(jiffies, orig_jiffies + adap->timeout))
+>  				break;
+>  		}
+> -		rt_mutex_unlock(&adap->bus_lock);
+> +		i2c_mux_tree_unlock(adap);
+> =20
+>  		return ret;
+>  	} else {
+> @@ -1857,7 +1936,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,=
+ u16 addr, unsigned short flags,
+>  	flags &=3D I2C_M_TEN | I2C_CLIENT_PEC;
+> =20
+>  	if (adapter->algo->smbus_xfer) {
+> -		rt_mutex_lock(&adapter->bus_lock);
+> +		i2c_mux_tree_lock(adapter);
+> =20
+>  		/* Retry automatically on arbitration loss */
+>  		orig_jiffies =3D jiffies;
+> @@ -1871,7 +1950,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter,=
+ u16 addr, unsigned short flags,
+>  				       orig_jiffies + adapter->timeout))
+>  				break;
+>  		}
+> -		rt_mutex_unlock(&adapter->bus_lock);
+> +		i2c_mux_tree_unlock(adapter);
+>  	} else
+>  		res =3D i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+>  					      command, protocol, data);
+
+I'm worried that this approach is risky. We now use i2c_mux_tree_*lock
+internally, but still expose the i2c_*lock_adapter() API externally.
+This API is _not_ mux-aware, and will do the wrong thing if called on a
+bus segment behind a mux.
+
+I'd rather not have two APIs when we really only need one. Let's just
+update the current public API to be mux-aware, and use that everywhere.
+
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index f4110aa..da5327f 100755
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -193,12 +193,56 @@ static int i2cdev_check(struct device *dev, voi=
+d *addrp)
+>  	return dev->driver ? -EBUSY : 0;
+>  }
+> =20
+> +static int i2cdev_parent_is_i2c_adapter(const struct i2c_adapter *ad=
+apter)
+> +{
+> +	return adapter->dev.parent !=3D NULL
+> +		&& adapter->dev.parent->bus =3D=3D &i2c_bus_type;
+> +}
+
+This is an exact duplicate of the same function in i2c-core. I'd rather
+make it an inline function in <linux/i2c.h>, or export the one from
+i2c-core.c. We have enough duplicate code in i2c-dev.c already :(
+
+> +
+> +/* walk up mux tree */
+> +static int i2cdev_check_mux_parents(struct i2c_adapter *adapter, int=
+ addr)
+> +{
+> +	int result;
+> +
+> +	result =3D device_for_each_child(&adapter->dev, &addr, i2cdev_check=
+);
+> +
+> +	if (!result && i2cdev_parent_is_i2c_adapter(adapter))
+> +		result =3D i2cdev_check_mux_parents(
+> +				    to_i2c_adapter(adapter->dev.parent), addr);
+> +
+> +	return result;
+> +}
+> +
+> +/* recurse down mux tree */
+> +static int i2cdev_check_mux_childs(struct i2c_adapter *adapter, int =
+addr)
+
+children
+
+> +{
+> +	int result =3D 0;
+> +	struct i2c_adapter *child, *next;
+> +
+> +	list_for_each_entry_safe(child, next, &adapter->mux_list_head,
+> +				 mux_list) {
+> +		result =3D device_for_each_child(&child->dev, &addr,
+> +					       i2cdev_check);
+> +		if (result)
+> +			break;
+> +		result =3D i2cdev_check_mux_childs(child, addr);
+
+Same as in the i2c-core variant, this value is ignored, I think this
+isn't correct.
+
+> +	}
+> +	return result;
+> +}
+> +
+>  /* This address checking function differs from the one in i2c-core
+>     in that it considers an address with a registered device, but no
+>     driver bound to it, as NOT busy. */
+>  static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned i=
+nt addr)
+>  {
+> -	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
+> +	int result;
+> +
+> +	result =3D i2cdev_check_mux_parents(adapter, addr);
+> +
+> +	if (!result)
+> +		result =3D i2cdev_check_mux_childs(adapter, addr);
+> +
+> +	return result;
+>  }
+> =20
+>  static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> new file mode 100755
+> index 0000000..f88d29a
+> --- /dev/null
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -0,0 +1,184 @@
+> +/*
+> + * Multiplexed I2C bus driver.
+> + *
+> + * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> + * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
+> + *
+> + * Simplifies access to complex multiplexed I2C bus topologies, by p=
+resenting
+> + * each multiplexed bus segment as an additional I2C adapter.
+> + * Supports multi-level mux'ing (mux behind a mux).
+> + *
+> + * Based on:
+> + *	i2c-virt.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> + *	i2c-virtual.c from Ken Harrenstien, Copyright (c) 2004 Google, In=
+c.
+> + *	i2c-virtual.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
+> + */
+> +
+> +/* Adapted to kernel 2.6.33 by Michael Lawnick <michael.lawnick.ext@=
+nsn.com> */
+
+I'd rather have you add your copyright with the other ones already
+present above.
+
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/i2c.h>
+> +#include <linux/i2c-mux.h>
+> +
+> +/* multiplexer per channel data */
+> +struct i2c_mux_priv {
+> +	struct i2c_adapter adap;
+> +	struct i2c_algorithm algo;
+> +
+> +	struct i2c_adapter *parent;
+> +	void *mux_dev;	/* the mux chip/device */
+> +	u32  chan_id;	/* the channel id */
+> +
+> +	int (*select)(struct i2c_adapter *adap, void *mux_dev, u32 chan_id)=
+;
+> +	int (*deselect)(struct i2c_adapter *adap, void *mux_dev, u32 chan_i=
+d);
+
+The two "adap" can go away... I insisted on having parameter names for
+the other two; for structures, it's usually pretty clear what we're
+talking about.
+
+> +};
+> +
+> +#define VIRT_TIMEOUT		(HZ/2)
+> +#define VIRT_RETRIES		3
+
+These two are no longer used and can thus be deleted.
+
+> +
+> +static int i2c_mux_master_xfer(struct i2c_adapter *adap,
+> +			       struct i2c_msg msgs[], int num)
+> +{
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent;
+> +	int ret;
+> +
+> +	/* Switch to the right mux port and perform the transfer.*/
+
+Missing space at end of comment.
+
+> +
+> +	ret =3D priv->select(parent, priv->mux_dev, priv->chan_id);
+> +	if (ret >=3D 0)
+> +		ret =3D parent->algo->master_xfer(parent, msgs, num);
+> +	if (priv->deselect)
+> +		priv->deselect(parent, priv->mux_dev, priv->chan_id);
+> +
+> +	return ret;
+> +}
+> +
+> +static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
+> +			      u16 addr, unsigned short flags,
+> +			      char read_write, u8 command,
+> +			      int size, union i2c_smbus_data *data)
+> +{
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent;
+> +	int ret;
+> +
+> +	/* Select the right mux port and perform the transfer.*/
+
+Ditto.
+
+> +
+> +	ret =3D priv->select(parent, priv->mux_dev, priv->chan_id);
+> +	if (ret >=3D 0)
+> +		ret =3D parent->algo->smbus_xfer(parent, addr, flags,
+> +					   read_write, command, size, data);
+
+Strange alignment.
+
+> +	if (priv->deselect)
+> +		priv->deselect(parent, priv->mux_dev, priv->chan_id);
+> +
+> +	return ret;
+> +}
+> +
+> +/* Return the parent's functionality for the virtual adapter */
+
+Please avoid referring to "virtual adapters". The fact here is that all
+bus segments of a given tree share the same functionality, because it
+is a characteristic of the controller - nothing virtual here.
+
+> +static u32 i2c_mux_functionality(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	struct i2c_adapter *parent =3D priv->parent;
+> +
+> +	return parent->algo->functionality(parent);
+> +}
+> +
+> +struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+> +				void *mux_dev, u32 force_nr, u32 chan_id,
+> +				int (*select) (struct i2c_adapter *,
+> +					       void *, u32),
+> +				int (*deselect) (struct i2c_adapter *,
+> +						 void *, u32))
+> +{
+> +	struct i2c_mux_priv *priv;
+> +	int ret;
+> +
+> +	priv =3D kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return NULL;
+> +
+> +	/* Set up private adapter data */
+> +	priv->parent =3D parent;
+> +	priv->mux_dev =3D mux_dev;
+> +	priv->chan_id =3D chan_id;
+> +	priv->select =3D select;
+> +	priv->deselect =3D deselect;
+> +
+> +	/* Need to do algo dynamically because we don't know ahead
+> +	 * of time what sort of physical adapter we'll be dealing with.
+> +	 */
+> +	if (parent->algo->master_xfer)
+> +		priv->algo.master_xfer =3D i2c_mux_master_xfer;
+> +	if (parent->algo->smbus_xfer)
+> +		priv->algo.smbus_xfer =3D i2c_mux_smbus_xfer;
+> +	priv->algo.functionality =3D i2c_mux_functionality;
+> +
+> +	/* Now fill out new adapter structure */
+> +	snprintf(priv->adap.name, sizeof(priv->adap.name),
+> +		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
+
+I'm only half happy with this name. One problem is that it isn't
+unique: if you have 2 mux chips on the same root segment, this will
+lead to duplicate segments with the same name. Another problem is that
+it completely hides the name of the controller (which, I admit, we may
+recover by walking sysfs, but still...)
+
+This isn't a blocker point, but something to keep in mind for further
+improvements. It might even make sense to let the caller provide the
+format for the segment names.
+
+> +	priv->adap.owner =3D THIS_MODULE;
+> +	priv->adap.id =3D parent->id;
+> +	priv->adap.algo =3D &priv->algo;
+> +	priv->adap.algo_data =3D priv;
+> +	priv->adap.dev.parent =3D &parent->dev;
+> +
+> +	if (force_nr) {
+> +		priv->adap.nr =3D force_nr;
+> +		ret =3D i2c_add_numbered_adapter(&priv->adap);
+> +	} else {
+> +		ret =3D i2c_add_adapter(&priv->adap);
+> +	}
+> +	if (ret < 0) {
+> +		dev_err(&parent->dev, "failed to add mux-adapter (error=3D%d)\n",
+> +			ret);
+> +		kfree(priv);
+> +		return NULL;
+> +	}
+> +
+> +	list_add_tail(&priv->adap.mux_list, &parent->mux_list_head);
+
+The driver core maintains a device tree already, do you really need to
+keep your own? We've tried hard to remove all redundancy between
+i2c-core and the driver core in the last couple years, so I really woul=
+d
+like us to not add such redundancy back now.
+
+If you have a good reason to have your own list, please explain. If
+not, please get rid of it.
+
+> +
+> +	dev_info(&parent->dev, "i2c-mux-%d: Multiplexed I2C bus on "
+> +		"parent bus i2c-%d, chan_id %d\n",
+> +		i2c_adapter_id(&priv->adap), i2c_adapter_id(parent), chan_id);
+
+Have you looked at the output? I expect some redundancy, as you use
+dev_info() on the parent, i2c_adapter_id(parent) is already included. I
+think I'd rather call dev_info() on the newly spawned child, so you can
+get rid of the leading "i2c-mux-%d". BTW, please use dev_name() instead
+of hard-coding i2c-%d for the parent.
+
+> +
+> +	return &priv->adap;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
+> +
+> +int i2c_del_mux_adapter(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_mux_priv *priv =3D adap->algo_data;
+> +	int ret;
+> +	struct i2c_adapter *child, *next, *parent;
+
+Would look nicer with all structs in front and ret last, IMHO.
+
+> +
+> +	if (adap->dev.parent !=3D NULL
+> +		&& adap->dev.parent->bus =3D=3D &i2c_bus_type) {
+
+This is a copy of i2c_parent_is_i2c_adapter(), isn't it? That's one
+more reason to export it from i2c-core.
+
+> +		parent =3D to_i2c_adapter(adap->dev.parent);
+
+Note that we could have i2c_parent_is_i2c_adapter() return the parent
+adapter, if it proves useful in practice.
+
+> +		list_for_each_entry_safe(child, next, &parent->mux_list_head,
+> +					 mux_list) {
+> +			if (child =3D=3D adap) {
+> +				list_del(&child->mux_list);
+> +				break;
+> +			}
+> +		}
+> +	}
+
+That being said... Using the driver core's list would save you the
+hassle altogether.
+
+> +
+> +	ret =3D i2c_del_adapter(adap);
+> +	if (ret < 0)
+> +		return ret;
+> +	kfree(priv);
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
+> +
+> +MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
+> +MODULE_DESCRIPTION("I2C driver for multiplexed I2C busses");
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+> new file mode 100755
+> index 0000000..0d5d6c8
+> --- /dev/null
+> +++ b/include/linux/i2c-mux.h
+> @@ -0,0 +1,46 @@
+> +/*
+> + *
+> + * i2c-mux.h - functions for the i2c-bus mux support
+> + *
+> + * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+> + * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
+> + * Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License as published=
+ by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+> + */
+> +
+> +#ifndef _LINUX_I2C_MUX_H
+> +#define _LINUX_I2C_MUX_H
+> +
+> +#ifdef __KERNEL__
+> +
+> +/*
+> + * Called to create a i2c bus on a multiplexed bus segment.
+> + * The mux_dev and chan_id parameters are passed to the select
+> + * and deselect callback functions to perform hardware-specific
+> + * mux control.
+> + */
+> +struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+> +				void *mux_dev, u32 force_nr, u32 chan_id,
+> +				int (*select) (struct i2c_adapter *adap,
+> +					       void *mux_dev, u32 chan_id),
+> +				int (*deselect) (struct i2c_adapter *,
+> +						 void *mux_dev, u32 chan_id));
+> +
+> +int i2c_del_mux_adapter(struct i2c_adapter *adap);
+> +
+> +#endif /* __KERNEL__ */
+> +
+> +#endif /* _LINUX_I2C_H */
+
+You actually mean /* _LINUX_I2C_MUX_H */.
+
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 1fd7b12..898a8c1 100755
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -349,6 +349,8 @@ struct i2c_adapter {
+>  	struct completion dev_released;
+> =20
+>  	struct list_head userspace_clients;
+> +	struct list_head mux_list_head;
+> +	struct list_head mux_list;
+
+As said before, I would much prefer if we didn't have to introduce
+these.
+
+>  };
+>  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+> =20
+> @@ -380,6 +382,15 @@ static inline void i2c_unlock_adapter(struct i2c=
+_adapter *adapter)
+>  	rt_mutex_unlock(&adapter->bus_lock);
+>  }
+> =20
+> +/**
+> + * i2c_trylock_adapter - Try to prevent access to an I2C bus segment
+> + * @adapter: Target I2C bus segment
+> + */
+> +static inline int i2c_trylock_adapter(struct i2c_adapter *adapter)
+> +{
+> +	return rt_mutex_trylock(&adapter->bus_lock);
+> +}
+> +
+>  /*flags for the client struct: */
+>  #define I2C_CLIENT_PEC	0x04		/* Use Packet Error Checking */
+>  #define I2C_CLIENT_TEN	0x10		/* we have a ten bit chip address */
+
+Thanks,
+--=20
+Jean Delvare
