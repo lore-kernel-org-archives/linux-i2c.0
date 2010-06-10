@@ -1,37 +1,42 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] V4L/DVB: Use custom I2C probing function mechanism
-Date: Wed, 9 Jun 2010 19:39:07 +0200
-Message-ID: <20100609193907.521cd4a8@hyperion.delvare>
-References: <20100608100100.35bdae0f@hyperion.delvare>
-	<20100609150540.GB31319@pengutronix.de>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: [PATCH 0/2] Rework OF i2c support code
+Date: Wed, 09 Jun 2010 23:22:27 -0600
+Message-ID: <20100610052102.16222.86662.stgit@angua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100609150540.GB31319-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jeremy.kerr-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The following series reworks the of_i2c support code so that i2c drivers
+can be matched to devices using the struct device_driver of_match table,
+and so that i2c devices described in a device tree node will be
+transparently registered if the i2c adapter of_node pointer is set.
 
-On Wed, 9 Jun 2010 17:05:40 +0200, Wolfram Sang wrote:
-> Hi Jean,
-> 
-> On Tue, Jun 08, 2010 at 10:01:00AM +0200, Jean Delvare wrote:
-> > Now that i2c-core offers the possibility to provide custom probing
-> > function for I2C devices, let's make use of it.
-> > 
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Acked-by: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> 
-> If this custom function is in i2c-core, maybe it should be documented?
+The OF hooks used in the second patch are entirely compiled out when
+CONFIG_OF is not set.
 
-What kind of documentation would you expect for a one-line function?
-Where, and aimed at who?
+---
 
-Patch welcome ;)
+Ben, these changes probably should go through my devicetree branch.  They
+are currently sitting in the following branch, and I'll move it over to
+next-devicetree in a week or so if I don't receive any objections (it
+can always come out again if there are, but I want the test coverage).
 
--- 
-Jean Delvare
+git://git.secretlab.ca/git/linux-2.6 test-devicetree
+
+Grant Likely (2):
+      of/i2c: Generalize OF support
+      i2c: Add OF-style registration and binding
+
+
+ drivers/i2c/busses/i2c-cpm.c     |    6 +----
+ drivers/i2c/busses/i2c-ibm_iic.c |    4 +--
+ drivers/i2c/busses/i2c-mpc.c     |    2 +-
+ drivers/i2c/i2c-core.c           |    9 ++++++++
+ drivers/of/Kconfig               |    2 +-
+ drivers/of/of_i2c.c              |   44 ++++++++++++++++++++++++--------------
+ include/linux/of_i2c.h           |   13 +++++++++--
+ 7 files changed, 51 insertions(+), 29 deletions(-)
