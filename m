@@ -1,79 +1,95 @@
-From: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/8]reiserfs:stree.c Fix variable set but not used.
-Date: Mon, 14 Jun 2010 14:21:53 -0700
-Message-ID: <4C169D71.90800@gmail.com>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-2-git-send-email-justinmattock@gmail.com> <4C1699AA.3000900@gmail.com>
+From: David Daney <david.s.daney@gmail.com>
+Subject: Re: [PATCH 6/8]i2c:i2c_core Fix warning: variable 'dummy' set but
+ not used
+Date: Mon, 14 Jun 2010 14:28:57 -0700
+Message-ID: <4C169F19.1040608@gmail.com>
+References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>	<1276547208-26569-7-git-send-email-justinmattock@gmail.com> <20100614225315.2bae9e37@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C1699AA.3000900-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Edward Shishkin <edward.shishkin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100614225315.2bae9e37@hyperion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Justin P. Mattock" <justinmattock@gmail.com>, linux-kernel@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, clemens@ladisch.de, debora@linux.vnet.ibm.com, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/14/2010 02:05 PM, Edward Shishkin wrote:
-> Justin P. Mattock wrote:
->> Not sure if this is correct or not.
->> the below patch gets rid of this warning message
->> produced by gcc 4.6.0
->>
->> fs/reiserfs/stree.c: In function 'search_by_key':
->> fs/reiserfs/stree.c:602:6: warning: variable
->> 'right_neighbor_of_leaf_node' set but not used
->>
->> Signed-off-by: Justin P. Mattock <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On 06/14/2010 01:53 PM, Jean Delvare wrote:
+> Hi Justin,
 >
-> Acked-by: Edward Shishkin <edward.shishkin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-
-o.k.!!
-what about the whitespace issue?
-from what I remember I did notice the "+"
-that git does when making patches like this
-but given some many of these warnings I just
-did a quick workaround or however then figured
-to worry later on that.
-
+> On Mon, 14 Jun 2010 13:26:46 -0700, Justin P. Mattock wrote:
+>> could be a right solution, could be wrong
+>> here is the warning:
+>>    CC      drivers/i2c/i2c-core.o
+>> drivers/i2c/i2c-core.c: In function 'i2c_register_adapter':
+>> drivers/i2c/i2c-core.c:757:15: warning: variable 'dummy' set but not used
+>>
+>>   Signed-off-by: Justin P. Mattock<justinmattock@gmail.com>
+>>
 >> ---
->> fs/reiserfs/stree.c | 7 ++-----
->> 1 files changed, 2 insertions(+), 5 deletions(-)
+>>   drivers/i2c/i2c-core.c |    2 ++
+>>   1 files changed, 2 insertions(+), 0 deletions(-)
 >>
->> diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
->> index 313d39d..73086ad 100644
->> --- a/fs/reiserfs/stree.c
->> +++ b/fs/reiserfs/stree.c
->> @@ -599,7 +599,6 @@ int search_by_key(struct super_block *sb, const
->> struct cpu_key *key, /* Key to s
->> struct buffer_head *bh;
->> struct path_element *last_element;
->> int node_level, retval;
->> - int right_neighbor_of_leaf_node;
->> int fs_gen;
->> struct buffer_head *reada_bh[SEARCH_BY_KEY_READA];
->> b_blocknr_t reada_blocks[SEARCH_BY_KEY_READA];
->> @@ -617,8 +616,7 @@ int search_by_key(struct super_block *sb, const
->> struct cpu_key *key, /* Key to s
->>
->> pathrelse(search_path);
->>
->> - right_neighbor_of_leaf_node = 0;
->> -
->> +
->> /* With each iteration of this loop we search through the items in the
->> current node, and calculate the next current node(next path element)
->> for the next iteration of this loop.. */
->> @@ -695,8 +693,7 @@ int search_by_key(struct super_block *sb, const
->> struct cpu_key *key, /* Key to s
->> starting from the root. */
->> block_number = SB_ROOT_BLOCK(sb);
->> expected_level = -1;
->> - right_neighbor_of_leaf_node = 0;
->> -
->> +
->> /* repeat search from the root */
->> continue;
->> }
+>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> index 1cca263..79c6c26 100644
+>> --- a/drivers/i2c/i2c-core.c
+>> +++ b/drivers/i2c/i2c-core.c
+>> @@ -794,6 +794,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>>   	mutex_lock(&core_lock);
+>>   	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+>>   				 __process_new_adapter);
+>> +	if(!dummy)
+>> +		dummy = 0;
 >
+> One word: scripts/checkpatch.pl
 >
+> In other news, the above is just plain wrong. First we force people to
+> read the result of bus_for_each_drv() and then when they do and don't
+> need the value, gcc complains, so we add one more layer of useless
+> code, which developers and possibly tools will later wonder and
+> complain about? I can easily imagine that a static code analyzer would
+> spot the above code as being a potential bug.
+>
+> Let's stop this madness now please.
+>
+> Either __must_check goes away from bus_for_each_drv() and from every
+> other function which raises this problem, or we must disable that new
+> type of warning gcc 4.6.0 generates. Depends which warnings we value
+> more, as we can't sanely have both.
+>
+
+That is the crux of the whole thing.  Putting in crap to get rid of the 
+__must_check warning someone obviously wanted to provoke is just plain 
+wrong.
+
+I don't know what the answer is, but in addition to your suggestion of 
+removing the __must_check, you might try:
+
+BUG_ON(dummy != WHAT_IT_SHOULD_BE);
+
+or
+
+if (dummy != WHAT_IT_SHOULD_BE)
+	panic("nice message here);
+
+
+or
+
+static inline void i_really_know_what_i_am_doing(int arg)
+{
+	/*
+	 * Trick the compiler because we don't want to
+	 * handle error conditions.
+	 */
+	return;
+}
+
+.
+.
+.
+
+	i_really_know_what_i_am_doing(dummy);
+
+
+
+David Daney
