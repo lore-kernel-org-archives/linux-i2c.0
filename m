@@ -1,7 +1,8 @@
 From: "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH 5/8]drm:drm_gem Fix  warning: variable 'dev' set but not used
-Date: Mon, 14 Jun 2010 13:26:45 -0700
-Message-ID: <1276547208-26569-6-git-send-email-justinmattock@gmail.com>
+Subject: [PATCH 2/8]bluetooth/hci_ldisc.c Fix warning: variable 'tty' set but
+	not used
+Date: Mon, 14 Jun 2010 13:26:42 -0700
+Message-ID: <1276547208-26569-3-git-send-email-justinmattock@gmail.com>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,31 +21,42 @@ To: linux-kernel@vger.kernel.org
 Cc: reiserfs-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-bluetooth@vger.kernel.org, debora@linux.vnet.ibm.com, linux-i2c@vger.kernel.org, "Justin P. Mattock" <justinmattock@gmail.com>, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Probably not even a fix for this warning:
+Im getting this while building:
+  CC [M]  drivers/bluetooth/hci_ldisc.o
+drivers/bluetooth/hci_ldisc.c: In function 'hci_uart_send_frame':
+drivers/bluetooth/hci_ldisc.c:213:21: warning: variable 'tty' set but not used
 
-  CC [M]  drivers/gpu/drm/drm_gem.o
-drivers/gpu/drm/drm_gem.c: In function 'drm_gem_handle_delete':
-drivers/gpu/drm/drm_gem.c:188:21: warning: variable 'dev' set but not used
+the below fixed it for me, but am not sure if
+it's correct.
 
  Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
 
 ---
- drivers/gpu/drm/drm_gem.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/bluetooth/hci_ldisc.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-index 33dad3f..e8180c9 100644
---- a/drivers/gpu/drm/drm_gem.c
-+++ b/drivers/gpu/drm/drm_gem.c
-@@ -206,6 +206,8 @@ drm_gem_handle_delete(struct drm_file *filp, u32 handle)
- 		return -EINVAL;
- 	}
- 	dev = obj->dev;
-+	if (!dev)
-+		dev = 0;
+diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
+index 76a1abb..f693dfe 100644
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -210,7 +210,6 @@ static int hci_uart_close(struct hci_dev *hdev)
+ static int hci_uart_send_frame(struct sk_buff *skb)
+ {
+ 	struct hci_dev* hdev = (struct hci_dev *) skb->dev;
+-	struct tty_struct *tty;
+ 	struct hci_uart *hu;
  
- 	/* Release reference and decrement refcount. */
- 	idr_remove(&filp->object_idr, handle);
+ 	if (!hdev) {
+@@ -222,8 +221,7 @@ static int hci_uart_send_frame(struct sk_buff *skb)
+ 		return -EBUSY;
+ 
+ 	hu = (struct hci_uart *) hdev->driver_data;
+-	tty = hu->tty;
+-
++	
+ 	BT_DBG("%s: type %d len %d", hdev->name, bt_cb(skb)->pkt_type, skb->len);
+ 
+ 	hu->proto->enqueue(hu, skb);
 -- 
 1.7.1.rc1.21.gf3bd6
 
