@@ -1,8 +1,8 @@
 From: "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH 7/8]ieee1394/sdp2 Fix warning: variable 'unit_characteristics'
-	set but not used
-Date: Mon, 14 Jun 2010 13:26:47 -0700
-Message-ID: <1276547208-26569-8-git-send-email-justinmattock@gmail.com>
+Subject: [PATCH 8/8]tuners:tuner-simple Fix warning: variable 'tun' set but
+	not used
+Date: Mon, 14 Jun 2010 13:26:48 -0700
+Message-ID: <1276547208-26569-9-git-send-email-justinmattock@gmail.com>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,30 +21,38 @@ To: linux-kernel@vger.kernel.org
 Cc: reiserfs-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-bluetooth@vger.kernel.org, debora@linux.vnet.ibm.com, linux-i2c@vger.kernel.org, "Justin P. Mattock" <justinmattock@gmail.com>, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Temporary fix until something is resolved
-to fix the below warning:
-  CC [M]  drivers/ieee1394/sbp2.o
-drivers/ieee1394/sbp2.c: In function 'sbp2_parse_unit_directory':
-drivers/ieee1394/sbp2.c:1353:6: warning: variable 'unit_characteristics' set but not used
+not sure if this is correct or not for 
+fixing this warning:
+  CC [M]  drivers/media/common/tuners/tuner-simple.o
+drivers/media/common/tuners/tuner-simple.c: In function 'simple_set_tv_freq':
+drivers/media/common/tuners/tuner-simple.c:548:20: warning: variable 'tun' set but not used
+
  Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
 
 ---
- drivers/ieee1394/sbp2.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/media/common/tuners/tuner-simple.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
-index 4565cb5..fcf8bd5 100644
---- a/drivers/ieee1394/sbp2.c
-+++ b/drivers/ieee1394/sbp2.c
-@@ -1356,6 +1356,8 @@ static void sbp2_parse_unit_directory(struct sbp2_lu *lu,
+diff --git a/drivers/media/common/tuners/tuner-simple.c b/drivers/media/common/tuners/tuner-simple.c
+index 8abbcc5..4465b99 100644
+--- a/drivers/media/common/tuners/tuner-simple.c
++++ b/drivers/media/common/tuners/tuner-simple.c
+@@ -545,14 +545,12 @@ static int simple_set_tv_freq(struct dvb_frontend *fe,
+ 	struct tuner_simple_priv *priv = fe->tuner_priv;
+ 	u8 config, cb;
+ 	u16 div;
+-	struct tunertype *tun;
+ 	u8 buffer[4];
+ 	int rc, IFPCoff, i;
+ 	enum param_type desired_type;
+ 	struct tuner_params *t_params;
  
- 	management_agent_addr = 0;
- 	unit_characteristics = 0;
-+	if (!unit_characteristics)
-+		unit_characteristics = 0;
- 	firmware_revision = SBP2_ROM_VALUE_MISSING;
- 	model = ud->flags & UNIT_DIRECTORY_MODEL_ID ?
- 				ud->model_id : SBP2_ROM_VALUE_MISSING;
+-	tun = priv->tun;
+-
++	
+ 	/* IFPCoff = Video Intermediate Frequency - Vif:
+ 		940  =16*58.75  NTSC/J (Japan)
+ 		732  =16*45.75  M/N STD
 -- 
 1.7.1.rc1.21.gf3bd6
 
