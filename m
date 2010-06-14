@@ -1,44 +1,66 @@
-From: Nick Bowler <nbowler-7BP4RkwGw0uXmMXjJBpWqg@public.gmane.org>
-Subject: Re: [PATCH 1/8]reiserfs:stree.c Fix variable set but not used.
-Date: Mon, 14 Jun 2010 16:48:05 -0400
-Message-ID: <20100614204805.GA12589@elliptictech.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 6/8]i2c:i2c_core Fix warning: variable 'dummy' set but
+ not used
+Date: Mon, 14 Jun 2010 22:53:15 +0200
+Message-ID: <20100614225315.2bae9e37@hyperion.delvare>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
- <1276547208-26569-2-git-send-email-justinmattock@gmail.com>
+	<1276547208-26569-7-git-send-email-justinmattock@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1276547208-26569-2-git-send-email-justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <reiserfs-devel-owner@vger.kernel.org>
+In-Reply-To: <1276547208-26569-7-git-send-email-justinmattock@gmail.com>
+Sender: reiserfs-devel-owner@vger.kernel.org
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, clemens@ladisch.de, debora@linux.vnet.ibm.com, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 13:26 Mon 14 Jun     , Justin P. Mattock wrote:
-> @@ -617,8 +616,7 @@ int search_by_key(struct super_block *sb, const struct cpu_key *key,	/* Key to s
+Hi Justin,
+
+On Mon, 14 Jun 2010 13:26:46 -0700, Justin P. Mattock wrote:
+> could be a right solution, could be wrong
+> here is the warning:
+>   CC      drivers/i2c/i2c-core.o
+> drivers/i2c/i2c-core.c: In function 'i2c_register_adapter':
+> drivers/i2c/i2c-core.c:757:15: warning: variable 'dummy' set but not used
 >  
->  	pathrelse(search_path);
+>  Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
+> 
+> ---
+>  drivers/i2c/i2c-core.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 1cca263..79c6c26 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -794,6 +794,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>  	mutex_lock(&core_lock);
+>  	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
+>  				 __process_new_adapter);
+> +	if(!dummy)
+> +		dummy = 0;
+
+One word: scripts/checkpatch.pl
+
+In other news, the above is just plain wrong. First we force people to
+read the result of bus_for_each_drv() and then when they do and don't
+need the value, gcc complains, so we add one more layer of useless
+code, which developers and possibly tools will later wonder and
+complain about? I can easily imagine that a static code analyzer would
+spot the above code as being a potential bug.
+
+Let's stop this madness now please.
+
+Either __must_check goes away from bus_for_each_drv() and from every
+other function which raises this problem, or we must disable that new
+type of warning gcc 4.6.0 generates. Depends which warnings we value
+more, as we can't sanely have both.
+
+>  	mutex_unlock(&core_lock);
 >  
-> -	right_neighbor_of_leaf_node = 0;
-> -
-> +	
+>  	return 0;
 
-This hunk introduces whitespace on the empty line, which is not cool.
-
->  	/* With each iteration of this loop we search through the items in the
->  	   current node, and calculate the next current node(next path element)
->  	   for the next iteration of this loop.. */
-> @@ -695,8 +693,7 @@ int search_by_key(struct super_block *sb, const struct cpu_key *key,	/* Key to s
->  			   starting from the root. */
->  			block_number = SB_ROOT_BLOCK(sb);
->  			expected_level = -1;
-> -			right_neighbor_of_leaf_node = 0;
-> -
-> +			
-
-Here, too.
-
-Most of the patches in this series have similar issues.
 
 -- 
-Nick Bowler, Elliptic Technologies (http://www.elliptictech.com/)
+Jean Delvare
