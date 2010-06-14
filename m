@@ -1,92 +1,52 @@
-From: Edward Shishkin <edward.shishkin@gmail.com>
+From: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 1/8]reiserfs:stree.c Fix variable set but not used.
-Date: Mon, 14 Jun 2010 23:47:30 +0200
-Message-ID: <4C16A372.6020604@gmail.com>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-2-git-send-email-justinmattock@gmail.com> <4C1699AA.3000900@gmail.com> <4C169D71.90800@gmail.com>
+Date: Mon, 14 Jun 2010 15:50:30 -0700
+Message-ID: <4C16B236.7080506@gmail.com>
+References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-2-git-send-email-justinmattock@gmail.com> <4C1699AA.3000900@gmail.com> <4C169D71.90800@gmail.com> <4C16A372.6020604@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <reiserfs-devel-owner@vger.kernel.org>
-In-Reply-To: <4C169D71.90800@gmail.com>
-Sender: reiserfs-devel-owner@vger.kernel.org
-To: "Justin P. Mattock" <justinmattock@gmail.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, clemens@ladisch.de, debora@linux.vnet.ibm.com, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C16A372.6020604-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Edward Shishkin <edward.shishkin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Justin P. Mattock wrote:
-> On 06/14/2010 02:05 PM, Edward Shishkin wrote:
->> Justin P. Mattock wrote:
->>> Not sure if this is correct or not.
->>> the below patch gets rid of this warning message
->>> produced by gcc 4.6.0
+On 06/14/2010 02:47 PM, Edward Shishkin wrote:
+> Justin P. Mattock wrote:
+>> On 06/14/2010 02:05 PM, Edward Shishkin wrote:
+>>> Justin P. Mattock wrote:
+>>>> Not sure if this is correct or not.
+>>>> the below patch gets rid of this warning message
+>>>> produced by gcc 4.6.0
+>>>>
+>>>> fs/reiserfs/stree.c: In function 'search_by_key':
+>>>> fs/reiserfs/stree.c:602:6: warning: variable
+>>>> 'right_neighbor_of_leaf_node' set but not used
+>>>>
+>>>> Signed-off-by: Justin P. Mattock <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >>>
->>> fs/reiserfs/stree.c: In function 'search_by_key':
->>> fs/reiserfs/stree.c:602:6: warning: variable
->>> 'right_neighbor_of_leaf_node' set but not used
+>>> Acked-by: Edward Shishkin <edward.shishkin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >>>
->>> Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
 >>
->> Acked-by: Edward Shishkin <edward.shishkin@gmail.com>
->>
+>> o.k.!!
+>> what about the whitespace issue?
 >
-> o.k.!!
-> what about the whitespace issue?
-
-Whitespaces should be removed.
-I recommend quilt package for managing patches:
-"quilt refresh --strip-trailing-whitespace" is your friend..
-
-Thanks,
-Edward.
-
+> Whitespaces should be removed.
+> I recommend quilt package for managing patches:
+> "quilt refresh --strip-trailing-whitespace" is your friend..
 >
-> from what I remember I did notice the "+"
-> that git does when making patches like this
-> but given some many of these warnings I just
-> did a quick workaround or however then figured
-> to worry later on that.
->
->>> ---
->>> fs/reiserfs/stree.c | 7 ++-----
->>> 1 files changed, 2 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
->>> index 313d39d..73086ad 100644
->>> --- a/fs/reiserfs/stree.c
->>> +++ b/fs/reiserfs/stree.c
->>> @@ -599,7 +599,6 @@ int search_by_key(struct super_block *sb, const
->>> struct cpu_key *key, /* Key to s
->>> struct buffer_head *bh;
->>> struct path_element *last_element;
->>> int node_level, retval;
->>> - int right_neighbor_of_leaf_node;
->>> int fs_gen;
->>> struct buffer_head *reada_bh[SEARCH_BY_KEY_READA];
->>> b_blocknr_t reada_blocks[SEARCH_BY_KEY_READA];
->>> @@ -617,8 +616,7 @@ int search_by_key(struct super_block *sb, const
->>> struct cpu_key *key, /* Key to s
->>>
->>> pathrelse(search_path);
->>>
->>> - right_neighbor_of_leaf_node = 0;
->>> -
->>> +
->>> /* With each iteration of this loop we search through the items in the
->>> current node, and calculate the next current node(next path element)
->>> for the next iteration of this loop.. */
->>> @@ -695,8 +693,7 @@ int search_by_key(struct super_block *sb, const
->>> struct cpu_key *key, /* Key to s
->>> starting from the root. */
->>> block_number = SB_ROOT_BLOCK(sb);
->>> expected_level = -1;
->>> - right_neighbor_of_leaf_node = 0;
->>> -
->>> +
->>> /* repeat search from the root */
->>> continue;
->>> }
->>
->>
->
+> Thanks,
+> Edward.
 >
 
+o.k. I resent this.. fixed the whitespace(hopefully)
+and add your Acked to it.
+as for quilt I'll have to look into that..
+(using a lfs system, so if the sourcecode is easy
+to deal with(build), then it's a good but if it becomes
+a nightmare maybe not!!).
+
+
+Justin P. Mattock
