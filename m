@@ -1,64 +1,44 @@
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: [PATCH 8/8]tuners:tuner-simple Fix warning: variable 'tun' set but
-	not used
-Date: Mon, 14 Jun 2010 13:26:48 -0700
-Message-ID: <1276547208-26569-9-git-send-email-justinmattock@gmail.com>
+From: Nick Bowler <nbowler-7BP4RkwGw0uXmMXjJBpWqg@public.gmane.org>
+Subject: Re: [PATCH 1/8]reiserfs:stree.c Fix variable set but not used.
+Date: Mon, 14 Jun 2010 16:48:05 -0400
+Message-ID: <20100614204805.GA12589@elliptictech.com>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
+ <1276547208-26569-2-git-send-email-justinmattock@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux1394-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux1394-devel>,
-	<mailto:linux1394-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux1394-devel>
-List-Post: <mailto:linux1394-devel@lists.sourceforge.net>
-List-Help: <mailto:linux1394-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux1394-devel>,
-	<mailto:linux1394-devel-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: linux1394-devel-bounces@lists.sourceforge.net
-To: linux-kernel@vger.kernel.org
-Cc: reiserfs-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-bluetooth@vger.kernel.org, debora@linux.vnet.ibm.com, linux-i2c@vger.kernel.org, "Justin P. Mattock" <justinmattock@gmail.com>, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1276547208-26569-2-git-send-email-justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-not sure if this is correct or not for 
-fixing this warning:
-  CC [M]  drivers/media/common/tuners/tuner-simple.o
-drivers/media/common/tuners/tuner-simple.c: In function 'simple_set_tv_freq':
-drivers/media/common/tuners/tuner-simple.c:548:20: warning: variable 'tun' set but not used
+On 13:26 Mon 14 Jun     , Justin P. Mattock wrote:
+> @@ -617,8 +616,7 @@ int search_by_key(struct super_block *sb, const struct cpu_key *key,	/* Key to s
+>  
+>  	pathrelse(search_path);
+>  
+> -	right_neighbor_of_leaf_node = 0;
+> -
+> +	
 
- Signed-off-by: Justin P. Mattock <justinmattock@gmail.com>
+This hunk introduces whitespace on the empty line, which is not cool.
 
----
- drivers/media/common/tuners/tuner-simple.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+>  	/* With each iteration of this loop we search through the items in the
+>  	   current node, and calculate the next current node(next path element)
+>  	   for the next iteration of this loop.. */
+> @@ -695,8 +693,7 @@ int search_by_key(struct super_block *sb, const struct cpu_key *key,	/* Key to s
+>  			   starting from the root. */
+>  			block_number = SB_ROOT_BLOCK(sb);
+>  			expected_level = -1;
+> -			right_neighbor_of_leaf_node = 0;
+> -
+> +			
 
-diff --git a/drivers/media/common/tuners/tuner-simple.c b/drivers/media/common/tuners/tuner-simple.c
-index 8abbcc5..4465b99 100644
---- a/drivers/media/common/tuners/tuner-simple.c
-+++ b/drivers/media/common/tuners/tuner-simple.c
-@@ -545,14 +545,12 @@ static int simple_set_tv_freq(struct dvb_frontend *fe,
- 	struct tuner_simple_priv *priv = fe->tuner_priv;
- 	u8 config, cb;
- 	u16 div;
--	struct tunertype *tun;
- 	u8 buffer[4];
- 	int rc, IFPCoff, i;
- 	enum param_type desired_type;
- 	struct tuner_params *t_params;
- 
--	tun = priv->tun;
--
-+	
- 	/* IFPCoff = Video Intermediate Frequency - Vif:
- 		940  =16*58.75  NTSC/J (Japan)
- 		732  =16*45.75  M/N STD
+Here, too.
+
+Most of the patches in this series have similar issues.
+
 -- 
-1.7.1.rc1.21.gf3bd6
-
-
-------------------------------------------------------------------------------
-ThinkGeek and WIRED's GeekDad team up for the Ultimate 
-GeekDad Father's Day Giveaway. ONE MASSIVE PRIZE to the 
-lucky parental unit.  See the prize list and enter to win: 
-http://p.sf.net/sfu/thinkgeek-promo
+Nick Bowler, Elliptic Technologies (http://www.elliptictech.com/)
