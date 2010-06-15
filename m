@@ -1,37 +1,70 @@
-From: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 4/8]drivers:tmp.c Fix warning: variable 'rc' set but	not
- used
-Date: Mon, 14 Jun 2010 22:58:55 -0700
-Message-ID: <4C17169F.4060205__49651.8244887286$1276581545$gmane$org@gmail.com>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-5-git-send-email-justinmattock@gmail.com> <21331.1276560832@localhost> <4C16E18F.9050901@gmail.com> <9275.1276573789@localhost> <4C16F9FC.2080905@gmail.com> <20100615052944.7746.qmail@stuge.se>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: Multiplexed I2C bus core support
+Date: Tue, 15 Jun 2010 10:52:49 +0200
+Message-ID: <4C173F61.8000007@gmx.de>
+References: <4BE01741.1010909@gmx.de> <20100610152411.5497461c@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100615052944.7746.qmail-Y+HMSxxDrH8@public.gmane.org>
+In-Reply-To: <20100610152411.5497461c-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Valdis.Kletnieks-PjAqaU27lzQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.orglin
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/14/2010 10:29 PM, Peter Stuge wrote:
-> Justin P. Mattock wrote:
->>> *baffled* Why did you think that would work? transmit_cmd()s signature
->>> has 4 parameters.
+Hi Jean,
+
+Jean Delvare said the following:
+...
+>>  	if (adapter->algo->smbus_xfer) {
+>> -		rt_mutex_lock(&adapter->bus_lock);
+>> +		i2c_mux_tree_lock(adapter);
 >>
->> I have no manual in front of me. Did a quick google, but came up with
->> (no hits) info on what that function does. grep showed too many entries
->> to really see why/what this is.
+>>  		/* Retry automatically on arbitration loss */
+>>  		orig_jiffies = jiffies;
+>> @@ -1871,7 +1950,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>>  				       orig_jiffies + adapter->timeout))
+>>  				break;
+>>  		}
+>> -		rt_mutex_unlock(&adapter->bus_lock);
+>> +		i2c_mux_tree_unlock(adapter);
+>>  	} else
+>>  		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+>>  					      command, protocol, data);
 >
-> Check out the tool cscope. (Or kscope, if you prefer a GUI.)
+> I'm worried that this approach is risky. We now use i2c_mux_tree_*lock
+> internally, but still expose the i2c_*lock_adapter() API externally.
+> This API is _not_ mux-aware, and will do the wrong thing if called on a
+> bus segment behind a mux.
 >
->
-> //Peter
->
+> I'd rather not have two APIs when we really only need one. Let's just
+> update the current public API to be mux-aware, and use that everywhere.
 
-thanks for this tool.. I think this is what I need.. running around not 
-knowing what/where the manual is for a call is a bit daunting.
-I'll give this a look.
+Agree, but I'd vote to do it not inline as its now. Otherwise we start to export
+mux implementation details in i2c.h
 
-Thanks for this..
+>
+>> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+>> index f4110aa..da5327f 100755
+>> --- a/drivers/i2c/i2c-dev.c
+>> +++ b/drivers/i2c/i2c-dev.c
+>> @@ -193,12 +193,56 @@ static int i2cdev_check(struct device *dev, void *addrp)
+>>  	return dev->driver ? -EBUSY : 0;
+>>  }
+>>
+>> +static int i2cdev_parent_is_i2c_adapter(const struct i2c_adapter *adapter)
+>> +{
+>> +	return adapter->dev.parent != NULL
+>> +		&& adapter->dev.parent->bus == &i2c_bus_type;
+>> +}
+>
+> This is an exact duplicate of the same function in i2c-core. I'd rather
+> make it an inline function in <linux/i2c.h>, or export the one from
+> i2c-core.c. We have enough duplicate code in i2c-dev.c already :(
 
-Justin P. Mattock
+Must this and the above be done in an extra patch or can it be mixed into this mux patch?
+
+-- 
+KR
+Michael
