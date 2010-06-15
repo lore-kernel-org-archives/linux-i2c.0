@@ -1,54 +1,36 @@
-From: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 8/8]tuners:tuner-simple Fix warning: variable 'tun' set
- but not used
-Date: Tue, 15 Jun 2010 08:16:20 +0300
-Message-ID: <4C170CA4.2020805@redhat.com>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-9-git-send-email-justinmattock@gmail.com>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: Re: [PATCH 1/2] NUC900:  Add i2c0 driver support for NUC900
+Date: Tue, 15 Jun 2010 08:19:05 +0300
+Message-ID: <20100615051905.GD3233@jasper.tkos.co.il>
+References: <4C15143C.1020603@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1276547208-26569-9-git-send-email-justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4C15143C.1020603-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wan,
 
-
-Em 14-06-2010 23:26, Justin P. Mattock escreveu:
-> not sure if this is correct or not for 
-> fixing this warning:
->   CC [M]  drivers/media/common/tuners/tuner-simple.o
-> drivers/media/common/tuners/tuner-simple.c: In function 'simple_set_tv_freq':
-> drivers/media/common/tuners/tuner-simple.c:548:20: warning: variable 'tun' set but not used
+On Mon, Jun 14, 2010 at 01:24:12AM +0800, Wan ZongShun wrote:
+> This patch is to add i2c0 driver support for NUC900.
 > 
->  Signed-off-by: Justin P. Mattock <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
 > ---
->  drivers/media/common/tuners/tuner-simple.c |    4 +---
->  1 files changed, 1 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/media/common/tuners/tuner-simple.c b/drivers/media/common/tuners/tuner-simple.c
-> index 8abbcc5..4465b99 100644
-> --- a/drivers/media/common/tuners/tuner-simple.c
-> +++ b/drivers/media/common/tuners/tuner-simple.c
-> @@ -545,14 +545,12 @@ static int simple_set_tv_freq(struct dvb_frontend *fe,
->  	struct tuner_simple_priv *priv = fe->tuner_priv;
->  	u8 config, cb;
->  	u16 div;
-> -	struct tunertype *tun;
->  	u8 buffer[4];
->  	int rc, IFPCoff, i;
->  	enum param_type desired_type;
->  	struct tuner_params *t_params;
->  
-> -	tun = priv->tun;
-> -
-> +	
-Why are you adding an extra blank line here? Except for that, the patch
-looks sane.
 
->  	/* IFPCoff = Video Intermediate Frequency - Vif:
->  		940  =16*58.75  NTSC/J (Japan)
->  		732  =16*45.75  M/N STD
+[snip]
+
+> +	pdata->get_clock(NULL, NULL, &apbclk_khz);
+
+Why not use clk_get_rate() for this?
+
+baruch
+
+-- 
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
