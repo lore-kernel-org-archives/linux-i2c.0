@@ -1,45 +1,54 @@
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-Subject: Re: [PATCH 4/8]drivers:tmp.c Fix warning: variable 'rc' set but not
- used
-Date: Mon, 14 Jun 2010 20:56:44 -0700
-Message-ID: <4C16F9FC.2080905@gmail.com>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-5-git-send-email-justinmattock@gmail.com> <21331.1276560832@localhost>            <4C16E18F.9050901@gmail.com> <9275.1276573789@localhost>
+From: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 8/8]tuners:tuner-simple Fix warning: variable 'tun' set
+ but not used
+Date: Tue, 15 Jun 2010 08:16:20 +0300
+Message-ID: <4C170CA4.2020805@redhat.com>
+References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-9-git-send-email-justinmattock@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9275.1276573789@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, clemens@ladisch.de, debora@linux.vnet.ibm.com, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1276547208-26569-9-git-send-email-justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/14/2010 08:49 PM, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 14 Jun 2010 19:12:31 PDT, "Justin P. Mattock" said:
->
->> what I tried was this:
->>
->> if (!rc)
->> 	printk("test........"\n")
->>
->> and everything looked good,
->> but as a soon as I changed
->>
->> rc = transmit_cmd(chip,&tpm_cmd, TPM_INTERNAL_RESULT_SIZE,
->>      			"attempting to determine the timeouts");
->>
->> to this:
->>
->> rc = transmit_cmd(chip,&tpm_cmd, TPM_INTERNAL_RESULT_SIZE);
->>
->> if (!rc)
->> 	printk("attempting to determine the timeouts\n");
->
-> *baffled* Why did you think that would work? transmit_cmd()s signature
-> has 4 parameters.
 
-I have no manual in front of me. Did a quick google, but came up with 
-(no hits) info on what that function does. grep showed too many entries 
-to really see why/what this is. So I kind of just scrambled with this one.
 
-Justin P. Mattock
+Em 14-06-2010 23:26, Justin P. Mattock escreveu:
+> not sure if this is correct or not for 
+> fixing this warning:
+>   CC [M]  drivers/media/common/tuners/tuner-simple.o
+> drivers/media/common/tuners/tuner-simple.c: In function 'simple_set_tv_freq':
+> drivers/media/common/tuners/tuner-simple.c:548:20: warning: variable 'tun' set but not used
+> 
+>  Signed-off-by: Justin P. Mattock <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> ---
+>  drivers/media/common/tuners/tuner-simple.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/media/common/tuners/tuner-simple.c b/drivers/media/common/tuners/tuner-simple.c
+> index 8abbcc5..4465b99 100644
+> --- a/drivers/media/common/tuners/tuner-simple.c
+> +++ b/drivers/media/common/tuners/tuner-simple.c
+> @@ -545,14 +545,12 @@ static int simple_set_tv_freq(struct dvb_frontend *fe,
+>  	struct tuner_simple_priv *priv = fe->tuner_priv;
+>  	u8 config, cb;
+>  	u16 div;
+> -	struct tunertype *tun;
+>  	u8 buffer[4];
+>  	int rc, IFPCoff, i;
+>  	enum param_type desired_type;
+>  	struct tuner_params *t_params;
+>  
+> -	tun = priv->tun;
+> -
+> +	
+Why are you adding an extra blank line here? Except for that, the patch
+looks sane.
+
+>  	/* IFPCoff = Video Intermediate Frequency - Vif:
+>  		940  =16*58.75  NTSC/J (Japan)
+>  		732  =16*45.75  M/N STD
