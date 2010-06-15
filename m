@@ -1,17 +1,17 @@
-From: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 Subject: Re: [PATCH 8/8]tuners:tuner-simple Fix warning: variable 'tun' set
  but not used
-Date: Mon, 14 Jun 2010 22:37:13 -0700
-Message-ID: <4C171189.3060303@gmail.com>
+Date: Mon, 14 Jun 2010 22:50:02 -0700
+Message-ID: <4C17148A.508@gmail.com>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-9-git-send-email-justinmattock@gmail.com> <4C170CA4.2020805@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C170CA4.2020805-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4C170CA4.2020805@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, clemens@ladisch.de, debora@linux.vnet.ibm.com, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 06/14/2010 10:16 PM, Mauro Carvalho Chehab wrote:
@@ -24,7 +24,7 @@ On 06/14/2010 10:16 PM, Mauro Carvalho Chehab wrote:
 >> drivers/media/common/tuners/tuner-simple.c: In function 'simple_set_tv_freq':
 >> drivers/media/common/tuners/tuner-simple.c:548:20: warning: variable 'tun' set but not used
 >>
->>   Signed-off-by: Justin P. Mattock<justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>   Signed-off-by: Justin P. Mattock<justinmattock@gmail.com>
 >>
 >> ---
 >>   drivers/media/common/tuners/tuner-simple.c |    4 +---
@@ -50,22 +50,14 @@ On 06/14/2010 10:16 PM, Mauro Carvalho Chehab wrote:
 > Why are you adding an extra blank line here? Except for that, the patch
 > looks sane.
 >
-
-I think I was doing something wrong when creating these patches. i.g.
-I just hightlight the code then move the cursor highlight all the way to 
-the right before pressing "x". normally would be o.k. but for some 
-reason seems to be doing this. found if I highlight left to ; (or the 
-end of the code I want to delete) then git commit creates the patch 
-properly.
-
 >>   	/* IFPCoff = Video Intermediate Frequency - Vif:
 >>   		940  =16*58.75  NTSC/J (Japan)
 >>   		732  =16*45.75  M/N STD
 >
 >
 
-I'll resend this.
-
-Thanks for having a look.
+o.k. resent this.. I ended up doing
+a git reset do make sure things dont get
+funky etc..
 
 Justin P. Mattock
