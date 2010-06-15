@@ -1,60 +1,141 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 6/8]i2c:i2c_core Fix warning: variable 'dummy' set but
- not used
-Date: Tue, 15 Jun 2010 13:43:43 +0200
-Message-ID: <20100615134343.6ae4a6e1@hyperion.delvare>
-References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
-	<1276547208-26569-7-git-send-email-justinmattock@gmail.com>
-	<20100614225315.2bae9e37@hyperion.delvare>
-	<4C1699C4.3010809@gmail.com>
+Subject: [PATCH] i2c: Move adapter locking helpers to i2c-core
+Date: Tue, 15 Jun 2010 14:02:18 +0200
+Message-ID: <20100615140218.07090c90@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C1699C4.3010809-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Justin,
+Uninline i2c adapter locking helper functions, move them to i2c-core,
+and use them in i2c-core itself. The functions are still exported for
+external users. This makes future updates to the locking model (which
+will be needed for multiplexing support) possible and transparent.
 
-On Mon, 14 Jun 2010 14:06:12 -0700, Justin P. Mattock wrote:
-> On 06/14/2010 01:53 PM, Jean Delvare wrote:
-> > Hi Justin,
-> >
-> > On Mon, 14 Jun 2010 13:26:46 -0700, Justin P. Mattock wrote:
-> >> could be a right solution, could be wrong
-> >> here is the warning:
-> >>    CC      drivers/i2c/i2c-core.o
-> >> drivers/i2c/i2c-core.c: In function 'i2c_register_adapter':
-> >> drivers/i2c/i2c-core.c:757:15: warning: variable 'dummy' set but not used
-> >>
-> >>   Signed-off-by: Justin P. Mattock<justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >>
-> >> ---
-> >>   drivers/i2c/i2c-core.c |    2 ++
-> >>   1 files changed, 2 insertions(+), 0 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> >> index 1cca263..79c6c26 100644
-> >> --- a/drivers/i2c/i2c-core.c
-> >> +++ b/drivers/i2c/i2c-core.c
-> >> @@ -794,6 +794,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
-> >>   	mutex_lock(&core_lock);
-> >>   	dummy = bus_for_each_drv(&i2c_bus_type, NULL, adap,
-> >>   				 __process_new_adapter);
-> >> +	if(!dummy)
-> >> +		dummy = 0;
-> >
-> > One word: scripts/checkpatch.pl
-> 
-> it was this, and/or just take the code out
-> (since I'm a newbie)
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+---
+Michael, I think this makes your multiplexing support integrate
+smoothly?
 
-I was not (yet) arguing on the code itself, but on its format. Any
-patch you send should pass the formatting tests performed by
-scripts/checkpatch.pl. Thanks.
+ drivers/i2c/i2c-core.c |   39 ++++++++++++++++++++++++++++++++++-----
+ include/linux/i2c.h    |   20 +++-----------------
+ 2 files changed, 37 insertions(+), 22 deletions(-)
+
+--- linux-2.6.35-rc3.orig/drivers/i2c/i2c-core.c	2010-06-15 12:53:27.000000000 +0200
++++ linux-2.6.35-rc3/drivers/i2c/i2c-core.c	2010-06-15 13:01:25.000000000 +0200
+@@ -424,6 +424,35 @@ static int i2c_check_addr_busy(struct i2
+ }
+ 
+ /**
++ * i2c_lock_adapter - Get exclusive access to an I2C bus segment
++ * @adapter: Target I2C bus segment
++ */
++void i2c_lock_adapter(struct i2c_adapter *adapter)
++{
++	rt_mutex_lock(&adapter->bus_lock);
++}
++EXPORT_SYMBOL_GPL(i2c_lock_adapter);
++
++/**
++ * i2c_trylock_adapter - Try to get exclusive access to an I2C bus segment
++ * @adapter: Target I2C bus segment
++ */
++static int i2c_trylock_adapter(struct i2c_adapter *adapter)
++{
++	return rt_mutex_trylock(&adapter->bus_lock);
++}
++
++/**
++ * i2c_unlock_adapter - Release exclusive access to an I2C bus segment
++ * @adapter: Target I2C bus segment
++ */
++void i2c_unlock_adapter(struct i2c_adapter *adapter)
++{
++	rt_mutex_unlock(&adapter->bus_lock);
++}
++EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
++
++/**
+  * i2c_new_device - instantiate an i2c device
+  * @adap: the adapter managing the device
+  * @info: describes one I2C device; bus_num is ignored
+@@ -1229,12 +1258,12 @@ int i2c_transfer(struct i2c_adapter *ada
+ #endif
+ 
+ 		if (in_atomic() || irqs_disabled()) {
+-			ret = rt_mutex_trylock(&adap->bus_lock);
++			ret = i2c_trylock_adapter(adap);
+ 			if (!ret)
+ 				/* I2C activity is ongoing. */
+ 				return -EAGAIN;
+ 		} else {
+-			rt_mutex_lock(&adap->bus_lock);
++			i2c_lock_adapter(adap);
+ 		}
+ 
+ 		/* Retry automatically on arbitration loss */
+@@ -1246,7 +1275,7 @@ int i2c_transfer(struct i2c_adapter *ada
+ 			if (time_after(jiffies, orig_jiffies + adap->timeout))
+ 				break;
+ 		}
+-		rt_mutex_unlock(&adap->bus_lock);
++		i2c_unlock_adapter(adap);
+ 
+ 		return ret;
+ 	} else {
+@@ -2005,7 +2034,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *a
+ 	flags &= I2C_M_TEN | I2C_CLIENT_PEC;
+ 
+ 	if (adapter->algo->smbus_xfer) {
+-		rt_mutex_lock(&adapter->bus_lock);
++		i2c_lock_adapter(adapter);
+ 
+ 		/* Retry automatically on arbitration loss */
+ 		orig_jiffies = jiffies;
+@@ -2019,7 +2048,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *a
+ 				       orig_jiffies + adapter->timeout))
+ 				break;
+ 		}
+-		rt_mutex_unlock(&adapter->bus_lock);
++		i2c_unlock_adapter(adapter);
+ 	} else
+ 		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
+ 					      command, protocol, data);
+--- linux-2.6.35-rc3.orig/include/linux/i2c.h	2010-06-15 12:53:27.000000000 +0200
++++ linux-2.6.35-rc3/include/linux/i2c.h	2010-06-15 12:59:22.000000000 +0200
+@@ -380,23 +380,9 @@ static inline void i2c_set_adapdata(stru
+ 	dev_set_drvdata(&dev->dev, data);
+ }
+ 
+-/**
+- * i2c_lock_adapter - Prevent access to an I2C bus segment
+- * @adapter: Target I2C bus segment
+- */
+-static inline void i2c_lock_adapter(struct i2c_adapter *adapter)
+-{
+-	rt_mutex_lock(&adapter->bus_lock);
+-}
+-
+-/**
+- * i2c_unlock_adapter - Reauthorize access to an I2C bus segment
+- * @adapter: Target I2C bus segment
+- */
+-static inline void i2c_unlock_adapter(struct i2c_adapter *adapter)
+-{
+-	rt_mutex_unlock(&adapter->bus_lock);
+-}
++/* Adapter locking functions, exported for shared pin cases */
++void i2c_lock_adapter(struct i2c_adapter *);
++void i2c_unlock_adapter(struct i2c_adapter *);
+ 
+ /*flags for the client struct: */
+ #define I2C_CLIENT_PEC	0x04		/* Use Packet Error Checking */
+
 
 -- 
 Jean Delvare
