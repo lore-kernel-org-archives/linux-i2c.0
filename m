@@ -1,36 +1,28 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH 1/2] NUC900:  Add i2c0 driver support for NUC900
-Date: Tue, 15 Jun 2010 08:19:05 +0300
-Message-ID: <20100615051905.GD3233@jasper.tkos.co.il>
-References: <4C15143C.1020603@gmail.com>
+From: Peter Stuge <peter@stuge.se>
+Subject: Re: [PATCH 4/8]drivers:tmp.c Fix warning: variable 'rc' set but
+	not used
+Date: Tue, 15 Jun 2010 07:29:44 +0200
+Message-ID: <20100615052944.7746.qmail@stuge.se>
+References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com> <1276547208-26569-5-git-send-email-justinmattock@gmail.com> <21331.1276560832@localhost> <4C16E18F.9050901@gmail.com> <9275.1276573789@localhost> <4C16F9FC.2080905@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4C15143C.1020603-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <4C16F9FC.2080905@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, debora@linux.vnet.ibm.com, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wan,
-
-On Mon, Jun 14, 2010 at 01:24:12AM +0800, Wan ZongShun wrote:
-> This patch is to add i2c0 driver support for NUC900.
+Justin P. Mattock wrote:
+> > *baffled* Why did you think that would work? transmit_cmd()s signature
+> > has 4 parameters.
 > 
-> Signed-off-by: Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> ---
+> I have no manual in front of me. Did a quick google, but came up with 
+> (no hits) info on what that function does. grep showed too many entries 
+> to really see why/what this is.
 
-[snip]
+Check out the tool cscope. (Or kscope, if you prefer a GUI.)
 
-> +	pdata->get_clock(NULL, NULL, &apbclk_khz);
 
-Why not use clk_get_rate() for this?
-
-baruch
-
--- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
+//Peter
