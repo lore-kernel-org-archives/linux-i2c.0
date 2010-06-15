@@ -1,42 +1,76 @@
-From: "Gustavo F. Padovan" <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>
-Subject: Re: [PATCH 2/8]bluetooth/hci_ldisc.c Fix warning: variable 'tty'
- set but not used
-Date: Mon, 14 Jun 2010 21:24:49 -0300
-Message-ID: <20100615001444.GC9203@vigoh>
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+Subject: Re: [PATCH 4/8]drivers:tmp.c Fix warning: variable 'rc' set but not
+	used
+Date: Mon, 14 Jun 2010 19:12:31 -0700
+Message-ID: <4C16E18F.9050901@gmail.com>
 References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
- <1276547208-26569-3-git-send-email-justinmattock@gmail.com>
+	<1276547208-26569-5-git-send-email-justinmattock@gmail.com>
+	<21331.1276560832@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1276547208-26569-3-git-send-email-justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux1394-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <21331.1276560832@localhost>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux1394-devel>,
+	<mailto:linux1394-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux1394-devel>
+List-Post: <mailto:linux1394-devel@lists.sourceforge.net>
+List-Help: <mailto:linux1394-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux1394-devel>,
+	<mailto:linux1394-devel-request@lists.sourceforge.net?subject=subscribe>
+Errors-To: linux1394-devel-bounces@lists.sourceforge.net
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, reiserfs-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, debora@linux.vnet.ibm.com, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Justin,
+On 06/14/2010 05:13 PM, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 14 Jun 2010 13:26:44 PDT, "Justin P. Mattock" said:
+>> Im getting this warning when compiling:
+>>   CC      drivers/char/tpm/tpm.o
+>> drivers/char/tpm/tpm.c: In function 'tpm_gen_interrupt':
+>> drivers/char/tpm/tpm.c:508:10: warning: variable 'rc' set but not used
+>>
+>> The below patch gets rid of the warning,
+>> but I'm not sure if it's the best solution.
+>
+>>   	rc = transmit_cmd(chip,&tpm_cmd, TPM_INTERNAL_RESULT_SIZE,
+>>   			"attempting to determine the timeouts");
+>> +	if (!rc)
+>> +		rc = 0;
+>>   }
+>
+> Good thing that's a void function. ;)
+>
+> Unless transmit_cmd() is marked 'must_check', maybe losing the 'rc =' would
+> be a better solution?
 
-* Justin P. Mattock <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [2010-06-14 13:26:42 -0700]:
 
-> Im getting this while building:
->   CC [M]  drivers/bluetooth/hci_ldisc.o
-> drivers/bluetooth/hci_ldisc.c: In function 'hci_uart_send_frame':
-> drivers/bluetooth/hci_ldisc.c:213:21: warning: variable 'tty' set but not used
-> 
-> the below fixed it for me, but am not sure if
-> it's correct.
+what I tried was this:
 
+if (!rc)
+	printk("test........"\n")
 
-The fix is correct, you just need to fix the trailing whitespace
-problem and resend it.
-Also we use "Bluetooth:" as part of the commit message on the bluetooth
-subsystem. For example:
+and everything looked good,
+but as a soon as I changed
 
-"Bluetooth: Remove set but not used varible 'tty' 
+rc = transmit_cmd(chip,&tpm_cmd, TPM_INTERNAL_RESULT_SIZE,
+    			"attempting to determine the timeouts");
 
-Or something like that.
+to this:
 
--- 
-Gustavo F. Padovan
-http://padovan.org
+rc = transmit_cmd(chip,&tpm_cmd, TPM_INTERNAL_RESULT_SIZE);
+
+if (!rc)
+	printk("attempting to determine the timeouts\n");
+
+I error out with transmit_cmd not having enough
+functions to it.. so I just added the rc = 0;
+and went on to the next.
+
+Justin P. Mattock
+
+------------------------------------------------------------------------------
+ThinkGeek and WIRED's GeekDad team up for the Ultimate 
+GeekDad Father's Day Giveaway. ONE MASSIVE PRIZE to the 
+lucky parental unit.  See the prize list and enter to win: 
+http://p.sf.net/sfu/thinkgeek-promo
