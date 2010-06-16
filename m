@@ -1,36 +1,39 @@
-From: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] NUC900:  Add i2c0 driver support for NUC900
-Date: Wed, 16 Jun 2010 02:05:03 +0200
-Message-ID: <201006160205.04009.marek.vasut@gmail.com>
-References: <4C15143C.1020603@gmail.com> <20100615051905.GD3233@jasper.tkos.co.il>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 6/8]i2c:i2c_core Fix warning: variable 'dummy' set but
+  not used
+Date: Wed, 16 Jun 2010 11:45:17 +0200
+Message-ID: <20100616114517.5ac49e26@hyperion.delvare>
+References: <1276547208-26569-1-git-send-email-justinmattock@gmail.com>
+	<1276547208-26569-7-git-send-email-justinmattock@gmail.com>
+	<20100614225315.2bae9e37@hyperion.delvare>
+	<4C169F19.1040608@gmail.com>
+	<20100615134039.6ccfc17a@hyperion.delvare>
+	<4C17A857.8030306@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100615051905.GD3233-X57xyCW21FZ5l4KbKkTfamZHpeb/A1Y/@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C17A857.8030306-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Cc: David Daney <david.s.daney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reiserfs-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, clemens-P6GI/4k7KOmELgA04lAiVw@public.gmane.org, debora-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dne =C3=9At 15. =C4=8Dervna 2010 07:19:05 Baruch Siach napsal(a):
-> Hi Wan,
->=20
-> On Mon, Jun 14, 2010 at 01:24:12AM +0800, Wan ZongShun wrote:
-> > This patch is to add i2c0 driver support for NUC900.
-> >=20
-> > Signed-off-by: Wan ZongShun <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> >=20
-> > ---
->=20
-> [snip]
->=20
-> > +	pdata->get_clock(NULL, NULL, &apbclk_khz);
->=20
-> Why not use clk_get_rate() for this?
->=20
-> baruch
+On Tue, 15 Jun 2010 09:20:39 -0700, David Daney wrote:
+> On 06/15/2010 04:40 AM, Jean Delvare wrote:
+> > __process_new_adapter() calls i2c_do_add_adapter() which always returns
+> > 0. Why should I check the return value of bus_for_each_drv() when I
+> > know it will always be 0 by construction?
+> >
+> > Also note that the same function is also called through
+> > bus_for_each_dev() somewhere else in i2c-core, and there is no warning
+> > there because bus_for_each_dev() is not marked __must_check. How
+> > consistent is this? If bus_for_each_dev() is OK without __must_check,
+> > then I can't see why bus_for_each_drv() wouldn't be.
+> 
+> Well, I would advocate removing the __must_check then.
 
-Other but what you already pointed out I can't find.
+I have just sent a patch to LKML doing exactly this.
 
-Reviewed-by: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+-- 
+Jean Delvare
