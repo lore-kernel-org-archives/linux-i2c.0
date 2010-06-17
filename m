@@ -1,273 +1,40 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH] hmc6352: Add driver for the HMC6352 compass
-Date: Thu, 17 Jun 2010 14:14:40 +0100
-Message-ID: <20100617141440.030f1de9@lxorguk.ukuu.org.uk>
-References: <20100616121534.26294.12540.stgit@localhost.localdomain>
-	<20100616151056.181234b0@hyperion.delvare>
-	<20100617125056.6d648ee7@lxorguk.ukuu.org.uk>
-	<4C1A12C6.6070704@cam.ac.uk>
+From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 0/5] intel_mid_i2c: I2C driver support with IRQs
+Date: Thu, 17 Jun 2010 15:05:06 +0100
+Message-ID: <20100617140352.17861.29664.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C1A12C6.6070704-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ok - cleaning up the sysfs API to match the docs also cleans up the code
-a tiny bit more so do it that way
+This series enables the I2C on the Intel MID platforms. I've kept it as a
+series of five patches to keep ownership and history. The first two add the
+x86 irq handling and the driver, the rest then polish it up.
 
---
-hmc6352: Add driver for the HMC6352 compass
+Alan
 
-From: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-
-This driver will report the heading values in degrees to the sysfs interface.
-The values returned are headings . e.g. 245.6
-
-Alan: Cleanups requested now all folded in and a sysfs description to keep
-Andrew happy. The sysfs description now resembles hwmon.
-
-Signed-off-by: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
 
- .../ABI/testing/sysfs-bus-i2c-devices-hm6352       |   21 +++
- drivers/misc/Kconfig                               |    7 +
- drivers/misc/Makefile                              |    1 
- drivers/misc/hmc6352.c                             |  165 ++++++++++++++++++++
- 4 files changed, 194 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-hm6352
- create mode 100644 drivers/misc/hmc6352.c
+Alan Cox (2):
+      intel_mid_i2c: minor cleanups
+      intel_mid_i2c: Do a bit of compaction and tidying
+
+Alek Du (1):
+      gpio: implement x86 gpio_to_irq convert function
+
+Wen Wang (2):
+      intel_mid_i2c: Minor changes after verification
+      intel_mid_i2c: I2C driver supporting Moorestown and Medfield platform
 
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-hm6352 b/Documentation/ABI/testing/sysfs-bus-i2c-devices-hm6352
-new file mode 100644
-index 0000000..feb2e4a
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-hm6352
-@@ -0,0 +1,21 @@
-+Where:		/sys/bus/i2c/devices/.../heading0_input
-+Date:		April 2010
-+Kernel Version: 2.6.36?
-+Contact:	alan.cox-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-+Description:	Reports the current heading from the compass as a floating
-+		point value in degrees.
-+
-+Where:		/sys/bus/i2c/devices/.../power_state
-+Date:		April 2010
-+Kernel Version: 2.6.36?
-+Contact:	alan.cox-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-+Description:	Sets the power state of the device. 0 sets the device into
-+		sleep mode, 1 wakes it up.
-+
-+Where:		/sys/bus/i2c/devices/.../calibration
-+Date:		April 2010
-+Kernel Version: 2.6.36?
-+Contact:	alan.cox-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-+Description:	Sets the calibration on or off (1 = on, 0 = off). See the
-+		chip data sheet.
-+
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 26386a9..9e825cb 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -304,6 +304,13 @@ config SENSORS_TSL2550
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called tsl2550.
- 
-+config HMC6352
-+	tristate "Honeywell HMC6352 compass"
-+	depends on I2C
-+	help
-+	  This driver provides support for the Honeywell HMC6352 compass,
-+	  providing configuration and heading data via sysfs.
-+
- config EP93XX_PWM
- 	tristate "EP93xx PWM support"
- 	depends on ARCH_EP93XX
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 6ed06a1..48597df 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_DS1682)		+= ds1682.o
- obj-$(CONFIG_TI_DAC7512)	+= ti_dac7512.o
- obj-$(CONFIG_C2PORT)		+= c2port/
- obj-$(CONFIG_IWMC3200TOP)      += iwmc3200top/
-+obj-$(CONFIG_HMC6352)		+= hmc6352.o
- obj-y				+= eeprom/
- obj-y				+= cb710/
- obj-$(CONFIG_VMWARE_BALLOON)	+= vmware_balloon.o
-diff --git a/drivers/misc/hmc6352.c b/drivers/misc/hmc6352.c
-new file mode 100644
-index 0000000..63d9519
---- /dev/null
-+++ b/drivers/misc/hmc6352.c
-@@ -0,0 +1,165 @@
-+/*
-+ * hmc6352.c - Honeywell Compass Driver
-+ *
-+ * Copyright (C) 2009 Intel Corp
-+ *
-+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/err.h>
-+#include <linux/delay.h>
-+#include <linux/sysfs.h>
-+
-+static DEFINE_MUTEX(compass_mutex);
-+
-+static int compass_command(struct i2c_client *c, u8 cmd)
-+{
-+	int ret = i2c_master_send(c, &cmd, 1);
-+	if (ret < 0)
-+		dev_warn(&c->dev, "command '%c' failed.\n", cmd);
-+	return ret;
-+}
-+
-+static int compass_store(struct device *dev, const char *buf, size_t count,
-+			const char *map)
-+{
-+	struct i2c_client *c = to_i2c_client(dev);
-+	int ret;
-+	unsigned long val;
-+
-+	if (strict_strtoul(buf, 10, &val))
-+		return -EINVAL;
-+	if (val >= strlen(map))
-+		return -EINVAL;
-+	mutex_lock(&compass_mutex);
-+	ret = compass_command(c, map[val]);
-+	mutex_unlock(&compass_mutex);
-+	return ret;
-+}
-+
-+static ssize_t compass_calibration_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	return compass_store(dev, buf, count, "EC");
-+}	
-+
-+static ssize_t compass_power_mode_store(struct device *dev,
-+		struct device_attribute *attr, const  char *buf, size_t count)
-+{
-+	return compass_store(dev, buf, count, "SW");
-+}
-+
-+static ssize_t compass_heading_data_show(struct device *dev,
-+			struct device_attribute *attr, char *buf)
-+{
-+
-+	struct i2c_client *client = to_i2c_client(dev);
-+	unsigned char i2c_data[2];
-+	unsigned int ret;
-+
-+	mutex_lock(&compass_mutex);
-+	ret = compass_command(client, 'A');
-+	if (ret != 1) {
-+		mutex_unlock(&compass_mutex);
-+		return ret;
-+	}
-+	msleep(10); /* sending 'A' cmd we need to wait for 7-10 millisecs */
-+	ret = i2c_master_recv(client, i2c_data, 2);
-+	mutex_unlock(&compass_mutex);
-+	if (ret != 1) {
-+		dev_warn(dev, "i2c read data cmd failed\n");
-+		return ret;
-+	}
-+	ret = (i2c_data[0] << 8) | i2c_data[1];
-+	return sprintf(buf, "%d.%d\n", ret/10, ret%10);
-+}
-+
-+
-+static DEVICE_ATTR(heading0_input, S_IRUGO, compass_heading_data_show, NULL);
-+static DEVICE_ATTR(calibration, S_IWUSR, NULL, compass_calibration_store);
-+static DEVICE_ATTR(power_state, S_IWUSR, NULL, compass_power_mode_store);
-+
-+static struct attribute *mid_att_compass[] = {
-+	&dev_attr_heading0_input.attr,
-+	&dev_attr_calibration.attr,
-+	&dev_attr_power_state.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group m_compass_gr = {
-+	.name = "hmc6352",
-+	.attrs = mid_att_compass
-+};
-+
-+static int hmc6352_probe(struct i2c_client *client,
-+					const struct i2c_device_id *id)
-+{
-+	int res;
-+
-+	res = sysfs_create_group(&client->dev.kobj, &m_compass_gr);
-+	if (res) {
-+		dev_err(&client->dev, "device_create_file failed\n");
-+		return res;
-+	}
-+	dev_info(&client->dev, "%s HMC6352 compass chip found\n",
-+							client->name);
-+	return 0;
-+}
-+
-+static int hmc6352_remove(struct i2c_client *client)
-+{
-+	sysfs_remove_group(&client->dev.kobj, &m_compass_gr);
-+	return 0;
-+}
-+
-+static struct i2c_device_id hmc6352_id[] = {
-+	{ "hmc6352", 0 },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, hmc6352_id);
-+
-+static struct i2c_driver hmc6352_driver = {
-+	.driver = {
-+		.name = "hmc6352",
-+	},
-+	.probe = hmc6352_probe,
-+	.remove = hmc6352_remove,
-+	.id_table = hmc6352_id,
-+};
-+
-+static int __init sensor_hmc6352_init(void)
-+{
-+	return i2c_add_driver(&hmc6352_driver);
-+}
-+
-+static void  __exit sensor_hmc6352_exit(void)
-+{
-+	i2c_del_driver(&hmc6352_driver);
-+}
-+
-+module_init(sensor_hmc6352_init);
-+module_exit(sensor_hmc6352_exit);
-+
-+MODULE_AUTHOR("Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org");
-+MODULE_DESCRIPTION("hmc6352 Compass Driver");
-+MODULE_LICENSE("GPL v2");
+ arch/x86/include/asm/gpio.h   |    5 
+ drivers/i2c/busses/Kconfig    |    9 
+ drivers/i2c/busses/Makefile   |    1 
+ drivers/i2c/busses/i2c-mrst.c |  902 +++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-mrst.h |  269 ++++++++++++
+ 5 files changed, 1182 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-mrst.c
+ create mode 100644 drivers/i2c/busses/i2c-mrst.h
