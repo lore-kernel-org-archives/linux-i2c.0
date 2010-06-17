@@ -1,33 +1,27 @@
 From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Subject: Re: [PATCH] hmc6352: Add driver for the HMC6352 compass
-Date: Thu, 17 Jun 2010 12:20:48 +0100
-Message-ID: <20100617122048.142def43@lxorguk.ukuu.org.uk>
+Date: Thu, 17 Jun 2010 12:34:06 +0100
+Message-ID: <20100617123406.17714d00@lxorguk.ukuu.org.uk>
 References: <20100616121534.26294.12540.stgit@localhost.localdomain>
-	<201006161443.45375.oneukum@suse.de>
+	<4C18E3B8.7020308@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201006161443.45375.oneukum-l3A5Bk7waGM@public.gmane.org>
+In-Reply-To: <4C18E3B8.7020308-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Cc: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 16 Jun 2010 14:43:45 +0200
-Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org> wrote:
+> So here we would have heading0_input.
 
-> Am Mittwoch, 16. Juni 2010 14:16:14 schrieb Alan Cox:
-> > +       msleep(10); /* sending 0x41 cmd we need to wait for 7-10 milli seconds */
-> > +       ret = i2c_transfer(client->adapter, msg1, 1);
-> > +       if (ret != 1) {
-> > +               dev_warn(dev, "i2c read data cmd failed\n");
-> > +               return ret;
-> > +       }
-> > +       ret_val = i2c_data[0];
-> > +       ret_val = ((ret_val << 8) | i2c_data[1]);
+Makes complete sense
+
 > 
-> Please use the correct macro for this conversion.
+> As this only applies to the one attribute anyway and maintaining that if we
+> ever sweep all these drivers up into a common system would be trivial, this doesn't
+> really matter that much.  Still if it doesn't cost anything....
+> (though obviously it does if you have userspace code in place!) 
 
-Its an array anyway - there isn't as such a 'correct macro' nor does it
-need to be using one.
+Alan
