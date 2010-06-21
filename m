@@ -1,72 +1,67 @@
 From: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V2] i2c-imx: do not allow interruptions when waiting for
- I2C to complete (resend)
-Date: Mon, 21 Jun 2010 09:07:51 +0200
-Message-ID: <4C1F0FC7.60605@pengutronix.de>
-References: <4C1753F6.3080106@pengutronix.de> <20100620223321.GA12387@fluff.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7072FBC9D1E67B198A894472"
+Subject: [PATCH V3] i2c-imx: do not allow interruptions when waiting for I2C to complete
+Date: Mon, 21 Jun 2010 09:27:05 +0200
+Message-ID: <1277105225-21240-1-git-send-email-mkl@pengutronix.de>
+References: <4C1F0FC7.60605@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100620223321.GA12387-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
+In-Reply-To: <4C1F0FC7.60605-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Sascha Hauer <sha-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7072FBC9D1E67B198A894472
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+The i2c_imx_trx_complete() function is using
+wait_event_interruptible_timeout() to wait for the I2C controller to
+signal that it has completed an I2C bus operation. If the process that
+causes the I2C operation receives a signal, the wait will be
+interrupted, returning an error. It is better to let the I2C operation
+finished before handling the signal (i.e. returning into userspace).
 
-Ben Dooks wrote:
-> On Tue, Jun 15, 2010 at 12:20:38PM +0200, Marc Kleine-Budde wrote:
->> The i2c_imx_trx_complete() function is using
->> wait_event_interruptible_timeout() to wait for the I2C controller to
->> signal that it has completed an I2C bus operation. If the process that=
+It is safe to use wait_event_timeout() instead, because the timeout
+will allow the process to exit if the I2C bus hangs. It's also better
+to allow the I2C operation to finish, because unacknowledged I2C
+operations can cause the I2C bus to hang.
 
->> causes the I2C operation receives a signal, the wait will be
->> interrupted, returning an error. It is better to let the I2C operation=
+Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
 
->> finished before handling the signal (i.e. returning into userspace).
->>
->> It is safe to use wait_event_timeout() instead, because the timeout
->> will allow the process to exit if the I2C bus hangs. It's also better
->> to allow the I2C operation to finish, because unacknowledged I2C
->> operations can cause the I2C bus to hang.
->=20
-> Hmm, if it times out, do you need to at-least try sending a stop
-> on the bus? or does the caller do that for you?
+V2: Remove check for "result < 0" as commented by Wolfram Sang.
+V3: Remove "result" entirely.
 
-The caller of the caller does this. "i2c_imx_xfer" will call
-"i2c_imx_stop", and this function will generate the stop condition if
-not already done so.
+ drivers/i2c/busses/i2c-imx.c |   12 +++---------
+ 1 files changed, 3 insertions(+), 9 deletions(-)
 
-I'm sending a V3 version of the patch, which removes the only written to
-variable "result".
-
-cheers, Marc
-
---=20
-Pengutronix e.K.                  | Marc Kleine-Budde           |
-Industrial Linux Solutions        | Phone: +49-231-2826-924     |
-Vertretung West/Dortmund          | Fax:   +49-5121-206917-5555 |
-Amtsgericht Hildesheim, HRA 2686  | http://www.pengutronix.de   |
-
-
---------------enig7072FBC9D1E67B198A894472
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkwfD8cACgkQjTAFq1RaXHM3YwCeNOvOp//8wiMzVn/PjyKYUyuD
-bVkAni/gy3Af53vPYBxtglikMy0mX7RY
-=5+S7
------END PGP SIGNATURE-----
-
---------------enig7072FBC9D1E67B198A894472--
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d1ff940..4c2a62b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -159,15 +159,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ 
+ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
+ {
+-	int result;
+-
+-	result = wait_event_interruptible_timeout(i2c_imx->queue,
+-		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
++	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+ 
+-	if (unlikely(result < 0)) {
+-		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
+-		return result;
+-	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
++	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+@@ -295,7 +289,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 		i2c_imx->i2csr = temp;
+ 		temp &= ~I2SR_IIF;
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
+-		wake_up_interruptible(&i2c_imx->queue);
++		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
+ 
+-- 
+1.7.1
