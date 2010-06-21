@@ -1,59 +1,71 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c/mips: Fix error return codes from Sibyte i2c bus
- driver
-Date: Mon, 21 Jun 2010 19:02:52 +0200
-Message-ID: <20100621190252.2adc6bd8@hyperion.delvare>
-References: <1277056673-4305-1-git-send-email-guenter.roeck@ericsson.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH 0/6] i2c: davinci updates for 2.6.35
+Date: Mon, 21 Jun 2010 13:16:08 -0700
+Message-ID: <AANLkTikJ6XDywcBA5O0mC85jQEIWxZ9NOALIQOjcGCDJ@mail.gmail.com>
+References: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com>
+	<20100420000621.GK32401@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1277056673-4305-1-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <20100420000621.GK32401-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guenter,
+On Mon, Apr 19, 2010 at 5:06 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Tue, Apr 06, 2010 at 10:42:12AM -0700, Kevin Hilman wrote:
+>> This series of davinci I2C driver updates and fixes is targetted for
+>> 2.6.35. =A0It has been tested in davinci git on multiple davinci SoC=
+s.
+>>
+>> Ben, since these changes are isolated to the davinci driver only, if
+>> you prefer I can merge them upstream along with my davinci changes f=
+or
+>> 2.6.35.
+>
+> I'll get them into -next when I rebase it.
 
-On Sun, 20 Jun 2010 10:57:53 -0700, Guenter Roeck wrote:
-> Sibyte i2c bus driver returns non-descriptive error values.
-> Update to return error values as defined in Documentation/i2c/fault-codes.
-> 
-> Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-sibyte.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
-> index 3d76a18..329cbee 100644
-> --- a/drivers/i2c/busses/i2c-sibyte.c
-> +++ b/drivers/i2c/busses/i2c-sibyte.c
-> @@ -94,7 +94,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
->  		}
->  		break;
->  	default:
-> -		return -1;      /* XXXKW better error code? */
-> +		return -EOPNOTSUPP;
->  	}
->  
->  	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
-> @@ -104,7 +104,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
->  	if (error & M_SMB_ERROR) {
->  		/* Clear error bit by writing a 1 */
->  		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
-> -		return -1;      /* XXXKW better error code? */
-> +		return -ENXIO;
->  	}
->  
->  	if (data_bytes == 1)
+Ben, this series never made it in for 2.6.35.
 
-Definitely an improvement. However, returning -ENXIO on all errors
-seems wrong. This error value should only be returned on missing ack
-from the slave on address byte. Isn't it possible to distinguish
-between different error kinds? M_SMB_ERROR_TYPE seems promising, but
-one would need to look up the datasheet (which I don't have) to
-discover its meaning.
+I've now rebased this against v2.6.35-rc3 and it's available here:
 
--- 
-Jean Delvare
+   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.=
+git
+davinci-i2c
+
+Please pull for 2.6.36.  Thanks.
+
+Kevin
+
+>> This series is based on v2.6.34-rc3
+>>
+>> Chaithrika U S (4):
+>> =A0 i2c: davinci: misc. cleanups: remove MOD_REG_BIT and IO_ADDRESS =
+usage
+>> =A0 i2c: davinci: Add helper functions for power management
+>> =A0 i2c: davinci: Add suspend/resume support
+>> =A0 i2c: davinci: Add cpufreq support
+>>
+>> Dirk Behme (1):
+>> =A0 i2c: davinci: Fix smbus Oops with AIC33 usage
+>>
+>> Philby John (1):
+>> =A0 i2c: davinci: bus recovery procedure to clear the bus
+>>
+>> =A0drivers/i2c/busses/i2c-davinci.c | =A0314 +++++++++++++++++++++++=
++++++++--------
+>> =A01 files changed, 251 insertions(+), 63 deletions(-)
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
+ in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+> --
+> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
+>
+> =A0'a smiley only costs 4 bytes'
+>
