@@ -1,49 +1,46 @@
-From: "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH] i2c: davinci: Fix race when setting up for TX
-Date: Tue, 22 Jun 2010 17:47:59 +0530
-Message-ID: <41914.2560022466$1277209387@news.gmane.org>
-References: <1277191864-5024-1-git-send-email-jon.povey@racelogic.co.uk>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v2] i2c/mips: Fix error return codes from Sibyte i2c bus driver
+Date: Tue, 22 Jun 2010 07:09:08 -0700
+Message-ID: <1277215748-31510-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1277191864-5024-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Content-Language: en-us
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Cc: "'Jean Delvare (PC drivers, core)'" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, 'Philby John' <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "'Ben Dooks (embedded platforms)'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, H Hartley Sweeten <hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Sibyte i2c bus driver returns non-descriptive error values.
+Update to return error values as defined in Documentation/i2c/fault-codes.
 
-On Tue, Jun 22, 2010 at 13:01:03, Jon Povey wrote:
-> Move the interrupt enable after the first byte load for TX, as it
-> was racing with the interrupt handler and corrupting dev->buf_len
-> for messages > 1 byte.
-> 
-> Tested on DM355.
-> 
-> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-> ---
-> The race seems to have been introduced by 869e6692d527983958216f13c3c8e095791909df
-> 
-> This fixes the problem for me, but someone from TI might want to comment
-> on the validity of starting the transfer before enabling the RDY interrupts.
-> Any possibility of losing interrupts?
-> 
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+v2: Return -ENXIO for missing ACK and -EIO for other errors
+---
+ drivers/i2c/busses/i2c-sibyte.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-This fix can cause interrupts to be missed as there will be a race between
-writing to DXR and setting of interrupts. I think you can decrement dev->buf_len
-before writing to DXR register. This should resolve the original race condition
-which you had encountered.
-
-Regards,
-Sudhakar
+diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
+index 3d76a18..0fe505d 100644
+--- a/drivers/i2c/busses/i2c-sibyte.c
++++ b/drivers/i2c/busses/i2c-sibyte.c
+@@ -94,7 +94,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+ 		}
+ 		break;
+ 	default:
+-		return -1;      /* XXXKW better error code? */
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
+@@ -104,7 +104,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+ 	if (error & M_SMB_ERROR) {
+ 		/* Clear error bit by writing a 1 */
+ 		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
+-		return -1;      /* XXXKW better error code? */
++		return (error & M_SMB_ERROR_TYPE) ? -EIO : -ENXIO;
+ 	}
+ 
+ 	if (data_bytes == 1)
+-- 
+1.7.0.87.g0901d
