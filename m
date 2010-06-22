@@ -1,62 +1,49 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] i2c/mips: Fix error return codes from Sibyte i2c bus
- driver
-Date: Tue, 22 Jun 2010 04:54:17 -0700
-Message-ID: <20100622115417.GA14418@ericsson.com>
-References: <1277056673-4305-1-git-send-email-guenter.roeck@ericsson.com>
- <20100621190252.2adc6bd8@hyperion.delvare>
+From: "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH] i2c: davinci: Fix race when setting up for TX
+Date: Tue, 22 Jun 2010 17:47:59 +0530
+Message-ID: <41914.2560022466$1277209387@news.gmane.org>
+References: <1277191864-5024-1-git-send-email-jon.povey@racelogic.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100621190252.2adc6bd8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org" <hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1277191864-5024-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Content-Language: en-us
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Cc: "'Jean Delvare (PC drivers, core)'" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, 'Philby John' <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "'Ben Dooks (embedded platforms)'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 21, 2010 at 01:02:52PM -0400, Jean Delvare wrote:
-> Hi Guenter,
-> 
-> On Sun, 20 Jun 2010 10:57:53 -0700, Guenter Roeck wrote:
-> > Sibyte i2c bus driver returns non-descriptive error values.
-> > Update to return error values as defined in Documentation/i2c/fault-codes.
-> > 
-> > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-sibyte.c |    4 ++--
-> >  1 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
-> > index 3d76a18..329cbee 100644
-> > --- a/drivers/i2c/busses/i2c-sibyte.c
-> > +++ b/drivers/i2c/busses/i2c-sibyte.c
-> > @@ -94,7 +94,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
-> >  		}
-> >  		break;
-> >  	default:
-> > -		return -1;      /* XXXKW better error code? */
-> > +		return -EOPNOTSUPP;
-> >  	}
-> >  
-> >  	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
-> > @@ -104,7 +104,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
-> >  	if (error & M_SMB_ERROR) {
-> >  		/* Clear error bit by writing a 1 */
-> >  		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
-> > -		return -1;      /* XXXKW better error code? */
-> > +		return -ENXIO;
-> >  	}
-> >  
-> >  	if (data_bytes == 1)
-> 
-> Definitely an improvement. However, returning -ENXIO on all errors
-> seems wrong. This error value should only be returned on missing ack
-> from the slave on address byte. Isn't it possible to distinguish
-> between different error kinds? M_SMB_ERROR_TYPE seems promising, but
-> one would need to look up the datasheet (which I don't have) to
-> discover its meaning.
-> 
-Makes sense. I'll dig up a copy of the datasheet and see if I can improve it.
+Hi,
 
-Guenter
+On Tue, Jun 22, 2010 at 13:01:03, Jon Povey wrote:
+> Move the interrupt enable after the first byte load for TX, as it
+> was racing with the interrupt handler and corrupting dev->buf_len
+> for messages > 1 byte.
+> 
+> Tested on DM355.
+> 
+> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+> ---
+> The race seems to have been introduced by 869e6692d527983958216f13c3c8e095791909df
+> 
+> This fixes the problem for me, but someone from TI might want to comment
+> on the validity of starting the transfer before enabling the RDY interrupts.
+> Any possibility of losing interrupts?
+> 
+
+This fix can cause interrupts to be missed as there will be a race between
+writing to DXR and setting of interrupts. I think you can decrement dev->buf_len
+before writing to DXR register. This should resolve the original race condition
+which you had encountered.
+
+Regards,
+Sudhakar
