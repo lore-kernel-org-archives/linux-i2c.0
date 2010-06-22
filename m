@@ -1,78 +1,62 @@
-From: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Subject: [PATCH] i2c: davinci: Fix race when setting up for TX
-Date: Tue, 22 Jun 2010 16:31:03 +0900
-Message-ID: <1277191864-5024-1-git-send-email-jon.povey@racelogic.co.uk>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c/mips: Fix error return codes from Sibyte i2c bus
+ driver
+Date: Tue, 22 Jun 2010 04:54:17 -0700
+Message-ID: <20100622115417.GA14418@ericsson.com>
+References: <1277056673-4305-1-git-send-email-guenter.roeck@ericsson.com>
+ <20100621190252.2adc6bd8@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100621190252.2adc6bd8-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org" <hsweeten-3FF4nKcrg1dE2c76skzGb0EOCMrvLtNR@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Move the interrupt enable after the first byte load for TX, as it
-was racing with the interrupt handler and corrupting dev->buf_len
-for messages > 1 byte.
+On Mon, Jun 21, 2010 at 01:02:52PM -0400, Jean Delvare wrote:
+> Hi Guenter,
+> 
+> On Sun, 20 Jun 2010 10:57:53 -0700, Guenter Roeck wrote:
+> > Sibyte i2c bus driver returns non-descriptive error values.
+> > Update to return error values as defined in Documentation/i2c/fault-codes.
+> > 
+> > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-sibyte.c |    4 ++--
+> >  1 files changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
+> > index 3d76a18..329cbee 100644
+> > --- a/drivers/i2c/busses/i2c-sibyte.c
+> > +++ b/drivers/i2c/busses/i2c-sibyte.c
+> > @@ -94,7 +94,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+> >  		}
+> >  		break;
+> >  	default:
+> > -		return -1;      /* XXXKW better error code? */
+> > +		return -EOPNOTSUPP;
+> >  	}
+> >  
+> >  	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
+> > @@ -104,7 +104,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+> >  	if (error & M_SMB_ERROR) {
+> >  		/* Clear error bit by writing a 1 */
+> >  		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
+> > -		return -1;      /* XXXKW better error code? */
+> > +		return -ENXIO;
+> >  	}
+> >  
+> >  	if (data_bytes == 1)
+> 
+> Definitely an improvement. However, returning -ENXIO on all errors
+> seems wrong. This error value should only be returned on missing ack
+> from the slave on address byte. Isn't it possible to distinguish
+> between different error kinds? M_SMB_ERROR_TYPE seems promising, but
+> one would need to look up the datasheet (which I don't have) to
+> discover its meaning.
+> 
+Makes sense. I'll dig up a copy of the datasheet and see if I can improve it.
 
-Tested on DM355.
-
-Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
----
-The race seems to have been introduced by 869e6692d527983958216f13c3c8e095791909df
-
-This fixes the problem for me, but someone from TI might want to comment
-on the validity of starting the transfer before enabling the RDY interrupts.
-Any possibility of losing interrupts?
-
-Considered a spinlock but if this reordering is OK then it's neater.
-
-I'm guessing not many people have been sending multi-byte messages..
-
- drivers/i2c/busses/i2c-davinci.c |   16 ++++++++--------
- 1 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 2222c87..72df4af 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -347,14 +347,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 		flag &= ~DAVINCI_I2C_MDR_STP;
- 	}
- 
--	/* Enable receive or transmit interrupts */
--	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
--	if (msg->flags & I2C_M_RD)
--		w |= DAVINCI_I2C_IMR_RRDY;
--	else
--		w |= DAVINCI_I2C_IMR_XRDY;
--	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
--
- 	dev->terminate = 0;
- 
- 	/* write the data into mode register */
-@@ -371,6 +363,14 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 		dev->buf_len--;
- 	}
- 
-+	/* Enable receive or transmit interrupts */
-+	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-+	if (msg->flags & I2C_M_RD)
-+		w |= DAVINCI_I2C_IMR_RRDY;
-+	else
-+		w |= DAVINCI_I2C_IMR_XRDY;
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
-+
- 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
- 						      dev->adapter.timeout);
- 	if (r == 0) {
--- 
-1.6.3.3
+Guenter
