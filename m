@@ -1,71 +1,78 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 0/6] i2c: davinci updates for 2.6.35
-Date: Mon, 21 Jun 2010 13:16:08 -0700
-Message-ID: <AANLkTikJ6XDywcBA5O0mC85jQEIWxZ9NOALIQOjcGCDJ@mail.gmail.com>
-References: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com>
-	<20100420000621.GK32401@fluff.org.uk>
+From: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: [PATCH] i2c: davinci: Fix race when setting up for TX
+Date: Tue, 22 Jun 2010 16:31:03 +0900
+Message-ID: <1277191864-5024-1-git-send-email-jon.povey@racelogic.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100420000621.GK32401-elnMNo+KYs3pIgCt6eIbzw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 19, 2010 at 5:06 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Tue, Apr 06, 2010 at 10:42:12AM -0700, Kevin Hilman wrote:
->> This series of davinci I2C driver updates and fixes is targetted for
->> 2.6.35. =A0It has been tested in davinci git on multiple davinci SoC=
-s.
->>
->> Ben, since these changes are isolated to the davinci driver only, if
->> you prefer I can merge them upstream along with my davinci changes f=
-or
->> 2.6.35.
->
-> I'll get them into -next when I rebase it.
+Move the interrupt enable after the first byte load for TX, as it
+was racing with the interrupt handler and corrupting dev->buf_len
+for messages > 1 byte.
 
-Ben, this series never made it in for 2.6.35.
+Tested on DM355.
 
-I've now rebased this against v2.6.35-rc3 and it's available here:
+Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+---
+The race seems to have been introduced by 869e6692d527983958216f13c3c8e095791909df
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-davinci.=
-git
-davinci-i2c
+This fixes the problem for me, but someone from TI might want to comment
+on the validity of starting the transfer before enabling the RDY interrupts.
+Any possibility of losing interrupts?
 
-Please pull for 2.6.36.  Thanks.
+Considered a spinlock but if this reordering is OK then it's neater.
 
-Kevin
+I'm guessing not many people have been sending multi-byte messages..
 
->> This series is based on v2.6.34-rc3
->>
->> Chaithrika U S (4):
->> =A0 i2c: davinci: misc. cleanups: remove MOD_REG_BIT and IO_ADDRESS =
-usage
->> =A0 i2c: davinci: Add helper functions for power management
->> =A0 i2c: davinci: Add suspend/resume support
->> =A0 i2c: davinci: Add cpufreq support
->>
->> Dirk Behme (1):
->> =A0 i2c: davinci: Fix smbus Oops with AIC33 usage
->>
->> Philby John (1):
->> =A0 i2c: davinci: bus recovery procedure to clear the bus
->>
->> =A0drivers/i2c/busses/i2c-davinci.c | =A0314 +++++++++++++++++++++++=
-+++++++--------
->> =A01 files changed, 251 insertions(+), 63 deletions(-)
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
- in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
-> --
-> Ben (ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/)
->
-> =A0'a smiley only costs 4 bytes'
->
+ drivers/i2c/busses/i2c-davinci.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 2222c87..72df4af 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -347,14 +347,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 		flag &= ~DAVINCI_I2C_MDR_STP;
+ 	}
+ 
+-	/* Enable receive or transmit interrupts */
+-	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+-	if (msg->flags & I2C_M_RD)
+-		w |= DAVINCI_I2C_IMR_RRDY;
+-	else
+-		w |= DAVINCI_I2C_IMR_XRDY;
+-	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+-
+ 	dev->terminate = 0;
+ 
+ 	/* write the data into mode register */
+@@ -371,6 +363,14 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 		dev->buf_len--;
+ 	}
+ 
++	/* Enable receive or transmit interrupts */
++	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
++	if (msg->flags & I2C_M_RD)
++		w |= DAVINCI_I2C_IMR_RRDY;
++	else
++		w |= DAVINCI_I2C_IMR_XRDY;
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
++
+ 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 						      dev->adapter.timeout);
+ 	if (r == 0) {
+-- 
+1.6.3.3
