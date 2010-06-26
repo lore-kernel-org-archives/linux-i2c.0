@@ -1,48 +1,41 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: reading i2c eeprom early in boot
-Date: Fri, 25 Jun 2010 09:49:15 +0200
-Message-ID: <20100625094915.635aeb42@hyperion.delvare>
-References: <4C23311B.9090803@hiramoto.org>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: Re: [PATCH] i2c/mips: Fix error return codes from Sibyte i2c bus
+ driver
+Date: Sat, 26 Jun 2010 17:14:59 +0100 (BST)
+Message-ID: <alpine.LFD.2.00.1006261709110.14683@eddie.linux-mips.org>
+References: <1277056673-4305-1-git-send-email-guenter.roeck@ericsson.com> <20100621190252.2adc6bd8@hyperion.delvare> <20100622115417.GA14418@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C23311B.9090803-CSx8xFHsqFdg9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Karl Hiramoto <karl-CSx8xFHsqFdg9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100622115417.GA14418@ericsson.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Jean Delvare <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "hsweeten@visionengravers.com" <hsweeten@visionengravers.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Karl,
+On Tue, 22 Jun 2010, Guenter Roeck wrote:
 
-On Thu, 24 Jun 2010 12:19:07 +0200, Karl Hiramoto wrote:
-> My goal is to assign a MAC address stored in a I2C EEPROM to a ethernet device on an ARM  SOC so I can boot via NFS.  Reading and writing this address  works with the at24 driver after its loaded.
-> 
-> Currently the i2c __init call is after the ethernet devices __init, so this makes using the I2C drivers not possible, as nothing is instantiated.
-> 
-> So to me it looks like i have two options.
-> 
-> 1.  Reorder the init calls.   I'd prefer not doing this for fear of  breaking something else.
-> 
-> 2.  The I2C bus on my board is just using GPIO pins.     I could bit bang these pins before the i2c drivers are loaded, in the arch initcalls.   Are there any functions in the kernel to do this easily?  Like optimally some libary function in the kernel to do something like:
-> 
-> i2c_gpio_read(int sda_pin, int scl_pin, int i2c_address, int len, void *data)
-> 
-> This library function may need to  have to have a spinlock or mutex to avoid conflicts on these pins.
+> > > @@ -104,7 +104,7 @@ static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+> > >  	if (error & M_SMB_ERROR) {
+> > >  		/* Clear error bit by writing a 1 */
+> > >  		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
+> > > -		return -1;      /* XXXKW better error code? */
+> > > +		return -ENXIO;
+> > >  	}
+> > >  
+> > >  	if (data_bytes == 1)
+> > 
+> > Definitely an improvement. However, returning -ENXIO on all errors
+> > seems wrong. This error value should only be returned on missing ack
+> > from the slave on address byte. Isn't it possible to distinguish
+> > between different error kinds? M_SMB_ERROR_TYPE seems promising, but
+> > one would need to look up the datasheet (which I don't have) to
+> > discover its meaning.
+> > 
+> Makes sense. I'll dig up a copy of the datasheet and see if I can improve it.
 
-I don't think anything like this exists, and I sincerely hope it will
-never exist. It would inevitably duplicate code that already exists,
-and add confusion all around, and bugs.
+ The M_SMB_ERROR_TYPE bit is cleared if an expected ackonwledgement has 
+not been seen and set if the transfer has failed after 15 retries.  So 
+that's probably ENXIO for the former and EIO for the latter.
 
-> Is there  a better solution?
-
-If parts of i2c need to be initialized earlier, then let's just do
-this. That being said, i2c core initialization happens at
-postcore_initcall() level since kernel 2.6.28, and many i2c bus drivers
-for embedded platforms use subsys_initcall(). i2c-gpio has just need
-changed to do exactly this:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=b8680784875b26a2876df5959673a496d56af673
-Isn't it enough to solve your problem?
-
--- 
-Jean Delvare
+  Maciej
