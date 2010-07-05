@@ -1,167 +1,533 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH/RFC v2 3/4] hwmon: pmbus driver documentation
-Date: Sun, 4 Jul 2010 21:10:17 -0700
-Message-ID: <1278303018-22069-4-git-send-email-guenter.roeck@ericsson.com>
-References: <1278303018-22069-1-git-send-email-guenter.roeck@ericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Roy Zang <tie-fei.zang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] rtc: add support for DS3232 RTC
+Date: Mon,  5 Jul 2010 14:45:26 +0800
+Message-ID: <1278312326-19022-1-git-send-email-tie-fei.zang@freescale.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1278303018-22069-1-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Mingkai.hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org, srikanth.srinivasan-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
----
- Documentation/hwmon/pmbus |  139 +++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 139 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/hwmon/pmbus
+This patch adds the driver for RTC chip DS3232 via I2C bus
 
-diff --git a/Documentation/hwmon/pmbus b/Documentation/hwmon/pmbus
+Signed-off-by: Mingkai Hu <Mingkai.hu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Jingchang Lu <b22599-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Srikanth Srinivasan <srikanth.srinivasan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Roy Zang <tie-fei.zang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+Tested on MPC8536DS and P4080DS board
+
+ drivers/rtc/Kconfig      |   11 +
+ drivers/rtc/Makefile     |    1 +
+ drivers/rtc/rtc-ds3232.c |  466 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 478 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/rtc/rtc-ds3232.c
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6a13037..13c2fdb 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -166,6 +166,17 @@ config RTC_DRV_DS1672
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-ds1672.
+ 
++config RTC_DRV_DS3232
++	tristate "Dallas/Maxim DS3232"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for Dallas Semiconductor
++	  DS3232 real-time clock chips.  If an interrupt is associated
++	  with the device, the alarm functionality is supported.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called rtc-ds3232.
++
+ config RTC_DRV_MAX6900
+ 	tristate "Maxim MAX6900"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 44ef194..0af190c 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -39,6 +39,7 @@ obj-$(CONFIG_RTC_DRV_DS1511)	+= rtc-ds1511.o
+ obj-$(CONFIG_RTC_DRV_DS1553)	+= rtc-ds1553.o
+ obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
+ obj-$(CONFIG_RTC_DRV_DS1742)	+= rtc-ds1742.o
++obj-$(CONFIG_RTC_DRV_DS3232)	+= rtc-ds3232.o
+ obj-$(CONFIG_RTC_DRV_DS3234)	+= rtc-ds3234.o
+ obj-$(CONFIG_RTC_DRV_EFI)	+= rtc-efi.o
+ obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
 new file mode 100644
-index 0000000..f5c256b
+index 0000000..21e1599
 --- /dev/null
-+++ b/Documentation/hwmon/pmbus
-@@ -0,0 +1,139 @@
-+Kernel driver pmbus
-+====================
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -0,0 +1,466 @@
++/*
++ * RTC client/driver for the Maxim/Dallas DS3232 Real-Time Clock over I2C
++ *
++ * Copyright (C) 2009-2010 Freescale Semiconductor.
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++/*
++ * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
++ * recommened in .../Documentation/i2c/writing-clients section
++ * "Sending and receiving", using SMBus level communication is preferred.
++ */
 +
-+Supported chips:
-+  * Ericsson BMR45X series
-+    DC/DC Converter
-+    Prefix: 'bmr45x'
-+    Addresses scanned: -
-+    Datasheet:
-+ http://archive.ericsson.net/service/internet/picov/get?DocNo=28701-EN/LZT146395
-+  * Linear Technology LTC2978
-+    Octal PMBus Power Supply Monitor and Controller
-+    Prefix: 'ltc2978'
-+    Addresses scanned: -
-+    Datasheet: http://cds.linear.com/docs/Datasheet/2978fa.pdf
-+  * Maxim MAX16064
-+    Quad Power-Supply Controller
-+    Prefix: 'max16064'
-+    Addresses scanned: -
-+    Datasheet: http://datasheets.maxim-ic.com/en/ds/MAX16064.pdf
-+  * Maxim MAX8688
-+    Digital Power-Supply Controller/Monitor
-+    Prefix: 'max8688'
-+    Addresses scanned: -
-+    Datasheet: http://datasheets.maxim-ic.com/en/ds/MAX8688.pdf
-+  * Texas Instruments UCD92xx
-+    Digital PWM System Controller
-+    Prefix: 'ucd921x', 'ucd9220', 'ucd9240'
-+    Addresses scanned: -
-+    Datasheet: http://focus.ti.com/lit/ds/symlink/ucd9240.pdf
-+  * Generic PMBus devices
-+    Prefix: 'pmbus'
-+    Addresses scanned: -
-+    Datasheet: n.a.
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/rtc.h>
++#include <linux/bcd.h>
++#include <linux/workqueue.h>
++#include <linux/slab.h>
 +
-+Author: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++#define DS3232_REG_SECONDS	0x00
++#define DS3232_REG_MINUTES	0x01
++#define DS3232_REG_HOURS	0x02
++#define DS3232_REG_AMPM		0x02
++#define DS3232_REG_DAY		0x03
++#define DS3232_REG_DATE		0x04
++#define DS3232_REG_MONTH	0x05
++#define DS3232_REG_CENTURY	0x05
++#define DS3232_REG_YEAR		0x06
++#define DS3232_REG_ALARM1         0x07	/* Alarm 1 BASE */
++#define DS3232_REG_ALARM2         0x0B	/* Alarm 2 BASE */
++#define DS3232_REG_CR		0x0E	/* Control register */
++#	define DS3232_REG_CR_nEOSC        0x80
++#       define DS3232_REG_CR_INTCN        0x04
++#       define DS3232_REG_CR_A2IE        0x02
++#       define DS3232_REG_CR_A1IE        0x01
 +
++#define DS3232_REG_SR	0x0F	/* control/status register */
++#	define DS3232_REG_SR_OSF   0x80
++#       define DS3232_REG_SR_BSY   0x04
++#       define DS3232_REG_SR_A2F   0x02
++#       define DS3232_REG_SR_A1F   0x01
 +
-+Description
-+-----------
++struct ds3232 {
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++	struct work_struct work;
 +
-+This driver supports hardware montoring for various PMBus compliant devices.
-+It supports voltage, current, power, and temperature sensors as supported
-+by the device.
++	/* The mutex protects alarm operations, and prevents a race
++	 * between the enable_irq() in the workqueue and the free_irq()
++	 * in the remove function.
++	 */
++	struct mutex mutex;
++	int exiting;
++};
 +
-+Each monitored channel has its own high and low limits, plus a critical
-+limit.
++static struct i2c_driver ds3232_driver;
 +
++static int ds3232_check_rtc_status(struct i2c_client *client)
++{
++	int ret = 0;
++	int control, stat;
 +
-+Usage Notes
-+-----------
++	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
++	if (stat < 0)
++		return stat;
 +
-+This driver does not probe for PMBus devices, since there is no register
-+which can be safely used to identify the chip (The MFG_ID register is not
-+supported by all chips), and since there is no well defined address range for
-+PMBus devices. You will have to instantiate the devices explicitly.
++	if (stat & DS3232_REG_SR_OSF)
++		dev_warn(&client->dev,
++				"oscillator discontinuity flagged, "
++				"time unreliable\n");
 +
-+Example: the following will load the driver for an LTC2978 at address 0x60
-+on I2C bus #1:
-+$ modprobe pmbus
-+$ echo ltc2978 0x60 > /sys/bus/i2c/devices/i2c-1/new_device
++	stat &= ~(DS3232_REG_SR_OSF | DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
 +
++	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
++	if (ret < 0)
++		return ret;
 +
-+Sysfs entries
-+-------------
++	/* If the alarm is pending, clear it before requesting
++	 * the interrupt, so an interrupt event isn't reported
++	 * before everything is initialized.
++	 */
 +
-+When probing the chip, the driver identifies which PMBus registers are
-+supported, and determines available sensors from this information.
-+Attribute files only exist if respective sensors are suported by the chip.
-+Labels are provided to inform the user about the sensor associated with
-+a given sysfs entry.
++	control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++	if (control < 0)
++		return control;
 +
-+The following attributes are supported. Limits are read-write; all other
-+attributes are read-only.
++	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
++	control |= DS3232_REG_CR_INTCN;
 +
-+inX_input		Measured voltage. From READ_VIN or READ_VOUT register.
-+inX_min			Minumum Voltage.
-+			From VIN_UV_WARN_LIMIT or VOUT_UV_WARN_LIMIT register.
-+inX_max			Maximum voltage.
-+			From VIN_OV_WARN_LIMIT or VOUT_OV_WARN_LIMIT register.
-+inX_lcrit		Critical minumum Voltage.
-+			From VIN_UV_FAULT_LIMIT or VOUT_UV_FAULT_LIMIT register.
-+inX_crit		Critical maximum voltage.
-+			From VIN_OV_FAULT_LIMIT or VOUT_OV_FAULT_LIMIT register.
-+inX_min_alarm		Voltage low alarm. From VOLTAGE_UV_WARNING status.
-+inX_max_alarm		Voltage high alarm. From VOLTAGE_OV_WARNING status.
-+inX_lcrit_alarm		Voltage critical low alarm.
-+			From VOLTAGE_UV_FAULT status.
-+inX_crit_alarm		Voltage critical high alarm.
-+			From VOLTAGE_OV_FAULT status.
-+inX_label		"vin", "vcap", or "voutY"
++	return i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
++}
 +
-+currX_input		Measured current. From READ_IIN or READ_IOUT register.
-+currX_max		Maximum current.
-+			From IIN_OC_WARN_LIMIT or IOUT_OC_WARN_LIMIT register.
-+currX_lcrit		Critical minumum output current.
-+			From IOUT_UC_FAULT_LIMIT register.
-+currX_crit		Critical maximum current.
-+			From IIN_OC_FAULT_LIMIT or IOUT_OC_FAULT_LIMIT register.
-+currX_alarm		Current high alarm.
-+			From IIN_OC_WARNING or IOUT_OC_WARNING status.
-+currX_lcrit_alarm	Output current critical low alarm.
-+			From IOUT_UC_FAULT status.
-+currX_crit_alarm	Current critical high alarm.
-+			From IIN_OC_FAULT or IOUT_OC_FAULT status.
-+currX_label		"iin" or "vinY"
++static int ds3232_read_time(struct device *dev, struct rtc_time *time)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++	u8 buf[7];
++	unsigned int year, month, day, hour, minute, second;
++	unsigned int week, twelve_hr, am_pm;
++	unsigned int century, add_century = 0;
 +
-+powerX_input		Measured power. From READ_PIN or READ_POUT register.
-+powerX_cap		Output power cap. From POUT_MAX register.
-+powerX_max		Power limit. From PIN_OP_WARN_LIMIT or
-+			POUT_OP_WARN_LIMIT register.
-+powerX_crit		Critical output power limit.
-+			From POUT_OP_FAULT_LIMIT register.
-+powerX_alarm		Power high alarm.
-+			From PIN_OP_WARNING or POUT_OP_WARNING status.
-+powerX_crit_alarm	Output power critical high alarm.
-+			From POUT_OP_FAULT status.
-+powerX_label		"pin" or "poutY"
++	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_SECONDS, 7, buf);
 +
-+tempX_input		Measured tempererature.
-+			From READ_TEMPERATURE_X register.
-+tempX_min		Mimimum tempererature. From UT_WARN_LIMIT register.
-+tempX_max		Maximum tempererature. From OT_WARN_LIMIT register.
-+tempX_lcrit		Critical low tempererature.
-+			From UT_FAULT_LIMIT register.
-+tempX_crit		Critical high tempererature.
-+			From OT_FAULT_LIMIT register.
-+tempX_min_alarm		Chip temperature low alarm. Set by comparing
-+			READ_TEMPERATURE_X with UT_WARN_LIMIT if
-+			TEMP_UT_WARNING status is set.
-+tempX_max_alarm		Chip temperature high alarm. Set by comparing
-+			READ_TEMPERATURE_X with OT_WARN_LIMIT if
-+			TEMP_OT_WARNING status is set.
-+tempX_lcrit_alarm	Chip temperature critical low alarm. Set by comparing
-+			READ_TEMPERATURE_X with UT_FAULT_LIMIT if
-+			TEMP_UT_FAULT status is set.
-+tempX_crit_alarm	Chip temperature critical high alarm. Set by comparing
-+			READ_TEMPERATURE_X with OT_FAULT_LIMIT if
-+			TEMP_OT_FAULT status is set.
++	if (ret < 0)
++		return ret;
++	if (ret < 7)
++		return -EIO;
++
++	second = buf[0];
++	minute = buf[1];
++	hour = buf[2];
++	week = buf[3];
++	day = buf[4];
++	month = buf[5];
++	year = buf[6];
++
++	/* Extract additional information for AM/PM and century */
++
++	twelve_hr = hour & 0x40;
++	am_pm = hour & 0x20;
++	century = month & 0x80;
++
++	/* Write to rtc_time structure */
++
++	time->tm_sec = bcd2bin(second);
++	time->tm_min = bcd2bin(minute);
++	if (twelve_hr) {
++		/* Convert to 24 hr */
++		if (am_pm)
++			time->tm_hour = bcd2bin(hour & 0x1F) + 12;
++		else
++			time->tm_hour = bcd2bin(hour & 0x1F);
++	} else {
++		time->tm_hour = bcd2bin(hour);
++	}
++
++	time->tm_wday = bcd2bin(week);
++	time->tm_mday = bcd2bin(day);
++	time->tm_mon = bcd2bin(month & 0x7F);
++	if (century)
++		add_century = 100;
++
++	time->tm_year = bcd2bin(year) + add_century;
++
++	return 0;
++}
++
++static int ds3232_set_time(struct device *dev, struct rtc_time *time)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	u8 buf[7];
++
++	/* Extract time from rtc_time and load into ds3232*/
++
++	buf[0] = bin2bcd(time->tm_sec);
++	buf[1] = bin2bcd(time->tm_min);
++	buf[2] = bin2bcd(time->tm_hour);
++	buf[3] = bin2bcd(time->tm_wday); /* Day of the week */
++	buf[4] = bin2bcd(time->tm_mday); /* Date */
++	buf[5] = bin2bcd(time->tm_mon);
++	if (time->tm_year >= 100) {
++		buf[5] |= 0x80;
++		buf[6] = bin2bcd(time->tm_year - 100);
++	} else {
++		buf[6] = bin2bcd(time->tm_year);
++	}
++
++	return i2c_smbus_write_i2c_block_data(client,
++					      DS3232_REG_SECONDS, 7, buf);
++}
++
++/*
++ * DS3232 has two alarm, we only use alarm1
++ * According to linux specification, only support one-shot alarm
++ * no periodic alarm mode
++ */
++static int ds3232_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ds3232 *ds3232 = i2c_get_clientdata(client);
++	int control, stat;
++	int ret = 0;
++	u8 buf[4];
++
++	mutex_lock(&ds3232->mutex);
++	stat = ret = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
++	if (stat < 0)
++		goto out;
++
++	control = ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++	if (control < 0)
++		goto out;
++
++	ret = i2c_smbus_read_i2c_block_data(client, DS3232_REG_ALARM1, 4, buf);
++	if (ret < 0)
++		goto out;
++
++	alarm->time.tm_sec = bcd2bin(buf[0] & 0x7F);
++	alarm->time.tm_min = bcd2bin(buf[1] & 0x7F);
++	alarm->time.tm_hour = bcd2bin(buf[2] & 0x7F);
++	alarm->time.tm_mday = bcd2bin(buf[3] & 0x7F);
++
++	alarm->time.tm_mon = -1;
++	alarm->time.tm_year = -1;
++	alarm->time.tm_wday = -1;
++	alarm->time.tm_yday = -1;
++	alarm->time.tm_isdst = -1;
++
++	alarm->enabled = !!(control & DS3232_REG_CR_A1IE);
++	alarm->pending = !!(stat & DS3232_REG_SR_A1F);
++out:
++	mutex_unlock(&ds3232->mutex);
++
++	return ret;
++}
++
++/*
++ * linux rtc-module does not support wday alarm
++ * and only 24h time mode supported indeed
++ */
++static int ds3232_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ds3232 *ds3232 = i2c_get_clientdata(client);
++	int control, stat;
++	int ret = 0;
++	u8 buf[4];
++
++	if (client->irq <= 0)
++		return -EINVAL;
++
++	mutex_lock(&ds3232->mutex);
++
++	buf[0] = bin2bcd(alarm->time.tm_sec);
++	buf[1] = bin2bcd(alarm->time.tm_min);
++	buf[2] = bin2bcd(alarm->time.tm_hour);
++	buf[3] = bin2bcd(alarm->time.tm_mday);
++
++	/* clear alarm interrupt enable bit */
++	ret = control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++	if (ret < 0)
++		goto out;
++	control &= ~(DS3232_REG_CR_A1IE | DS3232_REG_CR_A2IE);
++	ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
++	if (ret < 0)
++		goto out;
++
++	/* clear any pending alarm flag */
++	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
++	if (stat < 0)
++		return stat;
++
++	stat &= ~(DS3232_REG_SR_A1F | DS3232_REG_SR_A2F);
++
++	ret = i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_smbus_write_i2c_block_data(client,
++						DS3232_REG_ALARM1, 4, buf);
++
++	if (alarm->enabled) {
++		control |= DS3232_REG_CR_A1IE;
++		ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
++	}
++out:
++	mutex_unlock(&ds3232->mutex);
++	return ret;
++}
++
++static irqreturn_t ds3232_irq(int irq, void *dev_id)
++{
++	struct i2c_client *client = dev_id;
++	struct ds3232 *ds3232 = i2c_get_clientdata(client);
++
++	disable_irq_nosync(irq);
++	schedule_work(&ds3232->work);
++	return IRQ_HANDLED;
++}
++
++static void ds3232_work(struct work_struct *work)
++{
++	struct ds3232 *ds3232 = container_of(work, struct ds3232, work);
++	struct i2c_client *client = ds3232->client;
++	int stat, control;
++
++	mutex_lock(&ds3232->mutex);
++
++	stat = i2c_smbus_read_byte_data(client, DS3232_REG_SR);
++	if (stat < 0)
++		goto unlock;
++
++	if (stat & DS3232_REG_SR_A1F) {
++		control = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++		if (control < 0)
++			goto out;
++		/* disable alarm1 interrupt */
++		control &= ~(DS3232_REG_CR_A1IE);
++		i2c_smbus_write_byte_data(client, DS3232_REG_CR, control);
++
++		/* clear the alarm pend flag */
++		stat &= ~DS3232_REG_SR_A1F;
++		i2c_smbus_write_byte_data(client, DS3232_REG_SR, stat);
++
++		rtc_update_irq(ds3232->rtc, 1, RTC_AF | RTC_IRQF);
++	}
++
++out:
++	if (!ds3232->exiting)
++		enable_irq(client->irq);
++unlock:
++	mutex_unlock(&ds3232->mutex);
++}
++
++static int ds3232_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct ds3232 *ds3232 = i2c_get_clientdata(client);
++	int ret = -ENOIOCTLCMD;
++
++	mutex_lock(&ds3232->mutex);
++	switch (cmd) {
++	case RTC_AIE_OFF:
++		ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++		if (ret < 0)
++			goto out;
++
++		ret &= ~DS3232_REG_CR_A1IE;
++
++		ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, ret);
++		if (ret < 0)
++			goto out;
++
++		break;
++
++	case RTC_AIE_ON:
++		ret = i2c_smbus_read_byte_data(client, DS3232_REG_CR);
++		if (ret < 0)
++			goto out;
++
++		ret |= DS3232_REG_CR_A1IE;
++
++		ret = i2c_smbus_write_byte_data(client, DS3232_REG_CR, ret);
++		if (ret < 0)
++			goto out;
++
++		break;
++	}
++out:
++	mutex_unlock(&ds3232->mutex);
++
++	return ret;
++}
++
++static const struct rtc_class_ops ds3232_rtc_ops = {
++	.read_time = ds3232_read_time,
++	.set_time = ds3232_set_time,
++	.read_alarm = ds3232_read_alarm,
++	.set_alarm = ds3232_set_alarm,
++	.ioctl = ds3232_ioctl,
++};
++
++static int ds3232_probe(struct i2c_client *client,
++		const struct i2c_device_id *id)
++{
++	struct ds3232 *ds3232;
++	int ret;
++
++	ds3232 = kzalloc(sizeof(struct ds3232), GFP_KERNEL);
++	if (!ds3232)
++		return -ENOMEM;
++
++	ds3232->client = client;
++	i2c_set_clientdata(client, ds3232);
++
++	INIT_WORK(&ds3232->work, ds3232_work);
++	mutex_init(&ds3232->mutex);
++
++	ret = ds3232_check_rtc_status(client);
++	if (ret)
++		goto out_free;
++
++	if (client->irq >= 0) {
++		ret = request_irq(client->irq, ds3232_irq, 0,
++				 "ds3232", client);
++		if (ret)
++			goto out_free;
++	}
++
++	ds3232->rtc = rtc_device_register(client->name, &client->dev,
++					  &ds3232_rtc_ops, THIS_MODULE);
++	if (IS_ERR(ds3232->rtc)) {
++		ret = PTR_ERR(ds3232->rtc);
++		dev_err(&client->dev, "unable to register the class device\n");
++		goto out_irq;
++	}
++
++	return 0;
++
++out_irq:
++	if (client->irq >= 0)
++		free_irq(client->irq, client);
++
++out_free:
++	i2c_set_clientdata(client, NULL);
++	kfree(ds3232);
++	return ret;
++}
++
++static int __devexit ds3232_remove(struct i2c_client *client)
++{
++	struct ds3232 *ds3232 = i2c_get_clientdata(client);
++
++	if (client->irq >= 0) {
++		mutex_lock(&ds3232->mutex);
++		ds3232->exiting = 1;
++		mutex_unlock(&ds3232->mutex);
++
++		free_irq(client->irq, client);
++		flush_scheduled_work();
++	}
++
++	rtc_device_unregister(ds3232->rtc);
++	i2c_set_clientdata(client, NULL);
++	kfree(ds3232);
++	return 0;
++}
++
++static const struct i2c_device_id ds3232_id[] = {
++	{ "ds3232", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, ds3232_id);
++
++static struct i2c_driver ds3232_driver = {
++	.driver = {
++		.name = "rtc-ds3232",
++		.owner = THIS_MODULE,
++	},
++	.probe = ds3232_probe,
++	.remove = __devexit_p(ds3232_remove),
++	.id_table = ds3232_id,
++};
++
++static int __init ds3232_init(void)
++{
++	return i2c_add_driver(&ds3232_driver);
++}
++
++static void __exit ds3232_exit(void)
++{
++	i2c_del_driver(&ds3232_driver);
++}
++
++module_init(ds3232_init);
++module_exit(ds3232_exit);
++
++MODULE_AUTHOR("Srikanth Srinivasan <srikanth.srinivasan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>");
++MODULE_DESCRIPTION("Maxim/Dallas DS3232 RTC Driver");
++MODULE_LICENSE("GPL");
 -- 
-1.7.0.87.g0901d
+1.5.6.5
