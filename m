@@ -1,787 +1,750 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] gpio: sx150x: Add Semtech I2C sx150x gpio expander
- driver.
-Date: Wed, 7 Jul 2010 13:32:08 +0200
-Message-ID: <20100707133208.17549366@hyperion.delvare>
-References: <1278455872-30840-1-git-send-email-gbean@codeaurora.org>
-	<4C343994.30902@codeaurora.org>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] hwmon: Add support for JEDEC JC 42.4 compliant temperature sensors
+Date: Thu, 8 Jul 2010 07:11:34 -0700
+Message-ID: <1278598294-6974-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C343994.30902-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Trilok, Gregory,
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/hwmon/jc42 |   86 +++++++
+ MAINTAINERS              |    7 +
+ drivers/hwmon/Kconfig    |   11 +
+ drivers/hwmon/Makefile   |    1 +
+ drivers/hwmon/jc42.c     |  575 ++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 680 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/hwmon/jc42
+ create mode 100644 drivers/hwmon/jc42.c
 
-On Wed, 07 Jul 2010 13:53:48 +0530, Trilok Soni wrote:
-> On 7/7/2010 4:07 AM, Gregory Bean wrote:
-> > Add support for Semtech SX150-series I2C GPIO expanders.
-> > Compatible models include:
-> > 
-> > 8 bits:  sx1508q
-> > 16 bits: sx1509q
-> > 
-> > Signed-off-by: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> 
-> Added linux-i2c and Jean Delvare for i2c bits, so not deleting any lines from the code.
-> 
-
-See my random comments inline below.
-
-> > diff --git a/drivers/gpio/sx150x.c b/drivers/gpio/sx150x.c
-> > new file mode 100644
-> > index 0000000..0594150
-> > --- /dev/null
-> > +++ b/drivers/gpio/sx150x.c
-> > @@ -0,0 +1,720 @@
-> > +/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
-> > + *
-> > + * This program is free software; you can redistribute it and/or modify
-> > + * it under the terms of the GNU General Public License version 2 and
-> > + * only version 2 as published by the Free Software Foundation.
-> > + *
-> > + * This program is distributed in the hope that it will be useful,
-> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > + * GNU General Public License for more details.
-> > + *
-> > + * You should have received a copy of the GNU General Public License
-> > + * along with this program; if not, write to the Free Software
-> > + * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-> > + * 02110-1301, USA.
-> > + */
-> > +#include <linux/gpio.h>
-> > +#include <linux/i2c.h>
-> > +#include <linux/init.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/irq.h>
-> > +#include <linux/module.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/workqueue.h>
-> > +#include <linux/i2c/sx150x.h>
-> > +
-> > +struct sx150x_device_data {
-> > +	u8 reg_pullup;
-> > +	u8 reg_pulldn;
-> > +	u8 reg_drain;
-> > +	u8 reg_polarity;
-> > +	u8 reg_dir;
-> > +	u8 reg_data;
-> > +	u8 reg_irq_mask;
-> > +	u8 reg_irq_src;
-> > +	u8 reg_sense;
-> > +	u8 reg_clock;
-> > +	u8 reg_misc;
-> > +	u8 reg_reset;
-> > +	u8 ngpios;
-> > +};
-> > +
-> > +/*
-> > + * irq_cmds:
-> > + *
-> > + * A bitmap containing all the commands issued by the interrupt system
-> > + * for processing by the work-queue once out of interrupt context.
-> > + * A nice, static bitmap avoids the risk of dynamic memory allocation
-> > + * and the bitmap is small enough that the wasted space of a worst-case
-> > + * allocation is minimal.
-> > + * Bits for each gpio are as follows:
-> > + *
-> > + * 0 - mask
-> > + * 1 - unmask
-> > + * 2 - sense rising edge
-> > + * 3 - sense falling edge
-> > + *
-> > + * Every group of four bits is for a unique gpio, so bits 0-3 are for IO
-> > + * pin 0, 4-7, for pin 1, &c.
-> > + */
-> > +enum {
-> > +	CMD_MASK    = 0,
-> > +	CMD_UNMASK  = 1,
-> > +	CMD_RISING  = 2,
-> > +	CMD_FALLING = 3,
-> > +	CMDS_PER_IO = 4,
-> > +};
-> > +
-> > +#define NCMDBITS (16 * CMDS_PER_IO)
-> > +
-> > +static inline unsigned cmd_bit(unsigned pin, unsigned cmd)
-> > +{
-> > +	return pin * CMDS_PER_IO + cmd;
-> > +}
-> > +
-> > +struct sx150x_chip {
-> > +	struct gpio_chip                 gpio_chip;
-> > +	struct i2c_client               *client;
-> > +	const struct sx150x_device_data *dev_cfg;
-> > +	struct mutex                     mutex;
-
-You must include <linux/mutex.h> then.
-
-> > +	int                              irq_summary;
-> > +	int                              irq_base;
-> > +	u32                              irq_sense;
-> > +	struct irq_chip                  irq_chip;
-> > +	struct work_struct               irq_mask_ws;
-> > +	struct work_struct               irq_unmask_ws;
-> > +	struct work_struct               irq_set_type_ws;
-> > +	DECLARE_BITMAP(irq_cmds, NCMDBITS);
-> > +};
-> > +
-> > +static const struct sx150x_device_data sx150x_devices[] = {
-> > +	[0] = { /* sx1508q */
-> > +		.reg_pullup   = 0x03,
-> > +		.reg_pulldn   = 0x04,
-> > +		.reg_drain    = 0x05,
-> > +		.reg_polarity = 0x06,
-> > +		.reg_dir      = 0x07,
-> > +		.reg_data     = 0x08,
-> > +		.reg_irq_mask = 0x09,
-> > +		.reg_irq_src  = 0x0c,
-> > +		.reg_sense    = 0x0b,
-> > +		.reg_clock    = 0x0f,
-> > +		.reg_misc     = 0x10,
-> > +		.reg_reset    = 0x7d,
-> > +		.ngpios       = 8
-> > +	},
-> > +	[1] = { /* sx1509q */
-> > +		.reg_pullup   = 0x07,
-> > +		.reg_pulldn   = 0x09,
-> > +		.reg_drain    = 0x0b,
-> > +		.reg_polarity = 0x0d,
-> > +		.reg_dir      = 0x0f,
-> > +		.reg_data     = 0x11,
-> > +		.reg_irq_mask = 0x13,
-> > +		.reg_irq_src  = 0x19,
-> > +		.reg_sense    = 0x17,
-> > +		.reg_clock    = 0x1e,
-> > +		.reg_misc     = 0x1f,
-> > +		.reg_reset    = 0x7d,
-> > +		.ngpios       = 16
-> > +	},
-> > +};
-> > +
-> > +static const struct i2c_device_id sx150x_id[] = {
-> > +	{"sx1508q", 0},
-> > +	{"sx1509q", 1},
-> > +	{}
-> > +};
-> > +MODULE_DEVICE_TABLE(i2c, sx150x_id);
-> > +
-> > +static s32 sx150x_i2c_write(struct i2c_client *client, u8 reg, u8 val)
-> > +{
-> > +	s32 err = i2c_smbus_write_byte_data(client, reg, val);
-> > +
-> > +	if (err < 0)
-> > +		dev_warn(&client->dev,
-> > +			"i2c write fail: can't write %02x to %02x: %d\n",
-> > +			val, reg, err);
-> > +	return err;
-> > +}
-> > +
-> > +static s32 sx150x_i2c_read(struct i2c_client *client, u8 reg, u8 *val)
-> > +{
-> > +	s32 err = i2c_smbus_read_byte_data(client, reg);
-> > +
-> > +	if (err >= 0)
-> > +		*val = err;
-> > +	else
-> > +		dev_warn(&client->dev,
-> > +			"i2c read fail: can't read from %02x: %d\n",
-> > +			reg, err);
-> > +	return err;
-> > +}
-> > +
-> > +static inline bool offset_is_oscio(struct sx150x_chip *chip, unsigned offset)
-> > +{
-> > +	return (chip->dev_cfg->ngpios == offset);
-> > +}
-> > +
-> > +/*
-> > + * These utility functions solve the common problem of locating and setting
-> > + * configuration bits.  Configuration bits are grouped into registers
-> > + * whose indexes increase downwards.  For example, with eight-bit registers,
-> > + * sixteen gpios would have their config bits grouped in the following order:
-> > + * REGISTER N-1 [ f e d c b a 9 8 ]
-> > + *          N   [ 7 6 5 4 3 2 1 0 ]
-> > + *
-> > + * For multi-bit configurations, the pattern gets wider:
-> > + * REGISTER N-3 [ f f e e d d c c ]
-> > + *          N-2 [ b b a a 9 9 8 8 ]
-> > + *          N-1 [ 7 7 6 6 5 5 4 4 ]
-> > + *          N   [ 3 3 2 2 1 1 0 0 ]
-> > + *
-> > + * Given the address of the starting register 'N', the index of the gpio
-> > + * whose configuration we seek to change, and the width in bits of that
-> > + * configuration, these functions allow us to locate the correct
-> > + * register and mask the correct bits.
-> > + */
-> > +static inline void sx150x_find_cfg(u8 offset, u8 width,
-> > +				u8 *reg, u8 *mask, u8 *shift)
-> > +{
-> > +	*reg   -= offset * width / 8;
-> > +	*mask   = (1 << width) - 1;
-> > +	*shift  = (offset * width) % 8;
-> > +	*mask <<= *shift;
-> > +}
-> > +
-> > +static s32 sx150x_write_cfg(struct sx150x_chip *chip,
-> > +			u8 offset, u8 width, u8 reg, u8 val)
-> > +{
-> > +	u8  mask;
-> > +	u8  data;
-> > +	u8  shift;
-> > +	s32 err;
-> > +
-> > +	sx150x_find_cfg(offset, width, &reg, &mask, &shift);
-> > +	err = sx150x_i2c_read(chip->client, reg, &data);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	data &= ~mask;
-> > +	data |= (val << shift) & mask;
-> > +	return sx150x_i2c_write(chip->client, reg, data);
-> > +}
-> > +
-> > +static int sx150x_get_io(struct sx150x_chip *chip, unsigned offset)
-> > +{
-> > +	u8  reg = chip->dev_cfg->reg_data;
-> > +	u8  mask;
-> > +	u8  data;
-> > +	u8  shift;
-> > +	s32 err;
-> > +
-> > +	sx150x_find_cfg(offset, 1, &reg, &mask, &shift);
-> > +	mutex_lock(&chip->mutex);
-> > +	err = sx150x_i2c_read(chip->client, reg, &data);
-> > +	mutex_unlock(&chip->mutex);
-> > +	if (err >= 0)
-> > +		err = (data & mask) != 0 ? 1 : 0;
-> > +
-> > +	return err;
-> > +}
-> > +
-> > +static void sx150x_set_oscio(struct sx150x_chip *chip, int val)
-> > +{
-> > +	mutex_lock(&chip->mutex);
-> > +	sx150x_i2c_write(chip->client,
-> > +			chip->dev_cfg->reg_clock,
-> > +			(val ? 0x1f : 0x10));
-> > +	mutex_unlock(&chip->mutex);
-> > +}
-> > +
-> > +static void sx150x_set_io(struct sx150x_chip *chip, unsigned offset, int val)
-> > +{
-> > +	mutex_lock(&chip->mutex);
-> > +	sx150x_write_cfg(chip,
-> > +			offset,
-> > +			1,
-> > +			chip->dev_cfg->reg_data,
-> > +			(val ? 1 : 0));
-> > +	mutex_unlock(&chip->mutex);
-> > +}
-> > +
-> > +static int sx150x_io_input(struct sx150x_chip *chip, unsigned offset)
-> > +{
-> > +	int err;
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	err = sx150x_write_cfg(chip,
-> > +			offset,
-> > +			1,
-> > +			chip->dev_cfg->reg_dir,
-> > +			1);
-> > +	mutex_unlock(&chip->mutex);
-> > +	return err;
-> > +}
-> > +
-> > +static int sx150x_io_output(struct sx150x_chip *chip, unsigned offset, int val)
-> > +{
-> > +	int err;
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	err = sx150x_write_cfg(chip,
-> > +			offset,
-> > +			1,
-> > +			chip->dev_cfg->reg_data,
-> > +			(val ? 1 : 0));
-> > +	if (err >= 0)
-> > +		err = sx150x_write_cfg(chip,
-> > +				offset,
-> > +				1,
-> > +				chip->dev_cfg->reg_dir,
-> > +				0);
-> > +	mutex_unlock(&chip->mutex);
-> > +	return err;
-> > +}
-> > +
-> > +static int sx150x_gpio_get(struct gpio_chip *gc, unsigned offset)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-> > +
-> > +	if (offset_is_oscio(chip, offset))
-> > +		return -ENOTSUPP;
-> > +	else
-> > +		return sx150x_get_io(chip, offset);
-> > +}
-> > +
-> > +static void sx150x_gpio_set(struct gpio_chip *gc, unsigned offset, int val)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-> > +
-> > +	if (offset_is_oscio(chip, offset))
-> > +		sx150x_set_oscio(chip, val);
-> > +	else
-> > +		sx150x_set_io(chip, offset, val);
-> > +}
-> > +
-> > +static int sx150x_gpio_direction_input(struct gpio_chip *gc, unsigned offset)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-> > +
-> > +	if (offset_is_oscio(chip, offset))
-> > +		return -ENOTSUPP;
-> > +	else
-> > +		return sx150x_io_input(chip, offset);
-> > +}
-> > +
-> > +static int sx150x_gpio_direction_output(struct gpio_chip *gc,
-> > +					unsigned offset,
-> > +					int val)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-> > +
-> > +	if (offset_is_oscio(chip, offset))
-> > +		return 0;
-> > +	else
-> > +		return sx150x_io_output(chip, offset, val);
-> > +}
-> > +
-> > +static int sx150x_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-> > +
-> > +	if (offset >= chip->dev_cfg->ngpios)
-> > +		return -EINVAL;
-> > +
-> > +	if (chip->irq_base < 0)
-> > +		return -ENOTSUPP;
-> > +
-> > +	return chip->irq_base + offset;
-> > +}
-> > +
-> > +static void sx150x_irq_mask(unsigned int irq)
-> > +{
-> > +	struct irq_chip *ic;
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	ic   = get_irq_chip(irq);
-> > +	chip = container_of(ic, struct sx150x_chip, irq_chip);
-> > +
-> > +	set_bit(cmd_bit(irq - chip->irq_base, CMD_MASK), chip->irq_cmds);
-> > +	schedule_work(&chip->irq_mask_ws);
-> > +}
-> > +
-> > +static void sx150x_irq_mask_wfn(struct work_struct *work)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +	unsigned n;
-> > +
-> > +	chip = container_of(work, struct sx150x_chip, irq_mask_ws);
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-> > +		if (test_and_clear_bit(cmd_bit(n, CMD_MASK),
-> > +					chip->irq_cmds)) {
-> > +			sx150x_write_cfg(chip, n, 1,
-> > +					chip->dev_cfg->reg_irq_mask, 1);
-> > +			sx150x_write_cfg(chip, n, 2,
-> > +					chip->dev_cfg->reg_sense,
-> > +					0);
-> > +		}
-> > +	}
-> > +	mutex_unlock(&chip->mutex);
-> > +}
-> 
-> Please explain why we are using workqueues for mask/unmasks hooks and irq thread context won't work?
-> 
-> > +
-> > +static void sx150x_irq_unmask(unsigned int irq)
-> > +{
-> > +	struct irq_chip *ic;
-> > +	struct sx150x_chip *chip;
-> > +
-> > +	ic   = get_irq_chip(irq);
-> > +	chip = container_of(ic, struct sx150x_chip, irq_chip);
-> > +
-> > +	set_bit(cmd_bit(irq - chip->irq_base, CMD_UNMASK), chip->irq_cmds);
-> > +	schedule_work(&chip->irq_unmask_ws);
-> > +}
-> > +
-> > +static void sx150x_irq_unmask_wfn(struct work_struct *work)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +	unsigned n;
-> > +
-> > +	chip = container_of(work, struct sx150x_chip, irq_unmask_ws);
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-> > +		if (test_and_clear_bit(cmd_bit(n, CMD_UNMASK),
-> > +					chip->irq_cmds)) {
-> > +			sx150x_write_cfg(chip, n, 1,
-> > +					chip->dev_cfg->reg_irq_mask, 0);
-> > +			sx150x_write_cfg(chip, n, 2,
-> > +					chip->dev_cfg->reg_sense,
-> > +					chip->irq_sense >> (n * 2));
-> > +		}
-> > +	}
-> > +	mutex_unlock(&chip->mutex);
-> > +}
-> > +
-> > +static int sx150x_irq_set_type(unsigned int irq, unsigned int flow_type)
-> > +{
-> > +	struct irq_chip *ic;
-> > +	struct sx150x_chip *chip;
-> > +	unsigned offset;
-> > +
-> > +	if (flow_type & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
-> > +		return -EINVAL;
-> > +
-> > +	ic     = get_irq_chip(irq);
-> > +	chip   = container_of(ic, struct sx150x_chip, irq_chip);
-> > +	offset = irq - chip->irq_base;
-> > +
-> > +	if (flow_type & IRQ_TYPE_EDGE_RISING)
-> > +		set_bit(cmd_bit(offset, CMD_RISING), chip->irq_cmds);
-> > +	if (flow_type & IRQ_TYPE_EDGE_FALLING)
-> > +		set_bit(cmd_bit(offset, CMD_FALLING), chip->irq_cmds);
-> > +	schedule_work(&chip->irq_set_type_ws);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static void sx150x_irq_set_type_wfn(struct work_struct *work)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +	unsigned n;
-> > +	unsigned val;
-> > +	int irq;
-> > +
-> > +	chip = container_of(work, struct sx150x_chip, irq_set_type_ws);
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-> > +		val = 0;
-> > +		if (test_and_clear_bit(cmd_bit(n, CMD_RISING),
-> > +					chip->irq_cmds))
-> > +			val |= 0x1;
-> > +		if (test_and_clear_bit(cmd_bit(n, CMD_FALLING),
-> > +					chip->irq_cmds))
-> > +			val |= 0x2;
-> > +
-> > +		chip->irq_sense &= ~(3UL << (n * 2));
-> > +		chip->irq_sense |= val << (n * 2);
-> > +
-> > +		irq = chip->irq_base + n;
-> > +		if (!(irq_to_desc(irq)->status & IRQ_MASKED))
-> > +			sx150x_write_cfg(chip, n, 2,
-> > +					chip->dev_cfg->reg_sense, val);
-> > +	}
-> > +	mutex_unlock(&chip->mutex);
-> > +}
-> > +
-> > +static irqreturn_t sx150x_irq_thread_fn(int irq, void *dev_id)
-> > +{
-> > +	struct sx150x_chip *chip = (struct sx150x_chip *)dev_id;
-> > +	int i;
-> > +	unsigned n;
-> > +	unsigned sub_irq;
-> > +	u8 val;
-> > +	unsigned nhandled = 0;
-> > +
-> > +	mutex_lock(&chip->mutex);
-> > +	for (i = (chip->dev_cfg->ngpios / 8) - 1; i >= 0; --i) {
-> > +		sx150x_i2c_read(chip->client,
-> > +				chip->dev_cfg->reg_irq_src - i,
-> > +				&val);
-> > +		sx150x_i2c_write(chip->client,
-> > +				chip->dev_cfg->reg_irq_src - i,
-> > +				val);
-
-val may be used uninitialized here, if sx150x_i2c_read() failed.
-
-> > +		for (n = 0; n < 8; ++n) {
-> > +			if (val & (1 << n)) {
-> > +				sub_irq = chip->irq_base + (i * 8) + n;
-> > +				handle_nested_irq(sub_irq);
-> > +				++nhandled;
-> > +			}
-> > +		}
-> > +	}
-> > +	mutex_unlock(&chip->mutex);
-> > +
-> > +	return (nhandled > 0 ? IRQ_HANDLED : IRQ_NONE);
-> > +}
-> > +
-> > +static void sx150x_init_chip(struct sx150x_chip *chip,
-> > +			struct i2c_client *client,
-> > +			kernel_ulong_t driver_data,
-> > +			struct sx150x_platform_data *pdata)
-> > +{
-> > +	mutex_init(&chip->mutex);
-> > +
-> > +	chip->client                     = client;
-> > +	chip->dev_cfg                    = &sx150x_devices[driver_data];
-> > +	chip->gpio_chip.label            = client->name;
-> > +	chip->gpio_chip.direction_input  = sx150x_gpio_direction_input;
-> > +	chip->gpio_chip.direction_output = sx150x_gpio_direction_output;
-> > +	chip->gpio_chip.get              = sx150x_gpio_get;
-> > +	chip->gpio_chip.set              = sx150x_gpio_set;
-> > +	chip->gpio_chip.to_irq           = sx150x_gpio_to_irq;
-> > +	chip->gpio_chip.base             = pdata->gpio_base;
-> > +	chip->gpio_chip.can_sleep        = 1;
-> > +	chip->gpio_chip.ngpio            = chip->dev_cfg->ngpios;
-> > +	if (pdata->oscio_is_gpo)
-> > +		++chip->gpio_chip.ngpio;
-> > +
-> > +	chip->irq_chip.name         = client->name;
-> > +	chip->irq_chip.mask         = sx150x_irq_mask;
-> > +	chip->irq_chip.unmask       = sx150x_irq_unmask;
-> > +	chip->irq_chip.set_type     = sx150x_irq_set_type;
-> 
-> Why we are not using bus_lock/unlock hooks?
-> 
-> > +	chip->irq_summary           = -1;
-> > +	chip->irq_base              = -1;
-> > +	chip->irq_sense             = 0;
-> > +
-> > +	bitmap_zero(chip->irq_cmds, NCMDBITS);
-> > +
-> > +	INIT_WORK(&chip->irq_mask_ws, sx150x_irq_mask_wfn);
-> > +	INIT_WORK(&chip->irq_unmask_ws, sx150x_irq_unmask_wfn);
-> > +	INIT_WORK(&chip->irq_set_type_ws, sx150x_irq_set_type_wfn);
-> > +}
-> > +
-> > +static int sx150x_init_io(struct sx150x_chip *chip, u8 base, u16 cfg)
-> > +{
-> > +	int err = 0;
-> > +	unsigned n;
-> > +
-> > +	for (n = 0; err >= 0 && n < (chip->dev_cfg->ngpios / 8); ++n)
-> > +		err = sx150x_i2c_write(chip->client, base - n, cfg >> (n * 8));
-> > +	return err;
-> > +}
-> > +
-> > +static int sx150x_init_hw(struct sx150x_chip *chip,
-> > +			struct sx150x_platform_data *pdata)
-> > +{
-> > +	int err = 0;
-> > +
-> > +	err = i2c_smbus_write_word_data(chip->client,
-> > +					chip->dev_cfg->reg_reset,
-> > +					0x3412);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	err = sx150x_i2c_write(chip->client,
-> > +			chip->dev_cfg->reg_misc,
-> > +			0x01);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	err = sx150x_init_io(chip, chip->dev_cfg->reg_pullup,
-> > +			pdata->io_pullup_ena);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	err = sx150x_init_io(chip, chip->dev_cfg->reg_pulldn,
-> > +			pdata->io_pulldn_ena);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	err = sx150x_init_io(chip, chip->dev_cfg->reg_drain,
-> > +			pdata->io_open_drain_ena);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	err = sx150x_init_io(chip, chip->dev_cfg->reg_polarity,
-> > +			pdata->io_polarity);
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	if (pdata->oscio_is_gpo)
-> > +		sx150x_set_oscio(chip, 0);
-> > +
-> > +	return err;
-> > +}
-> > +
-> > +static int sx150x_install_irq_chip(struct sx150x_chip *chip,
-> > +				int irq_summary,
-> > +				int irq_base)
-> > +{
-> > +	int err;
-> > +	unsigned n;
-> > +	unsigned irq;
-> > +
-> > +	chip->irq_summary = irq_summary;
-> > +	chip->irq_base    = irq_base;
-> > +
-> > +	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-> > +		irq = irq_base + n;
-> > +		set_irq_chip_and_handler(irq, &chip->irq_chip, handle_edge_irq);
-> > +		set_irq_nested_thread(irq, 1);
-> > +#ifdef CONFIG_ARM
-> > +		set_irq_flags(irq, IRQF_VALID);
-> > +#else
-> > +		set_irq_noprobe(irq);
-> > +#endif
-> > +	}
-> > +
-> > +	err = request_threaded_irq(irq_summary,
-> > +				NULL,
-> > +				sx150x_irq_thread_fn,
-> > +				IRQF_SHARED | IRQF_TRIGGER_FALLING,
-> > +				chip->irq_chip.name,
-> > +				chip);
-> > +	if (err < 0) {
-> > +		chip->irq_summary = -1;
-> > +		chip->irq_base    = -1;
-> > +	}
-> > +
-> > +	return err;
-> > +}
-> > +
-> > +static void sx150x_remove_irq_chip(struct sx150x_chip *chip)
-> > +{
-> > +	unsigned n;
-> > +	unsigned irq;
-> > +
-> > +	free_irq(chip->irq_summary, chip);
-> > +
-> > +	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-> > +		irq = gpio_to_irq(chip->gpio_chip.base + n);
-> > +		set_irq_handler(irq, NULL);
-> > +		set_irq_chip(irq, NULL);
-> > +	}
-> > +}
-> > +
-> > +static int __devinit sx150x_probe(struct i2c_client *client,
-> > +				const struct i2c_device_id *id)
-> > +{
-> > +	struct sx150x_platform_data *pdata;
-> > +	struct sx150x_chip *chip;
-> > +	int rc;
-> > +
-> > +	pdata = client->dev.platform_data;
-> > +	if (!pdata)
-> > +		return -EINVAL;
-> > +
-> > +	if (!i2c_check_functionality(client->adapter,
-> > +					I2C_FUNC_SMBUS_BYTE_DATA))
-
-Your driver is also making use of i2c_smbus_write_word_data(), so you
-should check for its availability.
-
-> > +		return -ENOSYS;
-> > +
-> > +	chip = kzalloc(sizeof(struct sx150x_chip), GFP_KERNEL);
-> > +	if (!chip)
-> > +		return -ENOMEM;
-> > +
-> > +	sx150x_init_chip(chip, client, id->driver_data, pdata);
-> > +	rc = sx150x_init_hw(chip, pdata);
-> > +	if (rc < 0)
-> > +		goto probe_fail;
-> > +
-> > +	rc = gpiochip_add(&chip->gpio_chip);
-> > +	if (rc < 0)
-> > +		goto probe_fail;
-> > +
-> > +	i2c_set_clientdata(client, chip);
-> > +
-> > +	if (pdata->irq_summary >= 0) {
-> > +		rc = sx150x_install_irq_chip(chip,
-> > +					pdata->irq_summary,
-> > +					pdata->irq_base);
-> > +		if (rc < 0)
-> > +			goto probe_fail;
-
-Aren't you supposed to call gpiochip_remove() here?
-
-> > +	}
-> > +
-> > +	return 0;
-> > +probe_fail:
-> > +	kfree(chip);
-> > +	return rc;
-> > +}
-> > +
-> > +static int __devexit sx150x_remove(struct i2c_client *client)
-> > +{
-> > +	struct sx150x_chip *chip;
-> > +	int rc;
-> > +
-> > +	chip = i2c_get_clientdata(client);
-> > +	rc = gpiochip_remove(&chip->gpio_chip);
-> > +	if (rc < 0)
-> > +		return rc;
-> > +
-> > +	if (chip->irq_summary >= 0)
-> > +		sx150x_remove_irq_chip(chip);
-> > +
-> > +	flush_work(&chip->irq_mask_ws);
-> > +	flush_work(&chip->irq_unmask_ws);
-> > +	flush_work(&chip->irq_set_type_ws);
-> > +	kfree(chip);
-> > +
-> > +	return rc;
-
-Note: rc can only be 0 here.
-
-> > +}
-> > +
-> > +static struct i2c_driver sx150x_driver = {
-> > +	.driver = {
-> > +		.name = "sx150x",
-> > +		.owner = THIS_MODULE
-> > +	},
-> > +	.probe    = sx150x_probe,
-> > +	.remove   = __devexit_p(sx150x_remove),
-> > +	.id_table = sx150x_id,
-> > +};
-> > +
-> > +static int __init sx150x_init(void)
-> > +{
-> > +	return i2c_add_driver(&sx150x_driver);
-> > +}
-> > +subsys_initcall(sx150x_init);
-> > +
-> > +static void __exit sx150x_exit(void)
-> > +{
-> > +	return i2c_del_driver(&sx150x_driver);
-> > +}
-> > +module_exit(sx150x_exit);
-> > +
-> > +MODULE_AUTHOR("Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>");
-> > +MODULE_DESCRIPTION("Driver for Semtech SX150X I2C GPIO Expanders");
-> > +MODULE_LICENSE("GPL v2");
-> > +MODULE_ALIAS("platform:sx150x");
-
-Looks wrong, as this isn't a platform driver but an i2c driver.
-
+diff --git a/Documentation/hwmon/jc42 b/Documentation/hwmon/jc42
+new file mode 100644
+index 0000000..f7c9701
+--- /dev/null
++++ b/Documentation/hwmon/jc42
+@@ -0,0 +1,86 @@
++Kernel driver jc42
++==================
++
++Supported chips:
++  * Analog Devices ADT7408
++    Prefix: 'adt7408'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheets:
++        http://www.analog.com/static/imported-files/data_sheets/ADT7408.pdf
++  * NXP Semiconductors SE97, SE97B
++    Prefix: 'se97'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheets:
++        http://www.nxp.com/documents/data_sheet/SE97.pdf
++        http://www.nxp.com/documents/data_sheet/SE97B.pdf
++  * NXP Semiconductors SE98
++    Prefix: 'se98'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheets:
++	http://www.nxp.com/documents/data_sheet/SE98.pdf
++  * Microchip MCP9805, MCP98242, MCP98243, MCP9843
++    Prefixes: 'mcp9805', 'mcp98242', 'mcp98243', 'mcp9843'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheets:
++        http://ww1.microchip.com/downloads/en/DeviceDoc/21977b.pdf
++        http://ww1.microchip.com/downloads/en/DeviceDoc/21996a.pdf
++        http://ww1.microchip.com/downloads/en/DeviceDoc/22153c.pdf
++  * ON Semiconductor CAT34TS02, CAT6095
++    Prefix: 'cat34ts02', 'cat6095'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheet:
++        http://www.onsemi.com/pub_link/Collateral/CAT34TS02-D.PDF
++        http://www.onsemi.com/pub/Collateral/CAT6095-D.PDF
++  * ST Microelectronics STTS424, STTS424E02
++    Prefix: 'stts424'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheets:
++        http://www.st.com/stonline/products/literature/ds/13447/stts424.pdf
++        http://www.st.com/stonline/products/literature/ds/13448/stts424e02.pdf
++  * JEDEC JC 42.4 compliant temperature sensor chips
++    Prefix: 'jc42'
++    Addresses scanned: I2C 0x18 - 0x1f
++    Datasheet: -
++
++Author:
++        Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++
++
++Description
++-----------
++
++This driver implements support for JEDEC JC 42.4 compliant temperature sensors.
++The driver auto-detects the chips listed above, but can be manually instantiated
++to support other JC 42.4 compliant chips.
++
++Example: the following will load the driver for a generic JC 42.4 compliant
++temperature sensor at address 0x18 on I2C bus #1:
++
++# modprobe jc42
++# echo jc42 0x18 > /sys/bus/i2c/devices/i2c-1/new_device
++
++A JC 42.4 compliant chip supports a single temperature sensor. Minimum, maximum,
++and critical temperature can be configured. There are alarms for high, low,
++and critical thresholds.
++
++There is also an hysteresis to control the thresholds for resetting alarms.
++Per JC 42.4 specification, the hysteresis threshold can be configured to 0, 1.5,
++3.0, and 6.0 degrees C. Configured hysteresis values will be rounded to those
++limits. The chip supports only a single register to configure the hysteresis,
++which applies to all limits. This register can be written by writing into
++temp1_crit_hyst. Other hysteresis attributes are read-only.
++
++Sysfs entries
++-------------
++
++temp1_input		Temperature (RO)
++temp1_min		Minimum temperature (RW)
++temp1_max		Maximum temperature (RW)
++temp1_crit		Critical high temperature (RW)
++
++temp1_crit_hyst		Critical hysteresis temperature (RW)
++temp1_max_hyst		Maximum hysteresis temperature (RO)
++
++temp1_min_alarm		Temperature low alarm
++temp1_max_alarm		Temperature high alarm
++temp1_crit_alarm	Temperature critical alarm
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a07a49d..c7e4841 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3182,6 +3182,13 @@ F:	Documentation/video4linux/*.ivtv
+ F:	drivers/media/video/ivtv/
+ F:	include/linux/ivtv*
+ 
++JC42.4 TEMPERATURE SENSOR DRIVER
++M:	Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
++L:	lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
++S:	Maintained
++F:	drivers/hwmon/jc42.c
++F:	Documentation/hwmon/jc42
++
+ JFS FILESYSTEM
+ M:	Dave Kleikamp <shaggy-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+ L:	jfs-discussion-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index e19cf8e..cf0d99b 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -446,6 +446,17 @@ config SENSORS_IT87
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called it87.
+ 
++config SENSORS_JC42
++	tristate "JEDEC JC42.4 compliant temperature sensors"
++	help
++	  If you say yes here you get support for Jedec JC42.4 compliant
++	  temperature sensors. Support will include, but not be limited to,
++	  ADT7408, SE97, SE98, MCP9805, MCP98242, MCP98243, MCP9843, CAT34TS02,
++	  CAT6095, and STTS424.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called jc42.
++
+ config SENSORS_LM63
+ 	tristate "National Semiconductor LM63 and LM64"
+ 	depends on I2C
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 2138ceb..6a93615 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -55,6 +55,7 @@ obj-$(CONFIG_SENSORS_I5K_AMB)	+= i5k_amb.o
+ obj-$(CONFIG_SENSORS_IBMAEM)	+= ibmaem.o
+ obj-$(CONFIG_SENSORS_IBMPEX)	+= ibmpex.o
+ obj-$(CONFIG_SENSORS_IT87)	+= it87.o
++obj-$(CONFIG_SENSORS_JC42)	+= jc42.o
+ obj-$(CONFIG_SENSORS_K8TEMP)	+= k8temp.o
+ obj-$(CONFIG_SENSORS_K10TEMP)	+= k10temp.o
+ obj-$(CONFIG_SENSORS_LIS3LV02D) += lis3lv02d.o hp_accel.o
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+new file mode 100644
+index 0000000..da146ff
+--- /dev/null
++++ b/drivers/hwmon/jc42.c
+@@ -0,0 +1,575 @@
++/*
++ * jc42.c - driver for Jedec JC42.4 compliant temperature sensors
++ *
++ * Copyright (c) 2010  Ericsson AB.
++ *
++ * Derived from lm77.c by Andras BALI <drewie-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>.
++ *
++ * JC42.4 compliant temperature sensors are typically used on memory modules.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/jiffies.h>
++#include <linux/i2c.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/err.h>
++#include <linux/mutex.h>
++
++/* Addresses to scan */
++static const unsigned short normal_i2c[] = {
++    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, I2C_CLIENT_END };
++
++/* JC42 registers. All registers are 16 bit. */
++#define JC42_REG_CAP		0x00
++#define JC42_REG_CONFIG		0x01
++#define JC42_REG_TEMP_UPPER	0x02
++#define JC42_REG_TEMP_LOWER	0x03
++#define JC42_REG_TEMP_CRITICAL	0x04
++#define JC42_REG_TEMP		0x05
++#define JC42_REG_MANID		0x06
++#define JC42_REG_DEVICEID	0x07
++
++/* Status bits in temperature register */
++#define JC42_ALARM_CRIT_BIT	15
++#define JC42_ALARM_MAX_BIT	14
++#define JC42_ALARM_MIN_BIT	13
++
++/* Configuration register defines */
++#define JC42_CFG_CRIT_ONLY	(1 << 2)
++#define JC42_CFG_SHUTDOWN	(1 << 8)
++#define JC42_CFG_HYST_SHIFT	9
++#define JC42_CFG_HYST_MASK	0x03
++
++/* Capabilities */
++#define JC42_CAP_RANGE		(1 << 2)
++
++/* Supported chips */
++#define SE97_MANID		0x1131
++#define SE97_DEVID		0xa200
++#define SE97_DEVID_MASK		0xfffc
++
++#define SE98_MANID		0x1131
++#define SE98_DEVID		0xa100
++#define SE98_DEVID_MASK		0xfffc
++
++#define STTS424_MANID		0x104a
++#define STTS424_DEVID		0x0101
++#define STTS424_DEVID_MASK	0xffff
++
++#define STTS424E_MANID		0x104a
++#define STTS424E_DEVID		0x0000
++#define STTS424E_DEVID_MASK	0xfffe
++
++#define CAT6095_MANID		0x1b09
++#define CAT6095_DEVID		0x0800	/* Also matches CAT34TS02 */
++#define CAT6095_DEVID_MASK	0xffe0
++
++#define MCP98242_MANID		0x0054
++#define MCP98242_DEVID		0x2000
++#define MCP98242_DEVID_MASK	0xfffc
++
++#define MCP98243_MANID		0x0054
++#define MCP98243_DEVID		0x2100
++#define MCP98243_DEVID_MASK	0xfffc
++
++#define MCP9843_MANID		0x0054
++#define MCP9843_DEVID		0x0000	/* Also matches mcp9805 */
++#define MCP9843_DEVID_MASK	0xfffe
++
++#define ADT7408_MANID		0x11d4
++#define ADT7408_DEVID		0x0801
++#define ADT7408_DEVID_MASK	0xffff
++
++static u16 jc42_hysteresis[] = { 0, 1500, 3000, 6000 };
++
++struct jc42_chips {
++	u16 manid;
++	u16 devid;
++	u16 devid_mask;
++};
++
++static struct jc42_chips jc42_chips[] = {
++	{ SE97_MANID, SE97_DEVID, SE97_DEVID_MASK },
++	{ SE98_MANID, SE98_DEVID, SE98_DEVID_MASK },
++	{ STTS424_MANID, STTS424_DEVID, STTS424_DEVID_MASK },
++	{ STTS424E_MANID, STTS424E_DEVID, STTS424E_DEVID_MASK },
++	{ CAT6095_MANID, CAT6095_DEVID, CAT6095_DEVID_MASK },
++	{ MCP98242_MANID, MCP98242_DEVID, MCP98242_DEVID_MASK },
++	{ MCP98243_MANID, MCP98243_DEVID, MCP98243_DEVID_MASK },
++	{ MCP9843_MANID, MCP9843_DEVID, MCP9843_DEVID_MASK },
++	{ ADT7408_MANID, ADT7408_DEVID, ADT7408_DEVID_MASK },
++};
++
++/* Each client has this additional data */
++struct jc42_data {
++	struct device	*hwmon_dev;
++	struct mutex	update_lock;
++	bool		extended;	/* true if extended range supported */
++	bool		valid;
++	unsigned long	last_updated;	/* In jiffies */
++	u16		orig_config;	/* original configuration */
++	u16		config;		/* configuration */
++	u16		temp_input;	/* Temperatures */
++	u16		temp_crit;
++	u16		temp_min;
++	u16		temp_max;
++};
++
++static int jc42_probe(struct i2c_client *client,
++		      const struct i2c_device_id *id);
++static int jc42_detect(struct i2c_client *client, struct i2c_board_info *info);
++static int jc42_remove(struct i2c_client *client);
++static int jc42_read_value(struct i2c_client *client, u8 reg);
++static int jc42_write_value(struct i2c_client *client, u8 reg, u16 value);
++
++static struct jc42_data *jc42_update_device(struct device *dev);
++
++static const struct i2c_device_id jc42_id[] = {
++	{ "adt7408", 0 },
++	{ "cat94ts02", 0 },
++	{ "cat6095", 0 },
++	{ "jc42", 0 },
++	{ "mcp9805", 0 },
++	{ "mcp98242", 0 },
++	{ "mcp98243", 0 },
++	{ "mcp9843", 0 },
++	{ "se97", 0 },
++	{ "se97b", 0 },
++	{ "se98", 0 },
++	{ "stts424", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, jc42_id);
++
++#ifdef CONFIG_PM
++
++static int jc42_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct jc42_data *data = i2c_get_clientdata(client);
++
++	data->config |= JC42_CFG_SHUTDOWN;
++	jc42_write_value(client, JC42_REG_CONFIG, data->config);
++	return 0;
++}
++
++static int jc42_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct jc42_data *data = i2c_get_clientdata(client);
++
++	data->config &= ~JC42_CFG_SHUTDOWN;
++	jc42_write_value(client, JC42_REG_CONFIG, data->config);
++	return 0;
++}
++
++static const struct dev_pm_ops jc42_dev_pm_ops = {
++	.suspend = jc42_suspend,
++	.resume = jc42_resume,
++};
++
++#define JC42_DEV_PM_OPS (&jc42_dev_pm_ops)
++#else
++#define JC42_DEV_PM_OPS NULL
++#endif /* CONFIG_PM */
++
++/* This is the driver that will be inserted */
++static struct i2c_driver jc42_driver = {
++	.class		= I2C_CLASS_HWMON,
++	.driver = {
++		.name	= "jc42",
++		.pm = JC42_DEV_PM_OPS,
++	},
++	.probe		= jc42_probe,
++	.remove		= jc42_remove,
++	.id_table	= jc42_id,
++	.detect		= jc42_detect,
++	.address_list	= normal_i2c,
++};
++
++#define JC42_TEMP_MIN_EXTENDED	(-40000)
++#define JC42_TEMP_MIN		0
++#define JC42_TEMP_MAX		125000
++
++static u16 jc42_temp_to_reg(int temp, bool extended)
++{
++	int ntemp = SENSORS_LIMIT(temp,
++				  extended ? JC42_TEMP_MIN_EXTENDED :
++				  JC42_TEMP_MIN, JC42_TEMP_MAX);
++
++	/* convert from 0.001 to 0.0625 resolution */
++	return (ntemp * 2 / 125) & 0x1fff;
++}
++
++static int jc42_temp_from_reg(s16 reg)
++{
++	reg &= 0x1fff;
++
++	/* sign extend register */
++	if (reg & 0x1000)
++		reg |= 0xf000;
++
++	/* convert from 0.0625 to 0.001 resolution */
++	return reg * 125 / 2;
++}
++
++/* sysfs stuff */
++
++/* read routines for temperature limits */
++#define show(value)	\
++static ssize_t show_##value(struct device *dev,				\
++			    struct device_attribute *attr,		\
++			    char *buf)					\
++{									\
++	struct jc42_data *data = jc42_update_device(dev);		\
++	if (IS_ERR(data))						\
++		return PTR_ERR(data);					\
++	return sprintf(buf, "%d\n", jc42_temp_from_reg(data->value));	\
++}
++
++show(temp_input);
++show(temp_crit);
++show(temp_min);
++show(temp_max);
++
++/* read routines for hysteresis values */
++static ssize_t show_temp_crit_hyst(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct jc42_data *data = jc42_update_device(dev);
++	int temp, hyst;
++
++	if (IS_ERR(data))
++		return PTR_ERR(data);
++
++	temp = jc42_temp_from_reg(data->temp_crit);
++	hyst = jc42_hysteresis[(data->config >> JC42_CFG_HYST_SHIFT)
++			       & JC42_CFG_HYST_MASK];
++	return sprintf(buf, "%d\n", temp - hyst);
++}
++
++static ssize_t show_temp_max_hyst(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	struct jc42_data *data = jc42_update_device(dev);
++	int temp, hyst;
++
++	if (IS_ERR(data))
++		return PTR_ERR(data);
++
++	temp = jc42_temp_from_reg(data->temp_max);
++	hyst = jc42_hysteresis[(data->config >> JC42_CFG_HYST_SHIFT)
++			       & JC42_CFG_HYST_MASK];
++	return sprintf(buf, "%d\n", temp - hyst);
++}
++
++/* write routines */
++#define set(value, reg)	\
++static ssize_t set_##value(struct device *dev,				\
++			   struct device_attribute *attr,		\
++			   const char *buf, size_t count)		\
++{									\
++	struct i2c_client *client = to_i2c_client(dev);			\
++	struct jc42_data *data = i2c_get_clientdata(client);		\
++	int err, ret = count;						\
++	long val;							\
++	if (strict_strtol(buf, 10, &val) < 0)				\
++		return -EINVAL;						\
++	mutex_lock(&data->update_lock);					\
++	data->value = jc42_temp_to_reg(val, data->extended);		\
++	err = jc42_write_value(client, reg, data->value);		\
++	if (err < 0)							\
++		ret = err;						\
++	mutex_unlock(&data->update_lock);				\
++	return ret;							\
++}
++
++set(temp_min, JC42_REG_TEMP_LOWER);
++set(temp_max, JC42_REG_TEMP_UPPER);
++set(temp_crit, JC42_REG_TEMP_CRITICAL);
++
++/* JC42.4 compliant chips only support four hysteresis values.
++ * Pick best choice and go from there. */
++static ssize_t set_temp_crit_hyst(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct jc42_data *data = i2c_get_clientdata(client);
++	long val;
++	int diff, hyst;
++	int err;
++	int ret = count;
++
++	if (strict_strtoul(buf, 10, &val) < 0)
++		return -EINVAL;
++
++	diff = jc42_temp_from_reg(data->temp_crit) - val;
++	hyst = 0;
++	if (diff > 0) {
++		if (diff < 2250)
++			hyst = 1;	/* 1.5 degrees C */
++		else if (diff < 4500)
++			hyst = 2;	/* 3.0 degrees C */
++		else
++			hyst = 3;	/* 6.0 degrees C */
++	}
++
++	mutex_lock(&data->update_lock);
++	data->config = (data->config
++			& ~(JC42_CFG_HYST_MASK << JC42_CFG_HYST_SHIFT))
++	  | (hyst << JC42_CFG_HYST_SHIFT);
++	err = jc42_write_value(client, JC42_REG_CONFIG, data->config);
++	if (err < 0)
++		ret = err;
++	mutex_unlock(&data->update_lock);
++	return ret;
++}
++
++static ssize_t show_alarm(struct device *dev,
++			  struct device_attribute *attr, char *buf)
++{
++	u16 bit = to_sensor_dev_attr(attr)->index;
++	struct jc42_data *data = jc42_update_device(dev);
++	u16 val;
++
++	if (IS_ERR(data))
++		return PTR_ERR(data);
++
++	val = data->temp_input;
++	if (bit != JC42_ALARM_CRIT_BIT && (data->config & JC42_CFG_CRIT_ONLY))
++		val = 0;
++	return sprintf(buf, "%u\n", (val >> bit) & 1);
++}
++
++static DEVICE_ATTR(temp1_input, S_IRUGO,
++		   show_temp_input, NULL);
++static DEVICE_ATTR(temp1_crit, S_IWUSR | S_IRUGO,
++		   show_temp_crit, set_temp_crit);
++static DEVICE_ATTR(temp1_min, S_IWUSR | S_IRUGO,
++		   show_temp_min, set_temp_min);
++static DEVICE_ATTR(temp1_max, S_IWUSR | S_IRUGO,
++		   show_temp_max, set_temp_max);
++
++static DEVICE_ATTR(temp1_crit_hyst, S_IWUSR | S_IRUGO,
++		   show_temp_crit_hyst, set_temp_crit_hyst);
++static DEVICE_ATTR(temp1_max_hyst, S_IRUGO,
++		   show_temp_max_hyst, NULL);
++
++static SENSOR_DEVICE_ATTR(temp1_crit_alarm, S_IRUGO, show_alarm, NULL,
++			  JC42_ALARM_CRIT_BIT);
++static SENSOR_DEVICE_ATTR(temp1_min_alarm, S_IRUGO, show_alarm, NULL,
++			  JC42_ALARM_MIN_BIT);
++static SENSOR_DEVICE_ATTR(temp1_max_alarm, S_IRUGO, show_alarm, NULL,
++			  JC42_ALARM_MAX_BIT);
++
++static struct attribute *jc42_attributes[] = {
++	&dev_attr_temp1_input.attr,
++	&dev_attr_temp1_crit.attr,
++	&dev_attr_temp1_min.attr,
++	&dev_attr_temp1_max.attr,
++	&dev_attr_temp1_crit_hyst.attr,
++	&dev_attr_temp1_max_hyst.attr,
++	&sensor_dev_attr_temp1_crit_alarm.dev_attr.attr,
++	&sensor_dev_attr_temp1_min_alarm.dev_attr.attr,
++	&sensor_dev_attr_temp1_max_alarm.dev_attr.attr,
++	NULL
++};
++
++static const struct attribute_group jc42_group = {
++	.attrs = jc42_attributes,
++};
++
++/* Return 0 if detection is successful, -ENODEV otherwise */
++static int jc42_detect(struct i2c_client *new_client,
++		       struct i2c_board_info *info)
++{
++	struct i2c_adapter *adapter = new_client->adapter;
++	int i, config, cap, manid, devid;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
++				     I2C_FUNC_SMBUS_WORD_DATA))
++		return -ENODEV;
++
++	cap = jc42_read_value(new_client, JC42_REG_CAP);
++	config = jc42_read_value(new_client, JC42_REG_CONFIG);
++	manid = jc42_read_value(new_client, JC42_REG_MANID);
++	devid = jc42_read_value(new_client, JC42_REG_DEVICEID);
++
++	if (cap < 0 || config < 0 || manid < 0 || devid < 0)
++		return -ENODEV;
++
++	if ((cap & 0xff00) || (config & 0xf800))
++		return -ENODEV;
++
++	for (i = 0; i < ARRAY_SIZE(jc42_chips); i++) {
++		if (manid == jc42_chips[i].manid
++		    && (devid & jc42_chips[i].devid_mask) ==
++					    jc42_chips[i].devid) {
++			strlcpy(info->type, "jc42", I2C_NAME_SIZE);
++			return 0;
++		}
++	}
++	return -ENODEV;
++}
++
++static int jc42_probe(struct i2c_client *new_client,
++		      const struct i2c_device_id *id)
++{
++	struct jc42_data *data;
++	int config, cap, err;
++
++	data = kzalloc(sizeof(struct jc42_data), GFP_KERNEL);
++	if (!data) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	i2c_set_clientdata(new_client, data);
++	data->valid = false;
++	mutex_init(&data->update_lock);
++
++	cap = jc42_read_value(new_client, JC42_REG_CAP);
++	if (cap < 0) {
++		err = -EINVAL;
++		goto exit_free;
++	}
++	data->extended = !!(cap & JC42_CAP_RANGE);
++
++	config = jc42_read_value(new_client, JC42_REG_CONFIG);
++	if (config < 0) {
++		err = -EINVAL;
++		goto exit_free;
++	}
++	data->orig_config = config;
++	if (config & JC42_CFG_SHUTDOWN) {
++		config &= ~JC42_CFG_SHUTDOWN;
++		jc42_write_value(new_client, JC42_REG_CONFIG, config);
++	}
++	data->config = config;
++
++	/* Register sysfs hooks */
++	err = sysfs_create_group(&new_client->dev.kobj, &jc42_group);
++	if (err)
++		goto exit_free;
++
++	data->hwmon_dev = hwmon_device_register(&new_client->dev);
++	if (IS_ERR(data->hwmon_dev)) {
++		err = PTR_ERR(data->hwmon_dev);
++		goto exit_remove;
++	}
++
++	return 0;
++
++exit_remove:
++	sysfs_remove_group(&new_client->dev.kobj, &jc42_group);
++exit_free:
++	kfree(data);
++exit:
++	return err;
++}
++
++static int jc42_remove(struct i2c_client *client)
++{
++	struct jc42_data *data = i2c_get_clientdata(client);
++	hwmon_device_unregister(data->hwmon_dev);
++	sysfs_remove_group(&client->dev.kobj, &jc42_group);
++	if (data->config != data->orig_config)
++		jc42_write_value(client, JC42_REG_CONFIG, data->orig_config);
++	kfree(data);
++	return 0;
++}
++
++/* All registers are word-sized. */
++static int jc42_read_value(struct i2c_client *client, u8 reg)
++{
++	int ret = i2c_smbus_read_word_data(client, reg);
++	if (ret < 0)
++		return ret;
++	return swab16(ret);
++}
++
++static int jc42_write_value(struct i2c_client *client, u8 reg, u16 value)
++{
++	return i2c_smbus_write_word_data(client, reg, swab16(value));
++}
++
++static struct jc42_data *jc42_update_device(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct jc42_data *data = i2c_get_clientdata(client);
++	struct jc42_data *ret = data;
++	int val;
++
++	mutex_lock(&data->update_lock);
++
++	if (time_after(jiffies, data->last_updated + HZ) || !data->valid) {
++		val = jc42_read_value(client, JC42_REG_TEMP);
++		if (val < 0) {
++			ret = ERR_PTR(val);
++			goto abort;
++		}
++		data->temp_input = val;
++
++		val = jc42_read_value(client, JC42_REG_TEMP_CRITICAL);
++		if (val < 0) {
++			ret = ERR_PTR(val);
++			goto abort;
++		}
++		data->temp_crit = val;
++
++		val = jc42_read_value(client, JC42_REG_TEMP_LOWER);
++		if (val < 0) {
++			ret = ERR_PTR(val);
++			goto abort;
++		}
++		data->temp_min = val;
++
++		val = jc42_read_value(client, JC42_REG_TEMP_UPPER);
++		if (val < 0) {
++			ret = ERR_PTR(val);
++			goto abort;
++		}
++		data->temp_max = val;
++
++		data->last_updated = jiffies;
++		data->valid = true;
++	}
++abort:
++	mutex_unlock(&data->update_lock);
++	return ret;
++}
++
++static int __init sensors_jc42_init(void)
++{
++	return i2c_add_driver(&jc42_driver);
++}
++
++static void __exit sensors_jc42_exit(void)
++{
++	i2c_del_driver(&jc42_driver);
++}
++
++MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
++MODULE_DESCRIPTION("JC42 driver");
++MODULE_LICENSE("GPL");
++
++module_init(sensors_jc42_init);
++module_exit(sensors_jc42_exit);
 -- 
-Jean Delvare
+1.7.0.87.g0901d
