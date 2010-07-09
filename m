@@ -1,799 +1,570 @@
-From: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: [PATCH v2] gpio: sx150x: Add Semtech I2C sx150x gpio expander driver.
-Date: Thu,  8 Jul 2010 12:37:14 -0700
-Message-ID: <1278617834-14970-1-git-send-email-gbean@codeaurora.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: [Patch v3] i2c: Multiplexed I2C bus core support
+Date: Fri, 09 Jul 2010 11:07:46 +0200
+Message-ID: <4C36E6E2.1070307@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for Semtech SX150-series I2C GPIO expanders.
-Compatible models include:
+Add multiplexed bus core support. I2C multiplexer and switches
+like pca954x get instantiated as new adapters per port.
 
-8 bits:  sx1508q
-16 bits: sx1509q
-
-Signed-off-by: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Signed-off-by: Michael Lawnick <demx1175@wbit01lx.(none)>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/gpio/Kconfig       |   11 +
- drivers/gpio/Makefile      |    1 +
- drivers/gpio/sx150x.c      |  646 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c/sx150x.h |   78 ++++++
- 4 files changed, 736 insertions(+), 0 deletions(-)
- create mode 100644 drivers/gpio/sx150x.c
- create mode 100644 include/linux/i2c/sx150x.h
+Based on kernel 2.6.35.rc2 +
+[PATCH] i2c: Move adapter locking helpers to i2c-core
+by Jean Delware <20100615140218.07090c90-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+<http://article.gmane.org/gmane.linux.drivers.i2c/6226/match=3Di2c+move=
++adapter+locking+helpers+i2c+core>
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 724038d..62d7758 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -195,6 +195,17 @@ config GPIO_PCF857X
- 	  This driver provides an in-kernel interface to those GPIOs using
- 	  platform-neutral GPIO calls.
- 
-+config GPIO_SX150X
-+	tristate "Semtech SX150x I2C GPIO expander"
-+	depends on I2C
-+	default n
+ drivers/i2c/Kconfig         |   11 +++
+ drivers/i2c/Makefile        |    1 +
+ drivers/i2c/i2c-core.c      |   80 +++++++++++++++++----
+ drivers/i2c/i2c-dev.c       |   44 +++++++++++-
+ drivers/i2c/i2c-mux.c       |  165
++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-mux.h     |   46 ++++++++++++
+ include/linux/i2c.h         |    8 ++
+ 7 files changed, 341 insertions(+), 14 deletions(-)
+ create mode 100755 drivers/i2c/i2c-mux.c
+ create mode 100755 include/linux/i2c-mux.h
+
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index d06083f..efb48ad
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -47,6 +47,17 @@ config I2C_CHARDEV
+ 	  This support is also available as a module.  If so, the module
+ 	  will be called i2c-dev.
+
++config I2C_MUX
++	tristate "I2C bus multiplexing support"
++	depends on EXPERIMENTAL
 +	help
-+	  Say yes here to provide support for Semtech SX150-series I2C
-+	  GPIO expanders. Compatible models include:
-+
-+	  8 bits:  sx1508q
-+	  16 bits: sx1509q
-+
- config GPIO_TC35892
- 	bool "TC35892 GPIOs"
- 	depends on MFD_TC35892
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 51c3cdd..ccb804d 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -31,3 +31,4 @@ obj-$(CONFIG_GPIO_WM8994)	+= wm8994-gpio.o
- obj-$(CONFIG_GPIO_SCH)		+= sch_gpio.o
- obj-$(CONFIG_GPIO_RDC321X)	+= rdc321x-gpio.o
- obj-$(CONFIG_GPIO_JANZ_TTL)	+= janz-ttl.o
-+obj-$(CONFIG_GPIO_SX150X)	+= sx150x.o
-diff --git a/drivers/gpio/sx150x.c b/drivers/gpio/sx150x.c
-new file mode 100644
-index 0000000..d21baea
---- /dev/null
-+++ b/drivers/gpio/sx150x.c
-@@ -0,0 +1,646 @@
-+/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+#include <linux/gpio.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/slab.h>
-+#include <linux/workqueue.h>
-+#include <linux/i2c/sx150x.h>
-+
-+struct sx150x_device_data {
-+	u8 reg_pullup;
-+	u8 reg_pulldn;
-+	u8 reg_drain;
-+	u8 reg_polarity;
-+	u8 reg_dir;
-+	u8 reg_data;
-+	u8 reg_irq_mask;
-+	u8 reg_irq_src;
-+	u8 reg_sense;
-+	u8 reg_clock;
-+	u8 reg_misc;
-+	u8 reg_reset;
-+	u8 ngpios;
-+};
-+
-+struct sx150x_chip {
-+	struct gpio_chip                 gpio_chip;
-+	struct i2c_client               *client;
-+	const struct sx150x_device_data *dev_cfg;
-+	struct mutex                     mutex;
-+	int                              irq_summary;
-+	int                              irq_base;
-+	u32                              irq_sense;
-+	struct irq_chip                  irq_chip;
-+	struct mutex                     irq_lock;
-+};
-+
-+static const struct sx150x_device_data sx150x_devices[] = {
-+	[0] = { /* sx1508q */
-+		.reg_pullup   = 0x03,
-+		.reg_pulldn   = 0x04,
-+		.reg_drain    = 0x05,
-+		.reg_polarity = 0x06,
-+		.reg_dir      = 0x07,
-+		.reg_data     = 0x08,
-+		.reg_irq_mask = 0x09,
-+		.reg_irq_src  = 0x0c,
-+		.reg_sense    = 0x0b,
-+		.reg_clock    = 0x0f,
-+		.reg_misc     = 0x10,
-+		.reg_reset    = 0x7d,
-+		.ngpios       = 8
-+	},
-+	[1] = { /* sx1509q */
-+		.reg_pullup   = 0x07,
-+		.reg_pulldn   = 0x09,
-+		.reg_drain    = 0x0b,
-+		.reg_polarity = 0x0d,
-+		.reg_dir      = 0x0f,
-+		.reg_data     = 0x11,
-+		.reg_irq_mask = 0x13,
-+		.reg_irq_src  = 0x19,
-+		.reg_sense    = 0x17,
-+		.reg_clock    = 0x1e,
-+		.reg_misc     = 0x1f,
-+		.reg_reset    = 0x7d,
-+		.ngpios       = 16
-+	},
-+};
-+
-+static const struct i2c_device_id sx150x_id[] = {
-+	{"sx1508q", 0},
-+	{"sx1509q", 1},
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, sx150x_id);
-+
-+static s32 sx150x_i2c_write(struct i2c_client *client, u8 reg, u8 val)
-+{
-+	s32 err = i2c_smbus_write_byte_data(client, reg, val);
-+
-+	if (err < 0)
-+		dev_warn(&client->dev,
-+			"i2c write fail: can't write %02x to %02x: %d\n",
-+			val, reg, err);
-+	return err;
-+}
-+
-+static s32 sx150x_i2c_read(struct i2c_client *client, u8 reg, u8 *val)
-+{
-+	s32 err = i2c_smbus_read_byte_data(client, reg);
-+
-+	if (err >= 0)
-+		*val = err;
-+	else
-+		dev_warn(&client->dev,
-+			"i2c read fail: can't read from %02x: %d\n",
-+			reg, err);
-+	return err;
-+}
-+
-+static inline bool offset_is_oscio(struct sx150x_chip *chip, unsigned offset)
-+{
-+	return (chip->dev_cfg->ngpios == offset);
-+}
-+
-+/*
-+ * These utility functions solve the common problem of locating and setting
-+ * configuration bits.  Configuration bits are grouped into registers
-+ * whose indexes increase downwards.  For example, with eight-bit registers,
-+ * sixteen gpios would have their config bits grouped in the following order:
-+ * REGISTER N-1 [ f e d c b a 9 8 ]
-+ *          N   [ 7 6 5 4 3 2 1 0 ]
-+ *
-+ * For multi-bit configurations, the pattern gets wider:
-+ * REGISTER N-3 [ f f e e d d c c ]
-+ *          N-2 [ b b a a 9 9 8 8 ]
-+ *          N-1 [ 7 7 6 6 5 5 4 4 ]
-+ *          N   [ 3 3 2 2 1 1 0 0 ]
-+ *
-+ * Given the address of the starting register 'N', the index of the gpio
-+ * whose configuration we seek to change, and the width in bits of that
-+ * configuration, these functions allow us to locate the correct
-+ * register and mask the correct bits.
-+ */
-+static inline void sx150x_find_cfg(u8 offset, u8 width,
-+				u8 *reg, u8 *mask, u8 *shift)
-+{
-+	*reg   -= offset * width / 8;
-+	*mask   = (1 << width) - 1;
-+	*shift  = (offset * width) % 8;
-+	*mask <<= *shift;
-+}
-+
-+static s32 sx150x_write_cfg(struct sx150x_chip *chip,
-+			u8 offset, u8 width, u8 reg, u8 val)
-+{
-+	u8  mask;
-+	u8  data;
-+	u8  shift;
-+	s32 err;
-+
-+	sx150x_find_cfg(offset, width, &reg, &mask, &shift);
-+	err = sx150x_i2c_read(chip->client, reg, &data);
-+	if (err < 0)
-+		return err;
-+
-+	data &= ~mask;
-+	data |= (val << shift) & mask;
-+	return sx150x_i2c_write(chip->client, reg, data);
-+}
-+
-+static int sx150x_get_io(struct sx150x_chip *chip, unsigned offset)
-+{
-+	u8  reg = chip->dev_cfg->reg_data;
-+	u8  mask;
-+	u8  data;
-+	u8  shift;
-+	s32 err;
-+
-+	sx150x_find_cfg(offset, 1, &reg, &mask, &shift);
-+	mutex_lock(&chip->mutex);
-+	err = sx150x_i2c_read(chip->client, reg, &data);
-+	mutex_unlock(&chip->mutex);
-+	if (err >= 0)
-+		err = (data & mask) != 0 ? 1 : 0;
-+
-+	return err;
-+}
-+
-+static void sx150x_set_oscio(struct sx150x_chip *chip, int val)
-+{
-+	mutex_lock(&chip->mutex);
-+	sx150x_i2c_write(chip->client,
-+			chip->dev_cfg->reg_clock,
-+			(val ? 0x1f : 0x10));
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static void sx150x_set_io(struct sx150x_chip *chip, unsigned offset, int val)
-+{
-+	mutex_lock(&chip->mutex);
-+	sx150x_write_cfg(chip,
-+			offset,
-+			1,
-+			chip->dev_cfg->reg_data,
-+			(val ? 1 : 0));
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static int sx150x_io_input(struct sx150x_chip *chip, unsigned offset)
-+{
-+	int err;
-+
-+	mutex_lock(&chip->mutex);
-+	err = sx150x_write_cfg(chip,
-+			offset,
-+			1,
-+			chip->dev_cfg->reg_dir,
-+			1);
-+	mutex_unlock(&chip->mutex);
-+	return err;
-+}
-+
-+static int sx150x_io_output(struct sx150x_chip *chip, unsigned offset, int val)
-+{
-+	int err;
-+
-+	mutex_lock(&chip->mutex);
-+	err = sx150x_write_cfg(chip,
-+			offset,
-+			1,
-+			chip->dev_cfg->reg_data,
-+			(val ? 1 : 0));
-+	if (err >= 0)
-+		err = sx150x_write_cfg(chip,
-+				offset,
-+				1,
-+				chip->dev_cfg->reg_dir,
-+				0);
-+	mutex_unlock(&chip->mutex);
-+	return err;
-+}
-+
-+static int sx150x_gpio_get(struct gpio_chip *gc, unsigned offset)
-+{
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-+
-+	if (offset_is_oscio(chip, offset))
-+		return -EINVAL;
-+	else
-+		return sx150x_get_io(chip, offset);
-+}
-+
-+static void sx150x_gpio_set(struct gpio_chip *gc, unsigned offset, int val)
-+{
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-+
-+	if (offset_is_oscio(chip, offset))
-+		sx150x_set_oscio(chip, val);
-+	else
-+		sx150x_set_io(chip, offset, val);
-+}
-+
-+static int sx150x_gpio_direction_input(struct gpio_chip *gc, unsigned offset)
-+{
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-+
-+	if (offset_is_oscio(chip, offset))
-+		return -EINVAL;
-+	else
-+		return sx150x_io_input(chip, offset);
-+}
-+
-+static int sx150x_gpio_direction_output(struct gpio_chip *gc,
-+					unsigned offset,
-+					int val)
-+{
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-+
-+	if (offset_is_oscio(chip, offset))
-+		return 0;
-+	else
-+		return sx150x_io_output(chip, offset, val);
-+}
-+
-+static int sx150x_gpio_to_irq(struct gpio_chip *gc, unsigned offset)
-+{
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(gc, struct sx150x_chip, gpio_chip);
-+
-+	if (offset >= chip->dev_cfg->ngpios)
-+		return -EINVAL;
-+
-+	if (chip->irq_base < 0)
-+		return -EINVAL;
-+
-+	return chip->irq_base + offset;
-+}
-+
-+static void sx150x_irq_mask(unsigned int irq)
-+{
-+	struct irq_chip *ic = get_irq_chip(irq);
-+	struct sx150x_chip *chip;
-+	unsigned n;
-+
-+	chip = container_of(ic, struct sx150x_chip, irq_chip);
-+	n = irq - chip->irq_base;
-+
-+	mutex_lock(&chip->mutex);
-+	sx150x_write_cfg(chip, n, 1, chip->dev_cfg->reg_irq_mask, 1);
-+	sx150x_write_cfg(chip, n, 2, chip->dev_cfg->reg_sense, 0);
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static void sx150x_irq_unmask(unsigned int irq)
-+{
-+	struct irq_chip *ic = get_irq_chip(irq);
-+	struct sx150x_chip *chip;
-+	unsigned n;
-+
-+	chip = container_of(ic, struct sx150x_chip, irq_chip);
-+	n = irq - chip->irq_base;
-+
-+	mutex_lock(&chip->mutex);
-+	sx150x_write_cfg(chip, n, 1, chip->dev_cfg->reg_irq_mask, 0);
-+	sx150x_write_cfg(chip, n, 2, chip->dev_cfg->reg_sense,
-+			 chip->irq_sense >> (n * 2));
-+	mutex_unlock(&chip->mutex);
-+}
-+
-+static int sx150x_irq_set_type(unsigned int irq, unsigned int flow_type)
-+{
-+	struct irq_chip *ic = get_irq_chip(irq);
-+	struct sx150x_chip *chip;
-+	unsigned n, val = 0;
-+
-+	if (flow_type & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
-+		return -EINVAL;
-+
-+	chip = container_of(ic, struct sx150x_chip, irq_chip);
-+	n = irq - chip->irq_base;
-+
-+	if (flow_type & IRQ_TYPE_EDGE_RISING)
-+		val |= 0x1;
-+	if (flow_type & IRQ_TYPE_EDGE_FALLING)
-+		val |= 0x2;
-+
-+	mutex_lock(&chip->mutex);
-+	chip->irq_sense &= ~(3UL << (n * 2));
-+	chip->irq_sense |= val << (n * 2);
-+	if (!(irq_to_desc(irq)->status & IRQ_MASKED))
-+		sx150x_write_cfg(chip, n, 2, chip->dev_cfg->reg_sense, val);
-+	mutex_unlock(&chip->mutex);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t sx150x_irq_thread_fn(int irq, void *dev_id)
-+{
-+	struct sx150x_chip *chip = (struct sx150x_chip *)dev_id;
-+	unsigned nhandled = 0;
-+	unsigned sub_irq;
-+	unsigned n;
-+	s32 err;
-+	u8 val;
-+	int i;
-+
-+	mutex_lock(&chip->mutex);
-+	for (i = (chip->dev_cfg->ngpios / 8) - 1; i >= 0; --i) {
-+		err = sx150x_i2c_read(chip->client,
-+				      chip->dev_cfg->reg_irq_src - i,
-+				      &val);
-+		if (err < 0)
-+			continue;
-+
-+		sx150x_i2c_write(chip->client,
-+				chip->dev_cfg->reg_irq_src - i,
-+				val);
-+		for (n = 0; n < 8; ++n) {
-+			if (val & (1 << n)) {
-+				sub_irq = chip->irq_base + (i * 8) + n;
-+				handle_nested_irq(sub_irq);
-+				++nhandled;
-+			}
-+		}
-+	}
-+	mutex_unlock(&chip->mutex);
-+
-+	return (nhandled > 0 ? IRQ_HANDLED : IRQ_NONE);
-+}
-+
-+static void sx150x_irq_bus_lock(unsigned int irq)
-+{
-+	struct irq_chip *ic = get_irq_chip(irq);
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(ic, struct sx150x_chip, irq_chip);
-+
-+	mutex_lock(&chip->irq_lock);
-+}
-+
-+static void sx150x_irq_bus_sync_unlock(unsigned int irq)
-+{
-+	struct irq_chip *ic = get_irq_chip(irq);
-+	struct sx150x_chip *chip;
-+
-+	chip = container_of(ic, struct sx150x_chip, irq_chip);
-+
-+	mutex_unlock(&chip->irq_lock);
-+}
-+
-+static void sx150x_init_chip(struct sx150x_chip *chip,
-+			struct i2c_client *client,
-+			kernel_ulong_t driver_data,
-+			struct sx150x_platform_data *pdata)
-+{
-+	mutex_init(&chip->mutex);
-+	mutex_init(&chip->irq_lock);
-+
-+	chip->client                     = client;
-+	chip->dev_cfg                    = &sx150x_devices[driver_data];
-+	chip->gpio_chip.label            = client->name;
-+	chip->gpio_chip.direction_input  = sx150x_gpio_direction_input;
-+	chip->gpio_chip.direction_output = sx150x_gpio_direction_output;
-+	chip->gpio_chip.get              = sx150x_gpio_get;
-+	chip->gpio_chip.set              = sx150x_gpio_set;
-+	chip->gpio_chip.to_irq           = sx150x_gpio_to_irq;
-+	chip->gpio_chip.base             = pdata->gpio_base;
-+	chip->gpio_chip.can_sleep        = 1;
-+	chip->gpio_chip.ngpio            = chip->dev_cfg->ngpios;
-+	if (pdata->oscio_is_gpo)
-+		++chip->gpio_chip.ngpio;
-+
-+	chip->irq_chip.name            = client->name;
-+	chip->irq_chip.mask            = sx150x_irq_mask;
-+	chip->irq_chip.unmask          = sx150x_irq_unmask;
-+	chip->irq_chip.set_type        = sx150x_irq_set_type;
-+	chip->irq_chip.bus_lock        = sx150x_irq_bus_lock;
-+	chip->irq_chip.bus_sync_unlock = sx150x_irq_bus_sync_unlock;
-+	chip->irq_summary              = -1;
-+	chip->irq_base                 = -1;
-+	chip->irq_sense                = 0;
-+}
-+
-+static int sx150x_init_io(struct sx150x_chip *chip, u8 base, u16 cfg)
-+{
-+	int err = 0;
-+	unsigned n;
-+
-+	for (n = 0; err >= 0 && n < (chip->dev_cfg->ngpios / 8); ++n)
-+		err = sx150x_i2c_write(chip->client, base - n, cfg >> (n * 8));
-+	return err;
-+}
-+
-+static int sx150x_init_hw(struct sx150x_chip *chip,
-+			struct sx150x_platform_data *pdata)
-+{
-+	int err = 0;
-+
-+	err = i2c_smbus_write_word_data(chip->client,
-+					chip->dev_cfg->reg_reset,
-+					0x3412);
-+	if (err < 0)
-+		return err;
-+
-+	err = sx150x_i2c_write(chip->client,
-+			chip->dev_cfg->reg_misc,
-+			0x01);
-+	if (err < 0)
-+		return err;
-+
-+	err = sx150x_init_io(chip, chip->dev_cfg->reg_pullup,
-+			pdata->io_pullup_ena);
-+	if (err < 0)
-+		return err;
-+
-+	err = sx150x_init_io(chip, chip->dev_cfg->reg_pulldn,
-+			pdata->io_pulldn_ena);
-+	if (err < 0)
-+		return err;
-+
-+	err = sx150x_init_io(chip, chip->dev_cfg->reg_drain,
-+			pdata->io_open_drain_ena);
-+	if (err < 0)
-+		return err;
-+
-+	err = sx150x_init_io(chip, chip->dev_cfg->reg_polarity,
-+			pdata->io_polarity);
-+	if (err < 0)
-+		return err;
-+
-+	if (pdata->oscio_is_gpo)
-+		sx150x_set_oscio(chip, 0);
-+
-+	return err;
-+}
-+
-+static int sx150x_install_irq_chip(struct sx150x_chip *chip,
-+				int irq_summary,
-+				int irq_base)
-+{
-+	int err;
-+	unsigned n;
-+	unsigned irq;
-+
-+	chip->irq_summary = irq_summary;
-+	chip->irq_base    = irq_base;
-+
-+	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-+		irq = irq_base + n;
-+		set_irq_chip_and_handler(irq, &chip->irq_chip, handle_edge_irq);
-+		set_irq_nested_thread(irq, 1);
-+#ifdef CONFIG_ARM
-+		set_irq_flags(irq, IRQF_VALID);
-+#else
-+		set_irq_noprobe(irq);
-+#endif
-+	}
-+
-+	err = request_threaded_irq(irq_summary,
-+				NULL,
-+				sx150x_irq_thread_fn,
-+				IRQF_SHARED | IRQF_TRIGGER_FALLING,
-+				chip->irq_chip.name,
-+				chip);
-+	if (err < 0) {
-+		chip->irq_summary = -1;
-+		chip->irq_base    = -1;
-+	}
-+
-+	return err;
-+}
-+
-+static void sx150x_remove_irq_chip(struct sx150x_chip *chip)
-+{
-+	unsigned n;
-+	unsigned irq;
-+
-+	free_irq(chip->irq_summary, chip);
-+
-+	for (n = 0; n < chip->dev_cfg->ngpios; ++n) {
-+		irq = chip->irq_base + n;
-+		set_irq_handler(irq, NULL);
-+		set_irq_chip(irq, NULL);
-+	}
-+}
-+
-+static int __devinit sx150x_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	static const u32 i2c_funcs = I2C_FUNC_SMBUS_BYTE_DATA |
-+				     I2C_FUNC_SMBUS_WRITE_WORD_DATA;
-+	struct sx150x_platform_data *pdata;
-+	struct sx150x_chip *chip;
-+	int rc;
-+
-+	pdata = client->dev.platform_data;
-+	if (!pdata)
-+		return -EINVAL;
-+
-+	if (!i2c_check_functionality(client->adapter, i2c_funcs))
-+		return -ENOSYS;
-+
-+	chip = kzalloc(sizeof(struct sx150x_chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
-+
-+	sx150x_init_chip(chip, client, id->driver_data, pdata);
-+	rc = sx150x_init_hw(chip, pdata);
-+	if (rc < 0)
-+		goto probe_fail_pre_gpiochip_add;
-+
-+	rc = gpiochip_add(&chip->gpio_chip);
-+	if (rc < 0)
-+		goto probe_fail_pre_gpiochip_add;
-+
-+	if (pdata->irq_summary >= 0) {
-+		rc = sx150x_install_irq_chip(chip,
-+					pdata->irq_summary,
-+					pdata->irq_base);
-+		if (rc < 0)
-+			goto probe_fail_post_gpiochip_add;
-+	}
-+
-+	i2c_set_clientdata(client, chip);
-+
-+	return 0;
-+probe_fail_post_gpiochip_add:
-+	WARN_ON(gpiochip_remove(&chip->gpio_chip) < 0);
-+probe_fail_pre_gpiochip_add:
-+	kfree(chip);
-+	return rc;
-+}
-+
-+static int __devexit sx150x_remove(struct i2c_client *client)
-+{
-+	struct sx150x_chip *chip;
-+	int rc;
-+
-+	chip = i2c_get_clientdata(client);
-+	rc = gpiochip_remove(&chip->gpio_chip);
-+	if (rc < 0)
-+		return rc;
-+
-+	if (chip->irq_summary >= 0)
-+		sx150x_remove_irq_chip(chip);
-+
-+	kfree(chip);
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver sx150x_driver = {
-+	.driver = {
-+		.name = "sx150x",
-+		.owner = THIS_MODULE
-+	},
-+	.probe    = sx150x_probe,
-+	.remove   = __devexit_p(sx150x_remove),
-+	.id_table = sx150x_id,
-+};
-+
-+static int __init sx150x_init(void)
-+{
-+	return i2c_add_driver(&sx150x_driver);
-+}
-+subsys_initcall(sx150x_init);
-+
-+static void __exit sx150x_exit(void)
-+{
-+	return i2c_del_driver(&sx150x_driver);
-+}
-+module_exit(sx150x_exit);
-+
-+MODULE_AUTHOR("Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>");
-+MODULE_DESCRIPTION("Driver for Semtech SX150X I2C GPIO Expanders");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("i2c:sx150x");
-diff --git a/include/linux/i2c/sx150x.h b/include/linux/i2c/sx150x.h
-new file mode 100644
-index 0000000..ee3049c
---- /dev/null
-+++ b/include/linux/i2c/sx150x.h
-@@ -0,0 +1,78 @@
-+/*
-+ * Driver for the Semtech SX150x I2C GPIO Expanders
-+ *
-+ * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+#ifndef __LINUX_I2C_SX150X_H
-+#define __LINUX_I2C_SX150X_H
-+
-+/**
-+ * struct sx150x_platform_data - config data for SX150x driver
-+ * @gpio_base: The index number of the first GPIO assigned to this
-+ *             GPIO expander.  The expander will create a block of
-+ *             consecutively numbered gpios beginning at the given base,
-+ *             with the size of the block depending on the model of the
-+ *             expander chip.
-+ * @oscio_is_gpo: If set to true, the driver will configure OSCIO as a GPO
-+ *                instead of as an oscillator, increasing the size of the
-+ *                GP(I)O pool created by this expander by one.  The
-+ *                output-only GPO pin will be added at the end of the block.
-+ * @io_pullup_ena: A bit-mask which enables or disables the pull-up resistor
-+ *                 for each IO line in the expander.  Setting the bit at
-+ *                 position n will enable the pull-up for the IO at
-+ *                 the corresponding offset.  For chips with fewer than
-+ *                 16 IO pins, high-end bits are ignored.
-+ * @io_pulldn_ena: A bit-mask which enables-or disables the pull-down
-+ *                 resistor for each IO line in the expander. Setting the
-+ *                 bit at position n will enable the pull-down for the IO at
-+ *                 the corresponding offset.  For chips with fewer than
-+ *                 16 IO pins, high-end bits are ignored.
-+ * @io_open_drain_ena: A bit-mask which enables-or disables open-drain
-+ *                     operation for each IO line in the expander. Setting the
-+ *                     bit at position n enables open-drain operation for
-+ *                     the IO at the corresponding offset.  Clearing the bit
-+ *                     enables regular push-pull operation for that IO.
-+ *                     For chips with fewer than 16 IO pins, high-end bits
-+ *                     are ignored.
-+ * @io_polarity: A bit-mask which enables polarity inversion for each IO line
-+ *               in the expander.  Setting the bit at position n inverts
-+ *               the polarity of that IO line, while clearing it results
-+ *               in normal polarity. For chips with fewer than 16 IO pins,
-+ *               high-end bits are ignored.
-+ * @irq_summary: The 'summary IRQ' line to which the GPIO expander's INT line
-+ *               is connected, via which it reports interrupt events
-+ *               across all GPIO lines.  This must be a real,
-+ *               pre-existing IRQ line.
-+ *               Setting this value < 0 disables the irq_chip functionality
-+ *               of the driver.
-+ * @irq_base: The first 'virtual IRQ' line at which our block of GPIO-based
-+ *            IRQ lines will appear.  Similarly to gpio_base, the expander
-+ *            will create a block of irqs beginning at this number.
-+ *            This value is ignored if irq_summary is < 0.
-+ */
-+struct sx150x_platform_data {
-+	unsigned gpio_base;
-+	bool     oscio_is_gpo;
-+	u16      io_pullup_ena;
-+	u16      io_pulldn_ena;
-+	u16      io_open_drain_ena;
-+	u16      io_polarity;
-+	int      irq_summary;
-+	unsigned irq_base;
-+};
-+
-+#endif /* __LINUX_I2C_SX150X_H */
--- 
-1.7.0.4
++	  Say Y here if you want the I2C core to support the ability to
++	  handle multiplexed I2C bus topologies, by presenting each
++	  multiplexed segment as a I2C adapter.
++
++	  This support is also available as a module.  If so, the module
++	  will be called i2c-mux.
++
+ config I2C_HELPER_AUTO
+ 	bool "Autoselect pertinent helper modules"
+ 	default y
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index a7d9b4b..f363258
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -6,6 +6,7 @@ obj-$(CONFIG_I2C_BOARDINFO)	+=3D i2c-boardinfo.o
+ obj-$(CONFIG_I2C)		+=3D i2c-core.o
+ obj-$(CONFIG_I2C_SMBUS)		+=3D i2c-smbus.o
+ obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
++obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+ obj-y				+=3D algos/ busses/
 
---
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+ ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 05a147a..d46fb3e
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -20,7 +20,9 @@
+ /* With some changes from Ky=C3=83=C2=B6sti M=C3=83=C2=A4lkki <kmalkki=
+@cc.hut.fi>.
+    All SMBus-related things are written by Frodo Looijaard <frodol@dds=
+=2Enl>
+    SMBus 2.0 support by Mark Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org> and
+-   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> */
++   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++   Mux support by Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org> and
++   Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org> */
+
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -417,10 +419,52 @@ static int __i2c_check_addr_busy(struct device
+*dev, void *addrp)
+ 	return 0;
+ }
+
++/* walk up mux tree */
++static int i2c_check_mux_parents(struct i2c_adapter *adapter, int addr=
+)
++{
++	int	result;
++
++	result =3D device_for_each_child(&adapter->dev, &addr,
++					__i2c_check_addr_busy);
++
++	if (!result && i2c_parent_is_i2c_adapter(adapter))
++		result =3D i2c_check_mux_parents(
++				    to_i2c_adapter(adapter->dev.parent), addr);
++
++	return result;
++}
++
++/* recurse down mux tree */
++static int i2c_check_mux_children(struct device *dev, void *addrp)
++{
++	int result;
++
++	if (dev->type =3D=3D &i2c_adapter_type)
++		result =3D device_for_each_child(dev, addrp,
++						i2c_check_mux_children);
++	else
++		result =3D __i2c_check_addr_busy(dev, addrp);
++
++	return result;
++}
++
+ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
+ {
+-	return device_for_each_child(&adapter->dev, &addr,
+-				     __i2c_check_addr_busy);
++	int	result =3D 0;
++
++	i2c_lock_adapter(adapter);
++
++	if (i2c_parent_is_i2c_adapter(adapter))
++		result =3D i2c_check_mux_parents(
++				    to_i2c_adapter(adapter->dev.parent), addr);
++
++	if (!result)
++		result =3D device_for_each_child(&adapter->dev, &addr,
++						i2c_check_mux_children);
++
++	i2c_unlock_adapter(adapter);
++
++	return result;
+ }
+
+ /**
+@@ -429,7 +473,10 @@ static int i2c_check_addr_busy(struct i2c_adapter
+*adapter, int addr)
+  */
+ void i2c_lock_adapter(struct i2c_adapter *adapter)
+ {
+-	rt_mutex_lock(&adapter->bus_lock);
++	if (i2c_parent_is_i2c_adapter(adapter))
++		i2c_lock_adapter(to_i2c_adapter(adapter->dev.parent));
++	else
++		rt_mutex_lock(&adapter->bus_lock);
+ }
+ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+
+@@ -439,7 +486,10 @@ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+  */
+ static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+ {
+-	return rt_mutex_trylock(&adapter->bus_lock);
++	if (i2c_parent_is_i2c_adapter(adapter))
++		return i2c_trylock_adapter(to_i2c_adapter(adapter->dev.parent));
++	else
++		return rt_mutex_trylock(&adapter->bus_lock);
+ }
+
+ /**
+@@ -448,7 +498,10 @@ static int i2c_trylock_adapter(struct i2c_adapter
+*adapter)
+  */
+ void i2c_unlock_adapter(struct i2c_adapter *adapter)
+ {
+-	rt_mutex_unlock(&adapter->bus_lock);
++	if (i2c_parent_is_i2c_adapter(adapter))
++		i2c_unlock_adapter(to_i2c_adapter(adapter->dev.parent));
++	else
++		rt_mutex_unlock(&adapter->bus_lock);
+ }
+ EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
+
+@@ -656,9 +709,9 @@ i2c_sysfs_new_device(struct device *dev, struct
+device_attribute *attr,
+ 		return -EINVAL;
+
+ 	/* Keep track of the added device */
+-	i2c_lock_adapter(adap);
++	rt_mutex_lock(&adap->bus_lock);
+ 	list_add_tail(&client->detected, &adap->userspace_clients);
+-	i2c_unlock_adapter(adap);
++	rt_mutex_unlock(&adap->bus_lock);
+ 	dev_info(dev, "%s: Instantiated device %s at 0x%02hx\n", "new_device"=
+,
+ 		 info.type, info.addr);
+
+@@ -697,7 +750,7 @@ i2c_sysfs_delete_device(struct device *dev, struct
+device_attribute *attr,
+
+ 	/* Make sure the device was added through sysfs */
+ 	res =3D -ENOENT;
+-	i2c_lock_adapter(adap);
++	rt_mutex_lock(&adap->bus_lock);
+ 	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+ 				 detected) {
+ 		if (client->addr =3D=3D addr) {
+@@ -710,7 +763,7 @@ i2c_sysfs_delete_device(struct device *dev, struct
+device_attribute *attr,
+ 			break;
+ 		}
+ 	}
+-	i2c_unlock_adapter(adap);
++	rt_mutex_unlock(&adap->bus_lock);
+
+ 	if (res < 0)
+ 		dev_err(dev, "%s: Can't find device in list\n",
+@@ -737,10 +790,11 @@ static const struct attribute_group
+*i2c_adapter_attr_groups[] =3D {
+ 	NULL
+ };
+
+-static struct device_type i2c_adapter_type =3D {
++struct device_type i2c_adapter_type =3D {
+ 	.groups		=3D i2c_adapter_attr_groups,
+ 	.release	=3D i2c_adapter_dev_release,
+ };
++EXPORT_SYMBOL_GPL(i2c_adapter_type);
+
+ #ifdef CONFIG_I2C_COMPAT
+ static struct class_compat *i2c_adapter_compat_class;
+@@ -995,7 +1049,7 @@ int i2c_del_adapter(struct i2c_adapter *adap)
+ 		return res;
+
+ 	/* Remove devices instantiated from sysfs */
+-	i2c_lock_adapter(adap);
++	rt_mutex_lock(&adap->bus_lock);
+ 	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+ 				 detected) {
+ 		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
+@@ -1003,7 +1057,7 @@ int i2c_del_adapter(struct i2c_adapter *adap)
+ 		list_del(&client->detected);
+ 		i2c_unregister_device(client);
+ 	}
+-	i2c_unlock_adapter(adap);
++	rt_mutex_unlock(&adap->bus_lock);
+
+ 	/* Detach any active clients. This can't fail, thus we do not
+ 	   checking the returned value. */
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index e0694e4..6717bba
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -193,12 +193,54 @@ static int i2cdev_check(struct device *dev, void
+*addrp)
+ 	return dev->driver ? -EBUSY : 0;
+ }
+
++/* walk up mux tree */
++static int i2cdev_check_mux_parents(struct i2c_adapter *adapter, int a=
+ddr)
++{
++	int	result;
++
++	result =3D device_for_each_child(&adapter->dev, &addr, i2cdev_check);
++
++	if (!result && i2c_parent_is_i2c_adapter(adapter))
++		result =3D i2cdev_check_mux_parents(
++				    to_i2c_adapter(adapter->dev.parent), addr);
++
++	return result;
++}
++
++/* recurse down mux tree */
++static int i2cdev_check_mux_children(struct device *dev, void *addrp)
++{
++	int result;
++
++	if (dev->type =3D=3D &i2c_adapter_type)
++		result =3D device_for_each_child(dev, addrp,
++						i2cdev_check_mux_children);
++	else
++		result =3D i2cdev_check(dev, addrp);
++
++	return result;
++}
++
+ /* This address checking function differs from the one in i2c-core
+    in that it considers an address with a registered device, but no
+    driver bound to it, as NOT busy. */
+ static int i2cdev_check_addr(struct i2c_adapter *adapter, unsigned int
+addr)
+ {
+-	return device_for_each_child(&adapter->dev, &addr, i2cdev_check);
++	int	result =3D 0;
++
++	i2c_lock_adapter(adapter);
++
++	if (i2c_parent_is_i2c_adapter(adapter))
++		result =3D i2cdev_check_mux_parents(
++				    to_i2c_adapter(adapter->dev.parent), addr);
++
++	if (!result)
++		result =3D device_for_each_child(&adapter->dev, &addr,
++						i2cdev_check_mux_children);
++
++	i2c_unlock_adapter(adapter);
++
++	return result;
+ }
+
+ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+new file mode 100755
+index 0000000..d32a484
+--- /dev/null
++++ b/drivers/i2c/i2c-mux.c
+@@ -0,0 +1,165 @@
++/*
++ * Multiplexed I2C bus driver.
++ *
++ * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
++ * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
++ * Copyright (c) 2009-2010 NSN GmbH & Co KG <michael.lawnick.ext@nsn.c=
+om>
++ *
++ * Simplifies access to complex multiplexed I2C bus topologies, by
+presenting
++ * each multiplexed bus segment as an additional I2C adapter.
++ * Supports multi-level mux'ing (mux behind a mux).
++ *
++ * Based on:
++ *	i2c-virt.c from Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++ *	i2c-virtual.c from Ken Harrenstien, Copyright (c) 2004 Google, Inc.
++ *	i2c-virtual.c from Brian Kuschak <bkuschak-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++
++/* multiplexer per channel data */
++struct i2c_mux_priv {
++	struct i2c_adapter adap;
++	struct i2c_algorithm algo;
++
++	struct i2c_adapter *parent;
++	void *mux_dev;	/* the mux chip/device */
++	u32  chan_id;	/* the channel id */
++
++	int (*select)(struct i2c_adapter *, void *mux_dev, u32 chan_id);
++	int (*deselect)(struct i2c_adapter *, void *mux_dev, u32 chan_id);
++};
++
++static int i2c_mux_master_xfer(struct i2c_adapter *adap,
++			       struct i2c_msg msgs[], int num)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent;
++	int ret;
++
++	/* Switch to the right mux port and perform the transfer. */
++
++	ret =3D priv->select(parent, priv->mux_dev, priv->chan_id);
++	if (ret >=3D 0)
++		ret =3D parent->algo->master_xfer(parent, msgs, num);
++	if (priv->deselect)
++		priv->deselect(parent, priv->mux_dev, priv->chan_id);
++
++	return ret;
++}
++
++static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
++			      u16 addr, unsigned short flags,
++			      char read_write, u8 command,
++			      int size, union i2c_smbus_data *data)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent;
++	int ret;
++
++	/* Select the right mux port and perform the transfer. */
++
++	ret =3D priv->select(parent, priv->mux_dev, priv->chan_id);
++	if (ret >=3D 0)
++		ret =3D parent->algo->smbus_xfer(parent, addr, flags,
++					read_write, command, size, data);
++	if (priv->deselect)
++		priv->deselect(parent, priv->mux_dev, priv->chan_id);
++
++	return ret;
++}
++
++/* Return the parent's functionality */
++static u32 i2c_mux_functionality(struct i2c_adapter *adap)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	struct i2c_adapter *parent =3D priv->parent;
++
++	return parent->algo->functionality(parent);
++}
++
++struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
++				void *mux_dev, u32 force_nr, u32 chan_id,
++				int (*select) (struct i2c_adapter *,
++					       void *, u32),
++				int (*deselect) (struct i2c_adapter *,
++						 void *, u32))
++{
++	struct i2c_mux_priv *priv;
++	int ret;
++
++	priv =3D kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
++	if (!priv)
++		return NULL;
++
++	/* Set up private adapter data */
++	priv->parent =3D parent;
++	priv->mux_dev =3D mux_dev;
++	priv->chan_id =3D chan_id;
++	priv->select =3D select;
++	priv->deselect =3D deselect;
++
++	/* Need to do algo dynamically because we don't know ahead
++	 * of time what sort of physical adapter we'll be dealing with.
++	 */
++	if (parent->algo->master_xfer)
++		priv->algo.master_xfer =3D i2c_mux_master_xfer;
++	if (parent->algo->smbus_xfer)
++		priv->algo.smbus_xfer =3D i2c_mux_smbus_xfer;
++	priv->algo.functionality =3D i2c_mux_functionality;
++
++	/* Now fill out new adapter structure */
++	snprintf(priv->adap.name, sizeof(priv->adap.name),
++		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
++	priv->adap.owner =3D THIS_MODULE;
++	priv->adap.id =3D parent->id;
++	priv->adap.algo =3D &priv->algo;
++	priv->adap.algo_data =3D priv;
++	priv->adap.dev.parent =3D &parent->dev;
++
++	if (force_nr) {
++		priv->adap.nr =3D force_nr;
++		ret =3D i2c_add_numbered_adapter(&priv->adap);
++	} else {
++		ret =3D i2c_add_adapter(&priv->adap);
++	}
++	if (ret < 0) {
++		dev_err(&parent->dev,
++			"failed to add mux-adapter (error=3D%d)\n",
++			ret);
++		kfree(priv);
++		return NULL;
++	}
++
++	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
++		 i2c_adapter_id(&priv->adap));
++
++	return &priv->adap;
++}
++EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
++
++int i2c_del_mux_adapter(struct i2c_adapter *adap)
++{
++	struct i2c_mux_priv *priv =3D adap->algo_data;
++	int ret;
++
++	ret =3D i2c_del_adapter(adap);
++	if (ret < 0)
++		return ret;
++	kfree(priv);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(i2c_del_mux_adapter);
++
++MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
++MODULE_DESCRIPTION("I2C driver for multiplexed I2C busses");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+new file mode 100755
+index 0000000..4c52ee1
+--- /dev/null
++++ b/include/linux/i2c-mux.h
+@@ -0,0 +1,46 @@
++/*
++ *
++ * i2c-mux.h - functions for the i2c-bus mux support
++ *
++ * Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
++ * Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
++ * Michael Lawnick <michael.lawnick.ext-OYasijW0DpE@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License as published b=
+y
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifndef _LINUX_I2C_MUX_H
++#define _LINUX_I2C_MUX_H
++
++#ifdef __KERNEL__
++
++/*
++ * Called to create a i2c bus on a multiplexed bus segment.
++ * The mux_dev and chan_id parameters are passed to the select
++ * and deselect callback functions to perform hardware-specific
++ * mux control.
++ */
++struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
++				void *mux_dev, u32 force_nr, u32 chan_id,
++				int (*select) (struct i2c_adapter *adap,
++				void *mux_dev, u32 chan_id),
++				int (*deselect) (struct i2c_adapter *,
++				void *mux_dev, u32 chan_id));
++
++int i2c_del_mux_adapter(struct i2c_adapter *adap);
++
++#endif /* __KERNEL__ */
++
++#endif /* _LINUX_I2C_MUX_H */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index f2d36bd..8f2b83a
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -37,6 +37,7 @@
+ #include <linux/of.h>		/* for struct device_node */
+
+ extern struct bus_type i2c_bus_type;
++extern struct device_type i2c_adapter_type;
+
+ /* --- General options -----------------------------------------------=
+-	*/
+
+@@ -374,6 +375,13 @@ static inline void i2c_set_adapdata(struct
+i2c_adapter *dev, void *data)
+ 	dev_set_drvdata(&dev->dev, data);
+ }
+
++static inline int i2c_parent_is_i2c_adapter(const struct i2c_adapter
+*adapter)
++{
++	return adapter->dev.parent !=3D NULL
++		&& adapter->dev.parent->bus =3D=3D &i2c_bus_type
++		&& adapter->dev.parent->type =3D=3D &i2c_adapter_type;
++}
++
+ /* Adapter locking functions, exported for shared pin cases */
+ void i2c_lock_adapter(struct i2c_adapter *);
+ void i2c_unlock_adapter(struct i2c_adapter *);
+--=20
+Michael Lawnick
