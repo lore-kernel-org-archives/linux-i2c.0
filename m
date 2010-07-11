@@ -1,77 +1,45 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [PATCH v2] hwmon: Add support for JEDEC JC 42.4 compliant
  temperature sensors
-Date: Sun, 11 Jul 2010 09:16:58 -0700
-Message-ID: <20100711161658.GA23927@ericsson.com>
+Date: Sun, 11 Jul 2010 18:21:38 +0200
+Message-ID: <20100711182138.132815e4@hyperion.delvare>
 References: <1278859984-22593-1-git-send-email-guenter.roeck@ericsson.com>
- <1278862266.1501.59.camel@Joe-Laptop.home>
+	<1278862266.1501.59.camel@Joe-Laptop.home>
+	<20100711161658.GA23927@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1278862266.1501.59.camel-AkRN8/LKpobuYGix6ZUp1Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100711161658.GA23927@ericsson.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@xenotime.net>, Hans de Goede <hdegoede@redhat.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Samuel Ortiz <sameo@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, Paul Goyette <paul@whooppee.com>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jul 11, 2010 at 11:31:06AM -0400, Joe Perches wrote:
-> On Sun, 2010-07-11 at 07:53 -0700, Guenter Roeck wrote:
-> > diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
-> > new file mode 100644
-> > index 0000000..685057d
-> > --- /dev/null
-> > +++ b/drivers/hwmon/jc42.c
-> []
-> > +struct jc42_chips {
-> > +	u16 manid;
-> > +	u16 devid;
-> > +	u16 devid_mask;
-> > +};
-> > +
-> > +static struct jc42_chips jc42_chips[] = {
-> > +	{ ADT_MANID, ADT7408_DEVID, ADT7408_DEVID_MASK },
-> > +	{ IDT_MANID, TS3000B3_DEVID, TS3000B3_DEVID_MASK },
-> > +	{ MAX_MANID, MAX6604_DEVID, MAX6604_DEVID_MASK },
-> > +	{ MCP_MANID, MCP98242_DEVID, MCP98242_DEVID_MASK },
-> > +	{ MCP_MANID, MCP98243_DEVID, MCP98243_DEVID_MASK },
-> > +	{ MCP_MANID, MCP9843_DEVID, MCP9843_DEVID_MASK },
-> > +	{ NXP_MANID, SE97_DEVID, SE97_DEVID_MASK },
-> > +	{ ONS_MANID, CAT6095_DEVID, CAT6095_DEVID_MASK },
-> > +	{ NXP_MANID, SE98_DEVID, SE98_DEVID_MASK },
-> > +	{ STM_MANID, STTS424_DEVID, STTS424_DEVID_MASK },
-> > +	{ STM_MANID, STTS424E_DEVID, STTS424E_DEVID_MASK },
-> > +};
-> []
-> > +	for (i = 0; i < ARRAY_SIZE(jc42_chips); i++) {
-> > +		if (manid == jc42_chips[i].manid
-> > +		    && (devid & jc42_chips[i].devid_mask) ==
-> > +					    jc42_chips[i].devid) {
-> > +			strlcpy(info->type, "jc42", I2C_NAME_SIZE);
-> > +			return 0;
-> > +		}
-> > +	}
-> 
-> Decidedly trivial:
-> 
-> Kernel style seems to prefer having logical tests at
-> end of line rather than start of line.
-> 
-Ok. Would be nice to have checkpatch.pl complain about it, though,
-if it is a to-be-enforced rule.
+On Sun, 11 Jul 2010 09:16:58 -0700, Guenter Roeck wrote:
+> On Sun, Jul 11, 2010 at 11:31:06AM -0400, Joe Perches wrote:
+> > On Sun, 2010-07-11 at 07:53 -0700, Guenter Roeck wrote:
+> > > +	for (i = 0; i < ARRAY_SIZE(jc42_chips); i++) {
+> > > +		if (manid == jc42_chips[i].manid
+> > > +		    && (devid & jc42_chips[i].devid_mask) ==
+> > > +					    jc42_chips[i].devid) {
+> > > +			strlcpy(info->type, "jc42", I2C_NAME_SIZE);
+> > > +			return 0;
+> > > +		}
+> > > +	}
+> > 
+> > Decidedly trivial:
+> > 
+> > Kernel style seems to prefer having logical tests at
+> > end of line rather than start of line.
+>
+> Ok. Would be nice to have checkpatch.pl complain about it, though,
+> if it is a to-be-enforced rule.
 
-> Maybe this bit would be more readable with a temporary:
-> 
-> 	for (i = 0; i < ARRAY_SIZE(jc42_chips); i++) {
-> 		struct jc42_chips *chip = &jc42_chips[i];
-> 		if (manid == chip->manid &&
-> 		    (devid & chip->devid_mask) == chip->devid) {
-> 			strlcpy(info->type, "jc42", I2C_NAME_SIZE);
-> 			return 0;
-> 		}
-> 	}
-> 
-Agreed. I'll change that.
+Please, not again. This has been discussed before, with the conclusion
+that nobody really cares and we don't want to add pointless warnings to
+checkpatch.pl, which in the end will just dissuade people from running
+the script and/or contributing to the kernel at all.
 
-Thanks,
-Guenter
+-- 
+Jean Delvare
