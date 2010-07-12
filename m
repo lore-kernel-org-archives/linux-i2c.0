@@ -1,39 +1,42 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] scripts/checkpatch.pl: Add strict test of logical test
- continuations at beginning of line
-Date: Sun, 11 Jul 2010 14:15:47 -0700
-Message-ID: <20100711211547.GA24666@ericsson.com>
-References: <1278859984-22593-1-git-send-email-guenter.roeck@ericsson.com>
- <1278862266.1501.59.camel@Joe-Laptop.home>
- <20100711161658.GA23927@ericsson.com>
- <20100711182138.132815e4@hyperion.delvare>
- <1278874632.1501.68.camel@Joe-Laptop.home>
- <20100711213444.4243014c@hyperion.delvare>
- <1278877979.1501.76.camel@Joe-Laptop.home>
+From: srinidhi <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] i2c-nomadik: add SMBUS_EMUL functionality
+Date: Mon, 12 Jul 2010 12:49:24 +0530
+Message-ID: <1278919164.4705.596.camel@bnru03>
+Reply-To: <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1278877979.1501.76.camel-AkRN8/LKpobuYGix6ZUp1Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Whitcroft <apw-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Paul Goyette <paul-3orOWTcw9wBWk0Htik3J/w@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, prajadevi.h-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jul 11, 2010 at 03:52:59PM -0400, Joe Perches wrote:
-> On Sun, 2010-07-11 at 21:34 +0200, Jean Delvare wrote:
-> > On Sun, 11 Jul 2010 11:57:12 -0700, Joe Perches wrote:
-> > > I don't remember that discussion.  Link?
-> > http://lkml.org/lkml/2009/12/5/65
-> > You started the thread, so I would think you'd remember it.
-> 
-> Though there are differences in opinion about what's important,
-> I try to forget the trivial.  Just ask my sweet wife...
-> 
-Same issue hit me twice now, so it isn't as if nobody cares. 
+From: Prajadevi H <prajadevi.h-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-For my part, I don't care where to put the &&. But I would like to have a means 
-to get beyond the basic stuff before submitting my patches, to give reviewers 
-an opportunity to find the _real_ problems in my code.
+Support to emulate all SMBus commands on this adapter.
 
-Guenter
+Signed-off-by: Prajadevi H <prajadevi.h-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Acked-by: Srinidhi KASAGAR <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |    5 +----
+ 1 files changed, 1 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 73de8ad..b734a44 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -794,10 +794,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 
+ static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C
+-		| I2C_FUNC_SMBUS_BYTE_DATA
+-		| I2C_FUNC_SMBUS_WORD_DATA
+-		| I2C_FUNC_SMBUS_I2C_BLOCK;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
+ 
+ static const struct i2c_algorithm nmk_i2c_algo = {
+-- 
+1.6.3.3
