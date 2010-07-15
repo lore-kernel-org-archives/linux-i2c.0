@@ -1,102 +1,56 @@
-From: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH V3 RESEND] i2c-imx: do not allow interruptions when waiting
- for I2C to complete
-Date: Thu, 15 Jul 2010 09:49:11 +0200
-Message-ID: <4C3EBD77.2080803@pengutronix.de>
-References: <4C1F0FC7.60605@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6CFAB867CD6EC3A0D8F2219E"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C1F0FC7.60605-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Arnaud Patard (Rtp) <arnaud.patard@rtp-net.org>
+Subject: [patch 1/1] i2c-s3c2410: Enable i2c clock only when doing some transfert
+Date: Thu, 15 Jul 2010 15:06:14 +0200
+Message-ID: <20100715130636.136905589@rtp-net.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline; filename=i2c_enable_clock_only_on_transfert.patch
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6CFAB867CD6EC3A0D8F2219E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+This patch modify the s3c2410 i2c driver behaviour to enable the 
+i2c clock only when needed. I'm not sure if this has a big impact
+on power usage but at least it's fixing a bug with the uda1380
+codec which needs to be hard reset'ed if the i2c clock is enabled
+before it's powered on (at least on h1940).
 
-The i2c_imx_trx_complete() function is using
-wait_event_interruptible_timeout() to wait for the I2C controller to
-signal that it has completed an I2C bus operation. If the process that
-causes the I2C operation receives a signal, the wait will be
-interrupted, returning an error. It is better to let the I2C operation
-finished before handling the signal (i.e. returning into userspace).
+Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
 
-It is safe to use wait_event_timeout() instead, because the timeout
-will allow the process to exit if the I2C bus hangs. It's also better
-to allow the I2C operation to finish, because unacknowledged I2C
-operations can cause the I2C bus to hang.
-
-Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
-
-V2: Remove check for "result < 0" as commented by Wolfram Sang.
-V3: Remove "result" entirely.
-
- drivers/i2c/busses/i2c-imx.c |   12 +++---------
- 1 files changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index d1ff940..4c2a62b 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -159,15 +159,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
-*i2c_imx, int for_busy)
-
- static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
- {
--	int result;
--
--	result =3D wait_event_interruptible_timeout(i2c_imx->queue,
--		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
-+	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);=
-
-
--	if (unlikely(result < 0)) {
--		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
--		return result;
--	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
-+	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
- 		return -ETIMEDOUT;
+Index: linux-2.6/drivers/i2c/busses/i2c-s3c2410.c
+===================================================================
+--- linux-2.6.orig/drivers/i2c/busses/i2c-s3c2410.c	2010-07-03 22:47:14.473885834 +0200
++++ linux-2.6/drivers/i2c/busses/i2c-s3c2410.c	2010-07-03 22:48:43.261886656 +0200
+@@ -555,18 +555,23 @@ static int s3c24xx_i2c_xfer(struct i2c_a
+ 	int retry;
+ 	int ret;
+ 
++	clk_enable(i2c->clk);
++
+ 	for (retry = 0; retry < adap->retries; retry++) {
+ 
+ 		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
+ 
+-		if (ret != -EAGAIN)
++		if (ret != -EAGAIN) {
++			clk_disable(i2c->clk);
+ 			return ret;
++		}
+ 
+ 		dev_dbg(i2c->dev, "Retrying transmission (%d)\n", retry);
+ 
+ 		udelay(100);
  	}
-@@ -295,7 +289,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)=
-
- 		i2c_imx->i2csr =3D temp;
- 		temp &=3D ~I2SR_IIF;
- 		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
--		wake_up_interruptible(&i2c_imx->queue);
-+		wake_up(&i2c_imx->queue);
- 		return IRQ_HANDLED;
- 	}
-
---=20
-1.7.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
---------------enig6CFAB867CD6EC3A0D8F2219E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkw+vXcACgkQjTAFq1RaXHP/tQCgjGCBzuWUuPm3S6EetU0XGl9L
-BiAAnjiZosx8kvZhrx9Cmc4Crjym42OJ
-=xF9n
------END PGP SIGNATURE-----
-
---------------enig6CFAB867CD6EC3A0D8F2219E--
+ 
++	clk_disable(i2c->clk);
+ 	return -EREMOTEIO;
+ }
+ 
+@@ -911,6 +916,7 @@ static int s3c24xx_i2c_probe(struct plat
+ 	platform_set_drvdata(pdev, i2c);
+ 
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
++	clk_disable(i2c->clk);
+ 	return 0;
+ 
+  err_cpufreq:
