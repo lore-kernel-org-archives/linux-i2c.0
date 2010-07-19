@@ -1,85 +1,112 @@
-From: Kukjin Kim <kgene.kim@samsung.com>
-Subject: RE: [PATCH 2/3] ARM: S5PV210: Add support for I2C devices on SMDKV210
-	and SMDKC110
-Date: Mon, 19 Jul 2010 09:29:25 +0900
-Message-ID: <000201cb26d9$7472a420$5d57ec60$%kim@samsung.com>
-References: <1279285999-27555-1-git-send-email-kgene.kim@samsung.com>
-	<1279285999-27555-3-git-send-email-kgene.kim@samsung.com>
-	<AANLkTikK6qjh4yG5OX8g8Ih22SCg-2m3nUIfMDABHChf@mail.gmail.com>
+From: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH V3 RESEND2] i2c-imx: do not allow interruptions when waiting
+ for I2C to complete
+Date: Mon, 19 Jul 2010 10:11:32 +0200
+Message-ID: <4C4408B4.6080204@pengutronix.de>
+References: <4C1F0FC7.60605@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-reply-to: <AANLkTikK6qjh4yG5OX8g8Ih22SCg-2m3nUIfMDABHChf@mail.gmail.com>
-Content-language: ko
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: 'Kyungmin Park' <kmpark@infradead.org>
-Cc: 'Naveen Krishna Ch' <ch.naveen@samsung.com>, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5BB63B75903149F6C3D7D1BE"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C1F0FC7.60605-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Kyungmin Park wrote:
-> =
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5BB63B75903149F6C3D7D1BE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> On Fri, Jul 16, 2010 at 10:13 PM, Kukjin Kim <kgene.kim@samsung.com>
-wrote:
-> > From: Naveen Krishna Ch <ch.naveen@samsung.com>
-> >
-> > This patch adds support I2C-0/1/2 devices to the SMDKV210/SMDKC110.
-> >
-> > Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
-> > Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
-> > ---
-> > =A0arch/arm/mach-s5pv210/Kconfig =A0 =A0 =A0 =A0 | =A0 =A08 ++++++++
-> > =A0arch/arm/mach-s5pv210/mach-smdkc110.c | =A0 28
-> ++++++++++++++++++++++++++++
-> > =A0arch/arm/mach-s5pv210/mach-smdkv210.c | =A0 29
-> +++++++++++++++++++++++++++++
-> > =A03 files changed, 65 insertions(+), 0 deletions(-)
-> >
+Hello Ben,
 
-(snip)
+what about this patch?
 
-> >
-> > +static struct i2c_board_info smdkc100_i2c_devs0[] __initdata =3D {
-> > + =A0 =A0 =A0 { I2C_BOARD_INFO("24c08", 0x50), }, =A0 =A0 /* Samsung S5=
-24AD0XD1 */
-> > +};
-> > +
-> =
+cheers, Marc
 
-> why smdkc100?
-> =
+--------8<--------8<--------8<--------8<--------8<--------8<--------
 
-Oh,...thank you for pointing out..will fix it.
+The i2c_imx_trx_complete() function is using
+wait_event_interruptible_timeout() to wait for the I2C controller to
+signal that it has completed an I2C bus operation. If the process that
+causes the I2C operation receives a signal, the wait will be
+interrupted, returning an error. It is better to let the I2C operation
+finished before handling the signal (i.e. returning into userspace).
 
-> > +static struct i2c_board_info smdkc100_i2c_devs1[] __initdata =3D {
-> > + =A0 =A0 =A0 /* To Be Updated */
-> > +};
-> > +
-> Ditto
-> =
+It is safe to use wait_event_timeout() instead, because the timeout
+will allow the process to exit if the I2C bus hangs. It's also better
+to allow the I2C operation to finish, because unacknowledged I2C
+operations can cause the I2C bus to hang.
 
-> > +static struct i2c_board_info smdkc100_i2c_devs2[] __initdata =3D {
-> > + =A0 =A0 =A0 /* To Be Updated */
-> > +};
-> Ditto
-> =
+Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+
+V2: Remove check for "result < 0" as commented by Wolfram Sang.
+V3: Remove "result" entirely.
+
+ drivers/i2c/busses/i2c-imx.c |   12 +++---------
+ 1 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d1ff940..4c2a62b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -159,15 +159,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
+*i2c_imx, int for_busy)
+
+ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
+ {
+-	int result;
+-
+-	result =3D wait_event_interruptible_timeout(i2c_imx->queue,
+-		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
++	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);=
 
 
-(snip)
+-	if (unlikely(result < 0)) {
+-		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
+-		return result;
+-	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
++	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+@@ -295,7 +289,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)=
 
-Thanks.
+ 		i2c_imx->i2csr =3D temp;
+ 		temp &=3D ~I2SR_IIF;
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
+-		wake_up_interruptible(&i2c_imx->queue);
++		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
 
-Best regards,
-Kgene.
+--=20
+1.7.1
+
 --
-Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
-SW Solution Development Team, Samsung Electronics Co., Ltd.
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+
+--------------enig5BB63B75903149F6C3D7D1BE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkxECLgACgkQjTAFq1RaXHPSUwCeIVoLdVxWL7ZdGtcwb+7gMfJw
+lwYAniryaHVMWfVepmzQB42EsQroHzl6
+=99Q7
+-----END PGP SIGNATURE-----
+
+--------------enig5BB63B75903149F6C3D7D1BE--
