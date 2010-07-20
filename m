@@ -1,56 +1,70 @@
-From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: Re: [PATCH] I2C driver of Topcliff PCH
-Date: Tue, 20 Jul 2010 21:40:00 +0900
-Message-ID: <000d01cb2808$ac78d300$66f8800a@maildom.okisemi.com>
-References: <4C204B0D.2030201@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de> <000601cb27e4$3768c170$66f8800a@maildom.okisemi.com> <201007201129.53110.arnd@arndb.de>
+From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Subject: HELP: Interface a CMOS sensor with the DM355 (fwd)
+Date: Tue, 20 Jul 2010 15:06:02 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1007201504190.29807@axis700.grange>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ibrahima sakho <ibrahima_sakho-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd,
+=46orwarding on authors's behalf.
 
-> That is a highly unusual interface and I would definitely not recommend doing
-> this. Please use an ioctl operation for anything that has both input and output
-> data.
-I will delete the special interface from our i2c driver.
+Guennadi
+---
+Guennadi Liakhovetski, Ph.D.
+=46reelance Open-Source Software Developer
+http://www.open-technology.de/
 
-Thanks, Ohtake
------ Original Message ----- 
-From: "Arnd Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
-To: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>;
-<qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "LKML" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "Ben Dooks (embedded
-platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>; "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Sent: Tuesday, July 20, 2010 6:29 PM
-Subject: Re: [PATCH] I2C driver of Topcliff PCH
+---------- Forwarded message ----------
+Date: Tue, 20 Jul 2010 11:01:36 +0200
+=46rom: ibrahima sakho <ibrahima_sakho-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+Subject: HELP: Interface a CMOS sensor with the DM355
 
 
-> On Tuesday 20 July 2010, Masayuki Ohtake wrote:
-> > > > @@ -147,6 +148,11 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
-> > > >  if (tmp == NULL)
-> > > >  return -ENOMEM;
-> > > >
-> > > > + if (copy_from_user(tmp, buf, count)) {
-> > > > + kfree(tmp);
-> > > > + return -EFAULT;
-> > > > + }
-> > > > +
-> > > >  pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
-> > > >  iminor(file->f_path.dentry->d_inode), count);
-> > >
-> > >
-> > > A read function should not do copy_from_user, only copy_to_user.
-> > > If you are worried about returning invalid data from kernel space,
-> > > better use kzalloc instead of kmalloc to get the buffer.
-> >
-> > Our I2C HW has special mode.
-> > To control the mode, our i2c driver has copy_from_user.
->
-> That is a highly unusual interface and I would definitely not recommend doing
-> this. Please use an ioctl operation for anything that has both input and output
-> data.
->
-> Arnd
->
+Hello,
+
+I come towards you because I work at present on the interfacing between=
+=20
+the demo board DM355 and the CMOS sensor MT9J003 from Micron (Aptina) t=
+o=20
+make of the video. I use the Arago project for it.
+
+The problem which I have is situated at the configuration of the I2C bu=
+s.=20
+Indeed, the register address of the CMOS sensor MT9J003 is on 16 bits a=
+nd=20
+I do not succeed in communicating via this bus. I am parit of the drive=
+r=20
+that you developed for the MT9T031, but without succ=E9s. The communica=
+tion=20
+with the sensor is of this kind:
+
+I2C Block Read (2 Comm bytes)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+ =20
+This command reads a block of bytes from a device, from a=20
+designated register that is specified through the two Comm byte.
+
+S Addr Wr [A] Comm1 [A] Comm2 [A] S Addr Rd [A] [Data] A [Data] A ... A=
+ [Data] NA P
+
+Is this I2C function  implemented in the I2C module ?=20
+
+May I use Arago project to manage to configure this I2C communication ?=
+ I=20
+shall really need your help and your councils.
+
+I thank you beforehand.=20
+
+Ibrahima SAKHO
+
+ 		 	   		 =20
+_________________________________________________________________
+Le nouveau Hotmail est presque arriv=E9, ne le manquez pas !
+http://www.windowslive.fr/nouveau-hotmail/
