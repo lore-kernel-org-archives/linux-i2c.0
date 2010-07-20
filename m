@@ -1,269 +1,81 @@
-From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: Re: [PATCH] I2C driver of Topcliff PCH
-Date: Tue, 20 Jul 2010 13:55:38 +0900
-Message-ID: <000401cb27c7$ce732960$66f8800a@maildom.okisemi.com>
-References: <4C204B0D.2030201@dsn.okisemi.com> <4C3EBBEC.9020304@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [Patch v3] i2c: Multiplexed I2C bus core support
+Date: Tue, 20 Jul 2010 08:44:23 +0200
+Message-ID: <4C4545C7.4070508@gmx.de>
+References: <4C36E6E2.1070307@gmx.de> <20100719172548.2d88ed73@hyperion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100719172548.2d88ed73-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd
+Jean Delvare said the following:
+> Hi Michael,
+> 
+>>  drivers/i2c/i2c-mux.c       |  165
+>> > +++++++++++++++++++++++++++++++++++++++++++
+> As you can see, your e-mail client wrapped long lines again. I had to
+> manually fix the patch so that I could apply it...
+> 
+I'm really sorry about that :-(
+I've tested it by sending to an alternative address and it worked.
+No idea where this wrap comes from.
+...
+>> @@ -656,9 +709,9 @@ i2c_sysfs_new_device(struct device *dev, struct
+>> device_attribute *attr,
+>>  		return -EINVAL;
+>> 
+>>  	/* Keep track of the added device */
+>> -	i2c_lock_adapter(adap);
+>> +	rt_mutex_lock(&adap->bus_lock);
+>>  	list_add_tail(&client->detected, &adap->userspace_clients);
+>> -	i2c_unlock_adapter(adap);
+>> +	rt_mutex_unlock(&adap->bus_lock);
+>>  	dev_info(dev, "%s: Instantiated device %s at 0x%02hx\n", "new_device",
+>>  		 info.type, info.addr);
+>> 
+> 
+> I expected us to just use i2c_lock/unlock_adapter() everywhere for
+> simplicity. Now I have to agree that using the segment's mutex works
+> too, as the operation is both local to the mutex and unrelated to
+> the other use cases of i2c_lock/unlock_adapter(). But it becomes a
+> little tricky, so it should be all documented clearly (which I will
+> do, don't worry.)
+> 
+>> @@ -697,7 +750,7 @@ i2c_sysfs_delete_device(struct device *dev, struct
+>> device_attribute *attr,
+>> 
+>>  	/* Make sure the device was added through sysfs */
+>>  	res = -ENOENT;
+>> -	i2c_lock_adapter(adap);
+>> +	rt_mutex_lock(&adap->bus_lock);
+>>  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+>>  				 detected) {
+>>  		if (client->addr == addr) {
+>> @@ -710,7 +763,7 @@ i2c_sysfs_delete_device(struct device *dev, struct
+>> device_attribute *attr,
+>>  			break;
+>>  		}
+>>  	}
+>> -	i2c_unlock_adapter(adap);
+>> +	rt_mutex_unlock(&adap->bus_lock);
+>> 
+>>  	if (res < 0)
+>>  		dev_err(dev, "%s: Can't find device in list\n",
 
-> > + struct adapter_info *adap_info = (struct adapter_info *)pData;
-> > + /* invoke the call back  */
-> > +
-> > + if (pch_cbr != NULL) {
-> > + for (i = 0, ret = 0; i < PCH_MAX_CHN; i++)
-> > + ret |= (pch_cbr) (&adap_info->pch_data[i]);
-> > + } else {
-> > + dev_err(adap_info->pch_data[0].pch_adapter.dev.parent,
-> > + "%s Call back pointer null ...", __func__);
-> > + return IRQ_NONE;
-> > + }
->
-> Here you are multiplexing the interrupt yourself. If you don't
-> always use all the available channels, it may be better to
-> register the pch_cbr handler separately for each of the channels
-> that are actually used, so you don't have to invoke the callback
-> for all of them all the time.
->
-> > + for (i = 0; i < PCH_MAX_CHN; i++) {
-> > + adap_info->pch_data[i].p_adapter_info = adap_info;
-> > +
-> > + adap_info->pch_data[i].pch_adapter.owner = THIS_MODULE;
-> > + adap_info->pch_data[i].pch_adapter.class = I2C_CLASS_HWMON;
-> > + strcpy(adap_info->pch_data[i].pch_adapter.name, "pch_i2c");
-> > + adap_info->pch_data[i].pch_adapter.algo = &pch_algorithm;
-> > + adap_info->pch_data[i].pch_adapter.algo_data =
-> > + &adap_info->pch_data[i];
-> > +
-> > + /* (i * 0x80) + base_addr; */
-> > + adap_info->pch_data[i].pch_base_address = base_addr;
-> > +
-> > + adap_info->pch_data[i].pch_adapter.dev.parent = &pdev->dev;
-> > +
-> > + ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
-> > +
-> > + if (ret) {
-> > + dev_err(&pdev->dev, "i2c_add_adapter FAILED");
-> > + goto err_i2c_add_adapter;
-> > + }
-> > +
-> > + dev_dbg(&pdev->dev,
-> > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
-> > + pch_init(&adap_info->pch_data[i]);
-> > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
-> > + }
-> > +
-> > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
-> > +   MODULE_NAME, adap_info);
->
-> Similarly, you would create a new channel data structure for each channel here
-> and register it separately, and then request the interrupt with that
-> data structure as the info.
+In i2c_sysfs_delete_device you need a local lock, otherwise you'll get
+a deadlock on removing sub-clients/tree. This in turn brings the local
+lock to i2c_sysfs_new_device().
 
-With I2c multi-cahnnel IOH, IRQ number is in common.
-Thus, I think our PCH I2C driver can't be implemented like above.
+Thank you for your review.
+ToDo after release: Inventing mux-adapter-name definition in mux-client
+code instead of mux-code. You were right in your last review, this is
+terribly necessary.
 
-Thanks, Ohtake.
-
------ Original Message ----- 
-From: "Arnd Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
-To: "Masayuki Ohtak" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>; "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>;
-<linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "LKML" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang, Yong Y"
-<yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sent: Friday, July 16, 2010 4:35 AM
-Subject: Re: [PATCH] I2C driver of Topcliff PCH
-
-
-> On Thursday 15 July 2010 09:42:36 Masayuki Ohtak wrote:
-> > I2C driver of Topcliff PCH
-> >
-> > Topcliff PCH is the platform controller hub that is going to be used in
-> > Intel's upcoming general embedded platform. All IO peripherals in
-> > Topcliff PCH are actually devices sitting on AMBA bus.
-> > Topcliff PCH has I2C I/F. Using this I/F, it is able to access system
-> > devices connected to I2C.
->
-> Looks ok in general. Some minor comments follow:
->
-> > +/**
-> > + * pch_wait_for_bus_idle() - check the status of bus.
-> > + * @adap: Pointer to struct i2c_algo_pch_data.
-> > + * @timeout: waiting time counter (us).
-> > + */
-> > +static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
-> > + s32 timeout)
-> > +{
-> > + u32 reg_value;
-> > + void __iomem *p = adap->pch_base_address;
-> > +
-> > + /* get the status of bus busy */
-> > + reg_value = (ioread32(p + PCH_I2CSR) & I2CMBB_BIT);
-> > +
-> > + while ((timeout != 0) && (reg_value != 0)) {
-> > + msleep(1); /* wait for 100 ms */
-> > + reg_value = ioread32(p + PCH_I2CSR) & I2CMBB_BIT;
-> > +
-> > + timeout--;
-> > + }
->
->
-> If you want to wait for a maximum amount of time, a loop with
-> msleep(1) may end up waiting more than twice as long as you want,
-> because each msleep typically returns one milisecond too late.
->
-> Better use something like:
->
-> time_t timeout = ktime_add_ns(ktime_get(), MAX_NANOSECONDS);
->
-> do {
-> if (ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
-> break;
-> msleep(1);
-> } while (ktime_lt(ktime_get(), timeout));
->
-> > +/**
-> > + * pch_wait_for_xfer_complete() - initiates a wait for the tx complete event
-> > + * @adap: Pointer to struct i2c_algo_pch_data.
-> > + */
-> > +static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
-> > +{
-> > + u32 temp_flag;
-> > + s32 ret;
-> > + ret = wait_event_interruptible_timeout(pch_event,
-> > + (adap->pch_event_flag != 0), msecs_to_jiffies(50));
-> > +
-> > + dev_dbg(adap->pch_adapter.dev.parent,
-> > + "%s adap->pch_event_flag = %x", __func__, adap->pch_event_flag);
-> > + temp_flag = adap->pch_event_flag;
-> > + adap->pch_event_flag = 0;
-> > +
-> > + if (ret == 0) {
-> > + dev_err(adap->pch_adapter.dev.parent,
-> > + "%s : Timeout\n", __func__);
-> > + } else if (ret < 0) {
-> > + dev_err(adap->pch_adapter.dev.parent,
-> > + "%s failed : Interrupted by other signal\n", __func__);
-> > + ret = -ERESTARTSYS;
-> > + } else if ((temp_flag & I2C_ERROR_MASK) == 0) {
-> > + ret = 0;
-> > + } else {
-> > + dev_err(adap->pch_adapter.dev.parent,
-> > + "%s failed : Error in transfer\n", __func__);
-> > + }
-> > +
-> > + dev_err(adap->pch_adapter.dev.parent, "%s returns %d\n", __func__, ret);
-> > +
-> > + return ret;
-> > +}
->
-> The control flow is much more complex than it needs to be here.
-> If you want to handle different kinds of error conditions, best
-> use goto. Also, it's very unusual to return positive values
-> on errors and to print dev_err messages on success.
->
-> int ret;
-> ret = wait_event_interruptible_timeout(...);
-> if (ret < 0)
-> goto out;
->
-> if (ret == 0) {
-> ret = -ETIMEOUT;
-> goto out;
-> }
->
-> ret = 0;
-> if (adap->pch_event_flag & I2C_ERROR_MASK) {
-> ret = -EIO;
-> dev_err(adap->pch_adapter.dev.parent, "error bits set: %lx\n", adap->pch_event_flag);
-> }
->
-> out:
-> return ret;
->
-> > +/**
-> > + * pch_handler() - interrupt handler for the PCH I2C controller
-> > + * @irq: irq number.
-> > + * @pData: cookie passed back to the handler function.
-> > + */
-> > +static irqreturn_t pch_handler(int irq, void *pData)
-> > +{
-> > + s32 ret;
-> > + u32 i;
-> > +
-> > + struct adapter_info *adap_info = (struct adapter_info *)pData;
-> > + /* invoke the call back  */
-> > +
-> > + if (pch_cbr != NULL) {
-> > + for (i = 0, ret = 0; i < PCH_MAX_CHN; i++)
-> > + ret |= (pch_cbr) (&adap_info->pch_data[i]);
-> > + } else {
-> > + dev_err(adap_info->pch_data[0].pch_adapter.dev.parent,
-> > + "%s Call back pointer null ...", __func__);
-> > + return IRQ_NONE;
-> > + }
->
-> Here you are multiplexing the interrupt yourself. If you don't
-> always use all the available channels, it may be better to
-> register the pch_cbr handler separately for each of the channels
-> that are actually used, so you don't have to invoke the callback
-> for all of them all the time.
->
-> > + for (i = 0; i < PCH_MAX_CHN; i++) {
-> > + adap_info->pch_data[i].p_adapter_info = adap_info;
-> > +
-> > + adap_info->pch_data[i].pch_adapter.owner = THIS_MODULE;
-> > + adap_info->pch_data[i].pch_adapter.class = I2C_CLASS_HWMON;
-> > + strcpy(adap_info->pch_data[i].pch_adapter.name, "pch_i2c");
-> > + adap_info->pch_data[i].pch_adapter.algo = &pch_algorithm;
-> > + adap_info->pch_data[i].pch_adapter.algo_data =
-> > + &adap_info->pch_data[i];
-> > +
-> > + /* (i * 0x80) + base_addr; */
-> > + adap_info->pch_data[i].pch_base_address = base_addr;
-> > +
-> > + adap_info->pch_data[i].pch_adapter.dev.parent = &pdev->dev;
-> > +
-> > + ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
-> > +
-> > + if (ret) {
-> > + dev_err(&pdev->dev, "i2c_add_adapter FAILED");
-> > + goto err_i2c_add_adapter;
-> > + }
-> > +
-> > + dev_dbg(&pdev->dev,
-> > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
-> > + pch_init(&adap_info->pch_data[i]);
-> > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
-> > + }
-> > +
-> > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
-> > +   MODULE_NAME, adap_info);
->
-> Similarly, you would create a new channel data structure for each channel here
-> and register it separately, and then request the interrupt with that
-> data structure as the info.
->
-> > @@ -147,6 +148,11 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
-> >  if (tmp == NULL)
-> >  return -ENOMEM;
-> >
-> > + if (copy_from_user(tmp, buf, count)) {
-> > + kfree(tmp);
-> > + return -EFAULT;
-> > + }
-> > +
-> >  pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
-> >  iminor(file->f_path.dentry->d_inode), count);
->
->
-> A read function should not do copy_from_user, only copy_to_user.
-> If you are worried about returning invalid data from kernel space,
-> better use kzalloc instead of kmalloc to get the buffer.
->
-> Arnd
->
+-- 
+KR
+Michael Lawnick
