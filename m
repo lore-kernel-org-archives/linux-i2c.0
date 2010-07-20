@@ -1,100 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Use a separate mutex for userspace client lists
-Date: Tue, 20 Jul 2010 14:22:27 +0200
-Message-ID: <20100720142227.14bb11bb@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Subject: Re: [PATCH] I2C driver of Topcliff PCH
+Date: Tue, 20 Jul 2010 21:38:22 +0900
+Message-ID: <000801cb2808$72aef870$66f8800a@maildom.okisemi.com>
+References: <4C204B0D.2030201@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de> <000401cb27c7$ce732960$66f8800a@maildom.okisemi.com> <201007201127.57510.arnd@arndb.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Moving userspace-instantiated clients to separate lists wasn't nearly
-enough to avoid deadlocks in multiplexed bus cases. We also want to
-have a dedicated mutex to protect each list.
+Hi Arnd,
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
----
-Michael, this should solve any deadlock issue related to userspace
-devices we've been discussing lately. I should probably have done this
-from the beginning. This also has the benefit of making your own patch
-slightly smaller - I'll update it myself.
+> If you pass IRQF_SHARED, you can register any number of handlers
+> for the same IRQ number using different dev pointers.
+I will modify like above.
 
- drivers/i2c/i2c-core.c |   13 +++++++------
- include/linux/i2c.h    |    1 +
- 2 files changed, 8 insertions(+), 6 deletions(-)
+Thanks, Ohtake.
+----- Original Message ----- 
+From: "Arnd Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
+To: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>; "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>;
+<linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "LKML" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang, Yong Y"
+<yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sent: Tuesday, July 20, 2010 6:27 PM
+Subject: Re: [PATCH] I2C driver of Topcliff PCH
 
---- linux-2.6.35-rc5.orig/drivers/i2c/i2c-core.c	2010-07-19 09:11:51.000000000 +0200
-+++ linux-2.6.35-rc5/drivers/i2c/i2c-core.c	2010-07-20 13:08:51.000000000 +0200
-@@ -656,9 +656,9 @@ i2c_sysfs_new_device(struct device *dev,
- 		return -EINVAL;
- 
- 	/* Keep track of the added device */
--	i2c_lock_adapter(adap);
-+	mutex_lock(&adap->userspace_clients_lock);
- 	list_add_tail(&client->detected, &adap->userspace_clients);
--	i2c_unlock_adapter(adap);
-+	mutex_unlock(&adap->userspace_clients_lock);
- 	dev_info(dev, "%s: Instantiated device %s at 0x%02hx\n", "new_device",
- 		 info.type, info.addr);
- 
-@@ -697,7 +697,7 @@ i2c_sysfs_delete_device(struct device *d
- 
- 	/* Make sure the device was added through sysfs */
- 	res = -ENOENT;
--	i2c_lock_adapter(adap);
-+	mutex_lock(&adap->userspace_clients_lock);
- 	list_for_each_entry_safe(client, next, &adap->userspace_clients,
- 				 detected) {
- 		if (client->addr == addr) {
-@@ -710,7 +710,7 @@ i2c_sysfs_delete_device(struct device *d
- 			break;
- 		}
- 	}
--	i2c_unlock_adapter(adap);
-+	mutex_unlock(&adap->userspace_clients_lock);
- 
- 	if (res < 0)
- 		dev_err(dev, "%s: Can't find device in list\n",
-@@ -792,6 +792,7 @@ static int i2c_register_adapter(struct i
- 	}
- 
- 	rt_mutex_init(&adap->bus_lock);
-+	mutex_init(&adap->userspace_clients_lock);
- 	INIT_LIST_HEAD(&adap->userspace_clients);
- 
- 	/* Set default timeout to 1 second if not already set */
-@@ -994,7 +995,7 @@ int i2c_del_adapter(struct i2c_adapter *
- 		return res;
- 
- 	/* Remove devices instantiated from sysfs */
--	i2c_lock_adapter(adap);
-+	mutex_lock(&adap->userspace_clients_lock);
- 	list_for_each_entry_safe(client, next, &adap->userspace_clients,
- 				 detected) {
- 		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
-@@ -1002,7 +1003,7 @@ int i2c_del_adapter(struct i2c_adapter *
- 		list_del(&client->detected);
- 		i2c_unregister_device(client);
- 	}
--	i2c_unlock_adapter(adap);
-+	mutex_unlock(&adap->userspace_clients_lock);
- 
- 	/* Detach any active clients. This can't fail, thus we do not
- 	   checking the returned value. */
---- linux-2.6.35-rc5.orig/include/linux/i2c.h	2010-07-19 09:11:50.000000000 +0200
-+++ linux-2.6.35-rc5/include/linux/i2c.h	2010-07-20 12:58:08.000000000 +0200
-@@ -366,6 +366,7 @@ struct i2c_adapter {
- 	char name[48];
- 	struct completion dev_released;
- 
-+	struct mutex userspace_clients_lock;
- 	struct list_head userspace_clients;
- };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
 
--- 
-Jean Delvare
+> On Tuesday 20 July 2010, Masayuki Ohtake wrote:
+> > > > +
+> > > > + dev_dbg(&pdev->dev,
+> > > > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
+> > > > + pch_init(&adap_info->pch_data[i]);
+> > > > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
+> > > > + }
+> > > > +
+> > > > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
+> > > > +   MODULE_NAME, adap_info);
+> > >
+> > > Similarly, you would create a new channel data structure for each channel here
+> > > and register it separately, and then request the interrupt with that
+> > > data structure as the info.
+> >
+> > With I2c multi-cahnnel IOH, IRQ number is in common.
+> > Thus, I think our PCH I2C driver can't be implemented like above.
+>
+> If you pass IRQF_SHARED, you can register any number of handlers
+> for the same IRQ number using different dev pointers.
+>
+> Arnd
+>
