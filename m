@@ -1,49 +1,215 @@
-From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [PATCH v2] gpio: sx150x: Add Semtech I2C sx150x gpio expander
- driver.
-Date: Mon, 19 Jul 2010 16:50:38 -0700
-Message-ID: <20100719165038.a308b019.akpm@linux-foundation.org>
-References: <1278617834-14970-1-git-send-email-gbean@codeaurora.org>
-	<20100719163142.16cab271.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100719163142.16cab271.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+From: "Masayuki Ohtake" <masa-korg@dsn.okisemi.com>
+Subject: Re: [PATCH] I2C driver of Topcliff PCH
+Date: Tue, 20 Jul 2010 09:05:13 +0900
+Message-ID: <001c01cb279f$3bccec40$66f8800a@maildom.okisemi.com>
+References: <4C204B0D.2030201@dsn.okisemi.com> <4C3EBBEC.9020304@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, qi.wang@intel.com, "Wang, Yong Y" <yong.y.wang@intel.com>, joel.clark@intel.com, andrew.chih.howe.khor@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 19 Jul 2010 16:31:42 -0700
-Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org> wrote:
+Hi Arnd,
 
-> On Thu,  8 Jul 2010 12:37:14 -0700
-> Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org> wrote:
-> 
-> > Add support for Semtech SX150-series I2C GPIO expanders.
-> 
-> It doesn't work when compiled as a module:
-> 
-> ERROR: "irq_to_desc" [drivers/gpio/sx150x.ko] undefined!
-> ERROR: "handle_edge_irq" [drivers/gpio/sx150x.ko] undefined!
-> ERROR: "set_irq_chip_and_handler" [drivers/gpio/sx150x.ko] undefined!
-> ERROR: "set_irq_noprobe" [drivers/gpio/sx150x.ko] undefined!
-> 
-> I think there's a reason why some of those things aren't exported to
-> modules.  Perhaps Thomas can remind us?
-> 
-> Meanwhile I'll do s/tristate/bool/.
+Thank you for you comments.
+I will modify our i2c patch by tomorrow.
 
-Which of course didn't work because i2c is a module.
+Thanks, Ohtake
+----- Original Message ----- 
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Masayuki Ohtak" <masa-korg@dsn.okisemi.com>
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>; "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>;
+<linux-i2c@vger.kernel.org>; "LKML" <linux-kernel@vger.kernel.org>; <qi.wang@intel.com>; "Wang, Yong Y"
+<yong.y.wang@intel.com>; <joel.clark@intel.com>; <andrew.chih.howe.khor@intel.com>
+Sent: Friday, July 16, 2010 4:35 AM
+Subject: Re: [PATCH] I2C driver of Topcliff PCH
 
 
-drivers/built-in.o: In function `sx150x_i2c_read':
-sx150x.c:(.text+0x5362): undefined reference to `i2c_smbus_read_byte_data'
-drivers/built-in.o: In function `sx150x_i2c_write':
-sx150x.c:(.text+0x53e4): undefined reference to `i2c_smbus_write_byte_data'
-drivers/built-in.o: In function `sx150x_init':
-sx150x.c:(.init.text+0x418): undefined reference to `i2c_register_driver'
-drivers/built-in.o: In function `sx150x_probe':
-sx150x.c:(.devinit.text+0xda1): undefined reference to `i2c_smbus_write_word_data'
-drivers/built-in.o: In function `sx150x_exit':
-sx150x.c:(.exit.text+0x7c): undefined reference to `i2c_del_driver'
+> On Thursday 15 July 2010 09:42:36 Masayuki Ohtak wrote:
+> > I2C driver of Topcliff PCH
+> >
+> > Topcliff PCH is the platform controller hub that is going to be used in
+> > Intel's upcoming general embedded platform. All IO peripherals in
+> > Topcliff PCH are actually devices sitting on AMBA bus.
+> > Topcliff PCH has I2C I/F. Using this I/F, it is able to access system
+> > devices connected to I2C.
+>
+> Looks ok in general. Some minor comments follow:
+>
+> > +/**
+> > + * pch_wait_for_bus_idle() - check the status of bus.
+> > + * @adap: Pointer to struct i2c_algo_pch_data.
+> > + * @timeout: waiting time counter (us).
+> > + */
+> > +static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+> > + s32 timeout)
+> > +{
+> > + u32 reg_value;
+> > + void __iomem *p = adap->pch_base_address;
+> > +
+> > + /* get the status of bus busy */
+> > + reg_value = (ioread32(p + PCH_I2CSR) & I2CMBB_BIT);
+> > +
+> > + while ((timeout != 0) && (reg_value != 0)) {
+> > + msleep(1); /* wait for 100 ms */
+> > + reg_value = ioread32(p + PCH_I2CSR) & I2CMBB_BIT;
+> > +
+> > + timeout--;
+> > + }
+>
+>
+> If you want to wait for a maximum amount of time, a loop with
+> msleep(1) may end up waiting more than twice as long as you want,
+> because each msleep typically returns one milisecond too late.
+>
+> Better use something like:
+>
+> time_t timeout = ktime_add_ns(ktime_get(), MAX_NANOSECONDS);
+>
+> do {
+> if (ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+> break;
+> msleep(1);
+> } while (ktime_lt(ktime_get(), timeout));
+>
+> > +/**
+> > + * pch_wait_for_xfer_complete() - initiates a wait for the tx complete event
+> > + * @adap: Pointer to struct i2c_algo_pch_data.
+> > + */
+> > +static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
+> > +{
+> > + u32 temp_flag;
+> > + s32 ret;
+> > + ret = wait_event_interruptible_timeout(pch_event,
+> > + (adap->pch_event_flag != 0), msecs_to_jiffies(50));
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s adap->pch_event_flag = %x", __func__, adap->pch_event_flag);
+> > + temp_flag = adap->pch_event_flag;
+> > + adap->pch_event_flag = 0;
+> > +
+> > + if (ret == 0) {
+> > + dev_err(adap->pch_adapter.dev.parent,
+> > + "%s : Timeout\n", __func__);
+> > + } else if (ret < 0) {
+> > + dev_err(adap->pch_adapter.dev.parent,
+> > + "%s failed : Interrupted by other signal\n", __func__);
+> > + ret = -ERESTARTSYS;
+> > + } else if ((temp_flag & I2C_ERROR_MASK) == 0) {
+> > + ret = 0;
+> > + } else {
+> > + dev_err(adap->pch_adapter.dev.parent,
+> > + "%s failed : Error in transfer\n", __func__);
+> > + }
+> > +
+> > + dev_err(adap->pch_adapter.dev.parent, "%s returns %d\n", __func__, ret);
+> > +
+> > + return ret;
+> > +}
+>
+> The control flow is much more complex than it needs to be here.
+> If you want to handle different kinds of error conditions, best
+> use goto. Also, it's very unusual to return positive values
+> on errors and to print dev_err messages on success.
+>
+> int ret;
+> ret = wait_event_interruptible_timeout(...);
+> if (ret < 0)
+> goto out;
+>
+> if (ret == 0) {
+> ret = -ETIMEOUT;
+> goto out;
+> }
+>
+> ret = 0;
+> if (adap->pch_event_flag & I2C_ERROR_MASK) {
+> ret = -EIO;
+> dev_err(adap->pch_adapter.dev.parent, "error bits set: %lx\n", adap->pch_event_flag);
+> }
+>
+> out:
+> return ret;
+>
+> > +/**
+> > + * pch_handler() - interrupt handler for the PCH I2C controller
+> > + * @irq: irq number.
+> > + * @pData: cookie passed back to the handler function.
+> > + */
+> > +static irqreturn_t pch_handler(int irq, void *pData)
+> > +{
+> > + s32 ret;
+> > + u32 i;
+> > +
+> > + struct adapter_info *adap_info = (struct adapter_info *)pData;
+> > + /* invoke the call back  */
+> > +
+> > + if (pch_cbr != NULL) {
+> > + for (i = 0, ret = 0; i < PCH_MAX_CHN; i++)
+> > + ret |= (pch_cbr) (&adap_info->pch_data[i]);
+> > + } else {
+> > + dev_err(adap_info->pch_data[0].pch_adapter.dev.parent,
+> > + "%s Call back pointer null ...", __func__);
+> > + return IRQ_NONE;
+> > + }
+>
+> Here you are multiplexing the interrupt yourself. If you don't
+> always use all the available channels, it may be better to
+> register the pch_cbr handler separately for each of the channels
+> that are actually used, so you don't have to invoke the callback
+> for all of them all the time.
+>
+> > + for (i = 0; i < PCH_MAX_CHN; i++) {
+> > + adap_info->pch_data[i].p_adapter_info = adap_info;
+> > +
+> > + adap_info->pch_data[i].pch_adapter.owner = THIS_MODULE;
+> > + adap_info->pch_data[i].pch_adapter.class = I2C_CLASS_HWMON;
+> > + strcpy(adap_info->pch_data[i].pch_adapter.name, "pch_i2c");
+> > + adap_info->pch_data[i].pch_adapter.algo = &pch_algorithm;
+> > + adap_info->pch_data[i].pch_adapter.algo_data =
+> > + &adap_info->pch_data[i];
+> > +
+> > + /* (i * 0x80) + base_addr; */
+> > + adap_info->pch_data[i].pch_base_address = base_addr;
+> > +
+> > + adap_info->pch_data[i].pch_adapter.dev.parent = &pdev->dev;
+> > +
+> > + ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
+> > +
+> > + if (ret) {
+> > + dev_err(&pdev->dev, "i2c_add_adapter FAILED");
+> > + goto err_i2c_add_adapter;
+> > + }
+> > +
+> > + dev_dbg(&pdev->dev,
+> > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
+> > + pch_init(&adap_info->pch_data[i]);
+> > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
+> > + }
+> > +
+> > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
+> > +   MODULE_NAME, adap_info);
+>
+> Similarly, you would create a new channel data structure for each channel here
+> and register it separately, and then request the interrupt with that
+> data structure as the info.
+>
+> > @@ -147,6 +148,11 @@ static ssize_t i2cdev_read(struct file *file, char __user *buf, size_t count,
+> >  if (tmp == NULL)
+> >  return -ENOMEM;
+> >
+> > + if (copy_from_user(tmp, buf, count)) {
+> > + kfree(tmp);
+> > + return -EFAULT;
+> > + }
+> > +
+> >  pr_debug("i2c-dev: i2c-%d reading %zu bytes.\n",
+> >  iminor(file->f_path.dentry->d_inode), count);
+>
+>
+> A read function should not do copy_from_user, only copy_to_user.
+> If you are worried about returning invalid data from kernel space,
+> better use kzalloc instead of kmalloc to get the buffer.
+>
+> Arnd
+>
