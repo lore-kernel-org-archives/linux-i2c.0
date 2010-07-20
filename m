@@ -1,26 +1,80 @@
-From: "Masayuki Ohtake" <masa-korg@dsn.okisemi.com>
+From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Subject: Re: [PATCH] I2C driver of Topcliff PCH
-Date: Tue, 20 Jul 2010 09:05:13 +0900
-Message-ID: <001c01cb279f$3bccec40$66f8800a@maildom.okisemi.com>
+Date: Tue, 20 Jul 2010 13:55:38 +0900
+Message-ID: <000401cb27c7$ce732960$66f8800a@maildom.okisemi.com>
 References: <4C204B0D.2030201@dsn.okisemi.com> <4C3EBBEC.9020304@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, qi.wang@intel.com, "Wang, Yong Y" <yong.y.wang@intel.com>, joel.clark@intel.com, andrew.chih.howe.khor@intel.com
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd,
+Hi Arnd
 
-Thank you for you comments.
-I will modify our i2c patch by tomorrow.
+> > + struct adapter_info *adap_info = (struct adapter_info *)pData;
+> > + /* invoke the call back  */
+> > +
+> > + if (pch_cbr != NULL) {
+> > + for (i = 0, ret = 0; i < PCH_MAX_CHN; i++)
+> > + ret |= (pch_cbr) (&adap_info->pch_data[i]);
+> > + } else {
+> > + dev_err(adap_info->pch_data[0].pch_adapter.dev.parent,
+> > + "%s Call back pointer null ...", __func__);
+> > + return IRQ_NONE;
+> > + }
+>
+> Here you are multiplexing the interrupt yourself. If you don't
+> always use all the available channels, it may be better to
+> register the pch_cbr handler separately for each of the channels
+> that are actually used, so you don't have to invoke the callback
+> for all of them all the time.
+>
+> > + for (i = 0; i < PCH_MAX_CHN; i++) {
+> > + adap_info->pch_data[i].p_adapter_info = adap_info;
+> > +
+> > + adap_info->pch_data[i].pch_adapter.owner = THIS_MODULE;
+> > + adap_info->pch_data[i].pch_adapter.class = I2C_CLASS_HWMON;
+> > + strcpy(adap_info->pch_data[i].pch_adapter.name, "pch_i2c");
+> > + adap_info->pch_data[i].pch_adapter.algo = &pch_algorithm;
+> > + adap_info->pch_data[i].pch_adapter.algo_data =
+> > + &adap_info->pch_data[i];
+> > +
+> > + /* (i * 0x80) + base_addr; */
+> > + adap_info->pch_data[i].pch_base_address = base_addr;
+> > +
+> > + adap_info->pch_data[i].pch_adapter.dev.parent = &pdev->dev;
+> > +
+> > + ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
+> > +
+> > + if (ret) {
+> > + dev_err(&pdev->dev, "i2c_add_adapter FAILED");
+> > + goto err_i2c_add_adapter;
+> > + }
+> > +
+> > + dev_dbg(&pdev->dev,
+> > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
+> > + pch_init(&adap_info->pch_data[i]);
+> > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
+> > + }
+> > +
+> > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
+> > +   MODULE_NAME, adap_info);
+>
+> Similarly, you would create a new channel data structure for each channel here
+> and register it separately, and then request the interrupt with that
+> data structure as the info.
 
-Thanks, Ohtake
+With I2c multi-cahnnel IOH, IRQ number is in common.
+Thus, I think our PCH I2C driver can't be implemented like above.
+
+Thanks, Ohtake.
+
 ----- Original Message ----- 
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Masayuki Ohtak" <masa-korg@dsn.okisemi.com>
-Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>; "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>;
-<linux-i2c@vger.kernel.org>; "LKML" <linux-kernel@vger.kernel.org>; <qi.wang@intel.com>; "Wang, Yong Y"
-<yong.y.wang@intel.com>; <joel.clark@intel.com>; <andrew.chih.howe.khor@intel.com>
+From: "Arnd Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
+To: "Masayuki Ohtak" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>; "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>;
+<linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "LKML" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang, Yong Y"
+<yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sent: Friday, July 16, 2010 4:35 AM
 Subject: Re: [PATCH] I2C driver of Topcliff PCH
 
