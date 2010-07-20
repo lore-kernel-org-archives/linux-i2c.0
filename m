@@ -1,70 +1,57 @@
-From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Subject: HELP: Interface a CMOS sensor with the DM355 (fwd)
-Date: Tue, 20 Jul 2010 15:06:02 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1007201504190.29807@axis700.grange>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [Patch v3] i2c: Multiplexed I2C bus core support
+Date: Tue, 20 Jul 2010 21:27:29 +0200
+Message-ID: <20100720212729.4d81048b@hyperion.delvare>
+References: <4C36E6E2.1070307@gmx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C36E6E2.1070307-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ibrahima sakho <ibrahima_sakho-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=46orwarding on authors's behalf.
+Hi Michael,
 
-Guennadi
----
-Guennadi Liakhovetski, Ph.D.
-=46reelance Open-Source Software Developer
-http://www.open-technology.de/
+On Fri, 09 Jul 2010 11:07:46 +0200, Michael Lawnick wrote:
+> Add multiplexed bus core support. I2C multiplexer and switches
+> like pca954x get instantiated as new adapters per port.
+> 
+> Signed-off-by: Michael Lawnick <demx1175@wbit01lx.(none)>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> ---
+> Based on kernel 2.6.35.rc2 +
+> [PATCH] i2c: Move adapter locking helpers to i2c-core
+> by Jean Delware <20100615140218.07090c90-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
+> <http://article.gmane.org/gmane.linux.drivers.i2c/6226/match=i2c+move+adapter+locking+helpers+i2c+core>
+> 
+>  drivers/i2c/Kconfig         |   11 +++
+>  drivers/i2c/Makefile        |    1 +
+>  drivers/i2c/i2c-core.c      |   80 +++++++++++++++++----
+>  drivers/i2c/i2c-dev.c       |   44 +++++++++++-
+>  drivers/i2c/i2c-mux.c       |  165 +++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c-mux.h     |   46 ++++++++++++
+>  include/linux/i2c.h         |    8 ++
+>  7 files changed, 341 insertions(+), 14 deletions(-)
+>  create mode 100755 drivers/i2c/i2c-mux.c
+>  create mode 100755 include/linux/i2c-mux.h
 
----------- Forwarded message ----------
-Date: Tue, 20 Jul 2010 11:01:36 +0200
-=46rom: ibrahima sakho <ibrahima_sakho-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
-Subject: HELP: Interface a CMOS sensor with the DM355
+Patch applied, with two changes:
+* Reverted changes to i2c_sysfs_new_device(), i2c_sysfs_delete_device()
+and i2c_del_adapter() - no longer needed after I added a dedicated
+mutex for userspace client lists.
+* Removed locking in i2c_check_addr_busy() and i2cdev_check_addr(). It
+was insufficient anyway, I'll think of something better and add it
+later.
 
+Rodoflo, I've added your Acked-by, I hope this is fine.
 
-Hello,
+Resulting patch can be seen here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-multiplexing-core-support.patch
 
-I come towards you because I work at present on the interfacing between=
-=20
-the demo board DM355 and the CMOS sensor MT9J003 from Micron (Aptina) t=
-o=20
-make of the video. I use the Arago project for it.
+Thanks again for your contribution and patience :)
 
-The problem which I have is situated at the configuration of the I2C bu=
-s.=20
-Indeed, the register address of the CMOS sensor MT9J003 is on 16 bits a=
-nd=20
-I do not succeed in communicating via this bus. I am parit of the drive=
-r=20
-that you developed for the MT9T031, but without succ=E9s. The communica=
-tion=20
-with the sensor is of this kind:
-
-I2C Block Read (2 Comm bytes)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
- =20
-This command reads a block of bytes from a device, from a=20
-designated register that is specified through the two Comm byte.
-
-S Addr Wr [A] Comm1 [A] Comm2 [A] S Addr Rd [A] [Data] A [Data] A ... A=
- [Data] NA P
-
-Is this I2C function  implemented in the I2C module ?=20
-
-May I use Arago project to manage to configure this I2C communication ?=
- I=20
-shall really need your help and your councils.
-
-I thank you beforehand.=20
-
-Ibrahima SAKHO
-
- 		 	   		 =20
-_________________________________________________________________
-Le nouveau Hotmail est presque arriv=E9, ne le manquez pas !
-http://www.windowslive.fr/nouveau-hotmail/
+-- 
+Jean Delvare
