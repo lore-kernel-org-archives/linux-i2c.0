@@ -1,26 +1,38 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v2] gpio: sx150x: Add Semtech I2C sx150x gpio expander
-	driver.
-Date: Tue, 20 Jul 2010 10:25:35 +0100
-Message-ID: <20100720092534.GE7002@sirena.org.uk>
-References: <1278617834-14970-1-git-send-email-gbean@codeaurora.org> <20100719163142.16cab271.akpm@linux-foundation.org> <20100719165038.a308b019.akpm@linux-foundation.org>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH] I2C driver of Topcliff PCH
+Date: Tue, 20 Jul 2010 11:27:57 +0200
+Message-ID: <201007201127.57510.arnd@arndb.de>
+References: <4C204B0D.2030201@dsn.okisemi.com> <201007152135.00280.arnd@arndb.de> <000401cb27c7$ce732960$66f8800a@maildom.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100719165038.a308b019.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <000401cb27c7$ce732960$66f8800a-a06+6cuVnkTSQfdrb5gaxUEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Gregory Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+To: Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Wang, Yong Y" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 19, 2010 at 04:50:38PM -0700, Andrew Morton wrote:
-> Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org> wrote:
+On Tuesday 20 July 2010, Masayuki Ohtake wrote:
+> > > +
+> > > + dev_dbg(&pdev->dev,
+> > > + "i2c_add_adapter returns %d for channel-%d\n", ret, i);
+> > > + pch_init(&adap_info->pch_data[i]);
+> > > + dev_dbg(&pdev->dev, "pch_init invoked successfully\n");
+> > > + }
+> > > +
+> > > + ret = request_irq(pdev->irq, &pch_handler, IRQF_SHARED,
+> > > +   MODULE_NAME, adap_info);
+> >
+> > Similarly, you would create a new channel data structure for each channel here
+> > and register it separately, and then request the interrupt with that
+> > data structure as the info.
+> 
+> With I2c multi-cahnnel IOH, IRQ number is in common.
+> Thus, I think our PCH I2C driver can't be implemented like above.
 
-> > Meanwhile I'll do s/tristate/bool/.
+If you pass IRQF_SHARED, you can register any number of handlers
+for the same IRQ number using different dev pointers.
 
-> Which of course didn't work because i2c is a module.
-
-The standard fix all the other affected drivers are doing is
-
-	depends on I2C=y
+	Arnd
