@@ -1,121 +1,79 @@
-From: Marc Zyngier <maz@misterjones.org>
-Subject: Re: [PATCH v3] gpio: sx150x: Add Semtech I2C sx150x gpio expander
-	driver.
-Date: Wed, 21 Jul 2010 10:12:33 +0100
-Message-ID: <20100721101233.42b22faf@taxman.wild-wind.fr.eu.org>
-References: <1279660063-29449-1-git-send-email-gbean@codeaurora.org>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: RE: [PATCH 3/3] i2c/busses: Select I2C bus support for S5PV210 and
+	S5P6440.
+Date: Wed, 21 Jul 2010 19:50:27 +0900
+Message-ID: <009001cb28c2$8a0d6050$9e2820f0$%kim@samsung.com>
+References: <1279285999-27555-1-git-send-email-kgene.kim@samsung.com>
+ <1279285999-27555-4-git-send-email-kgene.kim@samsung.com>
+ <AANLkTikqjZVKDgCIuZ0QCvzrzdrNmGUOq2YZyqb0TKZn@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1279660063-29449-1-git-send-email-gbean@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Gregory Bean <gbean@codeaurora.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, david-b@pacbell.net, linux-i2c@vger.kernel.org, khali@linux-fr.org, akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <AANLkTikqjZVKDgCIuZ0QCvzrzdrNmGUOq2YZyqb0TKZn@mail.gmail.com>
+Content-language: ko
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: 'Kyungmin Park' <kmpark@infradead.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, 'Naveen Krishna Ch' <ch.naveen@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 20 Jul 2010 14:07:43 -0700
-Gregory Bean <gbean@codeaurora.org> wrote:
+Kyungmin Park wrote:
+>=20
+> On Fri, Jul 16, 2010 at 10:13 PM, Kukjin Kim <kgene.kim@samsung.com>
+wrote:
+> > From: Naveen Krishna Ch <ch.naveen@samsung.com>
+> >
+> > This patch is to select support I2C channels 0, 1 and 2 for S5PV210=
+ and
+> S5P6440.
+> >
+> > Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
+> > Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+> > ---
+> > =A0drivers/i2c/busses/Kconfig | =A0 =A02 +-
+> > =A01 files changed, 1 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfi=
+g
+> > index bceafbf..e553fe8 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -523,7 +523,7 @@ config I2C_PXA_SLAVE
+> >
+> > =A0config I2C_S3C2410
+> > =A0 =A0 =A0 =A0tristate "S3C2410 I2C Driver"
+> > - =A0 =A0 =A0 depends on ARCH_S3C2410 || ARCH_S3C64XX
+> > + =A0 =A0 =A0 depends on ARCH_S3C2410 || ARCH_S3C64XX || ARCH_S5PV2=
+10 ||
+> ARCH_S5P6440
+>=20
+> Are there any SoCs don't have i2c? If no, how about to just depends o=
+n
+> PLAT_SAMSUNG.
+>=20
+I thought about this again, but I'm not sure your suggestion is better.
+Because as you said, there is no Samsung SoC that does not have
+I2C...however it's true that this I2C driver cannot support/(is not tes=
+ted
+on) every Samsung SoCs now.
 
-Gregory,
+So, to add available SoC ARCH is better to us at the present.
 
-> Add support for Semtech SX150-series I2C GPIO expanders.
-> Compatible models include:
-> 
-> 8 bits:  sx1508q
-> 16 bits: sx1509q
-> 
-> Signed-off-by: Gregory Bean <gbean@codeaurora.org>
+> Thank you,
+> Kyungmin Park
+> > =A0 =A0 =A0 =A0help
+> > =A0 =A0 =A0 =A0 =A0Say Y here to include support for I2C controller=
+ in the
+> > =A0 =A0 =A0 =A0 =A0Samsung S3C2410 based System-on-Chip devices.
 
-> +static int sx150x_irq_set_type(unsigned int irq, unsigned int flow_type)
-> +{
-> +	struct irq_chip *ic = get_irq_chip(irq);
-> +	struct sx150x_chip *chip;
-> +	unsigned n, val = 0;
-> +
-> +	if (flow_type & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
-> +		return -EINVAL;
-> +
-> +	chip = container_of(ic, struct sx150x_chip, irq_chip);
-> +	n = irq - chip->irq_base;
-> +
-> +	if (flow_type & IRQ_TYPE_EDGE_RISING)
-> +		val |= 0x1;
-> +	if (flow_type & IRQ_TYPE_EDGE_FALLING)
-> +		val |= 0x2;
-> +
-> +	mutex_lock(&chip->mutex);
-> +	chip->irq_sense &= ~(3UL << (n * 2));
-> +	chip->irq_sense |= val << (n * 2);
-> +	if (!(irq_to_desc(irq)->status & IRQ_MASKED))
-> +		sx150x_write_cfg(chip, n, 2, chip->dev_cfg->reg_sense, val);
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	return 0;
-> +}
+Just need to modify help message...
 
-Several problems here:
-* This can be called from request_threaded irq(), which means the mutex
-  is already taken (via the bus_lock method).
-* On the same path, __setup_irq will disable local interrupts before
-  calling this function. Bad things will happen if your I2C controller
-  wants to sleep. pca953x had the same problem, see
-  a2cb9aeb3c9b2475955cec328487484034f414e4 for a potential solution.
 
-> +static irqreturn_t sx150x_irq_thread_fn(int irq, void *dev_id)
-> +{
-> +	struct sx150x_chip *chip = (struct sx150x_chip *)dev_id;
-> +	unsigned nhandled = 0;
-> +	unsigned sub_irq;
-> +	unsigned n;
-> +	s32 err;
-> +	u8 val;
-> +	int i;
-> +
-> +	mutex_lock(&chip->mutex);
 
-This looks wrong... The whole purpose of the genirq framework is that it
-takes care of most of the locking for you if you provide the
-bus_lock/unlock methods. You should only use direct locking to protect
-against races from the gpiolib framework.
+Thanks.
 
-> +	for (i = (chip->dev_cfg->ngpios / 8) - 1; i >= 0; --i) {
-> +		err = sx150x_i2c_read(chip->client,
-> +				      chip->dev_cfg->reg_irq_src - i,
-> +				      &val);
-> +		if (err < 0)
-> +			continue;
-> +
-> +		sx150x_i2c_write(chip->client,
-> +				chip->dev_cfg->reg_irq_src - i,
-> +				val);
-> +		for (n = 0; n < 8; ++n) {
-> +			if (val & (1 << n)) {
-> +				sub_irq = chip->irq_base + (i * 8) + n;
-> +				handle_nested_irq(sub_irq);
-> +				++nhandled;
-> +			}
-> +		}
-> +	}
-> +	mutex_unlock(&chip->mutex);
-> +
-> +	return (nhandled > 0 ? IRQ_HANDLED : IRQ_NONE);
-> +}
-> +
-
-Cheers,
-
-	M.
--- 
-Enforcement officers may use a hand-held detection device to measure
-both the direction and the strength of a TV signal. This makes it easy
-for us to locate TV receiving equipment in even the hardest-to-reach
-places.
+Best regards,
+Kgene.
+--
+Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+SW Solution Development Team, Samsung Electronics Co., Ltd.
