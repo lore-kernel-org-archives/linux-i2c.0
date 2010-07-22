@@ -1,60 +1,35 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
+From: Greg Bean <gbean-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Subject: Re: [PATCH v4] gpio: sx150x: Add Semtech I2C sx150x gpio expander
  driver.
-Date: Thu, 22 Jul 2010 10:17:53 -0700
-Message-ID: <20100722101753.c73604eb.randy.dunlap@oracle.com>
-References: <1279818771-9428-1-git-send-email-gbean@codeaurora.org>
+Date: Thu, 22 Jul 2010 10:22:42 -0700
+Message-ID: <4C487E62.9080106@codeaurora.org>
+References: <1279818771-9428-1-git-send-email-gbean@codeaurora.org> <20100722101753.c73604eb.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1279818771-9428-1-git-send-email-gbean@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gregory Bean <gbean@codeaurora.org>
-Cc: akpm@linux-foundation.org, david-b@pacbell.net, khali@linux-fr.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100722101753.c73604eb.randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 22 Jul 2010 10:12:51 -0700 Gregory Bean wrote:
+ >> +	bool "Semtech SX150x I2C GPIO expander"
+ >> +	depends on I2C=y
+ >> +	default n
+ >> +	help
+ >> +	  Say yes here to provide support for Semtech SX150-series I2C
+ >> +	  GPIO expanders. Compatible models include:
+ >
+ > Just curious, not complaining, but why does this driver (and some others)
+ > need to be built-in instead of having the option of being built as a
+ > loadable module?
 
->  drivers/gpio/Kconfig       |   11 +
->  drivers/gpio/Makefile      |    1 +
->  drivers/gpio/sx150x.c      |  645 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/sx150x.h |   78 ++++++
->  4 files changed, 735 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/gpio/sx150x.c
->  create mode 100644 include/linux/i2c/sx150x.h
-> 
-> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> index 7face91..f623953 100644
-> --- a/drivers/gpio/Kconfig
-> +++ b/drivers/gpio/Kconfig
-> @@ -195,6 +195,17 @@ config GPIO_PCF857X
->  	  This driver provides an in-kernel interface to those GPIOs using
->  	  platform-neutral GPIO calls.
->  
-> +config GPIO_SX150X
-> +	bool "Semtech SX150x I2C GPIO expander"
-> +	depends on I2C=y
-> +	default n
-> +	help
-> +	  Say yes here to provide support for Semtech SX150-series I2C
-> +	  GPIO expanders. Compatible models include:
+It's that way because it requires unexported symbols from genirq and 
+I2C.  If this driver is allowed to be a module, it can't find the 
+unexported genirq symbols, and if I2C is allowed to be a module, then a 
+bunch of i2c_smbus stuff can't be resolved...
 
-Just curious, not complaining, but why does this driver (and some others)
-need to be built-in instead of having the option of being built as a
-loadable module?
-
-
-> +	  8 bits:  sx1508q
-> +	  16 bits: sx1509q
-> +
->  config GPIO_TC35892
->  	bool "TC35892 GPIOs"
->  	depends on MFD_TC35892
-
-
-
-
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
