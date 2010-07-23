@@ -1,51 +1,77 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: Re: [patch 1/1] i2c-s3c2410: Enable i2c clock only when doing some transfert
-Date: Fri, 23 Jul 2010 12:02:49 +0300
-Message-ID: <201007231202.54301.anarsoul@gmail.com>
-References: <20100715130636.136905589@rtp-net.org>
+From: =?ISO-8859-15?Q?Daniel_Gl=F6ckner?= <dg@emlix.com>
+Subject: Re: [PATCH] i2c: Single-wire Serial Bus Interface for Qualcomm MSM
+ chipsets
+Date: Fri, 23 Jul 2010 12:18:00 +0200
+Message-ID: <4C496C58.1080806@emlix.com>
+References: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart14554145.fUqrODMvCN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20100715130636.136905589@rtp-net.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: "Arnaud Patard (Rtp)" <arnaud.patard@rtp-net.org>
-Cc: ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kenneth Heitke <kheitke@codeaurora.org>
+Cc: khali@linux-fr.org, ben-linux@fluff.org, linux-arm-msm@vger.kernel.org, sdharia@codeaurora.org, Crane Cai <crane.cai@amd.com>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@stericsson.com>, Ralf Baechle <ralf@linux-mips.org>, srinidhi kasagar <srinidhi.kasagar@stericsson.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---nextPart14554145.fUqrODMvCN
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 07/21/2010 07:52 PM, Kenneth Heitke wrote:
+> Unlike I2C, SSBI is a point-to-point connection, and therefore there =
+is no
+> need to specify a slave device address. The SSBI implementation
+> overrides the slave device address to be a device register address
+> instead.  This restricts the client drivers from using the SMBus
+> communication APIs unless they update the address field (addr) of the
+> i2c_client structure prior to every SMBus function call.
 
-=D0=92 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=D0=B8 =D0=BE=D1=82 =
-15 =D0=B8=D1=8E=D0=BB=D1=8F 2010 16:06:14 =D0=B0=D0=B2=D1=82=D0=BE=D1=80 Ar=
-naud Patard =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB:
-> This patch modify the s3c2410 i2c driver behaviour to enable the
-> i2c clock only when needed. I'm not sure if this has a big impact
-> on power usage but at least it's fixing a bug with the uda1380
-> codec which needs to be hard reset'ed if the i2c clock is enabled
-> before it's powered on (at least on h1940).
->=20
-> Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+Is it just me who is uncomfortable with this?
 
-=46ixes same bug with uda1380 on rx1950 aswell.
+If I am not mistaken, you still have to update the i2c_client structure
+when using the SMBus API.
 
-Tested-by: Vasily Khoruzhick <anarsoul@gmail.com>
+And how do you intend to bind a driver to an SSBI device if there is no=
+t a
+single address to bind to?
 
---nextPart14554145.fUqrODMvCN
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+The Qualcomm SSBI patent mentiones the possibility of adding logic to c=
+hips
+to be accessible over both SSBI and the three wire SBI interface. The S=
+BI
+interface on the other hand is even closer to I2C and requires the use =
+of
+a slave ID byte. If you didn't abuse the address field, you could write
+drivers that work on both interfaces.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.15 (GNU/Linux)
+Why not use one of the special addresses mentioned in the I2C specifica=
+tion
+for SSBI? 0x02 might be appropriate.
 
-iEYEABECAAYFAkxJWr4ACgkQRM6pQpltKE6bAwCgoDjhCexp48nSXg8Gpmr+jchT
-9GAAoNwU+WChJH/UdLf1UlWfaW2agCDH
-=tsPS
------END PGP SIGNATURE-----
+> +static int
+> +i2c_ssbi_write_bytes(struct i2c_ssbi_dev *ssbi, struct i2c_msg *msg)
+> +{
+> +	int ret =3D 0;
+> +	u8 *buf =3D msg->buf;
+> +	u16 len =3D msg->len;
+> +	u16 addr =3D msg->addr;
+> +
+> +	if (ssbi->controller_type =3D=3D MSM_SBI_CTRL_SSBI2) {
+> +		u32 mode2 =3D readl(ssbi->base + SSBI2_MODE2);
+> +		writel(SSBI_MODE2_REG_ADDR_15_8(mode2, addr),
+> +				ssbi->base + SSBI2_MODE2);
+> +	}
+> +
+> +	while (len) {
 
---nextPart14554145.fUqrODMvCN--
+Where do you set the address if controller_type =3D=3D MSM_SBI_CTRL_SSB=
+I?
+
+  Daniel
+
+
+--=20
+Dipl.-Math. Daniel Gl=F6ckner, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax -11, Bahnhofsallee 1b, 37081 G=F6ttingen, Ge=
+rmany
+Sitz der Gesellschaft: G=F6ttingen, Amtsgericht G=F6ttingen HR B 3160
+Gesch=E4ftsf=FChrer: Dr. Uwe Kracke, Ust-IdNr.: DE 205 198 055
+
+emlix - your embedded linux partner
