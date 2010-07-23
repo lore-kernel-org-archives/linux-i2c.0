@@ -1,18 +1,18 @@
-From: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+From: Kenneth Heitke <kheitke@codeaurora.org>
 Subject: Re: [PATCH] i2c: Single-wire Serial Bus Interface for Qualcomm MSM
  chipsets
-Date: Fri, 23 Jul 2010 14:48:46 -0600
-Message-ID: <4C4A002E.6020100@codeaurora.org>
+Date: Fri, 23 Jul 2010 14:50:14 -0600
+Message-ID: <4C4A0086.3040009@codeaurora.org>
 References: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org> <4C496C58.1080806@emlix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C496C58.1080806-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-15?Q?Daniel_Gl=F6ckner?= <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C496C58.1080806@emlix.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?Daniel_Gl=F6ckner?= <dg@emlix.com>
+Cc: khali@linux-fr.org, ben-linux@fluff.org, linux-arm-msm@vger.kernel.org, sdharia@codeaurora.org, Crane Cai <crane.cai@amd.com>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@stericsson.com>, Ralf Baechle <ralf@linux-mips.org>, srinidhi kasagar <srinidhi.kasagar@stericsson.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Daniel Gl=F6ckner wrote:
