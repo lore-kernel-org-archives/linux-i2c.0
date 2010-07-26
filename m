@@ -1,45 +1,34 @@
-From: Trilok Soni <tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: QUP based bus driver for Qualcomm MSM chipsets
-Date: Sat, 24 Jul 2010 20:38:49 +0530
-Message-ID: <4C4B0201.9060106@codeaurora.org>
-References: <1279853264-16311-1-git-send-email-kheitke@codeaurora.org> <4C494086.5080408@codeaurora.org> <4C49E5EE.2070103@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Kulikov Vasiliy <segooon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-davinci: use schedule_timeout_uninterruptible()
+Date: Mon, 26 Jul 2010 12:24:42 +0400
+Message-ID: <1280132682-8055-1-git-send-email-segooon@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C49E5EE.2070103-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ken,
+i2c_davinci_wait_bus_not_busy() uses schedule_timeout() without setting
+state to STATE_(UN)INTERRUPTIBLE. As it is called in cycle without
+checking of pending signals, use schedule_timeout_uninterruptible().
 
-> 
->>
->>> +
->>> +    if (!pdata->msm_i2c_config_gpio) {
->>> +        dev_err(&pdev->dev, "config_gpio function not initialized\n");
->>> +        ret = -ENOSYS;
->>> +        goto err_config_failed;
->>> +    }
->>
->> I don't agree here. What if I do all the gpio configuration from the bootloader itself,
->> because I know that the device I am working on is production device and don't change
->> its configuration, then why I should provide the pdata hooks from the board files?
-> 
-> The reason that this hook is required is so that the driver can enable and disable the GPIOs as needed (although we currently only enable them).
-> 
->>
->> Please also specify what are the operations we are doing in the msm_i2c_config_gpio?
-> 
-> Takes ownership of the GPIOs that are needed and assigns the ownership to the i2c controller.  The drive strength is also set.
+Signed-off-by: Kulikov Vasiliy <segooon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Right, so due to these reasons I prefer not to have __must__ have check for pdata->msm_i2c_config_gpio hook's unavailability. It
-might happen that some of the systems do all these ownership and pad muxing into the bootloader itself.
-
----Trilok Soni
-
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 4523364..1d376a5 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -231,7 +231,7 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+ 			return -ETIMEDOUT;
+ 		}
+ 		if (allow_sleep)
+-			schedule_timeout(1);
++			schedule_timeout_uninterruptible(1);
+ 	}
+ 
+ 	return 0;
 -- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+1.7.0.4
