@@ -1,7 +1,7 @@
 From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] I2C driver supporting Moorestown and Medfield platform
-Date: Tue, 03 Aug 2010 15:33:25 +0100
-Message-ID: <20100803143129.23363.93689.stgit@localhost.localdomain>
+Subject: [CORRECTED] I2C driver supporting Moorestown and Medfield platform
+Date: Tue, 03 Aug 2010 15:34:55 +0100
+Message-ID: <20100803143431.23655.31975.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
@@ -10,15 +10,7 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a resend with further updates. It fixes all the comments made
-in earlier review (except the keeping of speed=0/1/2 which we still think is
-far far more senisble for this device)
-
-The power hooks are needed so that device power management can be done by
-the rest of the device tree this sits in, even though there are no specific
-power savings to be had from this unit itself currently.
-
-==============
+(And the correct patch attached this time)
 
 From: Wen Wang <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
@@ -85,7 +77,7 @@ index 936880b..0b9aa00 100644
  obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
 diff --git a/drivers/i2c/busses/i2c-mrst.c b/drivers/i2c/busses/i2c-mrst.c
 new file mode 100644
-index 0000000..b2cf4a5
+index 0000000..79f45fb
 --- /dev/null
 +++ b/drivers/i2c/busses/i2c-mrst.c
 @@ -0,0 +1,1082 @@
@@ -948,8 +940,8 @@ index 0000000..b2cf4a5
 +	}
 +
 +exit:
-+	if (i2c->status == STATUS_READ_SUCCESS) ||
-+	    i2c->status == STATUS_WRITE_SUCCESS) ||
++	if (i2c->status == STATUS_READ_SUCCESS ||
++	    i2c->status == STATUS_WRITE_SUCCESS ||
 +	    i2c->status == STATUS_XFER_ABORT)
 +		complete(&i2c->complete);
 +err:
@@ -1100,7 +1092,7 @@ index 0000000..b2cf4a5
 +		(mrst->platform == MOORESTOWN) ? "Moorestown" : "Medfield",
 +		busnum);
 +
-+	pm_runtime_enable(&adap->dev);
++	pm_runtime_enable(&mrst->adap.dev);
 +	return 0;
 +
 +fail3:
