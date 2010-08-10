@@ -1,29 +1,40 @@
-From: Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [CORRECTED] I2C driver supporting Moorestown and Medfield platform
-Date: Tue, 10 Aug 2010 08:58:01 +0900
-Message-ID: <4C609609.6070307@renesas.com>
-References: <20100803143431.23655.31975.stgit@localhost.localdomain>	<4C5F97AC.1020509@renesas.com> <20100809120743.05e22ef4@linux.intel.com>
+From: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Single-wire Serial Bus Interface for Qualcomm MSM
+ chipsets
+Date: Mon, 09 Aug 2010 20:26:03 -0600
+Message-ID: <4C60B8BB.2050209@codeaurora.org>
+References: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org> <20100728132607.GA16737@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100809120743.05e22ef4-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <20100728132607.GA16737-+ZI9xUNit7I@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 8/9/2010 8:07 PM, Alan Cox wrote:
-> There are various little differences along with the PCI, power
-> management, timing and configuration side. I've also looked at the two
+Pavel Machek wrote:
+> Hi!
+> 
+>> This bus driver supports the Single-wire Serial Bus Interface (SSBI)
+>> controller in the Qualcomm MSM SOCs.  SSBI is not an I2C but is
+>> functionally related enough such that it is able to leaverage the I2C
+>> framework.
+>>
+>> Unlike I2C, SSBI is a point-to-point connection, and therefore there is no
+>> need to specify a slave device address. The SSBI implementation
+>> overrides the slave device address to be a device register address
+> 
+> Then perhaps it should not go to drivers/i2c? 
+> 
 
-I'm interested in those little diffs.
+I'd like to make use of the i2c framework rather than implement 
+something else.  Are you suggesting that the driver reside elsewhere 
+(i.e. mach-msm) or that the driver not use the i2c framework?
 
-> side by side and agreed with the original Intel authors that it seemed
-> best to keep it as two drivers. Otherwise you drag a lot of PCI and PCI
-> pm logic into a simpler driver that is used on non PCI platforms.
+thanks.
 
-Got it, thanks. I'll have a look at the differences, first.
 -- 
-Shinya Kuribayashi
-Renesas Electronics
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
