@@ -1,29 +1,44 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [Patch v3] i2c: Multiplexed I2C bus core support
-Date: Tue, 10 Aug 2010 14:33:35 +0200
-Message-ID: <20100810143335.406dd2c5@hyperion.delvare>
-References: <4C36E6E2.1070307@gmx.de>
-	<20100720212729.4d81048b@hyperion.delvare>
-	<20100722064243.GB9753@enneenne.com>
+Subject: Re: [PATCH] i2c: i2c-sh_mobile irq rollback fix
+Date: Tue, 10 Aug 2010 15:18:28 +0200
+Message-ID: <20100810151828.36a77cc3@hyperion.delvare>
+References: <20100802071637.18054.76993.sendpatchset@t400s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100722064243.GB9753-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <20100802071637.18054.76993.sendpatchset@t400s>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 22 Jul 2010 08:42:43 +0200, Rodolfo Giometti wrote:
-> Michael, maybe you wish updating the linux-i2c wiki page regarding
-> this issue?
+On Mon, 02 Aug 2010 16:16:37 +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
 > 
->    https://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
+> Update the i2c-sh_mobile driver to properly free
+> interrupts. The function sh_mobile_i2c_hook_irqs()
+> is fixed so module both unload and load are working
+> as expected.
+> 
+> Signed-off-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+> ---
+> 
+>  drivers/i2c/busses/i2c-sh_mobile.c |   23 +++++++++++++----------
+>  1 file changed, 13 insertions(+), 10 deletions(-)
+> 
+> --- 0001/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ work/drivers/i2c/busses/i2c-sh_mobile.c	2010-08-02 15:14:48.000000000 +0900
+> @@ -538,15 +538,17 @@ static int sh_mobile_i2c_hook_irqs(struc
+>  {
+>  	struct resource *res;
+>  	int ret = -ENXIO;
+> -	int q, m;
+> -	int k = 0;
+> -	int n = 0;
+> +	int n, k = 0;
 
-Or maybe you could do it, Rodolfo? Michael is apparently busy and so am
-I.
+You can't really hope to get the code right with such variable names.
 
-Thanks,
 -- 
 Jean Delvare
