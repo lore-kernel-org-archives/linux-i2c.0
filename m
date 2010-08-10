@@ -1,90 +1,51 @@
-From: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Subject: Re: [PATCH] [ARM] tegra: Add i2c support
-Date: Tue, 10 Aug 2010 17:57:45 +0300
-Message-ID: <4C6168E9.1070405@compulab.co.il>
-References: <1280450180-25016-1-git-send-email-ccross@google.com>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: Status of multiplexed i2c support
+Date: Tue, 10 Aug 2010 08:13:51 -0700
+Message-ID: <20100810151351.GA19251@ericsson.com>
+References: <20100721042922.GA30524@ericsson.com>
+ <20100810142938.5a2e1bd1@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1280450180-25016-1-git-send-email-ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100810142938.5a2e1bd1-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Colin,
-Two more comments.
-
-Colin Cross wrote:
-> From: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+On Tue, Aug 10, 2010 at 08:29:38AM -0400, Jean Delvare wrote:
+> Hi Guenter,
 > 
-> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig     |    7 +
->  drivers/i2c/busses/Makefile    |    1 +
->  drivers/i2c/busses/i2c-tegra.c |  665 ++++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c-tegra.h      |   25 ++
+> Sorry for the late answer, I am just returning from vacation.
+> 
+Hi Jean,
 
-This should probably go to arch/arm/mach-tegra/include/mach/ to minimize the 
-pollution in include/linux
+I figured that much...
 
->  4 files changed, 698 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-tegra.c
->  create mode 100644 include/linux/i2c-tegra.h
+> On Tue, 20 Jul 2010 21:29:22 -0700, Guenter Roeck wrote:
+> > what is the current status of i2c mux support, specifically support for pca945x ?
+> 
+> (Assuming this is a typo and you really meant pca954x.)
+> 
+obviously ..
+
+> Support is ready for public consumption and will be merged upstream
+> very soon now (i.e. before 2.6.36-rc1.) The PCA954x family will be the
+> first supported one, support will be merged together with core
+> multiplexing support.
 > 
 
-[ snip ]
+Yes, I found your updated patchset a couple of hours after I sent my e-mail.
+Since then, I backported the code to 2.6.32 (which is what we are currently
+using here).
 
-> +
-> +static int __init tegra_i2c_init_driver(void)
-> +{
-> +	return platform_driver_register(&tegra_i2c_driver);
-> +}
-> +module_init(tegra_i2c_init_driver);
+> Note that I don't take much credit for this, all the hard work was done
+> by Rodolfo Giometti and Michael Lawnick (Cc'd), which were additionally
+> kind enough to patiently wait for someone (that is me) to review their
+> work.
 
-subsys_initcall would be better here.
+Excellent job, by everyone involved. I think this is a prime example
+of how to introduce new functionality into the kernel.
 
-> +
-> +static void __exit tegra_i2c_exit_driver(void)
-> +{
-> +	platform_driver_unregister(&tegra_i2c_driver);
-> +}
-> +module_exit(tegra_i2c_exit_driver);
-> diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
-> new file mode 100644
-> index 0000000..9c85da4
-> --- /dev/null
-> +++ b/include/linux/i2c-tegra.h
-> @@ -0,0 +1,25 @@
-> +/*
-> + * drivers/i2c/busses/i2c-tegra.c
-> + *
-> + * Copyright (C) 2010 Google, Inc.
-> + * Author: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-> + *
-> + * This software is licensed under the terms of the GNU General Public
-> + * License version 2, as published by the Free Software Foundation, and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#ifndef _LINUX_I2C_TEGRA_H
-> +#define _LINUX_I2C_TEGRA_H
-> +
-> +struct tegra_i2c_platform_data {
-> +	unsigned long bus_clk_rate;
-> +};
-> +
-> +#endif /* _LINUX_I2C_TEGRA_H */
-
-
--- 
-Sincerely yours,
-Mike.
+Guenter
