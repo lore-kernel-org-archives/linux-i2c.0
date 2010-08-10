@@ -1,41 +1,57 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCH] i2c: Single-wire Serial Bus Interface for Qualcomm MSM
- chipsets
-Date: Tue, 10 Aug 2010 23:41:11 +0200
-Message-ID: <20100810214111.GA28968@elf.ucw.cz>
-References: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org>
- <20100728132607.GA16737@ucw.cz>
- <4C60B8BB.2050209@codeaurora.org>
+From: Ben Dooks <ben-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Subject: Re: [PATCH 0/6] i2c: davinci updates for 2.6.35
+Date: Wed, 11 Aug 2010 00:44:18 +0100
+Message-ID: <20100810234417.GA28671@trinity.fluff.org>
+References: <1270575738-22388-1-git-send-email-khilman@deeprootsystems.com> <20100420000621.GK32401@fluff.org.uk> <AANLkTikJ6XDywcBA5O0mC85jQEIWxZ9NOALIQOjcGCDJ@mail.gmail.com> <AANLkTinNXxzCoH+b3=xA92sW8GCqqO4iY+_yVwBFLMqG@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4C60B8BB.2050209-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+In-Reply-To: <AANLkTinNXxzCoH+b3=xA92sW8GCqqO4iY+_yVwBFLMqG-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
-
-> >>This bus driver supports the Single-wire Serial Bus Interface (SSBI)
-> >>controller in the Qualcomm MSM SOCs.  SSBI is not an I2C but is
-> >>functionally related enough such that it is able to leaverage the I2C
-> >>framework.
+On Tue, Aug 10, 2010 at 08:56:27AM -0700, Kevin Hilman wrote:
+> Ben,
+>=20
+> On Mon, Jun 21, 2010 at 1:16 PM, Kevin Hilman
+> <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> wrote:
+> > On Mon, Apr 19, 2010 at 5:06 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wr=
+ote:
+> >> On Tue, Apr 06, 2010 at 10:42:12AM -0700, Kevin Hilman wrote:
+> >>> This series of davinci I2C driver updates and fixes is targetted =
+for
+> >>> 2.6.35. =A0It has been tested in davinci git on multiple davinci =
+SoCs.
+> >>>
+> >>> Ben, since these changes are isolated to the davinci driver only,=
+ if
+> >>> you prefer I can merge them upstream along with my davinci change=
+s for
+> >>> 2.6.35.
 > >>
-> >>Unlike I2C, SSBI is a point-to-point connection, and therefore there is no
-> >>need to specify a slave device address. The SSBI implementation
-> >>overrides the slave device address to be a device register address
+> >> I'll get them into -next when I rebase it.
 > >
-> >Then perhaps it should not go to drivers/i2c?
-> 
-> I'd like to make use of the i2c framework rather than implement
-> something else.  Are you suggesting that the driver reside elsewhere
-> (i.e. mach-msm) or that the driver not use the i2c framework?
+> > Ben, this series never made it in for 2.6.35.
+> >
+> > I've now rebased this against v2.6.35-rc3 and it's available here:
+> >
+> > =A0 git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-dav=
+inci.git
+> > davinci-i2c
+> >
+> > Please pull for 2.6.36. =A0Thanks.
+>=20
+> OK, it's now been two merge windows that these have been
+> ignored/forgotten.  Can you let me know what is the plan for these?
 
-I believe it should go elsewere at the very least. drivers/ssbi ?
+pulled into current i2c-next, will send in the next day or so.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--=20
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
