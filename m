@@ -1,40 +1,66 @@
-From: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Single-wire Serial Bus Interface for Qualcomm MSM
- chipsets
-Date: Mon, 09 Aug 2010 20:26:03 -0600
-Message-ID: <4C60B8BB.2050209@codeaurora.org>
-References: <1279734768-8436-1-git-send-email-kheitke@codeaurora.org> <20100728132607.GA16737@ucw.cz>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: exclusive access to I2C device
+Date: Tue, 10 Aug 2010 13:03:07 +0200
+Message-ID: <20100810130307.1249dc7e@hyperion.delvare>
+References: <84d4a6d51003041006i1b619d2l942d21ce1a9a069e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100728132607.GA16737-+ZI9xUNit7I@public.gmane.org>
+In-Reply-To: <84d4a6d51003041006i1b619d2l942d21ce1a9a069e-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: pete.flugstad-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
->> This bus driver supports the Single-wire Serial Bus Interface (SSBI)
->> controller in the Qualcomm MSM SOCs.  SSBI is not an I2C but is
->> functionally related enough such that it is able to leaverage the I2C
->> framework.
->>
->> Unlike I2C, SSBI is a point-to-point connection, and therefore there is no
->> need to specify a slave device address. The SSBI implementation
->> overrides the slave device address to be a device register address
-> 
-> Then perhaps it should not go to drivers/i2c? 
-> 
+Hi Pete,
 
-I'd like to make use of the i2c framework rather than implement 
-something else.  Are you suggesting that the driver reside elsewhere 
-(i.e. mach-msm) or that the driver not use the i2c framework?
+Sorry for the late answer.
 
-thanks.
+On Thu, 4 Mar 2010 12:06:23 -0600, Pete Flugstad wrote:
+> Hi!  We're running Linux 2.6.27 with i2c tools 3.0.2.
+> 
+> We have a number of userspace program using the raw i2c_smbus interface
+
+This is rather vague, I have no clue what it is that you name "the raw
+i2c_smbus interface".
+
+> to talk to a variety of devices. Right now, it seems like every program can open
+> up the device and issue commands, which interferes with an already running
+> command.
+
+Define "interfere". The i2c core has proper locking to ensure that a
+given I2C controller only processes one request at a time (in other
+words, transactions are serialized.) So at the lower level, commands do
+not interfere with each other. At higher levels, they may, but it
+depends on what you're doing exactly.
+
+> 
+> I see the code in open_i2c_bus using:
+> 
+>     	sprintf(filename, "/dev/i2c/%d", i2cbus);
+> 	file = open(filename, O_RDWR);
+> 
+> Would adding O_EXCL to this open help to make things exclusive?  Or is there a
+> better way to do what I want.
+
+I know for sure that i2c-dev doesn't handle O_EXCL. And even if it did
+(or another part of the kernel does), this won't protect you against
+in-kernel accesses to the same I2C bus controller. We would need
+explicit handling of this case in the i2c-dev _and_ i2c-core modules to
+handle this properly.
+
+I am only mildly convinced that this would be a good thing to have,
+BTW. Blocking all (other) traffic to an I2C controller from user-space
+without any timeout seems very dangerous.
+
+> Right now we're going to set up a daemon to arbitrate access to the I2C bus,
+> but it would be nice if we had something simpler, since now all apps have to
+> talk to the daemon.  I was thinking something along the lines of just telling
+> userspace to loop opening the device exclusively until that succeeds, run the
+> command,  then close the device.
+
+You didn't give enough detail for me to comment on this.
 
 -- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Jean Delvare
