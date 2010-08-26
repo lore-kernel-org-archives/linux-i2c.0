@@ -1,39 +1,226 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] hwmon: Add tempX_emergency to sysfs ABI
-Date: Thu, 26 Aug 2010 08:54:45 -0700
-Message-ID: <1282838085-7210-1-git-send-email-guenter.roeck@ericsson.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: [PATCH] hwmon: Fix checkpatch errors in lm90 driver
+Date: Thu, 26 Aug 2010 08:54:36 -0700
+Message-ID: <1282838076-7175-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "Ira W. Snyder" <iws-lulEs6mt1IksTUYHLfqkUA@public.gmane.org>, "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, "Ira W. Snyder" <iws@ovro.caltech.edu>, "Darrick J. Wong" <djwong@us.ibm.com>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Guenter Roeck <guenter.roeck@ericsson.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
 ---
-tempX_emergency will be used by max6696. It can also be used for other chips
-supporting three upper temperature limits.
+The main rationale for this cleanup is to prepare the driver for adding max6696
+support.
 
- Documentation/hwmon/sysfs-interface |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+ drivers/hwmon/lm90.c |  110 +++++++++++++++++++++++++++++++++----------------
+ 1 files changed, 74 insertions(+), 36 deletions(-)
 
-diff --git a/Documentation/hwmon/sysfs-interface b/Documentation/hwmon/sysfs-interface
-index ff45d1f..1ceb2b9 100644
---- a/Documentation/hwmon/sysfs-interface
-+++ b/Documentation/hwmon/sysfs-interface
-@@ -310,6 +310,12 @@ temp[1-*]_crit_hyst
- 		from the critical value.
- 		RW
- 
-+temp[1-*]_emergency
-+		Temperature emergency value, typically greater than
-+		corresponding temp_crit values.
-+		Unit: millidegree Celsius
-+		RW
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index 760ef72..58a5605 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -387,8 +387,13 @@ static ssize_t set_temp8(struct device *dev, struct device_attribute *devattr,
+ 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm90_data *data = i2c_get_clientdata(client);
+-	long val = simple_strtol(buf, NULL, 10);
+ 	int nr = attr->index;
++	long val;
++	int err;
 +
- temp[1-*]_lcrit	Temperature critical min value, typically lower than
- 		corresponding temp_min values.
- 		Unit: millidegree Celsius
++	err = strict_strtol(buf, 10, &val);
++	if (err < 0)
++		return err;
+ 
+ 	/* +16 degrees offset for temp2 for the LM99 */
+ 	if (data->kind == lm99 && attr->index == 3)
+@@ -442,8 +447,13 @@ static ssize_t set_temp11(struct device *dev, struct device_attribute *devattr,
+ 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm90_data *data = i2c_get_clientdata(client);
+-	long val = simple_strtol(buf, NULL, 10);
+ 	int nr = attr->index;
++	long val;
++	int err;
++
++	err = strict_strtol(buf, 10, &val);
++	if (err < 0)
++		return err;
+ 
+ 	/* +16 degrees offset for temp2 for the LM99 */
+ 	if (data->kind == lm99 && attr->index <= 2)
+@@ -469,7 +479,8 @@ static ssize_t set_temp11(struct device *dev, struct device_attribute *devattr,
+ 	return count;
+ }
+ 
+-static ssize_t show_temphyst(struct device *dev, struct device_attribute *devattr,
++static ssize_t show_temphyst(struct device *dev,
++			     struct device_attribute *devattr,
+ 			     char *buf)
+ {
+ 	struct sensor_device_attribute *attr = to_sensor_dev_attr(devattr);
+@@ -495,9 +506,14 @@ static ssize_t set_temphyst(struct device *dev, struct device_attribute *dummy,
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm90_data *data = i2c_get_clientdata(client);
+-	long val = simple_strtol(buf, NULL, 10);
++	long val;
++	int err;
+ 	int temp;
+ 
++	err = strict_strtol(buf, 10, &val);
++	if (err < 0)
++		return err;
++
+ 	mutex_lock(&data->update_lock);
+ 	if (data->kind == adt7461)
+ 		temp = temp_from_u8_adt7461(data, data->temp8[2]);
+@@ -600,7 +616,12 @@ static ssize_t set_pec(struct device *dev, struct device_attribute *dummy,
+ 		       const char *buf, size_t count)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	long val = simple_strtol(buf, NULL, 10);
++	long val;
++	int err;
++
++	err = strict_strtol(buf, 10, &val);
++	if (err < 0)
++		return err;
+ 
+ 	switch (val) {
+ 	case 0:
+@@ -622,8 +643,10 @@ static DEVICE_ATTR(pec, S_IWUSR | S_IRUGO, show_pec, set_pec);
+  * Real code
+  */
+ 
+-/* The ADM1032 supports PEC but not on write byte transactions, so we need
+-   to explicitly ask for a transaction without PEC. */
++/*
++ * The ADM1032 supports PEC but not on write byte transactions, so we need
++ * to explicitly ask for a transaction without PEC.
++ */
+ static inline s32 adm1032_write_byte(struct i2c_client *client, u8 value)
+ {
+ 	return i2c_smbus_xfer(client->adapter, client->addr,
+@@ -631,20 +654,22 @@ static inline s32 adm1032_write_byte(struct i2c_client *client, u8 value)
+ 			      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+ }
+ 
+-/* It is assumed that client->update_lock is held (unless we are in
+-   detection or initialization steps). This matters when PEC is enabled,
+-   because we don't want the address pointer to change between the write
+-   byte and the read byte transactions. */
+-static int lm90_read_reg(struct i2c_client* client, u8 reg, u8 *value)
++/*
++ * It is assumed that client->update_lock is held (unless we are in
++ * detection or initialization steps). This matters when PEC is enabled,
++ * because we don't want the address pointer to change between the write
++ * byte and the read byte transactions.
++ */
++static int lm90_read_reg(struct i2c_client *client, u8 reg, u8 *value)
+ {
+ 	int err;
+ 
+- 	if (client->flags & I2C_CLIENT_PEC) {
+- 		err = adm1032_write_byte(client, reg);
+- 		if (err >= 0)
+- 			err = i2c_smbus_read_byte(client);
+- 	} else
+- 		err = i2c_smbus_read_byte_data(client, reg);
++	if (client->flags & I2C_CLIENT_PEC) {
++		err = adm1032_write_byte(client, reg);
++		if (err >= 0)
++			err = i2c_smbus_read_byte(client);
++	} else
++		err = i2c_smbus_read_byte_data(client, reg);
+ 
+ 	if (err < 0) {
+ 		dev_warn(&client->dev, "Register %#02x read failed (%d)\n",
+@@ -669,14 +694,21 @@ static int lm90_detect(struct i2c_client *new_client,
+ 		return -ENODEV;
+ 
+ 	/* detection and identification */
+-	if ((man_id = i2c_smbus_read_byte_data(new_client,
+-						LM90_REG_R_MAN_ID)) < 0
+-	 || (chip_id = i2c_smbus_read_byte_data(new_client,
+-						LM90_REG_R_CHIP_ID)) < 0
+-	 || (reg_config1 = i2c_smbus_read_byte_data(new_client,
+-						LM90_REG_R_CONFIG1)) < 0
+-	 || (reg_convrate = i2c_smbus_read_byte_data(new_client,
+-						LM90_REG_R_CONVRATE)) < 0)
++	man_id = i2c_smbus_read_byte_data(new_client, LM90_REG_R_MAN_ID);
++	if (man_id < 0)
++		return -ENODEV;
++
++	chip_id = i2c_smbus_read_byte_data(new_client, LM90_REG_R_CHIP_ID);
++	if (chip_id < 0)
++		return -ENODEV;
++
++	reg_config1 = i2c_smbus_read_byte_data(new_client, LM90_REG_R_CONFIG1);
++	if (reg_config1 < 0)
++		return -ENODEV;
++
++	reg_convrate = i2c_smbus_read_byte_data(new_client,
++						LM90_REG_R_CONVRATE);
++	if (reg_convrate < 0)
+ 		return -ENODEV;
+ 
+ 	if ((address == 0x4C || address == 0x4D)
+@@ -826,16 +858,18 @@ static int lm90_probe(struct i2c_client *new_client,
+ 	lm90_init_client(new_client);
+ 
+ 	/* Register sysfs hooks */
+-	if ((err = sysfs_create_group(&new_client->dev.kobj, &lm90_group)))
++	err = sysfs_create_group(&new_client->dev.kobj, &lm90_group);
++	if (err)
+ 		goto exit_free;
+ 	if (new_client->flags & I2C_CLIENT_PEC) {
+-		if ((err = device_create_file(&new_client->dev,
+-					      &dev_attr_pec)))
++		err = device_create_file(&new_client->dev, &dev_attr_pec);
++		if (err)
+ 			goto exit_remove_files;
+ 	}
+ 	if (data->kind != max6657 && data->kind != max6646) {
+-		if ((err = device_create_file(&new_client->dev,
+-				&sensor_dev_attr_temp2_offset.dev_attr)))
++		err = device_create_file(&new_client->dev,
++					&sensor_dev_attr_temp2_offset.dev_attr);
++		if (err)
+ 			goto exit_remove_files;
+ 	}
+ 
+@@ -883,9 +917,8 @@ static void lm90_init_client(struct i2c_client *client)
+ 	 * 0.125 degree resolution) and range (0x08, extend range
+ 	 * to -64 degree) mode for the remote temperature sensor.
+ 	 */
+-	if (data->kind == max6680) {
++	if (data->kind == max6680)
+ 		config |= 0x18;
+-	}
+ 
+ 	config &= 0xBF;	/* run */
+ 	if (config != data->config_orig) /* Only write if changed */
+@@ -961,9 +994,14 @@ static int lm90_read16(struct i2c_client *client, u8 regh, u8 regl, u16 *value)
+ 	 * we have to read the low byte again, and now we believe we have a
+ 	 * correct reading.
+ 	 */
+-	if ((err = lm90_read_reg(client, regh, &oldh))
+-	 || (err = lm90_read_reg(client, regl, &l))
+-	 || (err = lm90_read_reg(client, regh, &newh)))
++	err = lm90_read_reg(client, regh, &oldh);
++	if (err)
++		return err;
++	err = lm90_read_reg(client, regl, &l);
++	if (err)
++		return err;
++	err = lm90_read_reg(client, regh, &newh);
++	if (err)
+ 		return err;
+ 	if (oldh != newh) {
+ 		err = lm90_read_reg(client, regl, &l);
 -- 
 1.7.0.87.g0901d
