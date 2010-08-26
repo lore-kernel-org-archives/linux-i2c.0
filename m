@@ -1,53 +1,41 @@
-From: Guenter Roeck <guenter.roeck@ericsson.com>
-Subject: Re: [lm-sensors] [PATCH] hwmon: Add tempX_emergency to sysfs ABI
-Date: Thu, 26 Aug 2010 10:51:41 -0700
-Message-ID: <20100826175141.GA19646@ericsson.com>
-References: <1282838085-7210-1-git-send-email-guenter.roeck@ericsson.com>
- <20100826161022.GA1383@khazad-dum.debian.net>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: [PATCH RFC 1/1] MISC: Broadcom BCM4751 GPS driver
+Date: Thu, 26 Aug 2010 22:09:05 +0200
+Message-ID: <20100826200905.GB20776@elf.ucw.cz>
+References: <1282572026-14905-1-git-send-email-matti.j.aaltonen@nokia.com>
+ <1282572026-14905-2-git-send-email-matti.j.aaltonen@nokia.com>
+ <20100825060704.GA1578@ucw.cz>
+ <1282815075.14489.249.camel@masi.mnp.nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100826161022.GA1383@khazad-dum.debian.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>, Randy Dunlap <rdunlap@xenotime.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+In-Reply-To: <1282815075.14489.249.camel-U1ola594hmgZeDAa2SinrdBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 26, 2010 at 12:10:23PM -0400, Henrique de Moraes Holschuh wrote:
-> On Thu, 26 Aug 2010, Guenter Roeck wrote:
-> > Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
-> > ---
-> > tempX_emergency will be used by max6696. It can also be used for other chips
-> > supporting three upper temperature limits.
-> > 
-> >  Documentation/hwmon/sysfs-interface |    6 ++++++
-> >  1 files changed, 6 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/Documentation/hwmon/sysfs-interface b/Documentation/hwmon/sysfs-interface
-> > index ff45d1f..1ceb2b9 100644
-> > --- a/Documentation/hwmon/sysfs-interface
-> > +++ b/Documentation/hwmon/sysfs-interface
-> > @@ -310,6 +310,12 @@ temp[1-*]_crit_hyst
-> >  		from the critical value.
-> >  		RW
-> >  
-> > +temp[1-*]_emergency
-> > +		Temperature emergency value, typically greater than
-> > +		corresponding temp_crit values.
-> > +		Unit: millidegree Celsius
-> > +		RW
-> > +
+On Thu 2010-08-26 12:31:15, Matti J. Aaltonen wrote:
+> Hello.
 > 
-> If we have two-level alarms: critical, then emergency, it is best to have
-> that written down than to imply it by "typically greater than corresponding
-> temp_crit"...
+> On Wed, 2010-08-25 at 08:07 +0200, ext Pavel Machek wrote:
+> > On Mon 2010-08-23 17:00:26, Matti J. Aaltonen wrote:
+> > > Driver for Broadcom BCM4751 GPS chip.
+> > 
+> > 
+> > Uhuh. Tell us more... like what's the interface to userspace? NMEA
+> > data over char device?
 > 
-How about:
-        Temperature emergency max value, for chips supporting more than
-        two upper temperature limits. Must be equal or greater than
-        corresponding temp_crit values.
-        Unit: millidegree Celsius
-        RW
+> The interface to user space is MEIF data over a char device. Something
+> about MEIF can be found at
+> 
+> http://www.forum.nokia.com/info/sw.nokia.com/id/b265d3aa-8198-4eb0-a0e3-077748ccea40/MEIF_Specification_License.pdf.html
+> 
 
-Guenter
+Umm, that contains some legaleese, but nothing useful...?
+
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
