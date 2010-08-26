@@ -1,59 +1,36 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [PATCH] i2c-omap: Make sure i2c bus is free before setting it
- to idle
-Date: Thu, 26 Aug 2010 10:41:18 +0300
-Message-ID: <20100826074118.GH23263@nokia.com>
-References: <1282808204-1689-1-git-send-email-mathias.nyman@nokia.com>
-Reply-To: felipe.balbi@nokia.com
+From: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RFC 1/1] MISC: Broadcom BCM4751 GPS driver
+Date: Thu, 26 Aug 2010 12:31:15 +0300
+Message-ID: <1282815075.14489.249.camel@masi.mnp.nokia.com>
+References: <1282572026-14905-1-git-send-email-matti.j.aaltonen@nokia.com>
+	 <1282572026-14905-2-git-send-email-matti.j.aaltonen@nokia.com>
+	 <20100825060704.GA1578@ucw.cz>
+Reply-To: matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1282808204-1689-1-git-send-email-mathias.nyman@nokia.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Nyman Mathias (Nokia-MS/Helsinki)" <Mathias.Nyman@nokia.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, ben-linux@fluff.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100825060704.GA1578-+ZI9xUNit7I@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hello.
 
-On Thu, Aug 26, 2010 at 09:36:44AM +0200, Nyman Mathias (Nokia-MS/Helsinki) wrote:
->If the i2c bus receives an interrupt with both BB (bus busy) and
->ARDY (register access ready) statuses set during the tranfer of the last message
->the bus was put to idle while still busy.
->
->This caused bus to timeout.
->
->Signed-off-by: Mathias Nyman <mathias.nyman@nokia.com>
+On Wed, 2010-08-25 at 08:07 +0200, ext Pavel Machek wrote:
+> On Mon 2010-08-23 17:00:26, Matti J. Aaltonen wrote:
+> > Driver for Broadcom BCM4751 GPS chip.
+> 
+> 
+> Uhuh. Tell us more... like what's the interface to userspace? NMEA
+> data over char device?
+>                                                                 Pavel
 
-adding linux-i2c and Ben Dooks to Cc list.
+The interface to user space is MEIF data over a char device. Something
+about MEIF can be found at
 
->---
-> drivers/i2c/busses/i2c-omap.c |    2 ++
-> 1 files changed, 2 insertions(+), 0 deletions(-)
->
->diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->index 824ac1c..3271ce1 100644
->--- a/drivers/i2c/busses/i2c-omap.c
->+++ b/drivers/i2c/busses/i2c-omap.c
->@@ -602,6 +602,8 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->
-> 	if (r == 0)
-> 		r = num;
->+
->+	omap_i2c_wait_for_bb(dev);
-> out:
-> 	omap_i2c_idle(dev);
-> 	return r;
->-- 
->1.5.6.5
->
->--
->To unsubscribe from this list: send the line "unsubscribe linux-omap" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+http://www.forum.nokia.com/info/sw.nokia.com/id/b265d3aa-8198-4eb0-a0e3-077748ccea40/MEIF_Specification_License.pdf.html
 
--- 
-balbi
-
-DefectiveByDesign.org
+Best Regards,
+Matti A.
