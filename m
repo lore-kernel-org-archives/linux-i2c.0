@@ -1,36 +1,39 @@
-From: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RFC 1/1] MISC: Broadcom BCM4751 GPS driver
-Date: Thu, 26 Aug 2010 12:31:15 +0300
-Message-ID: <1282815075.14489.249.camel@masi.mnp.nokia.com>
-References: <1282572026-14905-1-git-send-email-matti.j.aaltonen@nokia.com>
-	 <1282572026-14905-2-git-send-email-matti.j.aaltonen@nokia.com>
-	 <20100825060704.GA1578@ucw.cz>
-Reply-To: matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] hwmon: Add tempX_emergency to sysfs ABI
+Date: Thu, 26 Aug 2010 08:54:45 -0700
+Message-ID: <1282838085-7210-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100825060704.GA1578-+ZI9xUNit7I@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "Ira W. Snyder" <iws-lulEs6mt1IksTUYHLfqkUA@public.gmane.org>, "Darrick J. Wong" <djwong-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+tempX_emergency will be used by max6696. It can also be used for other chips
+supporting three upper temperature limits.
 
-On Wed, 2010-08-25 at 08:07 +0200, ext Pavel Machek wrote:
-> On Mon 2010-08-23 17:00:26, Matti J. Aaltonen wrote:
-> > Driver for Broadcom BCM4751 GPS chip.
-> 
-> 
-> Uhuh. Tell us more... like what's the interface to userspace? NMEA
-> data over char device?
->                                                                 Pavel
+ Documentation/hwmon/sysfs-interface |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
-The interface to user space is MEIF data over a char device. Something
-about MEIF can be found at
-
-http://www.forum.nokia.com/info/sw.nokia.com/id/b265d3aa-8198-4eb0-a0e3-077748ccea40/MEIF_Specification_License.pdf.html
-
-Best Regards,
-Matti A.
+diff --git a/Documentation/hwmon/sysfs-interface b/Documentation/hwmon/sysfs-interface
+index ff45d1f..1ceb2b9 100644
+--- a/Documentation/hwmon/sysfs-interface
++++ b/Documentation/hwmon/sysfs-interface
+@@ -310,6 +310,12 @@ temp[1-*]_crit_hyst
+ 		from the critical value.
+ 		RW
+ 
++temp[1-*]_emergency
++		Temperature emergency value, typically greater than
++		corresponding temp_crit values.
++		Unit: millidegree Celsius
++		RW
++
+ temp[1-*]_lcrit	Temperature critical min value, typically lower than
+ 		corresponding temp_min values.
+ 		Unit: millidegree Celsius
+-- 
+1.7.0.87.g0901d
