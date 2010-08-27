@@ -1,47 +1,124 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
-Date: Fri, 27 Aug 2010 19:53:44 +0100
-Message-ID: <20100827185343.GA6626@opensource.wolfsonmicro.com>
-References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
- <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
- <20100827133109.1eb974ed@lxorguk.ukuu.org.uk>
- <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Subject: Re: [patch 1/1] i2c-s3c2410: Enable i2c clock only when doing some transfert
+Date: Fri, 27 Aug 2010 22:33:00 +0300
+Message-ID: <201008272233.00652.anarsoul@gmail.com>
+References: <20100715130636.136905589@rtp-net.org> <201007231202.54301.anarsoul@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Onkalo Samu <samu.p.onkalo@nokia.com>
-Cc: ext Alan Cox <alan@lxorguk.ukuu.org.uk>, ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sLBeM8ssX80lSTi"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <201007231202.54301.anarsoul@gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: "Arnaud Patard (Rtp)" <arnaud.patard@rtp-net.org>
+Cc: ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 27, 2010 at 07:59:13PM +0300, Onkalo Samu wrote:
-> On Fri, 2010-08-27 at 14:31 +0200, ext Alan Cox wrote:
+--Boundary-00=_sLBeM8ssX80lSTi
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > > +static int ak8974_regulators_on(struct ak8974_chip *chip)
-> > > +{
-> > > +	int ret;
-> > > +	ret = regulator_bulk_enable(ARRAY_SIZE(chip->regs), chip->regs);
+=D0=92 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=D0=B8 =D0=BE=D1=82 =
+23 =D0=B8=D1=8E=D0=BB=D1=8F 2010 12:02:49 =D0=B0=D0=B2=D1=82=D0=BE=D1=80 Va=
+sily Khoruzhick =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB:
+> =D0=92 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=D0=B8 =D0=BE=D1=
+=82 15 =D0=B8=D1=8E=D0=BB=D1=8F 2010 16:06:14 =D0=B0=D0=B2=D1=82=D0=BE=D1=
+=80 Arnaud Patard =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB:
+> > This patch modify the s3c2410 i2c driver behaviour to enable the
+> > i2c clock only when needed. I'm not sure if this has a big impact
+> > on power usage but at least it's fixing a bug with the uda1380
+> > codec which needs to be hard reset'ed if the i2c clock is enabled
+> > before it's powered on (at least on h1940).
+> >=20
+> > Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+>=20
+> Fixes same bug with uda1380 on rx1950 aswell.
+>=20
+> Tested-by: Vasily Khoruzhick <anarsoul@gmail.com>
 
-> > That bit seems platform specific but in generic code ?
+This patch has problem with suspend/resume, clock needs to be enabled on i2=
+c=20
+re-init. Here's fixed version of patch in attachment.
 
-> If the regulator frame work is not configured, this code does nothing.
-> I have understood (hopefully correctly) that if the frame work is in use
-> drivers could support that directly assuming that regulators are
-> configured for that platform. If that is not the case, this should be
-> platform specific.
+--Boundary-00=_sLBeM8ssX80lSTi
+Content-Type: text/x-patch;
+  charset="us-ascii";
+  name="0001-i2c-s3c2410-Enable-i2c-clock-only-when-doing-some-tr.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="0001-i2c-s3c2410-Enable-i2c-clock-only-when-doing-some-tr.patch"
 
-Your understanding is correct - the regulator API provides separation
-between the driver and the platform so that the driver code can work
-with any platform.  The driver requests supplies in terms of the
-physical supplies the chip has (using the struct device and the supply
-names from the datasheet).  The regulator API them matches this with
-actual regulators on a given system using data provied separately by the
-code specific to that machine so that the regulator and the consumer
-using it don't need to know about each other.
+=46rom a7b655bc82e21dcd8ae380efd39ec0455cd48779 Mon Sep 17 00:00:00 2001
+=46rom: Arnaud Patard (Rtp) <arnaud.patard@rtp-net.org>
+Date: Thu, 15 Jul 2010 15:06:14 +0200
+Subject: [PATCH v2 1/1] i2c-s3c2410: Enable i2c clock only when doing some =
+transfert
 
-If the regulator API is disabled then the basic regulator API calls
-compile to inline stubs that report success, and there's a facility for
-optionally automatically stubbing out missing supplies when the API is
-enabled.
+This patch modify the s3c2410 i2c driver behaviour to enable the
+i2c clock only when needed. I'm not sure if this has a big impact
+on power usage but at least it's fixing a bug with the uda1380
+codec which needs to be hard reset'ed if the i2c clock is enabled
+before it's powered on (at least on h1940).
+
+v2: enable clock on i2c init in resume handler
+
+Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+=2D--
+ drivers/i2c/busses/i2c-s3c2410.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2=
+410.c
+index 72902e0..0e2a2c7 100644
+=2D-- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -555,18 +555,23 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int retry;
+ 	int ret;
+=20
++	clk_enable(i2c->clk);
++
+ 	for (retry =3D 0; retry < adap->retries; retry++) {
+=20
+ 		ret =3D s3c24xx_i2c_doxfer(i2c, msgs, num);
+=20
+=2D		if (ret !=3D -EAGAIN)
++		if (ret !=3D -EAGAIN) {
++			clk_disable(i2c->clk);
+ 			return ret;
++		}
+=20
+ 		dev_dbg(i2c->dev, "Retrying transmission (%d)\n", retry);
+=20
+ 		udelay(100);
+ 	}
+=20
++	clk_disable(i2c->clk);
+ 	return -EREMOTEIO;
+ }
+=20
+@@ -911,6 +916,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pd=
+ev)
+ 	platform_set_drvdata(pdev, i2c);
+=20
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
++	clk_disable(i2c->clk);
+ 	return 0;
+=20
+  err_cpufreq:
+@@ -978,7 +984,9 @@ static int s3c24xx_i2c_resume(struct device *dev)
+ 	struct s3c24xx_i2c *i2c =3D platform_get_drvdata(pdev);
+=20
+ 	i2c->suspended =3D 0;
++	clk_enable(i2c->clk);
+ 	s3c24xx_i2c_init(i2c);
++	clk_disable(i2c->clk);
+=20
+ 	return 0;
+ }
+=2D-=20
+1.7.2
+
+
+--Boundary-00=_sLBeM8ssX80lSTi--
