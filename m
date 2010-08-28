@@ -1,18 +1,19 @@
-From: "Loan Solution Team" <solutionteam19-DaQTI0RpDDMAvxtiuMwx3w@public.gmane.org>
-Subject: Loan Application!!!
-Date: Fri, 27 Aug 2010 20:38:06 -0430
-Message-ID: <web-237844841@mailccs.icnet.com.ve>
+From: Mercedez Benz <corklandscapegroup-zLKRkbt3P8esTnJN9+BGXg@public.gmane.org>
+Subject: Mercedez Benz Promo
+Date: Sat, 28 Aug 2010 02:52:54 +0100 (IST)
+Message-ID: <11765475.5761282960374360.JavaMail.root__45257.2648450316$1282960387$gmane$org@webmailbox102.eircom.net>
+Reply-To: Mercedez Benz <mercedez_benz-KfVeZMHDAfI@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-We are Private International Money Lender based in the 
-United-Kingdom, we offer loan at a very low rate and 
-percentages of 3%.Kindly Apply Via Email: 
-eloansolutions-EMRzualFZlQ@public.gmane.org
-Regards,
-Loan solution team
+
+
+Your Mail Id Has Won =C2=A3950.000.00. In Mercedez Benz Promo:For claim=
+s Send Your:
+Name:
+Address
+Sex:
