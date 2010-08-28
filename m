@@ -1,114 +1,94 @@
-From: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>
+From: Sundar <sunder.svit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 1/3] drivers: misc: ak8974 / ami305 magnetometer driver
-Date: Sat, 28 Aug 2010 14:44:07 +0100
-Message-ID: <4C7912A7.5020008@jic23.retrosnub.co.uk>
-References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com> <1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com> <20100827133109.1eb974ed@lxorguk.ukuu.org.uk> <1282928353.2194.27.camel@noppispoppis.nmp.nokia.com> <20100827180837.GB13154@core.coreip.homeip.net>
+Date: Sat, 28 Aug 2010 21:40:55 +0530
+Message-ID: <AANLkTim=Zq7Pxixdwe_H-659cLZ2yybediDURGwvoO3=@mail.gmail.com>
+References: <1282910083-8629-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1282910083-8629-2-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100827180837.GB13154@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Onkalo Samu <samu.p.onkalo@nokia.com>, ext Alan Cox <alan@lxorguk.ukuu.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1282910083-8629-2-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/27/10 19:08, Dmitry Torokhov wrote:
-> On Fri, Aug 27, 2010 at 07:59:13PM +0300, Onkalo Samu wrote:
->>>
->>>> +static ssize_t ak8974_misc_read(struct file *file, char __user *buf,
->>>> +			size_t count, loff_t *offset)
->>>> +{
->>>> +	struct ak8974_chip *chip = container_of(file->private_data,
->>>> +						struct ak8974_chip,
->>>> +						miscdev);
->>>> +	struct ak8974_data data;
->>>
->>> So we have a different API to the ak8975 just posted and to the other
->>> existing devices. This needs sorting out across the devices before there
->>> is a complete disaster. Right now we have a mix of submissions pending
->>> which variously use
->>>
->>> 	misc + sysfs
->>> 	sysfs
->>> 	input (reporting X Y Z etc axes)
->>>
->>
->> About year ago I send driver for the same chip with input-device
->> interface. During that time I asked from Dmitry Torokhov that is that a
->> correct interface for this kind of driver. I understood that input
->> should not be used for this kind of sensors.
->>
->> sysfs is quite handy interface for small sensors. However, one problem
->> is that the driver doesn't know when the interface is in use.
->> I ended up to misc device to get information about the usercount for PM
->> purposes.
->>
->> Dmitry, what is your opinion about using input device interface for this
->> kind of sensors?
->>
-> 
-> This is really hard question and I am going back and forth myself.
-> 
-> When considering using input subsystem try answering the following
-> question - is the device's main purpose is indeed to be a human
-> interface device or do you want to use input subystem because evdev
-> interface is convenient? If the answer is former- then it should be in
-> input (or available through input - let's say IIO-to-input bridge
-> module). If the answer is latter then input is not the right place for
-> the device.
-The iio to input bridge is still on the todo list.  Unfortunately none
-of the core developers are particularly interested in that so it isn't
-a high priority.  Of course we would welcome someone working on it!
-If not it we will get to it.
-> 
-> Lately I was persuaded that 3-axis accelerometers are mainly used as
-> input devices so I took adxl driver in and I need to get back and review
-> cma3000 patch...
-> 
->>> Someone needs to decide on a single API before it's too late.
->>>
->>
->> That is definitely true. Could it be IIO?
->>
-I'm in favour ;)
+Hi Samu,
 
-We already have one straight magnetometer and one imu which includes
-a magnetometer.  I'd love to see more and would certainly welcome this
-driver.
-> 
-> I was hpoing that IIO would take care of "unnamed" sensors. Here I mean
-> sensors that measure something and only user/application know exactly
-> what it is; the same device might measure different things depending on
-> setup. Take a temperature sensor - ambient temperature, temperature of
-> some technological process, patient temperature - it is hard for the
-> kernel to know which one it would be.
-> 
-> This is in contrast with input system that tries to classify
-> events so that the event has the same meaning regarless of which device
-> emitted it - KEY_A means the same regardless of keybord; we may route
-> them differently (multiseat for example), but the meaning is the same.
-> 
-That's certainly our intent.  
+few minor comments,
 
-The down side of going with IIO is that it is taking a while to cleanup
-the userspace abi (and the core code for that matter!).
-Manuel Stahl has been recently pinning down a few issues made apparent via
-the generic userspace code he has been working on, so there will be patches
-relating to that over the next week.  Ultimately the lack of interface stability
-is on reason IIO is still in staging.  All help on this and more general code
-review of IIO is welcomed!
+On Fri, Aug 27, 2010 at 5:24 PM, Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> =
+wrote:
+> +
+> +struct ak8974_chip {
+> + =A0 =A0 =A0 struct miscdevice =A0 =A0 =A0 miscdev;
+> + =A0 =A0 =A0 struct mutex =A0 =A0 =A0 =A0 =A0 =A0lock; =A0 /* Serial=
+ize access to chip */
+> + =A0 =A0 =A0 struct mutex =A0 =A0 =A0 =A0 =A0 =A0users_lock;
+> + =A0 =A0 =A0 struct i2c_client =A0 =A0 =A0 *client;
+> + =A0 =A0 =A0 struct regulator_bulk_data regs[2];
+> + =A0 =A0 =A0 struct work_struct =A0 =A0 =A0work;
+> + =A0 =A0 =A0 wait_queue_head_t =A0 =A0 =A0 misc_wait;
+> + =A0 =A0 =A0 loff_t =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0offset;
+> +
+> + =A0 =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 max_range;
+> + =A0 =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 users;
+> +
+> + =A0 =A0 =A0 const char =A0 =A0 =A0 =A0 =A0 =A0 =A0*id;
+> + =A0 =A0 =A0 u8 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0info[2];
+> +
+> + =A0 =A0 =A0 s16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 x, y, z; /*=
+ Latest measurements */
+> + =A0 =A0 =A0 s8 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0axis_x;
+> + =A0 =A0 =A0 s8 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0axis_y;
+> + =A0 =A0 =A0 s8 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0axis_z;
+> + =A0 =A0 =A0 bool =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0valid;
+> +
+> + =A0 =A0 =A0 char =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0name[20];
+> +};
 
-For the sysfs devices I'd request that people either match our naming convention
-or that of hwmon (which the IIO one extends).  By this I mean the individual
-attributes, not the directory naming etc.  That way whatever the resulting
-subsystems of the future, we will at least have one naming convention!
+This can be static ?
 
-The chrdev end of things are more complex. (I'm happy to go into why we have two
-types etc but that's a much larger discussion)  As a quick note though, the
-structure you have used is obviously very much device (or at least narrow class of)
-device specific.  Our approach to this is a description of the format via a set of
-sysfs params. Much as you have done we need to maintain the linkage between a 'scan'
-of the channels and this approach allows us to do this.
+> +
+> + =A0 =A0 =A0 ak8974_regulators_off(chip);
+> +
 
-Jonathan
+[..]
+
+> + =A0 =A0 =A0 if (err < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&chip->client->dev, "Device reg=
+istration failed\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail3;
+> + =A0 =A0 =A0 }
+
+[..]
+
+> + =A0 =A0 =A0 return 0;
+> +fail4:
+> + =A0 =A0 =A0 misc_deregister(&chip->miscdev);
+> +fail3:
+> + =A0 =A0 =A0 ak8974_regulators_off(chip);
+
+in case of fail3, regulators get disabled twice. i think we will have
+unbalanced calls to the supplies then.
+
+> +
+> +
+> +#ifdef CONFIG_PM
+> +static int ak8974_suspend(struct i2c_client *client, pm_message_t me=
+sg)
+> +{
+> + =A0 =A0 =A0 struct ak8974_chip *chip =3D i2c_get_clientdata(client)=
+;
+> + =A0 =A0 =A0 mutex_lock(&chip->users_lock);
+> + =A0 =A0 =A0 if (chip->users > 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ak8974_enable(chip, AK8974_PWR_OFF);
+> + =A0 =A0 =A0 mutex_unlock(&chip->users_lock);
+> + =A0 =A0 =A0 return 0;
+> +}
+
+Can we disable the regulators here too?
+
+Regards,
+Sundar
