@@ -1,76 +1,71 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: I2C driver modification for BH1710FVC Ambient Light Sensor
-Date: Mon, 30 Aug 2010 17:58:36 +0200
-Message-ID: <20100830175836.65260450@hyperion.delvare>
-References: <AANLkTinzBkHsLO3TqwoPFb3AjVQ5xziSg_F7wFtB0c0R@mail.gmail.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
+Date: Mon, 30 Aug 2010 11:43:23 -0700
+Message-ID: <87wrr83pro.fsf@deeprootsystems.com>
+References: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTinzBkHsLO3TqwoPFb3AjVQ5xziSg_F7wFtB0c0R-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1283219414-8798-1-git-send-email-vishwanath.bs-l0cyMroinI0@public.gmane.org>
+	(Vishwanath BS's message of "Tue, 31 Aug 2010 07:20:14 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?B?Um9nw6lyaW8=?= de Souza Moraes <rogerio.souza-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rog=C3=A9rio,
+Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org> writes:
 
-On Mon, 30 Aug 2010 12:33:26 -0300, Rog=C3=A9rio de Souza Moraes wrote:
-> Hi folks,
->=20
-> I am developing a driver for the Ambient Light Sensor BH1710FVC that
-> communicates by i2c bus. My problem is that the type of message that
-> this chip accept is this:
->=20
-> S Addr Rd [A] [DataHigh] A [DataLow] NA P
->=20
-> I searched in the file "Documentation/i2c/smbus-protocol" for one
-> function that communicate like this, but I did not find. I tried to
-> use the function i2c_smbus_read_byte twice (reading data high first
-> and so the data low), but the chip do not accept communicate this way=
-=2E
->=20
-> So I've based in the function i2c_smbus_read_byte to build the
-> function that implements the protocol like I need.
->=20
-> I modified the file i2c-core.c in the function i2c_smbus_xfer_emulate=
-d
-> creating an I2C_SMBUS_WORD.
-> In first switch I add:
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 case I2C_SMBUS_WORD:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 if (read_write =3D=3D I2C_SMBUS_READ) {
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 m=
-sg[0].len =3D 2;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 m=
-sg[0].flags =3D I2C_M_RD | flags;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 n=
-um =3D 1;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 }
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 break;
->=20
-> and for the second switch I added the following case:
->=20
->                         case I2C_SMBUS_WORD:
->                                 data->word =3D msgbuf0[0] | (msgbuf0[=
-1] << 8);
->                                 break;
->=20
-> After this modification my Ambient Light Sensor driver is working jus=
-t fine.
->=20
-> So I want to know if there is a better way to implement this without
-> need to modify the i2c driver.
+> In current i2c core driver, pm_runtime_set_active call from i2c_device_pm_resume
+> is not balanced by pm_runtime_set_suspended call from i2c_device_pm_suspend.
+> pm_runtime_set_active called from resume path will increase the child_count of
+> the device's parent. However, matching pm_runtime_set_suspended is not called
+> in suspend routine because of which child_count of the device's parent
+> is not balanced, preventing the parent device to idle.
+> Issue has been fixed by adding pm_runtime_set_suspended call inside suspend
+> reoutine which will make sure that child_counts are balanced.
+> This fix has been tested on OMAP4430.
+>
+> Signed-off-by: Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
+>
+> Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-As the transaction format you need isn't part of SMBus, I assume that
-your controller is an I2C master and you should simply use
-i2c_master_recv() in your device driver.
+Also Cc'ing Mark Brown as original author of runtime PM for i2-core.
 
---=20
-Jean Delvare
+Kevin
+
+> ---
+>  drivers/i2c/i2c-core.c |   12 ++++++++++--
+>  1 files changed, 10 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 6649176..3146bff
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -196,14 +196,22 @@ static int i2c_legacy_resume(struct device *dev)
+>  static int i2c_device_pm_suspend(struct device *dev)
+>  {
+>  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+> +	int ret;
+>  
+>  	if (pm_runtime_suspended(dev))
+>  		return 0;
+>  
+>  	if (pm)
+> -		return pm->suspend ? pm->suspend(dev) : 0;
+> +		ret = pm->suspend ? pm->suspend(dev) : 0;
+> +	else
+> +		ret = i2c_legacy_suspend(dev, PMSG_SUSPEND);
+>  
+> -	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> +	if (!ret) {
+> +		pm_runtime_disable(dev);
+> +		pm_runtime_set_suspended(dev);
+> +		pm_runtime_enable(dev);
+> +	}
+> +	return ret;
+>  }
+>  
+>  static int i2c_device_pm_resume(struct device *dev)
