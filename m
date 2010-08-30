@@ -1,62 +1,61 @@
-From: Vishwanath BS <vishwanath.bs@ti.com>
-Subject: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
-Date: Tue, 31 Aug 2010 07:20:14 +0530
-Message-ID: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, Vishwanath BS <vishwanath.bs@ti.com>, Partha Basak <p-basak2@ti.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, Kevin Hilman <khilman@deeprootsystems.com>, Ben Dooks <ben-linux@fluff.org>
+From: =?ISO-8859-1?Q?Rog=E9rio_de_Souza_Moraes?=
+	<rogerio.souza-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: I2C driver modification for BH1710FVC Ambient Light Sensor
+Date: Mon, 30 Aug 2010 12:33:26 -0300
+Message-ID: <AANLkTinzBkHsLO3TqwoPFb3AjVQ5xziSg_F7wFtB0c0R@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-In current i2c core driver, pm_runtime_set_active call from i2c_device_pm_resume
-is not balanced by pm_runtime_set_suspended call from i2c_device_pm_suspend.
-pm_runtime_set_active called from resume path will increase the child_count of
-the device's parent. However, matching pm_runtime_set_suspended is not called
-in suspend routine because of which child_count of the device's parent
-is not balanced, preventing the parent device to idle.
-Issue has been fixed by adding pm_runtime_set_suspended call inside suspend
-reoutine which will make sure that child_counts are balanced.
-This fix has been tested on OMAP4430.
+Hi folks,
 
-Signed-off-by: Partha Basak <p-basak2@ti.com>
-Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
+I am developing a driver for the Ambient Light Sensor BH1710FVC that
+communicates by i2c bus. My problem is that the type of message that
+this chip accept is this:
 
-Cc: Rafael J. Wysocki <rjw@sisk.pl>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: Ben Dooks <ben-linux@fluff.org>
----
- drivers/i2c/i2c-core.c |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
+S Addr Rd [A] [DataHigh] A [DataLow] NA P
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 6649176..3146bff
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -196,14 +196,22 @@ static int i2c_legacy_resume(struct device *dev)
- static int i2c_device_pm_suspend(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	int ret;
- 
- 	if (pm_runtime_suspended(dev))
- 		return 0;
- 
- 	if (pm)
--		return pm->suspend ? pm->suspend(dev) : 0;
-+		ret = pm->suspend ? pm->suspend(dev) : 0;
-+	else
-+		ret = i2c_legacy_suspend(dev, PMSG_SUSPEND);
- 
--	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
-+	if (!ret) {
-+		pm_runtime_disable(dev);
-+		pm_runtime_set_suspended(dev);
-+		pm_runtime_enable(dev);
-+	}
-+	return ret;
- }
- 
- static int i2c_device_pm_resume(struct device *dev)
--- 
-1.7.0.4
+I searched in the file "Documentation/i2c/smbus-protocol" for one
+function that communicate like this, but I did not find. I tried to
+use the function i2c_smbus_read_byte twice (reading data high first
+and so the data low), but the chip do not accept communicate this way.
 
+So I've based in the function i2c_smbus_read_byte to build the
+function that implements the protocol like I need.
+
+I modified the file i2c-core.c in the function i2c_smbus_xfer_emulated
+creating an I2C_SMBUS_WORD.
+In first switch I add:
+
+=A0=A0=A0=A0=A0=A0=A0 case I2C_SMBUS_WORD:
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (read_write =3D=3D I2C=
+_SMBUS_READ) {
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 m=
+sg[0].len =3D 2;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 m=
+sg[0].flags =3D I2C_M_RD | flags;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 n=
+um =3D 1;
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break;
+
+and for the second switch I added the following case:
+
+                        case I2C_SMBUS_WORD:
+                                data->word =3D msgbuf0[0] | (msgbuf0[1]=
+ << 8);
+                                break;
+
+After this modification my Ambient Light Sensor driver is working just =
+fine.
+
+So I want to know if there is a better way to implement this without
+need to modify the i2c driver.
+
+Regards,
+
+Rogerio
