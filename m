@@ -1,11 +1,11 @@
-From: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
+From: Vishwanath BS <vishwanath.bs@ti.com>
 Subject: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
-Date: Tue, 31 Aug 2010 07:17:42 +0530
-Message-ID: <1283219262-8762-1-git-send-email-vishwanath.bs@ti.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: inux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>, Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Date: Tue, 31 Aug 2010 07:20:14 +0530
+Message-ID: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Vishwanath BS <vishwanath.bs@ti.com>, Partha Basak <p-basak2@ti.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, Kevin Hilman <khilman@deeprootsystems.com>, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
 In current i2c core driver, pm_runtime_set_active call from i2c_device_pm_resume
@@ -18,12 +18,12 @@ Issue has been fixed by adding pm_runtime_set_suspended call inside suspend
 reoutine which will make sure that child_counts are balanced.
 This fix has been tested on OMAP4430.
 
-Signed-off-by: Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Partha Basak <p-basak2@ti.com>
+Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
 
-Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Rafael J. Wysocki <rjw@sisk.pl>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: Ben Dooks <ben-linux@fluff.org>
 ---
  drivers/i2c/i2c-core.c |   12 ++++++++++--
  1 files changed, 10 insertions(+), 2 deletions(-)
@@ -59,3 +59,4 @@ index 6649176..3146bff
  static int i2c_device_pm_resume(struct device *dev)
 -- 
 1.7.0.4
+
