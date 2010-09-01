@@ -1,340 +1,656 @@
-From: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 1/1] power supply: add driver for TI BQ20Z75 gas gauge IC
-Date: Wed, 1 Sep 2010 10:54:21 -0700
-Message-ID: <E88A1D35AF5437468E5B14C7C4BA61C702CF4B6202@HQMAIL01.nvidia.com>
-References: <1282949443-8052-1-git-send-email-rklein@nvidia.com>
- <20100831102421.17e73b5d@hyperion.delvare>
+From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
+Date: Wed, 1 Sep 2010 21:44:53 +0200
+Message-ID: <AANLkTik5qxaGAj2-jBYfJjeP43XNep61fxwVXbfVA3J4@mail.gmail.com>
+References: <4C7DB9CF.5000905@dsn.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100831102421.17e73b5d-ig7AzVSIIG7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <4C7DB9CF.5000905-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Wang Yong Y\"" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Wang Qi\"" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Andrew\"" <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-VGhhbmtzIGZvciB0aGUgcmV2aWV3LCBmaXhlZCB1cCB3aGF0IHlvdSBzdWdnZXN0ZWQsIEkgZGlk
-IGxlYXZlIG9uZSBwbGFjZSBhcyAtRUlOVkFMIGFzIGl0IHNlZW1lZCB0aGUgbW9zdCBhcHByb3By
-aWF0ZSBmb3IgdGhlIHNwb3QuIFdpbGwgcmVwb3N0IHNvb24uDQoNCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBKZWFuIERlbHZhcmUgW21haWx0bzpraGFsaUBsaW51eC1mci5vcmdd
-DQpTZW50OiBUdWVzZGF5LCBBdWd1c3QgMzEsIDIwMTAgMToyNCBBTQ0KVG86IFJoeWxhbmQgS2xl
-aW4NCkNjOiBjYm91YXRtYWlscnVAZ21haWwuY29tOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3Jn
-OyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBvbG9mQGxpeG9tLm5ldDsgQW5kcmV3IENo
-ZXcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8xXSBwb3dlciBzdXBwbHk6IGFkZCBkcml2ZXIgZm9y
-IFRJIEJRMjBaNzUgZ2FzIGdhdWdlIElDDQoNCkhpIFJoeWxhbmQsDQoNCk9uIEZyaSwgMjcgQXVn
-IDIwMTAgMTU6NTA6NDMgLTA3MDAsIHJrbGVpbkBudmlkaWEuY29tIHdyb3RlOg0KPiBGcm9tOiBS
-aHlsYW5kIEtsZWluIDxya2xlaW5AbnZpZGlhLmNvbT4NCj4NCj4gdGhpcyBkcml2ZXIgZGVwZW5k
-cyBvbiBJMkMgYW5kIHVzZXMgU01CVVMgZm9yIGNvbW11bmljYXRpb24gd2l0aCB0aGUgaG9zdC4N
-Cg0KUXVpY2sgcmV2aWV3IChJIGFtIG5vdCBmYW1pbGlhciB3aXRoIHRoZSBwb3dlciBzdXBwbHkg
-QVBJKToNCg0KPiBTaWduZWQtb2ZmLWJ5OiBSaHlsYW5kIEtsZWluIDxya2xlaW5AbnZpZGlhLmNv
-bT4NCj4gLS0tDQo+ICBkcml2ZXJzL3Bvd2VyL0tjb25maWcgICB8ICAgIDcgKw0KPiAgZHJpdmVy
-cy9wb3dlci9NYWtlZmlsZSAgfCAgICAxICsNCj4gIGRyaXZlcnMvcG93ZXIvYnEyMHo3NS5jIHwg
-IDQwMyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiAg
-MyBmaWxlcyBjaGFuZ2VkLCA0MTEgaW5zZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkNCj4gIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3Bvd2VyL2JxMjB6NzUuYw0KPg0KPiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9wb3dlci9LY29uZmlnIGIvZHJpdmVycy9wb3dlci9LY29uZmlnDQo+IGluZGV4
-IDhlOWJhMTcuLmM3MmU2MjggMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvcG93ZXIvS2NvbmZpZw0K
-PiArKysgYi9kcml2ZXJzL3Bvd2VyL0tjb25maWcNCj4gQEAgLTE0Miw0ICsxNDIsMTEgQEAgY29u
-ZmlnIENIQVJHRVJfUENGNTA2MzMNCj4gICAgICAgaGVscA0KPiAgICAgICAgU2F5IFkgdG8gaW5j
-bHVkZSBzdXBwb3J0IGZvciBOWFAgUENGNTA2MzMgTWFpbiBCYXR0ZXJ5IENoYXJnZXIuDQo+DQo+
-ICtjb25maWcgQlEyMFo3NV9HQVNHQVVHRQ0KDQpGb2xsb3dpbmcgdGhlIG5hbWluZyB1c2VkIGZv
-ciBvdGhlciBvcHRpb25zIGluIHRoaXMgbWVudSwgdGhpcyB3b3VsZCBiZQ0KQkFUVEVSWV9CUTIw
-Wjc1Lg0KDQotRG9uZQ0KDQo+ICsgICAgICAgIHRyaXN0YXRlICJUSSBCUTIwWjc1IEdBUyBHQVVH
-RSINCg0KTm90IGFsbCBjYXBpdGFscywgcGxlYXNlLg0KDQotRml4ZWQsIGNoYW5nZWQgdG8gIlRJ
-IEJRMjB6NzUgZ2FzIGdhdWdlIg0KDQo+ICsgICAgICAgIGRlcGVuZHMgb24gSTJDDQo+ICsgICAg
-ICAgIGhlbHANCj4gKyAgICAgICAgIFNheSBZIHRvIGluY2x1ZGUgc3VwcG9ydCBmb3IgVEkgQlEy
-MFo3NSBTQlMtY29tcGxpYW50DQo+ICsgICAgICAgICBnYXMgZ2F1Z2UgYW5kIHByb3RlY3Rpb24g
-SUMuDQo+ICsNCj4gIGVuZGlmICMgUE9XRVJfU1VQUExZDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3Bvd2VyL01ha2VmaWxlIGIvZHJpdmVycy9wb3dlci9NYWtlZmlsZQ0KPiBpbmRleCAwMDA1MDgw
-Li45OGFiYzMxIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3Bvd2VyL01ha2VmaWxlDQo+ICsrKyBi
-L2RyaXZlcnMvcG93ZXIvTWFrZWZpbGUNCj4gQEAgLTM0LDMgKzM0LDQgQEAgb2JqLSQoQ09ORklH
-X0JBVFRFUllfREE5MDMwKSAgICAgICAgKz0gZGE5MDMwX2JhdHRlcnkubw0KPiAgb2JqLSQoQ09O
-RklHX0JBVFRFUllfTUFYMTcwNDApICAgICAgICs9IG1heDE3MDQwX2JhdHRlcnkubw0KPiAgb2Jq
-LSQoQ09ORklHX0JBVFRFUllfWjIpICAgICArPSB6Ml9iYXR0ZXJ5Lm8NCj4gIG9iai0kKENPTkZJ
-R19DSEFSR0VSX1BDRjUwNjMzKSAgICAgICArPSBwY2Y1MDYzMy1jaGFyZ2VyLm8NCj4gK29iai0k
-KENPTkZJR19CUTIwWjc1X0dBU0dBVUdFKSAgKz0gYnEyMHo3NS5vDQo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3Bvd2VyL2JxMjB6NzUuYyBiL2RyaXZlcnMvcG93ZXIvYnEyMHo3NS5jDQo+IG5ldyBm
-aWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAwMDAwMDAuLjRlYjY2MzgNCj4gLS0tIC9kZXYvbnVs
-bA0KPiArKysgYi9kcml2ZXJzL3Bvd2VyL2JxMjB6NzUuYw0KPiBAQCAtMCwwICsxLDQwMyBAQA0K
-PiArLyoNCj4gKyAqIGRyaXZlcnMvcG93ZXIvYnEyMHo3NS5jDQoNClBsZWFzZSByZW1vdmUsIHRo
-aXMgZG9lc24ndCBhZGQgbXVjaCB2YWx1ZSBhbmQgaXMgbGlrZWx5IHRvIGdldA0Kb3V0ZGF0ZWQg
-YXQgc29tZSBwb2ludC4NCg0KLURvbmUNCg0KPiArICoNCj4gKyAqIEdhcyBHYXVnZSBkcml2ZXIg
-Zm9yIFRJJ3MgQlEyMFo3NQ0KPiArICoNCj4gKyAqIENvcHlyaWdodCAoYykgMjAxMCwgTlZJRElB
-IENvcnBvcmF0aW9uLg0KPiArICoNCj4gKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJl
-OyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5DQo+ICsgKiBpdCB1bmRlciB0
-aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBi
-eQ0KPiArICogdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBv
-ZiB0aGUgTGljZW5zZSwgb3INCj4gKyAqIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNp
-b24uDQo+ICsgKg0KPiArICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3Bl
-IHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsIGJ1dCBXSVRIT1VUDQo+ICsgKiBBTlkgV0FSUkFOVFk7
-IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZiBNRVJDSEFOVEFCSUxJVFkgb3IN
-Cj4gKyAqIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZSBHTlUgR2Vu
-ZXJhbCBQdWJsaWMgTGljZW5zZSBmb3INCj4gKyAqIG1vcmUgZGV0YWlscy4NCj4gKyAqDQo+ICsg
-KiBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJs
-aWMgTGljZW5zZSBhbG9uZw0KPiArICogd2l0aCB0aGlzIHByb2dyYW07IGlmIG5vdCwgd3JpdGUg
-dG8gdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbiwgSW5jLiwNCj4gKyAqIDUxIEZyYW5rbGlu
-IFN0cmVldCwgRmlmdGggRmxvb3IsIEJvc3RvbiwgTUEgIDAyMTEwLTEzMDEsIFVTQS4NCj4gKyAq
-Lw0KPiArDQo+ICsjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L21v
-ZHVsZS5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPg0KPiArI2luY2x1ZGUgPGxpbnV4
-L2Vyci5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L2RlYnVnZnMuaD4NCg0KSSBkb24ndCB0aGluayB5
-b3UgbmVlZCB0aGlzIG9uZT8NCg0KLVJlbW92ZWQuDQoNCj4gKyNpbmNsdWRlIDxsaW51eC9wb3dl
-cl9zdXBwbHkuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9pMmMuaD4NCj4gKyNpbmNsdWRlIDxsaW51
-eC9zbGFiLmg+DQo+ICsNCj4gK2VudW0gew0KPiArICAgICBSRUdfTUFOVUZBQ1RVUkVSX0RBVEEs
-DQo+ICsgICAgIFJFR19URU1QRVJBVFVSRSwNCj4gKyAgICAgUkVHX1ZPTFRBR0UsDQo+ICsgICAg
-IFJFR19DVVJSRU5ULA0KPiArICAgICBSRUdfQ0FQQUNJVFksDQo+ICsgICAgIFJFR19USU1FX1RP
-X0VNUFRZLA0KPiArICAgICBSRUdfVElNRV9UT19GVUxMLA0KPiArICAgICBSRUdfU1RBVFVTLA0K
-PiArICAgICBSRUdfQ1lDTEVfQ09VTlQsDQo+ICsgICAgIFJFR19TRVJJQUxfTlVNQkVSLA0KPiAr
-ICAgICBSRUdfTUFYDQo+ICt9Ow0KPiArDQo+ICsjZGVmaW5lIEJBVFRFUllfTUFOVUZBQ1RVUkVS
-X1NJWkUgICAgMTINCj4gKyNkZWZpbmUgQkFUVEVSWV9OQU1FX1NJWkUgICAgICAgICAgICA4DQoN
-CllvdSBkb24ndCB1c2UgdGhlc2UgYW55d2hlcmU/DQoNCi1SZW1vdmVkDQoNCj4gKw0KPiArLyog
-bWFudWZhY3R1cmVyIGFjY2VzcyBkZWZpbmVzICovDQo+ICsjZGVmaW5lIE1BTlVGQUNUVVJFUl9B
-Q0NFU1NfU1RBVFVTICAgMHgwMDA2DQo+ICsjZGVmaW5lIE1BTlVGQUNUVVJFUl9BQ0NFU1NfU0xF
-RVAgICAgMHgwMDExDQo+ICsNCj4gKy8qIGJhdHRlcnkgc3RhdHVzIHZhbHVlIGJpdHMgKi8NCj4g
-KyNkZWZpbmUgQkFUVEVSWV9DSEFSR0lORyAgICAgICAgICAgICAweDQwDQo+ICsjZGVmaW5lIEJB
-VFRFUllfRlVMTF9DSEFSR0VEICAgICAgICAgMHgyMA0KPiArI2RlZmluZSBCQVRURVJZX0ZVTExf
-RElTQ0hBUkdFRCAgICAgICAgICAgICAgMHgxMA0KPiArDQo+ICsjZGVmaW5lIEJRMjBaNzVfREFU
-QShfcHNwLCBfYWRkciwgX21pbl92YWx1ZSwgX21heF92YWx1ZSkgeyBcDQo+ICsgICAgIC5wc3Ag
-PSBfcHNwLCBcDQo+ICsgICAgIC5hZGRyID0gX2FkZHIsIFwNCj4gKyAgICAgLm1pbl92YWx1ZSA9
-IF9taW5fdmFsdWUsIFwNCj4gKyAgICAgLm1heF92YWx1ZSA9IF9tYXhfdmFsdWUsIFwNCj4gK30N
-Cj4gKw0KPiArc3RhdGljIHN0cnVjdCBicTIwejc1X2RldmljZV9kYXRhIHsNCg0KVGhpcyBjb3Vs
-ZCBiZSBjb25zdC4NCg0KLURvbmUNCg0KPiArICAgICBlbnVtIHBvd2VyX3N1cHBseV9wcm9wZXJ0
-eSBwc3A7DQo+ICsgICAgIHU4IGFkZHI7DQo+ICsgICAgIGludCBtaW5fdmFsdWU7DQo+ICsgICAg
-IGludCBtYXhfdmFsdWU7DQo+ICt9IGJxMjB6NzVfZGF0YVtdID0gew0KPiArICAgICBbUkVHX01B
-TlVGQUNUVVJFUl9EQVRBXSA9DQo+ICsgICAgICAgICAgICAgQlEyMFo3NV9EQVRBKFBPV0VSX1NV
-UFBMWV9QUk9QX1BSRVNFTlQsIDB4MDAsIDAsIDY1NTM1KSwNCj4gKyAgICAgW1JFR19URU1QRVJB
-VFVSRV0gPQ0KPiArICAgICAgICAgICAgIEJRMjBaNzVfREFUQShQT1dFUl9TVVBQTFlfUFJPUF9U
-RU1QLCAweDA4LCAwLCA2NTUzNSksDQo+ICsgICAgIFtSRUdfVk9MVEFHRV0gPQ0KPiArICAgICAg
-ICAgICAgIEJRMjBaNzVfREFUQShQT1dFUl9TVVBQTFlfUFJPUF9WT0xUQUdFX05PVywgMHgwOSwg
-MCwgMjAwMDApLA0KPiArICAgICBbUkVHX0NVUlJFTlRdID0NCj4gKyAgICAgICAgICAgICBCUTIw
-Wjc1X0RBVEEoUE9XRVJfU1VQUExZX1BST1BfQ1VSUkVOVF9OT1csIDB4MEEsIC0zMjc2OCwgXA0K
-PiArICAgICAgICAgICAgICAgICAgICAgMzI3NjcpLA0KDQpZb3UgZG9uJ3QgbmVlZCB0aGUgYmFj
-a3NsYXNoIGF0IHRoZSBlbmQgb2YgdGhlIGxpbmUuDQoNCi1SZW1vdmVkDQoNCj4gKyAgICAgW1JF
-R19DQVBBQ0lUWV0gPQ0KPiArICAgICAgICAgICAgIEJRMjBaNzVfREFUQShQT1dFUl9TVVBQTFlf
-UFJPUF9DQVBBQ0lUWSwgMHgwZSwgMCwgMTAwKSwNCg0KUGxlYXNlIGJlIGNvbnNpc3RlbnQgd2l0
-aCBjYXNlIGluIGhleGFkZWNpbWFsIG51bWJlcnMuDQoNCi1Eb25lDQoNCj4gKyAgICAgW1JFR19U
-SU1FX1RPX0VNUFRZXSA9DQo+ICsgICAgICAgICAgICAgQlEyMFo3NV9EQVRBKFBPV0VSX1NVUFBM
-WV9QUk9QX1RJTUVfVE9fRU1QVFlfQVZHLCAweDEyLCAwLCBcDQo+ICsgICAgICAgICAgICAgICAg
-ICAgICA2NTUzNSksDQo+ICsgICAgIFtSRUdfVElNRV9UT19GVUxMXSA9DQo+ICsgICAgICAgICAg
-ICAgQlEyMFo3NV9EQVRBKFBPV0VSX1NVUFBMWV9QUk9QX1RJTUVfVE9fRlVMTF9BVkcsIDB4MTMs
-IDAsIFwNCj4gKyAgICAgICAgICAgICAgICAgICAgIDY1NTM1KSwNCj4gKyAgICAgW1JFR19TVEFU
-VVNdID0NCj4gKyAgICAgICAgICAgICBCUTIwWjc1X0RBVEEoUE9XRVJfU1VQUExZX1BST1BfU1RB
-VFVTLCAweDE2LCAwLCA2NTUzNSksDQo+ICsgICAgIFtSRUdfQ1lDTEVfQ09VTlRdID0NCj4gKyAg
-ICAgICAgICAgICBCUTIwWjc1X0RBVEEoUE9XRVJfU1VQUExZX1BST1BfQ1lDTEVfQ09VTlQsIDB4
-MTcsIDAsIDY1NTM1KSwNCj4gKyAgICAgW1JFR19TRVJJQUxfTlVNQkVSXSA9DQo+ICsgICAgICAg
-ICAgICAgQlEyMFo3NV9EQVRBKFBPV0VSX1NVUFBMWV9QUk9QX1NFUklBTF9OVU1CRVIsIDB4MUMs
-IDAsIDY1NTM1KSwNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBlbnVtIHBvd2VyX3N1cHBseV9wcm9w
-ZXJ0eSBicTIwejc1X3Byb3BlcnRpZXNbXSA9IHsNCj4gKyAgICAgUE9XRVJfU1VQUExZX1BST1Bf
-U1RBVFVTLA0KPiArICAgICBQT1dFUl9TVVBQTFlfUFJPUF9IRUFMVEgsDQo+ICsgICAgIFBPV0VS
-X1NVUFBMWV9QUk9QX1BSRVNFTlQsDQo+ICsgICAgIFBPV0VSX1NVUFBMWV9QUk9QX1RFQ0hOT0xP
-R1ksDQo+ICsgICAgIFBPV0VSX1NVUFBMWV9QUk9QX0NZQ0xFX0NPVU5ULA0KPiArICAgICBQT1dF
-Ul9TVVBQTFlfUFJPUF9WT0xUQUdFX05PVywNCj4gKyAgICAgUE9XRVJfU1VQUExZX1BST1BfQ1VS
-UkVOVF9OT1csDQo+ICsgICAgIFBPV0VSX1NVUFBMWV9QUk9QX0NBUEFDSVRZLA0KPiArICAgICBQ
-T1dFUl9TVVBQTFlfUFJPUF9URU1QLA0KPiArICAgICBQT1dFUl9TVVBQTFlfUFJPUF9USU1FX1RP
-X0VNUFRZX0FWRywNCj4gKyAgICAgUE9XRVJfU1VQUExZX1BST1BfVElNRV9UT19GVUxMX0FWRywN
-Cj4gKyAgICAgUE9XRVJfU1VQUExZX1BST1BfU0VSSUFMX05VTUJFUiwNCj4gK307DQo+ICsNCj4g
-K3N0YXRpYyBpbnQgYnEyMHo3NV9nZXRfcHJvcGVydHkoc3RydWN0IHBvd2VyX3N1cHBseSAqcHN5
-LA0KPiArICAgICBlbnVtIHBvd2VyX3N1cHBseV9wcm9wZXJ0eSBwc3AsIHVuaW9uIHBvd2VyX3N1
-cHBseV9wcm9wdmFsICp2YWwpOw0KPiArDQo+ICtzdGF0aWMgc3RydWN0IHBvd2VyX3N1cHBseSBi
-cTIwejc1X3N1cHBseSA9IHsNCj4gKyAgICAgLm5hbWUgPSAiYmF0dGVyeSIsDQo+ICsgICAgIC50
-eXBlID0gUE9XRVJfU1VQUExZX1RZUEVfQkFUVEVSWSwNCj4gKyAgICAgLnByb3BlcnRpZXMgPSBi
-cTIwejc1X3Byb3BlcnRpZXMsDQo+ICsgICAgIC5udW1fcHJvcGVydGllcyA9IEFSUkFZX1NJWkUo
-YnEyMHo3NV9wcm9wZXJ0aWVzKSwNCj4gKyAgICAgLmdldF9wcm9wZXJ0eSA9IGJxMjB6NzVfZ2V0
-X3Byb3BlcnR5LA0KPiArfTsNCj4gKw0KPiArc3RydWN0IGJxMjB6NzVfZGV2aWNlX2luZm8gew0K
-PiArICAgICBzdHJ1Y3QgaTJjX2NsaWVudCAgICAgICAqY2xpZW50Ow0KPiArfSAqYnEyMHo3NV9k
-ZXZpY2U7DQoNClRoaXMgc3RydWN0dXJlIGRvZXNuJ3Qgc2VlbSB0ZXJyaWJseSB1c2VmdWwuIFlv
-dSB0eXBpY2FsbHkgbmVlZCB0aGUNCmNsaWVudCB0byBnZXQgdG8gdGhpcyBpbmZvcm1hdGlvbi4u
-LiBBbmQgc3RvcmluZyB0aGUgZGV2aWNlIHBvaW50ZXIgYXMNCmEgZ2xvYmFsIGlzIGV2aWwgYW55
-d2F5LCBwbGVhc2UgZG9uJ3QgZG8gdGhhdC4NCg0KDQpUT0RPOg0KPiArDQo+ICtzdGF0aWMgaW50
-IGJxMjB6NzVfZ2V0X2JhdHRlcnlfcHJlc2VuY2VfYW5kX2hlYWx0aCgNCj4gKyAgICAgZW51bSBw
-b3dlcl9zdXBwbHlfcHJvcGVydHkgcHNwLCB1bmlvbiBwb3dlcl9zdXBwbHlfcHJvcHZhbCAqdmFs
-KQ0KPiArew0KPiArICAgICBzMzIgcmV0Ow0KPiArDQo+ICsgICAgIC8qIFdyaXRlIHRvIE1hbnVm
-YWN0dXJlckFjY2VzcyB3aXRoDQo+ICsgICAgICAqIE1hbnVmYWN0dXJlckFjY2VzcyBjb21tYW5k
-IGFuZCB0aGVuDQo+ICsgICAgICAqIHJlYWQgdGhlIHN0YXR1cyAqLw0KPiArICAgICByZXQgPSBp
-MmNfc21idXNfd3JpdGVfd29yZF9kYXRhKGJxMjB6NzVfZGV2aWNlLT5jbGllbnQsDQo+ICsgICAg
-ICAgICAgICAgYnEyMHo3NV9kYXRhW1JFR19NQU5VRkFDVFVSRVJfREFUQV0uYWRkciwNCj4gKyAg
-ICAgICAgICAgICBNQU5VRkFDVFVSRVJfQUNDRVNTX1NUQVRVUyk7DQo+ICsgICAgIGlmIChyZXQg
-PCAwKSB7DQo+ICsgICAgICAgICAgICAgZGV2X2VycigmYnEyMHo3NV9kZXZpY2UtPmNsaWVudC0+
-ZGV2LA0KPiArICAgICAgICAgICAgICAgICAgICAgIiVzOiBpMmMgd3JpdGUgZm9yIGJhdHRlcnkg
-cHJlc2VuY2UgZmFpbGVkXG4iLA0KPiArICAgICAgICAgICAgICAgICAgICAgX19mdW5jX18pOw0K
-PiArICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0KPiArICAgICB9DQo+ICsNCj4gKyAgICAg
-cmV0ID0gaTJjX3NtYnVzX3JlYWRfd29yZF9kYXRhKGJxMjB6NzVfZGV2aWNlLT5jbGllbnQsDQo+
-ICsgICAgICAgICAgICAgYnEyMHo3NV9kYXRhW1JFR19NQU5VRkFDVFVSRVJfREFUQV0uYWRkcik7
-DQo+ICsgICAgIGlmIChyZXQgPCAwKSB7DQo+ICsgICAgICAgICAgICAgZGV2X2VycigmYnEyMHo3
-NV9kZXZpY2UtPmNsaWVudC0+ZGV2LA0KPiArICAgICAgICAgICAgICAgICAgICAgIiVzOiBpMmMg
-cmVhZCBmb3IgYmF0dGVyeSBwcmVzZW5jZSBmYWlsZWRcbiIsDQo+ICsgICAgICAgICAgICAgICAg
-ICAgICBfX2Z1bmNfXyk7DQo+ICsgICAgICAgICAgICAgcmV0dXJuIC1FSU5WQUw7DQo+ICsgICAg
-IH0NCg0KLUVJTlZBTCBkb2Vzbid0IGxvb2sgbGlrZSB0aGUgcmlnaHQgZXJyb3IgY29kZS4gLUVO
-T0RFViBvciAtRUlPIHdvdWxkDQpzZWVtIG1vcmUgYXBwcm9wcmlhdGUuIFNhbWUgaXNzdWUgc2V2
-ZXJhbCB0aW1lcywgcGxlYXNlIGFkZHJlc3MgdGhlbQ0KYWxsLg0KDQotRG9uZSwgb25seSBvbmUg
-cGxhY2Ugc2VlbWVkIHRvIG1ha2Ugc2Vuc2UgZm9yIEVJTlZBTCwgdGhlIGRlZmF1bHQgY2FzZSB3
-aGVyZSBpdCB3YXMgYW4gdW5rbm93biBwcm9wZXJ0eSwgZG9lcyB0aGF0IG1ha2VzIHNlbnNlIHRv
-IHlvdT8NCg0KPiArDQo+ICsgICAgIGlmIChyZXQgPCBicTIwejc1X2RhdGFbUkVHX01BTlVGQUNU
-VVJFUl9EQVRBXS5taW5fdmFsdWUgfHwNCj4gKyAgICAgICAgIHJldCA+IGJxMjB6NzVfZGF0YVtS
-RUdfTUFOVUZBQ1RVUkVSX0RBVEFdLm1heF92YWx1ZSkgew0KPiArICAgICAgICAgICAgIHZhbC0+
-aW50dmFsID0gMDsNCj4gKyAgICAgICAgICAgICByZXR1cm4gMDsNCj4gKyAgICAgfQ0KPiArDQo+
-ICsgICAgIC8qIE1hc2sgdGhlIHVwcGVyIG5pYmJsZSBvZiAybmQgYnl0ZSBhbmQNCj4gKyAgICAg
-ICogbG93ZXIgYnl0ZSBvZiByZXNwb25zZSB0aGVuDQo+ICsgICAgICAqIHNoaWZ0IHRoZSByZXN1
-bHQgYnkgOCB0byBnZXQgc3RhdHVzKi8NCj4gKyAgICAgcmV0ICY9IDB4MEYwMDsNCj4gKyAgICAg
-cmV0ID4+PSA4Ow0KPiArICAgICBpZiAocHNwID09IFBPV0VSX1NVUFBMWV9QUk9QX1BSRVNFTlQp
-IHsNCj4gKyAgICAgICAgICAgICBpZiAocmV0ID09IDB4MEYpDQo+ICsgICAgICAgICAgICAgICAg
-ICAgICAvKiBiYXR0ZXJ5IHJlbW92ZWQgKi8NCj4gKyAgICAgICAgICAgICAgICAgICAgIHZhbC0+
-aW50dmFsID0gMDsNCj4gKyAgICAgICAgICAgICBlbHNlDQo+ICsgICAgICAgICAgICAgICAgICAg
-ICB2YWwtPmludHZhbCA9IDE7DQo+ICsgICAgIH0gZWxzZSBpZiAocHNwID09IFBPV0VSX1NVUFBM
-WV9QUk9QX0hFQUxUSCkgew0KPiArICAgICAgICAgICAgIGlmIChyZXQgPT0gMHgwOSkNCj4gKyAg
-ICAgICAgICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gUE9XRVJfU1VQUExZX0hFQUxUSF9VTlNQ
-RUNfRkFJTFVSRTsNCj4gKyAgICAgICAgICAgICBlbHNlIGlmIChyZXQgPT0gMHgwQikNCj4gKyAg
-ICAgICAgICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gUE9XRVJfU1VQUExZX0hFQUxUSF9PVkVS
-SEVBVDsNCj4gKyAgICAgICAgICAgICBlbHNlIGlmIChyZXQgPT0gMHgwQykNCj4gKyAgICAgICAg
-ICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gUE9XRVJfU1VQUExZX0hFQUxUSF9ERUFEOw0KPiAr
-ICAgICAgICAgICAgIGVsc2UNCj4gKyAgICAgICAgICAgICAgICAgICAgIHZhbC0+aW50dmFsID0g
-UE9XRVJfU1VQUExZX0hFQUxUSF9HT09EOw0KPiArICAgICB9DQo+ICsNCj4gKyAgICAgcmV0dXJu
-IDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBpbnQgYnEyMHo3NV9nZXRfYmF0dGVyeV9wcm9wZXJ0
-eShpbnQgcmVnX29mZnNldCwNCj4gKyAgICAgZW51bSBwb3dlcl9zdXBwbHlfcHJvcGVydHkgcHNw
-LA0KPiArICAgICB1bmlvbiBwb3dlcl9zdXBwbHlfcHJvcHZhbCAqdmFsKQ0KPiArew0KPiArICAg
-ICBzMzIgcmV0Ow0KPiArDQo+ICsgICAgIHJldCA9IGkyY19zbWJ1c19yZWFkX3dvcmRfZGF0YShi
-cTIwejc1X2RldmljZS0+Y2xpZW50LA0KPiArICAgICAgICAgICAgIGJxMjB6NzVfZGF0YVtyZWdf
-b2Zmc2V0XS5hZGRyKTsNCj4gKyAgICAgaWYgKHJldCA8IDApIHsNCj4gKyAgICAgICAgICAgICBk
-ZXZfZXJyKCZicTIwejc1X2RldmljZS0+Y2xpZW50LT5kZXYsDQo+ICsgICAgICAgICAgICAgICAg
-ICAgICAiJXM6IGkyYyByZWFkIGZvciAlZCBmYWlsZWRcbiIsIF9fZnVuY19fLCByZWdfb2Zmc2V0
-KTsNCj4gKyAgICAgICAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4gKyAgICAgfQ0KPiArDQo+ICsg
-ICAgIGlmIChyZXQgPj0gYnEyMHo3NV9kYXRhW3JlZ19vZmZzZXRdLm1pbl92YWx1ZSAmJg0KPiAr
-ICAgICAgICAgcmV0IDw9IGJxMjB6NzVfZGF0YVtyZWdfb2Zmc2V0XS5tYXhfdmFsdWUpIHsNCj4g
-KyAgICAgICAgICAgICB2YWwtPmludHZhbCA9IHJldDsNCj4gKyAgICAgICAgICAgICBpZiAocHNw
-ID09IFBPV0VSX1NVUFBMWV9QUk9QX1NUQVRVUykgew0KPiArICAgICAgICAgICAgICAgICAgICAg
-LyogbWFzayB0aGUgdXBwZXIgYnl0ZSBhbmQgdGhlbiBmaW5kIHRoZQ0KPiArICAgICAgICAgICAg
-ICAgICAgICAgICogYWN0dWFsIHN0YXR1cyAqLw0KPiArICAgICAgICAgICAgICAgICAgICAgcmV0
-ICY9IDB4MDBGRjsNCg0KQXMgZmFyIGFzIEkgY2FuIHNlZSwgdGhpcyBtYXNraW5nIGlzIGEgbm8t
-b3AuDQoNCi1SZW1vdmVkDQoNCj4gKyAgICAgICAgICAgICAgICAgICAgIGlmIChyZXQgJiBCQVRU
-RVJZX0NIQVJHSU5HKQ0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2YWwtPmludHZh
-bCA9IFBPV0VSX1NVUFBMWV9TVEFUVVNfQ0hBUkdJTkc7DQo+ICsgICAgICAgICAgICAgICAgICAg
-ICBlbHNlIGlmIChyZXQgJiBCQVRURVJZX0ZVTExfQ0hBUkdFRCkNCj4gKyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgdmFsLT5pbnR2YWwgPSBQT1dFUl9TVVBQTFlfU1RBVFVTX0ZVTEw7DQo+
-ICsgICAgICAgICAgICAgICAgICAgICBlbHNlIGlmIChyZXQgJiBCQVRURVJZX0ZVTExfRElTQ0hB
-UkdFRCkNCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsLT5pbnR2YWwgPSBQT1dF
-Ul9TVVBQTFlfU1RBVFVTX05PVF9DSEFSR0lORzsNCj4gKyAgICAgICAgICAgICAgICAgICAgIGVs
-c2UNCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmFsLT5pbnR2YWwgPSBQT1dFUl9T
-VVBQTFlfU1RBVFVTX0RJU0NIQVJHSU5HOw0KPiArICAgICAgICAgICAgIH0NCj4gKyAgICAgICAg
-ICAgICAvKiBicTIwejc1IHByb3ZpZGVzIGJhdHRlcnkgdGVtcHJldHVyZSBpbiAwLjHDgsKwSw0K
-PiArICAgICAgICAgICAgICAqIHNvIGNvbnZlcnQgaXQgdG8gw4LCsEMgKi8NCj4gKyAgICAgICAg
-ICAgICBlbHNlIGlmIChwc3AgPT0gUE9XRVJfU1VQUExZX1BST1BfVEVNUCkNCj4gKyAgICAgICAg
-ICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gcmV0IC0gMjczMTsNCj4gKyAgICAgfSBlbHNlIHsN
-Cj4gKyAgICAgICAgICAgICB2YWwtPmludHZhbCA9IDA7DQoNClRoaXMgc2hvdWxkIGJlIG1vdmVk
-Li4uDQoNCj4gKyAgICAgICAgICAgICBpZiAocHNwID09IFBPV0VSX1NVUFBMWV9QUk9QX1NUQVRV
-UykNCj4gKyAgICAgICAgICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gUE9XRVJfU1VQUExZX1NU
-QVRVU19VTktOT1dOOw0KDQouLi4gaGVyZSwgd2l0aCBhIGVsc2UuDQoNCi1Eb25lDQoNCj4gKyAg
-ICAgfQ0KPiArDQo+ICsgICAgIHJldHVybiAwOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgaW50IGJx
-MjB6NzVfZ2V0X2JhdHRlcnlfY2FwYWNpdHkodW5pb24gcG93ZXJfc3VwcGx5X3Byb3B2YWwgKnZh
-bCkNCj4gK3sNCj4gKyAgICAgczMyIHJldDsNCj4gKw0KPiArICAgICByZXQgPSBpMmNfc21idXNf
-cmVhZF9ieXRlX2RhdGEoYnEyMHo3NV9kZXZpY2UtPmNsaWVudCwNCj4gKyAgICAgICAgICAgICBi
-cTIwejc1X2RhdGFbUkVHX0NBUEFDSVRZXS5hZGRyKTsNCj4gKyAgICAgaWYgKHJldCA8IDApIHsN
-Cj4gKyAgICAgICAgICAgICBkZXZfZXJyKCZicTIwejc1X2RldmljZS0+Y2xpZW50LT5kZXYsDQo+
-ICsgICAgICAgICAgICAgICAgICAgICAiJXM6IGkyYyByZWFkIGZvciAlZCBmYWlsZWRcbiIsIF9f
-ZnVuY19fLCBSRUdfQ0FQQUNJVFkpOw0KPiArICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0K
-PiArICAgICB9DQo+ICsNCj4gKyAgICAgLyogYnEyMHo3NSBzcGVjIHNheXMgdGhhdCB0aGlzIGNh
-biBiZSA+MTAwICUNCj4gKyAgICAgICogZXZlbiBpZiBtYXggdmFsdWUgaXMgMTAwICUgKi8NCj4g
-KyAgICAgdmFsLT5pbnR2YWwgPSAoKHJldCA+PSAxMDApID8gMTAwIDogcmV0KTsNCg0KQ2FuIGFs
-c28gYmUgd3JpdHRlbiBtaW4ocmV0LCAxMDApLg0KDQotRG9uZSA6KQ0KDQo+ICsNCj4gKyAgICAg
-cmV0dXJuIDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBpbnQgYnEyMHo3NV9nZXRfcHJvcGVydHko
-c3RydWN0IHBvd2VyX3N1cHBseSAqcHN5LA0KPiArICAgICBlbnVtIHBvd2VyX3N1cHBseV9wcm9w
-ZXJ0eSBwc3AsDQo+ICsgICAgIHVuaW9uIHBvd2VyX3N1cHBseV9wcm9wdmFsICp2YWwpDQo+ICt7
-DQo+ICsgICAgIHU4IGNvdW50Ow0KDQpGb3IgbG9vcHMgbGlrZSBpbnQgYmV0dGVyLg0KDQotRG9u
-ZQ0KDQo+ICsNCj4gKyAgICAgc3dpdGNoIChwc3ApIHsNCj4gKyAgICAgY2FzZSBQT1dFUl9TVVBQ
-TFlfUFJPUF9QUkVTRU5UOg0KPiArICAgICBjYXNlIFBPV0VSX1NVUFBMWV9QUk9QX0hFQUxUSDoN
-Cj4gKyAgICAgICAgICAgICBpZiAoYnEyMHo3NV9nZXRfYmF0dGVyeV9wcmVzZW5jZV9hbmRfaGVh
-bHRoKHBzcCwgdmFsKSkNCj4gKyAgICAgICAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0K
-DQpZb3Ugc2hvdWxkIHBhc3MgZG93biB0aGUgZXhhY3QgZXJyb3IgdmFsdWUgcmV0dXJuZWQgYnkg
-dGhlIGZ1bmN0aW9uLA0KaW5zdGVhZCBvZiBoYXJkY29kaW5nIGl0LiBTYW1lIGJlbG93Lg0KDQot
-RG9uZQ0KDQo+ICsgICAgICAgICAgICAgYnJlYWs7DQo+ICsNCj4gKyAgICAgY2FzZSBQT1dFUl9T
-VVBQTFlfUFJPUF9URUNITk9MT0dZOg0KPiArICAgICAgICAgICAgIHZhbC0+aW50dmFsID0gUE9X
-RVJfU1VQUExZX1RFQ0hOT0xPR1lfTElPTjsNCj4gKyAgICAgICAgICAgICBicmVhazsNCj4gKw0K
-PiArICAgICBjYXNlIFBPV0VSX1NVUFBMWV9QUk9QX0NBUEFDSVRZOg0KPiArICAgICAgICAgICAg
-IGlmIChicTIwejc1X2dldF9iYXR0ZXJ5X2NhcGFjaXR5KHZhbCkpDQo+ICsgICAgICAgICAgICAg
-ICAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4gKyAgICAgICAgICAgICBicmVhazsNCj4gKw0KPiAr
-ICAgICBjYXNlIFBPV0VSX1NVUFBMWV9QUk9QX1NUQVRVUzoNCj4gKyAgICAgY2FzZSBQT1dFUl9T
-VVBQTFlfUFJPUF9DWUNMRV9DT1VOVDoNCj4gKyAgICAgY2FzZSBQT1dFUl9TVVBQTFlfUFJPUF9W
-T0xUQUdFX05PVzoNCj4gKyAgICAgY2FzZSBQT1dFUl9TVVBQTFlfUFJPUF9DVVJSRU5UX05PVzoN
-Cj4gKyAgICAgY2FzZSBQT1dFUl9TVVBQTFlfUFJPUF9URU1QOg0KPiArICAgICBjYXNlIFBPV0VS
-X1NVUFBMWV9QUk9QX1RJTUVfVE9fRU1QVFlfQVZHOg0KPiArICAgICBjYXNlIFBPV0VSX1NVUFBM
-WV9QUk9QX1RJTUVfVE9fRlVMTF9BVkc6DQo+ICsgICAgIGNhc2UgUE9XRVJfU1VQUExZX1BST1Bf
-U0VSSUFMX05VTUJFUjoNCj4gKyAgICAgICAgICAgICBmb3IgKGNvdW50ID0gMDsgY291bnQgPCBS
-RUdfTUFYOyBjb3VudCsrKSB7DQo+ICsgICAgICAgICAgICAgICAgICAgICBpZiAocHNwID09IGJx
-MjB6NzVfZGF0YVtjb3VudF0ucHNwKQ0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICBi
-cmVhazsNCj4gKyAgICAgICAgICAgICB9DQo+ICsNCj4gKyAgICAgICAgICAgICBpZiAoYnEyMHo3
-NV9nZXRfYmF0dGVyeV9wcm9wZXJ0eShjb3VudCwgcHNwLCB2YWwpKQ0KPiArICAgICAgICAgICAg
-ICAgICAgICAgcmV0dXJuIC1FSU5WQUw7DQo+ICsgICAgICAgICAgICAgICAgICAgICBicmVhazsN
-Cg0KV3JvbmcgaW5kZW50YXRpb24uDQoNCi1Eb25lDQoNCj4gKw0KPiArICAgICBkZWZhdWx0Og0K
-PiArICAgICAgICAgICAgIGRldl9lcnIoJmJxMjB6NzVfZGV2aWNlLT5jbGllbnQtPmRldiwNCj4g
-KyAgICAgICAgICAgICAgICAgICAgICIlczogSU5WQUxJRCBwcm9wZXJ0eVxuIiwgX19mdW5jX18p
-Ow0KPiArICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOw0KPiArICAgICB9DQo+ICsNCj4gKyAg
-ICAgcHJpbnRrKEtFUk5fSU5GTyAiJXM6IHByb3BlcnR5ID0gJWQsIHZhbHVlID0gJWRcbiIsIF9f
-ZnVuY19fLA0KPiArICAgICAgICAgICAgIHBzcCwgdmFsLT5pbnR2YWwpOw0KDQpTaG91bGQgYmUg
-dHVybmVkIGludG8gZGV2X2RiZygpLg0KDQotRG9uZQ0KDQo+ICsNCj4gKyAgICAgcmV0dXJuIDA7
-DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBpbnQgYnEyMHo3NV9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVu
-dCAqY2xpZW50LA0KPiArICAgICBjb25zdCBzdHJ1Y3QgaTJjX2RldmljZV9pZCAqaWQpDQo+ICt7
-DQo+ICsgICAgIGludCByYzsNCj4gKw0KPiArICAgICBicTIwejc1X2RldmljZSA9IGt6YWxsb2Mo
-c2l6ZW9mKCpicTIwejc1X2RldmljZSksIEdGUF9LRVJORUwpOw0KPiArICAgICBpZiAoIWJxMjB6
-NzVfZGV2aWNlKQ0KPiArICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOw0KPiArDQo+ICttZW1z
-ZXQoYnEyMHo3NV9kZXZpY2UsIDAsIHNpemVvZigqYnEyMHo3NV9kZXZpY2UpKTsNCg0KV3Jvbmcg
-aW5kZW50YXRpb24sIGFuZCB1c2VsZXNzIGNvZGUsIGFzIGt6YWxsb2MgZGlkIGl0IGZvciB5b3Ug
-YWxyZWFkeS4NCg0KLVJlbW92ZWQNCg0KPiArDQo+ICsgICAgIGJxMjB6NzVfZGV2aWNlLT5jbGll
-bnQgPSBjbGllbnQ7DQo+ICsgICAgIGkyY19zZXRfY2xpZW50ZGF0YShjbGllbnQsIGJxMjB6NzVf
-ZGV2aWNlKTsNCj4gKw0KPiArICAgICByYyA9IHBvd2VyX3N1cHBseV9yZWdpc3RlcigmY2xpZW50
-LT5kZXYsICZicTIwejc1X3N1cHBseSk7DQo+ICsgICAgIGlmIChyYykgew0KPiArICAgICAgICAg
-ICAgIGRldl9lcnIoJmJxMjB6NzVfZGV2aWNlLT5jbGllbnQtPmRldiwNCj4gKyAgICAgICAgICAg
-ICAgICAgICAgICIlczogRmFpbGVkIHRvIHJlZ2lzdGVyIHBvd2VyIHN1cHBseVxuIiwgX19mdW5j
-X18pOw0KPiArICAgICAgICAgICAgIGtmcmVlKGJxMjB6NzVfZGV2aWNlKTsNCj4gKyAgICAgICAg
-ICAgICByZXR1cm4gcmM7DQo+ICsgICAgIH0NCj4gKw0KPiArICAgICBkZXZfaW5mbygmYnEyMHo3
-NV9kZXZpY2UtPmNsaWVudC0+ZGV2LA0KPiArICAgICAgICAgICAgICIlczogYmF0dGVyeSBkcml2
-ZXIgcmVnaXN0ZXJlZFxuIiwgY2xpZW50LT5uYW1lKTsNCg0KV2hhdCB5b3UgZGlkIGhlcmUgaXMg
-cmVnaXN0ZXIgYSBkZXZpY2UsIG5vdCBhIGRyaXZlci4NCg0KLWNoYW5nZWQgdG8gImJhdHRlcnkg
-Z2FzIGdhdWdlIGRldmljZSByZWdpc3RlcmVkIg0KPiArDQo+ICsgICAgIHJldHVybiAwOw0KPiAr
-fQ0KPiArDQo+ICtzdGF0aWMgaW50IGJxMjB6NzVfcmVtb3ZlKHN0cnVjdCBpMmNfY2xpZW50ICpj
-bGllbnQpDQo+ICt7DQo+ICsgICAgIHN0cnVjdCBicTIwejc1X2RldmljZV9pbmZvICpicTIwejc1
-X2RldmljZSA9IGkyY19nZXRfY2xpZW50ZGF0YShjbGllbnQpOw0KPiArDQo+ICsgICAgIHBvd2Vy
-X3N1cHBseV91bnJlZ2lzdGVyKCZicTIwejc1X3N1cHBseSk7DQo+ICsgICAgIGtmcmVlKGJxMjB6
-NzVfZGV2aWNlKTsNCj4gKyAgICAgYnEyMHo3NV9kZXZpY2UgPSBOVUxMOw0KPiArDQo+ICsgICAg
-IHJldHVybiAwOw0KPiArfQ0KPiArDQo+ICsjaWYgZGVmaW5lZCBDT05GSUdfUE0NCj4gK3N0YXRp
-YyBpbnQgYnEyMHo3NV9zdXNwZW5kKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsDQo+ICsgICAg
-IHBtX21lc3NhZ2VfdCBzdGF0ZSkNCj4gK3sNCj4gKyAgICAgczMyIHJldDsNCj4gKyAgICAgc3Ry
-dWN0IGJxMjB6NzVfZGV2aWNlX2luZm8gKmJxMjB6NzVfZGV2aWNlID0gaTJjX2dldF9jbGllbnRk
-YXRhKGNsaWVudCk7DQoNCllvdSBnZXQgdGhlIGRhdGEgZnJvbSB0aGUgY2xpZW50Li4uDQoNCj4g
-Kw0KPiArICAgICAvKiB3cml0ZSB0byBtYW51ZmFjdHVyZSBhY2Nlc3Mgd2l0aCBzbGVlcCBjb21t
-YW5kICovDQoNCih0eXBvOiBtYW51ZmFjdHVyZXIpDQoNCi1GaXhlZA0KDQo+ICsgICAgIHJldCA9
-IGkyY19zbWJ1c193cml0ZV93b3JkX2RhdGEoYnEyMHo3NV9kZXZpY2UtPmNsaWVudCwNCg0KLi4u
-IGp1c3QgdG8gZ2V0IHRoZSBjbGllbnQgZnJvbSB0aGUgZGF0YS4gVGVycmlibHkgZWZmaWNpZW50
-IDspDQoNCi1Eb25lDQoNCj4gKyAgICAgICAgICAgICBicTIwejc1X2RhdGFbUkVHX01BTlVGQUNU
-VVJFUl9EQVRBXS5hZGRyLA0KPiArICAgICAgICAgICAgIE1BTlVGQUNUVVJFUl9BQ0NFU1NfU0xF
-RVApOw0KPiArICAgICBpZiAocmV0IDwgMCkgew0KPiArICAgICAgICAgICAgIGRldl9lcnIoJmJx
-MjB6NzVfZGV2aWNlLT5jbGllbnQtPmRldiwNCj4gKyAgICAgICAgICAgICAgICAgICAgICIlczog
-aTJjIHdyaXRlIGZvciAlZCBmYWlsZWRcbiIsDQo+ICsgICAgICAgICAgICAgICAgICAgICBfX2Z1
-bmNfXywgTUFOVUZBQ1RVUkVSX0FDQ0VTU19TTEVFUCk7DQo+ICsgICAgICAgICAgICAgcmV0dXJu
-IC1FSU5WQUw7DQo+ICsgICAgIH0NCj4gKw0KPiArICAgICByZXR1cm4gMDsNCj4gK30NCj4gKw0K
-PiArLyogYW55IHNtYnVzIHRyYW5zYWN0aW9uIHdpbGwgd2FrZSB1cCBicTIwejc1ICovDQo+ICtz
-dGF0aWMgaW50IGJxMjB6NzVfcmVzdW1lKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpDQo+ICt7
-DQo+ICsgICAgIHJldHVybiAwOw0KPiArfQ0KPiArI2VuZGlmDQo+ICsNCj4gK3N0YXRpYyBjb25z
-dCBzdHJ1Y3QgaTJjX2RldmljZV9pZCBicTIwejc1X2lkW10gPSB7DQo+ICsgICAgIHsgImJxMjB6
-NzUtYmF0dGVyeSIsIDAgfSwNCg0KIi1iYXR0ZXJ5IiBpcyByZWR1bmRhbnQsIGp1c3QgdXNlICJi
-cTIwejc1Ii4NCg0KLURvbmUNCg0KPiArICAgICB7fSwNCg0KTmVlZGxlc3MgY29tbWEuDQoNCi1S
-ZW1vdmVkDQoNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBzdHJ1Y3QgaTJjX2RyaXZlciBicTIwejc1
-X2JhdHRlcnlfZHJpdmVyID0gew0KPiArICAgICAucHJvYmUgICAgICAgICAgPSBicTIwejc1X3By
-b2JlLA0KPiArICAgICAucmVtb3ZlICAgICAgICAgPSBicTIwejc1X3JlbW92ZSwNCj4gKyNpZiBk
-ZWZpbmVkIENPTkZJR19QTQ0KPiArICAgICAuc3VzcGVuZCAgICAgICAgPSBicTIwejc1X3N1c3Bl
-bmQsDQo+ICsgICAgIC5yZXN1bWUgICAgICAgICA9IGJxMjB6NzVfcmVzdW1lLA0KPiArI2VuZGlm
-DQo+ICsgICAgIC5pZF90YWJsZSAgICAgICA9IGJxMjB6NzVfaWQsDQo+ICsgICAgIC5kcml2ZXIg
-PSB7DQo+ICsgICAgICAgICAgICAgLm5hbWUgICA9ICJicTIwejc1LWJhdHRlcnkiLA0KPiArICAg
-ICB9LA0KPiArfTsNCj4gKw0KPiArc3RhdGljIGludCBfX2luaXQgYnEyMHo3NV9iYXR0ZXJ5X2lu
-aXQodm9pZCkNCj4gK3sNCj4gKyAgICAgaW50IHJldDsNCj4gKw0KPiArICAgICByZXQgPSBpMmNf
-YWRkX2RyaXZlcigmYnEyMHo3NV9iYXR0ZXJ5X2RyaXZlcik7DQo+ICsgICAgIGlmIChyZXQpDQo+
-ICsgICAgICAgICAgICAgZGV2X2VycigmYnEyMHo3NV9kZXZpY2UtPmNsaWVudC0+ZGV2LA0KPiAr
-ICAgICAgICAgICAgICAgICAgICAgIiVzOiBpMmNfYWRkX2RyaXZlciBmYWlsZWRcbiIsIF9fZnVu
-Y19fKTsNCg0KVGhpcyBpcyBlc3NlbnRpYWxseSBuZWVkbGVzcy4gVGhlIGtlcm5lbCB3aWxsIGxv
-ZyB0aGUgZmFpbHVyZSBhbHJlYWR5Lg0KDQotRml4ZWQgdXANCg0KPiArDQo+ICsgICAgIHJldHVy
-biByZXQ7DQo+ICt9DQo+ICttb2R1bGVfaW5pdChicTIwejc1X2JhdHRlcnlfaW5pdCk7DQo+ICsN
-Cj4gK3N0YXRpYyB2b2lkIF9fZXhpdCBicTIwejc1X2JhdHRlcnlfZXhpdCh2b2lkKQ0KPiArew0K
-PiArICAgICBpMmNfZGVsX2RyaXZlcigmYnEyMHo3NV9iYXR0ZXJ5X2RyaXZlcik7DQo+ICt9DQo+
-ICttb2R1bGVfZXhpdChicTIwejc1X2JhdHRlcnlfZXhpdCk7DQo+ICsNCj4gK01PRFVMRV9BVVRI
-T1IoIk5WSURJQSBHcmFwaGljcyBQdnQgTHRkIik7DQo+ICtNT0RVTEVfREVTQ1JJUFRJT04oIkJR
-MjB6NzUgYmF0dGVyeSBtb25pdG9yIGRyaXZlciIpOw0KPiArTU9EVUxFX0xJQ0VOU0UoIkdQTCIp
-Ow0KDQoNCi0tDQpKZWFuIERlbHZhcmUNCg==
+2010/9/1 Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>:
+
+> I2C driver of Topcliff PCH
+> (...)
+> +++ b/drivers/i2c/busses/i2c-pch.c
+> (...)
+> +/**
+> + * pch_wait_for_bus_idle() - check the status of bus.
+> + * @adap: =A0 =A0 =A0Pointer to struct i2c_algo_pch_data.
+> + * @timeout: =A0 waiting time counter (us).
+> + */
+> +static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0s32 =
+timeout)
+> +{
+> + =A0 =A0 =A0 void __iomem *p =3D adap->pch_base_address;
+> +
+> + =A0 =A0 =A0 /* MAX timeout value is timeout*1000*1000nsec */
+> + =A0 =A0 =A0 ktime_t ns_val =3D ktime_add_ns(ktime_get(), timeout*10=
+00*1000);
+> + =A0 =A0 =A0 do {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if ((ioread32(p + PCH_I2CSR) & I2CMBB_B=
+IT) =3D=3D 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 msleep(1);
+> + =A0 =A0 =A0 } while (ktime_lt(ktime_get(), ns_val));
+> +
+> + =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s : I2CSR =3D %x\n", =
+__func__, ioread32(p + PCH_I2CSR));
+> +
+> + =A0 =A0 =A0 if (timeout =3D=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "%s :return%d\n", __func__, -ETIME);
+
+Why not just return -ETIME; here?
+
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "%s : return %d\n", __func__, 0);
+> + =A0 =A0 =A0 }
+
+Delete this else clause, who is interested in return 0???
+
+> + =A0 =A0 =A0 return ((timeout <=3D 0) ? (-ETIME) : (0));
+
+return 0;
+
+> (...)
+> +/**
+> + * pch_wait_for_xfer_complete() - initiates a wait for the tx comple=
+te event
+> + * @adap: =A0 =A0 =A0Pointer to struct i2c_algo_pch_data.
+> + */
+> +static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap=
+)
+> +{
+> + =A0 =A0 =A0 s32 ret;
+> + =A0 =A0 =A0 ret =3D wait_event_interruptible_timeout(pch_event,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (adap->pch_event_flag !=
+=3D 0), msecs_to_jiffies(50));
+> + =A0 =A0 =A0 if (ret < 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+
+The goto construction is unnecessary, just
+
+return ret;
+
+> +
+> + =A0 =A0 =A0 if (ret =3D=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ETIMEDOUT;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+
+return -ETIMEDOUT;
+
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if (adap->pch_event_flag & I2C_ERROR_MASK) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -EIO;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "error =
+bits set: %x\n", adap->pch_event_flag);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+
+Skip ret assignment
+return -EIO;
+
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 adap->pch_event_flag =3D 0;
+> + =A0 =A0 =A0 ret =3D 0;
+
+Skip this
+
+> +out:
+> + =A0 =A0 =A0 return ret;
+
+return 0;
+
+> +}
+> (...)
+> +/**
+> + * pch_getack() - to confirm ACK/NACK
+> + * @adap: =A0 =A0 =A0Pointer to struct i2c_algo_pch_data.
+> + */
+> +static s32 pch_getack(struct i2c_algo_pch_data *adap)
+> +{
+> + =A0 =A0 =A0 u32 reg_val;
+> + =A0 =A0 =A0 void __iomem *p =3D adap->pch_base_address;
+> + =A0 =A0 =A0 reg_val =3D ioread32(p + PCH_I2CSR) & PCH_GETACK;
+> +
+> + =A0 =A0 =A0 if (reg_val =3D=3D 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent, "=
+%s : return 0\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__);
+> + =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent, "=
+%s : return%d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__, -EPROTO);
+> +
+> + =A0 =A0 =A0 return (((reg_val) =3D=3D 0) ? (0) : (-EPROTO));
+
+Refactor this like the other function, no weirdo debug prints
+return 0;
+
+> +}
+> (...)
+> +/**
+> + * pch_writebytes() - write data to I2C bus in normal mode
+> + * @i2c_adap: =A0Pointer to the struct i2c_adapter.
+> + * @last: =A0 =A0 =A0specifies whether last message or not.
+> + * =A0 =A0 =A0 =A0 =A0 =A0 In the case of compound mode it will be 1=
+ for last message,
+> + * =A0 =A0 =A0 =A0 =A0 =A0 otherwise 0.
+> + * @first: =A0 =A0 specifies whether first message or not.
+> + * =A0 =A0 =A0 =A0 =A0 =A0 1 for first message otherwise 0.
+> + */
+> +static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_m=
+sg *msgs,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 last, u32 first=
+)
+> +{
+> + =A0 =A0 =A0 struct i2c_algo_pch_data *adap =3D i2c_adap->algo_data;
+> + =A0 =A0 =A0 u8 *buf;
+> + =A0 =A0 =A0 u32 length;
+> + =A0 =A0 =A0 u32 addr;
+> + =A0 =A0 =A0 u32 addr_2_msb;
+> + =A0 =A0 =A0 u32 addr_8_lsb;
+> + =A0 =A0 =A0 s32 wrcount;
+
+You don't assign anything to wrcount...
+
+> + =A0 =A0 =A0 void __iomem *p =3D adap->pch_base_address;
+> + =A0 =A0 =A0 length =3D msgs->len;
+> + =A0 =A0 =A0 buf =3D msgs->buf;
+> + =A0 =A0 =A0 addr =3D msgs->addr;
+> + =A0 =A0 =A0 /* enable master tx */
+> + =A0 =A0 =A0 pch_setbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX=
+_MODE);
+> +
+> + =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s : I2CCTL =3D %x msgs->len =3D %d\n"=
+, __func__,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ioread32(p + PCH_I2CCTL), length);
+> +
+> + =A0 =A0 =A0 if (first) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch_wait_for_bus_idle(adap, BUS_IDL=
+E_TIMEOUT) =3D=3D -ETIME)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ETIME;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if (msgs->flags & I2C_M_TEN) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 addr_2_msb =3D ((addr & I2C_MSB_2B_MSK)=
+ >> 7);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(addr_2_msb | TEN_BIT_ADDR_MAS=
+K, p + PCH_I2CDR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (first)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_start(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if ((pch_wait_for_xfer_complete(adap) =3D=
+=3D 0) &&
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (pch_getack(adap) =3D=3D 0)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 addr_8_lsb =3D (addr & =
+I2C_ADDR_MSK);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(addr_8_lsb, p=
+ + PCH_I2CDR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* set 7 bit slave address and R/W bit =
+as 0 */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(addr << 1, p + PCH_I2CDR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (first)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_start(adap);
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if ((pch_wait_for_xfer_complete(adap) =3D=3D 0) &&
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 (pch_getack(adap) =3D=3D 0)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (wrcount =3D 0; wrcount < length; +=
++wrcount) {
+
+=2E..but it is only conditionally used here...
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* write buffer value t=
+o I2C data register */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(buf[wrcount],=
+ p + PCH_I2CDR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapt=
+er.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s : w=
+riting %x to Data register\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func_=
+_, buf[wrcount]);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch_wait_for_xfer_c=
+omplete(adap) !=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wrcount=
+ =3D -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapt=
+er.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "%s return %d", __func__, 0);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch_getack(adap)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 wrcount=
+ =3D -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 break;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* check if this is the last message */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (last)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_repstart(adap);
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "%s return=3D%d\n", __func__, wrcount);
+> +
+> + =A0 =A0 =A0 return wrcount;
+
+=2E..and then you return it, leading to a possibly unassigned state.
+
+> +}
+> (...)
+> +/**
+> + * pch_readbytes() - read data =A0from I2C bus in normal mode.
+> + * @i2c_adap: =A0Pointer to the struct i2c_adapter.
+> + * @msgs: =A0 =A0 =A0Pointer to i2c_msg structure.
+> + * @last: =A0 =A0 =A0specifies whether last message or not.
+> + * @first: =A0 =A0 specifies whether first message or not.
+> + */
+> +s32 pch_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs=
+,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 last, u32 first)
+> +{
+> + =A0 =A0 =A0 struct i2c_algo_pch_data *adap =3D i2c_adap->algo_data;
+> +
+> + =A0 =A0 =A0 u8 *buf;
+> + =A0 =A0 =A0 u32 count;
+
+Same problem here. Initialize to 0.
+
+> + =A0 =A0 =A0 u32 length;
+> + =A0 =A0 =A0 u32 addr;
+> + =A0 =A0 =A0 u32 addr_2_msb;
+> + =A0 =A0 =A0 void __iomem *p =3D adap->pch_base_address;
+> + =A0 =A0 =A0 length =3D msgs->len;
+> + =A0 =A0 =A0 buf =3D msgs->buf;
+> + =A0 =A0 =A0 addr =3D msgs->addr;
+> +
+> + =A0 =A0 =A0 /* enable master reception */
+> + =A0 =A0 =A0 pch_clrbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX=
+_MODE);
+> +
+> + =A0 =A0 =A0 if (first) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch_wait_for_bus_idle(adap, BUS_IDL=
+E_TIMEOUT) =3D=3D -ETIME)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ETIME;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if (msgs->flags & I2C_M_TEN) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 addr_2_msb =3D (((addr & I2C_MSB_2B_MSK=
+) >> 7) | (I2C_RD));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(addr_2_msb | TEN_BIT_ADDR_MAS=
+K, p + PCH_I2CDR);
+> +
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* 7 address bits + R/W bit */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 addr =3D (((addr) << 1) | (I2C_RD));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(addr, p + PCH_I2CDR);
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 /* check if it is the first message */
+> + =A0 =A0 =A0 if (first)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_start(adap);
+> +
+> + =A0 =A0 =A0 if ((pch_wait_for_xfer_complete(adap) =3D=3D 0)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 && (pch_getack(adap) =3D=3D 0)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "%s return %d", __func__, 0);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (length =3D=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ioread32(p + PCH_I2CDR)=
+; /* Dummy read needs */
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 count =3D length;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int read_index;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int loop;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_sendack(adap);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Dummy read */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (loop =3D 1, read_i=
+ndex =3D 0; loop < length; loop++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 buf[rea=
+d_index] =3D ioread32(p + PCH_I2CDR);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (loo=
+p !=3D 1)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 read_index++;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch=
+_wait_for_xfer_complete(adap) !=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 return -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } =A0 =A0 =A0 /* end fo=
+r */
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_sendnack(adap);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 buf[read_index] =3D ior=
+ead32(p + PCH_I2CDR);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (length !=3D 1)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 read_in=
+dex++;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pch_wait_for_xfer_c=
+omplete(adap) =3D=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (las=
+t)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 pch_repstart(adap);
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 buf[rea=
+d_index++] =3D ioread32(p + PCH_I2CDR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 count =3D=
+ read_index;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 count =3D=
+ -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 count =3D -ETIME;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_stop(adap);
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 return count;
+> +}
+
+> (...)
+> +/**
+> + * pch_handler_ch0() - interrupt handler for the PCH I2C controller
+> + * @irq: =A0 =A0 =A0 irq number.
+> + * @pData: =A0 =A0 cookie passed back to the handler function.
+> + */
+> +static irqreturn_t pch_handler_ch0(int irq, void *pData)
+> +{
+> + =A0 =A0 =A0 s32 reg_val;
+> +
+> + =A0 =A0 =A0 struct i2c_algo_pch_data *adap_data =3D (struct i2c_alg=
+o_pch_data *)pData;
+> + =A0 =A0 =A0 void __iomem *p =3D adap_data->pch_base_address;
+> + =A0 =A0 =A0 u32 mode =3D ioread32(p + PCH_I2CMOD) & (BUFFER_MODE | =
+EEPROM_SR_MODE);
+> +
+> + =A0 =A0 =A0 if (mode =3D=3D NORMAL_MODE) {
+
+No.
+
+if (mode !=3D NORMAL_MODE) {
+  dev_err(...)
+  return IRQ_NONE;
+}
+
+Then de-indent the rest and remove the else clause.
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 reg_val =3D ioread32(p + PCH_I2CSR);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (reg_val & (I2CMAL_BIT | I2CMCF_BIT =
+| I2CMIF_BIT))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_cb_ch0(adap_data);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_out;
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(adap_data->pch_adapter.dev.pare=
+nt,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s I2C mode is not sup=
+ported\n", __func__);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_out;
+> + =A0 =A0 =A0 }
+> + =A0 =A0 =A0 return IRQ_HANDLED;
+> +
+> +err_out:
+> + =A0 =A0 =A0 return IRQ_NONE;
+> +}
+
+> (...)
+> +/**
+> + * pch_xfer() - Reading adnd writing data through I2C bus
+> + * @i2c_adap: =A0Pointer to the struct i2c_adapter.
+> + * @msgs: =A0 =A0 =A0Pointer to i2c_msg structure.
+> + * @num: =A0 =A0 =A0 number of messages.
+> + */
+> +static s32 pch_xfer(struct i2c_adapter *i2c_adap,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_msg *msgs, s32 num)
+> +{
+> + =A0 =A0 =A0 struct i2c_msg *pmsg;
+> + =A0 =A0 =A0 u32 i;
+> + =A0 =A0 =A0 u32 status;
+> + =A0 =A0 =A0 u32 msglen;
+> + =A0 =A0 =A0 u32 subaddrlen;
+> + =A0 =A0 =A0 s32 ret;
+> +
+> + =A0 =A0 =A0 struct i2c_algo_pch_data *adap =3D i2c_adap->algo_data;
+> +
+> + =A0 =A0 =A0 ret =3D mutex_lock_interruptible(&pch_mutex);
+> + =A0 =A0 =A0 if (ret) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ERESTARTSYS;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto return_err_nomutex;
+> + =A0 =A0 =A0 }
+> + =A0 =A0 =A0 if (adap->p_adapter_info->pch_suspended =3D=3D false) {
+
+No.
+
+if (adap->p_adapter_info->pch_suspended) {
+   mutex_unlock(&pch_nomutex);
+   return -EBUSY;
+}
+
+De-indent the rest and remove the else clause.
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s adap->p_adapter_inf=
+o->pch_suspended is %d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__, adap->p_adapt=
+er_info->pch_suspended);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* transfer not completed */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 adap->pch_xfer_in_progress =3D true;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -EBUSY;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < num; i++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pmsg =3D &msgs[i];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pmsg->flags |=3D adap->=
+pch_buff_mode_en;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 status =3D pmsg->flags;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapt=
+er.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "After =
+invoking I2C_MODE_SEL :flag=3D 0x%x\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 status)=
+;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* calculate sub addres=
+s length and message length */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* these are applicable=
+ only for buffer mode */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 subaddrlen =3D pmsg->bu=
+f[0];
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* calculate actual mes=
+sage length excluding
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* the sub address fi=
+elds */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msglen =3D (pmsg->len) =
+- (subaddrlen + 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (status & (I2C_M_RD)=
+) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg=
+(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "%s invoking pch_readbytes\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 __func__);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D=
+ pch_readbytes(i2c_adap, pmsg,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (i + 1 =3D=3D num),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (i =3D=3D 0));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg=
+(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "%s invoking pch_writebytes\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 __func__);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D=
+ pch_writebytes(i2c_adap, pmsg,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(i + 1 =3D=3D num),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(i =3D=3D 0));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 adap->pch_xfer_in_progress =3D false; =A0=
+ =A0 /* transfer completed */
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 "adap->pch_xfer_in_progress is %d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 adap->pch_xfer_in_progress);
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -EBUSY;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 mutex_unlock(&pch_mutex);
+> +return_err_nomutex:
+> + =A0 =A0 =A0 dev_dbg(adap->pch_adapter.dev.parent, "%s return:%d\n\n=
+\n\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__, ret)=
+;
+> + =A0 =A0 =A0 return ret;
+> +}
+
+> (...)
+> +static int __devinit pch_probe(struct pci_dev *pdev,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0const st=
+ruct pci_device_id *id)
+> +{
+> + =A0 =A0 =A0 int i;
+> + =A0 =A0 =A0 void __iomem *base_addr;
+> + =A0 =A0 =A0 s32 ret;
+> + =A0 =A0 =A0 struct adapter_info *adap_info =3D
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 kzalloc((sizeof(struct =
+adapter_info)), GFP_KERNEL);
+> +
+> + =A0 =A0 =A0 dev_dbg(&pdev->dev, "Enterred in %s\n", __func__);
+> +
+> + =A0 =A0 =A0 if (adap_info =3D=3D NULL) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "Memory allocation =
+failed FAILED");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto return_err;
+
+Just
+return -ENOMEM;
+
+Goto construction unnecessary here.
+
+> (...)
+> +#ifdef CONFIG_PM
+> +static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
+> +{
+> + =A0 =A0 =A0 int i;
+> + =A0 =A0 =A0 int ret;
+> +
+> + =A0 =A0 =A0 struct adapter_info *adap_info =3D pci_get_drvdata(pdev=
+);
+> + =A0 =A0 =A0 void __iomem *p =3D adap_info->pch_data[0].pch_base_add=
+ress;
+> +
+> + =A0 =A0 =A0 adap_info->pch_suspended =3D true;
+> +
+> + =A0 =A0 =A0 for (i =3D 0; i < PCH_MAX_CHN; i++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 while ((adap_info->pch_data[i].pch_xfer=
+_in_progress)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* It is assumed that a=
+ny pending transfer will
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0* be completed after=
+ the delay
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 msleep(1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+
+The comment seems to be a lie. It is not assumed that it will
+be completed at all, because you're sleeping repeatedly until all
+transfers are completed.
+
+What you are doing is you are waiting for channel zero to
+complete transfers, then channel 1 etc up to channel PCH_MAX_CHN.
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Disable the i2c interrupts */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pch_disbl_int(&adap_info->pch_data[i]);
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev_dbg(&pdev->dev,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 "I2CSR =3D %x I2CBUFSTA =3D %x I2CESRST=
+A =3D %x "
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 "invoked function pch_disbl_int success=
+fully\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ioread32(p + 0x08),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ioread32(p + 0x30),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ioread32(p + 0x44));
+> +
+> + =A0 =A0 =A0 ret =3D pci_save_state(pdev);
+> +
+> + =A0 =A0 =A0 if (ret) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "pci_save_state fai=
+led\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return ret;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 pci_enable_wake(pdev, PCI_D3hot, 0);
+> + =A0 =A0 =A0 pci_disable_device(pdev);
+> + =A0 =A0 =A0 pci_set_power_state(pdev, pci_choose_state(pdev, state)=
+);
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
+
+
+Yours,
+Linus Walleij
