@@ -1,7 +1,7 @@
 From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Wed, 1 Sep 2010 13:16:54 +0900
-Message-ID: <000b01cb498c$86736670$66f8800a@maildom.okisemi.com>
+Date: Wed, 1 Sep 2010 14:08:32 +0900
+Message-ID: <001e01cb4993$bc0d75d0$66f8800a@maildom.okisemi.com>
 References: <4C7DB9CF.5000905@dsn.okisemi.com> <1283309032.1797.123.camel@Joe-Laptop>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -11,8 +11,21 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi Joe,
 
-Thank you for your comments.
-We will update.
+I have a question.
+Current our I2C driver  has the following 2 patterns dev_err().
+
+(1) dev_err(adap->pch_adapter.dev.parent, "...");
+
+(2) dev_err(&pdev->dev, "...");
+
+
+> #define pch_err(adap, fmt, arg...) \
+> dev_err(adap->pch_adapter.dev.parent, fmt, ##arg)
+
+In case of using the above code, pattern (1) can apply, but (2) can't.
+
+As to (2),
+Should we use as dev_err or define another macro?
 
 Thanks, Ohtake(OKISemi)
 
