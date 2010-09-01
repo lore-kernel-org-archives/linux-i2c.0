@@ -1,96 +1,100 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
-Date: Wed, 1 Sep 2010 10:40:52 +0200
-Message-ID: <20100901104052.5967ca25@hyperion.delvare>
-References: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
-	<87wrr83pro.fsf@deeprootsystems.com>
-	<20100831111611.GF20849@rakim.wolfsonmicro.main>
-	<201009010112.11834.rjw@sisk.pl>
+From: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH 1/1] power supply: add driver for TI BQ20Z75 gas gauge	IC
+Date: Wed, 1 Sep 2010 10:53:29 -0700
+Message-ID: <E88A1D35AF5437468E5B14C7C4BA61C702CF4B6201@HQMAIL01.nvidia.com>
+References: <1282949443-8052-1-git-send-email-rklein@nvidia.com>
+ <20100831131323.GA16671@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201009010112.11834.rjw-KKrjLPT3xs0@public.gmane.org>
+In-Reply-To: <20100831131323.GA16671-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: "cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 1 Sep 2010 01:12:11 +0200, Rafael J. Wysocki wrote:
-> On Tuesday, August 31, 2010, Mark Brown wrote:
-> > On Mon, Aug 30, 2010 at 11:43:23AM -0700, Kevin Hilman wrote:
-> > > Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org> writes:
-> > > 
-> > > > In current i2c core driver, pm_runtime_set_active call from i2c_device_pm_resume
-> > > > is not balanced by pm_runtime_set_suspended call from i2c_device_pm_suspend.
-> > > > pm_runtime_set_active called from resume path will increase the child_count of
-> > > > the device's parent. However, matching pm_runtime_set_suspended is not called
-> > > > in suspend routine because of which child_count of the device's parent
-> > > > is not balanced, preventing the parent device to idle.
-> > > > Issue has been fixed by adding pm_runtime_set_suspended call inside suspend
-> > > > reoutine which will make sure that child_counts are balanced.
-> > > > This fix has been tested on OMAP4430.
-> > > >
-> > > > Signed-off-by: Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>
-> > > > Signed-off-by: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
-> > > >
-> > > > Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-> > > > Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> > > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > > 
-> > > Also Cc'ing Mark Brown as original author of runtime PM for i2-core.
-> > 
-> > Also Jean Delvare who maintains the I2C core.  To be honest Rafael did
-> > all the actual work here (and has since rewritten the code anyway).
-> 
-> Sorry for the delay.
-> 
-> The fix looks reasonable to me.
+Thanks for the review, fixed up what you suggested. Will repost soon.
 
-I take this as an Acked-by. Patch applied, thanks.
+-----Original Message-----
+From: Mark Brown [mailto:broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org] 
+Sent: Tuesday, August 31, 2010 6:13 AM
+To: Rhyland Klein
+Cc: cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org; Andrew Chew
+Subject: Re: [PATCH 1/1] power supply: add driver for TI BQ20Z75 gas gauge IC
 
-> 
-> > > > ---
-> > > >  drivers/i2c/i2c-core.c |   12 ++++++++++--
-> > > >  1 files changed, 10 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > > > index 6649176..3146bff
-> > > > --- a/drivers/i2c/i2c-core.c
-> > > > +++ b/drivers/i2c/i2c-core.c
-> > > > @@ -196,14 +196,22 @@ static int i2c_legacy_resume(struct device *dev)
-> > > >  static int i2c_device_pm_suspend(struct device *dev)
-> > > >  {
-> > > >  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-> > > > +	int ret;
-> > > >  
-> > > >  	if (pm_runtime_suspended(dev))
-> > > >  		return 0;
-> > > >  
-> > > >  	if (pm)
-> > > > -		return pm->suspend ? pm->suspend(dev) : 0;
-> > > > +		ret = pm->suspend ? pm->suspend(dev) : 0;
-> > > > +	else
-> > > > +		ret = i2c_legacy_suspend(dev, PMSG_SUSPEND);
-> > > >  
-> > > > -	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
-> > > > +	if (!ret) {
-> > > > +		pm_runtime_disable(dev);
-> > > > +		pm_runtime_set_suspended(dev);
-> > > > +		pm_runtime_enable(dev);
-> > > > +	}
-> > > > +	return ret;
-> > > >  }
-> > > >  
-> > > >  static int i2c_device_pm_resume(struct device *dev)
-> > 
-> > 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Fri, Aug 27, 2010 at 03:50:43PM -0700, rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org wrote:
 
+> +	case POWER_SUPPLY_PROP_STATUS:
+> +	case POWER_SUPPLY_PROP_CYCLE_COUNT:
+> +	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+> +	case POWER_SUPPLY_PROP_CURRENT_NOW:
+> +	case POWER_SUPPLY_PROP_TEMP:
+> +	case POWER_SUPPLY_PROP_TIME_TO_EMPTY_AVG:
+> +	case POWER_SUPPLY_PROP_TIME_TO_FULL_AVG:
+> +	case POWER_SUPPLY_PROP_SERIAL_NUMBER:
+> +		for (count = 0; count < REG_MAX; count++) {
+> +			if (psp == bq20z75_data[count].psp)
+> +				break;
+> +		}
 
--- 
-Jean Delvare
+Rather than using REG_MAX it'd seem safer to use ARRAY_SIZE() to make
+sure you're within the array.
+
+-Done
+
+> +		if (bq20z75_get_battery_property(count, psp, val))
+> +			return -EINVAL;
+> +			break;
+
+Indentation is messed up here.
+
+-Done
+
+> +	printk(KERN_INFO "%s: property = %d, value = %d\n", __func__,
+> +		psp, val->intval);
+
+Remove unconditional logging like this, make it dev_dbg() if you want to
+keep it in so it's only visible when explicitly requested.
+
+-Done
+
+> +	bq20z75_device = kzalloc(sizeof(*bq20z75_device), GFP_KERNEL);
+> +	if (!bq20z75_device)
+> +		return -ENOMEM;
+> +
+> +memset(bq20z75_device, 0, sizeof(*bq20z75_device));
+
+Indentation again.
+
+-Done
+
+> +/* any smbus transaction will wake up bq20z75 */
+> +static int bq20z75_resume(struct i2c_client *client)
+> +{
+> +	return 0;
+> +}
+
+No need for null functions like this.
+
+-Done
+
+> +#if defined CONFIG_PM
+> +	.suspend	= bq20z75_suspend,
+> +	.resume		= bq20z75_resume,
+> +#endif
+
+The standard way to do this is with the suspend/resume functions -
+#define them to NULL which turns their assignments into noops.
+
+-Done
+
+> +MODULE_AUTHOR("NVIDIA Graphics Pvt Ltd");
+
+This only makes sense if it's an actual person (or other contact
+address); there's already copyright statements on the file, the author
+information is more there to help find someone who might know something
+about the driver.
+
+-Done
