@@ -1,64 +1,96 @@
-From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Wed, 1 Sep 2010 14:44:09 +0900
-Message-ID: <005801cb4998$b526d9f0$66f8800a@maildom.okisemi.com>
-References: <4C7DB9CF.5000905@dsn.okisemi.com> <1283309032.1797.123.camel@Joe-Laptop> <001e01cb4993$bc0d75d0$66f8800a@maildom.okisemi.com> <1283318654.1797.140.camel@Joe-Laptop>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
+Date: Wed, 1 Sep 2010 10:40:52 +0200
+Message-ID: <20100901104052.5967ca25@hyperion.delvare>
+References: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
+	<87wrr83pro.fsf@deeprootsystems.com>
+	<20100831111611.GF20849@rakim.wolfsonmicro.main>
+	<201009010112.11834.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201009010112.11834.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Wang Yong Y\"" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Wang Qi\"" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Andrew\"" <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Joe,
+On Wed, 1 Sep 2010 01:12:11 +0200, Rafael J. Wysocki wrote:
+> On Tuesday, August 31, 2010, Mark Brown wrote:
+> > On Mon, Aug 30, 2010 at 11:43:23AM -0700, Kevin Hilman wrote:
+> > > Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org> writes:
+> > > 
+> > > > In current i2c core driver, pm_runtime_set_active call from i2c_device_pm_resume
+> > > > is not balanced by pm_runtime_set_suspended call from i2c_device_pm_suspend.
+> > > > pm_runtime_set_active called from resume path will increase the child_count of
+> > > > the device's parent. However, matching pm_runtime_set_suspended is not called
+> > > > in suspend routine because of which child_count of the device's parent
+> > > > is not balanced, preventing the parent device to idle.
+> > > > Issue has been fixed by adding pm_runtime_set_suspended call inside suspend
+> > > > reoutine which will make sure that child_counts are balanced.
+> > > > This fix has been tested on OMAP4430.
+> > > >
+> > > > Signed-off-by: Partha Basak <p-basak2-l0cyMroinI0@public.gmane.org>
+> > > > Signed-off-by: Vishwanath BS <vishwanath.bs-l0cyMroinI0@public.gmane.org>
+> > > >
+> > > > Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> > > > Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> > > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > > 
+> > > Also Cc'ing Mark Brown as original author of runtime PM for i2-core.
+> > 
+> > Also Jean Delvare who maintains the I2C core.  To be honest Rafael did
+> > all the actual work here (and has since rewritten the code anyway).
+> 
+> Sorry for the delay.
+> 
+> The fix looks reasonable to me.
 
-Thank you for your comments.
+I take this as an Acked-by. Patch applied, thanks.
 
-Best Regards,
-Ohtake(OKISemi)
+> 
+> > > > ---
+> > > >  drivers/i2c/i2c-core.c |   12 ++++++++++--
+> > > >  1 files changed, 10 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > > > index 6649176..3146bff
+> > > > --- a/drivers/i2c/i2c-core.c
+> > > > +++ b/drivers/i2c/i2c-core.c
+> > > > @@ -196,14 +196,22 @@ static int i2c_legacy_resume(struct device *dev)
+> > > >  static int i2c_device_pm_suspend(struct device *dev)
+> > > >  {
+> > > >  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+> > > > +	int ret;
+> > > >  
+> > > >  	if (pm_runtime_suspended(dev))
+> > > >  		return 0;
+> > > >  
+> > > >  	if (pm)
+> > > > -		return pm->suspend ? pm->suspend(dev) : 0;
+> > > > +		ret = pm->suspend ? pm->suspend(dev) : 0;
+> > > > +	else
+> > > > +		ret = i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> > > >  
+> > > > -	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> > > > +	if (!ret) {
+> > > > +		pm_runtime_disable(dev);
+> > > > +		pm_runtime_set_suspended(dev);
+> > > > +		pm_runtime_enable(dev);
+> > > > +	}
+> > > > +	return ret;
+> > > >  }
+> > > >  
+> > > >  static int i2c_device_pm_resume(struct device *dev)
+> > 
+> > 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
------ Original Message ----- 
-From: "Joe Perches" <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-To: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>; "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>;
-"Crane Cai" <crane.cai-5C7GfCeVMHo@public.gmane.org>; "Samuel Ortiz" <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>; "Linus Walleij" <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>;
-"Ralf Baechle" <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>; "srinidhi kasagar" <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>; <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>;
-<linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "Wang Yong Y"" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang Qi"" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Andrew""
-<andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>; "Tomoya MORINAGA" <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>; "Arnd
-Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
-Sent: Wednesday, September 01, 2010 2:24 PM
-Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
 
-
-> On Wed, 2010-09-01 at 14:08 +0900, Masayuki Ohtake wrote:
-> > I have a question.
-> > Current our I2C driver  has the following 2 patterns dev_err().
-> > (1) dev_err(adap->pch_adapter.dev.parent, "...");
-> > (2) dev_err(&pdev->dev, "...");
-> > > #define pch_err(adap, fmt, arg...) \
-> > > dev_err(adap->pch_adapter.dev.parent, fmt, ##arg)
-> > In case of using the above code, pattern (1) can apply, but (2) can't.
-> > As to (2),
-> > Should we use as dev_err or define another macro?
->
-> Hello Ohtake.
->
-> To me, it's a visual complexity vs std pattern trade-off.
->
-> A 2 level dereference like dev_info(&dev->dev, ...)
-> isn't overly difficult to read.
-> 3 or more dereferences can be harder and a bit error prone.
-> So I would only use pch_<level> for (1) and dev_err for (2).
->
-> There are also times when there are additional standard
-> arguments that you want to prefix to dev_<level> calls
-> and that can be simplified with a custom XXX_<level>
-> define for dev_<level>
->
-> Look at the current uses in the tree and see what you like.
->
-> $ grep -rP --include=*.[ch] "#define\s*.+\s+dev_[a-z]{3,7}\s*\(" *
->
-> These aren't requirements, do what you think best.
->
-> cheers, Joe
->
+-- 
+Jean Delvare
