@@ -1,351 +1,149 @@
-From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Thu, 02 Sep 2010 21:38:43 -0700
-Message-ID: <1283488723.1797.386.camel@Joe-Laptop>
-References: <4C80692E.80004@dsn.okisemi.com>
+From: <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/1] iio: ak8975: Add Ak8975 magnetometer sensor
+Date: Fri, 3 Sep 2010 07:18:34 +0200
+Message-ID: <62697B07E9803846BC582181BD6FB6B82B9C057FFC@NOK-EUMSG-02.mgdnok.nokia.com>
+References: <1283463351-15816-1-git-send-email-achew@nvidia.com>
+ <20100902231942.21375cc0@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C80692E.80004-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+In-Reply-To: <20100902231942.21375cc0-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+To: alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org, achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I suggest these logging message changes and bug fixes:
 
-Add pch_pci_dbg.
-Rename 1st argument to pch_pci_dbg to pdev.
-Add trailing "\n" to formats missing them.
-Add "%s:" fmt, __func__, args to pch_<level> and pch_pci_<level>
-logging macros.
-Remove __func__ and inconsistent use of "%s : " and "%s:" prefix
-from logging macro uses.
-Fix misspelling of Enterred to Entered.
-Use "FAILED" consistently.
 
-There's an odd use that is still questionable:
+>-----Original Message-----
+>From: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-iio-
+>owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of ext Alan Cox
+>Sent: 03 September, 2010 01:20
+>To: achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+>Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
+>ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+>Subject: Re: [PATCH 1/1] iio: ak8975: Add Ak8975 magnetometer sensor
+>
+>> +/*
+>> + * Shows the device's mode.  0 = off, 1 = on.
+>> + */
+>
+>Should this not be handled by runtime pm nowdays ?
+>
+>> +	if ((oval < 0) || (oval > 1)) {
+>> +		dev_err(dev, "mode value is not supported\n");
+>> +		return -EINVAL;
+>> +	}
+>
+>ulong cannot be < 0 and doesn't need all the brackets
+>
+>
+>> +	/* Wait for the conversion to complete. */
+>> +	while (timeout_ms) {
+>> +		msleep(AK8975_CONVERSION_DONE_POLL_TIME);
+>> +		state = (gpio_get_value(data->eoc_gpio) ? 1 : 0);
+>> +		if (state)
+>> +			break;
+>> +		timeout_ms -= AK8975_CONVERSION_DONE_POLL_TIME;
+>> +	}
+>
+>This makes some fairly specific wiring assumptions about how the ak8975
+>is configured. I'm looking at the ak8974 driver in our tree and also
+>wondering if they can be combined sanely.
 
-pch_pci_dbg(pdev, "request_irq returns %d pch_probe returns\n", ret);
+With ak8974 chip, it is possible to have similar functionality without interrupt
+pin. This is most probably true also for ak8975 chip. It is not good to assume
+that everyone uses interrupt pin if the same functionally can be achieved
+another way. I mean polling via I2C instead of checking GPIO state after the
+sleep. 
 
-Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-pch.c |  103 ++++++++++++++++++++----------------------
- 1 files changed, 49 insertions(+), 54 deletions(-)
+Based on the this driver it seems that ak8974 and ak8975 are quite similar, but
+also there are many differences like different register map. Maybe combining
+these two makes implementation just messy.
 
-diff --git a/drivers/i2c/busses/i2c-pch.c b/drivers/i2c/busses/i2c-pch.c
-index 0933e63..f5bb140 100644
---- a/drivers/i2c/busses/i2c-pch.c
-+++ b/drivers/i2c/busses/i2c-pch.c
-@@ -121,13 +121,15 @@
- #define I2CESRTO_EVENT		0x0100
- #define PCI_DEVICE_ID_PCH_I2C	0x8817
- 
--#define pch_dbg(adap, fmt, arg...)  \
--			dev_dbg(adap->pch_adapter.dev.parent, fmt, ##arg)
-+#define pch_dbg(adap, fmt, arg...)				\
-+	dev_dbg(adap->pch_adapter.dev.parent, "%s: " fmt, __func__, ##arg)
-+#define pch_err(adap, fmt, arg...)				\
-+	dev_err(adap->pch_adapter.dev.parent, "%s: " fmt, __func__, ##arg)
- 
--#define pch_err(adap, fmt, arg...)  \
--			dev_err(adap->pch_adapter.dev.parent, fmt, ##arg)
--
--#define pch_pci_err(adap, fmt, arg...)  dev_err(&adap->dev, fmt, ##arg)
-+#define pch_pci_dbg(pdev, fmt, arg...)				\
-+	dev_dbg(&pdev->dev, "%s: " fmt, __func__, ##arg)
-+#define pch_pci_err(pdev, fmt, arg...)				\
-+	dev_err(&pdev->dev, "%s: " fmt, __func__, ##arg)
- 
- /**
-  * struct i2c_algo_pch_data - for I2C driver functionalities
-@@ -243,9 +245,8 @@ static void pch_init(struct i2c_algo_pch_data *adap)
- 	reg_value |= NORMAL_INTR_ENBL;	/* Enable interrupts in normal mode */
- 	iowrite32(reg_value, p + PCH_I2CCTL);
- 
--	pch_dbg(adap,
--		"%s: I2CCTL=%x pch_i2cbc=%x pch_i2ctmr=%x Enable interrupts\n",
--		__func__, ioread32(p + PCH_I2CCTL), pch_i2cbc, pch_i2ctmr);
-+	pch_dbg(adap, "I2CCTL=%x pch_i2cbc=%x pch_i2ctmr=%x Enable interrupts\n",
-+		ioread32(p + PCH_I2CCTL), pch_i2cbc, pch_i2ctmr);
- 
- 	init_waitqueue_head(&pch_event);
- }
-@@ -273,10 +274,10 @@ static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
- 		msleep(1);
- 	} while (ktime_lt(ktime_get(), ns_val));
- 
--	pch_dbg(adap, "%s : I2CSR = %x\n", __func__, ioread32(p + PCH_I2CSR));
-+	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
- 
- 	if (timeout == 0) {
--		pch_err(adap, "%s :return%d\n", __func__, -ETIME);
-+		pch_err(adap, "return: %d\n", -ETIME);
- 		return -ETIME;
- 	}
- 
-@@ -292,8 +293,7 @@ static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
- static void pch_start(struct i2c_algo_pch_data *adap)
- {
- 	void __iomem *p = adap->pch_base_address;
--	pch_dbg(adap, "In %s : I2CCTL = %x\n",
--		__func__, ioread32(p + PCH_I2CCTL));
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
- 	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_START);
- }
- 
-@@ -307,20 +307,17 @@ static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
- 	ret = wait_event_interruptible_timeout(pch_event,
- 			(adap->pch_event_flag != 0), msecs_to_jiffies(50));
- 	if (ret < 0) {
--		pch_err(adap, "%s :timeout: %x\n",
--						__func__, adap->pch_event_flag);
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
- 		return ret;
- 	}
- 
- 	if (ret == 0) {
--		pch_err(adap, "%s :timeout: %x\n",
--						__func__, adap->pch_event_flag);
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
- 		return -ETIMEDOUT;
- 	}
- 
- 	if (adap->pch_event_flag & I2C_ERROR_MASK) {
--		pch_err(adap, "%s :error bits set: %x\n",
--						__func__, adap->pch_event_flag);
-+		pch_err(adap, "error bits set: %x\n", adap->pch_event_flag);
- 		return -EIO;
- 	}
- 
-@@ -341,7 +338,7 @@ static s32 pch_getack(struct i2c_algo_pch_data *adap)
- 	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
- 
- 	if (reg_val != 0) {
--		pch_err(adap, "%s : return%d\n", __func__, -EPROTO);
-+		pch_err(adap, "return: %d\n", -EPROTO);
- 		return -EPROTO;
- 	}
- 
-@@ -355,7 +352,7 @@ static s32 pch_getack(struct i2c_algo_pch_data *adap)
- static void pch_stop(struct i2c_algo_pch_data *adap)
- {
- 	void __iomem *p = adap->pch_base_address;
--	pch_dbg(adap, "%s : I2CCTL = %x\n", __func__, ioread32(p + PCH_I2CCTL));
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
- 	/* clear the start bit */
- 	pch_clrbit((adap->pch_base_address), PCH_I2CCTL, PCH_START);
- }
-@@ -367,8 +364,7 @@ static void pch_stop(struct i2c_algo_pch_data *adap)
- static void pch_repstart(struct i2c_algo_pch_data *adap)
- {
- 	void __iomem *p = adap->pch_base_address;
--	pch_dbg(adap, "In %s : I2CCTL = %x\n",
--		__func__, ioread32(p + PCH_I2CCTL));
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
- 	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_REPSTART);
- }
- 
-@@ -398,7 +394,7 @@ static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
- 	/* enable master tx */
- 	pch_setbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX_MODE);
- 
--	pch_dbg(adap, "%s : I2CCTL = %x msgs->len = %d\n", __func__,
-+	pch_dbg(adap, "I2CCTL = %x msgs->len = %d\n",
- 		ioread32(p + PCH_I2CCTL), length);
- 
- 	if (first) {
-@@ -431,13 +427,13 @@ static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
- 		for (wrcount = 0; wrcount < length; ++wrcount) {
- 			/* write buffer value to I2C data register */
- 			iowrite32(buf[wrcount], p + PCH_I2CDR);
--			pch_dbg(adap, "%s : writing %x to Data register\n",
--				__func__, buf[wrcount]);
-+			pch_dbg(adap, "writing %x to Data register\n",
-+				buf[wrcount]);
- 
- 			if (pch_wait_for_xfer_complete(adap) != 0)
- 				return -ETIME;
- 
--			pch_dbg(adap, "%s return %d", __func__, 0);
-+			pch_dbg(adap, "return %d", 0);
- 
- 			if (pch_getack(adap))
- 				return -ETIME;
-@@ -453,7 +449,7 @@ static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
- 		return -EIO;
- 	}
- 
--	pch_dbg(adap, "%s return=%d\n", __func__, wrcount);
-+	pch_dbg(adap, "return=%d\n", wrcount);
- 
- 	return wrcount;
- }
-@@ -465,7 +461,7 @@ static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
- static void pch_sendack(struct i2c_algo_pch_data *adap)
- {
- 	void __iomem *p = adap->pch_base_address;
--	pch_dbg(adap, "%s : I2CCTL = %x\n", __func__, ioread32(p + PCH_I2CCTL));
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
- 	pch_clrbit((adap->pch_base_address), PCH_I2CCTL, PCH_ACK);
- }
- 
-@@ -476,7 +472,7 @@ static void pch_sendack(struct i2c_algo_pch_data *adap)
- static void pch_sendnack(struct i2c_algo_pch_data *adap)
- {
- 	void __iomem *p = adap->pch_base_address;
--	pch_dbg(adap, "%s : I2CCTL = %x\n", __func__, ioread32(p + PCH_I2CCTL));
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
- 	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_ACK);
- }
- 
-@@ -526,7 +522,7 @@ s32 pch_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
- 
- 	if ((pch_wait_for_xfer_complete(adap) == 0)
- 					    && (pch_getack(adap) == 0)) {
--		pch_dbg(adap, "%s return %d", __func__, 0);
-+		pch_dbg(adap, "return %d", 0);
- 
- 		if (length == 0) {
- 			pch_stop(adap);
-@@ -599,8 +595,7 @@ static void pch_cb_ch0(struct i2c_algo_pch_data *adap)
- 	/* clear the applicable bits */
- 	pch_clrbit((adap->pch_base_address), PCH_I2CSR, sts);
- 
--	pch_dbg(adap, "%s : PCH_I2CSR = %x\n",
--		__func__, ioread32(p + PCH_I2CSR));
-+	pch_dbg(adap, "PCH_I2CSR = %x\n", ioread32(p + PCH_I2CSR));
- 
- 	wake_up_interruptible(&pch_event);
- }
-@@ -619,7 +614,7 @@ static irqreturn_t pch_handler_ch0(int irq, void *pData)
- 	u32 mode = ioread32(p + PCH_I2CMOD) & (BUFFER_MODE | EEPROM_SR_MODE);
- 
- 	if (mode != NORMAL_MODE) {
--		pch_err(adap_data, "%s I2C mode is not supported\n", __func__);
-+		pch_err(adap_data, "I2C mode is not supported\n");
- 		return IRQ_NONE;
- 	}
- 
-@@ -639,7 +634,7 @@ static irqreturn_t pch_handler_ch0(int irq, void *pData)
- 		else
- 			goto err_out;
- 	} else {
--		pch_err(adap_data, "%s I2C mode is not supported\n", __func__);
-+		pch_err(adap_data, "I2C mode is not supported\n");
- 		goto err_out;
- 	}
- 	return IRQ_HANDLED;
-@@ -675,8 +670,8 @@ static s32 pch_xfer(struct i2c_adapter *i2c_adap,
- 		return -EBUSY;
- 	}
- 
--	pch_dbg(adap, "%s adap->p_adapter_info->pch_suspended is %d\n",
--		__func__, adap->p_adapter_info->pch_suspended);
-+	pch_dbg(adap, "adap->p_adapter_info->pch_suspended is %d\n",
-+		adap->p_adapter_info->pch_suspended);
- 	/* transfer not completed */
- 	adap->pch_xfer_in_progress = true;
- 
-@@ -685,7 +680,7 @@ static s32 pch_xfer(struct i2c_adapter *i2c_adap,
- 		pmsg->flags |= adap->pch_buff_mode_en;
- 		status = pmsg->flags;
- 		pch_dbg(adap,
--			"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-+			"After invoking I2C_MODE_SEL: flag=0x%x\n", status);
- 		/* calculate sub address length and message length */
- 		/* these are applicable only for buffer mode */
- 		subaddrlen = pmsg->buf[0];
-@@ -693,11 +688,11 @@ static s32 pch_xfer(struct i2c_adapter *i2c_adap,
- 		 * the sub address fields */
- 		msglen = (pmsg->len) - (subaddrlen + 1);
- 		if (status & (I2C_M_RD)) {
--			pch_dbg(adap, "%s invoking pch_readbytes\n", __func__);
-+			pch_dbg(adap, "invoking pch_readbytes\n");
- 			ret = pch_readbytes(i2c_adap, pmsg, (i + 1 == num),
- 					   (i == 0));
- 		} else {
--			pch_dbg(adap, "%s invoking pch_writebytes\n", __func__);
-+			pch_dbg(adap, "invoking pch_writebytes\n");
- 			ret = pch_writebytes(i2c_adap, pmsg, (i + 1 == num),
- 					    (i == 0));
- 		}
-@@ -752,29 +747,29 @@ static int __devinit pch_probe(struct pci_dev *pdev,
- 	struct adapter_info *adap_info =
- 			kzalloc((sizeof(struct adapter_info)), GFP_KERNEL);
- 
--	dev_dbg(&pdev->dev, "Enterred in %s\n", __func__);
-+	pch_pci_dbg(pdev, "Entered\n");
- 
- 	if (adap_info == NULL) {
--		pch_pci_err(pdev, "Memory allocation failed FAILED");
-+		pch_pci_err(pdev, "Memory allocation failed FAILED\n");
- 		return -ENOMEM;
- 	}
- 
- 	ret = pci_enable_device(pdev);
- 	if (ret) {
--		pch_pci_err(pdev, "%s : pci_enable_device FAILED", __func__);
-+		pch_pci_err(pdev, "pci_enable_device FAILED\n");
- 		goto err_pci_enable;
- 	}
- 
- 	ret = pci_request_regions(pdev, KBUILD_MODNAME);
- 	if (ret) {
--		pch_pci_err(pdev, "pci_request_regions FAILED");
-+		pch_pci_err(pdev, "pci_request_regions FAILED\n");
- 		goto err_pci_req;
- 	}
- 
- 	base_addr = pci_iomap(pdev, 1, 0);
- 
- 	if (base_addr == 0) {
--		pch_pci_err(pdev, "pci_iomap FAILED");
-+		pch_pci_err(pdev, "pci_iomap FAILED\n");
- 		ret = -ENOMEM;
- 		goto err_pci_iomap;
- 	}
-@@ -799,7 +794,7 @@ static int __devinit pch_probe(struct pci_dev *pdev,
- 		ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
- 
- 		if (ret) {
--			pch_pci_err(pdev, "i2c_add_adapter FAILED");
-+			pch_pci_err(pdev, "i2c_add_adapter FAILED\n");
- 			goto err_i2c_add_adapter;
- 		}
- 
-@@ -807,12 +802,12 @@ static int __devinit pch_probe(struct pci_dev *pdev,
- 		ret = request_irq(pdev->irq, pch_handler_list[i], IRQF_SHARED,
- 			  KBUILD_MODNAME, &adap_info->pch_data[i]);
- 		if (ret) {
--			pch_pci_err(pdev, "request_irq Failed\n");
-+			pch_pci_err(pdev, "request_irq FAILED\n");
- 			goto err_request_irq;
- 		}
- 	}
- 
--	dev_dbg(&pdev->dev, "request_irq returns %d pch_probe returns.\n", ret);
-+	pch_pci_dbg(pdev, "request_irq returns %d pch_probe returns\n", ret);
- 	pci_set_drvdata(pdev, adap_info);
- 	return 0;
- 
-@@ -876,12 +871,12 @@ static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
- 		pch_disbl_int(&adap_info->pch_data[i]);
- 	}
- 
--	dev_dbg(&pdev->dev,
--		"I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
--		"invoked function pch_disbl_int successfully\n",
--		ioread32(p + 0x08),
--		ioread32(p + 0x30),
--		ioread32(p + 0x44));
-+	pch_pci_dbg(pdev,
-+		    "I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
-+		    "invoked function pch_disbl_int successfully\n",
-+		    ioread32(p + 0x08),
-+		    ioread32(p + 0x30),
-+		    ioread32(p + 0x44));
- 
- 	ret = pci_save_state(pdev);
- 
+
+>
+>> +	status = ak8975_read_data(client, AK8975_REG_ST1, 1,
+>&read_status);
+>> +	if (!status) {
+>> +		dev_err(&client->dev, "Error in reading ST1\n");
+>> +		return false;
+>
+>I would have expected these to return a meaningful error code not 0 ?
+>
+>> +static IIO_DEVICE_ATTR(mode, S_IRUGO | S_IWUSR, show_mode,
+>store_mode, 0);
+>> +static IIO_DEVICE_ATTR(magn_x_calibscale, S_IRUGO, show_calibscale,
+>NULL, 0);
+>> +static IIO_DEVICE_ATTR(magn_y_calibscale, S_IRUGO, show_calibscale,
+>NULL, 1);
+>> +static IIO_DEVICE_ATTR(magn_z_calibscale, S_IRUGO, show_calibscale,
+>NULL, 2);
+>> +static IIO_DEV_ATTR_MAGN_X(show_raw, AK8975_REG_HXL);
+>> +static IIO_DEV_ATTR_MAGN_Y(show_raw, AK8975_REG_HYL);
+>> +static IIO_DEV_ATTR_MAGN_Z(show_raw, AK8975_REG_HZL);
+>
+>This seems odd as an interface as it's raw when the maths to provide
+>non-raw (and thus abstract and easy for user space) data is trivial
+>enough to do in kernel
+>
+>(but then I still suspect it should jusst be an input device of course)
+>
+>> +static int ak8975_probe(struct i2c_client *client,
+>> +			const struct i2c_device_id *id)
+>> +{
+>> +	struct ak8975_data *data;
+>> +	int err;
+>> +
+>> +	/* Allocate our device context. */
+>> +	data = kzalloc(sizeof(struct ak8975_data), GFP_KERNEL);
+>> +	if (!data) {
+>> +		dev_err(&client->dev, "Memory allocation fails\n");
+>> +		err = -ENOMEM;
+>> +		goto exit;
+>> +	}
+>> +
+>> +	i2c_set_clientdata(client, data);
+>> +	data->client = client;
+>> +
+>> +	mutex_init(&data->lock);
+>> +
+>> +	/* Grab and set up the supplied GPIO. */
+>> +	data->eoc_irq = client->irq;
+>> +	data->eoc_gpio = irq_to_gpio(client->irq);
+>
+>It may not be via a GPIO. Better to do the GPIO handling in platform
+>abstraction or accept passing IRQ and no GPIO value to mean "just use
+>the
+>IRQ". Ie do all the gpio foo if (data->eoc_gpio) { ... }
+>
+>
+>> +
+>> +	err = gpio_request(data->eoc_gpio, "ak_8975");
+>> +	if (err < 0) {
+>> +		dev_err(&client->dev, "failed to request GPIO %d, error
+>%d\n",
+>> +			data->eoc_gpio, err);
+>> +		goto exit_free;
+>> +	}
+>> +
+>> +	err = gpio_direction_input(data->eoc_gpio);
+>> +	if (err < 0) {
+>> +		dev_err(&client->dev, "Failed to configure input direction
+>for"
+>> +			" GPIO %d, error %d\n", data->eoc_gpio, err);
+>> +		gpio_free(data->eoc_gpio);
+>
+>This frees the GPIO twice ?
+>
+>Looks basically sound to me.
+>
+>Alan
+>
+>--
+>To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+>the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
