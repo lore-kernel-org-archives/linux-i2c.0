@@ -1,177 +1,113 @@
-From: <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 1/1] iio: ak8975: Add Ak8975 magnetometer sensor
-Date: Fri, 3 Sep 2010 09:20:19 +0200
-Message-ID: <62697B07E9803846BC582181BD6FB6B82B9C05812A@NOK-EUMSG-02.mgdnok.nokia.com>
-References: <1283463351-15816-1-git-send-email-achew@nvidia.com>
- <20100902231942.21375cc0@lxorguk.ukuu.org.uk>
- <62697B07E9803846BC582181BD6FB6B82B9C057FFC@NOK-EUMSG-02.mgdnok.nokia.com>
- <4C80A26F.6020408@cam.ac.uk>
+From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
+Date: Fri, 03 Sep 2010 01:10:37 -0700
+Message-ID: <1283501437.1797.441.camel@Joe-Laptop>
+References: <4C80A089.508@dsn.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C80A26F.6020408-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <4C80A089.508-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
-Cc: alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org, achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+To: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, 2010-09-03 at 16:15 +0900, Masayuki Ohtak wrote:
+[]
+> +#define pch_dbg(adap, fmt, arg...)  \
+> +	dev_dbg(adap->pch_adapter.dev.parent, "%s :"fmt, __func__, ##arg)
+> +
+> +#define pch_err(adap, fmt, arg...)  \
+> +	dev_err(adap->pch_adapter.dev.parent, "%s :"fmt, __func__, ##arg)
+> +
+> +#define pch_pci_err(pdev, fmt, arg...)  \
+> +				dev_err(&pdev->dev, "%s :"fmt, __func__, ##arg)
+> +#define pch_pci_dbg(pdev, fmt, arg...)  \
+> +				dev_dbg(&pdev->dev, "%s :"fmt, __func__, ##arg)
 
+OK, but it seems careless because the two types
+are not uniformly indented, there's a blank line
+between pch_dbg and pch_err, and the two pch_pci_<level>
+defines are in the reverse order without a blank line
+between them. 
 
->-----Original Message-----
->From: ext Jonathan Cameron [mailto:jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org]
->Sent: 03 September, 2010 10:23
->To: Onkalo Samu.P (Nokia-MS/Tampere)
->Cc: alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org; achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org; linux-
->kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
->i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
->ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
->Subject: Re: [PATCH 1/1] iio: ak8975: Add Ak8975 magnetometer sensor
->
->On 09/03/10 06:18, samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org wrote:
->>
->>
->>> -----Original Message-----
->>> From: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-iio-
->>> owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of ext Alan Cox
->>> Sent: 03 September, 2010 01:20
->>> To: achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
->>> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
->>> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
->>> ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
->>> Subject: Re: [PATCH 1/1] iio: ak8975: Add Ak8975 magnetometer sensor
->>>
->>>> +/*
->>>> + * Shows the device's mode.  0 = off, 1 = on.
->>>> + */
->>>
->>> Should this not be handled by runtime pm nowdays ?
->>>
->>>> +	if ((oval < 0) || (oval > 1)) {
->>>> +		dev_err(dev, "mode value is not supported\n");
->>>> +		return -EINVAL;
->>>> +	}
->>>
->>> ulong cannot be < 0 and doesn't need all the brackets
->>>
->>>
->>>> +	/* Wait for the conversion to complete. */
->>>> +	while (timeout_ms) {
->>>> +		msleep(AK8975_CONVERSION_DONE_POLL_TIME);
->>>> +		state = (gpio_get_value(data->eoc_gpio) ? 1 : 0);
->>>> +		if (state)
->>>> +			break;
->>>> +		timeout_ms -= AK8975_CONVERSION_DONE_POLL_TIME;
->>>> +	}
->>>
->>> This makes some fairly specific wiring assumptions about how the
->ak8975
->>> is configured. I'm looking at the ak8974 driver in our tree and also
->>> wondering if they can be combined sanely.
->>
->> With ak8974 chip, it is possible to have similar functionality without
->interrupt
->> pin. This is most probably true also for ak8975 chip. It is not good
->to assume
->> that everyone uses interrupt pin if the same functionally can be
->achieved
->> another way. I mean polling via I2C instead of checking GPIO state
->after the
->> sleep.
->Of course this can be done, but it's up to Andrew to decide whether he
->wants to.
->I think the usual principal of writing only what people currently need
->applies
->here.  Perhaps a comment in the code to point out this could be done is
->a sensible
->compromise?
+I think it's better to use separate multiple strings
+that are concatentated by the preprocessor like:
+	"%s :" fmt
+not
+	"%s :"fmt
 
-Sure. And the one who needs it may freely send patches.
+Almost all code in kernel uses "%s: " to format __func__.
+Some use "%s(): ".  I think "%s :" is unique.
 
->>
->> Based on the this driver it seems that ak8974 and ak8975 are quite
->similar, but
->> also there are many differences like different register map. Maybe
->combining
->> these two makes implementation just messy.
->>
->>
->>>
->>>> +	status = ak8975_read_data(client, AK8975_REG_ST1, 1,
->>> &read_status);
->>>> +	if (!status) {
->>>> +		dev_err(&client->dev, "Error in reading ST1\n");
->>>> +		return false;
->>>
->>> I would have expected these to return a meaningful error code not 0 ?
->>>
->>>> +static IIO_DEVICE_ATTR(mode, S_IRUGO | S_IWUSR, show_mode,
->>> store_mode, 0);
->>>> +static IIO_DEVICE_ATTR(magn_x_calibscale, S_IRUGO, show_calibscale,
->>> NULL, 0);
->>>> +static IIO_DEVICE_ATTR(magn_y_calibscale, S_IRUGO, show_calibscale,
->>> NULL, 1);
->>>> +static IIO_DEVICE_ATTR(magn_z_calibscale, S_IRUGO, show_calibscale,
->>> NULL, 2);
->>>> +static IIO_DEV_ATTR_MAGN_X(show_raw, AK8975_REG_HXL);
->>>> +static IIO_DEV_ATTR_MAGN_Y(show_raw, AK8975_REG_HYL);
->>>> +static IIO_DEV_ATTR_MAGN_Z(show_raw, AK8975_REG_HZL);
->>>
->>> This seems odd as an interface as it's raw when the maths to provide
->>> non-raw (and thus abstract and easy for user space) data is trivial
->>> enough to do in kernel
->>>
->>> (but then I still suspect it should jusst be an input device of
->course)
->>>
->>>> +static int ak8975_probe(struct i2c_client *client,
->>>> +			const struct i2c_device_id *id)
->>>> +{
->>>> +	struct ak8975_data *data;
->>>> +	int err;
->>>> +
->>>> +	/* Allocate our device context. */
->>>> +	data = kzalloc(sizeof(struct ak8975_data), GFP_KERNEL);
->>>> +	if (!data) {
->>>> +		dev_err(&client->dev, "Memory allocation fails\n");
->>>> +		err = -ENOMEM;
->>>> +		goto exit;
->>>> +	}
->>>> +
->>>> +	i2c_set_clientdata(client, data);
->>>> +	data->client = client;
->>>> +
->>>> +	mutex_init(&data->lock);
->>>> +
->>>> +	/* Grab and set up the supplied GPIO. */
->>>> +	data->eoc_irq = client->irq;
->>>> +	data->eoc_gpio = irq_to_gpio(client->irq);
->>>
->>> It may not be via a GPIO. Better to do the GPIO handling in platform
->>> abstraction or accept passing IRQ and no GPIO value to mean "just use
->>> the
->>> IRQ". Ie do all the gpio foo if (data->eoc_gpio) { ... }
->>>
->>>
->>>> +
->>>> +	err = gpio_request(data->eoc_gpio, "ak_8975");
->>>> +	if (err < 0) {
->>>> +		dev_err(&client->dev, "failed to request GPIO %d, error
->>> %d\n",
->>>> +			data->eoc_gpio, err);
->>>> +		goto exit_free;
->>>> +	}
->>>> +
->>>> +	err = gpio_direction_input(data->eoc_gpio);
->>>> +	if (err < 0) {
->>>> +		dev_err(&client->dev, "Failed to configure input direction
->>> for"
->>>> +			" GPIO %d, error %d\n", data->eoc_gpio, err);
->>>> +		gpio_free(data->eoc_gpio);
->>>
->>> This frees the GPIO twice ?
->>>
->>> Looks basically sound to me.
->>>
->>> Alan
+The rest of the logging messages look good.
+
+Some other comments:
+
+> +	if ((pch_wait_for_xfer_complete(adap) == 0) &&
+> +						(pch_getack(adap) == 0)) {
+
+This would look better as:
+
+	if ((pch_wait_for_xfer_complete(adap) == 0) &&
+	    (pch_getack(adap) == 0)) {
+
+> +	if ((pch_wait_for_xfer_complete(adap) == 0)
+> +					    && (pch_getack(adap) == 0)) {
+
+Here too.
+
+> +	for (i = 0; i < PCH_MAX_CHN; i++) {
+> +		while ((adap_info->pch_data[i].pch_xfer_in_progress)) {
+> +			/* Wait until all channel transfers are completed */
+> +			msleep(1);
+> +		}
+> +		/* Disable the i2c interrupts */
+> +		pch_disbl_int(&adap_info->pch_data[i]);
+> +	}
+
+Would it be better to disable all possible interrupts first
+or do you need to disable them in order?
+
+Something like:
+
+	bool *disabled = kzalloc(PCH_MAX_CHN * sizeof(bool), GFP_KERNEL);
+/*
+ * or a static with a memset, or check something
+ * like pch_is_int_enabled(&adap_info->pch_data[i])
+ * then remove the else because the kzalloc couldn't fail.
+ */
+	if (disabled) {
+		bool alldone;
+		do {
+			alldone = true;
+			for (i = 0; i < PCH_MAX_CHN; i++) {
+				if (!adap_info->pch_data[i].pch_xfer_in_progress &&
+				    !disabled[i])) {
+					pch_disbl_int(&adap_info->pch_data[i]);
+					disabled[i] = true;
+				} else
+					alldone = false;
+			}
+			if (!alldone) {
+				/* Wait until all channel transfers are completed */
+				msleep(1);
+			}
+		} while (!alldone);
+		kfree(disabled);
+
+/* remove the else if there's a static etc */
+
+	} else {
+		for (i = 0; i < PCH_MAX_CHN; i++) {
+			while ((adap_info->pch_data[i].pch_xfer_in_progress)) {
+				/* Wait until all channel transfers are completed */
+				msleep(1);
+			}
+			/* Disable the i2c interrupts */
+			pch_disbl_int(&adap_info->pch_data[i]);
+		}
+	}
+
+cheers, Joe
