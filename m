@@ -1,1023 +1,638 @@
-From: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Fri, 03 Sep 2010 19:19:44 +0900
-Message-ID: <4C80CBC0.5050908@dsn.okisemi.com>
+From: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RFC 1/1] MISC: Broadcom BCM4751 GPS driver
+Date: Fri, 03 Sep 2010 14:07:27 +0300
+Message-ID: <1283512047.26985.119.camel@masi.mnp.nokia.com>
+References: <1282572026-14905-1-git-send-email-matti.j.aaltonen@nokia.com>
+	 <1282572026-14905-2-git-send-email-matti.j.aaltonen@nokia.com>
+Reply-To: matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1282572026-14905-2-git-send-email-matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+To: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I2C driver of Topcliff PCH
+Hi.
 
-Topcliff PCH is the platform controller hub that is going to be used in
-Intel's upcoming general embedded platform. All IO peripherals in
-Topcliff PCH are actually devices sitting on AMBA bus. 
-Topcliff PCH has I2C I/F. Using this I/F, it is able to access system
-devices connected to I2C.
+On Mon, 2010-08-23 at 16:00 +0200, Aaltonen Matti.J (Nokia-MS/Tampere)
+wrote:
+> Driver for Broadcom BCM4751 GPS chip.
 
-Signed-off-by: Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Reviewed-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
----
- drivers/i2c/busses/Kconfig   |   18 +
- drivers/i2c/busses/Makefile  |    1 +
- drivers/i2c/busses/i2c-pch.c |  944 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 963 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-pch.c
+I sent this a while ago but didn't get any comments about the code. What
+do you think should something be changed or is it ready to get accepted?
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index bceafbf..c5db1e7 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -613,6 +613,24 @@ config I2C_XILINX
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called xilinx_i2c.
- 
-+config PCH_I2C
-+	tristate "PCH I2C of Intel Topcliff"
-+	depends on PCI
-+	help
-+	  This driver is for PCH(Platform controller Hub) I2C of Topcliff which
-+	  is an IOH(Input/Output Hub) for x86 embedded processor.
-+	  This driver can access PCH I2C bus device.
-+
-+config PCH_I2C_CH_COUNT
-+	int "PCH I2C the number of channel count"
-+	range 1 2
-+	depends on PCH_I2C
-+	help
-+	  This driver is for PCH(Platform controller Hub) I2C of Topcliff which
-+	  is an IOH(Input/Output Hub) for x86 embedded processor.
-+	  The number of I2C buses/channels supported by the PCH I2C controller.
-+	  PCH I2C of Topcliff supports only one channel.
-+
- comment "External I2C/SMBus adapter drivers"
- 
- config I2C_PARPORT
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 936880b..aa04135 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -59,6 +59,7 @@ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
-+obj-$(CONFIG_PCH_I2C)		+= i2c-pch.o
- 
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
-diff --git a/drivers/i2c/busses/i2c-pch.c b/drivers/i2c/busses/i2c-pch.c
-new file mode 100644
-index 0000000..ae55a83
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-pch.c
-@@ -0,0 +1,944 @@
-+/*
-+ * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/delay.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/fs.h>
-+#include <linux/io.h>
-+#include <linux/types.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/pci.h>
-+#include <linux/mutex.h>
-+#include <linux/ktime.h>
-+
-+#define PCH_MAX_CHN	CONFIG_PCH_I2C_CH_COUNT	/* Maximum I2C channels
-+						   available */
-+#define PCH_EVENT_SET	0	/* I2C Interrupt Event Set Status */
-+#define PCH_EVENT_NONE	1	/* I2C Interrupt Event Clear Status */
-+#define PCH_MAX_CLK		100000	/* Maximum Clock speed in MHz */
-+#define PCH_BUFFER_MODE_ENABLE	0x0002	/* flag for Buffer mode enable */
-+#define PCH_EEPROM_SW_RST_MODE_ENABLE	0x0008	/* EEPROM SW RST enable flag */
-+
-+#define PCH_I2CSADR	0x00	/* I2C slave address register */
-+#define PCH_I2CCTL	0x04	/* I2C control register */
-+#define PCH_I2CSR	0x08	/* I2C status register */
-+#define PCH_I2CDR	0x0C	/* I2C data register */
-+#define PCH_I2CMON	0x10	/* I2C bus monitor register */
-+#define PCH_I2CBC	0x14	/* I2C bus transfer rate setup counter */
-+#define PCH_I2CMOD	0x18	/* I2C mode register */
-+#define PCH_I2CBUFSLV	0x1C	/* I2C buffer mode slave address register */
-+#define PCH_I2CBUFSUB	0x20	/* I2C buffer mode subaddress register */
-+#define PCH_I2CBUFFOR	0x24	/* I2C buffer mode format register */
-+#define PCH_I2CBUFCTL	0x28	/* I2C buffer mode control register */
-+#define PCH_I2CBUFMSK	0x2C	/* I2C buffer mode interrupt mask register */
-+#define PCH_I2CBUFSTA	0x30	/* I2C buffer mode status register */
-+#define PCH_I2CBUFLEV	0x34	/* I2C buffer mode level register */
-+#define PCH_I2CESRFOR	0x38	/* EEPROM software reset mode format register */
-+#define PCH_I2CESRCTL	0x3C	/* EEPROM software reset mode ctrl register */
-+#define PCH_I2CESRMSK	0x40	/* EEPROM software reset mode */
-+#define PCH_I2CESRSTA	0x44	/* EEPROM software reset mode status register */
-+#define PCH_I2CTMR	0x48	/* I2C timer register */
-+#define PCH_I2CSRST	0xFC	/* I2C reset register */
-+#define PCH_I2CNF	0xF8	/* I2C noise filter register */
-+
-+#define BUS_IDLE_TIMEOUT	20
-+#define PCH_I2CCTL_I2CMEN	0x0080
-+#define TEN_BIT_ADDR_DEFAULT	0xF000
-+#define TEN_BIT_ADDR_MASK	0xF0
-+#define PCH_START		0x0020
-+#define PCH_ESR_START		0x0001
-+#define PCH_BUFF_START		0x1
-+#define PCH_REPSTART		0x0004
-+#define PCH_ACK			0x0008
-+#define PCH_GETACK		0x0001
-+#define CLR_REG			0x0
-+#define I2C_RD			0x1
-+#define I2CMCF_BIT		0x0080
-+#define I2CMIF_BIT		0x0002
-+#define I2CMAL_BIT		0x0010
-+#define I2CBMFI_BIT		0x0001
-+#define I2CBMAL_BIT		0x0002
-+#define I2CBMNA_BIT		0x0004
-+#define I2CBMTO_BIT		0x0008
-+#define I2CBMIS_BIT		0x0010
-+#define I2CESRFI_BIT		0X0001
-+#define I2CESRTO_BIT		0x0002
-+#define I2CESRFIIE_BIT		0x1
-+#define I2CESRTOIE_BIT		0x2
-+#define I2CBMDZ_BIT		0x0040
-+#define I2CBMAG_BIT		0x0020
-+#define I2CMBB_BIT		0x0020
-+#define BUFFER_MODE_MASK	(I2CBMFI_BIT | I2CBMAL_BIT | I2CBMNA_BIT | \
-+				I2CBMTO_BIT | I2CBMIS_BIT)
-+#define I2C_ADDR_MSK		0xFF
-+#define I2C_MSB_2B_MSK		0x300
-+#define FAST_MODE_CLK		400
-+#define FAST_MODE_EN		0x0001
-+#define SUB_ADDR_LEN_MAX	4
-+#define BUF_LEN_MAX		32
-+#define PCH_BUFFER_MODE		0x1
-+#define EEPROM_SW_RST_MODE	0x0002
-+#define NORMAL_INTR_ENBL	0x0300
-+#define EEPROM_RST_INTR_ENBL	(I2CESRFIIE_BIT | I2CESRTOIE_BIT)
-+#define EEPROM_RST_INTR_DISBL	0x0
-+#define BUFFER_MODE_INTR_ENBL	0x001F
-+#define BUFFER_MODE_INTR_DISBL	0x0
-+#define NORMAL_MODE		0x0
-+#define BUFFER_MODE		0x1
-+#define EEPROM_SR_MODE		0x2
-+#define I2C_TX_MODE		0x0010
-+#define PCH_BUF_TX		0xFFF7
-+#define PCH_BUF_RD		0x0008
-+#define I2C_ERROR_MASK	(I2CESRTO_EVENT | I2CBMIS_EVENT | I2CBMTO_EVENT | \
-+			I2CBMNA_EVENT | I2CBMAL_EVENT | I2CMAL_EVENT)
-+#define I2CMAL_EVENT		0x0001
-+#define I2CMCF_EVENT		0x0002
-+#define I2CBMFI_EVENT		0x0004
-+#define I2CBMAL_EVENT		0x0008
-+#define I2CBMNA_EVENT		0x0010
-+#define I2CBMTO_EVENT		0x0020
-+#define I2CBMIS_EVENT		0x0040
-+#define I2CESRFI_EVENT		0x0080
-+#define I2CESRTO_EVENT		0x0100
-+#define PCI_DEVICE_ID_PCH_I2C	0x8817
-+
-+#define pch_dbg(adap, fmt, arg...)  \
-+	dev_dbg(adap->pch_adapter.dev.parent, "%s :" fmt, __func__, ##arg)
-+
-+#define pch_err(adap, fmt, arg...)  \
-+	dev_err(adap->pch_adapter.dev.parent, "%s :" fmt, __func__, ##arg)
-+
-+#define pch_pci_err(pdev, fmt, arg...)  \
-+	dev_err(&pdev->dev, "%s :" fmt, __func__, ##arg)
-+
-+#define pch_pci_dbg(pdev, fmt, arg...)  \
-+	dev_dbg(&pdev->dev, "%s :" fmt, __func__, ##arg)
-+
-+/**
-+ * struct i2c_algo_pch_data - for I2C driver functionalities
-+ * @p_adapter_info:		stores the reference to adapter_info structure
-+ * @pch_adapter:		stores the reference to i2c_adapter structure
-+ * @pch_base_address:		specifies the remapped base address
-+ * @pch_buff_mode_en:		specifies if buffer mode is enabled
-+ * @pch_event_flag:		specifies occurrence of interrupt events
-+ * @pch_xfer_in_progress:	specifies whether the transfer is completed
-+ */
-+struct i2c_algo_pch_data {
-+	struct adapter_info *p_adapter_info;
-+	struct i2c_adapter pch_adapter;
-+	void __iomem *pch_base_address;
-+	int pch_buff_mode_en;
-+	u32 pch_event_flag;
-+	bool pch_xfer_in_progress;
-+};
-+
-+/**
-+ * struct adapter_info - This structure holds the adapter information for the
-+			 PCH i2c controller
-+ * @pch_data:		stores a list of i2c_algo_pch_data
-+ * @pch_suspended:	specifies whether the system is suspended or not
-+ *			perhaps with more lines and words.
-+ *
-+ * pch_data has as many elements as maximum I2C channels
-+ */
-+struct adapter_info {
-+	struct i2c_algo_pch_data pch_data[PCH_MAX_CHN];
-+	bool pch_suspended;
-+};
-+
-+
-+static int pch_i2c_speed = 100; /* I2C bus speed in Kbps */
-+static int pch_clk = 50000;	/* specifies I2C clock speed in KHz */
-+static wait_queue_head_t pch_event;
-+static DEFINE_MUTEX(pch_mutex);
-+
-+static struct pci_device_id __devinitdata pch_pcidev_id[] = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_PCH_I2C)},
-+	{0,}
-+};
-+
-+static irqreturn_t pch_handler_ch0(int irq, void *pData);
-+static irqreturn_t(*pch_handler_list[PCH_MAX_CHN]) (int irq, void *pData) = {
-+	pch_handler_ch0,
-+};
-+
-+static inline void pch_setbit(void __iomem *addr, u32 offset, u32 bitmask)
-+{
-+	u32 val;
-+	val = ioread32(addr + offset);
-+	val |= bitmask;
-+	iowrite32(val, addr + offset);
-+}
-+
-+static inline void pch_clrbit(void __iomem *addr, u32 offset, u32 bitmask)
-+{
-+	u32 val;
-+	val = ioread32(addr + offset);
-+	val &= (~bitmask);
-+	iowrite32(val, addr + offset);
-+}
-+
-+/**
-+ * pch_init() - hardware initialization of I2C module
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_init(struct i2c_algo_pch_data *adap)
-+{
-+	u32 pch_i2cbc;
-+	u32 pch_i2ctmr;
-+	u32 reg_value;
-+	void __iomem *p = adap->pch_base_address;
-+
-+	/* reset I2C controller */
-+	iowrite32(0x01, p + PCH_I2CSRST);
-+	iowrite32(0x0, p + PCH_I2CSRST);
-+	/* Initialize I2C registers */
-+	iowrite32(CLR_REG, p + PCH_I2CCTL);
-+	iowrite32(CLR_REG, p + PCH_I2CMOD);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFFOR);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFSLV);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFSUB);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFMSK);
-+	iowrite32(CLR_REG, p + PCH_I2CESRFOR);
-+	iowrite32(CLR_REG, p + PCH_I2CESRMSK);
-+	iowrite32(0x21, p + PCH_I2CNF);
-+
-+	reg_value = PCH_I2CCTL_I2CMEN;
-+	pch_setbit((adap->pch_base_address), PCH_I2CCTL,
-+			  PCH_I2CCTL_I2CMEN);
-+
-+	if (pch_i2c_speed != 400)
-+		pch_i2c_speed = 100;
-+
-+	if (pch_i2c_speed == FAST_MODE_CLK) {
-+		reg_value |= FAST_MODE_EN;
-+		pch_dbg(adap, "Fast mode enabled\n");
-+	}
-+
-+	if (pch_clk <= 0 || pch_clk > PCH_MAX_CLK)
-+		pch_clk = 62500;
-+
-+	pch_i2cbc = ((pch_clk) + (pch_i2c_speed * 4)) / (pch_i2c_speed * 8);
-+	/* Set transfer speed in I2CBC */
-+	iowrite32(pch_i2cbc, p + PCH_I2CBC);
-+
-+	pch_i2ctmr = (pch_clk) / 8;
-+	iowrite32(pch_i2ctmr, p + PCH_I2CTMR);
-+
-+	reg_value |= NORMAL_INTR_ENBL;	/* Enable interrupts in normal mode */
-+	iowrite32(reg_value, p + PCH_I2CCTL);
-+
-+	pch_dbg(adap,
-+		"I2CCTL=%x pch_i2cbc=%x pch_i2ctmr=%x Enable interrupts\n",
-+		ioread32(p + PCH_I2CCTL), pch_i2cbc, pch_i2ctmr);
-+
-+	init_waitqueue_head(&pch_event);
-+}
-+
-+static inline int ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
-+{
-+	return cmp1.tv64 < cmp2.tv64;
-+}
-+
-+/**
-+ * pch_wait_for_bus_idle() - check the status of bus.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ * @timeout:	waiting time counter (us).
-+ */
-+static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
-+				 s32 timeout)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+
-+	/* MAX timeout value is timeout*1000*1000nsec */
-+	ktime_t ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
-+	do {
-+		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
-+			break;
-+		msleep(1);
-+	} while (ktime_lt(ktime_get(), ns_val));
-+
-+	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
-+
-+	if (timeout == 0) {
-+		pch_err(adap, "return%d\n", -ETIME);
-+		return -ETIME;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * pch_start() - Generate I2C start condition in normal mode.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ *
-+ * Generate I2C start condition in normal mode by setting I2CCTL.I2CMSTA to 1.
-+ */
-+static void pch_start(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_START);
-+}
-+
-+/**
-+ * pch_wait_for_xfer_complete() - initiates a wait for the tx complete event
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
-+{
-+	s32 ret;
-+	ret = wait_event_interruptible_timeout(pch_event,
-+			(adap->pch_event_flag != 0), msecs_to_jiffies(50));
-+	if (ret < 0) {
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
-+		return ret;
-+	}
-+
-+	if (ret == 0) {
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
-+		return -ETIMEDOUT;
-+	}
-+
-+	if (adap->pch_event_flag & I2C_ERROR_MASK) {
-+		pch_err(adap, "error bits set: %x\n", adap->pch_event_flag);
-+		return -EIO;
-+	}
-+
-+	adap->pch_event_flag = 0;
-+	ret = 0;
-+
-+	return ret;
-+}
-+
-+/**
-+ * pch_getack() - to confirm ACK/NACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static s32 pch_getack(struct i2c_algo_pch_data *adap)
-+{
-+	u32 reg_val;
-+	void __iomem *p = adap->pch_base_address;
-+	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
-+
-+	if (reg_val != 0) {
-+		pch_err(adap, "return%d\n", -EPROTO);
-+		return -EPROTO;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * pch_stop() - generate stop condition in normal mode.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_stop(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	/* clear the start bit */
-+	pch_clrbit((adap->pch_base_address), PCH_I2CCTL, PCH_START);
-+}
-+
-+/**
-+ * pch_repstart() - generate repeated start condition in normal mode
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_repstart(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_REPSTART);
-+}
-+
-+/**
-+ * pch_writebytes() - write data to I2C bus in normal mode
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @last:	specifies whether last message or not.
-+ *		In the case of compound mode it will be 1 for last message,
-+ *		otherwise 0.
-+ * @first:	specifies whether first message or not.
-+ *		1 for first message otherwise 0.
-+ */
-+static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
-+			  u32 last, u32 first)
-+{
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+	u8 *buf;
-+	u32 length;
-+	u32 addr;
-+	u32 addr_2_msb;
-+	u32 addr_8_lsb;
-+	s32 wrcount;
-+	void __iomem *p = adap->pch_base_address;
-+	length = msgs->len;
-+	buf = msgs->buf;
-+	addr = msgs->addr;
-+	/* enable master tx */
-+	pch_setbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX_MODE);
-+
-+	pch_dbg(adap, "I2CCTL = %x msgs->len = %d\n", ioread32(p + PCH_I2CCTL),
-+		length);
-+
-+	if (first) {
-+		if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
-+			return -ETIME;
-+	}
-+
-+	if (msgs->flags & I2C_M_TEN) {
-+		addr_2_msb = ((addr & I2C_MSB_2B_MSK) >> 7);
-+		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
-+		if (first)
-+			pch_start(adap);
-+		if ((pch_wait_for_xfer_complete(adap) == 0) &&
-+		    (pch_getack(adap) == 0)) {
-+			addr_8_lsb = (addr & I2C_ADDR_MSK);
-+			iowrite32(addr_8_lsb, p + PCH_I2CDR);
-+		} else {
-+			pch_stop(adap);
-+			return -ETIME;
-+		}
-+	} else {
-+		/* set 7 bit slave address and R/W bit as 0 */
-+		iowrite32(addr << 1, p + PCH_I2CDR);
-+		if (first)
-+			pch_start(adap);
-+	}
-+
-+	if ((pch_wait_for_xfer_complete(adap) == 0) &&
-+	    (pch_getack(adap) == 0)) {
-+		for (wrcount = 0; wrcount < length; ++wrcount) {
-+			/* write buffer value to I2C data register */
-+			iowrite32(buf[wrcount], p + PCH_I2CDR);
-+			pch_dbg(adap, "writing %x to Data register\n",
-+				buf[wrcount]);
-+
-+			if (pch_wait_for_xfer_complete(adap) != 0)
-+				return -ETIME;
-+
-+			if (pch_getack(adap))
-+				return -ETIME;
-+		}
-+
-+		/* check if this is the last message */
-+		if (last)
-+			pch_stop(adap);
-+		else
-+			pch_repstart(adap);
-+	} else {
-+		pch_stop(adap);
-+		return -EIO;
-+	}
-+
-+	pch_dbg(adap, "return=%d\n", wrcount);
-+
-+	return wrcount;
-+}
-+
-+/**
-+ * pch_sendack() - send ACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_sendack(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_clrbit((adap->pch_base_address), PCH_I2CCTL, PCH_ACK);
-+}
-+
-+/**
-+ * pch_sendnack() - send NACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_sendnack(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit((adap->pch_base_address), PCH_I2CCTL, PCH_ACK);
-+}
-+
-+/**
-+ * pch_readbytes() - read data  from I2C bus in normal mode.
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @msgs:	Pointer to i2c_msg structure.
-+ * @last:	specifies whether last message or not.
-+ * @first:	specifies whether first message or not.
-+ */
-+s32 pch_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
-+		  u32 last, u32 first)
-+{
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+
-+	u8 *buf;
-+	u32 count;
-+	u32 length;
-+	u32 addr;
-+	u32 addr_2_msb;
-+	void __iomem *p = adap->pch_base_address;
-+	length = msgs->len;
-+	buf = msgs->buf;
-+	addr = msgs->addr;
-+
-+	/* enable master reception */
-+	pch_clrbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX_MODE);
-+
-+	if (first) {
-+		if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
-+			return -ETIME;
-+	}
-+
-+	if (msgs->flags & I2C_M_TEN) {
-+		addr_2_msb = (((addr & I2C_MSB_2B_MSK) >> 7) | (I2C_RD));
-+		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
-+
-+	} else {
-+		/* 7 address bits + R/W bit */
-+		addr = (((addr) << 1) | (I2C_RD));
-+		iowrite32(addr, p + PCH_I2CDR);
-+	}
-+
-+	/* check if it is the first message */
-+	if (first)
-+		pch_start(adap);
-+
-+	if ((pch_wait_for_xfer_complete(adap) == 0) &&
-+	    (pch_getack(adap) == 0)) {
-+		pch_dbg(adap, "return %d\n", 0);
-+
-+		if (length == 0) {
-+			pch_stop(adap);
-+			ioread32(p + PCH_I2CDR); /* Dummy read needs */
-+
-+			count = length;
-+		} else {
-+			int read_index;
-+			int loop;
-+			pch_sendack(adap);
-+
-+			/* Dummy read */
-+			for (loop = 1, read_index = 0; loop < length; loop++) {
-+				buf[read_index] = ioread32(p + PCH_I2CDR);
-+
-+				if (loop != 1)
-+					read_index++;
-+
-+				if (pch_wait_for_xfer_complete(adap) != 0) {
-+					pch_stop(adap);
-+					return -ETIME;
-+				}
-+			}	/* end for */
-+
-+			pch_sendnack(adap);
-+
-+			buf[read_index] = ioread32(p + PCH_I2CDR);
-+
-+			if (length != 1)
-+				read_index++;
-+
-+			if (pch_wait_for_xfer_complete(adap) == 0) {
-+				if (last)
-+					pch_stop(adap);
-+				else
-+					pch_repstart(adap);
-+
-+				buf[read_index++] = ioread32(p + PCH_I2CDR);
-+				count = read_index;
-+			} else {
-+				count = -ETIME;
-+			}
-+
-+		}
-+	} else {
-+		count = -ETIME;
-+		pch_stop(adap);
-+	}
-+
-+	return count;
-+}
-+
-+/**
-+ * pch_cb_ch0() - Interrupt handler Call back function
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_cb_ch0(struct i2c_algo_pch_data *adap)
-+{
-+	u32 sts;
-+	void __iomem *p = adap->pch_base_address;
-+
-+	sts = ioread32(p + PCH_I2CSR);
-+	sts &= (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT);
-+	if (I2CMAL_BIT & sts)
-+		adap->pch_event_flag |= I2CMAL_EVENT;
-+
-+	if (I2CMCF_BIT & sts)
-+		adap->pch_event_flag |= I2CMCF_EVENT;
-+
-+	/* clear the applicable bits */
-+	pch_clrbit((adap->pch_base_address), PCH_I2CSR, sts);
-+
-+	pch_dbg(adap, "PCH_I2CSR = %x\n", ioread32(p + PCH_I2CSR));
-+
-+	wake_up_interruptible(&pch_event);
-+}
-+
-+/**
-+ * pch_handler_ch0() - interrupt handler for the PCH I2C controller
-+ * @irq:	irq number.
-+ * @pData:	cookie passed back to the handler function.
-+ */
-+static irqreturn_t pch_handler_ch0(int irq, void *pData)
-+{
-+	s32 reg_val;
-+
-+	struct i2c_algo_pch_data *adap_data = (struct i2c_algo_pch_data *)pData;
-+	void __iomem *p = adap_data->pch_base_address;
-+	u32 mode = ioread32(p + PCH_I2CMOD) & (BUFFER_MODE | EEPROM_SR_MODE);
-+
-+	if (mode != NORMAL_MODE) {
-+		pch_err(adap_data, "I2C mode is not supported\n");
-+		return IRQ_NONE;
-+	}
-+
-+	reg_val = ioread32(p + PCH_I2CSR);
-+	if (reg_val & (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT))
-+		pch_cb_ch0(adap_data);
-+	else
-+		return IRQ_NONE;
-+
-+	return IRQ_HANDLED;
-+}
-+#if 0
-+	if (mode == NORMAL_MODE) {
-+		reg_val = ioread32(p + PCH_I2CSR);
-+		if (reg_val & (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT))
-+			pch_cb_ch0(adap_data);
-+		else
-+			goto err_out;
-+	} else {
-+		pch_err(adap_data, "I2C mode is not supported\n");
-+		goto err_out;
-+	}
-+	return IRQ_HANDLED;
-+
-+err_out:
-+	return IRQ_NONE;
-+}
-+#endif
-+/**
-+ * pch_xfer() - Reading adnd writing data through I2C bus
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @msgs:	Pointer to i2c_msg structure.
-+ * @num:	number of messages.
-+ */
-+static s32 pch_xfer(struct i2c_adapter *i2c_adap,
-+		    struct i2c_msg *msgs, s32 num)
-+{
-+	struct i2c_msg *pmsg;
-+	u32 i;
-+	u32 status;
-+	u32 msglen;
-+	u32 subaddrlen;
-+	s32 ret;
-+
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+
-+	ret = mutex_lock_interruptible(&pch_mutex);
-+	if (ret)
-+		return -ERESTARTSYS;
-+
-+	if (adap->p_adapter_info->pch_suspended) {
-+		mutex_unlock(&pch_mutex);
-+		return -EBUSY;
-+	}
-+
-+	pch_dbg(adap, "adap->p_adapter_info->pch_suspended is %d\n",
-+		adap->p_adapter_info->pch_suspended);
-+	/* transfer not completed */
-+	adap->pch_xfer_in_progress = true;
-+
-+	for (i = 0; i < num; i++) {
-+		pmsg = &msgs[i];
-+		pmsg->flags |= adap->pch_buff_mode_en;
-+		status = pmsg->flags;
-+		pch_dbg(adap,
-+			"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-+		/* calculate sub address length and message length */
-+		/* these are applicable only for buffer mode */
-+		subaddrlen = pmsg->buf[0];
-+		/* calculate actual message length excluding
-+		 * the sub address fields */
-+		msglen = (pmsg->len) - (subaddrlen + 1);
-+		if (status & (I2C_M_RD)) {
-+			pch_dbg(adap, "invoking pch_readbytes\n");
-+			ret = pch_readbytes(i2c_adap, pmsg, (i + 1 == num),
-+					   (i == 0));
-+		} else {
-+			pch_dbg(adap, "invoking pch_writebytes\n");
-+			ret = pch_writebytes(i2c_adap, pmsg, (i + 1 == num),
-+					    (i == 0));
-+		}
-+
-+	}
-+
-+	adap->pch_xfer_in_progress = false;	/* transfer completed */
-+
-+	mutex_unlock(&pch_mutex);
-+
-+	return ret;
-+}
-+
-+/**
-+ * pch_func() - return the functionality of the I2C driver
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static u32 pch_func(struct i2c_adapter *adap)
-+{
-+	u32 ret;
-+	ret = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
-+	return ret;
-+}
-+
-+static struct i2c_algorithm pch_algorithm = {
-+	.master_xfer = pch_xfer,
-+	.functionality = pch_func
-+};
-+
-+/**
-+ * pch_disbl_int() - Disable PCH I2C interrupts
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_disbl_int(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+
-+	pch_clrbit((adap->pch_base_address), PCH_I2CCTL,
-+			  NORMAL_INTR_ENBL);
-+
-+	iowrite32(EEPROM_RST_INTR_DISBL, p + PCH_I2CESRMSK);
-+
-+	iowrite32(BUFFER_MODE_INTR_DISBL, p + PCH_I2CBUFMSK);
-+}
-+
-+static int __devinit pch_probe(struct pci_dev *pdev,
-+			       const struct pci_device_id *id)
-+{
-+	int i;
-+	void __iomem *base_addr;
-+	s32 ret;
-+	struct adapter_info *adap_info =
-+			kzalloc((sizeof(struct adapter_info)), GFP_KERNEL);
-+
-+	pch_pci_dbg(pdev, "Entered.\n");
-+
-+	if (adap_info == NULL) {
-+		pch_pci_err(pdev, "Memory allocation FAILED\n");
-+		return -ENOMEM;
-+	}
-+
-+	ret = pci_enable_device(pdev);
-+	if (ret) {
-+		pch_pci_err(pdev, "pci_enable_device FAILED\n");
-+		goto err_pci_enable;
-+	}
-+
-+	ret = pci_request_regions(pdev, KBUILD_MODNAME);
-+	if (ret) {
-+		pch_pci_err(pdev, "pci_request_regions FAILED\n");
-+		goto err_pci_req;
-+	}
-+
-+	base_addr = pci_iomap(pdev, 1, 0);
-+
-+	if (base_addr == 0) {
-+		pch_pci_err(pdev, "pci_iomap FAILED\n");
-+		ret = -ENOMEM;
-+		goto err_pci_iomap;
-+	}
-+
-+	adap_info->pch_suspended = false;
-+
-+	for (i = 0; i < PCH_MAX_CHN; i++) {
-+		adap_info->pch_data[i].p_adapter_info = adap_info;
-+
-+		adap_info->pch_data[i].pch_adapter.owner = THIS_MODULE;
-+		adap_info->pch_data[i].pch_adapter.class = I2C_CLASS_HWMON;
-+		strcpy(adap_info->pch_data[i].pch_adapter.name, KBUILD_MODNAME);
-+		adap_info->pch_data[i].pch_adapter.algo = &pch_algorithm;
-+		adap_info->pch_data[i].pch_adapter.algo_data =
-+							&adap_info->pch_data[i];
-+
-+		/* (i * 0x80) + base_addr; */
-+		adap_info->pch_data[i].pch_base_address = base_addr;
-+
-+		adap_info->pch_data[i].pch_adapter.dev.parent = &pdev->dev;
-+
-+		ret = i2c_add_adapter(&(adap_info->pch_data[i].pch_adapter));
-+
-+		if (ret) {
-+			pch_pci_err(pdev, "i2c_add_adapter FAILED\n");
-+			goto err_i2c_add_adapter;
-+		}
-+
-+		pch_init(&adap_info->pch_data[i]);
-+		ret = request_irq(pdev->irq, pch_handler_list[i], IRQF_SHARED,
-+			  KBUILD_MODNAME, &adap_info->pch_data[i]);
-+		if (ret) {
-+			pch_pci_err(pdev, "request_irq FAILED\n");
-+			goto err_request_irq;
-+		}
-+	}
-+
-+	pci_set_drvdata(pdev, adap_info);
-+	pch_pci_dbg(pdev, "returns %d.\n", ret);
-+	return 0;
-+
-+err_request_irq:
-+	for (i = 0; i < PCH_MAX_CHN; i++)
-+		i2c_del_adapter(&(adap_info->pch_data[i].pch_adapter));
-+err_i2c_add_adapter:
-+	pci_iounmap(pdev, base_addr);
-+err_pci_iomap:
-+	pci_release_regions(pdev);
-+err_pci_req:
-+	pci_disable_device(pdev);
-+err_pci_enable:
-+	kfree(adap_info);
-+	return ret;
-+}
-+
-+static void __devexit pch_remove(struct pci_dev *pdev)
-+{
-+	int i;
-+
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+
-+
-+	for (i = 0; i < PCH_MAX_CHN; i++) {
-+		pch_disbl_int(&adap_info->pch_data[i]);
-+		free_irq(pdev->irq, &adap_info->pch_data[i]);
-+		i2c_del_adapter(&(adap_info->pch_data[i].pch_adapter));
-+	}
-+
-+	if (adap_info->pch_data[0].pch_base_address) {
-+		pci_iounmap(pdev, adap_info->pch_data[0].pch_base_address);
-+		adap_info->pch_data[0].pch_base_address = 0;
-+	}
-+
-+	pci_set_drvdata(pdev, NULL);
-+
-+	pci_release_regions(pdev);
-+
-+	pci_disable_device(pdev);
-+	kfree(adap_info);
-+}
-+
-+#ifdef CONFIG_PM
-+static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
-+{
-+	int i;
-+	int ret;
-+
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+	void __iomem *p = adap_info->pch_data[0].pch_base_address;
-+
-+	adap_info->pch_suspended = true;
-+
-+	for (i = 0; i < PCH_MAX_CHN; i++) {
-+		while ((adap_info->pch_data[i].pch_xfer_in_progress)) {
-+			/* Wait until all channel transfers are completed */
-+			msleep(1);
-+		}
-+		/* Disable the i2c interrupts */
-+		pch_disbl_int(&adap_info->pch_data[i]);
-+	}
-+
-+	pch_pci_dbg(pdev, "I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
-+		"invoked function pch_disbl_int successfully\n",
-+		ioread32(p + 0x08), ioread32(p + 0x30), ioread32(p + 0x44));
-+
-+	ret = pci_save_state(pdev);
-+
-+	if (ret) {
-+		pch_pci_err(pdev, "pci_save_state\n");
-+		return ret;
-+	}
-+
-+	pci_enable_wake(pdev, PCI_D3hot, 0);
-+	pci_disable_device(pdev);
-+	pci_set_power_state(pdev, pci_choose_state(pdev, state));
-+
-+	return 0;
-+}
-+
-+static int pch_resume(struct pci_dev *pdev)
-+{
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+	int i;
-+
-+	pci_set_power_state(pdev, PCI_D0);
-+	pci_restore_state(pdev);
-+
-+	if (pci_enable_device(pdev) < 0) {
-+		pch_pci_err(pdev, "pci_enable_device FAILED in pch_resume\n");
-+		return -EIO;
-+	}
-+
-+	pci_enable_wake(pdev, PCI_D3hot, 0);
-+
-+	for (i = 0; i < PCH_MAX_CHN; i++)
-+		pch_init(&adap_info->pch_data[i]);
-+
-+	adap_info->pch_suspended = false;
-+
-+	return 0;
-+}
-+#else
-+#define pch_suspend NULL
-+#define pch_resume NULL
-+#endif
-+
-+static struct pci_driver pch_pcidriver = {
-+	.name = KBUILD_MODNAME,
-+	.id_table = pch_pcidev_id,
-+	.probe = pch_probe,
-+	.remove = __devexit_p(pch_remove),
-+	.suspend = pch_suspend,
-+	.resume = pch_resume
-+};
-+
-+static int __init pch_pci_init(void)
-+{
-+	return pci_register_driver(&pch_pcidriver);
-+}
-+
-+static void __exit pch_pci_exit(void)
-+{
-+	pci_unregister_driver(&pch_pcidriver);
-+}
-+
-+MODULE_DESCRIPTION("PCH I2C PCI Driver");
-+MODULE_LICENSE("GPL");
-+module_init(pch_pci_init);
-+module_exit(pch_pci_exit);
-+module_param(pch_i2c_speed, int, (S_IRUSR | S_IWUSR));
-+module_param(pch_clk, int, (S_IRUSR | S_IWUSR));
--- 
-1.6.0.6
+B.R.
+Matti A.
+
+
+> Signed-off-by: Matti J. Aaltonen <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/misc/Kconfig            |   11 +
+>  drivers/misc/Makefile           |    1 +
+>  drivers/misc/bcm4751-gps.c      |  490 +++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/bcm4751-gps.h |   59 +++++
+>  4 files changed, 561 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/misc/bcm4751-gps.c
+>  create mode 100644 include/linux/i2c/bcm4751-gps.h
+> 
+> diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+> index 0b591b6..1680673 100644
+> --- a/drivers/misc/Kconfig
+> +++ b/drivers/misc/Kconfig
+> @@ -390,6 +390,17 @@ config BMP085
+>           To compile this driver as a module, choose M here: the
+>           module will be called bmp085.
+> 
+> +config BCM4751_GPS
+> +       tristate "BCM4751 GPS driver"
+> +       depends on I2C
+> +       default n
+> +       ---help---
+> +         If you say yes here you get support for the Broadcom BCM4751 GPS
+> +         chip driver.
+> +
+> +         The driver supports only GPS in BCM4751 chip. When built as a driver
+> +         driver name is: bcm4751-gps. If unsure, say N here.
+> +
+>  source "drivers/misc/c2port/Kconfig"
+>  source "drivers/misc/eeprom/Kconfig"
+>  source "drivers/misc/cb710/Kconfig"
+> diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+> index 255a80d..cfda6fb 100644
+> --- a/drivers/misc/Makefile
+> +++ b/drivers/misc/Makefile
+> @@ -9,6 +9,7 @@ obj-$(CONFIG_AD525X_DPOT_SPI)   += ad525x_dpot-spi.o
+>  obj-$(CONFIG_ATMEL_PWM)                += atmel_pwm.o
+>  obj-$(CONFIG_ATMEL_SSC)                += atmel-ssc.o
+>  obj-$(CONFIG_ATMEL_TCLIB)      += atmel_tclib.o
+> +obj-$(CONFIG_BCM4751_GPS)      += bcm4751-gps.o
+>  obj-$(CONFIG_BMP085)           += bmp085.o
+>  obj-$(CONFIG_ICS932S401)       += ics932s401.o
+>  obj-$(CONFIG_LKDTM)            += lkdtm.o
+> diff --git a/drivers/misc/bcm4751-gps.c b/drivers/misc/bcm4751-gps.c
+> new file mode 100644
+> index 0000000..03a3752
+> --- /dev/null
+> +++ b/drivers/misc/bcm4751-gps.c
+> @@ -0,0 +1,490 @@
+> +/*
+> + * bcm4751-gps.c - Hardware interface for Broadcom BCM4751 GPS chip.
+> + *
+> + * Copyright (C)       2010 Nokia Corporation
+> + * Contact             Matti Aaltonen, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+> + *
+> + * Written by Andrei Emeltchenko <andrei.emeltchenko-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> + * Modified by Yuri Zaporozhets <ext-yuri.zaporozhets-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.         See the GNU
+> + * General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+> + * 02110-1301 USA
+> + */
+> +
+> +#define DEBUG
+> +
+> +#include <linux/delay.h>
+> +#include <linux/err.h>
+> +#include <linux/fs.h>
+> +#include <linux/gpio.h>
+> +#include <linux/i2c.h>
+> +#include <linux/i2c-dev.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/kernel.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/module.h>
+> +#include <linux/mutex.h>
+> +#include <linux/poll.h>
+> +#include <linux/regulator/consumer.h>
+> +#include <linux/slab.h>
+> +
+> +#include <linux/i2c/bcm4751-gps.h>
+> +
+> +static struct bcm4751_gps_data         *bcm4751_gps_device;
+> +
+> +static const char reg_vbat[] = "Vbat";
+> +static const char reg_vddio[] = "Vddio";
+> +
+> +/*
+> + * Part of initialization is done in the board support file.
+> + */
+> +
+> +static inline void bcm4751_gps_enable(struct bcm4751_gps_data *self)
+> +{
+> +       mutex_lock(&self->mutex);
+> +       if (!self->enable) {
+> +               regulator_bulk_enable(ARRAY_SIZE(self->regs), self->regs);
+> +               if (self->pdata->enable)
+> +                       self->pdata->enable(self->client);
+> +               self->enable = 1;
+> +       }
+> +       mutex_unlock(&self->mutex);
+> +}
+> +
+> +static inline void bcm4751_gps_disable(struct bcm4751_gps_data *self)
+> +{
+> +       mutex_lock(&self->mutex);
+> +       if (self->enable) {
+> +               if (self->pdata->disable)
+> +                       self->pdata->disable(self->client);
+> +               self->enable = 0;
+> +               regulator_bulk_disable(ARRAY_SIZE(self->regs), self->regs);
+> +       }
+> +       mutex_unlock(&self->mutex);
+> +}
+> +
+> +static inline void bcm4751_gps_wakeup_value(struct bcm4751_gps_data *self,
+> +               int value)
+> +{
+> +       mutex_lock(&self->mutex);
+> +       if (self->pdata->wakeup_ctrl)
+> +               self->pdata->wakeup_ctrl(self->client, value);
+> +       self->wakeup = value;
+> +       mutex_unlock(&self->mutex);
+> +}
+> +
+> +
+> +/*
+> + * miscdevice interface
+> + */
+> +
+> +static int bcm4751_gps_open(struct inode *inode, struct file *file)
+> +{
+> +       return 0;
+> +}
+> +
+> +static int bcm4751_gps_release(struct inode *inode, struct file *file)
+> +{
+> +       return 0;
+> +}
+> +
+> +static ssize_t bcm4751_gps_read(struct file *file, char __user *buf,
+> +               size_t count, loff_t *offset)
+> +{
+> +       struct i2c_client *client = bcm4751_gps_device->client;
+> +       int num_read;
+> +       uint8_t tmp[BCM4751_MAX_BINPKT_RX_LEN];
+> +
+> +       /* Adjust for binary packet size */
+> +       if (count > BCM4751_MAX_BINPKT_RX_LEN)
+> +               count = BCM4751_MAX_BINPKT_RX_LEN;
+> +
+> +       dev_dbg(&client->dev, "reading %d bytes\n", count);
+> +
+> +       num_read = i2c_master_recv(client, tmp, count);
+> +
+> +       if (num_read < 0) {
+> +               dev_err(&client->dev, "got %d bytes instead of %d\n",
+> +                       num_read, count);
+> +               return num_read;
+> +       } else {
+> +               dev_dbg(&client->dev, "reading %d bytes returns %d",
+> +                       count, num_read);
+> +       }
+> +
+> +       return copy_to_user(buf, tmp, num_read) ? -EFAULT : num_read;
+> +}
+> +
+> +static ssize_t bcm4751_gps_write(struct file *file, const char __user *buf,
+> +               size_t count, loff_t *offset)
+> +{
+> +       struct i2c_client *client = bcm4751_gps_device->client;
+> +       uint8_t tmp[BCM4751_MAX_BINPKT_TX_LEN];
+> +       int num_sent;
+> +
+> +       if (count > BCM4751_MAX_BINPKT_TX_LEN)
+> +               count = BCM4751_MAX_BINPKT_TX_LEN;
+> +
+> +       dev_dbg(&client->dev, "writing %d bytes\n", count);
+> +
+> +       if (copy_from_user(tmp, buf, count))
+> +               return -EFAULT;
+> +
+> +       num_sent = i2c_master_send(client, tmp, count);
+> +
+> +       dev_dbg(&client->dev, "writing %d bytes returns %d",
+> +               count, num_sent);
+> +
+> +       return num_sent;
+> +}
+> +
+> +static int bcm4751_gps_ioctl(struct inode *inode, struct file *file,
+> +               unsigned int cmd, unsigned long arg)
+> +{
+> +       struct i2c_client *client = bcm4751_gps_device->client;
+> +
+> +       dev_dbg(&client->dev, "ioctl: cmd = 0x%02x, arg=0x%02lx\n", cmd, arg);
+> +
+> +       switch (cmd) {
+> +       case I2C_SLAVE:
+> +       case I2C_SLAVE_FORCE:
+> +               if ((arg > 0x3ff) ||
+> +                               (((client->flags & I2C_M_TEN) == 0) &&
+> +                                arg > 0x7f))
+> +                       return -EINVAL;
+> +               client->addr = arg;
+> +               dev_dbg(&client->dev, "ioctl: client->addr = %x", client->addr);
+> +               return 0;
+> +       case I2C_TENBIT:
+> +               if (arg)
+> +                       client->flags |= I2C_M_TEN;
+> +               else
+> +                       client->flags &= ~I2C_M_TEN;
+> +               return 0;
+> +       default:
+> +               return -ENOTTY;
+> +       }
+> +       return 0;
+> +}
+> +
+> +static const struct file_operations bcm4751_gps_fileops = {
+> +       .owner = THIS_MODULE,
+> +       .llseek         = no_llseek,
+> +       .read           = bcm4751_gps_read,
+> +       .write          = bcm4751_gps_write,
+> +       .unlocked_ioctl = bcm4751_gps_ioctl,
+> +       .open           = bcm4751_gps_open,
+> +       .release        = bcm4751_gps_release,
+> +};
+> +
+> +static struct miscdevice bcm4751_gps_miscdevice = {
+> +       .minor = MISC_DYNAMIC_MINOR,
+> +       .name = "bcm4751-gps",
+> +       .fops = &bcm4751_gps_fileops
+> +};
+> +
+> +
+> +/*
+> + * sysfs interface
+> + */
+> +
+> +static ssize_t bcm4751_gps_show_hostreq(struct device *dev,
+> +               struct device_attribute *attr, char *buf)
+> +{
+> +       struct bcm4751_gps_data *self = dev_get_drvdata(dev);
+> +       int value = -1;
+> +
+> +       if (self->pdata->show_irq)
+> +               value = self->pdata->show_irq(self->client);
+> +
+> +       return snprintf(buf, PAGE_SIZE, "%d\n", value);
+> +}
+> +
+> +static ssize_t bcm4751_gps_show_enable(struct device *dev,
+> +               struct device_attribute *attr, char *buf)
+> +{
+> +       struct bcm4751_gps_data *self = dev_get_drvdata(dev);
+> +
+> +       return snprintf(buf, PAGE_SIZE, "%d\n", self->enable);
+> +}
+> +
+> +static ssize_t bcm4751_gps_set_enable(struct device *dev,
+> +               struct device_attribute *attr, const char *buf, size_t len)
+> +{
+> +       struct bcm4751_gps_data *self = dev_get_drvdata(dev);
+> +       int value;
+> +
+> +       sscanf(buf, "%d", &value);
+> +       dev_dbg(dev, "enable: %d", value);
+> +
+> +       switch (value) {
+> +       case 0:
+> +               bcm4751_gps_disable(self);
+> +               break;
+> +
+> +       case 1:
+> +               bcm4751_gps_enable(self);
+> +               break;
+> +
+> +       default:
+> +               return -EINVAL;
+> +       }
+> +       return len;
+> +}
+> +
+> +static ssize_t bcm4751_gps_show_wakeup(struct device *dev,
+> +               struct device_attribute *attr, char *buf)
+> +{
+> +       struct bcm4751_gps_data *self = dev_get_drvdata(dev);
+> +
+> +       return snprintf(buf, PAGE_SIZE, "%d\n", self->wakeup);
+> +}
+> +
+> +static ssize_t bcm4751_gps_set_wakeup(struct device *dev,
+> +               struct device_attribute *attr, const char *buf, size_t len)
+> +{
+> +       unsigned long val;
+> +       int ret;
+> +       struct bcm4751_gps_data *self = dev_get_drvdata(dev);
+> +
+> +       ret = strict_strtoul(buf, 0, &val);
+> +       if (ret && val > 1)
+> +               return -EINVAL;
+> +       else {
+> +               bcm4751_gps_wakeup_value(self, val);
+> +               dev_dbg(dev, "new wakeup value = %d", self->wakeup);
+> +       }
+> +
+> +       return len;
+> +}
+> +
+> +static struct device_attribute bcm4751_gps_attrs[] = {
+> +       __ATTR(enable, S_IRUGO|S_IWUSR,
+> +                       bcm4751_gps_show_enable, bcm4751_gps_set_enable),
+> +       __ATTR(hostreq, S_IRUGO|S_IWUSR,
+> +                       bcm4751_gps_show_hostreq, NULL),
+> +       __ATTR(wakeup, S_IRUGO|S_IWUSR,
+> +                       bcm4751_gps_show_wakeup, bcm4751_gps_set_wakeup),
+> +};
+> +
+> +static int bcm4751_gps_register_sysfs(struct i2c_client *client)
+> +{
+> +       struct device *dev = &client->dev;
+> +       int i, ret;
+> +
+> +       for (i = 0; i < ARRAY_SIZE(bcm4751_gps_attrs); i++) {
+> +               ret = device_create_file(dev, &bcm4751_gps_attrs[i]);
+> +               if (ret)
+> +                       goto fail;
+> +       }
+> +       return 0;
+> +fail:
+> +       while (i--)
+> +               device_remove_file(dev, &bcm4751_gps_attrs[i]);
+> +
+> +       return ret;
+> +}
+> +
+> +static void bcm4751_gps_unregister_sysfs(struct i2c_client *client)
+> +{
+> +       struct device *dev = &client->dev;
+> +       int i;
+> +
+> +       for (i = ARRAY_SIZE(bcm4751_gps_attrs) - 1; i >= 0; i--)
+> +               device_remove_file(dev, &bcm4751_gps_attrs[i]);
+> +}
+> +
+> +/* IRQ thread */
+> +static irqreturn_t bcm4751_gps_irq_thread(int irq, void *dev_id)
+> +{
+> +       struct bcm4751_gps_data *data = dev_id;
+> +
+> +       dev_dbg(&data->client->dev, "irq, HOST_REQ=%d",
+> +                       data->pdata->show_irq(data->client));
+> +
+> +       /* Update sysfs GPIO line here */
+> +       sysfs_notify(&data->client->dev.kobj, NULL, "hostreq");
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static int bcm4751_gps_probe(struct i2c_client *client,
+> +               const struct i2c_device_id *device_id)
+> +{
+> +       struct bcm4751_gps_data                 *data;
+> +       struct bcm4751_gps_platform_data        *pdata;
+> +       int                                     err;
+> +
+> +       data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +       if (!data)
+> +               return -ENOMEM;
+> +
+> +       bcm4751_gps_device = data;
+> +
+> +       pdata = client->dev.platform_data;
+> +       if (!pdata) {
+> +               dev_err(&client->dev, "no platform data\n");
+> +               err = -ENODEV;
+> +               goto clean_data;
+> +       }
+> +
+> +       i2c_set_clientdata(client, data);
+> +       data->client = client;
+> +       data->pdata  = pdata;
+> +
+> +       data->gpio_irq    = pdata->gps_gpio_irq;
+> +       data->gpio_enable = pdata->gps_gpio_enable;
+> +       data->gpio_wakeup = pdata->gps_gpio_wakeup;
+> +
+> +       data->regs[0].supply = reg_vbat;
+> +       data->regs[1].supply = reg_vddio;
+> +       err = regulator_bulk_get(&client->dev,
+> +                               ARRAY_SIZE(data->regs), data->regs);
+> +       if (err < 0) {
+> +               dev_err(&client->dev, "Can't get regulators\n");
+> +               goto clean_data;
+> +       }
+> +
+> +       if (pdata->setup) {
+> +               err = pdata->setup(client);
+> +               if (err)
+> +                       goto clean_reg;
+> +       }
+> +
+> +       mutex_init(&data->mutex);
+> +       err = request_threaded_irq(client->irq, NULL,
+> +                               bcm4751_gps_irq_thread,
+> +                               IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> +                               "bcm4751-gps", data);
+> +       if (err) {
+> +               dev_err(&client->dev, "could not get GPS_IRQ = %d\n",
+> +                               client->irq);
+> +               goto clean_setup;
+> +       }
+> +
+> +       err = bcm4751_gps_register_sysfs(client);
+> +       if (err) {
+> +               dev_err(&client->dev,
+> +                               "sysfs registration failed, error %d\n", err);
+> +               goto clean_irq;
+> +       }
+> +
+> +       bcm4751_gps_miscdevice.parent = &client->dev;
+> +       err = misc_register(&bcm4751_gps_miscdevice);
+> +       if (err) {
+> +               dev_err(&client->dev, "Miscdevice register failed\n");
+> +               goto clean_sysfs;
+> +       }
+> +
+> +       return 0;
+> +
+> +clean_sysfs:
+> +       bcm4751_gps_unregister_sysfs(client);
+> +
+> +clean_irq:
+> +       free_irq(client->irq, data);
+> +
+> +clean_setup:
+> +       if (pdata->cleanup)
+> +               pdata->cleanup(client);
+> +clean_reg:
+> +       regulator_bulk_free(ARRAY_SIZE(data->regs), data->regs);
+> +clean_data:
+> +       bcm4751_gps_device = NULL;
+> +       kfree(data);
+> +
+> +       return err;
+> +}
+> +
+> +static int bcm4751_gps_remove(struct i2c_client *client)
+> +{
+> +       struct bcm4751_gps_data *data = i2c_get_clientdata(client);
+> +
+> +       bcm4751_gps_disable(data);
+> +
+> +       free_irq(client->irq, data);
+> +       misc_deregister(&bcm4751_gps_miscdevice);
+> +       bcm4751_gps_unregister_sysfs(client);
+> +       if (data->pdata->cleanup)
+> +               data->pdata->cleanup(client);
+> +       regulator_bulk_free(ARRAY_SIZE(data->regs), data->regs);
+> +       kfree(data);
+> +       bcm4751_gps_device = NULL;
+> +
+> +       return 0;
+> +}
+> +
+> +static void bcm4751_gps_shutdown(struct i2c_client *client)
+> +{
+> +       dev_dbg(&client->dev, "BCM4751 shutdown\n");
+> +       bcm4751_gps_disable(i2c_get_clientdata(client));
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int bcm4751_gps_suspend(struct i2c_client *client, pm_message_t mesg)
+> +{
+> +       struct bcm4751_gps_data *data = i2c_get_clientdata(client);
+> +       data->pdata->wakeup_ctrl(data->client, 0);
+> +       dev_dbg(&client->dev, "BCM4751 suspends\n");
+> +       return 0;
+> +}
+> +
+> +static int bcm4751_gps_resume(struct i2c_client *client)
+> +{
+> +       struct bcm4751_gps_data *data = i2c_get_clientdata(client);
+> +       data->pdata->wakeup_ctrl(data->client, 1);
+> +       dev_dbg(&client->dev, "BCM4751 resumes\n");
+> +       return 0;
+> +}
+> +#else
+> +#define bcm4751_gps_suspend NULL
+> +#define bcm4751_gps_resume NULL
+> +#endif
+> +
+> +static const struct i2c_device_id bcm4751_gps_id[] = {
+> +       { "bcm4751-gps", 0 },
+> +       { },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, bcm4751_gps_id);
+> +
+> +static struct i2c_driver bcm4751_gps_i2c_driver = {
+> +       .driver = {
+> +               .name    = "bcm4751-gps",
+> +       },
+> +
+> +       .id_table       = bcm4751_gps_id,
+> +       .probe          = bcm4751_gps_probe,
+> +       .remove         = __devexit_p(bcm4751_gps_remove),
+> +       .shutdown       = bcm4751_gps_shutdown,
+> +       .suspend        = bcm4751_gps_suspend,
+> +       .resume         = bcm4751_gps_resume,
+> +};
+> +
+> +static int __init bcm4751_gps_init(void)
+> +{
+> +       pr_info("Loading BCM4751 GPS driver\n");
+> +
+> +       return i2c_add_driver(&bcm4751_gps_i2c_driver);
+> +}
+> +module_init(bcm4751_gps_init);
+> +
+> +static void __exit bcm4751_gps_exit(void)
+> +{
+> +       i2c_del_driver(&bcm4751_gps_i2c_driver);
+> +}
+> +module_exit(bcm4751_gps_exit);
+> +
+> +MODULE_AUTHOR("Andrei Emeltchenko, Yuri Zaporozhets");
+> +MODULE_DESCRIPTION("BCM4751 GPS driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/i2c/bcm4751-gps.h b/include/linux/i2c/bcm4751-gps.h
+> new file mode 100644
+> index 0000000..69834b9
+> --- /dev/null
+> +++ b/include/linux/i2c/bcm4751-gps.h
+> @@ -0,0 +1,59 @@
+> +/*
+> + * @file include/linux/i2c/bcm4751-gps.h
+> + *
+> + *
+> + * Copyright (C)       2010 Nokia Corporation
+> + * Contact             Matti Aaltonen, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+> + *
+> + * Written by Andrei Emeltchenko <andrei.emeltchenko-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> + * Modified by Yuri Zaporozhets <ext-yuri.zaporozhets-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License
+> + * version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.         See the GNU
+> + * General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+> + * 02110-1301 USA
+> + */
+> +
+> +#ifndef _LINUX_I2C_BCM4751_GPS_H
+> +#define _LINUX_I2C_BCM4751_GPS_H
+> +
+> +/* Max packet sizes for RX and TX */
+> +#define BCM4751_MAX_BINPKT_RX_LEN      64
+> +#define BCM4751_MAX_BINPKT_TX_LEN      64
+> +
+> +/* Plaform data, used by the board support file */
+> +struct bcm4751_gps_platform_data {
+> +       int gps_gpio_irq;
+> +       int gps_gpio_enable;
+> +       int gps_gpio_wakeup;
+> +       int     (*setup)(struct i2c_client *client);
+> +       void    (*cleanup)(struct i2c_client *client);
+> +       void    (*enable)(struct i2c_client *client);
+> +       void    (*disable)(struct i2c_client *client);
+> +       void    (*wakeup_ctrl)(struct i2c_client *client, int value);
+> +       int     (*show_irq)(struct i2c_client *client);
+> +};
+> +
+> +/* Used internally by the driver */
+> +struct bcm4751_gps_data {
+> +       struct i2c_client               *client;
+> +       struct bcm4751_gps_platform_data *pdata;
+> +       struct mutex                    mutex; /* Serialize things */
+> +       struct regulator_bulk_data      regs[2];
+> +       unsigned int                    gpio_irq;
+> +       unsigned int                    gpio_enable;
+> +       unsigned int                    gpio_wakeup;
+> +       int                             enable;
+> +       int                             wakeup;
+> +};
+> +
+> +#endif
+> --
+> 1.6.1.3
+> 
