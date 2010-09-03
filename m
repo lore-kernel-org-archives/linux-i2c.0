@@ -1,31 +1,26 @@
-From: Linus WALLEIJ <linus.walleij@stericsson.com>
-Subject: RE: [PATCH v2 2/2] i2c: QUP based bus driver for Qualcomm MSM
- chipsets
-Date: Fri, 3 Sep 2010 10:38:08 +0200
-Message-ID: <CEE6BB42CAD6E947908279175AF8470A026B35EA9D@EXDCVYMBSTM006.EQ1STM.local>
-References: <1283470197-21148-1-git-send-email-kheitke@codeaurora.org>
- <1283470197-21148-3-git-send-email-kheitke@codeaurora.org>
+From: Linus WALLEIJ <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: RE: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
+Date: Fri, 3 Sep 2010 10:39:45 +0200
+Message-ID: <CEE6BB42CAD6E947908279175AF8470A026B35EAA3__35408.1727834002$1283504843$gmane$org@EXDCVYMBSTM006.EQ1STM.local>
+References: <4C80692E.80004@dsn.okisemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1283470197-21148-3-git-send-email-kheitke@codeaurora.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C80692E.80004-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kenneth Heitke <kheitke@codeaurora.org>, "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, Srinidhi KASAGAR <srinidhi.kasagar@stericsson.com>
-Cc: "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, Crane Cai <crane.cai@amd.com>, Samuel Ortiz <sameo@linux.intel.com>, Ralf Baechle <ralf@linux-mips.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-urvtwAKJhsc@public.gmane.org>
+Cc: "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-[Kenneth]
+[Masayuki]
 
-> From: Kenneth Heitke [mailto:kheitke@codeaurora.org]
-> Subject: [PATCH v2 2/2] i2c: QUP based bus driver for Qualcomm MSM
-> chipsets
-> (...)
-> +	dev->one_bit_t = USEC_PER_SEC/pdata->bus_freq;
+> We have updated for your comments.
+> Please confirm below.
 
-Maybe you want to use DIV_ROUND_UP() from kernel.h here
-to be on the safe side?
+It's really looking good now! :-)
+Reviewed-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
 Yours,
 Linus Walleij
