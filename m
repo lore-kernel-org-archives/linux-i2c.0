@@ -1,60 +1,560 @@
-From: Kenneth Heitke <kheitke@codeaurora.org>
-Subject: [PATCH v2 1/2] msm: i2c: Add msm_qup_i2c.h
-Date: Thu,  2 Sep 2010 17:44:19 -0600
-Message-ID: <1283471059-22262-2-git-send-email-kheitke@codeaurora.org>
-References: <1283471059-22262-1-git-send-email-kheitke@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1283471059-22262-1-git-send-email-kheitke@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org, ben-linux@fluff.org, srinidhi.kasagar@stericsson.com, tsoni@codeaurora.org
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Kenneth Heitke <kheitke@codeaurora.org>, David Brown <davidb@codeaurora.org>, Daniel Walker <dwalker@codeaurora.org>, Bryan Huntsman <bryanh@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org
+From: "Masayuki Ohtake" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
+Date: Fri, 3 Sep 2010 12:12:40 +0900
+Message-ID: <000501cb4b15$e25f3d80$66f8800a@maildom.okisemi.com>
+References: <4C7DB9CF.5000905@dsn.okisemi.com> <AANLkTik5qxaGAj2-jBYfJjeP43XNep61fxwVXbfVA3J4@mail.gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ML linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Wang Yong Y\"" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Wang Qi\"" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Andrew\"" <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Defines the platform data used by the MSM QUP I2C driver.
+> ----- Original Message ----- 
+> From: "Linus Walleij" <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> To: "Masayuki Ohtak" <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+> Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>; "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>;
+"Crane Cai" <crane.cai-5C7GfCeVMHo@public.gmane.org>; "Samuel Ortiz" <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>; "Ralf Baechle" <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>; "srinidhi
+kasagar" <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>; <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>; "Wang Yong Y""
+<yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Wang Qi"" <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>; "Andrew"" <andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>;
+<arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>; "Tomoya MORINAGA" <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>; "Arnd Bergmann" <arnd-r2nGTMty4D4@public.gmane.org>
+> Sent: Thursday, September 02, 2010 4:44 AM
+> Subject: Re: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
+>
+>
+> 2010/9/1 Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>:
+>
+> > I2C driver of Topcliff PCH
+> > (...)
+> > +++ b/drivers/i2c/busses/i2c-pch.c
+> > (...)
+> > +/**
+> > + * pch_wait_for_bus_idle() - check the status of bus.
+> > + * @adap: Pointer to struct i2c_algo_pch_data.
+> > + * @timeout: waiting time counter (us).
+> > + */
+> > +static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+> > + s32 timeout)
+> > +{
+> > + void __iomem *p = adap->pch_base_address;
+> > +
+> > + /* MAX timeout value is timeout*1000*1000nsec */
+> > + ktime_t ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
+> > + do {
+> > + if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+> > + break;
+> > + msleep(1);
+> > + } while (ktime_lt(ktime_get(), ns_val));
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s : I2CSR = %x\n", __func__, ioread32(p + PCH_I2CSR));
+> > +
+> > + if (timeout == 0) {
+> > + dev_err(adap->pch_adapter.dev.parent,
+> > + "%s :return%d\n", __func__, -ETIME);
+>
+> Why not just return -ETIME; here?
+>
+> > + } else {
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s : return %d\n", __func__, 0);
+> > + }
+>
+> Delete this else clause, who is interested in return 0???
+>
+> > + return ((timeout <= 0) ? (-ETIME) : (0));
+>
+> return 0;
+>
+> > (...)
+> > +/**
+> > + * pch_wait_for_xfer_complete() - initiates a wait for the tx complete event
+> > + * @adap: Pointer to struct i2c_algo_pch_data.
+> > + */
+> > +static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
+> > +{
+> > + s32 ret;
+> > + ret = wait_event_interruptible_timeout(pch_event,
+> > + (adap->pch_event_flag != 0), msecs_to_jiffies(50));
+> > + if (ret < 0)
+> > + goto out;
+>
+> The goto construction is unnecessary, just
+>
+> return ret;
+>
+> > +
+> > + if (ret == 0) {
+> > + ret = -ETIMEDOUT;
+> > + goto out;
+>
+> return -ETIMEDOUT;
+>
+> > + }
+> > +
+> > + if (adap->pch_event_flag & I2C_ERROR_MASK) {
+> > + ret = -EIO;
+> > + dev_err(adap->pch_adapter.dev.parent,
+> > + "error bits set: %x\n", adap->pch_event_flag);
+> > + goto out;
+>
+> Skip ret assignment
+> return -EIO;
+>
+> > + }
+> > +
+> > + adap->pch_event_flag = 0;
+> > + ret = 0;
+>
+> Skip this
+>
+> > +out:
+> > + return ret;
+>
+> return 0;
+>
+> > +}
+> > (...)
+> > +/**
+> > + * pch_getack() - to confirm ACK/NACK
+> > + * @adap: Pointer to struct i2c_algo_pch_data.
+> > + */
+> > +static s32 pch_getack(struct i2c_algo_pch_data *adap)
+> > +{
+> > + u32 reg_val;
+> > + void __iomem *p = adap->pch_base_address;
+> > + reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
+> > +
+> > + if (reg_val == 0)
+> > + dev_dbg(adap->pch_adapter.dev.parent, "%s : return 0\n",
+> > + __func__);
+> > + else
+> > + dev_dbg(adap->pch_adapter.dev.parent, "%s : return%d\n",
+> > + __func__, -EPROTO);
+> > +
+> > + return (((reg_val) == 0) ? (0) : (-EPROTO));
+>
+> Refactor this like the other function, no weirdo debug prints
+> return 0;
+>
+> > +}
+> > (...)
+> > +/**
+> > + * pch_writebytes() - write data to I2C bus in normal mode
+> > + * @i2c_adap: Pointer to the struct i2c_adapter.
+> > + * @last: specifies whether last message or not.
+> > + * In the case of compound mode it will be 1 for last message,
+> > + * otherwise 0.
+> > + * @first: specifies whether first message or not.
+> > + * 1 for first message otherwise 0.
+> > + */
+> > +static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+> > + u32 last, u32 first)
+> > +{
+> > + struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+> > + u8 *buf;
+> > + u32 length;
+> > + u32 addr;
+> > + u32 addr_2_msb;
+> > + u32 addr_8_lsb;
+> > + s32 wrcount;
+>
+> You don't assign anything to wrcount...
+>
+> > + void __iomem *p = adap->pch_base_address;
+> > + length = msgs->len;
+> > + buf = msgs->buf;
+> > + addr = msgs->addr;
+> > + /* enable master tx */
+> > + pch_setbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX_MODE);
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s : I2CCTL = %x msgs->len = %d\n", __func__,
+> > + ioread32(p + PCH_I2CCTL), length);
+> > +
+> > + if (first) {
+> > + if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
+> > + return -ETIME;
+> > + }
+> > +
+> > + if (msgs->flags & I2C_M_TEN) {
+> > + addr_2_msb = ((addr & I2C_MSB_2B_MSK) >> 7);
+> > + iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+> > + if (first)
+> > + pch_start(adap);
+> > + if ((pch_wait_for_xfer_complete(adap) == 0) &&
+> > + (pch_getack(adap) == 0)) {
+> > + addr_8_lsb = (addr & I2C_ADDR_MSK);
+> > + iowrite32(addr_8_lsb, p + PCH_I2CDR);
+> > + } else {
+> > + pch_stop(adap);
+> > + return -ETIME;
+> > + }
+> > + } else {
+> > + /* set 7 bit slave address and R/W bit as 0 */
+> > + iowrite32(addr << 1, p + PCH_I2CDR);
+> > + if (first)
+> > + pch_start(adap);
+> > + }
+> > +
+> > + if ((pch_wait_for_xfer_complete(adap) == 0) &&
+> > + (pch_getack(adap) == 0)) {
+> > + for (wrcount = 0; wrcount < length; ++wrcount) {
+>
+> ...but it is only conditionally used here...
+>
+> > + /* write buffer value to I2C data register */
+> > + iowrite32(buf[wrcount], p + PCH_I2CDR);
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s : writing %x to Data register\n",
+> > + __func__, buf[wrcount]);
+> > +
+> > + if (pch_wait_for_xfer_complete(adap) != 0) {
+> > + wrcount = -ETIME;
+> > + break;
+> > + }
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s return %d", __func__, 0);
+> > +
+> > + if (pch_getack(adap)) {
+> > + wrcount = -ETIME;
+> > + break;
+> > + }
+> > + }
+> > +
+> > + /* check if this is the last message */
+> > + if (last)
+> > + pch_stop(adap);
+> > + else
+> > + pch_repstart(adap);
+> > + } else {
+> > + pch_stop(adap);
+> > + }
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s return=%d\n", __func__, wrcount);
+> > +
+> > + return wrcount;
+>
+> ...and then you return it, leading to a possibly unassigned state.
+>
+> > +}
+> > (...)
+> > +/**
+> > + * pch_readbytes() - read data from I2C bus in normal mode.
+> > + * @i2c_adap: Pointer to the struct i2c_adapter.
+> > + * @msgs: Pointer to i2c_msg structure.
+> > + * @last: specifies whether last message or not.
+> > + * @first: specifies whether first message or not.
+> > + */
+> > +s32 pch_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+> > + u32 last, u32 first)
+> > +{
+> > + struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+> > +
+> > + u8 *buf;
+> > + u32 count;
+>
+> Same problem here. Initialize to 0.
 
-Signed-off-by: Kenneth Heitke <kheitke@codeaurora.org>
----
- arch/arm/mach-msm/include/mach/msm_qup_i2c.h |   28 ++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+), 0 deletions(-)
- create mode 100644 arch/arm/mach-msm/include/mach/msm_qup_i2c.h
+When I submit other patch to upstream,
+a maintainer said "variable shouldn't initialize to 0".
+Thus, we don't do.
+Can you admit above?
 
-diff --git a/arch/arm/mach-msm/include/mach/msm_qup_i2c.h b/arch/arm/mach-msm/include/mach/msm_qup_i2c.h
-new file mode 100644
-index 0000000..e26684b
---- /dev/null
-+++ b/arch/arm/mach-msm/include/mach/msm_qup_i2c.h
-@@ -0,0 +1,28 @@
-+/*
-+ * Qualcomm MSM QUP i2c Controller Platform Data
-+ *
-+ * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 and
-+ * only version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-+ * 02110-1301, USA.
-+ */
-+#ifndef __MSM_QUP_I2C_MSM_H
-+#define __MSM_QUP_I2C_MSM_H
-+
-+struct msm_i2c_platform_data {
-+	int bus_freq;		/* I2C bus frequency (Hz) */
-+	int src_clk_rate;	/* I2C controller clock rate (Hz) */
-+};
-+
-+#endif /* __MSM_QUP_I2C_MSM_H */
--- 
-1.7.1.1
+>
+> > + u32 length;
+> > + u32 addr;
+> > + u32 addr_2_msb;
+> > + void __iomem *p = adap->pch_base_address;
+> > + length = msgs->len;
+> > + buf = msgs->buf;
+> > + addr = msgs->addr;
+> > +
+> > + /* enable master reception */
+> > + pch_clrbit((adap->pch_base_address), PCH_I2CCTL, I2C_TX_MODE);
+> > +
+> > + if (first) {
+> > + if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
+> > + return -ETIME;
+> > + }
+> > +
+> > + if (msgs->flags & I2C_M_TEN) {
+> > + addr_2_msb = (((addr & I2C_MSB_2B_MSK) >> 7) | (I2C_RD));
+> > + iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+> > +
+> > + } else {
+> > + /* 7 address bits + R/W bit */
+> > + addr = (((addr) << 1) | (I2C_RD));
+> > + iowrite32(addr, p + PCH_I2CDR);
+> > + }
+> > +
+> > + /* check if it is the first message */
+> > + if (first)
+> > + pch_start(adap);
+> > +
+> > + if ((pch_wait_for_xfer_complete(adap) == 0)
+> > + && (pch_getack(adap) == 0)) {
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s return %d", __func__, 0);
+> > +
+> > + if (length == 0) {
+> > + pch_stop(adap);
+> > + ioread32(p + PCH_I2CDR); /* Dummy read needs */
+> > +
+> > + count = length;
+> > + } else {
+> > + int read_index;
+> > + int loop;
+> > + pch_sendack(adap);
+> > +
+> > + /* Dummy read */
+> > + for (loop = 1, read_index = 0; loop < length; loop++) {
+> > + buf[read_index] = ioread32(p + PCH_I2CDR);
+> > +
+> > + if (loop != 1)
+> > + read_index++;
+> > +
+> > + if (pch_wait_for_xfer_complete(adap) != 0) {
+> > + pch_stop(adap);
+> > + return -ETIME;
+> > + }
+> > + } /* end for */
+> > +
+> > + pch_sendnack(adap);
+> > +
+> > + buf[read_index] = ioread32(p + PCH_I2CDR);
+> > +
+> > + if (length != 1)
+> > + read_index++;
+> > +
+> > + if (pch_wait_for_xfer_complete(adap) == 0) {
+> > + if (last)
+> > + pch_stop(adap);
+> > + else
+> > + pch_repstart(adap);
+> > +
+> > + buf[read_index++] = ioread32(p + PCH_I2CDR);
+> > + count = read_index;
+> > + } else {
+> > + count = -ETIME;
+> > + }
+> > +
+> > + }
+> > + } else {
+> > + count = -ETIME;
+> > + pch_stop(adap);
+> > + }
+> > +
+> > + return count;
+> > +}
+>
+> > (...)
+> > +/**
+> > + * pch_handler_ch0() - interrupt handler for the PCH I2C controller
+> > + * @irq: irq number.
+> > + * @pData: cookie passed back to the handler function.
+> > + */
+> > +static irqreturn_t pch_handler_ch0(int irq, void *pData)
+> > +{
+> > + s32 reg_val;
+> > +
+> > + struct i2c_algo_pch_data *adap_data = (struct i2c_algo_pch_data *)pData;
+> > + void __iomem *p = adap_data->pch_base_address;
+> > + u32 mode = ioread32(p + PCH_I2CMOD) & (BUFFER_MODE | EEPROM_SR_MODE);
+> > +
+> > + if (mode == NORMAL_MODE) {
+>
+> No.
+>
+> if (mode != NORMAL_MODE) {
+>   dev_err(...)
+>   return IRQ_NONE;
+> }
+>
+> Then de-indent the rest and remove the else clause.
+>
+> > + reg_val = ioread32(p + PCH_I2CSR);
+> > + if (reg_val & (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT))
+> > + pch_cb_ch0(adap_data);
+> > + else
+> > + goto err_out;
+> > + } else {
+> > + dev_err(adap_data->pch_adapter.dev.parent,
+> > + "%s I2C mode is not supported\n", __func__);
+> > + goto err_out;
+> > + }
+> > + return IRQ_HANDLED;
+> > +
+> > +err_out:
+> > + return IRQ_NONE;
+> > +}
+>
+> > (...)
+> > +/**
+> > + * pch_xfer() - Reading adnd writing data through I2C bus
+> > + * @i2c_adap: Pointer to the struct i2c_adapter.
+> > + * @msgs: Pointer to i2c_msg structure.
+> > + * @num: number of messages.
+> > + */
+> > +static s32 pch_xfer(struct i2c_adapter *i2c_adap,
+> > + struct i2c_msg *msgs, s32 num)
+> > +{
+> > + struct i2c_msg *pmsg;
+> > + u32 i;
+> > + u32 status;
+> > + u32 msglen;
+> > + u32 subaddrlen;
+> > + s32 ret;
+> > +
+> > + struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+> > +
+> > + ret = mutex_lock_interruptible(&pch_mutex);
+> > + if (ret) {
+> > + ret = -ERESTARTSYS;
+> > + goto return_err_nomutex;
+> > + }
+> > + if (adap->p_adapter_info->pch_suspended == false) {
+>
+> No.
+>
+> if (adap->p_adapter_info->pch_suspended) {
+>    mutex_unlock(&pch_nomutex);
+>    return -EBUSY;
+> }
+>
+> De-indent the rest and remove the else clause.
+>
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s adap->p_adapter_info->pch_suspended is %d\n",
+> > + __func__, adap->p_adapter_info->pch_suspended);
+> > + /* transfer not completed */
+> > + adap->pch_xfer_in_progress = true;
+> > +
+> > + ret = -EBUSY;
+> > + for (i = 0; i < num; i++) {
+> > + pmsg = &msgs[i];
+> > + pmsg->flags |= adap->pch_buff_mode_en;
+> > + status = pmsg->flags;
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "After invoking I2C_MODE_SEL :flag= 0x%x\n",
+> > + status);
+> > + /* calculate sub address length and message length */
+> > + /* these are applicable only for buffer mode */
+> > + subaddrlen = pmsg->buf[0];
+> > + /* calculate actual message length excluding
+> > + * the sub address fields */
+> > + msglen = (pmsg->len) - (subaddrlen + 1);
+> > + if (status & (I2C_M_RD)) {
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s invoking pch_readbytes\n",
+> > + __func__);
+> > + ret = pch_readbytes(i2c_adap, pmsg,
+> > + (i + 1 == num),
+> > + (i == 0));
+> > + } else {
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "%s invoking pch_writebytes\n",
+> > + __func__);
+> > + ret = pch_writebytes(i2c_adap, pmsg,
+> > + (i + 1 == num),
+> > + (i == 0));
+> > + }
+> > +
+> > + }
+> > +
+> > + adap->pch_xfer_in_progress = false; /* transfer completed */
+> > +
+> > + dev_dbg(adap->pch_adapter.dev.parent,
+> > + "adap->pch_xfer_in_progress is %d\n",
+> > + adap->pch_xfer_in_progress);
+> > + } else {
+> > + ret = -EBUSY;
+> > + }
+> > +
+> > + mutex_unlock(&pch_mutex);
+> > +return_err_nomutex:
+> > + dev_dbg(adap->pch_adapter.dev.parent, "%s return:%d\n\n\n\n",
+> > + __func__, ret);
+> > + return ret;
+> > +}
+>
+> > (...)
+> > +static int __devinit pch_probe(struct pci_dev *pdev,
+> > + const struct pci_device_id *id)
+> > +{
+> > + int i;
+> > + void __iomem *base_addr;
+> > + s32 ret;
+> > + struct adapter_info *adap_info =
+> > + kzalloc((sizeof(struct adapter_info)), GFP_KERNEL);
+> > +
+> > + dev_dbg(&pdev->dev, "Enterred in %s\n", __func__);
+> > +
+> > + if (adap_info == NULL) {
+> > + dev_err(&pdev->dev, "Memory allocation failed FAILED");
+> > + ret = -ENOMEM;
+> > + goto return_err;
+>
+> Just
+> return -ENOMEM;
+>
+> Goto construction unnecessary here.
+>
+> > (...)
+> > +#ifdef CONFIG_PM
+> > +static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
+> > +{
+> > + int i;
+> > + int ret;
+> > +
+> > + struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> > + void __iomem *p = adap_info->pch_data[0].pch_base_address;
+> > +
+> > + adap_info->pch_suspended = true;
+> > +
+> > + for (i = 0; i < PCH_MAX_CHN; i++) {
+> > + while ((adap_info->pch_data[i].pch_xfer_in_progress)) {
+> > + /* It is assumed that any pending transfer will
+> > + * be completed after the delay
+> > + */
+> > + msleep(1);
+> > + }
+>
+> The comment seems to be a lie. It is not assumed that it will
+> be completed at all, because you're sleeping repeatedly until all
+> transfers are completed.
+>
+> What you are doing is you are waiting for channel zero to
+> complete transfers, then channel 1 etc up to channel PCH_MAX_CHN.
+>
+> > + /* Disable the i2c interrupts */
+> > + pch_disbl_int(&adap_info->pch_data[i]);
+> > + }
+> > +
+> > + dev_dbg(&pdev->dev,
+> > + "I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
+> > + "invoked function pch_disbl_int successfully\n",
+> > + ioread32(p + 0x08),
+> > + ioread32(p + 0x30),
+> > + ioread32(p + 0x44));
+> > +
+> > + ret = pci_save_state(pdev);
+> > +
+> > + if (ret) {
+> > + dev_err(&pdev->dev, "pci_save_state failed\n");
+> > + return ret;
+> > + }
+> > +
+> > + pci_enable_wake(pdev, PCI_D3hot, 0);
+> > + pci_disable_device(pdev);
+> > + pci_set_power_state(pdev, pci_choose_state(pdev, state));
+> > +
+> > + return 0;
+> > +}
+>
+>
+> Yours,
+> Linus Walleij
 
---
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Thanks, Ohtake(OKISemi)
