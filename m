@@ -1,46 +1,53 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] I2C: Fix for suspend/resume issue in i2c-core
-Date: Sat, 4 Sep 2010 08:49:19 +0200
-Message-ID: <20100904084919.0040faa0@hyperion.delvare>
-References: <1283219414-8798-1-git-send-email-vishwanath.bs@ti.com>
-	<20100901104052.5967ca25@hyperion.delvare>
-	<FCCFB4CDC6E5564B9182F639FC35608703114DA108@dbde02.ent.ti.com>
-	<201009040110.10858.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201009040110.10858.rjw-KKrjLPT3xs0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: "Sripathy, Vishwanath" <vishwanath.bs-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Basak, Partha" <p-basak2-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+From: Vishwanath BS <vishwanath.bs@ti.com>
+Subject: [PATCH V2] I2C: Fix for suspend/resume issue in i2c-core
+Date: Sat,  4 Sep 2010 14:18:01 +0530
+Message-ID: <1283590081-14593-1-git-send-email-vishwanath.bs@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Vishwanath BS <vishwanath.bs@ti.com>, Partha Basak <p-basak2@ti.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, Kevin Hilman <khilman@deeprootsystems.com>, Ben Dooks <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 4 Sep 2010 01:10:10 +0200, Rafael J. Wysocki wrote:
-> On Friday, September 03, 2010, Sripathy, Vishwanath wrote:
-> > We are seeing one more issue even after making this fix. In summary, after first suspend/resume, CPU Idle no longer works since i2c module is active. 
-> > Basically when the system resumed from the suspend, dpm layer (dpm_resume_end) calls device_resume which intern calls i2c_device_pm_resume (among many other calls). 
-> > i2c_device_pm_resume calls pm_runtime_set_active which brings device to Active state and increases child_count of it's parent. Since the device is active and also it's parent child_count is non 0, these modules will prevent corresponding clock domains to go idle. This will break CPU Idle. This issue happens even if the module was in idle state before performing suspend/resume. In summary, the flow is 
-> > 1. i2c module is idle (let's assume system is idle)
-> > 2. system suspend is initiated by user
-> > 3. i2c_device_pm_suspend gets called which tries to idle i2c, but it's already idled.
-> > 4. system is suspended
-> > 5. system resumed (because of user event/timers)
-> > 6. dpm layer will call i2c_device_pm_resume
-> > 7. i2c_device_pm_resume will enable i2c device by calling pm_runtime_set_active
-> > So at the end of suspend/resume, a device that was idled before is getting enabled unnecessarily at the end.
-> > 
-> > SO I am just wondering is there any real need to call pm_runtime_set_active in resume and pm_runtime_set_suspened in suspend functions?
-> > I just tried suspend/resume and CPU Idle after removing these calls in i2c and it seems to function perfectly fine on OMAP4.
-> 
-> Your analysis appears to be entirely correct.
-> 
-> So, instead of applying the $subject patch it might be better to remove the
-> block that calls pm_runtime_set_active(dev) from i2c_device_pm_resume().
-> 
-> Are there any objections?
+In current i2c core driver, call to pm_runtime_set_active from i2c_device_pm_resume
+will unconditionally enable i2c module and increment child count of the parent.
+Because of this, in CPU Idle path, i2c does not idle, preventing Core to
+enter retention. Also i2c module will not be suspended upon system suspend as
+pm_runtime_set_suspended is not called from i2c_device_pm_suspend.
+This issue is fixed by  removing  pm_runtime_set_active call from resume path which
+is not necessary.
+This fix has been tested on OMAP4430.
 
-No objection. Just send an updated patch and I'll be happy to apply it.
+Signed-off-by: Partha Basak <p-basak2@ti.com>
+Signed-off-by: Vishwanath BS <vishwanath.bs@ti.com>
 
+Cc: Rafael J. Wysocki <rjw@sisk.pl>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: Ben Dooks <ben-linux@fluff.org>
+Cc: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/i2c/i2c-core.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+ mode change 100644 => 100755 drivers/i2c/i2c-core.c
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+old mode 100644
+new mode 100755
+index 6649176..13927d5
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -216,12 +216,6 @@ static int i2c_device_pm_resume(struct device *dev)
+ 	else
+ 		ret = i2c_legacy_resume(dev);
+ 
+-	if (!ret) {
+-		pm_runtime_disable(dev);
+-		pm_runtime_set_active(dev);
+-		pm_runtime_enable(dev);
+-	}
+-
+ 	return ret;
+ }
+ 
 -- 
-Jean Delvare
+1.7.0.4
+
