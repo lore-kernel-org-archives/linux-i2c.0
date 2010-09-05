@@ -1,40 +1,20 @@
-From: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH v2] power supply: add driver for TI BQ20Z75 gas gauge IC
-Date: Sat, 4 Sep 2010 14:00:47 -0700
-Message-ID: <E88A1D35AF5437468E5B14C7C4BA61C702CF4B651C@HQMAIL01.nvidia.com>
-References: <1283448586-14613-1-git-send-email-rklein@nvidia.com>
- <20100902174736.GA28649@oksana.dev.rtsoft.ru>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2] power supply: add driver for TI BQ20Z75 gas gauge IC
+Date: Sun, 5 Sep 2010 09:47:07 +0100
+Message-ID: <20100905084707.GA24817@opensource.wolfsonmicro.com>
+References: <1283448586-14613-1-git-send-email-rklein@nvidia.com> <20100902174736.GA28649@oksana.dev.rtsoft.ru> <E88A1D35AF5437468E5B14C7C4BA61C702CF4B651C@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100902174736.GA28649-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org" <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <E88A1D35AF5437468E5B14C7C4BA61C702CF4B651C@HQMAIL01.nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rhyland Klein <rklein@nvidia.com>
+Cc: Anton Vorontsov <cbouatmailru@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "olof@lixom.net" <olof@lixom.net>, Andrew Chew <AChew@nvidia.com>, "khali@linux-fr.org" <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-TWFyaywgaGF2ZSB5b3UgaGFkIGEgY2hhbmNlIHRvIGRvdWJsZSBjaGVjayBteSBjaGFuZ2VzIGJh
-c2VkIG9uIHRoZSBjb21tZW50cyB5b3UgbWFkZT8gDQoNClRoYW5rcywNClJoeWxhbmQNCg0KLS0t
-LS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEFudG9uIFZvcm9udHNvdiBbbWFpbHRvOmNi
-b3VhdG1haWxydUBnbWFpbC5jb21dIA0KU2VudDogVGh1cnNkYXksIFNlcHRlbWJlciAwMiwgMjAx
-MCAxMDo0OCBBTQ0KVG86IFJoeWxhbmQgS2xlaW4NCkNjOiBsaW51eC1pMmNAdmdlci5rZXJuZWwu
-b3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBvbG9mQGxpeG9tLm5ldDsgQW5kcmV3
-IENoZXc7IGtoYWxpQGxpbnV4LWZyLm9yZzsgYnJvb25pZUBvcGVuc291cmNlLndvbGZzb25taWNy
-by5jb20NClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjJdIHBvd2VyIHN1cHBseTogYWRkIGRyaXZlciBm
-b3IgVEkgQlEyMFo3NSBnYXMgZ2F1Z2UgSUMNCg0KT24gVGh1LCBTZXAgMDIsIDIwMTAgYXQgMTA6
-Mjk6NDZBTSAtMDcwMCwgcmtsZWluQG52aWRpYS5jb20gd3JvdGU6DQo+IEZyb206IFJoeWxhbmQg
-S2xlaW4gPHJrbGVpbkBudmlkaWEuY29tPg0KPiANCj4gdGhpcyBkcml2ZXIgZGVwZW5kcyBvbiBJ
-MkMgYW5kIHVzZXMgU01CVVMgZm9yIGNvbW11bmljYXRpb24gd2l0aCB0aGUgaG9zdC4NCj4gDQo+
-IEFkZHJlc3NlZCBjb21tZW50cyBmcm9tIHJldmlld3MgYnkgTWFyayBCcm93biBhbmQgSmVhbiBE
-ZWx2YXJlLg0KPiAgICogQ2xlYW5lZCB1cCB3aGl0ZXNwYWNlIGFuZCBhbGlnbm1lbnQgaXNzdWVz
-DQo+ICAgKiBjaGFuZ2VkIHJldHVybiBjb2RlcyB0byBtb3JlIGFwcHJvcHJpYXRlIHZhbHVlcw0K
-PiAgICogY2hhbmdlIEtjb25maWcgb3B0aW9uIG5hbWUgdG8gYmUgY29uc2lzdGVudCB3aXRoIGV4
-aXN0aW5nIGRldmljZXMNCj4gICAqIHJlbW92ZWQgZ2xvYmFsIHN0cnVjdCBhbmQgbW92ZWQgdG8g
-ZGV2aWNlIHNwZWNpZmljIGRhdGENCj4gICAqIGNoYW5nZWQgcHJpbnRrIHRvIGRldl9kYmcNCg0K
-VGhlIGRyaXZlciBsb29rcyBnb29kIHRvIG1lLiBCdXQgSSdsbCB3YWl0IGEgZGF5IG9yIHR3byBm
-b3IgSmVhbidzDQphbmQgTWFyaydzIEFja2VkLWJ5IG9yIFJldmlld2VkLWJ5IHRhZ3MgYmVmb3Jl
-IGFwcGx5aW5nLCBqdXN0IHRvDQpnaXZlIHRoZW0gc29tZSBjcmVkaXQgZm9yIHJldml3aW5nIHRo
-aXMgZHJpdmVyLg0KDQpUaGFua3MhDQoNCi0tIA0KQW50b24gVm9yb250c292DQplbWFpbDogY2Jv
-dWF0bWFpbHJ1QGdtYWlsLmNvbQ0KaXJjOi8vaXJjLmZyZWVub2RlLm5ldC9iZDINCg==
+On Sat, Sep 04, 2010 at 02:00:47PM -0700, Rhyland Klein wrote:
+
+> Mark, have you had a chance to double check my changes based on the comments you made? 
+
+Yes: http://lkml.org/lkml/2010/9/3/136
