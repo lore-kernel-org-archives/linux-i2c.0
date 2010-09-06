@@ -1,7 +1,7 @@
 From: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Subject: [MeeGo-Dev][PATCH] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Mon, 06 Sep 2010 10:10:30 +0900
-Message-ID: <4C843F86.3020808@dsn.okisemi.com>
+Date: Mon, 06 Sep 2010 10:31:57 +0900
+Message-ID: <4C84448D.5060801@dsn.okisemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
@@ -13,8 +13,8 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi Alan and Wolfram Sang
 
-We have updated for your indications.
-Please confirm below.
+Sorry, previous patch is invalid patch.
+Please refer this patch.
 
 Thanks, Ohtake (OKISemi)
 ---
@@ -29,13 +29,11 @@ devices connected to I2C.
 
 Signed-off-by: Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Reviewed-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-
-Signed-off-by: Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 ---
  drivers/i2c/busses/Kconfig   |    8 +
  drivers/i2c/busses/Makefile  |    1 +
- drivers/i2c/busses/i2c-pch.c |  929 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 938 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-pch.c |  923 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 932 insertions(+), 0 deletions(-)
  create mode 100644 drivers/i2c/busses/i2c-pch.c
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
@@ -71,10 +69,10 @@ index 936880b..aa04135 100644
  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
 diff --git a/drivers/i2c/busses/i2c-pch.c b/drivers/i2c/busses/i2c-pch.c
 new file mode 100644
-index 0000000..749fcd2
+index 0000000..abaef96
 --- /dev/null
 +++ b/drivers/i2c/busses/i2c-pch.c
-@@ -0,0 +1,929 @@
+@@ -0,0 +1,923 @@
 +/*
 + * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
 + *
@@ -812,7 +810,6 @@ index 0000000..749fcd2
 +static int __devinit pch_probe(struct pci_dev *pdev,
 +			       const struct pci_device_id *id)
 +{
-+	int i;
 +	void __iomem *base_addr;
 +	s32 ret;
 +	struct adapter_info *adap_info =
@@ -895,8 +892,6 @@ index 0000000..749fcd2
 +
 +static void __devexit pch_remove(struct pci_dev *pdev)
 +{
-+	int i;
-+
 +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
 +
 +
@@ -920,9 +915,7 @@ index 0000000..749fcd2
 +#ifdef CONFIG_PM
 +static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
 +{
-+	int i;
 +	int ret;
-+
 +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
 +	void __iomem *p = adap_info->pch_data.pch_base_address;
 +
@@ -956,7 +949,6 @@ index 0000000..749fcd2
 +static int pch_resume(struct pci_dev *pdev)
 +{
 +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+	int i;
 +
 +	pci_set_power_state(pdev, PCI_D0);
 +	pci_restore_state(pdev);
