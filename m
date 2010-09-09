@@ -1,169 +1,118 @@
-From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH] I2C: various updates to the Nomadik I2C controller
-Date: Thu, 9 Sep 2010 14:29:32 +0200
-Message-ID: <1284035372-27994-1-git-send-email-linus.walleij@stericsson.com>
+From: Sundar <sunder.svit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: QUP based bus driver for Qualcomm MSM chipsets
+Date: Fri, 10 Sep 2010 00:31:52 +0530
+Message-ID: <AANLkTimHQ=ag5z+SKbGrm5BD-eF+xcDuKp4R_=4tf3cP@mail.gmail.com>
+References: <1283907557-1874-1-git-send-email-kheitke@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1283907557-1874-1-git-send-email-kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, sdharia-sgV2jX0FEOLY0TyS/+Ba5Q@public.gmane.org, David Brown <davidb-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Daniel Walker <dwalker-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Bryan Huntsman <bryanh-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This applies a few fixes and improvements to the Nomadik I2C
-controller:
-- Add dynamic clocking so the bus is only clocked when it's
-  really necessary.
-- Support SMBUS emulation, drop other flags that are already
-  implied from SMBUS emulation.
-- Fixups for proper timeouts and delays on the controller.
-- Minor coding style and kerneldoc updates.
+Hi Kenneth,
 
-Acked-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |   36 +++++++++++++++++++++---------------
- 1 files changed, 21 insertions(+), 15 deletions(-)
+just some error codes and leaks if I am right :)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 73de8ad..1a3bd22 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (C) 2009 ST-Ericsson
-+ * Copyright (C) 2009 ST-Ericsson SA
-  * Copyright (C) 2009 STMicroelectronics
-  *
-  * I2C master mode controller driver, used in Nomadik 8815
-@@ -103,6 +103,9 @@
- /* maximum threshold value */
- #define MAX_I2C_FIFO_THRESHOLD	15
- 
-+/* delay for i2c transfers */
-+#define I2C_DELAY		150
-+
- enum i2c_status {
- 	I2C_NOP,
- 	I2C_ON_GOING,
-@@ -118,7 +121,7 @@ enum i2c_operation {
- };
- 
- /* controller response timeout in ms */
--#define I2C_TIMEOUT_MS	500
-+#define I2C_TIMEOUT_MS	2000
- 
- /**
-  * struct i2c_nmk_client - client specific data
-@@ -250,6 +253,8 @@ static int init_hw(struct nmk_i2c_dev *dev)
- {
- 	int stat;
- 
-+	clk_enable(dev->clk);
-+
- 	stat = flush_i2c_fifo(dev);
- 	if (stat)
- 		return stat;
-@@ -263,6 +268,9 @@ static int init_hw(struct nmk_i2c_dev *dev)
- 
- 	dev->cli.operation = I2C_NO_OPERATION;
- 
-+	clk_disable(dev->clk);
-+
-+	udelay(I2C_DELAY);
- 	return 0;
- }
- 
-@@ -431,7 +439,6 @@ static int read_i2c(struct nmk_i2c_dev *dev)
- 		(void) init_hw(dev);
- 		status = -ETIMEDOUT;
- 	}
--
- 	return status;
- }
- 
-@@ -502,9 +509,9 @@ static int write_i2c(struct nmk_i2c_dev *dev)
- 
- /**
-  * nmk_i2c_xfer() - I2C transfer function used by kernel framework
-- * @i2c_adap 	- Adapter pointer to the controller
-- * @msgs[] - Pointer to data to be written.
-- * @num_msgs - Number of messages to be executed
-+ * @i2c_adap: Adapter pointer to the controller
-+ * @msgs: Pointer to data to be written.
-+ * @num_msgs: Number of messages to be executed
-  *
-  * This is the function called by the generic kernel i2c_transfer()
-  * or i2c_smbus...() API calls. Note that this code is protected by the
-@@ -559,6 +566,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	if (status)
- 		return status;
- 
-+	clk_enable(dev->clk);
-+
- 	/* setup the i2c controller */
- 	setup_i2c_controller(dev);
- 
-@@ -591,10 +600,13 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 			dev_err(&dev->pdev->dev, "%s\n",
- 				cause >= ARRAY_SIZE(abort_causes)
- 				? "unknown reason" : abort_causes[cause]);
-+			clk_disable(dev->clk);
- 			return status;
- 		}
--		mdelay(1);
-+		udelay(I2C_DELAY);
- 	}
-+	clk_disable(dev->clk);
-+
- 	/* return the no. messages processed */
- 	if (status)
- 		return status;
-@@ -605,6 +617,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- /**
-  * disable_interrupts() - disable the interrupts
-  * @dev: private data of controller
-+ * @irq: interrupt number
-  */
- static int disable_interrupts(struct nmk_i2c_dev *dev, u32 irq)
- {
-@@ -794,10 +807,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 
- static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C
--		| I2C_FUNC_SMBUS_BYTE_DATA
--		| I2C_FUNC_SMBUS_WORD_DATA
--		| I2C_FUNC_SMBUS_I2C_BLOCK;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- }
- 
- static const struct i2c_algorithm nmk_i2c_algo = {
-@@ -857,8 +867,6 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 		goto err_no_clk;
- 	}
- 
--	clk_enable(dev->clk);
--
- 	adap = &dev->adap;
- 	adap->dev.parent = &pdev->dev;
- 	adap->owner	= THIS_MODULE;
-@@ -895,7 +903,6 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 	return 0;
- 
-  err_init_hw:
--	clk_disable(dev->clk);
-  err_add_adap:
- 	clk_put(dev->clk);
-  err_no_clk:
-@@ -928,7 +935,6 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	iounmap(dev->virtbase);
- 	if (res)
- 		release_mem_region(res->start, resource_size(res));
--	clk_disable(dev->clk);
- 	clk_put(dev->clk);
- 	platform_set_drvdata(pdev, NULL);
- 	kfree(dev);
--- 
-1.6.3.3
+On Wed, Sep 8, 2010 at 6:29 AM, Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>=
+ wrote:
+> +
+> +static int __devinit
+> +qup_i2c_probe(struct platform_device *pdev)
+> +{
+> +
+> + =A0 =A0 =A0 qup_mem =3D platform_get_resource_byname(pdev, IORESOUR=
+CE_MEM,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "qup_phys_addr");
+> + =A0 =A0 =A0 if (!qup_mem) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no qup mem resourc=
+e?\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
+
+I think this should be -ENXIO instead of -ENODEV?
+
+> + =A0 =A0 =A0 gsbi_mem =3D platform_get_resource_byname(pdev, IORESOU=
+RCE_MEM,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "gsbi_qup_i2c_addr");
+> + =A0 =A0 =A0 if (!gsbi_mem) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no gsbi mem resour=
+ce?\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
+
+Ditto here.
+
+> + =A0 =A0 =A0 in_irq =3D platform_get_resource_byname(pdev, IORESOURC=
+E_IRQ,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "qup_in_intr");
+> +
+> + =A0 =A0 =A0 out_irq =3D platform_get_resource_byname(pdev, IORESOUR=
+CE_IRQ,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "qup_out_intr");
+> +
+> + =A0 =A0 =A0 err_irq =3D platform_get_resource_byname(pdev, IORESOUR=
+CE_IRQ,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 "qup_err_intr");
+> + =A0 =A0 =A0 if (!err_irq) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no error irq resou=
+rce?\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENODEV;
+> + =A0 =A0 =A0 }
+
+All the same here too?
+
+> +
+> + =A0 =A0 =A0 qup_io =3D devm_request_mem_region(&pdev->dev, qup_mem-=
+>start,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 resource_size(qup_mem),=
+ pdev->name);
+> + =A0 =A0 =A0 if (!qup_io) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "QUP region already=
+ claimed\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 gsbi_io =3D devm_request_mem_region(&pdev->dev, gsbi_me=
+m->start,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 resource_size(gsbi_mem)=
+, pdev->name);
+> + =A0 =A0 =A0 if (!gsbi_io) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "GSBI region alread=
+y claimed\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EBUSY;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev =3D devm_kzalloc(&pdev->dev, sizeof(struct qup_i2c_=
+dev), GFP_KERNEL);
+
+[..]
+
+> + =A0 =A0 =A0 if (!dev->base)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+
+Missing *_kzfree whilst returning?
+
+> + =A0 =A0 =A0 dev->gsbi =3D devm_ioremap(&pdev->dev,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 gsbi_mem->start, resour=
+ce_size(gsbi_mem));
+> + =A0 =A0 =A0 if (!dev->gsbi)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+> +
+> + =A0 =A0 =A0 clk =3D clk_get(&pdev->dev, "qup_clk");
+> + =A0 =A0 =A0 if (IS_ERR(clk)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "Could not get cloc=
+k\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D PTR_ERR(clk);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_clk_get_failed;
+
+Will not the devm_iounmap be needed here?
+
+Thanx!
+Sundar
