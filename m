@@ -1,50 +1,41 @@
-From: Andy Isaacson <adi-3HqRAUrWAWyGglJvpFV4uA@public.gmane.org>
-Subject: Re: [PATCH RFC 1/1] MISC: Broadcom BCM4751 GPS driver
-Date: Mon, 13 Sep 2010 11:55:24 -0700
-Message-ID: <20100913185524.GB24876@hexapodia.org>
-References: <1282572026-14905-1-git-send-email-matti.j.aaltonen@nokia.com> <1282572026-14905-2-git-send-email-matti.j.aaltonen@nokia.com> <1283512047.26985.119.camel@masi.mnp.nokia.com> <20100910185942.GB17794@hexapodia.org> <1284372716.12913.25.camel@masi.mnp.nokia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 05/25] drivers/i2c: Use static const char arrays
+Date: Mon, 13 Sep 2010 12:47:43 -0700
+Message-ID: <b0c83cb1b42c6adf38f6322066fb457693f7ac3b.1284406638.git.joe@perches.com>
+References: <cover.1284406638.git.joe@perches.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1284372716.12913.25.camel-U1ola594hmgZeDAa2SinrdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <cover.1284406638.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 13, 2010 at 01:11:56PM +0300, Matti J. Aaltonen wrote:
-> On Fri, 2010-09-10 at 20:59 +0200, ext Andy Isaacson wrote:
-> > On Fri, Sep 03, 2010 at 02:07:27PM +0300, Matti J. Aaltonen wrote:
-> > > On Mon, 2010-08-23 at 16:00 +0200, Aaltonen Matti.J (Nokia-MS/Tampere)
-> > > wrote:
-> > > > Driver for Broadcom BCM4751 GPS chip.
-> > > 
-> > > I sent this a while ago but didn't get any comments about the code. What
-> > > do you think should something be changed or is it ready to get accepted?
-> > 
-> > It's unlikely to get merged if there's no public documentation of the
-> > protocol it exposes, and no free codebase using the interface.
-> 
-> OK... I'll just mention once again that it's possible to get the
-> specification for free after signing a contract with Nokia. (See:
-> http://www.forum.nokia.com/info/sw.nokia.com/id/b265d3aa-8198-4eb0-a0e3-077748ccea40/MEIF_Specification_License.pdf.html)
-> 
-> Thank You
-> Matti Aaltonen
+Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-stu300.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Thanks for the link, Matti.  I unfortunately don't have time to
-negotiate a legal contract with a large company, verify that the
-contract does not restrict my ability to implement competing products,
-write a libre implementation of a client for the API, and publish it.
-
-If you'd like to see this driver merged, please have Nokia freely
-publish a specification and a libre client -- or at the very least, an
-unobfuscated libre client that can be used by kernel developers to
-verify that future changes to the driver do not break the users.
-
-For example, extending gpsd to understand your proprietary protocol
-would be a good start.  http://gpsd.berlios.de/
-
-Thanks,
--andy
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index 495be45..2f7c09c 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -871,7 +871,7 @@ stu300_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int bus_nr;
+ 	int ret = 0;
+-	char clk_name[] = "I2C0";
++	char clk_name[sizeof("I2Cx")];
+ 
+ 	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
+ 	if (!dev) {
+@@ -881,7 +881,7 @@ stu300_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	bus_nr = pdev->id;
+-	clk_name[3] += (char)bus_nr;
++	sprintf(clk_name, "I2C%c", '0' + bus_nr);
+ 	dev->clk = clk_get(&pdev->dev, clk_name);
+ 	if (IS_ERR(dev->clk)) {
+ 		ret = PTR_ERR(dev->clk);
+-- 
+1.7.3.rc1
