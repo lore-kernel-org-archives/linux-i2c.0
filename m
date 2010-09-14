@@ -1,45 +1,55 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [PATCH] I2C-GPIO: Don't include the asm/gpio.h directly
-Date: Wed, 15 Sep 2010 00:20:26 +0100
-Message-ID: <20100914232026.GB7494@trinity.fluff.org>
-References: <20100914073053.GA15611@july>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 05/25] drivers/i2c: Use static const char arrays
+Date: Wed, 15 Sep 2010 00:23:13 +0100
+Message-ID: <20100914232313.GC7494@trinity.fluff.org>
+References: <cover.1284406638.git.joe@perches.com> <b0c83cb1b42c6adf38f6322066fb457693f7ac3b.1284406638.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100914073053.GA15611@july>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Tejun Heo <tj@kernel.org>, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <b0c83cb1b42c6adf38f6322066fb457693f7ac3b.1284406638.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 14, 2010 at 04:30:53PM +0900, Kyungmin Park wrote:
-> Don't include asm/gpio.h directly. Use the linux/gpio.h.
-> 
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-
-will merge this, unless Jean wants to do it, at the next merge window.
-
+On Mon, Sep 13, 2010 at 12:47:43PM -0700, Joe Perches wrote:
+> Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
 > ---
-> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> index d9aa9a6..0c1cc37 100644
-> --- a/drivers/i2c/busses/i2c-gpio.c
-> +++ b/drivers/i2c/busses/i2c-gpio.c
-> @@ -15,7 +15,7 @@
->  #include <linux/slab.h>
->  #include <linux/platform_device.h>
+>  drivers/i2c/busses/i2c-stu300.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+> index 495be45..2f7c09c 100644
+> --- a/drivers/i2c/busses/i2c-stu300.c
+> +++ b/drivers/i2c/busses/i2c-stu300.c
+> @@ -871,7 +871,7 @@ stu300_probe(struct platform_device *pdev)
+>  	struct resource *res;
+>  	int bus_nr;
+>  	int ret = 0;
+> -	char clk_name[] = "I2C0";
+> +	char clk_name[sizeof("I2Cx")];
 >  
-> -#include <asm/gpio.h>
-> +#include <linux/gpio.h>
+>  	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
+>  	if (!dev) {
+> @@ -881,7 +881,7 @@ stu300_probe(struct platform_device *pdev)
+>  	}
 >  
->  /* Toggle SDA by changing the direction of the pin */
->  static void i2c_gpio_setsda_dir(void *data, int state)
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  	bus_nr = pdev->id;
+> -	clk_name[3] += (char)bus_nr;
+> +	sprintf(clk_name, "I2C%c", '0' + bus_nr);
+>  	dev->clk = clk_get(&pdev->dev, clk_name);
+>  	if (IS_ERR(dev->clk)) {
+>  		ret = PTR_ERR(dev->clk);
 
--- 
+personally, i'd prefer to see snprintf() used, to ensure that this sort
+of thing never goes wrong if people decde to change the string. It is
+a pitty there's no good way of temporarily allocating data an having it
+freed in C.
+
+As such, apologies to Russell about the abuse of the clk_get() call, but
+let's not fix that just now.
+
 -- 
 Ben
 
