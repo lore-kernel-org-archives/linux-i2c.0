@@ -1,54 +1,44 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 05/25] drivers/i2c: Use static const char arrays
-Date: Wed, 15 Sep 2010 00:23:13 +0100
-Message-ID: <20100914232313.GC7494@trinity.fluff.org>
-References: <cover.1284406638.git.joe@perches.com> <b0c83cb1b42c6adf38f6322066fb457693f7ac3b.1284406638.git.joe@perches.com>
+Subject: Re: [PATCH] i2c-mv64xxx: use subsys_initcall for early
+	initialization
+Date: Wed, 15 Sep 2010 00:25:47 +0100
+Message-ID: <20100914232547.GD7494@trinity.fluff.org>
+References: <1284284129-28105-1-git-send-email-mike@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <b0c83cb1b42c6adf38f6322066fb457693f7ac3b.1284406638.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1284284129-28105-1-git-send-email-mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 13, 2010 at 12:47:43PM -0700, Joe Perches wrote:
-> Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+On Sun, Sep 12, 2010 at 11:35:29AM +0200, Mike Rapoport wrote:
+> Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-stu300.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-> index 495be45..2f7c09c 100644
-> --- a/drivers/i2c/busses/i2c-stu300.c
-> +++ b/drivers/i2c/busses/i2c-stu300.c
-> @@ -871,7 +871,7 @@ stu300_probe(struct platform_device *pdev)
->  	struct resource *res;
->  	int bus_nr;
->  	int ret = 0;
-> -	char clk_name[] = "I2C0";
-> +	char clk_name[sizeof("I2Cx")];
->  
->  	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
->  	if (!dev) {
-> @@ -881,7 +881,7 @@ stu300_probe(struct platform_device *pdev)
->  	}
->  
->  	bus_nr = pdev->id;
-> -	clk_name[3] += (char)bus_nr;
-> +	sprintf(clk_name, "I2C%c", '0' + bus_nr);
->  	dev->clk = clk_get(&pdev->dev, clk_name);
->  	if (IS_ERR(dev->clk)) {
->  		ret = PTR_ERR(dev->clk);
+>  drivers/i2c/busses/i2c-mv64xxx.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 
-personally, i'd prefer to see snprintf() used, to ensure that this sort
-of thing never goes wrong if people decde to change the string. It is
-a pitty there's no good way of temporarily allocating data an having it
-freed in C.
+We really should have an i2c_initcall, but it may be difficult to move
+everyone over to it. What would be lovely is some form of dependency
+based initialisation, but that's probably a way off...
 
-As such, apologies to Russell about the abuse of the clk_get() call, but
-let's not fix that just now.
+I'll consider this for the next merge window.
+ 
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 1624206..6f3d084 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -592,7 +592,7 @@ mv64xxx_i2c_exit(void)
+>  	platform_driver_unregister(&mv64xxx_i2c_driver);
+>  }
+>  
+> -module_init(mv64xxx_i2c_init);
+> +subsys_initcall(mv64xxx_i2c_init);
+>  module_exit(mv64xxx_i2c_exit);
+>  
+>  MODULE_AUTHOR("Mark A. Greer <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>");
 
 -- 
 Ben
