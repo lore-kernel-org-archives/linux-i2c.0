@@ -1,977 +1,904 @@
-From: Masayuki Ohtak <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: [MeeGo-Dev][PATCH v2] Topcliff: Update PCH_I2C driver to 2.6.35
-Date: Thu, 16 Sep 2010 17:33:58 +0900
-Message-ID: <4C91D676.8020406__20877.5255051025$1284626166$gmane$org@dsn.okisemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/4] leds: driver for National Semiconductor LP5521 chip
+Date: Thu, 16 Sep 2010 13:12:23 +0300
+Message-ID: <1284631946-5350-2-git-send-email-samu.p.onkalo@nokia.com>
+References: <1284631946-5350-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1284631946-5350-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Crane Cai <crane.cai-5C7GfCeVMHo@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Tomoya MORINAGA <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+To: rpurdie-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I2C driver of Topcliff PCH
+LP5521 chip is three channel led driver with programmable engines.
+Driver provides support for that chip for direct access via led class or
+via programmable engines.
 
-Topcliff PCH is the platform controller hub that is going to be used in
-Intel's upcoming general embedded platform. All IO peripherals in
-Topcliff PCH are actually devices sitting on AMBA bus. 
-Topcliff PCH has I2C I/F. Using this I/F, it is able to access system
-devices connected to I2C.
-
-Signed-off-by: Masayuki Ohtake <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Reviewed-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig   |    8 +
- drivers/i2c/busses/Makefile  |    1 +
- drivers/i2c/busses/i2c-pch.c |  908 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 917 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-pch.c
+ drivers/leds/leds-lp5521.c  |  820 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/leds-lp5521.h |   46 +++
+ 2 files changed, 866 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/leds/leds-lp5521.c
+ create mode 100644 include/linux/leds-lp5521.h
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index bceafbf..b7b132d 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -613,6 +613,14 @@ config I2C_XILINX
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called xilinx_i2c.
- 
-+config PCH_I2C
-+	tristate "PCH I2C of Intel Topcliff"
-+	depends on PCI
-+	help
-+	  This driver is for PCH(Platform controller Hub) I2C of Topcliff which
-+	  is an IOH(Input/Output Hub) for x86 embedded processor.
-+	  This driver can access PCH I2C bus device.
-+
- comment "External I2C/SMBus adapter drivers"
- 
- config I2C_PARPORT
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 936880b..aa04135 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -59,6 +59,7 @@ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
-+obj-$(CONFIG_PCH_I2C)		+= i2c-pch.o
- 
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
-diff --git a/drivers/i2c/busses/i2c-pch.c b/drivers/i2c/busses/i2c-pch.c
+diff --git a/drivers/leds/leds-lp5521.c b/drivers/leds/leds-lp5521.c
 new file mode 100644
-index 0000000..37491d7
+index 0000000..f57adb0
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-pch.c
-@@ -0,0 +1,908 @@
++++ b/drivers/leds/leds-lp5521.c
+@@ -0,0 +1,820 @@
 +/*
-+ * Copyright (C) 2010 OKI SEMICONDUCTOR Co., LTD.
++ * LP5521 LED chip driver.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
++ * Copyright (C) 2010 Nokia Corporation
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
++ * General Public License for more details.
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA.
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++ * 02110-1301 USA
 + */
 +
 +#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/delay.h>
 +#include <linux/init.h>
-+#include <linux/errno.h>
 +#include <linux/i2c.h>
-+#include <linux/fs.h>
-+#include <linux/io.h>
-+#include <linux/types.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/pci.h>
 +#include <linux/mutex.h>
-+#include <linux/ktime.h>
++#include <linux/gpio.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/ctype.h>
++#include <linux/spinlock.h>
++#include <linux/wait.h>
++#include <linux/leds.h>
++#include <linux/leds-lp5521.h>
++#include <linux/workqueue.h>
++#include <linux/slab.h>
 +
-+#define PCH_EVENT_SET	0	/* I2C Interrupt Event Set Status */
-+#define PCH_EVENT_NONE	1	/* I2C Interrupt Event Clear Status */
-+#define PCH_MAX_CLK		100000	/* Maximum Clock speed in MHz */
-+#define PCH_BUFFER_MODE_ENABLE	0x0002	/* flag for Buffer mode enable */
-+#define PCH_EEPROM_SW_RST_MODE_ENABLE	0x0008	/* EEPROM SW RST enable flag */
++#define LP5521_PROGRAM_LENGTH		32	/* in bytes */
 +
-+#define PCH_I2CSADR	0x00	/* I2C slave address register */
-+#define PCH_I2CCTL	0x04	/* I2C control register */
-+#define PCH_I2CSR	0x08	/* I2C status register */
-+#define PCH_I2CDR	0x0C	/* I2C data register */
-+#define PCH_I2CMON	0x10	/* I2C bus monitor register */
-+#define PCH_I2CBC	0x14	/* I2C bus transfer rate setup counter */
-+#define PCH_I2CMOD	0x18	/* I2C mode register */
-+#define PCH_I2CBUFSLV	0x1C	/* I2C buffer mode slave address register */
-+#define PCH_I2CBUFSUB	0x20	/* I2C buffer mode subaddress register */
-+#define PCH_I2CBUFFOR	0x24	/* I2C buffer mode format register */
-+#define PCH_I2CBUFCTL	0x28	/* I2C buffer mode control register */
-+#define PCH_I2CBUFMSK	0x2C	/* I2C buffer mode interrupt mask register */
-+#define PCH_I2CBUFSTA	0x30	/* I2C buffer mode status register */
-+#define PCH_I2CBUFLEV	0x34	/* I2C buffer mode level register */
-+#define PCH_I2CESRFOR	0x38	/* EEPROM software reset mode format register */
-+#define PCH_I2CESRCTL	0x3C	/* EEPROM software reset mode ctrl register */
-+#define PCH_I2CESRMSK	0x40	/* EEPROM software reset mode */
-+#define PCH_I2CESRSTA	0x44	/* EEPROM software reset mode status register */
-+#define PCH_I2CTMR	0x48	/* I2C timer register */
-+#define PCH_I2CSRST	0xFC	/* I2C reset register */
-+#define PCH_I2CNF	0xF8	/* I2C noise filter register */
++#define LP5521_MAX_LEDS			3	/* Maximum number of LEDs */
++#define LP5521_MAX_ENGINES		3	/* Maximum number of engines */
 +
-+#define BUS_IDLE_TIMEOUT	20
-+#define PCH_I2CCTL_I2CMEN	0x0080
-+#define TEN_BIT_ADDR_DEFAULT	0xF000
-+#define TEN_BIT_ADDR_MASK	0xF0
-+#define PCH_START		0x0020
-+#define PCH_ESR_START		0x0001
-+#define PCH_BUFF_START		0x1
-+#define PCH_REPSTART		0x0004
-+#define PCH_ACK			0x0008
-+#define PCH_GETACK		0x0001
-+#define CLR_REG			0x0
-+#define I2C_RD			0x1
-+#define I2CMCF_BIT		0x0080
-+#define I2CMIF_BIT		0x0002
-+#define I2CMAL_BIT		0x0010
-+#define I2CBMFI_BIT		0x0001
-+#define I2CBMAL_BIT		0x0002
-+#define I2CBMNA_BIT		0x0004
-+#define I2CBMTO_BIT		0x0008
-+#define I2CBMIS_BIT		0x0010
-+#define I2CESRFI_BIT		0X0001
-+#define I2CESRTO_BIT		0x0002
-+#define I2CESRFIIE_BIT		0x1
-+#define I2CESRTOIE_BIT		0x2
-+#define I2CBMDZ_BIT		0x0040
-+#define I2CBMAG_BIT		0x0020
-+#define I2CMBB_BIT		0x0020
-+#define BUFFER_MODE_MASK	(I2CBMFI_BIT | I2CBMAL_BIT | I2CBMNA_BIT | \
-+				I2CBMTO_BIT | I2CBMIS_BIT)
-+#define I2C_ADDR_MSK		0xFF
-+#define I2C_MSB_2B_MSK		0x300
-+#define FAST_MODE_CLK		400
-+#define FAST_MODE_EN		0x0001
-+#define SUB_ADDR_LEN_MAX	4
-+#define BUF_LEN_MAX		32
-+#define PCH_BUFFER_MODE		0x1
-+#define EEPROM_SW_RST_MODE	0x0002
-+#define NORMAL_INTR_ENBL	0x0300
-+#define EEPROM_RST_INTR_ENBL	(I2CESRFIIE_BIT | I2CESRTOIE_BIT)
-+#define EEPROM_RST_INTR_DISBL	0x0
-+#define BUFFER_MODE_INTR_ENBL	0x001F
-+#define BUFFER_MODE_INTR_DISBL	0x0
-+#define NORMAL_MODE		0x0
-+#define BUFFER_MODE		0x1
-+#define EEPROM_SR_MODE		0x2
-+#define I2C_TX_MODE		0x0010
-+#define PCH_BUF_TX		0xFFF7
-+#define PCH_BUF_RD		0x0008
-+#define I2C_ERROR_MASK	(I2CESRTO_EVENT | I2CBMIS_EVENT | I2CBMTO_EVENT | \
-+			I2CBMNA_EVENT | I2CBMAL_EVENT | I2CMAL_EVENT)
-+#define I2CMAL_EVENT		0x0001
-+#define I2CMCF_EVENT		0x0002
-+#define I2CBMFI_EVENT		0x0004
-+#define I2CBMAL_EVENT		0x0008
-+#define I2CBMNA_EVENT		0x0010
-+#define I2CBMTO_EVENT		0x0020
-+#define I2CBMIS_EVENT		0x0040
-+#define I2CESRFI_EVENT		0x0080
-+#define I2CESRTO_EVENT		0x0100
-+#define PCI_DEVICE_ID_PCH_I2C	0x8817
++#define LP5521_ENG_MASK_BASE		0x30	/* 00110000 */
++#define LP5521_ENG_STATUS_MASK		0x07	/* 00000111 */
 +
-+#define pch_dbg(adap, fmt, arg...)  \
-+	dev_dbg(adap->pch_adapter.dev.parent, "%s :" fmt, __func__, ##arg)
++#define LP5521_CMD_LOAD			0x15	/* 00010101 */
++#define LP5521_CMD_RUN			0x2a	/* 00101010 */
++#define LP5521_CMD_DIRECT		0x3f	/* 00111111 */
++#define LP5521_CMD_DISABLED		0x00	/* 00000000 */
 +
-+#define pch_err(adap, fmt, arg...)  \
-+	dev_err(adap->pch_adapter.dev.parent, "%s :" fmt, __func__, ##arg)
++/* Registers */
++#define LP5521_REG_ENABLE		0x00
++#define LP5521_REG_OP_MODE		0x01
++#define LP5521_REG_R_PWM		0x02
++#define LP5521_REG_G_PWM		0x03
++#define LP5521_REG_B_PWM		0x04
++#define LP5521_REG_R_CURRENT		0x05
++#define LP5521_REG_G_CURRENT		0x06
++#define LP5521_REG_B_CURRENT		0x07
++#define LP5521_REG_CONFIG		0x08
++#define LP5521_REG_R_CHANNEL_PC		0x09
++#define LP5521_REG_G_CHANNEL_PC		0x0A
++#define LP5521_REG_B_CHANNEL_PC		0x0B
++#define LP5521_REG_STATUS		0x0C
++#define LP5521_REG_RESET		0x0D
++#define LP5521_REG_GPO			0x0E
++#define LP5521_REG_R_PROG_MEM		0x10
++#define LP5521_REG_G_PROG_MEM		0x30
++#define LP5521_REG_B_PROG_MEM		0x50
 +
-+#define pch_pci_err(pdev, fmt, arg...)  \
-+	dev_err(&pdev->dev, "%s :" fmt, __func__, ##arg)
++#define LP5521_PROG_MEM_BASE		LP5521_REG_R_PROG_MEM
++#define LP5521_PROG_MEM_SIZE		0x20
 +
-+#define pch_pci_dbg(pdev, fmt, arg...)  \
-+	dev_dbg(&pdev->dev, "%s :" fmt, __func__, ##arg)
++/* Base register to set LED current */
++#define LP5521_REG_LED_CURRENT_BASE	LP5521_REG_R_CURRENT
 +
-+/**
-+ * struct i2c_algo_pch_data - for I2C driver functionalities
-+ * @p_adapter_info:		stores the reference to adapter_info structure
-+ * @pch_adapter:		stores the reference to i2c_adapter structure
-+ * @pch_base_address:		specifies the remapped base address
-+ * @pch_buff_mode_en:		specifies if buffer mode is enabled
-+ * @pch_event_flag:		specifies occurrence of interrupt events
-+ * @pch_xfer_in_progress:	specifies whether the transfer is completed
-+ */
-+struct i2c_algo_pch_data {
-+	struct adapter_info *p_adapter_info;
-+	struct i2c_adapter pch_adapter;
-+	void __iomem *pch_base_address;
-+	int pch_buff_mode_en;
-+	u32 pch_event_flag;
-+	bool pch_xfer_in_progress;
++/* Base register to set the brightness */
++#define LP5521_REG_LED_PWM_BASE		LP5521_REG_R_PWM
++
++/* Bits in ENABLE register */
++#define LP5521_MASTER_ENABLE		0x40	/* Chip master enable */
++#define LP5521_LOGARITHMIC_PWM		0x80	/* Logarithmic PWM adjustment */
++#define LP5521_EXEC_RUN			0x2A
++
++/* Bits in CONFIG register */
++#define LP5521_PWM_HF			0x40	/* PWM: 0 = 256Hz, 1 = 558Hz */
++#define LP5521_PWRSAVE_EN		0x20	/* 1 = Power save mode */
++#define LP5521_CP_MODE_OFF		0	/* Charge pump (CP) off */
++#define LP5521_CP_MODE_BYPASS		8	/* CP forced to bypass mode */
++#define LP5521_CP_MODE_1X5		0x10	/* CP forced to 1.5x mode */
++#define LP5521_CP_MODE_AUTO		0x18	/* Automatic mode selection */
++#define LP5521_R_TO_BATT		4	/* R out: 0 = CP, 1 = Vbat */
++#define LP5521_CLK_SRC_EXT		0	/* Ext-clk source (CLK_32K) */
++#define LP5521_CLK_INT			1	/* Internal clock */
++#define LP5521_CLK_AUTO			2	/* Automatic clock selection */
++
++/* Status */
++#define LP5521_EXT_CLK_USED		0x08
++
++struct lp5521_engine {
++	const struct attribute_group *attributes;
++	int		id;
++	u8		mode;
++	u8		prog_page;
++	u8		engine_mask;
 +};
 +
-+/**
-+ * struct adapter_info - This structure holds the adapter information for the
-+			 PCH i2c controller
-+ * @pch_data:		stores a list of i2c_algo_pch_data
-+ * @pch_suspended:	specifies whether the system is suspended or not
-+ *			perhaps with more lines and words.
-+ *
-+ * pch_data has as many elements as maximum I2C channels
-+ */
-+struct adapter_info {
-+	struct i2c_algo_pch_data pch_data;
-+	bool pch_suspended;
++struct lp5521_led {
++	int			id;
++	u8			chan_nr;
++	u8			led_current;
++	u8			max_current;
++	struct led_classdev	cdev;
++	struct work_struct	brightness_work;
++	u8			brightness;
 +};
 +
-+
-+static int pch_i2c_speed = 100; /* I2C bus speed in Kbps */
-+static int pch_clk = 50000;	/* specifies I2C clock speed in KHz */
-+static wait_queue_head_t pch_event;
-+static DEFINE_MUTEX(pch_mutex);
-+
-+static struct pci_device_id __devinitdata pch_pcidev_id[] = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_PCH_I2C)},
-+	{0,}
++struct lp5521_chip {
++	struct lp5521_platform_data *pdata;
++	struct mutex		lock; /* Serialize control */
++	struct i2c_client	*client;
++	struct lp5521_engine	engines[LP5521_MAX_ENGINES];
++	struct lp5521_led	leds[LP5521_MAX_LEDS];
++	u8			num_channels;
++	u8			num_leds;
 +};
 +
-+static irqreturn_t pch_handler(int irq, void *pData);
++#define cdev_to_led(c)		container_of(c, struct lp5521_led, cdev)
++#define engine_to_lp5521(eng)	container_of((eng), struct lp5521_chip, \
++						engines[(eng)->id - 1])
++#define led_to_lp5521(led)	container_of((led), struct lp5521_chip, \
++						leds[(led)->id])
 +
-+static inline void pch_setbit(void __iomem *addr, u32 offset, u32 bitmask)
++static void lp5521_led_brightness_work(struct work_struct *work);
++
++static inline int lp5521_write(struct i2c_client *client, u8 reg, u8 value)
 +{
-+	u32 val;
-+	val = ioread32(addr + offset);
-+	val |= bitmask;
-+	iowrite32(val, addr + offset);
++	return i2c_smbus_write_byte_data(client, reg, value);
 +}
 +
-+static inline void pch_clrbit(void __iomem *addr, u32 offset, u32 bitmask)
-+{
-+	u32 val;
-+	val = ioread32(addr + offset);
-+	val &= (~bitmask);
-+	iowrite32(val, addr + offset);
-+}
-+
-+/**
-+ * pch_init() - hardware initialization of I2C module
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_init(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	u32 pch_i2cbc;
-+	u32 pch_i2ctmr;
-+	u32 reg_value;
-+
-+	/* reset I2C controller */
-+	iowrite32(0x01, p + PCH_I2CSRST);
-+	iowrite32(0x0, p + PCH_I2CSRST);
-+	/* Initialize I2C registers */
-+	iowrite32(CLR_REG, p + PCH_I2CCTL);
-+	iowrite32(CLR_REG, p + PCH_I2CMOD);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFFOR);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFSLV);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFSUB);
-+	iowrite32(CLR_REG, p + PCH_I2CBUFMSK);
-+	iowrite32(CLR_REG, p + PCH_I2CESRFOR);
-+	iowrite32(CLR_REG, p + PCH_I2CESRMSK);
-+	iowrite32(0x21, p + PCH_I2CNF);
-+
-+	reg_value = PCH_I2CCTL_I2CMEN;
-+	pch_setbit(adap->pch_base_address, PCH_I2CCTL,
-+			  PCH_I2CCTL_I2CMEN);
-+
-+	if (pch_i2c_speed != 400)
-+		pch_i2c_speed = 100;
-+
-+	if (pch_i2c_speed == FAST_MODE_CLK) {
-+		reg_value |= FAST_MODE_EN;
-+		pch_dbg(adap, "Fast mode enabled\n");
-+	}
-+
-+	if (pch_clk <= 0 || pch_clk > PCH_MAX_CLK)
-+		pch_clk = 62500;
-+
-+	pch_i2cbc = (pch_clk + (pch_i2c_speed * 4)) / pch_i2c_speed * 8;
-+	/* Set transfer speed in I2CBC */
-+	iowrite32(pch_i2cbc, p + PCH_I2CBC);
-+
-+	pch_i2ctmr = (pch_clk) / 8;
-+	iowrite32(pch_i2ctmr, p + PCH_I2CTMR);
-+
-+	reg_value |= NORMAL_INTR_ENBL;	/* Enable interrupts in normal mode */
-+	iowrite32(reg_value, p + PCH_I2CCTL);
-+
-+	pch_dbg(adap,
-+		"I2CCTL=%x pch_i2cbc=%x pch_i2ctmr=%x Enable interrupts\n",
-+		ioread32(p + PCH_I2CCTL), pch_i2cbc, pch_i2ctmr);
-+
-+	init_waitqueue_head(&pch_event);
-+}
-+
-+static inline int ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
-+{
-+	return cmp1.tv64 < cmp2.tv64;
-+}
-+
-+/**
-+ * pch_wait_for_bus_idle() - check the status of bus.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ * @timeout:	waiting time counter (us).
-+ */
-+static s32 pch_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
-+				 s32 timeout)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+
-+	/* MAX timeout value is timeout*1000*1000nsec */
-+	ktime_t ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
-+	do {
-+		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
-+			break;
-+		msleep(1);
-+	} while (ktime_lt(ktime_get(), ns_val));
-+
-+	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
-+
-+	if (timeout == 0) {
-+		pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
-+		return -ETIME;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * pch_start() - Generate I2C start condition in normal mode.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ *
-+ * Generate I2C start condition in normal mode by setting I2CCTL.I2CMSTA to 1.
-+ */
-+static void pch_start(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit(adap->pch_base_address, PCH_I2CCTL, PCH_START);
-+}
-+
-+/**
-+ * pch_wait_for_xfer_complete() - initiates a wait for the tx complete event
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static s32 pch_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
++static int lp5521_read(struct i2c_client *client, u8 reg, u8 *buf)
 +{
 +	s32 ret;
-+	ret = wait_event_timeout(pch_event,
-+			(adap->pch_event_flag != 0), msecs_to_jiffies(50));
-+	if (ret < 0) {
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
-+		return ret;
-+	}
 +
-+	if (ret == 0) {
-+		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
-+		return -ETIMEDOUT;
-+	}
-+
-+	if (adap->pch_event_flag & I2C_ERROR_MASK) {
-+		pch_err(adap, "error bits set: %x\n", adap->pch_event_flag);
++	ret = i2c_smbus_read_byte_data(client, reg);
++	if (ret < 0)
 +		return -EIO;
-+	}
 +
-+	adap->pch_event_flag = 0;
-+	ret = 0;
-+
-+	return ret;
-+}
-+
-+/**
-+ * pch_getack() - to confirm ACK/NACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static s32 pch_getack(struct i2c_algo_pch_data *adap)
-+{
-+	u32 reg_val;
-+	void __iomem *p = adap->pch_base_address;
-+	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
-+
-+	if (reg_val != 0) {
-+		pch_err(adap, "return%d\n", -EPROTO);
-+		return -EPROTO;
-+	}
-+
++	*buf = ret;
 +	return 0;
 +}
 +
-+/**
-+ * pch_stop() - generate stop condition in normal mode.
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_stop(struct i2c_algo_pch_data *adap)
++static int lp5521_set_engine_mode(struct lp5521_engine *engine, u8 mode)
 +{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	/* clear the start bit */
-+	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, PCH_START);
-+}
++	struct lp5521_chip *chip = engine_to_lp5521(engine);
++	struct i2c_client *client = chip->client;
++	int ret;
++	u8 engine_state;
 +
-+/**
-+ * pch_repstart() - generate repeated start condition in normal mode
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_repstart(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit(adap->pch_base_address, PCH_I2CCTL, PCH_REPSTART);
-+}
++	/* Only transition between RUN and DIRECT mode are handled here */
++	if (mode == LP5521_CMD_LOAD)
++		return 0;
 +
-+/**
-+ * pch_writebytes() - write data to I2C bus in normal mode
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @last:	specifies whether last message or not.
-+ *		In the case of compound mode it will be 1 for last message,
-+ *		otherwise 0.
-+ * @first:	specifies whether first message or not.
-+ *		1 for first message otherwise 0.
-+ */
-+static s32 pch_writebytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
-+			  u32 last, u32 first)
-+{
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+	u8 *buf;
-+	u32 length;
-+	u32 addr;
-+	u32 addr_2_msb;
-+	u32 addr_8_lsb;
-+	s32 wrcount;
-+	void __iomem *p = adap->pch_base_address;
++	if (mode == LP5521_CMD_DISABLED)
++		mode = LP5521_CMD_DIRECT;
 +
-+	length = msgs->len;
-+	buf = msgs->buf;
-+	addr = msgs->addr;
++	ret = lp5521_read(client, LP5521_REG_OP_MODE, &engine_state);
 +
-+	/* enable master tx */
-+	pch_setbit(adap->pch_base_address, PCH_I2CCTL, I2C_TX_MODE);
-+
-+	pch_dbg(adap, "I2CCTL = %x msgs->len = %d\n", ioread32(p + PCH_I2CCTL),
-+		length);
-+
-+	if (first) {
-+		if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
-+			return -ETIME;
-+	}
-+
-+	if (msgs->flags & I2C_M_TEN) {
-+		addr_2_msb = ((addr & I2C_MSB_2B_MSK) >> 7);
-+		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
-+		if (first)
-+			pch_start(adap);
-+		if (pch_wait_for_xfer_complete(adap) == 0 &&
-+		    pch_getack(adap) == 0) {
-+			addr_8_lsb = (addr & I2C_ADDR_MSK);
-+			iowrite32(addr_8_lsb, p + PCH_I2CDR);
-+		} else {
-+			pch_stop(adap);
-+			return -ETIME;
-+		}
-+	} else {
-+		/* set 7 bit slave address and R/W bit as 0 */
-+		iowrite32(addr << 1, p + PCH_I2CDR);
-+		if (first)
-+			pch_start(adap);
-+	}
-+
-+	if ((pch_wait_for_xfer_complete(adap) == 0) &&
-+	    (pch_getack(adap) == 0)) {
-+		for (wrcount = 0; wrcount < length; ++wrcount) {
-+			/* write buffer value to I2C data register */
-+			iowrite32(buf[wrcount], p + PCH_I2CDR);
-+			pch_dbg(adap, "writing %x to Data register\n",
-+				buf[wrcount]);
-+
-+			if (pch_wait_for_xfer_complete(adap) != 0)
-+				return -ETIME;
-+
-+			if (pch_getack(adap))
-+				return -EIO;
-+		}
-+
-+		/* check if this is the last message */
-+		if (last)
-+			pch_stop(adap);
-+		else
-+			pch_repstart(adap);
-+	} else {
-+		pch_stop(adap);
-+		return -EIO;
-+	}
-+
-+	pch_dbg(adap, "return=%d\n", wrcount);
-+
-+	return wrcount;
-+}
-+
-+/**
-+ * pch_sendack() - send ACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_sendack(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, PCH_ACK);
-+}
-+
-+/**
-+ * pch_sendnack() - send NACK
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_sendnack(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
-+	pch_dbg(adap, "I2CCTL = %x\n", ioread32(p + PCH_I2CCTL));
-+	pch_setbit(adap->pch_base_address, PCH_I2CCTL, PCH_ACK);
-+}
-+
-+/**
-+ * pch_readbytes() - read data  from I2C bus in normal mode.
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @msgs:	Pointer to i2c_msg structure.
-+ * @last:	specifies whether last message or not.
-+ * @first:	specifies whether first message or not.
-+ */
-+s32 pch_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
-+		  u32 last, u32 first)
-+{
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+
-+	u8 *buf;
-+	u32 count;
-+	u32 length;
-+	u32 addr;
-+	u32 addr_2_msb;
-+	void __iomem *p = adap->pch_base_address;
-+
-+	length = msgs->len;
-+	buf = msgs->buf;
-+	addr = msgs->addr;
-+
-+	/* enable master reception */
-+	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, I2C_TX_MODE);
-+
-+	if (first) {
-+		if (pch_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
-+			return -ETIME;
-+	}
-+
-+	if (msgs->flags & I2C_M_TEN) {
-+		addr_2_msb = (((addr & I2C_MSB_2B_MSK) >> 7) | (I2C_RD));
-+		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
-+
-+	} else {
-+		/* 7 address bits + R/W bit */
-+		addr = (((addr) << 1) | (I2C_RD));
-+		iowrite32(addr, p + PCH_I2CDR);
-+	}
-+
-+	/* check if it is the first message */
-+	if (first)
-+		pch_start(adap);
-+
-+	if ((pch_wait_for_xfer_complete(adap) == 0) &&
-+	    (pch_getack(adap) == 0)) {
-+		pch_dbg(adap, "return %d\n", 0);
-+
-+		if (length == 0) {
-+			pch_stop(adap);
-+			ioread32(p + PCH_I2CDR); /* Dummy read needs */
-+
-+			count = length;
-+		} else {
-+			int read_index;
-+			int loop;
-+			pch_sendack(adap);
-+
-+			/* Dummy read */
-+			for (loop = 1, read_index = 0; loop < length; loop++) {
-+				buf[read_index] = ioread32(p + PCH_I2CDR);
-+
-+				if (loop != 1)
-+					read_index++;
-+
-+				if (pch_wait_for_xfer_complete(adap) != 0) {
-+					pch_stop(adap);
-+					return -ETIME;
-+				}
-+			}	/* end for */
-+
-+			pch_sendnack(adap);
-+
-+			buf[read_index] = ioread32(p + PCH_I2CDR);
-+
-+			if (length != 1)
-+				read_index++;
-+
-+			if (pch_wait_for_xfer_complete(adap) == 0) {
-+				if (last)
-+					pch_stop(adap);
-+				else
-+					pch_repstart(adap);
-+
-+				buf[read_index++] = ioread32(p + PCH_I2CDR);
-+				count = read_index;
-+			} else {
-+				count = -ETIME;
-+			}
-+
-+		}
-+	} else {
-+		count = -ETIME;
-+		pch_stop(adap);
-+	}
-+
-+	return count;
-+}
-+
-+/**
-+ * pch_cb_ch0() - Interrupt handler Call back function
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_cb_ch0(struct i2c_algo_pch_data *adap)
-+{
-+	u32 sts;
-+	void __iomem *p = adap->pch_base_address;
-+
-+	sts = ioread32(p + PCH_I2CSR);
-+	sts &= (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT);
-+	if (I2CMAL_BIT & sts)
-+		adap->pch_event_flag |= I2CMAL_EVENT;
-+
-+	if (I2CMCF_BIT & sts)
-+		adap->pch_event_flag |= I2CMCF_EVENT;
-+
-+	/* clear the applicable bits */
-+	pch_clrbit(adap->pch_base_address, PCH_I2CSR, sts);
-+
-+	pch_dbg(adap, "PCH_I2CSR = %x\n", ioread32(p + PCH_I2CSR));
-+
-+	wake_up(&pch_event);
-+}
-+
-+/**
-+ * pch_handler() - interrupt handler for the PCH I2C controller
-+ * @irq:	irq number.
-+ * @pData:	cookie passed back to the handler function.
-+ */
-+static irqreturn_t pch_handler(int irq, void *pData)
-+{
-+	s32 reg_val;
-+
-+	struct i2c_algo_pch_data *adap_data = (struct i2c_algo_pch_data *)pData;
-+	void __iomem *p = adap_data->pch_base_address;
-+	u32 mode = ioread32(p + PCH_I2CMOD) & (BUFFER_MODE | EEPROM_SR_MODE);
-+
-+	if (mode != NORMAL_MODE) {
-+		pch_err(adap_data, "I2C mode is not supported\n");
-+		return IRQ_NONE;
-+	}
-+
-+	reg_val = ioread32(p + PCH_I2CSR);
-+	if (reg_val & (I2CMAL_BIT | I2CMCF_BIT | I2CMIF_BIT))
-+		pch_cb_ch0(adap_data);
-+	else
-+		return IRQ_NONE;
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/**
-+ * pch_xfer() - Reading adnd writing data through I2C bus
-+ * @i2c_adap:	Pointer to the struct i2c_adapter.
-+ * @msgs:	Pointer to i2c_msg structure.
-+ * @num:	number of messages.
-+ */
-+static s32 pch_xfer(struct i2c_adapter *i2c_adap,
-+		    struct i2c_msg *msgs, s32 num)
-+{
-+	struct i2c_msg *pmsg;
-+	u32 i;
-+	u32 status;
-+	u32 msglen;
-+	u32 subaddrlen;
-+	s32 ret;
-+
-+	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
-+
-+	ret = mutex_lock_interruptible(&pch_mutex);
-+	if (ret)
-+		return -ERESTARTSYS;
-+
-+	if (adap->p_adapter_info->pch_suspended) {
-+		mutex_unlock(&pch_mutex);
-+		return -EBUSY;
-+	}
-+
-+	pch_dbg(adap, "adap->p_adapter_info->pch_suspended is %d\n",
-+		adap->p_adapter_info->pch_suspended);
-+	/* transfer not completed */
-+	adap->pch_xfer_in_progress = true;
-+
-+	pmsg = &msgs[0];
-+	pmsg->flags |= adap->pch_buff_mode_en;
-+	status = pmsg->flags;
-+	pch_dbg(adap,
-+		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-+	/* calculate sub address length and message length */
-+	/* these are applicable only for buffer mode */
-+	subaddrlen = pmsg->buf[0];
-+	/* calculate actual message length excluding
-+	 * the sub address fields */
-+	msglen = (pmsg->len) - (subaddrlen + 1);
-+	i = 0;
-+	if (status & (I2C_M_RD)) {
-+		pch_dbg(adap, "invoking pch_readbytes\n");
-+		ret = pch_readbytes(i2c_adap, pmsg, (i + 1 == num),
-+				   (i == 0));
-+	} else {
-+		pch_dbg(adap, "invoking pch_writebytes\n");
-+		ret = pch_writebytes(i2c_adap, pmsg, (i + 1 == num),
-+				    (i == 0));
-+	}
-+
-+	adap->pch_xfer_in_progress = false;	/* transfer completed */
-+
-+	mutex_unlock(&pch_mutex);
++	/* set mode only for this engine */
++	engine_state &= ~(engine->engine_mask);
++	mode &= engine->engine_mask;
++	engine_state |= mode;
++	ret |= lp5521_write(client, LP5521_REG_OP_MODE, engine_state);
 +
 +	return ret;
 +}
 +
-+/**
-+ * pch_func() - return the functionality of the I2C driver
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static u32 pch_func(struct i2c_adapter *adap)
++static int lp5521_load_program(struct lp5521_engine *eng, const u8 *pattern)
 +{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
-+}
++	struct lp5521_chip *chip = engine_to_lp5521(eng);
++	struct i2c_client *client = chip->client;
++	int ret;
++	int addr;
++	u8 mode;
 +
-+static struct i2c_algorithm pch_algorithm = {
-+	.master_xfer = pch_xfer,
-+	.functionality = pch_func
-+};
++	/* move current engine to direct mode and remember the state */
++	ret = lp5521_set_engine_mode(eng, LP5521_CMD_DIRECT);
++	usleep_range(1000, 10000);
++	ret |= lp5521_read(client, LP5521_REG_OP_MODE, &mode);
 +
-+/**
-+ * pch_disbl_int() - Disable PCH I2C interrupts
-+ * @adap:	Pointer to struct i2c_algo_pch_data.
-+ */
-+static void pch_disbl_int(struct i2c_algo_pch_data *adap)
-+{
-+	void __iomem *p = adap->pch_base_address;
++	/* For loading, all the engines to load mode */
++	lp5521_write(client, LP5521_REG_OP_MODE, LP5521_CMD_DIRECT);
++	usleep_range(1000, 10000);
++	lp5521_write(client, LP5521_REG_OP_MODE, LP5521_CMD_LOAD);
++	usleep_range(1000, 10000);
 +
-+	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, NORMAL_INTR_ENBL);
++	addr = LP5521_PROG_MEM_BASE + eng->prog_page * LP5521_PROG_MEM_SIZE;
++	i2c_smbus_write_i2c_block_data(client,
++				addr,
++				LP5521_PROG_MEM_SIZE,
++				pattern);
 +
-+	iowrite32(EEPROM_RST_INTR_DISBL, p + PCH_I2CESRMSK);
-+
-+	iowrite32(BUFFER_MODE_INTR_DISBL, p + PCH_I2CBUFMSK);
-+}
-+
-+static int __devinit pch_probe(struct pci_dev *pdev,
-+			       const struct pci_device_id *id)
-+{
-+	void __iomem *base_addr;
-+	s32 ret;
-+	struct adapter_info *adap_info;
-+
-+	pch_pci_dbg(pdev, "Entered.\n");
-+
-+	adap_info = kzalloc((sizeof(struct adapter_info)), GFP_KERNEL);
-+	if (adap_info == NULL) {
-+		pch_pci_err(pdev, "Memory allocation FAILED\n");
-+		return -ENOMEM;
-+	}
-+
-+	ret = pci_enable_device(pdev);
-+	if (ret) {
-+		pch_pci_err(pdev, "pci_enable_device FAILED\n");
-+		goto err_pci_enable;
-+	}
-+
-+	ret = pci_request_regions(pdev, KBUILD_MODNAME);
-+	if (ret) {
-+		pch_pci_err(pdev, "pci_request_regions FAILED\n");
-+		goto err_pci_req;
-+	}
-+
-+	base_addr = pci_iomap(pdev, 1, 0);
-+
-+	if (base_addr == NULL) {
-+		pch_pci_err(pdev, "pci_iomap FAILED\n");
-+		ret = -ENOMEM;
-+		goto err_pci_iomap;
-+	}
-+
-+	adap_info->pch_suspended = false;
-+
-+	adap_info->pch_data.p_adapter_info = adap_info;
-+
-+	adap_info->pch_data.pch_adapter.owner = THIS_MODULE;
-+	adap_info->pch_data.pch_adapter.class = I2C_CLASS_HWMON;
-+	strcpy(adap_info->pch_data.pch_adapter.name, KBUILD_MODNAME);
-+	adap_info->pch_data.pch_adapter.algo = &pch_algorithm;
-+	adap_info->pch_data.pch_adapter.algo_data =
-+						&adap_info->pch_data;
-+
-+	/* (i * 0x80) + base_addr; */
-+	adap_info->pch_data.pch_base_address = base_addr;
-+
-+	adap_info->pch_data.pch_adapter.dev.parent = &pdev->dev;
-+
-+	ret = i2c_add_adapter(&(adap_info->pch_data.pch_adapter));
-+
-+	if (ret) {
-+		pch_pci_err(pdev, "i2c_add_adapter FAILED\n");
-+		goto err_i2c_add_adapter;
-+	}
-+
-+	pch_init(&adap_info->pch_data);
-+	ret = request_irq(pdev->irq, pch_handler, IRQF_SHARED,
-+		  KBUILD_MODNAME, &adap_info->pch_data);
-+	if (ret) {
-+		pch_pci_err(pdev, "request_irq FAILED\n");
-+		goto err_request_irq;
-+	}
-+
-+	pci_set_drvdata(pdev, adap_info);
-+	pch_pci_dbg(pdev, "returns %d.\n", ret);
-+	return 0;
-+
-+err_request_irq:
-+	i2c_del_adapter(&(adap_info->pch_data.pch_adapter));
-+err_i2c_add_adapter:
-+	pci_iounmap(pdev, base_addr);
-+err_pci_iomap:
-+	pci_release_regions(pdev);
-+err_pci_req:
-+	pci_disable_device(pdev);
-+err_pci_enable:
-+	kfree(adap_info);
++	ret |= lp5521_write(client, LP5521_REG_OP_MODE, mode);
 +	return ret;
 +}
 +
-+static void __devexit pch_remove(struct pci_dev *pdev)
++static int lp5521_set_led_current(struct lp5521_chip *chip, int led, u8 curr)
 +{
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+
-+	pch_disbl_int(&adap_info->pch_data);
-+	free_irq(pdev->irq, &adap_info->pch_data);
-+	i2c_del_adapter(&(adap_info->pch_data.pch_adapter));
-+
-+	if (adap_info->pch_data.pch_base_address) {
-+		pci_iounmap(pdev, adap_info->pch_data.pch_base_address);
-+		adap_info->pch_data.pch_base_address = 0;
-+	}
-+
-+	pci_set_drvdata(pdev, NULL);
-+
-+	pci_release_regions(pdev);
-+
-+	pci_disable_device(pdev);
-+	kfree(adap_info);
++	return lp5521_write(chip->client,
++		    LP5521_REG_LED_CURRENT_BASE + chip->leds[led].chan_nr,
++		    curr);
 +}
 +
-+#ifdef CONFIG_PM
-+static int pch_suspend(struct pci_dev *pdev, pm_message_t state)
++static void lp5521_init_engine(struct lp5521_chip *chip,
++			const struct attribute_group *attr_group)
++{
++	int i;
++	for (i = 0; i < LP5521_MAX_ENGINES; i++) {
++		chip->engines[i].id = i + 1;
++		chip->engines[i].engine_mask = LP5521_ENG_MASK_BASE >> (i * 2);
++		chip->engines[i].prog_page = i;
++		chip->engines[i].attributes = &attr_group[i];
++	}
++}
++
++static int lp5521_configure(struct i2c_client *client,
++			const struct attribute_group *attr_group)
++{
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	int ret;
++
++	lp5521_init_engine(chip, attr_group);
++
++	lp5521_write(client, LP5521_REG_RESET, 0xff);
++
++	usleep_range(10000, 20000);
++
++	/* Set all PWMs to direct control mode */
++	ret = lp5521_write(client, LP5521_REG_OP_MODE, 0x3F);
++
++	/* Enable auto-powersave, set charge pump to auto, red to battery */
++	ret |= lp5521_write(client, LP5521_REG_CONFIG,
++		LP5521_PWRSAVE_EN | LP5521_CP_MODE_AUTO | LP5521_R_TO_BATT);
++
++	/* Initialize all channels PWM to zero -> leds off */
++	ret |= lp5521_write(client, LP5521_REG_R_PWM, 0);
++	ret |= lp5521_write(client, LP5521_REG_G_PWM, 0);
++	ret |= lp5521_write(client, LP5521_REG_B_PWM, 0);
++
++	/* Set engines are set to run state when OP_MODE enables engines */
++	ret |= lp5521_write(client, LP5521_REG_ENABLE,
++			LP5521_MASTER_ENABLE | LP5521_LOGARITHMIC_PWM |
++			LP5521_EXEC_RUN);
++	/* enable takes 500us */
++	usleep_range(500, 20000);
++
++	return ret;
++}
++
++static ssize_t lp5521_run_selftest(struct lp5521_chip *chip, char *buf)
 +{
 +	int ret;
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+	void __iomem *p = adap_info->pch_data.pch_base_address;
++	u8 status;
 +
-+	adap_info->pch_suspended = true;
++	ret = lp5521_read(chip->client, LP5521_REG_STATUS, &status);
++	if (ret < 0)
++		goto fail;
 +
-+	while ((adap_info->pch_data.pch_xfer_in_progress)) {
-+		/* Wait until all channel transfers are completed */
-+		msleep(1);
++	/* Check that ext clock is really in use if requested */
++	if (chip->pdata && chip->pdata->clock_mode == LP5521_CLOCK_EXT)
++		if  ((status & LP5521_EXT_CLK_USED) == 0)
++			goto fail;
++
++	return sprintf(buf, "OK\n");
++fail:
++	return sprintf(buf, "FAIL\n");
++}
++
++static void lp5521_set_brightness(struct led_classdev *cdev,
++			     enum led_brightness brightness)
++{
++	struct lp5521_led *led = cdev_to_led(cdev);
++	led->brightness = (u8)brightness;
++	schedule_work(&led->brightness_work);
++}
++
++static void lp5521_led_brightness_work(struct work_struct *work)
++{
++	struct lp5521_led *led = container_of(work,
++					      struct lp5521_led,
++					      brightness_work);
++	struct lp5521_chip *chip = led_to_lp5521(led);
++	struct i2c_client *client = chip->client;
++
++	mutex_lock(&chip->lock);
++	lp5521_write(client, LP5521_REG_LED_PWM_BASE + led->chan_nr,
++		led->brightness);
++	mutex_unlock(&chip->lock);
++}
++
++/* Detect the chip by setting its ENABLE register and reading it back. */
++static int lp5521_detect(struct i2c_client *client)
++{
++	int ret;
++	u8 buf;
++
++	ret = lp5521_write(client, LP5521_REG_ENABLE,
++			LP5521_MASTER_ENABLE | LP5521_LOGARITHMIC_PWM);
++	if (ret)
++		return ret;
++	usleep_range(1000, 10000);
++	ret = lp5521_read(client, LP5521_REG_ENABLE, &buf);
++	if (ret)
++		return ret;
++	if (buf != (LP5521_MASTER_ENABLE | LP5521_LOGARITHMIC_PWM))
++		return -ENODEV;
++
++	return 0;
++}
++
++/* Set engine mode and create appropriate sysfs attributes, if required. */
++static int lp5521_set_mode(struct lp5521_engine *engine, u8 mode)
++{
++	struct lp5521_chip *chip = engine_to_lp5521(engine);
++	struct i2c_client *client = chip->client;
++	struct device *dev = &client->dev;
++	int ret = 0;
++
++	/* if in that mode already do nothing, except for run */
++	if (mode == engine->mode && mode != LP5521_CMD_RUN)
++		return 0;
++
++	if (mode == LP5521_CMD_RUN)
++		ret = lp5521_set_engine_mode(engine, LP5521_CMD_RUN);
++
++	else if (mode == LP5521_CMD_LOAD) {
++		lp5521_set_engine_mode(engine, LP5521_CMD_DISABLED);
++		lp5521_set_engine_mode(engine, LP5521_CMD_LOAD);
++
++		ret = sysfs_create_group(&dev->kobj, engine->attributes);
++		if (ret)
++			return ret;
 +	}
-+	/* Disable the i2c interrupts */
-+	pch_disbl_int(&adap_info->pch_data);
 +
-+	pch_pci_dbg(pdev, "I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
-+		"invoked function pch_disbl_int successfully\n",
-+		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
-+		ioread32(p + PCH_I2CESRSTA));
++	else if (mode == LP5521_CMD_DISABLED)
++		lp5521_set_engine_mode(engine, LP5521_CMD_DISABLED);
 +
-+	ret = pci_save_state(pdev);
++	/* remove load attribute from sysfs if not in load mode */
++	if (engine->mode == LP5521_CMD_LOAD && mode != LP5521_CMD_LOAD)
++		sysfs_remove_group(&dev->kobj, engine->attributes);
++
++	engine->mode = mode;
++
++	return ret;
++}
++
++static int lp5521_do_store_load(struct lp5521_engine *engine,
++				const char *buf, size_t len)
++{
++	struct lp5521_chip *chip = engine_to_lp5521(engine);
++	struct i2c_client *client = chip->client;
++	int  ret, nrchars, offset = 0, i = 0;
++	char c[3];
++	unsigned cmd;
++	u8 pattern[LP5521_PROGRAM_LENGTH] = {0};
++
++	while ((offset < len - 1) && (i < LP5521_PROGRAM_LENGTH)) {
++		/* separate sscanfs because length is working only for %s */
++		ret = sscanf(buf + offset, "%2s%n ", c, &nrchars);
++		ret = sscanf(c, "%2x", &cmd);
++		if (ret != 1)
++			goto fail;
++		pattern[i] = (u8)cmd;
++
++		offset += nrchars;
++		i++;
++	}
++
++	/* Pattern commands are always two bytes long */
++	if (i % 2)
++		goto fail;
++
++	mutex_lock(&chip->lock);
++	ret = lp5521_load_program(engine, pattern);
++	mutex_unlock(&chip->lock);
 +
 +	if (ret) {
-+		pch_pci_err(pdev, "pci_save_state\n");
++		dev_err(&client->dev, "failed loading pattern\n");
 +		return ret;
 +	}
 +
-+	pci_enable_wake(pdev, PCI_D3hot, 0);
-+	pci_disable_device(pdev);
-+	pci_set_power_state(pdev, pci_choose_state(pdev, state));
-+
-+	return 0;
++	return len;
++fail:
++	dev_err(&client->dev, "wrong pattern format\n");
++	return -EINVAL;
 +}
 +
-+static int pch_resume(struct pci_dev *pdev)
++static ssize_t store_engine_load(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t len, int nr)
 +{
-+	struct adapter_info *adap_info = pci_get_drvdata(pdev);
-+
-+	pci_set_power_state(pdev, PCI_D0);
-+	pci_restore_state(pdev);
-+
-+	if (pci_enable_device(pdev) < 0) {
-+		pch_pci_err(pdev, "pci_enable_device FAILED in pch_resume\n");
-+		return -EIO;
-+	}
-+
-+	pci_enable_wake(pdev, PCI_D3hot, 0);
-+
-+	pch_init(&adap_info->pch_data);
-+
-+	adap_info->pch_suspended = false;
-+
-+	return 0;
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	return lp5521_do_store_load(&chip->engines[nr - 1], buf, len);
 +}
-+#else
-+#define pch_suspend NULL
-+#define pch_resume NULL
-+#endif
 +
-+static struct pci_driver pch_pcidriver = {
-+	.name = KBUILD_MODNAME,
-+	.id_table = pch_pcidev_id,
-+	.probe = pch_probe,
-+	.remove = __devexit_p(pch_remove),
-+	.suspend = pch_suspend,
-+	.resume = pch_resume
++#define store_load(nr)							\
++static ssize_t store_engine##nr##_load(struct device *dev,		\
++				     struct device_attribute *attr,	\
++				     const char *buf, size_t len)	\
++{									\
++	return store_engine_load(dev, attr, buf, len, nr);		\
++}
++store_load(1)
++store_load(2)
++store_load(3)
++
++static ssize_t show_engine_mode(struct device *dev,
++				struct device_attribute *attr,
++				char *buf, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	switch (chip->engines[nr - 1].mode) {
++	case LP5521_CMD_RUN:
++		return sprintf(buf, "run\n");
++	case LP5521_CMD_LOAD:
++		return sprintf(buf, "load\n");
++	case LP5521_CMD_DISABLED:
++		return sprintf(buf, "disabled\n");
++	default:
++		return sprintf(buf, "disabled\n");
++	}
++}
++
++#define show_mode(nr)							\
++static ssize_t show_engine##nr##_mode(struct device *dev,		\
++				    struct device_attribute *attr,	\
++				    char *buf)				\
++{									\
++	return show_engine_mode(dev, attr, buf, nr);			\
++}
++show_mode(1)
++show_mode(2)
++show_mode(3)
++
++static ssize_t store_engine_mode(struct device *dev,
++				 struct device_attribute *attr,
++				 const char *buf, size_t len, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	struct lp5521_engine *engine = &chip->engines[nr - 1];
++	mutex_lock(&chip->lock);
++
++	if (!strncmp(buf, "run", 3))
++		lp5521_set_mode(engine, LP5521_CMD_RUN);
++	else if (!strncmp(buf, "load", 4))
++		lp5521_set_mode(engine, LP5521_CMD_LOAD);
++	else if (!strncmp(buf, "disabled", 8))
++		lp5521_set_mode(engine, LP5521_CMD_DISABLED);
++
++	mutex_unlock(&chip->lock);
++	return len;
++}
++
++#define store_mode(nr)							\
++static ssize_t store_engine##nr##_mode(struct device *dev,		\
++				     struct device_attribute *attr,	\
++				     const char *buf, size_t len)	\
++{									\
++	return store_engine_mode(dev, attr, buf, len, nr);		\
++}
++store_mode(1)
++store_mode(2)
++store_mode(3)
++
++static ssize_t show_max_current(struct device *dev,
++			    struct device_attribute *attr,
++			    char *buf)
++{
++	struct led_classdev *led_cdev = dev_get_drvdata(dev);
++	struct lp5521_led *led = cdev_to_led(led_cdev);
++
++	return sprintf(buf, "%d\n", led->max_current);
++}
++
++static ssize_t show_current(struct device *dev,
++			    struct device_attribute *attr,
++			    char *buf)
++{
++	struct led_classdev *led_cdev = dev_get_drvdata(dev);
++	struct lp5521_led *led = cdev_to_led(led_cdev);
++
++	return sprintf(buf, "%d\n", led->led_current);
++}
++
++static ssize_t store_current(struct device *dev,
++			     struct device_attribute *attr,
++			     const char *buf, size_t len)
++{
++	struct led_classdev *led_cdev = dev_get_drvdata(dev);
++	struct lp5521_led *led = cdev_to_led(led_cdev);
++	struct lp5521_chip *chip = led_to_lp5521(led);
++	ssize_t ret;
++	unsigned long curr;
++
++	if (strict_strtoul(buf, 0, &curr))
++		return -EINVAL;
++
++	if (curr > led->max_current)
++		return -EINVAL;
++
++	mutex_lock(&chip->lock);
++	ret = lp5521_set_led_current(chip, led->id, curr);
++	mutex_unlock(&chip->lock);
++
++	if (ret < 0)
++		return ret;
++
++	led->led_current = (u8)curr;
++
++	return len;
++}
++
++static ssize_t lp5521_selftest(struct device *dev,
++			       struct device_attribute *attr,
++			       char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	ssize_t ret = 0;
++
++	mutex_lock(&chip->lock);
++	ret = lp5521_run_selftest(chip, buf);
++	mutex_unlock(&chip->lock);
++	return ret;
++}
++
++/* led class device attributes */
++static DEVICE_ATTR(led_current, S_IRUGO | S_IWUGO, show_current, store_current);
++static DEVICE_ATTR(max_current, S_IRUGO , show_max_current, NULL);
++
++static struct attribute *lp5521_led_attributes[] = {
++	&dev_attr_led_current.attr,
++	&dev_attr_max_current.attr,
++	NULL,
 +};
 +
-+static int __init pch_pci_init(void)
-+{
-+	return pci_register_driver(&pch_pcidriver);
-+}
-+module_init(pch_pci_init);
++static struct attribute_group lp5521_led_attribute_group = {
++	.attrs = lp5521_led_attributes
++};
 +
-+static void __exit pch_pci_exit(void)
-+{
-+	pci_unregister_driver(&pch_pcidriver);
-+}
-+module_exit(pch_pci_exit);
++/* device attributes */
++static DEVICE_ATTR(engine1_mode, S_IRUGO | S_IWUGO,
++		   show_engine1_mode, store_engine1_mode);
++static DEVICE_ATTR(engine2_mode, S_IRUGO | S_IWUGO,
++		   show_engine2_mode, store_engine2_mode);
++static DEVICE_ATTR(engine3_mode, S_IRUGO | S_IWUGO,
++		   show_engine3_mode, store_engine3_mode);
++static DEVICE_ATTR(engine1_load, S_IWUGO, NULL, store_engine1_load);
++static DEVICE_ATTR(engine2_load, S_IWUGO, NULL, store_engine2_load);
++static DEVICE_ATTR(engine3_load, S_IWUGO, NULL, store_engine3_load);
++static DEVICE_ATTR(selftest, S_IRUGO, lp5521_selftest, NULL);
 +
-+MODULE_DESCRIPTION("PCH I2C PCI Driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("OKI Semiconductor <masa-korg-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>");
-+module_param(pch_i2c_speed, int, (S_IRUSR | S_IWUSR));
-+module_param(pch_clk, int, (S_IRUSR | S_IWUSR));
++static struct attribute *lp5521_attributes[] = {
++	&dev_attr_engine1_mode.attr,
++	&dev_attr_engine2_mode.attr,
++	&dev_attr_engine3_mode.attr,
++	&dev_attr_selftest.attr,
++	NULL
++};
++
++static struct attribute *lp5521_engine1_attributes[] = {
++	&dev_attr_engine1_load.attr,
++	NULL
++};
++
++static struct attribute *lp5521_engine2_attributes[] = {
++	&dev_attr_engine2_load.attr,
++	NULL
++};
++
++static struct attribute *lp5521_engine3_attributes[] = {
++	&dev_attr_engine3_load.attr,
++	NULL
++};
++
++static const struct attribute_group lp5521_group = {
++	.attrs = lp5521_attributes,
++};
++
++static const struct attribute_group lp5521_engine_group[] = {
++	{.attrs = lp5521_engine1_attributes },
++	{.attrs = lp5521_engine2_attributes },
++	{.attrs = lp5521_engine3_attributes },
++};
++
++static int lp5521_register_sysfs(struct i2c_client *client)
++{
++	struct device *dev = &client->dev;
++	return sysfs_create_group(&dev->kobj, &lp5521_group);
++}
++
++static void lp5521_unregister_sysfs(struct i2c_client *client)
++{
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	struct device *dev = &client->dev;
++	int i;
++
++	sysfs_remove_group(&dev->kobj, &lp5521_group);
++
++	for (i = 0; i < LP5521_MAX_ENGINES; i++) {
++		if (chip->engines[i].mode == LP5521_CMD_LOAD)
++			sysfs_remove_group(&dev->kobj,
++					chip->engines[i].attributes);
++	}
++
++	for (i = 0; i < chip->num_leds; i++)
++		sysfs_remove_group(&chip->leds[i].cdev.dev->kobj,
++				&lp5521_led_attribute_group);
++}
++
++static int __init lp5521_init_led(struct lp5521_led *led,
++				struct i2c_client *client,
++				int chan, struct lp5521_platform_data *pdata)
++{
++	struct device *dev = &client->dev;
++	char name[32];
++	int res;
++
++	if (chan >= LP5521_MAX_LEDS)
++		return -EINVAL;
++
++	if (pdata->led_config[chan].led_current == 0)
++		return 0;
++
++	led->led_current = pdata->led_config[chan].led_current;
++	led->max_current = pdata->led_config[chan].max_current;
++	led->chan_nr = pdata->led_config[chan].chan_nr;
++
++	snprintf(name, sizeof(name), "%s:channel%d", client->name, chan);
++	led->cdev.brightness_set = lp5521_set_brightness;
++	led->cdev.name = name;
++	res = led_classdev_register(dev, &led->cdev);
++	if (res < 0) {
++		dev_err(dev, "couldn't register led on channel %d\n", chan);
++		return res;
++	}
++
++	res = sysfs_create_group(&led->cdev.dev->kobj,
++			&lp5521_led_attribute_group);
++	if (res < 0) {
++		dev_err(dev, "couldn't register current attribute\n");
++		led_classdev_unregister(&led->cdev);
++		return res;
++	}
++	return 0;
++}
++
++static int lp5521_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct lp5521_chip		*chip;
++	struct lp5521_platform_data	*pdata;
++	int ret, i, led;
++
++	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, chip);
++	chip->client = client;
++
++	pdata = client->dev.platform_data;
++
++	if (!pdata) {
++		dev_err(&client->dev, "no platform data\n");
++		ret = -EINVAL;
++		goto fail1;
++	}
++
++	mutex_init(&chip->lock);
++
++	chip->pdata   = pdata;
++
++	if (pdata->setup_resources) {
++		ret = pdata->setup_resources();
++		if (ret < 0)
++			goto fail1;
++	}
++
++	if (pdata->enable) {
++		pdata->enable(0);
++		usleep_range(1000, 10000);
++		pdata->enable(1);
++		usleep_range(1000, 10000); /* Spec says min 500us */
++	}
++
++	ret = lp5521_detect(client);
++
++	if (ret) {
++		dev_err(&client->dev, "Chip not found\n");
++		goto fail2;
++	}
++
++	dev_info(&client->dev, "%s programmable led chip found\n", id->name);
++
++	ret = lp5521_configure(client, lp5521_engine_group);
++	if (ret < 0) {
++		dev_err(&client->dev, "error configuring chip\n");
++		goto fail2;
++	}
++
++	/* Initialize leds */
++	chip->num_channels = pdata->num_channels;
++	chip->num_leds = 0;
++	led = 0;
++	for (i = 0; i < pdata->num_channels; i++) {
++		/* Do not initialize channels that are not connected */
++		if (pdata->led_config[i].led_current == 0)
++			continue;
++
++		chip->num_leds++;
++		ret = lp5521_init_led(&chip->leds[led], client, i, pdata);
++		if (ret) {
++			dev_err(&client->dev, "error initializing leds\n");
++			goto fail3;
++		}
++
++		chip->leds[led].id = led;
++		/* Set initial LED current */
++		lp5521_set_led_current(chip, led,
++				chip->leds[led].led_current);
++
++		INIT_WORK(&(chip->leds[led].brightness_work),
++			lp5521_led_brightness_work);
++
++		led++;
++	}
++
++	ret = lp5521_register_sysfs(client);
++	if (ret) {
++		dev_err(&client->dev, "registering sysfs failed\n");
++		goto fail3;
++	}
++	return ret;
++fail3:
++	for (i = 0; i < chip->num_leds; i++) {
++		led_classdev_unregister(&chip->leds[i].cdev);
++		cancel_work_sync(&chip->leds[i].brightness_work);
++	}
++fail2:
++	if (pdata->enable)
++		pdata->enable(0);
++	if (pdata->release_resources)
++		pdata->release_resources();
++fail1:
++	kfree(chip);
++	return ret;
++}
++
++static int lp5521_remove(struct i2c_client *client)
++{
++	struct lp5521_chip *chip = i2c_get_clientdata(client);
++	int i;
++
++	lp5521_unregister_sysfs(client);
++
++	for (i = 0; i < chip->num_leds; i++) {
++		led_classdev_unregister(&chip->leds[i].cdev);
++		cancel_work_sync(&chip->leds[i].brightness_work);
++	}
++
++	if (chip->pdata->enable)
++		chip->pdata->enable(0);
++	if (chip->pdata->release_resources)
++		chip->pdata->release_resources();
++	kfree(chip);
++	return 0;
++}
++
++static const struct i2c_device_id lp5521_id[] = {
++	{ "lp5521", 0 }, /* Three channel chip */
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, lp5521_id);
++
++static struct i2c_driver lp5521_driver = {
++	.driver = {
++		.name	= "lp5521",
++	},
++	.probe		= lp5521_probe,
++	.remove		= lp5521_remove,
++	.id_table	= lp5521_id,
++};
++
++static int __init lp5521_init(void)
++{
++	int ret;
++
++	ret = i2c_add_driver(&lp5521_driver);
++
++	if (ret < 0)
++		printk(KERN_ALERT "Adding lp5521 driver failed\n");
++
++	return ret;
++}
++
++static void __exit lp5521_exit(void)
++{
++	i2c_del_driver(&lp5521_driver);
++}
++
++module_init(lp5521_init);
++module_exit(lp5521_exit);
++
++MODULE_AUTHOR("Mathias Nyman, Yuri Zaporozhets, Samu Onkalo");
++MODULE_DESCRIPTION("LP5521 LED engine");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/leds-lp5521.h b/include/linux/leds-lp5521.h
+new file mode 100644
+index 0000000..2d3aca2
+--- /dev/null
++++ b/include/linux/leds-lp5521.h
+@@ -0,0 +1,46 @@
++/*
++ * LP5521 LED chip driver.
++ *
++ * Copyright (C) 2010 Nokia Corporation
++ *
++ * Contact: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * version 2 as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
++ * 02110-1301 USA
++ */
++
++#ifndef __LINUX_LP5521_H
++#define __LINUX_LP5521_H
++
++struct lp5521_led_config {
++	u8		chan_nr;
++	u8		led_current; /* mA x10, 0 if led is not connected */
++	u8		max_current;
++};
++
++#define LP5521_CLOCK_AUTO	0
++#define LP5521_CLOCK_INT	1
++#define LP5521_CLOCK_EXT	2
++
++struct lp5521_platform_data {
++	struct lp5521_led_config *led_config;
++	u8	num_channels;
++	u8	clock_mode;
++	int	(*setup_resources)(void);
++	void	(*release_resources)(void);
++	void	(*enable)(bool state);
++};
++
++#endif /* __LINUX_LP5521_H */
++
 -- 
-1.6.0.6
+1.6.0.4
