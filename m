@@ -1,72 +1,69 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] i2c-omap: Make sure i2c bus is free before setting it
- to idle
-Date: Thu, 16 Sep 2010 15:40:50 -0700
-Message-ID: <20100916224050.GU29610@atomide.com>
-References: <1282808204-1689-1-git-send-email-mathias.nyman@nokia.com>
- <20100826074118.GH23263@nokia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100826074118.GH23263@nokia.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <felipe.balbi@nokia.com>
-Cc: "Nyman Mathias (Nokia-MS/Helsinki)" <Mathias.Nyman@nokia.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, ben-linux@fluff.org
+From: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: [PATCH v2] i2c: davinci: Fix race when setting up for TX
+Date: Fri, 17 Sep 2010 11:46:47 +0900
+Message-ID: <1284691607-9697-1-git-send-email-jon.povey@racelogic.co.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Cc: troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org, Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Felipe Balbi <felipe.balbi@nokia.com> [100826 00:34]:
-> Hi,
-> 
-> On Thu, Aug 26, 2010 at 09:36:44AM +0200, Nyman Mathias (Nokia-MS/Helsinki) wrote:
-> >If the i2c bus receives an interrupt with both BB (bus busy) and
-> >ARDY (register access ready) statuses set during the tranfer of the last message
-> >the bus was put to idle while still busy.
-> >
-> >This caused bus to timeout.
-> >
-> >Signed-off-by: Mathias Nyman <mathias.nyman@nokia.com>
-> 
-> adding linux-i2c and Ben Dooks to Cc list.
+When setting up to transmit, a race exists between the ISR and
+i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
+This is mostly visible for transmits > 1 byte long.
 
-Ben, can you please take this? The patchwork.kernel.org link is:
+The hardware starts sending immediately that MDR is loaded. IMR trickery
+doesn't work because if we start sending, finish the first byte and an
+XRDY event occurs before we load IMR to unmask it, we never get an
+interrupt, and we timeout.
 
-http://patchwork.kernel.org/patch/133641/
+Move the MDR load after DXR,IMR loads to avoid this race without locking.
 
-Or let Mathias know if he should repost.
+Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+---
+Troy, thanks for the input. I tried reordering the IMR load before but got
+occasional timeouts. Went back to the logic analyser today and worked out
+why, see above comment in the commit message.
+
+Moving the MDR load seems to fix things without locking, much neater and
+tiny patch.
+
+As I understand it we can be confident inside i2c_davinci_xfer_msg() that
+the peripheral is not busy sending or receiving something else, I had a
+look at the other interrupt sources in the datasheet and this seems safe
+enough.
+
+I'm not sure what the correct thing to do for followup message IDs here..
+My original email? Troy's? Clues welcome for next time.
+
+ drivers/i2c/busses/i2c-davinci.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 72df4af..baa5209 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -349,9 +349,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
  
-> >---
-> >drivers/i2c/busses/i2c-omap.c |    2 ++
-> >1 files changed, 2 insertions(+), 0 deletions(-)
-> >
-> >diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> >index 824ac1c..3271ce1 100644
-> >--- a/drivers/i2c/busses/i2c-omap.c
-> >+++ b/drivers/i2c/busses/i2c-omap.c
-> >@@ -602,6 +602,8 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-> >
-> >	if (r == 0)
-> >		r = num;
-> >+
-> >+	omap_i2c_wait_for_bb(dev);
-> >out:
-> >	omap_i2c_idle(dev);
-> >	return r;
-> >-- 
-> >1.5.6.5
-> >
-> >--
-> >To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> -- 
-> balbi
-> 
-> DefectiveByDesign.org
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 	dev->terminate = 0;
+ 
+-	/* write the data into mode register */
+-	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+-
+ 	/*
+ 	 * First byte should be set here, not after interrupt,
+ 	 * because transmit-data-ready interrupt can come before
+@@ -371,6 +368,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 		w |= DAVINCI_I2C_IMR_XRDY;
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, w);
+ 
++	/* write the data into mode register; start transmitting */
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
++
+ 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 						      dev->adapter.timeout);
+ 	if (r == 0) {
+-- 
+1.6.3.3
