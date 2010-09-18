@@ -1,19 +1,140 @@
-From: Greg KH <greg@kroah.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: [PATCH] misc: adds support the FSA9480 USB Switch
-Date: Fri, 17 Sep 2010 15:44:16 -0700
-Message-ID: <20100917224416.GB22684@kroah.com>
-References: <4C7CD95A.5040309@samsung.com>
- <20100917150731.f1f44f3c.akpm@linux-foundation.org>
+Date: Sat, 18 Sep 2010 02:37:54 +0100
+Message-ID: <20100918013753.GE7494@trinity.fluff.org>
+References: <4C7CD95A.5040309@samsung.com> <20100917150731.f1f44f3c.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100917150731.f1f44f3c.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>, Minkyu Kang <mk7.kang@samsung.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, kyungmin.park@samsung.com
+In-Reply-To: <20100917150731.f1f44f3c.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On Fri, Sep 17, 2010 at 03:07:31PM -0700, Andrew Morton wrote:
+> (catching up!)
+> 
+> On Tue, 31 Aug 2010 19:28:42 +0900
+> Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> 
+> > The FSA9480 is a USB port accessory detector and switch.
+> > This patch adds support the FSA9480 USB Switch.
+> > 
+> 
+> What a strange device.
+> 
+> Is there a data sheet available?
+> 
+> > +config USB_SWITCH_FSA9480
+> > +	tristate "FSA9480 USB Switch"
+> > +	depends on I2C
+> > +	help
+> > +	  The FSA9480 is a USB port accessory detector and switch.
+> > +	  The FSA9480 is fully controlled using I2C and enables USB data,
+> > +	  stereo and mono audio, video, microphone and UART data to use
+> > +	  a common connector port.
+> 
+> So if I'm understanding it correctly, it's an i2c-controlled device
+> which turns USB devices on and off, multiplexing them into a single USB
+> port?  So if I switch from "USB data" over to "microphone", the USB
+> subsystem will see the "USB data" device get unplugged and will see a
+> "microphone" get plugged in?
+
+It is generally for 'smart phones' where one connector has to do many
+jobs. Basically it's a electrical switch which allows one set of lines
+on a connector to be electrically connected to either the USB, or one
+of a number of analogue functions.
+
+Often this is helped by the connector having some form of detect line
+which tells you what is plugged in, such as a headset, usb cable, etc.
+ 
+> Or something else.  Am I even vaguely understanding this thing?
+> 
+> It would help if the changelog were to contain a paragraph
+> describing the overall behaviour of this device.
+> 
+> >
+> > ...
+> >
+> > +void fsa9480_set_switch(const char *buf)
+> > +{
+> > +	struct fsa9480_usbsw *usbsw = chip;
+> > +	struct i2c_client *client = usbsw->client;
+> > +	unsigned int value;
+> > +	unsigned int path = 0;
+> > +
+> > +	value = fsa9480_read_reg(client, FSA9480_REG_CTRL);
+> > +
+> > +	if (!strncmp(buf, "VAUDIO", 6)) {
+> > +		path = SW_VAUDIO;
+> > +		value &= ~CON_MANUAL_SW;
+> > +	} else if (!strncmp(buf, "UART", 4)) {
+> > +		path = SW_UART;
+> > +		value &= ~CON_MANUAL_SW;
+> > +	} else if (!strncmp(buf, "AUDIO", 5)) {
+> > +		path = SW_AUDIO;
+> > +		value &= ~CON_MANUAL_SW;
+> > +	} else if (!strncmp(buf, "DHOST", 5)) {
+> > +		path = SW_DHOST;
+> > +		value &= ~CON_MANUAL_SW;
+> > +	} else if (!strncmp(buf, "AUTO", 4)) {
+> > +		path = SW_AUTO;
+> > +		value |= CON_MANUAL_SW;
+> > +	} else {
+> > +		printk(KERN_ERR "Wrong command\n");
+> > +		return;
+> > +	}
+> > +
+> > +	usbsw->mansw = path;
+> > +	fsa9480_write_reg(client, FSA9480_REG_MANSW1, path);
+> > +	fsa9480_write_reg(client, FSA9480_REG_CTRL, value);
+> > +}
+> > +EXPORT_SYMBOL_GPL(fsa9480_set_switch);
+> 
+> Why was this exported?
+> 
+> > +ssize_t fsa9480_get_switch(char *buf)
+> > +{
+> > +	struct fsa9480_usbsw *usbsw = chip;
+> > +	struct i2c_client *client = usbsw->client;
+> > +	unsigned int value;
+> > +
+> > +	value = fsa9480_read_reg(client, FSA9480_REG_MANSW1);
+> > +
+> > +	if (value == SW_VAUDIO)
+> > +		return sprintf(buf, "VAUDIO\n");
+> > +	else if (value == SW_UART)
+> > +		return sprintf(buf, "UART\n");
+> > +	else if (value == SW_AUDIO)
+> > +		return sprintf(buf, "AUDIO\n");
+> > +	else if (value == SW_DHOST)
+> > +		return sprintf(buf, "DHOST\n");
+> > +	else if (value == SW_AUTO)
+> > +		return sprintf(buf, "AUTO\n");
+> > +	else
+> > +		return sprintf(buf, "%x", value);
+> > +}
+> > +EXPORT_SYMBOL_GPL(fsa9480_get_switch);
+> 
+> This export also has no callers?
+> 
+> These functions implement a userspace API.  Userspace APIs are
+> important.  But the patch provided no documentation for that API. 
+> Please always fully, exhaustively document userspace APIs!  For they
+> are the one part of the driver which we can never change.
+> 
+> Documenting them in a documentation file is OK.  Also there's
+> Documentation/ABI/.  And they can be nicely described in the changelog
+> too.
+> 
+> But providing us with no description at all makes review harder and
+> less effective than we'd like it to be, and results in a driver which
+> is harder for our users to use.
+> 
+> OK?
+> 
 > > +static ssize_t fsa9480_show_status(struct device *dev,
 > > +				   struct device_attribute *attr,
 > > +				   char *buf)
@@ -65,13 +186,37 @@ On Fri, Sep 17, 2010 at 03:07:31PM -0700, Andrew Morton wrote:
 > So this interface is problematic.  It should have been discussed
 > up-front in the changelog so we can all take a look at the proposal and
 > have a think about it.
+> 
+> >
+> > ...
+> >
+> > +static irqreturn_t fsa9480_irq_handler(int irq, void *data)
+> > +{
+> > +	struct fsa9480_usbsw *usbsw = data;
+> > +
+> > +	if (!work_pending(&usbsw->work)) {
+> > +		disable_irq_nosync(irq);
+> > +		schedule_work(&usbsw->work);
+> > +	}
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> 
+> I expect that this driver can be converted to the new threaded IRQ code
+> (request_threaded_irq) and it will all become simpler.
+> 
+> >
+> > ...
+> >
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Yes, such a sysfs file is not allowed, please just have individual sysfs
-files for these attribute types (device id, control, adc, etc.)
+-- 
+-- 
+Ben
 
-And are you sure they are even needed?  Some of those are already known
-through the i2c interface, right?
-
-thanks,
-
-greg k-h
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
