@@ -1,257 +1,74 @@
-From: Kyungmin Park <kyungmin.park@samsung.com>
-Subject: Re: [PATCH] misc: adds support the FSA9480 USB Switch
-Date: Sat, 18 Sep 2010 11:47:20 +0900
-Message-ID: <AANLkTikH06HwxbmrxDkTNWuBaQgbZrFpGOoM_ocfZoCK@mail.gmail.com>
-References: <4C7CD95A.5040309@samsung.com>
-	<20100917150731.f1f44f3c.akpm@linux-foundation.org>
+From: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: RE: [PATCH v3] i2c: davinci: Fix race when setting up for TX
+Date: Mon, 20 Sep 2010 05:40:51 +0100
+Message-ID: <70E876B0EA86DD4BAF101844BC814DFE093ED5F50E@Cloud.RL.local>
+References: <4C93BE5B.6090701@boundarydevices.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100917150731.f1f44f3c.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Minkyu Kang <mk7.kang@samsung.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <4C93BE5B.6090701-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>, Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Sep 18, 2010 at 7:07 AM, Andrew Morton
-<akpm@linux-foundation.org> wrote:
-> (catching up!)
->
-> On Tue, 31 Aug 2010 19:28:42 +0900
-> Minkyu Kang <mk7.kang@samsung.com> wrote:
->
->> The FSA9480 is a USB port accessory detector and switch.
->> This patch adds support the FSA9480 USB Switch.
+Troy Kisky wrote:
+> On 9/17/2010 6:09 AM, Sudhakar Rajashekhara wrote:
+>> Hi,
+
+Seems I didn't get Sudhakar's email.. I wonder why?
+
+>> On Fri, Sep 17, 2010 at 08:32:11, Jon Povey wrote:
+>>> Move the MDR load after DXR,IMR loads to avoid this race without
+>>> locking.
 >>
->
-> What a strange device.
->
-As Minkyu Kang is on holiday until 9/27. I reply it instead. he will
-give more information when returned.
-I just explain the how to work and what's the purpose to export functio=
-ns.
+>> I remember I had some issues on OMAP-L138 with this fix, that's when
+>> I reverted to configuring ICMDR before writing to DXR (Please see
+>> here: https://patchwork.kernel.org/patch/75262/). I checked the BIOS
+>> I2C driver code for OMAP-L138 and there also we are configuring MDR
+>> before accessing DXR.
 
-> Is there a data sheet available?
+Ah :/
 
-It's difficult to find it at web, I'll check it but maybe difficult.
+> How about killing the lines from commit
+> c6c7c729a22bfeb8e63eafce48dbaeea20e68703
+> -------------------------------
+> /*
+>  * First byte should be set here, not after interrupt,
+>  * because transmit-data-ready interrupt can come before
+>  * NACK-interrupt during sending of previous message and
+>  * ICDXR may have wrong data
+>  */
+> if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
+>         davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
+> dev->buf_len--; }
+> ----------------------
+>
+> and resetting the i2c upon a NAK interrupt (after the stop)
+> to clear the bad fifo data?
 
->
->> +config USB_SWITCH_FSA9480
->> + =A0 =A0 tristate "FSA9480 USB Switch"
->> + =A0 =A0 depends on I2C
->> + =A0 =A0 help
->> + =A0 =A0 =A0 The FSA9480 is a USB port accessory detector and switc=
-h.
->> + =A0 =A0 =A0 The FSA9480 is fully controlled using I2C and enables =
-USB data,
->> + =A0 =A0 =A0 stereo and mono audio, video, microphone and UART data=
- to use
->> + =A0 =A0 =A0 a common connector port.
->
-> So if I'm understanding it correctly, it's an i2c-controlled device
-> which turns USB devices on and off, multiplexing them into a single U=
-SB
-> port? =A0So if I switch from "USB data" over to "microphone", the USB
-> subsystem will see the "USB data" device get unplugged and will see a
-> "microphone" get plugged in?
+I can't really comment on how valid that would be and can't easily test it.
 
-When connect the usb cable, then read USB ID(?) or something and
-switch the mux automatically.
-e.g, when you connect the car kit then it switch the path to car kit.
-Can't turn off the USB devices. only switch the USB path.
+However preloading DXR does save one interrupt on transmit so the whole operation is faster and more efficient.
 
->
-> Or something else. =A0Am I even vaguely understanding this thing?
->
-> It would help if the changelog were to contain a paragraph
-> describing the overall behaviour of this device.
->
->>
->> ...
->>
->> +void fsa9480_set_switch(const char *buf)
->> +{
->> + =A0 =A0 struct fsa9480_usbsw *usbsw =3D chip;
->> + =A0 =A0 struct i2c_client *client =3D usbsw->client;
->> + =A0 =A0 unsigned int value;
->> + =A0 =A0 unsigned int path =3D 0;
->> +
->> + =A0 =A0 value =3D fsa9480_read_reg(client, FSA9480_REG_CTRL);
->> +
->> + =A0 =A0 if (!strncmp(buf, "VAUDIO", 6)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 path =3D SW_VAUDIO;
->> + =A0 =A0 =A0 =A0 =A0 =A0 value &=3D ~CON_MANUAL_SW;
->> + =A0 =A0 } else if (!strncmp(buf, "UART", 4)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 path =3D SW_UART;
->> + =A0 =A0 =A0 =A0 =A0 =A0 value &=3D ~CON_MANUAL_SW;
->> + =A0 =A0 } else if (!strncmp(buf, "AUDIO", 5)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 path =3D SW_AUDIO;
->> + =A0 =A0 =A0 =A0 =A0 =A0 value &=3D ~CON_MANUAL_SW;
->> + =A0 =A0 } else if (!strncmp(buf, "DHOST", 5)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 path =3D SW_DHOST;
->> + =A0 =A0 =A0 =A0 =A0 =A0 value &=3D ~CON_MANUAL_SW;
->> + =A0 =A0 } else if (!strncmp(buf, "AUTO", 4)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 path =3D SW_AUTO;
->> + =A0 =A0 =A0 =A0 =A0 =A0 value |=3D CON_MANUAL_SW;
->> + =A0 =A0 } else {
->> + =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "Wrong command\n");
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> + =A0 =A0 }
->> +
->> + =A0 =A0 usbsw->mansw =3D path;
->> + =A0 =A0 fsa9480_write_reg(client, FSA9480_REG_MANSW1, path);
->> + =A0 =A0 fsa9480_write_reg(client, FSA9480_REG_CTRL, value);
->> +}
->> +EXPORT_SYMBOL_GPL(fsa9480_set_switch);
-To Minkyu, It's should be EXPORT_SYMBOL???
->
-> Why was this exported?
+Maybe v1 of my patch, with locking, is the best option?
 
-Even though it switch the USB path automatically, we don't use the
-full path for each purpose.
-e.g., we don't use the V(ideo)Audio or Audio. it's connected it for
-other purpose.
-In this case we switch it by manually by MAN(ual) Switch register.
+--
+Jon Povey
+jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org
 
->
->> +ssize_t fsa9480_get_switch(char *buf)
->> +{
->> + =A0 =A0 struct fsa9480_usbsw *usbsw =3D chip;
->> + =A0 =A0 struct i2c_client *client =3D usbsw->client;
->> + =A0 =A0 unsigned int value;
->> +
->> + =A0 =A0 value =3D fsa9480_read_reg(client, FSA9480_REG_MANSW1);
->> +
->> + =A0 =A0 if (value =3D=3D SW_VAUDIO)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "VAUDIO\n");
->> + =A0 =A0 else if (value =3D=3D SW_UART)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "UART\n");
->> + =A0 =A0 else if (value =3D=3D SW_AUDIO)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "AUDIO\n");
->> + =A0 =A0 else if (value =3D=3D SW_DHOST)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "DHOST\n");
->> + =A0 =A0 else if (value =3D=3D SW_AUTO)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "AUTO\n");
->> + =A0 =A0 else
->> + =A0 =A0 =A0 =A0 =A0 =A0 return sprintf(buf, "%x", value);
->> +}
->> +EXPORT_SYMBOL_GPL(fsa9480_get_switch);
->
-> This export also has no callers?
-It's used check what's the current switch status at other drivers.
+Racelogic is a limited company registered in England. Registered number 2743719 .
+Registered Office Unit 10, Swan Business Centre, Osier Way, Buckingham, Bucks, MK18 1TB .
 
-Thank you,
-Kyungmin Park
->
-> These functions implement a userspace API. =A0Userspace APIs are
-> important. =A0But the patch provided no documentation for that API.
-> Please always fully, exhaustively document userspace APIs! =A0For the=
-y
-> are the one part of the driver which we can never change.
->
-> Documenting them in a documentation file is OK. =A0Also there's
-> Documentation/ABI/. =A0And they can be nicely described in the change=
-log
-> too.
->
-> But providing us with no description at all makes review harder and
-> less effective than we'd like it to be, and results in a driver which
-> is harder for our users to use.
->
-> OK?
->
->> +static ssize_t fsa9480_show_status(struct device *dev,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0str=
-uct device_attribute *attr,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0cha=
-r *buf)
->> +{
->> + =A0 =A0 struct fsa9480_usbsw *usbsw =3D dev_get_drvdata(dev);
->> + =A0 =A0 struct i2c_client *client =3D usbsw->client;
->> + =A0 =A0 int devid, ctrl, adc, dev1, dev2, intr,
->> + =A0 =A0 =A0 =A0 intmask1, intmask2, time1, time2, mansw1;
->> +
->> + =A0 =A0 devid =3D fsa9480_read_reg(client, FSA9480_REG_DEVID);
->> + =A0 =A0 ctrl =3D fsa9480_read_reg(client, FSA9480_REG_CTRL);
->> + =A0 =A0 adc =3D fsa9480_read_reg(client, FSA9480_REG_ADC);
->> + =A0 =A0 intmask1 =3D fsa9480_read_reg(client, FSA9480_REG_INT1_MAS=
-K);
->> + =A0 =A0 intmask2 =3D fsa9480_read_reg(client, FSA9480_REG_INT2_MAS=
-K);
->> + =A0 =A0 dev1 =3D fsa9480_read_reg(client, FSA9480_REG_DEV_T1);
->> + =A0 =A0 dev2 =3D fsa9480_read_reg(client, FSA9480_REG_DEV_T2);
->> + =A0 =A0 time1 =3D fsa9480_read_reg(client, FSA9480_REG_TIMING1);
->> + =A0 =A0 time2 =3D fsa9480_read_reg(client, FSA9480_REG_TIMING2);
->> + =A0 =A0 mansw1 =3D fsa9480_read_reg(client, FSA9480_REG_MANSW1);
->> +
->> + =A0 =A0 fsa9480_read_irq(client, &intr);
->> +
->> + =A0 =A0 return sprintf(buf, "Device ID(%02x), CTRL(%02x)\n"
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "ADC(%02x), DEV_T1(%02x), =
-DEV_T2(%02x)\n"
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "INT(%04x), INTMASK(%02x, =
-%02x)\n"
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "TIMING(%02x, %02x), MANSW=
-1(%02x)\n",
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 devid, ctrl, adc, dev1, de=
-v2, intr,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 intmask1, intmask2, time1,=
- time2, mansw1);
->> +}
->
-> That's will produce odd-looking output I suspect. =A0More conventiona=
-l
-> would be
->
-> =A0 =A0 =A0 =A0Device ID:%02x CTRL:%02x
->
-> or something like that.
->
-> But that result is basically unparseable by software and a better out=
-put
-> would be
->
-> Device_ID: %02x
-> CTRL: %02x
-> ADC: %02x
->
-> etc.
->
-> But even that violates the sysfs one-value-per-file guideline.
->
-> So this interface is problematic. =A0It should have been discussed
-> up-front in the changelog so we can all take a look at the proposal a=
-nd
-> have a think about it.
->
->>
->> ...
->>
->> +static irqreturn_t fsa9480_irq_handler(int irq, void *data)
->> +{
->> + =A0 =A0 struct fsa9480_usbsw *usbsw =3D data;
->> +
->> + =A0 =A0 if (!work_pending(&usbsw->work)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_nosync(irq);
->> + =A0 =A0 =A0 =A0 =A0 =A0 schedule_work(&usbsw->work);
->> + =A0 =A0 }
->> +
->> + =A0 =A0 return IRQ_HANDLED;
->> +}
->
-> I expect that this driver can be converted to the new threaded IRQ co=
-de
-> (request_threaded_irq) and it will all become simpler.
->
->>
->> ...
->>
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
+The information contained in this electronic mail transmission is intended by Racelogic Ltd for the use of the named individual or entity to which it is directed and may contain information that is confidential or privileged. If you have received this electronic mail transmission in error, please delete it from your system without copying or forwarding it, and notify the sender of the error by reply email so that the sender's address records can be corrected. The views expressed by the sender of this communication do not necessarily represent those of Racelogic Ltd. Please note that Racelogic reserves the right to monitor e-mail communications passing through its network
