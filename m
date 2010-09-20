@@ -1,42 +1,29 @@
-From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: davinci: Fix race when setting up for TX
-Date: Mon, 20 Sep 2010 14:14:49 -0700
-Message-ID: <4C97CEC9.8060602@boundarydevices.com>
-References: <70E876B0EA86DD4BAF101844BC814DFE093ED5F50E@Cloud.RL.local>
+From: Tejun Heo <htejun@gmail.com>
+Subject: Re: idr_get_new_exact ?
+Date: Mon, 20 Sep 2010 23:26:47 +0200
+Message-ID: <4C97D197.9070703@gmail.com>
+References: <AANLkTi=ZLupVyFR0e2v-TLpeNWdw1bVMZUAhgyxLJ7OV@mail.gmail.com> <adaiq20f90h.fsf@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <70E876B0EA86DD4BAF101844BC814DFE093ED5F50E-lPJtnb2sqtq44ywRPIzf9A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Cc: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, Dirk Behme <dirk.behme-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Return-path: <linux-ppp-owner@vger.kernel.org>
+In-Reply-To: <adaiq20f90h.fsf@cisco.com>
+Sender: linux-ppp-owner@vger.kernel.org
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, linux-kernel@vger.kernel.org, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Roland Dreier <rolandd@cisco.com>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenstock@gmail.com>, Steve Wise <swise@chelsio.com>, Neil Brown <neilb@suse.de>, Paul Mackerras <paulus@samba.org>, linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org, dm-devel@redhat.com, linux-raid@vger.kernel.org, linux-ppp@vger.kernel.org, netdev@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-i2c@vger.kernel.org
 
->> On 9/17/2010 6:09 AM, Sudhakar Rajashekhara wrote:
->>> I remember I had some issues on OMAP-L138 with this fix, that's when
->>> I reverted to configuring ICMDR before writing to DXR (Please see
->>> here: https://patchwork.kernel.org/patch/75262/). I checked the BIOS
->>> I2C driver code for OMAP-L138 and there also we are configuring MDR
->>> before accessing DXR.
-> 
-> Ah :/
-> 
->>
->> and resetting the i2c upon a NAK interrupt (after the stop)
->> to clear the bad fifo data?
-> 
-> I can't really comment on how valid that would be and can't easily test it.
-> 
-> However preloading DXR does save one interrupt on transmit so the whole operation is faster and more efficient.
-> 
-> Maybe v1 of my patch, with locking, is the best option?
-> 
-> --
-> Jon Povey
+Hello,
 
-How about writing MDR twice? Once where Sudakar wants it, without the start bit.
-And then where you want it with the start bit?
+On 09/20/2010 10:35 PM, Roland Dreier wrote:
+> Looks fine to me as an improvement over the status quo, but I wonder how
+> many of these places could use the radix_tree stuff instead?  If you're
+> not using the ability of the idr code to assign an id for you, then it
+> seems the radix_tree API is a better fit.
 
+I agree.  Wouldn't those users better off simply using radix tree?
 
-Troy
+Thanks.
+
+-- 
+tejun
