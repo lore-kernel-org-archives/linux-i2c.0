@@ -1,77 +1,74 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/1] at24: add i2c_driver struct member for
- at24_driver, and reduce the priority of at24_init
-Date: Tue, 21 Sep 2010 09:17:36 +0200
-Message-ID: <20100921071736.GC3168@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/1] at24: add i2c_driver struct member for at24_driver,
+  and reduce the priority of at24_init
+Date: Tue, 21 Sep 2010 09:35:52 +0200
+Message-ID: <20100921093552.18cfdf26@endymion.delvare>
 References: <1285049243-17058-1-git-send-email-jgq516@gmail.com>
- <20100921063828.GA3168@pengutronix.de>
- <AANLkTi=BtMXtSuetDe60QMsVi-5gBy+JGi7+1X+=v4UV@mail.gmail.com>
+	<20100921090102.4afd1d07@endymion.delvare>
+	<AANLkTikY8Q2PzdufNVjY3VohQMThtzwtXSGWJhfcbedh@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O3RTKUHj+75w1tg5"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTi=BtMXtSuetDe60QMsVi-5gBy+JGi7+1X+=v4UV-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <AANLkTikY8Q2PzdufNVjY3VohQMThtzwtXSGWJhfcbedh-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: xiaojiang <jgq516-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Xiao,
 
---O3RTKUHj+75w1tg5
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please always reply to the list, so that your reply gets archived, and
+also so that others can participate in the discussion.
 
+On Tue, 21 Sep 2010 15:29:29 +0800, xiaojiang wrote:
+> 2010/9/21 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > On Tue, 21 Sep 2010 14:07:23 +0800, jgq516-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> > > From: Xiao Jiang <jgq516-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > >
+> > > The following changes are ensure at24 driver can be probed successfully,
+> > > which are based on Linux 2.6.36-rc5.
+> > > 1. Add class, detect and address_list member in at24_driver because they
+> > >    will be check in i2c_detect().
+> > (...)
+> > Nack. We don't want a driver to unconditionally attach to I2C
+> > addresses. It will inevitably grab devices which it doesn't actually
+> > support. There's also the problem that larger EEPROMs reply to more
+> > than one address, and there's no way to differentiate between one large
+> > and many smaller EEPROMs (for example one AT24C04 at 0x50 vs. two
+> > AT24C02 at 0x50 and 0x51.)
+>
+> Sorry, I don't  consider this sceneo.
+> 
+> > Worse, the above gives _write_ access to the EEPROM from user-space.
+> > This means users are free to make their expensive memory modules
+> > unusable by accidentally writing to the SPD EEPROM.
+>
+> Why user-space can't do write operation to eeprom? if so, people can't
+> update the eeprom's data, but update eeprom is necessay for my board.
 
->    Yes, we can't cover all the eeprom types, but I think people need
->    one example with all the function can be used. If somebody need use
->    at24.c for another eeprom, he only need to do the change
->    "s/at24/eeprom type", which maybe helpful to others. Anyway,
->    current code aren't work because of the lack of these members.
+Whether or not this is desirable, depends on what each EEPROM is being
+used for on a given system. Of course we want write support in some
+cases, but making it the default for autodetected devices seems way too
+dangerous. If people really need write access to their EEPROMs, they
+have to properly declare them and not rely on autodetection.
 
-The instantiation of devices is described here:
+> > The bottom line is that EEPROM devices must be declared properly, they
+> > can't be autodetected.
+> >
+> > The only case where autodetection makes sense is for read-only EEPROMs
+> > with well-specified contents, so we can check the contents for
+> > autodetection. SPD EEPROMs fall into this category, as well as the Sony
+> > proprietary EEPROMs in Vaio laptops. EDID EEPROMs could qualify as
+> > well, however I think I'd rather leave graphics adapter drivers deal
+> > with them and not interfere.
+> >
+> > Don't get me wrong, I'd be happy to get rid of the legacy "eeprom"
+> > driver, and in order to do this, extending the "at24" driver to
+> > autodetect SPD EEPROMs is needed. But it needs to be done with great
+> > care and thoughts.
+>
+>  I will consider more about it, thanks:)
 
-Documentation/i2c/instantiating-devices
-
-I'd think that would do to help people?
-
->      > 2. Since the at24 driver are tightly coupled with i2c bus
->      > driver, make =EF=BF=BD =EF=BF=BDsure it's init priority is lower t=
-han i2c bus.
->=20
->      Can you describe a scenario where the current method fails?
->=20
->    In my board, at24_init() is called before i2c-bus driver, because
->    the bus driver is initialized with module_init. But some i2c bus
->    used subsys_initcall to replace module_init, those i2c bus should
->    be ok without the change. I think only do one modification is
->    better than change all the i2c bus driver.
-
-But they should still match, even if at24 comes first, no? Otherwise
-there is a bug somewhere. (BTW changing i2c-bus-drivers to
-subsys_initcall() looks better to me, too, because if there is something
-like a PMIC or GPIOs connected to the bus, you usually want them early).
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---O3RTKUHj+75w1tg5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkyYXBAACgkQD27XaX1/VRslGQCfbrq7O2syzCuBrqv5Ss/JQ1qZ
-UTgAoLckXOz7oimSyzT4C5LJtVhc4gNS
-=Yhcw
------END PGP SIGNATURE-----
-
---O3RTKUHj+75w1tg5--
+-- 
+Jean Delvare
