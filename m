@@ -1,61 +1,27 @@
-From: "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH v4] i2c: davinci: Fix race when setting up for TX
-Date: Tue, 21 Sep 2010 16:54:17 +0530
-Message-ID: <20601.6880846166$1285068661@news.gmane.org>
-References: <4C97CEC9.8060602@boundarydevices.com>
-	<1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk>
+From: Yegor Yefremov <yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org>
+Subject: Re: [PATCH] fix i2c_pca_pf_waitforcompletion() return value
+Date: Tue, 21 Sep 2010 15:59:45 +0200
+Message-ID: <4C98BA51.3000209@visionsystems.de>
+References: <4C9725F8.1080200@visionsystems.de> <20100921054150.GA29281@pengutronix.de>
+Reply-To: yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1285042408-13200-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Content-Language: en-us
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100921054150.GA29281-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
-> When setting up to transmit, a race exists between the ISR and
-> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
-> This is mostly visible for transmits > 1 byte long.
-> 
-> The hardware starts sending immediately that MDR.STT is set. IMR trickery
-> doesn't work because if we start sending, finish the first byte and an
-> XRDY event occurs before we load IMR to unmask it, we never get an
-> interrupt, and we timeout.
-> 
-> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
-> settings before DXR for correct behaviour, so load MDR first with
-> STT cleared and later load again with STT set.
-> 
-> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
-> 
-> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> ---
-> Reworked after comments by Troy and Sudhakar.
-> 
-> Looking at the datasheet it seemed like setting STP without STT early
-> might cause a stray STOP to be generated, so I moved it into the second
-> MDR load.
-> 
-> This passes a quick smoke test but I can't do much more testing right at
-> the moment. Sudhakar, your comments would be welcomed.
-> 
+> Thanks for reporting. In deed, this needs to be corrected. However, I think we
+> should clean up the code some more and get rid of the initialization of ret
+> altogether (and hopefully make it more readable with this). Do you have time
+> for this, otherwise I'll have a look later.
+>
 
-Looks good to me. I can test on couple of platforms I have and update the result
-by tomorrow.
+This is a fix of a problem discussed in this thread http://www.spinics.net/lists/linux-i2c/msg02861.html.
 
-Thanks,
-Sudhakar
+Best regards,
+Yegor
