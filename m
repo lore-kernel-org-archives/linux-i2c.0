@@ -1,190 +1,60 @@
-From: Rajendra Nayak <rnayak@ti.com>
-Subject: [PATCH v3 5/5] OMAP: I2C: Convert i2c driver to use PM runtime api's
-Date: Tue, 21 Sep 2010 19:37:16 +0530
-Message-ID: <1285078036-12789-6-git-send-email-rnayak@ti.com>
-References: <1285078036-12789-1-git-send-email-rnayak@ti.com>
- <1285078036-12789-2-git-send-email-rnayak@ti.com>
- <1285078036-12789-3-git-send-email-rnayak@ti.com>
- <1285078036-12789-4-git-send-email-rnayak@ti.com>
- <1285078036-12789-5-git-send-email-rnayak@ti.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1285078036-12789-5-git-send-email-rnayak@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, khali@linux-fr.org, Rajendra Nayak <rnayak@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Paul Walmsley <paul@pwsan.com>
+From: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
+Date: Tue, 21 Sep 2010 12:17:58 -0700
+Message-ID: <4C9904E6.7070608@boundarydevices.com>
+References: <4C97CEC9.8060602@boundarydevices.com> <1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk> <026901cb597f$86fa9980$94efcc80$@raj@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <026901cb597f$86fa9980$94efcc80$@raj-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Cc: 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch converts the i2c driver to use PM runtime apis
+On 9/21/2010 4:24 AM, Sudhakar Rajashekhara wrote:
+> Hi,
+> 
+> On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
+>> When setting up to transmit, a race exists between the ISR and
+>> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
+>> This is mostly visible for transmits > 1 byte long.
+>>
+>> The hardware starts sending immediately that MDR.STT is set. IMR trickery
+>> doesn't work because if we start sending, finish the first byte and an
+>> XRDY event occurs before we load IMR to unmask it, we never get an
+>> interrupt, and we timeout.
+>>
+>> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
+>> settings before DXR for correct behaviour, so load MDR first with
+>> STT cleared and later load again with STT set.
+>>
+>> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+>>
+>> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+>> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+>> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+>> ---
+>> Reworked after comments by Troy and Sudhakar.
+>>
+>> Looking at the datasheet it seemed like setting STP without STT early
+>> might cause a stray STOP to be generated, so I moved it into the second
+>> MDR load.
+>>
+>> This passes a quick smoke test but I can't do much more testing right at
+>> the moment. Sudhakar, your comments would be welcomed.
+>>
+> 
+> Looks good to me. I can test on couple of platforms I have and update the result
+> by tomorrow.
+> 
+> Thanks,
+> Sudhakar
+> 
+> 
+> 
+I like it too. I hope it works for omap.
 
-Signed-off-by: Rajendra Nayak <rnayak@ti.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: Paul Walmsley <paul@pwsan.com>
----
- drivers/i2c/busses/i2c-omap.c |   67 +++++++++++++----------------------------
- 1 files changed, 21 insertions(+), 46 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 7674efb..126bde9 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -39,6 +39,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
-+#include <linux/pm_runtime.h>
- 
- /* I2C controller revisions */
- #define OMAP_I2C_REV_2			0x20
-@@ -175,8 +176,6 @@ struct omap_i2c_dev {
- 	void __iomem		*base;		/* virtual */
- 	int			irq;
- 	int			reg_shift;      /* bit shift for I2C register addresses */
--	struct clk		*iclk;		/* Interface clock */
--	struct clk		*fclk;		/* Functional clock */
- 	struct completion	cmd_complete;
- 	struct resource		*ioarea;
- 	u32			latency;	/* maximum mpu wkup latency */
-@@ -265,45 +264,18 @@ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
- 				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
- }
- 
--static int __init omap_i2c_get_clocks(struct omap_i2c_dev *dev)
-+static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- {
--	int ret;
-+	struct platform_device *pdev;
-+	struct omap_i2c_bus_platform_data *pdata;
- 
--	dev->iclk = clk_get(dev->dev, "ick");
--	if (IS_ERR(dev->iclk)) {
--		ret = PTR_ERR(dev->iclk);
--		dev->iclk = NULL;
--		return ret;
--	}
-+	WARN_ON(!dev->idle);
- 
--	dev->fclk = clk_get(dev->dev, "fck");
--	if (IS_ERR(dev->fclk)) {
--		ret = PTR_ERR(dev->fclk);
--		if (dev->iclk != NULL) {
--			clk_put(dev->iclk);
--			dev->iclk = NULL;
--		}
--		dev->fclk = NULL;
--		return ret;
--	}
-+	pdev = to_platform_device(dev->dev);
-+	pdata = pdev->dev.platform_data;
- 
--	return 0;
--}
-+	pm_runtime_get_sync(&pdev->dev);
- 
--static void omap_i2c_put_clocks(struct omap_i2c_dev *dev)
--{
--	clk_put(dev->fclk);
--	dev->fclk = NULL;
--	clk_put(dev->iclk);
--	dev->iclk = NULL;
--}
--
--static void omap_i2c_unidle(struct omap_i2c_dev *dev)
--{
--	WARN_ON(!dev->idle);
--
--	clk_enable(dev->iclk);
--	clk_enable(dev->fclk);
- 	if (cpu_is_omap34xx()) {
- 		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
-@@ -326,10 +298,15 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- 
- static void omap_i2c_idle(struct omap_i2c_dev *dev)
- {
-+	struct platform_device *pdev;
-+	struct omap_i2c_bus_platform_data *pdata;
- 	u16 iv;
- 
- 	WARN_ON(dev->idle);
- 
-+	pdev = to_platform_device(dev->dev);
-+	pdata = pdev->dev.platform_data;
-+
- 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
- 	if (dev->rev >= OMAP_I2C_REV_ON_4430)
- 		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
-@@ -345,8 +322,8 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- 		omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
- 	}
- 	dev->idle = 1;
--	clk_disable(dev->fclk);
--	clk_disable(dev->iclk);
-+
-+	pm_runtime_put_sync(&pdev->dev);
- }
- 
- static int omap_i2c_init(struct omap_i2c_dev *dev)
-@@ -356,6 +333,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 	unsigned long fclk_rate = 12000000;
- 	unsigned long timeout;
- 	unsigned long internal_clk = 0;
-+	struct clk *fclk;
- 
- 	if (dev->rev >= OMAP_I2C_REV_2) {
- 		/* Disable I2C controller before soft reset */
-@@ -414,7 +392,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 		 * always returns 12MHz for the functional clock, we can
- 		 * do this bit unconditionally.
- 		 */
--		fclk_rate = clk_get_rate(dev->fclk);
-+		fclk = clk_get(dev->dev, "fck");
-+		fclk_rate = clk_get_rate(fclk);
- 
- 		/* TRM for 5912 says the I2C clock must be prescaled to be
- 		 * between 7 - 12 MHz. The XOR input clock is typically
-@@ -443,7 +422,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 			internal_clk = 9600;
- 		else
- 			internal_clk = 4000;
--		fclk_rate = clk_get_rate(dev->fclk) / 1000;
-+		fclk = clk_get(dev->dev, "fck");
-+		fclk_rate = clk_get_rate(fclk) / 1000;
- 
- 		/* Compute prescaler divisor */
- 		psc = fclk_rate / internal_clk;
-@@ -1046,14 +1026,12 @@ omap_i2c_probe(struct platform_device *pdev)
- 	else
- 		dev->reg_shift = 2;
- 
--	if ((r = omap_i2c_get_clocks(dev)) != 0)
--		goto err_iounmap;
--
- 	if (cpu_is_omap44xx())
- 		dev->regs = (u8 *) omap4_reg_map;
- 	else
- 		dev->regs = (u8 *) reg_map;
- 
-+	pm_runtime_enable(&pdev->dev);
- 	omap_i2c_unidle(dev);
- 
- 	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-@@ -1125,8 +1103,6 @@ err_free_irq:
- err_unuse_clocks:
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	omap_i2c_idle(dev);
--	omap_i2c_put_clocks(dev);
--err_iounmap:
- 	iounmap(dev->base);
- err_free_mem:
- 	platform_set_drvdata(pdev, NULL);
-@@ -1148,7 +1124,6 @@ omap_i2c_remove(struct platform_device *pdev)
- 	free_irq(dev->irq, dev);
- 	i2c_del_adapter(&dev->adapter);
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
--	omap_i2c_put_clocks(dev);
- 	iounmap(dev->base);
- 	kfree(dev);
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--- 
-1.5.4.7
-
+Thanks as well
+Troy
