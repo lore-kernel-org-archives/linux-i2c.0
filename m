@@ -1,37 +1,66 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-omap: Make sure i2c bus is free before setting it
-	to idle
-Date: Wed, 22 Sep 2010 01:07:49 +0100
-Message-ID: <20100922000748.GG7494@trinity.fluff.org>
-References: <1282808204-1689-1-git-send-email-mathias.nyman@nokia.com> <20100826074118.GH23263@nokia.com> <20100916224050.GU29610@atomide.com>
+Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
+Date: Wed, 22 Sep 2010 01:09:16 +0100
+Message-ID: <20100922000916.GH7494@trinity.fluff.org>
+References: <4C97CEC9.8060602@boundarydevices.com> <1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk> <4C9904E6.7070608@boundarydevices.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100916224050.GU29610-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <4C9904E6.7070608-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "Nyman Mathias (Nokia-MS/Helsinki)" <Mathias.Nyman-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Cc: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>, 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 16, 2010 at 03:40:50PM -0700, Tony Lindgren wrote:
-> * Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> [100826 00:34]:
+On Tue, Sep 21, 2010 at 12:17:58PM -0700, Troy Kisky wrote:
+> On 9/21/2010 4:24 AM, Sudhakar Rajashekhara wrote:
 > > Hi,
 > > 
-> > On Thu, Aug 26, 2010 at 09:36:44AM +0200, Nyman Mathias (Nokia-MS/Helsinki) wrote:
-> > >If the i2c bus receives an interrupt with both BB (bus busy) and
-> > >ARDY (register access ready) statuses set during the tranfer of the last message
-> > >the bus was put to idle while still busy.
-> > >
-> > >This caused bus to timeout.
-> > >
-> > >Signed-off-by: Mathias Nyman <mathias.nyman-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> > On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
+> >> When setting up to transmit, a race exists between the ISR and
+> >> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
+> >> This is mostly visible for transmits > 1 byte long.
+> >>
+> >> The hardware starts sending immediately that MDR.STT is set. IMR trickery
+> >> doesn't work because if we start sending, finish the first byte and an
+> >> XRDY event occurs before we load IMR to unmask it, we never get an
+> >> interrupt, and we timeout.
+> >>
+> >> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
+> >> settings before DXR for correct behaviour, so load MDR first with
+> >> STT cleared and later load again with STT set.
+> >>
+> >> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+> >>
+> >> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+> >> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+> >> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> >> ---
+> >> Reworked after comments by Troy and Sudhakar.
+> >>
+> >> Looking at the datasheet it seemed like setting STP without STT early
+> >> might cause a stray STOP to be generated, so I moved it into the second
+> >> MDR load.
+> >>
+> >> This passes a quick smoke test but I can't do much more testing right at
+> >> the moment. Sudhakar, your comments would be welcomed.
+> >>
 > > 
-> > adding linux-i2c and Ben Dooks to Cc list.
+> > Looks good to me. I can test on couple of platforms I have and update the result
+> > by tomorrow.
+> > 
+> > Thanks,
+> > Sudhakar
+> > 
+> > 
+> > 
+> I like it too. I hope it works for omap.
 > 
-> Ben, can you please take this? The patchwork.kernel.org link is:
+> Thanks as well
+> Troy
 
-thanks, added to for-linus/2636-rc6-i2c
+Ok, any objections to this being applied, or should I wait?
 
 -- 
 Ben
