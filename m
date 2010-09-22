@@ -1,22 +1,29 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' i2c-fixes
-Date: Wed, 22 Sep 2010 02:11:52 +0100
-Message-ID: <E1OyDsG-0000XG-A7@ben-laptop>
+From: Yegor Yefremov <yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org>
+Subject: Re: [PATCH v2] fix i2c_pca_pf_waitforcompletion() return value
+Date: Wed, 22 Sep 2010 10:54:02 +0200
+Message-ID: <4C99C42A.7080501@visionsystems.de>
+References: <4C9877C3.30106@visionsystems.de> <20100921210448.GA14796@pengutronix.de>
+Reply-To: yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100921210448.GA14796-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit 2422084a94fcd5038406261b331672a13c92c050:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../mattst88/alpha-2.6
+ Hello Wolfram,
 
-are available in the git repository at:
+> Hmm, I think I'd prefer a centralized exit point. What about this? I think it
+> might be easier to read. Only compile tested, though. The final patch needs to
+> be applied to the isa version, too. BTW, good debugging there, fixing this old
+> issue you reported. Thanks a lot!
 
-  git://git.fluff.org/bjdooks/linux.git for-linus/i2c/2636-rc5
+Everything is working as expected. I'll send the whole patch for both isa and platform flavor. I think we should then change the patch name to something like:
 
-Mathias Nyman (1):
-      i2c-omap: Make sure i2c bus is free before setting it to idle
+fix PCA waitforcompletion() return value
 
- drivers/i2c/busses/i2c-omap.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Best regards,
+Yegor
