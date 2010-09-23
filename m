@@ -1,173 +1,31 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: Remove unneeded inclusions of <linux/i2c-id.h>
-Date: Thu, 23 Sep 2010 11:22:56 +0100
-Message-ID: <20100923102256.GA21564@trinity.fluff.org>
-References: <20100923114638.763f2c33@endymion.delvare>
+From: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+Subject: Re: idr_get_new_exact ?
+Date: Thu, 23 Sep 2010 20:42:55 +0900
+Message-ID: <20100923114255.GB27960@linux-sh.org>
+References: <AANLkTi=ZLupVyFR0e2v-TLpeNWdw1bVMZUAhgyxLJ7OV@mail.gmail.com> <adaiq20f90h.fsf@cisco.com> <4C97D197.9070703@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100923114638.763f2c33-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4C97D197.9070703-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Vincent Sanders <support-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Antonino Daplas <adaplas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maik Broemme <mbroemme-NVDgbhxX80LddJNmlsFzeA@public.gmane.org>
+To: Tejun Heo <htejun-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Roland Dreier <rdreier-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Roland Dreier <rolandd-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Steve Wise <swise-ut6Up61K2wZBDgjK7y7TUQ@public.gmane.org>, Neil Brown <neilb-l3A5Bk7waGM@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dm-devel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-raid-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ppp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 23, 2010 at 11:46:38AM +0200, Jean Delvare wrote:
-> These drivers don't use anything which is defined in <linux/i2c-id.h>.
-> This header file was never meant to be included directly anyway, and
-> will be deleted soon.
+On Mon, Sep 20, 2010 at 11:26:47PM +0200, Tejun Heo wrote:
+> Hello,
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> ---
->  drivers/gpu/drm/i915/intel_drv.h      |    1 -
->  drivers/gpu/drm/i915/intel_i2c.c      |    1 -
->  drivers/gpu/drm/nouveau/nouveau_i2c.h |    1 -
->  drivers/gpu/drm/radeon/radeon_mode.h  |    1 -
->  drivers/i2c/busses/i2c-ibm_iic.c      |    1 -
->  drivers/i2c/busses/i2c-nuc900.c       |    1 -
->  drivers/i2c/busses/i2c-pxa.c          |    1 -
->  drivers/i2c/busses/i2c-s3c2410.c      |    1 -
->  drivers/video/aty/radeon_i2c.c        |    1 -
->  drivers/video/i810/i810.h             |    1 -
->  drivers/video/intelfb/intelfb_i2c.c   |    1 -
->  drivers/video/savage/savagefb.h       |    1 -
->  12 files changed, 12 deletions(-)
+> On 09/20/2010 10:35 PM, Roland Dreier wrote:
+> > Looks fine to me as an improvement over the status quo, but I wonder how
+> > many of these places could use the radix_tree stuff instead?  If you're
+> > not using the ability of the idr code to assign an id for you, then it
+> > seems the radix_tree API is a better fit.
 > 
-> --- linux-2.6.36-rc5.orig/drivers/gpu/drm/i915/intel_drv.h	2010-09-21 11:09:57.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/gpu/drm/i915/intel_drv.h	2010-09-23 10:21:14.000000000 +0200
-> @@ -26,7 +26,6 @@
->  #define __INTEL_DRV_H__
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  #include "i915_drv.h"
->  #include "drm_crtc.h"
-> --- linux-2.6.36-rc5.orig/drivers/gpu/drm/i915/intel_i2c.c	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/gpu/drm/i915/intel_i2c.c	2010-09-23 10:21:11.000000000 +0200
-> @@ -27,7 +27,6 @@
->   */
->  #include <linux/i2c.h>
->  #include <linux/slab.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  #include "drmP.h"
->  #include "drm.h"
-> --- linux-2.6.36-rc5.orig/drivers/gpu/drm/nouveau/nouveau_i2c.h	2010-09-21 11:07:13.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/gpu/drm/nouveau/nouveau_i2c.h	2010-09-23 10:21:17.000000000 +0200
-> @@ -24,7 +24,6 @@
->  #define __NOUVEAU_I2C_H__
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  #include "drm_dp_helper.h"
->  
-> --- linux-2.6.36-rc5.orig/drivers/gpu/drm/radeon/radeon_mode.h	2010-09-21 11:11:28.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/gpu/drm/radeon/radeon_mode.h	2010-09-23 10:21:21.000000000 +0200
-> @@ -36,7 +36,6 @@
->  #include <drm_dp_helper.h>
->  #include <drm_fixed.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  
->  struct radeon_bo;
-> --- linux-2.6.36-rc5.orig/drivers/i2c/busses/i2c-ibm_iic.c	2010-09-21 11:07:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/i2c/busses/i2c-ibm_iic.c	2010-09-23 10:20:54.000000000 +0200
-> @@ -41,7 +41,6 @@
->  #include <asm/irq.h>
->  #include <linux/io.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/of_platform.h>
->  #include <linux/of_i2c.h>
->  
-> --- linux-2.6.36-rc5.orig/drivers/i2c/busses/i2c-nuc900.c	2010-09-21 11:07:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/i2c/busses/i2c-nuc900.c	2010-09-23 10:21:00.000000000 +0200
-> @@ -16,7 +16,6 @@
->  #include <linux/module.h>
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/init.h>
->  #include <linux/time.h>
->  #include <linux/interrupt.h>
-> --- linux-2.6.36-rc5.orig/drivers/i2c/busses/i2c-pxa.c	2010-09-21 11:07:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/i2c/busses/i2c-pxa.c	2010-09-23 10:21:08.000000000 +0200
-> @@ -22,7 +22,6 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/init.h>
->  #include <linux/time.h>
->  #include <linux/sched.h>
-> --- linux-2.6.36-rc5.orig/drivers/i2c/busses/i2c-s3c2410.c	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/i2c/busses/i2c-s3c2410.c	2010-09-23 10:21:04.000000000 +0200
-> @@ -24,7 +24,6 @@
->  #include <linux/module.h>
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/init.h>
->  #include <linux/time.h>
->  #include <linux/interrupt.h>
-> --- linux-2.6.36-rc5.orig/drivers/video/aty/radeon_i2c.c	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/video/aty/radeon_i2c.c	2010-09-23 10:20:45.000000000 +0200
-> @@ -7,7 +7,6 @@
->  
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  
->  #include <asm/io.h>
-> --- linux-2.6.36-rc5.orig/drivers/video/i810/i810.h	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/video/i810/i810.h	2010-09-23 10:20:49.000000000 +0200
-> @@ -17,7 +17,6 @@
->  #include <linux/agp_backend.h>
->  #include <linux/fb.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  #include <video/vga.h>
->  
-> --- linux-2.6.36-rc5.orig/drivers/video/intelfb/intelfb_i2c.c	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/video/intelfb/intelfb_i2c.c	2010-09-23 10:19:43.000000000 +0200
-> @@ -32,7 +32,6 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
->  #include <linux/fb.h>
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  
->  #include <asm/io.h>
-> --- linux-2.6.36-rc5.orig/drivers/video/savage/savagefb.h	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc5/drivers/video/savage/savagefb.h	2010-09-23 10:20:42.000000000 +0200
-> @@ -13,7 +13,6 @@
->  #define __SAVAGEFB_H__
->  
->  #include <linux/i2c.h>
-> -#include <linux/i2c-id.h>
->  #include <linux/i2c-algo-bit.h>
->  #include <linux/mutex.h>
->  #include <video/vga.h>
+> I agree.  Wouldn't those users better off simply using radix tree?
 > 
-> 
-> -- 
-> Jean Delvare
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
--- 
-Ben
-
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+It could go either way. I was about to write the same function when
+playing with it for IRQ mapping, the idea being to propagate the initial
+tree with sparse static vectors and then switch over to dynamic IDs for
+virtual IRQ creation. I ended up going with a radix tree for other
+reasons, though.
