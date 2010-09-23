@@ -1,65 +1,39 @@
-From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH 4/4] i2c-nomadik: fixup bus delays
-Date: Thu, 23 Sep 2010 09:04:11 +0200
-Message-ID: <1285225451-1085-1-git-send-email-linus.walleij@stericsson.com>
+From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C: various updates to the Nomadik I2C controller
+Date: Thu, 23 Sep 2010 09:05:53 +0200
+Message-ID: <AANLkTinAikrAeVT=xBeAHeqrHNz-D9g8_EOg=qB0NYs5@mail.gmail.com>
+References: <1284035372-27994-1-git-send-email-linus.walleij@stericsson.com>
+	<20100922002917.GK7494@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100922002917.GK7494-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We were missing a transfer delay in one execution path leading to
-hangs and the bus timeout was too low leading to errors under
-stress tests.
+2010/9/22 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
+> On Thu, Sep 09, 2010 at 02:29:32PM +0200, Linus Walleij wrote:
 
-Acked-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
+>> This applies a few fixes and improvements to the Nomadik I2C
+>> controller:
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index e461de7..c9fffd0 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -103,6 +103,9 @@
- /* maximum threshold value */
- #define MAX_I2C_FIFO_THRESHOLD	15
- 
-+/* per-transfer delay, required for the hardware to stabilize */
-+#define I2C_DELAY		150
-+
- enum i2c_status {
- 	I2C_NOP,
- 	I2C_ON_GOING,
-@@ -118,7 +121,7 @@ enum i2c_operation {
- };
- 
- /* controller response timeout in ms */
--#define I2C_TIMEOUT_MS	500
-+#define I2C_TIMEOUT_MS	2000
- 
- /**
-  * struct i2c_nmk_client - client specific data
-@@ -267,6 +270,7 @@ static int init_hw(struct nmk_i2c_dev *dev)
- 
- 	clk_disable(dev->clk);
- 
-+	udelay(I2C_DELAY);
- 	return 0;
- }
- 
-@@ -599,7 +603,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 			clk_disable(dev->clk);
- 			return status;
- 		}
--		mdelay(1);
-+		udelay(I2C_DELAY);
- 	}
- 	clk_disable(dev->clk);
- 
--- 
-1.6.3.3
+> I would prefer to see these as seperate patches, so that people can
+> see what is going on and you can test each seperately when looking
+> for bugs. If possible, can these be splut up?
+
+OK! Just sent a 4-patch split set.
+
+>> +/* delay for i2c transfers */
+>> +#define I2C_DELAY =A0 =A0 =A0 =A0 =A0 =A0150
+>
+> it would be helpful to say what the delay is for.
+
+I've tried to be a bit more elaborate...
+
+Thanks Ben!
+
+Yours,
+Linus Walleij
