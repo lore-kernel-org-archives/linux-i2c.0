@@ -1,68 +1,43 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
-Date: Thu, 23 Sep 2010 07:27:38 -0700
-Message-ID: <87d3s47cx1.fsf@deeprootsystems.com>
-References: <4C97CEC9.8060602@boundarydevices.com>
-	<1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk>
-	<026901cb597f$86fa9980$94efcc80$@raj@ti.com>
-	<4C9904E6.7070608@boundarydevices.com>
+From: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [BUG 2.6.36-rc5] of_i2c.ko <-> i2c-core.ko dependency loop
+Date: Thu, 23 Sep 2010 11:38:07 -0700
+Message-ID: <20100923113807.4643fbbb.rdunlap@xenotime.net>
+References: <19611.16302.262307.129176@pilspetsen.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C9904E6.7070608-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org> (Troy Kisky's message of
-	"Tue, 21 Sep 2010 12:17:58 -0700")
+In-Reply-To: <19611.16302.262307.129176-tgku4HJDRZih8lFjZTKsyTAV6s6igYVG@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Cc: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mikael Pettersson <mikpe-1zs4UD6AkMk@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org> writes:
+On Thu, 23 Sep 2010 13:53:18 +0200 Mikael Pettersson wrote:
 
-> On 9/21/2010 4:24 AM, Sudhakar Rajashekhara wrote:
->> Hi,
->> 
->> On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
->>> When setting up to transmit, a race exists between the ISR and
->>> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
->>> This is mostly visible for transmits > 1 byte long.
->>>
->>> The hardware starts sending immediately that MDR.STT is set. IMR trickery
->>> doesn't work because if we start sending, finish the first byte and an
->>> XRDY event occurs before we load IMR to unmask it, we never get an
->>> interrupt, and we timeout.
->>>
->>> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
->>> settings before DXR for correct behaviour, so load MDR first with
->>> STT cleared and later load again with STT set.
->>>
->>> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
->>>
->>> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
->>> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
->>> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
->>> ---
->>> Reworked after comments by Troy and Sudhakar.
->>>
->>> Looking at the datasheet it seemed like setting STP without STT early
->>> might cause a stray STOP to be generated, so I moved it into the second
->>> MDR load.
->>>
->>> This passes a quick smoke test but I can't do much more testing right at
->>> the moment. Sudhakar, your comments would be welcomed.
->>>
->> 
->> Looks good to me. I can test on couple of platforms I have and update the result
->> by tomorrow.
->> 
->> Thanks,
->> Sudhakar
->> 
->> 
->> 
-> I like it too. I hope it works for omap.
+> Running modules_install from a newly built 2.6.36-rc5 kernel
+> on my 32-bit PowerMac results in:
+> 
+> WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/busses/i2c-powermac.ko ignored, due to loop
+> WARNING: Loop detected: /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko needs of_i2c.ko which needs i2c-core.ko again!
+> WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-dev.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/of/of_i2c.ko ignored, due to loop
+> WARNING: Module /lib/modules/2.6.36-rc5/kernel/sound/ppc/snd-powermac.ko ignored, due to loop
+> 
+> > grep '.*I2C.*=' .config
+> CONFIG_OF_I2C=m
+> CONFIG_I2C=m
+> CONFIG_I2C_BOARDINFO=y
+> CONFIG_I2C_CHARDEV=m
+> CONFIG_I2C_POWERMAC=m
+> 
+> I can't say exactly when this started, haven't built kernels on this
+> box in a while.
 
-Troy, can I take this as an Acked-by from you?  or a Tested-by?
 
-Thanks,
+No kconfig warnings?  Please post your full .config file.
 
-Kevin
+---
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***
