@@ -1,34 +1,26 @@
-From: Mikael Pettersson <mikpe-1zs4UD6AkMk@public.gmane.org>
-Subject: [BUG 2.6.36-rc5] of_i2c.ko <-> i2c-core.ko dependency loop
-Date: Thu, 23 Sep 2010 13:53:18 +0200
-Message-ID: <19611.16302.262307.129176@pilspetsen.it.uu.se>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH] i2c-mv64xxx: use subsys_initcall for early
+	initialization
+Date: Thu, 23 Sep 2010 13:29:27 +0100
+Message-ID: <20100923122927.GA21874@sirena.org.uk>
+References: <1284284129-28105-1-git-send-email-mike@compulab.co.il> <20100914232547.GD7494@trinity.fluff.org> <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Running modules_install from a newly built 2.6.36-rc5 kernel
-on my 32-bit PowerMac results in:
+On Thu, Sep 23, 2010 at 09:11:00AM +0200, Linus Walleij wrote:
 
-WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/busses/i2c-powermac.ko ignored, due to loop
-WARNING: Loop detected: /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko needs of_i2c.ko which needs i2c-core.ko again!
-WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko ignored, due to loop
-WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-dev.ko ignored, due to loop
-WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/of/of_i2c.ko ignored, due to loop
-WARNING: Module /lib/modules/2.6.36-rc5/kernel/sound/ppc/snd-powermac.ko ignored, due to loop
+> Makes me think of crazy things like putting a lightweight version of
+> Lennars P?tterings "systemd" scheme into the kernel for resolving
+> these initcalls.
 
-> grep '.*I2C.*=' .config
-CONFIG_OF_I2C=m
-CONFIG_I2C=m
-CONFIG_I2C_BOARDINFO=y
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_POWERMAC=m
-
-I can't say exactly when this started, haven't built kernels on this
-box in a while.
-
-/Mikael
+We pretty much need that; it's not just the initcalls - we also need the
+probes to go through in the right order, we're just using the initcall
+fiddling to bodge that for now with particularly critical system
+components.
