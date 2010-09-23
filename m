@@ -1,42 +1,34 @@
-From: Tejun Heo <htejun@gmail.com>
-Subject: Re: idr_get_new_exact ?
-Date: Thu, 23 Sep 2010 13:46:29 +0200
-Message-ID: <4C9B3E15.5080002@gmail.com>
-References: <AANLkTi=ZLupVyFR0e2v-TLpeNWdw1bVMZUAhgyxLJ7OV@mail.gmail.com> <adaiq20f90h.fsf@cisco.com> <4C97D197.9070703@gmail.com> <20100923114255.GB27960@linux-sh.org>
+From: Mikael Pettersson <mikpe-1zs4UD6AkMk@public.gmane.org>
+Subject: [BUG 2.6.36-rc5] of_i2c.ko <-> i2c-core.ko dependency loop
+Date: Thu, 23 Sep 2010 13:53:18 +0200
+Message-ID: <19611.16302.262307.129176@pilspetsen.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ppp-owner@vger.kernel.org>
-In-Reply-To: <20100923114255.GB27960@linux-sh.org>
-Sender: linux-ppp-owner@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Roland Dreier <rdreier@cisco.com>, Ohad Ben-Cohen <ohad@wizery.com>, linux-kernel@vger.kernel.org, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Roland Dreier <rolandd@cisco.com>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenstock@gmail.com>, Steve Wise <swise@chelsio.com>, Neil Brown <neilb@suse.de>, Paul Mackerras <paulus@samba.org>, linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org, dm-devel@redhat.com, linux-raid@vger.kernel.org, linux-ppp@vger.kernel.org, netdev@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Alasdair G Kergon <agk@redhat.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Running modules_install from a newly built 2.6.36-rc5 kernel
+on my 32-bit PowerMac results in:
 
-On 09/23/2010 01:42 PM, Paul Mundt wrote:
-> On Mon, Sep 20, 2010 at 11:26:47PM +0200, Tejun Heo wrote:
->> Hello,
->>
->> On 09/20/2010 10:35 PM, Roland Dreier wrote:
->>> Looks fine to me as an improvement over the status quo, but I wonder how
->>> many of these places could use the radix_tree stuff instead?  If you're
->>> not using the ability of the idr code to assign an id for you, then it
->>> seems the radix_tree API is a better fit.
->>
->> I agree.  Wouldn't those users better off simply using radix tree?
->>
-> It could go either way. I was about to write the same function when
-> playing with it for IRQ mapping, the idea being to propagate the initial
-> tree with sparse static vectors and then switch over to dynamic IDs for
-> virtual IRQ creation. I ended up going with a radix tree for other
-> reasons, though.
+WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/busses/i2c-powermac.ko ignored, due to loop
+WARNING: Loop detected: /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko needs of_i2c.ko which needs i2c-core.ko again!
+WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko ignored, due to loop
+WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-dev.ko ignored, due to loop
+WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/of/of_i2c.ko ignored, due to loop
+WARNING: Module /lib/modules/2.6.36-rc5/kernel/sound/ppc/snd-powermac.ko ignored, due to loop
 
-I see.  If there are use cases where fixed and dynamic IDs need to be
-mixed, no objection from me.
+> grep '.*I2C.*=' .config
+CONFIG_OF_I2C=m
+CONFIG_I2C=m
+CONFIG_I2C_BOARDINFO=y
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_POWERMAC=m
 
-Thanks.
+I can't say exactly when this started, haven't built kernels on this
+box in a while.
 
--- 
-tejun
+/Mikael
