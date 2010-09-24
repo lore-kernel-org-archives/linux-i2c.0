@@ -1,64 +1,116 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
-Date: Fri, 24 Sep 2010 07:37:03 -0700
-Message-ID: <87sk0zky28.fsf@deeprootsystems.com>
-References: <4C97CEC9.8060602@boundarydevices.com>
-	<1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk>
-	<022501cb5ba2$d801d760$88058620$@raj@ti.com>
+From: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH V3 RESEND4] i2c-imx: do not allow interruptions when waiting
+ for I2C to complete
+Date: Fri, 24 Sep 2010 16:50:09 +0200
+Message-ID: <4C9CBAA1.5040202@pengutronix.de>
+References: <4C1F0FC7.60605@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <022501cb5ba2$d801d760$88058620$@raj-l0cyMroinI0@public.gmane.org> (Sudhakar
-	Rajashekhara's message of "Fri, 24 Sep 2010 10:12:07 +0530")
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF43C545AD42D27DC002AF082"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C1F0FC7.60605-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-"Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org> writes:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF43C545AD42D27DC002AF082
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
->> When setting up to transmit, a race exists between the ISR and
->> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
->> This is mostly visible for transmits > 1 byte long.
->> 
->> The hardware starts sending immediately that MDR.STT is set. IMR trickery
->> doesn't work because if we start sending, finish the first byte and an
->> XRDY event occurs before we load IMR to unmask it, we never get an
->> interrupt, and we timeout.
->> 
->> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
->> settings before DXR for correct behaviour, so load MDR first with
->> STT cleared and later load again with STT set.
->> 
->> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
->> 
->> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
->> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
->> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
->> ---
->
-> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
->
-> Tested with audio loopback on OMAP-L138, OMAP-L137 and DM365. Also tested with
-> i2cdetect function which probes all the devices on the i2c bus.
+Hello Ben,
+
+what about this patch?
+
+cheers, Marc
+
+--------8<--------8<--------8<--------8<--------8<--------8<--------
+
+The i2c_imx_trx_complete() function is using
+wait_event_interruptible_timeout() to wait for the I2C controller to
+signal that it has completed an I2C bus operation. If the process that
+causes the I2C operation receives a signal, the wait will be
+interrupted, returning an error. It is better to let the I2C operation
+finished before handling the signal (i.e. returning into userspace).
+
+It is safe to use wait_event_timeout() instead, because the timeout
+will allow the process to exit if the I2C bus hangs. It's also better
+to allow the I2C operation to finish, because unacknowledged I2C
+operations can cause the I2C bus to hang.
+
+Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+
+V2: Remove check for "result < 0" as commented by Wolfram Sang.
+V3: Remove "result" entirely.
+
+ drivers/i2c/busses/i2c-imx.c |   12 +++---------
+ 1 files changed, 3 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d1ff940..4c2a62b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -159,15 +159,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
+*i2c_imx, int for_busy)
+
+ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
+ {
+-	int result;
+-
+-	result =3D wait_event_interruptible_timeout(i2c_imx->queue,
+-		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
++	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);=
 
 
-Ben, can you queue this one for 2.6.37 with the addition of:
+-	if (unlikely(result < 0)) {
+-		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
+-		return result;
+-	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
++	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+@@ -295,7 +289,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)=
 
-Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+ 		i2c_imx->i2csr =3D temp;
+ 		temp &=3D ~I2SR_IIF;
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
+-		wake_up_interruptible(&i2c_imx->queue);
++		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
 
-Thanks,
+--=20
+1.7.1
 
-Kevin
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+
+
+
+
+
+--------------enigF43C545AD42D27DC002AF082
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkycuqYACgkQjTAFq1RaXHOZggCfcbvIPXkBpbyod5BhJFCRgqZ7
+Gi4AnjWOkpRaYMmhLu9jCUqjFGU+Uaeb
+=0c7a
+-----END PGP SIGNATURE-----
+
+--------------enigF43C545AD42D27DC002AF082--
