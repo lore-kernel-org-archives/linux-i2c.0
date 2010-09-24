@@ -1,60 +1,64 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [BUG 2.6.36-rc5] of_i2c.ko <-> i2c-core.ko dependency loop
-Date: Fri, 24 Sep 2010 07:48:38 -0600
-Message-ID: <f1f37e21-f04a-4fef-868c-27c7d2ebe594@email.android.com>
-References: <19611.16302.262307.129176@pilspetsen.it.uu.se>
-	<20100923113807.4643fbbb.rdunlap@xenotime.net>
-	<19611.46496.782340.466509@pilspetsen.it.uu.se>
-	<20100923150559.9c67da11.rdunlap@xenotime.net>
-	<20100924111209.3c071da3@endymion.delvare>
-	<19612.33369.175358.879889@pilspetsen.it.uu.se>
-	<20100924133932.4320b993@endymion.delvare>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
+Date: Fri, 24 Sep 2010 07:37:03 -0700
+Message-ID: <87sk0zky28.fsf@deeprootsystems.com>
+References: <4C97CEC9.8060602@boundarydevices.com>
+	<1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk>
+	<022501cb5ba2$d801d760$88058620$@raj@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100924133932.4320b993@endymion.delvare>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: Jean Delvare <khali@linux-fr.org>, Mikael Pettersson <mikpe@it.uu.se>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <022501cb5ba2$d801d760$88058620$@raj-l0cyMroinI0@public.gmane.org> (Sudhakar
+	Rajashekhara's message of "Fri, 24 Sep 2010 10:12:07 +0530")
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+"Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org> writes:
 
-
-"Jean Delvare" <khali@linux-fr.org> wrote:
-
->Hi Mikael,
->
->On Fri, 24 Sep 2010 12:50:01 +0200, Mikael Pettersson wrote:
->> Jean Delvare writes:
->>  > As far as I can see this is caused by this commit from Grant:
->>  > 
->>  > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=959e85f7751c33d1a2dabc5cc3fe2ed0db7052e5
->>  > 
->>  > Mikael, can you please try reverting this patch and see if it solves
->>  > your problem?
+> On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
+>> When setting up to transmit, a race exists between the ISR and
+>> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
+>> This is mostly visible for transmits > 1 byte long.
 >> 
->> Yes, reverting the above commit from 2.6.36-rc5 eliminated the warnings,
->> and I was able to insmod the i2c-{core,dev,powermac}.ko modules.
+>> The hardware starts sending immediately that MDR.STT is set. IMR trickery
+>> doesn't work because if we start sending, finish the first byte and an
+>> XRDY event occurs before we load IMR to unmask it, we never get an
+>> interrupt, and we timeout.
+>> 
+>> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
+>> settings before DXR for correct behaviour, so load MDR first with
+>> STT cleared and later load again with STT set.
+>> 
+>> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+>> 
+>> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+>> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+>> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+>> ---
 >
->Thanks for testing and reporting. Grant, unless you come up with a fix
->very quickly, I'll have to revert
->959e85f7751c33d1a2dabc5cc3fe2ed0db7052e5 for 2.6.36.
-
-I'll get a fix out today.
-g.
-
+> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
 >
->-- 
->Jean Delvare
+> Tested with audio loopback on OMAP-L138, OMAP-L137 and DM365. Also tested with
+> i2cdetect function which probes all the devices on the i2c bus.
 
--- 
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
+
+Ben, can you queue this one for 2.6.37 with the addition of:
+
+Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+
+Thanks,
+
+Kevin
