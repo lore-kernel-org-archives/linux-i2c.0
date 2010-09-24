@@ -1,57 +1,39 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [BUG 2.6.36-rc5] of_i2c.ko <-> i2c-core.ko dependency loop
-Date: Thu, 23 Sep 2010 15:05:59 -0700
-Message-ID: <20100923150559.9c67da11.rdunlap@xenotime.net>
-References: <19611.16302.262307.129176@pilspetsen.it.uu.se>
-	<20100923113807.4643fbbb.rdunlap@xenotime.net>
-	<19611.46496.782340.466509@pilspetsen.it.uu.se>
+From: Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 3/4] i2c-nomadik: support smbus emulation
+Date: Fri, 24 Sep 2010 12:47:15 +0900
+Message-ID: <4C9C1F43.4080105@renesas.com>
+References: <1285225443-1036-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <19611.46496.782340.466509@pilspetsen.it.uu.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1285225443-1036-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 23 Sep 2010 22:16:32 +0200 Mikael Pettersson wrote:
+On 9/23/2010 4:04 PM, Linus Walleij wrote:
+> We can do smbus emulation so flag this and drop the duplicate
+> flags implied from smbus emulation.
 
-> Randy Dunlap writes:
->  > On Thu, 23 Sep 2010 13:53:18 +0200 Mikael Pettersson wrote:
->  > 
->  > > Running modules_install from a newly built 2.6.36-rc5 kernel
->  > > on my 32-bit PowerMac results in:
->  > > 
->  > > WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/busses/i2c-powermac.ko ignored, due to loop
->  > > WARNING: Loop detected: /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko needs of_i2c.ko which needs i2c-core.ko again!
->  > > WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-core.ko ignored, due to loop
->  > > WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/i2c/i2c-dev.ko ignored, due to loop
->  > > WARNING: Module /lib/modules/2.6.36-rc5/kernel/drivers/of/of_i2c.ko ignored, due to loop
->  > > WARNING: Module /lib/modules/2.6.36-rc5/kernel/sound/ppc/snd-powermac.ko ignored, due to loop
->  > > 
->  > > > grep '.*I2C.*=' .config
->  > > CONFIG_OF_I2C=m
->  > > CONFIG_I2C=m
->  > > CONFIG_I2C_BOARDINFO=y
->  > > CONFIG_I2C_CHARDEV=m
->  > > CONFIG_I2C_POWERMAC=m
->  > > 
->  > > I can't say exactly when this started, haven't built kernels on this
->  > > box in a while.
->  > 
->  > 
->  > No kconfig warnings?
-> 
-> Not that I recall.  I can check tomorrow if necessary.
+> @@ -803,10 +803,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+>  
+>  static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
+>  {
+> -	return I2C_FUNC_I2C
+> -		| I2C_FUNC_SMBUS_BYTE_DATA
+> -		| I2C_FUNC_SMBUS_WORD_DATA
+> -		| I2C_FUNC_SMBUS_I2C_BLOCK;
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>  }
+>  
+>  static const struct i2c_algorithm nmk_i2c_algo = {
 
-No kconfig warnings.  I checked with your .config file.
-
->  > Please post your full .config file.
-
-Just a matter of module i2c-core calls of_ functions and module of_i2c calls
-i2c_ functions.  Hmph.  Something for Grant, Jean, and Ben to work out.
-
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+(failed to figure out from the driver, so would like to make sure)
+Is this I2C core capable of I2C_FUNC_SMBUS_QUICK?  Unless it's capable
+of full SMBus emulation, it would be better to turn off relevant flags
+for safety.  I'm not objecting to the patch, but just wondered.
+-- 
+Shinya Kuribayashi
+Renesas Electronics
