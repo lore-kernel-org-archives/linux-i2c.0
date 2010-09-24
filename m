@@ -1,64 +1,77 @@
-From: Ben Dooks <ben-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: davinci: Fix race when setting up for TX
-Date: Fri, 24 Sep 2010 17:37:54 +0100
-Message-ID: <20100924163754.GH27885@trinity.fluff.org>
-References: <4C97CEC9.8060602@boundarydevices.com> <1285042408-13200-1-git-send-email-jon.povey@racelogic.co.uk> <87sk0zky28.fsf@deeprootsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <87sk0zky28.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jon Povey' <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+From: matt mooney <mfm@muteddisk.com>
+Subject: [PATCH 05/24] i2c: change to new flag variable
+Date: Fri, 24 Sep 2010 12:17:15 -0700
+Message-ID: <b3e2061e1e6703f7b84c0484030e07de6000546a.1285355033.git.mfm@muteddisk.com>
+References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+ <9968d4260be8850200cc9c7dfe08addf611468b4.1285355033.git.mfm@muteddisk.com>
+ <036514b5dd23c5af14303519d79d60d79adccbee.1285355033.git.mfm@muteddisk.com>
+ <ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
+In-Reply-To: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 24, 2010 at 07:37:03AM -0700, Kevin Hilman wrote:
-> "Sudhakar Rajashekhara" <sudhakar.raj-l0cyMroinI0@public.gmane.org> writes:
-> 
-> > On Tue, Sep 21, 2010 at 09:43:28, Jon Povey wrote:
-> >> When setting up to transmit, a race exists between the ISR and
-> >> i2c_davinci_xfer_msg() trying to load the first byte and adjust counters.
-> >> This is mostly visible for transmits > 1 byte long.
-> >> 
-> >> The hardware starts sending immediately that MDR.STT is set. IMR trickery
-> >> doesn't work because if we start sending, finish the first byte and an
-> >> XRDY event occurs before we load IMR to unmask it, we never get an
-> >> interrupt, and we timeout.
-> >> 
-> >> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
-> >> settings before DXR for correct behaviour, so load MDR first with
-> >> STT cleared and later load again with STT set.
-> >> 
-> >> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
-> >> 
-> >> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-> >> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-> >> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> >> ---
-> >
-> > Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-> >
-> > Tested with audio loopback on OMAP-L138, OMAP-L137 and DM365. Also tested with
-> > i2cdetect function which probes all the devices on the i2c bus.
-> 
-> 
-> Ben, can you queue this one for 2.6.37 with the addition of:
+Replace EXTRA_CFLAGS with ccflags-y.
 
-If it is a worthwhile bugfix i'll send it for the next -rc.
+Signed-off-by: matt mooney <mfm@muteddisk.com>
+---
+ drivers/i2c/Makefile        |    4 +---
+ drivers/i2c/algos/Makefile  |    4 +---
+ drivers/i2c/busses/Makefile |    4 +---
+ drivers/i2c/muxes/Makefile  |    4 +---
+ 4 files changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index c00fd66..23ac61e 100644
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -9,6 +9,4 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
+ obj-y				+= algos/ busses/ muxes/
  
-> Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> 
-> Thanks,
-> 
-> Kevin
-> 
-
+-ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+-EXTRA_CFLAGS += -DDEBUG
+-endif
++ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+diff --git a/drivers/i2c/algos/Makefile b/drivers/i2c/algos/Makefile
+index 18b3e96..215303f 100644
+--- a/drivers/i2c/algos/Makefile
++++ b/drivers/i2c/algos/Makefile
+@@ -6,6 +6,4 @@ obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
+ obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
+ obj-$(CONFIG_I2C_ALGOPCA)	+= i2c-algo-pca.o
+ 
+-ifeq ($(CONFIG_I2C_DEBUG_ALGO),y)
+-EXTRA_CFLAGS += -DDEBUG
+-endif
++ccflags-$(CONFIG_I2C_DEBUG_ALGO) := -DDEBUG
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index c3ef492..033ad41 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -76,6 +76,4 @@ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+ obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+ 
+-ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+-EXTRA_CFLAGS += -DDEBUG
+-endif
++ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index bd83b52..6f49786 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -3,6 +3,4 @@
+ 
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= pca954x.o
+ 
+-ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+-EXTRA_CFLAGS += -DDEBUG
+-endif
++ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
 -- 
--- 
-Ben
-
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+1.7.2.1
