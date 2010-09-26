@@ -1,91 +1,98 @@
-From: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH 05/24] i2c: change to new flag variable
-Date: Sat, 25 Sep 2010 19:12:17 -0700
-Message-ID: <20100926021217.GC8191@haskell.muteddisk.com>
+Date: Sun, 26 Sep 2010 09:29:31 +0200
+Message-ID: <20100926092931.68980448@endymion.delvare>
 References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
- <9968d4260be8850200cc9c7dfe08addf611468b4.1285355033.git.mfm@muteddisk.com>
- <036514b5dd23c5af14303519d79d60d79adccbee.1285355033.git.mfm@muteddisk.com>
- <ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
- <b3e2061e1e6703f7b84c0484030e07de6000546a.1285355033.git.mfm@muteddisk.com>
- <20100925132611.03ef0882@endymion.delvare>
+	<9968d4260be8850200cc9c7dfe08addf611468b4.1285355033.git.mfm@muteddisk.com>
+	<036514b5dd23c5af14303519d79d60d79adccbee.1285355033.git.mfm@muteddisk.com>
+	<ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
+	<b3e2061e1e6703f7b84c0484030e07de6000546a.1285355033.git.mfm@muteddisk.com>
+	<20100925132611.03ef0882@endymion.delvare>
+	<20100926021217.GC8191@haskell.muteddisk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100925132611.03ef0882-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20100926021217.GC8191-HC+Z4NTRIlA6jSvU4L2mP2ItS4zQEDct@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
 Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 13:26 Sat 25 Sep     , Jean Delvare wrote:
-> On Fri, 24 Sep 2010 12:17:15 -0700, matt mooney wrote:
-> > Replace EXTRA_CFLAGS with ccflags-y.
+On Sat, 25 Sep 2010 19:12:17 -0700, matt mooney wrote:
+> On 13:26 Sat 25 Sep     , Jean Delvare wrote:
+> > On Fri, 24 Sep 2010 12:17:15 -0700, matt mooney wrote:
+> > > Replace EXTRA_CFLAGS with ccflags-y.
+> > > 
+> > > Signed-off-by: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
+> > > ---
+> > >  drivers/i2c/Makefile        |    4 +---
+> > >  drivers/i2c/algos/Makefile  |    4 +---
+> > >  drivers/i2c/busses/Makefile |    4 +---
+> > >  drivers/i2c/muxes/Makefile  |    4 +---
+> > >  4 files changed, 4 insertions(+), 12 deletions(-)
+> > > 
+> > > diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> > > index c00fd66..23ac61e 100644
+> > > --- a/drivers/i2c/Makefile
+> > > +++ b/drivers/i2c/Makefile
+> > > @@ -9,6 +9,4 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+> > >  obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
+> > >  obj-y				+= algos/ busses/ muxes/
+> > >  
+> > > -ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+> > > -EXTRA_CFLAGS += -DDEBUG
+> > > -endif
+> > > +ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+> > > diff --git a/drivers/i2c/algos/Makefile b/drivers/i2c/algos/Makefile
+> > > index 18b3e96..215303f 100644
+> > > --- a/drivers/i2c/algos/Makefile
+> > > +++ b/drivers/i2c/algos/Makefile
+> > > @@ -6,6 +6,4 @@ obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
+> > >  obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
+> > >  obj-$(CONFIG_I2C_ALGOPCA)	+= i2c-algo-pca.o
+> > >  
+> > > -ifeq ($(CONFIG_I2C_DEBUG_ALGO),y)
+> > > -EXTRA_CFLAGS += -DDEBUG
+> > > -endif
+> > > +ccflags-$(CONFIG_I2C_DEBUG_ALGO) := -DDEBUG
+> > > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > > index c3ef492..033ad41 100644
+> > > --- a/drivers/i2c/busses/Makefile
+> > > +++ b/drivers/i2c/busses/Makefile
+> > > @@ -76,6 +76,4 @@ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+> > >  obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+> > >  obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+> > >  
+> > > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+> > > -EXTRA_CFLAGS += -DDEBUG
+> > > -endif
+> > > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+> > > diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+> > > index bd83b52..6f49786 100644
+> > > --- a/drivers/i2c/muxes/Makefile
+> > > +++ b/drivers/i2c/muxes/Makefile
+> > > @@ -3,6 +3,4 @@
+> > >  
+> > >  obj-$(CONFIG_I2C_MUX_PCA954x)	+= pca954x.o
+> > >  
+> > > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+> > > -EXTRA_CFLAGS += -DDEBUG
+> > > -endif
+> > > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
 > > 
-> > Signed-off-by: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
-> > ---
-> >  drivers/i2c/Makefile        |    4 +---
-> >  drivers/i2c/algos/Makefile  |    4 +---
-> >  drivers/i2c/busses/Makefile |    4 +---
-> >  drivers/i2c/muxes/Makefile  |    4 +---
-> >  4 files changed, 4 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-> > index c00fd66..23ac61e 100644
-> > --- a/drivers/i2c/Makefile
-> > +++ b/drivers/i2c/Makefile
-> > @@ -9,6 +9,4 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
-> >  obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
-> >  obj-y				+= algos/ busses/ muxes/
-> >  
-> > -ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
-> > -EXTRA_CFLAGS += -DDEBUG
-> > -endif
-> > +ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
-> > diff --git a/drivers/i2c/algos/Makefile b/drivers/i2c/algos/Makefile
-> > index 18b3e96..215303f 100644
-> > --- a/drivers/i2c/algos/Makefile
-> > +++ b/drivers/i2c/algos/Makefile
-> > @@ -6,6 +6,4 @@ obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
-> >  obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
-> >  obj-$(CONFIG_I2C_ALGOPCA)	+= i2c-algo-pca.o
-> >  
-> > -ifeq ($(CONFIG_I2C_DEBUG_ALGO),y)
-> > -EXTRA_CFLAGS += -DDEBUG
-> > -endif
-> > +ccflags-$(CONFIG_I2C_DEBUG_ALGO) := -DDEBUG
-> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> > index c3ef492..033ad41 100644
-> > --- a/drivers/i2c/busses/Makefile
-> > +++ b/drivers/i2c/busses/Makefile
-> > @@ -76,6 +76,4 @@ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
-> >  obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
-> >  obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
-> >  
-> > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
-> > -EXTRA_CFLAGS += -DDEBUG
-> > -endif
-> > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-> > diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-> > index bd83b52..6f49786 100644
-> > --- a/drivers/i2c/muxes/Makefile
-> > +++ b/drivers/i2c/muxes/Makefile
-> > @@ -3,6 +3,4 @@
-> >  
-> >  obj-$(CONFIG_I2C_MUX_PCA954x)	+= pca954x.o
-> >  
-> > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
-> > -EXTRA_CFLAGS += -DDEBUG
-> > -endif
-> > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+> > If this is the way the whole kernel is going, I have no objection. 
 > 
-> If this is the way the whole kernel is going, I have no objection. 
+> Sam had implemented these newer style flag variables a while back as an
+> eloquent way of handling conditional flags. A lot of newer (and some older)
+> modules and subsystems were using them already, so to provide uniformity and for
+> an eventual removal of the deprecated flags, I converted all remaining instances
+> to the newer style. (IMHO, I think it flows better with the way the rest of the
+> build system works.)
 
-Sam had implemented these newer style flag variables a while back as an
-eloquent way of handling conditional flags. A lot of newer (and some older)
-modules and subsystems were using them already, so to provide uniformity and for
-an eventual removal of the deprecated flags, I converted all remaining instances
-to the newer style. (IMHO, I think it flows better with the way the rest of the
-build system works.)
+Fine with me. What's the planned merge path for this patch? Will you
+push all the patches upstream yourself, or do you expect me to pick
+this one?
 
--mfm
+-- 
+Jean Delvare
