@@ -1,59 +1,91 @@
-From: "Heasley, Seth" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 2.6.35.4] irq: irq and pci_ids patch for Intel
-Date: Sat, 25 Sep 2010 08:13:36 -0700
-Message-ID: <CF9C39F99A89134C9CF9C4CCB68B8DDF25AEA5258E@orsmsx501.amr.corp.intel.com>
-References: <201009241606.11840.seth.heasley@intel.com>
- <20100925133039.75e9ac71@endymion.delvare>
+From: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
+Subject: Re: [PATCH 05/24] i2c: change to new flag variable
+Date: Sat, 25 Sep 2010 19:12:17 -0700
+Message-ID: <20100926021217.GC8191@haskell.muteddisk.com>
+References: <e0bdab5d2e8c52041c003de68ba774c3e706716c.1285355033.git.mfm@muteddisk.com>
+ <9968d4260be8850200cc9c7dfe08addf611468b4.1285355033.git.mfm@muteddisk.com>
+ <036514b5dd23c5af14303519d79d60d79adccbee.1285355033.git.mfm@muteddisk.com>
+ <ffbd189ef2d414ea7c87ffe2b40fce87877dc014.1285355033.git.mfm@muteddisk.com>
+ <b3e2061e1e6703f7b84c0484030e07de6000546a.1285355033.git.mfm@muteddisk.com>
+ <20100925132611.03ef0882@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100925133039.75e9ac71-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20100925132611.03ef0882-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org" <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->> --- linux-2.6.35.4/drivers/i2c/busses/Kconfig.orig	2010-09-24
->14:59:23.000000000 -0700
->> +++ linux-2.6.35.4/drivers/i2c/busses/Kconfig	2010-09-24
->14:59:42.000000000 -0700
->> @@ -95,7 +95,7 @@
->>  	    ESB2
->>  	    ICH8
->>  	    ICH9
->> -	    Tolapai
->> +	    EP80579
->>  	    ICH10
->>  	    3400/5 Series (PCH)
->
->How did this become "5_3400_SERIES" in the symbol names? Shouldn't it
->be 3400_5_SERIES instead?
+On 13:26 Sat 25 Sep     , Jean Delvare wrote:
+> On Fri, 24 Sep 2010 12:17:15 -0700, matt mooney wrote:
+> > Replace EXTRA_CFLAGS with ccflags-y.
+> > 
+> > Signed-off-by: matt mooney <mfm-Oo0r1OC9pj9iLUuM0BA3LQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/Makefile        |    4 +---
+> >  drivers/i2c/algos/Makefile  |    4 +---
+> >  drivers/i2c/busses/Makefile |    4 +---
+> >  drivers/i2c/muxes/Makefile  |    4 +---
+> >  4 files changed, 4 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> > index c00fd66..23ac61e 100644
+> > --- a/drivers/i2c/Makefile
+> > +++ b/drivers/i2c/Makefile
+> > @@ -9,6 +9,4 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+> >  obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
+> >  obj-y				+= algos/ busses/ muxes/
+> >  
+> > -ifeq ($(CONFIG_I2C_DEBUG_CORE),y)
+> > -EXTRA_CFLAGS += -DDEBUG
+> > -endif
+> > +ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+> > diff --git a/drivers/i2c/algos/Makefile b/drivers/i2c/algos/Makefile
+> > index 18b3e96..215303f 100644
+> > --- a/drivers/i2c/algos/Makefile
+> > +++ b/drivers/i2c/algos/Makefile
+> > @@ -6,6 +6,4 @@ obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
+> >  obj-$(CONFIG_I2C_ALGOPCF)	+= i2c-algo-pcf.o
+> >  obj-$(CONFIG_I2C_ALGOPCA)	+= i2c-algo-pca.o
+> >  
+> > -ifeq ($(CONFIG_I2C_DEBUG_ALGO),y)
+> > -EXTRA_CFLAGS += -DDEBUG
+> > -endif
+> > +ccflags-$(CONFIG_I2C_DEBUG_ALGO) := -DDEBUG
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index c3ef492..033ad41 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -76,6 +76,4 @@ obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
+> >  obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+> >  obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
+> >  
+> > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+> > -EXTRA_CFLAGS += -DDEBUG
+> > -endif
+> > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+> > diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+> > index bd83b52..6f49786 100644
+> > --- a/drivers/i2c/muxes/Makefile
+> > +++ b/drivers/i2c/muxes/Makefile
+> > @@ -3,6 +3,4 @@
+> >  
+> >  obj-$(CONFIG_I2C_MUX_PCA954x)	+= pca954x.o
+> >  
+> > -ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+> > -EXTRA_CFLAGS += -DDEBUG
+> > -endif
+> > +ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+> 
+> If this is the way the whole kernel is going, I have no objection. 
 
-The way I did it here is consistent with the approved branding submitted for pci.ids.  So perhaps changing the 3400/5 Series to "5 Series/3400 Series" would make sense.
+Sam had implemented these newer style flag variables a while back as an
+eloquent way of handling conditional flags. A lot of newer (and some older)
+modules and subsystems were using them already, so to provide uniformity and for
+an eventual removal of the deprecated flags, I converted all remaining instances
+to the newer style. (IMHO, I think it flows better with the way the rest of the
+build system works.)
 
->
->>  	    Cougar Point (PCH)
->> --- linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c.orig	2010-09-24
->14:57:55.000000000 -0700
->> +++ linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c	2010-09-24
->14:59:13.000000000 -0700
->> @@ -38,7 +38,7 @@
->>    82801G   (ICH7)       0x27da     32     hard     yes     yes
->yes
->>    82801H   (ICH8)       0x283e     32     hard     yes     yes
->yes
->>    82801I   (ICH9)       0x2930     32     hard     yes     yes
->yes
->> -  Tolapai               0x5032     32     hard     yes     yes
->yes
->> +  EP80579               0x5032     32     hard     yes     yes
->yes
->
->Maybe keep "Tolapai" inside parentheses, as people may know the
->platform by that name by now?
-
-That'd be fine with me.
-
--Seth
+-mfm
