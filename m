@@ -1,62 +1,34 @@
-From: "Matti J. Aaltonen" <matti.j.aaltonen@nokia.com>
-Subject: Re: [PATCH 2/4] leds: Driver for National Semiconductors LP5523
- chip
-Date: Mon, 27 Sep 2010 13:54:28 +0300
-Message-ID: <1285584868.8182.194.camel@masi.mnp.nokia.com>
-References: <1284631946-5350-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1284631946-5350-3-git-send-email-samu.p.onkalo@nokia.com>
-Reply-To: matti.j.aaltonen@nokia.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1284631946-5350-3-git-send-email-samu.p.onkalo@nokia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Onkalo Samu.P (Nokia-MS/Tampere)" <samu.p.onkalo@nokia.com>
-Cc: "rpurdie@linux.intel.com" <rpurdie@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
+Subject: [PATCH] MIPS: I2C: Return -ETIMEDOUT in octeon_i2c_wait() on timeout
+Date: Mon, 27 Sep 2010 12:55:16 +0200
+Message-ID: <1285584916-21317-1-git-send-email-walle@corscience.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org, rade.bozic.ext-OYasijW0DpE@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Moi.
+It doesn't make sense to set result to -ETIMEDOUT but return 0 (success)
+afterwards. Since there's code in octeon_i2c_start() to handle the
+error, it should be called.
 
-On Thu, 2010-09-16 at 12:12 +0200, Onkalo Samu.P (Nokia-MS/Tampere)
-wrote:
-> +
-> +       for (i = 0; i < LP5523_ENGINES; i++) {
-> +               if (chip->engines[i].mode == LP5523_CMD_LOAD)
-> +                       sysfs_remove_group(&dev->kobj, &lp5523_engine_group[i]);
-> +       }
-> +
-> +       for (i = 0; i < chip->num_leds; i++)
-> +               sysfs_remove_group(&chip->leds[i].cdev.dev->kobj,
-> +                               &lp5523_led_attribute_group);
-> +}
+Signed-off-by: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-octeon.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Tossa ylla on se asia, josta puhuttiin, style guide sanoo:
-
-Do not unnecessarily use braces where a single statement will do.
-
-if (condition)
-	action();
-
-Tossa ylla on kummankin for:in jalkeen single statement joista kumpikaan
-ei mahdu yhdelle riville... Mun nakemyksen mukaan ne molemmat olis yhta
-selkeita ilman sulkuja...
-
-
-> +       if (mode == LP5523_CMD_RUN)
-> +               ret = lp5523_run_program(engine);
-> +
-> +       else if (mode == LP5523_CMD_LOAD) {
-> +
-> +               lp5523_set_engine_mode(engine, LP5523_CMD_DISABLED);
-> +               lp5523_set_engine_mode(engine, LP5523_CMD_LOAD);
-> +
-> +               ret = sysfs_create_group(&dev->kobj, engine->attributes);
-> +               if (ret)
-> +                       return ret;
-> +       }
-> +
-
-Aaltosulut myos if:n jalkeiseen statementtiin....
-
-t.m.a.
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 0e9f85d..56dbe54 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -218,7 +218,7 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 		return result;
+ 	} else if (result == 0) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+-		result = -ETIMEDOUT;
++		return -ETIMEDOUT;
+ 	}
+ 
+ 	return 0;
+-- 
+1.7.0.4
