@@ -1,108 +1,42 @@
-From: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] I2C: runtime: Fix checks which make legacy suspend to never get called
-Date: Mon, 27 Sep 2010 21:16:00 +0530
-Message-ID: <1285602360-21180-1-git-send-email-rnayak@ti.com>
+From: "extol Rushing" <joe-uMkmaEBk0+xr5FnvJxlcfGGXanvQGlWp@public.gmane.org>
+Subject: Detailed data with many fields for businesses, healthcare and more
+Date: 27 Sep 2010 21:39:32 +0530
+Message-ID: <455c2a$8m66m@mail.manipalgroup.info>
+Reply-To: joe-uMkmaEBk0+xr5FnvJxlcfGGXanvQGlWp@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+To: crcarlci-j3H91WlJzhQ@public.gmane.org, ucf1vm.bitnet-hGW3GLciNV0VuX/vm8Zxag@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, support-5ZrpZuaWP274tj2l+0vP12CIE3JwUk6pVpNB7YpNyf8@public.gmane.org, bandreozzi-a4VQZhDi8cyVc3sceRu5cw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For devices which are not adapted to runtime PM a call to
-pm_runtime_suspended always returns true.
+To find out what we have more specifically please contact me at this email address: saveonlists-KK0ffGbhmjU@public.gmane.org I will be happy to send you a catalog and more details for all our lists.
 
-Hence the pm_runtime_suspended checks below prevent legacy
-suspend from getting called.
+  
 
-So do a pm_runtime_suspended check only for devices with a
-dev_pm_ops populated (which hence do not rely on the legacy
-suspend)
 
-Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
----
- drivers/i2c/i2c-core.c |   44 ++++++++++++++++++++++++--------------------
- 1 files changed, 24 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 6649176..712086f 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -197,11 +197,12 @@ static int i2c_device_pm_suspend(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (pm_runtime_suspended(dev))
--		return 0;
--
--	if (pm)
--		return pm->suspend ? pm->suspend(dev) : 0;
-+	if (pm) {
-+		if (pm_runtime_suspended(dev))
-+			return 0;
-+		else
-+			return pm->suspend ? pm->suspend(dev) : 0;
-+	}
- 
- 	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
- }
-@@ -229,11 +230,12 @@ static int i2c_device_pm_freeze(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (pm_runtime_suspended(dev))
--		return 0;
--
--	if (pm)
--		return pm->freeze ? pm->freeze(dev) : 0;
-+	if (pm) {
-+		if (pm_runtime_suspended(dev))
-+			return 0;
-+		else
-+			return pm->freeze ? pm->freeze(dev) : 0;
-+	}
- 
- 	return i2c_legacy_suspend(dev, PMSG_FREEZE);
- }
-@@ -242,11 +244,12 @@ static int i2c_device_pm_thaw(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (pm_runtime_suspended(dev))
--		return 0;
--
--	if (pm)
--		return pm->thaw ? pm->thaw(dev) : 0;
-+	if (pm) {
-+		if (pm_runtime_suspended(dev))
-+			return 0;
-+		else
-+			return pm->thaw ? pm->thaw(dev) : 0;
-+	}
- 
- 	return i2c_legacy_resume(dev);
- }
-@@ -255,11 +258,12 @@ static int i2c_device_pm_poweroff(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
--	if (pm_runtime_suspended(dev))
--		return 0;
--
--	if (pm)
--		return pm->poweroff ? pm->poweroff(dev) : 0;
-+	if (pm) {
-+		if (pm_runtime_suspended(dev))
-+			return 0;
-+		else
-+			return pm->poweroff ? pm->poweroff(dev) : 0;
-+	}
- 
- 	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
- }
--- 
-1.7.0.4
+
+To invoke no further correspondence status please send an email to purgefile-KK0ffGbhmjU@public.gmane.org
+  
+
+
+
+
+
+#####################################################################################
+This message is for the named person's use only.  It may contain confidential,
+proprietary or legally privileged information.  No confidentiality or privilege
+is waived or lost by any mistransmission.  If you receive this message in error,
+please immediately delete it and all copies of it from your system, destroy any
+hard copies of it and notify the sender.  You must not, directly or indirectly,
+use, disclose, distribute, print, or copy any part of this message if you are not
+the intended recipient. MANIPAL GROUP  and any of its subsidiaries each reserve
+the right to monitor all e-mail communications through its networks.
+
+Any views expressed in this message are those of the individual sender, except where
+the message states otherwise and the sender is authorized to state them to be the
+views of any such entity.
+
+Thank You.
+#####################################################################################
