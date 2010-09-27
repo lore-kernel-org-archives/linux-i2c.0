@@ -1,44 +1,48 @@
 From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c-nomadik: documentation fixes
-Date: Mon, 27 Sep 2010 10:59:22 +0200
-Message-ID: <AANLkTim_O65ZKod8oSV245Zu3saEwjcitPw3twSO5NrX@mail.gmail.com>
-References: <1285225420-916-1-git-send-email-linus.walleij@stericsson.com>
-	<20100927002508.GF21564@trinity.fluff.org>
+Subject: Re: [PATCH 3/4] i2c-nomadik: support smbus emulation
+Date: Mon, 27 Sep 2010 11:00:41 +0200
+Message-ID: <AANLkTimUWdKcMAA_1TrXNL4YDYJ7dUhVh9LLYQ_48NLh@mail.gmail.com>
+References: <1285225443-1036-1-git-send-email-linus.walleij@stericsson.com>
+	<4C9C1F43.4080105@renesas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100927002508.GF21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <4C9C1F43.4080105-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2010/9/27 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
-
-> On Thu, Sep 23, 2010 at 09:03:40AM +0200, Linus Walleij wrote:
->> This fixes some kerneldoc and assorted documenatation in the
->> Nomadik I2C driver without semantic impact.
->>
->> Acked-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
->> Signed-off-by: Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
->> Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+2010/9/24 Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>:
+> On 9/23/2010 4:04 PM, Linus Walleij wrote:
+>> We can do smbus emulation so flag this and drop the duplicate
+>> flags implied from smbus emulation.
 >
-> You've correctly got yourself in the signed-off-by line, but why is there
-> a reference to 'Sundar R Iye' in there? If this is the original patch
-> authour then you need to have a From: line at the top as it looks like
-> you (Linus Walleij) are re-sending the patch.
+>> @@ -803,10 +803,7 @@ static irqreturn_t i2c_irq_handler(int irq, voi=
+d *arg)
+>>
+>> =A0static unsigned int nmk_i2c_functionality(struct i2c_adapter *ada=
+p)
+>> =A0{
+>> - =A0 =A0 return I2C_FUNC_I2C
+>> - =A0 =A0 =A0 =A0 =A0 =A0 | I2C_FUNC_SMBUS_BYTE_DATA
+>> - =A0 =A0 =A0 =A0 =A0 =A0 | I2C_FUNC_SMBUS_WORD_DATA
+>> - =A0 =A0 =A0 =A0 =A0 =A0 | I2C_FUNC_SMBUS_I2C_BLOCK;
+>> + =A0 =A0 return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> =A0}
+>>
+>> =A0static const struct i2c_algorithm nmk_i2c_algo =3D {
+>
+> (failed to figure out from the driver, so would like to make sure)
+> Is this I2C core capable of I2C_FUNC_SMBUS_QUICK? =A0Unless it's capa=
+ble
+> of full SMBus emulation, it would be better to turn off relevant flag=
+s
+> for safety. =A0I'm not objecting to the patch, but just wondered.
 
-Actually there are several original authors, we're squashing internal
-company history into this patch set (with more on its way). The
-changes are not split this way in the original git, they are split this
-way because of your request to split the patch set.
-
-Sundar is one author, I'm delivering so we're doing this with a
-double-SoB, couldn't think of anything better.
-
-> I'll apply these once this is sorted out.
-
-OK I hope Sundar is happy with this, else he'll tell us.
+I have verified with the hardware engineer that this block is indeed
+capable of SMBUS_QUICK.
 
 Yours,
 Linus Walleij
