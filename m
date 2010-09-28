@@ -1,119 +1,47 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH] I2C: runtime: Fix checks which make legacy suspend to never get called
-Date: Tue, 28 Sep 2010 23:45:26 +0200
-Message-ID: <201009282345.26363.rjw@sisk.pl>
-References: <1285602360-21180-1-git-send-email-rnayak@ti.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c-nomadik: documentation fixes
+Date: Wed, 29 Sep 2010 00:08:08 +0100
+Message-ID: <20100928230808.GM21564@trinity.fluff.org>
+References: <1285225420-916-1-git-send-email-linus.walleij@stericsson.com> <20100927002508.GF21564@trinity.fluff.org> <AANLkTim_O65ZKod8oSV245Zu3saEwjcitPw3twSO5NrX@mail.gmail.com> <20100927223509.GI21564@trinity.fluff.org> <AANLkTikjUyxLaEURVh-42T9NL_XCvwPLU6pobV1yq2BD@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1285602360-21180-1-git-send-email-rnayak-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTikjUyxLaEURVh-42T9NL_XCvwPLU6pobV1yq2BD-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, September 27, 2010, Rajendra Nayak wrote:
-> For devices which are not adapted to runtime PM a call to
-> pm_runtime_suspended always returns true.
+On Tue, Sep 28, 2010 at 10:55:37AM +0200, Linus Walleij wrote:
+> 2010/9/28 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
 > 
-> Hence the pm_runtime_suspended checks below prevent legacy
-> suspend from getting called.
+> > It means that if your tree is handling external patches, then you could end
+> > up with the situation where it is difficult or almost impossible to undo
+> > a change which the original sender either did not have the authority to
+> > send, or has something in that should have never been sent (i've seen
+> > several issues where companies have had desperate back-peddling because
+> > someone forgot to remove some $secret from the repository before allowing
+> > it to be uploaded somewhere).
 > 
-> So do a pm_runtime_suspended check only for devices with a
-> dev_pm_ops populated (which hence do not rely on the legacy
-> suspend)
+> We actually have that part under control, believe it or not :-)
 
-Makes sense.
-
-> Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-> Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-
-Acked-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |   44 ++++++++++++++++++++++++--------------------
->  1 files changed, 24 insertions(+), 20 deletions(-)
+Ok, but it is probably useful for other people out there.
+ 
+> > It would have been helpful to add a 'From:' line as well, git can be
+> > made to re-write the authour of a patch, but you'll have to search for
+> > it. Please find a method for future reference.
 > 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6649176..712086f 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -197,11 +197,12 @@ static int i2c_device_pm_suspend(struct device *dev)
->  {
->  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
->  
-> -	if (pm_runtime_suspended(dev))
-> -		return 0;
-> -
-> -	if (pm)
-> -		return pm->suspend ? pm->suspend(dev) : 0;
-> +	if (pm) {
-> +		if (pm_runtime_suspended(dev))
-> +			return 0;
-> +		else
-> +			return pm->suspend ? pm->suspend(dev) : 0;
-> +	}
->  
->  	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
->  }
-> @@ -229,11 +230,12 @@ static int i2c_device_pm_freeze(struct device *dev)
->  {
->  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
->  
-> -	if (pm_runtime_suspended(dev))
-> -		return 0;
-> -
-> -	if (pm)
-> -		return pm->freeze ? pm->freeze(dev) : 0;
-> +	if (pm) {
-> +		if (pm_runtime_suspended(dev))
-> +			return 0;
-> +		else
-> +			return pm->freeze ? pm->freeze(dev) : 0;
-> +	}
->  
->  	return i2c_legacy_suspend(dev, PMSG_FREEZE);
->  }
-> @@ -242,11 +244,12 @@ static int i2c_device_pm_thaw(struct device *dev)
->  {
->  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
->  
-> -	if (pm_runtime_suspended(dev))
-> -		return 0;
-> -
-> -	if (pm)
-> -		return pm->thaw ? pm->thaw(dev) : 0;
-> +	if (pm) {
-> +		if (pm_runtime_suspended(dev))
-> +			return 0;
-> +		else
-> +			return pm->thaw ? pm->thaw(dev) : 0;
-> +	}
->  
->  	return i2c_legacy_resume(dev);
->  }
-> @@ -255,11 +258,12 @@ static int i2c_device_pm_poweroff(struct device *dev)
->  {
->  	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
->  
-> -	if (pm_runtime_suspended(dev))
-> -		return 0;
-> -
-> -	if (pm)
-> -		return pm->poweroff ? pm->poweroff(dev) : 0;
-> +	if (pm) {
-> +		if (pm_runtime_suspended(dev))
-> +			return 0;
-> +		else
-> +			return pm->poweroff ? pm->poweroff(dev) : 0;
-> +	}
->  
->  	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
->  }
-> 
+> I'm on it... thanks Ben.
+
+My personal view is to always keep attributions. Even if they are then
+posted through someone else, or require a corporate stamp on them before
+they get out of the building.
+
+Let me know what you'd like to do, and I'll sort out something for -next.
+
+-- 
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
