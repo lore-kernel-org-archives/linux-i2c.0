@@ -1,29 +1,51 @@
-From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] Add ALS drivers for the apds9802als
-Date: Tue, 28 Sep 2010 09:52:35 -0700
-Message-ID: <1285692755.1866.66.camel@Joe-Laptop>
-References: <20100928155649.17671.61810.stgit@localhost.localdomain>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: Driver for pca9541 bus master selector
+Date: Tue, 28 Sep 2010 10:16:27 -0700
+Message-ID: <20100928171627.GA8415@ericsson.com>
+References: <20100928143302.GA7593@ericsson.com>
+ <20100928171607.395f7736@endymion.delvare>
+ <20100928160746.GB7976@ericsson.com>
+ <20100928184215.00f82717@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100928155649.17671.61810.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100928184215.00f82717-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2010-09-28 at 16:56 +0100, Alan Cox wrote:
->  drivers/misc/apds9802als.c |  308 ++++++++++++++++++++++++++++++++++++++++++++
-[]
-> +static int  apds9802als_probe(struct i2c_client *client,
-> +					const struct i2c_device_id *id)
-> +{
-> +	int res;
-> +	struct als_data *data;
-> +
-> +	data = kzalloc(sizeof(struct als_data), GFP_KERNEL);
-> +	if (data == NULL) {
-> +		dev_err(&client->dev, "Memory allocation failed");
+Hi Jean,
 
-missing newline.
+On Tue, Sep 28, 2010 at 12:42:15PM -0400, Jean Delvare wrote:
+> On Tue, 28 Sep 2010 09:07:46 -0700, Guenter Roeck wrote:
+> > On Tue, Sep 28, 2010 at 11:16:07AM -0400, Jean Delvare wrote:
+> > > Hi Guenter,
+> > > 
+> > > On Tue, 28 Sep 2010 07:33:02 -0700, Guenter Roeck wrote:
+> > > > I am in the process of writing a driver for the pca9541 bus master selector. 
+> > > > I using the i2c multiplexer framework, which fits the requirements quite nicely.
+> > > > 
+> > > > If anyone happens to know about an existing driver for this chip, please let me know.
+> > > > I would love to get some input for the arbitration mechanism needed to determine
+> > > > if and when to switch bus ownership from one master to the other.
+> > > 
+> > > See drivers/i2c/muxes/pca954x.c in 2.6.36-rc2 and later.
+> > > 
+> > Yes, I know. I use it as basis. But it doesn't support pca9541, unfortunately.
+> 
+> Oh, my bad. I had not noticed the PCA9541 was of a totally different kind.
+> 
+Actually, I fell into the same trap. I was quite happy that someone else wrote 
+the driver for me ... until I realized that the chips solve the opposite problem.
+
+Time goes by ... have a look at
+
+http://lists.lm-sensors.org/pipermail/lm-sensors/2004-June/008023.html
+
+I wasn't sure if you (or someone else) ever had a driver for 9541, or if you referred
+to 9540 in above post. The links in the post don't work anymore.
+
+Thanks,
+Guenter
