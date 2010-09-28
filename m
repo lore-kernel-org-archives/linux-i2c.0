@@ -1,189 +1,42 @@
-From: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v4 5/5] OMAP: I2C: Convert i2c driver to use PM runtime api's
-Date: Tue, 28 Sep 2010 21:02:58 +0530
-Message-ID: <1285687978-30820-1-git-send-email-rnayak@ti.com>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: Driver for pca9541 bus master selector
+Date: Tue, 28 Sep 2010 09:07:46 -0700
+Message-ID: <20100928160746.GB7976@ericsson.com>
+References: <20100928143302.GA7593@ericsson.com>
+ <20100928171607.395f7736@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20100928171607.395f7736-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch converts the i2c driver to use PM runtime apis
+On Tue, Sep 28, 2010 at 11:16:07AM -0400, Jean Delvare wrote:
+> Hi Guenter,
+> 
+> On Tue, 28 Sep 2010 07:33:02 -0700, Guenter Roeck wrote:
+> > I am in the process of writing a driver for the pca9541 bus master selector. 
+> > I using the i2c multiplexer framework, which fits the requirements quite nicely.
+> > 
+> > If anyone happens to know about an existing driver for this chip, please let me know.
+> > I would love to get some input for the arbitration mechanism needed to determine
+> > if and when to switch bus ownership from one master to the other.
+> 
+> See drivers/i2c/muxes/pca954x.c in 2.6.36-rc2 and later.
+> 
+Yes, I know. I use it as basis. But it doesn't support pca9541, unfortunately.
+I use the select/deselect mechanism to trigger arbitration, but I still need
+a mechanism to communicate between the masters. After all, the problem to solve
+is that I have two masters and one slave, not one master and multiple slaves
+as with the other chips.
 
-Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- v4 adds the missing clk_put
+Note that I do have a solution which I think will work. Just figured it might
+save time if someone else already solved the same problem, and especially it 
+might help me to determine arbitration time constants. There was mention of
+a pca9541 driver several years ago, but I have not been able to find details.
 
- drivers/i2c/busses/i2c-omap.c |   69 +++++++++++++---------------------------
- 1 files changed, 23 insertions(+), 46 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 7674efb..f8925d9 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -39,6 +39,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
-+#include <linux/pm_runtime.h>
- 
- /* I2C controller revisions */
- #define OMAP_I2C_REV_2			0x20
-@@ -175,8 +176,6 @@ struct omap_i2c_dev {
- 	void __iomem		*base;		/* virtual */
- 	int			irq;
- 	int			reg_shift;      /* bit shift for I2C register addresses */
--	struct clk		*iclk;		/* Interface clock */
--	struct clk		*fclk;		/* Functional clock */
- 	struct completion	cmd_complete;
- 	struct resource		*ioarea;
- 	u32			latency;	/* maximum mpu wkup latency */
-@@ -265,45 +264,18 @@ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
- 				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
- }
- 
--static int __init omap_i2c_get_clocks(struct omap_i2c_dev *dev)
-+static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- {
--	int ret;
-+	struct platform_device *pdev;
-+	struct omap_i2c_bus_platform_data *pdata;
- 
--	dev->iclk = clk_get(dev->dev, "ick");
--	if (IS_ERR(dev->iclk)) {
--		ret = PTR_ERR(dev->iclk);
--		dev->iclk = NULL;
--		return ret;
--	}
-+	WARN_ON(!dev->idle);
- 
--	dev->fclk = clk_get(dev->dev, "fck");
--	if (IS_ERR(dev->fclk)) {
--		ret = PTR_ERR(dev->fclk);
--		if (dev->iclk != NULL) {
--			clk_put(dev->iclk);
--			dev->iclk = NULL;
--		}
--		dev->fclk = NULL;
--		return ret;
--	}
-+	pdev = to_platform_device(dev->dev);
-+	pdata = pdev->dev.platform_data;
- 
--	return 0;
--}
-+	pm_runtime_get_sync(&pdev->dev);
- 
--static void omap_i2c_put_clocks(struct omap_i2c_dev *dev)
--{
--	clk_put(dev->fclk);
--	dev->fclk = NULL;
--	clk_put(dev->iclk);
--	dev->iclk = NULL;
--}
--
--static void omap_i2c_unidle(struct omap_i2c_dev *dev)
--{
--	WARN_ON(!dev->idle);
--
--	clk_enable(dev->iclk);
--	clk_enable(dev->fclk);
- 	if (cpu_is_omap34xx()) {
- 		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
-@@ -326,10 +298,15 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- 
- static void omap_i2c_idle(struct omap_i2c_dev *dev)
- {
-+	struct platform_device *pdev;
-+	struct omap_i2c_bus_platform_data *pdata;
- 	u16 iv;
- 
- 	WARN_ON(dev->idle);
- 
-+	pdev = to_platform_device(dev->dev);
-+	pdata = pdev->dev.platform_data;
-+
- 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
- 	if (dev->rev >= OMAP_I2C_REV_ON_4430)
- 		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
-@@ -345,8 +322,8 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- 		omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
- 	}
- 	dev->idle = 1;
--	clk_disable(dev->fclk);
--	clk_disable(dev->iclk);
-+
-+	pm_runtime_put_sync(&pdev->dev);
- }
- 
- static int omap_i2c_init(struct omap_i2c_dev *dev)
-@@ -356,6 +333,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 	unsigned long fclk_rate = 12000000;
- 	unsigned long timeout;
- 	unsigned long internal_clk = 0;
-+	struct clk *fclk;
- 
- 	if (dev->rev >= OMAP_I2C_REV_2) {
- 		/* Disable I2C controller before soft reset */
-@@ -414,7 +392,9 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 		 * always returns 12MHz for the functional clock, we can
- 		 * do this bit unconditionally.
- 		 */
--		fclk_rate = clk_get_rate(dev->fclk);
-+		fclk = clk_get(dev->dev, "fck");
-+		fclk_rate = clk_get_rate(fclk);
-+		clk_put(fclk);
- 
- 		/* TRM for 5912 says the I2C clock must be prescaled to be
- 		 * between 7 - 12 MHz. The XOR input clock is typically
-@@ -443,7 +423,9 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 			internal_clk = 9600;
- 		else
- 			internal_clk = 4000;
--		fclk_rate = clk_get_rate(dev->fclk) / 1000;
-+		fclk = clk_get(dev->dev, "fck");
-+		fclk_rate = clk_get_rate(fclk) / 1000;
-+		clk_put(fclk);
- 
- 		/* Compute prescaler divisor */
- 		psc = fclk_rate / internal_clk;
-@@ -1046,14 +1028,12 @@ omap_i2c_probe(struct platform_device *pdev)
- 	else
- 		dev->reg_shift = 2;
- 
--	if ((r = omap_i2c_get_clocks(dev)) != 0)
--		goto err_iounmap;
--
- 	if (cpu_is_omap44xx())
- 		dev->regs = (u8 *) omap4_reg_map;
- 	else
- 		dev->regs = (u8 *) reg_map;
- 
-+	pm_runtime_enable(&pdev->dev);
- 	omap_i2c_unidle(dev);
- 
- 	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-@@ -1125,8 +1105,6 @@ err_free_irq:
- err_unuse_clocks:
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	omap_i2c_idle(dev);
--	omap_i2c_put_clocks(dev);
--err_iounmap:
- 	iounmap(dev->base);
- err_free_mem:
- 	platform_set_drvdata(pdev, NULL);
-@@ -1148,7 +1126,6 @@ omap_i2c_remove(struct platform_device *pdev)
- 	free_irq(dev->irq, dev);
- 	i2c_del_adapter(&dev->adapter);
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
--	omap_i2c_put_clocks(dev);
- 	iounmap(dev->base);
- 	kfree(dev);
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--- 
-1.7.0.4
+Thanks,
+Guenter
