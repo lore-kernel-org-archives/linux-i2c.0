@@ -1,162 +1,136 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH (Option 1)] of/i2c: fix module load order issue caused by
-	of_i2c.c
-Date: Wed, 29 Sep 2010 08:26:03 +0900
-Message-ID: <AANLkTimB1dACK0QdnJk-Ry0hPpUO7eKv3n_GSBJTttCx@mail.gmail.com>
-References: <20100924221313.28357.61419.stgit@angua>
-	<20100928232147.GR21564@trinity.fluff.org>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH v3 5/5] OMAP: I2C: Convert i2c driver to use PM runtime
+	api's
+Date: Wed, 29 Sep 2010 00:33:34 +0100
+Message-ID: <20100928233334.GS21564@trinity.fluff.org>
+References: <1285078036-12789-1-git-send-email-rnayak@ti.com> <1285078036-12789-2-git-send-email-rnayak@ti.com> <1285078036-12789-3-git-send-email-rnayak@ti.com> <1285078036-12789-4-git-send-email-rnayak@ti.com> <1285078036-12789-5-git-send-email-rnayak@ti.com> <1285078036-12789-6-git-send-email-rnayak@ti.com> <20100927223645.GJ21564@trinity.fluff.org> <0680EC522D0CC943BC586913CF3768C003FF05981F@dbde02.ent.ti.com> <0680EC522D0CC943BC586913CF3768C003FF05988F@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100928232147.GR21564@trinity.fluff.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: Ben Dooks <ben-i2c@fluff.org>
-Cc: mikpe@it.uu.se, linux-kernel@vger.kernel.org, rdunlap@xenotime.net, linux-i2c@vger.kernel.org, khali@linux-fr.org, linuxppc-dev@lists.ozlabs.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <0680EC522D0CC943BC586913CF3768C003FF05988F-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Nayak, Rajendra" <rnayak-l0cyMroinI0@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 29, 2010 at 8:21 AM, Ben Dooks <ben-i2c@fluff.org> wrote:
-> On Fri, Sep 24, 2010 at 04:14:53PM -0600, Grant Likely wrote:
->> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
->> module dependency loop where of_i2c.c calls functions in i2c-core, and
->> i2c-core calls of_i2c_register_devices() in of_i2c. =A0This means that
->> when i2c support is built as a module when CONFIG_OF is set, then
->> neither i2c_core nor of_i2c are able to be loaded.
->>
->> This patch fixes the problem by moving the of_i2c_register_devices()
->> function into the body of i2c_core and renaming it to
->> i2c_scan_of_devices (of_i2c_register_devices is analogous to the
->> existing i2c_scan_static_board_info function and so should be named
->> similarly). =A0This function isn't called by any code outside of
->> i2c_core, and it must always be present when CONFIG_OF is selected, so
->> it makes sense to locate it there. =A0When CONFIG_OF is not selected,
->> of_i2c_register_devices() becomes a no-op.
->>
->> Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
->> ---
->> =A0drivers/i2c/i2c-core.c | =A0 61 +++++++++++++++++++++++++++++++++++++=
-+++++++++--
->> =A0drivers/of/of_i2c.c =A0 =A0| =A0 57 ---------------------------------=
-------------
->> =A0include/linux/of_i2c.h | =A0 =A07 ------
->> =A03 files changed, 59 insertions(+), 66 deletions(-)
->>
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index 6649176..64a261b 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -32,8 +32,8 @@
->> =A0#include <linux/init.h>
->> =A0#include <linux/idr.h>
->> =A0#include <linux/mutex.h>
->> -#include <linux/of_i2c.h>
->> =A0#include <linux/of_device.h>
->> +#include <linux/of_irq.h>
->> =A0#include <linux/completion.h>
->> =A0#include <linux/hardirq.h>
->> =A0#include <linux/irqflags.h>
->> @@ -818,6 +818,63 @@ static void i2c_scan_static_board_info(struct i2c_a=
-dapter *adapter)
->> =A0 =A0 =A0 up_read(&__i2c_board_lock);
->> =A0}
->>
->> +#ifdef CONFIG_OF
->> +void i2c_scan_of_devices(struct i2c_adapter *adap)
->> +{
->> + =A0 =A0 void *result;
->> + =A0 =A0 struct device_node *node;
->> +
->> + =A0 =A0 /* Only register child devices if the adapter has a node point=
-er set */
->> + =A0 =A0 if (!adap->dev.of_node)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> +
->> + =A0 =A0 for_each_child_of_node(adap->dev.of_node, node) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_board_info info =3D {};
->> + =A0 =A0 =A0 =A0 =A0 =A0 struct dev_archdata dev_ad =3D {};
->> + =A0 =A0 =A0 =A0 =A0 =A0 const __be32 *addr;
->> + =A0 =A0 =A0 =A0 =A0 =A0 int len;
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(&adap->dev, "of_i2c: register %s\n", n=
-ode->full_name);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (of_modalias_node(node, info.type, sizeof(i=
-nfo.type)) < 0) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: m=
-odalias failure on %s\n",
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
-e);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 addr =3D of_get_property(node, "reg", &len);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (!addr || (len < sizeof(int))) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: i=
-nvalid reg on %s\n",
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
-e);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 info.addr =3D be32_to_cpup(addr);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (info.addr > (1 << 10) - 1) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: i=
-nvalid addr=3D%x on %s\n",
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 info.addr, nod=
-e->full_name);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 info.irq =3D irq_of_parse_and_map(node, 0);
->> + =A0 =A0 =A0 =A0 =A0 =A0 info.of_node =3D of_node_get(node);
->> + =A0 =A0 =A0 =A0 =A0 =A0 info.archdata =3D &dev_ad;
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 request_module("%s", info.type);
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 result =3D i2c_new_device(adap, &info);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (result =3D=3D NULL) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: F=
-ailure registering %s\n",
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
-e);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_node_put(node);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 irq_dispose_mapping(info.irq);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> + =A0 =A0 }
->> +}
->> +#else
->> +static inline void i2c_scan_of_devices(struct i2c_adapter *adap) { }
->> +#endif
->
-> Is there any advantage to just making the definition in the header
-> file a static inline and removing the #else part of this?
+On Tue, Sep 28, 2010 at 12:29:01PM +0530, Nayak, Rajendra wrote:
+> <snip>...
+> > > >
+> > > >  static int omap_i2c_init(struct omap_i2c_dev *dev)
+> > > > @@ -356,6 +333,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+> > > >  	unsigned long fclk_rate = 12000000;
+> > > >  	unsigned long timeout;
+> > > >  	unsigned long internal_clk = 0;
+> > > > +	struct clk *fclk;
+> > > >
+> > > >  	if (dev->rev >= OMAP_I2C_REV_2) {
+> > > >  		/* Disable I2C controller before soft reset */
+> > > > @@ -414,7 +392,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+> > > >  		 * always returns 12MHz for the functional clock, we can
+> > > >  		 * do this bit unconditionally.
+> > > >  		 */
+> > > > -		fclk_rate = clk_get_rate(dev->fclk);
+> > > > +		fclk = clk_get(dev->dev, "fck");
+> > > > +		fclk_rate = clk_get_rate(fclk);
+> > > >
+> > > >  		/* TRM for 5912 says the I2C clock must be prescaled to be
+> > > >  		 * between 7 - 12 MHz. The XOR input clock is typically
+> > > > @@ -443,7 +422,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+> > > >  			internal_clk = 9600;
+> > > >  		else
+> > > >  			internal_clk = 4000;
+> > > > -		fclk_rate = clk_get_rate(dev->fclk) / 1000;
+> > > > +		fclk = clk_get(dev->dev, "fck");
+> > > > +		fclk_rate = clk_get_rate(fclk) / 1000;
+> > >
+> > > You don't put the clk after getting it and using it once?
+> > 
+> > clk_get needs an equivalent clk_put and not clk_get_rate. clk_get_rate
+> > is used to merely know the existing rate of the clock.
+> 
+> Sorry, I guess you did mean the clk_get above the clk_get_rate does not have
+> an equivalent clk_put.
+> I could put a clk_put for readability, but a clk_put on OMAP actually does map
+> to an empty function.
+> See arch/arm/plat-omap/include/plat/clkdev.h
+> clk_get merely returns a pointer to the clk struct and does not do any usecounting,
+> hence a clk_put does not do anything.
 
-I'm not sure what you mean.  This particular patch makes
-i2c_scan_of_devices() completely internal to i2c-core.c so that there
-is no need to expose it in the header file at all.
+clk_get() should have a reference counter, and on many systems does.
 
-g.
+This is why we ask people to put clk_put() when they don't need the
+clock any more. It may not do anything on your system, but it will
+set a good example to anyone copying your driver code.
 
->
-> --
-> Ben
->
-> Q: =A0 =A0 =A0What's a light-year?
-> A: =A0 =A0 =A0One-third less calories than a regular year.
->
->
+As such, I should really go and read up all about this new runtime-pm
+and hwmod stuff before further commentign on the changes.
+ 
+> > 
+> > >
+> > > >  		/* Compute prescaler divisor */
+> > > >  		psc = fclk_rate / internal_clk;
+> > > > @@ -1046,14 +1026,12 @@ omap_i2c_probe(struct platform_device *pdev)
+> > > >  	else
+> > > >  		dev->reg_shift = 2;
+> > > >
+> > > > -	if ((r = omap_i2c_get_clocks(dev)) != 0)
+> > > > -		goto err_iounmap;
+> > > > -
+> > > >  	if (cpu_is_omap44xx())
+> > > >  		dev->regs = (u8 *) omap4_reg_map;
+> > > >  	else
+> > > >  		dev->regs = (u8 *) reg_map;
+> > > >
+> > > > +	pm_runtime_enable(&pdev->dev);
+> > > >  	omap_i2c_unidle(dev);
+> > > >
+> > > >  	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
+> > > > @@ -1125,8 +1103,6 @@ err_free_irq:
+> > > >  err_unuse_clocks:
+> > > >  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> > > >  	omap_i2c_idle(dev);
+> > > > -	omap_i2c_put_clocks(dev);
+> > > > -err_iounmap:
+> > > >  	iounmap(dev->base);
+> > > >  err_free_mem:
+> > > >  	platform_set_drvdata(pdev, NULL);
+> > > > @@ -1148,7 +1124,6 @@ omap_i2c_remove(struct platform_device *pdev)
+> > > >  	free_irq(dev->irq, dev);
+> > > >  	i2c_del_adapter(&dev->adapter);
+> > > >  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> > > > -	omap_i2c_put_clocks(dev);
+> > > >  	iounmap(dev->base);
+> > > >  	kfree(dev);
+> > > >  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > > > --
+> > > > 1.5.4.7
+> > > >
+> > > > --
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > > > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > >
+> > > --
+> > > --
+> > > Ben
+> > >
+> > > Q:      What's a light-year?
+> > > A:      One-third less calories than a regular year.
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
+-- 
+-- 
+Ben
 
-
--- =
-
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
