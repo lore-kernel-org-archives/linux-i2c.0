@@ -1,122 +1,162 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH (Option 1)] of/i2c: fix module load order issue caused
-	by of_i2c.c
-Date: Wed, 29 Sep 2010 00:21:47 +0100
-Message-ID: <20100928232147.GR21564@trinity.fluff.org>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH (Option 1)] of/i2c: fix module load order issue caused by
+	of_i2c.c
+Date: Wed, 29 Sep 2010 08:26:03 +0900
+Message-ID: <AANLkTimB1dACK0QdnJk-Ry0hPpUO7eKv3n_GSBJTttCx@mail.gmail.com>
 References: <20100924221313.28357.61419.stgit@angua>
+	<20100928232147.GR21564@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100924221313.28357.61419.stgit@angua>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, mikpe-1zs4UD6AkMk@public.gmane.org, rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20100928232147.GR21564@trinity.fluff.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: mikpe@it.uu.se, linux-kernel@vger.kernel.org, rdunlap@xenotime.net, linux-i2c@vger.kernel.org, khali@linux-fr.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 24, 2010 at 04:14:53PM -0600, Grant Likely wrote:
-> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
-> module dependency loop where of_i2c.c calls functions in i2c-core, and
-> i2c-core calls of_i2c_register_devices() in of_i2c.  This means that
-> when i2c support is built as a module when CONFIG_OF is set, then
-> neither i2c_core nor of_i2c are able to be loaded.
-> 
-> This patch fixes the problem by moving the of_i2c_register_devices()
-> function into the body of i2c_core and renaming it to
-> i2c_scan_of_devices (of_i2c_register_devices is analogous to the
-> existing i2c_scan_static_board_info function and so should be named
-> similarly).  This function isn't called by any code outside of
-> i2c_core, and it must always be present when CONFIG_OF is selected, so
-> it makes sense to locate it there.  When CONFIG_OF is not selected,
-> of_i2c_register_devices() becomes a no-op.
-> 
-> Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |   61 ++++++++++++++++++++++++++++++++++++++++++++++--
->  drivers/of/of_i2c.c    |   57 ---------------------------------------------
->  include/linux/of_i2c.h |    7 ------
->  3 files changed, 59 insertions(+), 66 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6649176..64a261b 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -32,8 +32,8 @@
->  #include <linux/init.h>
->  #include <linux/idr.h>
->  #include <linux/mutex.h>
-> -#include <linux/of_i2c.h>
->  #include <linux/of_device.h>
-> +#include <linux/of_irq.h>
->  #include <linux/completion.h>
->  #include <linux/hardirq.h>
->  #include <linux/irqflags.h>
-> @@ -818,6 +818,63 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
->  	up_read(&__i2c_board_lock);
->  }
->  
-> +#ifdef CONFIG_OF
-> +void i2c_scan_of_devices(struct i2c_adapter *adap)
-> +{
-> +	void *result;
-> +	struct device_node *node;
-> +
-> +	/* Only register child devices if the adapter has a node pointer set */
-> +	if (!adap->dev.of_node)
-> +		return;
-> +
-> +	for_each_child_of_node(adap->dev.of_node, node) {
-> +		struct i2c_board_info info = {};
-> +		struct dev_archdata dev_ad = {};
-> +		const __be32 *addr;
-> +		int len;
-> +
-> +		dev_dbg(&adap->dev, "of_i2c: register %s\n", node->full_name);
-> +		if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
-> +			dev_err(&adap->dev, "of_i2c: modalias failure on %s\n",
-> +				node->full_name);
-> +			continue;
-> +		}
-> +
-> +		addr = of_get_property(node, "reg", &len);
-> +		if (!addr || (len < sizeof(int))) {
-> +			dev_err(&adap->dev, "of_i2c: invalid reg on %s\n",
-> +				node->full_name);
-> +			continue;
-> +		}
-> +
-> +		info.addr = be32_to_cpup(addr);
-> +		if (info.addr > (1 << 10) - 1) {
-> +			dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
-> +				info.addr, node->full_name);
-> +			continue;
-> +		}
-> +
-> +		info.irq = irq_of_parse_and_map(node, 0);
-> +		info.of_node = of_node_get(node);
-> +		info.archdata = &dev_ad;
-> +
-> +		request_module("%s", info.type);
-> +
-> +		result = i2c_new_device(adap, &info);
-> +		if (result == NULL) {
-> +			dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
-> +			        node->full_name);
-> +			of_node_put(node);
-> +			irq_dispose_mapping(info.irq);
-> +			continue;
-> +		}
-> +	}
-> +}
-> +#else
-> +static inline void i2c_scan_of_devices(struct i2c_adapter *adap) { }
-> +#endif
+On Wed, Sep 29, 2010 at 8:21 AM, Ben Dooks <ben-i2c@fluff.org> wrote:
+> On Fri, Sep 24, 2010 at 04:14:53PM -0600, Grant Likely wrote:
+>> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
+>> module dependency loop where of_i2c.c calls functions in i2c-core, and
+>> i2c-core calls of_i2c_register_devices() in of_i2c. =A0This means that
+>> when i2c support is built as a module when CONFIG_OF is set, then
+>> neither i2c_core nor of_i2c are able to be loaded.
+>>
+>> This patch fixes the problem by moving the of_i2c_register_devices()
+>> function into the body of i2c_core and renaming it to
+>> i2c_scan_of_devices (of_i2c_register_devices is analogous to the
+>> existing i2c_scan_static_board_info function and so should be named
+>> similarly). =A0This function isn't called by any code outside of
+>> i2c_core, and it must always be present when CONFIG_OF is selected, so
+>> it makes sense to locate it there. =A0When CONFIG_OF is not selected,
+>> of_i2c_register_devices() becomes a no-op.
+>>
+>> Signed-off-by: Grant Likely <grant.likely@secretlab.ca>
+>> ---
+>> =A0drivers/i2c/i2c-core.c | =A0 61 +++++++++++++++++++++++++++++++++++++=
++++++++++--
+>> =A0drivers/of/of_i2c.c =A0 =A0| =A0 57 ---------------------------------=
+------------
+>> =A0include/linux/of_i2c.h | =A0 =A07 ------
+>> =A03 files changed, 59 insertions(+), 66 deletions(-)
+>>
+>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> index 6649176..64a261b 100644
+>> --- a/drivers/i2c/i2c-core.c
+>> +++ b/drivers/i2c/i2c-core.c
+>> @@ -32,8 +32,8 @@
+>> =A0#include <linux/init.h>
+>> =A0#include <linux/idr.h>
+>> =A0#include <linux/mutex.h>
+>> -#include <linux/of_i2c.h>
+>> =A0#include <linux/of_device.h>
+>> +#include <linux/of_irq.h>
+>> =A0#include <linux/completion.h>
+>> =A0#include <linux/hardirq.h>
+>> =A0#include <linux/irqflags.h>
+>> @@ -818,6 +818,63 @@ static void i2c_scan_static_board_info(struct i2c_a=
+dapter *adapter)
+>> =A0 =A0 =A0 up_read(&__i2c_board_lock);
+>> =A0}
+>>
+>> +#ifdef CONFIG_OF
+>> +void i2c_scan_of_devices(struct i2c_adapter *adap)
+>> +{
+>> + =A0 =A0 void *result;
+>> + =A0 =A0 struct device_node *node;
+>> +
+>> + =A0 =A0 /* Only register child devices if the adapter has a node point=
+er set */
+>> + =A0 =A0 if (!adap->dev.of_node)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return;
+>> +
+>> + =A0 =A0 for_each_child_of_node(adap->dev.of_node, node) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_board_info info =3D {};
+>> + =A0 =A0 =A0 =A0 =A0 =A0 struct dev_archdata dev_ad =3D {};
+>> + =A0 =A0 =A0 =A0 =A0 =A0 const __be32 *addr;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 int len;
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 dev_dbg(&adap->dev, "of_i2c: register %s\n", n=
+ode->full_name);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (of_modalias_node(node, info.type, sizeof(i=
+nfo.type)) < 0) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: m=
+odalias failure on %s\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
+e);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 }
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 addr =3D of_get_property(node, "reg", &len);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (!addr || (len < sizeof(int))) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: i=
+nvalid reg on %s\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
+e);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 }
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 info.addr =3D be32_to_cpup(addr);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (info.addr > (1 << 10) - 1) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: i=
+nvalid addr=3D%x on %s\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 info.addr, nod=
+e->full_name);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 }
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 info.irq =3D irq_of_parse_and_map(node, 0);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 info.of_node =3D of_node_get(node);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 info.archdata =3D &dev_ad;
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 request_module("%s", info.type);
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 result =3D i2c_new_device(adap, &info);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (result =3D=3D NULL) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&adap->dev, "of_i2c: F=
+ailure registering %s\n",
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 node->full_nam=
+e);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_node_put(node);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 irq_dispose_mapping(info.irq);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 }
+>> + =A0 =A0 }
+>> +}
+>> +#else
+>> +static inline void i2c_scan_of_devices(struct i2c_adapter *adap) { }
+>> +#endif
+>
+> Is there any advantage to just making the definition in the header
+> file a static inline and removing the #else part of this?
 
-Is there any advantage to just making the definition in the header
-file a static inline and removing the #else part of this?
+I'm not sure what you mean.  This particular patch makes
+i2c_scan_of_devices() completely internal to i2c-core.c so that there
+is no need to expose it in the header file at all.
 
--- 
-Ben
+g.
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+>
+> --
+> Ben
+>
+> Q: =A0 =A0 =A0What's a light-year?
+> A: =A0 =A0 =A0One-third less calories than a regular year.
+>
+>
+
+
+
+-- =
+
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
