@@ -1,45 +1,47 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] fix PCA waitforcompletion() return value
-Date: Wed, 29 Sep 2010 00:08:45 +0100
-Message-ID: <20100928230845.GN21564@trinity.fluff.org>
-References: <4C99CA70.2070109@visionsystems.de> <20100922093123.GE2693@pengutronix.de> <20100922120848.6a43c5c2@endymion.delvare>
+Subject: Re: [PATCH] i2c-mv64xxx: use subsys_initcall for early
+	initialization
+Date: Wed, 29 Sep 2010 00:11:43 +0100
+Message-ID: <20100928231143.GP21564@trinity.fluff.org>
+References: <1284284129-28105-1-git-send-email-mike@compulab.co.il> <20100914232547.GD7494@trinity.fluff.org> <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20100922120848.6a43c5c2-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Yegor Yefremov <yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 22, 2010 at 12:08:48PM +0200, Jean Delvare wrote:
-> Hi Wolfram,
-> 
-> On Wed, 22 Sep 2010 11:31:23 +0200, Wolfram Sang wrote:
-> > On Wed, Sep 22, 2010 at 11:20:48AM +0200, Yegor Yefremov wrote:
-> > > ret is still -1, if during the polling read_byte() returns at once
-> > > with I2C_PCA_CON_SI set. So ret > 0 would lead *_waitforcompletion()
-> > > to return 0, in spite of the proper behavior.
-> > > 
-> > > The routine was rewritten, so that ret has always a proper value,
-> > > before returning.
-> > > 
-> > > Signed-off-by: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-> > > Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > 
-> > Great! Jean, I think this is .36-relevant. Do you plan another
-> > pull-request (hmm, there is still my clientdata-patch ;))? Should
-> > probably go to stable, too.
-> 
-> Yes, I have a few i2c patches scheduled for 2.6.36 and plan to send
-> Linus a pull request soon. I'm a little busy this week at work, and also
-> due to a complete workstastion update so I must setup a number of
-> things again and this temporarily hinders my efficiency.
+On Thu, Sep 23, 2010 at 09:11:00AM +0200, Linus Walleij wrote:
+> 2010/9/15 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
+> > On Sun, Sep 12, 2010 at 11:35:29AM +0200, Mike Rapoport wrote:
+> >> Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+> >> ---
+> >> =A0drivers/i2c/busses/i2c-mv64xxx.c | =A0 =A02 +-
+> >> =A01 files changed, 1 insertions(+), 1 deletions(-)
+> >
+> > We really should have an i2c_initcall, but it may be difficult to m=
+ove
+> > everyone over to it. What would be lovely is some form of dependenc=
+y
+> > based initialisation, but that's probably a way off...
+>=20
+> SPI, SDIO and other external busses (Dallas 1-wire? w1) may all have
+> the same "needs to be up early because we need that before that"
+> type of problem.
+>=20
+> Makes me think of crazy things like putting a lightweight version of
+> Lennars P=F6tterings "systemd" scheme into the kernel for resolving
+> these initcalls.
 
-Want me to push it, i've a few fixes too.
+Either that, or build stuff as modules and use an initrd...
 
--- 
+Not sure what the best solution is...
+
+--=20
 Ben
 
 Q:      What's a light-year?
