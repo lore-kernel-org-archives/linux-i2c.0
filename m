@@ -1,42 +1,32 @@
-From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [PATCH 0/4] Led driver support for LP5521 and LP5523 chips
-Date: Tue, 28 Sep 2010 12:59:20 -0700
-Message-ID: <20100928125920.0c6a68ff.akpm@linux-foundation.org>
-References: <1284631946-5350-1-git-send-email-samu.p.onkalo@nokia.com>
-	<62697B07E9803846BC582181BD6FB6B835EF64A9AA@NOK-EUMSG-02.mgdnok.nokia.com>
-	<AANLkTi=N-p_ojTt6ia6bLxoA5AKC6rdZky9kvz_BqFqa@mail.gmail.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: [SOLVED] wnv_cs.c: i2c question
+Date: Tue, 28 Sep 2010 22:37:54 +0200
+Message-ID: <20100928203754.GA20730@comet.dominikbrodowski.net>
+References: <20100927074549.GA32061@comet.dominikbrodowski.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTi=N-p_ojTt6ia6bLxoA5AKC6rdZky9kvz_BqFqa-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, rpurdie-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Persson <martin.persson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100927074549.GA32061@comet.dominikbrodowski.net>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 28 Sep 2010 11:00:20 +0200
-Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+Hey,
 
-> 2010/9/27  <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>:
+> as I recently obtained such a PCMCIA card, I try to revive the wnv_cs driver
+> for Winnov Videum Traveler video cards. First (non-working, but compiling
+> and able to access the EEPROM and to detect the decoder) results may be
+> found at
 > 
-> > I haven't got any mails or comments from Richard about this driver.
-> > Also led tree here:
-> > http://git.o-hand.com/cgit.cgi/linux-rpurdie-leds/
-> >
-> > is not updated in 4 months.
-> >
-> > I'm just wondering should I send this to somebody else than Richard Purdie?
-> >
-> > I'll update the driver based on other comments and send v2 patch set.
+> http://git.kernel.org/?p=linux/kernel/git/brodo/pcmcia-2.6.git;a=shortlog;h=refs/heads/wnv
 > 
-> We (ST-Ericsson) need this driver in as well.
-> 
-> If Richard is busy maybe Andrew can pick it up for the time being?
+> Now, I got a bit stuck at the i2c level -- do the following access functions
+> look familiar to one of the i2c experts? If so, which algo driver is to be
+> used? Is this an i2c_smbus_, or some very custom interface not worth
+> converting to use the i2c subsystem? Many thanks!
 
-I looked.  There are a few valid-looking review comments which remain
-unaddressed and un-replied-to.
+inverting i2c_data and i2c_clock did the trick.
 
-> Looking forward to the v2 version!
-
-yup, please cc me on v2.
+Best,
+	Dominik
