@@ -1,51 +1,42 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: Driver for pca9541 bus master selector
-Date: Tue, 28 Sep 2010 10:16:27 -0700
-Message-ID: <20100928171627.GA8415@ericsson.com>
-References: <20100928143302.GA7593@ericsson.com>
- <20100928171607.395f7736@endymion.delvare>
- <20100928160746.GB7976@ericsson.com>
- <20100928184215.00f82717@endymion.delvare>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: [PATCH 0/4] Led driver support for LP5521 and LP5523 chips
+Date: Tue, 28 Sep 2010 12:59:20 -0700
+Message-ID: <20100928125920.0c6a68ff.akpm@linux-foundation.org>
+References: <1284631946-5350-1-git-send-email-samu.p.onkalo@nokia.com>
+	<62697B07E9803846BC582181BD6FB6B835EF64A9AA@NOK-EUMSG-02.mgdnok.nokia.com>
+	<AANLkTi=N-p_ojTt6ia6bLxoA5AKC6rdZky9kvz_BqFqa@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100928184215.00f82717-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <AANLkTi=N-p_ojTt6ia6bLxoA5AKC6rdZky9kvz_BqFqa-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, rpurdie-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Persson <martin.persson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+On Tue, 28 Sep 2010 11:00:20 +0200
+Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 
-On Tue, Sep 28, 2010 at 12:42:15PM -0400, Jean Delvare wrote:
-> On Tue, 28 Sep 2010 09:07:46 -0700, Guenter Roeck wrote:
-> > On Tue, Sep 28, 2010 at 11:16:07AM -0400, Jean Delvare wrote:
-> > > Hi Guenter,
-> > > 
-> > > On Tue, 28 Sep 2010 07:33:02 -0700, Guenter Roeck wrote:
-> > > > I am in the process of writing a driver for the pca9541 bus master selector. 
-> > > > I using the i2c multiplexer framework, which fits the requirements quite nicely.
-> > > > 
-> > > > If anyone happens to know about an existing driver for this chip, please let me know.
-> > > > I would love to get some input for the arbitration mechanism needed to determine
-> > > > if and when to switch bus ownership from one master to the other.
-> > > 
-> > > See drivers/i2c/muxes/pca954x.c in 2.6.36-rc2 and later.
-> > > 
-> > Yes, I know. I use it as basis. But it doesn't support pca9541, unfortunately.
+> 2010/9/27  <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>:
 > 
-> Oh, my bad. I had not noticed the PCA9541 was of a totally different kind.
+> > I haven't got any mails or comments from Richard about this driver.
+> > Also led tree here:
+> > http://git.o-hand.com/cgit.cgi/linux-rpurdie-leds/
+> >
+> > is not updated in 4 months.
+> >
+> > I'm just wondering should I send this to somebody else than Richard Purdie?
+> >
+> > I'll update the driver based on other comments and send v2 patch set.
 > 
-Actually, I fell into the same trap. I was quite happy that someone else wrote 
-the driver for me ... until I realized that the chips solve the opposite problem.
+> We (ST-Ericsson) need this driver in as well.
+> 
+> If Richard is busy maybe Andrew can pick it up for the time being?
 
-Time goes by ... have a look at
+I looked.  There are a few valid-looking review comments which remain
+unaddressed and un-replied-to.
 
-http://lists.lm-sensors.org/pipermail/lm-sensors/2004-June/008023.html
+> Looking forward to the v2 version!
 
-I wasn't sure if you (or someone else) ever had a driver for 9541, or if you referred
-to 9540 in above post. The links in the post don't work anymore.
-
-Thanks,
-Guenter
+yup, please cc me on v2.
