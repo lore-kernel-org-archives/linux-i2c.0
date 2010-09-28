@@ -1,47 +1,38 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c-mv64xxx: use subsys_initcall for early
-	initialization
-Date: Wed, 29 Sep 2010 00:11:43 +0100
-Message-ID: <20100928231143.GP21564@trinity.fluff.org>
-References: <1284284129-28105-1-git-send-email-mike@compulab.co.il> <20100914232547.GD7494@trinity.fluff.org> <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+@mail.gmail.com>
+Subject: Re: [PATCH (Option 1)] of/i2c: fix module load order issue caused
+	by of_i2c.c
+Date: Wed, 29 Sep 2010 00:20:54 +0100
+Message-ID: <20100928232054.GQ21564@trinity.fluff.org>
+References: <20100924221313.28357.61419.stgit@angua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=gtXJ8zQt2kTSCCy7=Zc4R-8BDp=Z8w7u8_ua+-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20100924221313.28357.61419.stgit@angua>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, mikpe-1zs4UD6AkMk@public.gmane.org, rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 23, 2010 at 09:11:00AM +0200, Linus Walleij wrote:
-> 2010/9/15 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
-> > On Sun, Sep 12, 2010 at 11:35:29AM +0200, Mike Rapoport wrote:
-> >> Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-> >> ---
-> >> =A0drivers/i2c/busses/i2c-mv64xxx.c | =A0 =A02 +-
-> >> =A01 files changed, 1 insertions(+), 1 deletions(-)
-> >
-> > We really should have an i2c_initcall, but it may be difficult to m=
-ove
-> > everyone over to it. What would be lovely is some form of dependenc=
-y
-> > based initialisation, but that's probably a way off...
->=20
-> SPI, SDIO and other external busses (Dallas 1-wire? w1) may all have
-> the same "needs to be up early because we need that before that"
-> type of problem.
->=20
-> Makes me think of crazy things like putting a lightweight version of
-> Lennars P=F6tterings "systemd" scheme into the kernel for resolving
-> these initcalls.
+On Fri, Sep 24, 2010 at 04:14:53PM -0600, Grant Likely wrote:
+> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
+> module dependency loop where of_i2c.c calls functions in i2c-core, and
+> i2c-core calls of_i2c_register_devices() in of_i2c.  This means that
+> when i2c support is built as a module when CONFIG_OF is set, then
+> neither i2c_core nor of_i2c are able to be loaded.
+> 
+> This patch fixes the problem by moving the of_i2c_register_devices()
+> function into the body of i2c_core and renaming it to
+> i2c_scan_of_devices (of_i2c_register_devices is analogous to the
+> existing i2c_scan_static_board_info function and so should be named
+> similarly).  This function isn't called by any code outside of
+> i2c_core, and it must always be present when CONFIG_OF is selected, so
+> it makes sense to locate it there.  When CONFIG_OF is not selected,
+> of_i2c_register_devices() becomes a no-op.
 
-Either that, or build stuff as modules and use an initrd...
+I sort of go with this one.
 
-Not sure what the best solution is...
-
---=20
+-- 
 Ben
 
 Q:      What's a light-year?
