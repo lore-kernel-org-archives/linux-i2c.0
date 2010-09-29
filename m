@@ -1,109 +1,108 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH (Option 2)] of/i2c: fix module load order issue caused
- by  of_i2c.c
-Date: Wed, 29 Sep 2010 17:43:28 +0200
-Message-ID: <20100929174328.48af4735@endymion.delvare>
-References: <20100924221313.28357.61419.stgit@angua>
-	<20100924221458.28357.58921.stgit@angua>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 7/8] drivers/i2c/busses/i2c-amd8111.c: Fix unsigned
+ return   type
+Date: Wed, 29 Sep 2010 17:46:06 +0200
+Message-ID: <20100929174606.616e564c@endymion.delvare>
+References: <Pine.LNX.4.64.1009080757050.27892@ask.diku.dk>
+	<20100908093449.0adef429@hyperion.delvare>
+	<Pine.LNX.4.64.1009081148040.3297@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100924221458.28357.58921.stgit@angua>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: mikpe-1zs4UD6AkMk@public.gmane.org, rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.1009081148040.3297@ask.diku.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Julia Lawall <julia@diku.dk>
+Cc: "Ben Dooks (em, bedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 24 Sep 2010 16:15:18 -0600, Grant Likely wrote:
-> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
-> module dependency loop where of_i2c.c calls functions in i2c-core, and
-> i2c-core calls of_i2c_register_devices() in of_i2c.  This means that
-> when i2c support is built as a module when CONFIG_OF is set, then
-> neither i2c_core nor of_i2c are able to be loaded.
-> 
-> This patch fixes the problem by moving the of_i2c_register_devices()
-> calls back into the device drivers.  Device drivers already
-> specifically request the core code to parse the device tree for
-> devices anyway by setting the of_node pointer, so it isn't a big
-> deal to also call the registration function.  The drivers just become
-> slightly more verbose.
-> 
-> Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-cpm.c     |    5 +++++
->  drivers/i2c/busses/i2c-ibm_iic.c |    3 +++
->  drivers/i2c/busses/i2c-mpc.c     |    1 +
->  drivers/i2c/i2c-core.c           |    4 ----
->  4 files changed, 9 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-> index f7bd261..f2de3be 100644
-> --- a/drivers/i2c/busses/i2c-cpm.c
-> +++ b/drivers/i2c/busses/i2c-cpm.c
-> @@ -677,6 +677,11 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev,
->  	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
->  		cpm->adap.name);
->  
-> +	/*
-> +	 * register OF I2C devices
-> +	 */
-> +	of_i2c_register_devices(&cpm->adap);
-> +
->  	return 0;
->  out_shut:
->  	cpm_i2c_shutdown(cpm);
-> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-> index 43ca32f..89eedf4 100644
-> --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> @@ -761,6 +761,9 @@ static int __devinit iic_probe(struct platform_device *ofdev,
->  	dev_info(&ofdev->dev, "using %s mode\n",
->  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
->  
-> +	/* Now register all the child nodes */
-> +	of_i2c_register_devices(adap);
-> +
->  	return 0;
->  
->  error_cleanup:
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> index a1c419a..b74e6dc 100644
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -632,6 +632,7 @@ static int __devinit fsl_i2c_probe(struct platform_device *op,
->  		dev_err(i2c->dev, "failed to add adapter\n");
->  		goto fail_add;
->  	}
-> +	of_i2c_register_devices(&i2c->adap);
->  
->  	return result;
->  
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6649176..a9589f5 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -32,7 +32,6 @@
->  #include <linux/init.h>
->  #include <linux/idr.h>
->  #include <linux/mutex.h>
-> -#include <linux/of_i2c.h>
->  #include <linux/of_device.h>
->  #include <linux/completion.h>
->  #include <linux/hardirq.h>
-> @@ -876,9 +875,6 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->  	if (adap->nr < __i2c_first_dynamic_bus_num)
->  		i2c_scan_static_board_info(adap);
->  
-> -	/* Register devices from the device tree */
-> -	of_i2c_register_devices(adap);
-> -
->  	/* Notify drivers */
->  	mutex_lock(&core_lock);
->  	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
-> 
+Hi Julia,
 
-I've applied this variant, thanks.
+On Wed, 8 Sep 2010 11:48:17 +0200 (CEST), Julia Lawall wrote:
+> OK, thanks. I will look at the code again.
+
+Any update on this patch?
+
+> On Wed, 8 Sep 2010, Jean Delvare wrote:
+> 
+> > Hi Julia,
+> > 
+> > On Wed, 8 Sep 2010 07:58:45 +0200 (CEST), Julia Lawall wrote:
+> > > From: Julia Lawall <julia@diku.dk>
+> > > 
+> > > In each case, the function has an unsigned return type, but returns a
+> > > negative constant to indicate an error condition.  The result of calling
+> > > the function is always stored in a variable of type (signed) int, and thus
+> > > unsigned can be dropped from the return type.
+> > > 
+> > > A sematic match that finds this problem is as follows:
+> > > (http://coccinelle.lip6.fr/)
+> > > 
+> > > // <smpl>
+> > > @exists@
+> > > identifier f;
+> > > constant C;
+> > > @@
+> > > 
+> > >  unsigned f(...)
+> > >  { <+...
+> > > *  return -C;
+> > >  ...+> }
+> > > // </smpl>
+> > > 
+> > > Signed-off-by: Julia Lawall <julia@diku.dk>
+> > > 
+> > > ---
+> > >  drivers/i2c/busses/i2c-amd8111.c |    4 ++--
+> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+> > > index af1e5e2..02a3726 100644
+> > > --- a/drivers/i2c/busses/i2c-amd8111.c
+> > > +++ b/drivers/i2c/busses/i2c-amd8111.c
+> > > @@ -69,7 +69,7 @@ static struct pci_driver amd8111_driver;
+> > >   * ACPI 2.0 chapter 13 access of registers of the EC
+> > >   */
+> > >  
+> > > -static unsigned int amd_ec_wait_write(struct amd_smbus *smbus)
+> > > +static int amd_ec_wait_write(struct amd_smbus *smbus)
+> > >  {
+> > >  	int timeout = 500;
+> > >  
+> > > @@ -85,7 +85,7 @@ static unsigned int amd_ec_wait_write(struct amd_smbus *smbus)
+> > >  	return 0;
+> > >  }
+> > >  
+> > > -static unsigned int amd_ec_wait_read(struct amd_smbus *smbus)
+> > > +static int amd_ec_wait_read(struct amd_smbus *smbus)
+> > >  {
+> > >  	int timeout = 500;
+> > >  
+> > > 
+> > 
+> > Thanks for reporting. Unfortunately the fix above is incomplete.
+> > amd_ec_wait_write() and amd_ec_wait_read() are called by amd_ec_read()
+> > and amd_ec_write(), which will now attempt to return negative error
+> > codes as unsigned ints. So amd_ec_read() and amd_ec_write() must have
+> > their return type fixed too.
+> > 
+> > Note that the driver code never checks for errors returned by
+> > amd_ec_read() or amd_ec_write() anyway, so the fix alone is a no-op. A
+> > real fix would have to also update the caller sites to properly deal
+> > with errors if then happen.
+> > 
+> > -- 
+> > Jean Delvare
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 
 -- 
 Jean Delvare
