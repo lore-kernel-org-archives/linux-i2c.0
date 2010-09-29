@@ -1,64 +1,48 @@
-From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCHv2 3/4] leds: Update LP552x support Kconfig and Makefile
-Date: Wed, 29 Sep 2010 12:10:04 +0300
-Message-ID: <1285751405-22039-4-git-send-email-samu.p.onkalo@nokia.com>
-References: <1285751405-22039-1-git-send-email-samu.p.onkalo@nokia.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] I2C: runtime: Fix checks which make legacy suspend to
+ never get called
+Date: Wed, 29 Sep 2010 14:23:21 +0200
+Message-ID: <20100929142321.59356b5b@endymion.delvare>
+References: <1285602360-21180-1-git-send-email-rnayak@ti.com>
+	<201009282345.26363.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1285751405-22039-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <201009282345.26363.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: rpurdie-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, akpm-3NddpPZAyC0@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Provide configuration and compilation support for LP5521 and LP5523
+On Tue, 28 Sep 2010 23:45:26 +0200, Rafael J. Wysocki wrote:
+> On Monday, September 27, 2010, Rajendra Nayak wrote:
+> > For devices which are not adapted to runtime PM a call to
+> > pm_runtime_suspended always returns true.
+> > 
+> > Hence the pm_runtime_suspended checks below prevent legacy
+> > suspend from getting called.
+> > 
+> > So do a pm_runtime_suspended check only for devices with a
+> > dev_pm_ops populated (which hence do not rely on the legacy
+> > suspend)
+> 
+> Makes sense.
+> 
+> > Signed-off-by: Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
+> > Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> 
+> Acked-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> 
+> > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> > ---
+> >  drivers/i2c/i2c-core.c |   44 ++++++++++++++++++++++++--------------------
+> >  1 files changed, 24 insertions(+), 20 deletions(-)
 
-Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
----
- drivers/leds/Kconfig  |   18 ++++++++++++++++++
- drivers/leds/Makefile |    2 ++
- 2 files changed, 20 insertions(+), 0 deletions(-)
+Applied, thanks.
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index e411262..c789087 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -176,6 +176,24 @@ config LEDS_LP3944
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called leds-lp3944.
- 
-+config LEDS_LP5521
-+	tristate "LED Support for N.S. LP5521 LED driver chip"
-+	depends on LEDS_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the National Semiconductor
-+	  LP5521 LED driver. It is 3 channel chip with programmable engines.
-+	  Driver provides direct control via LED class and interface for
-+	  programming the engines.
-+
-+config LEDS_LP5523
-+	tristate "LED Support for N.S. LP5523 LED driver chip"
-+	depends on LEDS_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the National Semiconductor
-+	  LP5523 LED driver. It is 9 channel chip with programmable engines.
-+	  Driver provides direct control via LED class and interface for
-+	  programming the engines.
-+
- config LEDS_CLEVO_MAIL
- 	tristate "Mail LED on Clevo notebook"
- 	depends on X86 && SERIO_I8042 && DMI
-diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-index 7d6b958..2ba98f6 100644
---- a/drivers/leds/Makefile
-+++ b/drivers/leds/Makefile
-@@ -23,6 +23,8 @@ obj-$(CONFIG_LEDS_SUNFIRE)		+= leds-sunfire.o
- obj-$(CONFIG_LEDS_PCA9532)		+= leds-pca9532.o
- obj-$(CONFIG_LEDS_GPIO)			+= leds-gpio.o
- obj-$(CONFIG_LEDS_LP3944)		+= leds-lp3944.o
-+obj-$(CONFIG_LEDS_LP5521)		+= leds-lp5521.o
-+obj-$(CONFIG_LEDS_LP5523)		+= leds-lp5523.o
- obj-$(CONFIG_LEDS_CLEVO_MAIL)		+= leds-clevo-mail.o
- obj-$(CONFIG_LEDS_HP6XX)		+= leds-hp6xx.o
- obj-$(CONFIG_LEDS_FSG)			+= leds-fsg.o
 -- 
-1.6.0.4
+Jean Delvare
