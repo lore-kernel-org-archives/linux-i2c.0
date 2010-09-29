@@ -1,54 +1,109 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH (Option 1)] of/i2c: fix module load order issue caused
- by of_i2c.c
-Date: Wed, 29 Sep 2010 16:42:51 +0200
-Message-ID: <20100929164251.0243ac7f@endymion.delvare>
+Subject: Re: [PATCH (Option 2)] of/i2c: fix module load order issue caused
+ by  of_i2c.c
+Date: Wed, 29 Sep 2010 17:43:28 +0200
+Message-ID: <20100929174328.48af4735@endymion.delvare>
 References: <20100924221313.28357.61419.stgit@angua>
-	<20100928232054.GQ21564@trinity.fluff.org>
+	<20100924221458.28357.58921.stgit@angua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100928232054.GQ21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <20100924221458.28357.58921.stgit@angua>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, mikpe-1zs4UD6AkMk@public.gmane.org, rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: mikpe-1zs4UD6AkMk@public.gmane.org, rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 29 Sep 2010 00:20:54 +0100, Ben Dooks wrote:
-> On Fri, Sep 24, 2010 at 04:14:53PM -0600, Grant Likely wrote:
-> > Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
-> > module dependency loop where of_i2c.c calls functions in i2c-core, and
-> > i2c-core calls of_i2c_register_devices() in of_i2c.  This means that
-> > when i2c support is built as a module when CONFIG_OF is set, then
-> > neither i2c_core nor of_i2c are able to be loaded.
-> > 
-> > This patch fixes the problem by moving the of_i2c_register_devices()
-> > function into the body of i2c_core and renaming it to
-> > i2c_scan_of_devices (of_i2c_register_devices is analogous to the
-> > existing i2c_scan_static_board_info function and so should be named
-> > similarly).  This function isn't called by any code outside of
-> > i2c_core, and it must always be present when CONFIG_OF is selected, so
-> > it makes sense to locate it there.  When CONFIG_OF is not selected,
-> > of_i2c_register_devices() becomes a no-op.
+On Fri, 24 Sep 2010 16:15:18 -0600, Grant Likely wrote:
+> Commit 959e85f7, "i2c: add OF-style registration and binding" caused a
+> module dependency loop where of_i2c.c calls functions in i2c-core, and
+> i2c-core calls of_i2c_register_devices() in of_i2c.  This means that
+> when i2c support is built as a module when CONFIG_OF is set, then
+> neither i2c_core nor of_i2c are able to be loaded.
 > 
-> I sort of go with this one.
+> This patch fixes the problem by moving the of_i2c_register_devices()
+> calls back into the device drivers.  Device drivers already
+> specifically request the core code to parse the device tree for
+> devices anyway by setting the of_node pointer, so it isn't a big
+> deal to also call the registration function.  The drivers just become
+> slightly more verbose.
+> 
+> Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-cpm.c     |    5 +++++
+>  drivers/i2c/busses/i2c-ibm_iic.c |    3 +++
+>  drivers/i2c/busses/i2c-mpc.c     |    1 +
+>  drivers/i2c/i2c-core.c           |    4 ----
+>  4 files changed, 9 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+> index f7bd261..f2de3be 100644
+> --- a/drivers/i2c/busses/i2c-cpm.c
+> +++ b/drivers/i2c/busses/i2c-cpm.c
+> @@ -677,6 +677,11 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev,
+>  	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
+>  		cpm->adap.name);
+>  
+> +	/*
+> +	 * register OF I2C devices
+> +	 */
+> +	of_i2c_register_devices(&cpm->adap);
+> +
+>  	return 0;
+>  out_shut:
+>  	cpm_i2c_shutdown(cpm);
+> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+> index 43ca32f..89eedf4 100644
+> --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> @@ -761,6 +761,9 @@ static int __devinit iic_probe(struct platform_device *ofdev,
+>  	dev_info(&ofdev->dev, "using %s mode\n",
+>  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
+>  
+> +	/* Now register all the child nodes */
+> +	of_i2c_register_devices(adap);
+> +
+>  	return 0;
+>  
+>  error_cleanup:
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index a1c419a..b74e6dc 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -632,6 +632,7 @@ static int __devinit fsl_i2c_probe(struct platform_device *op,
+>  		dev_err(i2c->dev, "failed to add adapter\n");
+>  		goto fail_add;
+>  	}
+> +	of_i2c_register_devices(&i2c->adap);
+>  
+>  	return result;
+>  
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 6649176..a9589f5 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -32,7 +32,6 @@
+>  #include <linux/init.h>
+>  #include <linux/idr.h>
+>  #include <linux/mutex.h>
+> -#include <linux/of_i2c.h>
+>  #include <linux/of_device.h>
+>  #include <linux/completion.h>
+>  #include <linux/hardirq.h>
+> @@ -876,9 +875,6 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>  	if (adap->nr < __i2c_first_dynamic_bus_num)
+>  		i2c_scan_static_board_info(adap);
+>  
+> -	/* Register devices from the device tree */
+> -	of_i2c_register_devices(adap);
+> -
+>  	/* Notify drivers */
+>  	mutex_lock(&core_lock);
+>  	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
+> 
 
-Actually I would prefer option #2, even though I understand it won't
-make Grant too happy. Having a large chunk of OF-specific code in
-i2c-core, leaving of_i2c.c almost empty, doesn't seem right.
+I've applied this variant, thanks.
 
-I took a look at what other relevant subsystems do. SPI is boolean so it
-doesn't have the issue. MDIO is tristate, the registration function is
-in of_mdio.c and individual drivers call it. And there are a lot more
-of these (9) than i2c drivers (3).
-
-So I would let individual drivers call of_i2c_register_devices(), as it
-used to be until 2.6.35. 2 extra functions calls doesn't seem a high
-price to pay to keep the code logically separated. This also make
-things consistent, with all OF registration functions living under
-drivers/of.
-
-Thanks,
 -- 
 Jean Delvare
