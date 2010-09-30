@@ -1,23 +1,28 @@
-From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] drivers: s3c2410-i2c: fix calculation of SDA line delay
-Date: Thu, 30 Sep 2010 15:38:29 +0200
-Message-ID: <1285853909-16056-1-git-send-email-m.szyprowski@samsung.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [PATCH RESEND] drivers: s3c2410-i2c: fix calculation of SDA line delay
+Date: Thu, 30 Sep 2010 15:54:46 +0200
+Message-ID: <1285854886-21459-1-git-send-email-m.szyprowski@samsung.com>
+References: <1285853909-16056-1-git-send-email-m.szyprowski@samsung.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1285853909-16056-1-git-send-email-m.szyprowski@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: m.szyprowski@samsung.com, kyungmin.park@samsung.com, ben-linux@fluff.org, myungjoo.ham@samsung.com
 List-Id: linux-i2c@vger.kernel.org
+
+From: MyungJoo Ham <myungjoo.ham@samsung.com>
 
 S3C2440 style I2C controller uses PCLK to calculate the SDA line delay.
 The driver wrongly assumed that this delay is calculated from the
 frequency that the controller is operating on. This patch fixes this
 issue.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
 ---
 
@@ -27,6 +32,10 @@ I've checked all the user manuals I have and in all cases (S3C2440,
 S3C6410, S5PC100, S5PC110 and S5PC210) the SDA line delay is calculated
 from PCLK not the I2C operating frequency. This patch fixes problems
 with I2C bus on Universal C210 board and LP3974 PMIC chip.
+
+This is a resend of the previous patch with the correct authorship. I've
+lost the information about the original author while rebasing and
+resolving conflicts in my kernel tree. I'm sorry for the confusion. 
 
 Best regards
 --
