@@ -1,43 +1,49 @@
-From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c-nomadik: documentation fixes
-Date: Thu, 30 Sep 2010 00:53:03 +0200
-Message-ID: <AANLkTikLAvjyQ0VgA1L=zjqocm4q2pbXwky1+8VXXTJ9@mail.gmail.com>
-References: <1285225420-916-1-git-send-email-linus.walleij@stericsson.com>
-	<20100927002508.GF21564@trinity.fluff.org>
-	<AANLkTim_O65ZKod8oSV245Zu3saEwjcitPw3twSO5NrX@mail.gmail.com>
-	<20100927223509.GI21564@trinity.fluff.org>
-	<AANLkTikjUyxLaEURVh-42T9NL_XCvwPLU6pobV1yq2BD@mail.gmail.com>
-	<20100928230808.GM21564@trinity.fluff.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: Driver for pca9541 bus master selector
+Date: Thu, 30 Sep 2010 07:59:44 +0200
+Message-ID: <4CA42750.5020500@gmx.de>
+References: <20100928143302.GA7593@ericsson.com> <20100928171607.395f7736@endymion.delvare> <20100928160746.GB7976@ericsson.com> <20100928184215.00f82717@endymion.delvare> <20100928171627.GA8415@ericsson.com> <20100929091928.16256bb7@endymion.delvare> <20100929135401.GA11771@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100928230808.GM21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <20100929135401.GA11771-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sundar R Iyer <sundar.iyer-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2010/9/29 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
+Guenter Roeck said the following:
+> On Wed, Sep 29, 2010 at 03:19:28AM -0400, Jean Delvare wrote:
+> [ ... ]
+>> 
+>> I was speaking of the PCA9540. I don't think anyone ever wrote a driver
+>> for the PCA9541. And in all honestly I don't think the new i2c-mux
+>> infrastructure is ready for this. It was written with single-master
+>> topologies in mind. You'll have to rethink a lot of things if you want
+>> to add support for "inverted" multiplexers. And I don't have the time
+>> to help, sorry.
+>> 
+> Actually, the infrastructure works quite nicely. I use select_chan
+> to acquire the slave, and release_chan to initiate release.
+> It behaves like a one-channel multiplexer.
+> 
+>> I don't quite see the point of such chips, BTW. I2C supports
+>> multi-master already, so two masters talking to the same slave
+>> sequentially is already supported.
+>> 
+> Tell that to our HW team, and to them:
+> 
+> 	http://www.lineagepower.com/oem/pdf/CPLI2C.pdf
+> 
+I only took a rough look, but it seemed to me that the pca is part of
+the main device.
+>From abstraction side of view your problem seems a matter of
+synchronization of two independent computer systems. You will need a
+shared resource. The access to it could either be part of driver code or
+by introducing a 'one-channel multiplexer' as you did. But the sync
+needs to be done by your code via a shared data object.
 
-> My personal view is to always keep attributions. Even if they are then
-> posted through someone else, or require a corporate stamp on them before
-> they get out of the building.
-
-I try to do this, but there are people who do not *want* to be attributed
-actually, and I need their permission to do so. (The reverse problem.)
-I have requested their consent but got no answer. So I am not allowed
-to post their authorship.
-
-Maybe it's a bit of strange desire for us kernel types but well...
-I have to respect their privacy.
-
-> Let me know what you'd like to do, and I'll sort out something for -next.
-
-I really like the dual sign-off with Sundar becase something like
-90% of these patch contents are his code, and I need to sign off
-for being in the delivery path. (I'm just a patch submission clerk
-when it comes to nomadik-i2c) I can repost the set with Sundar
-on the From: if you like.
-
-Yours,
-Linus Walleij
+-- 
+KR
+Michael
