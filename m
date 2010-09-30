@@ -1,65 +1,347 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [PATCH RESEND] drivers: s3c2410-i2c: fix calculation of SDA line delay
-Date: Thu, 30 Sep 2010 15:54:46 +0200
-Message-ID: <1285854886-21459-1-git-send-email-m.szyprowski@samsung.com>
-References: <1285853909-16056-1-git-send-email-m.szyprowski@samsung.com>
+From: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
+Subject: Re: [PATCH 7/8] drivers/i2c/busses/i2c-amd8111.c: Fix unsigned return
+   type
+Date: Thu, 30 Sep 2010 22:27:02 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1009302226270.10470@ask.diku.dk>
+References: <Pine.LNX.4.64.1009080757050.27892@ask.diku.dk>
+ <20100908093449.0adef429@hyperion.delvare> <Pine.LNX.4.64.1009081148040.3297@ask.diku.dk>
+ <20100929174606.616e564c@endymion.delvare> <Pine.LNX.4.64.1009292147060.25609@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1285853909-16056-1-git-send-email-m.szyprowski@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: m.szyprowski@samsung.com, kyungmin.park@samsung.com, ben-linux@fluff.org, myungjoo.ham@samsung.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.1009292147060.25609-QfmoRoYWmW9knbxzx/v8hQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "Ben Dooks (em, bedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: MyungJoo Ham <myungjoo.ham@samsung.com>
+The functions the functions amd_ec_wait_write and amd_ec_wait_read have an
+unsigned return type, but return a negative constant to indicate an error
+condition.
 
-S3C2440 style I2C controller uses PCLK to calculate the SDA line delay.
-The driver wrongly assumed that this delay is calculated from the
-frequency that the controller is operating on. This patch fixes this
-issue.
+A sematic match that finds this problem is as follows:
+(http://coccinelle.lip6.fr/)
 
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+// <smpl>
+@exists@
+identifier f;
+constant C;
+@@
+
+ unsigned f(...)
+ { <+...
+*  return -C;
+ ...+> }
+// </smpl>
+
+Fixing amd_ec_wait_write and amd_ec_wait_read leads to the need to adjust
+the return type of the functions amd_ec_write and amd_ec_read, which are
+the only functions that call amd_ec_wait_write and amd_ec_wait_read.
+amd_ec_write and amd_ec_read, in turn, are only called from within the
+function amd8111_access, which already returns a signed typed value.  Each
+of the calls to amd_ec_write and amd_ec_read are updated using the
+following semantic patch:
+
+// <smpl>
+@@
+@@
+
++ status = amd_ec_write
+- amd_ec_write
+  (...);
++ if (status) return status;
+
+@@
+@@
+
++ status = amd_ec_read
+- amd_ec_read
+  (...);
++ if (status) return status;
+// </smpl>
+
+The patch also adds the declaration of the status variable.
+
+Signed-off-by: Julia Lawall <julia-dAYI7NvHqcQ@public.gmane.org>
 
 ---
+Only compile tested.
 
-Hello,
+ drivers/i2c/busses/i2c-amd8111.c    |  152 ++++++++++++++------
+ 1 files changed, 110 insertions(+), 42 deletions(-)
 
-I've checked all the user manuals I have and in all cases (S3C2440,
-S3C6410, S5PC100, S5PC110 and S5PC210) the SDA line delay is calculated
-from PCLK not the I2C operating frequency. This patch fixes problems
-with I2C bus on Universal C210 board and LP3974 PMIC chip.
-
-This is a resend of the previous patch with the correct authorship. I've
-lost the information about the original author while rebasing and
-resolving conflicts in my kernel tree. I'm sorry for the confusion. 
-
-Best regards
---
-Marek Szyprowski
-Samsung Poland R&D Center
-
----
- drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 72902e0..bf831bf 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -662,8 +662,8 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
- 		unsigned long sda_delay;
+diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+index af1e5e2..e12c584 100644
+--- a/drivers/i2c/busses/i2c-amd8111.c
++++ b/drivers/i2c/busses/i2c-amd8111.c
+@@ -69,7 +69,7 @@ static struct pci_driver amd8111_driver;
+  * ACPI 2.0 chapter 13 access of registers of the EC
+  */
  
- 		if (pdata->sda_delay) {
--			sda_delay = (freq / 1000) * pdata->sda_delay;
--			sda_delay /= 1000000;
-+			sda_delay = clkin * pdata->sda_delay;
-+			sda_delay = DIV_ROUND_UP(sda_delay, 1000000);
- 			sda_delay = DIV_ROUND_UP(sda_delay, 5);
- 			if (sda_delay > 3)
- 				sda_delay = 3;
--- 
-1.7.1.569.g6f426
+-static unsigned int amd_ec_wait_write(struct amd_smbus *smbus)
++static int amd_ec_wait_write(struct amd_smbus *smbus)
+ {
+ 	int timeout = 500;
+ 
+@@ -85,7 +85,7 @@ static unsigned int amd_ec_wait_write(struct amd_smbus *smbus)
+ 	return 0;
+ }
+ 
+-static unsigned int amd_ec_wait_read(struct amd_smbus *smbus)
++static int amd_ec_wait_read(struct amd_smbus *smbus)
+ {
+ 	int timeout = 500;
+ 
+@@ -101,7 +101,7 @@ static unsigned int amd_ec_wait_read(struct amd_smbus *smbus)
+ 	return 0;
+ }
+ 
+-static unsigned int amd_ec_read(struct amd_smbus *smbus, unsigned char address,
++static int amd_ec_read(struct amd_smbus *smbus, unsigned char address,
+ 		unsigned char *data)
+ {
+ 	int status;
+@@ -124,7 +124,7 @@ static unsigned int amd_ec_read(struct amd_smbus *smbus, unsigned char address,
+ 	return 0;
+ }
+ 
+-static unsigned int amd_ec_write(struct amd_smbus *smbus, unsigned char address,
++static int amd_ec_write(struct amd_smbus *smbus, unsigned char address,
+ 		unsigned char data)
+ {
+ 	int status;
+@@ -196,7 +196,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ {
+ 	struct amd_smbus *smbus = adap->algo_data;
+ 	unsigned char protocol, len, pec, temp[2];
+-	int i;
++	int i, status;
+ 
+ 	protocol = (read_write == I2C_SMBUS_READ) ? AMD_SMB_PRTCL_READ
+ 						  : AMD_SMB_PRTCL_WRITE;
+@@ -209,38 +209,62 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 			break;
+ 
+ 		case I2C_SMBUS_BYTE:
+-			if (read_write == I2C_SMBUS_WRITE)
+-				amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (read_write == I2C_SMBUS_WRITE) {
++				status = amd_ec_write(smbus, AMD_SMB_CMD,
++							command);
++				if (status)
++					return status;
++			}
+ 			protocol |= AMD_SMB_PRTCL_BYTE;
+ 			break;
+ 
+ 		case I2C_SMBUS_BYTE_DATA:
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
+-			if (read_write == I2C_SMBUS_WRITE)
+-				amd_ec_write(smbus, AMD_SMB_DATA, data->byte);
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
++			if (read_write == I2C_SMBUS_WRITE) {
++				status = amd_ec_write(smbus, AMD_SMB_DATA,
++							data->byte);
++				if (status)
++					return status;
++			}
+ 			protocol |= AMD_SMB_PRTCL_BYTE_DATA;
+ 			break;
+ 
+ 		case I2C_SMBUS_WORD_DATA:
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
+ 			if (read_write == I2C_SMBUS_WRITE) {
+-				amd_ec_write(smbus, AMD_SMB_DATA,
++				status = amd_ec_write(smbus, AMD_SMB_DATA,
+ 					     data->word & 0xff);
+-				amd_ec_write(smbus, AMD_SMB_DATA + 1,
++				if (status)
++					return status;
++				status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
+ 					     data->word >> 8);
++				if (status)
++					return status;
+ 			}
+ 			protocol |= AMD_SMB_PRTCL_WORD_DATA | pec;
+ 			break;
+ 
+ 		case I2C_SMBUS_BLOCK_DATA:
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
+ 			if (read_write == I2C_SMBUS_WRITE) {
+ 				len = min_t(u8, data->block[0],
+ 					    I2C_SMBUS_BLOCK_MAX);
+-				amd_ec_write(smbus, AMD_SMB_BCNT, len);
+-				for (i = 0; i < len; i++)
+-					amd_ec_write(smbus, AMD_SMB_DATA + i,
+-						     data->block[i + 1]);
++				status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
++				if (status)
++					return status;
++				for (i = 0; i < len; i++) {
++					status =
++					  amd_ec_write(smbus, AMD_SMB_DATA + i,
++						       data->block[i + 1]);
++					if (status)
++						return status;
++				}
+ 			}
+ 			protocol |= AMD_SMB_PRTCL_BLOCK_DATA | pec;
+ 			break;
+@@ -248,19 +272,35 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 		case I2C_SMBUS_I2C_BLOCK_DATA:
+ 			len = min_t(u8, data->block[0],
+ 				    I2C_SMBUS_BLOCK_MAX);
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
+-			amd_ec_write(smbus, AMD_SMB_BCNT, len);
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
++			status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
++			if (status)
++				return status;
+ 			if (read_write == I2C_SMBUS_WRITE)
+-				for (i = 0; i < len; i++)
+-					amd_ec_write(smbus, AMD_SMB_DATA + i,
+-						     data->block[i + 1]);
++				for (i = 0; i < len; i++) {
++					status =
++					  amd_ec_write(smbus, AMD_SMB_DATA + i,
++						       data->block[i + 1]);
++					if (status)
++						return status;
++				}
+ 			protocol |= AMD_SMB_PRTCL_I2C_BLOCK_DATA;
+ 			break;
+ 
+ 		case I2C_SMBUS_PROC_CALL:
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
+-			amd_ec_write(smbus, AMD_SMB_DATA, data->word & 0xff);
+-			amd_ec_write(smbus, AMD_SMB_DATA + 1, data->word >> 8);
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
++			status = amd_ec_write(smbus, AMD_SMB_DATA,
++						data->word & 0xff);
++			if (status)
++				return status;
++			status = amd_ec_write(smbus, AMD_SMB_DATA + 1,
++						data->word >> 8);
++			if (status)
++				return status;
+ 			protocol = AMD_SMB_PRTCL_PROC_CALL | pec;
+ 			read_write = I2C_SMBUS_READ;
+ 			break;
+@@ -268,11 +308,18 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 		case I2C_SMBUS_BLOCK_PROC_CALL:
+ 			len = min_t(u8, data->block[0],
+ 				    I2C_SMBUS_BLOCK_MAX - 1);
+-			amd_ec_write(smbus, AMD_SMB_CMD, command);
+-			amd_ec_write(smbus, AMD_SMB_BCNT, len);
+-			for (i = 0; i < len; i++)
+-				amd_ec_write(smbus, AMD_SMB_DATA + i,
++			status = amd_ec_write(smbus, AMD_SMB_CMD, command);
++			if (status)
++				return status;
++			status = amd_ec_write(smbus, AMD_SMB_BCNT, len);
++			if (status)
++				return status;
++			for (i = 0; i < len; i++) {
++				status = amd_ec_write(smbus, AMD_SMB_DATA + i,
+ 					     data->block[i + 1]);
++				if (status)
++					return status;
++			}
+ 			protocol = AMD_SMB_PRTCL_BLOCK_PROC_CALL | pec;
+ 			read_write = I2C_SMBUS_READ;
+ 			break;
+@@ -282,24 +329,34 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 			return -EOPNOTSUPP;
+ 	}
+ 
+-	amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
+-	amd_ec_write(smbus, AMD_SMB_PRTCL, protocol);
++	status = amd_ec_write(smbus, AMD_SMB_ADDR, addr << 1);
++	if (status)
++		return status;
++	status = amd_ec_write(smbus, AMD_SMB_PRTCL, protocol);
++	if (status)
++		return status;
+ 
+ 	/* FIXME this discards status from ec_read(); so temp[0] will
+ 	 * hold stack garbage ... the rest of this routine will act
+ 	 * nonsensically.  Ignored ec_write() status might explain
+ 	 * some such failures...
+ 	 */
+-	amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++	status = amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++	if (status)
++		return status;
+ 
+ 	if (~temp[0] & AMD_SMB_STS_DONE) {
+ 		udelay(500);
+-		amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++		status = amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++		if (status)
++			return status;
+ 	}
+ 
+ 	if (~temp[0] & AMD_SMB_STS_DONE) {
+ 		msleep(1);
+-		amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++		status = amd_ec_read(smbus, AMD_SMB_STS, temp + 0);
++		if (status)
++			return status;
+ 	}
+ 
+ 	if ((~temp[0] & AMD_SMB_STS_DONE) || (temp[0] & AMD_SMB_STS_STATUS))
+@@ -311,24 +368,35 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 	switch (size) {
+ 		case I2C_SMBUS_BYTE:
+ 		case I2C_SMBUS_BYTE_DATA:
+-			amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
++			status = amd_ec_read(smbus, AMD_SMB_DATA, &data->byte);
++			if (status)
++				return status;
+ 			break;
+ 
+ 		case I2C_SMBUS_WORD_DATA:
+ 		case I2C_SMBUS_PROC_CALL:
+-			amd_ec_read(smbus, AMD_SMB_DATA, temp + 0);
+-			amd_ec_read(smbus, AMD_SMB_DATA + 1, temp + 1);
++			status = amd_ec_read(smbus, AMD_SMB_DATA, temp + 0);
++			if (status)
++				return status;
++			status = amd_ec_read(smbus, AMD_SMB_DATA + 1, temp + 1);
++			if (status)
++				return status;
+ 			data->word = (temp[1] << 8) | temp[0];
+ 			break;
+ 
+ 		case I2C_SMBUS_BLOCK_DATA:
+ 		case I2C_SMBUS_BLOCK_PROC_CALL:
+-			amd_ec_read(smbus, AMD_SMB_BCNT, &len);
++			status = amd_ec_read(smbus, AMD_SMB_BCNT, &len);
++			if (status)
++				return status;
+ 			len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
+ 		case I2C_SMBUS_I2C_BLOCK_DATA:
+-			for (i = 0; i < len; i++)
+-				amd_ec_read(smbus, AMD_SMB_DATA + i,
+-					    data->block + i + 1);
++			for (i = 0; i < len; i++) {
++				status = amd_ec_read(smbus, AMD_SMB_DATA + i,
++							data->block + i + 1);
++				if (status)
++					return status;
++			}
+ 			data->block[0] = len;
+ 			break;
+ 	}
