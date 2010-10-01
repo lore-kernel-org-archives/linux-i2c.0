@@ -1,7 +1,7 @@
 From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 9/9] hwmon: lis3: Enhance lis3 selftest with IRQ line test
-Date: Fri,  1 Oct 2010 14:46:56 +0300
-Message-ID: <1285933616-16044-10-git-send-email-samu.p.onkalo@nokia.com>
+Subject: [RFC PATCH 8/9] hwmon: lis3: use block read to access data registers
+Date: Fri,  1 Oct 2010 14:46:55 +0300
+Message-ID: <1285933616-16044-9-git-send-email-samu.p.onkalo@nokia.com>
 References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
@@ -10,185 +10,90 @@ To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPv
 Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Configure chip to data ready mode in selftest and count received
-interrupts to see that interrupt line(s) are working.
+Add optional blockread function to interface driver. If available
+the chip driver uses it for data register access. For 12 bit device
+it reads 6 bytes to get 3*16bit data. For 8 bit device it reads out
+5 bytes since every second byte is dummy.
+This optimizes bus usage and reduces number of operations and
+interrupts needed for one data update.
 
 Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/hwmon/lis3lv02d.c |   87 ++++++++++++++++++++++++++++++++++++++++----
- drivers/hwmon/lis3lv02d.h |    3 +-
- 2 files changed, 81 insertions(+), 9 deletions(-)
+ drivers/hwmon/lis3lv02d.c     |   21 ++++++++++++++++++---
+ drivers/hwmon/lis3lv02d.h     |    1 +
+ drivers/hwmon/lis3lv02d_i2c.c |    9 +++++++++
+ 3 files changed, 28 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-index 469f251..cf1b4db 100644
+index b740024..469f251 100644
 --- a/drivers/hwmon/lis3lv02d.c
 +++ b/drivers/hwmon/lis3lv02d.c
-@@ -47,6 +47,13 @@
+@@ -129,9 +129,24 @@ static void lis3lv02d_get_xyz(struct lis3lv02d *lis3, int *x, int *y, int *z)
+ 	int position[3];
+ 	int i;
  
- #define SYSFS_POWERDOWN_DELAY 5000 /* In milliseconds */
- 
-+#define SELFTEST_OK	       0
-+#define SELFTEST_FAIL	       -1
-+#define SELFTEST_IRQ	       -2
-+
-+#define IRQ_LINE0	       0
-+#define IRQ_LINE1	       1
-+
- /*
-  * The sensor can also generate interrupts (DRDY) but it's pretty pointless
-  * because they are generated even if the data do not change. So it's better
-@@ -197,6 +204,8 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
- 	s16 x, y, z;
- 	u8 selftest;
- 	int ret;
-+	u8 ctrl_reg_data;
-+	unsigned char irq_cfg;
- 
- 	mutex_lock(&lis3->mutex);
- 	if (lis3_dev.whoami == WAI_12B)
-@@ -204,6 +213,20 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
- 	else
- 		selftest = CTRL1_STP;
- 
-+	irq_cfg = lis3->irq_cfg;
-+	if (lis3_dev.whoami == WAI_8B) {
-+		lis3->data_ready_count[IRQ_LINE0] = 0;
-+		lis3->data_ready_count[IRQ_LINE1] = 0;
-+
-+		/* Change interrupt cfg to data ready for selftest */
-+		atomic_inc(&lis3_dev.wake_thread);
-+		lis3->irq_cfg = LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY;
-+		lis3->read(lis3, CTRL_REG3, &ctrl_reg_data);
-+		lis3->write(lis3, CTRL_REG3, (ctrl_reg_data &
-+				~(LIS3_IRQ1_MASK | LIS3_IRQ2_MASK)) |
-+				(LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY));
-+	}
-+
- 	lis3->read(lis3, CTRL_REG1, &reg);
- 	lis3->write(lis3, CTRL_REG1, (reg | selftest));
- 	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
-@@ -222,13 +245,33 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
- 	results[2] = z - lis3->read_data(lis3, OUTZ);
- 
- 	ret = 0;
-+
-+	if (lis3_dev.whoami == WAI_8B) {
-+		/* Restore original interrupt configuration */
-+		atomic_dec(&lis3_dev.wake_thread);
-+		lis3->write(lis3, CTRL_REG3, ctrl_reg_data);
-+		lis3->irq_cfg = irq_cfg;
-+
-+		if ((irq_cfg & LIS3_IRQ1_MASK) &&
-+			lis3->data_ready_count[IRQ_LINE0] < 2) {
-+			ret = SELFTEST_IRQ;
-+			goto fail;
+-	position[0] = lis3->read_data(lis3, OUTX);
+-	position[1] = lis3->read_data(lis3, OUTY);
+-	position[2] = lis3->read_data(lis3, OUTZ);
++	if (lis3->blkread) {
++		if (lis3_dev.whoami == WAI_12B) {
++			u16 data[3];
++			lis3->blkread(lis3, OUTX_L, 6, (u8 *)data);
++			for (i = 0; i < 3; i++)
++				position[i] = (s16)le16_to_cpu(data[i]);
++		} else {
++			u8 data[5];
++			/* Data: x, dummy, y, dummy, z */
++			lis3->blkread(lis3, OUTX, 5, data);
++			for (i = 0; i < 3; i++)
++				position[i] = (s8)data[i * 2];
 +		}
-+
-+		if ((irq_cfg & LIS3_IRQ2_MASK) &&
-+			lis3->data_ready_count[IRQ_LINE1] < 2) {
-+			ret = SELFTEST_IRQ;
-+			goto fail;
-+		}
++	} else {
++		position[0] = lis3->read_data(lis3, OUTX);
++		position[1] = lis3->read_data(lis3, OUTY);
++		position[2] = lis3->read_data(lis3, OUTZ);
 +	}
-+
- 	if (lis3->pdata) {
- 		int i;
- 		for (i = 0; i < 3; i++) {
- 			/* Check against selftest acceptance limits */
- 			if ((results[i] < lis3->pdata->st_min_limits[i]) ||
- 			    (results[i] > lis3->pdata->st_max_limits[i])) {
--				ret = -EIO;
-+				ret = SELFTEST_FAIL;
- 				goto fail;
- 			}
- 		}
-@@ -391,13 +434,24 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
- 	mutex_unlock(&lis3->mutex);
- }
  
--static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
-+static inline void lis302dl_data_ready(struct lis3lv02d *lis3, int index)
- {
-+	int dummy;
- 
-+	/* Dummy read to ack interrupt */
-+	lis3lv02d_get_xyz(lis3, &dummy, &dummy, &dummy);
-+	lis3->data_ready_count[index]++;
-+}
-+
-+static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
-+{
- 	struct lis3lv02d *lis3 = data;
-+	u8 irq_cfg = lis3->irq_cfg & LIS3_IRQ1_MASK;
- 
--	if ((lis3->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
-+	if (irq_cfg == LIS3_IRQ1_CLICK)
- 		lis302dl_interrupt_handle_click(lis3);
-+	else if (unlikely(irq_cfg == LIS3_IRQ1_DATA_READY))
-+		lis302dl_data_ready(lis3, IRQ_LINE0);
- 	else
- 		lis3lv02d_joystick_poll(lis3_dev.idev);
- 
-@@ -406,11 +460,13 @@ static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
- 
- static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
- {
--
- 	struct lis3lv02d *lis3 = data;
-+	u8 irq_cfg = lis3->irq_cfg & LIS3_IRQ2_MASK;
- 
--	if ((lis3->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
-+	if (irq_cfg == LIS3_IRQ2_CLICK)
- 		lis302dl_interrupt_handle_click(lis3);
-+	else if (unlikely(irq_cfg == LIS3_IRQ2_DATA_READY))
-+		lis302dl_data_ready(lis3, IRQ_LINE1);
- 	else
- 		lis3lv02d_joystick_poll(lis3_dev.idev);
- 
-@@ -613,12 +669,27 @@ static void lis3lv02d_sysfs_poweron(struct lis3lv02d *lis3)
- static ssize_t lis3lv02d_selftest_show(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
--	int result;
- 	s16 values[3];
- 
-+	static const char ok[] = "OK";
-+	static const char fail[] = "FAIL";
-+	static const char irq[] = "FAIL_IRQ";
-+	const char *res;
-+
- 	lis3lv02d_sysfs_poweron(&lis3_dev);
--	result = lis3lv02d_selftest(&lis3_dev, values);
--	return sprintf(buf, "%s %d %d %d\n", result == 0 ? "OK" : "FAIL",
-+	switch (lis3lv02d_selftest(&lis3_dev, values)) {
-+	case SELFTEST_FAIL:
-+		res = fail;
-+		break;
-+	case SELFTEST_IRQ:
-+		res = irq;
-+		break;
-+	case SELFTEST_OK:
-+	default:
-+		res = ok;
-+		break;
-+	}
-+	return sprintf(buf, "%s %d %d %d\n", res,
- 		values[0], values[1], values[2]);
- }
- 
+ 	for (i = 0; i < 3; i++)
+ 		position[i] = (position[i] * lis3->scale) / LIS3_ACCURACY;
 diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
-index cfff63c..3b739ec 100644
+index 1522855..cfff63c 100644
 --- a/drivers/hwmon/lis3lv02d.h
 +++ b/drivers/hwmon/lis3lv02d.h
-@@ -261,7 +261,8 @@ struct lis3lv02d {
- 	struct fasync_struct	*async_queue; /* queue for the misc device */
- 	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
- 	unsigned long		misc_opened; /* bit0: whether the device is open */
--	atomic_t                wake_thread;
-+	int                     data_ready_count[2];
-+	atomic_t		wake_thread;
- 	unsigned char           irq_cfg;
+@@ -232,6 +232,7 @@ struct lis3lv02d {
+ 	int (*init) (struct lis3lv02d *lis3);
+ 	int (*write) (struct lis3lv02d *lis3, int reg, u8 val);
+ 	int (*read) (struct lis3lv02d *lis3, int reg, u8 *ret);
++	int (*blkread) (struct lis3lv02d *lis3, int reg, int len, u8 *ret);
+ 	int (*reg_ctrl) (struct lis3lv02d *lis3, bool state);
  
- 	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
+ 	int                     *odrs;     /* Supported output data rates */
+diff --git a/drivers/hwmon/lis3lv02d_i2c.c b/drivers/hwmon/lis3lv02d_i2c.c
+index c5a60e4..1e0673b 100644
+--- a/drivers/hwmon/lis3lv02d_i2c.c
++++ b/drivers/hwmon/lis3lv02d_i2c.c
+@@ -66,6 +66,14 @@ static inline s32 lis3_i2c_read(struct lis3lv02d *lis3, int reg, u8 *v)
+ 	return 0;
+ }
+ 
++static inline s32 lis3_i2c_blockread(struct lis3lv02d *lis3, int reg, int len,
++				u8 *v)
++{
++	struct i2c_client *c = lis3->bus_priv;
++	reg |= (1 << 7); /* 7th bit enables address auto incrementation */
++	return i2c_smbus_read_i2c_block_data(c, reg, len, v);
++}
++
+ static int lis3_i2c_init(struct lis3lv02d *lis3)
+ {
+ 	u8 reg;
+@@ -125,6 +133,7 @@ static int __devinit lis3lv02d_i2c_probe(struct i2c_client *client,
+ 	lis3_dev.bus_priv = client;
+ 	lis3_dev.init	  = lis3_i2c_init;
+ 	lis3_dev.read	  = lis3_i2c_read;
++	lis3_dev.blkread  = lis3_i2c_blockread;
+ 	lis3_dev.write	  = lis3_i2c_write;
+ 	lis3_dev.reg_ctrl = lis3_reg_ctrl;
+ 	lis3_dev.irq	  = client->irq;
 -- 
 1.6.0.4
