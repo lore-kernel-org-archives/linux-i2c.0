@@ -1,74 +1,725 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Please pull bjdooks' i2c-fixes
-Date: Fri, 1 Oct 2010 10:09:51 +0200
-Message-ID: <20101001080951.GA27870@pengutronix.de>
-References: <E1P1SAZ-0001tp-ON@ben-laptop>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [PATCH 1/1] iio: light: Adding driver for ISL29018 ALS
+Date: Fri, 01 Oct 2010 11:12:52 +0100
+Message-ID: <4CA5B424.5050006@cam.ac.uk>
+References: <1285892580-22481-1-git-send-email-rklein@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <E1P1SAZ-0001tp-ON@ben-laptop>
+In-Reply-To: <1285892580-22481-1-git-send-email-rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Cc: achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Donggeun Kim <dg77.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 10/01/10 01:23, rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org wrote:
+> From: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Hi Rhyland,
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+please cc linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org for IIO drivers (I've added it here).
+As a heads up to IIO people, this driver introduces a few new
+attributes that need pinning down. I've also cc'd Dongguen as he
+proposed a driver for a similar part a few weeks back. (speaking of
+which, is there any reason that hasn't gone to Greg as yet? The
+remaining comments were pretty minor.)
 
-Ben,
+Nice clean driver. Most of my comments are to do with
+the userspace interfaces. Sorry if I appear rather picky,
+but remember I am trying to enforce consistent interfaces
+across a range of extremely varied sensors.  As with nearly every
+driver at the moment, yours has a few cases we haven't seen before.
 
-On Fri, Oct 01, 2010 at 12:04:07AM +0100, Ben Dooks wrote:
-> The following changes since commit 4193d9163582b05e33aca3392e46649e5c3da8=
-d1:
->   Linus Torvalds (1):
->         Merge branch 'for-linus' of git://oss.sgi.com/xfs/xfs
->=20
-> are available in the git repository at:
->=20
->   git://git.fluff.org/bjdooks/linux.git for-linus/i2c/2636-rc5
->=20
-> Bernhard Walle (1):
->       i2c-octeon: Return -ETIMEDOUT in octeon_i2c_wait() on timeout
->=20
-> Jon Povey (1):
->       i2c-davinci: Fix race when setting up for TX
->=20
-> MyungJoo Ham (1):
->       i2c-s3c2410: fix calculation of SDA line delay
->=20
->  drivers/i2c/busses/i2c-davinci.c |    6 +++---
->  drivers/i2c/busses/i2c-octeon.c  |    2 +-
->  drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
->  3 files changed, 6 insertions(+), 6 deletions(-)
+Now, as IIO is in staging, we are still fairly lax about what needs
+to be done before a merge.  Hence you are welcome to send this on
+to Greg as is and abi cleanups can occur after that.  However,
+if you are willing there are a few things I would definitely like
+cleaned up or clarified before merging.  These are all pretty trivial.
 
-Is there a specific reason this patch was not picked up/commented (again)?
+* The proximity_scheme attribute - this is a classic magic number
+  attribute.  Please rename it so a user can find out what it is doing
+  without reading the datasheet. The binary input is fine given there
+  are only two options (otherwise I'd insist on informative strings
+  inside the file!)
 
-http://thread.gmane.org/gmane.linux.drivers.i2c/6222/focus=3D6265
+* add _input to all attributes in SI units and if they are in any form
+  of raw unit, _raw. 
 
-It prevents getting a stalled bus, and we have done similar things for MPC =
-and
-other platforms.
+* rename the infrared and proximity attributes as per current drivers.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+* not all resolutions are supported, so even ignoring the fact that I'd
+  prefer a _type attribute, I definitely want a way of userspace finding
+  out what resolutions are allowed! So if you keep your current naming,
+  a resolution_available attribute is a must.
 
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+There is also a slight excess of debugging in here for a driver being
+merged, but that's personal taste!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+Thanks,
 
-iEYEARECAAYFAkyll08ACgkQD27XaX1/VRuUBQCeOYP6KgsmmQirb6XyOKbi95pB
-+ikAnR6FVZ4qlOWgNc0bwJGlW3g5c6xy
-=c++d
------END PGP SIGNATURE-----
+Jonathan
+> 
+> Adding support for the ISL 29018 ambient light and proximity sensor.
+> 
+> Signed-off-by: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+>  drivers/staging/iio/light/Kconfig    |   11 +
+>  drivers/staging/iio/light/Makefile   |    1 +
+>  drivers/staging/iio/light/isl29018.c |  565 ++++++++++++++++++++++++++++++++++
+>  3 files changed, 577 insertions(+), 0 deletions(-)
+>  create mode 100755 drivers/staging/iio/light/isl29018.c
+> 
+> diff --git a/drivers/staging/iio/light/Kconfig b/drivers/staging/iio/light/Kconfig
+> index 80cb6e5..09113e4 100644
+> --- a/drivers/staging/iio/light/Kconfig
+> +++ b/drivers/staging/iio/light/Kconfig
+> @@ -13,3 +13,14 @@ config SENSORS_TSL2563
+>  	 This driver can also be built as a module.  If so, the module
+>  	 will be called tsl2563.
+>  
+> +config SENSORS_ISL29018
+> +        tristate "ISL 29018 light and proximity sensor"
+> +        depends on I2C
+> +        default n
+> +        help
+> +         If you say yes here you get support for ambient light sensing and
+> +         proximity ir sensing from Intersil ISL29018.
+worth ir->infrared here?  Would make the help more consistent.
+> +         This driver will provide the measurements of ambient light intensity
+> +         in lux, proximity infrared sensing and normal infrared sensing.
+> +         Data from sensor is accessible via sysfs.
+> +
+> diff --git a/drivers/staging/iio/light/Makefile b/drivers/staging/iio/light/Makefile
+> index 30f3300..9142c0e 100644
+> --- a/drivers/staging/iio/light/Makefile
+> +++ b/drivers/staging/iio/light/Makefile
+> @@ -3,3 +3,4 @@
+>  #
+>  
+>  obj-$(CONFIG_SENSORS_TSL2563)	+= tsl2563.o
+> +obj-$(CONFIG_SENSORS_ISL29018)	+= isl29018.o
+> diff --git a/drivers/staging/iio/light/isl29018.c b/drivers/staging/iio/light/isl29018.c
+> new file mode 100755
+> index 0000000..453a419
+> --- /dev/null
+> +++ b/drivers/staging/iio/light/isl29018.c
+> @@ -0,0 +1,565 @@
+> +/*
+> + * A iio driver for the light sensor ISL 29018.
+iio -> IIO (again for consistency - either option is fine with me!)
+> + *
+> + * IIO driver for monitoring ambient light intensity in luxi, proximity
+> + * sensing and infrared sensing.
+> + *
+> + * Copyright (c) 2010, NVIDIA Corporation.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful, but WITHOUT
+> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> + * more details.
+> + *
+> + * You should have received a copy of the GNU General Public License along
+> + * with this program; if not, write to the Free Software Foundation, Inc.,
+> + * 51 Franklin Street, Fifth Floor, Boston, MA	02110-1301, USA.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/err.h>
+> +#include <linux/mutex.h>
+> +#include <linux/delay.h>
+> +#include <linux/slab.h>
+> +#include "../iio.h"
+> +
+> +#define CONVERSION_TIME_MS		100
+> +
+> +#define ISL29018_REG_ADD_COMMAND1	0x00
+> +#define COMMMAND1_OPMODE_SHIFT		5
+> +#define COMMMAND1_OPMODE_MASK		(7 << COMMMAND1_OPMODE_SHIFT)
+> +#define COMMMAND1_OPMODE_POWER_DOWN	0
+> +#define COMMMAND1_OPMODE_ALS_ONCE	1
+> +#define COMMMAND1_OPMODE_IR_ONCE	2
+> +#define COMMMAND1_OPMODE_PROX_ONCE	3
+> +
+> +#define ISL29018_REG_ADD_COMMANDII	0x01
+> +#define COMMANDII_RESOLUTION_SHIFT	2
+> +#define COMMANDII_RESOLUTION_MASK	(0x3 << COMMANDII_RESOLUTION_SHIFT)
+> +
+> +#define COMMANDII_RANGE_SHIFT		0
+> +#define COMMANDII_RANGE_MASK		(0x3 << COMMANDII_RANGE_SHIFT)
+> +
+> +#define COMMANDII_SCHEME_SHIFT		7
+> +#define COMMANDII_SCHEME_MASK		(0x1 << COMMANDII_SCHEME_SHIFT)
+> +
+> +#define ISL29018_REG_ADD_DATA_LSB	0x02
+> +#define ISL29018_REG_ADD_DATA_MSB	0x03
+> +#define ISL29018_MAX_REGS		ISL29018_REG_ADD_DATA_MSB
+> +
+> +struct isl29018_chip {
+> +	struct iio_dev		*indio_dev;
+> +	struct i2c_client	*client;
+> +	struct mutex		lock;
+> +	unsigned int		range;
+> +	unsigned int		adc_bit;
+> +	int			prox_scheme;
+> +	u8			reg_cache[ISL29018_MAX_REGS];
+> +};
+> +
+> +static int isl29018_write_data(struct i2c_client *client, u8 reg,
+> +			u8 val, u8 mask, u8 shift)
+> +{
+> +	u8 regval;
+> +	int ret = 0;
+> +	struct isl29018_chip *chip = i2c_get_clientdata(client);
+> +
+> +	regval = chip->reg_cache[reg];
+> +	regval &= ~mask;
+> +	regval |= val << shift;
+> +
+> +	ret = i2c_smbus_write_byte_data(client, reg, regval);
+> +	if (ret) {
+> +		dev_err(&client->dev, "Write to device fails status %x\n", ret);
+> +		return ret;
+> +	}
+> +	chip->reg_cache[reg] = regval;
+> +
+> +	return 0;
+> +}
+> +
+> +static int isl29018_set_range(struct i2c_client *client, unsigned long range,
+> +		unsigned int *new_range)
+> +{
+> +	unsigned long supp_ranges[] = {1000, 4000, 16000, 64000};
+> +	int i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(supp_ranges); ++i) {
+> +		if (range <= supp_ranges[i]) {
+> +			*new_range = (unsigned int)supp_ranges[i];
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (i >= ARRAY_SIZE(supp_ranges))
+> +		return -EINVAL;
+> +
+> +	return isl29018_write_data(client, ISL29018_REG_ADD_COMMANDII,
+> +			i, COMMANDII_RANGE_MASK, COMMANDII_RANGE_SHIFT);
+> +}
+> +
+> +static int isl29018_set_resolution(struct i2c_client *client,
+> +			unsigned long adcbit, unsigned int *conf_adc_bit)
+> +{
+> +	unsigned long supp_adcbit[] = {16, 12, 8, 4};
+> +	int i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(supp_adcbit); ++i) {
+> +		if (adcbit >= supp_adcbit[i]) {
+> +			*conf_adc_bit = (unsigned int)supp_adcbit[i];
+> +			break;
+> +		}
+> +	}
+> +
+> +	if (i >= ARRAY_SIZE(supp_adcbit))
+> +		return -EINVAL;
+> +
+> +	return isl29018_write_data(client, ISL29018_REG_ADD_COMMANDII,
+> +			i, COMMANDII_RESOLUTION_MASK,
+> +			COMMANDII_RESOLUTION_SHIFT);
+> +}
+> +
+> +static int isl29018_read_sensor_input(struct i2c_client *client, int mode)
+> +{
+> +	int status;
+> +	int lsb;
+> +	int msb;
+> +
+> +	/* Set mode */
+> +	status = isl29018_write_data(client, ISL29018_REG_ADD_COMMAND1,
+> +			mode, COMMMAND1_OPMODE_MASK, COMMMAND1_OPMODE_SHIFT);
+> +	if (status) {
+> +		dev_err(&client->dev, "Error in setting operating mode\n");
+> +		return status;
+> +	}
+> +	msleep(CONVERSION_TIME_MS);
+> +	lsb = i2c_smbus_read_byte_data(client, ISL29018_REG_ADD_DATA_LSB);
+> +	if (lsb < 0) {
+> +		dev_err(&client->dev, "Error in reading LSB DATA\n");
+> +		return lsb;
+> +	}
+> +
+> +	msb = i2c_smbus_read_byte_data(client, ISL29018_REG_ADD_DATA_MSB);
+> +	if (msb < 0) {
+> +		dev_err(&client->dev, "Error in reading MSB DATA\n");
+> +		return msb;
+> +	}
+> +	dev_vdbg(&client->dev, "MSB 0x%x and LSB 0x%x\n", msb, lsb);
+> +
+> +	return (msb << 8) | lsb;
+> +}
+> +
+> +static int isl29018_read_lux(struct i2c_client *client, int *lux)
+> +{
+> +	int lux_data;
+> +	struct isl29018_chip *chip = i2c_get_clientdata(client);
+> +
+> +	lux_data = isl29018_read_sensor_input(client,
+> +				COMMMAND1_OPMODE_ALS_ONCE);
+> +
+> +	if (lux_data < 0)
+> +		return lux_data;
+> +
+> +	*lux = (lux_data * chip->range) >> chip->adc_bit;
+> +
+> +	return 0;
+> +}
+> +
+> +static int isl29018_read_ir(struct i2c_client *client, int *ir)
+> +{
+> +	int ir_data;
+> +
+> +	ir_data = isl29018_read_sensor_input(client, COMMMAND1_OPMODE_IR_ONCE);
+> +
+> +	if (ir_data < 0)
+> +		return ir_data;
+> +
+> +	*ir = ir_data;
+> +
+> +	return 0;
+> +}
+> +
+> +static int isl29018_read_proximity_ir(struct i2c_client *client, int scheme,
+> +		int *near_ir)
+> +{
+> +	int status;
+> +	int prox_data = -1;
+> +	int ir_data = -1;
+> +
+> +	/* Do proximity sensing with required scheme */
+> +	status = isl29018_write_data(client, ISL29018_REG_ADD_COMMANDII,
+> +			scheme, COMMANDII_SCHEME_MASK, COMMANDII_SCHEME_SHIFT);
+> +	if (status) {
+> +		dev_err(&client->dev, "Error in setting operating mode\n");
+> +		return status;
+> +	}
+> +
+> +	prox_data = isl29018_read_sensor_input(client,
+> +					COMMMAND1_OPMODE_PROX_ONCE);
+> +	if (prox_data < 0)
+> +		return prox_data;
+> +
+> +	if (scheme == 1) {
+> +		*near_ir = prox_data;
+> +		return 0;
+> +	}
+> +
+> +	ir_data = isl29018_read_sensor_input(client,
+> +				COMMMAND1_OPMODE_IR_ONCE);
+> +
+> +	if (ir_data < 0)
+> +		return ir_data;
+> +
+> +	if (prox_data >= ir_data)
+> +		*near_ir = prox_data - ir_data;
+> +	else
+> +		*near_ir = 0;
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t get_sensor_data(struct device *dev, char *buf, int mode)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +	struct i2c_client *client = chip->client;
+> +	int value = 0;
+> +	int status;
+> +
+> +	mutex_lock(&chip->lock);
+> +	switch (mode) {
+> +	case COMMMAND1_OPMODE_PROX_ONCE:
+> +		status = isl29018_read_proximity_ir(client,
+> +				chip->prox_scheme, &value);
+> +		break;
+> +
+> +	case COMMMAND1_OPMODE_ALS_ONCE:
+> +		status = isl29018_read_lux(client, &value);
+> +		break;
+> +
+> +	case COMMMAND1_OPMODE_IR_ONCE:
+> +		status = isl29018_read_ir(client, &value);
+> +		break;
+> +
+> +	default:
+> +		dev_err(&client->dev, "Mode %d is not supported\n", mode);
+> +		mutex_unlock(&chip->lock);
+> +		return -EBUSY;
+> +	}
+> +	if (status < 0) {
+> +		dev_err(&client->dev, "Error in Reading data");
+> +		mutex_unlock(&chip->lock);
+> +		return status;
+> +	}
+> +
+> +	mutex_unlock(&chip->lock);
+> +
+> +	return sprintf(buf, "%d\n", value);
+> +}
+> +
+> +/* Sysfs interface */
+> +/* range */
+> +static ssize_t show_range(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	return sprintf(buf, "%u\n", chip->range);
+> +}
+> +
+> +static ssize_t store_range(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +	struct i2c_client *client = chip->client;
+> +	int status;
+> +	unsigned long lval;
+> +	unsigned int new_range;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	if (strict_strtoul(buf, 10, &lval))
+> +		return -EINVAL;
+> +
+> +	if (!(lval == 1000UL || lval == 4000UL ||
+> +			lval == 16000UL || lval == 64000UL)) {
+> +		dev_err(dev, "The range is not supported\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	mutex_lock(&chip->lock);
+> +	status = isl29018_set_range(client, lval, &new_range);
+> +	if (status < 0) {
+> +		mutex_unlock(&chip->lock);
+> +		dev_err(dev, "Error in setting max range\n");
+> +		return status;
+> +	}
+> +	chip->range = new_range;
+> +	mutex_unlock(&chip->lock);
+> +
+> +	return count;
+> +}
+> +
+> +/* resolution */
+> +static ssize_t show_resolution(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	return sprintf(buf, "%u\n", chip->adc_bit);
+> +}
+> +
+> +static ssize_t store_resolution(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +	struct i2c_client *client = chip->client;
+> +	int status;
+> +	unsigned long lval;
+> +	unsigned int new_adc_bit;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	if (strict_strtoul(buf, 10, &lval))
+> +		return -EINVAL;
+> +	if (!(lval == 4 || lval == 8 || lval == 12 || lval == 16)) {
+> +		dev_err(dev, "The resolution is not supported\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	mutex_lock(&chip->lock);
+> +	status = isl29018_set_resolution(client, lval, &new_adc_bit);
+> +	if (status < 0) {
+> +		mutex_unlock(&chip->lock);
+> +		dev_err(dev, "Error in setting resolution\n");
+> +		return status;
+> +	}
+> +	chip->adc_bit = new_adc_bit;
+> +	mutex_unlock(&chip->lock);
+> +
+> +	return count;
+> +}
+> +
 
---UlVJffcvxoiEqYs2--
+This attribute is dealing in magic numbers.  Based on a bit of
+datasheet browsing, I think what we have is a choice between on
+chip removal of background ir (ambient) and doing it in the driver?
+
+   So the question is, is this a common trick and hence in need
+of a nice general interface or is this very chip specific and
+   hence you can do what you like?  Either way you need to name
+the attribute in a more obvious fashion. Perhaps
+
+proximity_on_chip_ambient_infrared_supression?
+Never skimp on characters in a name if it makes things clearer.
+
+> +/* proximity scheme */
+> +static ssize_t show_prox_scheme(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	return sprintf(buf, "%d\n", chip->prox_scheme);
+> +}
+> +
+> +static ssize_t store_prox_scheme(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +	unsigned long lval;
+> +
+> +	dev_vdbg(dev, "%s()\n", __func__);
+> +
+> +	if (strict_strtoul(buf, 10, &lval))
+> +		return -EINVAL;
+> +	if (!(lval == 0UL || lval == 1UL)) {
+> +		dev_err(dev, "The scheme is not supported\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	mutex_lock(&chip->lock);
+> +	chip->prox_scheme = (int)lval;
+> +	mutex_unlock(&chip->lock);
+> +
+> +	return count;
+> +}
+> +
+> +/* Read lux */
+> +static ssize_t show_lux(struct device *dev,
+> +		struct device_attribute *devattr, char *buf)
+> +{
+> +	return get_sensor_data(dev, buf, COMMMAND1_OPMODE_ALS_ONCE);
+> +}
+> +
+> +/* Read ir */
+> +static ssize_t show_ir(struct device *dev,
+> +		struct device_attribute *devattr, char *buf)
+> +{
+> +	return get_sensor_data(dev, buf, COMMMAND1_OPMODE_IR_ONCE);
+> +}
+> +
+> +/* Read nearest ir */
+> +static ssize_t show_proxim_ir(struct device *dev,
+> +		struct device_attribute *devattr, char *buf)
+> +{
+> +	return get_sensor_data(dev, buf, COMMMAND1_OPMODE_PROX_ONCE);
+> +}
+> +
+> +/* Read name */
+> +static ssize_t show_name(struct device *dev,
+> +		struct device_attribute *attr, char *buf)
+> +{
+> +	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+> +	struct isl29018_chip *chip = indio_dev->dev_data;
+> +
+> +	return sprintf(buf, "%s\n", chip->client->name);
+> +}
+> +
+> +static IIO_DEVICE_ATTR(range, S_IRUGO | S_IWUSR, show_range, store_range, 0);
+> +static IIO_DEVICE_ATTR(resolution, S_IRUGO | S_IWUSR,
+> +					show_resolution, store_resolution, 0);
+> +static IIO_DEVICE_ATTR(proximity_scheme, S_IRUGO | S_IWUSR,
+> +					show_prox_scheme, store_prox_scheme, 0);
+> +static IIO_DEVICE_ATTR(lux, S_IRUGO, show_lux, NULL, 0);
+> +static IIO_DEVICE_ATTR(ir, S_IRUGO, show_ir, NULL, 0);
+> +static IIO_DEVICE_ATTR(proxim_ir, S_IRUGO, show_proxim_ir, NULL, 0);
+> +static IIO_DEVICE_ATTR(name, S_IRUGO, show_name, NULL, 0);
+> +
+> +static struct attribute *isl29018_attributes[] = {
+> +	&iio_dev_attr_name.dev_attr.attr,
+
+Range of what?  Normally we go with a scale parameter in iio rather
+than a range, but I might be persuaded that this is more useful here...
+This is a little awkward to handle as the range is actually sensor
+dependent (ambient or infrared).
+> +	&iio_dev_attr_range.dev_attr.attr,
+> +	&iio_dev_attr_resolution.dev_attr.attr,
+This is the first driver to support multiple adc resolutions without
+an attendant hardware ring buffer, which means we haven't covered this
+case before.  We do have _type attributes (documented in sysfs-bus-iio)
+that would almost do the job but clearly the alignment information is
+irrelevant in this case, but here it applies to all channels (and they
+aren't of a consistent type). Perhaps we could introduce a magic channel
+description? So we could have?
+
+all_type -> u4 or u8 or u12 or u16
+
+and all_type_available to say what is possible "u4 u8 u12 u16"?
+
+I'm open to suggestions here, but resolution is a bit too vague.
+Resolution of what?  It may be obvious for this driver, but we have
+numerous sensors with different resultions on different channels.
+
+> +	&iio_dev_attr_proximity_scheme.dev_attr.attr,
+Comments on this one above.
+> +	&iio_dev_attr_lux.dev_attr.attr,
+Oops, for some reason the naming of light parameters is not currently in
+the abi documentation.
+Currently ambient light measurements are called illuminance0.  The reason
+is for this is that it isn't sensible to consistently name parameters
+after the units (try acceleration for instance) so we name after what the
+units are measuring.
+
+Also, we follow the hwmon naming convention, thus in this case where we
+have the value in lux, it will be illuminance0_input
+
+
+
+For naming of the other parameters the recent proposal of a tmd2771x driver
+from Dongguen Kim is consistent and covers most of your attributs.
+
+http://marc.info/?t=128453241000001&r=1&w=2
+
+ 
+> +	&iio_dev_attr_ir.dev_attr.attr,
+> +	&iio_dev_attr_proxim_ir.dev_attr.attr,
+> +	NULL
+> +};
+> +
+> +static const struct attribute_group isl29108_group = {
+> +	.attrs = isl29018_attributes,
+> +};
+> +
+> +static int isl29018_chip_init(struct i2c_client *client)
+> +{
+> +	struct isl29018_chip *chip = i2c_get_clientdata(client);
+> +	int status;
+> +	int i;
+> +	int new_adc_bit;
+> +	unsigned int new_range;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(chip->reg_cache); i++)
+> +		chip->reg_cache[i] = 0;
+> +
+> +	/* set defaults */
+> +	status = isl29018_set_range(client, chip->range, &new_range);
+> +	if (status < 0) {
+> +		dev_err(&client->dev, "Init of isl29018 fails\n");
+> +		return status;
+> +	}
+> +
+> +	status = isl29018_set_resolution(client, chip->adc_bit,
+> +						&new_adc_bit);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit isl29018_probe(struct i2c_client *client,
+> +			 const struct i2c_device_id *id)
+> +{
+> +	struct isl29018_chip *chip;
+> +	int err;
+> +
+> +	chip = kzalloc(sizeof(struct isl29018_chip), GFP_KERNEL);
+> +	if (!chip) {
+> +		dev_err(&client->dev, "Memory allocation fails\n");
+> +		err = -ENOMEM;
+> +		goto exit;
+> +	}
+> +
+> +	i2c_set_clientdata(client, chip);
+> +	chip->client = client;
+> +
+> +	mutex_init(&chip->lock);
+> +
+> +	chip->range = 1000;
+> +	chip->adc_bit = 16;
+> +
+> +	err = isl29018_chip_init(client);
+> +	if (err)
+> +		goto exit_free;
+> +
+> +	chip->indio_dev = iio_allocate_device();
+> +	if (!chip->indio_dev) {
+> +		dev_err(&client->dev, "iio allocation fails\n");
+> +		goto exit_free;
+> +	}
+> +	chip->indio_dev->attrs = &isl29108_group;
+> +	chip->indio_dev->dev.parent = &client->dev;
+> +	chip->indio_dev->dev_data = (void *)(chip);
+> +	chip->indio_dev->driver_module = THIS_MODULE;
+> +	chip->indio_dev->modes = INDIO_DIRECT_MODE;
+> +	err = iio_device_register(chip->indio_dev);
+> +	if (err) {
+> +		dev_err(&client->dev, "iio registration fails\n");
+> +		goto exit_iio_free;
+> +	}
+> +
+> +	return 0;
+> +exit_iio_free:
+> +	iio_free_device(chip->indio_dev);
+> +exit_free:
+> +	kfree(chip);
+> +exit:
+> +	return err;
+> +}
+> +
+> +static int __devexit isl29018_remove(struct i2c_client *client)
+> +{
+> +	struct isl29018_chip *chip = i2c_get_clientdata(client);
+> +
+> +	dev_dbg(&client->dev, "%s()\n", __func__);
+> +	iio_device_unregister(chip->indio_dev);
+> +	kfree(chip);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id isl29018_id[] = {
+> +	{"isl29018", 0},
+> +	{}
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, isl29018_id);
+> +
+> +static struct i2c_driver isl29018_driver = {
+> +	.class	= I2C_CLASS_HWMON,
+> +	.driver	 = {
+> +			.name = "isl29018",
+> +			.owner = THIS_MODULE,
+> +		    },
+> +	.probe	 = isl29018_probe,
+> +	.remove	 = __devexit_p(isl29018_remove),
+> +	.id_table = isl29018_id,
+> +};
+> +
+> +static int __init isl29018_init(void)
+> +{
+> +	return i2c_add_driver(&isl29018_driver);
+> +}
+> +
+> +static void __exit isl29018_exit(void)
+> +{
+> +	i2c_del_driver(&isl29018_driver);
+> +}
+> +
+> +module_init(isl29018_init);
+> +module_exit(isl29018_exit);
+> +
+> +MODULE_DESCRIPTION("ISL29018 Ambient Light Sensor driver");
+> +MODULE_LICENSE("GPL");
