@@ -1,7 +1,7 @@
 From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 5/9] hwmon: lis3: Power on corrections
-Date: Fri,  1 Oct 2010 14:46:52 +0300
-Message-ID: <1285933616-16044-6-git-send-email-samu.p.onkalo@nokia.com>
+Subject: [RFC PATCH 3/9] hwmon: lis3: Cleanup interrupt handling
+Date: Fri,  1 Oct 2010 14:46:50 +0300
+Message-ID: <1285933616-16044-4-git-send-email-samu.p.onkalo@nokia.com>
 References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
@@ -10,92 +10,136 @@ To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPv
 Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sometimes lis3 chip seems to fail to setup factory tuning at boot up.
-This probably happens if there is some odd power ramp down ramp up sequence
-for example in device restart. Set boot bit in control2 register to
-trig boot sequence manually and wait until it is finished.
-Also restore axis enable bits in init.
+Irqcfg moved to chip data instead of platform data.
+This simplifies access in interrupt handler little bit.
 
-Signed-off-by: Samu O kalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Input device open and close functions set status for
+interrupt threaded handler once.
+
+Unnecessary check for interrupt source removed since
+it is enough that active interrupt line indicates that
+there was an interrupt.
+
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/hwmon/lis3lv02d.c     |   19 +++++++++++--------
- drivers/hwmon/lis3lv02d.h     |    1 +
- drivers/hwmon/lis3lv02d_i2c.c |    2 +-
- drivers/hwmon/lis3lv02d_spi.c |    2 +-
- 4 files changed, 14 insertions(+), 10 deletions(-)
+ drivers/hwmon/lis3lv02d.c |   37 +++++++++++++------------------------
+ drivers/hwmon/lis3lv02d.h |    2 ++
+ 2 files changed, 15 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-index dc777d2..81e2313 100644
+index 23d47ad..483204a 100644
 --- a/drivers/hwmon/lis3lv02d.c
 +++ b/drivers/hwmon/lis3lv02d.c
-@@ -272,19 +272,22 @@ void lis3lv02d_poweron(struct lis3lv02d *lis3)
- 
- 	lis3->init(lis3);
- 
--	/* LIS3 power on delay is quite long */
--	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
--
- 	/*
- 	 * Common configuration
- 	 * BDU: (12 bits sensors only) LSB and MSB values are not updated until
- 	 *      both have been read. So the value read will always be correct.
-+	 * Set BOOT bit to refresh factory tuning values.
- 	 */
--	if (lis3->whoami ==  WAI_12B) {
--		lis3->read(lis3, CTRL_REG2, &reg);
--		reg |= CTRL2_BDU;
--		lis3->write(lis3, CTRL_REG2, reg);
--	}
-+	lis3->read(lis3, CTRL_REG2, &reg);
-+	if (lis3->whoami ==  WAI_12B)
-+		reg |= CTRL2_BDU | CTRL2_BOOT;
-+	else
-+		reg |= CTRL2_BOOT_8B;
-+	lis3->write(lis3, CTRL_REG2, reg);
+@@ -308,10 +308,14 @@ static void lis3lv02d_joystick_open(struct input_polled_dev *pidev)
+ {
+ 	if (lis3_dev.pm_dev)
+ 		pm_runtime_get_sync(lis3_dev.pm_dev);
 +
-+	/* LIS3 power on delay is quite long */
-+	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
-+
- 	if (lis3->reg_ctrl)
- 		lis3_context_restore(lis3);
++	if (lis3_dev.pdata && lis3_dev.whoami == WAI_8B && lis3_dev.idev)
++		atomic_set(&lis3_dev.wake_thread, 1);
  }
+ 
+ static void lis3lv02d_joystick_close(struct input_polled_dev *pidev)
+ {
++	atomic_set(&lis3_dev.wake_thread, 0);
+ 	if (lis3_dev.pm_dev)
+ 		pm_runtime_put(lis3_dev.pm_dev);
+ }
+@@ -331,8 +335,7 @@ static irqreturn_t lis302dl_interrupt(int irq, void *dummy)
+ 	wake_up_interruptible(&lis3_dev.misc_wait);
+ 	kill_fasync(&lis3_dev.async_queue, SIGIO, POLL_IN);
+ out:
+-	if (lis3_dev.pdata && lis3_dev.whoami == WAI_8B && lis3_dev.idev &&
+-	    lis3_dev.idev->input->users)
++	if (atomic_read(&lis3_dev.wake_thread))
+ 		return IRQ_WAKE_THREAD;
+ 	return IRQ_HANDLED;
+ }
+@@ -363,31 +366,15 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
+ 	mutex_unlock(&lis3->mutex);
+ }
+ 
+-static void lis302dl_interrupt_handle_ff_wu(struct lis3lv02d *lis3)
+-{
+-	u8 wu1_src;
+-	u8 wu2_src;
+-
+-	lis3->read(lis3, FF_WU_SRC_1, &wu1_src);
+-	lis3->read(lis3, FF_WU_SRC_2, &wu2_src);
+-
+-	wu1_src = wu1_src & FF_WU_SRC_IA ? wu1_src : 0;
+-	wu2_src = wu2_src & FF_WU_SRC_IA ? wu2_src : 0;
+-
+-	/* joystick poll is internally protected by the lis3->mutex. */
+-	if (wu1_src || wu2_src)
+-		lis3lv02d_joystick_poll(lis3_dev.idev);
+-}
+-
+ static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
+ {
+ 
+ 	struct lis3lv02d *lis3 = data;
+ 
+-	if ((lis3->pdata->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
++	if ((lis3->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
+ 		lis302dl_interrupt_handle_click(lis3);
+ 	else
+-		lis302dl_interrupt_handle_ff_wu(lis3);
++		lis3lv02d_joystick_poll(lis3_dev.idev);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -397,10 +384,10 @@ static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
+ 
+ 	struct lis3lv02d *lis3 = data;
+ 
+-	if ((lis3->pdata->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
++	if ((lis3->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
+ 		lis302dl_interrupt_handle_click(lis3);
+ 	else
+-		lis302dl_interrupt_handle_ff_wu(lis3);
++		lis3lv02d_joystick_poll(lis3_dev.idev);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -783,6 +770,7 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
+ 	}
+ 
+ 	mutex_init(&dev->mutex);
++	atomic_set(&dev->wake_thread, 0);
+ 
+ 	lis3lv02d_add_fs(dev);
+ 	lis3lv02d_poweron(dev);
+@@ -795,14 +783,15 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
+ 	if (lis3lv02d_joystick_enable())
+ 		printk(KERN_ERR DRIVER_NAME ": joystick initialization failed\n");
+ 
+-	/* passing in platform specific data is purely optional and only
+-	 * used by the SPI transport layer at the moment */
++	/* passing in platform specific data is purely optional and
++	 * used by the SPI & I2C transport layer at the moment */
+ 	if (dev->pdata) {
+ 		struct lis3lv02d_platform_data *p = dev->pdata;
+ 
+ 		if (dev->whoami == WAI_8B)
+ 			lis3lv02d_8b_configure(dev, p);
+ 
++		dev->irq_cfg = p->irq_cfg;
+ 		if (p->irq_cfg)
+ 			dev->write(dev, CTRL_REG3, p->irq_cfg);
+ 	}
 diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
-index 8c19185..1522855 100644
+index caf3ed1..8c19185 100644
 --- a/drivers/hwmon/lis3lv02d.h
 +++ b/drivers/hwmon/lis3lv02d.h
-@@ -142,6 +142,7 @@ enum lis3lv02d_ctrl2 {
- enum lis302d_ctrl2 {
- 	HP_FF_WU2	= 0x08,
- 	HP_FF_WU1	= 0x04,
-+	CTRL2_BOOT_8B   = 0x40,
- };
+@@ -259,6 +259,8 @@ struct lis3lv02d {
+ 	struct fasync_struct	*async_queue; /* queue for the misc device */
+ 	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
+ 	unsigned long		misc_opened; /* bit0: whether the device is open */
++	atomic_t                wake_thread;
++	unsigned char           irq_cfg;
  
- enum lis3lv02d_ctrl3 {
-diff --git a/drivers/hwmon/lis3lv02d_i2c.c b/drivers/hwmon/lis3lv02d_i2c.c
-index 0852bed..c5a60e4 100644
---- a/drivers/hwmon/lis3lv02d_i2c.c
-+++ b/drivers/hwmon/lis3lv02d_i2c.c
-@@ -82,7 +82,7 @@ static int lis3_i2c_init(struct lis3lv02d *lis3)
- 	if (ret < 0)
- 		return ret;
- 
--	reg |= CTRL1_PD0;
-+	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
- 	return lis3->write(lis3, CTRL_REG1, reg);
- }
- 
-diff --git a/drivers/hwmon/lis3lv02d_spi.c b/drivers/hwmon/lis3lv02d_spi.c
-index b9be5e3..778885d 100644
---- a/drivers/hwmon/lis3lv02d_spi.c
-+++ b/drivers/hwmon/lis3lv02d_spi.c
-@@ -50,7 +50,7 @@ static int lis3_spi_init(struct lis3lv02d *lis3)
- 	if (ret < 0)
- 		return ret;
- 
--	reg |= CTRL1_PD0;
-+	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
- 	return lis3->write(lis3, CTRL_REG1, reg);
- }
- 
+ 	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
+ 	struct mutex		mutex;     /* Serialize poll and selftest */
 -- 
 1.6.0.4
