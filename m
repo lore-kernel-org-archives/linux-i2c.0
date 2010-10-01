@@ -1,99 +1,194 @@
 From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 0/9] lis3 accelerator feature update
-Date: Fri,  1 Oct 2010 14:46:47 +0300
-Message-ID: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
+Subject: [RFC PATCH 9/9] hwmon: lis3: Enhance lis3 selftest with IRQ line test
+Date: Fri,  1 Oct 2010 14:46:56 +0300
+Message-ID: <1285933616-16044-10-git-send-email-samu.p.onkalo@nokia.com>
+References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
 Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch set is done to top of 2.6.36-RC5
+Configure chip to data ready mode in selftest and count received
+interrupts to see that interrupt line(s) are working.
 
-Changes are tested only with I2C interface using 8bit sensor since I don't
-have other possibilities.
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/hwmon/lis3lv02d.c |   87 ++++++++++++++++++++++++++++++++++++++++----
+ drivers/hwmon/lis3lv02d.h |    3 +-
+ 2 files changed, 81 insertions(+), 9 deletions(-)
 
-I send this as RFC since changes may affect functionalities or use cases
-which I can't test or I don't know to exist. 
-
-Description about the changes:
-
-0001:
-Add support for pm_runtime framework for lis3 core driver and lis3-i2c
-interface code. hp_accel and spi should not be affected by the changes.
-When either input device or freefall device is opened, chip is powered up.
-When a sysfs entry is accessed, chip is powered up and scheduled power down
-is requested to happen within 5 seconds.
-I'm not familiar enough how pm_runtime works with spi or acpi interfaces, so
-those are not changed. And I don't have any change to test changes to those
-areas.
-
-0002:
-Regulator frame work support added. Regulators are controlled based on
-pm_runtime state transitions. Chip register context is stored at power down
-and restored at power up. Regulators are controlled only when I2C interface is
-used since the implementation requires pm_runtime support.
-
-0003:
-Interrupt control is cleaned up little bit. The need for threaded interrupt
-is controlled by the input layer open / close function. In the interrupt,
-only one check is needed instead of several one.
-
-Also platform information is copied to lis3_dev structure to shorten access
-in interrupt code.
-
-Interrupt handling for the WU blocks doesn't check interrupt source anymore.
-It is not necessary since interrupt handler is called only when WU unit causes
-an interrupt.
-
-0004:
-It is possible to use input interface purely under threshold interrupt control
-by setting polling interval to 0. In that case, it may take a long time
-when coordinates are updated after the input device open. Applications can see
-totally outdated information. Coordinates are now refreshed at the device open.
-
-0005:
-We have faced sometimes situation where lis3 powerup fails somehow. BOOT
-bit is set at device init to force boot sequence. This way lis3 recovers
-from the failed boot.
-Also data ready interrupts are enabled at init (reset default value). They
-have been removed if the module is unloaded and loaded back.
-
-0006:
-Add some missing parameters to 8bit chip platform data.
-Chip interrupt generation features can now be controlled better. It
-is also possible to configure interrupts at both rising and falling edges.
-With some fancy interrupt configuration, this gives fresh coordinates
-at the beginning and end of the acceleration event.
-
-0007:
-Set lower default fuzziness for 8bit device. Original value was from 12bit
-device which is much more sensitive than the 8 bit device.
-
-0008:
-Interface driver can provide block read function to reduce number of individual
-bus operations. With I2C this reduces number of interrupts about 60-70%
-and makes access little bit faster due to reduced amount transactions.
-
-0009:
-Selftest is enhanced to test also IRQ lines in 8bit device.
-This is done by enabling data_ready interrupt during selftest and
-calculating number of received interrupts during the test.
-
-Samu Onkalo (9):
-  hwmon: lis3: pm_runtime support
-  hwmon: lis3: regulator control
-  hwmon: lis3: Cleanup interrupt handling
-  hwmon: lis3: Update coordinates at polled device open
-  hwmon: lis3: Power on corrections
-  hwmon: lis3: New parameters to platform data
-  hwmon: lis3: Adjust fuzziness for 8 bit device
-  hwmon: lis3: use block read to access data registers
-  hwmon: lis3: Enhance lis3 selftest with IRQ line test
-
- drivers/hwmon/lis3lv02d.c     |  303 ++++++++++++++++++++++++++++++++++-------
- drivers/hwmon/lis3lv02d.h     |   25 ++++
- drivers/hwmon/lis3lv02d_i2c.c |  102 ++++++++++++--
- drivers/hwmon/lis3lv02d_spi.c |    2 +-
- include/linux/lis3lv02d.h     |    7 +-
- 5 files changed, 375 insertions(+), 64 deletions(-)
+diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
+index 469f251..cf1b4db 100644
+--- a/drivers/hwmon/lis3lv02d.c
++++ b/drivers/hwmon/lis3lv02d.c
+@@ -47,6 +47,13 @@
+ 
+ #define SYSFS_POWERDOWN_DELAY 5000 /* In milliseconds */
+ 
++#define SELFTEST_OK	       0
++#define SELFTEST_FAIL	       -1
++#define SELFTEST_IRQ	       -2
++
++#define IRQ_LINE0	       0
++#define IRQ_LINE1	       1
++
+ /*
+  * The sensor can also generate interrupts (DRDY) but it's pretty pointless
+  * because they are generated even if the data do not change. So it's better
+@@ -197,6 +204,8 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+ 	s16 x, y, z;
+ 	u8 selftest;
+ 	int ret;
++	u8 ctrl_reg_data;
++	unsigned char irq_cfg;
+ 
+ 	mutex_lock(&lis3->mutex);
+ 	if (lis3_dev.whoami == WAI_12B)
+@@ -204,6 +213,20 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+ 	else
+ 		selftest = CTRL1_STP;
+ 
++	irq_cfg = lis3->irq_cfg;
++	if (lis3_dev.whoami == WAI_8B) {
++		lis3->data_ready_count[IRQ_LINE0] = 0;
++		lis3->data_ready_count[IRQ_LINE1] = 0;
++
++		/* Change interrupt cfg to data ready for selftest */
++		atomic_inc(&lis3_dev.wake_thread);
++		lis3->irq_cfg = LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY;
++		lis3->read(lis3, CTRL_REG3, &ctrl_reg_data);
++		lis3->write(lis3, CTRL_REG3, (ctrl_reg_data &
++				~(LIS3_IRQ1_MASK | LIS3_IRQ2_MASK)) |
++				(LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY));
++	}
++
+ 	lis3->read(lis3, CTRL_REG1, &reg);
+ 	lis3->write(lis3, CTRL_REG1, (reg | selftest));
+ 	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
+@@ -222,13 +245,33 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+ 	results[2] = z - lis3->read_data(lis3, OUTZ);
+ 
+ 	ret = 0;
++
++	if (lis3_dev.whoami == WAI_8B) {
++		/* Restore original interrupt configuration */
++		atomic_dec(&lis3_dev.wake_thread);
++		lis3->write(lis3, CTRL_REG3, ctrl_reg_data);
++		lis3->irq_cfg = irq_cfg;
++
++		if ((irq_cfg & LIS3_IRQ1_MASK) &&
++			lis3->data_ready_count[IRQ_LINE0] < 2) {
++			ret = SELFTEST_IRQ;
++			goto fail;
++		}
++
++		if ((irq_cfg & LIS3_IRQ2_MASK) &&
++			lis3->data_ready_count[IRQ_LINE1] < 2) {
++			ret = SELFTEST_IRQ;
++			goto fail;
++		}
++	}
++
+ 	if (lis3->pdata) {
+ 		int i;
+ 		for (i = 0; i < 3; i++) {
+ 			/* Check against selftest acceptance limits */
+ 			if ((results[i] < lis3->pdata->st_min_limits[i]) ||
+ 			    (results[i] > lis3->pdata->st_max_limits[i])) {
+-				ret = -EIO;
++				ret = SELFTEST_FAIL;
+ 				goto fail;
+ 			}
+ 		}
+@@ -391,13 +434,24 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
+ 	mutex_unlock(&lis3->mutex);
+ }
+ 
+-static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
++static inline void lis302dl_data_ready(struct lis3lv02d *lis3, int index)
+ {
++	int dummy;
+ 
++	/* Dummy read to ack interrupt */
++	lis3lv02d_get_xyz(lis3, &dummy, &dummy, &dummy);
++	lis3->data_ready_count[index]++;
++}
++
++static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
++{
+ 	struct lis3lv02d *lis3 = data;
++	u8 irq_cfg = lis3->irq_cfg & LIS3_IRQ1_MASK;
+ 
+-	if ((lis3->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
++	if (irq_cfg == LIS3_IRQ1_CLICK)
+ 		lis302dl_interrupt_handle_click(lis3);
++	else if (unlikely(irq_cfg == LIS3_IRQ1_DATA_READY))
++		lis302dl_data_ready(lis3, IRQ_LINE0);
+ 	else
+ 		lis3lv02d_joystick_poll(lis3_dev.idev);
+ 
+@@ -406,11 +460,13 @@ static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
+ 
+ static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
+ {
+-
+ 	struct lis3lv02d *lis3 = data;
++	u8 irq_cfg = lis3->irq_cfg & LIS3_IRQ2_MASK;
+ 
+-	if ((lis3->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
++	if (irq_cfg == LIS3_IRQ2_CLICK)
+ 		lis302dl_interrupt_handle_click(lis3);
++	else if (unlikely(irq_cfg == LIS3_IRQ2_DATA_READY))
++		lis302dl_data_ready(lis3, IRQ_LINE1);
+ 	else
+ 		lis3lv02d_joystick_poll(lis3_dev.idev);
+ 
+@@ -613,12 +669,27 @@ static void lis3lv02d_sysfs_poweron(struct lis3lv02d *lis3)
+ static ssize_t lis3lv02d_selftest_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+-	int result;
+ 	s16 values[3];
+ 
++	static const char ok[] = "OK";
++	static const char fail[] = "FAIL";
++	static const char irq[] = "FAIL_IRQ";
++	const char *res;
++
+ 	lis3lv02d_sysfs_poweron(&lis3_dev);
+-	result = lis3lv02d_selftest(&lis3_dev, values);
+-	return sprintf(buf, "%s %d %d %d\n", result == 0 ? "OK" : "FAIL",
++	switch (lis3lv02d_selftest(&lis3_dev, values)) {
++	case SELFTEST_FAIL:
++		res = fail;
++		break;
++	case SELFTEST_IRQ:
++		res = irq;
++		break;
++	case SELFTEST_OK:
++	default:
++		res = ok;
++		break;
++	}
++	return sprintf(buf, "%s %d %d %d\n", res,
+ 		values[0], values[1], values[2]);
+ }
+ 
+diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
+index cfff63c..3b739ec 100644
+--- a/drivers/hwmon/lis3lv02d.h
++++ b/drivers/hwmon/lis3lv02d.h
+@@ -261,7 +261,8 @@ struct lis3lv02d {
+ 	struct fasync_struct	*async_queue; /* queue for the misc device */
+ 	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
+ 	unsigned long		misc_opened; /* bit0: whether the device is open */
+-	atomic_t                wake_thread;
++	int                     data_ready_count[2];
++	atomic_t		wake_thread;
+ 	unsigned char           irq_cfg;
+ 
+ 	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
+-- 
+1.6.0.4
