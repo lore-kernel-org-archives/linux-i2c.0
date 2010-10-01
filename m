@@ -1,145 +1,99 @@
 From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 3/9] hwmon: lis3: Cleanup interrupt handling
-Date: Fri,  1 Oct 2010 14:46:50 +0300
-Message-ID: <1285933616-16044-4-git-send-email-samu.p.onkalo@nokia.com>
-References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
+Subject: [RFC PATCH 0/9] lis3 accelerator feature update
+Date: Fri,  1 Oct 2010 14:46:47 +0300
+Message-ID: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
 Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Irqcfg moved to chip data instead of platform data.
-This simplifies access in interrupt handler little bit.
+This patch set is done to top of 2.6.36-RC5
 
-Input device open and close functions set status for
-interrupt threaded handler once.
+Changes are tested only with I2C interface using 8bit sensor since I don't
+have other possibilities.
 
-Unnecessary check for interrupt source removed since
-it is enough that active interrupt line indicates that
-there was an interrupt.
+I send this as RFC since changes may affect functionalities or use cases
+which I can't test or I don't know to exist. 
 
-Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
----
- drivers/hwmon/lis3lv02d.c |   37 +++++++++++++------------------------
- drivers/hwmon/lis3lv02d.h |    2 ++
- 2 files changed, 15 insertions(+), 24 deletions(-)
+Description about the changes:
 
-diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-index 23d47ad..483204a 100644
---- a/drivers/hwmon/lis3lv02d.c
-+++ b/drivers/hwmon/lis3lv02d.c
-@@ -308,10 +308,14 @@ static void lis3lv02d_joystick_open(struct input_polled_dev *pidev)
- {
- 	if (lis3_dev.pm_dev)
- 		pm_runtime_get_sync(lis3_dev.pm_dev);
-+
-+	if (lis3_dev.pdata && lis3_dev.whoami == WAI_8B && lis3_dev.idev)
-+		atomic_set(&lis3_dev.wake_thread, 1);
- }
- 
- static void lis3lv02d_joystick_close(struct input_polled_dev *pidev)
- {
-+	atomic_set(&lis3_dev.wake_thread, 0);
- 	if (lis3_dev.pm_dev)
- 		pm_runtime_put(lis3_dev.pm_dev);
- }
-@@ -331,8 +335,7 @@ static irqreturn_t lis302dl_interrupt(int irq, void *dummy)
- 	wake_up_interruptible(&lis3_dev.misc_wait);
- 	kill_fasync(&lis3_dev.async_queue, SIGIO, POLL_IN);
- out:
--	if (lis3_dev.pdata && lis3_dev.whoami == WAI_8B && lis3_dev.idev &&
--	    lis3_dev.idev->input->users)
-+	if (atomic_read(&lis3_dev.wake_thread))
- 		return IRQ_WAKE_THREAD;
- 	return IRQ_HANDLED;
- }
-@@ -363,31 +366,15 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
- 	mutex_unlock(&lis3->mutex);
- }
- 
--static void lis302dl_interrupt_handle_ff_wu(struct lis3lv02d *lis3)
--{
--	u8 wu1_src;
--	u8 wu2_src;
--
--	lis3->read(lis3, FF_WU_SRC_1, &wu1_src);
--	lis3->read(lis3, FF_WU_SRC_2, &wu2_src);
--
--	wu1_src = wu1_src & FF_WU_SRC_IA ? wu1_src : 0;
--	wu2_src = wu2_src & FF_WU_SRC_IA ? wu2_src : 0;
--
--	/* joystick poll is internally protected by the lis3->mutex. */
--	if (wu1_src || wu2_src)
--		lis3lv02d_joystick_poll(lis3_dev.idev);
--}
--
- static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
- {
- 
- 	struct lis3lv02d *lis3 = data;
- 
--	if ((lis3->pdata->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
-+	if ((lis3->irq_cfg & LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
- 		lis302dl_interrupt_handle_click(lis3);
- 	else
--		lis302dl_interrupt_handle_ff_wu(lis3);
-+		lis3lv02d_joystick_poll(lis3_dev.idev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -397,10 +384,10 @@ static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
- 
- 	struct lis3lv02d *lis3 = data;
- 
--	if ((lis3->pdata->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
-+	if ((lis3->irq_cfg & LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
- 		lis302dl_interrupt_handle_click(lis3);
- 	else
--		lis302dl_interrupt_handle_ff_wu(lis3);
-+		lis3lv02d_joystick_poll(lis3_dev.idev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -783,6 +770,7 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
- 	}
- 
- 	mutex_init(&dev->mutex);
-+	atomic_set(&dev->wake_thread, 0);
- 
- 	lis3lv02d_add_fs(dev);
- 	lis3lv02d_poweron(dev);
-@@ -795,14 +783,15 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
- 	if (lis3lv02d_joystick_enable())
- 		printk(KERN_ERR DRIVER_NAME ": joystick initialization failed\n");
- 
--	/* passing in platform specific data is purely optional and only
--	 * used by the SPI transport layer at the moment */
-+	/* passing in platform specific data is purely optional and
-+	 * used by the SPI & I2C transport layer at the moment */
- 	if (dev->pdata) {
- 		struct lis3lv02d_platform_data *p = dev->pdata;
- 
- 		if (dev->whoami == WAI_8B)
- 			lis3lv02d_8b_configure(dev, p);
- 
-+		dev->irq_cfg = p->irq_cfg;
- 		if (p->irq_cfg)
- 			dev->write(dev, CTRL_REG3, p->irq_cfg);
- 	}
-diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
-index caf3ed1..8c19185 100644
---- a/drivers/hwmon/lis3lv02d.h
-+++ b/drivers/hwmon/lis3lv02d.h
-@@ -259,6 +259,8 @@ struct lis3lv02d {
- 	struct fasync_struct	*async_queue; /* queue for the misc device */
- 	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
- 	unsigned long		misc_opened; /* bit0: whether the device is open */
-+	atomic_t                wake_thread;
-+	unsigned char           irq_cfg;
- 
- 	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
- 	struct mutex		mutex;     /* Serialize poll and selftest */
--- 
-1.6.0.4
+0001:
+Add support for pm_runtime framework for lis3 core driver and lis3-i2c
+interface code. hp_accel and spi should not be affected by the changes.
+When either input device or freefall device is opened, chip is powered up.
+When a sysfs entry is accessed, chip is powered up and scheduled power down
+is requested to happen within 5 seconds.
+I'm not familiar enough how pm_runtime works with spi or acpi interfaces, so
+those are not changed. And I don't have any change to test changes to those
+areas.
+
+0002:
+Regulator frame work support added. Regulators are controlled based on
+pm_runtime state transitions. Chip register context is stored at power down
+and restored at power up. Regulators are controlled only when I2C interface is
+used since the implementation requires pm_runtime support.
+
+0003:
+Interrupt control is cleaned up little bit. The need for threaded interrupt
+is controlled by the input layer open / close function. In the interrupt,
+only one check is needed instead of several one.
+
+Also platform information is copied to lis3_dev structure to shorten access
+in interrupt code.
+
+Interrupt handling for the WU blocks doesn't check interrupt source anymore.
+It is not necessary since interrupt handler is called only when WU unit causes
+an interrupt.
+
+0004:
+It is possible to use input interface purely under threshold interrupt control
+by setting polling interval to 0. In that case, it may take a long time
+when coordinates are updated after the input device open. Applications can see
+totally outdated information. Coordinates are now refreshed at the device open.
+
+0005:
+We have faced sometimes situation where lis3 powerup fails somehow. BOOT
+bit is set at device init to force boot sequence. This way lis3 recovers
+from the failed boot.
+Also data ready interrupts are enabled at init (reset default value). They
+have been removed if the module is unloaded and loaded back.
+
+0006:
+Add some missing parameters to 8bit chip platform data.
+Chip interrupt generation features can now be controlled better. It
+is also possible to configure interrupts at both rising and falling edges.
+With some fancy interrupt configuration, this gives fresh coordinates
+at the beginning and end of the acceleration event.
+
+0007:
+Set lower default fuzziness for 8bit device. Original value was from 12bit
+device which is much more sensitive than the 8 bit device.
+
+0008:
+Interface driver can provide block read function to reduce number of individual
+bus operations. With I2C this reduces number of interrupts about 60-70%
+and makes access little bit faster due to reduced amount transactions.
+
+0009:
+Selftest is enhanced to test also IRQ lines in 8bit device.
+This is done by enabling data_ready interrupt during selftest and
+calculating number of received interrupts during the test.
+
+Samu Onkalo (9):
+  hwmon: lis3: pm_runtime support
+  hwmon: lis3: regulator control
+  hwmon: lis3: Cleanup interrupt handling
+  hwmon: lis3: Update coordinates at polled device open
+  hwmon: lis3: Power on corrections
+  hwmon: lis3: New parameters to platform data
+  hwmon: lis3: Adjust fuzziness for 8 bit device
+  hwmon: lis3: use block read to access data registers
+  hwmon: lis3: Enhance lis3 selftest with IRQ line test
+
+ drivers/hwmon/lis3lv02d.c     |  303 ++++++++++++++++++++++++++++++++++-------
+ drivers/hwmon/lis3lv02d.h     |   25 ++++
+ drivers/hwmon/lis3lv02d_i2c.c |  102 ++++++++++++--
+ drivers/hwmon/lis3lv02d_spi.c |    2 +-
+ include/linux/lis3lv02d.h     |    7 +-
+ 5 files changed, 375 insertions(+), 64 deletions(-)
