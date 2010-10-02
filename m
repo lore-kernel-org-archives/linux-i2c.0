@@ -1,31 +1,48 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [RFC PATCH 0/9] lis3 accelerator feature update
-Date: Fri, 1 Oct 2010 19:53:11 -0700
-Message-ID: <20101002025311.GA25875@ericsson.com>
+Date: Sat, 2 Oct 2010 10:25:28 +0200
+Message-ID: <20101002102528.2955d95a@endymion.delvare>
 References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
+	<20101002025311.GA25875@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20101002025311.GA25875-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: "eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org" <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org" <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Cc: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org" <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>, "kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org" <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 01, 2010 at 07:46:47AM -0400, Samu Onkalo wrote:
-> This patch set is done to top of 2.6.36-RC5
-> 
-> Changes are tested only with I2C interface using 8bit sensor since I don't
-> have other possibilities.
-> 
-> I send this as RFC since changes may affect functionalities or use cases
-> which I can't test or I don't know to exist. 
-> 
-Wonder if there is a better mailing list to get good (or even any) feedback
-for this patchset. Even though the driver resides in the hwmon directory,
-it isn't really a hardware monitoring driver. Neither i2c nor hwmon fits well.
+Hi Guenter,
 
-Ideas, anyone ?
+On Fri, 1 Oct 2010 19:53:11 -0700, Guenter Roeck wrote:
+> On Fri, Oct 01, 2010 at 07:46:47AM -0400, Samu Onkalo wrote:
+> > This patch set is done to top of 2.6.36-RC5
+> > 
+> > Changes are tested only with I2C interface using 8bit sensor since I don't
+> > have other possibilities.
+> > 
+> > I send this as RFC since changes may affect functionalities or use cases
+> > which I can't test or I don't know to exist. 
+> > 
+> Wonder if there is a better mailing list to get good (or even any) feedback
+> for this patchset. Even though the driver resides in the hwmon directory,
+> it isn't really a hardware monitoring driver. Neither i2c nor hwmon fits well.
+> 
+> Ideas, anyone ?
 
-Guenter
+In an ideal world, people interested in accelerometers would create a
+subsystem for it, declare themselves maintainers of it, and all
+accelerometer drivers which currently leave under drivers/hwmon (hdaps,
+hp_accel, lis3lv02d and maybe ams) would be moved there.
+
+The current state is very bad, because these drivers are located in a
+maintained subsystem but they don't belong there. This is what
+motivated my request to move these drivers away [1]. But as you can see
+nobody replied.
+
+[1] http://www.spinics.net/lists/linux-input/msg11411.html
+
+-- 
+Jean Delvare
