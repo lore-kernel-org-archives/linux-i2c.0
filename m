@@ -1,46 +1,31 @@
-From: Kyungmin Park <kmpark-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: [GIT PULL] i2c fixes for 2.6.36
-Date: Fri, 1 Oct 2010 23:18:49 +0900
-Message-ID: <AANLkTikvXe5ZHCqqtfkAWu=78HWe0BD=suDMGETwd+hC@mail.gmail.com>
-References: <20101001140619.28d96040@endymion.delvare>
-	<AANLkTi=aKWP3_KhD88ebGB04xAM9Pc7eqw1LBr2EJNS_@mail.gmail.com>
-	<20101001140918.GU21564@trinity.fluff.org>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [RFC PATCH 0/9] lis3 accelerator feature update
+Date: Fri, 1 Oct 2010 19:53:11 -0700
+Message-ID: <20101002025311.GA25875@ericsson.com>
+References: <1285933616-16044-1-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101001140918.GU21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1285933616-16044-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: "eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org" <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org" <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 1, 2010 at 11:09 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Fri, Oct 01, 2010 at 10:38:46PM +0900, Kyungmin Park wrote:
->> Hi Jean,
->>
->> Even though it's not yet acked from Ben. It should be fixed for
->> correct operation.
->> Without this patch, some I2C device doesn't work correctly.
->> http://www.spinics.net/lists/linux-i2c/msg04016.html
->
-> It was in my last pull request to Linus.
-Thanks Ben,
+On Fri, Oct 01, 2010 at 07:46:47AM -0400, Samu Onkalo wrote:
+> This patch set is done to top of 2.6.36-RC5
+> 
+> Changes are tested only with I2C interface using 8bit sensor since I don't
+> have other possibilities.
+> 
+> I send this as RFC since changes may affect functionalities or use cases
+> which I can't test or I don't know to exist. 
+> 
+Wonder if there is a better mailing list to get good (or even any) feedback
+for this patchset. Even though the driver resides in the hwmon directory,
+it isn't really a hardware monitoring driver. Neither i2c nor hwmon fits well.
 
-To Ben,
-Do you have a plan to use notification mail or  confirm mail to ensure
-these patches are merged or not.
-I think it's helpful to your maintained subsystem participants. e.g,
-samsung soc, sdhci-s3c, i2c and so on.
+Ideas, anyone ?
 
-Thank you,
-Kyungmin Park
-
->
-> --
-> Ben
->
-> Q: =A0 =A0 =A0What's a light-year?
-> A: =A0 =A0 =A0One-third less calories than a regular year.
->
->
+Guenter
