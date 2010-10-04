@@ -1,64 +1,87 @@
-From: Michal Marek <mmarek-AlSwsSmVLrQ@public.gmane.org>
-Subject: [PATCH] i2c: Fix Kconfig dependencies
-Date: Mon,  4 Oct 2010 15:31:33 +0200
-Message-ID: <1286199093-3576-1-git-send-email-mmarek@suse.cz>
+From: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH V3 RESEND5] i2c-imx: do not allow interruptions when waiting
+ for I2C to complete
+Date: Mon, 04 Oct 2010 16:22:25 +0200
+Message-ID: <4CA9E321.8000909@pengutronix.de>
+References: <4C1F0FC7.60605@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4C1F0FC7.60605-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, gregkh-l3A5Bk7waGM@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-drivers/i2c/algos/Kconfig makes all the algorithms dependent on
-!I2C_HELPER_AUTO, which triggers a Kconfig warning about broken
-dependencies when some driver selects one of the algorithms. Make only
-the prompts dependent on !I2C_HELPER_AUTO, not the complete symbols.
-This moves the entries out of the "I2C Algorithms" submenu, but most
-users do not unset I2C_HELPER_AUTO, so they will not see it anyway.
+Hello Ben,
 
-Signed-off-by: Michal Marek <mmarek-AlSwsSmVLrQ@public.gmane.org>
+I've send this patch several times, can you please comment it or apply
+it to your git tree. Please send me a note if you do so, then I can
+stop bugging you :)
+
+cheers, Marc
+
+--------8<--------8<--------8<--------8<--------8<--------8<--------
+
+The i2c_imx_trx_complete() function is using
+wait_event_interruptible_timeout() to wait for the I2C controller to
+signal that it has completed an I2C bus operation. If the process that
+causes the I2C operation receives a signal, the wait will be
+interrupted, returning an error. It is better to let the I2C operation
+finished before handling the signal (i.e. returning into userspace).
+
+It is safe to use wait_event_timeout() instead, because the timeout
+will allow the process to exit if the I2C bus hangs. It's also better
+to allow the I2C operation to finish, because unacknowledged I2C
+operations can cause the I2C bus to hang.
+
+Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
 
-Please consider for 2.6.36, as the warning is caused by a kconfig fix
-that I'm about to send to Linus for 2.6.36. And it is triggered by a
-simple 'make defconfig' in i386/x84_64:
+V2: Remove check for "result < 0" as commented by Wolfram Sang.
+V3: Remove "result" entirely.
 
-$ make defconfig
-*** Default configuration is based on 'x86_64_defconfig'
-warning: (IEEE1394_PCILYNX && (PCI || BROKEN) && PCI && IEEE1394 && I2C || SFC && NETDEVICES && NETDEV_10000 && PCI && INET || I2C_VIA && I2C && PCI && EXPERIMENTAL || I2C_HYDRA && I2C && PCI && PPC_CHRP && EXPERIMENTAL || I2C_GPIO && I2C && GENERIC_GPIO || I2C_IXP2000 && I2C && ARCH_IXP2000 || I2C_SIMTEC && I2C || I2C_VERSATILE && I2C && (ARCH_VERSATILE || ARCH_REALVIEW || ARCH_VEXPRESS) || I2C_PARPORT && I2C && PARPORT || I2C_PARPORT_LIGHT && I2C || I2C_ACORN && I2C && ARCH_ACORN || SCx200_I2C && I2C && SCx200_GPIO || VIDEO_BT848 && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && VIDEO_DEV && PCI && I2C && VIDEO_V4L2 && INPUT && VIDEO_IR || VIDEO_CX88 && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && VIDEO_V4L2 && VIDEO_DEV && PCI && I2C && INPUT && VIDEO_IR || VIDEO_CX23885 && MEDIA_SUPPORT && VID
- EO_CAPTURE_DRIVERS && VIDEO_V4L2 && DVB_CORE && VIDEO_DEV && PCI && I2C && INPUT && IR_CORE || VIDEO_AU0828 && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && I2C && INPUT && DVB_CORE && USB && VI
- DEO_V4L2 || VIDEO_IVTV && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && VIDEO_V4L2 && PCI && I2C && INPUT && VIDEO_IR || VIDEO_CX18 && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && VIDEO_V4L2 && DVB_CORE && PCI && I2C && EXPERIMENTAL && INPUT && VIDEO_IR || VIDEO_SAA7164 && MEDIA_SUPPORT && VIDEO_CAPTURE_DRIVERS && VIDEO_V4L2 && DVB_CORE && PCI && I2C || DVB_PLUTO2 && MEDIA_SUPPORT && DVB_CAPTURE_DRIVERS && DVB_CORE && PCI && I2C || DRM && HAS_IOMEM && (AGP || AGP=n) && !EMULATED_CMPXCHG && MMU || FB_DDC && HAS_IOMEM && FB || FB_VIA && HAS_IOMEM && FB && PCI && X86 || VIDEO_CX25821 && STAGING && !STAGING_EXCLUDE_BUILD && DVB_CORE && VIDEO_DEV && PCI && I2C && INPUT) selects I2C_ALGOBIT which has unmet direct dependencies (I2C && !I2C_HELPER_AUTO)
-[...]
+ drivers/i2c/busses/i2c-imx.c |   12 +++---------
+ 1 files changed, 3 insertions(+), 9 deletions(-)
 
----
- drivers/i2c/algos/Kconfig |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d1ff940..4c2a62b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -159,15 +159,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
+*i2c_imx, int for_busy)
 
-diff --git a/drivers/i2c/algos/Kconfig b/drivers/i2c/algos/Kconfig
-index 7b2ce4a..9ced1a0 100644
---- a/drivers/i2c/algos/Kconfig
-+++ b/drivers/i2c/algos/Kconfig
-@@ -2,16 +2,15 @@
- # I2C algorithm drivers configuration
- #
- 
--menu "I2C Algorithms"
--	depends on !I2C_HELPER_AUTO
+ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
+ {
+-	int result;
 -
- config I2C_ALGOBIT
--	tristate "I2C bit-banging interfaces"
-+	tristate
-+	prompt "I2C bit-banging interfaces" if !I2C_HELPER_AUTO
- 
- config I2C_ALGOPCF
--	tristate "I2C PCF 8584 interfaces"
-+	tristate
-+	prompt "I2C PCF 8584 interfaces" if !I2C_HELPER_AUTO
- 
- config I2C_ALGOPCA
--	tristate "I2C PCA 9564 interfaces"
-+	tristate
-+	prompt "I2C PCA 9564 interfaces" if !I2C_HELPER_AUTO
- 
--endmenu
+-	result = wait_event_interruptible_timeout(i2c_imx->queue,
+-		i2c_imx->i2csr & I2SR_IIF, HZ / 10);
++	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+
+-	if (unlikely(result < 0)) {
+-		dev_dbg(&i2c_imx->adapter.dev, "<%s> result < 0\n", __func__);
+-		return result;
+-	} else if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
++	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+@@ -295,7 +289,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 		i2c_imx->i2csr = temp;
+ 		temp &= ~I2SR_IIF;
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2SR);
+-		wake_up_interruptible(&i2c_imx->queue);
++		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
+
 -- 
 1.7.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
