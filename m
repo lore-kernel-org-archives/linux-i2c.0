@@ -1,181 +1,38 @@
-From: Seth Heasley <seth.heasley@intel.com>
-Subject: Re: [PATCH 2.6.35.4] irq: irq and pci_ids patch for Intel Patsburg
-Date: Mon, 4 Oct 2010 13:27:14 -0700
-Message-ID: <201010041327.15170.seth.heasley@intel.com>
-References: <201009241606.11840.seth.heasley@intel.com>
+From: Michal Marek <mmarek-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Fix Kconfig dependencies
+Date: Tue, 05 Oct 2010 00:01:02 +0200
+Message-ID: <4CAA4E9E.8040002@suse.cz>
+References: <1286199093-3576-1-git-send-email-mmarek@suse.cz> <20101004180346.59b10af7@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201009241606.11840.seth.heasley@intel.com>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: jbarnes@virtuousgeek.org
-Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org, seth.heasley@intel.com
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101004180346.59b10af7-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->> --- linux-2.6.35.4/drivers/i2c/busses/Kconfig.orig   2010-09-24
->14:59:23.000000000 -0700
->> +++ linux-2.6.35.4/drivers/i2c/busses/Kconfig        2010-09-24
->14:59:42.000000000 -0700
->> @@ -95,7 +95,7 @@
->>          ESB2
->>          ICH8
->>          ICH9
->> -        Tolapai
->> +        EP80579
->>          ICH10
->>          3400/5 Series (PCH)
->
->How did this become "5_3400_SERIES" in the symbol names? Shouldn't it
->be 3400_5_SERIES instead?
+On 4.10.2010 18:03, Jean Delvare wrote:
+> You have bad luck, I'm afraid. Sure, most users do not unset
+> I2C_HELPER_AUTO, so they will not see the extra entries in the main I2C
+> menu, however _I_ unset it and guess what, _I_ am the one deciding
+> whether your patch can be applied or not ;)
 
-The approved branding in pci.ids is 5/3400 Series, so I wanted to reflect that here.  I've changed it in Kconfig as well as i2c-i801.c to be consistent.
+OK :).
 
->> --- linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c.orig        2010-09-24
->14:57:55.000000000 -0700
->> +++ linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c     2010-09-24
->14:59:13.000000000 -0700
->> @@ -38,7 +38,7 @@
->>    82801G   (ICH7)       0x27da     32     hard     yes     yes
->yes
->>    82801H   (ICH8)       0x283e     32     hard     yes     yes
->yes
->>    82801I   (ICH9)       0x2930     32     hard     yes     yes
->yes
->> -  Tolapai               0x5032     32     hard     yes     yes
->yes
->> +  EP80579               0x5032     32     hard     yes     yes
->yes
->
->Maybe keep "Tolapai" inside parentheses, as people may know the
->platform by that name by now?
 
-Agreed.  I've updated that in both places it's referenced.  Final (hopefully) patch below:
+>> Please consider for 2.6.36, as the warning is caused by a kconfig fix
+>> that I'm about to send to Linus for 2.6.36. And it is triggered by a
+>> simple 'make defconfig' in i386/x84_64:
+> 
+> You should reconsider then. Kernel 2.6.36 will be released in a few
+> days, is your fix so important that it has to go in, even when you have
+> evidence that it breaks other parts of the configuration, which in turn
+> will have to be fixed?
 
-This patch updates the defines for Intel devices in include/linux/pci_ids.h, referenced in arch/x86/pci/irq.c and drivers/i2c/busses/i2c-i801.c, reflecting approved legal branding, and using fuller code-names for products under development.
- 
-Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+To clarify: The kconfig fix does not "break" anything. It just correctly
+warns in cases where it previously did not spot a broken dependency. My
+patch was just a means to silence a warning, nothing more.
 
---- linux-2.6.35.4/include/linux/pci_ids.h.orig	2010-08-26 16:47:12.000000000 -0700
-+++ linux-2.6.35.4/include/linux/pci_ids.h	2010-09-24 13:56:47.000000000 -0700
-@@ -2420,9 +2420,10 @@
- #define PCI_DEVICE_ID_INTEL_82840_HB	0x1a21
- #define PCI_DEVICE_ID_INTEL_82845_HB	0x1a30
- #define PCI_DEVICE_ID_INTEL_IOAT	0x1a38
--#define PCI_DEVICE_ID_INTEL_CPT_SMBUS	0x1c22
--#define PCI_DEVICE_ID_INTEL_CPT_LPC_MIN	0x1c41
--#define PCI_DEVICE_ID_INTEL_CPT_LPC_MAX	0x1c5f
-+#define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
-+#define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN	0x1c41
-+#define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX	0x1c5f
-+#define PCI_DEVICE_ID_INTEL_PATSBURG_LPC	0x1d40
- #define PCI_DEVICE_ID_INTEL_82801AA_0	0x2410
- #define PCI_DEVICE_ID_INTEL_82801AA_1	0x2411
- #define PCI_DEVICE_ID_INTEL_82801AA_3	0x2413
-@@ -2628,9 +2629,9 @@
- #define PCI_DEVICE_ID_INTEL_ICH10_3	0x3a1a
- #define PCI_DEVICE_ID_INTEL_ICH10_4	0x3a30
- #define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
--#define PCI_DEVICE_ID_INTEL_PCH_LPC_MIN	0x3b00
--#define PCI_DEVICE_ID_INTEL_PCH_LPC_MAX	0x3b1f
--#define PCI_DEVICE_ID_INTEL_PCH_SMBUS	0x3b30
-+#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MIN	0x3b00
-+#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MAX	0x3b1f
-+#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
- #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
- #define PCI_DEVICE_ID_INTEL_5100_16	0x65f0
- #define PCI_DEVICE_ID_INTEL_5100_21	0x65f5
-@@ -2639,8 +2640,8 @@
- #define PCI_DEVICE_ID_INTEL_5400_FBD0	0x4035
- #define PCI_DEVICE_ID_INTEL_5400_FBD1	0x4036
- #define PCI_DEVICE_ID_INTEL_IOAT_SCNB	0x65ff
--#define PCI_DEVICE_ID_INTEL_TOLAPAI_0	0x5031
--#define PCI_DEVICE_ID_INTEL_TOLAPAI_1	0x5032
-+#define PCI_DEVICE_ID_INTEL_EP80579_0	0x5031
-+#define PCI_DEVICE_ID_INTEL_EP80579_1	0x5032
- #define PCI_DEVICE_ID_INTEL_82371SB_0	0x7000
- #define PCI_DEVICE_ID_INTEL_82371SB_1	0x7010
- #define PCI_DEVICE_ID_INTEL_82371SB_2	0x7020
---- linux-2.6.35.4/arch/x86/pci/irq.c.orig	2010-09-24 13:59:39.000000000 -0700
-+++ linux-2.6.35.4/arch/x86/pci/irq.c	2010-09-24 14:02:07.000000000 -0700
-@@ -584,28 +584,28 @@
- 	case PCI_DEVICE_ID_INTEL_ICH9_3:
- 	case PCI_DEVICE_ID_INTEL_ICH9_4:
- 	case PCI_DEVICE_ID_INTEL_ICH9_5:
--	case PCI_DEVICE_ID_INTEL_TOLAPAI_0:
-+	case PCI_DEVICE_ID_INTEL_EP80579_0:
- 	case PCI_DEVICE_ID_INTEL_ICH10_0:
- 	case PCI_DEVICE_ID_INTEL_ICH10_1:
- 	case PCI_DEVICE_ID_INTEL_ICH10_2:
- 	case PCI_DEVICE_ID_INTEL_ICH10_3:
--	case PCI_DEVICE_ID_INTEL_PBG_LPC:
-+	case PCI_DEVICE_ID_INTEL_PATSBURG_LPC:
- 		r->name = "PIIX/ICH";
- 		r->get = pirq_piix_get;
- 		r->set = pirq_piix_set;
- 		return 1;
- 	}
- 
--	if ((device >= PCI_DEVICE_ID_INTEL_PCH_LPC_MIN) && 
--		(device <= PCI_DEVICE_ID_INTEL_PCH_LPC_MAX)) {
-+	if ((device >= PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MIN) && 
-+		(device <= PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MAX)) {
- 		r->name = "PIIX/ICH";
- 		r->get = pirq_piix_get;
- 		r->set = pirq_piix_set;
- 		return 1;
- 	}
- 
--	if ((device >= PCI_DEVICE_ID_INTEL_CPT_LPC_MIN) && 
--		(device <= PCI_DEVICE_ID_INTEL_CPT_LPC_MAX)) {
-+	if ((device >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN) && 
-+		(device <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX)) {
- 		r->name = "PIIX/ICH";
- 		r->get = pirq_piix_get;
- 		r->set = pirq_piix_set;
---- linux-2.6.35.4/drivers/i2c/busses/Kconfig.orig	2010-09-24 14:59:23.000000000 -0700
-+++ linux-2.6.35.4/drivers/i2c/busses/Kconfig	2010-10-04 13:10:44.000000000 -0700
-@@ -95,9 +95,9 @@
- 	    ESB2
- 	    ICH8
- 	    ICH9
--	    Tolapai
-+	    EP80579 (Tolapai)
- 	    ICH10
--	    3400/5 Series (PCH)
-+	    5/3400 Series (PCH)
- 	    Cougar Point (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
---- linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c.orig	2010-09-24 14:57:55.000000000 -0700
-+++ linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c	2010-10-04 13:12:00.000000000 -0700
-@@ -38,10 +38,10 @@
-   82801G   (ICH7)       0x27da     32     hard     yes     yes     yes
-   82801H   (ICH8)       0x283e     32     hard     yes     yes     yes
-   82801I   (ICH9)       0x2930     32     hard     yes     yes     yes
--  Tolapai               0x5032     32     hard     yes     yes     yes
-+  EP80579 (Tolapai)     0x5032     32     hard     yes     yes     yes
-   ICH10                 0x3a30     32     hard     yes     yes     yes
-   ICH10                 0x3a60     32     hard     yes     yes     yes
--  3400/5 Series (PCH)   0x3b30     32     hard     yes     yes     yes
-+  5/3400 Series (PCH)   0x3b30     32     hard     yes     yes     yes
-   Cougar Point (PCH)    0x1c22     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-@@ -587,11 +587,11 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_17) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH8_5) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_6) },
--	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_EP80579_1) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
--	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_SMBUS) },
--	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CPT_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS) },
- 	{ 0, }
- };
- 
+Michal
