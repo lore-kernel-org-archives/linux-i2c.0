@@ -1,93 +1,51 @@
 From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
- proximity sensor
-Date: Tue, 05 Oct 2010 15:37:06 +0300
-Message-ID: <1286282226.21781.60.camel@4fid08082>
+Subject: Re: [PATCH 3/5] misc: Driver for APDS990X ALS and proximity sensors
+Date: Tue, 05 Oct 2010 15:39:44 +0300
+Message-ID: <1286282384.21781.62.camel@4fid08082>
 References: <1286271779-19819-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1286271779-19819-2-git-send-email-samu.p.onkalo@nokia.com>
-	 <20101005122157.149f14d0@lxorguk.ukuu.org.uk>
-	 <1286278190.21781.10.camel@4fid08082>
-	 <20101005130102.7690c484@lxorguk.ukuu.org.uk>
+	 <1286271779-19819-4-git-send-email-samu.p.onkalo@nokia.com>
+	 <20101005122323.2d2870ee@lxorguk.ukuu.org.uk>
+	 <1286279313.21781.29.camel@4fid08082>
+	 <20101005140049.1f25bb24@lxorguk.ukuu.org.uk>
 Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101005130102.7690c484-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+In-Reply-To: <20101005140049.1f25bb24-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: ext Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2010-10-05 at 14:01 +0200, ext Alan Cox wrote:
-> On Tue, 05 Oct 2010 14:29:50 +0300
-
-> > > > +	for (i = 0; i < ARRAY_SIZE(prox_rates); i++)
-> > > > +		if (prox_rates[i] == rate_threshold) {
-> > > > +			chip->prox_rate_threshold = i;
-> > > > +			return 0;
-> > > > +		}
-> > > > +
-> > > > +	return -EINVAL;
-> > > 
-> > > This makes it hard for generic code. Wouldn't picking the best (first at
-> > > least as good as required) be a bit more polite to user space ?
+On Tue, 2010-10-05 at 15:00 +0200, ext Alan Cox wrote:
+> > > - not clear how power_state and runtime pm interact - do we in fact need
+> > >   power state ?
 > > 
-> > Well, perhaps it is better to have hardcoded (or platform specific)
-> > rates instead of control interface. I'll change that.
+> > power_state turns chip on or off. In off state runtime pm is used to
+> > handle bookkeeping and also handling chip state transitions including
+> > regulators. Other ideas than separate power_state for this kind of
+> > control? 
 > 
-> I don't see a problem with a rate setting where you ask for 'at least X'
-> and get the nearest ? Ie swap the == for a >= ?
-
-ok.
-
+> Ok that makes sense.
 > 
-> > > This makes no sense because you can't poll() a sysfs file
 > > 
-> > ok, what should be returned when there is no valid results available?
-> 
-> I have the same problem with the isl29020 - I think you have to block,
-> there isn't any other sane response. A user given -EAGAIN simply doesn't
-> know what to do
-> 
-
--EIO then the chip is not running and otherwise block until data is
-available.
-
-> 
-> > > > +static ssize_t bhsfh_lux_calib_show(struct device *dev,
-> > > > +				 struct device_attribute *attr, char *buf)
-> > > > +{
-> > > > +	struct bhsfh_chip *chip = dev_get_drvdata(dev);
-> > > > +	return snprintf(buf, PAGE_SIZE, "%u\n", chip->lux_calib);
-> > > > +}
+> > 
+> > > - lux0_input range being fixed seems inconvenient, the sensors I've got
+> > >   queued here use lux0_input as you do but also provide a read (and
+> > >   optionally writable) range limit in lux
 > > > 
-> > > This is short chip->mutex locks as you sometimes temporarily change the
-> > > value (error path below)
+> > > static DEVICE_ATTR(lux0_sensor_range, S_IRUGO | S_IWUSR,
+> > > 	als_sensing_range_show, als_sensing_range_store);
+> > > 
+> > > and in your case you could just return 65535
 > > > 
 > > 
-> > ?
+> > I'll add that
+> 
+> Cool. I'll bash our sensor queue to fit this API
 
-of course...
+There are quite many naming convetion changes proposed
+by Jonathan Cameron. I think that those are valid.
 
-> If I am doing a calib store and a calib show in parallel then the show
-> can give a bogus answer because of this bit of code
-> 
-> > > > +	mutex_lock(&chip->mutex);
-> > > > +	old_calib = chip->lux_calib;
-> > > > +	chip->lux_calib = value;
-> > > > +	new_corr = bhsfh_get_corr_value(chip);
-> > > > +	if (new_corr == 0) {
-> 
-> [Show can occur here]
-> 
-> > > > +		chip->lux_calib = old_calib;
-> > > > +		mutex_unlock(&chip->mutex);
-> > > > +		return -EINVAL;
-> > > > +	}
-> > > > +	chip->lux_corr = new_corr;
-> > > > +	mutex_unlock(&chip->mutex);
-> > > > +
-> > > > +	return len;
-> 
-> 
+-Samu
