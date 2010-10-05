@@ -1,41 +1,35 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 3/5] misc: Driver for APDS990X ALS and proximity sensors
-Date: Tue, 5 Oct 2010 22:42:21 +0100
-Message-ID: <20101005214220.GB19895@sirena.org.uk>
-References: <1286271779-19819-1-git-send-email-samu.p.onkalo@nokia.com> <1286271779-19819-4-git-send-email-samu.p.onkalo@nokia.com> <20101005122323.2d2870ee@lxorguk.ukuu.org.uk>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: [PATCHv2 1/4] leds: driver for National Semiconductor LP5521
+ chip
+Date: Tue, 5 Oct 2010 15:02:56 -0700
+Message-ID: <20101005150256.7769a8c7.akpm@linux-foundation.org>
+References: <1285751405-22039-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1285751405-22039-2-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101005122323.2d2870ee-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+In-Reply-To: <1285751405-22039-2-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: rpurdie-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 05, 2010 at 12:23:23PM +0100, Alan Cox wrote:
+On Wed, 29 Sep 2010 12:10:02 +0300
+Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> wrote:
 
-> > +	chip->regs[0].supply = reg_vcc;
-> > +	chip->regs[1].supply = reg_vled;
+> +#define cdev_to_led(c)		container_of(c, struct lp5521_led, cdev)
+> +#define engine_to_lp5521(eng)	container_of((eng), struct lp5521_chip, \
+> +						engines[(eng)->id - 1])
+> +#define led_to_lp5521(led)	container_of((led), struct lp5521_chip, \
+> +						leds[(led)->id])
 
-> Shouldn't these come from the provided platform data ? and again if there
-> isn't a platform one supplied just skip the regulators. There are going
+It would be better if these were implemented as C functions.  That would
+make them cqearer, cleaner and more type-safe (container_of uses
+typecasts in a way which makes it possible to misuse).
 
-No, don't do this.  The device should just request the supplies that
-correspond to the physical supplies for the device and let the regulator
-API worry about actually providing regulators to match it.  If
-regulators are getting passed in as platform data something has gone
-wrong.
+Also that would fix the bug which cdev_to_led(foo++) adds.
 
-> to be cases of boxes with regulator API stuff in use but who don't have
-> regulators for that device.
-
-If there genuinely is no supply present on the pin then the device needs
-to know that; if there is a supply present but it's not software managed
-then the regulator API can cope with that.
-
-Trying to handle this in individual device drivers just results in reams
-of cut'n'paste code in device drivers, frequently requring the addition
-of platform data to devices that would not otherwise require any.  We've
-tried it, it's painful.  Having the machine specific data provided as a
-generic regulator API service provides a great degree of simplification.
+Similar improvements can be made to the other driver.  Also
+SHIFT_MASK() and LE_ACTIVE() could become regular old lower-case C
+functions, I think.
