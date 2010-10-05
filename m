@@ -1,79 +1,157 @@
-From: Michal Marek <mmarek-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Fix Kconfig dependencies
-Date: Tue, 5 Oct 2010 00:30:20 +0200
-Message-ID: <20101004223020.GA14702@sepie.suse.cz>
-References: <1286199093-3576-1-git-send-email-mmarek@suse.cz>
- <20101004180346.59b10af7@endymion.delvare>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 2.6.35.4] irq: irq and pci_ids patch for Intel Patsburg
+Date: Tue, 5 Oct 2010 08:57:01 +0200
+Message-ID: <20101005085701.3381b236@endymion.delvare>
+References: <201009241606.11840.seth.heasley@intel.com>
+	<201010041327.15170.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101004180346.59b10af7-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <201010041327.15170.seth.heasley@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: Seth Heasley <seth.heasley@intel.com>
+Cc: jbarnes@virtuousgeek.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-(Sorry, I missed the patch in your message before)
-
-On Mon, Oct 04, 2010 at 06:03:46PM +0200, Jean Delvare wrote:
-> On Mon,  4 Oct 2010 15:31:33 +0200, Michal Marek wrote:
-> [...] selects I2C_ALGOBIT which has unmet direct dependencies (I2C && !I2C_HELPER_AUTO)
-> > [...]
+On Mon, 4 Oct 2010 13:27:14 -0700, Seth Heasley wrote:
+> Agreed.  I've updated that in both places it's referenced.  Final (hopefully) patch below:
 > 
-> This message is obscure. The actual problem is that I2C_ALGOBIT is
-> selected but doesn't exist, isn't it?.
+> This patch updates the defines for Intel devices in include/linux/pci_ids.h, referenced in arch/x86/pci/irq.c and drivers/i2c/busses/i2c-i801.c, reflecting approved legal branding, and using fuller code-names for products under development.
+>  
+> Signed-off-by: Seth Heasley <seth.heasley@intel.com>
 
-I2C_ALGOBIT does exist, but depends on a false value if I2C_HELPER_AUTO
-is set. Yes, in this case it does not matter, there won't be any
-unresolved symbols during link, but Kconfig has no way to find out what
-are hard dependencies and what are tricks to improve the user
-experience. 
+Thanks a lot for doing this.
 
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
-> I would prefer the fix below, which seems to work for me (but I am no
-> Kconfig expert) and preserves the submenu for algo drivers. Only the
-> indentation is missing, would be nice to solve.
 > 
-> ---
->  drivers/i2c/Kconfig       |    3 ++-
->  drivers/i2c/algos/Kconfig |   15 ++++++++++++---
->  2 files changed, 14 insertions(+), 4 deletions(-)
-> 
-> --- linux-2.6.36-rc6.orig/drivers/i2c/algos/Kconfig	2010-08-02 00:11:14.000000000 +0200
-> +++ linux-2.6.36-rc6/drivers/i2c/algos/Kconfig	2010-10-04 17:33:10.000000000 +0200
-> @@ -2,16 +2,25 @@
->  # I2C algorithm drivers configuration
->  #
+> --- linux-2.6.35.4/include/linux/pci_ids.h.orig	2010-08-26 16:47:12.000000000 -0700
+> +++ linux-2.6.35.4/include/linux/pci_ids.h	2010-09-24 13:56:47.000000000 -0700
+> @@ -2420,9 +2420,10 @@
+>  #define PCI_DEVICE_ID_INTEL_82840_HB	0x1a21
+>  #define PCI_DEVICE_ID_INTEL_82845_HB	0x1a30
+>  #define PCI_DEVICE_ID_INTEL_IOAT	0x1a38
+> -#define PCI_DEVICE_ID_INTEL_CPT_SMBUS	0x1c22
+> -#define PCI_DEVICE_ID_INTEL_CPT_LPC_MIN	0x1c41
+> -#define PCI_DEVICE_ID_INTEL_CPT_LPC_MAX	0x1c5f
+> +#define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
+> +#define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN	0x1c41
+> +#define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX	0x1c5f
+> +#define PCI_DEVICE_ID_INTEL_PATSBURG_LPC	0x1d40
+>  #define PCI_DEVICE_ID_INTEL_82801AA_0	0x2410
+>  #define PCI_DEVICE_ID_INTEL_82801AA_1	0x2411
+>  #define PCI_DEVICE_ID_INTEL_82801AA_3	0x2413
+> @@ -2628,9 +2629,9 @@
+>  #define PCI_DEVICE_ID_INTEL_ICH10_3	0x3a1a
+>  #define PCI_DEVICE_ID_INTEL_ICH10_4	0x3a30
+>  #define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
+> -#define PCI_DEVICE_ID_INTEL_PCH_LPC_MIN	0x3b00
+> -#define PCI_DEVICE_ID_INTEL_PCH_LPC_MAX	0x3b1f
+> -#define PCI_DEVICE_ID_INTEL_PCH_SMBUS	0x3b30
+> +#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MIN	0x3b00
+> +#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MAX	0x3b1f
+> +#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+>  #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
+>  #define PCI_DEVICE_ID_INTEL_5100_16	0x65f0
+>  #define PCI_DEVICE_ID_INTEL_5100_21	0x65f5
+> @@ -2639,8 +2640,8 @@
+>  #define PCI_DEVICE_ID_INTEL_5400_FBD0	0x4035
+>  #define PCI_DEVICE_ID_INTEL_5400_FBD1	0x4036
+>  #define PCI_DEVICE_ID_INTEL_IOAT_SCNB	0x65ff
+> -#define PCI_DEVICE_ID_INTEL_TOLAPAI_0	0x5031
+> -#define PCI_DEVICE_ID_INTEL_TOLAPAI_1	0x5032
+> +#define PCI_DEVICE_ID_INTEL_EP80579_0	0x5031
+> +#define PCI_DEVICE_ID_INTEL_EP80579_1	0x5032
+>  #define PCI_DEVICE_ID_INTEL_82371SB_0	0x7000
+>  #define PCI_DEVICE_ID_INTEL_82371SB_1	0x7010
+>  #define PCI_DEVICE_ID_INTEL_82371SB_2	0x7020
+> --- linux-2.6.35.4/arch/x86/pci/irq.c.orig	2010-09-24 13:59:39.000000000 -0700
+> +++ linux-2.6.35.4/arch/x86/pci/irq.c	2010-09-24 14:02:07.000000000 -0700
+> @@ -584,28 +584,28 @@
+>  	case PCI_DEVICE_ID_INTEL_ICH9_3:
+>  	case PCI_DEVICE_ID_INTEL_ICH9_4:
+>  	case PCI_DEVICE_ID_INTEL_ICH9_5:
+> -	case PCI_DEVICE_ID_INTEL_TOLAPAI_0:
+> +	case PCI_DEVICE_ID_INTEL_EP80579_0:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_0:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_1:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_2:
+>  	case PCI_DEVICE_ID_INTEL_ICH10_3:
+> -	case PCI_DEVICE_ID_INTEL_PBG_LPC:
+> +	case PCI_DEVICE_ID_INTEL_PATSBURG_LPC:
+>  		r->name = "PIIX/ICH";
+>  		r->get = pirq_piix_get;
+>  		r->set = pirq_piix_set;
+>  		return 1;
+>  	}
 >  
-> +config I2C_ALGOBIT
-> +	tristate
-> +
-> +config I2C_ALGOPCF
-> +	tristate
-> +
-> +config I2C_ALGOPCA
-> +	tristate
-> +
->  menu "I2C Algorithms"
->  	depends on !I2C_HELPER_AUTO
+> -	if ((device >= PCI_DEVICE_ID_INTEL_PCH_LPC_MIN) && 
+> -		(device <= PCI_DEVICE_ID_INTEL_PCH_LPC_MAX)) {
+> +	if ((device >= PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MIN) && 
+> +		(device <= PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MAX)) {
+>  		r->name = "PIIX/ICH";
+>  		r->get = pirq_piix_get;
+>  		r->set = pirq_piix_set;
+>  		return 1;
+>  	}
 >  
->  config I2C_ALGOBIT
-> -	tristate "I2C bit-banging interfaces"
-> +	prompt "I2C bit-banging interfaces"
+> -	if ((device >= PCI_DEVICE_ID_INTEL_CPT_LPC_MIN) && 
+> -		(device <= PCI_DEVICE_ID_INTEL_CPT_LPC_MAX)) {
+> +	if ((device >= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN) && 
+> +		(device <= PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX)) {
+>  		r->name = "PIIX/ICH";
+>  		r->get = pirq_piix_get;
+>  		r->set = pirq_piix_set;
+> --- linux-2.6.35.4/drivers/i2c/busses/Kconfig.orig	2010-09-24 14:59:23.000000000 -0700
+> +++ linux-2.6.35.4/drivers/i2c/busses/Kconfig	2010-10-04 13:10:44.000000000 -0700
+> @@ -95,9 +95,9 @@
+>  	    ESB2
+>  	    ICH8
+>  	    ICH9
+> -	    Tolapai
+> +	    EP80579 (Tolapai)
+>  	    ICH10
+> -	    3400/5 Series (PCH)
+> +	    5/3400 Series (PCH)
+>  	    Cougar Point (PCH)
 >  
->  config I2C_ALGOPCF
-> -	tristate "I2C PCF 8584 interfaces"
-> +	prompt "I2C PCF 8584 interfaces"
+>  	  This driver can also be built as a module.  If so, the module
+> --- linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c.orig	2010-09-24 14:57:55.000000000 -0700
+> +++ linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c	2010-10-04 13:12:00.000000000 -0700
+> @@ -38,10 +38,10 @@
+>    82801G   (ICH7)       0x27da     32     hard     yes     yes     yes
+>    82801H   (ICH8)       0x283e     32     hard     yes     yes     yes
+>    82801I   (ICH9)       0x2930     32     hard     yes     yes     yes
+> -  Tolapai               0x5032     32     hard     yes     yes     yes
+> +  EP80579 (Tolapai)     0x5032     32     hard     yes     yes     yes
+>    ICH10                 0x3a30     32     hard     yes     yes     yes
+>    ICH10                 0x3a60     32     hard     yes     yes     yes
+> -  3400/5 Series (PCH)   0x3b30     32     hard     yes     yes     yes
+> +  5/3400 Series (PCH)   0x3b30     32     hard     yes     yes     yes
+>    Cougar Point (PCH)    0x1c22     32     hard     yes     yes     yes
 >  
->  config I2C_ALGOPCA
-> -	tristate "I2C PCA 9564 interfaces"
-> +	prompt "I2C PCA 9564 interfaces"
+>    Features supported by this driver:
+> @@ -587,11 +587,11 @@
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_17) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH8_5) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_6) },
+> -	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_TOLAPAI_1) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_EP80579_1) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_4) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
+> -	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PCH_SMBUS) },
+> -	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CPT_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS) },
+>  	{ 0, }
+>  };
 >  
->  endmenu
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Unfortunatelly, this fix does not help. Symbol properties are merged
-together, so this just first defines three tristate symbols and later
-makes them depend on !I2C_HELPER_AUTO :-(.
 
-Michal
+-- 
+Jean Delvare
