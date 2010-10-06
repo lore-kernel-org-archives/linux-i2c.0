@@ -1,27 +1,34 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH] i2c: Discard warning message on device instantiation
- from user-space
-Date: Wed, 06 Oct 2010 16:15:31 +0200
-Message-ID: <4CAC8483.80200@gmx.de>
-References: <20101005165342.424ce502@endymion.delvare>
+From: Rabin Vincent <rabin@rab.in>
+Subject: Re: Driver for TC35894XBG keypad controller
+Date: Wed, 6 Oct 2010 21:39:17 +0530
+Message-ID: <20101006160917.GA4318@debian>
+References: <20101005161838.16209.16231.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101005165342.424ce502-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20101005161838.16209.16231.stgit@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, sundar.iyer@stericsson.com
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> > From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Subject: i2c: Discard warning message on device instantiation from
-user-space
-> >
-> > The "new_device" sysfs interface has been there for quite some time
-> > now, nobody complained about it so it must be good enough. Time to
-> > remove the warning and call it stable.
-> >
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Acked-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+On Tue, Oct 05, 2010 at 04:19:18PM -0000, Alan Cox wrote:
+> +config KEYBOARD_TC35894XBG
+> +	tristate "TC35894XBG I2C keypad support"
+
+This looks one of the TC3589x family of I/O expanders.  For the TC35892,
+there's already a minimal MFD core in driver/mfd/tc35892.c, and a driver
+for the GPIO block based on that in drivers/gpio/tc35892-gpio.c.
+
+Comparing the registers map in this patch with the TC35892 datasheet,
+the parts look very similar, so would it be possible for you to make
+this driver use the TC35892 MFD core, so that multiple blocks can used
+simultaneously?
+
+There's no keypad driver for the series in mainline yet, but Sundar was
+readying one for the TC35893; I'll let him comment on how similar the
+keypad parts look, and what it would take to support the TC35894XBG and
+TC35893 keypads in one driver.
+
+Rabin
