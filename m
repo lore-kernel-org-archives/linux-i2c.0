@@ -1,60 +1,70 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Please pull bjdooks' i2c-fixes
-Date: Thu, 7 Oct 2010 08:43:52 +0200
-Message-ID: <20101007064352.GA12741@pengutronix.de>
-References: <E1P1SAZ-0001tp-ON@ben-laptop> <20101001080951.GA27870@pengutronix.de> <20101006221430.GW21564@trinity.fluff.org>
+From: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: RE: [PATCH v4] i2c: davinci: Fix race when setting up for TX
+Date: Thu, 7 Oct 2010 09:39:31 +0100
+Message-ID: <70E876B0EA86DD4BAF101844BC814DFE093EE3EA57@Cloud.RL.local>
+References: <87wrq3l6m0.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101006221430.GW21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <87wrq3l6m0.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am not on the i2c list but noticed this pull request:
+http://www.spinics.net/linux/lists/linux-i2c/msg04022.html
 
-> > Is there a specific reason this patch was not picked up/commented (agai=
-n)?
-> >=20
-> > http://thread.gmane.org/gmane.linux.drivers.i2c/6222/focus=3D6265
-> >=20
-> > It prevents getting a stalled bus, and we have done similar things for =
-MPC and
-> > other platforms.
->=20
-> It got tagged onto the end of the previous thread, which was ages ago.
->=20
-> In future, it would be helpful to send each major revision of a patch
-> as a new thread, maybe with a reference to the previous one.
+I think you have the wrong (old) version of this patch in that branch,
+http://git.fluff.org/gitweb?p=bjdooks/linux.git;a=commitdiff;h=4bba0fd8d1c6d405df666e2573e1a1f917098be0
 
-Okay, noted. Will do that next time.
+The correct v4 one from the start of this thread has more lines
+of patch and this commit message:
 
-> I'll try and add it before the next pull window, or in it.
+>>>>> When setting up to transmit, a race exists between the ISR and
+>>>>> i2c_davinci_xfer_msg() trying to load the first byte and adjust
+>>>>> counters. This is mostly visible for transmits > 1 byte long.
+>>>>>
+>>>>> The hardware starts sending immediately that MDR.STT is set. IMR
+>>>>> trickery doesn't work because if we start sending, finish the
+>>>>> first byte and an XRDY event occurs before we load IMR to unmask
+>>>>> it, we never get an interrupt, and we timeout.
+>>>>>
+>>>>> Sudhakar Rajashekhara explains that at least OMAP-L138 requires
+>>>>> MDR mode settings before DXR for correct behaviour, so load MDR
+>>>>> first with STT cleared and later load again with STT set.
+>>>>>
+>>>>> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+>>>>>
+>>>>> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+>>>>> CC: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+>>>>> CC: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
 
-Thanks a lot!
+It also has some more acks and a tested, via Kevin:
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+--
+Jon Povey
+jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org
 
-iEYEARECAAYFAkytbCgACgkQD27XaX1/VRtH2ACcCwo8JpV6d24lg98fCSreHvsm
-8WEAnRcvIyuoI6si3LPnPP3JzM33u69m
-=UQyG
------END PGP SIGNATURE-----
+Racelogic is a limited company registered in England. Registered number 2743719 .
+Registered Office Unit 10, Swan Business Centre, Osier Way, Buckingham, Bucks, MK18 1TB .
 
---0OAP2g/MAC+5xKAE--
+The information contained in this electronic mail transmission is intended by Racelogic Ltd for the use of the named individual or entity to which it is directed and may contain information that is confidential or privileged. If you have received this electronic mail transmission in error, please delete it from your system without copying or forwarding it, and notify the sender of the error by reply email so that the sender's address records can be corrected. The views expressed by the sender of this communication do not necessarily represent those of Racelogic Ltd. Please note that Racelogic reserves the right to monitor e-mail communications passing through its network
