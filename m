@@ -1,57 +1,58 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Newbie Question About Dev-Interface Method
-Date: Fri, 8 Oct 2010 08:57:58 +0200
-Message-ID: <20101008085758.2f06dbad@endymion.delvare>
-References: <1286480883-25589-1-git-send-email-rklein@nvidia.com>
-	<8F90F944E50427428C60E12A34A309D2308DA559B4@carmd-exchmb01.sierrawireless.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCHv2 0/5] BH1770GLC, SFH7770 and APDS990x als / proximity sensor drivers
+Date: Fri,  8 Oct 2010 16:41:59 +0300
+Message-ID: <1286545324-18506-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8F90F944E50427428C60E12A34A309D2308DA559B4-3qf8vkpM5jTbmvMHnzRVpW3Pdy6AhKVLXbPIYa3/oNjDOqzlkpFKJg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rory Filer <rfiler-usJ8hg9QsBLWpu6QEFMNjNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rory,
+Patch set contains two drivers. One for BH1770GLC / SFH7770 chips and
+one for APDS990X chip.
 
-On Thu, 7 Oct 2010 14:37:57 -0700, Rory Filer wrote:
-> I'm working on a proof-of-concept device which contains several chips connected to the same adapter (/dev/ic2-0) on the I2C bus. Some of these have kernel-space drivers (e.g. GPIO Expander) and some don't. For the ones that don't I've opted to use the method described in the kernel Documentation/i2c/dev-interface document. This works great and does all I need for now. This is the general procedure I'm following as outlined in kernel - Documentation/i2c/dev-interface. 
-> 
-> - open /dev/i2c-N
-> - Set the chip's address by calling ioctl(file, I2C_SLAVE, address)
-> - interact with the chip using read/write or smb calls, etc.
-> - close the file when done
-> 
-> I'm assuming that a kernel space chip driver like our gpio expander (pca953x.c) also uses the same adapter driver as my user-space application since that expander chip is on the same bus.
+Both drivers have similar sysfs based interface. Both supports
+pm_runtime and regulator frame work. There is short documentation
+for both drivers.
 
-Let's clarify right away: i2c-dev (which handles /dev/i2c-* nodes) is
-NOT an adapter driver. It is a bridge driver between user-space and
-your adapter driver. Your adapter driver is most likely one living in
-drivers/i2c/busses, and depends on the actual hardware you run on.
+Unfortunately I can't promise data sheets to public access.
 
-> My question is, what happens if a kernel driver is using the bus at the same time my user-mode application is?
+Changes in patch set version 2:
+- sysfs naming convention changed
+- sysfs sensor_range entries added
+- "xxx yyy" sysfs entries changes to two separate entries
+- 10x sysfs entry replaced with %d.%d
+- const added to tables
+- meaning of rate entries changed to Hertz
+- various mutex corrections and comments
+- cleaned up bracket
+- rate selection selects closest one instead strict match
+- Documentation updated to match changes
+- Some bug fixes which I noticed in tests
+- Some code cleanup
+- EAGAIN is not returned in sysfs read. Instead wait for result or
+  timeout with -EIO (something is broken if timeout happens)
 
-It will work fine.
+Tested on top of 2.6.36-rc5
 
-> Even if the user space app. may not be running when the chip driver runs, the adapter has an address written into it via the ioctl() call, I noted above.
+Samu Onkalo (5):
+  misc: Driver for bh1770glc / sfh7770 ALS and proximity sensor
+  misc: update bhsfh driver to Kconfig and Makefile
+  misc: Driver for APDS990X ALS and proximity sensors
+  misc: update apds990x driver to Kconfig and Makefile
+  Documentation: Short descriptions for bhsfh and apds990x drivers
 
-Incorrect. The address isn't written to the adapter, it is a setting
-local to i2c-dev and even specific to the file handle you got when
-opening a /dev/i2c-* node. Each subsequent read, write or smbus call in
-your user-space driver automatically includes the slave address, which
-is only valid for the read, write or smbus call in question.
-
-> Can unpredictable results occur in this scenario?
-
-No.
-
-> I think I could protect against it by writing a thread to serialize accesses to the I2C bus, but that only works if my entire application is running inside one process. I'm hoping someone on the list might be able to advise.
-
-The i2c-core module already serializes all accesses to every given i2c
-adapter through i2c_transfer() and i2c_smbus_xfer().
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+ Documentation/misc-devices/apds990x.txt |  152 ++++
+ Documentation/misc-devices/bhsfh.txt    |  148 ++++
+ drivers/misc/Kconfig                    |   21 +
+ drivers/misc/Makefile                   |    2 +
+ drivers/misc/apds990x.c                 | 1303 ++++++++++++++++++++++++++++
+ drivers/misc/bhsfh.c                    | 1443 +++++++++++++++++++++++++++++++
+ include/linux/i2c/apds990x.h            |   58 ++
+ include/linux/i2c/bhsfh.h               |   42 +
+ 8 files changed, 3169 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/misc-devices/apds990x.txt
+ create mode 100644 Documentation/misc-devices/bhsfh.txt
+ create mode 100644 drivers/misc/apds990x.c
+ create mode 100644 drivers/misc/bhsfh.c
+ create mode 100644 include/linux/i2c/apds990x.h
+ create mode 100644 include/linux/i2c/bhsfh.h
