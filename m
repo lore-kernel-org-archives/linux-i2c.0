@@ -1,89 +1,79 @@
-From: Onkalo Samu <samu.p.onkalo@nokia.com>
-Subject: Re: [PATCHv2 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
- proximity sensor
-Date: Mon, 11 Oct 2010 09:16:03 +0300
-Message-ID: <1286777763.28027.3.camel@4fid08082>
+From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv2 2/5] misc: update bhsfh driver to Kconfig and Makefile
+Date: Mon, 11 Oct 2010 09:17:40 +0300
+Message-ID: <1286777860.28027.5.camel@4fid08082>
 References: <1286545324-18506-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1286545324-18506-2-git-send-email-samu.p.onkalo@nokia.com>
-	 <4CAF2C1D.9040304@cam.ac.uk>
-Reply-To: samu.p.onkalo@nokia.com
+	 <1286545324-18506-3-git-send-email-samu.p.onkalo@nokia.com>
+	 <4CAF29F4.9010709@cam.ac.uk>
+Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4CAF2C1D.9040304@cam.ac.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ext Jonathan Cameron <jic23@cam.ac.uk>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4CAF29F4.9010709-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org" <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-I have a question about one of your comment
-
-On Fri, 2010-10-08 at 16:35 +0200, ext Jonathan Cameron wrote:
+On Fri, 2010-10-08 at 16:25 +0200, ext Jonathan Cameron wrote:
 > On 10/08/10 14:42, Samu Onkalo wrote:
-> > This is a driver for ROHM BH1770GLC and OSRAM SFH7770 combined
-> > ALS and proximity sensor.
-> >
-> > Interface is sysfs based. The driver uses interrupts to provide new data.
-> > The driver supports pm_runtime and regulator frameworks.
-> >
-> > See Documentation/misc-devices/bhsfh.txt for details
+> > Compilation support for bhsfh driver
+> > 
+> > Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/misc/Kconfig  |   10 ++++++++++
+> >  drivers/misc/Makefile |    1 +
+> >  2 files changed, 11 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+> > index b743312..f2e8065 100644
+> > --- a/drivers/misc/Kconfig
+> > +++ b/drivers/misc/Kconfig
+> > @@ -314,6 +314,16 @@ config SENSORS_BH1780
+> >  	  This driver can also be built as a module.  If so, the module
+> >  	  will be called bh1780gli.
+> >  
+> > +config SENSORS_BHSFH
+> > +         tristate "BH1770GLC / SFH7770 combined ALS / Proximity sensor";
+> > +         depends on I2C
+> > +         ---help---
+> > +           Say Y here if you want to build a driver for BH1770GLC / SFH7770
+> > +           combined ambient light and proximity sensor chip
+> > +
+> > +           To compile this driver as a module, choose M here: the
+> > +           module will be called bhsfh. If unsure, say N here.
+> > +
+> Really not keen on the naming.  The above comment made me think this was
+> a single chip integrating both of the parts.  Reading the code makes it clear
+> that they just share an interface.  So please name it after one of them.
+> Lots of reasons not to invent combined names like this.
+> * non obvious thing to grep for.
+> * 3rd part comes along with a different name. Do you change the driver name?
 > 
-> Couple of nitpicks / formatting suggestions inline.
+> So best bet is always just to pick a supported part and name the driver after
+> that.  The device table stuff and clear descriptions in kconfig will make
+> it obvious what the part supports.
+
+ok, bhsfh.* > bh1770glc.*
+What do you think, is it ok to still keep BHSFH in definitions and in
+function names?
+
+
+
+> >  config HMC6352
+> >  	tristate "Honeywell HMC6352 compass"
+> >  	depends on I2C
+> > diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+> > index 42eab95..fd5a4b7 100644
+> > --- a/drivers/misc/Makefile
+> > +++ b/drivers/misc/Makefile
+> > @@ -16,6 +16,7 @@ obj-$(CONFIG_TIFM_CORE)       	+= tifm_core.o
+> >  obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
+> >  obj-$(CONFIG_PHANTOM)		+= phantom.o
+> >  obj-$(CONFIG_SENSORS_BH1780)	+= bh1780gli.o
+> > +obj-$(CONFIG_SENSORS_BHSFH)	+= bhsfh.o
+> >  obj-$(CONFIG_SGI_IOC4)		+= ioc4.o
+> >  obj-$(CONFIG_ENCLOSURE_SERVICES) += enclosure.o
+> >  obj-$(CONFIG_KGDB_TESTS)	+= kgdbts.o
 > 
-> >
-> > +/* chip->mutex is kept when this is called */
-> > +static int bhsfh_lux_update_thresholds(struct bhsfh_chip *chip,
-> > +                                     u16 threshold_hi, u16 threshold_lo)
-> > +{
-> > +     u8 data[4];
-> 
-> u8 data[4] = { threshold_hi,
->    threshold_hi >> 8,
->    threshold_lo,
->    threshold_low >> 8};
-> and loose the below will give same result.
-
-What do you mean by that? Threshold_lo / threshold_hi parameters can be
-modified before they are stored to HW.
-
-> > +     int ret;
-> > +
-> > +     /* sysfs may call this when the chip is powered off */
-> > +     if (pm_runtime_suspended(&chip->client->dev))
-> > +             return 0;
-> > +
-> > +     /*
-> > +      * Compensate threshold values with the correction factors if not
-> > +      * set to minimum or maximum.
-> > +      * Min & max values disables interrupts.
-> > +      */
-> > +     if (threshold_hi != BHSFH_LUX_RANGE && threshold_hi != 0)
-> > +             threshold_hi = bhsfh_lux_adjusted_to_raw(chip, threshold_hi);
-> > +
-> > +     if (threshold_lo != BHSFH_LUX_RANGE && threshold_lo != 0)
-> > +             threshold_lo = bhsfh_lux_adjusted_to_raw(chip, threshold_lo);
-
-Code above can modify values.
-
-> > +
-> > +     if (chip->lux_thres_hi_onchip == threshold_hi &&
-> > +         chip->lux_thres_lo_onchip == threshold_lo)
-> > +             return 0;
-> > +
-> > +     chip->lux_thres_hi_onchip = threshold_hi;
-> > +     chip->lux_thres_lo_onchip = threshold_lo;
-> > +
-> > +     data[0] = threshold_hi;
-> > +     data[1] = threshold_hi >> 8;
-> > +     data[2] = threshold_lo;
-> > +     data[3] = threshold_lo >> 8;
-> > +
-> > +     ret = i2c_smbus_write_i2c_block_data(chip->client,
-> > +                                     BHSFH_ALS_TH_UP_0,
-> > +                                     ARRAY_SIZE(data),
-> > +                                     data);
-> > +     return ret;
-> > +}
-> > +
