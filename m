@@ -1,57 +1,76 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH v2] misc: adds support the FSA9480 USB Switch
-Date: Mon, 11 Oct 2010 10:36:49 -0700
-Message-ID: <20101011173649.GC7116@kroah.com>
-References: <4C7CD95A.5040309@samsung.com> <20100917150731.f1f44f3c.akpm@linux-foundation.org> <AANLkTim2UhJAhOw1qHvZ9bbctR0tNSMvE61T=sxffHxO@mail.gmail.com> <4CB26931.5040105@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4CB26931.5040105@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Minkyu Kang <mk7.kang@samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, kyungmin.park@samsung.com, Ben Dooks <ben-i2c@fluff.org>
+From: jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Subject: [PATCH] i2c: skip address detection if provided in board_info
+Date: Mon, 11 Oct 2010 16:10:35 -0700
+Message-ID: <1286838635-16474-1-git-send-email-jacob.jun.pan@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: i2c list <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 11, 2010 at 10:32:33AM +0900, Minkyu Kang wrote:
-> The FSA9480 is a USB port accessory detector and switch.
-> This patch adds support the FSA9480 USB Switch.
-> 
-> Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
-> v2:
->  use the threaded irq
->  fix the sysfs
-> 
->  drivers/misc/Kconfig    |    9 +
->  drivers/misc/Makefile   |    1 +
->  drivers/misc/fsa9480.c  |  544 +++++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/fsa9480.h |   40 ++++
+From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Why do you need a .h file here for a single driver?
+If the address of a given device is already provided by platform init
+code, e.g. from system firmware, there is no need to call the driver's
+detect() function for finding the matching address from the driver's
+address list.
 
-You are creating new sysfs files, so you are required to add a new
-Documentation/ABI file as well, please add that to this patch.
+Avoiding such detection might save boot time.
 
-And why are you exporting symbols from this driver, that should not be
-needed at all.
+Signed-off-by: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
 
-
-> +/*
-> + * fsa9480.c - FSA9480 micro USB switch device driver
-> + *
-> + * Copyright (C) 2010 Samsung Electronics
-> + * Minkyu Kang <mk7.kang@samsung.com>
-> + * Wonguk Jeong <wonguk.jeong@samsung.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-
-Are you positive about that "any later version" portion of this?
-
-thanks,
-
-greg k-h
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 6649176..e4f7feb 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1499,6 +1499,31 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 	return 0;
+ }
+ 
++static int i2c_scan_board_info(struct i2c_adapter *adapter, struct i2c_driver *driver)
++{
++	struct i2c_devinfo	*devinfo;
++	int ret = -ENODEV;
++
++	down_read(&__i2c_board_lock);
++	list_for_each_entry(devinfo, &__i2c_board_list, list) {
++		if (!strncmp(devinfo->board_info.type, driver->driver.name,
++				I2C_NAME_SIZE)) {
++			dev_info(&adapter->dev, "found i2c board info %s\n",
++				driver->driver.name);
++			if (devinfo->board_info.addr) {
++				ret = 0;
++				goto scan_exit;
++			}
++		}
++	}
++
++scan_exit:
++	up_read(&__i2c_board_lock);
++
++	return ret;
++}
++
++
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ {
+ 	const unsigned short *address_list;
+@@ -1506,6 +1531,13 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ 	int i, err = 0;
+ 	int adap_id = i2c_adapter_id(adapter);
+ 
++	/* There is no need to detect i2c address if board info is provided */
++	if (!i2c_scan_board_info(adapter, driver)) {
++		dev_info(&adapter->dev, "Skip address detection for %s\n",
++			driver->driver.name);
++		return 0;
++	}
++
+ 	address_list = driver->address_list;
+ 	if (!driver->detect || !address_list)
+ 		return 0;
+-- 
+1.7.0.4
