@@ -1,50 +1,114 @@
-From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c: skip address detection if provided in board_info
-Date: Tue, 12 Oct 2010 11:01:40 -0700
-Message-ID: <20101012110140.00003391@unknown>
-References: <1286838635-16474-1-git-send-email-jacob.jun.pan@linux.intel.com>
-	<20101012092822.6f4e4aa5@endymion.delvare>
-	<20101012162140.429b03b3@feng-i7>
-	<20101012104707.3318511d@endymion.delvare>
-	<20101012173028.638cd3ae@po-laptop>
-	<20101012133425.490e3c4c@endymion.delvare>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: Fix TX setup for more SoCs
+Date: Tue, 12 Oct 2010 23:21:18 +0100
+Message-ID: <20101012222118.GX21564@trinity.fluff.org>
+References: <1286858825-21540-1-git-send-email-jon.povey@racelogic.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101012133425.490e3c4c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1286858825-21540-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, i2c list <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, al-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Oct 12, 2010 at 01:47:05PM +0900, Jon Povey wrote:
+> This patch is an improvement to 4bba0fd8d1c6d405df666e2573e1a1f917098be0
+> which got to mainline a little early.
+> 
+> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
+> settings before DXR for correct behaviour, so load MDR first with
+> STT cleared and later load again with STT set.
 
+ok, will look at sending this with tomorrow.
+ 
+> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+> 
+> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+> Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+> ---
+> This patches to what was v4 of the original patch.
+> 
+> The original patch which made it to 2.6.36-rc7 will as I understand it have
+> introduced a regression for OMAP-L138 so this patch is a regression fix and
+> wants to get into 2.6.36.
 >
->> So I still prefer the option of adding a flag, and leave the choice for
->> platform code whether to do the detect. If you agree, I would make a
->> cleaner patch.
->
->And I prefer that you set the class flag value in the platform data and
->have your i2c adapter driver read it. This is already supported and
->should work very fine without any change to i2c-core. I see no point in
->adding a global flag when we already have a much finer-grained setting
->available.
-I agree that assigning the class code to adapter will solve our problem
-but I do have a question/concern.
+>  drivers/i2c/busses/i2c-davinci.c |   24 +++++++++++++++---------
+>  1 files changed, 15 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index b8feac5..5795c83 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -331,21 +331,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	INIT_COMPLETION(dev->cmd_complete);
+>  	dev->cmd_err = 0;
+>  
+> -	/* Take I2C out of reset, configure it as master and set the
+> -	 * start bit */
+> -	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
+> +	/* Take I2C out of reset and configure it as master */
+> +	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST;
+>  
+>  	/* if the slave address is ten bit address, enable XA bit */
+>  	if (msg->flags & I2C_M_TEN)
+>  		flag |= DAVINCI_I2C_MDR_XA;
+>  	if (!(msg->flags & I2C_M_RD))
+>  		flag |= DAVINCI_I2C_MDR_TRX;
+> -	if (stop)
+> -		flag |= DAVINCI_I2C_MDR_STP;
+> -	if (msg->len == 0) {
+> +	if (msg->len == 0)
+>  		flag |= DAVINCI_I2C_MDR_RM;
+> -		flag &= ~DAVINCI_I2C_MDR_STP;
+> -	}
+>  
+>  	/* Enable receive or transmit interrupts */
+>  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+> @@ -358,17 +353,28 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	dev->terminate = 0;
+>  
+>  	/*
+> +	 * Write mode register first as needed for correct behaviour
+> +	 * on OMAP-L138, but don't set STT yet to avoid a race with XRDY
+> +	 * occuring before we have loaded DXR
+> +	 */
+> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> +
+> +	/*
+>  	 * First byte should be set here, not after interrupt,
+>  	 * because transmit-data-ready interrupt can come before
+>  	 * NACK-interrupt during sending of previous message and
+>  	 * ICDXR may have wrong data
+> +	 * It also saves us one interrupt, slightly faster
+>  	 */
+>  	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
+>  		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
+>  		dev->buf_len--;
+>  	}
+>  
+> -	/* write the data into mode register; start transmitting */
+> +	/* Set STT to begin transmit now DXR is loaded */
+> +	flag |= DAVINCI_I2C_MDR_STT;
+> +	if (stop && msg->len != 0)
+> +		flag |= DAVINCI_I2C_MDR_STP;
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+>  
+>  	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+> -- 
+> 1.6.3.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-What if you have mixed devices under one adapter with some prefer to
-have detect funtion some not. Then all detect functions will be ignored
-if i2c adpater class code is 0. The granularity of information provided by
-our FW is per i2c device.
+-- 
+-- 
+Ben
 
-Seems we have three cases:
-1. adaptor class = 0, no detect
-2. adaptor class !=0, FW provide address via board info, no detect
-3. adaptor class !=0, no FW board info, do detect by default, but should
-allow platform code override
-
-I would think we need a global flag for case #3.
-
-Thanks,
-
-Jacob
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
