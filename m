@@ -1,34 +1,102 @@
-From: Onkalo Samu <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv3 0/5] [PATCHv3 0/6] BH1770GLC, SFH7770 and APDS990x
- als / proximity sensor drivers
-Date: Tue, 12 Oct 2010 10:05:31 +0300
-Message-ID: <1286867131.24536.13.camel@4fid08082>
-References: <1286795209-12487-1-git-send-email-samu.p.onkalo@nokia.com>
-Reply-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: skip address detection if provided in board_info
+Date: Tue, 12 Oct 2010 09:28:22 +0200
+Message-ID: <20101012092822.6f4e4aa5@endymion.delvare>
+References: <1286838635-16474-1-git-send-email-jacob.jun.pan@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1286795209-12487-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1286838635-16474-1-git-send-email-jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: i2c list <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2010-10-11 at 13:06 +0200, ext Samu Onkalo wrote:
-> Patch set contains two drivers. One for BH1770GLC / SFH7770 chips and
-> one for APDS990X chip.
+Hi Jacob,
+
+On Mon, 11 Oct 2010 16:10:35 -0700, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org wrote:
+> From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > 
+> If the address of a given device is already provided by platform init
+> code, e.g. from system firmware, there is no need to call the driver's
+> detect() function for finding the matching address from the driver's
+> address list.
+> 
+> Avoiding such detection might save boot time.
 
-Hi
+i2c_detect() is a no-op if adapter->class is 0, and if you have
+platform init data describing the chips on your I2C adapter then you
+certainly don't want to set the adapter class to anything other than 0.
 
-First of all, thanks for reviewing my patches.
+So I'd rather avoid optimizing a case which isn't supposed to happen in
+the first place.
 
-patchesV3 1, 3 and 5 are Acked-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Changes requested to the patches 2 an 4 (Makefile and Kconfig changes)
-are also done in version 3 patch set. I quess that they can also be
-acked.
+The only optimization which I think would be valuable is checking the
+class before allocating the temporary i2c_client structure. I'll send a
+patch doing that in a minute.
 
-Who will take care of the patches now - Andrew or Jean?
+> 
+> Signed-off-by: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c |   32 ++++++++++++++++++++++++++++++++
+>  1 files changed, 32 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 6649176..e4f7feb 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1499,6 +1499,31 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+>  	return 0;
+>  }
+>  
+> +static int i2c_scan_board_info(struct i2c_adapter *adapter, struct i2c_driver *driver)
+> +{
+> +	struct i2c_devinfo	*devinfo;
+> +	int ret = -ENODEV;
+> +
+> +	down_read(&__i2c_board_lock);
+> +	list_for_each_entry(devinfo, &__i2c_board_list, list) {
+> +		if (!strncmp(devinfo->board_info.type, driver->driver.name,
+> +				I2C_NAME_SIZE)) {
 
--Samu
+This is wrong anyway. Comparing device names with driver names only
+works in rare cases and shouldn't be relied upon.
+
+> +			dev_info(&adapter->dev, "found i2c board info %s\n",
+> +				driver->driver.name);
+> +			if (devinfo->board_info.addr) {
+> +				ret = 0;
+> +				goto scan_exit;
+> +			}
+> +		}
+> +	}
+> +
+> +scan_exit:
+> +	up_read(&__i2c_board_lock);
+> +
+> +	return ret;
+> +}
+> +
+> +
+>  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+>  {
+>  	const unsigned short *address_list;
+> @@ -1506,6 +1531,13 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+>  	int i, err = 0;
+>  	int adap_id = i2c_adapter_id(adapter);
+>  
+> +	/* There is no need to detect i2c address if board info is provided */
+> +	if (!i2c_scan_board_info(adapter, driver)) {
+> +		dev_info(&adapter->dev, "Skip address detection for %s\n",
+> +			driver->driver.name);
+> +		return 0;
+> +	}
+> +
+>  	address_list = driver->address_list;
+>  	if (!driver->detect || !address_list)
+>  		return 0;
+
+
+-- 
+Jean Delvare
