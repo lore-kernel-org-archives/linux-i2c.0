@@ -1,76 +1,94 @@
-From: jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Subject: [PATCH] i2c: skip address detection if provided in board_info
-Date: Mon, 11 Oct 2010 16:10:35 -0700
-Message-ID: <1286838635-16474-1-git-send-email-jacob.jun.pan@linux.intel.com>
+From: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: [PATCH] i2c: davinci: Fix TX setup for more SoCs
+Date: Tue, 12 Oct 2010 13:47:05 +0900
+Message-ID: <1286858825-21540-1-git-send-email-jon.povey@racelogic.co.uk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: i2c list <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+This patch is an improvement to 4bba0fd8d1c6d405df666e2573e1a1f917098be0
+which got to mainline a little early.
 
-If the address of a given device is already provided by platform init
-code, e.g. from system firmware, there is no need to call the driver's
-detect() function for finding the matching address from the driver's
-address list.
+Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
+settings before DXR for correct behaviour, so load MDR first with
+STT cleared and later load again with STT set.
 
-Avoiding such detection might save boot time.
+Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
 
-Signed-off-by: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
+Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
+Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c |   32 ++++++++++++++++++++++++++++++++
- 1 files changed, 32 insertions(+), 0 deletions(-)
+This patches to what was v4 of the original patch.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 6649176..e4f7feb 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1499,6 +1499,31 @@ static int i2c_detect_address(struct i2c_client *temp_client,
- 	return 0;
- }
+The original patch which made it to 2.6.36-rc7 will as I understand it have
+introduced a regression for OMAP-L138 so this patch is a regression fix and
+wants to get into 2.6.36.
+
+ drivers/i2c/busses/i2c-davinci.c |   24 +++++++++++++++---------
+ 1 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index b8feac5..5795c83 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -331,21 +331,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
  
-+static int i2c_scan_board_info(struct i2c_adapter *adapter, struct i2c_driver *driver)
-+{
-+	struct i2c_devinfo	*devinfo;
-+	int ret = -ENODEV;
-+
-+	down_read(&__i2c_board_lock);
-+	list_for_each_entry(devinfo, &__i2c_board_list, list) {
-+		if (!strncmp(devinfo->board_info.type, driver->driver.name,
-+				I2C_NAME_SIZE)) {
-+			dev_info(&adapter->dev, "found i2c board info %s\n",
-+				driver->driver.name);
-+			if (devinfo->board_info.addr) {
-+				ret = 0;
-+				goto scan_exit;
-+			}
-+		}
-+	}
-+
-+scan_exit:
-+	up_read(&__i2c_board_lock);
-+
-+	return ret;
-+}
-+
-+
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
- {
- 	const unsigned short *address_list;
-@@ -1506,6 +1531,13 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
- 	int i, err = 0;
- 	int adap_id = i2c_adapter_id(adapter);
+-	/* Take I2C out of reset, configure it as master and set the
+-	 * start bit */
+-	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
++	/* Take I2C out of reset and configure it as master */
++	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST;
  
-+	/* There is no need to detect i2c address if board info is provided */
-+	if (!i2c_scan_board_info(adapter, driver)) {
-+		dev_info(&adapter->dev, "Skip address detection for %s\n",
-+			driver->driver.name);
-+		return 0;
-+	}
+ 	/* if the slave address is ten bit address, enable XA bit */
+ 	if (msg->flags & I2C_M_TEN)
+ 		flag |= DAVINCI_I2C_MDR_XA;
+ 	if (!(msg->flags & I2C_M_RD))
+ 		flag |= DAVINCI_I2C_MDR_TRX;
+-	if (stop)
+-		flag |= DAVINCI_I2C_MDR_STP;
+-	if (msg->len == 0) {
++	if (msg->len == 0)
+ 		flag |= DAVINCI_I2C_MDR_RM;
+-		flag &= ~DAVINCI_I2C_MDR_STP;
+-	}
+ 
+ 	/* Enable receive or transmit interrupts */
+ 	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
+@@ -358,17 +353,28 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	dev->terminate = 0;
+ 
+ 	/*
++	 * Write mode register first as needed for correct behaviour
++	 * on OMAP-L138, but don't set STT yet to avoid a race with XRDY
++	 * occuring before we have loaded DXR
++	 */
++	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
 +
- 	address_list = driver->address_list;
- 	if (!driver->detect || !address_list)
- 		return 0;
++	/*
+ 	 * First byte should be set here, not after interrupt,
+ 	 * because transmit-data-ready interrupt can come before
+ 	 * NACK-interrupt during sending of previous message and
+ 	 * ICDXR may have wrong data
++	 * It also saves us one interrupt, slightly faster
+ 	 */
+ 	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
+ 		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
+ 		dev->buf_len--;
+ 	}
+ 
+-	/* write the data into mode register; start transmitting */
++	/* Set STT to begin transmit now DXR is loaded */
++	flag |= DAVINCI_I2C_MDR_STT;
++	if (stop && msg->len != 0)
++		flag |= DAVINCI_I2C_MDR_STP;
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+ 
+ 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
 -- 
-1.7.0.4
+1.6.3.3
