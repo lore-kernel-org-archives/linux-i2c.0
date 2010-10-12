@@ -1,94 +1,43 @@
-From: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Subject: [PATCH] i2c: davinci: Fix TX setup for more SoCs
-Date: Tue, 12 Oct 2010 13:47:05 +0900
-Message-ID: <1286858825-21540-1-git-send-email-jon.povey@racelogic.co.uk>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+From: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: RE: [PATCH v4] i2c: davinci: Fix race when setting up for TX
+Date: Tue, 12 Oct 2010 05:48:53 +0100
+Message-ID: <70E876B0EA86DD4BAF101844BC814DFE093EEAAA9C@Cloud.RL.local>
+References: <87hbgxapig.fsf@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <87hbgxapig.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch is an improvement to 4bba0fd8d1c6d405df666e2573e1a1f917098be0
-which got to mainline a little early.
+Kevin Hilman wrote:
+> I just noticed that it has already been pulled and is part of -rc7.
+>
+> Jon, care to submit a new patch with v4 diff and including
+> the acks and
+> tested-bys?
 
-Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
-settings before DXR for correct behaviour, so load MDR first with
-STT cleared and later load again with STT set.
+Done and sent:
+Message-Id: <1286858825-21540-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
 
-Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
+--
+Jon Povey
+jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org
 
-Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
----
-This patches to what was v4 of the original patch.
+Racelogic is a limited company registered in England. Registered number 2743719 .
+Registered Office Unit 10, Swan Business Centre, Osier Way, Buckingham, Bucks, MK18 1TB .
 
-The original patch which made it to 2.6.36-rc7 will as I understand it have
-introduced a regression for OMAP-L138 so this patch is a regression fix and
-wants to get into 2.6.36.
-
- drivers/i2c/busses/i2c-davinci.c |   24 +++++++++++++++---------
- 1 files changed, 15 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index b8feac5..5795c83 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -331,21 +331,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	INIT_COMPLETION(dev->cmd_complete);
- 	dev->cmd_err = 0;
- 
--	/* Take I2C out of reset, configure it as master and set the
--	 * start bit */
--	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
-+	/* Take I2C out of reset and configure it as master */
-+	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST;
- 
- 	/* if the slave address is ten bit address, enable XA bit */
- 	if (msg->flags & I2C_M_TEN)
- 		flag |= DAVINCI_I2C_MDR_XA;
- 	if (!(msg->flags & I2C_M_RD))
- 		flag |= DAVINCI_I2C_MDR_TRX;
--	if (stop)
--		flag |= DAVINCI_I2C_MDR_STP;
--	if (msg->len == 0) {
-+	if (msg->len == 0)
- 		flag |= DAVINCI_I2C_MDR_RM;
--		flag &= ~DAVINCI_I2C_MDR_STP;
--	}
- 
- 	/* Enable receive or transmit interrupts */
- 	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-@@ -358,17 +353,28 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	dev->terminate = 0;
- 
- 	/*
-+	 * Write mode register first as needed for correct behaviour
-+	 * on OMAP-L138, but don't set STT yet to avoid a race with XRDY
-+	 * occuring before we have loaded DXR
-+	 */
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-+
-+	/*
- 	 * First byte should be set here, not after interrupt,
- 	 * because transmit-data-ready interrupt can come before
- 	 * NACK-interrupt during sending of previous message and
- 	 * ICDXR may have wrong data
-+	 * It also saves us one interrupt, slightly faster
- 	 */
- 	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
- 		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
- 		dev->buf_len--;
- 	}
- 
--	/* write the data into mode register; start transmitting */
-+	/* Set STT to begin transmit now DXR is loaded */
-+	flag |= DAVINCI_I2C_MDR_STT;
-+	if (stop && msg->len != 0)
-+		flag |= DAVINCI_I2C_MDR_STP;
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
- 
- 	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
--- 
-1.6.3.3
+The information contained in this electronic mail transmission is intended by Racelogic Ltd for the use of the named individual or entity to which it is directed and may contain information that is confidential or privileged. If you have received this electronic mail transmission in error, please delete it from your system without copying or forwarding it, and notify the sender of the error by reply email so that the sender's address records can be corrected. The views expressed by the sender of this communication do not necessarily represent those of Racelogic Ltd. Please note that Racelogic reserves the right to monitor e-mail communications passing through its network
