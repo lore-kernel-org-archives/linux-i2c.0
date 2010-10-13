@@ -1,45 +1,60 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: Driver for pca9541 bus master selector
-Date: Wed, 13 Oct 2010 09:05:16 -0700
-Message-ID: <20101013160515.GA15081@ericsson.com>
-References: <20100928143302.GA7593@ericsson.com>
- <20100928171607.395f7736@endymion.delvare>
- <20100928160746.GB7976@ericsson.com>
- <20100928184215.00f82717@endymion.delvare>
- <20100928171627.GA8415@ericsson.com>
- <20100929091928.16256bb7@endymion.delvare>
- <20100929135401.GA11771@ericsson.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: skip address detection if provided in board_info
+Date: Wed, 13 Oct 2010 18:07:51 +0200
+Message-ID: <20101013180751.2d37c513@endymion.delvare>
+References: <1286838635-16474-1-git-send-email-jacob.jun.pan@linux.intel.com>
+	<20101012092822.6f4e4aa5@endymion.delvare>
+	<20101012162140.429b03b3@feng-i7>
+	<20101012104707.3318511d@endymion.delvare>
+	<20101012173028.638cd3ae@po-laptop>
+	<20101012133425.490e3c4c@endymion.delvare>
+	<20101012110140.00003391@unknown>
+	<20101013092654.7e26fa00@endymion.delvare>
+	<20101013085418.00003979@unknown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100929135401.GA11771-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <20101013085418.00003979@unknown>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+To: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, i2c list <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 29, 2010 at 03:19:28AM -0400, Jean Delvare wrote:
-[ ... ]
-> I don't quite see the point of such chips, BTW. I2C supports
-> multi-master already, so two masters talking to the same slave
-> sequentially is already supported.
+On Wed, 13 Oct 2010 08:54:18 -0700, Jacob Pan wrote:
+> Jean Delvare Wed, 13 Oct 2010 09:26:54 +0200
+> >Mixed cases aren't supported, because it is expected that all devices
+> >are declared as platform data, or none is. This seems to work OK so far
+> >for everybody. If it doesn't work for you, please explain why, in
+> >details.
+>
+> it works for us in practice, at least for today. perhaps I am just playing
+> devil's advocate, but also for the completeness of the logic for future
+> use.
 
-To follow up on this, turns out there are (at least) two good reasons for having
-such a chip.
+OK, thanks for clarifying. I do not expect this case to ever happen.
+But if it ever does, then feel free to come back to me with all the
+details and we'll discuss it again. I don't think it makes sense to add
+support for a case which doesn't exist, because it's impossible to
+figure out the best way to fix it until we actually see it.
 
-First, not all i2c masters support multi-master configuration.
+> >Note though that there is some level of granularity because the adapter
+> >class is a bitfield. So it is possible to declare all I2C devices as
+> >platform data except the hardware monitoring devices, for example, and
+> >set adapter class = I2C_CLASS_HWMON.
+> >
+> >There aren't many bits really used, BTW, mostly I2C_CLASS_HWMON and
+> >I2C_CLASS_SPD, and the trend is to remove the unused class flags rather
+> >than to add new ones. However, if you need a new I2C_CLASS flag, this
+> >can certainly be done.
+> 
+> Can we make an explicit bit I2C_CLASS_NO_DETECT so that is is more
+> explicit? It also allows co-existance with other flags so that we can
+> handle mixed cases?
 
-The second reason is much more important. In a redundant system, one would not
-want redundant masters to be on the same i2c bus. If one of the two fails and
-blocks the bus, access to all slaves would be blocked. Not a good idea. Much
-better to have two i2c busses, and select the current master on the slave side.
+And what exactly would this bit do?
 
-Turns out both reasons apply in my use case. Testing shows that master selection
-works quite well with the driver I just submitted. I can persistently access all
-slaves from both masters even under high contention (both masters trying to
-access the same slave at the same time). If one of the masters fails while
-having access to the connected slaves, the other simply takes over after
-arbitration times out.
+Confused.
 
-Guenter
+-- 
+Jean Delvare
