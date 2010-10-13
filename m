@@ -1,114 +1,471 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Fix TX setup for more SoCs
-Date: Tue, 12 Oct 2010 23:21:18 +0100
-Message-ID: <20101012222118.GX21564@trinity.fluff.org>
-References: <1286858825-21540-1-git-send-email-jon.povey@racelogic.co.uk>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v2] i2c/mux: Driver for PCA9541 I2C Master Selector
+Date: Tue, 12 Oct 2010 18:15:16 -0700
+Message-ID: <1286932516-20689-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1286858825-21540-1-git-send-email-jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 12, 2010 at 01:47:05PM +0900, Jon Povey wrote:
-> This patch is an improvement to 4bba0fd8d1c6d405df666e2573e1a1f917098be0
-> which got to mainline a little early.
-> 
-> Sudhakar Rajashekhara explains that at least OMAP-L138 requires MDR mode
-> settings before DXR for correct behaviour, so load MDR first with
-> STT cleared and later load again with STT set.
+This patch adds support for PCA9541, an I2C Bus Master Selector.
+The driver is modeled as single channel I2C Multiplexer to be able to utilize
+the I2C multiplexer framework.
 
-ok, will look at sending this with tomorrow.
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Reviewed-by: Tom Grennan <tom.grennan-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+v2 changes:
+- Added more detailed description and reasoning why the driver was implemented
+  as single-channel multiplexer.
+- Modified arbitration algorithm, since access to i2c masters from interrupt
+  level is not a good idea. Instead of using hrtimers and handling arbitration
+  in interrupt, handle it from select_chan and either delay for short retry
+  periods or sleep for long (millisecond) periods.
+
+ drivers/i2c/muxes/Kconfig   |   10 +
+ drivers/i2c/muxes/Makefile  |    1 +
+ drivers/i2c/muxes/pca9541.c |  397 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 408 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/muxes/pca9541.c
+
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 4c9a99c..4d91d80 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -5,6 +5,16 @@
+ menu "Multiplexer I2C Chip support"
+ 	depends on I2C_MUX
  
-> Tested on DM355 connected to Techwell TW2836 and Wolfson WM8985
-> 
-> Signed-off-by: Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-> Acked-by: Troy Kisky <troy.kisky-Q5RJGjKts06CY9SHAMCTRUEOCMrvLtNR@public.gmane.org>
-> Tested-by: Sudhakar Rajashekhara <sudhakar.raj-l0cyMroinI0@public.gmane.org>
-> Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> ---
-> This patches to what was v4 of the original patch.
-> 
-> The original patch which made it to 2.6.36-rc7 will as I understand it have
-> introduced a regression for OMAP-L138 so this patch is a regression fix and
-> wants to get into 2.6.36.
->
->  drivers/i2c/busses/i2c-davinci.c |   24 +++++++++++++++---------
->  1 files changed, 15 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index b8feac5..5795c83 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -331,21 +331,16 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	INIT_COMPLETION(dev->cmd_complete);
->  	dev->cmd_err = 0;
->  
-> -	/* Take I2C out of reset, configure it as master and set the
-> -	 * start bit */
-> -	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST | DAVINCI_I2C_MDR_STT;
-> +	/* Take I2C out of reset and configure it as master */
-> +	flag = DAVINCI_I2C_MDR_IRS | DAVINCI_I2C_MDR_MST;
->  
->  	/* if the slave address is ten bit address, enable XA bit */
->  	if (msg->flags & I2C_M_TEN)
->  		flag |= DAVINCI_I2C_MDR_XA;
->  	if (!(msg->flags & I2C_M_RD))
->  		flag |= DAVINCI_I2C_MDR_TRX;
-> -	if (stop)
-> -		flag |= DAVINCI_I2C_MDR_STP;
-> -	if (msg->len == 0) {
-> +	if (msg->len == 0)
->  		flag |= DAVINCI_I2C_MDR_RM;
-> -		flag &= ~DAVINCI_I2C_MDR_STP;
-> -	}
->  
->  	/* Enable receive or transmit interrupts */
->  	w = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-> @@ -358,17 +353,28 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	dev->terminate = 0;
->  
->  	/*
-> +	 * Write mode register first as needed for correct behaviour
-> +	 * on OMAP-L138, but don't set STT yet to avoid a race with XRDY
-> +	 * occuring before we have loaded DXR
-> +	 */
-> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-> +
-> +	/*
->  	 * First byte should be set here, not after interrupt,
->  	 * because transmit-data-ready interrupt can come before
->  	 * NACK-interrupt during sending of previous message and
->  	 * ICDXR may have wrong data
-> +	 * It also saves us one interrupt, slightly faster
->  	 */
->  	if ((!(msg->flags & I2C_M_RD)) && dev->buf_len) {
->  		davinci_i2c_write_reg(dev, DAVINCI_I2C_DXR_REG, *dev->buf++);
->  		dev->buf_len--;
->  	}
->  
-> -	/* write the data into mode register; start transmitting */
-> +	/* Set STT to begin transmit now DXR is loaded */
-> +	flag |= DAVINCI_I2C_MDR_STT;
-> +	if (stop && msg->len != 0)
-> +		flag |= DAVINCI_I2C_MDR_STP;
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
->  
->  	r = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
-> -- 
-> 1.6.3.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
++config I2C_MUX_PCA9541
++	tristate "NXP PCA9541 I2C Master Selector"
++	depends on EXPERIMENTAL
++	help
++	  If you say yes here you get support for the NXP PCA9541
++	  I2C Master Selector.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called pca9541.
++
+ config I2C_MUX_PCA954x
+ 	tristate "Philips PCA954x I2C Mux/switches"
+ 	depends on EXPERIMENTAL
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index bd83b52..4e27d0d 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -1,6 +1,7 @@
+ #
+ # Makefile for multiplexer I2C chip drivers.
+ 
++obj-$(CONFIG_I2C_MUX_PCA9541)	+= pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= pca954x.o
+ 
+ ifeq ($(CONFIG_I2C_DEBUG_BUS),y)
+diff --git a/drivers/i2c/muxes/pca9541.c b/drivers/i2c/muxes/pca9541.c
+new file mode 100644
+index 0000000..3a17e29
+--- /dev/null
++++ b/drivers/i2c/muxes/pca9541.c
+@@ -0,0 +1,397 @@
++/*
++ * I2C multiplexer driver for pca9541 bus master selector
++ *
++ * Copyright (c) 2010 Ericsson AB.
++ *
++ * Author: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++ *
++ * Derived from:
++ *  driver/i2c/muxes/pca954x.c
++ *
++ *  Copyright (c) 2008-2009 Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
++ *  Copyright (c) 2008-2009 Eurotech S.p.A. <info-ymFC7zkAqBI1GQ1Ptb7lUw@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/hrtimer.h>
++#include <linux/slab.h>
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++
++#include <linux/i2c/pca954x.h>
++
++/*
++ * The PCA9541 is a bus master selector. It supports two I2C masters connected
++ * to a single slave bus.
++ *
++ * Before each bus transaction, a master has to acquire the bus. After the
++ * transaction is complete, bus ownership has to be released. This fits well
++ * into the I2C multiplexer framework, which provides select and release
++ * functions for this purpose. For this reason, this driver is modeled as
++ * single-channel I2C bus multiplexer.
++ */
++
++#define PCA9541_CONTROL		0x01
++#define PCA9541_ISTAT		0x02
++
++#define PCA9541_CTL_MYBUS	(1 << 0)
++#define PCA9541_CTL_NMYBUS	(1 << 1)
++#define PCA9541_CTL_BUSON	(1 << 2)
++#define PCA9541_CTL_NBUSON	(1 << 3)
++#define PCA9541_CTL_BUSINIT	(1 << 4)
++#define PCA9541_CTL_TESTON	(1 << 6)
++#define PCA9541_CTL_NTESTON	(1 << 7)
++
++#define PCA9541_ISTAT_INTIN	(1 << 0)
++#define PCA9541_ISTAT_BUSINIT	(1 << 1)
++#define PCA9541_ISTAT_BUSOK	(1 << 2)
++#define PCA9541_ISTAT_BUSLOST	(1 << 3)
++#define PCA9541_ISTAT_MYTEST	(1 << 6)
++#define PCA9541_ISTAT_NMYTEST	(1 << 7)
++
++#define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
++#define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
++#define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
++#define busoff(x)	(!((x) & BUSON) || ((x) & BUSON) == BUSON)
++
++/* jiffies timers */
++#define ARB_TIMEOUT	(HZ / 8)	/* 125 ms */
++#define ARB2_TIMEOUT	(HZ / 4)	/* 250 ms */
++
++/* high resolution timers, in uS */
++#define SELECT_TO_SHORT	50
++#define SELECT_TO_LONG	1000
++
++struct pca9541 {
++	struct i2c_adapter *virt_adap;
++	struct i2c_client *client;
++	unsigned long select_timeout;
++	unsigned long arb_timeout;
++};
++
++static const struct i2c_device_id pca9541_id[] = {
++	{"pca9541", 0},
++	{}
++};
++
++MODULE_DEVICE_TABLE(i2c, pca9541_id);
++
++/*
++ * Write to selector register. Don't use i2c_transfer()/i2c_smbus_xfer()
++ * as they will try to lock the adapter a second time.
++ */
++static int pca9541_reg_write(struct i2c_adapter *adap,
++			     struct i2c_client *client, u8 command, u8 val)
++{
++	int ret;
++
++	if (adap->algo->master_xfer) {
++		struct i2c_msg msg;
++		char buf[2];
++
++		msg.addr = client->addr;
++		msg.flags = 0;
++		msg.len = 2;
++		buf[0] = command;
++		buf[1] = val;
++		msg.buf = buf;
++		ret = adap->algo->master_xfer(adap, &msg, 1);
++	} else {
++		union i2c_smbus_data data;
++
++		data.byte = val;
++		ret = adap->algo->smbus_xfer(adap, client->addr,
++					     client->flags,
++					     I2C_SMBUS_WRITE,
++					     command,
++					     I2C_SMBUS_BYTE_DATA, &data);
++	}
++
++	return ret;
++}
++
++/*
++ * Read from selector register. Don't use i2c_transfer()/i2c_smbus_xfer()
++ * as they will try to lock adapter a second time.
++ */
++static int pca9541_reg_read(struct i2c_adapter *adap,
++			    struct i2c_client *client, u8 command)
++{
++	int ret;
++	u8 val;
++
++	if (adap->algo->master_xfer) {
++		struct i2c_msg msg[2] = {
++			{
++				.addr = client->addr,
++				.flags = 0,
++				.len = 1,
++				.buf = &command
++			},
++			{
++				.addr = client->addr,
++				.flags = I2C_M_RD,
++				.len = 1,
++				.buf = &val
++			}
++		};
++		ret = adap->algo->master_xfer(adap, msg, 2);
++		if (ret == 2)
++			ret = val;
++		else if (ret >= 0)
++			ret = -EIO;
++	} else {
++		union i2c_smbus_data data;
++
++		ret = adap->algo->smbus_xfer(adap, client->addr,
++					     client->flags,
++					     I2C_SMBUS_READ,
++					     command,
++					     I2C_SMBUS_BYTE_DATA, &data);
++		if (!ret)
++			ret = data.byte;
++	}
++	return ret;
++}
++
++/*
++ * Arbitration management functions
++ */
++
++static void pca9541_release_bus(struct i2c_adapter *adap,
++				struct i2c_client *client)
++{
++	int reg;
++
++	reg = pca9541_reg_read(adap, client, PCA9541_CONTROL);
++	if (reg >= 0 && !busoff(reg) && mybus(reg))
++		pca9541_reg_write(adap, client, PCA9541_CONTROL,
++				  (reg & PCA9541_CTL_NBUSON) >> 1);
++}
++
++/*
++ * Arbitration is defined as a two-step process. A device can only activate
++ * the bus if it owns it; otherwise it has to request ownership first.
++ * This multi-step process ensures that access contention is resolved
++ * gracefully.
++ *
++ * Bus	Ownership	Other master	Action
++ * state		requested access
++ * ----------------------------------------------------
++ * off	-		yes		wait for arbitration timeout or
++ *					for other master to drop request
++ * off	no		no		take ownership
++ * off	yes		no		turn on bus
++ * on	yes		-		done
++ * on	no		-		wait for arbitration timeout or
++ *					for other master to release bus
++ *
++ * The main contention point occurs if the bus is off and both masters request
++ * access at the same time. In this case, one master will turn on the bus,
++ * believing that it owns it. The other master will request bus ownership.
++ * Result is that the bus is turned on, and master which did _not_ own the
++ * bus before ends up owning it.
++ */
++
++/* Control commands per pca9541 datasheet */
++static u8 pca9541_control[] = {
++	4, 0, 1, 5, 4, 4, 5, 5, 0, 0, 1, 1, 0, 4, 5, 1
++};
++
++/*
++ * Channel arbitration
++ *
++ * Return values:
++ *  <0: error
++ *  0 : bus not acquired
++ *  1 : bus acquired
++ */
++static int pca9541_arbitrate(struct pca9541 *data)
++{
++	struct i2c_client *client = data->client;
++	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
++	int reg;
++
++	reg = pca9541_reg_read(adap, client, PCA9541_CONTROL);
++	if (reg < 0)
++		return reg;
++
++	if (busoff(reg)) {
++		int istat;
++		/*
++		 * Bus is off, request ownership or turn it on unless
++		 * other master requested access.
++		 */
++		istat = pca9541_reg_read(adap, client, PCA9541_ISTAT);
++		if (!(istat & PCA9541_ISTAT_NMYTEST)
++		    || time_is_before_eq_jiffies(data->arb_timeout)) {
++			/*
++			 * Other master did not request access, or arbitration
++			 * timeout expired. Take the bus.
++			 */
++			pca9541_reg_write(adap, client,
++					  PCA9541_CONTROL,
++					  pca9541_control[reg & 0x0f]
++					  | PCA9541_CTL_NTESTON);
++			data->select_timeout = SELECT_TO_SHORT;
++		} else {
++			/* Other master requested access. */
++			data->select_timeout = SELECT_TO_LONG * 2;
++		}
++	} else if (mybus(reg)) {
++		/* Bus is on, and we own it. We are done. */
++		if (reg & (PCA9541_CTL_NTESTON | PCA9541_CTL_BUSINIT))
++			pca9541_reg_write(adap, client,
++					  PCA9541_CONTROL,
++					  reg & ~(PCA9541_CTL_NTESTON
++						  | PCA9541_CTL_BUSINIT));
++		return 1;
++	} else {
++		/* Other master owns the bus */
++		data->select_timeout = SELECT_TO_LONG;
++		if (time_is_before_eq_jiffies(data->arb_timeout)) {
++			/* Time is up, take the bus and reset it. */
++			pca9541_reg_write(adap, client,
++					  PCA9541_CONTROL,
++					  pca9541_control[reg & 0x0f]
++					  | PCA9541_CTL_BUSINIT
++					  | PCA9541_CTL_NTESTON);
++		} else {
++			/* Request bus access if needed */
++			if (!(reg & PCA9541_CTL_NTESTON))
++				pca9541_reg_write(adap, client,
++						  PCA9541_CONTROL,
++						  reg | PCA9541_CTL_NTESTON);
++		}
++	}
++	return 0;
++}
++
++static int pca9541_select_chan(struct i2c_adapter *adap, void *client, u32 chan)
++{
++	struct pca9541 *data = i2c_get_clientdata(client);
++	int ret;
++	unsigned long timeout = jiffies + ARB2_TIMEOUT;
++
++	data->arb_timeout = jiffies + ARB_TIMEOUT;
++
++	do {
++		ret = pca9541_arbitrate(data);
++		if (ret)
++			return ret < 0 ? ret : 0;
++
++		if (data->select_timeout == SELECT_TO_SHORT)
++			udelay(data->select_timeout);
++		else
++			msleep(data->select_timeout / 1000);
++	} while (time_is_after_eq_jiffies(timeout));
++
++	return ETIMEDOUT;
++}
++
++static int pca9541_release_chan(struct i2c_adapter *adap,
++				void *client, u32 chan)
++{
++	pca9541_release_bus(adap, client);
++	return 0;
++}
++
++/*
++ * I2C init/probing/exit functions
++ */
++static int __devinit pca9541_probe(struct i2c_client *client,
++				   const struct i2c_device_id *id)
++{
++	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
++	struct pca954x_platform_data *pdata = client->dev.platform_data;
++	struct pca9541 *data;
++	int force;
++	int ret = -ENODEV;
++
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
++		goto err;
++
++	/* Read control register to verify that the device exists */
++	if (i2c_smbus_read_byte_data(client, PCA9541_CONTROL) < 0)
++		goto err;
++
++	data = kzalloc(sizeof(struct pca9541), GFP_KERNEL);
++	if (!data) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	data->client = client;
++	i2c_set_clientdata(client, data);
++
++	/* Create a virtual adapter */
++
++	force = 0;
++	if (pdata)
++		force = pdata->modes[0].adap_id;
++	data->virt_adap = i2c_add_mux_adapter(adap, client, force, 0,
++					      pca9541_select_chan,
++					      pca9541_release_chan);
++
++	if (data->virt_adap == NULL) {
++		dev_err(&client->dev,
++			"failed to register master selector as bus %d\n",
++			force);
++		goto exit_free;
++	}
++
++	dev_info(&client->dev, "registered master selector for I2C %s\n",
++		 client->name);
++
++	pca9541_release_bus(adap, client);
++
++	return 0;
++
++exit_free:
++	kfree(data);
++err:
++	return ret;
++}
++
++static int __devexit pca9541_remove(struct i2c_client *client)
++{
++	struct pca9541 *data = i2c_get_clientdata(client);
++
++	i2c_del_mux_adapter(data->virt_adap);
++
++	kfree(data);
++	return 0;
++}
++
++static struct i2c_driver pca9541_driver = {
++	.driver = {
++		   .name = "pca9541",
++		   .owner = THIS_MODULE,
++		   },
++	.probe = pca9541_probe,
++	.remove = __devexit_p(pca9541_remove),
++	.id_table = pca9541_id,
++};
++
++static int __init pca9541_init(void)
++{
++	return i2c_add_driver(&pca9541_driver);
++}
++
++static void __exit pca9541_exit(void)
++{
++	i2c_del_driver(&pca9541_driver);
++}
++
++module_init(pca9541_init);
++module_exit(pca9541_exit);
++
++MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
++MODULE_DESCRIPTION("PCA9541 I2C master selector driver");
++MODULE_LICENSE("GPL v2");
 -- 
--- 
-Ben
-
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+1.7.3.1
