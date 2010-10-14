@@ -1,7 +1,7 @@
 From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Subject: [PATCH] I2C driver supporting Moorestown and Medfield platform
-Date: Thu, 14 Oct 2010 15:27:55 +0100
-Message-ID: <20101014142721.12187.56625.stgit@localhost.localdomain>
+Date: Thu, 14 Oct 2010 15:33:21 +0100
+Message-ID: <20101014143253.12758.11034.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
@@ -14,8 +14,7 @@ From: Wen Wang <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
 Initial release of the driver. Updated and verified on hardware.
 
-Cleaned up as follows and with fixes backported out of the internal tree for
-Meego.
+Cleaned up as follows and with bits backported from the internal Meego tree
 
 Alan Cox:
    Squash down the switches into tables, and use the PCI ident field. We
@@ -102,7 +101,7 @@ index 033ad41..3742d58 100644
  obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
 diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
 new file mode 100644
-index 0000000..4341bcb
+index 0000000..9ef60be
 --- /dev/null
 +++ b/drivers/i2c/busses/i2c-intel-mid.c
 @@ -0,0 +1,1132 @@
@@ -191,6 +190,7 @@ index 0000000..4341bcb
 +#define STATUS_WRITE_START	4
 +#define STATUS_WRITE_SUCCESS	5
 +#define STATUS_XFER_ABORT	6
++#define STATUS_STANDBY		7
 +
 +/* Control register */
 +#define IC_CON			0x00
@@ -918,8 +918,7 @@ index 0000000..4341bcb
 +{
 +	struct pci_dev *pdev = to_pci_dev(dev);
 +	struct intel_mid_i2c_private *i2c =
-+	    (struct intel_mid_i2c_private *)pci_get_drvdata(dev);
-+	struct i2c_adapter *adap = to_i2c_adapter(dev);
++	    (struct intel_mid_i2c_private *)pci_get_drvdata(pdev);
 +	int err;
 +
 +	if (i2c->status != STATUS_STANDBY)
