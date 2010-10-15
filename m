@@ -1,61 +1,72 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/2] Short timeout for I2C transfers
-Date: Fri, 15 Oct 2010 14:51:49 +0200
-Message-ID: <20101015145149.2f688c9d@endymion.delvare>
-References: <1286977510-16702-1-git-send-email-samu.p.onkalo@nokia.com>
+From: Jesse Barnes <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>
+Subject: Re: [PATCH 2.6.35.4] irq: irq and pci_ids patch for Intel Patsburg
+Date: Fri, 15 Oct 2010 12:54:28 -0700
+Message-ID: <20101015125428.01120a8d@jbarnes-desktop>
+References: <201009241606.11840.seth.heasley@intel.com>
+	<201010041327.15170.seth.heasley@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1286977510-16702-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <201010041327.15170.seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Samu,
+On Mon, 4 Oct 2010 13:27:14 -0700
+Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
 
-On Wed, 13 Oct 2010 16:45:08 +0300, Samu Onkalo wrote:
-> There are chips which doesn't work perfectly in certain
-> I2C operations. For example lp5523 led driver chip causes
-> always I2C timeout when SW reset is commanded to the chip.
-
-The timeout is a symptom as the controller level. What is the root
-cause at the LP5523 device level? What exactly happens on the wire?
-
-I am asking because maybe some of the already available protocol
-mangling flags would work for you, in particular I2C_M_IGNORE_NAK. See
-Documentation/i2c/i2c-protocol.
-
-> Patches add a possibility to tell that this access is likely
-> to cause time out and there is no need to wait normal time.
-> For example in omap time out is 1 second and the bus is reserved
-> all the time.
-
-You should ask yourself whether a 1 second timeout is a sane thing to
-have in the first place.
-
-You should also check why you hit the timeout condition. Ideally the
-hardware would report problems as they happen, quickly, rather than
-having to rely on the driver's timeout mechanism. The timeout should
-really only be a safety mechanism, for when the bus controller itself
-misbehaves at the hardware level.
-
-> By setting I2C_M_SHORT_TIMEOUT flag to i2c-message, adapter is
-> requested to use shorter timeout.
+> >> --- linux-2.6.35.4/drivers/i2c/busses/Kconfig.orig   2010-09-24
+> >14:59:23.000000000 -0700
+> >> +++ linux-2.6.35.4/drivers/i2c/busses/Kconfig        2010-09-24
+> >14:59:42.000000000 -0700
+> >> @@ -95,7 +95,7 @@
+> >>          ESB2
+> >>          ICH8
+> >>          ICH9
+> >> -        Tolapai
+> >> +        EP80579
+> >>          ICH10
+> >>          3400/5 Series (PCH)
+> >
+> >How did this become "5_3400_SERIES" in the symbol names? Shouldn't it
+> >be 3400_5_SERIES instead?
 > 
-> Samu Onkalo (2):
->   drivers: i2c-core: Add a flag to allow short timeout
->   drivers: i2c-omap: Add support for shorten I2C timeout
+> The approved branding in pci.ids is 5/3400 Series, so I wanted to reflect that here.  I've changed it in Kconfig as well as i2c-i801.c to be consistent.
 > 
->  drivers/i2c/busses/i2c-omap.c |    9 ++++++++-
->  drivers/i2c/i2c-core.c        |    2 +-
->  include/linux/i2c.h           |    1 +
->  3 files changed, 10 insertions(+), 2 deletions(-)
+> >> --- linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c.orig        2010-09-24
+> >14:57:55.000000000 -0700
+> >> +++ linux-2.6.35.4/drivers/i2c/busses/i2c-i801.c     2010-09-24
+> >14:59:13.000000000 -0700
+> >> @@ -38,7 +38,7 @@
+> >>    82801G   (ICH7)       0x27da     32     hard     yes     yes
+> >yes
+> >>    82801H   (ICH8)       0x283e     32     hard     yes     yes
+> >yes
+> >>    82801I   (ICH9)       0x2930     32     hard     yes     yes
+> >yes
+> >> -  Tolapai               0x5032     32     hard     yes     yes
+> >yes
+> >> +  EP80579               0x5032     32     hard     yes     yes
+> >yes
+> >
+> >Maybe keep "Tolapai" inside parentheses, as people may know the
+> >platform by that name by now?
+> 
+> Agreed.  I've updated that in both places it's referenced.  Final (hopefully) patch below:
+> 
+> This patch updates the defines for Intel devices in include/linux/pci_ids.h, referenced in arch/x86/pci/irq.c and drivers/i2c/busses/i2c-i801.c, reflecting approved legal branding, and using fuller code-names for products under development.
+>  
+> Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-I'm skeptical. If you know that the transfer will "fail" and you don't
-care, why do you want to wait a short time, rather than not waiting at
-all?
+Applied this update, thanks.
 
+Note that going forward I don't expect (or want!) patches to convert
+the development names into marketing names.  We should just add new
+stuff with the development names (before the product ships) and leave
+them that way to avoid unnecessary churn.
+
+Thanks,
 -- 
-Jean Delvare
+Jesse Barnes, Intel Open Source Technology Center
