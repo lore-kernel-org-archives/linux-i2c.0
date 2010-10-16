@@ -1,36 +1,38 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2.6.35.4] irq: irq and pci_ids patch for Intel Patsburg
-Date: Sat, 16 Oct 2010 08:40:18 +0200
-Message-ID: <20101016084018.58671452@endymion.delvare>
-References: <201009241606.11840.seth.heasley@intel.com>
-	<201010041327.15170.seth.heasley@intel.com>
-	<20101015125428.01120a8d@jbarnes-desktop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20101015125428.01120a8d@jbarnes-desktop>
-Sender: linux-pci-owner@vger.kernel.org
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Seth Heasley <seth.heasley@intel.com>, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c-bfin-twi: move setup to the earlier subsys initcall
+Date: Sat, 16 Oct 2010 18:34:01 -0400
+Message-ID: <1287268441-9970-1-git-send-email-vapier@gentoo.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 15 Oct 2010 12:54:28 -0700, Jesse Barnes wrote:
-> On Mon, 4 Oct 2010 13:27:14 -0700
-> Seth Heasley <seth.heasley@intel.com> wrote:
-> > This patch updates the defines for Intel devices in include/linux/pci_ids.h, referenced in arch/x86/pci/irq.c and drivers/i2c/busses/i2c-i801.c, reflecting approved legal branding, and using fuller code-names for products under development.
-> >  
-> > Signed-off-by: Seth Heasley <seth.heasley@intel.com>
-> 
-> Applied this update, thanks.
-> 
-> Note that going forward I don't expect (or want!) patches to convert
-> the development names into marketing names.  We should just add new
-> stuff with the development names (before the product ships) and leave
-> them that way to avoid unnecessary churn.
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Fine with me, as long as it is the actual names and not obscure
-3-letter shortcuts.
+Some systems using this bus sometimes have very basic devices such as
+regulators on the bus, so the I2C bus master needs to be loaded early.
+This also matches the behavior of many other I2C bus master drivers.
+Therefore initialize via subsys_initcall().
 
+Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index 1ee9d5a..52b545a 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -782,7 +782,7 @@ static void __exit i2c_bfin_twi_exit(void)
+ 	platform_driver_unregister(&i2c_bfin_twi_driver);
+ }
+ 
+-module_init(i2c_bfin_twi_init);
++subsys_initcall(i2c_bfin_twi_init);
+ module_exit(i2c_bfin_twi_exit);
+ 
+ MODULE_AUTHOR("Bryan Wu, Sonic Zhang");
 -- 
-Jean Delvare
+1.7.3.1
