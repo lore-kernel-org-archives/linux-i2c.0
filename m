@@ -1,59 +1,128 @@
-From: <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 0/2] Short timeout for I2C transfers
-Date: Mon, 18 Oct 2010 11:38:44 +0200
-Message-ID: <62697B07E9803846BC582181BD6FB6B835EFD27D1C@NOK-EUMSG-02.mgdnok.nokia.com>
-References: <1286977510-16702-1-git-send-email-samu.p.onkalo@nokia.com>
- <20101015145149.2f688c9d@endymion.delvare>
- <62697B07E9803846BC582181BD6FB6B835EFD27C35@NOK-EUMSG-02.mgdnok.nokia.com>
+From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] i2c: add irq_flags to board info
+Date: Mon, 18 Oct 2010 10:55:57 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917713094520EDB@LIMKCMBX1.ad.analog.com>
+References: <1287359019-1476-1-git-send-email-vapier@gentoo.org>
+ <20101018103610.77b7e605@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <62697B07E9803846BC582181BD6FB6B835EFD27C35-xJW1crHCIS+8kqYwC468Frtp2NbXvJi8gfoxzgwHRXE@public.gmane.org>
+In-Reply-To: <20101018103610.77b7e605-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
->-----Original Message-----
->From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-
->owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of ext samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
-
-
->>The timeout is a symptom as the controller level. What is the root
->>cause at the LP5523 device level? What exactly happens on the wire?
->>
+Jean Delvare wrote on 2010-10-18:
+> Hi Mike,
 >
->Chip seems to release ACK signal too soon causing rising edge while
->SCL is high. This violates bus protocol and causes timeout at the
->controller. It is no recognized as ACK nor NACK.
+> On Sun, 17 Oct 2010 19:43:39 -0400, Mike Frysinger wrote:
+>> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>
+>> These flags can be optionally defined - slave drivers may use them as
+>> flags argument for request_irq().  In case they are left uninitialized
+>> they will default to zero, and therefore shouldn't cause problems.
+>>
+>> This allows us to avoid having to add dedicated platform init code
+>> just to call set_irq_type()
 >
->>I am asking because maybe some of the already available protocol
->>mangling flags would work for you, in particular I2C_M_IGNORE_NAK. See
->>Documentation/i2c/i2c-protocol.
+> Do you have examples of this? Can we see a preview of the amount of
+> cleanups this patch would allow?
+
+Examples can be found in various board setup files:
+
+One example arch/sh/boards/mach-ecovec24/setup.c:
+
+static struct i2c_board_info ts_i2c_clients = {
+        I2C_BOARD_INFO("tsc2007", 0x48),
+        .type           = "tsc2007",
+        .platform_data  = &tsc2007_info,
+        .irq            = IRQ0,
+};
+
+[--snip--]
+
+                /* enable TouchScreen */
+                i2c_register_board_info(0, &ts_i2c_clients, 1);
+                set_irq_type(IRQ0, IRQ_TYPE_LEVEL_LOW);
+
+>> -- which doesn't work very well when coupled with module drivers.
+>
+> I don't quite get what you mean here.
+
+Since the driver doesn't setup the irq_type itself you need to do it
+manually in advance using set_irq_type().
+This happens most likely from your paltform setup/configuration file.
+
+Assuming the driver is built as a module, this code gets executed unconditionally,
+no matter if the driver gets finally loaded or not.
+
+Assuming you have several drivers build as modules, using the same irq but with
+different irq types, you run into problems here.
+
+There are some development boards featuring extension options, which all plug on the same
+socket but required different drivers/irq types.
+
+The ideal way is therefore to pass the irq_flags together with the SPI/I2C board info.
+
+>> It also matches behavior of some other frameworks like IDE and UIO.
+>
+> This is certainly a good point.
+>
 >>
+>> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+>> ---
+>>  drivers/i2c/i2c-core.c |    1 +
+>>  include/linux/i2c.h    |    4 ++++
+>>  2 files changed, 5 insertions(+), 0 deletions(-)
+>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c index
+>> bea4c50..830528f 100644
+>> --- a/drivers/i2c/i2c-core.c
+>> +++ b/drivers/i2c/i2c-core.c
+>> @@ -540,6 +540,7 @@ i2c_new_device(struct i2c_adapter *adap, struct
+> i2c_board_info const *info)
+>>      client->flags = info->flags;
+>>      client->addr = info->addr;
+>>      client->irq = info->irq;
+>> +    client->irq_flags = info->irq_flags;
 >>
->>You should also check why you hit the timeout condition. Ideally the
->>hardware would report problems as they happen, quickly, rather than
->>having to rely on the driver's timeout mechanism. The timeout should
->>really only be a safety mechanism, for when the bus controller itself
->>misbehaves at the hardware level.
+>>      strlcpy(client->name, info->type, sizeof(client->name));
+>> diff --git a/include/linux/i2c.h b/include/linux/i2c.h index
+>> 4bae0b7..e6248c1 100644
+>> --- a/include/linux/i2c.h
+>> +++ b/include/linux/i2c.h
+>> @@ -189,6 +189,7 @@ struct i2c_driver {
+>>   * @driver: device's driver, hence pointer to access routines * @dev:
+>>   Driver model device node for the slave. * @irq: indicates the IRQ
+>>   generated by this device (if any) + * @irq_flags: The flags passed to
+>>   request_irq() * @detected: member of an i2c_driver.clients list or
+>>   i2c-core's *       userspace_devices list *
+>> @@ -206,6 +207,7 @@ struct i2c_client {
+>>      struct i2c_driver *driver;      /* and our access routines      */      struct
+>>  device dev;         /* the device structure         */      int irq;                        /* irq issued by
+>>  device              */ +    unsigned long irq_flags;        /* flags used by the irq        */
+>>      struct list_head detected; }; #define to_i2c_client(d)
+>>  container_of(d, struct i2c_client, dev) @@
+>> -237,6 +239,7 @@ static inline void i2c_set_clientdata(struct
+> i2c_client *dev, void *data)
+>>   * @archdata: copied into i2c_client.dev.archdata * @of_node: pointer
+>>   to OpenFirmware device node * @irq: stored in i2c_client.irq + *
+>>   @irq_flags: The flags passed to request_irq() for i2c_client.irq * *
+>>   I2C doesn't actually support hardware probing, although controllers
+>>   and * devices may be able to use I2C_SMBUS_QUICK to tell whether or
+>> not there's @@ -259,6 +262,7 @@ struct i2c_board_info {
+>>      struct device_node *of_node; #endif     int             irq; +  unsigned
+>>  long        irq_flags; };
 >>
+>>  /**
+>
+>
 
-It seems that controller detects bus free condition when this happens.
-So, instead of the timeout, bus free condition should be detected.
-There is no such interrupt so this must be done by polling
-the status register. In general this is not a good idea.
+Greetings,
+Michael
 
-Would it make sense somehow tell that use polling and not
-the interrupt / timeout control? I.e. by setting a flag that
-this transfer doesn't end properly.
-
-I2C_M_IGNORE_TIMEOUT?
-In such case just either wait for bus free if supported by HW or
-wait for some short time after start of the transmission
-
--Samu
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
