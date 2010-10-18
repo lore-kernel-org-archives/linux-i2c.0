@@ -1,128 +1,99 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-pca-platform: Change i2c adapter name
-Date: Mon, 18 Oct 2010 10:20:54 +0200
-Message-ID: <20101018102054.0bdec0fc@endymion.delvare>
-References: <1287372270-12163-1-git-send-email-nobuhiro.iwamatsu.yj@renesas.com>
+Subject: Re: [PATCH] i2c: add irq_flags to board info
+Date: Mon, 18 Oct 2010 10:36:10 +0200
+Message-ID: <20101018103610.77b7e605@endymion.delvare>
+References: <1287359019-1476-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1287372270-12163-1-git-send-email-nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1287359019-1476-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Nobuhiro,
+Hi Mike,
 
-On Mon, 18 Oct 2010 12:24:30 +0900, Nobuhiro Iwamatsu wrote:
-> In kernel which enableded this driver output The following warning,
-> because a slash (/) is in the i2c adapter name by the current driver.
-> This set another adapter name (i2c-pca-platform at 0x) what removed slash.
+On Sun, 17 Oct 2010 19:43:39 -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > 
-> [    2.872000] PCA9564/PCA9665 at 0x06000000: Registering gpio failed!
-> [    2.876000] name 'PCA9564/PCA9665 at 0x06000000'
-> [    2.880000] ------------[ cut here ]------------
-> [    2.880000] WARNING: at fs/proc/generic.c:323
-> [    2.880000] Modules linked in:
-> [    2.880000]
-> [    2.880000] Pid : 1, Comm:           swapper
-> [    2.880000] CPU : 0                  Not tainted  (2.6.36-rc1-00238-g67e5b3a #261)
-> [    2.880000]
-> [    2.880000] PC is at __xlate_proc_name+0x88/0xa4
-> [    2.880000] PR is at __xlate_proc_name+0x88/0xa4
-> [    2.880000] PC  : 800b3bc4 SP  : 9fc41d34 SR  : 40008001 TEA : c0018000
-> [    2.880000] R0  : 00000037 R1  : 9fc40000 R2  : 9fc40000 R3  : 8049db48
-> [    2.880000] R4  : 00000001 R5  : 000000f0 R6  : ffffffff R7  : 8019e450
-> [    2.880000] R8  : 00000000 R9  : 9fc41d9c R10 : 00000007 R11 : 9fc41d9c
-> [    2.880000] R12 : 9fc41d80 R13 : 80167fce R14 : 9fc41d34
-> [    2.880000] MACH: 00000461 MACL: 00000000 GBR : 00000000 PR  : 800b3bc4
-> [    2.880000]
-> [    2.880000] Call trace:
-> [    2.880000]  [<800b4056>] __proc_create+0x46/0x110
-> [    2.880000]  [<80162b00>] strlen+0x0/0x58
-> [    2.880000]  [<800b4824>] proc_mkdir_mode+0x24/0x60
-> [    2.880000]  [<800b486e>] proc_mkdir+0xe/0x1c
-> [    2.880000]  [<8004740a>] register_handler_proc+0x9e/0xd4
-> [    2.880000]  [<80045ab2>] __setup_irq+0x226/0x2c0
-> [    2.880000]  [<80075d50>] kmem_cache_alloc+0x94/0xf0
-> [    2.880000]  [<80045bcc>] request_threaded_irq+0x80/0xdc
-> [    2.880000]  [<802041c0>] i2c_pca_pf_handler+0x0/0x3c
-> [    2.880000]  [<802ecb62>] i2c_pca_pf_probe+0x162/0x294
-> [    2.880000]  [<801a3b38>] platform_drv_probe+0x14/0x1c
-> (...)
+> These flags can be optionally defined - slave drivers may use them as
+> flags argument for request_irq().  In case they are left uninitialized
+> they will default to zero, and therefore shouldn't cause problems.
+> 
+> This allows us to avoid having to add dedicated platform init code just
+> to call set_irq_type()
 
-The i2c adapter names are strings which appear as the _contents_ of
-sysfs attributes. They don't appear in procfs. What happens here is
-that the adapter name is used also as the IRQ name:
+Do you have examples of this? Can we see a preview of the amount of
+cleanups this patch would allow?
 
-	if (irq) {
-		ret = request_irq(irq, i2c_pca_pf_handler,
-			IRQF_TRIGGER_FALLING, i2c->adap.name, i2c);
-		if (ret)
-			goto e_reqirq;
-	}
+> -- which doesn't work very well when coupled with
+> module drivers.
 
-This is the problem. i2c->adap.name shouldn't be used here, instead the
-driver name "i2c-pca-platform" should be used.
+I don't quite get what you mean here.
 
-> (...)
-> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-> CC: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> It also matches behavior of some other frameworks like
+> IDE and UIO.
+
+This is certainly a good point.
+
+> 
+> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-pca-platform.c |    8 +++++---
->  1 files changed, 5 insertions(+), 3 deletions(-)
+>  drivers/i2c/i2c-core.c |    1 +
+>  include/linux/i2c.h    |    4 ++++
+>  2 files changed, 5 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-> index ef5c784..4cc3cdf 100644
-> --- a/drivers/i2c/busses/i2c-pca-platform.c
-> +++ b/drivers/i2c/busses/i2c-pca-platform.c
-> @@ -27,6 +27,8 @@
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index bea4c50..830528f 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -540,6 +540,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+>  	client->flags = info->flags;
+>  	client->addr = info->addr;
+>  	client->irq = info->irq;
+> +	client->irq_flags = info->irq_flags;
 >  
->  #include <asm/irq.h>
+>  	strlcpy(client->name, info->type, sizeof(client->name));
 >  
-> +#define DRIVER_NAME "i2c-pca-platform"
-> +
->  struct i2c_pca_pf_data {
->  	void __iomem			*reg_base;
->  	int				irq;	/* if 0, use polling */
-> @@ -171,7 +173,7 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
->  	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
->  	i2c->adap.owner = THIS_MODULE;
->  	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
-> -		 "PCA9564/PCA9665 at 0x%08lx",
-> +		 DRIVER_NAME " at 0x%08lx",
->  		 (unsigned long) res->start);
-
-I would like to avoid changing the adapter name when we don't have to.
-People may be using this string as an identifier in i2c tools. Please
-leave the adapter name unchanged and only change the IRQ name.
-
->  	i2c->adap.algo_data = &i2c->algo_data;
->  	i2c->adap.dev.parent = &pdev->dev;
-> @@ -250,7 +252,7 @@ e_remap:
->  e_alloc:
->  	release_mem_region(res->start, resource_size(res));
->  e_print:
-> -	printk(KERN_ERR "Registering PCA9564/PCA9665 FAILED! (%d)\n", ret);
-> +	printk(KERN_ERR "Registering " DRIVER_NAME " FAILED! (%d)\n", ret);
-
-This is semantically incorrect. We are registering a device here, not a
-driver. The proposed change makes this error message confusing. Please
-revert.
-
->  	return ret;
->  }
->  
-> @@ -278,7 +280,7 @@ static struct platform_driver i2c_pca_pf_driver = {
->  	.probe = i2c_pca_pf_probe,
->  	.remove = __devexit_p(i2c_pca_pf_remove),
->  	.driver = {
-> -		.name = "i2c-pca-platform",
-> +		.name = DRIVER_NAME,
->  		.owner = THIS_MODULE,
->  	},
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 4bae0b7..e6248c1 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -189,6 +189,7 @@ struct i2c_driver {
+>   * @driver: device's driver, hence pointer to access routines
+>   * @dev: Driver model device node for the slave.
+>   * @irq: indicates the IRQ generated by this device (if any)
+> + * @irq_flags: The flags passed to request_irq()
+>   * @detected: member of an i2c_driver.clients list or i2c-core's
+>   *	userspace_devices list
+>   *
+> @@ -206,6 +207,7 @@ struct i2c_client {
+>  	struct i2c_driver *driver;	/* and our access routines	*/
+>  	struct device dev;		/* the device structure		*/
+>  	int irq;			/* irq issued by device		*/
+> +	unsigned long irq_flags;	/* flags used by the irq 	*/
+>  	struct list_head detected;
 >  };
+>  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+> @@ -237,6 +239,7 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
+>   * @archdata: copied into i2c_client.dev.archdata
+>   * @of_node: pointer to OpenFirmware device node
+>   * @irq: stored in i2c_client.irq
+> + * @irq_flags: The flags passed to request_irq() for i2c_client.irq
+>   *
+>   * I2C doesn't actually support hardware probing, although controllers and
+>   * devices may be able to use I2C_SMBUS_QUICK to tell whether or not there's
+> @@ -259,6 +262,7 @@ struct i2c_board_info {
+>  	struct device_node *of_node;
+>  #endif
+>  	int		irq;
+> +	unsigned long	irq_flags;
+>  };
+>  
+>  /**
 
 
 -- 
