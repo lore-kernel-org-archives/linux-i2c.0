@@ -1,45 +1,41 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c/mux: Driver for PCA9541 I2C Master Selector
-Date: Tue, 19 Oct 2010 14:59:19 -0700
-Message-ID: <1287525559.9690.309.camel@groeck-laptop>
-References: <1286932516-20689-1-git-send-email-guenter.roeck@ericsson.com>
-	 <20101019190647.314302e7@endymion.delvare>
-	 <1287521453.9690.299.camel@groeck-laptop>
-	 <20101019234929.3d4d14f4@endymion.delvare>
-Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: [PATCHv4 0/5] BH1770GLC, SFH7770 and APDS990x als / proximity
+ sensor drivers
+Date: Tue, 19 Oct 2010 16:20:20 -0700
+Message-ID: <20101019162020.954cd059.akpm@linux-foundation.org>
+References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101019234929.3d4d14f4-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1287472188-10101-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2010-10-19 at 17:49 -0400, Jean Delvare wrote:
-> On Tue, 19 Oct 2010 13:50:53 -0700, Guenter Roeck wrote:
-> > Hi Jean,
-> > 
-> > On Tue, 2010-10-19 at 13:06 -0400, Jean Delvare wrote:
-> > [ ... ]
-> > > > +
-> > > > +/*
-> > > > + * I2C init/probing/exit functions
-> > > > + */
-> > > > +static int __devinit pca9541_probe(struct i2c_client *client,
-> > > > +                                const struct i2c_device_id *id)
-> > > 
-> > > The use of __devinit and __devexit isn't recommended for i2c drivers.
-> > > If your driver is built into the kernel but the underlying i2c bus
-> > > driver is build as a module, you're in trouble.
-> > > 
-> > I don't mind changing this, but ... the code is copied from pca954x.c,
-> > which also uses __devinit and __devexit for the same functions. Wouldn't
-> > that be a problem there as well ? Or am I missing something ?
-> 
-> You're right, this should be fixed. I take patches ;)
-> 
-Ok, I'll add that to my pending list.
+On Tue, 19 Oct 2010 10:09:43 +0300
+Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> wrote:
 
-Guenter
+> Patch set contains two drivers. One for BH1770GLC / SFH7770 chips and
+> one for APDS990X chip.
+> 
+> Both drivers have similar sysfs based interface. Both supports
+> pm_runtime and regulator frame work. There is short documentation
+> for both drivers.
+> 
+> Unfortunately I can't promise data sheets to public access.
+> 
+> Changes since patch set version 3:
+> 
+> - acked-by added to patches 1, 3 and 5
+> - Documentation clean up (extra lines removed, LUX changed to lux)
+> 
+> Patches 2 and 4 are not directly acked or I have missed something.
+> However, all requested cleanups have been done to those patches.
+
+That all looks quite nice.
+
+I'll fold patch 2 into patch 1 and patch 4 into patch 3 before sending
+the patches onwards - there isn't much point in separating the code
+patch from the wire-it-up-to-kbuild patch.
