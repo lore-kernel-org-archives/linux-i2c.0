@@ -1,54 +1,53 @@
-From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCHv4 4/5] misc: update apds990x driver to Kconfig and Makefile
-Date: Tue, 19 Oct 2010 10:09:47 +0300
-Message-ID: <1287472188-10101-5-git-send-email-samu.p.onkalo@nokia.com>
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCHv4 2/5] misc: update bh1770glc driver to Kconfig and Makefile
+Date: Tue, 19 Oct 2010 10:09:45 +0300
+Message-ID: <1287472188-10101-3-git-send-email-samu.p.onkalo@nokia.com>
 References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1287472188-10101-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: akpm@linux-foundation.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Compilation support for apds990x driver
+Compilation support for bh1770glc driver
 
-Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
 ---
- drivers/misc/Kconfig  |   11 +++++++++++
+ drivers/misc/Kconfig  |   10 ++++++++++
  drivers/misc/Makefile |    1 +
- 2 files changed, 12 insertions(+), 0 deletions(-)
+ 2 files changed, 11 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index a0ada25..11fd137 100644
+index b743312..a0ada25 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -324,6 +324,17 @@ config SENSORS_BH1770
-            To compile this driver as a module, choose M here: the
-            module will be called bh1770glc. If unsure, say N here.
+@@ -314,6 +314,16 @@ config SENSORS_BH1780
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called bh1780gli.
  
-+config SENSORS_APDS990X
-+	 tristate "APDS990X combined als and proximity sensors"
-+	 depends on I2C
-+	 default n
-+	 ---help---
-+	   Say Y here if you want to build a driver for Avago APDS990x
-+	   combined ambient light and proximity sensor chip.
++config SENSORS_BH1770
++         tristate "BH1770GLC / SFH7770 combined ALS - Proximity sensor"
++         depends on I2C
++         ---help---
++           Say Y here if you want to build a driver for BH1770GLC (ROHM) or
++	   SFH7770 (Osram) combined ambient light and proximity sensor chip.
 +
-+	   To compile this driver as a module, choose M here: the
-+	   module will be called apds990x. If unsure, say N here.
++           To compile this driver as a module, choose M here: the
++           module will be called bh1770glc. If unsure, say N here.
 +
  config HMC6352
  	tristate "Honeywell HMC6352 compass"
  	depends on I2C
 diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index f0567e0..7dbc3d0 100644
+index 42eab95..f0567e0 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -17,6 +17,7 @@ obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
+@@ -16,6 +16,7 @@ obj-$(CONFIG_TIFM_CORE)       	+= tifm_core.o
+ obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
  obj-$(CONFIG_PHANTOM)		+= phantom.o
  obj-$(CONFIG_SENSORS_BH1780)	+= bh1780gli.o
- obj-$(CONFIG_SENSORS_BH1770)	+= bh1770glc.o
-+obj-$(CONFIG_SENSORS_APDS990X)	+= apds990x.o
++obj-$(CONFIG_SENSORS_BH1770)	+= bh1770glc.o
  obj-$(CONFIG_SGI_IOC4)		+= ioc4.o
  obj-$(CONFIG_ENCLOSURE_SERVICES) += enclosure.o
  obj-$(CONFIG_KGDB_TESTS)	+= kgdbts.o
