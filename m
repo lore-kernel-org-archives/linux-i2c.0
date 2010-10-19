@@ -1,57 +1,51 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-pca-platform: Change device name of
-	request_irq
-Date: Tue, 19 Oct 2010 04:54:06 +0200
-Message-ID: <20101019025406.GD3485@pengutronix.de>
-References: <1287456331-20207-1-git-send-email-nobuhiro.iwamatsu.yj@renesas.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5p8PegU4iirBW1oA"
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCHv4 0/5] BH1770GLC, SFH7770 and APDS990x als / proximity sensor drivers
+Date: Tue, 19 Oct 2010 10:09:43 +0300
+Message-ID: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1287456331-20207-1-git-send-email-nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Patch set contains two drivers. One for BH1770GLC / SFH7770 chips and
+one for APDS990X chip.
 
---5p8PegU4iirBW1oA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Both drivers have similar sysfs based interface. Both supports
+pm_runtime and regulator frame work. There is short documentation
+for both drivers.
 
-Hi Nobuhiro (long time no see :))!
+Unfortunately I can't promise data sheets to public access.
 
-On Tue, Oct 19, 2010 at 11:45:31AM +0900, Nobuhiro Iwamatsu wrote:
-> i2c->adap.name shouldn't be used in request_irq.
-> Instead the driver name "i2c-pca-platform" should be used.
->=20
-> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Changes since patch set version 3:
 
-Looks good to me, thanks for fixing it (and to Jean for the guidance)
+- acked-by added to patches 1, 3 and 5
+- Documentation clean up (extra lines removed, LUX changed to lux)
 
-Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Patches 2 and 4 are not directly acked or I have missed something.
+However, all requested cleanups have been done to those patches.
 
-Back to holiday ;)
+Tested on top of 2.6.36-rc5
 
-   Wolfram
+Samu Onkalo (5):
+  misc: Driver for bh1770glc / sfh7770 ALS and proximity sensor
+  misc: update bh1770glc driver to Kconfig and Makefile
+  misc: Driver for APDS990X ALS and proximity sensors
+  misc: update apds990x driver to Kconfig and Makefile
+  Documentation: Short descriptions for bh1770glc and apds990x drivers
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---5p8PegU4iirBW1oA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAky9CE4ACgkQD27XaX1/VRsulQCgwV0OrZfS8gN0RNdWUeBozqov
-b1wAnRXWaq3T3aGZVmvTG6vXOv4QCgLA
-=E/TB
------END PGP SIGNATURE-----
-
---5p8PegU4iirBW1oA--
+ Documentation/misc-devices/apds990x.txt  |  111 +++
+ Documentation/misc-devices/bh1770glc.txt |  116 +++
+ drivers/misc/Kconfig                     |   21 +
+ drivers/misc/Makefile                    |    2 +
+ drivers/misc/apds990x.c                  | 1295 +++++++++++++++++++++++++++
+ drivers/misc/bh1770glc.c                 | 1413 ++++++++++++++++++++++++++++++
+ include/linux/i2c/apds990x.h             |   79 ++
+ include/linux/i2c/bh1770glc.h            |   53 ++
+ 8 files changed, 3090 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/misc-devices/apds990x.txt
+ create mode 100644 Documentation/misc-devices/bh1770glc.txt
+ create mode 100644 drivers/misc/apds990x.c
+ create mode 100644 drivers/misc/bh1770glc.c
+ create mode 100644 include/linux/i2c/apds990x.h
+ create mode 100644 include/linux/i2c/bh1770glc.h
