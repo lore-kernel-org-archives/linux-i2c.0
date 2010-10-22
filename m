@@ -1,70 +1,49 @@
-From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2.6.36-next-20101021] SMBus patch for Intel Patsburg DeviceIDs
-Date: Thu, 21 Oct 2010 11:04:51 -0700
-Message-ID: <201010211104.51630.seth.heasley__41640.7740595334$1287685225$gmane$org@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 06/12] hwmon: lis3: restore axis enabled bits
+Date: Fri, 22 Oct 2010 14:57:28 +0300
+Message-ID: <1287748654-2626-7-git-send-email-samu.p.onkalo@nokia.com>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <1287748654-2626-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org
-Cc: seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds support for the Intel Patsburg PCH SMBus Controller.
+All axis enable bits are set to 0 at module remove.
+Restore reset default value at init.
 
-Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/hwmon/lis3lv02d_i2c.c |    2 +-
+ drivers/hwmon/lis3lv02d_spi.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.35.7/include/linux/pci_ids.h.orig	2010-10-20 16:10:02.000000000 -0700
-+++ linux-2.6.35.7/include/linux/pci_ids.h	2010-10-20 16:09:01.000000000 -0700
-@@ -2423,6 +2423,7 @@
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN	0x1c41
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX	0x1c5f
-+#define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS	0x1d22
- #define PCI_DEVICE_ID_INTEL_PATSBURG_LPC	0x1d40
- #define PCI_DEVICE_ID_INTEL_82801AA_0	0x2410
- #define PCI_DEVICE_ID_INTEL_82801AA_1	0x2411
---- linux-2.6.35.7/drivers/i2c/busses/Kconfig.orig	2010-10-20 16:13:38.000000000 -0700
-+++ linux-2.6.35.7/drivers/i2c/busses/Kconfig	2010-10-20 16:10:55.000000000 -0700
-@@ -99,6 +99,7 @@
- 	    ICH10
- 	    5/3400 Series (PCH)
- 	    Cougar Point (PCH)
-+	    Patsburg (PCH)
+diff --git a/drivers/hwmon/lis3lv02d_i2c.c b/drivers/hwmon/lis3lv02d_i2c.c
+index 98983cc..36171bf 100644
+--- a/drivers/hwmon/lis3lv02d_i2c.c
++++ b/drivers/hwmon/lis3lv02d_i2c.c
+@@ -83,7 +83,7 @@ static int lis3_i2c_init(struct lis3lv02d *lis3)
+ 	if (ret < 0)
+ 		return ret;
  
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
---- linux-2.6.35.7/drivers/i2c/busses/i2c-i801.c.orig	2010-10-20 16:12:06.000000000 -0700
-+++ linux-2.6.35.7/drivers/i2c/busses/i2c-i801.c	2010-10-20 16:12:27.000000000 -0700
-@@ -43,6 +43,7 @@
-   ICH10                 0x3a60     32     hard     yes     yes     yes
-   5/3400 Series (PCH)   0x3b30     32     hard     yes     yes     yes
-   Cougar Point (PCH)    0x1c22     32     hard     yes     yes     yes
-+  Patsburg (PCH)        0x1d22     32     hard     yes     yes     yes
+-	reg |= CTRL1_PD0;
++	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
+ 	return lis3->write(lis3, CTRL_REG1, reg);
+ }
  
-   Features supported by this driver:
-   Software PEC                     no
-@@ -592,6 +593,7 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS) },
- 	{ 0, }
- };
+diff --git a/drivers/hwmon/lis3lv02d_spi.c b/drivers/hwmon/lis3lv02d_spi.c
+index b9be5e3..778885d 100644
+--- a/drivers/hwmon/lis3lv02d_spi.c
++++ b/drivers/hwmon/lis3lv02d_spi.c
+@@ -50,7 +50,7 @@ static int lis3_spi_init(struct lis3lv02d *lis3)
+ 	if (ret < 0)
+ 		return ret;
  
---- linux-2.6.35.7/Documentation/i2c/busses/i2c-i801.orig	2010-10-20 16:16:01.000000000 -0700
-+++ linux-2.6.35.7/Documentation/i2c/busses/i2c-i801	2010-10-20 16:15:17.000000000 -0700
-@@ -15,8 +15,9 @@
-   * Intel 82801I (ICH9)
-   * Intel EP80579 (Tolapai)
-   * Intel 82801JI (ICH10)
--  * Intel 3400/5 Series (PCH)
-+  * Intel 5/3400 Series (PCH)
-   * Intel Cougar Point (PCH)
-+  * Intel Patsburg (PCH)
-    Datasheets: Publicly available at the Intel website
+-	reg |= CTRL1_PD0;
++	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
+ 	return lis3->write(lis3, CTRL_REG1, reg);
+ }
  
- Authors: 
+-- 
+1.6.0.4
