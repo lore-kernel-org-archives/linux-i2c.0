@@ -1,58 +1,78 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 00/12] lis3 accelerator feature update
-Date: Fri, 22 Oct 2010 18:05:33 -0700
-Message-ID: <20101023010533.GA8156@ericsson.com>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
- <1287778096.9690.401.camel@groeck-laptop>
- <4CC221F0.5040608@tremplin-utc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCHv2] hwmon: lis3: Short explanations of platform data fields
+Date: Sat, 23 Oct 2010 16:39:44 +0300
+Message-ID: <1287841184-4871-1-git-send-email-samu.p.onkalo@nokia.com>
+References: <4CC1BAEE.3030708@cam.ac.uk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4CC221F0.5040608-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+In-Reply-To: <4CC1BAEE.3030708-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <Eric.Piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
-Cc: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org" <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 22, 2010 at 07:44:48PM -0400, =C9ric Piel wrote:
-> Op 22-10-10 22:08, Guenter Roeck schreef:
-> > On Fri, 2010-10-22 at 07:57 -0400, Samu Onkalo wrote:
-> >> Changes are tested only with I2C interface using 8bit sensor since=
- I don't
-> >> have other possibilities. Some features are not enabled
-> >> by default since I can't test them with all possible configuration=
-s.
-> >> Platform data contains field which controls new features.
-> >>
-> > [ ... ]
-> >>
-> >> Samu Onkalo (12):
-> >>   hwmon: lis3: pm_runtime support
-> >>   hwmon: lis3: regulator control
-> >>   hwmon: lis3: Cleanup interrupt handling
-> >>   hwmon: lis3: Update coordinates at polled device open
-> >>   hwmon: lis3: Power on corrections
-> >>   hwmon: lis3: restore axis enabled bits
-> >>   hwmon: lis3: New parameters to platform data
-> >>   hwmon: lis3: Adjust fuzziness for 8 bit device
-> >>   hwmon: lis3: use block read to access data registers
-> >>   hwmon: lis3: Enhance lis3 selftest with IRQ line test
-> >>   hwmon: lis3: Short explanations of platform data fields
-> >>   hwmon: lis3: Release resources is case of failure
-> >>
-> >>  drivers/hwmon/lis3lv02d.c     |  304 ++++++++++++++++++++++++++++=
-++++++------
-> >>  drivers/hwmon/lis3lv02d.h     |   18 +++
-> >>  drivers/hwmon/lis3lv02d_i2c.c |  127 +++++++++++++++--
-> >>  drivers/hwmon/lis3lv02d_spi.c |    2 +-
-> >>  include/linux/lis3lv02d.h     |   50 +++++++-
-> >>  5 files changed, 439 insertions(+), 62 deletions(-)
-> >>
-> > Eric, can you Ack this series ?
-> Hi, I'll try to review, test and ack the series this weekend :-)
->=20
-Thanks!
+Short documentation at kernel doc format.
 
-Guenter
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ include/linux/lis3lv02d.h |   46 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 46 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/lis3lv02d.h b/include/linux/lis3lv02d.h
+index c949612..d4292c8 100644
+--- a/include/linux/lis3lv02d.h
++++ b/include/linux/lis3lv02d.h
+@@ -1,6 +1,52 @@
+ #ifndef __LIS3LV02D_H_
+ #define __LIS3LV02D_H_
+ 
++/**
++ * struct lis3lv02d_platform_data - lis3 chip family platform data
++ * @click_flags:	Click detection unit configuration
++ * @click_thresh_x:	Click detection unit x axis threshold
++ * @click_thresh_y:	Click detection unit y axis threshold
++ * @click_thresh_z:	Click detection unit z axis threshold
++ * @click_time_limit:	Click detection unit time parameter
++ * @click_latency:	Click detection unit latency parameter
++ * @click_window:	Click detection unit window parameter
++ * @irq_cfg:		On chip irq source and type configuration (click /
++ *			data available / wake up, open drain, polarity)
++ * @irq_flags1:		Additional irq triggering flags for irq channel 0
++ * @irq_flags2:		Additional irq triggering flags for irq channel 1
++ * @duration1:		Wake up unit 1 duration parameter
++ * @duration2:		Wake up unit 2 duration parameter
++ * @wakeup_flags:	Wake up unit 1 flags
++ * @wakeup_thresh:	Wake up unit 1 threshold value
++ * @wakeup_flags2:	Wake up unit 2 flags
++ * @wakeup_thresh2:	Wake up unit 2 threshold value
++ * @hipass_ctrl:	High pass filter control (enable / disable, cut off
++ *			frequency)
++ * @axis_x:		Sensor orientation remapping for x-axis
++ * @axis_y:		Sensor orientation remapping for y-axis
++ * @axis_z:		Sensor orientation remapping for z-axis
++ * @driver_features:	Enable bits for different features. Disabled by default
++ * @default_rate:	Default sampling rate. 0 means reset default
++ * @setup_resources:	Interrupt line setup call back function
++ * @release_resources:	Interrupt line release call back function
++ * @st_min_limits[3]:	Selftest acceptance minimum values
++ * @st_max_limits[3]:	Selftest acceptance maximum values
++ * @irq2:		Irq line 2 number
++ *
++ * Platform data is used to setup the sensor chip. Meaning of the different
++ * chip features can be found from the data sheet. It is publicly available
++ * at www.st.com web pages. Currently the platform data is used
++ * only for the 8 bit device. The 8 bit device has two wake up / free fall
++ * detection units and click detection unit. There are plenty of ways to
++ * configure the chip which makes is quite hard to explain deeper meaning of
++ * the fields here. Behaviour of the detection blocks varies heavily depending
++ * on the configuration. For example, interrupt detection block can use high
++ * pass filtered data which makes it react to the changes in the acceleration.
++ * Irq_flags can be used to enable interrupt detection on the both edges.
++ * With proper chip configuration this produces interrupt when some trigger
++ * starts and when it goes away.
++ */
++
+ struct lis3lv02d_platform_data {
+ 	/* please note: the 'click' feature is only supported for
+ 	 * LIS[32]02DL variants of the chip and will be ignored for
+-- 
+1.6.0.4
