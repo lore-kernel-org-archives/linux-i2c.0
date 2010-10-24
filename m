@@ -1,154 +1,52 @@
 From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 03/12] hwmon: lis3: Cleanup interrupt
-	handling
-Date: Sun, 24 Oct 2010 16:18:29 +0200
-Message-ID: <4CC44035.5070303@tremplin-utc.net>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
-	<1287748654-2626-4-git-send-email-samu.p.onkalo@nokia.com>
+Subject: Re: [PATCH 06/12] hwmon: lis3: restore axis enabled bits
+Date: Sun, 24 Oct 2010 16:24:15 +0200
+Message-ID: <4CC4418F.3070507@tremplin-utc.net>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com> <1287748654-2626-7-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <1287748654-2626-4-git-send-email-samu.p.onkalo@nokia.com>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1287748654-2626-7-git-send-email-samu.p.onkalo@nokia.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org
+Cc: khali@linux-fr.org, guenter.roeck@ericsson.com, jic23@cam.ac.uk, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Op 22-10-10 13:57, Samu Onkalo schreef:
-> Irqcfg moved to chip data instead of platform data.
-> This simplifies access in interrupt handler little bit.
->
-> Input device open and close functions set status for
-> interrupt threaded handler once.
->
-> Unnecessary check for interrupt source removed since
-> it is enough that active interrupt line indicates that
-> there was an interrupt.
+> All axis enable bits are set to 0 at module remove.
+> Restore reset default value at init.
 >
 > Signed-off-by: Samu Onkalo<samu.p.onkalo@nokia.com>
 Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
 > ---
->   drivers/hwmon/lis3lv02d.c |   33 +++++++++++----------------------
->   drivers/hwmon/lis3lv02d.h |    2 ++
->   2 files changed, 13 insertions(+), 22 deletions(-)
+>   drivers/hwmon/lis3lv02d_i2c.c |    2 +-
+>   drivers/hwmon/lis3lv02d_spi.c |    2 +-
+>   2 files changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-> index ade6f3a..fe97390 100644
-> --- a/drivers/hwmon/lis3lv02d.c
-> +++ b/drivers/hwmon/lis3lv02d.c
-> @@ -309,10 +309,14 @@ static void lis3lv02d_joystick_open(struct input_polled_dev *pidev)
->   {
->   	if (lis3_dev.pm_dev)
->   		pm_runtime_get_sync(lis3_dev.pm_dev);
-> +
-> +	if (lis3_dev.pdata&&  lis3_dev.whoami == WAI_8B&&  lis3_dev.idev)
-> +		atomic_set(&lis3_dev.wake_thread, 1);
+> diff --git a/drivers/hwmon/lis3lv02d_i2c.c b/drivers/hwmon/lis3lv02d_i2c.c
+> index 98983cc..36171bf 100644
+> --- a/drivers/hwmon/lis3lv02d_i2c.c
+> +++ b/drivers/hwmon/lis3lv02d_i2c.c
+> @@ -83,7 +83,7 @@ static int lis3_i2c_init(struct lis3lv02d *lis3)
+>   	if (ret<  0)
+>   		return ret;
+>
+> -	reg |= CTRL1_PD0;
+> +	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
+>   	return lis3->write(lis3, CTRL_REG1, reg);
 >   }
 >
->   static void lis3lv02d_joystick_close(struct input_polled_dev *pidev)
->   {
-> +	atomic_set(&lis3_dev.wake_thread, 0);
->   	if (lis3_dev.pm_dev)
->   		pm_runtime_put(lis3_dev.pm_dev);
->   }
-> @@ -332,8 +336,7 @@ static irqreturn_t lis302dl_interrupt(int irq, void *dummy)
->   	wake_up_interruptible(&lis3_dev.misc_wait);
->   	kill_fasync(&lis3_dev.async_queue, SIGIO, POLL_IN);
->   out:
-> -	if (lis3_dev.pdata&&  lis3_dev.whoami == WAI_8B&&  lis3_dev.idev&&
-> -	    lis3_dev.idev->input->users)
-> +	if (atomic_read(&lis3_dev.wake_thread))
->   		return IRQ_WAKE_THREAD;
->   	return IRQ_HANDLED;
->   }
-> @@ -364,31 +367,15 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
->   	mutex_unlock(&lis3->mutex);
+> diff --git a/drivers/hwmon/lis3lv02d_spi.c b/drivers/hwmon/lis3lv02d_spi.c
+> index b9be5e3..778885d 100644
+> --- a/drivers/hwmon/lis3lv02d_spi.c
+> +++ b/drivers/hwmon/lis3lv02d_spi.c
+> @@ -50,7 +50,7 @@ static int lis3_spi_init(struct lis3lv02d *lis3)
+>   	if (ret<  0)
+>   		return ret;
+>
+> -	reg |= CTRL1_PD0;
+> +	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
+>   	return lis3->write(lis3, CTRL_REG1, reg);
 >   }
 >
-> -static void lis302dl_interrupt_handle_ff_wu(struct lis3lv02d *lis3)
-> -{
-> -	u8 wu1_src;
-> -	u8 wu2_src;
-> -
-> -	lis3->read(lis3, FF_WU_SRC_1,&wu1_src);
-> -	lis3->read(lis3, FF_WU_SRC_2,&wu2_src);
-> -
-> -	wu1_src = wu1_src&  FF_WU_SRC_IA ? wu1_src : 0;
-> -	wu2_src = wu2_src&  FF_WU_SRC_IA ? wu2_src : 0;
-> -
-> -	/* joystick poll is internally protected by the lis3->mutex. */
-> -	if (wu1_src || wu2_src)
-> -		lis3lv02d_joystick_poll(lis3_dev.idev);
-> -}
-> -
->   static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
->   {
->
->   	struct lis3lv02d *lis3 = data;
->
-> -	if ((lis3->pdata->irq_cfg&  LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
-> +	if ((lis3->irq_cfg&  LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
->   		lis302dl_interrupt_handle_click(lis3);
->   	else
-> -		lis302dl_interrupt_handle_ff_wu(lis3);
-> +		lis3lv02d_joystick_poll(lis3->idev);
->
->   	return IRQ_HANDLED;
->   }
-> @@ -398,10 +385,10 @@ static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
->
->   	struct lis3lv02d *lis3 = data;
->
-> -	if ((lis3->pdata->irq_cfg&  LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
-> +	if ((lis3->irq_cfg&  LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
->   		lis302dl_interrupt_handle_click(lis3);
->   	else
-> -		lis302dl_interrupt_handle_ff_wu(lis3);
-> +		lis3lv02d_joystick_poll(lis3->idev);
->
->   	return IRQ_HANDLED;
->   }
-> @@ -788,6 +775,7 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
->   	}
->
->   	mutex_init(&dev->mutex);
-> +	atomic_set(&dev->wake_thread, 0);
->
->   	lis3lv02d_add_fs(dev);
->   	lis3lv02d_poweron(dev);
-> @@ -808,6 +796,7 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
->   		if (dev->whoami == WAI_8B)
->   			lis3lv02d_8b_configure(dev, p);
->
-> +		dev->irq_cfg = p->irq_cfg;
->   		if (p->irq_cfg)
->   			dev->write(dev, CTRL_REG3, p->irq_cfg);
->   	}
-> diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
-> index 7661e59..66e37b1 100644
-> --- a/drivers/hwmon/lis3lv02d.h
-> +++ b/drivers/hwmon/lis3lv02d.h
-> @@ -252,6 +252,8 @@ struct lis3lv02d {
->   	struct fasync_struct	*async_queue; /* queue for the misc device */
->   	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
->   	unsigned long		misc_opened; /* bit0: whether the device is open */
-> +	atomic_t                wake_thread;
-> +	unsigned char           irq_cfg;
->
->   	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
->   	struct mutex		mutex;     /* Serialize poll and selftest */
-
-
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
