@@ -1,91 +1,198 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 05/12] hwmon: lis3: Power on corrections
-Date: Sun, 24 Oct 2010 16:22:06 +0200
-Message-ID: <4CC4410E.20003@tremplin-utc.net>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
-	<1287748654-2626-6-git-send-email-samu.p.onkalo@nokia.com>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+Subject: Re: [PATCH 10/12] hwmon: lis3: Enhance lis3 selftest with IRQ line
+ test
+Date: Sun, 24 Oct 2010 16:58:53 +0200
+Message-ID: <4CC449AD.7010503@tremplin-utc.net>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com> <1287748654-2626-11-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <1287748654-2626-6-git-send-email-samu.p.onkalo@nokia.com>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1287748654-2626-11-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Op 22-10-10 13:57, Samu Onkalo schreef:
-> Sometimes lis3 chip seems to fail to setup factory tuning at boot up.
-> This probably happens if there is some odd power ramp down ramp up sequence
-> for example in device restart. Set boot bit in control2 register to
-> trig boot sequence manually and wait until it is finished.
+> Configure chip to data ready mode in selftest and count received
+> interrupts to see that interrupt line(s) are working.
 >
-> Signed-off-by: Samu Onkalo<samu.p.onkalo@nokia.com>
-> Acked-by: Jonathan Cameron<jic23@cam.ac.uk>
-Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
+> Signed-off-by: Samu Onkalo<samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Acked-by: Eric Piel <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
 > ---
->   drivers/hwmon/lis3lv02d.c |   19 +++++++++++--------
->   drivers/hwmon/lis3lv02d.h |    1 +
->   2 files changed, 12 insertions(+), 8 deletions(-)
+>   drivers/hwmon/lis3lv02d.c |   87 ++++++++++++++++++++++++++++++++++++++++----
+>   drivers/hwmon/lis3lv02d.h |    3 +-
+>   2 files changed, 81 insertions(+), 9 deletions(-)
 >
 > diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-> index e2e0bb4..b44d4c5 100644
+> index 9fd946c..f0343f3 100644
 > --- a/drivers/hwmon/lis3lv02d.c
 > +++ b/drivers/hwmon/lis3lv02d.c
-> @@ -273,19 +273,22 @@ void lis3lv02d_poweron(struct lis3lv02d *lis3)
+> @@ -48,6 +48,13 @@
 >
->   	lis3->init(lis3);
+>   #define LIS3_SYSFS_POWERDOWN_DELAY 5000 /* In milliseconds */
 >
-> -	/* LIS3 power on delay is quite long */
-> -	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
-> -
->   	/*
->   	 * Common configuration
->   	 * BDU: (12 bits sensors only) LSB and MSB values are not updated until
->   	 *      both have been read. So the value read will always be correct.
-> +	 * Set BOOT bit to refresh factory tuning values.
->   	 */
-> -	if (lis3->whoami ==  WAI_12B) {
-> -		lis3->read(lis3, CTRL_REG2,&reg);
-> -		reg |= CTRL2_BDU;
-> -		lis3->write(lis3, CTRL_REG2, reg);
-> -	}
-> +	lis3->read(lis3, CTRL_REG2,&reg);
-> +	if (lis3->whoami ==  WAI_12B)
-> +		reg |= CTRL2_BDU | CTRL2_BOOT;
-> +	else
-> +		reg |= CTRL2_BOOT_8B;
-> +	lis3->write(lis3, CTRL_REG2, reg);
+> +#define SELFTEST_OK	       0
+> +#define SELFTEST_FAIL	       -1
+> +#define SELFTEST_IRQ	       -2
 > +
-> +	/* LIS3 power on delay is quite long */
-> +	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
+> +#define IRQ_LINE0	       0
+> +#define IRQ_LINE1	       1
 > +
->   	if (lis3->reg_ctrl)
->   		lis3_context_restore(lis3);
+>   /*
+>    * The sensor can also generate interrupts (DRDY) but it's pretty pointless
+>    * because they are generated even if the data do not change. So it's better
+> @@ -198,6 +205,8 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+>   	s16 x, y, z;
+>   	u8 selftest;
+>   	int ret;
+> +	u8 ctrl_reg_data;
+> +	unsigned char irq_cfg;
+>
+>   	mutex_lock(&lis3->mutex);
+>   	if (lis3_dev.whoami == WAI_12B)
+> @@ -205,6 +214,20 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+>   	else
+>   		selftest = CTRL1_STP;
+>
+> +	irq_cfg = lis3->irq_cfg;
+> +	if (lis3_dev.whoami == WAI_8B) {
+> +		lis3->data_ready_count[IRQ_LINE0] = 0;
+> +		lis3->data_ready_count[IRQ_LINE1] = 0;
+> +
+> +		/* Change interrupt cfg to data ready for selftest */
+> +		atomic_inc(&lis3_dev.wake_thread);
+> +		lis3->irq_cfg = LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY;
+> +		lis3->read(lis3, CTRL_REG3,&ctrl_reg_data);
+> +		lis3->write(lis3, CTRL_REG3, (ctrl_reg_data&
+> +				~(LIS3_IRQ1_MASK | LIS3_IRQ2_MASK)) |
+> +				(LIS3_IRQ1_DATA_READY | LIS3_IRQ2_DATA_READY));
+> +	}
+> +
+>   	lis3->read(lis3, CTRL_REG1,&reg);
+>   	lis3->write(lis3, CTRL_REG1, (reg | selftest));
+>   	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
+> @@ -223,13 +246,33 @@ static int lis3lv02d_selftest(struct lis3lv02d *lis3, s16 results[3])
+>   	results[2] = z - lis3->read_data(lis3, OUTZ);
+>
+>   	ret = 0;
+> +
+> +	if (lis3_dev.whoami == WAI_8B) {
+> +		/* Restore original interrupt configuration */
+> +		atomic_dec(&lis3_dev.wake_thread);
+> +		lis3->write(lis3, CTRL_REG3, ctrl_reg_data);
+> +		lis3->irq_cfg = irq_cfg;
+> +
+> +		if ((irq_cfg&  LIS3_IRQ1_MASK)&&
+> +			lis3->data_ready_count[IRQ_LINE0]<  2) {
+> +			ret = SELFTEST_IRQ;
+> +			goto fail;
+> +		}
+> +
+> +		if ((irq_cfg&  LIS3_IRQ2_MASK)&&
+> +			lis3->data_ready_count[IRQ_LINE1]<  2) {
+> +			ret = SELFTEST_IRQ;
+> +			goto fail;
+> +		}
+> +	}
+> +
+>   	if (lis3->pdata) {
+>   		int i;
+>   		for (i = 0; i<  3; i++) {
+>   			/* Check against selftest acceptance limits */
+>   			if ((results[i]<  lis3->pdata->st_min_limits[i]) ||
+>   			    (results[i]>  lis3->pdata->st_max_limits[i])) {
+> -				ret = -EIO;
+> +				ret = SELFTEST_FAIL;
+>   				goto fail;
+>   			}
+>   		}
+> @@ -392,13 +435,24 @@ static void lis302dl_interrupt_handle_click(struct lis3lv02d *lis3)
+>   	mutex_unlock(&lis3->mutex);
 >   }
+>
+> -static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
+> +static inline void lis302dl_data_ready(struct lis3lv02d *lis3, int index)
+>   {
+> +	int dummy;
+>
+> +	/* Dummy read to ack interrupt */
+> +	lis3lv02d_get_xyz(lis3,&dummy,&dummy,&dummy);
+> +	lis3->data_ready_count[index]++;
+> +}
+> +
+> +static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
+> +{
+>   	struct lis3lv02d *lis3 = data;
+> +	u8 irq_cfg = lis3->irq_cfg&  LIS3_IRQ1_MASK;
+>
+> -	if ((lis3->irq_cfg&  LIS3_IRQ1_MASK) == LIS3_IRQ1_CLICK)
+> +	if (irq_cfg == LIS3_IRQ1_CLICK)
+>   		lis302dl_interrupt_handle_click(lis3);
+> +	else if (unlikely(irq_cfg == LIS3_IRQ1_DATA_READY))
+> +		lis302dl_data_ready(lis3, IRQ_LINE0);
+>   	else
+>   		lis3lv02d_joystick_poll(lis3->idev);
+>
+> @@ -407,11 +461,13 @@ static irqreturn_t lis302dl_interrupt_thread1_8b(int irq, void *data)
+>
+>   static irqreturn_t lis302dl_interrupt_thread2_8b(int irq, void *data)
+>   {
+> -
+>   	struct lis3lv02d *lis3 = data;
+> +	u8 irq_cfg = lis3->irq_cfg&  LIS3_IRQ2_MASK;
+>
+> -	if ((lis3->irq_cfg&  LIS3_IRQ2_MASK) == LIS3_IRQ2_CLICK)
+> +	if (irq_cfg == LIS3_IRQ2_CLICK)
+>   		lis302dl_interrupt_handle_click(lis3);
+> +	else if (unlikely(irq_cfg == LIS3_IRQ2_DATA_READY))
+> +		lis302dl_data_ready(lis3, IRQ_LINE1);
+>   	else
+>   		lis3lv02d_joystick_poll(lis3->idev);
+>
+> @@ -614,12 +670,27 @@ static void lis3lv02d_sysfs_poweron(struct lis3lv02d *lis3)
+>   static ssize_t lis3lv02d_selftest_show(struct device *dev,
+>   				struct device_attribute *attr, char *buf)
+>   {
+> -	int result;
+>   	s16 values[3];
+>
+> +	static const char ok[] = "OK";
+> +	static const char fail[] = "FAIL";
+> +	static const char irq[] = "FAIL_IRQ";
+> +	const char *res;
+> +
+>   	lis3lv02d_sysfs_poweron(&lis3_dev);
+> -	result = lis3lv02d_selftest(&lis3_dev, values);
+> -	return sprintf(buf, "%s %d %d %d\n", result == 0 ? "OK" : "FAIL",
+> +	switch (lis3lv02d_selftest(&lis3_dev, values)) {
+> +	case SELFTEST_FAIL:
+> +		res = fail;
+> +		break;
+> +	case SELFTEST_IRQ:
+> +		res = irq;
+> +		break;
+> +	case SELFTEST_OK:
+> +	default:
+> +		res = ok;
+> +		break;
+> +	}
+> +	return sprintf(buf, "%s %d %d %d\n", res,
+>   		values[0], values[1], values[2]);
+>   }
+>
 > diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
-> index 66e37b1..2ac27b9 100644
+> index d3cb662..7b22cd9 100644
 > --- a/drivers/hwmon/lis3lv02d.h
 > +++ b/drivers/hwmon/lis3lv02d.h
-> @@ -133,6 +133,7 @@ enum lis3lv02d_ctrl2 {
->   enum lis302d_ctrl2 {
->   	HP_FF_WU2	= 0x08,
->   	HP_FF_WU1	= 0x04,
-> +	CTRL2_BOOT_8B   = 0x40,
->   };
+> @@ -254,7 +254,8 @@ struct lis3lv02d {
+>   	struct fasync_struct	*async_queue; /* queue for the misc device */
+>   	wait_queue_head_t	misc_wait; /* Wait queue for the misc device */
+>   	unsigned long		misc_opened; /* bit0: whether the device is open */
+> -	atomic_t                wake_thread;
+> +	int                     data_ready_count[2];
+> +	atomic_t		wake_thread;
+>   	unsigned char           irq_cfg;
 >
->   enum lis3lv02d_ctrl3 {
-
-
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+>   	struct lis3lv02d_platform_data *pdata;	/* for passing board config */
