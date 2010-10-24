@@ -1,64 +1,91 @@
 From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 08/12] hwmon: lis3: Adjust fuzziness for 8 bit device
-Date: Sun, 24 Oct 2010 16:33:40 +0200
-Message-ID: <4CC443C4.1040700@tremplin-utc.net>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com> <1287748654-2626-9-git-send-email-samu.p.onkalo@nokia.com>
+Subject: Re: [PATCH 05/12] hwmon: lis3: Power on corrections
+Date: Sun, 24 Oct 2010 16:22:06 +0200
+Message-ID: <4CC4410E.20003@tremplin-utc.net>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1287748654-2626-6-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1287748654-2626-9-git-send-email-samu.p.onkalo@nokia.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+In-Reply-To: <1287748654-2626-6-git-send-email-samu.p.onkalo@nokia.com>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
 To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: khali@linux-fr.org, guenter.roeck@ericsson.com, jic23@cam.ac.uk, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Op 22-10-10 13:57, Samu Onkalo schreef:
-> Default fuziness is set smaller for 8 device.
-> In 12 bit device LSB is quite close to 1 mg
-> (mg = 1 / 1000 of earth gravity).
-> In 8bit device LSB is about 18 mg.
-> Set fuziness to 1 for 8 bit device.
+> Sometimes lis3 chip seems to fail to setup factory tuning at boot up.
+> This probably happens if there is some odd power ramp down ramp up sequence
+> for example in device restart. Set boot bit in control2 register to
+> trig boot sequence manually and wait until it is finished.
 >
 > Signed-off-by: Samu Onkalo<samu.p.onkalo@nokia.com>
+> Acked-by: Jonathan Cameron<jic23@cam.ac.uk>
 Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
 > ---
->   drivers/hwmon/lis3lv02d.c |   18 ++++++++++++++----
->   1 files changed, 14 insertions(+), 4 deletions(-)
+>   drivers/hwmon/lis3lv02d.c |   19 +++++++++++--------
+>   drivers/hwmon/lis3lv02d.h |    1 +
+>   2 files changed, 12 insertions(+), 8 deletions(-)
 >
 > diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-> index d66cbe1..7555091 100644
+> index e2e0bb4..b44d4c5 100644
 > --- a/drivers/hwmon/lis3lv02d.c
 > +++ b/drivers/hwmon/lis3lv02d.c
-> @@ -71,8 +71,10 @@
->   #define LIS3_SENSITIVITY_12B		((LIS3_ACCURACY * 1000) / 1024)
->   #define LIS3_SENSITIVITY_8B		(18 * LIS3_ACCURACY)
+> @@ -273,19 +273,22 @@ void lis3lv02d_poweron(struct lis3lv02d *lis3)
 >
-> -#define LIS3_DEFAULT_FUZZ		3
-> -#define LIS3_DEFAULT_FLAT		3
-> +#define LIS3_DEFAULT_FUZZ_12B		3
-> +#define LIS3_DEFAULT_FLAT_12B		3
-> +#define LIS3_DEFAULT_FUZZ_8B		1
-> +#define LIS3_DEFAULT_FLAT_8B		1
+>   	lis3->init(lis3);
 >
->   struct lis3lv02d lis3_dev = {
->   	.misc_wait   = __WAIT_QUEUE_HEAD_INITIALIZER(lis3_dev.misc_wait),
-> @@ -530,8 +532,16 @@ int lis3lv02d_joystick_enable(void)
->
->   	set_bit(EV_ABS, input_dev->evbit);
->   	max_val = (lis3_dev.mdps_max_val * lis3_dev.scale) / LIS3_ACCURACY;
-> -	fuzz = (LIS3_DEFAULT_FUZZ * lis3_dev.scale) / LIS3_ACCURACY;
-> -	flat = (LIS3_DEFAULT_FLAT * lis3_dev.scale) / LIS3_ACCURACY;
-> +	if (lis3_dev.whoami == WAI_12B) {
-> +		fuzz = LIS3_DEFAULT_FUZZ_12B;
-> +		flat = LIS3_DEFAULT_FLAT_12B;
-> +	} else {
-> +		fuzz = LIS3_DEFAULT_FUZZ_8B;
-> +		flat = LIS3_DEFAULT_FLAT_8B;
-> +	}
-> +	fuzz = (fuzz * lis3_dev.scale) / LIS3_ACCURACY;
-> +	flat = (flat * lis3_dev.scale) / LIS3_ACCURACY;
+> -	/* LIS3 power on delay is quite long */
+> -	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
+> -
+>   	/*
+>   	 * Common configuration
+>   	 * BDU: (12 bits sensors only) LSB and MSB values are not updated until
+>   	 *      both have been read. So the value read will always be correct.
+> +	 * Set BOOT bit to refresh factory tuning values.
+>   	 */
+> -	if (lis3->whoami ==  WAI_12B) {
+> -		lis3->read(lis3, CTRL_REG2,&reg);
+> -		reg |= CTRL2_BDU;
+> -		lis3->write(lis3, CTRL_REG2, reg);
+> -	}
+> +	lis3->read(lis3, CTRL_REG2,&reg);
+> +	if (lis3->whoami ==  WAI_12B)
+> +		reg |= CTRL2_BDU | CTRL2_BOOT;
+> +	else
+> +		reg |= CTRL2_BOOT_8B;
+> +	lis3->write(lis3, CTRL_REG2, reg);
 > +
->   	input_set_abs_params(input_dev, ABS_X, -max_val, max_val, fuzz, flat);
->   	input_set_abs_params(input_dev, ABS_Y, -max_val, max_val, fuzz, flat);
->   	input_set_abs_params(input_dev, ABS_Z, -max_val, max_val, fuzz, flat);
+> +	/* LIS3 power on delay is quite long */
+> +	msleep(lis3->pwron_delay / lis3lv02d_get_odr());
+> +
+>   	if (lis3->reg_ctrl)
+>   		lis3_context_restore(lis3);
+>   }
+> diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
+> index 66e37b1..2ac27b9 100644
+> --- a/drivers/hwmon/lis3lv02d.h
+> +++ b/drivers/hwmon/lis3lv02d.h
+> @@ -133,6 +133,7 @@ enum lis3lv02d_ctrl2 {
+>   enum lis302d_ctrl2 {
+>   	HP_FF_WU2	= 0x08,
+>   	HP_FF_WU1	= 0x04,
+> +	CTRL2_BOOT_8B   = 0x40,
+>   };
+>
+>   enum lis3lv02d_ctrl3 {
+
+
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
