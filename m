@@ -1,142 +1,49 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 07/12] hwmon: lis3: New parameters to
-	platform data
-Date: Sun, 24 Oct 2010 16:27:10 +0200
-Message-ID: <4CC4423E.9010403@tremplin-utc.net>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 00/12] lis3 accelerator feature update
+Date: Sun, 24 Oct 2010 08:35:48 -0700
+Message-ID: <20101024153548.GA14303@ericsson.com>
 References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
-	<1287748654-2626-8-git-send-email-samu.p.onkalo@nokia.com>
+ <4CC44B3D.5030404@tremplin-utc.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <1287748654-2626-8-git-send-email-samu.p.onkalo@nokia.com>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4CC44B3D.5030404-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+Cc: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org" <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Op 22-10-10 13:57, Samu Onkalo schreef:
-> Added default output data rate setting to platform data.
-> If default rate is 0, reset default value is used.
-> Added control for duration via platform data.
-> Added possibility to configure interrupts to trig on
-> both rising and falling edge. The lis3 WU unit can be
-> configured quite many ways and with some configurations it
-> is quite handy to get coordinate refresh when some
-> event trigs and when it reason goes away.
->
-> Signed-off-by: Samu Onkalo<samu.p.onkalo@nokia.com>
-Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
+On Sun, Oct 24, 2010 at 11:05:33AM -0400, =C9ric Piel wrote:
+> Op 22-10-10 13:57, Samu Onkalo schreef:
+> > Changes are tested only with I2C interface using 8bit sensor since =
+I don't
+> > have other possibilities. Some features are not enabled
+> > by default since I can't test them with all possible configurations=
+=2E
+> > Platform data contains field which controls new features.
+> Thanks Samu for persevering with the automatic power down feature.=20
+> Hopefully I'll find also some time to activate it on the hp_accel sid=
+e.
+>=20
+> For now, I've reviewed the changes and everything looked fine, as wel=
+l=20
+> as tested them on my HP laptop (with a 12 bits sensor). Although most=
+ of=20
+> the changes are not visible on this platform, at least there shouldn'=
+t=20
+> be any regression.
+>=20
+Great, thanks.
 
-> ---
->   drivers/hwmon/lis3lv02d.c |   21 ++++++++++++++-------
->   include/linux/lis3lv02d.h |    6 +++++-
->   2 files changed, 19 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
-> index b44d4c5..d66cbe1 100644
-> --- a/drivers/hwmon/lis3lv02d.c
-> +++ b/drivers/hwmon/lis3lv02d.c
-> @@ -706,16 +706,16 @@ static void lis3lv02d_8b_configure(struct lis3lv02d *dev,
->   	if (p->wakeup_flags) {
->   		dev->write(dev, FF_WU_CFG_1, p->wakeup_flags);
->   		dev->write(dev, FF_WU_THS_1, p->wakeup_thresh&  0x7f);
-> -		/* default to 2.5ms for now */
-> -		dev->write(dev, FF_WU_DURATION_1, 1);
-> +		/* pdata value + 1 to keep this backward compatible*/
-> +		dev->write(dev, FF_WU_DURATION_1, p->duration1 + 1);
->   		ctrl2 ^= HP_FF_WU1; /* Xor to keep compatible with old pdata*/
->   	}
->
->   	if (p->wakeup_flags2) {
->   		dev->write(dev, FF_WU_CFG_2, p->wakeup_flags2);
->   		dev->write(dev, FF_WU_THS_2, p->wakeup_thresh2&  0x7f);
-> -		/* default to 2.5ms for now */
-> -		dev->write(dev, FF_WU_DURATION_2, 1);
-> +		/* pdata value + 1 to keep this backward compatible*/
-> +		dev->write(dev, FF_WU_DURATION_2, p->duration2 + 1);
->   		ctrl2 ^= HP_FF_WU2; /* Xor to keep compatible with old pdata*/
->   	}
->   	/* Configure hipass filters */
-> @@ -725,8 +725,8 @@ static void lis3lv02d_8b_configure(struct lis3lv02d *dev,
->   		err = request_threaded_irq(p->irq2,
->   					NULL,
->   					lis302dl_interrupt_thread2_8b,
-> -					IRQF_TRIGGER_RISING |
-> -					IRQF_ONESHOT,
-> +					IRQF_TRIGGER_RISING | IRQF_ONESHOT |
-> +					(p->irq_flags2&  IRQF_TRIGGER_MASK),
->   					DRIVER_NAME,&lis3_dev);
->   		if (err<  0)
->   			printk(KERN_ERR DRIVER_NAME
-> @@ -742,6 +742,7 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
->   {
->   	int err;
->   	irq_handler_t thread_fn;
-> +	int irq_flags = 0;
->
->   	dev->whoami = lis3lv02d_read_8(dev, WHO_AM_I);
->
-> @@ -804,9 +805,14 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
->   		if (dev->whoami == WAI_8B)
->   			lis3lv02d_8b_configure(dev, p);
->
-> +		irq_flags = p->irq_flags1&  IRQF_TRIGGER_MASK;
-> +
->   		dev->irq_cfg = p->irq_cfg;
->   		if (p->irq_cfg)
->   			dev->write(dev, CTRL_REG3, p->irq_cfg);
-> +
-> +		if (p->default_rate)
-> +			lis3lv02d_set_odr(p->default_rate);
->   	}
->
->   	/* bail if we did not get an IRQ from the bus layer */
-> @@ -834,7 +840,8 @@ int lis3lv02d_init_device(struct lis3lv02d *dev)
->
->   	err = request_threaded_irq(dev->irq, lis302dl_interrupt,
->   				thread_fn,
-> -				IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-> +				IRQF_TRIGGER_RISING | IRQF_ONESHOT |
-> +				irq_flags,
->   				DRIVER_NAME,&lis3_dev);
->
->   	if (err<  0) {
-> diff --git a/include/linux/lis3lv02d.h b/include/linux/lis3lv02d.h
-> index c4a4a52..18d578f 100644
-> --- a/include/linux/lis3lv02d.h
-> +++ b/include/linux/lis3lv02d.h
-> @@ -36,7 +36,10 @@ struct lis3lv02d_platform_data {
->   #define LIS3_IRQ_OPEN_DRAIN	(1<<  6)
->   #define LIS3_IRQ_ACTIVE_LOW	(1<<  7)
->   	unsigned char irq_cfg;
-> -
-> +	unsigned char irq_flags1; /* Additional irq edge / level flags */
-> +	unsigned char irq_flags2; /* Additional irq edge / level flags */
-> +	unsigned char duration1;
-> +	unsigned char duration2;
->   #define LIS3_WAKEUP_X_LO	(1<<  0)
->   #define LIS3_WAKEUP_X_HI	(1<<  1)
->   #define LIS3_WAKEUP_Y_LO	(1<<  2)
-> @@ -66,6 +69,7 @@ struct lis3lv02d_platform_data {
->   	s8 axis_z;
->   #define LIS3_USE_REGULATOR_CTRL 0x01
->   	u16 driver_features;
-> +	int default_rate;
->   	int (*setup_resources)(void);
->   	int (*release_resources)(void);
->   	/* Limits for selftest are specified in chip data sheet */
+Unfortunately, the patches don't apply to my staging branch, probably
+because of the other pending lis3 changes.
 
+Samu, please rebase your patches to=20
+	git://git.kernel.org/pub/scm/linux/kernel/git/groeck/staging.git hwmon=
+-next
+and resubmit.
 
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+Thanks,
+Guenter
