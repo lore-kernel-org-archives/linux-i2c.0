@@ -1,38 +1,30 @@
-From: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
-Subject: [PATCH] sh: i2c-sh7760: Replase from ctrl_* to __raw_*
-Date: Sun, 24 Oct 2010 17:37:46 +0900
-Message-ID: <1287909466-16898-1-git-send-email-iwamatsu@nigauri.org>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+Subject: Re: [PATCH 00/12] lis3 accelerator feature update
+Date: Sun, 24 Oct 2010 17:05:33 +0200
+Message-ID: <4CC44B3D.5030404@tremplin-utc.net>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1287748654-2626-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-ctrl_* is deprecated. We should to use __raw_*.
+Op 22-10-10 13:57, Samu Onkalo schreef:
+> Changes are tested only with I2C interface using 8bit sensor since I don't
+> have other possibilities. Some features are not enabled
+> by default since I can't test them with all possible configurations.
+> Platform data contains field which controls new features.
+Thanks Samu for persevering with the automatic power down feature. 
+Hopefully I'll find also some time to activate it on the hp_accel side.
 
-Signed-off-by: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
----
- drivers/i2c/busses/i2c-sh7760.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+For now, I've reviewed the changes and everything looked fine, as well 
+as tested them on my HP laptop (with a 12 bits sensor). Although most of 
+the changes are not visible on this platform, at least there shouldn't 
+be any regression.
 
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index 4f93da3..3cad8fe 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -101,12 +101,12 @@ struct cami2c {
- 
- static inline void OUT32(struct cami2c *cam, int reg, unsigned long val)
- {
--	ctrl_outl(val, (unsigned long)cam->iobase + reg);
-+	__raw_writel(val, (unsigned long)cam->iobase + reg);
- }
- 
- static inline unsigned long IN32(struct cami2c *cam, int reg)
- {
--	return ctrl_inl((unsigned long)cam->iobase + reg);
-+	return __raw_readl((unsigned long)cam->iobase + reg);
- }
- 
- static irqreturn_t sh7760_i2c_irq(int irq, void *ptr)
--- 
-1.7.2.3
+Thanks,
+Eric
