@@ -1,52 +1,120 @@
 From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 06/12] hwmon: lis3: restore axis enabled bits
-Date: Sun, 24 Oct 2010 16:24:15 +0200
-Message-ID: <4CC4418F.3070507@tremplin-utc.net>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com> <1287748654-2626-7-git-send-email-samu.p.onkalo@nokia.com>
+Subject: Re: [PATCH 09/12] hwmon: lis3: use block read to access data registers
+Date: Sun, 24 Oct 2010 16:53:52 +0200
+Message-ID: <4CC44880.6030107@tremplin-utc.net>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com> <1287748654-2626-10-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1287748654-2626-7-git-send-email-samu.p.onkalo@nokia.com>
+In-Reply-To: <1287748654-2626-10-git-send-email-samu.p.onkalo@nokia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Samu Onkalo <samu.p.onkalo@nokia.com>
 Cc: khali@linux-fr.org, guenter.roeck@ericsson.com, jic23@cam.ac.uk, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Op 22-10-10 13:57, Samu Onkalo schreef:
-> All axis enable bits are set to 0 at module remove.
-> Restore reset default value at init.
+> Add optional blockread function to interface driver. If available
+> the chip driver uses it for data register access. For 12 bit device
+> it reads 6 bytes to get 3*16bit data. For 8 bit device it reads out
+> 5 bytes since every second byte is dummy.
+> This optimizes bus usage and reduces number of operations and
+> interrupts needed for one data update.
 >
 > Signed-off-by: Samu Onkalo<samu.p.onkalo@nokia.com>
 Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
+
 > ---
->   drivers/hwmon/lis3lv02d_i2c.c |    2 +-
->   drivers/hwmon/lis3lv02d_spi.c |    2 +-
->   2 files changed, 2 insertions(+), 2 deletions(-)
+>   drivers/hwmon/lis3lv02d.c     |   21 ++++++++++++++++++---
+>   drivers/hwmon/lis3lv02d.h     |    1 +
+>   drivers/hwmon/lis3lv02d_i2c.c |   13 +++++++++++++
+>   include/linux/lis3lv02d.h     |    1 +
+>   4 files changed, 33 insertions(+), 3 deletions(-)
 >
+> diff --git a/drivers/hwmon/lis3lv02d.c b/drivers/hwmon/lis3lv02d.c
+> index 7555091..9fd946c 100644
+> --- a/drivers/hwmon/lis3lv02d.c
+> +++ b/drivers/hwmon/lis3lv02d.c
+> @@ -130,9 +130,24 @@ static void lis3lv02d_get_xyz(struct lis3lv02d *lis3, int *x, int *y, int *z)
+>   	int position[3];
+>   	int i;
+>
+> -	position[0] = lis3->read_data(lis3, OUTX);
+> -	position[1] = lis3->read_data(lis3, OUTY);
+> -	position[2] = lis3->read_data(lis3, OUTZ);
+> +	if (lis3->blkread) {
+> +		if (lis3_dev.whoami == WAI_12B) {
+> +			u16 data[3];
+> +			lis3->blkread(lis3, OUTX_L, 6, (u8 *)data);
+> +			for (i = 0; i<  3; i++)
+> +				position[i] = (s16)le16_to_cpu(data[i]);
+> +		} else {
+> +			u8 data[5];
+> +			/* Data: x, dummy, y, dummy, z */
+> +			lis3->blkread(lis3, OUTX, 5, data);
+> +			for (i = 0; i<  3; i++)
+> +				position[i] = (s8)data[i * 2];
+> +		}
+> +	} else {
+> +		position[0] = lis3->read_data(lis3, OUTX);
+> +		position[1] = lis3->read_data(lis3, OUTY);
+> +		position[2] = lis3->read_data(lis3, OUTZ);
+> +	}
+>
+>   	for (i = 0; i<  3; i++)
+>   		position[i] = (position[i] * lis3->scale) / LIS3_ACCURACY;
+> diff --git a/drivers/hwmon/lis3lv02d.h b/drivers/hwmon/lis3lv02d.h
+> index 2ac27b9..d3cb662 100644
+> --- a/drivers/hwmon/lis3lv02d.h
+> +++ b/drivers/hwmon/lis3lv02d.h
+> @@ -225,6 +225,7 @@ struct lis3lv02d {
+>   	int (*init) (struct lis3lv02d *lis3);
+>   	int (*write) (struct lis3lv02d *lis3, int reg, u8 val);
+>   	int (*read) (struct lis3lv02d *lis3, int reg, u8 *ret);
+> +	int (*blkread) (struct lis3lv02d *lis3, int reg, int len, u8 *ret);
+>   	int (*reg_ctrl) (struct lis3lv02d *lis3, bool state);
+>
+>   	int                     *odrs;     /* Supported output data rates */
 > diff --git a/drivers/hwmon/lis3lv02d_i2c.c b/drivers/hwmon/lis3lv02d_i2c.c
-> index 98983cc..36171bf 100644
+> index 36171bf..61c109b 100644
 > --- a/drivers/hwmon/lis3lv02d_i2c.c
 > +++ b/drivers/hwmon/lis3lv02d_i2c.c
-> @@ -83,7 +83,7 @@ static int lis3_i2c_init(struct lis3lv02d *lis3)
->   	if (ret<  0)
->   		return ret;
->
-> -	reg |= CTRL1_PD0;
-> +	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
->   	return lis3->write(lis3, CTRL_REG1, reg);
+> @@ -66,6 +66,14 @@ static inline s32 lis3_i2c_read(struct lis3lv02d *lis3, int reg, u8 *v)
+>   	return 0;
 >   }
 >
-> diff --git a/drivers/hwmon/lis3lv02d_spi.c b/drivers/hwmon/lis3lv02d_spi.c
-> index b9be5e3..778885d 100644
-> --- a/drivers/hwmon/lis3lv02d_spi.c
-> +++ b/drivers/hwmon/lis3lv02d_spi.c
-> @@ -50,7 +50,7 @@ static int lis3_spi_init(struct lis3lv02d *lis3)
->   	if (ret<  0)
->   		return ret;
+> +static inline s32 lis3_i2c_blockread(struct lis3lv02d *lis3, int reg, int len,
+> +				u8 *v)
+> +{
+> +	struct i2c_client *c = lis3->bus_priv;
+> +	reg |= (1<<  7); /* 7th bit enables address auto incrementation */
+> +	return i2c_smbus_read_i2c_block_data(c, reg, len, v);
+> +}
+> +
+>   static int lis3_i2c_init(struct lis3lv02d *lis3)
+>   {
+>   	u8 reg;
+> @@ -103,6 +111,11 @@ static int __devinit lis3lv02d_i2c_probe(struct i2c_client *client,
+>   		if (pdata->driver_features&  LIS3_USE_REGULATOR_CTRL)
+>   			lis3_dev.reg_ctrl = lis3_reg_ctrl;
 >
-> -	reg |= CTRL1_PD0;
-> +	reg |= CTRL1_PD0 | CTRL1_Xen | CTRL1_Yen | CTRL1_Zen;
->   	return lis3->write(lis3, CTRL_REG1, reg);
->   }
+> +		if ((pdata->driver_features&  LIS3_USE_BLOCK_READ)&&
+> +			(i2c_check_functionality(client->adapter,
+> +						I2C_FUNC_SMBUS_I2C_BLOCK)))
+> +			lis3_dev.blkread  = lis3_i2c_blockread;
+> +
+>   		if (pdata->axis_x)
+>   			lis3lv02d_axis_map.x = pdata->axis_x;
 >
+> diff --git a/include/linux/lis3lv02d.h b/include/linux/lis3lv02d.h
+> index 18d578f..c949612 100644
+> --- a/include/linux/lis3lv02d.h
+> +++ b/include/linux/lis3lv02d.h
+> @@ -68,6 +68,7 @@ struct lis3lv02d_platform_data {
+>   	s8 axis_y;
+>   	s8 axis_z;
+>   #define LIS3_USE_REGULATOR_CTRL 0x01
+> +#define LIS3_USE_BLOCK_READ	0x02
+>   	u16 driver_features;
+>   	int default_rate;
+>   	int (*setup_resources)(void);
