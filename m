@@ -1,69 +1,76 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [lm-sensors] [PATCH 00/12] lis3 accelerator feature update
-Date: Sun, 24 Oct 2010 10:01:20 -0700
-Message-ID: <20101024170120.GA14747@ericsson.com>
-References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
- <4CC44B3D.5030404@tremplin-utc.net>
- <20101024153548.GA14303@ericsson.com>
- <20101024163529.GA14650@ericsson.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for 2.6.37
+Date: Sun, 24 Oct 2010 20:17:52 +0200
+Message-ID: <20101024201752.68cd9404@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101024163529.GA14650-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 24, 2010 at 12:35:29PM -0400, Guenter Roeck wrote:
-> On Sun, Oct 24, 2010 at 11:35:48AM -0400, Guenter Roeck wrote:
-> > On Sun, Oct 24, 2010 at 11:05:33AM -0400, =C9ric Piel wrote:
-> > > Op 22-10-10 13:57, Samu Onkalo schreef:
-> > > > Changes are tested only with I2C interface using 8bit sensor si=
-nce I don't
-> > > > have other possibilities. Some features are not enabled
-> > > > by default since I can't test them with all possible configurat=
-ions.
-> > > > Platform data contains field which controls new features.
-> > > Thanks Samu for persevering with the automatic power down feature=
-=2E=20
-> > > Hopefully I'll find also some time to activate it on the hp_accel=
- side.
-> > >=20
-> > > For now, I've reviewed the changes and everything looked fine, as=
- well=20
-> > > as tested them on my HP laptop (with a 12 bits sensor). Although =
-most of=20
-> > > the changes are not visible on this platform, at least there shou=
-ldn't=20
-> > > be any regression.
-> > >=20
-> > Great, thanks.
-> >=20
-> > Unfortunately, the patches don't apply to my staging branch, probab=
-ly
-> > because of the other pending lis3 changes.
-> >=20
-> > Samu, please rebase your patches to=20
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/groeck/staging.git h=
-wmon-next
-> > and resubmit.
-> >=20
-> Never mind. Played a bit with git, learned something new, and got it =
-all merged.
-> Now compiling.
->=20
-> Eric, once I pushed the changes into above branch (hopefully by tonig=
-ht),
-> would be great if you could give it another test run.
->=20
-Compiled and applied to hwmon-next. I'll let it rest there for a couple=
- of days
-before sending it off to Linus. Eric, would be great if you can sanity =
-test
-the merged version.
+Hi Linus,
+
+Please pull i2c subsystem updates for Linux 2.6.37 from:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+
+ MAINTAINERS                           |    6 +
+ drivers/gpu/drm/nouveau/nouveau_i2c.h |    1 -
+ drivers/gpu/drm/radeon/radeon_mode.h  |    1 -
+ drivers/i2c/Kconfig                   |    3 +-
+ drivers/i2c/Makefile                  |    4 +-
+ drivers/i2c/algos/Kconfig             |   12 +
+ drivers/i2c/algos/Makefile            |    4 +-
+ drivers/i2c/busses/Makefile           |    4 +-
+ drivers/i2c/busses/i2c-amd8111.c      |  163 +++++++++----
+ drivers/i2c/busses/i2c-ibm_iic.c      |    1 -
+ drivers/i2c/busses/i2c-nuc900.c       |    1 -
+ drivers/i2c/busses/i2c-pca-platform.c |    2 +-
+ drivers/i2c/busses/i2c-pxa.c          |    1 -
+ drivers/i2c/busses/i2c-s3c2410.c      |    1 -
+ drivers/i2c/busses/i2c-viapro.c       |    8 +-
+ drivers/i2c/i2c-core.c                |   45 ++--
+ drivers/i2c/i2c-dev.c                 |   13 +-
+ drivers/i2c/muxes/Kconfig             |   10 +
+ drivers/i2c/muxes/Makefile            |    5 +-
+ drivers/i2c/muxes/pca9541.c           |  411 +++++++++++++++++++++++++++++++++
+ drivers/i2c/muxes/pca954x.c           |    8 +-
+ drivers/video/aty/radeon_i2c.c        |    1 -
+ drivers/video/i810/i810.h             |    1 -
+ drivers/video/intelfb/intelfb_i2c.c   |    1 -
+ drivers/video/savage/savagefb.h       |    1 -
+ include/linux/i2c.h                   |   12 +-
+ 26 files changed, 603 insertions(+), 117 deletions(-)
+ create mode 100644 drivers/i2c/muxes/pca9541.c
+
+---------------
+
+Guenter Roeck (3):
+      i2c/mux: Driver for PCA9541 I2C Master Selector
+      MAINTAINERS: Add maintainer for PCA9541 I2C bus master selector driver
+      i2c/pca954x: Remove __devinit and __devexit from probe and remove functions
+
+Jean Delvare (7):
+      i2c: Fix Kconfig dependencies
+      i2c: Simplify i2c_parent_is_i2c_adapter
+      i2c: Let i2c_parent_is_i2c_adapter return the parent adapter
+      i2c: Remove unneeded inclusions of <linux/i2c-id.h>
+      i2c: Discard warning message on device instantiation from user-space
+      i2c: Optimize function i2c_detect()
+      i2c-viapro: Don't log nacks
+
+Julia Lawall (1):
+      i2c-amd8111: Add proper error handling
+
+Nobuhiro Iwamatsu (1):
+      i2c-pca-platform: Change device name of request_irq
+
+matt mooney (1):
+      i2c: Change to new flag variable
 
 Thanks,
-Guenter
+-- 
+Jean Delvare
