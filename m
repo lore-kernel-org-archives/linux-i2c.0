@@ -1,21 +1,33 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] sh: i2c-sh7760: Replase from ctrl_* to __raw_*
-Date: Mon, 25 Oct 2010 10:58:35 +0900
-Message-ID: <20101025015835.GE2173@linux-sh.org>
-References: <1287785220-5893-1-git-send-email-iwamatsu@nigauri.org>
+From: <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 00/12] lis3 accelerator feature update
+Date: Mon, 25 Oct 2010 08:10:01 +0200
+Message-ID: <62697B07E9803846BC582181BD6FB6B836EAE847F1@NOK-EUMSG-02.mgdnok.nokia.com>
+References: <1287748654-2626-1-git-send-email-samu.p.onkalo@nokia.com>
+ <4CC44B3D.5030404@tremplin-utc.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1287785220-5893-1-git-send-email-iwamatsu@nigauri.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4CC44B3D.5030404-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Oct 23, 2010 at 07:07:00AM +0900, Nobuhiro Iwamatsu wrote:
-> ctrl_* is deprecated. We should to use __raw_*.
-> 
-> Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-
-Applied, thanks.
+Pi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+RnJvbTogbGludXgtaTJjLW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOmxpbnV4LWkyYy0NCj5vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9u
+IEJlaGFsZiBPZiBleHQgw4lyaWMgUGllbA0KPg0KPk9wIDIyLTEwLTEwIDEzOjU3LCBTYW11IE9u
+a2FsbyBzY2hyZWVmOg0KPj4gQ2hhbmdlcyBhcmUgdGVzdGVkIG9ubHkgd2l0aCBJMkMgaW50ZXJm
+YWNlIHVzaW5nIDhiaXQgc2Vuc29yIHNpbmNlIEkNCj5kb24ndA0KPj4gaGF2ZSBvdGhlciBwb3Nz
+aWJpbGl0aWVzLiBTb21lIGZlYXR1cmVzIGFyZSBub3QgZW5hYmxlZA0KPj4gYnkgZGVmYXVsdCBz
+aW5jZSBJIGNhbid0IHRlc3QgdGhlbSB3aXRoIGFsbCBwb3NzaWJsZSBjb25maWd1cmF0aW9ucy4N
+Cj4+IFBsYXRmb3JtIGRhdGEgY29udGFpbnMgZmllbGQgd2hpY2ggY29udHJvbHMgbmV3IGZlYXR1
+cmVzLg0KPlRoYW5rcyBTYW11IGZvciBwZXJzZXZlcmluZyB3aXRoIHRoZSBhdXRvbWF0aWMgcG93
+ZXIgZG93biBmZWF0dXJlLg0KPkhvcGVmdWxseSBJJ2xsIGZpbmQgYWxzbyBzb21lIHRpbWUgdG8g
+YWN0aXZhdGUgaXQgb24gdGhlIGhwX2FjY2VsIHNpZGUuDQo+DQo+Rm9yIG5vdywgSSd2ZSByZXZp
+ZXdlZCB0aGUgY2hhbmdlcyBhbmQgZXZlcnl0aGluZyBsb29rZWQgZmluZSwgYXMgd2VsbA0KPmFz
+IHRlc3RlZCB0aGVtIG9uIG15IEhQIGxhcHRvcCAod2l0aCBhIDEyIGJpdHMgc2Vuc29yKS4gQWx0
+aG91Z2ggbW9zdCBvZg0KPnRoZSBjaGFuZ2VzIGFyZSBub3QgdmlzaWJsZSBvbiB0aGlzIHBsYXRm
+b3JtLCBhdCBsZWFzdCB0aGVyZSBzaG91bGRuJ3QNCj5iZSBhbnkgcmVncmVzc2lvbi4NCj4NCg0K
+VGhhbmtzIGZvciB0aGUgcmV2aWV3Lg0KDQotU2FtdQ0KIA0K
