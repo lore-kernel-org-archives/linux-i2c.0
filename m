@@ -1,37 +1,49 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] sh: i2c-sh7760: Replase from ctrl_* to __raw_*
-Date: Mon, 25 Oct 2010 13:42:11 +0100
-Message-ID: <20101025124211.GG21564@trinity.fluff.org>
-References: <1287785220-5893-1-git-send-email-iwamatsu@nigauri.org> <20101025015835.GE2173@linux-sh.org> <20101025104718.GF21564@trinity.fluff.org> <20101025111324.GA16265@linux-sh.org>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [Device-drivers-devel] [PATCH] i2c: add irq_flags to board info
+Date: Mon, 25 Oct 2010 15:12:24 +0100
+Message-ID: <4CC59048.4060600@cam.ac.uk>
+References: <1287359019-1476-1-git-send-email-vapier@gentoo.org> <20101018103610.77b7e605@endymion.delvare> <544AC56F16B56944AEC3BD4E3D5917713094520EDB@LIMKCMBX1.ad.analog.com> <20101018140136.2b44d29e@endymion.delvare> <544AC56F16B56944AEC3BD4E3D5917713094520FA6@LIMKCMBX1.ad.analog.com> <20101018163357.659efe25@endymion.delvare> <AANLkTi=fAYqxsGre9kOt9Z8nDXZ9JFjZtKUiMrE3Qn9b@mail.gmail.com> <20101025004541.GD21564@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101025111324.GA16265-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <20101025004541.GD21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 25, 2010 at 08:13:25PM +0900, Paul Mundt wrote:
-> On Mon, Oct 25, 2010 at 11:47:18AM +0100, Ben Dooks wrote:
-> > On Mon, Oct 25, 2010 at 10:58:35AM +0900, Paul Mundt wrote:
-> > > On Sat, Oct 23, 2010 at 07:07:00AM +0900, Nobuhiro Iwamatsu wrote:
-> > > > ctrl_* is deprecated. We should to use __raw_*.
-> > > > 
-> > > > Signed-off-by: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
-> > > 
-> > > Applied, thanks.
-> > 
-> > Hi, can you see my comments about the copy of this posted below
-> > about ioremap() and use or __raw accessors?
-> > 
-> No? At least it never made it to the list. Do you have a pointer handy?
+On 10/25/10 01:45, Ben Dooks wrote:
+> On Mon, Oct 18, 2010 at 03:51:49PM -0400, Mike Frysinger wrote:
+>> On Mon, Oct 18, 2010 at 10:33, Jean Delvare wrote:
+>>> Why do we have set_irq_type() if we're not supposed to call it? I am
+>>> not claiming to be an expert in the area, but it seems totally
+>>> reasonable to me that the same piece of code instantiating an I2C
+>>> device is also responsible for setting its IRQ type.
+>>
+>> but we're back to the same issue mentioned earlier -- you cant have a
+>> single kernel build with modules supporting multiple drivers
+>> simultaneously.  we like to ship development boards with a single
+>> kernel build on it with many modules.  then people can pick the addon
+>> boards they wish to prototype with at runtime by plugging in the card
+>> and loading the module.
+> 
+> I also dislike set_irq_type() as it doesn't check whether there is anyone
+> registered with the interrupt, which means that you could set the irq
+> type of someone else's irq.
+> 
+> I wonder if we should pass a struct resource instead, in case there
+> are multiple interrupt sources, as well as having it registered with
+> the right resource systems.
+> 
+Either works as far as I am concerned. Having seen a large set of drivers
+using the flags option (posted to linux-iio yesterday) I'm definitely convinced
+some means of allowing devices to match what the board config asks for is useful.
 
-http://marc.info/?l=linux-i2c&m=128797023230600&w=2
+I personally prefer the struct resource option as I have multiple drivers in IIO
+which have two interrupts and this is the only reason some of them use platform
+data.
 
--- 
-Ben
+Thanks,
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+Jonathan
