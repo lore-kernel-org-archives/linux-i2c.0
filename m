@@ -1,35 +1,62 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] I2C driver supporting Moorestown and Medfield platform
-Date: Tue, 26 Oct 2010 14:14:39 +0100
-Message-ID: <20101026131439.GI21564@trinity.fluff.org>
-References: <20101022140431.3545.37799.stgit@localhost.localdomain> <20101026100800.017c5aaa@endymion.delvare>
+From: Linus Walleij <linus.ml.walleij-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
+ proximity sensor
+Date: Tue, 26 Oct 2010 10:47:48 -0400
+Message-ID: <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
+References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1287472188-10101-2-git-send-email-samu.p.onkalo@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20101026100800.017c5aaa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1287472188-10101-2-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 26, 2010 at 10:08:00AM +0200, Jean Delvare wrote:
-> On Fri, 22 Oct 2010 15:05:30 +0100, Alan Cox wrote:
-> > I think this now addresses all the points raised in previous review, as well
-> > as adding runtime power management support which is needed for MID
-> > platforms.
-> 
-> Ben, this driver has been floating around for quite some time, I think
-> we really want to have it in kernel 2.6.37. This is for an embedded
-> system so it would be one for you to merge, however if you can't make
-> it on time (where "on time" is "by the end of the week" aka "before
-> Sunday October 31st, 2010") , please let me know and I will take care.
-> At least I can build this one ;)
+010/10/19 Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>:
 
-I'll be looking at this tonight.
+> This is a driver for ROHM BH1770GLC and OSRAM SFH7770 combined
+> ALS and proximity sensor.
+>
+> Interface is sysfs based. The driver uses interrupts to provide new d=
+ata.
+> The driver supports pm_runtime and regulator frameworks.
+> (...)
+> +static DEVICE_ATTR(prox0_raw_en, S_IRUGO | S_IWUSR, bh1770_prox_enab=
+le_show,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_prox_enable_store);
+> +static DEVICE_ATTR(prox0_thresh_above1_value, S_IRUGO | S_IWUSR,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_prox_abs_thres_show,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_prox_abs_thres_store);
+> +static DEVICE_ATTR(prox0_thresh_above0_value, S_IRUGO | S_IWUSR,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_get_prox_thres,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_set_prox_thres);
+> +static DEVICE_ATTR(prox0_raw, S_IRUGO, bh1770_prox_result_show, NULL=
+);
 
--- 
-Ben
+So you have sysfs entries for enabling, calibrating hysteris
+(above/below) and the reading the raw value which I assume
+will be 0 (if nothing is in proximity) or 1 (if it is in proximity).
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+These entries are pretty OK I think, but the transition from
+0 to 1 which I assume will generate an interrupt and generate
+a new value in this attribute.
+
+But should it not hook into the input framework and generate
+a SW_FRONT_PROXIMITY event as well?
+
+I think this could be pretty helpful for generic userspace
+applications like X that want to use this event.
+
+Of course I can send a patch for this later, but I'd like
+to hear whether you agree on this or not.
+
+Yours,
+Linus Walleij
