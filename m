@@ -1,62 +1,30 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] sh: i2c-sh7760: Replase from ctrl_* to __raw_*
-Date: Tue, 26 Oct 2010 15:50:01 +0900
-Message-ID: <20101026065001.GC4733@linux-sh.org>
-References: <1287785220-5893-1-git-send-email-iwamatsu@nigauri.org> <20101025015835.GE2173@linux-sh.org> <20101025104718.GF21564@trinity.fluff.org> <20101025111324.GA16265@linux-sh.org> <20101025124211.GG21564@trinity.fluff.org> <AANLkTikh+h1nWHZCa29FQc1dw=z3ZhYEW8eSyFyS4C84@mail.gmail.com> <20101026040203.GB16265@linux-sh.org> <20101026064307.GH21564@trinity.fluff.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] I2C driver supporting Moorestown and Medfield platform
+Date: Tue, 26 Oct 2010 10:08:00 +0200
+Message-ID: <20101026100800.017c5aaa@endymion.delvare>
+References: <20101022140431.3545.37799.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20101026064307.GH21564@trinity.fluff.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ben Dooks <ben-i2c@fluff.org>
-Cc: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101022140431.3545.37799.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 26, 2010 at 07:43:07AM +0100, Ben Dooks wrote:
-> On Tue, Oct 26, 2010 at 01:02:03PM +0900, Paul Mundt wrote:
-> > On Tue, Oct 26, 2010 at 09:08:12AM +0900, Nobuhiro Iwamatsu wrote:
-> > > 2010/10/25 Ben Dooks <ben-i2c@fluff.org>:
-> > > > On Mon, Oct 25, 2010 at 08:13:25PM +0900, Paul Mundt wrote:
-> > > >> On Mon, Oct 25, 2010 at 11:47:18AM +0100, Ben Dooks wrote:
-> > > >> > On Mon, Oct 25, 2010 at 10:58:35AM +0900, Paul Mundt wrote:
-> > > >> > > On Sat, Oct 23, 2010 at 07:07:00AM +0900, Nobuhiro Iwamatsu wrote:
-> > > >> > > > ctrl_* is deprecated. We should to use __raw_*.
-> > > >> > > >
-> > > >> > > > Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-> > > >> > >
-> > > >> > > Applied, thanks.
-> > > >> >
-> > > >> > Hi, can you see my comments about the copy of this posted below
-> > > >> > about ioremap() and use or __raw accessors?
-> > > >> >
-> > > >> No? At least it never made it to the list. Do you have a pointer handy?
-> > > >
-> > > > http://marc.info/?l=linux-i2c&m=128797023230600&w=2
-> > > >
-> > > 
-> > > Sorry, this is my mistake.
-> > > 
-> > > >> On Sun, Oct 24, 2010 at 05:37:46PM +0900, Nobuhiro Iwamatsu wrote:
-> > > >> ctrl_* is deprecated. We should to use __raw_*.
-> > > >
-> > > >> Given iobase is ioremap() returned, there should be an explicit reason
-> > > >> for using __raw_xxx() instead of read/writel().
-> > > 
-> > Based on what, exactly? The CPU in question is quite content with the
-> > weak ordering provided by __raw_xxx(), anything more is unecessary.
-> 
-> generally, readX,writeX or iowriteX,ioreadX are the functions that should
-> be used on ioremap()d memory. It may not be a hard rule, but it is how it
-> is supposed to be done.
-> 
-Nonsense. There are plenty of cases in the kernel that use __raw_xxx() on
-ioremapped memory and have been since before ioread/writeX even existed.
-Whether to use read/writeX or the __raw versions has always been up to
-the developer, and if the ordering issues don't factor in then there is
-simply no reason to bother using read/writeX.
+On Fri, 22 Oct 2010 15:05:30 +0100, Alan Cox wrote:
+> I think this now addresses all the points raised in previous review, as well
+> as adding runtime power management support which is needed for MID
+> platforms.
 
-If you wish to do a kernel-wide audit and convert all __raw_xxx users on
-ioremapped memory over you are certainly welcome to try. Inserting extra
-memory barriers for strong ordering where it isn't needed however is
-completely pointless.
+Ben, this driver has been floating around for quite some time, I think
+we really want to have it in kernel 2.6.37. This is for an embedded
+system so it would be one for you to merge, however if you can't make
+it on time (where "on time" is "by the end of the week" aka "before
+Sunday October 31st, 2010") , please let me know and I will take care.
+At least I can build this one ;)
+
+Thanks,
+-- 
+Jean Delvare
