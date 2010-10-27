@@ -1,42 +1,100 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v3 5/5] OMAP: I2C: Convert i2c driver to use PM runtime
-	api's
-Date: Wed, 27 Oct 2010 08:35:01 +0100
-Message-ID: <20101027073501.GK21564@trinity.fluff.org>
-References: <1285078036-12789-2-git-send-email-rnayak@ti.com> <1285078036-12789-3-git-send-email-rnayak@ti.com> <1285078036-12789-4-git-send-email-rnayak@ti.com> <1285078036-12789-5-git-send-email-rnayak@ti.com> <1285078036-12789-6-git-send-email-rnayak@ti.com> <20100927223645.GJ21564@trinity.fluff.org> <0680EC522D0CC943BC586913CF3768C003FF05981F@dbde02.ent.ti.com> <0680EC522D0CC943BC586913CF3768C003FF05988F@dbde02.ent.ti.com> <20100928233334.GS21564@trinity.fluff.org> <87vd5d9a68.fsf@deeprootsystems.com>
+From: <samu.p.onkalo@nokia.com>
+Subject: RE: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
+ proximity sensor
+Date: Wed, 27 Oct 2010 09:41:32 +0200
+Message-ID: <62697B07E9803846BC582181BD6FB6B836EB299181@NOK-EUMSG-02.mgdnok.nokia.com>
+References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
+	<1287472188-10101-2-git-send-email-samu.p.onkalo@nokia.com>
+ <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <87vd5d9a68.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, "Nayak, Rajendra" <rnayak-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
+To: linus.ml.walleij@gmail.com
+Cc: akpm@linux-foundation.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 07, 2010 at 10:37:03AM -0700, Kevin Hilman wrote:
-> Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
-> 
-> [...]
-> 
-> > As such, I should really go and read up all about this new runtime-pm
-> > and hwmod stuff before further commentign on the changes.
-> 
-> ping
-> 
-> >From the drivers perspective, you don't neet to know anything about
-> omap_hwmod.  You can think of this change as simply using the runtime PM
-> API instead of the clock API for enabling and idling the device.
-> 
-> With your ack (on this patch only) we'd like to merge this along with
-> the rest of the series for 2.6.37.
+Hi
 
-Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+>-----Original Message-----
+>From: linux-i2c-owner@vger.kernel.org [mailto:linux-i2c-
+>owner@vger.kernel.org] On Behalf Of ext Linus Walleij
+>Sent: 26 October, 2010 17:48
+>To: Onkalo Samu.P (Nokia-MS/Tampere)
+>Cc: akpm@linux-foundation.org; linux-i2c@vger.kernel.org; linux-
+>kernel@vger.kernel.org; linux-input@vger.kernel.org
+>Subject: Re: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS an=
+d
+>proximity sensor
+>
+>010/10/19 Samu Onkalo <samu.p.onkalo@nokia.com>:
+>
+>> This is a driver for ROHM BH1770GLC and OSRAM SFH7770 combined
+>> ALS and proximity sensor.
+>>
+>> Interface is sysfs based. The driver uses interrupts to provide new
+>data.
+>> The driver supports pm_runtime and regulator frameworks.
+>> (...)
+>> +static DEVICE_ATTR(prox0_raw_en, S_IRUGO | S_IWUSR,
+>bh1770_prox_enable_show,
+>> +
+>bh1770_prox_enable_store);
+>> +static DEVICE_ATTR(prox0_thresh_above1_value, S_IRUGO | S_IWUSR,
+>> +
+>bh1770_prox_abs_thres_show,
+>> +
+>bh1770_prox_abs_thres_store);
+>> +static DEVICE_ATTR(prox0_thresh_above0_value, S_IRUGO | S_IWUSR,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 bh1770_get_prox_thres,
+>> +
+>bh1770_set_prox_thres);
+>> +static DEVICE_ATTR(prox0_raw, S_IRUGO, bh1770_prox_result_show,
+>NULL);
+>
+>So you have sysfs entries for enabling, calibrating hysteris
+>(above/below) and the reading the raw value which I assume
+>will be 0 (if nothing is in proximity) or 1 (if it is in proximity).
 
-please post via your tree.
+Actually raw gives 0 or 1023 (=3D=3Dsensor_range) when
+the reporting mode is "trigger"
+or
+0 threshold_abovevalue..1023 in periodic mode.
 
--- 
-Ben
+But for Boolean type behavior: 0 is no proximity and !=3D 0 means
+proximity=20
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+>
+>These entries are pretty OK I think, but the transition from
+>0 to 1 which I assume will generate an interrupt and generate
+>a new value in this attribute.
+
+It uses sysfs_notify to indicate userspace about the change
+
+>
+>But should it not hook into the input framework and generate
+>a SW_FRONT_PROXIMITY event as well?
+>
+>I think this could be pretty helpful for generic userspace
+>applications like X that want to use this event.
+>
+>Of course I can send a patch for this later, but I'd like
+>to hear whether you agree on this or not.
+>
+
+I think that is makes sense to provide it.
+
+-Samu
+
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
