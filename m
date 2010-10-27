@@ -1,26 +1,42 @@
-From: "Dr. Robert William" <pascale.vial-X2lX9bSaArc@public.gmane.org>
-Subject: Yours Faithfully
-Date: Wed, 27 Oct 2010 02:34:17 +0200 (CEST)
-Message-ID: <ea-mime-4cc77389-71b-20d7ee4b__41687.7727177509$1288140181$gmane$org@webmail.numericable.fr>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH v3 5/5] OMAP: I2C: Convert i2c driver to use PM runtime
+	api's
+Date: Wed, 27 Oct 2010 08:35:01 +0100
+Message-ID: <20101027073501.GK21564@trinity.fluff.org>
+References: <1285078036-12789-2-git-send-email-rnayak@ti.com> <1285078036-12789-3-git-send-email-rnayak@ti.com> <1285078036-12789-4-git-send-email-rnayak@ti.com> <1285078036-12789-5-git-send-email-rnayak@ti.com> <1285078036-12789-6-git-send-email-rnayak@ti.com> <20100927223645.GJ21564@trinity.fluff.org> <0680EC522D0CC943BC586913CF3768C003FF05981F@dbde02.ent.ti.com> <0680EC522D0CC943BC586913CF3768C003FF05988F@dbde02.ent.ti.com> <20100928233334.GS21564@trinity.fluff.org> <87vd5d9a68.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <87vd5d9a68.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: pascale.vial-X2lX9bSaArc@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, "Nayak, Rajendra" <rnayak-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Good News My Dear Friend,
- 
-I'm happy to inform you about my success in getting those funds transferred under the co-operation of a new partner from Paraguay. Presently i'm in Paraguay for investment projects with my own share of the total sum. meanwhile,i didn't forget your past efforts and attempts to assist me in transferring those funds despite that it failed us some how.
-Now contact my secretary in Benin Republic
+On Thu, Oct 07, 2010 at 10:37:03AM -0700, Kevin Hilman wrote:
+> Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
+> 
+> [...]
+> 
+> > As such, I should really go and read up all about this new runtime-pm
+> > and hwmod stuff before further commentign on the changes.
+> 
+> ping
+> 
+> >From the drivers perspective, you don't neet to know anything about
+> omap_hwmod.  You can think of this change as simply using the runtime PM
+> API instead of the clock API for enabling and idling the device.
+> 
+> With your ack (on this patch only) we'd like to merge this along with
+> the rest of the series for 2.6.37.
 
-His name is Mr. Timothy Adams
-Phone Number: +229 97373889
-Email:  timothyadams90-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
- 
-Please do let me know immediately you receive it so that we can share the joy after all the sufferings at that time. in the moment, I'm very busy here because of the investment projects which me and the new partner are having at hand, finally, remember that I had forwarded instruction to the secretary on your behalf to receive that money, so feel free to get in touch with Mr. Timothy Adams on timothyadams90-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, he will send the amount to you without any delay.
- 
-Yours Faithfully
-Dr Robert William
+Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+
+please post via your tree.
+
+-- 
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
