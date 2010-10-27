@@ -1,100 +1,1287 @@
-From: <samu.p.onkalo@nokia.com>
-Subject: RE: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS and
- proximity sensor
-Date: Wed, 27 Oct 2010 09:41:32 +0200
-Message-ID: <62697B07E9803846BC582181BD6FB6B836EB299181@NOK-EUMSG-02.mgdnok.nokia.com>
-References: <1287472188-10101-1-git-send-email-samu.p.onkalo@nokia.com>
-	<1287472188-10101-2-git-send-email-samu.p.onkalo@nokia.com>
- <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
+From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Subject: [PATCH] I2C driver supporting Moorestown and Medfield platform
+Date: Wed, 27 Oct 2010 12:44:03 +0100
+Message-ID: <20101027114205.11696.76731.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <AANLkTikWvRKzr+kffcpTHTs3q3TLeUPzdwzuQSR_tSU2@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-To: linus.ml.walleij@gmail.com
-Cc: akpm@linux-foundation.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+(Updated to address Ben's comments. With regard to the message segment
+ restriction it's not something we hit on the actual platform so while
+ I will investigate that further I don't think its a blocker to submiss=
+ion.
+ At worst its a spot over-restrictive)
 
->-----Original Message-----
->From: linux-i2c-owner@vger.kernel.org [mailto:linux-i2c-
->owner@vger.kernel.org] On Behalf Of ext Linus Walleij
->Sent: 26 October, 2010 17:48
->To: Onkalo Samu.P (Nokia-MS/Tampere)
->Cc: akpm@linux-foundation.org; linux-i2c@vger.kernel.org; linux-
->kernel@vger.kernel.org; linux-input@vger.kernel.org
->Subject: Re: [PATCHv4 1/5] misc: Driver for bh1770glc / sfh7770 ALS an=
-d
->proximity sensor
->
->010/10/19 Samu Onkalo <samu.p.onkalo@nokia.com>:
->
->> This is a driver for ROHM BH1770GLC and OSRAM SFH7770 combined
->> ALS and proximity sensor.
->>
->> Interface is sysfs based. The driver uses interrupts to provide new
->data.
->> The driver supports pm_runtime and regulator frameworks.
->> (...)
->> +static DEVICE_ATTR(prox0_raw_en, S_IRUGO | S_IWUSR,
->bh1770_prox_enable_show,
->> +
->bh1770_prox_enable_store);
->> +static DEVICE_ATTR(prox0_thresh_above1_value, S_IRUGO | S_IWUSR,
->> +
->bh1770_prox_abs_thres_show,
->> +
->bh1770_prox_abs_thres_store);
->> +static DEVICE_ATTR(prox0_thresh_above0_value, S_IRUGO | S_IWUSR,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 bh1770_get_prox_thres,
->> +
->bh1770_set_prox_thres);
->> +static DEVICE_ATTR(prox0_raw, S_IRUGO, bh1770_prox_result_show,
->NULL);
->
->So you have sysfs entries for enabling, calibrating hysteris
->(above/below) and the reading the raw value which I assume
->will be 0 (if nothing is in proximity) or 1 (if it is in proximity).
+=46rom: Wen Wang <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Actually raw gives 0 or 1023 (=3D=3Dsensor_range) when
-the reporting mode is "trigger"
-or
-0 threshold_abovevalue..1023 in periodic mode.
+Initial release of the driver. Updated and verified on hardware.
 
-But for Boolean type behavior: 0 is no proximity and !=3D 0 means
-proximity=20
+Cleaned up as follows
 
->
->These entries are pretty OK I think, but the transition from
->0 to 1 which I assume will generate an interrupt and generate
->a new value in this attribute.
+Alan Cox:
+   Squash down the switches into tables, and use the PCI ident field. W=
+e
+   could perhaps take this further and put the platform and port number=
+ into
+   this.
+   uint32t -> u32
+   bracketing of case statements
+   spacing and '!' usage
+   Check the speed (which is now 0/1/2) is valid and ignore otherwise.
+   Fix remaining problems/suggestions from Jean's review
+   Fix items from Ben's review
 
-It uses sysfs_notify to indicate userspace about the change
+Arjan van de Ven:
+   Initial power management hooks
 
->
->But should it not hook into the input framework and generate
->a SW_FRONT_PROXIMITY event as well?
->
->I think this could be pretty helpful for generic userspace
->applications like X that want to use this event.
->
->Of course I can send a patch for this later, but I'd like
->to hear whether you agree on this or not.
->
+Yong Wang <youg.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>:
+   Shared IRQ support
 
-I think that is makes sense to provide it.
+Wen Wang <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>:
+   D3 support
+   Fixes for OCT test runs
+   Interrupt optimisations
 
--Samu
+Hong Liu <hong.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+   The runtime PM code is working on the wrong device (i2c_adapter->dev=
+).
+   The correct one should be pci_dev->dev. This breaks attached i2c
+   slave devices with runtime PM enabled. Slave device needs to runtime
+   resume parent device before runtime resuming itself, but we always g=
+et
+   error since we don't have pm_runtime callback for i2c_adapter->dev.
+
+Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>:
+   Update speed table
+
+Saadi Maalem <saadi.maalem-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>:
+   Clear all interrupts in the hardware init
+
+Celine Chotard <celinex.chotard-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>:
+   Correct ordering of clear/disable of IRQs
+
+Signed-off-by: Wen Wang <wen.w.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Yong Wang <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Hong Liu <hong.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Arjan van de Ven <arjan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+
+ drivers/i2c/busses/Kconfig         |    9=20
+ drivers/i2c/busses/Makefile        |    1=20
+ drivers/i2c/busses/i2c-intel-mid.c | 1135 ++++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 1145 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-intel-mid.c
 
 
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index fd455a2..a62f99e 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -396,6 +396,15 @@ config I2C_IMX
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-imx.
+=20
++config I2C_INTEL_MID
++	tristate "Intel Moorestown/Medfield Platform I2C controller"
++	help
++	  Say Y here if you have an Intel Moorestown/Medfield platform I2C
++	  controller.
++
++	  This support is also available as a module. If so, the module
++	  will be called i2c-intel-mid.
++
+ config I2C_IOP3XX
+ 	tristate "Intel IOPx3xx and IXP4xx on-chip I2C interface"
+ 	depends on ARCH_IOP32X || ARCH_IOP33X || ARCH_IXP4XX || ARCH_IOP13XX
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 033ad41..84cb16a 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -38,6 +38,7 @@ obj-$(CONFIG_I2C_GPIO)		+=3D i2c-gpio.o
+ obj-$(CONFIG_I2C_HIGHLANDER)	+=3D i2c-highlander.o
+ obj-$(CONFIG_I2C_IBM_IIC)	+=3D i2c-ibm_iic.o
+ obj-$(CONFIG_I2C_IMX)		+=3D i2c-imx.o
++obj-$(CONFIG_I2C_INTEL_MID)	+=3D i2c-intel-mid.o
+ obj-$(CONFIG_I2C_IOP3XX)	+=3D i2c-iop3xx.o
+ obj-$(CONFIG_I2C_IXP2000)	+=3D i2c-ixp2000.o
+ obj-$(CONFIG_I2C_MPC)		+=3D i2c-mpc.o
+diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2=
+c-intel-mid.c
+new file mode 100644
+index 0000000..80f70d3
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-intel-mid.c
+@@ -0,0 +1,1135 @@
++/*
++ * Support for Moorestown/Medfield I2C chip
++ *
++ * Copyright (c) 2009 Intel Corporation.
++ * Copyright (c) 2009 Synopsys. Inc.
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms and conditions of the GNU General Public License, v=
+ersion
++ * 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITH=
+OUT ANY
++ * WARRANTY; without even the implied warranty of MERCHANTABILITY or F=
+ITNESS
++ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for m=
+ore
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License a=
+long
++ * with this program; if not, write to the Free Software Foundation, I=
+nc., 51
++ * Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/slab.h>
++#include <linux/stat.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/interrupt.h>
++#include <linux/pm_runtime.h>
++#include <linux/io.h>
++
++#define DRIVER_NAME	"i2c-intel-mid"
++#define VERSION		"Version 0.5ac2"
++#define PLATFORM	"Moorestown/Medfield"
++
++/* Tables use: 0 Moorestown, 1 Medfield */
++#define NUM_PLATFORMS	2
++enum platform_enum {
++	MOORESTOWN =3D 0,
++	MEDFIELD =3D 1,
++};
++
++enum mid_i2c_status {
++	STATUS_IDLE =3D 0,
++	STATUS_READ_START,
++	STATUS_READ_IN_PROGRESS,
++	STATUS_READ_SUCCESS,
++	STATUS_WRITE_START,
++	STATUS_WRITE_SUCCESS,
++	STATUS_XFER_ABORT,
++	STATUS_STANDBY
++};
++
++/**
++ * struct intel_mid_i2c_private	- per device I=C2=B2C context
++ * @adap: core i2c layer adapter information
++ * @dev: device reference for power management
++ * @base: register base
++ * @speed: speed mode for this port
++ * @complete: completion object for transaction wait
++ * @abort: reason for last abort
++ * @rx_buf: pointer into working receive buffer
++ * @rx_buf_len: receive buffer length
++ * @status: adapter state machine
++ * @msg: the message we are currently processing
++ * @platform: the MID device type we are part of
++ * @lock: transaction serialization
++ *
++ * We allocate one of these per device we discover, it holds the core
++ * i2c layer objects and the data we need to track privately.
++ */
++struct intel_mid_i2c_private {
++	struct i2c_adapter adap;
++	struct device *dev;
++	void __iomem *base;
++	int speed;
++	struct completion complete;
++	int abort;
++	u8 *rx_buf;
++	int rx_buf_len;
++	enum mid_i2c_status status;
++	struct i2c_msg *msg;
++	enum platform_enum platform;
++	struct mutex lock;
++};
++
++#define NUM_SPEEDS		3
++
++#define ACTIVE			0
++#define STANDBY			1
++
++
++/* Control register */
++#define IC_CON			0x00
++#define SLV_DIS			(1 << 6)	/* Disable slave mode */
++#define RESTART			(1 << 5)	/* Send a Restart condition */
++#define	ADDR_10BIT		(1 << 4)	/* 10-bit addressing */
++#define	STANDARD_MODE		(1 << 1)	/* standard mode */
++#define FAST_MODE		(2 << 1)	/* fast mode */
++#define HIGH_MODE		(3 << 1)	/* high speed mode */
++#define	MASTER_EN		(1 << 0)	/* Master mode */
++
++/* Target address register */
++#define IC_TAR			0x04
++#define IC_TAR_10BIT_ADDR	(1 << 12)	/* 10-bit addressing */
++#define IC_TAR_SPECIAL		(1 << 11)	/* Perform special I2C cmd */
++#define IC_TAR_GC_OR_START	(1 << 10)	/* 0: Gerneral Call Address */
++						/* 1: START BYTE */
++/* Slave Address Register */
++#define IC_SAR			0x08		/* Not used in Master mode */
++
++/* High Speed Master Mode Code Address Register */
++#define IC_HS_MADDR		0x0c
++
++/* Rx/Tx Data Buffer and Command Register */
++#define IC_DATA_CMD		0x10
++#define IC_RD			(1 << 8)	/* 1: Read 0: Write */
++
++/* Standard Speed Clock SCL High Count Register */
++#define IC_SS_SCL_HCNT		0x14
++
++/* Standard Speed Clock SCL Low Count Register */
++#define IC_SS_SCL_LCNT		0x18
++
++/* Fast Speed Clock SCL High Count Register */
++#define IC_FS_SCL_HCNT		0x1c
++
++/* Fast Spedd Clock SCL Low Count Register */
++#define IC_FS_SCL_LCNT		0x20
++
++/* High Speed Clock SCL High Count Register */
++#define IC_HS_SCL_HCNT		0x24
++
++/* High Speed Clock SCL Low Count Register */
++#define IC_HS_SCL_LCNT		0x28
++
++/* Interrupt Status Register */
++#define IC_INTR_STAT		0x2c		/* Read only */
++#define R_GEN_CALL		(1 << 11)
++#define R_START_DET		(1 << 10)
++#define R_STOP_DET		(1 << 9)
++#define R_ACTIVITY		(1 << 8)
++#define R_RX_DONE		(1 << 7)
++#define	R_TX_ABRT		(1 << 6)
++#define R_RD_REQ		(1 << 5)
++#define R_TX_EMPTY		(1 << 4)
++#define R_TX_OVER		(1 << 3)
++#define	R_RX_FULL		(1 << 2)
++#define	R_RX_OVER		(1 << 1)
++#define R_RX_UNDER		(1 << 0)
++
++/* Interrupt Mask Register */
++#define IC_INTR_MASK		0x30		/* Read and Write */
++#define M_GEN_CALL		(1 << 11)
++#define M_START_DET		(1 << 10)
++#define M_STOP_DET		(1 << 9)
++#define M_ACTIVITY		(1 << 8)
++#define M_RX_DONE		(1 << 7)
++#define	M_TX_ABRT		(1 << 6)
++#define M_RD_REQ		(1 << 5)
++#define M_TX_EMPTY		(1 << 4)
++#define M_TX_OVER		(1 << 3)
++#define	M_RX_FULL		(1 << 2)
++#define	M_RX_OVER		(1 << 1)
++#define M_RX_UNDER		(1 << 0)
++
++/* Raw Interrupt Status Register */
++#define IC_RAW_INTR_STAT	0x34		/* Read Only */
++#define GEN_CALL		(1 << 11)	/* General call */
++#define START_DET		(1 << 10)	/* (RE)START occured */
++#define STOP_DET		(1 << 9)	/* STOP occured */
++#define ACTIVITY		(1 << 8)	/* Bus busy */
++#define RX_DONE			(1 << 7)	/* Not used in Master mode */
++#define	TX_ABRT			(1 << 6)	/* Transmit Abort */
++#define RD_REQ			(1 << 5)	/* Not used in Master mode */
++#define TX_EMPTY		(1 << 4)	/* TX FIFO <=3D threshold */
++#define TX_OVER			(1 << 3)	/* TX FIFO overflow */
++#define	RX_FULL			(1 << 2)	/* RX FIFO >=3D threshold */
++#define	RX_OVER			(1 << 1)	/* RX FIFO overflow */
++#define RX_UNDER		(1 << 0)	/* RX FIFO empty */
++
++/* Receive FIFO Threshold Register */
++#define IC_RX_TL		0x38
++
++/* Transmit FIFO Treshold Register */
++#define IC_TX_TL		0x3c
++
++/* Clear Combined and Individual Interrupt Register */
++#define IC_CLR_INTR		0x40
++#define CLR_INTR		(1 << 0)
++
++/* Clear RX_UNDER Interrupt Register */
++#define IC_CLR_RX_UNDER		0x44
++#define CLR_RX_UNDER		(1 << 0)
++
++/* Clear RX_OVER Interrupt Register */
++#define IC_CLR_RX_OVER		0x48
++#define CLR_RX_OVER		(1 << 0)
++
++/* Clear TX_OVER Interrupt Register */
++#define IC_CLR_TX_OVER		0x4c
++#define CLR_TX_OVER		(1 << 0)
++
++#define IC_CLR_RD_REQ		0x50
++
++/* Clear TX_ABRT Interrupt Register */
++#define IC_CLR_TX_ABRT		0x54
++#define CLR_TX_ABRT		(1 << 0)
++#define IC_CLR_RX_DONE		0x58
++
++/* Clear ACTIVITY Interrupt Register */
++#define IC_CLR_ACTIVITY		0x5c
++#define CLR_ACTIVITY		(1 << 0)
++
++/* Clear STOP_DET Interrupt Register */
++#define IC_CLR_STOP_DET		0x60
++#define CLR_STOP_DET		(1 << 0)
++
++/* Clear START_DET Interrupt Register */
++#define IC_CLR_START_DET	0x64
++#define CLR_START_DET		(1 << 0)
++
++/* Clear GEN_CALL Interrupt Register */
++#define IC_CLR_GEN_CALL		0x68
++#define CLR_GEN_CALL		(1 << 0)
++
++/* Enable Register */
++#define IC_ENABLE		0x6c
++#define ENABLE			(1 << 0)
++
++/* Status Register */
++#define IC_STATUS		0x70		/* Read Only */
++#define STAT_SLV_ACTIVITY	(1 << 6)	/* Slave not in idle */
++#define STAT_MST_ACTIVITY	(1 << 5)	/* Master not in idle */
++#define STAT_RFF		(1 << 4)	/* RX FIFO Full */
++#define STAT_RFNE		(1 << 3)	/* RX FIFO Not Empty */
++#define STAT_TFE		(1 << 2)	/* TX FIFO Empty */
++#define STAT_TFNF		(1 << 1)	/* TX FIFO Not Full */
++#define STAT_ACTIVITY		(1 << 0)	/* Activity Status */
++
++/* Transmit FIFO Level Register */
++#define IC_TXFLR		0x74		/* Read Only */
++#define TXFLR			(1 << 0)	/* TX FIFO level */
++
++/* Receive FIFO Level Register */
++#define IC_RXFLR		0x78		/* Read Only */
++#define RXFLR			(1 << 0)	/* RX FIFO level */
++
++/* Transmit Abort Source Register */
++#define IC_TX_ABRT_SOURCE	0x80
++#define ABRT_SLVRD_INTX		(1 << 15)
++#define ABRT_SLV_ARBLOST	(1 << 14)
++#define ABRT_SLVFLUSH_TXFIFO	(1 << 13)
++#define	ARB_LOST		(1 << 12)
++#define ABRT_MASTER_DIS		(1 << 11)
++#define ABRT_10B_RD_NORSTRT	(1 << 10)
++#define ABRT_SBYTE_NORSTRT	(1 << 9)
++#define ABRT_HS_NORSTRT		(1 << 8)
++#define ABRT_SBYTE_ACKDET	(1 << 7)
++#define ABRT_HS_ACKDET		(1 << 6)
++#define ABRT_GCALL_READ		(1 << 5)
++#define ABRT_GCALL_NOACK	(1 << 4)
++#define ABRT_TXDATA_NOACK	(1 << 3)
++#define ABRT_10ADDR2_NOACK	(1 << 2)
++#define ABRT_10ADDR1_NOACK	(1 << 1)
++#define ABRT_7B_ADDR_NOACK	(1 << 0)
++
++/* Enable Status Register */
++#define IC_ENABLE_STATUS	0x9c
++#define IC_EN			(1 << 0)	/* I2C in an enabled state */
++
++/* Component Parameter Register 1*/
++#define IC_COMP_PARAM_1		0xf4
++#define APB_DATA_WIDTH		(0x3 << 0)
++
++/* added by xiaolin --begin */
++#define SS_MIN_SCL_HIGH         4000
++#define SS_MIN_SCL_LOW          4700
++#define FS_MIN_SCL_HIGH         600
++#define FS_MIN_SCL_LOW          1300
++#define HS_MIN_SCL_HIGH_100PF   60
++#define HS_MIN_SCL_LOW_100PF    120
++
++#define STANDARD		0
++#define FAST			1
++#define HIGH			2
++
++#define NUM_SPEEDS		3
++
++static int speed_mode[6] =3D {
++	FAST,
++	FAST,
++	FAST,
++	STANDARD,
++	FAST,
++	FAST
++};
++
++static int ctl_num =3D 6;
++module_param_array(speed_mode, int, &ctl_num, S_IRUGO);
++MODULE_PARM_DESC(speed_mode, "Set the speed of the i2c interface (0-2)=
+");
++
++/**
++ * intel_mid_i2c_disable - Disable I2C controller
++ * @adap: struct pointer to i2c_adapter
++ *
++ * Return Value:
++ * 0		success
++ * -EBUSY	if device is busy
++ * -ETIMEDOUT	if i2c cannot be disabled within the given time
++ *
++ * I2C bus state should be checked prior to disabling the hardware. If=
+ bus is
++ * not in idle state, an errno is returned. Write "0" to IC_ENABLE to =
+disable
++ * I2C controller.
++ */
++static int intel_mid_i2c_disable(struct i2c_adapter *adap)
++{
++	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
++	int err =3D 0;
++	int count =3D 0;
++	int ret1, ret2;
++	static const u16 delay[NUM_SPEEDS] =3D {100, 25, 3};
++
++	/* Set IC_ENABLE to 0 */
++	writel(0, i2c->base + IC_ENABLE);
++
++	/* Check if device is busy */
++	dev_dbg(&adap->dev, "mrst i2c disable\n");
++	while ((ret1 =3D readl(i2c->base + IC_ENABLE_STATUS) & 0x1)
++		|| (ret2 =3D readl(i2c->base + IC_STATUS) & 0x1)) {
++		udelay(delay[i2c->speed]);
++		writel(0, i2c->base + IC_ENABLE);
++		dev_dbg(&adap->dev, "i2c is busy, count is %d speed %d\n",
++			count, i2c->speed);
++		if (count++ > 10) {
++			err =3D -ETIMEDOUT;
++			break;
++		}
++	}
++
++	/* Clear all interrupts */
++	readl(i2c->base + IC_CLR_INTR);
++	readl(i2c->base + IC_CLR_STOP_DET);
++	readl(i2c->base + IC_CLR_START_DET);
++	readl(i2c->base + IC_CLR_ACTIVITY);
++	readl(i2c->base + IC_CLR_TX_ABRT);
++	readl(i2c->base + IC_CLR_RX_OVER);
++	readl(i2c->base + IC_CLR_RX_UNDER);
++	readl(i2c->base + IC_CLR_TX_OVER);
++	readl(i2c->base + IC_CLR_RX_DONE);
++	readl(i2c->base + IC_CLR_GEN_CALL);
++
++	/* Disable all interupts */
++	writel(0x0000, i2c->base + IC_INTR_MASK);
++
++	return err;
++}
++
++/**
++ * intel_mid_i2c_hwinit - Initialize the I2C hardware registers
++ * @dev: pci device struct pointer
++ *
++ * This function will be called in intel_mid_i2c_probe() before device
++ * registration.
++ *
++ * Return Values:
++ * 0		success
++ * -EBUSY	i2c cannot be disabled
++ * -ETIMEDOUT	i2c cannot be disabled
++ * -EFAULT	If APB data width is not 32-bit wide
++ *
++ * I2C should be disabled prior to other register operation. If failed=
+, an
++ * errno is returned. Mask and Clear all interrpts, this should be don=
+e at
++ * first.  Set common registers which will not be modified during norm=
+al
++ * transfers, including: controll register, FIFO threshold and clock f=
+req.
++ * Check APB data width at last.
++ */
++static int intel_mid_i2c_hwinit(struct intel_mid_i2c_private *i2c)
++{
++	int err;
++
++	static const u16 hcnt[NUM_PLATFORMS][NUM_SPEEDS] =3D {
++		{ 0x75,  0x15, 0x07 },
++		{ 0x04c,  0x10, 0x06 }
++	};
++	static const u16 lcnt[NUM_PLATFORMS][NUM_SPEEDS] =3D {
++		{ 0x7C,  0x21, 0x0E },
++		{ 0x053, 0x19, 0x0F }
++	};
++
++	/* Disable i2c first */
++	err =3D intel_mid_i2c_disable(&i2c->adap);
++	if (err)
++		return err;
++
++	/*
++	 * Setup clock frequency and speed mode
++	 * Enable restart condition,
++	 * enable master FSM, disable slave FSM,
++	 * use target address when initiating transfer
++	 */
++
++	writel((i2c->speed + 1) << 1 | SLV_DIS | RESTART | MASTER_EN,
++		i2c->base + IC_CON);
++	writel(hcnt[i2c->platform][i2c->speed],
++		i2c->base + (IC_SS_SCL_HCNT + (i2c->speed << 3)));
++	writel(lcnt[i2c->platform][i2c->speed],
++		i2c->base + (IC_SS_SCL_LCNT + (i2c->speed << 3)));
++
++	/* Set tranmit & receive FIFO threshold to zero */
++	writel(0x0, i2c->base + IC_RX_TL);
++	writel(0x0, i2c->base + IC_TX_TL);
++
++	return 0;
++}
++
++/**
++ * intel_mid_i2c_func - Return the supported three I2C operations.
++ * @adapter: i2c_adapter struct pointer
++ */
++static u32 intel_mid_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR | I2C_FUNC_SMBUS_EMUL;
++}
++
++/**
++ * intel_mid_i2c_address_neq - To check if the addresses for different=
+ i2c messages
++ * are equal.
++ * @p1: first i2c_msg
++ * @p2: second i2c_msg
++ *
++ * Return Values:
++ * 0	 if addresses are equal
++ * 1	 if not equal
++ *
++ * Within a single transfer, the I2C client may need to send its addre=
+ss more
++ * than once. So a check if the addresses match is needed.
++ */
++static inline bool intel_mid_i2c_address_neq(const struct i2c_msg *p1,
++				       const struct i2c_msg *p2)
++{
++	if (p1->addr !=3D p2->addr)
++		return 1;
++	if ((p1->flags ^ p2->flags) & I2C_M_TEN)
++		return 1;
++	return 0;
++}
++
++/**
++ * intel_mid_i2c_abort - To handle transfer abortions and print error =
+messages.
++ * @adap: i2c_adapter struct pointer
++ *
++ * By reading register IC_TX_ABRT_SOURCE, various transfer errors can =
+be
++ * distingushed. At present, no circumstances have been found out that
++ * multiple errors would be occured simutaneously, so we simply use th=
+e
++ * register value directly.
++ *
++ * At last the error bits are cleared. (Note clear ABRT_SBYTE_NORSTRT =
+bit need
++ * a few extra steps)
++ */
++static void intel_mid_i2c_abort(struct intel_mid_i2c_private *i2c)
++{
++	/* Read about source register */
++	int abort =3D i2c->abort;
++	struct i2c_adapter *adap =3D &i2c->adap;
++
++	/* Single transfer error check:
++	 * According to databook, TX/RX FIFOs would be flushed when
++	 * the abort interrupt occured.
++	 */
++	if (abort & ABRT_MASTER_DIS)
++		dev_err(&adap->dev,
++		"initiate master operation with master mode disabled.\n");
++	if (abort & ABRT_10B_RD_NORSTRT)
++		dev_err(&adap->dev,
++	"RESTART disabled and master sent READ cmd in 10-bit addressing.\n");
++
++	if (abort & ABRT_SBYTE_NORSTRT) {
++		dev_err(&adap->dev,
++		"RESTART disabled and user is trying to send START byte.\n");
++		writel(~ABRT_SBYTE_NORSTRT, i2c->base + IC_TX_ABRT_SOURCE);
++		writel(RESTART, i2c->base + IC_CON);
++		writel(~IC_TAR_SPECIAL, i2c->base + IC_TAR);
++	}
++
++	if (abort & ABRT_SBYTE_ACKDET)
++		dev_err(&adap->dev,
++			"START byte was not acknowledged.\n");
++	if (abort & ABRT_TXDATA_NOACK)
++		dev_dbg(&adap->dev,
++			"No acknowledgement received from slave.\n");
++	if (abort & ABRT_10ADDR2_NOACK)
++		dev_dbg(&adap->dev,
++	"The 2nd address byte of the 10-bit address was not acknowledged.\n")=
+;
++	if (abort & ABRT_10ADDR1_NOACK)
++		dev_dbg(&adap->dev,
++	"The 1st address byte of 10-bit address was not acknowledged.\n");
++	if (abort & ABRT_7B_ADDR_NOACK)
++		dev_dbg(&adap->dev,
++			"I2C slave device not acknowledged.\n");
++
++	/* Clear TX_ABRT bit */
++	readl(i2c->base + IC_CLR_TX_ABRT);
++	i2c->status =3D STATUS_XFER_ABORT;
++}
++
++/**
++ * xfer_read - Internal function to implement master read transfer.
++ * @adap: i2c_adapter struct pointer
++ * @buf: buffer in i2c_msg
++ * @length: number of bytes to be read
++ *
++ * Return Values:
++ * 0		if the read transfer succeeds
++ * -ETIMEDOUT	if cannot read the "raw" interrupt register
++ * -EINVAL	if a transfer abort occurred
++ *
++ * For every byte, a "READ" command will be loaded into IC_DATA_CMD pr=
+ior to
++ * data transfer. The actual "read" operation will be performed if an =
+RX_FULL
++ * interrupt occurred.
++ *
++ * Note there may be two interrupt signals captured, one should read
++ * IC_RAW_INTR_STAT to separate between errors and actual data.
++ */
++static int xfer_read(struct i2c_adapter *adap, unsigned char *buf, int=
+ length)
++{
++	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
++	int i =3D length;
++	int err;
++
++	if (length >=3D 256) {
++		dev_err(&adap->dev,
++			"I2C FIFO cannot support larger than 256 bytes\n");
++		return -EMSGSIZE;
++	}
++
++	INIT_COMPLETION(i2c->complete);
++
++	readl(i2c->base + IC_CLR_INTR);
++	writel(0x0044, i2c->base + IC_INTR_MASK);
++
++	i2c->status =3D STATUS_READ_START;
++
++	while (i--)
++		writel(IC_RD, i2c->base + IC_DATA_CMD);
++
++	i2c->status =3D STATUS_READ_START;
++	err =3D wait_for_completion_interruptible_timeout(&i2c->complete, HZ)=
+;
++	if (!err) {
++		dev_err(&adap->dev, "Timeout for ACK from I2C slave device\n");
++		intel_mid_i2c_hwinit(i2c);
++		return -ETIMEDOUT;
++	}
++	if (i2c->status =3D=3D STATUS_READ_SUCCESS)
++		return 0;
++	else
++		return -EIO;
++}
++
++/**
++ * xfer_write - Internal function to implement master write transfer.
++ * @adap: i2c_adapter struct pointer
++ * @buf: buffer in i2c_msg
++ * @length: number of bytes to be read
++ *
++ * Return Values:
++ * 0	if the read transfer succeeds
++ * -ETIMEDOUT	if we cannot read the "raw" interrupt register
++ * -EINVAL	if a transfer abort occured
++ *
++ * For every byte, a "WRITE" command will be loaded into IC_DATA_CMD p=
+rior to
++ * data transfer. The actual "write" operation will be performed when =
+the
++ * RX_FULL interrupt signal occurs.
++ *
++ * Note there may be two interrupt signals captured, one should read
++ * IC_RAW_INTR_STAT to separate between errors and actual data.
++ */
++static int xfer_write(struct i2c_adapter *adap,
++		      unsigned char *buf, int length)
++{
++	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
++	int i, err;
++
++	if (length >=3D 256) {
++		dev_err(&adap->dev,
++			"I2C FIFO cannot support larger than 256 bytes\n");
++		return -EMSGSIZE;
++	}
++
++	INIT_COMPLETION(i2c->complete);
++
++	readl(i2c->base + IC_CLR_INTR);
++	writel(0x0050, i2c->base + IC_INTR_MASK);
++
++	i2c->status =3D STATUS_WRITE_START;
++	for (i =3D 0; i < length; i++)
++		writel((u16)(*(buf + i)), i2c->base + IC_DATA_CMD);
++
++	i2c->status =3D STATUS_WRITE_START;
++	err =3D wait_for_completion_interruptible_timeout(&i2c->complete, HZ)=
+;
++	if (!err) {
++		dev_err(&adap->dev, "Timeout for ACK from I2C slave device\n");
++		intel_mid_i2c_hwinit(i2c);
++		return -ETIMEDOUT;
++	} else {
++		if (i2c->status =3D=3D STATUS_WRITE_SUCCESS)
++			return 0;
++		else
++			return -EIO;
++	}
++}
++
++static int intel_mid_i2c_setup(struct i2c_adapter *adap,  struct i2c_m=
+sg *pmsg)
++{
++	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
++	int err;
++	u32 reg;
++	u32 bit_mask;
++	u32 mode;
++
++	/* Disable device first */
++	err =3D intel_mid_i2c_disable(adap);
++	if (err) {
++		dev_err(&adap->dev,
++			"Cannot disable i2c controller, timeout\n");
++		return err;
++	}
++
++	mode =3D (1 + i2c->speed) << 1;
++	/* set the speed mode */
++	reg =3D readl(i2c->base + IC_CON);
++	if ((reg & 0x06) !=3D mode) {
++		dev_dbg(&adap->dev, "set mode %d\n", i2c->speed);
++		writel((reg & ~0x6) | mode, i2c->base + IC_CON);
++	}
++
++	reg =3D readl(i2c->base + IC_CON);
++	/* use 7-bit addressing */
++	if (pmsg->flags & I2C_M_TEN) {
++		if ((reg & ADDR_10BIT) !=3D ADDR_10BIT) {
++			dev_dbg(&adap->dev, "set i2c 10 bit address mode\n");
++			writel(reg | ADDR_10BIT, i2c->base + IC_CON);
++		}
++	} else {
++		if ((reg & ADDR_10BIT) !=3D 0x0) {
++			dev_dbg(&adap->dev, "set i2c 7 bit address mode\n");
++			writel(reg & ~ADDR_10BIT, i2c->base + IC_CON);
++		}
++	}
++	/* enable restart conditions */
++	reg =3D readl(i2c->base + IC_CON);
++	if ((reg & RESTART) !=3D RESTART) {
++		dev_dbg(&adap->dev, "enable restart conditions\n");
++		writel(reg | RESTART, i2c->base + IC_CON);
++	}
++
++	/* enable master FSM */
++	reg =3D readl(i2c->base + IC_CON);
++	dev_dbg(&adap->dev, "ic_con reg is 0x%x\n", reg);
++	writel(reg | MASTER_EN, i2c->base + IC_CON);
++	if ((reg & SLV_DIS) !=3D SLV_DIS) {
++		dev_dbg(&adap->dev, "enable master FSM\n");
++		writel(reg | SLV_DIS, i2c->base + IC_CON);
++		dev_dbg(&adap->dev, "ic_con reg is 0x%x\n", reg);
++	}
++
++	/* use target address when initiating transfer */
++	reg =3D readl(i2c->base + IC_TAR);
++	bit_mask =3D IC_TAR_SPECIAL | IC_TAR_GC_OR_START;
++
++	if ((reg & bit_mask) !=3D 0x0) {
++		dev_dbg(&adap->dev,
++	 "WR: use target address when intiating transfer, i2c_tx_target\n");
++		writel(reg & ~bit_mask, i2c->base + IC_TAR);
++	}
++
++	/* set target address to the I2C slave address */
++	dev_dbg(&adap->dev,
++		"set target address to the I2C slave address, addr is %x\n",
++			pmsg->addr);
++	writel(pmsg->addr | (pmsg->flags & I2C_M_TEN ? IC_TAR_10BIT_ADDR : 0)=
+,
++		i2c->base + IC_TAR);
++
++	/* Enable I2C controller */
++	writel(ENABLE, i2c->base + IC_ENABLE);
++
++	return 0;
++}
++
++/**
++ * intel_mid_i2c_xfer - Main master transfer routine.
++ * @adap: i2c_adapter struct pointer
++ * @pmsg: i2c_msg struct pointer
++ * @num: number of i2c_msg
++ *
++ * Return Values:
++ * +		number of messages transfered
++ * -ETIMEDOUT	If cannot disable I2C controller or read IC_STATUS
++ * -EINVAL	If the address in i2c_msg is invalid
++ *
++ * This function will be registered in i2c-core and exposed to externa=
+l
++ * I2C clients.
++ * 1. Disable I2C controller
++ * 2. Unmask three interrupts: RX_FULL, TX_EMPTY, TX_ABRT
++ * 3. Check if address in i2c_msg is valid
++ * 4. Enable I2C controller
++ * 5. Perform real transfer (call xfer_read or xfer_write)
++ * 6. Wait until the current transfer is finished (check bus state)
++ * 7. Mask and clear all interrupts
++ */
++static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
++			 struct i2c_msg *pmsg,
++			 int num)
++{
++	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
++	int i, err =3D 0;
++
++	/* if number of messages equal 0*/
++	if (num =3D=3D 0)
++		return 0;
++
++	pm_runtime_get(i2c->dev);
++
++	mutex_lock(&i2c->lock);
++	dev_dbg(&adap->dev, "intel_mid_i2c_xfer, process %d msg(s)\n", num);
++	dev_dbg(&adap->dev, "slave address is %x\n", pmsg->addr);
++
++
++	if (i2c->status !=3D STATUS_IDLE) {
++		dev_err(&adap->dev, "Adapter %d in transfer/standby\n",
++								adap->nr);
++		mutex_unlock(&i2c->lock);
++		pm_runtime_put(i2c->dev);
++		return -1;
++	}
++
++
++	for (i =3D 1; i < num; i++) {
++		/* Message address equal? */
++		if (unlikely(intel_mid_i2c_address_neq(&pmsg[0], &pmsg[i]))) {
++			dev_err(&adap->dev, "Invalid address in msg[%d]\n", i);
++			mutex_unlock(&i2c->lock);
++			pm_runtime_put(i2c->dev);
++			return -EINVAL;
++		}
++	}
++
++	if (intel_mid_i2c_setup(adap, pmsg)) {
++		mutex_unlock(&i2c->lock);
++		pm_runtime_put(i2c->dev);
++		return -EINVAL;
++	}
++
++	for (i =3D 0; i < num; i++) {
++		i2c->msg =3D pmsg;
++		i2c->status =3D STATUS_IDLE;
++		/* Read or Write */
++		if (pmsg->flags & I2C_M_RD) {
++			dev_dbg(&adap->dev, "I2C_M_RD\n");
++			err =3D xfer_read(adap, pmsg->buf, pmsg->len);
++		} else {
++			dev_dbg(&adap->dev, "I2C_M_WR\n");
++			err =3D xfer_write(adap, pmsg->buf, pmsg->len);
++		}
++		if (err < 0)
++			break;
++		dev_dbg(&adap->dev, "msg[%d] transfer complete\n", i);
++		pmsg++;		/* next message */
++	}
++
++	/* Mask interrupts */
++	writel(0x0000, i2c->base + IC_INTR_MASK);
++	/* Clear all interrupts */
++	readl(i2c->base + IC_CLR_INTR);
++
++	i2c->status =3D STATUS_IDLE;
++	mutex_unlock(&i2c->lock);
++	pm_runtime_put(i2c->dev);
++
++	return err;
++}
++
++static int intel_mid_i2c_runtime_suspend(struct device *dev)
++{
++	struct pci_dev *pdev =3D to_pci_dev(dev);
++	struct intel_mid_i2c_private *i2c =3D pci_get_drvdata(pdev);
++	struct i2c_adapter *adap =3D to_i2c_adapter(dev);
++	int err;
++
++	if (i2c->status !=3D STATUS_IDLE)
++		return -1;
++
++	intel_mid_i2c_disable(adap);
++
++	err =3D pci_save_state(pdev);
++	if (err) {
++		dev_err(dev, "pci_save_state failed\n");
++		return err;
++	}
++
++	err =3D pci_set_power_state(pdev, PCI_D3hot);
++	if (err) {
++		dev_err(dev, "pci_set_power_state failed\n");
++		return err;
++	}
++	i2c->status =3D STATUS_STANDBY;
++
++	return 0;
++}
++
++static int intel_mid_i2c_runtime_resume(struct device *dev)
++{
++	struct pci_dev *pdev =3D to_pci_dev(dev);
++	struct intel_mid_i2c_private *i2c =3D pci_get_drvdata(pdev);
++	int err;
++
++	if (i2c->status !=3D STATUS_STANDBY)
++		return 0;
++
++	pci_set_power_state(pdev, PCI_D0);
++	pci_restore_state(pdev);
++	err =3D pci_enable_device(pdev);
++	if (err) {
++		dev_err(dev, "pci_enable_device failed\n");
++		return err;
++	}
++
++	i2c->status =3D STATUS_IDLE;
++
++	intel_mid_i2c_hwinit(i2c);
++	return err;
++}
++
++static void i2c_isr_read(struct intel_mid_i2c_private *i2c)
++{
++	struct i2c_msg *msg =3D i2c->msg;
++	int rx_num;
++	u32 len;
++	u8 *buf;
++
++	if (!(msg->flags & I2C_M_RD))
++		return;
++
++	if (i2c->status !=3D STATUS_READ_IN_PROGRESS) {
++		len =3D msg->len;
++		buf =3D msg->buf;
++	} else {
++		len =3D i2c->rx_buf_len;
++		buf =3D i2c->rx_buf;
++	}
++
++	rx_num =3D readl(i2c->base + IC_RXFLR);
++
++	for (; len > 0 && rx_num > 0; len--, rx_num--)
++		*buf++ =3D readl(i2c->base + IC_DATA_CMD);
++
++	if (len > 0) {
++		i2c->status =3D STATUS_READ_IN_PROGRESS;
++		i2c->rx_buf_len =3D len;
++		i2c->rx_buf =3D buf;
++	} else
++		i2c->status =3D STATUS_READ_SUCCESS;
++
++	return;
++}
++
++static irqreturn_t intel_mid_i2c_isr(int this_irq, void *dev)
++{
++	struct intel_mid_i2c_private *i2c =3D dev;
++	u32 stat =3D readl(i2c->base + IC_INTR_STAT);
++
++	if (!stat)
++		return IRQ_NONE;
++
++	dev_dbg(&i2c->adap.dev, "%s, stat =3D 0x%x\n", __func__, stat);
++	stat &=3D 0x54;
++
++	if (i2c->status !=3D STATUS_WRITE_START &&
++	    i2c->status !=3D STATUS_READ_START &&
++	    i2c->status !=3D STATUS_READ_IN_PROGRESS)
++		goto err;
++
++	if (stat & TX_ABRT)
++		i2c->abort =3D readl(i2c->base + IC_TX_ABRT_SOURCE);
++
++	readl(i2c->base + IC_CLR_INTR);
++
++	if (stat & TX_ABRT) {
++		intel_mid_i2c_abort(i2c);
++		goto exit;
++	}
++
++	if (stat & RX_FULL) {
++		i2c_isr_read(i2c);
++		goto exit;
++	}
++
++	if (stat & TX_EMPTY) {
++		if (readl(i2c->base + IC_STATUS) & 0x4)
++			i2c->status =3D STATUS_WRITE_SUCCESS;
++	}
++
++exit:
++	if (i2c->status =3D=3D STATUS_READ_SUCCESS ||
++	    i2c->status =3D=3D STATUS_WRITE_SUCCESS ||
++	    i2c->status =3D=3D STATUS_XFER_ABORT) {
++		/* Clear all interrupts */
++		readl(i2c->base + IC_CLR_INTR);
++		/* Mask interrupts */
++		writel(0, i2c->base + IC_INTR_MASK);
++		complete(&i2c->complete);
++	}
++err:
++	return IRQ_HANDLED;
++}
++
++static struct i2c_algorithm intel_mid_i2c_algorithm =3D {
++	.master_xfer	=3D intel_mid_i2c_xfer,
++	.functionality	=3D intel_mid_i2c_func,
++};
++
++
++static const struct dev_pm_ops intel_mid_i2c_pm_ops =3D {
++	.runtime_suspend =3D intel_mid_i2c_runtime_suspend,
++	.runtime_resume =3D intel_mid_i2c_runtime_resume,
++};
++
++/**
++ * intel_mid_i2c_probe - I2C controller initialization routine
++ * @dev: pci device
++ * @id: device id
++ *
++ * Return Values:
++ * 0		success
++ * -ENODEV	If cannot allocate pci resource
++ * -ENOMEM	If the register base remapping failed, or
++ *		if kzalloc failed
++ *
++ * Initialization steps:
++ * 1. Request for PCI resource
++ * 2. Remap the start address of PCI resource to register base
++ * 3. Request for device memory region
++ * 4. Fill in the struct members of intel_mid_i2c_private
++ * 5. Call intel_mid_i2c_hwinit() for hardware initialization
++ * 6. Register I2C adapter in i2c-core
++ */
++static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
++				    const struct pci_device_id *id)
++{
++	struct intel_mid_i2c_private *mrst;
++	unsigned long start, len;
++	int err, busnum;
++	void __iomem *base =3D NULL;
++
++	dev_dbg(&dev->dev, "Get into probe function for I2C\n");
++	err =3D pci_enable_device(dev);
++	if (err) {
++		dev_err(&dev->dev, "Failed to enable I2C PCI device (%d)\n",
++			err);
++		goto exit;
++	}
++
++	/* Determine the address of the I2C area */
++	start =3D pci_resource_start(dev, 0);
++	len =3D pci_resource_len(dev, 0);
++	if (!start || len =3D=3D 0) {
++		dev_err(&dev->dev, "base address not set\n");
++		err =3D -ENODEV;
++		goto exit;
++	}
++	dev_dbg(&dev->dev, "%s i2c resource start 0x%lx, len=3D%ld\n",
++		PLATFORM, start, len);
++
++	err =3D pci_request_region(dev, 0, DRIVER_NAME);
++	if (err) {
++		dev_err(&dev->dev, "failed to request I2C region "
++			"0x%lx-0x%lx\n", start,
++			(unsigned long)pci_resource_end(dev, 0));
++		goto exit;
++	}
++
++	base =3D ioremap_nocache(start, len);
++	if (!base) {
++		dev_err(&dev->dev, "I/O memory remapping failed\n");
++		err =3D -ENOMEM;
++		goto fail0;
++	}
++
++	/* Allocate the per-device data structure, intel_mid_i2c_private */
++	mrst =3D kzalloc(sizeof(struct intel_mid_i2c_private), GFP_KERNEL);
++	if (mrst =3D=3D NULL) {
++		dev_err(&dev->dev, "can't allocate interface\n");
++		err =3D -ENOMEM;
++		goto fail1;
++	}
++
++	/* Initialize struct members */
++	snprintf(mrst->adap.name, sizeof(mrst->adap.name),
++		"MRST/Medfield I2C at %lx", start);
++	mrst->adap.owner =3D THIS_MODULE;
++	mrst->adap.algo =3D &intel_mid_i2c_algorithm;
++	mrst->adap.dev.parent =3D &dev->dev;
++	mrst->dev =3D &dev->dev;
++	mrst->base =3D base;
++	mrst->speed =3D STANDARD;
++	mrst->abort =3D 0;
++	mrst->rx_buf_len =3D 0;
++	mrst->status =3D STATUS_IDLE;
++
++	pci_set_drvdata(dev, mrst);
++	i2c_set_adapdata(&mrst->adap, mrst);
++
++	mrst->adap.nr =3D busnum =3D id->driver_data;
++	if (dev->device <=3D 0x0804)
++		mrst->platform =3D MOORESTOWN;
++	else
++		mrst->platform =3D MEDFIELD;
++
++	dev_dbg(&dev->dev, "I2C%d\n", busnum);
++
++	if (ctl_num > busnum) {
++		if (speed_mode[busnum] < 0 || speed_mode[busnum] >=3D NUM_SPEEDS)
++			dev_warn(&dev->dev, "invalid speed %d ignored.\n",
++							speed_mode[busnum]);
++		else
++			mrst->speed =3D speed_mode[busnum];
++	}
++
++	/* Initialize i2c controller */
++	err =3D intel_mid_i2c_hwinit(mrst);
++	if (err < 0) {
++		dev_err(&dev->dev, "I2C interface initialization failed\n");
++		goto fail2;
++	}
++
++	mutex_init(&mrst->lock);
++	init_completion(&mrst->complete);
++
++	/* Clear all interrupts */
++	readl(mrst->base + IC_CLR_INTR);
++	writel(0x0000, mrst->base + IC_INTR_MASK);
++
++	err =3D request_irq(dev->irq, intel_mid_i2c_isr, IRQF_SHARED,
++					mrst->adap.name, mrst);
++	if (err) {
++		dev_err(&dev->dev, "Failed to request IRQ for I2C controller: "
++			"%s", mrst->adap.name);
++		goto fail2;
++	}
++
++	/* Adapter registration */
++	err =3D i2c_add_numbered_adapter(&mrst->adap);
++	if (err) {
++		dev_err(&dev->dev, "Adapter %s registration failed\n",
++			mrst->adap.name);
++		goto fail3;
++	}
++
++	dev_dbg(&dev->dev, "%s I2C bus %d driver bind success.\n",
++		(mrst->platform =3D=3D MOORESTOWN) ? "Moorestown" : "Medfield",
++		busnum);
++
++	pm_runtime_enable(&dev->dev);
++	return 0;
++
++fail3:
++	free_irq(dev->irq, mrst);
++fail2:
++	pci_set_drvdata(dev, NULL);
++	kfree(mrst);
++fail1:
++	iounmap(base);
++fail0:
++	pci_release_region(dev, 0);
++exit:
++	return err;
++}
++
++static void __devexit intel_mid_i2c_remove(struct pci_dev *dev)
++{
++	struct intel_mid_i2c_private *mrst =3D pci_get_drvdata(dev);
++	intel_mid_i2c_disable(&mrst->adap);
++	if (i2c_del_adapter(&mrst->adap))
++		dev_err(&dev->dev, "Failed to delete i2c adapter");
++
++	free_irq(dev->irq, mrst);
++	pci_set_drvdata(dev, NULL);
++	iounmap(mrst->base);
++	kfree(mrst);
++	pci_release_region(dev, 0);
++}
++
++static struct pci_device_id intel_mid_i2c_ids[] =3D {
++	/* Moorestown */
++	{ PCI_VDEVICE(INTEL, 0x0802), 0 },
++	{ PCI_VDEVICE(INTEL, 0x0803), 1 },
++	{ PCI_VDEVICE(INTEL, 0x0804), 2 },
++	/* Medfield */
++	{ PCI_VDEVICE(INTEL, 0x0817), 3,},
++	{ PCI_VDEVICE(INTEL, 0x0818), 4 },
++	{ PCI_VDEVICE(INTEL, 0x0819), 5 },
++	{ PCI_VDEVICE(INTEL, 0x082C), 0 },
++	{ PCI_VDEVICE(INTEL, 0x082D), 1 },
++	{ PCI_VDEVICE(INTEL, 0x082E), 2 },
++	{ 0,}
++};
++MODULE_DEVICE_TABLE(pci, intel_mid_i2c_ids);
++
++static struct pci_driver intel_mid_i2c_driver =3D {
++	.name		=3D DRIVER_NAME,
++	.id_table	=3D intel_mid_i2c_ids,
++	.probe		=3D intel_mid_i2c_probe,
++	.remove		=3D __devexit_p(intel_mid_i2c_remove),
++};
++
++static int __init intel_mid_i2c_init(void)
++{
++	return pci_register_driver(&intel_mid_i2c_driver);
++}
++
++static void __exit intel_mid_i2c_exit(void)
++{
++	pci_unregister_driver(&intel_mid_i2c_driver);
++}
++
++module_init(intel_mid_i2c_init);
++module_exit(intel_mid_i2c_exit);
++
++MODULE_AUTHOR("Ba Zheng <zheng.ba-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
++MODULE_DESCRIPTION("I2C driver for Moorestown Platform");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(VERSION);
