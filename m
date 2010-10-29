@@ -1,42 +1,99 @@
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH -next] i2c: intel-mid depends on PCI
-Date: Fri, 29 Oct 2010 13:37:09 -0700
-Message-ID: <20101029133709.5e5df4ad.randy.dunlap@oracle.com>
-References: <20101029121148.d27e03bc.sfr@canb.auug.org.au>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: [PATCH v2 0/1] PN544 NFC driver.
+Date: Fri, 29 Oct 2010 14:33:33 -0700
+Message-ID: <20101029143333.db43953b.akpm@linux-foundation.org>
+References: <1288333569-19979-1-git-send-email-matti.j.aaltonen@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101029121148.d27e03bc.sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
+In-Reply-To: <1288333569-19979-1-git-send-email-matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, akpm <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Ba Zheng <zheng.ba-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+On Fri, 29 Oct 2010 09:26:08 +0300
+"Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> wrote:
 
-i2c-intel-mid driver uses PCI data structs and interfaces,
-so it should depend on PCI.  Fixes these build errors:
+> Hello.
+> 
+> And thanks to Andrew for the comments.
+> 
+> >> include/linux/pn544.h |   99 ++++++
+> > 
+> > Is drivers/misc/ the best place for this?
+> > 
+> > Don't be afraid to create a new drivers/nfc/ even if it has only one
+> > driver in it.  If someone later comes in and adds a new NFC driver then
+> > things will all fall into place.
+> 
+> OK. Now I've created directories drivers/nfc, include/linux/nfc and Documentation/nfc.
 
-drivers/i2c/busses/i2c-intel-mid.c:977: error: implicit declaration of function 'pci_request_region'
-drivers/i2c/busses/i2c-intel-mid.c:1077: error: implicit declaration of function 'pci_release_region'
+I beefed up the changelog a bit, telling people what "nfc" is.
 
-Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Cc: Ba Zheng <zheng.ba-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/i2c/busses/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+We really should tell more people that we're adding a new subsystem. 
+Can you please resend the patchset, cc'ing linux-kernel?
 
---- linux-next-20101029.orig/drivers/i2c/busses/Kconfig
-+++ linux-next-20101029/drivers/i2c/busses/Kconfig
-@@ -398,6 +398,7 @@ config I2C_IMX
- 
- config I2C_INTEL_MID
- 	tristate "Intel Moorestown/Medfield Platform I2C controller"
-+	depends on PCI
- 	help
- 	  Say Y here if you have an Intel Moorestown/Medfield platform I2C
- 	  controller.
+> >> +/* sysfs interface */
+> > 
+> > OK, this is more serious.
+> > 
+> > You're proposing a permanent addition to the kernel ABI.  This is the
+> > most important part of the driver because it is something we can never
+> > change.  This interface is the very first thing we'll want to
+> > understand and review, before we even look at the implementation.
+> > 
+> > And it isn't even described!  Not in the changelog, not in a
+> > documentation file, not even in code comments.
+> > 
+> > Please, provide a description of this proposed interface.  Sufficient
+> > for reviewers to understand it and for users to use it.  Pobably this
+> > will require some description of the hardware functions as well.
+> > 
+> > Please also consider updating Documentation/ABI/
+> 
+> I've added a documentation file. But I didn't make changes to the interface
+> yet.
+
+So we can expect some updates?
+
+> > 
+> > And an ioctl interface as well!  An undocmented one.
+> > 
+> > ioctls are pretty unpopular for various reasons.  To a large extent,
+> > people have been using sysfs interfaces as a repalcement for ioctl()s.
+> > But this driver has both!
+> 
+> Some explanatory text written into the documentation file.
+
+So, the sysfs interface is purely for running a device test?
+
+And primary communication is via the /dev node, and that node supports
+an ioctl() which changes the meaning of reads and writes to that node?
+
+If so, that's a bit of a peculiar interface.  Perhaps there should have
+been two /dev nodes.  Certainly it would be most popular if the ioctl()
+interface were to simply disappear.
+
+Please, do spell all of this out in some detail within the changelog
+when resending the code for wider review.  There are people out there
+(eg Greg, Alan) who are better at these things than I and we should
+provide them with all the details up-front without going through
+another question-and-answer session or expecting them to grovel through
+code to reverse-engineer the interfaces.
+
+Another consideration here is that if we do expect more NFC devices and
+drivers for them, then we should aim for some standardisation of the
+interface, from day one.  Some discussion of this would also be helpful
+for reviewers.
+
+
+One other thing: these messages which flow between userspace and the
+device.  Are they documented or sufficiently well understood so that
+non-Nokia people can use this driver?
+
+Because we had a driver come up a couple of weeks ago.  It was a
+simple, clean driver but all it did was to shuffle opaque data between
+userspace and the device, and the contents of that data was not
+publicly available.  I discussed the driver with Linus and he said "no".
