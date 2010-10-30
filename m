@@ -1,82 +1,68 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-i801: Add PCI idents for Sandy Bridge SMBus
- controllers
-Date: Sat, 30 Oct 2010 18:36:35 +0200
-Message-ID: <20101030183635.4899246f@endymion.delvare>
-References: <alpine.LFD.2.00.1010301445490.7306@dwoodhou-mobl2.ger.corp.intel.com>
-	<alpine.LFD.2.00.1010301448240.7306@dwoodhou-mobl2.ger.corp.intel.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-i801: Handle multiple instances instead of
+	keeping  global state
+Date: Sun, 31 Oct 2010 00:00:52 +0100
+Message-ID: <20101030230052.GP21564@trinity.fluff.org>
+References: <alpine.LFD.2.00.1010301445490.7306@dwoodhou-mobl2.ger.corp.intel.com> <20101030182458.0849f295@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.1010301448240.7306-NkH8fLdbH5SKw1fGA2nhu27IUlhRatedral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20101030182458.0849f295-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 30 Oct 2010 14:49:31 +0100 (BST), David Woodhouse wrote:
-> 
-> Signed-off-by: David Woodhouse <David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-i801.c |   13 +++++++++++++
->   1 files changed, 13 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 6e8c12c..415f58d 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -45,6 +45,10 @@
->     ICH10                 0x3a60     32     hard     yes     yes     yes
->     5/3400 Series (PCH)   0x3b30     32     hard     yes     yes     yes
->     Cougar Point (PCH)    0x1c22     32     hard     yes     yes     yes
-> +  Sandy Bridge (PCH)    0x1d22     32     hard     yes     yes     yes
-> +  Sandy Bridge (EVA)    0x1d70     32     hard     yes     yes     yes
-> +  Sandy Bridge (EVA)    0x1d71     32     hard     yes     yes     yes
-> +  Sandy Bridge (EVA)    0x1d72     32     hard     yes     yes     yes
+On Sat, Oct 30, 2010 at 06:24:58PM +0200, Jean Delvare wrote:
+> Hi David,
+>=20
+> On Sat, 30 Oct 2010 14:47:56 +0100 (BST), David Woodhouse wrote:
+> >=20
+>=20
+> An explanation why this change is needed would be nice.
+>=20
+> > Signed-off-by: David Woodhouse <David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >   drivers/i2c/busses/i2c-i801.c |  329 ++++++++++++++++++++++------=
+-------------
+> >   1 files changed, 178 insertions(+), 151 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c=
+-i801.c
+> > index 59d6598..6e8c12c 100644
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > @@ -1,8 +1,10 @@
+> >   /*
+>=20
+> Note that the patch got corrupted on the way: all leading spaces have
+> been doubled. I had to fix it.
+>=20
+> > -    Copyright (c) 1998 - 2002  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>,
+> > -    Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>, and Mark D. Studebaker
+> > -    <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+> > -    Copyright (C) 2007, 2008   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > +    Copyright =A9 1998 - 2002  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>,
+> > +			     Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org> and
+> > +			     Mark D. Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+> > +    Copyright =A9 2007, 2008   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > +    Copyright =A9 2010         Intel Corporation
+> > +                             David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+>=20
+> I'd rather stick to (C). Using non-ASCII characters is asking for
+> trouble, and this doesn't add value.
 
-This doesn't apply, because of the following pending patch which is
-also adding support for a new driver (so touching the exact same areas
-of the driver):
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-i801-add-intel-patsburg-device-id.patch
+IIRC, and IANAL, (C) is not sufficient in certain areas (such as the UK=
+)
+to declare copyright. It needs to be either the word Copyright in full,
+or the proper 'c' in circle. Both is of coures better.
+=20
+[snip]
 
-As a side note, I really don't get the point of using 4 different PCI
-device IDs for exactly the same device. Intel should really start to
-worry about their numbering space if they keep attributing IDs when
-they don't need to. 16 bit is fast to exhaust...
+--=20
+Ben
 
-> 
->     Features supported by this driver:
->     Software PEC                     no
-> @@ -127,6 +131,11 @@
->   				 SMBHSTSTS_BUS_ERR | SMBHSTSTS_DEV_ERR | \
->   				 SMBHSTSTS_INTR)
-> 
-> +#define PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_PCH	0x1d22
-> +#define PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA1	0x1d70
-> +#define PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA2	0x1d71
-> +#define PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA3	0x1d72
-> +
-
-These should go to pci_ids.h together with all other similar defines.
-
->   struct i801_priv {
->   	struct i2c_adapter adapter;
->   	unsigned long smba;
-> @@ -602,6 +611,10 @@ static const struct pci_device_id i801_ids[] = {
->   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH10_5) },
->   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS) },
->   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_PCH) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA1) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA2) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SANDYBRIDGE_SMBUS_EVA3) },
->   	{ 0, }
->   };
-> 
-
-You also have to list the new device in drivers/i2c/busses/Kconfig and
-Documentation/i2c/busses/i2c-i801.
-
--- 
-Jean Delvare
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
