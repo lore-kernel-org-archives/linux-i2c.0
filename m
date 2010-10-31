@@ -1,65 +1,41 @@
 From: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 Subject: Re: [PATCH 1/2] i2c-i801: Handle multiple instances instead of
  keeping  global state
-Date: Sun, 31 Oct 2010 10:11:43 -0400
-Message-ID: <1288534303.4570.32.camel@macbook.infradead.org>
+Date: Sun, 31 Oct 2010 10:15:51 -0400
+Message-ID: <1288534551.4570.36.camel@macbook.infradead.org>
 References: <alpine.LFD.2.00.1010301445490.7306@dwoodhou-mobl2.ger.corp.intel.com>
 	 <20101030182458.0849f295@endymion.delvare>
 	 <1288481663.4570.19.camel@macbook.infradead.org>
 	 <20101030233930.GQ21564@trinity.fluff.org>
-	 <1288482478.4570.23.camel@macbook.infradead.org>
-	 <20101031101953.45b3dabf@endymion.delvare>
+	 <20101031110158.1ff0f03c@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101031101953.45b3dabf-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20101031110158.1ff0f03c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 2010-10-31 at 10:19 +0100, Jean Delvare wrote:
-> On Sat, 30 Oct 2010 19:47:58 -0400, David Woodhouse wrote:
-> > On Sun, 2010-10-31 at 00:39 +0100, Ben Dooks wrote:
-> > > On Sat, Oct 30, 2010 at 07:34:23PM -0400, David Woodhouse wrote:
-> > > > On Sat, 2010-10-30 at 18:24 +0200, Jean Delvare wrote:
-> > > > > An explanation why this change is needed would be nice.
-> > > > 
-> > > > Um, does it really need explaining? It's really poor form to keep driver
-> > > > state in global variables rather than per-instance, even if you *don't*
-> > > > actually have more than one device.
+On Sun, 2010-10-31 at 11:01 +0100, Jean Delvare wrote:
+> "Email clients should not modify the character set encoding of the text.
+> Emailed patches should be in ASCII or UTF-8 encoding only.
+> If you configure your email client to send emails with UTF-8 encoding,
+> you avoid some possible charset problems."
 > 
-> This is actually a good second half for an explanation paragraph.
-> 
-> > > I always like to fill it in, it makes it easier for lazy folks who can't
-> > > be bothered to read the patch itself.
-> > 
-> > The explanation fits in one line:
-> >   "Handle multiple instances instead of keeping global state"
-> 
-> No, this isn't en explanation. This is a statement of _what_ your patch
-> does. This is needed but not sufficient. What is additionally requested
-> from you is an explanation _why_ it does it.
-> 
-> > I could try adding a paragraph explaining further that this patch will
-> > make the driver handle multiple instances of the device, by keeping its
-> > state per-device instead of in global variables. But that seems
-> > somewhat... redundant.
-> 
-> You want to explain that the assumption of the original driver author
-> that there can be only one supported device with one SMBus interface on
-> a given system no longer holds true for new devices to be released soon.
+> I read this as: if you use non-ASCII, it has to be UTF-8. Not as: use
+> non-ASCII each time you can. 
 
-Pfft. That was covered by this line in the patch itself:
+I read that differently; I read it simply as "Everything is UTF-8".
 
--/* Note: we assume there can only be one I801, with one SMBus interface */
+ASCII is just a legacy subset of UTF-8, and (in my reading of the above)
+is mentioned only to avoid confusion.
 
-I cannot imagine a realistic case where any further comment in the
-changelog would really be useful -- where a competent person glancing at
-the resulting commit would be in *any* doubt as to what was being done
-and why. But since it's easier to provide a redundant 'explanation' than
-to argue about it, I'll include that in the next version too.
+If someone only happens to be sending ASCII, we don't want to confuse
+them by making them think there's some conversion needed to turn that
+into UTF-8. So we mention explicitly that ASCII is acceptable, even
+though that would be implicit if we mentioned only UTF-8.
 
 -- 
 David Woodhouse                            Open Source Technology Centre
