@@ -1,38 +1,31 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: [RFC/PATCH] i2c/busses: Add support for Diolan U2C-12 USB/I2C
- adapter
-Date: Thu, 4 Nov 2010 13:43:14 +0100
-Message-ID: <20101104134314.7928cd85@endymion.delvare>
+	adapter
+Date: Thu, 4 Nov 2010 12:47:24 +0000
+Message-ID: <20101104124724.GR21564@trinity.fluff.org>
 References: <1288830389-13873-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <1288830389-13873-1-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 3 Nov 2010 17:26:29 -0700, Guenter Roeck wrote:
+On Wed, Nov 03, 2010 at 05:26:29PM -0700, Guenter Roeck wrote:
 > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 > ---
 > This is an usb-i2c adapter I am using to connect to i2c evaluation and test
 > boards. Not sure if it is worth adding it into the kernel. If yes, I'll be
 > happy to add myself as maintainer.
-
-Why not? This is a device other developers may want to use, and your
-driver is relatively small, so I'm totally fine having it in the
-upstream kernel.
-
+> 
 >  drivers/i2c/busses/Kconfig          |   10 +
 >  drivers/i2c/busses/Makefile         |    1 +
 >  drivers/i2c/busses/i2c-diolan-u2c.c |  455 +++++++++++++++++++++++++++++++++++
 >  3 files changed, 466 insertions(+), 0 deletions(-)
 >  create mode 100644 drivers/i2c/busses/i2c-diolan-u2c.c
-
-Review:
-
 > 
 > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
 > index 3a6321c..d73be36 100644
@@ -98,10 +91,6 @@ Review:
 > +
 > +#define USB_VENDOR_ID_DIOLAN		0x0abf
 > +#define USB_DEVICE_ID_DIOLAN_U2C	0x3370
-
-Maybe you can submit these to http://www.linux-usb.org/usb-ids.html so
-that lsusb identifies the device?
-
 > +
 > +#define DIOLAN_OUT_EP		0x02
 > +#define DIOLAN_IN_EP		0x84
@@ -143,9 +132,6 @@ that lsusb identifies the device?
 > +
 > +#define U2C_I2C_FREQ_FAST	0	/* 400 kHz  */
 > +#define U2C_I2C_FREQ_STD	1	/* 100 kHz  */
-
-Doubled spaces at end of comments.
-
 > +#define U2C_I2C_FREQ_83KHZ	2
 > +#define U2C_I2C_FREQ_71KHZ	3
 > +#define U2C_I2C_FREQ_62KHZ	4
@@ -156,9 +142,6 @@ Doubled spaces at end of comments.
 > +#define U2C_I2C_FREQ_2KHZ	242
 > +
 > +#define DIOLAN_USB_TIMEOUT	100
-
-Unit?
-
 > +
 > +/* Structure to hold all of our device specific stuff */
 > +struct i2c_diolan_u2c {
@@ -169,28 +152,13 @@ Unit?
 > +
 > +/* usb layer */
 > +
-
-Please document what the function below returns.
-
 > +static int diolan_usb_transfer(struct i2c_adapter *adapter, u8 * obuffer,
-
-No space between * and obuffer.
-
-obuffer could be a const pointer, couldn't it?
-
 > +			       int olen, u8 *ibuffer, int ilen)
 > +{
 > +	struct i2c_diolan_u2c *dev = adapter->algo_data;
 > +	int ret = 0;
 > +	int actual;
 > +	unsigned char inbuffer[257];
-
-I know it doesn't matter in practice, but it's a little inconsistent to
-use unsigned char for this buffer and u8 in all other functions.
-
-I'm also unsure what is the point of having such a large buffer when
-the largest block you ever transfer in practice is 5 bytes?
-
 > +
 > +	if (olen) {
 > +		ret = usb_bulk_msg(dev->usb_dev,
@@ -204,34 +172,18 @@ the largest block you ever transfer in practice is 5 bytes?
 > +				   DIOLAN_USB_TIMEOUT);
 > +		if (ret == 0 && actual > 0) {
 > +			ret = min(actual, ilen);
-
-This could be done after checking for errors.
-
 > +			switch (inbuffer[actual - 1]) {
 > +			case RESP_NACK:
 > +				ret = -EINVAL;
 > +				goto abort;
-
-According to Documentation/i2c/fault-codes, nacks should be translated
-to -ENXIO.
-
 > +			case RESP_OK:
 > +				break;
 > +			default:
 > +				ret = -EIO;
 > +				goto abort;
 > +			}
-
-I don't see the value of gotos here, breaks would work just fine, all
-you have to do is change your test below to "ret > 0" - or even better,
-move the memcpy inside the switch.
-
 > +			if (ret)
 > +				memcpy(ibuffer, inbuffer, ret);
-
-BTW, I'm not sure why you don't use the original buffer directly?
-memcpy is bad performance-wise.
-
 > +		}
 > +	}
 > +abort:
@@ -259,10 +211,6 @@ memcpy is bad performance-wise.
 > +		if (ret < 0 || actual == 0)
 > +			break;
 > +	}
-
-Shouldn't you emit a warning of some sort and/or fail driver loading if
-all retries were exhausted?
-
 > +}
 > +
 > +static int diolan_i2c_start(struct i2c_adapter *adapter)
@@ -277,12 +225,37 @@ all retries were exhausted?
 > +static int diolan_i2c_repeated_start(struct i2c_adapter *adapter)
 > +{
 > +	u8 buffer[1];
-> +
+
+note, transfers to/from stack memory are not advised, esp. if this
+involves the hardware dma-mapping the stack. Please move the buffer
+to your private data.
+
 > +	buffer[0] = CMD_I2C_REPEATED_START;
 > +
 > +	return diolan_usb_transfer(adapter, buffer, 1, buffer, 1);
 > +}
-> +
+
+why not doing something like
+
+diolan_usb_cmd1(struct i2c_adapter *adapter, u8 command)
+{
+	struct i2c_diolan_u2c *dev = adapter->algo_data;	
+
+	dev->buffer[0] = command;
+
+	return diolan_usb_treansfer(adapter, dev->buffer, 1, dev->buffer, 1);
+}
+
+then a lot of these little transfer functions could be turned into much
+smaller ones.
+
+ie:
+
+static int diolan_i2c_stop(struct i2c_adapter *adapter)
+{
+	return diolan_usb_cmd1(adapter, CMD_I2C_STOP);
+}
+
 > +static int diolan_i2c_stop(struct i2c_adapter *adapter)
 > +{
 > +	u8 buffer[1];
@@ -297,9 +270,6 @@ all retries were exhausted?
 > +{
 > +	u8 buffer[2];
 > +	int rv;
-
-Why "rv" when all other functions use "ret"?
-
 > +
 > +	buffer[0] = CMD_I2C_GET_BYTE_ACK;
 > +	buffer[1] = ack;
@@ -312,7 +282,9 @@ Why "rv" when all other functions use "ret"?
 > +
 > +	return rv;
 > +}
-> +
+
+see notes about stack-mapping buffer.
+
 > +static int diolan_i2c_put_byte_ack(struct i2c_adapter *adapter, u8 byte)
 > +{
 > +	u8 buffer[2];
@@ -332,7 +304,9 @@ Why "rv" when all other functions use "ret"?
 > +
 > +	return diolan_usb_transfer(adapter, buffer, 2, buffer, 1);
 > +}
-> +
+
+maybe roll-up the 2 byte transfers in the same was a one-byte.
+
 > +static int diolan_fw_version(struct i2c_adapter *adapter)
 > +{
 > +	u8 buffer[3];
@@ -344,11 +318,6 @@ Why "rv" when all other functions use "ret"?
 > +		dev_info(&adapter->dev,
 > +			 "Diolan U2C firmware version %d.%d\n",
 > +			 buffer[0], buffer[1]);
-
-Unless you expect negative versions, %u would be more appropriate. Also
-note that to be completely correct you should cast the values to
-unsigned int before printing them. 
-
 > +	return ret;
 > +}
 > +
@@ -363,19 +332,20 @@ unsigned int before printing them.
 > +		dev_info(&adapter->dev,
 > +			 "Diolan U2C serial number %d\n", *(u32 *) &buffer[0]);
 
-Will the value be displayed correctly on big-endian machines? Doesn't
-seem so. You probably have to use le32_to_cpu().
-
-Also, %d to print an unsigned number isn't good.
+*(u32 *) isn't nice, esp. as you're not going to know the endian-ness of
+the host you are running on. suggest trying a explict le32 ot be32 get of
+the data.
 
 > +	return ret;
 > +}
-> +
+
 > +static int diolan_scan(struct i2c_adapter *adapter)
 > +{
 > +	u8 buffer[257];
 > +	int i, ret;
-> +
+
+suggest kmalloc() the buffer.
+
 > +	buffer[0] = CMD_I2C_SCAN;
 > +	ret = diolan_usb_transfer(adapter, buffer, 1, buffer, 257);
 > +	if (ret > 0) {
@@ -387,16 +357,11 @@ Also, %d to print an unsigned number isn't good.
 > +		}
 > +	}
 > +	return ret;
+
+do you really need to do this, we've already got a userspace i2cdetect
+tool?
+
 > +}
-
-I don't know how exactly the device is scanning for I2C slaves, but
-there is no provision for device discovery in the I2C specification. I
-wouldn't do that unconditionally at driver bind time, it might confuse
-some I2C slaves.
-
-If the user wants to probe for devices, we have i2c-dev + i2cdetect for
-this, which is more flexible.
-
 > +
 > +/* i2c layer */
 > +
@@ -405,9 +370,6 @@ this, which is more flexible.
 > +	struct i2c_msg *pmsg;
 > +	int i, j;
 > +	int rc = 0;
-
-And now rc instead of ret as everywhere else? You are being creative ;)
-
 > +
 > +	rc = diolan_i2c_start(adapter);
 > +	if (rc < 0)
@@ -423,9 +385,6 @@ And now rc instead of ret as everywhere else? You are being creative ;)
 > +		if (pmsg->flags & I2C_M_RD) {
 > +			rc = diolan_i2c_put_byte_ack(adapter,
 > +						((pmsg->addr & 0x7f) << 1) | 1);
-
-Note that the mask is useless: the address is already a 7-bit value.
-
 > +			if (rc < 0)
 > +				goto abort;
 > +			for (j = 0; j < pmsg->len; j++) {
@@ -450,9 +409,6 @@ Note that the mask is useless: the address is already a 7-bit value.
 > +					if (byte == 0
 > +					    || byte > I2C_SMBUS_BLOCK_MAX) {
 > +						rc = -EREMOTEIO;
-
-Should be -EPROTO according to Documentation/i2c/fault-codes.
-
 > +						goto abort;
 > +					}
 > +					pmsg->len += byte;
@@ -462,9 +418,6 @@ Should be -EPROTO according to Documentation/i2c/fault-codes.
 > +		} else {
 > +			rc = diolan_i2c_put_byte_ack(adapter,
 > +						     (pmsg->addr & 0x7f) << 1);
-
-Useless mask.
-
 > +			if (rc < 0)
 > +				goto abort;
 > +			for (j = 0; j < pmsg->len; j++) {
@@ -487,14 +440,10 @@ Useless mask.
 > +{
 > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
 > +	    I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-
-Odd indentation/alignment.
-
-As far as I can see you also support I2C_FUNC_SMBUS_BLOCK_PROC_CALL
-(even though it is not used by any driver I know of.)
-
 > +}
-> +
+
+please make sure everything is prefixed with dio_ for nicer debugging.
+
 > +static const struct i2c_algorithm usb_algorithm = {
 > +	.master_xfer = usb_xfer,
 > +	.functionality = usb_func,
@@ -503,10 +452,10 @@ As far as I can see you also support I2C_FUNC_SMBUS_BLOCK_PROC_CALL
 > +/* device layer */
 > +
 > +static struct usb_device_id i2c_diolan_u2c_table[] = {
-
-Could this be made const?
-
 > +	{USB_DEVICE(USB_VENDOR_ID_DIOLAN, USB_DEVICE_ID_DIOLAN_U2C)},
+
+spaces between { and text please, same with }
+
 > +	{}
 > +};
 > +
@@ -523,10 +472,6 @@ Could this be made const?
 > +{
 > +	struct i2c_diolan_u2c *dev;
 > +	int retval = -ENOMEM;
-
-This initialization could be delayed to the point where you actually
-need it.
-
 > +
 > +	/* allocate memory for our device state and initialize it */
 > +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
@@ -550,12 +495,6 @@ need it.
 > +	dev->adapter.class = I2C_CLASS_HWMON;
 > +	dev->adapter.algo = &usb_algorithm;
 > +	dev->adapter.algo_data = dev;
-
-You are abusing algo_data here. You are supposed to use
-i2c_get/set_adapdata() instead. algo_data is only there for providing
-platform specific implementation details to generic i2c algorithms such
-as i2c-algo-bit.
-
 > +	snprintf(dev->adapter.name, sizeof(dev->adapter.name),
 > +		 "i2c-u2c-usb at bus %03d device %03d",
 > +		 dev->usb_dev->bus->busnum, dev->usb_dev->devnum);
@@ -566,23 +505,8 @@ as i2c-algo-bit.
 > +
 > +	/* and finally attach to i2c layer */
 > +	i2c_add_adapter(&dev->adapter);
-
-Please check for error here. It could happen!
-
 > +
 > +	diolan_fw_version(&dev->adapter);
-
-This seems racy, and the commands below as well. Serialization of calls
-to usb_xfer is guaranteed by i2c-core, but here you are calling other
-functions which will access your USB interface. I'm no USB expert, but
-diolan_usb_transfer() doesn't seem to be designed for parallel
-execution. As your i2c adapter is already registered, usb_xfer() could
-run in parallel with diolan_fw_version(), diolan_set_speed() etc.
-
-So either you add a mutex to serialize the access yourself (which will
-cause a run-time performance hit) or you do all your stuff _before_ the
-adapter is publicly usable.
-
 > +
 > +	retval = diolan_set_speed(&dev->adapter, U2C_I2C_FREQ_STD);
 > +	if (retval < 0) {
@@ -590,14 +514,11 @@ adapter is publicly usable.
 > +			"failure %d setting I2C bus frequency\n", retval);
 > +		goto error_del;
 > +	}
-
-Beyond the race issue, you want to fully initialize the adapter before
-you make it visible to consumers, so speed should be set before calling
-i2c_add_adapter().
-
 > +	diolan_get_serial(&dev->adapter);
 > +	diolan_scan(&dev->adapter);
-> +
+
+do you really need to scan the bus on connection?
+
 > +	dev_dbg(&dev->adapter.dev, "connected i2c-u2c-usb device\n");
 > +
 > +	return 0;
@@ -615,10 +536,6 @@ i2c_add_adapter().
 > +
 > +	i2c_del_adapter(&dev->adapter);
 > +	usb_set_intfdata(interface, NULL);
-
-If you have to do this here, then you also have to do it in the failure
-path of i2c_diolan_u2c_probe(), don't you?
-
 > +	i2c_diolan_u2c_free(dev);
 > +
 > +	dev_dbg(&interface->dev, "disconnected\n");
@@ -626,9 +543,6 @@ path of i2c_diolan_u2c_probe(), don't you?
 > +
 > +static struct usb_driver i2c_diolan_u2c_driver = {
 > +	.name = "i2c-u2c-usb",
-
-Why not "i2c-diolan-u2c" as the module name? Would be more consistent.
-
 > +	.probe = i2c_diolan_u2c_probe,
 > +	.disconnect = i2c_diolan_u2c_disconnect,
 > +	.id_table = i2c_diolan_u2c_table,
@@ -650,14 +564,13 @@ Why not "i2c-diolan-u2c" as the module name? Would be more consistent.
 > +module_exit(usb_i2c_diolan_u2c_exit);
 > +
 > +/* ----- end of usb layer ------------------------------------------------ */
-
-This comment is inconsistent (and useless, if you ask me.)
-
 > +
 > +MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
 > +MODULE_DESCRIPTION("i2c-u2c-usb driver");
 > +MODULE_LICENSE("GPL");
 
-
 -- 
-Jean Delvare
+Ben
+
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
