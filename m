@@ -1,1229 +1,752 @@
-From: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4 1/1] NFC: Driver for NXP Semiconductors PN544 NFC chip.
-Date: Thu,  4 Nov 2010 17:32:03 +0200
-Message-ID: <1288884723-12156-2-git-send-email-matti.j.aaltonen@nokia.com>
-References: <1288884723-12156-1-git-send-email-matti.j.aaltonen@nokia.com>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [RFC/PATCH] i2c/busses: Add support for Diolan U2C-12 USB/I2C
+ adapter
+Date: Thu, 4 Nov 2010 09:41:42 -0700
+Message-ID: <1288888902.22931.165.camel@groeck-laptop>
+References: <1288830389-13873-1-git-send-email-guenter.roeck@ericsson.com>
+	 <20101104134314.7928cd85@endymion.delvare>
+Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1288884723-12156-1-git-send-email-matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20101104134314.7928cd85-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a driver for the PN544 Near Field Communication (NFC) device.
-The driver mainly transfers ETSI HCI messages between the device and
-the userspace.
+Hi Jean,
 
-Signed-off-by: Matti J. Aaltonen <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+On Thu, 2010-11-04 at 08:43 -0400, Jean Delvare wrote:
+> On Wed, 3 Nov 2010 17:26:29 -0700, Guenter Roeck wrote:
+> > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > ---
+> > This is an usb-i2c adapter I am using to connect to i2c evaluation and test
+> > boards. Not sure if it is worth adding it into the kernel. If yes, I'll be
+> > happy to add myself as maintainer.
+> 
+> Why not? This is a device other developers may want to use, and your
+> driver is relatively small, so I'm totally fine having it in the
+> upstream kernel.
+> 
+Ok.
 
-Doc - fix...
+> >  drivers/i2c/busses/Kconfig          |   10 +
+> >  drivers/i2c/busses/Makefile         |    1 +
+> >  drivers/i2c/busses/i2c-diolan-u2c.c |  455 +++++++++++++++++++++++++++++++++++
+> >  3 files changed, 466 insertions(+), 0 deletions(-)
+> >  create mode 100644 drivers/i2c/busses/i2c-diolan-u2c.c
+> 
+> Review:
+> >
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 3a6321c..d73be36 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -640,6 +640,16 @@ config I2C_XILINX
+> >
+> >  comment "External I2C/SMBus adapter drivers"
+> >
+> > +config I2C_DIOLAN_U2C
+> > +     tristate "Diolan U2C-12 USB adapter"
+> > +     depends on USB
+> > +     help
+> > +       If you say yes to this option, support will be included for Diolan
+> > +       U2C-12, a USB to I2C interface.
+> > +
+> > +       This driver can also be built as a module.  If so, the module
+> > +       will be called i2c-diolan-u2c.
+> > +
+> >  config I2C_PARPORT
+> >       tristate "Parallel port adapter"
+> >       depends on PARPORT
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index 84cb16a..46315db 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -63,6 +63,7 @@ obj-$(CONFIG_I2C_OCTEON)    += i2c-octeon.o
+> >  obj-$(CONFIG_I2C_XILINX)     += i2c-xiic.o
+> >
+> >  # External I2C/SMBus adapter drivers
+> > +obj-$(CONFIG_I2C_DIOLAN_U2C) += i2c-diolan-u2c.o
+> >  obj-$(CONFIG_I2C_PARPORT)    += i2c-parport.o
+> >  obj-$(CONFIG_I2C_PARPORT_LIGHT)      += i2c-parport-light.o
+> >  obj-$(CONFIG_I2C_TAOS_EVM)   += i2c-taos-evm.o
+> > diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+> > new file mode 100644
+> > index 0000000..5f4fb74
+> > --- /dev/null
+> > +++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+> > @@ -0,0 +1,455 @@
+> > +/*
+> > + * driver for the Diolan u2c-12 usb adapter
+> > + *
+> > + * Copyright (c) 2010 Ericsson AB
+> > + *
+> > + * Derived from:
+> > + *  i2c-tiny-usb.c
+> > + *  Copyright (C) 2006-2007 Till Harbaum (Till-zicpKgigMvpAfugRpC6u6w@public.gmane.org)
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License as
+> > + * published by the Free Software Foundation, version 2.
+> > + *
+> > + */
+> > +
+> > +#include <linux/kernel.h>
+> > +#include <linux/errno.h>
+> > +#include <linux/module.h>
+> > +#include <linux/types.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/usb.h>
+> > +#include <linux/i2c.h>
+> > +
+> > +#define USB_VENDOR_ID_DIOLAN         0x0abf
+> > +#define USB_DEVICE_ID_DIOLAN_U2C     0x3370
+> 
+> Maybe you can submit these to http://www.linux-usb.org/usb-ids.html so
+> that lsusb identifies the device?
+> 
+Sure. Will do.
 
-Signed-off-by: Matti J. Aaltonen <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
----
- Documentation/nfc/nfc-pn544.txt |  114 +++++
- drivers/Kconfig                 |    2 +
- drivers/Makefile                |    2 +-
- drivers/nfc/Kconfig             |   30 ++
- drivers/nfc/Makefile            |    5 +
- drivers/nfc/pn544.c             |  891 +++++++++++++++++++++++++++++++++++++++
- include/linux/nfc/pn544.h       |   97 +++++
- 7 files changed, 1140 insertions(+), 1 deletions(-)
- create mode 100644 Documentation/nfc/nfc-pn544.txt
- create mode 100644 drivers/nfc/Kconfig
- create mode 100644 drivers/nfc/Makefile
- create mode 100644 drivers/nfc/pn544.c
- create mode 100644 include/linux/nfc/pn544.h
+> > +
+> > +#define DIOLAN_OUT_EP                0x02
+> > +#define DIOLAN_IN_EP         0x84
+> > +
+> > +/* commands via USB, must match command ids in the firmware */
+> > +#define CMD_I2C_READ         0x01
+> > +#define CMD_I2C_WRITE                0x02
+> > +#define CMD_I2C_SCAN         0x03    /* Returns list of detected devices */
+> > +#define CMD_I2C_RELEASE_SDA  0x04
+> > +#define CMD_I2C_RELEASE_SCL  0x05
+> > +#define CMD_I2C_DROP_SDA     0x06
+> > +#define CMD_I2C_DROP_SCL     0x07
+> > +#define CMD_I2C_READ_SDA     0x08
+> > +#define CMD_I2C_READ_SCL     0x09
+> > +#define CMD_GET_FW_VERSION   0x0a
+> > +#define CMD_GET_SERIAL               0x0b
+> > +#define CMD_I2C_START                0x0c
+> > +#define CMD_I2C_STOP         0x0d
+> > +#define CMD_I2C_REPEATED_START       0x0e
+> > +#define CMD_I2C_PUT_BYTE     0x0f
+> > +#define CMD_I2C_GET_BYTE     0x10
+> > +#define CMD_I2C_PUT_ACK              0x11
+> > +#define CMD_I2C_GET_ACK              0x12
+> > +#define CMD_I2C_PUT_BYTE_ACK 0x13
+> > +#define CMD_I2C_GET_BYTE_ACK 0x14
+> > +#define CMD_I2C_SET_SPEED    0x1b
+> > +#define CMD_I2C_GET_SPEED    0x1c
+> > +#define CMD_SET_CLOCK_SYNCH  0x24
+> > +#define CMD_GET_CLOCK_SYNCH  0x25
+> > +#define CMD_SET_CLOCK_SYNCH_TO       0x26
+> > +#define CMD_GET_CLOCK_SYNCH_TO       0x27
+> > +
+> > +#define RESP_OK                      0x00
+> > +#define RESP_FAILED          0x01
+> > +#define RESP_BAD_MEMADDR     0x04
+> > +#define RESP_DATA_ERR                0x05
+> > +#define RESP_NOT_IMPLEMENTED 0x06
+> > +#define RESP_NACK            0x07
+> > +
+> > +#define U2C_I2C_FREQ_FAST    0       /* 400 kHz  */
+> > +#define U2C_I2C_FREQ_STD     1       /* 100 kHz  */
+> 
+> Doubled spaces at end of comments.
+> 
+Fixed.
 
-diff --git a/Documentation/nfc/nfc-pn544.txt b/Documentation/nfc/nfc-pn544.txt
-new file mode 100644
-index 0000000..2fcac9f
---- /dev/null
-+++ b/Documentation/nfc/nfc-pn544.txt
-@@ -0,0 +1,114 @@
-+Kernel driver for the NXP Semiconductors PN544 Near Field
-+Communication chip
-+
-+Author: Jari Vanhala
-+Contact: Matti Aaltonen (matti.j.aaltonen at nokia.com)
-+
-+General
-+-------
-+
-+The PN544 is an integrated transmission module for contactless
-+communication. The driver goes under drives/nfc/ and is compiled as a
-+module named "pn544". It registers a misc device and creates a device
-+file named "/dev/pn544".
-+
-+Host Interfaces: I2C, SPI and HSU, this driver supports currently only I2C.
-+
-+The Interface
-+-------------
-+
-+The driver offers a sysfs interface for a hardware test and an IOCTL
-+interface for selecting between two operating modes. There are read,
-+write and poll functions for transferring messages. The two operating
-+modes are the normal (HCI) mode and the firmware update mode.
-+
-+PN544 is controlled by sending messages from the userspace to the
-+chip. The main function of the driver is just to pass those messages
-+without caring about the message content.
-+
-+
-+Protocols
-+---------
-+
-+In the normal (HCI) mode and in the firmware update mode read and
-+write functions behave a bit differently because the message formats
-+or the protocols are different.
-+
-+In the normal (HCI) mode the protocol used is derived from the ETSI
-+HCI specification. The firmware is updated using a specific protocol,
-+which is different from HCI.
-+
-+HCI messages consist of an eight bit header and the message body. The
-+header contains the message length. Maximum size for an HCI message is
-+33. In HCI mode sent messages are tested for a correct
-+checksum. Firmware update messages have the length in the second (MSB)
-+and third (LSB) bytes of the message. The maximum FW message length is
-+1024 bytes.
-+
-+For the ETSI HCI specification see
-+http://www.etsi.org/WebSite/Technologies/ProtocolSpecification.aspx
-+
-+The Hardware Test
-+-----------------
-+
-+The idea of the test is that it can performed by reading from the
-+corresponding sysfs file. The test is implemented in the board file
-+and it should test that PN544 can be put into the firmware update
-+mode. If the test is not implemented the sysfs file does not get
-+created.
-+
-+Example:
-+> cat /sys/module/pn544/drivers/i2c\:pn544/3-002b/nfc_test
-+1
-+
-+Normal Operation
-+----------------
-+
-+PN544 is powered up when the device file is opened, otherwise it's
-+turned off. Only one instance can use the device at a time.
-+
-+Userspace applications control PN544 with HCI messages. The hardware
-+sends an interrupt when data is available for reading. Data is
-+physically read when the read function is called by a userspace
-+application. Poll() checks the read interrupt state. Configuration and
-+self testing are also done from the userspace using read and write.
-+
-+Example platform data:
-+
-+static int rx71_pn544_nfc_request_resources(struct i2c_client *client)
-+{
-+	/* Get and setup the HW resources for the device */
-+}
-+
-+static void rx71_pn544_nfc_free_resources(void)
-+{
-+	/* Release the HW resources */
-+}
-+
-+static void rx71_pn544_nfc_enable(int fw)
-+{
-+	/* Turn the device on */
-+}
-+
-+static int rx71_pn544_nfc_test(void)
-+{
-+	/*
-+	 * Put the device into the FW update mode
-+	 * and then back to the normal mode.
-+	 * Check the behavior and return one on success,
-+	 * zero on failure.
-+	 */
-+}
-+
-+static void rx71_pn544_nfc_disable(void)
-+{
-+	/* turn the power off */
-+}
-+
-+static struct pn544_nfc_platform_data rx71_nfc_data = {
-+	.request_resources = rx71_pn544_nfc_request_resources,
-+	.free_resources = rx71_pn544_nfc_free_resources,
-+	.enable = rx71_pn544_nfc_enable,
-+	.test = rx71_pn544_nfc_test,
-+	.disable = rx71_pn544_nfc_disable,
-+};
-diff --git a/drivers/Kconfig b/drivers/Kconfig
-index a2b902f..d7f27d6 100644
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -111,4 +111,6 @@ source "drivers/xen/Kconfig"
- source "drivers/staging/Kconfig"
- 
- source "drivers/platform/Kconfig"
-+
-+source "drivers/nfc/Kconfig"
- endmenu
-diff --git a/drivers/Makefile b/drivers/Makefile
-index a2aea53..a6705ff 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -39,7 +39,7 @@ obj-$(CONFIG_FB_INTEL)          += video/intelfb/
- 
- obj-y				+= serial/
- obj-$(CONFIG_PARPORT)		+= parport/
--obj-y				+= base/ block/ misc/ mfd/
-+obj-y				+= base/ block/ misc/ mfd/ nfc/
- obj-$(CONFIG_NUBUS)		+= nubus/
- obj-y				+= macintosh/
- obj-$(CONFIG_IDE)		+= ide/
-diff --git a/drivers/nfc/Kconfig b/drivers/nfc/Kconfig
-new file mode 100644
-index 0000000..ffedfd4
---- /dev/null
-+++ b/drivers/nfc/Kconfig
-@@ -0,0 +1,30 @@
-+#
-+# Near Field Communication (NFC) devices
-+#
-+
-+menuconfig NFC_DEVICES
-+	bool "NFC devices"
-+	default n
-+	---help---
-+	  You'll have to say Y if your computer contains an NFC device that
-+	  you want to use under Linux.
-+
-+	  You can say N here if you don't have any Near Field Communication
-+	  devices connected to your computer.
-+
-+if NFC_DEVICES
-+
-+config PN544_NFC
-+	tristate "PN544 NFC driver"
-+	depends on I2C
-+	select CRC_CCITT
-+	default n
-+	---help---
-+	  Say yes if you want PN544 Near Field Communication driver.
-+	  This is for i2c connected version. If unsure, say N here.
-+
-+	  To compile this driver as a module, choose m here. The module will
-+	  be called pn544.
-+
-+
-+endif # NFC_DEVICES
-diff --git a/drivers/nfc/Makefile b/drivers/nfc/Makefile
-new file mode 100644
-index 0000000..a4efb16
---- /dev/null
-+++ b/drivers/nfc/Makefile
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for nfc devices
-+#
-+
-+obj-$(CONFIG_PN544_NFC)		+= pn544.o
-diff --git a/drivers/nfc/pn544.c b/drivers/nfc/pn544.c
-new file mode 100644
-index 0000000..401c44b
---- /dev/null
-+++ b/drivers/nfc/pn544.c
-@@ -0,0 +1,891 @@
-+/*
-+ * Driver for the PN544 NFC chip.
-+ *
-+ * Copyright (C) Nokia Corporation
-+ *
-+ * Author: Jari Vanhala <ext-jari.vanhala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-+ * Contact: Matti Aaltonen <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/crc-ccitt.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/nfc/pn544.h>
-+#include <linux/poll.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/serial_core.h> /* for TCGETS */
-+#include <linux/slab.h>
-+
-+#define DRIVER_CARD	"PN544 NFC"
-+#define DRIVER_DESC	"NFC driver for PN544"
-+
-+static struct i2c_device_id pn544_id_table[] = {
-+	{ PN544_DRIVER_NAME, 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, pn544_id_table);
-+
-+#define HCI_MODE	0
-+#define FW_MODE		1
-+
-+enum pn544_state {
-+	PN544_ST_COLD,
-+	PN544_ST_FW_READY,
-+	PN544_ST_READY,
-+};
-+
-+enum pn544_irq {
-+	PN544_NONE,
-+	PN544_INT,
-+};
-+
-+struct pn544_info {
-+	struct miscdevice miscdev;
-+	struct i2c_client *i2c_dev;
-+	struct regulator_bulk_data regs[2];
-+
-+	enum pn544_state state;
-+	wait_queue_head_t read_wait;
-+	loff_t read_offset;
-+	enum pn544_irq read_irq;
-+	struct mutex read_mutex; /* Serialize read_irq access */
-+	struct mutex mutex; /* Serialize info struct access */
-+	u8 *buf;
-+	unsigned int buflen;
-+};
-+
-+static const char reg_vdd_io[]	= "Vdd_IO";
-+static const char reg_vbat[]	= "VBat";
-+
-+/* sysfs interface */
-+static ssize_t pn544_test(struct device *dev,
-+			  struct device_attribute *attr, char *buf)
-+{
-+	struct pn544_info *info = dev_get_drvdata(dev);
-+	struct i2c_client *client = info->i2c_dev;
-+	struct pn544_nfc_platform_data *pdata = client->dev.platform_data;
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", pdata->test());
-+}
-+
-+static int pn544_enable(struct pn544_info *info, int mode)
-+{
-+	struct pn544_nfc_platform_data *pdata;
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	int r;
-+
-+	r = regulator_bulk_enable(ARRAY_SIZE(info->regs), info->regs);
-+	if (r < 0)
-+		return r;
-+
-+	pdata = client->dev.platform_data;
-+	info->read_irq = PN544_NONE;
-+	if (pdata->enable)
-+		pdata->enable(mode);
-+
-+	if (mode) {
-+		info->state = PN544_ST_FW_READY;
-+		dev_dbg(&client->dev, "now in FW-mode\n");
-+	} else {
-+		info->state = PN544_ST_READY;
-+		dev_dbg(&client->dev, "now in HCI-mode\n");
-+	}
-+
-+	usleep_range(10000, 15000);
-+
-+	return 0;
-+}
-+
-+static void pn544_disable(struct pn544_info *info)
-+{
-+	struct pn544_nfc_platform_data *pdata;
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	pdata = client->dev.platform_data;
-+	if (pdata->disable)
-+		pdata->disable();
-+
-+	info->state = PN544_ST_COLD;
-+
-+	dev_dbg(&client->dev, "Now in OFF-mode\n");
-+
-+	msleep(PN544_RESETVEN_TIME);
-+
-+	info->read_irq = PN544_NONE;
-+	regulator_bulk_disable(ARRAY_SIZE(info->regs), info->regs);
-+}
-+
-+static int check_crc(u8 *buf, int buflen)
-+{
-+	u8 len;
-+	u16 crc;
-+
-+	len = buf[0] + 1;
-+	if (len < 4 || len != buflen || len > PN544_MSG_MAX_SIZE) {
-+		pr_err(PN544_DRIVER_NAME
-+		       ": CRC; corrupt packet len %u (%d)\n", len, buflen);
-+		print_hex_dump(KERN_DEBUG, "crc: ", DUMP_PREFIX_NONE,
-+			       16, 2, buf, buflen, false);
-+		return -EPERM;
-+	}
-+	crc = crc_ccitt(0xffff, buf, len - 2);
-+	crc = ~crc;
-+
-+	if (buf[len-2] != (crc & 0xff) || buf[len-1] != (crc >> 8)) {
-+		pr_err(PN544_DRIVER_NAME ": CRC error 0x%x != 0x%x 0x%x\n",
-+		       crc, buf[len-1], buf[len-2]);
-+
-+		print_hex_dump(KERN_DEBUG, "crc: ", DUMP_PREFIX_NONE,
-+			       16, 2, buf, buflen, false);
-+		return -EPERM;
-+	}
-+	return 0;
-+}
-+
-+static int pn544_i2c_write(struct i2c_client *client, u8 *buf, int len)
-+{
-+	int r;
-+
-+	if (len < 4 || len != (buf[0] + 1)) {
-+		dev_err(&client->dev, "%s: Illegal message length: %d\n",
-+			__func__, len);
-+		return -EINVAL;
-+	}
-+
-+	if (check_crc(buf, len))
-+		return -EINVAL;
-+
-+	usleep_range(3000, 6000);
-+
-+	r = i2c_master_send(client, buf, len);
-+	dev_dbg(&client->dev, "send: %d\n", r);
-+
-+	if (r == -EREMOTEIO) { /* Retry, chip was in standby */
-+		usleep_range(6000, 10000);
-+		r = i2c_master_send(client, buf, len);
-+		dev_dbg(&client->dev, "send2: %d\n", r);
-+	}
-+
-+	if (r != len)
-+		return -EREMOTEIO;
-+
-+	return r;
-+}
-+
-+static int pn544_i2c_read(struct i2c_client *client, u8 *buf, int buflen)
-+{
-+	int r;
-+	u8 len;
-+
-+	/*
-+	 * You could read a packet in one go, but then you'd need to read
-+	 * max size and rest would be 0xff fill, so we do split reads.
-+	 */
-+	r = i2c_master_recv(client, &len, 1);
-+	dev_dbg(&client->dev, "recv1: %d\n", r);
-+
-+	if (r != 1)
-+		return -EREMOTEIO;
-+
-+	if (len < PN544_LLC_HCI_OVERHEAD)
-+		len = PN544_LLC_HCI_OVERHEAD;
-+	else if (len > (PN544_MSG_MAX_SIZE - 1))
-+		len = PN544_MSG_MAX_SIZE - 1;
-+
-+	if (1 + len > buflen) /* len+(data+crc16) */
-+		return -EMSGSIZE;
-+
-+	buf[0] = len;
-+
-+	r = i2c_master_recv(client, buf + 1, len);
-+	dev_dbg(&client->dev, "recv2: %d\n", r);
-+
-+	if (r != len)
-+		return -EREMOTEIO;
-+
-+	usleep_range(3000, 6000);
-+
-+	return r + 1;
-+}
-+
-+static int pn544_fw_write(struct i2c_client *client, u8 *buf, int len)
-+{
-+	int r;
-+
-+	dev_dbg(&client->dev, "%s\n", __func__);
-+
-+	if (len < PN544_FW_HEADER_SIZE ||
-+	    (PN544_FW_HEADER_SIZE + (buf[1] << 8) + buf[2]) != len)
-+		return -EINVAL;
-+
-+	r = i2c_master_send(client, buf, len);
-+	dev_dbg(&client->dev, "fw send: %d\n", r);
-+
-+	if (r == -EREMOTEIO) { /* Retry, chip was in standby */
-+		usleep_range(6000, 10000);
-+		r = i2c_master_send(client, buf, len);
-+		dev_dbg(&client->dev, "fw send2: %d\n", r);
-+	}
-+
-+	if (r != len)
-+		return -EREMOTEIO;
-+
-+	return r;
-+}
-+
-+static int pn544_fw_read(struct i2c_client *client, u8 *buf, int buflen)
-+{
-+	int r, len;
-+
-+	if (buflen < PN544_FW_HEADER_SIZE)
-+		return -EINVAL;
-+
-+	r = i2c_master_recv(client, buf, PN544_FW_HEADER_SIZE);
-+	dev_dbg(&client->dev, "FW recv1: %d\n", r);
-+
-+	if (r < 0)
-+		return r;
-+
-+	if (r < PN544_FW_HEADER_SIZE)
-+		return -EINVAL;
-+
-+	len = (buf[1] << 8) + buf[2];
-+	if (len == 0) /* just header, no additional data */
-+		return r;
-+
-+	if (len > buflen - PN544_FW_HEADER_SIZE)
-+		return -EMSGSIZE;
-+
-+	r = i2c_master_recv(client, buf + PN544_FW_HEADER_SIZE, len);
-+	dev_dbg(&client->dev, "fw recv2: %d\n", r);
-+
-+	if (r != len)
-+		return -EINVAL;
-+
-+	return r + PN544_FW_HEADER_SIZE;
-+}
-+
-+static irqreturn_t pn544_irq_thread_fn(int irq, void *dev_id)
-+{
-+	struct pn544_info *info = dev_id;
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	BUG_ON(!info);
-+	BUG_ON(irq != info->i2c_dev->irq);
-+
-+	dev_dbg(&client->dev, "IRQ\n");
-+
-+	mutex_lock(&info->read_mutex);
-+	info->read_irq = PN544_INT;
-+	mutex_unlock(&info->read_mutex);
-+
-+	wake_up_interruptible(&info->read_wait);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static enum pn544_irq pn544_irq_state(struct pn544_info *info)
-+{
-+	enum pn544_irq irq;
-+
-+	mutex_lock(&info->read_mutex);
-+	irq = info->read_irq;
-+	mutex_unlock(&info->read_mutex);
-+	/*
-+	 * XXX: should we check GPIO-line status directly?
-+	 * return pdata->irq_status() ? PN544_INT : PN544_NONE;
-+	 */
-+
-+	return irq;
-+}
-+
-+static ssize_t pn544_read(struct file *file, char __user *buf,
-+			  size_t count, loff_t *offset)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	enum pn544_irq irq;
-+	size_t len;
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, count: %zu\n", __func__,
-+		info, count);
-+
-+	mutex_lock(&info->mutex);
-+
-+	if (info->state == PN544_ST_COLD) {
-+		r = -ENODEV;
-+		goto out;
-+	}
-+
-+	irq = pn544_irq_state(info);
-+	if (irq == PN544_NONE) {
-+		if (file->f_flags & O_NONBLOCK) {
-+			r = -EAGAIN;
-+			goto out;
-+		}
-+
-+		if (wait_event_interruptible(info->read_wait,
-+					     (info->read_irq == PN544_INT))) {
-+			r = -ERESTARTSYS;
-+			goto out;
-+		}
-+	}
-+
-+	if (info->state == PN544_ST_FW_READY) {
-+		len = min(count, info->buflen);
-+
-+		mutex_lock(&info->read_mutex);
-+		r = pn544_fw_read(info->i2c_dev, info->buf, len);
-+		info->read_irq = PN544_NONE;
-+		mutex_unlock(&info->read_mutex);
-+
-+		if (r < 0) {
-+			dev_err(&info->i2c_dev->dev, "FW read failed: %d\n", r);
-+			goto out;
-+		}
-+
-+		print_hex_dump(KERN_DEBUG, "FW read: ", DUMP_PREFIX_NONE,
-+			       16, 2, info->buf, r, false);
-+
-+		*offset += r;
-+		if (copy_to_user(buf, info->buf, r)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+	} else {
-+		len = min(count, info->buflen);
-+
-+		mutex_lock(&info->read_mutex);
-+		r = pn544_i2c_read(info->i2c_dev, info->buf, len);
-+		info->read_irq = PN544_NONE;
-+		mutex_unlock(&info->read_mutex);
-+
-+		if (r < 0) {
-+			dev_err(&info->i2c_dev->dev, "read failed (%d)\n", r);
-+			goto out;
-+		}
-+		print_hex_dump(KERN_DEBUG, "read: ", DUMP_PREFIX_NONE,
-+			       16, 2, info->buf, r, false);
-+
-+		*offset += r;
-+		if (copy_to_user(buf, info->buf, r)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+	}
-+
-+out:
-+	mutex_unlock(&info->mutex);
-+
-+	return r;
-+}
-+
-+static unsigned int pn544_poll(struct file *file, poll_table *wait)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p\n", __func__, info);
-+
-+	mutex_lock(&info->mutex);
-+
-+	if (info->state == PN544_ST_COLD) {
-+		r = -ENODEV;
-+		goto out;
-+	}
-+
-+	poll_wait(file, &info->read_wait, wait);
-+
-+	if (pn544_irq_state(info) == PN544_INT) {
-+		r = POLLIN | POLLRDNORM;
-+		goto out;
-+	}
-+out:
-+	mutex_unlock(&info->mutex);
-+
-+	return r;
-+}
-+
-+static ssize_t pn544_write(struct file *file, const char __user *buf,
-+			   size_t count, loff_t *ppos)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	ssize_t	len;
-+	int r;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, count %zu\n", __func__,
-+		info, count);
-+
-+	mutex_lock(&info->mutex);
-+
-+	if (info->state == PN544_ST_COLD) {
-+		r = -ENODEV;
-+		goto out;
-+	}
-+
-+	/*
-+	 * XXX: should we detect rset-writes and clean possible
-+	 * read_irq state
-+	 */
-+	if (info->state == PN544_ST_FW_READY) {
-+		size_t fw_len;
-+
-+		if (count < PN544_FW_HEADER_SIZE) {
-+			r = -EINVAL;
-+			goto out;
-+		}
-+
-+		len = min(count, info->buflen);
-+		if (copy_from_user(info->buf, buf, len)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		print_hex_dump(KERN_DEBUG, "FW write: ", DUMP_PREFIX_NONE,
-+			       16, 2, info->buf, len, false);
-+
-+		fw_len = PN544_FW_HEADER_SIZE + (info->buf[1] << 8) +
-+			info->buf[2];
-+
-+		if (len > fw_len) /* 1 msg at a time */
-+			len = fw_len;
-+
-+		r = pn544_fw_write(info->i2c_dev, info->buf, len);
-+	} else {
-+		if (count < PN544_LLC_MIN_SIZE) {
-+			r = -EINVAL;
-+			goto out;
-+		}
-+
-+		len = min(count, info->buflen);
-+		if (copy_from_user(info->buf, buf, len)) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		print_hex_dump(KERN_DEBUG, "write: ", DUMP_PREFIX_NONE,
-+			       16, 2, info->buf, len, false);
-+
-+		if (len > (info->buf[0] + 1)) /* 1 msg at a time */
-+			len  = info->buf[0] + 1;
-+
-+		r = pn544_i2c_write(info->i2c_dev, info->buf, len);
-+	}
-+out:
-+	mutex_unlock(&info->mutex);
-+
-+	return r;
-+
-+}
-+
-+static long pn544_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	struct pn544_nfc_platform_data *pdata;
-+	unsigned int val;
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, cmd: 0x%x\n", __func__, info, cmd);
-+
-+	mutex_lock(&info->mutex);
-+
-+	if (info->state == PN544_ST_COLD) {
-+		r = -ENODEV;
-+		goto out;
-+	}
-+
-+	pdata = info->i2c_dev->dev.platform_data;
-+	switch (cmd) {
-+	case PN544_GET_FW_MODE:
-+		dev_dbg(&client->dev, "%s:  PN544_GET_FW_MODE\n", __func__);
-+
-+		val = (info->state == PN544_ST_FW_READY);
-+		if (copy_to_user((void __user *)arg, &val, sizeof(val))) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		break;
-+
-+	case PN544_SET_FW_MODE:
-+		dev_dbg(&client->dev, "%s:  PN544_SET_FW_MODE\n", __func__);
-+
-+		if (copy_from_user(&val, (void __user *)arg, sizeof(val))) {
-+			r = -EFAULT;
-+			goto out;
-+		}
-+
-+		if (val) {
-+			if (info->state == PN544_ST_FW_READY)
-+				break;
-+
-+			pn544_disable(info);
-+			r = pn544_enable(info, FW_MODE);
-+			if (r < 0)
-+				goto out;
-+		} else {
-+			if (info->state == PN544_ST_READY)
-+				break;
-+			pn544_disable(info);
-+			r = pn544_enable(info, HCI_MODE);
-+			if (r < 0)
-+				goto out;
-+		}
-+		file->f_pos = info->read_offset;
-+		break;
-+
-+	case TCGETS:
-+		dev_dbg(&client->dev, "%s:  TCGETS\n", __func__);
-+
-+		r = -ENOIOCTLCMD;
-+		break;
-+
-+	default:
-+		dev_err(&client->dev, "Unknown ioctl 0x%x\n", cmd);
-+		r = -ENOIOCTLCMD;
-+		break;
-+	}
-+
-+out:
-+	mutex_unlock(&info->mutex);
-+
-+	return r;
-+}
-+
-+static int pn544_open(struct inode *inode, struct file *file)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, client %p\n", __func__,
-+		info, info->i2c_dev);
-+
-+	mutex_lock(&info->mutex);
-+
-+	/*
-+	 * Only 1 at a time.
-+	 * XXX: maybe user (counter) would work better
-+	 */
-+	if (info->state != PN544_ST_COLD) {
-+		r = -EBUSY;
-+		goto out;
-+	}
-+
-+	file->f_pos = info->read_offset;
-+	r = pn544_enable(info, HCI_MODE);
-+
-+out:
-+	mutex_unlock(&info->mutex);
-+	return r;
-+}
-+
-+static int pn544_close(struct inode *inode, struct file *file)
-+{
-+	struct pn544_info *info = container_of(file->private_data,
-+					       struct pn544_info, miscdev);
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, client %p\n",
-+		__func__, info, info->i2c_dev);
-+
-+	mutex_lock(&info->mutex);
-+	pn544_disable(info);
-+	mutex_unlock(&info->mutex);
-+
-+	return 0;
-+}
-+
-+static const struct file_operations pn544_fops = {
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= pn544_read,
-+	.write		= pn544_write,
-+	.poll		= pn544_poll,
-+	.open		= pn544_open,
-+	.release	= pn544_close,
-+	.unlocked_ioctl	= pn544_ioctl,
-+};
-+
-+#ifdef CONFIG_PM
-+static int pn544_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct pn544_info *info;
-+	int r = 0;
-+
-+	dev_info(&client->dev, "***\n%s: client %p\n***\n", __func__, client);
-+
-+	info = i2c_get_clientdata(client);
-+	dev_info(&client->dev, "%s: info: %p, client %p\n", __func__,
-+		 info, client);
-+
-+	mutex_lock(&info->mutex);
-+
-+	switch (info->state) {
-+	case PN544_ST_FW_READY:
-+		/* Do not suspend while upgrading FW, please! */
-+		r = -EPERM;
-+		break;
-+
-+	case PN544_ST_READY:
-+		/*
-+		 * CHECK: Device should be in standby-mode. No way to check?
-+		 * Allowing low power mode for the regulator is potentially
-+		 * dangerous if pn544 does not go to suspension.
-+		 */
-+		break;
-+
-+	case PN544_ST_COLD:
-+		break;
-+	};
-+
-+	mutex_unlock(&info->mutex);
-+	return r;
-+}
-+
-+static int pn544_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct pn544_info *info = i2c_get_clientdata(client);
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, client %p\n", __func__,
-+		info, client);
-+
-+	mutex_lock(&info->mutex);
-+
-+	switch (info->state) {
-+	case PN544_ST_READY:
-+		/*
-+		 * CHECK: If regulator low power mode is allowed in
-+		 * pn544_suspend, we should go back to normal mode
-+		 * here.
-+		 */
-+		break;
-+
-+	case PN544_ST_COLD:
-+		break;
-+
-+	case PN544_ST_FW_READY:
-+		break;
-+	};
-+
-+	mutex_unlock(&info->mutex);
-+
-+	return r;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(pn544_pm_ops, pn544_suspend, pn544_resume);
-+#endif
-+
-+static struct device_attribute pn544_attr =
-+	__ATTR(nfc_test, S_IRUGO, pn544_test, NULL);
-+
-+static int __devinit pn544_probe(struct i2c_client *client,
-+				 const struct i2c_device_id *id)
-+{
-+	struct pn544_info *info;
-+	struct pn544_nfc_platform_data *pdata;
-+	int r = 0;
-+
-+	dev_dbg(&client->dev, "%s\n", __func__);
-+	dev_dbg(&client->dev, "IRQ: %d\n", client->irq);
-+
-+	/* private data allocation */
-+	info = kzalloc(sizeof(struct pn544_info), GFP_KERNEL);
-+	if (!info) {
-+		dev_err(&client->dev,
-+			"Cannot allocate memory for pn544_info.\n");
-+		r = -ENOMEM;
-+		goto err_info_alloc;
-+	}
-+
-+	info->buflen = max(PN544_MSG_MAX_SIZE, PN544_MAX_I2C_TRANSFER);
-+	info->buf = kzalloc(info->buflen, GFP_KERNEL);
-+	if (!info->buf) {
-+		dev_err(&client->dev,
-+			"Cannot allocate memory for pn544_info->buf.\n");
-+		r = -ENOMEM;
-+		goto err_buf_alloc;
-+	}
-+
-+	info->regs[0].supply = reg_vdd_io;
-+	info->regs[1].supply = reg_vbat;
-+	r = regulator_bulk_get(&client->dev, ARRAY_SIZE(info->regs),
-+				 info->regs);
-+	if (r < 0)
-+		goto err_kmalloc;
-+
-+	info->i2c_dev = client;
-+	info->state = PN544_ST_COLD;
-+	info->read_irq = PN544_NONE;
-+	mutex_init(&info->read_mutex);
-+	mutex_init(&info->mutex);
-+	init_waitqueue_head(&info->read_wait);
-+	i2c_set_clientdata(client, info);
-+	pdata = client->dev.platform_data;
-+	if (!pdata) {
-+		dev_err(&client->dev, "No platform data\n");
-+		r = -EINVAL;
-+		goto err_reg;
-+	}
-+
-+	if (!pdata->request_resources) {
-+		dev_err(&client->dev, "request_resources() missing\n");
-+		r = -EINVAL;
-+		goto err_reg;
-+	}
-+
-+	r = pdata->request_resources(client);
-+	if (r) {
-+		dev_err(&client->dev, "Cannot get platform resources\n");
-+		goto err_reg;
-+	}
-+
-+	r = request_threaded_irq(client->irq, NULL, pn544_irq_thread_fn,
-+				 IRQF_TRIGGER_RISING, PN544_DRIVER_NAME,
-+				 info);
-+	if (r < 0) {
-+		dev_err(&client->dev, "Unable to register IRQ handler\n");
-+		goto err_res;
-+	}
-+
-+	/* If we don't have the test we don't need the sysfs file */
-+	if (pdata->test) {
-+		r = device_create_file(&client->dev, &pn544_attr);
-+		if (r) {
-+			dev_err(&client->dev,
-+				"sysfs registration failed, error %d\n", r);
-+			goto err_irq;
-+		}
-+	}
-+
-+	info->miscdev.minor = MISC_DYNAMIC_MINOR;
-+	info->miscdev.name = PN544_DRIVER_NAME;
-+	info->miscdev.fops = &pn544_fops;
-+	info->miscdev.parent = &client->dev;
-+	r = misc_register(&info->miscdev);
-+	if (r < 0) {
-+		dev_err(&client->dev, "Device registration failed\n");
-+		goto err_sysfs;
-+	}
-+
-+	dev_dbg(&client->dev, "%s: info: %p, pdata %p, client %p\n",
-+		__func__, info, pdata, client);
-+
-+	return 0;
-+
-+err_sysfs:
-+	if (pdata->test)
-+		device_remove_file(&client->dev, &pn544_attr);
-+err_irq:
-+	free_irq(client->irq, info);
-+err_res:
-+	if (pdata->free_resources)
-+		pdata->free_resources();
-+err_reg:
-+	regulator_bulk_free(ARRAY_SIZE(info->regs), info->regs);
-+err_kmalloc:
-+	kfree(info->buf);
-+err_buf_alloc:
-+	kfree(info);
-+err_info_alloc:
-+	return r;
-+}
-+
-+static __devexit int pn544_remove(struct i2c_client *client)
-+{
-+	struct pn544_info *info = i2c_get_clientdata(client);
-+	struct pn544_nfc_platform_data *pdata = client->dev.platform_data;
-+
-+	dev_dbg(&client->dev, "%s\n", __func__);
-+
-+	misc_deregister(&info->miscdev);
-+	if (pdata->test)
-+		device_remove_file(&client->dev, &pn544_attr);
-+
-+	if (info->state != PN544_ST_COLD) {
-+		if (pdata->disable)
-+			pdata->disable();
-+
-+		info->read_irq = PN544_NONE;
-+	}
-+
-+	free_irq(client->irq, info);
-+	if (pdata->free_resources)
-+		pdata->free_resources();
-+
-+	regulator_bulk_free(ARRAY_SIZE(info->regs), info->regs);
-+	kfree(info->buf);
-+	kfree(info);
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver pn544_driver = {
-+	.driver = {
-+		.name = PN544_DRIVER_NAME,
-+#ifdef CONFIG_PM
-+		.pm = &pn544_pm_ops,
-+#endif
-+	},
-+	.probe = pn544_probe,
-+	.id_table = pn544_id_table,
-+	.remove = __devexit_p(pn544_remove),
-+};
-+
-+static int __init pn544_init(void)
-+{
-+	int r;
-+
-+	pr_debug(DRIVER_DESC ": %s\n", __func__);
-+
-+	r = i2c_add_driver(&pn544_driver);
-+	if (r) {
-+		pr_err(PN544_DRIVER_NAME ": driver registration failed\n");
-+		return r;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit pn544_exit(void)
-+{
-+	i2c_del_driver(&pn544_driver);
-+	pr_info(DRIVER_DESC ", Exiting.\n");
-+}
-+
-+module_init(pn544_init);
-+module_exit(pn544_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-diff --git a/include/linux/nfc/pn544.h b/include/linux/nfc/pn544.h
-new file mode 100644
-index 0000000..7ab8521
---- /dev/null
-+++ b/include/linux/nfc/pn544.h
-@@ -0,0 +1,97 @@
-+/*
-+ * Driver include for the PN544 NFC chip.
-+ *
-+ * Copyright (C) Nokia Corporation
-+ *
-+ * Author: Jari Vanhala <ext-jari.vanhala-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-+ * Contact: Matti Aaltoenn <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * version 2 as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ */
-+
-+#ifndef _PN544_H_
-+#define _PN544_H_
-+
-+#include <linux/i2c.h>
-+
-+#define PN544_DRIVER_NAME	"pn544"
-+#define PN544_MAXWINDOW_SIZE	7
-+#define PN544_WINDOW_SIZE	4
-+#define PN544_RETRIES		10
-+#define PN544_MAX_I2C_TRANSFER	0x0400
-+#define PN544_MSG_MAX_SIZE	0x21 /* at normal HCI mode */
-+
-+/* ioctl */
-+#define PN544_CHAR_BASE		'P'
-+#define PN544_IOR(num, dtype)	_IOR(PN544_CHAR_BASE, num, dtype)
-+#define PN544_IOW(num, dtype)	_IOW(PN544_CHAR_BASE, num, dtype)
-+#define PN544_GET_FW_MODE	PN544_IOW(1, unsigned int)
-+#define PN544_SET_FW_MODE	PN544_IOW(2, unsigned int)
-+#define PN544_GET_DEBUG		PN544_IOW(3, unsigned int)
-+#define PN544_SET_DEBUG		PN544_IOW(4, unsigned int)
-+
-+/* Timing restrictions (ms) */
-+#define PN544_RESETVEN_TIME	30 /* 7 */
-+#define PN544_PVDDVEN_TIME	0
-+#define PN544_VBATVEN_TIME	0
-+#define PN544_GPIO4VEN_TIME	0
-+#define PN544_WAKEUP_ACK	5
-+#define PN544_WAKEUP_GUARD	(PN544_WAKEUP_ACK + 1)
-+#define PN544_INACTIVITY_TIME	1000
-+#define PN544_INTERFRAME_DELAY	200 /* us */
-+#define PN544_BAUDRATE_CHANGE	150 /* us */
-+
-+/* Debug bits */
-+#define PN544_DEBUG_BUF		0x01
-+#define PN544_DEBUG_READ	0x02
-+#define PN544_DEBUG_WRITE	0x04
-+#define PN544_DEBUG_IRQ		0x08
-+#define PN544_DEBUG_CALLS	0x10
-+#define PN544_DEBUG_MODE	0x20
-+
-+/* Normal (HCI) mode */
-+#define PN544_LLC_HCI_OVERHEAD	3 /* header + crc (to length) */
-+#define PN544_LLC_MIN_SIZE	(1 + PN544_LLC_HCI_OVERHEAD) /* length + */
-+#define PN544_LLC_MAX_DATA	(PN544_MSG_MAX_SIZE - 2)
-+#define PN544_LLC_MAX_HCI_SIZE	(PN544_LLC_MAX_DATA - 2)
-+
-+struct pn544_llc_packet {
-+	unsigned char length; /* of rest of packet */
-+	unsigned char header;
-+	unsigned char data[PN544_LLC_MAX_DATA]; /* includes crc-ccitt */
-+};
-+
-+/* Firmware upgrade mode */
-+#define PN544_FW_HEADER_SIZE	3
-+/* max fw transfer is 1024bytes, but I2C limits it to 0xC0 */
-+#define PN544_MAX_FW_DATA	(PN544_MAX_I2C_TRANSFER - PN544_FW_HEADER_SIZE)
-+
-+struct pn544_fw_packet {
-+	unsigned char command; /* status in answer */
-+	unsigned char length[2]; /* big-endian order (msf) */
-+	unsigned char data[PN544_MAX_FW_DATA];
-+};
-+
-+#ifdef __KERNEL__
-+/* board config */
-+struct pn544_nfc_platform_data {
-+	int (*request_resources) (struct i2c_client *client);
-+	void (*free_resources) (void);
-+	void (*enable) (int fw);
-+	int (*test) (void);
-+	void (*disable) (void);
-+};
-+#endif /* __KERNEL__ */
-+
-+#endif /* _PN544_H_ */
--- 
-1.6.1.3
+> > +#define U2C_I2C_FREQ_83KHZ   2
+> > +#define U2C_I2C_FREQ_71KHZ   3
+> > +#define U2C_I2C_FREQ_62KHZ   4
+> > +#define U2C_I2C_FREQ_50KHZ   6
+> > +#define U2C_I2C_FREQ_25KHZ   16
+> > +#define U2C_I2C_FREQ_10KHZ   46
+> > +#define U2C_I2C_FREQ_5KHZ    96
+> > +#define U2C_I2C_FREQ_2KHZ    242
+> > +
+> > +#define DIOLAN_USB_TIMEOUT   100
+> 
+> Unit?
+> 
+ms, added.
+
+> > +
+> > +/* Structure to hold all of our device specific stuff */
+> > +struct i2c_diolan_u2c {
+> > +     struct usb_device *usb_dev;     /* the usb device for this device */
+> > +     struct usb
+> _interface *interface;/* the interface for this device */
+> > +     struct i2c_adapter adapter;     /* i2c related things */
+> > +};
+> > +
+> > +/* usb layer */
+> > +
+> 
+> Please document what the function below returns.
+> 
+Done
+
+> > +static int diolan_usb_transfer(struct i2c_adapter *adapter, u8 * obuffer,
+> 
+> No space between * and obuffer.
+> 
+ok. Someone should teach Lindent to stop doing that ;).
+
+> obuffer could be a const pointer, couldn't it?
+> 
+In theory yes, but then the compiler complains when calling
+usb_bulk_msg().
+
+> > +                            int olen, u8 *ibuffer, int ilen)
+> > +{
+> > +     struct i2c_diolan_u2c *dev = adapter->algo_data;
+> > +     int ret = 0;
+> > +     int actual;
+> > +     unsigned char inbuffer[257];
+> 
+> I know it doesn't matter in practice, but it's a little inconsistent to
+> use unsigned char for this buffer and u8 in all other functions.
+> 
+Changed to u8
+
+> I'm also unsure what is the point of having such a large buffer when
+> the largest block you ever transfer in practice is 5 bytes?
+> 
+I took that from the Diolan code. They always use a 257 byte temp
+buffer, since that is the maximum data size sent by the adapter. 
+You are right, I should not really need that since I don't send any long
+commands. Ultimate reason is to account for possible adapter errors, if
+it replies (or tries to reply) with more bytes than expected. Pretty
+much just playing safe.
+
+I'll have to change that to account for Ben's comments about moving DMA
+data from/to the stack.
+
+> > +
+> > +     if (olen) {
+> > +             ret = usb_bulk_msg(dev->usb_dev,
+> > +                                usb_sndbulkpipe(dev->usb_dev, DIOLAN_OUT_EP),
+> > +                                obuffer, olen, &actual, DIOLAN_USB_TIMEOUT);
+> > +     }
+> > +     if (!ret) {
+> > +             ret = usb_bulk_msg(dev->usb_dev,
+> > +                                usb_rcvbulkpipe(dev->usb_dev, DIOLAN_IN_EP),
+> > +                                inbuffer, sizeof(inbuffer), &actual,
+> > +                                DIOLAN_USB_TIMEOUT);
+> > +             if (ret == 0 && actual > 0) {
+> > +                     ret = min(actual, ilen);
+> 
+> This could be done after checking for errors.
+> 
+Moved.
+
+> > +                     switch (inbuffer[actual - 1]) {
+> > +                     case RESP_NACK:
+> > +                             ret = -EINVAL;
+> > +                             goto abort;
+> 
+> According to Documentation/i2c/fault-codes, nacks should be translated
+> to -ENXIO.
+
+Fixed.
+
+> 
+> > +                     case RESP_OK:
+> > +                             break;
+> > +                     default:
+> > +                             ret = -EIO;
+> > +                             goto abort;
+> > +                     }
+> 
+> I don't see the value of gotos here, breaks would work just fine, all
+> you have to do is change your test below to "ret > 0" - or even better,
+> move the memcpy inside the switch.
+> 
+Moved the memcpy. Good idea.
+
+> > +                     if (ret)
+> > +                             memcpy(ibuffer, inbuffer, ret);
+> 
+> BTW, I'm not sure why you don't use the original buffer directly?
+> memcpy is bad performance-wise.
+> 
+To account for the possibility that the adapter returns more bytes than
+I am expecting. Sure, that would be a bug, but I wanted to play safe.
+
+> > +             }
+> > +     }
+> > +abort:
+> > +     return ret;
+> > +}
+> > +
+> > +/*
+> > + * Flush input queue.
+> > + * If we don't do this at startup and the controller has queued up
+> > + * messages which were not retrieved, it will stop responding
+> > + * at some point.
+> > + */
+> > +static void diolan_flush_input(struct usb_device *dev)
+> > +{
+> > +     int i;
+> > +
+> > +     for (i = 0; i < 10; i++) {
+> > +             int actual = 0;
+> > +             int ret;
+> > +             u8 inbuffer[257];
+> > +
+> > +             ret = usb_bulk_msg(dev, usb_rcvbulkpipe(dev, DIOLAN_IN_EP),
+> > +                                inbuffer, sizeof(inbuffer), &actual,
+> > +                                DIOLAN_USB_TIMEOUT);
+> > +             if (ret < 0 || actual == 0)
+> > +                     break;
+> > +     }
+> 
+> Shouldn't you emit a warning of some sort and/or fail driver loading if
+> all retries were exhausted?
+> 
+Makes sense. Added.
+
+> > +}
+> > +
+> > +static int diolan_i2c_start(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[1];
+> > +
+> > +     buffer[0] = CMD_I2C_START;
+> > +
+> > +     return diolan_usb_transfer(adapter, buffer, 1, buffer, 1);
+> > +}
+> > +
+> > +static int diolan_i2c_repeated_start(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[1];
+> > +
+> > +     buffer[0] = CMD_I2C_REPEATED_START;
+> > +
+> > +     return diolan_usb_transfer(adapter, buffer, 1, buffer, 1);
+> > +}
+> > +
+> > +static int diolan_i2c_stop(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[1];
+> > +
+> > +     buffer[0] = CMD_I2C_STOP;
+> > +
+> > +     return diolan_usb_transfer(adapter, buffer, 1, buffer, 1);
+> > +}
+> > +
+> > +static int diolan_i2c_get_byte_ack(struct i2c_adapter *adapter, bool ack,
+> > +                                u8 *byte)
+> > +{
+> > +     u8 buffer[2];
+> > +     int rv;
+> 
+> Why "rv" when all other functions use "ret"?
+> 
+No idea. No, actually I do.  It depends on where I copied the code from,
+if I wrote it myself, and on the other driver I am working on in
+parallel. Changed all to "ret".
+
+> > +
+> > +     buffer[0] = CMD_I2C_GET_BYTE_ACK;
+> > +     buffer[1] = ack;
+> > +
+> > +     rv = diolan_usb_transfer(adapter, buffer, 2, buffer, 2);
+> > +     if (rv > 0)
+> > +             *byte = buffer[0];
+> > +     else if (rv == 0)
+> > +             rv = -EIO;
+> > +
+> > +     return rv;
+> > +}
+> > +
+> > +static int diolan_i2c_put_byte_ack(struct i2c_adapter *adapter, u8 byte)
+> > +{
+> > +     u8 buffer[2];
+> > +
+> > +     buffer[0] = CMD_I2C_PUT_BYTE_ACK;
+> > +     buffer[1] = byte;
+> > +
+> > +     return diolan_usb_transfer(adapter, buffer, 2, buffer, 1);
+> > +}
+> > +
+> > +static int diolan_set_speed(struct i2c_adapter *adapter, u8 speed)
+> > +{
+> > +     u8 buffer[2];
+> > +
+> > +     buffer[0] = CMD_I2C_SET_SPEED;
+> > +     buffer[1] = speed;
+> > +
+> > +     return diolan_usb_transfer(adapter, buffer, 2, buffer, 1);
+> > +}
+> > +
+> > +static int diolan_fw_version(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[3];
+> > +     int ret;
+> > +
+> > +     buffer[0] = CMD_GET_FW_VERSION;
+> > +     ret = diolan_usb_transfer(adapter, buffer, 1, buffer, 3);
+> > +     if (ret == 3)
+> > +             dev_info(&adapter->dev,
+> > +                      "Diolan U2C firmware version %d.%d\n",
+> > +                      buffer[0], buffer[1]);
+> 
+> Unless you expect negative versions, %u would be more appropriate. Also
+> note that to be completely correct you should cast the values to
+> unsigned int before printing them.
+> 
+Ok.
+
+> > +     return ret;
+> > +}
+> > +
+> > +static int diolan_get_serial(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[5];
+> > +     int ret;
+> > +
+> > +     buffer[0] = CMD_GET_SERIAL;
+> > +     ret = diolan_usb_transfer(adapter, buffer, 1, buffer, 5);
+> > +     if (ret == 5)
+> > +             dev_info(&adapter->dev,
+> > +                      "Diolan U2C serial number %d\n", *(u32 *) &buffer[0]);
+> 
+> Will the value be displayed correctly on big-endian machines? Doesn't
+> seem so. You probably have to use le32_to_cpu().
+> Also, %d to print an unsigned number isn't good.
+> 
+Ok.
+
+> > +     return ret;
+> > +}
+> > +
+> > +static int diolan_scan(struct i2c_adapter *adapter)
+> > +{
+> > +     u8 buffer[257];
+> > +     int i, ret;
+> > +
+> > +     buffer[0] = CMD_I2C_SCAN;
+> > +     ret = diolan_usb_transfer(adapter, buffer, 1, buffer, 257);
+> > +     if (ret > 0) {
+> > +             for (i = 0; i < ret - 1; i++) {
+> > +                     if (buffer[i])
+> > +                             dev_info(&adapter->dev,
+> > +                                      "Found I2C device at address 0x%x\n",
+> > +                                      buffer[i] >> 1);
+> > +             }
+> > +     }
+> > +     return ret;
+> > +}
+> 
+> I don't know how exactly the device is scanning for I2C slaves, but
+> there is no provision for device discovery in the I2C specification. I
+> wouldn't do that unconditionally at driver bind time, it might confuse
+> some I2C slaves.
+> 
+> If the user wants to probe for devices, we have i2c-dev + i2cdetect for
+> this, which is more flexible.
+> 
+Agreed. This is pretty much a leftover from testing. I took it out.
+
+> > +
+> > +/* i2c layer */
+> > +
+> > +static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
+> > +{
+> > +     struct i2c_msg *pmsg;
+> > +     int i, j;
+> > +     int rc = 0;
+> 
+> And now rc instead of ret as everywhere else? You are being creative ;)
+> 
+Just trying to give you something to comment on ;)
+
+> > +
+> > +     rc = diolan_i2c_start(adapter);
+> > +     if (rc < 0)
+> > +             return rc;
+> > +
+> > +     for (i = 0; i < num; i++) {
+> > +             pmsg = &msgs[i];
+> > +             if (i) {
+> > +                     rc = diolan_i2c_repeated_start(adapter);
+> > +                     if (rc < 0)
+> > +                             goto abort;
+> > +             }
+> > +             if (pmsg->flags & I2C_M_RD) {
+> > +                     rc = diolan_i2c_put_byte_ack(adapter,
+> > +                                             ((pmsg->addr & 0x7f) << 1) | 1);
+> 
+> Note that the mask is useless: the address is already a 7-bit value.
+> 
+The variable is defined as __u16. But you are right, it should be 7-bit
+since I did not register for 10-bit devices. I took it out. Makes the
+code better readable.
+
+> > +                     if (rc < 0)
+> > +                             goto abort;
+> > +                     for (j = 0; j < pmsg->len; j++) {
+> > +                             u8 byte;
+> > +                             bool ack = j < pmsg->len - 1;
+> > +
+> > +                             /*
+> > +                              * Don't send NACK if this is the first byte
+> > +                              * of a SMBUS_BLOCK message.
+> > +                              */
+> > +                             if (j == 0 && (pmsg->flags & I2C_M_RECV_LEN))
+> > +                                     ack = true;
+> > +
+> > +                             rc = diolan_i2c_get_byte_ack(adapter, ack,
+> > +                                                          &byte);
+> > +                             if (rc < 0)
+> > +                                     goto abort;
+> > +                             /*
+> > +                              * Adjust count if first received byte is length
+> > +                              */
+> > +                             if (j == 0 && (pmsg->flags & I2C_M_RECV_LEN)) {
+> > +                                     if (byte == 0
+> > +                                         || byte > I2C_SMBUS_BLOCK_MAX) {
+> > +                                             rc = -EREMOTEIO;
+> 
+> Should be -EPROTO according to Documentation/i2c/fault-codes.
+> 
+Ok. Note that I got that from i2c-algo-bit.c.
+
+> > +                                             goto abort;
+> > +                                     }
+> > +                                     pmsg->len += byte;
+> > +                             }
+> > +                             pmsg->buf[j] = byte;
+> > +                     }
+> > +             } else {
+> > +                     rc = diolan_i2c_put_byte_ack(adapter,
+> > +                                                  (pmsg->addr & 0x7f) << 1);
+> 
+> Useless mask.
+> 
+Ok.
+
+> > +                     if (rc < 0)
+> > +                             goto abort;
+> > +                     for (j = 0; j < pmsg->len; j++) {
+> > +                             rc = diolan_i2c_put_byte_ack(adapter,
+> > +                                                          pmsg->buf[j]);
+> > +                             if (rc < 0)
+> > +                                     goto abort;
+> > +                     }
+> > +             }
+> > +     }
+> > +abort:
+> > +     diolan_i2c_stop(adapter);
+> > +     return rc;
+> > +}
+> > +
+> > +/*
+> > + * Return list of supported functionality.
+> > + */
+> > +static u32 usb_func(struct i2c_adapter *a)
+> > +{
+> > +     return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+> > +         I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+> 
+> Odd indentation/alignment.
+> 
+Seems to be exactly what other drivers do, so I am a bit at loss here.
+
+> As far as I can see you also support I2C_FUNC_SMBUS_BLOCK_PROC_CALL
+> (even though it is not used by any driver I know of.)
+> 
+I'll add it in.
+
+> > +}
+> > +
+> > +static const struct i2c_algorithm usb_algorithm = {
+> > +     .master_xfer = usb_xfer,
+> > +     .functionality = usb_func,
+> > +};
+> > +
+> > +/* device layer */
+> > +
+> > +static struct usb_device_id i2c_diolan_u2c_table[] = {
+> 
+> Could this be made const?
+> 
+Yes, done.
+
+> > +     {USB_DEVICE(USB_VENDOR_ID_DIOLAN, USB_DEVICE_ID_DIOLAN_U2C)},
+> > +     {}
+> > +};
+> > +
+> > +MODULE_DEVICE_TABLE(usb, i2c_diolan_u2c_table);
+> > +
+> > +static void i2c_diolan_u2c_free(struct i2c_diolan_u2c *dev)
+> > +{
+> > +     usb_put_dev(dev->usb_dev);
+> > +     kfree(dev);
+> > +}
+> > +
+> > +static int i2c_diolan_u2c_probe(struct usb_interface *interface,
+> > +                             const struct usb_device_id *id)
+> > +{
+> > +     struct i2c_diolan_u2c *dev;
+> > +     int retval = -ENOMEM;
+> 
+> This initialization could be delayed to the point where you actually
+> need it.
+> 
+Ok.
+
+> > +
+> > +     /* allocate memory for our device state and initialize it */
+> > +     dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+> > +     if (dev == NULL) {
+> > +             dev_err(&interface->dev, "Out of memory\n");
+> > +             goto error;
+> > +     }
+> > +
+> > +     dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+> > +     dev->interface = interface;
+> > +
+> > +     /* save our data pointer in this interface device */
+> > +     usb_set_intfdata(interface, dev);
+> > +
+> > +     dev_info(&interface->dev,
+> > +              "Diolan U2C at bus %03d address %03d\n",
+> > +              dev->usb_dev->bus->busnum, dev->usb_dev->devnum);
+> > +
+> > +     /* setup i2c adapter description */
+> > +     dev->adapter.owner = THIS_MODULE;
+> > +     dev->adapter.class = I2C_CLASS_HWMON;
+> > +     dev->adapter.algo = &usb_algorithm;
+> > +     dev->adapter.algo_data = dev;
+> 
+> You are abusing algo_data here. You are supposed to use
+> i2c_get/set_adapdata() instead. algo_data is only there for providing
+> platform specific implementation details to generic i2c algorithms such
+> as i2c-algo-bit.
+> 
+Copied from i2c-tiny-usb.c. I didn't really think about it. Fixed.
+
+> > +     snprintf(dev->adapter.name, sizeof(dev->adapter.name),
+> > +              "i2c-u2c-usb at bus %03d device %03d",
+> > +              dev->usb_dev->bus->busnum, dev->usb_dev->devnum);
+> > +
+> > +     dev->adapter.dev.parent = &dev->interface->dev;
+> > +
+> > +     diolan_flush_input(dev->usb_dev);
+> > +
+> > +     /* and finally attach to i2c layer */
+> > +     i2c_add_adapter(&dev->adapter);
+> 
+> Please check for error here. It could happen!
+> 
+Same as above. Added a check.
+
+> > +
+> > +     diolan_fw_version(&dev->adapter);
+> 
+> This seems racy, and the commands below as well. Serialization of calls
+> to usb_xfer is guaranteed by i2c-core, but here you are calling other
+> functions which will access your USB interface. I'm no USB expert, but
+> diolan_usb_transfer() doesn't seem to be designed for parallel
+> execution. As your i2c adapter is already registered, usb_xfer() could
+> run in parallel with diolan_fw_version(), diolan_set_speed() etc.
+> 
+> So either you add a mutex to serialize the access yourself (which will
+> cause a run-time performance hit) or you do all your stuff _before_ the
+> adapter is publicly usable.
+> 
+Good catch. Moved to above i2c_add_adapter.
+
+> > +
+> > +     retval = diolan_set_speed(&dev->adapter, U2C_I2C_FREQ_STD);
+> > +     if (retval < 0) {
+> > +             dev_err(&dev->adapter.dev,
+> > +                     "failure %d setting I2C bus frequency\n", retval);
+> > +             goto error_del;
+> > +     }
+> 
+> Beyond the race issue, you want to fully initialize the adapter before
+> you make it visible to consumers, so speed should be set before calling
+> i2c_add_adapter().
+> 
+Ok, done.
+
+> > +     diolan_get_serial(&dev->adapter);
+> > +     diolan_scan(&dev->adapter);
+> > +
+> > +     dev_dbg(&dev->adapter.dev, "connected i2c-u2c-usb device\n");
+> > +
+> > +     return 0;
+> > +
+> > +error_del:
+> > +     i2c_del_adapter(&dev->adapter);
+> > +     i2c_diolan_u2c_free(dev);
+> > +error:
+> > +     return retval;
+> > +}
+> > +
+> > +static void i2c_diolan_u2c_disconnect(struct usb_interface *interface)
+> > +{
+> > +     struct i2c_diolan_u2c *dev = usb_get_intfdata(interface);
+> > +
+> > +     i2c_del_adapter(&dev->adapter);
+> > +     usb_set_intfdata(interface, NULL);
+> 
+> If you have to do this here, then you also have to do it in the failure
+> path of i2c_diolan_u2c_probe(), don't you?
+> 
+Presumably. Another copy from tiny-usb.c
+
+> > +     i2c_diolan_u2c_free(dev);
+> > +
+> > +     dev_dbg(&interface->dev, "disconnected\n");
+> > +}
+> > +
+> > +static struct usb_driver i2c_diolan_u2c_driver = {
+> > +     .name = "i2c-u2c-usb",
+> 
+> Why not "i2c-diolan-u2c" as the module name? Would be more consistent.
+> 
+Agreed.
+
+> > +     .probe = i2c_diolan_u2c_probe,
+> > +     .disconnect = i2c_diolan_u2c_disconnect,
+> > +     .id_table = i2c_diolan_u2c_table,
+> > +};
+> > +
+> > +static int __init usb_i2c_diolan_u2c_init(void)
+> > +{
+> > +     /* register this driver with the USB subsystem */
+> > +     return usb_register(&i2c_diolan_u2c_driver);
+> > +}
+> > +
+> > +static void __exit usb_i2c_diolan_u2c_exit(void)
+> > +{
+> > +     /* deregister this driver with the USB subsystem */
+> > +     usb_deregister(&i2c_diolan_u2c_driver);
+> > +}
+> > +
+> > +module_init(usb_i2c_diolan_u2c_init);
+> > +module_exit(usb_i2c_diolan_u2c_exit);
+> > +
+> > +/* ----- end of usb layer ------------------------------------------------ */
+> 
+> This comment is inconsistent (and useless, if you ask me.)
+> 
+Another cut-and-paste thing. Removed.
+
+> > +
+> > +MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
+> > +MODULE_DESCRIPTION("i2c-u2c-usb driver");
+> > +MODULE_LICENSE("GPL");
+> 
+> 
+> --
+> Jean Delvare
+
+Thanks a lot for the review!
+
+Guenter
