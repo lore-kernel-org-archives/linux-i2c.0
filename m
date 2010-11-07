@@ -1,50 +1,40 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH 3/3] i2c: Mark i2c_adapter.id as deprecated
-Date: Fri, 5 Nov 2010 21:10:01 +0100
-Message-ID: <20101105211001.1cc93ac7@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>, LMML <linux-media@vger.kernel.org>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>, Jarod Wilson <jarod@redhat.com>
+From: Jarod Wilson <jarod-ajLrJawYSntWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: Delete unused adapter IDs
+Date: Sun, 7 Nov 2010 13:56:29 -0500
+Message-ID: <833D252B-AB88-4895-849F-2F8C8E5400A6@wilsonet.com>
+References: <20101105210645.6e47498c@endymion.delvare>
+Mime-Version: 1.0 (Apple Message framework v1081)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101105210645.6e47498c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LMML <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It's about time to make it clear that i2c_adapter.id is deprecated.
-Hopefully this will remind the last user to move over to a different
-strategy.
+On Nov 5, 2010, at 4:06 PM, Jean Delvare wrote:
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Jarod Wilson <jarod@redhat.com>
----
- drivers/i2c/i2c-mux.c |    1 -
- include/linux/i2c.h   |    2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+> Delete unused I2C adapter IDs. Special cases are:
+> 
+> * I2C_HW_B_RIVA was still set in driver rivafb, however no other
+>  driver is ever looking for this value, so we can safely remove it.
+> * I2C_HW_B_HDPVR is used in staging driver lirc_zilog, however no
+>  adapter ID is ever set to this value, so the code in question never
+>  runs. As the code additionally expects that I2C_HW_B_HDPVR may not
+>  be defined, we can delete it now and let the lirc_zilog driver
+>  maintainer rewrite this piece of code.
+> 
+> Big thanks for Hans Verkuil for doing all the hard work :)
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+> Cc: Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
---- linux-2.6.37-rc1.orig/include/linux/i2c.h	2010-11-05 13:55:17.000000000 +0100
-+++ linux-2.6.37-rc1/include/linux/i2c.h	2010-11-05 15:41:20.000000000 +0100
-@@ -353,7 +353,7 @@ struct i2c_algorithm {
-  */
- struct i2c_adapter {
- 	struct module *owner;
--	unsigned int id;
-+	unsigned int id __deprecated;
- 	unsigned int class;		  /* classes to allow probing for */
- 	const struct i2c_algorithm *algo; /* the algorithm to access the bus */
- 	void *algo_data;
---- linux-2.6.37-rc1.orig/drivers/i2c/i2c-mux.c	2010-11-05 16:06:18.000000000 +0100
-+++ linux-2.6.37-rc1/drivers/i2c/i2c-mux.c	2010-11-05 16:06:33.000000000 +0100
-@@ -120,7 +120,6 @@ struct i2c_adapter *i2c_add_mux_adapter(
- 	snprintf(priv->adap.name, sizeof(priv->adap.name),
- 		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
- 	priv->adap.owner = THIS_MODULE;
--	priv->adap.id = parent->id;
- 	priv->adap.algo = &priv->algo;
- 	priv->adap.algo_data = priv;
- 	priv->adap.dev.parent = &parent->dev;
+I think I2C_HW_B_HDPVR was only being used by a not-yet-merged-upstream patch to the hdpvr driver, which enabled the IR functionality on it. Its not merged, as enabling it seems to like to lock the unit up from time to time, and nobody (myself included) has had time to figure out why. In any case, it should be perfectly fine to nuke that, we need to fix lirc_zilog regardless.
 
+Acked-by: Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
 -- 
-Jean Delvare
+Jarod Wilson
+jarod-ajLrJawYSntWk0Htik3J/w@public.gmane.org
