@@ -1,99 +1,100 @@
-From: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] misc: adds support the FSA9480 USB Switch
-Date: Wed, 10 Nov 2010 09:55:34 +0900
-Message-ID: <AANLkTi=vTkHJJ2dq5RZHHCwWYEBtY=Y7dPPh=Wzzx95f@mail.gmail.com>
-References: <4C7CD95A.5040309@samsung.com>
-	<20100917150731.f1f44f3c.akpm@linux-foundation.org>
-	<AANLkTim2UhJAhOw1qHvZ9bbctR0tNSMvE61T=sxffHxO@mail.gmail.com>
-	<4CB26931.5040105@samsung.com>
-	<20101011173649.GC7116@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c: Remove obsolete cleanup for clientdata
+Date: Wed, 10 Nov 2010 13:28:19 +0100
+Message-ID: <1289392100-32668-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101011173649.GC7116-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, Janusz Krzysztofik <jkrzyszt-NCk8gXQAEuFz6jiHbVrK7g@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Hong Liu <hong.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Anantha Narayanan <anantha.narayanan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Greg KH,
+A few new i2c-drivers came into the kernel which clear the clientdata-pointer
+on exit. This is obsolete meanwhile, so fix it and hope the word will spread.
 
-On 12 October 2010 02:36, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
-> On Mon, Oct 11, 2010 at 10:32:33AM +0900, Minkyu Kang wrote:
->> The FSA9480 is a USB port accessory detector and switch.
->> This patch adds support the FSA9480 USB Switch.
->>
->> Signed-off-by: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->> ---
->> v2:
->> =A0use the threaded irq
->> =A0fix the sysfs
->>
->> =A0drivers/misc/Kconfig =A0 =A0| =A0 =A09 +
->> =A0drivers/misc/Makefile =A0 | =A0 =A01 +
->> =A0drivers/misc/fsa9480.c =A0| =A0544 ++++++++++++++++++++++++++++++=
-+++++++++++++++++
->> =A0include/linux/fsa9480.h | =A0 40 ++++
->
-> Why do you need a .h file here for a single driver?
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
 
-Because of platform data.
+Like last time I suggest to collect acks from the driver authors and merge it
+vie Jean's i2c-tree.
 
->
-> You are creating new sysfs files, so you are required to add a new
-> Documentation/ABI file as well, please add that to this patch.
+ drivers/media/video/imx074.c          |    2 --
+ drivers/media/video/ov6650.c          |    2 --
+ drivers/misc/apds9802als.c            |    1 -
+ drivers/staging/olpc_dcon/olpc_dcon.c |    3 ---
+ 4 files changed, 0 insertions(+), 8 deletions(-)
 
-ok.
-
->
-> And why are you exporting symbols from this driver, that should not b=
-e
-> needed at all.
-
-It's for other drivers.
-=46or example.. When USB cable is connected, PMIC driver enable the
-power for each device. (USB, uart, audio and so on..)
-But if use the manual switch, PMIC driver can't know what device is ena=
-bled.
-So, this function was exported.
-
->
->
->> +/*
->> + * fsa9480.c - FSA9480 micro USB switch device driver
->> + *
->> + * Copyright (C) 2010 Samsung Electronics
->> + * Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->> + * Wonguk Jeong <wonguk.jeong-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->> + *
->> + * This program is free software; you can redistribute it and/or mo=
-dify
->> + * it under the terms of the GNU General Public License as publishe=
-d by
->> + * the Free Software Foundation; either version 2 of the License, o=
-r
->> + * (at your option) any later version.
->
-> Are you positive about that "any later version" portion of this?
-
-I will update the licence.
-
->
-> thanks,
->
-> greg k-h
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
-
-Thanks
-Minkyu Kang
---=20
-from. prom.
-www.promsoft.net
+diff --git a/drivers/media/video/imx074.c b/drivers/media/video/imx074.c
+index 380e459..27b5dfd 100644
+--- a/drivers/media/video/imx074.c
++++ b/drivers/media/video/imx074.c
+@@ -451,7 +451,6 @@ static int imx074_probe(struct i2c_client *client,
+ 	ret = imx074_video_probe(icd, client);
+ 	if (ret < 0) {
+ 		icd->ops = NULL;
+-		i2c_set_clientdata(client, NULL);
+ 		kfree(priv);
+ 		return ret;
+ 	}
+@@ -468,7 +467,6 @@ static int imx074_remove(struct i2c_client *client)
+ 	icd->ops = NULL;
+ 	if (icl->free_bus)
+ 		icl->free_bus(icl);
+-	i2c_set_clientdata(client, NULL);
+ 	client->driver = NULL;
+ 	kfree(priv);
+ 
+diff --git a/drivers/media/video/ov6650.c b/drivers/media/video/ov6650.c
+index b7cfeab..2dd5298 100644
+--- a/drivers/media/video/ov6650.c
++++ b/drivers/media/video/ov6650.c
+@@ -1176,7 +1176,6 @@ static int ov6650_probe(struct i2c_client *client,
+ 
+ 	if (ret) {
+ 		icd->ops = NULL;
+-		i2c_set_clientdata(client, NULL);
+ 		kfree(priv);
+ 	}
+ 
+@@ -1187,7 +1186,6 @@ static int ov6650_remove(struct i2c_client *client)
+ {
+ 	struct ov6650 *priv = to_ov6650(client);
+ 
+-	i2c_set_clientdata(client, NULL);
+ 	kfree(priv);
+ 	return 0;
+ }
+diff --git a/drivers/misc/apds9802als.c b/drivers/misc/apds9802als.c
+index f9b91ba..abe3d21 100644
+--- a/drivers/misc/apds9802als.c
++++ b/drivers/misc/apds9802als.c
+@@ -251,7 +251,6 @@ static int apds9802als_probe(struct i2c_client *client,
+ 
+ 	return res;
+ als_error1:
+-	i2c_set_clientdata(client, NULL);
+ 	kfree(data);
+ 	return res;
+ }
+diff --git a/drivers/staging/olpc_dcon/olpc_dcon.c b/drivers/staging/olpc_dcon/olpc_dcon.c
+index 75aa7a36..f286a4c 100644
+--- a/drivers/staging/olpc_dcon/olpc_dcon.c
++++ b/drivers/staging/olpc_dcon/olpc_dcon.c
+@@ -733,7 +733,6 @@ static int dcon_probe(struct i2c_client *client, const struct i2c_device_id *id)
+  edev:
+ 	platform_device_unregister(dcon_device);
+ 	dcon_device = NULL;
+-	i2c_set_clientdata(client, NULL);
+  eirq:
+ 	free_irq(DCON_IRQ, &dcon_driver);
+  einit:
+@@ -757,8 +756,6 @@ static int dcon_remove(struct i2c_client *client)
+ 		platform_device_unregister(dcon_device);
+ 	cancel_work_sync(&dcon_work);
+ 
+-	i2c_set_clientdata(client, NULL);
+-
+ 	return 0;
+ }
+ 
+-- 
+1.7.2.3
