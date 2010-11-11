@@ -1,37 +1,54 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: Remove obsolete cleanup for clientdata
-Date: Wed, 10 Nov 2010 16:25:42 -0800
-Message-ID: <20101111002542.GA21393@kroah.com>
-References: <1289392100-32668-1-git-send-email-w.sang@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/6] leds: lp5521: Change some macros to functions
+Date: Thu, 11 Nov 2010 10:21:50 +0200
+Message-ID: <1289463715-12507-2-git-send-email-samu.p.onkalo@nokia.com>
+References: <1289463715-12507-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1289392100-32668-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1289463715-12507-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, Hong Liu <hong.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Janusz Krzysztofik <jkrzyszt-NCk8gXQAEuFz6jiHbVrK7g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Anantha Narayanan <anantha.narayanan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 10, 2010 at 01:28:19PM +0100, Wolfram Sang wrote:
-> A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-> on exit. This is obsolete meanwhile, so fix it and hope the word will spread.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
-> 
-> Like last time I suggest to collect acks from the driver authors and merge it
-> vie Jean's i2c-tree.
-> 
->  drivers/media/video/imx074.c          |    2 --
->  drivers/media/video/ov6650.c          |    2 --
->  drivers/misc/apds9802als.c            |    1 -
->  drivers/staging/olpc_dcon/olpc_dcon.c |    3 ---
->  4 files changed, 0 insertions(+), 8 deletions(-)
+Some small macros changed to inline functions to have proper
+type checking.
 
-For the staging driver:
-	Acked-by: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/leds/leds-lp5521.c |   21 ++++++++++++++++-----
+ 1 files changed, 16 insertions(+), 5 deletions(-)
 
-thanks,
-
-greg k-h
+diff --git a/drivers/leds/leds-lp5521.c b/drivers/leds/leds-lp5521.c
+index 3782f31..fe69e52 100644
+--- a/drivers/leds/leds-lp5521.c
++++ b/drivers/leds/leds-lp5521.c
+@@ -125,11 +125,22 @@ struct lp5521_chip {
+ 	u8			num_leds;
+ };
+ 
+-#define cdev_to_led(c)		container_of(c, struct lp5521_led, cdev)
+-#define engine_to_lp5521(eng)	container_of((eng), struct lp5521_chip, \
+-						engines[(eng)->id - 1])
+-#define led_to_lp5521(led)	container_of((led), struct lp5521_chip, \
+-						leds[(led)->id])
++static inline struct lp5521_led *cdev_to_led(struct led_classdev *cdev)
++{
++	return container_of(cdev, struct lp5521_led, cdev);
++}
++
++static inline struct lp5521_chip *engine_to_lp5521(struct lp5521_engine *engine)
++{
++	return container_of(engine, struct lp5521_chip,
++			    engines[engine->id - 1]);
++}
++
++static inline struct lp5521_chip *led_to_lp5521(struct lp5521_led *led)
++{
++	return container_of(led, struct lp5521_chip,
++			    leds[led->id]);
++}
+ 
+ static void lp5521_led_brightness_work(struct work_struct *work);
+ 
+-- 
+1.6.0.4
