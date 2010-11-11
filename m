@@ -1,53 +1,49 @@
-From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 6/6] leds: lp5523: Perform SW reset before detection
-Date: Thu, 11 Nov 2010 10:21:55 +0200
-Message-ID: <1289463715-12507-7-git-send-email-samu.p.onkalo@nokia.com>
-References: <1289463715-12507-1-git-send-email-samu.p.onkalo@nokia.com>
+From: "Mr. Beuker Hendrik" <lejven-RGpGn/YLQZM@public.gmane.org>
+Subject: Work with me
+Date: Thu, 11 Nov 2010 19:49:46 +0200
+Message-ID: <20101111194946.i0a4fweyo00o8408@webmail1.tkk.fi>
+Reply-To: bhendrik1-Qsb49YciBralxZx38haCkw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1289463715-12507-1-git-send-email-samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Chip detection may fail if the chip is in some odd state
-for example after system restart. Chip doesn't have
-HW reset line.
 
-Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
----
- drivers/leds/leds-lp5523.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
+UBS International Holdings BV
+Herengracht 600
+NL-1017 CJ Amsterdam, Netherlands.
+www.ubs.com/investmentbank
 
-diff --git a/drivers/leds/leds-lp5523.c b/drivers/leds/leds-lp5523.c
-index 4248d78..0cc4ead 100644
---- a/drivers/leds/leds-lp5523.c
-+++ b/drivers/leds/leds-lp5523.c
-@@ -203,13 +203,6 @@ static int lp5523_configure(struct i2c_client *client)
- 		{ 0x9c, 0x50, 0x9c, 0xd0, 0x9d, 0x80, 0xd8, 0x00, 0},
- 	};
- 
--	lp5523_write(client, LP5523_REG_RESET, 0xff);
--
--	usleep_range(10000, 20000); /*
--				     * Exact value is not available. 10 - 20ms
--				     * appears to be enough for reset.
--				     */
--
- 	ret |= lp5523_write(client, LP5523_REG_ENABLE, LP5523_ENABLE);
- 	/* Chip startup time is 500 us, 1 - 2 ms gives some margin */
- 	usleep_range(1000, 2000);
-@@ -941,6 +934,11 @@ static int lp5523_probe(struct i2c_client *client,
- 		usleep_range(1000, 2000); /* 500us abs min. */
- 	}
- 
-+	lp5523_write(client, LP5523_REG_RESET, 0xff);
-+	usleep_range(10000, 20000); /*
-+				     * Exact value is not available. 10 - 20ms
-+				     * appears to be enough for reset.
-+				     */
- 	ret = lp5523_detect(client);
- 	if (ret)
- 		goto fail2;
--- 
-1.6.0.4
+Greetings,
+
+I am an investment consultant working with UBS International Holdings BV
+in the Netherlands. I will be happy to work this transaction out with you
+if you have a corporate or personal Bank Account and if you are reliable
+and honest. I need strong Assurance that you will never let me down, as I
+can arrange and provide you details/documentatal proof so that
+funds($8.5 million) will be transferred into your account as the next of
+kin to the late depositor(Abbas Farhan al-Jabouri, who was an Election
+candidate and also a business man). Abbas Farhan al-Jabouri and his two
+relatives were executed in Mohammed al Malih, near Mandali onthe 29th of
+January 2009.  During one of our periodic auditing I discovered a dormant
+accounts with the said balance (Eight million, five Hundred thousand
+Dollars only), this account have not been operated for some years now.
+
+At this moment I will not be able to issue more details about this
+business, until your response is received.
+
+If you are not familiar with my Bank profile, please take a moment of your
+very busy schedules to read about my Bank
+website(www.ubs.com/investment bank). I look forward to hearing from you as
+soon as possible via my private email; bhendrik1-Qsb49YciBralxZx38haCkw@public.gmane.org
+
+Thank you for your time and attention.
+
+Warmest Regards,
+Mr. Beuker Hendrik
+Investment Consultant.
+UBS.
