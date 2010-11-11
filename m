@@ -1,61 +1,36 @@
 From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] misc: adds support the FSA9480 USB Switch
-Date: Wed, 10 Nov 2010 09:49:26 -0800
-Message-ID: <20101110174926.GB13276@kroah.com>
-References: <4C7CD95A.5040309@samsung.com> <20100917150731.f1f44f3c.akpm@linux-foundation.org> <AANLkTim2UhJAhOw1qHvZ9bbctR0tNSMvE61T=sxffHxO@mail.gmail.com> <4CB26931.5040105@samsung.com> <20101011173649.GC7116@kroah.com> <AANLkTi=vTkHJJ2dq5RZHHCwWYEBtY=Y7dPPh=Wzzx95f@mail.gmail.com>
+Subject: Re: [PATCH] i2c: Remove obsolete cleanup for clientdata
+Date: Wed, 10 Nov 2010 16:25:42 -0800
+Message-ID: <20101111002542.GA21393@kroah.com>
+References: <1289392100-32668-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <AANLkTi=vTkHJJ2dq5RZHHCwWYEBtY=Y7dPPh=Wzzx95f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1289392100-32668-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, Hong Liu <hong.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Janusz Krzysztofik <jkrzyszt-NCk8gXQAEuFz6jiHbVrK7g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Anantha Narayanan <anantha.narayanan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 10, 2010 at 09:55:34AM +0900, Minkyu Kang wrote:
-> Dear Greg KH,
+On Wed, Nov 10, 2010 at 01:28:19PM +0100, Wolfram Sang wrote:
+> A few new i2c-drivers came into the kernel which clear the clientdata-pointer
+> on exit. This is obsolete meanwhile, so fix it and hope the word will spread.
 > 
-> On 12 October 2010 02:36, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
-> > On Mon, Oct 11, 2010 at 10:32:33AM +0900, Minkyu Kang wrote:
-> >> The FSA9480 is a USB port accessory detector and switch.
-> >> This patch adds support the FSA9480 USB Switch.
-> >>
-> >> Signed-off-by: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >> ---
-> >> v2:
-> >> ?use the threaded irq
-> >> ?fix the sysfs
-> >>
-> >> ?drivers/misc/Kconfig ? ?| ? ?9 +
-> >> ?drivers/misc/Makefile ? | ? ?1 +
-> >> ?drivers/misc/fsa9480.c ?| ?544 +++++++++++++++++++++++++++++++++++++++++++++++
-> >> ?include/linux/fsa9480.h | ? 40 ++++
-> >
-> > Why do you need a .h file here for a single driver?
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
 > 
-> Because of platform data.
+> Like last time I suggest to collect acks from the driver authors and merge it
+> vie Jean's i2c-tree.
+> 
+>  drivers/media/video/imx074.c          |    2 --
+>  drivers/media/video/ov6650.c          |    2 --
+>  drivers/misc/apds9802als.c            |    1 -
+>  drivers/staging/olpc_dcon/olpc_dcon.c |    3 ---
+>  4 files changed, 0 insertions(+), 8 deletions(-)
 
-Then put it in include/linux/platform_data/ instead please.
-
-> > You are creating new sysfs files, so you are required to add a new
-> > Documentation/ABI file as well, please add that to this patch.
-> 
-> ok.
-> 
-> >
-> > And why are you exporting symbols from this driver, that should not be
-> > needed at all.
-> 
-> It's for other drivers.
-> For example.. When USB cable is connected, PMIC driver enable the
-> power for each device. (USB, uart, audio and so on..)
-> But if use the manual switch, PMIC driver can't know what device is enabled.
-> So, this function was exported.
-
-What drivers are using these functions?  Where is the code for them?
-When will they be submitted for inclusion?
+For the staging driver:
+	Acked-by: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
 
 thanks,
 
