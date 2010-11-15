@@ -1,47 +1,53 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c fixes for 2.6.37
-Date: Mon, 15 Nov 2010 22:58:30 +0100
-Message-ID: <20101115225830.3d2b0994@endymion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] media: video: do not clear 'driver' from an i2c_client
+Date: Mon, 15 Nov 2010 23:28:15 +0100
+Message-ID: <20101115222815.GB25167@pengutronix.de>
+References: <1289398455-21949-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1289398455-21949-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>, Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>, Sergio Aguirre <saaguirre-l0cyMroinI0@public.gmane.org>, Michael Grzeschik <m.grzeschik-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Philipp Wiesner <p.wiesner-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>, =?iso-8859-15?Q?M=E1rton_N=E9meth?= <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
 
-Please pull i2c subsystem fixes for Linux 2.6.37 from:
+--cmJC7u66zC7hs+87
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+On Wed, Nov 10, 2010 at 03:14:13PM +0100, Wolfram Sang wrote:
+> The i2c-core does this already.
+>=20
+> Reported-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
+>=20
+> Not sure if this should go via i2c or media?
 
- Documentation/feature-removal-schedule.txt |   10 ++++++++++
- drivers/i2c/i2c-core.c                     |   12 ++++++++++++
- drivers/i2c/i2c-mux.c                      |    1 -
- drivers/media/common/saa7146_i2c.c         |    1 -
- drivers/media/video/imx074.c               |    2 --
- drivers/media/video/ir-kbd-i2c.c           |    1 -
- drivers/media/video/ov6650.c               |    2 --
- drivers/misc/apds9802als.c                 |    1 -
- drivers/staging/olpc_dcon/olpc_dcon.c      |    4 ----
- drivers/video/riva/rivafb-i2c.c            |    1 -
- include/linux/i2c-id.h                     |   22 ----------------------
- include/linux/i2c.h                        |    2 +-
- 12 files changed, 23 insertions(+), 36 deletions(-)
+Okay, as Jean did not pick it up in his latest pull request, I guess this m=
+eans
+it shall go via the media-tree? :) Mauro, will you pick it up?
 
----------------
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-Jean Delvare (4):
-      i2c: Delete unused adapter IDs
-      i2c: Drivers shouldn't include <linux/i2c-id.h>
-      i2c: Mark i2c_adapter.id as deprecated
-      i2c: Sanity checks on adapter registration
+--cmJC7u66zC7hs+87
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Wolfram Sang (1):
-      i2c: Remove obsolete cleanup for clientdata
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-Thanks,
--- 
-Jean Delvare
+iEYEARECAAYFAkzhs/8ACgkQD27XaX1/VRvWegCfVM9iYnOkrjJqwXN/NkSvPCp3
+9GUAoI6SAxrwPd4WTAouJIfU7DpENPAn
+=RhbN
+-----END PGP SIGNATURE-----
+
+--cmJC7u66zC7hs+87--
