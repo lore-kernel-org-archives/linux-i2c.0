@@ -1,77 +1,163 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/3] i2c: Drivers shouldn't include <linux/i2c-id.h>
-Date: Sat, 13 Nov 2010 17:59:16 +0100
-Message-ID: <20101113175916.3bb94e7d@endymion.delvare>
-References: <20101105210753.4d1a03bc@endymion.delvare>
-	<4CDEA1EF.407@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4CDEA1EF.407@infradead.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, LMML <linux-media@vger.kernel.org>, Michael Hunold <michael@mihu.de>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 00/44] remove unnecessary semicolons
+Date: Sun, 14 Nov 2010 19:04:19 -0800
+Message-ID: <cover.1289789604.git.joe@perches.com>
+Return-path: <cpufreq-owner@vger.kernel.org>
+Sender: cpufreq-owner@vger.kernel.org
+To: Jiri Kosina <trivial@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, microblaze-uclinux@itee.uq.edu.au, user-mode-linux-devel@lists.sourceforge.net, user-mode-linux-user@lists.sourceforge.net, cpufreq@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, e1000-devel@lists.sourceforge.net, linux-wireless@vger.kernel.org, ath9k-devel@lists.ath9k.org, platform-driver-x86@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, spi-devel-general@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.osdl.org, v9fs-developer@lists.sourceforge.net, ceph-devel@vger.kernel.org, logfs@logfs.org, linux-nfs@vger.kernel.org, ocfs2-devel@oss.oracle.comlinu
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 13 Nov 2010 12:34:23 -0200, Mauro Carvalho Chehab wrote:
-> Em 05-11-2010 18:07, Jean Delvare escreveu:
-> > Drivers don't need to include <linux/i2c-id.h>, especially not when
-> > they don't use anything that header file provides.
-> > 
-> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> > Cc: Michael Hunold <michael@mihu.de>
-> > Cc: Mauro Carvalho Chehab <mchehab@infradead.org>
-> 
-> I suspect that you want to include it via your tree, so:
-> Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+ya trivial series...
 
-Indeed, thanks.
+Joe Perches (44):
+  arch/arm: Remove unnecessary semicolons
+  arch/microblaze: Remove unnecessary semicolons
+  arch/um: Remove unnecessary semicolons
+  drivers/cpufreq: Remove unnecessary semicolons
+  drivers/gpio: Remove unnecessary semicolons
+  drivers/i2c: Remove unnecessary semicolons
+  drivers/isdn: Remove unnecessary semicolons
+  drivers/leds: Remove unnecessary semicolons
+  drivers/media/video: Remove unnecessary semicolons
+  drivers/misc: Remove unnecessary semicolons
+  drivers/mmc: Remove unnecessary semicolons
+  drivers/net/bnx2x: Remove unnecessary semicolons
+  drivers/net/e1000e: Remove unnecessary semicolons
+  drivers/net/ixgbe: Remove unnecessary semicolons
+  drivers/net/vxge: Remove unnecessary semicolons
+  drivers/net/wireless/ath: Remove unnecessary semicolons
+  drivers/net/wireless/iwlwifi: Remove unnecessary semicolons
+  drivers/net/cnic.c: Remove unnecessary semicolons
+  drivers/platform/x86: Remove unnecessary semicolons
+  drivers/power: Remove unnecessary semicolons
+  drivers/s390/net: Remove unnecessary semicolons
+  drivers/scsi/be2iscsi: Remove unnecessary semicolons
+  drivers/scsi/bfa: Remove unnecessary semicolons
+  drivers/scsi/lpfc: Remove unnecessary semicolons
+  drivers/scsi/pm8001: Remove unnecessary semicolons
+  drivers/scsi/qla2xxx: Remove unnecessary semicolons
+  drivers/serial: Remove unnecessary semicolons
+  drivers/spi: Remove unnecessary semicolons
+  drivers/staging: Remove unnecessary semicolons
+  drivers/usb/gadget: Remove unnecessary semicolons
+  drivers/xen: Remove unnecessary semicolons
+  fs/9p: Remove unnecessary semicolons
+  fs/ceph: Remove unnecessary semicolons
+  fs/logfs: Remove unnecessary semicolons
+  fs/nfs: Remove unnecessary semicolons
+  fs/ocfs2: Remove unnecessary semicolons
+  fs/ubifs: Remove unnecessary semicolons
+  include/linux/if_macvlan.h: Remove unnecessary semicolons
+  include/net/caif/cfctrl.h: Remove unnecessary semicolons
+  mm/hugetlb.c: Remove unnecessary semicolons
+  net/ipv6/mcast.c: Remove unnecessary semicolons
+  net/sunrpc/addr.c: Remove unnecessary semicolons
+  sound/core/pcm_lib.c: Remove unnecessary semicolons
+  sound/soc/codecs: Remove unnecessary semicolons
 
-> > ---
-> >  drivers/media/common/saa7146_i2c.c    |    1 -
-> >  drivers/media/video/ir-kbd-i2c.c      |    1 -
-> >  drivers/staging/olpc_dcon/olpc_dcon.c |    1 -
-> >  3 files changed, 3 deletions(-)
-> > 
-> > --- linux-2.6.37-rc1.orig/drivers/media/common/saa7146_i2c.c	2010-11-02 09:19:35.000000000 +0100
-> > +++ linux-2.6.37-rc1/drivers/media/common/saa7146_i2c.c	2010-11-05 15:34:25.000000000 +0100
-> > @@ -391,7 +391,6 @@ static int saa7146_i2c_xfer(struct i2c_a
-> >  
-> >  /*****************************************************************************/
-> >  /* i2c-adapter helper functions                                              */
-> > -#include <linux/i2c-id.h>
-> >  
-> >  /* exported algorithm data */
-> >  static struct i2c_algorithm saa7146_algo = {
-> > --- linux-2.6.37-rc1.orig/drivers/media/video/ir-kbd-i2c.c	2010-11-02 09:19:35.000000000 +0100
-> > +++ linux-2.6.37-rc1/drivers/media/video/ir-kbd-i2c.c	2010-11-05 15:34:18.000000000 +0100
-> > @@ -44,7 +44,6 @@
-> >  #include <linux/errno.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/i2c.h>
-> > -#include <linux/i2c-id.h>
-> >  #include <linux/workqueue.h>
-> >  
-> >  #include <media/ir-core.h>
-> > --- linux-2.6.37-rc1.orig/drivers/staging/olpc_dcon/olpc_dcon.c	2010-11-02 09:19:37.000000000 +0100
-> > +++ linux-2.6.37-rc1/drivers/staging/olpc_dcon/olpc_dcon.c	2010-11-05 15:34:14.000000000 +0100
-> > @@ -17,7 +17,6 @@
-> >  #include <linux/console.h>
-> >  #include <linux/i2c.h>
-> >  #include <linux/platform_device.h>
-> > -#include <linux/i2c-id.h>
-> >  #include <linux/pci.h>
-> >  #include <linux/pci_ids.h>
-> >  #include <linux/interrupt.h>
-> > 
-> > 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+ arch/arm/mach-at91/at91cap9_devices.c              |    2 +-
+ arch/arm/mach-at91/at91sam9g45_devices.c           |    2 +-
+ arch/arm/mach-at91/at91sam9rl_devices.c            |    2 +-
+ arch/arm/mach-nuc93x/time.c                        |    2 +-
+ arch/arm/mach-tegra/tegra2_clocks.c                |    2 +-
+ arch/arm/mach-w90x900/cpu.c                        |    2 +-
+ arch/arm/plat-mxc/irq.c                            |    2 +-
+ arch/microblaze/lib/memmove.c                      |    2 +-
+ arch/um/drivers/mmapper_kern.c                     |    2 +-
+ drivers/cpufreq/cpufreq_conservative.c             |    2 +-
+ drivers/gpio/langwell_gpio.c                       |    2 +-
+ drivers/i2c/busses/i2c-designware.c                |    2 +-
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c        |    4 ++--
+ drivers/isdn/hardware/mISDN/mISDNisar.c            |    2 +-
+ drivers/leds/leds-mc13783.c                        |    2 +-
+ drivers/media/video/cx88/cx88-blackbird.c          |    2 +-
+ drivers/media/video/davinci/vpfe_capture.c         |    2 +-
+ drivers/media/video/em28xx/em28xx-cards.c          |    2 +-
+ drivers/misc/bmp085.c                              |    2 +-
+ drivers/misc/isl29020.c                            |    2 +-
+ drivers/mmc/host/davinci_mmc.c                     |    2 +-
+ drivers/net/bnx2x/bnx2x_link.c                     |    4 ++--
+ drivers/net/bnx2x/bnx2x_main.c                     |    2 +-
+ drivers/net/cnic.c                                 |    2 +-
+ drivers/net/e1000e/netdev.c                        |    2 +-
+ drivers/net/ixgbe/ixgbe_sriov.c                    |    2 +-
+ drivers/net/vxge/vxge-main.c                       |    2 +-
+ drivers/net/wireless/ath/ath9k/htc.h               |    2 +-
+ drivers/net/wireless/iwlwifi/iwl-agn.c             |    2 +-
+ drivers/platform/x86/classmate-laptop.c            |    2 +-
+ drivers/platform/x86/thinkpad_acpi.c               |    2 +-
+ drivers/power/intel_mid_battery.c                  |    2 +-
+ drivers/s390/net/qeth_core_sys.c                   |    2 +-
+ drivers/scsi/be2iscsi/be_main.c                    |    4 ++--
+ drivers/scsi/bfa/bfa_fcs_lport.c                   |    2 +-
+ drivers/scsi/lpfc/lpfc_bsg.c                       |    2 +-
+ drivers/scsi/pm8001/pm8001_init.c                  |    2 +-
+ drivers/scsi/qla2xxx/qla_isr.c                     |    4 ++--
+ drivers/scsi/qla2xxx/qla_nx.c                      |    2 +-
+ drivers/serial/mrst_max3110.c                      |    2 +-
+ drivers/spi/amba-pl022.c                           |    2 +-
+ drivers/spi/spi_nuc900.c                           |    2 +-
+ .../staging/ath6kl/hif/sdio/linux_sdio/src/hif.c   |    2 +-
+ drivers/staging/ath6kl/os/linux/ar6000_drv.c       |    2 +-
+ drivers/staging/bcm/InterfaceInit.c                |    2 +-
+ drivers/staging/bcm/InterfaceIsr.c                 |    2 +-
+ drivers/staging/bcm/Misc.c                         |    4 ++--
+ .../comedi/drivers/addi-data/APCI1710_Tor.c        |    2 +-
+ .../comedi/drivers/addi-data/hwdrv_apci1500.c      |    2 +-
+ .../comedi/drivers/addi-data/hwdrv_apci1516.c      |    2 +-
+ .../comedi/drivers/addi-data/hwdrv_apci3501.c      |    2 +-
+ drivers/staging/comedi/drivers/amplc_pci230.c      |    2 +-
+ drivers/staging/comedi/drivers/cb_das16_cs.c       |    2 +-
+ drivers/staging/comedi/drivers/comedi_bond.c       |    2 +-
+ drivers/staging/crystalhd/crystalhd_hw.c           |    2 +-
+ drivers/staging/go7007/go7007-driver.c             |    2 +-
+ drivers/staging/iio/accel/lis3l02dq_ring.c         |    2 +-
+ .../staging/intel_sst/intel_sst_drv_interface.c    |    4 ++--
+ drivers/staging/keucr/smilmain.c                   |    4 ++--
+ drivers/staging/keucr/smilsub.c                    |    4 ++--
+ drivers/staging/msm/lcdc_toshiba_wvga_pt.c         |    2 +-
+ drivers/staging/rt2860/common/cmm_data_pci.c       |    4 ++--
+ drivers/staging/rt2860/rt_linux.c                  |    2 +-
+ drivers/staging/rt2860/rtmp.h                      |    2 +-
+ drivers/staging/rtl8192e/ieee80211/ieee80211_tx.c  |    2 +-
+ drivers/staging/rtl8192e/r819xE_phy.c              |    2 +-
+ drivers/staging/rtl8192u/ieee80211/ieee80211_tx.c  |    2 +-
+ drivers/staging/rtl8192u/r8192U_core.c             |    2 +-
+ drivers/staging/rtl8192u/r819xU_phy.c              |    2 +-
+ drivers/staging/rtl8712/rtl8712_efuse.c            |    2 +-
+ drivers/staging/rtl8712/rtl8712_xmit.c             |    2 +-
+ drivers/staging/rtl8712/rtl871x_xmit.c             |    2 +-
+ drivers/staging/tidspbridge/core/tiomap3430.c      |    4 ++--
+ drivers/staging/tidspbridge/rmgr/nldr.c            |    2 +-
+ drivers/staging/vt6655/card.c                      |    2 +-
+ drivers/staging/vt6655/iwctl.c                     |    2 +-
+ drivers/staging/vt6655/wpa2.c                      |    4 ++--
+ drivers/staging/vt6656/baseband.c                  |    2 +-
+ drivers/staging/vt6656/iwctl.c                     |    2 +-
+ drivers/staging/vt6656/power.c                     |    2 +-
+ drivers/staging/vt6656/wpa2.c                      |    4 ++--
+ drivers/usb/gadget/f_fs.c                          |    2 +-
+ drivers/xen/swiotlb-xen.c                          |    2 +-
+ fs/9p/acl.c                                        |    2 +-
+ fs/9p/xattr.c                                      |    2 +-
+ fs/ceph/mds_client.c                               |    2 +-
+ fs/logfs/readwrite.c                               |    2 +-
+ fs/nfs/getroot.c                                   |    2 +-
+ fs/ocfs2/refcounttree.c                            |    2 +-
+ fs/ubifs/scan.c                                    |    2 +-
+ include/linux/if_macvlan.h                         |    2 +-
+ include/net/caif/cfctrl.h                          |    2 +-
+ mm/hugetlb.c                                       |    2 +-
+ net/ipv6/mcast.c                                   |    2 +-
+ net/sunrpc/addr.c                                  |    2 +-
+ sound/core/pcm_lib.c                               |    2 +-
+ sound/soc/codecs/wm8904.c                          |    2 +-
+ sound/soc/codecs/wm8940.c                          |    1 -
+ sound/soc/codecs/wm8993.c                          |    2 +-
+ sound/soc/codecs/wm_hubs.c                         |    2 +-
+ 100 files changed, 111 insertions(+), 112 deletions(-)
 
 -- 
-Jean Delvare
+1.7.3.1.g432b3.dirty
+
