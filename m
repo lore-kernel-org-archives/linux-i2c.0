@@ -1,94 +1,54 @@
-From: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
-Subject: Power up/down of an I2C client?
-Date: Mon, 15 Nov 2010 20:44:10 -0800
-Message-ID: <AANLkTinjBBxiq4K6wn8raOgooKtBhF3sW-k2FUSWNDzY@mail.gmail.com>
+From: Roman Fietze <roman.fietze-rVvtEhYSWBkAey3BTtE3dg@public.gmane.org>
+Subject: Const buffer pointers for SMBus/I2C block write functions
+Date: Tue, 16 Nov 2010 06:57:10 +0100
+Message-ID: <201011160657.11061.roman.fietze@telemotive.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Guys:
+Hello List Members,
+
+I was asked to post this patch here.
+
+If the SMBus and I2C block write functions in i2c-dev.h (the version
+from lm-sensors, not the kernel) would take const buffer pointers,
+this would allow callers to use const data to be sent via SMB/I2C.
+
+Please see the diff below.
 
 
-I have several boards that can control the power supply to their i2c
-chips, and I need to power down/up those chips when the boards go
-through suspend/resume.  The problem is, I'm using the same chip on
-all of the boards but the mechanism for controlling the power supply
-to each one is different on each board.
-
-For platform devices, I deal with the above problem by declaring a
-board-specific, "parent" device that gets the suspend/resume events
-after/before the actual chip driver does.  I fiddle with the power
-supplies in those parent suspend/resume methods.  Something like this:
-
-static int parent_probe(struct platform_device *this)
-{
-       platform_device_register_data(&this->dev, "child", -1, NULL, 0);
-       return 0;
-}
-
-static int parent_suspend(struct device *this)
-{
-     /* power down the child device--- it has already been suspended */
-     gpio_direction_output(..., 0);
-     return 0;
-}
-
-static int parent_resume(struct device *this)
-{
-     /* power up the child device--- it will get resumed after we return */
-     gpio_direction_output(..., 1);
-     return 0;
-}
-
-static struct dev_pm_ops parent_pm_ops = {
-       .suspend = parent_suspend,
-       .resume = parent_resume,
-};
-
-static struct platform_driver parent_driver = {
-       .probe = parent_probe,
-       .driver = {
-               .name = "parent",
-               .pm = &parent_pm_ops,
-               .owner = THIS_MODULE,
-       },
-};
-
-...
-
-     platform_device_register_simple("parent", -1, NULL, 0);
+Index: include/linux/i2c-dev.h
+===================================================================
+--- include/linux/i2c-dev.h	(revision 5881)
++++ include/linux/i2c-dev.h	(working copy)
+@@ -258,7 +258,7 @@
+ }
+ 
+ static inline __s32 i2c_smbus_write_block_data(int file, __u8 command, 
+-                                               __u8 length, __u8 *values)
++                                               __u8 length, const __u8 *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int i;
+@@ -296,7 +296,7 @@
+ }
+ 
+ static inline __s32 i2c_smbus_write_i2c_block_data(int file, __u8 command,
+-                                               __u8 length, __u8 *values)
++                                               __u8 length, const __u8 *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int i;
 
 
-The above code may seem complicated, but it lets me completely
-separate the power mechanism from the rest of the driver.  As such, it
-gives me the freedom to completely change how power is managed to the
-chip on a given board, without having to edit--- or even recompile---
-chip driver code itself.  I write the chip driver code once, and it
-stays written forever!
+Roman
 
-Trouble is, I can't come up with an equivalent approach for i2c
-devices.  The i2c system uses both parents and buses itself, leaving
-me without a convenient hook for catching events.  Is there no way to
-"wrap" i2c devices the way you can for platform devices?
-
-Reparenting the i2c adapter itself seems like the only alternative
-here, and I might be able to live with that--- but it becomes a bit of
-a nightmare when each chip on the bus is configurable as to whether it
-will be a wakeup source (and therefore shouldn't be powered down), or
-not.  That means I have to find and walk the device list to see who
-needs to stay powered up, and who gets put to sleep...
-
-I can't help but think that I'm missing something that would let me
-have i2c chip-specific power controllers like I have for my platform
-devices.  Any suggestions here would be greatly appreciated.
-
-Thanks!
-
-
-b.g.
 -- 
-Bill Gatliff
-bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org
+Roman Fietze              Telemotive AG Buero Muehlhausen
+Breitwiesen                             73347 Muehlhausen
+Tel.: +49(0)7335/18493-45        http://www.telemotive.de
