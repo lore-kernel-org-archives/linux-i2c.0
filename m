@@ -1,41 +1,63 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: Power up/down of an I2C client?
-Date: Tue, 16 Nov 2010 12:51:03 +0000
-Message-ID: <20101116125103.GI3338@sirena.org.uk>
-References: <AANLkTinjBBxiq4K6wn8raOgooKtBhF3sW-k2FUSWNDzY@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-omap: Set latency requirements only once for several messages
+Date: Thu, 18 Nov 2010 12:04:20 +0200
+Message-ID: <1290074660-2640-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTinjBBxiq4K6wn8raOgooKtBhF3sW-k2FUSWNDzY-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 15, 2010 at 08:44:10PM -0800, Bill Gatliff wrote:
+Ordinary I2C read consist of two messages. First a write operation
+to tell register address and then read operation to get data.
+CPU wake up latency is set and removed twice in read case.
+Set latency requirement before the message processing loop
+and remove the requirement after the loop to remove latency
+adjustment operations between the messages.
 
-> I have several boards that can control the power supply to their i2c
-> chips, and I need to power down/up those chips when the boards go
-> through suspend/resume.  The problem is, I'm using the same chip on
-> all of the boards but the mechanism for controlling the power supply
-> to each one is different on each board.
+Signed-off-by: Samu Onkalo <samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Acked-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Acked-by: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
 
-The current way of doing this is to abstract away via the regulator API,
-though that doesn't cover reset GPIOs.
+---
+ drivers/i2c/busses/i2c-omap.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-> Trouble is, I can't come up with an equivalent approach for i2c
-> devices.  The i2c system uses both parents and buses itself, leaving
-> me without a convenient hook for catching events.  Is there no way to
-> "wrap" i2c devices the way you can for platform devices?
-
-I'm working on an approach to this based on using notifiers.  Currently
-we have notifiers from the driver model for driver probe, and we have
-system-wide notifiers for PM events (but no per device stuff so runtime
-PM can't be supported yet).  Not sure when I'll have something to show
-but the idea is that you enable the device on BUS_NOTIFY_BIND_DRIVER,
-disable it on BUS_NOTIFY_UNBOUND_DRIVER and do similar things on some
-future notifiers for per-device suspend and resume.
-
-This should work for all buses without any per-bus or per-device
-modifications.
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index b33c785..3e9323e 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -616,12 +616,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	 * REVISIT: We should abort the transfer on signals, but the bus goes
+ 	 * into arbitration and we're currently unable to recover from it.
+ 	 */
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->set_mpu_wkup_lat(dev->dev, dev->latency);
+ 	r = wait_for_completion_timeout(&dev->cmd_complete,
+ 					OMAP_I2C_TIMEOUT);
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->set_mpu_wkup_lat(dev->dev, -1);
+ 	dev->buf_len = 0;
+ 	if (r < 0)
+ 		return r;
+@@ -672,12 +668,18 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	if (r < 0)
+ 		goto out;
+ 
++	if (dev->set_mpu_wkup_lat != NULL)
++		dev->set_mpu_wkup_lat(dev->dev, dev->latency);
++
+ 	for (i = 0; i < num; i++) {
+ 		r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+ 		if (r != 0)
+ 			break;
+ 	}
+ 
++	if (dev->set_mpu_wkup_lat != NULL)
++		dev->set_mpu_wkup_lat(dev->dev, -1);
++
+ 	if (r == 0)
+ 		r = num;
+ 
+-- 
+1.6.0.4
