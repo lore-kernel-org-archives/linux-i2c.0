@@ -1,153 +1,84 @@
-From: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
-Subject: [PATCH 1/3] i2c-ocores: Adapt for device tree
-Date: Wed, 24 Nov 2010 17:26:20 +0100
-Message-ID: <1290615982-1028-2-git-send-email-jonas@southpole.se>
-References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1290615982-1028-1-git-send-email-jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: I2C support for Sodaville
+Date: Wed, 24 Nov 2010 22:20:10 +0100
+Message-ID: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adapts the i2c-ocores driver for being defined and configured via
-a device tree description.
+The I2C core inside Sodaville is very much the same as in PXA25x.
+I Cc the ARM folks because patch 2 reorganizes some files so that they
+can be accessed from x86.
+The I2C device is behind a PCI bus. The PCI probe code simply creates
+three platform devices so we don't have much changes to the platform
+driver. There is no clock framework on x86 and the peripherals don't
+support changing their clocks or to enable/disable them. So I provided
+dummy function which keep the driver happy.
+This series indirectly depends on the SPI series I've sent earlier
+because both modify include files and the spi & i2c includes are sometimes
+too close to each other.
 
-The device tree bits need to be protected by CONFIG_OF guards as this is
-still an optional feature.
+The patch series has been created with the -M option so file moves can
+be easily noticed. The whole series (including spi) is also available at
+  git://git.linutronix.de/users/bigeasy/soda.git spi-i2c
 
-Signed-off-by: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
----
- drivers/i2c/busses/i2c-ocores.c |   64 ++++++++++++++++++++++++++++++++++-----
- 1 files changed, 56 insertions(+), 8 deletions(-)
+Sebastian Andrzej Siewior (7):
+      i2c/pxa2xx: Don't touch ISAR if not in slave mode
+      arm/pxa2xx: reorganize I2C files
+      i2c/pxa2xx: Add PCI support for PXA I2C controller
+      i2c/pxa2xx: add support for shared IRQ handler
+      i2c/pxa2xx: check timeout correctly
+      i2c/pxa2xx: reset the chip if the bus is not free
+      i2c/pxa2xx: pass of_node from platform driver to adapter
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 0070371..c05e8c4 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -210,6 +210,32 @@ static struct i2c_adapter ocores_adapter = {
- 	.algo		= &ocores_algorithm,
- };
- 
-+#ifdef CONFIG_OF
-+static int ocores_i2c_of_probe(struct platform_device* pdev,
-+				struct ocores_i2c* i2c)
-+{
-+	__be32* val;
-+
-+	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
-+	if (!val) {
-+		dev_err(&pdev->dev, "Missing required parameter 'regstep'");
-+		return -ENODEV;
-+	}
-+	i2c->regstep = be32_to_cpup(val);
-+
-+	val = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
-+	if (!val) {
-+		dev_err(&pdev->dev,
-+			"Missing required parameter 'clock-frequency'");
-+		return -ENODEV;
-+	}
-+	i2c->clock_khz = be32_to_cpup(val) / 1000;
-+
-+	return 0;
-+}
-+#else
-+#define ocores_i2c_of_probe(pdev,i2c) -ENODEV
-+#endif
- 
- static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- {
-@@ -227,10 +253,6 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	if (!res2)
- 		return -ENODEV;
- 
--	pdata = (struct ocores_i2c_platform_data*) pdev->dev.platform_data;
--	if (!pdata)
--		return -ENODEV;
--
- 	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
-@@ -249,8 +271,16 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 		goto map_failed;
- 	}
- 
--	i2c->regstep = pdata->regstep;
--	i2c->clock_khz = pdata->clock_khz;
-+	pdata = pdev->dev.platform_data;
-+	if (pdata) {
-+		i2c->regstep = pdata->regstep;
-+		i2c->clock_khz = pdata->clock_khz;
-+	} else {
-+		ret = ocores_i2c_of_probe(pdev, i2c);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	ocores_init(i2c);
- 
- 	init_waitqueue_head(&i2c->wait);
-@@ -265,6 +295,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	i2c->adap = ocores_adapter;
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &pdev->dev;
-+#ifdef CONFIG_OF
-+	i2c->adap.dev.of_node = pdev->dev.of_node;
-+#endif
- 
- 	/* add i2c adapter to i2c tree */
- 	ret = i2c_add_adapter(&i2c->adap);
-@@ -274,8 +307,10 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	/* add in known devices to the bus */
--	for (i = 0; i < pdata->num_devices; i++)
--		i2c_new_device(&i2c->adap, pdata->devices + i);
-+	if (pdata) {
-+		for (i = 0; i < pdata->num_devices; i++)
-+			i2c_new_device(&i2c->adap, pdata->devices + i);
-+	}
- 
- 	return 0;
- 
-@@ -344,6 +379,16 @@ static int ocores_i2c_resume(struct platform_device *pdev)
- #define ocores_i2c_resume	NULL
- #endif
- 
-+#ifdef CONFIG_OF
-+static struct of_device_id ocores_i2c_match[] = {
-+        {
-+                .compatible = "opencores,i2c-ocores",
-+        },
-+        {},
-+};
-+MODULE_DEVICE_TABLE(of, ocores_i2c_match);
-+#endif
-+
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:ocores-i2c");
- 
-@@ -355,6 +400,9 @@ static struct platform_driver ocores_i2c_driver = {
- 	.driver  = {
- 		.owner = THIS_MODULE,
- 		.name = "ocores-i2c",
-+#ifdef CONFIG_OF
-+                .of_match_table = ocores_i2c_match,
-+#endif
- 	},
- };
- 
--- 
-1.7.1
+ arch/arm/include/asm/pxa_i2c.h                     |   19 +++
+ arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
+ arch/arm/mach-pxa/balloon3.c                       |    3 +-
+ arch/arm/mach-pxa/cm-x300.c                        |    2 +-
+ arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
+ arch/arm/mach-pxa/corgi.c                          |    2 +-
+ arch/arm/mach-pxa/csb726.c                         |    2 +-
+ arch/arm/mach-pxa/devices.c                        |    2 +-
+ arch/arm/mach-pxa/em-x270.c                        |    2 +-
+ arch/arm/mach-pxa/ezx.c                            |    2 +-
+ arch/arm/mach-pxa/hx4700.c                         |    2 +-
+ arch/arm/mach-pxa/littleton.c                      |    2 +-
+ arch/arm/mach-pxa/magician.c                       |    2 +-
+ arch/arm/mach-pxa/mainstone.c                      |    2 +-
+ arch/arm/mach-pxa/mioa701.c                        |    2 +-
+ arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
+ arch/arm/mach-pxa/palm27x.c                        |    3 +-
+ arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
+ arch/arm/mach-pxa/poodle.c                         |    2 +-
+ arch/arm/mach-pxa/pxa27x.c                         |    2 +-
+ arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
+ arch/arm/mach-pxa/raumfeld.c                       |    2 +-
+ arch/arm/mach-pxa/saar.c                           |    2 +-
+ arch/arm/mach-pxa/spitz.c                          |    3 +-
+ arch/arm/mach-pxa/stargate2.c                      |    2 +-
+ arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
+ arch/arm/mach-pxa/tosa.c                           |    2 +-
+ arch/arm/mach-pxa/trizeps4.c                       |    2 +-
+ arch/arm/mach-pxa/viper.c                          |    2 +-
+ arch/arm/mach-pxa/vpac270.c                        |    3 +-
+ arch/arm/mach-pxa/xcep.c                           |    3 +-
+ arch/arm/mach-pxa/z2.c                             |    3 +-
+ arch/arm/mach-pxa/zeus.c                           |    3 +-
+ arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
+ arch/x86/include/asm/pxa_i2c.h                     |   24 +++
+ drivers/i2c/busses/Kconfig                         |    7 +-
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-pxa-pci.c                   |  160 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-pxa.c                       |   70 +++++----
+ .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    1 +
+ 42 files changed, 282 insertions(+), 79 deletions(-)
+ create mode 100644 arch/arm/include/asm/pxa_i2c.h
+ create mode 100644 arch/x86/include/asm/pxa_i2c.h
+ create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
+ rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (99%)
+
+Sebastian
