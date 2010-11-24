@@ -1,58 +1,74 @@
-From: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCH 1/2] i2c-ocores: Adapt for device tree
-Date: Wed, 24 Nov 2010 16:32:50 +0100
-Message-ID: <1290612770.2959.21.camel@needafix>
+Date: Wed, 24 Nov 2010 16:42:15 +0100
+Message-ID: <20101124154215.GE6812@pengutronix.de>
 References: <1290607789-8996-1-git-send-email-jonas@southpole.se>
-	<1290607789-8996-2-git-send-email-jonas@southpole.se>
-	<20101124145843.GD6812@pengutronix.de>
+ <1290607789-8996-2-git-send-email-jonas@southpole.se>
+ <20101124145843.GD6812@pengutronix.de>
+ <1290612770.2959.21.camel@needafix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20101124145843.GD6812-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ey/N+yb7u/X9mFhi"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1290612770.2959.21.camel@needafix>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gV2VkLCAyMDEwLTExLTI0IGF0IDE1OjU4ICswMTAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4g
-SGksCj4gCj4gcXVpY2sgcmV2aWV3IChob3BlZnVsbHkgbm90IHRvbyBxdWljaykuLi4KPiAKClRo
-YW5rcy4uLiBzZWUgbXkgY29tbWVudHMgYmVsb3cuCgo+ID4gKwl2YWwgPSAoaW50Kikgb2ZfZ2V0
-X3Byb3BlcnR5KHBkZXYtPmRldi5vZl9ub2RlLCAicmVnc3RlcCIsIE5VTEwpOwo+ID4gKwlpZiAo
-IXZhbCkgewo+ID4gKwkJZGV2X2VycigmcGRldi0+ZGV2LCAiTWlzc2luZyByZXF1aXJlZCBwYXJh
-bXRlciAncmVnc3RlcCciKTsKPiA+ICsJCXJldHVybiAtRU5PREVWOwo+ID4gKwl9Cj4gCj4gTmV3
-IHByb3BlcnRpZXMgbmVlZCB0byBiZSBkb2N1bWVudGVkIChlLmcuIGxpa2UgaGVyZcK5KS4gV2hh
-dCBpcyByZWdzdGVwPwo+IAo+IMK5IGh0dHA6Ly9saXN0cy5vemxhYnMub3JnL3BpcGVybWFpbC9k
-ZXZpY2V0cmVlLWRpc2N1c3MvMjAxMC1Ob3ZlbWJlci8wMDM1NjkuaHRtbAo+IAoKV2hpbGUgSSBh
-Z3JlZSB0aGF0IHRoZXNlIHBhcmFtZXRlcnMgbmVlZCBkb2N1bWVudGF0aW9uLCBJIGhhdmVuJ3Qg
-c2Vlbgp0aGF0IHRoZXJlIGlzIGFuIGFncmVlZCB1cG9uIHBsYWNlIHRvIHB1dCBzdWNoIGRvY3Vt
-ZW50YXRpb24gYXMgb2YgeWV0LgpJIGZvbGxvd2VkIHlvdXIgbGluayBidXQgZGlkbid0IGZpbmQg
-dGhlIGNvcnJlc3BvbmRpbmcgZG9jdW1lbnQgaW4gdGhlCmtlcm5lbCB0cmVlLiAgU2hvdWxkIEkg
-cmVhbGx5IGJlIHB1dHRpbmcgbXkgZG9jdW1lbnRhdGlvbiBpbiB0aGUKRG9jdW1lbnRhdGlvbi9w
-b3dlcnBjIGRpcmVjdG9yeT8KCj4gPiAgCWkyYy0+YWRhcCA9IG9jb3Jlc19hZGFwdGVyOwo+ID4g
-IAlpMmNfc2V0X2FkYXBkYXRhKCZpMmMtPmFkYXAsIGkyYyk7Cj4gPiAgCWkyYy0+YWRhcC5kZXYu
-cGFyZW50ID0gJnBkZXYtPmRldjsKPiA+ICsjaWZkZWYgQ09ORklHX09GCj4gPiArCWkyYy0+YWRh
-cC5kZXYub2Zfbm9kZSA9IHBkZXYtPmRldi5vZl9ub2RlOwo+ID4gKyNlbmRpZgo+IAo+IE5vIG5l
-ZWQgZm9yIHRoZSBpZmRlZiBoZXJlLgo+IAoKV2h5PyAgb2Zfbm9kZSBpcyBwcm90ZWN0ZWQgYnkg
-Q09ORklHX09GIGluIGxpbnV4L2RldmljZS5oCgo+ID4gIAo+ID4gKyNpZmRlZiBDT05GSUdfT0YK
-PiA+ICtzdGF0aWMgc3RydWN0IG9mX2RldmljZV9pZCBvY29yZXNfaTJjX21hdGNoW10gPSB7Cj4g
-PiArICAgICAgICB7Cj4gPiArICAgICAgICAgICAgICAgIC5jb21wYXRpYmxlID0gIm9wZW5jb3Jl
-cyxpMmMtb2NvcmVzIiwKPiA+ICsgICAgICAgIH0sCj4gPiArICAgICAgICB7fSwKPiA+ICt9Owo+
-ID4gK01PRFVMRV9ERVZJQ0VfVEFCTEUob2YsIG9jb3Jlc19pMmNfbWF0Y2gpOwo+ID4gKyNlbmRp
-Zgo+IAo+IGRpdHRvCgpEcm9wcGluZyB0aGUgaWZkZWYgYmVnZXRzIGEgYnVpbGQgd2FybmluZy4u
-LgoKPiA+ICAJCS5uYW1lID0gIm9jb3Jlcy1pMmMiLAo+ID4gKyNpZmRlZiBDT05GSUdfT0YKPiA+
-ICsgICAgICAgICAgICAgICAgLm9mX21hdGNoX3RhYmxlID0gb2NvcmVzX2kyY19tYXRjaCwKPiA+
-ICsjZW5kaWYKPiAKPiBkaXR0bwoKU2FtZSBoZXJlLCBvZl9tYXRjaF90YWJsZSBpcyBwcm90ZWN0
-ZWQgYnkgQ09ORklHX09GLiAgSG93IGlzIHRoaXMgaWZkZWYKbm90IG5lY2Vzc2FyeT8KClRoYW5r
-cyBhZ2FpbiBmb3IgdGhlIHJldmlldy4KQ2hlZXJzLApKb25hcwoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZGV2aWNldHJlZS1kaXNjdXNzIG1haWxpbmcg
-bGlzdApkZXZpY2V0cmVlLWRpc2N1c3NAbGlzdHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96
-bGFicy5vcmcvbGlzdGluZm8vZGV2aWNldHJlZS1kaXNjdXNzCg==
+
+--ey/N+yb7u/X9mFhi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> While I agree that these parameters need documentation, I haven't seen
+> that there is an agreed upon place to put such documentation as of yet.
+> I followed your link but didn't find the corresponding document in the
+> kernel tree.
+
+Because it has not been applied yet; that was the "template" patch I
+could dig up fastest.
+
+> Should I really be putting my documentation in the
+> Documentation/powerpc directory?
+
+Not necessarily. You could post a patch moving the generic parts to a
+better location, too :)
+
+> > > +#ifdef CONFIG_OF
+> > > +	i2c->adap.dev.of_node =3D pdev->dev.of_node;
+> > > +#endif
+> >=20
+> > No need for the ifdef here.
+> >=20
+>=20
+> Why?  of_node is protected by CONFIG_OF in linux/device.h
+
+Ehrm, seems my mind broke :( Apologies, I probably was mixing it up with
+another issue.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ey/N+yb7u/X9mFhi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkztMlcACgkQD27XaX1/VRtHnQCff/DZJrOvUdPw68d3yCTscTee
+2lQAn0Iwxu7lr2vmBzujE9mWXBC6FNNX
+=/RmO
+-----END PGP SIGNATURE-----
+
+--ey/N+yb7u/X9mFhi--
