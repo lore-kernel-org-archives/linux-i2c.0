@@ -1,7 +1,7 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: [PATCH 4/7] i2c/pxa2xx: add support for shared IRQ handler
-Date: Wed, 24 Nov 2010 22:20:14 +0100
-Message-ID: <1290633617-15311-5-git-send-email-bigeasy@linutronix.de>
+Subject: [PATCH 1/7] i2c/pxa2xx: Don't touch ISAR if not in slave mode
+Date: Wed, 24 Nov 2010 22:20:11 +0100
+Message-ID: <1290633617-15311-2-git-send-email-bigeasy@linutronix.de>
 References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1290633617-15311-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
@@ -10,54 +10,31 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Sodaville has three of them on a single IRQ. IRQF_DISABLED is removed
-because it is a NOP allready and scheduled for removal.
+The reset functions sets writes the slave address even in not slave
+mode. I don't see any reason in writting it if slave mode is not
+enabled.
+I have here a PXA-I2C variant where this register is not availbale and
+as such can not be touched.
 
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-pxa.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index dc66fde..7647361 100644
+index f4c19a9..579c8a8 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -905,11 +905,17 @@ static void i2c_pxa_irq_rxfull(struct pxa_i2c *i2c, u32 isr)
- 	writel(icr, _ICR(i2c));
- }
+@@ -418,7 +418,9 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 	writel(I2C_ISR_INIT, _ISR(i2c));
+ 	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
  
-+#define VALID_INT_SOURCE	(ISR_SSD | ISR_ALD | ISR_ITE | ISR_IRF | \
-+				ISR_SAD | ISR_BED)
- static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
- {
- 	struct pxa_i2c *i2c = dev_id;
- 	u32 isr = readl(_ISR(i2c));
++#ifdef CONFIG_I2C_PXA_SLAVE
+ 	writel(i2c->slave_addr, _ISAR(i2c));
++#endif
  
-+	isr &= VALID_INT_SOURCE;
-+	if (!isr)
-+		return IRQ_NONE;
-+
- 	if (i2c_debug > 2 && 0) {
- 		dev_dbg(&i2c->adap.dev, "%s: ISR=%08x, ICR=%08x, IBMR=%02x\n",
- 			__func__, isr, readl(_ICR(i2c)), readl(_IBMR(i2c)));
-@@ -924,7 +930,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
- 	/*
- 	 * Always clear all pending IRQs.
- 	 */
--	writel(isr & (ISR_SSD|ISR_ALD|ISR_ITE|ISR_IRF|ISR_SAD|ISR_BED), _ISR(i2c));
-+	writel(isr, _ISR(i2c));
- 
- 	if (isr & ISR_SAD)
- 		i2c_pxa_slave_start(i2c, isr);
-@@ -1062,7 +1068,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
- 	} else {
- 		i2c->adap.algo = &i2c_pxa_algorithm;
--		ret = request_irq(irq, i2c_pxa_handler, IRQF_DISABLED,
-+		ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
- 				  i2c->adap.name, i2c);
- 		if (ret)
- 			goto ereqirq;
+ 	/* set control register values */
+ 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
 -- 
 1.7.3.2
