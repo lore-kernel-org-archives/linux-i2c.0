@@ -1,7 +1,7 @@
 From: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
-Subject: [PATCH 3/3] i2c-ocores: add some device tree documentation
-Date: Wed, 24 Nov 2010 17:26:22 +0100
-Message-ID: <1290615982-1028-4-git-send-email-jonas@southpole.se>
+Subject: [PATCH 2/3] i2c-ocores: Use devres for resource allocation
+Date: Wed, 24 Nov 2010 17:26:21 +0100
+Message-ID: <1290615982-1028-3-git-send-email-jonas@southpole.se>
 References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,65 +21,113 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This puts some documentation for the device tree configuration at the head
-of the driver file.  Hopefully this can get moved to a common area for this
-type of documentation at a later date; unfortunately, there isn't really
-such a place in the kernel tree at this time.
-
-Furthermore, the regstep and clock-frequency parameters are really bus
-parameters and should probably be passed to the driver in a better way.
-Consider that a TODO.
+This patch converts the i2c-cores driver to use devres routines for
+resource allocation.
 
 Signed-off-by: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-ocores.c |   35 +++++++++++++++++++++++++++++++++++
- 1 files changed, 35 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c |   46 +++++++++-----------------------------
+ 1 files changed, 11 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index dee0352..ef3bcb1 100644
+index c05e8c4..dee0352 100644
 --- a/drivers/i2c/busses/i2c-ocores.c
 +++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -9,6 +9,41 @@
-  * kind, whether express or implied.
-  */
+@@ -253,22 +253,21 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	if (!res2)
+ 		return -ENODEV;
  
-+/*
-+ * Device tree configuration:
-+ *
-+ * Required properties:
-+ * - compatible      : "opencores,i2c-ocores"
-+ * - reg             : bus address start and address range size of device
-+ * - interrupts      : interrupt number
-+ * - regstep         : size of device registers in bytes
-+ * - clock-frequency : frequency of bus clock in Hz
-+ * 
-+ * Example:
-+ *
-+ *  i2c0: ocores@a0000000 {
-+ *              compatible = "opencores,i2c-ocores";
-+ *              reg = <0xa0000000 0x8>;
-+ *              interrupts = <10>;
-+ *
-+ *              regstep = <1>;
-+ *              clock-frequency = <20000000>;
-+ *
-+ * -- Devices connected on this I2C bus get
-+ * -- defined here; address- and size-cells
-+ * -- apply to these child devices
-+ *
-+ *              #address-cells = <1>;
-+ *              #size-cells = <0>;
-+ *
-+ *              dummy@60 {
-+ *                     compatible = "dummy";
-+ *                     reg = <60>;
-+ *              };
-+ *  };
-+ *
-+ */
-+
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
+-	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
++	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+-	if (!request_mem_region(res->start, resource_size(res),
+-				pdev->name)) {
++	if (!devm_request_mem_region(&pdev->dev, res->start,
++				     resource_size(res), pdev->name)) {
+ 		dev_err(&pdev->dev, "Memory region busy\n");
+-		ret = -EBUSY;
+-		goto request_mem_failed;
++		return -EBUSY;
+ 	}
+ 
+-	i2c->base = ioremap(res->start, resource_size(res));
++	i2c->base = devm_ioremap_nocache(&pdev->dev, res->start,
++					 resource_size(res));
+ 	if (!i2c->base) {
+ 		dev_err(&pdev->dev, "Unable to map registers\n");
+-		ret = -EIO;
+-		goto map_failed;
++		return -EIO;
+ 	}
+ 
+ 	pdata = pdev->dev.platform_data;
+@@ -284,10 +283,11 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	ocores_init(i2c);
+ 
+ 	init_waitqueue_head(&i2c->wait);
+-	ret = request_irq(res2->start, ocores_isr, 0, pdev->name, i2c);
++	ret = devm_request_irq(&pdev->dev, res2->start, ocores_isr, 0,
++			       pdev->name, i2c);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
+-		goto request_irq_failed;
++		return ret;
+ 	}
+ 
+ 	/* hook up driver to tree */
+@@ -303,7 +303,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to add adapter\n");
+-		goto add_adapter_failed;
++		return ret;
+ 	}
+ 
+ 	/* add in known devices to the bus */
+@@ -313,23 +313,11 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	return 0;
+-
+-add_adapter_failed:
+-	free_irq(res2->start, i2c);
+-request_irq_failed:
+-	iounmap(i2c->base);
+-map_failed:
+-	release_mem_region(res->start, resource_size(res));
+-request_mem_failed:
+-	kfree(i2c);
+-
+-	return ret;
+ }
+ 
+ static int __devexit ocores_i2c_remove(struct platform_device* pdev)
+ {
+ 	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
+-	struct resource *res;
+ 
+ 	/* disable i2c logic */
+ 	oc_setreg(i2c, OCI2C_CONTROL, oc_getreg(i2c, OCI2C_CONTROL)
+@@ -339,18 +327,6 @@ static int __devexit ocores_i2c_remove(struct platform_device* pdev)
+ 	i2c_del_adapter(&i2c->adap);
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (res)
+-		free_irq(res->start, i2c);
+-
+-	iounmap(i2c->base);
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res)
+-		release_mem_region(res->start, resource_size(res));
+-
+-	kfree(i2c);
+-
+ 	return 0;
+ }
+ 
 -- 
 1.7.1
