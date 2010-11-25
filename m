@@ -1,48 +1,57 @@
 From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 4/7] i2c/pxa2xx: add support for shared IRQ handler
-Date: Thu, 25 Nov 2010 11:48:30 +0100
-Message-ID: <4CEE3EFE.2080909@linutronix.de>
-References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>	<1290633617-15311-5-git-send-email-bigeasy@linutronix.de> <AANLkTik11gr1fg=vht2FYBpDZBBhxLXezS8ih752xj=5@mail.gmail.com>
+Subject: Re: [PATCH 6/7] i2c/pxa2xx: reset the chip if the bus is not free
+Date: Thu, 25 Nov 2010 13:24:39 +0100
+Message-ID: <4CEE5587.90109@linutronix.de>
+References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>	<1290633617-15311-7-git-send-email-bigeasy@linutronix.de>	<AANLkTikvN+==eTkoh7CTQyN0mbfvPhH6Uh9NX5QW7WFx@mail.gmail.com> <AANLkTi=8Xy3M7QGO54nt_r0_12z3+o8G5fAqQmxkTH4o@mail.gmail.com> <4CEE05A4.6030201@compulab.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTik11gr1fg=vht2FYBpDZBBhxLXezS8ih752xj=5@mail.gmail.com>
+In-Reply-To: <4CEE05A4.6030201-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Cc: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Haojian Zhuang wrote:
->> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> index dc66fde..7647361 100644
->> --- a/drivers/i2c/busses/i2c-pxa.c
->> +++ b/drivers/i2c/busses/i2c-pxa.c
->> @@ -905,11 +905,17 @@ static void i2c_pxa_irq_rxfull(struct pxa_i2c *i2c, u32 isr)
->>        writel(icr, _ICR(i2c));
->>  }
->>
->> +#define VALID_INT_SOURCE       (ISR_SSD | ISR_ALD | ISR_ITE | ISR_IRF | \
->> +                               ISR_SAD | ISR_BED)
->>  static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
->>  {
->>        struct pxa_i2c *i2c = dev_id;
->>        u32 isr = readl(_ISR(i2c));
->>
->> +       isr &= VALID_INT_SOURCE;
->> +       if (!isr)
->> +               return IRQ_NONE;
->> +
-> 
-> If you return at here, the valid interrupt status event won't be
-> cleared in IRQ handler. So I2C interrupt handler will be triggered at
-> next time.
+Igor Grinberg wrote:
+>  Hi,
+Hi,
 
-The point here is that I have a shared handler and I have to know if my
-i2c device issued an interrupt or another device. If I return here then it
-was not my i2c device bot some other device hanging on the same interrupt
-line.
-I can't simply test for !isr (without VALID_INT_SOURCE) because some bits
-in this register have nothing todo with the interrupt status as it.
+>>> Even you reset I2C controller, it shouldn't help you since bus isn't
+>>> free. I thinkt that you should reset I2C bus before you reseting I2C
+>>> controller.
+
+According to the register, IBB (bus busy) is cleared at this point. The
+only remaining flag is UB (unit busy) and RW mode.
+
+>> Excuse me that my previous comments are for PXA master mode.
+I am in master mode.
+
+>> I think that you're focused on pxa working on slave mode. But if pxa
+>> is working in master mode, it seems that we needn't reset I2C
+>> controller since it doesn't help.
+> 
+> As for PXA3xx, the Developer Manual states:
+> "Software must ensure that the TWSI unit is not busy (ISR[UB] = 0)
+> before it asserts a reset. Software must also ensure that the TWSI bus is idle (ISR[IBB] = 0)
+> when the unit is enabled after reset."
+
+My manual says more or less the same thing. It says "unit not busy" but
+quotes the IBB bit in braces. It is probably a typo.
+The register say: ISR=00000005, ICR=000017e0, IBMR=01
+So according to this I am not allowed to reset the I2C unit while it is
+busy.
+
+I tracked it down to the following: i2cdetect tries to read a byte from
+address 47. This fails because there is no device. Then it goes for 48
+which returns 0 (there is a device). The following read always fails. So I
+guess the device at 48 is still sending data. What is general rule of
+thumb in such a case?
+
+>>From my experience, in master mode resetting the controller
+> does not help and if the bus is busy for too much time,
+> there always was a h/w problem involved.
+
+Looks like it.
 
 Sebastian
