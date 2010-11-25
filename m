@@ -1,70 +1,94 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c/i2c-dev: use dynamic minor allocation
-Date: Wed, 24 Nov 2010 22:57:45 +0100
-Message-ID: <20101124225745.403d8f5f@endymion.delvare>
-References: <1290633788-25767-1-git-send-email-bigeasy@linutronix.de>
+From: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 4/7] i2c/pxa2xx: add support for shared IRQ handler
+Date: Thu, 25 Nov 2010 10:26:28 +0800
+Message-ID: <AANLkTik11gr1fg=vht2FYBpDZBBhxLXezS8ih752xj=5@mail.gmail.com>
+References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>
+	<1290633617-15311-5-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1290633788-25767-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+In-Reply-To: <1290633617-15311-5-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sebastian,
+On Thu, Nov 25, 2010 at 5:20 AM, Sebastian Andrzej Siewior
+<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
+> Sodaville has three of them on a single IRQ. IRQF_DISABLED is removed
+> because it is a NOP allready and scheduled for removal.
+>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+> =A0drivers/i2c/busses/i2c-pxa.c | =A0 10 ++++++++--
+> =A01 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
+a.c
+> index dc66fde..7647361 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -905,11 +905,17 @@ static void i2c_pxa_irq_rxfull(struct pxa_i2c *=
+i2c, u32 isr)
+> =A0 =A0 =A0 =A0writel(icr, _ICR(i2c));
+> =A0}
+>
+> +#define VALID_INT_SOURCE =A0 =A0 =A0 (ISR_SSD | ISR_ALD | ISR_ITE | =
+ISR_IRF | \
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ISR_SAD=
+ | ISR_BED)
+> =A0static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+> =A0{
+> =A0 =A0 =A0 =A0struct pxa_i2c *i2c =3D dev_id;
+> =A0 =A0 =A0 =A0u32 isr =3D readl(_ISR(i2c));
+>
+> + =A0 =A0 =A0 isr &=3D VALID_INT_SOURCE;
+> + =A0 =A0 =A0 if (!isr)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return IRQ_NONE;
+> +
 
-On Wed, 24 Nov 2010 22:23:08 +0100, Sebastian Andrzej Siewior wrote:
-> Right now i2c adapter 5 becomes minor 5 allocated. This is fine as long
-> as no adapter becomes a number > 256 allocated.
+If you return at here, the valid interrupt status event won't be
+cleared in IRQ handler. So I2C interrupt handler will be triggered at
+next time.
 
-Why would it be a problem to have a minor number > 256 (or more likely
-you meant > 255)? Minors beyond 8 bit are supported since quite some
-time, aren't they?
-
-> The Sodavile PCI driver uses (devfn << 3 | pci_bar) to come up with an
-> unique adapter number. So the first i2c adapter has the number 720.
-
-If you know that the first adapter has the number 720, then you could
-simply use (devfn << 3 | pci_bar) - 720 as the adapter number. I don't
-know how many such PCI devices a system can have, but presumably the
-256 minor limit would be sufficient.
-
-But my main question is: why do you want a unique (or you probably
-meant predictable - adapter numbers are already unique by design)
-adapter number in the first place? Other systems apparently are doing
-just fine without this.
-
-Also, what if another i2c adapter driver comes up with its own idea of how
-adapters should be numbered, and its numbering scheme collides with
-your driver?
-
-Fixed i2c adapter numbers are already supported, but it's up to the
-platform initialization code to define them, not the i2c adapter driver.
-
-> This patch introduces dynamic minor allocation so the minor first
-> registered i2c adapter will be zero, next one one and so on. The name
-> which is exported to userland remains the same i.e. /dev/i2c-10 for
-> adapter number 10 (but its minor number may be zero and not 10).
-
-Are there other subsystems doing this already?
-
-> I don't consider this as an ABI change however if someone does I could
-> add make this a CONFIG_ option and migrate in a year or so. i2c-tools
-> for instance abort on adapter number > 255 so we have to change this
-> in order to get the big numbers working.
-
-i2c-tools could be updated if needed. As for a CONFIG option,
-CONFIG_I2C_COMPAT could be used for this. But at this point I still
-need to be convinced that there's a need at all.
-
-> Since the minors are not allocated dynamically I lowered the number of
-> max i2c devices to 32 so I don't waste much memory for the allocation.
-> If one has more than 32 devices then we could increase this again :)
-
-Systems with more than 32 I2C adapters already exist, so lowering to 32
-is not acceptable.
-
--- 
-Jean Delvare
+> =A0 =A0 =A0 =A0if (i2c_debug > 2 && 0) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&i2c->adap.dev, "%s: ISR=3D%08=
+x, ICR=3D%08x, IBMR=3D%02x\n",
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__func__, isr, readl(_=
+ICR(i2c)), readl(_IBMR(i2c)));
+> @@ -924,7 +930,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, =
+void *dev_id)
+> =A0 =A0 =A0 =A0/*
+> =A0 =A0 =A0 =A0 * Always clear all pending IRQs.
+> =A0 =A0 =A0 =A0 */
+> - =A0 =A0 =A0 writel(isr & (ISR_SSD|ISR_ALD|ISR_ITE|ISR_IRF|ISR_SAD|I=
+SR_BED), _ISR(i2c));
+> + =A0 =A0 =A0 writel(isr, _ISR(i2c));
+>
+> =A0 =A0 =A0 =A0if (isr & ISR_SAD)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_pxa_slave_start(i2c, isr);
+> @@ -1062,7 +1068,7 @@ static int i2c_pxa_probe(struct platform_device=
+ *dev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c->adap.algo =3D &i2c_pxa_pio_algori=
+thm;
+> =A0 =A0 =A0 =A0} else {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c->adap.algo =3D &i2c_pxa_algorithm;
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D request_irq(irq, i2c_pxa_handle=
+r, IRQF_DISABLED,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D request_irq(irq, i2c_pxa_handle=
+r, IRQF_SHARED,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2=
+c->adap.name, i2c);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (ret)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto ereqirq;
+> --
+> 1.7.3.2
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>
