@@ -1,46 +1,117 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/7] i2c/pxa2xx: Don't touch ISAR if not in slave mode
-Date: Thu, 25 Nov 2010 23:52:56 +0000
-Message-ID: <20101125235255.GB15948@trinity.fluff.org>
-References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de> <1290633617-15311-2-git-send-email-bigeasy@linutronix.de>
+Subject: Re: [PATCH 2/7] arm/pxa2xx: reorganize I2C files
+Date: Thu, 25 Nov 2010 23:55:20 +0000
+Message-ID: <20101125235520.GC15948@trinity.fluff.org>
+References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de> <1290633617-15311-3-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1290633617-15311-2-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+In-Reply-To: <1290633617-15311-3-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 24, 2010 at 10:20:11PM +0100, Sebastian Andrzej Siewior wrote:
-> The reset functions sets writes the slave address even in not slave
-> mode. I don't see any reason in writting it if slave mode is not
-> enabled.
-> I have here a PXA-I2C variant where this register is not availbale and
-> as such can not be touched.
+On Wed, Nov 24, 2010 at 10:20:12PM +0100, Sebastian Andrzej Siewior wrote:
+> This patch moves the register definitions into include/asm so it can be
+> accessed from X86 the same way as on ARM. This move also alters the
+> unused register offset definitins (IBMR, ...) and uses them in the
+> calculation macros (_IBMR,...).
+> The header file from plat-pxa is moved the include/linux for the same
+> reason.
+> This change should make no functional change to the PXA code. The move
+> is verified by building the following defconfigs:
+>   cm_x2xx_defconfig corgi_defconfig em_x270_defconfig ezx_defconfig
+>   imote2_defconfig pxa3xx_defconfig spitz_defconfig zeus_defconfig
+>   raumfeld_defconfig magician_defconfig mmp2_defconfig pxa168_defconfig
+>   pxa910_defconfig
 > 
 > Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 > Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-pxa.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+>  arch/arm/include/asm/pxa_i2c.h                     |   19 +++++++++++++++++++
+>  arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
+>  arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
+>  arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
+>  arch/arm/mach-pxa/balloon3.c                       |    3 +--
+>  arch/arm/mach-pxa/cm-x300.c                        |    2 +-
+>  arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +--
+>  arch/arm/mach-pxa/corgi.c                          |    2 +-
+>  arch/arm/mach-pxa/csb726.c                         |    2 +-
+>  arch/arm/mach-pxa/devices.c                        |    2 +-
+>  arch/arm/mach-pxa/em-x270.c                        |    2 +-
+>  arch/arm/mach-pxa/ezx.c                            |    2 +-
+>  arch/arm/mach-pxa/hx4700.c                         |    2 +-
+>  arch/arm/mach-pxa/littleton.c                      |    2 +-
+>  arch/arm/mach-pxa/magician.c                       |    2 +-
+>  arch/arm/mach-pxa/mainstone.c                      |    2 +-
+>  arch/arm/mach-pxa/mioa701.c                        |    2 +-
+>  arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
+>  arch/arm/mach-pxa/palm27x.c                        |    3 +--
+>  arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
+>  arch/arm/mach-pxa/poodle.c                         |    2 +-
+>  arch/arm/mach-pxa/pxa27x.c                         |    2 +-
+>  arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
+>  arch/arm/mach-pxa/raumfeld.c                       |    2 +-
+>  arch/arm/mach-pxa/saar.c                           |    2 +-
+>  arch/arm/mach-pxa/spitz.c                          |    3 +--
+>  arch/arm/mach-pxa/stargate2.c                      |    2 +-
+>  arch/arm/mach-pxa/tavorevb3.c                      |    3 +--
+>  arch/arm/mach-pxa/tosa.c                           |    2 +-
+>  arch/arm/mach-pxa/trizeps4.c                       |    2 +-
+>  arch/arm/mach-pxa/viper.c                          |    2 +-
+>  arch/arm/mach-pxa/vpac270.c                        |    3 +--
+>  arch/arm/mach-pxa/xcep.c                           |    3 +--
+>  arch/arm/mach-pxa/z2.c                             |    3 +--
+>  arch/arm/mach-pxa/zeus.c                           |    3 +--
+>  arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
+>  drivers/i2c/busses/i2c-pxa.c                       |   16 ++--------------
+>  .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    1 +
+>  38 files changed, 57 insertions(+), 58 deletions(-)
+>  create mode 100644 arch/arm/include/asm/pxa_i2c.h
+>  rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (99%)
 > 
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index f4c19a9..579c8a8 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -418,7 +418,9 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->  	writel(I2C_ISR_INIT, _ISR(i2c));
->  	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
->  
-> +#ifdef CONFIG_I2C_PXA_SLAVE
->  	writel(i2c->slave_addr, _ISAR(i2c));
+> diff --git a/arch/arm/include/asm/pxa_i2c.h b/arch/arm/include/asm/pxa_i2c.h
+> new file mode 100644
+> index 0000000..f6da8a1
+> --- /dev/null
+> +++ b/arch/arm/include/asm/pxa_i2c.h
+> @@ -0,0 +1,19 @@
+> +#ifndef __ASM_PXA_I2C_H__
+> +#define __ASM_PXA_I2C_H__
+> +
+> +/*
+> + * I2C registers definitions
+> + */
+> +#define IBMR		(0x00)
+> +#define IDBR		(0x04)
+> +#define ICR		(0x08)
+> +#define ISR		(0x0c)
+> +#define ISAR		(0x10)
+> +
+> +#define _IBMR(i2c)	((i2c)->reg_base + (IBMR << (i2c)->reg_shift))
+> +#define _IDBR(i2c)	((i2c)->reg_base + (IDBR << (i2c)->reg_shift))
+> +#define _ICR(i2c)	((i2c)->reg_base + (ICR << (i2c)->reg_shift))
+> +#define _ISR(i2c)	((i2c)->reg_base + (ISR << (i2c)->reg_shift))
+> +#define _ISAR(i2c)	((i2c)->reg_base + (ISAR << (i2c)->reg_shift))
+> +
 > +#endif
+> diff --git a/arch/arm/mach-mmp/include/mach/mmp2.h b/arch/arm/mach-mmp/include/mach/mmp2.h
+> index dbba6e8..95adfea 100644
+> --- a/arch/arm/mach-mmp/include/mach/mmp2.h
+> +++ b/arch/arm/mach-mmp/include/mach/mmp2.h
+> @@ -9,8 +9,8 @@ extern void __init mmp2_init_irq(void);
+>  extern void mmp2_clear_pmic_int(void);
+>  
+>  #include <linux/i2c.h>
+> +#include <linux/i2c/pxa-i2c.h>
+>  #include <mach/devices.h>
+> -#include <plat/i2c.h>
 
-I was thinking about whether to add a flag to this to say whether the
-slave_addr field is valid, but to keep full compatiblity with the existing
-pxa users, we'd have to go and change every board using it.
+Anyone an opinion on whther to alter all arch-arm machine includes
+or add a re-direct of plat/i2c.h to linux/i2c/pxa-i2c.h
+
 
 -- 
 Ben
