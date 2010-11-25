@@ -1,57 +1,76 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+From: Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
 Subject: Re: [PATCH 6/7] i2c/pxa2xx: reset the chip if the bus is not free
-Date: Thu, 25 Nov 2010 13:24:39 +0100
-Message-ID: <4CEE5587.90109@linutronix.de>
-References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>	<1290633617-15311-7-git-send-email-bigeasy@linutronix.de>	<AANLkTikvN+==eTkoh7CTQyN0mbfvPhH6Uh9NX5QW7WFx@mail.gmail.com> <AANLkTi=8Xy3M7QGO54nt_r0_12z3+o8G5fAqQmxkTH4o@mail.gmail.com> <4CEE05A4.6030201@compulab.co.il>
+Date: Thu, 25 Nov 2010 15:10:05 +0200
+Message-ID: <4CEE602D.5090501@compulab.co.il>
+References: <1290633617-15311-1-git-send-email-bigeasy@linutronix.de>	<1290633617-15311-7-git-send-email-bigeasy@linutronix.de>	<AANLkTikvN+==eTkoh7CTQyN0mbfvPhH6Uh9NX5QW7WFx@mail.gmail.com> <AANLkTi=8Xy3M7QGO54nt_r0_12z3+o8G5fAqQmxkTH4o@mail.gmail.com> <4CEE05A4.6030201@compulab.co.il> <4CEE5587.90109@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4CEE05A4.6030201-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+In-Reply-To: <4CEE5587.90109-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Cc: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Igor Grinberg wrote:
->  Hi,
-Hi,
+ On 11/25/10 14:24, Sebastian Andrzej Siewior wrote:
+> Igor Grinberg wrote:
+>>  Hi,
+> Hi,
+>
+>>>> Even you reset I2C controller, it shouldn't help you since bus isn't
+>>>> free. I thinkt that you should reset I2C bus before you reseting I2C
+>>>> controller.
+>
+> According to the register, IBB (bus busy) is cleared at this point. The
+> only remaining flag is UB (unit busy) and RW mode.
+>
+>>> Excuse me that my previous comments are for PXA master mode.
+> I am in master mode.
+>
+>>> I think that you're focused on pxa working on slave mode. But if pxa
+>>> is working in master mode, it seems that we needn't reset I2C
+>>> controller since it doesn't help.
+>>
+>> As for PXA3xx, the Developer Manual states:
+>> "Software must ensure that the TWSI unit is not busy (ISR[UB] = 0)
+>> before it asserts a reset. Software must also ensure that the TWSI bus is idle (ISR[IBB] = 0)
+>> when the unit is enabled after reset."
+>
+> My manual says more or less the same thing. It says "unit not busy" but
+> quotes the IBB bit in braces. It is probably a typo.
+> The register say: ISR=00000005, ICR=000017e0, IBMR=01
+> So according to this I am not allowed to reset the I2C unit while it is
+> busy.
+>
+> I tracked it down to the following: i2cdetect tries to read a byte from
+> address 47. This fails because there is no device. Then it goes for 48
+> which returns 0 (there is a device). The following read always fails. So I
+> guess the device at 48 is still sending data. What is general rule of
+> thumb in such a case?
 
->>> Even you reset I2C controller, it shouldn't help you since bus isn't
->>> free. I thinkt that you should reset I2C bus before you reseting I2C
->>> controller.
+I don't think there is such a rule for this case, as if we "believe" the
+Developer Manual, but do the opposite - we can get into trouble...
+IMHO, at least we need to report a problem.
 
-According to the register, IBB (bus busy) is cleared at this point. The
-only remaining flag is UB (unit busy) and RW mode.
+Or may be in some way reset the slave device,
+if there is such an option available outside the i2c scope...
+(Yeah, I know this is a crazy idea...)
 
->> Excuse me that my previous comments are for PXA master mode.
-I am in master mode.
+>
+>>> From my experience, in master mode resetting the controller
+>> does not help and if the bus is busy for too much time,
+>> there always was a h/w problem involved.
+>
+> Looks like it.
 
->> I think that you're focused on pxa working on slave mode. But if pxa
->> is working in master mode, it seems that we needn't reset I2C
->> controller since it doesn't help.
-> 
-> As for PXA3xx, the Developer Manual states:
-> "Software must ensure that the TWSI unit is not busy (ISR[UB] = 0)
-> before it asserts a reset. Software must also ensure that the TWSI bus is idle (ISR[IBB] = 0)
-> when the unit is enabled after reset."
+1) Well, you should check if you have a pull-up resistors on that bus.
+2) Or if the slave device chip is broken, then it should be replaced.
 
-My manual says more or less the same thing. It says "unit not busy" but
-quotes the IBB bit in braces. It is probably a typo.
-The register say: ISR=00000005, ICR=000017e0, IBMR=01
-So according to this I am not allowed to reset the I2C unit while it is
-busy.
+>
+> Sebastian
+>
 
-I tracked it down to the following: i2cdetect tries to read a byte from
-address 47. This fails because there is no device. Then it goes for 48
-which returns 0 (there is a device). The following read always fails. So I
-guess the device at 48 is still sending data. What is general rule of
-thumb in such a case?
-
->>From my experience, in master mode resetting the controller
-> does not help and if the bus is busy for too much time,
-> there always was a h/w problem involved.
-
-Looks like it.
-
-Sebastian
+-- 
+Regards,
+Igor.
