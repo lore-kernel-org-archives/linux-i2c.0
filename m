@@ -1,138 +1,74 @@
-From: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Subject: [PATCH 1/3] i2c i2c-mv64xxx: send repeated START between messages in xfer
-Date: Fri, 26 Nov 2010 17:06:56 +0100
-Message-ID: <1290787616-27106-1-git-send-email-giometti@linux.it>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: [sodaville] [PATCH] i2c/i2c-dev: use dynamic minor allocation
+Date: Fri, 26 Nov 2010 19:03:25 +0100
+Message-ID: <20101126180325.GA27332@www.tglx.de>
+References: <1290633788-25767-1-git-send-email-bigeasy@linutronix.de> <20101124225745.403d8f5f@endymion.delvare> <4CEE3DEA.7040107@linutronix.de> <20101125225246.59931602@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20101125225246.59931602-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: "Mark A. Greer" <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-As stated into file include/linux/i2c.h we must send a repeated START
-between messages in the same xfer groupset:
+* Jean Delvare | 2010-11-25 22:52:46 [+0100]:
 
- * Except when I2C "protocol mangling" is used, all I2C adapters implement
- * the standard rules for I2C transactions.  Each transaction begins with a
- * START.  That is followed by the slave address, and a bit encoding read
- * versus write.  Then follow all the data bytes, possibly including a byte
- * with SMBus PEC.  The transfer terminates with a NAK, or when all those
- * bytes have been transferred and ACKed.  If this is the last message in a
- * group, it is followed by a STOP.  Otherwise it is followed by the next
- * @i2c_msg transaction segment, beginning with a (repeated) START.
+>Hi Sebastian,
+Hi Jean,
 
-Signed-off-by: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
-Signed-off-by: Mauro Barella <mbarella-RSoB1PSltFvQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-mv64xxx.c |   45 ++++++++++++++++++++++++++++++++------
- 1 files changed, 38 insertions(+), 7 deletions(-)
+>> > But my main question is: why do you want a unique (or you probably
+>> > meant predictable - adapter numbers are already unique by design)
+>> > adapter number in the first place? Other systems apparently are doing
+>> > just fine without this.
+>>
+>> Both. I use this number for the device id. This one has to remain unique
+>> or sysfs goes crazy.
+>
+>Which "device id" are you talking about, please? Of course sysfs
+The pci driver [0] has in add_i2c_device() the following construct:
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index c965a24..2cbc5ee 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -59,6 +59,7 @@ enum {
- 	MV64XXX_I2C_STATE_INVALID,
- 	MV64XXX_I2C_STATE_IDLE,
- 	MV64XXX_I2C_STATE_WAITING_FOR_START_COND,
-+	MV64XXX_I2C_STATE_WAITING_FOR_RESTART,
- 	MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK,
- 	MV64XXX_I2C_STATE_WAITING_FOR_ADDR_2_ACK,
- 	MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_ACK,
-@@ -70,6 +71,7 @@ enum {
- 	MV64XXX_I2C_ACTION_INVALID,
- 	MV64XXX_I2C_ACTION_CONTINUE,
- 	MV64XXX_I2C_ACTION_SEND_START,
-+	MV64XXX_I2C_ACTION_SEND_RESTART,
- 	MV64XXX_I2C_ACTION_SEND_ADDR_1,
- 	MV64XXX_I2C_ACTION_SEND_ADDR_2,
- 	MV64XXX_I2C_ACTION_SEND_DATA,
-@@ -91,6 +93,7 @@ struct mv64xxx_i2c_data {
- 	u32			addr2;
- 	u32			bytes_left;
- 	u32			byte_posn;
-+	u32			send_stop;
- 	u32			block;
- 	int			rc;
- 	u32			freq_m;
-@@ -159,8 +162,15 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
- 		if ((drv_data->bytes_left == 0)
- 				|| (drv_data->aborting
- 					&& (drv_data->byte_posn != 0))) {
--			drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
--			drv_data->state = MV64XXX_I2C_STATE_IDLE;
-+			if (drv_data->send_stop) {
-+				drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
-+				drv_data->state = MV64XXX_I2C_STATE_IDLE;
-+			} else {
-+				drv_data->action =
-+					MV64XXX_I2C_ACTION_SEND_RESTART;
-+				drv_data->state =
-+					MV64XXX_I2C_STATE_WAITING_FOR_RESTART;
-+			}
- 		} else {
- 			drv_data->action = MV64XXX_I2C_ACTION_SEND_DATA;
- 			drv_data->state =
-@@ -228,6 +238,15 @@ static void
- mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- {
- 	switch(drv_data->action) {
-+	case MV64XXX_I2C_ACTION_SEND_RESTART:
-+		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
-+		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
-+		writel(drv_data->cntl_bits,
-+			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-+		drv_data->block = 0;
-+		wake_up_interruptible(&drv_data->waitq);
-+		break;
-+
- 	case MV64XXX_I2C_ACTION_CONTINUE:
- 		writel(drv_data->cntl_bits,
- 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-@@ -386,7 +405,8 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
- }
- 
- static int
--mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
-+mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
-+				int is_first, int is_last)
- {
- 	unsigned long	flags;
- 
-@@ -406,10 +426,18 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
- 			drv_data->bytes_left--;
- 		}
- 	} else {
--		drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
--		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
-+		if (is_first) {
-+			drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
-+			drv_data->state =
-+				MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
-+		} else {
-+			drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_1;
-+			drv_data->state =
-+				MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK;
-+		}
- 	}
- 
-+	drv_data->send_stop = is_last;
- 	drv_data->block = 1;
- 	mv64xxx_i2c_do_action(drv_data);
- 	spin_unlock_irqrestore(&drv_data->lock, flags);
-@@ -437,9 +465,12 @@ mv64xxx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	struct mv64xxx_i2c_data *drv_data = i2c_get_adapdata(adap);
- 	int	i, rc;
- 
--	for (i=0; i<num; i++)
--		if ((rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[i])) < 0)
-+	for (i = 0; i < num; i++) {
-+		rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[i],
-+						i == 0, i + 1 == num);
-+		if (rc < 0)
- 			return rc;
-+	}
- 
- 	return num;
- }
--- 
-1.7.1
+     pdev->id = dev->devfn << 3 | bar;
+
+I'm talking about this device id. Here I have to remain unique and here I
+though using the pci id would be a good idea. There should be no other
+device using "pxa2xx-i2c" as the device name so I should be safe here.
+
+>doesn't accept duplicate entries, but as I said already, uniqueness is
+
+>Precisions, please. "Match my board description" is awfully vague.
+>Don't hesitate to be technical, I'm sure I can understand you ;)
+Sorry didn't meant to. As you probably know, by "board description" I
+meant struct i2c_board_info & i2c_register_board_info(). This is now
+covered by of_i2c_register_devices(&i2c->adap)
+
+>> > Also, what if another i2c adapter driver comes up with its own idea of how
+>> > adapters should be numbered, and its numbering scheme collides with
+>> > your driver?
+>>
+>> Too bad. I though that I will be on the safe side using using the PCI
+>> slot+device number.
+>
+>This can't be safe until all devices in the world are PCI devices and
+>all i2c drivers agree to stick to this rule (i.e. it is enforced by
+>i2c-core.) This isn't going to happen anytime soon, I'm afraid.
+Now I see what you mean.
+
+>> > Fixed i2c adapter numbers are already supported, but it's up to the
+>> > platform initialization code to define them, not the i2c adapter driver.
+>>
+>> I don't want platform init code.
+>
+>Why? This is what (almost) everybody does when predictable i2c adapter
+>numbers are needed. And you said you have platform data, so presumably
+>you already have some form of platform init code (even if it's generic
+>code with a custom device tree.)
+
+This sounds good. So I get "pdev->id" from the device tree which should
+solve my trouble I have so far.
+Thank you.
+
+[0] http://article.gmane.org/gmane.linux.drivers.i2c/7260
+
+Sebastian
