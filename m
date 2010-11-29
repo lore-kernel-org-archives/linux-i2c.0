@@ -1,72 +1,38 @@
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
-Subject: [PATCH] i2c-iop3xx: add iomem annotation
-Date: Sun, 28 Nov 2010 18:07:00 +0200
-Message-ID: <1290960420-7484-1-git-send-email-aaro.koskinen@iki.fi>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: aaro.koskinen@iki.fi
+From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] i2c-nomadik: fix regression on adapter name
+Date: Mon, 29 Nov 2010 10:35:35 +0100
+Message-ID: <1291023335-6430-1-git-send-email-linus.walleij@stericsson.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Eliminate unnecessary casts and the following sparse warnings:
+The Nomadik I2C adapter does not provide a name for the struct
+passed into i2c_add_numbered_adapter() causing a regression on
+2.6.37-rc3 due to commit 2236baa75f704851d3cd3310569058151acb1f06
+adding sanity checks for adapters. Fix this by providing a name
+proper.
 
-	drivers/i2c/busses/i2c-iop3xx.c:65:9: warning: incorrect type in argument 1 (different base types)
-	drivers/i2c/busses/i2c-iop3xx.c:65:9:    expected void const volatile [noderef] <asn:2>*<noident>
-	drivers/i2c/busses/i2c-iop3xx.c:65:9:    got unsigned int
-
-	[ the previous warning is repeated 18 times ]
-
-	drivers/i2c/busses/i2c-iop3xx.c:456:33: warning: cast removes address space of expression
-
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-iop3xx.c |    6 +++---
- drivers/i2c/busses/i2c-iop3xx.h |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 112c61f..f09c931 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -409,7 +409,7 @@ iop3xx_i2c_remove(struct platform_device *pdev)
- 		IOP3XX_ICR_RXFULL_IE | IOP3XX_ICR_TXEMPTY_IE);
- 	__raw_writel(cr, adapter_data->ioaddr + CR_OFFSET);
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index c9fffd0..f34a276 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -872,6 +872,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 	adap->owner	= THIS_MODULE;
+ 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo	= &nmk_i2c_algo;
++	strncpy(adap->name, DRIVER_NAME, sizeof(adap->name));
  
--	iounmap((void __iomem*)adapter_data->ioaddr);
-+	iounmap(adapter_data->ioaddr);
- 	release_mem_region(res->start, IOP3XX_I2C_IO_SIZE);
- 	kfree(adapter_data);
- 	kfree(padapter);
-@@ -453,7 +453,7 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	/* set the adapter enumeration # */
- 	adapter_data->id = i2c_id++;
- 
--	adapter_data->ioaddr = (u32)ioremap(res->start, IOP3XX_I2C_IO_SIZE);
-+	adapter_data->ioaddr = ioremap(res->start, IOP3XX_I2C_IO_SIZE);
- 	if (!adapter_data->ioaddr) {
- 		ret = -ENOMEM;
- 		goto release_region;
-@@ -498,7 +498,7 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	return 0;
- 
- unmap:
--	iounmap((void __iomem*)adapter_data->ioaddr);
-+	iounmap(adapter_data->ioaddr);
- 
- release_region:
- 	release_mem_region(res->start, IOP3XX_I2C_IO_SIZE);
-diff --git a/drivers/i2c/busses/i2c-iop3xx.h b/drivers/i2c/busses/i2c-iop3xx.h
-index 8485861..a63b9f1 100644
---- a/drivers/i2c/busses/i2c-iop3xx.h
-+++ b/drivers/i2c/busses/i2c-iop3xx.h
-@@ -97,7 +97,7 @@
- #define	IOP3XX_I2C_IO_SIZE	0x18
- 
- struct i2c_algo_iop3xx_data {
--	u32 ioaddr;
-+	char __iomem *ioaddr;
- 	wait_queue_head_t waitq;
- 	spinlock_t lock;
- 	u32 SR_enabled, SR_received;
+ 	/* fetch the controller id */
+ 	adap->nr	= pdev->id;
 -- 
-1.5.6.5
+1.7.3.2
