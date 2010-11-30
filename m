@@ -1,64 +1,91 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-nomadik: fix regression on adapter name
-Date: Tue, 30 Nov 2010 17:03:31 +0100
-Message-ID: <20101130170331.71beae52@endymion.delvare>
-References: <1291132769-20775-1-git-send-email-linus.walleij@stericsson.com>
+Subject: Re: [PATCHv4] i2c: add generic I2C multiplexer using gpio api
+Date: Tue, 30 Nov 2010 17:15:39 +0100
+Message-ID: <20101130171539.73e8e799@endymion.delvare>
+References: <1291125788-9433-1-git-send-email-peter.korsgaard@barco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1291132769-20775-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+In-Reply-To: <1291125788-9433-1-git-send-email-peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 30 Nov 2010 16:59:29 +0100, Linus Walleij wrote:
-> The Nomadik I2C adapter does not provide a name for the struct
-> passed into i2c_add_numbered_adapter() causing a regression on
-> 2.6.37-rc3 due to commit 2236baa75f704851d3cd3310569058151acb1f06
-> adding sanity checks for adapters. Fix this by providing a name
-> proper.
+Hi Peter,
+
+On Tue, 30 Nov 2010 15:03:08 +0100, Peter Korsgaard wrote:
+> Add an i2c mux driver providing access to i2c bus segments using a
+> hardware MUX sitting on a master bus and controlled through gpio pins.
 > 
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Ben, please apply.
-
-> Signed-off-by: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> ---
-> Second version - giving an adapter name that provides the instance
-> number and resource address.
-> ---
->  drivers/i2c/busses/i2c-nomadik.c |    6 ++++--
->  1 files changed, 4 insertions(+), 2 deletions(-)
+> E.G. something like:
 > 
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-> index c9fffd0..f7148fd 100644
-> --- a/drivers/i2c/busses/i2c-nomadik.c
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
-> @@ -872,6 +872,8 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
->  	adap->owner	= THIS_MODULE;
->  	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
->  	adap->algo	= &nmk_i2c_algo;
-> +	snprintf(adap->name, sizeof(adap->name),
-> +		 "Nomadik I2C%d at %lx", pdev->id, (unsigned long)res->start);
->  
->  	/* fetch the controller id */
->  	adap->nr	= pdev->id;
-> @@ -891,8 +893,8 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
->  		goto err_init_hw;
->  	}
->  
-> -	dev_dbg(&pdev->dev, "initialize I2C%d bus on virtual "
-> -		"base %p\n", pdev->id, dev->virtbase);
-> +	dev_info(&pdev->dev, "initialize %s on virtual "
-> +		"base %p\n", adap->name, dev->virtbase);
->  
->  	ret = i2c_add_numbered_adapter(adap);
->  	if (ret) {
+>   ----------              ----------  Bus segment 1   - - - - -
+>  |          | SCL/SDA    |          |-------------- |           |
+>  |          |------------|          |
+>  |          |            |          | Bus segment 2 |           |
+>  |  Linux   | GPIO 1..N  |   MUX    |---------------   Devices
+>  |          |------------|          |               |           |
+>  |          |            |          | Bus segment M
+>  |          |            |          |---------------|           |
+>   ----------              ----------                  - - - - -
+> 
+> SCL/SDA of the master I2C bus is multiplexed to bus segment 1..M
+> according to the settings of the GPIO pins 1..N.
 
+I've fixed two remaining minor things myself, and your patch is ready
+to be applied now, except for one issue I just noticed. See below.
+
+> (..)
+> --- /dev/null
+> +++ b/Documentation/i2c/muxes/gpio-i2cmux
+> (...)
+> +Usage
+> +-----
+> +
+> +gpio-i2cmux uses the platform bus, so you need to provide a struct
+> +platform_device with the platform_data pointing to a struct
+> +gpio_i2cmux_platform_data with the I2C adapter number of the master
+> +bus, the number bus segments to create and the GPIO pins used
+
+"of" got lost in the battle, I've added it back.
+
+> +to control it. See include/linux/gpio-i2cmux.h for details.
+
+> (...)
+> --- /dev/null
+> +++ b/drivers/i2c/muxes/gpio-i2cmux.c
+> (...)
+> +	for (i = 0; i < pdata->n_gpios; i++) {
+> +		ret = gpio_request(pdata->gpios[i], "gpio-i2cmux");
+> +		if (ret)
+> +			goto err_request_gpio;
+> +		gpio_direction_output(pdata->gpios[i], pdata->idle & (1 << i));
+
+This looks wrong if pdata->idle == GPIO_I2CMUX_NO_IDLE. I think we want
+something along the lines of:
+
+	unsigned initial_state;
+
+	initial_state = pdata->idle == GPIO_I2CMUX_NO_IDLE ?
+			pdata->values[0] : pdata->idle;
+
+		(...)
+		gpio_direction_output(pdata->gpios[i], initial_state & (1 << i));
+
+What do you think? An alternative is to leave the direction
+uninitialized and hope it's already OK, but I'm not sure how realistic
+this is.
+
+> +	}
+> +
+> +
+
+Double blank line, I've removed one.
+
+> +	if (pdata->idle != GPIO_I2CMUX_NO_IDLE)
+> +		deselect = gpiomux_deselect;
 
 -- 
 Jean Delvare
