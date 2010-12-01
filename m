@@ -1,68 +1,79 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCHv4] i2c: add generic I2C multiplexer using gpio api
-Date: Tue, 30 Nov 2010 21:03:07 +0100
-Message-ID: <20101130210307.000f98fd@endymion.delvare>
-References: <1291125788-9433-1-git-send-email-peter.korsgaard@barco.com>
-	<20101130171539.73e8e799@endymion.delvare>
-	<871v62y4ts.fsf@macbook.be.48ers.dk>
+From: "Matthias Zacharias" <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
+Subject: Antw: Re: Need help to fix some issues with the linux driver
+	 "i2c-gpio"
+Date: Wed, 01 Dec 2010 09:55:02 +0100
+Message-ID: <4CF61B76020000AA000080D7@center.bmk-electronics.de>
+References: <4CF4DF5E020000AA0000808F@center.bmk-electronics.de>
+ <AANLkTik9rHn0QE3MzD-yViMPw2hm0VpFRjch-hf6n_xZ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <871v62y4ts.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
+In-Reply-To: <AANLkTik9rHn0QE3MzD-yViMPw2hm0VpFRjch-hf6n_xZ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org
+To: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
+Thank you for the fast reply.
+=20
+I checked the clock speed, It can be changed in the specified limits
+for MLX90614 with similar results in the data output.
+=20
+Using an I2C analyzer I was able to see that SCL stretching occures on
+unpredictable times. If these SCL stretching is on specific point in th=
+e
+communication process or match the one of the SMbus timeout condition
+unpredictable data is output, with out any error from the I2C subsystem=
+=2E
+Only the "i2c-adapter i2c-0: sendbytes: NAK bailout." message is
+correctly thrown.
+=20
+best regards
+Matthias Zacharias
+matthias.zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org=20
 
-On Tue, 30 Nov 2010 20:44:15 +0100, Peter Korsgaard wrote:
-> >>>>> "Jean" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
->  >> +	for (i = 0; i < pdata->n_gpios; i++) {
->  >> +		ret = gpio_request(pdata->gpios[i], "gpio-i2cmux");
->  >> +		if (ret)
->  >> +			goto err_request_gpio;
->  >> +		gpio_direction_output(pdata->gpios[i], pdata->idle & (1 << i));
-> 
->  Jean> This looks wrong if pdata->idle == GPIO_I2CMUX_NO_IDLE. I think we want
->  Jean> something along the lines of:
-> 
->  Jean> 	unsigned initial_state;
-> 
->  Jean> 	initial_state = pdata->idle == GPIO_I2CMUX_NO_IDLE ?
->  Jean>       pdata->values[0] : pdata->idle;
-> 
->  Jean> 		(...)
->  Jean> 		gpio_direction_output(pdata->gpios[i], initial_state & (1 << i));
-> 
->  Jean> What do you think? An alternative is to leave the direction
->  Jean> uninitialized and hope it's already OK, but I'm not sure how realistic
->  Jean> this is.
-> 
-> Yeah, going for values[0] is probably the most sensible thing to do if
-> we don't have an idle state. Relying on the firmware to setup the right
-> direction in advance is imho not that nice.
-> 
-> Will you do the change yourself, or should I resend the patch?
+>>> Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org> 30.11.2010 17:44 >>>
+Is the i2c clock speed in spec with the slave part(s)?
 
-I will do it, I was just waiting for you to confirm you agreed with my
-analysis and proposal.
+I have seen weird things happen when the clock speed is wrong,
+especially when it's too fast...
 
->  >> +	if (pdata->idle != GPIO_I2CMUX_NO_IDLE)
->  >> +		deselect = gpiomux_deselect;
-> 
-> We could probably move this up and add the assignment of init_state to
-> this contional, instead of testing against GPIO_I2CMUX_NO_IDLE twice.
 
-Yes of course. The above was kind of pseudo code to express my
-proposal, not the definitive code.
 
-I've added your patch to my i2c tree, it's now scheduled for merge in
-kernel 2.6.38-rc1:
-ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/i2c-add-generic-i2c-multiplexer-using-gpio-api.patch
+b.g.
+--=20
+Bill Gatliff
+bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org
 
-Thanks for your contribution!
+--------------------
+BMK electronic solutions GmbH
+Werner-von-Siemens-Str. 6, Eingang 18 f
+D-86159 Augsburg
+Tel. +49 (0) 821 / 207 88 - 700
+=46ax +49 (0) 821 / 207 88 - 721
+info-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org
+Gesch=C3=A4ftsf=C3=BChrer: Dipl.-oec. Alois Kn=C3=B6ferle
+Sitz: Augsburg
+HR-Nr.: B21197
+---------------------
 
--- 
-Jean Delvare
+Diese E-mail kann vertrauliche Informationen enthalten. Falls Sie diese
+E-Mail irrt=C3=BCmlich erhalten haben, informieren Sie bitte unverz=C3=BC=
+glich den
+Absender und l=C3=B6schen Sie diese E-Mail von jedem Rechner, auch von =
+den
+Mailservern. Jede Verbreitung des Inhalts, auch die teilweise
+Verbreitung, ist in diesem Fall untersagt. Au=C3=9Fer bei Vorsatz oder =
+grober
+=46ahrl=C3=A4ssigkeit schliessen wir jegliche Haftung f=C3=BCr Verluste=
+ oder Sch=C3=A4den
+aus, die durch Viren befallene Software oder E-Mails verursacht werden.
+
+This e-mail may contain confidential information. If you received this
+e-mail in error, please contact the sender and delete this e-mail from
+your computer, including your mailservers. Any dissemination, even
+partly, is prohibited. Except in case of gross negligence or wilful
+misconduct we accept no liability for any loss or damage caused by
+software or e-mail viruses.
