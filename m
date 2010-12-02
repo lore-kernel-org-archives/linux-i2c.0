@@ -1,134 +1,92 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Need help to fix some issues with the linux driver   "i2c-gpio"
-Date: Thu, 2 Dec 2010 17:23:22 +0100
-Message-ID: <20101202172322.43ea4698@endymion.delvare>
-References: <4CF4DF5E020000AA0000808F@center.bmk-electronics.de>
-	<20101130182150.3bbc8f01@endymion.delvare>
-	<4CF62AFD020000AA000080E3@center.bmk-electronics.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: I2C support for CE4100, v2
+Date: Thu,  2 Dec 2010 21:09:43 +0100
+Message-ID: <1291320589-31570-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4CF62AFD020000AA000080E3-PZWwcLLCDcw8dQ1qNLwSjGRXbTvXh2ZWs0AfqQuZ5sE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matthias Zacharias <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Matthias,
+The I2C core inside CE4100 is very much the same as in PXA25x.
+I Cc the ARM folks because patch 2 reorganizes some files so that they
+can be accessed from x86.
+The I2C device is behind a PCI bus. The PCI probe code simply creates
+three platform devices so we don't have much changes to the platform
+driver. There is no clock framework on x86 and the peripherals don't
+support changing their clocks or to enable/disable them. So I provided
+dummy function which keep the driver happy.
+This series indirectly depends on the SPI series I've sent earlier
+because both modify include files and spi & i2c includes are sometimes
+too close to each other.
 
-On Wed, 01 Dec 2010 11:01:17 +0100, Matthias Zacharias wrote:
-> >>> Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> 30.11.2010 18:21 >>>
-> > It's difficult to answer here without seeing the source code of the
-> > MLX90614 driver. What I can say is that values "near 0xFFFF" look
-> > like uncaught (negative) error codes carelessly cast to u16. So you
-> > should ensure that your driver properly deals with errors returned
-> > by the i2c layer (i2c_transfer and i2c_smbus_*). And if such errors
-> > happen, you should print them so that you see what exactly is going
-> > on and when.
-> 
-> I can provide the sources for the MLX90614 driver, but I think it is
-> not a good ideea to attach it to this E-Mail.
+History:
+v1: Initial post
+v2: - ISAR is still touched if not in SLAVE mode except on X86 where it
+      is not touched at all.
+    - There are no files created in include/asm
+    - register defines are in common code
+    - the PCI controller now requires a device tree. It is used to obtain
+      an id (which is used as device & i2c bus id).
+    - the PCI part now uses ARRAY_SIZE(). As it turns out pci_select_bars()
+      is not useable.
+    - the patch which resetted the chip if the i2c bus was not available
+      has been dropped.
 
-If the source code is publicly visible somewhere, you can point us to
-that location. If not, maybe this is the right time to publish it ;) Or
-you can send it to me privately.
+The patch series has been created with the -M option so file moves can
+be easily noticed. The whole series (including spi) is also available at
+  git://git.linutronix.de/users/bigeasy/soda.git spi-i2c
 
-BTW, it would be very interesting to see if you can get a MLX90614 chip
-to work with this driver on another system with a different I2C or
-SMBus master.
+Sebastian Andrzej Siewior (6):
+      i2c/pxa2xx: Don't touch ISAR on X86
+      arm/pxa2xx: reorganize I2C files
+      i2c/pxa2xx: Add PCI support for PXA I2C controller
+      i2c/pxa2xx: add support for shared IRQ handler
+      i2c/pxa2xx: check timeout correctly
+      i2c/pxa2xx: pass of_node from platform driver to adapter and publish
 
-> > If the EEPROM works fine, it may depend on the transaction types. I
-> > can't comment further because you didn't tell us which driver you
-> > were using (eeprom or at24). But it would be interesting to see
-> > which transactions fail, and if there is a pattern.
-> 
-> I access the eeprom as generic i2c device (file pointer to i2c-0)
-> without usage of any specific driver.
+ arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
+ arch/arm/mach-pxa/balloon3.c                       |    3 +-
+ arch/arm/mach-pxa/cm-x300.c                        |    2 +-
+ arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
+ arch/arm/mach-pxa/corgi.c                          |    2 +-
+ arch/arm/mach-pxa/csb726.c                         |    2 +-
+ arch/arm/mach-pxa/devices.c                        |    2 +-
+ arch/arm/mach-pxa/em-x270.c                        |    2 +-
+ arch/arm/mach-pxa/ezx.c                            |    2 +-
+ arch/arm/mach-pxa/hx4700.c                         |    2 +-
+ arch/arm/mach-pxa/littleton.c                      |    2 +-
+ arch/arm/mach-pxa/magician.c                       |    2 +-
+ arch/arm/mach-pxa/mainstone.c                      |    2 +-
+ arch/arm/mach-pxa/mioa701.c                        |    2 +-
+ arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
+ arch/arm/mach-pxa/palm27x.c                        |    3 +-
+ arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
+ arch/arm/mach-pxa/poodle.c                         |    2 +-
+ arch/arm/mach-pxa/pxa27x.c                         |    2 +-
+ arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
+ arch/arm/mach-pxa/raumfeld.c                       |    2 +-
+ arch/arm/mach-pxa/saar.c                           |    2 +-
+ arch/arm/mach-pxa/spitz.c                          |    3 +-
+ arch/arm/mach-pxa/stargate2.c                      |    2 +-
+ arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
+ arch/arm/mach-pxa/tosa.c                           |    2 +-
+ arch/arm/mach-pxa/trizeps4.c                       |    2 +-
+ arch/arm/mach-pxa/viper.c                          |    2 +-
+ arch/arm/mach-pxa/vpac270.c                        |    3 +-
+ arch/arm/mach-pxa/xcep.c                           |    3 +-
+ arch/arm/mach-pxa/z2.c                             |    3 +-
+ arch/arm/mach-pxa/zeus.c                           |    3 +-
+ arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
+ drivers/i2c/busses/Kconfig                         |    7 +-
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-pxa-pci.c                   |  177 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-pxa.c                       |   75 +++++++--
+ .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    0
+ 40 files changed, 276 insertions(+), 63 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
+ rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (100%)
 
-Which system calls and transaction types are you using?
-
-Did you try accessing the MLX90614 the same way?
-
-> > Note that i2c-algo-bit is CPU-driven. It doesn't sleep, so it
-> > shouldn't be preempted by regular code, but nothing can be done
-> > against interrupts. I see that the MLX90614 has a very short
-> > timeout when SCL is high (45 to 55 us), so receiving an interrupt
-> > in this state could indeed be an issue. You may want to try
-> > disabling interrupts before raising SCL (except at the end of the
-> > transaction, of course) in i2c-algo-bit.
-> 
-> Please give me an example how the disable interrupts as you suggest.
-
-Err. I thought there was a kernel function for that, but apparently I
-was wrong. Well this could be done in asm but I don't think you want to
-try that.
-
-Maybe you can do something with spin_lock_irqsave() and
-spin_unlock_irqrestore() around the critical sections, I'm not sure.
-
-> In the i2c-algo-bits there is used the "bit_dbg" makro to print some
-> debug messages to ksys. Removing the makros wich where placed on the
-> main execution line (not on for error messages) helps to get a better
-> behavoir: SCL stretching occure on better reproducable communication
-> times.
-
-Err, are you by any chance running a kernel built with
-CONFIG_I2C_DEBUG_ALGO=y, and have set i2c_debug to 2 or more? This
-could explain your problems, at least in part. i2c-algo-bit is quite
-verbose in the kernel logs when debugging level is set to 2 or more,
-and writing the log to the disk is adding a lot of latency to the
-system.
-
-Unfortunately this is one case where enabling debugging to better
-understand what is going on also affects what is going on. As you have
-an external bus analyzer, it's better to not enable debugging in
-i2c-algo-bit, or at least not beyond level 1.
-
-When CONFIG_I2C_DEBUG_ALGO isn't set, bit_dbg() is a no-op so it
-certainly can't affect you in any way.
-
-> > And, as Bill already underlined, you have to ensure that you're
-> > running the bus at the right frequency. The MLX90614 is an SMBus
-> > compliant device so it wants a clock between 10 and 100 kHz. This
-> > means a udelay value between 5 and 50.
-> 
-> I checked the clock speed, It can be changed in the specified limits
-> for MLX90614 with similar results in the data output. 
-> Using an I2C analyzer I was able to see that SCL stretching occures on
-> unpredictable times. If these SCL stretching is on specific point in the
-> communication process or match the one of the SMbus timeout conditions
-> (2 different timeout values) unpredictable data is output, with out any
-> error from the I2C subsystem. Only the "i2c-adapter i2c-0: sendbytes:
-> NAK bailout." message is correctly thrown.
-
-Question is whether the SCL line is stretched by the master or by the
-slave. Both are allowed to do it to a certain point.
-
-Does stretching happen on SCL high, or SCL low, or both?
-
-If the stretching is done by the master, then you may search for
-interrupt sources on your system. Maybe you have a misbehaving driver
-or device on your system which causes repeated and long interruptions.
-Making these interruptions shorter (e.g. by moving the real work to a
-workqueue) would then help.
-
-> I can provide screeshots which ilustrate the behavoir. How can I make
-> these sceenshots available for you?
-
-Either put it on some publicly available web server if you have one
-at hand; or send them to me by mail privately.
-
-> > I presume Haavard left Atmel meanwhile. Not much we can do about
-> > that, except removing his address from the source tree (I will
-> > do.)
-> the last entry @vger.kernel.org was in 2007
-
-Not true. He posted until September 2010:
-http://marc.info/?l=linux-kernel&m=128498842805216&w=2
-
-Said post confirms that he left Atmel, BTW. Too bad he did not remove
-or update his address in the tree at that time.
-
--- 
-Jean Delvare
+Sebastian
