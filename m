@@ -1,62 +1,79 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [sodaville] [PATCH] i2c/i2c-dev: use dynamic minor allocation
-Date: Fri, 3 Dec 2010 01:58:12 +0000
-Message-ID: <20101203015812.GB20097@trinity.fluff.org>
-References: <1290633788-25767-1-git-send-email-bigeasy@linutronix.de> <20101124225745.403d8f5f@endymion.delvare> <4CEE3DEA.7040107@linutronix.de> <20101125225246.59931602@endymion.delvare> <20101126180325.GA27332@www.tglx.de> <20101126204632.6ff96d57@endymion.delvare>
+Subject: Re: [PATCH] i2c-iop3xx: add iomem annotation
+Date: Fri, 3 Dec 2010 01:59:14 +0000
+Message-ID: <20101203015914.GC20097@trinity.fluff.org>
+References: <1290960420-7484-1-git-send-email-aaro.koskinen@iki.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20101126204632.6ff96d57-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1290960420-7484-1-git-send-email-aaro.koskinen-X3B1VOXEql0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 26, 2010 at 08:46:32PM +0100, Jean Delvare wrote:
-> Hi Sebastian,
+On Sun, Nov 28, 2010 at 06:07:00PM +0200, Aaro Koskinen wrote:
+> Eliminate unnecessary casts and the following sparse warnings:
 > 
-> On Fri, 26 Nov 2010 19:03:25 +0100, Sebastian Andrzej Siewior wrote:
-> > * Jean Delvare | 2010-11-25 22:52:46 [+0100]:
-> > 
-> > >Hi Sebastian,
-> > Hi Jean,
-> > 
-> > >> > But my main question is: why do you want a unique (or you probably
-> > >> > meant predictable - adapter numbers are already unique by design)
-> > >> > adapter number in the first place? Other systems apparently are doing
-> > >> > just fine without this.
-> > >>
-> > >> Both. I use this number for the device id. This one has to remain unique
-> > >> or sysfs goes crazy.
-> > >
-> > >Which "device id" are you talking about, please? Of course sysfs
-> > The pci driver [0] has in add_i2c_device() the following construct:
-> > 
-> >      pdev->id = dev->devfn << 3 | bar;
-> > 
-> > I'm talking about this device id. Here I have to remain unique and here I
+> 	drivers/i2c/busses/i2c-iop3xx.c:65:9: warning: incorrect type in argument 1 (different base types)
+> 	drivers/i2c/busses/i2c-iop3xx.c:65:9:    expected void const volatile [noderef] <asn:2>*<noident>
+> 	drivers/i2c/busses/i2c-iop3xx.c:65:9:    got unsigned int
 > 
-> Huh? Is pdev a platform device? So you are instantiating platform
-> devices off a PCI device, and in turn each platform device gets to
-> create an i2c_adapter device?
-
-I think this is due to re-instantiating a platform_device based driver
-without adding any extra driver registration to it.
-
-I'm considering the idea that the relevant driver registeration should
-be put into the i2c-pxa driver and select the relevant things...
- 
-> Now I understand why you needed to craft a unique id. I don't quite get
-> why you came up with such a complicated setup in the first place
-> though. What's wrong with just making the i2c_adapter devices direct
-> children of the PCI device? Is this a limitation of
-> of_i2c_register_devices() that it needs platform devices to operate on?
+> 	[ the previous warning is repeated 18 times ]
 > 
-> > though using the pci id would be a good idea. There should be no other
-> > device using "pxa2xx-i2c" as the device name so I should be safe here.
+> 	drivers/i2c/busses/i2c-iop3xx.c:456:33: warning: cast removes address space of expression
+> 
+> Signed-off-by: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-iop3xx.c |    6 +++---
+>  drivers/i2c/busses/i2c-iop3xx.h |    2 +-
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+> index 112c61f..f09c931 100644
+> --- a/drivers/i2c/busses/i2c-iop3xx.c
+> +++ b/drivers/i2c/busses/i2c-iop3xx.c
+> @@ -409,7 +409,7 @@ iop3xx_i2c_remove(struct platform_device *pdev)
+>  		IOP3XX_ICR_RXFULL_IE | IOP3XX_ICR_TXEMPTY_IE);
+>  	__raw_writel(cr, adapter_data->ioaddr + CR_OFFSET);
+>  
+> -	iounmap((void __iomem*)adapter_data->ioaddr);
+> +	iounmap(adapter_data->ioaddr);
+>  	release_mem_region(res->start, IOP3XX_I2C_IO_SIZE);
+>  	kfree(adapter_data);
+>  	kfree(padapter);
+> @@ -453,7 +453,7 @@ iop3xx_i2c_probe(struct platform_device *pdev)
+>  	/* set the adapter enumeration # */
+>  	adapter_data->id = i2c_id++;
+>  
+> -	adapter_data->ioaddr = (u32)ioremap(res->start, IOP3XX_I2C_IO_SIZE);
+> +	adapter_data->ioaddr = ioremap(res->start, IOP3XX_I2C_IO_SIZE);
+>  	if (!adapter_data->ioaddr) {
+>  		ret = -ENOMEM;
+>  		goto release_region;
+> @@ -498,7 +498,7 @@ iop3xx_i2c_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  unmap:
+> -	iounmap((void __iomem*)adapter_data->ioaddr);
+> +	iounmap(adapter_data->ioaddr);
+>  
+>  release_region:
+>  	release_mem_region(res->start, IOP3XX_I2C_IO_SIZE);
+> diff --git a/drivers/i2c/busses/i2c-iop3xx.h b/drivers/i2c/busses/i2c-iop3xx.h
+> index 8485861..a63b9f1 100644
+> --- a/drivers/i2c/busses/i2c-iop3xx.h
+> +++ b/drivers/i2c/busses/i2c-iop3xx.h
+> @@ -97,7 +97,7 @@
+>  #define	IOP3XX_I2C_IO_SIZE	0x18
+>  
+>  struct i2c_algo_iop3xx_data {
+> -	u32 ioaddr;
+> +	char __iomem *ioaddr;
 
-Or add a new platform device name, it isn't difficult.
+probably should be changed to void if possible without creating extra
+warnings.
 
 -- 
 Ben
