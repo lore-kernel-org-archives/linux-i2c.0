@@ -1,47 +1,62 @@
-From: Ben Dooks <ben-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH 1/6] i2c/pxa2xx: Don't touch ISAR on X86
-Date: Fri, 3 Dec 2010 01:44:24 +0000
-Message-ID: <20101203014424.GG24979@trinity.fluff.org>
-References: <1291320589-31570-1-git-send-email-bigeasy@linutronix.de> <1291320589-31570-2-git-send-email-bigeasy@linutronix.de>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [sodaville] [PATCH] i2c/i2c-dev: use dynamic minor allocation
+Date: Fri, 3 Dec 2010 01:58:12 +0000
+Message-ID: <20101203015812.GB20097@trinity.fluff.org>
+References: <1290633788-25767-1-git-send-email-bigeasy@linutronix.de> <20101124225745.403d8f5f@endymion.delvare> <4CEE3DEA.7040107@linutronix.de> <20101125225246.59931602@endymion.delvare> <20101126180325.GA27332@www.tglx.de> <20101126204632.6ff96d57@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1291320589-31570-2-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+In-Reply-To: <20101126204632.6ff96d57-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 02, 2010 at 09:09:44PM +0100, Sebastian Andrzej Siewior wrote:
-> The reset functions sets writes the slave address even in not slave
-> mode. I don't see any reason in writting it if slave mode is not
-> enabled.
-> Ben Dooks was conserned about making this change make it unavable on X86
-> where it is not available.
+On Fri, Nov 26, 2010 at 08:46:32PM +0100, Jean Delvare wrote:
+> Hi Sebastian,
 > 
-> Cc: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-pxa.c |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
+> On Fri, 26 Nov 2010 19:03:25 +0100, Sebastian Andrzej Siewior wrote:
+> > * Jean Delvare | 2010-11-25 22:52:46 [+0100]:
+> > 
+> > >Hi Sebastian,
+> > Hi Jean,
+> > 
+> > >> > But my main question is: why do you want a unique (or you probably
+> > >> > meant predictable - adapter numbers are already unique by design)
+> > >> > adapter number in the first place? Other systems apparently are doing
+> > >> > just fine without this.
+> > >>
+> > >> Both. I use this number for the device id. This one has to remain unique
+> > >> or sysfs goes crazy.
+> > >
+> > >Which "device id" are you talking about, please? Of course sysfs
+> > The pci driver [0] has in add_i2c_device() the following construct:
+> > 
+> >      pdev->id = dev->devfn << 3 | bar;
+> > 
+> > I'm talking about this device id. Here I have to remain unique and here I
 > 
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index f4c19a9..aadf9d2 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -418,7 +418,9 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->  	writel(I2C_ISR_INIT, _ISR(i2c));
->  	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
->  
-> +#ifndef CONFIG_X86
->  	writel(i2c->slave_addr, _ISAR(i2c));
-> +#endif
+> Huh? Is pdev a platform device? So you are instantiating platform
+> devices off a PCI device, and in turn each platform device gets to
+> create an i2c_adapter device?
 
-I'd prefer some way of changing based on either the device name (see
-some other drivers which bind on multiple names) to define things such
-as this, as well as possibly changing the register layout.
+I think this is due to re-instantiating a platform_device based driver
+without adding any extra driver registration to it.
+
+I'm considering the idea that the relevant driver registeration should
+be put into the i2c-pxa driver and select the relevant things...
+ 
+> Now I understand why you needed to craft a unique id. I don't quite get
+> why you came up with such a complicated setup in the first place
+> though. What's wrong with just making the i2c_adapter devices direct
+> children of the PCI device? Is this a limitation of
+> of_i2c_register_devices() that it needs platform devices to operate on?
+> 
+> > though using the pci id would be a good idea. There should be no other
+> > device using "pxa2xx-i2c" as the device name so I should be safe here.
+
+Or add a new platform device name, it isn't difficult.
 
 -- 
 Ben
