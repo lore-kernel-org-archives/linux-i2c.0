@@ -1,419 +1,571 @@
-From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/3] RTC: SMBus support for the M41T80, etc. driver
-Date: Sun,  5 Dec 2010 23:15:03 -0500
-Message-ID: <1291608903-16993-1-git-send-email-mattst88@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH] EG20T: Update PCH_I2C driver to 2.6.36
+Date: Mon, 06 Dec 2010 04:27:14 +0000
+Message-ID: <4CFC6622.1050006@fluff.org>
+References: <4CD8CD32.5000909@dsn.okisemi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4CD8CD32.5000909@dsn.okisemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Samuel Ortiz <sameo@linux.intel.com>, Linus Walleij <linus.walleij@stericsson.com>, Wolfram Sang <w.sang@pengutronix.de>, Ralf Baechle <ralf@linux-mips.org>, srinidhi kasagar <srinidhi.kasagar@stericsson.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, qi.wang@intel.com, andrew.chih.howe.khor@intel.com, yong.y.wang@intel.com, kok.howg.ewe@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+On 09/11/10 04:25, Tomoya MORINAGA wrote:
+> Hi Jean,
+> 
+> I have got Intel's signature.
+> Please push it to kernel tree.
 
-The BCM1250A SOC which is used on the SWARM board utilising an M41T81
-chip only supports pure I2C in the raw bit-banged mode.  Nobody sane
-really wants to use it unless absolutely necessary and the M41T80, etc.
-chips work just fine with an SMBus adapter which is what the standard mode
-of operation of the BCM1250A.  The only drawback of byte accesses with the
-M41T80 is the chip only latches clock data registers for the duration of
-an I2C transaction which works fine with a block transfers, but not
-byte-wise accesses.
+The description of the patch should go here, and I need a proper
+subject line for the commit.
 
-The driver currently requires an I2C adapter providing both SMBus and raw
-I2C access.  This is a set of changes to make it work with any SMBus
-adapter providing at least read byte and write byte protocols.  
-Additionally, if a given SMBus adapter supports I2C block read and/or
-write protocols (a common extension beyond the SMBus spec), they are used
-as well.  The problem of unlatched clock data if SMBus byte transactions
-are used is resolved in the standard way.  For raw I2C controllers this
-functionality is provided by the I2C core as SMBus emulation in a
-transparent way.
+Comments like these go below the --- line.
 
-Tested-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-This patch was originally sent to the i2c list in May 2008, but looks like
-it got lost waiting on some changes in arch/mips to land upstream [2]. These
-landed long ago, so this patch should be good to go in as well.
+> Thanks,
+> Tomoya MORINAGA(OKI SEMICONDUCTOR CO., LTD.)
+> ---
+> I2C driver of EG20T PCH
+> 
+> EG20T PCH is the platform controller hub that is going to be used in
+> Intel's upcoming general embedded platform. All IO peripherals in
+> EG20T PCH are actually devices sitting on AMBA bus.
+> EG20T PCH has I2C I/F. Using this I/F, it is able to access system
+> devices connected to I2C.
+> 
+> Signed-off-by: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+> Reviewed-by: Linus Walleij <linus.walleij@stericsson.com>
+> Signed-off-by: Qi Wang <qi.wang@intel.com>
+> ---
+>  drivers/i2c/busses/Kconfig     |    8 +
+>  drivers/i2c/busses/Makefile    |    1 +
+>  drivers/i2c/busses/i2c-eg20t.c |  900 ++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 909 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-eg20t.c
+> 
 
-Jean, please apply.
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index c3ef492..e55e051 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -60,6 +60,7 @@ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
+>  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+>  obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+>  obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+> +obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
 
-[1] http://lists.lm-sensors.org/pipermail/i2c/2008-May/003739.html
-[2] http://lists.lm-sensors.org/pipermail/i2c/2008-May/003658.html
+Jean, do you want these alphabetically sorted?
 
- drivers/rtc/rtc-m41t80.c |  251 ++++++++++++++++++++--------------------------
- 1 files changed, 107 insertions(+), 144 deletions(-)
+>  # External I2C/SMBus adapter drivers
+>  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+> diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+> new file mode 100644
+> index 0000000..f835635
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-eg20t.c
+> @@ -0,0 +1,900 @@
 
-diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-index 5a8daa3..2233ed5 100644
---- a/drivers/rtc/rtc-m41t80.c
-+++ b/drivers/rtc/rtc-m41t80.c
-@@ -6,6 +6,7 @@
-  * Based on m41t00.c by Mark A. Greer <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-  *
-  * 2006 (c) mycable GmbH
-+ * Copyright (c) 2008 Maciej W. Rozycki
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -38,6 +39,8 @@
- #define M41T80_REG_DAY	5
- #define M41T80_REG_MON	6
- #define M41T80_REG_YEAR	7
-+#define M41T80_REG_CONTROL	8
-+#define M41T80_REG_WATCHDOG	9
- #define M41T80_REG_ALARM_MON	0xa
- #define M41T80_REG_ALARM_DAY	0xb
- #define M41T80_REG_ALARM_HOUR	0xc
-@@ -66,7 +69,7 @@
- #define M41T80_FEATURE_WD	(1 << 3)	/* Extra watchdog resolution */
- #define M41T80_FEATURE_SQ_ALT	(1 << 4)	/* RSx bits are in reg 4 */
- 
--#define DRV_VERSION "0.05"
-+#define DRV_VERSION "0.06"
- 
- static DEFINE_MUTEX(m41t80_rtc_mutex);
- static const struct i2c_device_id m41t80_id[] = {
-@@ -89,31 +92,89 @@ struct m41t80_data {
- 	struct rtc_device *rtc;
- };
- 
--static int m41t80_get_datetime(struct i2c_client *client,
--			       struct rtc_time *tm)
-+
-+static int m41t80_write_block_data(struct i2c_client *client,
-+				   u8 reg, u8 num, u8 *buf)
- {
--	u8 buf[M41T80_DATETIME_REG_SIZE], dt_addr[1] = { M41T80_REG_SEC };
--	struct i2c_msg msgs[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= dt_addr,
--		},
--		{
--			.addr	= client->addr,
--			.flags	= I2C_M_RD,
--			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
--			.buf	= buf + M41T80_REG_SEC,
--		},
--	};
-+	int i, rc;
-+
-+	if (i2c_check_functionality(client->adapter,
-+				    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-+		i = i2c_smbus_write_i2c_block_data(client, reg, num, buf);
-+	} else {
-+		for (i = 0; i < num; i++) {
-+			rc = i2c_smbus_write_byte_data(client, reg + i,
-+						       buf[i]);
-+			if (rc < 0) {
-+				i = rc;
-+				goto out;
-+			}
-+		}
-+	}
-+out:
-+	return i;
-+}
- 
--	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
--		dev_err(&client->dev, "read error\n");
--		return -EIO;
-+static int m41t80_read_block_data(struct i2c_client *client,
-+				  u8 reg, u8 num, u8 *buf)
-+{
-+	int i, rc;
-+
-+	if (i2c_check_functionality(client->adapter,
-+				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
-+		i = i2c_smbus_read_i2c_block_data(client, reg, num, buf);
-+	} else {
-+		for (i = 0; i < num; i++) {
-+			rc = i2c_smbus_read_byte_data(client, reg + i);
-+			if (rc < 0) {
-+				i = rc;
-+				goto out;
-+			}
-+			buf[i] = rc;
-+		}
- 	}
-+out:
-+	return i;
-+}
-+
-+static int m41t80_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	u8 buf[M41T80_DATETIME_REG_SIZE];
-+	int loops = 2;
-+	int sec0, sec1;
-+
-+	/*
-+	 * Time registers are latched by this chip if an I2C block
-+	 * transfer is used, but with SMBus-style byte accesses
-+	 * this is not the case, so check seconds for a wraparound.
-+	 */
-+	do {
-+		if (m41t80_read_block_data(client, M41T80_REG_SEC,
-+					   M41T80_DATETIME_REG_SIZE -
-+					   M41T80_REG_SEC,
-+					   buf + M41T80_REG_SEC) < 0) {
-+			dev_err(&client->dev, "read error\n");
-+			return -EIO;
-+		}
-+		if (i2c_check_functionality(client->adapter,
-+					    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
-+			sec1 = buf[M41T80_REG_SEC];
-+			break;
-+		}
-+
-+		sec0 = buf[M41T80_REG_SEC];
-+		sec1 = i2c_smbus_read_byte_data(client, M41T80_REG_SEC);
-+		if (sec1 < 0) {
-+			dev_err(&client->dev, "read error\n");
-+			return -EIO;
-+		}
-+
-+		sec0 = bcd2bin(sec0 & 0x7f);
-+		sec1 = bcd2bin(sec1 & 0x7f);
-+	} while (sec1 < sec0 && --loops);
- 
--	tm->tm_sec = bcd2bin(buf[M41T80_REG_SEC] & 0x7f);
-+	tm->tm_sec = sec1;
-+	tm->tm_min = bcd2bin(buf[M41T80_REG_MIN] & 0x7f);
- 	tm->tm_min = bcd2bin(buf[M41T80_REG_MIN] & 0x7f);
- 	tm->tm_hour = bcd2bin(buf[M41T80_REG_HOUR] & 0x3f);
- 	tm->tm_mday = bcd2bin(buf[M41T80_REG_DAY] & 0x3f);
-@@ -128,39 +189,16 @@ static int m41t80_get_datetime(struct i2c_client *client,
- /* Sets the given date and time to the real time clock. */
- static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
--	u8 wbuf[1 + M41T80_DATETIME_REG_SIZE];
--	u8 *buf = &wbuf[1];
--	u8 dt_addr[1] = { M41T80_REG_SEC };
--	struct i2c_msg msgs_in[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= dt_addr,
--		},
--		{
--			.addr	= client->addr,
--			.flags	= I2C_M_RD,
--			.len	= M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
--			.buf	= buf + M41T80_REG_SEC,
--		},
--	};
--	struct i2c_msg msgs[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1 + M41T80_DATETIME_REG_SIZE,
--			.buf	= wbuf,
--		 },
--	};
-+	u8 buf[M41T80_DATETIME_REG_SIZE];
- 
- 	/* Read current reg values into buf[1..7] */
--	if (i2c_transfer(client->adapter, msgs_in, 2) < 0) {
-+	if (m41t80_read_block_data(client, M41T80_REG_SEC,
-+				   M41T80_DATETIME_REG_SIZE - M41T80_REG_SEC,
-+				   buf + M41T80_REG_SEC) < 0) {
- 		dev_err(&client->dev, "read error\n");
- 		return -EIO;
- 	}
- 
--	wbuf[0] = 0; /* offset into rtc's regs */
- 	/* Merge time-data and register flags into buf[0..7] */
- 	buf[M41T80_REG_SSEC] = 0;
- 	buf[M41T80_REG_SEC] =
-@@ -177,8 +215,8 @@ static int m41t80_set_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		bin2bcd(tm->tm_mon + 1) | (buf[M41T80_REG_MON] & ~0x1f);
- 	/* assume 20YY not 19YY */
- 	buf[M41T80_REG_YEAR] = bin2bcd(tm->tm_year % 100);
--
--	if (i2c_transfer(client->adapter, msgs, 1) != 1) {
-+	if (m41t80_write_block_data(client, M41T80_REG_SSEC,
-+				    M41T80_DATETIME_REG_SIZE, buf) < 0) {
- 		dev_err(&client->dev, "write error\n");
- 		return -EIO;
- 	}
-@@ -252,34 +290,11 @@ err:
- static int m41t80_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	u8 wbuf[1 + M41T80_ALARM_REG_SIZE];
--	u8 *buf = &wbuf[1];
-+	u8 buf[M41T80_ALARM_REG_SIZE];
- 	u8 *reg = buf - M41T80_REG_ALARM_MON;
--	u8 dt_addr[1] = { M41T80_REG_ALARM_MON };
--	struct i2c_msg msgs_in[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= dt_addr,
--		},
--		{
--			.addr	= client->addr,
--			.flags	= I2C_M_RD,
--			.len	= M41T80_ALARM_REG_SIZE,
--			.buf	= buf,
--		},
--	};
--	struct i2c_msg msgs[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1 + M41T80_ALARM_REG_SIZE,
--			.buf	= wbuf,
--		 },
--	};
- 
--	if (i2c_transfer(client->adapter, msgs_in, 2) < 0) {
-+	if (m41t80_read_block_data(client, M41T80_REG_ALARM_MON,
-+				   M41T80_ALARM_REG_SIZE, buf) < 0) {
- 		dev_err(&client->dev, "read error\n");
- 		return -EIO;
- 	}
-@@ -289,7 +304,6 @@ static int m41t80_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	reg[M41T80_REG_ALARM_MIN] = 0;
- 	reg[M41T80_REG_ALARM_SEC] = 0;
- 
--	wbuf[0] = M41T80_REG_ALARM_MON; /* offset into rtc's regs */
- 	reg[M41T80_REG_ALARM_SEC] |= t->time.tm_sec >= 0 ?
- 		bin2bcd(t->time.tm_sec) : 0x80;
- 	reg[M41T80_REG_ALARM_MIN] |= t->time.tm_min >= 0 ?
-@@ -303,7 +317,8 @@ static int m41t80_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	else
- 		reg[M41T80_REG_ALARM_DAY] |= 0x40;
- 
--	if (i2c_transfer(client->adapter, msgs, 1) != 1) {
-+	if (m41t80_write_block_data(client, M41T80_REG_ALARM_MON,
-+				    M41T80_ALARM_REG_SIZE, buf) < 0) {
- 		dev_err(&client->dev, "write error\n");
- 		return -EIO;
- 	}
-@@ -323,24 +338,10 @@ static int m41t80_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	u8 buf[M41T80_ALARM_REG_SIZE + 1]; /* all alarm regs and flags */
--	u8 dt_addr[1] = { M41T80_REG_ALARM_MON };
- 	u8 *reg = buf - M41T80_REG_ALARM_MON;
--	struct i2c_msg msgs[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= dt_addr,
--		},
--		{
--			.addr	= client->addr,
--			.flags	= I2C_M_RD,
--			.len	= M41T80_ALARM_REG_SIZE + 1,
--			.buf	= buf,
--		},
--	};
- 
--	if (i2c_transfer(client->adapter, msgs, 2) < 0) {
-+	if (m41t80_read_block_data(client, M41T80_REG_ALARM_MON,
-+				   M41T80_ALARM_REG_SIZE + 1, buf) < 0) {
- 		dev_err(&client->dev, "read error\n");
- 		return -EIO;
- 	}
-@@ -513,26 +514,16 @@ static int boot_flag;
-  */
- static void wdt_ping(void)
- {
--	unsigned char i2c_data[2];
--	struct i2c_msg msgs1[1] = {
--		{
--			.addr	= save_client->addr,
--			.flags	= 0,
--			.len	= 2,
--			.buf	= i2c_data,
--		},
--	};
--	struct m41t80_data *clientdata = i2c_get_clientdata(save_client);
-+	u8 wdt = 0x80;				/* WDS = 1 (0x80)  */
- 
--	i2c_data[0] = 0x09;		/* watchdog register */
-+	struct m41t80_data *clientdata = i2c_get_clientdata(save_client);
- 
- 	if (wdt_margin > 31)
--		i2c_data[1] = (wdt_margin & 0xFC) | 0x83; /* resolution = 4s */
-+		/* mulitplier = WD_TIMO / 4, resolution = 4s (0x3)  */
-+		wdt |= (wdt_margin & 0xfc) | 0x3;
- 	else
--		/*
--		 * WDS = 1 (0x80), mulitplier = WD_TIMO, resolution = 1s (0x02)
--		 */
--		i2c_data[1] = wdt_margin<<2 | 0x82;
-+		/* mulitplier = WD_TIMO, resolution = 1s (0x2)  */
-+		wdt |= wdt_margin << 2 | 0x2;
- 
- 	/*
- 	 * M41T65 has three bits for watchdog resolution.  Don't set bit 7, as
-@@ -541,7 +532,7 @@ static void wdt_ping(void)
- 	if (clientdata->features & M41T80_FEATURE_WD)
- 		i2c_data[1] &= ~M41T80_WATCHDOG_RB2;
- 
--	i2c_transfer(save_client->adapter, msgs1, 1);
-+	i2c_smbus_write_byte_data(save_client, M41T80_REG_WATCHDOG, wdt);
- }
- 
- /**
-@@ -551,36 +542,8 @@ static void wdt_ping(void)
-  */
- static void wdt_disable(void)
- {
--	unsigned char i2c_data[2], i2c_buf[0x10];
--	struct i2c_msg msgs0[2] = {
--		{
--			.addr	= save_client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= i2c_data,
--		},
--		{
--			.addr	= save_client->addr,
--			.flags	= I2C_M_RD,
--			.len	= 1,
--			.buf	= i2c_buf,
--		},
--	};
--	struct i2c_msg msgs1[1] = {
--		{
--			.addr	= save_client->addr,
--			.flags	= 0,
--			.len	= 2,
--			.buf	= i2c_data,
--		},
--	};
--
--	i2c_data[0] = 0x09;
--	i2c_transfer(save_client->adapter, msgs0, 2);
--
--	i2c_data[0] = 0x09;
--	i2c_data[1] = 0x00;
--	i2c_transfer(save_client->adapter, msgs1, 1);
-+	i2c_smbus_read_byte_data(save_client, M41T80_REG_WATCHDOG);
-+	i2c_smbus_write_byte_data(save_client, M41T80_REG_WATCHDOG, 0);
- }
- 
- /**
-@@ -782,8 +745,8 @@ static int m41t80_probe(struct i2c_client *client,
- 	struct rtc_time tm;
- 	struct m41t80_data *clientdata = NULL;
- 
--	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C
--				     | I2C_FUNC_SMBUS_BYTE_DATA)) {
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_SMBUS_BYTE_DATA)) {
- 		rc = -ENODEV;
- 		goto exit;
- 	}
--- 
-1.7.3.2
+[snip]
+
+> +/**
+> + * struct adapter_info - This structure holds the adapter information for the
+> +			 PCH i2c controller
+> + * @pch_data:		stores a list of i2c_algo_pch_data
+> + * @pch_i2c_suspended:	specifies whether the system is suspended or not
+> + *			perhaps with more lines and words.
+
+you don't need the 'or not' and the extra line does not make sense?
+> + *
+> + * pch_data has as many elements as maximum I2C channels
+> + */
+> +struct adapter_info {
+> +	struct i2c_algo_pch_data pch_data;
+> +	bool pch_i2c_suspended;
+> +};
+> +
+> +
+> +static int pch_i2c_speed = 100; /* I2C bus speed in Kbps */
+> +static int pch_clk = 50000;	/* specifies I2C clock speed in KHz */
+> +static wait_queue_head_t pch_event;
+> +static DEFINE_MUTEX(pch_mutex);
+> +
+> +static struct pci_device_id __devinitdata pch_pcidev_id[] = {
+> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_PCH_I2C)},
+> +	{0,}
+
+please put single space after the { and before the }.
+
+> +static irqreturn_t pch_i2c_handler(int irq, void *pData);
+> +
+> +static inline void pch_setbit(void __iomem *addr, u32 offset, u32 bitmask)
+> +{
+> +	u32 val;
+> +	val = ioread32(addr + offset);
+> +	val |= bitmask;
+> +	iowrite32(val, addr + offset);
+> +}
+> +
+> +static inline void pch_clrbit(void __iomem *addr, u32 offset, u32 bitmask)
+> +{
+> +	u32 val;
+> +	val = ioread32(addr + offset);
+> +	val &= (~bitmask);
+
+the () around bitmask is useless.
+
+> +	iowrite32(val, addr + offset);
+> +}
+
+
+> +static inline bool ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
+> +{
+> +	return cmp1.tv64 < cmp2.tv64;
+> +}
+
+hmm, surely this sort of thing should be in a header somewhere?
+
+
+> +/**
+> + * pch_i2c_getack() - to confirm ACK/NACK
+> + * @adap:	Pointer to struct i2c_algo_pch_data.
+> + */
+> +static s32 pch_i2c_getack(struct i2c_algo_pch_data *adap)
+> +{
+> +	u32 reg_val;
+> +	void __iomem *p = adap->pch_base_address;
+
+would prefer a blank line here
+also prefernece for longer items first in the list
+neither of these is really important though.
+
+> +	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
+> +
+> +	if (reg_val != 0) {
+
+would (reg_val & PCH_GETACK) do here?
+
+> +		pch_err(adap, "return%d\n", -EPROTO);
+> +		return -EPROTO;
+> +	}
+> +
+> +	return 0;
+> +}
+
+> +
+> +/**
+> + * pch_i2c_writebytes() - write data to I2C bus in normal mode
+> + * @i2c_adap:	Pointer to the struct i2c_adapter.
+> + * @last:	specifies whether last message or not.
+> + *		In the case of compound mode it will be 1 for last message,
+> + *		otherwise 0.
+> + * @first:	specifies whether first message or not.
+> + *		1 for first message otherwise 0.
+> + */
+> +static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+> +			      struct i2c_msg *msgs, u32 last, u32 first)
+> +{
+> +	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+> +	u8 *buf;
+> +	u32 length;
+> +	u32 addr;
+> +	u32 addr_2_msb;
+> +	u32 addr_8_lsb;
+> +	s32 wrcount;
+> +	void __iomem *p = adap->pch_base_address;
+
+> +	length = msgs->len;
+> +	buf = msgs->buf;
+> +	addr = msgs->addr;
+
+minor, these could have been merged with the declaration.
+
+> +	/* enable master tx */
+> +	pch_setbit(adap->pch_base_address, PCH_I2CCTL, I2C_TX_MODE);
+> +
+> +	pch_dbg(adap, "I2CCTL = %x msgs->len = %d\n", ioread32(p + PCH_I2CCTL),
+> +		length);
+> +
+> +	if (first) {
+> +		if (pch_i2c_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
+> +			return -ETIME;
+> +	}
+> +
+> +	if (msgs->flags & I2C_M_TEN) {
+> +		addr_2_msb = ((addr & I2C_MSB_2B_MSK) >> 7);
+> +		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+> +		if (first)
+> +			pch_i2c_start(adap);
+> +		if (pch_i2c_wait_for_xfer_complete(adap) == 0 &&
+> +		    pch_i2c_getack(adap) == 0) {
+> +			addr_8_lsb = (addr & I2C_ADDR_MSK);
+> +			iowrite32(addr_8_lsb, p + PCH_I2CDR);
+> +		} else {
+> +			pch_i2c_stop(adap);
+> +			return -ETIME;
+
+I'll have to check the error codes here, thought ETIMEDOUT would be
+better, or -EBUSY.
+
+> +		}
+> +
+> +	if ((pch_i2c_wait_for_xfer_complete(adap) == 0) &&
+> +	    (pch_i2c_getack(adap) == 0)) {
+> +		for (wrcount = 0; wrcount < length; ++wrcount) {
+> +			/* write buffer value to I2C data register */
+> +			iowrite32(buf[wrcount], p + PCH_I2CDR);
+> +			pch_dbg(adap, "writing %x to Data register\n",
+> +				buf[wrcount]);
+> +
+> +			if (pch_i2c_wait_for_xfer_complete(adap) != 0)
+> +				return -ETIME;
+
+see above.
+
+> +			if (pch_i2c_getack(adap))
+> +				return -EIO;
+> +		}
+> +
+> +		/* check if this is the last message */
+> +		if (last)
+> +			pch_i2c_stop(adap);
+> +		else
+> +			pch_i2c_repstart(adap);
+> +	} else {
+> +		pch_i2c_stop(adap);
+> +		return -EIO;
+> +	}
+> +
+> +	pch_dbg(adap, "return=%d\n", wrcount);
+> +
+> +	return wrcount;
+> +}
+
+> +
+> +/**
+> + * pch_i2c_readbytes() - read data  from I2C bus in normal mode.
+> + * @i2c_adap:	Pointer to the struct i2c_adapter.
+> + * @msgs:	Pointer to i2c_msg structure.
+> + * @last:	specifies whether last message or not.
+> + * @first:	specifies whether first message or not.
+> + */
+> +s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+> +		  u32 last, u32 first)
+> +{
+> +	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+> +
+> +	u8 *buf;
+> +	u32 count;
+> +	u32 length;
+> +	u32 addr;
+> +	u32 addr_2_msb;
+> +	void __iomem *p = adap->pch_base_address;
+> +
+> +	length = msgs->len;
+> +	buf = msgs->buf;
+> +	addr = msgs->addr;
+> +
+> +	/* enable master reception */
+> +	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, I2C_TX_MODE);
+> +
+> +	if (first) {
+> +		if (pch_i2c_wait_for_bus_idle(adap, BUS_IDLE_TIMEOUT) == -ETIME)
+> +			return -ETIME;
+> +	}
+> +
+> +	if (msgs->flags & I2C_M_TEN) {
+> +		addr_2_msb = (((addr & I2C_MSB_2B_MSK) >> 7) | (I2C_RD));
+> +		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+> +
+> +	} else {
+> +		/* 7 address bits + R/W bit */
+> +		addr = (((addr) << 1) | (I2C_RD));
+> +		iowrite32(addr, p + PCH_I2CDR);
+> +	}
+> +
+> +	/* check if it is the first message */
+> +	if (first)
+> +		pch_i2c_start(adap);
+> +
+> +	if ((pch_i2c_wait_for_xfer_complete(adap) == 0) &&
+> +	    (pch_i2c_getack(adap) == 0)) {
+> +		pch_dbg(adap, "return %d\n", 0);
+> +
+> +		if (length == 0) {
+> +			pch_i2c_stop(adap);
+> +			ioread32(p + PCH_I2CDR); /* Dummy read needs */
+> +
+> +			count = length;
+> +		} else {
+> +			int read_index;
+> +			int loop;
+> +			pch_i2c_sendack(adap);
+> +
+> +			/* Dummy read */
+> +			for (loop = 1, read_index = 0; loop < length; loop++) {
+> +				buf[read_index] = ioread32(p + PCH_I2CDR);
+> +
+> +				if (loop != 1)
+> +					read_index++;
+> +
+> +				if (pch_i2c_wait_for_xfer_complete(adap) != 0) {
+> +					pch_i2c_stop(adap);
+> +					return -ETIME;
+
+don't think this is the correct return code here either..
+
+> +				}
+> +			}	/* end for */
+> +
+> +			pch_i2c_sendnack(adap);
+> +
+> +			buf[read_index] = ioread32(p + PCH_I2CDR);
+> +
+> +			if (length != 1)
+> +				read_index++;
+> +
+> +			if (pch_i2c_wait_for_xfer_complete(adap) == 0) {
+> +				if (last)
+> +					pch_i2c_stop(adap);
+> +				else
+> +					pch_i2c_repstart(adap);
+> +
+> +				buf[read_index++] = ioread32(p + PCH_I2CDR);
+> +				count = read_index;
+> +			} else {
+> +				count = -ETIME;
+> +			}
+> +
+> +		}
+> +	} else {
+> +		count = -ETIME;
+> +		pch_i2c_stop(adap);
+> +	}
+> +
+> +	return count;
+> +}
+> +
+
+> +
+> +/**
+> + * pch_i2c_disbl_int() - Disable PCH I2C interrupts
+> + * @adap:	Pointer to struct i2c_algo_pch_data.
+> + */
+> +static void pch_i2c_disbl_int(struct i2c_algo_pch_data *adap)
+> +{
+> +	void __iomem *p = adap->pch_base_address;
+> +
+> +	pch_clrbit(adap->pch_base_address, PCH_I2CCTL, NORMAL_INTR_ENBL);
+> +
+> +	iowrite32(EEPROM_RST_INTR_DISBL, p + PCH_I2CESRMSK);
+> +
+
+could avoid blank here.
+
+> +	iowrite32(BUFFER_MODE_INTR_DISBL, p + PCH_I2CBUFMSK);
+> +}
+> +
+> +static int __devinit pch_i2c_probe(struct pci_dev *pdev,
+> +			       const struct pci_device_id *id)
+> +{
+> +	void __iomem *base_addr;
+> +	s32 ret;
+> +	struct adapter_info *adap_info;
+> +
+> +	pch_pci_dbg(pdev, "Entered.\n");
+> +
+> +	adap_info = kzalloc((sizeof(struct adapter_info)), GFP_KERNEL);
+
+extra () in here
+
+> +	if (adap_info == NULL) {
+> +		pch_pci_err(pdev, "Memory allocation FAILED\n");
+> +		return -ENOMEM;
+> +	}
+
+do not need to capitalise 'FAILED'
+
+> +
+> +	ret = pci_enable_device(pdev);
+> +	if (ret) {
+> +		pch_pci_err(pdev, "pci_enable_device FAILED\n");
+> +		goto err_pci_enable;
+> +	}
+
+() after pci_device_enable... also see previous.
+
+> +
+> +	ret = pci_request_regions(pdev, KBUILD_MODNAME);
+
+how about using dev_name() in case of multiple devices.
+
+> +	if (ret) {
+> +		pch_pci_err(pdev, "pci_request_regions FAILED\n");
+> +		goto err_pci_req;
+> +	}
+> +
+> +	base_addr = pci_iomap(pdev, 1, 0);
+> +
+> +	if (base_addr == NULL) {
+> +		pch_pci_err(pdev, "pci_iomap FAILED\n");
+> +		ret = -ENOMEM;
+> +		goto err_pci_iomap;
+> +	}
+> +
+> +	adap_info->pch_i2c_suspended = false;
+> +
+> +	adap_info->pch_data.p_adapter_info = adap_info;
+> +
+> +	adap_info->pch_data.pch_adapter.owner = THIS_MODULE;
+> +	adap_info->pch_data.pch_adapter.class = I2C_CLASS_HWMON;
+> +	strcpy(adap_info->pch_data.pch_adapter.name, KBUILD_MODNAME);
+
+please use a string copy that limits transfer size....
+
+> +	adap_info->pch_data.pch_adapter.algo = &pch_algorithm;
+> +	adap_info->pch_data.pch_adapter.algo_data =
+> +						&adap_info->pch_data;
+> +
+> +	/* (i * 0x80) + base_addr; */
+> +	adap_info->pch_data.pch_base_address = base_addr;
+> +
+> +	adap_info->pch_data.pch_adapter.dev.parent = &pdev->dev;
+> +
+> +	ret = i2c_add_adapter(&(adap_info->pch_data.pch_adapter));
+> +
+> +	if (ret) {
+> +		pch_pci_err(pdev, "i2c_add_adapter FAILED\n");
+> +		goto err_i2c_add_adapter;
+> +	}
+> +
+> +	pch_i2c_init(&adap_info->pch_data);
+> +	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
+> +		  KBUILD_MODNAME, &adap_info->pch_data);
+
+see note on dev_name()
+
+> +	if (ret) {
+> +		pch_pci_err(pdev, "request_irq FAILED\n");
+> +		goto err_request_irq;
+> +	}
+> +
+> +	pci_set_drvdata(pdev, adap_info);
+> +	pch_pci_dbg(pdev, "returns %d.\n", ret);
+> +	return 0;
+> +
+> +err_request_irq:
+> +	i2c_del_adapter(&(adap_info->pch_data.pch_adapter));
+> +err_i2c_add_adapter:
+> +	pci_iounmap(pdev, base_addr);
+> +err_pci_iomap:
+> +	pci_release_regions(pdev);
+> +err_pci_req:
+> +	pci_disable_device(pdev);
+> +err_pci_enable:
+> +	kfree(adap_info);
+> +	return ret;
+> +}
+> +
+> +static void __devexit pch_i2c_remove(struct pci_dev *pdev)
+> +{
+> +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> +
+> +	pch_i2c_disbl_int(&adap_info->pch_data);
+> +	free_irq(pdev->irq, &adap_info->pch_data);
+> +	i2c_del_adapter(&(adap_info->pch_data.pch_adapter));
+> +
+> +	if (adap_info->pch_data.pch_base_address) {
+> +		pci_iounmap(pdev, adap_info->pch_data.pch_base_address);
+> +		adap_info->pch_data.pch_base_address = 0;
+
+NULL, not 0
+
+> +	}
+> +
+> +	pci_set_drvdata(pdev, NULL);
+> +
+> +	pci_release_regions(pdev);
+> +
+> +	pci_disable_device(pdev);
+> +	kfree(adap_info);
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
+> +{
+> +	int ret;
+> +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> +	void __iomem *p = adap_info->pch_data.pch_base_address;
+> +
+> +	adap_info->pch_i2c_suspended = true;
+> +
+> +	while ((adap_info->pch_data.pch_i2c_xfer_in_progress)) {
+> +		/* Wait until all channel transfers are completed */
+> +		msleep(20);
+> +	}
+> +	/* Disable the i2c interrupts */
+> +	pch_i2c_disbl_int(&adap_info->pch_data);
+> +
+> +	pch_pci_dbg(pdev, "I2CSR = %x I2CBUFSTA = %x I2CESRSTA = %x "
+> +		"invoked function pch_i2c_disbl_int successfully\n",
+> +		ioread32(p + PCH_I2CSR), ioread32(p + PCH_I2CBUFSTA),
+> +		ioread32(p + PCH_I2CESRSTA));
+> +
+> +	ret = pci_save_state(pdev);
+> +
+> +	if (ret) {
+> +		pch_pci_err(pdev, "pci_save_state\n");
+> +		return ret;
+> +	}
+> +
+> +	pci_enable_wake(pdev, PCI_D3hot, 0);
+> +	pci_disable_device(pdev);
+> +	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+> +
+> +	return 0;
+> +}
+> +
+> +static int pch_i2c_resume(struct pci_dev *pdev)
+> +{
+> +	struct adapter_info *adap_info = pci_get_drvdata(pdev);
+> +
+> +	pci_set_power_state(pdev, PCI_D0);
+> +	pci_restore_state(pdev);
+> +
+> +	if (pci_enable_device(pdev) < 0) {
+> +		pch_pci_err(pdev, "pch_i2c_resume:pci_enable_device FAILED\n");
+> +		return -EIO;
+> +	}
+> +
+> +	pci_enable_wake(pdev, PCI_D3hot, 0);
+> +
+> +	pch_i2c_init(&adap_info->pch_data);
+> +
+> +	adap_info->pch_i2c_suspended = false;
+> +
+> +	return 0;
+> +}
+> +#else
+> +#define pch_i2c_suspend NULL
+> +#define pch_i2c_resume NULL
+> +#endif
+> +
+> +static struct pci_driver pch_pcidriver = {
+> +	.name = KBUILD_MODNAME,
+> +	.id_table = pch_pcidev_id,
+> +	.probe = pch_i2c_probe,
+> +	.remove = __devexit_p(pch_i2c_remove),
+> +	.suspend = pch_i2c_suspend,
+> +	.resume = pch_i2c_resume
+
+runtime PM would be better.
+
+> +
+> +MODULE_DESCRIPTION("PCH I2C PCI Driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Tomoya MORINAGA. <tomoya-linux@dsn.okisemi.com>");
+> +module_param(pch_i2c_speed, int, (S_IRUSR | S_IWUSR));
+> +module_param(pch_clk, int, (S_IRUSR | S_IWUSR));
+
+Please sort out as much as possible of the review comments.
