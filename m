@@ -1,35 +1,60 @@
-From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Matt Turner <mattst88@gmail.com>
 Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
-Date: Mon, 6 Dec 2010 18:02:25 +0000
-Message-ID: <AANLkTikWRsgHao_eb4W47b=E4vm6z=hi36JE_VBtD6Rg@mail.gmail.com>
+Date: Mon, 6 Dec 2010 18:04:26 +0000
+Message-ID: <AANLkTinWvXG0thg534eHG9=3=Qdb3iArOKHJgeP9jrm4@mail.gmail.com>
 References: <1291617494-18430-1-git-send-email-mattst88@gmail.com>
- <20101206173040.GA18372@ericsson.com> <alpine.LFD.2.00.1012061739200.17185@eddie.linux-mips.org>
+ <20101206173040.GA18372@ericsson.com> <AANLkTikGgfBuj086eRvy4VzzyE2suJCL9z=SfmOiFiPx@mail.gmail.com>
+ <20101206180203.GA18478@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.1012061739200.17185-FBDaDh2CBnQu/uO211tRtWD2FQJk+8+b@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20101206180203.GA18478@ericsson.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Jean Delvare <khali@linux-fr.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, Ralf Baechle <ralf@linux-mips.org>, "Maciej W. Rozycki" <macro@linux-mips.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 6, 2010 at 5:56 PM, Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org=
-> wrote:
-> =A0Matt, thanks for keeping your eye on these bits and reviving them;=
- I've
-> meant to do so for a long time now, but never came to it. =A0Please n=
-ote
-> however, as I'm the original author, my original Signed-off-by markup=
-s
-> continue to apply and you should be quoting them with the submissions=
-=2E
-> You should only add your own Signed-off-by annotation if you made any
-> changes and it would make sense to state what these changes were.
+On Mon, Dec 6, 2010 at 6:02 PM, Guenter Roeck
+<guenter.roeck@ericsson.com> wrote:
+> On Mon, Dec 06, 2010 at 12:40:15PM -0500, Matt Turner wrote:
+>> On Mon, Dec 6, 2010 at 5:30 PM, Guenter Roeck
+>> <guenter.roeck@ericsson.com> wrote:
+>> > On Mon, Dec 06, 2010 at 01:38:14AM -0500, Matt Turner wrote:
+>> >> From: Maciej W. Rozycki <macro@linux-mips.org>
+>> >>
+>> >> This is a rewrite of large parts of the driver mainly so that it uses
+>> >> SMBus interrupts to offload the CPU from busy-waiting on status inputs.
+>> >> As a part of the overhaul of the init and exit calls, all accesses to the
+>> >> hardware got converted to use accessory functions via an ioremap() cookie.
+>> >>
+>> >> Minimally rebased by Matt Turner.
+>> >>
+>> >> Tested-by: Matt Turner <mattst88@gmail.com>
+>> >> Signed-off-by: Matt Turner <mattst88@gmail.com>
+>> >
+>> >
+>> > I applied the patch to my 1480 tree. Unfortunately, it doesn't work with my system.
+>> > As far as I can see, the driver does not get any interrupts.
+>> >
+>> > My tree is 2.6.32, though. Do you know if I might be missing some other relevant patch ?
+>> >
+>> > Thanks,
+>> > Guenter
+>>
+>> I think this patch depends on
+>> http://www.linux-mips.org/archives/linux-mips/2010-12/msg00030.html
+>>
+> I did apply the second patch as well, since you had mentioned it in your patch.
+> That did not help, though. Frankly, I don't see the dependency in the first place - the other
+> patch only affects drivers/rtc/rtc-m41t80.c, and I would hope that SMBus support does not depend
+> on an rtc driver. Am I missing something ?
+>
+> Thanks,
+> Guenter
 
-Sure thing. Will fix. For patches 2 and 3 of the other series, I don't
-think I was ever 100% sure that you were the author, since they were
-living on OpenWRT.org and I couldn't find them in any mailing list
-archives. Can you confirm that these 4 patches are all yours?
+Indeed that does not make much sense. I really don't know. Perhaps
+Maciej can shed some light on this? It certainly might be the case
+that these patches haven't ever been tested on a BCM91480 before.
 
 Matt
