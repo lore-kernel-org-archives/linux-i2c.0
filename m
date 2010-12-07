@@ -1,41 +1,77 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
- interrupts
-Date: Tue, 7 Dec 2010 06:41:50 -0800
-Message-ID: <20101207144150.GA21872@ericsson.com>
-References: <1291617494-18430-1-git-send-email-mattst88@gmail.com>
- <20101206173040.GA18372@ericsson.com>
- <alpine.LFD.2.00.1012061739200.17185@eddie.linux-mips.org>
- <AANLkTikWRsgHao_eb4W47b=E4vm6z=hi36JE_VBtD6Rg@mail.gmail.com>
- <alpine.LFD.2.00.1012070148050.17185@eddie.linux-mips.org>
- <20101207051438.GA20144@ericsson.com>
- <alpine.LFD.2.00.1012070740130.17185@eddie.linux-mips.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-algo-bit: Complain about masters which can't
+ read SCL
+Date: Tue, 7 Dec 2010 16:07:39 +0100
+Message-ID: <20101207160739.0d7141f3@endymion.delvare>
+References: <20101207110705.69792a1a@endymion.delvare>
+	<20101207115325.GN20097@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.1012070740130.17185-FBDaDh2CBnQu/uO211tRtWD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20101207115325.GN20097-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-Cc: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 07, 2010 at 09:30:27AM -0500, Maciej W. Rozycki wrote:
-> On Mon, 6 Dec 2010, Guenter Roeck wrote:
-> 
-> > A quick look through sb1250 vs. sb1480 code shows that the 1480 uses different
-> > interrupt numbers. The patch assigns the sb1250 interrupt numbers, so unless
-> > I am missing something the code as written can not work for sb1480.
-> 
->  That well could be -- I never had access to a BigSur board.  The 
-> board-specific interrupt numbers should either be available from the board 
-> manual (I haven't checked if one has been released; I certainly have one 
-> for my SWARM) or quoted somewhere in our tree.  Otherwise figuring them 
-> out by trial and error should be a trivial exercise for someone with 
-> actual hardware at hand.
-> 
-I already sent a reply to the original patch - I confirmed that the interrupts are different.
-Those are SOC interrupts, so they are CPU specific, not board specific. Code started working 
-after I replaced the sb1250 interrupts with bcm1480 interrupts.
+Hi Ben,
 
-Guenter
+On Tue, 7 Dec 2010 11:53:25 +0000, Ben Dooks wrote:
+> On Tue, Dec 07, 2010 at 11:07:05AM +0100, Jean Delvare wrote:
+> > The I2C specification explicitly describes both SDA and SCL as
+> > bidirectional lines. An I2C master with a read-only SCL is thus not
+> > compliant. If a slow slave stretches the clock, errors will happen,
+> > so the bus can't be considered as reliable.
+> > 
+> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > ---
+> >  drivers/i2c/algos/i2c-algo-bit.c |   14 ++++++++++++--
+> >  1 file changed, 12 insertions(+), 2 deletions(-)
+> > 
+> > --- linux-2.6.37-rc5.orig/drivers/i2c/algos/i2c-algo-bit.c	2010-12-07 11:02:38.000000000 +0100
+> > +++ linux-2.6.37-rc5/drivers/i2c/algos/i2c-algo-bit.c	2010-12-07 11:03:23.000000000 +0100
+> > @@ -604,9 +604,10 @@ static int __i2c_bit_add_bus(struct i2c_
+> >  			     int (*add_adapter)(struct i2c_adapter *))
+> >  {
+> >  	struct i2c_algo_bit_data *bit_adap = adap->algo_data;
+> > +	int ret;
+> >  
+> >  	if (bit_test) {
+> > -		int ret = test_bus(bit_adap, adap->name);
+> > +		ret = test_bus(bit_adap, adap->name);
+> >  		if (ret < 0)
+> >  			return -ENODEV;
+> >  	}
+> > @@ -615,7 +616,16 @@ static int __i2c_bit_add_bus(struct i2c_
+> >  	adap->algo = &i2c_bit_algo;
+> >  	adap->retries = 3;
+> >  
+> > -	return add_adapter(adap);
+> > +	ret = add_adapter(adap);
+> > +	if (ret < 0)
+> > +		return ret;
+> > +
+> > +	/* Complain if SCL can't be read */
+> > +	if (bit_adap->getscl == NULL) {
+> > +		dev_warn(&adap->dev, "Not I2C compliant: can't read SCL\n");
+> 
+> I'll have a think about wording. I might be able to improve it.
+> 
+> As a note, I always prefer cannot to can't. 
+
+And I thought you were a busy developer ;)
+
+There is no trend one way or another, neither in the kernel tree nor
+even in drivers/i2c specifically.
+
+> > +		dev_warn(&adap->dev, "Bus may be unreliable\n");
+> 
+> if there are any other warnings, should we print just one unreliable warning
+> at the end of the scan?
+
+I'm not sure what "scan" you refer to, and in all honesty I'm not sure
+I get your point at all.
+
+-- 
+Jean Delvare
