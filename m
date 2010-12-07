@@ -1,52 +1,71 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
- interrupts
-Date: Mon, 6 Dec 2010 22:23:44 -0800
-Message-ID: <20101207062344.GA20673@ericsson.com>
-References: <1291617494-18430-1-git-send-email-mattst88@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 1/2] i2c-algo-bit: Refactor adapter registration
+Date: Tue, 7 Dec 2010 11:06:31 +0100
+Message-ID: <20101207110631.6222cfed@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1291617494-18430-1-git-send-email-mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 06, 2010 at 01:38:14AM -0500, Matt Turner wrote:
-> From: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-> 
-> This is a rewrite of large parts of the driver mainly so that it uses
-> SMBus interrupts to offload the CPU from busy-waiting on status inputs.
-> As a part of the overhaul of the init and exit calls, all accesses to the
-> hardware got converted to use accessory functions via an ioremap() cookie.
-> 
-> Minimally rebased by Matt Turner.
-> 
-> Tested-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Use a function pointer to decide whether to call i2c_add_adapter or
+i2c_add_numbered_adapter. This makes the code more compact than the
+current strategy of having the common code in a separate function.
 
-[ .. ] 
-> 
-> -static struct i2c_algo_sibyte_data sibyte_board_data[2] = {
-> -       { NULL, 0, (void *) (CKSEG1+A_SMB_BASE(0)) },
-> -       { NULL, 1, (void *) (CKSEG1+A_SMB_BASE(1)) }
-> +static struct i2c_algo_sibyte_data i2c_sibyte_board_data[2] = {
-> +       {
-> +               .name   = "sb1250-smbus-0",
-> +               .base   = A_SMB_0,
-> +               .irq    = K_INT_SMB_0,
-> +       },
-> +       {
-> +               .name   = "sb1250-smbus-1",
-> +               .base   = A_SMB_1,
-> +               .irq    = K_INT_SMB_1,
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-bit.c |   21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-Found my problem. The .irq settings don't work for BCM1480.
-It needs K_BCM1480_INT_SMB_0 and K_BCM1480_INT_SMB_1 from asm/sibyte/bcm1480_int.h.
+--- linux-2.6.37-rc5.orig/drivers/i2c/algos/i2c-algo-bit.c	2010-12-07 10:13:49.000000000 +0100
++++ linux-2.6.37-rc5/drivers/i2c/algos/i2c-algo-bit.c	2010-12-07 11:02:38.000000000 +0100
+@@ -600,7 +600,8 @@ static const struct i2c_algorithm i2c_bi
+ /*
+  * registering functions to load algorithms at runtime
+  */
+-static int i2c_bit_prepare_bus(struct i2c_adapter *adap)
++static int __i2c_bit_add_bus(struct i2c_adapter *adap,
++			     int (*add_adapter)(struct i2c_adapter *))
+ {
+ 	struct i2c_algo_bit_data *bit_adap = adap->algo_data;
+ 
+@@ -614,30 +615,18 @@ static int i2c_bit_prepare_bus(struct i2
+ 	adap->algo = &i2c_bit_algo;
+ 	adap->retries = 3;
+ 
+-	return 0;
++	return add_adapter(adap);
+ }
+ 
+ int i2c_bit_add_bus(struct i2c_adapter *adap)
+ {
+-	int err;
+-
+-	err = i2c_bit_prepare_bus(adap);
+-	if (err)
+-		return err;
+-
+-	return i2c_add_adapter(adap);
++	return __i2c_bit_add_bus(adap, i2c_add_adapter);
+ }
+ EXPORT_SYMBOL(i2c_bit_add_bus);
+ 
+ int i2c_bit_add_numbered_bus(struct i2c_adapter *adap)
+ {
+-	int err;
+-
+-	err = i2c_bit_prepare_bus(adap);
+-	if (err)
+-		return err;
+-
+-	return i2c_add_numbered_adapter(adap);
++	return __i2c_bit_add_bus(adap, i2c_add_numbered_adapter);
+ }
+ EXPORT_SYMBOL(i2c_bit_add_numbered_bus);
+ 
 
-For a clean fix, i2c_sibyte_board_data[] should probably be defined in a platform file, 
-not in the i2c bus driver.
 
-Guenter
+-- 
+Jean Delvare
