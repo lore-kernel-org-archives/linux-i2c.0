@@ -1,29 +1,26 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-algo-bit: Refactor adapter registration
-Date: Tue, 07 Dec 2010 12:59:35 +0100
-Message-ID: <4CFE21A7.9020901@gmx.de>
-References: <20101207110631.6222cfed@endymion.delvare> <20101207115131.GM20097@trinity.fluff.org>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-algo-bit: Complain about masters which can't
+	read SCL
+Date: Tue, 7 Dec 2010 12:10:10 +0000
+Message-ID: <20101207121009.GD10722@sirena.org.uk>
+References: <20101207110705.69792a1a@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101207115131.GM20097-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20101207110705.69792a1a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks said the following:
-> On Tue, Dec 07, 2010 at 11:06:31AM +0100, Jean Delvare wrote:
->> Use a function pointer to decide whether to call i2c_add_adapter or
->> i2c_add_numbered_adapter. This makes the code more compact than the
->> current strategy of having the common code in a separate function.
+On Tue, Dec 07, 2010 at 11:07:05AM +0100, Jean Delvare wrote:
+> The I2C specification explicitly describes both SDA and SCL as
+> bidirectional lines. An I2C master with a read-only SCL is thus not
+> compliant. If a slow slave stretches the clock, errors will happen,
+> so the bus can't be considered as reliable.
 > 
-> ok, how about changing i2c_add_numbered_adapter to take a -1 to mean
-> assign bus number automatically? or something similar?
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-IMHO better: i2c_add_adapter with optional (-1) bus parameter?
-
--- 
-KR
-Michael
+It'd be good to also flag this via sysfs so that it's more readily
+visible to things like diagnostic tools.
