@@ -1,51 +1,30 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c-i801: Include <linux/slab.h>
-Date: Sun, 12 Dec 2010 09:25:59 +0100
-Message-ID: <20101212092559.10f6883e@endymion.delvare>
-References: <1292100331.3136.47.camel@localhost>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c-tools 3.0.3 has been released
+Date: Sun, 12 Dec 2010 14:01:06 +0100
+Message-ID: <20101212140106.5f074e60@endymion.delvare>
+References: <20101116135019.59b5bf59@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <1292100331.3136.47.camel@localhost>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: linux-i2c@vger.kernel.org, linux-alpha@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101116135019.59b5bf59-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+Hi all,
 
-On Sat, 11 Dec 2010 20:45:31 +0000, Ben Hutchings wrote:
-> Commit 5a0e3ad6af8660be21ca98a971cd00f331318c05 added direct inclusion
-> of <linux/slab.h> to those source files that appeared to need it, but
-> somehow missed this.
+As announced one month ago, I have released i2c-tools 3.0.3. The
+detailed list of changes in this version can be found in CHANGES:
+http://www.lm-sensors.org/browser/i2c-tools/tags/V3-0-3/CHANGES
 
-Most probably because the i2c-i801 driver didn't do any memory
-allocation until this recent change:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=0cd96eb0a74791cacb27ace902b991cfd0e72abe
+The most important changes IMHO are:
+* DDR3 SDRAM support in decode-dimms
+* Alternative output formats in decode-dimms
+* Support for multiple dumps in i2c-stub-from-dump
 
-> On most architectures <linux/slab.h> is still
-> indirectly included, but there are exceptions such as alpha.
-> 
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> ---
->  drivers/i2c/busses/i2c-i801.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 02835ce..7979aef 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -72,6 +72,7 @@
->  #include <linux/acpi.h>
->  #include <linux/io.h>
->  #include <linux/dmi.h>
-> +#include <linux/slab.h>
->  
->  /* I801 SMBus address offsets */
->  #define SMBHSTSTS(p)	(0 + (p)->smba)
-
-Applied, thanks.
+The rest is small bug fixes, improvements and cleanups all around the
+place, as you would expect after 2 years without a release.
 
 -- 
 Jean Delvare
