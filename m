@@ -1,42 +1,32 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: [PATCH] i2c_intel_mid: Fix slash in sysfs name
-Date: Tue, 14 Dec 2010 15:29:08 +0000
-Message-ID: <20101214152849.7265.93628.stgit@bob.linux.org.uk>
+From: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>
+Subject: pm_runtime_suspended() and non-pm_runtime-using (i2c) drivers
+Date: Tue, 14 Dec 2010 21:24:33 +0530
+Message-ID: <AANLkTik7D2mDJN=BaasvLa4xx0fQBgjHREqQB06aD9JU@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: rjw-KKrjLPT3xs0@public.gmane.org
+Cc: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Hello,
 
-This gets caught by the new sanity check code. Instead of the slash use a
-different symbol. This was originally found by Major Lee who proposed a
-rather more complex patch which changed the name according to the chip
-type.
+If an i2c driver uses dev_pm_ops and pm_runtime_suspended() returns true
+for the device,  the i2c core will not call the driver's pm->suspend()
+routine.  Similar behaviour (except for the if dev_pm_ops check) is
+present in the generic PM ops provided in
+drivers/base/power/generic_ops.c.
 
-On the basis that we are in a late -rc and making Linus grumpy isn't always
-a good idea (however fun) this is a simple alternative.
+Since pm_runtime_suspended() returns true if the relevant driver did not
+call any pm_runtime functions, this means that any driver which does not
+use pm_runtime APIs will not get its pm->suspend() callback called
+during system sleep, if CONFIG_PM_RUNTIME is enabled.
 
-Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
+For the i2c case, there are several such drivers (in drivers/input/*,
+etc) lacking these calls.  How is this to be handled?  Do all of these
+drivers need to be patched to use the pm_runtime API if they are to be
+used on a kernel with PM_RUNTIME enabled?
 
- drivers/i2c/busses/i2c-intel-mid.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-
-diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
-index 657f314..da4bbdd 100644
---- a/drivers/i2c/busses/i2c-intel-mid.c
-+++ b/drivers/i2c/busses/i2c-intel-mid.c
-@@ -1035,7 +1035,7 @@ static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
- 
- 	/* Initialize struct members */
- 	snprintf(mrst->adap.name, sizeof(mrst->adap.name),
--		"MRST/Medfield I2C at %lx", start);
-+		"Intel MID I2C at %lx", start);
- 	mrst->adap.owner = THIS_MODULE;
- 	mrst->adap.algo = &intel_mid_i2c_algorithm;
- 	mrst->adap.dev.parent = &dev->dev;
+thanks,
+Rabin
