@@ -1,53 +1,40 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: [linux-pm] pm_runtime_suspended() and non-pm_runtime-using (i2c)
- drivers
-Date: Wed, 15 Dec 2010 15:38:00 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1012151530590.2171-100000@iolanthe.rowland.org>
-References: <201012150119.59801.rjw@sisk.pl>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] GPIO_SCH and I2C_SCH: select MFD_SUPPORT to eliminate
+	kconfig warnings
+Date: Wed, 15 Dec 2010 21:21:04 +0000
+Message-ID: <20101215212104.GA20097@trinity.fluff.org>
+References: <20101214162656.b8550c70.randy.dunlap@oracle.com> <20101215101541.5952780f@endymion.delvare> <4D0920DD.3080306@oracle.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201012150119.59801.rjw-KKrjLPT3xs0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4D0920DD.3080306-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>
+To: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 15 Dec 2010, Rafael J. Wysocki wrote:
+On Wed, Dec 15, 2010 at 12:11:09PM -0800, Randy Dunlap wrote:
+> On 12/15/10 01:15, Jean Delvare wrote:
+> > Hi Randy,
+> > 
+> > On Tue, 14 Dec 2010 16:26:56 -0800, Randy Dunlap wrote:
+> >> From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+> >>
+> >> I2C_ISCH and GPIO_SCH need to select MFD_SUPPORT so that the
+> >> dependency tree hierarchy is satisfied.  This eliminates the
+> >> kconfig warning:
+> >>
+> >> warning: (I2C_ISCH && I2C && PCI || GPIO_SCH && GPIOLIB && PCI) selects LPC_SCH which has unmet direct dependencies (MFD_SUPPORT && PCI)
+> >>
 
-> From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-> Subject: PM / Runtime: Fix pm_runtime_suspended()
-> 
-> pm_runtime_suspended() shouldn't return true if the runtime PM of the
-> given device is disabled.
-> 
-> Signed-off-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-> ---
->  include/linux/pm_runtime.h |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: linux-2.6/include/linux/pm_runtime.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/pm_runtime.h
-> +++ linux-2.6/include/linux/pm_runtime.h
-> @@ -78,7 +78,8 @@ static inline void device_set_run_wake(s
->  
->  static inline bool pm_runtime_suspended(struct device *dev)
->  {
-> -	return dev->power.runtime_status == RPM_SUSPENDED;
-> +	return dev->power.runtime_status == RPM_SUSPENDED
-> +		&& !dev->power.disable_depth;
->  }
+Hmm, it seems that MFD_SUPPORT enables MFD_CORE, and as such, I don't
+think MFD_CORE can be selected without the MFD_SUPPORT.
 
-You need to update the documentation entry for pm_runtime_suspended as 
-well.
+My view would be to add MFD_NEEDED, or NEEDS_MFD which would force
+the MFD_SUPPORT and MFD_CORE on in one go.
 
-I think this is okay.  If a driver or subsystem uses
-pm_runtime_suspended() then it must be runtime-PM-aware, so it wouldn't
-leave a device disabled for runtime PM.
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
-So in theory the only place this would matter is if the function is
-called in a generic setting, and AFAICT the only place that happens is
-in generic_ops.c, where the change is correct.
-
-Alan Stern
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
