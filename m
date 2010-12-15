@@ -1,70 +1,53 @@
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] GPIO_SCH and I2C_SCH: select MFD_SUPPORT to eliminate
-  kconfig warnings
-Date: Wed, 15 Dec 2010 12:11:09 -0800
-Message-ID: <4D0920DD.3080306@oracle.com>
-References: <20101214162656.b8550c70.randy.dunlap@oracle.com> <20101215101541.5952780f@endymion.delvare>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [linux-pm] pm_runtime_suspended() and non-pm_runtime-using (i2c)
+ drivers
+Date: Wed, 15 Dec 2010 15:38:00 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1012151530590.2171-100000@iolanthe.rowland.org>
+References: <201012150119.59801.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101215101541.5952780f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <201012150119.59801.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, akpm <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/15/10 01:15, Jean Delvare wrote:
-> Hi Randy,
-> 
-> On Tue, 14 Dec 2010 16:26:56 -0800, Randy Dunlap wrote:
->> From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
->>
->> I2C_ISCH and GPIO_SCH need to select MFD_SUPPORT so that the
->> dependency tree hierarchy is satisfied.  This eliminates the
->> kconfig warning:
->>
->> warning: (I2C_ISCH && I2C && PCI || GPIO_SCH && GPIOLIB && PCI) selects LPC_SCH which has unmet direct dependencies (MFD_SUPPORT && PCI)
->>
->> Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
->> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> ---
->>  drivers/gpio/Kconfig       |    1 +
->>  drivers/i2c/busses/Kconfig |    1 +
->>  2 files changed, 2 insertions(+)
->>
->> --- lnx-2637-rc4.orig/drivers/gpio/Kconfig
->> +++ lnx-2637-rc4/drivers/gpio/Kconfig
->> @@ -102,6 +102,7 @@ config GPIO_VR41XX
->>  config GPIO_SCH
->>  	tristate "Intel SCH GPIO"
->>  	depends on GPIOLIB && PCI
->> +	select MFD_SUPPORT
->>  	select MFD_CORE
->>  	select LPC_SCH
->>  	help
->> --- lnx-2637-rc4.orig/drivers/i2c/busses/Kconfig
->> +++ lnx-2637-rc4/drivers/i2c/busses/Kconfig
->> @@ -107,6 +107,7 @@ config I2C_I801
->>  config I2C_ISCH
->>  	tristate "Intel SCH SMBus 1.0"
->>  	depends on PCI
->> +	select MFD_SUPPORT
->>  	select MFD_CORE
->>  	select LPC_SCH
->>  	help
-> 
-> It seems wrong to have to select both MFD_SUPPORT and MFD_CORE. Can't
-> the MFD subsystem be cleaned up so that subdrivers have a single symbol
-> to select beyond their own?
-> 
-> I don't quite get the point of MFD_CORE. MFD_SUPPORT could be made
-> tristate, and MFD_CORE dropped (and then MFD_SUPPORT renamed to
-> MFD_CORE to minimize the changes.) This is exactly how I2C support is
-> implemented, for example.
+On Wed, 15 Dec 2010, Rafael J. Wysocki wrote:
 
-OK, I'll look into that.  Thanks.
+> From: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> Subject: PM / Runtime: Fix pm_runtime_suspended()
+> 
+> pm_runtime_suspended() shouldn't return true if the runtime PM of the
+> given device is disabled.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> ---
+>  include/linux/pm_runtime.h |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> Index: linux-2.6/include/linux/pm_runtime.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/pm_runtime.h
+> +++ linux-2.6/include/linux/pm_runtime.h
+> @@ -78,7 +78,8 @@ static inline void device_set_run_wake(s
+>  
+>  static inline bool pm_runtime_suspended(struct device *dev)
+>  {
+> -	return dev->power.runtime_status == RPM_SUSPENDED;
+> +	return dev->power.runtime_status == RPM_SUSPENDED
+> +		&& !dev->power.disable_depth;
+>  }
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+You need to update the documentation entry for pm_runtime_suspended as 
+well.
+
+I think this is okay.  If a driver or subsystem uses
+pm_runtime_suspended() then it must be runtime-PM-aware, so it wouldn't
+leave a device disabled for runtime PM.
+
+So in theory the only place this would matter is if the function is
+called in a generic setting, and AFAICT the only place that happens is
+in generic_ops.c, where the change is correct.
+
+Alan Stern
