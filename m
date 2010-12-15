@@ -1,49 +1,68 @@
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] GPIO_SCH and I2C_SCH: select MFD_SUPPORT to eliminate
- kconfig warnings
-Date: Tue, 14 Dec 2010 16:26:56 -0800
-Message-ID: <20101214162656.b8550c70.randy.dunlap@oracle.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c_intel_mid: Fix slash in sysfs name
+Date: Wed, 15 Dec 2010 10:08:15 +0100
+Message-ID: <20101215100815.44fb8b83@endymion.delvare>
+References: <20101214152849.7265.93628.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101214152849.7265.93628.stgit-Z/y2cZnRghHXmaaqVzeoHQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: akpm <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Hi Alan,
 
-I2C_ISCH and GPIO_SCH need to select MFD_SUPPORT so that the
-dependency tree hierarchy is satisfied.  This eliminates the
-kconfig warning:
+On Tue, 14 Dec 2010 15:29:08 +0000, Alan Cox wrote:
+> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> 
+> This gets caught by the new sanity check code.
 
-warning: (I2C_ISCH && I2C && PCI || GPIO_SCH && GPIOLIB && PCI) selects LPC_SCH which has unmet direct dependencies (MFD_SUPPORT && PCI)
+New sanity check of what? Where's the code?
 
-Signed-off-by: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/gpio/Kconfig       |    1 +
- drivers/i2c/busses/Kconfig |    1 +
- 2 files changed, 2 insertions(+)
+> Instead of the slash use a
+> different symbol. This was originally found by Major Lee who proposed a
+> rather more complex patch which changed the name according to the chip
+> type.
+> 
+> On the basis that we are in a late -rc and making Linus grumpy isn't always
+> a good idea (however fun) this is a simple alternative.
+> 
+> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+> 
+>  drivers/i2c/busses/i2c-intel-mid.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> 
+> diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
+> index 657f314..da4bbdd 100644
+> --- a/drivers/i2c/busses/i2c-intel-mid.c
+> +++ b/drivers/i2c/busses/i2c-intel-mid.c
+> @@ -1035,7 +1035,7 @@ static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
+>  
+>  	/* Initialize struct members */
+>  	snprintf(mrst->adap.name, sizeof(mrst->adap.name),
+> -		"MRST/Medfield I2C at %lx", start);
+> +		"Intel MID I2C at %lx", start);
+>  	mrst->adap.owner = THIS_MODULE;
+>  	mrst->adap.algo = &intel_mid_i2c_algorithm;
+>  	mrst->adap.dev.parent = &dev->dev;
 
---- lnx-2637-rc4.orig/drivers/gpio/Kconfig
-+++ lnx-2637-rc4/drivers/gpio/Kconfig
-@@ -102,6 +102,7 @@ config GPIO_VR41XX
- config GPIO_SCH
- 	tristate "Intel SCH GPIO"
- 	depends on GPIOLIB && PCI
-+	select MFD_SUPPORT
- 	select MFD_CORE
- 	select LPC_SCH
- 	help
---- lnx-2637-rc4.orig/drivers/i2c/busses/Kconfig
-+++ lnx-2637-rc4/drivers/i2c/busses/Kconfig
-@@ -107,6 +107,7 @@ config I2C_I801
- config I2C_ISCH
- 	tristate "Intel SCH SMBus 1.0"
- 	depends on PCI
-+	select MFD_SUPPORT
- 	select MFD_CORE
- 	select LPC_SCH
- 	help
+Having a slash in an I2C adapter name shouldn't be a problem. The real
+problem is below:
+
+	err = request_irq(dev->irq, intel_mid_i2c_isr, IRQF_SHARED,
+					mrst->adap.name, mrst);
+
+Using the adapter name to request the IRQ is silly. The very same issue
+was fixed in i2c-pca-platform recently:
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=323584436db0cb05286425d4dfd9516fce88487f
+
+You want to use a short name for the interrupt. Either the driver name,
+or if you really want something device-specific, the bus device name.
+
+-- 
+Jean Delvare
