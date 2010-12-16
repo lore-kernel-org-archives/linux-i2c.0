@@ -1,132 +1,212 @@
-From: "Matthias Zacharias" <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
-Subject: Antw: Re: Need help to fix some issues with the linux driver  
-	 "i2c-gpio"
-Date: Thu, 16 Dec 2010 14:27:13 +0100
-Message-ID: <4D0A21C1020000AA00008375@center.bmk-electronics.de>
-References: <4CF4DF5E020000AA0000808F@center.bmk-electronics.de>
- <20101130182150.3bbc8f01@endymion.delvare>
- <4CF62AFD020000AA000080E3@center.bmk-electronics.de>
- <20101202172322.43ea4698@endymion.delvare>
- <4CFCB095020000AA00008187@center.bmk-electronics.de>
- <20101206112557.3dc8ffe3@endymion.delvare>
- <4D025397020000AA00008248@center.bmk-electronics.de>
- <20101211172336.35c434ef@endymion.delvare>
- <4D0789C5020000AA00008346@center.bmk-electronics.de>
- <20101214175828.0a62ce3f@endymion.delvare>
- <4D08C6B2020000AA0000835E@center.bmk-electronics.de>
- <20101215154255.20d471a4@endymion.delvare>
- <4D09F8B7020000AA00008369@center.bmk-electronics.de>
- <20101216135202.38ce671a@endymion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [RFC] i2c-algo-bit: Disable interrupts while SCL is high
+Date: Thu, 16 Dec 2010 15:06:38 +0100
+Message-ID: <20101216150638.7d3850b5@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101216135202.38ce671a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Matthias Zacharias <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Jean,
+Add a spinlock to every user of i2c-algo-bit, which is taken before
+raising SCL and released after lowering SCL. We don't really need
+the exclusion functionality, but we have to disable local interrupts.
+This is needed to comply with SMBus requirements that SCL shouldn't
+be high for longer than 50 us.
 
->>> Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> schrieb am Donnerstag, 16.
-Dezember 2010 um
-13:52 in Nachricht <20101216135202.38ce671a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>:
-> On Thu, 16 Dec 2010 11:32:07 +0100, Matthias Zacharias wrote:
->> With the new patch the driver is working fine, also with i2c_debug
-=3D
->> 3.
->>=20
->> See the screenshot in my dropbox
->> (http://www.dropbox.com/gallery/16457261/1/I2C_2_MLX90614?h=3D8e2a46=
-)
->=20
-> Looks good, great. I'll send the patch for review and comments to
-both
-> the linux-i2c list and LKML later today.
->=20
-> Do you want me to list you as a tester in the patch header? If I do
-> that, I'll have to include your name and e-mail address, so I need
-to
-> know if this is OK with you.
->=20
+SMBus slaves can consider SCL being high for 50 us as a timeout
+condition. This has been observed to happen reproducibly with the
+Melexis MLX90614.
 
-Yes it's OK, you can include me as tester, my name and e-mail address
-also.
+The drawback of this approach is that spin_lock_irqsave() and
+spin_unlock_irqrestore() will be called once for each bit going on the
+I2C bus in either direction. This can mean up to 100 kHz for standard
+I2C and SMBus and up to 250 kHz for fast I2C. The good thing is that
+this limits the latency to reasonable values (2us at 250 kHz, 5 us at
+100 kHz and 50 us at 10 kHz).
 
->> > (...)
->> > Just publish it as is, and I'll review it publicly. It will
->> > certainly take a number of round trips to get it right, if this
-is
->> > your first contribution, but that's OK.
->> >
->>=20
->> This MLX90614 driver has a reduced functionality. It was tailored
-for
->> our application which use only the temperature read function.
->> Also the SMBus address is fix defined in the source code, and no
->> checkes if the factory preprogramming is correct are done.
->> The option to manage the configuration of the MLX90614 as described
-in
->> the datasheets is not yet implemented, because we don't need it.
->=20
-> This is totally OK. Others can add functionalities to the driver
-later
-> if needed.
->=20
->> > (...)
->> > FYI, I have asked Melexis for an MLX90614 evaluation board, they
->> > have sent something to me, so as soon as I receive it I should be
->> > able to test your driver.
->>=20
->> The evalutionboard (EVB) shiped by Melexis uses his own
-microcontroller
->> on that board and communicate to the PC via USB. In our system the
->> MLX90614 sensor is connected directly to the port pins of the
->> microcontroller.
->=20
-> I know that. I don't plan to actually use the micro-controller on
-the
-> evaluation board. There are I2C pins on the board, and I'll connect
-an
-> external I2C master [1] to them.
->=20
-> [1] http://www.harbaum.org/till/i2c_tiny_usb/index.shtml=20
+An alternative would be to keep the lock held for the whole transfer
+of every single byte. This would divide the number of calls to
+spin_lock_irqsave() and spin_unlock_irqrestore() by 9 (i.e. up to 11
+kHz for standard I2C and up to 28 kHz for fast I2C) at the price of
+multiplying the latency by 18 (i.e. 36 us at 250 kHz, 90 us at 100 kHz
+and 900 us at 10 kHz).
 
-This seems to be an interesting board. I'm impressed that it works also
-with a smartphone as frontend.
+I would welcome comments on this. I sincerely have no idea what is
+considered a reasonable duration during which local interrupts can be
+disabled, and I have also no idea above what frequency taking and
+releasing a (never busy) spinlock is considered unreasonable.
 
-Best regards
-Matthias Zacharias
+i2c-algo-bit is used by many popular I2C and SMBus controller drivers,
+so this change will have an effect on virtually every Linux system out
+there. So I don't want to get it wrong.
 
---------------------
-BMK electronic solutions GmbH
-Werner-von-Siemens-Str. 6, Eingang 18 f
-D-86159 Augsburg
-Tel. +49 (0) 821 / 207 88 - 700
-=46ax +49 (0) 821 / 207 88 - 721
-info-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org
-Gesch=C3=A4ftsf=C3=BChrer: Dipl.-oec. Alois Kn=C3=B6ferle
-Sitz: Augsburg
-HR-Nr.: B21197
----------------------
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Tested-by: Matthias Zacharias <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-bit.c |   38 ++++++++++++++++++++++++++++++++++----
+ include/linux/i2c-algo-bit.h     |    4 ++++
+ 2 files changed, 38 insertions(+), 4 deletions(-)
 
-Diese E-mail kann vertrauliche Informationen enthalten. Falls Sie diese
-E-Mail irrt=C3=BCmlich erhalten haben, informieren Sie bitte unverz=C3=BC=
-glich den
-Absender und l=C3=B6schen Sie diese E-Mail von jedem Rechner, auch von =
-den
-Mailservern. Jede Verbreitung des Inhalts, auch die teilweise
-Verbreitung, ist in diesem Fall untersagt. Au=C3=9Fer bei Vorsatz oder =
-grober
-=46ahrl=C3=A4ssigkeit schliessen wir jegliche Haftung f=C3=BCr Verluste=
- oder Sch=C3=A4den
-aus, die durch Viren befallene Software oder E-Mails verursacht werden.
+--- linux-2.6.37-rc6.orig/drivers/i2c/algos/i2c-algo-bit.c	2010-12-16 11:01:39.000000000 +0100
++++ linux-2.6.37-rc6/drivers/i2c/algos/i2c-algo-bit.c	2010-12-16 13:11:12.000000000 +0100
+@@ -29,6 +29,7 @@
+ #include <linux/sched.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
++#include <linux/spinlock.h>
+ 
+ 
+ /* ----- global defines ----------------------------------------------- */
+@@ -130,12 +131,17 @@ static void i2c_start(struct i2c_algo_bi
+ 
+ static void i2c_repstart(struct i2c_algo_bit_data *adap)
+ {
++	unsigned long flags;
++
+ 	/* assert: scl is low */
+ 	sdahi(adap);
++	spin_lock_irqsave(&adap->lock, flags);
+ 	sclhi(adap);
+ 	setsda(adap, 0);
+ 	udelay(adap->udelay);
+-	scllo(adap);
++	setscl(adap, 0);
++	spin_unlock_irqrestore(&adap->lock, flags);
++	udelay(adap->udelay / 2);
+ }
+ 
+ 
+@@ -163,13 +169,16 @@ static int i2c_outb(struct i2c_adapter *
+ 	int sb;
+ 	int ack;
+ 	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
++	unsigned long flags;
+ 
+ 	/* assert: scl is low */
+ 	for (i = 7; i >= 0; i--) {
+ 		sb = (c >> i) & 1;
+ 		setsda(adap, sb);
+ 		udelay((adap->udelay + 1) / 2);
++		spin_lock_irqsave(&adap->lock, flags);
+ 		if (sclhi(adap) < 0) { /* timed out */
++			spin_unlock_irqrestore(&adap->lock, flags);
+ 			bit_dbg(1, &i2c_adap->dev, "i2c_outb: 0x%02x, "
+ 				"timeout at bit #%d\n", (int)c, i);
+ 			return -ETIMEDOUT;
+@@ -180,10 +189,14 @@ static int i2c_outb(struct i2c_adapter *
+ 		 * Report a unique code, so higher level code can retry
+ 		 * the whole (combined) message and *NOT* issue STOP.
+ 		 */
+-		scllo(adap);
++		setscl(adap, 0);
++		spin_unlock_irqrestore(&adap->lock, flags);
++		udelay(adap->udelay / 2);
+ 	}
+ 	sdahi(adap);
++	spin_lock_irqsave(&adap->lock, flags);
+ 	if (sclhi(adap) < 0) { /* timeout */
++		spin_unlock_irqrestore(&adap->lock, flags);
+ 		bit_dbg(1, &i2c_adap->dev, "i2c_outb: 0x%02x, "
+ 			"timeout at ack\n", (int)c);
+ 		return -ETIMEDOUT;
+@@ -193,10 +206,13 @@ static int i2c_outb(struct i2c_adapter *
+ 	 * NAK (usually to report problems with the data we wrote).
+ 	 */
+ 	ack = !getsda(adap);    /* ack: sda is pulled low -> success */
++	setscl(adap, 0);
++	spin_unlock_irqrestore(&adap->lock, flags);
++	udelay(adap->udelay / 2);
++
+ 	bit_dbg(2, &i2c_adap->dev, "i2c_outb: 0x%02x %s\n", (int)c,
+ 		ack ? "A" : "NA");
+ 
+-	scllo(adap);
+ 	return ack;
+ 	/* assert: scl is low (sda undef) */
+ }
+@@ -209,11 +225,14 @@ static int i2c_inb(struct i2c_adapter *i
+ 	int i;
+ 	unsigned char indata = 0;
+ 	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
++	unsigned long flags;
+ 
+ 	/* assert: scl is low */
+ 	sdahi(adap);
+ 	for (i = 0; i < 8; i++) {
++		spin_lock_irqsave(&adap->lock, flags);
+ 		if (sclhi(adap) < 0) { /* timeout */
++			spin_unlock_irqrestore(&adap->lock, flags);
+ 			bit_dbg(1, &i2c_adap->dev, "i2c_inb: timeout at bit "
+ 				"#%d\n", 7 - i);
+ 			return -ETIMEDOUT;
+@@ -222,6 +241,7 @@ static int i2c_inb(struct i2c_adapter *i
+ 		if (getsda(adap))
+ 			indata |= 0x01;
+ 		setscl(adap, 0);
++		spin_unlock_irqrestore(&adap->lock, flags);
+ 		udelay(i == 7 ? adap->udelay / 2 : adap->udelay);
+ 	}
+ 	/* assert: scl is low */
+@@ -384,16 +404,21 @@ static int sendbytes(struct i2c_adapter
+ static int acknak(struct i2c_adapter *i2c_adap, int is_ack)
+ {
+ 	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
++	unsigned long flags;
+ 
+ 	/* assert: sda is high */
+ 	if (is_ack)		/* send ack */
+ 		setsda(adap, 0);
+ 	udelay((adap->udelay + 1) / 2);
++	spin_lock_irqsave(&adap->lock, flags);
+ 	if (sclhi(adap) < 0) {	/* timeout */
++		spin_unlock_irqrestore(&adap->lock, flags);
+ 		dev_err(&i2c_adap->dev, "readbytes: ack/nak timeout\n");
+ 		return -ETIMEDOUT;
+ 	}
+-	scllo(adap);
++	setscl(adap, 0);
++	spin_unlock_irqrestore(&adap->lock, flags);
++	udelay(adap->udelay / 2);
+ 	return 0;
+ }
+ 
+@@ -616,6 +641,11 @@ static int __i2c_bit_add_bus(struct i2c_
+ 	adap->algo = &i2c_bit_algo;
+ 	adap->retries = 3;
+ 
++	/* We use a spinlock to block interrupts while SCL is high.
++	 * Otherwise the very short SMBus SCL high timeout (50 us)
++	 * can be reached, causing SMBus slaves to stop responding. */
++	spin_lock_init(&bit_adap->lock);
++
+ 	ret = add_adapter(adap);
+ 	if (ret < 0)
+ 		return ret;
+--- linux-2.6.37-rc6.orig/include/linux/i2c-algo-bit.h	2010-12-16 11:00:59.000000000 +0100
++++ linux-2.6.37-rc6/include/linux/i2c-algo-bit.h	2010-12-16 13:11:41.000000000 +0100
+@@ -24,6 +24,8 @@
+ #ifndef _LINUX_I2C_ALGO_BIT_H
+ #define _LINUX_I2C_ALGO_BIT_H
+ 
++#include <linux/spinlock.h>
++
+ /* --- Defines for bit-adapters ---------------------------------------	*/
+ /*
+  * This struct contains the hw-dependent functions of bit-style adapters to
+@@ -39,6 +41,8 @@ struct i2c_algo_bit_data {
+ 	int  (*pre_xfer)  (struct i2c_adapter *);
+ 	void (*post_xfer) (struct i2c_adapter *);
+ 
++	spinlock_t lock;	/* Disable interrupts when SCL is high */
++
+ 	/* local settings */
+ 	int udelay;		/* half clock cycle time in us,
+ 				   minimum 2 us for fast-mode I2C,
 
-This e-mail may contain confidential information. If you received this
-e-mail in error, please contact the sender and delete this e-mail from
-your computer, including your mailservers. Any dissemination, even
-partly, is prohibited. Except in case of gross negligence or wilful
-misconduct we accept no liability for any loss or damage caused by
-software or e-mail viruses.
+
+-- 
+Jean Delvare
