@@ -1,53 +1,44 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: platform/i2c busses: pm runtime and system sleep
-Date: Fri, 17 Dec 2010 14:24:03 +0000
-Message-ID: <20101217142402.GA19391@rakim.wolfsonmicro.main>
-References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com>
- <201012171425.07775.rjw@sisk.pl>
- <20101217133434.GH31453@rakim.wolfsonmicro.main>
- <201012171449.26082.rjw@sisk.pl>
+From: Joan Pau Beltran <joanpau.beltran-i5CWTa81U/w@public.gmane.org>
+Subject: Re: pca953x GPIO
+Date: Fri, 17 Dec 2010 18:21:57 +0100
+Message-ID: <4D0B9C35.5000802@uib.cat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201012171449.26082.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 17, 2010 at 02:49:25PM +0100, Rafael J. Wysocki wrote:
-> On Friday, December 17, 2010, Mark Brown wrote:
+Hi everyone,
 
-> > By, for example, providing default implementations which the buses can
-> > use if they choose to.
+We are also working with an Advantech PCM3362 board in an underwater 
+vehicle, and want to use the GPIO port to monitor the battery charge (a 
+battery board is connected to the GPIO port and sets a pin to 1 when 
+voltage goes below 20V).
 
-> OK, so we have generic_subsys_pm_ops.  Do we need anything beyond that?
+We need to use Ubuntu, currently 10.04 with kernel 
+linux-image-2.6-32-26-generic.
 
-Hrm.  Possibly just some fiddling with those or alternative versions.
-For example, looking at the I2C bus suspend it's this:
+As Giampolo says, out of the box there aren't any chips under 
+/sys/class/gpio (only import/export files).
+After checking that i2c-gpio and pca953x are shipped with the kernel but 
+no loaded by default, I tried to modprobe them and they load 
+successfully, but the chip does not appear in /sys/class/gpio.
+i2cdetect does not list any bus.
 
-static int i2c_device_pm_suspend(struct device *dev)
-{
-	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+The battery board is not connected to the GPIO now. Actually nothing is 
+connected to it. I suppose that the chip should be detected even if 
+there is nothing attached to it. But just to be sure, do I need to 
+connect it to some device to get the chip appear under /sys/class/gpio?
 
-	if (pm) {
-		if (pm_runtime_suspended(dev))
-			return 0;
-		else
-			return pm->suspend ? pm->suspend(dev) : 0;
-	}
+Giampolo (ore anyone on the list), did you success using the GPIO port 
+on that board? In that case, could you point me what steps have you 
+done? It's the first time I use a GPIO port and I read the Documentation 
+and both examples pointed out by Jean but still can not figure out why 
+the chip is not recognized under /sys/class/gpio or how to access it.
 
-	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
-}
+Thanks Jean for pointing out about the address alignment difference in 
+Linux. For sure I won't even thought about it reading the Advantech manual.
 
-Ideally the if (pm) block could just be factored out into the pm core as
-there's nothing I2C-specific about that at all.  Possibly even the whole
-logic surrounding fall back to legacy, though that smells a bit.  The
-generic suspend operation doesn't fit here:
-
-int pm_generic_suspend(struct device *dev)
-{
-	return __pm_generic_call(dev, PM_EVENT_SUSPEND);
-}
-EXPORT_SYMBOL_GPL(pm_generic_suspend);
+Thanks in advance, and please excuse my English!
