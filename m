@@ -1,74 +1,68 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [RFC] i2c-algo-bit: Disable interrupts while SCL is high
-Date: Sat, 18 Dec 2010 00:09:24 +0100
-Message-ID: <20101218000924.546ad703@endymion.delvare>
-References: <20101216150638.7d3850b5@endymion.delvare>
-	<20101216160046.GE20097@trinity.fluff.org>
-	<20101216175337.2b1ae6ee@endymion.delvare>
-	<4D0B5312.5080107@gmx.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: platform/i2c busses: pm runtime and system sleep
+Date: Sat, 18 Dec 2010 01:04:54 +0000
+Message-ID: <20101218010454.GA2430@opensource.wolfsonmicro.com>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com>
+ <201012171449.26082.rjw@sisk.pl>
+ <20101217142402.GA19391@rakim.wolfsonmicro.main>
+ <201012180001.25263.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D0B5312.5080107-Mmb7MZpHnFY@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201012180001.25263.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Matthias Zacharias <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
+On Sat, Dec 18, 2010 at 12:01:25AM +0100, Rafael J. Wysocki wrote:
+> On Friday, December 17, 2010, Mark Brown wrote:
 
-On Fri, 17 Dec 2010 13:09:54 +0100, Michael Lawnick wrote:
-> Jean Delvare said the following:
-> > Hi Ben,
-> > 
-> > On Thu, 16 Dec 2010 16:00:46 +0000, Ben Dooks wrote:
-> >> On Thu, Dec 16, 2010 at 03:06:38PM +0100, Jean Delvare wrote:
-> >> > Add a spinlock to every user of i2c-algo-bit, which is taken before
-> >> > raising SCL and released after lowering SCL. We don't really need
-> >> > the exclusion functionality, but we have to disable local interrupts.
-> >> > This is needed to comply with SMBus requirements that SCL shouldn't
-> >> > be high for longer than 50 us.
-> >> > 
-> >> > SMBus slaves can consider SCL being high for 50 us as a timeout
-> >> > condition. This has been observed to happen reproducibly with the
-> >> > Melexis MLX90614.
-> >> > 
-> >> > The drawback of this approach is that spin_lock_irqsave() and
-> >> > spin_unlock_irqrestore() will be called once for each bit going on the
-> >> > I2C bus in either direction. This can mean up to 100 kHz for standard
-> >> > I2C and SMBus and up to 250 kHz for fast I2C. The good thing is that
-> >> > this limits the latency to reasonable values (2us at 250 kHz, 5 us at
-> >> > 100 kHz and 50 us at 10 kHz).
-> >> 
-> >> Hmm, this is going to be a drain on interrupt latency... disabling
-> >> interrupts in a system for that long could cause other things to
-> >> jitter.
-> > 
-> > So you consider that even disabling interrupts for 5 us is too long? Or
-> > are you only worried by the 50 us case?
-> 
-> Sorry to disturb, but
-> <MANTRA>
-> 	Disabling interrupts may be done only for a few instructions.</MANTRA>
-> 
-> Even 1 us is an eternity on modern systems.
+> > 	if (pm) {
+> > 		if (pm_runtime_suspended(dev))
+> > 			return 0;
+> > 		else
+> > 			return pm->suspend ? pm->suspend(dev) : 0;
+> > 	}
 
-Don't be sorry, this is exactly the kind of input I was asking for. I'm
-a little surprised, I thought disabling interrupts for a couple
-microseconds was happening all the time, but I'll trust your
-experience. Given your point and Ben's, it seems clear that my patch is
-not acceptable as is, and at the very least I should make the spinlock
-usage optional.
+> > 	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> > }
 
-High-resolution timers may be an option too, but I guess it will
-require a rewrite of the driver, and also I don't think HR timers are
-available everywhere, so we will have to keep the old code in place for
-compatibility.
+> > Ideally the if (pm) block could just be factored out into the pm core as
+> > there's nothing I2C-specific about that at all.  Possibly even the whole
+> > logic surrounding fall back to legacy, though that smells a bit.
 
-Matthias, can you please tell us whether your system supports
-high-resolution timers? I need to know if that would be a viable
-solution for you.
+> No, the legacy is i2c-specific.
 
--- 
-Jean Delvare
+SPI and platform (the first two buses I looked at) both seem to have
+legacy suspend operations too?  Clearly the bus would need to provide an
+op to invoke the legacy call but the logic which prioritises the pm_ops
+over the legacy operation is generic.
+
+> > The generic suspend operation doesn't fit here:
+
+> > int pm_generic_suspend(struct device *dev)
+> > {
+> > 	return __pm_generic_call(dev, PM_EVENT_SUSPEND);
+> > }
+> > EXPORT_SYMBOL_GPL(pm_generic_suspend);
+
+> Well, looking at __pm_generic_call(), I think it does.
+
+> It appears to do exactly what the pm block above does, so it should be possible
+> to have something like this:
+
+Oh, so it does.
+
+> static int i2c_device_pm_suspend(struct device *dev)
+> {
+> 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+> 	return pm ? pm_generic_suspend(dev) : i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> }
+
+> if I'm not missing anything.
+
+Yes, I think that should work - thanks.  A similar thing would work for
+the default platform bus implementation, too, and bring it into line
+with I2C here.  I'll have a play.  Similarly for SPI.
