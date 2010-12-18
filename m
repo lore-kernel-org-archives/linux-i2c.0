@@ -1,68 +1,50 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: platform/i2c busses: pm runtime and system sleep
-Date: Sat, 18 Dec 2010 01:04:54 +0000
-Message-ID: <20101218010454.GA2430@opensource.wolfsonmicro.com>
-References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com>
- <201012171449.26082.rjw@sisk.pl>
- <20101217142402.GA19391@rakim.wolfsonmicro.main>
- <201012180001.25263.rjw@sisk.pl>
+Date: Sat, 18 Dec 2010 13:54:57 +0100
+Message-ID: <201012181354.58077.rjw@sisk.pl>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com> <201012180001.25263.rjw@sisk.pl> <20101218010454.GA2430@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201012180001.25263.rjw-KKrjLPT3xs0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20101218010454.GA2430@opensource.wolfsonmicro.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Rabin Vincent <rabin@rab.in>, stern@rowland.harvard.edu, linux-pm@lists.linux-foundation.org, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Dec 18, 2010 at 12:01:25AM +0100, Rafael J. Wysocki wrote:
-> On Friday, December 17, 2010, Mark Brown wrote:
+On Saturday, December 18, 2010, Mark Brown wrote:
+> On Sat, Dec 18, 2010 at 12:01:25AM +0100, Rafael J. Wysocki wrote:
+> > On Friday, December 17, 2010, Mark Brown wrote:
+> 
+> > > 	if (pm) {
+> > > 		if (pm_runtime_suspended(dev))
+> > > 			return 0;
+> > > 		else
+> > > 			return pm->suspend ? pm->suspend(dev) : 0;
+> > > 	}
+> 
+> > > 	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+> > > }
+> 
+> > > Ideally the if (pm) block could just be factored out into the pm core as
+> > > there's nothing I2C-specific about that at all.  Possibly even the whole
+> > > logic surrounding fall back to legacy, though that smells a bit.
+> 
+> > No, the legacy is i2c-specific.
+> 
+> SPI and platform (the first two buses I looked at) both seem to have
+> legacy suspend operations too?  Clearly the bus would need to provide an
+> op to invoke the legacy call but the logic which prioritises the pm_ops
+> over the legacy operation is generic.
 
-> > 	if (pm) {
-> > 		if (pm_runtime_suspended(dev))
-> > 			return 0;
-> > 		else
-> > 			return pm->suspend ? pm->suspend(dev) : 0;
-> > 	}
+Well, the problem with that is the driver would need to tell the generic call
+what the legacy routine is and there's no, er, generic way to do that.
 
-> > 	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
-> > }
+In the i2c case, for example, there is struct i2c_driver that contains the
+->suspend() and ->resume() pointers, so the bus type driver _knows_ how to
+get there, but the PM core doesn't have this information.
 
-> > Ideally the if (pm) block could just be factored out into the pm core as
-> > there's nothing I2C-specific about that at all.  Possibly even the whole
-> > logic surrounding fall back to legacy, though that smells a bit.
-
-> No, the legacy is i2c-specific.
-
-SPI and platform (the first two buses I looked at) both seem to have
-legacy suspend operations too?  Clearly the bus would need to provide an
-op to invoke the legacy call but the logic which prioritises the pm_ops
-over the legacy operation is generic.
-
-> > The generic suspend operation doesn't fit here:
-
-> > int pm_generic_suspend(struct device *dev)
-> > {
-> > 	return __pm_generic_call(dev, PM_EVENT_SUSPEND);
-> > }
-> > EXPORT_SYMBOL_GPL(pm_generic_suspend);
-
-> Well, looking at __pm_generic_call(), I think it does.
-
-> It appears to do exactly what the pm block above does, so it should be possible
-> to have something like this:
-
-Oh, so it does.
-
-> static int i2c_device_pm_suspend(struct device *dev)
-> {
-> 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-> 	return pm ? pm_generic_suspend(dev) : i2c_legacy_suspend(dev, PMSG_SUSPEND);
-> }
-
-> if I'm not missing anything.
-
-Yes, I think that should work - thanks.  A similar thing would work for
-the default platform bus implementation, too, and bring it into line
-with I2C here.  I'll have a play.  Similarly for SPI.
+Thanks,
+Rafael
