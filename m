@@ -1,51 +1,49 @@
 From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH 1/2] PM: Prototype the pm_generic_ operations
-Date: Mon, 20 Dec 2010 22:08:58 +0100
-Message-ID: <201012202208.59102.rjw@sisk.pl>
-References: <1292855593-30608-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: platform/i2c busses: pm runtime and system sleep
+Date: Mon, 20 Dec 2010 22:13:53 +0100
+Message-ID: <201012202213.53902.rjw@sisk.pl>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com> <201012181559.50347.rjw@sisk.pl> <20101220150051.GI26706@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1292855593-30608-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <20101220150051.GI26706-HF5t3jzXg/6ND3a5+9QAFujbO/Zr0HzV@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On Monday, December 20, 2010, Mark Brown wrote:
-> The pm_generic_ operations are all exported but are not prototyped in any
-> header file for direct use. Do so.
+> On Sat, Dec 18, 2010 at 03:59:50PM +0100, Rafael J. Wysocki wrote:
 > 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> > Second, the situation at hand is that the bus type implements dev_pm_ops,
+> > but the driver doesn't.  Now, pm_generic_suspend() is called with a struct
+> > device pointer, so it would have to go back to dev->bus, find the
+> > ->legacy_suspend() callback (as opposed to ->suspend(), which also is legacy,
+> > but is called by the PM core instead).  May I call that confusing?
+> 
+> Well, the trouble is that the whole situation is already pretty
+> confusing for what should be very simple buses, each one needs to write
+> a bunch of not really bus specific code in order to get basic behaviour
+> which allows the drivers to make use of runtime PM, requiring more
+> thought and care per bus than I'd expect given that they've nothing
+> really to contribute.  This leads to the sort of random variations
+> between buses that Rabin is reporting, and means that updates keep
+> having to get done in multiple different places.
+> 
+> The overall effect is that from the point of view of trying to use
+> runtime PM in drivers which work with these simple buses everything
+> feels like it's much harder work than it should be.  Moving all the
+> decision making out of the buses and into the PM core seems like a win
+> here.
 
-I'd take this one, but the second one depends on it.
+Well, the _solution_ is to get rid of the legacy stuff from those buses in the
+first place.  Then, they'll just need to use the generic ops without any
+trouble.
 
-I can take both if Jean agrees.
+What you're proposing is a workaround that people will use as an excuse for
+not doing the right thing forever.
 
 Thanks,
 Rafael
-
-
-> ---
->  include/linux/pm.h |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/linux/pm.h b/include/linux/pm.h
-> index 40f3f45..f7b5bed 100644
-> --- a/include/linux/pm.h
-> +++ b/include/linux/pm.h
-> @@ -610,4 +610,11 @@ extern unsigned int	pm_flags;
->  #define PM_APM	1
->  #define PM_ACPI	2
->  
-> +int pm_generic_suspend(struct device *dev);
-> +int pm_generic_resume(struct device *dev);
-> +int pm_generic_freeze(struct device *dev);
-> +int pm_generic_thaw(struct device *dev);
-> +int pm_generic_restore(struct device *dev);
-> +int pm_generic_poweroff(struct device *dev);
-> +
->  #endif /* _LINUX_PM_H */
-> 
