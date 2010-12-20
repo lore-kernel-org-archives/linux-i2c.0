@@ -1,53 +1,40 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] I2C: Add support for 64bit system.
-Date: Mon, 20 Dec 2010 14:59:54 +0000
-Message-ID: <20101220145954.GA1126@trinity.fluff.org>
-References: <1292830654-7056-1-git-send-email-B33228@freescale.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: platform/i2c busses: pm runtime and system sleep
+Date: Mon, 20 Dec 2010 15:00:52 +0000
+Message-ID: <20101220150051.GI26706@rakim.wolfsonmicro.main>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com>
+ <201012181354.58077.rjw@sisk.pl>
+ <20101218132029.GA22273@opensource.wolfsonmicro.com>
+ <201012181559.50347.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1292830654-7056-1-git-send-email-B33228-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <201012181559.50347.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Xulei <B33228-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 20, 2010 at 03:37:34PM +0800, Xulei wrote:
-> Currently I2C_MPC supports 32bit system only, then this
-> modification makes it support 32bit and 64bit system both.
-> 
-> Signed-off-by: Xulei <B33228-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On Sat, Dec 18, 2010 at 03:59:50PM +0100, Rafael J. Wysocki wrote:
 
-This been build or run tested?
+> Second, the situation at hand is that the bus type implements dev_pm_ops,
+> but the driver doesn't.  Now, pm_generic_suspend() is called with a struct
+> device pointer, so it would have to go back to dev->bus, find the
+> ->legacy_suspend() callback (as opposed to ->suspend(), which also is legacy,
+> but is called by the PM core instead).  May I call that confusing?
 
-> ---
->  drivers/i2c/busses/Kconfig |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 9c6170c..3392f4b 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -422,7 +422,7 @@ config I2C_IXP2000
->  
->  config I2C_MPC
->  	tristate "MPC107/824x/85xx/512x/52xx/83xx/86xx"
-> -	depends on PPC32
-> +	depends on PPC32 || PPC64
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  built-in I2C interface on the MPC107, Tsi107, MPC512x, MPC52xx,
-> -- 
-> 1.7.0.4
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Well, the trouble is that the whole situation is already pretty
+confusing for what should be very simple buses, each one needs to write
+a bunch of not really bus specific code in order to get basic behaviour
+which allows the drivers to make use of runtime PM, requiring more
+thought and care per bus than I'd expect given that they've nothing
+really to contribute.  This leads to the sort of random variations
+between buses that Rabin is reporting, and means that updates keep
+having to get done in multiple different places.
 
--- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+The overall effect is that from the point of view of trying to use
+runtime PM in drivers which work with these simple buses everything
+feels like it's much harder work than it should be.  Moving all the
+decision making out of the buses and into the PM core seems like a win
+here.
