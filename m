@@ -1,31 +1,75 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCHv3 1/4] mc13xxx-core: Consolidate common code to prepare
-	for separate i2c and spi
-Date: Mon, 20 Dec 2010 11:48:12 +0000
-Message-ID: <20101220114811.GA14986@sirena.org.uk>
-References: <1292817055-17715-1-git-send-email-marc@cpdesign.com.au> <1292817055-17715-2-git-send-email-marc@cpdesign.com.au> <20101220083120.GP1940@pengutronix.de> <201012202100.29212.marc@cpdesign.com.au>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [RFC] i2c-algo-bit: Disable interrupts while SCL is high
+Date: Mon, 20 Dec 2010 14:04:59 +0100
+Message-ID: <20101220140459.506d51b7@endymion.delvare>
+References: <20101216150638.7d3850b5@endymion.delvare>
+	<20101216160046.GE20097@trinity.fluff.org>
+	<20101216175337.2b1ae6ee@endymion.delvare>
+	<4D0B5312.5080107@gmx.de>
+	<20101218000924.546ad703@endymion.delvare>
+	<4D0F0497.7090306@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201012202100.29212.marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+In-Reply-To: <4D0F0497.7090306-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: Uwe Kleine-K?nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Matthias Zacharias <Matthias.Zacharias-zGrmWZs6xXT+aS/vkh9bjw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 20, 2010 at 09:00:29PM +1100, Marc Reilly wrote:
-> On Monday, December 20, 2010 07:31:20 pm Uwe Kleine-K?nig wrote:
+Michael,
 
-> > This list isn't complete, but see below.
+On Mon, 20 Dec 2010 08:24:07 +0100, Michael Lawnick wrote:
+> Jean Delvare said the following:
+> > Hi Michael,
+> > 
+> > On Fri, 17 Dec 2010 13:09:54 +0100, Michael Lawnick wrote:
+> >> Sorry to disturb, but
+> >> <MANTRA>
+> >> 	Disabling interrupts may be done only for a few instructions.</MANTRA>
+> >> 
+> >> Even 1 us is an eternity on modern systems.
+> > 
+> > Don't be sorry, this is exactly the kind of input I was asking for. I'm
+> > a little surprised, I thought disabling interrupts for a couple
+> > microseconds was happening all the time, but I'll trust your
+> > experience. 
+> 
+> I can't tell whether this is happening all the time, but I can imagine
+> and I highly discourage this. This is IMHO one of the lessons many LINUX
+> developers have still to learn. Maybe it's a history reason.
+> 
+> > Given your point and Ben's, it seems clear that my patch is
+> > not acceptable as is, and at the very least I should make the spinlock
+> > usage optional.
+> 
+> At last you might not come around your solution, but a H/W-S/W
+> combination driving you in such a direction should be considered broken.
 
-> Do you mean the list above is incomplete? I should have said "Changes to the 
-> struct _include_". 
-> I'm ignorant of "patch summary etiquette" (or what people otherwise like to 
-> see) but I had just assumed that the patch comments were more like a 
-> highlights reel - the real info is in the patch itself.
+I don't disagree, but the fact is that i2c-algo-bit is frequently used.
+It's used by all framebuffer and KMS drivers which want to read the
+EDID data from the screen. It's also used by a large number of V4L and
+DVB drivers.
 
-No, the patch summary should generally be complete - if your patch is
-changing so many things that it's getting tedious to list them all then
-that's usually a sign that it should be split up into a series of
-changes.
+Note that, in the cases above, the current i2c-algo-bit implementation
+should be OK. These are cards with I2C devices mostly, not SMBus
+devices, so they are much more tolerant to slow SCL.
+
+> Using it in professional environment needs heavy discussions about pros
+> and cons, best would be to beat the H/W designers to provide a real
+> controller.
+
+For future designs, certainly. But we also have to deal with the
+existing hardware.
+
+> Of course it may be used in a case, where you simply need a (temporary)
+> hack to get something working.
+
+The problem is that "temporary" tends to stay, either because there is
+no other way, or because the hardware implementation is unreliable or
+limited, or because we don't have the specifications of the hardware
+implementation. So I don't see i2c-algo-bit going away anytime soon.
+
+-- 
+Jean Delvare
