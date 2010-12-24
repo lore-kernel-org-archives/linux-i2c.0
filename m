@@ -1,37 +1,50 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: i2c-ocores changes (version 2)
-Date: Thu, 23 Dec 2010 21:03:20 -0700
-Message-ID: <20101224040320.GF2491@angua.secretlab.ca>
+From: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c-ocores: add some device tree documentation
+Date: Fri, 24 Dec 2010 10:38:57 +0100
+Message-ID: <1293183537.8652.4236.camel@satguru>
 References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
-	<4CFC67AA.2080707@fluff.org>
+	 <1290615982-1028-4-git-send-email-jonas@southpole.se>
+	 <20101224040017.GE2491@angua.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4CFC67AA.2080707-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101224040017.GE2491-MrY2KI0G/OVr83L8+7iqerDks+cytr/Z@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 06, 2010 at 04:33:46AM +0000, Ben Dooks wrote:
-> On 24/11/10 16:26, Jonas Bonn wrote:
-> > Version 2 of patch series incorporating initial feedback from review.
-> > 
-> > /Jonas
+> > +/*
+> > + * Device tree configuration:
+> > + *
+> > + * Required properties:
+> > + * - compatible      : "opencores,i2c-ocores"
 > 
-> I'm relatively happy with this.
-> Any comments from the devicetree side?
+> I assume the i2c-ocore interface could end up changing in the future.
+> This compatible value should have some form of version embedded into
+> it.
+> 
 
-Patches 1 & 2 look good to me.  Some comments on the 3rd patch.
+Unfortunately, versioning is currently one of OpenCores weak points.
+This driver is based on specification version 0.9 and has implementation
+version 1.16 according to source and SVN revision 76.  I've started an
+internal discussion to try to standardize on something useful, but
+there's no consensus, as of yet.  I could make something up here for the
+compatible value, but I'd rather we find a consistent versioning scheme
+that's tenable long-term.
 
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+I guess I'll have to sit on these patches for another cycle while we
+think about this.  Of course, if you have any suggestions, let me know;
+looking at other drivers, there doesn't seem to be a canonical way of
+doing this...
+
+Perhaps:  opencores,i2c-cores-0.9-76
+(i.e. {driver}-{spec revision}-{implementation svn rev})
+
+/Jonas
+
+PS: Honestly not crazy about the name 'i2c-ocores' either as it doesn't
+match the name of the upstream Verilog project which is called,
+unfortunately, simply 'i2c'.  This driver, however, has been upstream
+for a while so I guess we're stuck with it.
