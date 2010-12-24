@@ -1,49 +1,31 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH 1/2] PM: Prototype the pm_generic_ operations
-Date: Fri, 24 Dec 2010 15:08:13 +0100
-Message-ID: <201012241508.14169.rjw@sisk.pl>
-References: <1292855593-30608-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Joan Pau Beltran <joanpau.beltran-i5CWTa81U/w@public.gmane.org>
+Subject: Re: pca953x GPIO
+Date: Fri, 24 Dec 2010 17:14:09 +0100
+Message-ID: <4D14C6D1.3030802@uib.cat>
+References: <4D0B9C35.5000802@uib.cat> <AANLkTi=LQ56S43=BL8tdo=MakP-PRzVK0ieJM07y_O_1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1292855593-30608-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <AANLkTi=LQ56S43=BL8tdo=MakP-PRzVK0ieJM07y_O_1-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
+To: Giampaolo Bellini <iw2lsi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, December 20, 2010, Mark Brown wrote:
-> The pm_generic_ operations are all exported but are not prototyped in any
-> header file for direct use. Do so.
-> 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Thank you very much Giampolo
+(and funny to see that my name is the same than yours, but in Catalan)
 
-Applied to suspend-2.6/linux-next.
+ From your notes:
+> mknod /dev/i2c-0 c 89 0
+> modprobe i2c-dev
+> i2cdetect -l
+>>>> i2c-0   smbus           SMBus I801 adapter at 0400              SMBus adapter
+> i2cget 0 0x20
 
-Thanks,
-Rafael
+I see that you can access the chip. I will test it on monday or tuesday.
+Do you know if we can access the N'th pin on the chip with 'i2cget 0 
+0x20 N' (N in 0..7)?
+And do you know if we can access these pins directly from a C program (I 
+mean without using a system call) ?
 
-
-> ---
->  include/linux/pm.h |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/linux/pm.h b/include/linux/pm.h
-> index 40f3f45..f7b5bed 100644
-> --- a/include/linux/pm.h
-> +++ b/include/linux/pm.h
-> @@ -610,4 +610,11 @@ extern unsigned int	pm_flags;
->  #define PM_APM	1
->  #define PM_ACPI	2
->  
-> +int pm_generic_suspend(struct device *dev);
-> +int pm_generic_resume(struct device *dev);
-> +int pm_generic_freeze(struct device *dev);
-> +int pm_generic_thaw(struct device *dev);
-> +int pm_generic_restore(struct device *dev);
-> +int pm_generic_poweroff(struct device *dev);
-> +
->  #endif /* _LINUX_PM_H */
-> 
+Thanks again for your responses!
