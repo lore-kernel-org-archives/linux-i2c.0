@@ -1,50 +1,38 @@
-From: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c-ocores: add some device tree documentation
-Date: Fri, 24 Dec 2010 10:38:57 +0100
-Message-ID: <1293183537.8652.4236.camel@satguru>
-References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
-	 <1290615982-1028-4-git-send-email-jonas@southpole.se>
-	 <20101224040017.GE2491@angua.secretlab.ca>
+From: "Murali K. Vemuri" <murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org>
+Subject: i2c Issues
+Date: Fri, 24 Dec 2010 20:23:23 +0900
+Message-ID: <002101cba35c$fba6ea50$f2f4bef0$@com>
+Reply-To: <murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101224040017.GE2491-MrY2KI0G/OVr83L8+7iqerDks+cytr/Z@public.gmane.org>
+Content-Language: en-us
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > +/*
-> > + * Device tree configuration:
-> > + *
-> > + * Required properties:
-> > + * - compatible      : "opencores,i2c-ocores"
-> 
-> I assume the i2c-ocore interface could end up changing in the future.
-> This compatible value should have some form of version embedded into
-> it.
-> 
-
-Unfortunately, versioning is currently one of OpenCores weak points.
-This driver is based on specification version 0.9 and has implementation
-version 1.16 according to source and SVN revision 76.  I've started an
-internal discussion to try to standardize on something useful, but
-there's no consensus, as of yet.  I could make something up here for the
-compatible value, but I'd rather we find a consistent versioning scheme
-that's tenable long-term.
-
-I guess I'll have to sit on these patches for another cycle while we
-think about this.  Of course, if you have any suggestions, let me know;
-looking at other drivers, there doesn't seem to be a canonical way of
-doing this...
-
-Perhaps:  opencores,i2c-cores-0.9-76
-(i.e. {driver}-{spec revision}-{implementation svn rev})
-
-/Jonas
-
-PS: Honestly not crazy about the name 'i2c-ocores' either as it doesn't
-match the name of the upstream Verilog project which is called,
-unfortunately, simply 'i2c'.  This driver, however, has been upstream
-for a while so I guess we're stuck with it.
+SGkgdGhlcmUsDQpJIGFtIHdvcmtpbmcgb24gT01BUCAzNTMwICwgTGludXggS2VybmVsIHZlcnNp
+b24gMi42LjMyLg0KT24gT01BUCBJIGNvbm5lY3RlZCBBdWRpbyBDb2RlYyBXTTg5OTMgYXMgSTJD
+IChidXMzKSBzbGF2ZSwgd2l0aCBzbGF2ZQ0KYWRkcmVzcyAweDFBLg0KDQpJIGFtIGFibGUgdG8g
+aW5pdGlhbGl6ZSB0aGUgSTJDIEJ1cyBjb3JyZWN0bHksIGFuZCBJIHN1Y2Nlc3NmdWxseSBib3Vu
+ZCB0aGUNCmRldmljZSB0byB0aGUgZHJpdmVyLiBCeSBhZGRpbmcgYSBmZXcgZGVidWcgbWVzc2Fn
+ZXMsIEkgZ2V0IGxpa2UgdGhpcy4NCg0KaTJjX29tYXAgaTJjX29tYXAuMzogYnVzIDMgcmV2My4x
+MiBhdCA0MDANCmtIeqCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKANCqCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKANCqCgoKCg
+IA0KaTJjIGkyYy0zOiBhZGFwdGVyIFtPTUFQIEkyQyBhZGFwdGVyXQ0KcmVnaXN0ZXJlZKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoA0KoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoA0KoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgDQppMmMgaTJjLTM6IGNsaWVudCBb
+QUs4ODU5XSByZWdpc3RlcmVkIHdpdGggYnVzIGlkDQozLTAwNDSgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgDQqgoKCg
+oKCgoKCgoKCgIKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoA0KaTJjIGkyYy0zOiBjbGllbnQgW3dtODk5M10gcmVnaXN0ZXJlZCB3aXRo
+IGJ1cyBpZCAzLTAwMWGgoCANCg0KVGhpcyBpcyB3aGF0IEkgZXhhY3RseSBpbnRlbmQgdG8gaGFw
+cGVuLiBBZnRlciB0aGlzIHN0ZXAsIEkgZ2V0IHRoZQ0KaTJjX3Byb2JlIHRyaWdnZXJlZCBpbnRv
+IHRoZSBkZXZpY2UsIGFuZCBhdCB0aGF0IHRpbWUsIEhXIHJlYWQgZmFpbHMsDQpjb25zdGFudGx5
+Lg0KSSBjaGVja2VkIHRoZSBwaHlzaWNhbCBhZGRyZXNzIHRoYXQgaXMgYmVpbmcgcmVhZCBmcm9t
+LiBUaGlzIGFkZHJlc3MgaXMNCmNvcnJlY3QgYXMgd2VsbC4gDQoNCkFueSBwb2ludGVycyB0byBo
+b3cgSSBjYW4gcmVzb2x2ZSB0aGlzPw0KDQpUaGFua3MgJiByZWdhcmRzDQpNdXJhbGkNCg0K
