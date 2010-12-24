@@ -1,65 +1,62 @@
-From: Joan Pau Beltran <joanpau.beltran-i5CWTa81U/w@public.gmane.org>
-Subject: Re: pca953x GPIO
-Date: Fri, 24 Dec 2010 17:15:49 +0100
-Message-ID: <4D14C735.8@uib.cat>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c-ocores: add some device tree documentation
+Date: Fri, 24 Dec 2010 13:06:38 -0700
+Message-ID: <AANLkTikvgjQ=kz6y+n9QfXPMwP5FrdZM7_4s==X-JW-k@mail.gmail.com>
+References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
+ <1290615982-1028-4-git-send-email-jonas@southpole.se> <20101224040017.GE2491@angua.secretlab.ca>
+ <1293183537.8652.4236.camel@satguru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1293183537.8652.4236.camel@satguru>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Thank you very much Jean and Giampolo.
+On Fri, Dec 24, 2010 at 2:38 AM, Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org> wrote:
+>> > +/*
+>> > + * Device tree configuration:
+>> > + *
+>> > + * Required properties:
+>> > + * - compatible =A0 =A0 =A0: "opencores,i2c-ocores"
+>>
+>> I assume the i2c-ocore interface could end up changing in the future=
+=2E
+>> This compatible value should have some form of version embedded into
+>> it.
+>>
+>
+> Unfortunately, versioning is currently one of OpenCores weak points.
+> This driver is based on specification version 0.9 and has implementat=
+ion
+> version 1.16 according to source and SVN revision 76. =A0I've started=
+ an
+> internal discussion to try to standardize on something useful, but
+> there's no consensus, as of yet. =A0I could make something up here fo=
+r the
+> compatible value, but I'd rather we find a consistent versioning sche=
+me
+> that's tenable long-term.
+>
+> I guess I'll have to sit on these patches for another cycle while we
+> think about this.
 
-After reading again the kernel GPIO Documentation, I have some doubts 
-that I would like to resolve and any word about them would be 
-apreciated. Please excuse me if the following questions seem too obvious 
-or are wrong formulated. I am very new to I2C and GPIO and can not get 
-much more information from the results of my searches.
+I think your suggestion below is fine.  I don't see any reason not to
+merge this series in 2.6.38.
 
- From Jean's words and the following citation in the GPIO Documentation
+> =A0Of course, if you have any suggestions, let me know;
+> looking at other drivers, there doesn't seem to be a canonical way of
+> doing this...
+>
+> Perhaps: =A0opencores,i2c-cores-0.9-76
+> (i.e. {driver}-{spec revision}-{implementation svn rev})
 
-> 523    Board Support
-> 524    -------------
-> 525    For external GPIO controllers -- such as I2C or SPI expanders, 
-> ASICs, multi
-> 526    function devices, FPGAs or CPLDs -- most often board-specific 
-> code handles
-> 527    registering controller devices and ensures that their drivers 
-> know what GPIO
-> 528    numbers to use with gpiochip_add().  Their numbers often start 
-> right after
-> 529    platform-specific GPIOs.
-> 530
-> 531    For example, board setup code could create structures 
-> identifying the range
-> 532    of GPIOs that chip will expose, and passes them to each GPIO 
-> expander chip
-> 533    using platform_data.  Then the chip driver's probe() routine 
-> could pass that
-> 534    data to gpiochip_add().
+Yes, that sounds appropriate.  For xilinx cores I've pushed for the
+full revision in the compatible values.  Newer cores can and should
+claim compatibility with an older version that implements the same
+interface.  Typically one well known, working version tends to become
+the canonical version that newer cores claim compatibility against.
 
-
-This platform-specific code is what Jean refers to, and must be compiled 
-into the kernel.
-If this is right, do we need to recompile the whole kernel with the new 
-code for your board, or we can compile only the code for a particular 
-board and load it as a module? And then, how can we access to the GPIO 
-pins from a userspace program?
-
-In several pages I have read three different modules are mentioned, 
-namely pca953x, i2c-dev and i2c-gpio. Could anybody clarify what is the 
-exact function of each of these modules, please?
-
-Does the pca953x just use the previous platform code and the general 
-GPIO support kernel facilities to expose the GPIO chip in the user space 
-under /sys/class/gpio ?
-
-Does the i2c-dev module give an alternative way to access to a generic 
-i2c device via i2cget? If this is true, how can we access the GPIO pins 
-from a program in that case?
-
-What does the i2c-gpio module do?
-
-Thanks everyone in advance.
+g.
