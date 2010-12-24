@@ -1,38 +1,32 @@
-From: "Murali K. Vemuri" <murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org>
-Subject: i2c Issues
-Date: Fri, 24 Dec 2010 20:23:23 +0900
-Message-ID: <002101cba35c$fba6ea50$f2f4bef0$@com>
-Reply-To: <murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c-ocores: add some device tree documentation
+Date: Fri, 24 Dec 2010 15:02:36 +0100
+Message-ID: <874oa3qner.fsf@macbook.be.48ers.dk>
+References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
+	<1290615982-1028-4-git-send-email-jonas@southpole.se>
+	<20101224040017.GE2491@angua.secretlab.ca>
+	<1293183537.8652.4236.camel@satguru>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-us
+In-Reply-To: <1293183537.8652.4236.camel@satguru> (Jonas Bonn's message of
+	"Fri, 24 Dec 2010 10:38:57 +0100")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgdGhlcmUsDQpJIGFtIHdvcmtpbmcgb24gT01BUCAzNTMwICwgTGludXggS2VybmVsIHZlcnNp
-b24gMi42LjMyLg0KT24gT01BUCBJIGNvbm5lY3RlZCBBdWRpbyBDb2RlYyBXTTg5OTMgYXMgSTJD
-IChidXMzKSBzbGF2ZSwgd2l0aCBzbGF2ZQ0KYWRkcmVzcyAweDFBLg0KDQpJIGFtIGFibGUgdG8g
-aW5pdGlhbGl6ZSB0aGUgSTJDIEJ1cyBjb3JyZWN0bHksIGFuZCBJIHN1Y2Nlc3NmdWxseSBib3Vu
-ZCB0aGUNCmRldmljZSB0byB0aGUgZHJpdmVyLiBCeSBhZGRpbmcgYSBmZXcgZGVidWcgbWVzc2Fn
-ZXMsIEkgZ2V0IGxpa2UgdGhpcy4NCg0KaTJjX29tYXAgaTJjX29tYXAuMzogYnVzIDMgcmV2My4x
-MiBhdCA0MDANCmtIeqCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKANCqCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKANCqCgoKCg
-IA0KaTJjIGkyYy0zOiBhZGFwdGVyIFtPTUFQIEkyQyBhZGFwdGVyXQ0KcmVnaXN0ZXJlZKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoA0KoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoA0KoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgDQppMmMgaTJjLTM6IGNsaWVudCBb
-QUs4ODU5XSByZWdpc3RlcmVkIHdpdGggYnVzIGlkDQozLTAwNDSgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgDQqgoKCg
-oKCgoKCgoKCgIKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoA0KaTJjIGkyYy0zOiBjbGllbnQgW3dtODk5M10gcmVnaXN0ZXJlZCB3aXRo
-IGJ1cyBpZCAzLTAwMWGgoCANCg0KVGhpcyBpcyB3aGF0IEkgZXhhY3RseSBpbnRlbmQgdG8gaGFw
-cGVuLiBBZnRlciB0aGlzIHN0ZXAsIEkgZ2V0IHRoZQ0KaTJjX3Byb2JlIHRyaWdnZXJlZCBpbnRv
-IHRoZSBkZXZpY2UsIGFuZCBhdCB0aGF0IHRpbWUsIEhXIHJlYWQgZmFpbHMsDQpjb25zdGFudGx5
-Lg0KSSBjaGVja2VkIHRoZSBwaHlzaWNhbCBhZGRyZXNzIHRoYXQgaXMgYmVpbmcgcmVhZCBmcm9t
-LiBUaGlzIGFkZHJlc3MgaXMNCmNvcnJlY3QgYXMgd2VsbC4gDQoNCkFueSBwb2ludGVycyB0byBo
-b3cgSSBjYW4gcmVzb2x2ZSB0aGlzPw0KDQpUaGFua3MgJiByZWdhcmRzDQpNdXJhbGkNCg0K
+>>>>> "Jonas" == Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org> writes:
+
+Hi,
+
+ Jonas> PS: Honestly not crazy about the name 'i2c-ocores' either as it
+ Jonas> doesn't match the name of the upstream Verilog project which is
+ Jonas> called, unfortunately, simply 'i2c'.  This driver, however, has
+ Jonas> been upstream for a while so I guess we're stuck with it.
+
+Yes, it was more or less the best name I could come with. Just calling
+it i2c.c wouldn't have been any good either.
+
+-- 
+Bye, Peter Korsgaard
