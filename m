@@ -1,79 +1,98 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH] i2c: Factor out runtime suspend checks from PM operations
-Date: Wed, 22 Dec 2010 22:25:22 +0100
-Message-ID: <201012222225.22368.rjw@sisk.pl>
-References: <1293041268-7707-1-git-send-email-broonie@opensource.wolfsonmicro.com> <AANLkTin5eSg8vL4Q8yZ9tme38fbS2aAZ-xeLQSNu809B@mail.gmail.com> <20101222201413.GB8167@opensource.wolfsonmicro.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c-ocores: add some device tree documentation
+Date: Thu, 23 Dec 2010 21:00:17 -0700
+Message-ID: <20101224040017.GE2491@angua.secretlab.ca>
+References: <1290615982-1028-1-git-send-email-jonas@southpole.se>
+ <1290615982-1028-4-git-send-email-jonas@southpole.se>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20101222201413.GB8167-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1290615982-1028-4-git-send-email-jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+To: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, December 22, 2010, Mark Brown wrote:
-> On Thu, Dec 23, 2010 at 12:49:39AM +0530, Rabin Vincent wrote:
+On Wed, Nov 24, 2010 at 05:26:22PM +0100, Jonas Bonn wrote:
+> This puts some documentation for the device tree configuration at the head
+> of the driver file.  Hopefully this can get moved to a common area for this
+> type of documentation at a later date; unfortunately, there isn't really
+> such a place in the kernel tree at this time.
 > 
-> > And even if we did want to support runtime PM interaction for legacy
-> > ops, the code for restore() above suffers from the problem of setting
-> > active even when no callback exists, like I mentioned in the same email
-> > for resume():
+> Furthermore, the regstep and clock-frequency parameters are really bus
+> parameters and should probably be passed to the driver in a better way.
+> Consider that a TODO.
 > 
-> I agree it's confused, I posted an updated patch which should behave
-> exactly as the old code did - I think the confusion with the legacy
-> behaviour should be addressed seperately (and ideally in 2.6.37 or at
-> least a stable patch rather than 2.6.38 which is where the current patch
-> is targetted).
+> Signed-off-by: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-ocores.c |   35 +++++++++++++++++++++++++++++++++++
+>  1 files changed, 35 insertions(+), 0 deletions(-)
 
-Rabin is right, runtime PM cannot be supported in the "legacy" case.
-Still, I see that __pm_generic_resume() has the problem that it sets
-RPM_ACTIVE unconditionally, which it shouldn't do if the runtime PM has been
-already disabled.
+Binding looks good, except for a comment on the compatible value
+below, but it should be kept with the other bindings.  Please move
+into a file in Documentation/powerpc/dts-bindings (and, yes, this
+directory does need to be moved out of Documentation/powerpc), or
+document it on the devicetree.org wiki.
 
-So, I think we need this patch:
+g.
 
----
- drivers/base/power/generic_ops.c |    2 +-
- include/linux/pm_runtime.h       |    6 ++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> index dee0352..ef3bcb1 100644
+> --- a/drivers/i2c/busses/i2c-ocores.c
+> +++ b/drivers/i2c/busses/i2c-ocores.c
+> @@ -9,6 +9,41 @@
+>   * kind, whether express or implied.
+>   */
+>  
+> +/*
+> + * Device tree configuration:
+> + *
+> + * Required properties:
+> + * - compatible      : "opencores,i2c-ocores"
 
-Index: linux-2.6/drivers/base/power/generic_ops.c
-===================================================================
---- linux-2.6.orig/drivers/base/power/generic_ops.c
-+++ linux-2.6/drivers/base/power/generic_ops.c
-@@ -185,7 +185,7 @@ static int __pm_generic_resume(struct de
- 		return 0;
- 
- 	ret = callback(dev);
--	if (!ret) {
-+	if (!ret && pm_runtime_enabled(dev)) {
- 		pm_runtime_disable(dev);
- 		pm_runtime_set_active(dev);
- 		pm_runtime_enable(dev);
-Index: linux-2.6/include/linux/pm_runtime.h
-===================================================================
---- linux-2.6.orig/include/linux/pm_runtime.h
-+++ linux-2.6/include/linux/pm_runtime.h
-@@ -82,6 +82,11 @@ static inline bool pm_runtime_suspended(
- 		&& !dev->power.disable_depth;
- }
- 
-+static inline bool pm_runtime_enabled(struct device *dev)
-+{
-+	return !dev->power.disable_depth;
-+}
-+
- static inline void pm_runtime_mark_last_busy(struct device *dev)
- {
- 	ACCESS_ONCE(dev->power.last_busy) = jiffies;
-@@ -120,6 +125,7 @@ static inline void pm_runtime_put_noidle
- static inline bool device_run_wake(struct device *dev) { return false; }
- static inline void device_set_run_wake(struct device *dev, bool enable) {}
- static inline bool pm_runtime_suspended(struct device *dev) { return false; }
-+static inline bool pm_runtime_enabled(struct device *dev) { return false; }
- 
- static inline int pm_generic_runtime_idle(struct device *dev) { return 0; }
- static inline int pm_generic_runtime_suspend(struct device *dev) { return 0; }
+I assume the i2c-ocore interface could end up changing in the future.
+This compatible value should have some form of version embedded into
+it.
+
+> + * - reg             : bus address start and address range size of device
+> + * - interrupts      : interrupt number
+> + * - regstep         : size of device registers in bytes
+> + * - clock-frequency : frequency of bus clock in Hz
+> + * 
+> + * Example:
+> + *
+> + *  i2c0: ocores@a0000000 {
+> + *              compatible = "opencores,i2c-ocores";
+> + *              reg = <0xa0000000 0x8>;
+> + *              interrupts = <10>;
+> + *
+> + *              regstep = <1>;
+> + *              clock-frequency = <20000000>;
+> + *
+> + * -- Devices connected on this I2C bus get
+> + * -- defined here; address- and size-cells
+> + * -- apply to these child devices
+> + *
+> + *              #address-cells = <1>;
+> + *              #size-cells = <0>;
+> + *
+> + *              dummy@60 {
+> + *                     compatible = "dummy";
+> + *                     reg = <60>;
+> + *              };
+> + *  };
+> + *
+> + */
+> +
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+> -- 
+> 1.7.1
+> 
+> _______________________________________________
+> devicetree-discuss mailing list
+> devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> https://lists.ozlabs.org/listinfo/devicetree-discuss
