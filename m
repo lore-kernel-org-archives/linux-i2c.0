@@ -1,359 +1,71 @@
-From: Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>
-Subject: [PATCH] mfd: i2c: convert SCx200 driver from using raw PCI to
- platform device
-Date: Thu, 30 Dec 2010 20:27:33 -0800
-Message-ID: <20101230202733.2f01b62d@queued.net>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c_intel_mid: Fix slash in sysfs name
+Date: Tue, 04 Jan 2011 00:55:33 +0000
+Message-ID: <4D227005.3010000@fluff.org>
+References: <20101214152849.7265.93628.stgit@bob.linux.org.uk> <20101215100815.44fb8b83@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20101215100815.44fb8b83-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Note: this relies on the cs5535-mfd patches that are currently in the
-MFD next tree.  It's been tested on CS5536 hardware, but I don't have
-access to any old SCx200 hardware to verify that I didn't break the ISA
-stuff.
+On 15/12/10 09:08, Jean Delvare wrote:
+> Hi Alan,
+> 
+> On Tue, 14 Dec 2010 15:29:08 +0000, Alan Cox wrote:
+>> From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>>
+>> This gets caught by the new sanity check code.
+> 
+> New sanity check of what? Where's the code?
+> 
+>> Instead of the slash use a
+>> different symbol. This was originally found by Major Lee who proposed a
+>> rather more complex patch which changed the name according to the chip
+>> type.
+>>
+>> On the basis that we are in a late -rc and making Linus grumpy isn't always
+>> a good idea (however fun) this is a simple alternative.
+>>
+>> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> ---
+>>
+>>  drivers/i2c/busses/i2c-intel-mid.c |    2 +-
+>>  1 files changed, 1 insertions(+), 1 deletions(-)
+>>
+>>
+>> diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
+>> index 657f314..da4bbdd 100644
+>> --- a/drivers/i2c/busses/i2c-intel-mid.c
+>> +++ b/drivers/i2c/busses/i2c-intel-mid.c
+>> @@ -1035,7 +1035,7 @@ static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
+>>  
+>>  	/* Initialize struct members */
+>>  	snprintf(mrst->adap.name, sizeof(mrst->adap.name),
+>> -		"MRST/Medfield I2C at %lx", start);
+>> +		"Intel MID I2C at %lx", start);
+>>  	mrst->adap.owner = THIS_MODULE;
+>>  	mrst->adap.algo = &intel_mid_i2c_algorithm;
+>>  	mrst->adap.dev.parent = &dev->dev;
+> 
+> Having a slash in an I2C adapter name shouldn't be a problem. The real
+> problem is below:
+> 
+> 	err = request_irq(dev->irq, intel_mid_i2c_isr, IRQF_SHARED,
+> 					mrst->adap.name, mrst);
+> 
+> Using the adapter name to request the IRQ is silly. The very same issue
+> was fixed in i2c-pca-platform recently:
+> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=323584436db0cb05286425d4dfd9516fce88487f
+
+I agree, something like dev_name(dev) is much better for readability
+of /proc/interruopts
 
 
-From: Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>
-
-The SCx200 ACB driver supports ISA hardware as well as PCI.  The PCI hardware
-is CS5535/CS5536 based, and the device that it grabs is handled by the
-cs5535-mfd driver.  This converts the SCx200 driver to use a platform_driver
-rather than the previous PCI hackery.
-
-The driver used to manually track the iface list (via linked list); now it
-only does this for ISA devices.  PCI ifaces are handled through standard
-driver model lists.
-
-It's unclear what happens in case of errors in the old ISA code; rather than
-pretending the code actually cares, I've dropped the (implicit) ignorance
-of return values and marked it with a comment.
-
-Signed-off-by: Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>
----
- drivers/i2c/busses/scx200_acb.c |  200 ++++++++++++++++-----------------------
- 1 files changed, 80 insertions(+), 120 deletions(-)
-
-diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
-index 53fab51..986e5f6 100644
---- a/drivers/i2c/busses/scx200_acb.c
-+++ b/drivers/i2c/busses/scx200_acb.c
-@@ -29,6 +29,7 @@
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/pci.h>
-+#include <linux/platform_device.h>
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -40,6 +41,7 @@
- 
- MODULE_AUTHOR("Christer Weinigel <wingel-3fS8vhTtDhfL9ATBNaCtXw@public.gmane.org>");
- MODULE_DESCRIPTION("NatSemi SCx200 ACCESS.bus Driver");
-+MODULE_ALIAS("platform:cs5535-smb");
- MODULE_LICENSE("GPL");
- 
- #define MAX_DEVICES 4
-@@ -84,10 +86,6 @@ struct scx200_acb_iface {
- 	u8 *ptr;
- 	char needs_reset;
- 	unsigned len;
--
--	/* PCI device info */
--	struct pci_dev *pdev;
--	int bar;
- };
- 
- /* Register Definitions */
-@@ -391,7 +389,7 @@ static const struct i2c_algorithm scx200_acb_algorithm = {
- static struct scx200_acb_iface *scx200_acb_list;
- static DEFINE_MUTEX(scx200_acb_list_mutex);
- 
--static __init int scx200_acb_probe(struct scx200_acb_iface *iface)
-+static __devinit int scx200_acb_probe(struct scx200_acb_iface *iface)
- {
- 	u8 val;
- 
-@@ -427,7 +425,7 @@ static __init int scx200_acb_probe(struct scx200_acb_iface *iface)
- 	return 0;
- }
- 
--static __init struct scx200_acb_iface *scx200_create_iface(const char *text,
-+static __devinit struct scx200_acb_iface *scx200_create_iface(const char *text,
- 		struct device *dev, int index)
- {
- 	struct scx200_acb_iface *iface;
-@@ -452,7 +450,7 @@ static __init struct scx200_acb_iface *scx200_create_iface(const char *text,
- 	return iface;
- }
- 
--static int __init scx200_acb_create(struct scx200_acb_iface *iface)
-+static int __devinit scx200_acb_create(struct scx200_acb_iface *iface)
- {
- 	struct i2c_adapter *adapter;
- 	int rc;
-@@ -472,183 +470,145 @@ static int __init scx200_acb_create(struct scx200_acb_iface *iface)
- 		return -ENODEV;
- 	}
- 
--	mutex_lock(&scx200_acb_list_mutex);
--	iface->next = scx200_acb_list;
--	scx200_acb_list = iface;
--	mutex_unlock(&scx200_acb_list_mutex);
-+	if (!adapter->dev.parent) {
-+		/* If there's no dev, we're tracking (ISA) ifaces manually */
-+		mutex_lock(&scx200_acb_list_mutex);
-+		iface->next = scx200_acb_list;
-+		scx200_acb_list = iface;
-+		mutex_unlock(&scx200_acb_list_mutex);
-+	}
- 
- 	return 0;
- }
- 
--static __init int scx200_create_pci(const char *text, struct pci_dev *pdev,
--		int bar)
-+static struct scx200_acb_iface * __devinit scx200_create_dev(const char *text,
-+		unsigned long base, int index, struct device *dev)
- {
- 	struct scx200_acb_iface *iface;
- 	int rc;
- 
--	iface = scx200_create_iface(text, &pdev->dev, 0);
-+	iface = scx200_create_iface(text, dev, index);
- 
- 	if (iface == NULL)
--		return -ENOMEM;
--
--	iface->pdev = pdev;
--	iface->bar = bar;
--
--	rc = pci_enable_device_io(iface->pdev);
--	if (rc)
--		goto errout_free;
-+		return NULL;
- 
--	rc = pci_request_region(iface->pdev, iface->bar, iface->adapter.name);
--	if (rc) {
--		printk(KERN_ERR NAME ": can't allocate PCI BAR %d\n",
--				iface->bar);
-+	if (!request_region(base, 8, iface->adapter.name)) {
-+		printk(KERN_ERR NAME ": can't allocate io 0x%lx-0x%lx\n",
-+		       base, base + 8 - 1);
- 		goto errout_free;
- 	}
- 
--	iface->base = pci_resource_start(iface->pdev, iface->bar);
-+	iface->base = base;
- 	rc = scx200_acb_create(iface);
- 
- 	if (rc == 0)
--		return 0;
-+		return iface;
- 
--	pci_release_region(iface->pdev, iface->bar);
--	pci_dev_put(iface->pdev);
-+	release_region(base, 8);
-  errout_free:
- 	kfree(iface);
--	return rc;
-+	return NULL;
- }
- 
--static int __init scx200_create_isa(const char *text, unsigned long base,
--		int index)
-+static int __devinit scx200_probe(struct platform_device *pdev)
- {
- 	struct scx200_acb_iface *iface;
--	int rc;
--
--	iface = scx200_create_iface(text, NULL, index);
--
--	if (iface == NULL)
--		return -ENOMEM;
-+	struct resource *res;
- 
--	if (!request_region(base, 8, iface->adapter.name)) {
--		printk(KERN_ERR NAME ": can't allocate io 0x%lx-0x%lx\n",
--		       base, base + 8 - 1);
--		rc = -EBUSY;
--		goto errout_free;
-+	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "can't fetch device resource info\n");
-+		return -ENODEV;
- 	}
- 
--	iface->base = base;
--	rc = scx200_acb_create(iface);
-+	iface = scx200_create_dev("CS5535", res->start, 0, &pdev->dev);
-+	if (!iface)
-+		return -EIO;
- 
--	if (rc == 0)
--		return 0;
-+	dev_info(&pdev->dev, "SCx200 device '%s' registered\n",
-+			iface->adapter.name);
-+	platform_set_drvdata(pdev, iface);
- 
--	release_region(base, 8);
-- errout_free:
--	kfree(iface);
--	return rc;
-+	return 0;
- }
- 
--/* Driver data is an index into the scx200_data array that indicates
-- * the name and the BAR where the I/O address resource is located.  ISA
-- * devices are flagged with a bar value of -1 */
--
--static const struct pci_device_id scx200_pci[] __initconst = {
--	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE),
--	  .driver_data = 0 },
--	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE),
--	  .driver_data = 0 },
--	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_ISA),
--	  .driver_data = 1 },
--	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_ISA),
--	  .driver_data = 2 },
--	{ 0, }
--};
--
--static struct {
--	const char *name;
--	int bar;
--} scx200_data[] = {
--	{ "SCx200", -1 },
--	{ "CS5535",  0 },
--	{ "CS5536",  0 }
--};
-+static void __devexit scx200_cleanup_iface(struct scx200_acb_iface *iface)
-+{
-+	i2c_del_adapter(&iface->adapter);
-+	release_region(iface->base, 8);
-+	kfree(iface);
-+}
- 
--static __init int scx200_scan_pci(void)
-+static int __devexit scx200_remove(struct platform_device *pdev)
- {
--	int data, dev;
--	int rc = -ENODEV;
--	struct pci_dev *pdev;
-+	struct scx200_acb_iface *iface;
- 
--	for(dev = 0; dev < ARRAY_SIZE(scx200_pci); dev++) {
--		pdev = pci_get_device(scx200_pci[dev].vendor,
--				scx200_pci[dev].device, NULL);
-+	iface = platform_get_drvdata(pdev);
-+	platform_set_drvdata(pdev, NULL);
-+	scx200_cleanup_iface(iface);
- 
--		if (pdev == NULL)
--			continue;
-+	return 0;
-+}
- 
--		data = scx200_pci[dev].driver_data;
-+static struct platform_driver scx200_pci_drv = {
-+	.driver = {
-+		.name = "cs5535-smb",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = scx200_probe,
-+	.remove = __devexit_p(scx200_remove),
-+};
- 
--		/* if .bar is greater or equal to zero, this is a
--		 * PCI device - otherwise, we assume
--		   that the ports are ISA based
--		*/
-+static const struct pci_device_id scx200_isa[] __initconst = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE) },
-+	{ 0, }
-+};
- 
--		if (scx200_data[data].bar >= 0)
--			rc = scx200_create_pci(scx200_data[data].name, pdev,
--					scx200_data[data].bar);
--		else {
--			int i;
-+static __init void scx200_scan_isa(void)
-+{
-+	int i;
- 
--			pci_dev_put(pdev);
--			for (i = 0; i < MAX_DEVICES; ++i) {
--				if (base[i] == 0)
--					continue;
-+	if (!pci_dev_present(scx200_isa))
-+		return;
- 
--				rc = scx200_create_isa(scx200_data[data].name,
--						base[i],
--						i);
--			}
--		}
-+	for (i = 0; i < MAX_DEVICES; ++i) {
-+		if (base[i] == 0)
-+			continue;
- 
--		break;
-+		/* XXX: should we care about failures? */
-+		scx200_create_dev("SCx200", base[i], i, NULL);
- 	}
--
--	return rc;
- }
- 
- static int __init scx200_acb_init(void)
- {
--	int rc;
--
- 	pr_debug(NAME ": NatSemi SCx200 ACCESS.bus Driver\n");
- 
--	rc = scx200_scan_pci();
-+	/* First scan for ISA-based devices */
-+	scx200_scan_isa();	/* XXX: should we care about errors? */
- 
- 	/* If at least one bus was created, init must succeed */
- 	if (scx200_acb_list)
- 		return 0;
--	return rc;
-+
-+	/* No ISA devices; register the platform driver for PCI-based devices */
-+	return platform_driver_register(&scx200_pci_drv);
- }
- 
- static void __exit scx200_acb_cleanup(void)
- {
- 	struct scx200_acb_iface *iface;
- 
-+	platform_driver_unregister(&scx200_pci_drv);
-+
- 	mutex_lock(&scx200_acb_list_mutex);
- 	while ((iface = scx200_acb_list) != NULL) {
- 		scx200_acb_list = iface->next;
- 		mutex_unlock(&scx200_acb_list_mutex);
- 
--		i2c_del_adapter(&iface->adapter);
--
--		if (iface->pdev) {
--			pci_release_region(iface->pdev, iface->bar);
--			pci_dev_put(iface->pdev);
--		}
--		else
--			release_region(iface->base, 8);
-+		scx200_cleanup_iface(iface);
- 
--		kfree(iface);
- 		mutex_lock(&scx200_acb_list_mutex);
- 	}
- 	mutex_unlock(&scx200_acb_list_mutex);
--- 
-1.7.2.3
+> You want to use a short name for the interrupt. Either the driver name,
+> or if you really want something device-specific, the bus device name.
+> 
