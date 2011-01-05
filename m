@@ -1,199 +1,81 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
 Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
-Date: Wed, 5 Jan 2011 23:18:52 +0100
-Message-ID: <20110105221852.GA16334@www.tglx.de>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-4-git-send-email-bigeasy@linutronix.de> <20110105202136.GI817@trinity.fluff.org>
+Date: Wed, 5 Jan 2011 23:03:42 +0000
+Message-ID: <20110105230342.GO8638@n2100.arm.linux.org.uk>
+References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-4-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20110105202136.GI817-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1294246263-31960-4-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Ben Dooks | 2011-01-05 20:21:36 [+0000]:
+On Wed, Jan 05, 2011 at 05:51:00PM +0100, Sebastian Andrzej Siewior wrote:
+> +static void plat_dev_release(struct device *dev)
+> +{
+> +	struct ce4100_i2c_device *sd = container_of(dev,
+> +			struct ce4100_i2c_device, pdev.dev);
+> +
+> +	of_device_node_put(&sd->pdev.dev);
+> +}
+> +static int add_i2c_device(struct pci_dev *dev, int bar,
+> +		struct ce4100_i2c_device *sd)
+> +{
+> +	struct platform_device *pdev = &sd->pdev;
+> +	struct i2c_pxa_platform_data *pdata = &sd->pdata;
+...
+> +	pdev->name = "ce4100-i2c";
+> +	pdev->dev.release = plat_dev_release;
+> +	pdev->dev.parent = &dev->dev;
+> +
+> +	pdev->dev.platform_data = pdata;
+> +	pdev->resource = sd->res;
+...
+> +static int __devinit ce4100_i2c_probe(struct pci_dev *dev,
+> +		const struct pci_device_id *ent)
+> +{
+> +	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+> +	if (!sds)
+> +		goto err_mem;
+> +
+> +	pci_set_drvdata(dev, sds);
+> +
+> +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++) {
+> +		ret = add_i2c_device(dev, i, &sds->sd[i]);
+> +		if (ret) {
+> +			while (--i >= 0)
+> +				platform_device_unregister(&sds->sd[i].pdev);
+...
+> +static void __devexit ce4100_i2c_remove(struct pci_dev *dev)
+...
+> +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++)
+> +		platform_device_unregister(&sds->sd[i].pdev);
+> +
+> +	pci_disable_device(dev);
+> +	kfree(sds);
+> +}
 
->On Wed, Jan 05, 2011 at 05:51:00PM +0100, Sebastian Andrzej Siewior wrote:
->> The Sodaville I2C controller is almost the same as found on PXA2xx. The
->> difference:
->> - the register are at a different spot
->
->maybe 'offset' is a better word than 'spot' here.
-okay.
+I see we're still repeating the same mistakes with lifetime rules of
+sysfs objects.
 
->> 
->> diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
->> new file mode 100644
->> index 0000000..f8709d3
->> --- /dev/null
->> +++ b/drivers/i2c/busses/i2c-pxa-pci.c
->> @@ -0,0 +1,173 @@
->> +/*
->> + * The CE4100's I2C device is more or less the same one as found on PXA.
->> + * It does not support slave mode, the register slightly moved. This PCI
->> + * device provides three bars, every contains a single I2C controller.
->> + */
->> +#include <linux/pci.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/i2c/pxa-i2c.h>
->> +#include <linux/of.h>
->> +#include <linux/of_device.h>
->> +#include <linux/of_address.h>
->> +
->> +#define CE4100_PCI_I2C_DEVS	3
->> +
->> +struct ce4100_i2c_device {
->> +	struct platform_device pdev;
->> +	struct resource res[2];
->> +	struct i2c_pxa_platform_data pdata;
->> +};
->> +
->> +struct ce4100_devices {
->> +	struct ce4100_i2c_device sd[CE4100_PCI_I2C_DEVS];
->> +};
->> +
->> +static void plat_dev_release(struct device *dev)
->> +{
->> +	struct ce4100_i2c_device *sd = container_of(dev,
->> +			struct ce4100_i2c_device, pdev.dev);
->> +
->
->maybe add a little to_ce_dev() and use it?
-Well okay but it will be used only once.
+Any struct device which has been registered into the device model can
+remain indefinitely live after it's been unregistered (by, eg, if
+userspace holds a reference to it via sysfs.)
 
->> +	of_device_node_put(&sd->pdev.dev);
->> +}
->> +static int add_i2c_device(struct pci_dev *dev, int bar,
->> +		struct ce4100_i2c_device *sd)
->> +{
->> +	struct platform_device *pdev = &sd->pdev;
->> +	struct i2c_pxa_platform_data *pdata = &sd->pdata;
->> +	struct device_node *child;
->> +	int found = 0;
->> +	static int devnum;
->> +
->> +	pdev->name = "ce4100-i2c";
->> +	pdev->dev.release = plat_dev_release;
->> +	pdev->dev.parent = &dev->dev;
->> +
->> +	pdev->dev.platform_data = pdata;
->> +	pdev->resource = sd->res;
->> +
->> +	sd->res[0].flags = IORESOURCE_MEM;
->> +	sd->res[0].start = pci_resource_start(dev, bar);
->> +	sd->res[0].end = pci_resource_end(dev, bar);
->
->hmm, could you copy the original resource to this?
-something like
-    sd->res = &dev->resource[bar]
+Only once the release method has been called is it safe to give up the
+memory backing it - and that also goes for the code comprising the
+function implementing the release.
 
-? This would work for res[0] but what about[1]? They have to be an array
-don't they?
+This effectively prevents modules having release functions in them -
+while you can put module use count manipulation in to prevent unloading,
+it effectively prevents the module from being unloaded until you've
+unbound the device.
 
->> +	sd->res[1].flags = IORESOURCE_IRQ;
->> +	sd->res[1].start = dev->irq;
->> +	sd->res[1].end = dev->irq;
->> +	pdev->num_resources = 2;
->> +
->> +	for_each_child_of_node(dev->dev.of_node, child) {
->> +		const void *prop;
->> +		struct resource r;
->> +		int ret;
->> +
->> +		ret = of_address_to_resource(child, 0, &r);
->> +		if (ret < 0)
->> +			continue;
->> +		if (r.start != sd->res[0].start)
->> +			continue;
->> +		if (r.end != sd->res[0].end)
->> +			continue;
->> +		if (r.flags != sd->res[0].flags)
->> +			continue;
->> +
->> +		pdev->dev.of_node = child;
->> +		prop = of_get_property(child, "fast-mode", NULL);
->> +		if (prop)
->> +			pdata->fast_mode = 1;
->> +
->> +		pdev->id = devnum++;
->> +		found = 1;
->> +		break;
->> +	}
->> +
->> +	if (found)
->> +		return platform_device_register(pdev);
->> +
->> +	dev_err(&dev->dev, "Missing a DT node at %s for controller bar %d.\n",
->> +			dev->dev.of_node->full_name, bar);
->
->Hmm, do you really need to print dev->dev.of_node->full_name here, or is
->it missing from the dev_err() print?
-dev_err shows the pci addreess while of_node->full_name is something
-like /soc@0/pci@3fc/pci@av/i2c-controller@15a00,0,0. And this node is
-missing a child node or its address is wrong somewhere and the
-translation went wrong and therefore there is no match. I just tried to
-be accurate here.
-
->> +	dev_err(&dev->dev, "Its memory space is 0x%08x - 0x%08x.\n",
->> +			sd->res[0].start, sd->res[0].end);
->
->No need for Its in this message. Also, why not print IRQ number?
-
-Okay. I don't think that the interrupt number is important here. I print
-the physical memory address so the user can look it up in his device
-tree. On the other hand I could be brief here and just mention the bar
-number and the user would use lspci to lookup the memory address.
-
->> +	return -EINVAL;
->> +}
->
->> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> index fc2a90e..225e9a5 100644
->> --- a/drivers/i2c/busses/i2c-pxa.c
->> +++ b/drivers/i2c/busses/i2c-pxa.c
->> @@ -69,11 +77,19 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
->>  		.isr =	0x18,
->>  		.isar =	0x20,
->>  	},
->> +	[REGS_CE4100] = {
->> +		.ibmr =	0x14,
->> +		.idbr =	0x0c,
->> +		.icr =	0x00,
->> +		.isr =	0x04,
->> +		/* no isar register */
->> +	},
->>  };
->>  
->>  static const struct platform_device_id i2c_pxa_id_table[] = {
->>  	{ "pxa2xx-i2c",		REGS_PXA2XX },
->>  	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
->> +	{ "ce4100-i2c",		REGS_CE4100 },
->>  	{ },
->>  };
->>  MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
->> @@ -442,7 +458,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->>  	writel(I2C_ISR_INIT, _ISR(i2c));
->>  	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
->>  
->> -	writel(i2c->slave_addr, _ISAR(i2c));
->> +	if (i2c->reg_isar)
->> +		writel(i2c->slave_addr, _ISAR(i2c));
->>  
->>  	/* set control register values */
->>  	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
->> @@ -1074,7 +1091,8 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>  	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
->>  	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
->>  	i2c->reg_isr = i2c->reg_base + pxa_reg_layout[i2c_type].isr;
->> -	i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
->> +	if (i2c_type != REGS_CE4100)
->> +		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
->
->do you really need to bother to checking i2c_type here?
-What would you prefer? I don't want to assign anything to ->reg_isar on
-REGS_CE4100 so the NULL pointer can catch any accidental writes / reads.
-And in i2c_pxa_reset() I'm going to skip writes to it.
-
-Sebastian
+I think you should be trying to use the platform_device_alloc()
+interfaces here, rather than trying to reinvent them.  The only issue I
+see with that is the of_device_node_put() call.  Maybe OF/DT/device model
+people can provide some pointers?  Adding Greg for the device model
+maintainer view.
