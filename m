@@ -1,28 +1,41 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c: Factor out runtime suspend checks from PM
-	operations
-Date: Tue, 4 Jan 2011 23:10:21 +0000
-Message-ID: <20110104231021.GA18024@sirena.org.uk>
-References: <1293712813-4090-1-git-send-email-broonie@opensource.wolfsonmicro.com> <4D23A839.6030205@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/6] i2c-pxa: move i2c_pxa_remove to __devexit instead of just __exit
+Date: Wed,  5 Jan 2011 05:05:05 +0300
+Message-ID: <1294193110-23958-1-git-send-email-dbaryshkov@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4D23A839.6030205-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Abhijeet Dharmapurikar <adharmap-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 04, 2011 at 03:07:37PM -0800, Abhijeet Dharmapurikar wrote:
-> Mark Brown wrote:
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
->> device op. The PM core provides pm_generic_ functions implementing this
->> behaviour - use them to reduce coupling with future PM updates.
-
-> pm_generic_suspend() and others needs to be externed in linux/pm_runtime.h?
-
-Yes, there's a patch in -next for this already so this patch would need
-to either wait for later in the merge window or go in via the PM tree
-with the preceeding one (the original version of this patch was posted
-as part of a series with the export patch).
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index f4c19a9..0f10955 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1115,7 +1115,7 @@ emalloc:
+ 	return ret;
+ }
+ 
+-static int __exit i2c_pxa_remove(struct platform_device *dev)
++static int __devexit i2c_pxa_remove(struct platform_device *dev)
+ {
+ 	struct pxa_i2c *i2c = platform_get_drvdata(dev);
+ 
+@@ -1169,7 +1169,7 @@ static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
+ 
+ static struct platform_driver i2c_pxa_driver = {
+ 	.probe		= i2c_pxa_probe,
+-	.remove		= __exit_p(i2c_pxa_remove),
++	.remove		= __devexit_p(i2c_pxa_remove),
+ 	.driver		= {
+ 		.name	= "pxa2xx-i2c",
+ 		.owner	= THIS_MODULE,
+-- 
+1.7.2.3
