@@ -1,117 +1,199 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: I2C support for CE4100, v3
-Date: Wed, 5 Jan 2011 21:51:59 +0000
-Message-ID: <20110105215159.GU817@trinity.fluff.org>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
+Date: Wed, 5 Jan 2011 23:18:52 +0100
+Message-ID: <20110105221852.GA16334@www.tglx.de>
+References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-4-git-send-email-bigeasy@linutronix.de> <20110105202136.GI817@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1294246263-31960-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+In-Reply-To: <20110105202136.GI817-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 05, 2011 at 05:50:57PM +0100, Sebastian Andrzej Siewior wrote:
-> The I2C core inside CE4100 is very much the same as in PXA25x.
-> I Cc the ARM folks because patch 2 reorganizes some files so that they
-> can be accessed from x86.
-> The I2C device is behind a PCI bus. The PCI probe code simply creates
-> three platform devices so we don't have much changes to the platform
-> driver. There is no clock framework on x86 and the peripherals don't
-> support changing their clocks or to enable/disable them. So I provided
-> dummy function which keep the driver happy.
-> This series indirectly depends on the SPI series because both modify
-> include files and spi & i2c includes are sometimes too close to each
-> other.
-> 
-> History:
-> v1: Initial post
-> v2: - ISAR is still touched if not in SLAVE mode except on X86 where it
->       is not touched at all.
->     - There are no files created in include/asm
->     - register defines are in common code
->     - the PCI controller now requires a device tree. It is used to obtain
->       an id (which is used as device & i2c bus id).
->     - the PCI part now uses ARRAY_SIZE(). As it turns out pci_select_bars()
->       is not useable.
->     - the patch which resetted the chip if the i2c bus was not available
->       has been dropped.
-> v3: - introduced dynamic register mapping. With this change I can avoid
->       accessing the unavailable ISAR register without an #ifdef around
->       it.
->     - modified the DT part of the pci driver to address latest DT review
->       comments.
-> 
-> The patch series has been created with the -M option so file moves can
-> be easily noticed. The whole series (including the spi rename) is also
-> available at
->   git://git.linutronix.de/users/bigeasy/soda.git spi-i2c
-> 
-> Sebastian Andrzej Siewior (6):
->       i2c/pxa: use dynamic register layout
->       arm/pxa2xx: reorganize I2C files
->       i2c/pxa2xx: Add PCI support for PXA I2C controller
->       i2c/pxa2xx: add support for shared IRQ handler
->       i2c/pxa2xx: check timeout correctly
->       i2c/pxa2xx: pass of_node from platform driver to adapter and publish
+* Ben Dooks | 2011-01-05 20:21:36 [+0000]:
 
-please rename these i2c-pxa2xx
-and for the ARM, use ARM: pxa2xx as the prefix
- 
->  arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
->  arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
->  arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
->  arch/arm/mach-pxa/balloon3.c                       |    3 +-
->  arch/arm/mach-pxa/cm-x300.c                        |    2 +-
->  arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
->  arch/arm/mach-pxa/corgi.c                          |    2 +-
->  arch/arm/mach-pxa/csb726.c                         |    2 +-
->  arch/arm/mach-pxa/devices.c                        |    2 +-
->  arch/arm/mach-pxa/em-x270.c                        |    2 +-
->  arch/arm/mach-pxa/ezx.c                            |    2 +-
->  arch/arm/mach-pxa/hx4700.c                         |    2 +-
->  arch/arm/mach-pxa/littleton.c                      |    2 +-
->  arch/arm/mach-pxa/magician.c                       |    2 +-
->  arch/arm/mach-pxa/mainstone.c                      |    2 +-
->  arch/arm/mach-pxa/mioa701.c                        |    2 +-
->  arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
->  arch/arm/mach-pxa/palm27x.c                        |    3 +-
->  arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
->  arch/arm/mach-pxa/poodle.c                         |    2 +-
->  arch/arm/mach-pxa/pxa27x.c                         |    2 +-
->  arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
->  arch/arm/mach-pxa/raumfeld.c                       |    2 +-
->  arch/arm/mach-pxa/saar.c                           |    2 +-
->  arch/arm/mach-pxa/spitz.c                          |    3 +-
->  arch/arm/mach-pxa/stargate2.c                      |    2 +-
->  arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
->  arch/arm/mach-pxa/tosa.c                           |    2 +-
->  arch/arm/mach-pxa/trizeps4.c                       |    2 +-
->  arch/arm/mach-pxa/viper.c                          |    2 +-
->  arch/arm/mach-pxa/vpac270.c                        |    3 +-
->  arch/arm/mach-pxa/xcep.c                           |    3 +-
->  arch/arm/mach-pxa/z2.c                             |    3 +-
->  arch/arm/mach-pxa/zeus.c                           |    3 +-
->  arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
->  drivers/i2c/busses/Kconfig                         |    7 +-
->  drivers/i2c/busses/Makefile                        |    1 +
->  drivers/i2c/busses/i2c-pxa-pci.c                   |  173 ++++++++++++++++++++
->  drivers/i2c/busses/i2c-pxa.c                       |  116 ++++++++++---
->  .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    0
->  40 files changed, 304 insertions(+), 72 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
->  rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (100%)
-> 
-> Sebastian
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>On Wed, Jan 05, 2011 at 05:51:00PM +0100, Sebastian Andrzej Siewior wrote:
+>> The Sodaville I2C controller is almost the same as found on PXA2xx. The
+>> difference:
+>> - the register are at a different spot
+>
+>maybe 'offset' is a better word than 'spot' here.
+okay.
 
--- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+>> new file mode 100644
+>> index 0000000..f8709d3
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-pxa-pci.c
+>> @@ -0,0 +1,173 @@
+>> +/*
+>> + * The CE4100's I2C device is more or less the same one as found on PXA.
+>> + * It does not support slave mode, the register slightly moved. This PCI
+>> + * device provides three bars, every contains a single I2C controller.
+>> + */
+>> +#include <linux/pci.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/i2c/pxa-i2c.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
+>> +#include <linux/of_address.h>
+>> +
+>> +#define CE4100_PCI_I2C_DEVS	3
+>> +
+>> +struct ce4100_i2c_device {
+>> +	struct platform_device pdev;
+>> +	struct resource res[2];
+>> +	struct i2c_pxa_platform_data pdata;
+>> +};
+>> +
+>> +struct ce4100_devices {
+>> +	struct ce4100_i2c_device sd[CE4100_PCI_I2C_DEVS];
+>> +};
+>> +
+>> +static void plat_dev_release(struct device *dev)
+>> +{
+>> +	struct ce4100_i2c_device *sd = container_of(dev,
+>> +			struct ce4100_i2c_device, pdev.dev);
+>> +
+>
+>maybe add a little to_ce_dev() and use it?
+Well okay but it will be used only once.
 
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+>> +	of_device_node_put(&sd->pdev.dev);
+>> +}
+>> +static int add_i2c_device(struct pci_dev *dev, int bar,
+>> +		struct ce4100_i2c_device *sd)
+>> +{
+>> +	struct platform_device *pdev = &sd->pdev;
+>> +	struct i2c_pxa_platform_data *pdata = &sd->pdata;
+>> +	struct device_node *child;
+>> +	int found = 0;
+>> +	static int devnum;
+>> +
+>> +	pdev->name = "ce4100-i2c";
+>> +	pdev->dev.release = plat_dev_release;
+>> +	pdev->dev.parent = &dev->dev;
+>> +
+>> +	pdev->dev.platform_data = pdata;
+>> +	pdev->resource = sd->res;
+>> +
+>> +	sd->res[0].flags = IORESOURCE_MEM;
+>> +	sd->res[0].start = pci_resource_start(dev, bar);
+>> +	sd->res[0].end = pci_resource_end(dev, bar);
+>
+>hmm, could you copy the original resource to this?
+something like
+    sd->res = &dev->resource[bar]
+
+? This would work for res[0] but what about[1]? They have to be an array
+don't they?
+
+>> +	sd->res[1].flags = IORESOURCE_IRQ;
+>> +	sd->res[1].start = dev->irq;
+>> +	sd->res[1].end = dev->irq;
+>> +	pdev->num_resources = 2;
+>> +
+>> +	for_each_child_of_node(dev->dev.of_node, child) {
+>> +		const void *prop;
+>> +		struct resource r;
+>> +		int ret;
+>> +
+>> +		ret = of_address_to_resource(child, 0, &r);
+>> +		if (ret < 0)
+>> +			continue;
+>> +		if (r.start != sd->res[0].start)
+>> +			continue;
+>> +		if (r.end != sd->res[0].end)
+>> +			continue;
+>> +		if (r.flags != sd->res[0].flags)
+>> +			continue;
+>> +
+>> +		pdev->dev.of_node = child;
+>> +		prop = of_get_property(child, "fast-mode", NULL);
+>> +		if (prop)
+>> +			pdata->fast_mode = 1;
+>> +
+>> +		pdev->id = devnum++;
+>> +		found = 1;
+>> +		break;
+>> +	}
+>> +
+>> +	if (found)
+>> +		return platform_device_register(pdev);
+>> +
+>> +	dev_err(&dev->dev, "Missing a DT node at %s for controller bar %d.\n",
+>> +			dev->dev.of_node->full_name, bar);
+>
+>Hmm, do you really need to print dev->dev.of_node->full_name here, or is
+>it missing from the dev_err() print?
+dev_err shows the pci addreess while of_node->full_name is something
+like /soc@0/pci@3fc/pci@av/i2c-controller@15a00,0,0. And this node is
+missing a child node or its address is wrong somewhere and the
+translation went wrong and therefore there is no match. I just tried to
+be accurate here.
+
+>> +	dev_err(&dev->dev, "Its memory space is 0x%08x - 0x%08x.\n",
+>> +			sd->res[0].start, sd->res[0].end);
+>
+>No need for Its in this message. Also, why not print IRQ number?
+
+Okay. I don't think that the interrupt number is important here. I print
+the physical memory address so the user can look it up in his device
+tree. On the other hand I could be brief here and just mention the bar
+number and the user would use lspci to lookup the memory address.
+
+>> +	return -EINVAL;
+>> +}
+>
+>> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+>> index fc2a90e..225e9a5 100644
+>> --- a/drivers/i2c/busses/i2c-pxa.c
+>> +++ b/drivers/i2c/busses/i2c-pxa.c
+>> @@ -69,11 +77,19 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
+>>  		.isr =	0x18,
+>>  		.isar =	0x20,
+>>  	},
+>> +	[REGS_CE4100] = {
+>> +		.ibmr =	0x14,
+>> +		.idbr =	0x0c,
+>> +		.icr =	0x00,
+>> +		.isr =	0x04,
+>> +		/* no isar register */
+>> +	},
+>>  };
+>>  
+>>  static const struct platform_device_id i2c_pxa_id_table[] = {
+>>  	{ "pxa2xx-i2c",		REGS_PXA2XX },
+>>  	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+>> +	{ "ce4100-i2c",		REGS_CE4100 },
+>>  	{ },
+>>  };
+>>  MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+>> @@ -442,7 +458,8 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>>  	writel(I2C_ISR_INIT, _ISR(i2c));
+>>  	writel(readl(_ICR(i2c)) & ~ICR_UR, _ICR(i2c));
+>>  
+>> -	writel(i2c->slave_addr, _ISAR(i2c));
+>> +	if (i2c->reg_isar)
+>> +		writel(i2c->slave_addr, _ISAR(i2c));
+>>  
+>>  	/* set control register values */
+>>  	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+>> @@ -1074,7 +1091,8 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>>  	i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
+>>  	i2c->reg_icr = i2c->reg_base + pxa_reg_layout[i2c_type].icr;
+>>  	i2c->reg_isr = i2c->reg_base + pxa_reg_layout[i2c_type].isr;
+>> -	i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
+>> +	if (i2c_type != REGS_CE4100)
+>> +		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
+>
+>do you really need to bother to checking i2c_type here?
+What would you prefer? I don't want to assign anything to ->reg_isar on
+REGS_CE4100 so the NULL pointer can catch any accidental writes / reads.
+And in i2c_pxa_reset() I'm going to skip writes to it.
+
+Sebastian
