@@ -1,37 +1,243 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
-Date: Wed, 05 Jan 2011 18:26:21 +0100
-Message-ID: <4D24A9BD.6010200@linutronix.de>
-References: <1291320589-31570-1-git-send-email-bigeasy@linutronix.de> <1291320589-31570-4-git-send-email-bigeasy@linutronix.de> <201012141535.30589.ffainelli@freebox.fr>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Constify i2c_client where possible
+Date: Wed, 5 Jan 2011 19:42:08 +0100
+Message-ID: <20110105194208.67e89379@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201012141535.30589.ffainelli-MmRyKUhfbQ9GWvitb5QawA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Florian Fainelli <ffainelli-MmRyKUhfbQ9GWvitb5QawA@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Florian Fainelli wrote:
->> diff --git a/drivers/i2c/busses/i2c-pxa-pci.c
->> b/drivers/i2c/busses/i2c-pxa-pci.c new file mode 100644
->> index 0000000..f7b74b9
->> --- /dev/null
->> +++ b/drivers/i2c/busses/i2c-pxa-pci.c
->> +
->> +/*
->> + * the number of bars is hardcoded because pci_select_bars() reports the
->> + * wrong thing.
->> + */
->> +#define CE4100_PCI_I2C_DEVS	3
-> 
-> I am surprised of your comment about pci_select_bars, it works fine here on a 
-> CE4100 device, beware that it will report a bitmask of valid resources (7).
-> 
-> Changing it later would be quite simple anyway.
+Helper functions for I2C and SMBus transactions don't modify the
+i2c_client that is passed to them, so it can be marked const.
 
-yep, my bad. I removed the comment and we can make it fully dynamic once
-it is required.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c   |   29 ++++++++++++++++-------------
+ drivers/rtc/rtc-ds1307.c |   12 ++++++------
+ include/linux/i2c.h      |   27 +++++++++++++++------------
+ 3 files changed, 37 insertions(+), 31 deletions(-)
 
-Sebastian
+--- linux-2.6.37-rc8.orig/include/linux/i2c.h	2011-01-05 18:31:17.000000000 +0100
++++ linux-2.6.37-rc8/include/linux/i2c.h	2011-01-05 18:31:41.000000000 +0100
+@@ -57,9 +57,10 @@ struct i2c_board_info;
+  * transmit an arbitrary number of messages without interruption.
+  * @count must be be less than 64k since msg.len is u16.
+  */
+-extern int i2c_master_send(struct i2c_client *client, const char *buf,
++extern int i2c_master_send(const struct i2c_client *client, const char *buf,
++			   int count);
++extern int i2c_master_recv(const struct i2c_client *client, char *buf,
+ 			   int count);
+-extern int i2c_master_recv(struct i2c_client *client, char *buf, int count);
+ 
+ /* Transfer num messages.
+  */
+@@ -78,23 +79,25 @@ extern s32 i2c_smbus_xfer(struct i2c_ada
+ /* Now follow the 'nice' access routines. These also document the calling
+    conventions of i2c_smbus_xfer. */
+ 
+-extern s32 i2c_smbus_read_byte(struct i2c_client *client);
+-extern s32 i2c_smbus_write_byte(struct i2c_client *client, u8 value);
+-extern s32 i2c_smbus_read_byte_data(struct i2c_client *client, u8 command);
+-extern s32 i2c_smbus_write_byte_data(struct i2c_client *client,
++extern s32 i2c_smbus_read_byte(const struct i2c_client *client);
++extern s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value);
++extern s32 i2c_smbus_read_byte_data(const struct i2c_client *client,
++				    u8 command);
++extern s32 i2c_smbus_write_byte_data(const struct i2c_client *client,
+ 				     u8 command, u8 value);
+-extern s32 i2c_smbus_read_word_data(struct i2c_client *client, u8 command);
+-extern s32 i2c_smbus_write_word_data(struct i2c_client *client,
++extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
++				    u8 command);
++extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
+ 				     u8 command, u16 value);
+ /* Returns the number of read bytes */
+-extern s32 i2c_smbus_read_block_data(struct i2c_client *client,
++extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+ 				     u8 command, u8 *values);
+-extern s32 i2c_smbus_write_block_data(struct i2c_client *client,
++extern s32 i2c_smbus_write_block_data(const struct i2c_client *client,
+ 				      u8 command, u8 length, const u8 *values);
+ /* Returns the number of read bytes */
+-extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client *client,
++extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+ 					 u8 command, u8 length, u8 *values);
+-extern s32 i2c_smbus_write_i2c_block_data(struct i2c_client *client,
++extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  u8 command, u8 length,
+ 					  const u8 *values);
+ #endif /* I2C */
+--- linux-2.6.37-rc8.orig/drivers/i2c/i2c-core.c	2011-01-05 18:31:17.000000000 +0100
++++ linux-2.6.37-rc8/drivers/i2c/i2c-core.c	2011-01-05 18:31:41.000000000 +0100
+@@ -1362,7 +1362,7 @@ EXPORT_SYMBOL(i2c_transfer);
+  *
+  * Returns negative errno, or else the number of bytes written.
+  */
+-int i2c_master_send(struct i2c_client *client, const char *buf, int count)
++int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
+ {
+ 	int ret;
+ 	struct i2c_adapter *adap = client->adapter;
+@@ -1389,7 +1389,7 @@ EXPORT_SYMBOL(i2c_master_send);
+  *
+  * Returns negative errno, or else the number of bytes read.
+  */
+-int i2c_master_recv(struct i2c_client *client, char *buf, int count)
++int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
+ {
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct i2c_msg msg;
+@@ -1679,7 +1679,7 @@ static int i2c_smbus_check_pec(u8 cpec,
+  * This executes the SMBus "receive byte" protocol, returning negative errno
+  * else the byte received from the device.
+  */
+-s32 i2c_smbus_read_byte(struct i2c_client *client)
++s32 i2c_smbus_read_byte(const struct i2c_client *client)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -1699,7 +1699,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
+  * This executes the SMBus "send byte" protocol, returning negative errno
+  * else zero on success.
+  */
+-s32 i2c_smbus_write_byte(struct i2c_client *client, u8 value)
++s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value)
+ {
+ 	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+ 	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+@@ -1714,7 +1714,7 @@ EXPORT_SYMBOL(i2c_smbus_write_byte);
+  * This executes the SMBus "read byte" protocol, returning negative errno
+  * else a data byte received from the device.
+  */
+-s32 i2c_smbus_read_byte_data(struct i2c_client *client, u8 command)
++s32 i2c_smbus_read_byte_data(const struct i2c_client *client, u8 command)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -1735,7 +1735,8 @@ EXPORT_SYMBOL(i2c_smbus_read_byte_data);
+  * This executes the SMBus "write byte" protocol, returning negative errno
+  * else zero on success.
+  */
+-s32 i2c_smbus_write_byte_data(struct i2c_client *client, u8 command, u8 value)
++s32 i2c_smbus_write_byte_data(const struct i2c_client *client, u8 command,
++			      u8 value)
+ {
+ 	union i2c_smbus_data data;
+ 	data.byte = value;
+@@ -1753,7 +1754,7 @@ EXPORT_SYMBOL(i2c_smbus_write_byte_data)
+  * This executes the SMBus "read word" protocol, returning negative errno
+  * else a 16-bit unsigned "word" received from the device.
+  */
+-s32 i2c_smbus_read_word_data(struct i2c_client *client, u8 command)
++s32 i2c_smbus_read_word_data(const struct i2c_client *client, u8 command)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -1774,7 +1775,8 @@ EXPORT_SYMBOL(i2c_smbus_read_word_data);
+  * This executes the SMBus "write word" protocol, returning negative errno
+  * else zero on success.
+  */
+-s32 i2c_smbus_write_word_data(struct i2c_client *client, u8 command, u16 value)
++s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
++			      u16 value)
+ {
+ 	union i2c_smbus_data data;
+ 	data.word = value;
+@@ -1793,7 +1795,8 @@ EXPORT_SYMBOL(i2c_smbus_write_word_data)
+  * This executes the SMBus "process call" protocol, returning negative errno
+  * else a 16-bit unsigned "word" received from the device.
+  */
+-s32 i2c_smbus_process_call(struct i2c_client *client, u8 command, u16 value)
++s32 i2c_smbus_process_call(const struct i2c_client *client, u8 command,
++			   u16 value)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -1821,7 +1824,7 @@ EXPORT_SYMBOL(i2c_smbus_process_call);
+  * support this; its emulation through I2C messaging relies on a specific
+  * mechanism (I2C_M_RECV_LEN) which may not be implemented.
+  */
+-s32 i2c_smbus_read_block_data(struct i2c_client *client, u8 command,
++s32 i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
+ 			      u8 *values)
+ {
+ 	union i2c_smbus_data data;
+@@ -1848,7 +1851,7 @@ EXPORT_SYMBOL(i2c_smbus_read_block_data)
+  * This executes the SMBus "block write" protocol, returning negative errno
+  * else zero on success.
+  */
+-s32 i2c_smbus_write_block_data(struct i2c_client *client, u8 command,
++s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
+ 			       u8 length, const u8 *values)
+ {
+ 	union i2c_smbus_data data;
+@@ -1864,7 +1867,7 @@ s32 i2c_smbus_write_block_data(struct i2
+ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+ 
+ /* Returns the number of read bytes */
+-s32 i2c_smbus_read_i2c_block_data(struct i2c_client *client, u8 command,
++s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+ 				  u8 length, u8 *values)
+ {
+ 	union i2c_smbus_data data;
+@@ -1884,7 +1887,7 @@ s32 i2c_smbus_read_i2c_block_data(struct
+ }
+ EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
+ 
+-s32 i2c_smbus_write_i2c_block_data(struct i2c_client *client, u8 command,
++s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client, u8 command,
+ 				   u8 length, const u8 *values)
+ {
+ 	union i2c_smbus_data data;
+--- linux-2.6.37-rc8.orig/drivers/rtc/rtc-ds1307.c	2011-01-05 18:31:17.000000000 +0100
++++ linux-2.6.37-rc8/drivers/rtc/rtc-ds1307.c	2011-01-05 18:31:41.000000000 +0100
+@@ -106,9 +106,9 @@ struct ds1307 {
+ 	struct i2c_client	*client;
+ 	struct rtc_device	*rtc;
+ 	struct work_struct	work;
+-	s32 (*read_block_data)(struct i2c_client *client, u8 command,
++	s32 (*read_block_data)(const struct i2c_client *client, u8 command,
+ 			       u8 length, u8 *values);
+-	s32 (*write_block_data)(struct i2c_client *client, u8 command,
++	s32 (*write_block_data)(const struct i2c_client *client, u8 command,
+ 				u8 length, const u8 *values);
+ };
+ 
+@@ -158,8 +158,8 @@ MODULE_DEVICE_TABLE(i2c, ds1307_id);
+ 
+ #define BLOCK_DATA_MAX_TRIES 10
+ 
+-static s32 ds1307_read_block_data_once(struct i2c_client *client, u8 command,
+-				  u8 length, u8 *values)
++static s32 ds1307_read_block_data_once(const struct i2c_client *client,
++				       u8 command, u8 length, u8 *values)
+ {
+ 	s32 i, data;
+ 
+@@ -172,7 +172,7 @@ static s32 ds1307_read_block_data_once(s
+ 	return i;
+ }
+ 
+-static s32 ds1307_read_block_data(struct i2c_client *client, u8 command,
++static s32 ds1307_read_block_data(const struct i2c_client *client, u8 command,
+ 				  u8 length, u8 *values)
+ {
+ 	u8 oldvalues[I2C_SMBUS_BLOCK_MAX];
+@@ -198,7 +198,7 @@ static s32 ds1307_read_block_data(struct
+ 	return length;
+ }
+ 
+-static s32 ds1307_write_block_data(struct i2c_client *client, u8 command,
++static s32 ds1307_write_block_data(const struct i2c_client *client, u8 command,
+ 				   u8 length, const u8 *values)
+ {
+ 	u8 currvalues[I2C_SMBUS_BLOCK_MAX];
+
+
+-- 
+Jean Delvare
