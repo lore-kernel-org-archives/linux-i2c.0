@@ -1,48 +1,63 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/6] i2c-pxa: move i2c_pxa_remove to __devexit instead
-	of just __exit
-Date: Wed, 5 Jan 2011 12:17:31 +0000
-Message-ID: <20110105121731.GG817@trinity.fluff.org>
-References: <1294193110-23958-1-git-send-email-dbaryshkov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: [PATCH 4/6] i2c/pxa2xx: add support for shared IRQ handler
+Date: Wed,  5 Jan 2011 17:51:01 +0100
+Message-ID: <1294246263-31960-5-git-send-email-bigeasy@linutronix.de>
+References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1294193110-23958-1-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1294246263-31960-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 05, 2011 at 05:05:05AM +0300, Dmitry Eremin-Solenikov wrote:
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Sodaville has three of them on a single IRQ. IRQF_DISABLED is removed
+because it is a NOP allready and scheduled for removal.
 
-Please write a reasonable commit message, a null or almost empty commit
-message is simply unnaceptable. Please see the Documentation/SubmittingPatches
-or ask more about how to write good commit messages.
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-Also, see Uwe's reply for a good example of how to write a commit message.
-
-> -static int __exit i2c_pxa_remove(struct platform_device *dev)
-> +static int __devexit i2c_pxa_remove(struct platform_device *dev)
->  {
->  	struct pxa_i2c *i2c = platform_get_drvdata(dev);
->  
-> @@ -1169,7 +1169,7 @@ static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
->  
->  static struct platform_driver i2c_pxa_driver = {
->  	.probe		= i2c_pxa_probe,
-> -	.remove		= __exit_p(i2c_pxa_remove),
-> +	.remove		= __devexit_p(i2c_pxa_remove),
->  	.driver		= {
->  		.name	= "pxa2xx-i2c",
->  		.owner	= THIS_MODULE,
-
-Right, I think this should fix any hotplug problems that you have.
-
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 225e9a5..e566f8c 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -956,11 +956,17 @@ static void i2c_pxa_irq_rxfull(struct pxa_i2c *i2c, u32 isr)
+ 	writel(icr, _ICR(i2c));
+ }
+ 
++#define VALID_INT_SOURCE	(ISR_SSD | ISR_ALD | ISR_ITE | ISR_IRF | \
++				ISR_SAD | ISR_BED)
+ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+ {
+ 	struct pxa_i2c *i2c = dev_id;
+ 	u32 isr = readl(_ISR(i2c));
+ 
++	isr &= VALID_INT_SOURCE;
++	if (!isr)
++		return IRQ_NONE;
++
+ 	if (i2c_debug > 2 && 0) {
+ 		dev_dbg(&i2c->adap.dev, "%s: ISR=%08x, ICR=%08x, IBMR=%02x\n",
+ 			__func__, isr, readl(_ICR(i2c)), readl(_IBMR(i2c)));
+@@ -975,7 +981,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+ 	/*
+ 	 * Always clear all pending IRQs.
+ 	 */
+-	writel(isr & (ISR_SSD|ISR_ALD|ISR_ITE|ISR_IRF|ISR_SAD|ISR_BED), _ISR(i2c));
++	writel(isr, _ISR(i2c));
+ 
+ 	if (isr & ISR_SAD)
+ 		i2c_pxa_slave_start(i2c, isr);
+@@ -1120,7 +1126,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+ 	} else {
+ 		i2c->adap.algo = &i2c_pxa_algorithm;
+-		ret = request_irq(irq, i2c_pxa_handler, IRQF_DISABLED,
++		ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
+ 				  i2c->adap.name, i2c);
+ 		if (ret)
+ 			goto ereqirq;
 -- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+1.7.3.2
