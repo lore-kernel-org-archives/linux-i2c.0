@@ -1,87 +1,50 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
-Date: Thu, 6 Jan 2011 11:50:51 +0100
-Message-ID: <20110106105051.GA12146@www.tglx.de>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-4-git-send-email-bigeasy@linutronix.de> <20110105230342.GO8638@n2100.arm.linux.org.uk> <20110105230834.GA26399@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-pxa: fix unbidding/rebidding of the device
+Date: Thu,  6 Jan 2011 14:01:22 +0300
+Message-ID: <1294311682-13287-1-git-send-email-dbaryshkov@gmail.com>
+References: <20110105091915.GV27131@trinity.fluff.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110105230834.GA26399-l3A5Bk7waGM@public.gmane.org>
+In-Reply-To: <20110105091915.GV27131-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Greg KH | 2011-01-05 15:08:34 [-0800]:
+When a "pxa2xx-i2c" device was unbound (e.g. via sysfs) the remove
+callback was not called because it was discarded when linking the
+kernel.  Because of that the resources allocated in probe were not
+freed and so a clean unbind/rebind was impossible.
 
->On Wed, Jan 05, 2011 at 11:03:42PM +0000, Russell King - ARM Linux wrote:
->> On Wed, Jan 05, 2011 at 05:51:00PM +0100, Sebastian Andrzej Siewior wrote:
->> > +static void plat_dev_release(struct device *dev)
->> > +{
->> > +	struct ce4100_i2c_device *sd = container_of(dev,
->> > +			struct ce4100_i2c_device, pdev.dev);
->> > +
->> > +	of_device_node_put(&sd->pdev.dev);
->> > +}
->> > +static int add_i2c_device(struct pci_dev *dev, int bar,
->> > +		struct ce4100_i2c_device *sd)
->> > +{
->> > +	struct platform_device *pdev = &sd->pdev;
->> > +	struct i2c_pxa_platform_data *pdata = &sd->pdata;
->> ...
->> > +	pdev->name = "ce4100-i2c";
->> > +	pdev->dev.release = plat_dev_release;
->> > +	pdev->dev.parent = &dev->dev;
->> > +
->> > +	pdev->dev.platform_data = pdata;
->> > +	pdev->resource = sd->res;
->> ...
->> > +static int __devinit ce4100_i2c_probe(struct pci_dev *dev,
->> > +		const struct pci_device_id *ent)
->> > +{
->> > +	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
->> > +	if (!sds)
->> > +		goto err_mem;
->> > +
->> > +	pci_set_drvdata(dev, sds);
->> > +
->> > +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++) {
->> > +		ret = add_i2c_device(dev, i, &sds->sd[i]);
->> > +		if (ret) {
->> > +			while (--i >= 0)
->> > +				platform_device_unregister(&sds->sd[i].pdev);
->> ...
->> > +static void __devexit ce4100_i2c_remove(struct pci_dev *dev)
->> ...
->> > +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++)
->> > +		platform_device_unregister(&sds->sd[i].pdev);
->> > +
->> > +	pci_disable_device(dev);
->> > +	kfree(sds);
->> > +}
->> 
+Fix that by moving the remove callback to .devexit.text.
 
->> I think you should be trying to use the platform_device_alloc()
->> interfaces here, rather than trying to reinvent them.  The only issue I
->> see with that is the of_device_node_put() call.  Maybe OF/DT/device model
->> people can provide some pointers?  Adding Greg for the device model
->> maintainer view.
->
->Don't reinvent functions that the core already provides, that's not a
->good idea.
->
->Sebastian, why didn't those functions work for you?
-which functions are you talking about? I allocated one piece of memory
-which contained a platform device, ressources, platform data. It looked
-better than allocating multiple small chunks. I registered it with
-platform_device_register() and platform_device_unregister() complained
-about a missing ->release function.
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-So I now I'm going to rework it and use platform_device_alloc() instead.
-
->thanks,
->
->greg k-h
-
-Sebastian
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index f4c19a9..0f10955 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1115,7 +1115,7 @@ emalloc:
+ 	return ret;
+ }
+ 
+-static int __exit i2c_pxa_remove(struct platform_device *dev)
++static int __devexit i2c_pxa_remove(struct platform_device *dev)
+ {
+ 	struct pxa_i2c *i2c = platform_get_drvdata(dev);
+ 
+@@ -1169,7 +1169,7 @@ static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
+ 
+ static struct platform_driver i2c_pxa_driver = {
+ 	.probe		= i2c_pxa_probe,
+-	.remove		= __exit_p(i2c_pxa_remove),
++	.remove		= __devexit_p(i2c_pxa_remove),
+ 	.driver		= {
+ 		.name	= "pxa2xx-i2c",
+ 		.owner	= THIS_MODULE,
+-- 
+1.7.2.3
