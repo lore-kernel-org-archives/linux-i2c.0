@@ -1,105 +1,51 @@
-From: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
-Date: Thu, 6 Jan 2011 13:57:26 -0800
-Message-ID: <20110106215726.GB30799@suse.de>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de>
- <1294246263-31960-4-git-send-email-bigeasy@linutronix.de>
- <20110105230342.GO8638@n2100.arm.linux.org.uk>
- <20110105230834.GA26399@suse.de>
- <20110106092044.GT8638@n2100.arm.linux.org.uk>
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: Re: [Device-drivers-devel] [PATCH] i2c: add irq_flags to board info
+Date: Thu, 6 Jan 2011 20:33:55 -0500
+Message-ID: <AANLkTinaAQnz2s_F-ORbUE6CUjxNkrJs6-fbc4JS0=df@mail.gmail.com>
+References: <1287359019-1476-1-git-send-email-vapier@gentoo.org>
+ <20101018103610.77b7e605@endymion.delvare> <544AC56F16B56944AEC3BD4E3D5917713094520EDB@LIMKCMBX1.ad.analog.com>
+ <20101018140136.2b44d29e@endymion.delvare> <544AC56F16B56944AEC3BD4E3D5917713094520FA6@LIMKCMBX1.ad.analog.com>
+ <20101018163357.659efe25@endymion.delvare> <AANLkTi=fAYqxsGre9kOt9Z8nDXZ9JFjZtKUiMrE3Qn9b@mail.gmail.com>
+ <20101025004541.GD21564@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110106092044.GT8638-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+In-Reply-To: <20101025004541.GD21564-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <device-drivers-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 06, 2011 at 09:20:44AM +0000, Russell King - ARM Linux wrote:
-> On Wed, Jan 05, 2011 at 03:08:34PM -0800, Greg KH wrote:
-> > On Wed, Jan 05, 2011 at 11:03:42PM +0000, Russell King - ARM Linux wrote:
-> > > On Wed, Jan 05, 2011 at 05:51:00PM +0100, Sebastian Andrzej Siewior wrote:
-> > > > +static void plat_dev_release(struct device *dev)
-> > > > +{
-> > > > +	struct ce4100_i2c_device *sd = container_of(dev,
-> > > > +			struct ce4100_i2c_device, pdev.dev);
-> > > > +
-> > > > +	of_device_node_put(&sd->pdev.dev);
-> > > > +}
-> > > > +static int add_i2c_device(struct pci_dev *dev, int bar,
-> > > > +		struct ce4100_i2c_device *sd)
-> > > > +{
-> > > > +	struct platform_device *pdev = &sd->pdev;
-> > > > +	struct i2c_pxa_platform_data *pdata = &sd->pdata;
-> > > ...
-> > > > +	pdev->name = "ce4100-i2c";
-> > > > +	pdev->dev.release = plat_dev_release;
-> > > > +	pdev->dev.parent = &dev->dev;
-> > > > +
-> > > > +	pdev->dev.platform_data = pdata;
-> > > > +	pdev->resource = sd->res;
-> > > ...
-> > > > +static int __devinit ce4100_i2c_probe(struct pci_dev *dev,
-> > > > +		const struct pci_device_id *ent)
-> > > > +{
-> > > > +	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
-> > > > +	if (!sds)
-> > > > +		goto err_mem;
-> > > > +
-> > > > +	pci_set_drvdata(dev, sds);
-> > > > +
-> > > > +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++) {
-> > > > +		ret = add_i2c_device(dev, i, &sds->sd[i]);
-> > > > +		if (ret) {
-> > > > +			while (--i >= 0)
-> > > > +				platform_device_unregister(&sds->sd[i].pdev);
-> > > ...
-> > > > +static void __devexit ce4100_i2c_remove(struct pci_dev *dev)
-> > > ...
-> > > > +	for (i = 0; i < ARRAY_SIZE(sds->sd); i++)
-> > > > +		platform_device_unregister(&sds->sd[i].pdev);
-> > > > +
-> > > > +	pci_disable_device(dev);
-> > > > +	kfree(sds);
-> > > > +}
-> > > 
-> > > I see we're still repeating the same mistakes with lifetime rules of
-> > > sysfs objects.
-> > > 
-> > > Any struct device which has been registered into the device model can
-> > > remain indefinitely live after it's been unregistered (by, eg, if
-> > > userspace holds a reference to it via sysfs.)
-> > 
-> > Actually this race is almost not possible these days with the rework
-> > that Tejun did on sysfs, so it's not easy to test for this anymore.
-> 
-> Is it wise to make such a problematical bug harder to trigger without
-> completely preventing it triggering?
-> 
-> A different approach was taken with IRQ handling where people were
-> registering handlers before the driver was ready for it to be called -
-> request_irq() would explicitly call the handler as soon as it was
-> registered to provoke bugs.
-> 
-> Surely for these lifetime violations a similar approach should be taken.
-> Make the kernel more likely to oops should a violation occur before the
-> developer can get the code out the door.  One way I can think of doing
-> that is when devices are unregistered but not yet released, place them
-> on a list which is periodically scanned, and not only is the device
-> dereferenced by also the release function.
-> 
-> When the use count drops to zero, don't immediately release, but wait
-> a number of polls.
-> 
-> If either goes away before the device has been released, then we
-> predictably oops, and the developer gets to know about his violation
-> of the rules immediately.
+On Sun, Oct 24, 2010 at 20:45, Ben Dooks wrote:
+> On Mon, Oct 18, 2010 at 03:51:49PM -0400, Mike Frysinger wrote:
+>> On Mon, Oct 18, 2010 at 10:33, Jean Delvare wrote:
+>> > Why do we have set_irq_type() if we're not supposed to call it? I =
+am
+>> > not claiming to be an expert in the area, but it seems totally
+>> > reasonable to me that the same piece of code instantiating an I2C
+>> > device is also responsible for setting its IRQ type.
+>>
+>> but we're back to the same issue mentioned earlier -- you cant have =
+a
+>> single kernel build with modules supporting multiple drivers
+>> simultaneously. =C2=A0we like to ship development boards with a sing=
+le
+>> kernel build on it with many modules. =C2=A0then people can pick the=
+ addon
+>> boards they wish to prototype with at runtime by plugging in the car=
+d
+>> and loading the module.
+>
+> I also dislike set_irq_type() as it doesn't check whether there is an=
+yone
+> registered with the interrupt, which means that you could set the irq
+> type of someone else's irq.
+>
+> I wonder if we should pass a struct resource instead, in case there
+> are multiple interrupt sources, as well as having it registered with
+> the right resource systems.
 
-Yes, that would be a good way to resolve this, patches are glady welcome
-:)
-
-thanks,
-
-greg k-h
+a resource struct would still only have a single interrupt info in it,
+so i'm not sure how that would be better
+-mike
