@@ -1,74 +1,96 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
-Date: Fri, 7 Jan 2011 08:57:06 -0700
-Message-ID: <AANLkTikSrGaZoigQS4pU8bnHx4-PpmSRW-qTOo+joi=U@mail.gmail.com>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de>
- <1294246263-31960-4-git-send-email-bigeasy@linutronix.de> <20110105230342.GO8638@n2100.arm.linux.org.uk>
- <20110105230834.GA26399@suse.de> <20110106105051.GA12146@www.tglx.de>
- <20110106111231.GD31708@n2100.arm.linux.org.uk> <20110106115026.GA18081@www.tglx.de>
+From: Joan Pau Beltran <joanpau.beltran-i5CWTa81U/w@public.gmane.org>
+Subject: Re: pca953x GPIO
+Date: Fri, 07 Jan 2011 18:34:03 +0100
+Message-ID: <4D274E8B.8050600@uib.cat>
+References: <4D0B9C35.5000802@uib.cat> <AANLkTi=LQ56S43=BL8tdo=MakP-PRzVK0ieJM07y_O_1@mail.gmail.com> <4D14C6D1.3030802@uib.cat> <AANLkTinSuVYAVQqPHRtrnTPrtEZA1aCHOb6X4H8u2OW1@mail.gmail.com> <4D1A0A95.7020408@uib.cat> <20110106162213.4e5ee5b4@endymion.del vare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110106115026.GA18081-Hfxr4Dq0UpYb1SvskN2V4Q@public.gmane.org>
+In-Reply-To: <20110106162213.4e5ee5b4-R0o5gVi9kd4wFzbXFV0ICA@public.gmane.org vare>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Giampaolo Bellini <iw2lsi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 6, 2011 at 4:50 AM, Sebastian Andrzej Siewior
-<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
-> * Russell King - ARM Linux | 2011-01-06 11:12:31 [+0000]:
->
->>Please see my email where I described the lifetime rules. =A0Let's sa=
-y
->>your module is removed. =A0In doing so, you call platform_device_unre=
-gister()
->>followed by kfree(). =A0After this, your module is removed from the s=
-ystem
->>and the memory backing the module code is unmapped.
+Hello everyone!
+
+Al 06/01/11 16:22, En/na Jean Delvare ha escrit:
+> On Tue, 28 Dec 2010 17:04:37 +0100, Joan Pau Beltran wrote:
+>> Now i2cdump give this output
+>> (all lines except the first one stripped because they are empty):
 >>
->>If something holds a reference to the platform device, then that's ju=
-st
->>waiting for an OOPS to happen. =A0When those references are finally g=
-iven
->>up, your release function will be called - but the code has been unma=
-pped.
+>> i2cdump -y 2 0x20
+>> No size specified (using byte-data access)
+>>        0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+>> 00: ff ff ff ff 00 00 ff ff XX XX XX XX XX XX XX XX    ........XXXXXXXX
+>>
+>> I am surprised about these values. The port has 8 gpio pins available,
+>> so it seems their addresses are the ones in 000-007
+>> (or shoud I say they are represented in the chip's register 000-007?).
+> No, it doesn't work like that. You'll have to download the datasheet
+> for your GPIO chip from nxp.com, to find out the meaning of each
+> register. The details are normally hidden from you if you use the
+> pca953x driver, but as you decided to go the hard way...
+You are right. I noticed that after playing around with the chip and the 
+demo application from Advantech (for windows only). Then I went straight 
+to the chip's data sheet and found each register's function.
+
+The chip has 2 input/output ports (port0 and port1), each one with 8 
+GPIO pins
+(so it seems that only the first one is available for the user with 
+these board).
+The eight registers are for (respectively) Input0 (0), Input1(1), 
+Output0 (2), Output1 (3), Polarity Inversion0 (4), Polarity Inversion1 
+(5), Direction0 (6) and Direction1 (7).
+The byte in each register represent the state of the eight pins as a 
+bitmask.
+To read the state of a pin (no matter if it is an input or output pin) 
+you should read the register 0 (0xff mean all pins high, 0x00 means all 
+pins low, 0xf0 means the first four pins low and the other four pins 
+high, etc).
+The direction of each pin may be set the same way with the register 6 (1 
+means input and 0 means output, so setting the register to 0xf0 means 
+the first four pins are for output and the other for for input, etc).
+The polarity inversion for each pin may be set the same way but with 
+register 4.
+To set the state of the output pins you should write to the register 2 
+the bitmask representing the pins you want to bring up (if you want to 
+raise pins 0 and 1 you should write 0x03, etc).
+
+I think we will do the things this way (with i2c-dev and reading the 
+chip's registers) because the code to read the state of the pins is 
+simple and we do not need to recompile the kernel. The cost is that root 
+privileges will be needed to manage the GPIO. But I agree that a more 
+elegant way could be adding platform code for the kernel and use the 
+sysfs interface, allowing non-root access to the GPIO.
+
+>> (...)
+>> It seems that I should add i2c-dev and i2c-i801 to my /etc/modules.
+>> Can someone confirm that? Would it be better to make udev load them
+>> automatically?
+>> How can this be done?
+> i2c-i801 should get loaded automatically, as it is a PCI driver. If it
+> isn't on your system, make sure you didn't blacklist it. The following
+> command may help:
 >
-> I got that. That is why I'm going go to use allready provided functio=
-ns
-> (platform_device_register_resndata() in this case) so I'm no longer
-> allocating any memory. So I'm only holding a struct which is pointing=
- to
-> the platform_device. Everything else is unmapped by the driver core.
->
-> So I just have just to of_device_node_put() myself. Hmmm.
->
-> Grant, who is calling of_device_node_put() on nodes assigned in
-> of_register_spi_devices() & of_i2c_register_devices()? I can't find a=
-ny
-> reference. The spi part is not putting the node or removing the irq
-> mapping in error case so I guess there must be some magic triggered
-> somewhere.
+> $ /sbin/modprobe -c | grep i2c_i801
+This is the above command's output:
 
-No, it is just a deficiency on the spi and i2c dt support at the
-moment.  It needs to be added.  However, since the flattree is
-currently entirely static (nodes don't get freed) the mismatched
-reference counting isn't immediately an issue.  However, it will
-become a problem when add-in boards (like xilinx fpgas) start using
-the dt to describe internal devices.
+modprobe -c | grep i2c_i801
 
-> Also adap->dev.of_node and master->dev.of_node has to be
-> non-null for the device assignment to work. Who is putting these node=
-s
-> back? I see drivers (i2c-cpm & i2c-mpc) taking refs but I fail to fin=
-d a
-> place where it is put back.
+blacklist i2c_i801
+alias pci:v00008086d00001C22sv*sd*bc*sc*i* i2c_i801
+...
 
-Same issue.
+And more alias. So the module is effectively blacklisted. In  
+/etc/modprobe.d/blacklist.conf we found
 
-g.
+# causes failure to suspend on HP compaq nc6000 (Ubuntu: #10306)
+blacklist i2c_i801
 
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Commenting the line should allow automatic loading of the module.
+
+Thank you very much everyone for this discussion, specially Giampolo and 
+Jean.
+Your help has been invaluable.
