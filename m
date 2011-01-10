@@ -1,69 +1,58 @@
-From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2.6.37] i2c-i801: SMBus patch for Intel DH89xxCC DeviceIDs
-Date: Mon, 10 Jan 2011 13:09:03 -0800
-Message-ID: <201101101309.03439.seth.heasley@intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for 2.6.38
+Date: Mon, 10 Jan 2011 22:21:45 +0100
+Message-ID: <20110110222145.31c40d8e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the SMBus Controller DeviceIDs for the Intel DH89xxCC PCH.
+Hi Linus,
 
-Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Please pull i2c subsystem updates for Linux 2.6.37 from:
 
---- linux-2.6.37/drivers/i2c/busses/i2c-i801.c.orig	2011-01-04 16:50:19.000000000 -0800
-+++ linux-2.6.37/drivers/i2c/busses/i2c-i801.c	2011-01-06 14:26:20.000000000 -0800
-@@ -44,11 +44,12 @@
-   ICH10                 0x3a30     32     hard     yes     yes     yes
-   ICH10                 0x3a60     32     hard     yes     yes     yes
-   5/3400 Series (PCH)   0x3b30     32     hard     yes     yes     yes
--  Cougar Point (PCH)    0x1c22     32     hard     yes     yes     yes
-+  6 Series (PCH)        0x1c22     32     hard     yes     yes     yes
-   Patsburg (PCH)        0x1d22     32     hard     yes     yes     yes
-   Patsburg (PCH) IDF    0x1d70     32     hard     yes     yes     yes
-   Patsburg (PCH) IDF    0x1d71     32     hard     yes     yes     yes
-   Patsburg (PCH) IDF    0x1d72     32     hard     yes     yes     yes
-+  DH89xxCC (PCH)        0x2330     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-   Software PEC                     no
-@@ -620,6 +621,7 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS) },
- 	{ 0, }
- };
- 
---- linux-2.6.37/drivers/i2c/busses/Kconfig.orig	2011-01-04 16:50:19.000000000 -0800
-+++ linux-2.6.37/drivers/i2c/busses/Kconfig	2011-01-06 14:25:56.000000000 -0800
-@@ -98,8 +98,9 @@
- 	    EP80579 (Tolapai)
- 	    ICH10
- 	    5/3400 Series (PCH)
--	    Cougar Point (PCH)
-+	    6 Series (PCH)
- 	    Patsburg (PCH)
-+	    DH89xxCC (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
---- linux-2.6.37/Documentation/i2c/busses/i2c-i801.orig	2011-01-04 16:50:19.000000000 -0800
-+++ linux-2.6.37/Documentation/i2c/busses/i2c-i801	2011-01-06 14:27:03.000000000 -0800
-@@ -16,8 +16,9 @@
-   * Intel EP80579 (Tolapai)
-   * Intel 82801JI (ICH10)
-   * Intel 5/3400 Series (PCH)
--  * Intel Cougar Point (PCH)
-+  * Intel 6 Series (PCH)
-   * Intel Patsburg (PCH)
-+  * Intel DH89xxCC (PCH)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+
+Not much this time around... Only the new generic I2C multiplexer using
+the GPIO API is worth mentioning.
+
+ Documentation/i2c/muxes/gpio-i2cmux |   65 ++++++++++++
+ MAINTAINERS                         |    8 ++
+ drivers/i2c/algos/i2c-algo-bit.c    |   31 +++---
+ drivers/i2c/busses/i2c-i801.c       |    1 +
+ drivers/i2c/busses/i2c-nforce2.c    |    2 +-
+ drivers/i2c/i2c-core.c              |   29 +++---
+ drivers/i2c/muxes/Kconfig           |   12 +++
+ drivers/i2c/muxes/Makefile          |    1 +
+ drivers/i2c/muxes/gpio-i2cmux.c     |  184 +++++++++++++++++++++++++++++++++++
+ drivers/rtc/rtc-ds1307.c            |   12 +-
+ include/linux/gpio-i2cmux.h         |   38 +++++++
+ include/linux/i2c.h                 |   27 +++---
+ 12 files changed, 362 insertions(+), 48 deletions(-)
+ create mode 100644 Documentation/i2c/muxes/gpio-i2cmux
+ create mode 100644 drivers/i2c/muxes/gpio-i2cmux.c
+ create mode 100644 include/linux/gpio-i2cmux.h
+
+---------------
+
+Ben Hutchings (1):
+      i2c-i801: Include <linux/slab.h>
+
+Jean Delvare (3):
+      i2c-algo-bit: Refactor adapter registration
+      i2c-algo-bit: Complain about masters which can't read SCL
+      i2c: Constify i2c_client where possible
+
+Joe Perches (1):
+      i2c-nforce2: Remove unnecessary cast of pci_get_drvdata
+
+Peter Korsgaard (1):
+      i2c: Add generic I2C multiplexer using GPIO API
+
+Thanks,
+-- 
+Jean Delvare
