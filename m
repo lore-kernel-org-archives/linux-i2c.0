@@ -1,72 +1,38 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c Issues
-Date: Mon, 10 Jan 2011 15:33:39 +0100
-Message-ID: <20110110153339.4e2f8ee9@endymion.delvare>
-References: <002101cba35c$fba6ea50$f2f4bef0$@com>
+Subject: Re: [i2c-tools][PATCH] honor CROSS_COMPILE
+Date: Mon, 10 Jan 2011 15:44:35 +0100
+Message-ID: <20110110154435.640c528b@endymion.delvare>
+References: <1294426874-24973-1-git-send-email-nm@ti.com>
+	<20110108192345.GB4045@pengutronix.de>
+	<4D28C9D5.8050401@ti.com>
+	<20110108210130.GC4045@pengutronix.de>
+	<20110110152608.536de8e7@endymion.delvare>
+	<4D2B1768.5030303@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <002101cba35c$fba6ea50$f2f4bef0$@com>
+In-Reply-To: <4D2B1768.5030303-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 24 Dec 2010 20:23:23 +0900, Murali K. Vemuri wrote:
-> Hi there,
-> I am working on OMAP 3530 , Linux Kernel version 2.6.32.
-> On OMAP I connected Audio Codec WM8993 as I2C (bus3) slave, with slav=
-e
-> address 0x1A.
->=20
-> I am able to initialize the I2C Bus correctly, and I successfully bou=
-nd the
-> device to the driver. By adding a few debug messages, I get like this=
-=2E
->=20
-> i2c_omap i2c_omap.3: bus 3 rev3.12 at 400
-> kHz=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0
-> =A0=A0=A0=A0=A0=20
-> i2c i2c-3: adapter [OMAP I2C adapter]
-> registered=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
-> i2c i2c-3: client [AK8859] registered with bus id
-> 3-0044=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0
-> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0
-> i2c i2c-3: client [wm8993] registered with bus id 3-001a=A0=A0=20
->=20
-> This is what I exactly intend to happen. After this step, I get the
-> i2c_probe triggered into the device, and at that time, HW read fails,
-> constantly.
-> I checked the physical address that is being read from. This address =
-is
-> correct as well.=20
->=20
-> Any pointers to how I can resolve this?
+On Mon, 10 Jan 2011 08:27:52 -0600, Nishanth Menon wrote:
+> Jean Delvare had written, on 01/10/2011 08:26 AM, the following:
+> > I don't have a strong opinion on this either. But I don't get the point
+> > of setting values for AS, LD, AR etc. when they don't seem to be used
+> > anywhere. And STRIP is set too, but "strip" hard-coded in
+> > tools/Module.mk, so I fail to see how that would work. What am I
+> > missing?
+> I think I should have done just CC alone. I missed the strip one. but 
+> are we interested in having CROSS_COMPILE? if yes, I can cleanup the 
+> patch and resubmit.
 
-Check with i2cdetect and then i2cdump if you can talk to the device in
-question from user-space (using the i2c-dev driver). If you can't, it's
-a hardware issue. If you can, it's a driver issue.
+Well, you proposed it, so you should know if you are interested ;)
 
---=20
+What's certain is that I won't apply the patch as is, so it indeed
+needs to be cleaned up and resubmitted if you want me to apply it.
+
+-- 
 Jean Delvare
