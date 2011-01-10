@@ -1,63 +1,72 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: soc_camera Client Driver with Multiple I2C Addresses
-Date: Mon, 10 Jan 2011 15:31:38 +0100
-Message-ID: <20110110153138.7871b267@endymion.delvare>
-References: <E58C9D0E73364C3EB14B6D0A0EBB5433@RSI50>
-	<Pine.LNX.4.64.1012280810140.21647@axis700.grange>
+Subject: Re: i2c Issues
+Date: Mon, 10 Jan 2011 15:33:39 +0100
+Message-ID: <20110110153339.4e2f8ee9@endymion.delvare>
+References: <002101cba35c$fba6ea50$f2f4bef0$@com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.64.1012280810140.21647-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
+In-Reply-To: <002101cba35c$fba6ea50$f2f4bef0$@com>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Cc: "Charles D. Krebs" <ckrebs-2y/nJPa2at/U1o9X0QyN+VaTQe2KTcn/@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: murali-p1q9eIIu2y1Wk0Htik3J/w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 28 Dec 2010 08:55:41 +0100 (CET), Guennadi Liakhovetski wrote:
-> Hi Charles
-> 
-> (linux-i2c added to cc)
-> 
-> On Mon, 27 Dec 2010, Charles D. Krebs wrote:
-> 
-> > Guennadi,
-> > 
-> > I'm developing a driver for a video receiver chip that has register 
-> > banks on multiple I2C addresses on the same bus.  The data output is 
-> > parallel and I will be connecting it to the sh host interface.  
-> > Overall, the device appears to be suitable as a client driver to 
-> > soc_camera.
-> > 
-> > I'm following the model for the MT9T112 driver, and this works just fine 
-> > for communicating to any one of the device's I2C addresses.
-> > 
-> > How would you recommend registering more than one I2C address to an 
-> > soc_camera client driver?
-> 
-> Honestly - don't know. The soc-camera model for now is pretty simple and 
-> in some senses restrictive. But in principle, it should be possible to 
-> code your case within its scope too. One of the possibilities would be to 
-> register your platform data with one "main" i2c unit / address, and then 
-> let the sensor register the rest in its probe. Is your chip configuration 
-> fixed? Always the same number of i2c units with the same addresses? Or can 
-> it vary? Maybe something like a multi-function device (drivers/mfd) would 
-> suit your purpose well?
-> 
-> In fact, I think, it shouldn't be too complicated. As suggested above, 
-> provide (but don't register, just follow other soc-camera platforms) one 
-> main i2c device in the platform data, register the rest in your main 
-> probe(), which will call your further probe()s. The easiest would be to 
-> keep just one soc-camera instance and one v4l2-subdeice, but if you want, 
-> you can explore the possibility of creating several v4l2-subdevices.
+On Fri, 24 Dec 2010 20:23:23 +0900, Murali K. Vemuri wrote:
+> Hi there,
+> I am working on OMAP 3530 , Linux Kernel version 2.6.32.
+> On OMAP I connected Audio Codec WM8993 as I2C (bus3) slave, with slav=
+e
+> address 0x1A.
+>=20
+> I am able to initialize the I2C Bus correctly, and I successfully bou=
+nd the
+> device to the driver. By adding a few debug messages, I get like this=
+=2E
+>=20
+> i2c_omap i2c_omap.3: bus 3 rev3.12 at 400
+> kHz=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0
+> =A0=A0=A0=A0=A0=20
+> i2c i2c-3: adapter [OMAP I2C adapter]
+> registered=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
+> i2c i2c-3: client [AK8859] registered with bus id
+> 3-0044=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0
+> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0
+> i2c i2c-3: client [wm8993] registered with bus id 3-001a=A0=A0=20
+>=20
+> This is what I exactly intend to happen. After this step, I get the
+> i2c_probe triggered into the device, and at that time, HW read fails,
+> constantly.
+> I checked the physical address that is being read from. This address =
+is
+> correct as well.=20
+>=20
+> Any pointers to how I can resolve this?
 
-If you simply need to handle a device which several I2C addresses, you
-can consider one the main address, and register the secondary addresses
-in your probe() function using i2c_new_dummy(). See
-drivers/misc/eeprom/at24.c for an example of how this is done.
+Check with i2cdetect and then i2cdump if you can talk to the device in
+question from user-space (using the i2c-dev driver). If you can't, it's
+a hardware issue. If you can, it's a driver issue.
 
-I'm not sure I understand the problem at hand exactly though, so my
-advice might be inappropriate.
-
--- 
+--=20
 Jean Delvare
