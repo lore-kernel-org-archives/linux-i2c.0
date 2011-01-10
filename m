@@ -1,44 +1,63 @@
-From: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
-Subject: Re: [i2c-tools][PATCH] honor CROSS_COMPILE
-Date: Mon, 10 Jan 2011 08:27:52 -0600
-Message-ID: <4D2B1768.5030303@ti.com>
-References: <1294426874-24973-1-git-send-email-nm@ti.com>	<20110108192345.GB4045@pengutronix.de>	<4D28C9D5.8050401@ti.com>	<20110108210130.GC4045@pengutronix.de> <20110110152608.536de8e7@endymion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: soc_camera Client Driver with Multiple I2C Addresses
+Date: Mon, 10 Jan 2011 15:31:38 +0100
+Message-ID: <20110110153138.7871b267@endymion.delvare>
+References: <E58C9D0E73364C3EB14B6D0A0EBB5433@RSI50>
+	<Pine.LNX.4.64.1012280810140.21647@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110110152608.536de8e7-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <Pine.LNX.4.64.1012280810140.21647-0199iw4Nj15frtckUFj5Ag@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Cc: "Charles D. Krebs" <ckrebs-2y/nJPa2at/U1o9X0QyN+VaTQe2KTcn/@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare had written, on 01/10/2011 08:26 AM, the following:
-> On Sat, 8 Jan 2011 22:01:30 +0100, Wolfram Sang wrote:
->> On Sat, Jan 08, 2011 at 02:32:21PM -0600, Nishanth Menon wrote:
->>> Wolfram Sang wrote, on 01/08/2011 01:23 PM:
->>>> Then again, the vast majority of userspace-projects do not use CROSS_COMPILE.
->>>> Build systems like ptxdist and buildroot have done fine with overriding CC so
->>>> far. I don't see much gain in that addition.
->>>>
->>> The same is true for CROSS_COMPILE as well.. since the patch does
->>> still allow CC to be over-ridden (as was the previous behavior), why
->>> not add CROSS_COMPILE as well considering folks who could be cross
->>> compiling just i2ctools without using buildroot and the likes?
->> You can override CC even without a build-system :) I would sum it up like this:
->> On the positive side you could call it "more flexible", on the negative side
->> you could call it "redundant". I wouldn't pick it up, but I surely have no
->> strong feelings about it. It is up to Jean, after all.
+On Tue, 28 Dec 2010 08:55:41 +0100 (CET), Guennadi Liakhovetski wrote:
+> Hi Charles
 > 
-> I don't have a strong opinion on this either. But I don't get the point
-> of setting values for AS, LD, AR etc. when they don't seem to be used
-> anywhere. And STRIP is set too, but "strip" hard-coded in
-> tools/Module.mk, so I fail to see how that would work. What am I
-> missing?
-I think I should have done just CC alone. I missed the strip one. but 
-are we interested in having CROSS_COMPILE? if yes, I can cleanup the 
-patch and resubmit.
+> (linux-i2c added to cc)
+> 
+> On Mon, 27 Dec 2010, Charles D. Krebs wrote:
+> 
+> > Guennadi,
+> > 
+> > I'm developing a driver for a video receiver chip that has register 
+> > banks on multiple I2C addresses on the same bus.  The data output is 
+> > parallel and I will be connecting it to the sh host interface.  
+> > Overall, the device appears to be suitable as a client driver to 
+> > soc_camera.
+> > 
+> > I'm following the model for the MT9T112 driver, and this works just fine 
+> > for communicating to any one of the device's I2C addresses.
+> > 
+> > How would you recommend registering more than one I2C address to an 
+> > soc_camera client driver?
+> 
+> Honestly - don't know. The soc-camera model for now is pretty simple and 
+> in some senses restrictive. But in principle, it should be possible to 
+> code your case within its scope too. One of the possibilities would be to 
+> register your platform data with one "main" i2c unit / address, and then 
+> let the sensor register the rest in its probe. Is your chip configuration 
+> fixed? Always the same number of i2c units with the same addresses? Or can 
+> it vary? Maybe something like a multi-function device (drivers/mfd) would 
+> suit your purpose well?
+> 
+> In fact, I think, it shouldn't be too complicated. As suggested above, 
+> provide (but don't register, just follow other soc-camera platforms) one 
+> main i2c device in the platform data, register the rest in your main 
+> probe(), which will call your further probe()s. The easiest would be to 
+> keep just one soc-camera instance and one v4l2-subdeice, but if you want, 
+> you can explore the possibility of creating several v4l2-subdevices.
+
+If you simply need to handle a device which several I2C addresses, you
+can consider one the main address, and register the secondary addresses
+in your probe() function using i2c_new_dummy(). See
+drivers/misc/eeprom/at24.c for an example of how this is done.
+
+I'm not sure I understand the problem at hand exactly though, so my
+advice might be inappropriate.
 
 -- 
-Regards,
-Nishanth Menon
+Jean Delvare
