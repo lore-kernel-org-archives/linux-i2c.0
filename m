@@ -1,28 +1,64 @@
-From: "Tomoya MORINAGA" <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: RE: [PATCH v2] EG20T: Update PCH_I2C driver to 2.6.37
-Date: Tue, 11 Jan 2011 10:20:09 +0900
-Message-ID: <C99BA6EC029B4372B68EF6492D615777@hacdom.okisemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/2] i2c-bfin-twi: handle faulty slave devices better
+Date: Tue, 11 Jan 2011 00:25:08 -0500
+Message-ID: <1294723509-18779-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-References: 
-In-Reply-To: 
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Greg KH' <gregkh-l3A5Bk7waGM@public.gmane.org>, "'Jean Delvare (PC drivers, core)'" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "'Ben Dooks (embedded platforms)'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Samuel Ortiz' <sameo-VuQAYsv1561eoWH0uzbU5w@public.gmane.org>
-Cc: 'Toshiharu Okada' <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
- 
-I need your help !!!
-This patch has NOT been reviewed since Dec-07-2010.
-We do want you to accept the driver to be integrated for 2.6.38.
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Could you review this patch, please?
+Faulty slave devices might drive SDA low after a transfer finishes.  So,
+when this scenario is detected, have the master generate up to 9 extra
+clocks until the SDA is properly released.
 
-Thanks,
+Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 ---
-Tomoya MORINAGA
-OKI SEMICONDUCTOR CO., LTD. 
+ drivers/i2c/busses/i2c-bfin-twi.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index fb26e5c..1ee9d5a 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -20,6 +20,7 @@
+ #include <linux/completion.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/delay.h>
+ 
+ #include <asm/blackfin.h>
+ #include <asm/portmux.h>
+@@ -159,6 +160,27 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		if (mast_stat & BUFWRERR)
+ 			dev_dbg(&iface->adap.dev, "Buffer Write Error\n");
+ 
++		/* Faulty slave devices, may drive SDA low after a transfer
++		 * finishes. To release the bus this code generates up to 9
++		 * extra clocks until SDA is released.
++		 */
++
++		if (read_MASTER_STAT(iface) & SDASEN) {
++			int cnt = 9;
++			do {
++				write_MASTER_CTL(iface, SCLOVR);
++				udelay(6);
++				write_MASTER_CTL(iface, 0);
++				udelay(6);
++			} while ((read_MASTER_STAT(iface) & SDASEN) && cnt--);
++
++			write_MASTER_CTL(iface, SDAOVR | SCLOVR);
++			udelay(6);
++			write_MASTER_CTL(iface, SDAOVR);
++			udelay(6);
++			write_MASTER_CTL(iface, 0);
++		}
++
+ 		/* If it is a quick transfer, only address without data,
+ 		 * not an err, return 1.
+ 		 */
+-- 
+1.7.4.rc1
