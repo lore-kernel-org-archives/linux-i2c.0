@@ -1,32 +1,28 @@
-From: "Randy Dunlap" <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [GIT PULL] i2c updates for 2.6.38
-Date: Mon, 10 Jan 2011 14:58:00 -0800 (PST)
-Message-ID: <51321.148.87.67.136.1294700280.squirrel@xenotime.net>
-References: <20110110222145.31c40d8e@endymion.delvare>
-    <20110110233245.50d4efa2@endymion.delvare>
+From: "Tomoya MORINAGA" <morinaga526-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Subject: RE: [PATCH v2] EG20T: Update PCH_I2C driver to 2.6.37
+Date: Tue, 11 Jan 2011 10:20:09 +0900
+Message-ID: <C99BA6EC029B4372B68EF6492D615777@hacdom.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110110233245.50d4efa2-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+References: 
+In-Reply-To: 
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: 'Greg KH' <gregkh-l3A5Bk7waGM@public.gmane.org>, "'Jean Delvare (PC drivers, core)'" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "'Ben Dooks (embedded platforms)'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Samuel Ortiz' <sameo-VuQAYsv1561eoWH0uzbU5w@public.gmane.org>
+Cc: 'Toshiharu Okada' <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, andrew.chih.howe.khor-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
+ 
+I need your help !!!
+This patch has NOT been reviewed since Dec-07-2010.
+We do want you to accept the driver to be integrated for 2.6.38.
 
-On Mon, January 10, 2011 2:32 pm, Jean Delvare wrote:
-> On Mon, 10 Jan 2011 22:21:45 +0100, Jean Delvare wrote:
->
->> Please pull i2c subsystem updates for Linux 2.6.37 from:
->>
->
-> Of course this should read: for Linux 2.6.38. Copy and paste is bad.
+Could you review this patch, please?
 
-
-Replying to someone's own pull request for <earlier kernel version>
-(with updated subject) is also bad.
-Not that you are doing that, but a few people do.  :(
-
--- 
-~Randy
+Thanks,
+---
+Tomoya MORINAGA
+OKI SEMICONDUCTOR CO., LTD. 
