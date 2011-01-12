@@ -1,24 +1,61 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [GIT PULL] i2c updates for 2.6.38
-Date: Tue, 11 Jan 2011 11:24:59 +0000
-Message-ID: <20110111112458.GA13429@opensource.wolfsonmicro.com>
-References: <20110110222145.31c40d8e@endymion.delvare>
- <20110111111758.GH6541@sirena.org.uk>
- <20110111122500.203c4ce4@endymion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Unregister dummy devices last on adapter removal
+Date: Wed, 12 Jan 2011 17:24:27 +0100
+Message-ID: <20110112172427.27a149d0@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110111122500.203c4ce4@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 11, 2011 at 12:25:00PM +0100, Jean Delvare wrote:
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: i2c: Unregister dummy devices last on adapter removal
 
-> Thanks for the reminder, I'll look into that as soon as possible and
-> when the patches are ready, I'll send another pull request to Linus.
+Remove real devices first and dummy devices last. This gives device
+drivers which instantiated dummy devices themselves a chance to clean
+them up before we do.
 
-Excellent, thanks - I was worried it might've got lost since you were on
-vacation during pretty much all of the discussion.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Tested-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+---
+ drivers/i2c/i2c-core.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- linux-2.6.38-rc0.orig/drivers/i2c/i2c-core.c	2011-01-12 17:20:05.000000000 +0100
++++ linux-2.6.38-rc0/drivers/i2c/i2c-core.c	2011-01-12 17:23:24.000000000 +0100
+@@ -1021,6 +1021,14 @@ static int i2c_do_del_adapter(struct i2c
+ static int __unregister_client(struct device *dev, void *dummy)
+ {
+ 	struct i2c_client *client = i2c_verify_client(dev);
++	if (client && strcmp(client->name, "dummy"))
++		i2c_unregister_device(client);
++	return 0;
++}
++
++static int __unregister_dummy(struct device *dev, void *dummy)
++{
++	struct i2c_client *client = i2c_verify_client(dev);
+ 	if (client)
+ 		i2c_unregister_device(client);
+ 	return 0;
+@@ -1075,8 +1083,12 @@ int i2c_del_adapter(struct i2c_adapter *
+ 	mutex_unlock(&adap->userspace_clients_lock);
+ 
+ 	/* Detach any active clients. This can't fail, thus we do not
+-	   checking the returned value. */
++	 * check the returned value. This is a two-pass process, because
++	 * we can't remove the dummy devices during the first pass: they
++	 * could have been instantiated by real devices wishing to clean
++	 * them up properly, so we give them a chance to do that first. */
+ 	res = device_for_each_child(&adap->dev, NULL, __unregister_client);
++	res = device_for_each_child(&adap->dev, NULL, __unregister_dummy);
+ 
+ #ifdef CONFIG_I2C_COMPAT
+ 	class_compat_remove_link(i2c_adapter_compat_class, &adap->dev,
+
+-- 
+Jean Delvare
