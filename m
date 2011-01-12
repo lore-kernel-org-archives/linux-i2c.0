@@ -1,61 +1,62 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Unregister dummy devices last on adapter removal
-Date: Wed, 12 Jan 2011 17:24:27 +0100
-Message-ID: <20110112172427.27a149d0@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: [pull] Please pull bjdooks' i2c git
+Date: Wed, 12 Jan 2011 22:29:04 +0000
+Message-ID: <E1Pd9Bg-0001Lb-SI@ben-laptop>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: i2c: Unregister dummy devices last on adapter removal
+The following changes since commit f878133bf022717b880d0e0995b8f91436fd605c:
 
-Remove real devices first and dummy devices last. This gives device
-drivers which instantiated dummy devices themselves a chance to clean
-them up before we do.
+  Merge branch 'drm-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6 (2011-01-12 08:40:25 -0800)
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Tested-by: Hans Verkuil <hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
-Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
----
- drivers/i2c/i2c-core.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+are available in the git repository at:
 
---- linux-2.6.38-rc0.orig/drivers/i2c/i2c-core.c	2011-01-12 17:20:05.000000000 +0100
-+++ linux-2.6.38-rc0/drivers/i2c/i2c-core.c	2011-01-12 17:23:24.000000000 +0100
-@@ -1021,6 +1021,14 @@ static int i2c_do_del_adapter(struct i2c
- static int __unregister_client(struct device *dev, void *dummy)
- {
- 	struct i2c_client *client = i2c_verify_client(dev);
-+	if (client && strcmp(client->name, "dummy"))
-+		i2c_unregister_device(client);
-+	return 0;
-+}
-+
-+static int __unregister_dummy(struct device *dev, void *dummy)
-+{
-+	struct i2c_client *client = i2c_verify_client(dev);
- 	if (client)
- 		i2c_unregister_device(client);
- 	return 0;
-@@ -1075,8 +1083,12 @@ int i2c_del_adapter(struct i2c_adapter *
- 	mutex_unlock(&adap->userspace_clients_lock);
- 
- 	/* Detach any active clients. This can't fail, thus we do not
--	   checking the returned value. */
-+	 * check the returned value. This is a two-pass process, because
-+	 * we can't remove the dummy devices during the first pass: they
-+	 * could have been instantiated by real devices wishing to clean
-+	 * them up properly, so we give them a chance to do that first. */
- 	res = device_for_each_child(&adap->dev, NULL, __unregister_client);
-+	res = device_for_each_child(&adap->dev, NULL, __unregister_dummy);
- 
- #ifdef CONFIG_I2C_COMPAT
- 	class_compat_remove_link(i2c_adapter_compat_class, &adap->dev,
+  git://git.fluff.org/bjdooks/linux.git for-linus/i2c-2638
 
--- 
-Jean Delvare
+Aaro Koskinen (1):
+      i2c-iop3xx: add iomem annotation
+
+Ben Dooks (7):
+      Merge branch 'for-2638/i2c/mv64xx' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/omap' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/iop' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/ocores' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/intel' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/nomadik' into for-linus/i2c-2638
+      Merge branch 'for-2638/i2c/bfin2' into for-linus/i2c-2638
+
+Jonas Bonn (3):
+      i2c-ocores: Adapt for device tree
+      i2c-ocores: Use devres for resource allocation
+      i2c-ocores: add some device tree documentation
+
+Linus Walleij (1):
+      i2c-nomadik: fix regression on adapter name
+
+Michael Hennerich (2):
+      i2c-bfin-twi: handle faulty slave devices better
+      i2c-bfin-twi: move setup to the earlier subsys initcall
+
+Rodolfo Giometti (1):
+      i2c-mv64xxx: send repeated START between messages in xfer
+
+Samu Onkalo (1):
+      i2c-omap: Set latency requirements only once for several messages
+
+Tomoya MORINAGA (1):
+      i2c-eg20t: add driver for Intel EG20T
+
+ drivers/i2c/busses/Kconfig        |    8 +
+ drivers/i2c/busses/Makefile       |    1 +
+ drivers/i2c/busses/i2c-bfin-twi.c |   24 +-
+ drivers/i2c/busses/i2c-eg20t.c    |  900 +++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-iop3xx.c   |    6 +-
+ drivers/i2c/busses/i2c-iop3xx.h   |    2 +-
+ drivers/i2c/busses/i2c-mv64xxx.c  |   45 ++-
+ drivers/i2c/busses/i2c-nomadik.c  |    6 +-
+ drivers/i2c/busses/i2c-ocores.c   |  145 +++++--
+ drivers/i2c/busses/i2c-omap.c     |   10 +-
+ 10 files changed, 1086 insertions(+), 61 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-eg20t.c
