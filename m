@@ -1,57 +1,43 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Encourage move to dev_pm_ops by warning on use of
- legacy methods
-Date: Thu, 13 Jan 2011 21:14:36 +0100
-Message-ID: <20110113211436.4ddb8d3c@endymion.delvare>
-References: <1292881260-31987-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] i2c: Factor out runtime suspend checks from PM
+ operations
+Date: Thu, 13 Jan 2011 21:17:51 +0100
+Message-ID: <20110113211751.62e878d8@endymion.delvare>
+References: <1293712813-4090-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	<4D23A839.6030205@codeaurora.org>
+	<20110104231021.GA18024@sirena.org.uk>
+	<201101050928.53979.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1292881260-31987-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <201101050928.53979.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Abhijeet Dharmapurikar <adharmap-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 20 Dec 2010 21:41:00 +0000, Mark Brown wrote:
-> Since the PM core wishes to transition away from the legacy suspend
-> and resume methods and since removing them makes using PM core features
-> like runtime PM much easier start warning when a driver is registered
-> using the legacy methods.
-> 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-> ---
-> 
-> Clearly this is going to generate reams of warnings when lots of stuff
-> is built in - I'm willing to work on fixing up drivers - so it should
-> only be applied after the next merge window to give a chance for an
-> active effort at migrating drivers before we spam everyone's logs.
-> 
->  drivers/i2c/i2c-core.c |    8 ++++++++
->  1 files changed, 8 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6b4cc56..8cd82f4 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1140,6 +1140,14 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
->  	if (res)
->  		return res;
->  
-> +	/* Drivers should switch to dev_pm_ops instead. */
-> +	if (driver->suspend)
-> +		pr_warn("i2c-core: driver [%s] using legacy suspend method\n",
-> +			driver->driver.name);
-> +	if (driver->resume)
-> +		pr_warn("i2c-core: driver [%s] using legacy resume method\n",
-> +			driver->driver.name);
-> +
->  	pr_debug("i2c-core: driver [%s] registered\n", driver->driver.name);
->  
->  	INIT_LIST_HEAD(&driver->clients);
+Hi Rafael,
 
-Sorry for the delay. Applied, thanks.
+On Wed, 5 Jan 2011 09:28:53 +0100, Rafael J. Wysocki wrote:
+> On Wednesday, January 05, 2011, Mark Brown wrote:
+> > On Tue, Jan 04, 2011 at 03:07:37PM -0800, Abhijeet Dharmapurikar wrote:
+> > > Mark Brown wrote:
+> > 
+> > >> device op. The PM core provides pm_generic_ functions implementing this
+> > >> behaviour - use them to reduce coupling with future PM updates.
+> > 
+> > > pm_generic_suspend() and others needs to be externed in linux/pm_runtime.h?
+> > 
+> > Yes, there's a patch in -next for this already so this patch would need
+> > to either wait for later in the merge window or go in via the PM tree
+> > with the preceeding one (the original version of this patch was posted
+> > as part of a series with the export patch).
+> 
+> I would take it, but I'm still waiting for a word from Jean.
+
+Sorry for the long silence, I was on vacation. I've just applied this
+patch, and I will send it to Linus tomorrow.
 
 -- 
 Jean Delvare
