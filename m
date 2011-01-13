@@ -1,45 +1,57 @@
-From: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [pull] Please pull bjdooks' i2c git
-Date: Thu, 13 Jan 2011 10:43:42 -0800
-Message-ID: <AANLkTikMFYnHdzBX34-YO1APRLvrnFgkDyN13WpJO8Ox@mail.gmail.com>
-References: <E1Pd9Bg-0001Lb-SI@ben-laptop>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Encourage move to dev_pm_ops by warning on use of
+ legacy methods
+Date: Thu, 13 Jan 2011 21:14:36 +0100
+Message-ID: <20110113211436.4ddb8d3c@endymion.delvare>
+References: <1292881260-31987-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <E1Pd9Bg-0001Lb-SI@ben-laptop>
+In-Reply-To: <1292881260-31987-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 12, 2011 at 2:29 PM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
->
-> Ben Dooks (7):
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/mv64xx' into for-linus/i2c-2638
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/omap' into for-linus/i2c-2638
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/iop' into for-linus/i2c-2638
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/ocores' into for-linus/i2c-2638
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/intel' into for-linus/i2c-2638
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/nomadik' into for-linus/i2c-263=
-8
-> =A0 =A0 =A0Merge branch 'for-2638/i2c/bfin2' into for-linus/i2c-2638
+On Mon, 20 Dec 2010 21:41:00 +0000, Mark Brown wrote:
+> Since the PM core wishes to transition away from the legacy suspend
+> and resume methods and since removing them makes using PM core features
+> like runtime PM much easier start warning when a driver is registered
+> using the legacy methods.
+> 
+> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> ---
+> 
+> Clearly this is going to generate reams of warnings when lots of stuff
+> is built in - I'm willing to work on fixing up drivers - so it should
+> only be applied after the next merge window to give a chance for an
+> active effort at migrating drivers before we spam everyone's logs.
+> 
+>  drivers/i2c/i2c-core.c |    8 ++++++++
+>  1 files changed, 8 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 6b4cc56..8cd82f4 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1140,6 +1140,14 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
+>  	if (res)
+>  		return res;
+>  
+> +	/* Drivers should switch to dev_pm_ops instead. */
+> +	if (driver->suspend)
+> +		pr_warn("i2c-core: driver [%s] using legacy suspend method\n",
+> +			driver->driver.name);
+> +	if (driver->resume)
+> +		pr_warn("i2c-core: driver [%s] using legacy resume method\n",
+> +			driver->driver.name);
+> +
+>  	pr_debug("i2c-core: driver [%s] registered\n", driver->driver.name);
+>  
+>  	INIT_LIST_HEAD(&driver->clients);
 
-Btw, this is where octopus merges are just very nice.
+Sorry for the delay. Applied, thanks.
 
-IOW, just do
-
-      git merge for-2638/i2c/mv64xx for-2638/i2c/omap for-2638/i2c/iop
-for-2638/i2c/ocores for-2638/i2c/intel for-2638/i2c/nomadik
-for-2638/i2c/bfin2
-
-and it actually ends up looking much better.
-
-Of course, it does make bisecting a bit harder, but when you have lots
-of branches with just one or two commits each, and they are pretty
-independent (so a bug in one is unlikely to be mistaken for a bug in
-another), octopus really is the way to go.
-
-Anyway, pulled.
-
-                 Linus
+-- 
+Jean Delvare
