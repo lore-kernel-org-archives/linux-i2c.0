@@ -1,8 +1,10 @@
 From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH RFC] Splitting i2c-designware.c to support PCI drivers
-Date: Fri, 14 Jan 2011 11:27:27 -0800
-Message-ID: <1295033256-30077-1-git-send-email-dirk.brandewie@gmail.com>
+Subject: [PATCH 3/9] i2c-designware: retrieve clock frequency based CONFIG_HAVE_CLK
+Date: Fri, 14 Jan 2011 11:27:30 -0800
+Message-ID: <1295033256-30077-4-git-send-email-dirk.brandewie@gmail.com>
+References: <1295033256-30077-1-git-send-email-dirk.brandewie@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1295033256-30077-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
@@ -10,50 +12,62 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-This patch set splits i2c-designware.c core and bus specific portions
-in to support the Designware core being behind a PCI device.
+x86 does not have clk_dev support.  The PCI variant of the driver sets
+the clock rate being supplied to the IP block based on config
+information attached to the PCI ID
 
-The Intel Moorsetown and Medfield SOC's are supported in the PCI
-portion of the driver.
 
-This patch set is still a work in progress while I work with Shinya to
-make sure I did not break anything on the platform driver side.  The
-runtime power management stuff needs more test but doesn't break
-anything but I am not sure it's right either. This has been tested on
-the Intel Moorestown development platform. 
+Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-core.c |   14 +++++++++++++-
+ drivers/i2c/busses/i2c-designware-core.h |    1 +
+ 2 files changed, 14 insertions(+), 1 deletions(-)
 
-TODO:
-Move the values used for  DW_IC_[FS,SS]_SCL_HCNT
-DW_IC_[FS,SS]_SCL_LCNT to be adapter/contoller specific  
-
-Comments/Suggestions gratefully accepted.
---Dirk
-
-Dirk Brandewie (9):
-  i2c-designware: Add designware PCI config option
-  i2c-designware: Initial split of i2c-designware.c into core and bus
-    specific parts
-  i2c-designware: retrieve clock frequency based CONFIG_HAVE_CLK
-  i2c-designware: Add support for Designware core behind PCI devices.
-  i2c-designware: move i2c functionality bit field to be adapter
-    specific
-  i2c-designware: move controller config to bus specific portion of
-    driver
-  i2c-designware: Allow mixed endianness accesses
-  i2c-designware-pci: Add runtime power management support
-  i2c-designware: Support multiple cores using same ISR
-
- drivers/i2c/busses/Kconfig               |   20 +
- drivers/i2c/busses/Makefile              |    4 +
- drivers/i2c/busses/i2c-designware-core.c |  619 ++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-core.h |  214 ++++++++++
- drivers/i2c/busses/i2c-designware-pci.c  |  403 +++++++++++++++++++
- drivers/i2c/busses/i2c-designware-plat.c |  210 ++++++++++
- 6 files changed, 1470 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-designware-core.c
- create mode 100644 drivers/i2c/busses/i2c-designware-core.h
- create mode 100644 drivers/i2c/busses/i2c-designware-pci.c
- create mode 100644 drivers/i2c/busses/i2c-designware-plat.c
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 9dca409..b7102df 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -39,6 +39,16 @@
+ #include <linux/slab.h>
+ #include "i2c-designware-core.h"
+ 
++static u32 i2c_dw_clk_get_rate(struct dw_i2c_dev *dev)
++{
++#ifndef CONFIG_HAVE_CLK
++	return dev->clk_khz;
++#else
++	return clk_get_rate(dev->clk)/1000;
++#endif
++}
++
++
+ static char *abort_sources[] = {
+ 	[ABRT_7B_ADDR_NOACK] =
+ 		"slave address not acknowledged (7bit mode)",
+@@ -130,9 +140,11 @@ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
+ void
+ i2c_dw_init(struct dw_i2c_dev *dev)
+ {
+-	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
++	u32 input_clock_khz;
+ 	u32 ic_con, hcnt, lcnt;
+ 
++	input_clock_khz = i2c_dw_clk_get_rate(dev);
++
+ 	/* Disable the adapter */
+ 	writel(0, dev->base + DW_IC_ENABLE);
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9558ef2..f2182a9 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -178,6 +178,7 @@ struct dw_i2c_dev {
+ 	struct completion	cmd_complete;
+ 	struct mutex		lock;
+ 	struct clk		*clk;
++	u32			clk_khz;
+ 	int			cmd_err;
+ 	struct i2c_msg		*msgs;
+ 	int			msgs_num;
 -- 
 1.7.3.4
