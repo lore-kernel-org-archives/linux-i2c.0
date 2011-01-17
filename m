@@ -1,33 +1,46 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: multiple threads support
-Date: Sun, 16 Jan 2011 12:01:19 +0100
-Message-ID: <20110116120119.43f27f15@endymion.delvare>
-References: <AANLkTikS8XiA48HnFXZpC2p1qBqpntT7mJG=7YFVKOYY@mail.gmail.com>
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RFC] Splitting i2c-designware.c to support PCI drivers
+Date: Mon, 17 Jan 2011 08:06:33 -0800
+Message-ID: <4D346909.6030503@gmail.com>
+References: <1295033256-30077-1-git-send-email-dirk.brandewie@gmail.com> <20110114213007.58c8b237@endymion.delvare> <20110114214839.GC15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTikS8XiA48HnFXZpC2p1qBqpntT7mJG=7YFVKOYY-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20110114214839.GC15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 16 Jan 2011 12:56:40 +0200, Felix Rubinstein wrote:
-> Hi Jean,
-> 
-> I've searched mailing list and skimmed over the code to understand whether
-> kernel supports multiple threads support.
-> In other words, what if I have multiple threads writing over the same smbus
-> bus, i.e. the same /dev/i2c-X device but to different chip addresses.
-> Chip address is passed by means of I2C_SLAVE ioctl and not as part of the
-> i2c_smbus_write_... API meaning any thread could overwrite chip address.
-> 
-> Is it possible to have multiple threads writing to different chip addresses
-> on the same bus, to get better (in parallel) performance from user-space?
+On 01/14/2011 01:48 PM, Ben Dooks wrote:
+> On Fri, Jan 14, 2011 at 09:30:07PM +0100, Jean Delvare wrote:
+>> Hi Dirk,
+>>
+>> On Fri, 14 Jan 2011 11:27:27 -0800, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+>>> From: Dirk Brandewie<dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>>
+>>> This patch set splits i2c-designware.c core and bus specific portions
+>>> in to support the Designware core being behind a PCI device.
+>>>
+>>> The Intel Moorsetown and Medfield SOC's are supported in the PCI
+>>> portion of the driver.
+>>
+>> We already have the i2c-intel-mid driver for Moorsetown and Medfield.
+>> Why would we need another driver?
 
-Access to every I2C bus is serialized by the kernel. So yes, it is
-possible, but no, this won't improve performance significantly.
+I was tasked with fixing a couple of bugs i2c-intel-mid.c and adding support for 
+another upcoming platform.  While I was coming up to speed on the driver I 
+"discovered" the i2c-designware.c driver.  After talking with AlanC and Shinya 
+it seemed like the right thing to do to merge the two drivers.  The patch set 
+adds a parallel driver ATM moment until it get some good test.  Once it gets 
+more test I plan on adding patches to remove i2c-intel-mid.c and update current 
+i2c-designware.c driver to use the merged driver.
 
--- 
-Jean Delvare
+--Dirk
+>
+> Maybe we could delete those and use this instead.
+>
+> I wish I put my foot down and asked them to re-used the dw one otherwise
+> we'll just end up with driver creep....
+>
