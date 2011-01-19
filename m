@@ -1,28 +1,38 @@
 From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v2 0/2] Add support for Diolan U2C-12 USB/I2C adapter.
-Date: Wed, 19 Jan 2011 13:26:36 -0800
-Message-ID: <1295472398-705-1-git-send-email-guenter.roeck@ericsson.com>
+Subject: [PATCH v2 2/2] MAINTAINERS: Add maintainer for Diolan U2C-12 I2C adapter driver
+Date: Wed, 19 Jan 2011 13:26:38 -0800
+Message-ID: <1295472398-705-3-git-send-email-guenter.roeck@ericsson.com>
+References: <1295472398-705-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1295472398-705-1-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-v2 changes:
-- Moved receive and transmit buffers to allocated driver memory
-- diolan_usb_transfer() no longer requires buffer and length arguments
-- Pass "struct i2c_diolan_u2c *" instead of "struct i2c_adapter *" to many of
-  the internal usb access functions.
-- Introduced diolan_usb_cmd(), diolan_usb_cmd_data(), and diolan_usb_cmd_data2()
-  as front-end functions for actual commands.
-- Function prefix is now diolan_ for all functions.
-- Removed diolan_scan().
-- Fixed race conditions in diolan_u2c_probe().
-- Use i2c_{set,get}_adapdata instead of misusing adapter.algo_data.
-- Driver name is now i2c-diolan-u2c (instead of i2c-u2c-usb).
-- Added support for "frequency" module parameter to set i2c clock frequency
-- Enabled I2C clock stretching support
-- Support sending multiple commands in single usb transfer
-- Several other minor changes to address review comments.
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+ MAINTAINERS |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1af022e..12b0be3 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2089,6 +2089,12 @@ F:	Documentation/serial/digiepca.txt
+ F:	drivers/char/epca*
+ F:	drivers/char/digi*
+ 
++DIOLAN U2C-12 I2C DRIVER
++M:	Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++S:	Maintained
++F:	drivers/i2c/busses/i2c-diolan-u2c.c
++
+ DIRECTORY NOTIFICATION (DNOTIFY)
+ M:	Eric Paris <eparis-FjpueFixGhCM4zKIHC2jIg@public.gmane.org>
+ S:	Maintained
+-- 
+1.7.3.1
