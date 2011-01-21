@@ -1,95 +1,89 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 2/2] MAX8997/8966 PMIC Regulator Driver Initial Release
-Date: Fri, 21 Jan 2011 19:16:04 +0000
-Message-ID: <20110121191604.GK22414@opensource.wolfsonmicro.com>
-References: <1294988018-25100-1-git-send-email-myungjoo.ham@samsung.com>
- <1294988018-25100-3-git-send-email-myungjoo.ham@samsung.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 6/6] i2c/pxa2xx: pass of_node from platform driver to
+ adapter and publish
+Date: Fri, 21 Jan 2011 12:32:39 -0700
+Message-ID: <AANLkTinh4395wuWwH2E2kJG+rhMXUzFeGekeugyCSzWt@mail.gmail.com>
+References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-7-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1294988018-25100-3-git-send-email-myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1294246263-31960-7-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, myungjoo.ham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 14, 2011 at 03:53:38PM +0900, MyungJoo Ham wrote:
-> This patch supports PMIC/Regulator part of MAX8997/MAX8966 MFD.
-> In this initial release, selecting voltages or current-limit
-> and switching on/off the regulators are supported.
+On Wed, Jan 5, 2011 at 9:51 AM, Sebastian Andrzej Siewior
+<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
+> the of_node will auto-publish devices which are added to the device
+> tree.
+>
+> Commit 925bb9c6 aka ("of/i2c: Fix module load order issue caused by
+> of_i2c.c) moved the of_i2c_register_devices() function from the i2c c=
+ore
+> back to the drivers. This patch does the same thing for the pxa drive=
+r.
+>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Mostly good, a few stylistic things and this is out of date for the
-current regulator API.
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-> +static int max8997_get_voltage(struct regulator_dev *rdev)
-> +{
+Ben, I'll leave you to pick this one up.
 
-> +	ret = max8997_list_voltage(rdev, val);
-> +	if (ret == -EINVAL) {
-> +		int ldo = max8997_get_ldo(rdev);
+g.
 
-It'd probably be easier to just define separate get_voltage() and
-list_voltage() functions for these regulators.
+> ---
+> =A0drivers/i2c/busses/i2c-pxa.c | =A0 =A05 +++++
+> =A01 files changed, 5 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
+a.c
+> index bfd115d..a90739b 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -29,6 +29,7 @@
+> =A0#include <linux/errno.h>
+> =A0#include <linux/interrupt.h>
+> =A0#include <linux/i2c-pxa.h>
+> +#include <linux/of_i2c.h>
+> =A0#include <linux/platform_device.h>
+> =A0#include <linux/err.h>
+> =A0#include <linux/clk.h>
+> @@ -1138,6 +1139,9 @@ static int i2c_pxa_probe(struct platform_device=
+ *dev)
+>
+> =A0 =A0 =A0 =A0i2c->adap.algo_data =3D i2c;
+> =A0 =A0 =A0 =A0i2c->adap.dev.parent =3D &dev->dev;
+> +#ifdef CONFIG_OF
+> + =A0 =A0 =A0 i2c->adap.dev.of_node =3D dev->dev.of_node;
+> +#endif
+>
+> =A0 =A0 =A0 =A0if (i2c_type =3D=3D REGS_CE4100)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D i2c_add_adapter(&i2c->adap);
+> @@ -1147,6 +1151,7 @@ static int i2c_pxa_probe(struct platform_device=
+ *dev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0printk(KERN_INFO "I2C: Failed to add b=
+us\n");
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto eadapt;
+> =A0 =A0 =A0 =A0}
+> + =A0 =A0 =A0 of_i2c_register_devices(&i2c->adap);
+>
+> =A0 =A0 =A0 =A0platform_set_drvdata(dev, i2c);
+>
+> --
+> 1.7.3.2
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>
 
-> +static int max8997_set_voltage_ldo(struct regulator_dev *rdev,
-> +               int min_uV, int max_uV)
 
-This needs updating for the current API in -next (and 2.6.38).
 
-> +	if ((ldo > MAX8997_BUCK7 || ldo < MAX8997_LDO1) &&
-> +			ldo != MAX8997_CHARGER_CV &&
-> +			ldo != MAX8997_CHARGER &&
-> +			ldo != MAX8997_CHARGER_TOPOFF)
-> +		return -EINVAL;
-> +	if (ldo == MAX8997_BUCK6)
-> +		return -EINVAL;
-
-A switch statement for the valid regulators might be clearer.
-
-> +static int max8997_set_voltage_buck(struct regulator_dev *rdev,
-> +		int min_uV, int max_uV)
-
-API update needed here too.
-
-> +static int max8997_set_voltage_safeout(struct regulator_dev *rdev,
-> +		int min_uV, int max_uV)
-> +{
-
-Here also.  Given that you've got a separate set_voltage() the comment
-about a separate get_voltage() above seems even stronger.
-
-> +static inline unsigned int max8997_buck_voltage(int uV)
-> +{
-> +	int step;
-> +
-> +	if (uV <= 650000)
-> +		return 0x0;
-> +	if (uV >= 2225000)
-> +		return 0x3f;
-> +
-> +	step = uV - 650000;
-> +	step /= 25000;
-> +
-> +	return step + 1;
-> +}
-
-Shouldn't this code be shared with set_voltage()?  Or...
-
-> +		max8997_update_reg(i2c, MAX8997_REG_BUCK1DVS(i),
-> +				max8997_buck_voltage(pdata->buck1_voltage[i]),
-> +				0x3f);
-> +		max8997_update_reg(i2c, MAX8997_REG_BUCK2DVS(i),
-> +				max8997_buck_voltage(pdata->buck2_voltage[i]),
-> +				0x3f);
-> +		max8997_update_reg(i2c, MAX8997_REG_BUCK5DVS(i),
-> +				max8997_buck_voltage(pdata->buck5_voltage[i]),
-> +				0x3f);
-
-...just call your set_voltage() operation directly for these?
-
-> +		if (gpio_is_valid(pdata->buck125_gpios[0]) &&
-> +				gpio_is_valid(pdata->buck125_gpios[1]) &&
-> +				gpio_is_valid(pdata->buck125_gpios[2])) {
-
-Strange indentation here.
+--=20
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
