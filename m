@@ -1,89 +1,360 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 6/6] i2c/pxa2xx: pass of_node from platform driver to
- adapter and publish
-Date: Fri, 21 Jan 2011 12:32:39 -0700
-Message-ID: <AANLkTinh4395wuWwH2E2kJG+rhMXUzFeGekeugyCSzWt@mail.gmail.com>
-References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de> <1294246263-31960-7-git-send-email-bigeasy@linutronix.de>
+From: "Guan Xuetao" <guanxuetao@mprc.pku.edu.cn>
+Subject: [PATCH] unicore32: add i2c bus driver for PKUnity SoC
+Date: Sat, 22 Jan 2011 18:55:09 +0800
+Message-ID: <01d101cbba22$d8071bb0$88155310$@mprc.pku.edu.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1294246263-31960-7-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: zh-cn
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org, ben-linux@fluff.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 5, 2011 at 9:51 AM, Sebastian Andrzej Siewior
-<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
-> the of_node will auto-publish devices which are added to the device
-> tree.
->
-> Commit 925bb9c6 aka ("of/i2c: Fix module load order issue caused by
-> of_i2c.c) moved the of_i2c_register_devices() function from the i2c c=
-ore
-> back to the drivers. This patch does the same thing for the pxa drive=
-r.
->
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Guan Xuetao <gxt@mprc.pku.edu.cn>
 
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+This patch adds framebuffer driver for unigfx engine in PKUnity SoC.
 
-Ben, I'll leave you to pick this one up.
+Signed-off-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
+---
+ drivers/i2c/busses/Kconfig    |    5 +
+ drivers/i2c/busses/Makefile   |    1 +
+ drivers/i2c/busses/puv3_i2c.c |  300 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 306 insertions(+), 0 deletions(-)
 
-g.
-
-> ---
-> =A0drivers/i2c/busses/i2c-pxa.c | =A0 =A05 +++++
-> =A01 files changed, 5 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
-a.c
-> index bfd115d..a90739b 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -29,6 +29,7 @@
-> =A0#include <linux/errno.h>
-> =A0#include <linux/interrupt.h>
-> =A0#include <linux/i2c-pxa.h>
-> +#include <linux/of_i2c.h>
-> =A0#include <linux/platform_device.h>
-> =A0#include <linux/err.h>
-> =A0#include <linux/clk.h>
-> @@ -1138,6 +1139,9 @@ static int i2c_pxa_probe(struct platform_device=
- *dev)
->
-> =A0 =A0 =A0 =A0i2c->adap.algo_data =3D i2c;
-> =A0 =A0 =A0 =A0i2c->adap.dev.parent =3D &dev->dev;
-> +#ifdef CONFIG_OF
-> + =A0 =A0 =A0 i2c->adap.dev.of_node =3D dev->dev.of_node;
-> +#endif
->
-> =A0 =A0 =A0 =A0if (i2c_type =3D=3D REGS_CE4100)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D i2c_add_adapter(&i2c->adap);
-> @@ -1147,6 +1151,7 @@ static int i2c_pxa_probe(struct platform_device=
- *dev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0printk(KERN_INFO "I2C: Failed to add b=
-us\n");
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto eadapt;
-> =A0 =A0 =A0 =A0}
-> + =A0 =A0 =A0 of_i2c_register_devices(&i2c->adap);
->
-> =A0 =A0 =A0 =A0platform_set_drvdata(dev, i2c);
->
-> --
-> 1.7.3.2
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->
-
-
-
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 3a6321c..20d328c 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -236,6 +236,11 @@ config I2C_VIAPRO
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-viapro.
+ 
++config I2C_PUV3
++	tristate "PKUnity v3 I2C bus support"
++	depends on I2C && UNICORE32 && ARCH_PUV3
++	select I2C_ALGOBIT
++
+ if ACPI
+ 
+ comment "ACPI drivers"
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 84cb16a..cb4a097 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -61,6 +61,7 @@ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
+ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+ obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
++obj-$(CONFIG_I2C_PUV3)		+= puv3_i2c.o
+ 
+ # External I2C/SMBus adapter drivers
+ obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+diff --git a/drivers/i2c/busses/puv3_i2c.c b/drivers/i2c/busses/puv3_i2c.c
+new file mode 100644
+index 0000000..fb4f1fd
+--- /dev/null
++++ b/drivers/i2c/busses/puv3_i2c.c
+@@ -0,0 +1,300 @@
++/*
++ * I2C driver for PKUnity-v3 SoC
++ * Code specific to PKUnity SoC and UniCore ISA
++ *
++ *	Maintained by GUAN Xue-tao <gxt@mprc.pku.edu.cn>
++ *	Copyright (C) 2001-2010 Guan Xuetao
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/err.h>
++#include <linux/slab.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/clk.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <mach/hardware.h>
++
++static int i2c_reg = -1;
++
++/*
++ * Poll the i2c status register until the specified bit is set.
++ * Returns 0 if timed out (100 msec).
++ */
++static short poll_status(unsigned long bit)
++{
++	int loop_cntr = 1000;
++
++	if (bit & I2C_STATUS_TFNF) {
++		do {
++			udelay(10);
++		} while (!(I2C_STATUS & bit) && (--loop_cntr > 0));
++	} else {
++		/* RXRDY handler */
++		do {
++			if (I2C_TAR == I2C_TAR_EEPROM)
++				msleep(20);
++			else
++				udelay(10);
++		} while (!(I2C_RXFLR & 0xf) && (--loop_cntr > 0));
++	}
++
++	return (loop_cntr > 0);
++}
++
++static int xfer_read(struct i2c_adapter *adap, unsigned char *buf, int length)
++{
++	/* Read data */
++	while (length--) {
++		if (!poll_status(I2C_STATUS_TFNF)) {
++			dev_dbg(&adap->dev, "Tx FIFO Not Full timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		/* send addr */
++		I2C_DATACMD = i2c_reg | I2C_DATACMD_WRITE;
++
++		/* get ready to next write */
++		i2c_reg++;
++
++		/* send read CMD */
++		I2C_DATACMD = I2C_DATACMD_READ;
++
++		/* wait until the Rx FIFO have available */
++		if (!poll_status(I2C_STATUS_RFNE)) {
++			dev_dbg(&adap->dev, "RXRDY timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		/* read the data to buf */
++		*buf = (I2C_DATACMD & I2C_DATACMD_DAT_MASK);
++		buf++;
++	}
++
++	i2c_reg = -1;
++
++	return 0;
++}
++
++static int xfer_write(struct i2c_adapter *adap, unsigned char *buf, int length)
++{
++	/* Do nothing but storing the reg_num to a static variable */
++	i2c_reg = *buf;
++	if (i2c_reg == -1) {
++		printk(KERN_WARNING "Error i2c reg\n");
++		return -ETIMEDOUT;
++	}
++
++	if (length == 1)
++		return 0;
++
++	buf++;
++	length--;
++	while (length--) {
++		/* send addr */
++		I2C_DATACMD = i2c_reg | I2C_DATACMD_WRITE;
++
++		/* send write CMD */
++		I2C_DATACMD = *buf | I2C_DATACMD_WRITE;
++
++		/* wait until the Rx FIFO have available */
++		msleep(20);
++
++		/* read the data to buf */
++		i2c_reg++;
++		buf++;
++	}
++
++	i2c_reg = -1;
++
++	return 0;
++}
++
++/*
++ * Generic i2c master transfer entrypoint.
++ *
++ */
++static int puv3_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *pmsg,
++		int num)
++{
++	int i, ret;
++	unsigned char swap;
++
++	/* Disable i2c */
++	I2C_ENABLE = I2C_ENABLE_DISABLE;
++
++	/* Set the work mode and speed*/
++	I2C_CON = I2C_CON_MASTER | I2C_CON_SPEED_STD | I2C_CON_SLAVEDISABLE;
++
++	I2C_TAR = pmsg->addr;
++
++	/* Enable i2c */
++	I2C_ENABLE = I2C_ENABLE_ENABLE;
++
++	dev_dbg(&adap->dev, "puv3_i2c_xfer: processing %d messages:\n", num);
++
++	for (i = 0; i < num; i++) {
++		dev_dbg(&adap->dev, " #%d: %sing %d byte%s %s 0x%02x\n", i,
++			pmsg->flags & I2C_M_RD ? "read" : "writ",
++			pmsg->len, pmsg->len > 1 ? "s" : "",
++			pmsg->flags & I2C_M_RD ? "from" : "to",	pmsg->addr);
++
++		if (pmsg->len && pmsg->buf) {	/* sanity check */
++			if (pmsg->flags & I2C_M_RD)
++				ret = xfer_read(adap, pmsg->buf, pmsg->len);
++			else
++				ret = xfer_write(adap, pmsg->buf, pmsg->len);
++
++			if (ret)
++				return ret;
++
++		}
++		dev_dbg(&adap->dev, "transfer complete\n");
++		pmsg++;		/* next message */
++	}
++
++	/* XXX: fixup be16_to_cpu in bq27x00_battery.c */
++	if (pmsg->addr == I2C_TAR_PWIC) {
++		swap = pmsg->buf[0];
++		pmsg->buf[0] = pmsg->buf[1];
++		pmsg->buf[1] = swap;
++	}
++
++	return i;
++}
++
++/*
++ * Return list of supported functionality.
++ */
++static u32 puv3_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static struct i2c_algorithm puv3_i2c_algorithm = {
++	.master_xfer	= puv3_i2c_xfer,
++	.functionality	= puv3_i2c_func,
++};
++
++/*
++ * Main initialization routine.
++ */
++static int __devinit puv3_i2c_probe(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter;
++	struct resource *res;
++	int rc;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENXIO;
++
++	if (!request_mem_region(res->start, resource_size(res), "puv3_i2c"))
++		return -EBUSY;
++
++	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
++	if (adapter == NULL) {
++		dev_err(&pdev->dev, "can't allocate inteface!\n");
++		rc = -ENOMEM;
++		goto fail2;
++	}
++	snprintf(adapter->name, sizeof(adapter->name), "PUV3");
++	adapter->algo = &puv3_i2c_algorithm;
++	adapter->class = I2C_CLASS_HWMON;
++	adapter->dev.parent = &pdev->dev;
++
++	platform_set_drvdata(pdev, adapter);
++
++	rc = i2c_add_numbered_adapter(adapter);
++	if (rc) {
++		dev_err(&pdev->dev, "Adapter %s registration failed\n",
++				adapter->name);
++		goto fail3;
++	}
++
++	dev_info(&pdev->dev, "PKUnity v3 i2c bus driver.\n");
++	return 0;
++
++fail3:
++	platform_set_drvdata(pdev, NULL);
++	kfree(adapter);
++fail2:
++	release_mem_region(res->start, resource_size(res));
++
++	return rc;
++}
++
++static int puv3_i2c_remove(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
++	struct resource *res;
++	int rc;
++
++	rc = i2c_del_adapter(adapter);
++	platform_set_drvdata(pdev, NULL);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	release_mem_region(res->start, resource_size(res));
++
++	return rc;
++}
++
++#ifdef CONFIG_PM
++static int puv3_i2c_suspend(struct platform_device *dev, pm_message_t state)
++{
++	int poll_count;
++	/* Disable the IIC */
++	I2C_ENABLE = I2C_ENABLE_DISABLE;
++	for (poll_count = 0; poll_count < 50; poll_count++) {
++		if (I2C_ENSTATUS & I2C_ENSTATUS_ENABLE)
++			udelay(25);
++	}
++
++	return 0;
++}
++
++static int puv3_i2c_resume(struct platform_device *dev)
++{
++	return 0 ;
++}
++#else
++#define puv3_i2c_suspend NULL
++#define puv3_i2c_resume NULL
++#endif
++
++MODULE_ALIAS("platform:puv3_i2c");
++
++static struct platform_driver puv3_i2c_driver = {
++	.probe		= puv3_i2c_probe,
++	.remove		= __devexit_p(puv3_i2c_remove),
++	.suspend	= puv3_i2c_suspend,
++	.resume		= puv3_i2c_resume,
++	.driver		= {
++		.name	= "PKUnity-v3-I2C",
++		.owner	= THIS_MODULE,
++	}
++};
++
++static int __init puv3_i2c_init(void)
++{
++	return platform_driver_register(&puv3_i2c_driver);
++}
++
++static void __exit puv3_i2c_exit(void)
++{
++	platform_driver_unregister(&puv3_i2c_driver);
++}
++
++module_init(puv3_i2c_init);
++module_exit(puv3_i2c_exit);
++
++MODULE_DESCRIPTION("PKUnity v3 I2C driver");
++MODULE_LICENSE("GPL v2");
