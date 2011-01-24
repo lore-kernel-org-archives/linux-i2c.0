@@ -1,48 +1,217 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: octeon: Make the timeout independent of CONFIG_HZ
-Date: Mon, 24 Jan 2011 15:00:05 +0100
-Message-ID: <20110124150005.577b0235@endymion.delvare>
-References: <4D3D7290.9050203@corscience.de>
-	<1295872826-22129-1-git-send-email-walle@corscience.de>
+From: "Guan Xuetao" <guanxuetao-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+Subject: RE: [PATCH] unicore32: add i2c bus driver for PKUnity SoC
+Date: Mon, 24 Jan 2011 22:21:44 +0800
+Message-ID: <010001cbbbd2$08310e30$18932a90$@mprc.pku.edu.cn>
+References: <01d101cbba22$d8071bb0$88155310$@mprc.pku.edu.cn> <20110124101843.5041be6e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1295872826-22129-1-git-send-email-walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
+In-Reply-To: <20110124101843.5041be6e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: zh-cn
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 24 Jan 2011 13:40:26 +0100, Bernhard Walle wrote:
-> Since the timeout in the struct i2c_adapter use jiffies as unit and a
-> timeout should be independent of CONFIG_HZ, use a value of HZ/50 which
-> is equal to the current value 2 for CONFIG_HZ=100.
+
+
+> -----Original Message-----
+> From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
+> Sent: Monday, January 24, 2011 5:19 PM
+> To: Guan Xuetao
+> Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH] unicore32: add i2c bus driver for PKUnity SoC
 > 
-> Signed-off-by: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
-
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Ben, please apply.
-
-> ---
->  drivers/i2c/busses/i2c-octeon.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+> Hi Guan,
 > 
-> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-> index 4cffda5..d07e5c7 100644
-> --- a/drivers/i2c/busses/i2c-octeon.c
-> +++ b/drivers/i2c/busses/i2c-octeon.c
-> @@ -469,7 +469,7 @@ static struct i2c_adapter octeon_i2c_ops = {
->  	.owner = THIS_MODULE,
->  	.name = "OCTEON adapter",
->  	.algo = &octeon_i2c_algo,
-> -	.timeout = 2,
-> +	.timeout = HZ/50,
->  };
->  
->  /**
+> On Sat, 22 Jan 2011 18:55:09 +0800, Guan Xuetao wrote:
+> > From: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+> >
+> > This patch adds framebuffer driver for unigfx engine in PKUnity SoC.
+> 
+> While I don't have the time for a full review, I would like to at least
+> sort out the integration issues. Framebuffer driver, really? I doubt
+> it. If this is a copy-and-paste mistake, and this is actually an I2C
+> system bus driver, you will have to change the driver name (see below.)
+> If what you actually meant is that this is a driver for the I2C/DDC
+> channels on a graphics chip, then you have to move this driver to the
+> same directory the framebuffer driver lives in, as all other
+> framebuffer drivers do.
+Yes, it's an I2C system bus driver. Sorry for my mistake.
 
+> 
+> > Signed-off-by: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/Kconfig    |    5 +
+> >  drivers/i2c/busses/Makefile   |    1 +
+> >  drivers/i2c/busses/puv3_i2c.c |  300 +++++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 306 insertions(+), 0 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 3a6321c..20d328c 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -236,6 +236,11 @@ config I2C_VIAPRO
+> >  	  This driver can also be built as a module.  If so, the module
+> >  	  will be called i2c-viapro.
+> >
+> > +config I2C_PUV3
+> > +	tristate "PKUnity v3 I2C bus support"
+> > +	depends on I2C && UNICORE32 && ARCH_PUV3
+> 
+> The whole menu depends on I2C, so you don't have to repeat it.
+Ok.
 
--- 
-Jean Delvare
+> 
+> > +	select I2C_ALGOBIT
+> 
+> Where is the description of what the driver is for? All other entries
+> have it, yours is no exception.
+A description block is added.
+
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index 84cb16a..cb4a097 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -61,6 +61,7 @@ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
+> >  obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+> >  obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+> >  obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+> > +obj-$(CONFIG_I2C_PUV3)		+= puv3_i2c.o
+> 
+> Assuming that this is the right place for your driver, then the name is
+> NOT correct. As you can see, all drivers are names i2c-*, so your
+> driver should be too. And the it should be inserted in alphabetical
+> order.
+Ok.
+
+> 
+> See also my comments below related to the probe() and remove()
+> functions.
+> 
+> >
+> >  # External I2C/SMBus adapter drivers
+> >  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+> > diff --git a/drivers/i2c/busses/puv3_i2c.c b/drivers/i2c/busses/puv3_i2c.c
+> > +
+> > +static int i2c_reg = -1;
+> 
+> Please allocate and use per-device data structure for device state
+> tracking. Global variables are evil (for this use case at least.)
+Yes, i2c_reg is replaced by local variables.
+
+> > +
+> > +/*
+> > + * Main initialization routine.
+> > + */
+> > +static int __devinit puv3_i2c_probe(struct platform_device *pdev)
+> > +{
+> > +	struct i2c_adapter *adapter;
+> > +	struct resource *res;
+> > +	int rc;
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!res)
+> > +		return -ENXIO;
+> 
+> -ENODEV would seem more appropriate.
+Ok.
+
+> > +	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+> > +	if (adapter == NULL) {
+> > +		dev_err(&pdev->dev, "can't allocate inteface!\n");
+> > +		rc = -ENOMEM;
+> > +		goto fail2;
+> > +	}
+> > +	snprintf(adapter->name, sizeof(adapter->name), "PUV3");
+> 
+> Please include some uniqueness in the name. The address of the mem
+> region would be a good candidate:
+> 
+> 	snprintf(adapter->name, sizeof(adapter->name), "PUV3 at 0x%08x",
+> 		 res->start);
+> 
+> This lets user-space differentiate between the adapters if there are
+> more than one.
+Ok.
+
+> > +
+> > +	platform_set_drvdata(pdev, adapter);
+> > +
+> > +	rc = i2c_add_numbered_adapter(adapter);
+> 
+> You can't call i2c_add_numbered_adapter() if you haven't set
+> adapter->nr first.
+Corrected.
+
+> 
+> > +	if (rc) {
+> > +		dev_err(&pdev->dev, "Adapter %s registration failed\n",
+> > +				adapter->name);
+> 
+> Quotes around %s would be welcome.
+Ok.
+
+> 
+> > +		goto fail3;
+> > +	}
+> > +
+> > +	dev_info(&pdev->dev, "PKUnity v3 i2c bus driver.\n");
+> 
+> Wrong message. You have just registered a device, not a driver.
+Corrected.
+
+> 
+> > +	return 0;
+> > +
+> > +fail3:
+> 
+> Please use descriptive labels, otherwise it's easy to mess up and jump
+> to the wrong one.
+Ok.
+
+> 
+> > +	platform_set_drvdata(pdev, NULL);
+> > +	kfree(adapter);
+> > +fail2:
+> > +	release_mem_region(res->start, resource_size(res));
+> > +
+> > +	return rc;
+> > +}
+> > +
+> > +static int puv3_i2c_remove(struct platform_device *pdev)
+> 
+> Missing __devexit.
+Added.
+
+> 
+> > +{
+> > +	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
+> > +	struct resource *res;
+> > +	int rc;
+> > +
+> > +	rc = i2c_del_adapter(adapter);
+> > +	platform_set_drvdata(pdev, NULL);
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	release_mem_region(res->start, resource_size(res));
+> > +
+> > +	return rc;
+> 
+> The logic in this function doesn't make sense. If i2c_del_adapter()
+> fails, you must exit immediately. Freeing the resources while the
+> adapter is still registered can only lead to a crash.
+> 
+> Additionally, you are leaking memory in the success case, as adapter is
+> never freed.
+Above two are corrected.
+
+> 
+> --
+> Jean Delvare
+
+Thanks Jean.
+
+Guan Xuetao
