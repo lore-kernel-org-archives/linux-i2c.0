@@ -1,79 +1,50 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: [PATCH 4/4] drivers/staging/lirc: Remove obsolete cleanup for clientdata
-Date: Mon, 24 Jan 2011 11:44:30 +0100
-Message-ID: <1295865880-27672-4-git-send-email-w.sang@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH 3/4] staging/ste_rmi4: Remove obsolete cleanup for clientdata
+Date: Mon, 24 Jan 2011 11:44:29 +0100
+Message-ID: <1295865880-27672-3-git-send-email-w.sang@pengutronix.de>
 References: <1295865880-27672-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1295865880-27672-1-git-send-email-w.sang@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Greg Kroah-Hartman <gregkh@suse.de>, Mauro Carvalho Chehab <mchehab@redhat.com>, Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@redhat.com>, Joe Perches <joe@perches.com>, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1295865880-27672-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Naveen Kumar Gaddipati <naveen.gaddipati-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-on exit or error. This is obsolete meanwhile, the core will do it. Simplify the
-kfree() calls after that, the pointers don't need to be checked.
+on exit or error. This is obsolete meanwhile, the core will do it.
 
-Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@md.metrocast.net>
-Cc: Jarod Wilson <jarod@redhat.com>
-Cc: Joe Perches <joe@perches.com>
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
+Cc: Naveen Kumar Gaddipati <naveen.gaddipati-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 ---
 
 Compile tested only.
 
- drivers/staging/lirc/lirc_zilog.c |   28 +++++++++-------------------
- 1 files changed, 9 insertions(+), 19 deletions(-)
+ drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/lirc/lirc_zilog.c b/drivers/staging/lirc/lirc_zilog.c
-index 3fe5f41..df1055f 100644
---- a/drivers/staging/lirc/lirc_zilog.c
-+++ b/drivers/staging/lirc/lirc_zilog.c
-@@ -1214,15 +1214,12 @@ static int ir_remove(struct i2c_client *client)
+diff --git a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
+index e8f047e..c9207de 100644
+--- a/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
++++ b/drivers/staging/ste_rmi4/synaptics_i2c_rmi4.c
+@@ -989,7 +989,7 @@ static int __devinit synaptics_rmi4_probe
+ 	retval = input_register_device(rmi4_data->input_dev);
+ 	if (retval) {
+ 		dev_err(&client->dev, "%s:input register failed\n", __func__);
+-		goto err_input_register;
++		goto err_query_dev;
+ 	}
  
- 	/* Good-bye Rx */
- 	destroy_rx_kthread(ir->rx);
--	if (ir->rx != NULL) {
--		if (ir->rx->buf.fifo_initialized)
--			lirc_buffer_free(&ir->rx->buf);
--		i2c_set_clientdata(ir->rx->c, NULL);
--		kfree(ir->rx);
--	}
-+	if (ir->rx && ir->rx->buf.fifo_initialized)
-+		lirc_buffer_free(&ir->rx->buf);
-+
-+	kfree(ir->rx);
- 
- 	/* Good-bye Tx */
--	i2c_set_clientdata(ir->tx->c, NULL);
- 	kfree(ir->tx);
- 
- 	/* Good-bye IR */
-@@ -1388,18 +1385,11 @@ out_unregister:
- out_free_thread:
- 	destroy_rx_kthread(ir->rx);
- out_free_xx:
--	if (ir->rx != NULL) {
--		if (ir->rx->buf.fifo_initialized)
--			lirc_buffer_free(&ir->rx->buf);
--		if (ir->rx->c != NULL)
--			i2c_set_clientdata(ir->rx->c, NULL);
--		kfree(ir->rx);
--	}
--	if (ir->tx != NULL) {
--		if (ir->tx->c != NULL)
--			i2c_set_clientdata(ir->tx->c, NULL);
--		kfree(ir->tx);
--	}
-+	if (ir->rx && ir->rx->buf.fifo_initialized)
-+		lirc_buffer_free(&ir->rx->buf);
-+
-+	kfree(ir->rx);
-+	kfree(ir->tx);
- out_free_ir:
- 	del_ir_device(ir);
- 	kfree(ir);
+ 	/* Clear interrupts */
+@@ -1011,8 +1011,6 @@ static int __devinit synaptics_rmi4_probe
+ err_request_irq:
+ 	free_irq(platformdata->irq_number, rmi4_data);
+ 	input_unregister_device(rmi4_data->input_dev);
+-err_input_register:
+-	i2c_set_clientdata(client, NULL);
+ err_query_dev:
+ 	if (platformdata->regulator_en) {
+ 		regulator_disable(rmi4_data->regulator);
 -- 
 1.7.2.3
