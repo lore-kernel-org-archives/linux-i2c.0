@@ -1,52 +1,24 @@
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 7/9] i2c-designware: Allow mixed endianness accesses
-Date: Tue, 25 Jan 2011 07:30:10 -0800
-Message-ID: <4D3EEC82.4050504@gmail.com>
-References: <1295033256-30077-1-git-send-email-dirk.brandewie@gmail.com> <1295033256-30077-8-git-send-email-dirk.brandewie@gmail.com> <2C61B7B7755780449CA3ED217819DA761BC7B3BD@MAIL.octasic.com> <4D3E3546.80806@renesas.com>
+From: Phillip Susi <psusi-3tLf1voIkJTQT0dZR+AlfA@public.gmane.org>
+Subject: Identifying i2c devices on Asus P8P67 sandybridge motherboard
+Date: Tue, 25 Jan 2011 11:05:20 -0500
+Message-ID: <4D3EF4C0.1090008@cfl.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D3E3546.80806-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Cc: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/24/2011 06:28 PM, Shinya Kuribayashi wrote:
-> On 1/18/2011 2:19 AM, Jean-Hugues Deschenes wrote:
->>> +u32 dw_readl(struct dw_i2c_dev *dev, int offset)
->>> +{
->>> +	u32 value = readl(dev->base + offset);
->>> +
->>> +	if (dev->swab)
->>> +		return swab32(value);
->>> +	else
->>> +		return value;
->>> +}
->>> +EXPORT_SYMBOL(dw_readl);
->>> +
->>> +void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
->>> +{
->>> +	if (dev->swab)
->>> +		b = swab32(b);
->>> +
->>> +	writel(b, dev->base + offset);
->>> +}
->>> +EXPORT_SYMBOL(dw_writel);
->>
->> I would just suggest to declare these accessors as static and avoid to
->> export the symbols, especially given their short names. Inlining these
->> short, frequently-accessed functions is attractive.
->>
->>> +extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
->>> +extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
->>
->> Same here; I don't believe these lines are necessary.
->
-> Ack.
->
-> Furthermore, I'd like to see this patch at the start at Dirk-san's
-> patchset.  We don't want to make a already proposed patch adapted to
-> a modified driver.
-ack
+I recently got a new Asus P8P67 Pro motherboard with a sandybridge core
+i5 2500K.  After checking the Intel chipset docs, I found that it has an
+i2c controller and it was enumerated on the pci bus, but no driver was
+loaded for it.  I found the i2c-i801 module and the comments in the
+source say it supports the Cougar Point (PCH) and matches the PCI ID.
+I'm not sure why it wasn't auto loaded, but after loading it, it seemed
+to work.
+
+At that point I ran sensors-detect, which failed to recognize any known
+controllers on the bus, but i2c-detect found several addresses that
+responded.  How can I proceed with identifying what these devices are,
+so that I can hopefully find or write a driver to communicate with them?
