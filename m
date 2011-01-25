@@ -1,49 +1,81 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 4/4] drivers/staging/lirc: Remove obsolete cleanup for
- clientdata
-Date: Tue, 25 Jan 2011 08:49:30 +0100
-Message-ID: <20110125084930.6d87161a@endymion.delvare>
-References: <1295865880-27672-1-git-send-email-w.sang@pengutronix.de>
-	<1295865880-27672-4-git-send-email-w.sang@pengutronix.de>
-	<1295914142.2420.29.camel@localhost>
+From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Subject: [PATCH 1/3] i2c_intel_mid: Improve error reporting
+Date: Tue, 25 Jan 2011 14:20:48 +0000
+Message-ID: <20110125142040.9472.88734.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1295914142.2420.29.camel@localhost>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Walls <awalls-Xoej9cPu4Z+RGvkDC/A1pg@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jarod Wilson <jarod-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 24 Jan 2011 19:09:02 -0500, Andy Walls wrote:
-> On Mon, 2011-01-24 at 11:44 +0100, Wolfram Sang wrote:
-> > A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-> > on exit or error. This is obsolete meanwhile, the core will do it. Simplify the
-> > kfree() calls after that, the pointers don't need to be checked.
-> > 
-> > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
-> > Cc: Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> > Cc: Andy Walls <awalls-Xoej9cPu4Z+RGvkDC/A1pg@public.gmane.org>
-> 
-> Nak.
-> 
-> In a module where I plan to do more cleanup and add reference counting
-> to struct IR, IR_tx, and IR_rx objects, I'd like the explicit "NULL"s in
-> pointer checks to stay in for now.
-> 
-> Removing the explicit constant "NULL" makes searching for checks against
-> NULL pointers more difficult when auditing the code (No red syntax
-> highlighting and a /NULL search misses).
+From: Catalin Popescu <catalinx.popescu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-I agree that Wolfram was too generous with his clean-ups this time.
-Wolfram, you should only be removing the calls to i2c_set_clientdata(x,
-NULL), not changing the logic of the code.
+The error messages printed from mrst_i2c_abort() didn't give slave address info.
 
-Furthermore, lirc_zilog is currently undergoing heavy changes, I'd
-rather let Andy and Jarod work on that staging driver, and clean up
-what needs to be later.
+But I2C device driver developers always need this to check which slave device
+has the problem.
 
--- 
-Jean Delvare
+This patch enhances the error message format by adding slave address info to
+each error message.
+
+Signed-off-by: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+[Ported to upstream driver branch and tidied a spot]
+Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+
+ drivers/i2c/busses/i2c-intel-mid.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
+
+
+diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
+index c714927..cfb0bb3 100644
+--- a/drivers/i2c/busses/i2c-intel-mid.c
++++ b/drivers/i2c/busses/i2c-intel-mid.c
+@@ -78,7 +78,7 @@ struct intel_mid_i2c_private {
+ 	void __iomem *base;
+ 	int speed;
+ 	struct completion complete;
+-	int abort;
++	u32 abort;
+ 	u8 *rx_buf;
+ 	int rx_buf_len;
+ 	enum mid_i2c_status status;
+@@ -464,9 +464,15 @@ static inline bool intel_mid_i2c_address_neq(const struct i2c_msg *p1,
+ static void intel_mid_i2c_abort(struct intel_mid_i2c_private *i2c)
+ {
+ 	/* Read about source register */
+-	int abort = i2c->abort;
++	u32 abort = i2c->abort;
+ 	struct i2c_adapter *adap = &i2c->adap;
+ 
++	if (abort & (ABRT_MASTER_DIS | ABRT_10B_RD_NORSTRT |
++	    ABRT_SBYTE_NORSTRT | ABRT_SBYTE_ACKDET | ABRT_TXDATA_NOACK |
++	    ABRT_10ADDR2_NOACK | ABRT_10ADDR1_NOACK | ABRT_7B_ADDR_NOACK))
++		dev_err(&adap->dev, "i2c abort on address 0x%x\n",
++							i2c->msg->addr);
++
+ 	/* Single transfer error check:
+ 	 * According to databook, TX/RX FIFOs would be flushed when
+ 	 * the abort interrupt occured.
+@@ -550,7 +556,8 @@ static int xfer_read(struct i2c_adapter *adap, unsigned char *buf, int length)
+ 	i2c->status = STATUS_READ_START;
+ 	err = wait_for_completion_interruptible_timeout(&i2c->complete, HZ);
+ 	if (!err) {
+-		dev_err(&adap->dev, "Timeout for ACK from I2C slave device\n");
++		dev_err(&adap->dev, "Timeout for ACK from I2C slave 0x%x\n",
++						i2c->msg->addr);
+ 		intel_mid_i2c_hwinit(i2c);
+ 		return -ETIMEDOUT;
+ 	}
+@@ -602,7 +609,8 @@ static int xfer_write(struct i2c_adapter *adap,
+ 	i2c->status = STATUS_WRITE_START;
+ 	err = wait_for_completion_interruptible_timeout(&i2c->complete, HZ);
+ 	if (!err) {
+-		dev_err(&adap->dev, "Timeout for ACK from I2C slave device\n");
++		dev_err(&adap->dev, "Timeout for ACK from I2C slave 0x%x\n",
++							i2c->msg->addr);
+ 		intel_mid_i2c_hwinit(i2c);
+ 		return -ETIMEDOUT;
+ 	} else {
