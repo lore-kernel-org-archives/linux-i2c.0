@@ -1,135 +1,207 @@
 From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: [PATCH 3/3] MID I2C runtime PM
-Date: Tue, 25 Jan 2011 14:22:20 +0000
-Message-ID: <20110125142131.9472.27410.stgit@bob.linux.org.uk>
-References: <20110125142040.9472.88734.stgit@bob.linux.org.uk>
+Subject: [PATCH] i2c-intel-mid: I2C FIFO buffer size setting and fragmentation
+Date: Tue, 25 Jan 2011 14:28:07 +0000
+Message-ID: <20110125142728.10001.85888.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110125142040.9472.88734.stgit-Z/y2cZnRghHXmaaqVzeoHQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+=46rom: Major Lee <major_lee-8+ZHUTgF1KZBDgjK7y7TUQ@public.gmane.org>
 
-The MID I2C driver does now allow runtime pm by default it goes into
-suspend after every access. This is not efficient for continual I2C access.
+The FIFO buffer size is different with different CPU stepping.
+Define it as 32-byte; it is safe for all CPU stepping.
 
-This patch allows auto suspend by default. It add a delay to the suspend which
-keeps I2C active for at least 500ms after every access. If a device driver
-accesses I2C frequently, it will not go to suspend and will keep high
-performance. After a long time idle, it will go to suspend auto.
+There is a problem when xfer size is greater then FIFO buffer size.
+Implement software fragmentation in host bus driver so that the
+I=C2=B2C slave device drivers need not to be modified or to know about =
+the
+limits.
 
-Signed-off-by: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-[Ported to upstream driver version]
+Signed-off-by: Major Lee <major_lee-8+ZHUTgF1KZBDgjK7y7TUQ@public.gmane.org>
 Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
 
- drivers/i2c/busses/i2c-intel-mid.c |   34 +++++++++++++++++++++++-----------
- 1 files changed, 23 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-intel-mid.c |   95 +++++++++++++++++-----------=
+--------
+ 1 files changed, 46 insertions(+), 49 deletions(-)
 
 
-diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
-index 2dba2e3..3975736 100644
+diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2=
+c-intel-mid.c
+index 3975736..da4bbdd 100644
 --- a/drivers/i2c/busses/i2c-intel-mid.c
 +++ b/drivers/i2c/busses/i2c-intel-mid.c
-@@ -753,7 +753,7 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
- 	if (num == 0)
- 		return 0;
- 
--	pm_runtime_get(i2c->dev);
-+	pm_runtime_get_sync(i2c->dev);
- 
- 	mutex_lock(&i2c->lock);
- 	dev_dbg(&adap->dev, "intel_mid_i2c_xfer, process %d msg(s)\n", num);
-@@ -763,9 +763,8 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
- 	if (i2c->status != STATUS_IDLE) {
- 		dev_err(&adap->dev, "Adapter %d in transfer/standby\n",
- 								adap->nr);
--		mutex_unlock(&i2c->lock);
--		pm_runtime_put(i2c->dev);
--		return -1;
-+		err = -EIO;
-+		goto err_1;
- 	}
- 
- 
-@@ -773,16 +772,14 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
- 		/* Message address equal? */
- 		if (unlikely(intel_mid_i2c_address_neq(&pmsg[0], &pmsg[i]))) {
- 			dev_err(&adap->dev, "Invalid address in msg[%d]\n", i);
--			mutex_unlock(&i2c->lock);
--			pm_runtime_put(i2c->dev);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto err_1;
- 		}
- 	}
- 
- 	if (intel_mid_i2c_setup(adap, pmsg)) {
--		mutex_unlock(&i2c->lock);
--		pm_runtime_put(i2c->dev);
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto err_1;
- 	}
- 
- 	for (i = 0; i < num; i++) {
-@@ -808,6 +805,8 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
+@@ -54,6 +54,10 @@ enum mid_i2c_status {
+ 	STATUS_STANDBY
+ };
+=20
++/* The FIFO buffer size is different with different CPU stepping */
++/* Define it as 32-byte; it is safe for all CPU stepping */
++#define I2C_FIFO_SIZE	32
++
+ /**
+  * struct intel_mid_i2c_private	- per device I=C2=B2C context
+  * @adap: core i2c layer adapter information
+@@ -62,7 +66,6 @@ enum mid_i2c_status {
+  * @speed: speed mode for this port
+  * @complete: completion object for transaction wait
+  * @abort: reason for last abort
+- * @rx_buf: pointer into working receive buffer
+  * @rx_buf_len: receive buffer length
+  * @status: adapter state machine
+  * @msg: the message we are currently processing
+@@ -79,7 +82,6 @@ struct intel_mid_i2c_private {
+ 	int speed;
+ 	struct completion complete;
+ 	u32 abort;
+-	u8 *rx_buf;
+ 	int rx_buf_len;
+ 	enum mid_i2c_status status;
+ 	struct i2c_msg *msg;
+@@ -560,17 +562,15 @@ static int xfer_read(struct i2c_adapter *adap, un=
+signed char *buf, int length)
+ 	int i =3D length;
+ 	int err;
+=20
+-	if (length >=3D 256) {
+-		dev_err(&adap->dev,
+-			"I2C FIFO cannot support larger than 256 bytes\n");
+-		return -EMSGSIZE;
+-	}
+-
+ 	INIT_COMPLETION(i2c->complete);
+=20
  	readl(i2c->base + IC_CLR_INTR);
- 
- 	i2c->status = STATUS_IDLE;
+ 	writel(0x0044, i2c->base + IC_INTR_MASK);
+=20
++	i2c->rx_buf_len =3D length;
++	/* set receive FIFO threshold */
++	writel((uint16_t)(length - 1), i2c->base + IC_RX_TL);
 +
-+err_1:
- 	mutex_unlock(&i2c->lock);
- 	pm_runtime_put(i2c->dev);
- 
-@@ -865,6 +864,14 @@ static int intel_mid_i2c_runtime_resume(struct device *dev)
- 	return err;
- }
- 
-+static int mrst_i2c_runtime_idle(struct device *dev)
-+{
-+	int err = pm_schedule_suspend(dev, 500);
-+	if(err != 0)
-+		return 0;
-+	return -EBUSY;
-+}
+ 	i2c->status =3D STATUS_READ_START;
+=20
+ 	while (i--)
+@@ -614,12 +614,6 @@ static int xfer_write(struct i2c_adapter *adap,
+ 	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
+ 	int i, err;
+=20
+-	if (length >=3D 256) {
+-		dev_err(&adap->dev,
+-			"I2C FIFO cannot support larger than 256 bytes\n");
+-		return -EMSGSIZE;
+-	}
+-
+ 	INIT_COMPLETION(i2c->complete);
+=20
+ 	readl(i2c->base + IC_CLR_INTR);
+@@ -748,6 +742,9 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *a=
+dap,
+ {
+ 	struct intel_mid_i2c_private *i2c =3D i2c_get_adapdata(adap);
+ 	int i, err =3D 0;
++	u16 len;
++	u8 *buf;
++	u16 xfer_len;
+=20
+ 	/* if number of messages equal 0*/
+ 	if (num =3D=3D 0)
+@@ -785,13 +782,35 @@ static int intel_mid_i2c_xfer(struct i2c_adapter =
+*adap,
+ 	for (i =3D 0; i < num; i++) {
+ 		i2c->msg =3D pmsg;
+ 		i2c->status =3D STATUS_IDLE;
+-		/* Read or Write */
+-		if (pmsg->flags & I2C_M_RD) {
+-			dev_dbg(&adap->dev, "I2C_M_RD\n");
+-			err =3D xfer_read(adap, pmsg->buf, pmsg->len);
+-		} else {
+-			dev_dbg(&adap->dev, "I2C_M_WR\n");
+-			err =3D xfer_write(adap, pmsg->buf, pmsg->len);
 +
++		if (pmsg->len && pmsg->buf) {
++			len =3D pmsg->len;
++			buf =3D pmsg->buf;
++			xfer_len =3D 0;
++
++			while (len && buf) {
++				/* Fragment xfer data */
++				if (len >=3D I2C_FIFO_SIZE)
++					xfer_len =3D I2C_FIFO_SIZE;
++				else
++					xfer_len =3D len;
++				/* Read or Write */
++				if (pmsg->flags & I2C_M_RD) {
++					dev_dbg(&adap->dev, "I2C_M_RD\n");
++					err =3D xfer_read(adap, buf, xfer_len);
++				} else {
++					dev_dbg(&adap->dev, "I2C_M_WR\n");
++					err =3D xfer_write(adap, buf, xfer_len);
++				}
++				if (err < 0)
++					break;
++
++				len -=3D xfer_len;
++				if (len)
++					buf +=3D xfer_len;
++				else /* len =3D=3D 0 */
++					break;
++			}
+ 		}
+ 		if (err < 0)
+ 			break;
+@@ -875,32 +894,12 @@ static int mrst_i2c_runtime_idle(struct device *d=
+ev)
  static void i2c_isr_read(struct intel_mid_i2c_private *i2c)
  {
- 	struct i2c_msg *msg = i2c->msg;
-@@ -957,6 +964,7 @@ static struct i2c_algorithm intel_mid_i2c_algorithm = {
- static const struct dev_pm_ops intel_mid_i2c_pm_ops = {
- 	.runtime_suspend = intel_mid_i2c_runtime_suspend,
- 	.runtime_resume = intel_mid_i2c_runtime_resume,
-+	.runtime_idle = mrst_i2c_runtime_idle,
- };
- 
- /**
-@@ -1094,7 +1102,10 @@ static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
- 		(mrst->platform == MOORESTOWN) ? "Moorestown" : "Medfield",
- 		busnum);
- 
-+	pm_runtime_set_active(&dev->dev);
- 	pm_runtime_enable(&dev->dev);
-+	pm_runtime_allow(&dev->dev);
-+
- 	return 0;
- 
- fail3:
-@@ -1113,10 +1124,11 @@ exit:
- static void __devexit intel_mid_i2c_remove(struct pci_dev *dev)
- {
- 	struct intel_mid_i2c_private *mrst = pci_get_drvdata(dev);
-+	pm_runtime_forbid(&dev->dev);
-+	pm_runtime_disable(&dev->dev);
- 	intel_mid_i2c_disable(&mrst->adap);
- 	if (i2c_del_adapter(&mrst->adap))
- 		dev_err(&dev->dev, "Failed to delete i2c adapter");
+ 	struct i2c_msg *msg =3D i2c->msg;
+-	int rx_num;
+-	u32 len;
+-	u8 *buf;
 -
- 	free_irq(dev->irq, mrst);
- 	pci_set_drvdata(dev, NULL);
- 	iounmap(mrst->base);
+-	if (!(msg->flags & I2C_M_RD))
+-		return;
++	u32 len =3D i2c->rx_buf_len;
++	u8 *buf =3D msg->buf;
+=20
+-	if (i2c->status !=3D STATUS_READ_IN_PROGRESS) {
+-		len =3D msg->len;
+-		buf =3D msg->buf;
+-	} else {
+-		len =3D i2c->rx_buf_len;
+-		buf =3D i2c->rx_buf;
+-	}
+-
+-	rx_num =3D readl(i2c->base + IC_RXFLR);
+-
+-	for (; len > 0 && rx_num > 0; len--, rx_num--)
++	while (len--)
+ 		*buf++ =3D readl(i2c->base + IC_DATA_CMD);
+-
+-	if (len > 0) {
+-		i2c->status =3D STATUS_READ_IN_PROGRESS;
+-		i2c->rx_buf_len =3D len;
+-		i2c->rx_buf =3D buf;
+-	} else
+-		i2c->status =3D STATUS_READ_SUCCESS;
++	i2c->status =3D STATUS_READ_SUCCESS;
+=20
+ 	return;
+ }
+@@ -936,10 +935,8 @@ static irqreturn_t intel_mid_i2c_isr(int this_irq,=
+ void *dev)
+ 		goto exit;
+ 	}
+=20
+-	if (stat & TX_EMPTY) {
+-		if (readl(i2c->base + IC_STATUS) & 0x4)
+-			i2c->status =3D STATUS_WRITE_SUCCESS;
+-	}
++	if (stat & TX_EMPTY)
++		i2c->status =3D STATUS_WRITE_SUCCESS;
+=20
+ exit:
+ 	if (i2c->status =3D=3D STATUS_READ_SUCCESS ||
