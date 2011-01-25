@@ -1,7 +1,7 @@
 From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: [PATCH 2/3] i2c-intel-mid: improve timeout handling
-Date: Tue, 25 Jan 2011 14:21:20 +0000
-Message-ID: <20110125142059.9472.7682.stgit@bob.linux.org.uk>
+Subject: [PATCH 3/3] MID I2C runtime PM
+Date: Tue, 25 Jan 2011 14:22:20 +0000
+Message-ID: <20110125142131.9472.27410.stgit@bob.linux.org.uk>
 References: <20110125142040.9472.88734.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -14,96 +14,122 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-The old solution for i2c xfer timeout was to set timeout value to one second
-for all i2c xfers.  That's not reasonable for all of the various speed modes
-and data lengths.
+The MID I2C driver does now allow runtime pm by default it goes into
+suspend after every access. This is not efficient for continual I2C access.
 
-This patch sets the xfer_read timeout value based on both bus speed and data
-length.
+This patch allows auto suspend by default. It add a delay to the suspend which
+keeps I2C active for at least 500ms after every access. If a device driver
+accesses I2C frequently, it will not go to suspend and will keep high
+performance. After a long time idle, it will go to suspend auto.
 
 Signed-off-by: Bin Yang <bin.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-[Ported to the upstream branch and extracted as a helper function]
+[Ported to upstream driver version]
 Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
 
- drivers/i2c/busses/i2c-intel-mid.c |   31 +++++++++++++++++++++++++++----
- 1 files changed, 27 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-intel-mid.c |   34 +++++++++++++++++++++++-----------
+ 1 files changed, 23 insertions(+), 11 deletions(-)
 
 
 diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
-index cfb0bb3..2dba2e3 100644
+index 2dba2e3..3975736 100644
 --- a/drivers/i2c/busses/i2c-intel-mid.c
 +++ b/drivers/i2c/busses/i2c-intel-mid.c
-@@ -303,6 +303,29 @@ static int ctl_num = 6;
- module_param_array(speed_mode, int, &ctl_num, S_IRUGO);
- MODULE_PARM_DESC(speed_mode, "Set the speed of the i2c interface (0-2)");
+@@ -753,7 +753,7 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
+ 	if (num == 0)
+ 		return 0;
  
-+/* Timeout and delay bases for the speed modes */
-+static const u16 xfer_timeout[NUM_SPEEDS] = {100, 25, 3};
-+
-+/**
-+ * xfer_wait	-	wait for a transfer to complete
-+ * @adapt: i2c interface
-+ * @len: length of message
-+ *
-+ * Wait for completion or timeout of a message. The timeout depends upon
-+ * the speed of the interface and the message length
-+ *
-+ * Returns the result of the wait for completion
-+ */
-+
-+static int xfer_wait(struct intel_mid_i2c_private *i2c, int len)
-+{
-+	unsigned long timeout;
-+
-+	timeout = msecs_to_jiffies(len * xfer_timeout[i2c->speed]);
-+	return wait_for_completion_interruptible_timeout(&i2c->complete,
-+								timeout);
-+}
-+
- /**
-  * intel_mid_i2c_disable - Disable I2C controller
-  * @adap: struct pointer to i2c_adapter
-@@ -322,7 +345,6 @@ static int intel_mid_i2c_disable(struct i2c_adapter *adap)
- 	int err = 0;
- 	int count = 0;
- 	int ret1, ret2;
--	static const u16 delay[NUM_SPEEDS] = {100, 25, 3};
+-	pm_runtime_get(i2c->dev);
++	pm_runtime_get_sync(i2c->dev);
  
- 	/* Set IC_ENABLE to 0 */
- 	writel(0, i2c->base + IC_ENABLE);
-@@ -331,7 +353,7 @@ static int intel_mid_i2c_disable(struct i2c_adapter *adap)
- 	dev_dbg(&adap->dev, "mrst i2c disable\n");
- 	while ((ret1 = readl(i2c->base + IC_ENABLE_STATUS) & 0x1)
- 		|| (ret2 = readl(i2c->base + IC_STATUS) & 0x1)) {
--		udelay(delay[i2c->speed]);
-+		udelay(xfer_timeout[i2c->speed]);
- 		writel(0, i2c->base + IC_ENABLE);
- 		dev_dbg(&adap->dev, "i2c is busy, count is %d speed %d\n",
- 			count, i2c->speed);
-@@ -513,6 +535,7 @@ static void intel_mid_i2c_abort(struct intel_mid_i2c_private *i2c)
- 	i2c->status = STATUS_XFER_ABORT;
+ 	mutex_lock(&i2c->lock);
+ 	dev_dbg(&adap->dev, "intel_mid_i2c_xfer, process %d msg(s)\n", num);
+@@ -763,9 +763,8 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
+ 	if (i2c->status != STATUS_IDLE) {
+ 		dev_err(&adap->dev, "Adapter %d in transfer/standby\n",
+ 								adap->nr);
+-		mutex_unlock(&i2c->lock);
+-		pm_runtime_put(i2c->dev);
+-		return -1;
++		err = -EIO;
++		goto err_1;
+ 	}
+ 
+ 
+@@ -773,16 +772,14 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
+ 		/* Message address equal? */
+ 		if (unlikely(intel_mid_i2c_address_neq(&pmsg[0], &pmsg[i]))) {
+ 			dev_err(&adap->dev, "Invalid address in msg[%d]\n", i);
+-			mutex_unlock(&i2c->lock);
+-			pm_runtime_put(i2c->dev);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto err_1;
+ 		}
+ 	}
+ 
+ 	if (intel_mid_i2c_setup(adap, pmsg)) {
+-		mutex_unlock(&i2c->lock);
+-		pm_runtime_put(i2c->dev);
+-		return -EINVAL;
++		err = -EINVAL;
++		goto err_1;
+ 	}
+ 
+ 	for (i = 0; i < num; i++) {
+@@ -808,6 +805,8 @@ static int intel_mid_i2c_xfer(struct i2c_adapter *adap,
+ 	readl(i2c->base + IC_CLR_INTR);
+ 
+ 	i2c->status = STATUS_IDLE;
++
++err_1:
+ 	mutex_unlock(&i2c->lock);
+ 	pm_runtime_put(i2c->dev);
+ 
+@@ -865,6 +864,14 @@ static int intel_mid_i2c_runtime_resume(struct device *dev)
+ 	return err;
  }
  
++static int mrst_i2c_runtime_idle(struct device *dev)
++{
++	int err = pm_schedule_suspend(dev, 500);
++	if(err != 0)
++		return 0;
++	return -EBUSY;
++}
 +
+ static void i2c_isr_read(struct intel_mid_i2c_private *i2c)
+ {
+ 	struct i2c_msg *msg = i2c->msg;
+@@ -957,6 +964,7 @@ static struct i2c_algorithm intel_mid_i2c_algorithm = {
+ static const struct dev_pm_ops intel_mid_i2c_pm_ops = {
+ 	.runtime_suspend = intel_mid_i2c_runtime_suspend,
+ 	.runtime_resume = intel_mid_i2c_runtime_resume,
++	.runtime_idle = mrst_i2c_runtime_idle,
+ };
+ 
  /**
-  * xfer_read - Internal function to implement master read transfer.
-  * @adap: i2c_adapter struct pointer
-@@ -554,7 +577,7 @@ static int xfer_read(struct i2c_adapter *adap, unsigned char *buf, int length)
- 		writel(IC_RD, i2c->base + IC_DATA_CMD);
+@@ -1094,7 +1102,10 @@ static int __devinit intel_mid_i2c_probe(struct pci_dev *dev,
+ 		(mrst->platform == MOORESTOWN) ? "Moorestown" : "Medfield",
+ 		busnum);
  
- 	i2c->status = STATUS_READ_START;
--	err = wait_for_completion_interruptible_timeout(&i2c->complete, HZ);
-+	err = xfer_wait(i2c, length);
- 	if (!err) {
- 		dev_err(&adap->dev, "Timeout for ACK from I2C slave 0x%x\n",
- 						i2c->msg->addr);
-@@ -607,7 +630,7 @@ static int xfer_write(struct i2c_adapter *adap,
- 		writel((u16)(*(buf + i)), i2c->base + IC_DATA_CMD);
++	pm_runtime_set_active(&dev->dev);
+ 	pm_runtime_enable(&dev->dev);
++	pm_runtime_allow(&dev->dev);
++
+ 	return 0;
  
- 	i2c->status = STATUS_WRITE_START;
--	err = wait_for_completion_interruptible_timeout(&i2c->complete, HZ);
-+	err = xfer_wait(i2c, length);
- 	if (!err) {
- 		dev_err(&adap->dev, "Timeout for ACK from I2C slave 0x%x\n",
- 							i2c->msg->addr);
+ fail3:
+@@ -1113,10 +1124,11 @@ exit:
+ static void __devexit intel_mid_i2c_remove(struct pci_dev *dev)
+ {
+ 	struct intel_mid_i2c_private *mrst = pci_get_drvdata(dev);
++	pm_runtime_forbid(&dev->dev);
++	pm_runtime_disable(&dev->dev);
+ 	intel_mid_i2c_disable(&mrst->adap);
+ 	if (i2c_del_adapter(&mrst->adap))
+ 		dev_err(&dev->dev, "Failed to delete i2c adapter");
+-
+ 	free_irq(dev->irq, mrst);
+ 	pci_set_drvdata(dev, NULL);
+ 	iounmap(mrst->base);
