@@ -1,49 +1,68 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Identifying i2c devices on Asus P8P67 sandybridge motherboard
-Date: Wed, 26 Jan 2011 22:37:46 +0100
-Message-ID: <20110126223746.2d2141a1@endymion.delvare>
-References: <4D3EF4C0.1090008@cfl.rr.com>
-	<20110125174246.5061f881@endymion.delvare>
-	<4D3F622B.9060003@cfl.rr.com>
-	<20110126092257.7b1243dd@endymion.delvare>
-	<4D4032CC.5010008@cfl.rr.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: Add maintainer for Diolan U2C-12
+	I2C adapter driver
+Date: Wed, 26 Jan 2011 23:47:24 +0000
+Message-ID: <20110126234724.GE15795@trinity.fluff.org>
+References: <1295472398-705-1-git-send-email-guenter.roeck@ericsson.com> <1295472398-705-3-git-send-email-guenter.roeck@ericsson.com> <20110119205631.GL5432@trinity.fluff.org> <1295471444.9786.394.camel@groeck-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D4032CC.5010008-3tLf1voIkJTQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1295471444.9786.394.camel@groeck-laptop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Phillip Susi <psusi-3tLf1voIkJTQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 26 Jan 2011 09:42:20 -0500, Phillip Susi wrote:
-> On 1/26/2011 3:22 AM, Jean Delvare wrote:
-> > Back to your hardware monitoring issue, Asus tends to use the
-> > integrated sensors in the Super-I/O on desktop boards. So odds are that
-> > you have a very recent Super-I/O chip sensors-detect doesn't know. From
-> > pictures found on the web, it seems to be a Nuvoton NCT6776F, for which
-> > we indeed have no support yet.
+On Wed, Jan 19, 2011 at 01:10:44PM -0800, Guenter Roeck wrote:
+> On Wed, 2011-01-19 at 15:56 -0500, Ben Dooks wrote:
+> > On Wed, Jan 19, 2011 at 01:26:38PM -0800, Guenter Roeck wrote:
+> > > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > 
+> > meaningful commit messages please.
+> > 
+> In general I agree, only if the headline says everything what else do
+> you want me to say here ? That I am adding myself as maintainer ?
+
+I would also like to see information about the maintainer, such as is
+this a work related or personal project, and anything else that may
+be relevant.
+ 
+> Guenter
 > 
-> I began to suspect as much.  Do you know if anyone is working on a
-> driver for it, or if the data sheet is available so I could take a crack
-> at it?
-
-No, the device isn't even listed on lm-sensors.org's wiki, I am not
-aware of anyone working on it.
-
-The datasheet isn't available for download from Nuvoton, but can
-probably be requested from them.
-
-> Then again, I wonder if it might be better to come up with an SSDT I can
-> dynamically load to define the ACPI FAN and TZ objects and let the
-> regular acpi driver manage it.
-
-What an horrid idea. The ACPI FAN and TZ interfaces are very limited.
-If the ACPI BIOS doesn't block access to the NCT6776F's I/O ports,
-you'll be much better with a native driver.
-
-OTOH I admit I am surprised to see Asus move away from the ATK0110.
+> > > ---
+> > >  MAINTAINERS |    6 ++++++
+> > >  1 files changed, 6 insertions(+), 0 deletions(-)
+> > > 
+> > > diff --git a/MAINTAINERS b/MAINTAINERS
+> > > index 1af022e..12b0be3 100644
+> > > --- a/MAINTAINERS
+> > > +++ b/MAINTAINERS
+> > > @@ -2089,6 +2089,12 @@ F:	Documentation/serial/digiepca.txt
+> > >  F:	drivers/char/epca*
+> > >  F:	drivers/char/digi*
+> > >  
+> > > +DIOLAN U2C-12 I2C DRIVER
+> > > +M:	Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > > +L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > +S:	Maintained
+> > > +F:	drivers/i2c/busses/i2c-diolan-u2c.c
+> > > +
+> > >  DIRECTORY NOTIFICATION (DNOTIFY)
+> > >  M:	Eric Paris <eparis-FjpueFixGhCM4zKIHC2jIg@public.gmane.org>
+> > >  S:	Maintained
+> > > -- 
+> > > 1.7.3.1
+> > > 
+> > 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Jean Delvare
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
