@@ -1,38 +1,113 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH] i2c-intel-mid: I2C FIFO buffer size setting and
- fragmentation
-Date: Thu, 27 Jan 2011 10:34:10 +0000
-Message-ID: <20110127103410.4f615557@lxorguk.ukuu.org.uk>
-References: <20110125142728.10001.85888.stgit@bob.linux.org.uk>
-	<20110127004759.GJ15795@trinity.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Dimitris Papastamos <dp-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] drivers: i2c-core: Add trace events for i2c_master_send()/i2c_master_recv()
+Date: Thu, 27 Jan 2011 11:01:06 +0000
+Message-ID: <1296126066-15951-1-git-send-email-dp@opensource.wolfsonmicro.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110127004759.GJ15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 27 Jan 2011 00:47:59 +0000
-Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+Add basic trace events for i2c_master_send() and i2c_master_recv() so we
+can observe the I2C activity without filling up the dmesg ring buffer.  It
+also makes it easy to enable and disable tracing of the i2c-core.
 
-> On Tue, Jan 25, 2011 at 02:28:07PM +0000, Alan Cox wrote:
-> > From: Major Lee <major_lee-8+ZHUTgF1KZBDgjK7y7TUQ@public.gmane.org>
-> >=20
-> > The FIFO buffer size is different with different CPU stepping.
-> > Define it as 32-byte; it is safe for all CPU stepping.
-> >=20
-> > There is a problem when xfer size is greater then FIFO buffer size.
-> > Implement software fragmentation in host bus driver so that the
-> > I=B2C slave device drivers need not to be modified or to know about=
- the
-> > limits.
->=20
-> This is quite a big change, does it need to go into a -rc, or can it
-> wait for the next kernel merge window?
+Signed-off-by: Dimitris Papastamos <dp-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c     |    4 +++
+ include/trace/events/i2c.h |   55 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 59 insertions(+), 0 deletions(-)
+ create mode 100644 include/trace/events/i2c.h
 
-I was submitting it for next merge window.
-
-Alan
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index f0bd5bc..2c2bb45 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -42,6 +42,8 @@
+ 
+ #include "i2c-core.h"
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/i2c.h>
+ 
+ /* core_lock protects i2c_adapter_idr, and guarantees
+    that device detection, deletion of detected devices, and attach_adapter
+@@ -1366,6 +1368,7 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
+ 	msg.buf = (char *)buf;
+ 
+ 	ret = i2c_transfer(adap, &msg, 1);
++	trace_i2c_master_send(&msg, ret);
+ 
+ 	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
+ 	   transmitted, else error code. */
+@@ -1394,6 +1397,7 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
+ 	msg.buf = buf;
+ 
+ 	ret = i2c_transfer(adap, &msg, 1);
++	trace_i2c_master_recv(&msg, ret);
+ 
+ 	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
+ 	   transmitted, else error code. */
+diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
+new file mode 100644
+index 0000000..cdf64e8
+--- /dev/null
++++ b/include/trace/events/i2c.h
+@@ -0,0 +1,55 @@
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM i2c
++
++#if !defined(_TRACE_I2C_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_I2C_H
++
++#include <linux/ktime.h>
++#include <linux/tracepoint.h>
++
++struct i2c_msg;
++
++DECLARE_EVENT_CLASS(i2c_master,
++
++	TP_PROTO(struct i2c_msg *msg, int ret),
++
++	TP_ARGS(msg, ret),
++
++	TP_STRUCT__entry(
++		__field(	u16,	addr	)
++		__field(	u16,	len	)
++		__field(	u16,	flags	)
++		__field(	int,	ret	)
++	),
++
++	TP_fast_assign(
++		__entry->addr = msg->addr;
++		__entry->len = msg->len;
++		__entry->flags = msg->flags;
++		__entry->ret = ret;
++	),
++
++	TP_printk("addr=%x len=%x flags=%x ret=%d", (u16)__entry->addr,
++		  (u16)__entry->len, (u16)__entry->flags, (int)__entry->ret)
++);
++
++DEFINE_EVENT(i2c_master, i2c_master_send,
++
++	TP_PROTO(struct i2c_msg *msg, int ret),
++
++	TP_ARGS(msg, ret)
++
++);
++
++DEFINE_EVENT(i2c_master, i2c_master_recv,
++
++	TP_PROTO(struct i2c_msg *msg, int ret),
++
++	TP_ARGS(msg, ret)
++
++);
++
++#endif /* _TRACE_I2C_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
+-- 
+1.7.3.5
