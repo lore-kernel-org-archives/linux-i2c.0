@@ -1,34 +1,171 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] drivers: i2c-core: Add trace events for
-	i2c_master_send()/i2c_master_recv()
-Date: Thu, 27 Jan 2011 14:19:51 +0000
-Message-ID: <20110127141951.GB11937@sirena.org.uk>
-References: <1296126066-15951-1-git-send-email-dp@opensource.wolfsonmicro.com> <20110127133321.589ff095@endymion.delvare>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2ctools: Add capability to write block command
+Date: Thu, 27 Jan 2011 08:00:58 -0800
+Message-ID: <20110127160058.GA16853@ericsson.com>
+References: <20110125162106.GA8024@ericsson.com>
+ <20110125174922.4c802f49@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20110127133321.589ff095-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20110125174922.4c802f49-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Dimitris Papastamos <dp-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 27, 2011 at 01:33:21PM +0100, Jean Delvare wrote:
-> On Thu, 27 Jan 2011 11:01:06 +0000, Dimitris Papastamos wrote:
+This patch adds support to write block data to i2cset.
 
-> > Add basic trace events for i2c_master_send() and i2c_master_recv() so we
-> > can observe the I2C activity without filling up the dmesg ring buffer.  It
-> > also makes it easy to enable and disable tracing of the i2c-core.
+I tried to limit the changes as much as possible. Detecting new write modes
+is a bit tricky since the command supports an undocumented parameter (mask)
+after the mode. So I decided to handle block data first and bypass the rest
+of the parameter handling code.
 
-> This doesn't make sense. If you want to trace something, trace
-> i2c_transfer(). i2c_master_send() and i2c_master_recv() are only helpers
-> for the most simple cases, so tracing only them is pointless.
+Guenter
 
-> Note that even with this, you'll miss calls to i2c_smbus_xfer(), which
-> is the other access point to I2C/SMBus controllers. So I guess you want
-> to trace it as well.
-
-Might also be interesting to do start/stop tracing - I2C is relatively
-slow and causes scheduling.  Dunno if it's worth it, though you could
-always turn on only one of the events if it was too boring to have both.
+--
+Index: tools/i2cset.c
+===================================================================
+--- tools/i2cset.c	(revision 5909)
++++ tools/i2cset.c	(working copy)
+@@ -35,13 +35,15 @@
+ static void help(void)
+ {
+ 	fprintf(stderr,
+-	        "Usage: i2cset [-f] [-y] [-m MASK] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] [MODE]\n"
++	        "Usage: i2cset [-f] [-y] [-m MASK] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
+ 		"  I2CBUS is an integer or an I2C bus name\n"
+ 		"  ADDRESS is an integer (0x03 - 0x77)\n"
+ 		"  MODE is one of:\n"
+ 		"    c (byte, no value)\n"
+ 		"    b (byte data, default)\n"
+ 		"    w (word data)\n"
++		"    i (I2C block data)\n"
++		"    s (SMBus block data)\n"
+ 		"    Append p for SMBus PEC\n");
+ 	exit(1);
+ }
+@@ -78,6 +80,19 @@
+ 			return -1;
+ 		}
+ 		break;
++
++	case I2C_SMBUS_BLOCK_DATA:
++		if (!(funcs & I2C_FUNC_SMBUS_READ_BLOCK_DATA)) {
++			fprintf(stderr, MISSING_FUNC_FMT, "SMBus block read");
++			return -1;
++		}
++		break;
++	case I2C_SMBUS_I2C_BLOCK_DATA:
++		if (!(funcs & I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
++			fprintf(stderr, MISSING_FUNC_FMT, "I2C block read");
++			return -1;
++		}
++		break;
+ 	}
+ 
+ 	if (pec
+@@ -90,7 +105,7 @@
+ }
+ 
+ static int confirm(const char *filename, int address, int size, int daddress,
+-		   int value, int vmask, int pec)
++		   int value, int vmask, unsigned char *block, int len, int pec)
+ {
+ 	int dont = 0;
+ 
+@@ -109,7 +124,16 @@
+ 		"0x%02x, data address\n0x%02x, ", filename, address, daddress);
+ 	if (size == I2C_SMBUS_BYTE)
+ 		fprintf(stderr, "no data.\n");
+-	else
++	else if (size == I2C_SMBUS_BLOCK_DATA ||
++		 size == I2C_SMBUS_I2C_BLOCK_DATA) {
++		int i;
++
++		fprintf(stderr, "data");
++		for (i = 0; i < len; i++)
++			fprintf(stderr, " 0x%02x", block[i]);
++		fprintf(stderr, ", mode %s.\n", size == I2C_SMBUS_BLOCK_DATA
++			? "smbus block" : "i2c block");
++	} else
+ 		fprintf(stderr, "data 0x%02x%s, mode %s.\n", value,
+ 			vmask ? " (masked)" : "",
+ 			size == I2C_SMBUS_BYTE_DATA ? "byte" : "word");
+@@ -136,6 +160,8 @@
+ 	int pec = 0;
+ 	int flags = 0;
+ 	int force = 0, yes = 0, version = 0, readback = 0;
++	unsigned char block[32];
++	int len;
+ 
+ 	/* handle (optional) flags first */
+ 	while (1+flags < argc && argv[1+flags][0] == '-') {
+@@ -180,6 +206,30 @@
+ 		help();
+ 	}
+ 
++	/* check for block data */
++	len = 0;
++	if (argc > flags + 5) {
++		switch (argv[argc-1][0]) {
++		case 's': size = I2C_SMBUS_BLOCK_DATA; break;
++		case 'i': size = I2C_SMBUS_I2C_BLOCK_DATA; break;
++		default:
++			size = 0;
++			break;
++		}
++		if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_I2C_BLOCK_DATA) {
++			pec = argv[argc-1][1] == 'p';
++			for (len = 0; len < (int)sizeof(block) && len + flags + 5 < argc; len++) {
++				value = strtol(argv[flags + len + 4], &end, 0);
++				if (*end || value < 0 || value > 0xff) {
++                                	fprintf(stderr, "Error: Block data value invalid!\n");
++                                	help();
++                        	}
++				block[len] = value;
++			}
++			goto dofile;
++		}
++	}
++
+ 	if (argc > flags + 4) {
+ 		if (!strcmp(argv[flags+4], "c")
+ 		 || !strcmp(argv[flags+4], "cp")) {
+@@ -236,6 +286,7 @@
+ 		help();
+ 	}
+ 
++dofile:
+ 	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
+ 	if (file < 0
+ 	 || check_funcs(file, size, pec)
+@@ -243,7 +294,7 @@
+ 		exit(1);
+ 
+ 	if (!yes && !confirm(filename, address, size, daddress,
+-			     value, vmask, pec))
++			     value, vmask, block, len, pec))
+ 		exit(0);
+ 
+ 	if (vmask) {
+@@ -299,11 +350,18 @@
+ 	case I2C_SMBUS_WORD_DATA:
+ 		res = i2c_smbus_write_word_data(file, daddress, value);
+ 		break;
++	case I2C_SMBUS_BLOCK_DATA:
++		res = i2c_smbus_write_block_data(file, daddress, len, block);
++		break;
++	case I2C_SMBUS_I2C_BLOCK_DATA:
++		res = i2c_smbus_write_i2c_block_data(file, daddress, len, block);
++		break;
+ 	default: /* I2C_SMBUS_BYTE_DATA */
+ 		res = i2c_smbus_write_byte_data(file, daddress, value);
++		break;
+ 	}
+ 	if (res < 0) {
+-		fprintf(stderr, "Error: Write failed\n");
++		perror("Error: Write failed");
+ 		close(file);
+ 		exit(1);
+ 	}
