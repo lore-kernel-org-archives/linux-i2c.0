@@ -1,37 +1,31 @@
-From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c_intel_mid: Improve error reporting
-Date: Thu, 27 Jan 2011 11:33:50 +0000
-Message-ID: <20110127113350.6e6cfc18@lxorguk.ukuu.org.uk>
-References: <20110125142040.9472.88734.stgit@bob.linux.org.uk>
-	<20110127004422.GI15795@trinity.fluff.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] drivers: i2c-core: Add trace events for
+ i2c_master_send()/i2c_master_recv()
+Date: Thu, 27 Jan 2011 13:33:21 +0100
+Message-ID: <20110127133321.589ff095@endymion.delvare>
+References: <1296126066-15951-1-git-send-email-dp@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110127004422.GI15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1296126066-15951-1-git-send-email-dp-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dimitris Papastamos <dp-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 27 Jan 2011 00:44:23 +0000
-Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+On Thu, 27 Jan 2011 11:01:06 +0000, Dimitris Papastamos wrote:
+> Add basic trace events for i2c_master_send() and i2c_master_recv() so we
+> can observe the I2C activity without filling up the dmesg ring buffer.  It
+> also makes it easy to enable and disable tracing of the i2c-core.
 
-> On Tue, Jan 25, 2011 at 02:20:48PM +0000, Alan Cox wrote:
-> > From: Catalin Popescu <catalinx.popescu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > 
-> > The error messages printed from mrst_i2c_abort() didn't give slave address info.
-> > 
-> > But I2C device driver developers always need this to check which slave device
-> > has the problem.
-> 
-> Erm, surely the driver itself should know what i2c device it is communicating
-> with? Secondly, does this swamp the kernel dmesg buffer when run with the
+This doesn't make sense. If you want to trace something, trace
+i2c_transfer(). i2c_master_send() and i2c_master_recv() are only helpers
+for the most simple cases, so tracing only them is pointless.
 
-It lets you see what is going on if you need to and stuff is misbehaving
-- its a debug aid.
+Note that even with this, you'll miss calls to i2c_smbus_xfer(), which
+is the other access point to I2C/SMBus controllers. So I guess you want
+to trace it as well.
 
-> i2c-detect tool?
-
-Only if you turn all the debug on and do that which presumably is when
-you want it. Not that you would as on these platforms the i2c bus
-configuration is enumerated in a firmware table.
+-- 
+Jean Delvare
