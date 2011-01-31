@@ -1,113 +1,32 @@
-From: Rajendra Nayak <rnayak@ti.com>
-Subject: RE: [PATCH] i2c: OMAP: fix static suspend vs. runtime suspend
-Date: Mon, 31 Jan 2011 16:58:02 +0530
-Message-ID: <1a4ad626f3cb73267847e8ac7bd47545@mail.gmail.com>
-References: <1296173921-4832-1-git-send-email-khilman@ti.com>
+From: Jon Loeliger <jdl-CYoMK+44s/E@public.gmane.org>
+Subject: Re: [PATCH] i2c-gpio: add devicetree support
+Date: Mon, 31 Jan 2011 07:55:27 -0600
+Message-ID: <E1PjuE3-0002Xy-6z@jdl.com>
+References: <1296403013-6058-1-git-send-email-thomas@wytron.com.tw>
+	<AANLkTi=5Uik+EwBRfYs_Pa77+qHngY03ezC63RC0WLQ8@mail.gmail.com>
+	<AANLkTimS70uHqmv3jhr+7mPz4QFKXRXuFnWj8s3EpKsO@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1296173921-4832-1-git-send-email-khilman@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Kevin Hilman <khilman@ti.com>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, linux-pm@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-reply-to: <AANLkTimS70uHqmv3jhr+7mPz4QFKXRXuFnWj8s3EpKsO-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org> 
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>, =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kevin,
+> > Is this field always present even when of is disabled?
+> 
+> No, not yet.  It will be in 2.6.29.
 
-> -----Original Message-----
-> From: Kevin Hilman [mailto:khilman@ti.com]
-> Sent: Friday, January 28, 2011 5:49 AM
-> To: Ben Dooks; Rajendra Nayak; linux-i2c@vger.kernel.org
-> Cc: linux-omap@vger.kernel.org; linux-pm@lists.linux-foundation.org;
-linux-arm-kernel@lists.infradead.org
-> Subject: [PATCH] i2c: OMAP: fix static suspend vs. runtime suspend
->
-> When runtime PM is enabled, each OMAP i2c device is suspended after
-> each i2c xfer.  However, there are two cases when the static suspend
-> methods must be used to ensure the devices are suspended:
->
-> 1) runtime PM is disabled, either at compile time or dynamically
->     via /sys/devices/.../power/control.
-> 2) an i2c client driver uses i2c during it's suspend callback, thus
->    leaving the i2c driver active (NOTE: runtime suspend transitions are
->    disabled during system suspend, so i2c activity during system
->    suspend will runtime resume the device, but not runtime (re)suspend
-it.)
->
-> Since the actual work to suspend the device is handled by the
-> subsytem, call the bus methods to take care of it.
+Perhaps even 2.6.39? :-)
 
-The patch looks good to me. Thanks for the fix.
-Validated suspend on OMAP4sdp with the patch.
-Can you elaborate a bit more on how/why runtime PM transitions
-are disabled during system suspend, and how is it taken care
-of that a runtime resume of a device works however a subsequent
-runtime (re)suspend does not?
-
-Regards,
-Rajendra
-
->
-> NOTE: This takes care of a known suspend problem on OMAP3 where the
-> TWL RTC driver does i2c xfers during its suspend path leaving the i2c
-> driver in an active state (since runtime suspend transistions are
-> disabled.)
->
-> Signed-off-by: Kevin Hilman <khilman@ti.com>
-> ---
-> Ben, this is a regression in 2.6.38 so hopefully this can be queued
-> in the 2.6.38-rc cycle.  Thanks.
->
->  drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++++++++++++++
->  1 files changed, 28 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c
-b/drivers/i2c/busses/i2c-omap.c
-> index b605ff3..0541df9 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1137,12 +1137,40 @@ omap_i2c_remove(struct platform_device *pdev)
->  	return 0;
->  }
->
-> +#ifdef CONFIG_SUSPEND
-> +static int omap_i2c_suspend(struct device *dev)
-> +{
-> +	if (!pm_runtime_suspended(dev))
-> +		if (dev->bus && dev->bus->pm &&
-dev->bus->pm->runtime_suspend)
-> +			dev->bus->pm->runtime_suspend(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static int omap_i2c_resume(struct device *dev)
-> +{
-> +	if (!pm_runtime_suspended(dev))
-> +		if (dev->bus && dev->bus->pm &&
-dev->bus->pm->runtime_resume)
-> +			dev->bus->pm->runtime_resume(dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct dev_pm_ops omap_i2c_pm_ops = {
-> +	.suspend = omap_i2c_suspend,
-> +	.resume = omap_i2c_resume,
-> +};
-> +#else
-> +#define omap_i2c_pm_ops NULL
-> +#endif
-> +
->  static struct platform_driver omap_i2c_driver = {
->  	.probe		= omap_i2c_probe,
->  	.remove		= omap_i2c_remove,
->  	.driver		= {
->  		.name	= "omap_i2c",
->  		.owner	= THIS_MODULE,
-> +		.pm     = &omap_i2c_pm_ops,
->  	},
->  };
->
-> --
-> 1.7.3.5
+jdl
