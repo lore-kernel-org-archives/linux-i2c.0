@@ -1,56 +1,94 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] of: of_gpiochip_add is needed only for gpiolib
-Date: Mon, 31 Jan 2011 15:16:35 -0700
-Message-ID: <20110131221635.GB27856@angua.secretlab.ca>
-References: <AANLkTimS70uHqmv3jhr+7mPz4QFKXRXuFnWj8s3EpKsO@mail.gmail.com>
- <1296487551-30938-2-git-send-email-thomas@wytron.com.tw>
+From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c-gpio: add devicetree support
+Date: Mon, 31 Jan 2011 14:35:31 -0800
+Message-ID: <AANLkTini7Hx6dbTAKJKJy=NnC+LFcQuHEsayxwJJ78-+@mail.gmail.com>
+References: <1296403013-6058-1-git-send-email-thomas@wytron.com.tw>
+	<AANLkTi=5Uik+EwBRfYs_Pa77+qHngY03ezC63RC0WLQ8@mail.gmail.com>
+	<AANLkTimS70uHqmv3jhr+7mPz4QFKXRXuFnWj8s3EpKsO@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1296487551-30938-2-git-send-email-thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+In-Reply-To: <AANLkTimS70uHqmv3jhr+7mPz4QFKXRXuFnWj8s3EpKsO-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
-Cc: Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 31, 2011 at 11:25:50PM +0800, Thomas Chou wrote:
-> Some gpio drivers may not use gpiolib. In this case, struct gpio_chip
-> is not defined and of_gpiochip_add/remove are not needed.
-> 
-> Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Hi,
 
-I'm not thrilled with the idea of supporting a gpio subsystem that
-doesn't use gpiolib.  These functions don't even make sense if gpiolib
-isn't being used (gpio_chip is a gpiolib construct).
+On Mon, Jan 31, 2011 at 12:09 AM, Grant Likely
+<grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org> wrote:
+> On Sun, Jan 30, 2011 at 8:26 PM, H=E5vard Skinnemoen
+> <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> Hi,
+>>
+>> On Sun, Jan 30, 2011 at 7:56 AM, Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org> =
+wrote:
+>>> From: Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
+>>>
+>>> This patch is based on an earlier patch from Albert Herranz,
+>>> http://git.infradead.org/users/herraa1/gc-linux-2.6.git/commit/
+>>> 9854eb78607c641ab5ae85bcbe3c9d14ac113733
+>>
+>> That commit has a single-line description of which I don't understan=
+d
+>> a single word (unless "wii" is what I think it is, which seems
+>> likely). Could you please explain how that commit relates to this
+>> patch?
+>
+> The URL got wrapped. =A0Try this one (assuming my mailer doesn't wrap=
+ it):
+>
+> http://git.infradead.org/users/herraa1/gc-linux-2.6.git/commit/9854eb=
+78607c641ab5ae85bcbe3c9d14ac113733
 
-Have you posted a patch that depends on this change?  Patch 3 in this
-series doesn't seem to need it.
+Ok, that seems to be a _bit_ more related, but not that much. I'd
+really prefer a patch description which can stand on its own.
 
-g.
+>>> The dts binding is modified as Grant suggested. The of probing
+>>> is merged inline instead of a separate file. It uses the newer
+>>> of gpio probe.
+>>
+>> It seems like a terrible idea to merge firmware-specific code into t=
+he
+>> driver. Is there are reason why of-based platforms can't just pass t=
+he
+>> data they need in pdata like everyone else?
+>
+> Overall Thomas is doing the right thing here. =A0The driver data has =
+to
+> be decoded *somewhere*, but since that code is definitely
+> driver-specific (as opposed to platform, subsystem, or arch specific)
+> putting it into the driver is absolutely the right thing to do. =A0Qu=
+ite
+> a few drivers now do exactly this.
 
-> ---
->  include/linux/of_gpio.h |    4 ++++
->  1 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/linux/of_gpio.h b/include/linux/of_gpio.h
-> index 6598c04..fc96af0 100644
-> --- a/include/linux/of_gpio.h
-> +++ b/include/linux/of_gpio.h
-> @@ -71,9 +71,13 @@ static inline unsigned int of_gpio_count(struct device_node *np)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_GPIOLIB
-> +
->  static inline void of_gpiochip_add(struct gpio_chip *gc) { }
->  static inline void of_gpiochip_remove(struct gpio_chip *gc) { }
->  
-> +#endif /* CONFIG_GPIOLIB */
-> +
->  #endif /* CONFIG_OF_GPIO */
->  
->  /**
-> -- 
-> 1.7.3.5
-> 
+Ok, I'm convinced that this is the right thing to do.
+
+> It is however generally a wise practice to limit the of-support code
+> to a hook in the drivers probe hook, and as you point out, care must
+> be taken to make sure both CONFIG_OF and !CONFIG_OF kernel builds
+> work.
+>
+>>
+>> Not saying that it necessarily _is_ a terrible idea, but I think the
+>> reasoning behind it needs to be included in the patch description.
+>
+> Nah, he doesn't really need to defend this since it is a well
+> established pattern. =A0device tree support is in core code now (see
+> of_node an of_match_table in include/linux/device.h), and other
+> drivers do exactly this.
+
+Well, perhaps you're right, but I still think the patch description is
+a bit on the thin side. In particular, terms like "as Grant suggested"
+isn't very helpful for people like me who don't know what you
+suggested (even though I'm sure it was a good suggestion).
+
+I think the patch lacks a good description of what's being changed and
+why. The references may be nice to have as a supplement to that, but
+describing things entirely in terms of some unknown e-mail discussion
+that happened earlier is not very helpful for people who want to
+figure out what's going on a couple of months or years from now.
+
+Havard
