@@ -1,135 +1,126 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 1/2] MAX8997/8966 MFD Driver Initial Release
- (PMIC+RTC+MUIC+Haptic+...)
-Date: Mon, 31 Jan 2011 00:19:15 +0100
-Message-ID: <20110130231914.GB2565@sortiz-mobl>
-References: <1294988018-25100-1-git-send-email-myungjoo.ham@samsung.com>
- <1294988018-25100-2-git-send-email-myungjoo.ham@samsung.com>
+From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c-gpio: add devicetree support
+Date: Sun, 30 Jan 2011 19:26:24 -0800
+Message-ID: <AANLkTi=5Uik+EwBRfYs_Pa77+qHngY03ezC63RC0WLQ8@mail.gmail.com>
+References: <1296403013-6058-1-git-send-email-thomas@wytron.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1294988018-25100-2-git-send-email-myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1296403013-6058-1-git-send-email-thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, myungjoo.ham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On Fri, Jan 14, 2011 at 03:53:37PM +0900, MyungJoo Ham wrote:
-> MAX8997/MAX8966 chip is a multi-function device with I2C bussses. The
-> chip includes PMIC, RTC, Fuel Gauge, MUIC, Haptic, Flash control, and
-> Battery (charging) control.
-> 
-> This patch is an initial release of a MAX8997/8966 driver that supports
-> to enable the chip with its primary I2C bus that connects every device
-> mentioned above except for Fuel Gauge, which uses another I2C bus. The
-> fuel gauge is not supported by this mfd driver and is supported by a
-> seperated driver of MAX17042 Fuel Gauge (yes, the fuel gauge part is
-> compatible with MAX17042).
-The patch looks good, I just have one comment:
+On Sun, Jan 30, 2011 at 7:56 AM, Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org> wro=
+te:
+> From: Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
+>
+> This patch is based on an earlier patch from Albert Herranz,
+> http://git.infradead.org/users/herraa1/gc-linux-2.6.git/commit/
+> 9854eb78607c641ab5ae85bcbe3c9d14ac113733
 
- 
-> Signed-off-by: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+That commit has a single-line description of which I don't understand
+a single word (unless "wii" is what I think it is, which seems
+likely). Could you please explain how that commit relates to this
+patch?
+
+> The dts binding is modified as Grant suggested. The of probing
+> is merged inline instead of a separate file. It uses the newer
+> of gpio probe.
+
+It seems like a terrible idea to merge firmware-specific code into the
+driver. Is there are reason why of-based platforms can't just pass the
+data they need in pdata like everyone else?
+
+Not saying that it necessarily _is_ a terrible idea, but I think the
+reasoning behind it needs to be included in the patch description.
+
+> Signed-off-by: Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
+> Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 > ---
->  drivers/mfd/Kconfig                 |   12 ++
->  drivers/mfd/Makefile                |    1 +
->  drivers/mfd/max8997.c               |  211 +++++++++++++++++++++++++++++++
->  include/linux/mfd/max8997-private.h |  238 +++++++++++++++++++++++++++++++++++
->  include/linux/mfd/max8997.h         |   88 +++++++++++++
->  5 files changed, 550 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/mfd/max8997.c
->  create mode 100644 include/linux/mfd/max8997-private.h
->  create mode 100644 include/linux/mfd/max8997.h
-> 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index da9d297..486bf38 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -293,6 +293,18 @@ config MFD_MAX8925
->  	  accessing the device, additional drivers must be enabled in order
->  	  to use the functionality of the device.
->  
-> +config MFD_MAX8997
-> +	bool "Maxim Semiconductor MAX8997/8966 PMIC Support"
-> +	depends on I2C=y && GENERIC_HARDIRQS
-> +	select MFD_CORE
-> +	help
-> +	  Say yes here to support for Maxim Semiconductor MAX8998/8966.
-> +	  This is a Power Management IC with RTC, Flash, Fuel Gauge, Haptic,
-> +	  MUIC controls on chip.
-> +	  This driver provies common support for accessing the device,
-> +	  additional drivers must be enabled in order to use the functionality
-> +	  of the device.
-> +
->  config MFD_MAX8998
->  	bool "Maxim Semiconductor MAX8998/National LP3974 PMIC Support"
->  	depends on I2C=y && GENERIC_HARDIRQS
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 848e7ea..0356b85 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -60,6 +60,7 @@ obj-$(CONFIG_UCB1400_CORE)	+= ucb1400_core.o
->  obj-$(CONFIG_PMIC_DA903X)	+= da903x.o
->  max8925-objs			:= max8925-core.o max8925-i2c.o
->  obj-$(CONFIG_MFD_MAX8925)	+= max8925.o
-> +obj-$(CONFIG_MFD_MAX8997)	+= max8997.o
->  obj-$(CONFIG_MFD_MAX8998)	+= max8998.o max8998-irq.o
->  
->  pcf50633-objs			:= pcf50633-core.o pcf50633-irq.o
-> diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
+> =A0Documentation/devicetree/bindings/gpio/i2c.txt | =A0 39 ++++++++++=
+++++
+> =A0drivers/i2c/busses/i2c-gpio.c =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0|=
+ =A0 67 ++++++++++++++++++++++-
+> =A02 files changed, 103 insertions(+), 3 deletions(-)
+> =A0create mode 100644 Documentation/devicetree/bindings/gpio/i2c.txt
+>
+> diff --git a/Documentation/devicetree/bindings/gpio/i2c.txt b/Documen=
+tation/devicetree/bindings/gpio/i2c.txt
 > new file mode 100644
-> index 0000000..ac70501
+> index 0000000..402569e
 > --- /dev/null
-> +++ b/drivers/mfd/max8997.c
-> @@ -0,0 +1,211 @@
-> +/*
-> + * max8997.c - mfd core driver for the Maxim 8966 and 8997
-> + *
-> + * Copyright (C) 2011 Samsung Electronics
-> + * MyungJoo Ham <myungjoo.ham-T5JinQjy6aBBDgjK7y7TUQ@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-> + *
-> + * This driver is based on max8998.c
-> + */
-> +
-> +#include <linux/slab.h>
-> +#include <linux/i2c.h>
-> +#include <linux/pm_runtime.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/max8997.h>
-> +#include <linux/mfd/max8997-private.h>
-> +
-> +#define I2C_ADDR_PMIC	(0xCC >> 1)
-> +#define I2C_ADDR_MUIC	(0x4A >> 1)
-> +#define I2C_ADDR_BATTERY	(0x6C >> 1)
-> +#define I2C_ADDR_RTC	(0x0C >> 1)
-> +#define I2C_ADDR_HAPTIC	(0x90 >> 1)
-> +
-> +static struct mfd_cell max8997_devs[] = {
-> +#ifdef CONFIG_REGULATOR_MAX8997
-I think you can get rid of all the ifdefs below.
-If the driver is not selected, you'll be safe anyway.
+> +++ b/Documentation/devicetree/bindings/gpio/i2c.txt
 
+This looks a bit backwards. i2c-gpio is a i2c driver which happens to
+utilize the gpio framework, not the other way around.
 
-Cheers,
-Samuel.
+> @@ -0,0 +1,39 @@
+> +GPIO-based I2C
+> +
+> +Required properties:
+> +- compatible : should be "i2c-gpio".
+> +- gpios : should specify GPIOs used for SDA and SCL lines, in that o=
+rder.
+> +Optional properties:
+> +- sda-is-open-drain : present if SDA gpio is open-drain.
+> +- scl-is-open-drain : present if SCL gpio is open-drain.
+> +- scl-is-output-only : present if SCL is an output gpio only.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+I think "present if the output driver for SCL cannot be turned off" is
+more accurate. Might also be worth mentioning that this will prevent
+clock stretching from working.
+
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -14,6 +14,9 @@
+> =A0#include <linux/module.h>
+> =A0#include <linux/slab.h>
+> =A0#include <linux/platform_device.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_gpio.h>
+> +#include <linux/of_i2c.h>
+
+Do these headers provide stubs so non-of platforms won't break?
+
+> @@ -83,11 +86,52 @@ static int __devinit i2c_gpio_probe(struct platfo=
+rm_device *pdev)
+> =A0 =A0 =A0 =A0struct i2c_gpio_platform_data *pdata;
+> =A0 =A0 =A0 =A0struct i2c_algo_bit_data *bit_data;
+> =A0 =A0 =A0 =A0struct i2c_adapter *adap;
+> + =A0 =A0 =A0 struct device_node *np =3D pdev->dev.of_node;
+
+Would be nice if this could be eliminated on non-of platforms.
+
+> =A0 =A0 =A0 =A0int ret;
+>
+> =A0 =A0 =A0 =A0pdata =3D pdev->dev.platform_data;
+> - =A0 =A0 =A0 if (!pdata)
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENXIO;
+> + =A0 =A0 =A0 if (!pdata) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (np && of_gpio_count(np) >=3D 2) {
+
+If that expression somehow always evaluates to false on non-of
+platforms, this might be ok. But please confirm if this is the case;
+otherwise, it looks like a pretty large addition to an otherwise very
+small driver.
+
+How about a tiny bit of restructuring: Move the block below into a
+separate function, which is only called if some constant expression
+says that of is enabled. Then you can move the declaration above
+either into the if block or into the function, depending on where you
+want to do the conditional above.
+
+> =A0static struct platform_driver i2c_gpio_driver =3D {
+> =A0 =A0 =A0 =A0.driver =A0 =A0 =A0 =A0 =3D {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =A0 =3D "i2c-gpio",
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =A0=3D THIS_MODULE,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .of_match_table =3D i2c_gpio_match,
+
+Is this field always present even when of is disabled?
+
+Havard
