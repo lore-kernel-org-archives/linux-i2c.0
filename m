@@ -1,128 +1,41 @@
-From: Fabien Marteau <fabien.marteau@armadeus.com>
-Subject: [PATCH] i2c: Adding mangling capability to i2c imx bus controller.
-Date: Mon, 31 Jan 2011 16:29:53 +0100
-Message-ID: <4D46D571.5010907@armadeus.com>
-Reply-To: "Fabien Marteau" <fabien.marteau@armadeus.com>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [linux-pm] [PATCH] i2c: OMAP: fix static suspend vs. runtime suspend
+Date: Mon, 31 Jan 2011 08:09:12 -0800
+Message-ID: <877hdl9hsn.fsf@ti.com>
+References: <Pine.LNX.4.44L0.1101311010580.1931-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, =?ISO-8859-1?Q?=22Uwe_Kleine-K=F6nig=22?= <u.kleine-koenig@pengutronix>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1101311010580.1931-100000@iolanthe.rowland.org>
+	(Alan Stern's message of "Mon, 31 Jan 2011 10:13:13 -0500 (EST)")
+Sender: linux-omap-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Rajendra Nayak <rnayak@ti.com>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-pm@lists.linux-foundation.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Adding Mangling capability to i2c imx bus controller.
+Alan Stern <stern@rowland.harvard.edu> writes:
 
-Signed-off-by: Fabien Marteau <fabien.marteau@armadeus.com>
----
-Index: linux-2.6.36/drivers/i2c/busses/i2c-imx.c
-===================================================================
---- linux-2.6.36.orig/drivers/i2c/busses/i2c-imx.c	2010-10-20 22:30:22.000000000 +0200
-+++ linux-2.6.36/drivers/i2c/busses/i2c-imx.c	2011-01-31 16:23:34.000000000 +0100
-@@ -300,17 +300,28 @@
- {
- 	int i, result;
+> On Mon, 31 Jan 2011, Rajendra Nayak wrote:
+>
+>> Can you elaborate a bit more on how/why runtime PM transitions
+>> are disabled during system suspend, and how is it taken care
+>> of that a runtime resume of a device works however a subsequent
+>> runtime (re)suspend does not?
+>
+> I'll answer for Kevin.  This is done by the PM core, in order to 
+> prevent runtime power transitions from interfering with a system power 
+> transition.  The PM core increments the device's usage_count; this 
+> prevents the device from being runtime-suspended but it allows 
+> runtime-resume calls to go through.
 
--	dev_dbg(&i2c_imx->adapter.dev, "<%s> write slave address: addr=0x%x\n",
--		__func__, msgs->addr << 1);
-+	if ((msgs->flags & I2C_M_NOSTART) == 0) {
-+		/* write slave address */
-+		if (msgs->flags & I2C_M_REV_DIR_ADDR) {
-+			dev_dbg(&i2c_imx->adapter.dev,
-+				"<%s> write slave address: addr=0x%x\n",
-+				__func__, msgs->addr << 1 | 0x01);
-+			writeb((msgs->addr << 1) | 0x01,
-+			       i2c_imx->base + IMX_I2C_I2DR);
-+		} else {
-+			dev_dbg(&i2c_imx->adapter.dev,
-+				"<%s> write slave address: addr=0x%x\n",
-+				__func__, msgs->addr << 1);
-+			writeb((msgs->addr << 1), i2c_imx->base + IMX_I2C_I2DR);
-+		}
-+		result = i2c_imx_trx_complete(i2c_imx);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result != 0)
-+			return result;
-+	}
+I understand how this works, but frankly I'm still a bit fuzzy on why.
 
--	/* write slave address */
--	writeb(msgs->addr << 1, i2c_imx->base + IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+I guess I'm still missing a good understanding of what "interfering with a
+system power transition" means, and why a runtime suspend qualifies as
+interfering but not a runtime resume.
 
- 	/* write data */
-@@ -323,7 +334,7 @@
- 		if (result)
- 			return result;
- 		result = i2c_imx_acked(i2c_imx);
--		if (result)
-+		if ((result != 0) && ((msgs[0].flags & I2C_M_IGNORE_NAK) == 0))
- 			return result;
- 	}
- 	return 0;
-@@ -334,18 +345,27 @@
- 	int i, result;
- 	unsigned int temp;
+More specifically, the reason for $SUBJECT patch is precisely because a
+runtime resume is allowed, a runtime suspend is not, and thus a system
+power transititon is prevented.
 
--	dev_dbg(&i2c_imx->adapter.dev,
--		"<%s> write slave address: addr=0x%x\n",
--		__func__, (msgs->addr << 1) | 0x01);
--
--	/* write slave address */
--	writeb((msgs->addr << 1) | 0x01, i2c_imx->base + IMX_I2C_I2DR);
--	result = i2c_imx_trx_complete(i2c_imx);
--	if (result)
--		return result;
--	result = i2c_imx_acked(i2c_imx);
--	if (result)
--		return result;
-+	if ((msgs->flags & I2C_M_NOSTART) == 0) {
-+		/* write slave address */
-+		if (msgs->flags & I2C_M_REV_DIR_ADDR) {
-+			dev_dbg(&i2c_imx->adapter.dev,
-+			"<%s> write slave address: addr=0x%x\n",
-+			__func__, (msgs->addr << 1));
-+			writeb((msgs->addr << 1), i2c_imx->base + IMX_I2C_I2DR);
-+		} else {
-+			dev_dbg(&i2c_imx->adapter.dev,
-+			"<%s> write slave address: addr=0x%x\n",
-+			__func__, (msgs->addr << 1) | 0x01);
-+			writeb((msgs->addr << 1) | 0x01,
-+			       i2c_imx->base + IMX_I2C_I2DR);
-+		}
-+		result = i2c_imx_trx_complete(i2c_imx);
-+		if (result)
-+			return result;
-+		result = i2c_imx_acked(i2c_imx);
-+		if (result != 0)
-+			return result;
-+	}
-
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> setup bus\n", __func__);
-
-@@ -405,7 +425,7 @@
-
- 	/* read/write data */
- 	for (i = 0; i < num; i++) {
--		if (i) {
-+		if (i && ((msgs[i].flags & I2C_M_NOSTART) == 0)) {
- 			dev_dbg(&i2c_imx->adapter.dev,
- 				"<%s> repeated start\n", __func__);
- 			temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-@@ -454,7 +474,7 @@
-
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_PROTOCOL_MANGLING;
- }
-
- static struct i2c_algorithm i2c_imx_algo = {
+Kevin
