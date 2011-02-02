@@ -1,82 +1,217 @@
-From: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+From: Matej Kupljen <matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org>
 Subject: RE: Add restart support to i2c-pnx
-Date: Wed, 2 Feb 2011 20:47:24 +0100
-Message-ID: <083DF309106F364B939360100EC290F80B0E17D10F@eu1rdcrdc1wx030.exi.nxp.com>
+Date: Wed, 02 Feb 2011 22:23:42 +0100
+Message-ID: <1296681822.15861.3.camel@orion>
 References: <acc33abdeea1fb1dd33f6919e7a4c4e4@imap.raing.si>
- <AANLkTimrs02v70OMkExsfBKhdOU1pxoFoAEn780qj_v-@mail.gmail.com>
- <aeed818a0cfb7836e7599aad4ffb9874@imap.raing.si>
- <20110202134102.1fd5b68d@endymion.delvare>
- <cd08bef3d940dd8ede1abc5bee93b190@imap.raing.si>
+	 <AANLkTimrs02v70OMkExsfBKhdOU1pxoFoAEn780qj_v-@mail.gmail.com>
+	 <aeed818a0cfb7836e7599aad4ffb9874@imap.raing.si>
+	 <20110202134102.1fd5b68d@endymion.delvare>
+	 <cd08bef3d940dd8ede1abc5bee93b190@imap.raing.si>
+	 <083DF309106F364B939360100EC290F80B0E17D10F@eu1rdcrdc1wx030.exi.nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="=-eid762Rh+R0aVBwc9rB+"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cd08bef3d940dd8ede1abc5bee93b190-Z5eBVJDltO98b/lofMYZ3A@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <083DF309106F364B939360100EC290F80B0E17D10F-SIPbe8o7cfX8DdpCu65jn8FrZmdRls4ZQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org" <matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgTWF0ZWwsDQoNClRoYW5rcyBmb3IgcG9zdGluZyB0aGlzIHBhdGNoLiBTZWUgY29tbWVudHMg
-YmVsb3cuLg0KSSdsbCBiZSBoYXBweSB0byB0ZXN0IHlvdXIgY2hhbmdlcyBvbmNlIHRoZSBmb2xs
-b3dpbmcgaXRlbXMNCmFyZSBjbGFyaWZpZWQuDQoNCj4gVGhlIHBhdGhjaCBpcyBhZ2FpbnN0IDIu
-Ni4yOC4yLCBidXQgaXQgc2hvdWxkIGFwcGx5IHRvIHRoZQ0KPiBjdXJlZW50IEdJVCB2ZXJzaW9u
-IGFzIHdlbGwuDQoNClRoaXMgcGF0Y2ggbmVlZHMgdG8gYmUgcmUtYmFzZWQgYWdhaW5zdCB0aGUg
-bGF0ZXN0IHZlcnNpb24NCm9mIHRoZSBkcml2ZXIgYXMgaXQgaGFzIGNoYW5nZXMgdGhhdCB0aGlz
-IHBhdGNoIHdpbGwgcmV2ZXJ0DQpvciB3b24ndCBhcHBseSB0by4NCg0KPiANCj4gU2lnbmVkLW9m
-Zi1ieTogTWF0ZWogS3VwbGplbiA8bWF0ZWoua3VwbGplbkBtYXByZWwuc2k+DQo+IA0KPiAtLS0g
-aTJjLXBueC1vcmlnLmMJMjAxMC0xMi0xNCAxNzo0ODo0MC4wMDAwMDAwMDAgKzAxMDANCj4gKysr
-IGkyYy1wbnguYwkyMDExLTAyLTAxIDIzOjQ4OjQyLjAwMDAwMDAwMCArMDEwMA0KPiBAQCAtNTQs
-NyArNTQsOCBAQA0KPiAgew0KPiAgCXN0cnVjdCBpMmNfcG54X2FsZ29fZGF0YSAqZGF0YSA9IGFk
-YXAtPmFsZ29fZGF0YTsNCj4gIAlzdHJ1Y3QgdGltZXJfbGlzdCAqdGltZXIgPSAmZGF0YS0+bWlm
-LnRpbWVyOw0KPiAtCWludCBleHBpcmVzID0gSTJDX1BOWF9USU1FT1VUIC8gKDEwMDAgLyBIWik7
-DQo+ICsJLy8gV2Ugc2hvdWxkIHByb2JhYmx5IHRha2UgaW50byBhY2NvdW50LCBob3cgbWFueSBi
-eXRlcyB3ZSBuZWVkIHRvDQo+IHRyYW5zZmVyIQ0KDQpVc2UgLyogKi8gZm9yIGNvbW1lbnRzIGlu
-c3RlYWQgb2YgLy8NClJlZ2FyZGluZyB0aGlzIGNvbW1lbnQsIHlvdSBzaG91bGQgcmVtb3ZlIGl0
-IG9yIGFkZCBzb21lDQpzdXBwb3J0IGZvciBzaXplIGJhc2VkIHRpbWVvdXRzLiBUaGUgbWluaW11
-bSB0aW1lb3V0IHdpdGggdGhlDQpsYXRlc3QgdXBkYXRlcyB3aWxsIGFsd2F5cyBiZSAxMG1TIHdh
-aXRpbmcgZm9yIGEgc3RvcCBjb25kaXRpb24NCm9yIHRoZSBidXMgdG8gY2xlYXIsIGJ1dCB0aGUg
-dGltZW91dCBkb2Vzbid0IGNvbWUgaW50byBwbGF5IGZvcg0KdGhlIGFjdHVhbCB0cmFuc2Zlci4N
-Cg0KPiArCWludCBleHBpcmVzID0gSTJDX1BOWF9USU1FT1VUICogMTAgLyAoMTAwMCAvIEhaKTsN
-Cg0KVGhlIGxvZ2ljIGZvciBoYW5kbGluZyB0aW1lb3V0IHdhcyBjaGFuZ2VkIGluIGEgbGF0ZXIg
-dmVyc2lvbiBvZg0KaTJjLXBueCBkcml2ZXIuIFRoaXMgbWlnaHQgb2YgYWxyZWFkeSBmaXhlZCB0
-aGUgdGltZW91dCBpc3N1ZS4NCg0KPiANCj4gIAlkZWxfdGltZXJfc3luYyh0aW1lcik7DQo+IA0K
-PiBAQCAtNzQsNyArNzUsNyBAQA0KPiAgICoNCj4gICAqIEdlbmVyYXRlIGEgU1RBUlQgc2lnbmFs
-IGluIHRoZSBkZXNpcmVkIG1vZGUuDQo+ICAgKi8NCj4gLXN0YXRpYyBpbnQgaTJjX3BueF9zdGFy
-dCh1bnNpZ25lZCBjaGFyIHNsYXZlX2FkZHIsIHN0cnVjdCBpMmNfYWRhcHRlcg0KPiAqYWRhcCkN
-Cj4gK3N0YXRpYyBpbnQgaTJjX3BueF9zdGFydCh1bnNpZ25lZCBjaGFyIHNsYXZlX2FkZHIsIHN0
-cnVjdCBpMmNfYWRhcHRlcg0KPiAqYWRhcCwgaW50IHJlcGVhdGVkKQ0KPiAgew0KPiAgCXN0cnVj
-dCBpMmNfcG54X2FsZ29fZGF0YSAqYWxnX2RhdGEgPSBhZGFwLT5hbGdvX2RhdGE7DQo+IA0KPiBA
-QCAtODksOCArOTAsOCBAQA0KPiAgCQlyZXR1cm4gLUVJTlZBTDsNCj4gIAl9DQo+IA0KPiAtCS8q
-IEZpcnN0LCBtYWtlIHN1cmUgYnVzIGlzIGlkbGUgKi8NCj4gLQlpZiAod2FpdF90aW1lb3V0KEky
-Q19QTlhfVElNRU9VVCwgYWxnX2RhdGEpKSB7DQo+ICsJLyogRmlyc3QsIG1ha2Ugc3VyZSBidXMg
-aXMgaWRsZSwgaWYgd2UgYXJlIG5vdCBkb2luZyByZXBlYXRlZCBzdGFydA0KPiAqLw0KPiArCWlm
-ICgoIXJlcGVhdGVkKSAmJiAod2FpdF90aW1lb3V0KEkyQ19QTlhfVElNRU9VVCwgYWxnX2RhdGEp
-KSkgew0KPiAgCQkvKiBTb21lYm9keSBlbHNlIGlzIG1vbm9wb2xpemluZyB0aGUgYnVzICovDQo+
-ICAJCWRldl9lcnIoJmFkYXAtPmRldiwgIiVzOiBCdXMgYnVzeS4gU2xhdmUgYWRkciA9ICUwMngs
-ICINCj4gIAkJICAgICAgICJjbnRybCA9ICV4LCBzdGF0ID0gJXhcbiIsDQo+IEBAIC00MzksNyAr
-NDQwLDcgQEANCj4gIGkyY19wbnhfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVj
-dCBpMmNfbXNnICptc2dzLCBpbnQgbnVtKQ0KPiAgew0KPiAgCXN0cnVjdCBpMmNfbXNnICpwbXNn
-Ow0KPiAtCWludCByYyA9IDAsIGNvbXBsZXRlZCA9IDAsIGk7DQo+ICsJaW50IHJjID0gMCwgY29t
-cGxldGVkID0gMCwgaSwgcmVwZWF0ZWQ7DQo+ICAJc3RydWN0IGkyY19wbnhfYWxnb19kYXRhICph
-bGdfZGF0YSA9IGFkYXAtPmFsZ29fZGF0YTsNCj4gIAl1MzIgc3RhdCA9IGlvcmVhZDMyKEkyQ19S
-RUdfU1RTKGFsZ19kYXRhKSk7DQo+IA0KPiBAQCAtNDU0LDYgKzQ1NSw3IEBADQo+IA0KPiAgCQlw
-bXNnID0gJm1zZ3NbaV07DQo+ICAJCWFkZHIgPSBwbXNnLT5hZGRyOw0KPiArCQlyZXBlYXRlZCA9
-IDA7DQo+IA0KPiAgCQlpZiAocG1zZy0+ZmxhZ3MgJiBJMkNfTV9URU4pIHsNCj4gIAkJCWRldl9l
-cnIoJmFkYXAtPmRldiwNCj4gQEAgLTQ3OSwxNiArNDgxLDIyIEBADQo+ICAJCS8qIGluaXRpYWxp
-emUgdGhlIGNvbXBsZXRpb24gdmFyICovDQo+ICAJCWluaXRfY29tcGxldGlvbigmYWxnX2RhdGEt
-Pm1pZi5jb21wbGV0ZSk7DQo+IA0KPiAtCQkvKiBFbmFibGUgbWFzdGVyIGludGVycnVwdCAqLw0K
-PiAtCQlpb3dyaXRlMzIoaW9yZWFkMzIoSTJDX1JFR19DVEwoYWxnX2RhdGEpKSB8IG1jbnRybF9h
-ZmllIHwNCj4gLQkJCQltY250cmxfbmFpZSB8IG1jbnRybF9kcm1pZSwNCj4gLQkJCSAgSTJDX1JF
-R19DVEwoYWxnX2RhdGEpKTsNCj4gKwkJLyogSWYgdGhpcyBpcyBub3QgdGhlIG9ubHkgbWVzc2Fn
-ZSwgdGhlbiB3ZSBuZWVkIHRvDQo+ICsJCSAqIHNlbmQgcmVwZWF0ZWQgc3RhcnQsIGJ1dCBvbmx5
-IGlmIHRoZSBmbGFnYSBhbGxvdyB1cw0KPiArCQkgKi8NCg0KQ29tbWVudHMgdGhhbiBzcGFuIG11
-bHRpcGxlIGxpbmVzIHNob3VsZCBiZSBpbiB0aGUgZm9ybWF0DQovKg0KICogTGluZSAxDQogKiBM
-aW5lIDINCiAqLw0KU2luZ2xlIGNvbW1lbnQgbGluZXMgYXJlIGluIHRoZSBmb3JtYXQNCi8qIExp
-bmUgMSAqLw0KJ0ZsYWdhIGFsbG93IHVzJyBzaG91bGQgYmUgJ2ZsYWcgYWxsb3dzIGl0Jw0KDQo+
-ICsJCWlmKChpID4gMCkgJiYgIShwbXNnLT5mbGFncyAmIEkyQ19NX05PU1RBUlQpKQ0KPiArCQkJ
-cmVwZWF0ZWQgPSAxOw0KDQpBbGwgdGhlIHJlcGVhdGVkIHN0YXJ0IGxvZ2ljIHNlZW1zIGxpa2Ug
-aXQgd2lsbCB3b3JrIG9rLg0KDQo+IA0KPiAgCQkvKiBQdXQgc3RhcnQtY29kZSBhbmQgc2xhdmUt
-YWRkcmVzcyBvbiB0aGUgYnVzLiAqLw0KPiAtCQlyYyA9IGkyY19wbnhfc3RhcnQoYWRkciwgYWRh
-cCk7DQo+ICsJCXJjID0gaTJjX3BueF9zdGFydChhZGRyLCBhZGFwLCByZXBlYXRlZCk7DQoNCg==
+
+--=-eid762Rh+R0aVBwc9rB+
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Kevin,
+
+> Thanks for posting this patch. See comments below..
+> I'll be happy to test your changes once the following items
+> are clarified.
+> 
+> > The pathch is against 2.6.28.2, but it should apply to the
+> > cureent GIT version as well.
+> 
+> This patch needs to be re-based against the latest version
+> of the driver as it has changes that this patch will revert
+> or won't apply to.
+
+I re-based it against latest version of the kernel in GIT and 
+also included your comments in the mail.
+
+Is it O.K. now?
+
+Regards,
+Matej
+
+P.S.: Changed the email client. I now attached the file as 
+well as pasted it in-line.
+
+-------------------------------------------------------------------
+Current code in i2c-pnx.c doesn't support sending messages
+with restart condition in it, for example:
+S - (address | W) - Sr - (address | R) - ... - P
+
+This patch adds this to the current code. It has been
+tested on a custom board with LPC3152 CPU (similar to
+Embedded Artists EA313x board) with uBlox GPS receiver
+connected to I2C bus. It has been running over the night
+without errors. 
+
+Signed-off-by: Matej Kupljen <matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org>
+
+--- i2c-pnx-orig.c	2011-02-02 21:30:19.000000000 +0100
++++ i2c-pnx.c	2011-02-02 21:49:02.000000000 +0100
+@@ -78,7 +78,7 @@
+  * Generate a START signal in the desired mode.
+  */
+ static int i2c_pnx_start(unsigned char slave_addr,
+-	struct i2c_pnx_algo_data *alg_data)
++	struct i2c_pnx_algo_data *alg_data, int repeated)
+ {
+ 	dev_dbg(&alg_data->adapter.dev, "%s(): addr 0x%x mode %d\n", __func__,
+ 		slave_addr, alg_data->mif.mode);
+@@ -91,8 +91,8 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	/* First, make sure bus is idle */
+-	if (wait_timeout(I2C_PNX_TIMEOUT, alg_data)) {
++	/* First, make sure bus is idle, if we are not doing repeated start */
++	if ((!repeated) && (wait_timeout(I2C_PNX_TIMEOUT, alg_data))) {
+ 		/* Somebody else is monopolizing the bus */
+ 		dev_err(&alg_data->adapter.dev,
+ 			"%s: Bus busy. Slave addr = %02x, cntrl = %x, stat = %x\n",
+@@ -441,7 +441,7 @@
+ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ {
+ 	struct i2c_msg *pmsg;
+-	int rc = 0, completed = 0, i;
++	int rc = 0, completed = 0, i, repeated;
+ 	struct i2c_pnx_algo_data *alg_data = adap->algo_data;
+ 	u32 stat = ioread32(I2C_REG_STS(alg_data));
+ 
+@@ -457,6 +457,7 @@
+ 
+ 		pmsg = &msgs[i];
+ 		addr = pmsg->addr;
++		repeated = 0;
+ 
+ 		if (pmsg->flags & I2C_M_TEN) {
+ 			dev_err(&alg_data->adapter.dev,
+@@ -481,16 +482,23 @@
+ 		/* initialize the completion var */
+ 		init_completion(&alg_data->mif.complete);
+ 
+-		/* Enable master interrupt */
+-		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_afie |
+-				mcntrl_naie | mcntrl_drmie,
+-			  I2C_REG_CTL(alg_data));
++		/* 
++		 * If this is not the only message, then we need to
++		 * send repeated start, but only if the flag allows it
++		 */
++		if((i > 0) && !(pmsg->flags & I2C_M_NOSTART))
++			repeated = 1;
+ 
+ 		/* Put start-code and slave-address on the bus. */
+-		rc = i2c_pnx_start(addr, alg_data);
++		rc = i2c_pnx_start(addr, alg_data, repeated);
+ 		if (rc < 0)
+ 			break;
+ 
++		/* Enable master interrupt */
++		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_afie |
++				mcntrl_naie | mcntrl_drmie,
++			  I2C_REG_CTL(alg_data));
++
+ 		/* Wait for completion */
+ 		wait_for_completion(&alg_data->mif.complete);
+ 
+
+--=-eid762Rh+R0aVBwc9rB+
+Content-Disposition: attachment; filename=i2c-pnx-restart-git.patch
+Content-Type: text/x-patch; name=i2c-pnx-restart-git.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Current code in i2c-pnx.c doesn't support sending messages
+with restart condition in it, for example:
+S - (address | W) - Sr - (address | R) - ... - P
+
+This patch adds this to the current code. It has been
+tested on a custom board with LPC3152 CPU (similar to
+Embedded Artists EA313x board) with uBlox GPS receiver
+connected to I2C bus. It has been running over the night
+without errors. 
+
+Signed-off-by: Matej Kupljen <matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org>
+
+--- i2c-pnx-orig.c	2011-02-02 21:30:19.000000000 +0100
++++ i2c-pnx.c	2011-02-02 21:49:02.000000000 +0100
+@@ -78,7 +78,7 @@
+  * Generate a START signal in the desired mode.
+  */
+ static int i2c_pnx_start(unsigned char slave_addr,
+-	struct i2c_pnx_algo_data *alg_data)
++	struct i2c_pnx_algo_data *alg_data, int repeated)
+ {
+ 	dev_dbg(&alg_data->adapter.dev, "%s(): addr 0x%x mode %d\n", __func__,
+ 		slave_addr, alg_data->mif.mode);
+@@ -91,8 +91,8 @@
+ 		return -EINVAL;
+ 	}
+ 
+-	/* First, make sure bus is idle */
+-	if (wait_timeout(I2C_PNX_TIMEOUT, alg_data)) {
++	/* First, make sure bus is idle, if we are not doing repeated start */
++	if ((!repeated) && (wait_timeout(I2C_PNX_TIMEOUT, alg_data))) {
+ 		/* Somebody else is monopolizing the bus */
+ 		dev_err(&alg_data->adapter.dev,
+ 			"%s: Bus busy. Slave addr = %02x, cntrl = %x, stat = %x\n",
+@@ -441,7 +441,7 @@
+ i2c_pnx_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ {
+ 	struct i2c_msg *pmsg;
+-	int rc = 0, completed = 0, i;
++	int rc = 0, completed = 0, i, repeated;
+ 	struct i2c_pnx_algo_data *alg_data = adap->algo_data;
+ 	u32 stat = ioread32(I2C_REG_STS(alg_data));
+ 
+@@ -457,6 +457,7 @@
+ 
+ 		pmsg = &msgs[i];
+ 		addr = pmsg->addr;
++		repeated = 0;
+ 
+ 		if (pmsg->flags & I2C_M_TEN) {
+ 			dev_err(&alg_data->adapter.dev,
+@@ -481,16 +482,23 @@
+ 		/* initialize the completion var */
+ 		init_completion(&alg_data->mif.complete);
+ 
+-		/* Enable master interrupt */
+-		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_afie |
+-				mcntrl_naie | mcntrl_drmie,
+-			  I2C_REG_CTL(alg_data));
++		/* 
++		 * If this is not the only message, then we need to
++		 * send repeated start, but only if the flag allows it
++		 */
++		if((i > 0) && !(pmsg->flags & I2C_M_NOSTART))
++			repeated = 1;
+ 
+ 		/* Put start-code and slave-address on the bus. */
+-		rc = i2c_pnx_start(addr, alg_data);
++		rc = i2c_pnx_start(addr, alg_data, repeated);
+ 		if (rc < 0)
+ 			break;
+ 
++		/* Enable master interrupt */
++		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_afie |
++				mcntrl_naie | mcntrl_drmie,
++			  I2C_REG_CTL(alg_data));
++
+ 		/* Wait for completion */
+ 		wait_for_completion(&alg_data->mif.complete);
+ 
+
+--=-eid762Rh+R0aVBwc9rB+--
