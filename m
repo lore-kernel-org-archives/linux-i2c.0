@@ -1,24 +1,42 @@
-From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen@gmail.com>
-Subject: Re: [PATCH] i2c-gpio: add devicetree support
-Date: Wed, 2 Feb 2011 20:24:06 -0800
-Message-ID: <AANLkTinOZxbuZ7EpG6uT3vJdY_9LwgEg5G30_M4TEceA@mail.gmail.com>
-References: <AANLkTimoaJKy-WTTHmRXFMmM6=e7uvzhjwRcDtNqGAPj@mail.gmail.com>
-	<1296699980-30234-1-git-send-email-thomas@wytron.com.tw>
+From: <matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org>
+Subject: Re: Add restart support to i2c-pnx
+Date: Thu, 03 Feb 2011 08:54:30 +0100
+Message-ID: <f72f4b6ef01079e2ecd41b39041b4082@imap.raing.si>
+References: <acc33abdeea1fb1dd33f6919e7a4c4e4@imap.raing.si> <AANLkTimrs02v70OMkExsfBKhdOU1pxoFoAEn780qj_v-@mail.gmail.com> <aeed818a0cfb7836e7599aad4ffb9874@imap.raing.si> <20110202134102.1fd5b68d@endymion.delvare> <cd08bef3d940dd8ede1abc5bee93b190@imap.raing.si> <083DF309106F364B939360100EC290F80B0E17D10F@eu1rdcrdc1wx030.exi.nxp.com> <1296681822.15861.3.camel@orion> <20110202222404.GW15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1296699980-30234-1-git-send-email-thomas@wytron.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Chou <thomas@wytron.com.tw>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org, nios2-dev@sopc.et.ntust.edu.tw, devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Albert Herranz <albert_herranz@yahoo.es>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110202222404.GW15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 2, 2011 at 6:26 PM, Thomas Chou <thomas@wytron.com.tw> wrote:
-> This patch adds devicetree support to i2c-gpio driver. It converts
-> dts bindings and allocates a struct i2c_gpio_platform_data, which
-> will be freed on driver removal.
->
-> Signed-off-by: Albert Herranz <albert_herranz@yahoo.es>
-> Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+Ben,
 
-Acked-by: Haavard Skinnemoen <hskinnemoen@gmail.com>
+>> -	struct i2c_pnx_algo_data *alg_data)
+>> +	struct i2c_pnx_algo_data *alg_data, int repeated)
+> 
+> bool repeated.
+
+I don't agree.
+Since this is C and C++, we do not have a bool keyword.
+And, there is no variable declared as bool in the source file this 
+is why and defined this as int and not as bool.
+
+>> +	if ((!repeated) && (wait_timeout(I2C_PNX_TIMEOUT, alg_data))) {
+> 
+> no need for () around !repeated.
+
+Agreed, but for the clarity sake.
+
+>> +		if((i > 0) && !(pmsg->flags & I2C_M_NOSTART))
+> 
+> no need for () around i > 0
+
+Same as above. I my opinion it is better to use more parentheses then
+fewer, since you do not rely on compiler implementation.
+
+Regards,
+Matej
