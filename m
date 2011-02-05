@@ -1,51 +1,95 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: Add restart support to i2c-pnx
-Date: Sat, 5 Feb 2011 16:07:01 +0000
-Message-ID: <20110205160701.GC15795@trinity.fluff.org>
-References: <acc33abdeea1fb1dd33f6919e7a4c4e4@imap.raing.si> <AANLkTimrs02v70OMkExsfBKhdOU1pxoFoAEn780qj_v-@mail.gmail.com> <aeed818a0cfb7836e7599aad4ffb9874@imap.raing.si> <20110202134102.1fd5b68d@endymion.delvare> <cd08bef3d940dd8ede1abc5bee93b190@imap.raing.si> <083DF309106F364B939360100EC290F80B0E17D10F@eu1rdcrdc1wx030.exi.nxp.com> <1296681822.15861.3.camel@orion> <20110202222404.GW15795@trinity.fluff.org> <f72f4b6ef01079e2ecd41b39041b4082@imap.raing.si>
+Subject: Re: [PATCH] i2c: OMAP: fix static suspend vs. runtime suspend
+Date: Sat, 5 Feb 2011 16:08:43 +0000
+Message-ID: <20110205160843.GD15795@trinity.fluff.org>
+References: <1296173921-4832-1-git-send-email-khilman@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <f72f4b6ef01079e2ecd41b39041b4082-Z5eBVJDltO98b/lofMYZ3A@public.gmane.org>
+In-Reply-To: <1296173921-4832-1-git-send-email-khilman-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 03, 2011 at 08:54:30AM +0100, matej.kupljen-nWYkTt+LGLL1KXRcyAk9cg@public.gmane.org wrote:
-> Ben,
+On Thu, Jan 27, 2011 at 04:18:41PM -0800, Kevin Hilman wrote:
+> When runtime PM is enabled, each OMAP i2c device is suspended after
+> each i2c xfer.  However, there are two cases when the static suspend
+> methods must be used to ensure the devices are suspended:
 > 
-> >> -	struct i2c_pnx_algo_data *alg_data)
-> >> +	struct i2c_pnx_algo_data *alg_data, int repeated)
-> > 
-> > bool repeated.
+> 1) runtime PM is disabled, either at compile time or dynamically
+>     via /sys/devices/.../power/control.
+> 2) an i2c client driver uses i2c during it's suspend callback, thus
+>    leaving the i2c driver active (NOTE: runtime suspend transitions are
+>    disabled during system suspend, so i2c activity during system
+>    suspend will runtime resume the device, but not runtime (re)suspend it.)
 > 
-> I don't agree.
-> Since this is C and C++, we do not have a bool keyword.
-> And, there is no variable declared as bool in the source file this 
-> is why and defined this as int and not as bool.
+> Since the actual work to suspend the device is handled by the
+> subsytem, call the bus methods to take care of it.
+> 
+> NOTE: This takes care of a known suspend problem on OMAP3 where the
+> TWL RTC driver does i2c xfers during its suspend path leaving the i2c
+> driver in an active state (since runtime suspend transistions are
+> disabled.)
+> 
+> Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+> ---
+> Ben, this is a regression in 2.6.38 so hopefully this can be queued
+> in the 2.6.38-rc cycle.  Thanks.
 
-the kernel has this.
+Ok, after all the discussions should I keep it in my -rc queue?
  
-> >> +	if ((!repeated) && (wait_timeout(I2C_PNX_TIMEOUT, alg_data))) {
-> > 
-> > no need for () around !repeated.
+>  drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++++++++++++++
+>  1 files changed, 28 insertions(+), 0 deletions(-)
 > 
-> Agreed, but for the clarity sake.
-
-Makes it less clear, there's more on each line.
- 
-> >> +		if((i > 0) && !(pmsg->flags & I2C_M_NOSTART))
-> > 
-> > no need for () around i > 0
-> 
-> Same as above. I my opinion it is better to use more parentheses then
-> fewer, since you do not rely on compiler implementation.
-> 
-> Regards,
-> Matej
-> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index b605ff3..0541df9 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1137,12 +1137,40 @@ omap_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_SUSPEND
+> +static int omap_i2c_suspend(struct device *dev)
+> +{
+> +	if (!pm_runtime_suspended(dev))
+> +		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_suspend)
+> +			dev->bus->pm->runtime_suspend(dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int omap_i2c_resume(struct device *dev)
+> +{
+> +	if (!pm_runtime_suspended(dev))
+> +		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_resume)
+> +			dev->bus->pm->runtime_resume(dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct dev_pm_ops omap_i2c_pm_ops = {
+> +	.suspend = omap_i2c_suspend,
+> +	.resume = omap_i2c_resume,
+> +};
+> +#else
+> +#define omap_i2c_pm_ops NULL
+> +#endif
+> +
+>  static struct platform_driver omap_i2c_driver = {
+>  	.probe		= omap_i2c_probe,
+>  	.remove		= omap_i2c_remove,
+>  	.driver		= {
+>  		.name	= "omap_i2c",
+>  		.owner	= THIS_MODULE,
+> +		.pm     = &omap_i2c_pm_ops,
+>  	},
+>  };
+>  
+> -- 
+> 1.7.3.5
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
