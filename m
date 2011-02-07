@@ -1,57 +1,102 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH] [ARM] tegra: Add i2c support
-Date: Mon, 7 Feb 2011 09:45:01 -0800
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF0310F5FC90@HQMAIL01.nvidia.com>
-References: <1283466103-20889-1-git-send-email-ccross@android.com>
- <AANLkTimYURYGix-0Xk3wdf1A-XEAJbBXR_JDn1BFw_uq@mail.gmail.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH 3/6] i2c/pxa2xx: Add PCI support for PXA I2C controller
+Date: Mon, 7 Feb 2011 18:56:04 +0100
+Message-ID: <20110207175604.GA24850@www.tglx.de>
+References: <1294246263-31960-1-git-send-email-bigeasy@linutronix.de>
+	<1294246263-31960-4-git-send-email-bigeasy@linutronix.de>
+	<20110105202136.GI817@trinity.fluff.org>
+	<20110114143107.GA15462@www.tglx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-Cc: "mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org" <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "gadiyar-l0cyMroinI0@public.gmane.org" <gadiyar-l0cyMroinI0@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20110114143107.GA15462@www.tglx.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: eric.y.miao@gmail.com, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, sodaville@linutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Dirk Brandewie <dirk.brandewie@gmail.com>, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Stephen Warren wrote at Sent: Monday, January 31, 2011 3:49 PM:
->=20
-> Colin Cross wrote at Tuesday, December 21, 2010 5:12 PM:
-> >
-> > On Thu, Sep 2, 2010 at 3:21 PM, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org> wr=
-ote:
-> > > Signed-off-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-> > > ---
-> > > =A0drivers/i2c/busses/Kconfig =A0 =A0 | =A0 =A07 +
-> > > =A0drivers/i2c/busses/Makefile =A0 =A0| =A0 =A01 +
-> > > =A0drivers/i2c/busses/i2c-tegra.c | =A0665 ++++++++++++++++++++++=
-++++++++++++++++++
-> > > =A0include/linux/i2c-tegra.h =A0 =A0 =A0| =A0 25 ++
-> > > =A04 files changed, 698 insertions(+), 0 deletions(-)
-> > > =A0create mode 100644 drivers/i2c/busses/i2c-tegra.c
-> > > =A0create mode 100644 include/linux/i2c-tegra.h
-> > >
-> > Ben, this didn't make it into 2.6.37?  Can it go into next-i2c?
->=20
-> I didn't see any response to this request, at least not in the linux-=
-tegra
-> archives.
+* Sebastian Andrzej Siewior | 2011-01-14 15:31:07 [+0100]:
 
-Ben, did Colin's latest patch look good; could it be applied?
+>* Ben Dooks | 2011-01-05 20:21:36 [+0000]:
 
-Colin, perhaps you could repost the patch in case it's fallen out of Be=
-n's
-inbox.
+Hi Ben,
 
-As background, I'd really like this patch to show up in 2.6.39; the ASo=
-C
-driver I've upstreamed for Tegra Harmony (and which will be in 2.6.39) =
-relies
-on this I2C driver to provide communication with the audio codec. Hence=
-, the
-ASoC driver is useless without the I2C driver also merged.
+>[cut]
+>
+>I fixed up all your comments (unless I forgot something by accident). Is
+>it possible for this to go in this merge window or do I have to wait for
+>the next one?
 
-Thanks.
+I've rebased the whole series on top of v2.6.38-rc3. I fixed the
+conflict and considered three new boards (colibri-evalboard, saarb and
+pxa95).
 
---=20
-nvpublic
+The series is available at
+  git://git.linutronix.de/users/bigeasy/soda.git i2c_v3
+
+Sebastian Andrzej Siewior (6):
+      i2c-pxa2xx: use dynamic register layout
+      ARM: pxa2xx: reorganize I2C files
+      i2c-pxa2xx: Add PCI support for PXA I2C controller
+      i2c-pxa2xx: add support for shared IRQ handler
+      i2c-pxa2xx: check timeout correctly
+      i2c-pxa2xx: pass of_node from platform driver to adapter and publish
+
+ arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
+ arch/arm/mach-pxa/balloon3.c                       |    3 +-
+ arch/arm/mach-pxa/cm-x300.c                        |    2 +-
+ arch/arm/mach-pxa/colibri-evalboard.c              |    3 +-
+ arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
+ arch/arm/mach-pxa/corgi.c                          |    2 +-
+ arch/arm/mach-pxa/csb726.c                         |    2 +-
+ arch/arm/mach-pxa/devices.c                        |    2 +-
+ arch/arm/mach-pxa/em-x270.c                        |    2 +-
+ arch/arm/mach-pxa/ezx.c                            |    2 +-
+ arch/arm/mach-pxa/hx4700.c                         |    2 +-
+ arch/arm/mach-pxa/littleton.c                      |    2 +-
+ arch/arm/mach-pxa/magician.c                       |    2 +-
+ arch/arm/mach-pxa/mainstone.c                      |    2 +-
+ arch/arm/mach-pxa/mioa701.c                        |    2 +-
+ arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
+ arch/arm/mach-pxa/palm27x.c                        |    3 +-
+ arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
+ arch/arm/mach-pxa/poodle.c                         |    2 +-
+ arch/arm/mach-pxa/pxa27x.c                         |    3 +-
+ arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
+ arch/arm/mach-pxa/pxa95x.c                         |    2 +-
+ arch/arm/mach-pxa/raumfeld.c                       |    2 +-
+ arch/arm/mach-pxa/saar.c                           |    2 +-
+ arch/arm/mach-pxa/saarb.c                          |    3 +-
+ arch/arm/mach-pxa/spitz.c                          |    3 +-
+ arch/arm/mach-pxa/stargate2.c                      |    2 +-
+ arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
+ arch/arm/mach-pxa/tosa.c                           |    2 +-
+ arch/arm/mach-pxa/trizeps4.c                       |    2 +-
+ arch/arm/mach-pxa/viper.c                          |    2 +-
+ arch/arm/mach-pxa/vpac270.c                        |    3 +-
+ arch/arm/mach-pxa/xcep.c                           |    3 +-
+ arch/arm/mach-pxa/z2.c                             |    3 +-
+ arch/arm/mach-pxa/zeus.c                           |    3 +-
+ arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
+ drivers/i2c/busses/Kconfig                         |    7 +-
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-pxa-pci.c                   |  176 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-pxa.c                       |  116 ++++++++++---
+ .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    0
+ 43 files changed, 310 insertions(+), 78 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
+ rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (100%)
+
+Sebastian
