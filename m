@@ -1,35 +1,58 @@
-From: David St-Onge <david.st-onge.2-qLLbaQniQ8D3fQ9qLvQP4Q@public.gmane.org>
-Subject: Another HMC6343 I2C reading problem
-Date: Tue, 8 Feb 2011 18:42:30 -0500
-Message-ID: <3C919C27AD894941B99EFB6E2E8A000D01A1C4686E2A@EXCH-MBX-F.ulaval.ca>
+From: Shinya Kuribayashi <shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 02/10] i2c-designware: split of i2c-designware.c into core
+ and bus specific parts
+Date: Wed, 09 Feb 2011 09:59:37 +0900
+Message-ID: <4D51E6F9.2020803@renesas.com>
+References: <1296699608-13227-1-git-send-email-dirk.brandewie@gmail.com>
+ <1296699608-13227-3-git-send-email-dirk.brandewie@gmail.com>
+ <20110205174507.GH15795@trinity.fluff.org> <4D516D48.6000104@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: fr-CA
+In-reply-to: <4D516D48.6000104-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alan.cox-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all!!
+On 2/9/2011 1:20 AM, Dirk Brandewie wrote:
+> On 02/05/2011 09:45 AM, Ben Dooks wrote:
+>>> @@ -347,15 +347,24 @@ config I2C_DAVINCI
+>>>         devices such as DaVinci NIC.
+>>>         For details please see http://www.ti.com/davinci
+>>>
+>>> -config I2C_DESIGNWARE
+>>> -    tristate "Synopsys DesignWare"
+>>> +config I2C_DESIGNWARE_PLATFORM
+>>> +    tristate "Synopsys DesignWare Platfrom"
+>>>       depends on HAVE_CLK
+>>>       help
+>>>         If you say yes to this option, support will be included for the
+>>>         Synopsys DesignWare I2C adapter. Only master mode is supported.
+>>>
+>>>         This driver can also be built as a module.  If so, the module
+>>> -      will be called i2c-designware.
+>>> +      will be called i2c-designware-platform.
+>>
+>> not so happy about change in module name.
 
-I was wondering if anyone succeed on using this compass/tilt sensor (http://article.gmane.org/gmane.linux.drivers.i2c/3933/match=hmc6343), without the I2C kernel module?
+That's what I thought first, but I was optimistic about this.
 
-To summarize the challenge here, this device reply to a byte command with 6 bytes before its stop, and it also need a custom delay (1ms) between the read and write commands.
+> I am open to any name,  the current names come from Shinya's feedback.
+> I will use what ever name everyone finds reasonable.
 
-Using:
-adresse=0x32;
-command1=0x50; //0x50:Headings, 0x55:Tilt, 0x45:Magneto
-union i2c_smbus_data sixbuff;
-if (ioctl(file, I2C_SLAVE, adresse >> 1) >= 0) {
-i2c_smbus_access(file, I2C_SMBUS_WRITE, command1, I2C_SMBUS_BYTE, NULL);
-usleep(1000);
-i2c_smbus_access(file, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &sixbuff);
-}
+Okay, we have two courses.
 
-My first 2 values are corrects (Heading) but the 2 others don't vary.... never (for 0x45 and 0x55 commands also).
+ 1. (re-)use current 'i2c-designware.ko' name for the platform driver
+    (I mean i2c-designware-core.c + i2c-designware-plat) not to disturb
+    existing users/systems, and give a new name for the PCI version
+    (e.g. i2c-designware-pci).
 
-Anyone used the i2c-dev.h userspace functions with this device?
+ 2. Use the same name both for the platform and the PCI drivers, and
+    make only one driver to be configured using Kconfig.
 
-Thanks!
-Dave.
+Which one is a preferable course of action, Ben?
+-- 
+Shinya Kuribayashi
+Renesas Electronics
