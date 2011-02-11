@@ -1,170 +1,42 @@
-From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 12/13] i2c-designware: Add runtime power management support
-Date: Thu, 10 Feb 2011 08:21:28 -0800
-Message-ID: <1297354889-20721-13-git-send-email-dirk.brandewie@gmail.com>
-References: <1297354889-20721-1-git-send-email-dirk.brandewie@gmail.com>
+From: Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c-omap: Double clear of ARDY status in IRQ handler
+Date: Fri, 11 Feb 2011 12:15:18 +0530
+Message-ID: <1297406718-24147-1-git-send-email-j-keerthy@ti.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1297354889-20721-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: alan.cox-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shinya.kuribayashi.px-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, j-keerthy-l0cyMroinI0@public.gmane.org, Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
 
-Add runtime power management to the PCI driver.
+ProDB00017052 - ARDY interrupt reasserted after being cleared.
+This errata caused intermittent i2c instabilty(1 error per 3 hours) on several
+customer platforms. After applying the workaround the intermittent errors were
+not seen. This is not captured in the usual errata documents.
 
-Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+The workaround is to have a double clear of ARDY status in
+irq handler.
+
+Signed-off-by: Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware-core.c   |    3 +
- drivers/i2c/busses/i2c-designware-pcidrv.c |   86 ++++++++++++++++++++++++++++
- 2 files changed, 89 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 666d71c..ba8ee49 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -31,6 +31,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-+#include <linux/pm_runtime.h>
- #include "i2c-designware-core.h"
- 
- /*
-@@ -500,6 +501,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
- 
- 	mutex_lock(&dev->lock);
-+	pm_runtime_get_sync(dev->dev);
- 
- 	INIT_COMPLETION(dev->cmd_complete);
- 	dev->msgs = msgs;
-@@ -549,6 +551,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	ret = -EIO;
- 
- done:
-+	pm_runtime_put(dev->dev);
- 	mutex_unlock(&dev->lock);
- 
- 	return ret;
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 83307ef..9869e21 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -38,6 +38,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
-+#include <linux/pm_runtime.h>
- #include "i2c-designware-core.h"
- 
- #define DRIVER_NAME "i2c-designware-pci"
-@@ -137,6 +138,81 @@ static struct i2c_algorithm i2c_dw_algo = {
- 	.functionality	= i2c_dw_func,
- };
- 
-+static int i2c_dw_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
-+{
-+	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
-+	int err;
-+
-+
-+	i2c_dw_disable(i2c);
-+
-+	err = pci_save_state(pdev);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_save_state failed\n");
-+		return err;
-+	}
-+
-+	err = pci_set_power_state(pdev, PCI_D3hot);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_set_power_state failed\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int i2c_dw_pci_runtime_suspend(struct device *dev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	dev_dbg(dev, "PCI suspend called\n");
-+	return i2c_dw_pci_suspend(pdev, PMSG_SUSPEND);
-+}
-+
-+static int i2c_dw_pci_resume(struct pci_dev *pdev)
-+{
-+	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
-+	int err;
-+	u32 enabled;
-+
-+	enabled = dw_readl(i2c, DW_IC_ENABLE);
-+	if (enabled)
-+		return 0;
-+
-+	err = pci_set_power_state(pdev, PCI_D0);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_set_power_state() failed\n");
-+		return err;
-+	}
-+
-+	pci_restore_state(pdev);
-+
-+	i2c_dw_enable(i2c);
-+	return 0;
-+}
-+
-+static int i2c_dw_pci_runtime_resume(struct device *dev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	dev_dbg(dev, "runtime_resume called\n");
-+	return i2c_dw_pci_resume(pdev);
-+}
-+
-+static int i2c_dw_pci_runtime_idle(struct device *dev)
-+{
-+	int err = pm_schedule_suspend(dev, 500);
-+	dev_dbg(dev, "runtime_idle called\n");
-+
-+	if (err != 0)
-+		return 0;
-+	return -EBUSY;
-+}
-+
-+static const struct dev_pm_ops i2c_dw_pm_ops = {
-+	.runtime_suspend = i2c_dw_pci_runtime_suspend,
-+	.runtime_resume = i2c_dw_pci_runtime_resume,
-+	.runtime_idle = i2c_dw_pci_runtime_idle,
-+};
-+
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
- 	return dev->controller->clk_khz;
-@@ -264,6 +340,11 @@ static void __devexit i2c_dw_pci_remove(struct pci_dev *pdev)
- {
- 	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
- 
-+	i2c_dw_disable(dev);
-+	pm_runtime_get_noresume(&pdev->dev);
-+	pm_runtime_forbid(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
- 	pci_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
-@@ -297,6 +378,11 @@ static struct pci_driver dw_i2c_driver = {
- 	.id_table	= i2_designware_pci_ids,
- 	.probe		= i2c_dw_pci_probe,
- 	.remove		= __devexit_p(i2c_dw_pci_remove),
-+	.resume         = i2c_dw_pci_resume,
-+	.suspend        = i2c_dw_pci_suspend,
-+	.driver         = {
-+		.pm     = &i2c_dw_pm_ops,
-+	},
- };
- 
- static int __init dw_i2c_init_driver(void)
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 445de08..9bcefae 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -851,7 +851,8 @@ complete:
+ 					OMAP_I2C_STAT_AL)) {
+ 			omap_i2c_ack_stat(dev, stat &
+ 				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+-				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
++				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
++				OMAP_I2C_STAT_ARDY));
+ 			omap_i2c_complete_cmd(dev, err);
+ 			return IRQ_HANDLED;
+ 		}
 -- 
-1.7.3.4
+1.7.0.4
