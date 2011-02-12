@@ -1,54 +1,32 @@
-From: Marc Reilly <marc@cpdesign.com.au>
-Subject: Re: mc13xxx-core, support for i2c, V4
-Date: Sat, 12 Feb 2011 21:11:30 +1100
-Message-ID: <201102122111.30525.marc@cpdesign.com.au>
-References: <1294119299-18352-1-git-send-email-marc@cpdesign.com.au>
-	<20110212084035.GB17755@angua.secretlab.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20110212084035.GB17755@angua.secretlab.ca>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Grant Likely <grant.likely@secretlab.ca>, sameo@linux.intel.com
-Cc: spi-devel-general@lists.sourceforge.net, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, u.kleine-koenig@pengutronix.de
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c: boardinfo: Fix typo in comment
+Date: Sat, 12 Feb 2011 18:17:45 +0100
+Message-ID: <1297531065-5821-1-git-send-email-w.sang@pengutronix.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Grant, 
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
 
-Thanks for your comments,
+Happened to stumble over this today, didn't find any other typos here.
 
-On Saturday, February 12, 2011 07:40:35 pm Grant Likely wrote:
-> On Tue, Jan 04, 2011 at 04:34:55PM +1100, Marc Reilly wrote:
-> > Hi,
-> > 
-> > These patches add i2c support for the mc13xxx-core drive. For v4 I've
-> > tried to take in all previous comments, hopefully making it better to
-> > follow, and bisectable.
-> 
-> This series looks okay to me.  Since this is audio drivers, I expect
-> that it would best be taken via the ASoC tree?  Have you sent it to
-> Mark Brown and the ALSA list for review?
-> 
-> g.
+ drivers/i2c/i2c-boardinfo.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Actually only the mc13873 has audio support. I think these IC's really fit 
-better under the MFD tree, but silly me didn't add Samuel Ortiz (MFD 
-maintainer) to this series... so included him now.
-
-Samuel, are you the most appropriate to take this series in and would you like 
-me to resend these patches to you? The thread archive is at [1]. 
-
-Cheers
-Marc
-
-[1] 
-http://lists.arm.linux.org.uk/lurker/message/20110104.053455.45bc5880.en.html
+diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
+index 7e6a63b..3ca2e01 100644
+--- a/drivers/i2c/i2c-boardinfo.c
++++ b/drivers/i2c/i2c-boardinfo.c
+@@ -1,5 +1,5 @@
+ /*
+- * i2c-boardinfo.h - collect pre-declarations of I2C devices
++ * i2c-boardinfo.c - collect pre-declarations of I2C devices
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+-- 
+1.7.2.3
