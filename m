@@ -1,41 +1,246 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: boardinfo: Fix typo in comment
-Date: Sat, 12 Feb 2011 19:01:55 +0100
-Message-ID: <20110212190155.2736c789@endymion.delvare>
-References: <1297531065-5821-1-git-send-email-w.sang@pengutronix.de>
+Subject: Re: i2ctools/i2cset: Remove obsolete means to specify value mask
+Date: Sun, 13 Feb 2011 11:23:05 +0100
+Message-ID: <20110213112305.615c291b@endymion.delvare>
+References: <20110131161945.GA4197@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1297531065-5821-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20110131161945.GA4197-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 12 Feb 2011 18:17:45 +0100, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
-> 
-> Happened to stumble over this today, didn't find any other typos here.
-> 
->  drivers/i2c/i2c-boardinfo.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-boardinfo.c b/drivers/i2c/i2c-boardinfo.c
-> index 7e6a63b..3ca2e01 100644
-> --- a/drivers/i2c/i2c-boardinfo.c
-> +++ b/drivers/i2c/i2c-boardinfo.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * i2c-boardinfo.h - collect pre-declarations of I2C devices
-> + * i2c-boardinfo.c - collect pre-declarations of I2C devices
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License as published by
+Hi Guenter,
 
-Applied, thanks!
+Sorry for the late reply.
+
+On Mon, 31 Jan 2011 08:19:45 -0800, Guenter Roeck wrote:
+> Attached patch removes the obsolete means to specify the value mask from i2cset.
+> It also streamlines and improves parameter validation.
+
+I'm afraid these are too many changes at once for an easy review. I'll
+try still, but ideally this would have been two patches at least.
+
+Overall it looks good and I agree the new code is slightly easier to
+follow than the original code. I didn't really have a problem with the
+original code, but my view is certainly biased as I wrote most of it ;)
+
+I did some tests and did not find any problem.
+
+> --
+> Index: tools/i2cset.c
+> ===================================================================
+> --- tools/i2cset.c	(revision 5911)
+> +++ tools/i2cset.c	(working copy)
+> @@ -156,7 +156,7 @@
+>  	char *end;
+>  	const char *maskp = NULL;
+>  	int res, i2cbus, address, size, file;
+> -	int value, daddress, vmask = 0;
+> +	int value = -1, daddress, vmask = 0;
+
+I'd rather move this initialization to where it is needed (the default
+case in the switch block which reads the values from the command line).
+Pre-initializing variables unconditionally to prevent gcc warnings
+voids the value of these warnings.
+
+>  	char filename[20];
+>  	int pec = 0;
+>  	int flags = 0;
+> @@ -207,74 +207,78 @@
+>  		help();
+>  	}
+>  
+> -	/* check for block data */
+>  	len = 0;
+
+It's confusing why you initialize len here. I think it would make more
+sense to initialize it later, where you set it for block transactions.
+
+> -	if (argc > flags + 5) {
+
+You could add a comment here, saying that you are now checking for the
+mode.
+
+> +	if (argc == flags + 4) {
+> +		/* Implicit "c" */
+> +		size = I2C_SMBUS_BYTE;
+> +	} else if (argc == flags + 5) {
+> +		/* "c", "cp",  or implicit "b" */
+> +		if (!strcmp(argv[flags+4], "c")
+> +		 || !strcmp(argv[flags+4], "cp")) {
+> +			size = I2C_SMBUS_BYTE;
+> +			pec = argv[flags+4][1] == 'p';
+> +		} else {
+> +			size = I2C_SMBUS_BYTE_DATA;
+> +		}
+> +	} else {
+> +		/* All other commands */
+> +		if (strlen(argv[argc-1]) > 2
+> +		    || (strlen(argv[argc-1]) == 2 && argv[argc-1][1] != 'p')) {
+> +			fprintf(stderr, "Error: Invalid argument '%s'\n", argv[argc-1]);
+> +			help();
+> +		}
+>  		switch (argv[argc-1][0]) {
+> +		case 'b': size = I2C_SMBUS_BYTE_DATA; break;
+> +		case 'w': size = I2C_SMBUS_WORD_DATA; break;
+>  		case 's': size = I2C_SMBUS_BLOCK_DATA; break;
+>  		case 'i': size = I2C_SMBUS_I2C_BLOCK_DATA; break;
+>  		default:
+> -			size = 0;
+> -			break;
+> +			fprintf(stderr, "Error: Invalid argument '%s'\n", argv[argc-1]);
+
+The original code complained about an "invalid mode", rather than an
+"invalid argument". I think this wording was more helpful, as it tells
+the user what was expected for the argument.
+
+> +			help();
+>  		}
+> +		pec = argv[argc-1][1] == 'p';
+>  		if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_I2C_BLOCK_DATA) {
+> -			pec = argv[argc-1][1] == 'p';
+>  			if (pec && size == I2C_SMBUS_I2C_BLOCK_DATA) {
+>  				fprintf(stderr, "Error: PEC not supported for I2C block writes!\n");
+>  				help();
+>  			}
+> -			for (len = 0; len < (int)sizeof(block) && len + flags + 5 < argc; len++) {
+> -				value = strtol(argv[flags + len + 4], &end, 0);
+> -				if (*end || value < 0 || value > 0xff) {
+> -                                	fprintf(stderr, "Error: Block data value invalid!\n");
+> -                                	help();
+> -                        	}
+> -				block[len] = value;
+> -			}
+> -			goto dofile;
+> -		}
+> -	}
+> -
+> -	if (argc > flags + 4) {
+> -		if (!strcmp(argv[flags+4], "c")
+> -		 || !strcmp(argv[flags+4], "cp")) {
+> -			size = I2C_SMBUS_BYTE;
+> -			value = -1;
+> -			pec = argv[flags+4][1] == 'p';
+> -		} else {
+> -			size = I2C_SMBUS_BYTE_DATA;
+> -			value = strtol(argv[flags+4], &end, 0);
+> -			if (*end || value < 0) {
+> -				fprintf(stderr, "Error: Data value invalid!\n");
+> +			if (maskp) {
+> +				fprintf(stderr, "Error: Mask not supported for block writes!\n");
+>  				help();
+>  			}
+> +		} else if (argc != flags + 6) {
+> +			fprintf(stderr, "Error: Bad number of arguments!\n");
+> +			help();
+>  		}
+> -	} else {
+> -		size = I2C_SMBUS_BYTE;
+> -		value = -1;
+>  	}
+>  
+> -	if (argc > flags + 5) {
+> -		switch (argv[flags+5][0]) {
+> -		case 'b': size = I2C_SMBUS_BYTE_DATA; break;
+> -		case 'w': size = I2C_SMBUS_WORD_DATA; break;
+> -		default:
+> -			fprintf(stderr, "Error: Invalid mode!\n");
+
+You could add a comment here, saying that you are now reading the
+values from the command line.
+
+> +	switch(size) {
+
+Coding style: missing space before opening parenthesis.
+
+> +	case I2C_SMBUS_BYTE_DATA:
+> +	case I2C_SMBUS_WORD_DATA:
+> +		value = strtol(argv[flags+4], &end, 0);
+> +		if (*end || value < 0) {
+> +			fprintf(stderr, "Error: Data value invalid!\n");
+>  			help();
+>  		}
+> -		pec = argv[flags+5][1] == 'p';
+> -	}
+> -
+> -	/* Old method to provide the value mask, deprecated and no longer
+> -	   documented but still supported for compatibility */
+> -	if (argc > flags + 6) {
+> -		if (maskp) {
+> -			fprintf(stderr, "Error: Data value mask provided twice!\n");
+> +		if ((size == I2C_SMBUS_BYTE_DATA && value > 0xff)
+> +	 	    || (size == I2C_SMBUS_WORD_DATA && value > 0xffff)) {
+> +			fprintf(stderr, "Error: Data value out of range!\n");
+>  			help();
+>  		}
+> -		fprintf(stderr, "Warning: Using deprecated way to set the data value mask!\n");
+> -		fprintf(stderr, "         Please switch to using -m.\n");
+> -		maskp = argv[flags+6];
+> +		break;
+> +	case I2C_SMBUS_BLOCK_DATA:
+> +	case I2C_SMBUS_I2C_BLOCK_DATA:
+> +		for (len = 0; len < (int)sizeof(block) && len + flags + 5 < argc; len++) {
+
+I think it would make sense to count the values first, and complain if
+there are too many of these. Silently ignoring the extra values isn't
+helpful for the user.
+
+> +			value = strtol(argv[flags + len + 4], &end, 0);
+> +			if (*end || value < 0 || value > 0xff) {
+> +                               	fprintf(stderr, "Error: Block data value invalid!\n");
+
+The non-block case has separate error messages for invalid and out of
+range values, we could do the same here for consistency.
+
+OTOH I don't think it adds value to include "block" in the error
+message, it prevents gcc from reusing the other message and doesn't add
+value.
+
+> +                               	help();
+> +                       	}
+
+The indentation of the 3 previous lines is wrong (spaces instead of
+tabs.)
+
+> +			block[len] = value;
+> +		}
+> +		break;
+> +	default:
+> +		break;
+>  	}
+>  
+>  	if (maskp) {
+> @@ -285,13 +289,6 @@
+>  		}
+>  	}
+>  
+> -	if ((size == I2C_SMBUS_BYTE_DATA && value > 0xff)
+> -	 || (size == I2C_SMBUS_WORD_DATA && value > 0xffff)) {
+> -		fprintf(stderr, "Error: Data value out of range!\n");
+> -		help();
+> -	}
+> -
+> -dofile:
+>  	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
+>  	if (file < 0
+>  	 || check_funcs(file, size, pec)
+> Index: CHANGES
+> ===================================================================
+> --- CHANGES	(revision 5911)
+> +++ CHANGES	(working copy)
+> @@ -4,6 +4,8 @@
+>  SVN
+>    i2c-dev.h: Make value arrays const for block write functions
+>    i2cset: Add support for SMBus and I2C block writes
+> +          Removed obsolete method to specify write mask
+> +          More stringent parameter validation
+>  
+>  3.0.3 (2010-12-12)
+>    Makefile: Let the environment set CC and CFLAGS
 
 -- 
 Jean Delvare
