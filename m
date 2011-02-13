@@ -1,7 +1,7 @@
 From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v2 2/6] i2cset: Check number of arguments for block data writes
-Date: Sun, 13 Feb 2011 12:17:22 -0800
-Message-ID: <1297628246-19367-3-git-send-email-guenter.roeck@ericsson.com>
+Subject: [PATCH v2 5/6] i2cset: Replace blanks at beginning of line with tabs
+Date: Sun, 13 Feb 2011 12:17:25 -0800
+Message-ID: <1297628246-19367-6-git-send-email-guenter.roeck@ericsson.com>
 References: <1297628246-19367-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,29 +14,21 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 ---
- tools/i2cset.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+ tools/i2cset.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/tools/i2cset.c b/tools/i2cset.c
-index 8856d71..c59186b 100644
+index ad7da75..33290ef 100644
 --- a/tools/i2cset.c
 +++ b/tools/i2cset.c
-@@ -219,11 +219,15 @@ int main(int argc, char *argv[])
- 		}
- 		if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_I2C_BLOCK_DATA) {
- 			pec = argv[argc-1][1] == 'p';
-+			if (argc > (int)sizeof(block) + flags + 5) {
-+				fprintf(stderr, "Error: Bad number of arguments!\n");
-+				help();
-+			}
- 			if (pec && size == I2C_SMBUS_I2C_BLOCK_DATA) {
- 				fprintf(stderr, "Error: PEC not supported for I2C block writes!\n");
- 				help();
- 			}
--			for (len = 0; len < (int)sizeof(block) && len + flags + 5 < argc; len++) {
-+			for (len = 0; len + flags + 5 < argc; len++) {
- 				value = strtol(argv[flags + len + 4], &end, 0);
- 				if (*end || value < 0 || value > 0xff) {
-                                 	fprintf(stderr, "Error: Block data value invalid!\n");
+@@ -35,7 +35,7 @@ static void help(void) __attribute__ ((noreturn));
+ static void help(void)
+ {
+ 	fprintf(stderr,
+-	        "Usage: i2cset [-f] [-y] [-m MASK] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
++		"Usage: i2cset [-f] [-y] [-m MASK] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
+ 		"  I2CBUS is an integer or an I2C bus name\n"
+ 		"  ADDRESS is an integer (0x03 - 0x77)\n"
+ 		"  MODE is one of:\n"
 -- 
 1.7.0.4
