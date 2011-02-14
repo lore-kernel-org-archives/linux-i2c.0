@@ -1,177 +1,90 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2 6/6] i2cset: Get command/mode before reading data
-Date: Mon, 14 Feb 2011 10:43:41 +0100
-Message-ID: <20110214104341.3791fddb@endymion.delvare>
-References: <1297628246-19367-1-git-send-email-guenter.roeck@ericsson.com>
-	<1297628246-19367-7-git-send-email-guenter.roeck@ericsson.com>
+From: "J, KEERTHY" <j-keerthy@ti.com>
+Subject: Re: [PATCH] i2c-omap: Double clear of ARDY status in IRQ handler
+Date: Mon, 14 Feb 2011 15:31:32 +0530
+Message-ID: <AANLkTinh8Y63jwcfbQKoNC0ZjFNKiMDnAadwzbq765e0@mail.gmail.com>
+References: <1297406718-24147-1-git-send-email-j-keerthy@ti.com>
+	<20110211125059.04f17162.jhnikula@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1297628246-19367-7-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20110211125059.04f17162.jhnikula@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Jarkko Nikula <jhnikula@gmail.com>
+Cc: ben-i2c@fluff.org, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Richard woodruff <r-woodruff2@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 13 Feb 2011 12:17:26 -0800, Guenter Roeck wrote:
-> Get and validate the command/mode parameter for all commands
-> before reading and evaluating actual data.
-> 
-> Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> ---
->  tools/i2cset.c |   99 +++++++++++++++++++++++++++++++-------------------------
->  1 files changed, 55 insertions(+), 44 deletions(-)
-> 
-> diff --git a/tools/i2cset.c b/tools/i2cset.c
-> index 33290ef..d8d51a2 100644
-> --- a/tools/i2cset.c
-> +++ b/tools/i2cset.c
-> @@ -207,18 +207,37 @@ int main(int argc, char *argv[])
->  		help();
->  	}
->  
-> -	/* check for block data */
-> -	len = 0;
-> -	if (argc > flags + 5) {
-> +	/* check for command/mode */
-> +	if (argc == flags + 4) {
-> +		/* Implicit "c" */
-> +		size = I2C_SMBUS_BYTE;
-> +	} else if (argc == flags + 5) {
-> +		/* "c", "cp",  or implicit "b" */
-> +		if (!strcmp(argv[flags+4], "c")
-> +		 || !strcmp(argv[flags+4], "cp")) {
-> +			size = I2C_SMBUS_BYTE;
-> +			pec = argv[flags+4][1] == 'p';
-> +		} else {
-> +			size = I2C_SMBUS_BYTE_DATA;
-> +		}
-> +	} else {
-> +		/* All other commands */
-> +		if (strlen(argv[argc-1]) > 2
-> +		    || (strlen(argv[argc-1]) == 2 && argv[argc-1][1] != 'p')) {
-> +			fprintf(stderr, "Error: Invalid mode '%s'!\n", argv[argc-1]);
-> +			help();
-> +		}
->  		switch (argv[argc-1][0]) {
-> +		case 'b': size = I2C_SMBUS_BYTE_DATA; break;
-> +		case 'w': size = I2C_SMBUS_WORD_DATA; break;
->  		case 's': size = I2C_SMBUS_BLOCK_DATA; break;
->  		case 'i': size = I2C_SMBUS_I2C_BLOCK_DATA; break;
->  		default:
-> -			size = 0;
-> -			break;
-> +			fprintf(stderr, "Error: Invalid mode '%s'!\n", argv[argc-1]);
-> +			help();
->  		}
-> +		pec = argv[argc-1][1] == 'p';
->  		if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_I2C_BLOCK_DATA) {
-> -			pec = argv[argc-1][1] == 'p';
->  			if (argc > (int)sizeof(block) + flags + 5) {
->  				fprintf(stderr, "Error: Bad number of arguments!\n");
->  				help();
-> @@ -231,49 +250,48 @@ int main(int argc, char *argv[])
->  				fprintf(stderr, "Error: Mask not supported for block writes!\n");
->  				help();
->  			}
-> -			for (len = 0; len + flags + 5 < argc; len++) {
-> -				value = strtol(argv[flags + len + 4], &end, 0);
-> -				if (*end || value < 0 || value > 0xff) {
-> -                                	fprintf(stderr, "Error: Block data value invalid!\n");
-> -                                	help();
-> -                        	}
-> -				block[len] = value;
-> -			}
-> -			goto dofile;
->  		} else if (argc != flags + 6) {
->  			fprintf(stderr, "Error: Bad number of arguments!\n");
->  			help();
->  		}
->  	}
->  
-> -	if (argc > flags + 4) {
-> -		if (!strcmp(argv[flags+4], "c")
-> -		 || !strcmp(argv[flags+4], "cp")) {
-> -			size = I2C_SMBUS_BYTE;
-> -			value = -1;
-> -			pec = argv[flags+4][1] == 'p';
-> -		} else {
-> -			size = I2C_SMBUS_BYTE_DATA;
-> -			value = strtol(argv[flags+4], &end, 0);
-> +	len = 0; /* Must always initialize len since it is passed to confirm() */
-> +
-> +	/* read values from command line */
-> +	switch (size) {
-> +	case I2C_SMBUS_BYTE_DATA:
-> +	case I2C_SMBUS_WORD_DATA:
-> +		value = strtol(argv[flags+4], &end, 0);
-> +		if (*end || value < 0) {
-> +			fprintf(stderr, "Error: Data value invalid!\n");
-> +			help();
-> +		}
-> +		if ((size == I2C_SMBUS_BYTE_DATA && value > 0xff)
-> +		    || (size == I2C_SMBUS_WORD_DATA && value > 0xffff)) {
-> +			fprintf(stderr, "Error: Data value out of range!\n");
-> +			help();
-> +		}
-> +		break;
-> +	case I2C_SMBUS_BLOCK_DATA:
-> +	case I2C_SMBUS_I2C_BLOCK_DATA:
-> +		for (len = 0; len + flags + 5 < argc; len++) {
-> +			value = strtol(argv[flags + len + 4], &end, 0);
->  			if (*end || value < 0) {
->  				fprintf(stderr, "Error: Data value invalid!\n");
->  				help();
->  			}
-> +			if (value > 0xff) {
-> +				fprintf(stderr, "Error: Data value out of range!\n");
-> +				help();
-> +			}
-> +			block[len] = value;
->  		}
-> -	} else {
-> -		size = I2C_SMBUS_BYTE;
->  		value = -1;
-> -	}
-> -
-> -	if (argc > flags + 5) {
-> -		switch (argv[flags+5][0]) {
-> -		case 'b': size = I2C_SMBUS_BYTE_DATA; break;
-> -		case 'w': size = I2C_SMBUS_WORD_DATA; break;
-> -		default:
-> -			fprintf(stderr, "Error: Invalid mode!\n");
-> -			help();
-> -		}
-> -		pec = argv[flags+5][1] == 'p';
-> +		break;
+On Fri, Feb 11, 2011 at 4:20 PM, Jarkko Nikula <jhnikula@gmail.com> wro=
+te:
+> On Fri, 11 Feb 2011 12:15:18 +0530
+> Keerthy <j-keerthy@ti.com> wrote:
+>
+>> From: Richard woodruff <r-woodruff2@ti.com>
+>>
+>> ProDB00017052 - ARDY interrupt reasserted after being cleared.
+>> This errata caused intermittent i2c instabilty(1 error per 3 hours) =
+on several
+>> customer platforms. After applying the workaround the intermittent e=
+rrors were
+>> not seen. This is not captured in the usual errata documents.
+>>
+>> The workaround is to have a double clear of ARDY status in
+>> irq handler.
+>>
+>> Signed-off-by: Richard woodruff <r-woodruff2@ti.com>
+>> Signed-off-by: Keerthy <j-keerthy@ti.com>
+>> ---
+>> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A03 ++-
+>> =A01 files changed, 2 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-=
+omap.c
+>> index 445de08..9bcefae 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -851,7 +851,8 @@ complete:
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 OMAP_I2C_STAT_AL)) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, s=
+tat &
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP_I2=
+C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
+TAT_XRDY | OMAP_I2C_STAT_XDR));
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
+TAT_XRDY | OMAP_I2C_STAT_XDR |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
+TAT_ARDY));
+>
+> Most probably this is correct but I was just wondering are there any =
+use
+> for ARDY interrupt (register access ready) anyway and is the ARDY her=
+e
+> caused by omap_i2c_write_reg for STAT_NACK in a few lines above.
+>
+Hello Jarkko,
 
-You could use a fall-through here.
+ARDY interrupt indicates that the previous access has been performed
+and the registers are ready to be accessed again. Coming to the second
+part i checked even when the STAT_NACK bit is set and after
+omap_i2c_write_reg the ARDY bit is not set. So that does not seem to
+be the cause of ARDY getting set.
 
-> +	default:
-> +		value = -1;
-> +		break;
->  	}
->  
->  	if (maskp) {
-> @@ -284,13 +302,6 @@ int main(int argc, char *argv[])
->  		}
->  	}
->  
-> -	if ((size == I2C_SMBUS_BYTE_DATA && value > 0xff)
-> -	 || (size == I2C_SMBUS_WORD_DATA && value > 0xffff)) {
-> -		fprintf(stderr, "Error: Data value out of range!\n");
-> -		help();
-> -	}
-> -
-> -dofile:
->  	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
->  	if (file < 0
 
->  	 || check_funcs(file, size, pec)
+> Just my 2 cents about possible further patches (while this having the
+> priority as fixes the issue).
+>
+> --
+> Jarkko
+>
 
-Other than this minor comment (which you may not even agree with), this
-patch looks OK to me now. Thanks.
 
--- 
-Jean Delvare
+
+--=20
+Regards and Thanks,
+Keerthy
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
