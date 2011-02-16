@@ -1,41 +1,45 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c/busses: Add support for Aeroflex Gaisler I2CMST
- controller
-Date: Wed, 16 Feb 2011 16:15:36 +0100
-Message-ID: <20110216151536.GB6365@pengutronix.de>
-References: <1297859448-6621-1-git-send-email-jan@gaisler.com>
- <20110216142708.GA6365@pengutronix.de>
- <4D5BE45F.5020908@gaisler.com>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] i2c: tegra: Add i2c support
+Date: Wed, 16 Feb 2011 09:37:23 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF03112A5345@HQMAIL01.nvidia.com>
+References: <1297169061-17689-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <4D5B10E3.5030208@fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4D5BE45F.5020908-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <4D5B10E3.5030208-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org" <patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jan,
+On 08/02/11 12:44, Mark Brown wrote:
+> ...
+> +		goto err_iounmap;
+> +	}
+> +	irq = res->start;
+> +
+> +	clk = clk_get(&pdev->dev, NULL);
+> +	if (!clk) {
 
-> I considered that change more complex and did not think it to be
-> worth the trouble for saving ~50 LOC (probably less with added
-> glue). Of course, it could be beneficial to have the algo part
-> shared if there are future updates to it. At the same time I suppose
+This should be:
 
-Or another core pops up using the same algorithm.
+if (!IS_ERR(clk)) {
 
-> that it could be bad to have the algo part shared if the updates are
-> only valid for one of the cores.
+> +		ret = -ENOMEM;
 
-Well, for now it really seems it won't matter much. Plus, we could rip it out
-later if needed. OK, thanks for answering.
+This should probably be:
 
-Regards,
+ret = PTR_ERR(clk);
 
-   Wolfram
+although Ben made some comments in his review re: certain error codes being
+ignored by the higher layers; I'm not sure if that applies here or not.
+
+> +		goto err_release_region;
+> +	}
+> +
 
 -- 
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+nvpublic
