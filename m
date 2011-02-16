@@ -1,125 +1,66 @@
-From: "J, KEERTHY" <j-keerthy@ti.com>
-Subject: Re: [PATCH] i2c-omap: Double clear of ARDY status in IRQ handler
-Date: Wed, 16 Feb 2011 09:30:17 +0530
-Message-ID: <AANLkTikXO0DS3oM8q+pMDhQ9u=b7RrNBh5W3pa1YyLZX@mail.gmail.com>
-References: <1297406718-24147-1-git-send-email-j-keerthy@ti.com>
-	<877hd2xivn.fsf@ti.com>
-	<AANLkTikdDsq0mku6Jakq-cxA3jYYHQ7CL0sjwJ6wzXNh@mail.gmail.com>
-	<20110215235222.GL15795@trinity.fluff.org>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-ocores: register devices on child nodes
+Date: Tue, 15 Feb 2011 21:35:40 -0700
+Message-ID: <20110216043540.GB11684@angua.secretlab.ca>
+References: <1297306314-11483-1-git-send-email-thomas@wytron.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20110215235222.GL15795@trinity.fluff.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-i2c@fluff.org>
-Cc: Kevin Hilman <khilman@ti.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Richard woodruff <r-woodruff2@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1297306314-11483-1-git-send-email-thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 16, 2011 at 5:22 AM, Ben Dooks <ben-i2c@fluff.org> wrote:
-> On Tue, Feb 15, 2011 at 10:13:58AM +0530, J, KEERTHY wrote:
->> On Tue, Feb 15, 2011 at 5:35 AM, Kevin Hilman <khilman@ti.com> wrote=
-:
->> > Keerthy <j-keerthy@ti.com> writes:
->> >
->> >> From: Richard woodruff <r-woodruff2@ti.com>
->> >>
->> >> ProDB00017052 - ARDY interrupt reasserted after being cleared.
->> >
->> >> This errata caused intermittent i2c instabilty(1 error per 3 hour=
-s) on several
->> >> customer platforms. After applying the workaround the intermitten=
-t errors were
->> >> not seen. This is not captured in the usual errata documents.
->> >
->> > This (presumably internal) ProDB number above is meaningless in th=
-e
->> > public changelog. =A0In lieu of a public erratum number, just summ=
-arize
->> > the erratum/instability seen, references to other relevant public
->> > errata (if any) would be useful too. =A0 IOW, "instability" isn't =
-quite
->> > accurate enough. =A0A more detailed description of the problem/ins=
-tability
->> > is needed.
->> >
->>
->> Kevin,
->>
->> Yes the ProDB number is internal. I will remove it from the change l=
-og.
->> I will add a more detailed description of the problem.
->
-> Leave it in a comment at the most, it might be useful, otherwise plea=
-se
-> respond to Kevin's review and then it'll be ready to merge.
->
+On Thu, Feb 10, 2011 at 10:51:54AM +0800, Thomas Chou wrote:
+> This patch registers devices on the devicetree child nodes to the bus.
+> Also removes one trailing whitespace.
+> 
+> Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 
-Ben,
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-I will add a more detailed description.
+Ben, do you want to pick this one up?  Or should I merge it via my
+devicetree branch?
 
---=20
-Regards and Thanks,
-Keerthy
+g.
 
->> --
->> Regards and Thanks,
->> Keerthy
->>
->>
->> > Thanks,
->> >
->> > Kevin
->> >
->> >>
->> >> The workaround is to have a double clear of ARDY status in
->> >> irq handler.
->> >>
->> >> Signed-off-by: Richard woodruff <r-woodruff2@ti.com>
->> >> Signed-off-by: Keerthy <j-keerthy@ti.com>
->> >> ---
->> >> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A03 ++-
->> >> =A01 files changed, 2 insertions(+), 1 deletions(-)
->> >>
->> >> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i=
-2c-omap.c
->> >> index 445de08..9bcefae 100644
->> >> --- a/drivers/i2c/busses/i2c-omap.c
->> >> +++ b/drivers/i2c/busses/i2c-omap.c
->> >> @@ -851,7 +851,8 @@ complete:
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 OMAP_I2C_STAT_AL)) {
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev=
-, stat &
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP=
-_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
->> >> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2=
-C_STAT_XRDY | OMAP_I2C_STAT_XDR));
->> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2=
-C_STAT_XRDY | OMAP_I2C_STAT_XDR |
->> >> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2=
-C_STAT_ARDY));
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_complete_cmd=
-(dev, err);
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return IRQ_HANDLED;
->> >> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> >
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
- in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
-> --
-> Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
->
-> Large Hadron Colada: A large Pina Colada that makes the universe disa=
-ppear.
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+>  drivers/i2c/busses/i2c-ocores.c |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> index ef3bcb1..c63838f 100644
+> --- a/drivers/i2c/busses/i2c-ocores.c
+> +++ b/drivers/i2c/busses/i2c-ocores.c
+> @@ -18,7 +18,7 @@
+>   * - interrupts      : interrupt number
+>   * - regstep         : size of device registers in bytes
+>   * - clock-frequency : frequency of bus clock in Hz
+> - * 
+> + *
+>   * Example:
+>   *
+>   *  i2c0: ocores@a0000000 {
+> @@ -55,6 +55,7 @@
+>  #include <linux/i2c-ocores.h>
+>  #include <linux/slab.h>
+>  #include <linux/io.h>
+> +#include <linux/of_i2c.h>
+>  
+>  struct ocores_i2c {
+>  	void __iomem *base;
+> @@ -347,6 +348,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+>  			i2c_new_device(&i2c->adap, pdata->devices + i);
+>  	}
+>  
+> +	/* Now register all the child nodes */
+> +	of_i2c_register_devices(&i2c->adap);
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.7.4
+> 
