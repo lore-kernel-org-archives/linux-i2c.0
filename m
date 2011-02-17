@@ -1,54 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: make i2c_get_adapter prototype clearer
-Date: Thu, 17 Feb 2011 14:08:02 +0100
-Message-ID: <20110217140802.494ba0e5@endymion.delvare>
+From: Rabin Vincent <rabin@rab.in>
+Subject: Re: platform/i2c busses: pm runtime and system sleep
+Date: Thu, 17 Feb 2011 20:55:06 +0530
+Message-ID: <AANLkTikRUZRh0YnP8nYTKFnFeUiJbK5xKvHHjn_S+gZE@mail.gmail.com>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com> <201012170109.43137.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201012170109.43137.rjw@sisk.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: stern@rowland.harvard.edu, linux-pm@lists.linux-foundation.org, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, khilman@ti.com, magnus.damm@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-Rename the parameter of i2c_get_adapter() to "nr", to make it clear we
-are passing an adapter number and not an adapter ID (which have gone
-away by now.)
+On Fri, Dec 17, 2010 at 05:39, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> On Thursday, December 16, 2010, Rabin Vincent wrote:
+>> There seem to be some differences between the generic ops and the i2=
+c
+>> and platform busses' implementations of the interaction between runt=
+ime
+>> PM and system sleep:
+>>
+>> =A0 (1) The platform bus does not implement the
+>> =A0 =A0 =A0 don't-call-pm->suspend()-if pm_runtime_suspended()-retur=
+ns-true
+>> =A0 =A0 =A0 functionality implemented by the generic ops and i2c.
+>>
+>> =A0 (2) Both I2C and platform do not set the device as active when a
+>> =A0 =A0 =A0 pm->resume callback exists and it succeeds.
+=2E..
+>> Are these divergences from the generic ops to be considered as bugs?
+>
+> I think so. =A0I'm not sure about (1), because someone may already de=
+pend on
+> that behavior, but (2) looks like a bug to me.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/i2c-core.c |    4 ++--
- include/linux/i2c.h    |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Revisiting these points again.  (2) has since been corrected for i2c,
+but platform does not do (1) and (2).
 
---- linux-2.6.38-rc5.orig/drivers/i2c/i2c-core.c	2011-01-19 14:44:23.000000000 +0100
-+++ linux-2.6.38-rc5/drivers/i2c/i2c-core.c	2011-02-17 13:50:32.000000000 +0100
-@@ -1583,12 +1583,12 @@ i2c_new_probed_device(struct i2c_adapter
- }
- EXPORT_SYMBOL_GPL(i2c_new_probed_device);
- 
--struct i2c_adapter *i2c_get_adapter(int id)
-+struct i2c_adapter *i2c_get_adapter(int nr)
- {
- 	struct i2c_adapter *adapter;
- 
- 	mutex_lock(&core_lock);
--	adapter = idr_find(&i2c_adapter_idr, id);
-+	adapter = idr_find(&i2c_adapter_idr, nr);
- 	if (adapter && !try_module_get(adapter->owner))
- 		adapter = NULL;
- 
---- linux-2.6.38-rc5.orig/include/linux/i2c.h	2011-02-17 13:49:41.000000000 +0100
-+++ linux-2.6.38-rc5/include/linux/i2c.h	2011-02-17 13:50:16.000000000 +0100
-@@ -448,7 +448,7 @@ extern void i2c_release_client(struct i2
- extern void i2c_clients_command(struct i2c_adapter *adap,
- 				unsigned int cmd, void *arg);
- 
--extern struct i2c_adapter *i2c_get_adapter(int id);
-+extern struct i2c_adapter *i2c_get_adapter(int nr);
- extern void i2c_put_adapter(struct i2c_adapter *adap);
- 
- 
+I've submitted a patch today to convert the AMBA bus to support pm-ops,
+and it was convenient to just use the GENERIC_SUBSYS_PM_OPS.  But some
+ARM SoCs have a combination of AMBA and platform devices for the on-chi=
+p
+devices so having different behaviour between the interaction of
+runtime-pm and system suspend callbacks does not seem like an ideal
+situation, and would only serve to confuse driver writers.  So, should =
+I
+just not use GENERIC_SUBSYS_PM_OPS in the AMBA bus but instead open-cod=
+e
+the rountines to make it work like platform?
 
+This will solve the platform vs AMBA bus, but shouldn't we really be
+aiming for consistent behaviour between these and the other busses such
+as I2C and SPI, which are also usually commonly used on the same
+platforms and are using GENERIC_PM_OPS?
 
--- 
-Jean Delvare
+Should we be auditing all platform drivers and then switch platform to
+the GENERIC_PM_OPS?
+
+Or should the two points (1) and (2) be not handled in the bus at all
+and be left to individual drivers (in which case we should audit i2c an=
+d
+spi and change GENERIC_PM_OPS)?
