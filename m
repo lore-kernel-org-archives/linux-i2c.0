@@ -1,48 +1,54 @@
-From: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] NFC: PN544: Add missing regulator.
-Date: Thu, 17 Feb 2011 14:09:52 +0200
-Message-ID: <1297944592-21784-1-git-send-email-matti.j.aaltonen@nokia.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: make i2c_get_adapter prototype clearer
+Date: Thu, 17 Feb 2011 14:08:02 +0100
+Message-ID: <20110217140802.494ba0e5@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: "Matti J. Aaltonen" <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add regulator VSim to the regulator array.
+Rename the parameter of i2c_get_adapter() to "nr", to make it clear we
+are passing an adapter number and not an adapter ID (which have gone
+away by now.)
 
-Signed-off-by: Matti J. Aaltonen <matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/nfc/pn544.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ drivers/i2c/i2c-core.c |    4 ++--
+ include/linux/i2c.h    |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nfc/pn544.c b/drivers/nfc/pn544.c
-index bae6472..724f65d 100644
---- a/drivers/nfc/pn544.c
-+++ b/drivers/nfc/pn544.c
-@@ -60,7 +60,7 @@ enum pn544_irq {
- struct pn544_info {
- 	struct miscdevice miscdev;
- 	struct i2c_client *i2c_dev;
--	struct regulator_bulk_data regs[2];
-+	struct regulator_bulk_data regs[3];
+--- linux-2.6.38-rc5.orig/drivers/i2c/i2c-core.c	2011-01-19 14:44:23.000000000 +0100
++++ linux-2.6.38-rc5/drivers/i2c/i2c-core.c	2011-02-17 13:50:32.000000000 +0100
+@@ -1583,12 +1583,12 @@ i2c_new_probed_device(struct i2c_adapter
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_probed_device);
  
- 	enum pn544_state state;
- 	wait_queue_head_t read_wait;
-@@ -74,6 +74,7 @@ struct pn544_info {
+-struct i2c_adapter *i2c_get_adapter(int id)
++struct i2c_adapter *i2c_get_adapter(int nr)
+ {
+ 	struct i2c_adapter *adapter;
  
- static const char reg_vdd_io[]	= "Vdd_IO";
- static const char reg_vbat[]	= "VBat";
-+static const char reg_vsim[]	= "VSim";
+ 	mutex_lock(&core_lock);
+-	adapter = idr_find(&i2c_adapter_idr, id);
++	adapter = idr_find(&i2c_adapter_idr, nr);
+ 	if (adapter && !try_module_get(adapter->owner))
+ 		adapter = NULL;
  
- /* sysfs interface */
- static ssize_t pn544_test(struct device *dev,
-@@ -740,6 +741,7 @@ static int __devinit pn544_probe(struct i2c_client *client,
+--- linux-2.6.38-rc5.orig/include/linux/i2c.h	2011-02-17 13:49:41.000000000 +0100
++++ linux-2.6.38-rc5/include/linux/i2c.h	2011-02-17 13:50:16.000000000 +0100
+@@ -448,7 +448,7 @@ extern void i2c_release_client(struct i2
+ extern void i2c_clients_command(struct i2c_adapter *adap,
+ 				unsigned int cmd, void *arg);
  
- 	info->regs[0].supply = reg_vdd_io;
- 	info->regs[1].supply = reg_vbat;
-+	info->regs[2].supply = reg_vsim;
- 	r = regulator_bulk_get(&client->dev, ARRAY_SIZE(info->regs),
- 				 info->regs);
- 	if (r < 0)
+-extern struct i2c_adapter *i2c_get_adapter(int id);
++extern struct i2c_adapter *i2c_get_adapter(int nr);
+ extern void i2c_put_adapter(struct i2c_adapter *adap);
+ 
+ 
+
+
 -- 
-1.6.1.3
+Jean Delvare
