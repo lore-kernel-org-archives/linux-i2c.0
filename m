@@ -1,35 +1,70 @@
-From: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: How to deal with pending signals in an i2c bus driver in a correct manner?
-Date: Thu, 17 Feb 2011 17:44:35 +0100
-Message-ID: <201102171744.35972.jbe@pengutronix.de>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v2] i2c-omap: Double clear of ARDY status in IRQ handler
+Date: Thu, 17 Feb 2011 16:08:43 -0800
+Message-ID: <20110218000843.GP20795@atomide.com>
+References: <1297832056-28142-1-git-send-email-j-keerthy@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1297832056-28142-1-git-send-email-j-keerthy@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Keerthy <j-keerthy@ti.com>
+Cc: ben-i2c@fluff.org, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Richard woodruff <r-woodruff2@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+* Keerthy <j-keerthy@ti.com> [110215 20:53]:
+> From: Richard woodruff <r-woodruff2@ti.com>
+> 
+> This errata occurs when the ARDY interrupt generation is enabled.
+> At the begining of every new transaction the ARDY interrupt is cleared.
+> 
+> On continuous i2c transactions where after clearing the ARDY bit from
+> I2C_STAT register (clearing the interrupt), the IRQ line is reasserted and the
+> I2C_STAT[ARDY] bit set again on 1. In fact, the ARDY status bit is not cleared
+> at the write access to I2C_STAT[ARDY] and only the IRQ line is deasserted and
+> then reasserted. This is not captured in the usual errata documents.
+> 
+> The workaround is to have a double clear of ARDY status in irq handler.
 
-some i2c bus drivers are checking if a signal is pending and aborting a 
-current i2c transfer. This seems reasonable to go back to userland as fast as 
-possible.
-But yesterday I tried to run a simple 'cat' command on a device node which 
-does its transfers via an i2c bus. When the command receives a SIGINT, 
-someone (kernel? glibc?) closes the open file descriptor. This calls the 
-device's close routine, but as this point of time the signal is still pending 
-and no further i2c communication is possible ... the driver fails to shutdown 
-the i2c device.
-What is the correct or expected behaviour of an i2c bus driver when a signal 
-is pending?
+I'll add this to omap-testing for few days and then if no issue Ben
+can merge this.
 
-jbe
+Regards,
 
--- 
-Pengutronix e.K.                              | Juergen Beisert             |
-Linux Solutions for Science and Industry      | Phone: +49-8766-939 228     |
-Vertretung Sued/Muenchen, Germany             | Fax:   +49-5121-206917-5555 |
-Amtsgericht Hildesheim, HRA 2686              | http://www.pengutronix.de/  |
+Tony
+ 
+> Signed-off-by: Richard woodruff <r-woodruff2@ti.com>
+> Signed-off-by: Keerthy <j-keerthy@ti.com>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index b605ff3..5b35cf4 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -847,11 +847,15 @@ complete:
+>  			dev_err(dev->dev, "Arbitration lost\n");
+>  			err |= OMAP_I2C_STAT_AL;
+>  		}
+> +		/* 
+> +		 * ProDB0017052: Clear ARDY bit twice
+> +		 */ 
+>  		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
+>  					OMAP_I2C_STAT_AL)) {
+>  			omap_i2c_ack_stat(dev, stat &
+>  				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+> -				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+> +				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
+> +				OMAP_I2C_STAT_ARDY));
+>  			omap_i2c_complete_cmd(dev, err);
+>  			return IRQ_HANDLED;
+>  		}
+> -- 
+> 1.7.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
