@@ -1,100 +1,150 @@
-From: "J, KEERTHY" <j-keerthy-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-omap: Double clear of ARDY status in IRQ handler
-Date: Fri, 18 Feb 2011 07:37:35 +0530
-Message-ID: <AANLkTin+g7RcMvuGY8FgFuxA+AWqyrhdZQQ+-PfGC1oQ@mail.gmail.com>
-References: <1297832056-28142-1-git-send-email-j-keerthy@ti.com>
-	<20110218000843.GP20795@atomide.com>
+From: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>
+Subject: Re: platform/i2c busses: pm runtime and system sleep
+Date: Fri, 18 Feb 2011 08:18:48 +0530
+Message-ID: <AANLkTinsPqFcodH0w7LQeFEY+amodNH4CneRCRhhbKaz@mail.gmail.com>
+References: <AANLkTinyDE3OxKup_aqsN8HJH_r5LcwkP17OtuMRpACx@mail.gmail.com>
+ <201012170109.43137.rjw@sisk.pl> <AANLkTikRUZRh0YnP8nYTKFnFeUiJbK5xKvHHjn_S+gZE@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110218000843.GP20795-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <AANLkTikRUZRh0YnP8nYTKFnFeUiJbK5xKvHHjn_S+gZE-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, khilman-l0cyMroinI0@public.gmane.org, magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 18, 2011 at 5:38 AM, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> wrote=
-:
-> * Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org> [110215 20:53]:
->> From: Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
->>
->> This errata occurs when the ARDY interrupt generation is enabled.
->> At the begining of every new transaction the ARDY interrupt is clear=
-ed.
->>
->> On continuous i2c transactions where after clearing the ARDY bit fro=
-m
->> I2C_STAT register (clearing the interrupt), the IRQ line is reassert=
-ed and the
->> I2C_STAT[ARDY] bit set again on 1. In fact, the ARDY status bit is n=
-ot cleared
->> at the write access to I2C_STAT[ARDY] and only the IRQ line is deass=
-erted and
->> then reasserted. This is not captured in the usual errata documents.
->>
->> The workaround is to have a double clear of ARDY status in irq handl=
-er.
+On Thu, Feb 17, 2011 at 20:55, Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org> wrote:
+> This will solve the platform vs AMBA bus, but shouldn't we really be
+> aiming for consistent behaviour between these and the other busses such
+> as I2C and SPI, which are also usually commonly used on the same
+> platforms and are using GENERIC_PM_OPS?
 >
-> I'll add this to omap-testing for few days and then if no issue Ben
-> can merge this.
+> Should we be auditing all platform drivers and then switch platform to
+> the GENERIC_PM_OPS?
+>
+> Or should the two points (1) and (2) be not handled in the bus at all
+> and be left to individual drivers (in which case we should audit i2c and
+> spi and change GENERIC_PM_OPS)?
 
-Thanks Tony.
->
-> Regards,
->
-> Tony
->
->> Signed-off-by: Richard woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Keerthy <j-keerthy-l0cyMroinI0@public.gmane.org>
->> ---
->> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A06 +++++-
->> =A01 files changed, 5 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-=
-omap.c
->> index b605ff3..5b35cf4 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -847,11 +847,15 @@ complete:
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dev->dev, "Arbit=
-ration lost\n");
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 err |=3D OMAP_I2C_STAT_A=
-L;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> + =A0 =A0 =A0 =A0 =A0 =A0 /*
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0* ProDB0017052: Clear ARDY bit twice
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2=
-C_STAT_NACK |
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 OMAP_I2C_STAT_AL)) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, s=
-tat &
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP_I2=
-C_STAT_RRDY | OMAP_I2C_STAT_RDR |
->> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
-TAT_XRDY | OMAP_I2C_STAT_XDR));
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
-TAT_XRDY | OMAP_I2C_STAT_XDR |
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
-TAT_ARDY));
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_complete_cmd(de=
-v, err);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return IRQ_HANDLED;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->> --
->> 1.7.0.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
- in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+How about something like the below?  If we have something like this, we
+can just switch platform to GENERIC_PM_OPS and add the
+pm_runtime_want_interaction() (or something better named) call to the
+i2c and spi drivers using runtime PM.
 
+diff --git a/drivers/base/power/generic_ops.c b/drivers/base/power/generic_ops.c
+index 42f97f9..c2a3b63 100644
+--- a/drivers/base/power/generic_ops.c
++++ b/drivers/base/power/generic_ops.c
+@@ -87,7 +87,10 @@ static int __pm_generic_call(struct device *dev, int event)
+ 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+ 	int (*callback)(struct device *);
 
+-	if (!pm || pm_runtime_suspended(dev))
++	if (!pm)
++		return 0;
++
++	if (device_want_interaction(dev) && pm_runtime_suspended(dev))
+ 		return 0;
 
---=20
-Regards and Thanks,
-Keerthy
+ 	switch (event) {
+@@ -185,7 +188,7 @@ static int __pm_generic_resume(struct device *dev,
+int event)
+ 		return 0;
+
+ 	ret = callback(dev);
+-	if (!ret && pm_runtime_enabled(dev)) {
++	if (!ret && device_want_interaction(dev) && pm_runtime_enabled(dev)) {
+ 		pm_runtime_disable(dev);
+ 		pm_runtime_set_active(dev);
+ 		pm_runtime_enable(dev);
+diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
+index 42615b4..2b8a099 100644
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -1069,6 +1069,30 @@ void pm_runtime_allow(struct device *dev)
+ EXPORT_SYMBOL_GPL(pm_runtime_allow);
+
+ /**
++ * pm_runtime_want_interaction - Enable interaction between system sleep
++ *				 and runtime PM callbacks at the bus/subsystem
++ *				 level.
++ * @dev: Device to handle
++ *
++ * Set the power.want_interaction flage, which tells the generic PM subsystem
++ * ops that the following actions should be done during system suspend/resume:
++ *
++ * - If the device has been runtime suspended, the driver's
++ *   suspend() handler will not be invoked.
++ *
++ * - If the device has a resume() pm callback, and the resume()
++ *   callback returns success on system resume, the device's
++ *   runtime PM status will be set to active.
++ */
++void pm_runtime_want_interaction(struct device *dev)
++{
++	spin_lock_irq(&dev->power.lock);
++	dev->power.want_interaction = 1;
++	spin_unlock_irq(&dev->power.lock);
++}
++EXPORT_SYMBOL_GPL(pm_runtime_want_interaction);
++
++/**
+  * pm_runtime_no_callbacks - Ignore run-time PM callbacks for a device.
+  * @dev: Device to handle.
+  *
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index dd9c7ab..b9bcfb9 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -450,6 +450,7 @@ struct dev_pm_info {
+ 	unsigned int		irq_safe:1;
+ 	unsigned int		use_autosuspend:1;
+ 	unsigned int		timer_autosuspends:1;
++	unsigned int		want_interaction:1;
+ 	enum rpm_request	request;
+ 	enum rpm_status		runtime_status;
+ 	int			runtime_error;
+diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
+index d34f067..a0e081b 100644
+--- a/include/linux/pm_runtime.h
++++ b/include/linux/pm_runtime.h
+@@ -44,6 +44,7 @@ extern void pm_runtime_irq_safe(struct device *dev);
+ extern void __pm_runtime_use_autosuspend(struct device *dev, bool use);
+ extern void pm_runtime_set_autosuspend_delay(struct device *dev, int delay);
+ extern unsigned long pm_runtime_autosuspend_expiration(struct device *dev);
++static void pm_runtime_want_system_sleep_interaction(struct device *dev);
+
+ static inline bool pm_children_suspended(struct device *dev)
+ {
+@@ -66,6 +67,11 @@ static inline void pm_runtime_put_noidle(struct device *dev)
+ 	atomic_add_unless(&dev->power.usage_count, -1, 0);
+ }
+
++static inline bool device_want_interaction(struct device *dev)
++{
++	return dev->power.want_interaction;
++}
++
+ static inline bool device_run_wake(struct device *dev)
+ {
+ 	return dev->power.run_wake;
+@@ -122,6 +128,7 @@ static inline bool pm_children_suspended(struct
+device *dev) { return false; }
+ static inline void pm_suspend_ignore_children(struct device *dev, bool en) {}
+ static inline void pm_runtime_get_noresume(struct device *dev) {}
+ static inline void pm_runtime_put_noidle(struct device *dev) {}
++static inline bool device_want_interaction(struct device *dev) {
+return false; }
+ static inline bool device_run_wake(struct device *dev) { return false; }
+ static inline void device_set_run_wake(struct device *dev, bool enable) {}
+ static inline bool pm_runtime_suspended(struct device *dev) { return false; }
+@@ -132,6 +139,7 @@ static inline int
+pm_generic_runtime_suspend(struct device *dev) { return 0; }
+ static inline int pm_generic_runtime_resume(struct device *dev) { return 0; }
+ static inline void pm_runtime_no_callbacks(struct device *dev) {}
+ static inline void pm_runtime_irq_safe(struct device *dev) {}
++static inline void pm_runtime_want_system_sleep_interaction(struct
+device *dev) {}
+
+ static inline void pm_runtime_mark_last_busy(struct device *dev) {}
+ static inline void __pm_runtime_use_autosuspend(struct device *dev,
