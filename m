@@ -1,80 +1,52 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/3] i2c: Export i2c_for_each_dev
-Date: Sun, 20 Feb 2011 15:08:09 +0100
-Message-ID: <20110220150809.0ab84224@endymion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: Minor fixes to upgrading-clients document
+Date: Sun, 20 Feb 2011 15:08:38 +0100
+Message-ID: <20110220140837.GA14786@pengutronix.de>
+References: <20110220150408.03e9a674@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20110220150408.03e9a674-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Introduce i2c_for_each_dev(), an i2c device iterator with proper
-locking for use by i2c-dev. This is needed so that we can get rid of
-the attach_adapter and detach_adapter legacy callback functions.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/i2c-core.c |   20 ++++++++++++++------
- include/linux/i2c.h    |    2 ++
- 2 files changed, 16 insertions(+), 6 deletions(-)
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- linux-2.6.38-rc5.orig/drivers/i2c/i2c-core.c	2011-02-20 15:01:30.000000000 +0100
-+++ linux-2.6.38-rc5/drivers/i2c/i2c-core.c	2011-02-20 15:04:47.000000000 +0100
-@@ -1093,6 +1093,18 @@ EXPORT_SYMBOL(i2c_del_adapter);
- 
- /* ------------------------------------------------------------------------- */
- 
-+int i2c_for_each_dev(void *data, int (*fn)(struct device *, void *))
-+{
-+	int res;
-+
-+	mutex_lock(&core_lock);
-+	res = bus_for_each_dev(&i2c_bus_type, NULL, data, fn);
-+	mutex_unlock(&core_lock);
-+
-+	return res;
-+}
-+EXPORT_SYMBOL_GPL(i2c_for_each_dev);
-+
- static int __process_new_driver(struct device *dev, void *data)
- {
- 	if (dev->type != &i2c_adapter_type)
-@@ -1136,9 +1148,7 @@ int i2c_register_driver(struct module *o
- 
- 	INIT_LIST_HEAD(&driver->clients);
- 	/* Walk the adapters that are already present */
--	mutex_lock(&core_lock);
--	bus_for_each_dev(&i2c_bus_type, NULL, driver, __process_new_driver);
--	mutex_unlock(&core_lock);
-+	i2c_for_each_dev(driver, __process_new_driver);
- 
- 	return 0;
- }
-@@ -1158,9 +1168,7 @@ static int __process_removed_driver(stru
-  */
- void i2c_del_driver(struct i2c_driver *driver)
- {
--	mutex_lock(&core_lock);
--	bus_for_each_dev(&i2c_bus_type, NULL, driver, __process_removed_driver);
--	mutex_unlock(&core_lock);
-+	i2c_for_each_dev(driver, __process_removed_driver);
- 
- 	driver_unregister(&driver->driver);
- 	pr_debug("i2c-core: driver [%s] unregistered\n", driver->driver.name);
---- linux-2.6.38-rc5.orig/include/linux/i2c.h	2011-02-20 15:04:30.000000000 +0100
-+++ linux-2.6.38-rc5/include/linux/i2c.h	2011-02-20 15:04:47.000000000 +0100
-@@ -397,6 +397,8 @@ i2c_parent_is_i2c_adapter(const struct i
- 		return NULL;
- }
- 
-+int i2c_for_each_dev(void *data, int (*fn)(struct device *, void *));
-+
- /* Adapter locking functions, exported for shared pin cases */
- void i2c_lock_adapter(struct i2c_adapter *);
- void i2c_unlock_adapter(struct i2c_adapter *);
+On Sun, Feb 20, 2011 at 03:04:08PM +0100, Jean Delvare wrote:
 
+> * Typical legacy drivers implemented method .detach_client, not
+>   .detach_adapter.
+> * Drop all references to __devexit, as i2c drivers shouldn't use it.
 
--- 
-Jean Delvare
+Even not in remove()? 40 out of 84 drivers are doing so.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAk1hIGUACgkQD27XaX1/VRvi+wCeJbZ179DGti0cZQVXa4EZ9QGs
+yxgAoLnLKsAKa2aM2182hKOXf3rzzOV5
+=q6sM
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--
