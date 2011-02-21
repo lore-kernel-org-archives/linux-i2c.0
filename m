@@ -1,59 +1,103 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-ocores: register devices on child nodes
-Date: Sun, 20 Feb 2011 20:40:49 -0700
-Message-ID: <AANLkTi=sQ2oS4qbfHtKG52KnDcpqkijQx_YXoAbctNzL@mail.gmail.com>
-References: <1297306314-11483-1-git-send-email-thomas@wytron.com.tw>
-	<20110216043540.GB11684@angua.secretlab.ca>
-	<20110220232808.GL15795@trinity.fluff.org>
+From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: tegra: Add i2c support
+Date: Sun, 20 Feb 2011 20:37:29 -0800
+Message-ID: <AANLkTi=ia1FGur6mrVuE2rOBGjjRYZ3A41mTq3qOowmS@mail.gmail.com>
+References: <AANLkTim0X=gUwYJmR+EAYjGamiJb7tgiVEjwqCEF0-L0@mail.gmail.com>
+	<1298250861-27094-1-git-send-email-ccross@android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20110220232808.GL15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
-	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1298250861-27094-1-git-send-email-ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Feb 20, 2011 at 4:28 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Tue, Feb 15, 2011 at 09:35:40PM -0700, Grant Likely wrote:
->> On Thu, Feb 10, 2011 at 10:51:54AM +0800, Thomas Chou wrote:
->> > This patch registers devices on the devicetree child nodes to the bus.
->> > Also removes one trailing whitespace.
->> >
->> > Signed-off-by: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
->>
->> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
->>
->> Ben, do you want to pick this one up? =A0Or should I merge it via my
->> devicetree branch?
->
-> If it applies to the mainline kernel, then I'll take it.
+Hi,
 
-It should apply to mainline no problem.
-
-g.
-
->
-> --
-> Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
->
-> Large Hadron Colada: A large Pina Colada that makes the universe disappea=
-r.
->
->
+Just a couple of minor nits. I wouldn't worry about respinning just
+for these comments, but if you end up doing it for other feedback, see
+below.
 
 
+-Olof
 
--- =
+On Sun, Feb 20, 2011 at 5:14 PM, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org> wrote=
+:
 
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
+tegra.c
+> new file mode 100644
+> index 0000000..3921f66
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -0,0 +1,700 @@
+> +/*
+> + * drivers/i2c/busses/i2c-tegra.c
+> + *
+> + * Copyright (C) 2010 Google, Inc.
+
+2011?
+
+[..]
+
+> +/*
+> + * i2c_writel and i2c_readl will offset the register if necessary to=
+ talk
+> + * to the I2C block inside the DVC block
+> + */
+> +static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_de=
+v,
+> + =A0 =A0 =A0 unsigned long reg)
+> +{
+> + =A0 =A0 =A0 if (i2c_dev->is_dvc)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 reg +=3D (reg >=3D I2C_TX_FIFO) ? 0x10 =
+: 0x40;
+> + =A0 =A0 =A0 return reg;
+> +}
+> +
+> +static void i2c_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+> + =A0 =A0 =A0 unsigned long reg)
+> +{
+> + =A0 =A0 =A0 writel(val, i2c_dev->base + tegra_i2c_reg_addr(i2c_dev,=
+ reg));
+> +}
+> +
+> +static u32 i2c_readl(struct tegra_i2c_dev *i2c_dev, unsigned long re=
+g)
+> +{
+> + =A0 =A0 =A0 return readl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev=
+, reg));
+> +}
+> +
+> +static void i2c_writesl(struct tegra_i2c_dev *i2c_dev, void *data,
+> + =A0 =A0 =A0 unsigned long reg, int len)
+> +{
+> + =A0 =A0 =A0 writesl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg=
+), data, len);
+> +}
+> +
+> +static void i2c_readsl(struct tegra_i2c_dev *i2c_dev, void *data,
+> + =A0 =A0 =A0 unsigned long reg, int len)
+> +{
+> + =A0 =A0 =A0 readsl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg)=
+, data, len);
+> +}
+
+
+All of the above pass in i2c_dev to tegra_i2c_reg_addr, might as well
+do the base addition in there.
+
+> diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
+> new file mode 100644
+> index 0000000..9c85da4
+> --- /dev/null
+> +++ b/include/linux/i2c-tegra.h
+> @@ -0,0 +1,25 @@
+> +/*
+> + * drivers/i2c/busses/i2c-tegra.c
+> + *
+> + * Copyright (C) 2010 Google, Inc.
+
+2011?
