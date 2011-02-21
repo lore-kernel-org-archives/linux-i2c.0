@@ -1,103 +1,228 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: tegra: Add i2c support
-Date: Sun, 20 Feb 2011 20:37:29 -0800
-Message-ID: <AANLkTi=ia1FGur6mrVuE2rOBGjjRYZ3A41mTq3qOowmS@mail.gmail.com>
-References: <AANLkTim0X=gUwYJmR+EAYjGamiJb7tgiVEjwqCEF0-L0@mail.gmail.com>
-	<1298250861-27094-1-git-send-email-ccross@android.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: xiic: Add OF support for Xilinx i2c bus interface
+Date: Mon, 21 Feb 2011 09:10:11 -0700
+Message-ID: <AANLkTi=czAa6TQsVvGRg+Uz0BMnriUL5==6ehEym8e3b@mail.gmail.com>
+References: <1298290059-9552-1-git-send-email-monstr@monstr.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1298250861-27094-1-git-send-email-ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1298290059-9552-1-git-send-email-monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, john.williams-g5w7nrANp4BDPfheJLI6IQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Mon, Feb 21, 2011 at 5:07 AM, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org> wrote:
+> Add OF support to Xilinx i2c bus interface.
+> It is used on Microblaze systems.
+>
+> Signed-off-by: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
 
-Just a couple of minor nits. I wouldn't worry about respinning just
-for these comments, but if you end up doing it for other feedback, see
-below.
+Hi Michal,
+
+Don't forget to cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org for i2c driver changes.
+
+The majority of this patch isn't needed.  Platform drivers can easily
+handle both dt and non-dt usage at runtime using the same .probe and
+.remove hooks.  All you should need to do is add an of_match_table to
+the existing platform driver and set the of node pointer like this:
+i2c->adap.dev.of_node =3D of_node_get(op->dev.of_node);  You'll also
+need to fix the probe routine to *not* bail if it doesn't get a
+platform data pointer.  The dt support code takes care of populating
+the platform_device resource structure so that the normal method of
+obtaining base address and irq works.
+
+g.
 
 
--Olof
+> ---
+> =A0drivers/i2c/busses/i2c-xiic.c | =A0111 +++++++++++++++++++++++++++++++=
++++++++++-
+> =A01 files changed, 109 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index a9c419e..22951a3 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -2,6 +2,8 @@
+> =A0* i2c-xiic.c
+> =A0* Copyright (c) 2002-2007 Xilinx Inc.
+> =A0* Copyright (c) 2009-2010 Intel Corporation
+> + * Copyright (c) 2010-2011 Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+> + * Copyright (c) 2010-2011 PetaLogix
+> =A0*
+> =A0* This program is free software; you can redistribute it and/or modify
+> =A0* it under the terms of the GNU General Public License version 2 as
+> @@ -41,6 +43,13 @@
+> =A0#include <linux/io.h>
+> =A0#include <linux/slab.h>
+>
+> +#ifdef CONFIG_OF
+> +#include <linux/of.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_i2c.h>
+> +#include <linux/of_address.h>
+> +#endif
 
-On Sun, Feb 20, 2011 at 5:14 PM, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org> wrote=
-:
+#ifdef CONFIG_OF should no longer needed around the device tree
+headers (if you find that it is, then it is a bug that should be
+reported and fixed)
 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
-tegra.c
-> new file mode 100644
-> index 0000000..3921f66
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -0,0 +1,700 @@
-> +/*
-> + * drivers/i2c/busses/i2c-tegra.c
-> + *
-> + * Copyright (C) 2010 Google, Inc.
-
-2011?
-
-[..]
-
-> +/*
-> + * i2c_writel and i2c_readl will offset the register if necessary to=
- talk
-> + * to the I2C block inside the DVC block
-> + */
-> +static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_de=
-v,
-> + =A0 =A0 =A0 unsigned long reg)
+> +
+> =A0#define DRIVER_NAME "xiic-i2c"
+>
+> =A0enum xilinx_i2c_state {
+> @@ -426,7 +435,7 @@ static void xiic_process(struct xiic_i2c *i2c)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0xiic_wakeup(i2c, STATE_ERR=
+OR);
+>
+> =A0 =A0 =A0 =A0} else if (pend & (XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_=
+HALF_MASK)) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Transmit register/FIFO is empty or =BD e=
+mpty */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Transmit register/FIFO is empty or 1/2 e=
+mpty */
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0clr =3D pend &
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(XIIC_INTR_TX_EMPTY_MASK |=
+ XIIC_INTR_TX_HALF_MASK);
+> @@ -687,7 +696,7 @@ static struct i2c_adapter xiic_adapter =3D {
+> =A0 =A0 =A0 =A0.algo =A0 =A0 =A0 =A0 =A0 =3D &xiic_algorithm,
+> =A0};
+>
+> -
+> +#ifndef CONFIG_OF
+> =A0static int __devinit xiic_i2c_probe(struct platform_device *pdev)
+> =A0{
+> =A0 =A0 =A0 =A0struct xiic_i2c *i2c;
+> @@ -808,6 +817,104 @@ static struct platform_driver xiic_i2c_driver =3D {
+> =A0 =A0 =A0 =A0},
+> =A0};
+>
+> +#else
+> +static int __devinit xiic_i2c_of_probe(struct platform_device *op)
 > +{
-> + =A0 =A0 =A0 if (i2c_dev->is_dvc)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 reg +=3D (reg >=3D I2C_TX_FIFO) ? 0x10 =
-: 0x40;
-> + =A0 =A0 =A0 return reg;
+> + =A0 =A0 =A0 struct xiic_i2c *i2c;
+> + =A0 =A0 =A0 int result =3D 0;
+> +
+> + =A0 =A0 =A0 i2c =3D kzalloc(sizeof(*i2c), GFP_KERNEL);
+> + =A0 =A0 =A0 if (!i2c)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+> +
+> + =A0 =A0 =A0 i2c->dev =3D &op->dev; /* for debug and error output */
+> +
+> + =A0 =A0 =A0 spin_lock_init(&i2c->lock);
+> + =A0 =A0 =A0 init_waitqueue_head(&i2c->wait);
+> +
+> + =A0 =A0 =A0 i2c->base =3D of_iomap(op->dev.of_node, 0);
+> + =A0 =A0 =A0 if (!i2c->base) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(i2c->dev, "failed to map controller=
+\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 result =3D -ENOMEM;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail_map;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 i2c->irq =3D irq_of_parse_and_map(op->dev.of_node, 0);
+> + =A0 =A0 =A0 if (i2c->irq) { /* no i2c->irq implies polling */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 result =3D request_irq(i2c->irq, xiic_isr,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+0, op->name, i2c);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (result < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(i2c->dev, "failed t=
+o attach interrupt\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail_request;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev_set_drvdata(&op->dev, i2c);
+> + =A0 =A0 =A0 i2c->adap =3D xiic_adapter;
+> + =A0 =A0 =A0 i2c_set_adapdata(&i2c->adap, i2c);
+> + =A0 =A0 =A0 i2c->adap.dev.parent =3D &op->dev;
+> + =A0 =A0 =A0 i2c->adap.dev.of_node =3D of_node_get(op->dev.of_node);
+> +
+> + =A0 =A0 =A0 result =3D i2c_add_adapter(&i2c->adap);
+> + =A0 =A0 =A0 if (result < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(i2c->dev, "failed to add adapter\n"=
+);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail_add;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dev_info(i2c->dev, "mapped to 0x%08X, irq=3D%d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 (unsigned int)i2c->base, i2c->irq);
+> +
+> + =A0 =A0 =A0 xiic_reinit(i2c);
+> + =A0 =A0 =A0 of_i2c_register_devices(&i2c->adap);
+> +
+> + =A0 =A0 =A0 return result;
+> +
+> +fail_add:
+> + =A0 =A0 =A0 dev_set_drvdata(&op->dev, NULL);
+> + =A0 =A0 =A0 free_irq(i2c->irq, i2c);
+> +fail_request:
+> + =A0 =A0 =A0 irq_dispose_mapping(i2c->irq);
+> + =A0 =A0 =A0 iounmap(i2c->base);
+> +fail_map:
+> + =A0 =A0 =A0 kfree(i2c);
+> + =A0 =A0 =A0 return result;
 > +}
 > +
-> +static void i2c_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
-> + =A0 =A0 =A0 unsigned long reg)
+> +static int __devexit xiic_i2c_of_remove(struct platform_device *op)
 > +{
-> + =A0 =A0 =A0 writel(val, i2c_dev->base + tegra_i2c_reg_addr(i2c_dev,=
- reg));
+> + =A0 =A0 =A0 struct xiic_i2c *i2c =3D dev_get_drvdata(&op->dev);
+> +
+> + =A0 =A0 =A0 i2c_del_adapter(&i2c->adap);
+> + =A0 =A0 =A0 xiic_deinit(i2c);
+> + =A0 =A0 =A0 dev_set_drvdata(&op->dev, NULL);
+> +
+> + =A0 =A0 =A0 if (i2c->irq)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 free_irq(i2c->irq, i2c);
+> +
+> + =A0 =A0 =A0 irq_dispose_mapping(i2c->irq);
+> + =A0 =A0 =A0 iounmap(i2c->base);
+> + =A0 =A0 =A0 kfree(i2c);
+> + =A0 =A0 =A0 return 0;
 > +}
 > +
-> +static u32 i2c_readl(struct tegra_i2c_dev *i2c_dev, unsigned long re=
-g)
-> +{
-> + =A0 =A0 =A0 return readl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev=
-, reg));
-> +}
+> +/* Match table for of_platform binding */
+> +static struct of_device_id __devinitdata xilinx_iic_of_match[] =3D {
+> + =A0 =A0 =A0 { .compatible =3D "xlnx,xps-iic-2.00.a", },
+> + =A0 =A0 =A0 {},
+> +};
+> +MODULE_DEVICE_TABLE(of, xilinx_iic_of_match);
 > +
-> +static void i2c_writesl(struct tegra_i2c_dev *i2c_dev, void *data,
-> + =A0 =A0 =A0 unsigned long reg, int len)
-> +{
-> + =A0 =A0 =A0 writesl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg=
-), data, len);
-> +}
+> +static struct platform_driver xiic_i2c_driver =3D {
+> + =A0 =A0 =A0 .probe =A0 =3D xiic_i2c_of_probe,
+> + =A0 =A0 =A0 .remove =A0=3D __devexit_p(xiic_i2c_of_remove),
+> + =A0 =A0 =A0 .driver =A0=3D {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .owner =3D THIS_MODULE,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .name =3D DRIVER_NAME,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .of_match_table =3D xilinx_iic_of_match,
+> + =A0 =A0 =A0 },
+> +};
+> +#endif
+
 > +
-> +static void i2c_readsl(struct tegra_i2c_dev *i2c_dev, void *data,
-> + =A0 =A0 =A0 unsigned long reg, int len)
-> +{
-> + =A0 =A0 =A0 readsl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg)=
-, data, len);
-> +}
+> =A0static int __init xiic_i2c_init(void)
+> =A0{
+> =A0 =A0 =A0 =A0return platform_driver_register(&xiic_i2c_driver);
+> --
+> 1.5.5.6
+>
+>
 
 
-All of the above pass in i2c_dev to tegra_i2c_reg_addr, might as well
-do the base addition in there.
 
-> diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
-> new file mode 100644
-> index 0000000..9c85da4
-> --- /dev/null
-> +++ b/include/linux/i2c-tegra.h
-> @@ -0,0 +1,25 @@
-> +/*
-> + * drivers/i2c/busses/i2c-tegra.c
-> + *
-> + * Copyright (C) 2010 Google, Inc.
+-- =
 
-2011?
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
