@@ -1,285 +1,162 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: xiic: Use 32bit accesses only
-Date: Tue, 22 Feb 2011 11:08:28 -0700
-Message-ID: <AANLkTinRVKMdOU-8DYLHe5q92nb3ysKnnG-jq8f++AEs@mail.gmail.com>
-References: <1298396971-611-1-git-send-email-monstr@monstr.eu> <1298396971-611-2-git-send-email-monstr@monstr.eu>
+Subject: Re: [PATCH v3 1/2] i2c: xiic: Add OF support for Xilinx i2c bus
+	interface
+Date: Tue, 22 Feb 2011 11:11:26 -0700
+Message-ID: <AANLkTi=NLhAiyznBbKjSf7tpeGrGi7NOK2cHUWhfNzG-@mail.gmail.com>
+References: <1298396971-611-1-git-send-email-monstr@monstr.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1298396971-611-2-git-send-email-monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1298396971-611-1-git-send-email-monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 To: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, john.williams-g5w7nrANp4BDPfheJLI6IQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, John.Linn-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, john.williams-g5w7nrANp4BDPfheJLI6IQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 22, 2011 at 10:49 AM, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org> wrote=
-:
-> i2c driver is used for LE/BE that's why is useful to use
-> 32bit accesses. Then it is not necessary to solve any
-> endian issues.
+[cc'ing Ben Dooks, embedded i2c maintainer]
 
-Are you sure?  I would expect the BE version needs to use
-io{read,write}32be variants of the accessors.  What platforms have you
-tested on?
-
+On Tue, Feb 22, 2011 at 10:49 AM, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org> wrote:
+> Add OF support to Xilinx i2c bus interface.
+> It is used on Microblaze systems.
 >
 > Signed-off-by: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+
+Ben, since this one depends on a patch in my tree, do you want me to pick i=
+t up?
+
+g.
+
 > ---
-> =A0drivers/i2c/busses/i2c-xiic.c | =A0 66 +++++++++++++++++----------=
---------------
-> =A01 files changed, 27 insertions(+), 39 deletions(-)
+> =A0drivers/i2c/busses/i2c-xiic.c | =A0 37 +++++++++++++++++++++++++++++--=
+------
+> =A01 files changed, 29 insertions(+), 8 deletions(-)
 >
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-x=
-iic.c
-> index 0b7647b..78b3b82 100644
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index a9c419e..0b7647b 100644
 > --- a/drivers/i2c/busses/i2c-xiic.c
 > +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -178,21 +178,6 @@ struct xiic_i2c {
-> =A0static void xiic_start_xfer(struct xiic_i2c *i2c);
-> =A0static void __xiic_start_xfer(struct xiic_i2c *i2c);
+> @@ -41,6 +41,11 @@
+> =A0#include <linux/io.h>
+> =A0#include <linux/slab.h>
 >
-> -static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 va=
-lue)
-> -{
-> - =A0 =A0 =A0 iowrite8(value, i2c->base + reg);
-> -}
+> +#include <linux/of.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_i2c.h>
+> +#include <linux/of_address.h>
+
+Nit: This should not be separate from the rest of the include block.
+The blank line between slab.h and of.h can be dropped.
+
+> +
+> =A0#define DRIVER_NAME "xiic-i2c"
+>
+> =A0enum xilinx_i2c_state {
+> @@ -426,7 +431,7 @@ static void xiic_process(struct xiic_i2c *i2c)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0xiic_wakeup(i2c, STATE_ERR=
+OR);
+>
+> =A0 =A0 =A0 =A0} else if (pend & (XIIC_INTR_TX_EMPTY_MASK | XIIC_INTR_TX_=
+HALF_MASK)) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Transmit register/FIFO is empty or =BD e=
+mpty */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* Transmit register/FIFO is empty or 1/2 e=
+mpty */
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0clr =3D pend &
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(XIIC_INTR_TX_EMPTY_MASK |=
+ XIIC_INTR_TX_HALF_MASK);
+> @@ -704,10 +709,6 @@ static int __devinit xiic_i2c_probe(struct platform_=
+device *pdev)
+> =A0 =A0 =A0 =A0if (irq < 0)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto resource_missing;
+>
+> - =A0 =A0 =A0 pdata =3D (struct xiic_i2c_platform_data *) pdev->dev.platf=
+orm_data;
+> - =A0 =A0 =A0 if (!pdata)
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
 > -
-> -static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
-> -{
-> - =A0 =A0 =A0 return ioread8(i2c->base + reg);
-> -}
-> -
-> -static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 =
-value)
-> -{
-> - =A0 =A0 =A0 iowrite16(value, i2c->base + reg);
-> -}
-> -
-> =A0static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, in=
-t value)
-> =A0{
-> =A0 =A0 =A0 =A0iowrite32(value, i2c->base + reg);
-> @@ -230,10 +215,11 @@ static inline void xiic_irq_clr_en(struct xiic_=
-i2c *i2c, u32 mask)
-> =A0static void xiic_clear_rx_fifo(struct xiic_i2c *i2c)
-> =A0{
-> =A0 =A0 =A0 =A0u8 sr;
-> - =A0 =A0 =A0 for (sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
-> + =A0 =A0 =A0 for (sr =3D xiic_getreg32(i2c, XIIC_SR_REG_OFFSET);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0!(sr & XIIC_SR_RX_FIFO_EMPTY_MASK);
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OF=
-=46SET))
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_DRR_REG_OFFSET);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 sr =3D xiic_getreg32(i2c, XIIC_SR_REG_O=
-=46FSET)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_DRR_REG_OFFSET)=
-;
+> =A0 =A0 =A0 =A0i2c =3D kzalloc(sizeof(*i2c), GFP_KERNEL);
+> =A0 =A0 =A0 =A0if (!i2c)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENOMEM;
+> @@ -730,6 +731,7 @@ static int __devinit xiic_i2c_probe(struct platform_d=
+evice *pdev)
+> =A0 =A0 =A0 =A0i2c->adap =3D xiic_adapter;
+> =A0 =A0 =A0 =A0i2c_set_adapdata(&i2c->adap, i2c);
+> =A0 =A0 =A0 =A0i2c->adap.dev.parent =3D &pdev->dev;
+> + =A0 =A0 =A0 i2c->adap.dev.of_node =3D of_node_get(pdev->dev.of_node);
+>
+> =A0 =A0 =A0 =A0xiic_reinit(i2c);
+>
+> @@ -748,9 +750,16 @@ static int __devinit xiic_i2c_probe(struct platform_=
+device *pdev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto add_adapter_failed;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 /* add in known devices to the bus */
+> - =A0 =A0 =A0 for (i =3D 0; i < pdata->num_devices; i++)
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_new_device(&i2c->adap, pdata->devices +=
+ i);
+> + =A0 =A0 =A0 dev_info(&pdev->dev, "mapped to 0x%08X, irq=3D%d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 (unsigned int)i2c->base, irq);
+> +
+> + =A0 =A0 =A0 pdata =3D (struct xiic_i2c_platform_data *) pdev->dev.platf=
+orm_data;
+
+While you're touching this code anyway, the cast is unnecessary.
+
+> + =A0 =A0 =A0 if (pdata) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* add in known devices to the bus */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_devices; i++)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_new_device(&i2c->adap, =
+pdata->devices + i);
 > + =A0 =A0 =A0 }
-> =A0}
+> + =A0 =A0 =A0 of_i2c_register_devices(&i2c->adap);
 >
-> =A0static void xiic_reinit(struct xiic_i2c *i2c)
-> @@ -241,13 +227,13 @@ static void xiic_reinit(struct xiic_i2c *i2c)
-> =A0 =A0 =A0 =A0xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK=
-);
+> =A0 =A0 =A0 =A0return 0;
 >
-> =A0 =A0 =A0 =A0/* Set receive Fifo depth to maximum (zero based). */
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, IIC_RX_FIFO_DEPT=
-H - 1);
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_RFD_REG_OFFSET, IIC_RX_FIFO_DEP=
-TH - 1);
+> @@ -799,12 +808,24 @@ static int __devexit xiic_i2c_remove(struct platfor=
+m_device* pdev)
+> =A0/* work with hotplug and coldplug */
+> =A0MODULE_ALIAS("platform:"DRIVER_NAME);
 >
-> =A0 =A0 =A0 =A0/* Reset Tx Fifo. */
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_TX_FIFO_R=
-ESET_MASK);
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_TX_FIFO_=
-RESET_MASK);
+> +#ifdef CONFIG_OF
+> +/* Match table for of_platform binding */
+> +static struct of_device_id __devinitdata xilinx_iic_of_match[] =3D {
+> + =A0 =A0 =A0 { .compatible =3D "xlnx,xps-iic-2.00.a", },
+> + =A0 =A0 =A0 {},
+> +};
+> +MODULE_DEVICE_TABLE(of, xilinx_iic_of_match);
+> +#else
+> +# define xilinx_iic_of_match NULL
+> +#endif
+> +
+> =A0static struct platform_driver xiic_i2c_driver =3D {
+> =A0 =A0 =A0 =A0.probe =A0 =3D xiic_i2c_probe,
+> =A0 =A0 =A0 =A0.remove =A0=3D __devexit_p(xiic_i2c_remove),
+> =A0 =A0 =A0 =A0.driver =A0=3D {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =3D THIS_MODULE,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =3D DRIVER_NAME,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .of_match_table =3D xilinx_iic_of_match,
+> =A0 =A0 =A0 =A0},
+> =A0};
 >
-> =A0 =A0 =A0 =A0/* Enable IIC Device, remove Tx Fifo reset & disable g=
-eneral call. */
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_ENABLE_DE=
-VICE_MASK);
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_ENABLE_D=
-EVICE_MASK);
->
-> =A0 =A0 =A0 =A0/* make sure RX fifo is empty */
-> =A0 =A0 =A0 =A0xiic_clear_rx_fifo(i2c);
-> @@ -265,8 +251,9 @@ static void xiic_deinit(struct xiic_i2c *i2c)
-> =A0 =A0 =A0 =A0xiic_setreg32(i2c, XIIC_RESETR_OFFSET, XIIC_RESET_MASK=
-);
->
-> =A0 =A0 =A0 =A0/* Disable IIC Device. */
-> - =A0 =A0 =A0 cr =3D xiic_getreg8(i2c, XIIC_CR_REG_OFFSET);
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_CR_REG_OFFSET, cr & ~XIIC_CR_ENA=
-BLE_DEVICE_MASK);
-> + =A0 =A0 =A0 cr =3D xiic_getreg32(i2c, XIIC_CR_REG_OFFSET);
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_CR_REG_OFFSET,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 cr & ~XIIC_CR_ENABLE_DEVICE_MASK);
-> =A0}
->
-> =A0static void xiic_read_rx(struct xiic_i2c *i2c)
-> @@ -274,22 +261,22 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
-> =A0 =A0 =A0 =A0u8 bytes_in_fifo;
-> =A0 =A0 =A0 =A0int i;
->
-> - =A0 =A0 =A0 bytes_in_fifo =3D xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET=
-) + 1;
-> + =A0 =A0 =A0 bytes_in_fifo =3D xiic_getreg32(i2c, XIIC_RFO_REG_OFFSE=
-T) + 1;
->
-> =A0 =A0 =A0 =A0dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo=
-: %d, msg: %d"
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0", SR: 0x%x, CR: 0x%x\n",
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__func__, bytes_in_fifo, xiic_rx_space=
-(i2c),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_SR_REG_OFFSET),
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_CR_REG_OFFSET))=
-;
->
-> =A0 =A0 =A0 =A0if (bytes_in_fifo > xiic_rx_space(i2c))
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0bytes_in_fifo =3D xiic_rx_space(i2c);
->
-> =A0 =A0 =A0 =A0for (i =3D 0; i < bytes_in_fifo; i++)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c->rx_msg->buf[i2c->rx_pos++] =3D
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_=
-DRR_REG_OFFSET);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC=
-_DRR_REG_OFFSET);
->
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET,
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_RFD_REG_OFFSET,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(xiic_rx_space(i2c) > IIC_RX_FIFO_DEPT=
-H) ?
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0IIC_RX_FIFO_DEPTH - 1 : =A0xiic_rx_spa=
-ce(i2c) - 1);
-> =A0}
-> @@ -297,7 +284,7 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
-> =A0static int xiic_tx_fifo_space(struct xiic_i2c *i2c)
-> =A0{
-> =A0 =A0 =A0 =A0/* return the actual space left in the FIFO */
-> - =A0 =A0 =A0 return IIC_TX_FIFO_DEPTH - xiic_getreg8(i2c, XIIC_TFO_R=
-EG_OFFSET) - 1;
-> + =A0 =A0 =A0 return IIC_TX_FIFO_DEPTH - xiic_getreg32(i2c, XIIC_TFO_=
-REG_OFFSET) - 1;
-> =A0}
->
-> =A0static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
-> @@ -317,9 +304,9 @@ static void xiic_fill_tx_fifo(struct xiic_i2c *i2=
-c)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data |=3D XIIC_TX_DYN_=
-STOP_MASK;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(i2c->adap.dev.=
-parent, "%s TX STOP\n", __func__);
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg16(i2c, XIIC=
-_DTR_REG_OFFSET, data);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg32(i2c, XIIC=
-_DTR_REG_OFFSET, data);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0} else
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_=
-DTR_REG_OFFSET, data);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg32(i2c, XIIC=
-_DTR_REG_OFFSET, data);
-> =A0 =A0 =A0 =A0}
-> =A0}
->
-> @@ -348,7 +335,8 @@ static void xiic_process(struct xiic_i2c *i2c)
->
-> =A0 =A0 =A0 =A0dev_dbg(i2c->adap.dev.parent, "%s entry, IER: 0x%x, IS=
-R: 0x%x, "
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"pend: 0x%x, SR: 0x%x, msg: %p, nmsgs:=
- %d\n",
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__, ier, isr, pend, xiic_getreg8(=
-i2c, XIIC_SR_REG_OFFSET),
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __func__, ier, isr, pend,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_SR_REG_OFFSET),
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c->tx_msg, i2c->nmsgs);
->
-> =A0 =A0 =A0 =A0/* Do not processes a devices interrupts if the device=
- has no
-> @@ -479,7 +467,7 @@ out:
->
-> =A0static int xiic_bus_busy(struct xiic_i2c *i2c)
-> =A0{
-> - =A0 =A0 =A0 u8 sr =3D xiic_getreg8(i2c, XIIC_SR_REG_OFFSET);
-> + =A0 =A0 =A0 u8 sr =3D xiic_getreg32(i2c, XIIC_SR_REG_OFFSET);
->
-> =A0 =A0 =A0 =A0return (sr & XIIC_SR_BUS_BUSY_MASK) ? -EBUSY : 0;
-> =A0}
-> @@ -522,17 +510,17 @@ static void xiic_start_recv(struct xiic_i2c *i2=
-c)
-> =A0 =A0 =A0 =A0rx_watermark =3D msg->len;
-> =A0 =A0 =A0 =A0if (rx_watermark > IIC_RX_FIFO_DEPTH)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rx_watermark =3D IIC_RX_FIFO_DEPTH;
-> - =A0 =A0 =A0 xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1=
-);
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - =
-1);
->
-> =A0 =A0 =A0 =A0if (!(msg->flags & I2C_M_NOSTART))
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* write the address */
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_DTR_REG_OFFSET,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(msg->addr << 1) | XII=
-C_READ_OPERATION |
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0XIIC_TX_DYN_START_MASK=
-);
->
-> =A0 =A0 =A0 =A0xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
->
-> - =A0 =A0 =A0 xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
-> + =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_DTR_REG_OFFSET,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0msg->len | ((i2c->nmsgs =3D=3D 1) ? XI=
-IC_TX_DYN_STOP_MASK : 0));
-> =A0 =A0 =A0 =A0if (i2c->nmsgs =3D=3D 1)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* very last, enable bus not busy as w=
-ell */
-> @@ -551,7 +539,7 @@ static void xiic_start_send(struct xiic_i2c *i2c)
-> =A0 =A0 =A0 =A0dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len:=
- %d, "
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"ISR: 0x%x, CR: 0x%x\n",
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__func__, msg, msg->len, xiic_getreg32=
-(i2c, XIIC_IISR_OFFSET),
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_CR_REG_OFFSET))=
-;
->
-> =A0 =A0 =A0 =A0if (!(msg->flags & I2C_M_NOSTART)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* write the address */
-> @@ -561,7 +549,7 @@ static void xiic_start_send(struct xiic_i2c *i2c)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* no data and last me=
-ssage -> add STOP */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data |=3D XIIC_TX_DYN_=
-STOP_MASK;
->
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,=
- data);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_setreg32(i2c, XIIC_DTR_REG_OFFSET,=
- data);
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0xiic_fill_tx_fifo(i2c);
-> @@ -653,7 +641,7 @@ static int xiic_xfer(struct i2c_adapter *adap, st=
-ruct i2c_msg *msgs, int num)
-> =A0 =A0 =A0 =A0int err;
->
-> =A0 =A0 =A0 =A0dev_dbg(adap->dev.parent, "%s entry SR: 0x%x\n", __fun=
-c__,
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg8(i2c, XIIC_SR_REG_OFFSET));
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 xiic_getreg32(i2c, XIIC_SR_REG_OFFSET))=
-;
->
-> =A0 =A0 =A0 =A0err =3D xiic_busy(i2c);
-> =A0 =A0 =A0 =A0if (err)
 > --
 > 1.5.5.6
 >
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 > More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at =A0http://www.tux.org/lkml/
@@ -287,6 +164,7 @@ l" in
 
 
 
---=20
+-- =
+
 Grant Likely, B.Sc., P.Eng.
 Secret Lab Technologies Ltd.
