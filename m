@@ -1,56 +1,53 @@
-From: Anand Gadiyar <gadiyar@ti.com>
-Subject: [PATCH 1/2] i2c: i2c-omap: fix build break with CONFIG_SUSPEND=n
-Date: Tue, 22 Feb 2011 12:21:26 +0530
-Message-ID: <1298357487-10966-1-git-send-email-gadiyar@ti.com>
-Return-path: <linux-next-owner@vger.kernel.org>
-Sender: linux-next-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-next@vger.kernel.org
-Cc: Sourav Poddar <sourav.poddar@ti.com>, Anand Gadiyar <gadiyar@ti.com>, Ben Dooks <ben-linux@fluff.org>
+From: Balaji T K <balajitk@ti.com>
+Subject: [PATCH] i2c-omap: fix build for !CONFIG_SUSPEND
+Date: Tue, 22 Feb 2011 12:25:39 +0530
+Message-ID: <1298357739-5132-1-git-send-email-balajitk@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, ben-linux@fluff.org
+Cc: linux-omap@vger.kernel.org, khilman@ti.com, Balaji T K <balajitk@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sourav Poddar <sourav.poddar@ti.com>
+fix the build break when !CONFIG_SUSPEND
 
-When CONFIG_SUSPEND=n, we get the following build break when
-building for OMAP targets. Fix this.
-
-  CC      drivers/i2c/busses/i2c-omap.o
 drivers/i2c/busses/i2c-omap.c:1173: error: lvalue required as unary '&' operand
-make[1]: *** [drivers/i2c/busses/i2c-omap.o] Error 1
-make: *** [drivers/i2c/busses/] Error 2
+make[3]: *** [drivers/i2c/busses/i2c-omap.o] Error 1
+make[2]: *** [drivers/i2c/busses] Error 2
+make[1]: *** [drivers/i2c] Error 2
+make: *** [drivers] Error 2
 
-Signed-off-by: Sourav Poddar <sourav.poddar@ti.com>
-Signed-off-by: Anand Gadiyar <gadiyar@ti.com>
-Cc: Ben Dooks <ben-linux@fluff.org>
---
-This is a fix for a trivial build error, seen with linux-next
-as of 20110217.
+Signed-off-by: Balaji T K <balajitk@ti.com>
+---
+introduced by commit f6f98d72575031b0c03416a28a0d580128114b74
+applies on i2c-fixes branch
 
  drivers/i2c/busses/i2c-omap.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-Index: linux-omap-usb/drivers/i2c/busses/i2c-omap.c
-===================================================================
---- linux-omap-usb.orig/drivers/i2c/busses/i2c-omap.c
-+++ linux-omap-usb/drivers/i2c/busses/i2c-omap.c
-@@ -1156,10 +1156,11 @@ static int omap_i2c_resume(struct device
- 	return 0;
- }
- 
--static struct dev_pm_ops omap_i2c_pm_ops = {
-+static struct dev_pm_ops omap_i2c_pm = {
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 0541df9..adc1ee5 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1160,8 +1160,9 @@ static struct dev_pm_ops omap_i2c_pm_ops = {
  	.suspend = omap_i2c_suspend,
  	.resume = omap_i2c_resume,
  };
-+#define omap_i2c_pm_ops (&omap_i2c_pm)
++#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
  #else
- #define omap_i2c_pm_ops NULL
+-#define omap_i2c_pm_ops NULL
++#define OMAP_I2C_PM_OPS NULL
  #endif
-@@ -1170,7 +1171,7 @@ static struct platform_driver omap_i2c_d
+ 
+ static struct platform_driver omap_i2c_driver = {
+@@ -1170,7 +1171,7 @@ static struct platform_driver omap_i2c_driver = {
  	.driver		= {
  		.name	= "omap_i2c",
  		.owner	= THIS_MODULE,
 -		.pm     = &omap_i2c_pm_ops,
-+		.pm     = omap_i2c_pm_ops,
++		.pm	= OMAP_I2C_PM_OPS,
  	},
  };
  
+-- 
+1.7.0.4
+
